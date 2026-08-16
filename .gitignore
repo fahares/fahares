@@ -1,0 +1,19 @@
+# Ignore large source dumps
+sources/json/
+sources/text/*.md
+*.Zone.Identifier
+
+# Node / Next.js
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+
+# Environment / Logs
+.env
+.env.local
+*.log
+
+# Docker data
+pgdata/
+meilidata/
