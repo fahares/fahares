@@ -17,3 +17,8 @@ web/build/
 # Docker data
 pgdata/
 meilidata/
+
+# Scratch / Temp
+scratch/
+__pycache__/
+*.pyc
