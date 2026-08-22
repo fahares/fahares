@@ -4,6 +4,11 @@ import re
 
 # Comprehensive OCR anomaly repair mapping based on Fankha web OCR patterns
 OCR_CORRECTIONS = {
+    # Dedicated bibliographical terms standardizations
+    r'\bاهدایا\s+به:': 'اهدا به:',
+    r'\bاهداء\s+به:': 'اهدا به:',
+    r'\bالذا\s+ت\b': 'الذات',
+
     # Common mixed Latin-Persian / Arabic typos
     r'\bفوqe\b': 'فوق',
     r'\bزerkوب\b': 'زرکوب',
@@ -62,6 +67,35 @@ def repair_text(text):
         t = re.sub(pat, rep, t)
     return t
 
+def repair_transliteration_with_fa_context(title_fa, title_lat):
+    """
+    Cross-validates Latin Romanization against corresponding Persian/Arabic Title.
+    Fixes OCR misrecognition of 'ذ' (ḏ) misread as 'ḡ' when 'ذ' is in Persian title.
+    Enforces assimilation of solar letter 'ذ' (aḏ-ḏāt).
+    """
+    if not title_fa or not title_lat: return title_lat
+    lat = title_lat
+    
+    # Check if Persian/Arabic title contains 'ذ' (Dhal)
+    if 'ذ' in title_fa:
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ad-ḡāt(?![a-zA-Z\u0100-\u024F])', 'aḏ-ḏāt', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ad-ḏāt(?![a-zA-Z\u0100-\u024F])', 'aḏ-ḏāt', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])al-ḡāt(?![a-zA-Z\u0100-\u024F])', 'aḏ-ḏāt', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ḡāt(?![a-zA-Z\u0100-\u024F])', 'ḏāt', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ruṣḡ(?![a-zA-Z\u0100-\u024F])', 'ruṣāḏ', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ḡaxīra(?![a-zA-Z\u0100-\u024F])', 'ḏaxīra', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ḡarī‘a(?![a-zA-Z\u0100-\u024F])', 'ḏarī‘a', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ḡikr(?![a-zA-Z\u0100-\u024F])', 'ḏikr', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ḡihn(?![a-zA-Z\u0100-\u024F])', 'ḏihn', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])ḡahab(?![a-zA-Z\u0100-\u024F])', 'ḏahab', lat)
+
+    # Check if Persian/Arabic title contains 'احد' (Aḥad / Aḥadiyya)
+    if 'احد' in title_fa:
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])aḡadiyya(?![a-zA-Z\u0100-\u024F])', 'aḥadiyya', lat)
+        lat = re.sub(r'(?<![a-zA-Z\u0100-\u024F])aḡad(?![a-zA-Z\u0100-\u024F])', 'aḥad', lat)
+        
+    return lat
+
 def main():
     txt_files = sorted(glob.glob('sources/text/*.txt'))
     print(f"در حال اعمال اصلاحات هوشمند OCR روی {len(txt_files)} فایل متنی...")
@@ -81,3 +115,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
