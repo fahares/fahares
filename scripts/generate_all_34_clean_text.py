@@ -4,8 +4,8 @@ Convert 68 OCR JSON tree files (sources/json/1.json..68.json) into 34 clean, Vol
 using strict Volume Start Markers defined in sources/volume_starts.txt:
 - sources/text/fahares_vol_01.txt .. sources/text/fahares_vol_34.txt
 - sources/text/fankha-full.txt
-- clean_text/fahares_vol_01.txt .. clean_text/fahares_vol_34.txt
-- clean_text/fankha-full.txt
+- sources/text/fahares_vol_01.txt .. sources/text/fahares_vol_34.txt
+- sources/text/fankha-full.txt
 - reports/global_reconstructed_titles.md
 """
 
@@ -633,8 +633,7 @@ def main():
     print(f"📖 Loaded {len(vol_starts)} explicit volume start markers from sources/volume_starts.txt")
 
     os.makedirs("sources/text", exist_ok=True)
-    os.makedirs("clean_text", exist_ok=True)
-    os.makedirs("reports", exist_ok=True)
+        os.makedirs("reports", exist_ok=True)
 
     vol_pages_contents = {v: [] for v in range(1, 35)}
     curr_vol = 1
@@ -727,7 +726,7 @@ def main():
                     final_text += f"\n\n{txt}"
                     
         vol_path_sources = f"sources/text/fahares_vol_{vol:02d}.txt"
-        vol_path_clean = f"clean_text/fahares_vol_{vol:02d}.txt"
+        vol_path_clean = f"sources/text/fahares_vol_{vol:02d}.txt"
         
         with open(vol_path_sources, 'w', encoding='utf-8') as f:
             f.write(final_text)
@@ -739,7 +738,7 @@ def main():
 
     # Combined master file across all 34 volumes
     full_path_sources = "sources/text/fankha-full.txt"
-    full_path_clean = "clean_text/fankha-full.txt"
+    full_path_clean = "sources/text/fankha-full.txt"
     combined_content = "\n\n".join(full_text_list)
     
     with open(full_path_sources, 'w', encoding='utf-8') as f:
