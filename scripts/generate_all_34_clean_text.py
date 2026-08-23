@@ -4,8 +4,6 @@ Convert 68 OCR JSON tree files (sources/json/1.json..68.json) into 34 clean, Vol
 using strict Volume Start Markers defined in sources/volume_starts.txt:
 - sources/text/fahares_vol_01.txt .. sources/text/fahares_vol_34.txt
 - sources/text/fankha-full.txt
-- sources/text/fahares_vol_01.txt .. sources/text/fahares_vol_34.txt
-- sources/text/fankha-full.txt
 - reports/global_reconstructed_titles.md
 """
 
@@ -13,13 +11,13 @@ import sys
 import os
 import json
 import re
-import shutil
 from statistics import median
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.apply_ocr_corrections import repair_text, repair_transliteration_with_fa_context
 
-PERSIAN_TO_ENGLISH_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
+# Convert BOTH Persian (۰-۹) and Arabic (٠-٩) digits to standard 0-9
+ALL_DIGITS_TO_ENGLISH = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
 FOREIGN_SHELF_BRANDS = r'(?:Add|Or|Suppl|MS|Cod|Rieu|Blochet|Ethé|Lat|Ar|Pers|BOD|Cambridge|Paris|London|Berlin|Vatican)'
 TRANSLIT_CHAR_CLASS = r'[a-zA-Z\u0100-\u024F\u1E00-\u1EFF]'
 TRANSLIT_START_REGEX = rf'^(?:\(-|\()?\s*(?:=\s*)?(?:\d{{3,4}}\s*[\-–]\s*)?(?!{FOREIGN_SHELF_BRANDS}\b)[\'\`\’]?\s*{TRANSLIT_CHAR_CLASS}'
@@ -27,6 +25,8 @@ CATEGORY_COMPLETE_REGEX = r'/\s*[\u0600-\u06FF\s]+\s*/\s*[\u0600-\u06FF]+$'
 
 COMMON_CITIES_AND_LIBS = r'(?:تهران|مشهد|قم|اصفهان|شیراز|تبریز|یزد|کرمان|همدان|رشت|ساری|قزوین|کاشان|نجف|کربلا|بغداد|کاظمین|سامرا|دمشق|حلب|بیروت|قاهره|استانبول|آنکارا|باکو|ایروان|دوشنبه|تاشکند|سمرقند|بخارا|کابل|هرات|لاهور|کراچی|اسلام[\s\u200c]*آباد|پیشاور|لکنهو|حیدرآباد|دهلی|علیگر|کلکته|بمبئی|پاتنه|رامپور|لندن|پاریس|برلین|وین|رم|واتیکان|سن[\s\u200c]*پترزبورگ|مسکو|واشنگتن|نیویورک|پرینستون|میشیگان|هاروارد|لس[\s\u200c]*آنجلس|مجلس|دانشگاه|مرعشی|ملی|رضوی|ملک|سنا|سلطنتی|دائر[ةه]\s*المعارف|دایر[ةه]\s*المعارف|فرهنگستان|مرکز\s*احیاء|موزه|آستان\s*قدس|الهیات|ادبیات|حقوق|پزشکی|سپهسالار|شهید\s*مطهری|وزیری|گوهرشاد|چاپ)'
 MANUSCRIPT_ENTRY_REGEX = rf'[\d۰-۹]+\.\s+(?:{COMMON_CITIES_AND_LIBS}\s*[؛;:]|[آ-ی\s]{{2,30}}[؛;]\s*(?:شماره نسخه|ش:|شماره:|نسخه:|کتابخانه|مجموعه|ف:|عکس|فیلم|چاپ|[آ-ی\s]+[؛;]))'
+
+ALL_ARROWS = r'[←→➡➔➜➤➥◀▶◄►▲▼–—]'
 
 EXPLICIT_RECONSTRUCTED_TITLES = {
     r"zaxā'?er-ol\s+asfār": "● ذخائر الاسفار",
@@ -81,7 +81,7 @@ def load_volume_starts(config_path="sources/volume_starts.txt"):
             line = line.strip()
             if not line or line.startswith('#'): continue
             
-            line_clean = line.translate(PERSIAN_TO_ENGLISH_DIGITS)
+            line_clean = line.translate(ALL_DIGITS_TO_ENGLISH)
             m = re.search(r'(?:vol(?:ume)?\s*[_:]?\s*|جلد\s*)?(\d+)\s*[:=]\s*(\d+\.json)\s*[/,:]?\s*(?:sheet|page|برگه|صفحه)?\s*[_:]?\s*(\d+)', line_clean, flags=re.IGNORECASE)
             if m:
                 vol_num = int(m.group(1))
@@ -190,11 +190,11 @@ def clean_cross_reference_line(line):
     if not line:
         return [line]
         
-    has_arrow = any(c in line for c in ['←', '→', '➡', '➔', '➜', '➤', '➥'])
+    has_arrow = any(c in line for c in ['←', '→', '➡', '➔', '➜', '➤', '➥', '◀', '▶', '◄', '►', '▲', '▼'])
     if not has_arrow:
         return [line]
         
-    if re.search(r'\d+\s*[←→–—➤➥➡➔➜➢]\s*\d+', line):
+    if re.search(r'\d+\s*[←→–—➤➥➡➔➜➢◀▶◄►▲▼]\s*\d+', line):
         return [line]
         
     if bool(re.search(CATEGORY_COMPLETE_REGEX, line.split('\n')[0])):
@@ -208,11 +208,11 @@ def clean_cross_reference_line(line):
     cleaned_entries = []
     for p in raw_parts:
         p = p.strip()
-        p = re.sub(r'[→➡➔➜➤➥]', '←', p)
+        p = re.sub(r'[→➡➔➜➤➥◀▶◄►▲▼]', '←', p)
         if '←' in p:
-            p = re.sub(r'^[←→–—➤➥➡➔➜➢_•\.\-\s]+', '', p)
+            p = re.sub(r'^[←→–—➤➥➡➔➜➢◀▶◄►▲▼_•\.\-\s]+', '', p)
             p = re.sub(r'^س\.?\s+', '', p)
-            p = re.sub(r'^[←→–—➤➥➡➔➜➢_•\.\-\s]+', '', p)
+            p = re.sub(r'^[←→–—➤➥➡➔➜➢◀▶◄►▲▼_•\.\-\s]+', '', p)
             
             sub = [x.strip() for x in p.split('←') if x.strip()]
             if len(sub) >= 2:
@@ -241,7 +241,7 @@ def clean_html_semantically(html):
     t = html.replace('&lt;', '←')
     t = re.sub(r'<\s+(?![a-zA-Z/])', '← ', t)
     
-    t = re.sub(r'<br\s*/?>(?:\s*<[^>]+>)*\s*(?=[→–➤➥➡➔➜➢])', '\n', t, flags=re.IGNORECASE)
+    t = re.sub(r'<br\s*/?>(?:\s*<[^>]+>)*\s*(?=[→–➤➥➡➔➜➢◀▶◄►▲▼])', '\n', t, flags=re.IGNORECASE)
     t = re.sub(r'<br\s*/?>(?:\s*<[^>]+>)*\s*(?=س\.\s+)', '\n', t, flags=re.IGNORECASE)
     t = re.sub(rf'<br\s*/?>(?:\s*<[^>]+>)*\s*(?={MANUSCRIPT_ENTRY_REGEX})', '\n', t, flags=re.IGNORECASE)
     t = re.sub(rf'<br\s*/?>(?:\s*<[^>]+>)*\s*(?={TRANSLIT_START_REGEX[1:]})', '\n', t, flags=re.IGNORECASE)
@@ -263,7 +263,7 @@ def clean_html_semantically(html):
     for line in lines:
         cr_lines = clean_cross_reference_line(line)
         for cr_l in cr_lines:
-            tokens = re.split(r'\s+([→–➤➥➡➔➜➢])\s+', cr_l)
+            tokens = re.split(r'\s+([→–➤➥➡➔➜➢◀▶◄►▲▼])\s+', cr_l)
             if len(tokens) > 1:
                 rebuilt_entries = []
                 curr_entry = tokens[0]
@@ -310,7 +310,7 @@ def clean_html_semantically(html):
                                             final_lines.append(sp_clean)
                 
     text = "\n".join(final_lines)
-    text = text.translate(PERSIAN_TO_ENGLISH_DIGITS)
+    text = text.translate(ALL_DIGITS_TO_ENGLISH)
     
     text = re.sub(r'\(\s+', '(', text)
     text = re.sub(r'\s+\)', ')', text)
@@ -425,7 +425,7 @@ def process_page_node(page, last_page_num, last_title_fa="", title_incomplete=Fa
     for _, h_text, _ in headers:
         m_num = re.search(r'\d+', h_text)
         if m_num:
-            detected_num = int(m_num.group(0).translate(PERSIAN_TO_ENGLISH_DIGITS))
+            detected_num = int(m_num.group(0).translate(ALL_DIGITS_TO_ENGLISH))
             break
             
     if detected_num is not None:
@@ -602,8 +602,8 @@ def process_page_node(page, last_page_num, last_title_fa="", title_incomplete=Fa
             prev_last_line = merged_blocks[-1].strip().split('\n')[-1].strip()
             prev_is_title = (merged_blocks[-1].startswith('●') or bool(re.search(r'/\s*[\u0600-\u06FF\s]+\s*/(?:[\u0600-\u06FF]+)?$', prev_last_line)))
             prev_is_translit_block = bool(re.match(TRANSLIT_START_REGEX, prev_last_line))
-            prev_is_cross_ref = ('←' in prev_last_line and '/' not in prev_last_line and not re.search(r'\d+\s*←\s*\d+', prev_last_line))
-            curr_is_cross_ref = ('←' in first_line and '/' not in first_line and not re.search(r'\d+\s*←\s*\d+', first_line))
+            prev_is_cross_ref = (any(c in prev_last_line for c in ['←', '◀', '▶', '◄', '►']) and '/' not in prev_last_line and not re.search(r'\d+\s*[←→–—◀▶]\s*\d+', prev_last_line))
+            curr_is_cross_ref = (any(c in first_line for c in ['←', '◀', '▶', '◄', '►']) and '/' not in first_line and not re.search(r'\d+\s*[←→–—◀▶]\s*\d+', first_line))
             prev_no_term = not prev_last_line.endswith(('.', ':', '؛', ']', '»', '؟', '!', ')', '×'))
             curr_is_field = (first_line.startswith('آغاز:') or first_line.startswith('انجام:') or first_line.startswith('آغاز و انجام:') or first_line.startswith('خط:') or first_line.startswith('چاپ:') or is_entry_header or is_title_fa or curr_is_cross_ref)
             
@@ -633,7 +633,7 @@ def main():
     print(f"📖 Loaded {len(vol_starts)} explicit volume start markers from sources/volume_starts.txt")
 
     os.makedirs("sources/text", exist_ok=True)
-        os.makedirs("reports", exist_ok=True)
+    os.makedirs("reports", exist_ok=True)
 
     vol_pages_contents = {v: [] for v in range(1, 35)}
     curr_vol = 1
@@ -677,7 +677,7 @@ def main():
                     if c_bbox[1] < 250 and ('فهرستگان' in html or 'جلد' in html):
                         m_vol = re.search(r'جلد\s*([۰-۹\d]+)', html)
                         if m_vol:
-                            val = int(m_vol.group(1).translate(PERSIAN_TO_ENGLISH_DIGITS))
+                            val = int(m_vol.group(1).translate(ALL_DIGITS_TO_ENGLISH))
                             if 1 <= val <= 34:
                                 p_vol = val
                                 break
@@ -703,9 +703,17 @@ def main():
             continue
             
         final_text = ""
-        for item in items:
+        for item_idx, item in enumerate(items):
             tag = item['tag']
             txt = item['txt']
+            
+            # Accurate initial page number fix on the first item:
+            if item_idx == 0 and len(items) > 1:
+                m_next = re.search(r'<!-- page:\s*(\d+)\s*-->', items[1]['tag'])
+                if m_next:
+                    second_page_num = int(m_next.group(1))
+                    tag = f"<!-- page: {second_page_num - 1} -->"
+            
             if not final_text:
                 final_text = f"{tag}\n{txt}" if tag else txt
             else:
@@ -718,7 +726,7 @@ def main():
                         is_last_translit = bool(re.match(TRANSLIT_START_REGEX, last_line))
                         is_last_title = bool(final_text.strip().split('\n\n')[-1].startswith('●') or '/' in last_line)
                         
-                        if is_last_translit or is_last_title or last_line[-1] in ['.', ':', ']', '»', '؛'] or first_line_next.startswith('●') or first_line_next.startswith('–') or first_line_next.startswith('→'):
+                        if is_last_translit or is_last_title or last_line[-1] in ['.', ':', ']', '»', '؛'] or first_line_next.startswith('●') or first_line_next.startswith('–') or first_line_next.startswith('→') or first_line_next.startswith('←'):
                             final_text = final_text.rstrip() + f"\n{tag}\n" + txt.lstrip()
                         else:
                             final_text = final_text.rstrip() + f" {tag} " + txt.lstrip()
@@ -726,27 +734,21 @@ def main():
                     final_text += f"\n\n{txt}"
                     
         vol_path_sources = f"sources/text/fahares_vol_{vol:02d}.txt"
-        vol_path_clean = f"sources/text/fahares_vol_{vol:02d}.txt"
         
         with open(vol_path_sources, 'w', encoding='utf-8') as f:
             f.write(final_text)
-        with open(vol_path_clean, 'w', encoding='utf-8') as f:
-            f.write(final_text)
             
         full_text_list.append(final_text)
-        print(f"✅ Created Volume {vol:02d} -> {vol_path_clean} ({len(items)} pages, {len(final_text):,} chars)")
+        print(f"✅ Created Volume {vol:02d} -> {vol_path_sources} ({len(items)} pages, {len(final_text):,} chars)")
 
     # Combined master file across all 34 volumes
     full_path_sources = "sources/text/fankha-full.txt"
-    full_path_clean = "sources/text/fankha-full.txt"
     combined_content = "\n\n".join(full_text_list)
     
     with open(full_path_sources, 'w', encoding='utf-8') as f:
         f.write(combined_content)
-    with open(full_path_clean, 'w', encoding='utf-8') as f:
-        f.write(combined_content)
         
-    print(f"\n🎉 Combined master text created -> {full_path_clean} ({len(combined_content):,} chars)")
+    print(f"\n🎉 Combined master text created -> {full_path_sources} ({len(combined_content):,} chars)")
 
     # Write Global Reconstruction Report
     report_path = "reports/global_reconstructed_titles.md"
