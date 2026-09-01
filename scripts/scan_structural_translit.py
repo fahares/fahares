@@ -1,23 +1,4 @@
 #!/usr/bin/env python3
-"""
-Final Production Engine for Transliteration Isolation.
-Features:
-1. Strict boundary isolation for page tags (<!-- page: X -->) only between Persian and Latin blocks.
-2. Complete preservation of author life dates (e.g. (1889 - 1952), (- 1887), (- 20c), (18C)) inside author transliteration line.
-3. Multi-block compound lines segmented cleanly into:
-   [Title Transliteration]
-   [Persian Author]
-   [Author Transliteration (Dates)]
-   [Description / Notes]
-4. BiDi restoration for parenthesized dates:
-   - '(1600 - author)' -> 'author (- 1600)'
-   - '(- author 17c)' -> 'author (- 17c)'
-   - '(1889 - 1952 author)' -> 'author (1889 - 1952)'
-   - '(18C) author' -> 'author (18C)'
-5. Automatic removal of stray religious honorifics ((ع), (ص), (س), (عج)) at the end of transliteration lines.
-6. Foreign text in middle of paragraphs and within shelfmarks ([MS ...]) preserved intact.
-"""
-
 import os
 import sys
 import time
@@ -186,25 +167,43 @@ def segment_text_blocks(text):
     # 3. Middle Transliteration (e.g. Persian Author + Latin Author + Persian Description)
     first_latin = -1
     last_latin = -1
+    in_paren = False
+    
     for i, w in enumerate(words):
-        if any(c in TRANSLIT_CHARS for c in w) or (w.startswith('(') and any(c.isdigit() for c in w)):
-            if first_latin == -1: first_latin = i
-            last_latin = i
-        elif first_latin != -1 and last_latin == i - 1:
-            if any(c.isdigit() for c in w) or w in ['-', '–', 'C)', 'c)', '?)', ')']:
+        has_l = any(c in TRANSLIT_CHARS for c in w)
+        has_p = any(is_persian_char(c) for c in w)
+        
+        if '(' in w:
+            in_paren = True
+        
+        if first_latin == -1:
+            if has_l or (in_paren and not has_p and any(c.isdigit() or c in '-–' for c in w)):
+                first_latin = i
                 last_latin = i
-            elif w.startswith('(') and (any(c.isdigit() for c in w) or 'C' in w or 'c' in w):
+        else:
+            if in_paren:
+                last_latin = i
+                if ')' in w:
+                    in_paren = False
+            elif has_l or is_translit_word(w) or w in ['-', '–', '=']:
+                last_latin = i
+            elif w.startswith('('):
+                in_paren = True
                 last_latin = i
             else:
                 break
                 
-    if first_latin > 0 and last_latin < len(words) - 1:
-        p1 = ' '.join(words[:first_latin])
-        l_mid = ' '.join(words[first_latin:last_latin+1])
-        p2 = ' '.join(words[last_latin+1:])
+    if first_latin != -1 and last_latin != -1 and (first_latin > 0 or last_latin < len(words) - 1):
+        p1 = ' '.join(words[:first_latin]).strip()
+        l_mid = ' '.join(words[first_latin:last_latin+1]).strip()
+        p2 = ' '.join(words[last_latin+1:]).strip()
         l_norm = normalize_translit(l_mid)
         if is_genuine_transliteration(l_norm):
-            return [p1, l_norm, p2]
+            res = []
+            if p1: res.append(p1)
+            res.append(l_norm)
+            if p2: res.append(p2)
+            return res
 
     return [clean]
 
@@ -235,7 +234,6 @@ def process_line(line):
             if is_genuine_transliteration(b_norm):
                 return [b_norm, tag, after]
 
-    # Otherwise segment without breaking page tags in middle of sentences
     return segment_text_blocks(clean)
 
 candidates = []
