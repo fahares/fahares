@@ -6,12 +6,13 @@ import re
 
 start_t = time.time()
 
-TRANSLIT_CHARS = set(
+LATIN_LETTERS = set(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "āīūēōăĭŭšṣżṭẓčžḥḫẖḍḏġğẕṯṇṉṛśṥẑẗẁỳ"
     "ĀĪŪĒŌĂĬŬŠṢŻṬẒČŽḤḪḎĠḠẔṮṆṈṚŚṤẐ"
-    "‘'ʻʼʿʾ`’"
 )
+
+TRANSLIT_CHARS = LATIN_LETTERS.union(set("‘'ʻʼʿʾ`’"))
 
 DIACRITICS_CHARS = set(
     "āīūēōăĭŭšṣżṭẓčžḥḫẖḍḏġğẕṯṇṉṛśṥẑẗẁỳ"
@@ -24,11 +25,11 @@ def is_persian_char(c):
 
 def is_translit_word(w):
     clean_w = w.strip('.,;:\'\"()[]«»-')
-    return bool(clean_w and all(c in TRANSLIT_CHARS or c in '-=\'ʻ‘`’' for c in clean_w))
+    return bool(clean_w and all(c in TRANSLIT_CHARS or c in '-=\'ʻ‘`’' for c in clean_w) and any(c in LATIN_LETTERS for c in clean_w))
 
 def is_latin_block(b):
-    clean = b.strip()
-    return any(c in TRANSLIT_CHARS for c in clean) and not any(is_persian_char(c) for c in clean)
+    clean = re.sub(r'<!--\s*page:\s*\d+\s*-->', '', b).strip()
+    return any(c in LATIN_LETTERS for c in clean) and not any(is_persian_char(c) for c in clean)
 
 def is_page_tag(b):
     return b.strip().startswith('<!--') and b.strip().endswith('-->')
@@ -78,31 +79,43 @@ def is_shelfmark_or_field(line):
     return False
 
 def is_genuine_transliteration(text):
-    clean = text.strip('.,;:\'\"[]«»-')
-    if len(clean) < 3:
+    without_tags = re.sub(r'<!--\s*page:\s*\d+\s*-->', '', text).strip('.,;:\'\"[]«»-')
+    if not any(c in LATIN_LETTERS for c in without_tags):
         return False
-    if any(c in DIACRITICS_CHARS for c in clean):
+    
+    latin_count = sum(1 for c in without_tags if c in LATIN_LETTERS)
+    if latin_count < 2:
+        return False
+
+    if any(c in DIACRITICS_CHARS for c in without_tags):
         return True
-    lower = clean.lower()
+        
+    lower = without_tags.lower()
     markers = ['ebn-e', 'al-', '-ol-', '-ye', '-ul', '-il', '-e ', '-i ', 'ibn-', 'abu ', 'abū ', 'b. ', '=']
     if any(m in lower for m in markers):
         return True
-    if ',' in clean and any(w in lower for w in ['ebn', 'ali', 'hasan', 'hoseyn', 'mohammad', 'ahmad', 'khan', 'shah', 'mirza']):
+    if ',' in without_tags and any(w in lower for w in ['ebn', 'ali', 'hasan', 'hoseyn', 'mohammad', 'ahmad', 'khan', 'shah', 'mirza']):
         return True
-    if re.search(r'\(\s*(?:d\.\s*)?[\-\–]?[0-9\?]+(?:\s*[\-\–]\s*[0-9\?]+)?\s*(?:[Cc]|شمسی|قمری|میلادی)?\s*\)', text):
+    if re.search(r'\(\s*(?:d\.\s*)?[\-\–]?[0-9\?]+(?:\s*[\-\–]\s*[0-9\?]+)?\s*(?:[Cc]|شمسی|قمری|میلادی)?\s*\)', without_tags):
         return True
-    return False
+    return True
 
 def segment_text_blocks(text):
     clean = text.strip()
     if not clean or is_shelfmark_or_field(clean):
         return [clean]
 
+    without_tags = re.sub(r'<!--\s*page:\s*\d+\s*-->', '', clean).strip()
+    if not any(c in LATIN_LETTERS for c in without_tags):
+        return [clean]
+
+    # Pure Latin
     norm = normalize_translit(clean)
-    if not any(is_persian_char(c) for c in norm) and any(c in TRANSLIT_CHARS for c in norm):
+    if not any(is_persian_char(c) for c in norm) and any(c in LATIN_LETTERS for c in norm):
         return [norm]
 
-    if not any(c in TRANSLIT_CHARS for c in clean):
+    # Pure Persian
+    if not any(c in LATIN_LETTERS for c in without_tags):
         return [clean]
 
     words = clean.split()
@@ -115,7 +128,7 @@ def segment_text_blocks(text):
     for i, w in enumerate(words):
         if '(' in w: in_paren = True
         has_p = any(is_persian_char(c) for c in w)
-        has_l = any(c in TRANSLIT_CHARS for c in w)
+        has_l = any(c in LATIN_LETTERS for c in w)
         
         if in_paren:
             if ')' in w: in_paren = False
@@ -147,7 +160,7 @@ def segment_text_blocks(text):
         w = words[i]
         if ')' in w: in_paren = True
         has_p = any(is_persian_char(c) for c in w)
-        has_l = any(c in TRANSLIT_CHARS for c in w)
+        has_l = any(c in LATIN_LETTERS for c in w)
         
         if in_paren:
             if '(' in w: in_paren = False
@@ -175,7 +188,7 @@ def segment_text_blocks(text):
     in_paren = False
     
     for i, w in enumerate(words):
-        has_l = any(c in TRANSLIT_CHARS for c in w)
+        has_l = any(c in LATIN_LETTERS for c in w)
         has_p = any(is_persian_char(c) for c in w)
         
         if '(' in w:
@@ -217,6 +230,10 @@ def process_line(line):
     if not clean or is_shelfmark_or_field(clean):
         return [clean]
 
+    without_tags = re.sub(r'<!--\s*page:\s*\d+\s*-->', '', clean).strip()
+    if not any(c in LATIN_LETTERS for c in without_tags):
+        return [clean]
+
     # Check for Page Tag strictly at the boundary between Persian and Latin
     m_boundary = re.search(r'^(.*?)\s*(<!--\s*page:\s*\d+\s*-->)\s*(.*?)$', clean)
     if m_boundary:
@@ -225,9 +242,9 @@ def process_line(line):
         after = m_boundary.group(3).strip()
         
         b_has_p = any(is_persian_char(c) for c in before)
-        b_has_l = any(c in TRANSLIT_CHARS for c in before)
+        b_has_l = any(c in LATIN_LETTERS for c in before)
         a_has_p = any(is_persian_char(c) for c in after)
-        a_has_l = any(c in TRANSLIT_CHARS for c in after)
+        a_has_l = any(c in LATIN_LETTERS for c in after)
         
         if (b_has_p and not b_has_l) and (a_has_l and not a_has_p):
             a_norm = normalize_translit(after)
@@ -314,8 +331,9 @@ with open(report_path, 'w', encoding='utf-8') as f:
     f.write("۲. استقرار ۳ سطری متوالی (عنوان + شماره صفحه + آوانگاری) بدون سطر خالی در صورت قرارگیری برچسب صفحه در میان آن‌ها.\n")
     f.write("۳. تثبیت کامل و قطعی کلیه تاریخ‌های حیات مؤلف داخل پرانتز در سطر آوانگاری مؤلف در کلیه سطور چندبخشی و مستقل.\n")
     f.write("۴. ترمیم و بازسازی کامل ناهنجاری‌های معکوس BiDi در پرانتز تاریخ مؤلفان.\n")
-    f.write("۵. حذف خودکار عبارت‌های زائد مذهبی نظیر «(ع)» از انتهای خطوط آوانگاری.\n")
-    f.write("۶. مصون‌سازی قطعی کلیه متون آغاز، انجام، چاپ، کدهای قفسه و عبارات درون پاراگرافی.\n\n")
+    f.write("۵. عدم تفکیک و مصون‌سازی قطعی سطور فاقد حروف لاتین (اعداد تاریخ درون پرانتز، کدهای قفسه، ابعاد نسخه، تاریخ‌های قمری و نظایر آن به هیچ وجه آوانگاری محسوب نمی‌شوند).\n")
+    f.write("۶. حذف خودکار عبارت‌های زائد مذهبی نظیر «(ع)» از انتهای خطوط آوانگاری.\n")
+    f.write("۷. مصون‌سازی قطعی کلیه متون آغاز، انجام، چاپ، کدهای قفسه و عبارات درون پاراگرافی.\n\n")
     f.write("="*60 + "\n\n")
 
     for idx, c in enumerate(candidates, 1):
