@@ -1,4 +1,4 @@
-import os
+code = r'''import os
 import sys
 import time
 import re
@@ -489,3 +489,8 @@ if __name__ == '__main__':
             f.write("\n---\n\n")
 
     print(f"Finished in {time.time() - start_t:.2f}s! Total items: {len(candidates)} -> {report_path}")
+'''
+
+with open('scripts/scan_structural_translit.py', 'w', encoding='utf-8') as f:
+    f.write(code)
+print('Successfully generated scripts/scan_structural_translit.py')
