@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """
-Refined Structural Transliteration Segmenter (Production Engine).
+Final Production Engine for Transliteration Isolation.
 Features:
-1. Complete preservation and standalone positioning of page tags (<!-- page: X -->) when present in transliteration lines.
-2. Author life dates (including single death dates (- 1887), (- 20c), (1850 - 1905), (18C)) kept intact in transliteration lines.
-3. Proper handling of relationship metadata lines (وابسته به: ...).
-4. Automatic stripping of stray religious honorifics ((ع), (ص), (س), (عج)) at the end of transliterations.
-5. BiDi parenthetical date restoration: '(- author 17c)' -> 'author (- 17c)' and '(18C) author' -> 'author (18C)'.
-6. Full Orientalist Latin Diacritics coverage.
-7. Excludes non-transliteration fields (آغاز، انجام، چاپ، خط، کاغذ) and shelfmarks ([MS ...]).
-8. Preserves normal text paragraphs without splitting.
+1. Strict boundary isolation for page tags (<!-- page: X -->) only between Persian and Latin blocks.
+2. Complete preservation of author life dates (e.g. (1889 - 1952), (- 1887), (- 20c), (18C)) inside author transliteration line.
+3. Multi-block compound lines segmented cleanly into:
+   [Title Transliteration]
+   [Persian Author]
+   [Author Transliteration (Dates)]
+   [Description / Notes]
+4. BiDi restoration for parenthesized dates:
+   - '(1600 - author)' -> 'author (- 1600)'
+   - '(- author 17c)' -> 'author (- 17c)'
+   - '(1889 - 1952 author)' -> 'author (1889 - 1952)'
+   - '(18C) author' -> 'author (18C)'
+5. Automatic removal of stray religious honorifics ((ع), (ص), (س), (عج)) at the end of transliteration lines.
+6. Foreign text in middle of paragraphs and within shelfmarks ([MS ...]) preserved intact.
 """
 
 import os
@@ -44,14 +50,29 @@ def normalize_translit(text):
     clean = re.sub(r'\s*\([عصس]\)\s*$', '', clean)
     clean = re.sub(r'\s*\(عج\)\s*$', '', clean)
     
-    # BiDi fractured date: '(- author 17c)' -> 'author (- 17c)'
+    # BiDi Pattern 1: '(1600 - author)' -> 'author (- 1600)'
+    m_rev = re.match(r'^\(\s*([0-9\?]+[Cc]?)\s*[\-\–]\s+([‘\'ʻʼʿʾa-zA-ZāīūēōăĭŭšṣżṭẓčžḥḫẖḍḏġğẕṯṇṉṛśṥẑẗẁỳĀĪŪĒŌĂĬŬŠṢŻṬẒČŽḤḪḎĠḠẔṮṆṈṚŚṤẐ].*?)\s*\)$', clean)
+    if m_rev:
+        date_part = m_rev.group(1).strip()
+        author_part = m_rev.group(2).strip()
+        return f"{author_part} (- {date_part})"
+
+    # BiDi Pattern 2: '(- author 17c)' -> 'author (- 17c)'
     m_frac = re.match(r'^\(\s*[\-\–]\s+([‘\'ʻʼʿʾa-zA-ZāīūēōăĭŭšṣżṭẓčžḥḫẖḍḏġğẕṯṇṉṛśṥẑẗẁỳĀĪŪĒŌĂĬŬŠṢŻṬẒČŽḤḪḎĠḠẔṮṆṈṚŚṤẐ].*?)\s+([0-9\?]+[Cc]?\s*\))$', clean)
     if m_frac:
         author_part = m_frac.group(1).strip()
         date_part = m_frac.group(2).strip()
         return f"{author_part} (- {date_part}"
 
-    # Leading date parenthesis moved to start: '(18C) author' -> 'author (18C)'
+    # BiDi Pattern 3: '(1889 - 1952 author)' -> 'author (1889 - 1952)'
+    m_range = re.match(r'^\(\s*([0-9\?]+)\s*[\-\–]\s*([0-9\?]+)\s+([‘\'ʻʼʿʾa-zA-ZāīūēōăĭŭšṣżṭẓčžḥḫẖḍḏġğẕṯṇṉṛśṥẑẗẁỳĀĪŪĒŌĂĬŬŠṢŻṬẒČŽḤḪḎĠḠẔṮṆṈṚŚṤẐ].*?)\s*\)$', clean)
+    if m_range:
+        d1 = m_range.group(1).strip()
+        d2 = m_range.group(2).strip()
+        author_part = m_range.group(3).strip()
+        return f"{author_part} ({d1} - {d2})"
+
+    # BiDi Pattern 4: Leading date parenthesis '(18C) author' -> 'author (18C)'
     m_lead_date = re.match(r'^(\(\s*(?:d\.\s*)?[\-\–]?[0-9\?]+(?:\s*[\-\–]\s*[0-9\?]+)?\s*(?:[Cc]|شمسی|قمری|میلادی)?\s*\))\s+([‘\'ʻʼʿʾa-zA-Zāīū].*)$', clean)
     if m_lead_date:
         date_part = m_lead_date.group(1).strip()
@@ -84,17 +105,17 @@ def is_genuine_transliteration(text):
         return True
     return False
 
-def parse_text_segment(text):
+def segment_text_blocks(text):
     clean = text.strip()
     if not clean or is_shelfmark_or_field(clean):
         return [clean]
 
-    # If the text is pure Latin (after normalization)
+    # Pure Latin
     norm = normalize_translit(clean)
     if not any(is_persian_char(c) for c in norm) and any(c in TRANSLIT_CHARS for c in norm):
         return [norm]
 
-    # If pure Persian
+    # Pure Persian
     if not any(c in TRANSLIT_CHARS for c in clean):
         return [clean]
 
@@ -102,18 +123,16 @@ def parse_text_segment(text):
     if len(words) < 2:
         return [clean]
 
-    # 1. Check for Leading Transliteration followed by Persian description
+    # 1. Leading Transliteration followed by Persian description
     l_idx = 0
     in_paren = False
     for i, w in enumerate(words):
-        if '(' in w:
-            in_paren = True
+        if '(' in w: in_paren = True
         has_p = any(is_persian_char(c) for c in w)
         has_l = any(c in TRANSLIT_CHARS for c in w)
         
         if in_paren:
-            if ')' in w:
-                in_paren = False
+            if ')' in w: in_paren = False
             l_idx = i + 1
             continue
             
@@ -130,25 +149,22 @@ def parse_text_segment(text):
     if l_idx > 0 and l_idx < len(words):
         lead_latin = ' '.join(words[:l_idx])
         persian_rest = ' '.join(words[l_idx:])
-        
         lead_norm = normalize_translit(lead_latin)
         if is_genuine_transliteration(lead_norm):
-            rest_blocks = parse_text_segment(persian_rest)
+            rest_blocks = segment_text_blocks(persian_rest)
             return [lead_norm] + rest_blocks
 
-    # 2. Check for Trailing Transliteration preceded by Persian
+    # 2. Trailing Transliteration preceded by Persian
     r_idx = len(words)
     in_paren = False
     for i in range(len(words) - 1, -1, -1):
         w = words[i]
-        if ')' in w:
-            in_paren = True
+        if ')' in w: in_paren = True
         has_p = any(is_persian_char(c) for c in w)
         has_l = any(c in TRANSLIT_CHARS for c in w)
         
         if in_paren:
-            if '(' in w:
-                in_paren = False
+            if '(' in w: in_paren = False
             r_idx = i
             continue
             
@@ -167,16 +183,21 @@ def parse_text_segment(text):
             if not any(persian_lead.endswith(s) for s in ['[', '[ف:', '[نشریه:']):
                 return [persian_lead, trail_norm]
 
-    # 3. Check for Middle Transliteration (e.g. Persian Author + Latin Author + Persian Description 'وابسته به: ...')
+    # 3. Middle Transliteration (e.g. Persian Author + Latin Author + Persian Description)
     first_latin = -1
     last_latin = -1
     for i, w in enumerate(words):
-        if any(c in TRANSLIT_CHARS for c in w):
+        if any(c in TRANSLIT_CHARS for c in w) or (w.startswith('(') and any(c.isdigit() for c in w)):
             if first_latin == -1: first_latin = i
             last_latin = i
-        elif '(' in w and ')' in w and any(c.isdigit() for c in w) and first_latin != -1 and last_latin == i - 1:
-            last_latin = i
-            
+        elif first_latin != -1 and last_latin == i - 1:
+            if any(c.isdigit() for c in w) or w in ['-', '–', 'C)', 'c)', '?)', ')']:
+                last_latin = i
+            elif w.startswith('(') and (any(c.isdigit() for c in w) or 'C' in w or 'c' in w):
+                last_latin = i
+            else:
+                break
+                
     if first_latin > 0 and last_latin < len(words) - 1:
         p1 = ' '.join(words[:first_latin])
         l_mid = ' '.join(words[first_latin:last_latin+1])
@@ -187,56 +208,35 @@ def parse_text_segment(text):
 
     return [clean]
 
-def parse_full_line(line):
+def process_line(line):
     clean = line.strip()
     if not clean or is_shelfmark_or_field(clean):
         return [clean]
 
-    # Quick check: Does the line without page tag contain any transliteration candidate?
-    line_no_page = re.sub(r'<!--\s*page:\s*\d+\s*-->', '', clean).strip()
-    if not (any(is_persian_char(c) for c in line_no_page) and any(c in TRANSLIT_CHARS for c in line_no_page)):
-        # Pure transliteration with embedded/attached page tag
-        if any(c in TRANSLIT_CHARS for c in line_no_page) and not any(is_persian_char(c) for c in line_no_page):
-            norm = normalize_translit(line_no_page)
-            if is_genuine_transliteration(norm):
-                parts = re.split(r'(<!--\s*page:\s*\d+\s*-->)', clean)
-                res = []
-                for p in parts:
-                    if not p.strip(): continue
-                    if p.strip().startswith('<!--'):
-                        res.append(p.strip())
-                    else:
-                        res.append(normalize_translit(p.strip()))
-                return res
-        return [clean]
-
-    # Line has mixed Persian and Latin.
-    # Split by page tag if present, but only if the segments produce real transliteration splits!
-    parts = re.split(r'(<!--\s*page:\s*\d+\s*-->)', clean)
-    final_blocks = []
-    has_split = False
-    
-    for p in parts:
-        if not p.strip(): continue
-        if p.strip().startswith('<!--') and p.strip().endswith('-->'):
-            final_blocks.append(p.strip())
-        else:
-            seg_blocks = parse_text_segment(p.strip())
-            if len(seg_blocks) > 1 or (len(seg_blocks) == 1 and seg_blocks[0] != p.strip()):
-                has_split = True
-            final_blocks.extend(seg_blocks)
-            
-    # If the text segments did not have any real transliteration split, and the only split was page tag in a normal paragraph:
-    # Do NOT split! Keep original clean line.
-    if not has_split:
-        # Check if the split was between Persian Author and Latin Author across the page tag (like Item 29)
-        # e.g. final_blocks = ['Author Persian', '<!-- page: X -->', 'Author Latin']
-        if len(final_blocks) == 3 and final_blocks[1].startswith('<!--') and \
-           is_genuine_transliteration(final_blocks[2]) and any(is_persian_char(c) for c in final_blocks[0]):
-            return final_blocks
-        return [clean]
+    # Check for Page Tag strictly at the boundary between Persian and Latin
+    m_boundary = re.search(r'^(.*?)\s*(<!--\s*page:\s*\d+\s*-->)\s*(.*?)$', clean)
+    if m_boundary:
+        before = m_boundary.group(1).strip()
+        tag = m_boundary.group(2).strip()
+        after = m_boundary.group(3).strip()
         
-    return final_blocks
+        b_has_p = any(is_persian_char(c) for c in before)
+        b_has_l = any(c in TRANSLIT_CHARS for c in before)
+        a_has_p = any(is_persian_char(c) for c in after)
+        a_has_l = any(c in TRANSLIT_CHARS for c in after)
+        
+        if (b_has_p and not b_has_l) and (a_has_l and not a_has_p):
+            a_norm = normalize_translit(after)
+            if is_genuine_transliteration(a_norm):
+                return [before, tag, a_norm]
+                
+        if (b_has_l and not b_has_p) and (a_has_p and not a_has_l):
+            b_norm = normalize_translit(before)
+            if is_genuine_transliteration(b_norm):
+                return [b_norm, tag, after]
+
+    # Otherwise segment without breaking page tags in middle of sentences
+    return segment_text_blocks(clean)
 
 candidates = []
 
@@ -257,7 +257,7 @@ for vol in range(1, 35):
         prev_l = lines[l_idx - 2] if l_idx >= 2 else ""
         next_l = lines[l_idx] if l_idx < num_lines else ""
 
-        parsed_blocks = parse_full_line(clean)
+        parsed_blocks = process_line(clean)
 
         if len(parsed_blocks) > 1 or (len(parsed_blocks) == 1 and parsed_blocks[0] != clean):
             candidates.append({
@@ -275,11 +275,11 @@ with open(report_path, 'w', encoding='utf-8') as f:
     f.write("# گزارش جامع تفکیک ساختاری و استقلال سطور آوانگاری (نگارش استاندارد، دقیق و بی‌نقص)\n\n")
     f.write(f"تعداد کل سطور نیازمند تفکیک و اصلاح: **{len(candidates)}** سطر\n\n")
     f.write("ویژگی‌های نگارش نهایی:\n")
-    f.write("۱. استقرار مستقل برچسب‌های صفحه (<!-- page: X -->) در سطر مجزا بدون حذف یا ادغام در سطور آوانگاری.\n")
-    f.write("۲. تثبیت قطعی کلیه تاریخ‌های حیات مؤلف (نظیر `(- 1887)`، `(- 20c)`، `(1850 - 1905)`، `(18C)`) در انتهای سطر آوانگاری مؤلف.\n")
-    f.write("۳. اصلاح ناهنجاری‌های معکوس پرانتز تاریخ (BiDi) و انتقال پرانتز تاریخ از ابتدای آوانگاری به انتهای آن (`(- author 17c)` -> `author (- 17c)`).\n")
+    f.write("۱. استقرار مستقل برچسب‌های صفحه (<!-- page: X -->) در سطر مجزا صرفاً در مرز میان متن فارسی و آوانگاری (و حفظ آن در درون پاراگراف‌ها).\n")
+    f.write("۲. تثبیت کامل و قطعی کلیه تاریخ‌های حیات مؤلف داخل پرانتز در سطر آوانگاری مؤلف در کلیه سطور چندبخشی و مستقل.\n")
+    f.write("۳. ترمیم و بازسازی کامل ناهنجاری‌های معکوس BiDi در پرانتز تاریخ مؤلفان.\n")
     f.write("۴. حذف خودکار عبارت‌های زائد مذهبی نظیر «(ع)» از انتهای خطوط آوانگاری.\n")
-    f.write("۵. مصون‌سازی قطعی کلیه متون آغاز، انجام، چاپ، کدهای قفسه و عبارات درون پاراگرافی (نظیر متون پس از «وابسته به:»).\n\n")
+    f.write("۵. مصون‌سازی قطعی کلیه متون آغاز، انجام، چاپ، کدهای قفسه و عبارات درون پاراگرافی.\n\n")
     f.write("="*60 + "\n\n")
 
     for idx, c in enumerate(candidates, 1):
