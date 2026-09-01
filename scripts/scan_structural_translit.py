@@ -26,6 +26,13 @@ def is_translit_word(w):
     clean_w = w.strip('.,;:\'\"()[]«»-')
     return bool(clean_w and all(c in TRANSLIT_CHARS or c in '-=\'ʻ‘`’' for c in clean_w))
 
+def is_latin_block(b):
+    clean = b.strip()
+    return any(c in TRANSLIT_CHARS for c in clean) and not any(is_persian_char(c) for c in clean)
+
+def is_page_tag(b):
+    return b.strip().startswith('<!--') and b.strip().endswith('-->')
+
 def normalize_translit(text):
     clean = text.strip()
     clean = re.sub(r'\s*\([عصس]\)\s*$', '', clean)
@@ -91,12 +98,10 @@ def segment_text_blocks(text):
     if not clean or is_shelfmark_or_field(clean):
         return [clean]
 
-    # Pure Latin
     norm = normalize_translit(clean)
     if not any(is_persian_char(c) for c in norm) and any(c in TRANSLIT_CHARS for c in norm):
         return [norm]
 
-    # Pure Persian
     if not any(c in TRANSLIT_CHARS for c in clean):
         return [clean]
 
@@ -236,6 +241,37 @@ def process_line(line):
 
     return segment_text_blocks(clean)
 
+def format_proposed_blocks(blocks, prev_line=""):
+    if not blocks:
+        return ""
+    if len(blocks) == 1:
+        return blocks[0]
+        
+    formatted = []
+    i = 0
+    while i < len(blocks):
+        b = blocks[i]
+        
+        if i + 1 < len(blocks):
+            next_b = blocks[i+1]
+            
+            # Subcase 1: Persian + page_tag + latin_translit (3 lines contiguous with no blank lines)
+            if i + 2 < len(blocks) and is_page_tag(next_b) and is_latin_block(blocks[i+2]):
+                formatted.append(f"{b}\n{next_b}\n{blocks[i+2]}")
+                i += 3
+                continue
+                
+            # Subcase 2: Persian Title/Author + latin_translit (2 lines contiguous with no blank line)
+            if is_latin_block(next_b) and (b.startswith('●') or any(is_persian_char(c) for c in b)):
+                formatted.append(f"{b}\n{next_b}")
+                i += 2
+                continue
+
+        formatted.append(b)
+        i += 1
+        
+    return "\n\n".join(formatted)
+
 candidates = []
 
 for vol in range(1, 35):
@@ -258,12 +294,13 @@ for vol in range(1, 35):
         parsed_blocks = process_line(clean)
 
         if len(parsed_blocks) > 1 or (len(parsed_blocks) == 1 and parsed_blocks[0] != clean):
+            prop_str = format_proposed_blocks(parsed_blocks, prev_l)
             candidates.append({
                 'vol': vol,
                 'line_num': l_idx,
                 'num_blocks': len(parsed_blocks),
                 'current': clean,
-                'proposed': "\n\n".join(parsed_blocks),
+                'proposed': prop_str,
                 'prev_line': prev_l,
                 'next_line': next_l
             })
@@ -273,11 +310,12 @@ with open(report_path, 'w', encoding='utf-8') as f:
     f.write("# گزارش جامع تفکیک ساختاری و استقلال سطور آوانگاری (نگارش استاندارد، دقیق و بی‌نقص)\n\n")
     f.write(f"تعداد کل سطور نیازمند تفکیک و اصلاح: **{len(candidates)}** سطر\n\n")
     f.write("ویژگی‌های نگارش نهایی:\n")
-    f.write("۱. استقرار مستقل برچسب‌های صفحه (<!-- page: X -->) در سطر مجزا صرفاً در مرز میان متن فارسی و آوانگاری (و حفظ آن در درون پاراگراف‌ها).\n")
-    f.write("۲. تثبیت کامل و قطعی کلیه تاریخ‌های حیات مؤلف داخل پرانتز در سطر آوانگاری مؤلف در کلیه سطور چندبخشی و مستقل.\n")
-    f.write("۳. ترمیم و بازسازی کامل ناهنجاری‌های معکوس BiDi در پرانتز تاریخ مؤلفان.\n")
-    f.write("۴. حذف خودکار عبارت‌های زائد مذهبی نظیر «(ع)» از انتهای خطوط آوانگاری.\n")
-    f.write("۵. مصون‌سازی قطعی کلیه متون آغاز، انجام، چاپ، کدهای قفسه و عبارات درون پاراگرافی.\n\n")
+    f.write("۱. اتصال مستقیم عنوان/مؤلف با آوانگاری مربوطه بدون سطر خالی اضافی.\n")
+    f.write("۲. استقرار ۳ سطری متوالی (عنوان + شماره صفحه + آوانگاری) بدون سطر خالی در صورت قرارگیری برچسب صفحه در میان آن‌ها.\n")
+    f.write("۳. تثبیت کامل و قطعی کلیه تاریخ‌های حیات مؤلف داخل پرانتز در سطر آوانگاری مؤلف در کلیه سطور چندبخشی و مستقل.\n")
+    f.write("۴. ترمیم و بازسازی کامل ناهنجاری‌های معکوس BiDi در پرانتز تاریخ مؤلفان.\n")
+    f.write("۵. حذف خودکار عبارت‌های زائد مذهبی نظیر «(ع)» از انتهای خطوط آوانگاری.\n")
+    f.write("۶. مصون‌سازی قطعی کلیه متون آغاز، انجام، چاپ، کدهای قفسه و عبارات درون پاراگرافی.\n\n")
     f.write("="*60 + "\n\n")
 
     for idx, c in enumerate(candidates, 1):
