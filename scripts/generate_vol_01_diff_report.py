@@ -1,6 +1,6 @@
 import sys, re
 sys.path.append('.')
-from scripts.batch_2_definitions import PAGE_RECONSTRUCTIONS
+from scripts.batch_3_definitions import PAGE_RECONSTRUCTIONS
 
 with open('sources/text/fahares_vol_01.txt', 'r', encoding='utf-8') as f:
     full_text = f.read()
@@ -27,13 +27,13 @@ for current_page in sorted(PAGE_RECONSTRUCTIONS.keys()):
         'reconstructed': reconstructed_page_text
     })
 
-print(f"Generated diff entries for {len(diff_entries)} pages in Batch 2.")
+print(f"Generated diff entries for {len(diff_entries)} pages in Batch 3.")
 
 report_path = 'reports/vol_01_reconstruction_diff.md'
 with open(report_path, 'w', encoding='utf-8') as f:
-    f.write("# گزارش پیش‌نمایش بازسازی صفحات درهم‌ریخته جلد ۱ - بسته ۲ (بر اساس لایه PDF)\n\n")
-    f.write(f"این گزارش شامل پیش‌نمایش بازسازی کامل ۱۰ صفحه دوم ({', '.join(str(p) for p in sorted(PAGE_RECONSTRUCTIONS.keys()))}) از لیست ۵۲ صفحه دارای تداخل ستونی در جلد ۱ است.\n\n")
-    f.write("تمامی این صفحات از روی ساختار هندسی و لایه متنی فایل PDF (`fankha-full.pdf`) استخراج شده و با حفظ کامل نگارش استاندارد و ویراستاری‌های پیشین، جفت‌سازی دقیق شماره نسخه‌ها با اطلاعات نسخه‌شناسی انجام پذیرفته است.\n\n")
+    f.write("# گزارش پیش‌نمایش بازسازی صفحات درهم‌ریخته جلد ۱ - بسته ۳ (۲۰ صفحه)\n\n")
+    f.write(f"این گزارش شامل پیش‌نمایش بازسازی کامل ۲۰ صفحه سوم ({', '.join(str(p) for p in sorted(PAGE_RECONSTRUCTIONS.keys()))}) از لیست صفحات دارای تداخل ستونی در جلد ۱ است.\n\n")
+    f.write("تمامی این صفحات از روی ساختار هندسی و لایه متنی فایل PDF (`fankha-full.pdf`) استخراج شده و با حفظ کامل نگارش استاندارد، جفت‌سازی دقیق شماره نسخه‌ها با اطلاعات نسخه‌شناسی انجام پذیرفته است.\n\n")
     f.write("---\n\n")
     
     for idx, entry in enumerate(diff_entries):

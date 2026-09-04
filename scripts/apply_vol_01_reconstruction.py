@@ -3,7 +3,7 @@ import os
 import re
 
 sys.path.append('.')
-from scripts.batch_2_definitions import PAGE_RECONSTRUCTIONS
+from scripts.batch_3_definitions import PAGE_RECONSTRUCTIONS
 
 target_file = 'sources/text/fahares_vol_01.txt'
 
@@ -33,7 +33,7 @@ if orig_tags == new_tags:
     print(f"INTEGRITY CHECK PASSED: All {len(new_tags)} page tags perfectly preserved!")
     with open(target_file, 'w', encoding='utf-8') as f:
         f.write(text)
-    print(f"Successfully written changes to {target_file} for {applied_count} pages in Batch 2.")
+    print(f"Successfully written changes to {target_file} for {applied_count} pages in Batch 3.")
 else:
     print("FATAL ERROR: Page tags mismatch! Aborting write.")
     sys.exit(1)
