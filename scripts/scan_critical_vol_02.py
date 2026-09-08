@@ -1,5 +1,6 @@
 import re
 import json
+from collections import defaultdict
 
 def scan_critical_vol_02():
     with open("sources/text/fahares_vol_02.txt", "r", encoding="utf-8") as f:
@@ -7,104 +8,120 @@ def scan_critical_vol_02():
 
     # Split into pages
     page_splits = re.split(r'(<!-- page: \d+ -->)', text)
-    
     pages = {}
-    current_p = 7
-    # Note: text before the first tag is intro/empty
     for i in range(1, len(page_splits), 2):
         tag = page_splits[i]
         p_num = int(re.search(r'\d+', tag).group(0))
         content = page_splits[i+1] if i+1 < len(page_splits) else ""
         pages[p_num] = content
 
-    critical_pages = {}
+    def normalize_text(t):
+        return t.replace('\uff1b', '\u061b').replace(';', '\u061b')
+
+    results = defaultdict(list)
 
     for p_num in sorted(pages.keys()):
-        p_text = pages[p_num]
-        lines = p_text.split('\n')
-        issues = []
+        p_text = normalize_text(pages[p_num])
+        lines = [l.strip() for l in p_text.split('\n') if l.strip()]
 
-        # 1. Check for severe copy number inversions within the page
-        # Match lines like: 12. تهران؛ ... or 12. مشهد؛ ...
-        copy_matches = []
+        # 1. Number sequence checks (inversions and large unexpected leaps without title reset)
+        copy_items = []
         for l_idx, line in enumerate(lines):
-            # Check for title reset
-            if line.strip().startswith('●'):
-                copy_matches.append(('TITLE', 0, l_idx))
-            else:
-                m = re.match(r'^\s*(\d+)\.\s+([^؛]+)；([^؛]+)；شماره نسخه:', line)
-                if m:
-                    copy_num = int(m.group(1))
-                    copy_matches.append(('COPY', copy_num, l_idx))
+            if line.startswith('●'):
+                copy_items.append(('TITLE', 0, l_idx))
+            elif re.match(r'^\d+\.\s+[^؛]+؛', line) and 'شماره نسخه:' in line:
+                c_num = int(re.match(r'^(\d+)\.', line).group(1))
+                copy_items.append(('COPY', c_num, l_idx))
 
-        # Check sequence
-        last_num = None
-        for typ, val, l_idx in copy_matches:
+        last_c = None
+        for typ, val, l_idx in copy_items:
             if typ == 'TITLE':
-                last_num = None
+                last_c = None
             elif typ == 'COPY':
-                if last_num is not None:
-                    # If it drops by more than 3, likely column interleaving or reordering
-                    if val < last_num:
-                        issues.append(f"Sequence inversion: copy {last_num} followed by copy {val} (line {l_idx+1})")
-                last_num = val
+                if last_c is not None:
+                    if val < last_c:
+                        results[p_num].append(f'Inversion: copy {last_c} -> {val} (line {l_idx+1})')
+                    elif val > last_c + 3:
+                        results[p_num].append(f'Gap: copy {last_c} -> {val} (line {l_idx+1})')
+                last_c = val
 
-        # 2. Check for isolated transliteration (Latin lines without nearby title)
-        for l_idx, line in enumerate(lines):
-            stripped = line.strip()
-            # If line is mostly Latin letters
-            if stripped and re.match(r'^[a-zA-Zāīūḍṣṭẓḥśẕḻḡōēčšž\s\(\)\.\,\-\:\'\"\?\/0-9]+$', stripped):
-                # Is it preceded by a title or author line in current or prev lines?
-                has_title_context = False
-                for prev_i in range(max(0, l_idx-3), l_idx):
-                    if '●' in lines[prev_i] or '،' in lines[prev_i] or any('\u0600' <= c <= '\u06FF' for c in lines[prev_i]):
-                        has_title_context = True
-                        break
-                if not has_title_context:
-                    # check if it's just a bracket reference or page marker
-                    if not stripped.startswith('[') and not stripped.startswith('('):
-                        issues.append(f"Isolated transliteration without Persian title context: '{stripped[:40]}' (line {l_idx+1})")
+        # 2. True Column Interleaving:
+        # A sequence of multiple bare headers (no description on line)
+        # where the page later has stacked body blocks separated from their headers.
+        consecutive_bare_headers = 0
+        max_consecutive_bare_headers = 0
+        consecutive_bodies = 0
+        max_consecutive_bodies = 0
 
-        # 3. Check for severe OCR corruption / Gibberish
-        # e.g., strange non-persian scripts or repeated garbage tokens
-        for l_idx, line in enumerate(lines):
-            # Check for high concentration of non-standard chars in non-transliteration lines
-            persian_chars = len(re.findall(r'[\u0600-\u06FF]', line))
-            latin_chars = len(re.findall(r'[a-zA-Z]', line))
-            # If line has mixed weird characters or foreign text where Persian expected
-            if len(line) > 30 and persian_chars > 0 and latin_chars > 15:
-                # Exclude standard bibliographical or shelfmark lines
-                if not any(k in line for k in ['شماره نسخه:', 'اندازه:', 'ISBN', 'http', '[ف:', 'ص (', 'فهرست']):
-                    if not re.search(r'^[a-zA-Z\s\.\,\-]+$', line):
-                        # check ratio
-                        issues.append(f"Possible OCR corruption / mixed text: '{line[:50]}...' (line {l_idx+1})")
-
-        # 4. Check for clustered copy headers (3+ consecutive headers without body)
-        consec_headers = 0
-        max_consec = 0
         for line in lines:
-            if re.match(r'^\s*\d+\.\s+[^؛]+；[^؛]+；شماره نسخه:', line):
-                consec_headers += 1
-                if consec_headers > max_consec:
-                    max_consec = consec_headers
-            elif line.strip() and not line.strip().startswith('●'):
-                consec_headers = 0
-        if max_consec >= 4:
-            issues.append(f"Header clustering: {max_consec} consecutive copy headers without body text")
+            is_header = bool(re.match(r'^(?:\d+\.\s+)?[^؛]+؛[^؛]+؛\s*شماره نسخه:', line))
+            has_body_on_line = any(k in line for k in ['خط:', 'آغاز:', 'انجام:', 'کاغذ:', 'اندازه:', 'جلد:'])
+            is_pure_body = any(line.startswith(k) for k in ['خط:', 'آغاز:', 'انجام:'])
 
-        if issues:
-            critical_pages[p_num] = issues
+            if is_header:
+                if not has_body_on_line:
+                    consecutive_bare_headers += 1
+                    max_consecutive_bare_headers = max(max_consecutive_bare_headers, consecutive_bare_headers)
+                else:
+                    consecutive_bare_headers = 0
+                consecutive_bodies = 0
+            elif is_pure_body:
+                consecutive_bodies += 1
+                max_consecutive_bodies = max(max_consecutive_bodies, consecutive_bodies)
+                consecutive_bare_headers = 0
+            elif line.startswith('●'):
+                consecutive_bare_headers = 0
+                consecutive_bodies = 0
+
+        if max_consecutive_bare_headers >= 4 and max_consecutive_bodies >= 4:
+            results[p_num].append(f'Column Interleaving: {max_consecutive_bare_headers} bare headers with {max_consecutive_bodies} stacked body blocks')
+
+        # 3. Multiple orphaned copies at top (2 or more khat or aghaz before first header or title)
+        initial_khat = 0
+        initial_aghaz = 0
+        for line in lines:
+            if bool(re.match(r'^(?:\d+\.\s+)?[^؛]+؛[^؛]+؛\s*شماره نسخه:', line)) or line.startswith('●'):
+                break
+            if line.startswith('خط:'):
+                initial_khat += 1
+            if line.startswith('آغاز:'):
+                initial_aghaz += 1
+
+        if initial_khat >= 2 or initial_aghaz >= 2:
+            results[p_num].append(f'Multiple Orphan Copies at Top: {initial_khat} khat and {initial_aghaz} aghaz blocks before any header')
+
+        # 4. Isolated transliteration without any Persian title or context
+        for l_idx, line in enumerate(lines):
+            if re.match(r'^[a-zāīūḍṣṭẓḥśẕḻḡōēčšž\s\(\)\.\,\-\:\'\"\?\/0-9]+$', line, re.I):
+                if len(line) > 6 and not line.startswith('[') and not line.startswith('('):
+                    has_ctx = False
+                    for prev_i in range(max(0, l_idx-3), l_idx):
+                        if '●' in lines[prev_i] or any('\u0600' <= c <= '\u06FF' for c in lines[prev_i]):
+                            has_ctx = True
+                            break
+                    if not has_ctx and l_idx <= 1 and p_num - 1 in pages:
+                        prev_lines = [pl.strip() for pl in pages[p_num - 1].split('\n') if pl.strip()]
+                        for pl in prev_lines[-3:]:
+                            if '●' in pl or any('\u0600' <= c <= '\u06FF' for c in pl):
+                                has_ctx = True
+                                break
+                    if not has_ctx:
+                        results[p_num].append(f'Isolated transliteration: {line[:40]}')
+
+        # 5. Corrupt symbols
+        for l_idx, line in enumerate(lines):
+            if any(s in line for s in ['✍', '◄', '►']) or ('<' in line and not line.startswith('<!--')):
+                results[p_num].append(f'Corrupt symbol: {line[:40]}')
 
     print(f"Total pages scanned: {len(pages)}")
-    print(f"Critical anomaly candidate pages found: {len(critical_pages)}")
-    
-    with open("reports/critical_anomalies_vol_02.json", "w", encoding="utf-8") as f:
-        json.dump(critical_pages, f, ensure_ascii=False, indent=2)
+    print(f"Truly Critical Pages Found: {len(results)}")
 
-    for p in sorted(critical_pages.keys()):
-        print(f"Page {p} ({len(critical_pages[p])} issues):")
-        for iss in critical_pages[p]:
-            print(f"  - {iss}")
+    with open("reports/true_critical_pages_vol_02.json", "w", encoding="utf-8") as f:
+        json.dump(dict(results), f, ensure_ascii=False, indent=2)
+
+    print("\nSummary of all critical pages:")
+    for p in sorted(results.keys()):
+        print(f"Page {p} ({len(results[p])} issues): {', '.join(results[p])}")
 
 if __name__ == "__main__":
     scan_critical_vol_02()
