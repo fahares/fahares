@@ -104,7 +104,7 @@ DESC_WORDS = [
     'است', 'بود', 'می‌شود', 'میگردد', 'می‌باشد', 'میباشد', 'گردیده', 'آمده',
     'دارد', 'شامل', 'مشتمل', 'مجموعه', 'رساله', 'کتاب', 'منظومه', 'گزارش',
     'بندی', 'سرگذشت', 'مطالب', 'عبارتند', 'یکی از', 'چند ', 'درباره', 'پیرامون',
-    '«باب»', '«فصل»', '«اصل»', '«مقدمه»', '«مقصد»'
+    '«باب»', '«فصل»', '«اصل»', '«مقدمه»', '«مقصد»', 'باشد', 'محتملاً', 'احتمالاً'
 ]
 
 def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
@@ -116,7 +116,7 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
         return False
     if any(w in line for w in DESC_WORDS):
         return False
-    if any(line.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:']):
+    if any(line.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:', 'تاریخ تألیف:', 'تألیف:', 'اهداء به:', 'موضوع:']):
         return False
 
     if next_line:
@@ -127,8 +127,11 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
     if AUTHOR_DATE_PATTERN.search(line):
         return True
 
-    if re.search(r'،\s*[\d\-–\?]+\s*ق?$', line):
-        return True
+    if '،' in line:
+        parts = [p.strip() for p in line.split('،')]
+        last = parts[-1]
+        if re.search(r'(?:\d|[\?؟]|قرن|ق\s*\d|\bق\b|قمری|شمسی|میلادی|قبل میلاد)', last):
+            return True
 
     if '،' in line and any(w in line for w in ['بن', 'ابن', 'ابو', 'محمد', 'احمد', 'علی', 'حسن', 'حسین', 'میرزا', 'سید', 'شیخ', 'ملا']):
         return True
@@ -137,6 +140,36 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
         return True
 
     return False
+
+def extract_author_and_date(cand: str) -> Tuple[str, Optional[str]]:
+    cand = cand.strip()
+
+    # 1. Parenthesized date at end: e.g. (370-428ق) or (-1312ق) or (1820-1898)
+    m_paren = re.search(r'\s*\(([\d\?؟\s\-–\.\/]*(?:ق(?:مر[یی])?|م(?:یلادی)?|ش(?:مسی)?|قبل میلاد)?)\)$', cand)
+    if m_paren and any(c.isdigit() for c in m_paren.group(1)):
+        return cand[:m_paren.start()].rstrip('، '), m_paren.group(1).strip()
+
+    # 2. Comma-separated date: 'شهرت، نام، تاریخ' or 'نام، تاریخ'
+    if '،' in cand:
+        parts = [p.strip() for p in cand.split('،')]
+        last = parts[-1]
+        has_digit = bool(re.search(r'\d', last))
+        has_era = bool(re.search(r'(?:قرن|قبل میلاد|متوف[یای]|زنده در|\bق\b|قمری|قمرى|شمسی|شمسى|میلادی|ميلادي|\bم\b)', last))
+
+        # Check that it is not a patronymic name part like 'بن محمد'
+        if (has_digit or has_era) and not re.search(r'(?:بن|ابن|بنت)\s+[\u0600-\u06FF]', last):
+            author_part = '، '.join(parts[:-1]).strip()
+            if author_part:
+                return author_part, last
+
+    # 3. Trailing date separated by space/dash: e.g. 'سلطان علی مشهدی 841؟ - 926 ؟ ق'
+    m = re.search(r'[\s،]+((?:(?:ق|قرن|سده|متوفای|زنده در)\s*)?[\-–\s]*[\d\?؟]+[\d\?؟\s\-–\.\/]*(?:یا\s+[\d\?؟]+[\d\?؟\s\-–\.\/]*)?(?:ق(?:مر[یی])?|م(?:یلادی)?|ش(?:مسی)?|قبل میلاد)?)$', cand)
+    if m and any(c.isdigit() for c in m.group(1)):
+        author_part = cand[:m.start()].rstrip('، ')
+        if author_part:
+            return author_part, m.group(1).strip()
+
+    return cand, None
 
 class FankhaParser:
     def __init__(self, volume_number: int):
@@ -288,13 +321,13 @@ class FankhaParser:
                     cand = cand[:m_lat.start()].strip()
 
             if is_author_line(cand, next_cand or cand_trans):
-                # Separate Hijri death date from author name
-                dm = re.search(r'[\s،]+([\d\?]+(?:\s*[\-–]\s*[\d\?]+)?\s*ق(?:مری)?|[\-–]\s*[\d\?]+\s*ق(?:مری)?|ق\s*\d+\s*ق|قرن\s*\d+\s*ق?|زنده در\s*[\d\?]+)$', cand)
-                if dm:
-                    work.author_name = cand[:dm.start()].rstrip('، ')
-                    work.author_death_date_hijri = dm.group(1).strip()
-                else:
-                    work.author_name = cand
+                author_name, date_part = extract_author_and_date(cand)
+                work.author_name = author_name
+                if date_part:
+                    if re.search(r'(?:م\b|میلادی|قبل میلاد)', date_part) and not re.search(r'(?:ق\b|قمری)', date_part):
+                        work.author_death_date_gregorian = date_part
+                    else:
+                        work.author_death_date_hijri = date_part
                 idx += 1
 
                 # If transliteration wasn't on the same line, check next line
