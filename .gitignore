@@ -22,4 +22,5 @@ meilidata/
 scratch/
 __pycache__/
 *.pyc
+.venv/
 sources/pdf/
