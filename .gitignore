@@ -1,5 +1,4 @@
 # Ignore large source dumps
-sources/json/
 sources/text/*.md
 *.Zone.Identifier
 
