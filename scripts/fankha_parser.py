@@ -121,7 +121,7 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
 
     if next_line:
         nl = next_line.strip()
-        if any(c.isascii() and c.isalpha() for c in nl) and re.search(r'\([0-9\?\-–CDc\s\.]+\)', nl):
+        if any(c.isascii() and c.isalpha() for c in nl) and re.search(r'\([0-9\?؟\-–CDc\s\.]+\)', nl):
             return True
 
     if AUTHOR_DATE_PATTERN.search(line):
