@@ -20,7 +20,8 @@ CONTENT_WORDS_RE = re.compile(r'(?:فصل|باب|مقاله|میمر|جزء|قس
 
 KNOWN_LANGUAGES = {
     'فارسی', 'عربی', 'ترکی', 'اردو', 'عبری', 'سریانی', 'پهلوی',
-    'اوستایی', 'کردی', 'پشتو', 'فرانسوی', 'انگلیسی', 'لاتین', 'لری'
+    'اوستایی', 'کردی', 'پشتو', 'فرانسوی', 'انگلیسی', 'لاتین', 'لری',
+    'ارمنی', 'هندی', 'پنجابی'
 }
 
 COMPOUND_SUBJECTS_WHITELIST = [
@@ -48,6 +49,10 @@ class Manuscript:
     folios: Optional[str] = None
     lines: Optional[str] = None
     dimensions: Optional[str] = None
+    text_dimensions: Optional[str] = None
+    commissioned_by: Optional[str] = None
+    identification_notes: Optional[str] = None
+    is_identification_uncertain: bool = False
     paper: Optional[str] = None
     binding: Optional[str] = None
     format: Optional[str] = None
@@ -80,16 +85,26 @@ class Manuscript:
 @dataclass
 class WorkEntry:
     primary_title: str
+    clean_title: Optional[str] = None
+    work_form: Optional[str] = None
     alternative_titles: List[str] = field(default_factory=list)
+    is_heterogeneous: bool = False
+    is_identification_uncertain: bool = False
+    identification_notes: Optional[str] = None
     subject: Optional[str] = None
     subject_raw: Optional[str] = None
     subjects: List[str] = field(default_factory=list)
     language: Optional[str] = None
     language_raw: Optional[str] = None
     languages: List[str] = field(default_factory=list)
+    is_language_uncertain: bool = False
+    source_language: Optional[str] = None
+    target_language: Optional[str] = None
     transliteration: Optional[str] = None
     alternative_transliterations: List[str] = field(default_factory=list)
     author_name: Optional[str] = None
+    author_name_raw: Optional[str] = None
+    authorship_status: str = "certain"
     author_transliteration: Optional[str] = None
     author_death_date_raw: Optional[str] = None
     author_death_date_hijri: Optional[str] = None
@@ -137,24 +152,103 @@ DESC_WORDS = [
     '«باب»', '«فصل»', '«اصل»', '«مقدمه»', '«مقصد»', 'باشد', 'محتملاً', 'احتمالاً'
 ]
 
+HONORIFICS = {'ص', 'ع', 'عج', 'ره', 'س', 'قس', 'رض'}
+
 def is_language_str(s: str) -> bool:
     if not s:
         return False
-    words = re.split(r'[\s،,و/\-]+', s.strip())
-    words = [w for w in words if w and w not in ('و', 'به', 'زبان')]
+    clean = PAGE_TAG_PATTERN.sub('', s).strip()
+    clean = re.sub(r'[a-zA-Z\'].*', '', clean).strip()
+    clean = clean.replace('عربى', 'عربی')
+    words = re.split(r'[\s،,و/\-]+', clean)
+    words = [w for w in words if w and w not in ('و', 'به', 'یا', 'زبان')]
     if not words:
         return False
     return all(w in KNOWN_LANGUAGES for w in words)
 
-def parse_languages(lang_str: Optional[str]) -> List[str]:
+def parse_languages(lang_str: Optional[str]) -> Tuple[List[str], Optional[str], Optional[str], bool]:
     if not lang_str:
-        return []
-    words = re.split(r'[\s،,و/\-]+', lang_str.strip())
+        return [], None, None, False
+    s = PAGE_TAG_PATTERN.sub('', lang_str).strip()
+    s = re.sub(r'[a-zA-Z\'].*', '', s).strip()
+    s = s.replace('عربى', 'عربی')
+    
+    is_uncertain = False
+    source_lang = None
+    target_lang = None
+
+    if re.search(r'یا|یا اینکه|مردد|شاید', s):
+        is_uncertain = True
+
+    # Check translation pattern: e.g. "عربی به فارسی", "فارسی به ترکی", "فارسی به فارسی"
+    m_trans = re.search(r'([^\s]+)\s+به\s+([^\s]+)', s)
+    if m_trans:
+        src = m_trans.group(1).strip()
+        tgt = m_trans.group(2).strip()
+        if src in KNOWN_LANGUAGES or tgt in KNOWN_LANGUAGES:
+            source_lang = src if src in KNOWN_LANGUAGES else None
+            target_lang = tgt if tgt in KNOWN_LANGUAGES else None
+            langs = []
+            for l in [src, tgt]:
+                if l in KNOWN_LANGUAGES and l not in langs:
+                    langs.append(l)
+            return langs if langs else [tgt], source_lang, target_lang, False
+
+    words = re.split(r'[\s،,و/\-]+', s)
     res = []
     for w in words:
         if w in KNOWN_LANGUAGES and w not in res:
             res.append(w)
-    return res if res else [lang_str.strip()]
+    return (res if res else [s]), source_lang, target_lang, is_uncertain
+
+def extract_title_form_and_clean(primary_title: str) -> Tuple[str, Optional[str]]:
+    m = re.search(r'\(([^)]+)\)\s*$', primary_title)
+    if not m:
+        return primary_title, None
+
+    qualifier = m.group(1).strip()
+    if qualifier in HONORIFICS:
+        return primary_title, None
+
+    clean = primary_title[:m.start()].strip()
+
+    form = None
+    if re.search(r'ترجمه|با ترجمه', qualifier):
+        form = "translation"
+    elif re.search(r'منتخب|مختصر|برگزیده|خلاصه|ملخص', qualifier):
+        form = "selection"
+    elif re.search(r'منظوم|منظومه|ارجوزة|أرجوزة|شعر|قصیده|قصيدة', qualifier):
+        form = "verse"
+    elif re.search(r'گردآوری|جوامع|مجموعه|مجموعة', qualifier):
+        form = "compilation"
+    elif re.search(r'جدول|جداول', qualifier):
+        form = "table"
+    elif re.search(r'فائده|فوائد|فایده', qualifier):
+        form = "notes"
+    elif re.search(r'تقریر|تقرير|تقریرات|تقريرات', qualifier):
+        form = "lecture_notes"
+    elif re.search(r'شرح|حاشیه|تعلیقه|حواشی', qualifier):
+        form = "commentary"
+    elif re.search(r'رساله|رسالة|کتاب', qualifier):
+        form = "treatise"
+
+    return (clean if clean else primary_title), form
+
+def clean_author(raw_author: str) -> Tuple[str, str]:
+    status = "certain"
+    s = raw_author.strip()
+
+    if re.search(r'منسوب به|شاید از', s):
+        status = "attributed"
+    elif re.search(r'[؟\?]|ظاهراً|ظاهرا|احتمالاً|احتمالا', s):
+        status = "probable"
+
+    clean = s
+    clean = re.sub(r'^(?:[؟\?\s\:]|منسوب به|شاید از|ظاهراً از|ظاهرا از|ظاهراً|ظاهرا|احتمالاً از|احتمالا از|احتمالاً|احتمالا)+', '', clean).strip(' :؟?')
+    clean = re.sub(r'\s*\([؟\?]\)', '', clean).strip()
+    clean = re.sub(r'[؟\?]', '', clean).strip()
+
+    return (clean if clean else s), status
 
 def parse_subjects(subj_str: Optional[str]) -> List[str]:
     if not subj_str:
@@ -284,12 +378,15 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
     line = line.strip()
     if not line or len(line) > 120:
         return False
-    first_word = line.split()[0] if line.split() else ''
+    clean_l = re.sub(r'^(?:[؟\?\s\:]|منسوب به|شاید از|ظاهراً از|ظاهرا از|ظاهراً|ظاهرا|احتمالاً از|احتمالا از|احتمالاً|احتمالا)+', '', line).strip(' :؟?')
+    if not clean_l:
+        return False
+    first_word = clean_l.split()[0] if clean_l.split() else ''
     if any(first_word.startswith(w) for w in ['رساله', 'کتاب', 'منظومه', 'شرح', 'ترجمه', 'تفسیر', 'یکی', 'این', 'در', 'از', 'گویا', 'سرگذشت', 'مجموعه', 'مطالب', 'گزارش', 'آمار', 'وابسته']):
         return False
-    if any(w in line for w in DESC_WORDS):
+    if any(w in clean_l for w in DESC_WORDS):
         return False
-    if any(line.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:', 'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:', 'اهداء به:', 'اهدا به:', 'اهدایی به:', 'موضوع:']):
+    if any(clean_l.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:', 'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:', 'اهداء به:', 'اهدا به:', 'اهدایی به:', 'موضوع:']):
         return False
 
     if next_line:
@@ -297,19 +394,19 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
         if any(c.isascii() and c.isalpha() for c in nl) and re.search(r'\([0-9\?؟\-–CDc\s\.]+\)', nl):
             return True
 
-    if AUTHOR_DATE_PATTERN.search(line):
+    if AUTHOR_DATE_PATTERN.search(clean_l):
         return True
 
-    if '،' in line:
-        parts = [p.strip() for p in line.split('،')]
+    if '،' in clean_l:
+        parts = [p.strip() for p in clean_l.split('،')]
         last = parts[-1]
         if re.search(r'(?:\d|[\?؟]|قرن|ق\s*\d|\bق\b|قمری|شمسی|میلادی|قبل میلاد)', last):
             return True
 
-    if '،' in line and any(w in line for w in ['بن', 'ابن', 'ابو', 'محمد', 'احمد', 'علی', 'حسن', 'حسین', 'میرزا', 'سید', 'شیخ', 'ملا']):
+    if '،' in clean_l and any(w in clean_l for w in ['بن', 'ابن', 'ابو', 'محمد', 'احمد', 'علی', 'حسن', 'حسین', 'میرزا', 'سید', 'شیخ', 'ملا']):
         return True
 
-    if len(line.split()) <= 4 and any(w in line for w in ['میرزا', 'سید', 'شیخ', 'ملا', 'خان', 'شاه', 'پاشا', 'افندی']):
+    if len(clean_l.split()) <= 4 and any(w in clean_l for w in ['میرزا', 'سید', 'شیخ', 'ملا', 'خان', 'شاه', 'پاشا', 'افندی']):
         return True
 
     return False
@@ -414,20 +511,36 @@ class FankhaParser:
         primary_title = titles[0] if titles else clean_header
         alternative_titles = titles[1:] if len(titles) > 1 else []
 
+        clean_title, work_form = extract_title_form_and_clean(primary_title)
+
         subject_raw = subject_part
         subjects = parse_subjects(subject_part)
         language_raw = language_part
-        languages = parse_languages(language_part)
+        languages, source_lang, target_lang, is_lang_uncertain = parse_languages(language_part)
+
+        if source_lang and not work_form:
+            work_form = "translation"
+
+        is_hetero = any(('غیر همانند' in l or 'غیرهمانند' in l) for l in lines)
+        is_id_uncertain = any(('همانندی نامعلوم' in l or 'همانندی غیر معلوم' in l or 'همانندی نامشخص' in l) for l in lines)
 
         work = WorkEntry(
             primary_title=primary_title,
+            clean_title=clean_title,
+            work_form=work_form,
             alternative_titles=alternative_titles,
+            is_heterogeneous=is_hetero,
+            is_identification_uncertain=is_id_uncertain,
+            identification_notes=("همانندی نامعلوم" if is_id_uncertain else None),
             subject=subject_raw,
             subject_raw=subject_raw,
             subjects=subjects,
             language=language_raw,
             language_raw=language_raw,
             languages=languages,
+            is_language_uncertain=is_lang_uncertain,
+            source_language=source_lang,
+            target_language=target_lang,
             volume_number=self.volume_number,
             page_start=start_page,
             page_end=end_page
@@ -461,7 +574,7 @@ class FankhaParser:
         self._parse_work_preamble(work, preamble_lines)
 
         for seq, ms_lines in enumerate(ms_blocks, 1):
-            ms = self._parse_manuscript(ms_lines, start_page, seq)
+            ms = self._parse_manuscript(ms_lines, start_page, seq, is_hetero, is_id_uncertain)
             if ms:
                 work.manuscripts.append(ms)
 
@@ -501,8 +614,11 @@ class FankhaParser:
                     cand = cand[:m_lat.start()].strip()
 
             if is_author_line(cand, next_cand or cand_trans):
-                author_name, date_part = extract_author_and_date(cand)
-                work.author_name = author_name
+                raw_author_name, date_part = extract_author_and_date(cand)
+                clean_name, auth_status = clean_author(raw_author_name)
+                work.author_name = clean_name
+                work.author_name_raw = raw_author_name
+                work.authorship_status = auth_status
                 if date_part:
                     work.author_death_date_raw = date_part
                     if re.search(r'(?:م\b|میلادی|قبل میلاد)', date_part) and not re.search(r'(?:ق\b|قمری)', date_part):
@@ -590,7 +706,7 @@ class FankhaParser:
         if clean_desc:
             work.description = clean_desc
 
-    def _parse_manuscript(self, ms_lines: List[str], current_page: int, fallback_seq: int) -> Optional[Manuscript]:
+    def _parse_manuscript(self, ms_lines: List[str], current_page: int, fallback_seq: int, is_work_heterogeneous: bool = False, is_work_identification_uncertain: bool = False) -> Optional[Manuscript]:
         raw_text = "\n".join(ms_lines).strip()
         if not raw_text:
             return None
@@ -599,6 +715,8 @@ class FankhaParser:
             sequence_number=fallback_seq,
             page_start=current_page,
             page_end=current_page,
+            is_distinct_work=is_work_heterogeneous,
+            is_identification_uncertain=is_work_identification_uncertain,
             raw_text=raw_text
         )
 
@@ -707,7 +825,26 @@ class FankhaParser:
             ms.defects = defects_m.group(1).strip()
             extracted_spans.append(defects_m.group(0))
 
-        # 11. Codicological labels
+        # 11. Identification uncertainty
+        id_m = re.search(r'(?:^|[؛،\n])\s*(?:کتاب ناشناخته|همانندی نامعلوم|همانندی غیر معلوم|همانندی نامشخص)[:\.]?\s*([^؛\n]+)', rem_text)
+        if id_m:
+            ms.is_identification_uncertain = True
+            ms.identification_notes = id_m.group(0).strip(' ؛،\n')
+            extracted_spans.append(id_m.group(0))
+        elif 'همانندی نامعلوم' in rem_text or 'همانندی غیر معلوم' in rem_text or 'کتاب ناشناخته' in rem_text:
+            ms.is_identification_uncertain = True
+            extracted_spans.extend(['همانندی نامعلوم', 'همانندی غیر معلوم', 'کتاب ناشناخته'])
+
+        # 12. Commissioned by (به دستور / به فرمایش / به امر / به خواهش / به التماس / به فرموده)
+        comm_m = re.search(r'(?:^|[؛،\n])\s*(?:به دستور|به فرمایش|به امر|به خواهش|به التماس|به فرموده)[:\s]\s*([^؛\n\[]+)', rem_text)
+        if comm_m:
+            c_val = comm_m.group(1).strip()
+            c_val = re.sub(r'\s*(?:کتابت شده|نوشته شده|تحریر شده|نگاشته شده|انجام شده).*$', '', c_val).strip()
+            if c_val:
+                ms.commissioned_by = c_val
+                extracted_spans.append(comm_m.group(0))
+
+        # 13. Codicological labels
         script_m = re.search(r'(?:^|[؛،\n])\s*خط:\s*([^،؛\n]+)', rem_text)
         if script_m:
             ms.script = script_m.group(1).strip()
@@ -740,32 +877,44 @@ class FankhaParser:
             ms.copy_place = place_m.group(1).strip()
             extracted_spans.append(place_m.group(0))
 
-        folios_m = re.search(r'(\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه))\b', rem_text)
+        folios_m = re.search(r'(\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه)(?:\s*\([0-9\s\-–پرو\.\/]+\))?)', rem_text)
         if folios_m:
             ms.folios = folios_m.group(1).strip()
             extracted_spans.append(folios_m.group(0))
 
-        lines_m = re.search(r'(\d+[\d\s\/\-–\.]*سطر|مختلف السطر)', rem_text)
-        if lines_m:
-            ms.lines = lines_m.group(1).strip()
-            extracted_spans.append(lines_m.group(0))
+        # Explicit text dimensions: ابعاد متن: / اندازه متن: / سطح نوشته:
+        text_dim_m = re.search(r'(?:^|[؛،\n])\s*(?:ابعاد متن|اندازه متن|سطح نوشته):\s*([^؛،\n\[]+)', rem_text)
+        if text_dim_m:
+            ms.text_dimensions = text_dim_m.group(1).strip()
+            extracted_spans.append(text_dim_m.group(0))
 
-        dim_m = re.search(r'(?:اندازه|ابعاد):\s*([^؛\n]+)', rem_text)
+        # Lines count and parenthesized text dimensions (e.g. 20 سطر (13/5×9))
+        lines_full_m = re.search(r'(\d+[\d\s\/\-–\.]*سطر|مختلف السطر)(?:\s*\(([0-9\/\,\.]+\s*[×xX\*]\s*[0-9\/\,\.]+(?:\s*سم)?)\))?', rem_text)
+        if lines_full_m:
+            ms.lines = lines_full_m.group(1).strip()
+            if lines_full_m.group(2) and not ms.text_dimensions:
+                ms.text_dimensions = lines_full_m.group(2).strip()
+            extracted_spans.append(lines_full_m.group(0))
+
+        # Overall dimensions (negative lookahead for متن)
+        dim_m = re.search(r'(?:^|[؛،\n])\s*(?:اندازه|ابعاد)(?!\s*متن):\s*([^؛،\n\[]+)', rem_text)
         if dim_m:
             ms.dimensions = dim_m.group(1).strip()
             extracted_spans.append(dim_m.group(0))
 
-        paper_m = re.search(r'کاغذ:\s*([^؛\n]+)', rem_text)
+        CODICOLOGY_STOP = r'(?:[؛\n\[]|،\s*(?:جلد:|کاغذ:|قطع:|ابعاد|اندازه|خط:|کا:|تا:|جا:|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
+
+        paper_m = re.search(r'(?:^|[؛،\n])\s*کاغذ:\s*([^؛\n\[]+?)(?=' + CODICOLOGY_STOP + r'|$)', rem_text)
         if paper_m:
             ms.paper = paper_m.group(1).strip()
             extracted_spans.append(paper_m.group(0))
 
-        binding_m = re.search(r'جلد:\s*([^؛\n]+)', rem_text)
+        binding_m = re.search(r'(?:^|[؛،\n])\s*جلد:\s*([^؛\n\[]+?)(?=' + CODICOLOGY_STOP + r'|$)', rem_text)
         if binding_m:
             ms.binding = binding_m.group(1).strip()
             extracted_spans.append(binding_m.group(0))
 
-        format_m = re.search(r'قطع:\s*([^؛\n]+)', rem_text)
+        format_m = re.search(r'(?:^|[؛،\n])\s*قطع:\s*([^؛\n\[]+?)(?=' + CODICOLOGY_STOP + r'|$)', rem_text)
         if format_m:
             ms.format = format_m.group(1).strip()
             extracted_spans.append(format_m.group(0))
@@ -814,7 +963,16 @@ class FankhaParser:
             if span:
                 res_clean = res_clean.replace(span, ' ')
 
-        labels = ['اندازه:', 'ابعاد:', 'کاغذ:', 'جلد:', 'قطع:', 'آغاز:', 'انجام:', 'نسخه اصل:', 'خط:', 'کا:', 'تا:', 'جا:', 'افتادگی:', 'چاپ:', 'شامل:', 'اهدایی:', 'اهدا:', 'ترقیمه:', 'انجامه:', 'خاتمه:', 'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:', 'توضیح:', 'تذکر:']
+        labels = [
+            'اندازه:', 'ابعاد:', 'ابعاد متن:', 'اندازه متن:', 'سطح نوشته:',
+            'کاغذ:', 'جلد:', 'قطع:', 'آغاز:', 'انجام:', 'نسخه اصل:',
+            'خط:', 'کا:', 'تا:', 'جا:', 'افتادگی:', 'چاپ:', 'شامل:',
+            'اهدایی:', 'اهدا:', 'ترقیمه:', 'انجامه:', 'خاتمه:',
+            'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:',
+            'توضیح:', 'تذکر:', 'به دستور:', 'به دستور',
+            'به فرمایش:', 'به فرمایش', 'به امر:', 'به امر',
+            'به فرموده:', 'به فرموده'
+        ]
         for lb in labels:
             res_clean = res_clean.replace(lb, ' ')
 
