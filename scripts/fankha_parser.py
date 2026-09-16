@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Fankha Production Parser & Structured JSON Generator.
+Fankha Production Parser & Structured JSON Generator (v2 - Phase 1 Refactored).
 Extracts work headers, referral links, and granular manuscript metadata from
-the 34-volume Fankha text corpus into rich, relational-ready JSON.
+the Fankha text corpus into rich, relational-ready JSON with multi-subject/language,
+date triad sorting, volume/page ranges, and granular citations.
 """
 
 import re
@@ -17,6 +18,17 @@ KNOWN_SCRIPTS = r'(?:نستعلیق|نسخ|شکسته|تعلیق|رقعه|کوف
 DATE_MARKERS = r'(?:\d+|قرن|با تاریخ|اوایل|اواخر|نیمه|بی‌تا|بی تا|غره|سلخ|جمادی|ربیع|شوال|رمضان|صفر|محرم|شعبان|ذوالقعده|ذیقعده|ذوالحجه|ذیحجه|سنه)'
 CONTENT_WORDS_RE = re.compile(r'(?:فصل|باب|مقاله|میمر|جزء|قسم|مطلب|کتاب|مقصد|حدیث|ثمره|شعبه|پایان|شعر|بیت)')
 
+KNOWN_LANGUAGES = {
+    'فارسی', 'عربی', 'ترکی', 'اردو', 'عبری', 'سریانی', 'پهلوی',
+    'اوستایی', 'کردی', 'پشتو', 'فرانسوی', 'انگلیسی', 'لاتین', 'لری'
+}
+
+COMPOUND_SUBJECTS_WHITELIST = [
+    'کلام و اعتقادات', 'کلام و عقاید', 'عرفان و تصوف', 'آداب و سنن',
+    'تفسیر و علوم قرآن', 'علوم قرآن', 'حکومت و سیاست', 'فضایل و مناقب',
+    'عروض و قافیه', 'ادیان و مذاهب'
+]
+
 @dataclass
 class Manuscript:
     sequence_number: Optional[int] = None
@@ -26,11 +38,13 @@ class Manuscript:
     page_start: Optional[int] = None
     page_end: Optional[int] = None
     scribe: Optional[str] = None
+    scribe_name: Optional[str] = None
     is_bika: bool = False
     is_autograph: bool = False
     copy_date_raw: Optional[str] = None
     copy_place: Optional[str] = None
     script: Optional[str] = None
+    scripts: List[str] = field(default_factory=list)
     folios: Optional[str] = None
     lines: Optional[str] = None
     dimensions: Optional[str] = None
@@ -48,10 +62,12 @@ class Manuscript:
     colophon: Optional[str] = None
     composition_date: Optional[str] = None
     original_copy_ref: Optional[str] = None
+    parent_manuscript_seq: Optional[int] = None
     catalog_citation: Optional[str] = None
     editorial_notes: List[str] = field(default_factory=list)
     annex_notes: List[str] = field(default_factory=list)
     ownership_and_seals: List[str] = field(default_factory=list)
+    seals: List[Dict[str, Optional[str]]] = field(default_factory=list)
     residual_notes: Optional[str] = None
     is_corrected: bool = False
     has_marginal_notes: bool = False
@@ -66,26 +82,40 @@ class WorkEntry:
     primary_title: str
     alternative_titles: List[str] = field(default_factory=list)
     subject: Optional[str] = None
+    subject_raw: Optional[str] = None
+    subjects: List[str] = field(default_factory=list)
     language: Optional[str] = None
+    language_raw: Optional[str] = None
+    languages: List[str] = field(default_factory=list)
     transliteration: Optional[str] = None
+    alternative_transliterations: List[str] = field(default_factory=list)
     author_name: Optional[str] = None
     author_transliteration: Optional[str] = None
+    author_death_date_raw: Optional[str] = None
     author_death_date_hijri: Optional[str] = None
+    author_death_date_century: Optional[int] = None
+    author_death_date_sort_year: Optional[int] = None
     author_death_date_gregorian: Optional[str] = None
+    author_death_date_gregorian_calculated: Optional[int] = None
+    composition_date: Optional[str] = None
+    dedication: Optional[str] = None
     related_work: Optional[str] = None
     description: Optional[str] = None
     print_info: Optional[str] = None
-    sample_incipit: Optional[str] = None
-    sample_explicit: Optional[str] = None
+    incipit: Optional[str] = None
+    explicit: Optional[str] = None
     commentaries_and_glosses: List[str] = field(default_factory=list)
     bibliography: List[str] = field(default_factory=list)
-    page: Optional[int] = None
+    volume_number: Optional[int] = None
+    page_start: Optional[int] = None
+    page_end: Optional[int] = None
     manuscripts: List[Manuscript] = field(default_factory=list)
 
 @dataclass
 class ReferralEntry:
     source_title: str
     target_title: str
+    volume_number: Optional[int] = None
     page: Optional[int] = None
 
 AUTHOR_DATE_PATTERN = re.compile(
@@ -107,6 +137,149 @@ DESC_WORDS = [
     '«باب»', '«فصل»', '«اصل»', '«مقدمه»', '«مقصد»', 'باشد', 'محتملاً', 'احتمالاً'
 ]
 
+def is_language_str(s: str) -> bool:
+    if not s:
+        return False
+    words = re.split(r'[\s،,و/\-]+', s.strip())
+    words = [w for w in words if w and w not in ('و', 'به', 'زبان')]
+    if not words:
+        return False
+    return all(w in KNOWN_LANGUAGES for w in words)
+
+def parse_languages(lang_str: Optional[str]) -> List[str]:
+    if not lang_str:
+        return []
+    words = re.split(r'[\s،,و/\-]+', lang_str.strip())
+    res = []
+    for w in words:
+        if w in KNOWN_LANGUAGES and w not in res:
+            res.append(w)
+    return res if res else [lang_str.strip()]
+
+def parse_subjects(subj_str: Optional[str]) -> List[str]:
+    if not subj_str:
+        return []
+    s = subj_str.strip()
+    for cs in COMPOUND_SUBJECTS_WHITELIST:
+        if s == cs:
+            return [cs]
+    
+    parts = re.split(r'[،,]+', s)
+    res = []
+    for part in parts:
+        p = part.strip()
+        if not p:
+            continue
+        found_wl = False
+        for cs in COMPOUND_SUBJECTS_WHITELIST:
+            if p == cs:
+                res.append(cs)
+                found_wl = True
+                break
+        if not found_wl:
+            res.append(p)
+    return res
+
+def parse_scripts(script_str: Optional[str]) -> List[str]:
+    if not script_str:
+        return []
+    s = script_str
+    known = ['شکسته نستعلیق', 'نستعلیق', 'شکسته', 'تعلیق', 'رقعه', 'کوفی', 'ثلث', 'ریحان', 'محقق', 'طومار', 'مغربی', 'لاتین', 'نسخ']
+    found = []
+    for sc in known:
+        if sc in s:
+            found.append(sc)
+            s = s.replace(sc, ' ')
+    return found if found else [script_str.strip()]
+
+def parse_seals(seal_texts: List[str]) -> List[Dict[str, Optional[str]]]:
+    res = []
+    for st in seal_texts:
+        clean = re.sub(r'^(?:دارای\s*)?مهر(?:ها)?:\s*', '', st).strip()
+        items = re.split(r'[,،؛]\s*|\s+و\s+', clean)
+        for it in items:
+            it = re.sub(r'^(?:و\s+)', '', it).strip(' «»')
+            if not it:
+                continue
+            shape_m = re.search(r'\((مربع|بیضی|بادامی|مدور|دایره|هشت\s*ضلعی|مستطیل)\)', it)
+            shape = shape_m.group(1).strip() if shape_m else None
+            insc = re.sub(r'\([^)]+\)', '', it).strip(' «»')
+            if insc:
+                res.append({'inscription': insc, 'shape': shape})
+    return res
+
+def parse_header_line(clean_header: str) -> Tuple[List[str], Optional[str], Optional[str]]:
+    parts = [p.strip() for p in clean_header.split('/') if p.strip()]
+    if not parts:
+        return [clean_header], None, None
+    
+    titles_part = parts[0]
+    titles = [t.strip() for t in titles_part.split('=') if t.strip()]
+    
+    if len(parts) == 1:
+        return titles, None, None
+    elif len(parts) == 2:
+        part2 = parts[1]
+        if '-' in part2:
+            sub_parts = [sp.strip() for sp in part2.split('-') if sp.strip()]
+            if len(sub_parts) == 2 and is_language_str(sub_parts[1]):
+                return titles, sub_parts[0], sub_parts[1]
+        
+        if is_language_str(part2):
+            return titles, None, part2
+        else:
+            return titles, part2, None
+    else:
+        subject = parts[1]
+        language = parts[2]
+        if '-' in subject and not language:
+            sub_parts = [sp.strip() for sp in subject.split('-') if sp.strip()]
+            if len(sub_parts) == 2 and is_language_str(sub_parts[1]):
+                subject = sub_parts[0]
+                language = sub_parts[1]
+        return titles, subject, language
+
+def parse_date_triad(date_raw: Optional[str]) -> Tuple[Optional[int], Optional[int], Optional[int]]:
+    if not date_raw:
+        return None, None, None
+    
+    s = date_raw.strip()
+    century = None
+    sort_year = None
+    
+    # 1. Century textual patterns: e.g. "قرن 7", "قرن 11", "سده 8", "ق 11", "اواخر قرن 7", "اوایل قرن 10"
+    m_cent = re.search(r'(?:(اوایل|اواخر|نیمه\s*اول|نیمه\s*دوم)\s+)?(?:قرن|سده|ق\s*)\s*(\d{1,2})', s)
+    if m_cent:
+        mod = m_cent.group(1) or ''
+        c_num = int(m_cent.group(2))
+        if 1 <= c_num <= 15:
+            century = c_num
+            base = (c_num - 1) * 100
+            if 'اوایل' in mod:
+                sort_year = base + 20
+            elif 'اواخر' in mod:
+                sort_year = base + 80
+            elif 'نیمه دوم' in mod:
+                sort_year = base + 75
+            elif 'نیمه اول' in mod:
+                sort_year = base + 25
+            else:
+                sort_year = base + 50
+    
+    # 2. Number extraction (Hijri years 100..1450)
+    nums = [int(n) for n in re.findall(r'(?<!\d)(\d{3,4})(?!\d)', s) if 100 <= int(n) <= 1450]
+    if nums:
+        death_y = nums[-1]
+        sort_year = death_y
+        century = (death_y - 1) // 100 + 1
+    
+    # 3. Gregorian calculated equivalent from Hijri
+    greg_calc = None
+    if sort_year and 100 <= sort_year <= 1450:
+        greg_calc = round(sort_year * 0.970229 + 621.57)
+        
+    return century, sort_year, greg_calc
+
 def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
     line = line.strip()
     if not line or len(line) > 120:
@@ -116,7 +289,7 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
         return False
     if any(w in line for w in DESC_WORDS):
         return False
-    if any(line.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:', 'تاریخ تألیف:', 'تألیف:', 'اهداء به:', 'موضوع:']):
+    if any(line.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:', 'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:', 'اهداء به:', 'اهدا به:', 'اهدایی به:', 'موضوع:']):
         return False
 
     if next_line:
@@ -144,25 +317,21 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
 def extract_author_and_date(cand: str) -> Tuple[str, Optional[str]]:
     cand = cand.strip()
 
-    # 1. Parenthesized date at end: e.g. (370-428ق) or (-1312ق) or (1820-1898)
     m_paren = re.search(r'\s*\(([\d\?؟\s\-–\.\/]*(?:ق(?:مر[یی])?|م(?:یلادی)?|ش(?:مسی)?|قبل میلاد)?)\)$', cand)
     if m_paren and any(c.isdigit() for c in m_paren.group(1)):
         return cand[:m_paren.start()].rstrip('، '), m_paren.group(1).strip()
 
-    # 2. Comma-separated date: 'شهرت، نام، تاریخ' or 'نام، تاریخ'
     if '،' in cand:
         parts = [p.strip() for p in cand.split('،')]
         last = parts[-1]
         has_digit = bool(re.search(r'\d', last))
         has_era = bool(re.search(r'(?:قرن|قبل میلاد|متوف[یای]|زنده در|\bق\b|قمری|قمرى|شمسی|شمسى|میلادی|ميلادي|\bم\b)', last))
 
-        # Check that it is not a patronymic name part like 'بن محمد'
         if (has_digit or has_era) and not re.search(r'(?:بن|ابن|بنت)\s+[\u0600-\u06FF]', last):
             author_part = '، '.join(parts[:-1]).strip()
             if author_part:
                 return author_part, last
 
-    # 3. Trailing date separated by space/dash: e.g. 'سلطان علی مشهدی 841؟ - 926 ؟ ق'
     m = re.search(r'[\s،]+((?:(?:ق|قرن|سده|متوفای|زنده در)\s*)?[\-–\s]*[\d\?؟]+[\d\?؟\s\-–\.\/]*(?:یا\s+[\d\?؟]+[\d\?؟\s\-–\.\/]*)?(?:ق(?:مر[یی])?|م(?:یلادی)?|ش(?:مسی)?|قبل میلاد)?)$', cand)
     if m and any(c.isdigit() for c in m.group(1)):
         author_part = cand[:m.start()].rstrip('، ')
@@ -182,26 +351,25 @@ class FankhaParser:
             text = f.read()
 
         raw_entries = self._split_entries(text)
-        for entry_lines, page in raw_entries:
+        for entry_lines, start_page, end_page in raw_entries:
             entry_text = "\n".join(entry_lines).strip()
             if not entry_text:
                 continue
 
             first_line = entry_lines[0].strip()
             if '←' in first_line and not first_line.startswith('●'):
-                # Referral entry
-                self._parse_referral(first_line, page)
+                self._parse_referral(first_line, start_page)
             elif first_line.startswith('●'):
-                # Work entry
-                work = self._parse_work(entry_lines, page)
+                work = self._parse_work(entry_lines, start_page, end_page)
                 if work:
                     self.works.append(work)
 
-    def _split_entries(self, text: str) -> List[Tuple[List[str], int]]:
+    def _split_entries(self, text: str) -> List[Tuple[List[str], int, int]]:
         lines = text.split('\n')
         entries = []
         curr_entry_lines = []
         curr_page = 1
+        entry_start_page = 1
 
         for line in lines:
             page_matches = PAGE_TAG_PATTERN.findall(line)
@@ -213,13 +381,14 @@ class FankhaParser:
             is_referral = '←' in stripped and not is_work_header and not stripped.startswith('آغاز') and not stripped.startswith('انجام')
 
             if (is_work_header or is_referral) and curr_entry_lines:
-                entries.append((curr_entry_lines, curr_page))
+                entries.append((curr_entry_lines, entry_start_page, curr_page))
                 curr_entry_lines = []
+                entry_start_page = curr_page
 
             curr_entry_lines.append(line)
 
         if curr_entry_lines:
-            entries.append((curr_entry_lines, curr_page))
+            entries.append((curr_entry_lines, entry_start_page, curr_page))
 
         return entries
 
@@ -229,31 +398,41 @@ class FankhaParser:
         if len(parts) >= 2:
             src = parts[0].strip()
             tgt = parts[1].strip()
-            self.referrals.append(ReferralEntry(source_title=src, target_title=tgt, page=page))
+            self.referrals.append(ReferralEntry(
+                source_title=src,
+                target_title=tgt,
+                volume_number=self.volume_number,
+                page=page
+            ))
 
-    def _parse_work(self, lines: List[str], page: int) -> Optional[WorkEntry]:
+    def _parse_work(self, lines: List[str], start_page: int, end_page: int) -> Optional[WorkEntry]:
         header_line = lines[0]
         raw_header = header_line.lstrip('● ').strip()
         clean_header = PAGE_TAG_PATTERN.sub('', raw_header).strip()
 
-        parts = [p.strip() for p in clean_header.split('/')]
-        titles_part = parts[0] if len(parts) > 0 else clean_header
-        subject = parts[1] if len(parts) > 1 else None
-        language = parts[2] if len(parts) > 2 else None
+        titles, subject_part, language_part = parse_header_line(clean_header)
+        primary_title = titles[0] if titles else clean_header
+        alternative_titles = titles[1:] if len(titles) > 1 else []
 
-        titles = [t.strip() for t in titles_part.split('=')]
-        primary_title = titles[0]
-        alternative_titles = titles[1:]
+        subject_raw = subject_part
+        subjects = parse_subjects(subject_part)
+        language_raw = language_part
+        languages = parse_languages(language_part)
 
         work = WorkEntry(
             primary_title=primary_title,
             alternative_titles=alternative_titles,
-            subject=subject,
-            language=language,
-            page=page
+            subject=subject_raw,
+            subject_raw=subject_raw,
+            subjects=subjects,
+            language=language_raw,
+            language_raw=language_raw,
+            languages=languages,
+            volume_number=self.volume_number,
+            page_start=start_page,
+            page_end=end_page
         )
 
-        # Segregate preamble (work meta) from manuscript blocks
         preamble_lines = []
         ms_blocks: List[List[str]] = []
         curr_ms_lines: List[str] = []
@@ -281,9 +460,8 @@ class FankhaParser:
 
         self._parse_work_preamble(work, preamble_lines)
 
-        # Parse manuscripts
         for seq, ms_lines in enumerate(ms_blocks, 1):
-            ms = self._parse_manuscript(ms_lines, page, seq)
+            ms = self._parse_manuscript(ms_lines, start_page, seq)
             if ms:
                 work.manuscripts.append(ms)
 
@@ -302,7 +480,10 @@ class FankhaParser:
         if idx < total_p:
             cand = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
             if cand and any(c.isascii() and c.isalpha() for c in cand):
-                work.transliteration = cand
+                trans_parts = [tp.strip() for tp in cand.split('=') if tp.strip()]
+                if trans_parts:
+                    work.transliteration = trans_parts[0]
+                    work.alternative_transliterations = trans_parts[1:]
                 idx += 1
 
         # 2. Author info
@@ -312,7 +493,6 @@ class FankhaParser:
             cand = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
             next_cand = PAGE_TAG_PATTERN.sub('', preamble_lines[idx+1]).strip() if idx+1 < total_p else None
 
-            # Check if cand has both Persian author and Latin transliteration on same line
             cand_trans = None
             if re.search(r'[a-zA-Z\']', cand) and re.search(r'[\u0600-\u06FF]', cand):
                 m_lat = re.search(r'([a-zA-Z\'].*)', cand)
@@ -324,13 +504,19 @@ class FankhaParser:
                 author_name, date_part = extract_author_and_date(cand)
                 work.author_name = author_name
                 if date_part:
+                    work.author_death_date_raw = date_part
                     if re.search(r'(?:م\b|میلادی|قبل میلاد)', date_part) and not re.search(r'(?:ق\b|قمری)', date_part):
                         work.author_death_date_gregorian = date_part
                     else:
                         work.author_death_date_hijri = date_part
+                    
+                    cent, sort_y, greg_calc = parse_date_triad(date_part)
+                    work.author_death_date_century = cent
+                    work.author_death_date_sort_year = sort_y
+                    if greg_calc:
+                        work.author_death_date_gregorian_calculated = greg_calc
                 idx += 1
 
-                # If transliteration wasn't on the same line, check next line
                 if not cand_trans and idx < total_p:
                     next_l = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
                     if next_l and any(c.isascii() and c.isalpha() for c in next_l):
@@ -345,12 +531,24 @@ class FankhaParser:
                     else:
                         work.author_transliteration = cand_trans
 
-        # 3. Remaining preamble: description, related_work, print, sample incipit/explicit, bibliography
+        # 3. Remaining preamble: description, related_work, print, composition_date, dedication, incipit/explicit, bibliography
         rem_text = "\n".join(preamble_lines[idx:]).strip()
         if not rem_text:
             return
 
-        # Check for related work (وابسته به: ...)
+        # Composition date (تاریخ تألیف / تألیف / تاریخ اجازه / اجازه)
+        comp_m = re.search(r'(?:^|[؛،\n])\s*(?:تاریخ تألیف|تألیف|تاریخ اجازه|اجازه):\s*(.+?)(?=(?:[؛،\n]\s*(?:محل تألیف|محل صدور)|(?:\s+این\s+(?:کتاب|رساله))|[؛\n]|$))', rem_text)
+        if comp_m:
+            work.composition_date = comp_m.group(1).strip()
+            rem_text = rem_text.replace(comp_m.group(0), ' ').strip()
+
+        # Dedication (اهداء به / اهدا به / اهدایی به)
+        ded_m = re.search(r'(?:^|\n)\s*(?:اهداء به|اهدا به|اهدایی به):\s*([^\n]+)', rem_text)
+        if ded_m:
+            work.dedication = ded_m.group(1).strip()
+            rem_text = rem_text.replace(ded_m.group(0), ' ').strip()
+
+        # Related work (وابسته به: ...)
         rel_m = re.search(r'(?:^|\n)\s*وابسته به:\s*([^\n]+)', rem_text)
         if rel_m:
             work.related_work = rel_m.group(1).strip()
@@ -361,20 +559,24 @@ class FankhaParser:
         if work_print_m:
             work.print_info = work_print_m.group(1).strip()
 
-        # Work level sample incipit / explicit
+        # Work level incipit / explicit
         inc_m = re.search(r'(?:^|\n)\s*آغاز:\s*([^\n]+)', rem_text)
         if inc_m:
-            work.sample_incipit = inc_m.group(1).strip()
+            work.incipit = inc_m.group(1).strip()
         exp_m = re.search(r'(?:^|\n)\s*انجام:\s*([^\n]+)', rem_text)
         if exp_m:
-            work.sample_explicit = exp_m.group(1).strip()
+            work.explicit = exp_m.group(1).strip()
 
-        # Bibliography citations [ ... ]
+        # Bibliography citations [ ... ] - split each by semicolon (؛)
         bib_matches = re.findall(r'\[([^\]]+)\]', rem_text)
         if bib_matches:
-            work.bibliography = [b.strip() for b in bib_matches]
+            bib_items = []
+            for b in bib_matches:
+                citations = [c.strip() for c in b.split('؛') if c.strip()]
+                bib_items.extend(citations)
+            work.bibliography = bib_items
 
-        # Description is everything before sample incipit, print, or bibliography
+        # Description is everything before incipit, print, or bibliography
         desc_text = rem_text
         if work_print_m:
             desc_text = desc_text.split(work_print_m.group(0))[0]
@@ -401,7 +603,6 @@ class FankhaParser:
         )
 
         header_line = ms_lines[0].strip()
-        # Sequence number & header e.g. "1. تهران؛ مجلس؛ شماره نسخه: 118/1" or "تهران؛ دانشگاه؛ شماره نسخه: ..."
         clean_header = PAGE_TAG_PATTERN.sub('', header_line).strip()
         seq_m = re.match(r'^(\d+)[\.\s]\s*', clean_header)
         if seq_m:
@@ -416,7 +617,6 @@ class FankhaParser:
 
         rem_text = "\n".join(ms_lines[1:]).strip() if len(ms_lines) > 1 else ""
 
-        # Page range calculation if page tags appear inside manuscript
         ms_pages = [int(p) for p in PAGE_TAG_PATTERN.findall(raw_text)]
         if ms_pages:
             ms.page_start = ms_pages[0]
@@ -434,6 +634,12 @@ class FankhaParser:
         if orig_m:
             ms.original_copy_ref = orig_m.group(1).strip()
             extracted_spans.append(orig_m.group(0))
+            if 'همان نسخه' in ms.original_copy_ref:
+                m_num = re.search(r'شماره\s*(\d+)', ms.original_copy_ref)
+                if m_num:
+                    ms.parent_manuscript_seq = int(m_num.group(1))
+                elif fallback_seq > 1:
+                    ms.parent_manuscript_seq = fallback_seq - 1
 
         # 3. Print info: چاپ: ...
         print_m = re.search(r'(?:^|[؛،\n])\s*چاپ:\s*([^؛\n]+)', rem_text)
@@ -448,20 +654,9 @@ class FankhaParser:
             extracted_spans.append(contents_m.group(0))
 
         # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست
-        for em in re.finditer(r'(?:^|[؛،\n])\s*(?:توضیح|تذکر):\s*([^\n]+)', rem_text):
-            ms.editorial_notes.append(em.group(0).strip())
-            extracted_spans.append(em.group(0))
-
-        editorial_patterns = [
-            r'[^؛\n]*به قرینه[^؛\n]*',
-            r'در فهرست [^؛\n]*(?:تصحیح شد|دانسته شده[^؛\n]*)',
-            r'نام مؤلف [^؛\n]*(?:ذکر شد|تصحیح شد|تعیین شد|به دست آمد)',
-            r'نام کتاب [^؛\n]*(?:ذکر شد|تصحیح شد|تعیین شد|به دست آمد)',
-            r'به استناد نسخه [^؛\n]*(?:ذکر شد|تصحیح شد)'
-        ]
-        for ep in editorial_patterns:
+        for ep in [r'(?:^|[؛،\n])\s*توضیح:\s*([^؛\n]+)', r'(?:^|[؛،\n])\s*تذکر:\s*([^؛\n]+)']:
             for em in re.finditer(ep, rem_text):
-                ms.editorial_notes.append(em.group(0).strip())
+                ms.editorial_notes.append(em.group(1).strip())
                 extracted_spans.append(em.group(0))
 
         # 6. Colophon extract: ترقیمه: / انجامه: / خاتمه:
@@ -470,8 +665,8 @@ class FankhaParser:
             ms.colophon = colophon_m.group(1).strip()
             extracted_spans.append(colophon_m.group(0))
 
-        # 7. Composition date: تألیف: ...
-        comp_m = re.search(r'(?:^|[؛،\n])\s*تألیف:\s*([^؛\n]+)', rem_text)
+        # 7. Composition date: تاریخ تألیف / تألیف / تاریخ اجازه / اجازه
+        comp_m = re.search(r'(?:^|[؛،\n])\s*(?:تاریخ تألیف|تألیف|تاریخ اجازه|اجازه):\s*(.+?)(?=(?:[؛،\n]\s*(?:محل تألیف|محل صدور)|(?:\s+این\s+(?:کتاب|رساله))|[؛\n]|$))', rem_text)
         if comp_m:
             ms.composition_date = comp_m.group(1).strip()
             extracted_spans.append(comp_m.group(0))
@@ -501,102 +696,93 @@ class FankhaParser:
                 ms.explicit_matches_work = True
                 extracted_spans.extend(['انجام: برابر', 'انجام برابر'])
             else:
-                exp_m = re.search(r'انجام:\s*(?:موجود:)?\s*(.+?)(?=(?:[؛،]\s*(?:خط|بی‌کا|کا|بی‌تا|تا|افتادگی|کاغذ|جلد)|؛|\n|$))', rem_text)
+                exp_m = re.search(r'انجام:\s*(?:موجود:)?\s*(.+?)(?=(?:[؛،\n]\s*خط[:\s]|؛|\n|$))', rem_text)
                 if exp_m:
                     ms.explicit_text = exp_m.group(1).strip()
                     extracted_spans.append(exp_m.group(0))
 
-        # 10. Scribe (کاتب = مؤلف, بی‌کا, کا:)
-        if 'کاتب = مؤلف' in rem_text:
-            ms.is_autograph = True
-            extracted_spans.append('کاتب = مؤلف')
-        elif 'بی‌کا' in rem_text or 'بی کا' in rem_text:
+        # 10. Defects (افتادگی: ...)
+        defects_m = re.search(r'(?:^|[؛،\n])\s*افتادگی:\s*([^؛\n]+)', rem_text)
+        if defects_m:
+            ms.defects = defects_m.group(1).strip()
+            extracted_spans.append(defects_m.group(0))
+
+        # 11. Codicological labels
+        script_m = re.search(r'(?:^|[؛،\n])\s*خط:\s*([^،؛\n]+)', rem_text)
+        if script_m:
+            ms.script = script_m.group(1).strip()
+            ms.scripts = parse_scripts(ms.script)
+            extracted_spans.append(script_m.group(0))
+
+        if 'بی‌کا' in rem_text or 'بی کا' in rem_text:
             ms.is_bika = True
+            ms.scribe = None
+            ms.scribe_name = None
             extracted_spans.extend(['بی‌کا', 'بی کا'])
         else:
-            scribe_m = re.search(r'(?:^|[؛،\n])\s*(?:کا:|کاتب:|کا\s+)\s*(.+?)(?=(?:،\s*(?:تا[:\s]|جا[:\s]|بی‌تا|بی تا)|[؛\n]|$))', rem_text)
+            scribe_m = re.search(r'(?:^|[؛،\n])\s*(?:کا:|کاتب:)\s*([^،؛\n]+)', rem_text)
             if scribe_m:
                 ms.scribe = scribe_m.group(1).strip()
+                ms.scribe_name = ms.scribe
                 extracted_spans.append(scribe_m.group(0))
 
-        # 11. Copy Date
-        if 'بی‌تا' in rem_text or 'بی تا' in rem_text:
-            ms.copy_date_raw = 'بی‌تا'
-            extracted_spans.extend(['بی‌تا', 'بی تا'])
-        else:
-            date_m = re.search(r'(?:^|[؛،\n])\s*تا:\s*(.+?)(?=(?:،\s*جا[:\s]|[؛\n]|$))', rem_text)
-            if not date_m:
-                m_cand = re.search(rf'(?:^|[؛،\n])\s*تا\s+({DATE_MARKERS}[^،؛\n]*?)(?=(?:،\s*جا[:\s]|[؛\n]|$))', rem_text)
-                if m_cand and not CONTENT_WORDS_RE.search(m_cand.group(1)):
-                    date_m = m_cand
-            if date_m:
-                ms.copy_date_raw = date_m.group(1).strip() if date_m.lastindex else date_m.group(0).strip()
-                extracted_spans.append(date_m.group(0))
+        if 'کاتب = مؤلف' in rem_text or 'کاتب=مؤلف' in rem_text or 'به خط مؤلف' in rem_text:
+            ms.is_autograph = True
+            extracted_spans.extend(['کاتب = مؤلف', 'کاتب=مؤلف', 'به خط مؤلف'])
 
-        # 12. Copy Place: جا: ...
-        place_m = re.search(r'(?:^|[؛،\n])\s*جا[:\s]\s*([^؛\n]+)', rem_text)
+        date_m = re.search(r'(?:^|[؛،\n])\s*تا:\s*([^،؛\n]+)', rem_text)
+        if date_m:
+            ms.copy_date_raw = date_m.group(1).strip()
+            extracted_spans.append(date_m.group(0))
+
+        place_m = re.search(r'(?:^|[؛،\n])\s*جا:\s*([^،؛\n]+)', rem_text)
         if place_m:
             ms.copy_place = place_m.group(1).strip()
             extracted_spans.append(place_m.group(0))
 
-        # 13. Script: خط: ...
-        script_m = re.search(r'(?:^|[؛،\n])\s*خط:\s*([^؛\n]+)', rem_text)
-        if not script_m:
-            script_m = re.search(rf'(?:^|[؛،\n])\s*خط\s+({KNOWN_SCRIPTS}[^؛\n]*)', rem_text)
-        if script_m:
-            ms.script = script_m.group(1).strip() if script_m.lastindex else script_m.group(0).strip()
-            extracted_spans.append(script_m.group(0))
+        folios_m = re.search(r'(\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه))\b', rem_text)
+        if folios_m:
+            ms.folios = folios_m.group(1).strip()
+            extracted_spans.append(folios_m.group(0))
 
-        # 14. Dimensions, paper, binding, format, folios, lines
-        dim_m = re.search(r'اندازه:\s*([^؛\n\[]+)', rem_text)
-        if dim_m:
-            ms.dimensions = dim_m.group(1).strip()
-            extracted_spans.append(dim_m.group(0))
-        paper_m = re.search(r'کاغذ:\s*([^،؛\n]+)', rem_text)
-        if paper_m:
-            ms.paper = paper_m.group(1).strip()
-            extracted_spans.append(paper_m.group(0))
-        binding_m = re.search(r'جلد:\s*([^،؛\n]+)', rem_text)
-        if binding_m:
-            ms.binding = binding_m.group(1).strip()
-            extracted_spans.append(binding_m.group(0))
-        format_m = re.search(r'قطع:\s*([^،؛\n]+)', rem_text)
-        if format_m:
-            ms.format = format_m.group(1).strip()
-            extracted_spans.append(format_m.group(0))
-
-        fol_m = re.search(r'(\d+[\d/]*\s*(?:گ|ص|برگ)(?:\s*\([^)]+\))?)', rem_text)
-        if fol_m:
-            ms.folios = fol_m.group(1).strip()
-            extracted_spans.append(fol_m.group(0))
-
-        lines_m = re.search(r'((?:مختلف السطر|مختلف|\d+(?:\s*تا\s*\d+|-\d+)?\s*سطر)(?:\s*(?:راسته و چلیپا|راسته|چلیپا|مورب))?(?:\s*\([^)]+\))?)', rem_text)
+        lines_m = re.search(r'(\d+[\d\s\/\-–\.]*سطر|مختلف السطر)', rem_text)
         if lines_m:
             ms.lines = lines_m.group(1).strip()
             extracted_spans.append(lines_m.group(0))
 
-        # Defects: افتادگی: ...
-        defect_m = re.search(r'(?:افتادگی:|افتادگی)\s*([^؛\n]+)', rem_text)
-        if defect_m:
-            ms.defects = defect_m.group(1).strip()
-            extracted_spans.append(defect_m.group(0))
+        dim_m = re.search(r'(?:اندازه|ابعاد):\s*([^؛\n]+)', rem_text)
+        if dim_m:
+            ms.dimensions = dim_m.group(1).strip()
+            extracted_spans.append(dim_m.group(0))
 
-        # Ownership & seals
-        ownership_m = re.search(r'(?:تملک|مالک):\s*([^؛\n]+)', rem_text)
-        if ownership_m:
-            ms.ownership_and_seals.append(ownership_m.group(0).strip())
-            extracted_spans.append(ownership_m.group(0))
-        waqf_m = re.search(r'(?:واقف|وقف|وقفنامه):\s*([^؛\n]+)', rem_text)
-        if waqf_m:
-            ms.ownership_and_seals.append(waqf_m.group(0).strip())
-            extracted_spans.append(waqf_m.group(0))
-        seals_m = re.search(r'(?:دارای\s*)?مهر(?:\s*های)?:\s*([^؛\n]+)', rem_text)
-        if seals_m:
-            ms.ownership_and_seals.append(seals_m.group(0).strip())
-            extracted_spans.append(seals_m.group(0))
+        paper_m = re.search(r'کاغذ:\s*([^؛\n]+)', rem_text)
+        if paper_m:
+            ms.paper = paper_m.group(1).strip()
+            extracted_spans.append(paper_m.group(0))
 
-        # Annex & attachments
-        for ap in [r'این رساله به نسخه [^؛\n]+ ضمیمه شده است', r'به نسخه [^؛\n]+ ضمیمه شده است', r'دنباله رساله [^؛\n]+', r'[^؛\n]+ ضمیمه دارد']:
+        binding_m = re.search(r'جلد:\s*([^؛\n]+)', rem_text)
+        if binding_m:
+            ms.binding = binding_m.group(1).strip()
+            extracted_spans.append(binding_m.group(0))
+
+        format_m = re.search(r'قطع:\s*([^؛\n]+)', rem_text)
+        if format_m:
+            ms.format = format_m.group(1).strip()
+            extracted_spans.append(format_m.group(0))
+
+        # Ownership & Seals
+        raw_seals = []
+        for sp in [r'(?:دارای\s*)?مهر(?:ها)?:\s*([^؛\n]+)', r'تملک:\s*([^؛\n]+)', r'وقف:\s*([^؛\n]+)']:
+            for sm in re.finditer(sp, rem_text):
+                ms.ownership_and_seals.append(sm.group(0).strip())
+                if 'مهر' in sm.group(0):
+                    raw_seals.append(sm.group(0).strip())
+                extracted_spans.append(sm.group(0))
+
+        if raw_seals:
+            ms.seals = parse_seals(raw_seals)
+
+        for ap in [r'یادداشت[^\n؛]+', r'ضمیمه[^\n؛]+']:
             for am in re.finditer(ap, rem_text):
                 ms.annex_notes.append(am.group(0).strip())
                 extracted_spans.append(am.group(0))
@@ -614,8 +800,9 @@ class FankhaParser:
         if 'رکابه‌دار' in rem_text:
             ms.has_catchwords = True
             extracted_spans.append('رکابه‌دار')
-        if 'عکسی' in rem_text:
+        if 'عکسی' in rem_text or 'عکس' in clean_header or (ms.original_copy_ref and 'عکسی' in ms.original_copy_ref):
             ms.is_facsimile = True
+            ms.sequence_number = None
             extracted_spans.append('عکسی')
         if 'غیر همانند' in rem_text or 'غیرهمانند' in rem_text:
             ms.is_distinct_work = True
@@ -627,7 +814,7 @@ class FankhaParser:
             if span:
                 res_clean = res_clean.replace(span, ' ')
 
-        labels = ['اندازه:', 'کاغذ:', 'جلد:', 'قطع:', 'آغاز:', 'انجام:', 'نسخه اصل:', 'خط:', 'کا:', 'تا:', 'جا:', 'افتادگی:', 'چاپ:', 'شامل:', 'اهدایی:', 'اهدا:', 'ترقیمه:', 'انجامه:', 'خاتمه:', 'تألیف:', 'توضیح:', 'تذکر:']
+        labels = ['اندازه:', 'ابعاد:', 'کاغذ:', 'جلد:', 'قطع:', 'آغاز:', 'انجام:', 'نسخه اصل:', 'خط:', 'کا:', 'تا:', 'جا:', 'افتادگی:', 'چاپ:', 'شامل:', 'اهدایی:', 'اهدا:', 'ترقیمه:', 'انجامه:', 'خاتمه:', 'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:', 'توضیح:', 'تذکر:']
         for lb in labels:
             res_clean = res_clean.replace(lb, ' ')
 
