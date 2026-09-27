@@ -354,7 +354,7 @@ def parse_incipits_and_explicits(text: str) -> Tuple[List[Dict[str, Optional[str
     explicits = []
 
     TERMINAL_RE = re.compile(
-        r'(?:(?:[؛\n]|\.\s*)\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|تملک:|مهر:|اهدایی:|اهدا:|افتادگی:|نسخه اصل:|چاپ:|شامل:|مشتمل بر:|مجموعه\s*ای\s+است|مجموعه‌ای\s+است|توضیح:|تذکر:|ترقیمه:|انجامه:|خاتمه:|بی‌کا|بی کا|بی‌تا|بی تا|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)))|(?:\s*\[\s*(?:ف|سنا|تراثنا|دارالکتب|فهرست|نشریه|عکسی|میراث|آستانه|مخ|کتابخانه|نسخ|طبسی|سپهسالار|مجلس|مرعشی|ملی|ملک|دانشگاه|مشهد|قم|تهران|مؤید|دنا)[^\]]*\]|\s*\[[^\]]*\d+\s*[\-–]\s*\d+[^\]]*\])'
+        r'(?:(?:[؛\n]|\.\s*)\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|تملک:|مهر:|اهدایی:|اهدا:|افتادگی:|نسخه اصل:|اصل نسخه:|چاپ:|شامل:|مشتمل بر:|مجموعه\s*ای\s+است|مجموعه‌ای\s+است|توضیح:|تذکر:|ترقیمه:|انجامه:|خاتمه:|از\s+فص\s+|بی‌کا|بی کا|بی‌تا|بی تا|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)))|(?:\s*\[\s*(?:ف|سنا|تراثنا|دارالکتب|فهرست|نشریه|عکسی|میراث|آستانه|مخ|کتابخانه|نسخ|طبسی|سپهسالار|مجلس|مرعشی|ملی|ملک|دانشگاه|مشهد|قم|تهران|مؤید|دنا)[^\]]*\]|\s*\[[^\]]*\d+\s*[\-–]\s*\d+[^\]]*\])'
     )
 
     for i, m in enumerate(matches):
@@ -972,10 +972,10 @@ class FankhaParser:
                 ms.editorial_notes.append(b_content)
             extracted_spans.append(cm.group(0))
 
-        # 2. Original copy reference: نسخه اصل: ... or همان نسخه بالا / همان نسخه
-        orig_m = re.search(r'(?:نسخه اصل:\s*|^|[؛،\n]\s*)(همان\s+نسخه(?:\s+بالا|\s+شماره\s*\d+)?)', rem_text)
+        # 2. Original copy reference: نسخه اصل: ... / اصل نسخه: ... or همان نسخه بالا / همان نسخه
+        orig_m = re.search(r'(?:^|[؛،\n]\s*)(?:نسخه\s+اصل|اصل\s+نسخه):\s*([^؛\n]+)', rem_text)
         if not orig_m:
-            orig_m = re.search(r'نسخه اصل:\s*([^؛\n]+)', rem_text)
+            orig_m = re.search(r'(?:^|[؛،\n]\s*)(همان\s+نسخه(?:\s+اصل)?(?:\s+بالا|\s+شماره\s*\d+)?)', rem_text)
         if orig_m:
             orig_val = orig_m.group(1).strip() if orig_m.lastindex else orig_m.group(0).strip()
             ms.original_copy_ref = orig_val
@@ -1028,6 +1028,19 @@ class FankhaParser:
                 ms.contents_note += f"؛ {l_val}"
             extracted_spans.append(lead_contents_m.group(0).strip(' ؛\n'))
 
+        lead_pre_script_m = re.search(r'(?:^|\n)\s*([^؛\n]+?)(?:[؛\n]|،)\s*خط:', rem_text)
+        if lead_pre_script_m:
+            cand = lead_pre_script_m.group(1).strip()
+            if not re.search(r'آغاز|انجام|نسخه اصل|اصل نسخه|چاپ:|افتادگی:', cand):
+                if re.match(r'^(?:از|سروده)\s+', cand) and not ms.editorial_notes:
+                    ms.editorial_notes.append(cand)
+                else:
+                    if not ms.contents_note:
+                        ms.contents_note = cand
+                    elif cand not in ms.contents_note:
+                        ms.contents_note += f"؛ {cand}"
+                extracted_spans.append(lead_pre_script_m.group(0).rsplit('خط:', 1)[0].strip(' ؛،\n'))
+
         # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست / در پایان اجازه ... است / در پایان نسخه ... / در این مجموعه ... / این نسخه ...
         for ep in [r'(?:^|[؛،\n])\s*توضیح:\s*([^؛\n]+)', r'(?:^|[؛،\n])\s*تذکر:\s*([^؛\n]+)']:
             for em in re.finditer(ep, rem_text):
@@ -1054,6 +1067,10 @@ class FankhaParser:
         if ed_auth_m:
             ms.editorial_notes.append(ed_auth_m.group(1).strip())
             extracted_spans.append(ed_auth_m.group(1).strip())
+        handwriting_diff_m = re.search(r'(?:^|[؛،\n])\s*((?:بعضی|برخی|چند)\s+(?:صفحه|صفحات|برگ)\s+(?:ظاهراً\s+)?[^؛\n]*?به\s+خط\s+[^؛\n]+?(?:است)?)(?=[؛\n]|$)', rem_text)
+        if handwriting_diff_m:
+            ms.editorial_notes.append(handwriting_diff_m.group(1).strip())
+            extracted_spans.append(handwriting_diff_m.group(1).strip())
         ed_comp_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:خلاصه\s*تر|مفصل\s*تر|متفاوت\s+با|مختصرتر)[^؛\n]+?است)(?=[؛\n]|$)', rem_text)
         if ed_comp_m:
             ms.editorial_notes.append(ed_comp_m.group(1).strip())
@@ -1298,7 +1315,7 @@ class FankhaParser:
                 ms.colophon = colo_cert_m.group(1).strip()
                 extracted_spans.append(colo_cert_m.group(1).strip())
             else:
-                colo_start_m = re.search(r'(?:^|[؛\n])\s*(تمام شد\s+[^؛\n]+|تمت\s+[^؛\n]+|پایان یافت\s+[^؛\n]+)', rem_text)
+                colo_start_m = re.search(r'(?:^|[؛\n])\s*(تمام شد\s+[^؛\n]+|تمت\s+[^؛\n]+|پایان یافت\s+[^؛\n]+|(?:در\s+)?(?:آخر|پایان)\s+(?:آن\s+|نسخه\s+)?آمده\s+«[^»]+»)', rem_text)
                 if colo_start_m:
                     ms.colophon = colo_start_m.group(1).strip()
                     extracted_spans.append(colo_start_m.group(0))
@@ -1310,7 +1327,14 @@ class FankhaParser:
         if 'محشی' in rem_text or 'در حواشی' in rem_text or 'در حاشیه' in rem_text:
             ms.has_marginal_notes = True
             extracted_spans.extend(['محشی', 'در حواشی', 'در حاشیه'])
-        if 'مجدول' in rem_text or 'با جدول' in rem_text:
+        ruled_m = re.search(r'(?:صفحات\s+)?مجدول(?:\s+(?:زرین|به\s+زر(?:\s+و\s+[^؛،\n]+)?|الوان|کمند|ساده))?|(?:صفحات\s+)?جدول\s+[^\s؛،\n]+\s+خطی|(?:دارای\s+)?جدول[‌\s]کشی|با\s+جدول', rem_text)
+        if ruled_m:
+            ms.is_ruled = True
+            r_str = ruled_m.group(0).strip()
+            if any(gold in r_str for gold in ['زرین', 'زر', 'مذهب', 'طلا']):
+                ms.is_illuminated = True
+            extracted_spans.append(r_str)
+        elif 'مجدول' in rem_text or 'با جدول' in rem_text:
             ms.is_ruled = True
             extracted_spans.extend(['مجدول', 'با جدول'])
         if 'رکابه‌دار' in rem_text:
@@ -1325,9 +1349,9 @@ class FankhaParser:
             extracted_spans.extend(['غیر همانند', 'غیرهمانند'])
 
         # is_collated: مقابله شده / مقابله گردیده / تصحیح و مقابله / مقابل کرده / با بلاغ ... / با نشان بلغ مقابله شده
-        if re.search(r'(?:مقابله\s+(?:شده|گردیده|نموده)|تصحیح\s+و\s+مقابله|مقابل\s+کرده|با\s+بلاغ|با\s+(?:نشان|عبارت)\s*«بلغ[»\s]|سه\s+بار\s+مقابله|دو\s+مرتبه\s+مقابله)', rem_text):
+        if re.search(r'(?:مقابله\s+(?:شده|گردیده|نموده)|تصحیح\s+و\s+مقابله|مقابل\s+کرده|با\s+(?:علامت|نشان)\s+(?:بلاغ|بلغ)|با\s+بلاغ|با\s+(?:نشان|عبارت)\s*«بلغ[»\s]|سه\s+بار\s+مقابله|دو\s+مرتبه\s+مقابله)', rem_text):
             ms.is_collated = True
-            m_coll = re.search(r'(?:[؛،\n]\s*)?(?:[^\n؛،]*مقابله[^\n؛،]*|با\s+بلاغ[^\n؛،]+|با\s+(?:نشان|عبارت)\s*«بلغ[^»]+»[^\n؛،]*)', rem_text)
+            m_coll = re.search(r'(?:[؛،\n]\s*)?(?:[^\n؛،]*مقابله[^\n؛،]*|با\s+(?:علامت|نشان)\s+(?:بلاغ|بلغ)|با\s+بلاغ[^\n؛،]*|با\s+(?:نشان|عبارت)\s*«بلغ[^»]+»[^\n؛،]*)', rem_text)
             if m_coll:
                 extracted_spans.append(m_coll.group(0).strip(' ؛،\n'))
 
@@ -1402,8 +1426,8 @@ class FankhaParser:
             'توضیح:', 'تذکر:', 'به دستور:', 'به دستور',
             'به فرمایش:', 'به فرمایش', 'به امر:', 'به امر',
             'به فرموده:', 'به فرموده', 'برای:', 'برای', 'به نام:', 'به نام',
-            'بی‌تا', 'بی تا', 'بی‌کا', 'بی کا', 'مصحح', 'محشی', 'مجدول', 'مذهب',
-            'مقابله شده', 'واقف:', 'واقف'
+            'بی‌تا', 'بی تا', 'بی‌کا', 'بی کا', 'مصحح', 'محشی', 'مجدول', 'مذهب', 'زرین',
+            'مقابله شده', 'واقف:', 'واقف', 'نسخه اصل:', 'اصل نسخه:'
         ]
         for lb in labels:
             res_clean = res_clean.replace(lb, ' ')
