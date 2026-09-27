@@ -239,7 +239,7 @@ def extract_title_form_and_clean(primary_title: str) -> Tuple[str, Optional[str]
         form = "compilation"
     elif re.search(r'جدول|جداول', qualifier):
         form = "table"
-    elif re.search(r'فائده|فوائد|فایده', qualifier):
+    elif re.search(r'فائده|فوائد|فایده|مطالب|مطالبی', qualifier):
         form = "notes"
     elif re.search(r'تقریر|تقرير|تقریرات|تقريرات', qualifier):
         form = "lecture_notes"
@@ -985,7 +985,8 @@ class FankhaParser:
         # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست / در پایان اجازه ... است
         for ep in [r'(?:^|[؛،\n])\s*توضیح:\s*([^؛\n]+)', r'(?:^|[؛،\n])\s*تذکر:\s*([^؛\n]+)']:
             for em in re.finditer(ep, rem_text):
-                ms.editorial_notes.append(em.group(1).strip())
+                ed_text = PAGE_TAG_PATTERN.sub('', em.group(1)).strip()
+                ms.editorial_notes.append(ed_text)
                 extracted_spans.append(em.group(0))
         ijaza_m = re.search(r'(?:^|[؛،\n])\s*((?:در\s+پایان\s+)?اجازه\s+[^؛\n]+?(?:است)?)(?=[؛\n]|$)', rem_text)
         if ijaza_m:
@@ -1056,6 +1057,12 @@ class FankhaParser:
             ms.script = script_m.group(1).strip()
             ms.scripts, ms.script_styles = parse_scripts_and_styles(ms.script)
             extracted_spans.append(script_m.group(0))
+        else:
+            script_no_colon_m = re.search(r'(?:^|[؛،\n\s])(?:و\s+)?(خط\s+(?:زیبا|خوش|عالی|نازیبا|متوسط|روان|خوانا|ناخوانا|جلی|خفی|معرب|شکسته|نستعلیق|نسخ|ثلث|رقاع|ریحان|توقیع|کوفی|مغربی|دیوانی))', rem_text)
+            if script_no_colon_m:
+                ms.script = script_no_colon_m.group(1).strip()
+                ms.scripts, ms.script_styles = parse_scripts_and_styles(ms.script)
+                extracted_spans.append(script_no_colon_m.group(0).strip(' ؛،\n'))
 
         if 'بی‌کا' in rem_text or 'بی کا' in rem_text:
             ms.is_bika = True
@@ -1063,7 +1070,7 @@ class FankhaParser:
             ms.scribe_name = None
             extracted_spans.extend(['بی‌کا', 'بی کا'])
         else:
-            SCRIBE_STOP = r'(?:[؛\n\[]|،\s*(?:تا:|جا:|خط:|برای:|برای\s+|به دستور|به نام|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)))'
+            SCRIBE_STOP = r'(?:[؛\n\[]|،\s*(?:تا:|جا:|خط:|بی‌تا|بی تا|بی‌کا|بی کا|برای:|برای\s+|به دستور|به نام|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)))'
             scribe_m = re.search(r'(?:^|[؛،\n])\s*(?:کا:|کاتب:)\s*([^؛\n\[]+?)(?=' + SCRIBE_STOP + r'|$)', rem_text)
             if scribe_m:
                 s_val = scribe_m.group(1).strip()
