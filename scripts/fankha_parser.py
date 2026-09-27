@@ -122,6 +122,7 @@ class WorkEntry:
     author_death_date_gregorian: Optional[str] = None
     author_death_date_gregorian_calculated: Optional[int] = None
     composition_date: Optional[str] = None
+    composition_place: Optional[str] = None
     dedication: Optional[str] = None
     related_work: Optional[str] = None
     description: Optional[str] = None
@@ -354,7 +355,7 @@ def parse_incipits_and_explicits(text: str) -> Tuple[List[Dict[str, Optional[str
     explicits = []
 
     TERMINAL_RE = re.compile(
-        r'(?:[؛\n]\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|تملک:|مهر:|اهدایی:|اهدا:|افتادگی:|نسخه اصل:|چاپ:|شامل:|توضیح:|تذکر:|ترقیمه:|انجامه:|خاتمه:|بی‌کا|بی کا|بی‌تا|بی تا|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)))|(?:\s*\[[^\]]+\])'
+        r'(?:[؛\n]\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|تملک:|مهر:|اهدایی:|اهدا:|افتادگی:|نسخه اصل:|چاپ:|شامل:|توضیح:|تذکر:|ترقیمه:|انجامه:|خاتمه:|بی‌کا|بی کا|بی‌تا|بی تا|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)))|(?:\s*\[\s*(?:ف|سنا|تراثنا|دارالکتب|فهرست|نشریه|عکسی|میراث|آستانه|مخ|کتابخانه|نسخ|طبسی|سپهسالار|مجلس|مرعشی|ملی|ملک|دانشگاه|مشهد|قم|تهران|مؤید|دنا)[^\]]*\]|\s*\[[^\]]*\d+\s*[\-–]\s*\d+[^\]]*\])'
     )
 
     for i, m in enumerate(matches):
@@ -830,16 +831,22 @@ class FankhaParser:
             rem_text = rem_text.replace(orig_auth_m.group(0), ' ').strip()
 
         # Composition date (تاریخ تألیف / تألیف / تاریخ اجازه / اجازه)
-        comp_m = re.search(r'(?:^|[؛،\n])\s*(?:تاریخ تألیف|تألیف|تاریخ اجازه|اجازه):\s*(.+?)(?=(?:[؛،\n]\s*(?:محل تألیف|محل صدور)|(?:\s+این\s+(?:کتاب|رساله))|[؛\n]|$))', rem_text)
+        comp_m = re.search(r'(?:^|\n)\s*(?:تاریخ تألیف|تألیف|تاریخ اجازه|اجازه):\s*([^\n]+)', rem_text)
         if comp_m:
-            work.composition_date = comp_m.group(1).strip()
-            rem_text = rem_text.replace(comp_m.group(0), ' ').strip()
+            comp_val = comp_m.group(1).strip()
+            place_m = re.search(r'(?:[؛،]\s*)?(?:محل تألیف|محل تالیف|محل صدور|محل نگارش):\s*([^؛،\n]+)', comp_val)
+            if place_m:
+                work.composition_date = comp_val[:place_m.start()].strip(' ؛،')
+                work.composition_place = place_m.group(1).strip()
+            else:
+                work.composition_date = comp_val
+            rem_text = rem_text.replace(comp_m.group(0), '\n').strip()
 
-        # Dedication (اهداء به / اهدا به / اهدایی به)
-        ded_m = re.search(r'(?:^|\n)\s*(?:اهداء به|اهدا به|اهدایی به):\s*([^\n]+)', rem_text)
+        # Dedication / Commissioned by (اهداء به / اهدا به / اهدایی به / به درخواست / به دستور / ...)
+        ded_m = re.search(r'(?:^|\n)\s*(?:اهداء به|اهدا به|اهدایی به|به درخواست|به دستور|به فرمایش|به امر|به خواهش|به التماس|به فرموده|به نام):\s*([^\n]+)', rem_text)
         if ded_m:
             work.dedication = ded_m.group(1).strip()
-            rem_text = rem_text.replace(ded_m.group(0), ' ').strip()
+            rem_text = rem_text.replace(ded_m.group(0), '\n').strip()
 
         # Related work (وابسته به: ...)
         rel_m = re.search(r'(?:^|\n)\s*وابسته به:\s*([^\n]+)', rem_text)
@@ -982,7 +989,7 @@ class FankhaParser:
                 ms.contents_note = sec_m.group(1).strip()
                 extracted_spans.append(sec_m.group(1).strip())
 
-        # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست / در پایان اجازه ... است
+        # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست / در پایان اجازه ... است / در پایان نسخه ... / در این مجموعه ...
         for ep in [r'(?:^|[؛،\n])\s*توضیح:\s*([^؛\n]+)', r'(?:^|[؛،\n])\s*تذکر:\s*([^؛\n]+)']:
             for em in re.finditer(ep, rem_text):
                 ed_text = PAGE_TAG_PATTERN.sub('', em.group(1)).strip()
@@ -992,6 +999,14 @@ class FankhaParser:
         if ijaza_m:
             ms.editorial_notes.append(ijaza_m.group(1).strip())
             extracted_spans.append(ijaza_m.group(1).strip())
+        col_end_m = re.search(r'(?:^|[؛،\n])\s*(در\s+پایان\s+نسخه\s+[^؛\n]+?(?:شده|است))(?=[؛\n]|$)', rem_text)
+        if col_end_m:
+            ms.editorial_notes.append(col_end_m.group(1).strip())
+            extracted_spans.append(col_end_m.group(1).strip())
+        maj_notes_m = re.search(r'(?:^|[؛،\n])\s*(در\s+این\s+مجموعه\s+[^؛\n]+?)(?=[؛\n]|$)', rem_text)
+        if maj_notes_m:
+            ms.editorial_notes.append(maj_notes_m.group(1).strip())
+            extracted_spans.append(maj_notes_m.group(1).strip())
 
         # 6. Colophon extract: ترقیمه: / انجامه: / خاتمه:
         colophon_m = re.search(r'(?:^|[؛،\n])\s*(?:ترقیمه|انجامه|خاتمه):\s*([^؛\n]+)', rem_text)
@@ -1023,11 +1038,20 @@ class FankhaParser:
             ms.explicit_text = "\n".join(item['text'] for item in explicits if item.get('text'))
         extracted_spans.extend(inc_exp_spans)
 
-        # 10. Defects (افتادگی: ...)
+        # 10. Defects (افتادگی: ... / فاقد خطبه / دیباچه آن نیست / ناقص است / ...)
         defects_m = re.search(r'(?:^|[؛،\n])\s*افتادگی:\s*([^؛\n]+)', rem_text)
         if defects_m:
             ms.defects = defects_m.group(1).strip()
             extracted_spans.append(defects_m.group(0))
+
+        def_extra_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:فاقد\s+(?:خطبه|دیباچه|سرلوح)|دیباچه\s+آن\s+نیست|بی\s+دیباچه|ناقص\s+است|نقص(?:‌| )?هایی\s+دارد|نقصان\s+دارد)[^؛،\n]*?)(?=[؛،\n]|$)', rem_text)
+        if def_extra_m:
+            d_val = def_extra_m.group(1).strip()
+            if ms.defects:
+                ms.defects += f"؛ {d_val}"
+            else:
+                ms.defects = d_val
+            extracted_spans.append(def_extra_m.group(1).strip())
 
         # 11. Identification uncertainty
         id_m = re.search(r'(?:^|[؛،\n])\s*(?:کتاب ناشناخته|همانندی نامعلوم|همانندی غیر معلوم|همانندی نامشخص)[:\.]?\s*([^؛\n]+)', rem_text)
@@ -1118,12 +1142,20 @@ class FankhaParser:
             extracted_spans.append(text_dim_m.group(0))
 
         # Lines count and parenthesized text dimensions (e.g. 20 سطر (13/5×9), 15 تا 26 سطر راسته و چلیپا)
-        lines_full_m = re.search(r'((?:\d+[\d\s\/\-–\.]*(?:تا|الی|–|-)?\s*\d*[\d\s\/\-–\.]*سطر|مختلف السطر)(?:\s+(?:راسته\s+و\s+چلیپا|چلیپا|راسته))?)(?:\s*\(([0-9\/\,\.]+\s*[×xX\*]\s*[0-9\/\,\.]+(?:\s*سم)?)\))?', rem_text)
-        if lines_full_m:
-            ms.lines = lines_full_m.group(1).strip()
-            if lines_full_m.group(2) and not ms.text_dimensions:
-                ms.text_dimensions = lines_full_m.group(2).strip()
-            extracted_spans.append(lines_full_m.group(0))
+        all_lines = list(re.finditer(r'((?:\d+[\d\s\/\-–\.]*(?:تا|الی|–|-)?\s*\d*[\d\s\/\-–\.]*سطر|مختلف السطر)(?:\s+(?:راسته\s+و\s+چلیپا|چلیپا|راسته))?)(?:\s*\(([0-9\/\,\.]+\s*[×xX\*]\s*[0-9\/\,\.]+(?:\s*سم)?)\))?', rem_text))
+        valid_lines = [m for m in all_lines if not re.search(r'(?:افزودن|کسر|کمبود|زیادتی|افتادن)\s*$', rem_text[:m.start()])]
+        best_m = None
+        for m in valid_lines:
+            if m.group(2):
+                best_m = m
+                break
+        if not best_m and valid_lines:
+            best_m = valid_lines[-1]
+        if best_m:
+            ms.lines = best_m.group(1).strip()
+            if best_m.group(2) and not ms.text_dimensions:
+                ms.text_dimensions = best_m.group(2).strip()
+            extracted_spans.append(best_m.group(0))
 
         # Overall dimensions (negative lookahead for متن)
         dim_m = re.search(r'(?:^|[؛،\n])\s*(?:اندازه|ابعاد)(?!\s*متن):\s*([^؛،\n\[]+)', rem_text)
@@ -1172,7 +1204,7 @@ class FankhaParser:
             ms.seals = parse_seals(raw_seals)
 
         ANNEX_STOP = r'(?:[؛\n\[]|،\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
-        annex_pat = re.compile(r'(?:^|[؛\n])\s*([^؛\n]*?(?:ضمیمه|الحاق|دنباله\s+(?:رساله|کتاب)|رساله\s+ضمیمه|یادداشت|سپس\s+«|پس\s+از\s+این|مطالب\s+پراکنده)[^؛\n]*?)(?=' + ANNEX_STOP + r'|$)')
+        annex_pat = re.compile(r'(?:^|[؛\n])\s*([^؛\n]*?(?:ضمیمه|الحاق|دنباله\s+(?:رساله|کتاب)|رساله\s+ضمیمه|یادداشت|سپس\s+«|پس\s+از\s+این|مطالب\s+پراکنده|عبارت[ی‌]?(?:\s+ترکی|\s+فارسی|\s+عربی)?\s+به\s+تاریخ|در\s+\d+\s*[پرو]\s+عبارت)[^؛\n]*?)(?=' + ANNEX_STOP + r'|$)')
         for am in annex_pat.finditer(rem_text):
             ms.annex_notes.append(am.group(1).strip())
             extracted_spans.append(am.group(1).strip())
@@ -1223,7 +1255,7 @@ class FankhaParser:
                 ms.is_illuminated = True
 
         MARG_STOP = r'(?:[؛\n\[]|،\s*(?:مصحح|مجدول|مذهب|مصور|رکابه‌دار|خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
-        marg_m = re.search(r'(?:^|[؛،\n])\s*(محشی\s+(?:(?:لغوی\s+)?با\s+(?:نشان(?:[‌\s]?های)?|علامت|رموز|رمز)|(?:لغوی\s+)?از|به\s+خط)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
+        marg_m = re.search(r'(?:^|[؛،\n])\s*((?:محشی|(?:[^\n؛،]*\s+)?حاشیه‌نویسی)\s+(?:(?:لغوی\s+)?با\s+(?:نشان(?:[‌\s]?های)?|علامت|رموز|رمز)|(?:لغوی\s+)?از|به\s+خط)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
         if marg_m:
             ms.has_marginal_notes = True
             extracted_spans.append(marg_m.group(1).strip())
