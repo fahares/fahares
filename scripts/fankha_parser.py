@@ -144,14 +144,15 @@ class ReferralEntry:
 
 AUTHOR_DATE_PATTERN = re.compile(
     r'(?:'
-    r'\d{3,4}[?؟]?\s*[\-–]\s*\d{3,4}\s*[?؟]?\s*ق?'
-    r'|[\-–]\s*\d{3,4}\s*[?؟]?\s*ق?'
-    r'|ق\s*\d{1,2}\s*ق'
-    r'|قرن\s*\d{1,2}\s*ق?'
+    r'\d{3,4}[?؟]?\s*[\-–]\s*\d{3,4}\s*[?؟]?\s*(?:ق(?:مر[یی])?|ش(?:مسی)?|م(?:یلادی)?)?'
+    r'|[\-–]\s*\d{3,4}\s*[?؟]?\s*(?:ق(?:مر[یی])?|ش(?:مسی)?|م(?:یلادی)?)?'
+    r'|ق\s*\d{1,2}\s*ق?'
+    r'|قرن\s*\d{1,2}\s*(?:ق(?:مر[یی])?|ش(?:مسی)?|م(?:یلادی)?)?'
     r'|زنده در\s*\d{3,4}'
     r'|متوفای\s*\d{3,4}'
-    r'|\d{3,4}\s*[?؟]?\s*ق'
-    r')$'
+    r'|\d{3,4}\s*[?؟]?\s*(?:ق(?:مر[یی])?|ش(?:مسی)?|م(?:یلادی)?)?'
+    r'|\((?:(?:قرن|سده)\s*\d{1,2}|[\d\?؟\s\-–\.\/]+(?:ق(?:مر[یی])?|ش(?:مسی)?|م(?:یلادی)?|قبل میلاد)?)\)'
+    r')[\.\s]*$'
 )
 
 DESC_WORDS = [
@@ -255,11 +256,11 @@ def clean_author(raw_author: str) -> Tuple[str, str]:
 
     if re.search(r'منسوب به|شاید از', s):
         status = "attributed"
-    elif re.search(r'[؟\?]|ظاهراً|ظاهرا|احتمالاً|احتمالا', s):
+    elif re.search(r'[؟\?]|ظاهراً|ظاهرا|احتمالاً|احتمالا|گویا', s):
         status = "probable"
 
     clean = s
-    clean = re.sub(r'^(?:[؟\?\s\:]|منسوب به|شاید از|ظاهراً از|ظاهرا از|ظاهراً|ظاهرا|احتمالاً از|احتمالا از|احتمالاً|احتمالا)+', '', clean).strip(' :؟?')
+    clean = re.sub(r'^(?:[؟\?\s\:]|منسوب به|شاید از|ظاهراً از|ظاهرا از|ظاهراً|ظاهرا|احتمالاً از|احتمالا از|احتمالاً|احتمالا|گویا از|گویا)+', '', clean).strip(' :؟?')
     clean = re.sub(r'\s*\([؟\?]\)', '', clean).strip()
     clean = re.sub(r'[؟\?]', '', clean).strip()
 
@@ -508,11 +509,11 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
     line = line.strip()
     if not line or len(line) > 120:
         return False
-    clean_l = re.sub(r'^(?:[؟\?\s\:]|منسوب به|شاید از|ظاهراً از|ظاهرا از|ظاهراً|ظاهرا|احتمالاً از|احتمالا از|احتمالاً|احتمالا)+', '', line).strip(' :؟?')
+    clean_l = re.sub(r'^(?:[؟\?\s\:]|منسوب به|شاید از|ظاهراً از|ظاهرا از|ظاهراً|ظاهرا|احتمالاً از|احتمالا از|احتمالاً|احتمالا|گویا از|گویا)+', '', line).strip(' :؟?')
     if not clean_l:
         return False
     first_word = clean_l.split()[0] if clean_l.split() else ''
-    if any(first_word.startswith(w) for w in ['رساله', 'کتاب', 'منظومه', 'شرح', 'ترجمه', 'تفسیر', 'یکی', 'این', 'در', 'از', 'گویا', 'سرگذشت', 'مجموعه', 'مطالب', 'گزارش', 'آمار', 'وابسته']):
+    if any(first_word.startswith(w) for w in ['رساله', 'کتاب', 'منظومه', 'شرح', 'ترجمه', 'تفسیر', 'یکی', 'این', 'در', 'از', 'سرگذشت', 'مجموعه', 'مطالب', 'گزارش', 'آمار', 'وابسته']):
         return False
     if DESC_WORDS_PATTERN.search(clean_l):
         return False
@@ -542,10 +543,10 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
     return False
 
 def extract_author_and_date(cand: str) -> Tuple[str, Optional[str]]:
-    cand = cand.strip()
+    cand = cand.strip().rstrip('. :،')
 
-    m_paren = re.search(r'\s*\(([\d\?؟\s\-–\.\/]*(?:ق(?:مر[یی])?|م(?:یلادی)?|ش(?:مسی)?|قبل میلاد)?)\)$', cand)
-    if m_paren and any(c.isdigit() for c in m_paren.group(1)):
+    m_paren = re.search(r'\s*\(((?:(?:قرن|سده)\s+)?[\d\?؟\s\-–\.\/]*(?:ق(?:مر[یی])?|م(?:یلادی)?|ش(?:مسی)?|قبل میلاد)?)\)$', cand)
+    if m_paren and (any(c.isdigit() for c in m_paren.group(1)) or 'قرن' in m_paren.group(1) or 'سده' in m_paren.group(1)):
         return cand[:m_paren.start()].rstrip('، '), m_paren.group(1).strip()
 
     if '،' in cand:
@@ -949,11 +950,14 @@ class FankhaParser:
                 ms.editorial_notes.append(b_content)
             extracted_spans.append(cm.group(0))
 
-        # 2. Original copy reference: نسخه اصل: ...
-        orig_m = re.search(r'نسخه اصل:\s*([^؛\n]+)', rem_text)
+        # 2. Original copy reference: نسخه اصل: ... or همان نسخه بالا / همان نسخه
+        orig_m = re.search(r'(?:نسخه اصل:\s*|^|[؛،\n]\s*)(همان\s+نسخه(?:\s+بالا|\s+شماره\s*\d+)?)', rem_text)
+        if not orig_m:
+            orig_m = re.search(r'نسخه اصل:\s*([^؛\n]+)', rem_text)
         if orig_m:
-            ms.original_copy_ref = orig_m.group(1).strip()
-            extracted_spans.append(orig_m.group(0))
+            orig_val = orig_m.group(1).strip() if orig_m.lastindex else orig_m.group(0).strip()
+            ms.original_copy_ref = orig_val
+            extracted_spans.append(orig_m.group(0).strip())
             if 'همان نسخه' in ms.original_copy_ref:
                 m_num = re.search(r'شماره\s*(\d+)', ms.original_copy_ref)
                 if m_num:
@@ -967,22 +971,26 @@ class FankhaParser:
             ms.print_info = print_m.group(1).strip()
             extracted_spans.append(print_m.group(0))
 
-        # 4. Contents / Included works: شامل: ... / حاوی: ... / مشتمل بر: ... / بخش ... است / بندی از آن است / گزیده‌ای است از آن
+        # 4. Contents / Included works: شامل: ... / حاوی: ... / مشتمل بر: ... / بخش ... است / در ... باب / از باب ... تا آخر
         contents_m = re.search(r'(?:^|[؛،\n])\s*(?:شامل|حاوی|مشتمل بر):\s*([^؛\n]+)', rem_text)
         if contents_m:
             ms.contents_note = contents_m.group(1).strip()
             extracted_spans.append(contents_m.group(0))
         else:
-            sec_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:بخش[^\n؛،]*است|بندی\s+از\s+آن\s+است|گزیده‌ای\s+است\s+از\s+آن|\d+\s+تعلیق\s+از\s+تعلیقات)[^؛\n]*?)(?=[؛\n]|،\s*(?:خط:|کا:|تا:|جا:|کاغذ:|جلد:|$))', rem_text)
+            sec_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:بخش[^\n؛،]*است|بندی\s+از\s+آن\s+است|گزیده‌ای\s+است\s+از\s+آن|\d+\s+تعلیق\s+از\s+تعلیقات|در\s+(?:[^\s،؛]+\s+)?باب(?:[^\n؛،]*فصل)?|از\s+باب\s+\d+\s+تا\s+(?:آخر|پایان))[^؛\n]*?)(?=[؛\n]|،\s*(?:خط:|کا:|تا:|جا:|کاغذ:|جلد:|$))', rem_text)
             if sec_m:
                 ms.contents_note = sec_m.group(1).strip()
                 extracted_spans.append(sec_m.group(1).strip())
 
-        # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست
+        # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست / در پایان اجازه ... است
         for ep in [r'(?:^|[؛،\n])\s*توضیح:\s*([^؛\n]+)', r'(?:^|[؛،\n])\s*تذکر:\s*([^؛\n]+)']:
             for em in re.finditer(ep, rem_text):
                 ms.editorial_notes.append(em.group(1).strip())
                 extracted_spans.append(em.group(0))
+        ijaza_m = re.search(r'(?:^|[؛،\n])\s*((?:در\s+پایان\s+)?اجازه\s+[^؛\n]+?(?:است)?)(?=[؛\n]|$)', rem_text)
+        if ijaza_m:
+            ms.editorial_notes.append(ijaza_m.group(1).strip())
+            extracted_spans.append(ijaza_m.group(1).strip())
 
         # 6. Colophon extract: ترقیمه: / انجامه: / خاتمه:
         colophon_m = re.search(r'(?:^|[؛،\n])\s*(?:ترقیمه|انجامه|خاتمه):\s*([^؛\n]+)', rem_text)
@@ -1135,7 +1143,12 @@ class FankhaParser:
 
         # Ownership & Seals
         raw_seals = []
-        for sp in [r'(?:دارای\s*)?مهر(?:ها)?:\s*([^؛\n]+)', r'تملک[ی:]\s*([^؛\n]+)', r'وقف:\s*([^؛\n]+)', r'واقف:\s*([^؛\n]+)']:
+        for sp in [
+            r'(?:دارای\s*)?مهر(?:ها)?:\s*([^؛\n]+)',
+            r'تملک[ی:]\s*([^؛\n]+)',
+            r'(?:وقف|واقف):\s*([^؛\n]+)',
+            r'(?:از\s+موقوفات|وقفنامه\s+نسخه|موقوفه)\s+([^؛\n]+)'
+        ]:
             for sm in re.finditer(sp, rem_text):
                 full_match = sm.group(0).strip()
                 ms.ownership_and_seals.append(full_match)
@@ -1152,7 +1165,7 @@ class FankhaParser:
             ms.seals = parse_seals(raw_seals)
 
         ANNEX_STOP = r'(?:[؛\n\[]|،\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
-        annex_pat = re.compile(r'(?:^|[؛\n])\s*([^؛\n]*?(?:ضمیمه|الحاق|دنباله\s+(?:رساله|کتاب)|رساله\s+ضمیمه|یادداشت)[^؛\n]*?)(?=' + ANNEX_STOP + r'|$)')
+        annex_pat = re.compile(r'(?:^|[؛\n])\s*([^؛\n]*?(?:ضمیمه|الحاق|دنباله\s+(?:رساله|کتاب)|رساله\s+ضمیمه|یادداشت|سپس\s+«|پس\s+از\s+این|مطالب\s+پراکنده)[^؛\n]*?)(?=' + ANNEX_STOP + r'|$)')
         for am in annex_pat.finditer(rem_text):
             ms.annex_notes.append(am.group(1).strip())
             extracted_spans.append(am.group(1).strip())
@@ -1190,12 +1203,12 @@ class FankhaParser:
             ms.is_distinct_work = True
             extracted_spans.extend(['غیر همانند', 'غیرهمانند'])
 
-        # is_collated: مقابله شده / مقابله گردیده / تصحیح و مقابله / مقابل کرده / با نشان بلغ مقابله شده
-        if re.search(r'(?:مقابله\s+(?:شده|گردیده|نموده)|تصحیح\s+و\s+مقابله|مقابل\s+کرده|با\s+نشان\s*«بلغ[»\s]|با\s+عبارت\s*«بلغ[»\s]|سه\s+بار\s+مقابله|دو\s+مرتبه\s+مقابله)', rem_text):
+        # is_collated: مقابله شده / مقابله گردیده / تصحیح و مقابله / مقابل کرده / با بلاغ ... / با نشان بلغ مقابله شده
+        if re.search(r'(?:مقابله\s+(?:شده|گردیده|نموده)|تصحیح\s+و\s+مقابله|مقابل\s+کرده|با\s+بلاغ|با\s+(?:نشان|عبارت)\s*«بلغ[»\s]|سه\s+بار\s+مقابله|دو\s+مرتبه\s+مقابله)', rem_text):
             ms.is_collated = True
-            m_coll = re.search(r'(?:[؛،\n]\s*)?(?:[^\n؛،]*مقابله[^\n؛،]*|با\s+عبارت\s*«بلغ[^»]+»\s*مقابله\s*شده)', rem_text)
+            m_coll = re.search(r'(?:[؛،\n]\s*)?(?:[^\n؛،]*مقابله[^\n؛،]*|با\s+بلاغ[^\n؛،]+|با\s+(?:نشان|عبارت)\s*«بلغ[^»]+»[^\n؛،]*)', rem_text)
             if m_coll:
-                extracted_spans.append(m_coll.group(0).strip())
+                extracted_spans.append(m_coll.group(0).strip(' ؛،\n'))
 
         # is_illuminated: مذهب / تذهیب / زرین / طلاپوش / سرلوح مذهب / سرلوح مرصع / شمسه مذهب / زرنگار / زرافشان
         if re.search(r'(?:(?<![^\s،؛])مذهب|تذهیب|زرین|طلاپوش|سرلوح\s+(?:مذهب|مرصع)|شمسه\s+مذهب|مرصع|زرنگار|زرافشان)', rem_text):
@@ -1203,7 +1216,7 @@ class FankhaParser:
                 ms.is_illuminated = True
 
         MARG_STOP = r'(?:[؛\n\[]|،\s*(?:مصحح|مجدول|مذهب|مصور|رکابه‌دار|خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
-        marg_m = re.search(r'(?:^|[؛،\n])\s*(محشی\s+(?:با\s+(?:نشان(?:ها)?|علامت|رموز|رمز)|از|به\s+خط)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
+        marg_m = re.search(r'(?:^|[؛،\n])\s*(محشی\s+(?:(?:لغوی\s+)?با\s+(?:نشان(?:[‌\s]?های)?|علامت|رموز|رمز)|(?:لغوی\s+)?از|به\s+خط)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
         if marg_m:
             ms.has_marginal_notes = True
             extracted_spans.append(marg_m.group(1).strip())
@@ -1217,6 +1230,9 @@ class FankhaParser:
 
         if re.search(r'(?:سرلوح|سر لوح)', rem_text):
             ms.is_illuminated = True
+            m_sl = re.search(r'(?:دارای|با)?\s*سرلوح(?:[‌\s]+های)?(?:\s+(?:خوب|زیبا|عالی|مذهب|مرصع|زرین|روغنی|معرق|ساده|کوچک))?', rem_text)
+            if m_sl:
+                extracted_spans.append(m_sl.group(0).strip())
             for sl_span in ['دارای سرلوح', 'با سرلوح', 'با سر لوح‌های زرین', 'سرلوح‌های زرین', 'سر لوح‌های زرین']:
                 if sl_span in rem_text:
                     extracted_spans.append(sl_span)
@@ -1259,6 +1275,7 @@ class FankhaParser:
             res_clean = res_clean.replace(lb, ' ')
 
         res_clean = re.sub(r'<!--[^>]+-->', ' ', res_clean)
+        res_clean = re.sub(r'(?:^|[؛،\s])و(?=[؛،\s]|$)', ' ', res_clean)
         res_clean = re.sub(r'^[؛،\s\n\-]+|[؛،\s\n\-]+$', ' ', res_clean)
         res_clean = re.sub(r'[؛،\n\-]{2,}', ' ', res_clean)
         res_clean = re.sub(r'\s+', ' ', res_clean).strip(' ؛،-')
@@ -1291,12 +1308,19 @@ class FankhaParser:
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 fankha_parser.py <volume_num> [output_json_path]")
+        print("Usage: python3 fankha_parser.py <volume_num | input_file> [output_json_path]")
         sys.exit(1)
 
-    vol_num = int(sys.argv[1])
-    input_file = f"sources/text/fahares_vol_{vol_num:02d}.txt"
-    output_file = sys.argv[2] if len(sys.argv) > 2 else f"sources/json/fahares_vol_{vol_num:02d}.json"
+    arg1 = sys.argv[1]
+    if arg1.isdigit():
+        vol_num = int(arg1)
+        input_file = f"sources/text/fahares_vol_{vol_num:02d}.txt"
+        output_file = sys.argv[2] if len(sys.argv) > 2 else f"sources/json/fahares_vol_{vol_num:02d}.json"
+    else:
+        input_file = arg1
+        m = re.search(r'vol_(\d+)', input_file)
+        vol_num = int(m.group(1)) if m else 18
+        output_file = sys.argv[2] if len(sys.argv) > 2 else "output.json"
 
     parser = FankhaParser(vol_num)
     parser.parse_file(input_file)
