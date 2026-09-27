@@ -967,11 +967,16 @@ class FankhaParser:
             ms.print_info = print_m.group(1).strip()
             extracted_spans.append(print_m.group(0))
 
-        # 4. Contents / Included works: شامل: ...
-        contents_m = re.search(r'(?:^|[؛،\n])\s*شامل:\s*([^؛\n]+)', rem_text)
+        # 4. Contents / Included works: شامل: ... / حاوی: ... / مشتمل بر: ... / بخش ... است / بندی از آن است / گزیده‌ای است از آن
+        contents_m = re.search(r'(?:^|[؛،\n])\s*(?:شامل|حاوی|مشتمل بر):\s*([^؛\n]+)', rem_text)
         if contents_m:
             ms.contents_note = contents_m.group(1).strip()
             extracted_spans.append(contents_m.group(0))
+        else:
+            sec_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:بخش[^\n؛،]*است|بندی\s+از\s+آن\s+است|گزیده‌ای\s+است\s+از\s+آن|\d+\s+تعلیق\s+از\s+تعلیقات)[^؛\n]*?)(?=[؛\n]|،\s*(?:خط:|کا:|تا:|جا:|کاغذ:|جلد:|$))', rem_text)
+            if sec_m:
+                ms.contents_note = sec_m.group(1).strip()
+                extracted_spans.append(sec_m.group(1).strip())
 
         # 5. Editorial notes: توضیح: / تذکر: / نقد فهرست
         for ep in [r'(?:^|[؛،\n])\s*توضیح:\s*([^؛\n]+)', r'(?:^|[؛،\n])\s*تذکر:\s*([^؛\n]+)']:
@@ -1086,7 +1091,7 @@ class FankhaParser:
             ms.copy_place = re.sub(r'\[[^\]]*\]?', '', place_m.group(1)).strip()
             extracted_spans.append(place_m.group(0))
 
-        folios_m = re.search(r'(?:^|[؛،\s])(\d+[\d\s\/\-–\.]*(?:صص|ص|گ|برگ|ورق|صفحه)(?!\w)(?:\s*\([0-9\s\-–پرو\.\/]+\))?)', rem_text)
+        folios_m = re.search(r'(?:^|[؛،\s])(?<!\bدر\s)(?<!\bبه\s)(\d+[\d\s\/\-–\.]*(?:صص|ص|گ|برگ|ورق|صفحه)(?!\w)(?:\s*\([0-9\s\-–پرو\.\/،,]+\))?)', rem_text)
         if folios_m:
             ms.folios = folios_m.group(1).strip()
             extracted_spans.append(folios_m.group(1).strip())
@@ -1130,7 +1135,7 @@ class FankhaParser:
 
         # Ownership & Seals
         raw_seals = []
-        for sp in [r'(?:دارای\s*)?مهر(?:ها)?:\s*([^؛\n]+)', r'تملک:\s*([^؛\n]+)', r'وقف:\s*([^؛\n]+)']:
+        for sp in [r'(?:دارای\s*)?مهر(?:ها)?:\s*([^؛\n]+)', r'تملک[ی:]\s*([^؛\n]+)', r'وقف:\s*([^؛\n]+)', r'واقف:\s*([^؛\n]+)']:
             for sm in re.finditer(sp, rem_text):
                 full_match = sm.group(0).strip()
                 ms.ownership_and_seals.append(full_match)
@@ -1138,9 +1143,10 @@ class FankhaParser:
                 if re.match(r'^(?:دارای\s*)?مهر(?:ها)?:\s*', full_match):
                     raw_seals.append(full_match)
                 else:
-                    m_inner_seal = re.findall(r'با مهر\s*«([^»]+)»', full_match)
-                    for is_text in m_inner_seal:
-                        raw_seals.append(f"مهر: {is_text}")
+                    m_inner_seal = re.findall(r'با مهر\s*«([^»]+)»(?:\s*\(([^)]+)\))?', full_match)
+                    for is_text, is_shape in m_inner_seal:
+                        shape_str = f" ({is_shape})" if is_shape else ""
+                        raw_seals.append(f"مهر: {is_text}{shape_str}")
 
         if raw_seals:
             ms.seals = parse_seals(raw_seals)
@@ -1151,12 +1157,17 @@ class FankhaParser:
             ms.annex_notes.append(am.group(1).strip())
             extracted_spans.append(am.group(1).strip())
 
-        # Colophon: Check if there is colophon text starting with "تمام شد" or "تمت" or "پایان یافت"
+        # Colophon: Check if there is colophon text starting with "تمام شد" or "تمت" or "پایان یافت" or autograph certificate "با دستخط ... در پایان نسخه"
         if not ms.colophon:
-            colo_start_m = re.search(r'(?:^|[؛\n])\s*(تمام شد\s+[^؛\n]+|تمت\s+[^؛\n]+|پایان یافت\s+[^؛\n]+)', rem_text)
-            if colo_start_m:
-                ms.colophon = colo_start_m.group(1).strip()
-                extracted_spans.append(colo_start_m.group(0))
+            colo_cert_m = re.search(r'(?:^|[؛،\n])\s*(با\s+دستخط\s+[^؛\n]+?:\s*«[^»]+»)', rem_text)
+            if colo_cert_m:
+                ms.colophon = colo_cert_m.group(1).strip()
+                extracted_spans.append(colo_cert_m.group(1).strip())
+            else:
+                colo_start_m = re.search(r'(?:^|[؛\n])\s*(تمام شد\s+[^؛\n]+|تمت\s+[^؛\n]+|پایان یافت\s+[^؛\n]+)', rem_text)
+                if colo_start_m:
+                    ms.colophon = colo_start_m.group(1).strip()
+                    extracted_spans.append(colo_start_m.group(0))
 
         # Boolean flags
         if 'مصحح' in rem_text:
@@ -1191,6 +1202,25 @@ class FankhaParser:
             if not re.search(r'مذهب\s+(?:شیعه|حنفی|شافعی|مالکی|امامیه|جعفری|اهل\s+سنت)', rem_text):
                 ms.is_illuminated = True
 
+        MARG_STOP = r'(?:[؛\n\[]|،\s*(?:مصحح|مجدول|مذهب|مصور|رکابه‌دار|خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
+        marg_m = re.search(r'(?:^|[؛،\n])\s*(محشی\s+(?:با\s+(?:نشان(?:ها)?|علامت|رموز|رمز)|از|به\s+خط)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
+        if marg_m:
+            ms.has_marginal_notes = True
+            extracted_spans.append(marg_m.group(1).strip())
+            if re.search(r'(?:منه|مؤلف|مد\s*ظله|سلمه\s+الله|دام\s*ظله|عفی\s+عنه|رحمه\s+الله)', marg_m.group(1)):
+                ms.has_author_marginalia = True
+
+        if re.search(r'(?:صورت\s+چلیپا|به\s+صورت\s+چلیپا|چلیپا\s+نویس)', rem_text):
+            if 'چلیپا' not in ms.script_styles:
+                ms.script_styles.append('چلیپا')
+            extracted_spans.extend(['صورت چلیپا', 'به صورت چلیپا', 'چلیپا نویس'])
+
+        if re.search(r'(?:سرلوح|سر لوح)', rem_text):
+            ms.is_illuminated = True
+            for sl_span in ['دارای سرلوح', 'با سرلوح', 'با سر لوح‌های زرین', 'سرلوح‌های زرین', 'سر لوح‌های زرین']:
+                if sl_span in rem_text:
+                    extracted_spans.append(sl_span)
+
         # has_author_marginalia: محشی با نشان منه / محشی از مؤلف / منه سلمه الله / منه مد ظله ...
         if re.search(r'(?:محشی\s+با\s+(?:نشان|علامت|امضاء|امضای)\s*«?منه|محشی\s+(?:از|به\s+خط)\s+مؤلف|حاشیه(?:[‌\s]+های[ی‌]?)?\s+از\s+مؤلف|منه\s+(?:سلمه\s+الله|مد\s*ظله|دام\s*ظله|عفی\s+عنه|رحمه\s+الله|قدس\s+سره|ایده\s+الله|حفظه\s+الله|دام\s+علوه|مد\s+عزه))', rem_text):
             ms.has_author_marginalia = True
@@ -1223,7 +1253,7 @@ class FankhaParser:
             'به فرمایش:', 'به فرمایش', 'به امر:', 'به امر',
             'به فرموده:', 'به فرموده', 'برای:', 'برای', 'به نام:', 'به نام',
             'بی‌تا', 'بی تا', 'بی‌کا', 'بی کا', 'مصحح', 'محشی', 'مجدول', 'مذهب',
-            'مقابله شده'
+            'مقابله شده', 'واقف:', 'واقف'
         ]
         for lb in labels:
             res_clean = res_clean.replace(lb, ' ')

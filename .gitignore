@@ -21,5 +21,10 @@ scratch/
 __pycache__/
 *.pyc
 .venv/
+# Corpus & Data Sources (Managed in external fahares-corpus repo & releases)
+sources/text/
+sources/json/
 sources/pdf/
+
 .agents
+.git_backup_pre_filter/
