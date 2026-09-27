@@ -1019,14 +1019,14 @@ class FankhaParser:
                     ms.contents_note = s_val
                 extracted_spans.append(sec_m.group(1).strip())
 
-        lead_contents_m = re.search(r'(?:^|\n)\s*([^؛\n]*?(?:گردآوری\s+شده|در\s+این\s+مجموعه|مجموعه\s*ای\s+است|بیاضی\s+است|بیاض|جنگ|نوحه\s+و\s+سوگواری|چند\s+مجلس\s+روضه|مراثی|مرثیه|روضه|درباره\s+|در\s+موضوع\s+)[^؛\n]*?)(?=[؛\n]|،\s*خط:)', rem_text)
+        lead_contents_m = re.search(r'(?:^|\n|^(?:[^\n؛]+[؛،]\s*))\s*([^؛\n]*?(?:گردآوری\s+شده|در\s+این\s+مجموعه|مجموعه\s*ای\s+است|بیاضی\s+است|بیاض|جنگ|نوحه\s+و\s+سوگواری|چند\s+مجلس\s+روضه|مراثی|مرثیه|روضه|درباره\s+|در\s+موضوع\s+)[^؛\n]*?)(?=[؛\n]|،\s*خط:)', rem_text)
         if lead_contents_m:
             l_val = lead_contents_m.group(1).strip()
             if not ms.contents_note:
                 ms.contents_note = l_val
             elif l_val not in ms.contents_note:
                 ms.contents_note += f"؛ {l_val}"
-            extracted_spans.append(lead_contents_m.group(0).strip(' ؛\n'))
+            extracted_spans.append(l_val)
 
         lead_pre_script_m = re.search(r'(?:^|\n)\s*([^؛\n]+?)(?:[؛\n]|،)\s*خط:', rem_text)
         if lead_pre_script_m:
@@ -1084,7 +1084,7 @@ class FankhaParser:
         if charm_m:
             ms.editorial_notes.append(charm_m.group(1).strip())
             extracted_spans.append(charm_m.group(1).strip())
-        from_orig_m = re.search(r'(?:^|[؛،\n])\s*((?:گویا\s+)?از\s+روی\s+(?:نسخه|جامع|کتاب)[^؛،\n]+?)(?=[؛،\n]|$)', rem_text)
+        from_orig_m = re.search(r'(?:^|[؛،\n])\s*((?:گویا\s+)?از\s+روی\s+(?:نسخه|جامع|کتاب|خط(?:\s+مصنف|\s+مؤلف)?)[^؛،\n]+?)(?=[؛،\n]|$)', rem_text)
         if from_orig_m:
             ms.editorial_notes.append(from_orig_m.group(1).strip())
             extracted_spans.append(from_orig_m.group(0).strip(' ؛،\n'))
@@ -1141,7 +1141,7 @@ class FankhaParser:
             ms.defects = defects_m.group(1).strip()
             extracted_spans.append(defects_m.group(0))
 
-        def_extra_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:فاقد\s+(?:خطبه|دیباچه|سرلوح|مقدمه(?:[‌\s]+منثوره)?)|دیباچه\s+آن\s+نیست|بی\s+دیباچه|ناقص\s+است|نقص(?:‌| )?هایی\s+دارد|نقصان\s+دارد|نونویس|نو نویس|بخشی\s+از(?:\s+آن)?|قسمتی\s+از(?:\s+آن)?)[^؛،\n]*?)(?=[؛،\n]|$)', rem_text)
+        def_extra_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:فاقد\s+(?:خطبه|دیباچه|سرلوح|مقدمه(?:[‌\s]+منثوره)?)|دیباچه\s+آن\s+نیست|بی\s+دیباچه|ناقص\s+است|نقص(?:‌| )?هایی\s+دارد|نقصان\s+دارد|نونویس|نو نویس|بخشی\s+از(?:\s+آن)?|قسمتی\s+از(?:\s+آن)?|(?:در\s+نسخه\s+ما\s+)?تنها\s+(?:دیباچه|مقدمه|آغاز|پایان|بخش|فصل)\s+آن\s+آمده)[^؛،\n]*?)(?=[؛،\n]|$)', rem_text)
         if def_extra_m:
             d_val = def_extra_m.group(1).strip()
             if ms.defects:
@@ -1299,10 +1299,10 @@ class FankhaParser:
         raw_seals = []
         for sp in [
             r'(?:دارای\s*)?مهر(?:[‌\s]+(?:وقف|بیضی|مربع|مدور|چهارگوش|هشت\s*ضلعی|بادامی))?[:\s]\s*([^؛\n]+)',
-            r'تملک[ی:]\s*([^؛\n]+)',
-            r'(?:وقف|واقف):\s*([^؛\n]+)',
-            r'(?:از\s+موقوفات|وقفنامه\s+نسخه|موقوفه)\s+([^؛\n]+)',
-            r'(?:انتقالی\s+از|خریداری\s+از|خریداری\s+شده\s+از|اهدایی\s+از|از\s+کتابخانه)\s+([^؛\n]+)',
+            r'تملک[ی:\s]\s*([^؛\n]+)',
+            r'(?:وقف|واقف)[:\s]\s*([^؛\n]+)',
+            r'(?:از\s+موقوفات|وقف[‌\s]?نامه(?:\s+نسخه)?|موقوفه)\s+([^؛\n]+)',
+            r'(?:انتقالی\s+از|خریداری(?:\s+از|\s+شده\s+از|\s+در|\s+به\s+سال)?|اهدایی\s+از|از\s+کتابخانه)\s+([^؛\n]+)',
             r'(?:روی\s+جلد\s+نوشته|در\s+پشت\s+جلد|در\s+عطف\s+جلد|در\s+برگ\s+اول|در\s+پشت\s+صفحه\s+بدرقه)\s*([^؛\n]+)'
         ]:
             for sm in re.finditer(sp, rem_text):
@@ -1380,7 +1380,7 @@ class FankhaParser:
             extracted_spans.append(illum_m.group(0).strip())
 
         MARG_STOP = r'(?:[؛\n\[]|،\s*(?:مصحح|مجدول|مذهب|مصور|رکابه‌دار|خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
-        marg_m = re.search(r'(?:^|[؛،\n])\s*((?:محشی|(?:[^\n؛،]*\s+)?حاشیه‌نویسی)\s+(?:(?:لغوی\s+)?با\s+(?:نشان(?:[‌\s]?های)?|علامت|رموز|رمز)|(?:لغوی\s+)?از|به\s+خط)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
+        marg_m = re.search(r'(?:^|[؛،\n])\s*((?:محشی|(?:[^\n؛،]*\s+)?حاشیه‌نویسی)\s+(?:(?:لغوی\s+)?با\s+(?:نشان(?:[‌\s]?های)?|علامت|رموز|رمز)|(?:لغوی\s+)?از|به\s+خط|به\s+نقل\s+از)\s+[^؛\n]+?)(?=' + MARG_STOP + r'|$)', rem_text)
         if marg_m:
             ms.has_marginal_notes = True
             extracted_spans.append(marg_m.group(1).strip())
@@ -1407,10 +1407,10 @@ class FankhaParser:
 
         if re.search(r'(?:سرلوح|سر لوح)', rem_text):
             ms.is_illuminated = True
-            m_sl = re.search(r'(?:دارای|با)?\s*سر[‌\s]?لوح(?:[‌\s]+های)?(?:\s+(?:خوب|زیبا|عالی|مذهب|مرصع|زرین|روغنی|معرق|ساده|کوچک))?', rem_text)
+            m_sl = re.search(r'(?:دارای|با)?\s*(?:یک|دو|سه|چهار|\d+)?\s*سر[‌\s]?لوح(?:[‌\s]+های)?[^\n؛،]*', rem_text)
             if m_sl:
                 extracted_spans.append(m_sl.group(0).strip())
-            for sl_span in ['دارای سرلوح', 'دارای سر لوح', 'با سرلوح', 'با سر لوح', 'با سر لوح‌های زرین', 'سرلوح‌های زرین', 'سر لوح‌های زرین']:
+            for sl_span in ['دارای سرلوح', 'دارای سر لوح', 'با سرلوح', 'با سر لوح', 'با سر لوح‌های زرین', 'سرلوح‌های زرین', 'سر لوح‌های زرین', 'با دو سرلوح زرین', 'با یک سرلوح']:
                 if sl_span in rem_text:
                     extracted_spans.append(sl_span)
 
