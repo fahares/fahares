@@ -144,13 +144,13 @@ class ReferralEntry:
 
 AUTHOR_DATE_PATTERN = re.compile(
     r'(?:'
-    r'\d{3,4}\s*[\-–]\s*\d{3,4}\s*\??\s*ق?'
-    r'|[\-–]\s*\d{3,4}\s*\??\s*ق?'
+    r'\d{3,4}[?؟]?\s*[\-–]\s*\d{3,4}\s*[?؟]?\s*ق?'
+    r'|[\-–]\s*\d{3,4}\s*[?؟]?\s*ق?'
     r'|ق\s*\d{1,2}\s*ق'
     r'|قرن\s*\d{1,2}\s*ق?'
     r'|زنده در\s*\d{3,4}'
     r'|متوفای\s*\d{3,4}'
-    r'|\d{3,4}\s*ق'
+    r'|\d{3,4}\s*[?؟]?\s*ق'
     r')$'
 )
 
@@ -160,6 +160,12 @@ DESC_WORDS = [
     'بندی', 'سرگذشت', 'مطالب', 'عبارتند', 'یکی از', 'چند ', 'درباره', 'پیرامون',
     '«باب»', '«فصل»', '«اصل»', '«مقدمه»', '«مقصد»', 'باشد', 'محتملاً', 'احتمالاً'
 ]
+
+DESC_WORDS_PATTERN = re.compile(
+    r'(?:^|[؛،\s\(\)\[\]«»])(?:' +
+    '|'.join(re.escape(w.strip()) for w in DESC_WORDS) +
+    r')(?:[؛،\s\(\)\[\]«»]|$|[!؟\.])'
+)
 
 HONORIFICS = {'ص', 'ع', 'عج', 'ره', 'س', 'قس', 'رض'}
 
@@ -508,7 +514,7 @@ def is_author_line(line: str, next_line: Optional[str] = None) -> bool:
     first_word = clean_l.split()[0] if clean_l.split() else ''
     if any(first_word.startswith(w) for w in ['رساله', 'کتاب', 'منظومه', 'شرح', 'ترجمه', 'تفسیر', 'یکی', 'این', 'در', 'از', 'گویا', 'سرگذشت', 'مجموعه', 'مطالب', 'گزارش', 'آمار', 'وابسته']):
         return False
-    if any(w in clean_l for w in DESC_WORDS):
+    if DESC_WORDS_PATTERN.search(clean_l):
         return False
     if any(clean_l.startswith(w) for w in ['آغاز:', 'انجام:', 'چاپ:', 'وابسته به:', 'تاریخ تألیف:', 'تألیف:', 'تاریخ اجازه:', 'اجازه:', 'اهداء به:', 'اهدا به:', 'اهدایی به:', 'موضوع:']):
         return False
@@ -712,7 +718,7 @@ class FankhaParser:
         total_p = len(preamble_lines)
 
         # 1. Transliteration (line 1 after header if ASCII/Latin letters)
-        while idx < total_p and not preamble_lines[idx].strip():
+        while idx < total_p and not PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip():
             idx += 1
         if idx < total_p:
             cand = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
@@ -724,11 +730,14 @@ class FankhaParser:
                 idx += 1
 
         # 2. Author info
-        while idx < total_p and not preamble_lines[idx].strip():
+        while idx < total_p and not PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip():
             idx += 1
         if idx < total_p:
             cand = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
-            next_cand = PAGE_TAG_PATTERN.sub('', preamble_lines[idx+1]).strip() if idx+1 < total_p else None
+            next_idx = idx + 1
+            while next_idx < total_p and not PAGE_TAG_PATTERN.sub('', preamble_lines[next_idx]).strip():
+                next_idx += 1
+            next_cand = PAGE_TAG_PATTERN.sub('', preamble_lines[next_idx]).strip() if next_idx < total_p else None
 
             cand_trans = None
             if re.search(r'[a-zA-Z\']', cand) and re.search(r'[\u0600-\u06FF]', cand):
@@ -782,10 +791,13 @@ class FankhaParser:
                 idx += 1
 
                 if not cand_trans and idx < total_p:
-                    next_l = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
-                    if next_l and any(c.isascii() and c.isalpha() for c in next_l):
-                        cand_trans = next_l
+                    while idx < total_p and not PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip():
                         idx += 1
+                    if idx < total_p:
+                        next_l = PAGE_TAG_PATTERN.sub('', preamble_lines[idx]).strip()
+                        if next_l and any(c.isascii() and c.isalpha() for c in next_l):
+                            cand_trans = next_l
+                            idx += 1
 
                 if cand_trans:
                     gm = re.search(r'\(([^)]+)\)$', cand_trans)
@@ -847,6 +859,20 @@ class FankhaParser:
         if exp_m:
             work.explicit = exp_m.group(1).strip()
 
+        # Commentaries and glosses: شرح و حواشی: / شروح و حواشی:
+        comm_section_m = re.search(r'(?:^|\n)\s*(?:شرح و حواشی|شروح و حواشی):\s*(.+)', rem_text, re.DOTALL)
+        if comm_section_m:
+            comm_text = comm_section_m.group(1).strip()
+            raw_comm_items = re.split(r'(?:^|\n)\s*\d+[\.\-]\s*', comm_text)
+            comm_items = []
+            for ci in raw_comm_items:
+                ci_clean = re.sub(r'\[[^\]]+\]', '', ci).strip()
+                ci_clean = PAGE_TAG_PATTERN.sub('', ci_clean).strip(' \n؛،-')
+                if ci_clean:
+                    comm_items.append(ci_clean)
+            if comm_items:
+                work.commentaries_and_glosses = comm_items
+
         # Bibliography citations [ ... ] - split each by semicolon (؛)
         bib_items = []
         bib_spans = []
@@ -860,8 +886,10 @@ class FankhaParser:
         if bib_items:
             work.bibliography = bib_items
 
-        # Description is everything before incipit, print, or bibliography
+        # Description is everything before incipit, print, commentaries, or bibliography
         desc_text = rem_text
+        if comm_section_m:
+            desc_text = desc_text.split(comm_section_m.group(0))[0]
         if work_print_m:
             desc_text = desc_text.split(work_print_m.group(0))[0]
         if inc_m:
@@ -912,9 +940,13 @@ class FankhaParser:
 
         extracted_spans: List[str] = []
 
-        # 1. Catalog citation [ ... ]
+        # 1. Bracketed notes: catalog citation vs editorial notes
         for cm in re.finditer(r'\[([^\]]+)\]', rem_text):
-            ms.catalog_citation = f"[{cm.group(1).strip()}]"
+            b_content = cm.group(1).strip()
+            if is_bib_citation(b_content):
+                ms.catalog_citation = f"[{b_content}]"
+            else:
+                ms.editorial_notes.append(b_content)
             extracted_spans.append(cm.group(0))
 
         # 2. Original copy reference: نسخه اصل: ...
@@ -994,13 +1026,16 @@ class FankhaParser:
             extracted_spans.extend(['همانندی نامعلوم', 'همانندی غیر معلوم', 'کتاب ناشناخته'])
 
         # 12. Commissioned by (به دستور / به فرمایش / به امر / به خواهش / به التماس / به فرموده / برای / به نام)
-        comm_m = re.search(r'(?:^|[؛،\n])\s*(?:به دستور|به فرمایش|به امر|به خواهش|به التماس|به فرموده|به نام|برای)[:\s]\s*([^؛\n\[]+)', rem_text)
+        comm_m = re.search(r'(?:^|[؛،\n])\s*([^؛،\n]*?(?:به دستور|به فرمایش|به امر|به خواهش|به التماس|به فرموده|به نام|برای)[:\s]\s*[^؛\n\[]+)', rem_text)
         if comm_m:
-            c_val = comm_m.group(1).strip()
-            c_val = re.sub(r'\s*(?:کتابت شده|نوشته شده|تحریر شده|نگاشته شده|انجام شده).*$', '', c_val).strip()
-            if c_val:
-                ms.commissioned_by = c_val
-                extracted_spans.append(comm_m.group(0))
+            full_comm_span = comm_m.group(1).strip()
+            inner_m = re.search(r'(?:به دستور|به فرمایش|به امر|به خواهش|به التماس|به فرموده|به نام|برای)[:\s]\s*([^؛\n\[]+)', full_comm_span)
+            if inner_m:
+                c_val = inner_m.group(1).strip()
+                c_val = re.sub(r'\s*(?:کتابت شده|نوشته شده|تحریر شده|نگاشته شده|انجام شده).*$', '', c_val).strip()
+                if c_val:
+                    ms.commissioned_by = c_val
+                    extracted_spans.append(full_comm_span)
 
         # 13. Codicological labels
         script_m = re.search(r'(?:^|[؛،\n])\s*خط:\s*([^،؛\n]+)', rem_text)
@@ -1039,20 +1074,22 @@ class FankhaParser:
             ms.is_bita = True
             extracted_spans.extend(['بی‌تا', 'بی تا'])
 
-        date_m = re.search(r'(?:^|[؛،\n])\s*تا:\s*([^،؛\n\[]+)', rem_text)
+        DATE_STOP = r'(?:[؛\n\[]|،\s*(?:جا:|خط:|کا:|کاتب:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
+        date_m = re.search(r'(?:^|[؛،\n])\s*تا:\s*([^؛\n\[]+?)(?=' + DATE_STOP + r'|$)', rem_text)
         if date_m:
             ms.copy_date_raw = re.sub(r'\[[^\]]*\]?', '', date_m.group(1)).strip()
             extracted_spans.append(date_m.group(0))
 
-        place_m = re.search(r'(?:^|[؛،\n])\s*جا:\s*([^،؛\n\[]+)', rem_text)
+        PLACE_STOP = r'(?:[؛\n\[]|،\s*(?:تا:|خط:|کا:|کاتب:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
+        place_m = re.search(r'(?:^|[؛،\n])\s*جا:\s*([^؛\n\[]+?)(?=' + PLACE_STOP + r'|$)', rem_text)
         if place_m:
             ms.copy_place = re.sub(r'\[[^\]]*\]?', '', place_m.group(1)).strip()
             extracted_spans.append(place_m.group(0))
 
-        folios_m = re.search(r'(\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه)(?:\s*\([0-9\s\-–پرو\.\/]+\))?)', rem_text)
+        folios_m = re.search(r'(?:^|[؛،\s])(\d+[\d\s\/\-–\.]*(?:صص|ص|گ|برگ|ورق|صفحه)(?!\w)(?:\s*\([0-9\s\-–پرو\.\/]+\))?)', rem_text)
         if folios_m:
             ms.folios = folios_m.group(1).strip()
-            extracted_spans.append(folios_m.group(0))
+            extracted_spans.append(folios_m.group(1).strip())
 
         # Explicit text dimensions: ابعاد متن: / اندازه متن: / سطح نوشته:
         text_dim_m = re.search(r'(?:^|[؛،\n])\s*(?:ابعاد متن|اندازه متن|سطح نوشته):\s*([^؛،\n\[]+)', rem_text)
@@ -1060,8 +1097,8 @@ class FankhaParser:
             ms.text_dimensions = text_dim_m.group(1).strip()
             extracted_spans.append(text_dim_m.group(0))
 
-        # Lines count and parenthesized text dimensions (e.g. 20 سطر (13/5×9))
-        lines_full_m = re.search(r'(\d+[\d\s\/\-–\.]*سطر|مختلف السطر)(?:\s*\(([0-9\/\,\.]+\s*[×xX\*]\s*[0-9\/\,\.]+(?:\s*سم)?)\))?', rem_text)
+        # Lines count and parenthesized text dimensions (e.g. 20 سطر (13/5×9), 15 تا 26 سطر راسته و چلیپا)
+        lines_full_m = re.search(r'((?:\d+[\d\s\/\-–\.]*(?:تا|الی|–|-)?\s*\d*[\d\s\/\-–\.]*سطر|مختلف السطر)(?:\s+(?:راسته\s+و\s+چلیپا|چلیپا|راسته))?)(?:\s*\(([0-9\/\,\.]+\s*[×xX\*]\s*[0-9\/\,\.]+(?:\s*سم)?)\))?', rem_text)
         if lines_full_m:
             ms.lines = lines_full_m.group(1).strip()
             if lines_full_m.group(2) and not ms.text_dimensions:
@@ -1108,10 +1145,11 @@ class FankhaParser:
         if raw_seals:
             ms.seals = parse_seals(raw_seals)
 
-        for ap in [r'یادداشت[^\n؛]+', r'ضمیمه[^\n؛]+']:
-            for am in re.finditer(ap, rem_text):
-                ms.annex_notes.append(am.group(0).strip())
-                extracted_spans.append(am.group(0))
+        ANNEX_STOP = r'(?:[؛\n\[]|،\s*(?:خط:|کا:|کاتب:|تا:|جا:|کاغذ:|جلد:|قطع:|ابعاد|اندازه|مصحح|مجدول|مذهب|مصور|رکابه‌دار|\d+[\d\s\/\-–\.]*(?:ص|صص|گ|برگ|ورق|صفحه|سطر)|مختلف السطر))'
+        annex_pat = re.compile(r'(?:^|[؛\n])\s*([^؛\n]*?(?:ضمیمه|الحاق|دنباله\s+(?:رساله|کتاب)|رساله\s+ضمیمه|یادداشت)[^؛\n]*?)(?=' + ANNEX_STOP + r'|$)')
+        for am in annex_pat.finditer(rem_text):
+            ms.annex_notes.append(am.group(1).strip())
+            extracted_spans.append(am.group(1).strip())
 
         # Colophon: Check if there is colophon text starting with "تمام شد" or "تمت" or "پایان یافت"
         if not ms.colophon:
