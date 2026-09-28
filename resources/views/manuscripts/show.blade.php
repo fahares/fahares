@@ -268,7 +268,7 @@
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
                             <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
-                                آغاز نسخه (Incipit)
+                                آغاز نسخه
                             </h3>
                         </div>
                         @if(count($manuscript->incipits_list) > 1)
@@ -280,19 +280,34 @@
 
                     <div class="space-y-3">
                         @foreach($manuscript->incipits_list as $idx => $inc)
-                            <div class="p-4 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] space-y-1.5">
-                                @if(!empty($inc['label']))
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
-                                        {{ $inc['label'] }}
-                                    </span>
-                                @elseif(count($manuscript->incipits_list) > 1)
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
-                                        سرآغاز {{ $idx + 1 }}
-                                    </span>
-                                @endif
-                                <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
-                                    « {{ trim($inc['text'], "«» \t\n\r\0\x0B") }} »
+                            <div class="p-4 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] space-y-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    @if(!empty($inc['is_work_match']))
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/20 text-[#B38A50] dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                            </svg>
+                                            <span>{{ $inc['label'] }}</span>
+                                        </span>
+                                    @elseif(!empty($inc['label']))
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
+                                            {{ $inc['label'] }}
+                                        </span>
+                                    @elseif(count($manuscript->incipits_list) > 1)
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
+                                            سرآغاز {{ $idx + 1 }}
+                                        </span>
+                                    @endif
                                 </div>
+                                @if(!empty($inc['is_placeholder']))
+                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed">
+                                        {{ $inc['text'] }}
+                                    </div>
+                                @else
+                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
+                                        « {{ trim($inc['text'], "«» \t\n\r\0\x0B") }} »
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -305,7 +320,7 @@
                         <div class="flex items-center gap-2">
                             <span class="w-2 h-4 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
                             <h3 class="text-xs font-bold text-[#292C56] dark:text-indigo-400 uppercase tracking-wider">
-                                انجام نسخه (Explicit)
+                                انجام نسخه
                             </h3>
                         </div>
                         @if(count($manuscript->explicits_list) > 1)
@@ -317,19 +332,34 @@
 
                     <div class="space-y-3">
                         @foreach($manuscript->explicits_list as $idx => $exp)
-                            <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 space-y-1.5">
-                                @if(!empty($exp['label']))
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
-                                        {{ $exp['label'] }}
-                                    </span>
-                                @elseif(count($manuscript->explicits_list) > 1)
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
-                                        فرجام {{ $idx + 1 }}
-                                    </span>
-                                @endif
-                                <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
-                                    « {{ trim($exp['text'], "«» \t\n\r\0\x0B") }} »
+                            <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 space-y-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    @if(!empty($exp['is_work_match']))
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                            </svg>
+                                            <span>{{ $exp['label'] }}</span>
+                                        </span>
+                                    @elseif(!empty($exp['label']))
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
+                                            {{ $exp['label'] }}
+                                        </span>
+                                    @elseif(count($manuscript->explicits_list) > 1)
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
+                                            فرجام {{ $idx + 1 }}
+                                        </span>
+                                    @endif
                                 </div>
+                                @if(!empty($exp['is_placeholder']))
+                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed">
+                                        {{ $exp['text'] }}
+                                    </div>
+                                @else
+                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
+                                        « {{ trim($exp['text'], "«» \t\n\r\0\x0B") }} »
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

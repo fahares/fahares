@@ -161,6 +161,53 @@
 
     </div>
 
+    <!-- WORK DESCRIPTION & INCIPIT/EXPLICIT -->
+    @if(!empty($work->description) || !empty($work->incipit_text) || !empty($work->explicit_text))
+        <div class="space-y-4">
+            @if(!empty($work->description))
+                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
+                    <div class="flex items-center gap-2 pb-2 border-b border-stone-100 dark:border-stone-800">
+                        <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
+                        <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
+                            معرفی و مشخصات کتاب‌شناختی اثر (در مأخذ فنخا)
+                        </h3>
+                    </div>
+                    <div class="text-stone-700 dark:text-stone-200 text-xs sm:text-sm leading-loose text-justify font-normal">
+                        {{ $work->description }}
+                    </div>
+                </div>
+            @endif
+
+            @if(!empty($work->incipit_text) || !empty($work->explicit_text))
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @if(!empty($work->incipit_text))
+                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
+                            <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
+                                <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
+                                <span class="text-xs font-bold text-[#B38A50]">سرآغاز اثر (Incipit)</span>
+                            </div>
+                            <div class="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
+                                « {{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }} »
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(!empty($work->explicit_text))
+                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
+                            <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
+                                <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
+                                <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">فرجام اثر (Explicit)</span>
+                            </div>
+                            <div class="p-3.5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
+                                « {{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }} »
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+        </div>
+    @endif
+
     <!-- MANUSCRIPTS TABLE SECTION -->
     <section id="manuscripts" class="space-y-4">
         

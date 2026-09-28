@@ -76,37 +76,140 @@ class Manuscript extends Model
         return null;
     }
 
+    public function getIncipitMatchesWorkAttribute(): bool
+    {
+        if (isset($this->metadata['incipit_matches_work'])) {
+            return (bool) $this->metadata['incipit_matches_work'];
+        }
+        if (!empty($this->incipit_text) && in_array(trim($this->incipit_text), ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
+            return true;
+        }
+        if (!empty($this->raw_text)) {
+            return (bool) preg_match('/(?:^|[؛\n])\s*آغاز(?:\s*و\s*انجام)?[:\s]\s*برابر/u', $this->raw_text);
+        }
+        return false;
+    }
+
+    public function getExplicitMatchesWorkAttribute(): bool
+    {
+        if (isset($this->metadata['explicit_matches_work'])) {
+            return (bool) $this->metadata['explicit_matches_work'];
+        }
+        if (!empty($this->explicit_text) && in_array(trim($this->explicit_text), ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
+            return true;
+        }
+        if (!empty($this->raw_text)) {
+            return (bool) (
+                preg_match('/(?:^|[؛\n])\s*آغاز\s*و\s*انجام[:\s]\s*برابر/u', $this->raw_text) ||
+                preg_match('/(?:^|[؛\n])\s*انجام[:\s]\s*برابر/u', $this->raw_text)
+            );
+        }
+        return false;
+    }
+
     public function getIncipitAttribute(): ?string
     {
-        return $this->incipit_text;
+        $list = $this->incipits_list;
+        return !empty($list[0]['text']) ? $list[0]['text'] : $this->incipit_text;
     }
 
     public function getExplicitAttribute(): ?string
     {
-        return $this->explicit_text;
+        $list = $this->explicits_list;
+        return !empty($list[0]['text']) ? $list[0]['text'] : $this->explicit_text;
     }
 
     public function getIncipitsListAttribute(): array
     {
         $meta = $this->metadata['incipits'] ?? [];
+        $list = [];
         if (!empty($meta) && is_array($meta)) {
-            return $meta;
+            $list = $meta;
+        } elseif (!empty($this->incipit_text)) {
+            $list = [['label' => null, 'text' => $this->incipit_text]];
         }
-        if (!empty($this->incipit_text)) {
-            return [['label' => null, 'text' => $this->incipit_text]];
+
+        $filtered = [];
+        $hasBarabar = false;
+        foreach ($list as $item) {
+            $txt = trim($item['text'] ?? '');
+            if (in_array($txt, ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
+                $hasBarabar = true;
+            } else {
+                $filtered[] = $item;
+            }
         }
+
+        if (!empty($filtered)) {
+            return $filtered;
+        }
+
+        if ($hasBarabar || $this->incipit_matches_work) {
+            $workIncipit = $this->work?->incipit_text;
+            if (!empty($workIncipit)) {
+                return [[
+                    'label' => 'منطبق بر آغاز اثر (در مأخذ: «برابر»)',
+                    'text' => $workIncipit,
+                    'is_work_match' => true,
+                    'is_placeholder' => false,
+                ]];
+            } else {
+                return [[
+                    'label' => 'در مأخذ: «برابر»',
+                    'text' => 'سرآغاز این نسخه در مأخذ فهرست‌نگاری، برابر با آغاز کتاب قید گردیده است.',
+                    'is_work_match' => true,
+                    'is_placeholder' => true,
+                ]];
+            }
+        }
+
         return [];
     }
 
     public function getExplicitsListAttribute(): array
     {
         $meta = $this->metadata['explicits'] ?? [];
+        $list = [];
         if (!empty($meta) && is_array($meta)) {
-            return $meta;
+            $list = $meta;
+        } elseif (!empty($this->explicit_text)) {
+            $list = [['label' => null, 'text' => $this->explicit_text]];
         }
-        if (!empty($this->explicit_text)) {
-            return [['label' => null, 'text' => $this->explicit_text]];
+
+        $filtered = [];
+        $hasBarabar = false;
+        foreach ($list as $item) {
+            $txt = trim($item['text'] ?? '');
+            if (in_array($txt, ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
+                $hasBarabar = true;
+            } else {
+                $filtered[] = $item;
+            }
         }
+
+        if (!empty($filtered)) {
+            return $filtered;
+        }
+
+        if ($hasBarabar || $this->explicit_matches_work) {
+            $workExplicit = $this->work?->explicit_text;
+            if (!empty($workExplicit)) {
+                return [[
+                    'label' => 'منطبق بر انجام اثر (در مأخذ: «برابر»)',
+                    'text' => $workExplicit,
+                    'is_work_match' => true,
+                    'is_placeholder' => false,
+                ]];
+            } else {
+                return [[
+                    'label' => 'در مأخذ: «برابر»',
+                    'text' => 'فرجام این نسخه در مأخذ فهرست‌نگاری، برابر با انجام کتاب قید گردیده است.',
+                    'is_work_match' => true,
+                    'is_placeholder' => true,
+                ]];
+            }
+        }
+
         return [];
     }
 

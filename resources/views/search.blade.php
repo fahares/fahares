@@ -445,9 +445,13 @@
                                     </div>
                                 </div>
 
-                                @if(!empty($ms->incipit_text))
+                                @if(!empty($ms->incipit))
                                     <div class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-1 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-1.5 rounded-xl border-r-2 border-[#B38A50]">
-                                        <span class="text-[#B38A50] font-bold">آغاز نسخه:</span> « {{ Str::limit(trim($ms->incipit_text, "«» \t\n\r\0\x0B"), 110) }} »
+                                        @if($ms->incipit_matches_work)
+                                            <span class="text-[#B38A50] font-bold">آغاز (برابر با اثر):</span> « {{ Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110) }} »
+                                        @else
+                                            <span class="text-[#B38A50] font-bold">آغاز نسخه:</span> « {{ Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110) }} »
+                                        @endif
                                     </div>
                                 @endif
 

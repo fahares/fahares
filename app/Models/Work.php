@@ -72,6 +72,9 @@ class Work extends Model
             'subject_summary' => $this->subject_summary,
             'language_summary' => $this->language_summary,
             'manuscripts_count' => (int) $this->manuscripts_count,
+            'incipit_text' => $this->incipit_text,
+            'explicit_text' => $this->explicit_text,
+            'description' => $this->description ? mb_substr($this->description, 0, 500) : null,
             'subjects' => $this->relationLoaded('subjects') ? $this->subjects->pluck('name')->all() : [],
             'languages' => $this->relationLoaded('languages') ? $this->languages->pluck('name')->all() : [],
         ];
