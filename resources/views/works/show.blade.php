@@ -159,6 +159,30 @@
             </div>
         @endif
 
+        <!-- Dedication, Place, Related Work -->
+        @if(!empty($work->dedication) || !empty($work->composition_place) || !empty($work->related_work))
+            <div class="pt-4 border-t border-stone-100 dark:border-stone-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                @if(!empty($work->dedication))
+                    <div class="space-y-1">
+                        <span class="text-stone-400 block font-medium">اهدا / به درخواست:</span>
+                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->dedication }}</span>
+                    </div>
+                @endif
+                @if(!empty($work->composition_place))
+                    <div class="space-y-1">
+                        <span class="text-stone-400 block font-medium">محل تألیف:</span>
+                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->composition_place }}</span>
+                    </div>
+                @endif
+                @if(!empty($work->related_work))
+                    <div class="space-y-1">
+                        <span class="text-stone-400 block font-medium">اثر مرتبط / وابسته به:</span>
+                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->related_work }}</span>
+                    </div>
+                @endif
+            </div>
+        @endif
+
     </div>
 
     <!-- WORK DESCRIPTION & INCIPIT/EXPLICIT -->
@@ -207,6 +231,85 @@
             @endif
         </div>
     @endif
+
+    <!-- PRINT INFO, COMMENTARIES, BIBLIOGRAPHY & RAW TEXT -->
+    <div class="space-y-4">
+        @if(!empty($work->print_info))
+            <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
+                <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
+                    <span class="w-2 h-3.5 bg-amber-600 rounded-sm"></span>
+                    <span class="text-xs font-bold text-amber-800 dark:text-amber-300">سوابق و چاپ‌های اثر</span>
+                </div>
+                <div class="text-xs leading-loose text-stone-700 dark:text-stone-300 font-medium">
+                    {{ $work->print_info }}
+                </div>
+            </div>
+        @endif
+
+        @if(!empty($work->commentaries_and_glosses) && count($work->commentaries_and_glosses) > 0)
+            <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
+                <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
+                    <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
+                    <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">شروح، حواشی و منظومه‌ها (در فنخا)</span>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1 text-xs">
+                    @foreach($work->commentaries_and_glosses as $comm)
+                        <span class="px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-medium">
+                            {{ $comm }}
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        @if(!empty($work->bibliography) && count($work->bibliography) > 0)
+            <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
+                <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
+                    <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
+                    <span class="text-xs font-bold text-[#B38A50]">مآخذ و منابع کتاب‌شناسی اثر</span>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1 text-xs">
+                    @foreach($work->bibliography as $bib)
+                        <span class="px-3 py-1.5 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 text-stone-800 dark:text-stone-200 font-medium">
+                            {{ $bib }}
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        @if($work->clean_raw_text)
+            <div x-data="{ copied: false }" class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
+                        <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
+                            متن خام مدخل اثر در مأخذ چاپی (فنخا)
+                        </h3>
+                    </div>
+                    <button 
+                        type="button" 
+                        @click="navigator.clipboard.writeText($refs.workRawText.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-[#EADFCF] dark:border-[#272F4C] text-[11px] font-semibold text-stone-600 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                        <svg x-show="!copied" class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span x-show="!copied">رونوشت متن مأخذ</span>
+                        <span x-show="copied" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                    </button>
+                </div>
+                
+                <div 
+                    x-ref="workRawText" 
+                    class="p-4 sm:p-5 rounded-2xl bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">
+                    {!! nl2br(e($work->clean_raw_text)) !!}
+                </div>
+            </div>
+        @endif
+    </div>
 
     <!-- MANUSCRIPTS TABLE SECTION -->
     <section id="manuscripts" class="space-y-4">

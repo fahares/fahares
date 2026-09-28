@@ -19,6 +19,8 @@ class Work extends Model
     {
         return [
             'alternative_titles' => 'array',
+            'bibliography' => 'array',
+            'commentaries_and_glosses' => 'array',
             'composition_year_hijri' => 'integer',
             'volume_number' => 'integer',
             'page_start' => 'integer',
@@ -30,6 +32,15 @@ class Work extends Model
     public function getTitleAttribute(): string
     {
         return $this->primary_title ?? '';
+    }
+
+    public function getCleanRawTextAttribute(): ?string
+    {
+        if (empty($this->raw_text)) {
+            return null;
+        }
+        $cleaned = preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->raw_text);
+        return trim($cleaned);
     }
 
     public function getPersianSlugAttribute(): string
