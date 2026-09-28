@@ -187,9 +187,9 @@
     <!-- LIVE STATS METRICS (34 Volumes, 71k Works, 323k Manuscripts) -->
     <section class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="bg-white/80 dark:bg-[#15192C]/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-lg">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-stone-200 dark:divide-stone-800">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-0 text-center md:divide-x divide-stone-200 dark:divide-stone-800">
                 
-                <div class="space-y-1 pt-3 md:pt-0">
+                <div class="space-y-1 px-2 sm:px-4">
                     <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
                         {{ number_format($stats['volumes_count']) }}
                     </div>
@@ -198,7 +198,7 @@
                     </div>
                 </div>
 
-                <div class="space-y-1 pt-3 md:pt-0">
+                <div class="space-y-1 px-2 sm:px-4">
                     <div class="text-3xl sm:text-4xl font-black text-[#B38A50]">
                         {{ number_format($stats['works_count']) }}
                     </div>
@@ -207,7 +207,7 @@
                     </div>
                 </div>
 
-                <div class="space-y-1 pt-3 md:pt-0">
+                <div class="space-y-1 px-2 sm:px-4">
                     <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
                         {{ number_format($stats['manuscripts_count']) }}
                     </div>
@@ -216,7 +216,7 @@
                     </div>
                 </div>
 
-                <div class="space-y-1 pt-3 md:pt-0">
+                <div class="space-y-1 px-2 sm:px-4">
                     <div class="text-3xl sm:text-4xl font-black text-[#B38A50]">
                         {{ number_format($stats['people_count']) }}
                     </div>
@@ -225,7 +225,7 @@
                     </div>
                 </div>
 
-                <div class="col-span-2 md:col-span-1 space-y-1 pt-3 md:pt-0">
+                <div class="col-span-2 md:col-span-1 space-y-1 px-2 sm:px-4">
                     <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
                         {{ number_format($stats['libraries_count']) }}
                     </div>
