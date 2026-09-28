@@ -95,7 +95,7 @@
 
     </div>
 
-    <!-- CODICOLOGICAL FLAGS (9 Indicators) -->
+    <!-- CODICOLOGICAL FLAGS (10 Indicators) -->
     <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
         <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider">نشان‌های نسخه‌شناسی و کالبدشناسی</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
@@ -103,6 +103,11 @@
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_autograph ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>اصل نسخه (دستخط مؤلف)</span>
                 <span>{{ $manuscript->is_autograph ? '✓' : '—' }}</span>
+            </div>
+
+            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_author_marginalia ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
+                <span>حواشی به خط مؤلف</span>
+                <span>{{ $manuscript->has_author_marginalia ? '✓' : '—' }}</span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_illuminated ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-[#B38A50] font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
@@ -254,32 +259,79 @@
     </div>
 
     <!-- INCIPIT & EXPLICIT (آغاز و انجام نسخه) -->
-    @if($manuscript->incipit || $manuscript->explicit || $manuscript->notes)
+    @if(count($manuscript->incipits_list) > 0 || count($manuscript->explicits_list) > 0)
         <div class="space-y-4">
             
-            @if($manuscript->incipit)
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                    <span class="text-xs font-bold text-[#B38A50] uppercase tracking-wider block">آغاز نسخه (Incipit):</span>
-                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed">
-                        « {{ $manuscript->incipit }} »
+            @if(count($manuscript->incipits_list) > 0)
+                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
+                            <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
+                                آغاز نسخه (Incipit)
+                            </h3>
+                        </div>
+                        @if(count($manuscript->incipits_list) > 1)
+                            <span class="text-[11px] text-stone-500 font-medium bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40">
+                                {{ count($manuscript->incipits_list) }} سرآغاز ثبت‌شده
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="space-y-3">
+                        @foreach($manuscript->incipits_list as $idx => $inc)
+                            <div class="p-4 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] space-y-1.5">
+                                @if(!empty($inc['label']))
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
+                                        {{ $inc['label'] }}
+                                    </span>
+                                @elseif(count($manuscript->incipits_list) > 1)
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
+                                        سرآغاز {{ $idx + 1 }}
+                                    </span>
+                                @endif
+                                <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
+                                    « {{ trim($inc['text'], "«» \t\n\r\0\x0B") }} »
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif
 
-            @if($manuscript->explicit)
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                    <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400 uppercase tracking-wider block">انجام نسخه (Explicit):</span>
-                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed">
-                        « {{ $manuscript->explicit }} »
+            @if(count($manuscript->explicits_list) > 0)
+                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-4 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
+                            <h3 class="text-xs font-bold text-[#292C56] dark:text-indigo-400 uppercase tracking-wider">
+                                انجام نسخه (Explicit)
+                            </h3>
+                        </div>
+                        @if(count($manuscript->explicits_list) > 1)
+                            <span class="text-[11px] text-stone-500 font-medium bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-900/40">
+                                {{ count($manuscript->explicits_list) }} فرجام ثبت‌شده
+                            </span>
+                        @endif
                     </div>
-                </div>
-            @endif
 
-            @if($manuscript->notes)
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                    <span class="text-xs font-bold text-stone-400 uppercase tracking-wider block">یادداشت‌های نسخه‌شناسی:</span>
-                    <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed">
-                        {{ $manuscript->notes }}
+                    <div class="space-y-3">
+                        @foreach($manuscript->explicits_list as $idx => $exp)
+                            <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 space-y-1.5">
+                                @if(!empty($exp['label']))
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
+                                        {{ $exp['label'] }}
+                                    </span>
+                                @elseif(count($manuscript->explicits_list) > 1)
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
+                                        فرجام {{ $idx + 1 }}
+                                    </span>
+                                @endif
+                                <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
+                                    « {{ trim($exp['text'], "«» \t\n\r\0\x0B") }} »
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -287,22 +339,141 @@
         </div>
     @endif
 
-    <!-- CITATION IN PRINTED SOURCE CATALOG -->
-    <div class="p-6 rounded-3xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] flex flex-col sm:flex-row items-center justify-between text-xs gap-4 shadow-xs">
-        <div class="space-y-1 text-right">
-            <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
-                    {{ $manuscript->catalog?->short_name ?? 'فنخا' }}
-                </span>
-                <span class="font-bold text-stone-800 dark:text-stone-200">مشخصات مأخذ و استناد فهرست‌نگاری:</span>
+    <!-- OWNERSHIP, SEALS, WAQF & MANUSCRIPT NOTES -->
+    @if(count($manuscript->ownership_and_seals_list) > 0 || $manuscript->residual_notes_text || count($manuscript->editorial_notes_list) > 0)
+        <div class="space-y-4">
+            
+            @if(count($manuscript->ownership_and_seals_list) > 0)
+                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
+                    <div class="flex items-center gap-2 pb-2 border-b border-stone-100 dark:border-stone-800">
+                        <span class="w-2 h-4 bg-amber-600 rounded-sm"></span>
+                        <h3 class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                            مهرها، یادداشت‌های تملک و وقفیات نسخه
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        @foreach($manuscript->ownership_and_seals_list as $seal)
+                            @php
+                                $isSeal = str_contains($seal, 'مهر');
+                                $isWaqf = str_contains($seal, 'وقف') || str_contains($seal, 'واقف');
+                            @endphp
+                            <div class="p-3.5 rounded-2xl border flex items-start gap-3 {{ $isSeal ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/60' : ($isWaqf ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60' : 'bg-stone-50/80 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800') }}">
+                                <div class="shrink-0 mt-0.5">
+                                    @if($isSeal)
+                                        <div class="w-7 h-7 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 flex items-center justify-center" title="نشان مهر نسخه">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                        </div>
+                                    @elseif($isWaqf)
+                                        <div class="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 flex items-center justify-center" title="یادداشت وقف">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                        </div>
+                                    @else
+                                        <div class="w-7 h-7 rounded-xl bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 flex items-center justify-center" title="تملک و سرگذشت نسخه">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="text-xs text-stone-800 dark:text-stone-200 font-medium leading-relaxed">
+                                    {{ $seal }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if($manuscript->residual_notes_text || count($manuscript->editorial_notes_list) > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    @if($manuscript->residual_notes_text)
+                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
+                            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block">فوائد و رسائل مندرج در نسخه:</span>
+                            <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed bg-stone-50 dark:bg-stone-800/40 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800">
+                                {{ $manuscript->residual_notes_text }}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(count($manuscript->editorial_notes_list) > 0)
+                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
+                            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block">یادداشت‌های انتقادی و تصحیحی فهرست‌نگار:</span>
+                            <div class="space-y-1.5">
+                                @foreach($manuscript->editorial_notes_list as $editNote)
+                                    <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed bg-stone-50 dark:bg-stone-800/40 p-3 rounded-xl border border-stone-200 dark:border-stone-800 flex items-start gap-2">
+                                        <span class="text-[#B38A50] mt-0.5">•</span>
+                                        <span>{{ $editNote }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+            @endif
+
+        </div>
+    @endif
+
+    <!-- CITATION IN PRINTED SOURCE CATALOG & RAW CATALOG TEXT -->
+    <div class="p-6 sm:p-7 rounded-3xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] space-y-5 shadow-xs">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+            <div class="space-y-1.5 text-right">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
+                        {{ $manuscript->catalog?->short_name ?? 'فنخا' }}
+                    </span>
+                    <span class="font-bold text-sm text-stone-800 dark:text-stone-200">مشخصات مأخذ و استناد فهرست‌نگاری:</span>
+                </div>
+                <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed">
+                    {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
+                </p>
             </div>
-            <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed pt-1">
-                {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
-            </p>
+            
+            <div class="text-xs font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-5 py-2.5 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs self-start sm:self-center">
+                جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }} • ردیف {{ $manuscript->sequence_number }}
+            </div>
         </div>
-        <div class="text-sm font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-5 py-2.5 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-xs">
-            جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }}
-        </div>
+
+        @if($manuscript->clean_raw_text)
+            <div x-data="{ copied: false }" class="pt-4 border-t border-[#EADFCF] dark:border-[#272F4C] space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-1.5 h-3.5 bg-[#B38A50] rounded-xs"></span>
+                        <span class="font-bold text-stone-800 dark:text-stone-200 text-xs">
+                            متن خام مدخل در مأخذ چاپی (فنخا):
+                        </span>
+                    </div>
+                    <button 
+                        type="button" 
+                        @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] text-[11px] font-semibold text-stone-600 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                        <svg x-show="!copied" class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span x-show="!copied">رونوشت متن مأخذ</span>
+                        <span x-show="copied" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                    </button>
+                </div>
+                
+                <div 
+                    x-ref="rawTextContent" 
+                    class="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-[#15192C]/70 border border-[#EADFCF] dark:border-[#272F4C] text-xs text-stone-800 dark:text-stone-200 leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950">
+                    {!! nl2br(e($manuscript->clean_raw_text)) !!}
+                </div>
+            </div>
+        @endif
+
     </div>
 
     <!-- SUGGESTION MODAL DIALOG (Alpine.js) -->
@@ -345,8 +516,9 @@
                         <option value="scribe_name">نام کاتب</option>
                         <option value="copy_date_raw">تاریخ کتابت</option>
                         <option value="shelfmark">شماره بازیابی / قفسه</option>
-                        <option value="incipit">عبارت آغاز (Incipit)</option>
-                        <option value="explicit">عبارت انجام (Explicit)</option>
+                        <option value="incipit_text">عبارت آغاز (Incipit)</option>
+                        <option value="explicit_text">عبارت انجام (Explicit)</option>
+                        <option value="ownership_and_seals">مهرها، یادداشت‌های تملک و وقفیات</option>
                         <option value="script_names">نوع خط</option>
                         <option value="folios">تعداد برگ</option>
                         <option value="dimensions">ابعاد نسخه</option>

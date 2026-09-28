@@ -76,6 +76,73 @@ class Manuscript extends Model
         return null;
     }
 
+    public function getIncipitAttribute(): ?string
+    {
+        return $this->incipit_text;
+    }
+
+    public function getExplicitAttribute(): ?string
+    {
+        return $this->explicit_text;
+    }
+
+    public function getIncipitsListAttribute(): array
+    {
+        $meta = $this->metadata['incipits'] ?? [];
+        if (!empty($meta) && is_array($meta)) {
+            return $meta;
+        }
+        if (!empty($this->incipit_text)) {
+            return [['label' => null, 'text' => $this->incipit_text]];
+        }
+        return [];
+    }
+
+    public function getExplicitsListAttribute(): array
+    {
+        $meta = $this->metadata['explicits'] ?? [];
+        if (!empty($meta) && is_array($meta)) {
+            return $meta;
+        }
+        if (!empty($this->explicit_text)) {
+            return [['label' => null, 'text' => $this->explicit_text]];
+        }
+        return [];
+    }
+
+    public function getOwnershipAndSealsListAttribute(): array
+    {
+        $seals = $this->metadata['ownership_and_seals'] ?? [];
+        return is_array($seals) ? array_values(array_filter($seals)) : [];
+    }
+
+    public function getEditorialNotesListAttribute(): array
+    {
+        $notes = $this->metadata['editorial_notes'] ?? [];
+        return is_array($notes) ? array_values(array_filter($notes)) : [];
+    }
+
+    public function getResidualNotesTextAttribute(): ?string
+    {
+        $res = $this->metadata['residual_notes'] ?? null;
+        if (is_string($res) && trim($res) !== '') {
+            return trim($res);
+        }
+        if (is_array($res) && !empty($res)) {
+            return implode(' ؛ ', array_filter($res));
+        }
+        return null;
+    }
+
+    public function getCleanRawTextAttribute(): ?string
+    {
+        if (empty($this->raw_text)) {
+            return null;
+        }
+        $cleaned = preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->raw_text);
+        return trim($cleaned);
+    }
+
     public function searchableAs(): string
     {
         return 'manuscripts_index';

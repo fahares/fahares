@@ -445,6 +445,12 @@
                                     </div>
                                 </div>
 
+                                @if(!empty($ms->incipit_text))
+                                    <div class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-1 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-1.5 rounded-xl border-r-2 border-[#B38A50]">
+                                        <span class="text-[#B38A50] font-bold">آغاز نسخه:</span> « {{ Str::limit(trim($ms->incipit_text, "«» \t\n\r\0\x0B"), 110) }} »
+                                    </div>
+                                @endif
+
                                 <!-- Codicological Badges -->
                                 <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-800/80 text-[11px]">
                                     @if($ms->script_names)
@@ -455,6 +461,14 @@
                                     @endif
                                     @if($ms->is_autograph)
                                         <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold">نسخه اصل مؤلف</span>
+                                    @endif
+                                    @if($ms->has_author_marginalia)
+                                        <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold">حواشی مؤلف</span>
+                                    @endif
+                                    @if(!empty($ms->ownership_and_seals_list) && count($ms->ownership_and_seals_list) > 0)
+                                        <span class="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 font-medium">
+                                            دارای مهر / تملک ({{ count($ms->ownership_and_seals_list) }})
+                                        </span>
                                     @endif
                                     @if($ms->is_illuminated)
                                         <span class="px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300">مذهب</span>
