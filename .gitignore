@@ -1,11 +1,9 @@
-# Ignore large source dumps
+# Large / Temporary Dumps
 *.Zone.Identifier
-
-# Node / Next.js
-web/node_modules/
-web/.next/
-web/out/
-web/build/
+scratch/
+__pycache__/
+*.pyc
+.venv/
 
 # Environment / Logs
 .env
@@ -27,18 +25,15 @@ web/build/
 /storage/framework/views/*
 !/storage/framework/views/.gitignore
 
-# Docker data
-pgdata/
+# Docker Volumes Data (if mounted locally)
 meilidata/
+mariadb_data/
 
-# Scratch / Temp
-scratch/
-__pycache__/
-*.pyc
-.venv/
 # Corpus & Data Sources (Managed in external fahares-corpus repo & releases)
-sources/text/
-sources/json/
-sources/pdf/
+/sources/
 
-.agents
+# Local IDE / Agents
+.agents/
+.idea/
+.vscode/
+.DS_Store
