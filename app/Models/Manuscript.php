@@ -145,7 +145,7 @@ class Manuscript extends Model
         }
 
         if ($hasBarabar || $this->incipit_matches_work) {
-            $workIncipit = $this->work?->incipit_text;
+            $workIncipit = !empty($this->work?->incipit_text) ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->work->incipit_text)) : null;
             if (!empty($workIncipit)) {
                 return [[
                     'label' => 'منطبق بر آغاز اثر (در مأخذ: «برابر»)',
@@ -192,7 +192,7 @@ class Manuscript extends Model
         }
 
         if ($hasBarabar || $this->explicit_matches_work) {
-            $workExplicit = $this->work?->explicit_text;
+            $workExplicit = !empty($this->work?->explicit_text) ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->work->explicit_text)) : null;
             if (!empty($workExplicit)) {
                 return [[
                     'label' => 'منطبق بر انجام اثر (در مأخذ: «برابر»)',

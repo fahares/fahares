@@ -66,9 +66,9 @@ class SyncWorkIncipitsCommand extends Command
 
             $batchUpdates = [];
             foreach ($jsonWorks as $idx => $jw) {
-                $inc = !empty($jw['incipit']) ? trim($jw['incipit']) : null;
-                $exp = !empty($jw['explicit']) ? trim($jw['explicit']) : null;
-                $desc = !empty($jw['description']) ? trim($jw['description']) : null;
+                $inc = !empty($jw['incipit']) ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $jw['incipit'])) : null;
+                $exp = !empty($jw['explicit']) ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $jw['explicit'])) : null;
+                $desc = !empty($jw['description']) ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $jw['description'])) : null;
 
                 if ($inc === null && $exp === null && $desc === null) {
                     continue;
