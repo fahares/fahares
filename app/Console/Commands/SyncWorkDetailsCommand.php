@@ -225,7 +225,6 @@ class SyncWorkDetailsCommand extends Command
 
         $candidates = [
             base_path('../fahares-corpus/json'),
-            base_path('../fahares-corpus/json'),
             base_path('sources/json'),
             storage_path('app/corpus_json'),
         ];
