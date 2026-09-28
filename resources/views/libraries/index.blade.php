@@ -50,7 +50,7 @@
     <!-- Libraries Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         @forelse($libraries as $lib)
-            <a href="{{ route('libraries.show', $lib->id) }}" 
+            <a href="{{ route('libraries.show', $lib) }}" 
                class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between group">
                 <div class="space-y-1">
                     <div class="text-base font-bold text-[#292C56] dark:text-stone-100 group-hover:text-[#B38A50] transition">

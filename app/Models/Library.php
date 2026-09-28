@@ -16,6 +16,26 @@ class Library extends Model
         ];
     }
 
+    public function getPersianSlugAttribute(): string
+    {
+        $name = $this->full_name ?: ($this->name . ($this->city ? ' ' . $this->city : ''));
+        $slug = \Illuminate\Support\Str::slug($name, '-', null);
+        if (mb_strlen($slug) > 75) {
+            $slug = mb_substr($slug, 0, 75);
+            $lastHyphen = mb_strrpos($slug, '-');
+            if ($lastHyphen > 30) {
+                $slug = mb_substr($slug, 0, $lastHyphen);
+            }
+        }
+        return $slug ?: 'library';
+    }
+
+    public function getRouteKey(): string
+    {
+        $slug = $this->persian_slug;
+        return $slug ? "{$this->id}-{$slug}" : (string) $this->id;
+    }
+
     public function manuscripts(): HasMany
     {
         return $this->hasMany(Manuscript::class);

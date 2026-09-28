@@ -32,6 +32,26 @@ class Work extends Model
         return $this->primary_title ?? '';
     }
 
+    public function getPersianSlugAttribute(): string
+    {
+        $title = $this->clean_title ?: $this->primary_title;
+        $slug = \Illuminate\Support\Str::slug($title, '-', null);
+        if (mb_strlen($slug) > 75) {
+            $slug = mb_substr($slug, 0, 75);
+            $lastHyphen = mb_strrpos($slug, '-');
+            if ($lastHyphen > 30) {
+                $slug = mb_substr($slug, 0, $lastHyphen);
+            }
+        }
+        return $slug ?: 'work';
+    }
+
+    public function getRouteKey(): string
+    {
+        $slug = $this->persian_slug;
+        return $slug ? "{$this->id}-{$slug}" : (string) $this->id;
+    }
+
     public function searchableAs(): string
     {
         return 'works_index';

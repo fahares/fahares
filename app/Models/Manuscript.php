@@ -45,6 +45,38 @@ class Manuscript extends Model
         return $this->shelfmark;
     }
 
+    public function getPersianSlugAttribute(): string
+    {
+        $workTitle = null;
+        if ($this->relationLoaded('work') && $this->work) {
+            $workTitle = $this->work->clean_title ?: $this->work->primary_title;
+        } elseif (!empty($this->work_id)) {
+            $workTitle = $this->work?->clean_title ?: $this->work?->primary_title;
+        }
+
+        $libName = $this->libraryRecord?->name ?? $this->library;
+        $shelfmark = $this->shelfmark;
+
+        $parts = array_filter([$workTitle, $libName, $shelfmark]);
+        $text = !empty($parts) ? implode(' ', $parts) : 'نسخه خطی';
+
+        $slug = \Illuminate\Support\Str::slug($text, '-', null);
+        if (mb_strlen($slug) > 80) {
+            $slug = mb_substr($slug, 0, 80);
+            $lastHyphen = mb_strrpos($slug, '-');
+            if ($lastHyphen > 30) {
+                $slug = mb_substr($slug, 0, $lastHyphen);
+            }
+        }
+        return $slug ?: 'manuscript';
+    }
+
+    public function getRouteKey(): string
+    {
+        $slug = $this->persian_slug;
+        return $slug ? "{$this->id}-{$slug}" : (string) $this->id;
+    }
+
     public function getScribeDisplayNameAttribute(): string
     {
         if (!empty($this->scribe_name)) {

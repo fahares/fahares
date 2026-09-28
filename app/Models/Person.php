@@ -28,6 +28,25 @@ class Person extends Model
         ];
     }
 
+    public function getPersianSlugAttribute(): string
+    {
+        $slug = \Illuminate\Support\Str::slug($this->name, '-', null);
+        if (mb_strlen($slug) > 75) {
+            $slug = mb_substr($slug, 0, 75);
+            $lastHyphen = mb_strrpos($slug, '-');
+            if ($lastHyphen > 30) {
+                $slug = mb_substr($slug, 0, $lastHyphen);
+            }
+        }
+        return $slug ?: 'person';
+    }
+
+    public function getRouteKey(): string
+    {
+        $slug = $this->persian_slug;
+        return $slug ? "{$this->id}-{$slug}" : (string) $this->id;
+    }
+
     public function searchableAs(): string
     {
         return 'people_index';

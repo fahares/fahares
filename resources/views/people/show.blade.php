@@ -109,7 +109,7 @@
                 <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition space-y-3 flex flex-col justify-between">
                     <div>
                         <div class="flex items-start justify-between gap-3">
-                            <a href="{{ route('works.show', $work->id) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
+                            <a href="{{ route('works.show', $work) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
                                 {{ $work->primary_title }}
                             </a>
                             <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold whitespace-nowrap">
@@ -140,7 +140,7 @@
                                 <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px]">{{ $s->title }}</span>
                             @endforeach
                         </div>
-                        <a href="{{ route('works.show', $work->id) }}" class="text-[#B38A50] hover:underline font-semibold">
+                        <a href="{{ route('works.show', $work) }}" class="text-[#B38A50] hover:underline font-semibold">
                             مشاهده اثر ←
                         </a>
                     </div>
@@ -173,17 +173,17 @@
                 <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#292C56] shadow-sm transition space-y-2">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <a href="{{ route('manuscripts.show', $ms->id) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
+                            <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
                                 {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
                             </a>
                             <div class="text-xs text-stone-500 mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                                <span>کتابخانه: <strong>{{ $ms->library?->name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
+                                <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
                                 <span>شماره بازیابی: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                 <span>تاریخ کتابت: <strong>{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
                             </div>
                         </div>
 
-                        <a href="{{ route('manuscripts.show', $ms->id) }}" class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition whitespace-nowrap">
+                        <a href="{{ route('manuscripts.show', $ms) }}" class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition whitespace-nowrap">
                             شناسنامه نسخه ←
                         </a>
                     </div>

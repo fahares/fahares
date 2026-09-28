@@ -394,7 +394,7 @@ class SearchController extends Controller
                     'title' => $w->title,
                     'author' => $w->author?->name ?? 'ناشناخته',
                     'manuscripts_count' => $w->manuscripts_count,
-                    'url' => route('works.show', $w->id),
+                    'url' => route('works.show', $w),
                 ]);
         }
 
@@ -408,21 +408,21 @@ class SearchController extends Controller
                     'name' => $p->name,
                     'death_hijri' => $p->death_year_hijri ? "متوفای {$p->death_year_hijri} ق" : ($p->death_century_hijri ? "قرن {$p->death_century_hijri} ق" : null),
                     'works_count' => $p->works_count,
-                    'url' => route('people.show', $p->id),
+                    'url' => route('people.show', $p),
                 ]);
         }
 
         if ($type === 'all' || $type === 'manuscripts') {
             $response['manuscripts'] = Manuscript::search($query)
-                ->query(fn($q) => $q->with(['work', 'library']))
+                ->query(fn($q) => $q->with(['work', 'libraryRecord']))
                 ->take(5)
                 ->get()
                 ->map(fn($m) => [
                     'id' => $m->id,
                     'work_title' => $m->work?->title ?? 'نسخه بدون عنوان',
-                    'library' => $m->library?->name ?? 'کتابخانه نامشخص',
+                    'library' => $m->libraryRecord?->name ?? $m->library ?? 'کتابخانه نامشخص',
                     'accession_number' => $m->accession_number,
-                    'url' => route('manuscripts.show', $m->id),
+                    'url' => route('manuscripts.show', $m),
                 ]);
         }
 

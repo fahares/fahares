@@ -9,6 +9,8 @@ class WorkController extends Controller
 {
     public function show(Request $request, $id)
     {
+        $numericId = (int) $id;
+
         $work = Work::with([
             'catalog',
             'author',
@@ -18,7 +20,12 @@ class WorkController extends Controller
             'scholarlyAnnotations',
         ])
         ->withCount('manuscripts')
-        ->findOrFail($id);
+        ->findOrFail($numericId);
+
+        $canonicalKey = (string) $work->getRouteKey();
+        if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {
+            return redirect()->route('works.show', array_merge(['id' => $canonicalKey], $request->query()), 301);
+        }
 
         $sort = $request->input('sort', 'sequence');
         $direction = strtolower($request->input('direction', 'asc')) === 'desc' ? 'desc' : 'asc';

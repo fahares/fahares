@@ -281,7 +281,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             @foreach($topLibraries as $lib)
-                <a href="{{ route('libraries.show', $lib->id) }}" 
+                <a href="{{ route('libraries.show', $lib) }}" 
                    class="group bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#292C56] dark:hover:border-indigo-400 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between">
                     <div>
                         <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#292C56] dark:group-hover:text-amber-200 transition line-clamp-1">

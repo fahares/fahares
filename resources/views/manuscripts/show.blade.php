@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' | ' . ($manuscript->library?->name ?? $manuscript->library) . ' (' . ($manuscript->shelfmark ?? 'بی‌شماره') . ')')
-@section('meta_description', 'شناسنامه کالبدشناسی نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' در ' . ($manuscript->library?->name ?? $manuscript->library) . ' با شماره بازیابی ' . ($manuscript->shelfmark ?? ''))
+@section('title', 'نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' | ' . ($manuscript->libraryRecord?->name ?? $manuscript->library) . ' (' . ($manuscript->shelfmark ?? 'بی‌شماره') . ')')
+@section('meta_description', 'شناسنامه کالبدشناسی نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' در ' . ($manuscript->libraryRecord?->name ?? $manuscript->library) . ' با شماره بازیابی ' . ($manuscript->shelfmark ?? ''))
 
 @section('content')
 <div x-data="{ suggestionModalOpen: false, selectedField: 'کاتب' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -13,7 +13,7 @@
         <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-[#B38A50]">نسخه‌های خطی</a>
         <span>/</span>
         @if($manuscript->work)
-            <a href="{{ route('works.show', $manuscript->work_id) }}" class="hover:text-[#B38A50] truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
+            <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-[#B38A50] truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
             <span>/</span>
         @endif
         <span class="text-stone-800 dark:text-stone-200 font-semibold">{{ $manuscript->shelfmark ?? 'شناسنامه نسخه' }}</span>
@@ -42,13 +42,13 @@
                     <div class="space-y-1">
                         <span class="text-xs text-stone-400 font-medium">عنوان اثر:</span>
                         <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                            <a href="{{ route('works.show', $manuscript->work_id) }}" class="hover:text-[#B38A50] transition">
+                            <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-[#B38A50] transition">
                                 {{ $manuscript->work->primary_title }}
                             </a>
                         </h1>
                         @if($manuscript->work->author)
                             <div class="text-xs text-stone-600 dark:text-stone-300">
-                                پدیدآور اثر: <a href="{{ route('people.show', $manuscript->work->author_id) }}" class="font-bold text-[#B38A50] hover:underline">{{ $manuscript->work->author->name }}</a>
+                                پدیدآور اثر: <a href="{{ route('people.show', $manuscript->work->author) }}" class="font-bold text-[#B38A50] hover:underline">{{ $manuscript->work->author->name }}</a>
                             </div>
                         @endif
                     </div>
@@ -71,9 +71,9 @@
         <div class="p-5 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div class="space-y-1">
                 <span class="text-stone-400 block font-medium">کتابخانه و مخزن نگهداری:</span>
-                @if($manuscript->library_id)
-                    <a href="{{ route('libraries.show', $manuscript->library_id) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">
-                        {{ $manuscript->library?->name ?? $manuscript->library }}
+                @if($manuscript->libraryRecord || $manuscript->library_id)
+                    <a href="{{ route('libraries.show', $manuscript->libraryRecord ?? $manuscript->library_id) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">
+                        {{ $manuscript->libraryRecord?->name ?? $manuscript->library }}
                     </a>
                 @else
                     <span class="text-sm font-bold text-stone-800 dark:text-stone-200">{{ $manuscript->library ?? 'نامشخص' }}</span>
@@ -171,7 +171,9 @@
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
                         @elseif($manuscript->is_autograph)
-                            @if($manuscript->work?->author_id)
+                            @if($manuscript->work?->author)
+                                <a href="{{ route('people.show', $manuscript->work->author) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
+                            @elseif($manuscript->work?->author_id)
                                 <a href="{{ route('people.show', $manuscript->work->author_id) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
                             @else
                                 <span class="text-emerald-700 dark:text-emerald-400">مؤلف</span>

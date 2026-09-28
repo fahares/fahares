@@ -81,7 +81,7 @@
             <div class="space-y-1">
                 <span class="text-stone-400 block font-medium">پدیدآور / مؤلف:</span>
                 @if($work->author)
-                    <a href="{{ route('people.show', $work->author_id) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">
+                    <a href="{{ route('people.show', $work->author) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">
                         {{ $work->author->name }}
                     </a>
                 @elseif($work->author_name)
@@ -237,7 +237,7 @@
                         @endswitch
                         ({{ $direction === 'asc' ? 'صعودی' : 'نزولی' }})
                     </span>
-                    <a href="{{ route('works.show', $work->id) }}#manuscripts" 
+                    <a href="{{ route('works.show', $work) }}#manuscripts" 
                        class="text-stone-400 hover:text-red-500 transition mr-2 underline">
                         بازنشانی ترتیب
                     </a>
@@ -253,7 +253,7 @@
                             $renderSortHeader = function($col, $title, $align = 'right') use ($work, $sort, $direction) {
                                 $isActive = ($sort === $col);
                                 $nextDir = ($isActive && $direction === 'asc') ? 'desc' : 'asc';
-                                $url = route('works.show', array_merge(request()->except(['page']), ['id' => $work->id, 'sort' => $col, 'direction' => $nextDir, 'page' => 1])) . '#manuscripts';
+                                $url = route('works.show', array_merge(request()->except(['page']), ['id' => $work->getRouteKey(), 'sort' => $col, 'direction' => $nextDir, 'page' => 1])) . '#manuscripts';
                                 
                                 $justify = $align === 'center' ? 'justify-center' : 'justify-start';
                                 
@@ -317,7 +317,9 @@
                                     @if($ms->scribe_name)
                                         <span class="font-medium">{{ $ms->scribe_name }}</span>
                                     @elseif($ms->is_autograph)
-                                        @if($work->author_id)
+                                        @if($work->author)
+                                            <a href="{{ route('people.show', $work->author) }}" class="font-medium text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
+                                        @elseif($work->author_id)
                                             <a href="{{ route('people.show', $work->author_id) }}" class="font-medium text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
                                         @else
                                             <span class="font-medium text-emerald-700 dark:text-emerald-400">مؤلف</span>
@@ -348,7 +350,7 @@
                                 </td>
 
                                 <td class="py-3 px-4 text-center">
-                                    <a href="{{ route('manuscripts.show', $ms->id) }}" 
+                                    <a href="{{ route('manuscripts.show', $ms) }}" 
                                        class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition inline-block">
                                         شناسنامه ←
                                     </a>

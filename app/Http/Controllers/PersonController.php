@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $person = Person::withCount(['works', 'scribedManuscripts'])->findOrFail($id);
+        $numericId = (int) $id;
+
+        $person = Person::withCount(['works', 'scribedManuscripts'])->findOrFail($numericId);
+
+        $canonicalKey = (string) $person->getRouteKey();
+        if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {
+            return redirect()->route('people.show', array_merge(['id' => $canonicalKey], $request->query()), 301);
+        }
 
         $authoredWorks = $person->works()
             ->with(['subjects', 'languages', 'catalog'])

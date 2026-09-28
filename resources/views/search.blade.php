@@ -320,7 +320,7 @@
                             <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 space-y-3">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
-                                        <a href="{{ route('works.show', $work->id) }}" class="text-lg font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
+                                        <a href="{{ route('works.show', $work) }}" class="text-lg font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
                                             {{ $work->primary_title }}
                                         </a>
                                         @if($work->clean_title && $work->clean_title !== $work->primary_title)
@@ -329,7 +329,7 @@
                                         
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                                             @if($work->author)
-                                                <span>پدیدآور: <a href="{{ route('people.show', $work->author_id) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:underline">{{ $work->author->name }}</a></span>
+                                                <span>پدیدآور: <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:underline">{{ $work->author->name }}</a></span>
                                             @elseif($work->author_name)
                                                 <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">{{ $work->author_name }}</strong></span>
                                             @else
@@ -397,7 +397,7 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <div class="flex items-center gap-2">
-                                            <a href="{{ route('manuscripts.show', $ms->id) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
+                                            <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
                                                 {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
                                             </a>
                                             @if($ms->is_autograph)
@@ -495,7 +495,7 @@
                     <!-- People Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         @foreach($results as $person)
-                            <a href="{{ route('people.show', $person->id) }}" class="bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                            <a href="{{ route('people.show', $person) }}" class="bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition flex flex-col justify-between">
                                 <div>
                                     <div class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
                                         {{ $person->name }}

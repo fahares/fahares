@@ -38,9 +38,16 @@ class LibraryController extends Controller
         return view('libraries.index', compact('libraries', 'cities', 'search', 'city'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $library = Library::withCount('manuscripts')->findOrFail($id);
+        $numericId = (int) $id;
+
+        $library = Library::withCount('manuscripts')->findOrFail($numericId);
+
+        $canonicalKey = (string) $library->getRouteKey();
+        if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {
+            return redirect()->route('libraries.show', array_merge(['id' => $canonicalKey], $request->query()), 301);
+        }
 
         $manuscripts = $library->manuscripts()
             ->with(['work.author', 'scripts'])

@@ -66,7 +66,7 @@
                             <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-800/40 transition">
                                 <td class="py-3 px-4 font-bold text-[#292C56] dark:text-amber-100">
                                     @if($ms->work)
-                                        <a href="{{ route('works.show', $ms->work_id) }}" class="hover:text-[#B38A50] transition">
+                                        <a href="{{ route('works.show', $ms->work) }}" class="hover:text-[#B38A50] transition">
                                             {{ $ms->work->primary_title }}
                                         </a>
                                     @else
@@ -103,7 +103,7 @@
                                 </td>
 
                                 <td class="py-3 px-4 text-center">
-                                    <a href="{{ route('manuscripts.show', $ms->id) }}" class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition inline-block">
+                                    <a href="{{ route('manuscripts.show', $ms) }}" class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition inline-block">
                                         شناسنامه ←
                                     </a>
                                 </td>
