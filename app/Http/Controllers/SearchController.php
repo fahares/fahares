@@ -9,6 +9,8 @@ use App\Models\Script;
 use App\Models\Subject;
 use App\Models\Work;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Meilisearch\Client as MeiliClient;
 
 class SearchController extends Controller
 {
@@ -24,32 +26,137 @@ class SearchController extends Controller
         $perPage = 20;
 
         $results = null;
-
         $validFlags = ['is_autograph', 'is_illuminated', 'is_illustrated', 'is_corrected', 'has_marginal_notes', 'is_collated'];
 
+        $subjects = collect();
+        $scripts = collect();
+        $libraries = collect();
+        $centuries = [];
+        $flagCounts = [];
+        $totalFacetManuscripts = 0;
+
+        $selectedSubject = $subjectId ? Subject::find($subjectId) : null;
+        $selectedLibrary = $libraryId ? Library::find($libraryId) : null;
+        $selectedScript = $scriptId ? Script::find($scriptId) : null;
+
         if ($type === 'manuscripts') {
+            // 1. Fetch dynamic faceted distribution for manuscripts
+            $meiliClient = app(MeiliClient::class);
+            $facetDistribution = [];
+
             if ($query !== '') {
-                $builder = Manuscript::search($query)
-                    ->query(function ($q) use ($libraryId, $scriptId, $century, $flag, $validFlags) {
-                        $q->with(['work.author', 'library', 'scripts']);
-                        if ($libraryId) {
-                            $q->where('library_id', $libraryId);
-                        }
-                        if ($century) {
-                            $centuryStart = ($century - 1) * 100 + 1;
-                            $centuryEnd = $century * 100;
-                            $q->whereBetween('copy_date_hijri_year', [$centuryStart, $centuryEnd]);
-                        }
-                        if ($scriptId) {
-                            $q->whereHas('scripts', fn($sq) => $sq->where('scripts.id', $scriptId));
-                        }
-                        if ($flag && in_array($flag, $validFlags)) {
-                            $q->where($flag, true);
-                        }
+                try {
+                    $facetRes = $meiliClient->index('manuscripts_index')->search($query, [
+                        'facets' => [
+                            'library_id',
+                            'scripts',
+                            'copy_date_hijri_year',
+                            'is_autograph',
+                            'is_illuminated',
+                            'is_illustrated',
+                            'is_corrected',
+                            'has_marginal_notes',
+                            'is_collated',
+                        ],
+                        'limit' => 0,
+                    ]);
+                    $facetDistribution = $facetRes->getFacetDistribution() ?? [];
+                } catch (\Throwable $e) {
+                    Log::warning('Meilisearch facet retrieval failed: ' . $e->getMessage());
+                }
+
+                // Process Libraries Facet
+                $libCounts = $facetDistribution['library_id'] ?? [];
+                $totalFacetManuscripts = array_sum($libCounts);
+
+                if (!empty($libCounts)) {
+                    $libIds = array_keys($libCounts);
+                    $libraries = Library::whereIn('id', $libIds)->get()->map(function ($lib) use ($libCounts) {
+                        $lib->matching_count = $libCounts[$lib->id] ?? 0;
+                        return $lib;
+                    })->sortByDesc('matching_count')->values();
+                }
+
+                // Process Scripts Facet
+                $scriptCounts = $facetDistribution['scripts'] ?? [];
+                if (!empty($scriptCounts)) {
+                    $scriptNames = array_keys($scriptCounts);
+                    $scripts = Script::whereIn('name', $scriptNames)->get()->map(function ($sc) use ($scriptCounts) {
+                        $sc->matching_count = $scriptCounts[$sc->name] ?? 0;
+                        return $sc;
+                    })->sortByDesc('matching_count')->values();
+                }
+
+                // Process Centuries Facet
+                $yearCounts = $facetDistribution['copy_date_hijri_year'] ?? [];
+                foreach ($yearCounts as $yr => $cnt) {
+                    $y = (int) $yr;
+                    if ($y >= 100 && $y <= 1500) {
+                        $c = (int) ceil($y / 100);
+                        $centuries[$c] = ($centuries[$c] ?? 0) + $cnt;
+                    }
+                }
+                ksort($centuries);
+
+                // Process Flags Facet
+                foreach ($validFlags as $vf) {
+                    $flagCounts[$vf] = $facetDistribution[$vf]['true'] ?? 0;
+                }
+            } else {
+                // Browsing without keyword: show top repositories and standard scripts
+                $libraries = Library::where('manuscripts_count', '>', 0)
+                    ->orderByDesc('manuscripts_count')
+                    ->take(50)
+                    ->get()
+                    ->map(function ($lib) {
+                        $lib->matching_count = $lib->manuscripts_count;
+                        return $lib;
                     });
+                $scripts = Script::whereIn('id', [1, 2, 5, 4, 9, 3, 11, 7, 8])->get();
+                for ($c = 4; $c <= 14; $c++) {
+                    $centuries[$c] = null;
+                }
+            }
+
+            // Ensure currently selected entities remain in lists
+            if ($selectedLibrary && !$libraries->contains('id', $selectedLibrary->id)) {
+                $selectedLibrary->matching_count = 0;
+                $libraries->prepend($selectedLibrary);
+            }
+            if ($selectedScript && !$scripts->contains('id', $selectedScript->id)) {
+                $scripts->prepend($selectedScript);
+            }
+
+            // 2. Execute Search with filters applied directly in engine
+            if ($query !== '') {
+                $meiliFilters = [];
+                if ($libraryId) {
+                    $meiliFilters[] = 'library_id = ' . (int) $libraryId;
+                }
+                if ($century) {
+                    $centuryStart = ($century - 1) * 100 + 1;
+                    $centuryEnd = $century * 100;
+                    $meiliFilters[] = "(copy_date_hijri_year >= {$centuryStart} AND copy_date_hijri_year <= {$centuryEnd})";
+                }
+                if ($selectedScript) {
+                    $meiliFilters[] = 'scripts = "' . addslashes($selectedScript->name) . '"';
+                }
+                if ($flag && in_array($flag, $validFlags)) {
+                    $meiliFilters[] = "{$flag} = true";
+                }
+
+                $filterString = !empty($meiliFilters) ? implode(' AND ', $meiliFilters) : null;
+
+                $builder = Manuscript::search($query, function ($meili, $searchQuery, $options) use ($filterString) {
+                    if ($filterString) {
+                        $options['filter'] = $filterString;
+                    }
+                    return $meili->search($searchQuery, $options);
+                })->query(fn($q) => $q->with(['work.author', 'libraryRecord', 'scripts']));
+
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
-                $builder = Manuscript::query()->with(['work.author', 'library', 'scripts']);
+                $builder = Manuscript::query()->with(['work.author', 'libraryRecord', 'scripts']);
                 if ($libraryId) {
                     $builder->where('library_id', $libraryId);
                 }
@@ -82,14 +189,50 @@ class SearchController extends Controller
         } else {
             // Default: works
             $type = 'works';
+
+            // 1. Facet distribution for subjects
             if ($query !== '') {
-                $builder = Work::search($query)
-                    ->query(function ($q) use ($subjectId) {
-                        $q->with(['author', 'subjects', 'languages'])->withCount('manuscripts');
-                        if ($subjectId) {
-                            $q->whereHas('subjects', fn($sq) => $sq->where('subjects.id', $subjectId));
-                        }
-                    });
+                try {
+                    $meiliClient = app(MeiliClient::class);
+                    $facetRes = $meiliClient->index('works_index')->search($query, [
+                        'facets' => ['subjects'],
+                        'limit' => 0,
+                    ]);
+                    $subjCounts = $facetRes->getFacetDistribution()['subjects'] ?? [];
+                    if (!empty($subjCounts)) {
+                        $subjects = Subject::whereIn('name', array_keys($subjCounts))->get()->map(function ($s) use ($subjCounts) {
+                            $s->matching_count = $subjCounts[$s->name] ?? 0;
+                            return $s;
+                        })->sortByDesc('matching_count')->values();
+                    } else {
+                        $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('Meilisearch works facet failed: ' . $e->getMessage());
+                    $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                }
+            } else {
+                $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+            }
+
+            if ($selectedSubject && !$subjects->contains('id', $selectedSubject->id)) {
+                $subjects->prepend($selectedSubject);
+            }
+
+            // 2. Execute Works Search
+            if ($query !== '') {
+                $workFilter = null;
+                if ($selectedSubject) {
+                    $workFilter = 'subjects = "' . addslashes($selectedSubject->name) . '"';
+                }
+
+                $builder = Work::search($query, function ($meili, $searchQuery, $options) use ($workFilter) {
+                    if ($workFilter) {
+                        $options['filter'] = $workFilter;
+                    }
+                    return $meili->search($searchQuery, $options);
+                })->query(fn($q) => $q->with(['author', 'subjects', 'languages'])->withCount('manuscripts'));
+
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
                 $builder = Work::query()->with(['author', 'subjects', 'languages'])->withCount('manuscripts');
@@ -100,12 +243,25 @@ class SearchController extends Controller
             }
         }
 
-        // Filter metadata
-        $subjects = Subject::orderBy('name')->get();
-        $scripts = Script::orderBy('name')->get();
-        $libraries = Library::whereHas('manuscripts')->orderBy('name')->take(50)->get();
-
-        return view('search', compact('results', 'query', 'type', 'subjects', 'scripts', 'libraries', 'subjectId', 'libraryId', 'scriptId', 'century', 'flag'));
+        return view('search', compact(
+            'results',
+            'query',
+            'type',
+            'subjects',
+            'scripts',
+            'libraries',
+            'centuries',
+            'flagCounts',
+            'totalFacetManuscripts',
+            'subjectId',
+            'libraryId',
+            'scriptId',
+            'century',
+            'flag',
+            'selectedSubject',
+            'selectedLibrary',
+            'selectedScript'
+        ));
     }
 
     /**

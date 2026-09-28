@@ -56,9 +56,60 @@
 
             <!-- Active Filters Reset -->
             @if($subjectId || $libraryId || $scriptId || $century || $flag)
-                <div class="flex items-center gap-2 pt-2 text-xs">
+                <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
                     <span class="text-stone-400">فیلترهای فعال:</span>
-                    <a href="{{ route('search', ['q' => $query, 'type' => $type]) }}" class="px-2 py-0.5 rounded bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
+
+                    @if($selectedLibrary)
+                        <a href="{{ route('search', array_merge(request()->except('library_id'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>کتابخانه: <strong>{{ $selectedLibrary->name }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($selectedScript)
+                        <a href="{{ route('search', array_merge(request()->except('script_id'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>خط: <strong>{{ $selectedScript->name }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($century)
+                        <a href="{{ route('search', array_merge(request()->except('century'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>سده: <strong>{{ $century }} هجری</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($selectedSubject)
+                        <a href="{{ route('search', array_merge(request()->except('subject_id'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>موضوع: <strong>{{ $selectedSubject->title }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($flag)
+                        @php
+                            $flagLabels = [
+                                'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
+                                'is_illuminated' => 'دارای تذهیب و سرلوح',
+                                'is_illustrated' => 'دارای نگاره و تصویر',
+                                'is_corrected' => 'تصحیح‌شده',
+                                'has_marginal_notes' => 'دارای حواشی',
+                                'is_collated' => 'مقابله‌شده',
+                            ];
+                        @endphp
+                        <a href="{{ route('search', array_merge(request()->except('flag'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>ویژگی: <strong>{{ $flagLabels[$flag] ?? $flag }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    <a href="{{ route('search', ['q' => $query, 'type' => $type]) }}" class="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
                         پاکسازی همه فیلترها ✕
                     </a>
                 </div>
@@ -85,12 +136,17 @@
                 @if($type === 'works')
                     <!-- Subject Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">موضوع اثر</label>
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">موضوع اثر</label>
+                            @if($subjects->isNotEmpty())
+                                <span class="text-[10px] text-stone-400 font-mono">{{ $subjects->count() }} موضوع</span>
+                            @endif
+                        </div>
                         <select name="subject_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
                             <option value="">همه موضوعات</option>
                             @foreach($subjects as $sub)
                                 <option value="{{ $sub->id }}" {{ $subjectId == $sub->id ? 'selected' : '' }}>
-                                    {{ $sub->title }}
+                                    {{ $sub->title }} @if(isset($sub->matching_count)) ({{ number_format($sub->matching_count) }}) @endif
                                 </option>
                             @endforeach
                         </select>
@@ -100,12 +156,19 @@
                 @if($type === 'manuscripts')
                     <!-- Library Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">کتابخانه / مرکز اسناد</label>
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">کتابخانه / مرکز اسناد</label>
+                            @if($libraries->isNotEmpty())
+                                <span class="text-[10px] text-[#B38A50] font-mono font-semibold">{{ $libraries->count() }} مرکز</span>
+                            @endif
+                        </div>
                         <select name="library_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
-                            <option value="">همه کتابخانه‌ها</option>
+                            <option value="">
+                                همه کتابخانه‌ها {{ $totalFacetManuscripts > 0 ? '(' . number_format($totalFacetManuscripts) . ' نسخه)' : '' }}
+                            </option>
                             @foreach($libraries as $lib)
                                 <option value="{{ $lib->id }}" {{ $libraryId == $lib->id ? 'selected' : '' }}>
-                                    {{ $lib->name }} ({{ $lib->city }})
+                                    {{ $lib->name }} ({{ $lib->city }}) @if(isset($lib->matching_count)) — {{ number_format($lib->matching_count) }} نسخه @endif
                                 </option>
                             @endforeach
                         </select>
@@ -113,12 +176,17 @@
 
                     <!-- Script Type Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">نوع خط</label>
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">نوع خط</label>
+                            @if($scripts->isNotEmpty())
+                                <span class="text-[10px] text-stone-400 font-mono">{{ $scripts->count() }} خط</span>
+                            @endif
+                        </div>
                         <select name="script_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
                             <option value="">همه انواع خطوط</option>
                             @foreach($scripts as $sc)
                                 <option value="{{ $sc->id }}" {{ $scriptId == $sc->id ? 'selected' : '' }}>
-                                    {{ $sc->name }}
+                                    {{ $sc->name }} @if(isset($sc->matching_count)) ({{ number_format($sc->matching_count) }} نسخه) @endif
                                 </option>
                             @endforeach
                         </select>
@@ -129,45 +197,85 @@
                         <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">قرن کتابت (هجری قمری)</label>
                         <select name="century" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
                             <option value="">همه قرون</option>
-                            @for($c = 4; $c <= 14; $c++)
-                                <option value="{{ $c }}" {{ $century == $c ? 'selected' : '' }}>
-                                    سده {{ $c }} هجری
-                                </option>
-                            @endfor
+                            @if(!empty($centuries))
+                                @foreach($centuries as $c => $cCount)
+                                    <option value="{{ $c }}" {{ $century == $c ? 'selected' : '' }}>
+                                        سده {{ $c }} هجری @if($cCount) ({{ number_format($cCount) }} نسخه) @endif
+                                    </option>
+                                @endforeach
+                            @else
+                                @for($c = 4; $c <= 14; $c++)
+                                    <option value="{{ $c }}" {{ $century == $c ? 'selected' : '' }}>
+                                        سده {{ $c }} هجری
+                                    </option>
+                                @endfor
+                            @endif
                         </select>
                     </div>
 
                     <!-- Codicological Flags -->
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">ویژگی‌های کالبدشناسی</label>
-                        <div class="space-y-1.5 text-xs text-stone-600 dark:text-stone-300">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="" {{ empty($flag) ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>همه</span>
+                        <div class="space-y-2 text-xs text-stone-600 dark:text-stone-300">
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="" {{ empty($flag) ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>همه</span>
+                                </div>
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="is_autograph" {{ $flag === 'is_autograph' ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>اصل نسخه (دستخط مؤلف)</span>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="is_autograph" {{ $flag === 'is_autograph' ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>اصل نسخه (دستخط مؤلف)</span>
+                                </div>
+                                @if(!empty($flagCounts['is_autograph']))
+                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_autograph'] }})</span>
+                                @endif
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="is_illuminated" {{ $flag === 'is_illuminated' ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>دارای تذهیب و سرلوح</span>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="is_illuminated" {{ $flag === 'is_illuminated' ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>دارای تذهیب و سرلوح</span>
+                                </div>
+                                @if(!empty($flagCounts['is_illuminated']))
+                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_illuminated'] }})</span>
+                                @endif
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="is_illustrated" {{ $flag === 'is_illustrated' ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>دارای نگاره و تصویر</span>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="is_illustrated" {{ $flag === 'is_illustrated' ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>دارای نگاره و تصویر</span>
+                                </div>
+                                @if(!empty($flagCounts['is_illustrated']))
+                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_illustrated'] }})</span>
+                                @endif
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="is_corrected" {{ $flag === 'is_corrected' ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>تصحیح‌شده</span>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="is_corrected" {{ $flag === 'is_corrected' ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>تصحیح‌شده</span>
+                                </div>
+                                @if(!empty($flagCounts['is_corrected']))
+                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_corrected'] }})</span>
+                                @endif
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="has_marginal_notes" {{ $flag === 'has_marginal_notes' ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>دارای حواشی</span>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="has_marginal_notes" {{ $flag === 'has_marginal_notes' ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>دارای حواشی</span>
+                                </div>
+                                @if(!empty($flagCounts['has_marginal_notes']))
+                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['has_marginal_notes'] }})</span>
+                                @endif
                             </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="flag" value="is_collated" {{ $flag === 'is_collated' ? 'checked' : '' }} class="text-[#B38A50]">
-                                <span>مقابله‌شده</span>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <div class="flex items-center gap-2">
+                                    <input type="radio" name="flag" value="is_collated" {{ $flag === 'is_collated' ? 'checked' : '' }} class="text-[#B38A50]">
+                                    <span>مقابله‌شده</span>
+                                </div>
+                                @if(!empty($flagCounts['is_collated']))
+                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_collated'] }})</span>
+                                @endif
                             </label>
                         </div>
                     </div>
@@ -253,7 +361,7 @@
                                         </div>
 
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-                                            <span>کتابخانه: <strong>{{ $ms->library?->name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
+                                            <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
                                             <span>شماره بازیابی: <strong class="font-mono text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                             @if($ms->scribe_name)
                                                 <span>کاتب: <strong>{{ $ms->scribe_name }}</strong></span>

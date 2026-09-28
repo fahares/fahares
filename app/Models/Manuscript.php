@@ -116,6 +116,11 @@ class Manuscript extends Model
         return $this->belongsTo(Library::class);
     }
 
+    public function libraryRecord(): BelongsTo
+    {
+        return $this->belongsTo(Library::class, 'library_id');
+    }
+
     public function scribe(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'scribe_id');

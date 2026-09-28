@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit', '512M');
+
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
