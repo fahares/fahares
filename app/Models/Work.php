@@ -27,6 +27,11 @@ class Work extends Model
         ];
     }
 
+    public function getTitleAttribute(): string
+    {
+        return $this->primary_title ?? '';
+    }
+
     public function searchableAs(): string
     {
         return 'works_index';

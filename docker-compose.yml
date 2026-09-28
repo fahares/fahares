@@ -1,5 +1,8 @@
 services:
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: fahares-app:latest
     container_name: fahares_app
     restart: unless-stopped
@@ -15,12 +18,14 @@ services:
       - DB_PASSWORD=${MARIADB_PASSWORD}
       - MEILISEARCH_HOST=http://meilisearch:7700
       - MEILISEARCH_KEY=${MEILI_MASTER_KEY}
+    ports:
+      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
       meilisearch:
         condition: service_healthy
-    command: ["tail", "-f", "/dev/null"]
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
 
   db:
     image: mariadb:latest

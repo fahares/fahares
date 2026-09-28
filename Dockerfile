@@ -8,7 +8,9 @@ RUN apk add --no-cache \
     libzip-dev \
     icu-dev \
     icu-data-full \
-    mariadb-client
+    mariadb-client \
+    nodejs \
+    npm
 
 # Install PHP extensions
 RUN docker-php-ext-install -j$(nproc) \

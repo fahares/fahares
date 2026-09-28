@@ -1,9 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Fahares Brand Palette (Extracted directly from official logo) */
+    --color-brand-navy: #292C56;
+    --color-brand-navy-dark: #191B36;
+    --color-brand-navy-deep: #0F1224;
+    --color-brand-navy-light: #3D427D;
+    
+    --color-brand-gold: #B38A50;
+    --color-brand-gold-dark: #8F6B38;
+    --color-brand-gold-light: #DFBF88;
+    --color-brand-gold-subtle: #F6EBD8;
+    
+    --color-brand-cream: #FEF9F3;
+    --color-brand-paper: #F8F3EA;
+    --color-brand-parchment: #F0E8D8;
+    --color-brand-border: #E8DDCA;
+}
+
+/* Custom Manuscript & Archival Styling */
+:root {
+    --bg-page: #FEF9F3;
+    --text-primary: #1F2238;
+    --text-secondary: #575C7A;
+    --card-bg: #FFFFFF;
+    --border-color: #EADFCF;
+}
+
+.dark {
+    --bg-page: #0C0F1D;
+    --text-primary: #F1F4F9;
+    --text-secondary: #9BA3BF;
+    --card-bg: #15192C;
+    --border-color: #272F4C;
+}
+
+body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    direction: rtl;
+    text-align: right;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Decorative Manuscript borders */
+.border-gold-glow {
+    border-color: #B38A50;
+    box-shadow: 0 0 15px rgba(179, 138, 80, 0.18);
+}
+
+.dark .border-gold-glow {
+    box-shadow: 0 0 20px rgba(223, 191, 136, 0.15);
+}
+
+/* Subtle Parchment texture simulation */
+.bg-parchment-pattern {
+    background-color: var(--bg-page);
+    background-image: radial-gradient(rgba(179, 138, 80, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/* Incipit & Explicit manuscript quote box */
+.manuscript-quote {
+    font-family: 'Vazirmatn', serif;
+    font-style: italic;
+    background: linear-gradient(135deg, rgba(179, 138, 80, 0.06) 0%, rgba(41, 44, 86, 0.04) 100%);
+    border-right: 4px solid #B38A50;
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(179, 138, 80, 0.35);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(179, 138, 80, 0.6);
 }

@@ -58,6 +58,11 @@ class Person extends Model
         return $this->hasMany(Work::class, 'author_id');
     }
 
+    public function works(): HasMany
+    {
+        return $this->authoredWorks();
+    }
+
     public function scribedManuscripts(): HasMany
     {
         return $this->hasMany(Manuscript::class, 'scribe_id');

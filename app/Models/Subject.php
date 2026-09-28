@@ -18,6 +18,11 @@ class Subject extends Model
         ];
     }
 
+    public function getTitleAttribute(): string
+    {
+        return $this->name ?? '';
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Subject::class, 'parent_id');

@@ -40,6 +40,11 @@ class Manuscript extends Model
         ];
     }
 
+    public function getAccessionNumberAttribute(): ?string
+    {
+        return $this->shelfmark;
+    }
+
     public function searchableAs(): string
     {
         return 'manuscripts_index';
