@@ -184,7 +184,7 @@
                         <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
                             <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                                 <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
-                                <span class="text-xs font-bold text-[#B38A50]">سرآغاز اثر (Incipit)</span>
+                                <span class="text-xs font-bold text-[#B38A50]">آغاز اثر</span>
                             </div>
                             <div class="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
                                 « {{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }} »
@@ -196,7 +196,7 @@
                         <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
                             <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                                 <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
-                                <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">فرجام اثر (Explicit)</span>
+                                <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">انجام اثر</span>
                             </div>
                             <div class="p-3.5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
                                 « {{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }} »

@@ -273,7 +273,7 @@
                         </div>
                         @if(count($manuscript->incipits_list) > 1)
                             <span class="text-[11px] text-stone-500 font-medium bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40">
-                                {{ count($manuscript->incipits_list) }} سرآغاز ثبت‌شده
+                                {{ count($manuscript->incipits_list) }} آغاز ثبت‌شده
                             </span>
                         @endif
                     </div>
@@ -295,7 +295,7 @@
                                         </span>
                                     @elseif(count($manuscript->incipits_list) > 1)
                                         <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
-                                            سرآغاز {{ $idx + 1 }}
+                                            آغاز {{ $idx + 1 }}
                                         </span>
                                     @endif
                                 </div>
@@ -325,7 +325,7 @@
                         </div>
                         @if(count($manuscript->explicits_list) > 1)
                             <span class="text-[11px] text-stone-500 font-medium bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-900/40">
-                                {{ count($manuscript->explicits_list) }} فرجام ثبت‌شده
+                                {{ count($manuscript->explicits_list) }} انجام ثبت‌شده
                             </span>
                         @endif
                     </div>
@@ -347,7 +347,7 @@
                                         </span>
                                     @elseif(count($manuscript->explicits_list) > 1)
                                         <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
-                                            فرجام {{ $idx + 1 }}
+                                            انجام {{ $idx + 1 }}
                                         </span>
                                     @endif
                                 </div>

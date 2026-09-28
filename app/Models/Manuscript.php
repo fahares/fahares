@@ -156,7 +156,7 @@ class Manuscript extends Model
             } else {
                 return [[
                     'label' => 'در مأخذ: «برابر»',
-                    'text' => 'سرآغاز این نسخه در مأخذ فهرست‌نگاری، برابر با آغاز کتاب قید گردیده است.',
+                    'text' => 'آغاز این نسخه در مأخذ فهرست‌نگاری، برابر با آغاز کتاب قید گردیده است.',
                     'is_work_match' => true,
                     'is_placeholder' => true,
                 ]];
@@ -203,7 +203,7 @@ class Manuscript extends Model
             } else {
                 return [[
                     'label' => 'در مأخذ: «برابر»',
-                    'text' => 'فرجام این نسخه در مأخذ فهرست‌نگاری، برابر با انجام کتاب قید گردیده است.',
+                    'text' => 'انجام این نسخه در مأخذ فهرست‌نگاری، برابر با انجام کتاب قید گردیده است.',
                     'is_work_match' => true,
                     'is_placeholder' => true,
                 ]];
