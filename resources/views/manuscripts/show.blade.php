@@ -86,7 +86,7 @@
             </div>
 
             <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">شماره بازیابی / قفسه:</span>
+                <span class="text-stone-400 block font-medium">شماره نسخه:</span>
                 <span class="text-base font-black text-[#B38A50] tracking-wide">
                     {{ $manuscript->shelfmark ?? 'بی‌شماره' }}
                 </span>
@@ -531,7 +531,7 @@
             </div>
 
             <p class="text-xs text-stone-500 leading-relaxed">
-                پژوهشگر گرامی؛ در صورتی که در اطلاعات این نسخه (کاتب، تاریخ، آغاز/انجام، شماره قفسه یا مشخصات مادی) خطایی مشاهده نموده‌اید، لطفاً اصلاحیه خود را همراه با مستند علمی ثبت بفرمایید.
+                پژوهشگر گرامی؛ در صورتی که در اطلاعات این نسخه (کاتب، تاریخ، آغاز/انجام، شماره نسخه یا مشخصات مادی) خطایی مشاهده نموده‌اید، لطفاً اصلاحیه خود را همراه با مستند علمی ثبت بفرمایید.
             </p>
 
             <form action="{{ route('suggestions.store') }}" method="POST" class="space-y-4 text-xs">
@@ -545,7 +545,7 @@
                     <select name="field_name" x-model="selectedField" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 font-medium">
                         <option value="scribe_name">نام کاتب</option>
                         <option value="copy_date_raw">تاریخ کتابت</option>
-                        <option value="shelfmark">شماره بازیابی / قفسه</option>
+                        <option value="shelfmark">شماره نسخه</option>
                         <option value="incipit_text">عبارت آغاز (Incipit)</option>
                         <option value="explicit_text">عبارت انجام (Explicit)</option>
                         <option value="ownership_and_seals">مهرها، یادداشت‌های تملک و وقفیات</option>

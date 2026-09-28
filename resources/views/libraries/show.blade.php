@@ -54,7 +54,7 @@
                         <tr>
                             <th class="py-3.5 px-4">عنوان اثر</th>
                             <th class="py-3.5 px-4">پدیدآور اثر</th>
-                            <th class="py-3.5 px-4">شماره بازیابی / قفسه</th>
+                            <th class="py-3.5 px-4">شماره نسخه</th>
                             <th class="py-3.5 px-4">کاتب</th>
                             <th class="py-3.5 px-4">تاریخ کتابت</th>
                             <th class="py-3.5 px-4">نوع خط</th>

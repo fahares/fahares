@@ -329,7 +329,7 @@
                     <span class="font-bold text-[#B38A50]">
                         @switch($sort)
                             @case('library') کتابخانه @break
-                            @case('shelfmark') شماره بازیابی @break
+                            @case('shelfmark') شماره نسخه @break
                             @case('scribe') کاتب @break
                             @case('date') تاریخ کتابت @break
                             @case('script') نوع خط @break
@@ -378,7 +378,7 @@
                         <tr>
                             <th class="py-3.5 px-4 w-16 text-center">{!! $renderSortHeader('sequence', 'ردیف', 'center') !!}</th>
                             <th class="py-3.5 px-4">{!! $renderSortHeader('library', 'کتابخانه و مرکز نگهداری') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('shelfmark', 'شماره بازیابی / قفسه') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('shelfmark', 'شماره نسخه') !!}</th>
                             <th class="py-3.5 px-4">{!! $renderSortHeader('scribe', 'کاتب') !!}</th>
                             <th class="py-3.5 px-4">{!! $renderSortHeader('date', 'تاریخ کتابت') !!}</th>
                             <th class="py-3.5 px-4">{!! $renderSortHeader('script', 'نوع خط') !!}</th>
