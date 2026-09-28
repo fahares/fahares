@@ -39,7 +39,7 @@
                     @if($person->is_author)
                         <span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-[#B38A50] font-bold">مؤلف / پدیدآور</span>
                     @endif
-                    @if($person->is_scribe)
+                    @if($person->is_scribe || ($person->scribed_manuscripts_count ?? $person->manuscripts_count) > 0)
                         <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">کاتب نسخه</span>
                     @endif
                     @if($person->is_translator)
@@ -83,14 +83,14 @@
                 :class="activeTab === 'authored' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
                 class="px-4 py-2 rounded-xl transition flex items-center gap-2">
                 <span>آثار و تألیفات</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->works_count }}</span>
+                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->works_count ?? $authoredWorks->total() }}</span>
             </button>
             <button 
                 @click="activeTab = 'scribed'" 
                 :class="activeTab === 'scribed' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
                 class="px-4 py-2 rounded-xl transition flex items-center gap-2">
                 <span>نسخه‌های کتابت‌شده</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->manuscripts_count }}</span>
+                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->scribed_manuscripts_count ?? $person->manuscripts_count ?? $scribedManuscripts->total() }}</span>
             </button>
         </div>
 
@@ -173,12 +173,22 @@
                 <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#292C56] shadow-sm transition space-y-2">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
-                            </a>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
+                                    {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
+                                </a>
+                                @if($ms->is_autograph)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
+                                        ✍️ دستخط مؤلف (نسخه اصل)
+                                    </span>
+                                @endif
+                            </div>
                             <div class="text-xs text-stone-500 mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                                @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_name)
+                                    <span>پدیدآور: <strong>{{ $ms->work->author_name }}</strong></span>
+                                @endif
                                 <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
-                                <span>شماره بازیابی: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
+                                <span>شماره نسخه: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                 <span>تاریخ کتابت: <strong>{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
                             </div>
                         </div>

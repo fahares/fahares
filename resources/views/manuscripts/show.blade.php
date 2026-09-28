@@ -166,18 +166,28 @@
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">نام کاتب:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        @if($manuscript->scribe_id)
-                            <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="text-[#B38A50] hover:underline">{{ $manuscript->scribe_name }}</a>
+                        @if($manuscript->is_autograph)
+                            @if($manuscript->work?->author)
+                                <a href="{{ route('people.show', $manuscript->work->author) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                    <span>دستخط مؤلف ({{ $manuscript->work->author->name }})</span>
+                                </a>
+                            @elseif($manuscript->scribe)
+                                <a href="{{ route('people.show', $manuscript->scribe) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                    <span>دستخط مؤلف ({{ $manuscript->scribe->name }})</span>
+                                </a>
+                            @else
+                                <span class="text-emerald-700 dark:text-emerald-400 font-bold">مؤلف (نسخه اصل)</span>
+                            @endif
+                        @elseif($manuscript->scribe_id)
+                            <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="text-[#B38A50] hover:underline">{{ $manuscript->scribe_name ?: 'مشاهده کاتب' }}</a>
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
-                        @elseif($manuscript->is_autograph)
-                            @if($manuscript->work?->author)
-                                <a href="{{ route('people.show', $manuscript->work->author) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
-                            @elseif($manuscript->work?->author_id)
-                                <a href="{{ route('people.show', $manuscript->work->author_id) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
-                            @else
-                                <span class="text-emerald-700 dark:text-emerald-400">مؤلف</span>
-                            @endif
                         @elseif($manuscript->is_bika)
                             <span class="text-stone-400 italic">بی‌کاتب</span>
                         @else
