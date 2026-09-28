@@ -344,10 +344,15 @@
                                         </div>
                                     </div>
 
-                                    <div class="flex flex-col items-end gap-1">
-                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-mono font-bold">
+                                    <div class="flex flex-col items-end gap-1 shrink-0 text-left">
+                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-mono font-bold shadow-xs">
                                             {{ number_format($work->manuscripts_count) }} نسخه
                                         </span>
+                                        @if(!empty($work->copy_century_text))
+                                            <span class="text-[11px] text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap mt-0.5">
+                                                {{ $work->copy_century_text }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
 

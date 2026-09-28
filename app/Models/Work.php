@@ -111,4 +111,28 @@ class Work extends Model
     {
         return $this->morphMany(ScholarlyAnnotation::class, 'annotatable');
     }
+
+    public function getCopyCenturyTextAttribute(): ?string
+    {
+        if (array_key_exists('copy_century_text', $this->attributes)) {
+            return $this->attributes['copy_century_text'];
+        }
+
+        $range = $this->manuscripts()
+            ->whereNotNull('copy_date_hijri_year')
+            ->where('copy_date_hijri_year', '>=', 100)
+            ->where('copy_date_hijri_year', '<=', 1500)
+            ->selectRaw('MIN(copy_date_hijri_year) as min_year, MAX(copy_date_hijri_year) as max_year')
+            ->first();
+
+        if ($range && $range->min_year && $range->max_year) {
+            $minCentury = (int) ceil($range->min_year / 100);
+            $maxCentury = (int) ceil($range->max_year / 100);
+            return $minCentury === $maxCentury
+                ? "قرن {$minCentury} هـ.ق"
+                : "از قرن {$minCentury} تا {$maxCentury} هـ.ق";
+        }
+
+        return null;
+    }
 }

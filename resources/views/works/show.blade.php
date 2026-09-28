@@ -51,6 +51,11 @@
                         {{ number_format($work->manuscripts_count) }}
                     </span>
                     <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه ثبت‌شده</span>
+                    @if(!empty($work->copy_century_text))
+                        <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-1">
+                            {{ $work->copy_century_text }}
+                        </span>
+                    @endif
                 </div>
 
                 <a href="#manuscripts" class="text-xs text-[#B38A50] hover:underline font-semibold flex items-center gap-1">
