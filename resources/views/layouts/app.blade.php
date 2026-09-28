@@ -22,8 +22,12 @@
 <body class="bg-parchment-pattern min-h-screen flex flex-col font-sans selection:bg-[#B38A50]/20 selection:text-[#B38A50]">
 
     <!-- Top Announcement / Brand Ribbon -->
-    <div class="bg-gradient-to-r from-[#191B36] via-[#292C56] to-[#191B36] text-amber-100/90 text-xs py-1.5 px-4 text-center border-b border-[#B38A50]/30 shadow-sm flex items-center justify-center gap-2">
-        <span class="inline-block w-2 h-2 rounded-full bg-[#B38A50] animate-pulse"></span>
+    <div class="bg-gradient-to-r from-[#191B36] via-[#292C56] to-[#191B36] text-amber-100/90 text-xs py-1.5 px-4 text-center border-b border-[#B38A50]/30 shadow-sm flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#B38A50]/30 text-amber-200 border border-[#B38A50]/40">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+            نسخه آزمایشی
+        </span>
+        <span class="hidden sm:inline text-stone-500">•</span>
         <span>پایگاه فهارس نسخه‌های خطی • دربردارنده بیش از ۷۶ هزار اثر و ۴۳۸ هزار نسخه خطی</span>
     </div>
 
@@ -37,7 +41,10 @@
                     <a href="{{ route('home') }}" class="flex items-center gap-3 group">
                         <img src="{{ asset('images/logo_emblem.png') }}" alt="فهارس" class="h-12 w-auto drop-shadow-sm group-hover:scale-105 transition-transform duration-200">
                         <div class="flex flex-col">
-                            <span class="text-2xl font-black text-[#292C56] dark:text-amber-100 tracking-tight leading-none group-hover:text-[#B38A50] transition-colors">فهارس</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-black text-[#292C56] dark:text-amber-100 tracking-tight leading-none group-hover:text-[#B38A50] transition-colors">فهارس</span>
+                                <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20">آزمایشی</span>
+                            </div>
                             <span class="text-[10px] text-stone-500 dark:text-stone-400 font-medium tracking-wide">فهرستگان نسخ خطی ایران</span>
                         </div>
                     </a>
@@ -124,6 +131,28 @@
     <!-- Footer -->
     <footer class="bg-[#191B36] text-stone-300 border-t-2 border-[#B38A50] mt-16 pt-12 pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Beta Notice & Scholarly Collaboration Callout Banner -->
+            <div class="bg-[#13152c] border border-[#B38A50]/30 rounded-2xl p-5 sm:p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-5 shadow-inner">
+                <div class="space-y-2 text-justify md:text-right">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#B38A50]/20 text-amber-300 border border-[#B38A50]/30">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                            وضعیت سامانه: نسخه آزمایشی
+                        </span>
+                        <h4 class="text-sm font-bold text-amber-100">فراخوان همیاری علمی پژوهشگران و نسخه‌شناسان</h4>
+                    </div>
+                    <p class="text-xs text-stone-300/90 leading-relaxed max-w-4xl">
+                        سامانه «فهارس» هم‌اکنون مراحل آزمایشی خود را سپری می‌کند. از آنجا که پردازش و ساختاردهی صدها هزار رکورد نسخه‌شناسی و کتاب‌شناسی همواره با خطاهای ناگزیر چاپی، پردازشی یا داده‌ای همراه است، از عموم استادان، نسخه‌پژوهان و محققان ارجمند صمیمانه تقاضا داریم با بازبینی داده‌ها و گزارش نارسایی‌های محتوایی یا فنی، ما را در ارتقای دقت و غنای این مرجع علمی یاری فرمایند.
+                    </p>
+                </div>
+                <div class="shrink-0 flex items-center gap-2 w-full md:w-auto">
+                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="w-full md:w-auto text-center px-4 py-2.5 rounded-xl bg-[#B38A50] hover:bg-[#9e7841] text-[#191B36] font-bold text-xs transition duration-150 shadow whitespace-nowrap">
+                        ارسال بازخورد و گزارش خطا
+                    </a>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                 
                 <!-- Col 1: About Platform -->
@@ -175,7 +204,7 @@
             <!-- Bottom Copyright -->
             <div class="border-t border-stone-700/60 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-3">
                 <p>© {{ date('Y') }} فهارس (fahares.net) • سامانه جامع کتاب‌شناسی و مراجع نسخه‌شناسی</p>
-                <p class="text-stone-400">Version 1.0.0-Release • Laravel 13 & Meilisearch</p>
+                <p class="text-stone-400">نسخه آزمایشی (Beta v1.0) • Laravel 13 & Meilisearch</p>
             </div>
         </div>
     </footer>

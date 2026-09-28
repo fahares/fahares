@@ -16,9 +16,12 @@
             </div>
             
             <div class="space-y-2">
-                <h1 class="text-4xl sm:text-5xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                    فهارس
-                </h1>
+                <div class="inline-flex items-center justify-center gap-2">
+                    <h1 class="text-4xl sm:text-5xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
+                        فهارس
+                    </h1>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">نسخه آزمایشی</span>
+                </div>
                 <p class="text-lg sm:text-xl font-medium text-[#B38A50] dark:text-amber-300/90">
                     پایگاه جامع کتاب‌شناسی و نسخه‌های کهن خطی
                 </p>
@@ -327,6 +330,52 @@
                     </a>
                     <a href="https://github.com/fahares/fahares" target="_blank" class="px-5 py-2.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 rounded-xl text-xs sm:text-sm font-semibold hover:bg-stone-50 transition">
                         مشاهده پروژه در گیت‌هاب
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCHOLARLY COLLABORATION & BETA NOTICE -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#191B36] via-[#24274B] to-[#15172C] p-8 sm:p-10 text-stone-200 border-2 border-[#B38A50]/40 shadow-xl">
+            <!-- Decorative Glow Elements -->
+            <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-[#B38A50]/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -right-12 -top-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="space-y-4 max-w-3xl text-justify">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#B38A50]/20 text-amber-300 border border-[#B38A50]/40 text-xs font-bold">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        <span>فراخوان همیاری علمی و تصحیح جمعی • نسخه آزمایشی</span>
+                    </div>
+
+                    <h3 class="text-xl sm:text-2xl font-bold text-amber-100 tracking-tight">
+                        دعوت از استادان، نسخه‌شناسان و پژوهشگران ارجمند
+                    </h3>
+
+                    <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                        سامانه <strong>«فهارس»</strong> هم‌اکنون در <strong>مرحله آزمایشی</strong> قرار دارد. از آنجا که پردازش، ساختاردهی و داده‌کاوی صدها هزار مدخل کتاب‌شناختی و نسخه‌شناسی همواره با پیچیدگی‌ها، ابهامات و خطاهای ناگزیر چاپی، پردازشی یا داده‌ای همراه است، دست یاری به سوی جامعه علمی و تخصصی دراز کرده‌ایم.
+                    </p>
+
+                    <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                        از عموم نسخه‌پژوهان، فهرست‌نگاران و محققان گران‌قدر صمیمانه تقاضا داریم با بررسی شناسنامه‌ها، نارسایی‌ها و پیشنهادهای اصلاحی خود را (اعم از تصحیح مشخصات نسخه‌ها، انتساب آثار، تاریخ‌ها، کاتبان و مراجع، یا گزارش باگ‌های فنی) با ما در میان بگذارند تا این مرجع ملی گام به گام به دقت و کمال مطلوب نزدیک‌تر شود.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 w-full md:w-auto">
+                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#B38A50] hover:bg-[#9E7841] text-[#191B36] font-bold text-xs sm:text-sm shadow-lg transition-all duration-200 hover:scale-[1.02] text-center">
+                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>ثبت گزارش یا بازخورد در گیت‌هاب</span>
+                    </a>
+                    
+                    <a href="{{ route('search') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-amber-200 border border-amber-200/30 text-xs sm:text-sm font-semibold transition-all duration-200 text-center">
+                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span>کاوش و بازبینی مدخل‌ها</span>
                     </a>
                 </div>
             </div>
