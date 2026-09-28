@@ -34,7 +34,7 @@
                 
                 <!-- Scope Radio Buttons -->
                 <div class="flex flex-wrap items-center gap-4 text-stone-600 dark:text-stone-300">
-                    <span class="font-bold text-stone-400">محدوده جستجو:</span>
+                    <span class="font-bold text-stone-400">جست‌وجوی عبارت:</span>
                     <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
                         <input type="radio" name="scope" value="titles" {{ $scope === 'titles' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
                         <span>فقط در عناوین</span>
