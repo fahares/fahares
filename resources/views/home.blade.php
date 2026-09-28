@@ -363,15 +363,22 @@
                     </p>
                 </div>
 
-                <div class="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 w-full md:w-auto">
-                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#B38A50] hover:bg-[#9E7841] text-[#191B36] font-bold text-xs sm:text-sm shadow-lg transition-all duration-200 hover:scale-[1.02] text-center">
+                <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
+                    <a href="mailto:info@fahares.net" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#B38A50] hover:bg-[#9E7841] text-[#191B36] font-bold text-xs sm:text-sm shadow-lg transition-all duration-200 hover:scale-[1.02] text-center">
+                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>ارسال ایمیل: info@fahares.net</span>
+                    </a>
+
+                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-200 border border-amber-200/30 text-xs sm:text-sm font-semibold transition-all duration-200 text-center">
                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        <span>ثبت گزارش یا بازخورد در گیت‌هاب</span>
+                        <span>ثبت گزارش اشکال در گیت‌هاب</span>
                     </a>
                     
-                    <a href="{{ route('search') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-amber-200 border border-amber-200/30 text-xs sm:text-sm font-semibold transition-all duration-200 text-center">
+                    <a href="{{ route('search') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-black/20 hover:bg-black/30 text-stone-300 text-xs transition-all duration-200 text-center">
                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>

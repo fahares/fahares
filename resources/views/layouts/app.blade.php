@@ -146,9 +146,15 @@
                         سامانه «فهارس» هم‌اکنون مراحل آزمایشی خود را سپری می‌کند. از آنجا که پردازش و ساختاردهی صدها هزار رکورد نسخه‌شناسی و کتاب‌شناسی همواره با خطاهای ناگزیر چاپی، پردازشی یا داده‌ای همراه است، از عموم استادان، نسخه‌پژوهان و محققان ارجمند صمیمانه تقاضا داریم با بازبینی داده‌ها و گزارش نارسایی‌های محتوایی یا فنی، ما را در ارتقای دقت و غنای این مرجع علمی یاری فرمایند.
                     </p>
                 </div>
-                <div class="shrink-0 flex items-center gap-2 w-full md:w-auto">
-                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="w-full md:w-auto text-center px-4 py-2.5 rounded-xl bg-[#B38A50] hover:bg-[#9e7841] text-[#191B36] font-bold text-xs transition duration-150 shadow whitespace-nowrap">
-                        ارسال بازخورد و گزارش خطا
+                <div class="shrink-0 flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
+                    <a href="mailto:info@fahares.net" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#B38A50] hover:bg-[#9e7841] text-[#191B36] font-bold text-xs transition duration-150 shadow whitespace-nowrap">
+                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>مکاتبه: info@fahares.net</span>
+                    </a>
+                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-200 border border-amber-200/30 font-medium text-xs transition duration-150 whitespace-nowrap">
+                        <span>ثبت در گیت‌هاب</span>
                     </a>
                 </div>
             </div>
@@ -164,8 +170,13 @@
                     <p class="text-stone-400 text-sm leading-relaxed text-justify">
                         سامانه جامع کاوش در میراث مکتوب ایران و جهان اسلام، تدوین‌شده بر پایه فهرستگان‌های معتبر نسخ خطی (مشتمل بر ۳۴ مجلد فنخا به کوشش استاد مصطفی درایتی و سایر مراجع نسخه‌شناسی). این پلتفرم دسترسی دیجیتال و یکپارچه به صدها هزار نسخه خطی در مراکز اسنادی و کتابخانه‌های معتبر را فراهم می‌سازد.
                     </p>
-                    <div class="flex items-center gap-3 pt-2 text-xs text-amber-200/80">
-                        <span>پروژه متن‌باز و پژوهشی</span>
+                    <div class="flex flex-wrap items-center gap-3 pt-2 text-xs text-amber-200/80">
+                        <a href="mailto:info@fahares.net" class="hover:text-amber-300 flex items-center gap-1.5 text-amber-300 font-sans font-medium">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="font-mono">info@fahares.net</span>
+                        </a>
                         <span>•</span>
                         <a href="https://github.com/fahares/fahares" target="_blank" class="hover:text-amber-300 underline flex items-center gap-1">
                             <span>گیت‌هاب فهارس</span>
