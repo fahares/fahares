@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 
 class Person extends Model
 {
+    use Searchable;
+
     protected $guarded = ['id'];
 
     protected function casts(): array
@@ -22,6 +25,31 @@ class Person extends Model
             'is_donor' => 'boolean',
             'works_count' => 'integer',
             'manuscripts_count' => 'integer',
+        ];
+    }
+
+    public function searchableAs(): string
+    {
+        return 'people_index';
+    }
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int) $this->id,
+            'name' => $this->name,
+            'normalized_name' => $this->normalized_name,
+            'slug' => $this->slug,
+            'transliteration' => $this->transliteration,
+            'death_year_hijri' => $this->death_year_hijri ? (int) $this->death_year_hijri : null,
+            'century_hijri' => $this->century_hijri ? (int) $this->century_hijri : null,
+            'death_year_gregorian' => $this->death_year_gregorian ? (int) $this->death_year_gregorian : null,
+            'is_author' => (bool) $this->is_author,
+            'is_scribe' => (bool) $this->is_scribe,
+            'is_translator' => (bool) $this->is_translator,
+            'is_donor' => (bool) $this->is_donor,
+            'works_count' => (int) $this->works_count,
+            'manuscripts_count' => (int) $this->manuscripts_count,
         ];
     }
 
