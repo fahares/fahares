@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../views/**/*.blade.php';
@@ -26,8 +28,13 @@
     --color-brand-border: #E8DDCA;
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 /* Custom Manuscript & Archival Styling */
 :root {
+    color-scheme: light;
     --bg-page: #FEF9F3;
     --text-primary: #1F2238;
     --text-secondary: #575C7A;
@@ -36,6 +43,7 @@
 }
 
 .dark {
+    color-scheme: dark;
     --bg-page: #0C0F1D;
     --text-primary: #F1F4F9;
     --text-secondary: #9BA3BF;
