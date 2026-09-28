@@ -123,8 +123,13 @@
                             </div>
                         @endif
 
-                        <div class="text-xs text-stone-500 mt-2">
-                            <span>مأخذ: {{ $work->catalog?->short_name ?? 'فنخا' }}، ج {{ $work->volume_number }}، ص {{ $work->page_start }}</span>
+                        <div class="text-xs text-stone-500 mt-2 flex flex-wrap items-center gap-3">
+                            @if($work->composition_year_hijri)
+                                <span>تألیف: <strong class="font-mono text-stone-700 dark:text-stone-300">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
+                            @endif
+                            @if($work->work_form)
+                                <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[11px]">{{ $work->work_form }}</span>
+                            @endif
                         </div>
                     </div>
 

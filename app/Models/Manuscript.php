@@ -59,6 +59,23 @@ class Manuscript extends Model
         return 'نامشخص';
     }
 
+    public function getCatalogCitationAttribute(): ?string
+    {
+        return $this->metadata['catalog_citation'] ?? null;
+    }
+
+    public function getCenturyTextAttribute(): ?string
+    {
+        if ($this->copy_date_hijri_year) {
+            $century = (int) ceil($this->copy_date_hijri_year / 100);
+            return "قرن {$century} هـ.ق";
+        }
+        if (!empty($this->copy_date_raw) && preg_match('/قرن\s*(\d+)/u', $this->copy_date_raw, $m)) {
+            return "قرن {$m[1]} هـ.ق";
+        }
+        return null;
+    }
+
     public function searchableAs(): string
     {
         return 'manuscripts_index';

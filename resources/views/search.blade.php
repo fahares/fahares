@@ -338,18 +338,38 @@
 
                                             @if($work->composition_year_hijri)
                                                 <span>تألیف: <strong class="font-mono">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
+                                            @elseif($work->author?->death_year_hijri)
+                                                <span>وفات مؤلف: <strong class="font-mono">{{ $work->author->death_year_hijri }} هـ.ق</strong></span>
+                                            @elseif($work->author?->death_century_hijri)
+                                                <span>وفات مؤلف: <strong class="font-mono">قرن {{ $work->author->death_century_hijri }} هـ.ق</strong></span>
+                                            @elseif($work->author?->death_date_raw)
+                                                <span>وفات مؤلف: <strong class="font-mono">{{ $work->author->death_date_raw }}</strong></span>
                                             @endif
 
-                                            <span>مأخذ: <strong class="font-mono">{{ $work->catalog?->short_name ?? 'فنخا' }}، جلد {{ $work->volume_number }}، ص {{ $work->page_start }}</strong></span>
+                                            @if($work->work_form)
+                                                <span>قالب: <strong>{{ $work->work_form }}</strong></span>
+                                            @endif
+
+                                            @if($work->composition_place)
+                                                <span>مکان تألیف: <strong>{{ $work->composition_place }}</strong></span>
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <div class="flex flex-col items-end gap-1 shrink-0 text-left">
+                                    <div class="flex flex-col items-end gap-1.5 shrink-0 text-left">
                                         <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-mono font-bold shadow-xs">
                                             {{ number_format($work->manuscripts_count) }} نسخه
                                         </span>
+                                        @if($work->has_autograph)
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[11px] font-bold shadow-xs" title="دارای نسخه به دستخط مؤلف">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                                <span>دستخط مؤلف</span>
+                                            </span>
+                                        @endif
                                         @if(!empty($work->copy_century_text))
-                                            <span class="text-[11px] text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap mt-0.5">
+                                            <span class="text-[11px] text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap">
                                                 {{ $work->copy_century_text }}
                                             </span>
                                         @endif
@@ -403,8 +423,25 @@
                                         </div>
                                     </div>
 
-                                    <div class="text-right text-xs font-mono text-stone-400">
-                                        {{ $ms->catalog?->short_name ?? 'فنخا' }} ج{{ $ms->volume_number }}، ص{{ $ms->page_start }}
+                                    <div class="flex flex-col items-end gap-1.5 shrink-0 text-left">
+                                        @if($ms->is_autograph)
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[11px] font-bold shadow-xs">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                                <span>دستخط مؤلف</span>
+                                            </span>
+                                        @endif
+                                        @if($ms->century_text)
+                                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-[11px] font-mono font-medium shadow-xs">
+                                                {{ $ms->century_text }}
+                                            </span>
+                                        @endif
+                                        @if($ms->catalog_citation)
+                                            <span class="text-[11px] font-mono text-stone-500 dark:text-stone-400" title="شماره و ارجاع در فهرست اصلی کتابخانه">
+                                                {{ $ms->catalog_citation }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -415,6 +452,9 @@
                                     @endif
                                     @if($ms->folios)
                                         <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">{{ $ms->folios }} برگ</span>
+                                    @endif
+                                    @if($ms->is_autograph)
+                                        <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold">نسخه اصل مؤلف</span>
                                     @endif
                                     @if($ms->is_illuminated)
                                         <span class="px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300">مذهب</span>

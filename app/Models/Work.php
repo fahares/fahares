@@ -149,4 +149,12 @@ class Work extends Model
 
         return null;
     }
+
+    public function getHasAutographAttribute(): bool
+    {
+        if (array_key_exists('has_autograph', $this->attributes)) {
+            return (bool) $this->attributes['has_autograph'];
+        }
+        return $this->manuscripts()->where('is_autograph', true)->exists();
+    }
 }

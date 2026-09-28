@@ -295,7 +295,7 @@ class SearchController extends Controller
                 $results = $builder->orderByDesc('manuscripts_count')->paginate($perPage)->withQueryString();
             }
 
-            // Calculate manuscript century ranges for all works on current page with chronological validation
+            // Calculate manuscript century ranges and autograph status for all works on current page
             $workIds = $results->pluck('id')->filter()->all();
             if (!empty($workIds)) {
                 $allYearsByWork = Manuscript::whereIn('work_id', $workIds)
@@ -307,7 +307,15 @@ class SearchController extends Controller
                     ->get()
                     ->groupBy('work_id');
 
+                $autographWorkIds = Manuscript::whereIn('work_id', $workIds)
+                    ->where('is_autograph', true)
+                    ->pluck('work_id')
+                    ->flip()
+                    ->all();
+
                 foreach ($results as $work) {
+                    $work->has_autograph = isset($autographWorkIds[$work->id]);
+
                     $minAllowedYear = 300;
                     if ($work->composition_year_hijri) {
                         $minAllowedYear = max($minAllowedYear, $work->composition_year_hijri - 40);

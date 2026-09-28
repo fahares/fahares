@@ -58,6 +58,15 @@
                     @endif
                 </div>
 
+                @if($work->has_autograph)
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold shadow-xs">
+                        <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        <span>دارای نسخه اصل (دستخط مؤلف)</span>
+                    </div>
+                @endif
+
                 <a href="#manuscripts" class="text-xs text-[#B38A50] hover:underline font-semibold flex items-center gap-1">
                     <span>مشاهده فهرست نسخه‌ها</span>
                     <span>↓</span>
@@ -248,7 +257,12 @@
                                 <td class="py-3 px-4 font-mono font-bold text-[#B38A50]">
                                     {{ $ms->shelfmark ?? 'بی‌شماره' }}
                                     @if($ms->is_autograph)
-                                        <span class="block text-[10px] text-emerald-600 font-sans font-bold">اصل نسخه</span>
+                                        <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-sans font-bold mt-0.5">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                            </svg>
+                                            <span>دستخط مؤلف</span>
+                                        </span>
                                     @endif
                                 </td>
 
