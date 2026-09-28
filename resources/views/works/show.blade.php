@@ -155,7 +155,7 @@
     <!-- MANUSCRIPTS TABLE SECTION -->
     <section id="manuscripts" class="space-y-4">
         
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-6 bg-[#B38A50] rounded-sm"></span>
                 <h2 class="text-xl font-bold text-stone-900 dark:text-stone-100">
@@ -165,20 +165,67 @@
                     {{ number_format($work->manuscripts_count) }} نسخه
                 </span>
             </div>
+
+            @if(isset($sort) && $sort !== 'sequence')
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="text-stone-400">مرتب‌شده بر اساس:</span>
+                    <span class="font-bold text-[#B38A50]">
+                        @switch($sort)
+                            @case('library') کتابخانه @break
+                            @case('shelfmark') شماره بازیابی @break
+                            @case('scribe') کاتب @break
+                            @case('date') تاریخ کتابت @break
+                            @case('script') نوع خط @break
+                            @case('folios') تعداد برگ @break
+                            @default {{ $sort }}
+                        @endswitch
+                        ({{ $direction === 'asc' ? 'صعودی' : 'نزولی' }})
+                    </span>
+                    <a href="{{ route('works.show', $work->id) }}#manuscripts" 
+                       class="text-stone-400 hover:text-red-500 transition mr-2 underline">
+                        بازنشانی ترتیب
+                    </a>
+                </div>
+            @endif
         </div>
 
         <div class="bg-white dark:bg-[#15192C] rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-right text-xs">
-                    <thead class="bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-300 font-bold border-b border-stone-200 dark:border-stone-700">
+                    <thead class="bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-300 font-bold border-b border-stone-200 dark:border-stone-700 select-none">
+                        @php
+                            $renderSortHeader = function($col, $title, $align = 'right') use ($work, $sort, $direction) {
+                                $isActive = ($sort === $col);
+                                $nextDir = ($isActive && $direction === 'asc') ? 'desc' : 'asc';
+                                $url = route('works.show', array_merge(request()->except(['page']), ['id' => $work->id, 'sort' => $col, 'direction' => $nextDir, 'page' => 1])) . '#manuscripts';
+                                
+                                $justify = $align === 'center' ? 'justify-center' : 'justify-start';
+                                
+                                $html = '<a href="' . e($url) . '" class="inline-flex items-center gap-1.5 hover:text-[#B38A50] transition group ' . ($isActive ? 'text-[#B38A50] font-black' : 'text-stone-600 dark:text-stone-300') . '" title="مرتب‌سازی بر اساس ' . e($title) . '">';
+                                $html .= '<span>' . e($title) . '</span>';
+                                
+                                if ($isActive) {
+                                    if ($direction === 'asc') {
+                                        $html .= '<svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>';
+                                    } else {
+                                        $html .= '<svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>';
+                                    }
+                                } else {
+                                    $html .= '<svg class="w-3 h-3 text-stone-300 dark:text-stone-600 opacity-60 group-hover:opacity-100 group-hover:text-[#B38A50] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>';
+                                }
+                                
+                                $html .= '</a>';
+                                return $html;
+                            };
+                        @endphp
                         <tr>
-                            <th class="py-3.5 px-4 w-12 text-center">ردیف</th>
-                            <th class="py-3.5 px-4">کتابخانه و مرکز نگهداری</th>
-                            <th class="py-3.5 px-4">شماره بازیابی / قفسه</th>
-                            <th class="py-3.5 px-4">کاتب</th>
-                            <th class="py-3.5 px-4">تاریخ کتابت</th>
-                            <th class="py-3.5 px-4">نوع خط</th>
-                            <th class="py-3.5 px-4">برگ</th>
+                            <th class="py-3.5 px-4 w-16 text-center">{!! $renderSortHeader('sequence', 'ردیف', 'center') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('library', 'کتابخانه و مرکز نگهداری') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('shelfmark', 'شماره بازیابی / قفسه') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('scribe', 'کاتب') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('date', 'تاریخ کتابت') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('script', 'نوع خط') !!}</th>
+                            <th class="py-3.5 px-4">{!! $renderSortHeader('folios', 'برگ') !!}</th>
                             <th class="py-3.5 px-4 text-center">مشاهده</th>
                         </tr>
                     </thead>
