@@ -295,23 +295,37 @@ class SearchController extends Controller
                 $results = $builder->orderByDesc('manuscripts_count')->paginate($perPage)->withQueryString();
             }
 
-            // Calculate manuscript century ranges for all works on current page
+            // Calculate manuscript century ranges for all works on current page with chronological validation
             $workIds = $results->pluck('id')->filter()->all();
             if (!empty($workIds)) {
-                $dateRanges = Manuscript::whereIn('work_id', $workIds)
+                $allYearsByWork = Manuscript::whereIn('work_id', $workIds)
                     ->whereNotNull('copy_date_hijri_year')
-                    ->where('copy_date_hijri_year', '>=', 100)
+                    ->where('copy_date_hijri_year', '>=', 300)
                     ->where('copy_date_hijri_year', '<=', 1500)
-                    ->groupBy('work_id')
-                    ->selectRaw('work_id, MIN(copy_date_hijri_year) as min_year, MAX(copy_date_hijri_year) as max_year')
+                    ->select('work_id', 'copy_date_hijri_year')
+                    ->distinct()
                     ->get()
-                    ->keyBy('work_id');
+                    ->groupBy('work_id');
 
                 foreach ($results as $work) {
-                    $range = $dateRanges[$work->id] ?? null;
-                    if ($range && $range->min_year && $range->max_year) {
-                        $minCentury = (int) ceil($range->min_year / 100);
-                        $maxCentury = (int) ceil($range->max_year / 100);
+                    $minAllowedYear = 300;
+                    if ($work->composition_year_hijri) {
+                        $minAllowedYear = max($minAllowedYear, $work->composition_year_hijri - 40);
+                    } elseif ($work->author?->death_year_hijri) {
+                        $minAllowedYear = max($minAllowedYear, $work->author->death_year_hijri - 90);
+                    } elseif ($work->author?->century_hijri) {
+                        $minAllowedYear = max($minAllowedYear, ($work->author->century_hijri - 2) * 100);
+                    }
+
+                    $years = ($allYearsByWork->get($work->id) ?? collect())
+                        ->pluck('copy_date_hijri_year')
+                        ->filter(fn($y) => $y >= $minAllowedYear);
+
+                    if ($years->isNotEmpty()) {
+                        $minYear = $years->min();
+                        $maxYear = $years->max();
+                        $minCentury = (int) ceil($minYear / 100);
+                        $maxCentury = (int) ceil($maxYear / 100);
                         $work->copy_century_text = ($minCentury === $maxCentury)
                             ? "قرن {$minCentury} هـ.ق"
                             : "از قرن {$minCentury} تا {$maxCentury} هـ.ق";

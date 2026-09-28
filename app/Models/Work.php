@@ -118,9 +118,18 @@ class Work extends Model
             return $this->attributes['copy_century_text'];
         }
 
+        $minAllowedYear = 300;
+        if ($this->composition_year_hijri) {
+            $minAllowedYear = max($minAllowedYear, $this->composition_year_hijri - 40);
+        } elseif ($this->author?->death_year_hijri) {
+            $minAllowedYear = max($minAllowedYear, $this->author->death_year_hijri - 90);
+        } elseif ($this->author?->century_hijri) {
+            $minAllowedYear = max($minAllowedYear, ($this->author->century_hijri - 2) * 100);
+        }
+
         $range = $this->manuscripts()
             ->whereNotNull('copy_date_hijri_year')
-            ->where('copy_date_hijri_year', '>=', 100)
+            ->where('copy_date_hijri_year', '>=', $minAllowedYear)
             ->where('copy_date_hijri_year', '<=', 1500)
             ->selectRaw('MIN(copy_date_hijri_year) as min_year, MAX(copy_date_hijri_year) as max_year')
             ->first();
