@@ -1,4 +1,27 @@
 services:
+  app:
+    image: fahares-app:latest
+    container_name: fahares_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_CONNECTION=mariadb
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${MARIADB_DATABASE}
+      - DB_USERNAME=${MARIADB_USER}
+      - DB_PASSWORD=${MARIADB_PASSWORD}
+      - MEILISEARCH_HOST=http://meilisearch:7700
+      - MEILISEARCH_KEY=${MEILI_MASTER_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    command: ["tail", "-f", "/dev/null"]
+
   db:
     image: mariadb:latest
     container_name: fahares_mariadb
@@ -26,7 +49,7 @@ services:
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       MEILI_ENV: ${MEILI_ENV}
     ports:
-      - "7700:7700"
+      - "7701:7700"
     volumes:
       - meilidata:/meili_data
     healthcheck:

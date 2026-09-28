@@ -1,0 +1,8 @@
+.git
+.git_backup_pre_filter
+sources
+scratch
+*.tar.gz
+*.json.gz
+node_modules
+vendor

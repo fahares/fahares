@@ -12,6 +12,21 @@ web/build/
 .env.local
 *.log
 
+# Laravel
+/vendor/
+/node_modules/
+/public/build/
+/public/hot/
+/storage/*.key
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+
 # Docker data
 pgdata/
 meilidata/
@@ -27,4 +42,3 @@ sources/json/
 sources/pdf/
 
 .agents
-.git_backup_pre_filter/
