@@ -79,6 +79,7 @@
             <!-- Form -->
             <form action="{{ route('search') }}" method="GET" class="relative group">
                 <input type="hidden" name="type" :value="activeTab">
+                <input type="hidden" name="scope" value="titles_names">
                 
                 <div class="relative flex items-center">
                     <input 

@@ -18,6 +18,11 @@ class SearchController extends Controller
     {
         $query = trim($request->input('q', ''));
         $type = $request->input('type', 'works');
+        $scope = $request->input('scope', 'titles_names');
+        if (!in_array($scope, ['titles', 'titles_names', 'all'])) {
+            $scope = 'titles_names';
+        }
+
         $subjectId = $request->input('subject_id');
         $libraryId = $request->input('library_id');
         $scriptId = $request->input('script_id');
@@ -40,13 +45,22 @@ class SearchController extends Controller
         $selectedScript = $scriptId ? Script::find($scriptId) : null;
 
         if ($type === 'manuscripts') {
+            // Determine attributes to search on based on scope
+            $searchAttrs = null;
+            if ($scope === 'titles') {
+                $searchAttrs = ['work_title'];
+            } elseif ($scope === 'titles_names') {
+                $searchAttrs = ['work_title', 'author_name', 'scribe_name'];
+            }
+
             // 1. Fetch dynamic faceted distribution for manuscripts
             $meiliClient = app(MeiliClient::class);
             $facetDistribution = [];
 
             if ($query !== '') {
                 try {
-                    $facetRes = $meiliClient->index('manuscripts_index')->search($query, [
+                    $facetOptions = [
+                        'matchingStrategy' => 'all',
                         'facets' => [
                             'library_id',
                             'scripts',
@@ -59,7 +73,12 @@ class SearchController extends Controller
                             'is_collated',
                         ],
                         'limit' => 0,
-                    ]);
+                    ];
+                    if ($searchAttrs) {
+                        $facetOptions['attributesToSearchOn'] = $searchAttrs;
+                    }
+
+                    $facetRes = $meiliClient->index('manuscripts_index')->search($query, $facetOptions);
                     $facetDistribution = $facetRes->getFacetDistribution() ?? [];
                 } catch (\Throwable $e) {
                     Log::warning('Meilisearch facet retrieval failed: ' . $e->getMessage());
@@ -147,7 +166,11 @@ class SearchController extends Controller
 
                 $filterString = !empty($meiliFilters) ? implode(' AND ', $meiliFilters) : null;
 
-                $builder = Manuscript::search($query, function ($meili, $searchQuery, $options) use ($filterString) {
+                $builder = Manuscript::search($query, function ($meili, $searchQuery, $options) use ($filterString, $searchAttrs) {
+                    $options['matchingStrategy'] = 'all';
+                    if ($searchAttrs) {
+                        $options['attributesToSearchOn'] = $searchAttrs;
+                    }
                     if ($filterString) {
                         $options['filter'] = $filterString;
                     }
@@ -174,11 +197,24 @@ class SearchController extends Controller
                 $results = $builder->orderBy('id')->paginate($perPage)->withQueryString();
             }
         } elseif ($type === 'people') {
+            $peopleSearchAttrs = null;
+            if ($scope === 'titles') {
+                $peopleSearchAttrs = ['name'];
+            } elseif ($scope === 'titles_names') {
+                $peopleSearchAttrs = ['name', 'transliteration'];
+            }
+
             if ($query !== '') {
-                $results = Person::search($query)
-                    ->query(fn($q) => $q->withCount(['works', 'scribedManuscripts']))
-                    ->paginate($perPage)
-                    ->withQueryString();
+                $results = Person::search($query, function ($meili, $searchQuery, $options) use ($peopleSearchAttrs) {
+                    $options['matchingStrategy'] = 'all';
+                    if ($peopleSearchAttrs) {
+                        $options['attributesToSearchOn'] = $peopleSearchAttrs;
+                    }
+                    return $meili->search($searchQuery, $options);
+                })
+                ->query(fn($q) => $q->withCount(['works', 'scribedManuscripts']))
+                ->paginate($perPage)
+                ->withQueryString();
             } else {
                 $results = Person::query()
                     ->withCount(['works', 'scribedManuscripts'])
@@ -190,14 +226,27 @@ class SearchController extends Controller
             // Default: works
             $type = 'works';
 
+            $workSearchAttrs = null;
+            if ($scope === 'titles') {
+                $workSearchAttrs = ['primary_title', 'clean_title', 'alternative_titles'];
+            } elseif ($scope === 'titles_names') {
+                $workSearchAttrs = ['primary_title', 'clean_title', 'alternative_titles', 'author_name'];
+            }
+
             // 1. Facet distribution for subjects
             if ($query !== '') {
                 try {
                     $meiliClient = app(MeiliClient::class);
-                    $facetRes = $meiliClient->index('works_index')->search($query, [
+                    $facetOptions = [
+                        'matchingStrategy' => 'all',
                         'facets' => ['subjects'],
                         'limit' => 0,
-                    ]);
+                    ];
+                    if ($workSearchAttrs) {
+                        $facetOptions['attributesToSearchOn'] = $workSearchAttrs;
+                    }
+
+                    $facetRes = $meiliClient->index('works_index')->search($query, $facetOptions);
                     $subjCounts = $facetRes->getFacetDistribution()['subjects'] ?? [];
                     if (!empty($subjCounts)) {
                         $subjects = Subject::whereIn('name', array_keys($subjCounts))->get()->map(function ($s) use ($subjCounts) {
@@ -226,7 +275,11 @@ class SearchController extends Controller
                     $workFilter = 'subjects = "' . addslashes($selectedSubject->name) . '"';
                 }
 
-                $builder = Work::search($query, function ($meili, $searchQuery, $options) use ($workFilter) {
+                $builder = Work::search($query, function ($meili, $searchQuery, $options) use ($workFilter, $workSearchAttrs) {
+                    $options['matchingStrategy'] = 'all';
+                    if ($workSearchAttrs) {
+                        $options['attributesToSearchOn'] = $workSearchAttrs;
+                    }
                     if ($workFilter) {
                         $options['filter'] = $workFilter;
                     }
@@ -247,6 +300,7 @@ class SearchController extends Controller
             'results',
             'query',
             'type',
+            'scope',
             'subjects',
             'scripts',
             'libraries',

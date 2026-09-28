@@ -29,10 +29,29 @@
                 </button>
             </div>
 
-            <!-- Type Tabs -->
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-stone-100 dark:border-stone-800 text-sm">
+            <!-- Search Controls: Scope Radios & Type Tabs -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-stone-100 dark:border-stone-800 text-xs">
+                
+                <!-- Scope Radio Buttons -->
+                <div class="flex flex-wrap items-center gap-4 text-stone-600 dark:text-stone-300">
+                    <span class="font-bold text-stone-400">محدوده جستجو:</span>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
+                        <input type="radio" name="scope" value="titles" {{ $scope === 'titles' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
+                        <span>فقط در عناوین</span>
+                    </label>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
+                        <input type="radio" name="scope" value="titles_names" {{ $scope === 'titles_names' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
+                        <span class="font-bold">فقط در عناوین و اعلام</span>
+                    </label>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
+                        <input type="radio" name="scope" value="all" {{ $scope === 'all' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
+                        <span>در همۀ اطلاعات</span>
+                    </label>
+                </div>
+
+                <!-- Type Tabs -->
                 <div class="flex items-center gap-2">
-                    <span class="text-xs text-stone-400 font-medium">دامنه جستجو:</span>
+                    <span class="text-xs text-stone-400 font-medium">دامنه:</span>
                     <button type="submit" name="type" value="works" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'works' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
                         آثار و عناوین
@@ -109,7 +128,7 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('search', ['q' => $query, 'type' => $type]) }}" class="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
+                    <a href="{{ route('search', ['q' => $query, 'type' => $type, 'scope' => $scope]) }}" class="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
                         پاکسازی همه فیلترها ✕
                     </a>
                 </div>
@@ -127,6 +146,7 @@
             <form action="{{ route('search') }}" method="GET" class="bg-white dark:bg-[#15192C] p-5 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-6 text-sm">
                 <input type="hidden" name="q" value="{{ $query }}">
                 <input type="hidden" name="type" value="{{ $type }}">
+                <input type="hidden" name="scope" value="{{ $scope }}">
 
                 <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
                     <span class="font-bold text-stone-800 dark:text-stone-100">فیلترهای پیشرفته</span>
