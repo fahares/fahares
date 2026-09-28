@@ -304,9 +304,7 @@
                 
                 <div 
                     x-ref="workRawText" 
-                    class="p-4 sm:p-5 rounded-2xl bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">
-                    {!! nl2br(e($work->clean_raw_text)) !!}
-                </div>
+                    class="p-4 sm:p-5 rounded-2xl bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">{{ $work->clean_raw_text }}</div>
             </div>
         @endif
     </div>

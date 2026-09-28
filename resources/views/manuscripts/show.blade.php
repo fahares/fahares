@@ -500,9 +500,7 @@
                 
                 <div 
                     x-ref="rawTextContent" 
-                    class="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-[#15192C]/70 border border-[#EADFCF] dark:border-[#272F4C] text-xs text-stone-800 dark:text-stone-200 leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950">
-                    {!! nl2br(e($manuscript->clean_raw_text)) !!}
-                </div>
+                    class="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-[#15192C]/70 border border-[#EADFCF] dark:border-[#272F4C] text-xs text-stone-800 dark:text-stone-200 leading-relaxed whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950">{{ $manuscript->clean_raw_text }}</div>
             </div>
         @endif
 

@@ -275,6 +275,10 @@ class Manuscript extends Model
             return null;
         }
         $cleaned = preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $this->raw_text);
+        $cleaned = str_replace(["\r\n", "\r"], "\n", $cleaned);
+        $cleaned = preg_replace('/^[ \t]+$/m', '', $cleaned);
+        $cleaned = preg_replace('/[ \t]{2,}/u', ' ', $cleaned);
+        $cleaned = preg_replace("/\n{3,}/u", "\n\n", $cleaned);
         return trim($cleaned);
     }
 
