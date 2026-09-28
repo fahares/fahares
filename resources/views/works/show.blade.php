@@ -208,6 +208,12 @@
                                 <td class="py-3 px-4">
                                     @if($ms->scribe_name)
                                         <span class="font-medium">{{ $ms->scribe_name }}</span>
+                                    @elseif($ms->is_autograph)
+                                        @if($work->author_id)
+                                            <a href="{{ route('people.show', $work->author_id) }}" class="font-medium text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
+                                        @else
+                                            <span class="font-medium text-emerald-700 dark:text-emerald-400">مؤلف</span>
+                                        @endif
                                     @elseif($ms->is_bika)
                                         <span class="text-stone-400 italic">بی‌کاتب</span>
                                     @else

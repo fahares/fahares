@@ -45,6 +45,20 @@ class Manuscript extends Model
         return $this->shelfmark;
     }
 
+    public function getScribeDisplayNameAttribute(): string
+    {
+        if (!empty($this->scribe_name)) {
+            return $this->scribe_name;
+        }
+        if ($this->is_autograph) {
+            return 'مؤلف';
+        }
+        if ($this->is_bika) {
+            return 'بی‌کاتب';
+        }
+        return 'نامشخص';
+    }
+
     public function searchableAs(): string
     {
         return 'manuscripts_index';
@@ -75,7 +89,7 @@ class Manuscript extends Model
             'shelfmark' => $this->shelfmark,
             'shelfmark_key' => $this->shelfmark_key,
             'scribe_id' => $this->scribe_id ? (int) $this->scribe_id : null,
-            'scribe_name' => $this->scribe_name,
+            'scribe_name' => $this->scribe_name ?: ($this->is_autograph ? 'مؤلف' : null),
             'is_bika' => (bool) $this->is_bika,
             'is_bita' => (bool) $this->is_bita,
             'is_autograph' => (bool) $this->is_autograph,

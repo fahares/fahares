@@ -165,6 +165,12 @@
                             <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="text-[#B38A50] hover:underline">{{ $manuscript->scribe_name }}</a>
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
+                        @elseif($manuscript->is_autograph)
+                            @if($manuscript->work?->author_id)
+                                <a href="{{ route('people.show', $manuscript->work->author_id) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline">مؤلف</a>
+                            @else
+                                <span class="text-emerald-700 dark:text-emerald-400">مؤلف</span>
+                            @endif
                         @elseif($manuscript->is_bika)
                             <span class="text-stone-400 italic">بی‌کاتب</span>
                         @else

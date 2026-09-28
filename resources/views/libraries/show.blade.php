@@ -83,7 +83,15 @@
                                 </td>
 
                                 <td class="py-3 px-4">
-                                    {{ $ms->scribe_name ?? ($ms->is_bika ? 'بی‌کاتب' : '-') }}
+                                    @if($ms->scribe_name)
+                                        <span class="font-medium">{{ $ms->scribe_name }}</span>
+                                    @elseif($ms->is_autograph)
+                                        <span class="text-emerald-700 dark:text-emerald-300 font-medium">مؤلف</span>
+                                    @elseif($ms->is_bika)
+                                        <span class="text-stone-400 italic">بی‌کاتب</span>
+                                    @else
+                                        <span class="text-stone-400">-</span>
+                                    @endif
                                 </td>
 
                                 <td class="py-3 px-4 font-mono">

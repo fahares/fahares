@@ -390,6 +390,8 @@
                                             <span>شماره بازیابی: <strong class="font-mono text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                             @if($ms->scribe_name)
                                                 <span>کاتب: <strong>{{ $ms->scribe_name }}</strong></span>
+                                            @elseif($ms->is_autograph)
+                                                <span>کاتب: <strong class="text-emerald-700 dark:text-emerald-300">مؤلف</strong></span>
                                             @elseif($ms->is_bika)
                                                 <span class="text-stone-400">بی‌کاتب</span>
                                             @endif
