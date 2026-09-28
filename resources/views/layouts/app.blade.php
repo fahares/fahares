@@ -69,7 +69,7 @@
                     <a href="{{ route('search') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 text-xs text-stone-500 hover:border-[#B38A50] transition group shadow-sm">
                         <svg class="w-4 h-4 text-stone-400 group-hover:text-[#B38A50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         <span class="hidden sm:inline">کاوش سریع...</span>
-                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300">Ctrl+K</kbd>
+                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300">Ctrl+K</kbd>
                     </a>
 
                     <!-- Dark Mode Toggle Button -->
@@ -175,7 +175,7 @@
             <!-- Bottom Copyright -->
             <div class="border-t border-stone-700/60 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-3">
                 <p>© {{ date('Y') }} فهارس (fahares.net) • سامانه جامع کتاب‌شناسی و مراجع نسخه‌شناسی</p>
-                <p class="font-mono text-stone-400">Version 1.0.0-Release • Laravel 13 & Meilisearch</p>
+                <p class="text-stone-400">Version 1.0.0-Release • Laravel 13 & Meilisearch</p>
             </div>
         </div>
     </footer>

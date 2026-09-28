@@ -130,7 +130,7 @@
                                     <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50]" x-text="item.title"></div>
                                     <div class="text-xs text-stone-400" x-text="item.author"></div>
                                 </div>
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] font-mono" x-text="item.manuscripts_count + ' نسخه'"></span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] font-bold" x-text="item.manuscripts_count + ' نسخه'"></span>
                             </a>
                         </template>
                     </div>
@@ -187,7 +187,7 @@
             <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center divide-y md:divide-y-0 md:divide-x md:divide-x-reverse divide-stone-200 dark:divide-stone-800">
                 
                 <div class="space-y-1 pt-3 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100 font-mono">
+                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
                         {{ number_format($stats['volumes_count']) }}
                     </div>
                     <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
@@ -196,7 +196,7 @@
                 </div>
 
                 <div class="space-y-1 pt-3 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-black text-[#B38A50] font-mono">
+                    <div class="text-3xl sm:text-4xl font-black text-[#B38A50]">
                         {{ number_format($stats['works_count']) }}
                     </div>
                     <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
@@ -205,7 +205,7 @@
                 </div>
 
                 <div class="space-y-1 pt-3 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100 font-mono">
+                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
                         {{ number_format($stats['manuscripts_count']) }}
                     </div>
                     <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
@@ -214,7 +214,7 @@
                 </div>
 
                 <div class="space-y-1 pt-3 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-black text-[#B38A50] font-mono">
+                    <div class="text-3xl sm:text-4xl font-black text-[#B38A50]">
                         {{ number_format($stats['people_count']) }}
                     </div>
                     <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
@@ -223,7 +223,7 @@
                 </div>
 
                 <div class="col-span-2 md:col-span-1 space-y-1 pt-3 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100 font-mono">
+                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
                         {{ number_format($stats['libraries_count']) }}
                     </div>
                     <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
@@ -257,7 +257,7 @@
                     </div>
                     <div class="flex items-center justify-between text-xs text-stone-400">
                         <span>تعداد عناوین</span>
-                        <span class="font-mono font-bold text-[#B38A50] bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full">
+                        <span class="font-bold text-[#B38A50] bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full">
                             {{ number_format($subject->works_count) }}
                         </span>
                     </div>
@@ -293,7 +293,7 @@
                     </div>
                     <div class="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs text-stone-500">
                         <span>نسخه‌های موجود:</span>
-                        <span class="font-mono font-bold text-stone-700 dark:text-stone-300">
+                        <span class="font-bold text-stone-700 dark:text-stone-300">
                             {{ number_format($lib->manuscripts_count) }}
                         </span>
                     </div>

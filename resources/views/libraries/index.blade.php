@@ -63,7 +63,7 @@
 
                 <div class="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs text-stone-500">
                     <span>تعداد نسخه‌ها:</span>
-                    <span class="font-mono font-bold text-[#B38A50] bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full">
+                    <span class="font-bold text-[#B38A50] bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full">
                         {{ number_format($lib->manuscripts_count) }} نسخه
                     </span>
                 </div>

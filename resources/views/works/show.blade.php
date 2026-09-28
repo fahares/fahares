@@ -38,7 +38,7 @@
                 @endif
 
                 @if($work->transliteration)
-                    <div class="text-xs font-mono text-stone-400">
+                    <div class="text-xs text-stone-400">
                         {{ $work->transliteration }}
                     </div>
                 @endif
@@ -47,7 +47,7 @@
             <!-- Manuscript Count Badge -->
             <div class="flex flex-col items-start md:items-end gap-2">
                 <div class="px-5 py-3 rounded-2xl bg-gradient-to-br from-amber-50 to-[#FEF9F3] dark:from-stone-800 dark:to-[#15192C] border border-[#B38A50]/40 text-center shadow-sm">
-                    <span class="block text-2xl sm:text-3xl font-black text-[#B38A50] font-mono">
+                    <span class="block text-2xl sm:text-3xl font-black text-[#B38A50]">
                         {{ number_format($work->manuscripts_count) }}
                     </span>
                     <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه ثبت‌شده</span>
@@ -95,7 +95,7 @@
             <div class="space-y-1">
                 <span class="text-stone-400 block font-medium">تاریخ و سده تألیف:</span>
                 @if($work->composition_year_hijri)
-                    <span class="text-sm font-bold text-stone-700 dark:text-stone-300 font-mono">{{ $work->composition_year_hijri }} هـ.ق</span>
+                    <span class="text-sm font-bold text-stone-700 dark:text-stone-300">{{ $work->composition_year_hijri }} هـ.ق</span>
                 @elseif($work->composition_date_raw)
                     <span class="text-sm font-bold text-stone-700 dark:text-stone-300">{{ $work->composition_date_raw }}</span>
                 @else
@@ -106,7 +106,7 @@
             <!-- Source in Catalog -->
             <div class="space-y-1">
                 <span class="text-stone-400 block font-medium">مأخذ فهرست‌نویسی:</span>
-                <span class="text-sm font-bold text-stone-700 dark:text-stone-300 font-mono">
+                <span class="text-sm font-bold text-stone-700 dark:text-stone-300">
                     {{ $work->catalog?->short_name ?? 'فنخا' }}، ج {{ $work->volume_number }}، ص {{ $work->page_start }}
                     @if($work->page_end && $work->page_end > $work->page_start)
                         تا {{ $work->page_end }}
@@ -150,7 +150,7 @@
                             <span class="px-2.5 py-1 rounded-lg bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300">
                                 {{ $alt['title'] }}
                                 @if(!empty($alt['transliteration']))
-                                    <span class="text-[10px] text-stone-400 font-mono">({{ $alt['transliteration'] }})</span>
+                                    <span class="text-[10px] text-stone-400">({{ $alt['transliteration'] }})</span>
                                 @endif
                             </span>
                         @endif
@@ -170,7 +170,7 @@
                 <h2 class="text-xl font-bold text-stone-900 dark:text-stone-100">
                     فهرست نسخه‌های خطی این اثر
                 </h2>
-                <span class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50]">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50]">
                     {{ number_format($work->manuscripts_count) }} نسخه
                 </span>
             </div>
@@ -241,7 +241,7 @@
                     <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60 text-stone-700 dark:text-stone-300">
                         @forelse($manuscripts as $index => $ms)
                             <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-800/40 transition">
-                                <td class="py-3 px-4 text-center font-mono text-stone-400">
+                                <td class="py-3 px-4 text-center text-stone-400">
                                     {{ $manuscripts->firstItem() + $index }}
                                 </td>
                                 
@@ -254,10 +254,10 @@
                                     @endif
                                 </td>
 
-                                <td class="py-3 px-4 font-mono font-bold text-[#B38A50]">
+                                <td class="py-3 px-4 font-bold text-[#B38A50]">
                                     {{ $ms->shelfmark ?? 'بی‌شماره' }}
                                     @if($ms->is_autograph)
-                                        <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-sans font-bold mt-0.5">
+                                        <span class="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-bold mt-0.5">
                                             <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                             </svg>
@@ -284,7 +284,7 @@
 
                                 <td class="py-3 px-4">
                                     @if($ms->copy_date_raw)
-                                        <span class="font-mono">{{ $ms->copy_date_raw }}</span>
+                                        <span>{{ $ms->copy_date_raw }}</span>
                                     @elseif($ms->is_bita)
                                         <span class="text-stone-400 italic">بی‌تاریخ</span>
                                     @else
@@ -296,7 +296,7 @@
                                     {{ $ms->script_names ?? '-' }}
                                 </td>
 
-                                <td class="py-3 px-4 font-mono">
+                                <td class="py-3 px-4">
                                     {{ $ms->folios ? $ms->folios . ' ب' : '-' }}
                                 </td>
 

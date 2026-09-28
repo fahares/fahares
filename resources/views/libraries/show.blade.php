@@ -33,7 +33,7 @@
         </div>
 
         <div class="px-5 py-3 rounded-2xl bg-gradient-to-br from-amber-50 to-[#FEF9F3] dark:from-stone-800 dark:to-[#15192C] border border-[#B38A50]/40 text-center shadow-sm">
-            <span class="block text-2xl sm:text-3xl font-black text-[#B38A50] font-mono">
+            <span class="block text-2xl sm:text-3xl font-black text-[#B38A50]">
                 {{ number_format($library->manuscripts_count) }}
             </span>
             <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه شناسایی‌شده</span>
@@ -78,7 +78,7 @@
                                     {{ $ms->work?->author?->name ?? $ms->work?->author_name ?? '-' }}
                                 </td>
 
-                                <td class="py-3 px-4 font-mono font-bold text-[#B38A50]">
+                                <td class="py-3 px-4 font-bold text-[#B38A50]">
                                     {{ $ms->shelfmark ?? 'بی‌شماره' }}
                                 </td>
 
@@ -94,7 +94,7 @@
                                     @endif
                                 </td>
 
-                                <td class="py-3 px-4 font-mono">
+                                <td class="py-3 px-4">
                                     {{ $ms->copy_date_raw ?? ($ms->is_bita ? 'بی‌تاریخ' : '-') }}
                                 </td>
 

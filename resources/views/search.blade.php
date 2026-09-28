@@ -67,7 +67,7 @@
                 </div>
 
                 @if($results)
-                    <div class="text-xs font-mono text-stone-500">
+                    <div class="text-xs text-stone-500 font-medium">
                         نمایش {{ number_format($results->total()) }} نتیجه
                     </div>
                 @endif
@@ -159,7 +159,7 @@
                         <div class="flex items-center justify-between">
                             <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">موضوع اثر</label>
                             @if($subjects->isNotEmpty())
-                                <span class="text-[10px] text-stone-400 font-mono">{{ $subjects->count() }} موضوع</span>
+                                <span class="text-[10px] text-stone-400 font-medium">{{ $subjects->count() }} موضوع</span>
                             @endif
                         </div>
                         <select name="subject_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
@@ -179,7 +179,7 @@
                         <div class="flex items-center justify-between">
                             <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">کتابخانه / مرکز اسناد</label>
                             @if($libraries->isNotEmpty())
-                                <span class="text-[10px] text-[#B38A50] font-mono font-semibold">{{ $libraries->count() }} مرکز</span>
+                                <span class="text-[10px] text-[#B38A50] font-semibold">{{ $libraries->count() }} مرکز</span>
                             @endif
                         </div>
                         <select name="library_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
@@ -199,7 +199,7 @@
                         <div class="flex items-center justify-between">
                             <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">نوع خط</label>
                             @if($scripts->isNotEmpty())
-                                <span class="text-[10px] text-stone-400 font-mono">{{ $scripts->count() }} خط</span>
+                                <span class="text-[10px] text-stone-400 font-medium">{{ $scripts->count() }} خط</span>
                             @endif
                         </div>
                         <select name="script_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
@@ -249,7 +249,7 @@
                                     <span>اصل نسخه (دستخط مؤلف)</span>
                                 </div>
                                 @if(!empty($flagCounts['is_autograph']))
-                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_autograph'] }})</span>
+                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_autograph'] }})</span>
                                 @endif
                             </label>
                             <label class="flex items-center justify-between cursor-pointer">
@@ -258,7 +258,7 @@
                                     <span>دارای تذهیب و سرلوح</span>
                                 </div>
                                 @if(!empty($flagCounts['is_illuminated']))
-                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_illuminated'] }})</span>
+                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_illuminated'] }})</span>
                                 @endif
                             </label>
                             <label class="flex items-center justify-between cursor-pointer">
@@ -267,7 +267,7 @@
                                     <span>دارای نگاره و تصویر</span>
                                 </div>
                                 @if(!empty($flagCounts['is_illustrated']))
-                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_illustrated'] }})</span>
+                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_illustrated'] }})</span>
                                 @endif
                             </label>
                             <label class="flex items-center justify-between cursor-pointer">
@@ -276,7 +276,7 @@
                                     <span>تصحیح‌شده</span>
                                 </div>
                                 @if(!empty($flagCounts['is_corrected']))
-                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_corrected'] }})</span>
+                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_corrected'] }})</span>
                                 @endif
                             </label>
                             <label class="flex items-center justify-between cursor-pointer">
@@ -285,7 +285,7 @@
                                     <span>دارای حواشی</span>
                                 </div>
                                 @if(!empty($flagCounts['has_marginal_notes']))
-                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['has_marginal_notes'] }})</span>
+                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['has_marginal_notes'] }})</span>
                                 @endif
                             </label>
                             <label class="flex items-center justify-between cursor-pointer">
@@ -294,7 +294,7 @@
                                     <span>مقابله‌شده</span>
                                 </div>
                                 @if(!empty($flagCounts['is_collated']))
-                                    <span class="text-[10px] font-mono text-[#B38A50] font-bold">({{ $flagCounts['is_collated'] }})</span>
+                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_collated'] }})</span>
                                 @endif
                             </label>
                         </div>
@@ -337,13 +337,13 @@
                                             @endif
 
                                             @if($work->composition_year_hijri)
-                                                <span>تألیف: <strong class="font-mono">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
+                                                <span>تألیف: <strong>{{ $work->composition_year_hijri }} هـ.ق</strong></span>
                                             @elseif($work->author?->death_year_hijri)
-                                                <span>وفات مؤلف: <strong class="font-mono">{{ $work->author->death_year_hijri }} هـ.ق</strong></span>
+                                                <span>وفات مؤلف: <strong>{{ $work->author->death_year_hijri }} هـ.ق</strong></span>
                                             @elseif($work->author?->death_century_hijri)
-                                                <span>وفات مؤلف: <strong class="font-mono">قرن {{ $work->author->death_century_hijri }} هـ.ق</strong></span>
+                                                <span>وفات مؤلف: <strong>قرن {{ $work->author->death_century_hijri }} هـ.ق</strong></span>
                                             @elseif($work->author?->death_date_raw)
-                                                <span>وفات مؤلف: <strong class="font-mono">{{ $work->author->death_date_raw }}</strong></span>
+                                                <span>وفات مؤلف: <strong>{{ $work->author->death_date_raw }}</strong></span>
                                             @endif
 
                                             @if($work->work_form)
@@ -357,7 +357,7 @@
                                     </div>
 
                                     <div class="flex flex-col items-end gap-1.5 shrink-0 text-left">
-                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-mono font-bold shadow-xs">
+                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold shadow-xs">
                                             {{ number_format($work->manuscripts_count) }} نسخه
                                         </span>
                                         @if($work->has_autograph)
@@ -382,7 +382,7 @@
                                         <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">{{ $subj->title }}</span>
                                     @endforeach
                                     @foreach($work->languages as $lang)
-                                        <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-500 font-mono">{{ $lang->name }}</span>
+                                        <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-500">{{ $lang->name }}</span>
                                     @endforeach
                                 </div>
                             </div>
@@ -407,7 +407,7 @@
 
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                                             <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
-                                            <span>شماره بازیابی: <strong class="font-mono text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
+                                            <span>شماره بازیابی: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                             @if($ms->scribe_name)
                                                 <span>کاتب: <strong>{{ $ms->scribe_name }}</strong></span>
                                             @elseif($ms->is_autograph)
@@ -416,7 +416,7 @@
                                                 <span class="text-stone-400">بی‌کاتب</span>
                                             @endif
                                             @if($ms->copy_date_raw)
-                                                <span>تاریخ: <strong class="font-mono">{{ $ms->copy_date_raw }}</strong></span>
+                                                <span>تاریخ: <strong>{{ $ms->copy_date_raw }}</strong></span>
                                             @elseif($ms->is_bita)
                                                 <span class="text-stone-400">بی‌تاریخ</span>
                                             @endif
@@ -433,12 +433,12 @@
                                             </span>
                                         @endif
                                         @if($ms->century_text)
-                                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-[11px] font-mono font-medium shadow-xs">
+                                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-[11px] font-medium shadow-xs">
                                                 {{ $ms->century_text }}
                                             </span>
                                         @endif
                                         @if($ms->catalog_citation)
-                                            <span class="text-[11px] font-mono text-stone-500 dark:text-stone-400" title="شماره و ارجاع در فهرست اصلی کتابخانه">
+                                            <span class="text-[11px] text-stone-500 dark:text-stone-400" title="شماره و ارجاع در فهرست اصلی کتابخانه">
                                                 {{ $ms->catalog_citation }}
                                             </span>
                                         @endif
@@ -483,19 +483,19 @@
                                         {{ $person->name }}
                                     </div>
                                     @if($person->transliteration)
-                                        <div class="text-[11px] font-mono text-stone-400">{{ $person->transliteration }}</div>
+                                        <div class="text-[11px] text-stone-400">{{ $person->transliteration }}</div>
                                     @endif
                                     <div class="text-xs text-stone-500 mt-2">
                                         @if($person->death_year_hijri)
-                                            وفات: <strong class="font-mono">{{ $person->death_year_hijri }} هـ.ق</strong>
+                                            وفات: <strong>{{ $person->death_year_hijri }} هـ.ق</strong>
                                         @elseif($person->century_hijri)
-                                            سده: <strong class="font-mono">{{ $person->century_hijri }} هـ.ق</strong>
+                                            سده: <strong>{{ $person->century_hijri }} هـ.ق</strong>
                                         @endif
                                     </div>
                                 </div>
                                 <div class="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
                                     <span class="text-stone-400">تألیفات ثبت‌شده:</span>
-                                    <span class="font-mono font-bold text-[#B38A50]">{{ $person->works_count }} اثر</span>
+                                    <span class="font-bold text-[#B38A50]">{{ $person->works_count }} اثر</span>
                                 </div>
                             </a>
                         @endforeach

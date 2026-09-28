@@ -29,7 +29,7 @@
                 </h1>
 
                 @if($person->transliteration)
-                    <div class="text-xs font-mono text-stone-400">
+                    <div class="text-xs text-stone-400">
                         {{ $person->transliteration }}
                     </div>
                 @endif
@@ -61,14 +61,14 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-stone-400">سال وفات (قمری):</span>
-                    <span class="font-mono font-bold text-stone-800 dark:text-stone-200">
+                    <span class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $person->death_year_hijri ? $person->death_year_hijri . ' ق' : '-' }}
                     </span>
                 </div>
                 @if($person->death_year_gregorian)
                     <div class="flex justify-between">
                         <span class="text-stone-400">سال وفات (میلادی):</span>
-                        <span class="font-mono text-stone-600 dark:text-stone-300">
+                        <span class="text-stone-600 dark:text-stone-300">
                             {{ $person->death_year_gregorian }} م
                         </span>
                     </div>
@@ -83,14 +83,14 @@
                 :class="activeTab === 'authored' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
                 class="px-4 py-2 rounded-xl transition flex items-center gap-2">
                 <span>آثار و تألیفات</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-mono">{{ $person->works_count }}</span>
+                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->works_count }}</span>
             </button>
             <button 
                 @click="activeTab = 'scribed'" 
                 :class="activeTab === 'scribed' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
                 class="px-4 py-2 rounded-xl transition flex items-center gap-2">
                 <span>نسخه‌های کتابت‌شده</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-mono">{{ $person->manuscripts_count }}</span>
+                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->manuscripts_count }}</span>
             </button>
         </div>
 
@@ -112,7 +112,7 @@
                             <a href="{{ route('works.show', $work->id) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
                                 {{ $work->primary_title }}
                             </a>
-                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-mono font-bold whitespace-nowrap">
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold whitespace-nowrap">
                                 {{ $work->manuscripts_count }} نسخه
                             </span>
                         </div>
@@ -125,7 +125,7 @@
 
                         <div class="text-xs text-stone-500 mt-2 flex flex-wrap items-center gap-3">
                             @if($work->composition_year_hijri)
-                                <span>تألیف: <strong class="font-mono text-stone-700 dark:text-stone-300">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
+                                <span>تألیف: <strong class="text-stone-700 dark:text-stone-300">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
                             @endif
                             @if($work->work_form)
                                 <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[11px]">{{ $work->work_form }}</span>
@@ -178,8 +178,8 @@
                             </a>
                             <div class="text-xs text-stone-500 mt-1 flex flex-wrap gap-x-4 gap-y-1">
                                 <span>کتابخانه: <strong>{{ $ms->library?->name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
-                                <span>شماره بازیابی: <strong class="font-mono text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
-                                <span>تاریخ کتابت: <strong class="font-mono">{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
+                                <span>شماره بازیابی: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
+                                <span>تاریخ کتابت: <strong>{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
                             </div>
                         </div>
 

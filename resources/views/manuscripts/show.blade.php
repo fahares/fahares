@@ -16,7 +16,7 @@
             <a href="{{ route('works.show', $manuscript->work_id) }}" class="hover:text-[#B38A50] truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
             <span>/</span>
         @endif
-        <span class="text-stone-800 dark:text-stone-200 font-semibold font-mono">{{ $manuscript->shelfmark ?? 'شناسنامه نسخه' }}</span>
+        <span class="text-stone-800 dark:text-stone-200 font-semibold">{{ $manuscript->shelfmark ?? 'شناسنامه نسخه' }}</span>
     </nav>
 
     <!-- MANUSCRIPT HEADER IDENTIFICATION -->
@@ -87,7 +87,7 @@
 
             <div class="space-y-1">
                 <span class="text-stone-400 block font-medium">شماره بازیابی / قفسه:</span>
-                <span class="text-base font-black text-[#B38A50] font-mono tracking-wide">
+                <span class="text-base font-black text-[#B38A50] tracking-wide">
                     {{ $manuscript->shelfmark ?? 'بی‌شماره' }}
                 </span>
             </div>
@@ -183,7 +183,7 @@
                     <dt class="text-stone-400">تاریخ کتابت:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
                         @if($manuscript->copy_date_raw)
-                            <span class="font-mono">{{ $manuscript->copy_date_raw }}</span>
+                            <span>{{ $manuscript->copy_date_raw }}</span>
                             @if($manuscript->copy_date_hijri_year)
                                 <span class="text-stone-400 mr-1">({{ $manuscript->copy_date_hijri_year }} هـ.ق)</span>
                             @endif
@@ -204,7 +204,7 @@
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">ردیف ثبت در مأخذ:</dt>
-                    <dd class="font-mono font-bold text-stone-700 dark:text-stone-300">
+                    <dd class="font-bold text-stone-700 dark:text-stone-300">
                         ردیف {{ $manuscript->sequence_number }} (در {{ $manuscript->catalog?->short_name ?? 'فنخا' }})
                     </dd>
                 </div>
@@ -230,14 +230,14 @@
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">تعداد برگ و سطر:</dt>
-                    <dd class="font-mono font-bold text-stone-800 dark:text-stone-200">
+                    <dd class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $manuscript->folios ? $manuscript->folios . ' برگ' : '-' }} • {{ $manuscript->lines ? $manuscript->lines . ' سطر' : '-' }}
                     </dd>
                 </div>
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">ابعاد و اندازه (سانتی‌متر):</dt>
-                    <dd class="font-mono font-bold text-stone-800 dark:text-stone-200">
+                    <dd class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $manuscript->dimensions ?? '-' }}
                     </dd>
                 </div>
@@ -300,7 +300,7 @@
                 {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
             </p>
         </div>
-        <div class="font-mono text-sm font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-5 py-2.5 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-xs">
+        <div class="text-sm font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-5 py-2.5 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-xs">
             جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }}
         </div>
     </div>
