@@ -175,11 +175,11 @@ class SearchController extends Controller
                         $options['filter'] = $filterString;
                     }
                     return $meili->search($searchQuery, $options);
-                })->query(fn($q) => $q->with(['work.author', 'libraryRecord', 'scripts']));
+                })->query(fn($q) => $q->with(['catalog', 'work.author', 'libraryRecord', 'scripts']));
 
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
-                $builder = Manuscript::query()->with(['work.author', 'libraryRecord', 'scripts']);
+                $builder = Manuscript::query()->with(['catalog', 'work.author', 'libraryRecord', 'scripts']);
                 if ($libraryId) {
                     $builder->where('library_id', $libraryId);
                 }
@@ -284,11 +284,11 @@ class SearchController extends Controller
                         $options['filter'] = $workFilter;
                     }
                     return $meili->search($searchQuery, $options);
-                })->query(fn($q) => $q->with(['author', 'subjects', 'languages'])->withCount('manuscripts'));
+                })->query(fn($q) => $q->with(['catalog', 'author', 'subjects', 'languages'])->withCount('manuscripts'));
 
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
-                $builder = Work::query()->with(['author', 'subjects', 'languages'])->withCount('manuscripts');
+                $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages'])->withCount('manuscripts');
                 if ($subjectId) {
                     $builder->whereHas('subjects', fn($sq) => $sq->where('subjects.id', $subjectId));
                 }

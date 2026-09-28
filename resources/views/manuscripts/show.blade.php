@@ -203,9 +203,9 @@
                 </div>
 
                 <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">ترتیب نسخه در اثر:</dt>
+                    <dt class="text-stone-400">ردیف ثبت در مأخذ:</dt>
                     <dd class="font-mono font-bold text-stone-700 dark:text-stone-300">
-                        نسخه شماره {{ $manuscript->sequence_number }}
+                        ردیف {{ $manuscript->sequence_number }} (در {{ $manuscript->catalog?->short_name ?? 'فنخا' }})
                     </dd>
                 </div>
             </dl>
@@ -287,15 +287,20 @@
         </div>
     @endif
 
-    <!-- CITATION IN FANKHA PRINTED VOLUMES -->
-    <div class="p-6 rounded-3xl bg-stone-100 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 flex flex-col sm:flex-row items-center justify-between text-xs gap-4">
+    <!-- CITATION IN PRINTED SOURCE CATALOG -->
+    <div class="p-6 rounded-3xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] flex flex-col sm:flex-row items-center justify-between text-xs gap-4 shadow-xs">
         <div class="space-y-1 text-right">
-            <span class="font-bold text-stone-800 dark:text-stone-200 block">ارجاع کتاب‌شناختی در اثر چاپی فنخا:</span>
-            <span class="text-stone-500 dark:text-stone-400">
-                فهرستگان نسخه‌های خطی ایران (فنخا)، به کوشش مصطفی درایتی، تهران، سازمان اسناد و کتابخانه ملی جمهوری اسلامی ایران.
-            </span>
+            <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
+                    {{ $manuscript->catalog?->short_name ?? 'فنخا' }}
+                </span>
+                <span class="font-bold text-stone-800 dark:text-stone-200">مشخصات مأخذ و استناد فهرست‌نگاری:</span>
+            </div>
+            <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed pt-1">
+                {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
+            </p>
         </div>
-        <div class="font-mono text-sm font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-stone-800 px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700">
+        <div class="font-mono text-sm font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-5 py-2.5 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-xs">
             جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }}
         </div>
     </div>

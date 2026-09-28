@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'فهارس | سامانه و موتور کاوش جامع نسخه‌های خطی ایران (فنخا)')
+@section('title', 'فهارس | سامانه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')
 
 @section('content')
 <div class="space-y-16 py-6 sm:py-10">
@@ -20,10 +20,10 @@
                     فهارس
                 </h1>
                 <p class="text-lg sm:text-xl font-medium text-[#B38A50] dark:text-amber-300/90">
-                    موتور کاوش جامع نسخه‌های خطی ایران
+                    پایگاه جامع کتاب‌شناسی و نسخه‌های کهن خطی
                 </p>
                 <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 max-w-2xl mx-auto leading-relaxed">
-                    میراث ۳۴ جلدی فنخا به کوشش استاد مصطفی درایتی • دسترسی زنده به ۷۱٬۵۵۰ اثر و ۳۲۳٬۸۷۴ نسخه کهن
+                    دسترسی یکپارچه به گنجینه فهارس خطی • مشتمل بر ۳۴ مجلد فنخا، ۷۶ هزار اثر و بیش از ۴۳۸ هزار نسخه
                 </p>
             </div>
         </div>
@@ -191,7 +191,7 @@
                         {{ number_format($stats['volumes_count']) }}
                     </div>
                     <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                        مجلدات فنخا
+                        مجلدات فهرستگان
                     </div>
                 </div>
 
@@ -310,16 +310,16 @@
             </div>
             <div class="w-full md:w-2/3 space-y-4 text-justify">
                 <div class="inline-block px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-xs font-bold">
-                    دانشنامه میراث خطی ایران
+                    دانشنامه میراث مکتوب
                 </div>
                 <h3 class="text-2xl font-bold text-stone-900 dark:text-stone-100">
-                    درباره مجموعه ۳۴ جلدی «فنخا»
+                    مأخذ پایه: مجموعه ۳۴ جلدی «فنخا»
                 </h3>
                 <p class="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                    <strong>فهرستگان نسخه‌های خطی ایران (فنخا)</strong> اثری دوران‌ساز و جامع است که به کوشش پژوهشگر برجسته نسخه‌شناسی، <strong>استاد مصطفی درایتی</strong>، در ۳۴ مجلد به زیور طبع آراسته شده است. این مجموعه، حاصل چند دهه کاوش در کتابخانه‌ها و مجموعه‌های عمومی و خصوصی ایران و جهان است.
+                    در گام نخست توسعه فهارس، <strong>فهرستگان نسخه‌های خطی ایران (فنخا)</strong> به عنوان جامع‌ترین مرجع به کوشش پژوهشگر برجسته <strong>استاد مصطفی درایتی</strong> در ۳۴ مجلد مبنای داده‌ها قرار گرفته است. به مرور زمان، سایر فهارس، فهرست‌های اختصاصی کتابخانه‌ها و مراجع نسخه‌شناسی کهن نیز در قالب این پایگاه یکپارچه عرضه خواهند شد.
                 </p>
                 <p class="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                    سامانه دیجیتال <strong>فهارس</strong> با استانداردسازی دقیق نگارشی، استخراج تمام‌بصری OCR و پیاده‌سازی پایگاه داده رابطه‌ای مدرن، امکان کاوش، فیلترگذاری و اتصال بلادرنگ به این گنجینه عظیم را برای نخستین بار در بستر وب فراهم آورده است.
+                    سامانه <strong>فهارس</strong> با پیاده‌سازی پایگاه داده رابطه‌ای مدرن و متصل به موتور Meilisearch، امکان کاوش بلادرنگ، فیلترگذاری چندبعدی و استناد علمی به مراجع نسخه‌شناسی را در بستری فاخر فراهم آورده است.
                 </p>
                 <div class="pt-2 flex flex-wrap items-center gap-3">
                     <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="px-5 py-2.5 bg-[#292C56] text-amber-100 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#1A1D3B] transition shadow">

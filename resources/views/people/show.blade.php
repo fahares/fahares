@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $person->name . ' | اعلام و پدیدآوران فهارس')
-@section('meta_description', 'شناسنامه علمی، آثار و نسخه‌های کتابت‌شده ' . $person->name . ' در فهرستگان نسخه‌های خطی ایران (فنخا)')
+@section('meta_description', 'شناسنامه علمی، آثار و نسخه‌های کتابت‌شده ' . $person->name . ' در فهارس نسخه‌های خطی')
 
 @section('content')
 <div x-data="{ activeTab: 'authored' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -124,7 +124,7 @@
                         @endif
 
                         <div class="text-xs text-stone-500 mt-2">
-                            <span>منبع در فنخا: جلد {{ $work->volume_number }}، ص {{ $work->page_start }}</span>
+                            <span>مأخذ: {{ $work->catalog?->short_name ?? 'فنخا' }}، ج {{ $work->volume_number }}، ص {{ $work->page_start }}</span>
                         </div>
                     </div>
 

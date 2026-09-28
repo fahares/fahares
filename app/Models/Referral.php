@@ -17,6 +17,11 @@ class Referral extends Model
         ];
     }
 
+    public function catalog(): BelongsTo
+    {
+        return $this->belongsTo(Catalog::class);
+    }
+
     public function targetWork(): BelongsTo
     {
         return $this->belongsTo(Work::class, 'target_work_id');

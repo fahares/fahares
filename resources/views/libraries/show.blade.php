@@ -36,7 +36,7 @@
             <span class="block text-2xl sm:text-3xl font-black text-[#B38A50] font-mono">
                 {{ number_format($library->manuscripts_count) }}
             </span>
-            <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه در فنخا</span>
+            <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه شناسایی‌شده</span>
         </div>
     </div>
 

@@ -120,6 +120,11 @@ class Manuscript extends Model
         ];
     }
 
+    public function catalog(): BelongsTo
+    {
+        return $this->belongsTo(Catalog::class);
+    }
+
     public function work(): BelongsTo
     {
         return $this->belongsTo(Work::class);

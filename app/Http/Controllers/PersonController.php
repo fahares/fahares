@@ -12,13 +12,13 @@ class PersonController extends Controller
         $person = Person::withCount(['works', 'scribedManuscripts'])->findOrFail($id);
 
         $authoredWorks = $person->works()
-            ->with(['subjects', 'languages'])
+            ->with(['subjects', 'languages', 'catalog'])
             ->withCount('manuscripts')
             ->orderByDesc('manuscripts_count')
             ->paginate(20, ['*'], 'works_page');
 
         $scribedManuscripts = $person->scribedManuscripts()
-            ->with(['work', 'library', 'scripts'])
+            ->with(['work', 'library', 'scripts', 'catalog'])
             ->paginate(20, ['*'], 'manuscripts_page');
 
         return view('people.show', compact('person', 'authoredWorks', 'scribedManuscripts'));

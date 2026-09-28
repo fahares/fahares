@@ -10,6 +10,7 @@ class WorkController extends Controller
     public function show(Request $request, $id)
     {
         $work = Work::with([
+            'catalog',
             'author',
             'subjects',
             'languages',
@@ -22,7 +23,7 @@ class WorkController extends Controller
         $sort = $request->input('sort', 'sequence');
         $direction = strtolower($request->input('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-        $query = $work->manuscripts()->with(['library', 'scripts']);
+        $query = $work->manuscripts()->with(['catalog', 'library', 'scripts']);
 
         switch ($sort) {
             case 'library':

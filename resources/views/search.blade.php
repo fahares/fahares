@@ -340,7 +340,7 @@
                                                 <span>تألیف: <strong class="font-mono">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
                                             @endif
 
-                                            <span>منبع در فنخا: <strong class="font-mono">جلد {{ $work->volume_number }}، ص {{ $work->page_start }}</strong></span>
+                                            <span>مأخذ: <strong class="font-mono">{{ $work->catalog?->short_name ?? 'فنخا' }}، جلد {{ $work->volume_number }}، ص {{ $work->page_start }}</strong></span>
                                         </div>
                                     </div>
 
@@ -404,7 +404,7 @@
                                     </div>
 
                                     <div class="text-right text-xs font-mono text-stone-400">
-                                        فنخا ج{{ $ms->volume_number }}، ص{{ $ms->page_start }}
+                                        {{ $ms->catalog?->short_name ?? 'فنخا' }} ج{{ $ms->volume_number }}، ص{{ $ms->page_start }}
                                     </div>
                                 </div>
 

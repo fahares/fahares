@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'فهارس | سامانه و موتور کاوش جامع نسخه‌های خطی ایران (فنخا)')</title>
-    <meta name="description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی ایران (فنخا) بر پایه ۳۴ جلد اثر استاد مصطفی درایتی شامل ۷۱٬۵۵۰ اثر و ۳۲۳٬۸۷۴ نسخه خطی')">
+    <title>@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')</title>
+    <meta name="description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -24,7 +24,7 @@
     <!-- Top Announcement / Brand Ribbon -->
     <div class="bg-gradient-to-r from-[#191B36] via-[#292C56] to-[#191B36] text-amber-100/90 text-xs py-1.5 px-4 text-center border-b border-[#B38A50]/30 shadow-sm flex items-center justify-center gap-2">
         <span class="inline-block w-2 h-2 rounded-full bg-[#B38A50] animate-pulse"></span>
-        <span>سامانه جامع فهرستگان نسخه‌های خطی ایران (فنخا) • ۳۴ جلد کامل • ۳۲۳٬۸۷۴ نسخه خطی</span>
+        <span>پایگاه فهارس نسخه‌های خطی • دربردارنده بیش از ۷۶ هزار اثر و ۴۳۸ هزار نسخه خطی</span>
     </div>
 
     <!-- Main Navigation Header (Glassmorphic) -->
@@ -133,7 +133,7 @@
                         <span class="text-2xl font-bold text-amber-100 tracking-wide">فهارس</span>
                     </div>
                     <p class="text-stone-400 text-sm leading-relaxed text-justify">
-                        سامانه جامع کاوش در میراث مکتوب ایران و جهان اسلام، تدوین‌شده بر پایه مجموعه ۳۴ جلدی <strong>فهرستگان نسخه‌های خطی ایران (فنخا)</strong> به کوشش استاد محقق <strong>مصطفی درایتی</strong>. این پلتفرم دسترسی دیجیتال به بیش از ۳۲۳ هزار نسخه خطی در بیش از ۱۰۰۰ مرکز اسنادی را فراهم می‌سازد.
+                        سامانه جامع کاوش در میراث مکتوب ایران و جهان اسلام، تدوین‌شده بر پایه فهرستگان‌های معتبر نسخ خطی (مشتمل بر ۳۴ مجلد فنخا به کوشش استاد مصطفی درایتی و سایر مراجع نسخه‌شناسی). این پلتفرم دسترسی دیجیتال و یکپارچه به صدها هزار نسخه خطی در بیش از ۱۰۰۰ مرکز اسنادی را فراهم می‌سازد.
                     </p>
                     <div class="flex items-center gap-3 pt-2 text-xs text-amber-200/80">
                         <span>پروژه متن‌باز و پژوهشی</span>
@@ -174,7 +174,7 @@
 
             <!-- Bottom Copyright -->
             <div class="border-t border-stone-700/60 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-3">
-                <p>© {{ date('Y') }} فهارس (fahares.net) • بر پایه اثر گرانسنگ فنخا به کوشش مصطفی درایتی</p>
+                <p>© {{ date('Y') }} فهارس (fahares.net) • سامانه جامع کتاب‌شناسی و مراجع نسخه‌شناسی</p>
                 <p class="font-mono text-stone-400">Version 1.0.0-Release • Laravel 13 & Meilisearch</p>
             </div>
         </div>

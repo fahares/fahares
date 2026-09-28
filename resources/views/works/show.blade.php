@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $work->primary_title . ' | شناسنامه اثر در فهارس')
-@section('meta_description', 'مشخصات کتاب‌شناختی و نسخه‌های خطی ' . $work->primary_title . ' در فهرستگان نسخه‌های خطی ایران (فنخا)')
+@section('meta_description', 'مشخصات کتاب‌شناختی و نسخه‌های خطی ' . $work->primary_title . ' در فهارس نسخه‌های خطی')
 
 @section('content')
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -94,11 +94,11 @@
                 @endif
             </div>
 
-            <!-- Source in Fankha -->
+            <!-- Source in Catalog -->
             <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">منبع در فنخا:</span>
+                <span class="text-stone-400 block font-medium">مأخذ فهرست‌نویسی:</span>
                 <span class="text-sm font-bold text-stone-700 dark:text-stone-300 font-mono">
-                    جلد {{ $work->volume_number }}، ص {{ $work->page_start }}
+                    {{ $work->catalog?->short_name ?? 'فنخا' }}، ج {{ $work->volume_number }}، ص {{ $work->page_start }}
                     @if($work->page_end && $work->page_end > $work->page_start)
                         تا {{ $work->page_end }}
                     @endif

@@ -10,6 +10,7 @@ class ManuscriptController extends Controller
     public function show($id)
     {
         $manuscript = Manuscript::with([
+            'catalog',
             'work.author',
             'work.subjects',
             'work.languages',

@@ -77,6 +77,11 @@ class Work extends Model
         ];
     }
 
+    public function catalog(): BelongsTo
+    {
+        return $this->belongsTo(Catalog::class);
+    }
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'author_id');
