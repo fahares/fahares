@@ -582,6 +582,7 @@
   - ایجاد مخزن عمومی [fahares/fahares](https://github.com/fahares/fahares) به عنوان پرچمدار و هسته اصلی پلتفرم.
   - تدوین [README.md](../README.md) جامع و استاندارد شامل نشان‌های وضعیت، آمار کامل ۳۴ جلدی، دیاگرام معماری، راهنمای راه‌اندازی سریع با داکر و پیوند متقابل به مخزن داده‌های [fahares/fahares-corpus](https://github.com/fahares/fahares-corpus).
   - ارسال (Push) موفقیت‌آمیز تمام کامیت‌ها و شاخه `main` به گیت‌هاب.
+  - تنظیم تاپیک‌های کلیدی و تخصصی در گیت‌هاب جهت سئو و دیده‌پذیری علمی و فنی (`manuscripts`, `codicology`, `fankha`, `digital-humanities`, `persian-manuscripts`, `islamic-manuscripts`, `union-catalogue`, `bibliography`, `search-engine`, `meilisearch`, `laravel`, `php`, `mariadb`, `docker`, `full-text-search`).
 
 ## ۴. نقشه راه و وضعیت مراحل پروژه (Project Roadmap)
 
