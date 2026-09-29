@@ -284,10 +284,27 @@ class SearchController extends Controller
 
                     $subjCounts = $facetDist['subjects'] ?? [];
                     if (!empty($subjCounts)) {
-                        $subjects = Subject::with('parent')->whereIn('name', array_keys($subjCounts))->get()->map(function ($s) use ($subjCounts) {
-                            $s->matching_count = $subjCounts[$s->name] ?? 0;
-                            return $s;
-                        })->sortByDesc('matching_count')->values();
+                        $allSubjects = Subject::with(['parent', 'children'])
+                            ->where('works_count', '>', 0)
+                            ->get();
+
+                        foreach ($allSubjects as $s) {
+                            $count = $subjCounts[$s->name] ?? 0;
+                            if ($s->children->isNotEmpty()) {
+                                foreach ($s->children as $child) {
+                                    $count += ($subjCounts[$child->name] ?? 0);
+                                }
+                            }
+                            $s->matching_count = $count;
+                        }
+
+                        $subjects = $allSubjects->filter(fn($s) => $s->matching_count > 0)
+                            ->sortByDesc('matching_count')
+                            ->values();
+
+                        if ($subjects->isEmpty()) {
+                            $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
+                        }
                     } else {
                         $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
                     }

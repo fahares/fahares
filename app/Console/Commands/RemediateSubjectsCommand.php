@@ -374,10 +374,24 @@ class RemediateSubjectsCommand extends Command
             // ========================================================
             // 7. RECALCULATE WORKS_COUNT FOR ALL SUBJECTS & LANGUAGES
             // ========================================================
-            $this->info('--- 7. Recalculating works_count ---');
+            $this->info('--- 7. Recalculating works_count (with cumulative parent counts) ---');
             foreach (Subject::all() as $s) {
                 $s->works_count = DB::table('subject_work')->where('subject_id', $s->id)->count();
                 $s->save();
+            }
+
+            // Calculate cumulative distinct works_count for parent subjects
+            $parents = Subject::whereNull('parent_id')->with('children')->get();
+            foreach ($parents as $p) {
+                if ($p->children->isNotEmpty()) {
+                    $allIds = array_merge([$p->id], $p->children->pluck('id')->all());
+                    $p->works_count = DB::table('subject_work')
+                        ->whereIn('subject_id', $allIds)
+                        ->distinct('work_id')
+                        ->count('work_id');
+                    $p->save();
+                    $this->line("Parent '{$p->name}' cumulative works_count: {$p->works_count}");
+                }
             }
 
             foreach (Language::all() as $l) {
