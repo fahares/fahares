@@ -299,7 +299,7 @@ class SearchController extends Controller
                             return $l;
                         })->sortByDesc('matching_count')->values();
                     } else {
-                        $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->take(15)->get();
+                        $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                     }
 
                     $compYearCounts = $facetDist['composition_year_hijri'] ?? [];
@@ -316,11 +316,11 @@ class SearchController extends Controller
                 } catch (\Throwable $e) {
                     Log::warning('Meilisearch works facet failed: ' . $e->getMessage());
                     $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
-                    $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->take(15)->get();
+                    $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 }
             } else {
                 $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
-                $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->take(15)->get();
+                $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 for ($c = 4; $c <= 14; $c++) {
                     $centuries[$c] = null;
                 }
