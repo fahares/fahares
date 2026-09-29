@@ -16,7 +16,7 @@ if [ -d "$CORPUS_DIR/text" ]; then
 else
     echo "Local corpus directory not found at $CORPUS_DIR."
     echo "You can clone it using:"
-    echo "  git clone <YOUR_FAHARES_CORPUS_REPO_URL> \"$CORPUS_DIR\""
+    echo "  git clone https://github.com/fahares/fahares-corpus.git \"$CORPUS_DIR\""
     echo "Or set REMOTE_CORPUS_URL to pull directly."
     exit 1
 fi

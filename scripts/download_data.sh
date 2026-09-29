@@ -5,11 +5,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 TARGET_DIR="${PROJECT_ROOT}/sources/json"
-RELEASE_URL="https://github.com/fahares/fahares-corpus/releases/download/v1.0.0/fahares_json_v1.0.0.tar.gz"
+RELEASE_URL="https://github.com/fahares/fahares-corpus/releases/download/v1.1.1/fahares_json_v1.1.1.tar.gz"
 
 mkdir -p "$TARGET_DIR"
 
-echo "Downloading Fahares 34-volume JSON dataset (v1.0.0)..."
+echo "Downloading Fahares 34-volume JSON dataset (v1.1.1)..."
 TEMP_TAR="$(mktemp /tmp/fahares_json_XXXXXX.tar.gz)"
 
 curl -fSL "$RELEASE_URL" -o "$TEMP_TAR"

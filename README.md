@@ -8,7 +8,7 @@
 [![Meilisearch](https://img.shields.io/badge/Meilisearch-1.6-FF45A0?style=flat-square&logo=meilisearch)](https://meilisearch.com)
 [![MariaDB](https://img.shields.io/badge/MariaDB-Latest-003545?style=flat-square&logo=mariadb)](https://mariadb.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)](https://docker.com)
-[![Corpus](https://img.shields.io/badge/Corpus-fahares--corpus-blue?style=flat-square)](https://github.com/fahares/fahares-corpus)
+[![Corpus](https://img.shields.io/badge/Corpus-v1.1.1-blue?style=flat-square)](https://github.com/fahares/fahares-corpus)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
