@@ -159,7 +159,10 @@
                         <template x-for="item in results.manuscripts" :key="'m-' + item.id">
                             <a :href="item.url" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition group">
                                 <div>
-                                    <div class="text-sm font-semibold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50]" x-text="item.work_title"></div>
+                                    <div class="text-sm font-semibold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] flex items-center gap-1.5 flex-wrap">
+                                        <span x-text="item.work_title"></span>
+                                        <span x-show="item.author_name" class="text-xs font-normal text-stone-500 dark:text-stone-400" x-text="'(پدیدآور: ' + item.author_name + ')'"></span>
+                                    </div>
                                     <div class="text-xs text-stone-400" x-text="item.library + ' (بازیابی: ' + (item.accession_number || 'بی‌شماره') + ')'"></div>
                                 </div>
                                 <span class="text-[11px] text-stone-400">مشاهده نسخه ←</span>

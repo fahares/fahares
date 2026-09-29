@@ -700,6 +700,14 @@
                                         </div>
 
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+                                            @if($ms->work?->author)
+                                                <span>پدیدآور: <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:text-[#B38A50] hover:underline">{{ $ms->work->author->name }}</a></span>
+                                            @elseif($ms->work?->author_name)
+                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">{{ $ms->work->author_name }}</strong></span>
+                                            @else
+                                                <span class="text-stone-400">پدیدآور: ناشناخته</span>
+                                            @endif
+
                                             <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
                                             <span>شماره نسخه: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                             @if($ms->scribe_name)
@@ -713,6 +721,9 @@
                                                 <span>تاریخ: <strong>{{ $ms->copy_date_raw }}</strong></span>
                                             @elseif($ms->is_bita)
                                                 <span class="text-stone-400">بی‌تاریخ</span>
+                                            @endif
+                                            @if($ms->commissioned_by)
+                                                <span>سفارش کتابت: <strong class="text-[#B38A50] dark:text-amber-300">{{ $ms->commissioned_by }}</strong></span>
                                             @endif
                                         </div>
                                     </div>

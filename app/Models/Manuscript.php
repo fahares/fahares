@@ -299,6 +299,10 @@ class Manuscript extends Model
         if ($this->relationLoaded('work') && $this->work) {
             $workTitle = $this->work->clean_title ?: $this->work->primary_title;
             $authorName = $this->work->author_name;
+        } elseif (!empty($this->work_id)) {
+            $w = $this->work;
+            $workTitle = $w?->clean_title ?: $w?->primary_title;
+            $authorName = $w?->author_name;
         }
 
         return [

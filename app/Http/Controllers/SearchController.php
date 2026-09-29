@@ -565,12 +565,13 @@ class SearchController extends Controller
 
         if ($type === 'all' || $type === 'manuscripts') {
             $response['manuscripts'] = Manuscript::search($query)
-                ->query(fn($q) => $q->with(['work', 'libraryRecord']))
+                ->query(fn($q) => $q->with(['work.author', 'libraryRecord']))
                 ->take(5)
                 ->get()
                 ->map(fn($m) => [
                     'id' => $m->id,
                     'work_title' => $m->work?->title ?? 'نسخه بدون عنوان',
+                    'author_name' => $m->work?->author?->name ?? $m->work?->author_name,
                     'library' => $m->libraryRecord?->name ?? $m->library ?? 'کتابخانه نامشخص',
                     'accession_number' => $m->accession_number,
                     'url' => route('manuscripts.show', $m),
