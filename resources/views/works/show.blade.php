@@ -316,7 +316,7 @@
             <div class="flex items-center gap-2">
                 <span class="w-2.5 h-6 bg-[#B38A50] rounded-sm"></span>
                 <h2 class="text-xl font-bold text-stone-900 dark:text-stone-100">
-                    فهرست نسخه‌های خطی این اثر
+                    نسخه‌های خطی این اثر
                 </h2>
                 <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50]">
                     {{ number_format($work->manuscripts_count) }} نسخه
