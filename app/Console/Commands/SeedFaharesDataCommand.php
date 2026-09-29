@@ -479,7 +479,10 @@ class SeedFaharesDataCommand extends Command
 
     protected function resolvePerson(string $name, array $workData, bool $isAuthor): int
     {
-        $norm = $this->normalizePersianText($name);
+        $cleanName = trim(preg_replace('/\s+([،,])/u', '$1', $name));
+        $cleanName = trim(preg_replace('/\s+/u', ' ', $cleanName));
+
+        $norm = $this->normalizePersianText($cleanName);
         if (isset($this->peopleCache[$norm])) {
             return $this->peopleCache[$norm];
         }
@@ -492,7 +495,7 @@ class SeedFaharesDataCommand extends Command
         $slug = mb_substr($slugBase, 0, 180) . '-' . (count($this->peopleCache) + 1);
 
         $id = DB::table('people')->insertGetId([
-            'name' => mb_substr($name, 0, 600),
+            'name' => mb_substr($cleanName, 0, 600),
             'normalized_name' => mb_substr($norm, 0, 600),
             'slug' => $slug,
             'death_year_hijri' => !empty($workData['author_death_date_sort_year']) ? (int) $workData['author_death_date_sort_year'] : null,
@@ -758,10 +761,19 @@ class SeedFaharesDataCommand extends Command
 
     protected function normalizePersianText(string $text): string
     {
-        // Replace Arabic forms with Persian standards, strip ZWNJ and ZWJ
-        $text = str_replace(['ي', 'ك', 'ة', "\u{200c}", "\u{200d}"], ['ی', 'ک', 'ه', '', ''], $text);
+        // Replace Arabic forms with Persian standards, strip ZWNJ and ZWJ, normalize Alef Maqsura and presentation forms
+        $text = str_replace(
+            ['ي', 'ك', 'ة', "\u{200c}", "\u{200d}", "\u{0670}", "\u{0649}", "\u{FE8E}", "\u{FE8D}"],
+            ['ی', 'ک', 'ه', '', '', '', 'ی', 'ا', 'ا'],
+            $text
+        );
         // Strip Arabic diacritics / tashkeel and tatweel
         $text = preg_replace('/[ًٌٍَُِّْـ]/u', '', $text);
+        // Normalize whitespace around punctuation
+        $text = preg_replace('/\s+([،,:؛\-\(\)\[\]])/u', '$1', $text);
+        $text = preg_replace('/([،,:؛])\s*/u', '$1 ', $text);
+        $text = preg_replace('/\(\s+/u', '(', $text);
+        $text = preg_replace('/\s+\)/u', ')', $text);
         // Collapse whitespace
         return trim(preg_replace('/\s+/', ' ', $text));
     }
