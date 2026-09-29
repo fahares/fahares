@@ -27,11 +27,17 @@ class SearchController extends Controller
         $libraryId = $request->input('library_id');
         $scriptId = $request->input('script_id');
         $century = $request->input('century');
-        $flag = $request->input('flag');
+
+        $validFlags = ['is_autograph', 'is_illuminated', 'is_illustrated', 'is_corrected', 'has_marginal_notes', 'is_collated'];
+        $rawFlags = (array) $request->input('flags', []);
+        if ($request->filled('flag')) {
+            $rawFlags[] = $request->input('flag');
+        }
+        $flags = array_values(array_unique(array_intersect($rawFlags, $validFlags)));
+        $flag = !empty($flags) ? $flags[0] : null;
         $perPage = 20;
 
         $results = null;
-        $validFlags = ['is_autograph', 'is_illuminated', 'is_illustrated', 'is_corrected', 'has_marginal_notes', 'is_collated'];
 
         $subjects = collect();
         $scripts = collect();
@@ -160,8 +166,8 @@ class SearchController extends Controller
                 if ($selectedScript) {
                     $meiliFilters[] = 'scripts = "' . addslashes($selectedScript->name) . '"';
                 }
-                if ($flag && in_array($flag, $validFlags)) {
-                    $meiliFilters[] = "{$flag} = true";
+                foreach ($flags as $f) {
+                    $meiliFilters[] = "{$f} = true";
                 }
 
                 $filterString = !empty($meiliFilters) ? implode(' AND ', $meiliFilters) : null;
@@ -191,8 +197,8 @@ class SearchController extends Controller
                 if ($scriptId) {
                     $builder->whereHas('scripts', fn($sq) => $sq->where('scripts.id', $scriptId));
                 }
-                if ($flag && in_array($flag, $validFlags)) {
-                    $builder->where($flag, true);
+                foreach ($flags as $f) {
+                    $builder->where($f, true);
                 }
                 $results = $builder->orderBy('id')->paginate($perPage)->withQueryString();
             }
@@ -360,6 +366,7 @@ class SearchController extends Controller
             'scriptId',
             'century',
             'flag',
+            'flags',
             'selectedSubject',
             'selectedLibrary',
             'selectedScript'

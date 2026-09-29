@@ -74,7 +74,7 @@
             </div>
 
             <!-- Active Filters Reset -->
-            @if($subjectId || $libraryId || $scriptId || $century || $flag)
+            @if($subjectId || $libraryId || $scriptId || $century || !empty($flags))
                 <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
                     <span class="text-stone-400">فیلترهای فعال:</span>
 
@@ -110,7 +110,7 @@
                         </a>
                     @endif
 
-                    @if($flag)
+                    @if(!empty($flags))
                         @php
                             $flagLabels = [
                                 'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
@@ -121,11 +121,21 @@
                                 'is_collated' => 'مقابله‌شده',
                             ];
                         @endphp
-                        <a href="{{ route('search', array_merge(request()->except('flag'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
-                            <span>ویژگی: <strong>{{ $flagLabels[$flag] ?? $flag }}</strong></span>
-                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
-                        </a>
+                        @foreach($flags as $curFlag)
+                            @php
+                                $remainingFlags = array_values(array_diff($flags, [$curFlag]));
+                                $newQuery = request()->except(['flags', 'flag', 'page']);
+                                if (!empty($remainingFlags)) {
+                                    $newQuery['flags'] = $remainingFlags;
+                                }
+                                $newQuery['page'] = 1;
+                            @endphp
+                            <a href="{{ route('search', $newQuery) }}" 
+                               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                                <span>ویژگی: <strong>{{ $flagLabels[$curFlag] ?? $curFlag }}</strong></span>
+                                <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                            </a>
+                        @endforeach
                     @endif
 
                     <a href="{{ route('search', ['q' => $query, 'type' => $type, 'scope' => $scope]) }}" class="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
@@ -237,66 +247,27 @@
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">ویژگی‌های کالبدشناسی</label>
                         <div class="space-y-2 text-xs text-stone-600 dark:text-stone-300">
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="" {{ empty($flag) ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>همه</span>
-                                </div>
-                            </label>
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="is_autograph" {{ $flag === 'is_autograph' ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>اصل نسخه (دستخط مؤلف)</span>
-                                </div>
-                                @if(!empty($flagCounts['is_autograph']))
-                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_autograph'] }})</span>
-                                @endif
-                            </label>
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="is_illuminated" {{ $flag === 'is_illuminated' ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>دارای تذهیب و سرلوح</span>
-                                </div>
-                                @if(!empty($flagCounts['is_illuminated']))
-                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_illuminated'] }})</span>
-                                @endif
-                            </label>
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="is_illustrated" {{ $flag === 'is_illustrated' ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>دارای نگاره و تصویر</span>
-                                </div>
-                                @if(!empty($flagCounts['is_illustrated']))
-                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_illustrated'] }})</span>
-                                @endif
-                            </label>
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="is_corrected" {{ $flag === 'is_corrected' ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>تصحیح‌شده</span>
-                                </div>
-                                @if(!empty($flagCounts['is_corrected']))
-                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_corrected'] }})</span>
-                                @endif
-                            </label>
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="has_marginal_notes" {{ $flag === 'has_marginal_notes' ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>دارای حواشی</span>
-                                </div>
-                                @if(!empty($flagCounts['has_marginal_notes']))
-                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['has_marginal_notes'] }})</span>
-                                @endif
-                            </label>
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <input type="radio" name="flag" value="is_collated" {{ $flag === 'is_collated' ? 'checked' : '' }} class="text-[#B38A50]">
-                                    <span>مقابله‌شده</span>
-                                </div>
-                                @if(!empty($flagCounts['is_collated']))
-                                    <span class="text-[10px] text-[#B38A50] font-bold">({{ $flagCounts['is_collated'] }})</span>
-                                @endif
-                            </label>
+                            @php
+                                $flagOptions = [
+                                    'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
+                                    'is_illuminated' => 'دارای تذهیب و سرلوح',
+                                    'is_illustrated' => 'دارای نگاره و تصویر',
+                                    'is_corrected' => 'تصحیح‌شده',
+                                    'has_marginal_notes' => 'دارای حواشی',
+                                    'is_collated' => 'مقابله‌شده',
+                                ];
+                            @endphp
+                            @foreach($flagOptions as $fKey => $fLabel)
+                                <label class="flex items-center justify-between cursor-pointer group hover:text-stone-900 dark:hover:text-white transition">
+                                    <div class="flex items-center gap-2">
+                                        <input type="checkbox" name="flags[]" value="{{ $fKey }}" {{ in_array($fKey, $flags ?? []) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#B38A50] focus:ring-[#B38A50] border-stone-300 dark:border-stone-600 dark:bg-stone-700">
+                                        <span>{{ $fLabel }}</span>
+                                    </div>
+                                    @if(!empty($flagCounts[$fKey]))
+                                        <span class="text-[10px] text-[#B38A50] font-bold">({{ number_format($flagCounts[$fKey]) }})</span>
+                                    @endif
+                                </label>
+                            @endforeach
                         </div>
                     </div>
                 @endif
