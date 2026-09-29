@@ -188,22 +188,151 @@
                 </div>
 
                 @if($type === 'works')
-                    <!-- Subject Filter -->
-                    <div class="space-y-2">
+                    <!-- Subject Filter (Searchable Combobox) -->
+                    @php
+                        $subjectsJson = $subjects->map(function($s) {
+                            return [
+                                'id' => (int) $s->id,
+                                'name' => (string) ($s->title ?: $s->name),
+                                'count' => (int) ($s->matching_count ?? $s->works_count ?? 0),
+                            ];
+                        })->values();
+                    @endphp
+                    <div x-data="{
+                        open: false,
+                        search: '',
+                        selectedId: '{{ $subjectId ?? '' }}',
+                        items: {{ \Illuminate\Support\Js::from($subjectsJson) }},
+                        get selectedItem() {
+                            return this.items.find(i => String(i.id) === String(this.selectedId)) || null;
+                        },
+                        get filteredItems() {
+                            const q = this.normalize(this.search);
+                            if (!q) return this.items;
+                            return this.items.filter(i => this.normalize(i.name).includes(q));
+                        },
+                        normalize(text) {
+                            if (!text) return '';
+                            return text
+                                .toString()
+                                .toLowerCase()
+                                .replace(/[\u064B-\u065F\u0670]/g, '')
+                                .replace(/[يى]/g, 'ی')
+                                .replace(/[ك]/g, 'ک')
+                                .replace(/[\u200c\s]+/g, ' ')
+                                .trim();
+                        },
+                        select(id) {
+                            this.selectedId = id ? String(id) : '';
+                            this.open = false;
+                            this.search = '';
+                        },
+                        clear() {
+                            this.selectedId = '';
+                            this.search = '';
+                        }
+                    }" 
+                    class="relative space-y-2"
+                    @click.outside="open = false"
+                    @keydown.escape.window="open = false">
+                        
                         <div class="flex items-center justify-between">
                             <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">موضوع اثر</label>
                             @if($subjects->isNotEmpty())
-                                <span class="text-[10px] text-stone-400 font-medium">{{ $subjects->count() }} موضوع</span>
+                                <span class="text-[10px] text-[#B38A50] font-semibold">{{ $subjects->count() }} موضوع</span>
                             @endif
                         </div>
-                        <select name="subject_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
-                            <option value="">همه موضوعات</option>
-                            @foreach($subjects as $sub)
-                                <option value="{{ $sub->id }}" {{ $subjectId == $sub->id ? 'selected' : '' }}>
-                                    {{ $sub->title }} @if(isset($sub->matching_count)) ({{ number_format($sub->matching_count) }}) @endif
-                                </option>
-                            @endforeach
-                        </select>
+
+                        <input type="hidden" name="subject_id" :value="selectedId">
+
+                        <div class="relative">
+                            <!-- Trigger Button -->
+                            <button type="button" 
+                                    @click="open = !open; if(open) { $nextTick(() => $refs.subjectSearchInput.focus()); }"
+                                    class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 flex items-center justify-between gap-2 hover:border-[#B38A50] focus:outline-none focus:ring-1 focus:ring-[#B38A50] transition text-right">
+                                <span class="truncate" x-text="selectedItem ? selectedItem.name + (selectedItem.count ? ' (' + Number(selectedItem.count).toLocaleString('fa-IR') + ')' : '') : 'همه موضوعات'">
+                                    @if($selectedSubject)
+                                        {{ $selectedSubject->title }} @if($selectedSubject->matching_count) ({{ number_format($selectedSubject->matching_count) }}) @elseif($selectedSubject->works_count) ({{ number_format($selectedSubject->works_count) }}) @endif
+                                    @else
+                                        همه موضوعات
+                                    @endif
+                                </span>
+                                <div class="flex items-center gap-1.5 shrink-0 text-stone-400">
+                                    <template x-if="selectedId">
+                                        <span @click.stop="clear()" class="hover:text-red-500 cursor-pointer p-0.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700 transition" title="پاک کردن انتخاب">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </span>
+                                    </template>
+                                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </button>
+
+                            <!-- Dropdown Box -->
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-100"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                 class="absolute z-30 mt-1.5 w-full bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] rounded-2xl shadow-2xl p-2.5 space-y-2 backdrop-blur-sm"
+                                 style="display: none;">
+                                 
+                                <!-- Search Input inside Dropdown -->
+                                <div class="relative">
+                                    <input x-ref="subjectSearchInput"
+                                           type="text" 
+                                           x-model="search" 
+                                           @keydown.enter.prevent="if (filteredItems.length > 0) { select(filteredItems[0].id); }"
+                                           placeholder="جستجوی موضوع (مثلاً فقه، فلسفه...)" 
+                                           class="w-full text-xs p-2 pr-8 pl-7 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/90 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#B38A50] focus:ring-1 focus:ring-[#B38A50] transition">
+                                    <svg class="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <template x-if="search">
+                                        <button type="button" @click="search = ''" class="absolute left-2.5 top-2.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </template>
+                                </div>
+
+                                <!-- Options List -->
+                                <div class="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar text-xs py-1">
+                                    <!-- Option: All Subjects -->
+                                    <button type="button" 
+                                            @click="select('')"
+                                            class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between transition hover:bg-stone-100 dark:hover:bg-stone-800/80"
+                                            :class="{ 'bg-[#B38A50]/15 text-[#B38A50] font-bold': !selectedId }">
+                                        <span>همه موضوعات</span>
+                                        <span class="text-[10px] text-stone-400 font-normal">({{ $subjects->count() }})</span>
+                                    </button>
+
+                                    <!-- Filtered Options -->
+                                    <template x-for="item in filteredItems" :key="item.id">
+                                        <button type="button" 
+                                                @click="select(item.id)"
+                                                class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2 transition hover:bg-stone-100 dark:hover:bg-stone-800/80"
+                                                :class="{ 'bg-[#B38A50]/15 text-[#B38A50] font-bold': selectedId == item.id }">
+                                            <span class="truncate" x-text="item.name"></span>
+                                            <span class="text-[10px] text-stone-400 dark:text-stone-500 font-mono shrink-0" 
+                                                  x-show="item.count" 
+                                                  x-text="'(' + Number(item.count).toLocaleString('fa-IR') + ')'"></span>
+                                        </button>
+                                    </template>
+
+                                    <!-- Empty search notice -->
+                                    <div x-show="filteredItems.length === 0" class="text-center py-4 text-xs text-stone-400">
+                                        موضوعی با این عبارت یافت نشد
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Language Filter -->

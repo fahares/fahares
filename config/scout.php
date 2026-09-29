@@ -169,6 +169,9 @@ return [
                 'pagination' => [
                     'maxTotalHits' => 100000,
                 ],
+                'faceting' => [
+                    'maxValuesPerFacet' => 500,
+                ],
             ],
             \App\Models\Manuscript::class => [
                 'filterableAttributes' => [

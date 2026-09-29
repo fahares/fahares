@@ -289,7 +289,7 @@ class SearchController extends Controller
                             return $s;
                         })->sortByDesc('matching_count')->values();
                     } else {
-                        $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                        $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                     }
 
                     $langCounts = $facetDist['languages'] ?? [];
@@ -315,11 +315,11 @@ class SearchController extends Controller
                     $workFormCounts = $facetDist['work_form'] ?? [];
                 } catch (\Throwable $e) {
                     Log::warning('Meilisearch works facet failed: ' . $e->getMessage());
-                    $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                    $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                     $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 }
             } else {
-                $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 for ($c = 4; $c <= 14; $c++) {
                     $centuries[$c] = null;
@@ -374,11 +374,11 @@ class SearchController extends Controller
                         $options['filter'] = $filterString;
                     }
                     return $meili->search($searchQuery, $options);
-                })->query(fn($q) => $q->with(['catalog', 'author', 'subjects', 'languages'])->withCount('manuscripts'));
+                })->query(fn($q) => $q->with(['catalog', 'author', 'subjects', 'languages']));
 
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
-                $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages'])->withCount('manuscripts');
+                $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages']);
                 if ($subjectId) {
                     $builder->whereHas('subjects', fn($sq) => $sq->where('subjects.id', $subjectId));
                 }
