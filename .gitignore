@@ -9,6 +9,7 @@ __pycache__/
 .env
 .env.local
 *.log
+fahares.code-workspace
 
 # Laravel
 /vendor/
