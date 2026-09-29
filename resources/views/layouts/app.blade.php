@@ -67,6 +67,9 @@
                     <a href="{{ route('search', ['type' => 'works']) }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('search') && request('type', 'works') === 'works' ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         کاوش آثار
                     </a>
+                    <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                        موضوعات
+                    </a>
                     <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request('type') === 'manuscripts' ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         نسخه‌های خطی
                     </a>
@@ -113,6 +116,7 @@
                         <div x-show="open" @click.away="open = false" x-transition class="absolute left-0 mt-2 w-48 bg-white dark:bg-[#15192C] rounded-xl shadow-xl border border-stone-200 dark:border-stone-700 py-2 z-50 text-sm">
                             <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">صفحه نخست</a>
                             <a href="{{ route('search', ['type' => 'works']) }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">کاوش آثار</a>
+                            <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">موضوعات</a>
                             <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">نسخه‌های خطی</a>
                             <a href="{{ route('search', ['type' => 'people']) }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">پدیدآوران و کاتبان</a>
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">کتابخانه‌ها</a>
@@ -207,6 +211,7 @@
                     <h3 class="text-sm font-bold text-amber-200 tracking-wider mb-4 border-r-2 border-[#B38A50] pr-2">دسترسی سریع</h3>
                     <ul class="space-y-2 text-sm text-stone-400">
                         <li><a href="{{ route('search', ['type' => 'works']) }}" class="hover:text-amber-100 transition">فهرست آثار و عناوین</a></li>
+                        <li><a href="{{ route('subjects.index') }}" class="hover:text-amber-100 transition">درختواره موضوعات و علوم</a></li>
                         <li><a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-amber-100 transition">کاوش نسخه‌های کهن خطی</a></li>
                         <li><a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-amber-100 transition">پدیدآوران، شارحان و کاتبان</a></li>
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>

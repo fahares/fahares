@@ -132,7 +132,7 @@
             <div class="pt-4 border-t border-stone-100 dark:border-stone-800 flex flex-wrap items-center gap-2 text-xs">
                 <span class="text-stone-400 font-medium">رده‌های موضوعی:</span>
                 @foreach($work->subjects as $subj)
-                    <a href="{{ route('search', ['type' => 'works', 'subject_id' => $subj->id]) }}" 
+                    <a href="{{ route('subjects.show', $subj) }}" 
                        class="px-3 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-[#B38A50] transition">
                         {{ $subj->title }}
                     </a>

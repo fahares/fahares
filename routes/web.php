@@ -5,6 +5,7 @@ use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ManuscriptController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,12 @@ Route::get('/libraries', [LibraryController::class, 'index'])->name('libraries.i
 Route::get('/libraries/{id}', [LibraryController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('libraries.show');
+
+// Subjects & Knowledge Taxonomy
+Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.index');
+Route::get('/subjects/{id}', [SubjectController::class, 'show'])
+    ->where('id', '[0-9]+.*')
+    ->name('subjects.show');
 
 // Field Suggestions (Crowdsourced corrections)
 Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');

@@ -33,6 +33,19 @@ class Subject extends Model
         return $this->hasMany(Subject::class, 'parent_id');
     }
 
+    public function getPersianSlugAttribute(): string
+    {
+        $title = $this->name ?? '';
+        $slug = \Illuminate\Support\Str::slug($title, '-', null);
+        return $slug ?: 'subject';
+    }
+
+    public function getRouteKey(): string
+    {
+        $slug = $this->persian_slug;
+        return $slug ? "{$this->id}-{$slug}" : (string) $this->id;
+    }
+
     public function works(): BelongsToMany
     {
         return $this->belongsToMany(Work::class);

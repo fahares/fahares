@@ -245,15 +245,15 @@
                 <span class="w-2.5 h-6 bg-[#B38A50] rounded-sm"></span>
                 <h2 class="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">رده‌بندی‌های موضوعی شاخص</h2>
             </div>
-            <a href="{{ route('search', ['type' => 'works']) }}" class="text-xs sm:text-sm font-semibold text-[#B38A50] hover:underline flex items-center gap-1">
-                <span>مشاهده همه موضوعات</span>
+            <a href="{{ route('subjects.index') }}" class="text-xs sm:text-sm font-semibold text-[#B38A50] hover:underline flex items-center gap-1">
+                <span>مشاهده همه موضوعات و شاخه‌ها</span>
                 <span>←</span>
             </a>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             @foreach($topSubjects as $subject)
-                <a href="{{ route('search', ['type' => 'works', 'subject_id' => $subject->id]) }}" 
+                <a href="{{ route('subjects.show', $subject) }}" 
                    class="group bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between h-28">
                     <div class="text-base font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] transition">
                         {{ $subject->title }}
