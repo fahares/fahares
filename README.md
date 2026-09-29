@@ -8,7 +8,7 @@
 [![Meilisearch](https://img.shields.io/badge/Meilisearch-1.6-FF45A0?style=flat-square&logo=meilisearch)](https://meilisearch.com)
 [![MariaDB](https://img.shields.io/badge/MariaDB-Latest-003545?style=flat-square&logo=mariadb)](https://mariadb.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)](https://docker.com)
-[![Corpus](https://img.shields.io/badge/Corpus-v1.1.2-blue?style=flat-square)](https://github.com/fahares/fahares-corpus)
+[![Corpus](https://img.shields.io/badge/Corpus-v1.1.3-blue?style=flat-square)](https://github.com/fahares/fahares-corpus)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
@@ -63,6 +63,7 @@
 
 ### ۴. کالبدشناسی عمیق نسخه‌شناسی (Rich Codicology)
 - استخراج ساختاریافته آغازها و انجام‌های چندگانه (`incipits` و `explicits`) در نسخه‌های دارای چند بخش یا رساله.
+- استخراج ساختاریافته سفارش کتابت و فرماینده نسخه (`commissioned_by`) برای شاهان، امرا، وزرا و اشخاص برجسته تاریخی.
 - پرچم‌های بولی وضعیت تخصصی:
   - نسخه اصل / دستخط مؤلف (`is_autograph`)
   - گواهی مقابله و معارضه / بلاغ (`is_collated`)
@@ -156,7 +157,8 @@ fahares/
 │   ├── Console/Commands/                          # دستورات خط فرمان مدیریت، پالایش و تزریق داده‌ها
 │   │   ├── SeedFaharesDataCommand.php             # لودر دسته‌ای پرسرعت ۳۴ جلد
 │   │   ├── CleanLanguagesCommand.php              # پالایش و یکپارچه‌سازی رسمی جدول زبان‌ها
-│   │   └── RemediateSubjectsCommand.php           # پالایش ریشه‌ای، تفکیک موضوعات و ساخت درخت تاکسونومی
+│   │   ├── RemediateSubjectsCommand.php           # پالایش ریشه‌ای، تفکیک موضوعات و ساخت درخت تاکسونومی
+│   │   └── CleanManuscriptDatesCommand.php        # پالایش تاریخ‌ها و استخراج ساختاریافته سفارش کتابت
 │   ├── Http/Controllers/                          # کنترلرهای کاوش، آثار، نسخه‌ها و اعلام
 │   ├── Models/                                    # مدل‌های رابطه‌ای Eloquent (Catalog, Work, Manuscript, Subject, ...)
 ├── config/

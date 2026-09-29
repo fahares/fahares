@@ -242,13 +242,13 @@ class SyncWorkDetailsCommand extends Command
             }
         }
 
-        // If running in container without local corpus, download Release v1.1.0
-        $this->info('Local corpus not found. Downloading fahares_json_v1.1.0.tar.gz from GitHub Releases...');
+        // If running in container without local corpus, download Release v1.1.3
+        $this->info('Local corpus not found. Downloading fankha_json_v1.1.3.tar.gz from GitHub Releases...');
         $downloadDir = storage_path('app/corpus_json');
         File::makeDirectory($downloadDir, 0755, true, true);
 
-        $archiveUrl = 'https://github.com/fahares/fahares-corpus/releases/download/v1.1.0/fahares_json_v1.1.0.tar.gz';
-        $tempArchive = storage_path('app/fahares_json_v1.1.0.tar.gz');
+        $archiveUrl = 'https://github.com/fahares/fahares-corpus/releases/download/v1.1.3/fankha_json_v1.1.3.tar.gz';
+        $tempArchive = storage_path('app/fankha_json_v1.1.3.tar.gz');
 
         $ch = curl_init($archiveUrl);
         $fp = fopen($tempArchive, 'wb');
