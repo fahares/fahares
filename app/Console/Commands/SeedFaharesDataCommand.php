@@ -60,10 +60,21 @@ class SeedFaharesDataCommand extends Command
 
         foreach ($volumes as $volNum) {
             $volStr = str_pad((string) $volNum, 2, '0', STR_PAD_LEFT);
-            $jsonPath = base_path("sources/json/fahares_vol_{$volStr}.json");
+            $candidatePaths = [
+                base_path("sources/json/fankha/fankha_vol_{$volStr}.json"),
+                base_path("sources/json/fankha_vol_{$volStr}.json"),
+                base_path("sources/json/fahares_vol_{$volStr}.json"),
+            ];
+            $jsonPath = null;
+            foreach ($candidatePaths as $cand) {
+                if (file_exists($cand)) {
+                    $jsonPath = $cand;
+                    break;
+                }
+            }
 
-            if (!file_exists($jsonPath)) {
-                $this->error("JSON file not found: {$jsonPath}");
+            if (!$jsonPath) {
+                $this->error("JSON file not found for volume {$volNum} in candidate paths.");
                 continue;
             }
 

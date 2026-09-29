@@ -18,5 +18,5 @@ echo "Extracting JSON files to ${TARGET_DIR}..."
 tar -xzf "$TEMP_TAR" -C "$TARGET_DIR"
 rm -f "$TEMP_TAR"
 
-COUNT=$(ls -1 "$TARGET_DIR"/fahares_vol_*.json 2>/dev/null | wc -l || echo 0)
+COUNT=$(ls -1 "$TARGET_DIR"/*vol_*.json "$TARGET_DIR"/fankha/fankha_vol_*.json 2>/dev/null | wc -l || echo 0)
 echo "Successfully downloaded and extracted ${COUNT} volume JSON files into ${TARGET_DIR}."

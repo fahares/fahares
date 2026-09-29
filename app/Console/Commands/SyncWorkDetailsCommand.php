@@ -48,8 +48,12 @@ class SyncWorkDetailsCommand extends Command
         foreach ($volsToProcess as $volNum) {
             $volStartTime = microtime(true);
             $volStr = sprintf('%02d', $volNum);
-            $fileName = "fahares_vol_{$volStr}.json";
+            $fileName = "fankha_vol_{$volStr}.json";
             $filePath = "{$jsonDir}/{$fileName}";
+            if (!File::exists($filePath)) {
+                $fileName = "fahares_vol_{$volStr}.json";
+                $filePath = "{$jsonDir}/{$fileName}";
+            }
 
             if (!File::exists($filePath)) {
                 $this->warn("File {$fileName} not found. Skipping volume {$volNum}.");
@@ -224,13 +228,16 @@ class SyncWorkDetailsCommand extends Command
         }
 
         $candidates = [
+            base_path('../fahares-corpus/json/fankha'),
             base_path('../fahares-corpus/json'),
+            base_path('sources/json/fankha'),
             base_path('sources/json'),
+            storage_path('app/corpus_json/fankha'),
             storage_path('app/corpus_json'),
         ];
 
         foreach ($candidates as $cand) {
-            if (File::isDirectory($cand) && File::exists("{$cand}/fahares_vol_01.json")) {
+            if (File::isDirectory($cand) && (File::exists("{$cand}/fankha_vol_01.json") || File::exists("{$cand}/fahares_vol_01.json"))) {
                 return $cand;
             }
         }
@@ -262,7 +269,7 @@ class SyncWorkDetailsCommand extends Command
         exec("tar -xzf " . escapeshellarg($tempArchive) . " -C " . escapeshellarg($downloadDir), $output, $exitCode);
         File::delete($tempArchive);
 
-        if ($exitCode !== 0 || !File::exists("{$downloadDir}/fahares_vol_01.json")) {
+        if ($exitCode !== 0 || (!File::exists("{$downloadDir}/fankha_vol_01.json") && !File::exists("{$downloadDir}/fahares_vol_01.json"))) {
             $this->error('Failed to extract corpus archive.');
             return null;
         }

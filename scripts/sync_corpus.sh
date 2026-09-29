@@ -7,9 +7,13 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 CORPUS_DIR="${PROJECT_ROOT}/../fahares-corpus"
 TARGET_TEXT_DIR="${PROJECT_ROOT}/sources/text"
 
-mkdir -p "$TARGET_TEXT_DIR"
+mkdir -p "$TARGET_TEXT_DIR/fankha"
 
-if [ -d "$CORPUS_DIR/text" ]; then
+if [ -d "$CORPUS_DIR/text/fankha" ]; then
+    echo "Syncing text files from local fahares-corpus ($CORPUS_DIR/text/fankha) to $TARGET_TEXT_DIR/fankha ..."
+    cp -p "$CORPUS_DIR"/text/fankha/fankha_vol_*.txt "$TARGET_TEXT_DIR/fankha/"
+    echo "Successfully synced $(ls -1 "$TARGET_TEXT_DIR/fankha"/fankha_vol_*.txt | wc -l) volume text files."
+elif [ -d "$CORPUS_DIR/text" ]; then
     echo "Syncing text files from local fahares-corpus ($CORPUS_DIR/text) to $TARGET_TEXT_DIR ..."
     cp -p "$CORPUS_DIR"/text/fahares_vol_*.txt "$TARGET_TEXT_DIR/"
     echo "Successfully synced $(ls -1 "$TARGET_TEXT_DIR"/fahares_vol_*.txt | wc -l) volume text files."

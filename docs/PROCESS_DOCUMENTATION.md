@@ -877,6 +877,20 @@
     - ارتقای تابع `clean_author` در [fankha_parser.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/fankha_parser.py) در مخزن `fahares-corpus`.
     - پالایش سطر ۳۴۱۹۴ متن جلد ۱ ([fahares_vol_01.txt](file:///home/tabib/projects/apps/fahares/sources/text/fahares_vol_01.txt)) و پالایش سراسری فایل‌های ساختاریافته JSON مجلدات ۳۴گانه در هر دو مخزن و رسیدن به آمار ناهنجاری صفر (`Remaining in JSON: authors=0, scribes=0`).
 
+- **فاز ۳۷: بازآرایی ساختار پیکره متنی بر پایه فهرست‌ها و پشتیبانی از معماری چندفهرستی (Multi-Catalog Corpus Refactoring):**
+  - **مسئله و هدف معماری:**
+    - با گسترش سامانه از یک فهرست منفرد (فنخا) به سوی پلتفرم تجمیعی فهرست‌های نسخ خطی جهان اسلام («فهارس»)، نام‌گذاری‌های عمومی نظیر `text/fahares_vol_XX.txt` مانع شفافیت و تفکیک کاتالوگ‌ها در آینده می‌شد.
+    - بازآرایی ساختار به نحوی که مجلدات فنخا (کاتالوگ ردیف ۱ با کد `fankha`) در پوشه اختصاصی `text/fankha/` با پیشوند استاندارد `fankha_vol_XX.txt` قرار گیرند و بستر معماری برای پذیرش فهرست‌های بعدی (دنا، مرعشی، مجلس و...) مهیا گردد.
+  - **حفظ ۱۰۰٪ تاریخچه گیت (Pure Rename Strategy):**
+    - انتقال ۳۴ جلد متن در مخزن `fahares-corpus` صرفاً از طریق دستور `git mv` در یک کامیت مجزا و خالص (`b5e8dd9`) بدون کوچک‌ترین تغییر در محتوای فایل‌ها.
+    - ثبت با شاخص شباهت ۱۰۰٪ (`similarity index 100%`) در گیت و امکان ردیابی تاریخچه تغییرات هر فایل از ابتدای پروژه با فلگ `git log --follow`.
+  - **ارتقای اسکریپت‌های پارسر و همگام‌ساز در هر دو مخزن:**
+    - به‌روزرسانی پارسر موازی [parse_all_volumes.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/parse_all_volumes.py) و پارسر پایه [fankha_parser.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/fankha_parser.py) جهت خواندن از `text/fankha/` و تولید در `json/fankha/`.
+    - به‌روزرسانی اسکریپت ممیزی [audit_shelfmark_leaks.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/audit_shelfmark_leaks.py) و اسکریپت تجمیع متنی [build_full_text.sh](file:///home/tabib/projects/apps/fahares-corpus/scripts/build_full_text.sh).
+    - به‌روزرسانی اسکریپت‌های همگام‌سازی [sync_corpus.sh](file:///home/tabib/projects/apps/fahares/scripts/sync_corpus.sh) و دانلود داده‌ها [download_data.sh](file:///home/tabib/projects/apps/fahares/scripts/download_data.sh).
+  - **مقاوم‌سازی و سازگاری عقبرو در سامانه فهارس (Backward Compatibility):**
+    - ارتقای فرآیند رزولوشن فایل‌ها در دستورات کنسولی لاراول ([SeedFaharesDataCommand.php](../app/Console/Commands/SeedFaharesDataCommand.php)، [SyncWorkDetailsCommand.php](../app/Console/Commands/SyncWorkDetailsCommand.php) و [SyncWorkIncipitsCommand.php](../app/Console/Commands/SyncWorkIncipitsCommand.php)) با قابلیت شناسایی هوشمند ساختار جدید `fankha/fankha_vol_XX.json` در کنار حفظ پشتیبانی کامل از فایل‌های آرشیو نسخه‌های قبلی.
+
 ## ۴. نقشه راه و وضعیت مراحل پروژه (Project Roadmap)
 
 - [x] **فاز ۱ تا ۸: مهندسی اولیه، استانداردسازی یونی‌کد، رفع پرش ستون‌ها و توالی ۳۳ هزار صفحه**
@@ -908,6 +922,7 @@
 - [x] **فاز ۳۴: ممیزی جامع نشت فراداده‌های کالبدشناسی به شماره نسخه در ۳۴ جلد متن (گام تکمیل‌شده)**
 - [x] **فاز ۳۵: اصلاح ساختاری شکست سطور، بازتولید موازی و همگام‌سازی دیتابیس (گام تکمیل‌شده)**
 - [x] **فاز ۳۶: ممیزی ناهنجاری‌های نگارشی و فواصل علائم در اسامی اشخاص و کتابخانه‌ها (گام تکمیل‌شده)**
+- [x] **فاز ۳۷: بازآرایی ساختار پیکره متنی بر پایه فهرست‌ها و پشتیبانی از معماری چندفهرستی (گام تکمیل‌شده)**
 
 ---
 *این سند با پیشرفت هر گام از توسعه فنی، استخراج و بارگذاری پروژه به‌روزرسانی می‌شود.*
