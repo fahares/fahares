@@ -74,7 +74,7 @@
             </div>
 
             <!-- Active Filters Reset -->
-            @if($subjectId || $libraryId || $scriptId || $century || !empty($flags))
+            @if($subjectId || $libraryId || $scriptId || $century || !empty($flags) || $languageId || $workForm || $manuscriptsRange)
                 <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
                     <span class="text-stone-400">فیلترهای فعال:</span>
 
@@ -106,6 +106,30 @@
                         <a href="{{ route('search', array_merge(request()->except('subject_id'), ['page' => 1])) }}" 
                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
                             <span>موضوع: <strong>{{ $selectedSubject->title }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($selectedLanguage)
+                        <a href="{{ route('search', array_merge(request()->except('language_id'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>زبان: <strong>{{ $selectedLanguage->name }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($workForm && isset($validWorkForms[$workForm]))
+                        <a href="{{ route('search', array_merge(request()->except('work_form'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>قالب: <strong>{{ $validWorkForms[$workForm] }}</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($manuscriptsRange && isset($validManuscriptRanges[$manuscriptsRange]))
+                        <a href="{{ route('search', array_merge(request()->except('manuscripts_range'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                            <span>فراوانی نسخ: <strong>{{ $validManuscriptRanges[$manuscriptsRange] }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
                     @endif
@@ -177,6 +201,71 @@
                             @foreach($subjects as $sub)
                                 <option value="{{ $sub->id }}" {{ $subjectId == $sub->id ? 'selected' : '' }}>
                                     {{ $sub->title }} @if(isset($sub->matching_count)) ({{ number_format($sub->matching_count) }}) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Language Filter -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">زبان اثر</label>
+                            @if($languages->isNotEmpty())
+                                <span class="text-[10px] text-[#B38A50] font-semibold">{{ $languages->count() }} زبان</span>
+                            @endif
+                        </div>
+                        <select name="language_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                            <option value="">همه زبان‌ها</option>
+                            @foreach($languages as $lang)
+                                <option value="{{ $lang->id }}" {{ $languageId == $lang->id ? 'selected' : '' }}>
+                                    {{ $lang->name }} @if(isset($lang->matching_count)) ({{ number_format($lang->matching_count) }} اثر) @elseif($lang->works_count) ({{ number_format($lang->works_count) }} اثر) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Century Filter -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">قرن تألیف (هجری قمری)</label>
+                        <select name="century" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                            <option value="">همه قرون</option>
+                            @if(!empty($centuries))
+                                @foreach($centuries as $c => $cCount)
+                                    <option value="{{ $c }}" {{ $century == $c ? 'selected' : '' }}>
+                                        سده {{ $c }} هجری @if($cCount) ({{ number_format($cCount) }} اثر) @endif
+                                    </option>
+                                @endforeach
+                            @else
+                                @for($c = 3; $c <= 14; $c++)
+                                    <option value="{{ $c }}" {{ $century == $c ? 'selected' : '' }}>
+                                        سده {{ $c }} هجری
+                                    </option>
+                                @endfor
+                            @endif
+                        </select>
+                    </div>
+
+                    <!-- Work Form Filter -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">قالب / ساختار اثر</label>
+                        <select name="work_form" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                            <option value="">همه قالب‌ها</option>
+                            @foreach($validWorkForms as $fKey => $fLabel)
+                                <option value="{{ $fKey }}" {{ $workForm == $fKey ? 'selected' : '' }}>
+                                    {{ $fLabel }} @if(!empty($workFormCounts[$fKey])) ({{ number_format($workFormCounts[$fKey]) }}) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Manuscript Availability Filter -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">فراوانی نسخ خطی</label>
+                        <select name="manuscripts_range" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                            <option value="">همه آثار</option>
+                            @foreach($validManuscriptRanges as $rKey => $rLabel)
+                                <option value="{{ $rKey }}" {{ $manuscriptsRange == $rKey ? 'selected' : '' }}>
+                                    {{ $rLabel }}
                                 </option>
                             @endforeach
                         </select>
@@ -318,7 +407,7 @@
                                             @endif
 
                                             @if($work->work_form)
-                                                <span>قالب: <strong>{{ $work->work_form }}</strong></span>
+                                                <span>قالب: <strong>{{ $validWorkForms[$work->work_form] ?? $work->work_form }}</strong></span>
                                             @endif
 
                                             @if($work->composition_place)

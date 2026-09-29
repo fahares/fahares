@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Language;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Person;
@@ -27,6 +28,9 @@ class SearchController extends Controller
         $libraryId = $request->input('library_id');
         $scriptId = $request->input('script_id');
         $century = $request->input('century');
+        $languageId = $request->input('language_id');
+        $workForm = $request->input('work_form');
+        $manuscriptsRange = $request->input('manuscripts_range');
 
         $validFlags = ['is_autograph', 'is_illuminated', 'is_illustrated', 'is_corrected', 'has_marginal_notes', 'is_collated'];
         $rawFlags = (array) $request->input('flags', []);
@@ -35,6 +39,26 @@ class SearchController extends Controller
         }
         $flags = array_values(array_unique(array_intersect($rawFlags, $validFlags)));
         $flag = !empty($flags) ? $flags[0] : null;
+
+        $validWorkForms = [
+            'translation' => 'ترجمه',
+            'selection' => 'گزیده و تلخیص',
+            'treatise' => 'رساله',
+            'verse' => 'منظوم (شعر)',
+            'table' => 'جدول و تقویم',
+            'compilation' => 'جنگ و مجموعه',
+            'notes' => 'یادداشت‌ها و تعلیقات',
+            'commentary' => 'شرح',
+            'lecture_notes' => 'تقریرات',
+        ];
+
+        $validManuscriptRanges = [
+            'single' => 'تک‌نسخه (۱ نسخه)',
+            'few' => 'کم‌نسخه (۲ تا ۴ نسخه)',
+            'multiple' => 'پرنسخه (۵ تا ۱۹ نسخه)',
+            'very_frequent' => 'بسیار پرنسخه (۲۰ نسخه به بالا)',
+        ];
+
         $perPage = 20;
 
         $results = null;
@@ -42,13 +66,16 @@ class SearchController extends Controller
         $subjects = collect();
         $scripts = collect();
         $libraries = collect();
+        $languages = collect();
         $centuries = [];
         $flagCounts = [];
+        $workFormCounts = [];
         $totalFacetManuscripts = 0;
 
         $selectedSubject = $subjectId ? Subject::find($subjectId) : null;
         $selectedLibrary = $libraryId ? Library::find($libraryId) : null;
         $selectedScript = $scriptId ? Script::find($scriptId) : null;
+        $selectedLanguage = $languageId ? Language::find($languageId) : null;
 
         if ($type === 'manuscripts') {
             // Determine attributes to search on based on scope
@@ -239,13 +266,13 @@ class SearchController extends Controller
                 $workSearchAttrs = ['primary_title', 'clean_title', 'alternative_titles', 'author_name'];
             }
 
-            // 1. Facet distribution for subjects
+            // 1. Facet distribution for works
             if ($query !== '') {
                 try {
                     $meiliClient = app(MeiliClient::class);
                     $facetOptions = [
                         'matchingStrategy' => 'all',
-                        'facets' => ['subjects'],
+                        'facets' => ['subjects', 'languages', 'composition_year_hijri', 'work_form'],
                         'limit' => 0,
                     ];
                     if ($workSearchAttrs) {
@@ -253,7 +280,9 @@ class SearchController extends Controller
                     }
 
                     $facetRes = $meiliClient->index('works_index')->search($query, $facetOptions);
-                    $subjCounts = $facetRes->getFacetDistribution()['subjects'] ?? [];
+                    $facetDist = $facetRes->getFacetDistribution() ?? [];
+
+                    $subjCounts = $facetDist['subjects'] ?? [];
                     if (!empty($subjCounts)) {
                         $subjects = Subject::whereIn('name', array_keys($subjCounts))->get()->map(function ($s) use ($subjCounts) {
                             $s->matching_count = $subjCounts[$s->name] ?? 0;
@@ -262,32 +291,87 @@ class SearchController extends Controller
                     } else {
                         $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
                     }
+
+                    $langCounts = $facetDist['languages'] ?? [];
+                    if (!empty($langCounts)) {
+                        $languages = Language::whereIn('name', array_keys($langCounts))->get()->map(function ($l) use ($langCounts) {
+                            $l->matching_count = $langCounts[$l->name] ?? 0;
+                            return $l;
+                        })->sortByDesc('matching_count')->values();
+                    } else {
+                        $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->take(15)->get();
+                    }
+
+                    $compYearCounts = $facetDist['composition_year_hijri'] ?? [];
+                    foreach ($compYearCounts as $yr => $cnt) {
+                        $y = (int) $yr;
+                        if ($y >= 100 && $y <= 1500) {
+                            $c = (int) ceil($y / 100);
+                            $centuries[$c] = ($centuries[$c] ?? 0) + $cnt;
+                        }
+                    }
+                    ksort($centuries);
+
+                    $workFormCounts = $facetDist['work_form'] ?? [];
                 } catch (\Throwable $e) {
                     Log::warning('Meilisearch works facet failed: ' . $e->getMessage());
                     $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                    $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->take(15)->get();
                 }
             } else {
                 $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->take(30)->get();
+                $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->take(15)->get();
+                for ($c = 4; $c <= 14; $c++) {
+                    $centuries[$c] = null;
+                }
             }
 
             if ($selectedSubject && !$subjects->contains('id', $selectedSubject->id)) {
                 $subjects->prepend($selectedSubject);
             }
+            if ($selectedLanguage && !$languages->contains('id', $selectedLanguage->id)) {
+                $selectedLanguage->matching_count = 0;
+                $languages->prepend($selectedLanguage);
+            }
 
             // 2. Execute Works Search
             if ($query !== '') {
-                $workFilter = null;
+                $workFilters = [];
                 if ($selectedSubject) {
-                    $workFilter = 'subjects = "' . addslashes($selectedSubject->name) . '"';
+                    $workFilters[] = 'subjects = "' . addslashes($selectedSubject->name) . '"';
+                }
+                if ($selectedLanguage) {
+                    $workFilters[] = 'languages = "' . addslashes($selectedLanguage->name) . '"';
+                }
+                if ($century) {
+                    $centuryStart = ($century - 1) * 100 + 1;
+                    $centuryEnd = $century * 100;
+                    $workFilters[] = "(composition_year_hijri >= {$centuryStart} AND composition_year_hijri <= {$centuryEnd})";
+                }
+                if ($workForm && isset($validWorkForms[$workForm])) {
+                    $workFilters[] = 'work_form = "' . addslashes($workForm) . '"';
+                }
+                if ($manuscriptsRange) {
+                    if ($manuscriptsRange === 'single') {
+                        $workFilters[] = 'manuscripts_count = 1';
+                    } elseif ($manuscriptsRange === 'few') {
+                        $workFilters[] = '(manuscripts_count >= 2 AND manuscripts_count <= 4)';
+                    } elseif ($manuscriptsRange === 'multiple') {
+                        $workFilters[] = '(manuscripts_count >= 5 AND manuscripts_count <= 19)';
+                    } elseif ($manuscriptsRange === 'very_frequent') {
+                        $workFilters[] = 'manuscripts_count >= 20';
+                    }
                 }
 
-                $builder = Work::search($query, function ($meili, $searchQuery, $options) use ($workFilter, $workSearchAttrs) {
+                $filterString = !empty($workFilters) ? implode(' AND ', $workFilters) : null;
+
+                $builder = Work::search($query, function ($meili, $searchQuery, $options) use ($filterString, $workSearchAttrs) {
                     $options['matchingStrategy'] = 'all';
                     if ($workSearchAttrs) {
                         $options['attributesToSearchOn'] = $workSearchAttrs;
                     }
-                    if ($workFilter) {
-                        $options['filter'] = $workFilter;
+                    if ($filterString) {
+                        $options['filter'] = $filterString;
                     }
                     return $meili->search($searchQuery, $options);
                 })->query(fn($q) => $q->with(['catalog', 'author', 'subjects', 'languages'])->withCount('manuscripts'));
@@ -297,6 +381,28 @@ class SearchController extends Controller
                 $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages'])->withCount('manuscripts');
                 if ($subjectId) {
                     $builder->whereHas('subjects', fn($sq) => $sq->where('subjects.id', $subjectId));
+                }
+                if ($languageId) {
+                    $builder->whereHas('languages', fn($lq) => $lq->where('languages.id', $languageId));
+                }
+                if ($century) {
+                    $centuryStart = ($century - 1) * 100 + 1;
+                    $centuryEnd = $century * 100;
+                    $builder->whereBetween('composition_year_hijri', [$centuryStart, $centuryEnd]);
+                }
+                if ($workForm && isset($validWorkForms[$workForm])) {
+                    $builder->where('work_form', $workForm);
+                }
+                if ($manuscriptsRange) {
+                    if ($manuscriptsRange === 'single') {
+                        $builder->where('manuscripts_count', 1);
+                    } elseif ($manuscriptsRange === 'few') {
+                        $builder->whereBetween('manuscripts_count', [2, 4]);
+                    } elseif ($manuscriptsRange === 'multiple') {
+                        $builder->whereBetween('manuscripts_count', [5, 19]);
+                    } elseif ($manuscriptsRange === 'very_frequent') {
+                        $builder->where('manuscripts_count', '>=', 20);
+                    }
                 }
                 $results = $builder->orderByDesc('manuscripts_count')->paginate($perPage)->withQueryString();
             }
@@ -369,7 +475,15 @@ class SearchController extends Controller
             'flags',
             'selectedSubject',
             'selectedLibrary',
-            'selectedScript'
+            'selectedScript',
+            'languages',
+            'selectedLanguage',
+            'languageId',
+            'workForm',
+            'workFormCounts',
+            'validWorkForms',
+            'manuscriptsRange',
+            'validManuscriptRanges'
         ));
     }
 
