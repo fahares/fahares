@@ -72,7 +72,7 @@ class SearchController extends Controller
         $workFormCounts = [];
         $totalFacetManuscripts = 0;
 
-        $selectedSubject = $subjectId ? Subject::find($subjectId) : null;
+        $selectedSubject = $subjectId ? Subject::with(['children', 'parent'])->find($subjectId) : null;
         $selectedLibrary = $libraryId ? Library::find($libraryId) : null;
         $selectedScript = $scriptId ? Script::find($scriptId) : null;
         $selectedLanguage = $languageId ? Language::find($languageId) : null;
@@ -284,12 +284,12 @@ class SearchController extends Controller
 
                     $subjCounts = $facetDist['subjects'] ?? [];
                     if (!empty($subjCounts)) {
-                        $subjects = Subject::whereIn('name', array_keys($subjCounts))->get()->map(function ($s) use ($subjCounts) {
+                        $subjects = Subject::with('parent')->whereIn('name', array_keys($subjCounts))->get()->map(function ($s) use ($subjCounts) {
                             $s->matching_count = $subjCounts[$s->name] ?? 0;
                             return $s;
                         })->sortByDesc('matching_count')->values();
                     } else {
-                        $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->get();
+                        $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
                     }
 
                     $langCounts = $facetDist['languages'] ?? [];
@@ -315,11 +315,11 @@ class SearchController extends Controller
                     $workFormCounts = $facetDist['work_form'] ?? [];
                 } catch (\Throwable $e) {
                     Log::warning('Meilisearch works facet failed: ' . $e->getMessage());
-                    $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->get();
+                    $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
                     $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 }
             } else {
-                $subjects = Subject::where('works_count', '>', 0)->orderByDesc('works_count')->get();
+                $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
                 for ($c = 4; $c <= 14; $c++) {
                     $centuries[$c] = null;
@@ -338,7 +338,16 @@ class SearchController extends Controller
             if ($query !== '') {
                 $workFilters = [];
                 if ($selectedSubject) {
-                    $workFilters[] = 'subjects = "' . addslashes($selectedSubject->name) . '"';
+                    $targetSubjectNames = [$selectedSubject->name];
+                    foreach ($selectedSubject->children as $child) {
+                        $targetSubjectNames[] = $child->name;
+                    }
+                    if (count($targetSubjectNames) === 1) {
+                        $workFilters[] = 'subjects = "' . addslashes($targetSubjectNames[0]) . '"';
+                    } else {
+                        $orFilters = array_map(fn($n) => 'subjects = "' . addslashes($n) . '"', $targetSubjectNames);
+                        $workFilters[] = '(' . implode(' OR ', $orFilters) . ')';
+                    }
                 }
                 if ($selectedLanguage) {
                     $workFilters[] = 'languages = "' . addslashes($selectedLanguage->name) . '"';
@@ -379,8 +388,12 @@ class SearchController extends Controller
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
                 $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages']);
-                if ($subjectId) {
-                    $builder->whereHas('subjects', fn($sq) => $sq->where('subjects.id', $subjectId));
+                if ($subjectId && $selectedSubject) {
+                    $targetSubjectIds = [$selectedSubject->id];
+                    foreach ($selectedSubject->children as $child) {
+                        $targetSubjectIds[] = $child->id;
+                    }
+                    $builder->whereHas('subjects', fn($sq) => $sq->whereIn('subjects.id', $targetSubjectIds));
                 }
                 if ($languageId) {
                     $builder->whereHas('languages', fn($lq) => $lq->where('languages.id', $languageId));

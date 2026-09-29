@@ -105,7 +105,7 @@
                     @if($selectedSubject)
                         <a href="{{ route('search', array_merge(request()->except('subject_id'), ['page' => 1])) }}" 
                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
-                            <span>موضوع: <strong>{{ $selectedSubject->title }}</strong></span>
+                            <span>موضوع: <strong>{{ $selectedSubject->title }}</strong>@if($selectedSubject->children->isNotEmpty()) <span class="text-[10px] opacity-75 font-normal">(شامل {{ $selectedSubject->children->count() }} زیرموضوع)</span>@elseif($selectedSubject->parent) <span class="text-[10px] opacity-75 font-normal">(زیرمجموعه {{ $selectedSubject->parent->name }})</span>@endif</span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
                     @endif
@@ -195,46 +195,123 @@
                                 'id' => (int) $s->id,
                                 'name' => (string) ($s->title ?: $s->name),
                                 'count' => (int) ($s->matching_count ?? $s->works_count ?? 0),
+                                'parent_id' => $s->parent_id,
+                                'parent_name' => $s->parent ? $s->parent->name : null,
                             ];
                         })->values();
                     @endphp
-                    <div x-data="{
-                        open: false,
-                        search: '',
-                        selectedId: '{{ $subjectId ?? '' }}',
-                        items: {{ \Illuminate\Support\Js::from($subjectsJson) }},
-                        get selectedItem() {
-                            return this.items.find(i => String(i.id) === String(this.selectedId)) || null;
-                        },
-                        get filteredItems() {
-                            const q = this.normalize(this.search);
-                            if (!q) return this.items;
-                            return this.items.filter(i => this.normalize(i.name).includes(q));
-                        },
-                        normalize(text) {
-                            if (!text) return '';
-                            return text
-                                .toString()
-                                .toLowerCase()
-                                .replace(/[\u064B-\u065F\u0670]/g, '')
-                                .replace(/[يى]/g, 'ی')
-                                .replace(/[ك]/g, 'ک')
-                                .replace(/[\u200c\s]+/g, ' ')
-                                .trim();
-                        },
-                        select(id) {
-                            this.selectedId = id ? String(id) : '';
-                            this.open = false;
-                            this.search = '';
-                        },
-                        clear() {
-                            this.selectedId = '';
-                            this.search = '';
-                        }
-                    }" 
-                    class="relative space-y-2"
-                    @click.outside="open = false"
-                    @keydown.escape.window="open = false">
+
+                    <script>
+                    function subjectCombobox(config) {
+                        return {
+                            open: false,
+                            search: '',
+                            selectedId: config.selectedId || '',
+                            highlightedIndex: -1,
+                            items: config.items || [],
+                            get selectedItem() {
+                                return this.items.find(i => String(i.id) === String(this.selectedId)) || null;
+                            },
+                            get filteredItems() {
+                                const q = this.normalize(this.search);
+                                if (!q) return this.items;
+                                return this.items.filter(i => this.normalize(i.name).includes(q) || (i.parent_name && this.normalize(i.parent_name).includes(q)));
+                            },
+                            normalize(text) {
+                                if (!text) return '';
+                                return text
+                                    .toString()
+                                    .toLowerCase()
+                                    .replace(/[\u064B-\u065F\u0670]/g, '')
+                                    .replace(/[يى]/g, 'ی')
+                                    .replace(/[ك]/g, 'ک')
+                                    .replace(/[\u200c\s]+/g, ' ')
+                                    .trim();
+                            },
+                            openDropdown() {
+                                this.open = true;
+                                this.search = '';
+                                if (this.selectedId) {
+                                    const idx = this.items.findIndex(i => String(i.id) === String(this.selectedId));
+                                    this.highlightedIndex = idx !== -1 ? idx : -1;
+                                } else {
+                                    this.highlightedIndex = -1;
+                                }
+                                this.$nextTick(() => {
+                                    if (this.$refs.subjectSearchInput) this.$refs.subjectSearchInput.focus();
+                                    this.scrollToHighlighted();
+                                });
+                            },
+                            onSearchChange() {
+                                this.highlightedIndex = this.filteredItems.length > 0 ? 0 : -1;
+                                this.scrollToHighlighted();
+                            },
+                            onArrowDown() {
+                                if (!this.open) {
+                                    this.openDropdown();
+                                    return;
+                                }
+                                const maxIdx = this.filteredItems.length - 1;
+                                if (this.highlightedIndex < maxIdx) {
+                                    this.highlightedIndex++;
+                                    this.scrollToHighlighted();
+                                }
+                            },
+                            onArrowUp() {
+                                if (!this.open) {
+                                    this.openDropdown();
+                                    return;
+                                }
+                                const minIdx = this.search.trim() ? 0 : -1;
+                                if (this.highlightedIndex > minIdx) {
+                                    this.highlightedIndex--;
+                                    this.scrollToHighlighted();
+                                }
+                            },
+                            onEnter() {
+                                if (!this.open) {
+                                    this.openDropdown();
+                                    return;
+                                }
+                                if (this.highlightedIndex >= 0 && this.highlightedIndex < this.filteredItems.length) {
+                                    this.select(this.filteredItems[this.highlightedIndex].id);
+                                } else if (this.highlightedIndex === -1 && !this.search.trim()) {
+                                    this.select('');
+                                } else if (this.filteredItems.length > 0) {
+                                    this.select(this.filteredItems[0].id);
+                                }
+                            },
+                            scrollToHighlighted() {
+                                this.$nextTick(() => {
+                                    if (!this.$refs.optionsList) return;
+                                    const target = this.$refs.optionsList.querySelector('[data-highlighted="true"]');
+                                    if (target) {
+                                        target.scrollIntoView({ block: 'nearest' });
+                                    }
+                                });
+                            },
+                            select(id) {
+                                this.selectedId = id ? String(id) : '';
+                                this.open = false;
+                                this.search = '';
+                                this.highlightedIndex = -1;
+                                this.$nextTick(() => {
+                                    if (this.$refs.triggerButton) this.$refs.triggerButton.focus();
+                                });
+                            },
+                            clear() {
+                                this.selectedId = '';
+                                this.search = '';
+                                this.highlightedIndex = -1;
+                            }
+                        };
+                    }
+                    </script>
+
+                    <div x-data="subjectCombobox({ selectedId: '{{ $subjectId ?? '' }}', items: {{ \Illuminate\Support\Js::from($subjectsJson) }} })"
+                         class="relative space-y-2"
+                         @click.outside="open = false"
+                         @keydown.escape.window="open = false">
                         
                         <div class="flex items-center justify-between">
                             <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">موضوع اثر</label>
@@ -248,7 +325,10 @@
                         <div class="relative">
                             <!-- Trigger Button -->
                             <button type="button" 
-                                    @click="open = !open; if(open) { $nextTick(() => $refs.subjectSearchInput.focus()); }"
+                                    x-ref="triggerButton"
+                                    @click="open ? (open = false) : openDropdown()"
+                                    @keydown.arrow-down.prevent="openDropdown()"
+                                    @keydown.enter.prevent="openDropdown()"
                                     class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 flex items-center justify-between gap-2 hover:border-[#B38A50] focus:outline-none focus:ring-1 focus:ring-[#B38A50] transition text-right">
                                 <span class="truncate" x-text="selectedItem ? selectedItem.name + (selectedItem.count ? ' (' + Number(selectedItem.count).toLocaleString('fa-IR') + ')' : '') : 'همه موضوعات'">
                                     @if($selectedSubject)
@@ -287,14 +367,18 @@
                                     <input x-ref="subjectSearchInput"
                                            type="text" 
                                            x-model="search" 
-                                           @keydown.enter.prevent="if (filteredItems.length > 0) { select(filteredItems[0].id); }"
+                                           @input="onSearchChange()"
+                                           @keydown.arrow-down.prevent="onArrowDown()"
+                                           @keydown.arrow-up.prevent="onArrowUp()"
+                                           @keydown.enter.prevent="onEnter()"
+                                           @keydown.escape.prevent="open = false"
                                            placeholder="جستجوی موضوع (مثلاً فقه، فلسفه...)" 
                                            class="w-full text-xs p-2 pr-8 pl-7 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/90 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#B38A50] focus:ring-1 focus:ring-[#B38A50] transition">
                                     <svg class="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <template x-if="search">
-                                        <button type="button" @click="search = ''" class="absolute left-2.5 top-2.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                                        <button type="button" @click="search = ''; onSearchChange();" class="absolute left-2.5 top-2.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
@@ -303,24 +387,45 @@
                                 </div>
 
                                 <!-- Options List -->
-                                <div class="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar text-xs py-1">
+                                <div x-ref="optionsList" class="max-h-60 overflow-y-auto space-y-0.5 custom-scrollbar text-xs py-1">
                                     <!-- Option: All Subjects -->
                                     <button type="button" 
+                                            tabindex="-1"
+                                            x-show="!search.trim()"
+                                            :data-highlighted="highlightedIndex === -1"
                                             @click="select('')"
-                                            class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between transition hover:bg-stone-100 dark:hover:bg-stone-800/80"
-                                            :class="{ 'bg-[#B38A50]/15 text-[#B38A50] font-bold': !selectedId }">
+                                            @mouseenter="highlightedIndex = -1"
+                                            class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between transition"
+                                            :class="{
+                                                'bg-[#B38A50]/20 text-[#B38A50] font-bold ring-1 ring-[#B38A50]/30': !selectedId,
+                                                'bg-stone-200/80 dark:bg-stone-700/70 text-stone-900 dark:text-stone-100': highlightedIndex === -1 && selectedId,
+                                                'hover:bg-stone-100 dark:hover:bg-stone-800/80': highlightedIndex !== -1 && selectedId
+                                            }">
                                         <span>همه موضوعات</span>
                                         <span class="text-[10px] text-stone-400 font-normal">({{ $subjects->count() }})</span>
                                     </button>
 
                                     <!-- Filtered Options -->
-                                    <template x-for="item in filteredItems" :key="item.id">
+                                    <template x-for="(item, index) in filteredItems" :key="item.id">
                                         <button type="button" 
+                                                tabindex="-1"
+                                                :data-highlighted="highlightedIndex === index"
                                                 @click="select(item.id)"
-                                                class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2 transition hover:bg-stone-100 dark:hover:bg-stone-800/80"
-                                                :class="{ 'bg-[#B38A50]/15 text-[#B38A50] font-bold': selectedId == item.id }">
-                                            <span class="truncate" x-text="item.name"></span>
-                                            <span class="text-[10px] text-stone-400 dark:text-stone-500 font-mono shrink-0" 
+                                                @mouseenter="highlightedIndex = index"
+                                                class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2 transition"
+                                                :class="{
+                                                    'bg-[#B38A50]/20 text-[#B38A50] font-bold ring-1 ring-[#B38A50]/30': selectedId == item.id,
+                                                    'bg-stone-200/80 dark:bg-stone-700/70 text-stone-900 dark:text-stone-100': highlightedIndex === index && selectedId != item.id,
+                                                    'hover:bg-stone-100 dark:hover:bg-stone-800/80': highlightedIndex !== index && selectedId != item.id
+                                                }">
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <span class="truncate" x-text="item.name"></span>
+                                                <template x-if="item.parent_name">
+                                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-stone-200/70 dark:bg-stone-700/70 text-stone-500 dark:text-stone-400 shrink-0 font-normal" x-text="'زیرمجموعه ' + item.parent_name"></span>
+                                                </template>
+                                            </div>
+                                            <span class="text-[10px] font-mono shrink-0" 
+                                                  :class="selectedId == item.id ? 'text-[#B38A50]' : (highlightedIndex === index ? 'text-stone-600 dark:text-stone-300' : 'text-stone-400 dark:text-stone-500')"
                                                   x-show="item.count" 
                                                   x-text="'(' + Number(item.count).toLocaleString('fa-IR') + ')'"></span>
                                         </button>
