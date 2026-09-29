@@ -62,7 +62,7 @@
                     type="button" 
                     class="px-4 py-2.5 rounded-xl border border-[#B38A50] text-[#B38A50] hover:bg-[#B38A50] hover:text-white dark:hover:text-stone-900 font-semibold text-xs transition duration-200 flex items-center gap-2 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    <span>پیشنهاد تصحیح / تکمیل این نسخه</span>
+                    <span>پیشنهاد تصحیح یا تکمیل اطلاعات این نسخه</span>
                 </button>
             </div>
         </div>
@@ -218,6 +218,15 @@
                         {{ $manuscript->copy_place ?? 'نامشخص' }}
                     </dd>
                 </div>
+
+                @if($manuscript->commissioned_by)
+                    <div class="flex justify-between pt-2">
+                        <dt class="text-stone-400">سفارش کتابت (فرماینده):</dt>
+                        <dd class="font-bold text-[#B38A50] dark:text-amber-300">
+                            {{ $manuscript->commissioned_by }}
+                        </dd>
+                    </div>
+                @endif
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">ردیف ثبت در مأخذ:</dt>

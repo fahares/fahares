@@ -319,6 +319,7 @@ class Manuscript extends Model
             'copy_date_raw' => $this->copy_date_raw,
             'copy_date_hijri_year' => $this->copy_date_hijri_year ? (int) $this->copy_date_hijri_year : null,
             'copy_place' => $this->copy_place,
+            'commissioned_by' => $this->commissioned_by,
             'script_names' => $this->script_names,
             'script_style' => $this->script_style,
             'folios' => $this->folios ? (int) $this->folios : null,
