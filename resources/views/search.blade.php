@@ -9,6 +9,8 @@
     <div class="bg-white dark:bg-[#15192C] p-6 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-md space-y-4">
         
         <form action="{{ route('search') }}" method="GET" class="space-y-4">
+            <input type="hidden" name="type" id="search-type-input" value="{{ $type }}">
+
             <!-- Search bar -->
             <div class="relative flex items-center">
                 <input 
@@ -52,15 +54,15 @@
                 <!-- Type Tabs -->
                 <div class="flex items-center gap-2">
                     <span class="text-xs text-stone-400 font-medium">دامنه:</span>
-                    <button type="submit" name="type" value="works" 
+                    <button type="submit" onclick="document.getElementById('search-type-input').value='works'" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'works' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
                         آثار و عناوین
                     </button>
-                    <button type="submit" name="type" value="manuscripts" 
+                    <button type="submit" onclick="document.getElementById('search-type-input').value='manuscripts'" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'manuscripts' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
                         نسخه‌های خطی
                     </button>
-                    <button type="submit" name="type" value="people" 
+                    <button type="submit" onclick="document.getElementById('search-type-input').value='people'" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'people' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
                         پدیدآوران و کاتبان
                     </button>
