@@ -64,17 +64,8 @@
                     <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('home') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         صفحه نخست
                     </a>
-                    <a href="{{ route('search', ['type' => 'works']) }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('search') && request('type', 'works') === 'works' ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
-                        کاوش آثار
-                    </a>
                     <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         موضوعات
-                    </a>
-                    <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request('type') === 'manuscripts' ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
-                        نسخه‌های خطی
-                    </a>
-                    <a href="{{ route('search', ['type' => 'people']) }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request('type') === 'people' ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
-                        پدیدآوران و کاتبان
                     </a>
                     <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         کتابخانه‌ها و مراکز
@@ -84,12 +75,16 @@
                 <!-- Actions: Search Trigger & Dark Mode Toggle -->
                 <div class="flex items-center gap-3">
                     
-                    <!-- Search Input Trigger -->
-                    <a href="{{ route('search') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 text-xs text-stone-500 hover:border-[#B38A50] transition group shadow-sm">
+                    <!-- Search Input Trigger Button (Opens Ctrl+K Spotlight Modal) -->
+                    <button 
+                        type="button" 
+                        @click="window.dispatchEvent(new CustomEvent('open-spotlight-modal'))"
+                        class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 text-xs text-stone-500 hover:border-[#B38A50] hover:text-[#B38A50] transition group shadow-sm cursor-pointer"
+                        title="جستجوی سریع (Ctrl+K)">
                         <svg class="w-4 h-4 text-stone-400 group-hover:text-[#B38A50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         <span class="hidden sm:inline">کاوش سریع...</span>
-                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300">Ctrl+K</kbd>
-                    </a>
+                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300 font-mono">Ctrl+K</kbd>
+                    </button>
 
                     <!-- Dark Mode Toggle Button -->
                     <button 
@@ -114,12 +109,9 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
                         <div x-show="open" @click.away="open = false" x-transition class="absolute left-0 mt-2 w-48 bg-white dark:bg-[#15192C] rounded-xl shadow-xl border border-stone-200 dark:border-stone-700 py-2 z-50 text-sm">
-                            <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">صفحه نخست</a>
-                            <a href="{{ route('search', ['type' => 'works']) }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">کاوش آثار</a>
-                            <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">موضوعات</a>
-                            <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">نسخه‌های خطی</a>
-                            <a href="{{ route('search', ['type' => 'people']) }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">پدیدآوران و کاتبان</a>
-                            <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">کتابخانه‌ها</a>
+                            <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('home') ? 'text-[#B38A50] font-bold' : '' }}">صفحه نخست</a>
+                            <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] font-bold' : '' }}">موضوعات</a>
+                            <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                         </div>
                     </div>
 
@@ -235,6 +227,270 @@
             </div>
         </div>
     </footer>
+
+    <!-- Global Spotlight Quick Search Modal (Ctrl+K) -->
+    <div 
+        x-data="{
+            openSearchModal: false,
+            query: '',
+            loading: false,
+            results: { works: [], people: [], manuscripts: [] },
+            init() {
+                window.addEventListener('keydown', e => { 
+                    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K' || e.code === 'KeyK')) { 
+                        e.preventDefault(); 
+                        this.openModal();
+                    } 
+                });
+                window.addEventListener('open-spotlight-modal', () => {
+                    this.openModal();
+                });
+                this.$watch('openSearchModal', value => {
+                    document.body.classList.toggle('overflow-hidden', value);
+                });
+            },
+            openModal() {
+                this.openSearchModal = true;
+                this.$nextTick(() => {
+                    this.$refs.spotlightInput?.focus();
+                });
+            },
+            closeModal() {
+                this.openSearchModal = false;
+            },
+            clearQuery() {
+                this.query = '';
+                this.results = { works: [], people: [], manuscripts: [] };
+                this.$nextTick(() => {
+                    this.$refs.spotlightInput?.focus();
+                });
+            },
+            fetchResults() {
+                const q = this.query.trim();
+                if (q.length < 2) {
+                    this.results = { works: [], people: [], manuscripts: [] };
+                    this.loading = false;
+                    return;
+                }
+                this.loading = true;
+                fetch('{{ route('search.api') }}?q=' + encodeURIComponent(q) + '&type=all')
+                    .then(res => res.json())
+                    .then(data => {
+                        this.results = data;
+                        this.loading = false;
+                    })
+                    .catch(() => {
+                        this.loading = false;
+                    });
+            },
+            hasResults() {
+                return (this.results.works && this.results.works.length > 0) ||
+                       (this.results.people && this.results.people.length > 0) ||
+                       (this.results.manuscripts && this.results.manuscripts.length > 0);
+            },
+            goToFullSearch() {
+                const q = this.query.trim();
+                if (q.length > 0) {
+                    window.location.href = '{{ route('search') }}?q=' + encodeURIComponent(q);
+                }
+            }
+        }"
+        @keydown.escape.window="closeModal()"
+        class="relative z-50">
+
+        <template x-teleport="body">
+            <div 
+                x-show="openSearchModal" 
+                x-cloak
+                class="fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 md:p-20"
+                role="dialog" 
+                aria-modal="true">
+
+                <!-- Backdrop -->
+                <div 
+                    x-show="openSearchModal" 
+                    x-transition:enter="ease-out duration-200"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                    x-transition:leave="ease-in duration-150"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    @click="closeModal()"
+                    class="fixed inset-0 bg-[#0F1224]/75 dark:bg-black/85 backdrop-blur-sm transition-opacity"></div>
+
+                <!-- Modal Window Container -->
+                <div 
+                    x-show="openSearchModal"
+                    x-transition:enter="ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                    class="mx-auto max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-[#15192C] shadow-2xl border border-stone-200 dark:border-[#272F4C] transition-all relative z-10">
+
+                    <!-- Search Input Header -->
+                    <div class="relative flex items-center border-b border-stone-200 dark:border-[#272F4C] px-4 py-3.5 bg-stone-50/70 dark:bg-[#191D33]">
+                        <svg class="w-5 h-5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input 
+                            type="text" 
+                            x-ref="spotlightInput"
+                            x-model="query"
+                            @input.debounce.200ms="fetchResults()"
+                            @keydown.enter.prevent="goToFullSearch()"
+                            placeholder="کاوش سریع اثر، مؤلف، کاتب یا نسخه... (Enter برای جستجوی جامع)"
+                            class="w-full bg-transparent pr-3 pl-16 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-none focus:ring-0">
+                        
+                        <!-- Actions inside search bar -->
+                        <div class="absolute left-3 flex items-center gap-1.5">
+                            <button 
+                                type="button" 
+                                x-show="query.length > 0" 
+                                @click="clearQuery()" 
+                                class="p-1 rounded-md text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 transition cursor-pointer"
+                                title="پاک کردن متن">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="closeModal()" 
+                                class="px-1.5 py-0.5 text-[10px] font-mono bg-stone-200 dark:bg-[#272F4C] text-stone-600 dark:text-stone-300 rounded hover:bg-stone-300 dark:hover:bg-stone-600 transition cursor-pointer"
+                                title="بستن پنجره">
+                                Esc
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Subtle Loading Progress Indicator -->
+                    <div x-show="loading" class="h-0.5 w-full bg-amber-100 dark:bg-stone-800 overflow-hidden">
+                        <div class="h-full bg-[#B38A50] animate-pulse w-full"></div>
+                    </div>
+
+                    <!-- Results & State Body -->
+                    <div class="max-h-[60vh] overflow-y-auto divide-y divide-stone-100 dark:divide-[#272F4C] p-2">
+
+                        <!-- State: Initial Empty Prompt -->
+                        <div x-show="query.trim().length < 2" class="p-8 text-center text-xs text-stone-400 dark:text-stone-500">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 text-[#B38A50] mb-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <p class="font-medium text-stone-600 dark:text-stone-300 text-sm mb-1">جستجوی بلادرنگ در آثار، اشخاص و نسخه‌ها</p>
+                            <p>دست‌کم ۲ حرف تایپ کنید تا نتایج تفکیک‌شده بلافاصله نمایش یابد.</p>
+                        </div>
+
+                        <!-- State: No Results -->
+                        <div x-show="query.trim().length >= 2 && !loading && !hasResults()" class="p-8 text-center text-xs text-stone-500 dark:text-stone-400">
+                            <p class="text-sm font-medium mb-1">موردی منطبق با «<span class="text-stone-800 dark:text-stone-200 font-semibold" x-text="query"></span>» در عناوین اصلی یافت نشد.</p>
+                            <p class="mb-3 text-[11px] text-stone-400">می‌توانید همین عبارت را در کل فیلدها و کالبدشناسی نسخه‌ها جستجو کنید.</p>
+                            <button 
+                                type="button" 
+                                @click="goToFullSearch()" 
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#B38A50] hover:bg-[#8F6B38] text-white text-xs font-semibold transition cursor-pointer shadow-sm">
+                                <span>جستجوی پیشرفته در کل پایگاه</span>
+                                <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </button>
+                        </div>
+
+                        <!-- Group: Works (آثار و عناوین) -->
+                        <template x-if="results.works && results.works.length > 0">
+                            <div class="py-2">
+                                <div class="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-[#B38A50] uppercase tracking-wider">
+                                    <span>آثار و عناوین</span>
+                                    <span class="text-[10px] text-stone-400 font-normal" x-text="results.works.length + ' مورد'"></span>
+                                </div>
+                                <template x-for="item in results.works" :key="'w-' + item.id">
+                                    <a :href="item.url" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-[#1E233D] transition group">
+                                        <div class="min-w-0 pr-1">
+                                            <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] truncate" x-text="item.title"></div>
+                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.author"></div>
+                                        </div>
+                                        <div class="shrink-0 flex items-center gap-2 mr-3">
+                                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-800/50" x-text="item.manuscripts_count + ' نسخه'"></span>
+                                            <span class="text-stone-400 group-hover:text-[#B38A50] text-sm rtl:rotate-180">←</span>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Group: People (پدیدآوران و کاتبان) -->
+                        <template x-if="results.people && results.people.length > 0">
+                            <div class="py-2">
+                                <div class="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                                    <span>پدیدآوران و کاتبان</span>
+                                    <span class="text-[10px] text-stone-400 font-normal" x-text="results.people.length + ' مورد'"></span>
+                                </div>
+                                <template x-for="item in results.people" :key="'p-' + item.id">
+                                    <a :href="item.url" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-[#1E233D] transition group">
+                                        <div class="min-w-0 pr-1">
+                                            <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate" x-text="item.name"></div>
+                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-show="item.death_hijri" x-text="item.death_hijri"></div>
+                                        </div>
+                                        <div class="shrink-0 flex items-center gap-2 mr-3">
+                                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800/60" x-show="item.works_count" x-text="item.works_count + ' اثر'"></span>
+                                            <span class="text-stone-400 group-hover:text-indigo-500 text-sm rtl:rotate-180">←</span>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Group: Manuscripts (نسخه‌های خطی) -->
+                        <template x-if="results.manuscripts && results.manuscripts.length > 0">
+                            <div class="py-2">
+                                <div class="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                                    <span>نسخه‌های خطی</span>
+                                    <span class="text-[10px] text-stone-400 font-normal" x-text="results.manuscripts.length + ' مورد'"></span>
+                                </div>
+                                <template x-for="item in results.manuscripts" :key="'m-' + item.id">
+                                    <a :href="item.url" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-[#1E233D] transition group">
+                                        <div class="min-w-0 pr-1">
+                                            <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center gap-1.5 flex-wrap truncate">
+                                                <span class="truncate" x-text="item.work_title"></span>
+                                                <span x-show="item.author_name" class="text-xs font-normal text-stone-500 dark:text-stone-400" x-text="'(پدیدآور: ' + item.author_name + ')'"></span>
+                                            </div>
+                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.library + (item.accession_number ? ' • بازیابی: ' + item.accession_number : '')"></div>
+                                        </div>
+                                        <div class="shrink-0 flex items-center gap-2 mr-3">
+                                            <span class="text-xs text-stone-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">مشاهده نسخه</span>
+                                            <span class="text-stone-400 group-hover:text-emerald-600 text-sm rtl:rotate-180">←</span>
+                                        </div>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <!-- Footer Bar with navigation keys guide -->
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-stone-100/70 dark:bg-[#101426] border-t border-stone-200 dark:border-[#272F4C] text-[11px] text-stone-500 dark:text-stone-400">
+                        <div class="flex items-center gap-3">
+                            <span class="flex items-center gap-1">
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↵ Enter</kbd>
+                                <span>کاوش جامع</span>
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">Esc</kbd>
+                                <span>بستن</span>
+                            </span>
+                        </div>
+                        
+                        <button 
+                            type="button"
+                            x-show="query.trim().length > 0" 
+                            @click="goToFullSearch()" 
+                            class="text-[#B38A50] hover:underline font-medium inline-flex items-center gap-1 cursor-pointer">
+                            <span>مشاهده همه نتایج</span>
+                            <span class="rtl:rotate-180">←</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </template>
+    </div>
 
     @stack('scripts')
 </body>

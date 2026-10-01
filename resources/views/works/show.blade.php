@@ -401,7 +401,7 @@
                     <div class="flex items-center gap-2">
                         <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
                         <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
-                            متن خام مدخل اثر در مأخذ چاپی (فنخا)
+                            متن فنخا
                         </h3>
                     </div>
                     <button 
@@ -563,7 +563,7 @@
                                 </td>
 
                                 <td class="py-3 px-4">
-                                    {{ $ms->folios ? $ms->folios . ' ب' : '-' }}
+                                    {{ $ms->folios ? $ms->folios : '-' }}
                                 </td>
 
                                 <td class="py-3 px-4 text-center">
