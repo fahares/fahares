@@ -45,7 +45,7 @@
                         return;
                     }
                     this.loading = true;
-                    fetch('{{ route('search.api') }}?q=' + encodeURIComponent(this.query) + '&type=all')
+                    fetch('{{ route('search.api', [], false) }}?q=' + encodeURIComponent(this.query) + '&type=all')
                         .then(res => res.json())
                         .then(data => {
                             this.results = data;

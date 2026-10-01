@@ -234,6 +234,7 @@
             openSearchModal: false,
             query: '',
             loading: false,
+            selectedIndex: 0,
             results: { works: [], people: [], manuscripts: [] },
             init() {
                 window.addEventListener('keydown', e => { 
@@ -251,8 +252,10 @@
             },
             openModal() {
                 this.openSearchModal = true;
+                this.selectedIndex = 0;
                 this.$nextTick(() => {
                     this.$refs.spotlightInput?.focus();
+                    this.$refs.spotlightInput?.select();
                 });
             },
             closeModal() {
@@ -261,6 +264,7 @@
             clearQuery() {
                 this.query = '';
                 this.results = { works: [], people: [], manuscripts: [] };
+                this.selectedIndex = 0;
                 this.$nextTick(() => {
                     this.$refs.spotlightInput?.focus();
                 });
@@ -269,14 +273,16 @@
                 const q = this.query.trim();
                 if (q.length < 2) {
                     this.results = { works: [], people: [], manuscripts: [] };
+                    this.selectedIndex = 0;
                     this.loading = false;
                     return;
                 }
                 this.loading = true;
-                fetch('{{ route('search.api') }}?q=' + encodeURIComponent(q) + '&type=all')
+                fetch('{{ route('search.api', [], false) }}?q=' + encodeURIComponent(q) + '&type=all')
                     .then(res => res.json())
                     .then(data => {
                         this.results = data;
+                        this.selectedIndex = 0;
                         this.loading = false;
                     })
                     .catch(() => {
@@ -288,10 +294,50 @@
                        (this.results.people && this.results.people.length > 0) ||
                        (this.results.manuscripts && this.results.manuscripts.length > 0);
             },
+            totalCount() {
+                return (this.results.works?.length || 0) +
+                       (this.results.people?.length || 0) +
+                       (this.results.manuscripts?.length || 0);
+            },
+            getAllItems() {
+                const items = [];
+                if (this.results.works) this.results.works.forEach(w => items.push(w));
+                if (this.results.people) this.results.people.forEach(p => items.push(p));
+                if (this.results.manuscripts) this.results.manuscripts.forEach(m => items.push(m));
+                return items;
+            },
+            nextItem() {
+                const total = this.totalCount();
+                if (total === 0) return;
+                this.selectedIndex = (this.selectedIndex + 1) % total;
+                this.scrollToActive();
+            },
+            prevItem() {
+                const total = this.totalCount();
+                if (total === 0) return;
+                this.selectedIndex = (this.selectedIndex - 1 + total) % total;
+                this.scrollToActive();
+            },
+            scrollToActive() {
+                this.$nextTick(() => {
+                    const activeEl = this.$refs.resultsContainer?.querySelector('[data-active=\'true\']');
+                    if (activeEl) {
+                        activeEl.scrollIntoView({ block: 'nearest' });
+                    }
+                });
+            },
+            selectCurrentItem() {
+                const items = this.getAllItems();
+                if (this.hasResults() && this.selectedIndex >= 0 && this.selectedIndex < items.length) {
+                    window.location.href = items[this.selectedIndex].url;
+                } else {
+                    this.goToFullSearch();
+                }
+            },
             goToFullSearch() {
                 const q = this.query.trim();
                 if (q.length > 0) {
-                    window.location.href = '{{ route('search') }}?q=' + encodeURIComponent(q);
+                    window.location.href = '{{ route('search', [], false) }}?q=' + encodeURIComponent(q);
                 }
             }
         }"
@@ -339,8 +385,10 @@
                             x-ref="spotlightInput"
                             x-model="query"
                             @input.debounce.200ms="fetchResults()"
-                            @keydown.enter.prevent="goToFullSearch()"
-                            placeholder="کاوش سریع اثر، مؤلف، کاتب یا نسخه... (Enter برای جستجوی جامع)"
+                            @keydown.down.prevent="nextItem()"
+                            @keydown.up.prevent="prevItem()"
+                            @keydown.enter.prevent="selectCurrentItem()"
+                            placeholder="کاوش سریع اثر، مؤلف، کاتب یا نسخه... (با ↑ و ↓ انتخاب کنید، Enter برای رفتن)"
                             class="w-full bg-transparent pr-3 pl-16 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-none focus:ring-0">
                         
                         <!-- Actions inside search bar -->
@@ -369,7 +417,7 @@
                     </div>
 
                     <!-- Results & State Body -->
-                    <div class="max-h-[60vh] overflow-y-auto divide-y divide-stone-100 dark:divide-[#272F4C] p-2">
+                    <div x-ref="resultsContainer" class="max-h-[60vh] overflow-y-auto divide-y divide-stone-100 dark:divide-[#272F4C] p-2">
 
                         <!-- State: Initial Empty Prompt -->
                         <div x-show="query.trim().length < 2" class="p-8 text-center text-xs text-stone-400 dark:text-stone-500">
@@ -377,7 +425,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
                             <p class="font-medium text-stone-600 dark:text-stone-300 text-sm mb-1">جستجوی بلادرنگ در آثار، اشخاص و نسخه‌ها</p>
-                            <p>دست‌کم ۲ حرف تایپ کنید تا نتایج تفکیک‌شده بلافاصله نمایش یابد.</p>
+                            <p>دست‌کم ۲ حرف تایپ کنید؛ سپس با کلیدهای ↑ و ↓ میان گزینه‌ها حرکت کرده و با Enter وارد شوید.</p>
                         </div>
 
                         <!-- State: No Results -->
@@ -388,7 +436,7 @@
                                 type="button" 
                                 @click="goToFullSearch()" 
                                 class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#B38A50] hover:bg-[#8F6B38] text-white text-xs font-semibold transition cursor-pointer shadow-sm">
-                                <span>جستجوی پیشرفته در کل پایگاه</span>
+                                <span>جستجوی پیشرفته در کل پایگاه (Enter)</span>
                                 <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
                         </div>
@@ -400,15 +448,19 @@
                                     <span>آثار و عناوین</span>
                                     <span class="text-[10px] text-stone-400 font-normal" x-text="results.works.length + ' مورد'"></span>
                                 </div>
-                                <template x-for="item in results.works" :key="'w-' + item.id">
-                                    <a :href="item.url" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-[#1E233D] transition group">
+                                <template x-for="(item, index) in results.works" :key="'w-' + item.id">
+                                    <a :href="item.url" 
+                                       @mouseenter="selectedIndex = index"
+                                       :data-active="selectedIndex === index"
+                                       :class="selectedIndex === index ? 'bg-amber-100/80 dark:bg-amber-950/60 ring-1 ring-[#B38A50]/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-[#1E233D]'"
+                                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition group">
                                         <div class="min-w-0 pr-1">
                                             <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] truncate" x-text="item.title"></div>
                                             <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.author"></div>
                                         </div>
                                         <div class="shrink-0 flex items-center gap-2 mr-3">
                                             <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-800/50" x-text="item.manuscripts_count + ' نسخه'"></span>
-                                            <span class="text-stone-400 group-hover:text-[#B38A50] text-sm rtl:rotate-180">←</span>
+                                            <span :class="selectedIndex === index ? 'text-[#B38A50] font-bold translate-x-[-2px]' : 'text-stone-400 group-hover:text-[#B38A50]'" class="text-sm rtl:rotate-180 transition-transform">←</span>
                                         </div>
                                     </a>
                                 </template>
@@ -422,15 +474,19 @@
                                     <span>پدیدآوران و کاتبان</span>
                                     <span class="text-[10px] text-stone-400 font-normal" x-text="results.people.length + ' مورد'"></span>
                                 </div>
-                                <template x-for="item in results.people" :key="'p-' + item.id">
-                                    <a :href="item.url" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-[#1E233D] transition group">
+                                <template x-for="(item, index) in results.people" :key="'p-' + item.id">
+                                    <a :href="item.url" 
+                                       @mouseenter="selectedIndex = (results.works?.length || 0) + index"
+                                       :data-active="selectedIndex === ((results.works?.length || 0) + index)"
+                                       :class="selectedIndex === ((results.works?.length || 0) + index) ? 'bg-indigo-100/80 dark:bg-indigo-950/60 ring-1 ring-indigo-500/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-[#1E233D]'"
+                                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition group">
                                         <div class="min-w-0 pr-1">
                                             <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate" x-text="item.name"></div>
                                             <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-show="item.death_hijri" x-text="item.death_hijri"></div>
                                         </div>
                                         <div class="shrink-0 flex items-center gap-2 mr-3">
                                             <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800/60" x-show="item.works_count" x-text="item.works_count + ' اثر'"></span>
-                                            <span class="text-stone-400 group-hover:text-indigo-500 text-sm rtl:rotate-180">←</span>
+                                            <span :class="selectedIndex === ((results.works?.length || 0) + index) ? 'text-indigo-600 dark:text-indigo-400 font-bold translate-x-[-2px]' : 'text-stone-400 group-hover:text-indigo-500'" class="text-sm rtl:rotate-180 transition-transform">←</span>
                                         </div>
                                     </a>
                                 </template>
@@ -444,18 +500,22 @@
                                     <span>نسخه‌های خطی</span>
                                     <span class="text-[10px] text-stone-400 font-normal" x-text="results.manuscripts.length + ' مورد'"></span>
                                 </div>
-                                <template x-for="item in results.manuscripts" :key="'m-' + item.id">
-                                    <a :href="item.url" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-[#1E233D] transition group">
+                                <template x-for="(item, index) in results.manuscripts" :key="'m-' + item.id">
+                                    <a :href="item.url" 
+                                       @mouseenter="selectedIndex = (results.works?.length || 0) + (results.people?.length || 0) + index"
+                                       :data-active="selectedIndex === ((results.works?.length || 0) + (results.people?.length || 0) + index)"
+                                       :class="selectedIndex === ((results.works?.length || 0) + (results.people?.length || 0) + index) ? 'bg-emerald-100/80 dark:bg-emerald-950/60 ring-1 ring-emerald-500/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-[#1E233D]'"
+                                       class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition group">
                                         <div class="min-w-0 pr-1">
                                             <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center gap-1.5 flex-wrap truncate">
                                                 <span class="truncate" x-text="item.work_title"></span>
                                                 <span x-show="item.author_name" class="text-xs font-normal text-stone-500 dark:text-stone-400" x-text="'(پدیدآور: ' + item.author_name + ')'"></span>
                                             </div>
-                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.library + (item.accession_number ? ' • بازیابی: ' + item.accession_number : '')"></div>
+                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.library + (item.shelfmark || item.accession_number ? ' • بازیابی: ' + (item.shelfmark || item.accession_number) : '')"></div>
                                         </div>
                                         <div class="shrink-0 flex items-center gap-2 mr-3">
                                             <span class="text-xs text-stone-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">مشاهده نسخه</span>
-                                            <span class="text-stone-400 group-hover:text-emerald-600 text-sm rtl:rotate-180">←</span>
+                                            <span :class="selectedIndex === ((results.works?.length || 0) + (results.people?.length || 0) + index) ? 'text-emerald-600 dark:text-emerald-400 font-bold translate-x-[-2px]' : 'text-stone-400 group-hover:text-emerald-600'" class="text-sm rtl:rotate-180 transition-transform">←</span>
                                         </div>
                                     </a>
                                 </template>
@@ -468,8 +528,13 @@
                     <div class="flex items-center justify-between px-4 py-2.5 bg-stone-100/70 dark:bg-[#101426] border-t border-stone-200 dark:border-[#272F4C] text-[11px] text-stone-500 dark:text-stone-400">
                         <div class="flex items-center gap-3">
                             <span class="flex items-center gap-1">
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↑</kbd>
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↓</kbd>
+                                <span>ناوبری</span>
+                            </span>
+                            <span class="flex items-center gap-1">
                                 <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↵ Enter</kbd>
-                                <span>کاوش جامع</span>
+                                <span>انتخاب</span>
                             </span>
                             <span class="flex items-center gap-1">
                                 <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">Esc</kbd>
@@ -482,7 +547,7 @@
                             x-show="query.trim().length > 0" 
                             @click="goToFullSearch()" 
                             class="text-[#B38A50] hover:underline font-medium inline-flex items-center gap-1 cursor-pointer">
-                            <span>مشاهده همه نتایج</span>
+                            <span>کاوش جامع در کل پایگاه</span>
                             <span class="rtl:rotate-180">←</span>
                         </button>
                     </div>

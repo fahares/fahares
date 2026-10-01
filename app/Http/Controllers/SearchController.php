@@ -533,49 +533,58 @@ class SearchController extends Controller
             ]);
         }
 
-        $response = [];
+        $response = [
+            'works' => [],
+            'people' => [],
+            'manuscripts' => [],
+        ];
 
-        if ($type === 'all' || $type === 'works') {
-            $response['works'] = Work::search($query)
-                ->query(fn($q) => $q->with('author')->withCount('manuscripts'))
-                ->take(5)
-                ->get()
-                ->map(fn($w) => [
-                    'id' => $w->id,
-                    'title' => $w->title,
-                    'author' => $w->author?->name ?? 'ناشناخته',
-                    'manuscripts_count' => $w->manuscripts_count,
-                    'url' => route('works.show', $w),
-                ]);
-        }
+        try {
+            if ($type === 'all' || $type === 'works') {
+                $response['works'] = Work::search($query)
+                    ->query(fn($q) => $q->with('author')->withCount('manuscripts'))
+                    ->take(5)
+                    ->get()
+                    ->map(fn($w) => [
+                        'id' => $w->id,
+                        'title' => $w->title,
+                        'author' => $w->author?->name ?? 'ناشناخته',
+                        'manuscripts_count' => $w->manuscripts_count,
+                        'url' => route('works.show', $w, false),
+                    ]);
+            }
 
-        if ($type === 'all' || $type === 'people') {
-            $response['people'] = Person::search($query)
-                ->query(fn($q) => $q->withCount('works'))
-                ->take(5)
-                ->get()
-                ->map(fn($p) => [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'death_hijri' => $p->death_year_hijri ? "متوفای {$p->death_year_hijri} ق" : ($p->death_century_hijri ? "قرن {$p->death_century_hijri} ق" : null),
-                    'works_count' => $p->works_count,
-                    'url' => route('people.show', $p),
-                ]);
-        }
+            if ($type === 'all' || $type === 'people') {
+                $response['people'] = Person::search($query)
+                    ->query(fn($q) => $q->withCount('works'))
+                    ->take(5)
+                    ->get()
+                    ->map(fn($p) => [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'death_hijri' => $p->death_year_hijri ? "متوفای {$p->death_year_hijri} ق" : ($p->death_century_hijri ? "قرن {$p->death_century_hijri} ق" : null),
+                        'works_count' => $p->works_count,
+                        'url' => route('people.show', $p, false),
+                    ]);
+            }
 
-        if ($type === 'all' || $type === 'manuscripts') {
-            $response['manuscripts'] = Manuscript::search($query)
-                ->query(fn($q) => $q->with(['work.author', 'libraryRecord']))
-                ->take(5)
-                ->get()
-                ->map(fn($m) => [
-                    'id' => $m->id,
-                    'work_title' => $m->work?->title ?? 'نسخه بدون عنوان',
-                    'author_name' => $m->work?->author?->name ?? $m->work?->author_name,
-                    'library' => $m->libraryRecord?->name ?? $m->library ?? 'کتابخانه نامشخص',
-                    'accession_number' => $m->accession_number,
-                    'url' => route('manuscripts.show', $m),
-                ]);
+            if ($type === 'all' || $type === 'manuscripts') {
+                $response['manuscripts'] = Manuscript::search($query)
+                    ->query(fn($q) => $q->with(['work.author', 'libraryRecord']))
+                    ->take(5)
+                    ->get()
+                    ->map(fn($m) => [
+                        'id' => $m->id,
+                        'work_title' => $m->work?->title ?? 'نسخه بدون عنوان',
+                        'author_name' => $m->work?->author?->name ?? $m->work?->author_name,
+                        'library' => $m->libraryRecord?->name ?? $m->library ?? 'کتابخانه نامشخص',
+                        'shelfmark' => $m->shelfmark,
+                        'accession_number' => $m->shelfmark,
+                        'url' => route('manuscripts.show', $m, false),
+                    ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Live search API query error: ' . $e->getMessage());
         }
 
         return response()->json($response);
