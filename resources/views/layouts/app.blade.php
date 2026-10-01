@@ -171,9 +171,6 @@
                         </svg>
                         <span>مکاتبه: info@fahares.net</span>
                     </a>
-                    <a href="https://github.com/fahares/fahares/issues" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-200 border border-amber-200/30 font-medium text-xs transition duration-150 whitespace-nowrap">
-                        <span>ثبت در گیت‌هاب</span>
-                    </a>
                 </div>
             </div>
 

@@ -1040,8 +1040,13 @@
     - ارتقای API جستجوی زنده و پنجره بازشوی صفحه نخست ([home.blade.php](../resources/views/home.blade.php) و [SearchController.php](../app/Http/Controllers/SearchController.php)): بارگذاری رابطه `work.author` و نمایش نام مؤلف در کنار عنوان اثر در نتایج بلادرنگ نسخه‌ها.
     - تعبیه فال‌بک ایمن برای واکشی فیلدهای اثر در متد `toSearchableArray()` مدل [Manuscript.php](../app/Models/Manuscript.php).
 
+- **فاز ۴۷: یکپارچه‌سازی و بهینه‌سازی راه‌های ارتباطی و گزارش اشکال (Feedback Channel Streamlining):**
+  - حذف پیوندهای مستقیم ثبت گزارش اشکال در مخزن گیت‌هاب از فوتر عمومی سامانه ([app.blade.php](../resources/views/layouts/app.blade.php)) و کادر ارتباط و بازخورد در صفحه نخست ([home.blade.php](../resources/views/home.blade.php)).
+  - تمرکز کانال رسمی پشتیبانی و دریافت بازخوردهای کاربران بر روی پست الکترونیکی سامانه (`info@fahares.net`).
+
 ---
 *این سند با پیشرفت هر گام از توسعه فنی، استخراج و بارگذاری پروژه به‌روزرسانی می‌شود.*
+
 
 
 
