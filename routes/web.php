@@ -46,3 +46,30 @@ Route::get('/subjects/{id}', [SubjectController::class, 'show'])
 
 // Field Suggestions (Crowdsourced corrections)
 Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
+
+// Short Permalinks (Permanent 301 Redirects)
+Route::get('/w/{id}', function ($id) {
+    $work = \App\Models\Work::findOrFail((int) $id);
+    return redirect()->route('works.show', $work, 301);
+})->where('id', '[0-9]+')->name('works.permalink');
+
+Route::get('/m/{id}', function ($id) {
+    $manuscript = \App\Models\Manuscript::findOrFail((int) $id);
+    return redirect()->route('manuscripts.show', $manuscript, 301);
+})->where('id', '[0-9]+')->name('manuscripts.permalink');
+
+Route::get('/p/{id}', function ($id) {
+    $person = \App\Models\Person::findOrFail((int) $id);
+    return redirect()->route('people.show', $person, 301);
+})->where('id', '[0-9]+')->name('people.permalink');
+
+Route::get('/l/{id}', function ($id) {
+    $library = \App\Models\Library::findOrFail((int) $id);
+    return redirect()->route('libraries.show', $library, 301);
+})->where('id', '[0-9]+')->name('libraries.permalink');
+
+Route::get('/s/{id}', function ($id) {
+    $subject = \App\Models\Subject::findOrFail((int) $id);
+    return redirect()->route('subjects.show', $subject, 301);
+})->where('id', '[0-9]+')->name('subjects.permalink');
+

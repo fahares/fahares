@@ -4,7 +4,55 @@
 @section('meta_description', 'مشخصات کتاب‌شناختی و نسخه‌های خطی ' . $work->primary_title . ' در فهارس نسخه‌های خطی')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<div x-data="{ 
+    citationModalOpen: false,
+    qrModalOpen: false,
+    copiedKey: null,
+    copyText(text, key) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                this.copiedKey = key;
+                setTimeout(() => { if (this.copiedKey === key) this.copiedKey = null; }, 2500);
+            });
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            this.copiedKey = key;
+            setTimeout(() => { if (this.copiedKey === key) this.copiedKey = null; }, 2500);
+        }
+    },
+    openQrModal() {
+        this.qrModalOpen = true;
+        this.$nextTick(() => {
+            const canvas = document.getElementById('work-qr-canvas');
+            if (canvas && window.QRCode) {
+                window.QRCode.toCanvas(canvas, '{{ url('/w/' . $work->id) }}', {
+                    width: 220,
+                    margin: 1,
+                    color: {
+                        dark: '#15192C',
+                        light: '#FFFFFF'
+                    }
+                }, function (error) {
+                    if (error) console.error(error);
+                });
+            }
+        });
+    },
+    downloadQr() {
+        const canvas = document.getElementById('work-qr-canvas');
+        if (canvas) {
+            const link = document.createElement('a');
+            link.download = 'qrcode-work-{{ $work->id }}.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    }
+}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs text-stone-500">
@@ -71,6 +119,75 @@
                     <span>مشاهده فهرست نسخه‌ها</span>
                     <span>↓</span>
                 </a>
+            </div>
+        </div>
+
+        <!-- Work Quick Actions: Permalink & Academic Citation -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-stone-100 dark:border-stone-800">
+            <div class="flex flex-wrap items-center gap-2.5">
+                
+                <!-- Permalink Capsule & QR Button -->
+                <div class="inline-flex items-center gap-1.5 p-1 pr-2.5 sm:pr-3 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs text-xs">
+                    <span class="text-stone-400 dark:text-stone-400 font-medium flex items-center gap-1 select-none">
+                        <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <span class="hidden sm:inline">پیوند کوتاه:</span>
+                    </span>
+                    <a href="{{ url('/w/' . $work->id) }}" class="font-mono text-[11px] font-bold text-[#292C56] dark:text-amber-200 px-2 py-0.5 rounded-lg bg-white/80 dark:bg-[#15192C]/80 border border-stone-200/60 dark:border-stone-700/60 hover:text-[#B38A50] transition" dir="ltr" title="پیوند پایدار اثر">
+                        /w/{{ $work->id }}
+                    </a>
+                    
+                    <!-- Copy button with tooltip -->
+                    <button 
+                        type="button" 
+                        @click="copyText('{{ url('/w/' . $work->id) }}', 'permalink')"
+                        class="relative p-1.5 rounded-xl bg-white dark:bg-[#15192C] hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:border-[#B38A50] transition shadow-2xs cursor-pointer"
+                        title="رونوشت پیوند کوتاه اثر">
+                        
+                        <svg x-show="copiedKey !== 'permalink'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                        </svg>
+
+                        <!-- Tooltip feedback -->
+                        <span 
+                            x-show="copiedKey === 'permalink'" 
+                            x-cloak 
+                            x-transition 
+                            class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md bg-stone-900 text-white text-[10px] font-bold shadow-lg z-30 pointer-events-none">
+                            کپی شد! ✓
+                        </span>
+                    </button>
+
+                    <!-- QR Code Button -->
+                    <button 
+                        type="button" 
+                        @click="openQrModal()"
+                        class="p-1.5 rounded-xl bg-white dark:bg-[#15192C] hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] text-[#B38A50] border border-stone-200 dark:border-stone-700 hover:border-[#B38A50] transition shadow-2xs cursor-pointer"
+                        title="نمایش QR Code اثر جهت اشتراک‌گذاری یا اسکن">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Academic Citation Button -->
+                <button 
+                    type="button" 
+                    @click="citationModalOpen = true"
+                    class="px-3.5 py-2 rounded-xl bg-stone-50 dark:bg-[#1A1E35] border border-[#B38A50]/60 hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] dark:hover:text-stone-900 text-[#B38A50] font-bold text-xs transition duration-200 flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                    </svg>
+                    <span>دریافت استناد علمی</span>
+                </button>
+            </div>
+
+            <div class="text-xs text-stone-400 font-medium">
+                شناسه یکتا در پایگاه فهارس: <span class="font-mono text-stone-600 dark:text-stone-300 font-bold">#{{ $work->id }}</span>
             </div>
         </div>
 
@@ -476,6 +593,200 @@
         </div>
 
     </section>
+
+    <!-- QR CODE MODAL DIALOG (Alpine.js) -->
+    <div 
+        x-show="qrModalOpen" 
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        style="display: none;">
+        
+        <div 
+            @click.away="qrModalOpen = false"
+            class="bg-white dark:bg-[#15192C] w-full max-w-sm rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-2xl space-y-5 text-center relative overflow-hidden">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
+                    <h3 class="font-bold text-base text-stone-900 dark:text-stone-100">رمزینه هوشمند (QR Code) اثر</h3>
+                </div>
+                <button @click="qrModalOpen = false" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-lg leading-none cursor-pointer">✕</button>
+            </div>
+
+            <!-- QR Canvas Container -->
+            <div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-white border border-[#EADFCF] shadow-inner">
+                <canvas id="work-qr-canvas" class="max-w-full h-auto"></canvas>
+            </div>
+
+            <!-- Details -->
+            <div class="space-y-1.5 text-right bg-stone-50 dark:bg-stone-800/50 p-3 rounded-2xl border border-stone-200/70 dark:border-stone-700/70 text-xs">
+                <div class="flex justify-between items-center">
+                    <span class="text-stone-400">عنوان اثر:</span>
+                    <span class="font-bold text-[#B38A50] truncate max-w-[200px]">{{ $work->primary_title }}</span>
+                </div>
+                @if($work->author || $work->author_name)
+                    <div class="flex justify-between items-center">
+                        <span class="text-stone-400">مؤلف:</span>
+                        <span class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[200px]">{{ $work->author?->name ?? $work->author_name }}</span>
+                    </div>
+                @endif
+                <div class="flex justify-between items-center pt-1.5 border-t border-stone-200/60 dark:border-stone-700/60">
+                    <span class="text-stone-400">پیوند پایدار:</span>
+                    <span class="font-mono text-[11px] font-bold text-[#292C56] dark:text-amber-200" dir="ltr">{{ url('/w/' . $work->id) }}</span>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed text-justify">
+                این بارکد را اسکن کنید تا صفحه شناسنامه کتاب‌شناختی این اثر مستقیماً روی تلفن همراه باز شود.
+            </p>
+
+            <!-- Modal Actions -->
+            <div class="pt-1 flex items-center justify-center gap-2">
+                <button 
+                    type="button" 
+                    @click="downloadQr()"
+                    class="px-4 py-2 rounded-xl bg-[#B38A50] hover:bg-[#9C753F] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span>ذخیره تصویر QR</span>
+                </button>
+                <button 
+                    type="button" 
+                    @click="copyText('{{ url('/w/' . $work->id) }}', 'qr-modal');"
+                    class="px-4 py-2 rounded-xl border border-stone-300 dark:border-stone-700 hover:border-[#B38A50] text-stone-700 dark:text-stone-300 text-xs font-semibold transition cursor-pointer">
+                    <span x-show="copiedKey !== 'qr-modal'">کپی آدرس</span>
+                    <span x-show="copiedKey === 'qr-modal'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ACADEMIC CITATION MODAL DIALOG (Alpine.js) -->
+    <div 
+        x-show="citationModalOpen" 
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        style="display: none;">
+        
+        <div 
+            @click.away="citationModalOpen = false"
+            class="bg-white dark:bg-[#15192C] w-full max-w-2xl rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-2xl space-y-6 text-right max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
+                    <h3 class="font-bold text-lg text-stone-900 dark:text-stone-100">دریافت استناد علمی اثر</h3>
+                </div>
+                <button @click="citationModalOpen = false" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-lg leading-none cursor-pointer">✕</button>
+            </div>
+
+            <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                جهت استناد و ارجاع علمی به این اثر در مقالات پژوهشی، تصحیحات انتقادی و پایان‌نامه‌ها، می‌توانید از قالب‌های آماده زیر استفاده فرمایید:
+            </p>
+
+            @php
+                $workFankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($work->volume_number ?? '-') . "، ص " . ($work->page_start ?? '-') . ($work->page_end && $work->page_end > $work->page_start ? " تا {$work->page_end}" : "") . "، مدخل «" . $work->primary_title . "».";
+                
+                $authorPrefix = $work->author ? $work->author->name . '. ' : ($work->author_name ? $work->author_name . '. ' : '');
+                $shortUrlWork = url('/w/' . $work->id);
+                $workGeneralCitation = "{$authorPrefix}«{$work->primary_title}». پایگاه فهارس: {$shortUrlWork}";
+
+                $authorEn = $work->author?->name ?? ($work->author_name ?? 'Unknown');
+                $workChicagoCitation = "{$authorEn}. \"{$work->primary_title}.\" Fahares Database: {$shortUrlWork}";
+            @endphp
+
+            <div class="space-y-4">
+                
+                <!-- Format 1: FanKha Source -->
+                <div class="p-4 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
+                                قالب ۱
+                            </span>
+                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب مأخذ فنخا (فهرستگان نسخه‌های خطی ایران)</span>
+                        </div>
+                        <button 
+                            type="button" 
+                            @click="copyText(@js($workFankhaCitation), 'fankha')"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] text-[11px] font-semibold text-stone-700 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                            <span x-show="copiedKey !== 'fankha'">کپی ارجاع</span>
+                            <span x-show="copiedKey === 'fankha'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed font-normal select-all">
+                        {{ $workFankhaCitation }}
+                    </div>
+                </div>
+
+                <!-- Format 2: General Citation in Persian Articles -->
+                <div class="p-4 rounded-2xl bg-stone-50 dark:bg-[#1A1E35] border border-stone-200 dark:border-[#272F4C] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-bold">
+                                قالب ۲
+                            </span>
+                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب ارجاع عمومی در مقالات و کتب پژوهشی</span>
+                        </div>
+                        <button 
+                            type="button" 
+                            @click="copyText(@js($workGeneralCitation), 'general')"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-700 text-[11px] font-semibold text-stone-700 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                            <span x-show="copiedKey !== 'general'">کپی ارجاع</span>
+                            <span x-show="copiedKey === 'general'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed font-normal select-all">
+                        {{ $workGeneralCitation }}
+                    </div>
+                </div>
+
+                <!-- Format 3: Chicago Style -->
+                <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-[#1A1E35] border border-indigo-100 dark:border-[#272F4C] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-[#292C56] dark:text-indigo-300 text-[11px] font-bold">
+                                قالب ۳
+                            </span>
+                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب استاندارد شیکاگو (Chicago Style)</span>
+                        </div>
+                        <button 
+                            type="button" 
+                            @click="copyText(@js($workChicagoCitation), 'chicago')"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-700 text-[11px] font-semibold text-stone-700 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                            <span x-show="copiedKey !== 'chicago'">کپی ارجاع</span>
+                            <span x-show="copiedKey === 'chicago'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                        </button>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed font-mono select-all text-left" dir="ltr">
+                        {{ $workChicagoCitation }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button type="button" @click="citationModalOpen = false" class="px-5 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-bold transition cursor-pointer">
+                    بستن
+                </button>
+            </div>
+
+        </div>
+    </div>
 
 </div>
 @endsection
