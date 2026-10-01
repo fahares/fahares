@@ -486,6 +486,11 @@ class SearchController extends Controller
             }
         }
 
+        $suggestion = null;
+        if ($results && $results->total() === 0 && $query !== '') {
+            $suggestion = $this->getDidYouMeanSuggestion($query, $type);
+        }
+
         return view('search', compact(
             'results',
             'query',
@@ -513,7 +518,8 @@ class SearchController extends Controller
             'workFormCounts',
             'validWorkForms',
             'manuscriptsRange',
-            'validManuscriptRanges'
+            'validManuscriptRanges',
+            'suggestion'
         ));
     }
 
@@ -589,4 +595,100 @@ class SearchController extends Controller
 
         return response()->json($response);
     }
+
+    /**
+     * Retrieve a spelling/fuzzy suggestion when results are 0.
+     */
+    protected function getDidYouMeanSuggestion(string $query, string $type): ?string
+    {
+        if (mb_strlen($query) < 2) {
+            return null;
+        }
+
+        try {
+            $meili = app(MeiliClient::class);
+            $candidate = null;
+
+            if ($type === 'people') {
+                $candidate = $this->findCandidateInIndex($meili, 'people_index', $query, ['name', 'normalized_name']);
+                if (!$candidate) {
+                    $candidate = $this->findCandidateInIndex($meili, 'works_index', $query, ['clean_title', 'primary_title']);
+                }
+            } else {
+                $candidate = $this->findCandidateInIndex($meili, 'works_index', $query, ['clean_title', 'primary_title']);
+                if (!$candidate) {
+                    $candidate = $this->findCandidateInIndex($meili, 'people_index', $query, ['name', 'normalized_name']);
+                }
+            }
+
+            if ($candidate && mb_strtolower($candidate) !== mb_strtolower($query)) {
+                return $candidate;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Meilisearch DidYouMean error: ' . $e->getMessage());
+        }
+
+        return $this->getDatabaseSuggestion($query, $type);
+    }
+
+    /**
+     * Find candidate string in a Meilisearch index.
+     */
+    protected function findCandidateInIndex(MeiliClient $meili, string $indexName, string $query, array $fields): ?string
+    {
+        $res = $meili->index($indexName)->search($query, [
+            'limit' => 5,
+            'matchingStrategy' => 'last',
+        ]);
+
+        $hits = $res->getHits();
+        if (empty($hits)) {
+            return null;
+        }
+
+        $bestCandidate = null;
+        $highestScore = 0;
+
+        foreach ($hits as $hit) {
+            foreach ($fields as $field) {
+                $val = trim($hit[$field] ?? '');
+                if (!empty($val) && mb_strtolower($val) !== mb_strtolower($query)) {
+                    similar_text(mb_strtolower($query), mb_strtolower($val), $percent);
+                    if ($percent > $highestScore && $percent >= 30) {
+                        $highestScore = $percent;
+                        $bestCandidate = $val;
+                    }
+                }
+            }
+        }
+
+        return $bestCandidate;
+    }
+
+    /**
+     * Database fallback for suggestions.
+     */
+    protected function getDatabaseSuggestion(string $query, string $type): ?string
+    {
+        $prefix = mb_substr($query, 0, 3);
+        if (mb_strlen($prefix) < 2) {
+            return null;
+        }
+
+        if ($type === 'people') {
+            $p = Person::where('name', 'LIKE', "{$prefix}%")
+                ->orderByDesc('works_count')
+                ->value('name');
+            if ($p && mb_strtolower($p) !== mb_strtolower($query)) {
+                return $p;
+            }
+        }
+
+        $w = Work::where('primary_title', 'LIKE', "{$prefix}%")
+            ->orderByDesc('manuscripts_count')
+            ->value('primary_title');
+
+        return ($w && mb_strtolower($w) !== mb_strtolower($query)) ? $w : null;
+    }
 }
+

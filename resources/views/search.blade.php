@@ -609,6 +609,48 @@
             
             @if($results && $results->count() > 0)
                 
+                <!-- Search Results Bar with Share Button -->
+                <div class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#15192C] px-5 py-3 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs text-xs"
+                     x-data="{
+                         copied: false,
+                         copyLink() {
+                             const url = window.location.href;
+                             if (navigator.clipboard && navigator.clipboard.writeText) {
+                                 navigator.clipboard.writeText(url).then(() => {
+                                     this.copied = true;
+                                     setTimeout(() => this.copied = false, 2500);
+                                 });
+                             } else {
+                                 const ta = document.createElement('textarea');
+                                 ta.value = url;
+                                 document.body.appendChild(ta);
+                                 ta.select();
+                                 document.execCommand('copy');
+                                 document.body.removeChild(ta);
+                                 this.copied = true;
+                                 setTimeout(() => this.copied = false, 2500);
+                             }
+                         }
+                     }">
+                    <div class="text-stone-600 dark:text-stone-300 font-medium flex items-center gap-2">
+                        <span>نمایش <strong>{{ number_format($results->total()) }}</strong> نتیجه</span>
+                        @if($query)
+                            <span class="text-stone-400">• برای «<strong class="text-[#292C56] dark:text-amber-200">{{ $query }}</strong>»</span>
+                        @endif
+                    </div>
+
+                    <button 
+                        type="button" 
+                        @click="copyLink()"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-[#B38A50]/30 hover:border-[#B38A50] text-[#B38A50] hover:bg-amber-100 dark:hover:bg-amber-900/50 font-semibold transition cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                        </svg>
+                        <span x-show="!copied">اشتراک‌گذاری این جستجو</span>
+                        <span x-show="copied" class="text-emerald-600 dark:text-emerald-400 font-bold" style="display: none;">پیوند جستجو کپی شد! ✓</span>
+                    </button>
+                </div>
+
                 @if($type === 'works')
                     <!-- Works Cards -->
                     <div class="space-y-3">
@@ -617,21 +659,21 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <a href="{{ route('works.show', $work) }}" class="text-lg font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                            {{ $work->primary_title }}
+                                            @highlight($work->primary_title, $query)
                                         </a>
                                         @if($work->clean_title && $work->clean_title !== $work->primary_title)
-                                            <span class="text-xs text-stone-400 mr-2">({{ $work->clean_title }})</span>
+                                            <span class="text-xs text-stone-400 mr-2">(@highlight($work->clean_title, $query))</span>
                                         @endif
                                         
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                                             @if($work->author)
-                                                <span>پدیدآور: <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:underline">{{ $work->author->name }}</a></span>
+                                                <span>پدیدآور: <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:underline">@highlight($work->author->name, $query)</a></span>
                                             @elseif($work->author_name)
-                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">{{ $work->author_name }}</strong></span>
+                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">@highlight($work->author_name, $query)</strong></span>
                                             @else
                                                 <span class="text-stone-400">پدیدآور: ناشناخته</span>
                                             @endif
-
+                                            
                                             @if($work->composition_year_hijri)
                                                 <span>تألیف: <strong>{{ $work->composition_year_hijri }} هـ.ق</strong></span>
                                             @elseif($work->author?->death_year_hijri)
@@ -694,7 +736,7 @@
                                     <div>
                                         <div class="flex items-center gap-2">
                                             <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                                {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
+                                                @highlight($ms->work?->primary_title ?? 'نسخه بدون عنوان', $query)
                                             </a>
                                             @if($ms->is_autograph)
                                                 <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">اصل نسخه (دستخط مؤلف)</span>
@@ -703,17 +745,17 @@
 
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                                             @if($ms->work?->author)
-                                                <span>پدیدآور: <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:text-[#B38A50] hover:underline">{{ $ms->work->author->name }}</a></span>
+                                                <span>پدیدآور: <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:text-[#B38A50] hover:underline">@highlight($ms->work->author->name, $query)</a></span>
                                             @elseif($ms->work?->author_name)
-                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">{{ $ms->work->author_name }}</strong></span>
+                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">@highlight($ms->work->author_name, $query)</strong></span>
                                             @else
                                                 <span class="text-stone-400">پدیدآور: ناشناخته</span>
                                             @endif
 
                                             <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
-                                            <span>شماره نسخه: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
+                                            <span>شماره نسخه: <strong class="text-[#B38A50]">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</strong></span>
                                             @if($ms->scribe_name)
-                                                <span>کاتب: <strong>{{ $ms->scribe_name }}</strong></span>
+                                                <span>کاتب: <strong>@highlight($ms->scribe_name, $query)</strong></span>
                                             @elseif($ms->is_autograph)
                                                 <span>کاتب: <strong class="text-emerald-700 dark:text-emerald-300">مؤلف</strong></span>
                                             @elseif($ms->is_bika)
@@ -755,9 +797,19 @@
                                 @if(!empty($ms->incipit))
                                     <div class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-1 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-1.5 rounded-xl border-r-2 border-[#B38A50]">
                                         @if($ms->incipit_matches_work)
-                                            <span class="text-[#B38A50] font-bold">آغاز (برابر با اثر):</span> « {{ Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110) }} »
+                                            <span class="text-[#B38A50] font-bold">آغاز (برابر با اثر):</span> « @highlight(Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110), $query) »
                                         @else
-                                            <span class="text-[#B38A50] font-bold">آغاز نسخه:</span> « {{ Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110) }} »
+                                            <span class="text-[#B38A50] font-bold">آغاز نسخه:</span> « @highlight(Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110), $query) »
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if(!empty($ms->explicit))
+                                    <div class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-1 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-1.5 rounded-xl border-r-2 border-stone-400 dark:border-stone-600">
+                                        @if($ms->explicit_matches_work)
+                                            <span class="text-stone-700 dark:text-stone-300 font-bold">انجام (برابر با اثر):</span> « @highlight(Str::limit(trim($ms->explicit, "«» \t\n\r\0\x0B"), 110), $query) »
+                                        @else
+                                            <span class="text-stone-700 dark:text-stone-300 font-bold">انجام نسخه:</span> « @highlight(Str::limit(trim($ms->explicit, "«» \t\n\r\0\x0B"), 110), $query) »
                                         @endif
                                     </div>
                                 @endif
@@ -805,7 +857,7 @@
                             <a href="{{ route('people.show', $person) }}" class="bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition flex flex-col justify-between">
                                 <div>
                                     <div class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                        {{ $person->name }}
+                                        @highlight($person->name, $query)
                                     </div>
                                     @if($person->transliteration)
                                         <div class="text-[11px] text-stone-400">{{ $person->transliteration }}</div>
@@ -835,15 +887,30 @@
 
             @else
                 <!-- No Results State -->
-                <div class="bg-white dark:bg-[#15192C] p-12 rounded-3xl border border-stone-200 dark:border-stone-800 text-center space-y-4">
+                <div class="bg-white dark:bg-[#15192C] p-12 rounded-3xl border border-stone-200 dark:border-stone-800 text-center space-y-5">
                     <div class="w-16 h-16 mx-auto rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <div class="text-lg font-bold text-stone-800 dark:text-stone-200">نتیجه‌ای با مشخصات درخواستی یافت نشد</div>
-                    <p class="text-xs text-stone-400 max-w-md mx-auto">
+
+                    @if(!empty($suggestion))
+                        <div class="inline-flex items-center gap-2 p-3.5 px-6 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-[#B38A50]/30 text-stone-800 dark:text-stone-200 text-sm shadow-xs">
+                            <svg class="w-5 h-5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-stone-600 dark:text-stone-400">آیا منظور شما</span>
+                            <a href="{{ route('search', array_merge(request()->except(['page', 'q']), ['q' => $suggestion])) }}" 
+                               class="font-bold text-[#B38A50] hover:text-[#9C753F] underline decoration-[#B38A50]/50 hover:decoration-[#B38A50] text-base transition">
+                                «{{ $suggestion }}»
+                            </a>
+                            <span class="text-stone-600 dark:text-stone-400">بود؟</span>
+                        </div>
+                    @endif
+
+                    <p class="text-xs text-stone-400 max-w-md mx-auto leading-relaxed">
                         لطفاً املاء کلمات را بازبینی کنید یا فیلترهای محدودکننده را تغییر دهید.
                     </p>
-                    <a href="{{ route('search', ['type' => $type]) }}" class="inline-block px-4 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-xs font-semibold rounded-xl text-stone-700 dark:text-stone-300">
+                    <a href="{{ route('search', ['type' => $type]) }}" class="inline-block px-5 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-semibold rounded-xl text-stone-700 dark:text-stone-300 transition">
                         مشاهده تمام موارد این بخش
                     </a>
                 </div>
