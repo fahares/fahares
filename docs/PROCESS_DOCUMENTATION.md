@@ -1059,6 +1059,7 @@
     - **شاخص‌گذاری عمیق در موتور Meilisearch:** پیوند خودکار `author_aliases` به شاخص آثار ([Work.php](../app/Models/Work.php)) و القاب به شاخص اعلام ([Person.php](../app/Models/Person.php))، همگام با به‌روزرسانی تنظیمات شاخص در [scout.php](../config/scout.php) و کنترلر جستجو ([SearchController.php](../app/Http/Controllers/SearchController.php)).
     - **طراحی دستور بارگذاری و به‌روزرسانی داده‌ها (`fahares:seed-person-aliases`):** تعریف و تزریق شهرت‌های پرکاربرد برای ۵۰ متفکر و ادیب تراز اول تمدن اسلامی و بازنمایه‌سازی بلادرنگ بیش از ۳٬۹۰۰ اثر وابسته در موتور جستجو.
     - **ارتقای شناسنامه اعلام:** نمایش ظریف و متمایز نشان‌های «شهرت‌ها و القاب» در صفحه اختصاصی اشخاص ([people/show.blade.php](../resources/views/people/show.blade.php)).
+    - **استقرار و اعمال در محیط عملیاتی (Production):** اجرای موفق مایگریشن‌های پایگاه داده (`add_aliases_to_people_table` و `add_commissioned_by_to_manuscripts_table`)، تزریق داده‌های القاب اعلام، همگام‌سازی تنظیمات شاخص‌های Meilisearch و بازنمایه‌سازی آثار مؤلفان روی سرور پروداکشن.
 
 ---
 *این سند با پیشرفت هر گام از توسعه فنی، استخراج و بارگذاری پروژه به‌روزرسانی می‌شود.*
