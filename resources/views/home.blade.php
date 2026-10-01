@@ -176,9 +176,9 @@
             <!-- Quick Suggestions Pills -->
             <div class="mt-4 flex flex-wrap items-center justify-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
                 <span class="font-medium text-stone-400 ml-1">پیشنهاد کاوش:</span>
-                @foreach(['مثنوی معنوی', 'دیوان حافظ', 'شاهنامه', 'نهج‌البلاغه', 'گلستان', 'قانون ابن سینا', 'علامه حلی'] as $pill)
-                    <a href="{{ route('search', ['q' => $pill, 'type' => 'works']) }}" class="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 hover:text-[#B38A50] transition">
-                        {{ $pill }}
+                @foreach($suggestedSearches as $pill)
+                    <a href="{{ $pill['url'] }}" class="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 hover:text-[#B38A50] transition">
+                        {{ $pill['label'] }}
                     </a>
                 @endforeach
             </div>
