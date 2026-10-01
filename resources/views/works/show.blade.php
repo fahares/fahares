@@ -2,6 +2,7 @@
 
 @section('title', $work->primary_title . ' | شناسنامه اثر در فهارس')
 @section('meta_description', 'مشخصات کتاب‌شناختی و نسخه‌های خطی ' . $work->primary_title . ' در فهارس نسخه‌های خطی')
+@section('og_type', 'book')
 
 @section('content')
 <div x-data="{ 
@@ -790,3 +791,18 @@
 
 </div>
 @endsection
+
+@push('structured_data')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "Book",
+  "name": "{{ addcslashes($work->primary_title, '"\\') }}",
+  @if($work->author)"author": { "@type": "Person", "name": "{{ addcslashes($work->author->name, '"\\') }}" },@endif
+  "inLanguage": "fa",
+  "url": "{{ route('works.show', $work) }}",
+  "description": "{{ addcslashes(str_replace(["\r", "\n"], ' ', Str::limit(strip_tags($work->description ?? $work->clean_raw_text ?? ''), 250)), '"\\') }}"
+}
+</script>
+@endpush
+

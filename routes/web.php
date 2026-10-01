@@ -5,6 +5,7 @@ use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ManuscriptController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\WorkController;
@@ -72,4 +73,14 @@ Route::get('/s/{id}', function ($id) {
     $subject = \App\Models\Subject::findOrFail((int) $id);
     return redirect()->route('subjects.show', $subject, 301);
 })->where('id', '[0-9]+')->name('subjects.permalink');
+
+// Dynamic Multi-part Sitemaps (Sitemap Index & Chunks)
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemap-{type}-{page}.xml', [SitemapController::class, 'chunk'])
+    ->where([
+        'type' => 'static|works|manuscripts|people|libraries',
+        'page' => '[1-9][0-9]*',
+    ])
+    ->name('sitemap.chunk');
+
 

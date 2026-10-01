@@ -2,6 +2,7 @@
 
 @section('title', 'نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' | ' . ($manuscript->libraryRecord?->name ?? $manuscript->library) . ' (' . ($manuscript->shelfmark ?? 'بی‌شماره') . ')')
 @section('meta_description', 'شناسنامه کالبدشناسی نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' در ' . ($manuscript->libraryRecord?->name ?? $manuscript->library) . ' با شماره بازیابی ' . ($manuscript->shelfmark ?? ''))
+@section('og_type', 'article')
 
 @section('content')
 <div x-data="{ 
@@ -925,3 +926,21 @@
 
 </div>
 @endsection
+
+@push('structured_data')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@type": "Manuscript",
+  "name": "نسخه خطی {{ addcslashes($manuscript->work?->primary_title ?? 'بدون عنوان', '"\\') }}",
+  "identifier": "{{ addcslashes($manuscript->shelfmark ?? '', '"\\') }}",
+  "holdingArchive": {
+    "@type": "Library",
+    "name": "{{ addcslashes($manuscript->libraryRecord?->name ?? $manuscript->library ?? '', '"\\') }}"
+  },
+  @if($manuscript->scribe_name)"creator": { "@type": "Person", "name": "{{ addcslashes($manuscript->scribe_name, '"\\') }}" },@endif
+  "url": "{{ route('manuscripts.show', $manuscript) }}"
+}
+</script>
+@endpush
+
