@@ -34,6 +34,17 @@
                     </div>
                 @endif
 
+                @if(!empty($person->aliases))
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
+                        <span class="text-stone-400 font-medium">شهرت‌ها و القاب:</span>
+                        @foreach($person->aliases as $alias)
+                            <span class="px-2 py-0.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 text-[#B38A50] dark:text-amber-200/80 border border-amber-200/40 dark:border-amber-800/40 font-medium">
+                                {{ $alias }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
                 <!-- Roles Badges -->
                 <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
                     @if($person->is_author)

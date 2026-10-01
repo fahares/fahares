@@ -74,7 +74,7 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name']);
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases']);
     }
 
     public function toSearchableArray(): array
@@ -90,6 +90,18 @@ class Work extends Model
             }
         }
 
+        $authorAliases = [];
+        if ($this->relationLoaded('author') && $this->author) {
+            $authorAliases = (array) ($this->author->aliases ?? []);
+        } elseif (!empty($this->author_id)) {
+            $authorAliases = (array) ($this->author?->aliases ?? []);
+        }
+
+        $authorSearchText = $this->author_name;
+        if (!empty($authorAliases)) {
+            $authorSearchText = trim($authorSearchText . ' ' . implode(' ', $authorAliases));
+        }
+
         return [
             'id' => (int) $this->id,
             'primary_title' => $this->primary_title,
@@ -97,7 +109,8 @@ class Work extends Model
             'slug' => $this->slug,
             'transliteration' => $this->transliteration,
             'alternative_titles' => $alts,
-            'author_name' => $this->author_name,
+            'author_name' => $authorSearchText,
+            'author_aliases' => $authorAliases,
             'author_id' => $this->author_id ? (int) $this->author_id : null,
             'composition_year_hijri' => $this->composition_year_hijri ? (int) $this->composition_year_hijri : null,
             'volume_number' => (int) $this->volume_number,

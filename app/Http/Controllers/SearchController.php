@@ -234,7 +234,7 @@ class SearchController extends Controller
             if ($scope === 'titles') {
                 $peopleSearchAttrs = ['name'];
             } elseif ($scope === 'titles_names') {
-                $peopleSearchAttrs = ['name', 'transliteration'];
+                $peopleSearchAttrs = ['name', 'normalized_name', 'transliteration'];
             }
 
             if ($query !== '') {

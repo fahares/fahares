@@ -162,6 +162,7 @@ return [
                     'clean_title',
                     'alternative_titles',
                     'author_name',
+                    'author_aliases',
                     'transliteration',
                     'subject_summary',
                     'language_summary',
@@ -207,6 +208,7 @@ return [
                     'shelfmark',
                     'shelfmark_key',
                     'scribe_name',
+                    'commissioned_by',
                     'incipit_text',
                     'explicit_text',
                     'library',
@@ -239,6 +241,7 @@ return [
                 'searchableAttributes' => [
                     'name',
                     'normalized_name',
+                    'aliases',
                     'transliteration',
                 ],
                 'pagination' => [

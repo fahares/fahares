@@ -15,6 +15,7 @@ class Person extends Model
     protected function casts(): array
     {
         return [
+            'aliases' => 'array',
             'birth_year_hijri' => 'integer',
             'death_year_hijri' => 'integer',
             'century_hijri' => 'integer',
@@ -54,10 +55,14 @@ class Person extends Model
 
     public function toSearchableArray(): array
     {
+        $aliases = (array) ($this->aliases ?? []);
+        $normalizedWithAliases = trim($this->normalized_name . ' ' . implode(' ', $aliases));
+
         return [
             'id' => (int) $this->id,
             'name' => $this->name,
-            'normalized_name' => $this->normalized_name,
+            'normalized_name' => $normalizedWithAliases,
+            'aliases' => $aliases,
             'slug' => $this->slug,
             'transliteration' => $this->transliteration,
             'death_year_hijri' => $this->death_year_hijri ? (int) $this->death_year_hijri : null,
