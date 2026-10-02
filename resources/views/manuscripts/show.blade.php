@@ -600,6 +600,30 @@
                 <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed">
                     {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
                 </p>
+
+                @if($manuscript->cataloger)
+                    <div class="inline-flex flex-wrap items-center gap-2 p-1.5 pr-2.5 rounded-2xl bg-amber-50/80 dark:bg-[#0C0F1D] border border-amber-200/80 dark:border-[#272F4C] shadow-2xs mt-2">
+                        <span class="text-[11px] text-stone-500 dark:text-stone-400 font-medium">فهرست‌نگار مأخذ چاپی:</span>
+                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#B38A50] hover:text-[#9C753F] transition group">
+                            @if($manuscript->cataloger->avatar_url)
+                                <img src="{{ $manuscript->cataloger->avatar_url }}" alt="{{ $manuscript->cataloger->name }}" class="w-5 h-5 rounded-full object-cover border border-amber-300 dark:border-amber-700">
+                            @else
+                                <span class="w-5 h-5 rounded-full bg-amber-200/60 dark:bg-amber-900/40 text-[10px] flex items-center justify-center font-bold text-[#B38A50]">
+                                    {{ mb_substr($manuscript->cataloger->name, 0, 1) }}
+                                </span>
+                            @endif
+                            <span class="group-hover:underline">{{ $manuscript->cataloger->display_name }}</span>
+                            @if($manuscript->cataloger->nickname)
+                                <span class="text-[10px] text-stone-400 font-normal">({{ $manuscript->cataloger->nickname }})</span>
+                            @endif
+                        </a>
+                        @if($manuscript->catalogVolume)
+                            <span class="text-[11px] text-stone-400 font-normal border-r border-stone-200 dark:border-stone-700 pr-2 mr-1">
+                                {{ $manuscript->catalogVolume->title }}
+                            </span>
+                        @endif
+                    </div>
+                @endif
             </div>
             
             <div class="flex items-center gap-2.5 self-start sm:self-center">

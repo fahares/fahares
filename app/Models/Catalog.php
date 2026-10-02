@@ -30,4 +30,9 @@ class Catalog extends Model
     {
         return $this->hasMany(Referral::class);
     }
+
+    public function volumes(): HasMany
+    {
+        return $this->hasMany(CatalogVolume::class);
+    }
 }

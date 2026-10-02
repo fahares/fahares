@@ -87,6 +87,9 @@
                     <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         کتابخانه‌ها و مراکز
                     </a>
+                    <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                        فهرست‌نگاران
+                    </a>
                 </nav>
 
                 <!-- Actions: Search Trigger & Dark Mode Toggle -->
@@ -129,6 +132,7 @@
                             <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('home') ? 'text-[#B38A50] font-bold' : '' }}">صفحه نخست</a>
                             <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] font-bold' : '' }}">موضوعات</a>
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
+                            <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] font-bold' : '' }}">فهرست‌نگاران</a>
                         </div>
                     </div>
 

@@ -40,4 +40,9 @@ class Library extends Model
     {
         return $this->hasMany(Manuscript::class);
     }
+
+    public function catalogVolumes(): HasMany
+    {
+        return $this->hasMany(CatalogVolume::class);
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CatalogerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ManuscriptController;
@@ -44,6 +45,12 @@ Route::get('/subjects', [SubjectController::class, 'index'])->name('subjects.ind
 Route::get('/subjects/{id}', [SubjectController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('subjects.show');
+
+// Catalogers & Bibliographers
+Route::get('/catalogers', [CatalogerController::class, 'index'])->name('catalogers.index');
+Route::get('/catalogers/{id}', [CatalogerController::class, 'show'])
+    ->where('id', '[0-9]+.*')
+    ->name('catalogers.show');
 
 // Field Suggestions (Crowdsourced corrections)
 Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
