@@ -624,8 +624,8 @@
         @if($manuscript->cataloger || $manuscript->catalogVolume)
             <div class="p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-[#0C0F1D]/90 border border-amber-200/90 dark:border-[#272F4C] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 @if($manuscript->cataloger)
-                    <div class="flex items-center gap-5 sm:gap-6">
-                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="relative shrink-0 block group me-1 sm:me-2">
+                    <div class="flex items-center gap-3.5">
+                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="relative shrink-0 group">
                             @if($manuscript->cataloger->avatar_url)
                                 <img src="{{ $manuscript->cataloger->avatar_url }}" 
                                      alt="{{ $manuscript->cataloger->name }}" 
