@@ -597,33 +597,12 @@
                     </span>
                     <span class="font-bold text-sm text-stone-800 dark:text-stone-200">مشخصات مأخذ و استناد فهرست‌نگاری:</span>
                 </div>
-                <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed">
+                <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed max-w-2xl">
                     {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
                 </p>
-
-                @if($manuscript->cataloger)
-                    <div class="inline-flex flex-wrap items-center gap-2 p-1.5 pr-2.5 rounded-2xl bg-amber-50/80 dark:bg-[#0C0F1D] border border-amber-200/80 dark:border-[#272F4C] shadow-2xs mt-2">
-                        <span class="text-[11px] text-stone-500 dark:text-stone-400 font-medium">فهرست‌نگار مأخذ چاپی:</span>
-                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#B38A50] hover:text-[#9C753F] transition group">
-                            @if($manuscript->cataloger->avatar_url)
-                                <img src="{{ $manuscript->cataloger->avatar_url }}" alt="{{ $manuscript->cataloger->name }}" class="w-5 h-5 rounded-full object-cover border border-amber-300 dark:border-amber-700">
-                            @else
-                                <span class="w-5 h-5 rounded-full bg-amber-200/60 dark:bg-amber-900/40 text-[10px] flex items-center justify-center font-bold text-[#B38A50]">
-                                    {{ mb_substr($manuscript->cataloger->name, 0, 1) }}
-                                </span>
-                            @endif
-                            <span class="group-hover:underline">{{ $manuscript->cataloger->display_name }}</span>
-                        </a>
-                        @if($manuscript->catalogVolume)
-                            <span class="text-[11px] text-stone-400 font-normal border-r border-stone-200 dark:border-stone-700 pr-2 mr-1">
-                                {{ $manuscript->catalogVolume->title }}
-                            </span>
-                        @endif
-                    </div>
-                @endif
             </div>
             
-            <div class="flex items-center gap-2.5 self-start sm:self-center">
+            <div class="flex items-center gap-2.5 self-start sm:self-center shrink-0">
                 <div class="text-xs font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-4 py-2 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs">
                     جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }} • ردیف {{ $manuscript->sequence_number }}
                 </div>
@@ -641,6 +620,59 @@
                 @endif
             </div>
         </div>
+
+        @if($manuscript->cataloger || $manuscript->catalogVolume)
+            <div class="p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-[#0C0F1D]/90 border border-amber-200/90 dark:border-[#272F4C] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                @if($manuscript->cataloger)
+                    <div class="flex items-center gap-3.5">
+                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="relative shrink-0 group">
+                            @if($manuscript->cataloger->avatar_url)
+                                <img src="{{ $manuscript->cataloger->avatar_url }}" 
+                                     alt="{{ $manuscript->cataloger->name }}" 
+                                     class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-amber-300 dark:border-amber-700/80 shadow-sm group-hover:scale-105 group-hover:border-[#B38A50] transition duration-200">
+                            @else
+                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border-2 border-amber-300 dark:border-amber-700/80 flex items-center justify-center text-xl font-black text-[#B38A50] shadow-sm">
+                                    {{ mb_substr($manuscript->cataloger->name, 0, 1) }}
+                                </div>
+                            @endif
+                        </a>
+
+                        <div class="space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-[11px] font-bold text-[#B38A50]">
+                                    فهرست‌نگار مأخذ چاپی:
+                                </span>
+                                @if($manuscript->cataloger->life_years_text)
+                                    <span class="text-[10px] text-stone-400 dark:text-stone-500 font-normal">
+                                        • {{ $manuscript->cataloger->life_years_text }}
+                                    </span>
+                                @endif
+                            </div>
+                            <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="inline-flex items-center gap-1.5 text-sm sm:text-base font-black text-[#292C56] dark:text-stone-100 hover:text-[#B38A50] transition group">
+                                <span>{{ $manuscript->cataloger->display_name }}</span>
+                                <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-[#B38A50] transition-transform -scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                @if($manuscript->catalogVolume)
+                    <div class="pt-2 md:pt-0 @if($manuscript->cataloger) border-t md:border-t-0 md:border-r border-stone-200 dark:border-stone-800 md:pr-4 @endif text-right flex flex-col justify-center">
+                        <span class="text-[11px] text-stone-400 dark:text-stone-500 font-medium">مأخذ تفصیلی و جلد فهرست:</span>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">
+                                {{ $manuscript->catalogVolume->title }}
+                            </span>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @endif
 
         @if($manuscript->clean_raw_text)
             <div x-data="{ copied: false }" class="pt-4 border-t border-[#EADFCF] dark:border-[#272F4C] space-y-3">
