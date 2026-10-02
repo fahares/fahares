@@ -58,6 +58,7 @@
 
             <div class="sm:col-span-4 flex items-center gap-2">
                 <select name="sort" class="w-full py-2.5 px-3 bg-stone-50 dark:bg-stone-800/80 rounded-xl border border-stone-300 dark:border-stone-700 text-xs sm:text-sm text-stone-700 dark:text-stone-200 focus:border-[#B38A50]">
+                    <option value="birth_year" {{ $sort === 'birth_year' ? 'selected' : '' }}>سال ولادت (کهن‌تر به جدید)</option>
                     <option value="manuscripts" {{ $sort === 'manuscripts' ? 'selected' : '' }}>بیشترین نسخه توصیف‌شده</option>
                     <option value="volumes" {{ $sort === 'volumes' ? 'selected' : '' }}>بیشترین مجلدات فهرست</option>
                     <option value="name" {{ $sort === 'name' ? 'selected' : '' }}>ترتیب الفبایی نام</option>

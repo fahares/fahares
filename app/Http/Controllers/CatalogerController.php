@@ -12,7 +12,7 @@ class CatalogerController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->input('q', ''));
-        $sort = $request->input('sort', 'manuscripts');
+        $sort = $request->input('sort', 'birth_year');
 
         $query = Cataloger::query();
 
@@ -26,11 +26,15 @@ class CatalogerController extends Controller
 
         if ($sort === 'volumes') {
             $query->orderByDesc('volumes_count')->orderByDesc('manuscripts_count');
+        } elseif ($sort === 'manuscripts') {
+            $query->orderByDesc('manuscripts_count')->orderByDesc('volumes_count');
         } elseif ($sort === 'name') {
             $query->orderBy('name');
         } else {
-            // Default: manuscripts
-            $query->orderByDesc('manuscripts_count')->orderByDesc('volumes_count');
+            // Default: birth_year (oldest first, nulls last)
+            $query->orderByRaw('birth_year_solar IS NULL, birth_year_solar ASC')
+                  ->orderByDesc('manuscripts_count')
+                  ->orderBy('name');
         }
 
         $catalogers = $query->paginate(24)->withQueryString();
