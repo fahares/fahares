@@ -19,7 +19,6 @@ class CatalogerController extends Controller
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('nickname', 'like', "%{$search}%")
                   ->orWhere('bio', 'like', "%{$search}%");
             });
         }

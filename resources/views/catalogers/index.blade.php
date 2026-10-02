@@ -49,7 +49,7 @@
                     type="text" 
                     name="q" 
                     value="{{ $search }}" 
-                    placeholder="جستجو در نام، شهرت یا زندگینامه فهرست‌نگار..."
+                    placeholder="جستجو در نام یا زندگینامه فهرست‌نگار..."
                     class="w-full pr-10 pl-4 py-2.5 bg-stone-50 dark:bg-stone-800/80 rounded-xl border border-stone-300 dark:border-stone-700 text-xs sm:text-sm text-stone-800 dark:text-stone-100 focus:border-[#B38A50] focus:ring-2 focus:ring-[#B38A50]/20 transition">
                 <div class="absolute right-3.5 top-3 text-stone-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>

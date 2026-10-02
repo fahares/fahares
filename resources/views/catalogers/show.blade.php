@@ -44,14 +44,8 @@
                     </div>
 
                     <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                        {{ $cataloger->display_name }}
+                        {{ $cataloger->name }}
                     </h1>
-
-                    @if($cataloger->nickname)
-                        <div class="text-xs text-stone-500 dark:text-stone-400 font-medium">
-                            شهرت: <span class="font-bold text-stone-700 dark:text-stone-200">{{ $cataloger->nickname }}</span>
-                        </div>
-                    @endif
 
                     <!-- Connect to Person if exists -->
                     @if($cataloger->person)

@@ -47,12 +47,6 @@ class Cataloger extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        if ($this->title_prefix) {
-            $prefix = trim($this->title_prefix);
-            if (!str_starts_with($this->name, $prefix)) {
-                return "{$prefix} {$this->name}";
-            }
-        }
         return $this->name;
     }
 
