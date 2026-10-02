@@ -44,7 +44,7 @@
 
         <!-- Search & Filter Form -->
         <form action="{{ route('catalogers.index') }}" method="GET" class="pt-4 border-t border-stone-100 dark:border-stone-800/80 grid grid-cols-1 sm:grid-cols-12 gap-3">
-            <div class="sm:col-span-6 relative">
+            <div class="sm:col-span-8 relative">
                 <input 
                     type="text" 
                     name="q" 
@@ -56,15 +56,7 @@
                 </div>
             </div>
 
-            <div class="sm:col-span-3">
-                <select name="status" class="w-full py-2.5 px-3 bg-stone-50 dark:bg-stone-800/80 rounded-xl border border-stone-300 dark:border-stone-700 text-xs sm:text-sm text-stone-700 dark:text-stone-200 focus:border-[#B38A50]">
-                    <option value="all" {{ $status === 'all' ? 'selected' : '' }}>همه وضعیت‌ها</option>
-                    <option value="alive" {{ $status === 'alive' ? 'selected' : '' }}>استادان در قید حیات</option>
-                    <option value="deceased" {{ $status === 'deceased' ? 'selected' : '' }}>درگذشتگان</option>
-                </select>
-            </div>
-
-            <div class="sm:col-span-3 flex items-center gap-2">
+            <div class="sm:col-span-4 flex items-center gap-2">
                 <select name="sort" class="w-full py-2.5 px-3 bg-stone-50 dark:bg-stone-800/80 rounded-xl border border-stone-300 dark:border-stone-700 text-xs sm:text-sm text-stone-700 dark:text-stone-200 focus:border-[#B38A50]">
                     <option value="manuscripts" {{ $sort === 'manuscripts' ? 'selected' : '' }}>بیشترین نسخه توصیف‌شده</option>
                     <option value="volumes" {{ $sort === 'volumes' ? 'selected' : '' }}>بیشترین مجلدات فهرست</option>
@@ -86,7 +78,7 @@
                class="group relative bg-white dark:bg-[#15192C] p-5 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition duration-200 flex flex-col justify-between">
                 
                 <div class="space-y-4">
-                    <!-- Top row: Avatar & Status -->
+                    <!-- Top row: Avatar & Dates -->
                     <div class="flex items-start justify-between gap-3">
                         <div class="relative shrink-0">
                             @if($cat->avatar_url)
@@ -99,18 +91,10 @@
                                     {{ mb_substr($cat->name, 0, 1) }}
                                 </div>
                             @endif
-
-                            @if($cat->is_alive)
-                                <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-[#15192C] rounded-full" title="در قید حیات"></span>
-                            @endif
                         </div>
 
                         <div class="flex flex-col items-end gap-1">
-                            @if($cat->is_alive)
-                                <span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
-                                    در قید حیات
-                                </span>
-                            @elseif($cat->life_years_text)
+                            @if($cat->life_years_text)
                                 <span class="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-[10px] font-bold text-stone-600 dark:text-stone-300">
                                     {{ $cat->life_years_text }}
                                 </span>

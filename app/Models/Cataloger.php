@@ -58,19 +58,16 @@ class Cataloger extends Model
 
     public function getLifeYearsTextAttribute(): ?string
     {
-        if ($this->is_alive) {
-            if ($this->birth_year_solar) {
-                return "متولد {$this->birth_year_solar} هـ.ش (در قید حیات)";
-            }
-            return 'در قید حیات';
-        }
-
         if ($this->birth_year_solar && $this->death_year_solar) {
             return "{$this->birth_year_solar} – {$this->death_year_solar} هـ.ش";
         }
 
         if ($this->death_year_solar) {
             return "وفات {$this->death_year_solar} هـ.ش";
+        }
+
+        if ($this->birth_year_solar) {
+            return "متولد {$this->birth_year_solar} هـ.ش";
         }
 
         if ($this->death_year_hijri) {

@@ -12,7 +12,6 @@ class CatalogerController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->input('q', ''));
-        $status = $request->input('status', 'all');
         $sort = $request->input('sort', 'manuscripts');
 
         $query = Cataloger::query();
@@ -23,12 +22,6 @@ class CatalogerController extends Controller
                   ->orWhere('nickname', 'like', "%{$search}%")
                   ->orWhere('bio', 'like', "%{$search}%");
             });
-        }
-
-        if ($status === 'alive') {
-            $query->where('is_alive', true);
-        } elseif ($status === 'deceased') {
-            $query->where('is_alive', false);
         }
 
         if ($sort === 'volumes') {
@@ -44,12 +37,11 @@ class CatalogerController extends Controller
 
         $stats = [
             'total_catalogers' => Cataloger::count(),
-            'alive_catalogers' => Cataloger::where('is_alive', true)->count(),
             'total_volumes' => CatalogVolume::count(),
             'total_manuscripts' => Manuscript::whereNotNull('cataloger_id')->count(),
         ];
 
-        return view('catalogers.index', compact('catalogers', 'stats', 'search', 'status', 'sort'));
+        return view('catalogers.index', compact('catalogers', 'stats', 'search', 'sort'));
     }
 
     public function show(Request $request, $id)

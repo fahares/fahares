@@ -33,10 +33,6 @@
                             {{ mb_substr($cataloger->name, 0, 1) }}
                         </div>
                     @endif
-
-                    @if($cataloger->is_alive)
-                        <span class="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-[#15192C] rounded-full" title="در قید حیات"></span>
-                    @endif
                 </div>
 
                 <!-- Titles & Info -->
@@ -45,11 +41,6 @@
                         <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-[#B38A50] text-xs font-bold">
                             فهرست‌نگار و نسخه‌شناس
                         </span>
-                        @if($cataloger->is_alive)
-                            <span class="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
-                                در قید حیات
-                            </span>
-                        @endif
                     </div>
 
                     <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
@@ -89,7 +80,7 @@
                 </div>
                 @if($cataloger->life_years_text)
                     <div class="flex justify-between items-center pt-2 border-t border-stone-200/60 dark:border-stone-700/60">
-                        <span class="text-stone-500 dark:text-stone-400">دوران حیات:</span>
+                        <span class="text-stone-500 dark:text-stone-400">سال‌های حیات:</span>
                         <span class="font-bold text-stone-700 dark:text-stone-300">{{ $cataloger->life_years_text }}</span>
                     </div>
                 @endif
