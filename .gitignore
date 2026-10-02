@@ -16,6 +16,7 @@ fahares.code-workspace
 /node_modules/
 /public/build/
 /public/hot/
+/public/storage
 /storage/*.key
 /storage/logs/*
 !/storage/logs/.gitignore
@@ -32,6 +33,10 @@ mariadb_data/
 
 # Corpus & Data Sources (Managed in external fahares-corpus repo & releases)
 /sources/
+/storage/app/public/catalogs/
+/public/storage/catalogs/
+/storage/app/public/fankha/
+/public/storage/fankha/
 
 # Local IDE / Agents
 .agents/

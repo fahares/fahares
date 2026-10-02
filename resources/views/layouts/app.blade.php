@@ -574,6 +574,9 @@
         </template>
     </div>
 
+    <!-- Global Catalog Facsimile Viewer Modal -->
+    <x-catalog-viewer />
+
     @stack('scripts')
 </body>
 </html>

@@ -602,38 +602,67 @@
                 </p>
             </div>
             
-            <div class="text-xs font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-5 py-2.5 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs self-start sm:self-center">
-                جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }} • ردیف {{ $manuscript->sequence_number }}
+            <div class="flex items-center gap-2.5 self-start sm:self-center">
+                <div class="text-xs font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-4 py-2 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs">
+                    جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }} • ردیف {{ $manuscript->sequence_number }}
+                </div>
+                @if(!$manuscript->clean_raw_text && $manuscript->volume_number && $manuscript->page_start)
+                    <button 
+                        type="button"
+                        @click="$dispatch('open-catalog-viewer', { catalog: '{{ $manuscript->catalog?->code ?? 'fankha' }}', catalogName: '{{ $manuscript->catalog?->short_name ?? 'فنخا' }}', volume: {{ $manuscript->volume_number }}, page: {{ $manuscript->page_start }} })"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-xs font-bold text-[#B38A50] dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>مشاهده برگه در مأخذ چاپی</span>
+                    </button>
+                @endif
             </div>
         </div>
 
         @if($manuscript->clean_raw_text)
             <div x-data="{ copied: false }" class="pt-4 border-t border-[#EADFCF] dark:border-[#272F4C] space-y-3">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <span class="w-1.5 h-3.5 bg-[#B38A50] rounded-xs"></span>
-                        <span class="font-bold text-stone-800 dark:text-stone-200 text-xs">
-                            متن فنخا:
+                        <span class="font-bold text-stone-800 dark:text-stone-200 text-xs sm:text-sm">
+                            متن {{ $manuscript->catalog?->short_name ?? 'فنخا' }} (مأخذ نسخه خطی):
                         </span>
                     </div>
-                    <button 
-                        type="button" 
-                        @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] text-[11px] font-semibold text-stone-600 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
-                        <svg x-show="!copied" class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span x-show="!copied">رونوشت متن مأخذ</span>
-                        <span x-show="copied" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                    </button>
+                    <div class="flex items-center gap-2 self-start sm:self-center">
+                        @if($manuscript->volume_number && $manuscript->page_start)
+                            <button 
+                                type="button" 
+                                @click="$dispatch('open-catalog-viewer', { catalog: '{{ $manuscript->catalog?->code ?? 'fankha' }}', catalogName: '{{ $manuscript->catalog?->short_name ?? 'فنخا' }}', volume: {{ $manuscript->volume_number }}, page: {{ $manuscript->page_start }} })"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-xs font-bold text-[#B38A50] dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
+                                <svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span>مشاهده برگه در مأخذ چاپی</span>
+                            </button>
+                        @endif
+
+                        <button 
+                            type="button" 
+                            @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
+                            <svg x-show="!copied" class="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span x-show="!copied">رونوشت متن مأخذ</span>
+                            <span x-show="copied" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <div 
                     x-ref="rawTextContent" 
-                    class="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-[#15192C]/70 border border-[#EADFCF] dark:border-[#272F4C] text-xs text-stone-800 dark:text-stone-200 leading-relaxed whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950">{{ $manuscript->clean_raw_text }}</div>
+                    class="p-4 sm:p-5 rounded-2xl bg-[#FEF9F3] dark:bg-[#0C0F1D] border border-[#EADFCF] dark:border-[#272F4C] text-xs sm:text-[13px] text-stone-800 dark:text-stone-100 leading-loose sm:leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">{{ $manuscript->clean_raw_text }}</div>
             </div>
         @endif
 
