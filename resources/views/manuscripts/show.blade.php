@@ -624,14 +624,14 @@
         @if($manuscript->cataloger || $manuscript->catalogVolume)
             <div class="p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-[#0C0F1D]/90 border border-amber-200/90 dark:border-[#272F4C] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                 @if($manuscript->cataloger)
-                    <div class="flex items-center gap-3.5">
-                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="relative shrink-0 group">
+                    <div class="flex items-center gap-5 sm:gap-6">
+                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="relative shrink-0 block group me-1 sm:me-2">
                             @if($manuscript->cataloger->avatar_url)
                                 <img src="{{ $manuscript->cataloger->avatar_url }}" 
                                      alt="{{ $manuscript->cataloger->name }}" 
-                                     class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-amber-300 dark:border-amber-700/80 shadow-sm group-hover:scale-105 group-hover:border-[#B38A50] transition duration-200">
+                                     class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-amber-300 dark:border-amber-700/80 shadow-xs group-hover:scale-105 group-hover:border-[#B38A50] transition duration-200">
                             @else
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border-2 border-amber-300 dark:border-amber-700/80 flex items-center justify-center text-xl font-black text-[#B38A50] shadow-sm">
+                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border-2 border-amber-300 dark:border-amber-700/80 flex items-center justify-center text-xl font-black text-[#B38A50] shadow-xs">
                                     {{ mb_substr($manuscript->cataloger->name, 0, 1) }}
                                 </div>
                             @endif
@@ -659,13 +659,13 @@
                 @endif
 
                 @if($manuscript->catalogVolume)
-                    <div class="pt-2 md:pt-0 @if($manuscript->cataloger) border-t md:border-t-0 md:border-r border-stone-200 dark:border-stone-800 md:pr-4 @endif text-right flex flex-col justify-center">
-                        <span class="text-[11px] text-stone-400 dark:text-stone-500 font-medium">مأخذ تفصیلی و جلد فهرست:</span>
-                        <div class="flex items-center gap-1.5 mt-0.5">
+                    <div class="self-start md:self-center bg-[#FBF7F0] dark:bg-[#15192C] px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-amber-200/70 dark:border-[#272F4C] text-right">
+                        <span class="block text-[10px] text-stone-400 dark:text-stone-500 font-medium">مأخذ تفصیلی و جلد فهرست:</span>
+                        <div class="flex items-center gap-2 mt-0.5">
                             <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
-                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">
+                            <span class="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-200">
                                 {{ $manuscript->catalogVolume->title }}
                             </span>
                         </div>
