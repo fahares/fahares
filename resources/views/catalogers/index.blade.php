@@ -99,12 +99,6 @@
                                     {{ $cat->life_years_text }}
                                 </span>
                             @endif
-
-                            @if($cat->nickname)
-                                <span class="text-[11px] text-stone-400 font-medium">
-                                    شهرت: {{ $cat->nickname }}
-                                </span>
-                            @endif
                         </div>
                     </div>
 

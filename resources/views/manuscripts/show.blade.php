@@ -613,9 +613,6 @@
                                 </span>
                             @endif
                             <span class="group-hover:underline">{{ $manuscript->cataloger->display_name }}</span>
-                            @if($manuscript->cataloger->nickname)
-                                <span class="text-[10px] text-stone-400 font-normal">({{ $manuscript->cataloger->nickname }})</span>
-                            @endif
                         </a>
                         @if($manuscript->catalogVolume)
                             <span class="text-[11px] text-stone-400 font-normal border-r border-stone-200 dark:border-stone-700 pr-2 mr-1">

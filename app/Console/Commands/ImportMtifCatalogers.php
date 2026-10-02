@@ -92,11 +92,20 @@ class ImportMtifCatalogers extends Command
                 $slug .= '-' . $c['mtif_id'];
             }
 
+            $nickname = !empty($c['nickname']) ? trim($c['nickname']) : null;
+            if ($nickname) {
+                $cleanName = str_replace(["\xE2\x80\x8C", ' '], '', $name);
+                $cleanNick = str_replace(["\xE2\x80\x8C", ' '], '', $nickname);
+                if (str_contains($cleanName, $cleanNick)) {
+                    $nickname = null;
+                }
+            }
+
             $attributes = [
                 'name' => $name,
                 'slug' => $slug,
                 'title_prefix' => !empty($c['prefix']) ? trim($c['prefix']) : null,
-                'nickname' => !empty($c['nickname']) ? trim($c['nickname']) : null,
+                'nickname' => $nickname,
                 'birth_year_solar' => $c['birth_year_solar'] ?? null,
                 'death_year_solar' => $c['death_year_solar'] ?? null,
                 'birth_year_hijri' => $c['birth_year_hijri'] ?? null,
