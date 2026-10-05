@@ -67,59 +67,64 @@
     </div>
 
     <!-- Catalogers Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @forelse($catalogers as $cat)
             <a href="{{ route('catalogers.show', $cat) }}" 
-               class="group relative bg-white dark:bg-[#15192C] p-5 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition duration-200 flex flex-col justify-between">
+               class="group relative bg-white dark:bg-[#15192C] p-6 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between text-center">
                 
-                <div class="space-y-4">
-                    <!-- Top row: Avatar & Dates -->
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="relative shrink-0">
-                            @if($cat->avatar_url)
-                                <img src="{{ $cat->avatar_url }}" 
-                                     alt="{{ $cat->name }}" 
-                                     class="w-16 h-16 rounded-2xl object-cover border-2 border-amber-200 dark:border-amber-900/60 shadow-sm group-hover:scale-105 transition duration-200"
-                                     loading="lazy">
-                            @else
-                                <div class="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-200 dark:border-amber-900/60 flex items-center justify-center text-xl font-black text-[#B38A50] shadow-sm">
-                                    {{ mb_substr($cat->name, 0, 1) }}
-                                </div>
-                            @endif
-                        </div>
+                <div class="space-y-4 flex flex-col items-center">
+                    <!-- Avatar Hero -->
+                    <div class="relative shrink-0 mt-1">
+                        @if($cat->avatar_url)
+                            <img src="{{ $cat->avatar_url }}" 
+                                 alt="{{ $cat->name }}" 
+                                 class="w-28 h-28 rounded-3xl object-cover border-2 border-amber-200 dark:border-amber-900/60 shadow-md group-hover:scale-105 group-hover:border-[#B38A50] transition-all duration-300"
+                                 loading="lazy">
+                        @else
+                            <div class="w-28 h-28 rounded-3xl bg-gradient-to-br from-amber-50 to-amber-100/60 dark:from-amber-950/40 dark:to-stone-900 border-2 border-amber-200 dark:border-amber-900/60 flex items-center justify-center text-3xl font-black text-[#B38A50] shadow-md group-hover:scale-105 group-hover:border-[#B38A50] transition-all duration-300">
+                                {{ mb_substr($cat->name, 0, 1) }}
+                            </div>
+                        @endif
 
-                        <div class="flex flex-col items-end gap-1">
-                            @if($cat->life_years_text)
-                                <span class="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-[10px] font-bold text-stone-600 dark:text-stone-300">
-                                    {{ $cat->life_years_text }}
-                                </span>
-                            @endif
-                        </div>
+                        @if(!empty($cat->title_prefix))
+                            <span class="absolute -bottom-2 inset-x-0 mx-auto w-max px-2.5 py-0.5 rounded-full bg-amber-500/90 text-white text-[10px] font-bold shadow-sm backdrop-blur-sm">
+                                {{ $cat->title_prefix }}
+                            </span>
+                        @endif
                     </div>
 
-                    <!-- Names -->
-                    <div class="space-y-1">
+                    <!-- Names & Life Years -->
+                    <div class="space-y-2 w-full pt-1">
                         <div class="text-base font-bold text-[#292C56] dark:text-stone-100 group-hover:text-[#B38A50] transition line-clamp-1">
                             {{ $cat->display_name }}
                         </div>
+                        
+                        @if($cat->life_years_text)
+                            <div>
+                                <span class="inline-block px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800/80 text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                                    {{ $cat->life_years_text }}
+                                </span>
+                            </div>
+                        @endif
+
                         @if($cat->bio)
-                            <p class="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed">
-                                {{ Str::limit(strip_tags($cat->bio), 100) }}
+                            <p class="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed px-1">
+                                {{ Str::limit(strip_tags($cat->bio), 95) }}
                             </p>
                         @endif
                     </div>
                 </div>
 
                 <!-- Footer Stats -->
-                <div class="mt-5 pt-3 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-xs">
+                <div class="mt-5 pt-3.5 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-xs w-full">
                     <div class="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
-                        <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-4 h-4 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
-                        <span>{{ $cat->volumes_count }} جلد</span>
+                        <span class="font-medium">{{ $cat->volumes_count }} جلد</span>
                     </div>
 
-                    <span class="font-bold text-[#B38A50] bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full text-[11px] border border-amber-200 dark:border-amber-800/60">
+                    <span class="font-bold text-[#8C6226] dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-3 py-1 rounded-full text-xs border border-amber-200/80 dark:border-amber-800/60">
                         {{ number_format($cat->manuscripts_count) }} نسخه
                     </span>
                 </div>
