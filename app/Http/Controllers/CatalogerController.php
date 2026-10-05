@@ -66,8 +66,12 @@ class CatalogerController extends Controller
             ->orderBy('volume_number')
             ->get();
 
-        // Get manuscripts cataloged by this person
-        $manuscripts = $cataloger->manuscripts()
+        // Get manuscripts cataloged by this person (either direct cataloger_id or via authored catalog volumes)
+        $volumeIds = $cataloger->catalogVolumes()->pluck('catalog_volumes.id');
+        $manuscripts = Manuscript::where(function ($q) use ($cataloger, $volumeIds) {
+            $q->where('cataloger_id', $cataloger->id)
+              ->orWhereIn('catalog_volume_id', $volumeIds);
+        })
             ->with(['work.author', 'libraryRecord', 'catalogVolume'])
             ->orderBy('volume_number')
             ->orderBy('page_start')
