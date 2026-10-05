@@ -18,7 +18,7 @@
     <!-- CATALOGER HEADER CARD -->
     <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-6 relative overflow-hidden">
         
-        <div class="flex flex-col md:flex-row items-start justify-between gap-6">
+        <div class="flex flex-col lg:flex-row items-start justify-between gap-6">
             
             <!-- Avatar & Details -->
             <div class="flex flex-col sm:flex-row items-start gap-6">
@@ -27,9 +27,9 @@
                     @if($cataloger->avatar_url)
                         <img src="{{ $cataloger->avatar_url }}" 
                              alt="{{ $cataloger->name }}" 
-                             class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-cover border-2 border-amber-300 dark:border-amber-800/80 shadow-md">
+                             class="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover border-2 border-amber-300 dark:border-amber-800/80 shadow-md">
                     @else
-                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800/80 flex items-center justify-center text-3xl font-black text-[#B38A50] shadow-md">
+                        <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800/80 flex items-center justify-center text-4xl font-black text-[#B38A50] shadow-md">
                             {{ mb_substr($cataloger->name, 0, 1) }}
                         </div>
                     @endif
@@ -38,32 +38,63 @@
                 <!-- Titles & Info -->
                 <div class="space-y-3">
                     <div class="flex flex-wrap items-center gap-2">
+                        @if($cataloger->title_prefix)
+                            <span class="px-3 py-1 rounded-full bg-amber-100/70 dark:bg-amber-900/40 border border-amber-300/80 dark:border-amber-700/60 text-[#8C6226] dark:text-amber-200 text-xs font-bold">
+                                {{ $cataloger->title_prefix }}
+                            </span>
+                        @endif
+
                         <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-[#B38A50] text-xs font-bold">
                             فهرست‌نگار و نسخه‌شناس
                         </span>
+
+                        @if(!empty($cataloger->metadata['specialty']))
+                            <span class="px-3 py-1 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 text-xs font-medium">
+                                {{ $cataloger->metadata['specialty'] }}
+                            </span>
+                        @endif
                     </div>
 
-                    <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                        {{ $cataloger->name }}
-                    </h1>
+                    <div class="space-y-1">
+                        <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
+                            {{ $cataloger->name }}
+                        </h1>
+                        @if($cataloger->nickname && $cataloger->nickname !== $cataloger->name)
+                            <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
+                                مشهور به: <span class="text-stone-800 dark:text-stone-200 font-bold">«{{ $cataloger->nickname }}»</span>
+                            </div>
+                        @endif
+                    </div>
 
-                    <!-- Connect to Person if exists -->
-                    @if($cataloger->person)
-                        <div class="pt-1">
+                    <!-- Connect to Person / External Links -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        @if($cataloger->person)
                             <a href="{{ route('people.show', $cataloger->person) }}" 
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold transition border border-stone-200 dark:border-stone-700">
                                 <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                                <span>مشاهده مدخل در پدیدآوران و اعلام فهارس</span>
+                                <span>مدخل در اعلام و پدیدآوران فهارس</span>
                             </a>
-                        </div>
-                    @endif
+                        @endif
+
+                        @if(!empty($cataloger->metadata['external_links']['wikinoor']))
+                            <a href="{{ $cataloger->metadata['external_links']['wikinoor'] }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6226] dark:text-amber-300 text-xs font-semibold transition border border-amber-300/40 dark:border-amber-700/40">
+                                <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                                <span>مدخل دانشنامه تخصصی ویکی‌نور</span>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
 
             <!-- Stats Box -->
-            <div class="p-4 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] text-xs space-y-2.5 min-w-[220px] shrink-0 self-stretch sm:self-auto">
+            <div class="p-4 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] text-xs space-y-2.5 min-w-[260px] shrink-0 self-stretch sm:self-auto">
                 <div class="flex justify-between items-center">
                     <span class="text-stone-500 dark:text-stone-400">نسخه‌های توصیف‌شده:</span>
                     <span class="font-black text-[#B38A50] text-sm">{{ number_format($cataloger->manuscripts_count) }} نسخه</span>
@@ -75,7 +106,19 @@
                 @if($cataloger->life_years_text)
                     <div class="flex justify-between items-center pt-2 border-t border-stone-200/60 dark:border-stone-700/60">
                         <span class="text-stone-500 dark:text-stone-400">سال‌های حیات:</span>
-                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $cataloger->life_years_text }}</span>
+                        <span class="font-bold text-stone-700 dark:text-stone-300 text-left dir-ltr">{{ $cataloger->life_years_text }}</span>
+                    </div>
+                @endif
+                @if(!empty($cataloger->metadata['birth_place']))
+                    <div class="flex justify-between items-center">
+                        <span class="text-stone-500 dark:text-stone-400">زادگاه:</span>
+                        <span class="font-semibold text-stone-700 dark:text-stone-300">{{ $cataloger->metadata['birth_place'] }}</span>
+                    </div>
+                @endif
+                @if(!empty($cataloger->metadata['resting_place']) || !empty($cataloger->metadata['death_place']))
+                    <div class="flex justify-between items-center">
+                        <span class="text-stone-500 dark:text-stone-400">آرامگاه / وفات:</span>
+                        <span class="font-semibold text-stone-700 dark:text-stone-300">{{ $cataloger->metadata['resting_place'] ?? $cataloger->metadata['death_place'] }}</span>
                     </div>
                 @endif
             </div>
@@ -83,11 +126,49 @@
         </div>
 
         @if($cataloger->bio)
-            <div class="pt-4 border-t border-stone-100 dark:border-stone-800/80">
-                <h3 class="text-xs font-bold text-stone-400 mb-1.5">زندگینامه و معرفی اجمالی:</h3>
-                <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed max-w-4xl whitespace-pre-line">
+            <div class="pt-5 border-t border-stone-100 dark:border-stone-800/80 space-y-2">
+                <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider">زندگینامه و کارنامه علمی:</h3>
+                <p class="text-xs sm:text-sm text-stone-700 dark:text-stone-200 leading-relaxed max-w-5xl whitespace-pre-line text-justify">
                     {{ $cataloger->bio }}
                 </p>
+            </div>
+        @endif
+
+        @if(!empty($cataloger->metadata['institutions']) || !empty($cataloger->metadata['major_catalogs']))
+            <div class="pt-5 border-t border-stone-100 dark:border-stone-800/80 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                @if(!empty($cataloger->metadata['institutions']))
+                    <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 space-y-2">
+                        <div class="font-bold text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span>نهادها و کتابخانه‌های محل خدمت:</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5">
+                            @foreach($cataloger->metadata['institutions'] as $inst)
+                                <span class="px-2.5 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-700 font-semibold text-stone-700 dark:text-stone-200">
+                                    {{ $inst }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if(!empty($cataloger->metadata['major_catalogs']))
+                    <div class="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 space-y-2">
+                        <div class="font-bold text-[#8C6226] dark:text-amber-400 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span>مجموعه‌ها و فهارس شاخص:</span>
+                        </div>
+                        <ul class="space-y-1 list-disc list-inside text-stone-600 dark:text-stone-300 font-medium">
+                            @foreach($cataloger->metadata['major_catalogs'] as $catName)
+                                <li>{{ $catName }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
         @endif
 
