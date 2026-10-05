@@ -55,9 +55,9 @@
                         </h1>
                     </div>
 
-                    <!-- Connect to Person / External Links -->
-                    <div class="flex flex-wrap items-center gap-2 pt-1">
-                        @if($cataloger->person)
+                    <!-- Connect to Person -->
+                    @if($cataloger->person)
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
                             <a href="{{ route('people.show', $cataloger->person) }}" 
                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold transition border border-stone-200 dark:border-stone-700">
                                 <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,20 +65,8 @@
                                 </svg>
                                 <span>مدخل در اعلام و پدیدآوران فهارس</span>
                             </a>
-                        @endif
-
-                        @if(!empty($cataloger->metadata['external_links']['wikinoor']))
-                            <a href="{{ $cataloger->metadata['external_links']['wikinoor'] }}" 
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-[#8C6226] dark:text-amber-300 text-xs font-semibold transition border border-amber-300/40 dark:border-amber-700/40">
-                                <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                                <span>مدخل دانشنامه تخصصی ویکی‌نور</span>
-                            </a>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
