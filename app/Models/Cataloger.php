@@ -77,14 +77,23 @@ class Cataloger extends Model
             if (str_starts_with($this->avatar_path, 'http://') || str_starts_with($this->avatar_path, 'https://')) {
                 return $this->avatar_path;
             }
-            if (file_exists(public_path('images/' . ltrim($this->avatar_path, '/')))) {
-                return asset('images/' . ltrim($this->avatar_path, '/'));
+            $clean = ltrim($this->avatar_path, '/');
+            $publicFile = public_path('images/' . $clean);
+            if (file_exists($publicFile)) {
+                return asset('images/' . $clean) . '?v=' . filemtime($publicFile);
             }
-            return asset('storage/' . ltrim($this->avatar_path, '/'));
+            $storageFile = public_path('storage/' . $clean);
+            if (file_exists($storageFile)) {
+                return asset('storage/' . $clean) . '?v=' . filemtime($storageFile);
+            }
+            return asset('storage/' . $clean);
         }
 
-        if ($this->mtif_entry_id && file_exists(public_path("images/catalogers/avatars/{$this->mtif_entry_id}.jpg"))) {
-            return asset("images/catalogers/avatars/{$this->mtif_entry_id}.jpg");
+        if ($this->mtif_entry_id) {
+            $publicFile = public_path("images/catalogers/avatars/{$this->mtif_entry_id}.jpg");
+            if (file_exists($publicFile)) {
+                return asset("images/catalogers/avatars/{$this->mtif_entry_id}.jpg") . '?v=' . filemtime($publicFile);
+            }
         }
 
         return null;
