@@ -85,12 +85,6 @@
                                 {{ mb_substr($cat->name, 0, 1) }}
                             </div>
                         @endif
-
-                        @if(!empty($cat->title_prefix))
-                            <span class="absolute -bottom-2 inset-x-0 mx-auto w-max px-2.5 py-0.5 rounded-full bg-amber-500/90 text-white text-[10px] font-bold shadow-sm backdrop-blur-sm">
-                                {{ $cat->title_prefix }}
-                            </span>
-                        @endif
                     </div>
 
                     <!-- Names & Life Years -->

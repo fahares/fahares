@@ -38,12 +38,6 @@
                 <!-- Titles & Info -->
                 <div class="space-y-3">
                     <div class="flex flex-wrap items-center gap-2">
-                        @if($cataloger->title_prefix)
-                            <span class="px-3 py-1 rounded-full bg-amber-100/70 dark:bg-amber-900/40 border border-amber-300/80 dark:border-amber-700/60 text-[#8C6226] dark:text-amber-200 text-xs font-bold">
-                                {{ $cataloger->title_prefix }}
-                            </span>
-                        @endif
-
                         <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-[#B38A50] text-xs font-bold">
                             فهرست‌نگار و نسخه‌شناس
                         </span>
@@ -55,15 +49,10 @@
                         @endif
                     </div>
 
-                    <div class="space-y-1">
+                    <div>
                         <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
                             {{ $cataloger->name }}
                         </h1>
-                        @if($cataloger->nickname && $cataloger->nickname !== $cataloger->name)
-                            <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                                مشهور به: <span class="text-stone-800 dark:text-stone-200 font-bold">«{{ $cataloger->nickname }}»</span>
-                            </div>
-                        @endif
                     </div>
 
                     <!-- Connect to Person / External Links -->
