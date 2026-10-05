@@ -106,7 +106,7 @@
                 @if($cataloger->life_years_text)
                     <div class="flex justify-between items-center pt-2 border-t border-stone-200/60 dark:border-stone-700/60">
                         <span class="text-stone-500 dark:text-stone-400">سال‌های حیات:</span>
-                        <span class="font-bold text-stone-700 dark:text-stone-300 text-left dir-ltr">{{ $cataloger->life_years_text }}</span>
+                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $cataloger->life_years_text }}</span>
                     </div>
                 @endif
                 @if(!empty($cataloger->metadata['birth_place']))
