@@ -173,18 +173,20 @@
     <div x-show="activeTab === 'manuscripts'" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @forelse($manuscripts as $m)
-                <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-2xs hover:shadow-md transition flex flex-col justify-between group space-y-4">
+                <div onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $m) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $m) }}'; } }"
+                     onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $m) }}', '_blank'); }"
+                     class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-2xs hover:shadow-md transition flex flex-col justify-between group space-y-4 cursor-pointer">
                     
                     <div class="space-y-2">
                         <!-- Work Title -->
                         <div class="flex items-start justify-between gap-2">
-                            <a href="{{ route('manuscripts.show', $m) }}" class="text-sm font-bold text-[#292C56] dark:text-stone-100 group-hover:text-[#B38A50] transition line-clamp-1">
+                            <span class="text-sm font-bold text-[#292C56] dark:text-stone-100 group-hover:text-[#B38A50] transition line-clamp-1">
                                 {{ $m->work?->clean_title ?: ($m->work?->primary_title ?: 'نسخه خطی') }}
-                            </a>
+                            </span>
                             @if($m->volume_number && $m->page_start)
                                 <button 
                                     type="button"
-                                    @click="$dispatch('open-catalog-viewer', { catalog: '{{ $m->catalog?->code ?? 'fankha' }}', catalogName: '{{ $m->catalog?->short_name ?? 'فنخا' }}', volume: {{ $m->volume_number }}, page: {{ $m->page_start }} })"
+                                    @click.stop="$dispatch('open-catalog-viewer', { catalog: '{{ $m->catalog?->code ?? 'fankha' }}', catalogName: '{{ $m->catalog?->short_name ?? 'فنخا' }}', volume: {{ $m->volume_number }}, page: {{ $m->page_start }} })"
                                     title="مشاهده تصویر برگه در مأخذ چاپی"
                                     class="shrink-0 p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] hover:bg-amber-100 dark:hover:bg-amber-900/40 transition cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,16 +213,13 @@
                     </div>
 
                     <!-- Footer: Citation -->
-                    <div class="pt-3 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-[11px] text-stone-400">
-                        <span>
-                            @if($m->volume_number && $m->page_start)
+                    @if($m->volume_number && $m->page_start)
+                        <div class="pt-3 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between text-[11px] text-stone-400">
+                            <span>
                                 فنخا: ج {{ $m->volume_number }}، ص {{ $m->page_start }}
-                            @endif
-                        </span>
-                        <a href="{{ route('manuscripts.show', $m) }}" class="font-semibold text-[#B38A50] hover:underline">
-                            مشاهده شناسنامه ←
-                        </a>
-                    </div>
+                            </span>
+                        </div>
+                    @endif
 
                 </div>
             @empty

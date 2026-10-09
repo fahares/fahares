@@ -181,13 +181,15 @@
 
         <div class="space-y-3">
             @forelse($scribedManuscripts as $ms)
-                <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#292C56] shadow-sm transition space-y-2">
+                <div onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $ms) }}'; } }"
+                     onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
+                     class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition cursor-pointer space-y-2 group">
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <div class="flex flex-wrap items-center gap-2">
-                                <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
+                                <span class="text-base font-bold text-[#292C56] dark:text-amber-100 group-hover:text-[#B38A50] transition">
                                     {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
-                                </a>
+                                </span>
                                 @if($ms->is_autograph)
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
                                         ✍️ دستخط مؤلف (نسخه اصل)
@@ -203,10 +205,6 @@
                                 <span>تاریخ کتابت: <strong>{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
                             </div>
                         </div>
-
-                        <a href="{{ route('manuscripts.show', $ms) }}" class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition whitespace-nowrap">
-                            شناسنامه نسخه ←
-                        </a>
                     </div>
                 </div>
             @empty
