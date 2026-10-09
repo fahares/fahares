@@ -137,6 +137,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('subjects', AdminSubjectController::class);
 
     // Authorities / People Deduplication & Management
+    Route::get('/people/search', [AdminPersonController::class, 'search'])->name('people.search');
     Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
     Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update']);
 

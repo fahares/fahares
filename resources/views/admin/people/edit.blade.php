@@ -21,9 +21,17 @@
                 <span>کتابت‌ها: <strong class="text-amber-600 font-mono">{{ number_format($person->manuscripts_count) }}</strong> نسخه</span>
             </div>
         </div>
-        <a href="{{ route('people.show', $person) }}" target="_blank" class="text-xs text-[#B38A50] hover:underline font-bold">
-            مشاهده در سایت ↗
-        </a>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.people.merge', ['source_id' => $person->id]) }}" 
+               title="ادغام این شخص تکراری در شخص دیگر یا ادغام شخصی در این رکورد"
+               class="px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-600 hover:text-white text-amber-800 dark:text-amber-300 font-bold transition flex items-center gap-1.5 text-xs shadow-xs">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                <span>ادغام با شخص دیگر...</span>
+            </a>
+            <a href="{{ route('people.show', $person) }}" target="_blank" class="text-xs text-[#B38A50] hover:underline font-bold">
+                مشاهده در سایت ↗
+            </a>
+        </div>
     </div>
 
     <form action="{{ route('admin.people.update', $person) }}" method="POST" class="space-y-5 text-xs">

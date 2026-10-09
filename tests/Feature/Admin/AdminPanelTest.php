@@ -423,5 +423,60 @@ class AdminPanelTest extends TestCase
         // Clean up suggestion
         $suggestion->delete();
     }
+
+    public function test_admin_can_search_people_for_merger()
+    {
+        $person = Person::create([
+            'name' => 'شخص ویژه جستجو ' . uniqid(),
+            'normalized_name' => 'شخص ویژه جستجو',
+            'slug' => 'person-search-test-' . uniqid(),
+            'works_count' => 5,
+            'manuscripts_count' => 2,
+            'is_author' => true,
+        ]);
+
+        // Search by numeric ID
+        $responseId = $this->actingAs($this->admin)->getJson("/admin/people/search?q={$person->id}");
+        $responseId->assertStatus(200);
+        $responseId->assertJsonFragment([
+            'id' => $person->id,
+            'name' => $person->name,
+            'works_count' => 5,
+        ]);
+
+        // Search by text query
+        $responseText = $this->actingAs($this->admin)->getJson("/admin/people/search?q=" . urlencode($person->name));
+        $responseText->assertStatus(200);
+        $this->assertTrue(collect($responseText->json())->contains('id', $person->id));
+
+        $person->delete();
+    }
+
+    public function test_admin_can_view_merge_page_with_preloaded_people()
+    {
+        $source = Person::create([
+            'name' => 'منبع پیش‌بارگذاری ' . uniqid(),
+            'normalized_name' => 'منبع پیش‌بارگذاری',
+            'slug' => 'pre-src-' . uniqid(),
+            'works_count' => 1,
+            'manuscripts_count' => 0,
+        ]);
+
+        $target = Person::create([
+            'name' => 'مقصد پیش‌بارگذاری ' . uniqid(),
+            'normalized_name' => 'مقصد پیش‌بارگذاری',
+            'slug' => 'pre-trg-' . uniqid(),
+            'works_count' => 2,
+            'manuscripts_count' => 0,
+        ]);
+
+        $response = $this->actingAs($this->admin)->get("/admin/people/merge?source_id={$source->id}&target_id={$target->id}");
+        $response->assertStatus(200);
+        $response->assertSee($source->name);
+        $response->assertSee($target->name);
+
+        $source->delete();
+        $target->delete();
+    }
 }
 

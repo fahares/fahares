@@ -38,7 +38,7 @@
                         class="w-full p-3 rounded-xl border border-red-300 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20 text-stone-900 dark:text-stone-100 font-semibold focus:border-red-500 outline-none">
                     <option value="">-- انتخاب موضوعی که باید حذف و ادغام شود --</option>
                     @foreach($subjects as $s)
-                        <option value="{{ $s->id }}" {{ old('source_subject_id') == $s->id ? 'selected' : '' }}>
+                        <option value="{{ $s->id }}" {{ old('source_subject_id', $preloadedSourceId ?? '') == $s->id ? 'selected' : '' }}>
                             {{ $s->name }} (شناسه #{{ $s->id }} • {{ number_format($s->works_count) }} اثر)
                         </option>
                     @endforeach
@@ -64,7 +64,7 @@
                         class="w-full p-3 rounded-xl border border-emerald-300 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-900 dark:text-stone-100 font-semibold focus:border-emerald-500 outline-none">
                     <option value="">-- انتخاب موضوعی که آثار به آن منتقل می‌شود --</option>
                     @foreach($subjects as $s)
-                        <option value="{{ $s->id }}" {{ old('target_subject_id') == $s->id ? 'selected' : '' }}>
+                        <option value="{{ $s->id }}" {{ old('target_subject_id', $preloadedTargetId ?? '') == $s->id ? 'selected' : '' }}>
                             {{ $s->name }} (شناسه #{{ $s->id }} • {{ number_format($s->works_count) }} اثر)
                         </option>
                     @endforeach

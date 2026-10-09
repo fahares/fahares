@@ -116,7 +116,9 @@ class SubjectController extends Controller
     {
         if ($request->isMethod('GET')) {
             $subjects = Subject::orderBy('name')->get();
-            return view('admin.subjects.merge', compact('subjects'));
+            $preloadedSourceId = $request->query('source_subject_id');
+            $preloadedTargetId = $request->query('target_subject_id');
+            return view('admin.subjects.merge', compact('subjects', 'preloadedSourceId', 'preloadedTargetId'));
         }
 
         $validated = $request->validate([

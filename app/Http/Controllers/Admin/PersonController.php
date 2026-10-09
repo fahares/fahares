@@ -98,10 +98,65 @@ class PersonController extends Controller
             ->with('success', "مشخصات پدیدآور [{$person->name}] با موفقیت به‌روزرسانی شد.");
     }
 
+    public function search(Request $request)
+    {
+        $q = trim($request->input('q', ''));
+        if (empty($q)) {
+            return response()->json([]);
+        }
+
+        // Exact match by numeric ID
+        if (is_numeric($q)) {
+            $person = Person::find((int) $q);
+            if ($person) {
+                return response()->json([
+                    $this->formatPersonResult($person),
+                ]);
+            }
+        }
+
+        // Full-text search via Meilisearch with database fallback and merging
+        $scoutHits = collect();
+        try {
+            $scoutHits = Person::search($q)->take(12)->get();
+        } catch (\Throwable $e) {
+            // Meilisearch offline or unreachable
+        }
+
+        $dbMatches = Person::where(function ($query) use ($q) {
+            $query->where('name', 'like', "%{$q}%")
+                  ->orWhere('normalized_name', 'like', "%{$q}%");
+        })
+        ->orderByDesc('works_count')
+        ->take(12)
+        ->get();
+
+        $people = $scoutHits->concat($dbMatches)->unique('id')->take(12);
+
+        return response()->json($people->map(fn($p) => $this->formatPersonResult($p))->values());
+    }
+
     public function merge(Request $request)
     {
         if ($request->isMethod('GET')) {
-            return view('admin.people.merge');
+            $preloadedSource = null;
+            $preloadedTarget = null;
+
+            if ($request->filled('source_id')) {
+                $source = Person::find($request->query('source_id'));
+                if ($source) {
+                    $preloadedSource = $this->formatPersonResult($source);
+                }
+            }
+
+            if ($request->filled('target_id')) {
+                $target = Person::find($request->query('target_id'));
+                if ($target) {
+                    $preloadedTarget = $this->formatPersonResult($target);
+                }
+            }
+
+            return view('admin.people.merge', compact('preloadedSource', 'preloadedTarget'));
         }
 
         $validated = $request->validate([
@@ -188,5 +243,20 @@ class PersonController extends Controller
 
         return redirect()->route('admin.people.index')
             ->with('success', "شخص تکراری [{$source->name} #{$source->id}] با موفقیت در [{$target->name} #{$target->id}] ادغام شد.");
+    }
+
+    protected function formatPersonResult(Person $p): array
+    {
+        return [
+            'id' => $p->id,
+            'name' => $p->name,
+            'century_hijri' => $p->century_hijri,
+            'death_year_hijri' => $p->death_year_hijri,
+            'works_count' => (int) ($p->works_count ?? 0),
+            'manuscripts_count' => (int) ($p->manuscripts_count ?? 0),
+            'is_author' => (bool) $p->is_author,
+            'is_scribe' => (bool) $p->is_scribe,
+            'url' => route('people.show', $p),
+        ];
     }
 }

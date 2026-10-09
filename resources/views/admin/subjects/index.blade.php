@@ -99,10 +99,18 @@
                                 </span>
                             </td>
                             <td class="p-4 text-center">
-                                <a href="{{ route('admin.subjects.edit', $subj) }}" 
-                                   class="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white text-stone-700 dark:text-stone-200 font-bold transition">
-                                    ویرایش
-                                </a>
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <a href="{{ route('admin.subjects.edit', $subj) }}" 
+                                       class="px-2.5 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white text-stone-700 dark:text-stone-200 font-bold transition">
+                                        ویرایش
+                                    </a>
+                                    <a href="{{ route('admin.subjects.merge', ['source_subject_id' => $subj->id]) }}" 
+                                       title="ادغام این موضوع در موضوع دیگر"
+                                       class="px-2 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-600 hover:text-white text-amber-700 dark:text-amber-300 font-bold transition flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                        <span>ادغام</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty
