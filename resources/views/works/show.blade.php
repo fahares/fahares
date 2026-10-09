@@ -536,12 +536,13 @@
                             <th class="py-3.5 px-4">{!! $renderSortHeader('date', 'تاریخ کتابت') !!}</th>
                             <th class="py-3.5 px-4">{!! $renderSortHeader('script', 'نوع خط') !!}</th>
                             <th class="py-3.5 px-4">{!! $renderSortHeader('folios', 'برگ') !!}</th>
-                            <th class="py-3.5 px-4 text-center">مشاهده</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60 text-stone-700 dark:text-stone-300">
                         @forelse($manuscripts as $index => $ms)
-                            <tr class="hover:bg-amber-50/40 dark:hover:bg-stone-800/40 transition">
+                            <tr onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $ms) }}'; } }"
+                                onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
+                                class="hover:bg-amber-50/60 dark:hover:bg-stone-800/60 cursor-pointer transition">
                                 <td class="py-3 px-4 text-center text-stone-400">
                                     {{ $manuscripts->firstItem() + $index }}
                                 </td>
@@ -567,9 +568,9 @@
                                         @endif
                                     @elseif($ms->is_autograph)
                                         @if($work->author)
-                                            <a href="{{ route('people.show', $work->author) }}" class="font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+                                            <span class="font-medium text-emerald-700 dark:text-emerald-400">
                                                 {{ $work->author->name }} <span class="text-xs font-semibold opacity-90 mr-0.5">(مؤلف)</span>
-                                            </a>
+                                            </span>
                                         @elseif($work->author_name)
                                             <span class="font-medium text-emerald-700 dark:text-emerald-400">
                                                 {{ $work->author_name }} <span class="text-xs font-semibold opacity-90 mr-0.5">(مؤلف)</span>
@@ -601,17 +602,10 @@
                                 <td class="py-3 px-4">
                                     {{ $ms->folios ? $ms->folios : '-' }}
                                 </td>
-
-                                <td class="py-3 px-4 text-center">
-                                    <a href="{{ route('manuscripts.show', $ms) }}" 
-                                       class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white rounded-lg text-xs font-semibold transition inline-block">
-                                        شناسنامه ←
-                                    </a>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-8 text-center text-stone-400">
+                                <td colspan="7" class="py-8 text-center text-stone-400">
                                     هیچ نسخه‌ای برای این اثر ثبت نشده است.
                                 </td>
                             </tr>
