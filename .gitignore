@@ -26,6 +26,8 @@ fahares.code-workspace
 !/storage/framework/sessions/.gitignore
 /storage/framework/views/*
 !/storage/framework/views/.gitignore
+.phpunit.result.cache
+.phpunit.cache
 
 # Docker Volumes Data (if mounted locally)
 meilidata/
