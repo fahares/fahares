@@ -60,9 +60,9 @@ class Person extends Model
 
         return [
             'id' => (int) $this->id,
-            'name' => $this->name,
-            'normalized_name' => $normalizedWithAliases,
-            'aliases' => $aliases,
+            'name' => \App\Helpers\TextNormalizer::expandVariants($this->name),
+            'normalized_name' => \App\Helpers\TextNormalizer::expandVariants($normalizedWithAliases),
+            'aliases' => array_map(fn($a) => \App\Helpers\TextNormalizer::expandVariants($a), $aliases),
             'slug' => $this->slug,
             'transliteration' => $this->transliteration,
             'death_year_hijri' => $this->death_year_hijri ? (int) $this->death_year_hijri : null,

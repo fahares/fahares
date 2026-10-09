@@ -83,9 +83,9 @@ class Work extends Model
         if (!empty($this->alternative_titles)) {
             foreach ($this->alternative_titles as $item) {
                 if (is_array($item) && !empty($item['title'])) {
-                    $alts[] = $item['title'];
+                    $alts[] = \App\Helpers\TextNormalizer::expandVariants($item['title']);
                 } elseif (is_string($item)) {
-                    $alts[] = $item;
+                    $alts[] = \App\Helpers\TextNormalizer::expandVariants($item);
                 }
             }
         }
@@ -102,15 +102,17 @@ class Work extends Model
             $authorSearchText = trim($authorSearchText . ' ' . implode(' ', $authorAliases));
         }
 
+        $cleanTitle = $this->clean_title ?: $this->primary_title;
+
         return [
             'id' => (int) $this->id,
-            'primary_title' => $this->primary_title,
-            'clean_title' => $this->clean_title,
+            'primary_title' => \App\Helpers\TextNormalizer::expandVariants($this->primary_title),
+            'clean_title' => \App\Helpers\TextNormalizer::expandVariants($cleanTitle),
             'slug' => $this->slug,
             'transliteration' => $this->transliteration,
             'alternative_titles' => $alts,
-            'author_name' => $authorSearchText,
-            'author_aliases' => $authorAliases,
+            'author_name' => \App\Helpers\TextNormalizer::normalize($authorSearchText),
+            'author_aliases' => array_map(fn($a) => \App\Helpers\TextNormalizer::normalize($a), $authorAliases),
             'author_id' => $this->author_id ? (int) $this->author_id : null,
             'composition_year_hijri' => $this->composition_year_hijri ? (int) $this->composition_year_hijri : null,
             'volume_number' => (int) $this->volume_number,
@@ -120,9 +122,9 @@ class Work extends Model
             'subject_summary' => $this->subject_summary,
             'language_summary' => $this->language_summary,
             'manuscripts_count' => (int) $this->manuscripts_count,
-            'incipit_text' => $this->incipit_text,
-            'explicit_text' => $this->explicit_text,
-            'description' => $this->description ? mb_substr($this->description, 0, 500) : null,
+            'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
+            'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
+            'description' => $this->description ? \App\Helpers\TextNormalizer::normalize(mb_substr($this->description, 0, 500)) : null,
             'subjects' => $this->relationLoaded('subjects') ? $this->subjects->pluck('name')->all() : [],
             'languages' => $this->relationLoaded('languages') ? $this->languages->pluck('name')->all() : [],
         ];

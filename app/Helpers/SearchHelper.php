@@ -49,14 +49,16 @@ class SearchHelper
             $patternParts = [];
 
             foreach ($chars as $ch) {
-                if (in_array($ch, ['ی', 'ي'], true)) {
-                    $patternParts[] = '[یي]';
+                if (in_array($ch, ['ی', 'ي', 'ى', 'ئ'], true)) {
+                    $patternParts[] = '[یيىئ]';
                 } elseif (in_array($ch, ['ک', 'ك'], true)) {
                     $patternParts[] = '[کك]';
-                } elseif (in_array($ch, ['ا', 'آ', 'أ', 'إ'], true)) {
-                    $patternParts[] = '[اآأإ]';
+                } elseif (in_array($ch, ['ا', 'آ', 'أ', 'إ', 'ٱ'], true)) {
+                    $patternParts[] = '[اآأإٱ]';
                 } elseif (in_array($ch, ['ه', 'ة'], true)) {
                     $patternParts[] = '[هة]';
+                } elseif (in_array($ch, ['و', 'ؤ'], true)) {
+                    $patternParts[] = '[وؤ]';
                 } else {
                     $patternParts[] = preg_quote($ch, '/');
                 }
