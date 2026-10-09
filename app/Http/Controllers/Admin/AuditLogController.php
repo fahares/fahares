@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\EntityRedirect;
 use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
 use App\Models\Person;
@@ -149,6 +150,9 @@ class AuditLogController extends Controller
                 $restoredPerson->searchable();
             }
 
+            // Remove entity redirect
+            EntityRedirect::removeRedirect('people', (int) $sourceId);
+
             // Audit log of rollback
             AuditLog::create([
                 'user_id' => auth()->id(),
@@ -212,6 +216,9 @@ class AuditLogController extends Controller
             // Recount works
             $target->update(['works_count' => DB::table('subject_work')->where('subject_id', $target->id)->count()]);
             Subject::where('id', $sourceId)->update(['works_count' => DB::table('subject_work')->where('subject_id', $sourceId)->count()]);
+
+            // Remove entity redirect
+            EntityRedirect::removeRedirect('subjects', (int) $sourceId);
 
             // Audit log of rollback
             AuditLog::create([

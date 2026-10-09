@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\EntityRedirect;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Work;
@@ -237,7 +238,10 @@ class PersonController extends Controller
                 'ip_address' => $request->ip(),
             ]);
 
-            // 5. Delete source person
+            // 5. Record permanent redirect from source to target
+            EntityRedirect::recordRedirect('people', $source->id, $target->id);
+
+            // 6. Delete source person
             $source->delete();
         });
 

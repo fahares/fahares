@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EntityRedirect;
 use App\Models\Person;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,18 @@ class PersonController extends Controller
     {
         $numericId = (int) $id;
 
-        $person = Person::withCount(['works', 'scribedManuscripts'])->findOrFail($numericId);
+        $person = Person::withCount(['works', 'scribedManuscripts'])->find($numericId);
+
+        if (! $person) {
+            $targetId = EntityRedirect::resolveTargetId('people', $numericId);
+            if ($targetId) {
+                $target = Person::find($targetId);
+                if ($target) {
+                    return redirect()->route('people.show', array_merge(['id' => $target->getRouteKey()], $request->query()), 301);
+                }
+            }
+            abort(404);
+        }
 
         $canonicalKey = (string) $person->getRouteKey();
         if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {

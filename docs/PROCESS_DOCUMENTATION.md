@@ -1518,6 +1518,31 @@
       - بسط کلاس‌های کاراکتری عبارات باقاعده جهت پوشش هم‌زمان تمامی حروف فارسی و عربی در رنگ‌آمیزی نتایج.
     - بازنمایه‌سازی و آزمون موفق کوئری‌های معادل در محیط آزمایشی.
 
+- **فاز ۷۴: پیاده‌سازی سازوکار تغییرمسیر دائمی و ماندگاری پیوندها پس از ادغام (Permanent 301 Entity Redirection Engine):**
+  - **اهداف و منطق علمی و فنی (۱۸ مهر ۱۴۰۵ / 2026-10-10):**
+    - بر اساس اصل ماندگاری پیوندها در وب علمی (Cool URIs don't change)، هنگامی که دو شخص یا موضوع با یکدیگر ادغام می‌شوند، شناسه و پیوند موجودیت حذف‌شده نباید به خطای 404 منتهی شود، تا پیوندهای ذخیره‌شده، مقالات، بوکمارک‌ها و نمایه‌های موتورهای جستجو حفظ گردند.
+    - تصمیم بر آن شد که بدون دستکاری جداول حجیم اصلی، یک سازوکار ریدایرکت خالص، سبک و فوق‌العاده سریع با کد وضعیت استاندارد **HTTP 301 Permanent Redirect** پیاده‌سازی شود.
+  - **اقدامات و نوآوری‌های فنی:**
+    - **۱. ایجاد جدول مستقل تغییرمسیرها ([create_entity_redirects_table.php](../database/migrations/2026_10_10_000001_create_entity_redirects_table.php)):**
+      - ساخت جدول `entity_redirects` با فیلدهای ایندکس‌شده `entity_type`، `source_id`، `target_id` و کلید یکتای ترکیبی.
+    - **۲. توسعه مدل [EntityRedirect.php](../app/Models/EntityRedirect.php) با قابلیت حل زنجیره‌ای (Chain Resolution):**
+      - پیاده‌سازی متد `recordRedirect()`: ثبت نگاشت مبدأ به مقصد به همراه تصحیح خودکار ریدایرکت‌های ماقبل جهت پیشگیری از شکل‌گیری زنجیره‌های چندمرحله‌ای (A ➔ B ➔ C مستقیم به A ➔ C تبدیل می‌شود).
+      - پیاده‌سازی متد `resolveTargetId()`: حل سریع شناسه مقصد نهایی با گارد پیشگیری از حلقه‌های نامحدود.
+      - پیاده‌سازی متد `removeRedirect()`: حذف تغییرمسیر در صورت بازگردانی ادغام.
+    - **۳. اتصال به جریان کار ادغام و بازگردانی:**
+      - ثبت ریدایرکت دائمی هنگام ادغام در [PersonController.php](../app/Http/Controllers/Admin/PersonController.php) و [SubjectController.php](../app/Http/Controllers/Admin/SubjectController.php).
+      - حذف خودکار ریدایرکت در زمان بازگردانی ممیزی در [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php) جهت احیای بی‌نقص صفحه اولیه.
+    - **۴. اعمال در کنترلرهای نمایشی عمومی ([PersonController.php](../app/Http/Controllers/PersonController.php) و [SubjectController.php](../app/Http/Controllers/SubjectController.php)):**
+      - اجرای منطق ریدایرکت تنها در صورت عدم وجود رکورد اولیه (عدم تحمیل هرگونه کوئری اضافی روی درخواست‌های عادی).
+      - انتقال دائمی (301) کاربر به آدرس استاندارد رکورد مقصد جدید.
+  - **راستی‌آزمایی و آزمون‌های خودکار:**
+    - ایجاد آزمون‌های فیچر اختصاصی در [EntityRedirectTest.php](../tests/Feature/EntityRedirectTest.php):
+      - `test_merged_person_redirects_with_301_to_target`: آزمون انتقال 301 شخص ادغام‌شده به شخص مقصد.
+      - `test_merged_subject_redirects_with_301_to_target`: آزمون انتقال 301 موضوع ادغام‌شده به موضوع مقصد.
+      - `test_chained_redirects_resolve_to_latest_target`: آزمون تصحیح و حل مستقیم زنجیره‌های چندگانه.
+      - `test_rollback_merge_removes_redirect_and_restores_page`: آزمون لغو ریدایرکت و احیای کامل صفحه شخص پس از Undo.
+    - اجرای موفق کلیه ۲۳ تست سامانه (شامل ۱۱۱ Assertion) با موفقیت ۱۰۰٪.
+
 ---
 *این سند با پیشرفت هر گام از توسعه فنی، استخراج و بارگذاری پروژه به‌روزرسانی می‌شود.*
 

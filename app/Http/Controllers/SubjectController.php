@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EntityRedirect;
 use App\Models\Subject;
 use App\Models\Work;
 use Illuminate\Http\Request;
@@ -54,7 +55,18 @@ class SubjectController extends Controller
         $subject = Subject::with([
             'parent',
             'children' => fn($q) => $q->where('works_count', '>', 0)->orderByDesc('works_count')
-        ])->findOrFail($numericId);
+        ])->find($numericId);
+
+        if (! $subject) {
+            $targetId = EntityRedirect::resolveTargetId('subjects', $numericId);
+            if ($targetId) {
+                $target = Subject::find($targetId);
+                if ($target) {
+                    return redirect()->route('subjects.show', array_merge(['id' => $target->getRouteKey()], $request->query()), 301);
+                }
+            }
+            abort(404);
+        }
 
         $canonicalKey = (string) $subject->getRouteKey();
         if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {
