@@ -19,6 +19,9 @@ class LinkUnlinkedManuscriptsCommand extends Command
 
     public function handle(): int
     {
+        ini_set('memory_limit', '1024M');
+        DB::disableQueryLog();
+
         $dryRun = (bool) $this->option('dry-run');
         if ($dryRun) {
             $this->warn('Running in DRY-RUN mode. No database modifications will be saved.');
