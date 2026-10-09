@@ -786,16 +786,30 @@
                 </div>
 
                 <!-- Researcher Info -->
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <div class="space-y-1">
-                        <label class="block font-semibold text-stone-700 dark:text-stone-300">نام شما (اختیاری):</label>
-                        <input type="text" name="guest_name" placeholder="دکتر..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                @auth
+                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>ثبت پیشنهاد با نام: <strong>{{ auth()->user()->name }}</strong> ({{ auth()->user()->email }})</span>
+                        </div>
+                        <input type="hidden" name="guest_name" value="{{ auth()->user()->name }}">
+                        <input type="hidden" name="guest_email" value="{{ auth()->user()->email }}">
                     </div>
-                    <div class="space-y-1">
-                        <label class="block font-semibold text-stone-700 dark:text-stone-300">ایمیل تماس (اختیاری):</label>
-                        <input type="email" name="guest_email" placeholder="email@example.com" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                @else
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div class="space-y-1">
+                            <label class="block font-semibold text-stone-700 dark:text-stone-300">نام شما (اختیاری):</label>
+                            <input type="text" name="guest_name" placeholder="دکتر..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block font-semibold text-stone-700 dark:text-stone-300">ایمیل تماس (اختیاری):</label>
+                            <input type="email" name="guest_email" placeholder="email@example.com" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        </div>
                     </div>
-                </div>
+                    <div class="text-[11px] text-stone-400">
+                        پیشنهاد: برای ثبت خودکار اصلاحیه‌ها و بهره‌مندی از امکانات پژوهشی، می‌توانید <a href="{{ route('login') }}" class="text-[#B38A50] hover:underline font-medium">وارد شوید</a> یا <a href="{{ route('register') }}" class="text-[#B38A50] hover:underline font-medium">عضو شوید</a>.
+                    </div>
+                @endauth
 
                 <!-- Actions -->
                 <div class="pt-4 flex items-center justify-end gap-3 border-t border-stone-100 dark:border-stone-800">

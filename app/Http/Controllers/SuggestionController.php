@@ -20,6 +20,8 @@ class SuggestionController extends Controller
             'guest_email' => 'nullable|email|max:100',
         ]);
 
+        $user = $request->user();
+
         FieldSuggestion::create([
             'suggestable_type' => $validated['suggestable_type'],
             'suggestable_id' => $validated['suggestable_id'],
@@ -27,8 +29,9 @@ class SuggestionController extends Controller
             'current_value' => $validated['current_value'] ?? null,
             'suggested_value' => $validated['suggested_value'],
             'rationale_citation' => $validated['rationale_citation'],
-            'guest_name' => $validated['guest_name'] ?? 'پژوهشگر مهمان',
-            'guest_email' => $validated['guest_email'] ?? null,
+            'user_id' => $user?->id,
+            'guest_name' => $user ? $user->name : ($validated['guest_name'] ?? 'پژوهشگر مهمان'),
+            'guest_email' => $user ? $user->email : ($validated['guest_email'] ?? null),
             'status' => 'pending',
         ]);
 

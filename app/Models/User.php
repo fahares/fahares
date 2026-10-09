@@ -30,4 +30,34 @@ class User extends Authenticatable
             'is_verified_scholar' => 'boolean',
         ];
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isEditor(): bool
+    {
+        return in_array($this->role, ['admin', 'editor']);
+    }
+
+    public function canAccessAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'editor']);
+    }
+
+    public function suggestions()
+    {
+        return $this->hasMany(FieldSuggestion::class);
+    }
+
+    public function annotations()
+    {
+        return $this->hasMany(ScholarlyAnnotation::class);
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class);
+    }
 }

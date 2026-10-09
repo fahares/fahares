@@ -123,6 +123,56 @@
                         </svg>
                     </button>
 
+                    <!-- User Account / Auth Actions -->
+                    @auth
+                        <div x-data="{ userMenuOpen: false }" class="relative">
+                            <button @click="userMenuOpen = !userMenuOpen" 
+                                    class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#B38A50]/40 bg-[#B38A50]/10 text-stone-800 dark:text-stone-200 text-xs font-bold hover:border-[#B38A50] transition cursor-pointer">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span class="max-w-[100px] sm:max-w-[140px] truncate">{{ auth()->user()->name }}</span>
+                                <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-cloak x-transition
+                                 class="absolute left-0 mt-2 w-52 bg-white dark:bg-[#15192C] rounded-2xl shadow-xl border border-stone-200 dark:border-stone-700 py-2 z-50 text-xs divide-y divide-stone-100 dark:divide-stone-800">
+                                <div class="px-4 py-2">
+                                    <p class="font-bold text-stone-900 dark:text-stone-100 truncate">{{ auth()->user()->name }}</p>
+                                    <p class="text-[10px] text-stone-400 truncate dir-ltr text-right">{{ auth()->user()->email }}</p>
+                                </div>
+                                @if(auth()->user()->canAccessAdmin())
+                                    <div class="py-1">
+                                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-[#B38A50] hover:bg-amber-50 dark:hover:bg-amber-950/20 font-bold transition">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                            </svg>
+                                            <span>پنل مدیریت و داوری</span>
+                                        </a>
+                                    </div>
+                                @endif
+                                <div class="py-1">
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="w-full text-right flex items-center gap-2 px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium transition cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                            </svg>
+                                            <span>خروج از حساب</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 hover:border-[#B38A50] hover:text-[#B38A50] transition shadow-sm">
+                            <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                            </svg>
+                            <span>ورود / عضویت</span>
+                        </a>
+                    @endauth
+
                     <!-- Mobile Menu Button (Alpine) -->
                     <div x-data="{ open: false }" class="md:hidden relative">
                         <button @click="open = !open" class="p-2 rounded-lg border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300">
