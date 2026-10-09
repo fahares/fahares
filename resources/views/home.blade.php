@@ -31,47 +31,28 @@
             </div>
         </div>
 
-        <!-- LIVE SEARCH WIDGET (Alpine.js with Instant Autocomplete) -->
-        <div x-data="{
-                query: '',
-                activeTab: 'works',
-                results: { works: [], people: [], manuscripts: [] },
-                loading: false,
-                isOpen: false,
-                fetchResults() {
-                    if (this.query.trim().length < 2) {
-                        this.results = { works: [], people: [], manuscripts: [] };
-                        this.isOpen = false;
-                        return;
-                    }
-                    this.loading = true;
-                    fetch('{{ route('search.api', [], false) }}?q=' + encodeURIComponent(this.query) + '&type=all')
-                        .then(res => res.json())
-                        .then(data => {
-                            this.results = data;
-                            this.isOpen = (data.works.length > 0 || data.people.length > 0 || data.manuscripts.length > 0);
-                            this.loading = false;
-                        })
-                        .catch(() => { this.loading = false; });
-                }
-            }" 
+        <!-- SEARCH WIDGET -->
+        <div x-data="{ activeTab: 'works' }" 
             class="relative max-w-3xl mx-auto text-right">
 
             <!-- Search Mode Tabs -->
             <div class="flex items-center justify-center gap-2 mb-3 text-xs sm:text-sm font-semibold">
                 <button 
+                    type="button"
                     @click="activeTab = 'works'" 
                     :class="activeTab === 'works' ? 'bg-[#292C56] text-amber-100 shadow-md' : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100'"
                     class="px-4 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 transition duration-150">
                     آثار و عناوین
                 </button>
                 <button 
+                    type="button"
                     @click="activeTab = 'manuscripts'" 
                     :class="activeTab === 'manuscripts' ? 'bg-[#292C56] text-amber-100 shadow-md' : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100'"
                     class="px-4 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 transition duration-150">
                     نسخه‌های خطی
                 </button>
                 <button 
+                    type="button"
                     @click="activeTab = 'people'" 
                     :class="activeTab === 'people' ? 'bg-[#292C56] text-amber-100 shadow-md' : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100'"
                     class="px-4 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 transition duration-150">
@@ -88,10 +69,6 @@
                     <input 
                         type="text" 
                         name="q" 
-                        x-model="query" 
-                        @input.debounce.250ms="fetchResults()"
-                        @focus="if(query.trim().length >= 2) isOpen = true"
-                        @click.away="isOpen = false"
                         autocomplete="off"
                         placeholder="جستجو در عنوان اثر، نام مؤلف، کاتب، آغاز/انجام، یا شماره نسخه..."
                         class="w-full pr-14 pl-28 py-4 sm:py-5 bg-white dark:bg-[#15192C] text-stone-800 dark:text-stone-100 placeholder-stone-400 text-base sm:text-lg rounded-2xl border-2 border-[#EADFCF] dark:border-[#272F4C] focus:border-[#B38A50] dark:focus:border-[#B38A50] focus:ring-4 focus:ring-[#B38A50]/20 shadow-xl transition duration-200">
@@ -110,68 +87,6 @@
                     </button>
                 </div>
             </form>
-
-            <!-- Realtime Autocomplete Dropdown -->
-            <div 
-                x-show="isOpen" 
-                x-transition:enter="transition ease-out duration-150"
-                x-transition:enter-start="opacity-0 translate-y-2"
-                x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-100"
-                x-transition:leave-start="opacity-100 translate-y-0"
-                x-transition:leave-end="opacity-0 translate-y-2"
-                class="absolute left-0 right-0 mt-2 bg-white dark:bg-[#15192C] rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-700 max-h-96 overflow-y-auto z-50 p-2 divide-y divide-stone-100 dark:divide-stone-800"
-                style="display: none;">
-                
-                <!-- Matching Works -->
-                <template x-if="results.works && results.works.length > 0">
-                    <div class="py-2">
-                        <div class="px-3 py-1 text-[11px] font-bold text-[#B38A50] uppercase tracking-wider">آثار منطبق</div>
-                        <template x-for="item in results.works" :key="'w-' + item.id">
-                            <a :href="item.url" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition group">
-                                <div>
-                                    <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50]" x-text="item.title"></div>
-                                    <div class="text-xs text-stone-400" x-text="item.author"></div>
-                                </div>
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] font-bold" x-text="item.manuscripts_count + ' نسخه'"></span>
-                            </a>
-                        </template>
-                    </div>
-                </template>
-
-                <!-- Matching People -->
-                <template x-if="results.people && results.people.length > 0">
-                    <div class="py-2">
-                        <div class="px-3 py-1 text-[11px] font-bold text-[#292C56] dark:text-indigo-400 uppercase tracking-wider">پدیدآوران و کاتبان</div>
-                        <template x-for="item in results.people" :key="'p-' + item.id">
-                            <a :href="item.url" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition group">
-                                <div class="text-sm font-semibold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50]" x-text="item.name"></div>
-                                <span class="text-xs text-stone-400" x-text="item.death_hijri"></span>
-                            </a>
-                        </template>
-                    </div>
-                </template>
-
-                <!-- Matching Manuscripts -->
-                <template x-if="results.manuscripts && results.manuscripts.length > 0">
-                    <div class="py-2">
-                        <div class="px-3 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">نسخه‌های خطی</div>
-                        <template x-for="item in results.manuscripts" :key="'m-' + item.id">
-                            <a :href="item.url" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition group">
-                                <div>
-                                    <div class="text-sm font-semibold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] flex items-center gap-1.5 flex-wrap">
-                                        <span x-text="item.work_title"></span>
-                                        <span x-show="item.author_name" class="text-xs font-normal text-stone-500 dark:text-stone-400" x-text="'(پدیدآور: ' + item.author_name + ')'"></span>
-                                    </div>
-                                    <div class="text-xs text-stone-400" x-text="item.library + ' (بازیابی: ' + (item.accession_number || 'بی‌شماره') + ')'"></div>
-                                </div>
-                                <span class="text-[11px] text-stone-400">مشاهده نسخه ←</span>
-                            </a>
-                        </template>
-                    </div>
-                </template>
-
-            </div>
 
             <!-- Quick Suggestions Pills -->
             <div class="mt-4 flex flex-wrap items-center justify-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
