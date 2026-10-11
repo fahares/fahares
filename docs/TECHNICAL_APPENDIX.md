@@ -1711,3 +1711,30 @@
 - **آزمون‌ها:** در [AdminPanelTest.php](../tests/Feature/Admin/AdminPanelTest.php) آزمون ادغام و بازگردانی تکمیل شد و آزمون‌های `test_people_merge_adds_only_new_aliases` و `test_rollback_keeps_alias_shared_with_another_active_merge` اضافه شدند. ۲۵ آزمون با ۱۲۲ Assertion موفق.
 
 ---
+
+### گام ۸.۱۱: سامانه‌ی پشتیبان‌گیری پروداکشن (Telegram + Google Drive via restic)
+
+- **شناسایی پروداکشن (با `ssh fahares-server`، فقط خواندنی):**
+  - پایگاه داده یک منبع مدیریت‌شده‌ی Coolify است: کانتینر `ywghcqimp5628ge4tygusi8q`، ‏MariaDB 11.8، پایگاه `default`، ۲۷ جدول InnoDB، ۷۶۴ مگابایت داده و ۳۴۱ مگابایت ایندکس.
+  - سرور ۲ هسته و ۵٫۳ گیگابایت رم دارد و swap آن پر است. تصاویر مآخذ ۵٫۴ گیگابایت است.
+  - Hermes با کاربر جداگانه‌ی `hermes` اجرا می‌شود.
+  - مایگریشن `2026_10_10_000001_create_entity_redirects_table` در پروداکشن اجرا نشده بود. این مایگریشن در ۱۹ مهر اجرا شد.
+- **اسکریپت‌ها در [scripts/backup](../scripts/backup/):**
+  - [fahares-backup.sh](../scripts/backup/fahares-backup.sh):
+    - **`db`:** کانتینر DB با برچسب‌های Coolify پیدا می‌شود. سپس `mariadb-dump --single-transaction` اجرا می‌شود، بدون داده‌ی `cache`، `sessions` و `jobs`، و خروجی با `zstd -10 -T2` و `nice`/`ionice` فشرده می‌شود. کامل بودن dump با خط پایانی `-- Dump completed` سنجیده می‌شود و شمار سطرهای جداول کلیدی در manifest ثبت می‌شود. نسخه‌ی تلگرام با `age` رمزنگاری و به تکه‌های ۱۹ مگابایتی تقسیم می‌شود، چون `getFile` ربات فقط تا ۲۰ مگابایت دانلود می‌کند. نسخه‌ی Drive به‌صورت SQL خام از stdin به restic داده می‌شود تا تکرارها حذف شوند.
+    - **`media` و `config`:** تصاویر و env کانتینرهای برنامه و DB به restic می‌روند. env به تلگرام هم فرستاده می‌شود.
+    - **`verify`:** اجرای `restic check --read-data-subset` و خواندن کامل آخرین dump.
+    - **`status`:** کد خروج ۱ وقتی بکاپ ناموفق یا کهنه‌تر از ۳۰ ساعت باشد.
+    - **ایمنی اجرا:** قفل `flock` و تله‌ی `EXIT` برای ثبت شکست در `last.json`، پاک‌سازی فایل‌های نیمه‌کاره و هشدار مستقیم به تلگرام.
+  - [fahares-restore.sh](../scripts/backup/fahares-restore.sh):
+    - منبع بازیابی یکی از این سه است: فایل، manifest تلگرام (sha256 هر تکه بررسی می‌شود) یا snapshot ‏restic.
+    - کانتینر و پایگاه داده‌ی مقصد باید صریحاً نام برده شوند. اگر پایگاه داده‌ی مقصد جدول داشته باشد، بدون `--replace` بازیابی انجام نمی‌شود.
+  - فایل‌های همراه: [backup.env.example](../scripts/backup/backup.env.example)، [crontab.example](../scripts/backup/crontab.example)، [hermes.sudoers](../scripts/backup/hermes.sudoers) (اجازه‌ی محدود: `status`، `db` و `verify` با کاربر tabib)، و [README](../scripts/backup/README.md) (راهنمای راه‌اندازی و بازیابی).
+- **آزمون محلی:**
+  - محیط آزمون: Docker محلی با یک سرور شبیه‌ساز Bot API تلگرام.
+  - dump حدود ۹۰ ثانیه طول کشید: ۵۶۲ مگابایت SQL که به ۶۸ مگابایت فشرده شد، یعنی ۴ تکه.
+  - بازیابی از manifest تلگرام در یک پایگاه داده‌ی جدا: شمار سطرها دقیقاً برابر manifest بود (۳۲۳٬۸۸۴ نسخه، ۷۱٬۵۵۰ اثر، ۷۴٬۱۹۷ شخص).
+  - حجم مخزن restic: دو dump روزانه در ۸۹ مگابایت (فشرده‌سازی ۶ برابر، به‌علاوه‌ی حذف تکرار).
+  - مسیر شکست: آزموده شد و ثبت وضعیت `failed` و تلاش برای ارسال هشدار درست کار کرد.
+
+---
