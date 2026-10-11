@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\TextNormalizer;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
@@ -203,11 +204,15 @@ class PersonController extends Controller
             $newWorksCount = Work::where('author_id', $target->id)->count();
             $newManuscriptsCount = Manuscript::where('scribe_id', $target->id)->count();
 
+            // 3.1 Keep source name and its aliases as parallel names of the target
+            $addedAliases = $this->collectNewAliases($source, $target);
+
             $target->update([
                 'works_count' => $newWorksCount,
                 'manuscripts_count' => $newManuscriptsCount,
                 'is_author' => $target->is_author || ($newWorksCount > 0),
                 'is_scribe' => $target->is_scribe || ($newManuscriptsCount > 0),
+                'aliases' => array_values(array_merge((array) ($target->aliases ?? []), $addedAliases)),
             ]);
 
             if (method_exists($target, 'searchable')) {
@@ -234,6 +239,7 @@ class PersonController extends Controller
                     'target_name' => $target->name,
                     'new_works_count' => $newWorksCount,
                     'new_manuscripts_count' => $newManuscriptsCount,
+                    'added_aliases' => $addedAliases,
                 ],
                 'ip_address' => $request->ip(),
             ]);
@@ -247,6 +253,30 @@ class PersonController extends Controller
 
         return redirect()->route('admin.people.index')
             ->with('success', "شخص تکراری [{$source->name} #{$source->id}] با موفقیت در [{$target->name} #{$target->id}] ادغام شد.");
+    }
+
+    /**
+     * Source name and aliases that the target does not already have (compared in normalized form).
+     */
+    protected function collectNewAliases(Person $source, Person $target): array
+    {
+        $known = collect([$target->name])
+            ->concat((array) ($target->aliases ?? []))
+            ->map(fn($n) => TextNormalizer::normalize($n))
+            ->all();
+
+        $added = [];
+        foreach (array_merge([$source->name], (array) ($source->aliases ?? [])) as $name) {
+            $name = trim((string) $name);
+            $key = TextNormalizer::normalize($name);
+            if ($key === '' || in_array($key, $known, true)) {
+                continue;
+            }
+            $known[] = $key;
+            $added[] = $name;
+        }
+
+        return $added;
     }
 
     protected function formatPersonResult(Person $p): array
