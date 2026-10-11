@@ -197,6 +197,31 @@ class AdminPanelTest extends TestCase
         $target->delete();
     }
 
+    public function test_rollback_keeps_alias_shared_with_another_active_merge()
+    {
+        $target = Person::create(['name' => 'شخص مقصد', 'normalized_name' => 'شخص مقصد', 'slug' => 'test-shared-target-' . uniqid()]);
+        $first = Person::create(['name' => 'صورت نخست', 'normalized_name' => 'صورت نخست', 'slug' => 'test-shared-a-' . uniqid(), 'aliases' => ['نام مشترک']]);
+        $second = Person::create(['name' => 'صورت دوم', 'normalized_name' => 'صورت دوم', 'slug' => 'test-shared-b-' . uniqid(), 'aliases' => ['نام مشترک']]);
+
+        foreach ([$first, $second] as $source) {
+            $this->actingAs($this->admin)->post('/admin/people/merge', [
+                'source_id' => $source->id,
+                'target_id' => $target->id,
+            ])->assertRedirect('/admin/people');
+        }
+
+        $firstLog = AuditLog::where('auditable_id', $target->id)->where('action', 'merge')
+            ->where('auditable_type', Person::class)->orderBy('id')->first();
+
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$firstLog->id}/rollback")
+            ->assertSessionHas('success');
+
+        // The first source's own name goes; the alias shared with the still-merged second source stays
+        $this->assertEquals(['نام مشترک', 'صورت دوم'], $target->fresh()->aliases);
+
+        Person::whereIn('id', [$first->id, $target->id])->delete();
+    }
+
     public function test_annotation_toggle_public()
     {
         $annotation = ScholarlyAnnotation::create([

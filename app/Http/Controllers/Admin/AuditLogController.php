@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\TextNormalizer;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
@@ -124,7 +125,7 @@ class AuditLogController extends Controller
             // Recount works & manuscripts for target, and drop the aliases this merge added
             $targetWorks = Work::where('author_id', $target->id)->count();
             $targetManuscripts = Manuscript::where('scribe_id', $target->id)->count();
-            $addedAliases = (array) ($log->new_values['added_aliases'] ?? []);
+            $addedAliases = $this->aliasesToDropOnRollback($log);
             $target->update([
                 'works_count' => $targetWorks,
                 'manuscripts_count' => $targetManuscripts,
@@ -237,6 +238,49 @@ class AuditLogController extends Controller
         }
 
         throw new \Exception("مدل مورد نظر برای بازگردانی ادغام شناسایی نشد.");
+    }
+
+    /**
+     * Aliases a person merge added, minus any that also belong to a source of another
+     * merge into the same target that is still in effect.
+     */
+    protected function aliasesToDropOnRollback(AuditLog $log): array
+    {
+        $added = (array) ($log->new_values['added_aliases'] ?? []);
+        if (empty($added)) {
+            return [];
+        }
+
+        $rolledBackIds = AuditLog::where('auditable_type', Person::class)
+            ->where('auditable_id', $log->auditable_id)
+            ->where('action', 'rollback_merge')
+            ->get()
+            ->map(fn($l) => $l->old_values['rolled_back_log_id'] ?? null)
+            ->filter()
+            ->all();
+
+        $stillMergedNames = AuditLog::where('auditable_type', Person::class)
+            ->where('auditable_id', $log->auditable_id)
+            ->where('action', 'merge')
+            ->where('id', '!=', $log->id)
+            ->whereNotIn('id', $rolledBackIds)
+            ->get()
+            ->flatMap(function ($l) {
+                $snapshot = $l->old_values['source_snapshot'] ?? [];
+                $aliases = $snapshot['aliases'] ?? [];
+                if (is_string($aliases)) {
+                    $aliases = json_decode($aliases, true) ?: [];
+                }
+
+                return array_merge([$snapshot['name'] ?? ''], (array) $aliases);
+            })
+            ->map(fn($n) => TextNormalizer::normalize($n))
+            ->all();
+
+        return array_values(array_filter(
+            $added,
+            fn($alias) => ! in_array(TextNormalizer::normalize($alias), $stillMergedNames, true)
+        ));
     }
 
     protected function rollbackVerify(AuditLog $log, Request $request): void
