@@ -1706,7 +1706,8 @@
   - متد `collectNewAliases()`: نام و `aliases` مبدأ با `TextNormalizer::normalize` با نام و `aliases` مقصد مقایسه می‌شوند و فقط صورت‌های تازه افزوده می‌شوند.
   - نام‌های افزوده‌شده در `new_values.added_aliases` لاگ ممیزی ثبت می‌شوند.
   - در `rollbackMerge()` در [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php) فقط همین نام‌ها از `aliases` مقصد حذف می‌شوند. لاگ‌های قدیمی که این کلید را ندارند بدون تغییر بازگردانی می‌شوند.
+  - متد `aliasesToDropOnRollback()`: نام‌هایی که به مبدأ یکی از ادغام‌های هنوز فعال در همان مقصد تعلق دارند (لاگ‌های `merge` که در `rollback_merge` ارجاع داده نشده‌اند) حذف نمی‌شوند. نمونه: اگر «الف» و «ب» هر دو نام موازی X داشته باشند و به ترتیب ادغام شوند، بازگردانی «الف» نام X را از مقصد حذف نمی‌کند.
   - `toSearchableArray()` مدل Person نام‌های موازی را از قبل در نمایه قرار می‌داد؛ همگام‌سازی نمایه پس از ادغام کافی است.
-- **آزمون‌ها:** در [AdminPanelTest.php](../tests/Feature/Admin/AdminPanelTest.php) آزمون ادغام و بازگردانی تکمیل شد و آزمون `test_people_merge_adds_only_new_aliases` اضافه شد. ۲۴ آزمون با ۱۱۶ Assertion موفق.
+- **آزمون‌ها:** در [AdminPanelTest.php](../tests/Feature/Admin/AdminPanelTest.php) آزمون ادغام و بازگردانی تکمیل شد و آزمون‌های `test_people_merge_adds_only_new_aliases` و `test_rollback_keeps_alias_shared_with_another_active_merge` اضافه شدند. ۲۵ آزمون با ۱۲۲ Assertion موفق.
 
 ---
