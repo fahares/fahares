@@ -163,7 +163,37 @@ class AdminPanelTest extends TestCase
         $this->assertNull(Person::find($source->id));
         $this->assertNotNull(Person::find($target->id));
 
+        // Source name is kept as a parallel name of the target
+        $this->assertContains($source->name, $target->fresh()->aliases);
+
         // Clean up target
+        $target->delete();
+    }
+
+    public function test_people_merge_adds_only_new_aliases()
+    {
+        $source = Person::create([
+            'name' => 'مجلسي، محمد باقر',
+            'normalized_name' => 'مجلسی، محمد باقر',
+            'slug' => 'test-alias-source-' . uniqid(),
+            'aliases' => ['علامه مجلسی', 'صاحب بحار'],
+        ]);
+
+        $target = Person::create([
+            'name' => 'مجلسی، محمد باقر',
+            'normalized_name' => 'مجلسی، محمد باقر',
+            'slug' => 'test-alias-target-' . uniqid(),
+            'aliases' => ['علامه مجلسي'],
+        ]);
+
+        $this->actingAs($this->admin)->post('/admin/people/merge', [
+            'source_id' => $source->id,
+            'target_id' => $target->id,
+        ])->assertRedirect('/admin/people');
+
+        // Spelling variants of existing names (ي/ی) are not duplicated
+        $this->assertEquals(['علامه مجلسي', 'صاحب بحار'], $target->fresh()->aliases);
+
         $target->delete();
     }
 
@@ -233,6 +263,7 @@ class AdminPanelTest extends TestCase
             'slug' => 'test-target-rollback-' . uniqid(),
             'works_count' => 0,
             'manuscripts_count' => 0,
+            'aliases' => ['نام موازی پیشین'],
         ]);
 
         $work = Work::create([
@@ -290,6 +321,9 @@ class AdminPanelTest extends TestCase
 
         $this->assertEquals(1, $restoredSource->fresh()->works_count);
         $this->assertEquals(0, $target->fresh()->works_count);
+
+        // Aliases added by the merge are removed; pre-existing ones stay
+        $this->assertEquals(['نام موازی پیشین'], $target->fresh()->aliases);
 
         // Clean up
         $manuscript->delete();

@@ -121,14 +121,16 @@ class AuditLogController extends Controller
                     ]);
             }
 
-            // Recount works & manuscripts for target
+            // Recount works & manuscripts for target, and drop the aliases this merge added
             $targetWorks = Work::where('author_id', $target->id)->count();
             $targetManuscripts = Manuscript::where('scribe_id', $target->id)->count();
+            $addedAliases = (array) ($log->new_values['added_aliases'] ?? []);
             $target->update([
                 'works_count' => $targetWorks,
                 'manuscripts_count' => $targetManuscripts,
                 'is_author' => $targetWorks > 0,
                 'is_scribe' => $targetManuscripts > 0,
+                'aliases' => array_values(array_diff((array) ($target->aliases ?? []), $addedAliases)),
             ]);
 
             // Recount works & manuscripts for restored source

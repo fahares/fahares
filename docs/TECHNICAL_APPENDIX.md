@@ -1699,4 +1699,14 @@
     - `test_rollback_merge_removes_redirect_and_restores_page`: آزمون لغو ریدایرکت و احیای کامل صفحه شخص پس از Undo.
   - اجرای موفق کلیه ۲۳ تست سامانه (شامل ۱۱۱ Assertion) با موفقیت ۱۰۰٪.
 
+### گام ۸.۱۰: حفظ نام ادغام‌شده به‌عنوان نام موازی (Alias Preservation on Merge)
+
+- **مسئله:** ادغام اشخاص در [PersonController.php](../app/Http/Controllers/Admin/PersonController.php) رکورد مبدأ را حذف می‌کرد و صورت دیگرِ نام او از دست می‌رفت. در نتیجه جستجو با آن نام در Meilisearch به شخص مقصد نمی‌رسید.
+- **اقدامات:**
+  - متد `collectNewAliases()`: نام و `aliases` مبدأ با `TextNormalizer::normalize` با نام و `aliases` مقصد مقایسه می‌شوند و فقط صورت‌های تازه افزوده می‌شوند.
+  - نام‌های افزوده‌شده در `new_values.added_aliases` لاگ ممیزی ثبت می‌شوند.
+  - در `rollbackMerge()` در [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php) فقط همین نام‌ها از `aliases` مقصد حذف می‌شوند. لاگ‌های قدیمی که این کلید را ندارند بدون تغییر بازگردانی می‌شوند.
+  - `toSearchableArray()` مدل Person نام‌های موازی را از قبل در نمایه قرار می‌داد؛ همگام‌سازی نمایه پس از ادغام کافی است.
+- **آزمون‌ها:** در [AdminPanelTest.php](../tests/Feature/Admin/AdminPanelTest.php) آزمون ادغام و بازگردانی تکمیل شد و آزمون `test_people_merge_adds_only_new_aliases` اضافه شد. ۲۴ آزمون با ۱۱۶ Assertion موفق.
+
 ---
