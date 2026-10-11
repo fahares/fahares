@@ -1,0 +1,3 @@
+# /etc/sudoers.d/fahares-backup — install with: sudo visudo -cf hermes.sudoers && sudo install -m 440 hermes.sudoers /etc/sudoers.d/fahares-backup
+# Lets the hermes user run only these backup subcommands, as tabib, without a password.
+hermes ALL=(tabib) NOPASSWD: /usr/local/bin/fahares-backup.sh status, /usr/local/bin/fahares-backup.sh db, /usr/local/bin/fahares-backup.sh verify
