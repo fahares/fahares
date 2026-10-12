@@ -69,18 +69,21 @@ Route::post('/suggestions', [SuggestionController::class, 'store'])->name('sugge
 
 // Short Permalinks (Permanent 301 Redirects)
 Route::get('/w/{id}', function ($id) {
-    $work = \App\Models\Work::findOrFail((int) $id);
-    return redirect()->route('works.show', $work, 301);
+    // Merged records fall through to the show page, which follows their 301 redirect
+    $work = \App\Models\Work::find((int) $id);
+    return redirect()->route('works.show', $work ?? (int) $id, 301);
 })->where('id', '[0-9]+')->name('works.permalink');
 
 Route::get('/m/{id}', function ($id) {
-    $manuscript = \App\Models\Manuscript::findOrFail((int) $id);
-    return redirect()->route('manuscripts.show', $manuscript, 301);
+    // Merged records fall through to the show page, which follows their 301 redirect
+    $manuscript = \App\Models\Manuscript::find((int) $id);
+    return redirect()->route('manuscripts.show', $manuscript ?? (int) $id, 301);
 })->where('id', '[0-9]+')->name('manuscripts.permalink');
 
 Route::get('/p/{id}', function ($id) {
-    $person = \App\Models\Person::findOrFail((int) $id);
-    return redirect()->route('people.show', $person, 301);
+    // Merged records fall through to the show page, which follows their 301 redirect
+    $person = \App\Models\Person::find((int) $id);
+    return redirect()->route('people.show', $person ?? (int) $id, 301);
 })->where('id', '[0-9]+')->name('people.permalink');
 
 Route::get('/l/{id}', function ($id) {
@@ -89,8 +92,9 @@ Route::get('/l/{id}', function ($id) {
 })->where('id', '[0-9]+')->name('libraries.permalink');
 
 Route::get('/s/{id}', function ($id) {
-    $subject = \App\Models\Subject::findOrFail((int) $id);
-    return redirect()->route('subjects.show', $subject, 301);
+    // Merged records fall through to the show page, which follows their 301 redirect
+    $subject = \App\Models\Subject::find((int) $id);
+    return redirect()->route('subjects.show', $subject ?? (int) $id, 301);
 })->where('id', '[0-9]+')->name('subjects.permalink');
 
 // Dynamic Multi-part Sitemaps (Sitemap Index & Chunks)

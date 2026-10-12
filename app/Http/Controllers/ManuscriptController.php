@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EntityRedirect;
 use App\Models\Manuscript;
 use Illuminate\Http\Request;
 
@@ -18,8 +19,18 @@ class ManuscriptController extends Controller
             'work.languages',
             'libraryRecord',
             'scripts',
+            'sourceCitations.catalog',
             'fieldSuggestions' => fn($q) => $q->where('status', 'approved'),
-        ])->findOrFail($numericId);
+        ])->find($numericId);
+
+        if (! $manuscript) {
+            $targetId = EntityRedirect::resolveTargetId('manuscripts', $numericId);
+            $target = $targetId ? Manuscript::find($targetId) : null;
+            if ($target) {
+                return redirect()->route('manuscripts.show', array_merge(['id' => $target->getRouteKey()], $request->query()), 301);
+            }
+            abort(404);
+        }
 
         $canonicalKey = (string) $manuscript->getRouteKey();
         if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {

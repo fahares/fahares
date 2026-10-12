@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EntityRedirect;
 use App\Models\Work;
 use Illuminate\Http\Request;
 
@@ -18,9 +19,19 @@ class WorkController extends Controller
             'languages',
             'referrals',
             'scholarlyAnnotations',
+            'sourceCitations.catalog',
         ])
         ->withCount('manuscripts')
-        ->findOrFail($numericId);
+        ->find($numericId);
+
+        if (! $work) {
+            $targetId = EntityRedirect::resolveTargetId('works', $numericId);
+            $target = $targetId ? Work::find($targetId) : null;
+            if ($target) {
+                return redirect()->route('works.show', array_merge(['id' => $target->getRouteKey()], $request->query()), 301);
+            }
+            abort(404);
+        }
 
         $canonicalKey = (string) $work->getRouteKey();
         if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {
@@ -61,7 +72,10 @@ class WorkController extends Controller
             case 'sequence':
             default:
                 $sort = 'sequence';
-                $query->orderBy('sequence_number', $direction);
+                // Catalog print order: addenda printed in later volumes follow the main entry's copies
+                $query->orderBy('volume_number', $direction)
+                      ->orderBy('page_start', $direction)
+                      ->orderBy('sequence_number', $direction);
                 break;
         }
 

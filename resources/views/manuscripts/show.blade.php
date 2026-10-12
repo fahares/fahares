@@ -87,6 +87,18 @@
                             <span>اصل نسخه (دستخط مؤلف)</span>
                         </span>
                     @endif
+
+                    @if($manuscript->is_distinct_work)
+                        <span class="px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-200 text-xs font-bold" title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">
+                            اثر متمایز (مدخل غیر همانند)
+                        </span>
+                    @endif
+
+                    @if($manuscript->is_addendum_entry)
+                        <span class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-xs font-bold" title="این نسخه در بخش استدراک مأخذ معرفی شده است">
+                            استدراک {{ $manuscript->catalog?->short_name ?? 'فنخا' }}
+                        </span>
+                    @endif
                 </div>
 
                 @if($manuscript->work)
@@ -720,6 +732,9 @@
         @endif
 
     </div>
+
+    <!-- OTHER CATALOG CITATIONS (addenda, errata) -->
+    <x-source-citations :citations="$manuscript->sourceCitations" />
 
     <!-- SUGGESTION MODAL DIALOG (Alpine.js) -->
     <div 

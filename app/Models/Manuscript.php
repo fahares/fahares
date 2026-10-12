@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasSourceCitations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,7 @@ use Laravel\Scout\Searchable;
 
 class Manuscript extends Model
 {
+    use HasSourceCitations;
     use Searchable;
 
     protected $guarded = ['id'];
@@ -267,6 +269,14 @@ class Manuscript extends Model
             return implode(' ؛ ', array_filter($res));
         }
         return null;
+    }
+
+    /**
+     * Copy listed under a heterogeneous (غیر همانند) work entry: a distinct text sharing the entry's title.
+     */
+    public function getIsDistinctWorkAttribute(): bool
+    {
+        return (bool) ($this->metadata['is_distinct_work'] ?? false);
     }
 
     public function getCleanRawTextAttribute(): ?string

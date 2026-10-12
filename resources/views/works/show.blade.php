@@ -231,6 +231,9 @@
                             تا {{ $work->page_end }}
                         @endif
                     </span>
+                    @if($work->is_addendum_entry)
+                        <span class="px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</span>
+                    @endif
                     @if($work->volume_number && $work->page_start)
                         <button 
                             type="button"
@@ -460,6 +463,8 @@
                 </div>
             </div>
         @endif
+
+        <x-source-citations :citations="$work->sourceCitations" />
     </div>
 
     <!-- MANUSCRIPTS TABLE SECTION -->
@@ -558,6 +563,12 @@
 
                                 <td class="py-3 px-4 font-bold text-[#B38A50]">
                                     {{ $ms->shelfmark ?? 'بی‌شماره' }}
+                                    @if($ms->is_addendum_entry)
+                                        <span class="block text-[10px] font-semibold text-stone-500 dark:text-stone-400" title="معرفی‌شده در بخش استدراک، ج {{ $ms->volume_number }} ص {{ $ms->page_start }}">استدراک</span>
+                                    @endif
+                                    @if($ms->is_distinct_work)
+                                        <span class="block text-[10px] font-semibold text-sky-700 dark:text-sky-300" title="متنی جدا با همان عنوان (مدخل غیر همانند)">اثر متمایز</span>
+                                    @endif
                                 </td>
 
                                 <td class="py-3 px-4">
