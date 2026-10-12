@@ -13,6 +13,19 @@ class Person extends Model
 
     protected $guarded = ['id'];
 
+    protected static function booted(): void
+    {
+        // Derived columns follow their source unless the caller set them too
+        static::saving(function (Person $person) {
+            if ($person->isDirty('name') && ! $person->isDirty('normalized_name') && $person->exists) {
+                $person->normalized_name = mb_substr(\App\Helpers\TextNormalizer::normalize($person->name), 0, 600);
+            }
+            if ($person->isDirty('death_year_hijri') && ! $person->isDirty('century_hijri') && $person->death_year_hijri) {
+                $person->century_hijri = (int) ceil($person->death_year_hijri / 100);
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [

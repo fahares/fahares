@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasSourceCitations;
 use App\Models\Concerns\SyncsPrimaryContributor;
+use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,6 +18,16 @@ class Manuscript extends Model
     use SyncsPrimaryContributor;
 
     protected $guarded = ['id'];
+
+    protected static function booted(): void
+    {
+        // Keep the sortable year in step with the date text unless the caller set both
+        static::saving(function (Manuscript $manuscript) {
+            if ($manuscript->isDirty('copy_date_raw') && ! $manuscript->isDirty('copy_date_hijri_year')) {
+                $manuscript->copy_date_hijri_year = HijriYear::parse($manuscript->copy_date_raw);
+            }
+        });
+    }
 
     protected static function primaryContributorPivot(): array
     {

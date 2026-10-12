@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\HasSourceCitations;
 use App\Models\Concerns\SyncsPrimaryContributor;
+use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,6 +19,16 @@ class Work extends Model
     use SyncsPrimaryContributor;
 
     protected $guarded = ['id'];
+
+    protected static function booted(): void
+    {
+        // Keep the sortable year in step with the date text unless the caller set both
+        static::saving(function (Work $work) {
+            if ($work->isDirty('composition_date_raw') && ! $work->isDirty('composition_year_hijri')) {
+                $work->composition_year_hijri = HijriYear::parse($work->composition_date_raw);
+            }
+        });
+    }
 
     protected static function primaryContributorPivot(): array
     {
