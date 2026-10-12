@@ -6,6 +6,7 @@ use App\Helpers\TextNormalizer;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
+use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Work;
@@ -158,7 +159,9 @@ class PersonController extends Controller
                 }
             }
 
-            return view('admin.people.merge', compact('preloadedSource', 'preloadedTarget'));
+            $suggestionId = $request->integer('suggestion_id') ?: null;
+
+            return view('admin.people.merge', compact('preloadedSource', 'preloadedTarget', 'suggestionId'));
         }
 
         $validated = $request->validate([
@@ -175,7 +178,14 @@ class PersonController extends Controller
         $source = Person::findOrFail($validated['source_id']);
         $target = Person::findOrFail($validated['target_id']);
 
-        DB::transaction(function () use ($source, $target, $request) {
+        // Opened from a "same person" suggestion: the merge closes it, whichever record is kept
+        $suggestion = FieldSuggestion::where('id', (int) $request->input('suggestion_id'))
+            ->where('status', 'pending')->where('kind', 'relation')->where('suggestable_type', Person::class)->first();
+        if ($suggestion && ! in_array($suggestion->suggestable_id, [$source->id, $target->id], true)) {
+            $suggestion = null;
+        }
+
+        DB::transaction(function () use ($source, $target, $request, $suggestion) {
             // Capture snapshot of source person before changes
             $sourceSnapshot = $source->getAttributes();
             foreach ($sourceSnapshot as $k => $v) {
@@ -260,7 +270,7 @@ class PersonController extends Controller
                     'new_works_count' => $newWorksCount,
                     'new_manuscripts_count' => $newManuscriptsCount,
                     'added_aliases' => $addedAliases,
-                ],
+                ] + ($suggestion ? ['suggestion_id' => $suggestion->id] : []),
                 'ip_address' => $request->ip(),
             ]);
 
@@ -269,6 +279,13 @@ class PersonController extends Controller
 
             // 6. Delete source person
             $source->delete();
+
+            $suggestion?->update([
+                'status' => 'approved',
+                'resolution' => ['applied' => true, 'kept_id' => $target->id, 'removed_id' => $source->id],
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+            ]);
         });
 
         return redirect()->route('admin.people.index')

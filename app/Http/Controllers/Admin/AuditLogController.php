@@ -177,6 +177,11 @@ class AuditLogController extends Controller
             // Remove entity redirect
             EntityRedirect::removeRedirect('people', (int) $sourceId);
 
+            // A merge approved from a suggestion reopens it
+            if ($suggestionId = $log->new_values['suggestion_id'] ?? null) {
+                FieldSuggestion::whereKey($suggestionId)->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+            }
+
             // Audit log of rollback
             AuditLog::create([
                 'user_id' => auth()->id(),
@@ -258,6 +263,11 @@ class AuditLogController extends Controller
             return;
         }
 
+        if (in_array($log->auditable_type, [Manuscript::class, Work::class], true)) {
+            // Merges approved from the suggestions desk keep a full snapshot of the removed record in old_values
+            throw new \Exception("ادغام نسخه یا اثر بازگردانی خودکار ندارد. اطلاعات کامل رکورد حذف‌شده در همین لاگ (source_snapshot) ثبت است.");
+        }
+
         throw new \Exception("مدل مورد نظر برای بازگردانی ادغام شناسایی نشد.");
     }
 
@@ -313,26 +323,54 @@ class AuditLogController extends Controller
             throw new \Exception("رکورد هدف جهت بازگردانی فیلد یافت نشد.");
         }
 
-        $target->forceFill($log->old_values)->save();
+        $old = $log->old_values ?? [];
+        $previousScribe = $target->scribe_id ?? null;
+        $previousWork = $target instanceof Manuscript ? $target->work_id : null;
+        if ($old) {
+            $target->forceFill($old)->save();
+        }
+        // A manuscript moved between works: both works' counts change back
+        if ($previousWork && array_key_exists('work_id', $old)) {
+            foreach (array_unique([$previousWork, $old['work_id']]) as $workId) {
+                Work::find($workId)?->update(['manuscripts_count' => Manuscript::where('work_id', $workId)->count()]);
+            }
+        }
 
         if (method_exists($target, 'searchable')) {
             $target->searchable();
         }
 
-        // Deactivate/remove scholarly annotation if created
+        // Logs written since the per-field desk carry their suggestion id; older ones fall back to the latest match
+        $suggestionId = $log->new_values['suggestion_id'] ?? null;
+        $suggestion = $suggestionId
+            ? FieldSuggestion::find($suggestionId)
+            : FieldSuggestion::where('suggestable_type', $log->auditable_type)
+                ->where('suggestable_id', $log->auditable_id)
+                ->where('status', 'approved')
+                ->latest('id')
+                ->first();
+
         ScholarlyAnnotation::where('annotatable_type', $log->auditable_type)
             ->where('annotatable_id', $log->auditable_id)
+            ->when($suggestionId, fn ($q) => $q->where('suggestion_id', $suggestionId))
             ->latest('id')
             ->first()
             ?->delete();
 
-        // Revert field suggestion to pending if exists
-        FieldSuggestion::where('suggestable_type', $log->auditable_type)
-            ->where('suggestable_id', $log->auditable_id)
-            ->where('status', 'approved')
-            ->latest('id')
-            ->first()
-            ?->update(['status' => 'pending']);
+        // A scribe link changed: recount both people, and drop a person the approval created if nothing else uses it
+        if (array_key_exists('scribe_id', $old)) {
+            foreach (array_unique(array_filter([$previousScribe, $old['scribe_id']])) as $personId) {
+                Person::find($personId)?->recountContributions();
+            }
+            $resolution = $suggestion?->resolution ?? [];
+            if (($resolution['person_action'] ?? null) === 'create' && ($created = Person::find($resolution['person_id']))) {
+                if ($created->scribedManuscripts()->doesntExist() && $created->authoredWorks()->doesntExist()) {
+                    $created->delete();
+                }
+            }
+        }
+
+        $suggestion?->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
 
         AuditLog::create([
             'user_id' => auth()->id(),

@@ -1,8 +1,17 @@
 import Alpine from 'alpinejs';
 import QRCode from 'qrcode';
+import suggestDesk from './suggest-desk';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
 
-Alpine.start();
+// "Suggest a correction" mode: reveals the per-field buttons on record pages
+Alpine.store('suggest', {
+    on: false,
+    toggle() {
+        this.on = !this.on;
+    },
+});
+Alpine.data('suggestDesk', suggestDesk);
 
+Alpine.start();

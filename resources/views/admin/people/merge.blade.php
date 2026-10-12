@@ -41,6 +41,9 @@
             <!-- Hidden inputs submitted to backend -->
             <input type="hidden" name="source_id" :value="source ? source.id : ''" required>
             <input type="hidden" name="target_id" :value="target ? target.id : ''" required>
+            @if($suggestionId ?? null)
+                <input type="hidden" name="suggestion_id" value="{{ $suggestionId }}">
+            @endif
 
             <!-- Dual Authority Selection Area -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative">

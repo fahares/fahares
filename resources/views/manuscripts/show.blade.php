@@ -6,8 +6,6 @@
 
 @section('content')
 <div x-data="{ 
-    suggestionModalOpen: false, 
-    selectedField: 'کاتب',
     citationModalOpen: false,
     qrModalOpen: false,
     copiedKey: null,
@@ -180,16 +178,7 @@
                     <span>دریافت استناد علمی</span>
                 </button>
 
-                <!-- Suggestion / Feedback Action Button -->
-                <button 
-                    @click="suggestionModalOpen = true" 
-                    type="button" 
-                    class="px-3.5 py-2 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:border-[#B38A50] hover:text-[#B38A50] hover:bg-white dark:hover:bg-[#15192C] font-semibold text-xs transition duration-200 flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    <span>پیشنهاد تصحیح</span>
-                </button>
+                <x-suggest.toggle />
             </div>
         </div>
 
@@ -216,6 +205,7 @@
                 <span class="text-base font-black text-[#B38A50] tracking-wide">
                     {{ $manuscript->shelfmark ?? 'بی‌شماره' }}
                 </span>
+                <x-suggest.field name="shelfmark" class="ms-1" />
             </div>
         </div>
 
@@ -228,52 +218,52 @@
             
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_autograph ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>اصل نسخه (دستخط مؤلف)</span>
-                <span>{{ $manuscript->is_autograph ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_autograph" /><span>{{ $manuscript->is_autograph ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_author_marginalia ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>حواشی به خط مؤلف</span>
-                <span>{{ $manuscript->has_author_marginalia ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="has_author_marginalia" /><span>{{ $manuscript->has_author_marginalia ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_illuminated ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-[#B38A50] font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>تذهیب و سرلوح</span>
-                <span>{{ $manuscript->is_illuminated ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_illuminated" /><span>{{ $manuscript->is_illuminated ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_illustrated ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-800 dark:text-purple-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>نگاره و نقاشی</span>
-                <span>{{ $manuscript->is_illustrated ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_illustrated" /><span>{{ $manuscript->is_illustrated ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_corrected ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-800 text-blue-800 dark:text-blue-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>تصحیح‌شده (مصحح)</span>
-                <span>{{ $manuscript->is_corrected ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_corrected" /><span>{{ $manuscript->is_corrected ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_marginal_notes ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>دارای حواشی (محشی)</span>
-                <span>{{ $manuscript->has_marginal_notes ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="has_marginal_notes" /><span>{{ $manuscript->has_marginal_notes ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_ruled ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>سطور مجدول (جدول‌بندی)</span>
-                <span>{{ $manuscript->is_ruled ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_ruled" /><span>{{ $manuscript->is_ruled ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_catchwords ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>دارای رکابه (پای‌صفحه)</span>
-                <span>{{ $manuscript->has_catchwords ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="has_catchwords" /><span>{{ $manuscript->has_catchwords ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_collated ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>مقابله و بلاغ</span>
-                <span>{{ $manuscript->is_collated ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_collated" /><span>{{ $manuscript->is_collated ? '✓' : '—' }}</span></span>
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_facsimile ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
                 <span>چاپ عکسی / فاکسیمیله</span>
-                <span>{{ $manuscript->is_facsimile ? '✓' : '—' }}</span>
+                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_facsimile" /><span>{{ $manuscript->is_facsimile ? '✓' : '—' }}</span></span>
             </div>
 
         </div>
@@ -321,6 +311,7 @@
                         @else
                             <span class="text-stone-400">نامشخص</span>
                         @endif
+                        <x-suggest.field name="scribe_name" class="ms-1.5" />
                     </dd>
                 </div>
 
@@ -337,6 +328,7 @@
                         @else
                             <span class="text-stone-400">نامشخص</span>
                         @endif
+                        <x-suggest.field name="copy_date_raw" class="ms-1.5" />
                     </dd>
                 </div>
 
@@ -344,17 +336,17 @@
                     <dt class="text-stone-400">محل کتابت:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $manuscript->copy_place ?? 'نامشخص' }}
+                        <x-suggest.field name="copy_place" class="ms-1.5" />
                     </dd>
                 </div>
 
-                @if($manuscript->commissioned_by)
-                    <div class="flex justify-between pt-2">
-                        <dt class="text-stone-400">سفارش کتابت (فرماینده):</dt>
-                        <dd class="font-bold text-[#B38A50] dark:text-amber-300">
-                            {{ $manuscript->commissioned_by }}
-                        </dd>
-                    </div>
-                @endif
+                <div class="flex justify-between pt-2" @unless($manuscript->commissioned_by) x-show="$store.suggest.on" x-cloak @endunless>
+                    <dt class="text-stone-400">سفارش کتابت (فرماینده):</dt>
+                    <dd class="font-bold text-[#B38A50] dark:text-amber-300">
+                        {{ $manuscript->commissioned_by ?? 'نامشخص' }}
+                        <x-suggest.field name="commissioned_by" class="ms-1.5" />
+                    </dd>
+                </div>
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">ردیف ثبت در مأخذ:</dt>
@@ -376,16 +368,20 @@
                     <dt class="text-stone-400">نوع و اقلام خط:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $manuscript->script_names ?? 'نامشخص' }}
+                        <x-suggest.field name="script_names" class="ms-1.5" />
                         @if($manuscript->script_style)
                             <span class="text-stone-400 mr-1">({{ $manuscript->script_style }})</span>
                         @endif
+                        <span x-show="$store.suggest.on" x-cloak class="text-stone-400 font-normal mr-1">کیفیت خط:</span>
+                        <x-suggest.field name="script_style" />
                     </dd>
                 </div>
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">تعداد برگ و سطر:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->folios ? $manuscript->folios . ' برگ' : '-' }} • {{ $manuscript->lines ? $manuscript->lines . ' سطر' : '-' }}
+                        {{ $manuscript->folios ? $manuscript->folios . ' برگ' : '-' }} <x-suggest.field name="folios" />
+                        • {{ $manuscript->lines ? $manuscript->lines . ' سطر' : '-' }} <x-suggest.field name="lines" />
                     </dd>
                 </div>
 
@@ -393,13 +389,15 @@
                     <dt class="text-stone-400">ابعاد و اندازه (سانتی‌متر):</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $manuscript->dimensions ?? '-' }}
+                        <x-suggest.field name="dimensions" class="ms-1.5" />
                     </dd>
                 </div>
 
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">کاغذ و جلد:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->paper ?? 'کاغذ نامشخص' }} • {{ $manuscript->binding ?? 'جلد نامشخص' }}
+                        {{ $manuscript->paper ?? 'کاغذ نامشخص' }} <x-suggest.field name="paper" />
+                        • {{ $manuscript->binding ?? 'جلد نامشخص' }} <x-suggest.field name="binding" />
                     </dd>
                 </div>
             </dl>
@@ -419,6 +417,7 @@
                             <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
                                 آغاز نسخه
                             </h3>
+                            <x-suggest.field name="incipit_text" />
                         </div>
                         @if(count($manuscript->incipits_list) > 1)
                             <span class="text-[11px] text-stone-500 font-medium bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40">
@@ -471,6 +470,7 @@
                             <h3 class="text-xs font-bold text-[#292C56] dark:text-indigo-400 uppercase tracking-wider">
                                 انجام نسخه
                             </h3>
+                            <x-suggest.field name="explicit_text" />
                         </div>
                         @if(count($manuscript->explicits_list) > 1)
                             <span class="text-[11px] text-stone-500 font-medium bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-900/40">
@@ -518,6 +518,23 @@
         </div>
     @endif
 
+    <!-- Sections hidden while empty: reachable in suggestion mode -->
+    @php
+        $emptySections = array_filter([
+            'incipit_text' => count($manuscript->incipits_list) === 0 ? 'آغاز نسخه' : null,
+            'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
+            'ownership_and_seals' => count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
+        ]);
+    @endphp
+    @if($emptySections)
+        <div x-show="$store.suggest.on" x-cloak class="p-4 rounded-2xl border-2 border-dashed border-[#B38A50]/40 bg-amber-50/40 dark:bg-amber-950/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+            <span class="text-stone-500 font-semibold">بخش‌های خالیِ این نسخه:</span>
+            @foreach($emptySections as $name => $label)
+                <span class="inline-flex items-center gap-1.5 font-bold text-stone-700 dark:text-stone-300">{{ $label }} <x-suggest.field :name="$name" /></span>
+            @endforeach
+        </div>
+    @endif
+
     <!-- OWNERSHIP, SEALS, WAQF & MANUSCRIPT NOTES -->
     @if(count($manuscript->ownership_and_seals_list) > 0 || $manuscript->residual_notes_text || count($manuscript->editorial_notes_list) > 0)
         <div class="space-y-4">
@@ -529,6 +546,7 @@
                         <h3 class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
                             مهرها، یادداشت‌های تملک و وقفیات نسخه
                         </h3>
+                        <x-suggest.field name="ownership_and_seals" />
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -738,107 +756,8 @@
     <!-- OTHER CATALOG CITATIONS (addenda, errata) -->
     <x-source-citations :citations="$manuscript->sourceCitations" />
 
-    <!-- SUGGESTION MODAL DIALOG (Alpine.js) -->
-    <div 
-        x-show="suggestionModalOpen" 
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-        style="display: none;">
-        
-        <div 
-            @click.away="suggestionModalOpen = false"
-            class="bg-white dark:bg-[#15192C] w-full max-w-lg rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-stone-700 shadow-2xl space-y-6 text-right max-h-[90vh] overflow-y-auto">
-            
-            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
-                    <h3 class="font-bold text-lg text-stone-900 dark:text-stone-100">ثبت پیشنهاد تصحیح نسخه</h3>
-                </div>
-                <button @click="suggestionModalOpen = false" class="text-stone-400 hover:text-stone-600 text-lg">✕</button>
-            </div>
-
-            <p class="text-xs text-stone-500 leading-relaxed">
-                پژوهشگر گرامی؛ در صورتی که در اطلاعات این نسخه (کاتب، تاریخ، آغاز/انجام، شماره نسخه یا مشخصات مادی) خطایی مشاهده نموده‌اید، لطفاً اصلاحیه خود را همراه با مستند علمی ثبت بفرمایید (همچنین می‌توانید گزارش خود را مستقیماً به ایمیل <a href="mailto:info@fahares.net" class="text-[#B38A50] hover:underline font-mono font-medium">info@fahares.net</a> ارسال فرمایید).
-            </p>
-
-            <form action="{{ route('suggestions.store') }}" method="POST" class="space-y-4 text-xs">
-                @csrf
-                <input type="hidden" name="suggestable_type" value="App\Models\Manuscript">
-                <input type="hidden" name="suggestable_id" value="{{ $manuscript->id }}">
-
-                <!-- Field Selector -->
-                <div class="space-y-1">
-                    <label class="block font-semibold text-stone-700 dark:text-stone-300">فیلد نیازمند تصحیح:</label>
-                    <select name="field_name" x-model="selectedField" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 font-medium">
-                        <option value="scribe_name">نام کاتب</option>
-                        <option value="copy_date_raw">تاریخ کتابت</option>
-                        <option value="shelfmark">شماره نسخه</option>
-                        <option value="incipit_text">عبارت آغاز (Incipit)</option>
-                        <option value="explicit_text">عبارت انجام (Explicit)</option>
-                        <option value="ownership_and_seals">مهرها، یادداشت‌های تملک و وقفیات</option>
-                        <option value="script_names">نوع خط</option>
-                        <option value="folios">تعداد برگ</option>
-                        <option value="dimensions">ابعاد نسخه</option>
-                        <option value="paper">نوع کاغذ</option>
-                        <option value="binding">نوع جلد</option>
-                        <option value="other">سایر موارد نسخه‌شناسی</option>
-                    </select>
-                </div>
-
-                <!-- Suggested Value -->
-                <div class="space-y-1">
-                    <label class="block font-semibold text-stone-700 dark:text-stone-300">مقدار یا عبارت صحیح پیشنهادی:</label>
-                    <textarea name="suggested_value" rows="2" required placeholder="عبارت صحیح را اینجا وارد نمایید..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]"></textarea>
-                </div>
-
-                <!-- Rationale & Citation -->
-                <div class="space-y-1">
-                    <label class="block font-semibold text-stone-700 dark:text-stone-300">مستند ادعا و منبع ارجاع (الزامی):</label>
-                    <textarea name="rationale_citation" rows="3" required placeholder="مثال: ترقیمه صفحه آخر نسخه، یا فهرست کتابخانه ملی جلد ۴ صفحه ۱۲..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]"></textarea>
-                </div>
-
-                <!-- Researcher Info -->
-                @auth
-                    <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span>ثبت پیشنهاد با نام: <strong>{{ auth()->user()->name }}</strong> ({{ auth()->user()->email }})</span>
-                        </div>
-                        <input type="hidden" name="guest_name" value="{{ auth()->user()->name }}">
-                        <input type="hidden" name="guest_email" value="{{ auth()->user()->email }}">
-                    </div>
-                @else
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <div class="space-y-1">
-                            <label class="block font-semibold text-stone-700 dark:text-stone-300">نام شما (اختیاری):</label>
-                            <input type="text" name="guest_name" placeholder="دکتر..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block font-semibold text-stone-700 dark:text-stone-300">ایمیل تماس (اختیاری):</label>
-                            <input type="email" name="guest_email" placeholder="email@example.com" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
-                        </div>
-                    </div>
-                    <div class="text-[11px] text-stone-400">
-                        پیشنهاد: برای ثبت خودکار اصلاحیه‌ها و بهره‌مندی از امکانات پژوهشی، می‌توانید <a href="{{ route('login') }}" class="text-[#B38A50] hover:underline font-medium">وارد شوید</a> یا <a href="{{ route('register') }}" class="text-[#B38A50] hover:underline font-medium">عضو شوید</a>.
-                    </div>
-                @endauth
-
-                <!-- Actions -->
-                <div class="pt-4 flex items-center justify-end gap-3 border-t border-stone-100 dark:border-stone-800">
-                    <button type="button" @click="suggestionModalOpen = false" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 font-semibold">
-                        انصراف
-                    </button>
-                    <button type="submit" class="px-5 py-2.5 bg-[#B38A50] hover:bg-[#9C753F] text-white rounded-xl font-bold shadow-md transition">
-                        ارسال پیشنهاد به هیئت علمی
-                    </button>
-                </div>
-
-            </form>
+    <!-- SUGGESTION DESK: per-field and general correction suggestions -->
+    <x-suggest.desk type="manuscript" :record="$manuscript" />
 
     <!-- QR CODE MODAL DIALOG (Alpine.js) -->
     <div 

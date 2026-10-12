@@ -65,7 +65,15 @@ Route::get('/catalogers/{id}', [CatalogerController::class, 'show'])
     ->name('catalogers.show');
 
 // Field Suggestions (Crowdsourced corrections)
-Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
+Route::post('/suggestions', [SuggestionController::class, 'store'])
+    ->middleware('throttle:20,60')
+    ->name('suggestions.store');
+Route::get('/api/suggestions/people', [SuggestionController::class, 'people'])
+    ->middleware('throttle:120,1')
+    ->name('suggestions.people');
+Route::get('/api/suggestions/lookup', [SuggestionController::class, 'lookup'])
+    ->middleware('throttle:120,1')
+    ->name('suggestions.lookup');
 
 // Short Permalinks (Permanent 301 Redirects)
 Route::get('/w/{id}', function ($id) {

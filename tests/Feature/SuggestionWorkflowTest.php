@@ -1,0 +1,509 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\AuditLog;
+use App\Models\EntityRedirect;
+use App\Models\SourceCitation;
+use App\Models\FieldSuggestion;
+use App\Models\Library;
+use App\Models\Manuscript;
+use App\Models\Person;
+use App\Models\ScholarlyAnnotation;
+use App\Models\User;
+use App\Models\Work;
+use App\Support\HijriYear;
+use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
+
+class SuggestionWorkflowTest extends TestCase
+{
+    protected User $admin;
+    protected array $works = [];
+    protected array $peopleIds = [];
+    protected array $libraryIds = [];
+    protected array $removedManuscripts = [];
+    protected string $tag;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->tag = 'آزمونک' . random_int(10000, 99999);
+        $this->admin = User::firstOrCreate(
+            ['email' => 'test-admin@fahares.net'],
+            ['name' => 'Admin Tester', 'password' => 'password123', 'role' => 'admin']
+        );
+        $this->admin->forceFill(['role' => 'admin'])->save();
+    }
+
+    protected function tearDown(): void
+    {
+        $workIds = array_map(fn ($w) => $w->id, $this->works);
+        $msIds = Manuscript::whereIn('work_id', $workIds)->pluck('id');
+        $this->peopleIds = array_merge($this->peopleIds, Person::where('name', 'like', "%{$this->tag}%")->pluck('id')->all());
+        // Manuscripts removed by a merge are already gone; their redirects still need cleaning
+        $msIds = $msIds->merge($this->removedManuscripts);
+
+        $targets = [Manuscript::class => $msIds->all(), Work::class => $workIds, Person::class => $this->peopleIds, Library::class => $this->libraryIds];
+        foreach ($targets as $class => $ids) {
+            $suggestionIds = FieldSuggestion::where('suggestable_type', $class)->whereIn('suggestable_id', $ids)->pluck('id');
+            ScholarlyAnnotation::whereIn('suggestion_id', $suggestionIds)->delete();
+            FieldSuggestion::whereIn('id', $suggestionIds)->delete();
+            AuditLog::where('auditable_type', $class)->whereIn('auditable_id', $ids)->delete();
+        }
+        Library::whereIn('id', $this->libraryIds)->delete();
+        foreach (['manuscripts' => $msIds->all(), 'works' => $workIds, 'people' => $this->peopleIds] as $entity => $ids) {
+            EntityRedirect::where('entity_type', $entity)->where(fn ($q) => $q->whereIn('source_id', $ids)->orWhereIn('target_id', $ids))->delete();
+        }
+        SourceCitation::where('citable_type', Work::class)->whereIn('citable_id', $workIds)->delete();
+        SourceCitation::where('citable_type', Manuscript::class)->whereIn('citable_id', $msIds)->delete();
+        Work::whereIn('id', $workIds)->delete();
+        Person::whereIn('id', $this->peopleIds)->delete();
+
+        parent::tearDown();
+    }
+
+    protected function person(string $name): Person
+    {
+        $p = Person::create(['name' => "{$name} {$this->tag}", 'normalized_name' => $name, 'slug' => 'test-suggest-' . uniqid(), 'is_scribe' => true]);
+        $this->peopleIds[] = $p->id;
+
+        return $p;
+    }
+
+    protected function manuscript(array $attributes = []): Manuscript
+    {
+        $work = $this->works[] = Work::create([
+            'primary_title' => 'اثر آزمایشی پیشنهاد ' . uniqid(),
+            'clean_title' => 'اثر آزمایشی پیشنهاد',
+            'slug' => 'test-suggest-work-' . uniqid(),
+            'volume_number' => 1,
+            'page_start' => 1,
+        ]);
+
+        return Manuscript::create($attributes + [
+            'work_id' => $work->id,
+            'sequence_number' => 1,
+            'volume_number' => 1,
+            'page_start' => 1,
+        ]);
+    }
+
+    protected function work(array $attributes = []): Work
+    {
+        return $this->works[] = Work::create($attributes + [
+            'primary_title' => 'اثر آزمایشی پیشنهاد ' . uniqid(),
+            'clean_title' => 'اثر آزمایشی پیشنهاد',
+            'slug' => 'test-suggest-work-' . uniqid(),
+            'volume_number' => 1,
+            'page_start' => 1,
+        ]);
+    }
+
+    protected function suggest($record, array $data)
+    {
+        $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
+
+        return $this->postJson('/suggestions', $data + ['type' => $type, 'id' => $record->id, 'kind' => 'field']);
+    }
+
+    protected function pendingFor($record): FieldSuggestion
+    {
+        return FieldSuggestion::where('suggestable_type', $record::class)->where('suggestable_id', $record->id)->where('status', 'pending')->latest('id')->firstOrFail();
+    }
+
+    protected function approve(FieldSuggestion $s, array $data = [])
+    {
+        return $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/approve", $data + [
+            'applied_value' => $s->suggested_value,
+            'revision_category' => 'scholarly_correction',
+            'create_annotation' => 1,
+        ]);
+    }
+
+    public function test_hijri_year_parser()
+    {
+        $cases = [
+            'یک‌شنبه ۲۳ ربیع الاول ۱۲۳۶ق' => 1236,
+            '1095 هـ.ق' => 1095,
+            '1034 تا 1052 ق' => 1034,
+            'قرن 13' => null,
+            'سده‌ی ۱۳' => null,
+            '1820م' => null,
+            '۱۳۵۰ش' => null,
+            '1350ش / 1390ق' => 1390,
+            '27 جمادی الثانی 127=1207ق' => 1207,
+            'تا برگ 162 از قرن 11 و بقیه ترمیمی سال 1277' => 1277,
+        ];
+        foreach ($cases as $raw => $year) {
+            $this->assertSame($year, HijriYear::parse($raw), $raw);
+        }
+    }
+
+    public function test_saving_date_text_keeps_year_in_step()
+    {
+        $m = $this->manuscript(['copy_date_raw' => 'رجب ۹۸۰ق']);
+        $this->assertSame(980, $m->fresh()->copy_date_hijri_year);
+
+        $m->update(['copy_date_raw' => 'قرن ۱۱']);
+        $this->assertNull($m->fresh()->copy_date_hijri_year);
+
+        // An explicit year set alongside the text wins
+        $m->update(['copy_date_raw' => 'بی‌تاریخ، حدود ۱۱۰۰', 'copy_date_hijri_year' => 1105]);
+        $this->assertSame(1105, $m->fresh()->copy_date_hijri_year);
+    }
+
+    public function test_field_suggestion_is_validated_against_the_registry()
+    {
+        $m = $this->manuscript(['dimensions' => '۱۰×۱۵']);
+
+        $this->suggest($m, ['field_name' => 'work_id', 'suggested_value' => '1', 'rationale_citation' => 'منبع آزمایشی'])
+            ->assertStatus(422)->assertJsonValidationErrors('field_name');
+        $this->suggest($m, ['field_name' => 'dimensions', 'suggested_value' => '۱۲×۱۸', 'rationale_citation' => ''])
+            ->assertStatus(422)->assertJsonValidationErrors('rationale_citation');
+        $this->suggest($m, ['field_name' => 'dimensions', 'suggested_value' => '۱۲×۱۸', 'rationale_citation' => 'منبع آزمایشی', 'website' => 'spam'])
+            ->assertStatus(422);
+
+        $this->suggest($m, ['field_name' => 'dimensions', 'suggested_value' => '۱۲×۱۸', 'rationale_citation' => 'منبع آزمایشی', 'current_value' => 'جعلی'])
+            ->assertOk();
+
+        $s = FieldSuggestion::where('suggestable_id', $m->id)->sole();
+        $this->assertSame('field', $s->kind);
+        $this->assertSame('۱۰×۱۵', $s->current_value, 'current value is read from the record, not the request');
+    }
+
+    public function test_general_and_legacy_suggestions_need_no_field()
+    {
+        $m = $this->manuscript();
+
+        $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'این نسخه از اثر دیگری است'])
+            ->assertOk();
+        // A page cached before the per-field desk posts the class name and the old "other" field
+        $this->post('/suggestions', [
+            'suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'field_name' => 'other',
+            'suggested_value' => 'نکته‌ی دیگر', 'rationale_citation' => 'منبع آزمایشی',
+        ])->assertRedirect();
+
+        $kinds = FieldSuggestion::where('suggestable_id', $m->id)->where('suggestable_type', Manuscript::class)->pluck('kind', 'suggested_value');
+        $this->assertSame(['این نسخه از اثر دیگری است' => 'general', 'نکته‌ی دیگر' => 'general'], $kinds->all());
+    }
+
+    public function test_approving_a_date_writes_the_numeric_year()
+    {
+        $m = $this->manuscript(['is_bita' => true]);
+        $this->suggest($m, ['field_name' => 'copy_date_raw', 'suggested_value' => '۱۴ رجب ۱۲۳۹ق', 'rationale_citation' => 'ترقیمه‌ی نسخه'])->assertOk();
+        $s = FieldSuggestion::where('suggestable_id', $m->id)->sole();
+
+        $this->get("/admin/suggestions/{$s->id}")->assertRedirect('/login');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('value="1239"', false);
+
+        $this->approve($s, ['hijri_year' => 1239])->assertRedirect('/admin/suggestions');
+
+        $m->refresh();
+        $this->assertSame('۱۴ رجب ۱۲۳۹ق', $m->copy_date_raw);
+        $this->assertSame(1239, $m->copy_date_hijri_year);
+        $this->assertFalse($m->is_bita);
+        $this->assertSame(1239, $s->fresh()->resolution['hijri_year']);
+    }
+
+    public function test_approving_a_scribe_links_an_existing_person()
+    {
+        $old = $this->person('کاتب پیشین');
+        $new = $this->person('محمد کاتب');
+        $m = $this->manuscript(['scribe_id' => $old->id, 'scribe_name' => $old->name]);
+        $old->recountContributions();
+
+        $this->suggest($m, ['field_name' => 'scribe_name', 'suggested_value' => $new->name, 'rationale_citation' => 'ترقیمه', 'person_id' => $new->id])->assertOk();
+        $s = FieldSuggestion::where('suggestable_id', $m->id)->sole();
+        $this->assertSame($new->id, $s->payload['person_id']);
+
+        $this->approve($s, ['person_pick' => 'p:' . $new->id])->assertRedirect('/admin/suggestions');
+
+        $m->refresh();
+        $this->assertSame($new->id, $m->scribe_id);
+        $this->assertSame([$new->id], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
+        $this->assertSame(1, $new->fresh()->manuscripts_count);
+        $this->assertSame(0, $old->fresh()->manuscripts_count);
+
+        // Rolling back the approval restores the old link and reopens the suggestion
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame($old->id, $m->fresh()->scribe_id);
+        $this->assertSame(1, $old->fresh()->manuscripts_count);
+        $this->assertSame('pending', $s->fresh()->status);
+    }
+
+    public function test_approving_a_scribe_can_create_a_person_or_store_text_only()
+    {
+        $m = $this->manuscript();
+        $name = "علی بن حسن {$this->tag}";
+        $this->suggest($m, ['field_name' => 'scribe_name', 'suggested_value' => $name, 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $this->approve(FieldSuggestion::where('suggestable_id', $m->id)->sole(), ['person_pick' => 'create']);
+
+        $created = Person::where('name', $name)->sole();
+        $this->assertTrue($created->is_scribe);
+        $this->assertSame(1, $created->manuscripts_count);
+        $this->assertSame($created->id, $m->fresh()->scribe_id);
+
+        $other = $this->manuscript();
+        $this->suggest($other, ['field_name' => 'scribe_name', 'suggested_value' => 'کاتبی ناشناس', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $this->approve(FieldSuggestion::where('suggestable_id', $other->id)->sole(), ['person_pick' => 'text']);
+        $other->refresh();
+        $this->assertSame('کاتبی ناشناس', $other->scribe_name);
+        $this->assertNull($other->scribe_id);
+    }
+
+    public function test_metadata_fields_and_general_reports()
+    {
+        $m = $this->manuscript(['metadata' => ['incipits' => [['label' => null, 'text' => 'آغاز نادرست']]]]);
+
+        $this->suggest($m, ['field_name' => 'incipit_text', 'suggested_value' => 'بسم الله الرحمن الرحیم', 'rationale_citation' => 'برگ نخست'])->assertOk();
+        $this->suggest($m, ['field_name' => 'ownership_and_seals', 'suggested_value' => "مهر الف\nتملک ب", 'rationale_citation' => 'برگ نخست'])->assertOk();
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '۱۲۰', 'rationale_citation' => 'شمارش برگ‌ها'])->assertOk();
+        $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'رکورد تکراری است'])->assertOk();
+
+        foreach (FieldSuggestion::where('suggestable_id', $m->id)->where('suggestable_type', Manuscript::class)->get() as $s) {
+            $this->approve($s)->assertRedirect('/admin/suggestions');
+        }
+
+        $m->refresh();
+        $this->assertSame([['label' => null, 'text' => 'بسم الله الرحمن الرحیم']], $m->metadata['incipits']);
+        $this->assertSame(['مهر الف', 'تملک ب'], $m->ownership_and_seals_list);
+        $this->assertSame(120, $m->folios);
+
+        $general = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'general')->sole();
+        $this->assertSame('approved', $general->status);
+        $this->assertFalse($general->resolution['applied']);
+        $this->assertNull(ScholarlyAnnotation::where('suggestion_id', $general->id)->first());
+    }
+
+    public function test_invalid_integer_is_rejected_without_changes()
+    {
+        $m = $this->manuscript(['folios' => 50]);
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => 'حدود صد', 'rationale_citation' => 'شمارش'])->assertOk();
+        $s = FieldSuggestion::where('suggestable_id', $m->id)->sole();
+
+        $this->approve($s)->assertSessionHasErrors('applied_value');
+        $this->assertSame(50, $m->fresh()->folios);
+        $this->assertSame('pending', $s->fresh()->status);
+    }
+
+    public function test_manuscript_page_renders_the_suggestion_desk()
+    {
+        $m = $this->manuscript();
+        $this->get(route('manuscripts.show', $m))
+            ->assertOk()
+            ->assertSee('suggestDesk(', false)
+            ->assertSee('پیشنهاد اصلاح این فیلد');
+    }
+
+    public function test_work_fields_link_author_and_keep_derived_columns()
+    {
+        $author = $this->person('مؤلف آزمایشی');
+        $work = $this->work([
+            'alternative_titles' => [['title' => 'عنوان کهن', 'transliteration' => 'ʿunwān-i kuhan']],
+        ]);
+
+        $this->suggest($work, ['field_name' => 'author_name', 'suggested_value' => $author->name, 'rationale_citation' => 'مقدمه‌ی اثر', 'person_id' => $author->id])->assertOk();
+        $this->approve($this->pendingFor($work), ['person_pick' => 'p:' . $author->id])->assertRedirect('/admin/suggestions');
+
+        $this->suggest($work, ['field_name' => 'composition_date_raw', 'suggested_value' => 'رمضان ۸۹۵ق', 'rationale_citation' => 'انجامه‌ی مؤلف'])->assertOk();
+        $this->approve($this->pendingFor($work), ['hijri_year' => 895]);
+
+        $this->suggest($work, ['field_name' => 'alternative_titles', 'suggested_value' => "عنوان کهن\nعنوان تازه", 'rationale_citation' => 'فهرست ملی'])->assertOk();
+        $this->approve($this->pendingFor($work));
+
+        $this->suggest($work, ['field_name' => 'primary_title', 'suggested_value' => 'عنوان درست', 'rationale_citation' => 'سرلوح نسخه'])->assertOk();
+        $this->approve($this->pendingFor($work));
+
+        $work->refresh();
+        $this->assertSame($author->id, $work->author_id);
+        $this->assertSame([$author->id], DB::table('work_author')->where('work_id', $work->id)->pluck('person_id')->all());
+        $this->assertSame(1, $author->fresh()->works_count);
+        $this->assertSame(895, $work->composition_year_hijri);
+        $this->assertSame([
+            ['title' => 'عنوان کهن', 'transliteration' => 'ʿunwān-i kuhan'],
+            ['title' => 'عنوان تازه'],
+        ], $work->alternative_titles);
+        $this->assertSame('عنوان درست', $work->primary_title);
+        $this->assertSame('عنوان درست', $work->clean_title);
+
+        // A title cannot be emptied
+        $this->suggest($work, ['field_name' => 'primary_title', 'suggested_value' => 'x', 'rationale_citation' => 'آزمون خالی'])->assertOk();
+        $this->approve($this->pendingFor($work), ['applied_value' => ''])->assertSessionHasErrors('applied_value');
+        $this->assertSame('عنوان درست', $work->fresh()->primary_title);
+    }
+
+    public function test_person_fields_update_derived_columns_and_respect_ranges()
+    {
+        $person = $this->person('شخص آزمایشی');
+
+        $this->suggest($person, ['field_name' => 'death_year_hijri', 'suggested_value' => '۶۷۲', 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person));
+        $this->assertSame(672, $person->fresh()->death_year_hijri);
+        $this->assertSame(7, $person->fresh()->century_hijri);
+
+        $this->suggest($person, ['field_name' => 'death_year_gregorian', 'suggested_value' => '20', 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person))->assertSessionHasErrors('applied_value');
+        $this->assertNull($person->fresh()->death_year_gregorian);
+
+        $newName = "نام درست‌شده {$this->tag}";
+        $this->suggest($person, ['field_name' => 'name', 'suggested_value' => $newName, 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person));
+        $this->assertSame(\App\Helpers\TextNormalizer::normalize($newName), $person->fresh()->normalized_name);
+
+        $this->suggest($person, ['field_name' => 'aliases', 'suggested_value' => "لقب یک\nلقب دو", 'rationale_citation' => 'تذکره'])->assertOk();
+        $this->approve($this->pendingFor($person));
+        $this->assertSame(['لقب یک', 'لقب دو'], $person->fresh()->aliases);
+    }
+
+    public function test_library_fields_and_record_pages()
+    {
+        $library = Library::create(['city' => 'شهر آزمون', 'name' => 'کتابخانه آزمون ' . $this->tag, 'slug' => 'test-suggest-lib-' . uniqid()]);
+        $this->libraryIds[] = $library->id;
+
+        // Name and city are copied onto manuscripts, so they are not open to field suggestions
+        $this->suggest($library, ['field_name' => 'name', 'suggested_value' => 'دیگر', 'rationale_citation' => 'تابلوی کتابخانه'])
+            ->assertStatus(422)->assertJsonValidationErrors('field_name');
+
+        $this->suggest($library, ['field_name' => 'description', 'suggested_value' => 'کتابخانه‌ای وقفی', 'rationale_citation' => 'وقف‌نامه'])->assertOk();
+        $this->approve($this->pendingFor($library));
+        $this->assertSame('کتابخانه‌ای وقفی', $library->fresh()->description);
+
+        $work = $this->work();
+        $person = $this->person('شخص صفحه');
+        foreach ([route('works.show', $work), route('people.show', $person), route('libraries.show', $library)] as $url) {
+            $this->get($url)->assertOk()->assertSee('suggestDesk(', false)->assertSee('پیشنهاد اصلاح این فیلد');
+        }
+    }
+
+    protected function relate($record, string $key, $other, array $extra = [])
+    {
+        $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
+
+        return $this->postJson('/suggestions', $extra + [
+            'type' => $type, 'id' => $record->id, 'kind' => 'relation', 'field_name' => $key,
+            'target_id' => $other?->id, 'suggested_value' => '', 'rationale_citation' => 'مقایسه‌ی دو فهرست',
+        ]);
+    }
+
+    public function test_relation_suggestions_are_validated()
+    {
+        $m = $this->manuscript();
+        $work = $this->work();
+        $library = Library::create(['city' => 'شهر آزمون', 'name' => 'کتابخانه آزمون ' . $this->tag, 'slug' => 'test-suggest-lib-' . uniqid()]);
+        $this->libraryIds[] = $library->id;
+
+        $this->relate($library, 'duplicate', $library)->assertStatus(422)->assertJsonValidationErrors('field_name');
+        $this->relate($m, 'move_to_work', null)->assertStatus(422)->assertJsonValidationErrors('target_id');
+        $this->relate($m, 'duplicate', $m)->assertStatus(422)->assertJsonValidationErrors('target_id');
+        $this->relate($m, 'move_to_work', $work, ['rationale_citation' => ''])->assertStatus(422)->assertJsonValidationErrors('rationale_citation');
+
+        $this->relate($m, 'move_to_work', $work)->assertOk();
+        $s = $this->pendingFor($m);
+        $this->assertSame(['relation', 'move_to_work', $work->id], [$s->kind, $s->field_name, $s->payload['target_id']]);
+        $this->assertSame('این نسخه از اثر دیگری است', $s->suggested_value);
+        $this->assertSame('انتقال نسخه به اثر دیگر', $s->field_label);
+
+        // The target picker finds records by pasted link or id
+        $this->getJson('/api/suggestions/lookup?type=manuscript&q=' . urlencode("https://fahares.net/m/{$m->id}"))->assertOk()->assertJsonPath('0.id', $m->id);
+        $this->getJson('/api/suggestions/lookup?type=work&q=' . urlencode('#' . $work->id))->assertOk()->assertJsonPath('0.id', $work->id);
+    }
+
+    public function test_moving_a_manuscript_to_another_work_and_back()
+    {
+        $m = $this->manuscript();
+        $from = $m->work;
+        $to = $this->work();
+        $from->update(['manuscripts_count' => 1]);
+
+        $this->relate($m, 'move_to_work', $to)->assertOk();
+        $s = $this->pendingFor($m);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('انتقال نسخه به اثر دیگر');
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+
+        $this->assertSame($to->id, $m->fresh()->work_id);
+        $this->assertSame(0, $from->fresh()->manuscripts_count);
+        $this->assertSame(1, $to->fresh()->manuscripts_count);
+        $this->assertSame($to->id, $s->fresh()->resolution['work_id']);
+
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame($from->id, $m->fresh()->work_id);
+        $this->assertSame(1, $from->fresh()->manuscripts_count);
+        $this->assertSame(0, $to->fresh()->manuscripts_count);
+        $this->assertSame('pending', $s->fresh()->status);
+    }
+
+    public function test_merging_a_duplicate_manuscript()
+    {
+        $scribe = $this->person('کاتب نسخه‌ی تکراری');
+        $kept = $this->manuscript(['shelfmark' => '۱۲۳']);
+        $dup = $this->manuscript(['copy_date_raw' => '۱۰۹۵ق', 'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name]);
+        $this->removedManuscripts[] = $dup->id;
+        $this->suggest($dup, ['field_name' => 'folios', 'suggested_value' => '۱۰', 'rationale_citation' => 'شمارش'])->assertOk();
+        $open = $this->pendingFor($dup);
+
+        $this->relate($dup, 'duplicate', $kept)->assertOk();
+        $this->approve($this->pendingFor($dup))->assertRedirect('/admin/suggestions');
+
+        $this->assertNull(Manuscript::find($dup->id));
+        $this->assertSame($kept->id, EntityRedirect::resolveTargetId('manuscripts', $dup->id));
+        $kept->refresh();
+        $this->assertSame('۱۰۹۵ق', $kept->copy_date_raw);
+        $this->assertSame(1095, $kept->copy_date_hijri_year);
+        $this->assertSame($scribe->id, $kept->scribe_id);
+        $this->assertSame(1, $scribe->fresh()->manuscripts_count);
+        $this->assertSame($kept->id, $open->fresh()->suggestable_id, 'open suggestions follow the kept record');
+        $this->assertSame(0, $dup->work->fresh()->manuscripts_count);
+
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $kept->id)->where('action', 'merge')->sole();
+        $this->assertSame($dup->id, $log->old_values['source_snapshot']['attributes']['id']);
+    }
+
+    public function test_merging_a_duplicate_work_keeping_the_suggesting_record()
+    {
+        $kept = $this->work(['primary_title' => 'عنوان ماندنی ' . $this->tag]);
+        $dup = $this->work(['primary_title' => 'عنوان تکراری ' . $this->tag, 'composition_date_raw' => '۹۰۰ق']);
+        $same = $this->manuscript(['work_id' => $kept->id, 'city' => 'قم', 'library' => 'مرعشی', 'shelfmark' => '۵۵']);
+        $copy = $this->manuscript(['work_id' => $dup->id, 'city' => 'قم', 'library' => 'مرعشی', 'shelfmark' => '۵۵', 'folios' => 80]);
+        $other = $this->manuscript(['work_id' => $dup->id, 'city' => 'قم', 'library' => 'مرعشی', 'shelfmark' => '۵۶']);
+        $this->removedManuscripts[] = $copy->id;
+
+        // Suggested on the record that should stay; the reviewer keeps it instead of the target
+        $this->relate($kept, 'duplicate', $dup)->assertOk();
+        $this->approve($this->pendingFor($kept), ['keep' => 'source'])->assertRedirect('/admin/suggestions');
+
+        $this->assertNull(Work::find($dup->id));
+        $this->assertSame($kept->id, EntityRedirect::resolveTargetId('works', $dup->id));
+        $this->assertSame($kept->id, $other->fresh()->work_id);
+        $this->assertNull(Manuscript::find($copy->id), 'the identical copy is folded into the kept one');
+        $this->assertSame(80, $same->fresh()->folios);
+        $kept->refresh();
+        $this->assertSame(2, $kept->manuscripts_count);
+        $this->assertSame(900, $kept->composition_year_hijri);
+        $this->assertContains('عنوان تکراری ' . $this->tag, array_column($kept->alternative_titles, 'title'));
+    }
+
+    public function test_person_duplicates_close_through_the_merge_tool()
+    {
+        $a = $this->person('شخص یکم');
+        $b = $this->person('شخص دوم');
+        $this->relate($a, 'duplicate', $b)->assertOk();
+        $s = $this->pendingFor($a);
+
+        $this->approve($s)->assertStatus(422);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('suggestion_id=' . $s->id, false);
+
+        $this->actingAs($this->admin)->post('/admin/people/merge', ['source_id' => $a->id, 'target_id' => $b->id, 'suggestion_id' => $s->id])->assertRedirect();
+        $s->refresh();
+        $this->assertSame('approved', $s->status);
+        $this->assertSame(['applied' => true, 'kept_id' => $b->id, 'removed_id' => $a->id], $s->resolution);
+
+        $log = AuditLog::where('auditable_type', Person::class)->where('auditable_id', $b->id)->where('action', 'merge')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame('pending', $s->fresh()->status);
+        AuditLog::where('auditable_type', Person::class)->whereIn('auditable_id', [$a->id, $b->id])->delete();
+    }
+}

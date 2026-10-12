@@ -26,24 +26,23 @@
 
                 <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
                     {{ $person->name }}
+                    <x-suggest.field name="name" class="ms-1" />
                 </h1>
 
-                @if($person->transliteration)
-                    <div class="text-xs text-stone-400">
-                        {{ $person->transliteration }}
-                    </div>
-                @endif
+                <div class="text-xs text-stone-400" @unless($person->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
+                    {{ $person->transliteration ?? 'آوانگاری نام: —' }}
+                    <x-suggest.field name="transliteration" class="ms-1" />
+                </div>
 
-                @if(!empty($person->aliases))
-                    <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
-                        <span class="text-stone-400 font-medium">شهرت‌ها و القاب:</span>
-                        @foreach($person->aliases as $alias)
-                            <span class="px-2 py-0.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 text-[#B38A50] dark:text-amber-200/80 border border-amber-200/40 dark:border-amber-800/40 font-medium">
-                                {{ $alias }}
-                            </span>
-                        @endforeach
-                    </div>
-                @endif
+                <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs" @if(empty($person->aliases)) x-show="$store.suggest.on" x-cloak @endif>
+                    <span class="text-stone-400 font-medium">شهرت‌ها و القاب:</span>
+                    @foreach($person->aliases ?? [] as $alias)
+                        <span class="px-2 py-0.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 text-[#B38A50] dark:text-amber-200/80 border border-amber-200/40 dark:border-amber-800/40 font-medium">
+                            {{ $alias }}
+                        </span>
+                    @endforeach
+                    <x-suggest.field name="aliases" />
+                </div>
 
                 <!-- Roles Badges -->
                 <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
@@ -70,21 +69,40 @@
                         {{ $person->century_hijri ? 'سده ' . $person->century_hijri . ' هـ.ق' : 'نامشخص' }}
                     </span>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between gap-3" @unless($person->birth_year_hijri) x-show="$store.suggest.on" x-cloak @endunless>
+                    <span class="text-stone-400">سال تولد (قمری):</span>
+                    <span class="font-bold text-stone-800 dark:text-stone-200">
+                        {{ $person->birth_year_hijri ? $person->birth_year_hijri . ' ق' : '-' }}
+                        <x-suggest.field name="birth_year_hijri" class="ms-1" />
+                    </span>
+                </div>
+                <div class="flex justify-between gap-3">
                     <span class="text-stone-400">سال وفات (قمری):</span>
                     <span class="font-bold text-stone-800 dark:text-stone-200">
                         {{ $person->death_year_hijri ? $person->death_year_hijri . ' ق' : '-' }}
+                        <x-suggest.field name="death_year_hijri" class="ms-1" />
                     </span>
                 </div>
-                @if($person->death_year_gregorian)
-                    <div class="flex justify-between">
-                        <span class="text-stone-400">سال وفات (میلادی):</span>
-                        <span class="text-stone-600 dark:text-stone-300">
-                            {{ $person->death_year_gregorian }} م
-                        </span>
-                    </div>
-                @endif
+                <div class="flex justify-between gap-3" @unless($person->death_year_gregorian) x-show="$store.suggest.on" x-cloak @endunless>
+                    <span class="text-stone-400">سال وفات (میلادی):</span>
+                    <span class="text-stone-600 dark:text-stone-300">
+                        {{ $person->death_year_gregorian ? $person->death_year_gregorian . ' م' : '-' }}
+                        <x-suggest.field name="death_year_gregorian" class="ms-1" />
+                    </span>
+                </div>
+                <div class="pt-2 border-t border-[#EADFCF] dark:border-[#272F4C]">
+                    <x-suggest.toggle class="w-full justify-center" />
+                </div>
             </div>
+        </div>
+
+        <!-- Short biography -->
+        <div class="pt-4 border-t border-stone-100 dark:border-stone-800 text-xs space-y-1" @unless($person->bio_notes) x-show="$store.suggest.on" x-cloak @endunless>
+            <span class="text-stone-400 font-medium">زندگی‌نامه‌ی کوتاه:</span>
+            <x-suggest.field name="bio_notes" class="ms-1" />
+            @if($person->bio_notes)
+                <p class="text-stone-700 dark:text-stone-300 leading-loose whitespace-pre-line">{{ $person->bio_notes }}</p>
+            @endif
         </div>
 
         <!-- Metric tabs switch -->
@@ -221,6 +239,9 @@
         @endif
 
     </div>
+
+    <!-- SUGGESTION DESK: per-field and general correction suggestions -->
+    <x-suggest.desk type="person" :record="$person" />
 
 </div>
 @endsection

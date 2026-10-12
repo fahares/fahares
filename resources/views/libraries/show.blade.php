@@ -4,7 +4,7 @@
 @section('meta_description', 'فهرست نسخه‌های خطی نگهداری‌شده در ' . $library->name . ' (' . ($library->city ?? '') . ') در سامانه فهارس')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<div x-data class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs text-stone-500">
@@ -24,11 +24,23 @@
             <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
                 {{ $library->name }}
             </h1>
+            <div class="text-sm text-stone-600 dark:text-stone-300" @unless($library->full_name) x-show="$store.suggest.on" x-cloak @endunless>
+                {{ $library->full_name ?? 'نام کامل: —' }}
+                <x-suggest.field name="full_name" class="ms-1" />
+            </div>
             <div class="text-xs text-stone-500">
                 موقعیت: <strong class="text-stone-700 dark:text-stone-300">{{ $library->city ?? 'ایران' }}</strong>
                 @if($library->country && $library->country !== 'ایران')
                     • {{ $library->country }}
                 @endif
+                <x-suggest.field name="country" class="ms-1" />
+            </div>
+            <div class="text-xs text-stone-700 dark:text-stone-300 leading-loose whitespace-pre-line max-w-2xl pt-1" @unless($library->description) x-show="$store.suggest.on" x-cloak @endunless>
+                {{ $library->description ?? 'معرفی کتابخانه: —' }}
+                <x-suggest.field name="description" class="ms-1" />
+            </div>
+            <div class="pt-2">
+                <x-suggest.toggle />
             </div>
         </div>
 
@@ -115,6 +127,9 @@
             @endif
         </div>
     </section>
+
+    <!-- SUGGESTION DESK: per-field and general correction suggestions -->
+    <x-suggest.desk type="library" :record="$library" />
 
 </div>
 @endsection

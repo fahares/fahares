@@ -227,7 +227,7 @@
                                     {{ class_basename($sug->suggestable_type) }} #{{ $sug->suggestable_id }}
                                 </span>
                                 <span class="text-xs font-bold text-stone-900 dark:text-stone-100">
-                                    فیلد: <span class="text-[#B38A50] font-mono">{{ $sug->field_name }}</span>
+                                    فیلد: <span class="text-[#B38A50]">{{ $sug->field_label }}</span>
                                 </span>
                             </div>
                             <p class="text-xs text-stone-600 dark:text-stone-300 truncate max-w-md">

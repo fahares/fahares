@@ -78,6 +78,7 @@
 
                 <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
                     {{ $work->primary_title }}
+                    <x-suggest.field name="primary_title" class="ms-1" />
                 </h1>
 
                 @if($work->clean_title && $work->clean_title !== $work->primary_title)
@@ -86,11 +87,10 @@
                     </div>
                 @endif
 
-                @if($work->transliteration)
-                    <div class="text-xs text-stone-400">
-                        {{ $work->transliteration }}
-                    </div>
-                @endif
+                <div class="text-xs text-stone-400" @unless($work->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
+                    {{ $work->transliteration ?? 'آوانگاری عنوان: —' }}
+                    <x-suggest.field name="transliteration" class="ms-1" />
+                </div>
             </div>
 
             <!-- Manuscript Count Badge -->
@@ -185,6 +185,8 @@
                     </svg>
                     <span>دریافت استناد علمی</span>
                 </button>
+
+                <x-suggest.toggle />
             </div>
 
             <div class="text-xs text-stone-400 font-medium">
@@ -210,6 +212,7 @@
                 @else
                     <span class="text-sm text-stone-400 italic">ناشناخته</span>
                 @endif
+                <x-suggest.field name="author_name" class="ms-1" />
             </div>
 
             <!-- Composition Year -->
@@ -222,6 +225,7 @@
                 @else
                     <span class="text-sm text-stone-400 italic">نامشخص</span>
                 @endif
+                <x-suggest.field name="composition_date_raw" class="ms-1" />
             </div>
 
             <!-- Source in Catalog -->
@@ -257,9 +261,13 @@
                 <span class="text-stone-400 block font-medium">زبان و قالب:</span>
                 <span class="text-sm font-bold text-stone-700 dark:text-stone-300">
                     {{ $work->language_summary ?? 'عربی / فارسی' }}
+                    <x-suggest.field name="language_summary" />
                     @if($work->work_form)
                         <span class="text-xs text-stone-400 font-normal">({{ $work->work_form }})</span>
+                    @else
+                        <span x-show="$store.suggest.on" x-cloak class="text-xs text-stone-400 font-normal">قالب:</span>
                     @endif
+                    <x-suggest.field name="work_form" />
                 </span>
             </div>
 
@@ -279,9 +287,11 @@
         @endif
 
         <!-- Alternative Titles & Referrals -->
-        @if(!empty($work->alternative_titles))
-            <div class="pt-4 border-t border-stone-100 dark:border-stone-800 text-xs space-y-1">
-                <span class="text-stone-400 font-medium">عناوین دیگر و هم‌تراز:</span>
+        @php $hasAltTitles = ! empty($work->alternative_titles); @endphp
+        <div class="pt-4 border-t border-stone-100 dark:border-stone-800 text-xs space-y-1" @unless($hasAltTitles) x-show="$store.suggest.on" x-cloak @endunless>
+            <span class="text-stone-400 font-medium">عناوین دیگر و هم‌تراز:</span>
+            <x-suggest.field name="alternative_titles" class="ms-1" />
+        @if($hasAltTitles)
                 <div class="flex flex-wrap gap-2 pt-1">
                     @foreach($work->alternative_titles as $alt)
                         @if(is_array($alt) && !empty($alt['title']))
@@ -294,32 +304,20 @@
                         @endif
                     @endforeach
                 </div>
-            </div>
         @endif
+        </div>
 
         <!-- Dedication, Place, Related Work -->
-        @if(!empty($work->dedication) || !empty($work->composition_place) || !empty($work->related_work))
-            <div class="pt-4 border-t border-stone-100 dark:border-stone-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                @if(!empty($work->dedication))
-                    <div class="space-y-1">
-                        <span class="text-stone-400 block font-medium">اهدا / به درخواست:</span>
-                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->dedication }}</span>
-                    </div>
-                @endif
-                @if(!empty($work->composition_place))
-                    <div class="space-y-1">
-                        <span class="text-stone-400 block font-medium">محل تألیف:</span>
-                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->composition_place }}</span>
-                    </div>
-                @endif
-                @if(!empty($work->related_work))
-                    <div class="space-y-1">
-                        <span class="text-stone-400 block font-medium">اثر مرتبط / وابسته به:</span>
-                        <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->related_work }}</span>
-                    </div>
-                @endif
-            </div>
-        @endif
+        @php $hasContext = ! empty($work->dedication) || ! empty($work->composition_place) || ! empty($work->related_work); @endphp
+        <div class="pt-4 border-t border-stone-100 dark:border-stone-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs" @unless($hasContext) x-show="$store.suggest.on" x-cloak @endunless>
+            @foreach(['dedication' => 'اهدا / به درخواست:', 'composition_place' => 'محل تألیف:', 'related_work' => 'اثر مرتبط / وابسته به:'] as $col => $label)
+                <div class="space-y-1" @if(empty($work->{$col})) x-show="$store.suggest.on" x-cloak @endif>
+                    <span class="text-stone-400 block font-medium">{{ $label }}</span>
+                    <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->{$col} ?: '—' }}</span>
+                    <x-suggest.field :name="$col" class="ms-1" />
+                </div>
+            @endforeach
+        </div>
 
     </div>
 
@@ -333,6 +331,7 @@
                         <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
                             معرفی و مشخصات کتاب‌شناختی اثر (در مأخذ فنخا)
                         </h3>
+                        <x-suggest.field name="description" />
                     </div>
                     <div class="text-stone-700 dark:text-stone-200 text-xs sm:text-sm leading-loose text-justify font-normal">
                         {{ $work->description }}
@@ -347,6 +346,7 @@
                             <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                                 <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
                                 <span class="text-xs font-bold text-[#B38A50]">آغاز اثر</span>
+                                <x-suggest.field name="incipit_text" />
                             </div>
                             <div class="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
                                 « {{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }} »
@@ -359,6 +359,7 @@
                             <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                                 <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
                                 <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">انجام اثر</span>
+                                <x-suggest.field name="explicit_text" />
                             </div>
                             <div class="p-3.5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
                                 « {{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }} »
@@ -370,6 +371,26 @@
         </div>
     @endif
 
+    <!-- Sections hidden while empty: reachable in suggestion mode -->
+    @php
+        $emptySections = array_filter([
+            'description' => empty($work->description) ? 'معرفی اثر' : null,
+            'incipit_text' => empty($work->incipit_text) ? 'آغاز اثر' : null,
+            'explicit_text' => empty($work->explicit_text) ? 'انجام اثر' : null,
+            'print_info' => empty($work->print_info) ? 'چاپ‌ها و سوابق' : null,
+            'commentaries_and_glosses' => empty($work->commentaries_and_glosses) ? 'شروح و حواشی' : null,
+            'bibliography' => empty($work->bibliography) ? 'مآخذ کتاب‌شناسی' : null,
+        ]);
+    @endphp
+    @if($emptySections)
+        <div x-show="$store.suggest.on" x-cloak class="p-4 rounded-2xl border-2 border-dashed border-[#B38A50]/40 bg-amber-50/40 dark:bg-amber-950/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+            <span class="text-stone-500 font-semibold">بخش‌های خالیِ این اثر:</span>
+            @foreach($emptySections as $name => $label)
+                <span class="inline-flex items-center gap-1.5 font-bold text-stone-700 dark:text-stone-300">{{ $label }} <x-suggest.field :name="$name" /></span>
+            @endforeach
+        </div>
+    @endif
+
     <!-- PRINT INFO, COMMENTARIES, BIBLIOGRAPHY & RAW TEXT -->
     <div class="space-y-4">
         @if(!empty($work->print_info))
@@ -377,6 +398,7 @@
                 <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                     <span class="w-2 h-3.5 bg-amber-600 rounded-sm"></span>
                     <span class="text-xs font-bold text-amber-800 dark:text-amber-300">سوابق و چاپ‌های اثر</span>
+                    <x-suggest.field name="print_info" />
                 </div>
                 <div class="text-xs leading-loose text-stone-700 dark:text-stone-300 font-medium">
                     {{ $work->print_info }}
@@ -389,6 +411,7 @@
                 <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                     <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
                     <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">شروح، حواشی و منظومه‌ها (در فنخا)</span>
+                    <x-suggest.field name="commentaries_and_glosses" />
                 </div>
                 <div class="flex flex-wrap gap-2 pt-1 text-xs">
                     @foreach($work->commentaries_and_glosses as $comm)
@@ -405,6 +428,7 @@
                 <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
                     <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
                     <span class="text-xs font-bold text-[#B38A50]">مآخذ و منابع کتاب‌شناسی اثر</span>
+                    <x-suggest.field name="bibliography" />
                 </div>
                 <div class="flex flex-wrap gap-2 pt-1 text-xs">
                     @foreach($work->bibliography as $bib)
@@ -637,6 +661,9 @@
         </div>
 
     </section>
+
+    <!-- SUGGESTION DESK: per-field and general correction suggestions -->
+    <x-suggest.desk type="work" :record="$work" />
 
     <!-- QR CODE MODAL DIALOG (Alpine.js) -->
     <div 

@@ -90,18 +90,19 @@
                                         'Manuscript' => route('manuscripts.show', $sug->suggestable_id),
                                         'Work' => route('works.show', $sug->suggestable_id),
                                         'Person' => route('people.show', $sug->suggestable_id),
+                                        'Library' => route('libraries.show', $sug->suggestable_id),
                                         default => '#'
                                     };
                                 @endphp
                                 <a href="{{ $link }}" target="_blank" class="text-[#B38A50] hover:underline font-bold inline-flex items-center gap-1">
-                                    <span>{{ $base }}</span>
+                                    <span>{{ \App\Suggestions\SuggestionRegistry::typeLabel($sug->suggestable_type) }}</span>
                                     <span class="font-mono">#{{ $sug->suggestable_id }}</span>
                                     <svg class="w-3 h-3 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                 </a>
                             </td>
                             <td class="p-4">
-                                <span class="px-2 py-0.5 rounded font-mono text-[11px] bg-stone-100 dark:bg-stone-800 font-semibold text-stone-700 dark:text-stone-300">
-                                    {{ $sug->field_name }}
+                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold {{ $sug->kind === 'general' ? 'bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-200' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300' }}" title="{{ $sug->field_name }}">
+                                    {{ $sug->field_label }}
                                 </span>
                             </td>
                             <td class="p-4 max-w-xs truncate">
