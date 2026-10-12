@@ -39,8 +39,6 @@ class AuthTest extends TestCase
         $this->assertNotNull($user);
         $this->assertEquals('user', $user->role);
         $this->assertEquals('دانشگاه فردوسی مشهد', $user->affiliation);
-
-        $user->delete();
     }
 
     public function test_user_can_login_and_logout(): void
@@ -64,7 +62,5 @@ class AuthTest extends TestCase
         $logoutResponse = $this->post('/logout');
         $logoutResponse->assertRedirect('/');
         $this->assertGuest();
-
-        $user->delete();
     }
 }

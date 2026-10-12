@@ -37,6 +37,25 @@ class AdminPanelTest extends TestCase
         $this->normalUser->save();
     }
 
+    protected function createManuscript(): Manuscript
+    {
+        $work = Work::create([
+            'primary_title' => 'اثر آزمایشی پیشنهاد',
+            'clean_title' => 'اثر آزمایشی پیشنهاد',
+            'slug' => 'work-suggestion-' . uniqid(),
+            'volume_number' => 1,
+            'page_start' => 30,
+        ]);
+
+        return Manuscript::create([
+            'work_id' => $work->id,
+            'sequence_number' => 1,
+            'volume_number' => 1,
+            'page_start' => 30,
+            'script_names' => 'نسخ',
+        ]);
+    }
+
     public function test_guest_is_redirected_from_admin()
     {
         $response = $this->get('/admin');
@@ -65,11 +84,7 @@ class AdminPanelTest extends TestCase
 
     public function test_admin_can_approve_suggestion()
     {
-        // Pick an existing manuscript or create one
-        $manuscript = Manuscript::first();
-        if (! $manuscript) {
-            $this->markTestSkipped('No manuscripts found in database.');
-        }
+        $manuscript = $this->createManuscript();
 
         $suggestion = FieldSuggestion::create([
             'suggestable_type' => Manuscript::class,
@@ -131,9 +146,6 @@ class AdminPanelTest extends TestCase
         $response->assertRedirect('/admin/subjects');
         $this->assertNull(Subject::find($source->id));
         $this->assertNotNull(Subject::find($target->id));
-
-        // Clean up target
-        $target->delete();
     }
 
     public function test_people_merge_operation()
@@ -165,9 +177,6 @@ class AdminPanelTest extends TestCase
 
         // Source name is kept as a parallel name of the target
         $this->assertContains($source->name, $target->fresh()->aliases);
-
-        // Clean up target
-        $target->delete();
     }
 
     public function test_people_merge_adds_only_new_aliases()
@@ -193,8 +202,6 @@ class AdminPanelTest extends TestCase
 
         // Spelling variants of existing names (ي/ی) are not duplicated
         $this->assertEquals(['علامه مجلسي', 'صاحب بحار'], $target->fresh()->aliases);
-
-        $target->delete();
     }
 
     public function test_rollback_keeps_alias_shared_with_another_active_merge()
@@ -218,8 +225,6 @@ class AdminPanelTest extends TestCase
 
         // The first source's own name goes; the alias shared with the still-merged second source stays
         $this->assertEquals(['نام مشترک', 'صورت دوم'], $target->fresh()->aliases);
-
-        Person::whereIn('id', [$first->id, $target->id])->delete();
     }
 
     public function test_annotation_toggle_public()
@@ -240,8 +245,6 @@ class AdminPanelTest extends TestCase
 
         $annotation->refresh();
         $this->assertFalse($annotation->is_public);
-
-        $annotation->delete();
     }
 
     public function test_admin_can_update_user_role()
@@ -266,8 +269,6 @@ class AdminPanelTest extends TestCase
         $this->assertEquals('editor', $targetUser->role);
         $this->assertEquals('دبیر علمی جدید', $targetUser->name);
         $this->assertTrue($targetUser->is_verified_scholar);
-
-        $targetUser->delete();
     }
 
     public function test_admin_can_rollback_person_merge()
@@ -349,12 +350,6 @@ class AdminPanelTest extends TestCase
 
         // Aliases added by the merge are removed; pre-existing ones stay
         $this->assertEquals(['نام موازی پیشین'], $target->fresh()->aliases);
-
-        // Clean up
-        $manuscript->delete();
-        $work->delete();
-        $restoredSource->delete();
-        $target->delete();
     }
 
     public function test_admin_can_rollback_subject_merge()
@@ -421,21 +416,11 @@ class AdminPanelTest extends TestCase
 
         $this->assertTrue(DB::table('subject_work')->where('subject_id', $source->id)->where('work_id', $work->id)->exists());
         $this->assertFalse(DB::table('subject_work')->where('subject_id', $target->id)->where('work_id', $work->id)->exists());
-
-        // Clean up
-        DB::table('subject_work')->where('work_id', $work->id)->delete();
-        $child->delete();
-        $restoredSource->delete();
-        $target->delete();
-        $work->delete();
     }
 
     public function test_admin_can_rollback_verify_suggestion()
     {
-        $manuscript = Manuscript::first();
-        if (! $manuscript) {
-            $this->markTestSkipped('No manuscripts found in database.');
-        }
+        $manuscript = $this->createManuscript();
 
         $originalScript = $manuscript->script_names;
 
@@ -478,9 +463,6 @@ class AdminPanelTest extends TestCase
         $this->assertEquals('pending', $suggestion->status);
 
         $this->assertNull(ScholarlyAnnotation::where('suggestion_id', $suggestion->id)->first());
-
-        // Clean up suggestion
-        $suggestion->delete();
     }
 
     public function test_admin_can_search_people_for_merger()
@@ -507,8 +489,6 @@ class AdminPanelTest extends TestCase
         $responseText = $this->actingAs($this->admin)->getJson("/admin/people/search?q=" . urlencode($person->name));
         $responseText->assertStatus(200);
         $this->assertTrue(collect($responseText->json())->contains('id', $person->id));
-
-        $person->delete();
     }
 
     public function test_admin_can_view_merge_page_with_preloaded_people()
@@ -533,9 +513,6 @@ class AdminPanelTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($source->name);
         $response->assertSee($target->name);
-
-        $source->delete();
-        $target->delete();
     }
 }
 

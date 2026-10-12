@@ -14,6 +14,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Data fix for imported records; nothing to fix on an empty database (fresh install, test suite)
+        if (! DB::table('works')->where('id', 15193)->exists()) {
+            return;
+        }
+
         DB::beginTransaction();
 
         try {

@@ -6,33 +6,22 @@ use App\Models\Catalog;
 use App\Models\EntityRedirect;
 use App\Models\Manuscript;
 use App\Models\Person;
-use App\Models\SourceCitation;
 use App\Models\Work;
 use Tests\TestCase;
 
 class ReconcileAddendaTest extends TestCase
 {
-    protected array $works = [];
-    protected array $people = [];
     protected string $file;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Catalog::firstOrCreate(['code' => 'fankha'], ['name' => 'فهرستگان نسخه‌های خطی ایران', 'short_name' => 'فنخا']);
         $this->file = tempnam(sys_get_temp_dir(), 'addenda') . '.json';
     }
 
     protected function tearDown(): void
     {
-        $ids = array_map(fn($w) => $w->id, $this->works);
-        SourceCitation::where('citable_type', Work::class)->whereIn('citable_id', $ids)->delete();
-        $msIds = Manuscript::whereIn('work_id', $ids)->pluck('id');
-        SourceCitation::where('citable_type', Manuscript::class)->whereIn('citable_id', $msIds)->delete();
-        EntityRedirect::whereIn('entity_type', ['works', 'manuscripts'])->whereIn('target_id', array_merge($ids, $msIds->all()))->delete();
-        Work::whereIn('id', $ids)->delete();
-        Person::whereIn('id', array_map(fn($p) => $p->id, $this->people))->delete();
         @unlink($this->file);
 
         parent::tearDown();
@@ -40,7 +29,7 @@ class ReconcileAddendaTest extends TestCase
 
     protected function work(string $title, int $volume, int $page, ?Person $author = null, string $raw = ''): Work
     {
-        return $this->works[] = Work::create([
+        return Work::create([
             'catalog_id' => Catalog::where('code', 'fankha')->value('id'),
             'primary_title' => $title,
             'clean_title' => $title,
@@ -75,8 +64,8 @@ class ReconcileAddendaTest extends TestCase
 
     public function test_addenda_are_merged_with_citations_redirects_and_errata()
     {
-        $oldAuthor = $this->people[] = Person::create(['name' => 'مؤلف نادرست آزمایشی', 'normalized_name' => 'مولف نادرست', 'slug' => 'test-old-' . uniqid()]);
-        $newAuthor = $this->people[] = Person::create(['name' => 'مؤلف درست آزمایشی', 'normalized_name' => 'مولف درست', 'slug' => 'test-new-' . uniqid()]);
+        $oldAuthor = Person::create(['name' => 'مؤلف نادرست آزمایشی', 'normalized_name' => 'مولف نادرست', 'slug' => 'test-old-' . uniqid()]);
+        $newAuthor = Person::create(['name' => 'مؤلف درست آزمایشی', 'normalized_name' => 'مولف درست', 'slug' => 'test-new-' . uniqid()]);
 
         $target = $this->work('حاشیه آزمایشی استدراک', 11, 816, null, '● حاشیه آزمایشی استدراک — غیر همانند:');
         $kept = $this->manuscript($target, '100/1');

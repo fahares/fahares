@@ -55,10 +55,6 @@ class EntityRedirectTest extends TestCase
         $response = $this->get("/people/{$source->id}");
         $response->assertStatus(301);
         $response->assertRedirect(route('people.show', $target->getRouteKey()));
-
-        // Clean up
-        EntityRedirect::removeRedirect('people', $source->id);
-        $target->delete();
     }
 
     public function test_merged_subject_redirects_with_301_to_target()
@@ -87,10 +83,6 @@ class EntityRedirectTest extends TestCase
         $response = $this->get("/subjects/{$source->id}");
         $response->assertStatus(301);
         $response->assertRedirect(route('subjects.show', $target->getRouteKey()));
-
-        // Clean up
-        EntityRedirect::removeRedirect('subjects', $source->id);
-        $target->delete();
     }
 
     public function test_chained_redirects_resolve_to_latest_target()
@@ -140,11 +132,6 @@ class EntityRedirectTest extends TestCase
         $responseB = $this->get("/people/{$personB->id}");
         $responseB->assertStatus(301);
         $responseB->assertRedirect(route('people.show', $personC->getRouteKey()));
-
-        // Clean up
-        EntityRedirect::removeRedirect('people', $personA->id);
-        EntityRedirect::removeRedirect('people', $personB->id);
-        $personC->delete();
     }
 
     public function test_rollback_merge_removes_redirect_and_restores_page()
@@ -192,9 +179,5 @@ class EntityRedirectTest extends TestCase
         $followResponse = $this->get(route('people.show', $source->getRouteKey()));
         $followResponse->assertStatus(200);
         $followResponse->assertSee($source->name);
-
-        // Clean up
-        $source->delete();
-        $target->delete();
     }
 }
