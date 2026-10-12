@@ -310,6 +310,8 @@
                             @else
                                 <span class="text-emerald-700 dark:text-emerald-400 font-bold">مؤلف (نسخه اصل)</span>
                             @endif
+                        @elseif($manuscript->scribes->count() > 1 || ($manuscript->has_other_scribes && $manuscript->scribes->isNotEmpty()))
+                            <x-contributors :people="$manuscript->scribes" :others="$manuscript->has_other_scribes" />
                         @elseif($manuscript->scribe_id)
                             <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="text-[#B38A50] hover:underline">{{ $manuscript->scribe_name ?: 'مشاهده کاتب' }}</a>
                         @elseif($manuscript->scribe_name)

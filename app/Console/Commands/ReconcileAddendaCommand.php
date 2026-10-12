@@ -166,7 +166,13 @@ class ReconcileAddendaCommand extends Command
             $target->update([
                 'author_id' => $source->author_id,
                 'author_name' => $source->author_name,
+                'has_other_authors' => $source->has_other_authors,
             ]);
+            DB::table('work_author')->where('work_id', $target->id)->delete();
+            foreach (DB::table('work_author')->where('work_id', $source->id)->get() as $row) {
+                $this->touchedPeople[] = $row->person_id;
+                DB::table('work_author')->insert(['work_id' => $target->id, 'person_id' => $row->person_id, 'position' => $row->position, 'note' => $row->note]);
+            }
             Manuscript::where('work_id', $target->id)->searchable();
         }
 
@@ -185,8 +191,7 @@ class ReconcileAddendaCommand extends Command
 
     protected function removeWork(Work $source, Work $target): void
     {
-        $this->touchedPeople[] = $source->author_id;
-        $this->touchedPeople[] = $target->author_id;
+        array_push($this->touchedPeople, ...DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all());
         array_push($this->touchedSubjects, ...$source->subjects()->pluck('subjects.id')->all());
         array_push($this->touchedLanguages, ...$source->languages()->pluck('languages.id')->all());
 
@@ -197,7 +202,7 @@ class ReconcileAddendaCommand extends Command
     protected function recount(): void
     {
         foreach (Person::whereIn('id', array_filter(array_unique($this->touchedPeople)))->get() as $person) {
-            $works = Work::where('author_id', $person->id)->count();
+            $works = $person->authoredWorks()->count();
             $person->update(['works_count' => $works, 'is_author' => $person->is_author || $works > 0]);
             $person->searchable();
         }

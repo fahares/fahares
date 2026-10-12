@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
 
@@ -77,18 +78,48 @@ class Person extends Model
         ];
     }
 
-    public function authoredWorks(): HasMany
+    /**
+     * Works this person authored, alone or with others.
+     */
+    public function authoredWorks(): BelongsToMany
     {
-        return $this->hasMany(Work::class, 'author_id');
+        return $this->belongsToMany(Work::class, 'work_author')->withPivot(['position', 'note']);
     }
 
-    public function works(): HasMany
+    public function works(): BelongsToMany
     {
         return $this->authoredWorks();
     }
 
-    public function scribedManuscripts(): HasMany
+    /**
+     * Manuscripts this person copied, alone or with others.
+     */
+    public function scribedManuscripts(): BelongsToMany
     {
-        return $this->hasMany(Manuscript::class, 'scribe_id');
+        return $this->belongsToMany(Manuscript::class, 'manuscript_scribe')->withPivot(['position', 'note']);
+    }
+
+    /**
+     * Works where this person is the primary author (works.author_id).
+     */
+    public function primaryWorks(): HasMany
+    {
+        return $this->hasMany(Work::class, 'author_id');
+    }
+
+    /**
+     * Recompute works_count, manuscripts_count and the role flags from the pivots.
+     */
+    public function recountContributions(): void
+    {
+        $works = $this->authoredWorks()->count();
+        $manuscripts = $this->scribedManuscripts()->count();
+
+        $this->update([
+            'works_count' => $works,
+            'manuscripts_count' => $manuscripts,
+            'is_author' => $this->is_author || $works > 0,
+            'is_scribe' => $this->is_scribe || $manuscripts > 0,
+        ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSourceCitations;
+use App\Models\Concerns\SyncsPrimaryContributor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,8 +15,14 @@ class Work extends Model
 {
     use HasSourceCitations;
     use Searchable;
+    use SyncsPrimaryContributor;
 
     protected $guarded = ['id'];
+
+    protected static function primaryContributorPivot(): array
+    {
+        return ['work_author', 'work_id', 'author_id'];
+    }
 
     protected function casts(): array
     {
@@ -28,6 +35,7 @@ class Work extends Model
             'page_start' => 'integer',
             'page_end' => 'integer',
             'manuscripts_count' => 'integer',
+            'has_other_authors' => 'boolean',
         ];
     }
 
@@ -140,6 +148,16 @@ class Work extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'author_id');
+    }
+
+    /**
+     * Every author of the work in catalog order; the primary one (author_id) is at position 0.
+     */
+    public function authors(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'work_author')
+            ->withPivot(['position', 'note'])
+            ->orderByPivot('position');
     }
 
     public function manuscripts(): HasMany

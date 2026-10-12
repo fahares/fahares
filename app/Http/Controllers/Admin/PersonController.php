@@ -184,25 +184,35 @@ class PersonController extends Controller
                 }
             }
 
-            // Identify exact works and manuscripts to transfer
-            $transferredWorkIds = Work::where('author_id', $source->id)->pluck('id')->toArray();
-            $transferredManuscriptIds = Manuscript::where('scribe_id', $source->id)->pluck('id')->toArray();
+            // Identify exact works and manuscripts to transfer (every link, primary or not)
+            $transferredWorkIds = DB::table('work_author')->where('person_id', $source->id)->pluck('work_id')->all();
+            $transferredManuscriptIds = DB::table('manuscript_scribe')->where('person_id', $source->id)->pluck('manuscript_id')->all();
+            // Records already linked to the target too; their source row is dropped instead of moved
+            $collapsedWorkIds = DB::table('work_author')->where('person_id', $target->id)->whereIn('work_id', $transferredWorkIds)->pluck('work_id')->all();
+            $collapsedManuscriptIds = DB::table('manuscript_scribe')->where('person_id', $target->id)->whereIn('manuscript_id', $transferredManuscriptIds)->pluck('manuscript_id')->all();
 
-            // 1. Transfer Works (as author)
-            Work::whereIn('id', $transferredWorkIds)->update([
-                'author_id' => $target->id,
-                'author_name' => $target->name,
-            ]);
+            $primaryWorkIds = Work::where('author_id', $source->id)->pluck('id')->all();
+            $primaryManuscriptIds = Manuscript::where('scribe_id', $source->id)->pluck('id')->all();
 
-            // 2. Transfer Manuscripts (as scribe)
-            Manuscript::whereIn('id', $transferredManuscriptIds)->update([
-                'scribe_id' => $target->id,
-                'scribe_name' => $target->name,
-            ]);
+            // 1. Transfer Works (as author); the printed name changes only on single-author works
+            DB::table('work_author')->where('person_id', $source->id)->whereIn('work_id', $collapsedWorkIds)->delete();
+            DB::table('work_author')->where('person_id', $source->id)->update(['person_id' => $target->id]);
+            Work::where('author_id', $source->id)->update(['author_id' => $target->id]);
+            Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
+                ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
+                ->update(['author_name' => $target->name]);
+
+            // 2. Transfer Manuscripts (as scribe); likewise for the scribe name
+            DB::table('manuscript_scribe')->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
+            DB::table('manuscript_scribe')->where('person_id', $source->id)->update(['person_id' => $target->id]);
+            Manuscript::where('scribe_id', $source->id)->update(['scribe_id' => $target->id]);
+            Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
+                ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
+                ->update(['scribe_name' => $target->name]);
 
             // 3. Recount works and manuscripts for target
-            $newWorksCount = Work::where('author_id', $target->id)->count();
-            $newManuscriptsCount = Manuscript::where('scribe_id', $target->id)->count();
+            $newWorksCount = $target->authoredWorks()->count();
+            $newManuscriptsCount = $target->scribedManuscripts()->count();
 
             // 3.1 Keep source name and its aliases as parallel names of the target
             $addedAliases = $this->collectNewAliases($source, $target);
@@ -231,6 +241,10 @@ class PersonController extends Controller
                     'source_snapshot' => $sourceSnapshot,
                     'transferred_work_ids' => $transferredWorkIds,
                     'transferred_manuscript_ids' => $transferredManuscriptIds,
+                    'primary_work_ids' => $primaryWorkIds,
+                    'primary_manuscript_ids' => $primaryManuscriptIds,
+                    'collapsed_work_ids' => $collapsedWorkIds,
+                    'collapsed_manuscript_ids' => $collapsedManuscriptIds,
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),
                 ],

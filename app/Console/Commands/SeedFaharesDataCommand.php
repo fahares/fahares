@@ -751,10 +751,16 @@ class SeedFaharesDataCommand extends Command
             SET manuscripts_count = (SELECT COUNT(*) FROM manuscripts m WHERE m.library_id = lib.id)
         ');
 
+        // Every primary author and scribe is also a pivot row (position 0)
+        DB::statement('INSERT IGNORE INTO work_author (work_id, person_id, position)
+            SELECT id, author_id, 0 FROM works WHERE author_id IS NOT NULL');
+        DB::statement('INSERT IGNORE INTO manuscript_scribe (manuscript_id, person_id, position)
+            SELECT id, scribe_id, 0 FROM manuscripts WHERE scribe_id IS NOT NULL');
+
         DB::statement('
             UPDATE people p
-            SET works_count = (SELECT COUNT(*) FROM works w WHERE w.author_id = p.id),
-                manuscripts_count = (SELECT COUNT(*) FROM manuscripts m WHERE m.scribe_id = p.id)
+            SET works_count = (SELECT COUNT(*) FROM work_author wa WHERE wa.person_id = p.id),
+                manuscripts_count = (SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.person_id = p.id)
         ');
     }
 

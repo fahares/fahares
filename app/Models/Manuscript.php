@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSourceCitations;
+use App\Models\Concerns\SyncsPrimaryContributor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,8 +14,14 @@ class Manuscript extends Model
 {
     use HasSourceCitations;
     use Searchable;
+    use SyncsPrimaryContributor;
 
     protected $guarded = ['id'];
+
+    protected static function primaryContributorPivot(): array
+    {
+        return ['manuscript_scribe', 'manuscript_id', 'scribe_id'];
+    }
 
     protected function casts(): array
     {
@@ -38,6 +45,7 @@ class Manuscript extends Model
             'is_illuminated' => 'boolean',
             'is_illustrated' => 'boolean',
             'has_author_marginalia' => 'boolean',
+            'has_other_scribes' => 'boolean',
             'metadata' => 'array',
         ];
     }
@@ -391,6 +399,16 @@ class Manuscript extends Model
     public function scribe(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'scribe_id');
+    }
+
+    /**
+     * Every scribe of the copy in catalog order; the primary one (scribe_id) is at position 0.
+     */
+    public function scribes(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'manuscript_scribe')
+            ->withPivot(['position', 'note'])
+            ->orderByPivot('position');
     }
 
     public function scripts(): BelongsToMany

@@ -102,29 +102,45 @@ class AuditLogController extends Controller
             $transferredWorkIds = (array) ($old['transferred_work_ids'] ?? []);
             $transferredManuscriptIds = (array) ($old['transferred_manuscript_ids'] ?? []);
 
+            // Logs written before the pivots existed list only primary links
+            $primaryWorkIds = (array) ($old['primary_work_ids'] ?? $transferredWorkIds);
+            $primaryManuscriptIds = (array) ($old['primary_manuscript_ids'] ?? $transferredManuscriptIds);
+            $collapsedWorkIds = (array) ($old['collapsed_work_ids'] ?? []);
+            $collapsedManuscriptIds = (array) ($old['collapsed_manuscript_ids'] ?? []);
+
             // Revert works
-            if (! empty($transferredWorkIds)) {
-                Work::whereIn('id', $transferredWorkIds)
-                    ->where('author_id', $target->id)
-                    ->update([
-                        'author_id' => $sourceId,
-                        'author_name' => $sourceName,
-                    ]);
+            DB::table('work_author')->where('person_id', $target->id)
+                ->whereIn('work_id', array_diff($transferredWorkIds, $collapsedWorkIds))
+                ->update(['person_id' => $sourceId]);
+            foreach ($collapsedWorkIds as $workId) {
+                $position = (int) DB::table('work_author')->where('work_id', $workId)->max('position') + 1;
+                DB::table('work_author')->insertOrIgnore(['work_id' => $workId, 'person_id' => $sourceId, 'position' => $position]);
             }
+            if (! empty($primaryWorkIds)) {
+                Work::whereIn('id', $primaryWorkIds)->where('author_id', $target->id)->update(['author_id' => $sourceId]);
+            }
+            Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
+                ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
+                ->update(['author_name' => $sourceName]);
 
             // Revert manuscripts
-            if (! empty($transferredManuscriptIds)) {
-                Manuscript::whereIn('id', $transferredManuscriptIds)
-                    ->where('scribe_id', $target->id)
-                    ->update([
-                        'scribe_id' => $sourceId,
-                        'scribe_name' => $sourceName,
-                    ]);
+            DB::table('manuscript_scribe')->where('person_id', $target->id)
+                ->whereIn('manuscript_id', array_diff($transferredManuscriptIds, $collapsedManuscriptIds))
+                ->update(['person_id' => $sourceId]);
+            foreach ($collapsedManuscriptIds as $manuscriptId) {
+                $position = (int) DB::table('manuscript_scribe')->where('manuscript_id', $manuscriptId)->max('position') + 1;
+                DB::table('manuscript_scribe')->insertOrIgnore(['manuscript_id' => $manuscriptId, 'person_id' => $sourceId, 'position' => $position]);
             }
+            if (! empty($primaryManuscriptIds)) {
+                Manuscript::whereIn('id', $primaryManuscriptIds)->where('scribe_id', $target->id)->update(['scribe_id' => $sourceId]);
+            }
+            Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
+                ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
+                ->update(['scribe_name' => $sourceName]);
 
             // Recount works & manuscripts for target, and drop the aliases this merge added
-            $targetWorks = Work::where('author_id', $target->id)->count();
-            $targetManuscripts = Manuscript::where('scribe_id', $target->id)->count();
+            $targetWorks = $target->authoredWorks()->count();
+            $targetManuscripts = $target->scribedManuscripts()->count();
             $addedAliases = $this->aliasesToDropOnRollback($log);
             $target->update([
                 'works_count' => $targetWorks,
@@ -135,8 +151,8 @@ class AuditLogController extends Controller
             ]);
 
             // Recount works & manuscripts for restored source
-            $sourceWorks = Work::where('author_id', $sourceId)->count();
-            $sourceManuscripts = Manuscript::where('scribe_id', $sourceId)->count();
+            $sourceWorks = DB::table('work_author')->where('person_id', $sourceId)->count();
+            $sourceManuscripts = DB::table('manuscript_scribe')->where('person_id', $sourceId)->count();
             Person::where('id', $sourceId)->update([
                 'works_count' => $sourceWorks,
                 'manuscripts_count' => $sourceManuscripts,

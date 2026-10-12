@@ -26,17 +26,19 @@ class LinkAutographScribesCommand extends Command
               AND w.author_id IS NOT NULL
         ");
 
+        DB::statement('INSERT IGNORE INTO manuscript_scribe (manuscript_id, person_id, position)
+            SELECT id, scribe_id, 0 FROM manuscripts WHERE is_autograph = 1 AND scribe_id IS NOT NULL');
+
         $this->info("Updated {$affected} autograph manuscripts with scribe_id.");
 
         $this->info('Recalculating scribe statistics on people table...');
         DB::statement("
             UPDATE people p
             JOIN (
-                SELECT scribe_id, COUNT(*) as cnt
-                FROM manuscripts
-                WHERE scribe_id IS NOT NULL
-                GROUP BY scribe_id
-            ) m_counts ON p.id = m_counts.scribe_id
+                SELECT person_id, COUNT(*) as cnt
+                FROM manuscript_scribe
+                GROUP BY person_id
+            ) m_counts ON p.id = m_counts.person_id
             SET p.is_scribe = 1,
                 p.manuscripts_count = m_counts.cnt
         ");

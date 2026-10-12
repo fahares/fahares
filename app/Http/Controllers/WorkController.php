@@ -15,6 +15,7 @@ class WorkController extends Controller
         $work = Work::with([
             'catalog',
             'author',
+            'authors',
             'subjects',
             'languages',
             'referrals',
@@ -41,7 +42,7 @@ class WorkController extends Controller
         $sort = $request->input('sort', 'sequence');
         $direction = strtolower($request->input('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-        $query = $work->manuscripts()->with(['catalog', 'library', 'scripts']);
+        $query = $work->manuscripts()->with(['catalog', 'library', 'scripts', 'scribes']);
 
         switch ($sort) {
             case 'library':
