@@ -138,6 +138,9 @@ class AuditLogController extends Controller
                 ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
                 ->update(['scribe_name' => $sourceName]);
 
+            Work::normalizeContributorPositions($transferredWorkIds);
+            Manuscript::normalizeContributorPositions($transferredManuscriptIds);
+
             // Recount works & manuscripts for target, and drop the aliases this merge added
             $targetWorks = $target->authoredWorks()->count();
             $targetManuscripts = $target->scribedManuscripts()->count();
@@ -161,6 +164,8 @@ class AuditLogController extends Controller
             ]);
 
             // Sync Meilisearch
+            Work::whereIn('id', $transferredWorkIds)->searchable();
+            Manuscript::whereIn('id', $transferredManuscriptIds)->searchable();
             if (method_exists($target, 'searchable')) {
                 $target->searchable();
             }

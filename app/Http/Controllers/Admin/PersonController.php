@@ -210,6 +210,9 @@ class PersonController extends Controller
                 ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
                 ->update(['scribe_name' => $target->name]);
 
+            Work::normalizeContributorPositions($transferredWorkIds);
+            Manuscript::normalizeContributorPositions($transferredManuscriptIds);
+
             // 3. Recount works and manuscripts for target
             $newWorksCount = $target->authoredWorks()->count();
             $newManuscriptsCount = $target->scribedManuscripts()->count();
@@ -228,6 +231,9 @@ class PersonController extends Controller
             if (method_exists($target, 'searchable')) {
                 $target->searchable();
             }
+            // Their author or scribe name and aliases are part of the search index
+            Work::whereIn('id', $transferredWorkIds)->searchable();
+            Manuscript::whereIn('id', $transferredManuscriptIds)->searchable();
 
             // 4. Audit Log with full snapshot & exact transferred IDs
             AuditLog::create([

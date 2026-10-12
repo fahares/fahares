@@ -106,4 +106,36 @@ class MultipleContributorsTest extends TestCase
         $this->assertEquals(0, $duplicate->fresh()->manuscripts_count);
         $this->assertEquals(1, Person::find($second->id)->manuscripts_count);
     }
+
+    public function test_merge_into_a_co_author_makes_the_target_primary_and_rollback_restores_order()
+    {
+        $admin = User::firstOrCreate(['email' => 'test-admin@fahares.net'], ['name' => 'Admin Tester', 'password' => 'password123', 'role' => 'admin']);
+        $admin->update(['role' => 'admin']);
+
+        $source = $this->person("پدیدآور مبدأ {$this->tag}");
+        $target = $this->person("پدیدآور مقصد {$this->tag}");
+        $work = $this->works[] = Work::create([
+            'primary_title' => 'اثر آزمایشی دوپدیدآور ' . uniqid(),
+            'clean_title' => 'اثر آزمایشی دوپدیدآور',
+            'slug' => 'test-multi-work-' . uniqid(),
+            'author_id' => $source->id,
+            'author_name' => "{$source->name} و {$target->name}",
+            'volume_number' => 1,
+            'page_start' => 1,
+        ]);
+        DB::table('work_author')->insert(['work_id' => $work->id, 'person_id' => $target->id, 'position' => 1]);
+        $positions = fn() => DB::table('work_author')->where('work_id', $work->id)->orderBy('position')->pluck('position', 'person_id')->all();
+
+        $this->actingAs($admin)->post('/admin/people/merge', ['source_id' => $source->id, 'target_id' => $target->id])
+            ->assertRedirect('/admin/people');
+
+        $this->assertEquals($target->id, $work->fresh()->author_id);
+        $this->assertEquals([$target->id => 0], $positions());
+
+        $log = AuditLog::where('auditable_id', $target->id)->where('action', 'merge')->latest('id')->firstOrFail();
+        $this->actingAs($admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+
+        $this->assertEquals($source->id, $work->fresh()->author_id);
+        $this->assertEquals([$source->id => 0, $target->id => 1], $positions());
+    }
 }
