@@ -60,6 +60,22 @@
                     <span class="text-stone-400 dir-ltr font-mono text-[11px] block mt-0.5">({{ $suggestion->guest_email }})</span>
                 @endif
             </div>
+            <div class="md:col-span-2 p-3 rounded-xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 space-y-2">
+                <span class="text-stone-400">نام در صفحه‌ی عمومی:</span>
+                @if($suggestion->credit_name)
+                    <strong class="text-emerald-700 dark:text-emerald-400 mr-1">{{ $suggestion->credit_name }}</strong>
+                    <span class="text-[11px] text-stone-400">{{ $suggestion->status === 'approved' ? '(نمایش داده می‌شود)' : '(پس از تأیید نمایش داده می‌شود)' }}</span>
+                @else
+                    <span class="mr-1">بدون نام</span>
+                @endif
+                <form action="{{ route('admin.suggestions.credit', $suggestion) }}" method="POST" class="flex flex-wrap items-center gap-2">
+                    @csrf
+                    <input type="text" name="credit_name" value="{{ old('credit_name', $suggestion->credit_name) }}" maxlength="150"
+                        placeholder="فقط با رضایت پیشنهاددهنده؛ خالی یعنی بدون نام"
+                        class="flex-1 min-w-48 p-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">
+                    <button type="submit" class="px-3 py-2 rounded-lg bg-[#B38A50] hover:bg-[#9C753F] text-white font-bold">ذخیره‌ی نام</button>
+                </form>
+            </div>
             <div>
                 <span class="text-stone-400">تاریخ ارسال:</span>
                 <span class="font-mono text-stone-800 dark:text-stone-200 mr-1">{{ $suggestion->created_at->format('Y/m/d H:i') }}</span>
@@ -149,8 +165,9 @@
         </div>
     </div>
 
-    @if($suggestion->status === 'pending')
-        <!-- Action Desk: Approve & Reject Forms -->
+    @php $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative'; @endphp
+    @if($suggestion->status === 'pending' || $promoting)
+        <!-- Action Desk: Approve & Reject Forms (an alternative reading can still be adopted) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
             
             <!-- Approval Form (Takes 2 columns) -->
@@ -159,13 +176,14 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <h3 class="text-sm font-bold">{{ $relation ? $relation['action'] : ($field ? 'تأیید و اعمال اصلاحیه در پایگاه داده' : 'رسیدگی به پیشنهاد') }}</h3>
+                    <h3 class="text-sm font-bold">{{ $relation ? $relation['action'] : ($promoting ? 'انتخاب این «قول دیگر» به‌عنوان قول مختار' : ($field ? 'تأیید و اعمال اصلاحیه در پایگاه داده' : 'رسیدگی به پیشنهاد')) }}</h3>
                 </div>
 
                 @if($relation)
                     @include('admin.suggestions.partials.relation-approve')
                 @else
-                <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4 text-xs">
+                <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4 text-xs"
+                    x-data="{ outcome: @js(old('outcome', 'adopt')) }">
                     @csrf
 
                     @if($errors->any())
@@ -185,7 +203,7 @@
                     @elseif($field['input'] === 'boolean')
                         <div class="space-y-1">
                             <label class="block font-bold text-stone-700 dark:text-stone-300">مقدار نهایی «{{ $field['label'] }}»:</label>
-                            @php $boolDefault = old('applied_value', in_array(trim($suggestion->suggested_value), ['بله', '1', 'دارد', 'هست', 'true'], true) ? '1' : '0'); @endphp
+                            @php $boolDefault = old('applied_value', in_array(trim($suggestion->applied_value ?? $suggestion->suggested_value), ['بله', '1', 'دارد', 'هست', 'true'], true) ? '1' : '0'); @endphp
                             <div class="flex gap-4 pt-1">
                                 <label class="inline-flex items-center gap-1.5 font-bold"><input type="radio" name="applied_value" value="1" @checked($boolDefault === '1') class="text-[#B38A50]"> بله</label>
                                 <label class="inline-flex items-center gap-1.5 font-bold"><input type="radio" name="applied_value" value="0" @checked($boolDefault === '0') class="text-[#B38A50]"> خیر</label>
@@ -196,7 +214,7 @@
                             <label class="block font-bold text-stone-700 dark:text-stone-300">
                                 مقدار نهایی «{{ $field['label'] }}» (می‌توانید پیش از تأیید ویرایش کنید):
                             </label>
-                            <textarea name="applied_value" rows="{{ in_array($field['input'], ['quote', 'list', 'textarea'], true) ? 5 : 2 }}" class="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-semibold focus:border-[#B38A50]">{{ old('applied_value', $suggestion->suggested_value) }}</textarea>
+                            <textarea name="applied_value" rows="{{ in_array($field['input'], ['quote', 'list', 'textarea'], true) ? 5 : 2 }}" class="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-semibold focus:border-[#B38A50]">{{ old('applied_value', $suggestion->applied_value ?? $suggestion->suggested_value) }}</textarea>
                             @if($field['input'] === 'list')
                                 <p class="text-stone-400">هر مورد در یک سطر. فهرست فعلی به‌طور کامل جایگزین می‌شود.</p>
                             @elseif($field['input'] === 'quote' && count($target?->metadata[$field['meta_key']] ?? []) > 1)
@@ -243,15 +261,37 @@
                             </div>
                         @endif
 
-                        <!-- Revision Category -->
-                        <div class="space-y-1">
-                            <label class="block font-bold text-stone-700 dark:text-stone-300">رده‌بندی نوع تصحیح:</label>
-                            <select name="revision_category" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-semibold">
-                                <option value="scholarly_correction">تصحیح پژوهشی و نسخه‌شناختی (استناد به ترقیمه، فهارس دیگر و...)</option>
-                                <option value="parser_fix">اصلاح خطای پارسر متنی (تفکیک اشتباه فیلدها)</option>
-                                <option value="ocr_fix">اصلاح غلط چاپی یا نویسه‌خوان (OCR)</option>
-                            </select>
-                        </div>
+                        <!-- Outcome: a reading (adopted or kept as alternative) or an edit that is not a reading -->
+                        @if($promoting)
+                            <input type="hidden" name="outcome" value="adopt">
+                        @else
+                            <div class="space-y-1.5">
+                                <label class="block font-bold text-stone-700 dark:text-stone-300">نتیجه‌ی داوری:</label>
+                                @foreach([
+                                    'adopt' => ['قول علمی: اعمال به‌عنوان مقدار اصلی (قول مختار)', 'با نام پیشنهاددهنده (اگر رضایت داده) در صفحه نمایش داده می‌شود.'],
+                                    'alternative' => ['قول علمی: نگه‌داشتن به‌عنوان «قول دیگر»', 'مقدار رکورد تغییر نمی‌کند؛ این قول با مستندش در پایین صفحه می‌ماند.'],
+                                    'ocr_fix' => ['ویرایش: غلط چاپی یا نویسه‌خوان (OCR)', 'اعمال می‌شود ولی قول به‌شمار نمی‌آید.'],
+                                    'parser_fix' => ['ویرایش: خطای پارسر (تفکیک اشتباه فیلدها)', 'اعمال می‌شود ولی قول به‌شمار نمی‌آید.'],
+                                ] as $value => [$label, $hint])
+                                    <label class="flex items-start gap-2 py-0.5 cursor-pointer">
+                                        <input type="radio" name="outcome" value="{{ $value }}" x-model="outcome" class="mt-0.5 text-[#B38A50]">
+                                        <span><span class="font-bold text-stone-800 dark:text-stone-200">{{ $label }}</span> <span class="text-stone-400">— {{ $hint }}</span></span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if($previousAdopted)
+                            <div x-show="outcome === 'adopt'" class="space-y-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-800">
+                                <div class="font-bold text-amber-900 dark:text-amber-200">
+                                    این فیلد قول مختار دارد: «{{ \Illuminate\Support\Str::limit($previousAdopted->display_value, 120) }}»
+                                    <span class="font-normal">(قائل: {{ $previousAdopted->credit_name ?: $previousAdopted->guest_name ?: 'نامشخص' }}، <a href="{{ route('admin.suggestions.show', $previousAdopted) }}" class="underline">#{{ $previousAdopted->id }}</a>)</span>
+                                </div>
+                                <div class="text-stone-600 dark:text-stone-300">با تأیید این پیشنهاد، آن قول:</div>
+                                <label class="flex items-center gap-2"><input type="radio" name="previous_standing" value="alternative" @checked(old('previous_standing') === 'alternative') class="text-[#B38A50]"> <span><strong>قول دیگر</strong> می‌شود (هنوز قابل دفاع است)</span></label>
+                                <label class="flex items-center gap-2"><input type="radio" name="previous_standing" value="superseded" @checked(old('previous_standing') === 'superseded') class="text-[#B38A50]"> <span><strong>منسوخ</strong> می‌شود (نادرست بودنش روشن شد؛ در «سابقه» می‌ماند)</span></label>
+                            </div>
+                        @endif
 
                         <!-- Create Annotation Checkbox -->
                         <div class="flex items-center gap-2 pt-1">
@@ -263,9 +303,22 @@
                         </div>
                     @endif
 
-                    <!-- Admin Notes -->
+                    @if($field)
+                        <!-- Public note: required for an alternative, and when an adopted reading is replaced -->
+                        <div class="space-y-1">
+                            <label class="block font-bold text-stone-700 dark:text-stone-300">
+                                یادداشت عمومی
+                                <span class="font-normal text-stone-400">(پیشنهاددهنده آن را می‌بیند؛ برای «قول دیگر» و «منسوخ» در صفحه‌ی عمومی هم نمایش داده می‌شود)</span>
+                                @if($previousAdopted)<span x-show="outcome === 'adopt'" class="text-red-600">الزامی</span>@endif
+                                <span x-show="outcome === 'alternative'" class="text-red-600">الزامی</span>
+                            </label>
+                            <textarea name="public_note" rows="2" placeholder="مثال: قول مختار به استناد ترقیمه‌ی رساله‌ی هشتم همین مجموعه ترجیح داده شد." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100">{{ old('public_note', $promoting ? $suggestion->public_note : '') }}</textarea>
+                        </div>
+                    @endif
+
+                    <!-- Internal note -->
                     <div class="space-y-1">
-                        <label class="block font-bold text-stone-700 dark:text-stone-300">یادداشت داور علمی (اختیاری):</label>
+                        <label class="block font-bold text-stone-700 dark:text-stone-300">یادداشت داخلی <span class="font-normal text-stone-400">(فقط داوران می‌بینند؛ اختیاری)</span>:</label>
                         <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="توضیحات داوری..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100">
                     </div>
 
@@ -282,6 +335,7 @@
             </div>
 
             <!-- Rejection Form (Takes 1 column) -->
+            @unless($promoting)
             <div class="p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-red-500/30 shadow-xs space-y-4">
                 <div class="flex items-center gap-2 text-red-600 dark:text-red-400">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -294,8 +348,12 @@
                     @csrf
 
                     <div class="space-y-1">
-                        <label class="block font-bold text-stone-700 dark:text-stone-300">علت رد پیشنهاد (جهت ثبت در تاریخچه):</label>
-                        <textarea name="admin_notes" rows="4" placeholder="مثال: مستند ارائه شده کافی نبود یا در متن چاپی فنخا به صراحت خلاف این ذکر شده است..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"></textarea>
+                        <label class="block font-bold text-stone-700 dark:text-stone-300">علت رد <span class="font-normal text-stone-400">(یادداشت عمومی؛ پیشنهاددهنده آن را می‌بیند)</span>:</label>
+                        <textarea name="public_note" rows="3" placeholder="مثال: در ترقیمه‌ی نسخه تاریخ دیگری آمده است." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"></textarea>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block font-bold text-stone-700 dark:text-stone-300">یادداشت داخلی <span class="font-normal text-stone-400">(فقط داوران)</span>:</label>
+                        <textarea name="admin_notes" rows="3" placeholder="مثال: مستند ارائه شده کافی نبود یا در متن چاپی فنخا به صراحت خلاف این ذکر شده است..." class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"></textarea>
                     </div>
 
                     <div class="pt-2">
@@ -308,12 +366,28 @@
                     </div>
                 </form>
             </div>
+            @endunless
 
         </div>
-    @else
+    @endif
+
+    @if($suggestion->status !== 'pending')
         <!-- Already reviewed notice -->
         <div class="p-6 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 text-xs text-stone-600 dark:text-stone-300 space-y-2">
-            <h4 class="font-bold text-stone-900 dark:text-stone-100">یادداشت داور ثبت‌شده در زمان بررسی:</h4>
+            @if($suggestion->standing)
+                <p>
+                    <span class="font-bold text-stone-900 dark:text-stone-100">وضعیت قول:</span> {{ $suggestion->standing_label }}
+                    @if($suggestion->supersededBy)
+                        — جای خود را به <a href="{{ route('admin.suggestions.show', $suggestion->supersededBy) }}" class="text-[#B38A50] hover:underline">#{{ $suggestion->superseded_by }}</a> داد.
+                    @endif
+                    @if($suggestion->applied_value !== null)
+                        <span class="block mt-1">مقدار ثبت‌شده: <strong class="text-stone-800 dark:text-stone-200">{{ $suggestion->display_value }}</strong></span>
+                    @endif
+                </p>
+            @endif
+            <h4 class="font-bold text-stone-900 dark:text-stone-100">یادداشت عمومی:</h4>
+            <p>{{ $suggestion->public_note ?: '—' }}</p>
+            <h4 class="font-bold text-stone-900 dark:text-stone-100">یادداشت داخلی داور:</h4>
             <p>{{ $suggestion->admin_notes ?: 'هیچ یادداشتی ثبت نشده است.' }}</p>
             @php $res = $suggestion->resolution ?? []; @endphp
             @if($suggestion->status === 'approved' && $res)

@@ -331,7 +331,7 @@ class SuggestionWorkflowTest extends TestCase
 
         // A title cannot be emptied
         $this->suggest($work, ['field_name' => 'primary_title', 'suggested_value' => 'x', 'rationale_citation' => 'آزمون خالی'])->assertOk();
-        $this->approve($this->pendingFor($work), ['applied_value' => ''])->assertSessionHasErrors('applied_value');
+        $this->approve($this->pendingFor($work), ['applied_value' => '', 'previous_standing' => 'superseded', 'public_note' => 'آزمون'])->assertSessionHasErrors('applied_value');
         $this->assertSame('عنوان درست', $work->fresh()->primary_title);
     }
 
@@ -505,5 +505,173 @@ class SuggestionWorkflowTest extends TestCase
         $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
         $this->assertSame('pending', $s->fresh()->status);
         AuditLog::where('auditable_type', Person::class)->whereIn('auditable_id', [$a->id, $b->id])->delete();
+    }
+
+    public function test_credit_needs_consent_and_shows_only_once_approved()
+    {
+        $m = $this->manuscript(['copy_date_raw' => 'احتمالاً ۸۹۷', 'copy_date_hijri_year' => 897]);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه‌ی نسخه', 'guest_name' => 'بی‌نام آزمون'])->assertOk();
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '25', 'rationale_citation' => 'شمارش برگ‌ها', 'credit_name' => '  پژوهشگر آزمون  '])->assertOk();
+        [$anonymous, $credited] = FieldSuggestion::where('suggestable_id', $m->id)->orderBy('id')->get()->all();
+        $this->assertNull($anonymous->credit_name);
+        $this->assertSame('پژوهشگر آزمون', $credited->credit_name);
+
+        // Pending suggestions are never shown
+        $this->get(route('manuscripts.show', $m))->assertOk()->assertDontSee('suggestion-readings', false)
+            // The parsed year repeats the catalog text, so it is not shown again in brackets
+            ->assertDontSee('(897 هـ.ق)');
+
+        $this->approve($anonymous, ['applied_value' => 'هرات']);
+        $this->approve($credited, ['applied_value' => '25']);
+        $this->assertSame('adopted', $credited->fresh()->standing);
+        $this->assertSame('25', $credited->fresh()->applied_value);
+        $this->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('id="suggestion-readings"', false)
+            ->assertSee('اصلاح به پیشنهاد پژوهشگر آزمون')
+            ->assertSee('شمارش برگ‌ها')
+            ->assertSee('یکی از پژوهشگران')
+            ->assertDontSee('بی‌نام آزمون');
+
+        // The reviewer can add a name later, once the submitter agrees, or take it down again
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$anonymous->id}/credit", ['credit_name' => 'نام تازه'])->assertSessionHas('success');
+        $this->post("/admin/suggestions/{$credited->id}/credit", ['credit_name' => ''])->assertSessionHas('success');
+        $this->assertSame('نام تازه', $anonymous->fresh()->credit_name);
+        $this->assertNull($credited->fresh()->credit_name);
+        $this->get(route('manuscripts.show', $m))->assertSee('نام تازه')->assertDontSee('پژوهشگر آزمون');
+    }
+
+    public function test_adopting_a_new_reading_demotes_the_previous_one()
+    {
+        $m = $this->manuscript(['copy_place' => 'تبریز']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'credit_name' => 'نخستین'])->assertOk();
+        $first = $this->pendingFor($m);
+        $this->approve($first, ['applied_value' => 'هرات', 'outcome' => 'adopt']);
+
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی رساله‌ی دیگر', 'credit_name' => 'دومین'])->assertOk();
+        $second = $this->pendingFor($m);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$second->id}")->assertOk()->assertSee('این فیلد قول مختار دارد');
+
+        // The previous adopted reading must be given a standing, and the preference explained
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt'])->assertSessionHasErrors('previous_standing');
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded'])->assertSessionHasErrors('public_note');
+        $this->assertSame('pending', $second->fresh()->status);
+
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded', 'public_note' => 'ترقیمه‌ی رساله‌ی دیگر روشن‌تر است'])->assertRedirect('/admin/suggestions');
+        $this->assertSame('مشهد', $m->fresh()->copy_place);
+        $this->assertSame('superseded', $first->fresh()->standing);
+        $this->assertSame($second->id, $first->fresh()->superseded_by);
+
+        $this->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('سابقه‌ی اصلاحات (1)')
+            ->assertSee('جای خود را به قول «مشهد» داد')
+            ->assertSee('ترقیمه‌ی رساله‌ی دیگر روشن‌تر است')
+            // The catalog's own value is a reading too: «تبریز» beside «مشهد»
+            ->assertSee('ضبط فهرست پیش از اصلاح')
+            ->assertSee('2 قول');
+
+        // Rolling the approval back restores the demoted reading
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->latest('id')->first();
+        $this->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame('adopted', $first->fresh()->standing);
+        $this->assertNull($first->fresh()->superseded_by);
+        $this->assertSame('pending', $second->fresh()->status);
+        $this->assertNull($second->fresh()->standing);
+    }
+
+    public function test_alternative_readings_stay_beside_the_record_and_can_be_adopted()
+    {
+        $m = $this->manuscript(['copy_place' => 'تبریز']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'شیراز', 'rationale_citation' => 'فهرست دیگر', 'credit_name' => 'قائل دیگر'])->assertOk();
+        $alt = $this->pendingFor($m);
+
+        $this->approve($alt, ['applied_value' => 'شیراز', 'outcome' => 'alternative'])->assertSessionHasErrors('public_note');
+        $this->approve($alt, ['applied_value' => 'شیراز', 'outcome' => 'alternative', 'public_note' => 'مستند فهرست چاپی قوی‌تر است'])->assertRedirect('/admin/suggestions');
+        $this->assertSame('تبریز', $m->fresh()->copy_place);
+        $this->assertSame('alternative', $alt->fresh()->standing);
+        $this->assertSame(0, ScholarlyAnnotation::where('suggestion_id', $alt->id)->count());
+
+        $this->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('ضبط فعلی (فهرست)')->assertSee('قول دیگر')->assertSee('شیراز')
+            ->assertSee('مستند فهرست چاپی قوی‌تر است')->assertSee('2 قول');
+
+        // Later evidence: the alternative is adopted from the same desk, and a rollback returns it to alternative
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$alt->id}")->assertOk()->assertSee('انتخاب این «قول دیگر» به‌عنوان قول مختار');
+        $this->approve($alt, ['applied_value' => 'شیراز'])->assertRedirect('/admin/suggestions');
+        $this->assertSame('شیراز', $m->fresh()->copy_place);
+        $this->assertSame('adopted', $alt->fresh()->standing);
+        $this->assertSame('مستند فهرست چاپی قوی‌تر است', $alt->fresh()->public_note);
+
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->latest('id')->first();
+        $this->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame('تبریز', $m->fresh()->copy_place);
+        $this->assertSame('approved', $alt->fresh()->status);
+        $this->assertSame('alternative', $alt->fresh()->standing);
+    }
+
+    public function test_edits_fix_values_without_becoming_readings()
+    {
+        $m = $this->manuscript(['copy_place' => 'تبریز']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'credit_name' => 'قائل'])->assertOk();
+        $reading = $this->pendingFor($m);
+        $this->approve($reading, ['applied_value' => 'هرات کهن', 'outcome' => 'adopt']);
+
+        // A user's typo report, approved as an edit, also fixes the adopted reading's value
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات کهنه', 'rationale_citation' => 'غلط تایپی', 'credit_name' => 'ویراستار'])->assertOk();
+        $edit = $this->pendingFor($m);
+        $this->approve($edit, ['applied_value' => 'هرات کهنه', 'outcome' => 'ocr_fix']);
+        $this->assertSame('edit', $edit->fresh()->standing);
+        $this->assertSame('هرات کهنه', $m->fresh()->copy_place);
+        $this->assertSame('هرات کهنه', $reading->fresh()->applied_value);
+
+        $this->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('ویرایش به پیشنهاد')->assertSee('ویراستار')
+            // The catalog value and the adopted reading; the edit is not a third
+            ->assertSee('2 قول')->assertDontSee('3 قول');
+
+        // A reviewer's direct edit: reviewers only, no suggestion, logged, and its rollback leaves suggestions alone
+        $this->post('/logout');
+        $direct = ['type' => 'manuscript', 'id' => $m->id, 'field_name' => 'copy_place', 'suggested_value' => 'هرات کهنهٔ'];
+        $this->postJson('/admin/suggestions/direct-edit', $direct)->assertUnauthorized();
+        $before = FieldSuggestion::where('suggestable_id', $m->id)->count();
+        $this->actingAs($this->admin)->postJson('/admin/suggestions/direct-edit', $direct)->assertOk();
+        $this->assertSame('هرات کهنهٔ', $m->fresh()->copy_place);
+        $this->assertSame('هرات کهنهٔ', $reading->fresh()->applied_value);
+        $this->assertSame($before, FieldSuggestion::where('suggestable_id', $m->id)->count());
+
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->latest('id')->first();
+        $this->assertTrue($log->new_values['direct_edit']);
+        $this->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame('هرات کهنه', $m->fresh()->copy_place);
+        $this->assertSame('هرات کهنه', $reading->fresh()->applied_value);
+        $this->assertSame('approved', $edit->fresh()->status);
+    }
+
+    public function test_users_see_and_manage_their_own_suggestions()
+    {
+        $user = User::firstOrCreate(['email' => 'test-researcher@fahares.net'], ['name' => 'پژوهشگر آزمون', 'password' => 'password123', 'role' => 'user']);
+        $other = User::firstOrCreate(['email' => 'test-other@fahares.net'], ['name' => 'دیگری', 'password' => 'password123', 'role' => 'user']);
+        $m = $this->manuscript();
+
+        $this->actingAs($user);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $mine = $this->pendingFor($m);
+        $this->actingAs($other);
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '30', 'rationale_citation' => 'شمارش'])->assertOk();
+        $theirs = $this->pendingFor($m);
+
+        $this->post('/logout');
+        $this->get('/my/suggestions')->assertRedirect('/login');
+
+        $this->approve($mine, ['applied_value' => 'هرات', 'outcome' => 'adopt', 'public_note' => 'سپاس از دقت شما']);
+        $this->actingAs($user)->get('/my/suggestions')->assertOk()
+            ->assertSee('قول مختار')->assertSee('سپاس از دقت شما')->assertSee('هرات')
+            ->assertDontSee('شمارش');
+
+        $this->post("/my/suggestions/{$mine->id}/credit", ['credit_name' => 'دکتر آزمون'])->assertSessionHas('success');
+        $this->assertSame('دکتر آزمون', $mine->fresh()->credit_name);
+        $this->post("/my/suggestions/{$theirs->id}/credit", ['credit_name' => 'ربوده'])->assertForbidden();
+        $this->assertNull($theirs->fresh()->credit_name);
+
+        User::whereIn('id', [$user->id, $other->id])->delete();
     }
 }

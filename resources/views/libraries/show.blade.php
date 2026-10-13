@@ -128,6 +128,9 @@
         </div>
     </section>
 
+    <!-- READINGS: adopted, alternative and superseded readings from researchers -->
+    <x-suggest.readings />
+
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="library" :record="$library" />
 

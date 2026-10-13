@@ -20,6 +20,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\MySuggestionsController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,12 @@ Route::get('/api/suggestions/people', [SuggestionController::class, 'people'])
 Route::get('/api/suggestions/lookup', [SuggestionController::class, 'lookup'])
     ->middleware('throttle:120,1')
     ->name('suggestions.lookup');
+
+// A signed-in user's own suggestions
+Route::middleware('auth')->group(function () {
+    Route::get('/my/suggestions', [MySuggestionsController::class, 'index'])->name('my.suggestions');
+    Route::post('/my/suggestions/{suggestion}/credit', [MySuggestionsController::class, 'credit'])->name('my.suggestions.credit');
+});
 
 // Short Permalinks (Permanent 301 Redirects)
 Route::get('/w/{id}', function ($id) {
@@ -136,6 +143,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/suggestions/{suggestion}', [AdminSuggestionController::class, 'show'])->name('suggestions.show');
     Route::post('/suggestions/{suggestion}/approve', [AdminSuggestionController::class, 'approve'])->name('suggestions.approve');
     Route::post('/suggestions/{suggestion}/reject', [AdminSuggestionController::class, 'reject'])->name('suggestions.reject');
+    Route::post('/suggestions/{suggestion}/credit', [AdminSuggestionController::class, 'credit'])->name('suggestions.credit');
+    Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->name('suggestions.direct-edit');
 
     // Scholarly Annotations Apparatus
     Route::get('/annotations', [AdminAnnotationController::class, 'index'])->name('annotations.index');

@@ -492,6 +492,8 @@
         @endif
 
         <x-source-citations :citations="$work->sourceCitations" />
+
+        <x-suggest.readings />
     </div>
 
     <!-- MANUSCRIPTS TABLE SECTION -->

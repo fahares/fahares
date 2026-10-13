@@ -20,6 +20,9 @@ export default (config) => ({
     targetTimer: null,
     guestName: '',
     guestEmail: '',
+    // Opt-in: the name shown beside the correction on the record page once approved
+    creditOn: false,
+    creditName: '',
     website: '',
     submitting: false,
     errors: {},
@@ -45,6 +48,11 @@ export default (config) => ({
             this.value = this.field.prefill;
         }
         this.open = true;
+    },
+
+    toggleCredit() {
+        // Start from the submitter's own name the first time the box is ticked
+        if (this.creditOn && !this.creditName.trim()) this.creditName = this.guestName.trim() || this.config.userName || '';
     },
 
     close() {
@@ -113,6 +121,36 @@ export default (config) => ({
         this.personResults = [];
     },
 
+    // Reviewers only: applies the value at once and reloads the page to show it
+    async submitDirect() {
+        this.submitting = true;
+        this.errors = {};
+        const body = new FormData();
+        body.append('type', this.config.type);
+        body.append('id', this.config.id);
+        body.append('field_name', this.field.name);
+        body.append('suggested_value', this.value);
+        if (this.personId) body.append('person_id', this.personId);
+        try {
+            const res = await fetch(this.config.directUrl, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': this.config.csrf },
+                body,
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+                window.location.reload();
+                return;
+            }
+            this.errors = res.status === 422
+                ? Object.fromEntries(Object.entries(data.errors ?? {}).map(([k, v]) => [k, v[0]]))
+                : { form: 'ویرایش با خطا روبه‌رو شد.' };
+        } catch (e) {
+            this.errors = { form: 'ارتباط با سرور برقرار نشد. لطفاً دوباره تلاش کنید.' };
+        }
+        this.submitting = false;
+    },
+
     async submit() {
         this.submitting = true;
         this.errors = {};
@@ -131,6 +169,7 @@ export default (config) => ({
         if (this.personId) body.append('person_id', this.personId);
         body.append('guest_name', this.guestName);
         body.append('guest_email', this.guestEmail);
+        if (this.creditOn) body.append('credit_name', this.creditName);
         body.append('website', this.website);
 
         try {

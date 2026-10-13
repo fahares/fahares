@@ -341,21 +341,35 @@ class AuditLogController extends Controller
         }
 
         // Logs written since the per-field desk carry their suggestion id; older ones fall back to the latest match
+        // A reviewer's direct edit has no suggestion behind it
+        $directEdit = ! empty($log->new_values['direct_edit']);
         $suggestionId = $log->new_values['suggestion_id'] ?? null;
-        $suggestion = $suggestionId
-            ? FieldSuggestion::find($suggestionId)
-            : FieldSuggestion::where('suggestable_type', $log->auditable_type)
+        $suggestion = match (true) {
+            $directEdit => null,
+            (bool) $suggestionId => FieldSuggestion::find($suggestionId),
+            default => FieldSuggestion::where('suggestable_type', $log->auditable_type)
                 ->where('suggestable_id', $log->auditable_id)
                 ->where('status', 'approved')
                 ->latest('id')
-                ->first();
+                ->first(),
+        };
 
-        ScholarlyAnnotation::where('annotatable_type', $log->auditable_type)
-            ->where('annotatable_id', $log->auditable_id)
-            ->when($suggestionId, fn ($q) => $q->where('suggestion_id', $suggestionId))
-            ->latest('id')
-            ->first()
-            ?->delete();
+        if (! $directEdit) {
+            ScholarlyAnnotation::where('annotatable_type', $log->auditable_type)
+                ->where('annotatable_id', $log->auditable_id)
+                ->when($suggestionId, fn ($q) => $q->where('suggestion_id', $suggestionId))
+                ->latest('id')
+                ->first()
+                ?->delete();
+        }
+
+        // Readings the approval changed: the adopted reading it demoted, or the value a typo fix corrected
+        if ($demoted = $log->new_values['demoted'] ?? null) {
+            FieldSuggestion::whereKey($demoted['id'])->update(['standing' => $demoted['standing'], 'superseded_by' => null]);
+        }
+        if ($edited = $log->new_values['edited_reading'] ?? null) {
+            FieldSuggestion::whereKey($edited['id'])->update(['applied_value' => $edited['applied_value']]);
+        }
 
         // A scribe link changed: recount both people, and drop a person the approval created if nothing else uses it
         if (array_key_exists('scribe_id', $old)) {
@@ -370,7 +384,11 @@ class AuditLogController extends Controller
             }
         }
 
-        $suggestion?->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+        if (! empty($log->new_values['promoted'])) {
+            $suggestion?->update(['standing' => 'alternative', 'superseded_by' => null]);
+            $suggestion = null;
+        }
+        $suggestion?->update(['status' => 'pending', 'standing' => null, 'applied_value' => null, 'superseded_by' => null, 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
 
         AuditLog::create([
             'user_id' => auth()->id(),

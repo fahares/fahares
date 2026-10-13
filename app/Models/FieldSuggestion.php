@@ -12,6 +12,14 @@ class FieldSuggestion extends Model
 {
     protected $guarded = ['id'];
 
+    /** Standings of an approved field suggestion; see the add_opinions migration. */
+    public const STANDINGS = [
+        'adopted' => 'قول مختار',
+        'alternative' => 'قول دیگر',
+        'superseded' => 'منسوخ',
+        'edit' => 'ویرایش',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -34,6 +42,34 @@ class FieldSuggestion extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function supersededBy(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'superseded_by');
+    }
+
+    /** The adopted reading of the same field of the same record, if any. */
+    public function scopeAdoptedFor($query, string $type, int $id, string $field)
+    {
+        return $query->where('suggestable_type', $type)->where('suggestable_id', $id)
+            ->where('kind', 'field')->where('field_name', $field)->where('standing', 'adopted');
+    }
+
+    public function getStandingLabelAttribute(): ?string
+    {
+        return self::STANDINGS[$this->standing] ?? null;
+    }
+
+    /** The reading as a reader sees it: the reviewer's clean value, with yes/no for flags. */
+    public function getDisplayValueAttribute(): string
+    {
+        $value = $this->applied_value ?? $this->suggested_value;
+        if (($this->fieldDefinition()['input'] ?? null) === 'boolean') {
+            return in_array($value, ['1', 'true', 'بله'], true) ? 'بله' : 'خیر';
+        }
+
+        return (string) $value;
     }
 
     public function annotations(): HasMany

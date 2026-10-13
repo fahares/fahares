@@ -33,6 +33,7 @@ class SuggestionController extends Controller
             'target_id' => 'nullable|integer',
             'guest_name' => 'nullable|string|max:100',
             'guest_email' => 'nullable|email|max:100',
+            'credit_name' => 'nullable|string|max:150',
             'website' => 'nullable|max:0', // honeypot, hidden from people
         ], [
             'suggested_value.required' => 'متن پیشنهاد را وارد کنید.',
@@ -92,6 +93,8 @@ class SuggestionController extends Controller
             'user_id' => $user?->id,
             'guest_name' => $user ? $user->name : ($validated['guest_name'] ?? 'پژوهشگر مهمان'),
             'guest_email' => $user ? $user->email : ($validated['guest_email'] ?? null),
+            // Sent only when the submitter ticked the consent box
+            'credit_name' => trim($validated['credit_name'] ?? '') ?: null,
             'status' => 'pending',
         ]);
 

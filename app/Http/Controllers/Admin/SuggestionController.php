@@ -10,10 +10,12 @@ use App\Models\ScholarlyAnnotation;
 use App\Models\Manuscript;
 use App\Suggestions\RecordMerger;
 use App\Suggestions\SuggestionApplier;
+use App\Suggestions\SuggestionRegistry;
 use App\Support\HijriYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 class SuggestionController extends Controller
@@ -59,17 +61,32 @@ class SuggestionController extends Controller
                 ->reject(fn (Person $p) => in_array($p->id, [$people['suggested']?->id, $people['current']?->id], true));
         }
 
-        $parsedYear = $field && $field['input'] === 'hijri_date' ? HijriYear::parse($suggestion->suggested_value) : null;
+        $parsedYear = $field && $field['input'] === 'hijri_date' ? HijriYear::parse($suggestion->applied_value ?? $suggestion->suggested_value) : null;
+
+        // The adopted reading an approval here would replace
+        $previousAdopted = $field && $suggestion->standing !== 'adopted'
+            ? FieldSuggestion::adoptedFor($suggestion->suggestable_type, $suggestion->suggestable_id, $suggestion->field_name)->whereKeyNot($suggestion->id)->first()
+            : null;
 
         $relation = $suggestion->relationDefinition();
         $relationTarget = $suggestion->relationTarget();
 
-        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget'));
+        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted'));
     }
+
+    /** Reviewer outcomes for a field suggestion: the standing it gets and the annotation category it is filed under. */
+    public const OUTCOMES = [
+        'adopt' => ['standing' => 'adopted', 'category' => 'scholarly_correction'],
+        'alternative' => ['standing' => 'alternative', 'category' => 'scholarly_correction'],
+        'ocr_fix' => ['standing' => 'edit', 'category' => 'ocr_fix'],
+        'parser_fix' => ['standing' => 'edit', 'category' => 'parser_fix'],
+    ];
 
     public function approve(Request $request, FieldSuggestion $suggestion, SuggestionApplier $applier)
     {
-        abort_unless($suggestion->status === 'pending', 409, 'این پیشنهاد پیش‌تر داوری شده است.');
+        // An alternative reading can later be adopted; anything else is reviewed once
+        $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative';
+        abort_unless($suggestion->status === 'pending' || $promoting, 409, 'این پیشنهاد پیش‌تر داوری شده است.');
 
         if ($suggestion->kind === 'relation') {
             return $this->approveRelation($request, $suggestion, app(RecordMerger::class));
@@ -96,16 +113,53 @@ class SuggestionController extends Controller
             'hijri_year' => 'nullable|integer|min:' . HijriYear::MIN . '|max:' . HijriYear::MAX,
             'person_action' => ['nullable', Rule::in(SuggestionApplier::PERSON_ACTIONS)],
             'person_id' => 'nullable|integer',
+            'outcome' => ['nullable', Rule::in(array_keys(self::OUTCOMES))],
+            'previous_standing' => ['nullable', Rule::in(['alternative', 'superseded'])],
+            'public_note' => 'nullable|string|max:2000',
         ]);
 
-        try {
-            DB::transaction(function () use ($suggestion, $validated, $request, $field, $target, $applier) {
-                $result = ['old' => [], 'new' => [], 'resolution' => ['applied' => false]];
+        // Older forms send only the category: a scholarly correction is adopted, the others are edits
+        $outcome = $promoting ? 'adopt' : ($validated['outcome'] ?? match ($validated['revision_category'] ?? null) {
+            'ocr_fix', 'parser_fix' => $validated['revision_category'],
+            default => 'adopt',
+        });
+        $standing = self::OUTCOMES[$outcome]['standing'];
+        $validated['revision_category'] = self::OUTCOMES[$outcome]['category'];
+        $publicNote = trim($validated['public_note'] ?? '') ?: null;
 
-                // General reports and retired fields are handled by hand; approving only records the decision
-                if ($field && $target) {
+        $previous = $field && $target && $standing === 'adopted'
+            ? FieldSuggestion::adoptedFor($suggestion->suggestable_type, $suggestion->suggestable_id, $suggestion->field_name)->whereKeyNot($suggestion->id)->first()
+            : null;
+        if ($previous && empty($validated['previous_standing'])) {
+            return back()->withInput()->withErrors(['previous_standing' => 'وضعیت قول مختار پیشین را تعیین کنید: «قول دیگر» یا «منسوخ».']);
+        }
+        if ($field && ($standing === 'alternative' || $previous) && ! $publicNote) {
+            return back()->withInput()->withErrors(['public_note' => $standing === 'alternative'
+                ? 'برای «قول دیگر» یادداشت عمومی بنویسید: چرا این قول ترجیح داده نشد.'
+                : 'یادداشت عمومی بنویسید: چرا این قول بر قول مختار پیشین ترجیح داده شد.']);
+        }
+
+        try {
+            DB::transaction(function () use ($suggestion, $validated, $request, $field, $target, $applier, $standing, $publicNote, $previous, $promoting) {
+                $result = ['old' => [], 'new' => [], 'resolution' => ['applied' => false]];
+                // A rollback returns a promoted alternative to its old standing, not to the queue
+                $logExtra = $promoting ? ['promoted' => true] : [];
+                $appliedValue = $field ? (trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['applied_value'] ?? ''))) ?: null) : null;
+
+                // General reports and retired fields are handled by hand; approving only records the decision.
+                // An alternative reading is kept with its evidence and leaves the record as it is.
+                if ($field && $target && $standing !== 'alternative') {
                     $result = $applier->apply($target, $field, $validated);
                     $result['resolution']['applied'] = true;
+
+                    if ($previous) {
+                        $logExtra['demoted'] = ['id' => $previous->id, 'standing' => 'adopted'];
+                        $previous->update(['standing' => $validated['previous_standing'], 'superseded_by' => $suggestion->id]);
+                    }
+                    // A typo fixed in an adopted reading's value is fixed in the reading too
+                    if ($standing === 'edit') {
+                        $logExtra += self::editAdoptedReading($suggestion->suggestable_type, $suggestion->suggestable_id, $suggestion->field_name, $appliedValue);
+                    }
 
                     if ($request->boolean('create_annotation', true)) {
                         ScholarlyAnnotation::create([
@@ -130,13 +184,18 @@ class SuggestionController extends Controller
                     'auditable_id' => $suggestion->suggestable_id,
                     'action' => 'verify',
                     'old_values' => $result['old'] ?: null,
-                    'new_values' => ($result['new'] ?: []) + ['suggestion_id' => $suggestion->id],
+                    'new_values' => ($result['new'] ?: []) + $logExtra + ['suggestion_id' => $suggestion->id],
                     'ip_address' => $request->ip(),
                 ]);
 
                 $suggestion->update([
                     'status' => 'approved',
-                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'standing' => $field ? $standing : null,
+                    'applied_value' => $appliedValue,
+                    'superseded_by' => null,
+                    // Promoting an alternative keeps its earlier notes unless the reviewer writes new ones
+                    'admin_notes' => ($validated['admin_notes'] ?? null) ?: ($suggestion->standing ? $suggestion->admin_notes : null),
+                    'public_note' => $publicNote ?? ($suggestion->standing ? $suggestion->public_note : null),
                     'resolution' => $result['resolution'],
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
@@ -146,9 +205,12 @@ class SuggestionController extends Controller
             return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
         }
 
-        $message = $field
-            ? "پیشنهاد اصلاحی #{$suggestion->id} تأیید و در شناسنامه‌ی رکورد اعمال شد."
-            : "پیشنهاد #{$suggestion->id} به‌عنوان «رسیدگی‌شده» ثبت شد. تغییرات لازم را دستی اعمال کنید.";
+        $message = match (true) {
+            ! $field => "پیشنهاد #{$suggestion->id} به‌عنوان «رسیدگی‌شده» ثبت شد. تغییرات لازم را دستی اعمال کنید.",
+            $standing === 'alternative' => "پیشنهاد #{$suggestion->id} به‌عنوان «قول دیگر» با مستندش ثبت شد. مقدار رکورد تغییر نکرد.",
+            $standing === 'edit' => "ویرایش #{$suggestion->id} در شناسنامه‌ی رکورد اعمال شد.",
+            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان قول مختار تأیید و در شناسنامه‌ی رکورد اعمال شد.",
+        };
 
         return redirect()->route('admin.suggestions.index')->with('success', $message);
     }
@@ -226,15 +288,94 @@ class SuggestionController extends Controller
         }
     }
 
+    /**
+     * Keeps an adopted reading's value in step with a typo fix to the same field.
+     * Returns what the audit log needs to undo it.
+     */
+    public static function editAdoptedReading(string $type, int $id, string $field, ?string $value): array
+    {
+        $adopted = FieldSuggestion::adoptedFor($type, $id, $field)->first();
+        if (! $adopted || $adopted->applied_value === $value) {
+            return [];
+        }
+        $before = $adopted->applied_value;
+        $adopted->update(['applied_value' => $value]);
+
+        return ['edited_reading' => ['id' => $adopted->id, 'applied_value' => $before]];
+    }
+
+    /**
+     * A reviewer's own typo fix from the record page: applied at once, logged for rollback,
+     * and not a suggestion or a reading.
+     */
+    public function directEdit(Request $request, SuggestionApplier $applier)
+    {
+        $validated = $request->validate([
+            'type' => ['required', Rule::in(array_keys(SuggestionRegistry::TYPES))],
+            'id' => 'required|integer',
+            'field_name' => 'required|string|max:100',
+            'suggested_value' => 'nullable|string|max:20000',
+            'person_id' => 'nullable|integer|exists:people,id',
+        ]);
+
+        $record = SuggestionRegistry::modelClass($validated['type'])::find($validated['id']);
+        $field = SuggestionRegistry::field($validated['type'], $validated['field_name']);
+        if (! $record || ! $field) {
+            throw ValidationException::withMessages(['field_name' => 'رکورد یا فیلد پیدا نشد.']);
+        }
+
+        $value = trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['suggested_value'] ?? ''))) ?: null;
+        $input = ['applied_value' => $value];
+        if ($field['input'] === 'hijri_date') {
+            $input['hijri_year'] = HijriYear::parse($value);
+        }
+        if ($field['input'] === 'person') {
+            // A picked person is linked; otherwise only the name text changes and the link stays
+            $input += ! empty($validated['person_id']) ? ['person_action' => 'link', 'person_id' => $validated['person_id']] : ['person_action' => 'text'];
+        }
+
+        try {
+            DB::transaction(function () use ($record, $field, $input, $value, $applier, $request) {
+                $result = $applier->apply($record, $field, $input);
+                $extra = self::editAdoptedReading($record::class, $record->id, $field['name'], $value);
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => $record::class,
+                    'auditable_id' => $record->id,
+                    'action' => 'verify',
+                    'old_values' => $result['old'] ?: null,
+                    'new_values' => ($result['new'] ?: []) + $extra + ['direct_edit' => true],
+                    'ip_address' => $request->ip(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            throw ValidationException::withMessages(['suggested_value' => $e->getMessage()]);
+        }
+
+        return response()->json(['message' => 'ویرایش اعمال شد.']);
+    }
+
+    /** Sets or clears the public credit, e.g. once the submitter has agreed by email. */
+    public function credit(Request $request, FieldSuggestion $suggestion)
+    {
+        $validated = $request->validate(['credit_name' => 'nullable|string|max:150']);
+        $name = trim($validated['credit_name'] ?? '') ?: null;
+        $suggestion->update(['credit_name' => $name]);
+
+        return back()->with('success', $name ? "نام «{$name}» برای پیشنهاد #{$suggestion->id} ثبت شد." : "نام پیشنهاد #{$suggestion->id} از نمایش عمومی برداشته شد.");
+    }
+
     public function reject(Request $request, FieldSuggestion $suggestion)
     {
         $validated = $request->validate([
             'admin_notes' => 'nullable|string|max:1000',
+            'public_note' => 'nullable|string|max:2000',
         ]);
 
         $suggestion->update([
             'status' => 'rejected',
             'admin_notes' => $validated['admin_notes'] ?? null,
+            'public_note' => trim($validated['public_note'] ?? '') ?: null,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);

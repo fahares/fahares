@@ -141,6 +141,14 @@
                                     <p class="font-bold text-stone-900 dark:text-stone-100 truncate">{{ auth()->user()->name }}</p>
                                     <p class="text-[10px] text-stone-400 truncate dir-ltr text-right">{{ auth()->user()->email }}</p>
                                 </div>
+                                <div class="py-1">
+                                    <a href="{{ route('my.suggestions') }}" class="flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                        </svg>
+                                        <span>پیشنهادهای من</span>
+                                    </a>
+                                </div>
                                 @if(auth()->user()->canAccessAdmin())
                                     <div class="py-1">
                                         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-[#B38A50] hover:bg-amber-50 dark:hover:bg-amber-950/20 font-bold transition">

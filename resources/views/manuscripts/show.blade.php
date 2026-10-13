@@ -320,7 +320,8 @@
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
                         @if($manuscript->copy_date_raw)
                             <span>{{ $manuscript->copy_date_raw }}</span>
-                            @if($manuscript->copy_date_hijri_year)
+                            {{-- The parsed year adds nothing when the catalog text already shows it in digits --}}
+                            @if($manuscript->copy_date_hijri_year && ! str_contains(strtr($manuscript->copy_date_raw, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']), (string) $manuscript->copy_date_hijri_year))
                                 <span class="text-stone-400 mr-1">({{ $manuscript->copy_date_hijri_year }} هـ.ق)</span>
                             @endif
                         @elseif($manuscript->is_bita)
@@ -755,6 +756,9 @@
 
     <!-- OTHER CATALOG CITATIONS (addenda, errata) -->
     <x-source-citations :citations="$manuscript->sourceCitations" />
+
+    <!-- READINGS: adopted, alternative and superseded readings from researchers -->
+    <x-suggest.readings />
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="manuscript" :record="$manuscript" />

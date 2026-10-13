@@ -35,6 +35,9 @@
         'lookupUrl' => route('suggestions.lookup'),
         'relations' => collect(SuggestionRegistry::RELATIONS[$type] ?? [])->map(fn ($r, $key) => ['key' => $key] + $r)->values(),
         'csrf' => csrf_token(),
+        'userName' => auth()->user()?->name,
+        // Reviewers may fix a typo at once, without a suggestion or a reading
+        'directUrl' => auth()->user()?->canAccessAdmin() ? route('admin.suggestions.direct-edit') : null,
     ];
     $inputClass = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]';
 @endphp
@@ -226,12 +229,31 @@
                         </p>
                     @endauth
 
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
+                            <input type="checkbox" x-model="creditOn" @change="toggleCredit()" class="mt-0.5 rounded border-stone-300 dark:border-stone-600 text-[#B38A50] focus:ring-[#B38A50]">
+                            <span>مایلم در صورت تأیید، نامم در کنار این اصلاح در سایت درج شود.</span>
+                        </label>
+                        <div x-show="creditOn" x-cloak class="space-y-1">
+                            <label class="block font-semibold text-stone-700 dark:text-stone-300">نام به این صورت درج شود:</label>
+                            <input type="text" x-model="creditName" maxlength="150" :required="creditOn" class="{{ $inputClass }}" placeholder="مثلاً: دکتر … ، پژوهشگر نسخ خطی">
+                            <p x-show="errors.credit_name" x-text="errors.credit_name" class="text-red-600 dark:text-red-400 font-bold"></p>
+                        </div>
+                    </div>
+
                     <p x-show="errors.form || errors.field_name || errors.id || errors.website"
                         x-text="errors.form || errors.field_name || errors.id || errors.website"
                         class="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-bold"></p>
 
                     <div class="pt-3 flex items-center justify-end gap-3 border-t border-stone-100 dark:border-stone-800">
                         <button type="button" @click="close()" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 font-semibold">انصراف</button>
+                        <template x-if="config.directUrl && mode === 'field'">
+                            <button type="button" @click="submitDirect()" :disabled="submitting"
+                                title="فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید"
+                                class="px-4 py-2.5 rounded-xl border border-[#B38A50] text-[#B38A50] hover:bg-amber-50 dark:hover:bg-amber-950/30 disabled:opacity-60 font-bold transition">
+                                ویرایش مستقیم (غلط تایپی)
+                            </button>
+                        </template>
                         <button type="submit" :disabled="submitting" class="px-5 py-2.5 bg-[#B38A50] hover:bg-[#9C753F] disabled:opacity-60 text-white rounded-xl font-bold shadow-md transition">
                             <span x-text="submitting ? 'در حال ارسال…' : 'ارسال به هیئت علمی'"></span>
                         </button>
