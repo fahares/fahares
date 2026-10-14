@@ -1260,4 +1260,32 @@ class SuggestionWorkflowTest extends TestCase
         $this->removedManuscripts[] = $c->id;
         $this->assertSame(0, DB::table('manuscript_relations')->count());
     }
+
+    public function test_treatises_bound_in_the_same_volume()
+    {
+        $this->assertSame(['base' => '513', 'collection' => 'طباطبائی', 'part' => '8'], Manuscript::collectionKey('513/8-طباطبائی'));
+        $this->assertSame(['base' => '5722', 'collection' => null, 'part' => '2'], Manuscript::collectionKey('5722/2-29/62'));
+        $this->assertNull(Manuscript::collectionKey('5722'));
+
+        $lib = 'کتابخانه‌ی آزمون ' . uniqid();
+        $make = fn ($shelfmark) => $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark, 'folios' => 3]);
+        $one = $make('9001/10');
+        $make('9001/2');
+        $make('9001/1-33/7');
+        $make('9001/3-طباطبائی');   // another collection of the library
+        $make('90011/1');           // a longer number, not this volume
+        $alone = $make('9002/1');
+
+        $this->assertSame(['9001/1-33/7', '9001/2', '9001/10'], $one->collectionSiblings()->pluck('shelfmark')->all());
+        $this->get(route('manuscripts.show', $one))->assertOk()->assertSee('رساله‌های این مجموعه (3)')->assertSee('(همین نسخه)')->assertDontSee('9001/3-طباطبائی');
+        $this->get(route('manuscripts.show', $alone))->assertOk()->assertDontSee('رساله‌های این مجموعه');
+
+        // Volumes of one multi-volume work under one number are shown as such; en dashes read as hyphens
+        $this->assertSame(['base' => '111', 'collection' => 'ب', 'part' => '20'], Manuscript::collectionKey('111/20 – ب'));
+        $this->assertNull(Manuscript::collectionKey('5679-29/19'));
+        $set = $this->work();
+        $v1 = $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => '9003/1', 'shelfmark_key' => '9003/1', 'work_id' => $set->id]);
+        $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => '9003/2', 'shelfmark_key' => '9003/2', 'work_id' => $set->id]);
+        $this->get(route('manuscripts.show', $v1))->assertSee('مجلدهای این دوره (2)')->assertDontSee('رساله‌های این مجموعه');
+    }
 }

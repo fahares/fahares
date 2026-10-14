@@ -430,6 +430,54 @@ class Manuscript extends Model
         return $this->hasMany(ManuscriptScribe::class)->orderBy('position')->orderBy('id');
     }
 
+    /**
+     * The bound volume a shelfmark like «6415/8» belongs to: the number before the slash, plus a
+     * text suffix that names another collection of the library («513/8-طباطبائی», «1804/10-عکسی»).
+     * A numeric suffix («5722/2-29/62») is a second numbering and is ignored.
+     *
+     * @return array{base: string, collection: ?string, part: string}|null
+     */
+    public static function collectionKey(?string $shelfmark): ?array
+    {
+        // Persian digits and the dash variants the catalog uses («111/20 – ب») read as one form
+        $shelfmark = strtr(trim((string) $shelfmark), ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '–' => '-', '—' => '-', '‐' => '-', '‑' => '-']);
+        // The volume number is plain: in «5679-29/19» (Golpayegani) the slash belongs to the old number, not to a part
+        if (! preg_match('~^([^/-]*\d[^/-]*?)\s*/\s*([^-]*\d[^-]*?)\s*(?:-\s*(.+))?$~u', $shelfmark, $m)) {
+            return null;
+        }
+        $tail = trim($m[3] ?? '');
+
+        return [
+            'base' => trim($m[1]),
+            'collection' => $tail !== '' && preg_match('/\p{L}/u', $tail) ? $tail : null,
+            'part' => trim($m[2]),
+        ];
+    }
+
+    /** The other treatises bound in the same volume, by part number; empty when the shelfmark has no part. */
+    public function collectionSiblings(): \Illuminate\Support\Collection
+    {
+        $key = self::collectionKey($this->shelfmark);
+        if (! $key) {
+            return collect();
+        }
+        $prefix = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $key['base']) . '/%';
+
+        return self::query()
+            ->when($this->library_id, fn ($q) => $q->where('library_id', $this->library_id), fn ($q) => $q->whereNull('library_id')->where('library', $this->library))
+            ->where('shelfmark_key', 'like', $prefix)
+            ->with(['work', 'scribe'])
+            ->limit(400)
+            ->get()
+            ->filter(function (self $m) use ($key) {
+                $other = self::collectionKey($m->shelfmark);
+
+                return $other && $other['base'] === $key['base'] && $other['collection'] === $key['collection'];
+            })
+            ->sortBy(fn (self $m) => [(int) self::collectionKey($m->shelfmark)['part'], $m->id])
+            ->values();
+    }
+
     /** People other than the scribes: owners, endowers, correctors… in role order. */
     public function otherPeople(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

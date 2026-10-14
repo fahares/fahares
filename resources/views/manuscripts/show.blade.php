@@ -370,6 +370,9 @@
         <!-- People connected with the copy other than its scribes -->
         <x-manuscript-people :manuscript="$manuscript" />
 
+        <!-- The other treatises bound in the same volume (from the shelfmark) -->
+        <x-manuscript-collection :manuscript="$manuscript" />
+
         <!-- Relations with other copies (copied from, collated with…) -->
         <x-record-relations :record="$manuscript" />
 
