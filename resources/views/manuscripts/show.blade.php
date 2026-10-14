@@ -271,7 +271,7 @@
             </div>
 
             <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_facsimile ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>چاپ عکسی / فاکسیمیله</span>
+                <span>نسخه عکسی / میکروفیلم</span>
                 <span class="inline-flex items-center gap-1"><x-suggest.field name="is_facsimile" /><span>{{ $manuscript->is_facsimile ? '✓' : '—' }}</span></span>
             </div>
 

@@ -2008,3 +2008,8 @@
 ### گام ۱۱.۱۶: برچسب گزینه‌ی دامنه در صفحه‌ی موضوع
 
 - در [subjects/show.blade.php](../resources/views/subjects/show.blade.php) متن دکمه‌ی `scope=direct` از «تنها آثار مستقیم» به «بدون زیرشاخه‌ها» تغییر کرد. مقدار `direct` و منطق کنترلر دست نخورد. این برچسب جای دیگری به کار نرفته بود.
+
+### گام ۱۱.۱۷: برچسب پرچم `is_facsimile`
+
+- متن برچسب در [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php) (کارت نشان‌های نسخه‌شناسی) و در `SuggestionRegistry::FLAG_LABELS` (کلید `is_facsimile`) به «نسخه عکسی / میکروفیلم» تغییر کرد. پارسر این پرچم را برای «عکسی» در متن نسخه یا «عکس» در سرعنوان کتابخانه می‌گذارد.
+- متن رابطه‌ی `facsimile_of` («چاپ عکسیِ») در `RecordRelations` دست نخورد.

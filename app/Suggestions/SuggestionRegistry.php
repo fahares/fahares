@@ -96,7 +96,7 @@ class SuggestionRegistry
         'is_ruled' => 'سطور مجدول (جدول‌بندی)',
         'has_catchwords' => 'دارای رکابه',
         'is_collated' => 'مقابله و بلاغ',
-        'is_facsimile' => 'چاپ عکسی / فاکسیمیله',
+        'is_facsimile' => 'نسخه عکسی / میکروفیلم',
     ];
 
     public static function fields(string $type): array
