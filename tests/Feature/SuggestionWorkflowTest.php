@@ -789,4 +789,103 @@ class SuggestionWorkflowTest extends TestCase
         $user->notifications()->delete();
         $user->delete();
     }
+
+    public function test_verified_email_claims_earlier_guest_suggestions()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $m = $this->manuscript();
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'guest_email' => 'Claimer@Example.com'])->assertOk();
+        $guest = $this->pendingFor($m);
+
+        // Registering sends the verification link but claims nothing: anyone can type someone else's email
+        $this->post('/register', ['name' => 'مدعی', 'email' => 'claimer@example.com', 'password' => 'password123', 'password_confirmation' => 'password123'])->assertRedirect();
+        $user = User::where('email', 'claimer@example.com')->firstOrFail();
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \Illuminate\Auth\Notifications\VerifyEmail::class);
+        $this->assertNull($guest->fresh()->user_id);
+        $this->get('/my/suggestions')->assertSee('ایمیل حساب شما هنوز تأیید نشده است');
+
+        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('verification.verify', now()->addHour(), ['id' => $user->id, 'hash' => sha1($user->email)]);
+        $this->get($url)->assertRedirect('/my/suggestions')->assertSessionHas('success', fn ($m) => str_contains($m, '1 پیشنهادی'));
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $this->assertSame($user->id, $guest->fresh()->user_id);
+        $this->get('/my/suggestions')->assertSee('هرات')->assertDontSee('ایمیل حساب شما هنوز تأیید نشده است');
+
+        $user->delete();
+    }
+
+    protected function fakeGoogle(string $id, string $email, ?bool $verified = true): void
+    {
+        config(['services.google.client_id' => 'test-client', 'services.google.client_secret' => 'x']);
+        $google = (new \Laravel\Socialite\Two\User)->setRaw(['email_verified' => $verified])->map(['id' => $id, 'name' => 'کاربر گوگل', 'email' => $email]);
+        $provider = \Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+        $provider->shouldReceive('user')->andReturn($google);
+        // A fresh factory each time, so a later call replaces the earlier Google user
+        $factory = \Mockery::mock(\Laravel\Socialite\Contracts\Factory::class);
+        $factory->shouldReceive('driver')->with('google')->andReturn($provider);
+        \Laravel\Socialite\Facades\Socialite::swap($factory);
+    }
+
+    public function test_google_sign_in_creates_or_links_accounts()
+    {
+        $m = $this->manuscript();
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'guest_email' => 'g-new@example.com'])->assertOk();
+        $guest = $this->pendingFor($m);
+
+        // The button only appears once a Google client is configured
+        config(['services.google.client_id' => null]);
+        $this->get('/login')->assertOk()->assertDontSee('ورود با حساب گوگل');
+        $this->get('/auth/google')->assertNotFound();
+
+        // A new Google account: created, verified, signed in, and its guest suggestions claimed
+        $this->fakeGoogle('g-111', 'G-New@example.com');
+        $this->get('/login')->assertSee('ورود با حساب گوگل');
+        $this->get('/auth/google/callback')->assertRedirect()->assertSessionHas('success');
+        $created = User::where('email', 'g-new@example.com')->firstOrFail();
+        $this->assertAuthenticatedAs($created);
+        $this->assertSame('g-111', $created->google_id);
+        $this->assertTrue($created->hasVerifiedEmail());
+        $this->assertSame($created->id, $guest->fresh()->user_id);
+
+        // An existing account with the same email is linked, not duplicated
+        $this->post('/logout');
+        $existing = $this->researcher('g-old@example.com');
+        $this->fakeGoogle('g-222', 'g-old@example.com');
+        $this->get('/auth/google/callback')->assertRedirect();
+        $this->assertSame('g-222', $existing->fresh()->google_id);
+        $this->assertSame(1, User::where('email', 'g-old@example.com')->count());
+
+        // A Google account without a verified email is refused
+        $this->post('/logout');
+        $this->fakeGoogle('g-333', 'g-unverified@example.com', false);
+        $this->get('/auth/google/callback')->assertRedirect('/login');
+        $this->assertGuest();
+        $this->assertSame(0, User::where('email', 'g-unverified@example.com')->count());
+
+        User::whereIn('email', ['g-new@example.com', 'g-old@example.com'])->delete();
+    }
+
+    public function test_forgotten_password_is_reset_by_email_link()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $user = $this->researcher('test-forgot@fahares.net');
+        $this->get('/login')->assertSee('گذرواژه را فراموش کرده‌اید؟');
+
+        // The same answer for unknown addresses, so the form does not reveal who has an account
+        $this->post('/forgot-password', ['email' => 'nobody-here@example.com'])->assertSessionHas('success');
+        $this->post('/forgot-password', ['email' => 'Test-Forgot@fahares.net'])->assertSessionHas('success');
+
+        $token = null;
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \Illuminate\Auth\Notifications\ResetPassword::class, function ($n) use (&$token, $user) {
+            $token = $n->token;
+
+            return str_contains((string) $n->toMail($user)->render(), 'dir="rtl"');
+        });
+
+        $this->post('/reset-password', ['token' => 'wrong', 'email' => $user->email, 'password' => 'newpassword9', 'password_confirmation' => 'newpassword9'])->assertSessionHasErrors('email');
+        $this->get("/reset-password/{$token}?email=" . urlencode($user->email))->assertOk()->assertSee('تعیین گذرواژه‌ی تازه');
+        $this->post('/reset-password', ['token' => $token, 'email' => $user->email, 'password' => 'newpassword9', 'password_confirmation' => 'newpassword9'])->assertRedirect('/login');
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('newpassword9', $user->fresh()->password));
+
+        $user->delete();
+    }
 }

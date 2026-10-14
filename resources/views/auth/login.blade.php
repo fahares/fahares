@@ -39,6 +39,8 @@
             </div>
         @endif
 
+        @include('auth.partials.google-button')
+
         <!-- Form -->
         <form action="{{ route('login.post') }}" method="POST" class="space-y-5">
             @csrf
@@ -79,6 +81,7 @@
                     <input type="checkbox" name="remember" value="1" class="rounded border-stone-300 text-[#B38A50] focus:ring-[#B38A50]/30 w-4 h-4">
                     <span>مرا به خاطر بسپار</span>
                 </label>
+                <a href="{{ route('password.request') }}" class="font-bold text-[#B38A50] hover:underline">گذرواژه را فراموش کرده‌اید؟</a>
             </div>
 
             <!-- Submit Button -->

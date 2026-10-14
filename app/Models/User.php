@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'affiliation', 'is_verified_scholar'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+#[Fillable(['name', 'email', 'google_id', 'password', 'role', 'affiliation', 'is_verified_scholar'])]
+#[Hidden(['password', 'remember_token', 'google_id'])]
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -29,6 +29,17 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_verified_scholar' => 'boolean',
         ];
+    }
+
+    /** In Persian whatever APP_LOCALE says, like the other notifications. */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify((new \Illuminate\Auth\Notifications\VerifyEmail)->locale('fa'));
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify((new \Illuminate\Auth\Notifications\ResetPassword($token))->locale('fa'));
     }
 
     public function isAdmin(): bool

@@ -37,9 +37,6 @@
         </dl>
     </div>
 
-    @if(session('success'))
-        <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200 text-xs font-bold">{{ session('success') }}</div>
-    @endif
 
     @forelse($suggestions as $s)
         @php

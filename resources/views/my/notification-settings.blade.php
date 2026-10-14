@@ -9,9 +9,6 @@
         <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">برای هر نوع اعلان، راه دریافت آن را انتخاب کنید. ایمیل‌ها به {{ auth()->user()->email }} فرستاده می‌شوند.</p>
     </div>
 
-    @if(session('success'))
-        <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-200 text-xs font-bold">{{ session('success') }}</div>
-    @endif
 
     <form action="{{ route('notifications.settings.save') }}" method="POST" class="bg-white dark:bg-[#15192C] rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm overflow-hidden">
         @csrf

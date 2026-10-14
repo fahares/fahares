@@ -25,6 +25,8 @@
             با عضویت در پایگاه، پیشنهادات اصلاحی و استنادات نسخه‌پژوهی شما به نام خودتان ثبت شده و بدون نیاز به ورود مکرر مشخصات بررسی می‌گردد.
         </div>
 
+        @include('auth.partials.google-button', ['label' => 'ثبت‌نام با حساب گوگل'])
+
         <!-- Form -->
         <form action="{{ route('register.post') }}" method="POST" class="space-y-4">
             @csrf

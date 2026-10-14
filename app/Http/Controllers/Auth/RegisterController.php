@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -45,9 +46,11 @@ class RegisterController extends Controller
             'is_verified_scholar' => false,
         ]);
 
+        // Sends the verification link (framework listener for Registered)
+        event(new Registered($user));
         Auth::login($user);
 
         return redirect()->intended(route('home'))
-            ->with('success', "ثبت‌نام با موفقیت انجام شد. پژوهشگر گرامی {$user->name}، به پایگاه فهارس خوش آمدید.");
+            ->with('success', "ثبت‌نام با موفقیت انجام شد. پژوهشگر گرامی {$user->name}، به پایگاه فهارس خوش آمدید. پیوند تأیید ایمیل به {$user->email} فرستاده شد.");
     }
 }
