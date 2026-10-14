@@ -178,6 +178,15 @@
                     <span>دریافت استناد علمی</span>
                 </button>
 
+                {{-- A published digital image of this copy (research note), see <x-suggest.notes> --}}
+                @php $imageNote = ($researchNotes ?? collect())->firstWhere('field_name', 'image'); @endphp
+                @if($imageNote)
+                    <a href="#research-notes" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#292C56]/30 dark:border-indigo-400/40 text-xs font-bold text-[#292C56] dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>مشاهده‌ی تصویر نسخه</span>
+                    </a>
+                @endif
+
                 <x-suggest.toggle />
             </div>
         </div>
@@ -749,6 +758,9 @@
 
     <!-- READINGS: adopted, alternative and superseded readings from researchers -->
     <x-suggest.readings />
+
+    <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+    <x-suggest.notes type="manuscript" />
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="manuscript" :record="$manuscript" />

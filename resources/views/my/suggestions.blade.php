@@ -17,6 +17,8 @@
         'alternative' => ['قول دیگر', 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-900/60'],
         'superseded' => ['منسوخ', 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'],
         'edit' => ['ویرایش اعمال شد', 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'],
+        'published' => ['منتشر شد', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
+        'withdrawn' => ['برداشته شد', 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'],
         'approved' => ['رسیدگی شد', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
     ];
 @endphp
@@ -41,7 +43,12 @@
     @forelse($suggestions as $s)
         @php
             $record = $s->suggestable ? \App\Suggestions\SuggestionRegistry::describe($s->suggestable) : null;
-            [$statusLabel, $statusClass] = $pills[$s->status === 'approved' ? ($s->standing ?? 'approved') : $s->status] ?? $pills['pending'];
+            $pillKey = match (true) {
+                $s->kind === 'note' && $s->status === 'approved' => 'published',
+                $s->status === 'approved' => $s->standing ?? 'approved',
+                default => $s->status,
+            };
+            [$statusLabel, $statusClass] = $pills[$pillKey] ?? $pills['pending'];
         @endphp
         <article class="bg-white dark:bg-[#15192C] p-5 sm:p-6 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3 text-xs sm:text-sm">
             <div class="flex flex-wrap items-start justify-between gap-2">
@@ -70,7 +77,7 @@
                 <p class="text-stone-600 dark:text-stone-300 whitespace-pre-line"><span class="font-bold text-stone-500 dark:text-stone-400">یادداشت داور:</span> {{ $s->public_note }}</p>
             @endif
 
-            @if($s->kind === 'field' && $s->status !== 'rejected')
+            @if(in_array($s->kind, ['field', 'note'], true) && $s->status !== 'rejected')
                 <form action="{{ route('my.suggestions.credit', $s) }}" method="POST" class="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100 dark:border-stone-800 text-xs">
                     @csrf
                     <label class="text-stone-500 dark:text-stone-400" for="credit-{{ $s->id }}">نام در صفحه‌ی عمومی:</label>

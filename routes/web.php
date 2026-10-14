@@ -23,6 +23,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\MySuggestionsController;
+use App\Http\Controllers\NoteFileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\WorkController;
@@ -78,6 +79,9 @@ Route::get('/api/suggestions/people', [SuggestionController::class, 'people'])
 Route::get('/api/suggestions/lookup', [SuggestionController::class, 'lookup'])
     ->middleware('throttle:120,1')
     ->name('suggestions.lookup');
+
+// Images of research notes (access checked in the controller)
+Route::get('/notes/{suggestion}/files/{index}', [NoteFileController::class, 'show'])->whereNumber('index')->name('notes.file');
 
 // A signed-in user's own suggestions
 Route::middleware('auth')->group(function () {
@@ -173,6 +177,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/suggestions/{suggestion}/reject', [AdminSuggestionController::class, 'reject'])->name('suggestions.reject');
     Route::post('/suggestions/{suggestion}/credit', [AdminSuggestionController::class, 'credit'])->name('suggestions.credit');
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->name('suggestions.direct-edit');
+    Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
+    Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
 
 
     // Taxonomy & Knowledge Tree

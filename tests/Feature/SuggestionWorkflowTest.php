@@ -888,4 +888,90 @@ class SuggestionWorkflowTest extends TestCase
 
         $user->delete();
     }
+
+    protected function addNote($record, string $noteType, array $note, array $extra = [])
+    {
+        $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
+
+        return $this->post('/suggestions', $extra + ['type' => $type, 'id' => $record->id, 'kind' => 'note', 'field_name' => $noteType, 'note' => $note], ['Accept' => 'application/json']);
+    }
+
+    public function test_research_notes_are_reviewed_edited_and_published()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $m = $this->manuscript();
+        $this->get(route('manuscripts.show', $m))->assertOk()->assertSee('یادداشت‌ها و منابع پژوهشی')->assertSee('افزودن یادداشت یا منبع');
+
+        // Validation: allowed types per record, required fields, http links
+        $this->addNote($m, 'link', ['title' => 'x', 'url' => 'https://a.b'])->assertStatus(422)->assertJsonValidationErrors('field_name');
+        $this->addNote($m, 'study', ['author' => 'بی‌عنوان'])->assertStatus(422)->assertJsonValidationErrors('note.title');
+        $this->addNote($m, 'study', ['title' => 'مقاله', 'url' => 'javascript:alert(1)'])->assertStatus(422)->assertJsonValidationErrors('note.url');
+
+        $this->addNote($m, 'observation', ['text' => "در برگ ۲۰ یادداشتی به خط علامه‌ی مجلسی است", 'location' => 'برگ ۲۰ پ'], ['credit_name' => 'نسخه‌پژوه آزمون'])->assertOk();
+        $note = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->sole();
+        $this->assertSame('pending', $note->status);
+        $this->assertStringContainsString('علامه‌ی مجلسی', $note->suggested_value);
+        \Illuminate\Support\Facades\Notification::assertSentTo($this->admin, \App\Notifications\SuggestionSubmitted::class);
+        $this->get(route('manuscripts.show', $m))->assertDontSee('علامه‌ی مجلسی');
+
+        // The reviewer corrects the text and publishes; the submitter's version is kept
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تأیید و انتشار در صفحه‌ی رکورد');
+        $this->post("/admin/suggestions/{$note->id}/note", ['note' => ['text' => 'در برگ ۲۰ یادداشتی به خط علامه محمدباقر مجلسی است', 'location' => 'برگ ۲۰ پ'], 'public_note' => 'خط با نمونه‌های دیگر سنجیده شد'])->assertRedirect();
+        $note->refresh();
+        $this->assertSame('approved', $note->status);
+        $this->assertStringContainsString('علامه‌ی مجلسی', $note->resolution['original_payload']['text']);
+        $this->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('علامه محمدباقر مجلسی')->assertSee('نسخه‌پژوه آزمون')->assertSee('خط با نمونه‌های دیگر سنجیده شد')->assertSee('مشاهده و نکته‌ی پژوهشی');
+
+        // Withdrawn notes leave the page and can be published again
+        $this->post("/admin/suggestions/{$note->id}/withdraw")->assertRedirect();
+        $this->get(route('manuscripts.show', $m))->assertDontSee('علامه محمدباقر مجلسی');
+        $this->post("/admin/suggestions/{$note->id}/note", ['note' => $note->payload])->assertRedirect();
+        $this->get(route('manuscripts.show', $m))->assertSee('علامه محمدباقر مجلسی');
+    }
+
+    public function test_image_notes_upload_only_for_signed_in_users_and_stay_hidden_until_published()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $m = $this->manuscript();
+        // A real 1×1 JPEG: the container has no GD for UploadedFile::fake()->image()
+        $jpeg = base64_decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');
+        $file = fn () => \Illuminate\Http\UploadedFile::fake()->createWithContent('page.jpg', $jpeg);
+
+        $this->addNote($m, 'image', ['caption' => 'برگ نخست'], ['files' => [$file()], 'rights_confirmed' => 1])->assertStatus(422)->assertJsonValidationErrors('files');
+        $this->addNote($m, 'image', ['caption' => 'بی‌پیوند و بی‌تصویر'])->assertStatus(422)->assertJsonValidationErrors('note.url');
+
+        $user = $this->researcher('test-uploader@fahares.net');
+        $this->actingAs($user);
+        $this->addNote($m, 'image', ['caption' => 'برگ نخست'], ['files' => [$file()]])->assertStatus(422)->assertJsonValidationErrors('rights_confirmed');
+        $this->addNote($m, 'image', ['caption' => 'برگ نخست'], ['files' => [$file(), $file()], 'rights_confirmed' => 1])->assertOk();
+        $note = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->sole();
+        $this->assertCount(2, $note->payload['files']);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($note->payload['files'][0]);
+
+        // Before publication only the uploader and reviewers see the files
+        $this->get(route('notes.file', [$note, 0]))->assertOk();
+        $this->post('/logout');
+        $this->get(route('notes.file', [$note, 0]))->assertNotFound();
+        $this->actingAs($this->admin)->get(route('notes.file', [$note, 1]))->assertOk();
+
+        // The reviewer drops one image and publishes; the page links the image from its header
+        $this->post("/admin/suggestions/{$note->id}/note", ['note' => ['caption' => 'برگ نخست و سرلوح'], 'remove_files' => [1]])->assertRedirect();
+        $note->refresh();
+        $this->assertCount(1, $note->payload['files']);
+        $this->post('/logout');
+        $this->get(route('notes.file', [$note, 0]))->assertOk();
+        $this->get(route('manuscripts.show', $m))->assertSee('مشاهده‌ی تصویر نسخه')->assertSee('برگ نخست و سرلوح');
+
+        // A rejected note's uploads are deleted
+        $this->actingAs($user);
+        $this->addNote($m, 'image', ['caption' => 'نامربوط'], ['files' => [$file()], 'rights_confirmed' => 1])->assertOk();
+        $rejected = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->where('status', 'pending')->sole();
+        $path = $rejected->payload['files'][0];
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$rejected->id}/reject", ['public_note' => 'تصویر از نسخه‌ی دیگری است']);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($path);
+
+        $user->delete();
+    }
 }

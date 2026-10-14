@@ -25,6 +25,11 @@ export default (config) => ({
     creditName: '',
     // Guests only: email the review outcome
     notifyOn: false,
+    // Research notes
+    noteType: '',
+    note: {},
+    noteFiles: [],
+    rightsOk: false,
     website: '',
     submitting: false,
     errors: {},
@@ -40,7 +45,14 @@ export default (config) => ({
         this.targetQuery = '';
         this.targetResults = [];
         this.target = null;
-        if (detail.general) {
+        if (detail.note) {
+            this.mode = 'note';
+            this.field = BLANK_FIELD;
+            this.noteType = Object.keys(this.config.noteTypes)[0] ?? '';
+            this.note = {};
+            this.noteFiles = [];
+            this.rightsOk = false;
+        } else if (detail.general) {
             this.mode = 'general';
             this.field = BLANK_FIELD;
             this.value = '';
@@ -61,7 +73,37 @@ export default (config) => ({
         this.open = false;
     },
 
+    get noteDef() {
+        return this.config.noteTypes[this.noteType] ?? { fields: [], required: [], hint: '' };
+    },
+
+    // Shrinks large photos in the browser so each upload stays under the server's 2 MB limit
+    async pickFiles(event) {
+        const picked = [...event.target.files].slice(0, this.config.maxFiles);
+        this.noteFiles = await Promise.all(picked.map((f) => this.shrink(f)));
+    },
+
+    async shrink(file, maxSide = 2400, quality = 0.85) {
+        if (file.size <= 1.8 * 1024 * 1024) return file;
+        const img = await new Promise((resolve, reject) => {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.onerror = reject;
+            i.src = URL.createObjectURL(file);
+        });
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+        URL.revokeObjectURL(img.src);
+        const out = new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+        return out.size > 1.9 * 1024 * 1024 && maxSide > 1200 ? this.shrink(file, maxSide - 600, 0.75) : out;
+    },
+
     get title() {
+        if (this.mode === 'note') return 'افزودن یادداشت یا منبع پژوهشی';
         return this.mode === 'general' ? 'پیشنهاد کلی درباره‌ی این ' + this.config.typeLabel : 'پیشنهاد اصلاح «' + this.field.label + '»';
     },
 
@@ -161,6 +203,12 @@ export default (config) => ({
         body.append('id', this.config.id);
         const kind = this.mode === 'general' && this.relationKey ? 'relation' : this.mode;
         body.append('kind', kind);
+        if (kind === 'note') {
+            body.append('field_name', this.noteType);
+            for (const f of this.noteDef.fields) body.append(`note[${f}]`, this.note[f] ?? '');
+            if (this.noteDef.files) this.noteFiles.forEach((file) => body.append('files[]', file));
+            if (this.rightsOk) body.append('rights_confirmed', '1');
+        }
         if (this.mode === 'field') body.append('field_name', this.field.name);
         if (kind === 'relation') {
             body.append('field_name', this.relationKey);

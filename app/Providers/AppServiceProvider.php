@@ -53,6 +53,10 @@ class AppServiceProvider extends ServiceProvider
         View::composer(array_keys($records), function ($view) use ($records) {
             $record = $view->getData()[$records[$view->name()]] ?? null;
             View::share('suggestionReadings', $record ? SuggestionReadings::for($record) : collect());
+            // Published research notes, in approval order (see NoteTypes)
+            View::share('researchNotes', $record ? \App\Models\FieldSuggestion::where('suggestable_type', $record::class)
+                ->where('suggestable_id', $record->getKey())->where('kind', 'note')->where('status', 'approved')
+                ->orderBy('reviewed_at')->orderBy('id')->get() : collect());
         });
     }
 }

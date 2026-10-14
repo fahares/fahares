@@ -9,11 +9,13 @@ use App\Models\Person;
 use App\Models\Manuscript;
 use App\Notifications\SuggestionNotifier;
 use App\Suggestions\RecordMerger;
+use App\Suggestions\NoteTypes;
 use App\Suggestions\SuggestionApplier;
 use App\Suggestions\SuggestionRegistry;
 use App\Support\HijriYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -345,6 +347,69 @@ class SuggestionController extends Controller
         return response()->json(['message' => 'ویرایش اعمال شد.']);
     }
 
+    /**
+     * Publishes a research note, or saves a reviewer's edit of a published one. The reviewer may
+     * correct the fields and drop uploaded images; the submitter's first version is kept in resolution.
+     */
+    public function saveNote(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_unless($suggestion->kind === 'note' && in_array($suggestion->status, ['pending', 'approved', 'withdrawn'], true), 404);
+        $validated = $request->validate([
+            'note' => 'nullable|array',
+            'remove_files' => 'nullable|array',
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $payload = $suggestion->payload ?? [];
+        $remove = array_map('intval', (array) ($validated['remove_files'] ?? []));
+        $kept = [];
+        foreach ($payload['files'] ?? [] as $i => $path) {
+            if (in_array($i, $remove, true)) {
+                Storage::disk('public')->delete($path);
+            } else {
+                $kept[] = $path;
+            }
+        }
+
+        try {
+            $values = NoteTypes::clean($suggestion->field_name, (array) ($validated['note'] ?? []), (bool) $kept);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withInput()->withErrors($e->errors());
+        }
+
+        $firstReview = $suggestion->status === 'pending';
+        $resolution = $suggestion->resolution ?? [];
+        $resolution['original_payload'] ??= $payload;
+        $suggestion->update([
+            'payload' => $values + ($kept ? ['files' => $kept] : []),
+            'suggested_value' => NoteTypes::summary($suggestion->field_name, $values),
+            'status' => 'approved',
+            'resolution' => $resolution,
+            'public_note' => trim($validated['public_note'] ?? '') ?: null,
+            'admin_notes' => ($validated['admin_notes'] ?? null) ?: $suggestion->admin_notes,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => $firstReview ? now() : ($suggestion->reviewed_at ?? now()),
+        ]);
+
+        if ($firstReview) {
+            SuggestionNotifier::reviewed($suggestion->fresh());
+        }
+
+        return redirect()->route('admin.suggestions.show', $suggestion)
+            ->with('success', $firstReview ? "یادداشت #{$suggestion->id} تأیید و در صفحه‌ی رکورد منتشر شد." : "ویرایش یادداشت #{$suggestion->id} ذخیره شد.");
+    }
+
+    /** Takes a published note off the record page (e.g. its link broke); it can be published again. */
+    public function withdrawNote(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_unless($suggestion->kind === 'note' && $suggestion->status === 'approved', 404);
+        $validated = $request->validate(['admin_notes' => 'nullable|string|max:1000']);
+        $suggestion->update(['status' => 'withdrawn', 'admin_notes' => ($validated['admin_notes'] ?? null) ?: $suggestion->admin_notes]);
+
+        return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت #{$suggestion->id} از صفحه‌ی رکورد برداشته شد.");
+    }
+
     /** Sets or clears the public credit, e.g. once the submitter has agreed by email. */
     public function credit(Request $request, FieldSuggestion $suggestion)
     {
@@ -361,6 +426,14 @@ class SuggestionController extends Controller
             'admin_notes' => 'nullable|string|max:1000',
             'public_note' => 'nullable|string|max:2000',
         ]);
+
+        // A rejected note's uploads are not kept on the server
+        if ($suggestion->kind === 'note' && ! empty($suggestion->payload['files'])) {
+            Storage::disk('public')->delete($suggestion->payload['files']);
+            $payload = $suggestion->payload;
+            unset($payload['files']);
+            $suggestion->payload = $payload;
+        }
 
         $suggestion->update([
             'status' => 'rejected',

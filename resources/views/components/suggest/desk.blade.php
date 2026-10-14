@@ -38,6 +38,11 @@
         'userName' => auth()->user()?->name,
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->canAccessAdmin() ? route('admin.suggestions.direct-edit') : null,
+        // Research notes (see NoteTypes); images can be uploaded only when signed in
+        'noteTypes' => \App\Suggestions\NoteTypes::forRecord($type),
+        'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
+        'maxFiles' => \App\Suggestions\NoteTypes::MAX_FILES,
+        'canUpload' => auth()->check(),
     ];
     $inputClass = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]';
 @endphp
@@ -53,6 +58,7 @@
         </div>
         <div class="flex gap-2 shrink-0">
             <button type="button" @click="start({ general: true })" class="px-3 py-2 rounded-xl bg-[#B38A50] hover:bg-[#9C753F] text-white font-bold">پیشنهاد کلی</button>
+            <button type="button" x-show="Object.keys(config.noteTypes).length" @click="start({ note: true })" class="px-3 py-2 rounded-xl border border-amber-100/40 hover:bg-white/10 font-bold">یادداشت یا منبع</button>
             <button type="button" @click="$store.suggest.toggle()" class="px-3 py-2 rounded-xl border border-amber-100/30 hover:bg-white/10 font-semibold">خروج</button>
         </div>
     </div>
@@ -143,6 +149,57 @@
                         </div>
                     </template>
 
+                    <!-- Research note: typed fields, and images for the image type -->
+                    <template x-if="mode === 'note'">
+                        <div class="space-y-3">
+                            <div class="space-y-1.5">
+                                <span class="block font-semibold text-stone-700 dark:text-stone-300">نوع یادداشت:</span>
+                                <template x-for="t in Object.values(config.noteTypes)" :key="t.key">
+                                    <label class="flex items-center gap-2"><input type="radio" :value="t.key" x-model="noteType" class="text-[#B38A50]"> <span x-text="t.label"></span></label>
+                                </template>
+                                <p class="text-stone-400 leading-relaxed" x-text="noteDef.hint"></p>
+                            </div>
+                            <template x-for="f in noteDef.fields" :key="noteType + f">
+                                <div class="space-y-1">
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300">
+                                        <span x-text="config.noteFields[f]"></span><span x-show="noteDef.required.includes(f)" class="text-red-600"> *</span>
+                                    </label>
+                                    <template x-if="f === 'text'">
+                                        <textarea x-model="note[f]" rows="4" class="{{ $inputClass }}"></textarea>
+                                    </template>
+                                    <template x-if="f !== 'text'">
+                                        <input type="text" x-model="note[f]" :dir="f === 'url' ? 'ltr' : null" :placeholder="f === 'url' ? 'https://' : ''" class="{{ $inputClass }}">
+                                    </template>
+                                    <p x-show="errors['note.' + f]" x-text="errors['note.' + f]" class="text-red-600 dark:text-red-400 font-bold"></p>
+                                </div>
+                            </template>
+                            <template x-if="noteDef.files">
+                                <div class="space-y-1.5 p-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+                                    <span class="block font-semibold text-stone-700 dark:text-stone-300">بارگذاری تصویر (اختیاری؛ حداکثر <span x-text="config.maxFiles"></span> تصویر):</span>
+                                    <template x-if="config.canUpload">
+                                        <div class="space-y-1.5">
+                                            <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="pickFiles($event)" class="block w-full text-stone-600 dark:text-stone-300">
+                                            <p class="text-stone-400">تصویرهای بزرگ پیش از ارسال کوچک می‌شوند.</p>
+                                            <template x-if="noteFiles.length">
+                                                <p class="text-emerald-700 dark:text-emerald-400" x-text="noteFiles.length + ' تصویر آماده‌ی ارسال'"></p>
+                                            </template>
+                                            <label x-show="noteFiles.length" class="flex items-start gap-2 cursor-pointer">
+                                                <input type="checkbox" x-model="rightsOk" class="mt-0.5 rounded border-stone-300 text-[#B38A50]">
+                                                <span>این تصویر را خودم تهیه کرده‌ام یا اجازه‌ی انتشار آن را دارم.</span>
+                                            </label>
+                                            <p x-show="errors.files || errors.rights_confirmed" x-text="errors.files || errors.rights_confirmed" class="text-red-600 dark:text-red-400 font-bold"></p>
+                                        </div>
+                                    </template>
+                                    <template x-if="!config.canUpload">
+                                        <p class="text-stone-500">برای بارگذاری تصویر <a href="{{ route('login') }}" class="text-[#B38A50] hover:underline font-bold">وارد شوید</a>. پیوند تصویر را بدون ورود هم می‌توانید بفرستید.</p>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="mode !== 'note'">
+                        <div class="space-y-4">
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block font-semibold text-stone-700 dark:text-stone-300"
@@ -202,6 +259,9 @@
                         <p x-show="errors.rationale_citation" x-text="errors.rationale_citation" class="text-red-600 dark:text-red-400 font-bold"></p>
                     </div>
 
+                        </div>
+                    </template>
+
                     <!-- Honeypot: hidden from people, bots fill it -->
                     <div class="hidden" aria-hidden="true">
                         <label>وب‌سایت <input type="text" x-model="website" tabindex="-1" autocomplete="off"></label>
@@ -236,7 +296,7 @@
                     <div class="space-y-2">
                         <label class="flex items-start gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
                             <input type="checkbox" x-model="creditOn" @change="toggleCredit()" class="mt-0.5 rounded border-stone-300 dark:border-stone-600 text-[#B38A50] focus:ring-[#B38A50]">
-                            <span>مایلم در صورت تأیید، نامم در کنار این اصلاح در سایت درج شود.</span>
+                            <span x-text="mode === 'note' ? 'مایلم در صورت تأیید، نامم در کنار این یادداشت در سایت درج شود.' : 'مایلم در صورت تأیید، نامم در کنار این اصلاح در سایت درج شود.'"></span>
                         </label>
                         <div x-show="creditOn" x-cloak class="space-y-1">
                             <label class="block font-semibold text-stone-700 dark:text-stone-300">نام به این صورت درج شود:</label>

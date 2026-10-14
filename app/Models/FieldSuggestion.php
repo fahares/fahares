@@ -106,6 +106,9 @@ class FieldSuggestion extends Model
         if ($this->kind === 'relation') {
             return $this->relationDefinition()['action'] ?? 'پیشنهاد رابطه‌ای';
         }
+        if ($this->kind === 'note') {
+            return \App\Suggestions\NoteTypes::label($this->field_name);
+        }
 
         return $this->fieldDefinition()['label'] ?? ($this->field_name ?: 'نامشخص');
     }

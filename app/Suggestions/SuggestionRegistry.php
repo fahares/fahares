@@ -35,7 +35,8 @@ class SuggestionRegistry
         'library' => Library::class,
     ];
 
-    public const KINDS = ['field', 'general', 'relation'];
+    // note: a research note added to the record, see NoteTypes
+    public const KINDS = ['field', 'general', 'relation', 'note'];
 
     /**
      * Relational suggestions per record type: the submitter points at another record (target).

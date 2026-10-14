@@ -53,6 +53,7 @@ class SuggestionReviewed extends SuggestionNotification
 
         $lines[] = match (true) {
             $s->status === 'rejected' => 'داور پیشنهاد را نپذیرفت.',
+            $s->kind === 'note' => 'یادداشت شما در صفحه‌ی رکورد، بخش «یادداشت‌ها و منابع پژوهشی»، منتشر شد.',
             $s->standing === 'adopted' => 'پیشنهاد در شناسنامه‌ی رکورد اعمال شد و به‌عنوان «قول مختار» با مستندش در صفحه نمایش داده می‌شود.',
             $s->standing === 'alternative' => 'مقدار رکورد تغییر نکرد، ولی پیشنهاد شما با مستندش به‌عنوان «قول دیگر» در صفحه نمایش داده می‌شود.',
             $s->standing === 'edit' => 'اصلاح در شناسنامه‌ی رکورد اعمال شد.',
@@ -61,7 +62,7 @@ class SuggestionReviewed extends SuggestionNotification
         if ($s->public_note) {
             $lines[] = 'یادداشت داور: ' . self::short($s->public_note, 500);
         }
-        if ($s->status === 'approved' && $s->standing && $s->standing !== 'edit' && ! $s->credit_name && $notifiable instanceof User) {
+        if ($s->status === 'approved' && (($s->standing && $s->standing !== 'edit') || $s->kind === 'note') && ! $s->credit_name && $notifiable instanceof User) {
             $lines[] = 'اگر مایلید نامتان کنار این قول نمایش داده شود، آن را در «پیشنهادهای من» ثبت کنید.';
         }
 

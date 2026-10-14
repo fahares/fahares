@@ -104,6 +104,9 @@
 
     </div>
 
+    @if($suggestion->kind === 'note')
+        @include('admin.suggestions.partials.note-review')
+    @else
     @if($suggestion->kind === 'relation')
         <!-- The two records the suggestion connects -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -398,6 +401,7 @@
                 داوری توسط {{ $suggestion->reviewer?->name ?: 'سیستم' }} در تاریخ {{ $suggestion->reviewed_at?->format('Y/m/d H:i') }}
             </div>
         </div>
+    @endif
     @endif
 
 </div>

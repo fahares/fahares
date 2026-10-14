@@ -243,6 +243,9 @@
     <!-- READINGS: adopted, alternative and superseded readings from researchers -->
     <x-suggest.readings />
 
+    <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+    <x-suggest.notes type="person" />
+
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="person" :record="$person" />
 

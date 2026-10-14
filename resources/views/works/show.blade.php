@@ -484,6 +484,9 @@
         <x-source-citations :citations="$work->sourceCitations" />
 
         <x-suggest.readings />
+
+        <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+        <x-suggest.notes type="work" />
     </div>
 
     <!-- MANUSCRIPTS TABLE SECTION -->

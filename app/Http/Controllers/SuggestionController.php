@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Notifications\SuggestionNotifier;
+use App\Suggestions\NoteTypes;
 use App\Suggestions\SuggestionRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class SuggestionController extends Controller
@@ -28,7 +30,7 @@ class SuggestionController extends Controller
             'id' => 'required|integer',
             'kind' => ['required', Rule::in(SuggestionRegistry::KINDS)],
             'field_name' => 'nullable|string|max:100',
-            'suggested_value' => 'required_unless:kind,relation|nullable|string|max:20000',
+            'suggested_value' => 'required_if:kind,field,general|nullable|string|max:20000',
             'rationale_citation' => 'nullable|string|max:5000',
             'person_id' => 'nullable|integer|exists:people,id',
             'target_id' => 'nullable|integer',
@@ -36,10 +38,18 @@ class SuggestionController extends Controller
             'guest_email' => 'nullable|email|max:100',
             'credit_name' => 'nullable|string|max:150',
             'notify_submitter' => 'nullable|boolean',
+            'note' => 'nullable|array',
+            'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,
+            'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            'rights_confirmed' => 'nullable|boolean',
             'website' => 'nullable|max:0', // honeypot, hidden from people
         ], [
             'suggested_value.required' => 'متن پیشنهاد را وارد کنید.',
             'website.max' => 'ارسال پذیرفته نشد.',
+            'files.max' => 'حداکثر ' . NoteTypes::MAX_FILES . ' تصویر می‌توانید بارگذاری کنید.',
+            'files.*.image' => 'فقط تصویر (JPG، PNG یا WebP) پذیرفته می‌شود.',
+            'files.*.mimes' => 'فقط تصویر (JPG، PNG یا WebP) پذیرفته می‌شود.',
+            'files.*.max' => 'حجم هر تصویر حداکثر ۲ مگابایت است.',
         ]);
 
         $record = SuggestionRegistry::modelClass($validated['type'])::find($validated['id']);
@@ -56,6 +66,10 @@ class SuggestionController extends Controller
             if (mb_strlen(trim($validated['rationale_citation'] ?? '')) < 5) {
                 throw ValidationException::withMessages(['rationale_citation' => 'مستند یا منبع پیشنهاد را بنویسید (دست‌کم ۵ نویسه).']);
             }
+        }
+
+        if ($validated['kind'] === 'note') {
+            return $this->storeNote($request, $record, $validated);
         }
 
         $relation = null;
@@ -109,6 +123,60 @@ class SuggestionController extends Controller
         return $request->expectsJson()
             ? response()->json(['message' => $message])
             : back()->with('success', $message);
+    }
+
+    /**
+     * A research note: its typed fields in payload and, for images, uploaded files. Files only come
+     * from signed-in users who confirm they may publish them; they stay unlisted until approval.
+     */
+    private function storeNote(Request $request, $record, array $validated)
+    {
+        $type = SuggestionRegistry::typeKey($record::class);
+        $noteType = $validated['field_name'] ?? null;
+        if (! NoteTypes::allowed($type, $noteType)) {
+            throw ValidationException::withMessages(['field_name' => 'این نوع یادداشت برای این رکورد تعریف نشده است.']);
+        }
+
+        $user = $request->user();
+        $files = empty(NoteTypes::TYPES[$noteType]['files']) ? [] : $request->file('files', []);
+        if ($files && ! $user) {
+            throw ValidationException::withMessages(['files' => 'برای بارگذاری تصویر وارد حساب کاربری شوید. پیوند تصویر را بدون ورود هم می‌توانید بفرستید.']);
+        }
+        if ($files && ! $request->boolean('rights_confirmed')) {
+            throw ValidationException::withMessages(['rights_confirmed' => 'تأیید کنید که تصویر را خودتان تهیه کرده‌اید یا اجازه‌ی انتشار آن را دارید.']);
+        }
+        $values = NoteTypes::clean($noteType, (array) ($validated['note'] ?? []), (bool) $files);
+
+        $suggestion = FieldSuggestion::create([
+            'suggestable_type' => $record::class,
+            'suggestable_id' => $record->id,
+            'kind' => 'note',
+            'field_name' => $noteType,
+            'suggested_value' => NoteTypes::summary($noteType, $values),
+            'rationale_citation' => trim($validated['rationale_citation'] ?? '') ?: null,
+            'payload' => $values,
+            'user_id' => $user?->id,
+            'guest_name' => $user ? $user->name : ($validated['guest_name'] ?? 'پژوهشگر مهمان'),
+            'guest_email' => $user ? $user->email : ($validated['guest_email'] ?? null),
+            'credit_name' => trim($validated['credit_name'] ?? '') ?: null,
+            'notify_submitter' => ! $user && ! empty($validated['guest_email']) && $request->boolean('notify_submitter'),
+            'status' => 'pending',
+        ]);
+
+        if ($files) {
+            $paths = [];
+            foreach ($files as $file) {
+                // Unguessable names on the persistent public volume; served through NoteFileController
+                $paths[] = $file->storeAs("notes/{$suggestion->id}", Str::random(40) . '.' . $file->extension(), 'public');
+            }
+            $suggestion->update(['payload' => $values + ['files' => $paths]]);
+        }
+
+        SuggestionNotifier::submitted($suggestion);
+
+        $message = 'یادداشت شما ثبت شد و پس از بررسی هیئت علمی در صفحه منتشر می‌شود. سپاس از همراهی‌تان.';
+
+        return $request->expectsJson() ? response()->json(['message' => $message]) : back()->with('success', $message);
     }
 
     /**
