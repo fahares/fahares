@@ -64,7 +64,7 @@
                 
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
                         <img src="{{ asset('images/logo_emblem.png') }}" alt="فهارس" class="h-12 w-auto drop-shadow-sm group-hover:scale-105 transition-transform duration-200">
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
@@ -127,14 +127,17 @@
                     @auth
                         @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
                         <div x-data="{ userMenuOpen: false }" class="relative">
-                            <button @click="userMenuOpen = !userMenuOpen" 
-                                    class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#B38A50]/40 bg-[#B38A50]/10 text-stone-800 dark:text-stone-200 text-xs font-bold hover:border-[#B38A50] transition cursor-pointer">
-                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <span class="max-w-[100px] sm:max-w-[140px] truncate">{{ auth()->user()->name }}</span>
+                            <button @click="userMenuOpen = !userMenuOpen" aria-label="حساب کاربری: {{ auth()->user()->name }}"
+                                    class="relative flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full border border-[#B38A50]/40 bg-[#B38A50]/10 text-stone-800 dark:text-stone-200 text-xs font-bold hover:border-[#B38A50] transition cursor-pointer">
+                                <span class="hidden sm:inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <svg class="sm:hidden w-5 h-5 text-[#B38A50]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                <span class="hidden sm:inline max-w-[140px] truncate">{{ auth()->user()->name }}</span>
                                 @if($unreadNotifications)
-                                    <span class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold" title="اعلان خوانده‌نشده">{{ $unreadNotifications }}</span>
+                                    <span class="absolute -top-1 -left-1 sm:static px-1.5 min-w-[1.25rem] text-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold" title="اعلان خوانده‌نشده">{{ $unreadNotifications }}</span>
                                 @endif
-                                <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="hidden sm:block w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
