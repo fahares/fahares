@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FieldSuggestion;
 use App\Models\Person;
+use App\Notifications\SuggestionNotifier;
 use App\Suggestions\SuggestionRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -34,6 +35,7 @@ class SuggestionController extends Controller
             'guest_name' => 'nullable|string|max:100',
             'guest_email' => 'nullable|email|max:100',
             'credit_name' => 'nullable|string|max:150',
+            'notify_submitter' => 'nullable|boolean',
             'website' => 'nullable|max:0', // honeypot, hidden from people
         ], [
             'suggested_value.required' => 'متن پیشنهاد را وارد کنید.',
@@ -80,7 +82,7 @@ class SuggestionController extends Controller
             'target_id' => $relation ? (int) $validated['target_id'] : null,
         ]);
 
-        FieldSuggestion::create([
+        $suggestion = FieldSuggestion::create([
             'suggestable_type' => $record::class,
             'suggestable_id' => $record->id,
             'kind' => $validated['kind'],
@@ -95,8 +97,12 @@ class SuggestionController extends Controller
             'guest_email' => $user ? $user->email : ($validated['guest_email'] ?? null),
             // Sent only when the submitter ticked the consent box
             'credit_name' => trim($validated['credit_name'] ?? '') ?: null,
+            // Guests opt in to hear the outcome by email; signed-in users follow their notification settings
+            'notify_submitter' => ! $user && ! empty($validated['guest_email']) && $request->boolean('notify_submitter'),
             'status' => 'pending',
         ]);
+
+        SuggestionNotifier::submitted($suggestion);
 
         $message = 'پیشنهاد شما ثبت شد و پس از بررسی هیئت علمی اعمال خواهد شد. سپاس از همراهی‌تان.';
 

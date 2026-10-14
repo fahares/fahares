@@ -26,6 +26,7 @@ class FieldSuggestion extends Model
             'reviewed_at' => 'datetime',
             'payload' => 'array',
             'resolution' => 'array',
+            'notify_submitter' => 'boolean',
         ];
     }
 

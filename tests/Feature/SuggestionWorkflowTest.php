@@ -689,4 +689,104 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame(['raw_text' => 'x'], $guard->strip($work->id + 1000000, ['raw_text' => 'x']));
         AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->delete();
     }
+
+    protected function researcher(string $email, string $role = 'user'): User
+    {
+        $user = User::firstOrCreate(['email' => $email], ['name' => 'آزمونگر ' . $role, 'password' => 'password123', 'role' => $role]);
+        $user->forceFill(['role' => $role])->save();
+
+        return $user;
+    }
+
+    public function test_reviewers_are_notified_of_new_suggestions_by_their_preferences()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        config(['notifications.telegram.reviewers_chat_id' => '-100123']);
+        $editor = $this->researcher('test-editor@fahares.net', 'editor');
+        \App\Notifications\NotificationPreferences::set($editor, 'suggestion.submitted', 'mail', false);
+        $m = $this->manuscript();
+
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه'])->assertOk();
+
+        $sent = \App\Notifications\SuggestionSubmitted::class;
+        \Illuminate\Support\Facades\Notification::assertSentTo($this->admin, $sent, fn ($n, $channels) => $channels === ['database', 'mail']);
+        \Illuminate\Support\Facades\Notification::assertSentTo($editor, $sent, fn ($n, $channels) => $channels === ['database']);
+        \Illuminate\Support\Facades\Notification::assertSentOnDemand($sent, fn ($n, $channels, $notifiable) => ($notifiable->routes['telegram'] ?? null) === '-100123');
+
+        // A reviewer's own suggestion does not notify them
+        \Illuminate\Support\Facades\Notification::fake();
+        $this->actingAs($this->admin);
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '12', 'rationale_citation' => 'شمارش'])->assertOk();
+        \Illuminate\Support\Facades\Notification::assertNotSentTo($this->admin, $sent);
+
+        $editor->delete();
+    }
+
+    public function test_submitters_hear_the_outcome_and_demoted_readings_are_reported()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $user = $this->researcher('test-submitter@fahares.net');
+        $m = $this->manuscript();
+        $this->actingAs($user);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $first = $this->pendingFor($m);
+        $this->post('/logout');
+        $this->approve($first, ['applied_value' => 'هرات', 'outcome' => 'adopt']);
+
+        $reviewed = \App\Notifications\SuggestionReviewed::class;
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, $reviewed, fn ($n) => $n->event === 'reviewed' && $n->suggestion->is($first));
+
+        // A guest who opted in hears by email; one who did not hears nothing
+        $this->post('/logout');
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی دیگر', 'guest_email' => 'guest-yes@example.com', 'notify_submitter' => 1])->assertOk();
+        $second = $this->pendingFor($m);
+        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '9', 'rationale_citation' => 'شمارش', 'guest_email' => 'guest-no@example.com'])->assertOk();
+        $silent = $this->pendingFor($m);
+        $this->assertTrue($second->notify_submitter);
+        $this->assertFalse($silent->notify_submitter);
+
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'alternative', 'public_note' => 'ترقیمه‌ی دوم روشن‌تر است']);
+        $this->post("/admin/suggestions/{$silent->id}/reject", ['public_note' => 'نادرست']);
+
+        \Illuminate\Support\Facades\Notification::assertSentOnDemand($reviewed, fn ($n, $channels, $notifiable) => ($notifiable->routes['mail'] ?? null) === 'guest-yes@example.com');
+        \Illuminate\Support\Facades\Notification::assertNotSentTo(new \Illuminate\Notifications\AnonymousNotifiable, $reviewed, fn ($n, $c, $notifiable) => ($notifiable->routes['mail'] ?? null) === 'guest-no@example.com');
+        // The first submitter learns their reading became an alternative, with the reviewer's reason
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, $reviewed, function ($n) use ($user, $first) {
+            $lines = $n->toArray($user)['body'];
+
+            return $n->event === 'demoted' && $n->suggestion->is($first) && str_contains($lines, 'ترقیمه‌ی دوم روشن‌تر است');
+        });
+
+        $user->delete();
+    }
+
+    public function test_notification_pages_settings_and_unsubscribe()
+    {
+        $user = $this->researcher('test-notified@fahares.net');
+        $m = $this->manuscript();
+        $s = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'kind' => 'field', 'field_name' => 'copy_place', 'suggested_value' => 'هرات', 'status' => 'rejected', 'public_note' => 'مستند کافی نبود', 'user_id' => $user->id]);
+
+        // Mail renders right-to-left with an unsubscribe link; database notifications are listed and then read
+        $mail = (new \App\Notifications\SuggestionReviewed($s))->toMail($user)->render();
+        $this->assertStringContainsString('dir="rtl"', (string) $mail);
+        $this->assertStringContainsString('notifications/unsubscribe', (string) $mail);
+
+        $user->notify(new \App\Notifications\SuggestionReviewed($s));
+        $this->assertSame(1, $user->unreadNotifications()->count());
+        $this->actingAs($user)->get('/notifications')->assertOk()->assertSee('پذیرفته نشد')->assertSee('مستند کافی نبود');
+        $this->assertSame(0, $user->unreadNotifications()->count());
+
+        $this->get('/settings/notifications')->assertOk()->assertSee('نتیجه‌ی داوری پیشنهادهای من')->assertDontSee('پیشنهاد اصلاحی تازه برای داوری');
+        $this->post('/settings/notifications', ['enabled' => ['suggestion.reviewed' => ['database' => 1]]])->assertSessionHas('success');
+        $this->assertSame(['database'], \App\Notifications\NotificationPreferences::channelsFor($user, 'suggestion.reviewed'));
+
+        $this->post('/logout');
+        $url = \Illuminate\Support\Facades\URL::signedRoute('notifications.unsubscribe', ['user' => $user->id, 'type' => 'suggestion.reviewed', 'channel' => 'database']);
+        $this->get(str_replace('signature=', 'signature=x', $url))->assertForbidden();
+        $this->get($url)->assertOk()->assertSee('اشتراک لغو شد');
+        $this->assertSame([], \App\Notifications\NotificationPreferences::channelsFor($user, 'suggestion.reviewed'));
+
+        $user->notifications()->delete();
+        $user->delete();
+    }
 }

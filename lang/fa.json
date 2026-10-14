@@ -4,5 +4,7 @@
     "to": "تا",
     "of": "از",
     "results": "نتیجه",
-    "Go to page :page": "برو به صفحه :page"
+    "Go to page :page": "برو به صفحه :page",
+    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "اگر دکمه‌ی «:actionText» کار نکرد، این نشانی را در مرورگر خود باز کنید:",
+    "All rights reserved.": "همه‌ی حقوق محفوظ است."
 }

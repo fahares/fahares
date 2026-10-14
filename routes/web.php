@@ -20,6 +20,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\MySuggestionsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
@@ -79,7 +80,13 @@ Route::get('/api/suggestions/lookup', [SuggestionController::class, 'lookup'])
 Route::middleware('auth')->group(function () {
     Route::get('/my/suggestions', [MySuggestionsController::class, 'index'])->name('my.suggestions');
     Route::post('/my/suggestions/{suggestion}/credit', [MySuggestionsController::class, 'credit'])->name('my.suggestions.credit');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/settings/notifications', [NotificationController::class, 'settings'])->name('notifications.settings');
+    Route::post('/settings/notifications', [NotificationController::class, 'saveSettings'])->name('notifications.settings.save');
 });
+Route::get('/notifications/unsubscribe/{user}/{type}/{channel}', [NotificationController::class, 'unsubscribe'])
+    ->middleware('signed')
+    ->name('notifications.unsubscribe');
 
 // Short Permalinks (Permanent 301 Redirects)
 Route::get('/w/{id}', function ($id) {

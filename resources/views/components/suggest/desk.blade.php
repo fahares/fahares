@@ -224,6 +224,10 @@
                                 <p x-show="errors.guest_email" x-text="errors.guest_email" class="text-red-600 dark:text-red-400 font-bold"></p>
                             </div>
                         </div>
+                        <label x-show="guestEmail.trim()" x-cloak class="flex items-start gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
+                            <input type="checkbox" x-model="notifyOn" class="mt-0.5 rounded border-stone-300 dark:border-stone-600 text-[#B38A50] focus:ring-[#B38A50]">
+                            <span>نتیجه‌ی داوری را به این ایمیل خبر دهید.</span>
+                        </label>
                         <p class="text-[11px] text-stone-400">
                             با <a href="{{ route('login') }}" class="text-[#B38A50] hover:underline font-medium">ورود</a> یا <a href="{{ route('register') }}" class="text-[#B38A50] hover:underline font-medium">عضویت</a>، پیشنهادها به نام شما ثبت می‌شوند.
                         </p>

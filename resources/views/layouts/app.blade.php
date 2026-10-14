@@ -125,11 +125,15 @@
 
                     <!-- User Account / Auth Actions -->
                     @auth
+                        @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
                         <div x-data="{ userMenuOpen: false }" class="relative">
                             <button @click="userMenuOpen = !userMenuOpen" 
                                     class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#B38A50]/40 bg-[#B38A50]/10 text-stone-800 dark:text-stone-200 text-xs font-bold hover:border-[#B38A50] transition cursor-pointer">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                 <span class="max-w-[100px] sm:max-w-[140px] truncate">{{ auth()->user()->name }}</span>
+                                @if($unreadNotifications)
+                                    <span class="px-1.5 min-w-[1.25rem] text-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold" title="اعلان خوانده‌نشده">{{ $unreadNotifications }}</span>
+                                @endif
                                 <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
@@ -147,6 +151,21 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                                         </svg>
                                         <span>پیشنهادهای من</span>
+                                    </a>
+                                    <a href="{{ route('notifications.index') }}" class="flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                        </svg>
+                                        <span>اعلان‌ها</span>
+                                        @if($unreadNotifications)
+                                            <span class="ms-auto px-1.5 rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold">{{ $unreadNotifications }}</span>
+                                        @endif
+                                    </a>
+                                    <a href="{{ route('notifications.settings') }}" class="flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                        </svg>
+                                        <span>تنظیمات اعلان</span>
                                     </a>
                                 </div>
                                 @if(auth()->user()->canAccessAdmin())

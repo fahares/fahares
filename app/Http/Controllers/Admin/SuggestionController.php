@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Models\Manuscript;
+use App\Notifications\SuggestionNotifier;
 use App\Suggestions\RecordMerger;
 use App\Suggestions\SuggestionApplier;
 use App\Suggestions\SuggestionRegistry;
@@ -194,6 +195,11 @@ class SuggestionController extends Controller
             default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان قول مختار تأیید و در شناسنامه‌ی رکورد اعمال شد.",
         };
 
+        SuggestionNotifier::reviewed($suggestion->fresh());
+        if ($previous) {
+            SuggestionNotifier::reviewed($previous->fresh(), 'demoted');
+        }
+
         return redirect()->route('admin.suggestions.index')->with('success', $message);
     }
 
@@ -255,6 +261,8 @@ class SuggestionController extends Controller
         } catch (InvalidArgumentException $e) {
             return back()->withErrors(['applied_value' => $e->getMessage()]);
         }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
 
         return redirect()->route('admin.suggestions.index')
             ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
@@ -361,6 +369,8 @@ class SuggestionController extends Controller
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
 
         return redirect()->route('admin.suggestions.index')
             ->with('info', "پیشنهاد اصلاحی #{$suggestion->id} رد شد.");

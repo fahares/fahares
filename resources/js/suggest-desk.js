@@ -23,6 +23,8 @@ export default (config) => ({
     // Opt-in: the name shown beside the correction on the record page once approved
     creditOn: false,
     creditName: '',
+    // Guests only: email the review outcome
+    notifyOn: false,
     website: '',
     submitting: false,
     errors: {},
@@ -170,6 +172,7 @@ export default (config) => ({
         body.append('guest_name', this.guestName);
         body.append('guest_email', this.guestEmail);
         if (this.creditOn) body.append('credit_name', this.creditName);
+        if (this.notifyOn) body.append('notify_submitter', '1');
         body.append('website', this.website);
 
         try {
