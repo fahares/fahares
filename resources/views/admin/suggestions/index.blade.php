@@ -124,7 +124,11 @@
                                     </span>
                                 @elseif($sug->status === 'approved')
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
-                                        {{ $sug->standing_label ?? 'تایید و اعمال شد' }}
+                                        {{ $sug->kind === 'note' ? 'منتشر شد' : ($sug->standing_label ?? 'تایید و اعمال شد') }}
+                                    </span>
+                                @elseif(in_array($sug->status, ['converted', 'withdrawn'], true))
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-800 dark:text-sky-300">
+                                        {{ $sug->status === 'converted' ? 'تبدیل شد' : 'برداشته شد' }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-800 dark:text-red-300">

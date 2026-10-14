@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs';
 import QRCode from 'qrcode';
 import suggestDesk from './suggest-desk';
+import convertDesk from './convert-desk';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -13,5 +14,6 @@ Alpine.store('suggest', {
     },
 });
 Alpine.data('suggestDesk', suggestDesk);
+Alpine.data('convertDesk', convertDesk);
 
 Alpine.start();

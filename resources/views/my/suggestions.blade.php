@@ -18,6 +18,7 @@
         'superseded' => ['منسوخ', 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'],
         'edit' => ['ویرایش اعمال شد', 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'],
         'published' => ['منتشر شد', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
+        'converted' => ['تبدیل شد', 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-900/60'],
         'withdrawn' => ['برداشته شد', 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700'],
         'approved' => ['رسیدگی شد', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
     ];
@@ -58,7 +59,7 @@
                     @else
                         <span class="font-bold text-stone-500">رکورد دیگر وجود ندارد (شاید ادغام شده است)</span>
                     @endif
-                    <div class="text-[11px] text-stone-500 dark:text-stone-400">{{ $s->field_label }} · فرستاده در {{ $date($s->created_at) }}@if($s->reviewed_at) · داوری در {{ $date($s->reviewed_at) }}@endif</div>
+                    <div class="text-[11px] text-stone-500 dark:text-stone-400">#{{ $s->id }} · {{ $s->field_label }} · فرستاده در {{ $date($s->created_at) }}@if($s->reviewed_at) · داوری در {{ $date($s->reviewed_at) }}@endif</div>
                 </div>
                 <span class="{{ $pill }} {{ $statusClass }} shrink-0">{{ $statusLabel }}</span>
             </div>
@@ -72,6 +73,12 @@
                 <p class="text-stone-600 dark:text-stone-300">این قول جای خود را به قول «{{ \Illuminate\Support\Str::limit($s->supersededBy->display_value, 120) }}» داد.</p>
             @elseif($s->standing === 'alternative' && $s->superseded_by)
                 <p class="text-stone-600 dark:text-stone-300">این قول پیش‌تر مختار بود و اکنون در کنار قول مختار تازه به‌عنوان «قول دیگر» نمایش داده می‌شود.</p>
+            @endif
+            @if($s->status === 'converted')
+                <p class="text-stone-600 dark:text-stone-300">داور این پیشنهاد را به شکل استاندارد درآورد{{ count($s->resolution['converted_to'] ?? []) > 1 ? ' و به چند پیشنهاد تفکیک کرد' : '' }}: {{ collect($s->resolution['converted_to'] ?? [])->map(fn ($id) => '#' . $id)->join('، ') }}. وضعیت {{ count($s->resolution['converted_to'] ?? []) > 1 ? 'آن‌ها' : 'آن' }} را در همین فهرست می‌بینید.</p>
+            @endif
+            @if(! empty($s->payload['derived_from']))
+                <p class="text-[11px] text-stone-500">ساخته‌شده از پیشنهاد #{{ $s->payload['derived_from'] }} شما</p>
             @endif
             @if($s->public_note)
                 <p class="text-stone-600 dark:text-stone-300 whitespace-pre-line"><span class="font-bold text-stone-500 dark:text-stone-400">یادداشت داور:</span> {{ $s->public_note }}</p>

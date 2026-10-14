@@ -974,4 +974,54 @@ class SuggestionWorkflowTest extends TestCase
 
         $user->delete();
     }
+
+    public function test_reviewer_converts_a_misfiled_suggestion_keeping_the_submitter()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $user = $this->researcher('test-misfiled@fahares.net');
+        $m = $this->manuscript();
+        $this->actingAs($user);
+        // A scribe's name and a copy date, sent together as a research note
+        $this->addNote($m, 'observation', ['text' => 'کاتب این نسخه عبدالله بن محمود است و تاریخ کتابت ۸۹۷ است'], ['credit_name' => 'پژوهشگر آزمون'])->assertOk();
+        $note = FieldSuggestion::where('suggestable_id', $m->id)->sole();
+        $this->post('/logout');
+        \Illuminate\Support\Facades\Notification::fake();
+
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تبدیل به پیشنهاد دیگر');
+
+        // First split: the scribe, keeping the original open
+        $this->post("/admin/suggestions/{$note->id}/convert", ['target_type' => 'manuscript', 'kind' => 'field', 'field_name' => 'scribe_name', 'suggested_value' => 'عبدالله بن محمود', 'rationale_citation' => 'یادداشت پژوهشگر'])->assertRedirect();
+        $scribe = FieldSuggestion::where('suggestable_id', $m->id)->where('field_name', 'scribe_name')->sole();
+        $this->assertSame('pending', $note->fresh()->status);
+        $this->assertSame([$user->id, 'پژوهشگر آزمون', $note->id], [$scribe->user_id, $scribe->credit_name, $scribe->payload['derived_from']]);
+        $this->assertTrue($scribe->created_at->equalTo($note->created_at));
+
+        // Second split closes the original; a work-level note goes to another record by link
+        $this->post("/admin/suggestions/{$note->id}/convert", ['target_type' => 'manuscript', 'kind' => 'field', 'field_name' => 'copy_date_raw', 'suggested_value' => '۸۹۷', 'close_original' => 1])->assertRedirect();
+        $this->assertSame('converted', $note->fresh()->status);
+        $this->assertCount(2, $note->fresh()->resolution['converted_to']);
+        $this->post("/admin/suggestions/{$note->id}/convert", ['target_type' => 'manuscript', 'kind' => 'general', 'suggested_value' => 'x'])->assertStatus(409);
+
+        // Converting is the reviewer's own work: no "new suggestion" notifications
+        \Illuminate\Support\Facades\Notification::assertNothingSent();
+
+        // Approving the derived suggestion credits the original submitter
+        $this->approve($scribe, ['applied_value' => 'عبدالله بن محمود', 'outcome' => 'adopt', 'person_pick' => 'text']);
+        $this->get(route('manuscripts.show', $m))->assertSee('اصلاح به پیشنهاد پژوهشگر آزمون');
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\SuggestionReviewed::class);
+
+        $this->actingAs($user)->get('/my/suggestions')->assertOk()->assertSee('تبدیل شد')->assertSee('ساخته‌شده از پیشنهاد #' . $note->id);
+
+        // A pasted link moves a note to another record, and a type not allowed there is refused
+        $other = $this->work();
+        $this->actingAs($this->admin);
+        $this->addNote($m, 'observation', ['text' => 'این اثر در الذریعه ج ۵ ص ۱۲ معرفی شده']);
+        $misplaced = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->where('status', 'pending')->latest('id')->first();
+        $this->post("/admin/suggestions/{$misplaced->id}/convert", ['target_type' => 'work', 'target_ref' => "https://fahares.net/w/{$other->id}", 'kind' => 'note', 'field_name' => 'image', 'note' => ['url' => 'https://a.b']])->assertSessionHasErrors('field_name');
+        $this->post("/admin/suggestions/{$misplaced->id}/convert", ['target_type' => 'work', 'target_ref' => "https://fahares.net/w/{$other->id}", 'kind' => 'note', 'field_name' => 'catalog', 'note' => ['title' => 'الذریعه', 'volume' => '۵', 'page' => '۱۲'], 'close_original' => 1])->assertRedirect();
+        $moved = FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $other->id)->sole();
+        $this->assertSame(['catalog', 'الذریعه'], [$moved->field_name, $moved->payload['title']]);
+
+        $user->delete();
+    }
 }

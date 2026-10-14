@@ -41,7 +41,11 @@
                     </span>
                 @elseif($suggestion->status === 'approved')
                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
-                        تایید و اعمال شد (توسط {{ $suggestion->reviewer?->name ?: 'مدیر' }})
+                        {{ $suggestion->kind === 'note' ? 'منتشر شد' : 'تایید و اعمال شد' }} (توسط {{ $suggestion->reviewer?->name ?: 'مدیر' }})
+                    </span>
+                @elseif(in_array($suggestion->status, ['converted', 'withdrawn'], true))
+                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-500/15 text-sky-800 dark:text-sky-300">
+                        {{ $suggestion->status === 'converted' ? 'تبدیل شد' : 'از صفحه برداشته شد' }}
                     </span>
                 @else
                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/15 text-red-800 dark:text-red-300">
@@ -103,6 +107,30 @@
         @endif
 
     </div>
+
+    {{-- Links between a converted suggestion and the ones made from it --}}
+    @php
+        $derivedIds = $suggestion->resolution['converted_to'] ?? [];
+        $sourceId = $suggestion->payload['derived_from'] ?? null;
+    @endphp
+    @if($derivedIds || $sourceId)
+        <div class="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900 text-xs text-sky-900 dark:text-sky-200 space-y-1">
+            @if($sourceId)
+                <p>این پیشنهاد را داور از روی <a href="{{ route('admin.suggestions.show', $sourceId) }}" class="font-bold underline">پیشنهاد #{{ $sourceId }}</a> ساخته است.</p>
+            @endif
+            @if($derivedIds)
+                <p>پیشنهادهای ساخته‌شده از این پیشنهاد:
+                    @foreach(\App\Models\FieldSuggestion::whereIn('id', $derivedIds)->get() as $d)
+                        <a href="{{ route('admin.suggestions.show', $d) }}" class="font-bold underline">#{{ $d->id }} ({{ $d->field_label }})</a>@if(! $loop->last)، @endif
+                    @endforeach
+                </p>
+            @endif
+        </div>
+    @endif
+
+    @if($suggestion->status === 'pending')
+        @include('admin.suggestions.partials.convert')
+    @endif
 
     @if($suggestion->kind === 'note')
         @include('admin.suggestions.partials.note-review')

@@ -410,6 +410,104 @@ class SuggestionController extends Controller
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت #{$suggestion->id} از صفحه‌ی رکورد برداشته شد.");
     }
 
+    /**
+     * Turns a suggestion the submitter filed in the wrong place (e.g. a scribe's name sent as a note)
+     * into a standard one: a field correction, a research note or a general report, on this or another
+     * record. The new suggestion keeps the submitter, their consent to be named and the date, and waits
+     * for review like any other; the original is kept and can be closed as converted.
+     */
+    public function convert(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_unless($suggestion->status === 'pending', 409, 'فقط پیشنهاد در انتظار داوری را می‌توان تبدیل کرد.');
+        $validated = $request->validate([
+            'target_type' => ['required', Rule::in(array_keys(SuggestionRegistry::TYPES))],
+            'target_ref' => 'nullable|string|max:500',
+            'kind' => ['required', Rule::in(['field', 'note', 'general'])],
+            'field_name' => 'nullable|string|max:100',
+            'suggested_value' => 'nullable|string|max:20000',
+            'rationale_citation' => 'nullable|string|max:5000',
+            'note' => 'nullable|array',
+            'close_original' => 'nullable|boolean',
+        ]);
+
+        $type = $validated['target_type'];
+        $class = SuggestionRegistry::modelClass($type);
+        $ref = trim((string) ($validated['target_ref'] ?? ''));
+        $id = $ref === '' && $suggestion->suggestable_type === $class ? $suggestion->suggestable_id : self::recordId($type, $ref);
+        $record = $id ? $class::find($id) : null;
+        if (! $record) {
+            return back()->withInput()->withErrors(['target_ref' => 'رکورد مقصد پیدا نشد. پیوند یا شناسه‌ی فهارس را بنویسید.']);
+        }
+
+        $value = trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['suggested_value'] ?? '')));
+        $attributes = ['current_value' => null, 'payload' => ['derived_from' => $suggestion->id]];
+        try {
+            switch ($validated['kind']) {
+                case 'field':
+                    $field = SuggestionRegistry::field($type, $validated['field_name'] ?? null);
+                    if (! $field) {
+                        return back()->withInput()->withErrors(['field_name' => 'فیلد مقصد را انتخاب کنید.']);
+                    }
+                    if ($value === '') {
+                        return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید.']);
+                    }
+                    $attributes += ['field_name' => $field['name'], 'suggested_value' => $value, 'current_value' => SuggestionRegistry::currentValue($record, $field)];
+                    break;
+                case 'note':
+                    if (! NoteTypes::allowed($type, $validated['field_name'] ?? null)) {
+                        return back()->withInput()->withErrors(['field_name' => 'این نوع یادداشت برای رکورد مقصد تعریف نشده است.']);
+                    }
+                    $values = NoteTypes::clean($validated['field_name'], (array) ($validated['note'] ?? []));
+                    $attributes = ['field_name' => $validated['field_name'], 'suggested_value' => NoteTypes::summary($validated['field_name'], $values), 'current_value' => null, 'payload' => $values + ['derived_from' => $suggestion->id]];
+                    break;
+                default:
+                    if ($value === '') {
+                        return back()->withInput()->withErrors(['suggested_value' => 'متن پیشنهاد را بنویسید.']);
+                    }
+                    $attributes += ['field_name' => null, 'suggested_value' => $value];
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withInput()->withErrors($e->errors());
+        }
+
+        $derived = new FieldSuggestion($attributes + [
+            'suggestable_type' => $record::class,
+            'suggestable_id' => $record->id,
+            'kind' => $validated['kind'],
+            'rationale_citation' => trim($validated['rationale_citation'] ?? '') ?: null,
+            'user_id' => $suggestion->user_id,
+            'guest_name' => $suggestion->guest_name,
+            'guest_email' => $suggestion->guest_email,
+            'credit_name' => $suggestion->credit_name,
+            'notify_submitter' => $suggestion->notify_submitter,
+            'status' => 'pending',
+        ]);
+        // The contribution keeps its own date
+        $derived->created_at = $suggestion->created_at;
+        $derived->save();
+
+        $resolution = $suggestion->resolution ?? [];
+        $resolution['converted_to'] = array_values(array_unique(array_merge($resolution['converted_to'] ?? [], [$derived->id])));
+        $suggestion->update(['resolution' => $resolution] + ($request->boolean('close_original')
+            ? ['status' => 'converted', 'reviewed_by' => auth()->id(), 'reviewed_at' => now()]
+            : []));
+
+        return redirect()->route('admin.suggestions.show', $derived)
+            ->with('success', "پیشنهاد #{$derived->id} از روی پیشنهاد #{$suggestion->id} ساخته شد" . ($request->boolean('close_original') ? ' و پیشنهاد اصلی بسته شد.' : '. پیشنهاد اصلی هنوز باز است.'));
+    }
+
+    /** A record id from a pasted fahares link (/m/12, /works/12-…) or a bare id, Persian digits included. */
+    private static function recordId(string $type, string $ref): ?int
+    {
+        $ref = strtr($ref, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people', 'library' => 'l|libraries'][$type];
+        if (preg_match('~/(?:' . $prefix . ')/(\d+)~u', $ref, $m) || preg_match('/^\s*#?(\d+)\s*$/u', $ref, $m)) {
+            return (int) $m[1];
+        }
+
+        return null;
+    }
+
     /** Sets or clears the public credit, e.g. once the submitter has agreed by email. */
     public function credit(Request $request, FieldSuggestion $suggestion)
     {
