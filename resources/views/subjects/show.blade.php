@@ -145,7 +145,7 @@
                             name="scope" 
                             value="direct"
                             class="px-3 py-2 rounded-xl transition {{ !$isCumulative ? 'bg-white dark:bg-stone-700 text-[#B38A50] shadow-xs font-bold' : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300' }}">
-                            تنها آثار مستقیم
+                            بدون زیرشاخه‌ها
                         </button>
                     </div>
                 @else
