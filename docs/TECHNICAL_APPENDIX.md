@@ -2013,3 +2013,12 @@
 
 - متن برچسب در [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php) (کارت نشان‌های نسخه‌شناسی) و در `SuggestionRegistry::FLAG_LABELS` (کلید `is_facsimile`) به «نسخه عکسی / میکروفیلم» تغییر کرد. پارسر این پرچم را برای «عکسی» در متن نسخه یا «عکس» در سرعنوان کتابخانه می‌گذارد.
 - برچسب‌های رابطه‌ی `facsimile_of` در `RecordRelations::MANUSCRIPT_TYPES` («نسخه‌ی عکسی یا میکروفیلمِ» / «نسخه‌های عکسی و میکروفیلم‌های این نسخه»)، گزینه‌ی `manuscript_relation` در `SuggestionRegistry` و متن راهنمای [x-record-relations](../resources/views/components/record-relations.blade.php) هم هم‌سو شدند. کلید `facsimile_of` و داده‌ی ذخیره‌شده تغییر نکرد. ۴۴ آزمون پیشنهاد موفق است.
+
+### گام ۱۱.۱۸: متن دعوت در x-suggest.notes
+
+- در [suggest/notes.blade.php](../resources/views/components/suggest/notes.blade.php) متغیر `$invitation` با `match ($type)` ساخته می‌شود. متن هر نوع با انواع یادداشت `NoteTypes::BY_RECORD` همان رکورد هم‌خوان است: اثر نوع `image` ندارد، و کتابخانه `link` دارد. نوع ناشناخته متن کلی با `typeLabel` می‌گیرد.
+
+### گام ۱۱.۱۹: تب پیش‌فرض صفحه‌ی فهرست‌نگار
+
+- در [catalogers/show.blade.php](../resources/views/catalogers/show.blade.php) مقدار `$defaultTab` سمت سرور تعیین می‌شود: `volumes`، مگر `$volumes` خالی باشد یا `manuscripts_page` در نشانی باشد. در آن صورت `manuscripts`، تا صفحه‌بندی نسخه‌ها کار کند. پنل غیرپیش‌فرض از ابتدا `display: none` می‌گیرد تا پیش از بارگذاری Alpine هر دو پنل دیده نشوند. ترتیب دکمه‌ها جابه‌جا شد.
+- برچسب در `catalogers/show` («نسخه‌های فهرست‌شده:») و `catalogers/index` («نسخه فهرست‌شده») تغییر کرد. ۷۴ آزمون موفق است. صفحه‌ی فهرست‌نگار نمونه، با و بدون `manuscripts_page=2`، به‌صورت محلی بررسی شد.

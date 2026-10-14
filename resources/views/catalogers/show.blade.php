@@ -4,7 +4,11 @@
 @section('meta_description', 'شناسنامه، بیوگرافی و کارنامه فهرست‌نگاری ' . $cataloger->display_name . ' مشتمل بر مجلدات فهارس و ' . number_format($cataloger->manuscripts_count) . ' نسخه خطی توصیف‌شده در پایگاه فهارس')
 
 @section('content')
-<div x-data="{ activeTab: 'manuscripts' }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+@php
+    // Volumes first; manuscripts when there are no volumes or the reader is paging through manuscripts
+    $defaultTab = ($volumes->isEmpty() || request()->filled('manuscripts_page')) ? 'manuscripts' : 'volumes';
+@endphp
+<div x-data="{ activeTab: '{{ $defaultTab }}' }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs text-stone-500">
@@ -150,25 +154,25 @@
         <!-- TABS SWITCH -->
         <div class="flex items-center gap-3 pt-4 border-t border-stone-100 dark:border-stone-800 text-sm font-semibold">
             <button 
-                @click="activeTab = 'manuscripts'" 
-                :class="activeTab === 'manuscripts' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
-                class="px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
-                <span>نسخه‌های خطی توصیف‌شده</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ number_format($manuscripts->total()) }}</span>
-            </button>
-            <button 
                 @click="activeTab = 'volumes'" 
                 :class="activeTab === 'volumes' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
                 class="px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
                 <span>مجلدات فهارس چاپی</span>
                 <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $volumes->count() }}</span>
             </button>
+            <button 
+                @click="activeTab = 'manuscripts'" 
+                :class="activeTab === 'manuscripts' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
+                class="px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                <span>نسخه‌های خطی توصیف‌شده</span>
+                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ number_format($manuscripts->total()) }}</span>
+            </button>
         </div>
 
     </div>
 
     <!-- TAB 1: MANUSCRIPTS -->
-    <div x-show="activeTab === 'manuscripts'" class="space-y-6">
+    <div x-show="activeTab === 'manuscripts'" class="space-y-6" @if($defaultTab !== 'manuscripts') style="display: none;" @endif>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @forelse($manuscripts as $m)
                 <div onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $m) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $m) }}'; } }"
@@ -236,7 +240,7 @@
     </div>
 
     <!-- TAB 2: VOLUMES -->
-    <div x-show="activeTab === 'volumes'" class="space-y-4">
+    <div x-show="activeTab === 'volumes'" class="space-y-4" @if($defaultTab !== 'volumes') style="display: none;" @endif>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @forelse($volumes as $vol)
                 <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs space-y-3">
@@ -275,7 +279,7 @@
                     </div>
 
                     <div class="pt-2 flex items-center justify-between text-xs">
-                        <span class="text-stone-500">نسخه‌های مستندشده:</span>
+                        <span class="text-stone-500">نسخه‌های فهرست‌شده:</span>
                         <span class="font-bold text-[#B38A50]">
                             {{ number_format($vol->manuscripts_count) }} نسخه
                         </span>

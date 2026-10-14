@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-span-2 sm:col-span-1 p-3.5 rounded-2xl bg-stone-50 dark:bg-[#0C0F1D] border border-stone-200 dark:border-stone-800 text-center">
                     <div class="text-xl font-black text-emerald-600 dark:text-emerald-400">{{ number_format($stats['total_manuscripts']) }}</div>
-                    <div class="text-[11px] text-stone-500 dark:text-stone-400 font-medium">نسخه مستندشده</div>
+                    <div class="text-[11px] text-stone-500 dark:text-stone-400 font-medium">نسخه فهرست‌شده</div>
                 </div>
             </div>
         </div>

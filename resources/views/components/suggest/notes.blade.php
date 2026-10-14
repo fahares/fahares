@@ -6,6 +6,14 @@
     $formatter = class_exists(\IntlDateFormatter::class)
         ? new \IntlDateFormatter('fa_IR@calendar=persian', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'Asia/Tehran', \IntlDateFormatter::TRADITIONAL, 'd MMMM y')
         : null;
+    // What to invite, matched to the note types each record offers (NoteTypes::BY_RECORD)
+    $invitation = match ($type) {
+        'work' => 'اگر درباره‌ی این اثر نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش یا نسخه دیگری از آن سراغ دارید، آن را بیفزایید.',
+        'manuscript' => 'اگر درباره‌ی این نسخه نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش، فهرست دیگر یا تصویری از آن سراغ دارید، آن را بیفزایید.',
+        'person' => 'اگر درباره‌ی این شخص نکته‌ای می‌دانید که در شناسنامه نیامده، یا پژوهش، منبع یا تصویری درباره‌ی او سراغ دارید، آن را بیفزایید.',
+        'library' => 'اگر درباره‌ی این کتابخانه نکته‌ای می‌دانید، یا پیوند مخزن دیجیتال، فهرست برخط یا پژوهشی درباره‌ی آن سراغ دارید، آن را بیفزایید.',
+        default => 'اگر درباره‌ی این ' . \App\Suggestions\SuggestionRegistry::typeLabel($type) . ' نکته‌ای می‌دانید که در شناسنامه نیامده، آن را بیفزایید.',
+    };
     $link = fn (?string $url, string $label = 'پیوند') => $url ? '<a href="' . e($url) . '" target="_blank" rel="nofollow noopener" class="text-[#B38A50] hover:underline font-bold">' . e($label) . ' ↗</a>' : '';
 @endphp
 @if($types)
@@ -23,7 +31,7 @@
 
     @if($notes->isEmpty())
         <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-            اگر درباره‌ی این {{ \App\Suggestions\SuggestionRegistry::typeLabel($type) }} نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش، فهرست دیگر یا تصویری از آن سراغ دارید، آن را بیفزایید. پس از بررسی، با نام شما (اگر بخواهید) در اینجا منتشر می‌شود.
+            {{ $invitation }} پس از بررسی، با نام شما (اگر بخواهید) در اینجا منتشر می‌شود.
         </p>
     @endif
 
