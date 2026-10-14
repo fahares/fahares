@@ -291,7 +291,9 @@
                 <div class="flex justify-between pt-2">
                     <dt class="text-stone-400">نام کاتب:</dt>
                     <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        @if($manuscript->is_autograph)
+                        @if($manuscript->scribeEntries->count() > 1 || $manuscript->scribeEntries->contains(fn($e) => ! $e->person_id) || ($manuscript->has_other_scribes && $manuscript->scribeEntries->isNotEmpty()))
+                            <x-contributors :entries="$manuscript->scribeEntries" :others="$manuscript->has_other_scribes" />
+                        @elseif($manuscript->is_autograph)
                             @if($manuscript->work?->author)
                                 <a href="{{ route('people.show', $manuscript->work->author) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -309,8 +311,6 @@
                             @else
                                 <span class="text-emerald-700 dark:text-emerald-400 font-bold">مؤلف (نسخه اصل)</span>
                             @endif
-                        @elseif($manuscript->scribes->count() > 1 || ($manuscript->has_other_scribes && $manuscript->scribes->isNotEmpty()))
-                            <x-contributors :people="$manuscript->scribes" :others="$manuscript->has_other_scribes" />
                         @elseif($manuscript->scribe_id)
                             <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="text-[#B38A50] hover:underline">{{ $manuscript->scribe_name ?: 'مشاهده کاتب' }}</a>
                         @elseif($manuscript->scribe_name)

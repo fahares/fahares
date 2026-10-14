@@ -28,10 +28,10 @@ trait SyncsPrimaryContributor
 
             foreach ($groups as $recordId => $rows) {
                 $first = (int) ($primary[$recordId] ?? 0);
-                $ordered = $rows->sortBy(fn($row) => (int) $row->person_id === $first ? -1 : (int) $row->position)->values();
+                $ordered = $rows->sortBy(fn($row) => $first && (int) $row->person_id === $first ? -1 : (int) $row->position)->values();
                 foreach ($ordered as $position => $row) {
                     if ((int) $row->position !== $position) {
-                        DB::table($table)->where($key, $recordId)->where('person_id', $row->person_id)->update(['position' => $position]);
+                        DB::table($table)->where('id', $row->id)->update(['position' => $position]);
                     }
                 }
             }

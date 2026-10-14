@@ -200,8 +200,8 @@
             <!-- Author -->
             <div class="space-y-1">
                 <span class="text-stone-400 block font-medium">پدیدآور / مؤلف:</span>
-                @if($work->authors->count() > 1 || ($work->has_other_authors && $work->authors->isNotEmpty()))
-                    <x-contributors :people="$work->authors" :others="$work->has_other_authors"
+                @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
+                    <x-contributors :entries="$work->authorEntries" :others="$work->has_other_authors"
                         link-class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition" />
                 @elseif($work->author)
                     <a href="{{ route('people.show', $work->author) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">

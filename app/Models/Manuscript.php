@@ -422,6 +422,14 @@ class Manuscript extends Model
             ->orderByPivot('position');
     }
 
+    /**
+     * Every scribe row in catalog order, including names without a person record.
+     */
+    public function scribeEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ManuscriptScribe::class)->orderBy('position')->orderBy('id');
+    }
+
     public function scripts(): BelongsToMany
     {
         return $this->belongsToMany(Script::class)->withPivot('is_primary');

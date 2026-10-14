@@ -171,6 +171,14 @@ class Work extends Model
             ->orderByPivot('position');
     }
 
+    /**
+     * Every author row in catalog order, including names without a person record.
+     */
+    public function authorEntries(): HasMany
+    {
+        return $this->hasMany(WorkAuthor::class)->orderBy('position')->orderBy('id');
+    }
+
     public function manuscripts(): HasMany
     {
         return $this->hasMany(Manuscript::class);

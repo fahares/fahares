@@ -15,7 +15,7 @@ class ManuscriptController extends Controller
         $manuscript = Manuscript::with([
             'catalog',
             'work.author',
-            'scribes',
+            'scribeEntries.person',
             'work.subjects',
             'work.languages',
             'libraryRecord',
