@@ -93,7 +93,7 @@
                 </nav>
 
                 <!-- Actions: Search Trigger & Dark Mode Toggle -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3">
                     
                     <!-- Search Input Trigger Button (Opens Ctrl+K Spotlight Modal) -->
                     <button 
@@ -110,7 +110,7 @@
                     <button 
                         type="button" 
                         @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" 
-                        class="p-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-amber-300 hover:text-[#B38A50] transition shadow-sm cursor-pointer"
+                        class="hidden sm:inline-flex p-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-amber-300 hover:text-[#B38A50] transition shadow-sm cursor-pointer"
                         title="تغییر حالت شب/روز">
                         <!-- Sun Icon (Dark Mode active) -->
                         <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -192,7 +192,8 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 hover:border-[#B38A50] hover:text-[#B38A50] transition shadow-sm">
+                        <a href="{{ route('register') }}" class="sm:hidden inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#8a6a3c] hover:bg-[#765a32] text-white text-xs font-bold whitespace-nowrap shadow-sm transition">عضویت</a>
+                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 hover:border-[#B38A50] hover:text-[#B38A50] transition shadow-sm">
                             <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                             </svg>
@@ -210,6 +211,16 @@
                             <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] font-bold' : '' }}">موضوعات</a>
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] font-bold' : '' }}">فهرست‌نگاران</a>
+                            <div class="my-1 border-t border-stone-200 dark:border-stone-700 sm:hidden"></div>
+                            <button type="button" @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" class="sm:hidden w-full text-right px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">
+                                <span x-show="darkMode" x-cloak>حالت روز</span>
+                                <span x-show="!darkMode" x-cloak>حالت شب</span>
+                            </button>
+                            @guest
+                                <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
+                                <a href="{{ route('login') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('login') ? 'text-[#B38A50] font-bold' : '' }}">ورود</a>
+                                <a href="{{ route('register') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('register') ? 'text-[#B38A50] font-bold' : '' }}">عضویت</a>
+                            @endguest
                         </div>
                     </div>
 
@@ -218,6 +229,25 @@
             </div>
         </div>
     </header>
+
+    @guest
+        @if(request()->routeIs('home'))
+            <div x-data="{ show: (() => { try { return localStorage.getItem('join-bar-dismissed') !== '1' } catch (e) { return true } })() }"
+                 x-show="show" x-cloak
+                 class="md:hidden bg-[#B38A50]/10 dark:bg-[#B38A50]/15 border-b border-[#B38A50]/30">
+                <div class="px-4 py-2.5 flex items-center gap-3 text-xs">
+                    <p class="flex-1 leading-5 text-stone-700 dark:text-stone-200">برای ثبت پیشنهاد، یادداشت و اصلاح فهرست‌ها عضو شوید.</p>
+                    <a href="{{ route('register') }}" class="shrink-0 px-3 py-1.5 rounded-full bg-[#8a6a3c] hover:bg-[#765a32] text-white font-bold">عضویت</a>
+                    <a href="{{ route('login') }}" class="shrink-0 font-bold text-[#8a6a3c] dark:text-[#d9b47c]">ورود</a>
+                    <button type="button" aria-label="بستن"
+                            @click="show = false; try { localStorage.setItem('join-bar-dismissed', '1') } catch (e) {}"
+                            class="shrink-0 p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+        @endif
+    @endguest
 
     <!-- Flash Messages (Notifications) -->
     @if(session('success'))
