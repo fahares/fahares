@@ -17,12 +17,18 @@
             </div>
             <div class="space-y-1">
                 <label for="password" class="block text-xs font-bold text-stone-700 dark:text-stone-300">گذرواژه‌ی تازه (دست‌کم ۸ نویسه):</label>
-                <input id="password" type="password" name="password" required dir="ltr" autocomplete="new-password" class="{{ $input }}">
+                <div class="relative" x-data="{ show: false }">
+                    <input type="password" :type="show ? 'text' : 'password'" id="password" name="password" required dir="ltr" autocomplete="new-password" class="{{ $input }} pl-11">
+                    <x-password-toggle />
+                </div>
                 @error('password')<p class="text-xs text-red-600 dark:text-red-400 font-bold">{{ $message }}</p>@enderror
             </div>
             <div class="space-y-1">
                 <label for="password_confirmation" class="block text-xs font-bold text-stone-700 dark:text-stone-300">تکرار گذرواژه‌ی تازه:</label>
-                <input id="password_confirmation" type="password" name="password_confirmation" required dir="ltr" autocomplete="new-password" class="{{ $input }}">
+                <div class="relative" x-data="{ show: false }">
+                    <input type="password" :type="show ? 'text' : 'password'" id="password_confirmation" name="password_confirmation" required dir="ltr" autocomplete="new-password" class="{{ $input }} pl-11">
+                    <x-password-toggle />
+                </div>
             </div>
             <button type="submit" class="w-full py-3 px-4 rounded-xl bg-[#292C56] hover:bg-[#1E2040] text-amber-100 font-bold text-sm shadow-md transition">ذخیره‌ی گذرواژه</button>
         </form>

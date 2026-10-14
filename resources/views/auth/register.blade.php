@@ -66,9 +66,12 @@
             <!-- Password -->
             <div class="space-y-1">
                 <label for="password" class="block text-xs font-bold text-stone-700 dark:text-stone-300">گذرواژه (حداقل ۸ نویسه):</label>
-                <input type="password" id="password" name="password" required dir="ltr"
-                       placeholder="••••••••"
-                       class="w-full px-4 py-2.5 rounded-xl border @error('password') border-red-400 bg-red-50/30 @else border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 @enderror text-stone-900 dark:text-stone-100 text-sm focus:border-[#B38A50] focus:ring-2 focus:ring-[#B38A50]/20 transition outline-none text-left">
+                <div class="relative" x-data="{ show: false }">
+                    <input type="password" :type="show ? 'text' : 'password'" id="password" name="password" required dir="ltr"
+                           placeholder="••••••••"
+                           class="w-full px-4 py-2.5 rounded-xl border @error('password') border-red-400 bg-red-50/30 @else border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 @enderror text-stone-900 dark:text-stone-100 text-sm focus:border-[#B38A50] focus:ring-2 focus:ring-[#B38A50]/20 transition outline-none text-left pl-11">
+                    <x-password-toggle />
+                </div>
                 @error('password')
                     <p class="text-[11px] text-red-500 font-medium">{{ $message }}</p>
                 @enderror
@@ -77,9 +80,12 @@
             <!-- Password Confirmation -->
             <div class="space-y-1">
                 <label for="password_confirmation" class="block text-xs font-bold text-stone-700 dark:text-stone-300">تکرار گذرواژه:</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" required dir="ltr"
-                       placeholder="••••••••"
-                       class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 text-stone-900 dark:text-stone-100 text-sm focus:border-[#B38A50] focus:ring-2 focus:ring-[#B38A50]/20 transition outline-none text-left">
+                <div class="relative" x-data="{ show: false }">
+                    <input type="password" :type="show ? 'text' : 'password'" id="password_confirmation" name="password_confirmation" required dir="ltr"
+                           placeholder="••••••••"
+                           class="w-full px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 text-stone-900 dark:text-stone-100 text-sm focus:border-[#B38A50] focus:ring-2 focus:ring-[#B38A50]/20 transition outline-none text-left pl-11">
+                    <x-password-toggle />
+                </div>
             </div>
 
             <!-- Submit Button -->

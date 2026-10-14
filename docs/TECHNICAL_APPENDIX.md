@@ -1972,4 +1972,10 @@
 - **اصلاح:** زیر `sm`، نقطه، نام و فلش پنهان می‌شوند و یک آیکن کاربر نمایش داده می‌شود. شمار اعلان `absolute -top-1 -left-1` است و از `sm` به بالا `static` می‌شود. دکمه `aria-label` با نام کاربر دارد. پیوند لوگو `shrink-0` شد.
 - **آزمون:** صفحه‌ی نخست با `Auth::login` در کانتینر رندر و در مرورگر بررسی شد. در پایگاه محلی اعلان خوانده‌نشده‌ای نبود، پس یک نشان نمونه به نسخه‌ی آزمایشی افزوده شد.
 
+### گام ۱۱.۱۵: آیکن چشم در فرم‌های عضویت و بازنشانی گذرواژه
+
+- **کامپوننت:** دکمه از فرم ورود به [components/password-toggle](../resources/views/components/password-toggle.blade.php) منتقل شد. ظرف آن `relative` با `x-data="{ show: false }"` است و ورودی `:type="show ? 'text' : 'password'"` و `pl-11` دارد.
+- **کاربرد:** [auth/login](../resources/views/auth/login.blade.php)، و فیلدهای `password` و `password_confirmation` در [auth/register](../resources/views/auth/register.blade.php) و [auth/reset-password](../resources/views/auth/reset-password.blade.php).
+- **پیش از Alpine:** `type="password"` ایستا کنار `:type` نگه داشته شد تا گذرواژه پیش از بارگذاری Alpine یا بدون جاوااسکریپت به‌صورت متن دیده نشود. فرم ورود در گام ۱۱.۱۳ این را نداشت.
+
 ---

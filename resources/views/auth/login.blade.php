@@ -62,19 +62,10 @@
             <div class="space-y-1.5">
                 <label for="password" class="block text-xs font-bold text-stone-700 dark:text-stone-300">گذرواژه:</label>
                 <div class="relative" x-data="{ show: false }">
-                    <input :type="show ? 'text' : 'password'" id="password" name="password" required dir="ltr"
+                    <input type="password" :type="show ? 'text' : 'password'" id="password" name="password" required dir="ltr"
                            placeholder="••••••••"
                            class="w-full px-4 py-2.5 rounded-xl border @error('password') border-red-400 bg-red-50/30 @else border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 @enderror text-stone-900 dark:text-stone-100 text-sm focus:border-[#B38A50] focus:ring-2 focus:ring-[#B38A50]/20 transition outline-none text-left pl-11">
-                    <button type="button" @click="show = !show" :aria-pressed="show.toString()" :title="show ? 'پنهان کردن گذرواژه' : 'نمایش گذرواژه'" aria-label="نمایش گذرواژه"
-                            class="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-stone-400 hover:text-[#B38A50] focus:text-[#B38A50] transition">
-                        <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2.06 12.35a1 1 0 0 1 0-.7C3.42 8.1 7.36 5 12 5s8.58 3.1 9.94 6.65a1 1 0 0 1 0 .7C20.58 15.9 16.64 19 12 19s-8.58-3.1-9.94-6.65Z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                        <svg x-show="show" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10.73 5.08A10.4 10.4 0 0 1 12 5c4.64 0 8.58 3.1 9.94 6.65a1 1 0 0 1 0 .7 10.8 10.8 0 0 1-1.44 2.49M14.08 14.16a3 3 0 0 1-4.24-4.24M17.48 17.5A10.7 10.7 0 0 1 12 19c-4.64 0-8.58-3.1-9.94-6.65a1 1 0 0 1 0-.7 10.8 10.8 0 0 1 4.45-5.14M2 2l20 20"/>
-                        </svg>
-                    </button>
+                    <x-password-toggle />
                 </div>
                 @error('password')
                     <p class="text-[11px] text-red-500 font-medium">{{ $message }}</p>
