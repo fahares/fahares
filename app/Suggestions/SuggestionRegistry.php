@@ -54,7 +54,9 @@ class SuggestionRegistry
      * contributor_set (the record's primary scribe or author becomes the target person),
      * contributor_add (the target person is added as a further scribe or author),
      * alias (no target: the submitted text is added to the person's other names),
-     * person_role (a person connected with the copy in a role; the target is optional, a name will do).
+     * person_role (a person connected with the copy in a role; the target is optional, a name will do),
+     * record_relation (a commentary on, copied from… another record; see RecordRelations).
+     * Relations with options (person_role, record_relation) carry the chosen option in payload.role.
      */
     public const RELATIONS = [
         'manuscript' => [
@@ -63,11 +65,13 @@ class SuggestionRegistry
             'scribe_is' => ['label' => 'کاتب این نسخه همان شخصی است که در فهارس ثبت شده', 'target' => 'person', 'action' => 'پیوند کاتب به این شخص', 'apply' => 'contributor_set'],
             'scribe_also' => ['label' => 'کاتب دیگری هم در کتابت این نسخه سهم داشته است', 'target' => 'person', 'action' => 'افزودن کاتب', 'apply' => 'contributor_add'],
             'person_role' => ['label' => 'شخص دیگری با این نسخه مرتبط است (مالک، واقف، مصحح، محشی…)', 'target' => 'person', 'target_optional' => true, 'action' => 'افزودن شخص مرتبط با نسخه', 'apply' => 'person_role'],
+            'manuscript_relation' => ['label' => 'این نسخه با نسخه‌ی دیگری رابطه دارد (استنساخ، مقابله، مجلد دیگر، چاپ عکسی)', 'target' => 'manuscript', 'action' => 'ثبت رابطه‌ی دو نسخه', 'apply' => 'record_relation'],
         ],
         'work' => [
             'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری', 'apply' => 'merge'],
             'author_is' => ['label' => 'پدیدآور این اثر شخص دیگری است (انتساب فعلی نادرست است)', 'target' => 'person', 'action' => 'تعیین پدیدآور', 'apply' => 'contributor_set'],
             'author_also' => ['label' => 'این اثر پدیدآور دیگری هم دارد', 'target' => 'person', 'action' => 'افزودن پدیدآور', 'apply' => 'contributor_add'],
+            'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطه‌ی دو اثر', 'apply' => 'record_relation'],
         ],
         'person' => [
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],

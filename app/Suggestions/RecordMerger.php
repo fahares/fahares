@@ -62,8 +62,9 @@ class RecordMerger
             // An unlinked name keeps its text
             DB::table('manuscript_scribe')->insertOrIgnore(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name ?? null, 'position' => ++$position, 'note' => $row->note]);
         }
-        // Owners, endowers, correctors… move to the kept copy
+        // Owners, endowers, correctors… and relations with other copies move to the kept copy
         DB::table('manuscript_people')->where('manuscript_id', $source->id)->update(['manuscript_id' => $target->id]);
+        RecordRelations::moveOnMerge($source, $target);
 
         $this->moveAttachments($source, $target);
         $this->citeEntry($source, $target);
@@ -124,6 +125,7 @@ class RecordMerger
         }
         $target->forceFill($fill)->save();
 
+        RecordRelations::moveOnMerge($source, $target);
         $target->subjects()->syncWithoutDetaching($source->subjects()->pluck('subjects.id')->all());
         $target->languages()->syncWithoutDetaching($source->languages()->pluck('languages.id')->all());
 

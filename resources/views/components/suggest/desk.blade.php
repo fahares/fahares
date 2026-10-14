@@ -33,7 +33,12 @@
         'storeUrl' => route('suggestions.store'),
         'peopleUrl' => route('suggestions.people'),
         'lookupUrl' => route('suggestions.lookup'),
-        'relations' => collect(SuggestionRegistry::RELATIONS[$type] ?? [])->map(fn ($r, $key) => ['key' => $key] + $r)->values(),
+        // Relations with options carry them: roles of people in the copy, or the kinds of relation between records
+        'relations' => collect(SuggestionRegistry::RELATIONS[$type] ?? [])->map(fn ($r, $key) => ['key' => $key] + $r + ['options' => match ($r['apply'] ?? null) {
+            'person_role' => \App\Models\ManuscriptPerson::ROLES,
+            'record_relation' => \App\Suggestions\RecordRelations::options($type),
+            default => null,
+        }])->values(),
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
         // Reviewers may fix a typo at once, without a suggestion or a reading
@@ -43,7 +48,6 @@
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
         'maxFiles' => \App\Suggestions\NoteTypes::MAX_FILES,
         'canUpload' => auth()->check(),
-        'personRoles' => \App\Models\ManuscriptPerson::ROLES,
     ];
     $inputClass = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]';
 @endphp
@@ -107,12 +111,12 @@
                             </p>
 
                             <!-- A person connected with the copy: role, then a person from the list or a name -->
-                            <template x-if="relation && relation.apply === 'person_role'">
+                            <template x-if="relation && relation.options">
                                 <div class="space-y-1">
-                                    <label class="block font-semibold text-stone-700 dark:text-stone-300">نقش:</label>
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطه:'"></label>
                                     <select x-model="roleKey" class="{{ $inputClass }}">
                                         <option value="">انتخاب کنید…</option>
-                                        <template x-for="(label, key) in config.personRoles" :key="key"><option :value="key" x-text="label"></option></template>
+                                        <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label"></option></template>
                                     </select>
                                     <p x-show="errors.role" x-text="errors.role" class="text-red-600 dark:text-red-400 font-bold"></p>
                                 </div>

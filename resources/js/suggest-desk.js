@@ -220,10 +220,8 @@ export default (config) => ({
         if (kind === 'relation') {
             body.append('field_name', this.relationKey);
             body.append('target_id', this.target?.id ?? '');
-            if (this.relation?.apply === 'person_role') {
-                body.append('role', this.roleKey);
-                body.append('role_name', this.roleName);
-            }
+            if (this.relation?.options) body.append('role', this.roleKey);
+            if (this.relation?.apply === 'person_role') body.append('role_name', this.roleName);
         }
         body.append('suggested_value', this.value);
         body.append('rationale_citation', this.rationale);

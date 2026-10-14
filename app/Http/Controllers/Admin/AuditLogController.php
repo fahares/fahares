@@ -326,7 +326,10 @@ class AuditLogController extends Controller
 
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
-        unset($old['contributors'], $old['people_roles']);
+        unset($old['contributors'], $old['people_roles'], $old['relations']);
+        if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
+            DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
+        }
         if ($roleId = $log->new_values['added_person_role'] ?? null) {
             \App\Models\ManuscriptPerson::whereKey($roleId)->delete();
         }

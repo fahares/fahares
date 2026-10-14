@@ -7,7 +7,25 @@
     @endif
 
     @php $apply = $relation['apply'] ?? null; @endphp
-    @if($apply === 'person_role' && $target)
+    @if($apply === 'record_relation' && $target && $relationTarget)
+        @php $relInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100'; @endphp
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <p class="leading-relaxed text-stone-600 dark:text-stone-300">رابطه در صفحه‌ی هر دو رکورد نمایش داده می‌شود. «این» یعنی رکورد #{{ $target->id }} و «انتخاب‌شده» یعنی #{{ $relationTarget->id }}. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            <label class="block space-y-1">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">نوع رابطه:</span>
+                <select name="role" class="{{ $relInput }}">
+                    @foreach(\App\Suggestions\RecordRelations::options($suggestion->suggestable_type) as $key => $label)
+                        <option value="{{ $key }}" @selected(old('role', $suggestion->payload['role'] ?? '') === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <input type="text" name="contributor_note" value="{{ old('contributor_note') }}" placeholder="یادداشت رابطه (اختیاری؛ مثلاً «فقط جلد اول»)" class="{{ $relInput }}">
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $relInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $relInput }}">
+            <button type="submit" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
+    @elseif($apply === 'person_role' && $target)
         @php
             $roleInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
             $payload = $suggestion->payload ?? [];

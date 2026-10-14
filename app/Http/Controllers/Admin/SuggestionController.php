@@ -220,7 +220,7 @@ class SuggestionController extends Controller
 
         $relation = $suggestion->relationDefinition();
         $record = $suggestion->suggestable;
-        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role'], true)) {
+        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role', 'record_relation'], true)) {
             return $this->approveContributor($request, $suggestion, $relation, $record);
         }
         $other = $suggestion->relationTarget();
@@ -460,6 +460,10 @@ class SuggestionController extends Controller
                     'contributor_set' => $relations->set($record, $person),
                     'contributor_add' => $relations->add($record, $person, trim($validated['contributor_note'] ?? '') ?: null),
                     'alias' => $relations->alias($record, (string) ($validated['alias'] ?? $suggestion->suggested_value)),
+                    'record_relation' => app(\App\Suggestions\RecordRelations::class)->add(
+                        $record, $person, (string) ($validated['role'] ?? $suggestion->payload['role'] ?? ''),
+                        trim($validated['contributor_note'] ?? '') ?: null, $suggestion->id,
+                    ),
                     // The reviewer links the suggested person, another person by id, or keeps only the name
                     'person_role' => $relations->addRole(
                         $record,

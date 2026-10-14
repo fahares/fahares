@@ -88,6 +88,9 @@ class SuggestionController extends Controller
             }
             $target = $relation['target'] ? SuggestionRegistry::modelClass($relation['target'])::find($validated['target_id'] ?? 0) : null;
             // A person connected with the copy: a role, and a person from the list or only a name
+            if (($relation['apply'] ?? null) === 'record_relation' && ! array_key_exists($validated['role'] ?? '', \App\Suggestions\RecordRelations::options($validated['type']))) {
+                throw ValidationException::withMessages(['role' => 'نوع رابطه را انتخاب کنید.']);
+            }
             if (($relation['apply'] ?? null) === 'person_role') {
                 if (! array_key_exists($validated['role'] ?? '', \App\Models\ManuscriptPerson::ROLES)) {
                     throw ValidationException::withMessages(['role' => 'نقش این شخص را انتخاب کنید.']);
@@ -111,7 +114,7 @@ class SuggestionController extends Controller
         $payload = array_filter([
             'person_id' => $field && $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null,
             'target_id' => $relation && $relation['target'] && ! empty($validated['target_id']) ? (int) $validated['target_id'] : null,
-            'role' => ($relation['apply'] ?? null) === 'person_role' ? $validated['role'] : null,
+            'role' => in_array($relation['apply'] ?? null, ['person_role', 'record_relation'], true) ? $validated['role'] : null,
             'name' => ($relation['apply'] ?? null) === 'person_role' ? (trim($validated['role_name'] ?? '') ?: null) : null,
         ]);
 

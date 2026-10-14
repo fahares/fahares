@@ -1216,4 +1216,48 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame($source->id, $row->fresh()->person_id);
         AuditLog::where('auditable_type', Person::class)->whereIn('auditable_id', [$source->id, $target->id])->delete();
     }
+
+    public function test_relations_between_works_and_between_manuscripts()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $matn = $this->work(['primary_title' => 'تهذیب المنطق ' . uniqid()]);
+        $sharh = $this->work(['primary_title' => 'الحاشیة علی التهذیب ' . uniqid()]);
+        $this->get(route('works.show', $matn))->assertOk()->assertSee('رابطه با آثار دیگر');
+
+        // From the mother text's page: "the chosen work is a gloss on this work"
+        $this->relate($matn, 'work_relation', $sharh, ['role' => 'nonsense'])->assertStatus(422)->assertJsonValidationErrors('role');
+        $this->relate($matn, 'work_relation', $sharh, ['role' => '~gloss'])->assertOk();
+        $s = $this->pendingFor($matn);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('نوع رابطه');
+        $this->approve($s, ['role' => '~gloss', 'contributor_note' => 'بر بخش منطق'])->assertRedirect('/admin/suggestions');
+
+        $row = DB::table('work_relations')->sole();
+        $this->assertSame([$sharh->id, $matn->id, 'gloss'], [$row->work_id, $row->related_work_id, $row->type]);
+        $this->get(route('works.show', $matn))->assertSee('حواشی:')->assertSee($sharh->primary_title)->assertSee('بر بخش منطق');
+        $this->get(route('works.show', $sharh))->assertSee('حاشیه‌ای است بر:')->assertSee($matn->primary_title);
+
+        // The same relation twice is refused; a rollback removes it
+        $this->relate($sharh, 'work_relation', $matn, ['role' => 'gloss'])->assertOk();
+        $this->approve($this->pendingFor($sharh), ['role' => 'gloss'])->assertSessionHasErrors('applied_value');
+        $this->rollbackLatest($matn);
+        $this->assertSame(0, DB::table('work_relations')->count());
+
+        // Manuscripts: «same set» has no direction, and relations follow a merge
+        $a = $this->manuscript();
+        $b = $this->manuscript();
+        $this->relate($a, 'manuscript_relation', $b, ['role' => 'same_set'])->assertOk();
+        $this->approve($this->pendingFor($a), ['role' => 'same_set']);
+        $this->get(route('manuscripts.show', $b))->assertSee('مجلدهای دیگر از همان دوره');
+        $this->relate($b, 'manuscript_relation', $a, ['role' => 'same_set'])->assertOk();
+        $this->approve($this->pendingFor($b), ['role' => 'same_set'])->assertSessionHasErrors('applied_value');
+
+        $c = $this->manuscript();
+        app(\App\Suggestions\RecordMerger::class)->mergeManuscript($b, $c);
+        $this->removedManuscripts[] = $b->id;
+        $this->assertSame([$a->id, $c->id], [(int) DB::table('manuscript_relations')->value('manuscript_id'), (int) DB::table('manuscript_relations')->value('related_manuscript_id')]);
+        // Merging the two related copies drops the self-relation
+        app(\App\Suggestions\RecordMerger::class)->mergeManuscript($c, $a);
+        $this->removedManuscripts[] = $c->id;
+        $this->assertSame(0, DB::table('manuscript_relations')->count());
+    }
 }

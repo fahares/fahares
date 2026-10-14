@@ -481,6 +481,9 @@
             </div>
         @endif
 
+        <!-- Relations with other works (commentary on, translation of…) -->
+        <x-record-relations :record="$work" />
+
         <x-source-citations :citations="$work->sourceCitations" />
 
         <x-suggest.readings />
