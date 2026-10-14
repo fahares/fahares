@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
-use App\Models\ScholarlyAnnotation;
 use App\Models\Manuscript;
 use App\Suggestions\RecordMerger;
 use App\Suggestions\SuggestionApplier;
@@ -49,7 +48,7 @@ class SuggestionController extends Controller
 
     public function show(FieldSuggestion $suggestion)
     {
-        $suggestion->load(['user', 'reviewer', 'annotations']);
+        $suggestion->load(['user', 'reviewer']);
         $target = $suggestion->suggestable;
         $field = $suggestion->fieldDefinition();
 
@@ -74,12 +73,12 @@ class SuggestionController extends Controller
         return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted'));
     }
 
-    /** Reviewer outcomes for a field suggestion: the standing it gets and the annotation category it is filed under. */
+    /** Reviewer outcomes for a field suggestion and the standing each gives it. */
     public const OUTCOMES = [
-        'adopt' => ['standing' => 'adopted', 'category' => 'scholarly_correction'],
-        'alternative' => ['standing' => 'alternative', 'category' => 'scholarly_correction'],
-        'ocr_fix' => ['standing' => 'edit', 'category' => 'ocr_fix'],
-        'parser_fix' => ['standing' => 'edit', 'category' => 'parser_fix'],
+        'adopt' => 'adopted',
+        'alternative' => 'alternative',
+        'ocr_fix' => 'edit',
+        'parser_fix' => 'edit',
     ];
 
     public function approve(Request $request, FieldSuggestion $suggestion, SuggestionApplier $applier)
@@ -108,7 +107,6 @@ class SuggestionController extends Controller
         $validated = $request->validate([
             'applied_value' => 'nullable|string',
             'revision_category' => 'nullable|string|in:scholarly_correction,parser_fix,ocr_fix',
-            'create_annotation' => 'nullable|boolean',
             'admin_notes' => 'nullable|string|max:1000',
             'hijri_year' => 'nullable|integer|min:' . HijriYear::MIN . '|max:' . HijriYear::MAX,
             'person_action' => ['nullable', Rule::in(SuggestionApplier::PERSON_ACTIONS)],
@@ -123,8 +121,7 @@ class SuggestionController extends Controller
             'ocr_fix', 'parser_fix' => $validated['revision_category'],
             default => 'adopt',
         });
-        $standing = self::OUTCOMES[$outcome]['standing'];
-        $validated['revision_category'] = self::OUTCOMES[$outcome]['category'];
+        $standing = self::OUTCOMES[$outcome];
         $publicNote = trim($validated['public_note'] ?? '') ?: null;
 
         $previous = $field && $target && $standing === 'adopted'
@@ -161,21 +158,6 @@ class SuggestionController extends Controller
                         $logExtra += self::editAdoptedReading($suggestion->suggestable_type, $suggestion->suggestable_id, $suggestion->field_name, $appliedValue);
                     }
 
-                    if ($request->boolean('create_annotation', true)) {
-                        ScholarlyAnnotation::create([
-                            'annotatable_type' => $suggestion->suggestable_type,
-                            'annotatable_id' => $suggestion->suggestable_id,
-                            'field_name' => $suggestion->field_name,
-                            'original_fankha_value' => $suggestion->current_value,
-                            'corrected_value' => $validated['applied_value'] ?? '',
-                            'revision_category' => $validated['revision_category'] ?? 'scholarly_correction',
-                            'citation_source' => $suggestion->rationale_citation ?? '',
-                            'contributor_name' => $suggestion->guest_name ?: $suggestion->user?->name,
-                            'user_id' => auth()->id(),
-                            'suggestion_id' => $suggestion->id,
-                            'is_public' => true,
-                        ]);
-                    }
                 }
 
                 AuditLog::create([

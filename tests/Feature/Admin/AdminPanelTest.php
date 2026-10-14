@@ -100,7 +100,6 @@ class AdminPanelTest extends TestCase
         $response = $this->actingAs($this->admin)->post("/admin/suggestions/{$suggestion->id}/approve", [
             'applied_value' => 'نسخ کهن ممتاز و معرب',
             'revision_category' => 'scholarly_correction',
-            'create_annotation' => 1,
             'admin_notes' => 'تایید شد بر اساس سند صفحه آخر',
         ]);
 
@@ -113,9 +112,10 @@ class AdminPanelTest extends TestCase
         $manuscript->refresh();
         $this->assertEquals('نسخ کهن ممتاز و معرب', $manuscript->script_names);
 
-        $annotation = ScholarlyAnnotation::where('suggestion_id', $suggestion->id)->first();
-        $this->assertNotNull($annotation);
-        $this->assertEquals('نسخ کهن ممتاز و معرب', $annotation->corrected_value);
+        // The approval is an adopted reading with the reviewer's clean value; no annotation is written any more
+        $this->assertEquals('adopted', $suggestion->standing);
+        $this->assertEquals('نسخ کهن ممتاز و معرب', $suggestion->applied_value);
+        $this->assertNull(ScholarlyAnnotation::where('suggestion_id', $suggestion->id)->first());
 
         $auditLog = AuditLog::where('auditable_type', Manuscript::class)
             ->where('auditable_id', $manuscript->id)
@@ -225,26 +225,6 @@ class AdminPanelTest extends TestCase
 
         // The first source's own name goes; the alias shared with the still-merged second source stays
         $this->assertEquals(['نام مشترک', 'صورت دوم'], $target->fresh()->aliases);
-    }
-
-    public function test_annotation_toggle_public()
-    {
-        $annotation = ScholarlyAnnotation::create([
-            'annotatable_type' => Subject::class,
-            'annotatable_id' => 1,
-            'field_name' => 'name',
-            'original_fankha_value' => 'قدیم',
-            'corrected_value' => 'جدید',
-            'revision_category' => 'scholarly_correction',
-            'citation_source' => 'سند پژوهشی',
-            'is_public' => true,
-        ]);
-
-        $response = $this->actingAs($this->admin)->post("/admin/annotations/{$annotation->id}/toggle-public");
-        $response->assertSessionHas('success');
-
-        $annotation->refresh();
-        $this->assertFalse($annotation->is_public);
     }
 
     public function test_admin_can_update_user_role()
@@ -438,7 +418,6 @@ class AdminPanelTest extends TestCase
         $this->actingAs($this->admin)->post("/admin/suggestions/{$suggestion->id}/approve", [
             'applied_value' => 'خط نسخ کهن آزمایشی رول‌بک',
             'revision_category' => 'scholarly_correction',
-            'create_annotation' => 1,
             'admin_notes' => 'تایید موقت برای تست رول‌بک',
         ]);
 

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Work;
+use App\Suggestions\ProtectedColumns;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -18,6 +20,8 @@ class SyncWorkIncipitsCommand extends Command
     public function handle(): int
     {
         $startTime = microtime(true);
+        // Columns fixed by reviewed corrections are not overwritten from the corpus
+        $guard = ProtectedColumns::for(Work::class);
         $this->info('====================================================');
         $this->info('Starting Synchronization of Work Incipits & Explicits');
         $this->info('====================================================');
@@ -115,15 +119,16 @@ class SyncWorkIncipitsCommand extends Command
 
             // Perform batch update inside transaction
             if (!empty($batchUpdates)) {
-                DB::transaction(function () use ($batchUpdates) {
+                DB::transaction(function () use ($batchUpdates, $guard) {
                     foreach ($batchUpdates as $u) {
-                        DB::table('works')
-                            ->where('id', $u['id'])
-                            ->update([
-                                'incipit_text' => $u['incipit_text'],
-                                'explicit_text' => $u['explicit_text'],
-                                'description' => $u['description'],
-                            ]);
+                        $payload = $guard->strip($u['id'], [
+                            'incipit_text' => $u['incipit_text'],
+                            'explicit_text' => $u['explicit_text'],
+                            'description' => $u['description'],
+                        ]);
+                        if ($payload) {
+                            DB::table('works')->where('id', $u['id'])->update($payload);
+                        }
                     }
                 });
             }
@@ -140,6 +145,7 @@ class SyncWorkIncipitsCommand extends Command
         $this->info("Total Explicits Added:      " . number_format($totalExplicitsSet));
         $this->info("Total Descriptions Added:   " . number_format($totalDescriptionsSet));
         $this->info('====================================================');
+        $guard->printTo($this, 'work');
 
         return 0;
     }

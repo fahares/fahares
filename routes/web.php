@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\CatalogerController as AdminCatalogerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
-use App\Http\Controllers\Admin\ScholarlyAnnotationController as AdminAnnotationController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
 use App\Http\Controllers\Admin\SuggestionController as AdminSuggestionController;
 use App\Http\Controllers\Admin\SystemController as AdminSystemController;
@@ -146,10 +145,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/suggestions/{suggestion}/credit', [AdminSuggestionController::class, 'credit'])->name('suggestions.credit');
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->name('suggestions.direct-edit');
 
-    // Scholarly Annotations Apparatus
-    Route::get('/annotations', [AdminAnnotationController::class, 'index'])->name('annotations.index');
-    Route::post('/annotations/{annotation}/toggle-public', [AdminAnnotationController::class, 'togglePublic'])->name('annotations.toggle-public');
-    Route::delete('/annotations/{annotation}', [AdminAnnotationController::class, 'destroy'])->name('annotations.destroy');
 
     // Taxonomy & Knowledge Tree
     Route::get('/subjects/tree', [AdminSubjectController::class, 'tree'])->name('subjects.tree');

@@ -19,7 +19,8 @@ class SeedFaharesDataCommand extends Command
     protected $signature = 'fahares:seed 
                             {--volume= : Specific volume number to seed (1-34)}
                             {--fresh : Wipe existing data before seeding}
-                            {--limit= : Limit number of works to process (for rapid testing)}';
+                            {--limit= : Limit number of works to process (for rapid testing)}
+                            {--discard-corrections : Allow --fresh even though reviewed corrections exist (they are lost)}';
 
     protected $description = 'High-performance seeding of Fahares structured JSON corpus into MariaDB';
 
@@ -39,6 +40,13 @@ class SeedFaharesDataCommand extends Command
         $limit = $this->option('limit') ? (int) $this->option('limit') : null;
 
         if ($fresh) {
+            // Reviewed corrections live only in this database until exported to the corpus; a wipe loses them
+            $corrections = DB::table('audit_logs')->where('action', 'verify')->count();
+            if ($corrections > 0 && ! $this->option('discard-corrections')) {
+                $this->error("{$corrections} reviewed correction(s) exist in the audit log and would be lost by --fresh. Export them to the corpus first, or pass --discard-corrections.");
+
+                return 1;
+            }
             $this->warn('Wiping existing Fahares tables...');
             $this->wipeTables();
         }

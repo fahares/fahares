@@ -9,7 +9,6 @@ use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Person;
-use App\Models\ScholarlyAnnotation;
 use App\Models\Subject;
 use App\Models\User;
 use App\Models\Work;
@@ -27,7 +26,7 @@ class DashboardController extends Controller
             'catalogers' => Cataloger::count(),
             'subjects' => Subject::count(),
             'users' => User::count(),
-            'annotations' => ScholarlyAnnotation::count(),
+            'readings' => FieldSuggestion::where('status', 'approved')->whereIn('standing', ['adopted', 'alternative'])->count(),
             'pending_suggestions' => FieldSuggestion::where('status', 'pending')->count(),
         ];
 

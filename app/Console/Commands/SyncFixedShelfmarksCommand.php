@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Manuscript;
+use App\Suggestions\ProtectedColumns;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -106,12 +107,17 @@ class SyncFixedShelfmarksCommand extends Command
                 'updated_at' => $now,
             ];
 
-            DB::table('manuscripts')->where('id', $dbMs->id)->update($updatePayload);
+            // Columns fixed by reviewed corrections are not overwritten from the corpus
+            $guard ??= ProtectedColumns::for(Manuscript::class);
+            DB::table('manuscripts')->where('id', $dbMs->id)->update($guard->strip($dbMs->id, $updatePayload));
             $updatedIds[] = $dbMs->id;
             $totalUpdated++;
         }
 
         $this->info("Total manuscripts updated in MariaDB: {$totalUpdated} / " . count($updates));
+        if (isset($guard)) {
+            $guard->printTo($this, 'manuscript');
+        }
         if ($totalNotFound > 0) {
             $this->warn("Total records not found: {$totalNotFound}");
         }

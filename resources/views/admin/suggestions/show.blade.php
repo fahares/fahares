@@ -287,14 +287,6 @@
                             </div>
                         @endif
 
-                        <!-- Create Annotation Checkbox -->
-                        <div class="flex items-center gap-2 pt-1">
-                            <input type="hidden" name="create_annotation" value="0">
-                            <input type="checkbox" name="create_annotation" id="create_annotation" value="1" checked class="rounded border-stone-300 text-[#B38A50] focus:ring-[#B38A50] w-4 h-4">
-                            <label for="create_annotation" class="text-stone-700 dark:text-stone-300 font-bold select-none cursor-pointer">
-                                ثبت در دستگاه علمی به عنوان «پانویس انتقادی رسمی» و نمایش در صفحه نسخه/اثر
-                            </label>
-                        </div>
                     @endif
 
                     @if($field)

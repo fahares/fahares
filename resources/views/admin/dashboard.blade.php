@@ -178,23 +178,23 @@
             </div>
         </div>
 
-        <!-- Scholarly Annotations Summary -->
+        <!-- Readings summary: approved suggestions kept as readings (see SuggestionReadings) -->
         <div class="p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-bold text-stone-500 dark:text-stone-400">دستگاه علمی و انتقادی</span>
                     <span class="text-2xl font-black font-mono text-[#292C56] dark:text-amber-100">
-                        {{ number_format($counts['annotations']) }}
+                        {{ number_format($counts['readings']) }}
                     </span>
                 </div>
-                <h3 class="text-base font-bold text-stone-900 dark:text-stone-100">پانویس‌های پژوهشی منتشرشده</h3>
+                <h3 class="text-base font-bold text-stone-900 dark:text-stone-100">اقوال پژوهشگران</h3>
                 <p class="text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                    تصحیحات نسخه‌پژوهی که پس از داوری علمی تایید و به عنوان پانویس معتبر در شناسنامه آثار و نسخه‌ها نمایش داده می‌شوند.
+                    پیشنهادهای تأییدشده‌ای که به‌عنوان «قول مختار» یا «قول دیگر» با مستندشان در صفحه‌ی رکورد نمایش داده می‌شوند.
                 </p>
             </div>
             <div class="mt-5">
-                <a href="{{ route('admin.annotations.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-bold transition">
-                    <span>مشاهده پانویس‌های انتقادی</span>
+                <a href="{{ route('admin.suggestions.index', ['status' => 'approved']) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-bold transition">
+                    <span>مشاهده پیشنهادهای تأییدشده</span>
                 </a>
             </div>
         </div>

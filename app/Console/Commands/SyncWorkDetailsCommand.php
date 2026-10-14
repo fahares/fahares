@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Manuscript;
+use App\Models\Work;
+use App\Suggestions\ProtectedColumns;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -18,6 +21,9 @@ class SyncWorkDetailsCommand extends Command
     public function handle(): int
     {
         $startTime = microtime(true);
+        // Columns fixed by reviewed corrections are not overwritten from the corpus
+        $workGuard = ProtectedColumns::for(Work::class);
+        $manuscriptGuard = ProtectedColumns::for(Manuscript::class);
         $this->info('================================================================');
         $this->info('Starting Synchronization of Work Details, Raw Text & Page Tracks');
         $this->info('================================================================');
@@ -169,10 +175,10 @@ class SyncWorkDetailsCommand extends Command
             }
 
             // Perform updates inside database transaction
-            DB::transaction(function () use ($workUpdates, $manuscriptUpdates) {
+            DB::transaction(function () use ($workUpdates, $manuscriptUpdates, $workGuard, $manuscriptGuard) {
                 foreach (array_chunk($workUpdates, 250) as $chunk) {
                     foreach ($chunk as $w) {
-                        DB::table('works')->where('id', $w['id'])->update([
+                        $payload = $workGuard->strip($w['id'], [
                             'raw_text' => $w['raw_text'],
                             'bibliography' => $w['bibliography'],
                             'print_info' => $w['print_info'],
@@ -183,15 +189,21 @@ class SyncWorkDetailsCommand extends Command
                             'page_start' => $w['page_start'],
                             'page_end' => $w['page_end'],
                         ]);
+                        if ($payload) {
+                            DB::table('works')->where('id', $w['id'])->update($payload);
+                        }
                     }
                 }
 
                 foreach (array_chunk($manuscriptUpdates, 500) as $chunk) {
                     foreach ($chunk as $m) {
-                        DB::table('manuscripts')->where('id', $m['id'])->update([
+                        $payload = $manuscriptGuard->strip($m['id'], [
                             'page_start' => $m['page_start'],
                             'page_end' => $m['page_end'],
                         ]);
+                        if ($payload) {
+                            DB::table('manuscripts')->where('id', $m['id'])->update($payload);
+                        }
                     }
                 }
             });
@@ -215,6 +227,8 @@ class SyncWorkDetailsCommand extends Command
         $this->info("Total Work Pages Adjusted:    " . number_format($totalWorkPagesUpdated));
         $this->info("Total MS Pages Corrected:     " . number_format($totalManuscriptPagesUpdated));
         $this->info('================================================================');
+        $workGuard->printTo($this, 'work');
+        $manuscriptGuard->printTo($this, 'manuscript');
 
         return 0;
     }

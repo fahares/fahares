@@ -118,7 +118,6 @@ class SuggestionWorkflowTest extends TestCase
         return $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/approve", $data + [
             'applied_value' => $s->suggested_value,
             'revision_category' => 'scholarly_correction',
-            'create_annotation' => 1,
         ]);
     }
 
@@ -673,5 +672,21 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertNull($theirs->fresh()->credit_name);
 
         User::whereIn('id', [$user->id, $other->id])->delete();
+    }
+
+    public function test_corpus_syncs_keep_columns_fixed_by_reviewed_corrections()
+    {
+        $work = $this->work(['print_info' => 'چاپ فهرست']);
+        $this->suggest($work, ['field_name' => 'print_info', 'suggested_value' => 'چاپ تهران ۱۳۲۰', 'rationale_citation' => 'شناسنامه‌ی چاپ'])->assertOk();
+        $this->approve($this->pendingFor($work), ['applied_value' => 'چاپ تهران ۱۳۲۰', 'outcome' => 'adopt']);
+        // A reviewer's direct edit is protected too
+        $this->actingAs($this->admin)->postJson('/admin/suggestions/direct-edit', ['type' => 'work', 'id' => $work->id, 'field_name' => 'dedication', 'suggested_value' => 'به نام شاه'])->assertOk();
+
+        $guard = \App\Suggestions\ProtectedColumns::for(Work::class);
+        $payload = $guard->strip($work->id, ['print_info' => 'از پیکره', 'dedication' => 'از پیکره', 'raw_text' => 'متن تازه']);
+        $this->assertSame(['raw_text' => 'متن تازه'], $payload);
+        $this->assertSame(['print_info', 'dedication'], $guard->skipped()[$work->id]);
+        $this->assertSame(['raw_text' => 'x'], $guard->strip($work->id + 1000000, ['raw_text' => 'x']));
+        AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->delete();
     }
 }
