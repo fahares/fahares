@@ -47,6 +47,10 @@ class PersonMerger
                 ->update(['author_name' => $target->name]);
 
             // 2. Transfer Manuscripts (as scribe); likewise for the scribe name
+            // Other roles in manuscripts (owner, endower…) follow the person; a rollback moves them back
+            $transferredRoleIds = DB::table('manuscript_people')->where('person_id', $source->id)->pluck('id')->all();
+            DB::table('manuscript_people')->whereIn('id', $transferredRoleIds)->update(['person_id' => $target->id]);
+
             DB::table('manuscript_scribe')->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
             DB::table('manuscript_scribe')->where('person_id', $source->id)->update(['person_id' => $target->id]);
             Manuscript::where('scribe_id', $source->id)->update(['scribe_id' => $target->id]);
@@ -95,6 +99,7 @@ class PersonMerger
                     'primary_manuscript_ids' => $primaryManuscriptIds,
                     'collapsed_work_ids' => $collapsedWorkIds,
                     'collapsed_manuscript_ids' => $collapsedManuscriptIds,
+                    'transferred_role_ids' => $transferredRoleIds,
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),
                 ],

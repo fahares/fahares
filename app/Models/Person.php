@@ -123,6 +123,12 @@ class Person extends Model
     /**
      * Recompute works_count, manuscripts_count and the role flags from the pivots.
      */
+    /** Manuscripts this person is connected with in another role (owner, endower…). */
+    public function manuscriptRoles(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ManuscriptPerson::class);
+    }
+
     public function recountContributions(): void
     {
         $works = $this->authoredWorks()->count();

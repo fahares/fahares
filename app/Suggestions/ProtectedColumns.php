@@ -17,7 +17,7 @@ use Illuminate\Console\Command;
 class ProtectedColumns
 {
     /** Keys a verify log carries beside the changed columns. */
-    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row'];
+    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role'];
 
     /** @var array<int, array<string, true>> record id => protected columns */
     private array $columns = [];

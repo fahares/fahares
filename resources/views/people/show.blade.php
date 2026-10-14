@@ -240,6 +240,25 @@
 
     </div>
 
+    <!-- OTHER ROLES: manuscripts this person owned, endowed, corrected… -->
+    @php $roleRows = $person->manuscriptRoles()->with(['manuscript.work', 'manuscript.libraryRecord'])->latest('id')->limit(100)->get(); @endphp
+    @if($roleRows->isNotEmpty())
+        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-5 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
+            <h3 class="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 border-r-2 border-[#B38A50] pr-2">پیوند با نسخه‌ها در نقش‌های دیگر ({{ number_format($roleRows->count()) }})</h3>
+            <ul class="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
+                @foreach($roleRows as $row)
+                    @continue(! $row->manuscript)
+                    <li class="py-2 flex flex-wrap items-baseline justify-between gap-2">
+                        <a href="{{ route('manuscripts.show', $row->manuscript) }}" class="font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50]">
+                            {{ $row->manuscript->work?->primary_title ?? 'نسخه' }} — {{ $row->manuscript->libraryRecord?->name ?? $row->manuscript->library }} {{ $row->manuscript->shelfmark }}
+                        </a>
+                        <span class="text-stone-500 dark:text-stone-400">{{ $row->role_label }}@if($row->note) · {{ $row->note }}@endif</span>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- READINGS: adopted, alternative and superseded readings from researchers -->
     <x-suggest.readings />
 

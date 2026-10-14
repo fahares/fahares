@@ -25,6 +25,9 @@ export default (config) => ({
     creditName: '',
     // Guests only: email the review outcome
     notifyOn: false,
+    // A person connected with the copy (relation person_role)
+    roleKey: '',
+    roleName: '',
     // Research notes
     noteType: '',
     note: {},
@@ -45,6 +48,8 @@ export default (config) => ({
         this.targetQuery = '';
         this.targetResults = [];
         this.target = null;
+        this.roleKey = '';
+        this.roleName = '';
         if (detail.note) {
             this.mode = 'note';
             this.field = BLANK_FIELD;
@@ -56,6 +61,8 @@ export default (config) => ({
             this.mode = 'general';
             this.field = BLANK_FIELD;
             this.value = '';
+            // Opened for one relation type, e.g. from «اشخاص مرتبط با نسخه»
+            if (detail.relation && this.config.relations.some((r) => r.key === detail.relation)) this.relationKey = detail.relation;
         } else {
             this.mode = 'field';
             this.field = { name: detail.field, ...this.config.fields[detail.field] };
@@ -213,6 +220,10 @@ export default (config) => ({
         if (kind === 'relation') {
             body.append('field_name', this.relationKey);
             body.append('target_id', this.target?.id ?? '');
+            if (this.relation?.apply === 'person_role') {
+                body.append('role', this.roleKey);
+                body.append('role_name', this.roleName);
+            }
         }
         body.append('suggested_value', this.value);
         body.append('rationale_citation', this.rationale);

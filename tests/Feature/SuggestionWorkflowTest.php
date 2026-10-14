@@ -1161,4 +1161,59 @@ class SuggestionWorkflowTest extends TestCase
         FieldSuggestion::where('kind', 'feedback')->whereIn('id', [$guest->id, $mine->id, $junk->id])->delete();
         $user->delete();
     }
+
+    public function test_people_connected_with_a_manuscript_in_other_roles()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $owner = $this->person('محمدحسین تبریزی');
+        $m = $this->manuscript();
+        $this->get(route('manuscripts.show', $m))->assertOk()->assertSee('اشخاص مرتبط با نسخه')->assertSee('افزودن مالک، واقف، مصحح');
+
+        // A role is required, and a person from the list or a name
+        $this->relate($m, 'person_role', null, ['role' => 'owner'])->assertStatus(422)->assertJsonValidationErrors('role_name');
+        $this->relate($m, 'person_role', $owner, ['role' => 'king'])->assertStatus(422)->assertJsonValidationErrors('role');
+        $this->relate($m, 'person_role', $owner, ['role' => 'owner', 'suggested_value' => 'مهر بیضی ۱۲۴۰ق در برگ نخست', 'credit_name' => 'پژوهشگر آزمون'])->assertOk();
+        $linked = $this->pendingFor($m);
+        $this->relate($m, 'person_role', null, ['role' => 'endower', 'role_name' => 'حاجیه خانم ناشناس'])->assertOk();
+        $named = $this->pendingFor($m);
+
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$linked->id}")->assertOk()->assertSee('اشخاص مرتبط با نسخه');
+        $this->approve($linked, ['role' => 'owner', 'role_link' => 'target', 'contributor_note' => 'مهر بیضی ۱۲۴۰ق در برگ نخست'])->assertRedirect('/admin/suggestions');
+        $this->approve($named, ['role' => 'endower', 'role_link' => 'name', 'role_name' => 'حاجیه خانم ناشناس'])->assertRedirect('/admin/suggestions');
+
+        $this->get(route('manuscripts.show', $m))->assertOk()
+            ->assertSee('مالک')->assertSee('محمدحسین تبریزی')->assertSee('مهر بیضی ۱۲۴۰ق در برگ نخست')->assertSee('به پیشنهاد پژوهشگر آزمون')
+            ->assertSee('واقف')->assertSee('حاجیه خانم ناشناس');
+        $this->get(route('people.show', $owner))->assertOk()->assertSee('پیوند با نسخه‌ها در نقش‌های دیگر')->assertSee('مالک');
+
+        // The same person in the same role twice is refused; a rollback removes the row
+        $this->relate($m, 'person_role', $owner, ['role' => 'owner'])->assertOk();
+        $this->approve($this->pendingFor($m), ['role' => 'owner', 'role_link' => 'target'])->assertSessionHasErrors('applied_value');
+        // Rolling back the latest approval (the endower) leaves the owner
+        $this->rollbackLatest($m);
+        $this->assertSame([$owner->name], \App\Models\ManuscriptPerson::where('manuscript_id', $m->id)->get()->map->display_name->all());
+        $this->assertSame('pending', $named->fresh()->status);
+
+        // Rows follow a merged manuscript
+        $dup = $this->manuscript();
+        \App\Models\ManuscriptPerson::create(['manuscript_id' => $dup->id, 'person_id' => $owner->id, 'role' => 'glossator']);
+        app(\App\Suggestions\RecordMerger::class)->mergeManuscript($dup, $m);
+        $this->assertSame(2, \App\Models\ManuscriptPerson::where('manuscript_id', $m->id)->count());
+        $this->removedManuscripts[] = $dup->id;
+    }
+
+    public function test_manuscript_roles_follow_a_person_merge_and_its_rollback()
+    {
+        $source = $this->person('مالک تکراری');
+        $target = $this->person('مالک اصلی');
+        $m = $this->manuscript();
+        $row = \App\Models\ManuscriptPerson::create(['manuscript_id' => $m->id, 'person_id' => $source->id, 'role' => 'owner']);
+
+        $log = app(\App\Services\PersonMerger::class)->merge($source, $target, $this->admin->id);
+        $this->assertSame($target->id, $row->fresh()->person_id);
+
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+        $this->assertSame($source->id, $row->fresh()->person_id);
+        AuditLog::where('auditable_type', Person::class)->whereIn('auditable_id', [$source->id, $target->id])->delete();
+    }
 }

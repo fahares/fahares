@@ -220,7 +220,7 @@ class SuggestionController extends Controller
 
         $relation = $suggestion->relationDefinition();
         $record = $suggestion->suggestable;
-        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias'], true)) {
+        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role'], true)) {
             return $this->approveContributor($request, $suggestion, $relation, $record);
         }
         $other = $suggestion->relationTarget();
@@ -441,11 +441,15 @@ class SuggestionController extends Controller
         $validated = $request->validate([
             'contributor_note' => 'nullable|string|max:500',
             'alias' => 'nullable|string|max:600',
+            'role' => 'nullable|string|max:30',
+            'role_link' => 'nullable|in:target,manual,name',
+            'role_person_id' => 'nullable|integer',
+            'role_name' => 'nullable|string|max:600',
             'public_note' => 'nullable|string|max:2000',
             'admin_notes' => 'nullable|string|max:1000',
         ]);
         $person = $suggestion->relationTarget();
-        if (! $record || ($relation['target'] && ! $person)) {
+        if (! $record || ($relation['target'] && empty($relation['target_optional']) && ! $person)) {
             return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
         }
 
@@ -456,6 +460,19 @@ class SuggestionController extends Controller
                     'contributor_set' => $relations->set($record, $person),
                     'contributor_add' => $relations->add($record, $person, trim($validated['contributor_note'] ?? '') ?: null),
                     'alias' => $relations->alias($record, (string) ($validated['alias'] ?? $suggestion->suggested_value)),
+                    // The reviewer links the suggested person, another person by id, or keeps only the name
+                    'person_role' => $relations->addRole(
+                        $record,
+                        (string) ($validated['role'] ?? $suggestion->payload['role'] ?? ''),
+                        match ($validated['role_link'] ?? ($person ? 'target' : 'name')) {
+                            'target' => $person,
+                            'manual' => \App\Models\Person::find($validated['role_person_id'] ?? 0) ?? throw new InvalidArgumentException('شخصی با این شناسه پیدا نشد.'),
+                            default => null,
+                        },
+                        $validated['role_name'] ?? $suggestion->payload['name'] ?? null,
+                        trim($validated['contributor_note'] ?? '') ?: null,
+                        $suggestion->id,
+                    ),
                 };
 
                 AuditLog::create([

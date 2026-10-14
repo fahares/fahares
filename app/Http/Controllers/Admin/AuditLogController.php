@@ -101,6 +101,7 @@ class AuditLogController extends Controller
             $sourceName = $sourceSnapshot['name'] ?? 'شخص بازگردانی‌شده';
             $transferredWorkIds = (array) ($old['transferred_work_ids'] ?? []);
             $transferredManuscriptIds = (array) ($old['transferred_manuscript_ids'] ?? []);
+            DB::table('manuscript_people')->whereIn('id', (array) ($old['transferred_role_ids'] ?? []))->update(['person_id' => $sourceId]);
 
             // Logs written before the pivots existed list only primary links
             $primaryWorkIds = (array) ($old['primary_work_ids'] ?? $transferredWorkIds);
@@ -325,7 +326,10 @@ class AuditLogController extends Controller
 
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
-        unset($old['contributors']);
+        unset($old['contributors'], $old['people_roles']);
+        if ($roleId = $log->new_values['added_person_role'] ?? null) {
+            \App\Models\ManuscriptPerson::whereKey($roleId)->delete();
+        }
         if ($added = $log->new_values['added_contributor'] ?? null) {
             DB::table($added['table'])->where('id', $added['id'])->delete();
             Person::find($added['person_id'])?->recountContributions();

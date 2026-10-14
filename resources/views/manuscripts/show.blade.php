@@ -367,6 +367,9 @@
             </dl>
         </div>
 
+        <!-- People connected with the copy other than its scribes -->
+        <x-manuscript-people :manuscript="$manuscript" />
+
         <!-- Codicology & Material Card -->
         <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
             <h3 class="text-sm font-bold text-[#292C56] dark:text-amber-200 border-r-2 border-[#B38A50] pr-2">

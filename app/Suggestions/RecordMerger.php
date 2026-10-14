@@ -45,7 +45,7 @@ class RecordMerger
         if ($source->is($target)) {
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
-        $snapshot = $this->snapshot($source, ['manuscript_scribe' => 'manuscript_id', 'manuscript_script' => 'manuscript_id']);
+        $snapshot = $this->snapshot($source, ['manuscript_scribe' => 'manuscript_id', 'manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id']);
 
         $filled = [];
         foreach (self::MANUSCRIPT_FILL as $column) {
@@ -59,8 +59,11 @@ class RecordMerger
         // Scribes the kept copy does not list yet
         $position = (int) DB::table('manuscript_scribe')->where('manuscript_id', $target->id)->max('position');
         foreach (DB::table('manuscript_scribe')->where('manuscript_id', $source->id)->orderBy('position')->get() as $row) {
-            DB::table('manuscript_scribe')->insertOrIgnore(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'position' => ++$position, 'note' => $row->note]);
+            // An unlinked name keeps its text
+            DB::table('manuscript_scribe')->insertOrIgnore(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name ?? null, 'position' => ++$position, 'note' => $row->note]);
         }
+        // Owners, endowers, correctors… move to the kept copy
+        DB::table('manuscript_people')->where('manuscript_id', $source->id)->update(['manuscript_id' => $target->id]);
 
         $this->moveAttachments($source, $target);
         $this->citeEntry($source, $target);

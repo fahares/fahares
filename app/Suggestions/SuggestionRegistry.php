@@ -53,7 +53,8 @@ class SuggestionRegistry
      * apply: how approval works. move/merge (RecordMerger), merge_people (the people merge tool),
      * contributor_set (the record's primary scribe or author becomes the target person),
      * contributor_add (the target person is added as a further scribe or author),
-     * alias (no target: the submitted text is added to the person's other names).
+     * alias (no target: the submitted text is added to the person's other names),
+     * person_role (a person connected with the copy in a role; the target is optional, a name will do).
      */
     public const RELATIONS = [
         'manuscript' => [
@@ -61,6 +62,7 @@ class SuggestionRegistry
             'duplicate' => ['label' => 'این نسخه تکراری است (همان نسخه‌ی دیگری است)', 'target' => 'manuscript', 'action' => 'ادغام نسخه‌ی تکراری', 'apply' => 'merge'],
             'scribe_is' => ['label' => 'کاتب این نسخه همان شخصی است که در فهارس ثبت شده', 'target' => 'person', 'action' => 'پیوند کاتب به این شخص', 'apply' => 'contributor_set'],
             'scribe_also' => ['label' => 'کاتب دیگری هم در کتابت این نسخه سهم داشته است', 'target' => 'person', 'action' => 'افزودن کاتب', 'apply' => 'contributor_add'],
+            'person_role' => ['label' => 'شخص دیگری با این نسخه مرتبط است (مالک، واقف، مصحح، محشی…)', 'target' => 'person', 'target_optional' => true, 'action' => 'افزودن شخص مرتبط با نسخه', 'apply' => 'person_role'],
         ],
         'work' => [
             'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری', 'apply' => 'merge'],

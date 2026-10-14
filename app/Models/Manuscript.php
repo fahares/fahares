@@ -430,6 +430,12 @@ class Manuscript extends Model
         return $this->hasMany(ManuscriptScribe::class)->orderBy('position')->orderBy('id');
     }
 
+    /** People other than the scribes: owners, endowers, correctors… in role order. */
+    public function otherPeople(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ManuscriptPerson::class)->orderBy('position')->orderBy('id');
+    }
+
     public function scripts(): BelongsToMany
     {
         return $this->belongsToMany(Script::class)->withPivot('is_primary');

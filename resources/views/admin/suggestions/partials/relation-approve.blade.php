@@ -7,7 +7,41 @@
     @endif
 
     @php $apply = $relation['apply'] ?? null; @endphp
-    @if(in_array($apply, ['contributor_set', 'contributor_add', 'alias'], true) && $target && ($relationTarget || ! $relation['target']))
+    @if($apply === 'person_role' && $target)
+        @php
+            $roleInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
+            $payload = $suggestion->payload ?? [];
+            $defaultLink = old('role_link', $relationTarget ? 'target' : 'name');
+        @endphp
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <p class="leading-relaxed text-stone-600 dark:text-stone-300">شخص با نقشی که تعیین می‌کنید در بخش «اشخاص مرتبط با نسخه» در صفحه‌ی نسخه، و اگر به جدول اشخاص پیوند بخورد در صفحه‌ی آن شخص هم، نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            <label class="block space-y-1">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">نقش:</span>
+                <select name="role" class="{{ $roleInput }}">
+                    @foreach(\App\Models\ManuscriptPerson::ROLES as $key => $label)
+                        <option value="{{ $key }}" @selected(old('role', $payload['role'] ?? '') === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <div class="space-y-1.5 p-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">شخص:</span>
+                @if($relationTarget)
+                    <label class="flex items-center gap-2"><input type="radio" name="role_link" value="target" @checked($defaultLink === 'target') class="text-[#B38A50]"> پیوند به «<a href="{{ route('people.show', $relationTarget) }}" target="_blank" class="text-[#B38A50] hover:underline">{{ $relationTarget->name }}</a>» (انتخاب پیشنهاددهنده)</label>
+                @endif
+                <label class="flex items-center gap-2"><input type="radio" name="role_link" value="manual" @checked($defaultLink === 'manual') class="text-[#B38A50]"> پیوند به شخص با شناسه‌ی <input type="number" name="role_person_id" value="{{ old('role_person_id') }}" class="w-28 p-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 font-mono"></label>
+                <label class="flex items-center gap-2"><input type="radio" name="role_link" value="name" @checked($defaultLink === 'name') class="text-[#B38A50]"> فقط نام، بدون پیوند:</label>
+                <input type="text" name="role_name" value="{{ old('role_name', $payload['name'] ?? $relationTarget?->name) }}" class="{{ $roleInput }}">
+            </div>
+            <label class="block space-y-1">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">یادداشت (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):</span>
+                <input type="text" name="contributor_note" value="{{ old('contributor_note', $suggestion->suggested_value !== $relation['label'] ? $suggestion->suggested_value : '') }}" class="{{ $roleInput }}">
+            </label>
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $roleInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $roleInput }}">
+            <button type="submit" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
+    @elseif(in_array($apply, ['contributor_set', 'contributor_add', 'alias'], true) && $target && ($relationTarget || ! $relation['target']))
         <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
             @csrf
             <p class="leading-relaxed text-stone-600 dark:text-stone-300">

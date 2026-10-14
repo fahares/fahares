@@ -43,6 +43,7 @@
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
         'maxFiles' => \App\Suggestions\NoteTypes::MAX_FILES,
         'canUpload' => auth()->check(),
+        'personRoles' => \App\Models\ManuscriptPerson::ROLES,
     ];
     $inputClass = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]';
 @endphp
@@ -105,11 +106,23 @@
                                 هر نکته‌ای که در فیلدهای این صفحه نمی‌گنجد اینجا بنویسید. مثلاً: «این کاتب همان کسی است که در صفحه‌ی فلان آمده» یا «این دو کتابخانه یکی‌اند».
                             </p>
 
+                            <!-- A person connected with the copy: role, then a person from the list or a name -->
+                            <template x-if="relation && relation.apply === 'person_role'">
+                                <div class="space-y-1">
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300">نقش:</label>
+                                    <select x-model="roleKey" class="{{ $inputClass }}">
+                                        <option value="">انتخاب کنید…</option>
+                                        <template x-for="(label, key) in config.personRoles" :key="key"><option :value="key" x-text="label"></option></template>
+                                    </select>
+                                    <p x-show="errors.role" x-text="errors.role" class="text-red-600 dark:text-red-400 font-bold"></p>
+                                </div>
+                            </template>
+
                             <!-- Target picker for relational suggestions (another name of a person has none) -->
                             <template x-if="relation && relation.target">
                                 <div class="space-y-1 relative">
                                     <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                                        x-text="relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')"></label>
+                                        x-text="relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:'))"></label>
                                     <input type="text" x-model="targetQuery" @input="searchTargets()" autocomplete="off" class="{{ $inputClass }}"
                                         :placeholder="relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید'">
                                     <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-[#1A1E35] shadow-xl">
@@ -129,6 +142,13 @@
                                         </div>
                                     </template>
                                     <p x-show="errors.target_id" x-text="errors.target_id" class="text-red-600 dark:text-red-400 font-bold"></p>
+                                    <template x-if="relation.target_optional && !target">
+                                        <div class="space-y-1 pt-1">
+                                            <label class="block font-semibold text-stone-700 dark:text-stone-300">یا نام او، همان‌گونه که در نسخه آمده:</label>
+                                            <input type="text" x-model="roleName" class="{{ $inputClass }}" placeholder="مثلاً محمدحسین بن علی تبریزی">
+                                            <p x-show="errors.role_name" x-text="errors.role_name" class="text-red-600 dark:text-red-400 font-bold"></p>
+                                        </div>
+                                    </template>
                                 </div>
                             </template>
                         </div>
@@ -203,7 +223,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                            x-text="mode === 'general' ? (relation && !relation.target ? 'نام دیگر:' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:')) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && !relation.target ? 'نام دیگر:' : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && !relation.target)" class="{{ $inputClass }}"

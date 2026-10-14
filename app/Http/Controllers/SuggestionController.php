@@ -38,6 +38,8 @@ class SuggestionController extends Controller
             'guest_email' => 'nullable|email|max:100',
             'credit_name' => 'nullable|string|max:150',
             'notify_submitter' => 'nullable|boolean',
+            'role' => 'nullable|string|max:30',
+            'role_name' => 'nullable|string|max:600',
             'note' => 'nullable|array',
             'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,
             'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -85,7 +87,16 @@ class SuggestionController extends Controller
                 }
             }
             $target = $relation['target'] ? SuggestionRegistry::modelClass($relation['target'])::find($validated['target_id'] ?? 0) : null;
-            if ($relation['target'] && ! $target) {
+            // A person connected with the copy: a role, and a person from the list or only a name
+            if (($relation['apply'] ?? null) === 'person_role') {
+                if (! array_key_exists($validated['role'] ?? '', \App\Models\ManuscriptPerson::ROLES)) {
+                    throw ValidationException::withMessages(['role' => 'نقش این شخص را انتخاب کنید.']);
+                }
+                if (! $target && trim($validated['role_name'] ?? '') === '') {
+                    throw ValidationException::withMessages(['role_name' => 'شخص را از فهرست انتخاب کنید یا نامش را بنویسید.']);
+                }
+            }
+            if ($relation['target'] && ! $target && empty($relation['target_optional'])) {
                 throw ValidationException::withMessages(['target_id' => 'رکورد مقصد را انتخاب کنید.']);
             }
             if ($target?->is($record)) {
@@ -99,7 +110,9 @@ class SuggestionController extends Controller
         $user = $request->user();
         $payload = array_filter([
             'person_id' => $field && $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null,
-            'target_id' => $relation && $relation['target'] ? (int) $validated['target_id'] : null,
+            'target_id' => $relation && $relation['target'] && ! empty($validated['target_id']) ? (int) $validated['target_id'] : null,
+            'role' => ($relation['apply'] ?? null) === 'person_role' ? $validated['role'] : null,
+            'name' => ($relation['apply'] ?? null) === 'person_role' ? (trim($validated['role_name'] ?? '') ?: null) : null,
         ]);
 
         $suggestion = FieldSuggestion::create([

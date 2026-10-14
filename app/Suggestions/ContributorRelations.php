@@ -4,6 +4,7 @@ namespace App\Suggestions;
 
 use App\Helpers\TextNormalizer;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -96,6 +97,40 @@ class ContributorRelations
             'old' => ['contributors' => $before],
             'new' => ['added_contributor' => ['table' => $table, 'id' => $id, 'person_id' => $person->id]],
             'resolution' => ['person_id' => $person->id, 'added' => true],
+        ];
+    }
+
+    /**
+     * A person connected with the copy in a role other than scribe (owner, endower, corrector…):
+     * a linked person or only a name, with a note such as «مهر بیضی، ۱۲۴۰ق».
+     */
+    public function addRole(Manuscript $manuscript, string $role, ?Person $person, ?string $name, ?string $note, ?int $suggestionId): array
+    {
+        if (! array_key_exists($role, ManuscriptPerson::ROLES)) {
+            throw new InvalidArgumentException('نقش انتخاب‌شده نامعتبر است.');
+        }
+        $name = $name !== null ? trim(preg_replace('/\s+/u', ' ', $name)) : null;
+        if (! $person && ! $name) {
+            throw new InvalidArgumentException('شخص را انتخاب کنید یا نامش را بنویسید.');
+        }
+        if ($person && $manuscript->otherPeople()->where('person_id', $person->id)->where('role', $role)->exists()) {
+            throw new InvalidArgumentException('این شخص با همین نقش هم‌اکنون برای این نسخه ثبت شده است.');
+        }
+
+        $before = $manuscript->otherPeople()->pluck('id')->all();
+        $row = $manuscript->otherPeople()->create([
+            'person_id' => $person?->id,
+            'name' => $person ? null : mb_substr($name, 0, 600),
+            'role' => $role,
+            'note' => $note ? mb_substr($note, 0, 500) : null,
+            'position' => (int) $manuscript->otherPeople()->max('position') + 1,
+            'suggestion_id' => $suggestionId,
+        ]);
+
+        return [
+            'old' => ['people_roles' => $before],
+            'new' => ['added_person_role' => $row->id],
+            'resolution' => ['person_role_id' => $row->id, 'person_id' => $person?->id, 'role' => $role],
         ];
     }
 
