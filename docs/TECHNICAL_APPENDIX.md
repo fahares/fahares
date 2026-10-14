@@ -2012,4 +2012,4 @@
 ### گام ۱۱.۱۷: برچسب پرچم `is_facsimile`
 
 - متن برچسب در [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php) (کارت نشان‌های نسخه‌شناسی) و در `SuggestionRegistry::FLAG_LABELS` (کلید `is_facsimile`) به «نسخه عکسی / میکروفیلم» تغییر کرد. پارسر این پرچم را برای «عکسی» در متن نسخه یا «عکس» در سرعنوان کتابخانه می‌گذارد.
-- متن رابطه‌ی `facsimile_of` («چاپ عکسیِ») در `RecordRelations` دست نخورد.
+- برچسب‌های رابطه‌ی `facsimile_of` در `RecordRelations::MANUSCRIPT_TYPES` («نسخه‌ی عکسی یا میکروفیلمِ» / «نسخه‌های عکسی و میکروفیلم‌های این نسخه»)، گزینه‌ی `manuscript_relation` در `SuggestionRegistry` و متن راهنمای [x-record-relations](../resources/views/components/record-relations.blade.php) هم هم‌سو شدند. کلید `facsimile_of` و داده‌ی ذخیره‌شده تغییر نکرد. ۴۴ آزمون پیشنهاد موفق است.
