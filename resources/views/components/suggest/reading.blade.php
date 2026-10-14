@@ -32,6 +32,6 @@
         <p class="text-[11px] text-stone-500 dark:text-stone-400">جای خود را به قول «{{ \Illuminate\Support\Str::limit($s->supersededBy->display_value, 80) }}» داد.</p>
     @endif
     @if($s->public_note)
-        <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed"><span class="font-bold text-stone-500 dark:text-stone-400">یادداشت داور:</span> {!! $linkify($s->public_note) !!}</p>
+        <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed whitespace-pre-line break-words"><span class="font-bold text-stone-500 dark:text-stone-400">یادداشت داور:</span> {!! $linkify($s->public_note) !!}</p>
     @endif
 </div>

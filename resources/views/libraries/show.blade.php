@@ -35,9 +35,8 @@
                 @endif
                 <x-suggest.field name="country" class="ms-1" />
             </div>
-            <div class="text-xs text-stone-700 dark:text-stone-300 leading-loose whitespace-pre-line max-w-2xl pt-1" @unless($library->description) x-show="$store.suggest.on" x-cloak @endunless>
-                {{ $library->description ?? 'معرفی کتابخانه: —' }}
-                <x-suggest.field name="description" class="ms-1" />
+            <div class="text-xs text-stone-700 dark:text-stone-300 leading-loose max-w-2xl pt-1" @unless($library->description) x-show="$store.suggest.on" x-cloak @endunless>
+                <span class="whitespace-pre-line">{{ $library->description ?? 'معرفی کتابخانه: —' }}</span> <x-suggest.field name="description" class="ms-1" />
             </div>
             <div class="pt-2">
                 <x-suggest.toggle />

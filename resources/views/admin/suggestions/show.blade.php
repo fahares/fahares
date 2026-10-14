@@ -132,9 +132,7 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-stone-400"></span>
                 <h4 class="text-xs font-bold uppercase tracking-wider">مقدار موجود در پایگاه داده (یا متن چاپ فنخا)</h4>
             </div>
-            <div class="p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 text-sm leading-relaxed min-h-[90px] whitespace-pre-wrap font-sans">
-                {{ $suggestion->current_value ?: '— فیلد خالی است —' }}
-            </div>
+            <div class="p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 text-sm leading-relaxed min-h-[90px] font-sans whitespace-pre-line">{{ $suggestion->current_value ?: '— فیلد خالی است —' }}</div>
         </div>
 
         @endif
@@ -145,9 +143,7 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
                 <h4 class="text-xs font-bold uppercase tracking-wider">مقدار پیشنهادی پژوهشگر</h4>
             </div>
-            <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-stone-900 dark:text-amber-100 text-sm font-semibold leading-relaxed min-h-[90px] whitespace-pre-wrap font-sans">
-                {{ $suggestion->suggested_value }}
-            </div>
+            <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-stone-900 dark:text-amber-100 text-sm font-semibold leading-relaxed min-h-[90px] font-sans whitespace-pre-line">{{ $suggestion->suggested_value }}</div>
         </div>
 
     </div>
@@ -160,9 +156,7 @@
             </svg>
             <h4 class="text-xs font-bold">مستند علمی، ترقیمه و منبع ادعای پژوهشگر:</h4>
         </div>
-        <div class="p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
-            {{ $suggestion->rationale_citation ?: '— مستندی ذکر نشده است —' }}
-        </div>
+        <div class="p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-sans whitespace-pre-line">{{ $suggestion->rationale_citation ?: '— مستندی ذکر نشده است —' }}</div>
     </div>
 
     @php $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative'; @endphp
@@ -386,9 +380,9 @@
                 </p>
             @endif
             <h4 class="font-bold text-stone-900 dark:text-stone-100">یادداشت عمومی:</h4>
-            <p>{{ $suggestion->public_note ?: '—' }}</p>
+            <p class="whitespace-pre-line">{{ $suggestion->public_note ?: '—' }}</p>
             <h4 class="font-bold text-stone-900 dark:text-stone-100">یادداشت داخلی داور:</h4>
-            <p>{{ $suggestion->admin_notes ?: 'هیچ یادداشتی ثبت نشده است.' }}</p>
+            <p class="whitespace-pre-line">{{ $suggestion->admin_notes ?: 'هیچ یادداشتی ثبت نشده است.' }}</p>
             @php $res = $suggestion->resolution ?? []; @endphp
             @if($suggestion->status === 'approved' && $res)
                 <p class="pt-1">

@@ -105,9 +105,7 @@
         @if($cataloger->bio)
             <div class="pt-5 border-t border-stone-100 dark:border-stone-800/80 space-y-2">
                 <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider">زندگینامه و کارنامه علمی:</h3>
-                <p class="text-xs sm:text-sm text-stone-700 dark:text-stone-200 leading-relaxed max-w-5xl whitespace-pre-line text-justify">
-                    {{ $cataloger->bio }}
-                </p>
+                <p class="text-xs sm:text-sm text-stone-700 dark:text-stone-200 leading-relaxed max-w-5xl whitespace-pre-line text-justify">{{ $cataloger->bio }}</p>
             </div>
         @endif
 

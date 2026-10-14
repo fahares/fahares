@@ -1876,5 +1876,13 @@
 - **پژوهشگر:** چک‌باکس رضایت و فیلد شکل نام در [میز پیشنهاد](../resources/views/components/suggest/desk.blade.php). صفحه‌ی `/my/suggestions` ([MySuggestionsController](../app/Http/Controllers/MySuggestionsController.php)) فقط پیشنهادهایی را نشان می‌دهد که با همان حساب فرستاده شده‌اند (`user_id`)، چون ایمیل ثبت‌نام هنوز تأیید نمی‌شود. کاربر نامش را با `POST /my/suggestions/{id}/credit` تغییر می‌دهد و برای پیشنهاد دیگران ۴۰۳ می‌گیرد. پیوند صفحه در منوی کاربر آمده است. داور هم در صفحه‌ی بررسی با `POST /admin/suggestions/{id}/credit` نام را تغییر می‌دهد.
 - **تاریخ کتابت:** در صفحه‌ی نسخه، «(… هـ.ق)» فقط وقتی نمایش داده می‌شود که رقم‌های سال، پس از یکسان‌سازی رقم‌های فارسی و عربی، در `copy_date_raw` نیامده باشند.
 - **آزمون‌ها:** پنج آزمون تازه: رضایت و نمایش نام، جایگزینی قول مختار و بازگردانی آن، قول دیگر و ارتقا و بازگردانی آن، ویرایش (پیشنهادی و مستقیم) بدون ساختن قول، و صفحه‌ی «پیشنهادهای من». کل مجموعه: ۵۶ آزمون موفق.
+- **استقرار پروداکشن (۲۱ مهر ۱۴۰۵):** کامیت `077edbc` پوش و با Coolify مستقر شد. سپس `migrate --force` با `ssh fahares-app` اجرا شد. دو پیشنهاد تأییدشده‌ی موجود (#2 کاتب و #3 تاریخ کتابت نسخه‌ی ۷۰۹۷۴) «قول مختار» شدند و `applied_value` آن‌ها درست پر شد. صفحه‌ی نسخه روی fahares.net بخش اقوال را نمایش می‌دهد.
+
+### گام ۱۱.۵: نمایش شکست سطرها در متن‌های چندسطری
+
+- **مسئله:** چند بلوک متنی کلاس `whitespace-pre-line` نداشتند و `\n` داده در آن‌ها نادیده گرفته می‌شد. نمونه‌اش «مستند علمی» در میز داوری بود. در چند بلوک دیگر هم که این کلاس را داشتند، متن Blade در سطر بعدِ تگ آمده بود و همین یک خط خالی بالای متن می‌ساخت.
+- **اصلاح:** `whitespace-pre-line` افزوده شد و محتوا در همان سطرِ تگ قرار گرفت. فایل‌ها: [admin/suggestions/show](../resources/views/admin/suggestions/show.blade.php) (مقدار فعلی، مقدار پیشنهادی، مستند و هر دو یادداشت)، [works/show](../resources/views/works/show.blade.php) (`description`، `print_info`، آغاز و انجام، متن خام فنخا)، [manuscripts/show](../resources/views/manuscripts/show.blade.php) (آغازها و انجام‌ها، `residual_notes_text`)، [libraries/show](../resources/views/libraries/show.blade.php)، [catalogers/show](../resources/views/catalogers/show.blade.php)، [my/suggestions](../resources/views/my/suggestions.blade.php) و [x-suggest.reading](../resources/views/components/suggest/reading.blade.php).
+- **دامنه (پایگاه محلی):** `works.description` در ۴٬۸۳۷ رکورد و ستون `metadata` (که آغاز و انجام را هم در بر دارد) در ۴۶٬۶۱۳ نسخه `\n` دارد و `manuscripts.explicit_text` در ۴۱٬۳۹۸ نسخه. نمونه‌ها نشان داد این سطرها بخش‌های جدا را از هم جدا می‌کنند و از شکست سطر صفحه‌ی چاپی نیامده‌اند.
+- **آزمون‌ها:** کل مجموعه: ۵۶ آزمون موفق.
 
 ---

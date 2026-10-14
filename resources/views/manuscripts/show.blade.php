@@ -449,13 +449,9 @@
                                     @endif
                                 </div>
                                 @if(!empty($inc['is_placeholder']))
-                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed">
-                                        {{ $inc['text'] }}
-                                    </div>
+                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed whitespace-pre-line">{{ $inc['text'] }}</div>
                                 @else
-                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
-                                        « {{ trim($inc['text'], "«» \t\n\r\0\x0B") }} »
-                                    </div>
+                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium whitespace-pre-line">« {{ trim($inc['text'], "«» \t\n\r\0\x0B") }} »</div>
                                 @endif
                             </div>
                         @endforeach
@@ -502,13 +498,9 @@
                                     @endif
                                 </div>
                                 @if(!empty($exp['is_placeholder']))
-                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed">
-                                        {{ $exp['text'] }}
-                                    </div>
+                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed whitespace-pre-line">{{ $exp['text'] }}</div>
                                 @else
-                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium">
-                                        « {{ trim($exp['text'], "«» \t\n\r\0\x0B") }} »
-                                    </div>
+                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium whitespace-pre-line">« {{ trim($exp['text'], "«» \t\n\r\0\x0B") }} »</div>
                                 @endif
                             </div>
                         @endforeach
@@ -593,9 +585,7 @@
                     @if($manuscript->residual_notes_text)
                         <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
                             <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block">فوائد و رسائل مندرج در نسخه:</span>
-                            <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed bg-stone-50 dark:bg-stone-800/40 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800">
-                                {{ $manuscript->residual_notes_text }}
-                            </div>
+                            <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed bg-stone-50 dark:bg-stone-800/40 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 whitespace-pre-line">{{ $manuscript->residual_notes_text }}</div>
                         </div>
                     @endif
 

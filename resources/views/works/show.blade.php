@@ -333,9 +333,7 @@
                         </h3>
                         <x-suggest.field name="description" />
                     </div>
-                    <div class="text-stone-700 dark:text-stone-200 text-xs sm:text-sm leading-loose text-justify font-normal">
-                        {{ $work->description }}
-                    </div>
+                    <div class="text-stone-700 dark:text-stone-200 text-xs sm:text-sm leading-loose text-justify font-normal whitespace-pre-line">{{ $work->description }}</div>
                 </div>
             @endif
 
@@ -348,9 +346,7 @@
                                 <span class="text-xs font-bold text-[#B38A50]">آغاز اثر</span>
                                 <x-suggest.field name="incipit_text" />
                             </div>
-                            <div class="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
-                                « {{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }} »
-                            </div>
+                            <div class="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium whitespace-pre-line">« {{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }} »</div>
                         </div>
                     @endif
 
@@ -361,9 +357,7 @@
                                 <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">انجام اثر</span>
                                 <x-suggest.field name="explicit_text" />
                             </div>
-                            <div class="p-3.5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium">
-                                « {{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }} »
-                            </div>
+                            <div class="p-3.5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium whitespace-pre-line">« {{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }} »</div>
                         </div>
                     @endif
                 </div>
@@ -400,9 +394,7 @@
                     <span class="text-xs font-bold text-amber-800 dark:text-amber-300">سوابق و چاپ‌های اثر</span>
                     <x-suggest.field name="print_info" />
                 </div>
-                <div class="text-xs leading-loose text-stone-700 dark:text-stone-300 font-medium">
-                    {{ $work->print_info }}
-                </div>
+                <div class="text-xs leading-loose text-stone-700 dark:text-stone-300 font-medium whitespace-pre-line">{{ $work->print_info }}</div>
             </div>
         @endif
 
@@ -485,9 +477,7 @@
                 <!-- Raw text body -->
                 <div 
                     x-ref="workRawText" 
-                    class="p-4 sm:p-6 rounded-2xl bg-[#FEF9F3] dark:bg-[#0C0F1D] border border-[#EADFCF] dark:border-[#272F4C] text-xs sm:text-[13px] text-stone-800 dark:text-stone-100 leading-loose sm:leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">
-                    {{ $work->clean_raw_text }}
-                </div>
+                    class="p-4 sm:p-6 rounded-2xl bg-[#FEF9F3] dark:bg-[#0C0F1D] border border-[#EADFCF] dark:border-[#272F4C] text-xs sm:text-[13px] text-stone-800 dark:text-stone-100 leading-loose sm:leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">{{ $work->clean_raw_text }}</div>
             </div>
         @endif
 

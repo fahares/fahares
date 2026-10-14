@@ -70,7 +70,7 @@
                 <p class="text-stone-600 dark:text-stone-300">این قول پیش‌تر مختار بود و اکنون در کنار قول مختار تازه به‌عنوان «قول دیگر» نمایش داده می‌شود.</p>
             @endif
             @if($s->public_note)
-                <p class="text-stone-600 dark:text-stone-300"><span class="font-bold text-stone-500 dark:text-stone-400">یادداشت داور:</span> {{ $s->public_note }}</p>
+                <p class="text-stone-600 dark:text-stone-300 whitespace-pre-line"><span class="font-bold text-stone-500 dark:text-stone-400">یادداشت داور:</span> {{ $s->public_note }}</p>
             @endif
 
             @if($s->kind === 'field' && $s->status !== 'rejected')
