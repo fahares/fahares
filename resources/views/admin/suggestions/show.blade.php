@@ -19,7 +19,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 dark:border-stone-800 pb-4">
             <div class="flex items-center gap-3">
                 <span class="px-3 py-1 rounded-xl text-xs font-black bg-[#292C56] text-amber-200">
-                    {{ \App\Suggestions\SuggestionRegistry::typeLabel($suggestion->suggestable_type) }} #{{ $suggestion->suggestable_id }}
+                    {{ \Illuminate\Support\Str::limit($suggestion->place_label, 60) }}
                 </span>
                 <span class="text-sm font-bold text-stone-900 dark:text-stone-100">
                     @if($suggestion->kind === 'general')
@@ -64,6 +64,7 @@
                     <span class="text-stone-400 dir-ltr font-mono text-[11px] block mt-0.5">({{ $suggestion->guest_email }})</span>
                 @endif
             </div>
+            @unless($suggestion->kind === 'feedback')
             <div class="md:col-span-2 p-3 rounded-xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 space-y-2">
                 <span class="text-stone-400">نام در صفحه‌ی عمومی:</span>
                 @if($suggestion->credit_name)
@@ -80,6 +81,7 @@
                     <button type="submit" class="px-3 py-2 rounded-lg bg-[#B38A50] hover:bg-[#9C753F] text-white font-bold">ذخیره‌ی نام</button>
                 </form>
             </div>
+            @endunless
             <div>
                 <span class="text-stone-400">تاریخ ارسال:</span>
                 <span class="font-mono text-stone-800 dark:text-stone-200 mr-1">{{ $suggestion->created_at->format('Y/m/d H:i') }}</span>
@@ -134,6 +136,8 @@
 
     @if($suggestion->kind === 'note')
         @include('admin.suggestions.partials.note-review')
+    @elseif($suggestion->kind === 'feedback')
+        @include('admin.suggestions.partials.feedback-review')
     @else
     @if($suggestion->kind === 'relation')
         <!-- The two records the suggestion connects -->

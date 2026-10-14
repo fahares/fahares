@@ -35,8 +35,16 @@ class SuggestionRegistry
         'library' => Library::class,
     ];
 
-    // note: a research note added to the record, see NoteTypes
-    public const KINDS = ['field', 'general', 'relation', 'note'];
+    // note: a research note added to the record, see NoteTypes; feedback: about the site, no record
+    public const KINDS = ['field', 'general', 'relation', 'note', 'feedback'];
+
+    /** Categories of site feedback, kept in field_name. */
+    public const FEEDBACK_CATEGORIES = [
+        'bug' => 'اشکال فنی (چیزی کار نمی‌کند)',
+        'data' => 'خطا در داده‌های این صفحه',
+        'idea' => 'پیشنهاد برای سایت',
+        'other' => 'موارد دیگر',
+    ];
 
     /**
      * Relational suggestions per record type: the submitter points at another record (target).
@@ -107,8 +115,11 @@ class SuggestionRegistry
     }
 
     /** Accepts a short key ('manuscript') or a model class. */
-    public static function typeKey(string $type): ?string
+    public static function typeKey(?string $type): ?string
     {
+        if ($type === null) {
+            return null;
+        }
         if (isset(self::TYPES[$type])) {
             return $type;
         }
@@ -152,8 +163,12 @@ class SuggestionRegistry
         } + ['id' => $record->getKey()];
     }
 
-    public static function typeLabel(string $type): string
+    public static function typeLabel(?string $type): string
     {
+        if ($type === null) {
+            return 'بازخورد سایت';
+        }
+
         return match (self::typeKey($type)) {
             'manuscript' => 'نسخه',
             'work' => 'اثر',

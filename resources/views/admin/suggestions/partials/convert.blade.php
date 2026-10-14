@@ -11,14 +11,16 @@
             'notes' => array_values(NoteTypes::forRecord($t)),
         ];
     }
-    $ownType = SuggestionRegistry::typeKey($suggestion->suggestable_type);
+    // Site feedback has no record: the reviewer names one
+    $ownType = SuggestionRegistry::typeKey($suggestion->suggestable_type) ?? 'manuscript';
+    $hasRecord = (bool) $suggestion->suggestable_type;
     $setup = [
         'types' => $types,
         'noteFields' => NoteTypes::FIELDS,
         'targetType' => old('target_type', $ownType),
         'kind' => old('kind', 'field'),
         'fieldName' => old('field_name', ''),
-        'otherRecord' => (bool) old('target_ref'),
+        'otherRecord' => (bool) old('target_ref') || ! $hasRecord,
         'prefill' => $suggestion->kind === 'note' ? ($suggestion->payload['text'] ?? $suggestion->suggested_value) : $suggestion->suggested_value,
     ];
     $input = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
@@ -44,7 +46,9 @@
             </label>
             <div class="space-y-1">
                 <span class="block font-bold text-stone-700 dark:text-stone-300">کدام رکورد:</span>
-                <label class="flex items-center gap-2" x-show="targetType === @js($ownType)"><input type="checkbox" x-model="otherRecord" class="rounded"> رکورد دیگری است</label>
+                @if($hasRecord)
+                    <label class="flex items-center gap-2" x-show="targetType === @js($ownType)"><input type="checkbox" x-model="otherRecord" class="rounded"> رکورد دیگری است</label>
+                @endif
                 <input type="text" name="target_ref" x-show="otherRecord" value="{{ old('target_ref') }}" placeholder="پیوند یا شناسه‌ی فهارس، مثلاً fahares.net/w/123" dir="ltr" class="{{ $input }}">
                 <span x-show="!otherRecord" class="block text-stone-500">همین رکورد</span>
             </div>

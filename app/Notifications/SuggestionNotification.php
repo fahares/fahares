@@ -85,6 +85,12 @@ abstract class SuggestionNotification extends Notification implements ShouldQueu
         return '<b>' . e($this->title()) . "</b>\n\n" . implode("\n", $lines) . "\n\n" . '<a href="' . e($this->url($notifiable)) . '">' . e($this->actionLabel()) . '</a>';
     }
 
+    /** The "where" line: the record, or for site feedback the page it was sent from. */
+    protected function placeLine(): string
+    {
+        return $this->suggestion->kind === 'feedback' ? $this->suggestion->place_label : 'رکورد: ' . $this->recordLabel();
+    }
+
     protected function recordLabel(): string
     {
         $record = $this->suggestion->suggestable;
@@ -94,6 +100,9 @@ abstract class SuggestionNotification extends Notification implements ShouldQueu
 
     protected function recordUrl(): string
     {
+        if ($this->suggestion->kind === 'feedback') {
+            return $this->suggestion->place_url ?? url('/');
+        }
         $record = $this->suggestion->suggestable;
 
         return $record ? SuggestionRegistry::describe($record)['url'] : url('/');

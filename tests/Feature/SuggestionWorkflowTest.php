@@ -1111,4 +1111,54 @@ class SuggestionWorkflowTest extends TestCase
         $this->rollbackLatest($p);
         $this->assertNotContains('شیخ بهائی', (array) $p->fresh()->aliases);
     }
+
+    public function test_site_feedback_from_any_page()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->get('/')->assertOk()->assertSee('گزارش اشکال یا پیشنهاد');
+
+        // Only the path on this site is kept; guests cannot attach files
+        $this->postJson('/feedback', ['category' => 'bug', 'message' => 'x'])->assertStatus(422)->assertJsonValidationErrors('message');
+        $this->postJson('/feedback', ['category' => 'bug', 'message' => 'جستجو با ی عربی نتیجه نمی‌دهد', 'page_url' => 'https://evil.example/search?q=کتاب', 'page_title' => 'جستجو', 'guest_email' => 'fb-guest@example.com', 'notify_submitter' => 1])->assertOk();
+        $guest = FieldSuggestion::where('kind', 'feedback')->latest('id')->first();
+        $this->assertNull($guest->suggestable_type);
+        $this->assertSame('/search?q=کتاب', $guest->payload['url']);
+        $this->assertTrue($guest->notify_submitter);
+        \Illuminate\Support\Facades\Notification::assertSentTo($this->admin, \App\Notifications\SuggestionSubmitted::class, fn ($n) => str_contains($n->toArray($this->admin)['title'], 'بازخورد تازه'));
+
+        $jpeg = base64_decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');
+        $shot = fn () => \Illuminate\Http\UploadedFile::fake()->createWithContent('shot.jpg', $jpeg);
+        $this->postJson('/feedback', ['category' => 'bug', 'message' => 'تصویر پیوست', 'files' => [$shot()]])->assertStatus(422)->assertJsonValidationErrors('files');
+
+        $user = $this->researcher('test-feedback@fahares.net');
+        $this->actingAs($user)->postJson('/feedback', ['category' => 'idea', 'message' => 'کاش فیلتر سده هم داشت', 'page_url' => '/subjects', 'page_title' => 'موضوعات', 'files' => [$shot()]])->assertOk();
+        $mine = FieldSuggestion::where('kind', 'feedback')->where('user_id', $user->id)->sole();
+        $this->get(route('notes.file', [$mine, 0]))->assertOk();
+        $this->get('/my/suggestions')->assertSee('صفحه: موضوعات')->assertSee('پیشنهاد برای سایت');
+
+        // Reviewers filter and resolve it; the sender gets the answer; screenshots stay private
+        $this->actingAs($this->admin)->get('/admin/suggestions?type=feedback')->assertOk()->assertSee('صفحه: موضوعات');
+        $this->get("/admin/suggestions/{$mine->id}")->assertOk()->assertSee('ثبت «رسیدگی شد»')->assertSee('/subjects');
+        $this->post("/admin/suggestions/{$mine->id}/resolve", ['public_note' => 'در نسخه‌ی بعد افزوده می‌شود'])->assertRedirect();
+        $this->assertSame('approved', $mine->fresh()->status);
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\SuggestionReviewed::class, fn ($n) => str_contains($n->toArray($user)['body'], 'در نسخه‌ی بعد افزوده می‌شود'));
+        $this->post('/logout');
+        $this->get(route('notes.file', [$mine, 0]))->assertNotFound();
+
+        // A data error reported from a page converts into a record suggestion; a rejected report loses its files
+        $m = $this->manuscript();
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$guest->id}/convert", ['target_type' => 'manuscript', 'target_ref' => (string) $m->id, 'kind' => 'general', 'suggested_value' => 'جستجو', 'close_original' => 1])->assertRedirect();
+        $this->assertSame('converted', $guest->fresh()->status);
+        $this->assertSame(1, FieldSuggestion::where('suggestable_id', $m->id)->where('suggestable_type', Manuscript::class)->count());
+
+        $this->actingAs($user)->postJson('/feedback', ['category' => 'other', 'message' => 'نامربوط با تصویر', 'files' => [$shot()]])->assertOk();
+        $junk = FieldSuggestion::where('kind', 'feedback')->where('status', 'pending')->latest('id')->first();
+        $path = $junk->payload['files'][0];
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$junk->id}/reject", []);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($path);
+
+        FieldSuggestion::where('kind', 'feedback')->whereIn('id', [$guest->id, $mine->id, $junk->id])->delete();
+        $user->delete();
+    }
 }

@@ -33,7 +33,9 @@ class SuggestionController extends Controller
             $query->where('status', $status);
         }
 
-        if ($type) {
+        if ($type === 'feedback') {
+            $query->where('kind', 'feedback');
+        } elseif ($type) {
             $query->where('suggestable_type', 'like', "%{$type}%");
         }
 
@@ -403,6 +405,23 @@ class SuggestionController extends Controller
             ->with('success', $firstReview ? "یادداشت #{$suggestion->id} تأیید و در صفحه‌ی رکورد منتشر شد." : "ویرایش یادداشت #{$suggestion->id} ذخیره شد.");
     }
 
+    /** Site feedback handled: the reviewer's public note is the answer the sender receives. */
+    public function resolveFeedback(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_unless($suggestion->kind === 'feedback' && $suggestion->status === 'pending', 404);
+        $validated = $request->validate(['public_note' => 'nullable|string|max:2000', 'admin_notes' => 'nullable|string|max:1000']);
+        $suggestion->update([
+            'status' => 'approved',
+            'public_note' => trim($validated['public_note'] ?? '') ?: null,
+            'admin_notes' => $validated['admin_notes'] ?? null,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index', ['type' => 'feedback'])->with('success', "بازخورد #{$suggestion->id} «رسیدگی‌شده» ثبت شد.");
+    }
+
     /** Takes a published note off the record page (e.g. its link broke); it can be published again. */
     public function withdrawNote(Request $request, FieldSuggestion $suggestion)
     {
@@ -583,8 +602,8 @@ class SuggestionController extends Controller
             'public_note' => 'nullable|string|max:2000',
         ]);
 
-        // A rejected note's uploads are not kept on the server
-        if ($suggestion->kind === 'note' && ! empty($suggestion->payload['files'])) {
+        // A rejected note's or feedback's uploads are not kept on the server
+        if (in_array($suggestion->kind, ['note', 'feedback'], true) && ! empty($suggestion->payload['files'])) {
             Storage::disk('public')->delete($suggestion->payload['files']);
             $payload = $suggestion->payload;
             unset($payload['files']);

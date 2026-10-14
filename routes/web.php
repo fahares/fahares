@@ -22,6 +22,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\MySuggestionsController;
 use App\Http\Controllers\NoteFileController;
 use App\Http\Controllers\NotificationController;
@@ -79,6 +80,9 @@ Route::get('/api/suggestions/people', [SuggestionController::class, 'people'])
 Route::get('/api/suggestions/lookup', [SuggestionController::class, 'lookup'])
     ->middleware('throttle:120,1')
     ->name('suggestions.lookup');
+
+// Feedback about the site from any page
+Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:10,60')->name('feedback.store');
 
 // Images of research notes (access checked in the controller)
 Route::get('/notes/{suggestion}/files/{index}', [NoteFileController::class, 'show'])->whereNumber('index')->name('notes.file');
@@ -180,6 +184,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
     Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
     Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
+    Route::post('/suggestions/{suggestion}/resolve', [AdminSuggestionController::class, 'resolveFeedback'])->name('suggestions.resolve');
 
 
     // Taxonomy & Knowledge Tree

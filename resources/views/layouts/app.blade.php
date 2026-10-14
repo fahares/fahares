@@ -170,6 +170,12 @@
                                         </svg>
                                         <span>تنظیمات اعلان</span>
                                     </a>
+                                    <button type="button" @click="userMenuOpen = false; $dispatch('open-feedback')" class="w-full text-right flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                                        </svg>
+                                        <span>گزارش اشکال یا پیشنهاد</span>
+                                    </button>
                                 </div>
                                 @if(auth()->user()->canAccessAdmin())
                                     <div class="py-1">
@@ -346,6 +352,7 @@
                         <li><a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-amber-100 transition">کاوش نسخه‌های کهن خطی</a></li>
                         <li><a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-amber-100 transition">پدیدآوران، شارحان و کاتبان</a></li>
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
+                        <li x-data><button type="button" @click="$dispatch('open-feedback')" class="hover:text-amber-100 transition cursor-pointer text-right">گزارش اشکال یا پیشنهاد</button></li>
                     </ul>
                 </div>
 
@@ -369,6 +376,9 @@
             </div>
         </div>
     </footer>
+
+    <!-- Site feedback: report a problem or suggest, from any page -->
+    <x-feedback />
 
     <!-- Global Spotlight Quick Search Modal (Ctrl+K) -->
     <div 

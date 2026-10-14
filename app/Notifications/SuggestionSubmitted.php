@@ -9,7 +9,7 @@ class SuggestionSubmitted extends SuggestionNotification
 
     protected function title(): string
     {
-        return 'پیشنهاد اصلاحی تازه: ' . $this->suggestion->field_label;
+        return ($this->suggestion->kind === 'feedback' ? 'بازخورد تازه درباره‌ی سایت: ' : 'پیشنهاد اصلاحی تازه: ') . $this->suggestion->field_label;
     }
 
     protected function lines(object $notifiable): array
@@ -17,7 +17,7 @@ class SuggestionSubmitted extends SuggestionNotification
         $s = $this->suggestion;
 
         return array_values(array_filter([
-            'رکورد: ' . $this->recordLabel(),
+            $this->placeLine(),
             $s->kind === 'field' ? 'مقدار فعلی: ' . self::short($s->current_value, 200) : null,
             'پیشنهاد: ' . self::short($s->suggested_value),
             $s->rationale_citation ? 'مستند: ' . self::short($s->rationale_citation) : null,

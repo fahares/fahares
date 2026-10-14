@@ -56,6 +56,7 @@
                 <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'Manuscript']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'Manuscript' ? 'bg-[#B38A50]/20 text-[#B38A50] font-bold' : 'text-stone-500 hover:text-stone-800' }}">نسخه‌ها</a>
                 <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'Work']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'Work' ? 'bg-[#B38A50]/20 text-[#B38A50] font-bold' : 'text-stone-500 hover:text-stone-800' }}">آثار</a>
                 <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'Person']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'Person' ? 'bg-[#B38A50]/20 text-[#B38A50] font-bold' : 'text-stone-500 hover:text-stone-800' }}">اشخاص</a>
+                <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'feedback']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'feedback' ? 'bg-[#B38A50]/20 text-[#B38A50] font-bold' : 'text-stone-500 hover:text-stone-800' }}">بازخورد سایت</a>
             </div>
         </div>
 
@@ -84,19 +85,8 @@
                                 <div class="text-[10px] text-stone-400 mt-0.5">{{ $sug->created_at->format('Y/m/d H:i') }}</div>
                             </td>
                             <td class="p-4">
-                                @php
-                                    $base = class_basename($sug->suggestable_type);
-                                    $link = match($base) {
-                                        'Manuscript' => route('manuscripts.show', $sug->suggestable_id),
-                                        'Work' => route('works.show', $sug->suggestable_id),
-                                        'Person' => route('people.show', $sug->suggestable_id),
-                                        'Library' => route('libraries.show', $sug->suggestable_id),
-                                        default => '#'
-                                    };
-                                @endphp
-                                <a href="{{ $link }}" target="_blank" class="text-[#B38A50] hover:underline font-bold inline-flex items-center gap-1">
-                                    <span>{{ \App\Suggestions\SuggestionRegistry::typeLabel($sug->suggestable_type) }}</span>
-                                    <span class="font-mono">#{{ $sug->suggestable_id }}</span>
+                                <a href="{{ $sug->place_url ?? '#' }}" target="_blank" class="text-[#B38A50] hover:underline font-bold inline-flex items-center gap-1">
+                                    <span>{{ \Illuminate\Support\Str::limit($sug->place_label, 40) }}</span>
                                     <svg class="w-3 h-3 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                 </a>
                             </td>

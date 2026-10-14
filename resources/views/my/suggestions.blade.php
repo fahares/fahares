@@ -54,7 +54,9 @@
         <article class="bg-white dark:bg-[#15192C] p-5 sm:p-6 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3 text-xs sm:text-sm">
             <div class="flex flex-wrap items-start justify-between gap-2">
                 <div class="space-y-0.5 min-w-0">
-                    @if($record)
+                    @if($s->kind === 'feedback')
+                        <a href="{{ $s->place_url ?? '#' }}" class="font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] break-words">{{ $s->place_label }}</a>
+                    @elseif($record)
                         <a href="{{ $record['url'] }}" class="font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] break-words">{{ $record['label'] }}</a>
                     @else
                         <span class="font-bold text-stone-500">رکورد دیگر وجود ندارد (شاید ادغام شده است)</span>

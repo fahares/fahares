@@ -224,7 +224,7 @@
                         <div class="space-y-1 min-w-0">
                             <div class="flex items-center gap-2">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
-                                    {{ class_basename($sug->suggestable_type) }} #{{ $sug->suggestable_id }}
+                                    {{ \Illuminate\Support\Str::limit($sug->place_label, 40) }}
                                 </span>
                                 <span class="text-xs font-bold text-stone-900 dark:text-stone-100">
                                     فیلد: <span class="text-[#B38A50]">{{ $sug->field_label }}</span>

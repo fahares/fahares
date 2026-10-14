@@ -25,6 +25,7 @@ class SuggestionReviewed extends SuggestionNotification
         return match (true) {
             $this->event === 'demoted' && $s->standing === 'superseded' => 'قول شما درباره‌ی «' . $s->field_label . '» منسوخ شد',
             $this->event === 'demoted' => 'قول دیگری درباره‌ی «' . $s->field_label . '» مختار شد',
+            $s->kind === 'feedback' => 'گزارش شما درباره‌ی سایت بررسی شد',
             $s->status === 'rejected' => 'پیشنهاد شما درباره‌ی «' . $s->field_label . '» پذیرفته نشد',
             $s->standing === 'alternative' => 'پیشنهاد شما درباره‌ی «' . $s->field_label . '» به‌عنوان «قول دیگر» ثبت شد',
             default => 'پیشنهاد شما درباره‌ی «' . $s->field_label . '» تأیید شد',
@@ -34,7 +35,7 @@ class SuggestionReviewed extends SuggestionNotification
     protected function lines(object $notifiable): array
     {
         $s = $this->suggestion;
-        $lines = ['رکورد: ' . $this->recordLabel(), 'پیشنهاد شما: ' . self::short($s->applied_value ?? $s->suggested_value, 200)];
+        $lines = [$this->placeLine(), ($s->kind === 'feedback' ? 'گزارش شما: ' : 'پیشنهاد شما: ') . self::short($s->applied_value ?? $s->suggested_value, 200)];
 
         if ($this->event === 'demoted') {
             $replacement = $s->supersededBy;
@@ -52,6 +53,8 @@ class SuggestionReviewed extends SuggestionNotification
         }
 
         $lines[] = match (true) {
+            $s->kind === 'feedback' && $s->status === 'rejected' => 'داور گزارش را بررسی کرد و تغییری لازم ندانست.',
+            $s->kind === 'feedback' => 'داور به گزارش شما رسیدگی کرد.',
             $s->status === 'rejected' => 'داور پیشنهاد را نپذیرفت.',
             $s->kind === 'note' => 'یادداشت شما در صفحه‌ی رکورد، بخش «یادداشت‌ها و منابع پژوهشی»، منتشر شد.',
             $s->standing === 'adopted' => 'پیشنهاد در شناسنامه‌ی رکورد اعمال شد و به‌عنوان «قول مختار» با مستندش در صفحه نمایش داده می‌شود.',

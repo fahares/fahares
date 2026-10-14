@@ -73,6 +73,26 @@ class FieldSuggestion extends Model
         return (string) $value;
     }
 
+    /** Where the suggestion is about: a record, or for site feedback the page it was sent from. */
+    public function getPlaceLabelAttribute(): string
+    {
+        if ($this->kind === 'feedback') {
+            return 'صفحه: ' . ($this->payload['title'] ?? $this->payload['url'] ?? 'نامشخص');
+        }
+
+        return SuggestionRegistry::typeLabel($this->suggestable_type) . ' #' . $this->suggestable_id;
+    }
+
+    public function getPlaceUrlAttribute(): ?string
+    {
+        if ($this->kind === 'feedback') {
+            return isset($this->payload['url']) ? url($this->payload['url']) : null;
+        }
+        $record = $this->suggestable;
+
+        return $record ? SuggestionRegistry::describe($record)['url'] : null;
+    }
+
     public function annotations(): HasMany
     {
         return $this->hasMany(ScholarlyAnnotation::class, 'suggestion_id');
@@ -108,6 +128,9 @@ class FieldSuggestion extends Model
         }
         if ($this->kind === 'note') {
             return \App\Suggestions\NoteTypes::label($this->field_name);
+        }
+        if ($this->kind === 'feedback') {
+            return SuggestionRegistry::FEEDBACK_CATEGORIES[$this->field_name] ?? 'بازخورد سایت';
         }
 
         return $this->fieldDefinition()['label'] ?? ($this->field_name ?: 'نامشخص');
