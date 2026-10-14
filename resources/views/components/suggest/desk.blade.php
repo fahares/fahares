@@ -105,8 +105,8 @@
                                 هر نکته‌ای که در فیلدهای این صفحه نمی‌گنجد اینجا بنویسید. مثلاً: «این کاتب همان کسی است که در صفحه‌ی فلان آمده» یا «این دو کتابخانه یکی‌اند».
                             </p>
 
-                            <!-- Target picker for relational suggestions -->
-                            <template x-if="relation">
+                            <!-- Target picker for relational suggestions (another name of a person has none) -->
+                            <template x-if="relation && relation.target">
                                 <div class="space-y-1 relative">
                                     <label class="block font-semibold text-stone-700 dark:text-stone-300"
                                         x-text="relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')"></label>
@@ -203,10 +203,10 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                            x-text="mode === 'general' ? (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:') : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && !relation.target ? 'نام دیگر:' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:')) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
-                            <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey" class="{{ $inputClass }}"
+                            <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && !relation.target)" class="{{ $inputClass }}"
                                 :placeholder="mode === 'field' && field.input === 'list' ? 'هر مورد در یک سطر' : ''"></textarea>
                         </template>
 

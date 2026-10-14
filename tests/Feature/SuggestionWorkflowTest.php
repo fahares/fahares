@@ -1024,4 +1024,91 @@ class SuggestionWorkflowTest extends TestCase
 
         $user->delete();
     }
+
+    protected function rollbackLatest($record): void
+    {
+        $log = AuditLog::where('auditable_type', $record::class)->where('auditable_id', $record->id)->where('action', 'verify')->latest('id')->first();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+    }
+
+    public function test_linking_a_manuscript_scribe_to_a_person_and_back()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $person = $this->person('عبدالله بن محمود');
+        $m = $this->manuscript(['scribe_name' => 'عبدالله']);
+        // The catalog's name, kept as text without a person record
+        DB::table('manuscript_scribe')->insert(['manuscript_id' => $m->id, 'person_id' => null, 'name' => 'عبدالله', 'position' => 0]);
+
+        $this->relate($m, 'scribe_is', $person)->assertOk();
+        $s = $this->pendingFor($m);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کاتب اصلی این نسخه');
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+
+        $m->refresh();
+        $this->assertSame($person->id, $m->scribe_id);
+        $this->assertSame('عبدالله', $m->scribe_name);
+        $this->assertSame([$person->id], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
+        $this->assertSame(1, $person->fresh()->manuscripts_count);
+
+        $this->rollbackLatest($m);
+        $this->assertNull($m->fresh()->scribe_id);
+        $this->assertSame(['عبدالله'], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('name')->all());
+        $this->assertSame(0, $person->fresh()->manuscripts_count);
+    }
+
+    public function test_adding_a_second_scribe_and_replacing_an_author()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $first = $this->person('کاتب نخست');
+        $second = $this->person('کاتب دوم');
+        $m = $this->manuscript(['scribe_name' => $first->name, 'scribe_id' => $first->id]);
+
+        $this->relate($m, 'scribe_also', $second)->assertOk();
+        $s = $this->pendingFor($m);
+        $this->approve($s, ['contributor_note' => 'از برگ ۴۰ تا پایان'])->assertRedirect('/admin/suggestions');
+        $rows = DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->orderBy('position')->get();
+        $this->assertSame([$first->id, $second->id], $rows->pluck('person_id')->all());
+        $this->assertSame('از برگ ۴۰ تا پایان', $rows[1]->note);
+        $this->get(route('manuscripts.show', $m))->assertSee('کاتب دوم')->assertSee('از برگ ۴۰ تا پایان');
+
+        // The same person twice is refused; a rollback removes the added row only
+        $this->relate($m, 'scribe_also', $second)->assertOk();
+        $this->approve($this->pendingFor($m))->assertSessionHasErrors('applied_value');
+        $this->rollbackLatest($m);
+        $this->assertSame([$first->id], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
+        $this->assertSame(0, $second->fresh()->manuscripts_count);
+
+        // A work's attribution moves to another person, and both counts follow
+        $old = $this->person('مؤلف منسوب');
+        $real = $this->person('مؤلف درست');
+        $work = $this->work(['author_name' => $old->name, 'author_id' => $old->id]);
+        $old->recountContributions();
+        $this->relate($work, 'author_is', $real)->assertOk();
+        $this->approve($this->pendingFor($work))->assertRedirect('/admin/suggestions');
+        $this->assertSame($real->id, $work->fresh()->author_id);
+        $this->assertSame([0, 1], [$old->fresh()->works_count, $real->fresh()->works_count]);
+    }
+
+    public function test_another_name_of_a_person()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $p = $this->person('محمد بن حسین عاملی');
+
+        // No target to pick: the name itself is required
+        $this->relate($p, 'alias', null, ['suggested_value' => ''])->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->relate($p, 'alias', null, ['suggested_value' => 'شیخ بهائی'])->assertOk();
+        $s = $this->pendingFor($p);
+        $this->assertNull($s->payload['target_id'] ?? null);
+
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('افزودن نام دیگر');
+        $this->approve($s, ['alias' => 'شیخ بهائی'])->assertRedirect('/admin/suggestions');
+        $this->assertContains('شیخ بهائی', $p->fresh()->aliases);
+
+        // A name the person already has is refused
+        $this->relate($p, 'alias', null, ['suggested_value' => 'شیخ  بهائی'])->assertOk();
+        $this->approve($this->pendingFor($p), ['alias' => 'شیخ  بهائی'])->assertSessionHasErrors('applied_value');
+
+        $this->rollbackLatest($p);
+        $this->assertNotContains('شیخ بهائی', (array) $p->fresh()->aliases);
+    }
 }

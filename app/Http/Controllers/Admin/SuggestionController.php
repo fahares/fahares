@@ -218,6 +218,9 @@ class SuggestionController extends Controller
 
         $relation = $suggestion->relationDefinition();
         $record = $suggestion->suggestable;
+        if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias'], true)) {
+            return $this->approveContributor($request, $suggestion, $relation, $record);
+        }
         $other = $suggestion->relationTarget();
         if (! $relation || ! $record || ! $other) {
             return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
@@ -408,6 +411,61 @@ class SuggestionController extends Controller
         $suggestion->update(['status' => 'withdrawn', 'admin_notes' => ($validated['admin_notes'] ?? null) ?: $suggestion->admin_notes]);
 
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', "یادداشت #{$suggestion->id} از صفحه‌ی رکورد برداشته شد.");
+    }
+
+    /**
+     * Who copied a manuscript or wrote a work, and another name of a person (see ContributorRelations).
+     * Logged as "verify" so the audit log can undo it.
+     */
+    private function approveContributor(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        $validated = $request->validate([
+            'contributor_note' => 'nullable|string|max:500',
+            'alias' => 'nullable|string|max:600',
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+        $person = $suggestion->relationTarget();
+        if (! $record || ($relation['target'] && ! $person)) {
+            return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
+        }
+
+        $relations = app(\App\Suggestions\ContributorRelations::class);
+        try {
+            DB::transaction(function () use ($suggestion, $relation, $record, $person, $relations, $validated, $request) {
+                $result = match ($relation['apply']) {
+                    'contributor_set' => $relations->set($record, $person),
+                    'contributor_add' => $relations->add($record, $person, trim($validated['contributor_note'] ?? '') ?: null),
+                    'alias' => $relations->alias($record, (string) ($validated['alias'] ?? $suggestion->suggested_value)),
+                };
+
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => $record::class,
+                    'auditable_id' => $record->id,
+                    'action' => 'verify',
+                    'old_values' => $result['old'] ?: null,
+                    'new_values' => $result['new'] + ['suggestion_id' => $suggestion->id],
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $suggestion->update([
+                    'status' => 'approved',
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
+                    'resolution' => ['applied' => true] + $result['resolution'],
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            return back()->withErrors(['applied_value' => $e->getMessage()]);
+        }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')
+            ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
     }
 
     /**

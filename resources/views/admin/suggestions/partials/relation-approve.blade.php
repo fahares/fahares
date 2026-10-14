@@ -6,9 +6,48 @@
         </div>
     @endif
 
-    @if(! $target || ! $relationTarget)
+    @php $apply = $relation['apply'] ?? null; @endphp
+    @if(in_array($apply, ['contributor_set', 'contributor_add', 'alias'], true) && $target && ($relationTarget || ! $relation['target']))
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <p class="leading-relaxed text-stone-600 dark:text-stone-300">
+                @switch($apply)
+                    @case('contributor_set')
+                        «{{ $relationTarget->name }}» {{ $relation['key'] === 'scribe_is' ? 'کاتب اصلی این نسخه' : 'پدیدآور اصلی این اثر' }} می‌شود{{ $relation['key'] === 'scribe_is' ? ($target->scribe_id ? ' و کاتب فعلی از فهرست کاتبان برداشته می‌شود' : '') : ($target->author_id ? ' و پدیدآور فعلی از فهرست پدیدآوران برداشته می‌شود' : '') }}. نامی که فهرست چاپی آورده، دست نمی‌خورد.
+                        @break
+                    @case('contributor_add')
+                        «{{ $relationTarget->name }}» پس از {{ $relation['key'] === 'scribe_also' ? 'کاتبان' : 'پدیدآوران' }} فعلی به فهرست افزوده می‌شود.
+                        @break
+                    @default
+                        این نام به نام‌ها و شهرت‌های «{{ $target->name }}» افزوده می‌شود و در جستجو هم پیدا می‌شود.
+                @endswitch
+                این تغییر از «گزارش ممیزی» بازگرداندنی است.
+            </p>
+            @if($apply === 'contributor_add')
+                <div class="space-y-1">
+                    <label class="block font-bold text-stone-700 dark:text-stone-300">سهم او (اختیاری؛ مثلاً «جلد دوم» یا «از برگ ۴۰ تا پایان»):</label>
+                    <input type="text" name="contributor_note" value="{{ old('contributor_note') }}" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100">
+                </div>
+            @elseif($apply === 'alias')
+                <div class="space-y-1">
+                    <label class="block font-bold text-stone-700 dark:text-stone-300">نام دیگر (می‌توانید پیش از تأیید ویرایش کنید):</label>
+                    <input type="text" name="alias" value="{{ old('alias', $suggestion->suggested_value) }}" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-bold">
+                </div>
+            @endif
+            <div class="space-y-1">
+                <label class="block font-bold text-stone-700 dark:text-stone-300">یادداشت عمومی <span class="font-normal text-stone-400">(پیشنهاددهنده می‌بیند؛ اختیاری)</span>:</label>
+                <input type="text" name="public_note" value="{{ old('public_note') }}" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100">
+            </div>
+            <div class="space-y-1">
+                <label class="block font-bold text-stone-700 dark:text-stone-300">یادداشت داخلی <span class="font-normal text-stone-400">(فقط داوران)</span>:</label>
+                <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" class="w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100">
+            </div>
+            <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
+    @elseif(! $target || ! $relationTarget)
         <p class="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-bold">یکی از دو رکورد وجود ندارد و این پیشنهاد قابل اعمال نیست. آن را رد کنید.</p>
-    @elseif($relation['target'] === 'person')
+    @elseif($apply === 'merge_people')
         <p class="leading-relaxed text-stone-600 dark:text-stone-300">
             ادغام اشخاص با ابزار ادغام اشخاص انجام می‌شود. در آنجا مقایسه‌ی کامل دو شخص را می‌بینید و می‌توانید جای مبدأ و مقصد را عوض کنید. با انجام ادغام، این پیشنهاد خودکار «تأییدشده» ثبت می‌شود و با بازگردانی ادغام، دوباره «در انتظار» می‌شود.
         </p>

@@ -324,6 +324,13 @@ class AuditLogController extends Controller
         }
 
         $old = $log->old_values ?? [];
+        // An added scribe or author is one pivot row; "contributors" only records the list before
+        unset($old['contributors']);
+        if ($added = $log->new_values['added_contributor'] ?? null) {
+            DB::table($added['table'])->where('id', $added['id'])->delete();
+            Person::find($added['person_id'])?->recountContributions();
+        }
+        $previousAuthor = $target->author_id ?? null;
         $previousScribe = $target->scribe_id ?? null;
         $previousWork = $target instanceof Manuscript ? $target->work_id : null;
         if ($old) {
@@ -369,6 +376,19 @@ class AuditLogController extends Controller
         }
         if ($edited = $log->new_values['edited_reading'] ?? null) {
             FieldSuggestion::whereKey($edited['id'])->update(['applied_value' => $edited['applied_value']]);
+        }
+
+        // An unlinked catalog name that a newly linked primary person replaced
+        if ($row = $log->new_values['removed_name_row'] ?? null) {
+            $table = $row['table'];
+            unset($row['table']);
+            DB::table($table)->insertOrIgnore($row);
+        }
+
+        if (array_key_exists('author_id', $old)) {
+            foreach (array_unique(array_filter([$previousAuthor, $old['author_id']])) as $personId) {
+                Person::find($personId)?->recountContributions();
+            }
         }
 
         // A scribe link changed: recount both people, and drop a person the approval created if nothing else uses it

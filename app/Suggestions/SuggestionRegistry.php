@@ -41,17 +41,27 @@ class SuggestionRegistry
     /**
      * Relational suggestions per record type: the submitter points at another record (target).
      * Stored with kind "relation", the key in field_name and {"target_id": …} in payload.
+     *
+     * apply: how approval works. move/merge (RecordMerger), merge_people (the people merge tool),
+     * contributor_set (the record's primary scribe or author becomes the target person),
+     * contributor_add (the target person is added as a further scribe or author),
+     * alias (no target: the submitted text is added to the person's other names).
      */
     public const RELATIONS = [
         'manuscript' => [
-            'move_to_work' => ['label' => 'این نسخه از اثر دیگری است', 'target' => 'work', 'action' => 'انتقال نسخه به اثر دیگر'],
-            'duplicate' => ['label' => 'این نسخه تکراری است (همان نسخه‌ی دیگری است)', 'target' => 'manuscript', 'action' => 'ادغام نسخه‌ی تکراری'],
+            'move_to_work' => ['label' => 'این نسخه از اثر دیگری است', 'target' => 'work', 'action' => 'انتقال نسخه به اثر دیگر', 'apply' => 'move'],
+            'duplicate' => ['label' => 'این نسخه تکراری است (همان نسخه‌ی دیگری است)', 'target' => 'manuscript', 'action' => 'ادغام نسخه‌ی تکراری', 'apply' => 'merge'],
+            'scribe_is' => ['label' => 'کاتب این نسخه همان شخصی است که در فهارس ثبت شده', 'target' => 'person', 'action' => 'پیوند کاتب به این شخص', 'apply' => 'contributor_set'],
+            'scribe_also' => ['label' => 'کاتب دیگری هم در کتابت این نسخه سهم داشته است', 'target' => 'person', 'action' => 'افزودن کاتب', 'apply' => 'contributor_add'],
         ],
         'work' => [
-            'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری'],
+            'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری', 'apply' => 'merge'],
+            'author_is' => ['label' => 'پدیدآور این اثر شخص دیگری است (انتساب فعلی نادرست است)', 'target' => 'person', 'action' => 'تعیین پدیدآور', 'apply' => 'contributor_set'],
+            'author_also' => ['label' => 'این اثر پدیدآور دیگری هم دارد', 'target' => 'person', 'action' => 'افزودن پدیدآور', 'apply' => 'contributor_add'],
         ],
         'person' => [
-            'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص'],
+            'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],
+            'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias'],
         ],
     ];
 

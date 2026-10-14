@@ -78,11 +78,17 @@ class SuggestionController extends Controller
             if (! $relation) {
                 throw ValidationException::withMessages(['field_name' => 'این نوع پیشنهاد برای این رکورد تعریف نشده است.']);
             }
-            $target = SuggestionRegistry::modelClass($relation['target'])::find($validated['target_id'] ?? 0);
-            if (! $target) {
+            // A relation without a target (another name of a person) is carried by the submitted text
+            if (! $relation['target']) {
+                if (trim($validated['suggested_value'] ?? '') === '') {
+                    throw ValidationException::withMessages(['suggested_value' => 'نام دیگر را بنویسید.']);
+                }
+            }
+            $target = $relation['target'] ? SuggestionRegistry::modelClass($relation['target'])::find($validated['target_id'] ?? 0) : null;
+            if ($relation['target'] && ! $target) {
                 throw ValidationException::withMessages(['target_id' => 'رکورد مقصد را انتخاب کنید.']);
             }
-            if ($target->is($record)) {
+            if ($target?->is($record)) {
                 throw ValidationException::withMessages(['target_id' => 'رکورد مقصد نمی‌تواند خود همین رکورد باشد.']);
             }
             if (mb_strlen(trim($validated['rationale_citation'] ?? '')) < 5) {
@@ -93,7 +99,7 @@ class SuggestionController extends Controller
         $user = $request->user();
         $payload = array_filter([
             'person_id' => $field && $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null,
-            'target_id' => $relation ? (int) $validated['target_id'] : null,
+            'target_id' => $relation && $relation['target'] ? (int) $validated['target_id'] : null,
         ]);
 
         $suggestion = FieldSuggestion::create([
