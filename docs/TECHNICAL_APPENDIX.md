@@ -2041,3 +2041,18 @@
 
 - [people/show.blade.php](../resources/views/people/show.blade.php): `$hasAuthored` و `$hasScribed` از `total()` همان paginatorها گرفته می‌شوند. این همان پیوند واقعی با آثار و نسخه‌هاست، نه پرچم‌های `is_author` و `is_scribe`. ادغام اشخاص رکوردها را به شخص ماندنی منتقل می‌کند، پس آثار و نسخه‌های اشخاص ادغام‌شده هم شمرده می‌شوند. `$defaultTab` مقدار `scribed` می‌گیرد اگر تألیفات خالی باشد یا `manuscripts_page` در نشانی باشد. پیش‌تر صفحه‌ی ۲ نسخه‌ها هم روی تب تألیفات باز می‌شد. پنل غیرپیش‌فرض از ابتدا `display: none` می‌گیرد.
 - آزمون تازه: [PersonPageTabsTest.php](../tests/Feature/PersonPageTabsTest.php)، با سه حالت: فقط کاتب، مؤلف و کاتب، و بی‌اثر و بی‌نسخه.
+
+### گام ۱۱.۲۲: جستجوی «همه‌ی اطلاعات» در آثار
+
+- **ریشه‌ی دقیق‌تر از شرح بک‌لاگ:** `Work::toSearchableArray` از پیش `incipit_text`، `explicit_text` و `description` را می‌فرستاد. فقط در `searchableAttributes` نمایه‌ی آثار نبودند. این سه فیلد، به‌اضافه‌ی `manuscript_texts`، به انتهای فهرست در [config/scout.php](../config/scout.php) افزوده شدند.
+- [Work.php](../app/Models/Work.php): متد `manuscriptSearchTexts()` آغاز و انجام نسخه‌ها را نرمال می‌کند. متن‌های تهی، «برابر…» و برابر با آغاز و انجام خود اثر را کنار می‌گذارد، بر پایه‌ی تکرار مرتب می‌کند، و سقف `SEARCH_MANUSCRIPT_TEXTS_MAX = 50` و `SEARCH_MANUSCRIPT_TEXTS_MAX_CHARS = 20000` را اعمال می‌کند. خروجی آرایه است، پس تطبیق عبارت از مرز دو متن نمی‌گذرد. `makeAllSearchableUsing` نسخه‌ها را با ستون‌های لازم eager-load می‌کند.
+- **اندازه (پایگاه محلی):** بدون سقف، ۴۸٬۴۱۳ اثر ۲۰۷٬۵۱۷ متن (حدود ۲۶ میلیون نویسه) می‌گرفتند. بیشینه‌ی یک اثر ۱٬۶۱۰ متن و ۳۶۲ هزار نویسه بود. ۴۲۲ اثر بیش از ۵۰ متن و ۲۳۵ اثر بیش از ۱۰ هزار نویسه داشتند. نمایه‌سازی دوباره‌ی همه‌ی آثار محلی ۵۷ ثانیه طول کشید.
+- [Manuscript.php](../app/Models/Manuscript.php): رویدادهای `saved` و `deleted` اثر را از نو نمایه می‌کنند. `saved` فقط برای نسخه‌ی تازه یا تغییر `incipit_text`/`explicit_text`/`work_id` عمل می‌کند و در تغییر `work_id` اثر پیشین را هم نمایه می‌کند. اگر همگام‌سازی Work خاموش باشد (`ModelObserver::syncingDisabledFor`)، کاری نمی‌کند. دستورهای انبوه با `DB::table` می‌نویسند و این رویدادها را برنمی‌انگیزند. پس از آن‌ها همچنان `scout:import` لازم است.
+- [SearchController.php](../app/Http/Controllers/SearchController.php):
+  - ویژگی‌های هر دامنه در `scopeAttributes()` یکجا شد.
+  - در حالت `all`، `showMatchesPosition` فیلدهای تطبیق‌خورده را برمی‌گرداند. `workMatchReason()` فقط وقتی برچسب می‌دهد که هیچ فیلدی جز متن‌ها تطبیق نخورده باشد.
+  - `tabCounts()` برای دو تب دیگر با `limit: 0` و همان دامنه، بدون فیلترهای تب جاری، تعداد را می‌گیرد. تب جاری `total()` خودش را نشان می‌دهد. اگر Meilisearch خطا بدهد، شمارش‌ها نمایش داده نمی‌شوند.
+- [search.blade.php](../resources/views/search.blade.php): شمار نتایج کنار نام تب‌ها، برچسب علت در کارت اثر، و پیوند به تب‌های دارای نتیجه در حالت «نتیجه‌ای یافت نشد». [home.blade.php](../resources/views/home.blade.php): `scope=all`.
+- **بررسی محلی:** «واضع خط نسخ و تعلیق»، که فقط در آغاز یکی از نسخه‌های «آداب خط» (#209) آمده، در حالت `all` این اثر را اول می‌آورد. شمار تب‌ها ۸۳ اثر و ۱۴ نسخه است. در حالت `titles_names` تب آثار صفر است. برای «شرح»، «رساله» و «ابن سینا»، پنج نتیجه‌ی اول در دو حالت یکسان است و فقط شمار کل بیشتر می‌شود (مثلاً ۷٬۰۱۷ به ۱۵٬۲۲۳).
+- آزمون تازه: [WorkSearchTextsTest.php](../tests/Feature/WorkSearchTextsTest.php). آزمون‌ها با درایور `collection` اجرا می‌شوند و این درایور callback جستجو را با امضای دیگری صدا می‌زند. پس جستجوی صفحه با عبارت در آزمون اجراشدنی نیست و بررسی آن محلی و روی Meilisearch انجام شد.
+- **پس از استقرار روی تولید:** `php artisan scout:sync-index-settings` و سپس `php artisan scout:import "App\Models\Work"`.
