@@ -4,7 +4,13 @@
 @section('meta_description', 'شناسنامه علمی، آثار و نسخه‌های کتابت‌شده ' . $person->name . ' در فهارس نسخه‌های خطی')
 
 @section('content')
-<div x-data="{ activeTab: 'authored' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+@php
+    // Show only tabs that have records; open on the one with data (or the one being paginated).
+    $hasAuthored = $authoredWorks->total() > 0;
+    $hasScribed = $scribedManuscripts->total() > 0;
+    $defaultTab = $hasScribed && (! $hasAuthored || request()->has('manuscripts_page')) ? 'scribed' : 'authored';
+@endphp
+<div x-data="{ activeTab: '{{ $defaultTab }}' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs text-stone-500">
@@ -106,6 +112,7 @@
         </div>
 
         <!-- Metric tabs switch -->
+        @if($hasAuthored && $hasScribed)
         <div class="flex items-center gap-3 pt-4 border-t border-stone-100 dark:border-stone-800 text-sm font-semibold">
             <button 
                 @click="activeTab = 'authored'" 
@@ -122,11 +129,19 @@
                 <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->scribed_manuscripts_count ?? $person->manuscripts_count ?? $scribedManuscripts->total() }}</span>
             </button>
         </div>
+        @endif
 
     </div>
 
+    @if(! $hasAuthored && ! $hasScribed)
+        <div class="p-8 bg-white dark:bg-[#15192C] rounded-2xl text-center text-stone-400 text-xs">
+            اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.
+        </div>
+    @endif
+
     <!-- TAB 1: AUTHORED WORKS -->
-    <div x-show="activeTab === 'authored'" class="space-y-4">
+    @if($hasAuthored)
+    <div x-show="activeTab === 'authored'" class="space-y-4" @if($defaultTab !== 'authored') style="display: none;" @endif>
         
         <h2 class="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
             <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
@@ -188,9 +203,11 @@
         @endif
 
     </div>
+    @endif
 
     <!-- TAB 2: SCRIBED MANUSCRIPTS -->
-    <div x-show="activeTab === 'scribed'" class="space-y-4" style="display: none;">
+    @if($hasScribed)
+    <div x-show="activeTab === 'scribed'" class="space-y-4" @if($defaultTab !== 'scribed') style="display: none;" @endif>
         
         <h2 class="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
             <span class="w-2 h-5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
@@ -239,6 +256,7 @@
         @endif
 
     </div>
+    @endif
 
     <!-- OTHER ROLES: manuscripts this person owned, endowed, corrected… -->
     @php $roleRows = $person->manuscriptRoles()->with(['manuscript.work', 'manuscript.libraryRecord'])->latest('id')->limit(100)->get(); @endphp
