@@ -311,6 +311,14 @@
                         </svg>
                         <span>مکاتبه: info@fahares.net</span>
                     </a>
+                    @guest
+                        <a href="{{ route('register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#B38A50]/60 hover:bg-[#B38A50]/15 text-amber-200 font-bold text-xs transition duration-150 whitespace-nowrap">
+                            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                            <span>ثبت‌نام پژوهشگران</span>
+                        </a>
+                    @endguest
                 </div>
             </div>
 

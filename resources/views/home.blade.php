@@ -279,6 +279,10 @@
                     <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
                         از عموم نسخه‌پژوهان، فهرست‌نگاران و محققان گران‌قدر صمیمانه تقاضا داریم با بررسی شناسنامه‌ها، نارسایی‌ها و پیشنهادهای اصلاحی خود را (اعم از تصحیح مشخصات نسخه‌ها، انتساب آثار، تاریخ‌ها، کاتبان و مراجع، یا گزارش باگ‌های فنی) با ما در میان بگذارند تا این مرجع ملی گام به گام به دقت و کمال مطلوب نزدیک‌تر شود.
                     </p>
+
+                    <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                        با ثبت‌نام، پیشنهادها و یادداشت‌های پژوهشی شما به نام خودتان ثبت می‌شود و وضعیت داوری هر کدام را در صفحه‌ی «پیشنهادهای من» می‌بینید.
+                    </p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
@@ -288,6 +292,22 @@
                         </svg>
                         <span>ارسال ایمیل: info@fahares.net</span>
                     </a>
+
+                    @guest
+                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border border-[#B38A50]/60 hover:bg-[#B38A50]/15 text-amber-200 font-bold text-xs sm:text-sm transition-all duration-200 text-center">
+                            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                            <span>ثبت‌نام پژوهشگران</span>
+                        </a>
+                    @else
+                        <a href="{{ route('my.suggestions') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border border-[#B38A50]/60 hover:bg-[#B38A50]/15 text-amber-200 font-bold text-xs sm:text-sm transition-all duration-200 text-center">
+                            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                            <span>پیشنهادهای من</span>
+                        </a>
+                    @endguest
 
                     <a href="{{ route('search') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-black/20 hover:bg-black/30 text-stone-300 text-xs transition-all duration-200 text-center">
                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
