@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Laravel\Scout\ModelObserver;
 use Laravel\Scout\Searchable;
 
 class Manuscript extends Model
@@ -27,6 +28,28 @@ class Manuscript extends Model
                 $manuscript->copy_date_hijri_year = HijriYear::parse($manuscript->copy_date_raw);
             }
         });
+
+        // The works index carries each work's manuscript incipits/explicits (Work::manuscriptSearchTexts)
+        static::saved(function (Manuscript $manuscript) {
+            if (! $manuscript->wasRecentlyCreated && ! $manuscript->wasChanged(['incipit_text', 'explicit_text', 'work_id'])) {
+                return;
+            }
+            $workIds = [$manuscript->work_id];
+            if ($manuscript->wasChanged('work_id')) {
+                $workIds[] = $manuscript->getPrevious()['work_id'] ?? null;
+            }
+            static::reindexWorks($workIds);
+        });
+
+        static::deleted(fn (Manuscript $manuscript) => static::reindexWorks([$manuscript->work_id]));
+    }
+
+    protected static function reindexWorks(array $workIds): void
+    {
+        $workIds = array_values(array_unique(array_filter($workIds)));
+        if ($workIds && ! ModelObserver::syncingDisabledFor(Work::class)) {
+            Work::whereIn('id', $workIds)->searchable();
+        }
     }
 
     protected static function primaryContributorPivot(): array

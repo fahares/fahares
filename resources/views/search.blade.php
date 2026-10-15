@@ -56,15 +56,15 @@
                     <span class="text-xs text-stone-400 font-medium">دامنه:</span>
                     <button type="submit" onclick="document.getElementById('search-type-input').value='works'" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'works' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
-                        آثار و عناوین
+                        آثار و عناوین@isset($tabCounts['works']) <span class="text-[10px] opacity-75">({{ number_format($tabCounts['works']) }})</span>@endisset
                     </button>
                     <button type="submit" onclick="document.getElementById('search-type-input').value='manuscripts'" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'manuscripts' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
-                        نسخه‌های خطی
+                        نسخه‌های خطی@isset($tabCounts['manuscripts']) <span class="text-[10px] opacity-75">({{ number_format($tabCounts['manuscripts']) }})</span>@endisset
                     </button>
                     <button type="submit" onclick="document.getElementById('search-type-input').value='people'" 
                         class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'people' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
-                        پدیدآوران و کاتبان
+                        پدیدآوران و کاتبان@isset($tabCounts['people']) <span class="text-[10px] opacity-75">({{ number_format($tabCounts['people']) }})</span>@endisset
                     </button>
                 </div>
 
@@ -664,6 +664,9 @@
                                         @if($work->clean_title && $work->clean_title !== $work->primary_title)
                                             <span class="text-xs text-stone-400 mr-2">(@highlight($work->clean_title, $query))</span>
                                         @endif
+                                        @if($work->match_reason ?? null)
+                                            <span class="inline-block mr-2 px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 text-[10px] align-middle">{{ $work->match_reason }}</span>
+                                        @endif
                                         
                                         <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
                                             @if($work->author)
@@ -892,6 +895,21 @@
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <div class="text-lg font-bold text-stone-800 dark:text-stone-200">نتیجه‌ای با مشخصات درخواستی یافت نشد</div>
+
+                    @php
+                        $tabLabels = ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص'];
+                        $elsewhere = collect($tabCounts ?? [])->except($type)->filter();
+                    @endphp
+                    @if($elsewhere->isNotEmpty())
+                        <div class="flex flex-wrap justify-center gap-2 text-sm">
+                            @foreach($elsewhere as $tab => $count)
+                                <a href="{{ route('search', ['q' => $query, 'type' => $tab, 'scope' => $scope]) }}"
+                                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-[#B38A50]/30 hover:border-[#B38A50] text-[#B38A50] font-semibold transition">
+                                    {{ number_format($count) }} {{ $tabLabels[$tab] }} با این عبارت پیدا شد ←
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
 
                     @if(!empty($suggestion))
                         <div class="inline-flex items-center gap-2 p-3.5 px-6 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-[#B38A50]/30 text-stone-800 dark:text-stone-200 text-sm shadow-xs">

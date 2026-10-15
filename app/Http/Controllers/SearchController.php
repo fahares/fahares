@@ -82,12 +82,7 @@ class SearchController extends Controller
 
         if ($type === 'manuscripts') {
             // Determine attributes to search on based on scope
-            $searchAttrs = null;
-            if ($scope === 'titles') {
-                $searchAttrs = ['work_title'];
-            } elseif ($scope === 'titles_names') {
-                $searchAttrs = ['work_title', 'author_name', 'scribe_name'];
-            }
+            $searchAttrs = self::scopeAttributes('manuscripts', $scope);
 
             // 1. Fetch dynamic faceted distribution for manuscripts
             $meiliClient = app(MeiliClient::class);
@@ -233,12 +228,7 @@ class SearchController extends Controller
                 $results = $builder->orderBy('id')->paginate($perPage)->withQueryString();
             }
         } elseif ($type === 'people') {
-            $peopleSearchAttrs = null;
-            if ($scope === 'titles') {
-                $peopleSearchAttrs = ['name'];
-            } elseif ($scope === 'titles_names') {
-                $peopleSearchAttrs = ['name', 'normalized_name', 'transliteration'];
-            }
+            $peopleSearchAttrs = self::scopeAttributes('people', $scope);
 
             if ($searchQuery !== '') {
                 $results = Person::search($searchQuery, function ($meili, $searchQuery, $options) use ($peopleSearchAttrs) {
@@ -262,12 +252,7 @@ class SearchController extends Controller
             // Default: works
             $type = 'works';
 
-            $workSearchAttrs = null;
-            if ($scope === 'titles') {
-                $workSearchAttrs = ['primary_title', 'clean_title', 'alternative_titles'];
-            } elseif ($scope === 'titles_names') {
-                $workSearchAttrs = ['primary_title', 'clean_title', 'alternative_titles', 'author_name'];
-            }
+            $workSearchAttrs = self::scopeAttributes('works', $scope);
 
             // 1. Facet distribution for works
             if ($searchQuery !== '') {
@@ -394,18 +379,29 @@ class SearchController extends Controller
 
                 $filterString = !empty($workFilters) ? implode(' AND ', $workFilters) : null;
 
-                $builder = Work::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $workSearchAttrs) {
+                $workMatchedFields = [];
+                $builder = Work::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $workSearchAttrs, &$workMatchedFields) {
                     $options['matchingStrategy'] = 'all';
                     if ($workSearchAttrs) {
                         $options['attributesToSearchOn'] = $workSearchAttrs;
+                    } else {
+                        // Only the "all" scope reaches text fields; record which fields matched to explain the hit
+                        $options['showMatchesPosition'] = true;
                     }
                     if ($filterString) {
                         $options['filter'] = $filterString;
                     }
-                    return $meili->search($searchQuery, $options);
+                    $result = $meili->search($searchQuery, $options);
+                    foreach ($result->getHits() as $hit) {
+                        $workMatchedFields[$hit['id']] = array_keys($hit['_matchesPosition'] ?? []);
+                    }
+                    return $result;
                 })->query(fn($q) => $q->with(['catalog', 'author', 'subjects', 'languages']));
 
                 $results = $builder->paginate($perPage)->withQueryString();
+                foreach ($results as $work) {
+                    $work->match_reason = self::workMatchReason($workMatchedFields[$work->id] ?? []);
+                }
             } else {
                 $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages']);
                 if ($subjectId && $selectedSubject) {
@@ -489,6 +485,8 @@ class SearchController extends Controller
             }
         }
 
+        $tabCounts = $searchQuery !== '' && $results ? $this->tabCounts($searchQuery, $scope, $type, $results->total()) : [];
+
         $suggestion = null;
         if ($results && $results->total() === 0 && $searchQuery !== '') {
             $suggestion = $this->getDidYouMeanSuggestion($searchQuery, $type);
@@ -522,8 +520,80 @@ class SearchController extends Controller
             'validWorkForms',
             'manuscriptsRange',
             'validManuscriptRanges',
-            'suggestion'
+            'suggestion',
+            'tabCounts'
         ));
+    }
+
+    /**
+     * Attributes each search tab searches on for a scope; null means every searchable attribute ("all").
+     */
+    protected static function scopeAttributes(string $type, string $scope): ?array
+    {
+        return [
+            'works' => [
+                'titles' => ['primary_title', 'clean_title', 'alternative_titles'],
+                'titles_names' => ['primary_title', 'clean_title', 'alternative_titles', 'author_name'],
+            ],
+            'manuscripts' => [
+                'titles' => ['work_title'],
+                'titles_names' => ['work_title', 'author_name', 'scribe_name'],
+            ],
+            'people' => [
+                'titles' => ['name'],
+                'titles_names' => ['name', 'normalized_name', 'transliteration'],
+            ],
+        ][$type][$scope] ?? null;
+    }
+
+    /**
+     * Why a work matched when nothing in its titles, author or subject did: its own incipit/explicit,
+     * its manuscripts' incipits/explicits, or its description. Null when the match needs no explaining.
+     */
+    protected static function workMatchReason(array $matchedFields): ?string
+    {
+        $fields = array_unique(array_map(fn ($f) => preg_split('/[.\[]/', $f)[0], $matchedFields));
+        $textFields = ['incipit_text', 'explicit_text', 'manuscript_texts', 'description'];
+        if (! $fields || array_diff($fields, $textFields)) {
+            return null;
+        }
+        if (array_intersect($fields, ['incipit_text', 'explicit_text'])) {
+            return 'یافته در آغاز یا انجام اثر';
+        }
+        if (in_array('manuscript_texts', $fields, true)) {
+            return 'یافته در آغاز یا انجام نسخه‌ها';
+        }
+
+        return 'یافته در معرفی اثر';
+    }
+
+    /**
+     * Hit counts for the three tabs, so a search on the wrong tab points to where the matches are.
+     * The current tab keeps its filtered total; the others count the bare query in the same scope.
+     */
+    protected function tabCounts(string $searchQuery, string $scope, string $type, int $currentTotal): array
+    {
+        $indexes = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'];
+        $counts = [$type => $currentTotal];
+        try {
+            $meili = app(MeiliClient::class);
+            foreach ($indexes as $tab => $index) {
+                if ($tab === $type) {
+                    continue;
+                }
+                $options = ['matchingStrategy' => 'all', 'limit' => 0];
+                if ($attrs = self::scopeAttributes($tab, $scope)) {
+                    $options['attributesToSearchOn'] = $attrs;
+                }
+                $counts[$tab] = (int) $meili->index($index)->search($searchQuery, $options)->getEstimatedTotalHits();
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Search tab counts failed: ' . $e->getMessage());
+
+            return [];
+        }
+
+        return $counts;
     }
 
     /**

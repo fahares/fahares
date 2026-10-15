@@ -95,7 +95,52 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases']);
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases', 'manuscripts:id,work_id,incipit_text,explicit_text']);
+    }
+
+    /** Caps on the manuscript incipits/explicits folded into one work's search document. */
+    public const SEARCH_MANUSCRIPT_TEXTS_MAX = 50;
+    public const SEARCH_MANUSCRIPT_TEXTS_MAX_CHARS = 20000;
+
+    /**
+     * Distinct incipits and explicits of this work's manuscripts, normalized, for the works index.
+     * Drops «برابر …» cross-references and texts equal to the work's own; most frequent first, then capped.
+     */
+    public function manuscriptSearchTexts(): array
+    {
+        $manuscripts = $this->relationLoaded('manuscripts')
+            ? $this->manuscripts
+            : $this->manuscripts()->get(['id', 'work_id', 'incipit_text', 'explicit_text']);
+
+        $own = array_filter([
+            \App\Helpers\TextNormalizer::normalize($this->incipit_text),
+            \App\Helpers\TextNormalizer::normalize($this->explicit_text),
+        ]);
+
+        $counts = [];
+        foreach ($manuscripts as $ms) {
+            foreach ([$ms->incipit_text, $ms->explicit_text] as $text) {
+                $text = \App\Helpers\TextNormalizer::normalize($text);
+                if ($text === '' || str_starts_with($text, 'برابر') || in_array($text, $own, true)) {
+                    continue;
+                }
+                $counts[$text] = ($counts[$text] ?? 0) + 1;
+            }
+        }
+        arsort($counts);
+
+        $texts = [];
+        $chars = 0;
+        foreach (array_keys($counts) as $text) {
+            $len = mb_strlen($text);
+            if (count($texts) >= self::SEARCH_MANUSCRIPT_TEXTS_MAX || $chars + $len > self::SEARCH_MANUSCRIPT_TEXTS_MAX_CHARS) {
+                break;
+            }
+            $texts[] = $text;
+            $chars += $len;
+        }
+
+        return $texts;
     }
 
     public function toSearchableArray(): array
@@ -146,6 +191,7 @@ class Work extends Model
             'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
             'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
             'description' => $this->description ? \App\Helpers\TextNormalizer::normalize(mb_substr($this->description, 0, 500)) : null,
+            'manuscript_texts' => $this->manuscriptSearchTexts(),
             'subjects' => $this->relationLoaded('subjects') ? $this->subjects->pluck('name')->all() : [],
             'languages' => $this->relationLoaded('languages') ? $this->languages->pluck('name')->all() : [],
         ];

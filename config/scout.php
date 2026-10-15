@@ -166,6 +166,10 @@ return [
                     'transliteration',
                     'subject_summary',
                     'language_summary',
+                    'incipit_text',
+                    'explicit_text',
+                    'description',
+                    'manuscript_texts',
                 ],
                 'pagination' => [
                     'maxTotalHits' => 100000,
