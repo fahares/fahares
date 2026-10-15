@@ -223,6 +223,9 @@ class SuggestionController extends Controller
         if ($relation && in_array($relation['apply'] ?? null, ['contributor_set', 'contributor_add', 'alias', 'person_role', 'record_relation'], true)) {
             return $this->approveContributor($request, $suggestion, $relation, $record);
         }
+        if ($relation && ($relation['apply'] ?? null) === 'relocate') {
+            return $this->approveRelocation($request, $suggestion, $relation, $record);
+        }
         $other = $suggestion->relationTarget();
         if (! $relation || ! $record || ! $other) {
             return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
@@ -500,6 +503,68 @@ class SuggestionController extends Controller
             });
         } catch (InvalidArgumentException $e) {
             return back()->withErrors(['applied_value' => $e->getMessage()]);
+        }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')
+            ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
+    }
+
+    /**
+     * The copy moved to another library or was renumbered (see ManuscriptLocation). The reviewer picks the
+     * library: the suggested one, the current one, another by id, or a new one fahares does not list yet.
+     * Logged as "verify" so the audit log can undo it.
+     */
+    private function approveRelocation(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        $validated = $request->validate([
+            'library_choice' => 'required|in:target,keep,manual,new',
+            'library_id' => 'nullable|integer',
+            'library_name' => 'nullable|string|max:255',
+            'library_city' => 'nullable|string|max:255',
+            'library_country' => 'nullable|string|max:100',
+            'shelfmark' => 'nullable|string|max:255',
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+        if (! $record) {
+            return back()->withErrors(['applied_value' => 'این نسخه دیگر وجود ندارد.']);
+        }
+
+        $location = app(\App\Suggestions\ManuscriptLocation::class);
+        try {
+            DB::transaction(function () use ($suggestion, $record, $location, $validated, $request) {
+                $created = null;
+                $library = match ($validated['library_choice']) {
+                    'target' => $suggestion->relationTarget() ?? throw new InvalidArgumentException('کتابخانه‌ی پیشنهادی دیگر وجود ندارد.'),
+                    'manual' => \App\Models\Library::find($validated['library_id'] ?? 0) ?? throw new InvalidArgumentException('کتابخانه‌ای با این شناسه پیدا نشد.'),
+                    'new' => $created = $location->createLibrary((string) ($validated['library_name'] ?? ''), (string) ($validated['library_city'] ?? ''), $validated['library_country'] ?? null),
+                    default => null,
+                };
+                $result = $location->relocate($record, $library, $validated['shelfmark'] ?? null, $suggestion->id);
+
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => $record::class,
+                    'auditable_id' => $record->id,
+                    'action' => 'verify',
+                    'old_values' => $result['old'],
+                    'new_values' => $result['new'] + ['suggestion_id' => $suggestion->id] + ($created ? ['created_library_id' => $created->id] : []),
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $suggestion->update([
+                    'status' => 'approved',
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
+                    'resolution' => ['applied' => true] + $result['resolution'] + ($created ? ['created_library' => true] : []),
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
         }
 
         SuggestionNotifier::reviewed($suggestion->fresh());

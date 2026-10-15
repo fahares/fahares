@@ -40,6 +40,7 @@ class SuggestionController extends Controller
             'notify_submitter' => 'nullable|boolean',
             'role' => 'nullable|string|max:30',
             'role_name' => 'nullable|string|max:600',
+            'shelfmark' => 'nullable|string|max:255',
             'note' => 'nullable|array',
             'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,
             'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -99,6 +100,16 @@ class SuggestionController extends Controller
                     throw ValidationException::withMessages(['role_name' => 'شخص را از فهرست انتخاب کنید یا نامش را بنویسید.']);
                 }
             }
+            // A new library, a new shelfmark, or both
+            if (($relation['apply'] ?? null) === 'relocate') {
+                $shelfmark = trim($validated['shelfmark'] ?? '');
+                if (! $target && $shelfmark === '') {
+                    throw ValidationException::withMessages(['shelfmark' => 'کتابخانه‌ی تازه را انتخاب کنید یا شماره‌ی تازه‌ی نسخه را بنویسید.']);
+                }
+                if ((! $target || $target->id === (int) $record->library_id) && ($shelfmark === '' || $shelfmark === $record->shelfmark)) {
+                    throw ValidationException::withMessages(['shelfmark' => 'کتابخانه و شماره‌ی تازه همان نشانی کنونی نسخه است.']);
+                }
+            }
             if ($relation['target'] && ! $target && empty($relation['target_optional'])) {
                 throw ValidationException::withMessages(['target_id' => 'رکورد مقصد را انتخاب کنید.']);
             }
@@ -116,6 +127,7 @@ class SuggestionController extends Controller
             'target_id' => $relation && $relation['target'] && ! empty($validated['target_id']) ? (int) $validated['target_id'] : null,
             'role' => in_array($relation['apply'] ?? null, ['person_role', 'record_relation'], true) ? $validated['role'] : null,
             'name' => ($relation['apply'] ?? null) === 'person_role' ? (trim($validated['role_name'] ?? '') ?: null) : null,
+            'shelfmark' => ($relation['apply'] ?? null) === 'relocate' ? (trim($validated['shelfmark'] ?? '') ?: null) : null,
         ]);
 
         $suggestion = FieldSuggestion::create([
@@ -209,16 +221,20 @@ class SuggestionController extends Controller
         $type = SuggestionRegistry::typeKey((string) $request->query('type', ''));
         $class = $type ? SuggestionRegistry::modelClass($type) : null;
         $q = trim((string) $request->query('q', ''));
-        if (! $class || $type === 'library' || mb_strlen($q) < 1) {
+        if (! $class || mb_strlen($q) < 1) {
             return response()->json([]);
         }
 
-        $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people'][$type];
+        $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people', 'library' => 'libraries'][$type];
         if (preg_match('~/(?:' . $prefix . ')/(\d+)~u', $q, $m) || preg_match('/^\s*#?(\d+)\s*$/u', strtr($q, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']), $m)) {
             $records = $class::whereKey((int) $m[1])->get();
         } elseif ($type === 'manuscript' || mb_strlen($q) < 2) {
             // Manuscripts have no useful text search here; they are picked by link or id
             $records = collect();
+        } elseif ($type === 'library') {
+            // Libraries are not in the search index; a few hundred rows, matched by name or city
+            $records = $class::where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('full_name', 'like', "%{$q}%")->orWhere('city', 'like', "%{$q}%"))
+                ->orderByDesc('manuscripts_count')->limit(10)->get();
         } else {
             try {
                 $records = $class::search($q)->take(10)->get();

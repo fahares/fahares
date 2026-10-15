@@ -55,7 +55,8 @@ class SuggestionRegistry
      * contributor_add (the target person is added as a further scribe or author),
      * alias (no target: the submitted text is added to the person's other names),
      * person_role (a person connected with the copy in a role; the target is optional, a name will do),
-     * record_relation (a commentary on, copied from… another record; see RecordRelations).
+     * record_relation (a commentary on, copied from… another record; see RecordRelations),
+ * relocate (the copy is now in another library or has a new shelfmark; see ManuscriptLocation).
      * Relations with options (person_role, record_relation) carry the chosen option in payload.role.
      */
     public const RELATIONS = [
@@ -66,6 +67,8 @@ class SuggestionRegistry
             'scribe_also' => ['label' => 'کاتب دیگری هم در کتابت این نسخه سهم داشته است', 'target' => 'person', 'action' => 'افزودن کاتب', 'apply' => 'contributor_add'],
             'person_role' => ['label' => 'شخص دیگری با این نسخه مرتبط است (مالک، واقف، مصحح، محشی…)', 'target' => 'person', 'target_optional' => true, 'action' => 'افزودن شخص مرتبط با نسخه', 'apply' => 'person_role'],
             'manuscript_relation' => ['label' => 'این نسخه با نسخه‌ی دیگری رابطه دارد (استنساخ، مقابله، مجلد دیگر، نسخه‌ی عکسی یا میکروفیلم)', 'target' => 'manuscript', 'action' => 'ثبت رابطه‌ی دو نسخه', 'apply' => 'record_relation'],
+            // The new library is optional (only the number changed); payload.shelfmark carries the new number
+            'relocated' => ['label' => 'این نسخه به کتابخانه‌ی دیگری منتقل شده یا شماره‌اش تغییر کرده است', 'target' => 'library', 'target_optional' => true, 'action' => 'تغییر کتابخانه یا شماره‌ی نسخه', 'apply' => 'relocate'],
         ],
         'work' => [
             'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری', 'apply' => 'merge'],

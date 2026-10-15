@@ -48,6 +48,8 @@
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
         'maxFiles' => \App\Suggestions\NoteTypes::MAX_FILES,
         'canUpload' => auth()->check(),
+        // The current number, shown beside the «moved or renumbered» suggestion
+        'shelfmark' => $type === 'manuscript' ? $record->shelfmark : null,
     ];
     $inputClass = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:border-[#B38A50]';
 @endphp
@@ -126,9 +128,9 @@
                             <template x-if="relation && relation.target">
                                 <div class="space-y-1 relative">
                                     <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                                        x-text="relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:'))"></label>
+                                        x-text="relation.target === 'library' ? 'کتابخانه‌ی تازه (اگر کتابخانه عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')))"></label>
                                     <input type="text" x-model="targetQuery" @input="searchTargets()" autocomplete="off" class="{{ $inputClass }}"
-                                        :placeholder="relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید'">
+                                        :placeholder="relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : (relation.target === 'library' ? 'نام کتابخانه یا شهر را بنویسید' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید')">
                                     <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-[#1A1E35] shadow-xl">
                                         <template x-for="r in targetResults" :key="r.id">
                                             <li>
@@ -146,13 +148,23 @@
                                         </div>
                                     </template>
                                     <p x-show="errors.target_id" x-text="errors.target_id" class="text-red-600 dark:text-red-400 font-bold"></p>
-                                    <template x-if="relation.target_optional && !target">
+                                    <template x-if="relation.apply === 'person_role' && !target">
                                         <div class="space-y-1 pt-1">
                                             <label class="block font-semibold text-stone-700 dark:text-stone-300">یا نام او، همان‌گونه که در نسخه آمده:</label>
                                             <input type="text" x-model="roleName" class="{{ $inputClass }}" placeholder="مثلاً محمدحسین بن علی تبریزی">
                                             <p x-show="errors.role_name" x-text="errors.role_name" class="text-red-600 dark:text-red-400 font-bold"></p>
                                         </div>
                                     </template>
+                                </div>
+                            </template>
+
+                            <!-- The copy moved or was renumbered: the new shelfmark (the library is picked above) -->
+                            <template x-if="relation && relation.apply === 'relocate'">
+                                <div class="space-y-1">
+                                    <label class="block font-semibold text-stone-700 dark:text-stone-300">شماره‌ی تازه‌ی نسخه (اگر شماره عوض شده است):</label>
+                                    <input type="text" x-model="newShelfmark" class="{{ $inputClass }}" :placeholder="'شماره‌ی کنونی: ' + (config.shelfmark ?? 'بی‌شماره')">
+                                    <p class="text-stone-400 leading-relaxed">اگر کتابخانه‌ی تازه در فهرست نیست، نام و شهرش را در توضیح بنویسید. نشانی پیشین نسخه در شناسنامه‌اش می‌ماند.</p>
+                                    <p x-show="errors.shelfmark" x-text="errors.shelfmark" class="text-red-600 dark:text-red-400 font-bold"></p>
                                 </div>
                             </template>
                         </div>

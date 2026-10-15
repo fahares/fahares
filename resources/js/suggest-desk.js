@@ -28,6 +28,8 @@ export default (config) => ({
     // A person connected with the copy (relation person_role)
     roleKey: '',
     roleName: '',
+    // The copy moved or was renumbered (relation relocate)
+    newShelfmark: '',
     // Research notes
     noteType: '',
     note: {},
@@ -50,6 +52,7 @@ export default (config) => ({
         this.target = null;
         this.roleKey = '';
         this.roleName = '';
+        this.newShelfmark = '';
         if (detail.note) {
             this.mode = 'note';
             this.field = BLANK_FIELD;
@@ -222,6 +225,7 @@ export default (config) => ({
             body.append('target_id', this.target?.id ?? '');
             if (this.relation?.options) body.append('role', this.roleKey);
             if (this.relation?.apply === 'person_role') body.append('role_name', this.roleName);
+            if (this.relation?.apply === 'relocate') body.append('shelfmark', this.newShelfmark);
         }
         body.append('suggested_value', this.value);
         body.append('rationale_citation', this.rationale);

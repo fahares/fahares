@@ -27,6 +27,10 @@ class Manuscript extends Model
             if ($manuscript->isDirty('copy_date_raw') && ! $manuscript->isDirty('copy_date_hijri_year')) {
                 $manuscript->copy_date_hijri_year = HijriYear::parse($manuscript->copy_date_raw);
             }
+            // The sort/collection key is the shelfmark cut to the indexed length
+            if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {
+                $manuscript->shelfmark_key = $manuscript->shelfmark === null ? null : mb_substr($manuscript->shelfmark, 0, 100);
+            }
         });
 
         // The works index carries each work's manuscript incipits/explicits (Work::manuscriptSearchTexts)

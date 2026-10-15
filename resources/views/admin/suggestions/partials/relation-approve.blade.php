@@ -97,6 +97,40 @@
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'relocate' && $target)
+        @php
+            $locInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
+            $choice = old('library_choice', $relationTarget ? 'target' : 'keep');
+        @endphp
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <p class="leading-relaxed text-stone-600 dark:text-stone-300">
+                نشانی کنونی: <strong>{{ $target->libraryRecord?->name ?? $target->library ?? '—' }}</strong>{{ $target->city ? '، ' . $target->city : '' }}، شماره‌ی <strong>{{ $target->shelfmark ?? 'بی‌شماره' }}</strong>.
+                نشانی پیشین در شناسنامه‌ی نسخه با عنوان «نشانی پیشین» می‌ماند و شمار نسخه‌های هر دو کتابخانه به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
+            </p>
+            <div class="space-y-1.5 p-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">کتابخانه:</span>
+                @if($relationTarget)
+                    <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="target" @checked($choice === 'target') class="text-[#B38A50]"> «<a href="{{ route('libraries.show', $relationTarget) }}" target="_blank" class="text-[#B38A50] hover:underline">{{ $relationTarget->name }}</a>»، {{ $relationTarget->city }} (انتخاب پیشنهاددهنده)</label>
+                @endif
+                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="keep" @checked($choice === 'keep') class="text-[#B38A50]"> کتابخانه عوض نشده است (فقط شماره)</label>
+                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="manual" @checked($choice === 'manual') class="text-[#B38A50]"> کتابخانه با شناسه‌ی <input type="number" name="library_id" value="{{ old('library_id') }}" class="w-28 p-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 font-mono"></label>
+                <label class="flex items-center gap-2"><input type="radio" name="library_choice" value="new" @checked($choice === 'new') class="text-[#B38A50]"> کتابخانه‌ی تازه (در فهارس نیست):</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="text" name="library_name" value="{{ old('library_name') }}" placeholder="نام کتابخانه" class="{{ $locInput }}">
+                    <input type="text" name="library_city" value="{{ old('library_city') }}" placeholder="شهر" class="{{ $locInput }}">
+                    <input type="text" name="library_country" value="{{ old('library_country') }}" placeholder="کشور (پیش‌فرض: ایران)" class="{{ $locInput }}">
+                </div>
+            </div>
+            <label class="block space-y-1">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">شماره‌ی نسخه:</span>
+                <input type="text" name="shelfmark" value="{{ old('shelfmark', $suggestion->payload['shelfmark'] ?? $target->shelfmark) }}" class="{{ $locInput }} font-bold">
+            </label>
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $locInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $locInput }}">
+            <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
     @elseif(! $target || ! $relationTarget)
         <p class="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-bold">یکی از دو رکورد وجود ندارد و این پیشنهاد قابل اعمال نیست. آن را رد کنید.</p>
     @elseif($apply === 'merge_people')

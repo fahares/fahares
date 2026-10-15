@@ -216,6 +216,19 @@
                 </span>
                 <x-suggest.field name="shelfmark" class="ms-1" />
             </div>
+
+            @php $formerLocations = (array) ($manuscript->metadata['former_locations'] ?? []); @endphp
+            @if($formerLocations)
+                <!-- Where the copy was before it moved or was renumbered (older catalogs cite these) -->
+                <div class="sm:col-span-3 pt-3 border-t border-[#EADFCF] dark:border-[#272F4C] text-stone-500 dark:text-stone-400 space-y-0.5">
+                    @foreach($formerLocations as $former)
+                        <div>
+                            <span class="font-medium">نشانی پیشین:</span>
+                            <span class="text-stone-700 dark:text-stone-300 font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی {{ $former['shelfmark'] ?? 'بی‌شماره' }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
     </div>

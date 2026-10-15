@@ -1288,4 +1288,55 @@ class SuggestionWorkflowTest extends TestCase
         $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => '9003/2', 'shelfmark_key' => '9003/2', 'work_id' => $set->id]);
         $this->get(route('manuscripts.show', $v1))->assertSee('مجلدهای این دوره (2)')->assertDontSee('رساله‌های این مجموعه');
     }
+
+    protected function library(string $name): Library
+    {
+        $library = Library::create(['city' => 'شهر آزمون', 'name' => "{$name} {$this->tag}", 'slug' => 'test-suggest-lib-' . uniqid()]);
+        $this->libraryIds[] = $library->id;
+
+        return $library;
+    }
+
+    public function test_a_manuscript_moved_to_another_library_or_renumbered()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $from = $this->library('کتابخانه‌ی پیشین');
+        $to = $this->library('کتابخانه‌ی تازه');
+        $m = $this->manuscript(['library_id' => $from->id, 'library' => $from->name, 'city' => $from->city, 'shelfmark' => '1234', 'shelfmark_key' => '1234']);
+        $from->update(['manuscripts_count' => 1]);
+
+        // Something must change; the library picker finds libraries by name
+        $this->relate($m, 'relocated', null)->assertStatus(422)->assertJsonValidationErrors('shelfmark');
+        $this->relate($m, 'relocated', $from, ['shelfmark' => '1234'])->assertStatus(422)->assertJsonValidationErrors('shelfmark');
+        $this->getJson('/api/suggestions/lookup?type=library&q=' . urlencode($to->name))->assertOk()->assertJsonPath('0.id', $to->id);
+
+        $this->relate($m, 'relocated', $to, ['shelfmark' => '77/5'])->assertOk();
+        $s = $this->pendingFor($m);
+        $this->assertSame(['target_id' => $to->id, 'shelfmark' => '77/5'], $s->payload);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کتابخانه‌ی پیشنهادی')->assertSee('77/5');
+        $this->approve($s, ['library_choice' => 'target', 'shelfmark' => '77/5'])->assertRedirect('/admin/suggestions');
+
+        $m->refresh();
+        $this->assertSame([$to->id, $to->name, '77/5', '77/5'], [$m->library_id, $m->library, $m->shelfmark, $m->shelfmark_key]);
+        $this->assertSame([0, 1], [$from->fresh()->manuscripts_count, $to->fresh()->manuscripts_count]);
+        $this->assertSame([$from->id, $from->name, '1234'], [$m->metadata['former_locations'][0]['library_id'], $m->metadata['former_locations'][0]['library'], $m->metadata['former_locations'][0]['shelfmark']]);
+        $this->get(route('manuscripts.show', $m))->assertSee('نشانی پیشین')->assertSee($from->name);
+
+        $this->rollbackLatest($m);
+        $m->refresh();
+        $this->assertSame([$from->id, '1234', '1234'], [$m->library_id, $m->shelfmark, $m->shelfmark_key]);
+        $this->assertArrayNotHasKey('former_locations', $m->metadata ?? []);
+        $this->assertSame([1, 0], [$from->fresh()->manuscripts_count, $to->fresh()->manuscripts_count]);
+        $this->assertSame('pending', $s->fresh()->status);
+
+        // Only the number changed, or a library fahares does not list yet; the rollback removes that library
+        $this->approve($s->fresh(), ['library_choice' => 'keep', 'shelfmark' => '1234'])->assertSessionHasErrors('applied_value');
+        $this->approve($s->fresh(), ['library_choice' => 'new', 'library_name' => "کتابخانه‌ی نوساخته {$this->tag}", 'library_city' => 'شهر آزمون', 'shelfmark' => '9/1']);
+        $created = Library::where('name', "کتابخانه‌ی نوساخته {$this->tag}")->sole();
+        $this->libraryIds[] = $created->id;
+        $this->assertSame([$created->id, 1], [$m->fresh()->library_id, $created->fresh()->manuscripts_count]);
+        $this->rollbackLatest($m);
+        $this->assertNull(Library::find($created->id));
+        $this->assertSame($from->id, $m->fresh()->library_id);
+    }
 }

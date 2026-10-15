@@ -340,6 +340,7 @@ class AuditLogController extends Controller
         $previousAuthor = $target->author_id ?? null;
         $previousScribe = $target->scribe_id ?? null;
         $previousWork = $target instanceof Manuscript ? $target->work_id : null;
+        $previousLibrary = $target instanceof Manuscript ? $target->library_id : null;
         if ($old) {
             $target->forceFill($old)->save();
         }
@@ -347,6 +348,17 @@ class AuditLogController extends Controller
         if ($previousWork && array_key_exists('work_id', $old)) {
             foreach (array_unique([$previousWork, $old['work_id']]) as $workId) {
                 Work::find($workId)?->update(['manuscripts_count' => Manuscript::where('work_id', $workId)->count()]);
+            }
+        }
+
+        // A manuscript moved to another library: both libraries' counts change back, and a library
+        // the approval created goes if nothing else uses it
+        if (array_key_exists('library_id', $old)) {
+            \App\Suggestions\ManuscriptLocation::recountLibraries([$previousLibrary, $old['library_id']]);
+        }
+        if ($createdLibrary = \App\Models\Library::find($log->new_values['created_library_id'] ?? 0)) {
+            if (Manuscript::where('library_id', $createdLibrary->id)->doesntExist() && $createdLibrary->catalogVolumes()->doesntExist()) {
+                $createdLibrary->delete();
             }
         }
 
