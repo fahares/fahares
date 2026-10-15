@@ -2030,3 +2030,14 @@
 
 - در [catalogers/show.blade.php](../resources/views/catalogers/show.blade.php) مقدار `$defaultTab` سمت سرور تعیین می‌شود: `volumes`، مگر `$volumes` خالی باشد یا `manuscripts_page` در نشانی باشد. در آن صورت `manuscripts`، تا صفحه‌بندی نسخه‌ها کار کند. پنل غیرپیش‌فرض از ابتدا `display: none` می‌گیرد تا پیش از بارگذاری Alpine هر دو پنل دیده نشوند. ترتیب دکمه‌ها جابه‌جا شد.
 - برچسب در `catalogers/show` («نسخه‌های فهرست‌شده:») و `catalogers/index` («نسخه فهرست‌شده») تغییر کرد. ۷۴ آزمون موفق است. صفحه‌ی فهرست‌نگار نمونه، با و بدون `manuscripts_page=2`، به‌صورت محلی بررسی شد.
+
+### گام ۱۱.۲۰: دکمه‌ی ثبت‌نام در فراخوان
+
+- [home.blade.php](../resources/views/home.blade.php): در `@guest` پیوند به `route('register')` و در `@else` پیوند به `route('my.suggestions')` قرار گرفت. یک بند هم درباره‌ی فایده‌ی ثبت‌نام افزوده شد.
+- [layouts/app.blade.php](../resources/views/layouts/app.blade.php): در فراخوان پانوشت، کنار دکمه‌ی مکاتبه، دکمه‌ی ثبت‌نام فقط در `@guest` آمد. کاربر واردشده «پیشنهادهای من» را در منوی کاربر دارد.
+- صفحه‌ی اصلی با یک آزمون موقت، هم برای مهمان (دو دکمه‌ی ثبت‌نام) و هم برای کاربر واردشده، بررسی شد.
+
+### گام ۱۱.۲۱: تب‌های صفحه‌ی شخص
+
+- [people/show.blade.php](../resources/views/people/show.blade.php): `$hasAuthored` و `$hasScribed` از `total()` همان paginatorها گرفته می‌شوند. این همان پیوند واقعی با آثار و نسخه‌هاست، نه پرچم‌های `is_author` و `is_scribe`. ادغام اشخاص رکوردها را به شخص ماندنی منتقل می‌کند، پس آثار و نسخه‌های اشخاص ادغام‌شده هم شمرده می‌شوند. `$defaultTab` مقدار `scribed` می‌گیرد اگر تألیفات خالی باشد یا `manuscripts_page` در نشانی باشد. پیش‌تر صفحه‌ی ۲ نسخه‌ها هم روی تب تألیفات باز می‌شد. پنل غیرپیش‌فرض از ابتدا `display: none` می‌گیرد.
+- آزمون تازه: [PersonPageTabsTest.php](../tests/Feature/PersonPageTabsTest.php)، با سه حالت: فقط کاتب، مؤلف و کاتب، و بی‌اثر و بی‌نسخه.
