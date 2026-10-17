@@ -226,6 +226,9 @@ class SuggestionController extends Controller
         if ($relation && ($relation['apply'] ?? null) === 'relocate') {
             return $this->approveRelocation($request, $suggestion, $relation, $record);
         }
+        if ($relation && in_array($relation['apply'] ?? null, ['merge_library', 'rename_library'], true)) {
+            return $this->approveLibrary($request, $suggestion, $relation, $record);
+        }
         $other = $suggestion->relationTarget();
         if (! $relation || ! $record || ! $other) {
             return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
@@ -559,6 +562,68 @@ class SuggestionController extends Controller
                     'admin_notes' => $validated['admin_notes'] ?? null,
                     'public_note' => trim($validated['public_note'] ?? '') ?: null,
                     'resolution' => ['applied' => true] + $result['resolution'] + ($created ? ['created_library' => true] : []),
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
+        }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')
+            ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
+    }
+
+    /**
+     * A duplicate library folded into another (the reviewer may keep either record), or a library's
+     * new name; see LibraryMerger. The merge is logged as "merge" and the rename as "verify", and the
+     * audit log undoes either.
+     */
+    private function approveLibrary(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        $validated = $request->validate([
+            'keep' => 'nullable|in:target,source',
+            'name' => 'nullable|string|max:255',
+            'keep_former_name' => 'nullable|boolean',
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+        $other = $suggestion->relationTarget();
+        if (! $record || ($relation['target'] && ! $other)) {
+            return back()->withErrors(['applied_value' => 'یکی از دو کتابخانه‌ی این پیشنهاد دیگر وجود ندارد.']);
+        }
+
+        $merger = app(\App\Suggestions\LibraryMerger::class);
+        try {
+            DB::transaction(function () use ($suggestion, $relation, $record, $other, $merger, $validated, $request) {
+                if ($relation['apply'] === 'merge_library') {
+                    [$source, $kept] = ($validated['keep'] ?? 'target') === 'source' ? [$other, $record] : [$record, $other];
+                    $result = $merger->merge($source, $kept);
+                    $log = ['action' => 'merge', 'id' => $kept->id, 'old' => $result, 'new' => ['target_id' => $kept->id, 'added_aliases' => $result['added_aliases']]];
+                    $resolution = ['applied' => true, 'kept_id' => $kept->id, 'removed_id' => $source->id];
+                } else {
+                    $result = $merger->rename($record, (string) ($validated['name'] ?? $suggestion->suggested_value), $request->boolean('keep_former_name'));
+                    $log = ['action' => 'verify', 'id' => $record->id, 'old' => $result['old'], 'new' => $result['new']];
+                    $resolution = ['applied' => true, 'name' => $result['new']['name']];
+                }
+
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => \App\Models\Library::class,
+                    'auditable_id' => $log['id'],
+                    'action' => $log['action'],
+                    'old_values' => $log['old'],
+                    'new_values' => $log['new'] + ['suggestion_id' => $suggestion->id],
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $suggestion->update([
+                    'status' => 'approved',
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
+                    'resolution' => $resolution,
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
                 ]);

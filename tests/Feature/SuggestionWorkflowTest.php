@@ -394,7 +394,8 @@ class SuggestionWorkflowTest extends TestCase
         $library = Library::create(['city' => 'شهر آزمون', 'name' => 'کتابخانه آزمون ' . $this->tag, 'slug' => 'test-suggest-lib-' . uniqid()]);
         $this->libraryIds[] = $library->id;
 
-        $this->relate($library, 'duplicate', $library)->assertStatus(422)->assertJsonValidationErrors('field_name');
+        $this->relate($library, 'move_to_work', $work)->assertStatus(422)->assertJsonValidationErrors('field_name');
+        $this->relate($library, 'duplicate', $library)->assertStatus(422)->assertJsonValidationErrors('target_id');
         $this->relate($m, 'move_to_work', null)->assertStatus(422)->assertJsonValidationErrors('target_id');
         $this->relate($m, 'duplicate', $m)->assertStatus(422)->assertJsonValidationErrors('target_id');
         $this->relate($m, 'move_to_work', $work, ['rationale_citation' => ''])->assertStatus(422)->assertJsonValidationErrors('rationale_citation');
@@ -1338,5 +1339,97 @@ class SuggestionWorkflowTest extends TestCase
         $this->rollbackLatest($m);
         $this->assertNull(Library::find($created->id));
         $this->assertSame($from->id, $m->fresh()->library_id);
+    }
+
+    public function test_a_duplicate_library_is_merged_and_the_merge_undone()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $kept = $this->library('کتابخانه‌ی ماندنی');
+        $dup = $this->library('کتابخانه‌ی تکراری');
+        $dup->update(['full_name' => "نام رسمی تکراری {$this->tag}", 'description' => 'معرفی']);
+        $m = $this->manuscript(['library_id' => $dup->id, 'library' => $dup->name, 'city' => 'شهر قدیم', 'shelfmark' => '12']);
+        $moved = $this->manuscript(['library_id' => $kept->id, 'library' => $kept->name, 'city' => $kept->city, 'metadata' => ['former_locations' => [['library_id' => $dup->id, 'library' => $dup->name, 'shelfmark' => '3']]]]);
+        $volume = \App\Models\CatalogVolume::create(['title' => "فهرست آزمون {$this->tag}", 'library_id' => $dup->id]);
+        $this->suggest($dup, ['field_name' => 'country', 'suggested_value' => 'عراق', 'rationale_citation' => 'فهرست'])->assertOk();
+        $open = $this->pendingFor($dup);
+
+        $this->relate($dup, 'duplicate', $kept)->assertOk();
+        $s = $this->pendingFor($dup);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('کتابخانه‌ی مقصد')->assertSee('کدام کتابخانه بماند؟');
+        $this->approve($s, ['keep' => 'target'])->assertRedirect('/admin/suggestions');
+
+        $this->assertNull(Library::find($dup->id));
+        $this->assertSame($kept->id, EntityRedirect::resolveTargetId('libraries', $dup->id));
+        $this->get("/l/{$dup->id}")->assertRedirect();
+        $this->get(route('libraries.show', ['id' => $dup->id]))->assertRedirect(route('libraries.show', $kept->fresh()));
+        $m->refresh();
+        $this->assertSame([$kept->id, $kept->name, $kept->city], [$m->library_id, $m->library, $m->city]);
+        $this->assertSame($kept->id, $volume->fresh()->library_id);
+        $this->assertSame($kept->id, $moved->fresh()->metadata['former_locations'][0]['library_id']);
+        $this->assertSame($kept->id, $open->fresh()->suggestable_id, 'open suggestions follow the kept library');
+        $kept->refresh();
+        $this->assertSame([$dup->name, $dup->full_name], $kept->aliases);
+        $this->assertSame([$dup->full_name, 'معرفی', 2], [$kept->full_name, $kept->description, $kept->manuscripts_count]);
+        $this->get(route('libraries.show', $kept))->assertSee('نام‌های دیگر')->assertSee($dup->name);
+        $this->get('/libraries?q=' . urlencode($dup->name))->assertSee($kept->name);
+        $this->getJson('/api/suggestions/lookup?type=library&q=' . urlencode($dup->name))->assertJsonPath('0.id', $kept->id);
+
+        $log = AuditLog::where('auditable_type', Library::class)->where('auditable_id', $kept->id)->where('action', 'merge')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+
+        $restored = Library::findOrFail($dup->id);
+        $this->assertSame([$dup->name, $dup->full_name], [$restored->name, $restored->full_name]);
+        $this->assertNull(EntityRedirect::resolveTargetId('libraries', $dup->id));
+        $m->refresh();
+        $this->assertSame([$dup->id, $dup->name, 'شهر قدیم'], [$m->library_id, $m->library, $m->city]);
+        $this->assertSame($dup->id, $volume->fresh()->library_id);
+        $this->assertSame($dup->id, $moved->fresh()->metadata['former_locations'][0]['library_id']);
+        $this->assertSame($dup->id, $open->fresh()->suggestable_id);
+        $kept->refresh();
+        $this->assertSame([null, null, null, 1], [$kept->aliases, $kept->full_name, $kept->description, $kept->manuscripts_count]);
+        $this->assertSame(1, $restored->manuscripts_count);
+        $this->assertSame('pending', $s->fresh()->status);
+        $volume->delete();
+    }
+
+    public function test_a_renamed_library_keeps_its_former_name()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $library = $this->library('کتابخانه‌ی نام قدیم');
+        $other = $this->library('کتابخانه‌ی همسایه');
+        $m = $this->manuscript(['library_id' => $library->id, 'library' => $library->name, 'city' => $library->city]);
+        $former = $library->name;
+        $new = "کتابخانه‌ی نام تازه {$this->tag}";
+
+        $this->relate($library, 'renamed', null)->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->relate($library, 'renamed', null, ['suggested_value' => $former])->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->relate($library, 'renamed', null, ['suggested_value' => $new])->assertOk();
+        $s = $this->pendingFor($library);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('نام تازه:');
+
+        // Another library of the same city already has that name: a merge, not a rename
+        $this->approve($s, ['name' => $other->name, 'keep_former_name' => '1'])->assertSessionHasErrors('applied_value');
+        $this->approve($s, ['name' => $new, 'keep_former_name' => '1'])->assertRedirect('/admin/suggestions');
+
+        $library->refresh();
+        $this->assertSame([$new, [$former]], [$library->name, $library->aliases]);
+        $this->assertSame($new, $m->fresh()->library);
+
+        $this->rollbackLatest($library);
+        $library->refresh();
+        $this->assertSame([$former, null], [$library->name, $library->aliases]);
+        $this->assertSame($former, $m->fresh()->library);
+        $this->assertSame('pending', $s->fresh()->status);
+
+        // Only a misspelling: the former name is not kept
+        $this->approve($s->fresh(), ['name' => $new, 'keep_former_name' => '0']);
+        $this->assertSame([$new, null], [$library->fresh()->name, $library->fresh()->aliases]);
+
+        // The admin form edits other names and brings the copies on manuscripts in step
+        $this->actingAs($this->admin)->put(route('admin.libraries.update', $library), [
+            'name' => $former, 'city' => $library->city, 'country' => 'ایران', 'aliases' => "نام یک\n\nنام دو",
+        ])->assertRedirect();
+        $this->assertSame([$former, ['نام یک', 'نام دو']], [$library->fresh()->name, $library->fresh()->aliases]);
+        $this->assertSame($former, $m->fresh()->library);
     }
 }

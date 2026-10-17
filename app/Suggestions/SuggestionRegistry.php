@@ -56,7 +56,9 @@ class SuggestionRegistry
      * alias (no target: the submitted text is added to the person's other names),
      * person_role (a person connected with the copy in a role; the target is optional, a name will do),
      * record_relation (a commentary on, copied from… another record; see RecordRelations),
- * relocate (the copy is now in another library or has a new shelfmark; see ManuscriptLocation).
+     * relocate (the copy is now in another library or has a new shelfmark; see ManuscriptLocation),
+     * merge_library (a duplicate library, or one absorbed into another, is folded into it; see LibraryMerger),
+     * rename_library (no target: the submitted text is the library's new name; see LibraryMerger).
      * Relations with options (person_role, record_relation) carry the chosen option in payload.role.
      */
     public const RELATIONS = [
@@ -75,6 +77,11 @@ class SuggestionRegistry
             'author_is' => ['label' => 'پدیدآور این اثر شخص دیگری است (انتساب فعلی نادرست است)', 'target' => 'person', 'action' => 'تعیین پدیدآور', 'apply' => 'contributor_set'],
             'author_also' => ['label' => 'این اثر پدیدآور دیگری هم دارد', 'target' => 'person', 'action' => 'افزودن پدیدآور', 'apply' => 'contributor_add'],
             'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطه‌ی دو اثر', 'apply' => 'record_relation'],
+        ],
+        'library' => [
+            'duplicate' => ['label' => 'این کتابخانه تکراری است (همان کتابخانه‌ی دیگری است)', 'target' => 'library', 'action' => 'ادغام کتابخانه‌ی تکراری', 'apply' => 'merge_library'],
+            'merged_into' => ['label' => 'این کتابخانه با کتابخانه‌ی دیگری ادغام شده و نسخه‌هایش اکنون آنجاست', 'target' => 'library', 'action' => 'ادغام در کتابخانه‌ی دیگر', 'apply' => 'merge_library'],
+            'renamed' => ['label' => 'نام این کتابخانه تغییر کرده است', 'target' => null, 'action' => 'تغییر نام کتابخانه', 'apply' => 'rename_library'],
         ],
         'person' => [
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],

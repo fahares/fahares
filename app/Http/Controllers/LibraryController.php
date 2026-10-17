@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EntityRedirect;
 use App\Models\Library;
 use Illuminate\Http\Request;
 
@@ -17,6 +18,8 @@ class LibraryController extends Controller
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('full_name', 'like', "%{$search}%")
+                  ->orWhere('aliases', 'like', "%{$search}%")
                   ->orWhere('city', 'like', "%{$search}%")
                   ->orWhere('country', 'like', "%{$search}%");
             });
@@ -42,7 +45,14 @@ class LibraryController extends Controller
     {
         $numericId = (int) $id;
 
-        $library = Library::withCount('manuscripts')->findOrFail($numericId);
+        $library = Library::withCount('manuscripts')->find($numericId);
+        if (! $library) {
+            // A merged duplicate points at the library it was folded into
+            $target = ($targetId = EntityRedirect::resolveTargetId('libraries', $numericId)) ? Library::find($targetId) : null;
+            abort_unless($target, 404);
+
+            return redirect()->route('libraries.show', array_merge(['id' => $target->getRouteKey()], $request->query()), 301);
+        }
 
         $canonicalKey = (string) $library->getRouteKey();
         if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {

@@ -142,7 +142,7 @@
     @if($suggestion->kind === 'relation')
         <!-- The two records the suggestion connects -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @foreach(array_filter([['این رکورد', $target], $relation && (! $relation['target'] || (! empty($relation['target_optional']) && ! $relationTarget)) ? null : [$relation && $relation['key'] === 'move_to_work' ? 'اثر پیشنهادی' : ($relation && $relation['target'] === 'person' ? 'شخص' : ($relation && $relation['target'] === 'library' ? 'کتابخانه‌ی پیشنهادی' : 'رکورد مقصد')), $relationTarget]]) as [$caption, $record])
+            @foreach(array_filter([['این رکورد', $target], $relation && (! $relation['target'] || (! empty($relation['target_optional']) && ! $relationTarget)) ? null : [$relation && $relation['key'] === 'move_to_work' ? 'اثر پیشنهادی' : ($relation && $relation['target'] === 'person' ? 'شخص' : ($relation && $relation['target'] === 'library' ? (($relation['apply'] ?? null) === 'relocate' ? 'کتابخانه‌ی پیشنهادی' : 'کتابخانه‌ی مقصد') : 'رکورد مقصد')), $relationTarget]]) as [$caption, $record])
                 <div class="p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-800 shadow-xs space-y-2 text-xs">
                     <h4 class="font-bold text-stone-500">{{ $caption }}</h4>
                     @if($record)

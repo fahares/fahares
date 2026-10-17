@@ -2071,3 +2071,32 @@
 - [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php): سطر «نشانی پیشین» زیر نوار کتابخانه و شماره.
 - **محدودیت‌ها:** شماره‌های پیشین در نمایه‌ی جستجو نیستند. رساله‌های دیگر همان مجلد خودکار با هم منتقل نمی‌شوند و هر کدام پیشنهاد جدا می‌خواهند.
 - آزمون تازه: `test_a_manuscript_moved_to_another_library_or_renumbered` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).
+
+### گام ۱۱.۲۴: پیشنهادهای کتابخانه (`duplicate`، `merged_into`، `renamed`)
+
+- **مایگریشن** [add_aliases_to_libraries_table](../database/migrations/2026_10_17_000001_add_aliases_to_libraries_table.php): ستون `aliases` (JSON، nullable) پس از `full_name`.
+- [Library.php](../app/Models/Library.php):
+  - cast `aliases => array`. `asJson` با `JSON_UNESCAPED_UNICODE` بازنویسی شد، چون جستجوی نام‌های دیگر با `LIKE` است و cast پیش‌فرض متن فارسی را به شکل `\uXXXX` ذخیره می‌کند.
+  - `syncManuscriptCopies()`: ستون‌های رونوشت `library` و `city` نسخه‌ها را با کتابخانه همگام و نسخه‌ها را از نو نمایه می‌کند.
+  - `knowsName()`: مقایسه‌ی نرمال‌شده با `name`، `full_name` و `aliases`.
+- [SuggestionRegistry.php](../app/Suggestions/SuggestionRegistry.php): بخش `library` در `RELATIONS`. `duplicate` و `merged_into` با `target = library` و `apply = merge_library`. `renamed` بدون target و با `apply = rename_library`. نام تازه در `suggested_value` ذخیره می‌شود.
+- [LibraryMerger.php](../app/Suggestions/LibraryMerger.php) (تازه):
+  - `merge($source, $target)`:
+    - `manuscripts.library_id`، `library` و `city` را به مقصد می‌برد و `catalog_volumes.library_id` را منتقل می‌کند.
+    - پیشنهادهای `pending` روی مبدأ را منتقل می‌کند. `payload.target_id` پیشنهادهای رابطه‌ای در انتظاری را هم که به مبدأ اشاره دارند (هر کلیدی با `target = library`، به تفکیک نوع رکورد) اصلاح می‌کند.
+    - `library_id` در `metadata.former_locations` نسخه‌ها را عوض می‌کند (`whereJsonContains`).
+    - `full_name` و `description` خالیِ مقصد را از مبدأ پر می‌کند. `name`، `full_name` و `aliases` مبدأ را به `aliases` مقصد می‌افزاید، مگر مقصد آن نام را از پیش داشته باشد.
+    - ریدایرکت `libraries` ثبت و مبدأ حذف می‌شود.
+    - برای بازگردانی این‌ها را برمی‌گرداند: اسنپ‌شات مبدأ، نسخه‌ها گروه‌بندی‌شده بر پایه‌ی متن پیشین `library|city`، شناسه‌ی جلدها، پیشنهادها، اشاره‌گرها و `former_locations`، و نیز `filled` و `added_aliases`.
+  - `undoMerge($target, $old)`: کتابخانه را با همان شناسه بازمی‌سازد، همه‌ی موارد بالا را برمی‌گرداند، ریدایرکت را برمی‌دارد و هر دو کتابخانه را دوباره می‌شمارد. اگر کتابخانه‌ی دیگری با همان شهر و نام ثبت شده باشد، بازگردانی نمی‌کند (کلید یکتای `city,name`).
+  - `rename($library, $name, $keepFormer)`: اگر کتابخانه‌ی دیگری با همان نام در همان شهر باشد، به‌جای تغییر نام، ادغام را توصیه می‌کند. خروجی `old`/`new` شامل `name` و `aliases` است.
+- [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `approveLibrary()`. ادغام با `keep = target|source` در لاگ `merge` ثبت می‌شود و تغییر نام با `name` و `keep_former_name` در لاگ `verify`. فرم‌ها در [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php) هستند.
+- [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php): شاخه‌ی Library در `rollbackMerge`، که پیشنهاد را دوباره «در انتظار» می‌کند و لاگ `rollback_merge` می‌نویسد. `rollbackVerify` و `rollbackUpdate` برای کتابخانه `syncManuscriptCopies()` را صدا می‌زنند.
+- [LibraryController.php](../app/Http/Controllers/LibraryController.php) و مسیر `/l/{id}` در [web.php](../routes/web.php): شناسه‌ی ادغام‌شده با ۳۰۱ به کتابخانه‌ی ماندنی می‌رود. جستجوی فهرست کتابخانه‌ها و `lookup` گزینشگر اکنون `full_name` و `aliases` را هم می‌گردند.
+- [Admin/LibraryController.php](../app/Http/Controllers/Admin/LibraryController.php): فیلد `aliases`، هر نام در یک سطر. پس از تغییر `name` یا `city`، `syncManuscriptCopies()` اجرا می‌شود. پیش‌تر ویرایش نام از پنل، نام کهنه را در نسخه‌ها و نمایه‌ی نسخه‌ها باقی می‌گذاشت.
+- [desk.blade.php](../resources/views/components/suggest/desk.blade.php): برچسب «کتابخانه‌ی مقصد:» و «نام تازه‌ی کتابخانه:». [libraries/show.blade.php](../resources/views/libraries/show.blade.php): سطر «نام‌های دیگر».
+- **محدودیت‌ها:**
+  - نام‌های دیگر کتابخانه در نمایه‌ی نسخه‌ها نیستند. جستجوی نسخه با نام پیشین کتابخانه نتیجه نمی‌دهد.
+  - ادغام کتابخانه‌ی بزرگ، نسخه‌هایش را در همان درخواست از نو نمایه می‌کند (`SCOUT_QUEUE` خاموش است).
+  - پیشنهادهای تأییدشده‌ی کتابخانه‌ی حذف‌شده، مانند یادداشت‌های پژوهشی، منتقل نمی‌شوند. رفتار ادغام نسخه و اثر هم همین است.
+- آزمون‌های تازه: `test_a_duplicate_library_is_merged_and_the_merge_undone` و `test_a_renamed_library_keeps_its_former_name` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).

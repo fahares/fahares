@@ -264,6 +264,28 @@ class AuditLogController extends Controller
             return;
         }
 
+        // 3. Library merge approved from a suggestion (see LibraryMerger)
+        if ($log->auditable_type === \App\Models\Library::class) {
+            $target = \App\Models\Library::find($log->auditable_id)
+                ?? throw new \Exception("کتابخانه‌ی مقصد با شناسه #{$log->auditable_id} یافت نشد.");
+            $restored = app(\App\Suggestions\LibraryMerger::class)->undoMerge($target, $old);
+
+            if ($suggestionId = $log->new_values['suggestion_id'] ?? null) {
+                FieldSuggestion::whereKey($suggestionId)->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+            }
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'auditable_type' => \App\Models\Library::class,
+                'auditable_id' => $target->id,
+                'action' => 'rollback_merge',
+                'old_values' => ['rolled_back_log_id' => $log->id, 'target_id' => $target->id],
+                'new_values' => ['restored_library_id' => $restored->id, 'restored_library_name' => $restored->name],
+                'ip_address' => $request->ip(),
+            ]);
+
+            return;
+        }
+
         if (in_array($log->auditable_type, [Manuscript::class, Work::class], true)) {
             // Merges approved from the suggestions desk keep a full snapshot of the removed record in old_values
             throw new \Exception("ادغام نسخه یا اثر بازگردانی خودکار ندارد. اطلاعات کامل رکورد حذف‌شده در همین لاگ (source_snapshot) ثبت است.");
@@ -355,6 +377,10 @@ class AuditLogController extends Controller
         // the approval created goes if nothing else uses it
         if (array_key_exists('library_id', $old)) {
             \App\Suggestions\ManuscriptLocation::recountLibraries([$previousLibrary, $old['library_id']]);
+        }
+        // A renamed library: the copies of its name on manuscripts follow
+        if ($target instanceof \App\Models\Library && array_key_exists('name', $old)) {
+            $target->syncManuscriptCopies();
         }
         if ($createdLibrary = \App\Models\Library::find($log->new_values['created_library_id'] ?? 0)) {
             if (Manuscript::where('library_id', $createdLibrary->id)->doesntExist() && $createdLibrary->catalogVolumes()->doesntExist()) {
@@ -450,6 +476,9 @@ class AuditLogController extends Controller
         }
 
         $target->forceFill($log->old_values)->save();
+        if ($target instanceof \App\Models\Library) {
+            $target->syncManuscriptCopies();
+        }
 
         if (method_exists($target, 'searchable')) {
             $target->searchable();

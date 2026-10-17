@@ -47,6 +47,13 @@
                    class="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:border-[#B38A50] outline-none">
         </div>
 
+        <!-- Other names -->
+        <div class="space-y-1.5">
+            <label for="aliases" class="block font-bold text-stone-700 dark:text-stone-300">نام‌های دیگر (نام پیشین یا نامی که در فهارس قدیم آمده؛ هر نام در یک سطر):</label>
+            <textarea name="aliases" id="aliases" rows="2" class="w-full p-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:border-[#B38A50] outline-none">{{ old('aliases', implode("\n", (array) ($library->aliases ?? []))) }}</textarea>
+            <p class="text-[11px] text-stone-400">تغییر نام یا شهر، نام کتابخانه را در همه‌ی نسخه‌هایش هم به‌روز می‌کند.</p>
+        </div>
+
         <!-- City and Country -->
         <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">

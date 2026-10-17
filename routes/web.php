@@ -119,8 +119,9 @@ Route::get('/p/{id}', function ($id) {
 })->where('id', '[0-9]+')->name('people.permalink');
 
 Route::get('/l/{id}', function ($id) {
-    $library = \App\Models\Library::findOrFail((int) $id);
-    return redirect()->route('libraries.show', $library, 301);
+    // Merged records fall through to the show page, which follows their 301 redirect
+    $library = \App\Models\Library::find((int) $id);
+    return redirect()->route('libraries.show', $library ?? (int) $id, 301);
 })->where('id', '[0-9]+')->name('libraries.permalink');
 
 Route::get('/s/{id}', function ($id) {

@@ -47,6 +47,7 @@ class LibraryController extends Controller
             'city' => 'required|string|max:255',
             'country' => 'required|string|max:100',
             'description' => 'nullable|string',
+            'aliases' => 'nullable|string|max:5000',
         ]);
 
         $oldValues = $library->toArray();
@@ -57,7 +58,12 @@ class LibraryController extends Controller
             'city' => $validated['city'],
             'country' => $validated['country'],
             'description' => $validated['description'] ?? null,
+            // One other name per line
+            'aliases' => array_values(array_unique(array_filter(array_map('trim', preg_split('/\R/u', (string) ($validated['aliases'] ?? '')))))) ?: null,
         ]);
+        if ($library->wasChanged(['name', 'city'])) {
+            $library->syncManuscriptCopies();
+        }
 
         AuditLog::create([
             'user_id' => auth()->id(),

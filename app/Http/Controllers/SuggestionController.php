@@ -81,10 +81,14 @@ class SuggestionController extends Controller
             if (! $relation) {
                 throw ValidationException::withMessages(['field_name' => 'این نوع پیشنهاد برای این رکورد تعریف نشده است.']);
             }
-            // A relation without a target (another name of a person) is carried by the submitted text
+            // A relation without a target (another name of a person, a library's new name) is carried by the submitted text
             if (! $relation['target']) {
+                $renamed = ($relation['apply'] ?? null) === 'rename_library';
                 if (trim($validated['suggested_value'] ?? '') === '') {
-                    throw ValidationException::withMessages(['suggested_value' => 'نام دیگر را بنویسید.']);
+                    throw ValidationException::withMessages(['suggested_value' => $renamed ? 'نام تازه‌ی کتابخانه را بنویسید.' : 'نام دیگر را بنویسید.']);
+                }
+                if ($renamed && trim($validated['suggested_value']) === $record->name) {
+                    throw ValidationException::withMessages(['suggested_value' => 'نام تازه همان نام کنونی کتابخانه است.']);
                 }
             }
             $target = $relation['target'] ? SuggestionRegistry::modelClass($relation['target'])::find($validated['target_id'] ?? 0) : null;
@@ -233,7 +237,7 @@ class SuggestionController extends Controller
             $records = collect();
         } elseif ($type === 'library') {
             // Libraries are not in the search index; a few hundred rows, matched by name or city
-            $records = $class::where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('full_name', 'like', "%{$q}%")->orWhere('city', 'like', "%{$q}%"))
+            $records = $class::where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('full_name', 'like', "%{$q}%")->orWhere('aliases', 'like', "%{$q}%")->orWhere('city', 'like', "%{$q}%"))
                 ->orderByDesc('manuscripts_count')->limit(10)->get();
         } else {
             try {

@@ -28,6 +28,9 @@
                 {{ $library->full_name ?? 'نام کامل: —' }}
                 <x-suggest.field name="full_name" class="ms-1" />
             </div>
+            @if($library->aliases)
+                <div class="text-xs text-stone-500">نام‌های دیگر: <span class="text-stone-700 dark:text-stone-300">{{ implode('، ', $library->aliases) }}</span></div>
+            @endif
             <div class="text-xs text-stone-500">
                 موقعیت: <strong class="text-stone-700 dark:text-stone-300">{{ $library->city ?? 'ایران' }}</strong>
                 @if($library->country && $library->country !== 'ایران')

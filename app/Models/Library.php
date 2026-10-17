@@ -13,7 +13,38 @@ class Library extends Model
     {
         return [
             'manuscripts_count' => 'integer',
+            'aliases' => 'array',
         ];
+    }
+
+    // Other names are matched with LIKE, so Persian text is stored as is, not as \u escapes
+    protected function asJson($value, $flags = 0)
+    {
+        return parent::asJson($value, $flags | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Manuscripts carry a copy of the library's name and city (shown in lists and searched in the
+     * manuscripts index); after a rename they are brought in step and re-indexed.
+     */
+    public function syncManuscriptCopies(): void
+    {
+        $this->manuscripts()->where(fn ($q) => $q->where('library', '!=', $this->name)->orWhereNull('library')->orWhere('city', '!=', $this->city)->orWhereNull('city'))
+            ->update(['library' => $this->name, 'city' => $this->city]);
+        $this->manuscripts()->searchable();
+    }
+
+    /** True when $name is already this library's name, official name or one of its other names. */
+    public function knowsName(string $name): bool
+    {
+        $key = \App\Helpers\TextNormalizer::normalize($name);
+        foreach (array_merge([$this->name, $this->full_name], (array) ($this->aliases ?? [])) as $known) {
+            if ($known && \App\Helpers\TextNormalizer::normalize($known) === $key) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getPersianSlugAttribute(): string

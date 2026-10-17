@@ -131,6 +131,43 @@
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'rename_library' && $target)
+        @php $libInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100'; @endphp
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <p class="leading-relaxed text-stone-600 dark:text-stone-300">
+                نام کنونی: <strong>{{ $target->name }}</strong>، {{ $target->city }}.
+                نام کتابخانه در همه‌ی {{ number_format($target->manuscripts_count) }} نسخه‌اش هم به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
+            </p>
+            <label class="block space-y-1">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">نام تازه:</span>
+                <input type="text" name="name" value="{{ old('name', $suggestion->suggested_value) }}" required class="{{ $libInput }} font-bold">
+            </label>
+            <label class="flex items-center gap-2"><input type="hidden" name="keep_former_name" value="0"><input type="checkbox" name="keep_former_name" value="1" @checked(old('keep_former_name', '1') === '1') class="text-[#B38A50]"> نام کنونی در «نام‌های دیگر» کتابخانه بماند (اگر فقط غلط املایی بوده، تیک را بردارید)</label>
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $libInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $libInput }}">
+            <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
+    @elseif($apply === 'merge_library' && $target && $relationTarget)
+        @php $libInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100'; @endphp
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <div class="space-y-1.5">
+                <span class="block font-bold text-stone-700 dark:text-stone-300">کدام کتابخانه بماند؟</span>
+                <label class="flex items-center gap-2"><input type="radio" name="keep" value="target" @checked(old('keep', 'target') === 'target') class="text-[#B38A50]"> «{{ $relationTarget->name }}»، {{ $relationTarget->city }} (#{{ $relationTarget->id }}، {{ number_format($relationTarget->manuscripts_count) }} نسخه) بماند</label>
+                <label class="flex items-center gap-2"><input type="radio" name="keep" value="source" @checked(old('keep') === 'source') class="text-[#B38A50]"> «{{ $target->name }}»، {{ $target->city }} (#{{ $target->id }}، {{ number_format($target->manuscripts_count) }} نسخه) بماند</label>
+            </div>
+            <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 leading-relaxed">
+                نسخه‌ها و جلدهای فهرست کتابخانه‌ی حذف‌شونده به کتابخانه‌ی ماندنی منتقل می‌شوند و نام و شهر کتابخانه‌ی ماندنی را می‌گیرند.
+                نام کتابخانه‌ی حذف‌شونده در «نام‌های دیگر» کتابخانه‌ی ماندنی می‌ماند و نشانی‌اش با ریدایرکت دائمی به آن می‌رود.
+                این ادغام از «گزارش ممیزی» بازگرداندنی است.
+            </div>
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $libInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $libInput }}">
+            <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
     @elseif(! $target || ! $relationTarget)
         <p class="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-bold">یکی از دو رکورد وجود ندارد و این پیشنهاد قابل اعمال نیست. آن را رد کنید.</p>
     @elseif($apply === 'merge_people')

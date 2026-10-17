@@ -128,7 +128,7 @@
                             <template x-if="relation && relation.target">
                                 <div class="space-y-1 relative">
                                     <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                                        x-text="relation.target === 'library' ? 'کتابخانه‌ی تازه (اگر کتابخانه عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')))"></label>
+                                        x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر کتابخانه عوض شده است):' : relation.target === 'library' ? 'کتابخانه‌ی مقصد:' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')))"></label>
                                     <input type="text" x-model="targetQuery" @input="searchTargets()" autocomplete="off" class="{{ $inputClass }}"
                                         :placeholder="relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : (relation.target === 'library' ? 'نام کتابخانه یا شهر را بنویسید' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید')">
                                     <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-[#1A1E35] shadow-xl">
@@ -239,7 +239,7 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                            x-text="mode === 'general' ? (relation && !relation.target ? 'نام دیگر:' : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && !relation.target ? (relation.apply === 'rename_library' ? 'نام تازه‌ی کتابخانه:' : 'نام دیگر:') : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
                             <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && !relation.target)" class="{{ $inputClass }}"
