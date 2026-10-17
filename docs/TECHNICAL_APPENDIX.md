@@ -2137,3 +2137,18 @@
 - [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `approveRemoval()` با لاگ `action = remove`. فرم و فهرست وابستگی‌ها در [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php) است.
 - [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php): `rollbackRemove()` با لاگ `rollback_remove`، و دوباره «در انتظار» شدن پیشنهاد. در [audit_logs/index.blade.php](../resources/views/admin/audit_logs/index.blade.php) دکمه‌ی بازگردانی برای `remove`، برچسب قرمز و فیلتر «حذف رکورد زائد» افزوده شد.
 - آزمون‌های تازه: `test_a_redundant_manuscript_is_removed_and_restored` و `test_a_redundant_work_or_person_goes_only_once_nothing_depends_on_it`.
+
+### گام ۱۱.۲۷: پیشنهاد رابطه‌ای `conflated` (تفکیک اثر یا شخص)
+
+- [SuggestionRegistry.php](../app/Suggestions/SuggestionRegistry.php): رابطه‌ی `conflated` برای `work` و `person` با `target = null`، `apply = split` و `needs_text`. برچسب متن در desk و پیام خطای متن خالی برای `split` جدا شد.
+- [RecordSplitter.php](../app/Suggestions/RecordSplitter.php) (تازه):
+  - `splitWork($work, $new, $manuscriptIds)`:
+    - اثر تازه می‌سازد. `catalog_id`، جلد و صفحه‌ی فنخا را از اثر اصلی برمی‌دارد، چون هر دو از همان مدخل‌اند. slug به شکل `{slug عنوان}-{id}` است.
+    - پدیدآور یکی از `same|person|none` است. موضوع‌ها و زبان‌ها اختیاری کپی می‌شوند.
+    - نسخه‌های انتخاب‌شده با bulk update منتقل می‌شوند. سپس شمارش دوباره و نمایه‌سازی نسخه‌ها و هر دو اثر انجام می‌شود.
+  - `splitPerson($person, $new, $picked)`: ردیف‌های `work_author` و `manuscript_scribe` و ستون‌های اصلی `works.author_id` و `manuscripts.scribe_id` را با هم منتقل می‌کند، چون bulk update از `SyncsPrimaryContributor` می‌گذرد. ردیف‌های `manuscript_people` هم منتقل می‌شوند. فقط ردیف‌هایی پذیرفته می‌شوند که واقعاً به همین شخص تعلق دارند. `author_name` و `scribe_name`، که متن فهرست‌اند، دست نمی‌خورند.
+  - `undo($class, $sourceId, $old)`: موارد را فقط وقتی برمی‌گرداند که هنوز روی رکورد تازه باشند، و رکورد تازه را حذف می‌کند. اگر نسخه‌ی دیگری به اثر تازه افزوده شده باشد، یا پیوند دیگری به شخص تازه (بررسی با `RecordRemover::blockers`)، بازگردانی نمی‌کند.
+- [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `approveSplit()` با لاگ `action = split` روی رکورد اصلی. `old_values` خروجی تفکیک است و `new_values.created_id` شناسه‌ی رکورد تازه. فرم با فهرست‌های قابل‌تیک (حداکثر ۲٬۰۰۰ مورد در هر فهرست) در [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php) است.
+- [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php): `rollbackSplit()` با لاگ `rollback_split`. دکمه‌ی بازگردانی و برچسب `split` به [audit_logs/index.blade.php](../resources/views/admin/audit_logs/index.blade.php) افزوده شد.
+- **محدودیت‌ها:** نام‌های دیگر (`aliases`) شخص و عناوین دیگر اثر خودکار تقسیم نمی‌شوند و داور باید آن‌ها را جدا اصلاح کند. ارجاع مأخذ و پیشنهادهای رکورد اصلی هم روی همان رکورد می‌مانند.
+- آزمون‌های تازه: `test_a_conflated_work_is_split_and_the_split_undone` و `test_a_conflated_person_is_split_and_the_split_undone`.

@@ -81,13 +81,16 @@ class SuggestionController extends Controller
             if (! $relation) {
                 throw ValidationException::withMessages(['field_name' => 'این نوع پیشنهاد برای این رکورد تعریف نشده است.']);
             }
-            // Another name of a person or a library's new name is carried by the submitted text
+            // Another name, a library's new name or what belongs to another record is carried by the submitted text
             if (! empty($relation['needs_text'])) {
-                $renamed = ($relation['apply'] ?? null) === 'rename_library';
                 if (trim($validated['suggested_value'] ?? '') === '') {
-                    throw ValidationException::withMessages(['suggested_value' => $renamed ? 'نام تازه‌ی کتابخانه را بنویسید.' : 'نام دیگر را بنویسید.']);
+                    throw ValidationException::withMessages(['suggested_value' => match ($relation['apply']) {
+                        'rename_library' => 'نام تازه‌ی کتابخانه را بنویسید.',
+                        'split' => 'بنویسید کدام بخش‌ها از رکورد دیگری‌اند.',
+                        default => 'نام دیگر را بنویسید.',
+                    }]);
                 }
-                if ($renamed && trim($validated['suggested_value']) === $record->name) {
+                if ($relation['apply'] === 'rename_library' && trim($validated['suggested_value']) === $record->name) {
                     throw ValidationException::withMessages(['suggested_value' => 'نام تازه همان نام کنونی کتابخانه است.']);
                 }
             }

@@ -232,6 +232,9 @@ class SuggestionController extends Controller
         if ($relation && ($relation['apply'] ?? null) === 'remove') {
             return $this->approveRemoval($request, $suggestion, $relation, $record);
         }
+        if ($relation && ($relation['apply'] ?? null) === 'split') {
+            return $this->approveSplit($request, $suggestion, $relation, $record);
+        }
         $other = $suggestion->relationTarget();
         if (! $relation || ! $record || ! $other) {
             return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
@@ -565,6 +568,68 @@ class SuggestionController extends Controller
                     'admin_notes' => $validated['admin_notes'] ?? null,
                     'public_note' => trim($validated['public_note'] ?? '') ?: null,
                     'resolution' => ['applied' => true] + $result['resolution'] + ($created ? ['created_library' => true] : []),
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
+        }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')
+            ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
+    }
+
+    /**
+     * Two works or people catalogued as one: the reviewer creates the second record and picks what moves
+     * to it (see RecordSplitter). Logged as "split" on the original record, so the audit log can undo it.
+     */
+    private function approveSplit(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        $validated = $request->validate([
+            'new_title' => 'nullable|string|max:255',
+            'author' => 'nullable|in:same,none,person',
+            'author_id' => 'nullable|integer',
+            'copy_subjects' => 'nullable|boolean',
+            'new_name' => 'nullable|string|max:600',
+            'death_year_hijri' => 'nullable|integer|min:1|max:' . HijriYear::MAX,
+            'manuscript_ids' => 'nullable|array',
+            'manuscript_ids.*' => 'integer',
+            'work_ids' => 'nullable|array',
+            'work_ids.*' => 'integer',
+            'role_ids' => 'nullable|array',
+            'role_ids.*' => 'integer',
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+        if (! $record) {
+            return back()->withErrors(['applied_value' => 'این رکورد دیگر وجود ندارد.']);
+        }
+
+        $splitter = app(\App\Suggestions\RecordSplitter::class);
+        try {
+            DB::transaction(function () use ($suggestion, $record, $splitter, $validated, $request) {
+                $result = $record instanceof \App\Models\Work
+                    ? $splitter->splitWork($record, ['title' => $validated['new_title'] ?? '', 'author' => $validated['author'] ?? 'same', 'author_id' => $validated['author_id'] ?? null, 'copy_subjects' => $request->boolean('copy_subjects')], $validated['manuscript_ids'] ?? [])
+                    : $splitter->splitPerson($record, ['name' => $validated['new_name'] ?? '', 'death_year_hijri' => $validated['death_year_hijri'] ?? null], ['works' => $validated['work_ids'] ?? [], 'manuscripts' => $validated['manuscript_ids'] ?? [], 'roles' => $validated['role_ids'] ?? []]);
+
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => $record::class,
+                    'auditable_id' => $record->id,
+                    'action' => 'split',
+                    'old_values' => $result,
+                    'new_values' => ['created_id' => $result['created_id'], 'suggestion_id' => $suggestion->id],
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $suggestion->update([
+                    'status' => 'approved',
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
+                    'resolution' => ['applied' => true, 'created_id' => $result['created_id']],
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
                 ]);

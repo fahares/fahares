@@ -82,7 +82,7 @@
                                     {{ $log->action === 'update' ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300' : '' }}
                                     {{ in_array($log->action, ['delete', 'remove'], true) ? 'bg-red-500/15 text-red-700 dark:text-red-300' : '' }}
                                     {{ $log->action === 'verify' ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300' : '' }}
-                                    {{ $log->action === 'merge' ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300' : '' }}
+                                    {{ in_array($log->action, ['merge', 'split'], true) ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300' : '' }}
                                     {{ str_starts_with($log->action, 'rollback') ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300' : '' }}">
                                     {{ $log->action }}
                                 </span>
@@ -103,7 +103,7 @@
                                         <svg :class="expanded ? 'rotate-180' : ''" class="w-3 h-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
 
-                                    @if(in_array($log->action, ['merge', 'verify', 'update', 'remove']) && !empty($log->old_values))
+                                    @if(in_array($log->action, ['merge', 'verify', 'update', 'remove', 'split']) && !empty($log->old_values))
                                         <form action="{{ route('admin.audit-logs.rollback', $log) }}" method="POST" class="inline" 
                                               onsubmit="return confirm('هشدار: آیا از بازگردانی (Rollback) این تغییر و احیای وضعیت قبلی اطمینان کامل دارید؟')">
                                             @csrf

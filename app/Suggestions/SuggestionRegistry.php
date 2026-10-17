@@ -59,7 +59,8 @@ class SuggestionRegistry
      * relocate (the copy is now in another library or has a new shelfmark; see ManuscriptLocation),
      * merge_library (a duplicate library, or one absorbed into another, is folded into it; see LibraryMerger),
      * rename_library (no target: the submitted text is the library's new name; see LibraryMerger),
-     * remove (no target: the record should not exist and is deleted; see RecordRemover).
+     * remove (no target: the record should not exist and is deleted; see RecordRemover),
+     * split (no target: two works or people were catalogued as one; the reviewer creates the second; see RecordSplitter).
      * needs_text: the submitted text is the value itself (another name, a new name) and may not be empty.
      * Relations with options (person_role, record_relation) carry the chosen option in payload.role.
      */
@@ -81,6 +82,7 @@ class SuggestionRegistry
             'author_also' => ['label' => 'این اثر پدیدآور دیگری هم دارد', 'target' => 'person', 'action' => 'افزودن پدیدآور', 'apply' => 'contributor_add'],
             'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطه‌ی دو اثر', 'apply' => 'record_relation'],
             'redundant' => ['label' => 'این رکورد زائد است (اثری وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه اثر ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
+            'conflated' => ['label' => 'دو اثر متفاوت در این رکورد خلط شده‌اند (برخی نسخه‌ها از اثر دیگری‌اند)', 'target' => null, 'action' => 'تفکیک اثر', 'apply' => 'split', 'needs_text' => true],
         ],
         'library' => [
             'duplicate' => ['label' => 'این کتابخانه تکراری است (همان کتابخانه‌ی دیگری است)', 'target' => 'library', 'action' => 'ادغام کتابخانه‌ی تکراری', 'apply' => 'merge_library'],
@@ -91,6 +93,7 @@ class SuggestionRegistry
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],
             'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias', 'needs_text' => true],
             'redundant' => ['label' => 'این رکورد زائد است (شخصی با این نام وجود ندارد؛ مثلاً عنوان یا عبارتی که به‌اشتباه نام شخص ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
+            'conflated' => ['label' => 'دو شخص متفاوت در این رکورد خلط شده‌اند (برخی آثار یا نسخه‌ها از شخص دیگری‌اند)', 'target' => null, 'action' => 'تفکیک شخص', 'apply' => 'split', 'needs_text' => true],
         ],
     ];
 

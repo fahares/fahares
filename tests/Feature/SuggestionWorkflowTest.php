@@ -1617,4 +1617,84 @@ class SuggestionWorkflowTest extends TestCase
         $this->get(route('works.show', Work::find($work->id)))->assertOk();
         DB::table('referrals')->where('id', $referral)->delete();
     }
+
+    protected function rollbackSplit($record): void
+    {
+        $log = AuditLog::where('auditable_type', $record::class)->where('auditable_id', $record->id)->where('action', 'split')->latest('id')->firstOrFail();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+    }
+
+    public function test_a_conflated_work_is_split_and_the_split_undone()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $author = $this->person('پدیدآور اثر خلط‌شده');
+        $work = $this->work(['primary_title' => 'اثر خلط‌شده ' . $this->tag, 'author_id' => $author->id, 'author_name' => $author->name]);
+        $subject = \App\Models\Subject::create(['name' => "موضوع تفکیک {$this->tag}", 'slug' => 'test-subj-' . uniqid()]);
+        $work->subjects()->attach($subject->id);
+        $stay = $this->manuscript(['work_id' => $work->id]);
+        $go = $this->manuscript(['work_id' => $work->id, 'shelfmark' => 'دیگر']);
+        $work->update(['manuscripts_count' => 2]);
+
+        $this->relate($work, 'conflated', null)->assertStatus(422)->assertJsonValidationErrors('suggested_value');
+        $this->relate($work, 'conflated', null, ['suggested_value' => 'نسخه‌ی «دیگر» رساله‌ی دیگری است'])->assertOk();
+        $s = $this->pendingFor($work);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('عنوان اثر تازه')->assertSee('نسخه‌هایی که از اثر تازه‌اند');
+
+        $this->approve($s, ['new_title' => 'رساله‌ی جدا ' . $this->tag])->assertSessionHasErrors('applied_value');
+        $this->approve($s, ['new_title' => 'رساله‌ی جدا ' . $this->tag, 'author' => 'same', 'copy_subjects' => '1', 'manuscript_ids' => [$go->id]])->assertRedirect('/admin/suggestions');
+
+        $created = Work::where('primary_title', 'رساله‌ی جدا ' . $this->tag)->sole();
+        $this->works[] = $created;
+        $this->assertSame([$created->id, $work->id], [$go->fresh()->work_id, $stay->fresh()->work_id]);
+        $this->assertSame([1, 1], [$work->fresh()->manuscripts_count, $created->manuscripts_count]);
+        $this->assertSame([$author->id, $work->volume_number, $work->page_start], [$created->author_id, $created->volume_number, $created->page_start]);
+        $this->assertTrue($created->subjects()->whereKey($subject->id)->exists());
+        $this->assertSame(2, $author->fresh()->works_count);
+        $this->assertSame(['applied' => true, 'created_id' => $created->id], $s->fresh()->resolution);
+        $this->get(route('works.show', $created))->assertOk();
+
+        $this->rollbackSplit($work);
+        $this->assertNull(Work::find($created->id));
+        $this->assertSame([$work->id, 2], [$go->fresh()->work_id, $work->fresh()->manuscripts_count]);
+        $this->assertSame(1, $author->fresh()->works_count);
+        $this->assertSame(1, $subject->fresh()->works_count);
+        $this->assertSame('pending', $s->fresh()->status);
+        $subject->delete();
+    }
+
+    public function test_a_conflated_person_is_split_and_the_split_undone()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $person = $this->person('شخص خلط‌شده');
+        $w1 = $this->work(['author_id' => $person->id, 'author_name' => $person->name]);
+        $w2 = $this->work(['author_id' => $person->id, 'author_name' => $person->name]);
+        $m1 = $this->manuscript(['scribe_id' => $person->id, 'scribe_name' => $person->name]);
+        $m2 = $this->manuscript(['scribe_id' => $person->id, 'scribe_name' => $person->name]);
+        $role = DB::table('manuscript_people')->insertGetId(['manuscript_id' => $m1->id, 'person_id' => $person->id, 'role' => 'owner']);
+        $person->recountContributions();
+        $this->assertSame([2, 2], [$person->fresh()->works_count, $person->fresh()->manuscripts_count]);
+
+        $this->relate($person, 'conflated', null, ['suggested_value' => 'کاتب نسخه‌ی دوم هم‌نام اوست'])->assertOk();
+        $s = $this->pendingFor($person);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('آثاری که از شخص تازه‌اند')->assertSee('نقش‌های دیگری که از شخص تازه‌اند');
+        $this->approve($s, ['new_name' => 'هم‌نام ' . $this->tag])->assertSessionHasErrors('applied_value');
+        $this->approve($s, ['new_name' => 'هم‌نام ' . $this->tag, 'death_year_hijri' => 1100, 'work_ids' => [$w2->id], 'manuscript_ids' => [$m2->id], 'role_ids' => [$role]])->assertRedirect('/admin/suggestions');
+
+        $created = Person::where('name', 'هم‌نام ' . $this->tag)->sole();
+        $this->assertSame([$person->id, $created->id], [$w1->fresh()->author_id, $w2->fresh()->author_id]);
+        $this->assertSame([$person->id, $created->id], [$m1->fresh()->scribe_id, $m2->fresh()->scribe_id]);
+        $this->assertSame([$w2->id], DB::table('work_author')->where('person_id', $created->id)->pluck('work_id')->all());
+        $this->assertSame([$m2->id], DB::table('manuscript_scribe')->where('person_id', $created->id)->pluck('manuscript_id')->all());
+        $this->assertSame($created->id, DB::table('manuscript_people')->where('id', $role)->value('person_id'));
+        $this->assertSame([1, 1, 1100], [$created->works_count, $created->manuscripts_count, $created->death_year_hijri]);
+        $this->assertSame([1, 1], [$person->fresh()->works_count, $person->fresh()->manuscripts_count]);
+        $this->get(route('people.show', $created))->assertOk();
+
+        $this->rollbackSplit($person);
+        $this->assertNull(Person::find($created->id));
+        $this->assertSame([$person->id, $person->id], [$w2->fresh()->author_id, $m2->fresh()->scribe_id]);
+        $this->assertSame($person->id, DB::table('manuscript_people')->where('id', $role)->value('person_id'));
+        $this->assertSame([2, 2], [$person->fresh()->works_count, $person->fresh()->manuscripts_count]);
+        $this->assertSame('pending', $s->fresh()->status);
+    }
 }

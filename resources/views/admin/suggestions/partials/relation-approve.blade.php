@@ -131,6 +131,71 @@
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'split' && $target)
+        @php
+            $splitInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
+            $picked = fn ($name) => array_map('intval', (array) old($name, []));
+            $isWork = $target instanceof \App\Models\Work;
+            $copyLabel = fn ($m) => trim(($m->libraryRecord?->name ?? $m->library ?? '—') . ' ' . ($m->shelfmark ?? '') . ($m->scribe_name ? ' · کاتب: ' . $m->scribe_name : '') . ($m->copy_date_raw ? ' · ' . $m->copy_date_raw : ''));
+            if ($isWork) {
+                $splitCopies = $target->manuscripts()->with('libraryRecord')->orderBy('id')->limit(2000)->get();
+            } else {
+                $splitWorks = $target->authoredWorks()->orderBy('works.id')->limit(2000)->get();
+                $splitCopies = $target->scribedManuscripts()->with(['work', 'libraryRecord'])->orderBy('manuscripts.id')->limit(2000)->get();
+                $splitRoles = \App\Models\ManuscriptPerson::with('manuscript.work')->where('person_id', $target->id)->orderBy('id')->get();
+            }
+        @endphp
+        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            @csrf
+            <p class="leading-relaxed text-stone-600 dark:text-stone-300">
+                {{ $isWork ? 'اثر' : 'شخص' }} تازه‌ای ساخته می‌شود و موارد تیک‌خورده به آن منتقل می‌شوند. بقیه در رکورد کنونی (#{{ $target->id }}) می‌مانند. این تغییر از «گزارش ممیزی» بازگرداندنی است.
+            </p>
+            @if($isWork)
+                <label class="block space-y-1">
+                    <span class="block font-bold text-stone-700 dark:text-stone-300">عنوان اثر تازه:</span>
+                    <input type="text" name="new_title" value="{{ old('new_title') }}" required class="{{ $splitInput }} font-bold">
+                </label>
+                <div class="space-y-1.5 p-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
+                    <span class="block font-bold text-stone-700 dark:text-stone-300">پدیدآور اثر تازه:</span>
+                    <label class="flex items-center gap-2"><input type="radio" name="author" value="same" @checked(old('author', 'same') === 'same') class="text-[#B38A50]"> همان پدیدآور اثر کنونی ({{ $target->author_name ?? '—' }})</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="author" value="person" @checked(old('author') === 'person') class="text-[#B38A50]"> شخص با شناسه‌ی <input type="number" name="author_id" value="{{ old('author_id') }}" class="w-28 p-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 font-mono"></label>
+                    <label class="flex items-center gap-2"><input type="radio" name="author" value="none" @checked(old('author') === 'none') class="text-[#B38A50]"> بدون پدیدآور</label>
+                </div>
+                <label class="flex items-center gap-2"><input type="hidden" name="copy_subjects" value="0"><input type="checkbox" name="copy_subjects" value="1" @checked(old('copy_subjects', '1') === '1') class="text-[#B38A50]"> موضوع‌ها و زبان‌های اثر کنونی به اثر تازه هم داده شود</label>
+            @else
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <label class="sm:col-span-2 block space-y-1">
+                        <span class="block font-bold text-stone-700 dark:text-stone-300">نام شخص تازه:</span>
+                        <input type="text" name="new_name" value="{{ old('new_name') }}" required class="{{ $splitInput }} font-bold">
+                    </label>
+                    <label class="block space-y-1">
+                        <span class="block font-bold text-stone-700 dark:text-stone-300">سال وفات (قمری، اختیاری):</span>
+                        <input type="number" name="death_year_hijri" value="{{ old('death_year_hijri') }}" class="{{ $splitInput }}">
+                    </label>
+                </div>
+            @endif
+
+            @foreach(array_filter([
+                ! $isWork && $splitWorks->isNotEmpty() ? ['work_ids', 'آثاری که از شخص تازه‌اند', $splitWorks->map(fn ($w) => [$w->id, $w->primary_title . ($w->composition_date_raw ? ' · ' . $w->composition_date_raw : ''), route('works.show', $w)])] : null,
+                $splitCopies->isNotEmpty() ? ['manuscript_ids', $isWork ? 'نسخه‌هایی که از اثر تازه‌اند' : 'نسخه‌هایی که کاتبشان شخص تازه است', $splitCopies->map(fn ($m) => [$m->id, ($isWork ? '' : ($m->work?->primary_title . ' — ')) . $copyLabel($m), route('manuscripts.show', $m)])] : null,
+                ! $isWork && $splitRoles->isNotEmpty() ? ['role_ids', 'نقش‌های دیگری که از شخص تازه‌اند', $splitRoles->map(fn ($r) => [$r->id, (\App\Models\ManuscriptPerson::ROLES[$r->role] ?? $r->role) . ' — ' . ($r->manuscript?->work?->primary_title ?? 'نسخه') . ' #' . $r->manuscript_id, $r->manuscript ? route('manuscripts.show', $r->manuscript) : null])] : null,
+            ]) as [$field, $caption, $items])
+                <div class="space-y-1">
+                    <span class="block font-bold text-stone-700 dark:text-stone-300">{{ $caption }} ({{ number_format($items->count()) }} مورد):</span>
+                    <div class="max-h-72 overflow-y-auto p-2 rounded-xl border border-stone-200 dark:border-stone-800 space-y-1">
+                        @foreach($items as [$id, $label, $url])
+                            <label class="flex items-start gap-2"><input type="checkbox" name="{{ $field }}[]" value="{{ $id }}" @checked(in_array($id, $picked($field), true)) class="mt-0.5 text-[#B38A50]">
+                                <span>#{{ $id }} {{ $label }} @if($url)<a href="{{ $url }}" target="_blank" class="text-[#B38A50] hover:underline">↗</a>@endif</span></label>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $splitInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $splitInput }}">
+            <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+        </form>
     @elseif($apply === 'remove' && $target)
         @php
             $removeInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';

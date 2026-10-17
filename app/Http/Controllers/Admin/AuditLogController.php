@@ -53,6 +53,8 @@ class AuditLogController extends Controller
                     $this->rollbackMerge($log, $request);
                 } elseif ($log->action === 'verify') {
                     $this->rollbackVerify($log, $request);
+                } elseif ($log->action === 'split') {
+                    $this->rollbackSplit($log, $request);
                 } elseif ($log->action === 'remove') {
                     $this->rollbackRemove($log, $request);
                 } elseif ($log->action === 'update') {
@@ -482,6 +484,25 @@ class AuditLogController extends Controller
             'action' => 'rollback_verify',
             'old_values' => $log->new_values,
             'new_values' => $log->old_values,
+            'ip_address' => $request->ip(),
+        ]);
+    }
+
+    /** A work or person split from a suggestion (see RecordSplitter): what moved goes back and the new record goes. */
+    protected function rollbackSplit(AuditLog $log, Request $request): void
+    {
+        app(\App\Suggestions\RecordSplitter::class)->undo($log->auditable_type, $log->auditable_id, $log->old_values);
+
+        if ($suggestionId = $log->new_values['suggestion_id'] ?? null) {
+            FieldSuggestion::whereKey($suggestionId)->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+        }
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'auditable_type' => $log->auditable_type,
+            'auditable_id' => $log->auditable_id,
+            'action' => 'rollback_split',
+            'old_values' => ['rolled_back_log_id' => $log->id],
+            'new_values' => ['removed_id' => $log->old_values['created_id'] ?? null],
             'ip_address' => $request->ip(),
         ]);
     }
