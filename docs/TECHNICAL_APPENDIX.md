@@ -2100,3 +2100,4 @@
   - ادغام کتابخانه‌ی بزرگ، نسخه‌هایش را در همان درخواست از نو نمایه می‌کند (`SCOUT_QUEUE` خاموش است).
   - پیشنهادهای تأییدشده‌ی کتابخانه‌ی حذف‌شده، مانند یادداشت‌های پژوهشی، منتقل نمی‌شوند. رفتار ادغام نسخه و اثر هم همین است.
 - آزمون‌های تازه: `test_a_duplicate_library_is_merged_and_the_merge_undone` و `test_a_renamed_library_keeps_its_former_name` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).
+- **استقرار پروداکشن (۲۵ مهر ۱۴۰۵):** کامیت `bf912f0` پوش و حدود ۳ دقیقه بعد با Coolify مستقر شد. سپس `migrate --force` با `ssh fahares-app` اجرا شد (فقط `add_aliases_to_libraries_table`). فهرست کتابخانه‌ها، جستجوی آن، `/l/1` و `lookup` کتابخانه روی fahares.net پاسخ ۲۰۰ دادند.
