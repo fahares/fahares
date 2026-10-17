@@ -31,6 +31,10 @@ class WorkController extends Controller
             if ($target) {
                 return redirect()->route('works.show', array_merge(['id' => $target->getRouteKey()], $request->query()), 301);
             }
+            // A record removed as redundant (or a merged one that pointed at it)
+            if ($gone = \App\Suggestions\RecordRemover::goneResponse(Work::class, $targetId ?: $numericId)) {
+                return $gone;
+            }
             abort(404);
         }
 

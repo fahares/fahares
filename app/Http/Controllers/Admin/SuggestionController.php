@@ -229,6 +229,9 @@ class SuggestionController extends Controller
         if ($relation && in_array($relation['apply'] ?? null, ['merge_library', 'rename_library'], true)) {
             return $this->approveLibrary($request, $suggestion, $relation, $record);
         }
+        if ($relation && ($relation['apply'] ?? null) === 'remove') {
+            return $this->approveRemoval($request, $suggestion, $relation, $record);
+        }
         $other = $suggestion->relationTarget();
         if (! $relation || ! $record || ! $other) {
             return back()->withErrors(['applied_value' => 'یکی از دو رکورد این پیشنهاد دیگر وجود ندارد.']);
@@ -562,6 +565,55 @@ class SuggestionController extends Controller
                     'admin_notes' => $validated['admin_notes'] ?? null,
                     'public_note' => trim($validated['public_note'] ?? '') ?: null,
                     'resolution' => ['applied' => true] + $result['resolution'] + ($created ? ['created_library' => true] : []),
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
+        }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')
+            ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
+    }
+
+    /**
+     * The record should not exist and is deleted (see RecordRemover); a work or person only once nothing
+     * depends on it. Logged as "remove" with a full snapshot, so the audit log can restore it.
+     */
+    private function approveRemoval(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        $validated = $request->validate([
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ]);
+        if (! $record) {
+            return back()->withErrors(['applied_value' => 'این رکورد دیگر وجود ندارد.']);
+        }
+
+        try {
+            DB::transaction(function () use ($suggestion, $record, $validated, $request) {
+                $class = $record::class;
+                $id = $record->id;
+                $result = app(\App\Suggestions\RecordRemover::class)->remove($record);
+
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => $class,
+                    'auditable_id' => $id,
+                    'action' => 'remove',
+                    'old_values' => $result,
+                    'new_values' => ['suggestion_id' => $suggestion->id],
+                    'ip_address' => $request->ip(),
+                ]);
+
+                $suggestion->update([
+                    'status' => 'approved',
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
+                    'resolution' => ['applied' => true, 'removed_id' => $id],
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
                 ]);

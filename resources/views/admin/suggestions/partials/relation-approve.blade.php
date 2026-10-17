@@ -131,6 +131,29 @@
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'remove' && $target)
+        @php
+            $removeInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
+            $blockers = app(\App\Suggestions\RecordRemover::class)->blockers($target);
+        @endphp
+        @if($blockers)
+            <p class="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-bold leading-relaxed">
+                این رکورد هنوز به {{ implode('، ', array_map(fn ($label, $n) => number_format($n) . ' ' . $label, array_keys($blockers), $blockers)) }} پیوند دارد.
+                نخست آن‌ها را به رکورد درست منتقل یا ادغام کنید، سپس این پیشنهاد را تأیید کنید.
+            </p>
+        @else
+            <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+                @csrf
+                <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 leading-relaxed">
+                    رکورد #{{ $target->id }} حذف می‌شود و نشانی‌اش صفحه‌ی «این رکورد حذف شده است» را نشان می‌دهد{{ $target instanceof \App\Models\Manuscript ? '، و به صفحه‌ی اثرش هدایت می‌شود' : '' }}.
+                    اطلاعات کامل آن در گزارش ممیزی می‌ماند و از همان‌جا با همان شناسه بازگرداندنی است.
+                </div>
+                <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $removeInput }}">
+                <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $removeInput }}">
+                <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                    class="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md transition">{{ $relation['action'] }}</button>
+            </form>
+        @endif
     @elseif($apply === 'rename_library' && $target)
         @php $libInput = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100'; @endphp
         <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">

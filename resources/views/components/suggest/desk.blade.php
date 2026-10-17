@@ -239,10 +239,10 @@
                     <!-- Suggested value, by input type -->
                     <div class="space-y-1">
                         <label class="block font-semibold text-stone-700 dark:text-stone-300"
-                            x-text="mode === 'general' ? (relation && !relation.target ? (relation.apply === 'rename_library' ? 'نام تازه‌ی کتابخانه:' : 'نام دیگر:') : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
+                            x-text="mode === 'general' ? (relation && relation.needs_text ? (relation.apply === 'rename_library' ? 'نام تازه‌ی کتابخانه:' : 'نام دیگر:') : (relation && relation.apply === 'person_role' ? 'توضیح (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):' : (relationKey ? 'توضیح (اختیاری):' : 'شرح پیشنهاد:'))) : 'مقدار درست:'"></label>
 
                         <template x-if="mode === 'general' || ['textarea', 'quote', 'list'].includes(field.input)">
-                            <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && !relation.target)" class="{{ $inputClass }}"
+                            <textarea x-model="value" :rows="relationKey ? 2 : 5" :required="!relationKey || (relation && relation.needs_text)" class="{{ $inputClass }}"
                                 :placeholder="mode === 'field' && field.input === 'list' ? 'هر مورد در یک سطر' : ''"></textarea>
                         </template>
 

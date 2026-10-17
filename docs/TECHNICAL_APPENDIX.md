@@ -2121,3 +2121,19 @@
 - [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php): متن هشدار ادغام به‌روز شد.
 - **محدودیت:** پیشنهادهای تأییدشده و یادداشت‌های پژوهشیِ رکورد حذف‌شده جابه‌جا نمی‌شوند، و با بازگردانی، چون شناسه همان است، دوباره به رکورد وصل می‌شوند. پیشنهادهای بازی که پس از ادغام روی رکورد ماندنی ثبت شده‌اند، همان‌جا می‌مانند.
 - آزمون‌های تازه: `test_undoing_a_manuscript_merge_restores_the_removed_copy` و `test_undoing_a_work_merge_restores_the_work_and_its_copies` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).
+
+### گام ۱۱.۲۶: پیشنهاد رابطه‌ای `redundant` (حذف رکورد زائد)
+
+- [SuggestionRegistry.php](../app/Suggestions/SuggestionRegistry.php): رابطه‌ی `redundant` برای `manuscript`، `work` و `person` با `target = null` و `apply = remove`. کلید تازه‌ی `needs_text` جای شرط «بدون target» را گرفت، چون رابطه‌ی بدون target دیگر همیشه به معنای «متن ارسالی همان مقدار است» نیست. این کلید روی `alias` و `renamed` گذاشته شد و در [SuggestionController.php](../app/Http/Controllers/SuggestionController.php) و [desk.blade.php](../resources/views/components/suggest/desk.blade.php) به کار می‌رود.
+- [RecordRemover.php](../app/Suggestions/RecordRemover.php) (تازه):
+  - `blockers()`:
+    - اثر: نسخه‌ها.
+    - شخص: `work_author`، `works.author_id`، `manuscript_scribe`، `manuscripts.scribe_id`، `manuscript_people` و `catalogers.person_id`. شمارش‌ها یکتا هستند و ستون اصلی و pivot دوباره شمرده نمی‌شوند.
+    - نسخه: هیچ. pivotهایش با cascade حذف می‌شوند.
+  - `remove()`: ویژگی‌ها، ردیف‌های pivotِ دارای cascade و روابط هر دو سو (`manuscript_relations`/`work_relations`) را ذخیره می‌کند. برای اثر، شناسه‌ی `referrals` (که `nullOnDelete` دارند) را هم ذخیره می‌کند. سپس `delete()` و شمارش دوباره‌ی اثر، کتابخانه، جلد فهرست، فهرست‌نگار، خط، موضوع (با والد)، زبان و اشخاص.
+  - `undo()`: درج با همان شناسه، pivotها و روابط (`insertOrIgnore`)، و برگرداندن `referrals`، شمارش دوباره و نمایه‌سازی. اگر رکوردی با همان شناسه، اثر نسخه، یا پدیدآور یا کاتبی که در ویژگی‌هاست وجود نداشته باشد، بازگردانی نمی‌کند و پیام روشن می‌دهد.
+  - `goneResponse()`: پاسخ نشانی پیشین. نسخه با ۳۰۲ به اثرش هدایت می‌شود. ۳۰۲ انتخاب شد نه ۳۰۱، تا پس از بازگردانی در مرورگرها کش نماند. اثر و شخص صفحه‌ی [records/removed.blade.php](../resources/views/records/removed.blade.php) را با کد ۴۱۰ و `X-Robots-Tag: noindex` می‌گیرند. منبع، لاگ `remove` است و جدول تازه‌ای لازم نشد. اگر رکورد بازگردانده شود، صفحه‌ی خود رکورد پیش از این بررسی پیدا می‌شود.
+- [ManuscriptController](../app/Http/Controllers/ManuscriptController.php)، [WorkController](../app/Http/Controllers/WorkController.php) و [PersonController](../app/Http/Controllers/PersonController.php): پیش از ۴۰۴، `goneResponse()` روی `$targetId ?: $numericId` صدا زده می‌شود. پس ریدایرکتِ ادغامی که به رکورد حذف‌شده می‌رسد هم صفحه‌ی ۴۱۰ را نشان می‌دهد.
+- [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `approveRemoval()` با لاگ `action = remove`. فرم و فهرست وابستگی‌ها در [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php) است.
+- [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php): `rollbackRemove()` با لاگ `rollback_remove`، و دوباره «در انتظار» شدن پیشنهاد. در [audit_logs/index.blade.php](../resources/views/admin/audit_logs/index.blade.php) دکمه‌ی بازگردانی برای `remove`، برچسب قرمز و فیلتر «حذف رکورد زائد» افزوده شد.
+- آزمون‌های تازه: `test_a_redundant_manuscript_is_removed_and_restored` و `test_a_redundant_work_or_person_goes_only_once_nothing_depends_on_it`.

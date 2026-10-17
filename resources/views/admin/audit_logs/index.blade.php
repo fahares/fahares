@@ -27,6 +27,10 @@
                class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'merge' ? 'bg-indigo-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
                 ادغام اعلام و موضوعات (Merge)
             </a>
+            <a href="{{ route('admin.audit-logs.index', ['action' => 'remove']) }}" 
+               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'remove' ? 'bg-red-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+                حذف رکورد زائد (Remove)
+            </a>
             <a href="{{ route('admin.audit-logs.index', ['action' => 'update']) }}" 
                class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'update' ? 'bg-blue-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
                 ویرایش‌ها (Update)
@@ -76,7 +80,7 @@
                                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold 
                                     {{ $log->action === 'create' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : '' }}
                                     {{ $log->action === 'update' ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300' : '' }}
-                                    {{ $log->action === 'delete' ? 'bg-red-500/15 text-red-700 dark:text-red-300' : '' }}
+                                    {{ in_array($log->action, ['delete', 'remove'], true) ? 'bg-red-500/15 text-red-700 dark:text-red-300' : '' }}
                                     {{ $log->action === 'verify' ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300' : '' }}
                                     {{ $log->action === 'merge' ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300' : '' }}
                                     {{ str_starts_with($log->action, 'rollback') ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300' : '' }}">
@@ -99,7 +103,7 @@
                                         <svg :class="expanded ? 'rotate-180' : ''" class="w-3 h-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
 
-                                    @if(in_array($log->action, ['merge', 'verify', 'update']) && !empty($log->old_values))
+                                    @if(in_array($log->action, ['merge', 'verify', 'update', 'remove']) && !empty($log->old_values))
                                         <form action="{{ route('admin.audit-logs.rollback', $log) }}" method="POST" class="inline" 
                                               onsubmit="return confirm('هشدار: آیا از بازگردانی (Rollback) این تغییر و احیای وضعیت قبلی اطمینان کامل دارید؟')">
                                             @csrf

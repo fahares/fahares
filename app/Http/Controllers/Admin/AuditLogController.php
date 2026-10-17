@@ -53,6 +53,8 @@ class AuditLogController extends Controller
                     $this->rollbackMerge($log, $request);
                 } elseif ($log->action === 'verify') {
                     $this->rollbackVerify($log, $request);
+                } elseif ($log->action === 'remove') {
+                    $this->rollbackRemove($log, $request);
                 } elseif ($log->action === 'update') {
                     $this->rollbackUpdate($log, $request);
                 } else {
@@ -480,6 +482,25 @@ class AuditLogController extends Controller
             'action' => 'rollback_verify',
             'old_values' => $log->new_values,
             'new_values' => $log->old_values,
+            'ip_address' => $request->ip(),
+        ]);
+    }
+
+    /** A redundant record deleted from a suggestion (see RecordRemover) comes back with its id. */
+    protected function rollbackRemove(AuditLog $log, Request $request): void
+    {
+        $restored = app(\App\Suggestions\RecordRemover::class)->undo($log->auditable_type, $log->old_values);
+
+        if ($suggestionId = $log->new_values['suggestion_id'] ?? null) {
+            FieldSuggestion::whereKey($suggestionId)->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+        }
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'auditable_type' => $log->auditable_type,
+            'auditable_id' => $restored->id,
+            'action' => 'rollback_remove',
+            'old_values' => ['rolled_back_log_id' => $log->id],
+            'new_values' => ['restored_id' => $restored->id],
             'ip_address' => $request->ip(),
         ]);
     }

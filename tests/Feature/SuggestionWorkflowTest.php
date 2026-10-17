@@ -1531,4 +1531,90 @@ class SuggestionWorkflowTest extends TestCase
         DB::table('referrals')->where('id', $referral)->delete();
         $subject->delete();
     }
+
+    protected function rollbackRemoval($record): void
+    {
+        $log = AuditLog::where('auditable_type', $record::class)->where('auditable_id', $record->id)->where('action', 'remove')->latest('id')->firstOrFail();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+    }
+
+    public function test_a_redundant_manuscript_is_removed_and_restored()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $scribe = $this->person('کاتب رکورد زائد');
+        $m = $this->manuscript(['shelfmark' => 'زائد', 'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name]);
+        $other = $this->manuscript(['work_id' => $m->work_id]);
+        $this->removedManuscripts[] = $m->id;
+        $work = $m->work;
+        $work->update(['manuscripts_count' => 2]);
+        $relation = DB::table('manuscript_relations')->insertGetId(['manuscript_id' => $other->id, 'related_manuscript_id' => $m->id, 'type' => 'collated_with']);
+        $before = $m->fresh()->getAttributes();
+
+        // No text is needed beyond the explanation of the source
+        $this->relate($m, 'redundant', null, ['rationale_citation' => ''])->assertStatus(422)->assertJsonValidationErrors('rationale_citation');
+        $this->relate($m, 'redundant', null)->assertOk();
+        $s = $this->pendingFor($m);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('حذف رکورد زائد');
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+
+        $this->assertNull(Manuscript::find($m->id));
+        $this->assertSame(1, $work->fresh()->manuscripts_count);
+        $this->assertSame(0, $scribe->fresh()->manuscripts_count);
+        $this->assertFalse(DB::table('manuscript_relations')->where('id', $relation)->exists());
+        $this->get(route('manuscripts.show', ['id' => $m->id]))->assertRedirect(route('works.show', $work->fresh()));
+        $this->assertSame(['applied' => true, 'removed_id' => $m->id], $s->fresh()->resolution);
+
+        $this->rollbackRemoval($m);
+        $restored = Manuscript::findOrFail($m->id);
+        $this->assertSame(array_diff_key($before, ['updated_at' => 1]), array_diff_key($restored->getAttributes(), ['updated_at' => 1]));
+        $this->assertSame([2, 1], [$work->fresh()->manuscripts_count, $scribe->fresh()->manuscripts_count]);
+        $this->assertTrue(DB::table('manuscript_relations')->where('id', $relation)->exists());
+        $this->assertSame('pending', $s->fresh()->status);
+        $this->get(route('manuscripts.show', $restored))->assertOk();
+    }
+
+    public function test_a_redundant_work_or_person_goes_only_once_nothing_depends_on_it()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $work = $this->work(['primary_title' => 'سرعنوان زائد ' . $this->tag]);
+        $m = $this->manuscript(['work_id' => $work->id]);
+        $person = $this->person('عبارت زائد');
+        $work->update(['author_id' => $person->id, 'author_name' => $person->name]);
+        $referral = DB::table('referrals')->insertGetId(['source_title' => 'الف', 'target_title' => 'ب', 'target_work_id' => $work->id, 'volume_number' => 1, 'page' => 1]);
+
+        $this->relate($work, 'redundant', null)->assertOk();
+        $ws = $this->pendingFor($work);
+        $this->relate($person, 'redundant', null)->assertOk();
+        $ps = $this->pendingFor($person);
+
+        // Still linked: the reviewer sees what blocks it and approval is refused
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$ws->id}")->assertOk()->assertSee('1 نسخه پیوند دارد', false);
+        $this->approve($ws)->assertSessionHasErrors('applied_value');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$ps->id}")->assertOk()->assertSee('1 اثر');
+        $this->approve($ps)->assertSessionHasErrors('applied_value');
+        $this->assertNotNull(Work::find($work->id));
+
+        // Once its copy is moved elsewhere, the work goes; its author then has nothing left and goes too
+        $m->update(['work_id' => $this->work()->id]);
+        $this->approve($ws)->assertRedirect('/admin/suggestions');
+        $this->assertNull(Work::find($work->id));
+        $this->assertNull(DB::table('referrals')->where('id', $referral)->value('target_work_id'));
+        $this->get(route('works.show', ['id' => $work->id]))->assertStatus(410)->assertSee('این اثر حذف شده است')->assertSee($work->primary_title);
+        $this->approve($ps)->assertRedirect('/admin/suggestions');
+        $this->assertNull(Person::find($person->id));
+        $this->get(route('people.show', ['id' => $person->id]))->assertStatus(410)->assertSee('این شخص حذف شده است');
+
+        // The work cannot come back before its author, whose link it restores
+        $log = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work->id)->where('action', 'remove')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('error');
+        $this->rollbackRemoval($person);
+        $this->rollbackRemoval($work);
+        $this->assertSame($person->id, Work::findOrFail($work->id)->author_id);
+        $this->assertSame([$work->id], DB::table('work_author')->where('person_id', $person->id)->pluck('work_id')->all());
+        $this->assertSame($work->id, DB::table('referrals')->where('id', $referral)->value('target_work_id'));
+        $this->assertSame(1, Person::find($person->id)->works_count);
+        $this->assertSame(['pending', 'pending'], [$ws->fresh()->status, $ps->fresh()->status]);
+        $this->get(route('works.show', Work::find($work->id)))->assertOk();
+        DB::table('referrals')->where('id', $referral)->delete();
+    }
 }

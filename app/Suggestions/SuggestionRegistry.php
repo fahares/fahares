@@ -58,7 +58,9 @@ class SuggestionRegistry
      * record_relation (a commentary on, copied from… another record; see RecordRelations),
      * relocate (the copy is now in another library or has a new shelfmark; see ManuscriptLocation),
      * merge_library (a duplicate library, or one absorbed into another, is folded into it; see LibraryMerger),
-     * rename_library (no target: the submitted text is the library's new name; see LibraryMerger).
+     * rename_library (no target: the submitted text is the library's new name; see LibraryMerger),
+     * remove (no target: the record should not exist and is deleted; see RecordRemover).
+     * needs_text: the submitted text is the value itself (another name, a new name) and may not be empty.
      * Relations with options (person_role, record_relation) carry the chosen option in payload.role.
      */
     public const RELATIONS = [
@@ -71,21 +73,24 @@ class SuggestionRegistry
             'manuscript_relation' => ['label' => 'این نسخه با نسخه‌ی دیگری رابطه دارد (استنساخ، مقابله، مجلد دیگر، نسخه‌ی عکسی یا میکروفیلم)', 'target' => 'manuscript', 'action' => 'ثبت رابطه‌ی دو نسخه', 'apply' => 'record_relation'],
             // The new library is optional (only the number changed); payload.shelfmark carries the new number
             'relocated' => ['label' => 'این نسخه به کتابخانه‌ی دیگری منتقل شده یا شماره‌اش تغییر کرده است', 'target' => 'library', 'target_optional' => true, 'action' => 'تغییر کتابخانه یا شماره‌ی نسخه', 'apply' => 'relocate'],
+            'redundant' => ['label' => 'این رکورد زائد است (نسخه‌ای وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه نسخه ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
         ],
         'work' => [
             'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری', 'apply' => 'merge'],
             'author_is' => ['label' => 'پدیدآور این اثر شخص دیگری است (انتساب فعلی نادرست است)', 'target' => 'person', 'action' => 'تعیین پدیدآور', 'apply' => 'contributor_set'],
             'author_also' => ['label' => 'این اثر پدیدآور دیگری هم دارد', 'target' => 'person', 'action' => 'افزودن پدیدآور', 'apply' => 'contributor_add'],
             'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطه‌ی دو اثر', 'apply' => 'record_relation'],
+            'redundant' => ['label' => 'این رکورد زائد است (اثری وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه اثر ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
         ],
         'library' => [
             'duplicate' => ['label' => 'این کتابخانه تکراری است (همان کتابخانه‌ی دیگری است)', 'target' => 'library', 'action' => 'ادغام کتابخانه‌ی تکراری', 'apply' => 'merge_library'],
             'merged_into' => ['label' => 'این کتابخانه با کتابخانه‌ی دیگری ادغام شده و نسخه‌هایش اکنون آنجاست', 'target' => 'library', 'action' => 'ادغام در کتابخانه‌ی دیگر', 'apply' => 'merge_library'],
-            'renamed' => ['label' => 'نام این کتابخانه تغییر کرده است', 'target' => null, 'action' => 'تغییر نام کتابخانه', 'apply' => 'rename_library'],
+            'renamed' => ['label' => 'نام این کتابخانه تغییر کرده است', 'target' => null, 'action' => 'تغییر نام کتابخانه', 'apply' => 'rename_library', 'needs_text' => true],
         ],
         'person' => [
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],
-            'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias'],
+            'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias', 'needs_text' => true],
+            'redundant' => ['label' => 'این رکورد زائد است (شخصی با این نام وجود ندارد؛ مثلاً عنوان یا عبارتی که به‌اشتباه نام شخص ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
         ],
     ];
 
