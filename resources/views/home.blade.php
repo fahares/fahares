@@ -1,322 +1,220 @@
 @extends('layouts.app')
 
-@section('title', 'فهارس | سامانه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')
+@section('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')
+
+@php
+    use App\Models\SiteSetting;
+    use App\Support\Fa;
+    $interval = max(3, (int) SiteSetting::get('home.slide_interval')) * 1000;
+@endphp
 
 @section('content')
-<div class="space-y-16 py-6 sm:py-10">
+<div class="pb-6">
 
-    <!-- HERO SECTION -->
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-8">
-        
-        <!-- Logo Emblem & Title -->
-        <div class="inline-flex flex-col items-center justify-center space-y-4">
-            <div class="relative group">
-                <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-[#B38A50] to-[#292C56] opacity-30 blur-lg group-hover:opacity-60 transition duration-500"></div>
-                <img src="{{ asset('images/logo_emblem.png') }}" alt="نشان فهارس" class="relative h-28 sm:h-36 w-auto drop-shadow-md">
-            </div>
-            
-            <div class="space-y-2">
-                <div class="inline-flex items-center justify-center gap-2">
-                    <h1 class="text-4xl sm:text-5xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                        فهارس
-                    </h1>
-                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">نسخه آزمایشی</span>
+    {{-- Banner slides (managed in admin → صفحه‌ی خانه) --}}
+    @if($slides->isNotEmpty())
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+                 x-data="{
+                    i: 0, n: {{ $slides->count() }}, timer: null, paused: false,
+                    go(k) { this.i = (k + this.n) % this.n },
+                    start() {
+                        if (this.n < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                        this.timer = setInterval(() => { if (!this.paused && !document.hidden) this.go(this.i + 1) }, {{ $interval }});
+                    }
+                 }"
+                 x-init="start()"
+                 @mouseenter="paused = true" @mouseleave="paused = false"
+                 @focusin="paused = true" @focusout="paused = false"
+                 aria-roledescription="carousel" aria-label="تصویرهای برگزیده">
+            <div class="relative overflow-hidden bg-[#221C17] border border-gold shadow-[inset_0_0_0_3px_var(--surface)] p-[4px]">
+                <div class="relative aspect-[3/1] overflow-hidden">
+                    @foreach($slides as $slide)
+                        <figure class="absolute inset-0 m-0 transition-opacity duration-700 motion-reduce:transition-none"
+                                :class="i === {{ $loop->index }} ? 'opacity-100 z-10' : 'opacity-0 z-0'"
+                                @if(! $loop->first) x-cloak @endif
+                                aria-roledescription="slide" aria-label="{{ Fa::digits($loop->iteration) }} از {{ Fa::digits($slides->count()) }}"
+                                :aria-hidden="i !== {{ $loop->index }}">
+                            @if($slide->link_url)<a href="{{ $slide->link_url }}" class="block w-full h-full" :tabindex="i === {{ $loop->index }} ? 0 : -1">@endif
+                                <img src="{{ $slide->image_url }}" alt="{{ $slide->title }}" class="w-full h-full object-cover"
+                                     @if($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                            @if($slide->link_url)</a>@endif
+                            @if($slide->show_caption && ($slide->title || $slide->subtitle))
+                                <figcaption class="absolute inset-y-0 right-0 w-full sm:w-2/5 flex flex-col justify-end sm:justify-center gap-1 p-4 sm:p-8 bg-gradient-to-t sm:bg-gradient-to-l from-black/75 to-transparent text-white pointer-events-none">
+                                    @if($slide->title)<span class="font-naskh text-lg sm:text-2xl font-bold leading-snug">{{ $slide->title }}</span>@endif
+                                    @if($slide->subtitle)<span class="text-xs sm:text-sm text-white/85 leading-relaxed line-clamp-3">{{ $slide->subtitle }}</span>@endif
+                                </figcaption>
+                            @endif
+                        </figure>
+                    @endforeach
+
+                    @if($slides->count() > 1)
+                        <button type="button" @click="go(i - 1)" aria-label="تصویر قبلی"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 grid place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                        <button type="button" @click="go(i + 1)" aria-label="تصویر بعدی"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 grid place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div class="absolute bottom-2 inset-x-0 z-20 flex justify-center gap-2">
+                            @foreach($slides as $slide)
+                                <button type="button" @click="go({{ $loop->index }})" aria-label="تصویر {{ Fa::digits($loop->iteration) }}"
+                                        class="w-2.5 h-2.5 rotate-45 border border-white/80 transition cursor-pointer"
+                                        :class="i === {{ $loop->index }} ? 'bg-white' : 'bg-white/20 hover:bg-white/50'"></button>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
-                <p class="text-lg sm:text-xl font-medium text-[#B38A50] dark:text-amber-300/90">
-                    پایگاه جامع کتاب‌شناسی و نسخه‌های کهن خطی
-                </p>
-                <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 max-w-2xl mx-auto leading-relaxed">
-                    دسترسی یکپارچه به گنجینه فهارس خطی • مشتمل بر ۳۴ مجلد فنخا، ۷۶ هزار اثر و بیش از ۴۳۸ هزار نسخه
-                </p>
             </div>
-        </div>
+        </section>
+    @endif
 
-        <!-- SEARCH WIDGET -->
-        <div x-data="{ activeTab: 'works' }" 
-            class="relative max-w-3xl mx-auto text-right">
+    {{-- Search sheet --}}
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 {{ $slides->isNotEmpty() ? 'mt-6' : 'mt-10' }} relative z-20">
+        <div class="bg-surface border border-gold shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line),0_20px_40px_-24px_rgb(0_0_0/0.45)] px-5 py-7 sm:px-10 sm:py-9 text-center space-y-4">
+            <p class="text-xs sm:text-sm font-bold text-cinnabar">{{ SiteSetting::get('home.eyebrow') }}</p>
+            <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold text-ink leading-[1.6] text-balance">{{ SiteSetting::get('home.headline') }}</h1>
+            <p class="text-sm text-muted max-w-2xl mx-auto leading-relaxed">{{ SiteSetting::get('home.lede') }}</p>
 
-            <!-- Search Mode Tabs -->
-            <div class="flex items-center justify-center gap-2 mb-3 text-xs sm:text-sm font-semibold">
-                <button 
-                    type="button"
-                    @click="activeTab = 'works'" 
-                    :class="activeTab === 'works' ? 'bg-[#292C56] text-amber-100 shadow-md' : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100'"
-                    class="px-4 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 transition duration-150">
-                    آثار و عناوین
-                </button>
-                <button 
-                    type="button"
-                    @click="activeTab = 'manuscripts'" 
-                    :class="activeTab === 'manuscripts' ? 'bg-[#292C56] text-amber-100 shadow-md' : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100'"
-                    class="px-4 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 transition duration-150">
-                    نسخه‌های خطی
-                </button>
-                <button 
-                    type="button"
-                    @click="activeTab = 'people'" 
-                    :class="activeTab === 'people' ? 'bg-[#292C56] text-amber-100 shadow-md' : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-100'"
-                    class="px-4 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 transition duration-150">
-                    پدیدآوران و کاتبان
-                </button>
-            </div>
+            <div x-data="{ activeTab: 'works' }" class="max-w-3xl mx-auto text-right pt-2">
+                <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنه‌ی جستجو">
+                    @foreach(['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'پدیدآوران و کاتبان'] as $tab => $tabLabel)
+                        <button type="button" role="tab" @click="activeTab = '{{ $tab }}'" :aria-selected="activeTab === '{{ $tab }}'"
+                                :class="activeTab === '{{ $tab }}' ? 'bg-paper text-ink border-line-strong' : 'text-muted border-transparent hover:text-ink'"
+                                class="px-3.5 py-1 rounded-sm border transition cursor-pointer">{{ $tabLabel }}</button>
+                    @endforeach
+                </div>
 
-            <!-- Form -->
-            <form action="{{ route('search') }}" method="GET" class="relative group">
-                <input type="hidden" name="type" :value="activeTab">
-                <input type="hidden" name="scope" value="all">
-                
-                <div class="relative flex items-center">
-                    <input 
-                        type="text" 
-                        name="q" 
-                        autocomplete="off"
-                        placeholder="جستجو در عنوان اثر، نام مؤلف، کاتب، آغاز/انجام، یا شماره نسخه..."
-                        class="w-full pr-14 pl-28 py-4 sm:py-5 bg-white dark:bg-[#15192C] text-stone-800 dark:text-stone-100 placeholder-stone-400 text-base sm:text-lg rounded-2xl border-2 border-[#EADFCF] dark:border-[#272F4C] focus:border-[#B38A50] dark:focus:border-[#B38A50] focus:ring-4 focus:ring-[#B38A50]/20 shadow-xl transition duration-200">
-                    
-                    <!-- Search Icon -->
-                    <div class="absolute right-4 text-stone-400 group-focus-within:text-[#B38A50] transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <form action="{{ route('search') }}" method="GET" class="relative group">
+                    <input type="hidden" name="type" :value="activeTab">
+                    <input type="hidden" name="scope" value="all">
+                    <label for="home-search" class="sr-only">جستجو</label>
+                    <div class="relative flex items-center">
+                        <input type="text" name="q" id="home-search" autocomplete="off"
+                               placeholder="عنوان اثر، نام مؤلف، کاتب، آغاز و انجام، یا شماره‌ی نسخه"
+                               class="w-full pr-12 pl-28 py-3.5 sm:py-4 bg-paper text-ink placeholder:text-muted text-base rounded-sm border border-line-strong focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 outline-none transition">
+                        <svg class="absolute right-4 w-5 h-5 text-muted group-focus-within:text-cinnabar transition pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <button type="submit" class="absolute left-1.5 px-5 py-2.5 bg-cinnabar text-on-cinnabar font-semibold rounded-sm text-sm hover:opacity-90 transition flex items-center gap-1.5 cursor-pointer">
+                            <span>جستجو</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m6-6-6 6 6 6"/></svg>
+                        </button>
                     </div>
+                </form>
 
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        class="absolute left-2.5 px-5 py-2.5 sm:py-3 bg-gradient-to-r from-[#B38A50] to-[#8F6B38] hover:from-[#9C753F] hover:to-[#7A5A2E] text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition duration-200 flex items-center gap-1.5">
-                        <span>کاوش</span>
-                        <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </button>
+                <div class="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
+                    <span>نمونه:</span>
+                    @foreach($suggestedSearches as $pill)
+                        <a href="{{ $pill['url'] }}" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $pill['label'] }}</a>
+                    @endforeach
                 </div>
-            </form>
+            </div>
 
-            <!-- Quick Suggestions Pills -->
-            <div class="mt-4 flex flex-wrap items-center justify-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
-                <span class="font-medium text-stone-400 ml-1">پیشنهاد کاوش:</span>
-                @foreach($suggestedSearches as $pill)
-                    <a href="{{ $pill['url'] }}" class="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 hover:text-[#B38A50] transition">
-                        {{ $pill['label'] }}
+            <ul class="flex flex-wrap justify-center gap-y-2 pt-3 text-xs sm:text-sm text-muted tabular-nums" aria-label="آمار پایگاه">
+                @foreach([
+                    ['works', 'اثر', route('search', ['type' => 'works'])],
+                    ['manuscripts', 'نسخه', route('search', ['type' => 'manuscripts'])],
+                    ['people', 'پدیدآور و کاتب', route('search', ['type' => 'people'])],
+                    ['libraries', 'کتابخانه', route('libraries.index')],
+                    ['catalogers', 'فهرست‌نگار', route('catalogers.index')],
+                ] as [$key, $statLabel, $statUrl])
+                    <li class="relative px-3 sm:px-4 {{ $loop->first ? '' : "before:content-[''] before:absolute before:right-[-3px] before:top-1/2 before:-mt-[3px] before:w-1.5 before:h-1.5 before:bg-cinnabar before:rotate-45" }}">
+                        <a href="{{ $statUrl }}" class="hover:text-ink transition">
+                            <b class="font-bold text-ink text-base sm:text-lg ml-1">{{ Fa::num($stats[$key]) }}</b>{{ $statLabel }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    </section>
+
+    {{-- Featured images --}}
+    @if($treasures->isNotEmpty())
+        <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14">
+            <h2 class="rubric text-xl mb-6">{{ SiteSetting::get('home.treasures_title') }}</h2>
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 {{ $treasures->count() > 3 ? 'lg:grid-cols-6' : '' }}">
+                @foreach($treasures as $t)
+                    <figure class="m-0 space-y-2 group">
+                        @if($t->link_url)<a href="{{ $t->link_url }}" @if(str_starts_with($t->link_url, 'http')) target="_blank" rel="noopener" @endif class="block">@endif
+                            <div class="aspect-[3/4] overflow-hidden bg-[#221C17] border border-line">
+                                <img src="{{ $t->image_url }}" alt="{{ $t->title }}{{ $t->subtitle ? '، ' . $t->subtitle : '' }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 motion-reduce:transition-none">
+                            </div>
+                        @if($t->link_url)</a>@endif
+                        <figcaption class="space-y-0.5">
+                            @if($t->title)<span class="block font-naskh text-base sm:text-lg font-bold text-ink">{{ $t->title }}</span>@endif
+                            @if($t->subtitle)<span class="hidden sm:block text-xs text-ink/80">{{ $t->subtitle }}</span>@endif
+                            @if($t->credit)<span class="hidden sm:block text-[11px] text-muted">{{ $t->credit }}</span>@endif
+                        </figcaption>
+                    </figure>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- Catalogers chosen in admin --}}
+    @if($homeCatalogers->isNotEmpty())
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14">
+            <div class="flex items-baseline justify-between gap-3 mb-6">
+                <h2 class="rubric text-xl">{{ SiteSetting::get('home.catalogers_title') }}</h2>
+                <a href="{{ route('catalogers.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی فهرست‌نگاران</a>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
+                @foreach($homeCatalogers as $c)
+                    <a href="{{ route('catalogers.show', $c) }}" class="group grid justify-items-center gap-1.5 text-center">
+                        <div class="w-full aspect-[4/5] rounded-t-full rounded-b-sm border border-gold p-1 bg-surface">
+                            <div class="w-full h-full rounded-t-full rounded-b-[2px] overflow-hidden bg-paper">
+                                @if($c->avatar_url)
+                                    <img src="{{ $c->avatar_url }}" alt="" loading="lazy" class="w-full h-full object-cover sepia-[.85] contrast-[1.05] group-hover:sepia-0 transition duration-500 motion-reduce:transition-none">
+                                @else
+                                    <span class="w-full h-full grid place-items-center font-naskh text-3xl text-muted">{{ mb_substr($c->name, 0, 1) }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-ink leading-snug group-hover:text-cinnabar transition">{{ $c->name }}</span>
+                        @if($c->life_years_text)
+                            <span class="text-[11px] text-muted leading-tight">{{ Fa::digits($c->life_years_text) }}</span>
+                        @endif
                     </a>
                 @endforeach
             </div>
+        </section>
+    @endif
 
-        </div>
-
-    </section>
-
-    <!-- LIVE STATS METRICS (34 Volumes, 71k Works, 323k Manuscripts) -->
-    <section class="max-w-6xl mx-auto px-4 sm:px-6">
-        <div class="bg-white/80 dark:bg-[#15192C]/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-lg">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-0 text-center md:divide-x divide-stone-200 dark:divide-stone-800">
-                
-                <div class="space-y-1 px-2 sm:px-4">
-                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
-                        {{ number_format($stats['volumes_count']) }}
-                    </div>
-                    <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                        مجلدات فهرستگان
-                    </div>
-                </div>
-
-                <div class="space-y-1 px-2 sm:px-4">
-                    <div class="text-3xl sm:text-4xl font-black text-[#B38A50]">
-                        {{ number_format($stats['works_count']) }}
-                    </div>
-                    <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                        عناوین آثار
-                    </div>
-                </div>
-
-                <div class="space-y-1 px-2 sm:px-4">
-                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
-                        {{ number_format($stats['manuscripts_count']) }}
-                    </div>
-                    <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                        نسخه‌های خطی
-                    </div>
-                </div>
-
-                <div class="space-y-1 px-2 sm:px-4">
-                    <div class="text-3xl sm:text-4xl font-black text-[#B38A50]">
-                        {{ number_format($stats['people_count']) }}
-                    </div>
-                    <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                        پدیدآوران و کاتبان
-                    </div>
-                </div>
-
-                <div class="col-span-2 md:col-span-1 space-y-1 px-2 sm:px-4">
-                    <div class="text-3xl sm:text-4xl font-black text-[#292C56] dark:text-amber-100">
-                        {{ number_format($stats['libraries_count']) }}
-                    </div>
-                    <div class="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                        کتابخانه‌ها و مراکز
-                    </div>
-                </div>
-
+    {{-- Index of subjects and libraries --}}
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14 grid gap-12 md:grid-cols-2">
+        <div>
+            <div class="flex items-baseline justify-between gap-3 mb-4">
+                <h2 class="rubric text-xl">نمایه‌ی موضوعات</h2>
+                <a href="{{ route('subjects.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی موضوعات</a>
             </div>
-        </div>
-    </section>
-
-    <!-- TOP SUBJECTS TAXONOMY -->
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-6 bg-[#B38A50] rounded-sm"></span>
-                <h2 class="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">رده‌بندی‌های موضوعی شاخص</h2>
-            </div>
-            <a href="{{ route('subjects.index') }}" class="text-xs sm:text-sm font-semibold text-[#B38A50] hover:underline flex items-center gap-1">
-                <span>مشاهده همه موضوعات و شاخه‌ها</span>
-                <span>←</span>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            @foreach($topSubjects as $subject)
-                <a href="{{ route('subjects.show', $subject) }}" 
-                   class="group bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between h-28">
-                    <div class="text-base font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] transition">
-                        {{ $subject->title }}
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-stone-400">
-                        <span>تعداد عناوین</span>
-                        <span class="font-bold text-[#B38A50] bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full">
-                            {{ number_format($subject->works_count) }}
-                        </span>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    </section>
-
-    <!-- PROMINENT LIBRARIES & ARCHIVES -->
-    <section class="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-6 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
-                <h2 class="text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">بزرگ‌ترین گنجینه‌های نسخ خطی</h2>
-            </div>
-            <a href="{{ route('libraries.index') }}" class="text-xs sm:text-sm font-semibold text-[#B38A50] hover:underline flex items-center gap-1">
-                <span>نمایش همه ۱٬۰۴۸ کتابخانه</span>
-                <span>←</span>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            @foreach($topLibraries as $lib)
-                <a href="{{ route('libraries.show', $lib) }}" 
-                   class="group bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#292C56] dark:hover:border-indigo-400 shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between">
-                    <div>
-                        <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#292C56] dark:group-hover:text-amber-200 transition line-clamp-1">
-                            {{ $lib->name }}
-                        </div>
-                        <div class="text-xs text-stone-400 mt-1">
-                            {{ $lib->city ?? 'ایران' }}
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs text-stone-500">
-                        <span>نسخه‌های موجود:</span>
-                        <span class="font-bold text-stone-700 dark:text-stone-300">
-                            {{ number_format($lib->manuscripts_count) }}
-                        </span>
-                    </div>
-                </a>
-            @endforeach
-        </div>
-    </section>
-
-    <!-- ABOUT FANKHA & SCIENTIFIC CITATION -->
-    <section class="max-w-6xl mx-auto px-4 sm:px-6">
-        <div class="bg-gradient-to-br from-[#FAF7F2] to-[#F1ECE1] dark:from-[#15192C] dark:to-[#0F1224] rounded-3xl p-8 sm:p-10 border border-[#B38A50]/30 shadow-md flex flex-col md:flex-row items-center gap-8">
-            <div class="w-full md:w-1/3 flex justify-center">
-                <img src="{{ asset('images/fahares_logo_full.jpg') }}" alt="پوستر فهارس" class="h-64 sm:h-72 w-auto rounded-2xl shadow-xl border-4 border-white dark:border-stone-800 object-cover">
-            </div>
-            <div class="w-full md:w-2/3 space-y-4 text-justify">
-                <div class="inline-block px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-xs font-bold">
-                    دانشنامه میراث مکتوب
-                </div>
-                <h3 class="text-2xl font-bold text-stone-900 dark:text-stone-100">
-                    مأخذ پایه: مجموعه ۳۴ جلدی «فنخا»
-                </h3>
-                <p class="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                    در گام نخست توسعه فهارس، <strong>فهرستگان نسخه‌های خطی ایران (فنخا)</strong> به عنوان جامع‌ترین مرجع به کوشش پژوهشگر برجسته <strong>استاد مصطفی درایتی</strong> در ۳۴ مجلد مبنای داده‌ها قرار گرفته است. به مرور زمان، سایر فهارس، فهرست‌های اختصاصی کتابخانه‌ها و مراجع نسخه‌شناسی کهن نیز در قالب این پایگاه یکپارچه عرضه خواهند شد.
-                </p>
-                <p class="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                    سامانه <strong>فهارس</strong> با پیاده‌سازی پایگاه داده رابطه‌ای مدرن و متصل به موتور Meilisearch، امکان کاوش بلادرنگ، فیلترگذاری چندبعدی و استناد علمی به مراجع نسخه‌شناسی را در بستری فاخر فراهم آورده است.
-                </p>
-                <div class="pt-2 flex flex-wrap items-center gap-3">
-                    <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="px-5 py-2.5 bg-[#292C56] text-amber-100 rounded-xl text-xs sm:text-sm font-semibold hover:bg-[#1A1D3B] transition shadow">
-                        آغاز جستجو در نسخه‌ها
-                    </a>
-                    <a href="https://github.com/fahares/fahares" target="_blank" class="px-5 py-2.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 rounded-xl text-xs sm:text-sm font-semibold hover:bg-stone-50 transition">
-                        مشاهده پروژه در گیت‌هاب
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SCHOLARLY COLLABORATION & BETA NOTICE -->
-    <section class="max-w-6xl mx-auto px-4 sm:px-6">
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#191B36] via-[#24274B] to-[#15172C] p-8 sm:p-10 text-stone-200 border-2 border-[#B38A50]/40 shadow-xl">
-            <!-- Decorative Glow Elements -->
-            <div class="absolute -left-12 -bottom-12 w-48 h-48 bg-[#B38A50]/15 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -right-12 -top-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="space-y-4 max-w-3xl text-justify">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#B38A50]/20 text-amber-300 border border-[#B38A50]/40 text-xs font-bold">
-                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span>فراخوان همیاری علمی و تصحیح جمعی • نسخه آزمایشی</span>
-                    </div>
-
-                    <h3 class="text-xl sm:text-2xl font-bold text-amber-100 tracking-tight">
-                        دعوت از استادان، نسخه‌شناسان و پژوهشگران ارجمند
-                    </h3>
-
-                    <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                        سامانه <strong>«فهارس»</strong> هم‌اکنون در <strong>مرحله آزمایشی</strong> قرار دارد. از آنجا که پردازش، ساختاردهی و داده‌کاوی صدها هزار مدخل کتاب‌شناختی و نسخه‌شناسی همواره با پیچیدگی‌ها، ابهامات و خطاهای ناگزیر چاپی، پردازشی یا داده‌ای همراه است، دست یاری به سوی جامعه علمی و تخصصی دراز کرده‌ایم.
-                    </p>
-
-                    <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                        از عموم نسخه‌پژوهان، فهرست‌نگاران و محققان گران‌قدر صمیمانه تقاضا داریم با بررسی شناسنامه‌ها، نارسایی‌ها و پیشنهادهای اصلاحی خود را (اعم از تصحیح مشخصات نسخه‌ها، انتساب آثار، تاریخ‌ها، کاتبان و مراجع، یا گزارش باگ‌های فنی) با ما در میان بگذارند تا این مرجع ملی گام به گام به دقت و کمال مطلوب نزدیک‌تر شود.
-                    </p>
-
-                    <p class="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                        با ثبت‌نام، پیشنهادها و یادداشت‌های پژوهشی شما به نام خودتان ثبت می‌شود و وضعیت داوری هر کدام را در صفحه‌ی «پیشنهادهای من» می‌بینید.
-                    </p>
-                </div>
-
-                <div class="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
-                    <a href="mailto:info@fahares.net" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#B38A50] hover:bg-[#9E7841] text-[#191B36] font-bold text-xs sm:text-sm shadow-lg transition-all duration-200 hover:scale-[1.02] text-center">
-                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span>ارسال ایمیل: info@fahares.net</span>
-                    </a>
-
-                    @guest
-                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border border-[#B38A50]/60 hover:bg-[#B38A50]/15 text-amber-200 font-bold text-xs sm:text-sm transition-all duration-200 text-center">
-                            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                            </svg>
-                            <span>ثبت‌نام پژوهشگران</span>
+            <ul class="divide-y divide-transparent">
+                @foreach($topSubjects as $subject)
+                    <li>
+                        <a href="{{ route('subjects.show', $subject) }}" class="flex items-baseline gap-2 py-1.5 group">
+                            <span class="font-semibold text-ink group-hover:text-cinnabar transition whitespace-nowrap">{{ $subject->title }}</span>
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($subject->works_count) }} اثر</span>
                         </a>
-                    @else
-                        <a href="{{ route('my.suggestions') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl border border-[#B38A50]/60 hover:bg-[#B38A50]/15 text-amber-200 font-bold text-xs sm:text-sm transition-all duration-200 text-center">
-                            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                            <span>پیشنهادهای من</span>
-                        </a>
-                    @endguest
-
-                    <a href="{{ route('search') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-black/20 hover:bg-black/30 text-stone-300 text-xs transition-all duration-200 text-center">
-                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <span>کاوش و بازبینی مدخل‌ها</span>
-                    </a>
-                </div>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+        <div>
+            <div class="flex items-baseline justify-between gap-3 mb-4">
+                <h2 class="rubric text-xl">بزرگ‌ترین گنجینه‌ها</h2>
+                <a href="{{ route('libraries.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی {{ Fa::num($stats['libraries']) }} کتابخانه</a>
             </div>
+            <ul>
+                @foreach($topLibraries as $lib)
+                    <li>
+                        <a href="{{ route('libraries.show', $lib) }}" class="flex items-baseline gap-2 py-1.5 group">
+                            <span class="font-semibold text-ink group-hover:text-cinnabar transition whitespace-nowrap">{{ $lib->name }}</span>
+                            @if($lib->city)<span class="text-xs text-muted whitespace-nowrap">{{ $lib->city }}</span>@endif
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($lib->manuscripts_count) }} نسخه</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
     </section>
 

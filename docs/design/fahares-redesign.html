@@ -1,0 +1,814 @@
+<title>طرح‌های تازه‌ی فهارس</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@500;600;700&family=Noto+Naskh+Arabic:wght@500;700&family=Noto+Nastaliq+Urdu:wght@600&family=Reem+Kufi:wght@500;700&family=Vazirmatn:wght@400;500;700;800&display=swap">
+<style>
+/* Shell: a quiet review board. Each mockup carries its own palette; the shell stays neutral so the directions can be compared side by side. */
+:root {
+  --bg: #F3F3F1;
+  --panel: #FFFFFF;
+  --fg: #1D1F24;
+  --muted: #62656E;
+  --line: #DCDCD7;
+  --focus: #2F5BD3;
+  --f-ui: 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15161A; --panel: #1E2025; --fg: #ECECEA; --muted: #A2A4AB; --line: #34363D; --focus: #8AA8FF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15161A; --panel: #1E2025; --fg: #ECECEA; --muted: #A2A4AB; --line: #34363D; --focus: #8AA8FF;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--f-ui); font-size: 15px; line-height: 1.8;
+  direction: rtl; margin: 0;
+}
+.wrap { max-width: 1180px; margin-inline: auto; padding-inline: 16px; padding-block: 0 64px; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.board-head { padding-block: 40px 20px; display: grid; gap: 8px; }
+.board-head h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); font-weight: 800; text-wrap: balance; line-height: 1.4; }
+.board-head p { margin: 0; color: var(--muted); max-width: 68ch; }
+
+.toc {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; gap: 4px; flex-wrap: wrap; padding-block: 10px;
+}
+.toc a {
+  text-decoration: none; font-size: 14px; font-weight: 500;
+  padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel);
+}
+.toc a:hover { border-color: var(--fg); }
+
+.sec { padding-block: 48px 8px; display: grid; gap: 20px; scroll-margin-top: 64px; }
+.sec-head { display: grid; gap: 6px; max-width: 78ch; }
+.sec-head .tag { font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: .02em; }
+.sec-head h2 { margin: 0; font-size: clamp(21px, 3vw, 27px); font-weight: 800; line-height: 1.5; }
+.sec-head p { margin: 0; color: var(--muted); }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 28px; margin: 4px 0 0; padding: 0; list-style: none; }
+.notes li { font-size: 14px; color: var(--muted); padding-inline-start: 14px; position: relative; }
+.notes li::before { content: ''; position: absolute; inset-inline-start: 0; top: .8em; width: 6px; height: 6px; background: var(--fg); transform: rotate(45deg); opacity: .5; }
+.notes b { color: var(--fg); font-weight: 700; }
+
+.spec { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 13px; color: var(--muted); }
+.sw { display: inline-flex; align-items: center; gap: 6px; }
+.sw i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid var(--line); display: inline-block; }
+
+/* Frame around each mockup */
+.fr { display: grid; gap: 8px; }
+.fr-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.fr-bar strong { font-size: 14px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+.seg button {
+  font: inherit; font-size: 13px; border: 0; background: transparent; color: var(--muted);
+  padding: 4px 12px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.ctrls { display: flex; gap: 8px; flex-wrap: wrap; }
+.fr-box {
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel);
+  width: 100%; margin-inline: auto; transition: max-width .25s ease;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .05), 0 8px 24px -12px rgb(0 0 0 / .18);
+}
+.fr-box[data-w="phone"] { max-width: 390px; }
+.fr-chrome { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); direction: ltr; }
+.fr-chrome i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: inline-block; }
+.fr-chrome span { margin-inline-start: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============ Logos ============ */
+.logos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 16px; }
+.lg-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; }
+.lg-stage { display: grid; grid-template-columns: 1fr 1fr; }
+.lg-stage > div { display: grid; place-items: center; padding: 28px 12px; min-height: 210px; }
+.lg-light { background: var(--lg-paper); }
+.lg-dark { background: var(--lg-deep); }
+.lg-stage svg.mark { width: 128px; height: 128px; }
+.lg-body { padding: 16px 18px 18px; display: grid; gap: 10px; }
+.lg-body h3 { margin: 0; font-size: 18px; font-weight: 800; }
+.lg-body p { margin: 0; font-size: 14px; color: var(--muted); }
+.lg-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.lockup { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: var(--lg-paper); color: var(--lg-ink-c); }
+.lockup svg { width: 44px; height: 44px; flex: none; }
+.lockup .wm { font-size: 30px; line-height: 1; }
+.lockup .wm-sub { display: block; font-family: var(--f-ui); font-size: 11px; opacity: .7; margin-top: 6px; line-height: 1.3; }
+.favs { display: flex; align-items: end; gap: 10px; font-size: 12px; color: var(--muted); }
+.favs span { display: grid; justify-items: center; gap: 4px; }
+.favs svg { display: block; background: var(--lg-paper); border-radius: 3px; }
+
+.lg-a { --lg-ink: #241F1A; --lg-accent: #A23A26; --lg-accent2: #A8843F; --lg-paper: #F4EFE4; --lg-deep: #1F1B17; --lg-ink-c: #241F1A; }
+.lg-a .lg-dark { --lg-ink: #EDE6D8; --lg-accent: #E07A5F; --lg-accent2: #C9A45C; }
+.lg-b { --lg-ink: #232A63; --lg-accent: #B38A50; --lg-accent2: #B38A50; --lg-paper: #FFFFFF; --lg-deep: #121630; --lg-ink-c: #232A63; }
+.lg-b .lg-dark { --lg-ink: #E4E7F7; --lg-accent: #D4B07A; }
+.lg-c { --lg-ink: #1B2A6B; --lg-accent: #C59B3C; --lg-accent2: #2E8B88; --lg-paper: #F7F5EF; --lg-deep: #0D1333; --lg-ink-c: #1B2A6B; }
+.lg-c .lg-dark { --lg-ink: #22337F; --lg-accent: #D9B45A; }
+.lg-d { --lg-ink: #8E2F22; --lg-accent: #8E2F22; --lg-accent2: #8E2F22; --lg-paper: #F6F1E6; --lg-deep: #231B17; --lg-ink-c: #8E2F22; }
+.lg-d .lg-dark { --lg-ink: #E39A84; --lg-accent: #E39A84; }
+
+.wm-naskh { font-family: 'Noto Naskh Arabic', 'Amiri', serif; font-weight: 700; }
+.wm-plex { font-family: 'IBM Plex Sans Arabic', 'Vazirmatn', sans-serif; font-weight: 700; }
+.wm-kufi { font-family: 'Reem Kufi', 'Vazirmatn', sans-serif; font-weight: 700; }
+.wm-nast { font-family: 'Noto Nastaliq Urdu', 'Amiri', serif; font-weight: 600; font-size: 24px !important; line-height: 2.2 !important; }
+
+.closing { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; display: grid; gap: 8px; }
+.closing h2 { margin: 0; font-size: 20px; }
+.closing p, .closing li { color: var(--muted); margin: 0; }
+.closing ol { margin: 0; padding-inline-start: 22px; display: grid; gap: 4px; }
+
+/* ============ Mockup base (shared skeleton) ============ */
+.mk {
+  container-type: inline-size;
+  background: var(--m-bg); color: var(--m-ink);
+  font-family: var(--m-body); font-size: 14px; line-height: 1.85;
+  font-variant-numeric: tabular-nums;
+}
+.mk * { box-sizing: border-box; }
+.mk a { color: inherit; text-decoration: none; }
+.mk .in { max-width: 1040px; margin-inline: auto; padding-inline: 24px; }
+.mk h1, .mk h2, .mk h3 { margin: 0; font-weight: 700; }
+.mk p { margin: 0; }
+.mk .logo { display: flex; align-items: center; gap: 10px; }
+.mk .logo svg { width: 38px; height: 38px; flex: none; }
+.mk .logo b { font-family: var(--m-wm); font-size: 24px; line-height: 1; font-weight: 700; }
+.mk .beta { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--m-line); color: var(--m-muted); }
+.mk .nav { border-bottom: 1px solid var(--m-line); background: var(--m-surface); }
+.mk .nav .in { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
+.mk .nav nav { display: flex; gap: 20px; font-size: 14px; color: var(--m-muted); font-weight: 500; }
+.mk .nav nav a.on { color: var(--m-ink); }
+.mk .nav .acts { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.mk .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--m-r); border: 1px solid var(--m-line); font-weight: 600; font-size: 13px; background: var(--m-surface); }
+.mk .btn.pri { background: var(--m-accent); border-color: var(--m-accent); color: var(--m-on-accent); }
+.mk .ico { width: 16px; height: 16px; flex: none; }
+.mk .menu { display: none; }
+
+.mk .hero { padding-block: 56px 40px; }
+.mk .eyebrow { font-size: 13px; font-weight: 700; color: var(--m-accent); }
+.mk .hero h1 { font-family: var(--m-head); font-size: 38px; line-height: 1.5; text-wrap: balance; margin-top: 6px; }
+.mk .hero .lede { color: var(--m-muted); margin-top: 8px; max-width: 60ch; }
+.mk .search { margin-top: 24px; display: grid; gap: 10px; max-width: 720px; }
+.mk .tabs { display: flex; gap: 6px; font-size: 13px; font-weight: 600; }
+.mk .tabs span { padding: 4px 12px; border-radius: var(--m-r); color: var(--m-muted); border: 1px solid transparent; }
+.mk .tabs span.on { color: var(--m-ink); border-color: var(--m-line); background: var(--m-surface); }
+.mk .field { display: flex; align-items: center; gap: 10px; background: var(--m-surface); border: 1px solid var(--m-line-strong); border-radius: var(--m-r); padding: 6px 6px 6px 6px; padding-inline-start: 16px; }
+.mk .field .ph { flex: 1; color: var(--m-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.mk .field .btn.pri { padding: 8px 20px; font-size: 14px; }
+.mk .sugg { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--m-muted); }
+.mk .sugg a { color: var(--m-ink); border-bottom: 1px solid var(--m-line-strong); }
+
+.mk .stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 28px; font-size: 13px; color: var(--m-muted); }
+.mk .stats b { display: block; font-size: 22px; color: var(--m-ink); font-weight: 700; line-height: 1.4; }
+
+.mk .blk { padding-block: 36px; border-top: 1px solid var(--m-line); }
+.mk .blk-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+.mk .blk-h h2 { font-family: var(--m-head); font-size: 22px; }
+.mk .blk-h a { font-size: 13px; color: var(--m-accent); font-weight: 600; }
+.mk .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; }
+.mk .idx { list-style: none; margin: 0; padding: 0; }
+.mk .idx li { display: flex; align-items: baseline; gap: 8px; padding-block: 7px; }
+.mk .idx .n { font-weight: 600; white-space: nowrap; }
+.mk .idx .c { color: var(--m-muted); font-size: 13px; white-space: nowrap; }
+.mk .idx .city { color: var(--m-muted); font-size: 12px; font-weight: 400; }
+.mk .idx .lead { flex: 1; border-bottom: 1px dotted var(--m-line-strong); transform: translateY(-4px); min-width: 20px; }
+.mk .idx .bar { display: none; }
+
+.mk .foot { border-top: 1px solid var(--m-line); padding-block: 22px; color: var(--m-muted); font-size: 12px; }
+.mk .foot .in { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+/* Work page */
+.mk .crumbs { font-size: 12px; color: var(--m-muted); padding-block: 18px 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.mk .wk-head { padding-block: 18px 26px; display: grid; gap: 6px; }
+.mk .wk-kind { font-size: 12px; font-weight: 700; color: var(--m-accent); }
+.mk .wk-title { font-family: var(--m-title); font-size: 36px; line-height: 1.6; font-weight: 700; text-wrap: balance; }
+.mk .wk-tr { direction: ltr; text-align: right; font-size: 13px; color: var(--m-muted); font-style: italic; }
+.mk .wk-by { font-size: 16px; }
+.mk .wk-by a { font-weight: 700; border-bottom: 1px solid var(--m-line-strong); }
+.mk .wk-by .life { color: var(--m-muted); font-size: 14px; }
+.mk .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.mk .chip { font-size: 12px; padding: 1px 10px; border-radius: 999px; border: 1px solid var(--m-line); color: var(--m-muted); background: var(--m-surface); }
+.mk .wk-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 36px; padding-bottom: 40px; }
+.mk .wk-main { display: grid; gap: 30px; min-width: 0; }
+.mk .wk-aside { display: grid; gap: 14px; align-content: start; }
+.mk .card { background: var(--m-surface); border: 1px solid var(--m-line); border-radius: var(--m-r); padding: 16px 18px; }
+.mk .big { font-size: 34px; font-weight: 800; line-height: 1.2; }
+.mk .card .sub { color: var(--m-muted); font-size: 13px; }
+.mk .card .first { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--m-line); font-size: 13px; }
+.mk .card .first b { display: block; }
+.mk .acts-v { display: grid; gap: 8px; }
+.mk .acts-v .btn { justify-content: center; }
+.mk .h3 { font-family: var(--m-head); font-size: 18px; margin-bottom: 10px; }
+.mk dl.meta { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 20px; margin: 0; }
+.mk dl.meta dt { color: var(--m-muted); font-size: 13px; }
+.mk dl.meta dd { margin: 0; }
+.mk .q { font-family: var(--m-title); font-size: 17px; line-height: 2.1; padding: 12px 18px; }
+.mk .q-l { font-size: 12px; font-weight: 700; color: var(--m-muted); margin-bottom: 4px; display: block; }
+.mk .tbl-wrap { overflow-x: auto; }
+.mk table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+.mk th { text-align: right; font-weight: 600; color: var(--m-muted); font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--m-line-strong); white-space: nowrap; }
+.mk td { padding: 9px 10px; border-bottom: 1px solid var(--m-line); vertical-align: top; }
+.mk td .city { display: block; color: var(--m-muted); font-size: 12px; }
+.mk td.unk { color: var(--m-muted); }
+.mk .more { font-size: 13px; color: var(--m-accent); font-weight: 600; margin-top: 10px; display: inline-block; }
+.mk .rel { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.mk .rel li { display: grid; gap: 0; }
+.mk .rel .t { font-family: var(--m-title); font-weight: 700; font-size: 15px; }
+.mk .rel .a { color: var(--m-muted); font-size: 13px; }
+
+/* Phone width (container) */
+@container (max-width: 640px) {
+  .mk .in { padding-inline: 16px; }
+  .mk .nav nav, .mk .nav .acts .btn:not(.pri), .mk .nav .acts .kbd { display: none; }
+  .mk .menu { display: inline-flex; }
+  .mk .hero { padding-block: 28px 24px; }
+  .mk .hero h1 { font-size: 26px; }
+  .mk .two { grid-template-columns: 1fr; }
+  .mk .wk-grid { grid-template-columns: 1fr; gap: 24px; }
+  .mk .wk-aside { order: -1; }
+  .mk .wk-title { font-size: 26px; }
+  .mk dl.meta { grid-template-columns: 1fr; gap: 0; }
+  .mk dl.meta dd { margin-bottom: 10px; }
+  .mk .stats { gap: 8px 20px; }
+  .mk .stats b { font-size: 18px; }
+  .mk .field .btn.pri span { display: none; }
+}
+
+/* ============ Direction A: paper, ink, cinnabar ============ */
+.mk.dir-a {
+  --m-bg: #F4EFE4; --m-surface: #FBF8F1; --m-ink: #241F1A; --m-muted: #6B6257;
+  --m-line: #DED4C2; --m-line-strong: #BFB29C; --m-accent: #A23A26; --m-on-accent: #FBF8F1; --m-gold: #A8843F;
+  --m-head: 'Noto Naskh Arabic', 'Amiri', serif; --m-title: 'Noto Naskh Arabic', 'Amiri', serif;
+  --m-body: 'Vazirmatn', Tahoma, sans-serif; --m-wm: 'Noto Naskh Arabic', serif;
+  --m-r: 4px; --lg-ink: var(--m-ink); --lg-accent: var(--m-accent); --lg-accent2: var(--m-gold);
+}
+.mk.dir-a[data-mode="dark"] {
+  --m-bg: #1A1714; --m-surface: #221E1A; --m-ink: #EDE6D8; --m-muted: #A89E8E;
+  --m-line: #39322A; --m-line-strong: #574D40; --m-accent: #E07A5F; --m-on-accent: #1A1714; --m-gold: #C9A45C;
+}
+.dir-a .hero { text-align: center; }
+.dir-a .hero .lede, .dir-a .search { margin-inline: auto; }
+.dir-a .tabs, .dir-a .sugg, .dir-a .stats { justify-content: center; }
+.dir-a .hero .in { position: relative; }
+.dir-a .hero .in::before, .dir-a .hero .in::after {
+  content: ''; display: block; height: 5px; margin-inline: 24px;
+  border-top: 1px solid var(--m-gold); border-bottom: 1px solid var(--m-gold);
+}
+.dir-a .hero .in::before { margin-bottom: 36px; }
+.dir-a .hero .in::after { margin-top: 36px; }
+.dir-a .hero h1 { font-size: 40px; }
+.dir-a .field { border-radius: 2px; }
+.dir-a .stats { gap: 6px 0; }
+.dir-a .stats span { padding-inline: 18px; position: relative; }
+.dir-a .stats span + span::before { content: ''; position: absolute; inset-inline-start: -3px; top: 50%; width: 6px; height: 6px; background: var(--m-accent); transform: rotate(45deg); }
+.dir-a .stats b { display: inline; font-size: 18px; margin-inline-end: 4px; }
+.dir-a .blk-h h2 { color: var(--m-accent); font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.dir-a .blk-h h2::before { content: ''; width: 8px; height: 8px; background: currentColor; transform: rotate(45deg); }
+.dir-a .wk-head { text-align: center; justify-items: center; border-bottom: 1px solid var(--m-gold); box-shadow: 0 4px 0 -3px var(--m-gold); margin-bottom: 30px; }
+.dir-a .wk-tr { text-align: center; }
+.dir-a .wk-kind { color: var(--m-accent); }
+.dir-a .wk-title { color: var(--m-ink); }
+.dir-a .card { border-radius: 2px; border-color: var(--m-gold); box-shadow: inset 0 0 0 3px var(--m-surface), inset 0 0 0 4px var(--m-line); }
+.dir-a .big { color: var(--m-accent); font-family: var(--m-head); }
+.dir-a .h3 { color: var(--m-accent); }
+.dir-a dl.meta dt { position: relative; }
+.dir-a .q { border-inline-start: 4px double var(--m-gold); background: transparent; padding-block: 2px; }
+.dir-a .q-l { color: var(--m-accent); }
+.dir-a th { border-bottom: 1px solid var(--m-gold); }
+
+/* ============ Direction B: modern library ============ */
+.mk.dir-b {
+  --m-bg: #FFFFFF; --m-surface: #F5F6FA; --m-ink: #161A33; --m-muted: #5B6178;
+  --m-line: #E4E6EE; --m-line-strong: #C9CDDB; --m-accent: #2B3270; --m-on-accent: #FFFFFF; --m-gold: #B38A50;
+  --m-head: 'IBM Plex Sans Arabic', 'Vazirmatn', sans-serif; --m-title: 'Noto Naskh Arabic', 'Amiri', serif;
+  --m-body: 'Vazirmatn', Tahoma, sans-serif; --m-wm: 'IBM Plex Sans Arabic', sans-serif;
+  --m-r: 8px; --lg-ink: var(--m-accent); --lg-accent: var(--m-gold); --lg-accent2: var(--m-gold);
+}
+.mk.dir-b[data-mode="dark"] {
+  --m-bg: #0F1220; --m-surface: #171B2E; --m-ink: #E9EBF5; --m-muted: #9BA1BC;
+  --m-line: #262B44; --m-line-strong: #3A4062; --m-accent: #9AA3F0; --m-on-accent: #0F1220; --m-gold: #D4B07A;
+}
+.dir-b .nav { background: var(--m-bg); }
+.dir-b .hero .in { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.dir-b .hero h1 { font-size: 34px; line-height: 1.55; }
+.dir-b .eyebrow { color: var(--m-gold); }
+.dir-b .stats { margin-top: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--m-line); border-radius: var(--m-r); overflow: hidden; background: var(--m-surface); }
+.dir-b .stats span { padding: 14px 16px; border-bottom: 1px solid var(--m-line); }
+.dir-b .stats span:nth-child(odd) { border-inline-end: 1px solid var(--m-line); }
+.dir-b .stats span:last-child { grid-column: 1 / -1; border-bottom: 0; border-inline-end: 0; }
+.dir-b .stats b { font-family: var(--m-head); font-size: 24px; }
+.dir-b .field { box-shadow: 0 1px 2px rgb(20 24 60 / .06); }
+.dir-b .blk { background: var(--m-bg); }
+.dir-b .blk-h h2 { font-size: 19px; }
+.dir-b .subj .idx { display: flex; flex-wrap: wrap; gap: 8px; }
+.dir-b .subj .two { display: block; }
+.dir-b .subj .two .idx + .idx { margin-top: 8px; }
+.dir-b .subj .idx li { border: 1px solid var(--m-line); border-radius: 999px; padding: 4px 14px; background: var(--m-surface); }
+.dir-b .subj .idx .lead { display: none; }
+.dir-b .libs .idx li { display: grid; grid-template-columns: 9em minmax(0, 1fr) auto; gap: 12px; align-items: center; padding-block: 6px; }
+.dir-b .libs .idx .lead { display: none; }
+.dir-b .libs .idx .bar { display: block; height: 8px; border-radius: 4px; background: var(--m-surface); overflow: hidden; }
+.dir-b .libs .idx .bar i { display: block; height: 100%; width: var(--p); background: var(--m-accent); border-radius: 4px; opacity: .85; }
+.dir-b .libs .two { grid-template-columns: 1fr; }
+.dir-b .wk-head { border-bottom: 1px solid var(--m-line); margin-bottom: 28px; }
+.dir-b .wk-kind { color: var(--m-gold); }
+.dir-b .wk-aside .card:first-child { position: sticky; top: 12px; }
+.dir-b .big { font-family: var(--m-head); color: var(--m-accent); }
+.dir-b dl.meta { grid-template-columns: repeat(2, max-content minmax(0, 1fr)); }
+.dir-b .q { background: var(--m-surface); border-radius: var(--m-r); }
+.dir-b tbody tr:nth-child(even) td { background: var(--m-surface); }
+.dir-b td { border-bottom: 0; }
+@container (max-width: 640px) {
+  .dir-b .hero .in { grid-template-columns: 1fr; gap: 24px; }
+  .dir-b dl.meta { grid-template-columns: 1fr; }
+  .dir-b .libs .idx li { grid-template-columns: 7em minmax(0, 1fr) auto; }
+}
+
+/* ============ Direction C: illumination ============ */
+.mk.dir-c {
+  --m-bg: #F7F5EF; --m-surface: #FFFFFF; --m-ink: #16204A; --m-muted: #5A6080;
+  --m-line: #DED8C8; --m-line-strong: #C3B9A0; --m-accent: #1E7F7B; --m-on-accent: #FFFFFF; --m-gold: #B98E2F;
+  --m-lapis: #1B2A6B; --m-lapis-ink: #F3EBD3;
+  --m-head: 'Reem Kufi', 'Vazirmatn', sans-serif; --m-title: 'Amiri', 'Noto Naskh Arabic', serif;
+  --m-body: 'Vazirmatn', Tahoma, sans-serif; --m-wm: 'Reem Kufi', sans-serif;
+  --m-r: 10px; --lg-ink: var(--m-lapis); --lg-accent: #D9B45A; --lg-accent2: var(--m-accent);
+}
+.mk.dir-c[data-mode="dark"] {
+  --m-bg: #0D1333; --m-surface: #141B42; --m-ink: #ECE8DA; --m-muted: #A6A9C2;
+  --m-line: #262F63; --m-line-strong: #3A4580; --m-accent: #4FB3AE; --m-on-accent: #0D1333; --m-gold: #D9B45A;
+  --m-lapis: #1A2669; --m-lapis-ink: #F3EBD3;
+}
+.dir-c .orn { display: block; width: 100%; height: 16px; color: #D9B45A; background: var(--m-lapis); }
+.dir-c .hero { background: var(--m-lapis); color: var(--m-lapis-ink); text-align: center; padding-block: 0; }
+.dir-c .hero .in { padding-block: 40px 44px; display: grid; justify-items: center; }
+.dir-c .hero .crest { width: 64px; height: 64px; margin-bottom: 10px; --lg-ink: #22337F; --lg-accent: #D9B45A; }
+.dir-c .hero h1 { font-size: 36px; color: #FFF8E6; }
+.dir-c .eyebrow { color: #D9B45A; }
+.dir-c .hero .lede { color: #C9C6D8; margin-inline: auto; }
+.dir-c .search { width: 100%; margin-inline: auto; }
+.dir-c .tabs, .dir-c .sugg { justify-content: center; }
+.dir-c .tabs span { color: #C9C6D8; }
+.dir-c .tabs span.on { background: transparent; color: #FFF8E6; border-color: #D9B45A; }
+.dir-c .field { border-radius: 999px; border: 1px solid #D9B45A; box-shadow: 0 0 0 4px rgb(217 180 90 / .18); background: #FFFDF7; color: #16204A; }
+.dir-c .field .ph { color: #6A6E88; }
+.dir-c .field .btn.pri { border-radius: 999px; background: #1E7F7B; border-color: #1E7F7B; color: #FFF; }
+.dir-c .sugg { color: #C9C6D8; }
+.dir-c .sugg a { color: #FFF8E6; border-color: rgb(217 180 90 / .5); }
+.dir-c .stats-band { background: var(--m-surface); border-bottom: 1px solid var(--m-line); }
+.dir-c .stats { margin: 0; justify-content: space-around; padding-block: 18px; }
+.dir-c .stats span { text-align: center; }
+.dir-c .stats b { font-family: var(--m-head); color: var(--m-ink); }
+.dir-c .blk { border-top: 0; }
+.dir-c .blk-h { justify-content: center; position: relative; }
+.dir-c .blk-h h2 { font-size: 20px; padding: 2px 26px; border: 1px solid var(--m-gold); border-radius: 999px; background: var(--m-surface); position: relative; }
+.dir-c .blk-h a { position: absolute; inset-inline-end: 0; }
+.dir-c .subj .two, .dir-c .libs .two { display: block; }
+.dir-c .subj .idx, .dir-c .libs .idx { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.dir-c .subj .two .idx + .idx, .dir-c .libs .two .idx + .idx { margin-top: 10px; }
+.dir-c .idx li { flex-direction: column; align-items: flex-start; gap: 0; background: var(--m-surface); border: 1px solid var(--m-line); border-radius: var(--m-r); padding: 12px 14px; border-top: 3px solid var(--m-accent); }
+.dir-c .libs .idx li { border-top-color: var(--m-gold); }
+.dir-c .idx .lead { display: none; }
+.dir-c .idx .c { font-size: 12px; }
+.dir-c .wk-band { background: var(--m-lapis); color: var(--m-lapis-ink); }
+.dir-c .wk-band .crumbs { color: #B9B8CF; }
+.dir-c .wk-head { text-align: center; justify-items: center; padding-block: 14px 34px; }
+.dir-c .wk-kind { color: #D9B45A; }
+.dir-c .wk-title { color: #FFF8E6; }
+.dir-c .wk-tr { text-align: center; color: #B9B8CF; }
+.dir-c .wk-by .life { color: #B9B8CF; }
+.dir-c .wk-by a { border-color: rgb(217 180 90 / .5); }
+.dir-c .wk-band .chip { background: transparent; color: #E6DFC8; border-color: rgb(217 180 90 / .45); }
+.dir-c .wk-grid { padding-top: 30px; }
+.dir-c .card { border-top: 3px solid var(--m-gold); }
+.dir-c .big { font-family: var(--m-head); color: var(--m-accent); }
+.dir-c .h3 { display: flex; align-items: center; gap: 10px; }
+.dir-c .h3::before { content: ''; width: 10px; height: 10px; border: 2px solid var(--m-gold); transform: rotate(45deg); }
+.dir-c .q { background: var(--m-surface); border: 1px solid var(--m-line); border-radius: var(--m-r); text-align: center; }
+.dir-c th { color: var(--m-accent); }
+@container (max-width: 640px) {
+  .dir-c .subj .idx, .dir-c .libs .idx { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dir-c .blk-h { flex-direction: column; align-items: center; }
+  .dir-c .blk-h a { position: static; }
+  .dir-c .stats { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) { .fr-box { transition: none; } }
+</style>
+
+<!-- Logo symbols and ornament pattern (kept rendered at zero size so the pattern works) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="lg-dot" viewBox="0 0 120 120">
+      <rect x="5" y="5" width="110" height="110" rx="5" fill="none" stroke="var(--lg-accent2)" stroke-width="2"/>
+      <rect x="11" y="11" width="98" height="98" rx="2" fill="none" stroke="var(--lg-accent2)" stroke-width="1"/>
+      <circle cx="76" cy="57" r="12" fill="none" stroke="var(--lg-ink)" stroke-width="9"/>
+      <path d="M84 66 C89 84 77 91 62 91 L36 91 C25 91 20 84 20 72" fill="none" stroke="var(--lg-ink)" stroke-width="9" stroke-linecap="round"/>
+      <polygon points="76,20 87,31 76,42 65,31" fill="var(--lg-accent)"/>
+    </symbol>
+    <symbol id="lg-sarlowh" viewBox="0 0 120 120">
+      <path d="M22 110 V52 C22 30 44 22 60 8 C76 22 98 30 98 52 V110 Z" fill="none" stroke="var(--lg-ink)" stroke-width="6" stroke-linejoin="round"/>
+      <g stroke="var(--lg-ink)" stroke-width="5" stroke-linecap="round">
+        <line x1="78" y1="56" x2="38" y2="56"/>
+        <line x1="78" y1="70" x2="46" y2="70"/>
+        <line x1="78" y1="84" x2="34" y2="84"/>
+        <line x1="78" y1="98" x2="52" y2="98"/>
+      </g>
+      <g fill="var(--lg-accent)">
+        <circle cx="87" cy="56" r="3.4"/><circle cx="87" cy="70" r="3.4"/><circle cx="87" cy="84" r="3.4"/><circle cx="87" cy="98" r="3.4"/>
+      </g>
+      <polygon points="60,22 65,28 60,34 55,28" fill="var(--lg-accent)"/>
+    </symbol>
+    <symbol id="lg-shamseh" viewBox="0 0 120 120">
+      <polygon points="60.0,6.0 75.8,21.8 98.2,21.8 98.2,44.2 114.0,60.0 98.2,75.8 98.2,98.2 75.8,98.2 60.0,114.0 44.2,98.2 21.8,98.2 21.8,75.8 6.0,60.0 21.8,44.2 21.8,21.8 44.2,21.8" fill="var(--lg-ink)" stroke="var(--lg-accent)" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="60" cy="60" r="35" fill="none" stroke="var(--lg-accent)" stroke-width="1.2"/>
+      <polygon points="70.3,35.1 74.6,45.4 84.9,49.7 80.7,60.0 84.9,70.3 74.6,74.6 70.3,84.9 60.0,80.7 49.7,84.9 45.4,74.6 35.1,70.3 39.3,60.0 35.1,49.7 45.4,45.4 49.7,35.1 60.0,39.3" fill="none" stroke="var(--lg-accent)" stroke-width="2.2" stroke-linejoin="round"/>
+      <polygon points="60.0,49.0 63.2,52.2 67.8,52.2 67.8,56.8 71.0,60.0 67.8,63.2 67.8,67.8 63.2,67.8 60.0,71.0 56.8,67.8 52.2,67.8 52.2,63.2 49.0,60.0 52.2,56.8 52.2,52.2 56.8,52.2" fill="var(--lg-accent)"/>
+    </symbol>
+    <symbol id="lg-seal" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="56" fill="none" stroke="var(--lg-ink)" stroke-width="3"/>
+      <circle cx="60" cy="60" r="44" fill="none" stroke="var(--lg-ink)" stroke-width="1.2"/>
+      <g fill="var(--lg-ink)"><rect x="57.8" y="7.8" width="4.4" height="4.4" transform="rotate(45 60.0 10.0)"/><rect x="76.9" y="11.6" width="4.4" height="4.4" transform="rotate(45 79.1 13.8)"/><rect x="93.2" y="22.4" width="4.4" height="4.4" transform="rotate(45 95.4 24.6)"/><rect x="104.0" y="38.7" width="4.4" height="4.4" transform="rotate(45 106.2 40.9)"/><rect x="107.8" y="57.8" width="4.4" height="4.4" transform="rotate(45 110.0 60.0)"/><rect x="104.0" y="76.9" width="4.4" height="4.4" transform="rotate(45 106.2 79.1)"/><rect x="93.2" y="93.2" width="4.4" height="4.4" transform="rotate(45 95.4 95.4)"/><rect x="76.9" y="104.0" width="4.4" height="4.4" transform="rotate(45 79.1 106.2)"/><rect x="57.8" y="107.8" width="4.4" height="4.4" transform="rotate(45 60.0 110.0)"/><rect x="38.7" y="104.0" width="4.4" height="4.4" transform="rotate(45 40.9 106.2)"/><rect x="22.4" y="93.2" width="4.4" height="4.4" transform="rotate(45 24.6 95.4)"/><rect x="11.6" y="76.9" width="4.4" height="4.4" transform="rotate(45 13.8 79.1)"/><rect x="7.8" y="57.8" width="4.4" height="4.4" transform="rotate(45 10.0 60.0)"/><rect x="11.6" y="38.7" width="4.4" height="4.4" transform="rotate(45 13.8 40.9)"/><rect x="22.4" y="22.4" width="4.4" height="4.4" transform="rotate(45 24.6 24.6)"/><rect x="38.7" y="11.6" width="4.4" height="4.4" transform="rotate(45 40.9 13.8)"/></g>
+      <text x="60" y="70" text-anchor="middle" font-family="'Noto Nastaliq Urdu', 'Amiri', serif" font-size="25" font-weight="600" fill="var(--lg-ink)">فهارس</text>
+    </symbol>
+    <pattern id="pt-star" width="20" height="16" patternUnits="userSpaceOnUse">
+      <polygon points="60.0,6.0 75.8,21.8 98.2,21.8 98.2,44.2 114.0,60.0 98.2,75.8 98.2,98.2 75.8,98.2 60.0,114.0 44.2,98.2 21.8,98.2 21.8,75.8 6.0,60.0 21.8,44.2 21.8,21.8 44.2,21.8" transform="translate(10 8) scale(0.105) translate(-60 -60)" fill="currentColor"/>
+      <line x1="0" y1="8" x2="20" y2="8" stroke="currentColor" stroke-width="0.6" opacity=".6"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="board-head">
+    <h1>طرح‌های تازه‌ی فهارس</h1>
+    <p>چهار پیشنهاد لوگو و سه جهت طراحی برای صفحه‌ی خانه و صفحه‌ی اثر. همه‌ی داده‌ها واقعی‌اند: آمار پروداکشن، و شناسنامه‌ی «الفوائد الضيائية» جامی با نخستین نسخه‌هایش. بالای هر ماکت می‌توانید حالت روشن و تیره و پهنای موبایل را ببینید. لوگو و جهت طراحی را می‌شود جدا از هم انتخاب کرد.</p>
+  </header>
+
+  <nav class="toc" aria-label="بخش‌ها">
+    <a href="#logos">لوگو</a>
+    <a href="#dir-a">الف. کاغذ و مرکب</a>
+    <a href="#dir-b">ب. کتابخانه‌ی امروزی</a>
+    <a href="#dir-c">ج. تذهیب</a>
+    <a href="#decide">انتخاب</a>
+  </nav>
+
+  <!-- ===================== LOGOS ===================== -->
+  <section class="sec" id="logos">
+    <div class="sec-head">
+      <span class="tag">لوگو</span>
+      <h2>چهار طرح برای نشانه‌ی فهارس</h2>
+      <p>هر طرح از یک عنصر نسخه‌ی خطی گرفته شده است. همه در ۱۶ پیکسل هم شناختنی‌اند، جز «مُهر» که در اندازه‌ی کوچک فقط حلقه‌اش دیده می‌شود. در نسخه‌ی نهایی، حروف لوگو به منحنی تبدیل می‌شوند تا به قلم وابسته نباشند.</p>
+    </div>
+    <div class="logos">
+      <article class="lg-card lg-a">
+        <div class="lg-stage">
+          <div class="lg-light"><svg class="mark" role="img" aria-label="نقطه و جدول"><use href="#lg-dot"/></svg></div>
+          <div class="lg-dark"><svg class="mark" aria-hidden="true"><use href="#lg-dot"/></svg></div>
+        </div>
+        <div class="lg-body">
+          <h3>۱. نقطه و جدول</h3>
+          <p>حرف «ف» به مرکب، با نقطه‌ی لوزی شنگرفی؛ همان نقطه‌ای که خوشنویس اندازه‌ی حروف را با آن می‌سنجد. دور آن دو خط جدول، مثل حاشیه‌ی صفحه‌ی نسخه. ساده‌ترین طرح است و در favicon از همه خواناتر.</p>
+          <div class="lg-row">
+            <div class="lockup"><svg aria-hidden="true"><use href="#lg-dot"/></svg><span><span class="wm wm-naskh">فهارس</span><span class="wm-sub">فهرستگان نسخه‌های خطی ایران</span></span></div>
+            <div class="favs"><span><svg width="32" height="32"><use href="#lg-dot"/></svg>۳۲</span><span><svg width="16" height="16"><use href="#lg-dot"/></svg>۱۶</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="lg-card lg-b">
+        <div class="lg-stage">
+          <div class="lg-light"><svg class="mark" role="img" aria-label="سرلوح فهرست"><use href="#lg-sarlowh"/></svg></div>
+          <div class="lg-dark"><svg class="mark" aria-hidden="true"><use href="#lg-sarlowh"/></svg></div>
+        </div>
+        <div class="lg-body">
+          <h3>۲. سرلوحِ فهرست</h3>
+          <p>قوس سرلوح و درونش چند سطر فهرست با نشانه‌های طلایی. ادامه‌ی گنبد لوگوی کنونی است ولی ساده‌تر، و مستقیم به «فهرست» اشاره می‌کند. بیشترین پیوند را با هویت فعلی دارد.</p>
+          <div class="lg-row">
+            <div class="lockup"><svg aria-hidden="true"><use href="#lg-sarlowh"/></svg><span><span class="wm wm-plex">فهارس</span><span class="wm-sub">فهرستگان نسخه‌های خطی ایران</span></span></div>
+            <div class="favs"><span><svg width="32" height="32"><use href="#lg-sarlowh"/></svg>۳۲</span><span><svg width="16" height="16"><use href="#lg-sarlowh"/></svg>۱۶</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="lg-card lg-c">
+        <div class="lg-stage">
+          <div class="lg-light"><svg class="mark" role="img" aria-label="شمسه"><use href="#lg-shamseh"/></svg></div>
+          <div class="lg-dark"><svg class="mark" aria-hidden="true"><use href="#lg-shamseh"/></svg></div>
+        </div>
+        <div class="lg-body">
+          <h3>۳. شمسه</h3>
+          <p>ستاره‌ی هشت‌پر لاجوردی با تذهیب طلایی، از شمسه‌ی آغاز نسخه‌های مذهّب. چشمگیرترین طرح است و روی زمینه‌ی تیره می‌درخشد. ولی به نسخه‌ی خطی کمتر از «فهرست» اشاره دارد.</p>
+          <div class="lg-row">
+            <div class="lockup"><svg aria-hidden="true"><use href="#lg-shamseh"/></svg><span><span class="wm wm-kufi">فهارس</span><span class="wm-sub">فهرستگان نسخه‌های خطی ایران</span></span></div>
+            <div class="favs"><span><svg width="32" height="32"><use href="#lg-shamseh"/></svg>۳۲</span><span><svg width="16" height="16"><use href="#lg-shamseh"/></svg>۱۶</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="lg-card lg-d">
+        <div class="lg-stage">
+          <div class="lg-light"><svg class="mark" role="img" aria-label="مهر"><use href="#lg-seal"/></svg></div>
+          <div class="lg-dark"><svg class="mark" aria-hidden="true"><use href="#lg-seal"/></svg></div>
+        </div>
+        <div class="lg-body">
+          <h3>۴. مُهر</h3>
+          <p>«فهارس» به نستعلیق درون مُهری گرد، مثل مُهر تملک بر برگ نخست نسخه. حس اصالت و سند می‌دهد. ولی در اندازه‌ی کوچک نوشته‌اش خوانده نمی‌شود و برای favicon باید فقط حلقه یا یک حرف بماند.</p>
+          <div class="lg-row">
+            <div class="lockup"><svg aria-hidden="true"><use href="#lg-seal"/></svg><span><span class="wm wm-nast">فهارس</span><span class="wm-sub">فهرستگان نسخه‌های خطی ایران</span></span></div>
+            <div class="favs"><span><svg width="32" height="32"><use href="#lg-seal"/></svg>۳۲</span><span><svg width="16" height="16"><use href="#lg-seal"/></svg>۱۶</span></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== DIRECTION A ===================== -->
+  <section class="sec" id="dir-a" data-dir="a" data-logo="lg-dot">
+    <div class="sec-head">
+      <span class="tag">جهت الف</span>
+      <h2>کاغذ، مرکب و شنگرف</h2>
+      <p>صفحه مثل برگی از یک فهرست چاپی: زمینه‌ی کاغذی، متن به رنگ مرکب، و سرعنوان‌ها به شنگرف، همان‌طور که کاتبان عنوان‌ها را سرخ می‌نوشتند. عنوان‌ها با قلم نسخ‌اند. موضوع‌ها و کتابخانه‌ها مثل نمایه‌ی پایان کتاب با خط‌چین به شمارشان می‌رسند.</p>
+    </div>
+    <div class="spec">
+      <span class="sw"><i style="background:#F4EFE4"></i>کاغذ</span>
+      <span class="sw"><i style="background:#241F1A"></i>مرکب</span>
+      <span class="sw"><i style="background:#A23A26"></i>شنگرف</span>
+      <span class="sw"><i style="background:#A8843F"></i>جدول طلایی</span>
+      <span>عنوان: نسخ · متن: وزیرمتن · لوگو: نقطه و جدول</span>
+    </div>
+    <ul class="notes">
+      <li><b>آرام و کتاب‌وار.</b> برای خواندن طولانی مناسب است و به فنخا نزدیک‌ترین حس را دارد.</li>
+      <li><b>کارت کم.</b> بخش‌ها با خط جدول جدا می‌شوند، نه با جعبه.</li>
+      <li><b>خطر:</b> اگر شنگرف زیاد شود، صفحه حالت هشدار پیدا می‌کند. فقط برای عنوان‌ها می‌ماند.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== DIRECTION B ===================== -->
+  <section class="sec" id="dir-b" data-dir="b" data-logo="lg-sarlowh">
+    <div class="sec-head">
+      <span class="tag">جهت ب</span>
+      <h2>کتابخانه‌ی امروزی</h2>
+      <p>یک پایگاه علمی تمیز و پرداده: سفید و سرمه‌ای، طلایی فقط در لوگو و برچسب‌ها. آمار در یک جدول کوچک کنار جستجو می‌آید و سهم کتابخانه‌ها با نوار به مقیاس نمایش داده می‌شود. در صفحه‌ی اثر، خلاصه‌ی نسخه‌ها در ستون کناری ثابت می‌ماند.</p>
+    </div>
+    <div class="spec">
+      <span class="sw"><i style="background:#FFFFFF"></i>سفید</span>
+      <span class="sw"><i style="background:#161A33"></i>متن</span>
+      <span class="sw"><i style="background:#2B3270"></i>سرمه‌ای</span>
+      <span class="sw"><i style="background:#B38A50"></i>طلایی برند</span>
+      <span>عنوان: IBM Plex Sans Arabic · عنوان آثار: نسخ · متن: وزیرمتن · لوگو: سرلوح فهرست</span>
+    </div>
+    <ul class="notes">
+      <li><b>کاربردی‌ترین.</b> جدول‌ها و فهرست‌های بلند در آن خواناترند و برای جستجو و فیلتر بهترین است.</li>
+      <li><b>کمترین تغییر در رنگ.</b> سرمه‌ای و طلایی فعلی می‌مانند، فقط منظم می‌شوند.</li>
+      <li><b>خطر:</b> اگر شخصیت نداشته باشد، شبیه هر سامانه‌ی اداری دیگری می‌شود. قلم نسخ در عنوان آثار جلوی این را می‌گیرد.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== DIRECTION C ===================== -->
+  <section class="sec" id="dir-c" data-dir="c" data-logo="lg-shamseh">
+    <div class="sec-head">
+      <span class="tag">جهت ج</span>
+      <h2>تذهیب</h2>
+      <p>الهام از سرلوح‌های مذهّب: نوار لاجوردی با حاشیه‌ی ستاره‌های طلایی در بالای خانه و صفحه‌ی اثر، و جستجو در قابی مثل کتیبه. عنوان‌ها به کوفی و عنوان آثار عربی به خط امیری. فیروزه‌ای رنگ کنش‌هاست.</p>
+    </div>
+    <div class="spec">
+      <span class="sw"><i style="background:#1B2A6B"></i>لاجورد</span>
+      <span class="sw"><i style="background:#B98E2F"></i>طلا</span>
+      <span class="sw"><i style="background:#1E7F7B"></i>فیروزه</span>
+      <span class="sw"><i style="background:#F7F5EF"></i>زمینه</span>
+      <span>عنوان: کوفی (Reem Kufi) · عنوان آثار: امیری · متن: وزیرمتن · لوگو: شمسه</span>
+    </div>
+    <ul class="notes">
+      <li><b>چشمگیرترین.</b> برداشت نخست قوی، و در شبکه‌های اجتماعی و تصویر Open Graph بهتر دیده می‌شود.</li>
+      <li><b>تزئین فقط در سر صفحه.</b> بدنه‌ی صفحه ساده می‌ماند تا داده گم نشود.</li>
+      <li><b>خطر:</b> نگهداری‌اش سخت‌تر است و اگر تزئین به همه‌جا برسد، صفحه شلوغ و کهنه‌نما می‌شود.</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="decide">
+    <div class="closing">
+      <h2>برای تصمیم</h2>
+      <ol>
+        <li>یک جهت را انتخاب کنید، یا بگویید از هر کدام چه چیزی بماند؛ مثلاً ساختار «ب» با سرعنوان‌های شنگرفی «الف».</li>
+        <li>یک لوگو را جدا انتخاب کنید. هر لوگو با هر جهتی جور می‌شود.</li>
+        <li>پس از آن، پایه‌ی طراحی (توکن‌ها، قلم‌ها، کامپوننت‌ها) در کد ساخته می‌شود و صفحه‌ها یکی‌یکی تغییر می‌کنند.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== TEMPLATES ===================== -->
+<template id="tpl-home">
+  <div class="nav"><div class="in">
+    <a class="logo" href="#"><svg aria-hidden="true"><use class="lg-use"/></svg><b>فهارس</b><span class="beta">آزمایشی</span></a>
+    <nav><a href="#">موضوعات</a><a href="#">کتابخانه‌ها</a><a href="#">فهرست‌نگاران</a><a href="#">درباره</a></nav>
+    <div class="acts">
+      <a class="btn" href="#"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>جستجو</a>
+      <a class="btn pri" href="#">ورود</a>
+      <a class="btn menu" href="#" aria-label="منو"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></a>
+    </div>
+  </div></div>
+  <svg class="orn orn-top" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pt-star)"/></svg>
+  <section class="hero"><div class="in">
+    <svg class="crest" aria-hidden="true"><use href="#lg-shamseh"/></svg>
+    <div class="hero-main">
+      <span class="eyebrow">فهرستگان نسخه‌های خطی ایران</span>
+      <h1>جستجو در ۷۱ هزار اثر و ۳۲۳ هزار نسخه‌ی خطی</h1>
+      <p class="lede">بر پایه‌ی ۳۴ مجلد فنخا. هر مدخل به برگه‌ی چاپی خودش در فهرست ارجاع دارد.</p>
+      <div class="search">
+        <div class="tabs"><span class="on">آثار</span><span>نسخه‌ها</span><span>اشخاص</span></div>
+        <div class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="ph">عنوان، مؤلف، کاتب، آغاز و انجام، یا شماره‌ی نسخه</span><a class="btn pri" href="#"><span>جستجو</span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m6-6-6 6 6 6"/></svg></a></div>
+        <div class="sugg">نمونه: <a href="#">شرح لمعه</a><a href="#">الفوائد الضيائية</a><a href="#">اسفار ملاصدرا</a><a href="#">شاهنامه</a><a href="#">میرداماد</a></div>
+      </div>
+    </div>
+    <div class="stats">
+      <span><b>۷۱٬۵۱۶</b>اثر</span>
+      <span><b>۳۲۳٬۸۸۰</b>نسخه</span>
+      <span><b>۷۴٬۲۶۴</b>پدیدآور و کاتب</span>
+      <span><b>۴۹۰</b>کتابخانه</span>
+      <span><b>۳۴</b>مجلد فنخا</span>
+    </div>
+  </div></section>
+  <svg class="orn orn-bot" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pt-star)"/></svg>
+  <div class="stats-band"></div>
+  <section class="blk subj"><div class="in">
+    <div class="blk-h"><h2>موضوعات پرکار</h2><a href="#">همه‌ی ۲۲ رده</a></div>
+    <div class="two">
+      <ul class="idx">
+        <li><span class="n">ادبیات</span><span class="lead"></span><span class="c">۱۴٬۹۶۵ اثر</span></li>
+        <li><span class="n">فقه</span><span class="lead"></span><span class="c">۷٬۰۶۱ اثر</span></li>
+        <li><span class="n">تاریخ</span><span class="lead"></span><span class="c">۶٬۷۹۰ اثر</span></li>
+        <li><span class="n">شعر</span><span class="lead"></span><span class="c">۶٬۴۸۷ اثر</span></li>
+      </ul>
+      <ul class="idx">
+        <li><span class="n">کلام و اعتقادات</span><span class="lead"></span><span class="c">۵٬۷۸۲ اثر</span></li>
+        <li><span class="n">حدیث</span><span class="lead"></span><span class="c">۴٬۴۰۰ اثر</span></li>
+        <li><span class="n">عرفان و تصوف</span><span class="lead"></span><span class="c">۴٬۰۶۱ اثر</span></li>
+        <li><span class="n">فلسفه</span><span class="lead"></span><span class="c">۳٬۹۶۹ اثر</span></li>
+      </ul>
+    </div>
+  </div></section>
+  <section class="blk libs"><div class="in">
+    <div class="blk-h"><h2>بزرگ‌ترین گنجینه‌ها</h2><a href="#">همه‌ی ۴۹۰ کتابخانه</a></div>
+    <div class="two">
+      <ul class="idx">
+        <li><span class="n">مجلس <span class="city">تهران</span></span><span class="lead"></span><span class="bar"><i style="--p:100%"></i></span><span class="c">۴۵٬۸۸۰ نسخه</span></li>
+        <li><span class="n">رضوی <span class="city">مشهد</span></span><span class="lead"></span><span class="bar"><i style="--p:83%"></i></span><span class="c">۳۸٬۱۰۶ نسخه</span></li>
+        <li><span class="n">مرعشی <span class="city">قم</span></span><span class="lead"></span><span class="bar"><i style="--p:69%"></i></span><span class="c">۳۱٬۸۰۴ نسخه</span></li>
+        <li><span class="n">دانشگاه تهران</span><span class="lead"></span><span class="bar"><i style="--p:66%"></i></span><span class="c">۳۰٬۳۷۱ نسخه</span></li>
+      </ul>
+      <ul class="idx">
+        <li><span class="n">ملی <span class="city">تهران</span></span><span class="lead"></span><span class="bar"><i style="--p:43%"></i></span><span class="c">۱۹٬۷۷۳ نسخه</span></li>
+        <li><span class="n">ملک <span class="city">تهران</span></span><span class="lead"></span><span class="bar"><i style="--p:34%"></i></span><span class="c">۱۵٬۸۱۴ نسخه</span></li>
+        <li><span class="n">گلپایگانی <span class="city">قم</span></span><span class="lead"></span><span class="bar"><i style="--p:30%"></i></span><span class="c">۱۳٬۷۷۳ نسخه</span></li>
+        <li><span class="n">مرکز احیاء <span class="city">قم</span></span><span class="lead"></span><span class="bar"><i style="--p:25%"></i></span><span class="c">۱۱٬۶۰۴ نسخه</span></li>
+      </ul>
+    </div>
+  </div></section>
+  <footer class="foot"><div class="in"><span>فهارس · بر پایه‌ی فهرستگان نسخه‌های خطی ایران (فنخا)</span><span>درباره · راهنما · گیت‌هاب</span></div></footer>
+</template>
+
+<template id="tpl-work">
+  <div class="nav"><div class="in">
+    <a class="logo" href="#"><svg aria-hidden="true"><use class="lg-use"/></svg><b>فهارس</b><span class="beta">آزمایشی</span></a>
+    <nav><a href="#">موضوعات</a><a href="#">کتابخانه‌ها</a><a href="#">فهرست‌نگاران</a><a href="#">درباره</a></nav>
+    <div class="acts">
+      <a class="btn" href="#"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>جستجو</a>
+      <a class="btn pri" href="#">ورود</a>
+      <a class="btn menu" href="#" aria-label="منو"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></a>
+    </div>
+  </div></div>
+  <div class="wk-band">
+    <svg class="orn orn-top" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pt-star)"/></svg>
+    <div class="in">
+      <div class="crumbs"><a href="#">فهارس</a><span>/</span><a href="#">نحو</a><span>/</span><span>الفوائد الضيائية</span></div>
+      <header class="wk-head">
+        <span class="wk-kind">شناسنامه‌ی اثر · شرح</span>
+        <h1 class="wk-title">الفوائد الضيائية في شرح الكافية</h1>
+        <span class="wk-tr">al-fawā'id-uḍ ḍiyā'īya fī š.-il kāfīya</span>
+        <p class="wk-by">از <a href="#">جامی، عبدالرحمن بن احمد</a> <span class="life">(۸۱۷–۸۹۸ ق)</span></p>
+        <div class="chips"><span class="chip">عربی</span><span class="chip">نحو</span><span class="chip">تألیف ۸۹۷ ق</span><span class="chip">فنخا ۲۴: ۴۳۹–۴۸۵</span></div>
+      </header>
+    </div>
+    <svg class="orn orn-bot" aria-hidden="true"><rect width="100%" height="100%" fill="url(#pt-star)"/></svg>
+  </div>
+  <div class="in"><div class="wk-grid">
+    <div class="wk-main">
+      <section>
+        <h2 class="h3">مشخصات</h2>
+        <dl class="meta">
+          <dt>تاریخ تألیف</dt><dd>۱۱ رمضان ۸۹۷ ق</dd>
+          <dt>اهدا به</dt><dd>ضیاء‌الدین یوسف، فرزند مؤلف</dd>
+          <dt>عناوین دیگر</dt><dd>شرح الكافية لابن الحاجب؛ شرح ملاجامی</dd>
+          <dt>شرحِ</dt><dd><a href="#">الكافية في النحو</a>، ابن حاجب (۵۷۰–۶۴۶ ق)</dd>
+        </dl>
+      </section>
+      <section>
+        <h2 class="h3">آغاز و انجام</h2>
+        <div class="q"><span class="q-l">آغاز</span>الحمد لولية و الصلاة علی نبيه و علی آله و اصحابه المتادبین بآدابه اما بعد فهذه فواید وافية بحل مشکلات الکافية …</div>
+        <div class="q"><span class="q-l">انجام</span>… اسقام الجهالات شافية و على آله و اصحابه وعلى من تبعهم من زمرة احبائه</div>
+      </section>
+      <section>
+        <h2 class="h3">نسخه‌ها</h2>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>کتابخانه</th><th>شماره</th><th>کاتب</th><th>تاریخ کتابت</th><th>خط</th><th>برگ</th></tr></thead>
+          <tbody>
+            <tr><td>مجلس<span class="city">تهران</span></td><td>۶۷۴</td><td class="unk">ناشناخته</td><td>۸۹۷ ق</td><td>نستعلیق</td><td>۳۱۴</td></tr>
+            <tr><td>وزیری<span class="city">یزد</span></td><td>۱۵۸۵</td><td>مؤمن بن حاج محمد استرابادی</td><td>۱۷ شوال ۸۹۷ ق</td><td>نسخ</td><td>۲۷۶</td></tr>
+            <tr><td>ملی<span class="city">تهران</span></td><td>۳۴۹۳</td><td class="unk">ناشناخته</td><td>۸۹۷ ق</td><td>نسخ</td><td>۲۳۹</td></tr>
+            <tr><td>خادم حسینی<span class="city">تبریز</span></td><td>۲۱</td><td>عبدالله بن اسماعیل</td><td>۸۹۸ ق</td><td>نسخ</td><td>۱۲۱</td></tr>
+            <tr><td>وزیری<span class="city">یزد</span></td><td>۲۳۳۴</td><td class="unk">ناشناخته</td><td>۸۹۹ ق</td><td>نستعلیق</td><td>۲۰۰</td></tr>
+          </tbody>
+        </table></div>
+        <a class="more" href="#">همه‌ی ۸۵۳ نسخه</a>
+      </section>
+      <section>
+        <h2 class="h3">شروح و حواشی</h2>
+        <ul class="rel">
+          <li><span class="t">حاشية الفوائد الضيائية</span><span class="a">لاری، رضی‌الدین عبدالغفور (د. ۹۱۲ ق)</span></li>
+          <li><span class="t">حاشية الفوائد الضيائية (حاشیه‌ی عصام‌الدین)</span><span class="a">عصام‌الدین اسفراینی، ابراهیم بن محمد (۸۷۳–۹۵۱ ق)</span></li>
+          <li><span class="t">الموائد الاختراعية في شرح الفوائد الضيائية</span><span class="a">تنکابنی، محمد بن سلیمان (۱۲۳۴–۱۳۰۲ ق)</span></li>
+        </ul>
+        <a class="more" href="#">همه‌ی ۴۸ مدخل</a>
+      </section>
+    </div>
+    <aside class="wk-aside">
+      <div class="card">
+        <div class="big">۸۵۳</div>
+        <div class="sub">نسخه از سده‌ی ۹ تا ۱۴ ق</div>
+        <div class="first"><b>کهن‌ترین نسخه</b>مجلس ۶۷۴، کتابت ۸۹۷ ق؛ همان سال تألیف</div>
+      </div>
+      <div class="acts-v">
+        <a class="btn pri" href="#">نسخه‌ها را ببینید</a>
+        <a class="btn" href="#">برگه‌ی فنخا</a>
+        <a class="btn" href="#">استناد</a>
+        <a class="btn" href="#">پیشنهاد اصلاح</a>
+      </div>
+    </aside>
+  </div></div>
+  <footer class="foot"><div class="in"><span>شناسه‌ی پایدار: fahares.net/w/49903</span><span>درباره · راهنما · گیت‌هاب</span></div></footer>
+</template>
+
+<script>
+(function () {
+  const sysDark = () => {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  };
+  const pages = [
+    { tpl: 'tpl-home', label: 'صفحه‌ی خانه', url: 'fahares.net' },
+    { tpl: 'tpl-work', label: 'صفحه‌ی اثر', url: 'fahares.net/works/49903' }
+  ];
+  document.querySelectorAll('section[data-dir]').forEach(sec => {
+    const dir = sec.dataset.dir, logo = sec.dataset.logo;
+    pages.forEach(pg => {
+      const id = 'mk-' + dir + '-' + pg.tpl;
+      const fr = document.createElement('div');
+      fr.className = 'fr';
+      fr.innerHTML =
+        '<div class="fr-bar"><strong>' + pg.label + '</strong><div class="ctrls">' +
+        '<div class="seg" role="group" aria-label="حالت رنگ"><button type="button" id="' + id + '-l" data-k="mode" data-v="light">روشن</button><button type="button" id="' + id + '-d" data-k="mode" data-v="dark">تیره</button></div>' +
+        '<div class="seg" role="group" aria-label="پهنا"><button type="button" id="' + id + '-w" data-k="w" data-v="wide" aria-pressed="true">دسکتاپ</button><button type="button" id="' + id + '-p" data-k="w" data-v="phone" aria-pressed="false">موبایل</button></div>' +
+        '</div></div>' +
+        '<div class="fr-box" data-w="wide"><div class="fr-chrome"><i></i><i></i><i></i><span>' + pg.url + '</span></div></div>';
+      const mk = document.createElement('div');
+      mk.className = 'mk dir-' + dir;
+      mk.id = id;
+      mk.appendChild(document.getElementById(pg.tpl).content.cloneNode(true));
+      mk.querySelectorAll('.lg-use').forEach(u => u.setAttribute('href', '#' + logo));
+      if (dir !== 'c') mk.querySelectorAll('.orn, .crest, .stats-band').forEach(n => n.remove());
+      if (dir === 'c') {
+        const band = mk.querySelector('.stats-band'), st = mk.querySelector('.hero .stats');
+        if (band && st) { const inner = document.createElement('div'); inner.className = 'in'; inner.appendChild(st); band.appendChild(inner); }
+      }
+      if (dir === 'b') {
+        const heroIn = mk.querySelector('.hero .in'), st = mk.querySelector('.hero .stats');
+        if (heroIn && st) heroIn.appendChild(st);
+      }
+      const box = fr.querySelector('.fr-box');
+      box.appendChild(mk);
+      const setMode = m => {
+        mk.dataset.mode = m;
+        fr.querySelectorAll('[data-k="mode"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === m)));
+      };
+      setMode(sysDark() ? 'dark' : 'light');
+      fr.addEventListener('click', e => {
+        const b = e.target.closest('button[data-k]');
+        if (!b) return;
+        if (b.dataset.k === 'mode') setMode(b.dataset.v);
+        else {
+          box.dataset.w = b.dataset.v;
+          fr.querySelectorAll('[data-k="w"]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        }
+      });
+      mk.addEventListener('click', e => { if (e.target.closest('a')) e.preventDefault(); });
+      sec.appendChild(fr);
+    });
+  });
+})();
+</script>

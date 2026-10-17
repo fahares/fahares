@@ -34,44 +34,35 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32.png') }}">
-    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('images/favicon-256.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/brand/shamseh-32.png') }}">
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('images/brand/shamseh-256.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/brand/shamseh-180.png') }}">
     
-    <!-- Google Fonts: Vazirmatn -->
+    <!-- Google Fonts: Vazirmatn for text, Noto Naskh Arabic for headings and work titles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
 <body class="bg-parchment-pattern min-h-screen flex flex-col font-sans selection:bg-[#B38A50]/20 selection:text-[#B38A50]">
 
-    <!-- Top Announcement / Brand Ribbon -->
-    <div class="bg-gradient-to-r from-[#191B36] via-[#292C56] to-[#191B36] text-amber-100/90 text-xs py-1.5 px-4 text-center border-b border-[#B38A50]/30 shadow-sm flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#B38A50]/30 text-amber-200 border border-[#B38A50]/40">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            نسخه آزمایشی
-        </span>
-        <span class="hidden sm:inline text-stone-500">•</span>
-        <span>پایگاه فهارس نسخه‌های خطی • دربردارنده بیش از ۷۶ هزار اثر و ۴۳۸ هزار نسخه خطی</span>
-    </div>
-
     <!-- Main Navigation Header (Glassmorphic) -->
-    <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#15192C]/90 backdrop-blur-md border-b border-[#EADFCF] dark:border-[#272F4C] transition-colors duration-200">
+    <header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-line transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-4">
                     <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
-                        <img src="{{ asset('images/logo_emblem.png') }}" alt="فهارس" class="h-12 w-auto drop-shadow-sm group-hover:scale-105 transition-transform duration-200">
+                        <img src="{{ asset('images/brand/shamseh-180.png') }}" alt="" width="48" height="48" class="h-12 w-12 group-hover:rotate-[22.5deg] transition-transform duration-500 motion-reduce:transition-none">
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
-                                <span class="text-2xl font-black text-[#292C56] dark:text-amber-100 tracking-tight leading-none group-hover:text-[#B38A50] transition-colors">فهارس</span>
-                                <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/20">آزمایشی</span>
+                                <span class="font-naskh text-[28px] font-bold text-ink leading-none group-hover:text-cinnabar transition-colors">فهارس</span>
+                                <span class="inline-block px-2 py-px rounded-full text-[10px] font-bold text-muted border border-line-strong">آزمایشی</span>
                             </div>
-                            <span class="text-[10px] text-stone-500 dark:text-stone-400 font-medium tracking-wide">فهرستگان نسخ خطی ایران</span>
+                            <span class="text-[11px] text-muted font-medium mt-1">پایگاه جامع نسخه‌های خطی</span>
                         </div>
                     </a>
                 </div>
@@ -287,11 +278,11 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-[#191B36] text-stone-300 border-t-2 border-[#B38A50] mt-16 pt-12 pb-8">
+    <footer class="bg-[#221C17] text-stone-300 border-t-2 border-gold mt-16 pt-12 pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Beta Notice & Scholarly Collaboration Callout Banner -->
-            <div class="bg-[#13152c] border border-[#B38A50]/30 rounded-2xl p-5 sm:p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-5 shadow-inner">
+            <div class="bg-black/20 border border-[#B38A50]/30 rounded-2xl p-5 sm:p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-5 shadow-inner">
                 <div class="space-y-2 text-justify md:text-right">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#B38A50]/20 text-amber-300 border border-[#B38A50]/30">
@@ -327,11 +318,11 @@
                 <!-- Col 1: About Platform -->
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('images/logo_emblem.png') }}" alt="فهارس" class="h-10 w-auto filter brightness-125">
-                        <span class="text-2xl font-bold text-amber-100 tracking-wide">فهارس</span>
+                        <img src="{{ asset('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
+                        <span class="font-naskh text-3xl font-bold text-amber-100">فهارس</span>
                     </div>
                     <p class="text-stone-400 text-sm leading-relaxed text-justify">
-                        سامانه جامع کاوش در میراث مکتوب ایران و جهان اسلام، تدوین‌شده بر پایه فهرستگان‌های معتبر نسخ خطی (مشتمل بر ۳۴ مجلد فنخا به کوشش استاد مصطفی درایتی و سایر مراجع نسخه‌شناسی). این پلتفرم دسترسی دیجیتال و یکپارچه به صدها هزار نسخه خطی در مراکز اسنادی و کتابخانه‌های معتبر را فراهم می‌سازد.
+                        سامانه‌ی جامع کاوش در میراث مکتوب ایران و جهان اسلام، بر پایه‌ی فهرست‌های معتبر نسخه‌های خطی. داده‌های آثار، نسخه‌ها، پدیدآوران، کاتبان و کتابخانه‌ها از این فهرست‌ها گرد آمده و هر داده به مأخذ خود ارجاع دارد. منابع تازه به‌تدریج افزوده می‌شوند.
                     </p>
                     <div class="flex flex-wrap items-center gap-3 pt-2 text-xs text-amber-200/80">
                         <a href="mailto:info@fahares.net" class="hover:text-amber-300 flex items-center gap-1.5 text-amber-300 font-sans font-medium">

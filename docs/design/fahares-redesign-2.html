@@ -1,0 +1,731 @@
+<title>فهارس: شمسه و کاغذ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@500;700&family=Noto+Nastaliq+Urdu:wght@600&family=Vazirmatn:wght@400;500;700;800&display=swap">
+<style>
+/* Shell: neutral review board; every mockup carries the paper-ink-cinnabar palette of direction A. */
+:root {
+  --bg: #F3F3F1; --panel: #FFFFFF; --fg: #1D1F24; --muted: #62656E; --line: #DCDCD7; --focus: #2F5BD3;
+  --f-ui: 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #15161A; --panel: #1E2025; --fg: #ECECEA; --muted: #A2A4AB; --line: #34363D; --focus: #8AA8FF; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #15161A; --panel: #1E2025; --fg: #ECECEA; --muted: #A2A4AB; --line: #34363D; --focus: #8AA8FF; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.8; direction: rtl; margin: 0; }
+.wrap { max-width: 1180px; margin-inline: auto; padding-inline: 16px; padding-block: 0 64px; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.board-head { padding-block: 40px 20px; display: grid; gap: 8px; }
+.board-head h1 { margin: 0; font-size: clamp(24px, 4vw, 34px); font-weight: 800; line-height: 1.4; text-wrap: balance; }
+.board-head p { margin: 0; color: var(--muted); max-width: 70ch; }
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); display: flex; gap: 4px; flex-wrap: wrap; padding-block: 10px; }
+.toc a { text-decoration: none; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); }
+.toc a:hover { border-color: var(--fg); }
+.sec { padding-block: 48px 8px; display: grid; gap: 20px; scroll-margin-top: 64px; }
+.sec-head { display: grid; gap: 6px; max-width: 80ch; }
+.sec-head .tag { font-size: 13px; color: var(--muted); font-weight: 700; }
+.sec-head h2 { margin: 0; font-size: clamp(21px, 3vw, 27px); font-weight: 800; line-height: 1.5; }
+.sec-head p { margin: 0; color: var(--muted); }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 28px; margin: 0; padding: 0; list-style: none; }
+.notes li { font-size: 14px; color: var(--muted); padding-inline-start: 14px; position: relative; }
+.notes li::before { content: ''; position: absolute; inset-inline-start: 0; top: .8em; width: 6px; height: 6px; background: var(--fg); transform: rotate(45deg); opacity: .5; }
+.notes b { color: var(--fg); }
+
+/* Logo board */
+.lgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.lg { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; }
+.lg.pick { outline: 2px solid var(--fg); outline-offset: -1px; }
+.lg-st { display: grid; grid-template-columns: 1fr 1fr; }
+.lg-st > div { display: grid; place-items: center; padding: 22px 8px; min-height: 170px; }
+.lg-st .p { background: #F4EFE4; --sh-lapis: #1B2A6B; --sh-gold: #B08A3E; --sh-cin: #A23A26; --sh-ink: #2A211B; }
+.lg-st .d { background: #1A1714; --sh-lapis: #24357F; --sh-gold: #D2AE62; --sh-cin: #E07A5F; --sh-ink: #EDE6D8; }
+.lg-st svg { width: 108px; height: 108px; }
+.lg-b { padding: 14px 16px 16px; display: grid; gap: 8px; }
+.lg-b h3 { margin: 0; font-size: 17px; font-weight: 800; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lg-b h3 small { font-size: 12px; font-weight: 500; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
+.lg-b p { margin: 0; font-size: 14px; color: var(--muted); }
+.favs { display: flex; align-items: end; gap: 12px; font-size: 12px; color: var(--muted); }
+.favs span { display: grid; justify-items: center; gap: 2px; }
+.favs svg { display: block; background: #F4EFE4; border-radius: 3px; --sh-lapis: #1B2A6B; --sh-gold: #B08A3E; --sh-cin: #A23A26; --sh-ink: #2A211B; }
+
+.locks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.lock { border-radius: 12px; padding: 22px; display: flex; align-items: center; gap: 14px; min-height: 120px; border: 1px solid var(--line); }
+.lock svg { width: 60px; height: 60px; flex: none; }
+.lock .w { line-height: 1; }
+.lock .w b { display: block; font-weight: 700; }
+.lock .w small { display: block; font-family: var(--f-ui); font-size: 12px; margin-top: 8px; opacity: .75; }
+.lock.paper { background: #F4EFE4; color: #2A211B; --sh-lapis: #1B2A6B; --sh-gold: #B08A3E; --sh-cin: #A23A26; --sh-ink: #2A211B; }
+.lock.ink { background: #1A1714; color: #EDE6D8; --sh-lapis: #24357F; --sh-gold: #D2AE62; --sh-cin: #E07A5F; --sh-ink: #EDE6D8; }
+.lock.stack { flex-direction: column; justify-content: center; text-align: center; }
+.lock .naskh b { font-family: 'Noto Naskh Arabic', 'Amiri', serif; font-size: 38px; }
+.lock .nast b { font-family: 'Noto Nastaliq Urdu', 'Amiri', serif; font-size: 30px; line-height: 2; margin-block: -14px -6px; }
+.lock .amiri b { font-family: 'Amiri', serif; font-size: 40px; }
+
+/* Frames */
+.fr { display: grid; gap: 8px; }
+.fr-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.fr-bar strong { font-size: 14px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel); }
+.seg button { font: inherit; font-size: 13px; border: 0; background: transparent; color: var(--muted); padding: 4px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.ctrls { display: flex; gap: 8px; flex-wrap: wrap; }
+.fr-box { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--panel); width: 100%; margin-inline: auto; transition: max-width .25s ease; box-shadow: 0 1px 2px rgb(0 0 0 / .05), 0 8px 24px -12px rgb(0 0 0 / .18); }
+.fr-box[data-w="phone"] { max-width: 390px; }
+.fr-chrome { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); direction: ltr; }
+.fr-chrome i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.fr-chrome span { margin-inline-start: 8px; }
+
+/* Image plan table */
+.tw { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.plan { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+.plan th { text-align: right; font-size: 12px; color: var(--muted); font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.plan td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.plan tr:last-child td { border-bottom: 0; }
+.st { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--line); }
+.st.ok { background: color-mix(in srgb, #2E8B57 14%, transparent); }
+.st.get { background: color-mix(in srgb, #C08A1E 16%, transparent); }
+.st.ask { background: color-mix(in srgb, #B33A2B 14%, transparent); }
+.closing { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; display: grid; gap: 8px; }
+.closing h2 { margin: 0; font-size: 20px; }
+.closing p, .closing li { color: var(--muted); margin: 0; }
+.closing ol { margin: 0; padding-inline-start: 22px; display: grid; gap: 4px; }
+
+/* ================= Mockup: direction A family ================= */
+.mk {
+  --m-bg: #F4EFE4; --m-surface: #FBF8F1; --m-ink: #241F1A; --m-muted: #6B6257;
+  --m-line: #DED4C2; --m-line-strong: #BFB29C; --m-accent: #A23A26; --m-on-accent: #FBF8F1; --m-gold: #A8843F;
+  --m-scrim: 36 31 26;
+  --sh-lapis: #1B2A6B; --sh-gold: #B08A3E; --sh-cin: #A23A26; --sh-ink: #2A211B;
+  --m-head: 'Noto Naskh Arabic', 'Amiri', serif; --m-title: 'Noto Naskh Arabic', 'Amiri', serif; --m-body: 'Vazirmatn', Tahoma, sans-serif;
+  container-type: inline-size;
+  background: var(--m-bg); color: var(--m-ink); font-family: var(--m-body); font-size: 14px; line-height: 1.85;
+  font-variant-numeric: tabular-nums;
+}
+.mk[data-mode="dark"] {
+  --m-bg: #1A1714; --m-surface: #221E1A; --m-ink: #EDE6D8; --m-muted: #A89E8E;
+  --m-line: #39322A; --m-line-strong: #574D40; --m-accent: #E07A5F; --m-on-accent: #1A1714; --m-gold: #C9A45C;
+  --sh-lapis: #24357F; --sh-gold: #D2AE62; --sh-cin: #E07A5F; --sh-ink: #EDE6D8;
+}
+.mk * { box-sizing: border-box; }
+.mk a { color: inherit; text-decoration: none; }
+.mk h1, .mk h2, .mk h3, .mk p, .mk figure { margin: 0; }
+.mk .in { max-width: 1060px; margin-inline: auto; padding-inline: 28px; }
+.mk .nav { background: var(--m-surface); border-bottom: 1px solid var(--m-line); }
+.mk .nav .in { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
+.mk .logo { display: flex; align-items: center; gap: 10px; }
+.mk .logo svg { width: 40px; height: 40px; flex: none; }
+.mk .logo b { font-family: var(--m-head); font-size: 25px; font-weight: 700; line-height: 1; }
+.mk .beta { font-size: 11px; font-weight: 700; padding: 0 8px; border-radius: 999px; border: 1px solid var(--m-line-strong); color: var(--m-muted); }
+.mk .nav nav { display: flex; gap: 22px; color: var(--m-muted); font-weight: 500; }
+.mk .acts { display: flex; gap: 8px; align-items: center; }
+.mk .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 3px; border: 1px solid var(--m-line-strong); font-weight: 600; font-size: 13px; background: var(--m-surface); color: var(--m-ink); }
+.mk .btn.pri { background: var(--m-accent); border-color: var(--m-accent); color: var(--m-on-accent); }
+.mk .ico { width: 16px; height: 16px; flex: none; }
+.mk .menu { display: none; }
+.mk .eyebrow { font-size: 13px; font-weight: 700; color: var(--m-accent); }
+.mk .h1 { font-family: var(--m-head); font-size: 40px; line-height: 1.5; font-weight: 700; text-wrap: balance; }
+.mk .lede { color: var(--m-muted); max-width: 58ch; }
+.mk .search { display: grid; gap: 10px; max-width: 680px; width: 100%; }
+.mk .tabs { display: flex; gap: 6px; font-size: 13px; font-weight: 600; }
+.mk .tabs span { padding: 3px 12px; border-radius: 3px; color: var(--m-muted); border: 1px solid transparent; }
+.mk .tabs span.on { color: var(--m-ink); border-color: var(--m-line-strong); background: var(--m-surface); }
+.mk .field { display: flex; align-items: center; gap: 10px; background: var(--m-surface); border: 1px solid var(--m-line-strong); border-radius: 3px; padding: 6px; padding-inline-start: 16px; color: var(--m-ink); }
+.mk .field .ph { flex: 1; min-width: 0; color: var(--m-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk .field .btn.pri { padding: 8px 20px; font-size: 14px; }
+.mk .sugg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--m-muted); }
+.mk .sugg a { color: var(--m-ink); border-bottom: 1px solid var(--m-line-strong); }
+.mk .stats { display: flex; flex-wrap: wrap; gap: 6px 0; font-size: 13px; color: var(--m-muted); }
+.mk .stats span { padding-inline: 16px; position: relative; }
+.mk .stats span:first-child { padding-inline-start: 0; }
+.mk .stats span + span::before { content: ''; position: absolute; inset-inline-start: -3px; top: 50%; width: 6px; height: 6px; margin-top: -3px; background: var(--m-accent); transform: rotate(45deg); }
+.mk .stats b { font-size: 17px; color: var(--m-ink); margin-inline-end: 4px; }
+.mk .jadval { height: 5px; border-top: 1px solid var(--m-gold); border-bottom: 1px solid var(--m-gold); }
+.mk .blk { padding-block: 40px; }
+.mk .blk + .blk { border-top: 1px solid var(--m-line); }
+.mk .rub { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 18px; }
+.mk .rub h2 { font-family: var(--m-head); color: var(--m-accent); font-size: 21px; display: flex; align-items: center; gap: 10px; }
+.mk .rub h2::before { content: ''; width: 8px; height: 8px; background: currentColor; transform: rotate(45deg); flex: none; }
+.mk .rub a { font-size: 13px; color: var(--m-accent); font-weight: 600; white-space: nowrap; }
+.mk .idx { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 44px; }
+.mk .idx li { display: flex; align-items: baseline; gap: 8px; padding-block: 6px; }
+.mk .idx .n { font-weight: 600; white-space: nowrap; }
+.mk .idx .city { color: var(--m-muted); font-size: 12px; font-weight: 400; }
+.mk .idx .lead { flex: 1; min-width: 16px; border-bottom: 1px dotted var(--m-line-strong); transform: translateY(-4px); }
+.mk .idx .c { color: var(--m-muted); font-size: 13px; white-space: nowrap; }
+.mk .foot { border-top: 1px solid var(--m-line); padding-block: 20px; color: var(--m-muted); font-size: 12px; }
+.mk .foot .in { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+
+/* Photos */
+.mk .ph-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mk .cap { font-size: 12px; color: var(--m-muted); line-height: 1.6; }
+.mk .cap b { color: var(--m-ink); font-weight: 600; }
+.mk .por { display: grid; gap: 6px; justify-items: center; text-align: center; }
+.mk .por .fr-arch { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; border-radius: 999px 999px 4px 4px; overflow: hidden; border: 1px solid var(--m-gold); padding: 4px; background: var(--m-surface); }
+.mk .por .fr-arch img { width: 100%; height: 100%; object-fit: cover; border-radius: 999px 999px 2px 2px; filter: grayscale(1) sepia(.35) contrast(1.05); display: block; }
+.mk .por b { font-size: 13px; line-height: 1.5; }
+.mk .por span { font-size: 12px; color: var(--m-muted); line-height: 1.4; }
+.mk .cats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
+.mk .scan { position: relative; background: #FFF; border: 1px solid var(--m-line); box-shadow: 0 10px 30px -14px rgb(0 0 0 / .45); }
+.mk .scan img { display: block; width: 100%; }
+.mk .scan .mark { position: absolute; inset-inline: 0 0; top: 6%; height: 16%; border: 2px solid var(--m-accent); background: color-mix(in srgb, var(--m-accent) 8%, transparent); }
+.mk .ms-card { display: grid; gap: 10px; }
+.mk .ms-card .imgbox { aspect-ratio: 3 / 4; overflow: hidden; background: #111; border: 1px solid var(--m-line); }
+.mk .ms-card h3 { font-family: var(--m-head); font-size: 17px; }
+.mk .ms-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+
+/* ---- A1: golden leaf banner ---- */
+.v1 .banner { position: relative; height: 330px; overflow: hidden; background: #2A211B; }
+.v1 .banner img { width: 100%; height: 100%; object-fit: cover; object-position: center 45%; display: block; }
+.v1 .banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgb(var(--m-scrim) / 0) 40%, rgb(var(--m-scrim) / .55)); }
+.v1 .banner .credit { position: absolute; inset-inline-end: 14px; bottom: 10px; z-index: 1; font-size: 11px; color: #F3EAD6; opacity: .85; }
+.v1 .over { margin-top: -110px; position: relative; z-index: 2; }
+.v1 .over .sheet { background: var(--m-surface); border: 1px solid var(--m-gold); box-shadow: inset 0 0 0 4px var(--m-surface), inset 0 0 0 5px var(--m-line), 0 20px 40px -24px rgb(0 0 0 / .5); padding: 30px 34px; display: grid; gap: 14px; justify-items: center; text-align: center; }
+.v1 .over .tabs, .v1 .over .sugg, .v1 .over .stats { justify-content: center; }
+.v1 .over .lede { margin-inline: auto; }
+
+/* ---- A2: open book ---- */
+.v2 .hero { padding-block: 48px 52px; }
+.v2 .hero .in { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 52px; align-items: center; }
+.v2 .hero-t { display: grid; gap: 14px; }
+.v2 .book { position: relative; aspect-ratio: 5 / 6; max-width: 400px; width: 100%; justify-self: center; }
+.v2 .book .back { position: absolute; width: 62%; inset-inline-end: 0; top: 4%; transform: rotate(5deg); box-shadow: 0 14px 30px -16px rgb(0 0 0 / .6); border: 1px solid var(--m-line); }
+.v2 .book .front { position: absolute; width: 66%; inset-inline-start: 0; top: 10%; transform: rotate(-3deg); box-shadow: 0 20px 40px -18px rgb(0 0 0 / .65); border: 6px solid var(--m-surface); outline: 1px solid var(--m-gold); }
+.v2 .book img { display: block; width: 100%; }
+.v2 .book figcaption { position: absolute; bottom: 0; inset-inline-start: 0; inset-inline-end: 0; text-align: center; }
+.v2 .keepers { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: start; }
+.v2 .lead-por { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 20px; align-items: center; }
+.v2 .lead-por .fr-arch { max-width: 150px; }
+.v2 .lead-por blockquote { margin: 0; font-family: var(--m-head); font-size: 18px; line-height: 1.9; }
+.v2 .lead-por blockquote cite { display: block; font-family: var(--m-body); font-style: normal; font-size: 13px; color: var(--m-muted); margin-top: 6px; }
+.v2 .cats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.v2 .fankha { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; align-items: center; }
+.v2 .fankha .scan { max-width: 420px; }
+.v2 .fankha-t { display: grid; gap: 12px; }
+
+/* ---- A3: night reading room (dark-first) ---- */
+.v3 .hero { position: relative; overflow: hidden; background: #120F0C; color: #F3EAD6; }
+.v3 .hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+.v3 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgb(18 15 12 / .55) 0%, rgb(18 15 12 / .9) 70%); }
+.v3 .hero .in { position: relative; padding-block: 70px 60px; display: grid; justify-items: center; text-align: center; gap: 14px; }
+.v3 .hero .h1 { color: #FFF6E2; }
+.v3 .hero .eyebrow { color: #E9B27A; }
+.v3 .hero .lede { color: #D6CAB2; }
+.v3 .hero .tabs, .v3 .hero .sugg { justify-content: center; }
+.v3 .hero .tabs span { color: #CBBFA6; }
+.v3 .hero .tabs span.on { color: #FFF6E2; border-color: #C9A45C; background: transparent; }
+.v3 .hero .field { background: #FBF6EA; border-color: #C9A45C; color: #241F1A; }
+.v3 .hero .field .ph { color: #6B6257; }
+.v3 .hero .field .btn.pri { background: #A23A26; border-color: #A23A26; color: #FBF6EA; }
+.v3 .hero .sugg { color: #CBBFA6; }
+.v3 .hero .sugg a { color: #FFF6E2; border-color: rgb(201 164 92 / .55); }
+.v3 .hero .credit { position: absolute; inset-inline-end: 14px; bottom: 10px; font-size: 11px; color: #CBBFA6; }
+.v3 .statbar { background: var(--m-surface); border-bottom: 1px solid var(--m-line); }
+.v3 .statbar .stats { justify-content: center; padding-block: 16px; }
+.v3 .spot { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 40px; align-items: center; }
+.v3 .spot .imgbox { aspect-ratio: 3 / 4; overflow: hidden; border: 1px solid var(--m-gold); padding: 6px; background: var(--m-surface); }
+.v3 .spot .imgbox img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.v3 .spot-t { display: grid; gap: 12px; }
+.v3 .spot-t h3 { font-family: var(--m-head); font-size: 26px; line-height: 1.6; }
+.v3 .spot-t .term { border-inline-start: 3px solid var(--m-accent); padding-inline-start: 14px; color: var(--m-muted); }
+.v3 .spot-t .term b { color: var(--m-ink); }
+
+/* ---- Work page ---- */
+.wk .crumbs { font-size: 12px; color: var(--m-muted); padding-block: 18px 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.wk .head { text-align: center; display: grid; justify-items: center; gap: 6px; padding-block: 18px 26px; }
+.wk .kind { font-size: 12px; font-weight: 700; color: var(--m-accent); }
+.wk .title { font-family: var(--m-title); font-size: 36px; line-height: 1.6; font-weight: 700; text-wrap: balance; }
+.wk .tr { direction: ltr; font-size: 13px; color: var(--m-muted); }
+.wk .by { font-size: 16px; }
+.wk .by a { font-weight: 700; border-bottom: 1px solid var(--m-line-strong); }
+.wk .by .life { color: var(--m-muted); font-size: 14px; }
+.wk .grid { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 40px; padding-block: 30px 44px; }
+.wk .main { display: grid; gap: 30px; min-width: 0; }
+.wk .aside { display: grid; gap: 16px; align-content: start; }
+.wk .card { background: var(--m-surface); border: 1px solid var(--m-gold); box-shadow: inset 0 0 0 3px var(--m-surface), inset 0 0 0 4px var(--m-line); padding: 16px 18px; }
+.wk .big { font-family: var(--m-head); font-size: 36px; color: var(--m-accent); line-height: 1.3; font-weight: 700; }
+.wk .sub { color: var(--m-muted); font-size: 13px; }
+.wk .first { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--m-line); font-size: 13px; }
+.wk .first b { display: block; }
+.wk .h3 { font-family: var(--m-head); color: var(--m-accent); font-size: 18px; margin-bottom: 10px; }
+.wk dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 20px; margin: 0; }
+.wk dt { color: var(--m-muted); font-size: 13px; }
+.wk dd { margin: 0; }
+.wk .q { font-family: var(--m-title); font-size: 17px; line-height: 2.1; border-inline-start: 4px double var(--m-gold); padding-inline-start: 16px; }
+.wk .q + .q { margin-top: 12px; }
+.wk .q-l { display: block; font-family: var(--m-body); font-size: 12px; font-weight: 700; color: var(--m-accent); }
+.wk .tbl { overflow-x: auto; }
+.wk table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 540px; }
+.wk th { text-align: right; font-weight: 600; color: var(--m-muted); font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--m-gold); white-space: nowrap; }
+.wk td { padding: 9px 10px; border-bottom: 1px solid var(--m-line); vertical-align: top; }
+.wk td .city { display: block; color: var(--m-muted); font-size: 12px; }
+.wk td.unk { color: var(--m-muted); }
+.wk .more { font-size: 13px; color: var(--m-accent); font-weight: 600; display: inline-block; margin-top: 10px; }
+.wk .acts-v { display: grid; gap: 8px; }
+.wk .acts-v .btn { justify-content: center; }
+.wk .scan-mini { display: grid; gap: 8px; }
+.wk .scan-mini .scan { aspect-ratio: 4 / 3; overflow: hidden; }
+.wk .scan-mini .scan img { object-fit: cover; object-position: top; height: 100%; }
+.wk .noimg { aspect-ratio: 16 / 7; border: 1px dashed var(--m-line-strong); display: grid; place-items: center; text-align: center; color: var(--m-muted); font-size: 13px; padding: 16px; background: repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--m-line) 45%, transparent) 10px 11px); }
+
+/* Phone width */
+@container (max-width: 640px) {
+  .mk .in { padding-inline: 16px; }
+  .mk .nav nav, .mk .acts .btn:not(.pri):not(.menu) { display: none; }
+  .mk .menu { display: inline-flex; }
+  .mk .h1 { font-size: 26px; }
+  .mk .idx { grid-template-columns: 1fr; }
+  .mk .cats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .mk .ms-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .mk .ms-card h3 { font-size: 14px; }
+  .mk .ms-card .cap { display: none; }
+  .mk .field .btn.pri span { display: none; }
+  .mk .stats b { font-size: 15px; }
+  .v1 .banner { height: 200px; }
+  .v1 .over { margin-top: -50px; }
+  .v1 .over .sheet { padding: 20px 16px; }
+  .v2 .hero .in, .v2 .keepers, .v2 .fankha, .v3 .spot { grid-template-columns: 1fr; gap: 28px; }
+  .v2 .book { max-width: 280px; }
+  .v2 .cats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .v2 .cats .por b { font-size: 11px; }
+  .v2 .cats .por span { display: none; }
+  .v2 .lead-por { grid-template-columns: 100px minmax(0, 1fr); }
+  .v3 .hero .in { padding-block: 44px 40px; }
+  .wk .grid { grid-template-columns: 1fr; gap: 26px; }
+  .wk .aside { order: -1; }
+  .wk .title { font-size: 26px; }
+  .wk dl { grid-template-columns: 1fr; gap: 0; }
+  .wk dd { margin-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .fr-box { transition: none; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="s1" viewBox="0 0 120 120"><polygon points="60.0,6.0 75.8,21.8 98.2,21.8 98.2,44.2 114.0,60.0 98.2,75.8 98.2,98.2 75.8,98.2 60.0,114.0 44.2,98.2 21.8,98.2 21.8,75.8 6.0,60.0 21.8,44.2 21.8,21.8 44.2,21.8" fill="var(--sh-lapis)" stroke="var(--sh-gold)" stroke-width="2.5" stroke-linejoin="round"/><circle cx="60" cy="60" r="35" fill="none" stroke="var(--sh-gold)" stroke-width="1.2"/><polygon points="70.3,35.1 74.6,45.4 84.9,49.7 80.7,60.0 84.9,70.3 74.6,74.6 70.3,84.9 60.0,80.7 49.7,84.9 45.4,74.6 35.1,70.3 39.3,60.0 35.1,49.7 45.4,45.4 49.7,35.1 60.0,39.3" fill="none" stroke="var(--sh-gold)" stroke-width="2.2" stroke-linejoin="round"/><polygon points="60.0,49.0 63.2,52.2 67.8,52.2 67.8,56.8 71.0,60.0 67.8,63.2 67.8,67.8 63.2,67.8 60.0,71.0 56.8,67.8 52.2,67.8 52.2,63.2 49.0,60.0 52.2,56.8 52.2,52.2 56.8,52.2" fill="var(--sh-gold)"/></symbol>
+<symbol id="s2" viewBox="0 0 120 120"><polygon points="60.0,6.0 75.8,21.8 98.2,21.8 98.2,44.2 114.0,60.0 98.2,75.8 98.2,98.2 75.8,98.2 60.0,114.0 44.2,98.2 21.8,98.2 21.8,75.8 6.0,60.0 21.8,44.2 21.8,21.8 44.2,21.8" fill="none" stroke="var(--sh-ink)" stroke-width="4" stroke-linejoin="round"/><circle cx="60" cy="60" r="35" fill="none" stroke="var(--sh-gold)" stroke-width="1.5"/><polygon points="70.3,35.1 74.6,45.4 84.9,49.7 80.7,60.0 84.9,70.3 74.6,74.6 70.3,84.9 60.0,80.7 49.7,84.9 45.4,74.6 35.1,70.3 39.3,60.0 35.1,49.7 45.4,45.4 49.7,35.1 60.0,39.3" fill="var(--sh-gold)" opacity=".25"/><polygon points="70.3,35.1 74.6,45.4 84.9,49.7 80.7,60.0 84.9,70.3 74.6,74.6 70.3,84.9 60.0,80.7 49.7,84.9 45.4,74.6 35.1,70.3 39.3,60.0 35.1,49.7 45.4,45.4 49.7,35.1 60.0,39.3" fill="none" stroke="var(--sh-gold)" stroke-width="2.4" stroke-linejoin="round"/><polygon points="60.0,49.0 63.2,52.2 67.8,52.2 67.8,56.8 71.0,60.0 67.8,63.2 67.8,67.8 63.2,67.8 60.0,71.0 56.8,67.8 52.2,67.8 52.2,63.2 49.0,60.0 52.2,56.8 52.2,52.2 56.8,52.2" fill="var(--sh-cin)"/></symbol>
+<symbol id="s3" viewBox="0 0 120 120"><path d="M60.0 4.0 C62.4 16.4 75.9 5.1 73.0 28.6 C87.5 9.9 89.1 27.5 99.6 20.4 C92.5 30.9 110.1 32.5 91.4 47.0 C114.9 44.1 103.6 57.6 116.0 60.0 C103.6 62.4 114.9 75.9 91.4 73.0 C110.1 87.5 92.5 89.1 99.6 99.6 C89.1 92.5 87.5 110.1 73.0 91.4 C75.9 114.9 62.4 103.6 60.0 116.0 C57.6 103.6 44.1 114.9 47.0 91.4 C32.5 110.1 30.9 92.5 20.4 99.6 C27.5 89.1 9.9 87.5 28.6 73.0 C5.1 75.9 16.4 62.4 4.0 60.0 C16.4 57.6 5.1 44.1 28.6 47.0 C9.9 32.5 27.5 30.9 20.4 20.4 C30.9 27.5 32.5 9.9 47.0 28.6 C44.1 5.1 57.6 16.4 60.0 4.0Z" fill="var(--sh-lapis)" stroke="var(--sh-gold)" stroke-width="2.5" stroke-linejoin="round"/><path d="M71.5 32.3 C70.1 38.9 79.1 36.1 72.7 47.3 C83.9 40.9 81.1 49.9 87.7 48.5 C82.1 52.2 90.4 56.6 78.0 60.0 C90.4 63.4 82.1 67.8 87.7 71.5 C81.1 70.1 83.9 79.1 72.7 72.7 C79.1 83.9 70.1 81.1 71.5 87.7 C67.8 82.1 63.4 90.4 60.0 78.0 C56.6 90.4 52.2 82.1 48.5 87.7 C49.9 81.1 40.9 83.9 47.3 72.7 C36.1 79.1 38.9 70.1 32.3 71.5 C37.9 67.8 29.6 63.4 42.0 60.0 C29.6 56.6 37.9 52.2 32.3 48.5 C38.9 49.9 36.1 40.9 47.3 47.3 C40.9 36.1 49.9 38.9 48.5 32.3 C52.2 37.9 56.6 29.6 60.0 42.0 C63.4 29.6 67.8 37.9 71.5 32.3Z" fill="var(--sh-gold)"/><circle cx="60" cy="60" r="9" fill="var(--sh-cin)"/></symbol>
+<symbol id="s4" viewBox="0 0 120 120"><g fill="none" stroke="var(--sh-ink)" stroke-width="4" stroke-linejoin="round"><rect x="24.6" y="24.6" width="70.8" height="70.8"/><rect x="24.6" y="24.6" width="70.8" height="70.8" transform="rotate(45 60 60)"/></g><circle cx="60" cy="60" r="27" fill="none" stroke="var(--sh-gold)" stroke-width="2"/><circle cx="60" cy="60" r="20" fill="var(--sh-gold)" opacity=".22"/><polygon points="60,47 73,60 60,73 47,60" fill="var(--sh-cin)"/></symbol>
+<symbol id="s5" viewBox="0 0 120 120"><g stroke="var(--sh-gold)" stroke-width="1.4" stroke-linecap="round"><line x1="69.8" y1="23.3" x2="72.2" y2="14.6"/><line x1="79.0" y1="27.1" x2="83.5" y2="19.3"/><line x1="86.9" y1="33.1" x2="98.2" y2="21.8"/><line x1="92.9" y1="41.0" x2="100.7" y2="36.5"/><line x1="96.7" y1="50.2" x2="105.4" y2="47.8"/><line x1="98.0" y1="60.0" x2="114.0" y2="60.0"/><line x1="96.7" y1="69.8" x2="105.4" y2="72.2"/><line x1="92.9" y1="79.0" x2="100.7" y2="83.5"/><line x1="86.9" y1="86.9" x2="98.2" y2="98.2"/><line x1="79.0" y1="92.9" x2="83.5" y2="100.7"/><line x1="69.8" y1="96.7" x2="72.2" y2="105.4"/><line x1="50.2" y1="96.7" x2="47.8" y2="105.4"/><line x1="41.0" y1="92.9" x2="36.5" y2="100.7"/><line x1="33.1" y1="86.9" x2="21.8" y2="98.2"/><line x1="27.1" y1="79.0" x2="19.3" y2="83.5"/><line x1="23.3" y1="69.8" x2="14.6" y2="72.2"/><line x1="22.0" y1="60.0" x2="6.0" y2="60.0"/><line x1="23.3" y1="50.2" x2="14.6" y2="47.8"/><line x1="27.1" y1="41.0" x2="19.3" y2="36.5"/><line x1="33.1" y1="33.1" x2="21.8" y2="21.8"/><line x1="41.0" y1="27.1" x2="36.5" y2="19.3"/><line x1="50.2" y1="23.3" x2="47.8" y2="14.6"/></g><polygon points="60,2 66,10 60,18 54,10" fill="var(--sh-gold)"/><polygon points="60,102 66,110 60,118 54,110" fill="var(--sh-gold)"/><circle cx="60" cy="60" r="36" fill="var(--sh-lapis)"/><circle cx="60" cy="60" r="36" fill="none" stroke="var(--sh-gold)" stroke-width="2.5"/><circle cx="60" cy="60" r="29" fill="none" stroke="var(--sh-gold)" stroke-width="1"/><polygon points="70.3,35.1 74.6,45.4 84.9,49.7 80.7,60.0 84.9,70.3 74.6,74.6 70.3,84.9 60.0,80.7 49.7,84.9 45.4,74.6 35.1,70.3 39.3,60.0 35.1,49.7 45.4,45.4 49.7,35.1 60.0,39.3" fill="var(--sh-gold)" transform="translate(60 60) scale(.95) translate(-60 -60)"/><polygon points="60.0,49.0 63.2,52.2 67.8,52.2 67.8,56.8 71.0,60.0 67.8,63.2 67.8,67.8 63.2,67.8 60.0,71.0 56.8,67.8 52.2,67.8 52.2,63.2 49.0,60.0 52.2,56.8 52.2,52.2 56.8,52.2" fill="var(--sh-cin)" transform="translate(60 60) scale(.8) translate(-60 -60)"/></symbol>
+<symbol id="s6" viewBox="0 0 120 120"><polygon points="60.0,5.0 70.6,20.4 87.5,12.4 89.0,31.0 107.6,32.5 99.6,49.4 115.0,60.0 99.6,70.6 107.6,87.5 89.0,89.0 87.5,107.6 70.6,99.6 60.0,115.0 49.4,99.6 32.5,107.6 31.0,89.0 12.4,87.5 20.4,70.6 5.0,60.0 20.4,49.4 12.4,32.5 31.0,31.0 32.5,12.4 49.4,20.4" fill="var(--sh-lapis)" stroke="var(--sh-gold)" stroke-width="2.2" stroke-linejoin="round"/><circle cx="60" cy="60" r="33" fill="none" stroke="var(--sh-gold)" stroke-width="1.2"/><polygon points="67.8,31.0 71.5,40.1 81.2,38.8 79.9,48.5 89.0,52.2 83.0,60.0 89.0,67.8 79.9,71.5 81.2,81.2 71.5,79.9 67.8,89.0 60.0,83.0 52.2,89.0 48.5,79.9 38.8,81.2 40.1,71.5 31.0,67.8 37.0,60.0 31.0,52.2 40.1,48.5 38.8,38.8 48.5,40.1 52.2,31.0 60.0,37.0" fill="var(--sh-gold)"/><circle cx="60" cy="60" r="8" fill="var(--sh-cin)"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+  <header class="board-head">
+    <h1>شمسه و کاغذ: دور دوم</h1>
+    <p>شش نسخه از لوگوی شمسه، و سه نسخه‌ی پرعکس از جهت «الف» برای صفحه‌ی خانه، به‌علاوه‌ی صفحه‌ی اثر. عکس فهرست‌نگاران از خود سایت است، برگه‌ی فنخا از اسکن‌های پروژه، و تصویرهای نسخه از موزه‌ی والترز (مالکیت عمومی، از ویکی‌مدیا). بالای هر ماکت دکمه‌ی روشن/تیره و دسکتاپ/موبایل هست.</p>
+  </header>
+
+  <nav class="toc" aria-label="بخش‌ها">
+    <a href="#logo">لوگو</a>
+    <a href="#a1">الف۱. برگ زرین</a>
+    <a href="#a2">الف۲. کتاب گشوده</a>
+    <a href="#a3">الف۳. شبستان</a>
+    <a href="#work">صفحه‌ی اثر</a>
+    <a href="#photos">عکس‌ها کجا</a>
+  </nav>
+
+  <section class="sec" id="logo">
+    <div class="sec-head">
+      <span class="tag">لوگو</span>
+      <h2>شش نسخه از شمسه</h2>
+      <p>هر نسخه روی کاغذ و روی زمینه‌ی تیره، و در اندازه‌ی favicon. نسخه‌ی ۳ و ۵ مستقیم از دو نسخه‌ی خطی گرفته شده‌اند که عکسشان در ماکت‌ها آمده است.</p>
+    </div>
+    <div class="lgs">
+      <article class="lg"><div class="lg-st"><div class="p"><svg role="img" aria-label="شمسه"><use href="#s1"/></svg></div><div class="d"><svg aria-hidden="true"><use href="#s1"/></svg></div></div>
+        <div class="lg-b"><h3>۱. شمسه <small>انتخاب دور اول</small></h3><p>ستاره‌ی هشت‌پر لاجوردی با تذهیب طلایی. مرجع مقایسه است.</p>
+        <div class="favs"><span><svg width="32" height="32" viewBox="0 0 120 120"><use href="#s1"/></svg>۳۲</span><span><svg width="16" height="16" viewBox="0 0 120 120"><use href="#s1"/></svg>۱۶</span></div></div></article>
+      <article class="lg"><div class="lg-st"><div class="p"><svg role="img" aria-label="شمسه‌ی مرکب‌نگار"><use href="#s2"/></svg></div><div class="d"><svg aria-hidden="true"><use href="#s2"/></svg></div></div>
+        <div class="lg-b"><h3>۲. شمسه‌ی مرکب‌نگار</h3><p>همان ستاره، فقط با خط مرکب و مرکز شنگرفی. با کاغذ جهت «الف» یکی می‌شود و در چاپ تک‌رنگ هم کار می‌کند. در اندازه‌ی کوچک کم‌رنگ است.</p>
+        <div class="favs"><span><svg width="32" height="32" viewBox="0 0 120 120"><use href="#s2"/></svg>۳۲</span><span><svg width="16" height="16" viewBox="0 0 120 120"><use href="#s2"/></svg>۱۶</span></div></div></article>
+      <article class="lg pick"><div class="lg-st"><div class="p"><svg role="img" aria-label="شمسه‌ی هشت‌لت"><use href="#s3"/></svg></div><div class="d"><svg aria-hidden="true"><use href="#s3"/></svg></div></div>
+        <div class="lg-b"><h3>۳. شمسه‌ی هشت‌لَت <small>پیشنهاد من</small></h3><p>هشت لَتِ نوک‌تیز لاجوردی گرد یک گل طلایی، از سرلوح نسخه‌ی W.569 که در بنر «برگ زرین» آمده است. نرم‌تر و ایرانی‌تر از ستاره‌ی ساده است و در ۱۶ پیکسل هم شناخته می‌شود.</p>
+        <div class="favs"><span><svg width="32" height="32" viewBox="0 0 120 120"><use href="#s3"/></svg>۳۲</span><span><svg width="16" height="16" viewBox="0 0 120 120"><use href="#s3"/></svg>۱۶</span></div></div></article>
+      <article class="lg"><div class="lg-st"><div class="p"><svg role="img" aria-label="شمسه‌ی گره"><use href="#s4"/></svg></div><div class="d"><svg aria-hidden="true"><use href="#s4"/></svg></div></div>
+        <div class="lg-b"><h3>۴. شمسه‌ی گره</h3><p>دو مربع درهم، پایه‌ی هندسی همه‌ی شمسه‌ها، با نقطه‌ی لوزی شنگرفی در مرکز. ساده‌ترین و امروزی‌ترین نسخه است.</p>
+        <div class="favs"><span><svg width="32" height="32" viewBox="0 0 120 120"><use href="#s4"/></svg>۳۲</span><span><svg width="16" height="16" viewBox="0 0 120 120"><use href="#s4"/></svg>۱۶</span></div></div></article>
+      <article class="lg"><div class="lg-st"><div class="p"><svg role="img" aria-label="شمسه‌ی ترنج‌دار"><use href="#s5"/></svg></div><div class="d"><svg aria-hidden="true"><use href="#s5"/></svg></div></div>
+        <div class="lg-b"><h3>۵. شمسه‌ی پرتودار</h3><p>قرص لاجوردی با پرتوهای طلایی و دو سرترنج بالا و پایین، از برگ آغاز کلیات سعدی (W.620). برای سربرگ و تصویر Open Graph زیباست، ولی پرتوها در favicon دیده نمی‌شوند.</p>
+        <div class="favs"><span><svg width="32" height="32" viewBox="0 0 120 120"><use href="#s5"/></svg>۳۲</span><span><svg width="16" height="16" viewBox="0 0 120 120"><use href="#s5"/></svg>۱۶</span></div></div></article>
+      <article class="lg"><div class="lg-st"><div class="p"><svg role="img" aria-label="شمسه‌ی دوازده‌پر"><use href="#s6"/></svg></div><div class="d"><svg aria-hidden="true"><use href="#s6"/></svg></div></div>
+        <div class="lg-b"><h3>۶. شمسه‌ی دوازده‌پر</h3><p>ستاره‌ی دوازده‌پر با گل طلایی، شبیه گره‌های کاشی. پرکارتر از هشت‌پر است و حس معماری بیشتری دارد تا کتاب.</p>
+        <div class="favs"><span><svg width="32" height="32" viewBox="0 0 120 120"><use href="#s6"/></svg>۳۲</span><span><svg width="16" height="16" viewBox="0 0 120 120"><use href="#s6"/></svg>۱۶</span></div></div></article>
+    </div>
+    <div class="sec-head"><h2 style="font-size:19px">ترکیب با نام</h2><p>سه خط برای نوشتن «فهارس» کنار شمسه‌ی هشت‌لَت: نسخ (هم‌خوان با عنوان‌های جهت «الف»)، نستعلیق، و امیری.</p></div>
+    <div class="locks">
+      <div class="lock paper"><svg aria-hidden="true"><use href="#s3"/></svg><div class="w naskh"><b>فهارس</b><small>فهرستگان نسخه‌های خطی ایران</small></div></div>
+      <div class="lock ink"><svg aria-hidden="true"><use href="#s3"/></svg><div class="w nast"><b>فهارس</b><small>فهرستگان نسخه‌های خطی ایران</small></div></div>
+      <div class="lock paper stack"><svg aria-hidden="true"><use href="#s3"/></svg><div class="w amiri"><b>فهارس</b><small>فهرستگان نسخه‌های خطی ایران</small></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="a1" data-tpl="tpl-v1" data-url="fahares.net">
+    <div class="sec-head">
+      <span class="tag">الف۱</span>
+      <h2>برگ زرین</h2>
+      <p>بنر تمام‌عرض با شمسه‌ی سرلوح یک نسخه‌ی صفوی، و جستجو روی برگی جدول‌کشی‌شده که روی عکس می‌نشیند. زیر آن سه تصویر از «گنجینه‌ها»، ردیف فهرست‌نگاران در قاب محرابی، و نمایه‌ی موضوع‌ها.</p>
+    </div>
+    <ul class="notes">
+      <li><b>برداشت نخست قوی</b> بدون اینکه جستجو پایین برود.</li>
+      <li><b>عکس بنر</b> می‌تواند هر روز یا هر هفته از مجموعه‌ای برگزیده عوض شود.</li>
+      <li><b>چهره‌ها</b> با یک تیمار رنگ (سیاه‌وسفید گرم) یکدست شده‌اند، چون کیفیت عکس‌ها خیلی متفاوت است.</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="a2" data-tpl="tpl-v2" data-url="fahares.net">
+    <div class="sec-head">
+      <span class="tag">الف۲</span>
+      <h2>کتاب گشوده</h2>
+      <p>جستجو در یک سو و در سوی دیگر دو برگ نسخه روی هم، مثل کتابی که روی میز باز شده. پایین‌تر بخش «پاسداران فهرست» با چهره‌ی مصطفی درایتی و هشت فهرست‌نگار، و «برگی از فنخا» که نشان می‌دهد هر مدخل به برگه‌ی چاپی‌اش پیوند دارد.</p>
+    </div>
+    <ul class="notes">
+      <li><b>آرام‌تر از الف۱.</b> عکس کنار متن است، نه زیر آن، و خواندن ساده‌تر است.</li>
+      <li><b>فنخا دیده می‌شود.</b> اسکن واقعی برگه با مدخل علامت‌خورده، اعتماد پژوهشگر را می‌سازد.</li>
+      <li><b>در موبایل</b> دو برگ کوچک‌تر زیر جستجو می‌آیند.</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="a3" data-tpl="tpl-v3" data-url="fahares.net" data-dark="1">
+    <div class="sec-head">
+      <span class="tag">الف۳</span>
+      <h2>شبستان</h2>
+      <p>نسخه‌ی تیره‌ی «الف»: سرلوح در تاریکی، با جستجوی روشن در میانه. «نسخه‌ی برگزیده» یک ترقیمه را نشان می‌دهد و اصطلاح را برای خواننده‌ی تازه‌کار توضیح می‌دهد. پیش‌فرض این ماکت تیره است، ولی حالت روشن هم دارد.</p>
+    </div>
+    <ul class="notes">
+      <li><b>چشمگیرترین</b> برای اسکرین‌شات و شبکه‌های اجتماعی.</li>
+      <li><b>آموزش اصطلاح</b>: هر هفته یک اصطلاح نسخه‌شناسی (ترقیمه، رکابه، سرلوح، تملک) با تصویرش.</li>
+      <li><b>خطر:</b> اگر کل سایت تیره شود، جدول‌های بلند خسته‌کننده می‌شوند. فقط سر صفحه‌ی خانه تیره بماند.</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="work" data-tpl="tpl-work" data-url="fahares.net/works/49903">
+    <div class="sec-head">
+      <span class="tag">صفحه‌ی اثر</span>
+      <h2>الفوائد الضيائية، با تصویر</h2>
+      <p>برش واقعی برگه‌ی فنخا (ج ۲۴، ص ۴۳۹) در ستون کنار می‌آید. تصویر نسخه فقط وقتی نشان داده می‌شود که کتابخانه تصویر دیجیتال داشته باشد. جای خالی‌اش اینجا با خط‌چین مشخص شده است.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="photos">
+    <div class="sec-head">
+      <span class="tag">عکس‌ها</span>
+      <h2>کدام عکس کجا، و از کجا</h2>
+      <p>عکس‌ها از سه منبع می‌آیند: آنچه پروژه همین حالا دارد، مجموعه‌های آزاد (مالکیت عمومی یا Creative Commons)، و مخزن دیجیتال کتابخانه‌های ایران که برایش اجازه لازم است. زیر هر عکس نام منبع و پروانه نوشته می‌شود.</p>
+    </div>
+    <div class="tw"><table class="plan">
+      <thead><tr><th>جا</th><th>عکس</th><th>منبع</th><th>وضعیت</th></tr></thead>
+      <tbody>
+        <tr><td>بنر صفحه‌ی خانه</td><td>سرلوح، شمسه، ترقیمه، جلد؛ مجموعه‌ای ۱۰ تا ۲۰ تصویری که به نوبت عوض می‌شود</td><td>موزه‌ی والترز، کتابخانه‌ی کنگره، کتابخانه‌ی بریتانیا (مالکیت عمومی، از ویکی‌مدیا)</td><td><span class="st get">شش تصویر گرفته شد</span></td></tr>
+        <tr><td>فهرست‌نگاران (خانه و صفحه‌ی هر فهرست‌نگار)</td><td>چهره‌ها، با یک تیمار رنگ یکسان</td><td>عکس‌های موجود سایت (۴۱ عکس)</td><td><span class="st ok">موجود</span></td></tr>
+        <tr><td>صفحه‌ی اثر و خانه («برگی از فنخا»)</td><td>برش برگه‌ی چاپی هر مدخل</td><td>اسکن‌های ۳۴ مجلد فنخا در پروژه</td><td><span class="st ok">موجود</span></td></tr>
+        <tr><td>کارت کتابخانه‌ها</td><td>عکس بنای کتابخانه یا تالار مخزن</td><td>ویکی‌مدیا (اغلب CC BY-SA، با ذکر نام عکاس) یا خود کتابخانه</td><td><span class="st get">باید تهیه شود</span></td></tr>
+        <tr><td>صفحه‌ی نسخه</td><td>تصویر برگ نخست همان نسخه</td><td>مخزن دیجیتال مجلس، ملی، آستان قدس و دیگران</td><td><span class="st ask">نیاز به اجازه</span></td></tr>
+        <tr><td>رده‌های موضوعی</td><td>جزئی از تذهیب یا نگاره برای سر هر رده</td><td>همان مجموعه‌های آزاد</td><td><span class="st get">باید تهیه شود</span></td></tr>
+        <tr><td>تصویر Open Graph</td><td>شمسه‌ی انتخابی روی برش سرلوح، با عنوان صفحه</td><td>ساخته از همین عکس‌ها</td><td><span class="st get">پس از انتخاب لوگو</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="closing">
+      <h2>برای تصمیم</h2>
+      <ol>
+        <li>یکی از سه نسخه‌ی خانه (الف۱، الف۲، الف۳) را انتخاب کنید، یا بگویید از هر کدام چه بماند. مثلاً بنر الف۱ با بخش «پاسداران فهرست» و «برگی از فنخا» از الف۲.</li>
+        <li>یکی از شش شمسه و یکی از سه خط نام را انتخاب کنید.</li>
+        <li>بگویید با گرفتن تصویر از مخزن کتابخانه‌های ایران موافقید یا فعلاً فقط مجموعه‌های آزاد.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<!-- ================= Templates ================= -->
+<template id="tpl-nav">
+  <div class="nav"><div class="in">
+    <a class="logo" href="#"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#s3"/></svg><b>فهارس</b><span class="beta">آزمایشی</span></a>
+    <nav><a href="#">موضوعات</a><a href="#">کتابخانه‌ها</a><a href="#">فهرست‌نگاران</a><a href="#">درباره</a></nav>
+    <div class="acts">
+      <a class="btn" href="#"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>جستجو</a>
+      <a class="btn pri" href="#">ورود</a>
+      <a class="btn menu" href="#" aria-label="منو"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></a>
+    </div>
+  </div></div>
+</template>
+
+<template id="tpl-search">
+  <div class="search">
+    <div class="tabs"><span class="on">آثار</span><span>نسخه‌ها</span><span>اشخاص</span></div>
+    <div class="field"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="ph">عنوان، مؤلف، کاتب، آغاز و انجام، یا شماره‌ی نسخه</span><a class="btn pri" href="#"><span>جستجو</span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m6-6-6 6 6 6"/></svg></a></div>
+    <div class="sugg">نمونه: <a href="#">شرح لمعه</a><a href="#">الفوائد الضيائية</a><a href="#">اسفار ملاصدرا</a><a href="#">شاهنامه</a></div>
+  </div>
+</template>
+
+<template id="tpl-stats">
+  <div class="stats"><span><b>۷۱٬۵۱۶</b>اثر</span><span><b>۳۲۳٬۸۸۰</b>نسخه</span><span><b>۷۴٬۲۶۴</b>پدیدآور و کاتب</span><span><b>۴۹۰</b>کتابخانه</span><span><b>۳۴</b>مجلد فنخا</span></div>
+</template>
+
+<template id="tpl-subjects">
+  <section class="blk"><div class="in">
+    <div class="rub"><h2>نمایه‌ی موضوعات</h2><a href="#">همه‌ی ۲۲ رده</a></div>
+    <ul class="idx">
+      <li><span class="n">ادبیات</span><span class="lead"></span><span class="c">۱۴٬۹۶۵ اثر</span></li>
+      <li><span class="n">کلام و اعتقادات</span><span class="lead"></span><span class="c">۵٬۷۸۲ اثر</span></li>
+      <li><span class="n">فقه</span><span class="lead"></span><span class="c">۷٬۰۶۱ اثر</span></li>
+      <li><span class="n">حدیث</span><span class="lead"></span><span class="c">۴٬۴۰۰ اثر</span></li>
+      <li><span class="n">تاریخ</span><span class="lead"></span><span class="c">۶٬۷۹۰ اثر</span></li>
+      <li><span class="n">عرفان و تصوف</span><span class="lead"></span><span class="c">۴٬۰۶۱ اثر</span></li>
+      <li><span class="n">شعر</span><span class="lead"></span><span class="c">۶٬۴۸۷ اثر</span></li>
+      <li><span class="n">فلسفه</span><span class="lead"></span><span class="c">۳٬۹۶۹ اثر</span></li>
+    </ul>
+  </div></section>
+</template>
+
+<template id="tpl-libs">
+  <section class="blk"><div class="in">
+    <div class="rub"><h2>بزرگ‌ترین گنجینه‌ها</h2><a href="#">همه‌ی ۴۹۰ کتابخانه</a></div>
+    <ul class="idx">
+      <li><span class="n">مجلس <span class="city">تهران</span></span><span class="lead"></span><span class="c">۴۵٬۸۸۰ نسخه</span></li>
+      <li><span class="n">ملی <span class="city">تهران</span></span><span class="lead"></span><span class="c">۱۹٬۷۷۳ نسخه</span></li>
+      <li><span class="n">رضوی <span class="city">مشهد</span></span><span class="lead"></span><span class="c">۳۸٬۱۰۶ نسخه</span></li>
+      <li><span class="n">ملک <span class="city">تهران</span></span><span class="lead"></span><span class="c">۱۵٬۸۱۴ نسخه</span></li>
+      <li><span class="n">مرعشی <span class="city">قم</span></span><span class="lead"></span><span class="c">۳۱٬۸۰۴ نسخه</span></li>
+      <li><span class="n">گلپایگانی <span class="city">قم</span></span><span class="lead"></span><span class="c">۱۳٬۷۷۳ نسخه</span></li>
+      <li><span class="n">دانشگاه تهران</span><span class="lead"></span><span class="c">۳۰٬۳۷۱ نسخه</span></li>
+      <li><span class="n">مرکز احیاء <span class="city">قم</span></span><span class="lead"></span><span class="c">۱۱٬۶۰۴ نسخه</span></li>
+    </ul>
+  </div></section>
+</template>
+
+<template id="tpl-catalogers6">
+  <section class="blk"><div class="in">
+    <div class="rub"><h2>فهرست‌نگاران</h2><a href="#">همه‌ی فهرست‌نگاران</a></div>
+    <div class="cats">
+      <div class="por"><div class="fr-arch"><img src="assets/derayati.jpg" alt="مصطفی درایتی"></div><b>مصطفی درایتی</b><span>گردآورنده‌ی فنخا</span></div>
+      <div class="por"><div class="fr-arch"><img src="assets/daneshpajouh.jpg" alt="محمدتقی دانش‌پژوه"></div><b>محمدتقی دانش‌پژوه</b><span>۱۲۹۰–۱۳۷۵ ش</span></div>
+      <div class="por"><div class="fr-arch"><img src="assets/golchin.jpg" alt="احمد گلچین معانی"></div><b>احمد گلچین معانی</b><span>۱۲۹۵–۱۳۷۹ ش</span></div>
+      <div class="por"><div class="fr-arch"><img src="assets/nafisi.jpg" alt="سعید نفیسی"></div><b>سعید نفیسی</b><span>۱۲۷۴–۱۳۴۵ ش</span></div>
+      <div class="por"><div class="fr-arch"><img src="assets/mayel.jpg" alt="نجیب مایل هروی"></div><b>نجیب مایل هروی</b><span>فهرست‌نگار</span></div>
+      <div class="por"><div class="fr-arch"><img src="assets/etesami.jpg" alt="یوسف اعتصامی"></div><b>یوسف اعتصامی</b><span>۱۲۵۳–۱۳۱۶ ش</span></div>
+    </div>
+  </div></section>
+</template>
+
+<template id="tpl-v1">
+  <div class="v1">
+    <div data-slot="nav"></div>
+    <div class="banner"><img src="assets/ms-hero-shamseh.jpg" alt="شمسه‌ی هشت‌لت در سرلوح یک نسخه‌ی ایرانی"><span class="credit">سرلوح، نسخه‌ی ایرانی، موزه‌ی والترز W.569</span></div>
+    <div class="over"><div class="in"><div class="sheet">
+      <span class="eyebrow">فهرستگان نسخه‌های خطی ایران</span>
+      <h1 class="h1">جستجو در ۷۱ هزار اثر و ۳۲۳ هزار نسخه‌ی خطی</h1>
+      <p class="lede">بر پایه‌ی ۳۴ مجلد فنخا. هر مدخل به برگه‌ی چاپی خودش در فهرست ارجاع دارد.</p>
+      <div data-slot="search"></div>
+      <div data-slot="stats"></div>
+    </div></div></div>
+    <section class="blk"><div class="in">
+      <div class="rub"><h2>از گنجینه‌ها</h2><a href="#">نسخه‌های برگزیده</a></div>
+      <div class="ms-row">
+        <figure class="ms-card"><div class="imgbox"><img class="ph-img" src="assets/ms-shamseh.jpg" alt="شمسه در برگ آغاز کلیات سعدی"></div><h3>شمسه</h3><figcaption class="cap"><b>کلیات سعدی</b>، برگ آغاز. موزه‌ی والترز W.620</figcaption></figure>
+        <figure class="ms-card"><div class="imgbox"><img class="ph-img" src="assets/ms-colophon.jpg" alt="ترقیمه‌ی دیوان حافظ"></div><h3>ترقیمه</h3><figcaption class="cap"><b>دیوان حافظ</b>، انجامه و ترقیمه. موزه‌ی والترز W.634</figcaption></figure>
+        <figure class="ms-card"><div class="imgbox"><img class="ph-img" src="assets/ms-binding.jpg" alt="جلد لاکی بوستان سعدی"></div><h3>جلد لاکی</h3><figcaption class="cap"><b>بوستان سعدی</b>، جلد. موزه‌ی والترز W.621</figcaption></figure>
+      </div>
+    </div></section>
+    <div data-slot="catalogers6"></div>
+    <div data-slot="subjects"></div>
+    <footer class="foot"><div class="in"><span>فهارس · بر پایه‌ی فهرستگان نسخه‌های خطی ایران (فنخا)</span><span>تصویرها: موزه‌ی والترز، مالکیت عمومی</span></div></footer>
+  </div>
+</template>
+
+<template id="tpl-v2">
+  <div class="v2">
+    <div data-slot="nav"></div>
+    <section class="hero"><div class="in">
+      <div class="hero-t">
+        <span class="eyebrow">فهرستگان نسخه‌های خطی ایران</span>
+        <h1 class="h1">جستجو در ۷۱ هزار اثر و ۳۲۳ هزار نسخه‌ی خطی</h1>
+        <p class="lede">بر پایه‌ی ۳۴ مجلد فنخا. هر مدخل به برگه‌ی چاپی خودش در فهرست ارجاع دارد.</p>
+        <div data-slot="search"></div>
+        <div data-slot="stats"></div>
+      </div>
+      <figure class="book">
+        <img class="back" src="assets/ms-textpage.jpg" alt="صفحه‌ی متن جدول‌کشی‌شده">
+        <img class="front" src="assets/ms-frontispiece.jpg" alt="سرلوح دوصفحه‌ای با شمسه">
+        <figcaption class="cap">سرلوح و صفحه‌ی متن، موزه‌ی والترز W.569 و W.630</figcaption>
+      </figure>
+    </div></section>
+    <div class="jadval"></div>
+    <section class="blk"><div class="in">
+      <div class="rub"><h2>پاسداران فهرست</h2><a href="#">همه‌ی فهرست‌نگاران</a></div>
+      <div class="keepers">
+        <div class="lead-por">
+          <div class="por"><div class="fr-arch"><img src="assets/derayati.jpg" alt="مصطفی درایتی"></div></div>
+          <blockquote>فنخا در ۳۴ مجلد، فهرست یکپارچه‌ی نسخه‌های خطی ایران است و پایه‌ی همه‌ی داده‌های فهارس.<cite>مصطفی درایتی، گردآورنده‌ی فنخا</cite></blockquote>
+        </div>
+        <div class="cats">
+          <div class="por"><div class="fr-arch"><img src="assets/daneshpajouh.jpg" alt=""></div><b>دانش‌پژوه</b><span>۲٬۳۲۹ نسخه</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/golchin.jpg" alt=""></div><b>گلچین معانی</b><span>۲٬۷۲۴ نسخه</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/nafisi.jpg" alt=""></div><b>سعید نفیسی</b><span>۲٬۰۸۶ نسخه</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/mayel.jpg" alt=""></div><b>مایل هروی</b><span>فهرست‌نگار</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/anvar.jpg" alt=""></div><b>عبدالله انوار</b><span>فهرست‌نگار</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/sobhani.jpg" alt=""></div><b>توفیق سبحانی</b><span>فهرست‌نگار</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/azimi.jpg" alt=""></div><b>حبیب‌الله عظیمی</b><span>فهرست‌نگار</span></div>
+          <div class="por"><div class="fr-arch"><img src="assets/dibaji.jpg" alt=""></div><b>ابراهیم دیباجی</b><span>فهرست‌نگار</span></div>
+        </div>
+      </div>
+    </div></section>
+    <section class="blk"><div class="in">
+      <div class="fankha">
+        <div class="fankha-t">
+          <div class="rub" style="margin:0"><h2>برگی از فنخا</h2></div>
+          <p class="h1" style="font-size:26px">هر مدخل، پیوند به برگه‌ی چاپی خودش</p>
+          <p class="lede">«الفوائد الضيائية» جامی در جلد ۲۴ فنخا از صفحه‌ی ۴۳۹ آغاز می‌شود و ۸۵۳ نسخه دارد. در فهارس همان برگه یک کلیک فاصله دارد، تا هر داده با مأخذش سنجیده شود.</p>
+          <div><a class="btn pri" href="#">شناسنامه‌ی اثر</a> <a class="btn" href="#">برگه‌ی ۴۳۹</a></div>
+        </div>
+        <figure class="scan"><img src="assets/fankha-24-439.jpg" alt="برگه‌ی ۴۳۹ جلد ۲۴ فنخا"><span class="mark" aria-hidden="true"></span></figure>
+      </div>
+    </div></section>
+    <div data-slot="libs"></div>
+    <footer class="foot"><div class="in"><span>فهارس · بر پایه‌ی فهرستگان نسخه‌های خطی ایران (فنخا)</span><span>تصویرها: موزه‌ی والترز، مالکیت عمومی</span></div></footer>
+  </div>
+</template>
+
+<template id="tpl-v3">
+  <div class="v3">
+    <div data-slot="nav"></div>
+    <section class="hero">
+      <img src="assets/ms-hero-shamseh.jpg" alt="">
+      <div class="in">
+        <span class="eyebrow">فهرستگان نسخه‌های خطی ایران</span>
+        <h1 class="h1">جستجو در ۷۱ هزار اثر و ۳۲۳ هزار نسخه‌ی خطی</h1>
+        <p class="lede">بر پایه‌ی ۳۴ مجلد فنخا. هر مدخل به برگه‌ی چاپی خودش در فهرست ارجاع دارد.</p>
+        <div data-slot="search"></div>
+      </div>
+      <span class="credit">موزه‌ی والترز W.569</span>
+    </section>
+    <div class="statbar"><div class="in"><div data-slot="stats"></div></div></div>
+    <section class="blk"><div class="in">
+      <div class="rub"><h2>اصطلاح این هفته</h2><a href="#">واژه‌نامه‌ی نسخه‌شناسی</a></div>
+      <div class="spot">
+        <div class="imgbox"><img src="assets/ms-colophon.jpg" alt="ترقیمه‌ی دیوان حافظ"></div>
+        <div class="spot-t">
+          <h3>ترقیمه</h3>
+          <p class="term"><b>ترقیمه</b> یادداشت پایان نسخه است که کاتب در آن نام خود، تاریخ و گاه جای کتابت را می‌نویسد. بیشتر تاریخ‌های کتابت در فهارس از همین یادداشت آمده‌اند.</p>
+          <p class="cap">تصویر: انجامه و ترقیمه‌ی دیوان حافظ، با سرانجام مذهّب. موزه‌ی والترز W.634، مالکیت عمومی.</p>
+          <div><a class="btn pri" href="#">نسخه‌هایی با ترقیمه‌ی تاریخ‌دار</a></div>
+        </div>
+      </div>
+    </div></section>
+    <div data-slot="catalogers6"></div>
+    <div data-slot="subjects"></div>
+    <footer class="foot"><div class="in"><span>فهارس · بر پایه‌ی فهرستگان نسخه‌های خطی ایران (فنخا)</span><span>تصویرها: موزه‌ی والترز، مالکیت عمومی</span></div></footer>
+  </div>
+</template>
+
+<template id="tpl-work">
+  <div class="wk">
+    <div data-slot="nav"></div>
+    <div class="in">
+      <div class="crumbs"><a href="#">فهارس</a><span>/</span><a href="#">نحو</a><span>/</span><span>الفوائد الضيائية</span></div>
+      <header class="head">
+        <span class="kind">شناسنامه‌ی اثر · شرح</span>
+        <h1 class="title">الفوائد الضيائية في شرح الكافية</h1>
+        <span class="tr">al-fawā'id-uḍ ḍiyā'īya fī š.-il kāfīya</span>
+        <p class="by">از <a href="#">جامی، عبدالرحمن بن احمد</a> <span class="life">(۸۱۷–۸۹۸ ق)</span></p>
+      </header>
+      <div class="jadval"></div>
+      <div class="grid">
+        <div class="main">
+          <section>
+            <h2 class="h3">مشخصات</h2>
+            <dl>
+              <dt>تاریخ تألیف</dt><dd>۱۱ رمضان ۸۹۷ ق</dd>
+              <dt>زبان و موضوع</dt><dd>عربی · نحو</dd>
+              <dt>اهدا به</dt><dd>ضیاء‌الدین یوسف، فرزند مؤلف</dd>
+              <dt>عناوین دیگر</dt><dd>شرح الكافية لابن الحاجب؛ شرح ملاجامی</dd>
+              <dt>شرحِ</dt><dd><a href="#">الكافية في النحو</a>، ابن حاجب (۵۷۰–۶۴۶ ق)</dd>
+            </dl>
+          </section>
+          <section>
+            <h2 class="h3">آغاز و انجام</h2>
+            <div class="q"><span class="q-l">آغاز</span>الحمد لولية و الصلاة علی نبيه و علی آله و اصحابه المتادبین بآدابه اما بعد فهذه فواید وافية بحل مشکلات الکافية …</div>
+            <div class="q"><span class="q-l">انجام</span>… اسقام الجهالات شافية و على آله و اصحابه وعلى من تبعهم من زمرة احبائه</div>
+          </section>
+          <section>
+            <h2 class="h3">تصویر نسخه</h2>
+            <div class="noimg">اگر کتابخانه‌ای تصویر دیجیتال یکی از نسخه‌ها را منتشر کرده باشد، برگ نخست آن اینجا نمایش داده می‌شود.</div>
+          </section>
+          <section>
+            <h2 class="h3">نسخه‌ها</h2>
+            <div class="tbl"><table>
+              <thead><tr><th>کتابخانه</th><th>شماره</th><th>کاتب</th><th>تاریخ کتابت</th><th>خط</th><th>برگ</th></tr></thead>
+              <tbody>
+                <tr><td>مجلس<span class="city">تهران</span></td><td>۶۷۴</td><td class="unk">ناشناخته</td><td>۸۹۷ ق</td><td>نستعلیق</td><td>۳۱۴</td></tr>
+                <tr><td>وزیری<span class="city">یزد</span></td><td>۱۵۸۵</td><td>مؤمن بن حاج محمد استرابادی</td><td>۱۷ شوال ۸۹۷ ق</td><td>نسخ</td><td>۲۷۶</td></tr>
+                <tr><td>ملی<span class="city">تهران</span></td><td>۳۴۹۳</td><td class="unk">ناشناخته</td><td>۸۹۷ ق</td><td>نسخ</td><td>۲۳۹</td></tr>
+                <tr><td>خادم حسینی<span class="city">تبریز</span></td><td>۲۱</td><td>عبدالله بن اسماعیل</td><td>۸۹۸ ق</td><td>نسخ</td><td>۱۲۱</td></tr>
+              </tbody>
+            </table></div>
+            <a class="more" href="#">همه‌ی ۸۵۳ نسخه</a>
+          </section>
+        </div>
+        <aside class="aside">
+          <div class="card">
+            <div class="big">۸۵۳</div>
+            <div class="sub">نسخه از سده‌ی ۹ تا ۱۴ ق</div>
+            <div class="first"><b>کهن‌ترین نسخه</b>مجلس ۶۷۴، کتابت ۸۹۷ ق؛ همان سال تألیف</div>
+          </div>
+          <figure class="scan-mini">
+            <div class="scan"><img src="assets/fankha-24-439.jpg" alt="برگه‌ی ۴۳۹ جلد ۲۴ فنخا"></div>
+            <figcaption class="cap"><b>فنخا، ج ۲۴، ص ۴۳۹–۴۸۵</b> · برای دیدن برگه کلیک کنید</figcaption>
+          </figure>
+          <div class="acts-v">
+            <a class="btn pri" href="#">نسخه‌ها را ببینید</a>
+            <a class="btn" href="#">استناد</a>
+            <a class="btn" href="#">پیشنهاد اصلاح</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <footer class="foot"><div class="in"><span>شناسه‌ی پایدار: fahares.net/w/49903</span><span>درباره · راهنما</span></div></footer>
+  </div>
+</template>
+
+<script>
+(function () {
+  const sysDark = () => {
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  };
+  const tpl = id => document.getElementById(id).content.cloneNode(true);
+  document.querySelectorAll('section[data-tpl]').forEach(sec => {
+    const id = 'mk-' + sec.id;
+    const fr = document.createElement('div');
+    fr.className = 'fr';
+    fr.innerHTML =
+      '<div class="fr-bar"><strong>' + (sec.id === 'work' ? 'صفحه‌ی اثر' : 'صفحه‌ی خانه') + '</strong><div class="ctrls">' +
+      '<div class="seg" role="group" aria-label="حالت رنگ"><button type="button" id="' + id + '-l" data-k="mode" data-v="light">روشن</button><button type="button" id="' + id + '-d" data-k="mode" data-v="dark">تیره</button></div>' +
+      '<div class="seg" role="group" aria-label="پهنا"><button type="button" id="' + id + '-w" data-k="w" data-v="wide" aria-pressed="true">دسکتاپ</button><button type="button" id="' + id + '-p" data-k="w" data-v="phone" aria-pressed="false">موبایل</button></div>' +
+      '</div></div><div class="fr-box" data-w="wide"><div class="fr-chrome"><i></i><i></i><i></i><span>' + sec.dataset.url + '</span></div></div>';
+    const mk = document.createElement('div');
+    mk.className = 'mk';
+    mk.id = id;
+    mk.appendChild(tpl(sec.dataset.tpl));
+    mk.querySelectorAll('[data-slot]').forEach(s => s.replaceWith(tpl('tpl-' + s.dataset.slot)));
+    const box = fr.querySelector('.fr-box');
+    box.appendChild(mk);
+    const setMode = m => {
+      mk.dataset.mode = m;
+      fr.querySelectorAll('[data-k="mode"]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === m)));
+    };
+    setMode(sec.dataset.dark || sysDark() ? 'dark' : 'light');
+    fr.addEventListener('click', e => {
+      const b = e.target.closest('button[data-k]');
+      if (!b) return;
+      if (b.dataset.k === 'mode') setMode(b.dataset.v);
+      else {
+        box.dataset.w = b.dataset.v;
+        fr.querySelectorAll('[data-k="w"]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      }
+    });
+    mk.addEventListener('click', e => { if (e.target.closest('a')) e.preventDefault(); });
+    sec.appendChild(fr);
+  });
+})();
+</script>

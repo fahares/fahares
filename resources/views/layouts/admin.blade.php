@@ -144,7 +144,7 @@
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
-                    <span>فهرست‌نگاران فنخا</span>
+                    <span>فهرست‌نگاران</span>
                 </a>
                 <a href="{{ route('admin.libraries.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.libraries.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
@@ -158,6 +158,13 @@
             <!-- Group: زیرساخت و کاربران -->
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">سامانه و زیرساخت</span>
+                <a href="{{ route('admin.home.index') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.home.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>صفحه‌ی خانه</span>
+                </a>
                 <a href="{{ route('admin.system.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.system.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\CatalogerController as AdminCatalogerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\HomePageController as AdminHomePageController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
@@ -201,6 +202,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Catalogers & Bibliographers
     Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update']);
+
+    // Home page content: texts, banner slides, featured images, home catalogers
+    Route::get('/home-page', [AdminHomePageController::class, 'index'])->name('home.index');
+    Route::put('/home-page/settings', [AdminHomePageController::class, 'updateSettings'])->name('home.settings');
+    Route::post('/home-page/items', [AdminHomePageController::class, 'storeItem'])->name('home.items.store');
+    Route::put('/home-page/items/{item}', [AdminHomePageController::class, 'updateItem'])->name('home.items.update');
+    Route::delete('/home-page/items/{item}', [AdminHomePageController::class, 'destroyItem'])->name('home.items.destroy');
+    Route::post('/home-page/items/{item}/move', [AdminHomePageController::class, 'moveItem'])->name('home.items.move');
+    Route::post('/home-page/catalogers', [AdminHomePageController::class, 'addCataloger'])->name('home.catalogers.add');
+    Route::delete('/home-page/catalogers/{cataloger}', [AdminHomePageController::class, 'removeCataloger'])->name('home.catalogers.remove');
+    Route::post('/home-page/catalogers/{cataloger}/move', [AdminHomePageController::class, 'moveCataloger'])->name('home.catalogers.move');
 
     // Libraries & Archives
     Route::resource('libraries', AdminLibraryController::class)->only(['index', 'edit', 'update']);

@@ -2160,3 +2160,27 @@
 - [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `convert()` مقدار `kind = relation` را هم می‌پذیرد، همراه با ورودی‌های `relation_target`، `role`، `role_name` و `shelfmark`. `relation_target` پیوند یا شناسه است و مانند `target_ref` با `recordId()` برای نوعِ `target` رابطه خوانده می‌شود. اگر `suggested_value` خالی باشد، برچسب رابطه به‌جایش می‌نشیند. `payload.derived_from` و فیلدهای پژوهشگر (`user_id`، `guest_*`، `credit_name`، `created_at`) مانند انواع دیگر تبدیل منتقل می‌شوند.
 - [convert.blade.php](../resources/views/admin/suggestions/partials/convert.blade.php) و [convert-desk.js](../resources/js/convert-desk.js): هر نوع رکورد فهرست رابطه‌های خودش را دارد و گزینه‌های `person_role` و `record_relation` هم همراه آن‌ها فرستاده می‌شوند. جستجوی مقصد از `/api/suggestions/lookup` استفاده می‌کند و انتخاب یک نتیجه، شناسه را در `relation_target` می‌نویسد.
 - آزمون تازه: `test_reviewer_converts_a_note_into_a_relation_keeping_the_submitter`. این آزمون یادداشت را به `move_to_work` تبدیل و تأیید می‌کند، سپس انتقال نسخه و اعلان به پژوهشگر اصلی را بررسی می‌کند. خطاهای رابطه‌ی تعریف‌نشده، مقصد خالی، پیوند ناخوانا، مقصدی که خود رکورد است و نبودِ `role` هم آزموده می‌شوند.
+
+## فاز ۱۲: بازطراحی ظاهر سایت
+
+### گام ۱۲.۱: هویت تازه و صفحه‌ی خانه‌ی مدیریت‌پذیر
+
+- **مایگریشن** [2026_10_17_000002_create_home_page_tables.php](../database/migrations/2026_10_17_000002_create_home_page_tables.php):
+  - `home_items`: `section` (`slides` یا `treasures`)، `title`، `subtitle`، `credit`، `link_url`، `image_path`، `show_caption`، `sort_order`، `is_active`.
+  - `site_settings`: جفت کلید و مقدار، با کلید رشته‌ای اصلی.
+  - `catalogers.home_order`: ترتیب در صفحه‌ی خانه. `null` یعنی در صفحه‌ی خانه نمی‌آید.
+- **مدل‌ها:** [HomeItem.php](../app/Models/HomeItem.php) (تصویر روی دیسک `public`، یعنی حجم ماندگار پروداکشن) و [SiteSetting.php](../app/Models/SiteSetting.php). در `SiteSetting`، `DEFAULTS` فهرست کامل کلیدهاست و کلید بی‌مقدار به متن پیش‌فرض برمی‌گردد. همه‌ی مقادیر یک‌جا و برای همیشه کش می‌شوند و `put()` کش را پاک می‌کند.
+- **[Fa.php](../app/Support/Fa.php):** `digits()`، `num()` (جداکننده‌ی `٬`) و `approx()` («۷۱ هزار»). **[SiteStats.php](../app/Support/SiteStats.php):** شمار آثار، نسخه‌ها، اشخاص، کتابخانه‌ها و فهرست‌نگاران با کش یک‌ساعته. `forget()` کش را پاک می‌کند.
+- **[Admin/HomePageController.php](../app/Http/Controllers/Admin/HomePageController.php)** و مسیرهای `admin.home.*`:
+  - `link_url` باید با `http://`، `https://` یا `/` آغاز شود.
+  - تصویر jpg، png یا webp است و حداکثر ۲ مگابایت، به اندازه‌ی `upload_max_filesize` پروداکشن.
+  - با حذف تصویر یا جایگزینی آن، فایل قبلی هم پاک می‌شود.
+  - همه‌ی تغییرها در `audit_logs` ثبت می‌شوند، با کنش‌های `create`، `update`، `home_item_delete`، `home_texts` و `home_cataloger_add/remove`.
+- **[SeedHomePageCommand.php](../app/Console/Commands/SeedHomePageCommand.php)** (`home:seed-defaults`، با گزینه‌ی `--dry-run`): تصویرها را از `resources/home-defaults` به دیسک `public` کپی می‌کند. هر بخشی که از پیش ردیف داشته باشد دست نمی‌خورد. فهرست‌نگاران با نام دقیق پیدا می‌شوند، چون شناسه‌ها در محلی و پروداکشن فرق دارند.
+- **ظاهر:**
+  - [app.css](../resources/css/app.css): توکن‌های `--paper`، `--surface`، `--ink`، `--muted`، `--line`، `--line-strong`، `--cinnabar`، `--gold`، که با `@theme inline` به رنگ‌های Tailwind (`bg-paper`، `text-ink`، `text-cinnabar` …) تبدیل شده‌اند. در حالت تیره همین متغیرها عوض می‌شوند. حالت تیره فعلاً همان خانواده‌ی سرمه‌ای پیشین را نگه داشته، تا با صفحه‌هایی که هنوز بازطراحی نشده‌اند ناهمخوان نشود.
+  - کلاس‌های `.jadval`، `.rubric` و `.leader` و قلم `font-naskh` (Noto Naskh Arabic) افزوده شدند.
+  - لوگو در `public/images/brand/shamseh-*.png` است و `favicon.ico` از همان ساخته شد.
+- **عکس فهرست‌نگاران:** [Admin/CatalogerController.php](../app/Http/Controllers/Admin/CatalogerController.php) فایل را با `storeAs(..., 'public')` در `catalogers/avatars` ذخیره می‌کند. `Cataloger::avatar_url` اول `public/images` و بعد `public/storage` را می‌گردد، پس عکس‌های قدیمی هم پیدا می‌شوند.
+- آزمون‌ها در [HomePageTest.php](../tests/Feature/Admin/HomePageTest.php): نمایش محتوای مدیریتی و آمار زنده با ارقام فارسی، بازگشت به متن پیش‌فرض، چرخه‌ی کامل یک اسلاید، رد پیوند `javascript:`، ترتیب فهرست‌نگاران و منع دسترسی کاربر عادی.
+

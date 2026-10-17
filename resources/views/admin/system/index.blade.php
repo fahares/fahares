@@ -94,7 +94,7 @@
                 @csrf
                 <input type="hidden" name="model" value="Manuscript">
                 <button type="submit" 
-                        onclick="return confirm('آیا از بازنمایه‌سازی ۳۲۳ هزار نسخه خطی در Meilisearch اطمینان دارید؟ این عملیات در پس‌زمینه اجرا خواهد شد.')"
+                        onclick="return confirm('آیا از بازنمایه‌سازی {{ \App\Support\Fa::approx(\App\Support\SiteStats::all()['manuscripts']) }} نسخه خطی در Meilisearch اطمینان دارید؟ این عملیات در پس‌زمینه اجرا خواهد شد.')"
                         class="px-4 py-2 rounded-xl border border-stone-300 dark:border-stone-700 hover:border-[#B38A50] text-xs font-bold text-stone-700 dark:text-stone-200 transition">
                     بازنمایه‌سازی نسخ خطی (Manuscripts)
                 </button>

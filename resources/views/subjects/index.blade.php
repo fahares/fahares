@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'موضوعات و شاخه‌های دانشی نسخ خطی | فهارس')
-@section('meta_description', 'درختواره جامع موضوعات و رده‌بندی‌های دانشی متون و نسخه‌های کهن خطی ایران و جهان اسلام، شامل بیش از ۷۶ هزار اثر در ۲۲ رده اصلی و ۱۰۷ زیرشاخه تخصصی.')
+@section('meta_description', 'درختواره جامع موضوعات و رده‌بندی‌های دانشی متون و نسخه‌های کهن خطی ایران و جهان اسلام، شامل بیش از ' . \App\Support\Fa::approx(\App\Support\SiteStats::all()['works']) . ' اثر.')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" 

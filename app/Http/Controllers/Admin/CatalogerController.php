@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Cataloger;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
 
 class CatalogerController extends Controller
 {
@@ -42,16 +41,12 @@ class CatalogerController extends Controller
         $cataloger->death_year_hijri = $validated['death_year_hijri'] ?? null;
         $cataloger->bio = $validated['bio'] ?? null;
 
-        // Handle Avatar Upload
+        // Avatars go to the public disk: in production that is the persistent volume, while
+        // public/images is rebuilt from git on every deploy and would lose the upload.
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $dir = public_path('images/catalogers/avatars');
-            if (! File::isDirectory($dir)) {
-                File::makeDirectory($dir, 0755, true);
-            }
-            $filename = "cataloger_{$cataloger->id}_" . time() . '.' . $file->getClientOriginalExtension();
-            $file->move($dir, $filename);
-            $cataloger->avatar_path = "catalogers/avatars/{$filename}";
+            $filename = "cataloger_{$cataloger->id}_" . time() . '.' . $file->extension();
+            $cataloger->avatar_path = $file->storeAs('catalogers/avatars', $filename, 'public');
         }
 
         $cataloger->save();

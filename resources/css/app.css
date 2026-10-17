@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
 @import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -26,6 +25,23 @@
     --color-brand-paper: #F8F3EA;
     --color-brand-parchment: #F0E8D8;
     --color-brand-border: #E8DDCA;
+
+    --font-naskh: 'Noto Naskh Arabic', 'Amiri', serif;
+}
+
+/* Design tokens of the 1405 redesign (paper, ink, cinnabar, gold). Components use these through
+   the Tailwind colors below (bg-paper, text-ink, border-line, text-cinnabar …); the values switch
+   in dark mode, so a component needs no dark: variant for these colors. */
+@theme inline {
+    --color-paper: var(--paper);
+    --color-surface: var(--surface);
+    --color-ink: var(--ink);
+    --color-muted: var(--muted);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+    --color-cinnabar: var(--cinnabar);
+    --color-on-cinnabar: var(--on-cinnabar);
+    --color-gold: var(--gold);
 }
 
 [x-cloak] {
@@ -35,7 +51,16 @@
 /* Custom Manuscript & Archival Styling */
 :root {
     color-scheme: light;
-    --bg-page: #FEF9F3;
+    --paper: #F4EFE4;
+    --surface: #FBF8F1;
+    --ink: #241F1A;
+    --muted: #6B6257;
+    --line: #DED4C2;
+    --line-strong: #BFB29C;
+    --cinnabar: #A23A26;
+    --on-cinnabar: #FBF8F1;
+    --gold: #A8843F;
+    --bg-page: #F4EFE4;
     --text-primary: #1F2238;
     --text-secondary: #575C7A;
     --card-bg: #FFFFFF;
@@ -44,6 +69,15 @@
 
 .dark {
     color-scheme: dark;
+    --paper: #0C0F1D;
+    --surface: #15192C;
+    --ink: #EEF0F6;
+    --muted: #9BA3BF;
+    --line: #272F4C;
+    --line-strong: #3A4468;
+    --cinnabar: #E58A6F;
+    --on-cinnabar: #0C0F1D;
+    --gold: #CDAA62;
     --bg-page: #0C0F1D;
     --text-primary: #F1F4F9;
     --text-secondary: #9BA3BF;
@@ -104,4 +138,37 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(179, 138, 80, 0.6);
+}
+
+/* Persian manuscript ruling: two hairlines in gold, as around a written page (جدول) */
+.jadval {
+    height: 5px;
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+}
+
+/* Rubric heading: a cinnabar title with a lozenge, as headings were written in red ink */
+.rubric {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--cinnabar);
+    font-family: var(--font-naskh);
+    font-weight: 700;
+}
+.rubric::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: currentColor;
+    transform: rotate(45deg);
+}
+
+/* Dotted leader of a printed index, between an entry and its count */
+.leader {
+    flex: 1;
+    min-width: 1rem;
+    border-bottom: 1px dotted var(--line-strong);
+    transform: translateY(-0.3em);
 }
