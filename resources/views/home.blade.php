@@ -11,66 +11,21 @@
 @section('content')
 <div class="pb-6">
 
-    {{-- Banner slides (managed in admin → صفحه‌ی خانه) --}}
-    @if($slides->isNotEmpty())
-        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
-                 x-data="{
-                    i: 0, n: {{ $slides->count() }}, timer: null, paused: false,
-                    go(k) { this.i = (k + this.n) % this.n },
-                    start() {
-                        if (this.n < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-                        this.timer = setInterval(() => { if (!this.paused && !document.hidden) this.go(this.i + 1) }, {{ $interval }});
-                    }
-                 }"
-                 x-init="start()"
-                 @mouseenter="paused = true" @mouseleave="paused = false"
-                 @focusin="paused = true" @focusout="paused = false"
-                 aria-roledescription="carousel" aria-label="تصویرهای برگزیده">
-            <div class="relative overflow-hidden bg-[#221C17] border border-gold shadow-[inset_0_0_0_3px_var(--surface)] p-[4px]">
-                <div class="relative aspect-[3/1] overflow-hidden">
-                    @foreach($slides as $slide)
-                        <figure class="absolute inset-0 m-0 transition-opacity duration-700 motion-reduce:transition-none"
-                                :class="i === {{ $loop->index }} ? 'opacity-100 z-10' : 'opacity-0 z-0'"
-                                @if(! $loop->first) x-cloak @endif
-                                aria-roledescription="slide" aria-label="{{ Fa::digits($loop->iteration) }} از {{ Fa::digits($slides->count()) }}"
-                                :aria-hidden="i !== {{ $loop->index }}">
-                            @if($slide->link_url)<a href="{{ $slide->link_url }}" class="block w-full h-full" :tabindex="i === {{ $loop->index }} ? 0 : -1">@endif
-                                <img src="{{ $slide->image_url }}" alt="{{ $slide->title }}" class="w-full h-full object-cover"
-                                     @if($loop->first) fetchpriority="high" @else loading="lazy" @endif>
-                            @if($slide->link_url)</a>@endif
-                            @if($slide->show_caption && ($slide->title || $slide->subtitle))
-                                <figcaption class="absolute inset-y-0 right-0 w-full sm:w-2/5 flex flex-col justify-end sm:justify-center gap-1 p-4 sm:p-8 bg-gradient-to-t sm:bg-gradient-to-l from-black/75 to-transparent text-white pointer-events-none">
-                                    @if($slide->title)<span class="font-naskh text-lg sm:text-2xl font-bold leading-snug">{{ $slide->title }}</span>@endif
-                                    @if($slide->subtitle)<span class="text-xs sm:text-sm text-white/85 leading-relaxed line-clamp-3">{{ $slide->subtitle }}</span>@endif
-                                </figcaption>
-                            @endif
-                        </figure>
-                    @endforeach
-
-                    @if($slides->count() > 1)
-                        <button type="button" @click="go(i - 1)" aria-label="تصویر قبلی"
-                                class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 grid place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
-                        </button>
-                        <button type="button" @click="go(i + 1)" aria-label="تصویر بعدی"
-                                class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 grid place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
-                        </button>
-                        <div class="absolute bottom-2 inset-x-0 z-20 flex justify-center gap-2">
-                            @foreach($slides as $slide)
-                                <button type="button" @click="go({{ $loop->index }})" aria-label="تصویر {{ Fa::digits($loop->iteration) }}"
-                                        class="w-2.5 h-2.5 rotate-45 border border-white/80 transition cursor-pointer"
-                                        :class="i === {{ $loop->index }} ? 'bg-white' : 'bg-white/20 hover:bg-white/50'"></button>
-                            @endforeach
-                        </div>
-                    @endif
+    {{-- Header banner (admin → صفحه‌ی خانه → تصویر سربرگ); the search sheet sits on its lower edge --}}
+    @if($hero)
+        <div class="relative h-[200px] sm:h-[330px] overflow-hidden bg-[#221C17]">
+            <img src="{{ $hero->image_url }}" alt="{{ $hero->title }}" fetchpriority="high" class="w-full h-full object-cover object-[center_45%]">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent from-40% to-[#241F1A]/55" aria-hidden="true"></div>
+            @if($hero->credit)
+                <div class="absolute left-3 top-2 sm:top-auto sm:bottom-2 text-[11px] text-[#F3EAD6]/85">
+                    @if($hero->link_url)<a href="{{ $hero->link_url }}" @if(str_starts_with($hero->link_url, 'http')) target="_blank" rel="noopener" @endif class="hover:underline">{{ $hero->credit }}</a>@else{{ $hero->credit }}@endif
                 </div>
-            </div>
-        </section>
+            @endif
+        </div>
     @endif
 
     {{-- Search sheet --}}
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 {{ $slides->isNotEmpty() ? 'mt-6' : 'mt-10' }} relative z-20">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 {{ $hero ? '-mt-14 sm:-mt-[110px]' : 'mt-10' }} relative z-20">
         <div class="bg-surface border border-gold shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line),0_20px_40px_-24px_rgb(0_0_0/0.45)] px-5 py-7 sm:px-10 sm:py-9 text-center space-y-4">
             <p class="text-xs sm:text-sm font-bold text-cinnabar">{{ SiteSetting::get('home.eyebrow') }}</p>
             <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold text-ink leading-[1.6] text-balance">{{ SiteSetting::get('home.headline') }}</h1>
@@ -126,6 +81,64 @@
             </ul>
         </div>
     </section>
+
+    {{-- Slides below the search box (admin → صفحه‌ی خانه → اسلایدها) --}}
+    @if($slides->isNotEmpty())
+        <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14"
+                 x-data="{
+                    i: 0, n: {{ $slides->count() }}, timer: null, paused: false,
+                    go(k) { this.i = (k + this.n) % this.n },
+                    start() {
+                        if (this.n < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                        this.timer = setInterval(() => { if (!this.paused && !document.hidden) this.go(this.i + 1) }, {{ $interval }});
+                    }
+                 }"
+                 x-init="start()"
+                 @mouseenter="paused = true" @mouseleave="paused = false"
+                 @focusin="paused = true" @focusout="paused = false"
+                 aria-roledescription="carousel" aria-label="تصویرهای برگزیده">
+            <div class="relative overflow-hidden bg-[#221C17] border border-gold shadow-[inset_0_0_0_3px_var(--surface)] p-[4px]">
+                <div class="relative aspect-[16/5] overflow-hidden">
+                    @foreach($slides as $slide)
+                        <figure class="absolute inset-0 m-0 transition-opacity duration-700 motion-reduce:transition-none"
+                                :class="i === {{ $loop->index }} ? 'opacity-100 z-10' : 'opacity-0 z-0'"
+                                @if(! $loop->first) x-cloak @endif
+                                aria-roledescription="slide" aria-label="{{ Fa::digits($loop->iteration) }} از {{ Fa::digits($slides->count()) }}"
+                                :aria-hidden="i !== {{ $loop->index }}">
+                            @if($slide->link_url)<a href="{{ $slide->link_url }}" class="block w-full h-full" :tabindex="i === {{ $loop->index }} ? 0 : -1">@endif
+                                <img src="{{ $slide->image_url }}" alt="{{ $slide->title }}" class="w-full h-full object-cover"
+                                     @if($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                            @if($slide->link_url)</a>@endif
+                            @if($slide->show_caption && ($slide->title || $slide->subtitle))
+                                <figcaption class="absolute inset-y-0 right-0 w-full sm:w-2/5 flex flex-col justify-end sm:justify-center gap-1 p-4 sm:p-8 bg-gradient-to-t sm:bg-gradient-to-l from-black/75 to-transparent text-white pointer-events-none">
+                                    @if($slide->title)<span class="font-naskh text-lg sm:text-2xl font-bold leading-snug">{{ $slide->title }}</span>@endif
+                                    @if($slide->subtitle)<span class="text-xs sm:text-sm text-white/85 leading-relaxed line-clamp-3">{{ $slide->subtitle }}</span>@endif
+                                </figcaption>
+                            @endif
+                        </figure>
+                    @endforeach
+
+                    @if($slides->count() > 1)
+                        <button type="button" @click="go(i - 1)" aria-label="تصویر قبلی"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 grid place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                        <button type="button" @click="go(i + 1)" aria-label="تصویر بعدی"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 grid place-items-center rounded-full bg-black/40 text-white hover:bg-black/60 transition cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                        </button>
+                        <div class="absolute bottom-2 inset-x-0 z-20 flex justify-center gap-2">
+                            @foreach($slides as $slide)
+                                <button type="button" @click="go({{ $loop->index }})" aria-label="تصویر {{ Fa::digits($loop->iteration) }}"
+                                        class="w-2.5 h-2.5 rotate-45 border border-white/80 transition cursor-pointer"
+                                        :class="i === {{ $loop->index }} ? 'bg-white' : 'bg-white/20 hover:bg-white/50'"></button>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- Featured images --}}
     @if($treasures->isNotEmpty())

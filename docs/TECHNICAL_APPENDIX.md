@@ -2184,3 +2184,10 @@
 - **عکس فهرست‌نگاران:** [Admin/CatalogerController.php](../app/Http/Controllers/Admin/CatalogerController.php) فایل را با `storeAs(..., 'public')` در `catalogers/avatars` ذخیره می‌کند. `Cataloger::avatar_url` اول `public/images` و بعد `public/storage` را می‌گردد، پس عکس‌های قدیمی هم پیدا می‌شوند.
 - آزمون‌ها در [HomePageTest.php](../tests/Feature/Admin/HomePageTest.php): نمایش محتوای مدیریتی و آمار زنده با ارقام فارسی، بازگشت به متن پیش‌فرض، چرخه‌ی کامل یک اسلاید، رد پیوند `javascript:`، ترتیب فهرست‌نگاران و منع دسترسی کاربر عادی.
 
+### گام ۱۲.۲: بخش `hero` در `home_items`
+
+- [HomeItem.php](../app/Models/HomeItem.php): `SECTIONS` بخش `hero` («تصویر سربرگ») را گرفت. [HomeController.php](../app/Http/Controllers/HomeController.php) نخستین ردیف فعال آن را به `$hero` می‌دهد.
+- [home.blade.php](../resources/views/home.blade.php): ترتیب صفحه به بنر سربرگ (ارتفاع ۲۰۰ و ۳۳۰ پیکسل، `object-cover`، با سایه‌ی پایین و نام منبع)، سپس برگه‌ی جستجو (با `-mt-[110px]` روی لبه‌ی بنر) و پس از آن اسلایدها (`aspect-[16/5]`) تغییر کرد.
+- [SeedHomePageCommand.php](../app/Console/Commands/SeedHomePageCommand.php): بخش `hero` با تصویر `resources/home-defaults/hero/frontispiece.jpg` افزوده شد. این تصویر برشی ۱۰۲۹×۹۳۶ پیکسلی از اصل ویکی‌مدیاست.
+- آزمون `test_home_shows_admin_content_and_live_counts_in_persian_digits` ترتیب سربرگ، منبع، عنوان و اسلاید را بررسی می‌کند.
+

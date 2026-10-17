@@ -18,13 +18,14 @@ class HomeController extends Controller
         $topSubjects = Subject::orderByDesc('works_count')->take(8)->get();
         $topLibraries = Library::orderByDesc('manuscripts_count')->take(8)->get();
 
+        $hero = HomeItem::section('hero')->active()->first();
         $slides = HomeItem::section('slides')->active()->get();
         $treasures = HomeItem::section('treasures')->active()->get();
         $homeCatalogers = Cataloger::whereNotNull('home_order')->orderBy('home_order')->get();
 
         $suggestedSearches = collect($this->getSuggestedSearchesPool())->random(7)->values()->all();
 
-        return view('home', compact('stats', 'topSubjects', 'topLibraries', 'slides', 'treasures', 'homeCatalogers', 'suggestedSearches'));
+        return view('home', compact('stats', 'topSubjects', 'topLibraries', 'hero', 'slides', 'treasures', 'homeCatalogers', 'suggestedSearches'));
     }
 
     /**

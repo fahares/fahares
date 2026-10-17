@@ -7,13 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * An image the admin places on the home page: a banner slide or one of the «از گنجینه‌ها» pictures.
+ * An image the admin places on the home page: the header banner (only the first active one is
+ * shown), a slide of the carousel below the search box, or one of the «از گنجینه‌ها» pictures.
  * Images live on the public disk, which is the persistent volume in production.
  */
 class HomeItem extends Model
 {
     public const SECTIONS = [
-        'slides' => 'اسلایدهای بنر',
+        'hero' => 'تصویر سربرگ',
+        'slides' => 'اسلایدها',
         'treasures' => 'از گنجینه‌ها',
     ];
 

@@ -9,7 +9,7 @@
 
     <div>
         <label for="{{ $key }}_title" class="{{ $label }}">عنوان</label>
-        <input type="text" name="title" id="{{ $key }}_title" value="{{ $item?->title }}" class="{{ $input }}" placeholder="{{ $section === 'slides' ? 'برای متن جایگزین تصویر و نمایش روی بنر' : 'مثلاً: ترقیمه' }}">
+        <input type="text" name="title" id="{{ $key }}_title" value="{{ $item?->title }}" class="{{ $input }}" placeholder="{{ in_array($section, ['slides', 'hero']) ? 'متن جایگزین تصویر، برای نابینایان و موتورهای جستجو' : 'مثلاً: ترقیمه' }}">
     </div>
     <div>
         <label for="{{ $key }}_credit" class="{{ $label }}">منبع تصویر</label>

@@ -69,6 +69,7 @@ class HomePageTest extends TestCase
     {
         HomeItem::query()->update(['is_active' => false]);
         $this->slide(['title' => 'نگاره‌ی آزمایشی بنر']);
+        $this->slide(['section' => 'hero', 'title' => 'سرلوح آزمایشی سربرگ', 'credit' => 'منبع آزمایشی سربرگ']);
         $this->slide(['title' => 'اسلاید پنهان', 'is_active' => false]);
         Cataloger::query()->update(['home_order' => null]);
         $cataloger = $this->cataloger('فهرست‌نگار آزمایشی خانه');
@@ -78,7 +79,7 @@ class HomePageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk()
-            ->assertSee('نگاره‌ی آزمایشی بنر')
+            ->assertSeeInOrder(['سرلوح آزمایشی سربرگ', 'منبع آزمایشی سربرگ', 'عنوان آزمایشی خانه', 'نگاره‌ی آزمایشی بنر'])
             ->assertDontSee('اسلاید پنهان')
             ->assertSee($cataloger->name)
             ->assertSee('عنوان آزمایشی خانه')

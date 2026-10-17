@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * First content of the admin-managed home page: four banner slides, three «از گنجینه‌ها» images
+ * First content of the admin-managed home page: the header banner, four slides, three «از گنجینه‌ها» images
  * (Walters Art Museum, public domain) and six catalogers. Images are copied from
  * resources/home-defaults to the public disk. A section that already has rows is left alone,
  * so running the command again never overwrites what the admin has changed.
@@ -18,6 +18,11 @@ class SeedHomePageCommand extends Command
     protected $signature = 'home:seed-defaults {--dry-run : Show what would be added without writing}';
 
     protected $description = 'Add the first banner slides, featured images and home catalogers if none exist';
+
+    private const HERO = [
+        ['file' => 'frontispiece.jpg', 'title' => 'شمسه‌ی هشت‌لت در سرلوح یک نسخه‌ی ایرانی', 'credit' => 'سرلوح، نسخه‌ی ایرانی، موزه‌ی والترز W.569',
+            'link_url' => 'https://commons.wikimedia.org/wiki/File:Iranian_-_Left_Side_of_a_Double-page_Illuminated_Frontispiece_-_Walters_W5692A_-_Full_Page.jpg'],
+    ];
 
     private const SLIDES = [
         ['file' => 'slide-1.jpg', 'title' => 'نگاره‌ی معراج پیامبر (ص)، خمسه‌ی نظامی، کتابخانه‌ی مدرسه‌ی سپهسالار'],
@@ -41,6 +46,7 @@ class SeedHomePageCommand extends Command
     {
         $dry = (bool) $this->option('dry-run');
 
+        $this->seedSection('hero', self::HERO, $dry);
         $this->seedSection('slides', self::SLIDES, $dry);
         $this->seedSection('treasures', self::TREASURES, $dry);
 

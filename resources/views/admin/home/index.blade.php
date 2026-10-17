@@ -26,7 +26,8 @@
 
     <nav class="flex flex-wrap gap-2">
         <a href="#texts" class="{{ $btn }}">متن‌ها</a>
-        <a href="#slides" class="{{ $btn }}">اسلایدهای بنر</a>
+        <a href="#hero" class="{{ $btn }}">تصویر سربرگ</a>
+        <a href="#slides" class="{{ $btn }}">اسلایدها</a>
         <a href="#treasures" class="{{ $btn }}">از گنجینه‌ها</a>
         <a href="#catalogers" class="{{ $btn }}">فهرست‌نگاران</a>
     </nav>
@@ -68,8 +69,10 @@
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 class="text-sm font-black text-stone-900 dark:text-stone-100">{{ $sectionLabel }}</h2>
                 <span class="text-stone-400">
-                    @if($section === 'slides')
-                        نسبت پیشنهادی ۳ به ۱، مثلاً ۱۲۰۰×۴۰۰ پیکسل. حداکثر ۲ مگابایت.
+                    @if($section === 'hero')
+                        تصویر پهن بالای صفحه، پشت برگه‌ی جستجو. فقط نخستین تصویر فعال نمایش داده می‌شود. دست‌کم ۱۲۰۰ پیکسل عرض، و بخش مهم تصویر در میانه باشد. حداکثر ۲ مگابایت.
+                    @elseif($section === 'slides')
+                        زیر برگه‌ی جستجو می‌چرخند. نسبت ۱۶ به ۵، مثلاً ۱۱۴۶×۳۵۸ یا ۱۲۸۰×۴۰۰ پیکسل؛ نوشته‌ها کمی دورتر از لبه باشند. حداکثر ۲ مگابایت.
                     @else
                         نسبت پیشنهادی ۳ به ۴ (عمودی). حداکثر ۲ مگابایت. سه یا شش تصویر بهتر چیده می‌شود.
                     @endif
@@ -79,7 +82,7 @@
             @forelse($list as $item)
                 <div class="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] border-t border-stone-100 dark:border-stone-800 pt-5 {{ $item->is_active ? '' : 'opacity-60' }}">
                     <div class="space-y-2">
-                        <img src="{{ $item->image_url }}" alt="" class="w-full rounded-lg border border-stone-200 dark:border-stone-700 {{ $section === 'slides' ? 'aspect-[3/1]' : 'aspect-[3/4]' }} object-cover">
+                        <img src="{{ $item->image_url }}" alt="" class="w-full rounded-lg border border-stone-200 dark:border-stone-700 {{ ['hero' => 'aspect-[4/1]', 'slides' => 'aspect-[3/1]'][$section] ?? 'aspect-[3/4]' }} object-cover">
                         <div class="flex gap-1.5">
                             <form action="{{ route('admin.home.items.move', $item) }}" method="POST">@csrf<input type="hidden" name="direction" value="up"><button class="{{ $btn }}" title="جابه‌جایی به جلو" {{ $loop->first ? 'disabled' : '' }}>↑</button></form>
                             <form action="{{ route('admin.home.items.move', $item) }}" method="POST">@csrf<input type="hidden" name="direction" value="down"><button class="{{ $btn }}" title="جابه‌جایی به عقب" {{ $loop->last ? 'disabled' : '' }}>↓</button></form>
