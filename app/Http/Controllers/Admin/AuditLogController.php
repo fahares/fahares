@@ -286,9 +286,27 @@ class AuditLogController extends Controller
             return;
         }
 
+        // 4. Manuscript or work merge approved from the suggestions desk (see RecordMerger)
         if (in_array($log->auditable_type, [Manuscript::class, Work::class], true)) {
-            // Merges approved from the suggestions desk keep a full snapshot of the removed record in old_values
-            throw new \Exception("ادغام نسخه یا اثر بازگردانی خودکار ندارد. اطلاعات کامل رکورد حذف‌شده در همین لاگ (source_snapshot) ثبت است.");
+            $target = $log->auditable_type::find($log->auditable_id)
+                ?? throw new \Exception("رکورد ماندنی با شناسه #{$log->auditable_id} یافت نشد.");
+            $merger = app(\App\Suggestions\RecordMerger::class);
+            $restored = $target instanceof Work ? $merger->undoWorkMerge($target, $old) : $merger->undoManuscriptMerge($target, $old);
+
+            if ($suggestionId = $log->new_values['suggestion_id'] ?? null) {
+                FieldSuggestion::whereKey($suggestionId)->update(['status' => 'pending', 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
+            }
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'auditable_type' => $log->auditable_type,
+                'auditable_id' => $target->id,
+                'action' => 'rollback_merge',
+                'old_values' => ['rolled_back_log_id' => $log->id, 'target_id' => $target->id],
+                'new_values' => ['restored_id' => $restored->id],
+                'ip_address' => $request->ip(),
+            ]);
+
+            return;
         }
 
         throw new \Exception("مدل مورد نظر برای بازگردانی ادغام شناسایی نشد.");

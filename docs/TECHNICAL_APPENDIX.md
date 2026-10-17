@@ -2101,3 +2101,23 @@
   - پیشنهادهای تأییدشده‌ی کتابخانه‌ی حذف‌شده، مانند یادداشت‌های پژوهشی، منتقل نمی‌شوند. رفتار ادغام نسخه و اثر هم همین است.
 - آزمون‌های تازه: `test_a_duplicate_library_is_merged_and_the_merge_undone` و `test_a_renamed_library_keeps_its_former_name` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).
 - **استقرار پروداکشن (۲۵ مهر ۱۴۰۵):** کامیت `bf912f0` پوش و حدود ۳ دقیقه بعد با Coolify مستقر شد. سپس `migrate --force` با `ssh fahares-app` اجرا شد (فقط `add_aliases_to_libraries_table`). فهرست کتابخانه‌ها، جستجوی آن، `/l/1` و `lookup` کتابخانه روی fahares.net پاسخ ۲۰۰ دادند.
+
+### گام ۱۱.۲۵: بازگردانی ادغام نسخه و اثر
+
+- [RecordMerger.php](../app/Suggestions/RecordMerger.php):
+  - `mergeManuscript()` افزون بر `source_snapshot` (ویژگی‌ها و ردیف‌های `manuscript_scribe`، `manuscript_script` و `manuscript_people`) و `filled`، این‌ها را هم برمی‌گرداند:
+    - `added_scribe_ids`. `insertOrIgnore` جای خود را به بررسی وجود و `insertGetId` داد.
+    - `relations`، `redirects` (ریدایرکت‌های پیشینی که به مبدأ اشاره داشتند و `recordRedirect` آن‌ها را به مقصد برد)، `cited_entry_id` (فقط اگر `firstOrCreate` ارجاع تازه ساخته باشد)، `citation_ids` و `suggestion_ids`.
+  - `mergeWork()` افزون بر این‌ها `folded_manuscripts` را برمی‌گرداند: خروجی کامل `mergeManuscript` برای هر نسخه‌ی ادغام‌شده، با `target_id`. پیش‌تر فقط `folded_manuscript_ids` بود. نیز `target_before`/`target_after` (`alternative_titles` و ستون‌های `WORK_FILL`)، `added_subject_ids`، `added_language_ids` و `referral_ids` را برمی‌گرداند.
+  - `undoManuscriptMerge()` و `undoWorkMerge()`:
+    - رکورد را با `DB::insert` و همان شناسه بازمی‌سازند و ردیف‌های pivot حذف‌شده با cascade را دوباره درج می‌کنند.
+    - در اثر، اول خود اثر و سپس نسخه‌های ادغام‌شده، به ترتیب معکوس، برمی‌گردند. پس از آن نسخه‌های منتقل‌شده برمی‌گردند.
+    - ستون‌ها فقط وقتی به مقدار پیشین برمی‌گردند که مقدار کنونی همان مقدار پس از ادغام باشد.
+    - در پایان شمارنده‌ها دوباره شمرده و رکوردها از نو نمایه می‌شوند. در نسخه، اثرِ هر دو نسخه هم از نو نمایه می‌شود، چون نمایه‌ی اثر آغاز و انجام نسخه‌ها را دارد.
+    - اگر رکوردی با همان شناسه وجود داشته باشد، بازگردانی نمی‌کنند. بازگردانی دوباره‌ی یک لاگ هم به همین دلیل خطا می‌دهد.
+  - **رفع اشکال:** `referrals.target_work_id` کلید خارجی `nullOnDelete` دارد. با حذف اثر تکراری، ارجاع‌هایش NULL می‌شدند. اکنون پیش از حذف به اثر ماندنی منتقل می‌شوند.
+- [RecordRelations.php](../app/Suggestions/RecordRelations.php): `moveOnMerge()` گزارش ردیف‌های تغییرکرده (`id` و ستون) و ردیف‌های کامل حذف‌شده را برمی‌گرداند. `undoMove()` آن‌ها را برمی‌گرداند.
+- [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php): شاخه‌ی Manuscript/Work در `rollbackMerge` جای پیام «بازگردانی خودکار ندارد» را گرفت. پیشنهاد را دوباره «در انتظار» می‌کند و لاگ `rollback_merge` می‌نویسد. لاگ‌های بدون کلیدهای تازه با پیام روشن رد می‌شوند. روی پروداکشن هیچ لاگ `merge` برای نسخه یا اثر وجود نداشت (بررسی ۲۵ مهر ۱۴۰۵).
+- [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php): متن هشدار ادغام به‌روز شد.
+- **محدودیت:** پیشنهادهای تأییدشده و یادداشت‌های پژوهشیِ رکورد حذف‌شده جابه‌جا نمی‌شوند، و با بازگردانی، چون شناسه همان است، دوباره به رکورد وصل می‌شوند. پیشنهادهای بازی که پس از ادغام روی رکورد ماندنی ثبت شده‌اند، همان‌جا می‌مانند.
+- آزمون‌های تازه: `test_undoing_a_manuscript_merge_restores_the_removed_copy` و `test_undoing_a_work_merge_restores_the_work_and_its_copies` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).

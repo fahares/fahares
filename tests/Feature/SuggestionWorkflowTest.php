@@ -1432,4 +1432,103 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame([$former, ['نام یک', 'نام دو']], [$library->fresh()->name, $library->fresh()->aliases]);
         $this->assertSame($former, $m->fresh()->library);
     }
+
+    public function test_undoing_a_manuscript_merge_restores_the_removed_copy()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $scribe = $this->person('کاتب نسخه‌ی بازگشتی');
+        $kept = $this->manuscript(['shelfmark' => '۱۲۳']);
+        $dup = $this->manuscript(['copy_date_raw' => '۱۰۹۵ق', 'scribe_id' => $scribe->id, 'scribe_name' => $scribe->name]);
+        $third = $this->manuscript();
+        $this->removedManuscripts[] = $dup->id;
+        $scriptId = DB::table('scripts')->insertGetId(['name' => "خط آزمون {$this->tag}", 'slug' => 'test-script-' . uniqid()]);
+        DB::table('manuscript_script')->insert(['manuscript_id' => $dup->id, 'script_id' => $scriptId]);
+        $owner = DB::table('manuscript_people')->insertGetId(['manuscript_id' => $dup->id, 'name' => 'مالک', 'role' => 'owner']);
+        $relation = DB::table('manuscript_relations')->insertGetId(['manuscript_id' => $dup->id, 'related_manuscript_id' => $third->id, 'type' => 'copied_from']);
+        $citation = $dup->sourceCitations()->create(['catalog_id' => \App\Models\Catalog::where('code', 'fankha')->value('id'), 'volume_number' => 9, 'page_start' => 9, 'role' => 'mention']);
+        EntityRedirect::recordRedirect('manuscripts', 999999001, $dup->id);
+        $this->suggest($dup, ['field_name' => 'folios', 'suggested_value' => '۱۰', 'rationale_citation' => 'شمارش'])->assertOk();
+        $open = $this->pendingFor($dup);
+        $before = $dup->fresh()->getAttributes();
+
+        $this->relate($dup, 'duplicate', $kept)->assertOk();
+        $s = $this->pendingFor($dup);
+        $this->approve($s)->assertRedirect('/admin/suggestions');
+        $this->assertSame([$kept->id, 1], [DB::table('manuscript_relations')->where('id', $relation)->value('manuscript_id'), $scribe->fresh()->manuscripts_count]);
+        $this->assertSame($kept->id, EntityRedirect::resolveTargetId('manuscripts', 999999001));
+
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $kept->id)->where('action', 'merge')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+
+        $restored = Manuscript::findOrFail($dup->id);
+        $this->assertSame(array_diff_key($before, ['updated_at' => 1]), array_diff_key($restored->getAttributes(), ['updated_at' => 1]));
+        $kept->refresh();
+        $this->assertSame([null, null, null], [$kept->copy_date_raw, $kept->copy_date_hijri_year, $kept->scribe_id]);
+        $this->assertSame(0, DB::table('manuscript_scribe')->where('manuscript_id', $kept->id)->count());
+        $this->assertSame([$dup->id], DB::table('manuscript_scribe')->where('person_id', $scribe->id)->pluck('manuscript_id')->all());
+        $this->assertTrue(DB::table('manuscript_script')->where(['manuscript_id' => $dup->id, 'script_id' => $scriptId])->exists());
+        $this->assertSame($dup->id, DB::table('manuscript_people')->where('id', $owner)->value('manuscript_id'));
+        $this->assertSame($dup->id, DB::table('manuscript_relations')->where('id', $relation)->value('manuscript_id'));
+        $this->assertSame($dup->id, $citation->fresh()->citable_id);
+        $this->assertSame(0, $kept->sourceCitations()->count(), 'the citation the merge added goes');
+        $this->assertSame($dup->id, $open->fresh()->suggestable_id);
+        $this->assertNull(EntityRedirect::resolveTargetId('manuscripts', $dup->id));
+        $this->assertSame($dup->id, EntityRedirect::resolveTargetId('manuscripts', 999999001));
+        $this->assertSame(1, $scribe->fresh()->manuscripts_count);
+        $this->assertSame(1, $dup->work->fresh()->manuscripts_count);
+        $this->assertSame('pending', $s->fresh()->status);
+        $this->get(route('manuscripts.show', $restored))->assertOk();
+
+        // A second undo of the same log finds the record already back
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('error');
+        EntityRedirect::where('source_id', 999999001)->delete();
+        DB::table('scripts')->where('id', $scriptId)->delete();
+    }
+
+    public function test_undoing_a_work_merge_restores_the_work_and_its_copies()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $kept = $this->work(['primary_title' => 'عنوان ماندنی ' . $this->tag]);
+        $dup = $this->work(['primary_title' => 'عنوان تکراری ' . $this->tag, 'composition_date_raw' => '۹۰۰ق', 'alternative_titles' => [['title' => 'عنوان دوم ' . $this->tag]]]);
+        $same = $this->manuscript(['work_id' => $kept->id, 'city' => 'قم', 'library' => 'مرعشی', 'shelfmark' => '۵۵']);
+        $copy = $this->manuscript(['work_id' => $dup->id, 'city' => 'قم', 'library' => 'مرعشی', 'shelfmark' => '۵۵', 'folios' => 80]);
+        $other = $this->manuscript(['work_id' => $dup->id, 'city' => 'قم', 'library' => 'مرعشی', 'shelfmark' => '۵۶']);
+        $this->removedManuscripts[] = $copy->id;
+        $kept->update(['manuscripts_count' => 1]);
+        $dup->update(['manuscripts_count' => 2]);
+        $author = $this->person('پدیدآور اثر تکراری');
+        DB::table('work_author')->insert(['work_id' => $dup->id, 'person_id' => $author->id, 'position' => 0]);
+        $subject = \App\Models\Subject::create(['name' => "موضوع آزمون {$this->tag}", 'slug' => 'test-subj-' . uniqid()]);
+        $dup->subjects()->attach($subject->id);
+        $referral = DB::table('referrals')->insertGetId(['source_title' => 'الف', 'target_title' => 'ب', 'target_work_id' => $dup->id, 'volume_number' => 1, 'page' => 1]);
+        $before = $dup->fresh()->getAttributes();
+
+        $this->relate($kept, 'duplicate', $dup)->assertOk();
+        $s = $this->pendingFor($kept);
+        $this->approve($s, ['keep' => 'source'])->assertRedirect('/admin/suggestions');
+        $this->assertSame($kept->id, DB::table('referrals')->where('id', $referral)->value('target_work_id'), 'cross-references follow the kept work');
+        $this->assertTrue($kept->subjects()->whereKey($subject->id)->exists());
+        $this->assertSame(80, $same->fresh()->folios);
+
+        $log = AuditLog::where('auditable_type', Work::class)->where('auditable_id', $kept->id)->where('action', 'merge')->sole();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
+
+        $restored = Work::findOrFail($dup->id);
+        $this->assertSame(array_diff_key($before, ['updated_at' => 1]), array_diff_key($restored->getAttributes(), ['updated_at' => 1]));
+        $this->assertSame([$dup->id, $dup->id], [$other->fresh()->work_id, Manuscript::findOrFail($copy->id)->work_id]);
+        $this->assertSame([2, 1], [$restored->manuscripts_count, $kept->fresh()->manuscripts_count]);
+        $this->assertNull($same->fresh()->folios);
+        $kept->refresh();
+        $this->assertSame([null, null, null], [$kept->alternative_titles, $kept->composition_date_raw, $kept->composition_year_hijri]);
+        $this->assertFalse($kept->subjects()->whereKey($subject->id)->exists());
+        $this->assertTrue($restored->subjects()->whereKey($subject->id)->exists());
+        $this->assertSame([$dup->id], DB::table('work_author')->where('person_id', $author->id)->pluck('work_id')->all());
+        $this->assertSame($dup->id, DB::table('referrals')->where('id', $referral)->value('target_work_id'));
+        $this->assertNull(EntityRedirect::resolveTargetId('works', $dup->id));
+        $this->assertNull(EntityRedirect::resolveTargetId('manuscripts', $copy->id));
+        $this->assertSame('pending', $s->fresh()->status);
+        $this->get(route('works.show', $restored))->assertOk();
+        DB::table('referrals')->where('id', $referral)->delete();
+        $subject->delete();
+    }
 }

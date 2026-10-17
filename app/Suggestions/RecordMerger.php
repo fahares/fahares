@@ -15,6 +15,9 @@ use InvalidArgumentException;
  * Applies approved relational suggestions: moving a manuscript to another work and folding
  * a duplicate manuscript or work into the record it repeats. Every denormalized counter the
  * change touches is recounted. Runs inside the reviewer's transaction.
+ *
+ * A merge returns everything it changed (kept in the audit log), and undoManuscriptMerge() /
+ * undoWorkMerge() put the removed record back from it with its own id.
  */
 class RecordMerger
 {
@@ -24,6 +27,8 @@ class RecordMerger
         'script_names', 'script_style', 'folios', 'lines', 'dimensions', 'paper', 'binding',
         'incipit_text', 'explicit_text',
     ];
+
+    private const WORK_FILL = ['author_id', 'author_name', 'composition_date_raw', 'composition_year_hijri', 'composition_place', 'description', 'incipit_text', 'explicit_text'];
 
     /** @return array{old: array, new: array} */
     public function moveManuscript(Manuscript $manuscript, Work $target): array
@@ -57,23 +62,27 @@ class RecordMerger
             $target->forceFill($filled)->save();
         }
         // Scribes the kept copy does not list yet
+        $addedScribes = [];
         $position = (int) DB::table('manuscript_scribe')->where('manuscript_id', $target->id)->max('position');
         foreach (DB::table('manuscript_scribe')->where('manuscript_id', $source->id)->orderBy('position')->get() as $row) {
+            if ($row->person_id && DB::table('manuscript_scribe')->where(['manuscript_id' => $target->id, 'person_id' => $row->person_id])->exists()) {
+                continue;
+            }
             // An unlinked name keeps its text
-            DB::table('manuscript_scribe')->insertOrIgnore(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name ?? null, 'position' => ++$position, 'note' => $row->note]);
+            $addedScribes[] = DB::table('manuscript_scribe')->insertGetId(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name ?? null, 'position' => ++$position, 'note' => $row->note]);
         }
         // Owners, endowers, correctors… and relations with other copies move to the kept copy
         DB::table('manuscript_people')->where('manuscript_id', $source->id)->update(['manuscript_id' => $target->id]);
-        RecordRelations::moveOnMerge($source, $target);
+        $relations = RecordRelations::moveOnMerge($source, $target);
 
-        $this->moveAttachments($source, $target);
-        $this->citeEntry($source, $target);
+        $attachments = $this->moveAttachments($source, $target);
+        $entry = $this->citeEntry($source, $target);
 
         $counters = $source->only(['work_id', 'library_id', 'catalog_volume_id', 'cataloger_id']);
         $people = DB::table('manuscript_scribe')->where('manuscript_id', $source->id)->pluck('person_id')->all();
         $scripts = DB::table('manuscript_script')->where('manuscript_id', $source->id)->pluck('script_id')->all();
 
-        EntityRedirect::recordRedirect('manuscripts', $source->id, $target->id);
+        $redirects = $this->redirect('manuscripts', $source->id, $target->id);
         $source->delete();
 
         $this->recountWorks([$counters['work_id'], $target->work_id]);
@@ -81,7 +90,44 @@ class RecordMerger
         $this->recountPeople(array_merge($people, DB::table('manuscript_scribe')->where('manuscript_id', $target->id)->pluck('person_id')->all()));
         $target->searchable();
 
-        return ['source_snapshot' => $snapshot, 'filled' => $filled];
+        return [
+            'source_snapshot' => $snapshot,
+            'filled' => $filled,
+            'added_scribe_ids' => $addedScribes,
+            'relations' => $relations,
+            'redirects' => $redirects,
+            'cited_entry_id' => $entry,
+        ] + $attachments;
+    }
+
+    /** Puts back a manuscript mergeManuscript() removed, from the values it returned. */
+    public function undoManuscriptMerge(Manuscript $target, array $old): Manuscript
+    {
+        $snapshot = $old['source_snapshot'] ?? null;
+        if (! $snapshot || ! array_key_exists('added_scribe_ids', $old)) {
+            throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل نسخه‌ی حذف‌شده در همین لاگ (source_snapshot) هست.');
+        }
+        $source = $this->restore(Manuscript::class, 'manuscripts', $snapshot['attributes']);
+        foreach (['manuscript_scribe', 'manuscript_script'] as $table) {
+            DB::table($table)->insertOrIgnore($snapshot['pivots'][$table] ?? []);
+        }
+        DB::table('manuscript_people')->whereIn('id', array_column($snapshot['pivots']['manuscript_people'] ?? [], 'id'))->update(['manuscript_id' => $source->id]);
+        DB::table('manuscript_scribe')->whereIn('id', $old['added_scribe_ids'])->delete();
+        $this->unfill($target, $old['filled'] ?? []);
+        RecordRelations::undoMove($old['relations'] ?? [], $source->id);
+        $this->undoAttachments($source, $target, $old);
+        $this->undoRedirect('manuscripts', $source->id, $old['redirects'] ?? []);
+
+        $this->recountWorks([$source->work_id, $target->work_id]);
+        $scripts = array_column($snapshot['pivots']['manuscript_script'] ?? [], 'script_id');
+        $this->recountManuscriptOwners($source->only(['library_id', 'catalog_volume_id', 'cataloger_id']), $scripts);
+        $this->recountPeople(DB::table('manuscript_scribe')->whereIn('manuscript_id', [$source->id, $target->id])->pluck('person_id')->all());
+        $source->searchable();
+        $target->searchable();
+        // The work's index carries its copies' incipits and explicits
+        Work::whereIn('id', array_unique([$source->work_id, $target->work_id]))->searchable();
+
+        return $source;
     }
 
     /** Moves the duplicate work's manuscripts under $target (folding identical copies) and deletes it. */
@@ -91,14 +137,14 @@ class RecordMerger
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
         $snapshot = $this->snapshot($source, ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id']);
+        $targetBefore = $target->only(array_merge(['alternative_titles'], self::WORK_FILL));
 
         $targetByKey = $target->manuscripts()->get()->keyBy(fn (Manuscript $m) => $this->copyKey($m));
         $moved = [];
         $folded = [];
         foreach ($source->manuscripts()->get() as $manuscript) {
             if ($existing = $targetByKey->get($this->copyKey($manuscript))) {
-                $this->mergeManuscript($manuscript, $existing);
-                $folded[$manuscript->id] = $existing->id;
+                $folded[$manuscript->id] = ['target_id' => $existing->id] + $this->mergeManuscript($manuscript, $existing);
             } else {
                 $manuscript->update(['work_id' => $target->id]);
                 $moved[] = $manuscript->id;
@@ -118,37 +164,98 @@ class RecordMerger
         }
 
         $fill = ['alternative_titles' => $titles ?: null];
-        foreach (['author_id', 'author_name', 'composition_date_raw', 'composition_year_hijri', 'composition_place', 'description', 'incipit_text', 'explicit_text'] as $column) {
+        foreach (self::WORK_FILL as $column) {
             if (($target->{$column} === null || $target->{$column} === '') && $source->{$column} !== null && $source->{$column} !== '') {
                 $fill[$column] = $source->{$column};
             }
         }
         $target->forceFill($fill)->save();
 
-        RecordRelations::moveOnMerge($source, $target);
-        $target->subjects()->syncWithoutDetaching($source->subjects()->pluck('subjects.id')->all());
-        $target->languages()->syncWithoutDetaching($source->languages()->pluck('languages.id')->all());
+        $relations = RecordRelations::moveOnMerge($source, $target);
+        $subjects = array_diff($source->subjects()->pluck('subjects.id')->all(), $target->subjects()->pluck('subjects.id')->all());
+        $languages = array_diff($source->languages()->pluck('languages.id')->all(), $target->languages()->pluck('languages.id')->all());
+        $target->subjects()->syncWithoutDetaching($subjects);
+        $target->languages()->syncWithoutDetaching($languages);
+        // «See …» cross-references would lose their link when the duplicate is deleted
+        $referrals = DB::table('referrals')->where('target_work_id', $source->id)->pluck('id')->all();
+        DB::table('referrals')->whereIn('id', $referrals)->update(['target_work_id' => $target->id]);
 
-        $this->moveAttachments($source, $target);
-        $this->citeEntry($source, $target);
+        $attachments = $this->moveAttachments($source, $target);
+        $entry = $this->citeEntry($source, $target);
 
         $people = DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all();
-        $subjects = DB::table('subject_work')->whereIn('work_id', [$source->id, $target->id])->pluck('subject_id')->all();
-        $languages = DB::table('language_work')->whereIn('work_id', [$source->id, $target->id])->pluck('language_id')->all();
+        $subjectIds = DB::table('subject_work')->whereIn('work_id', [$source->id, $target->id])->pluck('subject_id')->all();
+        $languageIds = DB::table('language_work')->whereIn('work_id', [$source->id, $target->id])->pluck('language_id')->all();
 
-        EntityRedirect::recordRedirect('works', $source->id, $target->id);
+        $redirects = $this->redirect('works', $source->id, $target->id);
         $source->delete();
 
         $this->recountWorks([$target->id]);
         $this->recountPeople($people);
-        $this->recountSubjects($subjects);
-        foreach (array_unique($languages) as $id) {
-            DB::table('languages')->where('id', $id)->update(['works_count' => DB::table('language_work')->where('language_id', $id)->count()]);
-        }
+        $this->recountSubjects($subjectIds);
+        $this->recountLanguages($languageIds);
         Manuscript::whereIn('id', $moved)->searchable();
         $target->searchable();
 
-        return ['source_snapshot' => $snapshot, 'moved_manuscript_ids' => $moved, 'folded_manuscript_ids' => $folded];
+        return [
+            'source_snapshot' => $snapshot,
+            'moved_manuscript_ids' => $moved,
+            'folded_manuscripts' => $folded,
+            'target_before' => $targetBefore,
+            'target_after' => $target->only(array_keys($targetBefore)),
+            'added_subject_ids' => array_values($subjects),
+            'added_language_ids' => array_values($languages),
+            'referral_ids' => $referrals,
+            'relations' => $relations,
+            'redirects' => $redirects,
+            'cited_entry_id' => $entry,
+        ] + $attachments;
+    }
+
+    /** Puts back a work mergeWork() removed, with its manuscripts, from the values it returned. */
+    public function undoWorkMerge(Work $target, array $old): Work
+    {
+        $snapshot = $old['source_snapshot'] ?? null;
+        if (! $snapshot || ! array_key_exists('folded_manuscripts', $old)) {
+            throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل اثر حذف‌شده در همین لاگ (source_snapshot) هست.');
+        }
+        $source = $this->restore(Work::class, 'works', $snapshot['attributes']);
+        foreach (['work_author', 'subject_work', 'language_work'] as $table) {
+            DB::table($table)->insertOrIgnore($snapshot['pivots'][$table] ?? []);
+        }
+
+        // Copies folded into one of the kept work's copies come back first (they belong to the restored work)
+        foreach (array_reverse($old['folded_manuscripts'], true) as $data) {
+            $kept = Manuscript::find($data['target_id'])
+                ?? throw new InvalidArgumentException("نسخه‌ی #{$data['target_id']}، که نسخه‌ای در آن ادغام شده بود، دیگر وجود ندارد.");
+            $this->undoManuscriptMerge($kept, $data);
+        }
+        Manuscript::whereIn('id', $old['moved_manuscript_ids'] ?? [])->where('work_id', $target->id)->update(['work_id' => $source->id]);
+
+        // Columns the merge set go back, unless they were edited since
+        $after = $old['target_after'] ?? [];
+        foreach ($old['target_before'] ?? [] as $column => $value) {
+            if ($target->{$column} == ($after[$column] ?? null)) {
+                $target->{$column} = $value;
+            }
+        }
+        $target->save();
+        $target->subjects()->detach($old['added_subject_ids'] ?? []);
+        $target->languages()->detach($old['added_language_ids'] ?? []);
+        DB::table('referrals')->whereIn('id', $old['referral_ids'] ?? [])->where('target_work_id', $target->id)->update(['target_work_id' => $source->id]);
+        RecordRelations::undoMove($old['relations'] ?? [], $source->id);
+        $this->undoAttachments($source, $target, $old);
+        $this->undoRedirect('works', $source->id, $old['redirects'] ?? []);
+
+        $this->recountWorks([$source->id, $target->id]);
+        $this->recountPeople(DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all());
+        $this->recountSubjects(DB::table('subject_work')->whereIn('work_id', [$source->id, $target->id])->pluck('subject_id')->all());
+        $this->recountLanguages(DB::table('language_work')->whereIn('work_id', [$source->id, $target->id])->pluck('language_id')->all());
+        Manuscript::where('work_id', $source->id)->searchable();
+        $source->searchable();
+        $target->searchable();
+
+        return $source;
     }
 
     /** Same library and shelfmark: the same physical copy (rule used by the addenda reconciliation) */
@@ -159,24 +266,77 @@ class RecordMerger
     }
 
     /** Source citations and still-open suggestions follow the record that is kept. */
-    private function moveAttachments($source, $target): void
+    private function moveAttachments($source, $target): array
     {
+        $citations = $source->sourceCitations()->pluck('id')->all();
         $source->sourceCitations()->update(['citable_id' => $target->id]);
-        FieldSuggestion::where('suggestable_type', $source::class)->where('suggestable_id', $source->id)
-            ->where('status', 'pending')->update(['suggestable_id' => $target->id]);
+        $suggestions = FieldSuggestion::where('suggestable_type', $source::class)->where('suggestable_id', $source->id)
+            ->where('status', 'pending')->pluck('id')->all();
+        FieldSuggestion::whereIn('id', $suggestions)->update(['suggestable_id' => $target->id]);
+
+        return ['citation_ids' => $citations, 'suggestion_ids' => $suggestions];
     }
 
-    /** The duplicate's own catalog entry stays citable on the kept record. */
-    private function citeEntry($source, $target): void
+    private function undoAttachments($source, $target, array $old): void
+    {
+        $target->sourceCitations()->whereIn('id', $old['citation_ids'] ?? [])->update(['citable_id' => $source->id]);
+        if ($entry = $old['cited_entry_id'] ?? null) {
+            $target->sourceCitations()->whereKey($entry)->delete();
+        }
+        FieldSuggestion::where('suggestable_type', $source::class)->where('suggestable_id', $target->id)
+            ->whereIn('id', $old['suggestion_ids'] ?? [])->update(['suggestable_id' => $source->id]);
+    }
+
+    /** The duplicate's own catalog entry stays citable on the kept record; returns the id of a citation it adds. */
+    private function citeEntry($source, $target): ?int
     {
         $catalogId = $source->catalog_id ?? Catalog::where('code', 'fankha')->value('id');
         if (! $catalogId || ! $source->volume_number) {
-            return;
+            return null;
         }
-        $target->sourceCitations()->firstOrCreate(
+        $citation = $target->sourceCitations()->firstOrCreate(
             ['catalog_id' => $catalogId, 'volume_number' => $source->volume_number, 'page_start' => $source->page_start, 'role' => 'entry'],
             ['page_end' => $source->page_end, 'raw_text' => $source->raw_text]
         );
+
+        return $citation->wasRecentlyCreated ? $citation->id : null;
+    }
+
+    /** Records the redirect; returns the earlier redirects into $sourceId that now point at $targetId. */
+    private function redirect(string $type, int $sourceId, int $targetId): array
+    {
+        $chained = EntityRedirect::where('entity_type', $type)->where('target_id', $sourceId)->pluck('source_id')->all();
+        EntityRedirect::recordRedirect($type, $sourceId, $targetId);
+
+        return $chained;
+    }
+
+    private function undoRedirect(string $type, int $sourceId, array $chained): void
+    {
+        EntityRedirect::removeRedirect($type, $sourceId);
+        EntityRedirect::where('entity_type', $type)->whereIn('source_id', $chained)->update(['target_id' => $sourceId]);
+    }
+
+    /** Inserts a removed record back with its own id. */
+    private function restore(string $class, string $table, array $attributes)
+    {
+        if ($class::find($attributes['id'])) {
+            throw new InvalidArgumentException("رکوردی با شناسه‌ی #{$attributes['id']} هم‌اکنون وجود دارد.");
+        }
+        DB::table($table)->insert(array_map(fn ($v) => is_array($v) ? json_encode($v, JSON_UNESCAPED_UNICODE) : $v, $attributes));
+
+        return $class::findOrFail($attributes['id']);
+    }
+
+    /** Empties the columns a merge filled, unless they were edited since. */
+    private function unfill($record, array $filled): void
+    {
+        foreach ($filled as $column => $value) {
+            if ($record->{$column} == $value) {
+                $record->{$column} = null;
+            }
+        }
+        $record->save();
     }
 
     private function snapshot($record, array $pivots): array
@@ -213,6 +373,13 @@ class RecordMerger
         foreach (DB::table('subjects')->whereIn('id', $ids)->whereNotNull('parent_id')->pluck('parent_id')->unique() as $parentId) {
             $family = DB::table('subjects')->where('parent_id', $parentId)->pluck('id')->push($parentId)->all();
             DB::table('subjects')->where('id', $parentId)->update(['works_count' => DB::table('subject_work')->whereIn('subject_id', $family)->distinct()->count('work_id')]);
+        }
+    }
+
+    private function recountLanguages(array $ids): void
+    {
+        foreach (array_unique($ids) as $id) {
+            DB::table('languages')->where('id', $id)->update(['works_count' => DB::table('language_work')->where('language_id', $id)->count()]);
         }
     }
 

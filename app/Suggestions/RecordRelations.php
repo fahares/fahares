@@ -131,10 +131,14 @@ class RecordRelations
         return $groups;
     }
 
-    /** After a merge: rows of the removed record point at the kept one; self-relations and duplicates go. */
-    public static function moveOnMerge(Model $source, Model $target): void
+    /**
+     * After a merge: rows of the removed record point at the kept one; self-relations and duplicates go.
+     * Returns what undoMove() needs: the rows repointed (id and column) and the rows deleted.
+     */
+    public static function moveOnMerge(Model $source, Model $target): array
     {
         [$table, $key, $relatedKey] = self::shape($source);
+        $log = ['table' => $table, 'updated' => [], 'deleted' => []];
         foreach ([$key, $relatedKey] as $column) {
             foreach (DB::table($table)->where($column, $source->id)->get() as $row) {
                 $from = $column === $key ? $target->id : $row->{$key};
@@ -142,10 +146,28 @@ class RecordRelations
                 $duplicate = DB::table($table)->where([$key => $from, $relatedKey => $to, 'type' => $row->type])->where('id', '!=', $row->id)->exists();
                 if ($from == $to || $duplicate) {
                     DB::table($table)->where('id', $row->id)->delete();
+                    $log['deleted'][] = (array) $row;
                 } else {
                     DB::table($table)->where('id', $row->id)->update([$column => $target->id]);
+                    $log['updated'][] = [$row->id, $column];
                 }
             }
+        }
+
+        return $log;
+    }
+
+    /** Points the rows moveOnMerge() changed back at the restored record and restores the rows it deleted. */
+    public static function undoMove(array $log, int $sourceId): void
+    {
+        if (! $log) {
+            return;
+        }
+        foreach ($log['updated'] as [$id, $column]) {
+            DB::table($log['table'])->where('id', $id)->update([$column => $sourceId]);
+        }
+        foreach ($log['deleted'] as $row) {
+            DB::table($log['table'])->insertOrIgnore($row);
         }
     }
 }
