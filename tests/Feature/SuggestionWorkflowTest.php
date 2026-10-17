@@ -1026,6 +1026,46 @@ class SuggestionWorkflowTest extends TestCase
         $user->delete();
     }
 
+    public function test_reviewer_converts_a_note_into_a_relation_keeping_the_submitter()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $user = $this->researcher('test-note-relation@fahares.net');
+        $m = $this->manuscript();
+        $from = $m->work;
+        $to = $this->work();
+        $this->actingAs($user);
+        // The researcher says, in a note, that the copy belongs to another work
+        $this->addNote($m, 'observation', ['text' => "این نسخه از اثر {$to->id} است، نه {$from->id}"], ['credit_name' => 'پژوهشگر آزمون'])->assertOk();
+        $note = FieldSuggestion::where('suggestable_id', $m->id)->sole();
+        $this->post('/logout');
+
+        $this->actingAs($this->admin);
+        $convert = fn (array $data) => $this->post("/admin/suggestions/{$note->id}/convert", $data + ['target_type' => 'manuscript', 'kind' => 'relation', 'field_name' => 'move_to_work', 'close_original' => 1]);
+        // The relation must exist for the record type, and its target must be given, readable and not the record itself
+        $convert(['field_name' => 'renamed', 'relation_target' => (string) $to->id])->assertSessionHasErrors('field_name');
+        $convert([])->assertSessionHasErrors('target_id');
+        $convert(['relation_target' => 'fahares.net/x/abc'])->assertSessionHasErrors('relation_target');
+        $convert(['field_name' => 'duplicate', 'relation_target' => "https://fahares.net/m/{$m->id}"])->assertSessionHasErrors('target_id');
+        $convert(['field_name' => 'manuscript_relation', 'relation_target' => (string) $this->manuscript()->id])->assertSessionHasErrors('role');
+        $this->assertSame('pending', $note->fresh()->status);
+
+        $convert(['relation_target' => "https://fahares.net/w/{$to->id}", 'suggested_value' => '', 'rationale_citation' => 'یادداشت پژوهشگر'])->assertRedirect();
+        $move = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'relation')->sole();
+        $this->assertSame(['move_to_work', $to->id, $note->id, 'این نسخه از اثر دیگری است'], [$move->field_name, $move->payload['target_id'], $move->payload['derived_from'], $move->suggested_value]);
+        $this->assertSame([$user->id, 'پژوهشگر آزمون'], [$move->user_id, $move->credit_name]);
+        $this->assertTrue($move->created_at->equalTo($note->created_at));
+        $this->assertSame('converted', $note->fresh()->status);
+
+        // Approving it moves the copy and tells the original researcher
+        $this->get("/admin/suggestions/{$move->id}")->assertOk()->assertSee('انتقال نسخه به اثر دیگر');
+        $this->approve($move)->assertRedirect('/admin/suggestions');
+        $this->assertSame($to->id, $m->fresh()->work_id);
+        $this->assertSame('approved', $move->fresh()->status);
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\SuggestionReviewed::class);
+
+        $user->delete();
+    }
+
     protected function rollbackLatest($record): void
     {
         $log = AuditLog::where('auditable_type', $record::class)->where('auditable_id', $record->id)->where('action', 'verify')->latest('id')->first();

@@ -6,6 +6,7 @@ use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Notifications\SuggestionNotifier;
 use App\Suggestions\NoteTypes;
+use App\Suggestions\RelationInput;
 use App\Suggestions\SuggestionRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -76,53 +77,9 @@ class SuggestionController extends Controller
         }
 
         $relation = null;
+        $relationPayload = [];
         if ($validated['kind'] === 'relation') {
-            $relation = SuggestionRegistry::relation($validated['type'], $validated['field_name'] ?? null);
-            if (! $relation) {
-                throw ValidationException::withMessages(['field_name' => 'این نوع پیشنهاد برای این رکورد تعریف نشده است.']);
-            }
-            // Another name, a library's new name or what belongs to another record is carried by the submitted text
-            if (! empty($relation['needs_text'])) {
-                if (trim($validated['suggested_value'] ?? '') === '') {
-                    throw ValidationException::withMessages(['suggested_value' => match ($relation['apply']) {
-                        'rename_library' => 'نام تازه‌ی کتابخانه را بنویسید.',
-                        'split' => 'بنویسید کدام بخش‌ها از رکورد دیگری‌اند.',
-                        default => 'نام دیگر را بنویسید.',
-                    }]);
-                }
-                if ($relation['apply'] === 'rename_library' && trim($validated['suggested_value']) === $record->name) {
-                    throw ValidationException::withMessages(['suggested_value' => 'نام تازه همان نام کنونی کتابخانه است.']);
-                }
-            }
-            $target = $relation['target'] ? SuggestionRegistry::modelClass($relation['target'])::find($validated['target_id'] ?? 0) : null;
-            // A person connected with the copy: a role, and a person from the list or only a name
-            if (($relation['apply'] ?? null) === 'record_relation' && ! array_key_exists($validated['role'] ?? '', \App\Suggestions\RecordRelations::options($validated['type']))) {
-                throw ValidationException::withMessages(['role' => 'نوع رابطه را انتخاب کنید.']);
-            }
-            if (($relation['apply'] ?? null) === 'person_role') {
-                if (! array_key_exists($validated['role'] ?? '', \App\Models\ManuscriptPerson::ROLES)) {
-                    throw ValidationException::withMessages(['role' => 'نقش این شخص را انتخاب کنید.']);
-                }
-                if (! $target && trim($validated['role_name'] ?? '') === '') {
-                    throw ValidationException::withMessages(['role_name' => 'شخص را از فهرست انتخاب کنید یا نامش را بنویسید.']);
-                }
-            }
-            // A new library, a new shelfmark, or both
-            if (($relation['apply'] ?? null) === 'relocate') {
-                $shelfmark = trim($validated['shelfmark'] ?? '');
-                if (! $target && $shelfmark === '') {
-                    throw ValidationException::withMessages(['shelfmark' => 'کتابخانه‌ی تازه را انتخاب کنید یا شماره‌ی تازه‌ی نسخه را بنویسید.']);
-                }
-                if ((! $target || $target->id === (int) $record->library_id) && ($shelfmark === '' || $shelfmark === $record->shelfmark)) {
-                    throw ValidationException::withMessages(['shelfmark' => 'کتابخانه و شماره‌ی تازه همان نشانی کنونی نسخه است.']);
-                }
-            }
-            if ($relation['target'] && ! $target && empty($relation['target_optional'])) {
-                throw ValidationException::withMessages(['target_id' => 'رکورد مقصد را انتخاب کنید.']);
-            }
-            if ($target?->is($record)) {
-                throw ValidationException::withMessages(['target_id' => 'رکورد مقصد نمی‌تواند خود همین رکورد باشد.']);
-            }
+            ['relation' => $relation, 'payload' => $relationPayload] = RelationInput::validate($validated['type'], $record, $validated);
             if (mb_strlen(trim($validated['rationale_citation'] ?? '')) < 5) {
                 throw ValidationException::withMessages(['rationale_citation' => 'مستند یا منبع پیشنهاد را بنویسید (دست‌کم ۵ نویسه).']);
             }
@@ -131,11 +88,7 @@ class SuggestionController extends Controller
         $user = $request->user();
         $payload = array_filter([
             'person_id' => $field && $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null,
-            'target_id' => $relation && $relation['target'] && ! empty($validated['target_id']) ? (int) $validated['target_id'] : null,
-            'role' => in_array($relation['apply'] ?? null, ['person_role', 'record_relation'], true) ? $validated['role'] : null,
-            'name' => ($relation['apply'] ?? null) === 'person_role' ? (trim($validated['role_name'] ?? '') ?: null) : null,
-            'shelfmark' => ($relation['apply'] ?? null) === 'relocate' ? (trim($validated['shelfmark'] ?? '') ?: null) : null,
-        ]);
+        ]) + $relationPayload;
 
         $suggestion = FieldSuggestion::create([
             'suggestable_type' => $record::class,

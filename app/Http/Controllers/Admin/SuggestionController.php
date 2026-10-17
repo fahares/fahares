@@ -10,6 +10,7 @@ use App\Models\Manuscript;
 use App\Notifications\SuggestionNotifier;
 use App\Suggestions\RecordMerger;
 use App\Suggestions\NoteTypes;
+use App\Suggestions\RelationInput;
 use App\Suggestions\SuggestionApplier;
 use App\Suggestions\SuggestionRegistry;
 use App\Support\HijriYear;
@@ -757,8 +758,8 @@ class SuggestionController extends Controller
 
     /**
      * Turns a suggestion the submitter filed in the wrong place (e.g. a scribe's name sent as a note)
-     * into a standard one: a field correction, a research note or a general report, on this or another
-     * record. The new suggestion keeps the submitter, their consent to be named and the date, and waits
+     * into a standard one: a field correction, a research note, a general report or a relation (this copy
+     * belongs to another work…), on this or another record. The new suggestion keeps the submitter, their consent to be named and the date, and waits
      * for review like any other; the original is kept and can be closed as converted.
      */
     public function convert(Request $request, FieldSuggestion $suggestion)
@@ -767,8 +768,12 @@ class SuggestionController extends Controller
         $validated = $request->validate([
             'target_type' => ['required', Rule::in(array_keys(SuggestionRegistry::TYPES))],
             'target_ref' => 'nullable|string|max:500',
-            'kind' => ['required', Rule::in(['field', 'note', 'general'])],
+            'kind' => ['required', Rule::in(['field', 'note', 'general', 'relation'])],
             'field_name' => 'nullable|string|max:100',
+            'relation_target' => 'nullable|string|max:500',
+            'role' => 'nullable|string|max:30',
+            'role_name' => 'nullable|string|max:600',
+            'shelfmark' => 'nullable|string|max:255',
             'suggested_value' => 'nullable|string|max:20000',
             'rationale_citation' => 'nullable|string|max:5000',
             'note' => 'nullable|array',
@@ -804,6 +809,17 @@ class SuggestionController extends Controller
                     }
                     $values = NoteTypes::clean($validated['field_name'], (array) ($validated['note'] ?? []));
                     $attributes = ['field_name' => $validated['field_name'], 'suggested_value' => NoteTypes::summary($validated['field_name'], $values), 'current_value' => null, 'payload' => $values + ['derived_from' => $suggestion->id]];
+                    break;
+                case 'relation':
+                    // The other record of the relation: a pasted link, an id, or one picked from the lookup
+                    $other = SuggestionRegistry::relation($type, $validated['field_name'] ?? null)['target'] ?? null;
+                    $otherRef = trim((string) ($validated['relation_target'] ?? ''));
+                    $otherId = $other && $otherRef !== '' ? self::recordId($other, $otherRef) : null;
+                    if ($other && $otherRef !== '' && ! $otherId) {
+                        return back()->withInput()->withErrors(['relation_target' => 'پیوند یا شناسه‌ی رکورد مقصد خوانا نیست.']);
+                    }
+                    ['relation' => $relation, 'payload' => $payload] = RelationInput::validate($type, $record, ['target_id' => $otherId, 'suggested_value' => $value] + $validated);
+                    $attributes = ['field_name' => $relation['key'], 'suggested_value' => $value !== '' ? $value : $relation['label'], 'current_value' => null, 'payload' => $payload + ['derived_from' => $suggestion->id]];
                     break;
                 default:
                     if ($value === '') {
