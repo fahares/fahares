@@ -2261,3 +2261,10 @@
 - [EnrichCatalogersProfilesCommand](../app/Console/Commands/EnrichCatalogersProfilesCommand.php): گزینه‌ی `--create-missing` فهرست‌نگارِ پیدانشده را با slug یکتا می‌سازد. `person_id` فقط وقتی پر می‌شود که خالی باشد و نام دقیقاً یک شخص را بدهد.
 - اجرا: `php artisan catalogers:enrich-profiles --file=database/data/catalogers_profiles_phase4.json --create-missing`. روی `fahares_prod` محلی شناسه‌ی ۱۰۸ گرفت.
 - زندگی‌نامه از ویکی‌شیعه و ویکی‌فقه گردآوری شد. «الذریعه» در فهرست فنخا ردیف‌های ۶۳۴ تا ۶۶۱ است (با شهر نادرست «یزد») ولی `catalog_volumes` رکوردی برای آن ندارد.
+
+### گام ۱۲.۱۱: حساب کاربری و `og-image.jpg`
+
+- در `resources/views/auth/*`، `auth/partials/google-button`، `my/*` و `components/password-toggle`، کلاس‌های رنگ ثابت (`#B38A50`، `#292C56`، `#15192C`، و جفت‌های `stone-*`/`dark:`) با یک نگاشت یکسان به توکن‌ها (`bg-surface`، `text-ink`، `text-muted`، `border-line`، `text-cinnabar` …) تبدیل شدند. نوار گرادیان بالای فرم‌ها حذف شد.
+- [public/images/brand/og-image.jpg](../public/images/brand/og-image.jpg) با Pillow و موتور RAQM ساخته شد تا حروف فارسی درست به هم بچسبند. قلم‌ها Noto Naskh Arabic Bold و Vazirmatn بودند. نشانی سایت با Vazirmatn کامل نوشته شد، چون نسخه‌ی `NL` حروف لاتین ندارد.
+- [layouts/app.blade.php](../resources/views/layouts/app.blade.php): `og:image` و `twitter:image` پیش‌فرض این تصویر را نشان می‌دهند. `og:image:width` و `og:image:height` فقط وقتی افزوده می‌شوند که صفحه تصویر دیگری تعیین نکرده باشد.
+

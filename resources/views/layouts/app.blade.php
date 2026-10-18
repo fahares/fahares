@@ -12,14 +12,18 @@
     <meta property="og:description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:image" content="@yield('og_image', asset('images/fahares_logo_full.jpg'))">
+    <meta property="og:image" content="@yield('og_image', asset('images/brand/og-image.jpg'))">
+    @hasSection('og_image')@else
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    @endif
     <meta property="og:locale" content="fa_IR">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')">
     <meta name="twitter:description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب')">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/fahares_logo_full.jpg'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/brand/og-image.jpg'))">
 
     @stack('structured_data')
     
