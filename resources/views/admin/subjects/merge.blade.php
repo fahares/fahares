@@ -3,9 +3,9 @@
 @section('title', 'ابزار ادغام موضوعات همپوشان')
 @section('page_title', 'ابزار ادغام و تجمیع موضوعات (Subject Merger)')
 @section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-[#B38A50]">پیشخوان</a>
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
     <span>/</span>
-    <a href="{{ route('admin.subjects.index') }}" class="hover:text-[#B38A50]">موضوعات</a>
+    <a href="{{ route('admin.subjects.index') }}" class="hover:text-cinnabar">موضوعات</a>
     <span>/</span>
     <span class="text-stone-400">ادغام موضوعات</span>
 @endsection
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Merge Form Card -->
-    <div class="p-8 rounded-2xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-800 shadow-xs space-y-6">
+    <div class="p-8 rounded-2xl bg-surface border border-line shadow-xs space-y-6">
         <form action="{{ route('admin.subjects.merge') }}" method="POST" class="space-y-6 text-xs">
             @csrf
 
@@ -35,7 +35,7 @@
                     ۱. موضوع مبدأ (تکراری / حذف‌شونده):
                 </label>
                 <select name="source_subject_id" id="source_subject_id" required 
-                        class="w-full p-3 rounded-xl border border-red-300 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20 text-stone-900 dark:text-stone-100 font-semibold focus:border-red-500 outline-none">
+                        class="w-full p-3 rounded-xl border border-red-300 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20 text-ink font-semibold focus:border-red-500 outline-none">
                     <option value="">-- انتخاب موضوعی که باید حذف و ادغام شود --</option>
                     @foreach($subjects as $s)
                         <option value="{{ $s->id }}" {{ old('source_subject_id', $preloadedSourceId ?? '') == $s->id ? 'selected' : '' }}>
@@ -61,7 +61,7 @@
                     ۲. موضوع مقصد (موضوع اصلی / حفظ‌شونده):
                 </label>
                 <select name="target_subject_id" id="target_subject_id" required 
-                        class="w-full p-3 rounded-xl border border-emerald-300 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-900 dark:text-stone-100 font-semibold focus:border-emerald-500 outline-none">
+                        class="w-full p-3 rounded-xl border border-emerald-300 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/20 text-ink font-semibold focus:border-emerald-500 outline-none">
                     <option value="">-- انتخاب موضوعی که آثار به آن منتقل می‌شود --</option>
                     @foreach($subjects as $s)
                         <option value="{{ $s->id }}" {{ old('target_subject_id', $preloadedTargetId ?? '') == $s->id ? 'selected' : '' }}>
@@ -75,7 +75,7 @@
             </div>
 
             <!-- Submit -->
-            <div class="pt-4 flex items-center justify-between border-t border-stone-100 dark:border-stone-800">
+            <div class="pt-4 flex items-center justify-between border-t border-line">
                 <a href="{{ route('admin.subjects.index') }}" class="px-4 py-2 text-stone-500 hover:text-stone-800 font-bold">
                     انصراف
                 </a>

@@ -31,11 +31,11 @@
         'otherRecord' => (bool) old('target_ref') || ! $hasRecord,
         'prefill' => $suggestion->kind === 'note' ? ($suggestion->payload['text'] ?? $suggestion->suggested_value) : $suggestion->suggested_value,
     ];
-    $input = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
+    $input = 'w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink';
     $prefill = $suggestion->kind === 'note' ? ($suggestion->payload['text'] ?? $suggestion->suggested_value) : $suggestion->suggested_value;
 @endphp
 <details @if($errors->hasAny(['target_ref', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role', 'role_name', 'shelfmark']) || $errors->has('note.*')) open @endif
-    class="p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-sky-500/30 shadow-xs text-xs">
+    class="p-6 rounded-2xl bg-surface border border-sky-500/30 shadow-xs text-xs">
     <summary class="cursor-pointer text-sm font-bold text-sky-800 dark:text-sky-300">تبدیل به پیشنهاد دیگر</summary>
     <p class="mt-2 text-stone-500 leading-relaxed">اگر پژوهشگر نکته را در جای نادرست فرستاده (مثلاً نام کاتب را به‌صورت یادداشت)، از روی آن یک پیشنهاد استاندارد بسازید. پیشنهاد تازه به نام همین پژوهشگر و با رضایت او به درج نام ثبت می‌شود و مانند هر پیشنهاد دیگری داوری می‌شود.</p>
 
@@ -47,13 +47,13 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label class="space-y-1">
-                <span class="block font-bold text-stone-700 dark:text-stone-300">رکورد مقصد:</span>
+                <span class="block font-bold text-ink">رکورد مقصد:</span>
                 <select name="target_type" x-model="targetType" @change="fieldName = ''; if (targetType !== @js($ownType)) otherRecord = true" class="{{ $input }}">
                     <template x-for="(t, key) in types" :key="key"><option :value="key" x-text="t.label" :selected="key === targetType"></option></template>
                 </select>
             </label>
             <div class="space-y-1">
-                <span class="block font-bold text-stone-700 dark:text-stone-300">کدام رکورد:</span>
+                <span class="block font-bold text-ink">کدام رکورد:</span>
                 @if($hasRecord)
                     <label class="flex items-center gap-2" x-show="targetType === @js($ownType)"><input type="checkbox" x-model="otherRecord" class="rounded"> رکورد دیگری است</label>
                 @endif
@@ -64,7 +64,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label class="space-y-1">
-                <span class="block font-bold text-stone-700 dark:text-stone-300">نوع پیشنهاد تازه:</span>
+                <span class="block font-bold text-ink">نوع پیشنهاد تازه:</span>
                 <select name="kind" x-model="kind" @change="fieldName = ''" class="{{ $input }}">
                     <option value="field">اصلاح یک فیلد</option>
                     <option value="note">یادداشت یا منبع پژوهشی</option>
@@ -73,7 +73,7 @@
                 </select>
             </label>
             <label class="space-y-1" x-show="kind !== 'general'">
-                <span class="block font-bold text-stone-700 dark:text-stone-300" x-text="kind === 'field' ? 'فیلد:' : (kind === 'relation' ? 'نوع رابطه:' : 'نوع یادداشت:')"></span>
+                <span class="block font-bold text-ink" x-text="kind === 'field' ? 'فیلد:' : (kind === 'relation' ? 'نوع رابطه:' : 'نوع یادداشت:')"></span>
                 <select name="field_name" x-model="fieldName" @change="target = null; targetResults = []" class="{{ $input }}">
                     <option value="">انتخاب کنید…</option>
                     <template x-for="o in options" :key="o.name ?? o.key"><option :value="o.name ?? o.key" x-text="o.label" :selected="(o.name ?? o.key) === fieldName"></option></template>
@@ -83,7 +83,7 @@
 
         <template x-if="relation && relation.options">
             <label class="block space-y-1">
-                <span class="block font-bold text-stone-700 dark:text-stone-300" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطه‌ی دو رکورد:'"></span>
+                <span class="block font-bold text-ink" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطه‌ی دو رکورد:'"></span>
                 <select name="role" class="{{ $input }}">
                     <option value="">انتخاب کنید…</option>
                     <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label" :selected="key === @js(old('role'))"></option></template>
@@ -92,14 +92,14 @@
         </template>
         <template x-if="relation && relation.target">
             <div class="space-y-1 relative">
-                <span class="block font-bold text-stone-700 dark:text-stone-300"
+                <span class="block font-bold text-ink"
                     x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:'})[relation.target])"></span>
                 <input type="text" name="relation_target" x-model="relationTarget" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جستجوی عنوان و نام" class="{{ $input }}">
-                <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-[#1A1E35] shadow-xl">
+                <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-line-strong bg-white dark:bg-paper shadow-xl">
                     <template x-for="r in targetResults" :key="r.id">
                         <li>
                             <button type="button" @click="pickTarget(r)" class="w-full text-right px-3 py-2 hover:bg-sky-50 dark:hover:bg-sky-950/40">
-                                <span class="block font-bold text-stone-800 dark:text-stone-100" x-text="r.label"></span>
+                                <span class="block font-bold text-ink" x-text="r.label"></span>
                                 <span class="block text-stone-400" x-text="'#' + r.id + (r.sub ? ' · ' + r.sub : '')"></span>
                             </button>
                         </li>
@@ -115,13 +115,13 @@
         </template>
         <template x-if="relation && relation.apply === 'person_role'">
             <label class="block space-y-1">
-                <span class="block font-bold text-stone-700 dark:text-stone-300">یا نام شخص، همان‌گونه که در نسخه آمده:</span>
+                <span class="block font-bold text-ink">یا نام شخص، همان‌گونه که در نسخه آمده:</span>
                 <input type="text" name="role_name" value="{{ old('role_name') }}" class="{{ $input }}">
             </label>
         </template>
         <template x-if="relation && relation.apply === 'relocate'">
             <label class="block space-y-1">
-                <span class="block font-bold text-stone-700 dark:text-stone-300">شماره‌ی تازه‌ی نسخه (اگر عوض شده است):</span>
+                <span class="block font-bold text-ink">شماره‌ی تازه‌ی نسخه (اگر عوض شده است):</span>
                 <input type="text" name="shelfmark" value="{{ old('shelfmark') }}" class="{{ $input }}">
             </label>
         </template>
@@ -129,11 +129,11 @@
         <template x-if="kind !== 'note'">
             <div class="space-y-3">
                 <label class="block space-y-1">
-                    <span class="block font-bold text-stone-700 dark:text-stone-300" x-text="kind === 'relation' ? (relation && relation.needs_text ? 'متن لازم این رابطه (نام دیگر، نام تازه، بخش‌های جداشدنی):' : 'توضیح (اختیاری):') : 'مقدار پیشنهادی (به شکل استاندارد):'"></span>
+                    <span class="block font-bold text-ink" x-text="kind === 'relation' ? (relation && relation.needs_text ? 'متن لازم این رابطه (نام دیگر، نام تازه، بخش‌های جداشدنی):' : 'توضیح (اختیاری):') : 'مقدار پیشنهادی (به شکل استاندارد):'"></span>
                     <textarea name="suggested_value" rows="3" class="{{ $input }}">{{ old('suggested_value', $prefill) }}</textarea>
                 </label>
                 <label class="block space-y-1">
-                    <span class="block font-bold text-stone-700 dark:text-stone-300">مستند و منبع:</span>
+                    <span class="block font-bold text-ink">مستند و منبع:</span>
                     <textarea name="rationale_citation" rows="2" class="{{ $input }}">{{ old('rationale_citation', $suggestion->rationale_citation) }}</textarea>
                 </label>
             </div>
@@ -142,7 +142,7 @@
             <div class="space-y-3">
                 <template x-for="f in note.fields" :key="fieldName + f">
                     <label class="block space-y-1">
-                        <span class="block font-bold text-stone-700 dark:text-stone-300"><span x-text="noteFields[f]"></span><span x-show="note.required.includes(f)" class="text-red-600"> *</span></span>
+                        <span class="block font-bold text-ink"><span x-text="noteFields[f]"></span><span x-show="note.required.includes(f)" class="text-red-600"> *</span></span>
                         <template x-if="f === 'text'">
                             <textarea name="note[text]" rows="4" class="{{ $input }}" x-text="prefill"></textarea>
                         </template>

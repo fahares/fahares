@@ -3,7 +3,7 @@
 @section('title', 'مدیریت کاربران و پژوهشگران')
 @section('page_title', 'مدیریت کاربران و سطوح دسترسی (Users & Roles)')
 @section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-[#B38A50]">پیشخوان</a>
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
     <span>/</span>
     <span class="text-stone-400">کاربران</span>
 @endsection
@@ -12,42 +12,42 @@
 <div class="space-y-6">
 
     <!-- Role Filter Tabs -->
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 pb-4">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
         
         <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
             <a href="{{ route('admin.users.index') }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ empty($role) ? 'bg-[#292C56] text-amber-200' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ empty($role) ? 'bg-ink text-paper' : 'bg-surface text-ink/80' }}">
                 همه کاربران
             </a>
             <a href="{{ route('admin.users.index', ['role' => 'admin']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'admin' ? 'bg-amber-500 text-stone-950 font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'admin' ? 'bg-amber-500 text-stone-950 font-black' : 'bg-surface text-ink/80' }}">
                 مدیران ارشد (Admin)
             </a>
             <a href="{{ route('admin.users.index', ['role' => 'editor']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'editor' ? 'bg-indigo-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'editor' ? 'bg-indigo-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 دبیران علمی (Editor)
             </a>
             <a href="{{ route('admin.users.index', ['role' => 'researcher']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'researcher' ? 'bg-blue-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'researcher' ? 'bg-blue-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 پژوهشگران (Researcher)
             </a>
             <a href="{{ route('admin.users.index', ['role' => 'user']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'user' ? 'bg-stone-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $role === 'user' ? 'bg-stone-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 کاربران عادی (User)
             </a>
         </div>
 
         <div class="text-xs text-stone-400">
-            مجموع حساب‌ها: <strong class="text-stone-700 dark:text-stone-200">{{ number_format($users->total()) }}</strong>
+            مجموع حساب‌ها: <strong class="text-ink">{{ number_format($users->total()) }}</strong>
         </div>
 
     </div>
 
     <!-- Users Table -->
-    <div class="bg-white dark:bg-[#15192C] rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs overflow-hidden">
+    <div class="bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-right text-xs">
-                <thead class="bg-stone-50 dark:bg-stone-800/60 text-stone-500 border-b border-stone-100 dark:border-stone-800">
+                <thead class="bg-paper text-stone-500 border-b border-line">
                     <tr>
                         <th class="p-4 font-bold">شناسه</th>
                         <th class="p-4 font-bold">نام و نام خانوادگی</th>
@@ -58,17 +58,17 @@
                         <th class="p-4 font-bold text-center">عملیات</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
+                <tbody class="divide-y divide-line">
                     @forelse($users as $u)
-                        <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-800/40 transition">
+                        <tr class="hover:bg-paper transition">
                             <td class="p-4 font-mono font-bold text-stone-400">#{{ $u->id }}</td>
-                            <td class="p-4 font-bold text-stone-900 dark:text-stone-100">
+                            <td class="p-4 font-bold text-ink">
                                 <span>{{ $u->name }}</span>
                                 @if($u->is_verified_scholar)
                                     <span class="inline-block mr-1 text-emerald-500" title="پژوهشگر تاییدشده">✓</span>
                                 @endif
                             </td>
-                            <td class="p-4 font-mono text-stone-600 dark:text-stone-300 dir-ltr text-right">
+                            <td class="p-4 font-mono text-ink/80 dir-ltr text-right">
                                 {{ $u->email }}
                             </td>
                             <td class="p-4">
@@ -79,7 +79,7 @@
                                 @elseif($u->role === 'researcher')
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/15 text-blue-800 dark:text-blue-300">پژوهشگر</span>
                                 @else
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">کاربر</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 dark:bg-stone-800 text-ink/80">کاربر</span>
                                 @endif
                             </td>
                             <td class="p-4 text-stone-500">
@@ -91,7 +91,7 @@
                             <td class="p-4 text-center">
                                 <div class="flex items-center justify-center gap-1">
                                     <a href="{{ route('admin.users.edit', $u) }}" 
-                                       class="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-[#B38A50] hover:text-white text-stone-700 dark:text-stone-200 font-bold transition">
+                                       class="px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-cinnabar hover:text-white text-ink font-bold transition">
                                         ویرایش
                                     </a>
                                     @if($u->id !== auth()->id())
@@ -118,7 +118,7 @@
         </div>
 
         @if($users->hasPages())
-            <div class="p-4 border-t border-stone-100 dark:border-stone-800">
+            <div class="p-4 border-t border-line">
                 {{ $users->links() }}
             </div>
         @endif

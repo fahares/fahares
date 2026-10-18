@@ -3,7 +3,7 @@
 @section('title', 'گزارش ممیزی و تغییرات سیستم')
 @section('page_title', 'گزارش ممیزی و تاریخچه تغییرات پایگاه (Audit Logs)')
 @section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-[#B38A50]">پیشخوان</a>
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
     <span>/</span>
     <span class="text-stone-400">گزارش ممیزی</span>
 @endsection
@@ -12,46 +12,46 @@
 <div class="space-y-6">
 
     <!-- Action Filter Toolbar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 pb-4">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
         
         <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
             <a href="{{ route('admin.audit-logs.index') }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ empty($action) ? 'bg-[#292C56] text-amber-200' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ empty($action) ? 'bg-ink text-paper' : 'bg-surface text-ink/80' }}">
                 همه عملیات‌ها
             </a>
             <a href="{{ route('admin.audit-logs.index', ['action' => 'verify']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'verify' ? 'bg-amber-500 text-stone-950 font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'verify' ? 'bg-amber-500 text-stone-950 font-black' : 'bg-surface text-ink/80' }}">
                 داوری و تایید اصلاحیه (Verify)
             </a>
             <a href="{{ route('admin.audit-logs.index', ['action' => 'merge']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'merge' ? 'bg-indigo-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'merge' ? 'bg-indigo-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 ادغام اعلام و موضوعات (Merge)
             </a>
             <a href="{{ route('admin.audit-logs.index', ['action' => 'remove']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'remove' ? 'bg-red-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'remove' ? 'bg-red-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 حذف رکورد زائد (Remove)
             </a>
             <a href="{{ route('admin.audit-logs.index', ['action' => 'update']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'update' ? 'bg-blue-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'update' ? 'bg-blue-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 ویرایش‌ها (Update)
             </a>
             <a href="{{ route('admin.audit-logs.index', ['action' => 'create']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'create' ? 'bg-emerald-600 text-white font-black' : 'bg-white dark:bg-[#15192C] text-stone-600 dark:text-stone-300' }}">
+               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'create' ? 'bg-emerald-600 text-white font-black' : 'bg-surface text-ink/80' }}">
                 ایجاد جدید (Create)
             </a>
         </div>
 
         <div class="text-xs text-stone-400">
-            تعداد رخدادها: <strong class="text-stone-700 dark:text-stone-200">{{ number_format($logs->total()) }}</strong>
+            تعداد رخدادها: <strong class="text-ink">{{ number_format($logs->total()) }}</strong>
         </div>
 
     </div>
 
     <!-- Audit Logs Table -->
-    <div class="bg-white dark:bg-[#15192C] rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs overflow-hidden">
+    <div class="bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-right text-xs">
-                <thead class="bg-stone-50 dark:bg-stone-800/60 text-stone-500 border-b border-stone-100 dark:border-stone-800">
+                <thead class="bg-paper text-stone-500 border-b border-line">
                     <tr>
                         <th class="p-4 font-bold">شناسه و زمان</th>
                         <th class="p-4 font-bold">اقدام‌کننده</th>
@@ -61,15 +61,15 @@
                         <th class="p-4 font-bold">جزئیات تغییرات</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
+                <tbody class="divide-y divide-line">
                     @forelse($logs as $log)
-                        <tr x-data="{ expanded: false }" class="hover:bg-stone-50/50 dark:hover:bg-stone-800/40 transition">
+                        <tr x-data="{ expanded: false }" class="hover:bg-paper transition">
                             <td class="p-4">
-                                <span class="font-mono font-bold text-stone-900 dark:text-stone-100">#{{ $log->id }}</span>
+                                <span class="font-mono font-bold text-ink">#{{ $log->id }}</span>
                                 <div class="text-[10px] text-stone-400 font-mono mt-0.5">{{ $log->created_at->format('Y/m/d H:i:s') }}</div>
                             </td>
                             <td class="p-4">
-                                <span class="font-bold text-stone-800 dark:text-stone-200">
+                                <span class="font-bold text-ink">
                                     {{ $log->user?->name ?: 'سیستم خودکار' }}
                                 </span>
                                 @if($log->user)
@@ -88,7 +88,7 @@
                                 </span>
                             </td>
                             <td class="p-4">
-                                <span class="font-mono text-stone-700 dark:text-stone-300 font-bold block">
+                                <span class="font-mono text-ink font-bold block">
                                     {{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }}
                                 </span>
                             </td>
@@ -98,7 +98,7 @@
                             <td class="p-4">
                                 <div class="flex items-center gap-2">
                                     <button type="button" @click="expanded = !expanded" 
-                                            class="px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer">
+                                            class="px-2.5 py-1 rounded-lg border border-line-strong hover:bg-paper text-[11px] font-bold transition flex items-center gap-1 cursor-pointer">
                                         <span x-text="expanded ? 'بستن' : 'مشاهده Diff'">مشاهده Diff</span>
                                         <svg :class="expanded ? 'rotate-180' : ''" class="w-3 h-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
@@ -145,7 +145,7 @@
         </div>
 
         @if($logs->hasPages())
-            <div class="p-4 border-t border-stone-100 dark:border-stone-800">
+            <div class="p-4 border-t border-line">
                 {{ $logs->links() }}
             </div>
         @endif

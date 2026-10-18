@@ -2304,3 +2304,12 @@
 - **آزمون:** [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php).
 - **پوشش روی پایگاه محلی:** ۸٬۳۰۷ پیوند به الذریعة و ۱٬۰۶۷ به ریحانة در ۶٬۹۳۵ اثر. نمونه‌ی بررسی‌شده: اثر #12888 («تحفه» شیخ بهائی) با ارجاع `402/3` به مدخل ۱۴۴۳ الذریعة، «التحفة فی تحدید الکر»، رسید.
 - **منبع خام:** `../fahares-sources/dharia/*_text.pdf` (۲۸ فایل، ۲۶۲ مگابایت، با `MD5SUMS`) از `archive.org/details/alzariah`.
+
+### گام ۱۲.۱۶: پنل مدیریت
+
+- [layouts/admin.blade.php](../resources/views/layouts/admin.blade.php):
+  - نوار کناری `#221C17`، سربرگ نوار `#1A1511` و گزینه‌ی فعال `#C9A45C`. این رنگ‌ها عمداً ثابت‌اند، چون نوار در هر دو حالت تیره است.
+  - لوگو `brand/shamseh-64.png` است.
+  - `body` و سربرگ صفحه از توکن‌های `paper`، `surface` و `line` استفاده می‌کنند.
+- `resources/views/admin/**`: همان نگاشت گام ۱۲.۱۳ (جفت‌های روشن و تیره‌ی ثابت به توکن، `#B38A50` به `gold` یا `cinnabar`، و `text-on-cinnabar` برای دکمه‌های پر) اجرا شد. `bg-[#292C56] text-amber-200` به `bg-ink text-paper` تبدیل شد.
+

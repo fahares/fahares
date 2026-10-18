@@ -1,14 +1,14 @@
 {{-- Review of site feedback: the page it came from, the message, screenshots; resolve with an answer, reject, or convert (see partials/convert) --}}
 @php
     $payload = $suggestion->payload ?? [];
-    $input = 'w-full p-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100';
+    $input = 'w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink';
 @endphp
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-800 shadow-xs space-y-4 text-xs">
+    <div class="lg:col-span-2 p-6 rounded-2xl bg-surface border border-line shadow-xs space-y-4 text-xs">
         <div class="flex flex-wrap items-center justify-between gap-2">
-            <h3 class="text-sm font-bold text-stone-900 dark:text-stone-100">بازخورد سایت: {{ $suggestion->field_label }}</h3>
+            <h3 class="text-sm font-bold text-ink">بازخورد سایت: {{ $suggestion->field_label }}</h3>
             @if($suggestion->place_url)
-                <a href="{{ $suggestion->place_url }}" target="_blank" class="font-bold text-[#B38A50] hover:underline">صفحه‌ی گزارش‌شده ↗</a>
+                <a href="{{ $suggestion->place_url }}" target="_blank" class="font-bold text-cinnabar hover:underline">صفحه‌ی گزارش‌شده ↗</a>
             @endif
         </div>
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-stone-500">
@@ -22,7 +22,7 @@
         @if(! empty($payload['files']))
             <div class="grid grid-cols-2 gap-3">
                 @foreach($payload['files'] as $i => $path)
-                    <a href="{{ route('notes.file', [$suggestion, $i]) }}" target="_blank"><img src="{{ route('notes.file', [$suggestion, $i]) }}" alt="تصویر پیوست {{ $i + 1 }}" class="w-full rounded-lg border border-stone-200 dark:border-stone-700"></a>
+                    <a href="{{ route('notes.file', [$suggestion, $i]) }}" target="_blank"><img src="{{ route('notes.file', [$suggestion, $i]) }}" alt="تصویر پیوست {{ $i + 1 }}" class="w-full rounded-lg border border-line-strong"></a>
                 @endforeach
             </div>
         @endif
@@ -30,7 +30,7 @@
 
     <div class="space-y-6">
         @if($suggestion->status === 'pending')
-            <div class="p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-emerald-500/30 shadow-xs space-y-3 text-xs">
+            <div class="p-6 rounded-2xl bg-surface border border-emerald-500/30 shadow-xs space-y-3 text-xs">
                 <h3 class="text-sm font-bold text-emerald-700 dark:text-emerald-400">رسیدگی شد</h3>
                 <form action="{{ route('admin.suggestions.resolve', $suggestion) }}" method="POST" class="space-y-3">
                     @csrf
@@ -39,7 +39,7 @@
                     <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">ثبت «رسیدگی شد»</button>
                 </form>
             </div>
-            <div class="p-6 rounded-2xl bg-white dark:bg-[#15192C] border border-red-500/30 shadow-xs space-y-3 text-xs">
+            <div class="p-6 rounded-2xl bg-surface border border-red-500/30 shadow-xs space-y-3 text-xs">
                 <h3 class="text-sm font-bold text-red-600 dark:text-red-400">رد</h3>
                 <form action="{{ route('admin.suggestions.reject', $suggestion) }}" method="POST" class="space-y-3">
                     @csrf
@@ -49,7 +49,7 @@
                 </form>
             </div>
         @else
-            <div class="p-6 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 text-xs space-y-2">
+            <div class="p-6 rounded-2xl bg-paper border border-line-strong text-xs space-y-2">
                 <p><span class="font-bold">پاسخ به فرستنده:</span> <span class="whitespace-pre-line">{{ $suggestion->public_note ?: '—' }}</span></p>
                 <p><span class="font-bold">یادداشت داخلی:</span> {{ $suggestion->admin_notes ?: '—' }}</p>
             </div>

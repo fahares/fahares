@@ -25,7 +25,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-stone-100 dark:bg-[#0E1122] text-stone-800 dark:text-stone-200 font-sans min-h-screen flex selection:bg-[#B38A50]/20 selection:text-[#B38A50]">
+<body class="bg-paper text-ink font-sans min-h-screen flex selection:bg-cinnabar/20 selection:text-cinnabar">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" 
@@ -41,15 +41,15 @@
 
     <!-- Sidebar Navigation -->
     <aside :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 right-0 z-50 w-72 bg-[#191B36] text-stone-300 flex flex-col border-l border-[#B38A50]/20 shadow-2xl transition-transform duration-300 ease-in-out">
+           class="fixed inset-y-0 right-0 z-50 w-72 bg-[#221C17] text-stone-300 flex flex-col border-l border-gold/30 shadow-2xl transition-transform duration-300 ease-in-out">
         
         <!-- Sidebar Brand Header -->
-        <div class="h-20 flex items-center justify-between px-6 border-b border-stone-800/80 bg-[#14162B]">
+        <div class="h-20 flex items-center justify-between px-6 border-b border-stone-800/80 bg-[#1A1511]">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                <img src="{{ asset('images/logo_emblem.png') }}" alt="فهارس" class="h-10 w-auto drop-shadow">
+                <img src="{{ asset('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
                 <div>
-                    <span class="text-xl font-black text-amber-100 tracking-tight leading-none block">فهارس</span>
-                    <span class="text-[10px] text-[#B38A50] font-medium tracking-wide">مرکز فرماندهی و نظارت علمی</span>
+                    <span class="font-naskh text-2xl font-bold text-amber-50 leading-none block">فهارس</span>
+                    <span class="text-[10px] text-[#C9A45C] font-medium">پنل مدیریت و داوری</span>
                 </div>
             </a>
             <button @click="sidebarOpen = false" class="lg:hidden text-stone-400 hover:text-white p-1">
@@ -66,7 +66,7 @@
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">نظارت عمومی</span>
                 <a href="{{ route('admin.dashboard') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <div class="flex items-center gap-3">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
@@ -75,7 +75,7 @@
                     </div>
                 </a>
                 <a href="{{ route('admin.audit-logs.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                     </svg>
@@ -87,7 +87,7 @@
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">داوری و ویرایش علمی</span>
                 <a href="{{ route('admin.suggestions.index') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.suggestions.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.suggestions.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <div class="flex items-center gap-3">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
@@ -121,14 +121,14 @@
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">تاکسونومی و پدیدآوران</span>
                 <a href="{{ route('admin.subjects.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.subjects.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.subjects.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
                     <span>درخت و ادغام موضوعات</span>
                 </a>
                 <a href="{{ route('admin.people.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.people.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.people.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
@@ -140,14 +140,14 @@
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">فهرستگان و مراکز</span>
                 <a href="{{ route('admin.catalogers.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.catalogers.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.catalogers.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
                     <span>فهرست‌نگاران</span>
                 </a>
                 <a href="{{ route('admin.libraries.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.libraries.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.libraries.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
@@ -159,21 +159,21 @@
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">سامانه و زیرساخت</span>
                 <a href="{{ route('admin.home.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.home.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.home.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                     <span>صفحه‌ی خانه</span>
                 </a>
                 <a href="{{ route('admin.system.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.system.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.system.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     </svg>
                     <span>عملیات کش و Meilisearch</span>
                 </a>
                 <a href="{{ route('admin.users.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#B38A50] text-stone-950 font-bold shadow-md' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
@@ -184,10 +184,10 @@
         </div>
 
         <!-- Sidebar Footer (Admin Profile & Back to site) -->
-        <div class="p-4 border-t border-stone-800/80 bg-[#14162B] space-y-3">
+        <div class="p-4 border-t border-stone-800/80 bg-[#1A1511] space-y-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-[#B38A50]/20 border border-[#B38A50]/40 flex items-center justify-center font-bold text-amber-300 text-sm">
+                    <div class="w-9 h-9 rounded-xl bg-cinnabar/20 border border-gold/40 flex items-center justify-center font-bold text-amber-300 text-sm">
                         {{ mb_substr(auth()->user()->name, 0, 1) }}
                     </div>
                     <div class="overflow-hidden">
@@ -208,7 +208,7 @@
             </div>
 
             <a href="{{ route('home') }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-stone-700 bg-stone-800/60 hover:bg-stone-700 text-stone-300 hover:text-white text-xs font-semibold transition">
-                <svg class="w-4 h-4 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-4 h-4 text-cinnabar" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                 </svg>
                 <span>مشاهده وب‌سایت عمومی</span>
@@ -221,20 +221,20 @@
     <div class="flex-1 flex flex-col min-w-0 lg:mr-72">
         
         <!-- Admin Top Navigation Bar -->
-        <header class="h-20 bg-white dark:bg-[#15192C] border-b border-stone-200 dark:border-stone-800 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+        <header class="h-20 bg-surface border-b border-line px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
             
             <!-- Left: Sidebar Trigger & Page Title -->
             <div class="flex items-center gap-4">
-                <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800">
+                <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-xl text-ink/80 hover:bg-paper">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
                 <div>
-                    <h1 class="text-lg sm:text-xl font-black text-stone-900 dark:text-stone-100">
+                    <h1 class="text-lg sm:text-xl font-black text-ink">
                         @yield('page_title', 'مرکز مدیریت فهارس')
                     </h1>
-                    <div class="text-[11px] text-stone-500 dark:text-stone-400 flex items-center gap-2">
+                    <div class="text-[11px] text-muted flex items-center gap-2">
                         @yield('breadcrumb')
                     </div>
                 </div>
@@ -246,7 +246,7 @@
                 <!-- Dark Mode Switch -->
                 <button type="button" 
                         @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" 
-                        class="p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-600 dark:text-amber-300 hover:text-[#B38A50] transition shadow-xs cursor-pointer"
+                        class="p-2.5 rounded-xl border border-line-strong bg-paper text-stone-600 dark:text-amber-300 hover:text-cinnabar transition shadow-xs cursor-pointer"
                         title="تغییر تم">
                     <svg x-show="darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
@@ -308,7 +308,7 @@
         </main>
 
         <!-- Admin Footer -->
-        <footer class="h-14 border-t border-stone-200 dark:border-stone-800 px-4 sm:px-8 flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 bg-white dark:bg-[#15192C]">
+        <footer class="h-14 border-t border-line px-4 sm:px-8 flex items-center justify-between text-xs text-muted bg-surface">
             <div>پایگاه فهارس نسخه خطی ایران • پنل نظارت علمی</div>
             <div class="font-mono text-[11px]">Laravel 13 • PHP 8.3 • Meilisearch</div>
         </footer>
