@@ -47,4 +47,23 @@ class WorkPageTest extends TestCase
             ->assertSeeInOrder(['کهن‌ترین نسخه‌ی تاریخ‌دار', 'شماره‌ی کهن‌ترین', '۸۹۹ق'])
             ->assertSee('ج ۲۴، ص ۴۳۹');
     }
+
+    public function test_birth_years_are_filled_from_the_catalog_author_line()
+    {
+        $person = Person::create(['name' => 'مؤلف آزمایشی تولد', 'normalized_name' => 'مولف ازمایشی تولد', 'slug' => 'test-' . uniqid(), 'death_year_hijri' => 898]);
+        $other = Person::create(['name' => 'مؤلف آزمایشی ناسازگار', 'normalized_name' => 'مولف ازمایشی ناسازگار', 'slug' => 'test-' . uniqid(), 'death_year_hijri' => 700]);
+        $make = fn (Person $p, string $line) => Work::create([
+            'primary_title' => 'اثر آزمایشی تولد', 'clean_title' => 'اثر آزمایشی تولد', 'slug' => 'birth-' . uniqid(),
+            'author_id' => $p->id, 'volume_number' => 1, 'page_start' => 1,
+            'raw_text' => "● اثر آزمایشی تولد / نحو / عربی\nal-test\n\n{$line}\nlatin line",
+        ]);
+        $make($person, 'مؤلف آزمایشی تولد، 817 - 898 قمری');
+        $make($other, 'مؤلف آزمایشی ناسازگار، 600 - 700 قمری');
+        $make($other, 'مؤلف آزمایشی ناسازگار، 610 - 700 قمری');
+
+        $this->artisan('people:backfill-birth-years', ['--only' => "{$person->id},{$other->id}"])->assertSuccessful();
+
+        $this->assertSame(817, $person->fresh()->birth_year_hijri);
+        $this->assertNull($other->fresh()->birth_year_hijri, 'works that disagree leave the birth year empty');
+    }
 }

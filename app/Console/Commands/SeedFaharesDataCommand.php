@@ -517,6 +517,7 @@ class SeedFaharesDataCommand extends Command
             'name' => mb_substr($cleanName, 0, 600),
             'normalized_name' => mb_substr($norm, 0, 600),
             'slug' => $slug,
+            'birth_year_hijri' => $this->birthYearFrom($workData),
             'death_year_hijri' => !empty($workData['author_death_date_sort_year']) ? (int) $workData['author_death_date_sort_year'] : null,
             'century_hijri' => !empty($workData['author_death_date_century']) ? (int) $workData['author_death_date_century'] : null,
             'death_year_gregorian' => !empty($workData['author_death_date_gregorian_calculated']) ? (int) $workData['author_death_date_gregorian_calculated'] : null,
@@ -529,6 +530,21 @@ class SeedFaharesDataCommand extends Command
 
         $this->peopleCache[$norm] = $id;
         return $id;
+    }
+
+    /**
+     * The parser keeps the author's full date range in author_death_date_hijri («817 - 898 قمری»);
+     * the birth year is its first number when the second is the death year.
+     */
+    protected function birthYearFrom(array $workData): ?int
+    {
+        $range = (string) ($workData['author_death_date_hijri'] ?? '');
+        $death = (int) ($workData['author_death_date_sort_year'] ?? 0);
+        if ($death && preg_match('/(?<!\d)(\d{2,4})\s*[-–]\s*(\d{2,4})/u', $range, $m) && (int) $m[2] === $death && (int) $m[1] < $death && $death - (int) $m[1] <= 120) {
+            return (int) $m[1];
+        }
+
+        return null;
     }
 
     protected function resolveLibrary(string $city, string $name): int
