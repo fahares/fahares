@@ -288,7 +288,7 @@
                         @foreach($work->bibliography as $bib)
                             <li class="flex gap-2.5 leading-relaxed">
                                 <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                                <span class="text-ink">{{ Fa::digits($bib) }}</span>
+                                <span class="text-ink">{{ \App\Support\BibliographyLinks::html($bib) }}</span>
                             </li>
                         @endforeach
                     </ul>
