@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Cataloger;
 use App\Models\CatalogVolume;
+use App\Models\EntityRedirect;
+use App\Models\Library;
 use App\Models\Manuscript;
 use Illuminate\Http\Request;
 
@@ -51,8 +53,14 @@ class CatalogerController extends Controller
     {
         $numericId = (int) $id;
 
-        $cataloger = Cataloger::with(['person', 'user'])
-            ->findOrFail($numericId);
+        $cataloger = Cataloger::with(['person', 'user'])->find($numericId);
+        if (! $cataloger) {
+            // A removed record that was an institution, not a cataloger, points at its library
+            $library = ($libraryId = EntityRedirect::resolveTargetId('cataloger_library', $numericId)) ? Library::find($libraryId) : null;
+            abort_unless($library, 404);
+
+            return redirect()->route('libraries.show', ['id' => $library->getRouteKey()], 301);
+        }
 
         $canonicalKey = (string) $cataloger->getRouteKey();
         if ($id !== $canonicalKey && urldecode($id) !== $canonicalKey) {

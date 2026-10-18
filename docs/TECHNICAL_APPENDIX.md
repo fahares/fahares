@@ -2268,3 +2268,21 @@
 - [public/images/brand/og-image.jpg](../public/images/brand/og-image.jpg) با Pillow و موتور RAQM ساخته شد تا حروف فارسی درست به هم بچسبند. قلم‌ها Noto Naskh Arabic Bold و Vazirmatn بودند. نشانی سایت با Vazirmatn کامل نوشته شد، چون نسخه‌ی `NL` حروف لاتین ندارد.
 - [layouts/app.blade.php](../resources/views/layouts/app.blade.php): `og:image` و `twitter:image` پیش‌فرض این تصویر را نشان می‌دهند. `og:image:width` و `og:image:height` فقط وقتی افزوده می‌شوند که صفحه تصویر دیگری تعیین نکرده باشد.
 
+### گام ۱۲.۱۲: حذف فهرست‌نگار «آستان قدس رضوی»
+- **منابع:**
+  - فنخا: `fahares-corpus/catalogs/fankha_complete_catalogs_table.md`، ردیف‌های ۴۸۴ تا ۴۸۶ و ۴۸۸. در متن خام این ردیف‌ها فقط «آستان‌قدس رضوی، مشهد» آمده است.
+  - MTIF: [mtif.org/book/147](https://mtif.org/book/147). در آن مسئولیت «[تالیف اوکتایی]» است و مندرجات «ج ۱–۵: اوکتایی؛ ج ۶: مهدی ولائی؛ …». در `storage/mtif_extracted_data.json` جلدهای این مجموعه (series 147) `author_ids` خالی دارند.
+- **ریشه:**
+  - [fankha_catalogs_master_verified.json](../database/data/fankha_catalogs_master_verified.json)، ردیف‌های ۱۹۵ تا ۱۹۷ و ۱۹۹، مقدار `"catalogers": ["آستان قدس رضوی"]` داشتند. `RemediateCatalogsAndCatalogersCommand::getOrCreateCataloger` از روی آن فهرست‌نگار ساخت و `linkManuscripts` نسخه‌ها را با `cataloger_id` به آن وصل کرد.
+  - ردیف‌های ۱۹۵ تا ۱۹۷ حالا `["اوکتایی"]` دارند و ردیف ۱۹۹ `[]`، هر دو با `notes`. کپی همین فایل در `fahares-corpus/catalogs/` هم اصلاح شد.
+  - شناسنامه‌ی ساختگی از [catalogers_profiles_phase2.json](../database/data/catalogers_profiles_phase2.json) حذف شد.
+- **دستور:** [ReplaceRazaviInstitutionCatalogerCommand](../app/Console/Commands/ReplaceRazaviInstitutionCatalogerCommand.php)، اجرا با `php artisan catalogers:replace-razavi-institution [--dry-run]`.
+  - فهرست‌نگار نهاد با slug `آستان-قدس-رضوی` پیدا می‌شود. جلدها با `mtif_entry_id` پیدا می‌شوند: ۲۱۴۰۹ تا ۲۱۴۱۱ برای اوکتایی و ۲۱۴۱۳ برای فهرست‌نگار نامعلوم.
+  - «اوکتایی» با `firstOrCreate` بر اساس slug ساخته می‌شود. منبعش در `metadata.sources` ثبت می‌شود و سال تولد ندارد.
+  - برای هر چهار جلد، `metadata.cataloger_note` نوشته می‌شود.
+  - `cataloger_id` نسخه‌های جلدهای ۲ تا ۴ به اوکتایی تغییر می‌کند و باقی نسخه‌های نهاد `null` می‌شوند.
+  - پیوندهای جدول واسط جدا و رکورد نهاد حذف می‌شود. سپس `EntityRedirect::recordRedirect('cataloger_library', …)` به کتابخانه‌ی همان جلدها ثبت و اوکتایی بازشماری می‌شود.
+  - همه‌ی این کارها در یک تراکنش است و اجرای دوباره بی‌اثر است.
+- **ریدایرکت:** [CatalogerController::show](../app/Http/Controllers/CatalogerController.php) برای شناسه‌ی پیدانشده، redirect از نوع `cataloger_library` را به `libraries.show` با کد ۳۰۱ دنبال می‌کند. بدون آن، پاسخ همچنان ۴۰۴ است.
+- **آزمون:** [ReplaceRazaviInstitutionCatalogerTest](../tests/Feature/ReplaceRazaviInstitutionCatalogerTest.php). نکته: `only()` در مجموعه‌ی Eloquent بر اساس کلید اصلی فیلتر می‌کند، نه کلید آرایه.
+- **محلی (`fahares_db`):** نهاد ۹۷ حذف شد. اوکتایی شناسه‌ی ۱۱۲ گرفت (۳ جلد، ۱٬۳۰۱ نسخه). redirect ۶۷۲ (از ۹۷ به کتابخانه‌ی ۱) ثبت شد. تمرین روی `fahares_prod` محلی (`DB_DATABASE=fahares_prod`): نهاد با ۲٬۲۲۵ نسخه حذف شد، اوکتایی شناسه‌ی ۱۰۹ گرفت (۳ جلد، ۱٬۲۸۵ نسخه)، و اجرای دوم بی‌اثر بود.
