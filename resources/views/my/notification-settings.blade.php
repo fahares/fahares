@@ -22,7 +22,7 @@
                         @endforeach
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
+                <tbody class="divide-y divide-line">
                     @foreach($types as $type => $definition)
                         <tr>
                             <td class="p-4 text-ink">{{ $definition['label'] }}</td>

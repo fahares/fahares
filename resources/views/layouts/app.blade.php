@@ -50,7 +50,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-parchment-pattern min-h-screen flex flex-col font-sans selection:bg-[#B38A50]/20 selection:text-[#B38A50]">
+<body class="bg-parchment-pattern min-h-screen flex flex-col font-sans selection:bg-cinnabar/20 selection:text-cinnabar">
 
     <!-- Main Navigation Header (Glassmorphic) -->
     <header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-line transition-colors duration-200">
@@ -72,17 +72,17 @@
                 </div>
 
                 <!-- Desktop Navigation Links -->
-                <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-stone-700 dark:text-stone-300">
-                    <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('home') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-ink">
+                    <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('home') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         صفحه نخست
                     </a>
-                    <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('subjects.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         موضوعات
                     </a>
-                    <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('libraries.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         کتابخانه‌ها و مراکز
                     </a>
-                    <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('catalogers.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         فهرست‌نگاران
                     </a>
                 </nav>
@@ -94,9 +94,9 @@
                     <button 
                         type="button" 
                         @click="window.dispatchEvent(new CustomEvent('open-spotlight-modal'))"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 text-xs text-stone-500 hover:border-[#B38A50] hover:text-[#B38A50] transition group shadow-sm cursor-pointer"
+                        class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-line-strong bg-paper text-xs text-stone-500 hover:border-gold hover:text-cinnabar transition group shadow-sm cursor-pointer"
                         title="جستجوی سریع (Ctrl+K)">
-                        <svg class="w-4 h-4 text-stone-400 group-hover:text-[#B38A50]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <svg class="w-4 h-4 text-stone-400 group-hover:text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         <span class="hidden sm:inline">کاوش سریع...</span>
                         <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300 font-mono">Ctrl+K</kbd>
                     </button>
@@ -105,7 +105,7 @@
                     <button 
                         type="button" 
                         @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" 
-                        class="hidden sm:inline-flex p-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-amber-300 hover:text-[#B38A50] transition shadow-sm cursor-pointer"
+                        class="hidden sm:inline-flex p-2 rounded-full border border-line-strong bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-amber-300 hover:text-cinnabar transition shadow-sm cursor-pointer"
                         title="تغییر حالت شب/روز">
                         <!-- Sun Icon (Dark Mode active) -->
                         <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -123,9 +123,9 @@
                         @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
                         <div x-data="{ userMenuOpen: false }" class="relative">
                             <button @click="userMenuOpen = !userMenuOpen" aria-label="حساب کاربری: {{ auth()->user()->name }}"
-                                    class="relative flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full border border-[#B38A50]/40 bg-[#B38A50]/10 text-stone-800 dark:text-stone-200 text-xs font-bold hover:border-[#B38A50] transition cursor-pointer">
+                                    class="relative flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full border border-gold/40 bg-cinnabar/10 text-ink text-xs font-bold hover:border-gold transition cursor-pointer">
                                 <span class="hidden sm:inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <svg class="sm:hidden w-5 h-5 text-[#B38A50]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="sm:hidden w-5 h-5 text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                                 </svg>
                                 <span class="hidden sm:inline max-w-[140px] truncate">{{ auth()->user()->name }}</span>
@@ -138,19 +138,19 @@
                             </button>
 
                             <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-cloak x-transition
-                                 class="absolute left-0 mt-2 w-52 bg-white dark:bg-[#15192C] rounded-2xl shadow-xl border border-stone-200 dark:border-stone-700 py-2 z-50 text-xs divide-y divide-stone-100 dark:divide-stone-800">
+                                 class="absolute left-0 mt-2 w-52 bg-surface rounded-2xl shadow-xl border border-line-strong py-2 z-50 text-xs divide-y divide-line">
                                 <div class="px-4 py-2">
-                                    <p class="font-bold text-stone-900 dark:text-stone-100 truncate">{{ auth()->user()->name }}</p>
+                                    <p class="font-bold text-ink truncate">{{ auth()->user()->name }}</p>
                                     <p class="text-[10px] text-stone-400 truncate dir-ltr text-right">{{ auth()->user()->email }}</p>
                                 </div>
                                 <div class="py-1">
-                                    <a href="{{ route('my.suggestions') }}" class="flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition">
+                                    <a href="{{ route('my.suggestions') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                                         </svg>
                                         <span>پیشنهادهای من</span>
                                     </a>
-                                    <a href="{{ route('notifications.index') }}" class="flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition">
+                                    <a href="{{ route('notifications.index') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                                         </svg>
@@ -159,13 +159,13 @@
                                             <span class="ms-auto px-1.5 rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold">{{ $unreadNotifications }}</span>
                                         @endif
                                     </a>
-                                    <a href="{{ route('notifications.settings') }}" class="flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition">
+                                    <a href="{{ route('notifications.settings') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                                         </svg>
                                         <span>تنظیمات اعلان</span>
                                     </a>
-                                    <button type="button" @click="userMenuOpen = false; $dispatch('open-feedback')" class="w-full text-right flex items-center gap-2 px-4 py-2 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 font-medium transition cursor-pointer">
+                                    <button type="button" @click="userMenuOpen = false; $dispatch('open-feedback')" class="w-full text-right flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition cursor-pointer">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                                         </svg>
@@ -174,7 +174,7 @@
                                 </div>
                                 @if(auth()->user()->canAccessAdmin())
                                     <div class="py-1">
-                                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-[#B38A50] hover:bg-amber-50 dark:hover:bg-amber-950/20 font-bold transition">
+                                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-cinnabar hover:bg-amber-50 dark:hover:bg-amber-950/20 font-bold transition">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                             </svg>
@@ -196,8 +196,8 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('register') }}" class="sm:hidden inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#8a6a3c] hover:bg-[#765a32] text-white text-xs font-bold whitespace-nowrap shadow-sm transition">عضویت</a>
-                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 hover:border-[#B38A50] hover:text-[#B38A50] transition shadow-sm">
+                        <a href="{{ route('register') }}" class="sm:hidden inline-flex items-center px-3.5 py-1.5 rounded-full bg-cinnabar hover:opacity-90 text-white text-xs font-bold whitespace-nowrap shadow-sm transition">عضویت</a>
+                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap rounded-full border border-line-strong bg-paper text-xs font-bold text-ink hover:border-gold hover:text-cinnabar transition shadow-sm">
                             <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                             </svg>
@@ -207,23 +207,23 @@
 
                     <!-- Mobile Menu Button (Alpine) -->
                     <div x-data="{ open: false }" class="md:hidden relative">
-                        <button @click="open = !open" class="p-2 rounded-lg border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300">
+                        <button @click="open = !open" class="p-2 rounded-lg border border-line-strong text-ink/80">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
-                        <div x-show="open" @click.away="open = false" x-transition class="absolute left-0 mt-2 w-48 bg-white dark:bg-[#15192C] rounded-xl shadow-xl border border-stone-200 dark:border-stone-700 py-2 z-50 text-sm">
-                            <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('home') ? 'text-[#B38A50] font-bold' : '' }}">صفحه نخست</a>
-                            <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] font-bold' : '' }}">موضوعات</a>
-                            <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
-                            <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] font-bold' : '' }}">فهرست‌نگاران</a>
-                            <div class="my-1 border-t border-stone-200 dark:border-stone-700 sm:hidden"></div>
-                            <button type="button" @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" class="sm:hidden w-full text-right px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800">
+                        <div x-show="open" @click.away="open = false" x-transition class="absolute left-0 mt-2 w-48 bg-surface rounded-xl shadow-xl border border-line-strong py-2 z-50 text-sm">
+                            <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('home') ? 'text-cinnabar font-bold' : '' }}">صفحه نخست</a>
+                            <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('subjects.*') ? 'text-cinnabar font-bold' : '' }}">موضوعات</a>
+                            <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
+                            <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
+                            <div class="my-1 border-t border-line-strong sm:hidden"></div>
+                            <button type="button" @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" class="sm:hidden w-full text-right px-4 py-2 hover:bg-paper">
                                 <span x-show="darkMode" x-cloak>حالت روز</span>
                                 <span x-show="!darkMode" x-cloak>حالت شب</span>
                             </button>
                             @guest
-                                <div class="my-1 border-t border-stone-200 dark:border-stone-700"></div>
-                                <a href="{{ route('login') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('login') ? 'text-[#B38A50] font-bold' : '' }}">ورود</a>
-                                <a href="{{ route('register') }}" class="block px-4 py-2 hover:bg-stone-50 dark:hover:bg-stone-800 {{ request()->routeIs('register') ? 'text-[#B38A50] font-bold' : '' }}">عضویت</a>
+                                <div class="my-1 border-t border-line-strong"></div>
+                                <a href="{{ route('login') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('login') ? 'text-cinnabar font-bold' : '' }}">ورود</a>
+                                <a href="{{ route('register') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('register') ? 'text-cinnabar font-bold' : '' }}">عضویت</a>
                             @endguest
                         </div>
                     </div>
@@ -238,11 +238,11 @@
         @if(request()->routeIs('home'))
             <div x-data="{ show: (() => { try { return localStorage.getItem('join-bar-dismissed') !== '1' } catch (e) { return true } })() }"
                  x-show="show" x-cloak
-                 class="md:hidden bg-[#B38A50]/10 dark:bg-[#B38A50]/15 border-b border-[#B38A50]/30">
+                 class="md:hidden bg-cinnabar/10 dark:bg-cinnabar/15 border-b border-gold/30">
                 <div class="px-4 py-2.5 flex items-center gap-3 text-xs">
-                    <p class="flex-1 leading-5 text-stone-700 dark:text-stone-200">برای ثبت پیشنهاد، یادداشت و اصلاح فهرست‌ها عضو شوید.</p>
-                    <a href="{{ route('register') }}" class="shrink-0 px-3 py-1.5 rounded-full bg-[#8a6a3c] hover:bg-[#765a32] text-white font-bold">عضویت</a>
-                    <a href="{{ route('login') }}" class="shrink-0 font-bold text-[#8a6a3c] dark:text-[#d9b47c]">ورود</a>
+                    <p class="flex-1 leading-5 text-ink">برای ثبت پیشنهاد، یادداشت و اصلاح فهرست‌ها عضو شوید.</p>
+                    <a href="{{ route('register') }}" class="shrink-0 px-3 py-1.5 rounded-full bg-cinnabar hover:opacity-90 text-white font-bold">عضویت</a>
+                    <a href="{{ route('login') }}" class="shrink-0 font-bold text-cinnabar ">ورود</a>
                     <button type="button" aria-label="بستن"
                             @click="show = false; try { localStorage.setItem('join-bar-dismissed', '1') } catch (e) {}"
                             class="shrink-0 p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
@@ -273,7 +273,7 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                     <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-2">
                         <span>ایمیل حساب شما هنوز تأیید نشده است. با تأیید آن، پیشنهادهایی که پیش‌تر بدون ورود فرستاده‌اید به حسابتان وصل می‌شوند.</span>
-                        <a href="{{ route('verification.notice') }}" class="font-bold text-[#B38A50] hover:underline shrink-0">تأیید ایمیل</a>
+                        <a href="{{ route('verification.notice') }}" class="font-bold text-cinnabar hover:underline shrink-0">تأیید ایمیل</a>
                     </div>
                 </div>
             @endunless
@@ -286,10 +286,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Beta Notice & Scholarly Collaboration Callout Banner -->
-            <div class="bg-black/20 border border-[#B38A50]/30 rounded-2xl p-5 sm:p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-5 shadow-inner">
+            <div class="bg-black/20 border border-gold/30 rounded-2xl p-5 sm:p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-5 shadow-inner">
                 <div class="space-y-2 text-justify md:text-right">
                     <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#B38A50]/20 text-amber-300 border border-[#B38A50]/30">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cinnabar/20 text-amber-300 border border-gold/30">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                             وضعیت سامانه: نسخه آزمایشی
                         </span>
@@ -300,14 +300,14 @@
                     </p>
                 </div>
                 <div class="shrink-0 flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
-                    <a href="mailto:info@fahares.net" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#B38A50] hover:bg-[#9e7841] text-[#191B36] font-bold text-xs transition duration-150 shadow whitespace-nowrap">
+                    <a href="mailto:info@fahares.net" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-cinnabar hover:opacity-90 text-on-cinnabar font-bold text-xs transition duration-150 shadow whitespace-nowrap">
                         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         <span>مکاتبه: info@fahares.net</span>
                     </a>
                     @guest
-                        <a href="{{ route('register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#B38A50]/60 hover:bg-[#B38A50]/15 text-amber-200 font-bold text-xs transition duration-150 whitespace-nowrap">
+                        <a href="{{ route('register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gold/60 hover:bg-cinnabar/15 text-amber-200 font-bold text-xs transition duration-150 whitespace-nowrap">
                             <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
@@ -348,7 +348,7 @@
 
                 <!-- Col 2: Quick Links -->
                 <div>
-                    <h3 class="text-sm font-bold text-amber-200 tracking-wider mb-4 border-r-2 border-[#B38A50] pr-2">دسترسی سریع</h3>
+                    <h3 class="text-sm font-bold text-amber-200 tracking-wider mb-4 border-r-2 border-gold pr-2">دسترسی سریع</h3>
                     <ul class="space-y-2 text-sm text-stone-400">
                         <li><a href="{{ route('search', ['type' => 'works']) }}" class="hover:text-amber-100 transition">فهرست آثار و عناوین</a></li>
                         <li><a href="{{ route('subjects.index') }}" class="hover:text-amber-100 transition">درختواره موضوعات و علوم</a></li>
@@ -361,7 +361,7 @@
 
                 <!-- Col 3: Research & Features -->
                 <div>
-                    <h3 class="text-sm font-bold text-amber-200 tracking-wider mb-4 border-r-2 border-[#B38A50] pr-2">امکانات پژوهشی</h3>
+                    <h3 class="text-sm font-bold text-amber-200 tracking-wider mb-4 border-r-2 border-gold pr-2">امکانات پژوهشی</h3>
                     <ul class="space-y-2 text-sm text-stone-400">
                         <li>جستجوی بلادرنگ با Meilisearch</li>
                         <li>فیلترهای کالبدشناسی (تذهیب، خط، سده)</li>
@@ -517,7 +517,7 @@
                     x-transition:leave-start="opacity-100"
                     x-transition:leave-end="opacity-0"
                     @click="closeModal()"
-                    class="fixed inset-0 bg-[#0F1224]/75 dark:bg-black/85 backdrop-blur-sm transition-opacity"></div>
+                    class="fixed inset-0 bg-black/60 dark:bg-black/85 backdrop-blur-sm transition-opacity"></div>
 
                 <!-- Modal Window Container -->
                 <div 
@@ -528,11 +528,11 @@
                     x-transition:leave="ease-in duration-150"
                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                     x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                    class="mx-auto max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-[#15192C] shadow-2xl border border-stone-200 dark:border-[#272F4C] transition-all relative z-10">
+                    class="mx-auto max-w-2xl transform overflow-hidden rounded-2xl bg-surface shadow-2xl border border-stone-200 dark:border-line transition-all relative z-10">
 
                     <!-- Search Input Header -->
-                    <div class="relative flex items-center border-b border-stone-200 dark:border-[#272F4C] px-4 py-3.5 bg-stone-50/70 dark:bg-[#191D33]">
-                        <svg class="w-5 h-5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="relative flex items-center border-b border-stone-200 dark:border-line px-4 py-3.5 bg-stone-50/70 dark:bg-paper">
+                        <svg class="w-5 h-5 text-cinnabar shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                         <input 
@@ -544,7 +544,7 @@
                             @keydown.up.prevent="prevItem()"
                             @keydown.enter.prevent="selectCurrentItem()"
                             placeholder="کاوش سریع اثر، مؤلف، کاتب یا نسخه... (با ↑ و ↓ انتخاب کنید، Enter برای رفتن)"
-                            class="w-full bg-transparent pr-3 pl-16 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-none focus:ring-0">
+                            class="w-full bg-transparent pr-3 pl-16 text-sm text-ink placeholder-stone-400 focus:outline-none border-none focus:ring-0">
                         
                         <!-- Actions inside search bar -->
                         <div class="absolute left-3 flex items-center gap-1.5">
@@ -559,7 +559,7 @@
                             <button 
                                 type="button" 
                                 @click="closeModal()" 
-                                class="px-1.5 py-0.5 text-[10px] font-mono bg-stone-200 dark:bg-[#272F4C] text-stone-600 dark:text-stone-300 rounded hover:bg-stone-300 dark:hover:bg-stone-600 transition cursor-pointer"
+                                class="px-1.5 py-0.5 text-[10px] font-mono bg-stone-200 dark:bg-line text-ink/80 rounded hover:bg-stone-300 dark:hover:bg-stone-600 transition cursor-pointer"
                                 title="بستن پنجره">
                                 Esc
                             </button>
@@ -568,29 +568,29 @@
 
                     <!-- Subtle Loading Progress Indicator -->
                     <div x-show="loading" class="h-0.5 w-full bg-amber-100 dark:bg-stone-800 overflow-hidden">
-                        <div class="h-full bg-[#B38A50] animate-pulse w-full"></div>
+                        <div class="h-full bg-cinnabar animate-pulse w-full"></div>
                     </div>
 
                     <!-- Results & State Body -->
-                    <div x-ref="resultsContainer" class="max-h-[60vh] overflow-y-auto divide-y divide-stone-100 dark:divide-[#272F4C] p-2">
+                    <div x-ref="resultsContainer" class="max-h-[60vh] overflow-y-auto divide-y divide-stone-100 dark:divide-line p-2">
 
                         <!-- State: Initial Empty Prompt -->
-                        <div x-show="query.trim().length < 2" class="p-8 text-center text-xs text-stone-400 dark:text-stone-500">
-                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 text-[#B38A50] mb-3">
+                        <div x-show="query.trim().length < 2" class="p-8 text-center text-xs text-muted">
+                            <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 text-cinnabar mb-3">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
-                            <p class="font-medium text-stone-600 dark:text-stone-300 text-sm mb-1">جستجوی بلادرنگ در آثار، اشخاص و نسخه‌ها</p>
+                            <p class="font-medium text-ink/80 text-sm mb-1">جستجوی بلادرنگ در آثار، اشخاص و نسخه‌ها</p>
                             <p>دست‌کم ۲ حرف تایپ کنید؛ سپس با کلیدهای ↑ و ↓ میان گزینه‌ها حرکت کرده و با Enter وارد شوید.</p>
                         </div>
 
                         <!-- State: No Results -->
-                        <div x-show="query.trim().length >= 2 && !loading && !hasResults()" class="p-8 text-center text-xs text-stone-500 dark:text-stone-400">
-                            <p class="text-sm font-medium mb-1">موردی منطبق با «<span class="text-stone-800 dark:text-stone-200 font-semibold" x-text="query"></span>» در عناوین اصلی یافت نشد.</p>
+                        <div x-show="query.trim().length >= 2 && !loading && !hasResults()" class="p-8 text-center text-xs text-muted">
+                            <p class="text-sm font-medium mb-1">موردی منطبق با «<span class="text-ink font-semibold" x-text="query"></span>» در عناوین اصلی یافت نشد.</p>
                             <p class="mb-3 text-[11px] text-stone-400">می‌توانید همین عبارت را در کل فیلدها و کالبدشناسی نسخه‌ها جستجو کنید.</p>
                             <button 
                                 type="button" 
                                 @click="goToFullSearch()" 
-                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#B38A50] hover:bg-[#8F6B38] text-white text-xs font-semibold transition cursor-pointer shadow-sm">
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cinnabar hover:opacity-90 text-on-cinnabar text-xs font-semibold transition cursor-pointer shadow-sm">
                                 <span>جستجوی پیشرفته در کل پایگاه (Enter)</span>
                                 <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
@@ -599,7 +599,7 @@
                         <!-- Group: Works (آثار و عناوین) -->
                         <template x-if="results.works && results.works.length > 0">
                             <div class="py-2">
-                                <div class="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-[#B38A50] uppercase tracking-wider">
+                                <div class="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-cinnabar uppercase tracking-wider">
                                     <span>آثار و عناوین</span>
                                     <span class="text-[10px] text-stone-400 font-normal" x-text="results.works.length + ' مورد'"></span>
                                 </div>
@@ -607,15 +607,15 @@
                                     <a :href="item.url" 
                                        @mouseenter="selectedIndex = index"
                                        :data-active="selectedIndex === index"
-                                       :class="selectedIndex === index ? 'bg-amber-100/80 dark:bg-amber-950/60 ring-1 ring-[#B38A50]/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-[#1E233D]'"
+                                       :class="selectedIndex === index ? 'bg-amber-100/80 dark:bg-amber-950/60 ring-1 ring-cinnabar/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-paper'"
                                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition group">
                                         <div class="min-w-0 pr-1">
-                                            <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-[#B38A50] truncate" x-text="item.title"></div>
-                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.author"></div>
+                                            <div class="text-sm font-bold text-ink group-hover:text-cinnabar truncate" x-text="item.title"></div>
+                                            <div class="text-xs text-muted truncate mt-0.5" x-text="item.author"></div>
                                         </div>
                                         <div class="shrink-0 flex items-center gap-2 mr-3">
-                                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-800/50" x-text="item.manuscripts_count + ' نسخه'"></span>
-                                            <span :class="selectedIndex === index ? 'text-[#B38A50] font-bold translate-x-[-2px]' : 'text-stone-400 group-hover:text-[#B38A50]'" class="text-sm rtl:rotate-180 transition-transform">←</span>
+                                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-cinnabar dark:text-amber-300 font-semibold border border-amber-200/50 dark:border-amber-800/50" x-text="item.manuscripts_count + ' نسخه'"></span>
+                                            <span :class="selectedIndex === index ? 'text-cinnabar font-bold translate-x-[-2px]' : 'text-stone-400 group-hover:text-cinnabar'" class="text-sm rtl:rotate-180 transition-transform">←</span>
                                         </div>
                                     </a>
                                 </template>
@@ -633,11 +633,11 @@
                                     <a :href="item.url" 
                                        @mouseenter="selectedIndex = (results.works?.length || 0) + index"
                                        :data-active="selectedIndex === ((results.works?.length || 0) + index)"
-                                       :class="selectedIndex === ((results.works?.length || 0) + index) ? 'bg-indigo-100/80 dark:bg-indigo-950/60 ring-1 ring-indigo-500/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-[#1E233D]'"
+                                       :class="selectedIndex === ((results.works?.length || 0) + index) ? 'bg-indigo-100/80 dark:bg-indigo-950/60 ring-1 ring-indigo-500/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-paper'"
                                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition group">
                                         <div class="min-w-0 pr-1">
-                                            <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate" x-text="item.name"></div>
-                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-show="item.death_hijri" x-text="item.death_hijri"></div>
+                                            <div class="text-sm font-bold text-ink group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate" x-text="item.name"></div>
+                                            <div class="text-xs text-muted truncate mt-0.5" x-show="item.death_hijri" x-text="item.death_hijri"></div>
                                         </div>
                                         <div class="shrink-0 flex items-center gap-2 mr-3">
                                             <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800/60" x-show="item.works_count" x-text="item.works_count + ' اثر'"></span>
@@ -659,14 +659,14 @@
                                     <a :href="item.url" 
                                        @mouseenter="selectedIndex = (results.works?.length || 0) + (results.people?.length || 0) + index"
                                        :data-active="selectedIndex === ((results.works?.length || 0) + (results.people?.length || 0) + index)"
-                                       :class="selectedIndex === ((results.works?.length || 0) + (results.people?.length || 0) + index) ? 'bg-emerald-100/80 dark:bg-emerald-950/60 ring-1 ring-emerald-500/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-[#1E233D]'"
+                                       :class="selectedIndex === ((results.works?.length || 0) + (results.people?.length || 0) + index) ? 'bg-emerald-100/80 dark:bg-emerald-950/60 ring-1 ring-emerald-500/50 shadow-xs' : 'hover:bg-stone-50 dark:hover:bg-paper'"
                                        class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition group">
                                         <div class="min-w-0 pr-1">
-                                            <div class="text-sm font-bold text-stone-800 dark:text-stone-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center gap-1.5 flex-wrap truncate">
+                                            <div class="text-sm font-bold text-ink group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center gap-1.5 flex-wrap truncate">
                                                 <span class="truncate" x-text="item.work_title"></span>
-                                                <span x-show="item.author_name" class="text-xs font-normal text-stone-500 dark:text-stone-400" x-text="'(پدیدآور: ' + item.author_name + ')'"></span>
+                                                <span x-show="item.author_name" class="text-xs font-normal text-muted" x-text="'(پدیدآور: ' + item.author_name + ')'"></span>
                                             </div>
-                                            <div class="text-xs text-stone-500 dark:text-stone-400 truncate mt-0.5" x-text="item.library + (item.shelfmark || item.accession_number ? ' • بازیابی: ' + (item.shelfmark || item.accession_number) : '')"></div>
+                                            <div class="text-xs text-muted truncate mt-0.5" x-text="item.library + (item.shelfmark || item.accession_number ? ' • بازیابی: ' + (item.shelfmark || item.accession_number) : '')"></div>
                                         </div>
                                         <div class="shrink-0 flex items-center gap-2 mr-3">
                                             <span class="text-xs text-stone-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 font-medium">مشاهده نسخه</span>
@@ -680,19 +680,19 @@
                     </div>
 
                     <!-- Footer Bar with navigation keys guide -->
-                    <div class="flex items-center justify-between px-4 py-2.5 bg-stone-100/70 dark:bg-[#101426] border-t border-stone-200 dark:border-[#272F4C] text-[11px] text-stone-500 dark:text-stone-400">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-stone-100/70 dark:bg-paper border-t border-stone-200 dark:border-line text-[11px] text-muted">
                         <div class="flex items-center gap-3">
                             <span class="flex items-center gap-1">
-                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↑</kbd>
-                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↓</kbd>
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-line-strong rounded text-[10px] font-mono">↑</kbd>
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-line-strong rounded text-[10px] font-mono">↓</kbd>
                                 <span>ناوبری</span>
                             </span>
                             <span class="flex items-center gap-1">
-                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">↵ Enter</kbd>
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-line-strong rounded text-[10px] font-mono">↵ Enter</kbd>
                                 <span>انتخاب</span>
                             </span>
                             <span class="flex items-center gap-1">
-                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono">Esc</kbd>
+                                <kbd class="px-1.5 py-0.5 bg-white dark:bg-stone-800 border border-line-strong rounded text-[10px] font-mono">Esc</kbd>
                                 <span>بستن</span>
                             </span>
                         </div>
@@ -701,7 +701,7 @@
                             type="button"
                             x-show="query.trim().length > 0" 
                             @click="goToFullSearch()" 
-                            class="text-[#B38A50] hover:underline font-medium inline-flex items-center gap-1 cursor-pointer">
+                            class="text-cinnabar hover:underline font-medium inline-flex items-center gap-1 cursor-pointer">
                             <span>کاوش جامع در کل پایگاه</span>
                             <span class="rtl:rotate-180">←</span>
                         </button>

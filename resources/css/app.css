@@ -69,20 +69,21 @@
 
 .dark {
     color-scheme: dark;
-    --paper: #0C0F1D;
-    --surface: #15192C;
-    --ink: #EEF0F6;
-    --muted: #9BA3BF;
-    --line: #272F4C;
-    --line-strong: #3A4468;
-    --cinnabar: #E58A6F;
-    --on-cinnabar: #0C0F1D;
-    --gold: #CDAA62;
-    --bg-page: #0C0F1D;
-    --text-primary: #F1F4F9;
-    --text-secondary: #9BA3BF;
-    --card-bg: #15192C;
-    --border-color: #272F4C;
+    /* Ink-dark paper: the same palette at night, warm instead of the old navy */
+    --paper: #171411;
+    --surface: #211C18;
+    --ink: #EDE6D8;
+    --muted: #A89E8E;
+    --line: #3A322A;
+    --line-strong: #574D40;
+    --cinnabar: #E2826A;
+    --on-cinnabar: #171411;
+    --gold: #C9A45C;
+    --bg-page: #171411;
+    --text-primary: #EDE6D8;
+    --text-secondary: #A89E8E;
+    --card-bg: #211C18;
+    --border-color: #3A322A;
 }
 
 body {

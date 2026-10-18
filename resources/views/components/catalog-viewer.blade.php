@@ -226,13 +226,13 @@
         class="relative w-full h-full flex flex-col justify-between">
 
         <!-- Top Header & Toolbar -->
-        <header class="relative z-10 flex items-center justify-between px-4 sm:px-6 py-2.5 bg-white/95 dark:bg-[#15192C]/95 border-b border-stone-200 dark:border-[#272F4C] shadow-sm">
+        <header class="relative z-10 flex items-center justify-between px-4 sm:px-6 py-2.5 bg-surface/95 border-b border-stone-200 dark:border-line shadow-sm">
             
             <!-- Right: Title & Info Badge -->
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-6 bg-[#B38A50] rounded-xs shadow-xs"></span>
-                    <h2 class="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 tracking-wide">
+                    <span class="w-2.5 h-6 bg-cinnabar rounded-xs shadow-xs"></span>
+                    <h2 class="text-xs sm:text-sm font-bold text-ink tracking-wide">
                         برگه مأخذ چاپی <span x-text="catalogName"></span>
                     </h2>
                 </div>
@@ -247,12 +247,12 @@
             <!-- Center: Navigation & Zoom Tools -->
             <div class="flex items-center gap-2">
                 <!-- Page Navigation Group -->
-                <div class="flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-2xl border border-stone-300 dark:border-stone-700 shadow-2xs">
+                <div class="flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-2xl border border-line-strong shadow-2xs">
                     <button 
                         type="button" 
                         @click="prevPage()" 
                         :disabled="page <= 1"
-                        :class="page <= 1 ? 'opacity-30 cursor-not-allowed text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-100 hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 cursor-pointer'"
+                        :class="page <= 1 ? 'opacity-30 cursor-not-allowed text-muted' : 'text-ink hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 cursor-pointer'"
                         title="صفحه قبلی (PageUp)"
                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition">
                         <span class="rtl:rotate-180">←</span>
@@ -263,19 +263,19 @@
                         type="button" 
                         @click="nextPage()" 
                         title="صفحه بعدی (PageDown)"
-                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-stone-800 dark:text-stone-100 hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 transition cursor-pointer">
+                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-ink hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 transition cursor-pointer">
                         <span class="hidden sm:inline">صفحه بعدی</span>
                         <span class="rtl:rotate-180">→</span>
                     </button>
                 </div>
 
                 <!-- Zoom Controls Group -->
-                <div class="flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-2xl border border-stone-300 dark:border-stone-700 shadow-2xs">
+                <div class="flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-2xl border border-line-strong shadow-2xs">
                     <button 
                         type="button" 
                         @click="zoomOut()" 
                         :disabled="zoom <= 0.5"
-                        :class="zoom <= 0.5 ? 'opacity-30 cursor-not-allowed text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-100 hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 cursor-pointer'"
+                        :class="zoom <= 0.5 ? 'opacity-30 cursor-not-allowed text-muted' : 'text-ink hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 cursor-pointer'"
                         title="کوچک‌نمایی (-)"
                         class="p-1.5 rounded-xl transition">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -295,7 +295,7 @@
                         type="button" 
                         @click="zoomIn()" 
                         :disabled="zoom >= 3"
-                        :class="zoom >= 3 ? 'opacity-30 cursor-not-allowed text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-100 hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 cursor-pointer'"
+                        :class="zoom >= 3 ? 'opacity-30 cursor-not-allowed text-muted' : 'text-ink hover:text-black dark:hover:text-white hover:bg-stone-200/70 dark:hover:bg-stone-700 active:scale-95 cursor-pointer'"
                         title="بزرگ‌نمایی (+)"
                         class="p-1.5 rounded-xl transition">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -311,12 +311,12 @@
                     type="button" 
                     @click="closeViewer()" 
                     title="بستن پنجره (Esc)"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-stone-100 hover:bg-red-50 dark:bg-stone-800 dark:hover:bg-red-950/60 border border-stone-200 dark:border-stone-700 hover:border-red-300 dark:hover:border-red-800/80 text-xs font-semibold text-stone-700 hover:text-red-700 dark:text-stone-300 dark:hover:text-red-200 transition shadow-2xs cursor-pointer">
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-stone-100 hover:bg-red-50 dark:bg-stone-800 dark:hover:bg-red-950/60 border border-line-strong hover:border-red-300 dark:hover:border-red-800/80 text-xs font-semibold text-stone-700 hover:text-red-700 dark:text-stone-300 dark:hover:text-red-200 transition shadow-2xs cursor-pointer">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     <span class="hidden sm:inline">بستن</span>
-                    <kbd class="hidden md:inline-block px-1 py-0.2 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded text-[9px] font-mono text-stone-400">Esc</kbd>
+                    <kbd class="hidden md:inline-block px-1 py-0.2 bg-white dark:bg-stone-900 border border-line-strong rounded text-[9px] font-mono text-stone-400">Esc</kbd>
                 </button>
             </div>
 
@@ -330,13 +330,13 @@
             @mouseleave="endDrag()"
             @wheel="handleWheel($event)"
             :class="isDragging ? 'cursor-grabbing select-none' : 'cursor-grab select-none'"
-            class="relative flex-1 overflow-hidden flex items-center justify-center bg-stone-200/90 dark:bg-[#0c0f1d] transition-colors p-4 touch-none">
+            class="relative flex-1 overflow-hidden flex items-center justify-center bg-stone-200/90 dark:bg-paper transition-colors p-4 touch-none">
 
             <!-- Loading Spinner -->
             <div 
                 x-show="loading" 
                 class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20 pointer-events-none">
-                <div class="w-10 h-10 border-3 border-amber-500/20 border-t-[#B38A50] rounded-full animate-spin"></div>
+                <div class="w-10 h-10 border-3 border-amber-500/20 border-t-gold rounded-full animate-spin"></div>
                 <span class="text-xs text-stone-600 dark:text-amber-200/80 font-medium">در حال بارگذاری برگه چاپی...</span>
             </div>
 
@@ -349,15 +349,15 @@
                     📖
                 </div>
                 <div class="space-y-1">
-                    <h3 class="text-sm font-bold text-stone-900 dark:text-stone-100">تصویر این صفحه در دسترس نیست</h3>
-                    <p class="text-xs text-stone-500 dark:text-stone-400 max-w-sm">
-                        تصویر صفحه <span x-text="page" class="font-mono text-[#B38A50] font-bold"></span> از جلد <span x-text="volume" class="font-mono text-[#B38A50] font-bold"></span> <span x-text="catalogName" class="font-bold"></span> یافت نشد.
+                    <h3 class="text-sm font-bold text-ink">تصویر این صفحه در دسترس نیست</h3>
+                    <p class="text-xs text-muted max-w-sm">
+                        تصویر صفحه <span x-text="page" class="font-mono text-cinnabar font-bold"></span> از جلد <span x-text="volume" class="font-mono text-cinnabar font-bold"></span> <span x-text="catalogName" class="font-bold"></span> یافت نشد.
                     </p>
                 </div>
                 <button 
                     type="button" 
                     @click="loading = true; hasError = false; const img = $refs.pageImage; img.src = imageUrl + '?t=' + Date.now()" 
-                    class="px-4 py-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-xs font-semibold text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-600 transition shadow-xs cursor-pointer">
+                    class="px-4 py-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-xs font-semibold text-ink border border-stone-300 dark:border-stone-600 transition shadow-xs cursor-pointer">
                     تلاش مجدد
                 </button>
             </div>
@@ -382,35 +382,35 @@
         </main>
 
         <!-- Bottom Status & Keyboard Navigation Guide -->
-        <footer class="relative z-10 flex items-center justify-between px-4 sm:px-6 py-2 bg-white/95 dark:bg-[#15192C]/95 border-t border-stone-200 dark:border-[#272F4C] text-[11px] text-stone-600 dark:text-stone-400">
+        <footer class="relative z-10 flex items-center justify-between px-4 sm:px-6 py-2 bg-surface/95 border-t border-stone-200 dark:border-line text-[11px] text-ink/80">
             <div class="flex items-center gap-4">
-                <span class="hidden sm:inline text-stone-400 dark:text-stone-500 font-medium">
+                <span class="hidden sm:inline text-muted font-medium">
                     کلیدهای ناوبری:
                 </span>
                 <span class="flex items-center gap-1">
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">↑</kbd>
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">↓</kbd>
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">←</kbd>
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">→</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">↑</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">↓</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">←</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">→</kbd>
                     <span>جابه‌جایی تصویر</span>
                 </span>
                 <span class="flex items-center gap-1">
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">PgUp</kbd>
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">PgDn</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">PgUp</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">PgDn</kbd>
                     <span>ورق زدن</span>
                 </span>
                 <span class="hidden md:flex items-center gap-1">
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">+</kbd>
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">-</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">+</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">-</kbd>
                     <span>بزرگ‌نمایی</span>
                 </span>
                 <span class="hidden lg:flex items-center gap-1">
-                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded text-[10px] font-mono text-stone-700 dark:text-stone-300">ماوس / Drag</kbd>
+                    <kbd class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-900 border border-line-strong rounded text-[10px] font-mono text-ink">ماوس / Drag</kbd>
                     <span>کشیدن آزاد</span>
                 </span>
             </div>
 
-            <div class="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
+            <div class="text-[10px] text-muted font-mono">
                 فهارس • نسخه چاپی <span x-text="catalogName"></span>
             </div>
         </footer>

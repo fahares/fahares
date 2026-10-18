@@ -454,38 +454,38 @@
         
         <div 
             @click.away="qrModalOpen = false"
-            class="bg-white dark:bg-[#15192C] w-full max-w-sm rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-2xl space-y-5 text-center relative overflow-hidden">
+            class="bg-surface w-full max-w-sm rounded-3xl p-6 sm:p-7 border border-line shadow-2xl space-y-5 text-center relative overflow-hidden">
             
-            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+            <div class="flex items-center justify-between pb-3 border-b border-line">
                 <div class="flex items-center gap-2">
-                    <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
-                    <h3 class="font-bold text-base text-stone-900 dark:text-stone-100">رمزینه هوشمند (QR Code) نسخه</h3>
+                    <span class="w-2 h-5 bg-cinnabar rounded-sm"></span>
+                    <h3 class="font-bold text-base text-ink">رمزینه هوشمند (QR Code) نسخه</h3>
                 </div>
                 <button @click="qrModalOpen = false" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-lg leading-none cursor-pointer">✕</button>
             </div>
 
             <!-- QR Canvas Container -->
-            <div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-white border border-[#EADFCF] shadow-inner">
+            <div class="flex flex-col items-center justify-center p-4 rounded-2xl bg-white border border-line shadow-inner">
                 <canvas id="manuscript-qr-canvas" class="max-w-full h-auto"></canvas>
             </div>
 
             <!-- Details -->
-            <div class="space-y-1.5 text-right bg-stone-50 dark:bg-stone-800/50 p-3 rounded-2xl border border-stone-200/70 dark:border-stone-700/70 text-xs">
+            <div class="space-y-1.5 text-right bg-paper p-3 rounded-2xl border border-stone-200/70 dark:border-stone-700/70 text-xs">
                 <div class="flex justify-between items-center">
                     <span class="text-stone-400">شماره نسخه:</span>
-                    <span class="font-bold text-[#B38A50]">{{ $manuscript->shelfmark ?? 'بی‌شماره' }}</span>
+                    <span class="font-bold text-cinnabar">{{ $manuscript->shelfmark ?? 'بی‌شماره' }}</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-stone-400">کتابخانه:</span>
-                    <span class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[200px]" title="{{ $libraryName }}">{{ $manuscript->libraryRecord?->short_name ?? $manuscript->library }}</span>
+                    <span class="font-bold text-ink truncate max-w-[200px]" title="{{ $libraryName }}">{{ $manuscript->libraryRecord?->short_name ?? $manuscript->library }}</span>
                 </div>
                 <div class="flex justify-between items-center pt-1.5 border-t border-stone-200/60 dark:border-stone-700/60">
                     <span class="text-stone-400">پیوند پایدار:</span>
-                    <span class="font-mono text-[11px] font-bold text-[#292C56] dark:text-amber-200" dir="ltr">{{ url('/m/' . $manuscript->id) }}</span>
+                    <span class="font-mono text-[11px] font-bold text-ink" dir="ltr">{{ url('/m/' . $manuscript->id) }}</span>
                 </div>
             </div>
 
-            <p class="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed text-justify">
+            <p class="text-[11px] text-muted leading-relaxed text-justify">
                 این بارکد را با دوربین تلفن همراه خود اسکن کنید تا در مراجعات حضوری به مخازن، اطلاعات و شناسنامه این نسخه خطی مستقیماً روی گوشی همراه شما نمایش یابد.
             </p>
 
@@ -494,7 +494,7 @@
                 <button 
                     type="button" 
                     @click="downloadQr()"
-                    class="px-4 py-2 rounded-xl bg-[#B38A50] hover:bg-[#9C753F] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-cinnabar hover:opacity-90 text-on-cinnabar text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
@@ -503,7 +503,7 @@
                 <button 
                     type="button" 
                     @click="copyText('{{ url('/m/' . $manuscript->id) }}', 'qr-modal');"
-                    class="px-4 py-2 rounded-xl border border-stone-300 dark:border-stone-700 hover:border-[#B38A50] text-stone-700 dark:text-stone-300 text-xs font-semibold transition cursor-pointer">
+                    class="px-4 py-2 rounded-xl border border-line-strong hover:border-gold text-ink text-xs font-semibold transition cursor-pointer">
                     <span x-show="copiedKey !== 'qr-modal'">کپی آدرس</span>
                     <span x-show="copiedKey === 'qr-modal'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
                 </button>
@@ -527,17 +527,17 @@
         
         <div 
             @click.away="citationModalOpen = false"
-            class="bg-white dark:bg-[#15192C] w-full max-w-2xl rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-2xl space-y-6 text-right max-h-[90vh] overflow-y-auto">
+            class="bg-surface w-full max-w-2xl rounded-3xl p-6 sm:p-8 border border-line shadow-2xl space-y-6 text-right max-h-[90vh] overflow-y-auto">
             
-            <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+            <div class="flex items-center justify-between pb-3 border-b border-line">
                 <div class="flex items-center gap-2">
-                    <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
-                    <h3 class="font-bold text-lg text-stone-900 dark:text-stone-100">دریافت استناد علمی و ارجاع استاندارد</h3>
+                    <span class="w-2 h-5 bg-cinnabar rounded-sm"></span>
+                    <h3 class="font-bold text-lg text-ink">دریافت استناد علمی و ارجاع استاندارد</h3>
                 </div>
                 <button @click="citationModalOpen = false" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-lg leading-none cursor-pointer">✕</button>
             </div>
 
-            <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+            <p class="text-xs text-muted leading-relaxed">
                 پژوهشگر گرامی؛ جهت استناد به این نسخه خطی در مقالات علمی، پایان‌نامه‌ها و طرح‌های کتاب‌شناختی، می‌توانید از قالب‌های آماده زیر استفاده فرمایید:
             </p>
 
@@ -560,67 +560,67 @@
             <div class="space-y-4">
                 
                 <!-- Format 1: FanKha Source -->
-                <div class="p-4 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] space-y-2">
+                <div class="p-4 rounded-2xl bg-paper border border-line space-y-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
+                            <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-cinnabar text-[11px] font-bold">
                                 قالب ۱
                             </span>
-                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب مأخذ فنخا (فهرستگان نسخه‌های خطی ایران)</span>
+                            <span class="text-xs font-bold text-ink">قالب مأخذ فنخا (فهرستگان نسخه‌های خطی ایران)</span>
                         </div>
                         <button 
                             type="button" 
                             @click="copyText(@js($fankhaCitation), 'fankha')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] text-[11px] font-semibold text-stone-700 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
                             <span x-show="copiedKey !== 'fankha'">کپی ارجاع</span>
                             <span x-show="copiedKey === 'fankha'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
                         </button>
                     </div>
-                    <div class="p-3 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed font-normal select-all">
+                    <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-normal select-all">
                         {{ $fankhaCitation }}
                     </div>
                 </div>
 
                 <!-- Format 2: Persian Articles / Codicological Reference -->
-                <div class="p-4 rounded-2xl bg-stone-50 dark:bg-[#1A1E35] border border-stone-200 dark:border-[#272F4C] space-y-2">
+                <div class="p-4 rounded-2xl bg-stone-50 dark:bg-paper border border-stone-200 dark:border-line space-y-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-bold">
+                            <span class="px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-ink text-[11px] font-bold">
                                 قالب ۲
                             </span>
-                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب ارجاع نسخه‌شناسی در مقالات و رسائل</span>
+                            <span class="text-xs font-bold text-ink">قالب ارجاع نسخه‌شناسی در مقالات و رسائل</span>
                         </div>
                         <button 
                             type="button" 
                             @click="copyText(@js($persianArticleCitation), 'article')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-700 text-[11px] font-semibold text-stone-700 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line-strong text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
                             <span x-show="copiedKey !== 'article'">کپی ارجاع</span>
                             <span x-show="copiedKey === 'article'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
                         </button>
                     </div>
-                    <div class="p-3 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed font-normal select-all">
+                    <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-normal select-all">
                         {{ $persianArticleCitation }}
                     </div>
                 </div>
 
                 <!-- Format 3: Chicago Style -->
-                <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-[#1A1E35] border border-indigo-100 dark:border-[#272F4C] space-y-2">
+                <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-paper border border-indigo-100 dark:border-line space-y-2">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-[#292C56] dark:text-indigo-300 text-[11px] font-bold">
+                            <span class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-ink dark:text-indigo-300 text-[11px] font-bold">
                                 قالب ۳
                             </span>
-                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب استاندارد شیکاگو (Chicago Style)</span>
+                            <span class="text-xs font-bold text-ink">قالب استاندارد شیکاگو (Chicago Style)</span>
                         </div>
                         <button 
                             type="button" 
                             @click="copyText(@js($chicagoCitation), 'chicago')"
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200 dark:border-stone-700 text-[11px] font-semibold text-stone-700 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] transition shadow-2xs cursor-pointer">
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface border border-line-strong text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-gold transition shadow-2xs cursor-pointer">
                             <span x-show="copiedKey !== 'chicago'">کپی ارجاع</span>
                             <span x-show="copiedKey === 'chicago'" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
                         </button>
                     </div>
-                    <div class="p-3 rounded-xl bg-white dark:bg-[#15192C] border border-stone-200/80 dark:border-stone-800 text-xs text-stone-800 dark:text-stone-200 leading-relaxed font-mono select-all text-left" dir="ltr">
+                    <div class="p-3 rounded-xl bg-surface border border-stone-200/80 dark:border-stone-800 text-xs text-ink leading-relaxed font-mono select-all text-left" dir="ltr">
                         {{ $chicagoCitation }}
                     </div>
                 </div>
@@ -628,7 +628,7 @@
             </div>
 
             <div class="pt-2 flex justify-end">
-                <button type="button" @click="citationModalOpen = false" class="px-5 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-xs font-bold transition cursor-pointer">
+                <button type="button" @click="citationModalOpen = false" class="px-5 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-ink text-xs font-bold transition cursor-pointer">
                     بستن
                 </button>
             </div>
@@ -642,16 +642,16 @@
 @push('structured_data')
 <script type="application/ld+json">
 {
-  "@@context": "https://schema.org",
-  "@type": "Manuscript",
-  "name": "نسخه خطی {{ addcslashes($manuscript->work?->primary_title ?? 'بدون عنوان', '"\\') }}",
-  "identifier": "{{ addcslashes($manuscript->shelfmark ?? '', '"\\') }}",
-  "holdingArchive": {
-    "@type": "Library",
-    "name": "{{ addcslashes($manuscript->libraryRecord?->display_name ?? $manuscript->library ?? '', '"\\') }}"
+ "@@context": "https://schema.org",
+ "@type": "Manuscript",
+ "name": "نسخه خطی {{ addcslashes($manuscript->work?->primary_title ?? 'بدون عنوان', '"\\') }}",
+ "identifier": "{{ addcslashes($manuscript->shelfmark ?? '', '"\\') }}",
+ "holdingArchive": {
+ "@type": "Library",
+ "name": "{{ addcslashes($manuscript->libraryRecord?->display_name ?? $manuscript->library ?? '', '"\\') }}"
   },
   @if($manuscript->scribe_name)"creator": { "@type": "Person", "name": "{{ addcslashes($manuscript->scribe_name, '"\\') }}" },@endif
-  "url": "{{ route('manuscripts.show', $manuscript) }}"
+ "url": "{{ route('manuscripts.show', $manuscript) }}"
 }
 </script>
 @endpush

@@ -332,7 +332,7 @@
                                     @click="open ? (open = false) : openDropdown()"
                                     @keydown.arrow-down.prevent="openDropdown()"
                                     @keydown.enter.prevent="openDropdown()"
-                                    class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink flex items-center justify-between gap-2 hover:border-[#B38A50] focus:outline-none focus:ring-1 focus:ring-cinnabar transition text-right">
+                                    class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink flex items-center justify-between gap-2 hover:border-gold focus:outline-none focus:ring-1 focus:ring-cinnabar transition text-right">
                                 <span class="truncate" x-text="selectedItem ? selectedItem.name + (selectedItem.count ? ' (' + Number(selectedItem.count).toLocaleString('fa-IR') + ')' : '') : 'همه موضوعات'">
                                     @if($selectedSubject)
                                         {{ $selectedSubject->title }} @if($selectedSubject->matching_count) ({{ number_format($selectedSubject->matching_count) }}) @elseif($selectedSubject->works_count) ({{ number_format($selectedSubject->works_count) }}) @endif
@@ -376,7 +376,7 @@
                                            @keydown.enter.prevent="onEnter()"
                                            @keydown.escape.prevent="open = false"
                                            placeholder="جستجوی موضوع (مثلاً فقه، فلسفه...)" 
-                                           class="w-full text-xs p-2 pr-8 pl-7 rounded-sm border border-line-strong bg-paper/90 text-ink focus:outline-none focus:border-[#B38A50] focus:ring-1 focus:ring-cinnabar transition">
+                                           class="w-full text-xs p-2 pr-8 pl-7 rounded-sm border border-line-strong bg-paper/90 text-ink focus:outline-none focus:border-gold focus:ring-1 focus:ring-cinnabar transition">
                                     <svg class="w-3.5 h-3.5 text-muted absolute right-2.5 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
@@ -400,9 +400,9 @@
                                             @mouseenter="highlightedIndex = -1"
                                             class="w-full text-right px-2.5 py-1.5 rounded-sm flex items-center justify-between transition"
                                             :class="{
-                                                'bg-[#B38A50]/20 text-cinnabar font-bold ring-1 ring-[#B38A50]/30': !selectedId,
-                                                'bg-stone-200/80 dark:bg-stone-700/70 text-stone-900 dark:text-stone-100': highlightedIndex === -1 && selectedId,
-                                                'hover:bg-stone-100 dark:hover:bg-stone-800/80': highlightedIndex !== -1 && selectedId
+                                                'bg-cinnabar/20 text-cinnabar font-bold ring-1 ring-cinnabar/30': !selectedId,
+                                                'bg-stone-200/80 dark:bg-stone-700/70 text-ink': highlightedIndex === -1 && selectedId,
+                                                'hover:bg-paper/80': highlightedIndex !== -1 && selectedId
                                             }">
                                         <span>همه موضوعات</span>
                                         <span class="text-[10px] text-muted font-normal">({{ $subjects->count() }})</span>
@@ -417,9 +417,9 @@
                                                 @mouseenter="highlightedIndex = index"
                                                 class="w-full text-right px-2.5 py-1.5 rounded-sm flex items-center justify-between gap-2 transition"
                                                 :class="{
-                                                    'bg-[#B38A50]/20 text-cinnabar font-bold ring-1 ring-[#B38A50]/30': selectedId == item.id,
-                                                    'bg-stone-200/80 dark:bg-stone-700/70 text-stone-900 dark:text-stone-100': highlightedIndex === index && selectedId != item.id,
-                                                    'hover:bg-stone-100 dark:hover:bg-stone-800/80': highlightedIndex !== index && selectedId != item.id
+                                                    'bg-cinnabar/20 text-cinnabar font-bold ring-1 ring-cinnabar/30': selectedId == item.id,
+                                                    'bg-stone-200/80 dark:bg-stone-700/70 text-ink': highlightedIndex === index && selectedId != item.id,
+                                                    'hover:bg-paper/80': highlightedIndex !== index && selectedId != item.id
                                                 }">
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <span class="truncate" x-text="item.name"></span>
