@@ -2250,3 +2250,9 @@
 - [subjects/show.blade.php](../resources/views/subjects/show.blade.php)، [libraries/index.blade.php](../resources/views/libraries/index.blade.php)، [catalogers/index.blade.php](../resources/views/catalogers/index.blade.php) و [catalogers/show.blade.php](../resources/views/catalogers/show.blade.php): از نو با `x-ui.*`، `.rubric`، `.leader` و `.jadval` نوشته شدند. پارامترهای فرم‌ها (`q`، `city`، `scope`، `sort`) و منطق زبانه‌ها (`$defaultTab`) تغییری نکرد.
 - در Blade، `@endif@if(...)` چسبیده تجزیه نمی‌شود. در فهرست کتابخانه‌ها به‌جای آن عبارت سه‌تایی به کار رفت.
 
+### گام ۱۲.۹: آواتار گم‌شده‌ی فهرست‌نگار
+- **علت:** پیش از `b1d5539`، [CatalogerController](../app/Http/Controllers/Admin/CatalogerController.php) آواتار را در `public/images/catalogers/avatars` ذخیره می‌کرد که در کانتینر Coolify ماندگار نیست. بارگذاری‌های ۲۶ مهر ساعت ۱۷:۳۴ تا ۱۸:۰۷ UTC با استقرار `ec90f0e` (حدود ۱۸:۱۳ UTC) پاک شدند. فایل‌های مانده در استقرار `b1d5539` (۱۸:۴۹ UTC) به `storage/app/public/catalogers/avatars` (ولوم ماندگار) کپی شدند.
+- **رکوردهای بی‌فایل:** شناسه‌های پروداکشن ۲، ۴۸، ۶۰، ۶۵، ۷۰ و ۹۴. جستجوی نام فایل‌ها روی host هم نتیجه‌ای نداشت.
+- **تغییر:** `Cataloger::getAvatarUrlAttribute()` اگر `avatar_path` نه در `public/images` باشد و نه در `public/storage`، دیگر `asset('storage/…')` بی‌فایل برنمی‌گرداند. به عکس `mtif_entry_id` می‌رود و در نبود آن `null` برمی‌گرداند.
+- **آزمون:** [CatalogerAvatarTest](../tests/Feature/CatalogerAvatarTest.php) (فایل گم‌شده، فایل موجود با `?v=`، نشانی بیرونی).
+

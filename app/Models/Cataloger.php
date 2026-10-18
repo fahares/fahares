@@ -86,7 +86,8 @@ class Cataloger extends Model
             if (file_exists($storageFile)) {
                 return asset('storage/' . $clean) . '?v=' . filemtime($storageFile);
             }
-            return asset('storage/' . $clean);
+            // A path whose file is gone (an upload lost in a redeploy) falls through to the
+            // placeholder instead of a broken image.
         }
 
         if ($this->mtif_entry_id) {
