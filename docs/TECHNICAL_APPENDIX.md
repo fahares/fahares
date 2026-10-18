@@ -2256,3 +2256,8 @@
 - **تغییر:** `Cataloger::getAvatarUrlAttribute()` اگر `avatar_path` نه در `public/images` باشد و نه در `public/storage`، دیگر `asset('storage/…')` بی‌فایل برنمی‌گرداند. به عکس `mtif_entry_id` می‌رود و در نبود آن `null` برمی‌گرداند.
 - **آزمون:** [CatalogerAvatarTest](../tests/Feature/CatalogerAvatarTest.php) (فایل گم‌شده، فایل موجود با `?v=`، نشانی بیرونی).
 
+### گام ۱۲.۱۰: افزودن آقابزرگ طهرانی
+- [catalogers_profiles_phase4.json](../database/data/catalogers_profiles_phase4.json): شناسنامه‌ی تازه. کلید تازه‌ی `person_name` شخص را با نام دقیق پیدا می‌کند، چون شناسه‌ی اشخاص محلی و پروداکشن فرق دارد. روی پروداکشن «آقابزرگ طهرانی، محمد محسن» (شخص ۲۰۶۵، ۴۶ اثر) است.
+- [EnrichCatalogersProfilesCommand](../app/Console/Commands/EnrichCatalogersProfilesCommand.php): گزینه‌ی `--create-missing` فهرست‌نگارِ پیدانشده را با slug یکتا می‌سازد. `person_id` فقط وقتی پر می‌شود که خالی باشد و نام دقیقاً یک شخص را بدهد.
+- اجرا: `php artisan catalogers:enrich-profiles --file=database/data/catalogers_profiles_phase4.json --create-missing`. روی `fahares_prod` محلی شناسه‌ی ۱۰۸ گرفت.
+- زندگی‌نامه از ویکی‌شیعه و ویکی‌فقه گردآوری شد. «الذریعه» در فهرست فنخا ردیف‌های ۶۳۴ تا ۶۶۱ است (با شهر نادرست «یزد») ولی `catalog_volumes` رکوردی برای آن ندارد.

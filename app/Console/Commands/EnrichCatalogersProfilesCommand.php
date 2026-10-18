@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\Cataloger;
+use App\Models\Person;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class EnrichCatalogersProfilesCommand extends Command
 {
@@ -15,6 +17,7 @@ class EnrichCatalogersProfilesCommand extends Command
      */
     protected $signature = 'catalogers:enrich-profiles 
                             {--file= : Path to specific profiles JSON file}
+                            {--create-missing : Create catalogers that are not in the database yet}
                             {--dry-run : Run without saving changes}';
 
     /**
@@ -31,6 +34,7 @@ class EnrichCatalogersProfilesCommand extends Command
     {
         $specificFile = $this->option('file');
         $dryRun = (bool) $this->option('dry-run');
+        $createMissing = (bool) $this->option('create-missing');
 
         $files = [];
         if ($specificFile) {
@@ -51,6 +55,7 @@ class EnrichCatalogersProfilesCommand extends Command
         $totalProfiles = 0;
         $matchedCount = 0;
         $updatedCount = 0;
+        $createdCount = 0;
         $notFound = [];
 
         foreach ($files as $filePath) {
@@ -79,6 +84,21 @@ class EnrichCatalogersProfilesCommand extends Command
                     // Try without parentheses if exists
                     $nameClean = preg_replace('/\s*\(.*?\)\s*/', '', $name);
                     $cataloger = Cataloger::where('name', 'like', "%{$nameClean}%")->first();
+                }
+
+                if (!$cataloger && $createMissing) {
+                    // The slug must be unique; the public route uses id + name, so a suffix is harmless.
+                    $slug = Str::slug($name, '-', null) ?: 'cataloger';
+                    $base = $slug;
+                    for ($i = 2; Cataloger::where('slug', $slug)->exists(); $i++) {
+                        $slug = "{$base}-{$i}";
+                    }
+                    $cataloger = new Cataloger(['name' => $name, 'slug' => $slug]);
+                    if (!$dryRun) {
+                        $cataloger->save();
+                    }
+                    $createdCount++;
+                    $this->line("  [*] Created: <info>{$name}</info>" . ($dryRun ? '' : " (ID: {$cataloger->id})"));
                 }
 
                 if (!$cataloger) {
@@ -123,6 +143,16 @@ class EnrichCatalogersProfilesCommand extends Command
                     $fieldsToUpdate['is_alive'] = (bool) $item['is_alive'];
                 }
 
+                // Link to the people entry by exact name, since person ids differ between databases.
+                if (!empty($item['person_name']) && !$cataloger->person_id) {
+                    $personIds = Person::where('name', $item['person_name'])->limit(2)->pluck('id');
+                    if ($personIds->count() === 1) {
+                        $fieldsToUpdate['person_id'] = $personIds->first();
+                    } else {
+                        $this->warn("  [!] Person '{$item['person_name']}' matched {$personIds->count()} records; not linked.");
+                    }
+                }
+
                 if (!empty($item['avatar_path'])) {
                     $fieldsToUpdate['avatar_path'] = $item['avatar_path'];
                 }
@@ -146,6 +176,7 @@ class EnrichCatalogersProfilesCommand extends Command
         $this->info("=== Enrichment Summary ===");
         $this->info("Total profiles in JSON: {$totalProfiles}");
         $this->info("Matched in database: {$matchedCount}");
+        $this->info("Created records: {$createdCount}");
         $this->info("Updated records: {$updatedCount}");
 
         if (!empty($notFound)) {
