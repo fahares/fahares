@@ -140,29 +140,6 @@
         </section>
     @endif
 
-    {{-- Featured images --}}
-    @if($treasures->isNotEmpty())
-        <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14">
-            <h2 class="rubric text-xl mb-6">{{ SiteSetting::get('home.treasures_title') }}</h2>
-            <div class="grid grid-cols-3 gap-3 sm:gap-6 {{ $treasures->count() > 3 ? 'lg:grid-cols-6' : '' }}">
-                @foreach($treasures as $t)
-                    <figure class="m-0 space-y-2 group">
-                        @if($t->link_url)<a href="{{ $t->link_url }}" @if(str_starts_with($t->link_url, 'http')) target="_blank" rel="noopener" @endif class="block">@endif
-                            <div class="aspect-[3/4] overflow-hidden bg-[#221C17] border border-line">
-                                <img src="{{ $t->image_url }}" alt="{{ $t->title }}{{ $t->subtitle ? '، ' . $t->subtitle : '' }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 motion-reduce:transition-none">
-                            </div>
-                        @if($t->link_url)</a>@endif
-                        <figcaption class="space-y-0.5">
-                            @if($t->title)<span class="block font-naskh text-base sm:text-lg font-bold text-ink">{{ $t->title }}</span>@endif
-                            @if($t->subtitle)<span class="hidden sm:block text-xs text-ink/80">{{ $t->subtitle }}</span>@endif
-                            @if($t->credit)<span class="hidden sm:block text-[11px] text-muted">{{ $t->credit }}</span>@endif
-                        </figcaption>
-                    </figure>
-                @endforeach
-            </div>
-        </section>
-    @endif
-
     {{-- Catalogers chosen in admin --}}
     @if($homeCatalogers->isNotEmpty())
         <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14">
@@ -187,6 +164,29 @@
                             <span class="text-[11px] text-muted leading-tight">{{ Fa::digits($c->life_years_text) }}</span>
                         @endif
                     </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- Featured images --}}
+    @if($treasures->isNotEmpty())
+        <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14">
+            <h2 class="rubric text-xl mb-6">{{ SiteSetting::get('home.treasures_title') }}</h2>
+            <div class="grid grid-cols-3 gap-3 sm:gap-6 {{ $treasures->count() > 3 ? 'lg:grid-cols-6' : '' }}">
+                @foreach($treasures as $t)
+                    <figure class="m-0 space-y-2 group">
+                        @if($t->link_url)<a href="{{ $t->link_url }}" @if(str_starts_with($t->link_url, 'http')) target="_blank" rel="noopener" @endif class="block">@endif
+                            <div class="aspect-[3/4] overflow-hidden bg-[#221C17] border border-line">
+                                <img src="{{ $t->image_url }}" alt="{{ $t->title }}{{ $t->subtitle ? '، ' . $t->subtitle : '' }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 motion-reduce:transition-none">
+                            </div>
+                        @if($t->link_url)</a>@endif
+                        <figcaption class="space-y-0.5">
+                            @if($t->title)<span class="block font-naskh text-base sm:text-lg font-bold text-ink">{{ $t->title }}</span>@endif
+                            @if($t->subtitle)<span class="hidden sm:block text-xs text-ink/80">{{ $t->subtitle }}</span>@endif
+                            @if($t->credit)<span class="hidden sm:block text-[11px] text-muted">{{ $t->credit }}</span>@endif
+                        </figcaption>
+                    </figure>
                 @endforeach
             </div>
         </section>
