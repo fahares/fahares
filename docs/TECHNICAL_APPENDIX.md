@@ -2231,7 +2231,7 @@
 - **استقرار:** `php artisan scout:sync-index-settings` و سپس `php artisan fahares:apply-library-full-names`. حدود ۳۲۴ هزار نسخه دوباره نمایه می‌شوند.
 - آزمون‌ها در [LibraryNamesTest.php](../tests/Feature/LibraryNamesTest.php).
 
-### گام ۱۲.۶: صفحه‌های شخص، کتابخانه و جستجو
+### گام ۱۲.۷: صفحه‌های شخص، کتابخانه و جستجو
 
 - [people/show.blade.php](../resources/views/people/show.blade.php):
   - زبانه‌های «آثار» و «نسخه‌های کتابت‌شده» همان منطق `activeTab` و `$defaultTab` را دارند و هر بخش یک `x-ui.section` با `x-show` است.
