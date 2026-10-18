@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' | ' . ($manuscript->libraryRecord?->name ?? $manuscript->library) . ' (' . ($manuscript->shelfmark ?? 'بی‌شماره') . ')')
-@section('meta_description', 'شناسنامه کالبدشناسی نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' در ' . ($manuscript->libraryRecord?->name ?? $manuscript->library) . ' با شماره بازیابی ' . ($manuscript->shelfmark ?? ''))
+@section('title', 'نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' | ' . ($manuscript->libraryRecord?->display_name ?? $manuscript->library) . ' (' . ($manuscript->shelfmark ?? 'بی‌شماره') . ')')
+@section('meta_description', 'شناسنامه کالبدشناسی نسخه خطی ' . ($manuscript->work?->primary_title ?? '') . ' در ' . ($manuscript->libraryRecord?->display_name ?? $manuscript->library) . ' با شماره بازیابی ' . ($manuscript->shelfmark ?? ''))
 @section('og_type', 'article')
 
 @section('content')
@@ -59,7 +59,7 @@
         use App\Support\Fa;
         $catShort = $manuscript->catalog?->short_name ?? 'فنخا';
         $catCode = $manuscript->catalog?->code ?? 'fankha';
-        $libraryName = $manuscript->libraryRecord?->name ?? $manuscript->library ?? 'کتابخانه‌ی نامشخص';
+        $libraryName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'کتابخانه‌ی نامشخص';
         $hasPage = $manuscript->volume_number && $manuscript->page_start;
         $pageRef = $hasPage ? Fa::digits("ج {$manuscript->volume_number}، ص {$manuscript->page_start}، ردیف {$manuscript->sequence_number}") : null;
         $pageThumb = $hasPage
@@ -477,7 +477,7 @@
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-stone-400">کتابخانه:</span>
-                    <span class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[200px]">{{ $manuscript->libraryRecord?->name ?? $manuscript->library }}</span>
+                    <span class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[200px]" title="{{ $libraryName }}">{{ $manuscript->libraryRecord?->short_name ?? $manuscript->library }}</span>
                 </div>
                 <div class="flex justify-between items-center pt-1.5 border-t border-stone-200/60 dark:border-stone-700/60">
                     <span class="text-stone-400">پیوند پایدار:</span>
@@ -546,7 +546,7 @@
                 
                 $workTitle = $manuscript->work?->primary_title ?? 'نسخه خطی';
                 $authorName = $manuscript->work?->author?->name ?? 'ناشناخته';
-                $libName = $manuscript->libraryRecord?->name ?? $manuscript->library ?? 'نامشخص';
+                $libName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'نامشخص';
                 $shelfmark = $manuscript->shelfmark ?? 'بی‌شماره';
                 $shortUrl = url('/m/' . $manuscript->id);
 
@@ -648,7 +648,7 @@
   "identifier": "{{ addcslashes($manuscript->shelfmark ?? '', '"\\') }}",
   "holdingArchive": {
     "@type": "Library",
-    "name": "{{ addcslashes($manuscript->libraryRecord?->name ?? $manuscript->library ?? '', '"\\') }}"
+    "name": "{{ addcslashes($manuscript->libraryRecord?->display_name ?? $manuscript->library ?? '', '"\\') }}"
   },
   @if($manuscript->scribe_name)"creator": { "@type": "Person", "name": "{{ addcslashes($manuscript->scribe_name, '"\\') }}" },@endif
   "url": "{{ route('manuscripts.show', $manuscript) }}"

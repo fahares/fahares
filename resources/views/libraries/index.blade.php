@@ -54,10 +54,10 @@
                class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 flex flex-col justify-between group">
                 <div class="space-y-1">
                     <div class="text-base font-bold text-[#292C56] dark:text-stone-100 group-hover:text-[#B38A50] transition">
-                        {{ $lib->name }}
+                        {{ $lib->display_name }}
                     </div>
                     <div class="text-xs text-stone-400">
-                        {{ $lib->city ?? 'ایران' }} @if($lib->country && $lib->country !== 'ایران') • {{ $lib->country }} @endif
+                        @if($lib->full_name){{ $lib->short_name }} • @endif{{ $lib->city ?? 'ایران' }} @if($lib->country && $lib->country !== 'ایران') • {{ $lib->country }} @endif
                     </div>
                 </div>
 

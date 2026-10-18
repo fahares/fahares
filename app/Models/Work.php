@@ -288,7 +288,7 @@ class Work extends Model
     public function earliestDatedManuscript(): ?Manuscript
     {
         return $this->manuscripts()
-            ->with('library')
+            ->with('libraryRecord')
             ->whereNotNull('copy_date_hijri_year')
             ->whereBetween('copy_date_hijri_year', [$this->plausibleCopyYearFloor(), 1500])
             ->orderBy('copy_date_hijri_year')

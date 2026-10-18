@@ -235,7 +235,7 @@
                                 @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_name)
                                     <span>پدیدآور: <strong>{{ $ms->work->author_name }}</strong></span>
                                 @endif
-                                <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
+                                <span>کتابخانه: <strong title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
                                 <span>شماره نسخه: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
                                 <span>تاریخ کتابت: <strong>{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
                             </div>
@@ -268,7 +268,7 @@
                     @continue(! $row->manuscript)
                     <li class="py-2 flex flex-wrap items-baseline justify-between gap-2">
                         <a href="{{ route('manuscripts.show', $row->manuscript) }}" class="font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50]">
-                            {{ $row->manuscript->work?->primary_title ?? 'نسخه' }} — {{ $row->manuscript->libraryRecord?->name ?? $row->manuscript->library }} {{ $row->manuscript->shelfmark }}
+                            {{ $row->manuscript->work?->primary_title ?? 'نسخه' }} — {{ $row->manuscript->libraryRecord?->short_name ?? $row->manuscript->library }} {{ $row->manuscript->shelfmark }}
                         </a>
                         <span class="text-stone-500 dark:text-stone-400">{{ $row->role_label }}@if($row->note) · {{ $row->note }}@endif</span>
                     </li>

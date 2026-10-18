@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', $library->name . ' | کتابخانه‌ها در فهارس')
-@section('meta_description', 'فهرست نسخه‌های خطی نگهداری‌شده در ' . $library->name . ' (' . ($library->city ?? '') . ') در سامانه فهارس')
+@section('title', $library->display_name . ' | کتابخانه‌ها در فهارس')
+@section('meta_description', 'فهرست نسخه‌های خطی نگهداری‌شده در ' . $library->display_name . ' (' . ($library->city ?? '') . ') در سامانه فهارس')
 
 @section('content')
 <div x-data class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -12,7 +12,7 @@
         <span>/</span>
         <a href="{{ route('libraries.index') }}" class="hover:text-[#B38A50]">کتابخانه‌ها</a>
         <span>/</span>
-        <span class="text-stone-800 dark:text-stone-200 font-semibold truncate">{{ $library->name }}</span>
+        <span class="text-stone-800 dark:text-stone-200 font-semibold truncate">{{ $library->display_name }}</span>
     </nav>
 
     <!-- LIBRARY HEADER -->
@@ -22,12 +22,12 @@
                 مرکز اسنادی و کتابخانه
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                {{ $library->name }}
+                {{ $library->display_name }}
+                <x-suggest.field name="full_name" class="ms-1 align-middle" />
             </h1>
-            <div class="text-sm text-stone-600 dark:text-stone-300" @unless($library->full_name) x-show="$store.suggest.on" x-cloak @endunless>
-                {{ $library->full_name ?? 'نام کامل: —' }}
-                <x-suggest.field name="full_name" class="ms-1" />
-            </div>
+            @if($library->full_name)
+                <div class="text-sm text-stone-600 dark:text-stone-300">نام کوتاه در فهرست‌ها: {{ $library->short_name }}</div>
+            @endif
             @if($library->aliases)
                 <div class="text-xs text-stone-500">نام‌های دیگر: <span class="text-stone-700 dark:text-stone-300">{{ implode('، ', $library->aliases) }}</span></div>
             @endif

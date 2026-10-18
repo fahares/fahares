@@ -238,6 +238,7 @@ return [
                     'incipit_text',
                     'explicit_text',
                     'library',
+                    'library_full_name',
                     'city',
                     'script_names',
                     'copy_place',

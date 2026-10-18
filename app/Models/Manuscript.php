@@ -345,7 +345,7 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name', 'scripts:id,name']);
+        return $query->with(['work:id,primary_title,clean_title,author_name', 'scripts:id,name', 'libraryRecord:id,full_name']);
     }
 
     public function toSearchableArray(): array
@@ -368,6 +368,7 @@ class Manuscript extends Model
             'author_name' => \App\Helpers\TextNormalizer::normalize($authorName),
             'library_id' => $this->library_id ? (int) $this->library_id : null,
             'library' => $this->library,
+            'library_full_name' => $this->library_id ? $this->libraryRecord?->full_name : null,
             'city' => $this->city,
             'shelfmark' => $this->shelfmark,
             'shelfmark_key' => $this->shelfmark_key,

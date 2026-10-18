@@ -47,6 +47,18 @@ class Library extends Model
         return false;
     }
 
+    /** Official name, for introductions, titles, metadata and citations; the short name when none is recorded. */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->full_name ?: $this->name;
+    }
+
+    /** Short name, for compact lists (manuscript tables, search results, facets); pair it with display_name as a tooltip. */
+    public function getShortNameAttribute(): string
+    {
+        return $this->name;
+    }
+
     public function getPersianSlugAttribute(): string
     {
         $name = $this->full_name ?: ($this->name . ($this->city ? ' ' . $this->city : ''));

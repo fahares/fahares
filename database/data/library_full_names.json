@@ -1,0 +1,3446 @@
+[
+ {
+  "slug": "mshhd-rdoy-1",
+  "name": "رضوی",
+  "city": "مشهد",
+  "full_name": "کتابخانه مرکزی آستان قدس رضوی",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-mraashy-2",
+  "name": "مرعشی",
+  "city": "قم",
+  "full_name": "کتابخانه عمومی آیة الله العظمی مرعشی نجفی",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-danshgah-3",
+  "name": "دانشگاه",
+  "city": "تهران",
+  "full_name": "کتابخانه مرکزی دانشگاه تهران",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mgls-4",
+  "name": "مجلس",
+  "city": "تهران",
+  "full_name": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-glpaygany-5",
+  "name": "گلپایگانی",
+  "city": "قم",
+  "full_name": "کتابخانه عمومی حضرت آیة الله العظمی گلپایگانی",
+  "source": "fankha"
+ },
+ {
+  "slug": "sary-aamomy-6",
+  "name": "عمومی",
+  "city": "ساری",
+  "full_name": "کتابخانه عمومی ساری",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mroy-7",
+  "name": "مروی",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه مروی",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-fydyh-8",
+  "name": "فیضیه",
+  "city": "قم",
+  "full_name": "کتابخانه مدرسه فیضیه",
+  "source": "fankha"
+ },
+ {
+  "slug": "kashan-aaatfy-afshyn-9",
+  "name": "عاطفی، افشین",
+  "city": "کاشان",
+  "full_name": "کتابخانه افشین عاطفی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mrkz-ahyaaa-10",
+  "name": "مرکز احیاء",
+  "city": "قم",
+  "full_name": "مرکز احیاء میراث اسلامی",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mly-11",
+  "name": "ملی",
+  "city": "تهران",
+  "full_name": "کتابخانه ملی ایران",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-shykh-aaly-hydr-mktbh-12",
+  "name": "شیخ علی حیدر (مکتبة)",
+  "city": "مشهد",
+  "full_name": "کتابخانه شیخ علی حیدر",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-noab-13",
+  "name": "نواب",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه نواب",
+  "source": "fankha"
+ },
+ {
+  "slug": "tbryz-mly-14",
+  "name": "ملی",
+  "city": "تبریز",
+  "full_name": "کتابخانه ملی تبریز",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mlk-15",
+  "name": "ملک",
+  "city": "تهران",
+  "full_name": "کتابخانه ملک",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mftah-16",
+  "name": "مفتاح",
+  "city": "تهران",
+  "full_name": "مجموعه محمد حسین مفتاح",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-adbyat-17",
+  "name": "ادبیات",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشکده ادبیات دانشگاه تهران",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-norbkhsh-18",
+  "name": "نوربخش",
+  "city": "تهران",
+  "full_name": "کتابخانه نوربخش (خانقاه نعمت اللهی تهران)",
+  "source": "fankha"
+ },
+ {
+  "slug": "khoy-nmazy-19",
+  "name": "نمازی",
+  "city": "خوی",
+  "full_name": "کتابخانه مدرسه نمازی",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-dayrh-almaaarf-20",
+  "name": "دائرة المعارف",
+  "city": "تهران",
+  "full_name": "کتابخانه مرکز دائرة المعارف بزرگ اسلامی",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-msgd-aaathm-21",
+  "name": "مسجد اعظم",
+  "city": "قم",
+  "full_name": "کتابخانه مسجد اعظم",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-sphsalar-22",
+  "name": "سپهسالار",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه عالی شهید مطهری (سپهسالار)",
+  "source": "fankha"
+ },
+ {
+  "slug": "hmdan-danshgah-boaaly-23",
+  "name": "دانشگاه بوعلی",
+  "city": "همدان",
+  "full_name": "کتابخانه دانشگاه بوعلی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-aalom-pzshky-24",
+  "name": "علوم پزشکی",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشگاه علوم پزشکی تهران",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-gohrshad-25",
+  "name": "گوهرشاد",
+  "city": "مشهد",
+  "full_name": "کتابخانه مسجد جامع گوهرشاد",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-hkok-26",
+  "name": "حقوق",
+  "city": "تهران",
+  "full_name": "دانشکده حقوق دانشگاه تهران",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-lght-namh-dhkhda-27",
+  "name": "لغت نامه دهخدا",
+  "city": "تهران",
+  "full_name": "کتابخانه لغت نامه دهخدا",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-kathmyny-28",
+  "name": "کاظمینی",
+  "city": "یزد",
+  "full_name": "کتابخانه میرزا محمد کاظمینی",
+  "source": "fankha"
+ },
+ {
+  "slug": "hmdan-mdrsh-ghrb-29",
+  "name": "مدرسه غرب",
+  "city": "همدان",
+  "full_name": "کتابخانه مدرسه غرب",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-danshgah-30",
+  "name": "دانشگاه",
+  "city": "اصفهان",
+  "full_name": "کتابخانه دانشگاه اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-frmanfrmayyan-hafth-dktr-31",
+  "name": "فرمانفرمائیان، حافظ (دکتر)",
+  "city": "تهران",
+  "full_name": "کتابخانه دکتر حافظ فرمانفرمائیان",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-ozyry-32",
+  "name": "وزیری",
+  "city": "یزد",
+  "full_name": "کتابخانه وزیری",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mynoy-mgtby-33",
+  "name": "مینوی، مجتبی",
+  "city": "تهران",
+  "full_name": "کتابخانه مجتبی مینوی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-gamaa-kbyr-34",
+  "name": "جامع کبیر",
+  "city": "یزد",
+  "full_name": "کتابخانه جامع کبیر",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-rodaty-35",
+  "name": "روضاتی",
+  "city": "اصفهان",
+  "full_name": "مجموعه شخصی سید احمد روضاتی",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-adbyat-36",
+  "name": "ادبیات",
+  "city": "اصفهان",
+  "full_name": "دانشکده ادبیات دانشگاه اصفهان",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-mossh-ayh-allh-brogrdy-37",
+  "name": "مؤسسه آیة الله بروجردی",
+  "city": "قم",
+  "full_name": "مؤسسه حضرت آیة الله العظمی بروجردی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-alhyat-38",
+  "name": "الهیات",
+  "city": "مشهد",
+  "full_name": "دانشکده الهیات دانشگاه فردوسی مشهد",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-sltnty-39",
+  "name": "سلطنتی",
+  "city": "تهران",
+  "full_name": "کتابخانه کاخ گلستان (سلطنتی)",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-alhyat-40",
+  "name": "الهیات",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشکده الهیات دانشگاه تهران",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-mrkz-mtalaaat-41",
+  "name": "مرکز مطالعات",
+  "city": "قم",
+  "full_name": "کتابخانه پژوهشگاه علوم و تحقیقات اسلامی",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-thkaaa-yhyy-42",
+  "name": "ذکاء، یحیی",
+  "city": "تهران",
+  "full_name": "مجموعه ذکاء یحیی",
+  "source": "fankha"
+ },
+ {
+  "slug": "kashan-aaatfy-hsn-43",
+  "name": "عاطفی، حسن",
+  "city": "کاشان",
+  "full_name": "کتابخانه حسن عاطفی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-sdoky-yzdy-44",
+  "name": "صدوقی یزدی",
+  "city": "یزد",
+  "full_name": "کتابخانه صدوقی یزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mhdoy-45",
+  "name": "مهدوی",
+  "city": "تهران",
+  "full_name": "مجموعه دکتر اصغر مهدوی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-mrtdoy-46",
+  "name": "مرتضوی",
+  "city": "مشهد",
+  "full_name": "کتابخانه مرتضوی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mozh-mly-47",
+  "name": "موزه ملی",
+  "city": "تهران",
+  "full_name": "کتابخانه موزه ملی ایران (موزه ایران باستان)",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-khakpor-asdallh-khandan-48",
+  "name": "خاکپور، اسدالله (خاندان)",
+  "city": "تهران",
+  "full_name": "کتابخانه خاندان خاکپور",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-hashmy-noraldyn-khandan-49",
+  "name": "هاشمی، نورالدین (خاندان)",
+  "city": "شیراز",
+  "full_name": "کتابخانه خاندان هاشمی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-bnyad-farsshnasy-50",
+  "name": "بنیاد فارس‌شناسی",
+  "city": "شیراز",
+  "full_name": "کتابخانه بنیاد فارس‌شناسی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-asghr-zadh-51",
+  "name": "اصغر زاده",
+  "city": "مشهد",
+  "full_name": "مجموعه اصغر زاده",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-maasomyh-52",
+  "name": "معصومیه",
+  "city": "قم",
+  "full_name": "آستان مقدسه حضرت معصومه علیها سلام",
+  "source": "fankha"
+ },
+ {
+  "slug": "sary-tahry-shhab-53",
+  "name": "طاهری شهاب",
+  "city": "ساری",
+  "full_name": "کتابخانه طاهری شهاب",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-amyrkbyr-54",
+  "name": "امیرکبیر",
+  "city": "کاشان",
+  "full_name": "کتابخانه امیر کبیر",
+  "source": "fankha"
+ },
+ {
+  "slug": "shyraz-amam-aasr-55",
+  "name": "امام عصر",
+  "city": "شیراز",
+  "full_name": "کتابخانه مدرسه امام عصر",
+  "source": "fankha"
+ },
+ {
+  "slug": "ardkan-yzd-amam-sadk-56",
+  "name": "امام صادق",
+  "city": "اردکان یزد",
+  "full_name": "کتابخانه حوزه علمیه امام صادق",
+  "source": "fankha"
+ },
+ {
+  "slug": "yzd-sryzdy-57",
+  "name": "سریزدی",
+  "city": "یزد",
+  "full_name": "کتابخانه مسجد حظیره (سر یزدی)",
+  "source": "fankha"
+ },
+ {
+  "slug": "ngf-abad-hggy-58",
+  "name": "حججی",
+  "city": "نجف آباد",
+  "full_name": "کتابخانه آیة الله حججی",
+  "source": "fankha"
+ },
+ {
+  "slug": "arak-dhgan-59",
+  "name": "دهگان",
+  "city": "اراک",
+  "full_name": "مجموعه ابراهیم دهگان",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mtalaaat-frhngy-60",
+  "name": "مطالعات فرهنگی",
+  "city": "تهران",
+  "full_name": "کتابخانه (پژوهشگاه) مؤسسه مطالعات و تحقیقات فرهنگی",
+  "source": "fankha"
+ },
+ {
+  "slug": "shyraz-mhlaty-sdraldyn-61",
+  "name": "محلاتی، صدرالدین",
+  "city": "شیراز",
+  "full_name": "کتابخانه صدرالدین محلاتی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-saayd-nfysy-62",
+  "name": "سعید نفیسی",
+  "city": "تهران",
+  "full_name": "نسخه‌های خطی مرحوم سعید نفیسی",
+  "source": "fankha"
+ },
+ {
+  "slug": "yzd-aalomy-shykh-aaly-63",
+  "name": "علومی، شیخ علی",
+  "city": "یزد",
+  "full_name": "کتابخانه شیخ علی علومی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-aalamh-tbatbayy-64",
+  "name": "علامه طباطبائی",
+  "city": "شیراز",
+  "full_name": "کتابخانه علامه طباطبائی",
+  "source": "fankha"
+ },
+ {
+  "slug": "aran-kashan-mhmd-hlal-65",
+  "name": "محمد هلال",
+  "city": "آران کاشان",
+  "full_name": "کتابخانه امامزاده محمد هلال",
+  "source": "fankha"
+ },
+ {
+  "slug": "zngan-amam-gmaah-66",
+  "name": "امام جمعه",
+  "city": "زنجان",
+  "full_name": "کتابخانه امام جمعه",
+  "source": "fankha"
+ },
+ {
+  "slug": "kashan-mdrsh-sltany-67",
+  "name": "مدرسه سلطانی",
+  "city": "کاشان",
+  "full_name": "کتابخانه مدرسه سلطانی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-tbsy-68",
+  "name": "طبسی",
+  "city": "قم",
+  "full_name": "کتابخانه طبسی حائری",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-aabdalaathym-69",
+  "name": "عبدالعظیم",
+  "city": "تهران",
+  "full_name": "آستان مقدس حضرت عبدالعظیم",
+  "source": "fankha"
+ },
+ {
+  "slug": "rsht-gmaayt-nshr-frhng-70",
+  "name": "جمعیت نشر فرهنگ",
+  "city": "رشت",
+  "full_name": "کتابخانه جمعیت نشر فرهنگ رشت",
+  "source": "auto"
+ },
+ {
+  "slug": "rsht-mly-rsht-71",
+  "name": "ملی رشت",
+  "city": "رشت",
+  "full_name": "کتابخانه ملی رشت",
+  "source": "auto"
+ },
+ {
+  "slug": "glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72",
+  "name": "کتابخانه حجة الاسلام گلپایگانی",
+  "city": "گلپایگان",
+  "full_name": "کتابخانه حجة الاسلام گلپایگانی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-fadl-kayyny-73",
+  "name": "فاضل قائینی",
+  "city": "قم",
+  "full_name": "کتابخانه فاضل قائینی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-mdrsh-ayh-allh-khoyy-74",
+  "name": "مدرسه آیة الله خوئی",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه آیة الله خوئی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-frhng-o-hnr-75",
+  "name": "فرهنگ و هنر",
+  "city": "مشهد",
+  "full_name": "کتابخانه فرهنگ و هنر",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-aalamh-fany-dyaaa-aldyn-76",
+  "name": "علامه فانی (ضیاء الدین)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه علامه فانی (ضیاء الدین)",
+  "source": "auto"
+ },
+ {
+  "slug": "khoansar-mdrsh-aaloy-77",
+  "name": "مدرسه علوی",
+  "city": "خوانسار",
+  "full_name": "کتابخانه مدرسه علوی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-khankah-ahmdyh-78",
+  "name": "خانقاه احمدیه",
+  "city": "شیراز",
+  "full_name": "کتابخانه خانقاه احمدیه",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-chhl-ston-79",
+  "name": "چهل ستون",
+  "city": "تهران",
+  "full_name": "مدرسه چهل ستون",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-daralhdyth-80",
+  "name": "دارالحدیث",
+  "city": "قم",
+  "full_name": "کتابخانه مرکز دار الحدیث",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-mybdy-81",
+  "name": "میبدی",
+  "city": "مشهد",
+  "full_name": "کتابخانه میبدی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-hafthyan-aboalfdl-82",
+  "name": "حافظیان، ابوالفضل",
+  "city": "قم",
+  "full_name": "کتابخانه ابوالفضل حافظیان",
+  "source": "auto"
+ },
+ {
+  "slug": "kzoyn-amam-sadk-83",
+  "name": "امام صادق",
+  "city": "قزوین",
+  "full_name": "مدرسه امام صادق قزوین",
+  "source": "fankha"
+ },
+ {
+  "slug": "krmanshah-ngomy-syd-mrtdy-84",
+  "name": "نجومی، سید مرتضی",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه سید مرتضی نجومی",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-khadm-hsyny-85",
+  "name": "خادم حسینی",
+  "city": "تبریز",
+  "full_name": "کتابخانه خادم حسینی",
+  "source": "auto"
+ },
+ {
+  "slug": "byrgnd-dyany-86",
+  "name": "دیانی",
+  "city": "بیرجند",
+  "full_name": "کتابخانه شیخ محمد علی دیانی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-mdrsh-bakryh-87",
+  "name": "مدرسه باقریه",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه باقریه",
+  "source": "auto"
+ },
+ {
+  "slug": "krmanshah-mybdy-khandan-88",
+  "name": "میبدی (خاندان)",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه خاندان میبدی",
+  "source": "auto"
+ },
+ {
+  "slug": "babl-khatm-alanbyaaa-89",
+  "name": "خاتم الانبیاء",
+  "city": "بابل",
+  "full_name": "کتابخانه مدرسه خاتم الانبیاء (صدر)",
+  "source": "fankha"
+ },
+ {
+  "slug": "khoansar-fadl-90",
+  "name": "فاضل",
+  "city": "خوانسار",
+  "full_name": "کتابخانه آیة الله فاضل خوانساری",
+  "source": "fankha"
+ },
+ {
+  "slug": "shyraz-mly-91",
+  "name": "ملی",
+  "city": "شیراز",
+  "full_name": "کتابخانه ملی شیراز",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-mhdoy-mslh-aldyn-92",
+  "name": "مهدوی، مصلح الدین",
+  "city": "اصفهان",
+  "full_name": "کتابخانه مصلح الدین مهدوی",
+  "source": "auto"
+ },
+ {
+  "slug": "damghan-kmr-bny-hashm-93",
+  "name": "قمر بنی هاشم",
+  "city": "دامغان",
+  "full_name": "کتابخانه قمر بنی هاشم",
+  "source": "fankha"
+ },
+ {
+  "slug": "bshroyh-amyralmomnyn-94",
+  "name": "امیرالمؤمنین",
+  "city": "بشرویه",
+  "full_name": "کتابخانه امیرالمؤمنین",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-zngany-ayh-allh-95",
+  "name": "زنجانی (آیة الله)",
+  "city": "قم",
+  "full_name": "کتابخانه آیة الله زنجانی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mokofh-myrza-abotalb-kmy-96",
+  "name": "موقوفه میرزا ابوطالب قمی",
+  "city": "قم",
+  "full_name": "کتابخانه موقوفه میرزا ابوطالب قمی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-shahchragh-97",
+  "name": "شاهچراغ",
+  "city": "شیراز",
+  "full_name": "کتابخانه آستانه حضرت شاهچراغ",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-shhrdary-asfhan-98",
+  "name": "شهرداری اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه شهرداری اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-99",
+  "name": "دانش‌سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرکانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-rodaty-syd-mhmd-aaly-100",
+  "name": "روضاتی، سید محمد علی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه سید محمد علی روضاتی",
+  "source": "auto"
+ },
+ {
+  "slug": "kayn-mdrsh-gaafryh-101",
+  "name": "مدرسه جعفریه",
+  "city": "قائن",
+  "full_name": "کتابخانه مدرسه جعفریه",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-amam-hady-102",
+  "name": "امام هادی",
+  "city": "مشهد",
+  "full_name": "کتابخانه عمومی امام هادی",
+  "source": "fankha"
+ },
+ {
+  "slug": "krmanshah-glyly-103",
+  "name": "جلیلی",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه جلیلی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-frhad-maatmd-104",
+  "name": "فرهاد معتمد",
+  "city": "تهران",
+  "full_name": "مجموعه فرهاد معتمد",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-ktabkhanhhay-asfhan-105",
+  "name": "کتابخانه‌های اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه‌های اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-mozh-pars-106",
+  "name": "موزه پارس",
+  "city": "شیراز",
+  "full_name": "کتابخانه موزه پارس",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-mdrsh-sdr-bazar-107",
+  "name": "مدرسه صدر بازار",
+  "city": "اصفهان",
+  "full_name": "کتابخانه مدرسه صدر بازار",
+  "source": "auto"
+ },
+ {
+  "slug": "bshroyh-asdy-mkdm-mhdy-108",
+  "name": "اسدی مقدم، مهدی",
+  "city": "بشرویه",
+  "full_name": "کتابخانه مهدی اسدی مقدم",
+  "source": "auto"
+ },
+ {
+  "slug": "chalos-amam-sadk-109",
+  "name": "امام صادق",
+  "city": "چالوس",
+  "full_name": "مدرسه امام صادق چالوس",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-sht-rda-dktr-110",
+  "name": "صحت، رضا (دکتر)",
+  "city": "مشهد",
+  "full_name": "کتابخانه دکتر رضا صحت",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mdark-frhngy-111",
+  "name": "مدارک فرهنگی",
+  "city": "تهران",
+  "full_name": "سازمان مدارک فرهنگی انقلاب",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-argany-bhbhany-112",
+  "name": "ارگانی بهبهانی",
+  "city": "قم",
+  "full_name": "کتابخانه ارگانی بهبهانی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-adbyat-113",
+  "name": "ادبیات",
+  "city": "مشهد",
+  "full_name": "کتابخانه دانشکده ادبیات دانشگاه فردوسی مشهد",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mossh-mtalaaat-aslamy-114",
+  "name": "مؤسسه مطالعات اسلامی",
+  "city": "تهران",
+  "full_name": "کتابخانه مؤسسه مطالعات اسلامی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-hgtyh-115",
+  "name": "حجتیه",
+  "city": "قم",
+  "full_name": "کتابخانه مدرسه حجتیه",
+  "source": "fankha"
+ },
+ {
+  "slug": "damghan-sadkyh-116",
+  "name": "صادقیه",
+  "city": "دامغان",
+  "full_name": "کتابخانه مدرسه فتحعلی بیگ (صادقیه)",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-shhshhany-hsyn-117",
+  "name": "شهشهانی، حسین",
+  "city": "تهران",
+  "full_name": "کتابخانه حسین شهشهانی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-aboalbrkat-rda-118",
+  "name": "ابوالبرکات، رضا",
+  "city": "اصفهان",
+  "full_name": "کتابخانه رضا ابوالبرکات",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-thkh-alaslam-119",
+  "name": "ثقة الاسلام",
+  "city": "تبریز",
+  "full_name": "کتابخانه ثقة الاسلام",
+  "source": "auto"
+ },
+ {
+  "slug": "kochan-mdrsh-aaodyh-120",
+  "name": "مدرسه عوضیه",
+  "city": "قوچان",
+  "full_name": "کتابخانه مدرسه عوضیه",
+  "source": "auto"
+ },
+ {
+  "slug": "zhan-mdrsh-gaafryh-zhan-121",
+  "name": "مدرسه جعفریه زهان",
+  "city": "زهان",
+  "full_name": "کتابخانه مدرسه جعفریه زهان",
+  "source": "auto"
+ },
+ {
+  "slug": "glpaygan-amam-gmaah-mhmd-hsn-122",
+  "name": "امام جمعه، محمد حسن",
+  "city": "گلپایگان",
+  "full_name": "کتابخانه محمد حسن امام جمعه",
+  "source": "auto"
+ },
+ {
+  "slug": "slymanyh-mhmd-hlal-123",
+  "name": "محمد هلال",
+  "city": "سلیمانیه",
+  "full_name": "کتابخانه محمد هلال",
+  "source": "auto"
+ },
+ {
+  "slug": "km-amam-sadk-124",
+  "name": "امام صادق",
+  "city": "قم",
+  "full_name": "کتابخانه مؤسسه امام صادق",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-sazman-mdark-frhngy-anklab-125",
+  "name": "سازمان مدارک فرهنگی انقلاب",
+  "city": "تهران",
+  "full_name": "کتابخانه سازمان مدارک فرهنگی انقلاب",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-osal-dktr-126",
+  "name": "وصال (دکتر)",
+  "city": "شیراز",
+  "full_name": "کتابخانه دکتر وصال",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-kady-tbatbayy-127",
+  "name": "قاضی طباطبائی",
+  "city": "تبریز",
+  "full_name": "مجموعه محمد علی قاضی طباطبائی",
+  "source": "fankha"
+ },
+ {
+  "slug": "bydgl-mgthd-alzman-bydgly-128",
+  "name": "مجتهد الزمان بیدگلی",
+  "city": "بیدگل",
+  "full_name": "کتابخانه مجتهد الزمان بیدگلی بیدگل",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-129",
+  "name": "دانش‌سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرگانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرگانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-banky-por-130",
+  "name": "بانکی پور",
+  "city": "تهران",
+  "full_name": "کتابخانه بانکی پور",
+  "source": "auto"
+ },
+ {
+  "slug": "km-lagordy-syd-mhdy-131",
+  "name": "لاجوردی، سید مهدی",
+  "city": "قم",
+  "full_name": "کتابخانه سید مهدی لاجوردی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-rgayy-mghzy-ktabkhanh-132",
+  "name": "رجائی مغزی (کتابخانه)",
+  "city": "مشهد",
+  "full_name": "کتابخانه رجائی مغزی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mdrsh-maamarbashy-133",
+  "name": "مدرسه معمارباشی",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه معمارباشی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-gabry-ansary-134",
+  "name": "جابری انصاری",
+  "city": "اصفهان",
+  "full_name": "کتابخانه جابری انصاری",
+  "source": "auto"
+ },
+ {
+  "slug": "krmanshah-mdrsh-ayh-allh-brogrdy-135",
+  "name": "مدرسه آیة الله بروجردی",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه مدرسه آیة الله بروجردی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-shfty-mhdy-136",
+  "name": "شفتی، مهدی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه مهدی شفتی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mfty-alshyaah-137",
+  "name": "مفتی الشیعه",
+  "city": "قم",
+  "full_name": "کتابخانه مفتی الشیعه",
+  "source": "auto"
+ },
+ {
+  "slug": "kayn-amam-syd-hsn-139",
+  "name": "امام، سید حسن",
+  "city": "قائن",
+  "full_name": "کتابخانه سید حسن امام",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mdrsh-rdoyh-140",
+  "name": "مدرسه رضویه",
+  "city": "قم",
+  "full_name": "کتابخانه مدرسه رضویه",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-mdrsh-khan-141",
+  "name": "مدرسه خان",
+  "city": "یزد",
+  "full_name": "کتابخانه مدرسه خان",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-mktbh-alzhraaa-142",
+  "name": "مکتبة الزهراء",
+  "city": "اصفهان",
+  "full_name": "مکتبة الزهراء",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mynoy-143",
+  "name": "مینوی",
+  "city": "تهران",
+  "full_name": "مجتبی مینوی",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-aamomy-asfhan-frhng-sabk-144",
+  "name": "عمومی اصفهان (فرهنگ سابق)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه عمومی اصفهان (فرهنگ سابق)",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mossh-amam-sadk-145",
+  "name": "مؤسسه امام صادق",
+  "city": "قم",
+  "full_name": "کتابخانه مؤسسه امام صادق",
+  "source": "auto"
+ },
+ {
+  "slug": "ghrm-krym-ashrak-146",
+  "name": "کریم اشراق",
+  "city": "جهرم",
+  "full_name": "کتابخانه کریم اشراق",
+  "source": "auto"
+ },
+ {
+  "slug": "km-brogrdy-147",
+  "name": "بروجردی",
+  "city": "قم",
+  "full_name": "کتابخانه بروجردی",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-trbyt-148",
+  "name": "تربیت",
+  "city": "تبریز",
+  "full_name": "کتابخانه تربیت",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-tbatbayy-149",
+  "name": "طباطبائی",
+  "city": "شیراز",
+  "full_name": "کتابخانه طباطبائی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-aalomy-yzdy-mhmod-150",
+  "name": "علومی یزدی، محمود",
+  "city": "یزد",
+  "full_name": "کتابخانه محمود علومی یزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-astady-rda-151",
+  "name": "استادی، رضا",
+  "city": "قم",
+  "full_name": "کتابخانه رضا استادی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-hydry-152",
+  "name": "حیدری",
+  "city": "مشهد",
+  "full_name": "کتابخانه حیدری",
+  "source": "auto"
+ },
+ {
+  "slug": "ramsr-fryd-tnkabny-aabdalohab-153",
+  "name": "فرید تنکابنی، عبدالوهاب",
+  "city": "رامسر",
+  "full_name": "کتابخانه عبدالوهاب فرید تنکابنی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-amam-aasr-aag-154",
+  "name": "امام عصر (عج)",
+  "city": "شیراز",
+  "full_name": "کتابخانه امام عصر (عج)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-angmn-athar-o-mfakhr-frhngy-155",
+  "name": "انجمن آثار و مفاخر فرهنگی",
+  "city": "تهران",
+  "full_name": "کتابخانه انجمن آثار و مفاخر فرهنگی",
+  "source": "auto"
+ },
+ {
+  "slug": "ahoaz-shoshtry-mhmd-156",
+  "name": "شوشتری، محمد",
+  "city": "اهواز",
+  "full_name": "کتابخانه محمد شوشتری",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-mzar-afdl-aldyn-kashany-157",
+  "name": "مزار افضل الدین کاشانی",
+  "city": "کاشان",
+  "full_name": "کتابخانه مزار افضل الدین کاشانی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-ayzdy-hagy-158",
+  "name": "ایزدی (حاجی)",
+  "city": "همدان",
+  "full_name": "کتابخانه حاجی ایزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "ashtyan-hozh-aalmyh-159",
+  "name": "حوزه علمیه",
+  "city": "آشتیان",
+  "full_name": "حوزه علمیه آشتیان",
+  "source": "fankha"
+ },
+ {
+  "slug": "khoy-gngynh-mozh-160",
+  "name": "گنجینه (موزه)",
+  "city": "خوی",
+  "full_name": "کتابخانه گنجینه (موزه)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-hozh-astan-hdrt-aabdalaathym-161",
+  "name": "حوزه آستان حضرت عبدالعظیم",
+  "city": "تهران",
+  "full_name": "کتابخانه حوزه آستان حضرت عبدالعظیم",
+  "source": "auto"
+ },
+ {
+  "slug": "shahrod-mdrsh-asmaaaylyh-162",
+  "name": "مدرسه اسماعیلیه",
+  "city": "شاهرود",
+  "full_name": "کتابخانه مدرسه اسماعیلیه",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-goahry-hbyb-163",
+  "name": "جواهری، حبیب",
+  "city": "همدان",
+  "full_name": "کتابخانه حبیب جواهری",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-sadat-nasry-hsn-164",
+  "name": "سادات ناصری، حسن",
+  "city": "تهران",
+  "full_name": "کتابخانه حسن سادات ناصری",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-hmrah-rda-165",
+  "name": "همراه، رضا",
+  "city": "همدان",
+  "full_name": "کتابخانه رضا همراه",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-ayzdy-mhmod-166",
+  "name": "ایزدی، محمود",
+  "city": "همدان",
+  "full_name": "کتابخانه محمود ایزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-aaly-hydr-167",
+  "name": "علی حیدر",
+  "city": "مشهد",
+  "full_name": "کتابخانه علی حیدر",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-ozart-amor-khargh-168",
+  "name": "وزارت امور خارجه",
+  "city": "تهران",
+  "full_name": "کتابخانه وزارت امور خارجه",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-gaafry-169",
+  "name": "جعفری",
+  "city": "کاشان",
+  "full_name": "کتابخانه جعفری",
+  "source": "auto"
+ },
+ {
+  "slug": "krmanshah-ngomy-170",
+  "name": "نجومی",
+  "city": "کرمانشاه",
+  "full_name": "مجموعه سید مرتضی نجومی",
+  "source": "fankha"
+ },
+ {
+  "slug": "khoy-mla-aaly-khoyy-shryf-171",
+  "name": "ملا علی خوئی (شریف)",
+  "city": "خوی",
+  "full_name": "کتابخانه ملا علی خوئی (شریف)",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-thamny-mhmd-rda-172",
+  "name": "ثامنی، محمد رضا",
+  "city": "شیراز",
+  "full_name": "کتابخانه محمد رضا ثامنی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-bghayry-aabdalrzak-173",
+  "name": "بغایری، عبدالرزاق",
+  "city": "شیراز",
+  "full_name": "کتابخانه عبدالرزاق بغایری",
+  "source": "auto"
+ },
+ {
+  "slug": "mraghh-aamomy-174",
+  "name": "عمومی",
+  "city": "مراغه",
+  "full_name": "کتابخانه عمومی مراغه",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-ktabkhanh-hay-asfhan-175",
+  "name": "کتابخانه های اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه های اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdyr-shanh-chy-176",
+  "name": "مدیر شانه چی",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدیر شانه چی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-brna-kasm-177",
+  "name": "برنا، قاسم",
+  "city": "همدان",
+  "full_name": "کتابخانه قاسم برنا",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-178",
+  "name": "دانش‌سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرکانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-byany-mhdy-dktr-179",
+  "name": "بیانی، مهدی (دکتر)",
+  "city": "تهران",
+  "full_name": "کتابخانه دکتر مهدی بیانی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-toysrkany-180",
+  "name": "تویسرکانی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه تویسرکانی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-kmaly-182",
+  "name": "کمالی",
+  "city": "همدان",
+  "full_name": "کتابخانه کمالی",
+  "source": "auto"
+ },
+ {
+  "slug": "kzoyn-fhol-kzoyny-185",
+  "name": "فحول قزوینی",
+  "city": "قزوین",
+  "full_name": "کتابخانه فحول قزوینی",
+  "source": "auto"
+ },
+ {
+  "slug": "krmanshah-fyd-mhdoy-ktabkhanh-186",
+  "name": "فیض مهدوی (کتابخانه)",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه فیض مهدوی",
+  "source": "auto"
+ },
+ {
+  "slug": "kzoyn-myr-hsyna-kzoyny-187",
+  "name": "میر حسینا قزوینی",
+  "city": "قزوین",
+  "full_name": "کتابخانه میر حسینا قزوینی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-fyad-188",
+  "name": "فیاض",
+  "city": "تهران",
+  "full_name": "مجموعه دکتر علی اکبر فیاض",
+  "source": "fankha"
+ },
+ {
+  "slug": "yzd-mdrsy-189",
+  "name": "مدرسی",
+  "city": "یزد",
+  "full_name": "کتابخانه سید محمد مدرسی",
+  "source": "fankha"
+ },
+ {
+  "slug": "frdos-mdrsh-hbybyh-190",
+  "name": "مدرسه حبیبیه",
+  "city": "فردوس",
+  "full_name": "کتابخانه مدرسه حبیبیه",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdrsh-hag-hsn-191",
+  "name": "مدرسه حاج حسن",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه حاج حسن",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdrsh-myrza-gaafr-192",
+  "name": "مدرسه میرزا جعفر",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه میرزا جعفر",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdrsh-slymanyh-193",
+  "name": "مدرسه سلیمانیه",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه سلیمانیه",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdrsh-khyrat-khan-194",
+  "name": "مدرسه خیرات خان",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه خیرات خان",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-syd-kshfy-195",
+  "name": "سید کشفی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه سید کشفی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-hgt-kohkmry-196",
+  "name": "حجت کوهکمری",
+  "city": "قم",
+  "full_name": "کتابخانه حجت کوهکمری",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-rdoy-197",
+  "name": "رضوی",
+  "city": "کاشان",
+  "full_name": "کتابخانه رضوی",
+  "source": "auto"
+ },
+ {
+  "slug": "kayn-hsyny-khstany-198",
+  "name": "حسینی قهستانی",
+  "city": "قائن",
+  "full_name": "کتابخانه حسینی قهستانی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-dstghyb-bdraldyn-199",
+  "name": "دستغیب، بدرالدین",
+  "city": "شیراز",
+  "full_name": "کتابخانه بدرالدین دستغیب",
+  "source": "auto"
+ },
+ {
+  "slug": "smnan-mdrsh-sadkyh-200",
+  "name": "مدرسه صادقیه",
+  "city": "سمنان",
+  "full_name": "کتابخانه مدرسه صادقیه",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-mdrsh-ghrb-hmdan-201",
+  "name": "مدرسه غرب همدان",
+  "city": "همدان",
+  "full_name": "کتابخانه مدرسه غرب همدان",
+  "source": "auto"
+ },
+ {
+  "slug": "glpaygan-glpaygany-202",
+  "name": "گلپایگانی",
+  "city": "گلپایگان",
+  "full_name": "کتابخانه گلپایگانی",
+  "source": "auto"
+ },
+ {
+  "slug": "dzfol-nboy-syd-mhmd-203",
+  "name": "نبوی، سید محمد",
+  "city": "دزفول",
+  "full_name": "کتابخانه سید محمد نبوی",
+  "source": "auto"
+ },
+ {
+  "slug": "aml-pyshnmaz-myrza-aboalhsn-204",
+  "name": "پیشنماز، میرزا ابوالحسن",
+  "city": "آمل",
+  "full_name": "کتابخانه میرزا ابوالحسن پیشنماز",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-shykh-aaly-hydr-205",
+  "name": "شیخ علی حیدر",
+  "city": "مشهد",
+  "full_name": "مکتبه شیخ علی حیدر (مؤید)",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-mhdoy-ktabkhanh-206",
+  "name": "مهدوی (کتابخانه)",
+  "city": "قم",
+  "full_name": "کتابخانه مهدوی",
+  "source": "auto"
+ },
+ {
+  "slug": "aran-kashan-amamzadh-mhmd-hlal-207",
+  "name": "امامزاده محمد هلال",
+  "city": "آران کاشان",
+  "full_name": "کتابخانه امامزاده محمد هلال",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-mhmod-abady-myrza-hsn-208",
+  "name": "محمود آبادی، میرزا حسن",
+  "city": "یزد",
+  "full_name": "کتابخانه میرزا حسن محمود آبادی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-mdrsh-mnsoryh-211",
+  "name": "مدرسه منصوریه",
+  "city": "شیراز",
+  "full_name": "کتابخانه مدرسه منصوریه",
+  "source": "auto"
+ },
+ {
+  "slug": "rsht-mly-212",
+  "name": "ملی",
+  "city": "رشت",
+  "full_name": "کتابخانه ملی رشت",
+  "source": "auto"
+ },
+ {
+  "slug": "ahoaz-shoshtry-mhmd-213",
+  "name": "شوشتری محمد",
+  "city": "اهواز",
+  "full_name": "کتابخانه شوشتری محمد",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-ml-215",
+  "name": "ملى",
+  "city": "تهران",
+  "full_name": "کتابخانه ملی ایران",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-danshkdh-alhyat-thran-216",
+  "name": "دانشکده الهیات تهران",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشکده الهیات تهران",
+  "source": "auto"
+ },
+ {
+  "slug": "sary-aamomy-sary-217",
+  "name": "عمومی ساری",
+  "city": "ساری",
+  "full_name": "کتابخانه عمومی ساری",
+  "source": "fankha"
+ },
+ {
+  "slug": "asfhan-danshgah-asfhan-218",
+  "name": "دانشگاه اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه دانشگاه اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mro-220",
+  "name": "مروى",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه مروی",
+  "source": "fankha"
+ },
+ {
+  "slug": "ngf-abad-hgg-221",
+  "name": "حججى",
+  "city": "نجف آباد",
+  "full_name": "کتابخانه آیة الله حججی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-rdo-222",
+  "name": "رضوى",
+  "city": "مشهد",
+  "full_name": "کتابخانه مرکزی آستان قدس رضوی",
+  "source": "fankha"
+ },
+ {
+  "slug": "shyraz-ml-223",
+  "name": "ملى",
+  "city": "شیراز",
+  "full_name": "کتابخانه ملی شیراز",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-shryaaty-mhmd-hsyn-ktabkhanh-224",
+  "name": "شریعتی، محمد حسین (کتابخانه)",
+  "city": "قم",
+  "full_name": "کتابخانه محمد حسین شریعتی",
+  "source": "auto"
+ },
+ {
+  "slug": "damghan-kmr-bny-hashm-aa-225",
+  "name": "قمر بنی هاشم (ع)",
+  "city": "دامغان",
+  "full_name": "کتابخانه قمر بنی هاشم (ع)",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-mdrsh-olyaasr-tbryz-226",
+  "name": "مدرسه ولیعصر تبریز",
+  "city": "تبریز",
+  "full_name": "کتابخانه مدرسه ولیعصر تبریز",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-mdrsh-sdr-khoago-227",
+  "name": "مدرسه صدر خواجو",
+  "city": "اصفهان",
+  "full_name": "کتابخانه مدرسه صدر خواجو",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-mdrsy-syd-mhmd-ktabkhanh-228",
+  "name": "مدرسی، سید محمد (کتابخانه)",
+  "city": "یزد",
+  "full_name": "کتابخانه سید محمد مدرسی",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-frhng-o-arshad-229",
+  "name": "فرهنگ و ارشاد",
+  "city": "کاشان",
+  "full_name": "کتابخانه فرهنگ و ارشاد اسلامی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mybd-mkhtotat-o-asnad-mybd-230",
+  "name": "مخطوطات و اسناد میبد",
+  "city": "میبد",
+  "full_name": "کتابخانه مخطوطات و اسناد میبد",
+  "source": "auto"
+ },
+ {
+  "slug": "glpaygan-shhydy-hag-akarda-231",
+  "name": "شهیدی، حاج آقارضا",
+  "city": "گلپایگان",
+  "full_name": "کتابخانه حاج آقارضا شهیدی",
+  "source": "auto"
+ },
+ {
+  "slug": "mraghh-msgd-shykh-baba-232",
+  "name": "مسجد شیخ بابا",
+  "city": "مراغه",
+  "full_name": "کتابخانه مسجد شیخ بابا",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mdrsh-knbr-aaly-khan-hdrt-oly-aasr-233",
+  "name": "مدرسه قنبر علی خان (حضرت ولی عصر)",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه قنبر علی خان (حضرت ولی عصر)",
+  "source": "auto"
+ },
+ {
+  "slug": "zahdan-kambozyan-krd-ghfranlo-amyr-tokl-234",
+  "name": "کامبوزیان کرد غفرانلو، امیر توکل",
+  "city": "زاهدان",
+  "full_name": "کتابخانه امیر توکل کامبوزیان کرد غفرانلو",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-sarm-aldolh-ktabkhanh-frhng-asfhan-235",
+  "name": "صارم الدوله (کتابخانه فرهنگ اصفهان)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه صارم الدوله (کتابخانه فرهنگ اصفهان)",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-aaatmad-aldolh-236",
+  "name": "اعتماد الدوله",
+  "city": "همدان",
+  "full_name": "کتابخانه اعتماد الدوله",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-byat-aabdalhsyn-237",
+  "name": "بیات، عبدالحسین",
+  "city": "اراک",
+  "full_name": "کتابخانه عبدالحسین بیات",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mrkz-frhngy-khrasan-238",
+  "name": "مرکز فرهنگی خراسان",
+  "city": "تهران",
+  "full_name": "کتابخانه مرکز فرهنگی خراسان",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-mhkk-akay-239",
+  "name": "محقق (آقای)",
+  "city": "تبریز",
+  "full_name": "کتابخانه محقق (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mozh-mrdm-shnasy-240",
+  "name": "موزه مردم شناسی",
+  "city": "تهران",
+  "full_name": "کتابخانه موزه مردم شناسی",
+  "source": "auto"
+ },
+ {
+  "slug": "ahoaz-danshgah-242",
+  "name": "دانشگاه",
+  "city": "اهواز",
+  "full_name": "کتابخانه دانشگاه اهواز",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mrkz-mtalaaat-o-thkykat-aslamy-249",
+  "name": "مرکز مطالعات و تحقیقات اسلامی",
+  "city": "قم",
+  "full_name": "کتابخانه مرکز مطالعات و تحقیقات اسلامی",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-nkhgoany-hsyn-250",
+  "name": "نخجوانی، حسین",
+  "city": "تبریز",
+  "full_name": "کتابخانه حسین نخجوانی",
+  "source": "auto"
+ },
+ {
+  "slug": "khor-hkmt-yghmayy-aabdalkrym-251",
+  "name": "حکمت یغمایی، عبدالکریم",
+  "city": "خور",
+  "full_name": "کتابخانه عبدالکریم حکمت یغمایی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-frhmnd-mhmd-aaly-252",
+  "name": "فرهمند، محمد علی",
+  "city": "یزد",
+  "full_name": "کتابخانه محمد علی فرهمند",
+  "source": "auto"
+ },
+ {
+  "slug": "askndryh-ahmd-shahd-253",
+  "name": "احمد شاهد",
+  "city": "اسکندریه",
+  "full_name": "کتابخانه احمد شاهد اسکندریه",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-danshkdh-adbyat-tbryz-254",
+  "name": "دانشکده ادبیات تبریز",
+  "city": "تبریز",
+  "full_name": "کتابخانه دانشکده ادبیات تبریز",
+  "source": "auto"
+ },
+ {
+  "slug": "rsht-shad-kzoyny-255",
+  "name": "شاد قزوینی",
+  "city": "رشت",
+  "full_name": "کتابخانه شاد قزوینی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mdrsh-mroy-256",
+  "name": "مدرسه مروی",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه مروی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mraash-257",
+  "name": "مرعشى",
+  "city": "قم",
+  "full_name": "کتابخانه عمومی آیة الله العظمی مرعشی نجفی",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-mozh-astan-hdrt-aabdalaathym-258",
+  "name": "موزه آستان حضرت عبدالعظیم",
+  "city": "تهران",
+  "full_name": "کتابخانه موزه آستان حضرت عبدالعظیم",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-aramgah-boaaly-259",
+  "name": "آرامگاه بوعلی",
+  "city": "همدان",
+  "full_name": "کتابخانه آرامگاه بوعلی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mozh-hnrhay-tzyyny-260",
+  "name": "موزه هنرهای تزئینی",
+  "city": "تهران",
+  "full_name": "کتابخانه موزه هنرهای تزئینی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-261",
+  "name": "دانشسرای عالی -کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشسرای عالی -کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mhtshmy-msaaod-262",
+  "name": "محتشمی، مسعود",
+  "city": "تهران",
+  "full_name": "کتابخانه مسعود محتشمی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-fyad-aaly-akbr-dktr-263",
+  "name": "فیاض، علی اکبر (دکتر)",
+  "city": "تهران",
+  "full_name": "کتابخانه دکتر علی اکبر فیاض",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-rgayy-zfrhay-mhmd-hsn-264",
+  "name": "رجائی زفره‌ای، محمد حسن",
+  "city": "تهران",
+  "full_name": "کتابخانه محمد حسن رجائی زفره‌ای",
+  "source": "auto"
+ },
+ {
+  "slug": "smnan-myrath-frhngy-smnan-265",
+  "name": "میراث فرهنگی سمنان",
+  "city": "سمنان",
+  "full_name": "کتابخانه میراث فرهنگی سمنان",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-mdrsh-hkym-266",
+  "name": "مدرسه حکیم",
+  "city": "شیراز",
+  "full_name": "کتابخانه مدرسه حکیم",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-znd-aabas-267",
+  "name": "زند، عباس",
+  "city": "همدان",
+  "full_name": "کتابخانه عباس زند",
+  "source": "auto"
+ },
+ {
+  "slug": "kochan-sltan-abrahym-268",
+  "name": "سلطان ابراهیم",
+  "city": "قوچان",
+  "full_name": "کتابخانه سلطان ابراهیم",
+  "source": "auto"
+ },
+ {
+  "slug": "glpaygan-msgd-gamaa-glpaygan-269",
+  "name": "مسجد جامع گلپایگان",
+  "city": "گلپایگان",
+  "full_name": "کتابخانه مسجد جامع گلپایگان",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-myr-dktr-270",
+  "name": "میر (دکتر)",
+  "city": "شیراز",
+  "full_name": "کتابخانه دکتر میر",
+  "source": "auto"
+ },
+ {
+  "slug": "smnan-aamomy-271",
+  "name": "عمومی",
+  "city": "سمنان",
+  "full_name": "کتابخانه عمومی سمنان",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-asghrzadh-syd-aaly-asghr-278",
+  "name": "اصغرزاده، سید علی اصغر",
+  "city": "مشهد",
+  "full_name": "کتابخانه سید علی اصغر اصغرزاده",
+  "source": "auto"
+ },
+ {
+  "slug": "frdos-mktb-mfyd-279",
+  "name": "مکتب مفید",
+  "city": "فردوس",
+  "full_name": "کتابخانه مکتب مفید",
+  "source": "auto"
+ },
+ {
+  "slug": "km-aalamh-tbatbayy-km-mktbh-280",
+  "name": "علامة طباطبائی قم (مکتبه)",
+  "city": "قم",
+  "full_name": "کتابخانه علامة طباطبائی قم",
+  "source": "auto"
+ },
+ {
+  "slug": "smnan-msgd-aaathm-shhmyrzad-281",
+  "name": "مسجد اعظم شهمیرزاد",
+  "city": "سمنان",
+  "full_name": "کتابخانه مسجد اعظم شهمیرزاد",
+  "source": "auto"
+ },
+ {
+  "slug": "km-rohany-mhdy-282",
+  "name": "روحانی، مهدی",
+  "city": "قم",
+  "full_name": "کتابخانه مهدی روحانی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-aalamh-rodaty-ktabkhanh-283",
+  "name": "علامه روضاتی (کتابخانه)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه علامه روضاتی",
+  "source": "auto"
+ },
+ {
+  "slug": "byrgnd-msgd-alrsol-bazar-284",
+  "name": "مسجد الرسول بازار",
+  "city": "بیرجند",
+  "full_name": "کتابخانه مسجد الرسول بازار",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-damghany-akay-286",
+  "name": "دامغانی (آقای)",
+  "city": "همدان",
+  "full_name": "کتابخانه دامغانی (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "ahoaz-danshgah-ahoaz-287",
+  "name": "دانشگاه اهواز",
+  "city": "اهواز",
+  "full_name": "کتابخانه دانشگاه اهواز",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mossh-hdrt-ayh-allh-brogrdy-288",
+  "name": "مؤسسه حضرت آیة الله بروجردی",
+  "city": "قم",
+  "full_name": "کتابخانه مؤسسه حضرت آیة الله بروجردی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-lghtnamh-dhkhda-289",
+  "name": "لغت‌نامه دهخدا",
+  "city": "تهران",
+  "full_name": "کتابخانه لغت‌نامه دهخدا",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-thamny-akay-290",
+  "name": "ثامنی (آقای)",
+  "city": "تهران",
+  "full_name": "کتابخانه ثامنی (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-angmn-aslamy-291",
+  "name": "انجمن اسلامی",
+  "city": "تهران",
+  "full_name": "کتابخانه انجمن اسلامی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-rodaty-syd-ahmd-292",
+  "name": "روضاتی، سید احمد",
+  "city": "اصفهان",
+  "full_name": "کتابخانه سید احمد روضاتی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-aayny-dktr-293",
+  "name": "عینی (دکتر)",
+  "city": "شیراز",
+  "full_name": "کتابخانه دکتر عینی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-mdrsh-zngnh-294",
+  "name": "مدرسه زنگنه",
+  "city": "همدان",
+  "full_name": "کتابخانه مدرسه زنگنه",
+  "source": "auto"
+ },
+ {
+  "slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-295",
+  "name": "اردستانی ـ آیة الله سید علیرضا",
+  "city": "اردستان",
+  "full_name": "کتابخانه اردستانی ـ آیة الله سید علیرضا",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-saaydy-syd-aboalfdl-296",
+  "name": "سعیدی، سید ابوالفضل",
+  "city": "یزد",
+  "full_name": "کتابخانه سید ابوالفضل سعیدی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-bakr-rft-trky-297",
+  "name": "باقر رفت (ترقی)",
+  "city": "تهران",
+  "full_name": "کتابخانه باقر رفت (ترقی)",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-syrlo-hmyd-298",
+  "name": "سیرلو، حمید",
+  "city": "همدان",
+  "full_name": "کتابخانه حمید سیرلو",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-khan-mlk-sasany-299",
+  "name": "خان ملک ساسانی",
+  "city": "تهران",
+  "full_name": "کتابخانه خان ملک ساسانی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-kathmy-300",
+  "name": "کاظمی",
+  "city": "یزد",
+  "full_name": "کتابخانه کاظمی یزد",
+  "source": "auto"
+ },
+ {
+  "slug": "frdos-kaym-301",
+  "name": "قائم",
+  "city": "فردوس",
+  "full_name": "کتابخانه قائم",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-aagmyn-mhmd-bakr-302",
+  "name": "عجمین، محمد باقر",
+  "city": "یزد",
+  "full_name": "کتابخانه محمد باقر عجمین",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-bnyad-fars-shnasy-303",
+  "name": "بنیاد فارس شناسی",
+  "city": "شیراز",
+  "full_name": "کتابخانه بنیاد فارس شناسی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-304",
+  "name": "دانش‌سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرگانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرگانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-myno-305",
+  "name": "مینوى",
+  "city": "تهران",
+  "full_name": "مجتبی مینوی",
+  "source": "fankha"
+ },
+ {
+  "slug": "shyraz-khlyly-myrza-mhmd-307",
+  "name": "خلیلی، میرزا محمد",
+  "city": "شیراز",
+  "full_name": "کتابخانه میرزا محمد خلیلی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-308",
+  "name": "دانش‌سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرکانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-mdrsy-yzdy-goad-311",
+  "name": "مدرسی یزدی، جواد",
+  "city": "یزد",
+  "full_name": "کتابخانه جواد مدرسی یزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-kathmy-312",
+  "name": "کاظمی",
+  "city": "شیراز",
+  "full_name": "کتابخانه کاظمی شیراز",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-asf-por-313",
+  "name": "آصف پور",
+  "city": "یزد",
+  "full_name": "کتابخانه آصف پور",
+  "source": "auto"
+ },
+ {
+  "slug": "ardkan-yzd-hozh-aalmyh-amam-sadk-314",
+  "name": "حوزه علمیه امام صادق",
+  "city": "اردکان یزد",
+  "full_name": "کتابخانه حوزه علمیه امام صادق",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-khaory-dktr-315",
+  "name": "خاوری (دکتر)",
+  "city": "شیراز",
+  "full_name": "کتابخانه دکتر خاوری",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdrsh-aabaskly-khan-316",
+  "name": "مدرسه عباسقلی خان",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه عباسقلی خان",
+  "source": "auto"
+ },
+ {
+  "slug": "kzoyn-mdrsh-amam-sadk-kzoyn-317",
+  "name": "مدرسه امام صادق قزوین",
+  "city": "قزوین",
+  "full_name": "کتابخانه مدرسه امام صادق قزوین",
+  "source": "auto"
+ },
+ {
+  "slug": "chalos-mdrsh-amam-sadk-chalos-319",
+  "name": "مدرسه امام صادق چالوس",
+  "city": "چالوس",
+  "full_name": "کتابخانه مدرسه امام صادق چالوس",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-sazman-mdark-frhngy-anklab-aslamy-320",
+  "name": "سازمان مدارک فرهنگی انقلاب اسلامی",
+  "city": "تهران",
+  "full_name": "کتابخانه سازمان مدارک فرهنگی انقلاب اسلامی",
+  "source": "auto"
+ },
+ {
+  "slug": "zngan-akhoan-zngany-glyl-321",
+  "name": "اخوان زنجانی-جلیل",
+  "city": "زنجان",
+  "full_name": "کتابخانه اخوان زنجانی-جلیل",
+  "source": "auto"
+ },
+ {
+  "slug": "km-fadl-kayyny-ktabkhanh-322",
+  "name": "فاضل قائینی (کتابخانه)",
+  "city": "قم",
+  "full_name": "کتابخانه فاضل قائینی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-bakr-rkt-trky-323",
+  "name": "باقر رقت (ترقی)",
+  "city": "تهران",
+  "full_name": "کتابخانه باقر رقت (ترقی)",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-sryzdymsgdhthyrh-324",
+  "name": "سریزدی(مسجدحظیره)",
+  "city": "یزد",
+  "full_name": "کتابخانه سریزدی(مسجدحظیره)",
+  "source": "auto"
+ },
+ {
+  "slug": "ashtyan-hozh-aalmyh-ashtyan-325",
+  "name": "حوزه علمیه آشتیان",
+  "city": "آشتیان",
+  "full_name": "کتابخانه حوزه علمیه آشتیان",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-frozan-mhr-326",
+  "name": "فروزان مهر",
+  "city": "همدان",
+  "full_name": "کتابخانه فروزان مهر",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-mozh-klysay-armnyan-dr-glfa-327",
+  "name": "موزه کلیسای ارمنیان در جلفا",
+  "city": "اصفهان",
+  "full_name": "کتابخانه موزه کلیسای ارمنیان در جلفا",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-dhgan-abrahym-328",
+  "name": "دهگان، ابراهیم",
+  "city": "اراک",
+  "full_name": "کتابخانه ابراهیم دهگان",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-yosfy-tky-329",
+  "name": "یوسفی، تقی",
+  "city": "همدان",
+  "full_name": "کتابخانه تقی یوسفی",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-kady-tbatbayy-mhmd-aaly-330",
+  "name": "قاضی طباطبائی، محمد علی",
+  "city": "تبریز",
+  "full_name": "کتابخانه محمد علی قاضی طباطبائی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-aalamh-tbatbayy-331",
+  "name": "علامة طباطبائی",
+  "city": "قم",
+  "full_name": "مکتبه علامه طباطبائی",
+  "source": "fankha"
+ },
+ {
+  "slug": "kzoyn-mdrsh-amam-sadk-332",
+  "name": "مدرسه امام صادق",
+  "city": "قزوین",
+  "full_name": "کتابخانه مدرسه امام صادق",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-dayrh-almaaarf-bzrg-aslamy-333",
+  "name": "دائرة المعارف بزرگ اسلامی",
+  "city": "تهران",
+  "full_name": "کتابخانه دائرة المعارف بزرگ اسلامی",
+  "source": "auto"
+ },
+ {
+  "slug": "babl-mdrsh-khatm-alanbyaaa-sdr-334",
+  "name": "مدرسه خاتم الانبیاء (صدر)",
+  "city": "بابل",
+  "full_name": "کتابخانه مدرسه خاتم الانبیاء (صدر)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshkdh-alhyat-335",
+  "name": "دانشکده الهیات",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشکده الهیات دانشگاه تهران",
+  "source": "fankha-variant"
+ },
+ {
+  "slug": "shyraz-mdrsh-amam-aasr-aag-336",
+  "name": "مدرسه امام عصر (عج)",
+  "city": "شیراز",
+  "full_name": "کتابخانه مدرسه امام عصر (عج)",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+  "name": "مؤسسه حضرت آیة الله العظمی بروجردی",
+  "city": "قم",
+  "full_name": "کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshkdh-hkok-338",
+  "name": "دانشکده حقوق",
+  "city": "تهران",
+  "full_name": "دانشکده حقوق دانشگاه تهران",
+  "source": "fankha-variant"
+ },
+ {
+  "slug": "mshhd-danshkdh-adbyat-mshhd-339",
+  "name": "دانشکده ادبیات مشهد",
+  "city": "مشهد",
+  "full_name": "کتابخانه دانشکده ادبیات مشهد",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mdrsh-hgtyh-340",
+  "name": "مدرسه حجتیه",
+  "city": "قم",
+  "full_name": "کتابخانه مدرسه حجتیه",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-danshkdh-alhyat-mshhd-341",
+  "name": "دانشکده الهیات مشهد",
+  "city": "مشهد",
+  "full_name": "کتابخانه دانشکده الهیات مشهد",
+  "source": "auto"
+ },
+ {
+  "slug": "ngf-abad-hggy-ayt-allh-342",
+  "name": "حججی (آیت الله)",
+  "city": "نجف آباد",
+  "full_name": "کتابخانه آیت الله حججی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-danshkdh-adbyat-asfhan-343",
+  "name": "دانشکده ادبیات اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه دانشکده ادبیات اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-mly-shyraz-344",
+  "name": "ملی شیراز",
+  "city": "شیراز",
+  "full_name": "کتابخانه ملی شیراز",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mdrsh-chhl-ston-345",
+  "name": "مدرسه چهل ستون",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه چهل ستون",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-ktabkhanh-pzhohshgah-mossh-mtalaaat-o-thkykat-frhngy-346",
+  "name": "کتابخانه (پژوهشگاه) مؤسسه مطالعات و تحقیقات فرهنگی",
+  "city": "تهران",
+  "full_name": "کتابخانه (پژوهشگاه) مؤسسه مطالعات و تحقیقات فرهنگی",
+  "source": "auto"
+ },
+ {
+  "slug": "mraghh-aamomy-mraghh-ktabkhanh-347",
+  "name": "عمومی مراغه (کتابخانه)",
+  "city": "مراغه",
+  "full_name": "کتابخانه عمومی مراغه",
+  "source": "auto"
+ },
+ {
+  "slug": "byrgnd-dyany-shykh-mhmd-aaly-348",
+  "name": "دیانی، شیخ محمد علی",
+  "city": "بیرجند",
+  "full_name": "کتابخانه شیخ محمد علی دیانی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-mdrsh-damghany-349",
+  "name": "مدرسه دامغانی",
+  "city": "همدان",
+  "full_name": "کتابخانه مدرسه دامغانی",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-amam-hady-ktabkhanh-aamomy-350",
+  "name": "امام هادی (کتابخانه عمومی)",
+  "city": "مشهد",
+  "full_name": "کتابخانه امام هادی (کتابخانه عمومی)",
+  "source": "auto"
+ },
+ {
+  "slug": "rsht-mdrsh-mhdoyh-351",
+  "name": "مدرسه مهدویه",
+  "city": "رشت",
+  "full_name": "کتابخانه مدرسه مهدویه",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-ozyr-352",
+  "name": "وزیرى",
+  "city": "یزد",
+  "full_name": "کتابخانه وزیری",
+  "source": "fankha"
+ },
+ {
+  "slug": "hmdan-mgydy-aaly-akbr-353",
+  "name": "مجیدی، علی اکبر",
+  "city": "همدان",
+  "full_name": "کتابخانه علی اکبر مجیدی",
+  "source": "auto"
+ },
+ {
+  "slug": "khoy-aamomy-khoy-354",
+  "name": "عمومی خوی",
+  "city": "خوی",
+  "full_name": "کتابخانه عمومی خوی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-bhralfdayl-355",
+  "name": "بحرالفضائل",
+  "city": "همدان",
+  "full_name": "کتابخانه بحرالفضائل",
+  "source": "auto"
+ },
+ {
+  "slug": "tnkabn-aamomy-tnkabn-ktabkhanh-356",
+  "name": "عمومی تنکابن (کتابخانه)",
+  "city": "تنکابن",
+  "full_name": "کتابخانه عمومی تنکابن",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-moloy-357",
+  "name": "مولوی",
+  "city": "مشهد",
+  "full_name": "عبد المجید مولوی",
+  "source": "fankha"
+ },
+ {
+  "slug": "hmdan-pnbhchy-hsn-358",
+  "name": "پنبه‌چی، حسن",
+  "city": "همدان",
+  "full_name": "کتابخانه حسن پنبه‌چی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mgls-359",
+  "name": "مجلس",
+  "city": "قم",
+  "full_name": "کتابخانه مجلس",
+  "source": "auto"
+ },
+ {
+  "slug": "frdos-dbyrstan-shhyd-bhshty-360",
+  "name": "دبیرستان شهید بهشتی",
+  "city": "فردوس",
+  "full_name": "کتابخانه دبیرستان شهید بهشتی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mgls-shora-362",
+  "name": "مجلس شورا",
+  "city": "تهران",
+  "full_name": "کتابخانه مجلس شورا",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mly-ayran-363",
+  "name": "ملی ایران",
+  "city": "تهران",
+  "full_name": "کتابخانه ملی ایران",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-astan-kds-rdoy-364",
+  "name": "آستان قدس رضوی",
+  "city": "مشهد",
+  "full_name": "کتابخانه آستان قدس رضوی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshgah-thran-365",
+  "name": "دانشگاه تهران",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشگاه تهران",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-sphsalar-shhyd-mthry-366",
+  "name": "سپهسالار (شهید مطهری)",
+  "city": "تهران",
+  "full_name": "کتابخانه سپهسالار (شهید مطهری)",
+  "source": "auto"
+ },
+ {
+  "slug": "kayn-frhng-o-arshad-aslamy-kayn-367",
+  "name": "فرهنگ و ارشاد اسلامی قائن",
+  "city": "قائن",
+  "full_name": "کتابخانه فرهنگ و ارشاد اسلامی قائن",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-shhrdary-368",
+  "name": "شهرداری",
+  "city": "اصفهان",
+  "full_name": "کتابخانه شهرداری",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-adbyat-369",
+  "name": "ادبیات",
+  "city": "تبریز",
+  "full_name": "کتابخانه ادبیات تبریز",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-snaatyzadh-hmayon-370",
+  "name": "صنعتی‌زاده، همایون",
+  "city": "تهران",
+  "full_name": "کتابخانه همایون صنعتی‌زاده",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-bnyad-frhng-ayran-371",
+  "name": "بنیاد فرهنگ ایران",
+  "city": "تهران",
+  "full_name": "کتابخانه بنیاد فرهنگ ایران",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-mntthr-akay-372",
+  "name": "منتظر (آقای)",
+  "city": "شیراز",
+  "full_name": "کتابخانه منتظر (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-ktaby-akay-373",
+  "name": "کتابی (آقای)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه کتابی (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-asghr-zadh-mgmoaah-375",
+  "name": "اصغر زاده (مجموعه)",
+  "city": "مشهد",
+  "full_name": "کتابخانه اصغر زاده (مجموعه)",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-mdrsh-amyralmomnyn-376",
+  "name": "مدرسه امیرالمؤمنین",
+  "city": "کاشان",
+  "full_name": "کتابخانه مدرسه امیرالمؤمنین",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-aboalrda-syd-377",
+  "name": "ابوالرضا، سید",
+  "city": "کاشان",
+  "full_name": "کتابخانه سید ابوالرضا",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-kathmyty-378",
+  "name": "کاظمیتی",
+  "city": "یزد",
+  "full_name": "کتابخانه کاظمیتی",
+  "source": "auto"
+ },
+ {
+  "slug": "tnkabn-aamomy-379",
+  "name": "عمومی",
+  "city": "تنکابن",
+  "full_name": "کتابخانه عمومی تنکابن",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-mdrsh-olyaasr-380",
+  "name": "مدرسه ولیعصر",
+  "city": "تبریز",
+  "full_name": "کتابخانه مدرسه ولیعصر",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-asghrzadh-381",
+  "name": "اصغرزاده",
+  "city": "مشهد",
+  "full_name": "مجموعه اصغر زاده",
+  "source": "fankha"
+ },
+ {
+  "slug": "khoansar-fadl-khoansary-855",
+  "name": "فاضل خوانساری",
+  "city": "خوانسار",
+  "full_name": "کتابخانه فاضل خوانساری",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-fadl-mhmod-856",
+  "name": "فاضل، محمود",
+  "city": "مشهد",
+  "full_name": "کتابخانه محمود فاضل",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-bhnya-aabas-857",
+  "name": "بهنیا، عباس",
+  "city": "کاشان",
+  "full_name": "کتابخانه عباس بهنیا",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-mozh-athrbaygan-858",
+  "name": "موزه آذربایجان",
+  "city": "تبریز",
+  "full_name": "کتابخانه موزه آذربایجان",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-mly-tbryz-859",
+  "name": "ملی تبریز",
+  "city": "تبریز",
+  "full_name": "کتابخانه ملی تبریز",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mftah-mhmd-hsyn-860",
+  "name": "مفتاح، محمد حسین",
+  "city": "تهران",
+  "full_name": "کتابخانه محمد حسین مفتاح",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-sdr-hashmy-862",
+  "name": "صدر هاشمی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه صدر هاشمی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-frordyn-akay-863",
+  "name": "فروردین (آقای)",
+  "city": "شیراز",
+  "full_name": "کتابخانه فروردین (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-aalamh-fyd-864",
+  "name": "علامه فیض",
+  "city": "کاشان",
+  "full_name": "کتابخانه علامه فیض",
+  "source": "auto"
+ },
+ {
+  "slug": "khoansar-fadl-khoansary-ayh-allh-865",
+  "name": "فاضل خوانساری (آیة الله)",
+  "city": "خوانسار",
+  "full_name": "کتابخانه آیة الله فاضل خوانساری",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-867",
+  "name": "دانش‌سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرگانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرگانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mhdoy-asghr-dktr-868",
+  "name": "مهدوی، اصغر (دکتر)",
+  "city": "تهران",
+  "full_name": "کتابخانه دکتر اصغر مهدوی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-dbyrstan-amyr-kbyr-869",
+  "name": "دبیرستان امیر کبیر",
+  "city": "همدان",
+  "full_name": "کتابخانه دبیرستان امیر کبیر",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-thran-870",
+  "name": "تهران",
+  "city": "تهران",
+  "full_name": "کتابخانه تهران",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-aalomy-871",
+  "name": "علومی",
+  "city": "یزد",
+  "full_name": "کتابخانه علومی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-aamomy-asfhan-872",
+  "name": "عمومی اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه عمومی اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-aaatmad-mkdm-saayd-873",
+  "name": "اعتماد مقدم، سعید",
+  "city": "تهران",
+  "full_name": "کتابخانه سعید اعتماد مقدم",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-moloy-aabdalmgyd-874",
+  "name": "مولوی، عبدالمجید",
+  "city": "مشهد",
+  "full_name": "کتابخانه عبدالمجید مولوی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-syfy-875",
+  "name": "سیفی",
+  "city": "شیراز",
+  "full_name": "کتابخانه سیفی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-bakrzadh-akay-876",
+  "name": "باقرزاده (آقای)",
+  "city": "تهران",
+  "full_name": "کتابخانه باقرزاده (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-aalamh-tbatbay-877",
+  "name": "علامه طباطبائى",
+  "city": "شیراز",
+  "full_name": "کتابخانه علامه طباطبائی",
+  "source": "fankha"
+ },
+ {
+  "slug": "mshhd-mdrsh-noab-878",
+  "name": "مدرسه نواب",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه نواب",
+  "source": "auto"
+ },
+ {
+  "slug": "bgnord-shms-bhroz-879",
+  "name": "شمس، بهروز",
+  "city": "بجنورد",
+  "full_name": "کتابخانه بهروز شمس",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-ktabkhanh-khrd-880",
+  "name": "کتابخانه خرد",
+  "city": "همدان",
+  "full_name": "کتابخانه خرد",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-khday-khanh-msgd-gamaa-aatyk-881",
+  "name": "خدای خانه (مسجد جامع عتیق)",
+  "city": "شیراز",
+  "full_name": "کتابخانه خدای خانه (مسجد جامع عتیق)",
+  "source": "auto"
+ },
+ {
+  "slug": "tbryz-oaaath-chrndaby-882",
+  "name": "واعظ چرندابی",
+  "city": "تبریز",
+  "full_name": "کتابخانه واعظ چرندابی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-shora-883",
+  "name": "شورا",
+  "city": "تهران",
+  "full_name": "کتابخانه شورا",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-frhng-o-arshad-884",
+  "name": "فرهنگ و ارشاد",
+  "city": "تهران",
+  "full_name": "کتابخانه فرهنگ و ارشاد تهران",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-aalamh-tbatbayy-ktabkhanh-885",
+  "name": "علامه طباطبائی (کتابخانه)",
+  "city": "شیراز",
+  "full_name": "کتابخانه علامه طباطبائی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-norbkhsh-khankah-naamt-allhy-886",
+  "name": "نوربخش (خانقاه نعمت اللهی)",
+  "city": "تهران",
+  "full_name": "کتابخانه نوربخش (خانقاه نعمت اللهی)",
+  "source": "auto"
+ },
+ {
+  "slug": "km-msgd-aaathm-km-887",
+  "name": "مسجد اعظم قم",
+  "city": "قم",
+  "full_name": "کتابخانه مسجد اعظم قم",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-sryzdy-msgdhthyrh-888",
+  "name": "سریزدی (مسجدحظیره)",
+  "city": "یزد",
+  "full_name": "کتابخانه سریزدی (مسجدحظیره)",
+  "source": "auto"
+ },
+ {
+  "slug": "km-fadl-889",
+  "name": "فاضل",
+  "city": "قم",
+  "full_name": "کتابخانه فاضل",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-aamomy-895",
+  "name": "عمومی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه عمومی اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-khgsth-aaly-asghr-896",
+  "name": "خجسته، علی اصغر",
+  "city": "یزد",
+  "full_name": "کتابخانه علی اصغر خجسته",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-hydryan-sdykh-897",
+  "name": "حیدریان، صدیقه",
+  "city": "همدان",
+  "full_name": "کتابخانه صدیقه حیدریان",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-mokofat-yzd-898",
+  "name": "موقوفات یزد",
+  "city": "یزد",
+  "full_name": "کتابخانه موقوفات یزد",
+  "source": "auto"
+ },
+ {
+  "slug": "mraghh-msgd-gamaa-mraghh-899",
+  "name": "مسجد جامع مراغه",
+  "city": "مراغه",
+  "full_name": "کتابخانه مسجد جامع مراغه",
+  "source": "auto"
+ },
+ {
+  "slug": "asfrayn-ahmd-shahd-900",
+  "name": "احمد شاهد",
+  "city": "اسفراین",
+  "full_name": "کتابخانه احمد شاهد اسفراین",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-ghrb-hmdan-901",
+  "name": "غرب همدان",
+  "city": "همدان",
+  "full_name": "کتابخانه غرب همدان",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-aboalbrkat-rda-904",
+  "name": "ابوالبرکات رضا",
+  "city": "اصفهان",
+  "full_name": "کتابخانه ابوالبرکات رضا",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-myno-905",
+  "name": "مینو",
+  "city": "تهران",
+  "full_name": "کتابخانه مینو",
+  "source": "auto"
+ },
+ {
+  "slug": "rdoanshhr-aabdaly-aaly-907",
+  "name": "عبدالی، علی",
+  "city": "رضوانشهر",
+  "full_name": "کتابخانه علی عبدالی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-aokaf-ktabkhanh-hmdan-914",
+  "name": "اوقاف (کتابخانه) همدان",
+  "city": "همدان",
+  "full_name": "کتابخانه اوقاف (کتابخانه) همدان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-dansh-sray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-915",
+  "name": "دانش سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "full_name": "کتابخانه دانش سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-fadl-kayny-916",
+  "name": "فاضل قائنی",
+  "city": "قم",
+  "full_name": "کتابخانه فاضل قائنی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-sasan-dhgan-917",
+  "name": "ساسان دهگان",
+  "city": "همدان",
+  "full_name": "کتابخانه ساسان دهگان",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-aamomy-asfhan-frhng-sabk-918",
+  "name": "عمومی اصفهان فرهنگ (سابق)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه عمومی اصفهان فرهنگ (سابق)",
+  "source": "auto"
+ },
+ {
+  "slug": "khoy-mdrsh-nmazy-919",
+  "name": "مدرسه نمازی",
+  "city": "خوی",
+  "full_name": "کتابخانه مدرسه نمازی",
+  "source": "auto"
+ },
+ {
+  "slug": "kayn-frhng-o-arshad-920",
+  "name": "فرهنگ و ارشاد",
+  "city": "قائن",
+  "full_name": "کتابخانه فرهنگ و ارشاد قائن",
+  "source": "auto"
+ },
+ {
+  "slug": "krman-aslam-pnah-mhnds-mhmd-hsyn-921",
+  "name": "اسلام پناه، مهندس محمد حسین",
+  "city": "کرمان",
+  "full_name": "کتابخانه مهندس محمد حسین اسلام پناه",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-mythm-nmkykhsosy-922",
+  "name": "میثم نمکی(خصوصی)",
+  "city": "کاشان",
+  "full_name": "کتابخانه میثم نمکی(خصوصی)",
+  "source": "auto"
+ },
+ {
+  "slug": "frankfort-mgthd-alzman-bydgly-923",
+  "name": "مجتهد الزمان بیدگلی",
+  "city": "فرانکفورت",
+  "full_name": "کتابخانه مجتهد الزمان بیدگلی فرانکفورت",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-mrtdoy-hady-924",
+  "name": "مرتضوی، هادی",
+  "city": "همدان",
+  "full_name": "کتابخانه هادی مرتضوی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-tbsy-hayry-925",
+  "name": "طبسی حائری",
+  "city": "قم",
+  "full_name": "کتابخانه طبسی حائری",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-mdrsh-fadlyh-956",
+  "name": "مدرسه فاضلیه",
+  "city": "مشهد",
+  "full_name": "کتابخانه مدرسه فاضلیه",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-adbyat-957",
+  "name": "ادبیات",
+  "city": "شیراز",
+  "full_name": "کتابخانه ادبیات شیراز",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-ktabkhanh-mdrsh-hag-mhmd-abrahym-958",
+  "name": "کتابخانه مدرسه حاج محمد ابراهیم",
+  "city": "اراک",
+  "full_name": "کتابخانه مدرسه حاج محمد ابراهیم",
+  "source": "auto"
+ },
+ {
+  "slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-959",
+  "name": "اردستانی - آیة الله سید علیرضا",
+  "city": "اردستان",
+  "full_name": "کتابخانه اردستانی - آیة الله سید علیرضا",
+  "source": "auto"
+ },
+ {
+  "slug": "khoy-aamomy-960",
+  "name": "عمومی",
+  "city": "خوی",
+  "full_name": "کتابخانه عمومی خوی",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-sphrlo-hmyd-961",
+  "name": "سپهرلو، حمید",
+  "city": "همدان",
+  "full_name": "کتابخانه حمید سپهرلو",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-ktabkhanh-mdrsh-sphdar-962",
+  "name": "کتابخانه مدرسه سپهدار",
+  "city": "اراک",
+  "full_name": "کتابخانه مدرسه سپهدار",
+  "source": "auto"
+ },
+ {
+  "slug": "khoansar-fadl-khoansar-963",
+  "name": "فاضل خوانسارى",
+  "city": "خوانسار",
+  "full_name": "کتابخانه فاضل خوانسارى",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-glaly-dktr-964",
+  "name": "جلالی (دکتر)",
+  "city": "همدان",
+  "full_name": "کتابخانه دکتر جلالی",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-nskhhhay-prakndh-965",
+  "name": "نسخه‌های پراکنده",
+  "city": "اراک",
+  "full_name": "کتابخانه نسخه‌های پراکنده",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-dansh-sray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-966",
+  "name": "دانش سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرگانی",
+  "city": "تهران",
+  "full_name": "کتابخانه دانش سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرگانی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-othok-aaly-967",
+  "name": "وثوق، علی",
+  "city": "تهران",
+  "full_name": "کتابخانه علی وثوق",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-ansary-nosh-afryn-968",
+  "name": "انصاری، نوش آفرین",
+  "city": "تهران",
+  "full_name": "کتابخانه نوش آفرین انصاری",
+  "source": "auto"
+ },
+ {
+  "slug": "khrm-abad-ayzdpnah-969",
+  "name": "ایزدپناه",
+  "city": "خرم آباد",
+  "full_name": "کتابخانه ایزدپناه",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mossh-ayh-allh-alaathmy-brogrdy-970",
+  "name": "مؤسسه آیة الله العظمی بروجردی",
+  "city": "قم",
+  "full_name": "کتابخانه مؤسسه آیة الله العظمی بروجردی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-dayr-almaaarf-971",
+  "name": "دائرۃ المعارف",
+  "city": "تهران",
+  "full_name": "کتابخانه دائرۃ المعارف",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-mozh-chhar-fsl-972",
+  "name": "موزه چهار فصل",
+  "city": "اراک",
+  "full_name": "کتابخانه موزه چهار فصل",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-hady-ngfy-974",
+  "name": "هادی نجفی",
+  "city": "اصفهان",
+  "full_name": "کتابخانه هادی نجفی",
+  "source": "auto"
+ },
+ {
+  "slug": "sbzoar-sd-o-byst-o-png-nskhh-975",
+  "name": "صد و بیست و پنج نسخه",
+  "city": "سبزوار",
+  "full_name": "کتابخانه صد و بیست و پنج نسخه",
+  "source": "auto"
+ },
+ {
+  "slug": "dzfol-mdrsh-nboy-976",
+  "name": "مدرسه نبوی",
+  "city": "دزفول",
+  "full_name": "کتابخانه مدرسه نبوی",
+  "source": "auto"
+ },
+ {
+  "slug": "arak-ktabkhanh-rostay-amrh-kmygan-977",
+  "name": "کتابخانه روستای آمره کمیجان",
+  "city": "اراک",
+  "full_name": "کتابخانه روستای آمره کمیجان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-ghfary-hsn-aaly-978",
+  "name": "غفاری، حسن علی",
+  "city": "تهران",
+  "full_name": "کتابخانه حسن علی غفاری",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-kothr-syd-amyn-allh-979",
+  "name": "کوثر، سید امین الله",
+  "city": "شیراز",
+  "full_name": "کتابخانه سید امین الله کوثر",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-ansary-shykh-aabdalkrym-980",
+  "name": "انصاری، شیخ عبدالکریم",
+  "city": "شیراز",
+  "full_name": "کتابخانه شیخ عبدالکریم انصاری",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-bny-sdr-syd-nsrallh-981",
+  "name": "بنی صدر، سید نصرالله",
+  "city": "همدان",
+  "full_name": "کتابخانه سید نصرالله بنی صدر",
+  "source": "auto"
+ },
+ {
+  "slug": "saoh-ktabkhanh-hashmy-nzhad-982",
+  "name": "کتابخانه هاشمی نژاد",
+  "city": "ساوه",
+  "full_name": "کتابخانه هاشمی نژاد",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-dansh-sray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-984",
+  "name": "دانش سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "full_name": "کتابخانه دانش سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-oagd-akay-985",
+  "name": "واجد (آقای)",
+  "city": "شیراز",
+  "full_name": "کتابخانه واجد (آقای)",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-yzdy-shrf-aldyn-aaly-986",
+  "name": "یزدی، شرف الدین علی",
+  "city": "یزد",
+  "full_name": "کتابخانه شرف الدین علی یزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-mynasyan-karol-dktr-988",
+  "name": "میناسیان، کارول (دکتر)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه دکتر کارول میناسیان",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-frhng-o-hnr-mshhd-990",
+  "name": "فرهنگ و هنر مشهد",
+  "city": "مشهد",
+  "full_name": "کتابخانه فرهنگ و هنر مشهد",
+  "source": "auto"
+ },
+ {
+  "slug": "zngan-akhoan-zngany-glyl-991",
+  "name": "اخوان زنجانی - جلیل",
+  "city": "زنجان",
+  "full_name": "کتابخانه اخوان زنجانی - جلیل",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-danshkdh-alhyat-992",
+  "name": "دانشکده الهیات",
+  "city": "مشهد",
+  "full_name": "دانشکده الهیات دانشگاه فردوسی مشهد",
+  "source": "fankha-variant"
+ },
+ {
+  "slug": "km-glpaygan-993",
+  "name": "گلپایگانى",
+  "city": "قم",
+  "full_name": "کتابخانه عمومی حضرت آیة الله العظمی گلپایگانی",
+  "source": "fankha"
+ },
+ {
+  "slug": "kashan-amamt-aazyz-allh-994",
+  "name": "امامت، عزیز الله",
+  "city": "کاشان",
+  "full_name": "کتابخانه عزیز الله امامت",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-bakr-alft-trky-995",
+  "name": "باقر الفت (ترقی)",
+  "city": "تهران",
+  "full_name": "کتابخانه باقر الفت (ترقی)",
+  "source": "auto"
+ },
+ {
+  "slug": "km-astanh-maasomyh-996",
+  "name": "آستانه معصومیه",
+  "city": "قم",
+  "full_name": "کتابخانه آستانه معصومیه",
+  "source": "auto"
+ },
+ {
+  "slug": "km-aaathm-km-997",
+  "name": "اعظم قم",
+  "city": "قم",
+  "full_name": "کتابخانه اعظم قم",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-kakh-glstan-998",
+  "name": "کاخ گلستان",
+  "city": "تهران",
+  "full_name": "کتابخانه کاخ گلستان",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-gmaayt-nshr-frhng-999",
+  "name": "جمعیت نشر فرهنگ",
+  "city": "تهران",
+  "full_name": "کتابخانه جمعیت نشر فرهنگ تهران",
+  "source": "auto"
+ },
+ {
+  "slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-1001",
+  "name": "اردستانی– آیة الله سید علیرضا",
+  "city": "اردستان",
+  "full_name": "کتابخانه اردستانی– آیة الله سید علیرضا",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-mythm-nmky-khsosy-1002",
+  "name": "میثم نمکی (خصوصی)",
+  "city": "کاشان",
+  "full_name": "کتابخانه میثم نمکی (خصوصی)",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-kathmyny-myrza-mhmd-1003",
+  "name": "کاظمینی، میرزا محمد",
+  "city": "یزد",
+  "full_name": "کتابخانه میرزا محمد کاظمینی",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-frhng-o-arshad-aslamy-1004",
+  "name": "فرهنگ و ارشاد اسلامی",
+  "city": "کاشان",
+  "full_name": "کتابخانه فرهنگ و ارشاد اسلامی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshkdh-adbyat-1005",
+  "name": "دانشکده ادبیات",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشکده ادبیات دانشگاه تهران",
+  "source": "fankha-variant"
+ },
+ {
+  "slug": "thran-mdrsh-knbr-aaly-khan-1006",
+  "name": "مدرسه قنبر علی خان",
+  "city": "تهران",
+  "full_name": "کتابخانه مدرسه قنبر علی خان",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-danshkdh-adbyat-1007",
+  "name": "دانشکده ادبیات",
+  "city": "اصفهان",
+  "full_name": "دانشکده ادبیات دانشگاه اصفهان",
+  "source": "fankha-variant"
+ },
+ {
+  "slug": "thran-sazman-mdark-frhngy-1009",
+  "name": "سازمان مدارک فرهنگی",
+  "city": "تهران",
+  "full_name": "کتابخانه سازمان مدارک فرهنگی",
+  "source": "auto"
+ },
+ {
+  "slug": "mraghh-aamomy-mraghh-1010",
+  "name": "عمومی مراغه",
+  "city": "مراغه",
+  "full_name": "کتابخانه عمومی مراغه",
+  "source": "auto"
+ },
+ {
+  "slug": "glpaygan-hgh-alaslam-glpaygany-1011",
+  "name": "حجة الاسلام گلپایگانی",
+  "city": "گلپایگان",
+  "full_name": "کتابخانه حجة الاسلام گلپایگانی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-zngany-1012",
+  "name": "زنجانی",
+  "city": "قم",
+  "full_name": "کتابخانه زنجانی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-angmn-athar-o-mfakhr-1013",
+  "name": "انجمن آثار و مفاخر",
+  "city": "تهران",
+  "full_name": "کتابخانه انجمن آثار و مفاخر",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mozh-mly-ayran-1014",
+  "name": "موزه ملی ایران",
+  "city": "تهران",
+  "full_name": "کتابخانه موزه ملی ایران",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-byany-mhdy-1015",
+  "name": "بیانی، مهدی",
+  "city": "تهران",
+  "full_name": "کتابخانه مهدی بیانی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mtalaaat-o-thkykat-frhngy-1016",
+  "name": "مطالعات و تحقیقات فرهنگی",
+  "city": "تهران",
+  "full_name": "کتابخانه مطالعات و تحقیقات فرهنگی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-aalomy-yzdy-1017",
+  "name": "علومی یزدی",
+  "city": "یزد",
+  "full_name": "کتابخانه علومی یزدی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-shhshhany-1018",
+  "name": "شهشهانی",
+  "city": "تهران",
+  "full_name": "کتابخانه شهشهانی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-hkymy-abrahym-1019",
+  "name": "حکیمی، ابراهیم",
+  "city": "تهران",
+  "full_name": "کتابخانه ابراهیم حکیمی",
+  "source": "auto"
+ },
+ {
+  "slug": "km-mrkz-mtalaaat-o-thkykat-1020",
+  "name": "مرکز مطالعات و تحقیقات",
+  "city": "قم",
+  "full_name": "کتابخانه مرکز مطالعات و تحقیقات",
+  "source": "auto"
+ },
+ {
+  "slug": "krmanshah-ayh-allh-brogrdy-1021",
+  "name": "آیة الله بروجردی",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه آیة الله بروجردی",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-danshgah-thra-1022",
+  "name": "دانشگاه تهرا",
+  "city": "تهران",
+  "full_name": "کتابخانه دانشگاه تهرا",
+  "source": "auto"
+ },
+ {
+  "slug": "shhrda-shkor-aaly-akbr-1023",
+  "name": "شکور، علی اکبر",
+  "city": "شهرضا",
+  "full_name": "کتابخانه علی اکبر شکور",
+  "source": "auto"
+ },
+ {
+  "slug": "ngf-abad-hgty-1024",
+  "name": "حجتی",
+  "city": "نجف آباد",
+  "full_name": "کتابخانه حجتی",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-sarm-aldolh-ktabkhanh-frhng-1025",
+  "name": "صارم الدوله (کتابخانه فرهنگ)",
+  "city": "اصفهان",
+  "full_name": "کتابخانه صارم الدوله (کتابخانه فرهنگ)",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-mhdoy-asghr-1026",
+  "name": "مهدوی، اصغر",
+  "city": "تهران",
+  "full_name": "کتابخانه اصغر مهدوی",
+  "source": "auto"
+ },
+ {
+  "slug": "aaly-abad-ktol-maazzy-aaly-asghr-1027",
+  "name": "معززی، علی اصغر",
+  "city": "علی آباد کتول",
+  "full_name": "کتابخانه علی اصغر معززی",
+  "source": "auto"
+ },
+ {
+  "slug": "frdos-aokaf-frdos-1028",
+  "name": "اوقاف فردوس",
+  "city": "فردوس",
+  "full_name": "کتابخانه اوقاف فردوس",
+  "source": "auto"
+ },
+ {
+  "slug": "thran-khanm-lshkry-1029",
+  "name": "خانم لشکری",
+  "city": "تهران",
+  "full_name": "کتابخانه خانم لشکری",
+  "source": "auto"
+ },
+ {
+  "slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-1030",
+  "name": "اردستانی- آیة الله سید علیرضا",
+  "city": "اردستان",
+  "full_name": "کتابخانه اردستانی- آیة الله سید علیرضا",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-ngfy-aarb-zadh-syd-mhmd-1031",
+  "name": "نجفی عرب زاده، سید محمد",
+  "city": "همدان",
+  "full_name": "کتابخانه سید محمد نجفی عرب زاده",
+  "source": "auto"
+ },
+ {
+  "slug": "km-tbs-1032",
+  "name": "طبسى",
+  "city": "قم",
+  "full_name": "کتابخانه طبسی حائری",
+  "source": "fankha"
+ },
+ {
+  "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-1033",
+  "name": "دانش‌سرای عالی -کتابخانه میرزا عبدالعظیم خان قریب گرگانی",
+  "city": "تهران",
+  "full_name": "کتابخانه میرزا عبدالعظیم خان قریب گرگانی (دانش‌سرای عالی)",
+  "source": "auto"
+ },
+ {
+  "slug": "krmanshah-fyd-mhdoy-1034",
+  "name": "فیض مهدوی",
+  "city": "کرمانشاه",
+  "full_name": "کتابخانه فیض مهدوی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-mhmod-abady-myrza-hsn-1037",
+  "name": "محمود آبادی میرزا حسن",
+  "city": "یزد",
+  "full_name": "کتابخانه محمود آبادی میرزا حسن",
+  "source": "auto"
+ },
+ {
+  "slug": "mshhd-astan-kds-1038",
+  "name": "آستان قدس",
+  "city": "مشهد",
+  "full_name": "کتابخانه آستان قدس",
+  "source": "auto"
+ },
+ {
+  "slug": "shyraz-mzar-rozbhan-bkly-1039",
+  "name": "مزار روزبهان بقلی",
+  "city": "شیراز",
+  "full_name": "کتابخانه مزار روزبهان بقلی",
+  "source": "auto"
+ },
+ {
+  "slug": "kashan-rdo-1040",
+  "name": "رضوى",
+  "city": "کاشان",
+  "full_name": "کتابخانه رضوى",
+  "source": "auto"
+ },
+ {
+  "slug": "km-fadl-kaym-1041",
+  "name": "فاضل قائمى",
+  "city": "قم",
+  "full_name": "کتابخانه فاضل قائمى",
+  "source": "auto"
+ },
+ {
+  "slug": "damghan-kmr-bn-hashm-1042",
+  "name": "قمر بنى هاشم",
+  "city": "دامغان",
+  "full_name": "کتابخانه قمر بنی هاشم",
+  "source": "fankha"
+ },
+ {
+  "slug": "aran-kashan-mhmdhlal-1043",
+  "name": "محمدهلال",
+  "city": "آران کاشان",
+  "full_name": "کتابخانه امامزاده محمد هلال",
+  "source": "fankha"
+ },
+ {
+  "slug": "km-glyaygany-1044",
+  "name": "گلیایگانی",
+  "city": "قم",
+  "full_name": "کتابخانه گلیایگانی",
+  "source": "auto"
+ },
+ {
+  "slug": "yzd-aalom-shykh-aaly-1045",
+  "name": "علوم، شیخ علی",
+  "city": "یزد",
+  "full_name": "کتابخانه شیخ علی علوم",
+  "source": "auto"
+ },
+ {
+  "slug": "asfhan-asfhan-1046",
+  "name": "اصفهان",
+  "city": "اصفهان",
+  "full_name": "کتابخانه اصفهان",
+  "source": "auto"
+ },
+ {
+  "slug": "hmdan-adarh-aokaf-hmdan-1049",
+  "name": "اداره اوقاف همدان",
+  "city": "همدان",
+  "full_name": "کتابخانه اداره اوقاف همدان",
+  "source": "auto"
+ }
+]

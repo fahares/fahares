@@ -83,7 +83,7 @@
                     @if($selectedLibrary)
                         <a href="{{ route('search', array_merge(request()->except('library_id'), ['page' => 1])) }}" 
                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
-                            <span>کتابخانه: <strong>{{ $selectedLibrary->name }}</strong></span>
+                            <span>کتابخانه: <strong title="{{ $selectedLibrary->display_name }}">{{ $selectedLibrary->short_name }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
                     @endif
@@ -522,8 +522,8 @@
                                 همه کتابخانه‌ها {{ $totalFacetManuscripts > 0 ? '(' . number_format($totalFacetManuscripts) . ' نسخه)' : '' }}
                             </option>
                             @foreach($libraries as $lib)
-                                <option value="{{ $lib->id }}" {{ $libraryId == $lib->id ? 'selected' : '' }}>
-                                    {{ $lib->name }} ({{ $lib->city }}) @if(isset($lib->matching_count)) — {{ number_format($lib->matching_count) }} نسخه @endif
+                                <option value="{{ $lib->id }}" title="{{ $lib->display_name }}" {{ $libraryId == $lib->id ? 'selected' : '' }}>
+                                    {{ $lib->short_name }} ({{ $lib->city }}) @if(isset($lib->matching_count)) — {{ number_format($lib->matching_count) }} نسخه @endif
                                 </option>
                             @endforeach
                         </select>
@@ -755,7 +755,7 @@
                                                 <span class="text-stone-400">پدیدآور: ناشناخته</span>
                                             @endif
 
-                                            <span>کتابخانه: <strong>{{ $ms->libraryRecord?->name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
+                                            <span>کتابخانه: <strong title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
                                             <span>شماره نسخه: <strong class="text-[#B38A50]">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</strong></span>
                                             @if($ms->scribe_name)
                                                 <span>کاتب: <strong>@highlight($ms->scribe_name, $query)</strong></span>

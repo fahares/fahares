@@ -41,7 +41,7 @@ class PersonController extends Controller
             ->paginate(20, ['*'], 'works_page');
 
         $scribedManuscripts = $person->scribedManuscripts()
-            ->with(['work', 'library', 'scripts', 'catalog'])
+            ->with(['work', 'libraryRecord', 'scripts', 'catalog'])
             ->paginate(20, ['*'], 'manuscripts_page');
 
         return view('people.show', compact('person', 'authoredWorks', 'scribedManuscripts'));

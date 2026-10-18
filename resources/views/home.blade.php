@@ -220,7 +220,7 @@
                 @foreach($topLibraries as $lib)
                     <li>
                         <a href="{{ route('libraries.show', $lib) }}" class="flex items-baseline gap-2 py-1.5 group">
-                            <span class="font-semibold text-ink group-hover:text-cinnabar transition whitespace-nowrap">{{ $lib->name }}</span>
+                            <span class="font-semibold text-ink group-hover:text-cinnabar transition min-w-0">{{ $lib->display_name }}</span>
                             @if($lib->city)<span class="text-xs text-muted whitespace-nowrap">{{ $lib->city }}</span>@endif
                             <span class="leader" aria-hidden="true"></span>
                             <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($lib->manuscripts_count) }} نسخه</span>

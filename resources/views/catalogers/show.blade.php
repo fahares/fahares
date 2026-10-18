@@ -207,7 +207,7 @@
                         <!-- Library & Shelfmark -->
                         <div class="text-xs text-stone-600 dark:text-stone-400 flex items-center gap-1.5">
                             <span class="w-1.5 h-1.5 rounded-full bg-[#B38A50]"></span>
-                            <span>{{ $m->libraryRecord?->name ?? $m->library }}</span>
+                            <span title="{{ $m->libraryRecord?->display_name }}">{{ $m->libraryRecord?->short_name ?? $m->library }}</span>
                             @if($m->shelfmark)
                                 <span class="text-stone-400">• ش: {{ $m->shelfmark }}</span>
                             @endif
@@ -251,7 +251,7 @@
                             </div>
                             @if($vol->library)
                                 <div class="text-xs text-stone-500 dark:text-stone-400">
-                                    کتابخانه: <span class="text-stone-700 dark:text-stone-300 font-medium">{{ $vol->library->name }}</span>
+                                    کتابخانه: <span class="text-stone-700 dark:text-stone-300 font-medium">{{ $vol->library->display_name }}</span>
                                 </div>
                             @endif
                         </div>

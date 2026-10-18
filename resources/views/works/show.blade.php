@@ -167,8 +167,8 @@
                 @if($earliest)
                     <a href="{{ route('manuscripts.show', $earliest) }}" class="block mt-3 pt-3 border-t border-line text-xs text-right group">
                         <span class="block text-muted">کهن‌ترین نسخه‌ی تاریخ‌دار</span>
-                        <span class="block font-bold text-ink group-hover:text-cinnabar transition">
-                            {{ $earliest->library?->name ?? $earliest->library ?? 'کتابخانه‌ی نامشخص' }}@if($earliest->shelfmark)، <span dir="ltr">{{ Fa::digits($earliest->shelfmark) }}</span>@endif
+                        <span class="block font-bold text-ink group-hover:text-cinnabar transition" title="{{ $earliest->libraryRecord?->display_name }}">
+                            {{ $earliest->libraryRecord?->short_name ?? $earliest->library ?? 'کتابخانه‌ی نامشخص' }}@if($earliest->shelfmark)، <span dir="ltr">{{ Fa::digits($earliest->shelfmark) }}</span>@endif
                         </span>
                         <span class="block text-muted">{{ Fa::digits($earliest->copy_date_raw ?: $earliest->copy_date_hijri_year . ' ق') }}</span>
                     </a>
@@ -391,7 +391,7 @@
                                 class="hover:bg-paper cursor-pointer transition">
                                 <td class="py-2.5 px-3 text-center text-muted">{{ Fa::num($manuscripts->firstItem() + $index) }}</td>
                                 <td class="py-2.5 px-3">
-                                    <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" onclick="event.stopPropagation()">{{ $ms->library?->name ?? $ms->library ?? 'نامشخص' }}</a>
+                                    <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" title="{{ $ms->libraryRecord?->display_name }}" onclick="event.stopPropagation()">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</a>
                                     @if($ms->city)<span class="block text-[11px] text-muted">{{ $ms->city }}</span>@endif
                                 </td>
                                 <td class="py-2.5 px-3 font-semibold">
