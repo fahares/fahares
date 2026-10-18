@@ -2244,3 +2244,9 @@
   - شماره‌ی نسخه در نتیجه‌ها برای سازگاری با `@highlight` به ارقام فارسی تبدیل نمی‌شود، ولی با `dir="ltr"` جدا می‌شود.
 - آزمون‌ها: `PersonPageTabsTest` حالا به‌جای عنوان، `x-show` زبانه‌ها را بررسی می‌کند. دو آزمون `SuggestionWorkflowTest` با عنوان «نقش‌های دیگر در نسخه‌ها» و `title="نام دیگر"` هماهنگ شدند.
 
+### گام ۱۲.۸: موضوعات، فهرست کتابخانه‌ها و فهرست‌نگاران
+
+- [subjects/index.blade.php](../resources/views/subjects/index.blade.php): چیدمان با `columns-1 md:columns-2 lg:columns-3` و `break-inside-avoid` است تا رده‌هایی با زیرشاخه‌های کم و زیاد بی‌فاصله کنار هم بنشینند. تابع Alpine `matches()` دست نخورد.
+- [subjects/show.blade.php](../resources/views/subjects/show.blade.php)، [libraries/index.blade.php](../resources/views/libraries/index.blade.php)، [catalogers/index.blade.php](../resources/views/catalogers/index.blade.php) و [catalogers/show.blade.php](../resources/views/catalogers/show.blade.php): از نو با `x-ui.*`، `.rubric`، `.leader` و `.jadval` نوشته شدند. پارامترهای فرم‌ها (`q`، `city`، `scope`، `sort`) و منطق زبانه‌ها (`$defaultTab`) تغییری نکرد.
+- در Blade، `@endif@if(...)` چسبیده تجزیه نمی‌شود. در فهرست کتابخانه‌ها به‌جای آن عبارت سه‌تایی به کار رفت.
+
