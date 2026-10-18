@@ -963,7 +963,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertCount(1, $note->payload['files']);
         $this->post('/logout');
         $this->get(route('notes.file', [$note, 0]))->assertOk();
-        $this->get(route('manuscripts.show', $m))->assertSee('مشاهده‌ی تصویر نسخه')->assertSee('برگ نخست و سرلوح');
+        $this->get(route('manuscripts.show', $m))->assertSee('href="#research-notes"', false)->assertSee('تصویر نسخه')->assertSee('برگ نخست و سرلوح');
 
         // A rejected note's uploads are deleted
         $this->actingAs($user);
@@ -1318,7 +1318,7 @@ class SuggestionWorkflowTest extends TestCase
         $alone = $make('9002/1');
 
         $this->assertSame(['9001/1-33/7', '9001/2', '9001/10'], $one->collectionSiblings()->pluck('shelfmark')->all());
-        $this->get(route('manuscripts.show', $one))->assertOk()->assertSee('رساله‌های این مجموعه (3)')->assertSee('(همین نسخه)')->assertDontSee('9001/3-طباطبائی');
+        $this->get(route('manuscripts.show', $one))->assertOk()->assertSeeInOrder(['رساله‌های این مجموعه', '۳'])->assertSee('(همین نسخه)')->assertDontSee('9001/3-طباطبائی');
         $this->get(route('manuscripts.show', $alone))->assertOk()->assertDontSee('رساله‌های این مجموعه');
 
         // Volumes of one multi-volume work under one number are shown as such; en dashes read as hyphens
@@ -1327,7 +1327,7 @@ class SuggestionWorkflowTest extends TestCase
         $set = $this->work();
         $v1 = $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => '9003/1', 'shelfmark_key' => '9003/1', 'work_id' => $set->id]);
         $this->manuscript(['library' => $lib, 'library_id' => null, 'shelfmark' => '9003/2', 'shelfmark_key' => '9003/2', 'work_id' => $set->id]);
-        $this->get(route('manuscripts.show', $v1))->assertSee('مجلدهای این دوره (2)')->assertDontSee('رساله‌های این مجموعه');
+        $this->get(route('manuscripts.show', $v1))->assertSeeInOrder(['مجلدهای این دوره', '۲'])->assertDontSee('رساله‌های این مجموعه');
     }
 
     protected function library(string $name): Library

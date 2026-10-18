@@ -168,7 +168,7 @@
                     <a href="{{ route('manuscripts.show', $earliest) }}" class="block mt-3 pt-3 border-t border-line text-xs text-right group">
                         <span class="block text-muted">کهن‌ترین نسخه‌ی تاریخ‌دار</span>
                         <span class="block font-bold text-ink group-hover:text-cinnabar transition">
-                            {{ $earliest->library?->name ?? $earliest->library ?? 'کتابخانه‌ی نامشخص' }}@if($earliest->shelfmark)، {{ Fa::digits($earliest->shelfmark) }}@endif
+                            {{ $earliest->library?->name ?? $earliest->library ?? 'کتابخانه‌ی نامشخص' }}@if($earliest->shelfmark)، <span dir="ltr">{{ Fa::digits($earliest->shelfmark) }}</span>@endif
                         </span>
                         <span class="block text-muted">{{ Fa::digits($earliest->copy_date_raw ?: $earliest->copy_date_hijri_year . ' ق') }}</span>
                     </a>
@@ -395,7 +395,7 @@
                                     @if($ms->city)<span class="block text-[11px] text-muted">{{ $ms->city }}</span>@endif
                                 </td>
                                 <td class="py-2.5 px-3 font-semibold">
-                                    {{ $ms->shelfmark ? Fa::digits($ms->shelfmark) : 'بی‌شماره' }}
+                                    @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif
                                     @if($ms->is_addendum_entry)
                                         <span class="block text-[10px] font-semibold text-muted" title="معرفی‌شده در بخش استدراک، ج {{ $ms->volume_number }} ص {{ $ms->page_start }}">استدراک</span>
                                     @endif

@@ -35,7 +35,7 @@
                     width: 220,
                     margin: 1,
                     color: {
-                        dark: '#15192C',
+                        dark: '#241F1A',
                         light: '#FFFFFF'
                     }
                 }, function (error) {
@@ -53,736 +53,388 @@
             link.click();
         }
     }
-}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    @php
+        use App\Support\Fa;
+        $catShort = $manuscript->catalog?->short_name ?? 'فنخا';
+        $catCode = $manuscript->catalog?->code ?? 'fankha';
+        $libraryName = $manuscript->libraryRecord?->name ?? $manuscript->library ?? 'کتابخانه‌ی نامشخص';
+        $hasPage = $manuscript->volume_number && $manuscript->page_start;
+        $pageRef = $hasPage ? Fa::digits("ج {$manuscript->volume_number}، ص {$manuscript->page_start}، ردیف {$manuscript->sequence_number}") : null;
+        $pageThumb = $hasPage
+            ? asset('storage/catalogs/' . $catCode . '/v' . str_pad($manuscript->volume_number, 2, '0', STR_PAD_LEFT) . '/p' . str_pad($manuscript->page_start, 4, '0', STR_PAD_LEFT) . '.webp')
+            : null;
+        $openViewer = $hasPage
+            ? "\$dispatch('open-catalog-viewer', { catalog: '{$catCode}', catalogName: '{$catShort}', volume: {$manuscript->volume_number}, page: {$manuscript->page_start} })"
+            : null;
+        $formerLocations = (array) ($manuscript->metadata['former_locations'] ?? []);
+        $imageNote = ($researchNotes ?? collect())->firstWhere('field_name', 'image');
+        // The parsed year adds nothing when the catalog text already shows it in digits
+        $showParsedYear = $manuscript->copy_date_raw && $manuscript->copy_date_hijri_year
+            && ! str_contains(strtr($manuscript->copy_date_raw, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']), (string) $manuscript->copy_date_hijri_year);
+        $flags = [
+            'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
+            'has_author_marginalia' => 'حواشی به خط مؤلف',
+            'is_illuminated' => 'تذهیب و سرلوح',
+            'is_illustrated' => 'نگاره و نقاشی',
+            'is_corrected' => 'تصحیح‌شده',
+            'has_marginal_notes' => 'حواشی (محشّی)',
+            'is_ruled' => 'جدول‌کشی',
+            'has_catchwords' => 'رکابه',
+            'is_collated' => 'مقابله و بلاغ',
+            'is_facsimile' => 'نسخه‌ی عکسی یا میکروفیلم',
+        ];
+    @endphp
 
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs text-stone-500">
-        <a href="{{ route('home') }}" class="hover:text-[#B38A50]">فهارس</a>
-        <span>/</span>
-        <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-[#B38A50]">نسخه‌های خطی</a>
-        <span>/</span>
+    <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
+        <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-cinnabar">نسخه‌ها</a>
+        <span aria-hidden="true">/</span>
         @if($manuscript->work)
-            <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-[#B38A50] truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
-            <span>/</span>
+            <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-cinnabar truncate max-w-xs">{{ $manuscript->work->primary_title }}</a>
+            <span aria-hidden="true">/</span>
         @endif
-        <span class="text-stone-800 dark:text-stone-200 font-semibold">{{ $manuscript->shelfmark ?? 'شناسنامه نسخه' }}</span>
+        <span class="text-ink font-semibold">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else شناسنامه‌ی نسخه @endif</span>
     </nav>
 
-    <!-- MANUSCRIPT HEADER IDENTIFICATION -->
-    <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-md space-y-6 relative overflow-hidden">
-        
-        <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div class="space-y-3 flex-1">
-                
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold">
-                        شناسنامه کالبدشناسی نسخه خطی
-                    </span>
+    <!-- MANUSCRIPT HEADER -->
+    <header class="text-center grid justify-items-center gap-2 pb-6">
+        <p class="text-xs font-bold text-cinnabar">شناسنامه‌ی نسخه‌ی خطی</p>
+        @if($manuscript->work)
+            <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">
+                <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-cinnabar transition">{{ $manuscript->work->primary_title }}</a>
+            </h1>
+            @if($manuscript->work->author)
+                <p class="text-sm text-ink">
+                    از <a href="{{ route('people.show', $manuscript->work->author) }}" class="font-bold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $manuscript->work->author->name }}</a>
+                    <x-ui.life :person="$manuscript->work->author" />
+                </p>
+            @endif
+        @endif
+        <p class="mt-1 text-base sm:text-lg text-ink">
+            <span class="font-bold">{{ $libraryName }}</span>@if($manuscript->city)<span class="text-muted">، {{ $manuscript->city }}</span>@endif
+            <span class="text-muted">·</span>
+            <span class="font-bold text-cinnabar">شماره‌ی @if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else — @endif</span>
+        </p>
+        <div class="flex flex-wrap justify-center gap-1.5 mt-2">
+            @if($manuscript->copy_date_raw)<x-ui.chip>کتابت {{ Fa::digits($manuscript->copy_date_raw) }}</x-ui.chip>@endif
+            @if($manuscript->script_names)<x-ui.chip>{{ $manuscript->script_names }}</x-ui.chip>@endif
+            @if($manuscript->is_autograph)<x-ui.chip tone="good">دستخط مؤلف</x-ui.chip>@endif
+            @if($manuscript->is_illuminated)<x-ui.chip tone="accent">مذهّب</x-ui.chip>@endif
+            @if($manuscript->is_illustrated)<x-ui.chip tone="accent">مصوّر</x-ui.chip>@endif
+            @if($manuscript->is_distinct_work)<x-ui.chip title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">اثر متمایز</x-ui.chip>@endif
+            @if($manuscript->is_addendum_entry)<x-ui.chip tone="accent" title="این نسخه در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
+        </div>
+    </header>
 
-                    @if($manuscript->is_autograph)
-                        <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                            <span>اصل نسخه (دستخط مؤلف)</span>
-                        </span>
-                    @endif
+    <div class="jadval" aria-hidden="true"></div>
 
-                    @if($manuscript->is_distinct_work)
-                        <span class="px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-200 text-xs font-bold" title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">
-                            اثر متمایز (مدخل غیر همانند)
-                        </span>
-                    @endif
+    <!-- Quick actions: permalink, QR, citation, digital image, suggestion mode -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="inline-flex items-center gap-1 p-1 ps-2.5 rounded-sm bg-surface border border-line text-xs">
+                <span class="text-muted select-none hidden sm:inline">پیوند کوتاه:</span>
+                <a href="{{ url('/m/' . $manuscript->id) }}" class="font-mono text-[11px] font-bold text-ink px-1.5 hover:text-cinnabar transition" dir="ltr" title="پیوند پایدار نسخه">/m/{{ $manuscript->id }}</a>
+                <button type="button" @click="copyText('{{ url('/m/' . $manuscript->id) }}', 'permalink')"
+                    class="relative p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رونوشت پیوند کوتاه">
+                    <svg x-show="copiedKey !== 'permalink'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                    <span x-show="copiedKey === 'permalink'" x-cloak x-transition class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-sm bg-ink text-paper text-[10px] font-bold z-30 pointer-events-none">رونوشت شد</span>
+                </button>
+                <button type="button" @click="openQrModal()" class="p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رمزینه‌ی QR نسخه">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                </button>
+            </div>
+            <x-ui.btn size="sm" @click="citationModalOpen = true">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
+                استناد
+            </x-ui.btn>
+            {{-- A published digital image of this copy (research note), see <x-suggest.notes> --}}
+            @if($imageNote)
+                <x-ui.btn size="sm" href="#research-notes">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    تصویر نسخه
+                </x-ui.btn>
+            @endif
+            <x-suggest.toggle />
+        </div>
+        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $manuscript->id }}</span></span>
+    </div>
 
-                    @if($manuscript->is_addendum_entry)
-                        <span class="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-xs font-bold" title="این نسخه در بخش استدراک مأخذ معرفی شده است">
-                            استدراک {{ $manuscript->catalog?->short_name ?? 'فنخا' }}
-                        </span>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
+
+        <!-- Summary column: first on phones, beside the details on wide screens -->
+        <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
+            <x-ui.card :framed="true" class="space-y-3 text-sm">
+                <div>
+                    <div class="text-xs text-muted">محل نگهداری</div>
+                    @if($manuscript->libraryRecord || $manuscript->library_id)
+                        <a href="{{ route('libraries.show', $manuscript->libraryRecord ?? $manuscript->library_id) }}" class="font-bold text-ink hover:text-cinnabar transition">{{ $libraryName }}</a>
+                    @else
+                        <span class="font-bold text-ink">{{ $libraryName }}</span>
                     @endif
+                    @if($manuscript->city)<span class="block text-xs text-muted">{{ $manuscript->city }}</span>@endif
                 </div>
-
-                @if($manuscript->work)
-                    <div class="space-y-1">
-                        <span class="text-xs text-stone-400 font-medium">عنوان اثر:</span>
-                        <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                            <a href="{{ route('works.show', $manuscript->work) }}" class="hover:text-[#B38A50] transition">
-                                {{ $manuscript->work->primary_title }}
-                            </a>
-                        </h1>
-                        @if($manuscript->work->author)
-                            <div class="text-xs text-stone-600 dark:text-stone-300">
-                                پدیدآور اثر: <a href="{{ route('people.show', $manuscript->work->author) }}" class="font-bold text-[#B38A50] hover:underline">{{ $manuscript->work->author->name }}</a>
-                            </div>
-                        @endif
+                <div>
+                    <div class="text-xs text-muted">شماره‌ی نسخه</div>
+                    <span class="font-naskh text-2xl font-bold text-cinnabar">@if($manuscript->shelfmark)<span dir="ltr">{{ Fa::digits($manuscript->shelfmark) }}</span>@else بی‌شماره @endif</span>
+                    <x-suggest.field name="shelfmark" class="ms-1" />
+                </div>
+                @if($formerLocations)
+                    <!-- Where the copy was before it moved or was renumbered (older catalogs cite these) -->
+                    <div class="pt-3 border-t border-line text-xs text-muted space-y-0.5">
+                        @foreach($formerLocations as $former)
+                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span></div>
+                        @endforeach
                     </div>
                 @endif
-            </div>
+                @if($manuscript->work)
+                    <x-ui.btn :href="route('works.show', $manuscript->work)" class="w-full">
+                        نسخه‌های دیگر این اثر
+                        @if($manuscript->work->manuscripts_count)<span class="text-muted font-normal">({{ Fa::num($manuscript->work->manuscripts_count) }})</span>@endif
+                    </x-ui.btn>
+                @endif
+            </x-ui.card>
 
-            <!-- Header Actions: Permalink, QR Code, Academic Citation, Feedback -->
-            <div class="flex flex-wrap items-center gap-2.5 pt-1">
-                
-                <!-- Permalink Capsule & QR Button -->
-                <div class="inline-flex items-center gap-1.5 p-1 pr-2.5 sm:pr-3 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs text-xs">
-                    <span class="text-stone-400 dark:text-stone-400 font-medium flex items-center gap-1 select-none">
-                        <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <span class="hidden sm:inline">پیوند کوتاه:</span>
-                    </span>
-                    <a href="{{ url('/m/' . $manuscript->id) }}" class="font-mono text-[11px] font-bold text-[#292C56] dark:text-amber-200 px-2 py-0.5 rounded-lg bg-white/80 dark:bg-[#15192C]/80 border border-stone-200/60 dark:border-stone-700/60 hover:text-[#B38A50] transition" dir="ltr" title="پیوند پایدار نسخه">
-                        /m/{{ $manuscript->id }}
-                    </a>
-                    
-                    <!-- Copy button with tooltip -->
-                    <button 
-                        type="button" 
-                        @click="copyText('{{ url('/m/' . $manuscript->id) }}', 'permalink')"
-                        class="relative p-1.5 rounded-xl bg-white dark:bg-[#15192C] hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:border-[#B38A50] transition shadow-2xs cursor-pointer"
-                        title="رونوشت پیوند کوتاه پایدار">
-                        
-                        <svg x-show="copiedKey !== 'permalink'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-
-                        <!-- Tooltip feedback -->
-                        <span 
-                            x-show="copiedKey === 'permalink'" 
-                            x-cloak 
-                            x-transition 
-                            class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md bg-stone-900 text-white text-[10px] font-bold shadow-lg z-30 pointer-events-none">
-                            کپی شد! ✓
-                        </span>
-                    </button>
-
-                    <!-- QR Code Button -->
-                    <button 
-                        type="button" 
-                        @click="openQrModal()"
-                        class="p-1.5 rounded-xl bg-white dark:bg-[#15192C] hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] text-[#B38A50] border border-stone-200 dark:border-stone-700 hover:border-[#B38A50] transition shadow-2xs cursor-pointer"
-                        title="نمایش QR Code نسخه جهت اسکن با گوشی">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                    </button>
+            <x-ui.card class="space-y-3">
+                <div>
+                    <div class="text-xs text-muted">مأخذ</div>
+                    <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
+                    @if($manuscript->catalogVolume)
+                        <div class="text-xs text-muted mt-0.5">{{ $manuscript->catalogVolume->title }}</div>
+                    @endif
                 </div>
-
-                <!-- Academic Citation Button -->
-                <button 
-                    type="button" 
-                    @click="citationModalOpen = true"
-                    class="px-3.5 py-2 rounded-xl bg-stone-50 dark:bg-[#1A1E35] border border-[#B38A50]/60 hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] dark:hover:text-stone-900 text-[#B38A50] font-bold text-xs transition duration-200 flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                    </svg>
-                    <span>دریافت استناد علمی</span>
-                </button>
-
-                {{-- A published digital image of this copy (research note), see <x-suggest.notes> --}}
-                @php $imageNote = ($researchNotes ?? collect())->firstWhere('field_name', 'image'); @endphp
-                @if($imageNote)
-                    <a href="#research-notes" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#292C56]/30 dark:border-indigo-400/40 text-xs font-bold text-[#292C56] dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        <span>مشاهده‌ی تصویر نسخه</span>
-                    </a>
-                @endif
-
-                <x-suggest.toggle />
-            </div>
-        </div>
-
-        <!-- Shelfmark & Location Bar -->
-        <div class="p-5 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">کتابخانه و مخزن نگهداری:</span>
-                @if($manuscript->libraryRecord || $manuscript->library_id)
-                    <a href="{{ route('libraries.show', $manuscript->libraryRecord ?? $manuscript->library_id) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">
-                        {{ $manuscript->libraryRecord?->name ?? $manuscript->library }}
-                    </a>
-                @else
-                    <span class="text-sm font-bold text-stone-800 dark:text-stone-200">{{ $manuscript->library ?? 'نامشخص' }}</span>
-                @endif
-            </div>
-
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">شهر و کشور:</span>
-                <span class="text-sm font-bold text-stone-800 dark:text-stone-200">{{ $manuscript->city ?? 'ایران' }}</span>
-            </div>
-
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">شماره نسخه:</span>
-                <span class="text-base font-black text-[#B38A50] tracking-wide">
-                    {{ $manuscript->shelfmark ?? 'بی‌شماره' }}
-                </span>
-                <x-suggest.field name="shelfmark" class="ms-1" />
-            </div>
-
-            @php $formerLocations = (array) ($manuscript->metadata['former_locations'] ?? []); @endphp
-            @if($formerLocations)
-                <!-- Where the copy was before it moved or was renumbered (older catalogs cite these) -->
-                <div class="sm:col-span-3 pt-3 border-t border-[#EADFCF] dark:border-[#272F4C] text-stone-500 dark:text-stone-400 space-y-0.5">
-                    @foreach($formerLocations as $former)
-                        <div>
-                            <span class="font-medium">نشانی پیشین:</span>
-                            <span class="text-stone-700 dark:text-stone-300 font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی {{ $former['shelfmark'] ?? 'بی‌شماره' }}</span>
+                @if($pageThumb)
+                    <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
+                        <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                            <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
                         </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-
-    </div>
-
-    <!-- CODICOLOGICAL FLAGS (10 Indicators) -->
-    <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
-        <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider">نشان‌های نسخه‌شناسی و کالبدشناسی</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
-            
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_autograph ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>اصل نسخه (دستخط مؤلف)</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_autograph" /><span>{{ $manuscript->is_autograph ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_author_marginalia ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>حواشی به خط مؤلف</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="has_author_marginalia" /><span>{{ $manuscript->has_author_marginalia ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_illuminated ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-[#B38A50] font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>تذهیب و سرلوح</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_illuminated" /><span>{{ $manuscript->is_illuminated ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_illustrated ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-800 dark:text-purple-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>نگاره و نقاشی</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_illustrated" /><span>{{ $manuscript->is_illustrated ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_corrected ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-800 text-blue-800 dark:text-blue-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>تصحیح‌شده (مصحح)</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_corrected" /><span>{{ $manuscript->is_corrected ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_marginal_notes ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>دارای حواشی (محشی)</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="has_marginal_notes" /><span>{{ $manuscript->has_marginal_notes ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_ruled ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>سطور مجدول (جدول‌بندی)</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_ruled" /><span>{{ $manuscript->is_ruled ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->has_catchwords ? 'bg-stone-100 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>دارای رکابه (پای‌صفحه)</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="has_catchwords" /><span>{{ $manuscript->has_catchwords ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_collated ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>مقابله و بلاغ</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_collated" /><span>{{ $manuscript->is_collated ? '✓' : '—' }}</span></span>
-            </div>
-
-            <div class="p-3 rounded-xl border flex items-center justify-between {{ $manuscript->is_facsimile ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 font-bold' : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 text-stone-400' }}">
-                <span>نسخه عکسی / میکروفیلم</span>
-                <span class="inline-flex items-center gap-1"><x-suggest.field name="is_facsimile" /><span>{{ $manuscript->is_facsimile ? '✓' : '—' }}</span></span>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- PHYSICAL & HISTORICAL DETAILS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- Scribe & Date Card -->
-        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-            <h3 class="text-sm font-bold text-[#292C56] dark:text-amber-200 border-r-2 border-[#B38A50] pr-2">
-                مشخصات کاتب و تاریخ کتابت
-            </h3>
-            
-            <dl class="space-y-3 text-xs divide-y divide-stone-100 dark:divide-stone-800">
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">نام کاتب:</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        @if($manuscript->scribeEntries->count() > 1 || $manuscript->scribeEntries->contains(fn($e) => ! $e->person_id) || ($manuscript->has_other_scribes && $manuscript->scribeEntries->isNotEmpty()))
-                            <x-contributors :entries="$manuscript->scribeEntries" :others="$manuscript->has_other_scribes" />
-                        @elseif($manuscript->is_autograph)
-                            @if($manuscript->work?->author)
-                                <a href="{{ route('people.show', $manuscript->work->author) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                    <span>دستخط مؤلف ({{ $manuscript->work->author->name }})</span>
-                                </a>
-                            @elseif($manuscript->scribe)
-                                <a href="{{ route('people.show', $manuscript->scribe) }}" class="text-emerald-700 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                    <span>دستخط مؤلف ({{ $manuscript->scribe->name }})</span>
-                                </a>
+                        <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در مأخذ چاپی</span>
+                    </button>
+                @endif
+                @if($manuscript->cataloger)
+                    <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="flex items-center gap-3 pt-3 border-t border-line group">
+                        <span class="w-11 h-14 shrink-0 rounded-t-full overflow-hidden border border-gold bg-paper grid place-items-center">
+                            @if($manuscript->cataloger->avatar_url)
+                                <img src="{{ $manuscript->cataloger->avatar_url }}" alt="" class="w-full h-full object-cover sepia-[.85]">
                             @else
-                                <span class="text-emerald-700 dark:text-emerald-400 font-bold">مؤلف (نسخه اصل)</span>
+                                <span class="font-naskh text-lg text-muted">{{ mb_substr($manuscript->cataloger->name, 0, 1) }}</span>
+                            @endif
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-xs text-muted">فهرست‌نگار</span>
+                            <span class="block text-sm font-bold text-ink group-hover:text-cinnabar transition">{{ $manuscript->cataloger->display_name }}</span>
+                            @if($manuscript->cataloger->life_years_text)
+                                <span class="block text-[11px] text-muted">{{ Fa::digits($manuscript->cataloger->life_years_text) }}</span>
+                            @endif
+                        </span>
+                    </a>
+                @endif
+            </x-ui.card>
+        </aside>
+
+        <!-- Details -->
+        <div class="min-w-0 space-y-10">
+            <x-ui.section title="کاتب و کتابت">
+                <x-ui.meta-list>
+                    <x-ui.meta label="کاتب" field="scribe_name">
+                        @if($manuscript->scribeEntries->count() > 1 || $manuscript->scribeEntries->contains(fn($e) => ! $e->person_id) || ($manuscript->has_other_scribes && $manuscript->scribeEntries->isNotEmpty()))
+                            <x-contributors :entries="$manuscript->scribeEntries" :others="$manuscript->has_other_scribes" :life="true"
+                                link-class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" />
+                        @elseif($manuscript->is_autograph)
+                            @php $autographPerson = $manuscript->work?->author ?? $manuscript->scribe; @endphp
+                            @if($autographPerson)
+                                <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }})</a>
+                            @else
+                                <span class="font-semibold text-emerald-700 dark:text-emerald-400">مؤلف (نسخه‌ی اصل)</span>
                             @endif
                         @elseif($manuscript->scribe_id)
-                            <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="text-[#B38A50] hover:underline">{{ $manuscript->scribe_name ?: 'مشاهده کاتب' }}</a>
+                            <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $manuscript->scribe_name ?: 'دیدن کاتب' }}</a>
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
                         @elseif($manuscript->is_bika)
-                            <span class="text-stone-400 italic">بی‌کاتب</span>
+                            <span class="text-muted">بی‌کاتب</span>
                         @else
-                            <span class="text-stone-400">نامشخص</span>
+                            <span class="text-muted">نامشخص</span>
                         @endif
-                        <x-suggest.field name="scribe_name" class="ms-1.5" />
-                    </dd>
-                </div>
-
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">تاریخ کتابت:</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
+                    </x-ui.meta>
+                    <x-ui.meta label="تاریخ کتابت" field="copy_date_raw">
                         @if($manuscript->copy_date_raw)
-                            <span>{{ $manuscript->copy_date_raw }}</span>
-                            {{-- The parsed year adds nothing when the catalog text already shows it in digits --}}
-                            @if($manuscript->copy_date_hijri_year && ! str_contains(strtr($manuscript->copy_date_raw, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']), (string) $manuscript->copy_date_hijri_year))
-                                <span class="text-stone-400 mr-1">({{ $manuscript->copy_date_hijri_year }} هـ.ق)</span>
-                            @endif
+                            {{ Fa::digits($manuscript->copy_date_raw) }}
+                            @if($showParsedYear)<span class="text-muted">({{ Fa::digits($manuscript->copy_date_hijri_year) }} ق)</span>@endif
                         @elseif($manuscript->is_bita)
-                            <span class="text-stone-400 italic">بی‌تاریخ</span>
+                            <span class="text-muted">بی‌تاریخ</span>
                         @else
-                            <span class="text-stone-400">نامشخص</span>
+                            <span class="text-muted">نامشخص</span>
                         @endif
-                        <x-suggest.field name="copy_date_raw" class="ms-1.5" />
-                    </dd>
-                </div>
+                    </x-ui.meta>
+                    <x-ui.meta label="محل کتابت" field="copy_place">
+                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@else<span class="text-muted">نامشخص</span>@endif
+                    </x-ui.meta>
+                    <x-ui.meta label="سفارش‌دهنده" field="commissioned_by" :empty="! $manuscript->commissioned_by">{{ $manuscript->commissioned_by }}</x-ui.meta>
+                </x-ui.meta-list>
+            </x-ui.section>
 
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">محل کتابت:</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->copy_place ?? 'نامشخص' }}
-                        <x-suggest.field name="copy_place" class="ms-1.5" />
-                    </dd>
-                </div>
-
-                <div class="flex justify-between pt-2" @unless($manuscript->commissioned_by) x-show="$store.suggest.on" x-cloak @endunless>
-                    <dt class="text-stone-400">سفارش کتابت (فرماینده):</dt>
-                    <dd class="font-bold text-[#B38A50] dark:text-amber-300">
-                        {{ $manuscript->commissioned_by ?? 'نامشخص' }}
-                        <x-suggest.field name="commissioned_by" class="ms-1.5" />
-                    </dd>
-                </div>
-
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">ردیف ثبت در مأخذ:</dt>
-                    <dd class="font-bold text-stone-700 dark:text-stone-300">
-                        ردیف {{ $manuscript->sequence_number }} (در {{ $manuscript->catalog?->short_name ?? 'فنخا' }})
-                    </dd>
-                </div>
-            </dl>
-        </div>
-
-        <!-- People connected with the copy other than its scribes -->
-        <x-manuscript-people :manuscript="$manuscript" />
-
-        <!-- The other treatises bound in the same volume (from the shelfmark) -->
-        <x-manuscript-collection :manuscript="$manuscript" />
-
-        <!-- Relations with other copies (copied from, collated with…) -->
-        <x-record-relations :record="$manuscript" />
-
-        <!-- Codicology & Material Card -->
-        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-            <h3 class="text-sm font-bold text-[#292C56] dark:text-amber-200 border-r-2 border-[#B38A50] pr-2">
-                ویژگی‌های مادی و ظاهری نسخه
-            </h3>
-            
-            <dl class="space-y-3 text-xs divide-y divide-stone-100 dark:divide-stone-800">
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">نوع و اقلام خط:</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->script_names ?? 'نامشخص' }}
-                        <x-suggest.field name="script_names" class="ms-1.5" />
-                        @if($manuscript->script_style)
-                            <span class="text-stone-400 mr-1">({{ $manuscript->script_style }})</span>
-                        @endif
-                        <span x-show="$store.suggest.on" x-cloak class="text-stone-400 font-normal mr-1">کیفیت خط:</span>
+            <x-ui.section title="ویژگی‌های ظاهری">
+                <x-ui.meta-list>
+                    <x-ui.meta label="خط" field="script_names">
+                        @if($manuscript->script_names){{ $manuscript->script_names }}@else<span class="text-muted">نامشخص</span>@endif
+                        @if($manuscript->script_style)<span class="text-muted">({{ $manuscript->script_style }})</span>@endif
+                        <span x-show="$store.suggest.on" x-cloak class="text-muted ms-1">کیفیت خط:</span>
                         <x-suggest.field name="script_style" />
-                    </dd>
-                </div>
+                    </x-ui.meta>
+                    <x-ui.meta label="شمار برگ" field="folios">
+                        @if($manuscript->folios){{ Fa::digits($manuscript->folios) }} برگ@else<span class="text-muted">—</span>@endif
+                    </x-ui.meta>
+                    <x-ui.meta label="شمار سطر" field="lines">
+                        @if($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
+                    </x-ui.meta>
+                    <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions">
+                        @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif
+                    </x-ui.meta>
+                    <x-ui.meta label="کاغذ" field="paper">
+                        @if($manuscript->paper){{ $manuscript->paper }}@else<span class="text-muted">—</span>@endif
+                    </x-ui.meta>
+                    <x-ui.meta label="جلد" field="binding">
+                        @if($manuscript->binding){{ $manuscript->binding }}@else<span class="text-muted">—</span>@endif
+                    </x-ui.meta>
+                </x-ui.meta-list>
+            </x-ui.section>
 
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">تعداد برگ و سطر:</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->folios ? $manuscript->folios . ' برگ' : '-' }} <x-suggest.field name="folios" />
-                        • {{ $manuscript->lines ? $manuscript->lines . ' سطر' : '-' }} <x-suggest.field name="lines" />
-                    </dd>
-                </div>
+            <x-ui.section title="نشان‌های نسخه‌شناسی">
+                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 text-sm">
+                    @foreach($flags as $flag => $flagLabel)
+                        <li class="flex items-center gap-2.5 {{ $manuscript->{$flag} ? 'text-ink font-semibold' : 'text-muted' }}">
+                            <span class="w-2 h-2 shrink-0 rotate-45 {{ $manuscript->{$flag} ? 'bg-cinnabar' : 'border border-line-strong' }}" aria-hidden="true"></span>
+                            <span>{{ $flagLabel }}</span>
+                            <span class="sr-only">{{ $manuscript->{$flag} ? 'دارد' : 'ندارد' }}</span>
+                            <x-suggest.field :name="$flag" />
+                        </li>
+                    @endforeach
+                </ul>
+            </x-ui.section>
 
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">ابعاد و اندازه (سانتی‌متر):</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->dimensions ?? '-' }}
-                        <x-suggest.field name="dimensions" class="ms-1.5" />
-                    </dd>
-                </div>
+            <!-- People connected with the copy other than its scribes -->
+            <x-manuscript-people :manuscript="$manuscript" />
 
-                <div class="flex justify-between pt-2">
-                    <dt class="text-stone-400">کاغذ و جلد:</dt>
-                    <dd class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $manuscript->paper ?? 'کاغذ نامشخص' }} <x-suggest.field name="paper" />
-                        • {{ $manuscript->binding ?? 'جلد نامشخص' }} <x-suggest.field name="binding" />
-                    </dd>
-                </div>
-            </dl>
-        </div>
+            <!-- The other treatises bound in the same volume (from the shelfmark) -->
+            <x-manuscript-collection :manuscript="$manuscript" />
 
-    </div>
+            <!-- Relations with other copies (copied from, collated with…) -->
+            <x-record-relations :record="$manuscript" />
 
-    <!-- INCIPIT & EXPLICIT (آغاز و انجام نسخه) -->
-    @if(count($manuscript->incipits_list) > 0 || count($manuscript->explicits_list) > 0)
-        <div class="space-y-4">
-            
-            @if(count($manuscript->incipits_list) > 0)
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-                    <div class="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
-                            <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
-                                آغاز نسخه
-                            </h3>
-                            <x-suggest.field name="incipit_text" />
-                        </div>
-                        @if(count($manuscript->incipits_list) > 1)
-                            <span class="text-[11px] text-stone-500 font-medium bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/40">
-                                {{ count($manuscript->incipits_list) }} آغاز ثبت‌شده
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="space-y-3">
-                        @foreach($manuscript->incipits_list as $idx => $inc)
-                            <div class="p-4 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] space-y-2">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    @if(!empty($inc['is_work_match']))
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/20 text-[#B38A50] dark:bg-amber-900/40 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                            </svg>
-                                            <span>{{ $inc['label'] }}</span>
-                                        </span>
-                                    @elseif(!empty($inc['label']))
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
-                                            {{ $inc['label'] }}
-                                        </span>
-                                    @elseif(count($manuscript->incipits_list) > 1)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#B38A50]/15 text-[#B38A50]">
-                                            آغاز {{ $idx + 1 }}
-                                        </span>
-                                    @endif
-                                </div>
-                                @if(!empty($inc['is_placeholder']))
-                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed whitespace-pre-line">{{ $inc['text'] }}</div>
+            @foreach(['incipit_text' => ['آغاز', $manuscript->incipits_list], 'explicit_text' => ['انجام', $manuscript->explicits_list]] as $field => [$kind, $list])
+                @if(count($list) > 0)
+                    <x-ui.section :title="$kind . ' نسخه'" :field="$field" :count="count($list) > 1 ? count($list) : null">
+                        <div class="space-y-5">
+                            @foreach($list as $idx => $item)
+                                @php
+                                    $itemLabel = $item['label'] ?? null;
+                                    if (! $itemLabel && count($list) > 1) {
+                                        $itemLabel = $kind . ' ' . Fa::digits($idx + 1);
+                                    }
+                                @endphp
+                                @if(! empty($item['is_placeholder']))
+                                    <div>
+                                        @if($itemLabel)<div class="text-xs font-bold text-cinnabar mb-1">{{ $itemLabel }}</div>@endif
+                                        <p class="text-sm text-muted leading-relaxed whitespace-pre-line">{{ $item['text'] }}</p>
+                                    </div>
                                 @else
-                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium whitespace-pre-line">« {{ trim($inc['text'], "«» \t\n\r\0\x0B") }} »</div>
+                                    <x-ui.quote :label="$itemLabel ?? $kind">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
                                 @endif
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-            @if(count($manuscript->explicits_list) > 0)
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-                    <div class="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-4 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
-                            <h3 class="text-xs font-bold text-[#292C56] dark:text-indigo-400 uppercase tracking-wider">
-                                انجام نسخه
-                            </h3>
-                            <x-suggest.field name="explicit_text" />
+                            @endforeach
                         </div>
-                        @if(count($manuscript->explicits_list) > 1)
-                            <span class="text-[11px] text-stone-500 font-medium bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-900/40">
-                                {{ count($manuscript->explicits_list) }} انجام ثبت‌شده
-                            </span>
-                        @endif
-                    </div>
-
-                    <div class="space-y-3">
-                        @foreach($manuscript->explicits_list as $idx => $exp)
-                            <div class="p-4 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 space-y-2">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    @if(!empty($exp['is_work_match']))
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                            </svg>
-                                            <span>{{ $exp['label'] }}</span>
-                                        </span>
-                                    @elseif(!empty($exp['label']))
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
-                                            {{ $exp['label'] }}
-                                        </span>
-                                    @elseif(count($manuscript->explicits_list) > 1)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#292C56]/15 dark:bg-indigo-400/20 text-[#292C56] dark:text-indigo-300">
-                                            انجام {{ $idx + 1 }}
-                                        </span>
-                                    @endif
-                                </div>
-                                @if(!empty($exp['is_placeholder']))
-                                    <div class="text-stone-600 dark:text-stone-400 text-xs italic leading-relaxed whitespace-pre-line">{{ $exp['text'] }}</div>
-                                @else
-                                    <div class="manuscript-quote text-stone-800 dark:text-stone-100 text-sm leading-relaxed font-medium whitespace-pre-line">« {{ trim($exp['text'], "«» \t\n\r\0\x0B") }} »</div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
-        </div>
-    @endif
-
-    <!-- Sections hidden while empty: reachable in suggestion mode -->
-    @php
-        $emptySections = array_filter([
-            'incipit_text' => count($manuscript->incipits_list) === 0 ? 'آغاز نسخه' : null,
-            'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
-            'ownership_and_seals' => count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
-        ]);
-    @endphp
-    @if($emptySections)
-        <div x-show="$store.suggest.on" x-cloak class="p-4 rounded-2xl border-2 border-dashed border-[#B38A50]/40 bg-amber-50/40 dark:bg-amber-950/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
-            <span class="text-stone-500 font-semibold">بخش‌های خالیِ این نسخه:</span>
-            @foreach($emptySections as $name => $label)
-                <span class="inline-flex items-center gap-1.5 font-bold text-stone-700 dark:text-stone-300">{{ $label }} <x-suggest.field :name="$name" /></span>
+                    </x-ui.section>
+                @endif
             @endforeach
-        </div>
-    @endif
 
-    <!-- OWNERSHIP, SEALS, WAQF & MANUSCRIPT NOTES -->
-    @if(count($manuscript->ownership_and_seals_list) > 0 || $manuscript->residual_notes_text || count($manuscript->editorial_notes_list) > 0)
-        <div class="space-y-4">
-            
+            <!-- Sections hidden while empty: reachable in suggestion mode -->
+            @php
+                $emptySections = array_filter([
+                    'incipit_text' => count($manuscript->incipits_list) === 0 ? 'آغاز نسخه' : null,
+                    'explicit_text' => count($manuscript->explicits_list) === 0 ? 'انجام نسخه' : null,
+                    'ownership_and_seals' => count($manuscript->ownership_and_seals_list) === 0 ? 'مهرها، تملک‌ها و وقف‌نامه‌ها' : null,
+                ]);
+            @endphp
+            @if($emptySections)
+                <div x-show="$store.suggest.on" x-cloak class="p-4 border border-dashed border-cinnabar/40 bg-cinnabar/5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+                    <span class="text-muted font-semibold">بخش‌های خالیِ این نسخه:</span>
+                    @foreach($emptySections as $name => $label)
+                        <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ $label }} <x-suggest.field :name="$name" /></span>
+                    @endforeach
+                </div>
+            @endif
+
             @if(count($manuscript->ownership_and_seals_list) > 0)
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-                    <div class="flex items-center gap-2 pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <span class="w-2 h-4 bg-amber-600 rounded-sm"></span>
-                        <h3 class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-                            مهرها، یادداشت‌های تملک و وقفیات نسخه
-                        </h3>
-                        <x-suggest.field name="ownership_and_seals" />
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <x-ui.section title="مهرها، تملک‌ها و وقف‌نامه‌ها" field="ownership_and_seals" :count="count($manuscript->ownership_and_seals_list)">
+                    <ul class="space-y-2 text-sm">
                         @foreach($manuscript->ownership_and_seals_list as $seal)
                             @php
-                                $isSeal = str_contains($seal, 'مهر');
-                                $isWaqf = str_contains($seal, 'وقف') || str_contains($seal, 'واقف');
+                                $sealKind = str_contains($seal, 'مهر') ? 'مهر' : ((str_contains($seal, 'وقف') || str_contains($seal, 'واقف')) ? 'وقف' : 'تملک');
                             @endphp
-                            <div class="p-3.5 rounded-2xl border flex items-start gap-3 {{ $isSeal ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/60' : ($isWaqf ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60' : 'bg-stone-50/80 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800') }}">
-                                <div class="shrink-0 mt-0.5">
-                                    @if($isSeal)
-                                        <div class="w-7 h-7 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 flex items-center justify-center" title="نشان مهر نسخه">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                            </svg>
-                                        </div>
-                                    @elseif($isWaqf)
-                                        <div class="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 flex items-center justify-center" title="یادداشت وقف">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                    @else
-                                        <div class="w-7 h-7 rounded-xl bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-300 flex items-center justify-center" title="تملک و سرگذشت نسخه">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                            </svg>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="text-xs text-stone-800 dark:text-stone-200 font-medium leading-relaxed">
-                                    {{ $seal }}
-                                </div>
-                            </div>
+                            <li class="flex items-start gap-3 leading-relaxed">
+                                <span class="mt-0.5 shrink-0 w-11 text-center text-[11px] font-bold py-0.5 border {{ $sealKind === 'مهر' ? 'border-cinnabar/40 text-cinnabar' : ($sealKind === 'وقف' ? 'border-emerald-600/40 text-emerald-700 dark:text-emerald-300' : 'border-line-strong text-muted') }}">{{ $sealKind }}</span>
+                                <span class="text-ink">{{ Fa::digits($seal) }}</span>
+                            </li>
                         @endforeach
-                    </div>
-                </div>
+                    </ul>
+                </x-ui.section>
             @endif
 
-            @if($manuscript->residual_notes_text || count($manuscript->editorial_notes_list) > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    @if($manuscript->residual_notes_text)
-                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block">فوائد و رسائل مندرج در نسخه:</span>
-                            <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed bg-stone-50 dark:bg-stone-800/40 p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 whitespace-pre-line">{{ $manuscript->residual_notes_text }}</div>
-                        </div>
-                    @endif
-
-                    @if(count($manuscript->editorial_notes_list) > 0)
-                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block">یادداشت‌های انتقادی و تصحیحی فهرست‌نگار:</span>
-                            <div class="space-y-1.5">
-                                @foreach($manuscript->editorial_notes_list as $editNote)
-                                    <div class="text-stone-700 dark:text-stone-300 text-xs leading-relaxed bg-stone-50 dark:bg-stone-800/40 p-3 rounded-xl border border-stone-200 dark:border-stone-800 flex items-start gap-2">
-                                        <span class="text-[#B38A50] mt-0.5">•</span>
-                                        <span>{{ $editNote }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
-                </div>
+            @if($manuscript->residual_notes_text)
+                <x-ui.section title="فوائد و رسائل مندرج در نسخه">
+                    <div class="text-sm text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ Fa::digits($manuscript->residual_notes_text) }}</div>
+                </x-ui.section>
             @endif
 
-        </div>
-    @endif
+            @if(count($manuscript->editorial_notes_list) > 0)
+                <x-ui.section title="یادداشت‌های فهرست‌نگار">
+                    <ul class="space-y-1.5 text-sm">
+                        @foreach($manuscript->editorial_notes_list as $editNote)
+                            <li class="flex gap-2.5 leading-relaxed">
+                                <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                                <span class="text-ink">{{ Fa::digits($editNote) }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-ui.section>
+            @endif
 
-    <!-- CITATION IN PRINTED SOURCE CATALOG & RAW CATALOG TEXT -->
-    <div class="p-6 sm:p-7 rounded-3xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] space-y-5 shadow-xs">
-        
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
-            <div class="space-y-1.5 text-right">
-                <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
-                        {{ $manuscript->catalog?->short_name ?? 'فنخا' }}
-                    </span>
-                    <span class="font-bold text-sm text-stone-800 dark:text-stone-200">مشخصات مأخذ و استناد فهرست‌نگاری:</span>
-                </div>
-                <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed max-w-2xl">
-                    {{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}
-                </p>
-            </div>
-            
-            <div class="flex items-center gap-2.5 self-start sm:self-center shrink-0">
-                <div class="text-xs font-bold text-[#B38A50] whitespace-nowrap bg-white dark:bg-[#15192C] px-4 py-2 rounded-2xl border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs">
-                    جلد {{ $manuscript->volume_number }} • صفحه {{ $manuscript->page_start }} • ردیف {{ $manuscript->sequence_number }}
-                </div>
-                @if(!$manuscript->clean_raw_text && $manuscript->volume_number && $manuscript->page_start)
-                    <button 
-                        type="button"
-                        @click="$dispatch('open-catalog-viewer', { catalog: '{{ $manuscript->catalog?->code ?? 'fankha' }}', catalogName: '{{ $manuscript->catalog?->short_name ?? 'فنخا' }}', volume: {{ $manuscript->volume_number }}, page: {{ $manuscript->page_start }} })"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-xs font-bold text-[#B38A50] dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        <span>مشاهده برگه در مأخذ چاپی</span>
-                    </button>
-                @endif
-            </div>
-        </div>
-
-        @if($manuscript->cataloger || $manuscript->catalogVolume)
-            <div class="p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-[#0C0F1D]/90 border border-amber-200/90 dark:border-[#272F4C] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-                @if($manuscript->cataloger)
-                    <div class="flex items-center gap-3.5">
-                        <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="relative shrink-0 group">
-                            @if($manuscript->cataloger->avatar_url)
-                                <img src="{{ $manuscript->cataloger->avatar_url }}" 
-                                     alt="{{ $manuscript->cataloger->name }}" 
-                                     class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-amber-300 dark:border-amber-700/80 shadow-xs group-hover:scale-105 group-hover:border-[#B38A50] transition duration-200">
-                            @else
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border-2 border-amber-300 dark:border-amber-700/80 flex items-center justify-center text-xl font-black text-[#B38A50] shadow-xs">
-                                    {{ mb_substr($manuscript->cataloger->name, 0, 1) }}
-                                </div>
-                            @endif
-                        </a>
-
-                        <div class="space-y-1">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="text-[11px] font-bold text-[#B38A50]">
-                                    فهرست‌نگار مأخذ چاپی:
-                                </span>
-                                @if($manuscript->cataloger->life_years_text)
-                                    <span class="text-[10px] text-stone-400 dark:text-stone-500 font-normal">
-                                        • {{ $manuscript->cataloger->life_years_text }}
-                                    </span>
-                                @endif
-                            </div>
-                            <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="inline-flex items-center gap-1.5 text-sm sm:text-base font-black text-[#292C56] dark:text-stone-100 hover:text-[#B38A50] transition group">
-                                <span>{{ $manuscript->cataloger->display_name }}</span>
-                                <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-[#B38A50] transition-transform -scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                @endif
-
-                @if($manuscript->catalogVolume)
-                    <div class="self-start md:self-center bg-[#FBF7F0] dark:bg-[#15192C] px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-amber-200/70 dark:border-[#272F4C] text-right">
-                        <span class="block text-[10px] text-stone-400 dark:text-stone-500 font-medium">مأخذ تفصیلی و جلد فهرست:</span>
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            <span class="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-200">
-                                {{ $manuscript->catalogVolume->title }}
-                            </span>
-                        </div>
-                    </div>
-                @endif
-            </div>
-        @endif
-
-        @if($manuscript->clean_raw_text)
-            <div x-data="{ copied: false }" class="pt-4 border-t border-[#EADFCF] dark:border-[#272F4C] space-y-3">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-center gap-2">
-                        <span class="w-1.5 h-3.5 bg-[#B38A50] rounded-xs"></span>
-                        <span class="font-bold text-stone-800 dark:text-stone-200 text-xs sm:text-sm">
-                            متن {{ $manuscript->catalog?->short_name ?? 'فنخا' }} (مأخذ نسخه خطی):
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2 self-start sm:self-center">
-                        @if($manuscript->volume_number && $manuscript->page_start)
-                            <button 
-                                type="button" 
-                                @click="$dispatch('open-catalog-viewer', { catalog: '{{ $manuscript->catalog?->code ?? 'fankha' }}', catalogName: '{{ $manuscript->catalog?->short_name ?? 'فنخا' }}', volume: {{ $manuscript->volume_number }}, page: {{ $manuscript->page_start }} })"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-xs font-bold text-[#B38A50] dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
-                                <svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                <span>مشاهده برگه در مأخذ چاپی</span>
-                            </button>
+            @if($manuscript->clean_raw_text)
+                <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
+                    <x-slot:actions>
+                        <span class="text-muted">{{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}</span>
+                        @if($openViewer)
+                            <x-ui.btn size="sm" @click="{{ $openViewer }}">دیدن برگه</x-ui.btn>
                         @endif
-
-                        <button 
-                            type="button" 
-                            @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
-                            <svg x-show="!copied" class="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span x-show="!copied">رونوشت متن مأخذ</span>
-                            <span x-show="copied" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                        </button>
+                        <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
+                            <span x-show="!copied">رونوشت متن</span>
+                            <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
+                        </x-ui.btn>
+                    </x-slot:actions>
+                    <div class="relative">
+                        <div x-ref="rawTextContent" :class="open ? '' : 'max-h-64 overflow-hidden'"
+                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $manuscript->clean_raw_text }}</div>
+                        <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
+                            <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
+                        </div>
                     </div>
-                </div>
-                
-                <div 
-                    x-ref="rawTextContent" 
-                    class="p-4 sm:p-5 rounded-2xl bg-[#FEF9F3] dark:bg-[#0C0F1D] border border-[#EADFCF] dark:border-[#272F4C] text-xs sm:text-[13px] text-stone-800 dark:text-stone-100 leading-loose sm:leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">{{ $manuscript->clean_raw_text }}</div>
-            </div>
-        @endif
+                </x-ui.section>
+            @endif
 
+            <!-- OTHER CATALOG CITATIONS (addenda, errata) -->
+            <x-source-citations :citations="$manuscript->sourceCitations" />
+
+            <!-- READINGS: adopted, alternative and superseded readings from researchers -->
+            <x-suggest.readings />
+
+            <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+            <x-suggest.notes type="manuscript" />
+        </div>
     </div>
-
-    <!-- OTHER CATALOG CITATIONS (addenda, errata) -->
-    <x-source-citations :citations="$manuscript->sourceCitations" />
-
-    <!-- READINGS: adopted, alternative and superseded readings from researchers -->
-    <x-suggest.readings />
-
-    <!-- RESEARCH NOTES: published notes and the invitation to add one -->
-    <x-suggest.notes type="manuscript" />
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="manuscript" :record="$manuscript" />

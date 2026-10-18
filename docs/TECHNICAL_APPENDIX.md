@@ -2202,3 +2202,10 @@
 - [works/show.blade.php](../resources/views/works/show.blade.php): بدنه با این کامپوننت‌ها از نو نوشته شد. تصویر کوچک برگه‌ی مأخذ از همان مسیر نمایشگر خوانده می‌شود (`storage/catalogs/{code}/vNN/pNNNN.webp`). اگر تصویری نباشد، دکمه با `onerror` حذف می‌شود. پنجره‌های QR و استناد دست نخوردند.
 - آزمون‌ها در [WorkPageTest.php](../tests/Feature/WorkPageTest.php): قالب‌های `life_span`، و نمایش تاریخ حیات، کهن‌ترین نسخه‌ی معقول و ارجاع به مأخذ با ارقام فارسی.
 
+### گام ۱۲.۴: صفحه‌ی نسخه با `x-ui.*`
+
+- [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php): بدنه با `x-ui.section`، `x-ui.meta-list`، `x-ui.card`، `x-ui.quote`، `x-ui.chip` و `x-ui.btn` از نو نوشته شد. ده نشان نسخه‌شناسی از آرایه‌ی `$flags` ساخته می‌شوند و هر کدام دکمه‌ی پیشنهاد خودش را دارد. آغاز و انجام در یک حلقه بر `incipits_list` و `explicits_list` ساخته می‌شوند. مدخل `is_placeholder` (ارجاع به آغاز اثر) به‌صورت متن ساده و بدون نقل نمایش داده می‌شود. پنجره‌های QR و استناد دست نخوردند.
+- شماره‌ی نسخه در `<span dir="ltr">` قرار گرفت. عنصری که `dir` دارد به‌طور پیش‌فرض `unicode-bidi: isolate` می‌گیرد، پس جداکننده‌های `-` و `/` جای خود را حفظ می‌کنند.
+- [record-relations](../resources/views/components/record-relations.blade.php)، [manuscript-people](../resources/views/components/manuscript-people.blade.php)، [manuscript-collection](../resources/views/components/manuscript-collection.blade.php)، [source-citations](../resources/views/components/source-citations.blade.php)، [suggest/notes](../resources/views/components/suggest/notes.blade.php) و [suggest/readings](../resources/views/components/suggest/readings.blade.php): پوسته‌ی کارت جایش را به `x-ui.section` داد و رنگ‌ها به توکن‌ها برگشتند. داده و رفتار تغییری نکرد. شمار رساله‌ها حالا کنار عنوان می‌آید، نه داخل پرانتز.
+- [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php): `test_image_notes_…` و `test_treatises_bound_in_the_same_volume` با متن تازه («تصویر نسخه» و شمار جدا از عنوان) هماهنگ شدند.
+
