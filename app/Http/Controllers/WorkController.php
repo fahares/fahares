@@ -88,6 +88,8 @@ class WorkController extends Controller
             ->withQueryString()
             ->fragment('manuscripts');
 
-        return view('works.show', compact('work', 'manuscripts', 'sort', 'direction'));
+        $earliest = $work->earliestDatedManuscript();
+
+        return view('works.show', compact('work', 'manuscripts', 'sort', 'direction', 'earliest'));
     }
 }

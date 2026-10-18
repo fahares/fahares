@@ -43,6 +43,26 @@ class Person extends Model
         ];
     }
 
+    /**
+     * Life dates for display next to the name, in Persian digits: «۸۱۷–۸۹۸ ق», «د. ۸۹۸ ق»
+     * or «سده‌ی ۱۰ ق». Null when nothing is known.
+     */
+    public function getLifeSpanAttribute(): ?string
+    {
+        $birth = $this->birth_year_hijri;
+        $death = $this->death_year_hijri;
+
+        $text = match (true) {
+            $birth && $death => "{$birth}–{$death} ق",
+            (bool) $death => "د. {$death} ق",
+            (bool) $birth => "ز. {$birth} ق",
+            (bool) $this->century_hijri => "سده‌ی {$this->century_hijri} ق",
+            default => null,
+        };
+
+        return $text ? \App\Support\Fa::digits($text) : null;
+    }
+
     public function getPersianSlugAttribute(): string
     {
         $slug = \Illuminate\Support\Str::slug($this->name, '-', null);

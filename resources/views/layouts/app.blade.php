@@ -69,16 +69,16 @@
 
                 <!-- Desktop Navigation Links -->
                 <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-stone-700 dark:text-stone-300">
-                    <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('home') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('home') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         صفحه نخست
                     </a>
-                    <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('subjects.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         موضوعات
                     </a>
-                    <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('libraries.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         کتابخانه‌ها و مراکز
                     </a>
-                    <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-[#B38A50] hover:bg-stone-100 dark:hover:bg-stone-800 transition {{ request()->routeIs('catalogers.*') ? 'text-[#B38A50] bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         فهرست‌نگاران
                     </a>
                 </nav>

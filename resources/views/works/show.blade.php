@@ -35,7 +35,7 @@
                     width: 220,
                     margin: 1,
                     color: {
-                        dark: '#15192C',
+                        dark: '#241F1A',
                         light: '#FFFFFF'
                     }
                 }, function (error) {
@@ -53,612 +53,396 @@
             link.click();
         }
     }
-}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+}" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    @php
+        use App\Support\Fa;
+        $catShort = $work->catalog?->short_name ?? 'فنخا';
+        $catCode = $work->catalog?->code ?? 'fankha';
+        $hasPage = $work->volume_number && $work->page_start;
+        $pageRef = $hasPage
+            ? Fa::digits("ج {$work->volume_number}، ص {$work->page_start}" . ($work->page_end && $work->page_end > $work->page_start ? "–{$work->page_end}" : ''))
+            : null;
+        $pageThumb = $hasPage
+            ? asset('storage/catalogs/' . $catCode . '/v' . str_pad($work->volume_number, 2, '0', STR_PAD_LEFT) . '/p' . str_pad($work->page_start, 4, '0', STR_PAD_LEFT) . '.webp')
+            : null;
+        $openViewer = $hasPage
+            ? "\$dispatch('open-catalog-viewer', { catalog: '{$catCode}', catalogName: '{$catShort}', volume: {$work->volume_number}, page: {$work->page_start} })"
+            : null;
+        $hasAltTitles = collect($work->alternative_titles ?? [])->contains(fn ($alt) => is_array($alt) && ! empty($alt['title']));
+    @endphp
 
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs text-stone-500">
-        <a href="{{ route('home') }}" class="hover:text-[#B38A50]">فهارس</a>
-        <span>/</span>
-        <a href="{{ route('search', ['type' => 'works']) }}" class="hover:text-[#B38A50]">آثار</a>
-        <span>/</span>
-        <span class="text-stone-800 dark:text-stone-200 font-semibold truncate">{{ $work->primary_title }}</span>
+    <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
+        <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('search', ['type' => 'works']) }}" class="hover:text-cinnabar">آثار</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink font-semibold truncate">{{ $work->primary_title }}</span>
     </nav>
 
-    <!-- WORK HEADER CARD -->
-    <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-md space-y-6 relative overflow-hidden">
-        
-        <!-- Subtle decorative glow -->
-        <div class="absolute -top-12 -left-12 w-48 h-48 bg-[#B38A50]/10 rounded-full blur-2xl pointer-events-none"></div>
+    <!-- WORK HEADER -->
+    <header class="text-center grid justify-items-center gap-2 pb-6">
+        <p class="text-xs font-bold text-cinnabar">شناسنامه‌ی اثر</p>
+        <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
+            {{ $work->primary_title }}
+            <x-suggest.field name="primary_title" class="ms-1 align-middle" />
+        </h1>
 
-        <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div class="space-y-3 flex-1">
-                <div class="inline-block px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold">
-                    شناسنامه کتاب‌شناختی اثر
-                </div>
-
-                <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                    {{ $work->primary_title }}
-                    <x-suggest.field name="primary_title" class="ms-1" />
-                </h1>
-
-                @if($work->clean_title && $work->clean_title !== $work->primary_title)
-                    <div class="text-sm text-stone-500 font-medium">
-                        عنوان پیراسته: <span class="text-stone-700 dark:text-stone-300">{{ $work->clean_title }}</span>
-                    </div>
-                @endif
-
-                <div class="text-xs text-stone-400" @unless($work->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
-                    {{ $work->transliteration ?? 'آوانگاری عنوان: —' }}
-                    <x-suggest.field name="transliteration" class="ms-1" />
-                </div>
-            </div>
-
-            <!-- Manuscript Count Badge -->
-            <div class="flex flex-col items-start md:items-end gap-2">
-                <div class="px-5 py-3 rounded-2xl bg-gradient-to-br from-amber-50 to-[#FEF9F3] dark:from-stone-800 dark:to-[#15192C] border border-[#B38A50]/40 text-center shadow-sm">
-                    <span class="block text-2xl sm:text-3xl font-black text-[#B38A50]">
-                        {{ number_format($work->manuscripts_count) }}
-                    </span>
-                    <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه ثبت‌شده</span>
-                    @if(!empty($work->copy_century_text))
-                        <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium mt-1">
-                            {{ $work->copy_century_text }}
-                        </span>
-                    @endif
-                </div>
-
-                @if($work->has_autograph)
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold shadow-xs">
-                        <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        <span>دارای نسخه اصل (دستخط مؤلف)</span>
-                    </div>
-                @endif
-
-                <a href="#manuscripts" class="text-xs text-[#B38A50] hover:underline font-semibold flex items-center gap-1">
-                    <span>مشاهده فهرست نسخه‌ها</span>
-                    <span>↓</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Work Quick Actions: Permalink & Academic Citation -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-stone-100 dark:border-stone-800">
-            <div class="flex flex-wrap items-center gap-2.5">
-                
-                <!-- Permalink Capsule & QR Button -->
-                <div class="inline-flex items-center gap-1.5 p-1 pr-2.5 sm:pr-3 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] shadow-2xs text-xs">
-                    <span class="text-stone-400 dark:text-stone-400 font-medium flex items-center gap-1 select-none">
-                        <svg class="w-3.5 h-3.5 text-[#B38A50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <span class="hidden sm:inline">پیوند کوتاه:</span>
-                    </span>
-                    <a href="{{ url('/w/' . $work->id) }}" class="font-mono text-[11px] font-bold text-[#292C56] dark:text-amber-200 px-2 py-0.5 rounded-lg bg-white/80 dark:bg-[#15192C]/80 border border-stone-200/60 dark:border-stone-700/60 hover:text-[#B38A50] transition" dir="ltr" title="پیوند پایدار اثر">
-                        /w/{{ $work->id }}
-                    </a>
-                    
-                    <!-- Copy button with tooltip -->
-                    <button 
-                        type="button" 
-                        @click="copyText('{{ url('/w/' . $work->id) }}', 'permalink')"
-                        class="relative p-1.5 rounded-xl bg-white dark:bg-[#15192C] hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:border-[#B38A50] transition shadow-2xs cursor-pointer"
-                        title="رونوشت پیوند کوتاه اثر">
-                        
-                        <svg x-show="copiedKey !== 'permalink'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-
-                        <!-- Tooltip feedback -->
-                        <span 
-                            x-show="copiedKey === 'permalink'" 
-                            x-cloak 
-                            x-transition 
-                            class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-md bg-stone-900 text-white text-[10px] font-bold shadow-lg z-30 pointer-events-none">
-                            کپی شد! ✓
-                        </span>
-                    </button>
-
-                    <!-- QR Code Button -->
-                    <button 
-                        type="button" 
-                        @click="openQrModal()"
-                        class="p-1.5 rounded-xl bg-white dark:bg-[#15192C] hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] text-[#B38A50] border border-stone-200 dark:border-stone-700 hover:border-[#B38A50] transition shadow-2xs cursor-pointer"
-                        title="نمایش QR Code اثر جهت اشتراک‌گذاری یا اسکن">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Academic Citation Button -->
-                <button 
-                    type="button" 
-                    @click="citationModalOpen = true"
-                    class="px-3.5 py-2 rounded-xl bg-stone-50 dark:bg-[#1A1E35] border border-[#B38A50]/60 hover:bg-[#B38A50] hover:text-white dark:hover:bg-[#B38A50] dark:hover:text-stone-900 text-[#B38A50] font-bold text-xs transition duration-200 flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                    <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                    </svg>
-                    <span>دریافت استناد علمی</span>
-                </button>
-
-                <x-suggest.toggle />
-            </div>
-
-            <div class="text-xs text-stone-400 font-medium">
-                شناسه یکتا در پایگاه فهارس: <span class="font-mono text-stone-600 dark:text-stone-300 font-bold">#{{ $work->id }}</span>
-            </div>
-        </div>
-
-        <!-- Metadata Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-6 border-t border-stone-100 dark:border-stone-800 text-xs">
-            
-            <!-- Author -->
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">پدیدآور / مؤلف:</span>
-                @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
-                    <x-contributors :entries="$work->authorEntries" :others="$work->has_other_authors"
-                        link-class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition" />
-                @elseif($work->author)
-                    <a href="{{ route('people.show', $work->author) }}" class="text-sm font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50] transition">
-                        {{ $work->author->name }}
-                    </a>
-                @elseif($work->author_name)
-                    <span class="text-sm font-bold text-stone-700 dark:text-stone-300">{{ $work->author_name }}</span>
-                @else
-                    <span class="text-sm text-stone-400 italic">ناشناخته</span>
-                @endif
-                <x-suggest.field name="author_name" class="ms-1" />
-            </div>
-
-            <!-- Composition Year -->
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">تاریخ و سده تألیف:</span>
-                @if($work->composition_year_hijri)
-                    <span class="text-sm font-bold text-stone-700 dark:text-stone-300">{{ $work->composition_year_hijri }} هـ.ق</span>
-                @elseif($work->composition_date_raw)
-                    <span class="text-sm font-bold text-stone-700 dark:text-stone-300">{{ $work->composition_date_raw }}</span>
-                @else
-                    <span class="text-sm text-stone-400 italic">نامشخص</span>
-                @endif
-                <x-suggest.field name="composition_date_raw" class="ms-1" />
-            </div>
-
-            <!-- Source in Catalog -->
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">مأخذ فهرست‌نویسی:</span>
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold text-stone-700 dark:text-stone-300">
-                        {{ $work->catalog?->short_name ?? 'فنخا' }}، ج {{ $work->volume_number }}، ص {{ $work->page_start }}
-                        @if($work->page_end && $work->page_end > $work->page_start)
-                            تا {{ $work->page_end }}
-                        @endif
-                    </span>
-                    @if($work->is_addendum_entry)
-                        <span class="px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</span>
-                    @endif
-                    @if($work->volume_number && $work->page_start)
-                        <button 
-                            type="button"
-                            @click="$dispatch('open-catalog-viewer', { catalog: '{{ $work->catalog?->code ?? 'fankha' }}', catalogName: '{{ $work->catalog?->short_name ?? 'فنخا' }}', volume: {{ $work->volume_number }}, page: {{ $work->page_start }} })"
-                            class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-[11px] font-bold text-[#B38A50] hover:bg-amber-100 dark:hover:bg-amber-900/50 transition cursor-pointer"
-                            title="مشاهده برگه در مأخذ چاپی {{ $work->catalog?->short_name ?? 'فنخا' }}">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            <span>مشاهده برگه</span>
-                        </button>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Language & Form -->
-            <div class="space-y-1">
-                <span class="text-stone-400 block font-medium">زبان و قالب:</span>
-                <span class="text-sm font-bold text-stone-700 dark:text-stone-300">
-                    {{ $work->language_summary ?? 'عربی / فارسی' }}
-                    <x-suggest.field name="language_summary" />
-                    @if($work->work_form)
-                        <span class="text-xs text-stone-400 font-normal">({{ $work->work_form }})</span>
-                    @else
-                        <span x-show="$store.suggest.on" x-cloak class="text-xs text-stone-400 font-normal">قالب:</span>
-                    @endif
-                    <x-suggest.field name="work_form" />
-                </span>
-            </div>
-
-        </div>
-
-        <!-- Subjects -->
-        @if($work->subjects && $work->subjects->count() > 0)
-            <div class="pt-4 border-t border-stone-100 dark:border-stone-800 flex flex-wrap items-center gap-2 text-xs">
-                <span class="text-stone-400 font-medium">رده‌های موضوعی:</span>
-                @foreach($work->subjects as $subj)
-                    <a href="{{ route('subjects.show', $subj) }}" 
-                       class="px-3 py-1 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-amber-100 dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-[#B38A50] transition">
-                        {{ $subj->title }}
-                    </a>
-                @endforeach
-            </div>
+        @if($work->clean_title && $work->clean_title !== $work->primary_title)
+            <p class="text-sm text-muted">عنوان پیراسته: <span class="text-ink">{{ $work->clean_title }}</span></p>
         @endif
 
-        <!-- Alternative Titles & Referrals -->
-        @php $hasAltTitles = ! empty($work->alternative_titles); @endphp
-        <div class="pt-4 border-t border-stone-100 dark:border-stone-800 text-xs space-y-1" @unless($hasAltTitles) x-show="$store.suggest.on" x-cloak @endunless>
-            <span class="text-stone-400 font-medium">عناوین دیگر و هم‌تراز:</span>
-            <x-suggest.field name="alternative_titles" class="ms-1" />
-        @if($hasAltTitles)
-                <div class="flex flex-wrap gap-2 pt-1">
-                    @foreach($work->alternative_titles as $alt)
-                        @if(is_array($alt) && !empty($alt['title']))
-                            <span class="px-2.5 py-1 rounded-lg bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300">
-                                {{ $alt['title'] }}
-                                @if(!empty($alt['transliteration']))
-                                    <span class="text-[10px] text-stone-400">({{ $alt['transliteration'] }})</span>
-                                @endif
-                            </span>
-                        @endif
-                    @endforeach
-                </div>
-        @endif
-        </div>
+        <p class="text-xs text-muted" dir="ltr" @unless($work->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
+            {{ $work->transliteration ?? 'آوانگاری عنوان: —' }}
+            <x-suggest.field name="transliteration" class="ms-1" />
+        </p>
 
-        <!-- Dedication, Place, Related Work -->
-        @php $hasContext = ! empty($work->dedication) || ! empty($work->composition_place) || ! empty($work->related_work); @endphp
-        <div class="pt-4 border-t border-stone-100 dark:border-stone-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs" @unless($hasContext) x-show="$store.suggest.on" x-cloak @endunless>
-            @foreach(['dedication' => 'اهدا / به درخواست:', 'composition_place' => 'محل تألیف:', 'related_work' => 'اثر مرتبط / وابسته به:'] as $col => $label)
-                <div class="space-y-1" @if(empty($work->{$col})) x-show="$store.suggest.on" x-cloak @endif>
-                    <span class="text-stone-400 block font-medium">{{ $label }}</span>
-                    <span class="font-bold text-stone-700 dark:text-stone-300">{{ $work->{$col} ?: '—' }}</span>
-                    <x-suggest.field :name="$col" class="ms-1" />
-                </div>
+        <p class="text-base text-ink mt-1">
+            @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
+                <x-contributors :entries="$work->authorEntries" :others="$work->has_other_authors" :life="true"
+                    link-class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" />
+            @elseif($work->author)
+                <a href="{{ route('people.show', $work->author) }}" class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $work->author->name }}</a>
+                <x-ui.life :person="$work->author" />
+            @elseif($work->author_name)
+                <span class="font-bold">{{ $work->author_name }}</span>
+            @else
+                <span class="text-muted">پدیدآور ناشناخته</span>
+            @endif
+            <x-suggest.field name="author_name" class="ms-1" />
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-1.5 mt-2">
+            @if($work->language_summary)<x-ui.chip>{{ $work->language_summary }}</x-ui.chip>@endif
+            @if($work->work_form)<x-ui.chip>{{ $work->work_form }}</x-ui.chip>@endif
+            @if($work->composition_year_hijri)
+                <x-ui.chip>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</x-ui.chip>
+            @endif
+            @foreach($work->subjects ?? [] as $subj)
+                <x-ui.chip :href="route('subjects.show', $subj)">{{ $subj->title }}</x-ui.chip>
             @endforeach
+            @if($work->has_autograph)<x-ui.chip tone="good">نسخه‌ی اصل (دستخط مؤلف)</x-ui.chip>@endif
+            @if($work->is_addendum_entry)<x-ui.chip tone="accent" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
         </div>
+    </header>
 
+    <div class="jadval" aria-hidden="true"></div>
+
+    <!-- Quick actions: permalink, QR, citation, suggestion mode -->
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="inline-flex items-center gap-1 p-1 ps-2.5 rounded-sm bg-surface border border-line text-xs">
+                <span class="text-muted select-none hidden sm:inline">پیوند کوتاه:</span>
+                <a href="{{ url('/w/' . $work->id) }}" class="font-mono text-[11px] font-bold text-ink px-1.5 hover:text-cinnabar transition" dir="ltr" title="پیوند پایدار اثر">/w/{{ $work->id }}</a>
+                <button type="button" @click="copyText('{{ url('/w/' . $work->id) }}', 'permalink')"
+                    class="relative p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رونوشت پیوند کوتاه">
+                    <svg x-show="copiedKey !== 'permalink'" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    <svg x-show="copiedKey === 'permalink'" x-cloak class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                    <span x-show="copiedKey === 'permalink'" x-cloak x-transition class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-0.5 rounded-sm bg-ink text-paper text-[10px] font-bold z-30 pointer-events-none">رونوشت شد</span>
+                </button>
+                <button type="button" @click="openQrModal()" class="p-1.5 rounded-sm text-muted hover:text-cinnabar transition cursor-pointer" title="رمزینه‌ی QR اثر">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                </button>
+            </div>
+            <x-ui.btn size="sm" @click="citationModalOpen = true">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
+                استناد
+            </x-ui.btn>
+            <x-suggest.toggle />
+        </div>
+        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $work->id }}</span></span>
     </div>
 
-    <!-- WORK DESCRIPTION & INCIPIT/EXPLICIT -->
-    @if(!empty($work->description) || !empty($work->incipit_text) || !empty($work->explicit_text))
-        <div class="space-y-4">
-            @if(!empty($work->description))
-                <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
-                    <div class="flex items-center gap-2 pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
-                        <h3 class="text-xs font-bold text-[#B38A50] uppercase tracking-wider">
-                            معرفی و مشخصات کتاب‌شناختی اثر (در مأخذ فنخا)
-                        </h3>
-                        <x-suggest.field name="description" />
-                    </div>
-                    <div class="text-stone-700 dark:text-stone-200 text-xs sm:text-sm leading-loose text-justify font-normal whitespace-pre-line">{{ $work->description }}</div>
-                </div>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
+
+        <!-- Summary column: first on phones, beside the details on wide screens -->
+        <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
+            <x-ui.card :framed="true" class="text-center sm:text-right">
+                <div class="font-naskh text-4xl font-bold text-cinnabar leading-tight tabular-nums">{{ Fa::num($work->manuscripts_count) }}</div>
+                <div class="text-sm text-ink">نسخه‌ی ثبت‌شده</div>
+                @if(! empty($work->copy_century_text))
+                    <div class="text-xs text-muted mt-0.5">{{ Fa::digits($work->copy_century_text) }}</div>
+                @endif
+                @if($earliest)
+                    <a href="{{ route('manuscripts.show', $earliest) }}" class="block mt-3 pt-3 border-t border-line text-xs text-right group">
+                        <span class="block text-muted">کهن‌ترین نسخه‌ی تاریخ‌دار</span>
+                        <span class="block font-bold text-ink group-hover:text-cinnabar transition">
+                            {{ $earliest->library?->name ?? $earliest->library ?? 'کتابخانه‌ی نامشخص' }}@if($earliest->shelfmark)، {{ Fa::digits($earliest->shelfmark) }}@endif
+                        </span>
+                        <span class="block text-muted">{{ Fa::digits($earliest->copy_date_raw ?: $earliest->copy_date_hijri_year . ' ق') }}</span>
+                    </a>
+                @endif
+                <x-ui.btn href="#manuscripts" variant="primary" class="w-full mt-4">فهرست نسخه‌ها</x-ui.btn>
+            </x-ui.card>
+
+            <x-ui.card class="space-y-2">
+                <div class="text-xs text-muted">مأخذ</div>
+                <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
+                @if($pageThumb)
+                    <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
+                        <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                            <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
+                        </div>
+                        <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در مأخذ چاپی</span>
+                    </button>
+                @endif
+            </x-ui.card>
+        </aside>
+
+        <!-- Details -->
+        <div class="min-w-0 space-y-10">
+            <x-ui.section title="مشخصات">
+                <x-ui.meta-list>
+                    <x-ui.meta label="تاریخ تألیف" field="composition_date_raw" :empty="! $work->composition_year_hijri && ! $work->composition_date_raw">
+                        {{ Fa::digits($work->composition_date_raw ?: $work->composition_year_hijri . ' ق') }}
+                    </x-ui.meta>
+                    <x-ui.meta label="زبان" field="language_summary" :empty="! $work->language_summary">{{ $work->language_summary }}</x-ui.meta>
+                    <x-ui.meta label="قالب" field="work_form" :empty="! $work->work_form">{{ $work->work_form }}</x-ui.meta>
+                    @if($work->subjects && $work->subjects->count())
+                        <x-ui.meta label="رده‌های موضوعی">
+                            @foreach($work->subjects as $subj)
+                                <a href="{{ route('subjects.show', $subj) }}" class="border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $subj->title }}</a>@unless($loop->last)، @endunless
+                            @endforeach
+                        </x-ui.meta>
+                    @endif
+                    <x-ui.meta label="عناوین دیگر" field="alternative_titles" :empty="! $hasAltTitles">
+                        @foreach($work->alternative_titles ?? [] as $alt)
+                            @if(is_array($alt) && ! empty($alt['title']))
+                                <span class="block">{{ $alt['title'] }}@if(! empty($alt['transliteration'])) <span class="text-xs text-muted" dir="ltr">({{ $alt['transliteration'] }})</span>@endif</span>
+                            @endif
+                        @endforeach
+                    </x-ui.meta>
+                    <x-ui.meta label="اهدا / به درخواست" field="dedication" :empty="empty($work->dedication)">{{ $work->dedication }}</x-ui.meta>
+                    <x-ui.meta label="محل تألیف" field="composition_place" :empty="empty($work->composition_place)">{{ $work->composition_place }}</x-ui.meta>
+                    <x-ui.meta label="وابسته به" field="related_work" :empty="empty($work->related_work)">{{ $work->related_work }}</x-ui.meta>
+                </x-ui.meta-list>
+            </x-ui.section>
+
+            @if(! empty($work->description))
+                <x-ui.section title="معرفی اثر" field="description">
+                    <x-slot:actions><span class="text-muted">به روایت {{ $catShort }}</span></x-slot:actions>
+                    <div class="text-ink text-sm sm:text-[15px] leading-loose text-justify whitespace-pre-line max-w-[72ch]">{{ $work->description }}</div>
+                </x-ui.section>
             @endif
 
-            @if(!empty($work->incipit_text) || !empty($work->explicit_text))
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @if(!empty($work->incipit_text))
-                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                            <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
-                                <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
-                                <span class="text-xs font-bold text-[#B38A50]">آغاز اثر</span>
-                                <x-suggest.field name="incipit_text" />
-                            </div>
-                            <div class="p-3.5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border-r-4 border-[#B38A50] text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium whitespace-pre-line">« {{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }} »</div>
-                        </div>
-                    @endif
-
-                    @if(!empty($work->explicit_text))
-                        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                            <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
-                                <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
-                                <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">انجام اثر</span>
-                                <x-suggest.field name="explicit_text" />
-                            </div>
-                            <div class="p-3.5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 border-r-4 border-[#292C56] dark:border-indigo-400 text-xs leading-relaxed text-stone-800 dark:text-stone-100 font-medium whitespace-pre-line">« {{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }} »</div>
-                        </div>
-                    @endif
-                </div>
-            @endif
-        </div>
-    @endif
-
-    <!-- Sections hidden while empty: reachable in suggestion mode -->
-    @php
-        $emptySections = array_filter([
-            'description' => empty($work->description) ? 'معرفی اثر' : null,
-            'incipit_text' => empty($work->incipit_text) ? 'آغاز اثر' : null,
-            'explicit_text' => empty($work->explicit_text) ? 'انجام اثر' : null,
-            'print_info' => empty($work->print_info) ? 'چاپ‌ها و سوابق' : null,
-            'commentaries_and_glosses' => empty($work->commentaries_and_glosses) ? 'شروح و حواشی' : null,
-            'bibliography' => empty($work->bibliography) ? 'مآخذ کتاب‌شناسی' : null,
-        ]);
-    @endphp
-    @if($emptySections)
-        <div x-show="$store.suggest.on" x-cloak class="p-4 rounded-2xl border-2 border-dashed border-[#B38A50]/40 bg-amber-50/40 dark:bg-amber-950/10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
-            <span class="text-stone-500 font-semibold">بخش‌های خالیِ این اثر:</span>
-            @foreach($emptySections as $name => $label)
-                <span class="inline-flex items-center gap-1.5 font-bold text-stone-700 dark:text-stone-300">{{ $label }} <x-suggest.field :name="$name" /></span>
-            @endforeach
-        </div>
-    @endif
-
-    <!-- PRINT INFO, COMMENTARIES, BIBLIOGRAPHY & RAW TEXT -->
-    <div class="space-y-4">
-        @if(!empty($work->print_info))
-            <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-2">
-                <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
-                    <span class="w-2 h-3.5 bg-amber-600 rounded-sm"></span>
-                    <span class="text-xs font-bold text-amber-800 dark:text-amber-300">سوابق و چاپ‌های اثر</span>
-                    <x-suggest.field name="print_info" />
-                </div>
-                <div class="text-xs leading-loose text-stone-700 dark:text-stone-300 font-medium whitespace-pre-line">{{ $work->print_info }}</div>
-            </div>
-        @endif
-
-        @if(!empty($work->commentaries_and_glosses) && count($work->commentaries_and_glosses) > 0)
-            <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
-                <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
-                    <span class="w-2 h-3.5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
-                    <span class="text-xs font-bold text-[#292C56] dark:text-indigo-400">شروح، حواشی و منظومه‌ها (در فنخا)</span>
-                    <x-suggest.field name="commentaries_and_glosses" />
-                </div>
-                <div class="flex flex-wrap gap-2 pt-1 text-xs">
-                    @foreach($work->commentaries_and_glosses as $comm)
-                        <span class="px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-medium">
-                            {{ $comm }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        @if(!empty($work->bibliography) && count($work->bibliography) > 0)
-            <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-3">
-                <div class="flex items-center gap-2 pb-1 border-b border-stone-100 dark:border-stone-800">
-                    <span class="w-2 h-3.5 bg-[#B38A50] rounded-sm"></span>
-                    <span class="text-xs font-bold text-[#B38A50]">مآخذ و منابع کتاب‌شناسی اثر</span>
-                    <x-suggest.field name="bibliography" />
-                </div>
-                <div class="flex flex-wrap gap-2 pt-1 text-xs">
-                    @foreach($work->bibliography as $bib)
-                        <span class="px-3 py-1.5 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 text-stone-800 dark:text-stone-200 font-medium">
-                            {{ $bib }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        @if($work->clean_raw_text)
-            <div x-data="{ copied: false }" class="bg-white dark:bg-[#15192C] rounded-3xl p-5 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-                
-                <!-- Header Toolbar: Title on right, Actions on left -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-stone-100 dark:border-stone-800/80">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-4 bg-[#B38A50] rounded-sm"></span>
-                        <h3 class="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 tracking-wide">
-                            متن {{ $work->catalog?->short_name ?? 'فنخا' }} ({{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران' }})
-                        </h3>
-                    </div>
-
-                    <div class="flex items-center gap-2 self-start sm:self-center">
-                        @if($work->volume_number && $work->page_start)
-                            <button 
-                                type="button" 
-                                @click="$dispatch('open-catalog-viewer', { catalog: '{{ $work->catalog?->code ?? 'fankha' }}', catalogName: '{{ $work->catalog?->short_name ?? 'فنخا' }}', volume: {{ $work->volume_number }}, page: {{ $work->page_start }} })"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800/60 text-xs font-bold text-[#B38A50] dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
-                                <svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                <span>مشاهده برگه در مأخذ چاپی</span>
-                            </button>
+            @if(! empty($work->incipit_text) || ! empty($work->explicit_text))
+                <x-ui.section title="آغاز و انجام">
+                    <div class="space-y-5">
+                        @if(! empty($work->incipit_text))
+                            <x-ui.quote label="آغاز" field="incipit_text">{{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }}</x-ui.quote>
                         @endif
-
-                        <button 
-                            type="button" 
-                            @click="navigator.clipboard.writeText($refs.workRawText.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-[#B38A50] hover:border-[#B38A50] active:scale-95 transition shadow-2xs whitespace-nowrap cursor-pointer">
-                            <svg x-show="!copied" class="w-3.5 h-3.5 text-stone-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            <svg x-show="copied" class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span x-show="!copied">رونوشت متن مأخذ</span>
-                            <span x-show="copied" class="text-emerald-600 font-bold" style="display: none;">کپی شد! ✓</span>
-                        </button>
+                        @if(! empty($work->explicit_text))
+                            <x-ui.quote label="انجام" field="explicit_text">{{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                        @endif
                     </div>
+                </x-ui.section>
+            @endif
+
+            <!-- Sections hidden while empty: reachable in suggestion mode -->
+            @php
+                $emptySections = array_filter([
+                    'description' => empty($work->description) ? 'معرفی اثر' : null,
+                    'incipit_text' => empty($work->incipit_text) ? 'آغاز اثر' : null,
+                    'explicit_text' => empty($work->explicit_text) ? 'انجام اثر' : null,
+                    'print_info' => empty($work->print_info) ? 'چاپ‌ها و سوابق' : null,
+                    'commentaries_and_glosses' => empty($work->commentaries_and_glosses) ? 'شروح و حواشی' : null,
+                    'bibliography' => empty($work->bibliography) ? 'مآخذ کتاب‌شناسی' : null,
+                ]);
+            @endphp
+            @if($emptySections)
+                <div x-show="$store.suggest.on" x-cloak class="p-4 border border-dashed border-cinnabar/40 bg-cinnabar/5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
+                    <span class="text-muted font-semibold">بخش‌های خالیِ این اثر:</span>
+                    @foreach($emptySections as $name => $label)
+                        <span class="inline-flex items-center gap-1.5 font-bold text-ink">{{ $label }} <x-suggest.field :name="$name" /></span>
+                    @endforeach
                 </div>
-                
-                <!-- Raw text body -->
-                <div 
-                    x-ref="workRawText" 
-                    class="p-4 sm:p-6 rounded-2xl bg-[#FEF9F3] dark:bg-[#0C0F1D] border border-[#EADFCF] dark:border-[#272F4C] text-xs sm:text-[13px] text-stone-800 dark:text-stone-100 leading-loose sm:leading-loose whitespace-pre-line text-right selection:bg-amber-100 dark:selection:bg-amber-950 font-normal">{{ $work->clean_raw_text }}</div>
-            </div>
-        @endif
+            @endif
 
-        <!-- Relations with other works (commentary on, translation of…) -->
-        <x-record-relations :record="$work" />
+            @if(! empty($work->print_info))
+                <x-ui.section title="چاپ‌ها و سوابق" field="print_info">
+                    <div class="text-sm leading-loose text-ink whitespace-pre-line max-w-[72ch]">{{ Fa::digits($work->print_info) }}</div>
+                </x-ui.section>
+            @endif
 
-        <x-source-citations :citations="$work->sourceCitations" />
+            @if(! empty($work->commentaries_and_glosses) && count($work->commentaries_and_glosses) > 0)
+                <x-ui.section title="شروح، حواشی و منظومه‌ها" field="commentaries_and_glosses" :count="count($work->commentaries_and_glosses)">
+                    <x-slot:actions><span class="text-muted">به روایت {{ $catShort }}</span></x-slot:actions>
+                    <ul class="space-y-1.5 text-sm" x-data="{ all: false }">
+                        @foreach($work->commentaries_and_glosses as $comm)
+                            <li class="flex gap-2.5 leading-relaxed" @if($loop->index >= 12) x-show="all" x-cloak @endif>
+                                <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                                <span class="text-ink">{{ Fa::digits($comm) }}</span>
+                            </li>
+                        @endforeach
+                        @if(count($work->commentaries_and_glosses) > 12)
+                            <li x-show="! all"><button type="button" @click="all = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش همه‌ی {{ Fa::num(count($work->commentaries_and_glosses)) }} مدخل</button></li>
+                        @endif
+                    </ul>
+                </x-ui.section>
+            @endif
 
-        <x-suggest.readings />
+            @if(! empty($work->bibliography) && count($work->bibliography) > 0)
+                <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
+                    <ul class="space-y-1 text-sm">
+                        @foreach($work->bibliography as $bib)
+                            <li class="flex gap-2.5 leading-relaxed">
+                                <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                                <span class="text-ink">{{ Fa::digits($bib) }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-ui.section>
+            @endif
 
-        <!-- RESEARCH NOTES: published notes and the invitation to add one -->
-        <x-suggest.notes type="work" />
+            @if($work->clean_raw_text)
+                <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
+                    <x-slot:actions>
+                        <span class="text-muted">{{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)' }}</span>
+                        @if($openViewer)
+                            <x-ui.btn size="sm" @click="{{ $openViewer }}">دیدن برگه</x-ui.btn>
+                        @endif
+                        <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.workRawText.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
+                            <span x-show="!copied">رونوشت متن</span>
+                            <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
+                        </x-ui.btn>
+                    </x-slot:actions>
+                    <div class="relative">
+                        <div x-ref="workRawText" :class="open ? '' : 'max-h-64 overflow-hidden'"
+                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $work->clean_raw_text }}</div>
+                        <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
+                            <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
+                        </div>
+                    </div>
+                </x-ui.section>
+            @endif
+
+            <!-- Relations with other works (commentary on, translation of…) -->
+            <x-record-relations :record="$work" />
+
+            <x-source-citations :citations="$work->sourceCitations" />
+
+            <x-suggest.readings />
+
+            <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+            <x-suggest.notes type="work" />
+        </div>
     </div>
 
     <!-- MANUSCRIPTS TABLE SECTION -->
-    <section id="manuscripts" class="space-y-4">
-        
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-6 bg-[#B38A50] rounded-sm"></span>
-                <h2 class="text-xl font-bold text-stone-900 dark:text-stone-100">
-                    نسخه‌های خطی این اثر
-                </h2>
-                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50]">
-                    {{ number_format($work->manuscripts_count) }} نسخه
+    <x-ui.section id="manuscripts" title="نسخه‌ها" :count="$work->manuscripts_count">
+        @if(isset($sort) && $sort !== 'sequence')
+            <x-slot:actions>
+                <span class="text-muted">مرتب‌شده بر اساس:</span>
+                <span class="font-bold text-cinnabar">
+                    @switch($sort)
+                        @case('library') کتابخانه @break
+                        @case('shelfmark') شماره نسخه @break
+                        @case('scribe') کاتب @break
+                        @case('date') تاریخ کتابت @break
+                        @case('script') نوع خط @break
+                        @case('folios') تعداد برگ @break
+                        @default {{ $sort }}
+                    @endswitch
+                    ({{ $direction === 'asc' ? 'صعودی' : 'نزولی' }})
                 </span>
-            </div>
+                <a href="{{ route('works.show', $work) }}#manuscripts" class="text-muted hover:text-cinnabar underline">بازنشانی ترتیب</a>
+            </x-slot:actions>
+        @endif
 
-            @if(isset($sort) && $sort !== 'sequence')
-                <div class="flex items-center gap-2 text-xs">
-                    <span class="text-stone-400">مرتب‌شده بر اساس:</span>
-                    <span class="font-bold text-[#B38A50]">
-                        @switch($sort)
-                            @case('library') کتابخانه @break
-                            @case('shelfmark') شماره نسخه @break
-                            @case('scribe') کاتب @break
-                            @case('date') تاریخ کتابت @break
-                            @case('script') نوع خط @break
-                            @case('folios') تعداد برگ @break
-                            @default {{ $sort }}
-                        @endswitch
-                        ({{ $direction === 'asc' ? 'صعودی' : 'نزولی' }})
-                    </span>
-                    <a href="{{ route('works.show', $work) }}#manuscripts" 
-                       class="text-stone-400 hover:text-red-500 transition mr-2 underline">
-                        بازنشانی ترتیب
-                    </a>
-                </div>
-            @endif
-        </div>
-
-        <div class="bg-white dark:bg-[#15192C] rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm overflow-hidden">
+        <div class="bg-surface border border-line">
             <div class="overflow-x-auto">
-                <table class="w-full text-right text-xs">
-                    <thead class="bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-300 font-bold border-b border-stone-200 dark:border-stone-700 select-none">
+                <table class="w-full text-right text-xs sm:text-[13px] min-w-[640px]">
+                    <thead class="text-muted border-b border-gold select-none">
                         @php
                             $renderSortHeader = function($col, $title, $align = 'right') use ($work, $sort, $direction) {
                                 $isActive = ($sort === $col);
                                 $nextDir = ($isActive && $direction === 'asc') ? 'desc' : 'asc';
                                 $url = route('works.show', array_merge(request()->except(['page']), ['id' => $work->getRouteKey(), 'sort' => $col, 'direction' => $nextDir, 'page' => 1])) . '#manuscripts';
-                                
-                                $justify = $align === 'center' ? 'justify-center' : 'justify-start';
-                                
-                                $html = '<a href="' . e($url) . '" class="inline-flex items-center gap-1.5 hover:text-[#B38A50] transition group ' . ($isActive ? 'text-[#B38A50] font-black' : 'text-stone-600 dark:text-stone-300') . '" title="مرتب‌سازی بر اساس ' . e($title) . '">';
+
+                                $html = '<a href="' . e($url) . '" class="inline-flex items-center gap-1.5 hover:text-cinnabar transition group ' . ($isActive ? 'text-cinnabar font-bold' : '') . '" title="مرتب‌سازی بر اساس ' . e($title) . '">';
                                 $html .= '<span>' . e($title) . '</span>';
-                                
+
                                 if ($isActive) {
-                                    if ($direction === 'asc') {
-                                        $html .= '<svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>';
-                                    } else {
-                                        $html .= '<svg class="w-3.5 h-3.5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>';
-                                    }
+                                    $html .= $direction === 'asc'
+                                        ? '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>'
+                                        : '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>';
                                 } else {
-                                    $html .= '<svg class="w-3 h-3 text-stone-300 dark:text-stone-600 opacity-60 group-hover:opacity-100 group-hover:text-[#B38A50] shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>';
+                                    $html .= '<svg class="w-3 h-3 opacity-40 group-hover:opacity-100 shrink-0 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>';
                                 }
-                                
-                                $html .= '</a>';
-                                return $html;
+
+                                return $html . '</a>';
                             };
                         @endphp
                         <tr>
-                            <th class="py-3.5 px-4 w-16 text-center">{!! $renderSortHeader('sequence', 'ردیف', 'center') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('library', 'کتابخانه و مرکز نگهداری') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('shelfmark', 'شماره نسخه') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('scribe', 'کاتب') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('date', 'تاریخ کتابت') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('script', 'نوع خط') !!}</th>
-                            <th class="py-3.5 px-4">{!! $renderSortHeader('folios', 'برگ') !!}</th>
+                            <th class="py-3 px-3 w-14 text-center font-semibold">{!! $renderSortHeader('sequence', 'ردیف', 'center') !!}</th>
+                            <th class="py-3 px-3 font-semibold">{!! $renderSortHeader('library', 'کتابخانه') !!}</th>
+                            <th class="py-3 px-3 font-semibold">{!! $renderSortHeader('shelfmark', 'شماره') !!}</th>
+                            <th class="py-3 px-3 font-semibold">{!! $renderSortHeader('scribe', 'کاتب') !!}</th>
+                            <th class="py-3 px-3 font-semibold">{!! $renderSortHeader('date', 'تاریخ کتابت') !!}</th>
+                            <th class="py-3 px-3 font-semibold">{!! $renderSortHeader('script', 'خط') !!}</th>
+                            <th class="py-3 px-3 font-semibold">{!! $renderSortHeader('folios', 'برگ') !!}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60 text-stone-700 dark:text-stone-300">
+                    <tbody class="divide-y divide-line text-ink tabular-nums">
                         @forelse($manuscripts as $index => $ms)
                             <tr onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $ms) }}'; } }"
                                 onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
-                                class="hover:bg-amber-50/60 dark:hover:bg-stone-800/60 cursor-pointer transition">
-                                <td class="py-3 px-4 text-center text-stone-400">
-                                    {{ $manuscripts->firstItem() + $index }}
+                                class="hover:bg-paper cursor-pointer transition">
+                                <td class="py-2.5 px-3 text-center text-muted">{{ Fa::num($manuscripts->firstItem() + $index) }}</td>
+                                <td class="py-2.5 px-3">
+                                    <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" onclick="event.stopPropagation()">{{ $ms->library?->name ?? $ms->library ?? 'نامشخص' }}</a>
+                                    @if($ms->city)<span class="block text-[11px] text-muted">{{ $ms->city }}</span>@endif
                                 </td>
-                                
-                                <td class="py-3 px-4">
-                                    <div class="font-bold text-stone-900 dark:text-stone-100">
-                                        {{ $ms->library?->name ?? $ms->library ?? 'نامشخص' }}
-                                    </div>
-                                    @if($ms->city)
-                                        <span class="text-[11px] text-stone-400">{{ $ms->city }}</span>
-                                    @endif
-                                </td>
-
-                                <td class="py-3 px-4 font-bold text-[#B38A50]">
-                                    {{ $ms->shelfmark ?? 'بی‌شماره' }}
+                                <td class="py-2.5 px-3 font-semibold">
+                                    {{ $ms->shelfmark ? Fa::digits($ms->shelfmark) : 'بی‌شماره' }}
                                     @if($ms->is_addendum_entry)
-                                        <span class="block text-[10px] font-semibold text-stone-500 dark:text-stone-400" title="معرفی‌شده در بخش استدراک، ج {{ $ms->volume_number }} ص {{ $ms->page_start }}">استدراک</span>
+                                        <span class="block text-[10px] font-semibold text-muted" title="معرفی‌شده در بخش استدراک، ج {{ $ms->volume_number }} ص {{ $ms->page_start }}">استدراک</span>
                                     @endif
                                     @if($ms->is_distinct_work)
                                         <span class="block text-[10px] font-semibold text-sky-700 dark:text-sky-300" title="متنی جدا با همان عنوان (مدخل غیر همانند)">اثر متمایز</span>
                                     @endif
                                 </td>
-
-                                <td class="py-3 px-4">
+                                <td class="py-2.5 px-3">
                                     @if($ms->scribe_name)
-                                        <span class="font-medium">{{ $ms->scribe_name }}</span>
-                                        @if($ms->is_autograph)
-                                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mr-1">(مؤلف)</span>
-                                        @endif
+                                        {{ $ms->scribe_name }}
+                                        @if($ms->is_autograph)<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 ms-1">(مؤلف)</span>@endif
                                     @elseif($ms->is_autograph)
-                                        @if($work->author)
-                                            <span class="font-medium text-emerald-700 dark:text-emerald-400">
-                                                {{ $work->author->name }} <span class="text-xs font-semibold opacity-90 mr-0.5">(مؤلف)</span>
-                                            </span>
-                                        @elseif($work->author_name)
-                                            <span class="font-medium text-emerald-700 dark:text-emerald-400">
-                                                {{ $work->author_name }} <span class="text-xs font-semibold opacity-90 mr-0.5">(مؤلف)</span>
-                                            </span>
-                                        @else
-                                            <span class="font-medium text-emerald-700 dark:text-emerald-400">مؤلف</span>
-                                        @endif
+                                        <span class="text-emerald-700 dark:text-emerald-400">{{ $work->author?->name ?? $work->author_name ?? '' }} <span class="text-xs font-semibold">(مؤلف)</span></span>
                                     @elseif($ms->is_bika)
-                                        <span class="text-stone-400 italic">بی‌کاتب</span>
+                                        <span class="text-muted">بی‌کاتب</span>
                                     @else
-                                        <span class="text-stone-400">نامشخص</span>
+                                        <span class="text-muted">نامشخص</span>
                                     @endif
                                 </td>
-
-                                <td class="py-3 px-4">
+                                <td class="py-2.5 px-3">
                                     @if($ms->copy_date_raw)
-                                        <span>{{ $ms->copy_date_raw }}</span>
+                                        {{ Fa::digits($ms->copy_date_raw) }}
                                     @elseif($ms->is_bita)
-                                        <span class="text-stone-400 italic">بی‌تاریخ</span>
+                                        <span class="text-muted">بی‌تاریخ</span>
                                     @else
-                                        <span class="text-stone-400">-</span>
+                                        <span class="text-muted">—</span>
                                     @endif
                                 </td>
-
-                                <td class="py-3 px-4">
-                                    {{ $ms->script_names ?? '-' }}
-                                </td>
-
-                                <td class="py-3 px-4">
-                                    {{ $ms->folios ? $ms->folios : '-' }}
-                                </td>
+                                <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>
+                                <td class="py-2.5 px-3">{{ $ms->folios ? Fa::digits($ms->folios) : '—' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-stone-400">
-                                    هیچ نسخه‌ای برای این اثر ثبت نشده است.
-                                </td>
+                                <td colspan="7" class="py-8 text-center text-muted">هیچ نسخه‌ای برای این اثر ثبت نشده است.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
 
-            <!-- Table Pagination -->
             @if($manuscripts->hasPages())
-                <div class="p-4 border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-800/30">
+                <div class="p-4 border-t border-line">
                     {{ $manuscripts->fragment('manuscripts')->links() }}
                 </div>
             @endif
         </div>
-
-    </section>
+    </x-ui.section>
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="work" :record="$work" />
@@ -787,7 +571,7 @@
                             <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[#B38A50] text-[11px] font-bold">
                                 قالب ۱
                             </span>
-                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب مأخذ فنخا (فهرستگان نسخه‌های خطی ایران)</span>
+                            <span class="text-xs font-bold text-stone-800 dark:text-stone-200">قالب مأخذ ({{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران' }})</span>
                         </div>
                         <button 
                             type="button" 

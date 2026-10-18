@@ -261,14 +261,7 @@ class Work extends Model
             return $this->attributes['copy_century_text'];
         }
 
-        $minAllowedYear = 300;
-        if ($this->composition_year_hijri) {
-            $minAllowedYear = max($minAllowedYear, $this->composition_year_hijri - 40);
-        } elseif ($this->author?->death_year_hijri) {
-            $minAllowedYear = max($minAllowedYear, $this->author->death_year_hijri - 90);
-        } elseif ($this->author?->century_hijri) {
-            $minAllowedYear = max($minAllowedYear, ($this->author->century_hijri - 2) * 100);
-        }
+        $minAllowedYear = $this->plausibleCopyYearFloor();
 
         $range = $this->manuscripts()
             ->whereNotNull('copy_date_hijri_year')
@@ -286,6 +279,35 @@ class Work extends Model
         }
 
         return null;
+    }
+
+    /**
+     * The earliest copy with a plausible copy date: years far before the work was written
+     * (or its author lived) are parsing errors and are skipped.
+     */
+    public function earliestDatedManuscript(): ?Manuscript
+    {
+        return $this->manuscripts()
+            ->with('library')
+            ->whereNotNull('copy_date_hijri_year')
+            ->whereBetween('copy_date_hijri_year', [$this->plausibleCopyYearFloor(), 1500])
+            ->orderBy('copy_date_hijri_year')
+            ->orderBy('sequence_number')
+            ->first();
+    }
+
+    private function plausibleCopyYearFloor(): int
+    {
+        $floor = 300;
+        if ($this->composition_year_hijri) {
+            $floor = max($floor, $this->composition_year_hijri - 40);
+        } elseif ($this->author?->death_year_hijri) {
+            $floor = max($floor, $this->author->death_year_hijri - 90);
+        } elseif ($this->author?->century_hijri) {
+            $floor = max($floor, ($this->author->century_hijri - 2) * 100);
+        }
+
+        return $floor;
     }
 
     public function getHasAutographAttribute(): bool

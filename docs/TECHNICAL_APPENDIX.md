@@ -2191,3 +2191,14 @@
 - [SeedHomePageCommand.php](../app/Console/Commands/SeedHomePageCommand.php): بخش `hero` با تصویر `resources/home-defaults/hero/frontispiece.jpg` افزوده شد. این تصویر برشی ۱۰۲۹×۹۳۶ پیکسلی از اصل ویکی‌مدیاست.
 - آزمون `test_home_shows_admin_content_and_live_counts_in_persian_digits` ترتیب سربرگ، منبع، عنوان و اسلاید را بررسی می‌کند.
 
+### گام ۱۲.۳: کامپوننت‌های `x-ui.*` و صفحه‌ی اثر
+
+- **کامپوننت‌ها** در `resources/views/components/ui/` (بی‌کلاس، با Blade):
+  - `section` (props: `title`، `field`، `count`، و اسلات `actions`): عنوان با کلاس `.rubric` و دکمه‌ی پیشنهاد فیلد. ویژگی‌های دیگر، مانند `id` و `x-data`، روی خود `<section>` می‌نشینند.
+  - `meta-list` و `meta` (props: `label`، `field`، `empty`): جفت `dt`/`dd` در گریدی که ستون برچسب‌هایش مشترک است. ردیف خالی داخل یک `div.contents` با `x-show="$store.suggest.on"` است و فقط در حالت پیشنهاد دیده می‌شود.
+  - `card` (`framed`)، `btn` (`href`، `variant`: `default|primary|ghost`، `size`)، `chip` (`href`، `tone`: `default|accent|good`)، `quote` (`label`، `field`) و `life` (`person`).
+- [Person.php](../app/Models/Person.php): `life_span` از سال تولد و وفات قمری، یا سده، ساخته می‌شود و ارقامش فارسی است. [contributors.blade.php](../resources/views/components/contributors.blade.php) با `:life="true"` آن را کنار هر شخص پیوندخورده می‌آورد.
+- [Work.php](../app/Models/Work.php): `earliestDatedManuscript()` همان آستانه‌ی سال معقول `copy_century_text` را به کار می‌برد. این آستانه حالا در `plausibleCopyYearFloor()` است و سال‌هایی را که بسیار پیش از تألیف یا حیات مؤلف‌اند کنار می‌گذارد. [WorkController.php](../app/Http/Controllers/WorkController.php) نتیجه را به `$earliest` می‌دهد.
+- [works/show.blade.php](../resources/views/works/show.blade.php): بدنه با این کامپوننت‌ها از نو نوشته شد. تصویر کوچک برگه‌ی مأخذ از همان مسیر نمایشگر خوانده می‌شود (`storage/catalogs/{code}/vNN/pNNNN.webp`). اگر تصویری نباشد، دکمه با `onerror` حذف می‌شود. پنجره‌های QR و استناد دست نخوردند.
+- آزمون‌ها در [WorkPageTest.php](../tests/Feature/WorkPageTest.php): قالب‌های `life_span`، و نمایش تاریخ حیات، کهن‌ترین نسخه‌ی معقول و ارجاع به مأخذ با ارقام فارسی.
+
