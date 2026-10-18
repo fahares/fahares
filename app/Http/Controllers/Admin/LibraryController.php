@@ -63,6 +63,9 @@ class LibraryController extends Controller
         ]);
         if ($library->wasChanged(['name', 'city'])) {
             $library->syncManuscriptCopies();
+        } elseif ($library->wasChanged('full_name')) {
+            // The manuscripts index carries the full name too
+            $library->manuscripts()->searchable();
         }
 
         AuditLog::create([
