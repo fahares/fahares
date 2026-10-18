@@ -4,137 +4,124 @@
 @section('meta_description', 'فهرست نسخه‌های خطی نگهداری‌شده در ' . $library->display_name . ' (' . ($library->city ?? '') . ') در سامانه فهارس')
 
 @section('content')
-<div x-data class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+@php use App\Support\Fa; @endphp
+<div x-data class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs text-stone-500">
-        <a href="{{ route('home') }}" class="hover:text-[#B38A50]">فهارس</a>
-        <span>/</span>
-        <a href="{{ route('libraries.index') }}" class="hover:text-[#B38A50]">کتابخانه‌ها</a>
-        <span>/</span>
-        <span class="text-stone-800 dark:text-stone-200 font-semibold truncate">{{ $library->display_name }}</span>
+    <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
+        <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('libraries.index') }}" class="hover:text-cinnabar">کتابخانه‌ها</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink font-semibold truncate">{{ $library->display_name }}</span>
     </nav>
 
     <!-- LIBRARY HEADER -->
-    <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-md flex flex-col sm:flex-row items-start justify-between gap-6">
-        <div class="space-y-2">
-            <div class="inline-block px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold">
-                مرکز اسنادی و کتابخانه
+    <header class="text-center grid justify-items-center gap-2 pb-6">
+        <p class="text-xs font-bold text-cinnabar">کتابخانه و مرکز نگهداری</p>
+        <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
+            {{ $library->display_name }}
+            <x-suggest.field name="full_name" class="ms-1 align-middle" />
+        </h1>
+        <p class="text-sm text-ink">
+            {{ $library->city ?? 'ایران' }}@if($library->country && $library->country !== 'ایران')، {{ $library->country }}@endif
+            <x-suggest.field name="country" class="ms-1" />
+        </p>
+        @if($library->full_name || $library->aliases)
+            <div class="flex flex-wrap justify-center items-center gap-1.5 mt-1">
+                @if($library->full_name)<x-ui.chip title="نام کوتاه در فهرست‌ها">{{ $library->short_name }}</x-ui.chip>@endif
+                @foreach($library->aliases ?? [] as $alias)
+                    <x-ui.chip title="نام دیگر">{{ $alias }}</x-ui.chip>
+                @endforeach
             </div>
-            <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                {{ $library->display_name }}
-                <x-suggest.field name="full_name" class="ms-1 align-middle" />
-            </h1>
-            @if($library->full_name)
-                <div class="text-sm text-stone-600 dark:text-stone-300">نام کوتاه در فهرست‌ها: {{ $library->short_name }}</div>
-            @endif
-            @if($library->aliases)
-                <div class="text-xs text-stone-500">نام‌های دیگر: <span class="text-stone-700 dark:text-stone-300">{{ implode('، ', $library->aliases) }}</span></div>
-            @endif
-            <div class="text-xs text-stone-500">
-                موقعیت: <strong class="text-stone-700 dark:text-stone-300">{{ $library->city ?? 'ایران' }}</strong>
-                @if($library->country && $library->country !== 'ایران')
-                    • {{ $library->country }}
-                @endif
-                <x-suggest.field name="country" class="ms-1" />
-            </div>
-            <div class="text-xs text-stone-700 dark:text-stone-300 leading-loose max-w-2xl pt-1" @unless($library->description) x-show="$store.suggest.on" x-cloak @endunless>
-                <span class="whitespace-pre-line">{{ $library->description ?? 'معرفی کتابخانه: —' }}</span> <x-suggest.field name="description" class="ms-1" />
-            </div>
-            <div class="pt-2">
-                <x-suggest.toggle />
-            </div>
-        </div>
+        @endif
+    </header>
 
-        <div class="px-5 py-3 rounded-2xl bg-gradient-to-br from-amber-50 to-[#FEF9F3] dark:from-stone-800 dark:to-[#15192C] border border-[#B38A50]/40 text-center shadow-sm">
-            <span class="block text-2xl sm:text-3xl font-black text-[#B38A50]">
-                {{ number_format($library->manuscripts_count) }}
-            </span>
-            <span class="text-xs font-semibold text-stone-600 dark:text-stone-400">نسخه شناسایی‌شده</span>
-        </div>
+    <div class="jadval" aria-hidden="true"></div>
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <x-suggest.toggle />
+        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $library->id }}</span></span>
     </div>
 
-    <!-- MANUSCRIPTS TABLE -->
-    <section class="space-y-4">
-        <h2 class="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
-            <span>نسخه‌های خطی موجود در این مرکز</span>
-        </h2>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
+        <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
+            <x-ui.card :framed="true" class="text-center">
+                <div class="font-naskh text-4xl font-bold text-cinnabar leading-tight tabular-nums">{{ Fa::num($library->manuscripts_count) }}</div>
+                <div class="text-sm text-ink">نسخه‌ی ثبت‌شده</div>
+                <x-ui.btn href="#manuscripts" variant="primary" class="w-full mt-4">فهرست نسخه‌ها</x-ui.btn>
+            </x-ui.card>
+        </aside>
 
-        <div class="bg-white dark:bg-[#15192C] rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-right text-xs">
-                    <thead class="bg-stone-50 dark:bg-stone-800/60 text-stone-600 dark:text-stone-300 font-bold border-b border-stone-200 dark:border-stone-700">
-                        <tr>
-                            <th class="py-3.5 px-4">عنوان اثر</th>
-                            <th class="py-3.5 px-4">پدیدآور اثر</th>
-                            <th class="py-3.5 px-4">شماره نسخه</th>
-                            <th class="py-3.5 px-4">کاتب</th>
-                            <th class="py-3.5 px-4">تاریخ کتابت</th>
-                            <th class="py-3.5 px-4">نوع خط</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60 text-stone-700 dark:text-stone-300">
-                        @forelse($manuscripts as $ms)
-                            <tr onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $ms) }}'; } }"
-                                onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
-                                class="hover:bg-amber-50/60 dark:hover:bg-stone-800/60 cursor-pointer transition">
-                                <td class="py-3 px-4 font-bold text-[#292C56] dark:text-amber-100">
-                                    {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
-                                </td>
-
-                                <td class="py-3 px-4">
-                                    {{ $ms->work?->author?->name ?? $ms->work?->author_name ?? '-' }}
-                                </td>
-
-                                <td class="py-3 px-4 font-bold text-[#B38A50]">
-                                    {{ $ms->shelfmark ?? 'بی‌شماره' }}
-                                </td>
-
-                                <td class="py-3 px-4">
-                                    @if($ms->scribe_name)
-                                        <span class="font-medium">{{ $ms->scribe_name }}</span>
-                                    @elseif($ms->is_autograph)
-                                        <span class="text-emerald-700 dark:text-emerald-300 font-medium">مؤلف</span>
-                                    @elseif($ms->is_bika)
-                                        <span class="text-stone-400 italic">بی‌کاتب</span>
-                                    @else
-                                        <span class="text-stone-400">-</span>
-                                    @endif
-                                </td>
-
-                                <td class="py-3 px-4">
-                                    {{ $ms->copy_date_raw ?? ($ms->is_bita ? 'بی‌تاریخ' : '-') }}
-                                </td>
-
-                                <td class="py-3 px-4">
-                                    {{ $ms->script_names ?? '-' }}
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="py-8 text-center text-stone-400">
-                                    نسخه‌ای در این مرکز ثبت نشده است.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <div class="min-w-0 space-y-10">
+            <div @unless($library->description) x-show="$store.suggest.on" x-cloak @endunless>
+                <x-ui.section title="معرفی کتابخانه" field="description">
+                    @if($library->description)
+                        <p class="text-sm sm:text-[15px] text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ $library->description }}</p>
+                    @else
+                        <p class="text-sm text-muted">معرفی‌ای ثبت نشده است.</p>
+                    @endif
+                </x-ui.section>
             </div>
 
-            @if($manuscripts->hasPages())
-                <div class="p-4 border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-800/30">
-                    {{ $manuscripts->links() }}
+            <!-- MANUSCRIPTS TABLE -->
+            <x-ui.section id="manuscripts" title="نسخه‌ها" :count="$library->manuscripts_count">
+                <div class="bg-surface border border-line">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs sm:text-[13px] min-w-[640px]">
+                            <thead class="text-muted border-b border-gold">
+                                <tr>
+                                    <th class="py-3 px-3 font-semibold">اثر</th>
+                                    <th class="py-3 px-3 font-semibold">پدیدآور</th>
+                                    <th class="py-3 px-3 font-semibold">شماره</th>
+                                    <th class="py-3 px-3 font-semibold">کاتب</th>
+                                    <th class="py-3 px-3 font-semibold">تاریخ کتابت</th>
+                                    <th class="py-3 px-3 font-semibold">خط</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-line text-ink tabular-nums">
+                                @forelse($manuscripts as $ms)
+                                    <tr onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $ms) }}'; } }"
+                                        onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
+                                        class="hover:bg-paper cursor-pointer transition">
+                                        <td class="py-2.5 px-3">
+                                            <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" onclick="event.stopPropagation()">{{ $ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان' }}</a>
+                                        </td>
+                                        <td class="py-2.5 px-3">{{ $ms->work?->author?->name ?? $ms->work?->author_name ?? '—' }}</td>
+                                        <td class="py-2.5 px-3 font-semibold">@if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif</td>
+                                        <td class="py-2.5 px-3">
+                                            @if($ms->scribe_name)
+                                                {{ $ms->scribe_name }}
+                                            @elseif($ms->is_autograph)
+                                                <span class="text-emerald-700 dark:text-emerald-300">مؤلف</span>
+                                            @elseif($ms->is_bika)
+                                                <span class="text-muted">بی‌کاتب</span>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-2.5 px-3">{{ $ms->copy_date_raw ? Fa::digits($ms->copy_date_raw) : ($ms->is_bita ? 'بی‌تاریخ' : '—') }}</td>
+                                        <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="6" class="py-8 text-center text-muted">نسخه‌ای در این مرکز ثبت نشده است.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @if($manuscripts->hasPages())
+                        <div class="p-4 border-t border-line">{{ $manuscripts->links() }}</div>
+                    @endif
                 </div>
-            @endif
+            </x-ui.section>
+
+            <!-- READINGS: adopted, alternative and superseded readings from researchers -->
+            <x-suggest.readings />
+
+            <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+            <x-suggest.notes type="library" />
         </div>
-    </section>
-
-    <!-- READINGS: adopted, alternative and superseded readings from researchers -->
-    <x-suggest.readings />
-
-    <!-- RESEARCH NOTES: published notes and the invitation to add one -->
-    <x-suggest.notes type="library" />
+    </div>
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="library" :record="$library" />

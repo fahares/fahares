@@ -2230,3 +2230,16 @@
 - **رفع اشکال جانبی:** در `works/show` عبارت `$ms->library?->name` همیشه ستون متنی `library` را برمی‌گرداند، نه رابطه را، چون صفت بر رابطه مقدم است و `??` هشدار را پنهان می‌کرد. حالا `libraryRecord` به کار می‌رود و در `WorkController`، `Work::earliestDatedManuscript()` و `PersonController` بارگذاری پیشاپیش می‌شود.
 - **استقرار:** `php artisan scout:sync-index-settings` و سپس `php artisan fahares:apply-library-full-names`. حدود ۳۲۴ هزار نسخه دوباره نمایه می‌شوند.
 - آزمون‌ها در [LibraryNamesTest.php](../tests/Feature/LibraryNamesTest.php).
+
+### گام ۱۲.۶: صفحه‌های شخص، کتابخانه و جستجو
+
+- [people/show.blade.php](../resources/views/people/show.blade.php):
+  - زبانه‌های «آثار» و «نسخه‌های کتابت‌شده» همان منطق `activeTab` و `$defaultTab` را دارند و هر بخش یک `x-ui.section` با `x-show` است.
+  - شرط نمایش زندگی‌نامه در حالت پیشنهاد در یک `div` بیرونی است، چون Blade دستور `@unless` را درون برچسب کامپوننت نمی‌پذیرد.
+- [libraries/show.blade.php](../resources/views/libraries/show.blade.php): «نام کوتاه» و نام‌های دیگر به‌صورت `x-ui.chip` با `title` نمایش داده می‌شوند.
+- [search.blade.php](../resources/views/search.blade.php):
+  - در فرم و ستون پالایه‌ها، کلاس‌های رنگ ثابت با توکن‌ها جایگزین شدند و ساختار دست نخورد.
+  - بخش نتیجه‌ها (آثار، نسخه‌ها، اشخاص و نمای «نتیجه‌ای پیدا نشد») از نو نوشته شد. `@highlight` همه‌جا حفظ شد.
+  - شماره‌ی نسخه در نتیجه‌ها برای سازگاری با `@highlight` به ارقام فارسی تبدیل نمی‌شود، ولی با `dir="ltr"` جدا می‌شود.
+- آزمون‌ها: `PersonPageTabsTest` حالا به‌جای عنوان، `x-show` زبانه‌ها را بررسی می‌کند. دو آزمون `SuggestionWorkflowTest` با عنوان «نقش‌های دیگر در نسخه‌ها» و `title="نام دیگر"` هماهنگ شدند.
+

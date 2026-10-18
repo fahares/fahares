@@ -3,10 +3,11 @@
 @section('title', 'کاوش و جستجوی پیشرفته | فهارس')
 
 @section('content')
+@php use App\Support\Fa; @endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- Search Header & Mode Bar -->
-    <div class="bg-white dark:bg-[#15192C] p-6 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-md space-y-4">
+    <div class="bg-surface p-6 rounded-sm border border-line space-y-4">
         
         <form action="{{ route('search') }}" method="GET" class="space-y-4">
             <input type="hidden" name="type" id="search-type-input" value="{{ $type }}">
@@ -18,59 +19,59 @@
                     name="q" 
                     value="{{ $query }}" 
                     placeholder="عبارت مورد نظر برای کاوش..."
-                    class="w-full pr-12 pl-28 py-3.5 bg-stone-50 dark:bg-stone-800/80 text-stone-800 dark:text-stone-100 placeholder-stone-400 rounded-2xl border border-stone-300 dark:border-stone-700 focus:border-[#B38A50] focus:ring-4 focus:ring-[#B38A50]/20 text-base shadow-inner transition">
+                    class="w-full pr-12 pl-28 py-3.5 bg-paper text-ink placeholder:text-muted rounded-sm border border-line-strong focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 text-base transition">
                 
-                <div class="absolute right-4 text-stone-400">
+                <div class="absolute right-4 text-muted">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
 
                 <button 
                     type="submit" 
-                    class="absolute left-2 px-5 py-2 bg-[#292C56] hover:bg-[#191B36] text-amber-100 font-semibold rounded-xl text-sm transition shadow">
+                    class="absolute left-2 px-5 py-2 bg-cinnabar hover:opacity-90 text-on-cinnabar font-semibold rounded-sm text-sm transition shadow">
                     جستجو
                 </button>
             </div>
 
             <!-- Search Controls: Scope Radios & Type Tabs -->
-            <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-stone-100 dark:border-stone-800 text-xs">
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-line text-xs">
                 
                 <!-- Scope Radio Buttons -->
-                <div class="flex flex-wrap items-center gap-4 text-stone-600 dark:text-stone-300">
-                    <span class="font-bold text-stone-400">جست‌وجوی عبارت:</span>
-                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
-                        <input type="radio" name="scope" value="titles" {{ $scope === 'titles' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
+                <div class="flex flex-wrap items-center gap-4 text-ink/80">
+                    <span class="font-bold text-muted">جست‌وجوی عبارت:</span>
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-cinnabar transition">
+                        <input type="radio" name="scope" value="titles" {{ $scope === 'titles' ? 'checked' : '' }} onchange="this.form.submit()" class="text-cinnabar focus:ring-cinnabar">
                         <span>فقط در عناوین</span>
                     </label>
-                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
-                        <input type="radio" name="scope" value="titles_names" {{ $scope === 'titles_names' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-cinnabar transition">
+                        <input type="radio" name="scope" value="titles_names" {{ $scope === 'titles_names' ? 'checked' : '' }} onchange="this.form.submit()" class="text-cinnabar focus:ring-cinnabar">
                         <span class="font-bold">فقط در عناوین و اعلام</span>
                     </label>
-                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-[#B38A50] transition">
-                        <input type="radio" name="scope" value="all" {{ $scope === 'all' ? 'checked' : '' }} onchange="this.form.submit()" class="text-[#B38A50] focus:ring-[#B38A50]">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer hover:text-cinnabar transition">
+                        <input type="radio" name="scope" value="all" {{ $scope === 'all' ? 'checked' : '' }} onchange="this.form.submit()" class="text-cinnabar focus:ring-cinnabar">
                         <span>در همۀ اطلاعات</span>
                     </label>
                 </div>
 
                 <!-- Type Tabs -->
                 <div class="flex items-center gap-2">
-                    <span class="text-xs text-stone-400 font-medium">دامنه:</span>
+                    <span class="text-xs text-muted font-medium">دامنه:</span>
                     <button type="submit" onclick="document.getElementById('search-type-input').value='works'" 
-                        class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'works' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
-                        آثار و عناوین@isset($tabCounts['works']) <span class="text-[10px] opacity-75">({{ number_format($tabCounts['works']) }})</span>@endisset
+                        class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'works' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
+                        آثار و عناوین@isset($tabCounts['works']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['works']) }})</span>@endisset
                     </button>
                     <button type="submit" onclick="document.getElementById('search-type-input').value='manuscripts'" 
-                        class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'manuscripts' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
-                        نسخه‌های خطی@isset($tabCounts['manuscripts']) <span class="text-[10px] opacity-75">({{ number_format($tabCounts['manuscripts']) }})</span>@endisset
+                        class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'manuscripts' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
+                        نسخه‌های خطی@isset($tabCounts['manuscripts']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['manuscripts']) }})</span>@endisset
                     </button>
                     <button type="submit" onclick="document.getElementById('search-type-input').value='people'" 
-                        class="px-3 py-1 rounded-lg font-medium transition {{ $type === 'people' ? 'bg-[#B38A50] text-white shadow-sm' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200' }}">
-                        پدیدآوران و کاتبان@isset($tabCounts['people']) <span class="text-[10px] opacity-75">({{ number_format($tabCounts['people']) }})</span>@endisset
+                        class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'people' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
+                        پدیدآوران و کاتبان@isset($tabCounts['people']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['people']) }})</span>@endisset
                     </button>
                 </div>
 
                 @if($results)
-                    <div class="text-xs text-stone-500 font-medium">
-                        نمایش {{ number_format($results->total()) }} نتیجه
+                    <div class="text-xs text-muted font-medium">
+                        {{ Fa::num($results->total()) }} نتیجه
                     </div>
                 @endif
             </div>
@@ -78,11 +79,11 @@
             <!-- Active Filters Reset -->
             @if($subjectId || $libraryId || $scriptId || $century || !empty($flags) || $languageId || $workForm || $manuscriptsRange)
                 <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
-                    <span class="text-stone-400">فیلترهای فعال:</span>
+                    <span class="text-muted">فیلترهای فعال:</span>
 
                     @if($selectedLibrary)
                         <a href="{{ route('search', array_merge(request()->except('library_id'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>کتابخانه: <strong title="{{ $selectedLibrary->display_name }}">{{ $selectedLibrary->short_name }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -90,7 +91,7 @@
 
                     @if($selectedScript)
                         <a href="{{ route('search', array_merge(request()->except('script_id'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>خط: <strong>{{ $selectedScript->name }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -98,7 +99,7 @@
 
                     @if($century)
                         <a href="{{ route('search', array_merge(request()->except('century'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>سده: <strong>{{ $century }} هجری</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -106,7 +107,7 @@
 
                     @if($selectedSubject)
                         <a href="{{ route('search', array_merge(request()->except('subject_id'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>موضوع: <strong>{{ $selectedSubject->title }}</strong>@if($selectedSubject->children->isNotEmpty()) <span class="text-[10px] opacity-75 font-normal">(شامل {{ $selectedSubject->children->count() }} زیرموضوع)</span>@elseif($selectedSubject->parent) <span class="text-[10px] opacity-75 font-normal">(زیرمجموعه {{ $selectedSubject->parent->name }})</span>@endif</span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -114,7 +115,7 @@
 
                     @if($selectedLanguage)
                         <a href="{{ route('search', array_merge(request()->except('language_id'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>زبان: <strong>{{ $selectedLanguage->name }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -122,7 +123,7 @@
 
                     @if($workForm && isset($validWorkForms[$workForm]))
                         <a href="{{ route('search', array_merge(request()->except('work_form'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>قالب: <strong>{{ $validWorkForms[$workForm] }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -130,7 +131,7 @@
 
                     @if($manuscriptsRange && isset($validManuscriptRanges[$manuscriptsRange]))
                         <a href="{{ route('search', array_merge(request()->except('manuscripts_range'), ['page' => 1])) }}" 
-                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>فراوانی نسخ: <strong>{{ $validManuscriptRanges[$manuscriptsRange] }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
@@ -157,14 +158,14 @@
                                 $newQuery['page'] = 1;
                             @endphp
                             <a href="{{ route('search', $newQuery) }}" 
-                               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-[#B38A50] border border-[#B38A50]/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition">
+                               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                                 <span>ویژگی: <strong>{{ $flagLabels[$curFlag] ?? $curFlag }}</strong></span>
                                 <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                             </a>
                         @endforeach
                     @endif
 
-                    <a href="{{ route('search', ['q' => $query, 'type' => $type, 'scope' => $scope]) }}" class="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
+                    <a href="{{ route('search', ['q' => $query, 'type' => $type, 'scope' => $scope]) }}" class="px-2.5 py-1 rounded-sm bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-300 hover:underline">
                         پاکسازی همه فیلترها ✕
                     </a>
                 </div>
@@ -179,14 +180,14 @@
         <!-- SIDEBAR FILTERS -->
         <aside class="space-y-6">
             
-            <form action="{{ route('search') }}" method="GET" class="bg-white dark:bg-[#15192C] p-5 rounded-3xl border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-6 text-sm">
+            <form action="{{ route('search') }}" method="GET" class="bg-surface p-5 rounded-sm border border-line shadow-sm space-y-6 text-sm">
                 <input type="hidden" name="q" value="{{ $query }}">
                 <input type="hidden" name="type" value="{{ $type }}">
                 <input type="hidden" name="scope" value="{{ $scope }}">
 
-                <div class="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
-                    <span class="font-bold text-stone-800 dark:text-stone-100">فیلترهای پیشرفته</span>
-                    <button type="submit" class="text-xs text-[#B38A50] font-semibold hover:underline">اعمال فیلتر</button>
+                <div class="flex items-center justify-between pb-3 border-b border-line">
+                    <span class="rubric text-base">پالایش نتایج</span>
+                    <button type="submit" class="text-xs text-cinnabar font-semibold hover:underline">اعمال فیلتر</button>
                 </div>
 
                 @if($type === 'works')
@@ -316,9 +317,9 @@
                          @keydown.escape.window="open = false">
                         
                         <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">موضوع اثر</label>
+                            <label class="block text-xs font-bold text-ink/80">موضوع اثر</label>
                             @if($subjects->isNotEmpty())
-                                <span class="text-[10px] text-[#B38A50] font-semibold">{{ $subjects->count() }} موضوع</span>
+                                <span class="text-[10px] text-cinnabar font-semibold">{{ $subjects->count() }} موضوع</span>
                             @endif
                         </div>
 
@@ -331,7 +332,7 @@
                                     @click="open ? (open = false) : openDropdown()"
                                     @keydown.arrow-down.prevent="openDropdown()"
                                     @keydown.enter.prevent="openDropdown()"
-                                    class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100 flex items-center justify-between gap-2 hover:border-[#B38A50] focus:outline-none focus:ring-1 focus:ring-[#B38A50] transition text-right">
+                                    class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink flex items-center justify-between gap-2 hover:border-[#B38A50] focus:outline-none focus:ring-1 focus:ring-cinnabar transition text-right">
                                 <span class="truncate" x-text="selectedItem ? selectedItem.name + (selectedItem.count ? ' (' + Number(selectedItem.count).toLocaleString('fa-IR') + ')' : '') : 'همه موضوعات'">
                                     @if($selectedSubject)
                                         {{ $selectedSubject->title }} @if($selectedSubject->matching_count) ({{ number_format($selectedSubject->matching_count) }}) @elseif($selectedSubject->works_count) ({{ number_format($selectedSubject->works_count) }}) @endif
@@ -339,7 +340,7 @@
                                         همه موضوعات
                                     @endif
                                 </span>
-                                <div class="flex items-center gap-1.5 shrink-0 text-stone-400">
+                                <div class="flex items-center gap-1.5 shrink-0 text-muted">
                                     <template x-if="selectedId">
                                         <span @click.stop="clear()" class="hover:text-red-500 cursor-pointer p-0.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-700 transition" title="پاک کردن انتخاب">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -361,7 +362,7 @@
                                  x-transition:leave="transition ease-in duration-75"
                                  x-transition:leave-start="transform opacity-100 scale-100"
                                  x-transition:leave-end="transform opacity-0 scale-95"
-                                 class="absolute z-30 mt-1.5 w-full bg-white dark:bg-[#15192C] border border-[#EADFCF] dark:border-[#272F4C] rounded-2xl shadow-2xl p-2.5 space-y-2 backdrop-blur-sm"
+                                 class="absolute z-30 mt-1.5 w-full bg-surface border border-line rounded-sm shadow-2xl p-2.5 space-y-2 backdrop-blur-sm"
                                  style="display: none;">
                                  
                                 <!-- Search Input inside Dropdown -->
@@ -375,12 +376,12 @@
                                            @keydown.enter.prevent="onEnter()"
                                            @keydown.escape.prevent="open = false"
                                            placeholder="جستجوی موضوع (مثلاً فقه، فلسفه...)" 
-                                           class="w-full text-xs p-2 pr-8 pl-7 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/90 text-stone-800 dark:text-stone-100 focus:outline-none focus:border-[#B38A50] focus:ring-1 focus:ring-[#B38A50] transition">
-                                    <svg class="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                           class="w-full text-xs p-2 pr-8 pl-7 rounded-sm border border-line-strong bg-paper/90 text-ink focus:outline-none focus:border-[#B38A50] focus:ring-1 focus:ring-cinnabar transition">
+                                    <svg class="w-3.5 h-3.5 text-muted absolute right-2.5 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                     <template x-if="search">
-                                        <button type="button" @click="search = ''; onSearchChange();" class="absolute left-2.5 top-2.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                                        <button type="button" @click="search = ''; onSearchChange();" class="absolute left-2.5 top-2.5 text-muted hover:text-stone-600 dark:hover:text-stone-200">
                                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
@@ -397,14 +398,14 @@
                                             :data-highlighted="highlightedIndex === -1"
                                             @click="select('')"
                                             @mouseenter="highlightedIndex = -1"
-                                            class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between transition"
+                                            class="w-full text-right px-2.5 py-1.5 rounded-sm flex items-center justify-between transition"
                                             :class="{
-                                                'bg-[#B38A50]/20 text-[#B38A50] font-bold ring-1 ring-[#B38A50]/30': !selectedId,
+                                                'bg-[#B38A50]/20 text-cinnabar font-bold ring-1 ring-[#B38A50]/30': !selectedId,
                                                 'bg-stone-200/80 dark:bg-stone-700/70 text-stone-900 dark:text-stone-100': highlightedIndex === -1 && selectedId,
                                                 'hover:bg-stone-100 dark:hover:bg-stone-800/80': highlightedIndex !== -1 && selectedId
                                             }">
                                         <span>همه موضوعات</span>
-                                        <span class="text-[10px] text-stone-400 font-normal">({{ $subjects->count() }})</span>
+                                        <span class="text-[10px] text-muted font-normal">({{ $subjects->count() }})</span>
                                     </button>
 
                                     <!-- Filtered Options -->
@@ -414,27 +415,27 @@
                                                 :data-highlighted="highlightedIndex === index"
                                                 @click="select(item.id)"
                                                 @mouseenter="highlightedIndex = index"
-                                                class="w-full text-right px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2 transition"
+                                                class="w-full text-right px-2.5 py-1.5 rounded-sm flex items-center justify-between gap-2 transition"
                                                 :class="{
-                                                    'bg-[#B38A50]/20 text-[#B38A50] font-bold ring-1 ring-[#B38A50]/30': selectedId == item.id,
+                                                    'bg-[#B38A50]/20 text-cinnabar font-bold ring-1 ring-[#B38A50]/30': selectedId == item.id,
                                                     'bg-stone-200/80 dark:bg-stone-700/70 text-stone-900 dark:text-stone-100': highlightedIndex === index && selectedId != item.id,
                                                     'hover:bg-stone-100 dark:hover:bg-stone-800/80': highlightedIndex !== index && selectedId != item.id
                                                 }">
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <span class="truncate" x-text="item.name"></span>
                                                 <template x-if="item.parent_name">
-                                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-stone-200/70 dark:bg-stone-700/70 text-stone-500 dark:text-stone-400 shrink-0 font-normal" x-text="'زیرمجموعه ' + item.parent_name"></span>
+                                                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-stone-200/70 dark:bg-stone-700/70 text-muted dark:text-muted shrink-0 font-normal" x-text="'زیرمجموعه ' + item.parent_name"></span>
                                                 </template>
                                             </div>
                                             <span class="text-[10px] font-mono shrink-0" 
-                                                  :class="selectedId == item.id ? 'text-[#B38A50]' : (highlightedIndex === index ? 'text-stone-600 dark:text-stone-300' : 'text-stone-400 dark:text-stone-500')"
+                                                  :class="selectedId == item.id ? 'text-cinnabar' : (highlightedIndex === index ? 'text-ink/80' : 'text-muted dark:text-muted')"
                                                   x-show="item.count" 
                                                   x-text="'(' + Number(item.count).toLocaleString('fa-IR') + ')'"></span>
                                         </button>
                                     </template>
 
                                     <!-- Empty search notice -->
-                                    <div x-show="filteredItems.length === 0" class="text-center py-4 text-xs text-stone-400">
+                                    <div x-show="filteredItems.length === 0" class="text-center py-4 text-xs text-muted">
                                         موضوعی با این عبارت یافت نشد
                                     </div>
                                 </div>
@@ -445,12 +446,12 @@
                     <!-- Language Filter -->
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">زبان اثر</label>
+                            <label class="block text-xs font-bold text-ink/80">زبان اثر</label>
                             @if($languages->isNotEmpty())
-                                <span class="text-[10px] text-[#B38A50] font-semibold">{{ $languages->count() }} زبان</span>
+                                <span class="text-[10px] text-cinnabar font-semibold">{{ $languages->count() }} زبان</span>
                             @endif
                         </div>
-                        <select name="language_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <select name="language_id" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">همه زبان‌ها</option>
                             @foreach($languages as $lang)
                                 <option value="{{ $lang->id }}" {{ $languageId == $lang->id ? 'selected' : '' }}>
@@ -462,8 +463,8 @@
 
                     <!-- Century Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">قرن تألیف (هجری قمری)</label>
-                        <select name="century" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <label class="block text-xs font-bold text-ink/80">قرن تألیف (هجری قمری)</label>
+                        <select name="century" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">همه قرون</option>
                             @if(!empty($centuries))
                                 @foreach($centuries as $c => $cCount)
@@ -483,8 +484,8 @@
 
                     <!-- Work Form Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">قالب / ساختار اثر</label>
-                        <select name="work_form" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <label class="block text-xs font-bold text-ink/80">قالب / ساختار اثر</label>
+                        <select name="work_form" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">همه قالب‌ها</option>
                             @foreach($validWorkForms as $fKey => $fLabel)
                                 <option value="{{ $fKey }}" {{ $workForm == $fKey ? 'selected' : '' }}>
@@ -496,8 +497,8 @@
 
                     <!-- Manuscript Availability Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">فراوانی نسخ خطی</label>
-                        <select name="manuscripts_range" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <label class="block text-xs font-bold text-ink/80">فراوانی نسخ خطی</label>
+                        <select name="manuscripts_range" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">همه آثار</option>
                             @foreach($validManuscriptRanges as $rKey => $rLabel)
                                 <option value="{{ $rKey }}" {{ $manuscriptsRange == $rKey ? 'selected' : '' }}>
@@ -512,12 +513,12 @@
                     <!-- Library Filter -->
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">کتابخانه / مرکز اسناد</label>
+                            <label class="block text-xs font-bold text-ink/80">کتابخانه / مرکز اسناد</label>
                             @if($libraries->isNotEmpty())
-                                <span class="text-[10px] text-[#B38A50] font-semibold">{{ $libraries->count() }} مرکز</span>
+                                <span class="text-[10px] text-cinnabar font-semibold">{{ $libraries->count() }} مرکز</span>
                             @endif
                         </div>
-                        <select name="library_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <select name="library_id" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">
                                 همه کتابخانه‌ها {{ $totalFacetManuscripts > 0 ? '(' . number_format($totalFacetManuscripts) . ' نسخه)' : '' }}
                             </option>
@@ -532,12 +533,12 @@
                     <!-- Script Type Filter -->
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">نوع خط</label>
+                            <label class="block text-xs font-bold text-ink/80">نوع خط</label>
                             @if($scripts->isNotEmpty())
-                                <span class="text-[10px] text-stone-400 font-medium">{{ $scripts->count() }} خط</span>
+                                <span class="text-[10px] text-muted font-medium">{{ $scripts->count() }} خط</span>
                             @endif
                         </div>
-                        <select name="script_id" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <select name="script_id" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">همه انواع خطوط</option>
                             @foreach($scripts as $sc)
                                 <option value="{{ $sc->id }}" {{ $scriptId == $sc->id ? 'selected' : '' }}>
@@ -549,8 +550,8 @@
 
                     <!-- Century Filter -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">قرن کتابت (هجری قمری)</label>
-                        <select name="century" class="w-full text-xs p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-800 dark:text-stone-100">
+                        <label class="block text-xs font-bold text-ink/80">قرن کتابت (هجری قمری)</label>
+                        <select name="century" class="w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink">
                             <option value="">همه قرون</option>
                             @if(!empty($centuries))
                                 @foreach($centuries as $c => $cCount)
@@ -570,8 +571,8 @@
 
                     <!-- Codicological Flags -->
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-stone-600 dark:text-stone-300">ویژگی‌های کالبدشناسی</label>
-                        <div class="space-y-2 text-xs text-stone-600 dark:text-stone-300">
+                        <label class="block text-xs font-bold text-ink/80">ویژگی‌های کالبدشناسی</label>
+                        <div class="space-y-2 text-xs text-ink/80">
                             @php
                                 $flagOptions = [
                                     'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
@@ -585,11 +586,11 @@
                             @foreach($flagOptions as $fKey => $fLabel)
                                 <label class="flex items-center justify-between cursor-pointer group hover:text-stone-900 dark:hover:text-white transition">
                                     <div class="flex items-center gap-2">
-                                        <input type="checkbox" name="flags[]" value="{{ $fKey }}" {{ in_array($fKey, $flags ?? []) ? 'checked' : '' }} class="w-4 h-4 rounded text-[#B38A50] focus:ring-[#B38A50] border-stone-300 dark:border-stone-600 dark:bg-stone-700">
+                                        <input type="checkbox" name="flags[]" value="{{ $fKey }}" {{ in_array($fKey, $flags ?? []) ? 'checked' : '' }} class="w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-stone-300 dark:border-stone-600 dark:bg-stone-700">
                                         <span>{{ $fLabel }}</span>
                                     </div>
                                     @if(!empty($flagCounts[$fKey]))
-                                        <span class="text-[10px] text-[#B38A50] font-bold">({{ number_format($flagCounts[$fKey]) }})</span>
+                                        <span class="text-[10px] text-cinnabar font-bold">({{ number_format($flagCounts[$fKey]) }})</span>
                                     @endif
                                 </label>
                             @endforeach
@@ -597,7 +598,7 @@
                     </div>
                 @endif
 
-                <button type="submit" class="w-full py-2.5 bg-[#B38A50] hover:bg-[#9C753F] text-white font-semibold rounded-xl text-xs transition shadow">
+                <button type="submit" class="w-full py-2.5 bg-cinnabar hover:opacity-90 text-on-cinnabar font-semibold rounded-sm text-xs transition shadow">
                     اعمال فیلترها
                 </button>
             </form>
@@ -605,296 +606,163 @@
         </aside>
 
         <!-- RESULTS CONTENT -->
-        <div class="lg:col-span-3 space-y-4">
-            
+        <div class="lg:col-span-3 space-y-4 min-w-0">
+
             @if($results && $results->count() > 0)
-                
-                <!-- Search Results Bar with Share Button -->
-                <div class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#15192C] px-5 py-3 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xs text-xs"
+
+                <!-- Results bar with share button -->
+                <div class="flex flex-wrap items-center justify-between gap-3 text-sm"
                      x-data="{
                          copied: false,
                          copyLink() {
                              const url = window.location.href;
                              if (navigator.clipboard && navigator.clipboard.writeText) {
-                                 navigator.clipboard.writeText(url).then(() => {
-                                     this.copied = true;
-                                     setTimeout(() => this.copied = false, 2500);
-                                 });
+                                 navigator.clipboard.writeText(url).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2500); });
                              } else {
                                  const ta = document.createElement('textarea');
-                                 ta.value = url;
-                                 document.body.appendChild(ta);
-                                 ta.select();
-                                 document.execCommand('copy');
-                                 document.body.removeChild(ta);
-                                 this.copied = true;
-                                 setTimeout(() => this.copied = false, 2500);
+                                 ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                                 this.copied = true; setTimeout(() => this.copied = false, 2500);
                              }
                          }
                      }">
-                    <div class="text-stone-600 dark:text-stone-300 font-medium flex items-center gap-2">
-                        <span>نمایش <strong>{{ number_format($results->total()) }}</strong> نتیجه</span>
-                        @if($query)
-                            <span class="text-stone-400">• برای «<strong class="text-[#292C56] dark:text-amber-200">{{ $query }}</strong>»</span>
-                        @endif
-                    </div>
-
-                    <button 
-                        type="button" 
-                        @click="copyLink()"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-[#B38A50]/30 hover:border-[#B38A50] text-[#B38A50] hover:bg-amber-100 dark:hover:bg-amber-900/50 font-semibold transition cursor-pointer shadow-2xs">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                        </svg>
-                        <span x-show="!copied">اشتراک‌گذاری این جستجو</span>
-                        <span x-show="copied" class="text-emerald-600 dark:text-emerald-400 font-bold" style="display: none;">پیوند جستجو کپی شد! ✓</span>
-                    </button>
+                    <h2 class="rubric text-lg">
+                        <span><span class="tabular-nums">{{ Fa::num($results->total()) }}</span> {{ ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص'][$type] ?? 'نتیجه' }}</span>
+                        @if($query)<span class="font-sans text-sm font-normal text-muted">برای «<span class="text-ink font-semibold">{{ $query }}</span>»</span>@endif
+                    </h2>
+                    <x-ui.btn size="sm" @click="copyLink()">
+                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                        <span x-show="!copied">پیوند این جستجو</span>
+                        <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
+                    </x-ui.btn>
                 </div>
 
                 @if($type === 'works')
-                    <!-- Works Cards -->
-                    <div class="space-y-3">
+                    <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $work)
-                            <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 space-y-3">
-                                <div class="flex items-start justify-between gap-4">
-                                    <div>
-                                        <a href="{{ route('works.show', $work) }}" class="text-lg font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                            @highlight($work->primary_title, $query)
-                                        </a>
-                                        @if($work->clean_title && $work->clean_title !== $work->primary_title)
-                                            <span class="text-xs text-stone-400 mr-2">(@highlight($work->clean_title, $query))</span>
-                                        @endif
-                                        @if($work->match_reason ?? null)
-                                            <span class="inline-block mr-2 px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 text-[10px] align-middle">{{ $work->match_reason }}</span>
-                                        @endif
-                                        
-                                        <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-                                            @if($work->author)
-                                                <span>پدیدآور: <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:underline">@highlight($work->author->name, $query)</a></span>
-                                            @elseif($work->author_name)
-                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">@highlight($work->author_name, $query)</strong></span>
-                                            @else
-                                                <span class="text-stone-400">پدیدآور: ناشناخته</span>
-                                            @endif
-                                            
-                                            @if($work->composition_year_hijri)
-                                                <span>تألیف: <strong>{{ $work->composition_year_hijri }} هـ.ق</strong></span>
-                                            @elseif($work->author?->death_year_hijri)
-                                                <span>وفات مؤلف: <strong>{{ $work->author->death_year_hijri }} هـ.ق</strong></span>
-                                            @elseif($work->author?->death_century_hijri)
-                                                <span>وفات مؤلف: <strong>قرن {{ $work->author->death_century_hijri }} هـ.ق</strong></span>
-                                            @elseif($work->author?->death_date_raw)
-                                                <span>وفات مؤلف: <strong>{{ $work->author->death_date_raw }}</strong></span>
-                                            @endif
-
-                                            @if($work->work_form)
-                                                <span>قالب: <strong>{{ $validWorkForms[$work->work_form] ?? $work->work_form }}</strong></span>
-                                            @endif
-
-                                            @if($work->composition_place)
-                                                <span>مکان تألیف: <strong>{{ $work->composition_place }}</strong></span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="flex flex-col items-end gap-1.5 shrink-0 text-left">
-                                        <span class="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold shadow-xs">
-                                            {{ number_format($work->manuscripts_count) }} نسخه
-                                        </span>
-                                        @if($work->has_autograph)
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[11px] font-bold shadow-xs" title="دارای نسخه به دستخط مؤلف">
-                                                <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                                <span>دستخط مؤلف</span>
-                                            </span>
-                                        @endif
-                                        @if(!empty($work->copy_century_text))
-                                            <span class="text-[11px] text-stone-500 dark:text-stone-400 font-medium whitespace-nowrap">
-                                                {{ $work->copy_century_text }}
-                                            </span>
-                                        @endif
-                                    </div>
+                            <li class="py-4 space-y-1.5">
+                                <div class="flex items-baseline gap-2">
+                                    <a href="{{ route('works.show', $work) }}" class="font-naskh text-lg sm:text-xl font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($work->primary_title, $query)</a>
+                                    <span class="leader hidden sm:block" aria-hidden="true"></span>
+                                    <a href="{{ route('works.show', $work) }}#manuscripts" class="ms-auto sm:ms-0 text-xs text-muted tabular-nums whitespace-nowrap hover:text-cinnabar">{{ Fa::num($work->manuscripts_count) }} نسخه</a>
                                 </div>
-
-                                <!-- Subjects & Languages -->
-                                <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-800/80 text-[11px]">
-                                    @foreach($work->subjects as $subj)
-                                        <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">{{ $subj->title }}</span>
-                                    @endforeach
-                                    @foreach($work->languages as $lang)
-                                        <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-500">{{ $lang->name }}</span>
-                                    @endforeach
+                                @if(($work->clean_title && $work->clean_title !== $work->primary_title) || ($work->match_reason ?? null))
+                                    <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
+                                        @if($work->clean_title && $work->clean_title !== $work->primary_title)<span>@highlight($work->clean_title, $query)</span>@endif
+                                        @if($work->match_reason ?? null)<x-ui.chip class="!text-[11px] !py-0">{{ $work->match_reason }}</x-ui.chip>@endif
+                                    </div>
+                                @endif
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
+                                    @if($work->author)
+                                        <span>از <a href="{{ route('people.show', $work->author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($work->author->name, $query)</a> <x-ui.life :person="$work->author" /></span>
+                                    @elseif($work->author_name)
+                                        <span>از <span class="font-semibold text-ink">@highlight($work->author_name, $query)</span></span>
+                                    @else
+                                        <span class="text-muted">پدیدآور ناشناخته</span>
+                                    @endif
+                                    @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>@endif
+                                    @if($work->work_form)<span>{{ $validWorkForms[$work->work_form] ?? $work->work_form }}</span>@endif
+                                    @if($work->composition_place)<span>{{ $work->composition_place }}</span>@endif
+                                    @if(! empty($work->copy_century_text))<span class="text-muted">نسخه‌ها {{ Fa::digits($work->copy_century_text) }}</span>@endif
+                                    @if($work->has_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
                                 </div>
-                            </div>
+                                @if($work->subjects->isNotEmpty() || $work->languages->isNotEmpty())
+                                    <div class="text-xs text-muted">
+                                        {{ $work->subjects->pluck('title')->merge($work->languages->pluck('name'))->implode(' · ') }}
+                                    </div>
+                                @endif
+                            </li>
                         @endforeach
-                    </div>
+                    </ul>
 
                 @elseif($type === 'manuscripts')
-                    <!-- Manuscripts Cards -->
-                    <div class="space-y-3">
+                    <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $ms)
-                            <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition duration-200 space-y-3">
-                                <div class="flex items-start justify-between gap-4">
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <a href="{{ route('manuscripts.show', $ms) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                                @highlight($ms->work?->primary_title ?? 'نسخه بدون عنوان', $query)
-                                            </a>
-                                            @if($ms->is_autograph)
-                                                <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">اصل نسخه (دستخط مؤلف)</span>
-                                            @endif
-                                        </div>
-
-                                        <div class="text-xs text-stone-600 dark:text-stone-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-                                            @if($ms->work?->author)
-                                                <span>پدیدآور: <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-stone-800 dark:text-stone-200 hover:text-[#B38A50] hover:underline">@highlight($ms->work->author->name, $query)</a></span>
-                                            @elseif($ms->work?->author_name)
-                                                <span>پدیدآور: <strong class="text-stone-700 dark:text-stone-300">@highlight($ms->work->author_name, $query)</strong></span>
-                                            @else
-                                                <span class="text-stone-400">پدیدآور: ناشناخته</span>
-                                            @endif
-
-                                            <span>کتابخانه: <strong title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</strong> ({{ $ms->city }})</span>
-                                            <span>شماره نسخه: <strong class="text-[#B38A50]">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</strong></span>
-                                            @if($ms->scribe_name)
-                                                <span>کاتب: <strong>@highlight($ms->scribe_name, $query)</strong></span>
-                                            @elseif($ms->is_autograph)
-                                                <span>کاتب: <strong class="text-emerald-700 dark:text-emerald-300">مؤلف</strong></span>
-                                            @elseif($ms->is_bika)
-                                                <span class="text-stone-400">بی‌کاتب</span>
-                                            @endif
-                                            @if($ms->copy_date_raw)
-                                                <span>تاریخ: <strong>{{ $ms->copy_date_raw }}</strong></span>
-                                            @elseif($ms->is_bita)
-                                                <span class="text-stone-400">بی‌تاریخ</span>
-                                            @endif
-                                            @if($ms->commissioned_by)
-                                                <span>سفارش کتابت: <strong class="text-[#B38A50] dark:text-amber-300">{{ $ms->commissioned_by }}</strong></span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="flex flex-col items-end gap-1.5 shrink-0 text-left">
-                                        @if($ms->is_autograph)
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[11px] font-bold shadow-xs">
-                                                <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                                <span>دستخط مؤلف</span>
-                                            </span>
-                                        @endif
-                                        @if($ms->century_text)
-                                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-[11px] font-medium shadow-xs">
-                                                {{ $ms->century_text }}
-                                            </span>
-                                        @endif
-                                        @if($ms->catalog_citation)
-                                            <span class="text-[11px] text-stone-500 dark:text-stone-400" title="شماره و ارجاع در فهرست اصلی کتابخانه">
-                                                {{ $ms->catalog_citation }}
-                                            </span>
-                                        @endif
-                                    </div>
+                            <li class="py-4 space-y-1.5">
+                                <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                                    <a href="{{ route('manuscripts.show', $ms) }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان', $query)</a>
+                                    @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
+                                    @if($ms->century_text)<span class="ms-auto text-xs text-muted whitespace-nowrap">{{ Fa::digits($ms->century_text) }}</span>@endif
                                 </div>
-
-                                @if(!empty($ms->incipit))
-                                    <div class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-1 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-1.5 rounded-xl border-r-2 border-[#B38A50]">
-                                        @if($ms->incipit_matches_work)
-                                            <span class="text-[#B38A50] font-bold">آغاز (برابر با اثر):</span> « @highlight(Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110), $query) »
-                                        @else
-                                            <span class="text-[#B38A50] font-bold">آغاز نسخه:</span> « @highlight(Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110), $query) »
-                                        @endif
-                                    </div>
-                                @endif
-
-                                @if(!empty($ms->explicit))
-                                    <div class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-1 bg-amber-50/50 dark:bg-amber-950/20 px-3 py-1.5 rounded-xl border-r-2 border-stone-400 dark:border-stone-600">
-                                        @if($ms->explicit_matches_work)
-                                            <span class="text-stone-700 dark:text-stone-300 font-bold">انجام (برابر با اثر):</span> « @highlight(Str::limit(trim($ms->explicit, "«» \t\n\r\0\x0B"), 110), $query) »
-                                        @else
-                                            <span class="text-stone-700 dark:text-stone-300 font-bold">انجام نسخه:</span> « @highlight(Str::limit(trim($ms->explicit, "«» \t\n\r\0\x0B"), 110), $query) »
-                                        @endif
-                                    </div>
-                                @endif
-
-                                <!-- Codicological Badges -->
-                                <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-800/80 text-[11px]">
-                                    @if($ms->script_names)
-                                        <span class="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] font-medium">خط: {{ $ms->script_names }}</span>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
+                                    @if($ms->work?->author)
+                                        <span>از <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($ms->work->author->name, $query)</a></span>
+                                    @elseif($ms->work?->author_name)
+                                        <span>از <span class="font-semibold text-ink">@highlight($ms->work->author_name, $query)</span></span>
                                     @endif
-                                    @if($ms->folios)
-                                        <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">{{ $ms->folios }} برگ</span>
+                                    <span><span class="font-semibold text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</span>@if($ms->city)، {{ $ms->city }}@endif</span>
+                                    <span>شماره‌ی <span dir="ltr" class="font-semibold text-cinnabar">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</span></span>
+                                    @if($ms->scribe_name)
+                                        <span>کاتب: @highlight($ms->scribe_name, $query)</span>
+                                    @elseif($ms->is_autograph)
+                                        <span>کاتب: <span class="text-emerald-700 dark:text-emerald-300">مؤلف</span></span>
+                                    @elseif($ms->is_bika)
+                                        <span class="text-muted">بی‌کاتب</span>
                                     @endif
-                                    @if($ms->is_autograph)
-                                        <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold">نسخه اصل مؤلف</span>
+                                    @if($ms->copy_date_raw)
+                                        <span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>
+                                    @elseif($ms->is_bita)
+                                        <span class="text-muted">بی‌تاریخ</span>
                                     @endif
-                                    @if($ms->has_author_marginalia)
-                                        <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-semibold">حواشی مؤلف</span>
-                                    @endif
-                                    @if(!empty($ms->ownership_and_seals_list) && count($ms->ownership_and_seals_list) > 0)
-                                        <span class="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-200 font-medium">
-                                            دارای مهر / تملک ({{ count($ms->ownership_and_seals_list) }})
-                                        </span>
-                                    @endif
-                                    @if($ms->is_illuminated)
-                                        <span class="px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300">مذهب</span>
-                                    @endif
-                                    @if($ms->is_illustrated)
-                                        <span class="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300">دارای تصویر</span>
-                                    @endif
-                                    @if($ms->is_corrected)
-                                        <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300">مصحح</span>
-                                    @endif
-                                    @if($ms->has_marginal_notes)
-                                        <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">محشی</span>
-                                    @endif
+                                    @if($ms->commissioned_by)<span>به سفارش {{ $ms->commissioned_by }}</span>@endif
+                                    @if($ms->catalog_citation)<span class="text-muted" title="شماره و ارجاع در فهرست اصلی کتابخانه">{{ $ms->catalog_citation }}</span>@endif
                                 </div>
-                            </div>
+                                @if(! empty($ms->incipit))
+                                    <p class="text-[13px] text-ink/80 line-clamp-1 border-s-2 border-gold ps-3 font-naskh">
+                                        <span class="font-sans text-xs font-bold text-cinnabar">{{ $ms->incipit_matches_work ? 'آغاز (برابر با اثر):' : 'آغاز:' }}</span>
+                                        @highlight(Str::limit(trim($ms->incipit, "«» \t\n\r\0\x0B"), 110), $query)
+                                    </p>
+                                @endif
+                                @if(! empty($ms->explicit))
+                                    <p class="text-[13px] text-ink/80 line-clamp-1 border-s-2 border-line-strong ps-3 font-naskh">
+                                        <span class="font-sans text-xs font-bold text-muted">{{ $ms->explicit_matches_work ? 'انجام (برابر با اثر):' : 'انجام:' }}</span>
+                                        @highlight(Str::limit(trim($ms->explicit, "«» \t\n\r\0\x0B"), 110), $query)
+                                    </p>
+                                @endif
+                                @php
+                                    $msTags = array_filter([
+                                        $ms->script_names ? 'خط ' . $ms->script_names : null,
+                                        $ms->folios ? Fa::digits($ms->folios) . ' برگ' : null,
+                                        $ms->has_author_marginalia ? 'حواشی مؤلف' : null,
+                                        (! empty($ms->ownership_and_seals_list) && count($ms->ownership_and_seals_list)) ? 'مهر و تملک (' . Fa::digits(count($ms->ownership_and_seals_list)) . ')' : null,
+                                        $ms->is_illuminated ? 'مذهّب' : null,
+                                        $ms->is_illustrated ? 'مصوّر' : null,
+                                        $ms->is_corrected ? 'مصحَّح' : null,
+                                        $ms->has_marginal_notes ? 'محشّی' : null,
+                                    ]);
+                                @endphp
+                                @if($msTags)
+                                    <div class="text-xs text-muted">{{ implode(' · ', $msTags) }}</div>
+                                @endif
+                            </li>
                         @endforeach
-                    </div>
+                    </ul>
 
                 @elseif($type === 'people')
-                    <!-- People Cards -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $person)
-                            <a href="{{ route('people.show', $person) }}" class="bg-white dark:bg-[#15192C] p-4 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition flex flex-col justify-between">
-                                <div>
-                                    <div class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                        @highlight($person->name, $query)
-                                    </div>
-                                    @if($person->transliteration)
-                                        <div class="text-[11px] text-stone-400">{{ $person->transliteration }}</div>
-                                    @endif
-                                    <div class="text-xs text-stone-500 mt-2">
-                                        @if($person->death_year_hijri)
-                                            وفات: <strong>{{ $person->death_year_hijri }} هـ.ق</strong>
-                                        @elseif($person->century_hijri)
-                                            سده: <strong>{{ $person->century_hijri }} هـ.ق</strong>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="mt-4 pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
-                                    <span class="text-stone-400">تألیفات ثبت‌شده:</span>
-                                    <span class="font-bold text-[#B38A50]">{{ $person->works_count }} اثر</span>
-                                </div>
-                            </a>
+                            <li>
+                                <a href="{{ route('people.show', $person) }}" class="flex items-baseline gap-2 py-3 group">
+                                    <span class="min-w-0">
+                                        <span class="font-naskh text-lg font-bold text-ink group-hover:text-cinnabar transition">@highlight($person->name, $query)</span>
+                                        <x-ui.life :person="$person" />
+                                        @if($person->transliteration)<span class="block text-[11px] text-muted" dir="ltr">{{ $person->transliteration }}</span>@endif
+                                    </span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($person->works_count) }} اثر</span>
+                                </a>
+                            </li>
                         @endforeach
-                    </div>
-
+                    </ul>
                 @endif
 
-                <!-- Pagination Links -->
                 <div class="pt-6">
                     {{ $results->links() }}
                 </div>
 
             @else
                 <!-- No Results State -->
-                <div class="bg-white dark:bg-[#15192C] p-12 rounded-3xl border border-stone-200 dark:border-stone-800 text-center space-y-5">
-                    <div class="w-16 h-16 mx-auto rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div class="text-lg font-bold text-stone-800 dark:text-stone-200">نتیجه‌ای با مشخصات درخواستی یافت نشد</div>
+                <div class="py-12 text-center space-y-5">
+                    <p class="font-naskh text-2xl font-bold text-ink">نتیجه‌ای پیدا نشد</p>
 
                     @php
                         $tabLabels = ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص'];
@@ -903,34 +771,21 @@
                     @if($elsewhere->isNotEmpty())
                         <div class="flex flex-wrap justify-center gap-2 text-sm">
                             @foreach($elsewhere as $tab => $count)
-                                <a href="{{ route('search', ['q' => $query, 'type' => $tab, 'scope' => $scope]) }}"
-                                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-[#B38A50]/30 hover:border-[#B38A50] text-[#B38A50] font-semibold transition">
-                                    {{ number_format($count) }} {{ $tabLabels[$tab] }} با این عبارت پیدا شد ←
-                                </a>
+                                <x-ui.btn :href="route('search', ['q' => $query, 'type' => $tab, 'scope' => $scope])">{{ Fa::num($count) }} {{ $tabLabels[$tab] }} با این عبارت پیدا شد ←</x-ui.btn>
                             @endforeach
                         </div>
                     @endif
 
-                    @if(!empty($suggestion))
-                        <div class="inline-flex items-center gap-2 p-3.5 px-6 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-[#B38A50]/30 text-stone-800 dark:text-stone-200 text-sm shadow-xs">
-                            <svg class="w-5 h-5 text-[#B38A50] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span class="text-stone-600 dark:text-stone-400">آیا منظور شما</span>
-                            <a href="{{ route('search', array_merge(request()->except(['page', 'q']), ['q' => $suggestion])) }}" 
-                               class="font-bold text-[#B38A50] hover:text-[#9C753F] underline decoration-[#B38A50]/50 hover:decoration-[#B38A50] text-base transition">
-                                «{{ $suggestion }}»
-                            </a>
-                            <span class="text-stone-600 dark:text-stone-400">بود؟</span>
-                        </div>
+                    @if(! empty($suggestion))
+                        <p class="text-sm text-ink/80">
+                            آیا منظور شما
+                            <a href="{{ route('search', array_merge(request()->except(['page', 'q']), ['q' => $suggestion])) }}" class="font-bold text-cinnabar underline decoration-cinnabar/40 hover:decoration-cinnabar text-base">«{{ $suggestion }}»</a>
+                            بود؟
+                        </p>
                     @endif
 
-                    <p class="text-xs text-stone-400 max-w-md mx-auto leading-relaxed">
-                        لطفاً املاء کلمات را بازبینی کنید یا فیلترهای محدودکننده را تغییر دهید.
-                    </p>
-                    <a href="{{ route('search', ['type' => $type]) }}" class="inline-block px-5 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-semibold rounded-xl text-stone-700 dark:text-stone-300 transition">
-                        مشاهده تمام موارد این بخش
-                    </a>
+                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">املای واژه‌ها را بازبینی کنید، یا دامنه‌ی جستجو و پالایه‌ها را تغییر دهید.</p>
+                    <x-ui.btn :href="route('search', ['type' => $type])">همه‌ی موارد این بخش</x-ui.btn>
                 </div>
             @endif
 

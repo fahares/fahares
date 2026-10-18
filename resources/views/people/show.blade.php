@@ -10,278 +10,190 @@
     $hasScribed = $scribedManuscripts->total() > 0;
     $defaultTab = $hasScribed && (! $hasAuthored || request()->has('manuscripts_page')) ? 'scribed' : 'authored';
 @endphp
-<div x-data="{ activeTab: '{{ $defaultTab }}' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+@php
+    use App\Support\Fa;
+    $worksTotal = $person->works_count ?? $authoredWorks->total();
+    $scribedTotal = $person->scribed_manuscripts_count ?? $person->manuscripts_count ?? $scribedManuscripts->total();
+    $roleRows = $person->manuscriptRoles()->with(['manuscript.work', 'manuscript.libraryRecord'])->latest('id')->limit(100)->get();
+@endphp
+<div x-data="{ activeTab: '{{ $defaultTab }}' }" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     <!-- Breadcrumb -->
-    <nav class="flex items-center gap-2 text-xs text-stone-500">
-        <a href="{{ route('home') }}" class="hover:text-[#B38A50]">فهارس</a>
-        <span>/</span>
-        <a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-[#B38A50]">پدیدآوران و کاتبان</a>
-        <span>/</span>
-        <span class="text-stone-800 dark:text-stone-200 font-semibold">{{ $person->name }}</span>
+    <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
+        <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-cinnabar">پدیدآوران و کاتبان</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink font-semibold">{{ $person->name }}</span>
     </nav>
 
-    <!-- PERSON HEADER CARD -->
-    <div class="bg-white dark:bg-[#15192C] rounded-3xl p-6 sm:p-8 border border-[#EADFCF] dark:border-[#272F4C] shadow-md space-y-6 relative overflow-hidden">
-        
-        <div class="flex flex-col sm:flex-row items-start justify-between gap-6">
-            <div class="space-y-3">
-                <div class="inline-block px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold">
-                    شناسنامه شخص و اعلام
-                </div>
-
-                <h1 class="text-2xl sm:text-3xl font-black text-[#292C56] dark:text-amber-100 tracking-tight">
-                    {{ $person->name }}
-                    <x-suggest.field name="name" class="ms-1" />
-                </h1>
-
-                <div class="text-xs text-stone-400" @unless($person->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
-                    {{ $person->transliteration ?? 'آوانگاری نام: —' }}
-                    <x-suggest.field name="transliteration" class="ms-1" />
-                </div>
-
-                <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs" @if(empty($person->aliases)) x-show="$store.suggest.on" x-cloak @endif>
-                    <span class="text-stone-400 font-medium">شهرت‌ها و القاب:</span>
-                    @foreach($person->aliases ?? [] as $alias)
-                        <span class="px-2 py-0.5 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 text-[#B38A50] dark:text-amber-200/80 border border-amber-200/40 dark:border-amber-800/40 font-medium">
-                            {{ $alias }}
-                        </span>
-                    @endforeach
-                    <x-suggest.field name="aliases" />
-                </div>
-
-                <!-- Roles Badges -->
-                <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
-                    @if($person->is_author)
-                        <span class="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-[#B38A50] font-bold">مؤلف / پدیدآور</span>
-                    @endif
-                    @if($person->is_scribe || ($person->scribed_manuscripts_count ?? $person->manuscripts_count) > 0)
-                        <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold">کاتب نسخه</span>
-                    @endif
-                    @if($person->is_translator)
-                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold">مترجم</span>
-                    @endif
-                    @if($person->is_donor)
-                        <span class="px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">واقف</span>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Historical Dates Box -->
-            <div class="p-4 rounded-2xl bg-[#FEF9F3] dark:bg-[#1A1E35] border border-[#EADFCF] dark:border-[#272F4C] text-xs space-y-2 min-w-[200px]">
-                <div class="flex justify-between">
-                    <span class="text-stone-400">سده هجری:</span>
-                    <span class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $person->century_hijri ? 'سده ' . $person->century_hijri . ' هـ.ق' : 'نامشخص' }}
-                    </span>
-                </div>
-                <div class="flex justify-between gap-3" @unless($person->birth_year_hijri) x-show="$store.suggest.on" x-cloak @endunless>
-                    <span class="text-stone-400">سال تولد (قمری):</span>
-                    <span class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $person->birth_year_hijri ? $person->birth_year_hijri . ' ق' : '-' }}
-                        <x-suggest.field name="birth_year_hijri" class="ms-1" />
-                    </span>
-                </div>
-                <div class="flex justify-between gap-3">
-                    <span class="text-stone-400">سال وفات (قمری):</span>
-                    <span class="font-bold text-stone-800 dark:text-stone-200">
-                        {{ $person->death_year_hijri ? $person->death_year_hijri . ' ق' : '-' }}
-                        <x-suggest.field name="death_year_hijri" class="ms-1" />
-                    </span>
-                </div>
-                <div class="flex justify-between gap-3" @unless($person->death_year_gregorian) x-show="$store.suggest.on" x-cloak @endunless>
-                    <span class="text-stone-400">سال وفات (میلادی):</span>
-                    <span class="text-stone-600 dark:text-stone-300">
-                        {{ $person->death_year_gregorian ? $person->death_year_gregorian . ' م' : '-' }}
-                        <x-suggest.field name="death_year_gregorian" class="ms-1" />
-                    </span>
-                </div>
-                <div class="pt-2 border-t border-[#EADFCF] dark:border-[#272F4C]">
-                    <x-suggest.toggle class="w-full justify-center" />
-                </div>
-            </div>
-        </div>
-
-        <!-- Short biography -->
-        <div class="pt-4 border-t border-stone-100 dark:border-stone-800 text-xs space-y-1" @unless($person->bio_notes) x-show="$store.suggest.on" x-cloak @endunless>
-            <span class="text-stone-400 font-medium">زندگی‌نامه‌ی کوتاه:</span>
-            <x-suggest.field name="bio_notes" class="ms-1" />
-            @if($person->bio_notes)
-                <p class="text-stone-700 dark:text-stone-300 leading-loose whitespace-pre-line">{{ $person->bio_notes }}</p>
-            @endif
-        </div>
-
-        <!-- Metric tabs switch -->
-        @if($hasAuthored && $hasScribed)
-        <div class="flex items-center gap-3 pt-4 border-t border-stone-100 dark:border-stone-800 text-sm font-semibold">
-            <button 
-                @click="activeTab = 'authored'" 
-                :class="activeTab === 'authored' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
-                class="px-4 py-2 rounded-xl transition flex items-center gap-2">
-                <span>آثار و تألیفات</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->works_count ?? $authoredWorks->total() }}</span>
-            </button>
-            <button 
-                @click="activeTab = 'scribed'" 
-                :class="activeTab === 'scribed' ? 'bg-[#292C56] text-amber-100 shadow' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300'"
-                class="px-4 py-2 rounded-xl transition flex items-center gap-2">
-                <span>نسخه‌های کتابت‌شده</span>
-                <span class="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 font-bold">{{ $person->scribed_manuscripts_count ?? $person->manuscripts_count ?? $scribedManuscripts->total() }}</span>
-            </button>
-        </div>
+    <!-- PERSON HEADER -->
+    <header class="text-center grid justify-items-center gap-2 pb-6">
+        <p class="text-xs font-bold text-cinnabar">شناسنامه‌ی شخص</p>
+        <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
+            {{ $person->name }}
+            <x-suggest.field name="name" class="ms-1 align-middle" />
+        </h1>
+        @if($person->life_span)
+            <p class="text-base text-muted">{{ $person->life_span }}</p>
         @endif
+        <p class="text-xs text-muted" dir="ltr" @unless($person->transliteration) x-show="$store.suggest.on" x-cloak @endunless>
+            {{ $person->transliteration ?? 'آوانگاری نام: —' }}
+            <x-suggest.field name="transliteration" class="ms-1" />
+        </p>
+        <div class="flex flex-wrap justify-center items-center gap-1.5 mt-1 text-sm" @if(empty($person->aliases)) x-show="$store.suggest.on" x-cloak @endif>
+            <span class="text-muted text-xs">نام‌های دیگر:</span>
+            @foreach($person->aliases ?? [] as $alias)
+                <x-ui.chip>{{ $alias }}</x-ui.chip>
+            @endforeach
+            <x-suggest.field name="aliases" />
+        </div>
+        <div class="flex flex-wrap justify-center gap-1.5 mt-1">
+            @if($person->is_author)<x-ui.chip tone="accent">پدیدآور</x-ui.chip>@endif
+            @if($person->is_scribe || $scribedTotal > 0)<x-ui.chip>کاتب</x-ui.chip>@endif
+            @if($person->is_translator)<x-ui.chip>مترجم</x-ui.chip>@endif
+            @if($person->is_donor)<x-ui.chip>واقف</x-ui.chip>@endif
+        </div>
+    </header>
 
+    <div class="jadval" aria-hidden="true"></div>
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <x-suggest.toggle />
+        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $person->id }}</span></span>
     </div>
 
-    @if(! $hasAuthored && ! $hasScribed)
-        <div class="p-8 bg-white dark:bg-[#15192C] rounded-2xl text-center text-stone-400 text-xs">
-            اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.
-        </div>
-    @endif
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
 
-    <!-- TAB 1: AUTHORED WORKS -->
-    @if($hasAuthored)
-    <div x-show="activeTab === 'authored'" class="space-y-4" @if($defaultTab !== 'authored') style="display: none;" @endif>
-        
-        <h2 class="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <span class="w-2 h-5 bg-[#B38A50] rounded-sm"></span>
-            <span>فهرست آثار و تألیفات ({{ number_format($authoredWorks->total()) }} اثر)</span>
-        </h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            @forelse($authoredWorks as $work)
-                <div class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition space-y-3 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-start justify-between gap-3">
-                            <a href="{{ route('works.show', $work) }}" class="text-base font-bold text-[#292C56] dark:text-amber-100 hover:text-[#B38A50] transition">
-                                {{ $work->primary_title }}
-                            </a>
-                            <span class="px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-[#B38A50] text-xs font-bold whitespace-nowrap">
-                                {{ $work->manuscripts_count }} نسخه
-                            </span>
-                        </div>
-
-                        @if($work->clean_title && $work->clean_title !== $work->primary_title)
-                            <div class="text-xs text-stone-400 mt-1">
-                                {{ $work->clean_title }}
-                            </div>
-                        @endif
-
-                        <div class="text-xs text-stone-500 mt-2 flex flex-wrap items-center gap-3">
-                            @if($work->composition_year_hijri)
-                                <span>تألیف: <strong class="text-stone-700 dark:text-stone-300">{{ $work->composition_year_hijri }} هـ.ق</strong></span>
-                            @endif
-                            @if($work->work_form)
-                                <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[11px]">{{ $work->work_form }}</span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Subjects & View Link -->
-                    <div class="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
-                        <div class="flex flex-wrap gap-1">
-                            @foreach($work->subjects->take(2) as $s)
-                                <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px]">{{ $s->title }}</span>
-                            @endforeach
-                        </div>
-                        <a href="{{ route('works.show', $work) }}" class="text-[#B38A50] hover:underline font-semibold">
-                            مشاهده اثر ←
-                        </a>
-                    </div>
-                </div>
-            @empty
-                <div class="col-span-2 p-8 bg-white dark:bg-[#15192C] rounded-2xl text-center text-stone-400 text-xs">
-                    اثری به عنوان مؤلف برای این شخص ثبت نشده است.
-                </div>
-            @endforelse
-        </div>
-
-        @if($authoredWorks->hasPages())
-            <div class="pt-4">
-                {{ $authoredWorks->links() }}
-            </div>
-        @endif
-
-    </div>
-    @endif
-
-    <!-- TAB 2: SCRIBED MANUSCRIPTS -->
-    @if($hasScribed)
-    <div x-show="activeTab === 'scribed'" class="space-y-4" @if($defaultTab !== 'scribed') style="display: none;" @endif>
-        
-        <h2 class="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <span class="w-2 h-5 bg-[#292C56] dark:bg-indigo-400 rounded-sm"></span>
-            <span>نسخه‌های خطی کتابت‌شده توسط این شخص ({{ number_format($scribedManuscripts->total()) }} نسخه)</span>
-        </h2>
-
-        <div class="space-y-3">
-            @forelse($scribedManuscripts as $ms)
-                <div onclick="if (!window.getSelection().toString()) { if (event.ctrlKey || event.metaKey) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); } else { window.location.href = '{{ route('manuscripts.show', $ms) }}'; } }"
-                     onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
-                     class="bg-white dark:bg-[#15192C] p-5 rounded-2xl border border-stone-200 dark:border-stone-800 hover:border-[#B38A50] dark:hover:border-[#B38A50] shadow-sm hover:shadow-md transition cursor-pointer space-y-2 group">
-                    <div class="flex items-start justify-between gap-4">
+        <!-- Summary column: first on phones -->
+        <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
+            <x-ui.card :framed="true">
+                <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
+                    <x-ui.meta label="سده">{{ $person->century_hijri ? 'سده‌ی ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
+                    <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق</x-ui.meta>
+                    <x-ui.meta label="وفات" field="death_year_hijri">
+                        @if($person->death_year_hijri){{ Fa::digits($person->death_year_hijri) }} ق@else<span class="text-muted">نامشخص</span>@endif
+                    </x-ui.meta>
+                    <x-ui.meta label="وفات (میلادی)" field="death_year_gregorian" :empty="! $person->death_year_gregorian">{{ Fa::digits($person->death_year_gregorian) }} م</x-ui.meta>
+                </x-ui.meta-list>
+                @if($worksTotal || $scribedTotal)
+                    <div class="mt-4 pt-3 border-t border-line grid grid-cols-2 gap-2 text-center">
                         <div>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="text-base font-bold text-[#292C56] dark:text-amber-100 group-hover:text-[#B38A50] transition">
-                                    {{ $ms->work?->primary_title ?? 'نسخه بدون عنوان' }}
-                                </span>
-                                @if($ms->is_autograph)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
-                                        ✍️ دستخط مؤلف (نسخه اصل)
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="text-xs text-stone-500 mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                                @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_name)
-                                    <span>پدیدآور: <strong>{{ $ms->work->author_name }}</strong></span>
-                                @endif
-                                <span>کتابخانه: <strong title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library }}</strong> ({{ $ms->city }})</span>
-                                <span>شماره نسخه: <strong class="text-[#B38A50]">{{ $ms->shelfmark ?? 'بی‌شماره' }}</strong></span>
-                                <span>تاریخ کتابت: <strong>{{ $ms->copy_date_raw ?? 'نامشخص' }}</strong></span>
-                            </div>
+                            <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($worksTotal) }}</div>
+                            <div class="text-xs text-muted">اثر</div>
+                        </div>
+                        <div>
+                            <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($scribedTotal) }}</div>
+                            <div class="text-xs text-muted">نسخه‌ی کتابت‌شده</div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="p-8 bg-white dark:bg-[#15192C] rounded-2xl text-center text-stone-400 text-xs">
-                    نسخه‌ای با ثبت این شخص به عنوان کاتب یافت نشد.
-                </div>
-            @endforelse
-        </div>
+                @endif
+            </x-ui.card>
+        </aside>
 
-        @if($scribedManuscripts->hasPages())
-            <div class="pt-4">
-                {{ $scribedManuscripts->links() }}
+        <div class="min-w-0 space-y-10">
+            <div @unless($person->bio_notes) x-show="$store.suggest.on" x-cloak @endunless>
+            <x-ui.section title="زندگی‌نامه‌ی کوتاه" field="bio_notes">
+                @if($person->bio_notes)
+                    <p class="text-sm sm:text-[15px] text-ink leading-loose whitespace-pre-line max-w-[72ch]">{{ $person->bio_notes }}</p>
+                @else
+                    <p class="text-sm text-muted">زندگی‌نامه‌ای ثبت نشده است.</p>
+                @endif
+            </x-ui.section>
             </div>
-        @endif
 
-    </div>
-    @endif
+            @if(! $hasAuthored && ! $hasScribed)
+                <p class="text-sm text-muted">اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.</p>
+            @endif
 
-    <!-- OTHER ROLES: manuscripts this person owned, endowed, corrected… -->
-    @php $roleRows = $person->manuscriptRoles()->with(['manuscript.work', 'manuscript.libraryRecord'])->latest('id')->limit(100)->get(); @endphp
-    @if($roleRows->isNotEmpty())
-        <div class="bg-white dark:bg-[#15192C] rounded-3xl p-5 sm:p-7 border border-[#EADFCF] dark:border-[#272F4C] shadow-sm space-y-4">
-            <h3 class="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 border-r-2 border-[#B38A50] pr-2">پیوند با نسخه‌ها در نقش‌های دیگر ({{ number_format($roleRows->count()) }})</h3>
-            <ul class="divide-y divide-stone-100 dark:divide-stone-800 text-xs">
-                @foreach($roleRows as $row)
-                    @continue(! $row->manuscript)
-                    <li class="py-2 flex flex-wrap items-baseline justify-between gap-2">
-                        <a href="{{ route('manuscripts.show', $row->manuscript) }}" class="font-bold text-[#292C56] dark:text-amber-200 hover:text-[#B38A50]">
-                            {{ $row->manuscript->work?->primary_title ?? 'نسخه' }} — {{ $row->manuscript->libraryRecord?->short_name ?? $row->manuscript->library }} {{ $row->manuscript->shelfmark }}
-                        </a>
-                        <span class="text-stone-500 dark:text-stone-400">{{ $row->role_label }}@if($row->note) · {{ $row->note }}@endif</span>
-                    </li>
-                @endforeach
-            </ul>
+            @if($hasAuthored && $hasScribed)
+                <div class="inline-flex border border-line-strong rounded-sm overflow-hidden text-sm" role="tablist">
+                    <button type="button" role="tab" @click="activeTab = 'authored'" :aria-selected="activeTab === 'authored'"
+                        :class="activeTab === 'authored' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer">
+                        آثار <span class="tabular-nums">{{ Fa::num($worksTotal) }}</span>
+                    </button>
+                    <button type="button" role="tab" @click="activeTab = 'scribed'" :aria-selected="activeTab === 'scribed'"
+                        :class="activeTab === 'scribed' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer border-s border-line-strong">
+                        نسخه‌های کتابت‌شده <span class="tabular-nums">{{ Fa::num($scribedTotal) }}</span>
+                    </button>
+                </div>
+            @endif
+
+            <!-- TAB 1: AUTHORED WORKS -->
+            @if($hasAuthored)
+                <x-ui.section title="آثار" :count="$authoredWorks->total()" x-show="activeTab === 'authored'" :style="$defaultTab !== 'authored' ? 'display: none' : null">
+                    <ul class="divide-y divide-line border-y border-line">
+                        @foreach($authoredWorks as $work)
+                            <li class="py-3">
+                                <a href="{{ route('works.show', $work) }}" class="flex items-baseline gap-2 group">
+                                    <span class="font-naskh text-base sm:text-lg font-bold text-ink group-hover:text-cinnabar transition">{{ $work->primary_title }}</span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($work->manuscripts_count) }} نسخه</span>
+                                </a>
+                                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                                    @if($work->composition_year_hijri)<span>تألیف {{ Fa::digits($work->composition_year_hijri) }} ق</span>@endif
+                                    @if($work->work_form)<span>{{ $work->work_form }}</span>@endif
+                                    @foreach($work->subjects->take(2) as $s)<span>{{ $s->title }}</span>@endforeach
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                    @if($authoredWorks->hasPages())
+                        <div class="pt-4">{{ $authoredWorks->links() }}</div>
+                    @endif
+                </x-ui.section>
+            @endif
+
+            <!-- TAB 2: SCRIBED MANUSCRIPTS -->
+            @if($hasScribed)
+                <x-ui.section title="نسخه‌های کتابت‌شده" :count="$scribedManuscripts->total()" x-show="activeTab === 'scribed'" :style="$defaultTab !== 'scribed' ? 'display: none' : null">
+                    <ul class="divide-y divide-line border-y border-line">
+                        @foreach($scribedManuscripts as $ms)
+                            <li class="py-3">
+                                <a href="{{ route('manuscripts.show', $ms) }}" class="flex flex-wrap items-baseline gap-x-2 group">
+                                    <span class="font-naskh text-base font-bold text-ink group-hover:text-cinnabar transition">{{ $ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان' }}</span>
+                                    @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px]">دستخط مؤلف</x-ui.chip>@endif
+                                </a>
+                                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                                    @if($ms->work && $ms->work->author_id !== $person->id && $ms->work->author_name)<span>از {{ $ms->work->author_name }}</span>@endif
+                                    <span class="text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library }}@if($ms->city)، {{ $ms->city }}@endif</span>
+                                    <span>شماره‌ی @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else — @endif</span>
+                                    @if($ms->copy_date_raw)<span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>@endif
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                    @if($scribedManuscripts->hasPages())
+                        <div class="pt-4">{{ $scribedManuscripts->links() }}</div>
+                    @endif
+                </x-ui.section>
+            @endif
+
+            <!-- OTHER ROLES: manuscripts this person owned, endowed, corrected… -->
+            @if($roleRows->isNotEmpty())
+                <x-ui.section title="نقش‌های دیگر در نسخه‌ها" :count="$roleRows->count()">
+                    <ul class="divide-y divide-line border-y border-line text-sm">
+                        @foreach($roleRows as $row)
+                            @continue(! $row->manuscript)
+                            <li class="py-2.5 flex flex-wrap items-baseline justify-between gap-2">
+                                <a href="{{ route('manuscripts.show', $row->manuscript) }}" class="font-semibold text-ink hover:text-cinnabar transition">
+                                    {{ $row->manuscript->work?->primary_title ?? 'نسخه' }}
+                                    <span class="font-normal text-muted">· {{ $row->manuscript->libraryRecord?->short_name ?? $row->manuscript->library }} <span dir="ltr">{{ Fa::digits($row->manuscript->shelfmark) }}</span></span>
+                                </a>
+                                <span class="text-xs text-muted">{{ $row->role_label }}@if($row->note) · {{ $row->note }}@endif</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-ui.section>
+            @endif
+
+            <!-- READINGS: adopted, alternative and superseded readings from researchers -->
+            <x-suggest.readings />
+
+            <!-- RESEARCH NOTES: published notes and the invitation to add one -->
+            <x-suggest.notes type="person" />
         </div>
-    @endif
-
-    <!-- READINGS: adopted, alternative and superseded readings from researchers -->
-    <x-suggest.readings />
-
-    <!-- RESEARCH NOTES: published notes and the invitation to add one -->
-    <x-suggest.notes type="person" />
+    </div>
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->
     <x-suggest.desk type="person" :record="$person" />

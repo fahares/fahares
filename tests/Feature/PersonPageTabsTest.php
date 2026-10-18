@@ -66,9 +66,10 @@ class PersonPageTabsTest extends TestCase
         $this->get(route('people.show', $p))
             ->assertOk()
             ->assertSee("activeTab: 'scribed'", false)
-            ->assertDontSee('فهرست آثار و تألیفات')
+            ->assertDontSee("activeTab === 'authored'", false)
             ->assertDontSee('@click="activeTab = \'authored\'"', false)
-            ->assertSee('نسخه‌های خطی کتابت‌شده توسط این شخص');
+            ->assertSee("activeTab === 'scribed'", false)
+            ->assertSee('نسخه‌های کتابت‌شده');
     }
 
     public function test_author_and_scribe_shows_both_tabs()
@@ -81,7 +82,7 @@ class PersonPageTabsTest extends TestCase
             ->assertOk()
             ->assertSee("activeTab: 'authored'", false)
             ->assertSee('@click="activeTab = \'scribed\'"', false)
-            ->assertSee('فهرست آثار و تألیفات');
+            ->assertSee("activeTab === 'authored'", false);
 
         $this->get(route('people.show', $p) . '?manuscripts_page=1')
             ->assertSee("activeTab: 'scribed'", false);

@@ -1225,7 +1225,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->get(route('manuscripts.show', $m))->assertOk()
             ->assertSee('مالک')->assertSee('محمدحسین تبریزی')->assertSee('مهر بیضی ۱۲۴۰ق در برگ نخست')->assertSee('به پیشنهاد پژوهشگر آزمون')
             ->assertSee('واقف')->assertSee('حاجیه خانم ناشناس');
-        $this->get(route('people.show', $owner))->assertOk()->assertSee('پیوند با نسخه‌ها در نقش‌های دیگر')->assertSee('مالک');
+        $this->get(route('people.show', $owner))->assertOk()->assertSee('نقش‌های دیگر در نسخه‌ها')->assertSee('مالک');
 
         // The same person in the same role twice is refused; a rollback removes the row
         $this->relate($m, 'person_role', $owner, ['role' => 'owner'])->assertOk();
@@ -1410,7 +1410,7 @@ class SuggestionWorkflowTest extends TestCase
         $kept->refresh();
         $this->assertSame([$dup->name, $dup->full_name], $kept->aliases);
         $this->assertSame([$dup->full_name, 'معرفی', 2], [$kept->full_name, $kept->description, $kept->manuscripts_count]);
-        $this->get(route('libraries.show', $kept))->assertSee('نام‌های دیگر')->assertSee($dup->name);
+        $this->get(route('libraries.show', $kept))->assertSee('title="نام دیگر"', false)->assertSee($dup->name);
         $this->get('/libraries?q=' . urlencode($dup->name))->assertSee($kept->name);
         $this->getJson('/api/suggestions/lookup?type=library&q=' . urlencode($dup->name))->assertJsonPath('0.id', $kept->id);
 
