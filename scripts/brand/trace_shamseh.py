@@ -13,7 +13,7 @@ big=pad.resize((N,N),Image.LANCZOS, box=(4+off,4+off,4+W+off,4+W+off))
 flat=Image.new('RGB',big.size,(6,65,90)); flat.paste(big,(0,0),big)
 flat=flat.filter(ImageFilter.MedianFilter(5))
 # the logo's own four flat colours: navy ground, mid teal outline, light teal arabesque, white
-pal=np.array([[6,65,90],[45,114,133],[93,193,209],[212,235,240]])
+pal=np.array([[6,65,90],[45,114,133],[93,193,209],[212,235,240]])  # white is written as #f2fcff below
 px=np.asarray(flat).astype(np.int32)
 idx=np.argmin(((px[:,:,None,:]-pal[None,None,:,:])**2).sum(-1),axis=2)
 yy,xx=np.mgrid[:N,:N]; r=np.hypot(xx-N/2+0.5,yy-N/2+0.5)/(N/2)
@@ -37,7 +37,7 @@ for i in range(4):
 lab=np.argmax(np.stack(probs),axis=0)
 print('symmetrised in %.0fs'%(time.time()-t))
 counts=[int((lab==i).sum()) for i in range(4)]; order=sorted(range(4),key=lambda i:-counts[i])
-def hexc(i): return '#%02x%02x%02x'%tuple(pal[i])
+def hexc(i): return '#f2fcff' if i == 3 else '#%02x%02x%02x'%tuple(pal[i])  # the white reads bluish after averaging; use the sampled flat white
 def path_d(plist):
     out=[]
     for c in plist:
