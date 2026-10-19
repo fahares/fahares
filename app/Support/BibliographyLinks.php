@@ -11,22 +11,31 @@ use Illuminate\Support\HtmlString;
  */
 class BibliographyLinks
 {
-    /** The entry as escaped HTML with Persian digits and the linked citations as anchors. */
+    /**
+     * The entry as escaped HTML with Persian digits and the linked citations as anchors. A citation whose
+     * page image is on the site opens the page viewer; the anchor keeps the online edition as its href.
+     */
     public static function html(string $entry): HtmlString
     {
         $html = '';
         foreach (self::segments($entry) as $seg) {
             $text = e(Fa::digits($seg['text']));
-            $html .= isset($seg['url'])
-                ? '<a href="' . e($seg['url']) . '" target="_blank" rel="noopener" title="' . e(Fa::digits($seg['title'])) . '" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">' . $text . '</a>'
-                : $text;
+            if (! isset($seg['url'])) {
+                $html .= $text;
+                continue;
+            }
+            $attrs = 'href="' . e($seg['url']) . '" target="_blank" rel="noopener" title="' . e(Fa::digits($seg['title'])) . '"';
+            if (isset($seg['viewer'])) {
+                $attrs .= ' onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent(\'open-catalog-viewer\', { detail: ' . e(json_encode($seg['viewer'], JSON_UNESCAPED_UNICODE)) . ' }))"';
+            }
+            $html .= '<a ' . $attrs . ' class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">' . $text . '</a>';
         }
 
         return new HtmlString($html);
     }
 
     /**
-     * @return list<array{text: string, url?: string, title?: string}>
+     * @return list<array{text: string, url?: string, title?: string, viewer?: array}>
      */
     public static function segments(string $entry): array
     {
@@ -99,10 +108,17 @@ class BibliographyLinks
             return null;
         }
 
-        return [
+        $link = [
             'url' => strtr($src['url'], ['{volume}' => $volume, '{page}' => $page]),
             'title' => "{$src['label']}، ج {$volume}، ص {$page} — {$src['site']}",
         ];
+        $viewer = $src['viewer'] ?? null;
+        if ($viewer && $page <= ($viewer['last_pages'][$volume] ?? 0) && ! in_array($page, $viewer['missing'][$volume] ?? [], true)) {
+            $link['viewer'] = ['catalog' => $viewer['catalog'], 'catalogName' => $viewer['name'], 'volume' => $volume, 'page' => $page];
+            $link['title'] = "دیدن برگه‌ی {$src['label']}، ج {$volume}، ص {$page}";
+        }
+
+        return $link;
     }
 
     private static function pushText(array &$segments, string $text): void

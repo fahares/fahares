@@ -57,4 +57,24 @@ class BibliographyLinksTest extends TestCase
         $this->assertStringContainsString('href="https://lib.eshia.ir/71602/25/90"', $html);
         $this->assertStringContainsString('>۹۰/۲۵</a>', $html);
     }
+
+    public function test_dharia_citations_open_the_page_viewer_unless_the_scan_lacks_the_page()
+    {
+        $viewer = fn (string $entry) => array_values(array_filter(
+            array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))
+        ));
+
+        $this->assertSame(
+            [['catalog' => 'dharia', 'catalogName' => 'الذریعة', 'volume' => 3, 'page' => 402]],
+            $viewer('الذریعة 402/3')
+        );
+        $this->assertSame([], $viewer('الذریعة 98/9'));      // missing from the scan
+        $this->assertSame([], $viewer('الذریعة 600/3'));     // past the last page of volume 3
+        $this->assertSame([], $viewer('ریحانة الادب 369/4')); // no page images
+
+        $html = (string) BibliographyLinks::html('الذریعة 402/3');
+        $this->assertStringContainsString('href="https://lib.eshia.ir/71602/3/402"', $html);
+        $this->assertStringContainsString("open-catalog-viewer", $html);
+        $this->assertStringContainsString('&quot;catalog&quot;:&quot;dharia&quot;', $html);
+    }
 }

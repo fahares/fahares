@@ -2415,3 +2415,11 @@
 - **وارسی:** ۵۶ صفحه‌ی تصادفی، دو صفحه از هر جلد و ۸ صفحه از جلد ۹، همه درست بودند. از ۷٬۸۸۹ ارجاع «صفحه/جلد» فنخا به الذریعة، ۷٬۷۸۹ صفحه‌ی نگاشت‌شده دارند. ۱۰۰ مورد بی‌جواب یا صفحه‌ای فراتر از پایان جلد دارند یا در اسکن نیستند.
 - **آزمایش جلد ۳:** ۴۹۱ صفحه، ۱۲۳۳×۱۸۵۰ پیکسل، ۵۶ مگابایت (میانگین ۱۱۴ کیلوبایت)، ۴۲ ثانیه با ۶ پردازه. نمایشگر با `open-catalog-viewer` و `catalog: 'dharia'` بدون تغییر کد آن را نمایش داد.
 - **استخراج کامل (۲۷ مهر ۱۴۰۵):** `extract_dharia_pages.py --workers 8` اجرا شد و ۱۱٬۰۸۴ فایل ساخت، بی هیچ فایل ناقص؛ همه با `PIL.verify` سالم بودند. جلدهای ۱، ۹، ۱۴، ۱۸ و ۲۱ اسکن بزرگ‌تری دارند (۱۸۰۵ تا ۲۱۱۶ پیکسل در ۳۰۰ dpi). برای همین اسکریپت به‌جای `-r 300` از `-scale-to-x 1240 -scale-to-y -1` استفاده می‌کند و این پنج جلد دوباره ساخته شدند (۳٬۱۶۶ برگه در ۷٫۵ دقیقه). حجم کل ۱٫۴ گیگابایت است. جلد ۲۴ صفحه‌ی ۴۸۶ در خود کتاب سفید است (۴ کیلوبایت).
+
+### گام ۱۲.۱۶: ارجاع الذریعة به نمایشگر برگه
+
+- [config/bibliography.php](../config/bibliography.php): کلید اختیاری `viewer` با `catalog`، `name`، `last_pages` (آخرین صفحه‌ی هر جلد) و `missing` (صفحه‌های گم‌شده‌ی جلد ۹ و ۱۸) برای `dharia`. این مقدارها از `scripts/facsimile/dharia_page_mapping.json` درآمده‌اند.
+- [BibliographyLinks](../app/Support/BibliographyLinks.php): `link()` وقتی صفحه موجود است `viewer` را با مقدارهای `{catalog, catalogName, volume, page}` می‌گذارد. `html()` برای چنین ارجاعی `onclick` اضافه می‌کند که `open-catalog-viewer` را روی `window` می‌فرستد و رفتار پیش‌فرض را می‌گیرد. `href` همچنان نشانی فقاهت است، برای کلیک وسط و حالت بدون جاوااسکریپت.
+- **آزمون:** `test_dharia_citations_open_the_page_viewer_unless_the_scan_lacks_the_page` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php).
+- **سرور:** `/app/storage/app/public` روی دیسک ماندگار `/dev/sda4` است (۶۵ گیگابایت آزاد) و `catalogs/fankha` آنجاست. در کانتینر `rsync` نیست و `tar` هست.
+
