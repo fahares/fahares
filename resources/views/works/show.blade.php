@@ -191,7 +191,7 @@
 
             @foreach(\App\Support\BibliographyLinks::viewerPages($work->bibliography ?? []) as $vp)
                 @php
-                    $vpRef = Fa::digits("ج {$vp['volume']}، ص {$vp['page']}");
+                    $vpRef = Fa::digits("ج {$vp['volume']}، " . config("bibliography.sources.{$vp['catalog']}.unit", 'ص') . " {$vp['page']}");
                     $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
                 @endphp
                 <x-ui.card class="space-y-2" data-viewer-card>

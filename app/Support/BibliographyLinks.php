@@ -24,7 +24,7 @@ class BibliographyLinks
                 $html .= $text;
                 continue;
             }
-            $attrs = 'href="' . e($seg['url']) . '" target="_blank" rel="noopener" title="' . e(Fa::digits($seg['title'])) . '"';
+            $attrs = 'href="' . e($seg['url']) . '"' . ($seg['url'] === '#' ? '' : ' target="_blank" rel="noopener"') . ' title="' . e(Fa::digits($seg['title'])) . '"';
             if (isset($seg['viewer'])) {
                 $attrs .= ' onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent(\'open-catalog-viewer\', { detail: ' . e(json_encode($seg['viewer'], JSON_UNESCAPED_UNICODE)) . ' }))"';
             }
@@ -129,14 +129,19 @@ class BibliographyLinks
             return null;
         }
 
-        $link = [
+        $unit = $src['unit'] ?? 'ص';
+        $link = isset($src['url']) ? [
             'url' => strtr($src['url'], ['{volume}' => $volume, '{page}' => $page]),
-            'title' => "{$src['label']}، ج {$volume}، ص {$page} — {$src['site']}",
-        ];
+            'title' => "{$src['label']}، ج {$volume}، {$unit} {$page} — {$src['site']}",
+        ] : null;
         $viewer = $src['viewer'] ?? null;
-        if ($viewer && $page <= ($viewer['last_pages'][$volume] ?? 0) && ! in_array($page, $viewer['missing'][$volume] ?? [], true)) {
-            $link['viewer'] = ['catalog' => $viewer['catalog'], 'catalogName' => $viewer['name'], 'volume' => $volume, 'page' => $page];
-            $link['title'] = "دیدن برگه‌ی {$src['label']}، ج {$volume}، ص {$page}";
+        if ($viewer && $page >= ($viewer['first_pages'][$volume] ?? 1) && $page <= ($viewer['last_pages'][$volume] ?? 0)
+            && ! in_array($page, $viewer['missing'][$volume] ?? [], true)) {
+            $link = [
+                'url' => $link['url'] ?? '#',
+                'title' => "دیدن برگه‌ی {$src['label']}، ج {$volume}، {$unit} {$page}",
+                'viewer' => ['catalog' => $viewer['catalog'], 'catalogName' => $viewer['name'], 'volume' => $volume, 'page' => $page],
+            ];
         }
 
         return $link;

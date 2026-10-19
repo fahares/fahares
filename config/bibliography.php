@@ -7,10 +7,12 @@ return [
      *
      * - pattern: regex for the source name, matched after normalization (ی/ک, ة→ه, أ/إ/آ→ا, no ZWNJ).
      * - volumes: number of volumes; used to tell «page/volume» from the occasional «volume/page».
-     * - url: link template with {volume} and {page}. The edition's page numbers must match the ones Fankha cites.
+     * - url (optional with a viewer): link template with {volume} and {page}. The edition's page numbers must match
+     *   the ones Fankha cites. Without a url only the citations the viewer can show are linked.
      * - viewer (optional): page images in storage/app/public/catalogs/{catalog}, shown in the site's page viewer
-     *   instead of following the url. last_pages is the last printed page of each volume and missing the pages
-     *   the scan lacks; those citations keep the url (scripts/facsimile/dharia_page_mapping.json).
+     *   instead of following the url. last_pages is the last printed page of each volume, first_pages the first
+     *   where it is not 1, and missing the pages the scan lacks; those citations keep the url
+     *   (scripts/facsimile/dharia_page_mapping.json, kashf_page_mapping.json).
      */
     'sources' => [
         'dharia' => [
@@ -42,6 +44,19 @@ return [
             'volumes' => 8,
             'url' => 'https://lib.eshia.ir/10984/{volume}/{page}',
             'site' => 'کتابخانه‌ی مدرسه‌ی فقاهت',
+        ],
+        // Istanbul 1941-43 edition: numbered by column, counted on across both volumes (vol. 2 starts at 945).
+        'kashf' => [
+            'label' => 'کشف الظنون',
+            'pattern' => 'کشف الظنون(?: عن اسامی الکتب و ?الفنون)?',
+            'volumes' => 2,
+            'unit' => 'ستون',
+            'viewer' => [
+                'catalog' => 'kashf',
+                'name' => 'کشف الظنون',
+                'first_pages' => [2 => 945],
+                'last_pages' => [1 => 940, 2 => 2056],
+            ],
         ],
     ],
 ];

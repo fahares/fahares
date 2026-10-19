@@ -39,7 +39,7 @@ class BibliographyLinksTest extends TestCase
     public function test_other_sources_are_not_linked_even_after_a_known_one()
     {
         $this->assertSame([], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
-        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، کشف الظنون 23/1'));
+        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، هدیة العارفین 23/1'));
         $this->assertSame([], $this->links('الذریعة 287/26'));
     }
 
@@ -76,6 +76,27 @@ class BibliographyLinksTest extends TestCase
         $this->assertStringContainsString('href="https://lib.eshia.ir/71602/3/402"', $html);
         $this->assertStringContainsString("open-catalog-viewer", $html);
         $this->assertStringContainsString('&quot;catalog&quot;:&quot;dharia&quot;', $html);
+    }
+
+    public function test_kashf_columns_open_the_viewer_and_have_no_link_otherwise()
+    {
+        $viewer = fn (string $entry) => array_values(array_filter(
+            array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))
+        ));
+
+        $this->assertSame(
+            [
+                ['catalog' => 'kashf', 'catalogName' => 'کشف الظنون', 'volume' => 1, 'page' => 500],
+                ['catalog' => 'kashf', 'catalogName' => 'کشف الظنون', 'volume' => 2, 'page' => 1342],
+            ],
+            $viewer('كشف الظنون 500/1 و 1342/2')
+        );
+        // volume 2 starts at column 945; 23/2 and 1544/1 are not in this edition
+        $this->assertSame([], $this->links('کشف الظنون 23/2؛ 1544/1'));
+
+        $html = (string) BibliographyLinks::html('کشف الظنون: 1075/2');
+        $this->assertStringContainsString('href="#" title="دیدن برگه‌ی کشف الظنون، ج ۲، ستون ۱۰۷۵"', $html);
+        $this->assertStringContainsString('&quot;catalog&quot;:&quot;kashf&quot;', $html);
     }
 
     public function test_viewer_pages_lists_each_showable_page_once()
