@@ -7,6 +7,7 @@ return [
      *
      * - pattern: regex for the source name, matched after normalization (ی/ک, ة→ه, أ/إ/آ→ا, no ZWNJ).
      * - volumes: number of volumes; used to tell «page/volume» from the occasional «volume/page».
+     * - series_volumes (optional): other volume numbers Fankha uses for the book, mapped to its own.
      * - url (optional with a viewer): link template with {volume} and {page}. The edition's page numbers must match
      *   the ones Fankha cites. Without a url only the citations the viewer can show are linked.
      * - viewer (optional): page images in storage/app/public/catalogs/{catalog}, shown in the site's page viewer
@@ -72,6 +73,8 @@ return [
             'label' => 'ایضاح المکنون',
             'pattern' => '(?:ایضاح ?المکنون(?: فی الذیل علی کشف الظنون)?|ذیل کشف الظنون|ذیل چلبی)',
             'volumes' => 2,
+            // the Beirut reprint numbers the Istanbul set on: Kashf 1-2, Idah 3-4, Hadiyya 5-6
+            'series_volumes' => [3 => 1, 4 => 2],
             'unit' => 'ستون',
             'viewer' => [
                 'catalog' => 'idah',
@@ -85,6 +88,7 @@ return [
             'label' => 'هدیة العارفین',
             'pattern' => 'هدیه(?: ?العارفین)?',
             'volumes' => 2,
+            'series_volumes' => [5 => 1, 6 => 2],
             'unit' => 'ستون',
             'viewer' => [
                 'catalog' => 'hadiyya',

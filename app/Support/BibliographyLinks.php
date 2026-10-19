@@ -65,19 +65,48 @@ class BibliographyLinks
         $cursor = 0;
         $volume = null; // the volume of the citation just linked, while a bare «و page» may still continue it
 
-        preg_match_all('/([0-9۰-۹]+)(?:\s*\/\s*([0-9۰-۹]+))?/u', $entry, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+        // «ج 1، ص 185» / «ج 2 ستون 1511»; «1-93» (volume-column); «page/volume» or «volume: column»; a bare number
+        preg_match_all(
+            '/ج\s*(?<jv>[0-9۰-۹]+)\s*[،,:]?\s*(?:ص|ستون|-)\s*(?:ستون\s*)?(?<jp>[0-9۰-۹]+)'
+            . '|(?<da>[0-9۰-۹]+)\s*-\s*(?<db>[0-9۰-۹]+)(?!\s*[\/:0-9۰-۹])'
+            . '|(?<a>[0-9۰-۹]+)(?:\s*(?<sep>[\/:])\s*(?<b>[0-9۰-۹]+))?/u',
+            $entry, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE | PREG_UNMATCHED_AS_NULL
+        );
 
         foreach ($matches as $m) {
             [$whole, $offset] = $m[0];
             $gap = substr($entry, $cursor, $offset - $cursor);
-            if (isset($m[2])) {
+            $named = self::namedRightBefore($gap); // the source whose name the number directly follows
+            $joined = $source && preg_match('/^\s*و\s*$/u', $gap); // «و» right after a linked citation
+            if (isset($m['jp'][0])) {
                 $source = self::sourceAfter($gap, $source);
-                $link = $source ? self::link($source, self::int($m[1][0]), self::int($m[2][0])) : null;
+                $volume = $source ? self::volume($source, self::int($m['jv'][0])) : null;
+                $link = $volume ? self::pageLink($source, $volume, self::int($m['jp'][0])) : null;
+            } elseif (isset($m['db'][0])) {
+                // «کشف الظنون 1-93»: in the two-volume column books a dash after the name joins volume and column
+                $key = $named ?? ($joined && $volume ? $source : null);
+                $volume = $key && isset(self::sources()[$key]['unit']) ? self::volume($key, self::int($m['da'][0])) : null;
+                $link = $volume ? self::pageLink($key, $volume, self::int($m['db'][0])) : null;
+                $source = $link ? $key : $source;
+            } elseif (isset($m['b'][0]) && $m['sep'][0] === ':') {
+                // «کشف الظنون 1: 127»: a colon joins volume and column only right after the name of a column book
+                $link = $named && isset(self::sources()[$named]['unit']) ? self::link($named, self::int($m['a'][0]), self::int($m['b'][0])) : null;
+                $source = $link ? $named : $source;
+            } elseif (isset($m['b'][0])) {
+                $source = self::sourceAfter($gap, $source);
+                $link = $source ? self::link($source, self::int($m['a'][0]), self::int($m['b'][0])) : null;
+            } elseif ($volume && $joined) {
+                // «130/24 و 131»: a bare page joined by «و» to the citation before it is in that citation's volume;
+                // not «و 117: نشانی 7», nor «1: 94 و 2», where a column book's bare volume number follows
+                $page = self::int($whole);
+                $link = ! preg_match('/^\s*:/u', substr($entry, $offset + strlen($whole)))
+                    && ! (isset(self::sources()[$source]['unit']) && $page <= self::sources()[$source]['volumes'])
+                    ? self::pageLink($source, $volume, $page) : null;
             } else {
-                // «130/24 و 131»: a bare page joined by «و» to the citation before it is in that citation's volume
-                $link = $volume && preg_match('/^\s*و\s*$/u', $gap) && ! preg_match('/^\s*:/u', substr($entry, $offset + strlen($whole)))
-                    ? self::pageLink($source, $volume, self::int($whole))
-                    : null;
+                // «کشف الظنون 1266»: a column counted across the volumes tells its volume by itself
+                $volume = $named ? self::volumeOfColumn($named, self::int($whole)) : null;
+                $link = $volume ? self::pageLink($named, $volume, self::int($whole)) : null;
+                $source = $link ? $named : $source;
             }
             if (! $link) {
                 $volume = null;
@@ -132,16 +161,56 @@ class BibliographyLinks
     /** Fankha writes «page/volume»; the reverse order is accepted only when it is the one that fits. */
     private static function link(string $key, int $first, int $second): ?array
     {
-        $src = self::sources()[$key];
-        if ($second >= 1 && $second <= $src['volumes']) {
-            [$volume, $page] = [$second, $first];
-        } elseif ($first >= 1 && $first <= $src['volumes']) {
-            [$volume, $page] = [$first, $second];
-        } else {
-            return null;
+        // the book's own volume numbers first: «هدیة العارفین 2/6» is column 6 of volume 2, not column 2 of «6»
+        foreach ([false, true] as $series) {
+            if ($volume = self::volume($key, $second, $series)) {
+                return self::pageLink($key, $volume, $first);
+            }
+            if ($volume = self::volume($key, $first, $series)) {
+                return self::pageLink($key, $volume, $second);
+            }
         }
 
-        return self::pageLink($key, $volume, $page);
+        return null;
+    }
+
+    /**
+     * The volume a cited volume number stands for: one of the source's own, or one of its series_volumes
+     * (the Beirut reprint numbers the Istanbul set on, so Idah's volumes are 3-4 there and Hadiyya's 5-6).
+     */
+    private static function volume(string $key, int $n, bool $series = true): ?int
+    {
+        $src = self::sources()[$key];
+        if ($n >= 1 && $n <= $src['volumes']) {
+            return $n;
+        }
+
+        return $series ? $src['series_volumes'][$n] ?? null : null;
+    }
+
+    /** The volume holding a column, for a source whose column count runs on across volumes (first_pages). */
+    private static function volumeOfColumn(string $key, int $column): ?int
+    {
+        $viewer = self::sources()[$key]['viewer'] ?? [];
+        if (empty($viewer['first_pages'])) {
+            return null;
+        }
+        foreach ($viewer['last_pages'] as $volume => $last) {
+            if ($column >= ($viewer['first_pages'][$volume] ?? 1) && $column <= $last) {
+                return $volume;
+            }
+        }
+
+        return null;
+    }
+
+    /** The source whose name ends the text before a number, with at most «:»، «،» or «(چاپ استانبول)» between. */
+    private static function namedRightBefore(string $gap): ?string
+    {
+        $gap = preg_replace(['/\(\s*چاپ استانبول\s*\)/u', '/[\s:،,]+$/u'], ['', ''], $gap);
+        $last = preg_split('/[0-9۰-۹؛;،,:.\/\-–()]+/u', $gap);
+
+        return preg_match('/\p{L}$/u', $gap) ? self::sourceAfter(end($last), null) : null;
     }
 
     private static function pageLink(string $key, int $volume, int $page): ?array

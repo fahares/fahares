@@ -152,6 +152,46 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([['kashf', 1, 500]], $viewer('کشف الظنون 500/1'));
     }
 
+    public function test_citations_without_the_page_volume_form()
+    {
+        $viewer = fn (string $entry) => array_map(
+            fn ($v) => [$v['catalog'], $v['volume'], $v['page']],
+            array_values(array_filter(array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))))
+        );
+
+        // «ج N، ص M» in any source, and a bare «و» page after it
+        $this->assertSame([['kashf', 1, 185], ['idah', 2, 669], ['hadiyya', 1, 244]],
+            $viewer('کشف الظنون ج 1، ص 185؛ ایضاح المکنون: ج2ص669، الأعلام للزرکلی: ج6ص41؛ هدیة العارفین ج 1-ستون 244'));
+        $this->assertSame([['kashf', 1, 195], ['kashf', 1, 196]], $viewer('کشف الظنون ج 1-195 و 196'));
+        $this->assertSame([['https://lib.eshia.ir/71602/3/402']], array_map(fn ($l) => [$l[1]], $this->links('الذریعة ج 3، ص 402')));
+
+        // Kashf counts its columns on across both volumes, so a bare column tells its volume
+        $this->assertSame([['kashf', 2, 1266]], $viewer('کشف الظنون 1266'));
+        $this->assertSame([['kashf', 1, 135], ['kashf', 2, 1855], ['kashf', 2, 1857]],
+            $viewer('کشف الظنون (چاپ استانبول) 135؛ کشف الظنون: 1855 و 1857'));
+        $this->assertSame([], $viewer('کشف الظنون (100.1 چاپ مصر)'));
+        $this->assertSame([], $viewer('ايضاح المكنون: 324'));       // columns restart in each volume of Idah
+
+        // «volume-column» and «volume: column» after the name of a column book
+        $this->assertSame([['kashf', 1, 93], ['hadiyya', 2, 268]], $viewer('کشف الظنون 1-93؛ هدیة العارفین 2- 268'));
+        $this->assertSame([['kashf', 1, 127]], $viewer('کشف الظنون (چاپ استانبول) 1: 127'));
+        $this->assertSame([], $this->links('الذریعة 13-15'));
+        $this->assertSame([['15/19', 'https://lib.eshia.ir/71602/19/15']], $this->links('الذریعة 13-15/19'));
+
+        // the Beirut reprint numbers Idah 3-4 and Hadiyya 5-6
+        $this->assertSame([['idah', 1, 417], ['hadiyya', 1, 343], ['hadiyya', 2, 369]],
+            $viewer('ذیل کشف الظنون 417/3؛ هدية العارفين 343/5؛ هدیة العارفین 369/6'));
+        $this->assertSame([], $viewer('هدية العارفين 554/4'));
+        $this->assertSame([['hadiyya', 2, 6]], $viewer('هدیة العارفین 2/6')); // own volume first
+
+        // a bare number after «و» belongs to the citation before it, never to a source named earlier
+        $this->assertSame([], $viewer('کشف الظنون 72: 2 و 273'));
+        $this->assertSame([['kashf', 1, 94]], $viewer('کشف الظنون 1: 94 و 2'));
+        $this->assertSame([['kashf', 1, 741], ['kashf', 1, 484]], $viewer('کشف الظنون 741/1 و 1-484'));
+        $this->assertCount(1, $this->links('الذریعه 116/13 و 117: نشانی 7'));
+        $this->assertSame([['kashf', 1, 557]], $viewer('کشف الظنون ص 557'));
+    }
+
     public function test_viewer_pages_lists_each_showable_page_once()
     {
         $this->assertSame(
