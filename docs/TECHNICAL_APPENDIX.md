@@ -2368,3 +2368,8 @@
 - **استقرار:** پس از پوش، این دو دستور با `ssh fahares-app` اجرا شوند:
   1. `php artisan migrate --force`
   2. `php artisan fahares:apply-library-logos`
+- **استقرار پروداکشن (۲۷ مهر ۱۴۰۵):**
+  - کامیت `47966e5` پوش شد. کامیت پوش‌نشده‌ی `280241f` (گام ۱۲.۱۶) هم با آن رفت. Coolify حدود ۴ دقیقه و ۲۰ ثانیه بعد آن را مستقر کرد.
+  - با `ssh fahares-app` دستور `migrate --force` اجرا شد؛ فقط مایگریشن `add_logo_to_libraries_table`.
+  - سپس `fahares:apply-library-logos` اجرا شد. اجرای آزمایشی و واقعی هر دو «30 of 30» بود.
+  - روی fahares.net فهرست کتابخانه‌ها (۲۰ نشان در صفحه‌ی اول)، صفحه‌ی کتابخانه و صفحه‌ی نسخه پاسخ ۲۰۰ دادند و نشان دارند. فایل نشان با `image/png` و پاسخ ۲۰۰ از `/storage/libraries/logos/` بارگذاری می‌شود.
