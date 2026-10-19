@@ -15,7 +15,7 @@
     </script>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ \App\Support\VersionedAsset::url('favicon.ico') }}">
     
     <!-- Google Fonts: Vazirmatn -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,7 +46,7 @@
         <!-- Sidebar Brand Header -->
         <div class="h-20 flex items-center justify-between px-6 border-b border-stone-800/80 bg-[#1A1511]">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                <img src="{{ asset('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
+                <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
                 <div>
                     <span class="font-naskh text-2xl font-bold text-amber-50 leading-none block">فهارس</span>
                     <span class="text-[10px] text-[#C9A45C] font-medium">پنل مدیریت و داوری</span>

@@ -12,7 +12,7 @@
     <meta property="og:description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:image" content="@yield('og_image', asset('images/brand/og-image.jpg'))">
+    <meta property="og:image" content="@yield('og_image', \App\Support\VersionedAsset::url('images/brand/og-image.jpg'))">
     @hasSection('og_image')@else
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')">
     <meta name="twitter:description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب')">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/brand/og-image.jpg'))">
+    <meta name="twitter:image" content="@yield('og_image', \App\Support\VersionedAsset::url('images/brand/og-image.jpg'))">
 
     @stack('structured_data')
     
@@ -37,10 +37,10 @@
     </script>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/brand/shamseh-32.png') }}">
-    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('images/brand/shamseh-256.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/brand/shamseh-180.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ \App\Support\VersionedAsset::url('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-32.png') }}">
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-256.png') }}">
+    <link rel="apple-touch-icon" href="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-180.png') }}">
     
     <!-- Google Fonts: Vazirmatn for text, Noto Naskh Arabic for headings and work titles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,7 +60,7 @@
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-4">
                     <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
-                        <img src="{{ asset('images/brand/shamseh-180.png') }}" alt="" width="48" height="48" class="h-12 w-12 group-hover:rotate-[22.5deg] transition-transform duration-500 motion-reduce:transition-none">
+                        <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-180.png') }}" alt="" width="48" height="48" class="h-12 w-12 group-hover:rotate-[22.5deg] transition-transform duration-500 motion-reduce:transition-none">
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
                                 <span class="font-naskh text-[28px] font-bold text-ink leading-none group-hover:text-cinnabar transition-colors">فهارس</span>
@@ -322,7 +322,7 @@
                 <!-- Col 1: About Platform -->
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center gap-3">
-                        <img src="{{ asset('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
+                        <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
                         <span class="font-naskh text-3xl font-bold text-amber-100">فهارس</span>
                     </div>
                     <p class="text-stone-400 text-sm leading-relaxed text-justify">
