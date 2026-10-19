@@ -142,4 +142,38 @@ class LibraryLogoTest extends TestCase
         $this->assertTrue($library->fresh()->logo_on_dark);
         $this->assertSame($keptPath, $kept->fresh()->logo_path);
     }
+
+    public function test_command_only_and_force_replace_one_logo()
+    {
+        $replaced = $this->library();
+        $replaced->storeLogo($this->png('old.png'));
+        $oldPath = $replaced->logo_path;
+        $untouched = $this->library();
+
+        $dir = storage_path('framework/testing/logos-' . uniqid());
+        File::ensureDirectoryExists($dir);
+        File::put("$dir/new.png", $this->png()->getContent());
+        File::put("$dir/other.png", $this->png()->getContent());
+        $data = "$dir/logos.json";
+        File::put($data, json_encode([
+            ['name' => $replaced->name, 'city' => $replaced->city, 'file' => 'new.png', 'on_dark' => true],
+            ['name' => $untouched->name, 'city' => $untouched->city, 'file' => 'other.png', 'on_dark' => false],
+        ]));
+        $rel = fn ($p) => ltrim(str_replace(base_path(), '', $p), '/');
+        // Stored names carry a timestamp, so the new file needs a later second than the old one
+        $this->travel(1)->seconds();
+
+        try {
+            $this->artisan('fahares:apply-library-logos', ['--file' => $rel($data), '--dir' => $rel($dir), '--only' => 'new.png', '--force' => true])
+                ->expectsOutputToContain('Set 1 of 1 logos; 0 already had one, 0 not found.')
+                ->assertSuccessful();
+        } finally {
+            File::deleteDirectory($dir);
+        }
+
+        $this->assertNotSame($oldPath, $replaced->fresh()->logo_path);
+        $this->assertTrue($replaced->fresh()->logo_on_dark);
+        Storage::disk('public')->assertMissing($oldPath);
+        $this->assertNull($untouched->fresh()->logo_url);
+    }
 }

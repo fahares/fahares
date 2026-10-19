@@ -44,8 +44,8 @@
  {
   "name": "لغت نامه دهخدا",
   "city": "تهران",
-  "file": "tehran-university.png",
-  "on_dark": false
+  "file": "dehkhoda.png",
+  "on_dark": true
  },
  {
   "name": "مجلس",
@@ -177,6 +177,12 @@
   "name": "انجمن آثار و مفاخر فرهنگی",
   "city": "تهران",
   "file": "anjom.png",
+  "on_dark": false
+ },
+ {
+  "name": "مرکز مطالعات",
+  "city": "قم",
+  "file": "isca.png",
   "on_dark": false
  }
 ]

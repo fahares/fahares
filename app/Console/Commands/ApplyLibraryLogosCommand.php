@@ -9,13 +9,15 @@ use Illuminate\Http\File;
 /**
  * Sets libraries' official logos from database/data/library_logos.json and the images beside it.
  * Local and production ids differ, so rows are matched by short name and city. A library that
- * already has a logo (one uploaded in the admin panel, say) is left alone unless --force is given.
+ * already has a logo (one uploaded in the admin panel, say) is left alone unless --force is given;
+ * --only limits a run to some images, so one changed logo can be replaced without touching the rest.
  */
 class ApplyLibraryLogosCommand extends Command
 {
     protected $signature = 'fahares:apply-library-logos
         {--file=database/data/library_logos.json : Data file, relative to the project root}
         {--dir=database/data/library_logos : Folder of the logo images, relative to the project root}
+        {--only= : Comma-separated image files; only rows using them are applied}
         {--force : Replace logos that are already set}
         {--dry-run : Report the changes without saving them}';
 
@@ -29,6 +31,11 @@ class ApplyLibraryLogosCommand extends Command
             $this->error("Cannot read {$path}");
 
             return self::FAILURE;
+        }
+
+        if ($only = $this->option('only')) {
+            $files = array_map('trim', explode(',', $only));
+            $rows = array_values(array_filter($rows, fn ($row) => in_array($row['file'], $files, true)));
         }
 
         $dir = base_path($this->option('dir'));
