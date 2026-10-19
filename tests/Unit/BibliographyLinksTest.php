@@ -70,12 +70,32 @@ class BibliographyLinksTest extends TestCase
         );
         $this->assertSame([], $viewer('الذریعة 98/9'));      // missing from the scan
         $this->assertSame([], $viewer('الذریعة 600/3'));     // past the last page of volume 3
-        $this->assertSame([], $viewer('ریحانة الادب 369/4')); // no page images
 
         $html = (string) BibliographyLinks::html('الذریعة 402/3');
         $this->assertStringContainsString('href="https://lib.eshia.ir/71602/3/402"', $html);
         $this->assertStringContainsString("open-catalog-viewer", $html);
         $this->assertStringContainsString('&quot;catalog&quot;:&quot;dharia&quot;', $html);
+    }
+
+    public function test_rayhana_citations_open_the_viewer_and_keep_the_link_past_the_scan()
+    {
+        $viewer = fn (string $entry) => array_values(array_filter(
+            array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))
+        ));
+
+        $this->assertSame(
+            [['catalog' => 'rayhana', 'catalogName' => 'ریحانة الادب', 'volume' => 2, 'page' => 422]],
+            $viewer('ریحانة الادب 422/2')
+        );
+        $this->assertSame([], $viewer('ریحانة الادب 456/2')); // last page of volume 2, not in the scan
+        $this->assertSame([], $viewer('ریحانة الادب 404/6'));
+        $this->assertSame([], $viewer('ریحانة الادب 3/6'));   // missing from the scan
+        $this->assertSame([['456/2', 'https://lib.eshia.ir/10984/2/456'], ['3/6', 'https://lib.eshia.ir/10984/6/3']],
+            $this->links('ریحانة الادب 456/2؛ 3/6'));
+
+        $html = (string) BibliographyLinks::html('ریحانه 422/2');
+        $this->assertStringContainsString('href="https://lib.eshia.ir/10984/2/422"', $html);
+        $this->assertStringContainsString('&quot;catalog&quot;:&quot;rayhana&quot;', $html);
     }
 
     public function test_kashf_columns_open_the_viewer_and_have_no_link_otherwise()
@@ -106,7 +126,7 @@ class BibliographyLinksTest extends TestCase
                 ['catalog' => 'dharia', 'catalogName' => 'الذریعة', 'volume' => 3, 'page' => 402],
                 ['catalog' => 'dharia', 'catalogName' => 'الذریعة', 'volume' => 5, 'page' => 10],
             ],
-            BibliographyLinks::viewerPages(['الذریعة 402/3 و 98/9؛ ریحانة الادب 369/4', 'الذریعة 402/3، 10/5'])
+            BibliographyLinks::viewerPages(['الذریعة 402/3 و 98/9؛ ریحانة الادب 456/2', 'الذریعة 402/3، 10/5'])
         );
     }
 }

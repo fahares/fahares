@@ -44,6 +44,14 @@ return [
             'volumes' => 8,
             'url' => 'https://lib.eshia.ir/10984/{volume}/{page}',
             'site' => 'کتابخانه‌ی مدرسه‌ی فقاهت',
+            // Khayyam edition (scripts/facsimile/rayhana_page_mapping.json); the scan ends one page early in
+            // volumes 2 and 6, whose last pages keep the url.
+            'viewer' => [
+                'catalog' => 'rayhana',
+                'name' => 'ریحانة الادب',
+                'last_pages' => [1 => 452, 2 => 455, 3 => 484, 4 => 501, 5 => 398, 6 => 403, 7 => 590, 8 => 486],
+                'missing' => [6 => [3, 4]],
+            ],
         ],
         // Istanbul 1941-43 edition: numbered by column, counted on across both volumes (vol. 2 starts at 945).
         'kashf' => [
