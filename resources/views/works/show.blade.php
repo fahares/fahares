@@ -176,35 +176,36 @@
                 <x-ui.btn href="#manuscripts" variant="primary" class="w-full mt-4">فهرست نسخه‌ها</x-ui.btn>
             </x-ui.card>
 
-            <x-ui.card class="space-y-2">
-                <div class="text-xs text-muted">مأخذ</div>
-                <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
-                @if($pageThumb)
-                    <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
-                        <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
-                            <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
-                        </div>
-                        <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در مأخذ چاپی</span>
-                    </button>
-                @endif
+            <!-- Cited sources: bibliographies with a scanned page first, the catalog (فنخا) last -->
+            <x-ui.card class="space-y-4">
+                <div class="text-xs text-muted">در مآخذ کتاب‌شناسی</div>
+                @foreach(\App\Support\BibliographyLinks::viewerPages($work->bibliography ?? []) as $vp)
+                    @php
+                        $vpRef = Fa::digits("ج {$vp['volume']}، " . config("bibliography.sources.{$vp['catalog']}.unit", 'ص') . " {$vp['page']}");
+                        $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
+                    @endphp
+                    <div class="space-y-2 pb-4 border-b border-line" data-viewer-card>
+                        <div class="text-sm font-bold text-ink">{{ $vp['catalogName'] }}، {{ $vpRef }}</div>
+                        <button type="button" @click="$dispatch('open-catalog-viewer', @js($vp))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $vp['catalogName'] }}">
+                            <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                                <img src="{{ $vpThumb }}" alt="برگه‌ی {{ $vpRef }} در {{ $vp['catalogName'] }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
+                            </div>
+                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $vp['catalogName'] }}</span>
+                        </button>
+                    </div>
+                @endforeach
+                <div class="space-y-2">
+                    <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
+                    @if($pageThumb)
+                        <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
+                            <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                                <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
+                            </div>
+                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $catShort }}</span>
+                        </button>
+                    @endif
+                </div>
             </x-ui.card>
-
-            @foreach(\App\Support\BibliographyLinks::viewerPages($work->bibliography ?? []) as $vp)
-                @php
-                    $vpRef = Fa::digits("ج {$vp['volume']}، " . config("bibliography.sources.{$vp['catalog']}.unit", 'ص') . " {$vp['page']}");
-                    $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
-                @endphp
-                <x-ui.card class="space-y-2" data-viewer-card>
-                    <div class="text-xs text-muted">در مآخذ کتاب‌شناسی</div>
-                    <div class="text-sm font-bold text-ink">{{ $vp['catalogName'] }}، {{ $vpRef }}</div>
-                    <button type="button" @click="$dispatch('open-catalog-viewer', @js($vp))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $vp['catalogName'] }}">
-                        <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
-                            <img src="{{ $vpThumb }}" alt="برگه‌ی {{ $vpRef }} در {{ $vp['catalogName'] }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
-                        </div>
-                        <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $vp['catalogName'] }}</span>
-                    </button>
-                </x-ui.card>
-            @endforeach
         </aside>
 
         <!-- Details -->
@@ -264,7 +265,6 @@
                     'explicit_text' => empty($work->explicit_text) ? 'انجام اثر' : null,
                     'print_info' => empty($work->print_info) ? 'چاپ‌ها و سوابق' : null,
                     'commentaries_and_glosses' => empty($work->commentaries_and_glosses) ? 'شروح و حواشی' : null,
-                    'bibliography' => empty($work->bibliography) ? 'مآخذ کتاب‌شناسی' : null,
                 ]);
             @endphp
             @if($emptySections)
@@ -299,26 +299,26 @@
                 </x-ui.section>
             @endif
 
-            @if(! empty($work->bibliography) && count($work->bibliography) > 0)
-                <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
-                    <ul class="space-y-1 text-sm">
-                        @foreach($work->bibliography as $bib)
-                            <li class="flex gap-2.5 leading-relaxed">
-                                <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                                <span class="text-ink">{{ \App\Support\BibliographyLinks::html($bib) }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </x-ui.section>
-            @endif
+            <!-- The catalog this record comes from closes the list, alone when there is no other source -->
+            <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
+                <ul class="space-y-1 text-sm">
+                    @foreach($work->bibliography ?? [] as $bib)
+                        <li class="flex gap-2.5 leading-relaxed">
+                            <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                            <span class="text-ink">{{ \App\Support\BibliographyLinks::html($bib) }}</span>
+                        </li>
+                    @endforeach
+                    <li class="flex gap-2.5 leading-relaxed">
+                        <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                        <span class="text-ink">{{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)' }}@if($pageRef)، @if($openViewer)<a href="#" @click.prevent="{{ $openViewer }}" title="دیدن برگه در {{ $catShort }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $pageRef }}</a>@else{{ $pageRef }}@endif @endif</span>
+                    </li>
+                </ul>
+            </x-ui.section>
 
             @if($work->clean_raw_text)
                 <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
                     <x-slot:actions>
                         <span class="text-muted">{{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)' }}</span>
-                        @if($openViewer)
-                            <x-ui.btn size="sm" @click="{{ $openViewer }}">دیدن برگه</x-ui.btn>
-                        @endif
                         <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.workRawText.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                             <span x-show="!copied">رونوشت متن</span>
                             <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>

@@ -2506,3 +2506,12 @@
   - فهرست «نام و اندازه»ی همه‌ی ۲٬۰۵۲ فایل در دو سو یکسان بود.
   - مالکیت و سطح دسترسی مانند `catalogs/fankha` شد (`ubuntu:ubuntu`، `777`).
   - `https://fahares.net/storage/catalogs/kashf/v01/p0500.webp` و `v02/p2056.webp` پاسخ ۲۰۰ و `image/webp` دادند. ستون ناموجود `v02/p0944.webp` پاسخ ۴۰۴ داد.
+
+#### گام ۱۲.۲۵ — یکسان‌سازی کارت مآخذ در ستون کناری صفحه‌ی اثر
+- [resources/views/works/show.blade.php](../resources/views/works/show.blade.php): کارت «مأخذ» فنخا و کارت‌های جداگانه‌ی `BibliographyLinks::viewerPages` در یک `x-ui.card` با عنوان «در مآخذ کتاب‌شناسی» ادغام شدند. هر مأخذ کتاب‌شناسی یک `div[data-viewer-card]` با خط جداکننده است و اگر تصویرش نیاید، همچنان خودش حذف می‌شود. فنخا آخرین مورد است و دکمه‌اش «دیدن برگه در {نام کوتاه مأخذ}» شد تا با بقیه هم‌شکل باشد.
+- **آزمون:** `docker exec fahares_app php artisan test --filter='WorkPageTest|BibliographyLinks'` — ۱۲ آزمون موفق.
+
+#### گام ۱۲.۲۶ — فنخا در فهرست مآخذ کتاب‌شناسی صفحه‌ی اثر
+- [resources/views/works/show.blade.php](../resources/views/works/show.blade.php): بخش «مآخذ کتاب‌شناسی» دیگر به خالی نبودن `bibliography` بستگی ندارد و همیشه نمایش داده می‌شود. آخرین `li` آن `catalog->name` و `$pageRef` است. اگر `$openViewer` باشد، `$pageRef` پیوندی است که نمایشگر را باز می‌کند و همان کلاس پیوندهای `BibliographyLinks::html` را دارد. `bibliography` هم از فهرست `$emptySections` حذف شد، چون پیشنهاد ویرایش از خود بخش در دسترس است.
+- دکمه‌ی «دیدن برگه» از `actions` بخش «متن مأخذ» حذف شد.
+- **آزمون:** `docker exec fahares_app php artisan test --filter='WorkPageTest|BibliographyLinks|Suggestion'` — ۶۶ آزمون موفق.
