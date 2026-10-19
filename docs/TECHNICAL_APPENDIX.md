@@ -2428,3 +2428,10 @@
 - [BibliographyLinks::viewerPages()](../app/Support/BibliographyLinks.php): از میان همه‌ی مدخل‌های `bibliography`، برگه‌هایی را که `viewer` دارند بی‌تکرار و به ترتیب نخستین ذکر برمی‌گرداند. کلید یکتایی `catalog/volume/page` است.
 - [works/show.blade.php](../resources/views/works/show.blade.php): در `<aside>` برای هر برگه یک `x-ui.card` با `data-viewer-card` گذاشته می‌شود. تصویر کوچک `storage/catalogs/{catalog}/vNN/pNNNN.webp` است و دکمه‌اش `open-catalog-viewer` را با `@js($vp)` می‌فرستد. `onerror` کل کارت را حذف می‌کند.
 - **آزمون:** `test_viewer_pages_lists_each_showable_page_once` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php).
+- **انتقال به سرور (۲۷ مهر ۱۴۰۵):**
+  - هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/dharia --no-same-owner -xf -"` فرستاده شد. پس از هر جلد، شمار فایل‌ها با نسخه‌ی محلی مقایسه شد و نیازی به تکرار نشد.
+  - سرعت حدود ۵ مگابایت بر ثانیه بود.
+  - مقایسه‌ی فهرست `نام و اندازه` همه‌ی ۱۱٬۰۸۴ فایل در دو سو یکسان بود.
+  - مالکیت و سطح دسترسی مانند `catalogs/fankha` شد (`ubuntu:ubuntu`، `777`).
+  - `https://fahares.net/storage/catalogs/dharia/v03/p0402.webp`، `v09/p1145.webp` و `v25/p0496.webp` پاسخ ۲۰۰ و `image/webp` دادند. صفحه‌ی گم‌شده‌ی `v09/p0098.webp` پاسخ ۴۰۴ داد.
+
