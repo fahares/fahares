@@ -113,11 +113,7 @@
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($volumes as $vol)
                             <li class="py-3 space-y-1">
-                                <div class="flex items-baseline gap-2">
-                                    <span class="font-naskh text-base font-bold text-ink">{{ $vol->title }}@if($vol->volume_number) <span class="font-sans text-sm font-normal text-muted">· جلد {{ Fa::digits($vol->volume_number) }}</span>@endif</span>
-                                    <span class="leader" aria-hidden="true"></span>
-                                    <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($vol->manuscripts_count) }} نسخه</span>
-                                </div>
+                                <div class="font-naskh text-base font-bold text-ink">{{ $vol->title }}@if($vol->volume_number) <span class="font-sans text-sm font-normal text-muted">· جلد {{ Fa::digits($vol->volume_number) }}</span>@endif</div>
                                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
                                     @if($vol->library)<span class="text-ink">{{ $vol->library->display_name }}</span>@endif
                                     @if($vol->publisher)<span>{{ $vol->publisher }}</span>@endif
