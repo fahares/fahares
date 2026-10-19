@@ -63,25 +63,40 @@ class BibliographyLinks
         $segments = [];
         $source = null; // the source the following citations belong to
         $cursor = 0;
+        $volume = null; // the volume of the citation just linked, while a bare «و page» may still continue it
 
-        preg_match_all('/([0-9۰-۹]+)\s*\/\s*([0-9۰-۹]+)/u', $entry, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+        preg_match_all('/([0-9۰-۹]+)(?:\s*\/\s*([0-9۰-۹]+))?/u', $entry, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
         foreach ($matches as $m) {
             [$whole, $offset] = $m[0];
-            $source = self::sourceAfter(substr($entry, $cursor, $offset - $cursor), $source);
-            $link = $source ? self::link($source, self::int($m[1][0]), self::int($m[2][0])) : null;
+            $gap = substr($entry, $cursor, $offset - $cursor);
+            if (isset($m[2])) {
+                $source = self::sourceAfter($gap, $source);
+                $link = $source ? self::link($source, self::int($m[1][0]), self::int($m[2][0])) : null;
+            } else {
+                // «130/24 و 131»: a bare page joined by «و» to the citation before it is in that citation's volume
+                $link = $volume && preg_match('/^\s*و\s*$/u', $gap) && ! preg_match('/^\s*:/u', substr($entry, $offset + strlen($whole)))
+                    ? self::pageLink($source, $volume, self::int($whole))
+                    : null;
+            }
             if (! $link) {
+                $volume = null;
                 continue;
             }
 
-            self::pushText($segments, substr($entry, $cursor, $offset - $cursor));
+            self::pushText($segments, $gap);
             $segments[] = ['text' => $whole] + $link;
             $cursor = $offset + strlen($whole);
+            $volume = $link['volume'];
         }
 
         self::pushText($segments, substr($entry, $cursor));
 
-        return $segments;
+        return array_map(function ($seg) {
+            unset($seg['volume']);
+
+            return $seg;
+        }, $segments);
     }
 
     /**
@@ -125,6 +140,13 @@ class BibliographyLinks
         } else {
             return null;
         }
+
+        return self::pageLink($key, $volume, $page);
+    }
+
+    private static function pageLink(string $key, int $volume, int $page): ?array
+    {
+        $src = self::sources()[$key];
         if ($page < 1) {
             return null;
         }
@@ -144,7 +166,7 @@ class BibliographyLinks
             ];
         }
 
-        return $link;
+        return $link ? $link + ['volume' => $volume] : null;
     }
 
     private static function pushText(array &$segments, string $text): void

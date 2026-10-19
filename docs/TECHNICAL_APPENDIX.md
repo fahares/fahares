@@ -2659,3 +2659,9 @@
   - کد تغییری نکرد.
   - **آزمون:** `test_rayhana_citations_open_the_viewer_and_keep_the_link_past_the_scan` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php). دو آزمونی که ریحانه را نمونه‌ی منبع بی‌تصویر گرفته بودند اصلاح شدند: سطر ریحانه از آزمون الذریعة حذف شد و در `test_viewer_pages_lists_each_showable_page_once` «369/4» با «456/2» جایگزین شد. `docker exec fahares_app php artisan test`: ۱۲۶ آزمون موفق.
   - در مرورگر محلی، ارجاع «۴۰۷/۲» اثر #۱۰۱۳۹ نمایشگر را روی ج ۲ ص ۴۰۷ باز کرد.
+
+### گام ۱۲.۲۸: صفحه‌های بی‌جلد پس از «و»
+- **کد:** [BibliographyLinks::segments](../app/Support/BibliographyLinks.php) حالا عدد تنها را هم پیدا می‌کند (`(\d+)(?:\s*/\s*(\d+))?`). اگر فاصله‌ی آن تا ارجاع پیوندخورده‌ی قبلی فقط `\s*و\s*` باشد و پس از آن «:» نیاید، با جلد همان ارجاع به `pageLink` داده می‌شود. هر عدد یا ارجاعی که پیوند نگیرد زنجیره را قطع می‌کند. `link()` فقط ترتیب «صفحه/جلد» را تشخیص می‌دهد و بقیه‌ی کار به `pageLink()` رفته است.
+- **پیمایش داده (پایگاه محلی):** ۵۵۰ عدد تنها در ۵۰۳ اثر پیوند گرفت. در پیمایش اول اثر #۳۶۱۴ («374/1 و 13: 366») عدد ۱۳ را به‌اشتباه ص ۱۳ ج ۱ گرفت، پس عدد پیش از «:» کنار گذاشته شد. ۸ موردی که پس از عدد نویسه‌ی غیرعادی آمده بود همه درست بودند (`239رقم`، `319شماره`، `42/ رقم`).
+- **آزمون:** `test_a_bare_page_after_va_is_in_the_volume_of_the_citation_before_it` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php). `docker compose exec app php artisan test`: ۱۲۷ آزمون موفق.
+- **وارسی:** صفحه‌ی محلی اثر #۶۷۶۲۲ پنج پیوند `lib.eshia.ir/71602/{20/109, 24/130, 24/131, 5/162, 5/317}` و پنج کارت برگه داشت. هر پنج تصویر روی fahares.net پاسخ ۲۰۰ دادند.

@@ -36,6 +36,24 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([['417/3', 'https://lib.eshia.ir/10984/3/417']], $this->links('ریحانه 417/3-420'));
     }
 
+    public function test_a_bare_page_after_va_is_in_the_volume_of_the_citation_before_it()
+    {
+        $this->assertSame([
+            ['109/20', 'https://lib.eshia.ir/71602/20/109'],
+            ['130/24', 'https://lib.eshia.ir/71602/24/130'],
+            ['131', 'https://lib.eshia.ir/71602/24/131'],
+            ['162/5', 'https://lib.eshia.ir/71602/5/162'],
+            ['317', 'https://lib.eshia.ir/71602/5/317'],
+        ], $this->links('الذريعة 109/20 و 130/24 و 131 و 162/5 و 317'));
+
+        $this->assertCount(3, $this->links('الذریعة 130/24 و 131 و 135'));
+        $this->assertSame([], $this->links('دنا 2/207 و 208'));                  // not a linked source
+        $this->assertCount(1, $this->links('الذریعة 509/2 رقم 1998 و 20'));      // follows a number, not a citation
+        $this->assertCount(1, $this->links('الذریعة 509/2؛ 20'));                 // only «و» joins a bare page
+        $this->assertCount(1, $this->links('الذریعة 13/19-15 و 20'));
+        $this->assertCount(1, $this->links('الذریعة 374/1 و 13: 366'));          // «volume: page», not a page of volume 1
+    }
+
     public function test_other_sources_are_not_linked_even_after_a_known_one()
     {
         $this->assertSame([], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
