@@ -39,7 +39,7 @@ class BibliographyLinksTest extends TestCase
     public function test_other_sources_are_not_linked_even_after_a_known_one()
     {
         $this->assertSame([], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
-        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، هدیة العارفین 23/1'));
+        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، معجم المؤلفین 23/1'));
         $this->assertSame([], $this->links('الذریعة 287/26'));
     }
 
@@ -117,6 +117,21 @@ class BibliographyLinksTest extends TestCase
         $html = (string) BibliographyLinks::html('کشف الظنون: 1075/2');
         $this->assertStringContainsString('href="#" title="دیدن برگه‌ی کشف الظنون، ج ۲، ستون ۱۰۷۵"', $html);
         $this->assertStringContainsString('&quot;catalog&quot;:&quot;kashf&quot;', $html);
+    }
+
+    public function test_idah_and_hadiyya_columns_open_the_viewer_under_all_their_names()
+    {
+        $viewer = fn (string $entry) => array_map(
+            fn ($v) => [$v['catalog'], $v['volume'], $v['page']],
+            array_values(array_filter(array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))))
+        );
+
+        $this->assertSame([['idah', 1, 302], ['idah', 2, 23], ['idah', 2, 504]],
+            $viewer('ایضاح المكنون 302/1؛ ذیل کشف الظنون 23/2؛ ذیل چلبی 504/2'));
+        $this->assertSame([['hadiyya', 1, 406], ['hadiyya', 2, 39], ['hadiyya', 1, 249]],
+            $viewer('هدية العارفين 406/1 و 39/2؛ بغدادی، هدیه 249/1'));
+        $this->assertSame([], $viewer('ایضاح المکنون 659/1؛ هدیة العارفین 590/2')); // past the last column
+        $this->assertSame([['kashf', 1, 500]], $viewer('کشف الظنون 500/1'));
     }
 
     public function test_viewer_pages_lists_each_showable_page_once()

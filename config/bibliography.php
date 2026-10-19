@@ -66,5 +66,31 @@ return [
                 'last_pages' => [1 => 940, 2 => 2056],
             ],
         ],
+        // Istanbul 1945-47 edition, numbered by column in each volume. Fankha also cites it as the supplement
+        // (ذیل) of Kashf al-Zunun or of Chalabi (scripts/facsimile/idah_page_mapping.json).
+        'idah' => [
+            'label' => 'ایضاح المکنون',
+            'pattern' => '(?:ایضاح ?المکنون(?: فی الذیل علی کشف الظنون)?|ذیل کشف الظنون|ذیل چلبی)',
+            'volumes' => 2,
+            'unit' => 'ستون',
+            'viewer' => [
+                'catalog' => 'idah',
+                'name' => 'ایضاح المکنون',
+                'last_pages' => [1 => 622, 2 => 732],
+            ],
+        ],
+        // Istanbul 1951-55 edition, numbered by column in each volume; Fankha also writes «بغدادی، هدیه»
+        // (scripts/facsimile/hadiyya_page_mapping.json).
+        'hadiyya' => [
+            'label' => 'هدیة العارفین',
+            'pattern' => 'هدیه(?: ?العارفین)?',
+            'volumes' => 2,
+            'unit' => 'ستون',
+            'viewer' => [
+                'catalog' => 'hadiyya',
+                'name' => 'هدیة العارفین',
+                'last_pages' => [1 => 842, 2 => 574],
+            ],
+        ],
     ],
 ];
