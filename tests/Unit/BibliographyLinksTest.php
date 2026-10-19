@@ -29,6 +29,7 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([
             ['865/9', 'https://lib.eshia.ir/71602/9/865'],
             ['221/2', 'https://lib.eshia.ir/71602/2/221'],
+            ['287/26', '#'],
         ], $this->links('الذريعة 865/9؛ 221/2؛ 287/26'));
 
         $this->assertCount(2, $this->links('الذریعه 509/2 رقم 1998 و 60/20'));
@@ -58,7 +59,7 @@ class BibliographyLinksTest extends TestCase
     {
         $this->assertSame([], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
         $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، معجم المؤلفین 23/1'));
-        $this->assertSame([], $this->links('الذریعة 287/26'));
+        $this->assertSame([], $this->links('الذریعة 287/27'));
     }
 
     public function test_notes_in_parentheses_keep_the_source_and_text_is_preserved()
@@ -88,6 +89,14 @@ class BibliographyLinksTest extends TestCase
         );
         $this->assertSame([], $viewer('الذریعة 98/9'));      // missing from the scan
         $this->assertSame([], $viewer('الذریعة 600/3'));     // past the last page of volume 3
+
+        // volume 26 (the Mustadrakat) is not on eshia: it opens the viewer and has no eshia link
+        $this->assertSame(
+            [['catalog' => 'dharia', 'catalogName' => 'الذریعة', 'volume' => 26, 'page' => 287]],
+            $viewer('الذریعه 287/26')
+        );
+        $this->assertSame([], $this->links('الذریعة 408/26'));   // past the last page of volume 26
+        $this->assertStringNotContainsString('71602/26', (string) BibliographyLinks::html('الذریعة 287/26'));
 
         $html = (string) BibliographyLinks::html('الذریعة 402/3');
         $this->assertStringContainsString('href="https://lib.eshia.ir/71602/3/402"', $html);

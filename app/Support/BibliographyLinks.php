@@ -221,7 +221,7 @@ class BibliographyLinks
         }
 
         $unit = $src['unit'] ?? 'ص';
-        $link = isset($src['url']) ? [
+        $link = isset($src['url']) && $volume <= ($src['url_volumes'] ?? $src['volumes']) ? [
             'url' => strtr($src['url'], ['{volume}' => $volume, '{page}' => $page]),
             'title' => "{$src['label']}، ج {$volume}، {$unit} {$page} — {$src['site']}",
         ] : null;

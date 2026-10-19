@@ -70,3 +70,7 @@ TAIL = {'01':{552:536},'04':{518:518},'05':{318:318},'06':{404:404},'07':{294:29
  '10':{263:261},'11':{343:343},'12':{295:293},'13':{398:398},'14':{278:276},'15':{391:389},'16':{446:440},
  '20':{439:427},'22':{447:443},'23':{364:362}}
 for b,d in TAIL.items(): R[b].update(d)
+# Volume 26 (the author's Mustadrakat, Dar al-Adwa' 1406/1986) is noorlib's PDF of the 26-volume Dar al-Adwa' set: leaf 1 is
+# noorlib's cover and leaf 2 its notice, then one offset throughout (the indexes start at 317, page 316 is blank).
+R['26'] = {l: l-2 for l in [3, 7, 9, 10, 15, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 290, 300, 315, 317, 322, 325, 375, 383, 385, 390, 400, 405, 408, 409]}
+BOUNDS['26'] = (3, None)

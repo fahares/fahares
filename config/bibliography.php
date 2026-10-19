@@ -10,6 +10,7 @@ return [
      * - series_volumes (optional): other volume numbers Fankha uses for the book, mapped to its own.
      * - url (optional with a viewer): link template with {volume} and {page}. The edition's page numbers must match
      *   the ones Fankha cites. Without a url only the citations the viewer can show are linked.
+     * - url_volumes (optional): the url's edition has only this many volumes; later ones are linked through the viewer.
      * - viewer (optional): page images in storage/app/public/catalogs/{catalog}, shown in the site's page viewer
      *   instead of following the url. last_pages is the last printed page of each volume, first_pages the first
      *   where it is not 1, and missing the pages the scan lacks; those citations keep the url
@@ -19,8 +20,10 @@ return [
         'dharia' => [
             'label' => 'الذریعة الی تصانیف الشیعة',
             'pattern' => '(?:ال)?ذریعه(?: الی تصانیف الشیعه)?',
-            'volumes' => 25,
+            'volumes' => 26,
             'url' => 'https://lib.eshia.ir/71602/{volume}/{page}',
+            // volume 26 (the author's Mustadrakat, Dar al-Adwa' 1406) is not on eshia; its scan is noorlib's
+            'url_volumes' => 25,
             'site' => 'کتابخانه‌ی مدرسه‌ی فقاهت',
             'viewer' => [
                 'catalog' => 'dharia',
@@ -28,7 +31,7 @@ return [
                 'last_pages' => [
                     1 => 536, 2 => 519, 3 => 491, 4 => 518, 5 => 318, 6 => 404, 7 => 294, 8 => 299, 9 => 1539,
                     10 => 261, 11 => 343, 12 => 293, 13 => 398, 14 => 276, 15 => 389, 16 => 440, 17 => 329,
-                    18 => 433, 19 => 407, 20 => 427, 21 => 447, 22 => 443, 23 => 362, 24 => 487, 25 => 496,
+                    18 => 433, 19 => 407, 20 => 427, 21 => 447, 22 => 443, 23 => 362, 24 => 487, 25 => 496, 26 => 407,
                 ],
                 'missing' => [
                     9 => [98, 99, 202, 203, 336, 640, 641, 658, 659, 670, 671, 716, 717, 866, 867, 900, 901, 1028, 1029,
