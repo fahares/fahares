@@ -39,6 +39,7 @@
             @foreach($libraries as $lib)
                 <li class="border-b border-line">
                     <a href="{{ route('libraries.show', $lib) }}" class="flex items-baseline gap-2 py-2.5 group">
+                        <x-library-logo :library="$lib" size="sm" :decorative="true" class="self-center" />
                         <span class="min-w-0">
                             <span class="font-semibold text-ink group-hover:text-cinnabar transition">{{ $lib->display_name }}</span>
                             <span class="block text-xs text-muted">

@@ -48,6 +48,10 @@ class LibraryController extends Controller
             'country' => 'required|string|max:100',
             'description' => 'nullable|string',
             'aliases' => 'nullable|string|max:5000',
+            // No SVG: it can carry scripts and would be served from our own origin
+            'logo' => 'nullable|file|mimes:png,jpg,jpeg,webp,gif|max:2048',
+            'logo_on_dark' => 'boolean',
+            'remove_logo' => 'boolean',
         ]);
 
         $oldValues = $library->toArray();
@@ -60,7 +64,15 @@ class LibraryController extends Controller
             'description' => $validated['description'] ?? null,
             // One other name per line
             'aliases' => array_values(array_unique(array_filter(array_map('trim', preg_split('/\R/u', (string) ($validated['aliases'] ?? '')))))) ?: null,
+            'logo_on_dark' => (bool) ($validated['logo_on_dark'] ?? false),
         ]);
+
+        // Logos go to the public disk, which is the persistent volume in production
+        if ($request->hasFile('logo')) {
+            $library->storeLogo($request->file('logo'));
+        } elseif ($request->boolean('remove_logo')) {
+            $library->removeLogo();
+        }
         if ($library->wasChanged(['name', 'city'])) {
             $library->syncManuscriptCopies();
         } elseif ($library->wasChanged('full_name')) {

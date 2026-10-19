@@ -25,7 +25,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.libraries.update', $library) }}" method="POST" class="space-y-5 text-xs">
+    <form action="{{ route('admin.libraries.update', $library) }}" method="POST" enctype="multipart/form-data" class="space-y-5 text-xs">
         @csrf
         @method('PUT')
 
@@ -72,6 +72,30 @@
         <div class="space-y-1.5">
             <label for="description" class="block font-bold text-ink">پیشینه و مشخصات آرشیو (اختیاری):</label>
             <textarea name="description" id="description" rows="4" class="w-full p-3 rounded-xl border border-line-strong bg-paper text-ink leading-relaxed focus:border-gold outline-none">{{ old('description', $library->description) }}</textarea>
+        </div>
+
+        <!-- Logo -->
+        <div class="space-y-2">
+            <span class="block font-bold text-ink">نشان (لوگوی) رسمی مرکز:</span>
+            @if($library->logo_url)
+                <div class="flex items-center gap-4">
+                    <x-library-logo :library="$library" />
+                    <label class="inline-flex items-center gap-1.5 text-stone-500 cursor-pointer">
+                        <input type="checkbox" name="remove_logo" value="1" class="accent-cinnabar"> حذف نشان
+                    </label>
+                </div>
+            @endif
+            <input type="file" name="logo" id="logo" accept="image/png,image/jpeg,image/webp,image/gif"
+                   class="w-full p-2 rounded-xl border border-line-strong bg-paper text-ink file:me-3 file:px-3 file:py-1 file:rounded-lg file:border-0 file:bg-surface file:text-ink">
+            <p class="text-[11px] text-stone-400">PNG با زمینه‌ی شفاف بهتر است؛ JPG، WebP و GIF هم پذیرفته می‌شود (حداکثر ۲ مگابایت). نشان روی پلاکی با رنگ ثابت نمایش داده می‌شود.</p>
+            <label class="inline-flex items-center gap-1.5 text-ink cursor-pointer">
+                <input type="hidden" name="logo_on_dark" value="0">
+                <input type="checkbox" name="logo_on_dark" value="1" class="accent-cinnabar" @checked(old('logo_on_dark', $library->logo_on_dark))>
+                نشان سفید یا روشن است؛ روی پلاک تیره نمایش داده شود
+            </label>
+            @error('logo')
+                <p class="text-[11px] text-red-500">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Submit -->

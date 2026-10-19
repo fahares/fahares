@@ -14,7 +14,41 @@ class Library extends Model
         return [
             'manuscripts_count' => 'integer',
             'aliases' => 'array',
+            'logo_on_dark' => 'boolean',
         ];
+    }
+
+    /** Official logo on the public disk (the persistent volume in production); null when none or its file is gone. */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+        $clean = ltrim($this->logo_path, '/');
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+        return $disk->exists($clean) ? asset('storage/' . $clean) . '?v=' . $disk->lastModified($clean) : null;
+    }
+
+    /** Saves $file as this library's logo on the public disk and drops the previous file. */
+    public function storeLogo(\Illuminate\Http\File|\Illuminate\Http\UploadedFile $file): void
+    {
+        $old = $this->logo_path;
+        $ext = strtolower($file->extension() ?: 'png');
+        $this->logo_path = \Illuminate\Support\Facades\Storage::disk('public')
+            ->putFileAs('libraries/logos', $file, "library_{$this->id}_" . now()->timestamp . ".{$ext}");
+        $this->save();
+        if ($old && $old !== $this->logo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($old);
+        }
+    }
+
+    public function removeLogo(): void
+    {
+        if ($this->logo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($this->logo_path);
+        }
+        $this->update(['logo_path' => null]);
     }
 
     // Other names are matched with LIKE, so Persian text is stored as is, not as \u escapes

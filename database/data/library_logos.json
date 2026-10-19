@@ -1,0 +1,182 @@
+[
+ {
+  "name": "رضوی",
+  "city": "مشهد",
+  "file": "razavi.png",
+  "on_dark": false
+ },
+ {
+  "name": "گوهرشاد",
+  "city": "مشهد",
+  "file": "razavi.png",
+  "on_dark": false
+ },
+ {
+  "name": "مرعشی",
+  "city": "قم",
+  "file": "marashi.png",
+  "on_dark": false
+ },
+ {
+  "name": "دانشگاه",
+  "city": "تهران",
+  "file": "tehran-university.png",
+  "on_dark": false
+ },
+ {
+  "name": "الهیات",
+  "city": "تهران",
+  "file": "tehran-university.png",
+  "on_dark": false
+ },
+ {
+  "name": "ادبیات",
+  "city": "تهران",
+  "file": "tehran-university.png",
+  "on_dark": false
+ },
+ {
+  "name": "حقوق",
+  "city": "تهران",
+  "file": "tehran-university.png",
+  "on_dark": false
+ },
+ {
+  "name": "لغت نامه دهخدا",
+  "city": "تهران",
+  "file": "tehran-university.png",
+  "on_dark": false
+ },
+ {
+  "name": "مجلس",
+  "city": "تهران",
+  "file": "majles.png",
+  "on_dark": false
+ },
+ {
+  "name": "شورا",
+  "city": "تهران",
+  "file": "majles.png",
+  "on_dark": false
+ },
+ {
+  "name": "گلپایگانی",
+  "city": "قم",
+  "file": "golpayegani.png",
+  "on_dark": false
+ },
+ {
+  "name": "مرکز احیاء",
+  "city": "قم",
+  "file": "ehya.png",
+  "on_dark": false
+ },
+ {
+  "name": "ملی",
+  "city": "تهران",
+  "file": "nlai.png",
+  "on_dark": false
+ },
+ {
+  "name": "ملک",
+  "city": "تهران",
+  "file": "malek.png",
+  "on_dark": false
+ },
+ {
+  "name": "دائرة المعارف",
+  "city": "تهران",
+  "file": "cgie.png",
+  "on_dark": false
+ },
+ {
+  "name": "سپهسالار",
+  "city": "تهران",
+  "file": "motahari.png",
+  "on_dark": true
+ },
+ {
+  "name": "دانشگاه بوعلی",
+  "city": "همدان",
+  "file": "basu.png",
+  "on_dark": true
+ },
+ {
+  "name": "علوم پزشکی",
+  "city": "تهران",
+  "file": "tums.png",
+  "on_dark": false
+ },
+ {
+  "name": "دانشگاه",
+  "city": "اصفهان",
+  "file": "isfahan-university.png",
+  "on_dark": true
+ },
+ {
+  "name": "وزیری",
+  "city": "یزد",
+  "file": "vaziri.png",
+  "on_dark": false
+ },
+ {
+  "name": "الهیات",
+  "city": "مشهد",
+  "file": "ferdowsi-university.png",
+  "on_dark": false
+ },
+ {
+  "name": "سلطنتی",
+  "city": "تهران",
+  "file": "golestan.png",
+  "on_dark": false
+ },
+ {
+  "name": "موزه ملی",
+  "city": "تهران",
+  "file": "national-museum.png",
+  "on_dark": false
+ },
+ {
+  "name": "معصومیه",
+  "city": "قم",
+  "file": "masoumeh.png",
+  "on_dark": false
+ },
+ {
+  "name": "مطالعات فرهنگی",
+  "city": "تهران",
+  "file": "ihcs.png",
+  "on_dark": false
+ },
+ {
+  "name": "عبدالعظیم",
+  "city": "تهران",
+  "file": "abdulazim.png",
+  "on_dark": false
+ },
+ {
+  "name": "دارالحدیث",
+  "city": "قم",
+  "file": "darolhadith.png",
+  "on_dark": false
+ },
+ {
+  "name": "شاهچراغ",
+  "city": "شیراز",
+  "file": "shahcheragh.png",
+  "on_dark": false
+ },
+ {
+  "name": "دانش‌سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی",
+  "city": "تهران",
+  "file": "kharazmi.png",
+  "on_dark": false
+ },
+ {
+  "name": "انجمن آثار و مفاخر فرهنگی",
+  "city": "تهران",
+  "file": "anjom.png",
+  "on_dark": false
+ }
+]

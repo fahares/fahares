@@ -170,6 +170,11 @@
         <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
             <x-ui.card :framed="true" class="space-y-3 text-sm">
                 <div>
+                    @if($manuscript->libraryRecord?->logo_url)
+                        <a href="{{ route('libraries.show', $manuscript->libraryRecord) }}" class="block mb-3 w-fit hover:opacity-90 transition" tabindex="-1" aria-hidden="true">
+                            <x-library-logo :library="$manuscript->libraryRecord" :decorative="true" />
+                        </a>
+                    @endif
                     <div class="text-xs text-muted">محل نگهداری</div>
                     @if($manuscript->libraryRecord || $manuscript->library_id)
                         <a href="{{ route('libraries.show', $manuscript->libraryRecord ?? $manuscript->library_id) }}" class="font-bold text-ink hover:text-cinnabar transition">{{ $libraryName }}</a>

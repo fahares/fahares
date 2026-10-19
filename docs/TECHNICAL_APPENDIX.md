@@ -2313,3 +2313,58 @@
   - `body` و سربرگ صفحه از توکن‌های `paper`، `surface` و `line` استفاده می‌کنند.
 - `resources/views/admin/**`: همان نگاشت گام ۱۲.۱۳ (جفت‌های روشن و تیره‌ی ثابت به توکن، `#B38A50` به `gold` یا `cinnabar`، و `text-on-cinnabar` برای دکمه‌های پر) اجرا شد. `bg-[#292C56] text-amber-200` به `bg-ink text-paper` تبدیل شد.
 
+
+### گام ۱۲.۱۷: لوگوی کتابخانه‌ها
+
+- **مقصد:** `../fahares-sources/library-logos/` (بیرون از git). [README](../../fahares-sources/library-logos/README.md) آن نگاشت فایل به کتابخانه و فهرست موارد ناموجود را دارد. پیشوند نام هر فایل شناسه‌ی کتابخانه در پایگاه محلی است.
+- **نشانی‌های منبع:**
+  - مرعشی: `marashilibrary.com/wp-content/uploads/2022/06/Logo_Header02-min.png`
+  - گلپایگانی: `aglib.ir/wp-content/uploads/2025/10/l.png`. نشانی قدیم `gollib.ir` به این دامنه می‌رود.
+  - CGIE: `cgie.org.ir/uploads/siteinfo/logo-desktop.png`
+  - مطهری: `motahari.ac.ir/images/www/fa/website/site-logo/2019/1566820382-1.png`
+  - IHCS: `ihcs.ac.ir/images/www/fa/website/site-logo/2025/1739257482-67aaf68af31f5-logo-dark-blue.png`
+  - اصفهان: `ui.ac.ir/uploads/90/2025/Oct/18/Frame 3-min-min.png`
+  - بوعلی: `basu.ac.ir/documents/20123/0/logo.svg/…`. درون این SVG فقط یک PNG با base64 است و همان بیرون کشیده شد.
+  - دانشگاه تهران: `ut.ac.ir/images/www/fa/website/original/2025/1765089599-…-image-1-.png`
+  - فردوسی: `um.ac.ir/images/6447a3b992c1eda59458c71e5a279ffb.png`
+  - موزه ملی: `irannationalmuseum.ir/fa/wp-content/uploads/2016/11/logo-red.jpg`
+  - خوارزمی: `khu.ac.ir/templates/tmpl_modern01/images/main_logo.png`
+- **در دسترس نبود:**
+  - `ical.ir` و `um.ac.ir` با www پاسخ ۴۰۳ دادند. `um.ac.ir` بدون www باز شد.
+  - `nlai.ir`، `malekmuseum.org`، `hadith.net`، `golestanpalace.ir` و `aqlibrary.ir` اصلاً پاسخ ندادند.
+  - `razavi.ir` صفحه‌ی «دامنه فروشی» است. `lib.razavi.ir` پشت چالش ضدربات ابرآروان است.
+- **نوبت دوم (نشانی‌های کاربر):**
+  - تصویرها از ویکی‌شیعه، ویکی‌مدیا، docibox، ایبنا، uniref، ایتا، توییتر، سایت حرم عبدالعظیم و پیش‌نمایش‌های گوگل برداشته شدند. نسخه‌ی اصلی در `originals/` است.
+  - زمینه با یک اسکریپت color-to-alpha (numpy/PIL) برداشته شد. آلفای هر پیکسل برابر بیشترین فاصله‌ی نسبی آن از رنگ زمینه است، و آلفای کمتر از ۰٫۰۶ صفر شد. سپس رنگ از زمینه جدا شد.
+  - ملک با floodfill از گوشه پردازش شد تا نوشته‌ی سفید درون قابش بماند.
+  - برش‌ها:
+    - وزیری: `378x374+223+247`. لبه‌های کاشی از تراکم پیکسل‌های آبی پیدا شد.
+    - علوم پزشکی: ۳۸۰ ردیف بالای تصویر.
+    - عبدالعظیم: ۷۳ ردیف بالا.
+    - انجمن: ۲۴۲ ردیف بالا.
+    - مرز نشان و نوشته در هر کدام از ردیف‌های خالی پیدا شد.
+
+### گام ۱۲.۱۸: نمایش نشان کتابخانه‌ها
+
+- **مایگریشن:** `2026_10_19_000001_add_logo_to_libraries_table` دو ستون به `libraries` افزود: `logo_path` (رشته‌ی ۵۰۰، nullable) و `logo_on_dark` (boolean، پیش‌فرض false).
+- **مدل:** [Library](../app/Models/Library.php):
+  - `logo_url` از دیسک `public` ساخته می‌شود و `?v=` زمان تغییر فایل است. اگر فایل گم شده باشد، null برمی‌گرداند.
+  - `storeLogo()` فایل را با نام `libraries/logos/library_{id}_{timestamp}.{ext}` ذخیره و فایل قبلی را پاک می‌کند. `removeLogo()` فایل و مسیر را با هم پاک می‌کند.
+  - دیسک `public` در پروداکشن روی volume پایدار است.
+- **کامپوننت:** [library-logo](../resources/views/components/library-logo.blade.php) سه اندازه دارد:
+  - `sm`: عرض ثابت ۶۴ پیکسل، برای فهرست تا نام‌ها هم‌تراز شوند
+  - `md`: ارتفاع ۶۴ پیکسل
+  - `lg`: ارتفاع ۱۱۲ پیکسل
+  - رنگ پلاک ثابت است: روشن `#FBF8F1` و تیره `#221C17`.
+  - با `decorative`، متن alt خالی می‌شود؛ برای جاهایی که نام کتابخانه کنار نشان آمده است.
+- **صفحه‌ها:** `libraries/show`، `libraries/index` و `manuscripts/show` (ستون کناری).
+- **پنل مدیریت:**
+  - [admin/libraries/edit](../resources/views/admin/libraries/edit.blade.php) و `Admin\LibraryController@update`
+  - قاعده‌ی اعتبارسنجی: `mimes:png,jpg,jpeg,webp,gif|max:2048`
+  - فیلدهای `logo_on_dark` و `remove_logo` هم اضافه شدند.
+- **داده:** `database/data/library_logos/` (۲۴ PNG، کوچک‌شده تا ۴۸۰×۲۴۰، روی هم ۸۶۴ کیلوبایت) و `database/data/library_logos.json` (۳۰ ردیف `name`، `city`، `file` و `on_dark`).
+- **دستور:** [fahares:apply-library-logos](../app/Console/Commands/ApplyLibraryLogosCommand.php) کتابخانه‌ها را با `name` و `city` پیدا می‌کند، چون شناسه و slug در پروداکشن فرق دارند. کتابخانه‌ای را که نشان دارد، بدون `--force` دست نمی‌زند. گزینه‌ی `--dry-run` هم دارد.
+- **آزمون:** [LibraryLogoTest](../tests/Feature/LibraryLogoTest.php). ایمیج برنامه GD ندارد، پس آزمون‌ها به‌جای `fake()->image()` یک PNG واقعی ۱×۱ می‌سازند.
+- **استقرار:** پس از پوش، این دو دستور با `ssh fahares-app` اجرا شوند:
+  1. `php artisan migrate --force`
+  2. `php artisan fahares:apply-library-logos`

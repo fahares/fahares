@@ -18,6 +18,7 @@
 
     <!-- LIBRARY HEADER -->
     <header class="text-center grid justify-items-center gap-2 pb-6">
+        <x-library-logo :library="$library" size="lg" class="mb-2" />
         <p class="text-xs font-bold text-cinnabar">کتابخانه و مرکز نگهداری</p>
         <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">
             {{ $library->display_name }}
