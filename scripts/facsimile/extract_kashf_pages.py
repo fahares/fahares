@@ -1,12 +1,14 @@
-"""Render Kashf al-Zunun columns to WebP for the catalog page viewer.
+"""Render the columns of Kashf al-Zunun (and of the column-numbered books of its Istanbul set) to WebP
+for the catalog page viewer.
 
 Fankha cites Kashf al-Zunun by column, so every leaf in kashf_page_mapping.json is cut in two at the
 rule between its columns: the right half becomes the odd column, the left half the even one. Each half
 keeps its running head. Leaves are rendered at the scan's native 300 dpi in grayscale (halves are about
 1100 px wide) and written to storage/app/public/catalogs/kashf/v{NN}/p{NNNN}.webp, named by printed column.
-Existing files are skipped, so the run can be resumed.
+Existing files are skipped, so the run can be resumed. --book idah or hadiyya reads {book}_page_mapping.json
+and ../fahares-sources/{book}, and writes catalogs/{book}.
 
-    python3 extract_kashf_pages.py [--volumes 1] [--columns 499 500] [--workers 6]
+    python3 extract_kashf_pages.py [--book kashf] [--volumes 1] [--columns 499 500] [--workers 6]
 """
 import argparse
 import json
@@ -19,8 +21,8 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
-SOURCES = os.path.abspath(os.path.join(REPO, '..', 'fahares-sources', 'kashf'))
-OUT = os.path.join(REPO, 'storage', 'app', 'public', 'catalogs', 'kashf')
+SOURCES = os.path.abspath(os.path.join(REPO, '..', 'fahares-sources'))
+OUT = os.path.join(REPO, 'storage', 'app', 'public', 'catalogs')
 
 
 def split_x(image):
@@ -36,15 +38,16 @@ def split_x(image):
 
 
 def render(job):
-    volume, leaf, columns = job
-    targets = {side: os.path.join(OUT, f'v{volume}', f'p{int(column):04d}.webp') for column, side in columns}
+    book, volume, leaf, columns = job
+    folder = os.path.join(OUT, book, f'v{volume}')
+    targets = {side: os.path.join(folder, f'p{int(column):04d}.webp') for column, side in columns}
     if all(os.path.exists(t) for t in targets.values()):
         return 'skip'
-    os.makedirs(os.path.join(OUT, f'v{volume}'), exist_ok=True)
+    os.makedirs(folder, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         base = os.path.join(tmp, 'leaf')
         subprocess.run(['pdftoppm', '-f', str(leaf), '-l', str(leaf), '-r', '300', '-gray', '-singlefile',
-                        os.path.join(SOURCES, f'v{int(volume)}_text.pdf'), base], check=True)
+                        os.path.join(SOURCES, book, f'v{int(volume)}_text.pdf'), base], check=True)
         image = Image.open(base + '.pgm')
         x = split_x(image)
         halves = {'R': image.crop((x, 0, image.size[0], image.size[1])), 'L': image.crop((0, 0, x, image.size[1]))}
@@ -58,12 +61,13 @@ def render(job):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--book', default='kashf')
     parser.add_argument('--volumes', type=int, nargs='*')
     parser.add_argument('--columns', type=int, nargs='*')
     parser.add_argument('--workers', type=int, default=6)
     args = parser.parse_args()
 
-    with open(os.path.join(HERE, 'kashf_page_mapping.json')) as f:
+    with open(os.path.join(HERE, f'{args.book}_page_mapping.json')) as f:
         mapping = json.load(f)
     leaves = {}
     for v, columns in mapping.items():
@@ -72,7 +76,7 @@ def main():
         for column, (leaf, side) in columns.items():
             if not args.columns or int(column) in args.columns:
                 leaves.setdefault((v, leaf), []).append((column, side))
-    jobs = [(v, leaf, columns) for (v, leaf), columns in sorted(leaves.items())]
+    jobs = [(args.book, v, leaf, columns) for (v, leaf), columns in sorted(leaves.items())]
     with ProcessPoolExecutor(args.workers) as pool:
         results = list(pool.map(render, jobs, chunksize=4))
     print(f"{len(jobs)} leaves: {results.count('done')} rendered, {results.count('skip')} already there")

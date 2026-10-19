@@ -1,10 +1,11 @@
-"""Share of Fankha citations of Kashf al-Zunun that land on a mapped column.
+"""Share of Fankha citations of Kashf al-Zunun (or of Idah al-Maknun, Hadiyyat al-Arifin) that land on a
+mapped column.
 
 Reads the bibliography field of ../fahares-corpus/json/fankha/*.json. Fankha writes "column/volume"
 ("473/1"); a few entries write "volume/column", "volume: column" or "column: volume", which are read too.
 Prints the totals and the citations that do not resolve, with their reason.
 
-    python3 kashf_coverage.py [--list]
+    python3 kashf_coverage.py [--book kashf|idah|hadiyya] [--list]
 """
 import argparse
 import collections
@@ -15,11 +16,17 @@ import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CORPUS = os.path.abspath(os.path.join(HERE, '..', '..', '..', 'fahares-corpus', 'json', 'fankha'))
-NAME = r'[كک]شف\s*ال[ظط]نون'
-CITE = re.compile(NAME + r'[^0-9]{0,6}(\d+)\s*([/:])\s*(\d+)')
+# Idah is the supplement (dhayl) of Kashf al-Zunun, and Fankha also cites it under that name.
+NAMES = {
+    'kashf': r'(?<!ذیل )(?<!ذيل )[كک]شف\s*ال[ظط]نون',
+    'idah': r'ا[يی]ضاح\s*الم[كک]نون|ذ[يی]ل\s*[كک]شف\s*ال[ظط]نون|ذ[يی]ل\s*چلب[يی]',
+    'hadiyya': r'هد[يی][هة]\s*(?:ال)?عارف[يی]ن|بغدادی،?\s*هد[يی][هة]',
+}
 
 
-def citations():
+def citations(book='kashf'):
+    NAME = NAMES[book]
+    CITE = re.compile('(?:' + NAME + r')[^0-9]{0,6}(\d+)\s*([/:])\s*(\d+)')
     for path in sorted(glob.glob(os.path.join(CORPUS, '*.json'))):
         for work in json.load(open(path))['works']:
             for entry in work.get('bibliography') or []:
@@ -44,13 +51,14 @@ def citations():
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--book', default='kashf', choices=NAMES)
     parser.add_argument('--list', action='store_true')
     args = parser.parse_args()
-    with open(os.path.join(HERE, 'kashf_page_mapping.json')) as f:
+    with open(os.path.join(HERE, f'{args.book}_page_mapping.json')) as f:
         mapping = json.load(f)
     counts = collections.Counter()
     misses = []
-    for title, text, column, volume in citations():
+    for title, text, column, volume in citations(args.book):
         counts['all'] += 1
         if column is None:
             reason = 'no column/volume'
