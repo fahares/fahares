@@ -188,6 +188,23 @@
                     </button>
                 @endif
             </x-ui.card>
+
+            @foreach(\App\Support\BibliographyLinks::viewerPages($work->bibliography ?? []) as $vp)
+                @php
+                    $vpRef = Fa::digits("ج {$vp['volume']}، ص {$vp['page']}");
+                    $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
+                @endphp
+                <x-ui.card class="space-y-2" data-viewer-card>
+                    <div class="text-xs text-muted">در مآخذ کتاب‌شناسی</div>
+                    <div class="text-sm font-bold text-ink">{{ $vp['catalogName'] }}، {{ $vpRef }}</div>
+                    <button type="button" @click="$dispatch('open-catalog-viewer', @js($vp))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $vp['catalogName'] }}">
+                        <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                            <img src="{{ $vpThumb }}" alt="برگه‌ی {{ $vpRef }} در {{ $vp['catalogName'] }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
+                        </div>
+                        <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $vp['catalogName'] }}</span>
+                    </button>
+                </x-ui.card>
+            @endforeach
         </aside>
 
         <!-- Details -->

@@ -35,6 +35,27 @@ class BibliographyLinks
     }
 
     /**
+     * The distinct pages the entries cite that the page viewer can show, in order of first mention.
+     *
+     * @param  iterable<string>  $entries
+     * @return list<array{catalog: string, catalogName: string, volume: int, page: int}>
+     */
+    public static function viewerPages(iterable $entries): array
+    {
+        $pages = [];
+        foreach ($entries as $entry) {
+            foreach (self::segments((string) $entry) as $seg) {
+                if (isset($seg['viewer'])) {
+                    $v = $seg['viewer'];
+                    $pages["{$v['catalog']}/{$v['volume']}/{$v['page']}"] ??= $v;
+                }
+            }
+        }
+
+        return array_values($pages);
+    }
+
+    /**
      * @return list<array{text: string, url?: string, title?: string, viewer?: array}>
      */
     public static function segments(string $entry): array

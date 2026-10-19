@@ -77,4 +77,15 @@ class BibliographyLinksTest extends TestCase
         $this->assertStringContainsString("open-catalog-viewer", $html);
         $this->assertStringContainsString('&quot;catalog&quot;:&quot;dharia&quot;', $html);
     }
+
+    public function test_viewer_pages_lists_each_showable_page_once()
+    {
+        $this->assertSame(
+            [
+                ['catalog' => 'dharia', 'catalogName' => 'الذریعة', 'volume' => 3, 'page' => 402],
+                ['catalog' => 'dharia', 'catalogName' => 'الذریعة', 'volume' => 5, 'page' => 10],
+            ],
+            BibliographyLinks::viewerPages(['الذریعة 402/3 و 98/9؛ ریحانة الادب 369/4', 'الذریعة 402/3، 10/5'])
+        );
+    }
 }
