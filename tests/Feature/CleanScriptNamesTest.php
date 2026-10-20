@@ -25,10 +25,10 @@ class CleanScriptNamesTest extends TestCase
         $this->assertTrue($r['bika'] && $r['bita']);
 
         $this->assertSame([], ScriptNameCleaner::clean('<!-- page: 19 --> بی‌کا')['scripts']);
-        $this->assertSame(['نستعلیق', 'شکسته'], ScriptNameCleaner::clean('نستعيق شكسته')['scripts']);
+        $this->assertSame(['شکسته نستعلیق'], ScriptNameCleaner::clean('نستعيق شكسته')['scripts']);
         $this->assertSame(['نسخ'], ScriptNameCleaner::clean('نسخ عربی تا')['scripts']);
         $this->assertFalse(ScriptNameCleaner::clean('نسخ عربی تا')['bita']);
-        $this->assertSame(['نستعلیق', 'شکسته'], ScriptNameCleaner::clean('نستعليق و شكسته، كا: محمد تقى حسينى')['scripts']);
+        $this->assertSame(['نستعلیق', 'شکسته نستعلیق'], ScriptNameCleaner::clean('نستعليق و شكسته، كا: محمد تقى حسينى')['scripts']);
     }
 
     public function test_a_hedged_or_translator_note_sets_no_autograph_flag()
@@ -161,5 +161,58 @@ class CleanScriptNamesTest extends TestCase
         $this->assertFalse((bool) $scribed->fresh()->is_autograph);
 
         $this->artisan('fahares:restore-script-notes')->expectsOutput('Nothing to restore.')->assertSuccessful();
+    }
+
+    public function test_shekasteh_is_shekasteh_nastaliq()
+    {
+        $this->assertSame(['شکسته نستعلیق'], ScriptNameCleaner::clean('نستعلیق شکسته، بی‌کا')['scripts']);
+        $this->assertSame('نستعلیق شکسته', ScriptNameCleaner::clean('نستعلیق شکسته، بی‌کا')['wording']);
+        $this->assertSame(['شکسته نستعلیق'], ScriptNameCleaner::clean('شکسته، نستعلیق')['scripts']);
+        $this->assertSame(['شکسته نستعلیق'], ScriptNameCleaner::clean('شکسته')['scripts']);
+        $this->assertSame(['نستعلیق', 'شکسته نستعلیق'], ScriptNameCleaner::clean('نستعلیق و شکسته')['scripts']);
+        $this->assertSame(['نستعلیق', 'شکسته نستعلیق'], ScriptNameCleaner::clean('نستعلیق مخلوط به شکسته')['scripts']);
+        $this->assertSame(['شکسته تعلیق'], ScriptNameCleaner::clean('شکسته تعلیق')['scripts']);
+        $this->assertTrue(ScriptNameCleaner::isClean('شکسته نستعلیق'));
+        $this->assertFalse(ScriptNameCleaner::isClean('شکسته'));
+    }
+
+    public function test_shekasteh_copies_are_rebuilt_from_the_raw_text_and_link_to_their_scripts()
+    {
+        $work = Work::create(['primary_title' => 'اثر آزمایشی شکسته', 'clean_title' => 'اثر آزمایشی شکسته', 'slug' => 'scripts-s-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $shekasteh = Script::firstOrCreate(['name' => 'شکسته'], ['slug' => 'shekasteh-' . uniqid()]);
+        $nastaliq = Script::firstOrCreate(['name' => 'نستعلیق'], ['slug' => 'nastaliq-' . uniqid()]);
+        $taliq = Script::firstOrCreate(['name' => 'تعلیق'], ['slug' => 'taliq-' . uniqid()]);
+        $copy = fn (int $n, string $line, array $scripts, ?string $style = null) => tap(Manuscript::create([
+            'work_id' => $work->id, 'sequence_number' => $n, 'volume_number' => 1, 'page_start' => 1, 'script_style' => $style,
+            'script_names' => implode('، ', array_map(fn ($s) => $s->name, $scripts)), 'raw_text' => "قم؛ آزمایشی؛ شماره نسخه: {$n}\n{$line}",
+        ]), fn ($m) => $m->scripts()->attach(collect($scripts)->mapWithKeys(fn ($s, $i) => [$s->id => ['is_primary' => $i === 0]])->all()));
+
+        $reversed = $copy(1, 'خط: نستعلیق شکسته، بی‌کا، تا: قرن 13؛ 40گ', [$nastaliq, $shekasteh]);
+        $mixed = $copy(2, 'خط: نستعلیق مخلوط به شکسته، کا: آزمایشی، تا: 1250ق؛ 10گ', [$nastaliq, $shekasteh]);
+        $taliqCopy = $copy(3, 'خط: شکسته تعلیق، بی‌کا؛ 5گ', [$shekasteh, $taliq]);
+        $tahriri = $copy(4, 'خط: تحریری شکسته، بی‌تا؛ 3گ', [$shekasteh]);
+        $noLine = $copy(5, 'یادداشتی به خط شکسته نستعلیق در حاشیه', [$shekasteh]);
+
+        $this->artisan('fahares:rebuild-shekasteh-scripts')->assertSuccessful();
+
+        $names = fn ($m) => $m->fresh()->scripts()->orderByDesc('is_primary')->pluck('name')->all();
+        $this->assertSame(['شکسته نستعلیق'], $names($reversed));
+        $this->assertSame('نستعلیق شکسته', $reversed->fresh()->script_names);
+        $this->assertSame(['نستعلیق', 'شکسته نستعلیق'], $names($mixed));
+        $this->assertSame('نستعلیق مخلوط به شکسته', $mixed->fresh()->script_names);
+        $this->assertSame(['شکسته تعلیق'], $names($taliqCopy));
+        $this->assertSame(['شکسته نستعلیق'], $names($tahriri));
+        $this->assertSame('تحریری', $tahriri->fresh()->script_style);
+        $this->assertSame(['شکسته نستعلیق'], $names($noLine));
+        $this->assertSame('شکسته', $noLine->fresh()->script_names);
+        $this->assertModelMissing($shekasteh);
+
+        $this->get(route('manuscripts.show', $mixed->fresh()))
+            ->assertOk()
+            ->assertSee('نستعلیق مخلوط به شکسته')
+            ->assertSee('در فهرست خطوط')
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'script_id' => Script::where('name', 'شکسته نستعلیق')->value('id')])), false);
+
+        $this->artisan('fahares:rebuild-shekasteh-scripts')->expectsOutput('No «شکسته» record left.')->assertSuccessful();
     }
 }

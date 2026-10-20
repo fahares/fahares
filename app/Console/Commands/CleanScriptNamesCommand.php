@@ -32,7 +32,8 @@ class CleanScriptNamesCommand extends Command
         $dry = (bool) $this->option('dry-run');
 
         $plans = Script::orderBy('id')->get()
-            ->reject(fn (Script $s) => ScriptNameCleaner::isClean($s->name))
+            // «شکسته» needs each copy's raw «خط:» line: fahares:rebuild-shekasteh-scripts
+            ->reject(fn (Script $s) => ScriptNameCleaner::isClean($s->name) || $s->name === 'شکسته')
             ->map(fn (Script $s) => ['script' => $s, 'clean' => ScriptNameCleaner::clean($s->name)]);
 
         if ($plans->isEmpty()) {

@@ -17,7 +17,7 @@ class ScriptNameCleaner
 {
     /** Same list and order as KNOWN_SCRIPTS_LIST in the corpus parser: longer names first. */
     public const KNOWN_SCRIPTS = [
-        'شکسته نستعلیق', 'نستعلیق', 'شکسته', 'تعلیق', 'رقعه', 'کوفی', 'ثلث',
+        'شکسته نستعلیق', 'شکسته تعلیق', 'نستعلیق', 'شکسته', 'تعلیق', 'رقعه', 'کوفی', 'ثلث',
         'ریحان', 'محقق', 'طومار', 'مغربی', 'لاتین', 'تایپی', 'نسخ',
     ];
 
@@ -66,6 +66,8 @@ class ScriptNameCleaner
         'چلیپایی' => [null, 'چلیپا'],
         'حمایلی' => [null, 'حمایلی'],
         'سیاه مشق' => [null, 'سیاه مشق'],
+        // «شکسته» alone is شکسته نستعلیق in the catalogues (backlog item 53)
+        'شکسته' => ['شکسته نستعلیق', null],
     ];
 
     /** Words that mark a value as a script or a hand rather than a scribe's name. */
@@ -77,12 +79,12 @@ class ScriptNameCleaner
     ];
 
     /**
-     * @return array{scripts: list<string>, labels: list<string>, styles: list<string>, bika: bool, bita: bool, autograph: bool, scribe: ?string, dropped: list<string>}
+     * @return array{scripts: list<string>, labels: list<string>, styles: list<string>, wording: ?string, bika: bool, bita: bool, autograph: bool, scribe: ?string, dropped: list<string>}
      */
     public static function clean(string $value): array
     {
         $s = self::normalize($value);
-        $result = ['scripts' => [], 'labels' => [], 'styles' => [], 'bika' => false, 'bita' => false, 'autograph' => false, 'scribe' => null, 'dropped' => []];
+        $result = ['scripts' => [], 'labels' => [], 'styles' => [], 'wording' => null, 'bika' => false, 'bita' => false, 'autograph' => false, 'scribe' => null, 'dropped' => []];
 
         // «کا: <name>» runs to the end of the value, apart from trailing notes
         if (preg_match('/(?:^|،)\s*کا:\s*(.+)$/u', $s, $m, PREG_OFFSET_CAPTURE)) {
@@ -94,14 +96,18 @@ class ScriptNameCleaner
 
         $s = self::stripNotes($s, $result);
 
-        if ($known = self::knownScriptsIn($s)) {
-            return self::unify($known, $result);
-        }
-
         $segments = array_values(array_filter(array_map(
             [self::class, 'trimPunctuation'],
             preg_split('/،/u', $s)
         ), fn ($seg) => $seg !== ''));
+        // The catalogue's own words for the hand, without the notes: shown as the manuscript's «نوع خط»
+        $result['wording'] = $segments ? implode('، ', $segments) : null;
+
+        // «نستعلیق شکسته» is شکسته نستعلیق with the words the other way round, and «شکسته، نستعلیق» is how
+        // some catalogues (گلپایگانی، ملک، الهیات) write it
+        if ($known = self::knownScriptsIn(self::shekastehNastaliq($s))) {
+            return self::unify($known, $result);
+        }
 
         $words = [...self::SCRIPT_WORDS, ...self::KNOWN_SCRIPTS];
         $isScript = fn (string $seg) => (bool) array_intersect(preg_split('/\s+/u', $seg), $words);
@@ -109,6 +115,7 @@ class ScriptNameCleaner
         // A value without any script word is the scribe's name, written after «خط:» in the catalogue
         if ($segments && ! array_filter($segments, $isScript)) {
             $result['scribe'] ??= implode('، ', $segments);
+            $result['wording'] = null;
 
             return $result;
         }
@@ -138,7 +145,7 @@ class ScriptNameCleaner
     {
         $r = self::clean($value);
 
-        return $r['scripts'] === [$value] && ! $r['bika'] && ! $r['bita'] && ! $r['autograph'] && $r['scribe'] === null && ! $r['dropped'];
+        return $r['scripts'] === [$value] && $r['wording'] === $value && ! $r['bika'] && ! $r['bita'] && ! $r['autograph'] && $r['scribe'] === null && ! $r['dropped'];
     }
 
     public static function normalize(string $value): string
@@ -187,6 +194,11 @@ class ScriptNameCleaner
         }
 
         return $s;
+    }
+
+    private static function shekastehNastaliq(string $s): string
+    {
+        return preg_replace(['/نستعلیق\s+شکسته(?!\s*(?:نستعلیق|تعلیق))/u', '/شکسته\s*،\s*نستعلیق/u'], 'شکسته نستعلیق', $s);
     }
 
     /** The known scripts in a segment, matched the way the corpus parser matches them. */
