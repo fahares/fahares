@@ -19,7 +19,15 @@ class ScriptNameCleaner
     public const KNOWN_SCRIPTS = [
         'شکسته نستعلیق', 'شکسته تعلیق', 'نستعلیق', 'شکسته', 'تعلیق', 'رقعه', 'کوفی', 'ثلث',
         'ریحان', 'محقق', 'طومار', 'مغربی', 'لاتین', 'تایپی', 'نسخ',
+        // Never a quality of another hand, so safe to match inside a value (backlog item 55)
+        'سیاق', 'رقاع', 'رقعی', 'عبری', 'پهلوی', 'دیوانی',
     ];
+
+    /**
+     * Scripts that are also a quality («نستعلیق تحریری» is one hand): a second script only when joined to
+     * another by «و», as in «نسخ و تحریری».
+     */
+    public const SECOND_HANDS = ['تحریری', 'مختلف'];
 
     /** Variant spellings of a whole script name. */
     public const SPELLINGS = [
@@ -70,6 +78,12 @@ class ScriptNameCleaner
         'شکسته' => ['شکسته نستعلیق', null],
     ];
 
+    /** Words that make a segment of a value without a known script a script of its own. */
+    public const SCRIPT_HEADS = [
+        'تحریری', 'مختلف', 'گوناگون', 'سیاق', 'رقعی', 'رقاع', 'چاپی', 'چاپ', 'عبری', 'معتاد', 'پهلوی',
+        'حمایلی', 'چلیپایی', 'چلیپا', 'مشق', 'دیوانی', 'فرنگی',
+    ];
+
     /** Words that mark a value as a script or a hand rather than a scribe's name. */
     public const SCRIPT_WORDS = [
         'تحریری', 'مختلف', 'گوناگون', 'سیاق', 'رقعی', 'رقاع', 'چاپی', 'چاپ', 'عبری', 'معتاد', 'پهلوی',
@@ -106,11 +120,21 @@ class ScriptNameCleaner
         // «نستعلیق شکسته» is شکسته نستعلیق with the words the other way round, and «شکسته، نستعلیق» is how
         // some catalogues (گلپایگانی، ملک، الهیات) write it
         if ($known = self::knownScriptsIn(self::shekastehNastaliq($s))) {
-            return self::unify($known, $result);
+            foreach (preg_split('/\s+و\s+/u', $s) as $part) {
+                $first = preg_split('/\s+/u', self::trimPunctuation($part))[0] ?? '';
+                if (in_array($first, self::SECOND_HANDS, true) && ! self::knownScriptsIn($part)) {
+                    $known[] = $first;
+                }
+            }
+
+            return self::unify(array_values(array_unique($known)), $result);
         }
 
         $words = [...self::SCRIPT_WORDS, ...self::KNOWN_SCRIPTS];
         $isScript = fn (string $seg) => (bool) array_intersect(preg_split('/\s+/u', $seg), $words);
+        // Only these name a hand; a segment of qualities or of other notes («مجدول زرین») is no script
+        $isHand = fn (string $seg) => isset(self::UNIFY[$seg]) || isset(self::SPELLINGS[$seg])
+            || array_intersect(preg_split('/\s+/u', $seg), [...self::SCRIPT_HEADS, ...self::KNOWN_SCRIPTS]);
 
         // A value without any script word is the scribe's name, written after «خط:» in the catalogue
         if ($segments && ! array_filter($segments, $isScript)) {
@@ -120,7 +144,7 @@ class ScriptNameCleaner
             return $result;
         }
 
-        return self::unify(array_values(array_unique(array_map(fn ($seg) => self::SPELLINGS[$seg] ?? $seg, $segments))), $result);
+        return self::unify(array_values(array_unique(array_map(fn ($seg) => self::SPELLINGS[$seg] ?? $seg, array_filter($segments, $isHand)))), $result);
     }
 
     /** Maps the names onto the script list, keeping them as labels and collecting their qualities. */
@@ -205,6 +229,7 @@ class ScriptNameCleaner
     private static function knownScriptsIn(string $seg): array
     {
         $found = [];
+        // A plain substring match, as in the parser: «نسخه و نستعلیق» and «نسخ ریحانی» need it
         foreach (self::KNOWN_SCRIPTS as $script) {
             if (str_contains($seg, $script)) {
                 $found[] = $script;

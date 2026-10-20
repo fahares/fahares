@@ -176,7 +176,20 @@ class CleanScriptNamesTest extends TestCase
         $this->assertFalse(ScriptNameCleaner::isClean('شکسته'));
     }
 
-    public function test_shekasteh_copies_are_rebuilt_from_the_raw_text_and_link_to_their_scripts()
+    public function test_a_second_hand_beside_a_known_script_is_kept()
+    {
+        $this->assertSame(['نستعلیق', 'سیاق'], ScriptNameCleaner::clean('نستعلیق و سیاق')['scripts']);
+        $this->assertSame(['نسخ', 'رقاع'], ScriptNameCleaner::clean('نسخ و رقاع')['scripts']);
+        $this->assertSame(['نسخ', 'تحریری'], ScriptNameCleaner::clean('نسخ و تحریری')['scripts']);
+        // «تحریری» describing the same hand stays a quality
+        $this->assertSame(['نستعلیق'], ScriptNameCleaner::clean('نستعلیق تحریری')['scripts']);
+        $this->assertSame(['شکسته نستعلیق'], ScriptNameCleaner::clean('شکسته نستعلیق، تحریری')['scripts']);
+        // a segment that names no hand is no script
+        $this->assertSame([], ScriptNameCleaner::clean('چلیپایی، مجدول زرین و مشکی')['scripts']);
+        $this->assertSame(['تحریری'], ScriptNameCleaner::clean('تحریری، مصحح')['scripts']);
+    }
+
+    public function test_copies_are_rebuilt_from_the_raw_text_and_link_to_their_scripts()
     {
         $work = Work::create(['primary_title' => 'اثر آزمایشی شکسته', 'clean_title' => 'اثر آزمایشی شکسته', 'slug' => 'scripts-s-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         $shekasteh = Script::firstOrCreate(['name' => 'شکسته'], ['slug' => 'shekasteh-' . uniqid()]);
@@ -191,9 +204,13 @@ class CleanScriptNamesTest extends TestCase
         $mixed = $copy(2, 'خط: نستعلیق مخلوط به شکسته، کا: آزمایشی، تا: 1250ق؛ 10گ', [$nastaliq, $shekasteh]);
         $taliqCopy = $copy(3, 'خط: شکسته تعلیق، بی‌کا؛ 5گ', [$shekasteh, $taliq]);
         $tahriri = $copy(4, 'خط: تحریری شکسته، بی‌تا؛ 3گ', [$shekasteh]);
-        $noLine = $copy(5, 'یادداشتی به خط شکسته نستعلیق در حاشیه', [$shekasteh]);
+        $siyaq = $copy(5, 'خط: نسخ و سیاق، بی‌کا؛ قطع: بیاض رقعی', [Script::firstOrCreate(['name' => 'نسخ'], ['slug' => 'naskh-' . uniqid()])]);
+        $unlinked = $copy(6, 'خط: نسخ و تحریری، تا: 1250ق؛ مجدول', []);
 
-        $this->artisan('fahares:rebuild-shekasteh-scripts')->assertSuccessful();
+        $this->artisan('fahares:rebuild-scripts', ['--dry-run' => true])->assertSuccessful();
+        $this->assertSame(['شکسته', 'نستعلیق'], $reversed->fresh()->scripts()->orderBy('name')->pluck('name')->all());
+
+        $this->artisan('fahares:rebuild-scripts')->assertSuccessful();
 
         $names = fn ($m) => $m->fresh()->scripts()->orderByDesc('is_primary')->pluck('name')->all();
         $this->assertSame(['شکسته نستعلیق'], $names($reversed));
@@ -202,9 +219,9 @@ class CleanScriptNamesTest extends TestCase
         $this->assertSame('نستعلیق مخلوط به شکسته', $mixed->fresh()->script_names);
         $this->assertSame(['شکسته تعلیق'], $names($taliqCopy));
         $this->assertSame(['شکسته نستعلیق'], $names($tahriri));
-        $this->assertSame('تحریری', $tahriri->fresh()->script_style);
-        $this->assertSame(['شکسته نستعلیق'], $names($noLine));
-        $this->assertSame('شکسته', $noLine->fresh()->script_names);
+        $this->assertSame(['نسخ', 'سیاق'], $names($siyaq));
+        $this->assertSame(['نسخ', 'تحریری'], $names($unlinked));
+        $this->assertSame('نسخ و تحریری', $unlinked->fresh()->script_names);
         $this->assertModelMissing($shekasteh);
 
         $this->get(route('manuscripts.show', $mixed->fresh()))
@@ -213,6 +230,6 @@ class CleanScriptNamesTest extends TestCase
             ->assertSee('در فهرست خطوط')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'script_id' => Script::where('name', 'شکسته نستعلیق')->value('id')])), false);
 
-        $this->artisan('fahares:rebuild-shekasteh-scripts')->expectsOutput('No «شکسته» record left.')->assertSuccessful();
+        $this->artisan('fahares:rebuild-scripts')->expectsOutput('Nothing to change.')->assertSuccessful();
     }
 }
