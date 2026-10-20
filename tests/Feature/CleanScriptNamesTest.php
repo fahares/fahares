@@ -56,9 +56,59 @@ class CleanScriptNamesTest extends TestCase
 
     public function test_clean_names_are_left_alone()
     {
-        foreach (['نسخ', 'تحریری', 'تحریری متوسط', 'خط زیبا', 'سیاق', 'شکسته نستعلیق'] as $name) {
+        foreach (['نسخ', 'تحریری', 'سیاق', 'شکسته نستعلیق', 'رقعی', 'عبری', 'پهلوی'] as $name) {
             $this->assertTrue(ScriptNameCleaner::isClean($name), $name);
         }
+    }
+
+    public function test_qualities_variants_and_print_leave_the_script_list()
+    {
+        $r = ScriptNameCleaner::clean('تحریری متوسط، بی‌کا');
+        $this->assertSame(['تحریری'], $r['scripts']);
+        $this->assertSame(['متوسط'], $r['styles']);
+        $this->assertSame(['تحریری متوسط'], $r['labels']);
+
+        $r = ScriptNameCleaner::clean('خط زیبا');
+        $this->assertSame([], $r['scripts']);
+        $this->assertSame(['زیبا'], $r['styles']);
+
+        $this->assertSame(['رقعی'], ScriptNameCleaner::clean('رقعه')['scripts']);
+        $this->assertSame(['مختلف'], ScriptNameCleaner::clean('گوناگون، بی‌کا')['scripts']);
+        $this->assertSame(['رقعی', 'نسخ'], ScriptNameCleaner::clean('نسخ و رقعه')['scripts']);
+
+        $r = ScriptNameCleaner::clean('چاپی، بی‌کا');
+        $this->assertSame([], $r['scripts']);
+        $this->assertSame(['چاپی'], $r['labels']);
+        $this->assertTrue($r['bika']);
+
+        foreach (['تحریری متوسط', 'خط زیبا', 'چاپی', 'تایپی', 'سیاه مشق', 'رقعه'] as $name) {
+            $this->assertFalse(ScriptNameCleaner::isClean($name), $name);
+        }
+    }
+
+    public function test_the_command_moves_qualities_to_the_style_and_keeps_the_label()
+    {
+        $work = Work::create(['primary_title' => 'اثر آزمایشی کیفیت خط', 'clean_title' => 'اثر آزمایشی کیفیت خط', 'slug' => 'scripts-q-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $clean = Script::firstOrCreate(['name' => 'تحریری'], ['slug' => 'tahriri-test-' . uniqid()]);
+        $quality = Script::firstOrCreate(['name' => 'تحریری متوسط'], ['slug' => 'quality-' . uniqid()]);
+        $print = Script::firstOrCreate(['name' => 'چاپی'], ['slug' => 'print-' . uniqid()]);
+
+        $a = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1, 'script_names' => 'تحریری متوسط', 'script_style' => 'تحریری']);
+        $b = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 2, 'volume_number' => 1, 'page_start' => 1, 'script_names' => 'چاپی']);
+        $a->scripts()->attach($quality->id, ['is_primary' => true]);
+        $b->scripts()->attach($print->id, ['is_primary' => true]);
+
+        $this->artisan('fahares:clean-script-names')->assertSuccessful();
+
+        $this->assertModelMissing($quality);
+        $this->assertModelMissing($print);
+        $a->refresh();
+        $b->refresh();
+        $this->assertSame([$clean->id], $a->scripts()->pluck('scripts.id')->all());
+        $this->assertSame('تحریری متوسط', $a->script_names);
+        $this->assertSame('تحریری، متوسط', $a->script_style);
+        $this->assertSame([], $b->scripts()->pluck('scripts.id')->all());
+        $this->assertSame('چاپی', $b->script_names);
     }
 
     public function test_the_command_relinks_manuscripts_and_fills_flags()

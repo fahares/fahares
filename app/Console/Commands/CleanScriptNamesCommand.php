@@ -12,9 +12,11 @@ use Illuminate\Support\Str;
 /**
  * Cleans the script records that hold a codicological note or a scribe's name (backlog item 50):
  * «تحریری، بی‌کا» → «تحریری» plus the «بی‌کا» flag, «نستعليق، كا: …» → «نستعلیق» plus the scribe's
- * name, a bare scribe name → no script. Each manuscript moves to the clean script records, its empty
- * «بی‌کا»، «بی‌تا» and «کاتب = مؤلف» flags and its empty scribe name are filled, its «نوع خط» text is
- * rebuilt, and the emptied records are deleted. Records are matched by name, so the command runs the
+ * name, a bare scribe name → no script; then a quality leaves the script name for «کیفیت خط», variants
+ * merge and print or layouts leave the list (ScriptNameCleaner::UNIFY). Each manuscript moves to the clean
+ * script records, its empty «بی‌کا»، «بی‌تا» and «کاتب = مؤلف» flags and its empty scribe name are filled,
+ * the qualities are added to its «کیفیت خط», its «نوع خط» text keeps the names without the notes
+ * («تحریری متوسط»، «چاپی»), and the emptied records are deleted. Records are matched by name, so the command runs the
  * same on local and production. Safe to run again.
  */
 class CleanScriptNamesCommand extends Command
@@ -42,7 +44,7 @@ class CleanScriptNamesCommand extends Command
         $pivots = DB::table('manuscript_script')->whereIn('script_id', $plans->pluck('script.id'))->get()->groupBy('script_id');
         $manuscripts = DB::table('manuscripts')
             ->whereIn('id', $pivots->flatten()->pluck('manuscript_id')->unique())
-            ->get(['id', 'scribe_id', 'scribe_name', 'is_bika', 'is_bita', 'is_autograph', 'copy_date_hijri_year'])
+            ->get(['id', 'scribe_id', 'scribe_name', 'is_bika', 'is_bita', 'is_autograph', 'copy_date_hijri_year', 'script_style'])
             ->keyBy('id');
 
         $this->line('Step 1: script records to clean');
@@ -55,7 +57,7 @@ class CleanScriptNamesCommand extends Command
         ])->all());
 
         // Step 2: what each manuscript gains; a note that contradicts the record is reported, not applied
-        $fills = ['is_bika' => [], 'is_bita' => [], 'is_autograph' => [], 'scribe_name' => []];
+        $fills = ['is_bika' => [], 'is_bita' => [], 'is_autograph' => [], 'scribe_name' => [], 'script_style' => []];
         $already = ['is_bika' => 0, 'is_bita' => 0, 'is_autograph' => 0];
         $conflicts = [];
         foreach ($plans as $p) {
@@ -77,6 +79,13 @@ class CleanScriptNamesCommand extends Command
                         $fills[$column][$m->id] = true;
                     }
                 }
+                if ($clean['styles']) {
+                    $styles = $fills['script_style'][$m->id] ?? array_values(array_filter(array_map('trim', explode('،', (string) $m->script_style))));
+                    $added = array_diff($clean['styles'], $styles);
+                    if ($added) {
+                        $fills['script_style'][$m->id] = [...$styles, ...$added];
+                    }
+                }
                 if ($clean['scribe'] !== null) {
                     if ($m->scribe_id || ScriptNameCleaner::normalize((string) $m->scribe_name) === $clean['scribe']) {
                         // the scribe is already recorded
@@ -95,12 +104,23 @@ class CleanScriptNamesCommand extends Command
             ['is_bita', $already['is_bita'], count($fills['is_bita'])],
             ['is_autograph', $already['is_autograph'], count($fills['is_autograph'])],
             ['scribe_name', '—', count($fills['scribe_name'])],
+            ['script_style', '—', count($fills['script_style'])],
         ]);
         foreach ($conflicts as $conflict) {
             $this->warn("  skipped: {$conflict}");
         }
 
         $affectedIds = $manuscripts->keys()->all();
+
+        // «نوع خط» text: the names of the manuscript's scripts, primary first, with each cleaned record's labels
+        $labels = $plans->mapWithKeys(fn ($p) => [$p['script']->id => $p['clean']['labels']]);
+        $scriptNames = DB::table('manuscript_script')
+            ->join('scripts', 'scripts.id', '=', 'manuscript_script.script_id')
+            ->whereIn('manuscript_id', $affectedIds)
+            ->orderByDesc('is_primary')->orderBy('scripts.id')
+            ->get(['manuscript_id', 'scripts.id', 'scripts.name'])
+            ->groupBy('manuscript_id')
+            ->map(fn ($rows) => $rows->flatMap(fn ($r) => $labels[$r->id] ?? [$r->name])->unique()->implode('، ') ?: null);
         $this->line('Step 3: ' . $plans->count() . ' records to delete, ' . count($affectedIds) . ' manuscripts to relink');
 
         if ($dry) {
@@ -109,7 +129,7 @@ class CleanScriptNamesCommand extends Command
             return self::SUCCESS;
         }
 
-        DB::transaction(function () use ($plans, $pivots, $fills, $affectedIds) {
+        DB::transaction(function () use ($plans, $pivots, $fills, $affectedIds, $scriptNames) {
             foreach ($plans as $p) {
                 $targetIds = array_map(fn ($name) => $this->scriptId($name), $p['clean']['scripts']);
                 foreach ($pivots[$p['script']->id] ?? [] as $pivot) {
@@ -136,19 +156,11 @@ class CleanScriptNamesCommand extends Command
                 DB::table('manuscripts')->where('id', $id)->update(['scribe_name' => $name]);
             }
 
-            // «نوع خط» text follows the pivot: primary script first
-            $names = DB::table('manuscript_script')
-                ->join('scripts', 'scripts.id', '=', 'manuscript_script.script_id')
-                ->whereIn('manuscript_id', $affectedIds)
-                ->orderByDesc('is_primary')->orderBy('scripts.id')
-                ->get(['manuscript_id', 'scripts.name'])
-                ->groupBy('manuscript_id');
+            foreach ($fills['script_style'] as $id => $styles) {
+                DB::table('manuscripts')->where('id', $id)->update(['script_style' => implode('، ', $styles)]);
+            }
             foreach ($affectedIds as $id) {
-                $list = $names->get($id);
-                DB::table('manuscripts')->where('id', $id)->update([
-                    'script_names' => $list ? $list->pluck('name')->implode('، ') : null,
-                    'updated_at' => now(),
-                ]);
+                DB::table('manuscripts')->where('id', $id)->update(['script_names' => $scriptNames[$id] ?? null, 'updated_at' => now()]);
             }
 
             DB::statement('UPDATE scripts SET manuscripts_count = (SELECT COUNT(*) FROM manuscript_script WHERE manuscript_script.script_id = scripts.id)');
@@ -186,6 +198,7 @@ class CleanScriptNamesCommand extends Command
             $clean['bita'] ? 'بی‌تا' : null,
             $clean['autograph'] ? 'کاتب = مؤلف' : null,
             $clean['scribe'] !== null ? "کاتب: {$clean['scribe']}" : null,
+            $clean['styles'] ? 'کیفیت: ' . implode('، ', $clean['styles']) : null,
             $clean['dropped'] ? 'حذف: ' . implode(' / ', $clean['dropped']) : null,
         ]));
     }

@@ -7,8 +7,11 @@ namespace App\Support;
  * left in it (backlog item 50). When the parser found no known script in a value, often because it was
  * written with the Arabic «ي/ى/ك», it kept the whole value as the script name, so «تحریری، بی‌کا»،
  * «مختلف، کاتب = مؤلف، بی‌تا» or a bare scribe name became script records. A value with a known script
- * keeps the parser's rule (only the known scripts count); the others lose their notes. The corpus parser
- * applies the same rules in split_script_notes().
+ * keeps the parser's rule (only the known scripts count); the others lose their notes. The names that
+ * remain («labels», kept as the manuscript's «نوع خط» text) then map onto the script list: a quality goes
+ * to «کیفیت خط» («تحریری متوسط» → «تحریری» + «متوسط»), variants merge («رقعه» → «رقعی»), and print,
+ * typescript and layouts leave the list (see UNIFY). The corpus parser applies the same rules in
+ * split_script_notes() and unify_scripts().
  */
 class ScriptNameCleaner
 {
@@ -23,6 +26,48 @@ class ScriptNameCleaner
         'تحریری بدخط وناخوانا' => 'تحریری بدخط و ناخوانا',
     ];
 
+    /**
+     * Names that are not a script of their own: [script or null, quality for «کیفیت خط» or null]
+     * (backlog item 50, user's decisions of 28 Mehr 1405). Hebrew, Pahlavi and Latin stay: in Fankha
+     * «خط: عبری» names the alphabet, not the language of the text.
+     */
+    public const UNIFY = [
+        'تحریری متوسط' => ['تحریری', 'متوسط'],
+        'تحریری نازیبا' => ['تحریری', 'نازیبا'],
+        'تحریری ناخوانا' => ['تحریری', 'ناخوانا'],
+        'تحریری خوش' => ['تحریری', 'خوش'],
+        'تحریری بدخط و ناخوانا' => ['تحریری', 'بدخط و ناخوانا'],
+        'تحریری بدخط' => ['تحریری', 'بدخط'],
+        'تحریری خفی' => ['تحریری', 'خفی'],
+        'تحریری کهن' => ['تحریری', 'کهن'],
+        'تحریری زیبا' => ['تحریری', 'زیبا'],
+        'تحریری درشت' => ['تحریری', 'درشت'],
+        'تحریری پخته' => ['تحریری', 'پخته'],
+        'تحریری ترکی' => ['تحریری', null],
+        'تحریری معمول هندوستان' => ['تحریری', null],
+        'خط زیبا' => [null, 'زیبا'],
+        'خط عالی' => [null, 'عالی'],
+        'خط خوانا' => [null, 'خوانا'],
+        'خط خوش' => [null, 'خوش'],
+        'خط ناخوانا' => [null, 'ناخوانا'],
+        'متوسط' => [null, 'متوسط'],
+        'معتاد' => [null, 'معتاد'],
+        'خط رقاع' => ['رقاع', null],
+        'رقاع ممتاز' => ['رقاع', 'ممتاز'],
+        'خط دیوانی' => ['دیوانی', null],
+        'رقعه' => ['رقعی', null],
+        'رقعی بدون نقطه' => ['رقعی', 'بدون نقطه'],
+        'گوناگون' => ['مختلف', null],
+        'با قلم‌های متفاوت' => ['مختلف', null],
+        'فرنگی' => ['لاتین', null],
+        'چاپی' => [null, null],
+        'چاپ سنگی' => [null, null],
+        'تایپی' => [null, null],
+        'چلیپایی' => [null, 'چلیپا'],
+        'حمایلی' => [null, 'حمایلی'],
+        'سیاه مشق' => [null, 'سیاه مشق'],
+    ];
+
     /** Words that mark a value as a script or a hand rather than a scribe's name. */
     public const SCRIPT_WORDS = [
         'تحریری', 'مختلف', 'گوناگون', 'سیاق', 'رقعی', 'رقاع', 'چاپی', 'چاپ', 'عبری', 'معتاد', 'پهلوی',
@@ -32,12 +77,12 @@ class ScriptNameCleaner
     ];
 
     /**
-     * @return array{scripts: list<string>, bika: bool, bita: bool, autograph: bool, scribe: ?string, dropped: list<string>}
+     * @return array{scripts: list<string>, labels: list<string>, styles: list<string>, bika: bool, bita: bool, autograph: bool, scribe: ?string, dropped: list<string>}
      */
     public static function clean(string $value): array
     {
         $s = self::normalize($value);
-        $result = ['scripts' => [], 'bika' => false, 'bita' => false, 'autograph' => false, 'scribe' => null, 'dropped' => []];
+        $result = ['scripts' => [], 'labels' => [], 'styles' => [], 'bika' => false, 'bita' => false, 'autograph' => false, 'scribe' => null, 'dropped' => []];
 
         // «کا: <name>» runs to the end of the value, apart from trailing notes
         if (preg_match('/(?:^|،)\s*کا:\s*(.+)$/u', $s, $m, PREG_OFFSET_CAPTURE)) {
@@ -50,9 +95,7 @@ class ScriptNameCleaner
         $s = self::stripNotes($s, $result);
 
         if ($known = self::knownScriptsIn($s)) {
-            $result['scripts'] = $known;
-
-            return $result;
+            return self::unify($known, $result);
         }
 
         $segments = array_values(array_filter(array_map(
@@ -70,7 +113,22 @@ class ScriptNameCleaner
             return $result;
         }
 
-        $result['scripts'] = array_values(array_unique(array_map(fn ($seg) => self::SPELLINGS[$seg] ?? $seg, $segments)));
+        return self::unify(array_values(array_unique(array_map(fn ($seg) => self::SPELLINGS[$seg] ?? $seg, $segments))), $result);
+    }
+
+    /** Maps the names onto the script list, keeping them as labels and collecting their qualities. */
+    private static function unify(array $labels, array $result): array
+    {
+        $result['labels'] = $labels;
+        foreach ($labels as $label) {
+            [$script, $style] = self::UNIFY[$label] ?? [$label, null];
+            if ($script !== null && ! in_array($script, $result['scripts'], true)) {
+                $result['scripts'][] = $script;
+            }
+            if ($style !== null && ! in_array($style, $result['styles'], true)) {
+                $result['styles'][] = $style;
+            }
+        }
 
         return $result;
     }

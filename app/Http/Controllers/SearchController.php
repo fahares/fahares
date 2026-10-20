@@ -165,7 +165,8 @@ class SearchController extends Controller
                         $lib->matching_count = $lib->manuscripts_count;
                         return $lib;
                     });
-                $scripts = Script::whereIn('id', [1, 2, 5, 4, 9, 3, 11, 7, 8])->get();
+                // Ids differ between local and production, so pick the most used scripts by count
+                $scripts = Script::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->take(12)->get();
                 for ($c = 4; $c <= 14; $c++) {
                     $centuries[$c] = null;
                 }

@@ -10,6 +10,7 @@ use App\Models\Referral;
 use App\Models\Script;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Support\ScriptNameCleaner;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -329,8 +330,12 @@ class SeedFaharesDataCommand extends Command
             // Script String & Quality
             $scriptStr = null;
             $scriptList = $m['scripts'] ?? [];
-            // A «خط:» value with no script (only «بی‌کا» or a scribe's name) leaves «نوع خط» empty
-            if (!empty($scriptList)) {
+            // «نوع خط» keeps the names without the notes («تحریری متوسط»، «چاپی»), even those that are not
+            // in the script list; a value with only «بی‌کا» or a scribe's name leaves it empty
+            $labels = ScriptNameCleaner::clean((string) ($m['script'] ?? ''))['labels'];
+            if (!empty($labels)) {
+                $scriptStr = implode('، ', $labels);
+            } elseif (!empty($scriptList)) {
                 $scriptStr = implode('، ', $scriptList);
             }
 
