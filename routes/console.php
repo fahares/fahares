@@ -14,3 +14,6 @@ Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')
     ->everyMinute()
     ->withoutOverlapping(5);
 Schedule::command('queue:prune-failed --hours=720')->daily();
+
+// Figures of the insights page (/insights): heavy queries, so built once a night, not per view
+Schedule::command('fahares:build-insights')->dailyAt('03:30')->withoutOverlapping(30);

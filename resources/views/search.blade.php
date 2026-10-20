@@ -77,7 +77,7 @@
             </div>
 
             <!-- Active Filters Reset -->
-            @if($subjectId || $libraryId || $scriptId || $century || !empty($flags) || $languageId || $workForm || $manuscriptsRange)
+            @if($subjectId || $libraryId || $scriptId || $century || $copyCity || !empty($flags) || $languageId || $workForm || $manuscriptsRange)
                 <div class="flex flex-wrap items-center gap-2 pt-2 text-xs">
                     <span class="text-muted">فیلترهای فعال:</span>
 
@@ -101,6 +101,14 @@
                         <a href="{{ route('search', array_merge(request()->except('century'), ['page' => 1])) }}" 
                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
                             <span>سده: <strong>{{ $century }} هجری</strong></span>
+                            <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
+                        </a>
+                    @endif
+
+                    @if($copyCity)
+                        <a href="{{ route('search', array_merge(request()->except('copy_city'), ['page' => 1])) }}" 
+                           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm bg-cinnabar/5 text-cinnabar border border-cinnabar/30 hover:bg-cinnabar/10 transition">
+                            <span>محل کتابت: <strong>{{ $copyCity }}</strong></span>
                             <span class="text-red-500 font-bold hover:scale-125 transition">✕</span>
                         </a>
                     @endif
@@ -184,6 +192,9 @@
                 <input type="hidden" name="q" value="{{ $query }}">
                 <input type="hidden" name="type" value="{{ $type }}">
                 <input type="hidden" name="scope" value="{{ $scope }}">
+                @if($copyCity)
+                    <input type="hidden" name="copy_city" value="{{ $copyCity }}">
+                @endif
 
                 <div class="flex items-center justify-between pb-3 border-b border-line">
                     <span class="rubric text-base">پالایش نتایج</span>

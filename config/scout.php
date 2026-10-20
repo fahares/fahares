@@ -207,6 +207,7 @@ return [
                     'library_id',
                     'scribe_id',
                     'city',
+                    'copy_place',
                     'copy_date_hijri_year',
                     'volume_number',
                     'is_autograph',

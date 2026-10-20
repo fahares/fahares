@@ -20,6 +20,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ManuscriptController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
@@ -37,6 +38,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Search Engine
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/api/search', [SearchController::class, 'api'])->name('search.api');
+
+// Statistical insights: figures built nightly by fahares:build-insights
+Route::get('/insights', [InsightsController::class, 'index'])->name('insights');
 
 // Works
 Route::get('/works/{id}', [WorkController::class, 'show'])

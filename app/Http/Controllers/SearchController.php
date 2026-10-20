@@ -10,6 +10,7 @@ use App\Models\Script;
 use App\Helpers\TextNormalizer;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Support\CopyPlaces;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Meilisearch\Client as MeiliClient;
@@ -31,6 +32,8 @@ class SearchController extends Controller
         $libraryId = $request->input('library_id');
         $scriptId = $request->input('script_id');
         $century = $request->input('century');
+        // City of copying (config/insights.php copy_places), linked from the insights map
+        $copyCity = CopyPlaces::isCity($request->input('copy_city')) ? $request->input('copy_city') : null;
         $languageId = $request->input('language_id');
         $workForm = $request->input('work_form');
         $manuscriptsRange = $request->input('manuscripts_range');
@@ -191,6 +194,12 @@ class SearchController extends Controller
                 if ($selectedScript) {
                     $meiliFilters[] = 'scripts = "' . addslashes($selectedScript->name) . '"';
                 }
+                if ($copyCity) {
+                    // The index keeps copy_place normalized
+                    $places = collect(CopyPlaces::variants($copyCity))
+                        ->map(fn ($p) => '"' . addslashes(TextNormalizer::normalize($p)) . '"')->unique()->implode(', ');
+                    $meiliFilters[] = $places !== '' ? "copy_place IN [{$places}]" : 'id = 0';
+                }
                 foreach ($flags as $f) {
                     $meiliFilters[] = "{$f} = true";
                 }
@@ -221,6 +230,9 @@ class SearchController extends Controller
                 }
                 if ($scriptId) {
                     $builder->whereHas('scripts', fn($sq) => $sq->where('scripts.id', $scriptId));
+                }
+                if ($copyCity) {
+                    $builder->whereIn('copy_place', CopyPlaces::variants($copyCity));
                 }
                 foreach ($flags as $f) {
                     $builder->where($f, true);
@@ -507,6 +519,7 @@ class SearchController extends Controller
             'libraryId',
             'scriptId',
             'century',
+            'copyCity',
             'flag',
             'flags',
             'selectedSubject',
