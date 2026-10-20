@@ -58,7 +58,7 @@ class BibliographyLinksTest extends TestCase
     public function test_other_sources_are_not_linked_even_after_a_known_one()
     {
         $this->assertSame([], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
-        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، الأعلام 23/1'));
+        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، معجم المطبوعات 23/1'));
         $this->assertSame([], $this->links('الذریعة 287/27'));
     }
 
@@ -190,6 +190,30 @@ class BibliographyLinksTest extends TestCase
         $this->assertStringContainsString('href="#" title="دیدن برگه‌ی معجم المؤلفین، ج ۳، ص ۱۰۵"', (string) BibliographyLinks::html('کحاله 105/3'));
     }
 
+    public function test_zirikli_opens_the_viewer_under_all_its_names_and_not_for_other_alam_books()
+    {
+        $viewer = fn (string $entry) => array_map(
+            fn ($v) => [$v['catalog'], $v['volume'], $v['page']],
+            array_values(array_filter(array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))))
+        );
+
+        $this->assertSame([['zirikli', 6, 80], ['zirikli', 2, 103], ['zirikli', 4, 30], ['zirikli', 7, 22]],
+            $viewer('الاعلام زرکلی 80/6؛ زرکلی 103/2؛ الأعلام 30/4؛ اعلام زرکلی 22/7'));
+        $this->assertSame([['zirikli', 1, 193], ['zirikli', 8, 195], ['zirikli', 3, 321], ['zirikli', 5, 24]],
+            $viewer('زرکلی، الاعلام 193/1؛ زركلى اعلام 195/8؛ الاعلام، زرکلی: 321/3؛ الاعلام (زرکلی) 24/5'));
+        $this->assertSame([['zirikli', 6, 21], ['zirikli', 2, 196], ['zirikli', 6, 279], ['zirikli', 1, 94]],
+            $viewer('الاعلام للزرکلی 21/6؛ الأعلام، 196/2؛ الاعلام 6: 279؛ الاعلام 94/1-95'));
+        $this->assertSame([['zirikli', 3, 273], ['zirikli', 3, 274], ['zirikli', 1, 240]],
+            $viewer('الاعلام 273/3 و 274؛ الاعلام، ج1، ص 240'));
+
+        // «اعلام» alone is another book numbered past page 1,000; titles that contain the word are other books
+        $this->assertSame([], $viewer('اعلام 1884/3؛ اعلام 64/1؛ اعلام 1: 410'));
+        $this->assertSame([], $viewer('اعلام الشیعة 120/2؛ طبقات اعلام الشیعه 45/1؛ قاموس الاعلام 30/4؛ سیر اعلام النبلاء 22/7'));
+        $this->assertSame([], $viewer('اعلام المؤلفين الزيدية ص 75؛ الاعلام فیما اتفقت علیه الامامیة 2/3'));
+        // the second edition's volumes 9-10, pages past the volume
+        $this->assertSame([], $viewer('زرکلی الاعلام 172/9؛ اعلام زرکلی 9: 162؛ زرکلی 857/3؛ اعلام زرکلی 373/4'));
+    }
+
     public function test_citations_without_the_page_volume_form()
     {
         $viewer = fn (string $entry) => array_map(
@@ -198,7 +222,7 @@ class BibliographyLinksTest extends TestCase
         );
 
         // «ج N، ص M» in any source, and a bare «و» page after it
-        $this->assertSame([['kashf', 1, 185], ['idah', 2, 669], ['hadiyya', 1, 244]],
+        $this->assertSame([['kashf', 1, 185], ['idah', 2, 669], ['zirikli', 6, 41], ['hadiyya', 1, 244]],
             $viewer('کشف الظنون ج 1، ص 185؛ ایضاح المکنون: ج2ص669، الأعلام للزرکلی: ج6ص41؛ هدیة العارفین ج 1-ستون 244'));
         $this->assertSame([['kashf', 1, 195], ['kashf', 1, 196]], $viewer('کشف الظنون ج 1-195 و 196'));
         $this->assertSame([['https://lib.eshia.ir/71602/3/402']], array_map(fn ($l) => [$l[1]], $this->links('الذریعة ج 3، ص 402')));

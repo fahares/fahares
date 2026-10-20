@@ -117,5 +117,21 @@ return [
                 ],
             ],
         ],
+        // Zirikli's al-A'lam, eight-volume Dar al-'Ilm li-l-Malayin edition (15th printing 2002, scanned page = printed
+        // page; scripts/facsimile/zirikli_page_mapping.json). Fankha writes «الاعلام», «اعلام زرکلی», «زرکلی اعلام» or
+        // «زرکلی» alone, mostly «page/volume», sometimes «الاعلام 6: 279». «اعلام» alone, without the article and
+        // Zirikli's name, is another book numbered past page 1,000 and is not linked; nor are the titles that contain
+        // the word (اعلام الشیعه, قاموس الاعلام, سیر اعلام النبلاء), nor volumes 9-10 of the ten-volume second edition.
+        'zirikli' => [
+            'label' => 'الأعلام زرکلی',
+            'pattern' => '(?:(?:ال)?اعلام (?:لل)?زرکلی|زرکلی(?: (?:ال)?اعلام)?|للزرکلی|الاعلام)',
+            'volumes' => 8,
+            'pairs_after_name' => true,
+            'viewer' => [
+                'catalog' => 'zirikli',
+                'name' => 'الأعلام',
+                'last_pages' => [1 => 336, 2 => 341, 3 => 355, 4 => 334, 5 => 336, 6 => 335, 7 => 352, 8 => 373],
+            ],
+        ],
     ],
 ];
