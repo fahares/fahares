@@ -3,11 +3,6 @@
 @section('title', 'اعلان‌ها | فهارس')
 
 @section('content')
-@php
-    $formatter = class_exists(\IntlDateFormatter::class)
-        ? new \IntlDateFormatter('fa_IR@calendar=persian', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'Asia/Tehran', \IntlDateFormatter::TRADITIONAL, 'd MMMM y، HH:mm')
-        : null;
-@endphp
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">اعلان‌ها</h1>
@@ -21,7 +16,7 @@
                 <h2 class="text-sm font-bold text-ink">
                     @if($new)<span class="inline-block w-2 h-2 rounded-full bg-amber-500 align-middle me-1"></span>@endif{{ $n->data['title'] ?? '' }}
                 </h2>
-                <span class="shrink-0 text-[11px] text-muted">{{ $formatter ? $formatter->format($n->created_at) : $n->created_at->format('Y/m/d H:i') }}</span>
+                <span class="shrink-0 text-[11px] text-muted">@jdate($n->created_at, 'long_time')</span>
             </div>
             @if(! empty($n->data['body']))
                 <p class="mt-2 text-xs text-ink/80 leading-relaxed whitespace-pre-line break-words">{{ $n->data['body'] }}</p>

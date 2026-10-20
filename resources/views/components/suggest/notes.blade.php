@@ -3,9 +3,6 @@
 @php
     $notes = $researchNotes ?? collect();
     $types = \App\Suggestions\NoteTypes::forRecord($type);
-    $formatter = class_exists(\IntlDateFormatter::class)
-        ? new \IntlDateFormatter('fa_IR@calendar=persian', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'Asia/Tehran', \IntlDateFormatter::TRADITIONAL, 'd MMMM y')
-        : null;
     // What to invite, matched to the note types each record offers (NoteTypes::BY_RECORD)
     $invitation = match ($type) {
         'work' => 'اگر درباره‌ی این اثر نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش یا نسخه دیگری از آن سراغ دارید، آن را بیفزایید.',
@@ -64,7 +61,7 @@
                                 @if(! empty($p['text']))<p class="text-xs text-ink/80 leading-relaxed whitespace-pre-line break-words">{{ $p['text'] }}</p>@endif
                         @endswitch
                         <p class="text-[11px] text-muted">
-                            افزوده‌ی <strong class="text-ink">{{ $n->credit_name ?: 'یکی از پژوهشگران' }}</strong>@if($n->reviewed_at) · {{ $formatter ? $formatter->format($n->reviewed_at) : $n->reviewed_at->format('Y/m/d') }}@endif
+                            افزوده‌ی <strong class="text-ink">{{ $n->credit_name ?: 'یکی از پژوهشگران' }}</strong>@if($n->reviewed_at) · @jdate($n->reviewed_at, 'long')@endif
                         </p>
                         @if($n->public_note)
                             <p class="text-xs text-ink/80 whitespace-pre-line"><span class="font-bold text-muted">یادداشت داور:</span> {{ $n->public_note }}</p>

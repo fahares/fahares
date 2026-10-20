@@ -84,8 +84,8 @@
             @endunless
             <div>
                 <span class="text-stone-400">تاریخ ارسال:</span>
-                <span class="font-mono text-ink mr-1">{{ $suggestion->created_at->format('Y/m/d H:i') }}</span>
-                <span class="text-stone-400 text-[10px]">({{ $suggestion->created_at->diffForHumans() }})</span>
+                <span class="font-mono text-ink mr-1">@jdate($suggestion->created_at, 'datetime')</span>
+                <span class="text-stone-400 text-[10px]">(@jago($suggestion->created_at))</span>
             </div>
         </div>
 
@@ -433,7 +433,7 @@
                 </p>
             @endif
             <div class="text-[10px] text-stone-400 pt-2 font-mono">
-                داوری توسط {{ $suggestion->reviewer?->name ?: 'سیستم' }} در تاریخ {{ $suggestion->reviewed_at?->format('Y/m/d H:i') }}
+                داوری توسط {{ $suggestion->reviewer?->name ?: 'سیستم' }} در تاریخ @jdate($suggestion->reviewed_at, 'datetime')
             </div>
         </div>
     @endif

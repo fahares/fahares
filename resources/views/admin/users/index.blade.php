@@ -86,7 +86,7 @@
                                 {{ $u->affiliation ?: '—' }}
                             </td>
                             <td class="p-4 font-mono text-stone-400 text-[11px]">
-                                {{ $u->created_at->format('Y/m/d') }}
+                                @jdate($u->created_at)
                             </td>
                             <td class="p-4 text-center">
                                 <div class="flex items-center justify-center gap-1">

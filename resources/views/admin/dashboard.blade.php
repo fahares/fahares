@@ -236,7 +236,7 @@
                             <div class="text-[10px] text-stone-400 flex items-center gap-2">
                                 <span>ثبت‌کننده: {{ $sug->guest_name ?: 'پژوهشگر مهمان' }}</span>
                                 <span>•</span>
-                                <span>{{ $sug->created_at->diffForHumans() }}</span>
+                                <span>@jago($sug->created_at)</span>
                             </div>
                         </div>
 
@@ -291,7 +291,7 @@
                         </div>
 
                         <div class="shrink-0 text-left">
-                            <span class="text-[10px] text-stone-400 font-mono">{{ $log->created_at->diffForHumans() }}</span>
+                            <span class="text-[10px] text-stone-400 font-mono">@jago($log->created_at)</span>
                         </div>
                     </div>
                 @empty

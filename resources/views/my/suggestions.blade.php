@@ -5,10 +5,7 @@
 
 @section('content')
 @php
-    $formatter = class_exists(\IntlDateFormatter::class)
-        ? new \IntlDateFormatter('fa_IR@calendar=persian', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'Asia/Tehran', \IntlDateFormatter::TRADITIONAL, 'd MMMM y')
-        : null;
-    $date = fn ($d) => $d ? ($formatter ? $formatter->format($d) : $d->format('Y/m/d')) : '';
+    $date = fn ($d) => \App\Support\Jalali::format($d, 'long');
     $pill = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold border';
     $pills = [
         'pending' => ['در انتظار داوری', 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900/60'],

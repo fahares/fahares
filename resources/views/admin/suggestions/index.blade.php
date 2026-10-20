@@ -82,7 +82,7 @@
                         <tr class="hover:bg-paper transition">
                             <td class="p-4">
                                 <span class="font-mono font-bold text-ink">#{{ $sug->id }}</span>
-                                <div class="text-[10px] text-stone-400 mt-0.5">{{ $sug->created_at->format('Y/m/d H:i') }}</div>
+                                <div class="text-[10px] text-stone-400 mt-0.5">@jdate($sug->created_at, 'datetime')</div>
                             </td>
                             <td class="p-4">
                                 <a href="{{ $sug->place_url ?? '#' }}" target="_blank" class="text-cinnabar hover:underline font-bold inline-flex items-center gap-1">

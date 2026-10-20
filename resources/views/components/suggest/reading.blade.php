@@ -1,9 +1,6 @@
 @props(['s', 'tag', 'tone' => 'stone'])
 {{-- One approved reading in <x-suggest.readings>: value, who holds it, when, the evidence and the reviewer's public note --}}
 @php
-    $formatter = class_exists(\IntlDateFormatter::class)
-        ? new \IntlDateFormatter('fa_IR@calendar=persian', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, 'Asia/Tehran', \IntlDateFormatter::TRADITIONAL, 'd MMMM y')
-        : null;
     $tones = [
         'emerald' => 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60',
         'sky' => 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-900/60',
@@ -19,7 +16,7 @@
     <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] text-muted">
         <span>{{ $s->standing === 'edit' ? 'ویرایش به پیشنهاد' : 'قائل:' }} <strong class="text-ink">{{ $s->credit_name ?: 'یکی از پژوهشگران' }}</strong></span>
         @if($s->reviewed_at)
-            <span>· {{ $formatter ? $formatter->format($s->reviewed_at) : $s->reviewed_at->format('Y/m/d') }}</span>
+            <span>· @jdate($s->reviewed_at, 'long')</span>
         @endif
         @if($s->rationale_citation)
             <button type="button" @click="open = !open" class="font-bold text-cinnabar hover:underline cursor-pointer" x-text="open ? 'بستن مستند' : 'مستند'">مستند</button>

@@ -66,7 +66,7 @@
                         <tr x-data="{ expanded: false }" class="hover:bg-paper transition">
                             <td class="p-4">
                                 <span class="font-mono font-bold text-ink">#{{ $log->id }}</span>
-                                <div class="text-[10px] text-stone-400 font-mono mt-0.5">{{ $log->created_at->format('Y/m/d H:i:s') }}</div>
+                                <div class="text-[10px] text-stone-400 font-mono mt-0.5">@jdate($log->created_at, 'seconds')</div>
                             </td>
                             <td class="p-4">
                                 <span class="font-bold text-ink">

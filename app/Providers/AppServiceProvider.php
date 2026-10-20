@@ -30,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \App\Helpers\SearchHelper::highlight({$expression}); ?>";
         });
 
+        // Jalali dates in Tehran time with Persian digits (App\Support\Jalali)
+        Blade::directive('jdate', fn ($expression) => "<?php echo e(\App\Support\Jalali::format({$expression})); ?>");
+        Blade::directive('jago', fn ($expression) => "<?php echo e(\App\Support\Jalali::ago({$expression})); ?>");
+
         // The verification email in Persian, in the site's RTL mail layout
         VerifyEmail::toMailUsing(fn ($notifiable, string $url) => (new MailMessage)
             ->subject('تأیید ایمیل | فهارس')
