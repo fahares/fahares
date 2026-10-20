@@ -99,5 +99,23 @@ return [
                 'last_pages' => [1 => 842, 2 => 574],
             ],
         ],
+        // Kahhala's Mu'jam al-Mu'allifin, Damascus 1957-61 edition (al-Muthanna / Dar Ihya' al-Turath), parts 1-13;
+        // 14-15 are the indexes (scripts/facsimile/kahhala_page_mapping.json). Fankha also writes «معجم المؤلفین 9: 15»
+        // and «11-314» (volume-page); «(چاپ جدید)» is the four-volume Risala edition, which is not linked.
+        'kahhala' => [
+            'label' => 'معجم المؤلفین',
+            'pattern' => '(?:معجم ال?م[ؤو]لفین(?: (?:عمر ?رضا )?کحاله)?|(?:عمر ?رضا )?کحاله)',
+            'volumes' => 13,
+            'pairs_after_name' => true,
+            'other_edition' => 'چاپ جدید',
+            'viewer' => [
+                'catalog' => 'kahhala',
+                'name' => 'معجم المؤلفین',
+                'last_pages' => [
+                    1 => 320, 2 => 320, 3 => 320, 4 => 320, 5 => 320, 6 => 295, 7 => 320, 8 => 320, 9 => 320, 10 => 320,
+                    11 => 320, 12 => 320, 13 => 421,
+                ],
+            ],
+        ],
     ],
 ];

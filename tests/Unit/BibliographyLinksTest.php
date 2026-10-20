@@ -58,7 +58,7 @@ class BibliographyLinksTest extends TestCase
     public function test_other_sources_are_not_linked_even_after_a_known_one()
     {
         $this->assertSame([], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
-        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، معجم المؤلفین 23/1'));
+        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، الأعلام 23/1'));
         $this->assertSame([], $this->links('الذریعة 287/27'));
     }
 
@@ -159,6 +159,35 @@ class BibliographyLinksTest extends TestCase
             $viewer('هدية العارفين 406/1 و 39/2؛ بغدادی، هدیه 249/1'));
         $this->assertSame([], $viewer('ایضاح المکنون 659/1؛ هدیة العارفین 590/2')); // past the last column
         $this->assertSame([['kashf', 1, 500]], $viewer('کشف الظنون 500/1'));
+    }
+
+    public function test_kahhala_opens_the_viewer_under_all_its_names_and_forms()
+    {
+        $viewer = fn (string $entry) => array_map(
+            fn ($v) => [$v['catalog'], $v['volume'], $v['page']],
+            array_values(array_filter(array_map(fn ($s) => $s['viewer'] ?? null, BibliographyLinks::segments($entry))))
+        );
+
+        $this->assertSame([['kahhala', 5, 128], ['kahhala', 3, 105], ['kahhala', 11, 291], ['kahhala', 9, 285]],
+            $viewer('معجم المؤلفین 128/5؛ کحاله 105/3؛ معجم المؤلفین، کحاله 291/11؛ معجم المؤلفين 285/9'));
+        $this->assertSame([['kahhala', 12, 46], ['kahhala', 6, 162], ['kahhala', 4, 216]],
+            $viewer('معجم المولفین 46/12؛ معجم المؤلفين كحالة 162/6؛ معجم المؤلفین عمر رضا کحاله: 216/4'));
+        $this->assertSame([['kahhala', 13, 304], ['kahhala', 9, 87], ['kahhala', 11, 196]],
+            $viewer('معجم المؤلفین 13/ 304؛ معجم المؤلفين 87/9 و 196/11'));
+
+        // «volume: page» or «page: volume», «volume-page» and «ج/ص» right after the name
+        $this->assertSame([['kahhala', 9, 15], ['kahhala', 7, 108], ['kahhala', 11, 314], ['kahhala', 12, 218]],
+            $viewer('معجم المؤلفين 9: 15؛ معجم المولفین 108: 7؛ معجم المؤلفين 11-314؛ معجم المؤلفين، ج 12، ص 218-219'));
+
+        // the four-volume Risala edition, other books named alike, pages past the volume
+        $this->assertSame([], $viewer('معجم المؤلفین، کحاله (چاپ جدید) 334/3؛ کحاله (چاپ جدید)130/2؛ معجم المؤلفين، کحاله چاپ جدید 346/2'));
+        $this->assertSame([], $viewer('معجم المؤلفین العراقیین 120/2؛ تكملة معجم المؤلفين 45/1؛ مستدرک علی معجم المؤلفین 527/1'));
+        $this->assertSame([], $viewer('معجم المؤلفین 321/11؛ معجم المؤلفین 779/3'));
+        $this->assertSame([['kahhala', 13, 421]], $viewer('کحاله 421/13'));
+
+        // the other sources keep reading a colon or a dash only as before
+        $this->assertSame([], $this->links('الذریعة 13-15'));
+        $this->assertStringContainsString('href="#" title="دیدن برگه‌ی معجم المؤلفین، ج ۳، ص ۱۰۵"', (string) BibliographyLinks::html('کحاله 105/3'));
     }
 
     public function test_citations_without_the_page_volume_form()

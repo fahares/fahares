@@ -83,14 +83,16 @@ class BibliographyLinks
                 $volume = $source ? self::volume($source, self::int($m['jv'][0])) : null;
                 $link = $volume ? self::pageLink($source, $volume, self::int($m['jp'][0])) : null;
             } elseif (isset($m['db'][0])) {
-                // «کشف الظنون 1-93»: in the two-volume column books a dash after the name joins volume and column
+                // «کشف الظنون 1-93»: in the two-volume column books (and pairs_after_name ones) a dash after the name
+                // joins volume and column
                 $key = $named ?? ($joined && $volume ? $source : null);
-                $volume = $key && isset(self::sources()[$key]['unit']) ? self::volume($key, self::int($m['da'][0])) : null;
+                $volume = $key && self::pairsAfterName($key) ? self::volume($key, self::int($m['da'][0])) : null;
                 $link = $volume ? self::pageLink($key, $volume, self::int($m['db'][0])) : null;
                 $source = $link ? $key : $source;
             } elseif (isset($m['b'][0]) && $m['sep'][0] === ':') {
                 // «کشف الظنون 1: 127»: a colon joins volume and column only right after the name of a column book
-                $link = $named && isset(self::sources()[$named]['unit']) ? self::link($named, self::int($m['a'][0]), self::int($m['b'][0])) : null;
+                // (or of a pairs_after_name one)
+                $link = $named && self::pairsAfterName($named) ? self::link($named, self::int($m['a'][0]), self::int($m['b'][0])) : null;
                 $source = $link ? $named : $source;
             } elseif (isset($m['b'][0])) {
                 $source = self::sourceAfter($gap, $source);
@@ -134,8 +136,7 @@ class BibliographyLinks
      */
     private static function sourceAfter(string $gap, ?string $current): ?string
     {
-        $gap = preg_replace('/\([^)]*\)/u', ' ', $gap);
-        $pieces = preg_split('/[0-9۰-۹؛;،,:.\/\-–]+/u', $gap);
+        $pieces = preg_split('/[0-9۰-۹؛;،,:.\/\-–]+/u', preg_replace('/\([^)]*\)/u', ' ', $gap));
         $name = '';
         foreach (array_reverse($pieces) as $piece) {
             $piece = trim(preg_replace(['/[^\p{L}\p{M}\x{200C}\s]+/u', '/(^|\s)(?:و|ج|ص|ش|رقم)(?=\s|$)/u'], ' ', $piece));
@@ -151,11 +152,21 @@ class BibliographyLinks
         $name = self::normalize($name);
         foreach (self::sources() as $key => $src) {
             if (preg_match('/^' . $src['pattern'] . '$/u', $name)) {
-                return $key;
+                // «کحاله (چاپ جدید) 286/1» cites another edition, whose pages do not match
+                return isset($src['other_edition']) && preg_match('/' . $src['other_edition'] . '[\s)]*$/u', self::normalize($gap))
+                    ? null : $key;
             }
         }
 
         return null;
+    }
+
+    /** Whether a colon or a dash right after the source's name joins volume and page (column books, and pairs_after_name). */
+    private static function pairsAfterName(string $key): bool
+    {
+        $src = self::sources()[$key];
+
+        return isset($src['unit']) || ! empty($src['pairs_after_name']);
     }
 
     /** Fankha writes «page/volume»; the reverse order is accepted only when it is the one that fits. */
