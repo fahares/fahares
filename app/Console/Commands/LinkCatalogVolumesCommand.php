@@ -16,9 +16,10 @@ use Illuminate\Support\Str;
  *
  * The citation is read from metadata.catalog_citation, or from the last bracket of raw_text when the
  * corpus parser left it among the editorial notes («[الفبائی: -512]», «[ف مخ: 1]», «[رایانه]» …).
- * Volumes and catalogers come from database/data/catalog_volume_links.json, sourced from MTIF and
- * approved by the user. Everything is matched by natural key (library slug, MTIF entry ids), never by
- * local id, so the same command runs on production. Safe to run again.
+ * Volumes and catalogers come from database/data/catalog_volume_links.json, sourced from MTIF or the
+ * catalogue bibliography in Fankha's introduction, and approved by the user. Everything is matched by
+ * natural key (library slug, MTIF entry ids, volume title within its library, cataloger slug), never
+ * by local id, so the same command runs on production. Safe to run again.
  *
  * It also:
  *  - moves the Malek catalogue volumes that carried the Razavi library id back to Malek, and relinks
@@ -111,7 +112,18 @@ class LinkCatalogVolumesCommand extends Command
 
                 return null;
             }
-            $plan[] = $link + ['library_model' => $library];
+            // a catalogue shared by two library records (one catalogue, or a duplicate library) keeps its
+            // volumes under one of them
+            $volumeLibrary = $library;
+            if (! empty($link['volume_library'])) {
+                $volumeLibrary = Library::where('slug', $link['volume_library'])->first();
+                if (! $volumeLibrary) {
+                    $this->error("Library not found by slug: {$link['volume_library']}");
+
+                    return null;
+                }
+            }
+            $plan[] = $link + ['library_model' => $library, 'volume_library_model' => $volumeLibrary];
         }
 
         return $plan;
@@ -127,7 +139,7 @@ class LinkCatalogVolumesCommand extends Command
         // volume number => volume id
         $volumes = [];
         foreach ($link['volumes'] as $spec) {
-            $volume = $this->volume($library, $spec, $link['source']);
+            $volume = $this->volume($link['volume_library_model'], $spec, $link['source']);
             $volumes[(int) $spec['number']] = $volume?->id;
             if ($volume && ! $this->dry) {
                 $volume->catalogers()->syncWithoutDetaching(
@@ -173,39 +185,57 @@ class LinkCatalogVolumesCommand extends Command
             $skipped ? ", {$skipped} with an unlisted volume" : '', $names, $link['source']));
     }
 
-    /** Catalogers of a link in order, matched by MTIF id; new ones are created only when marked so. */
+    /**
+     * Catalogers of a link in order, matched by MTIF id, else by slug (for those MTIF lacks, or records
+     * created before their MTIF id was known, which then receive it). New ones are created only when
+     * marked so.
+     */
     protected function catalogers(array $link): Collection
     {
         return collect($link['catalogers'])->map(function ($spec) use ($link) {
-            $cataloger = Cataloger::where('mtif_entry_id', $spec['mtif_entry_id'])->first();
+            $mtif = $spec['mtif_entry_id'] ?? null;
+            $cataloger = $mtif ? Cataloger::where('mtif_entry_id', $mtif)->first() : null;
+            if (! $cataloger && ! empty($spec['slug'])) {
+                $cataloger = Cataloger::where('slug', $spec['slug'])->first();
+                if ($cataloger && $mtif && ! $cataloger->mtif_entry_id && ! $this->dry) {
+                    $cataloger->update(['mtif_entry_id' => $mtif]);
+                }
+            }
             if ($cataloger) {
                 return $cataloger;
             }
+            $key = $mtif ? "MTIF id {$mtif}" : 'slug ' . ($spec['slug'] ?? '?');
             if (empty($spec['new'])) {
-                throw new \RuntimeException("Cataloger with MTIF id {$spec['mtif_entry_id']} ({$spec['name']}) not found");
+                throw new \RuntimeException("Cataloger with {$key} ({$spec['name']}) not found");
             }
-            $this->line("  new cataloger: {$spec['name']} (MTIF {$spec['mtif_entry_id']})");
+            $this->line("  new cataloger: {$spec['name']} ({$key})");
             if ($this->dry) {
                 return new Cataloger(['name' => $spec['name']]);
             }
 
             return Cataloger::create([
                 'name' => $spec['name'],
-                'slug' => Str::slug($spec['name'], '-', null),
-                'mtif_entry_id' => $spec['mtif_entry_id'],
-                'metadata' => ['sources' => ["رکورد MTIF ({$link['source']}): «{$link['source_text']}»"]],
+                'slug' => $spec['slug'] ?? Str::slug($spec['name'], '-', null),
+                'mtif_entry_id' => $mtif,
+                'metadata' => ['sources' => [($mtif ? 'رکورد MTIF' : 'منبع') . " ({$link['source']}): «{$link['source_text']}»"]],
             ]);
         });
     }
 
-    /** Finds the volume by title (when given) or MTIF id within the library, or creates it. */
+    /**
+     * Finds the volume within the library by the given match title, its MTIF id, or its own title (the
+     * key of a volume MTIF lacks), or creates it.
+     */
     protected function volume(Library $library, array $spec, string $source): ?CatalogVolume
     {
         $volume = null;
         if (! empty($spec['match_title'])) {
             $volume = CatalogVolume::where('library_id', $library->id)->where('title', $spec['match_title'])->first();
         }
-        $volume ??= CatalogVolume::where('mtif_entry_id', $spec['mtif_entry_id'])->where('library_id', $library->id)->first();
+        if (! $volume && ! empty($spec['mtif_entry_id'])) {
+            $volume = CatalogVolume::where('mtif_entry_id', $spec['mtif_entry_id'])->where('library_id', $library->id)->first();
+        }
+        $volume ??= CatalogVolume::where('library_id', $library->id)->where('title', $spec['title'])->first();
         if ($volume) {
             return $volume;
         }
@@ -221,7 +251,7 @@ class LinkCatalogVolumesCommand extends Command
             'catalog_id' => 1,
             'publication_year' => $spec['publication_year'] ?? null,
             'pages_count' => $spec['pages_count'] ?? null,
-            'mtif_entry_id' => $spec['mtif_entry_id'],
+            'mtif_entry_id' => $spec['mtif_entry_id'] ?? null,
             'metadata' => ['source' => $source],
         ]);
     }

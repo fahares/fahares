@@ -97,6 +97,39 @@ class LinkCatalogVolumesTest extends TestCase
         $this->assertSame(1, Cataloger::where('mtif_entry_id', 990002)->count());
     }
 
+    public function test_volumes_without_mtif_are_keyed_by_title_and_a_shared_catalogue_stays_under_one_library()
+    {
+        $main = Library::create(['name' => 'کتابخانه اصلی', 'city' => 'کاشان', 'slug' => 'main-lib-' . uniqid()]);
+        $second = Library::create(['name' => 'کتابخانه دوم', 'city' => 'کاشان', 'slug' => 'second-lib-' . uniqid()]);
+        $unrelated = CatalogVolume::create(['title' => 'جلد دیگر بی‌شناسه', 'volume_number' => 1, 'library_id' => $main->id]);
+        $known = Cataloger::create(['name' => 'نگارنده‌ی موجود', 'slug' => 'known-' . uniqid()]);
+        $inMain = $this->manuscript($main, '[ف مخ: -12]');
+        $inSecond = $this->manuscript($second, '[ف مخ]');
+        $newSlug = 'new-no-mtif-' . uniqid();
+
+        $link = fn (Library $library) => [
+            'library' => $library->slug, 'series' => 'ف مخ', 'source' => 'fankha:1', 'source_text' => 'فهرست مخطوط',
+            'volume_library' => $main->slug,
+            'volumes' => [['number' => 1, 'title' => 'فهرست مخطوط آزمایشی']],
+            'catalogers' => [
+                ['mtif_entry_id' => 990011, 'slug' => $known->slug, 'name' => 'نگارنده‌ی موجود'],
+                ['slug' => $newSlug, 'name' => 'نگارنده‌ی بی‌شناسه', 'new' => true],
+            ],
+        ];
+        $this->writeData([$link($main), $link($second)]);
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+
+        $volume = CatalogVolume::where('title', 'فهرست مخطوط آزمایشی')->sole();
+        $this->assertSame($main->id, $volume->library_id);
+        $this->assertNotSame($unrelated->id, $volume->id);
+        $this->assertSame([$volume->id, $known->id], [$inMain->fresh()->catalog_volume_id, $inMain->fresh()->cataloger_id]);
+        $this->assertSame($volume->id, $inSecond->fresh()->catalog_volume_id);
+        $this->assertSame(990011, (int) $known->fresh()->mtif_entry_id);
+        $this->assertSame(1, Cataloger::where('name', 'نگارنده‌ی بی‌شناسه')->count());
+        $this->assertSame(0, $unrelated->fresh()->manuscripts_count);
+    }
+
     public function test_unknown_cataloger_not_marked_new_stops_the_run()
     {
         $library = Library::create(['name' => 'کتابخانه آزمایشی', 'city' => 'یزد', 'slug' => 'test-lib-' . uniqid()]);

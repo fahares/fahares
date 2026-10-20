@@ -1,5 +1,5 @@
 {
-  "_comment": "Backlog item 49 (step 12.x): links Fankha citations to catalog volumes and catalogers. Natural keys only: library slug, MTIF printcopy id (catalog_volumes.mtif_entry_id), MTIF person id (catalogers.mtif_entry_id). Cataloger names approved by the user on 2026-10-20 from the MTIF dump.",
+  "_comment": "Backlog item 49 (step 12.x): links Fankha citations to catalog volumes and catalogers. Natural keys only: library slug, MTIF printcopy id (catalog_volumes.mtif_entry_id), MTIF person id (catalogers.mtif_entry_id). Cataloger names approved by the user on 2026-10-20 from the MTIF dump. Batch 2 (2026-10-20): Fankha introduction bibliography (fankha:<entry>) where MTIF lacks the catalogue; editors («به کوشش و ویرایش») are not catalogers; for journals the article author is the cataloger. volume_library keeps a shared catalogue under one library record.",
   "links": [
     {
       "library": "mshhd-rdoy-1",
@@ -575,6 +575,584 @@
         {
           "mtif_entry_id": 37228,
           "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "thran-sltnty-39",
+      "series": "ف",
+      "source": "fankha:199-205; mtif.org/book/161, 9692, 9690",
+      "source_text": "کاخ گلستان، فهرست‌های کتابخانه‌ی سلطنتی، جلد ۱ تا ۷، بدری آتابای",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21491,
+          "title": "فهرست کتب دینی و مذهبی خطی کتابخانه سلطنتی",
+          "publication_year": "1352",
+          "pages_count": 1105
+        },
+        {
+          "number": 2,
+          "title": "فهرست مرقعات کتابخانه سلطنتی",
+          "publication_year": "1353",
+          "pages_count": 408
+        },
+        {
+          "number": 3,
+          "mtif_entry_id": 36008,
+          "title": "فهرست دیوان‌های خطی کتابخانه سلطنتی و کتاب هزار و یک شب - 1",
+          "publication_year": "1355",
+          "pages_count": 724
+        },
+        {
+          "number": 4,
+          "mtif_entry_id": 36009,
+          "title": "فهرست دیوان‌های خطی کتابخانه سلطنتی و کتاب هزار و یک شب - 2",
+          "publication_year": "1355"
+        },
+        {
+          "number": 5,
+          "mtif_entry_id": 36007,
+          "title": "فهرست تاریخ، سفرنامه، سیاحت‌نامه، روزنامه و جغرافیای خطی کتابخانه سلطنتی",
+          "publication_year": "1356",
+          "pages_count": 759
+        },
+        {
+          "number": 6,
+          "title": "فهرست آلبوم‌های کتابخانه سلطنتی",
+          "publication_year": "1357",
+          "pages_count": 238
+        },
+        {
+          "number": 7,
+          "title": "فهرست کتب ادبی عرفانی خطی کاخ گلستان",
+          "pages_count": 823
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37295,
+          "name": "بدری آتابای",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "mshhd-shykh-aaly-hydr-205",
+      "series": "مؤید",
+      "source": "fankha:478-480",
+      "source_text": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید، الأجزاء ۱–۳، محمد باقر انصاری، مؤسسة الهادی، بیروت ۱۴۲۰",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الأول",
+          "publication_year": "1420",
+          "pages_count": 456
+        },
+        {
+          "number": 2,
+          "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثانی",
+          "publication_year": "1420",
+          "pages_count": 352
+        },
+        {
+          "number": 3,
+          "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثالث",
+          "publication_year": "1420",
+          "pages_count": 664
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37640,
+          "name": "محمدباقر انصاری زنجانی خوئی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "mshhd-shykh-aaly-hydr-mktbh-12",
+      "series": "مؤید",
+      "source": "fankha:478-480",
+      "source_text": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید، الأجزاء ۱–۳، محمد باقر انصاری، مؤسسة الهادی، بیروت ۱۴۲۰",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الأول",
+          "publication_year": "1420",
+          "pages_count": 456
+        },
+        {
+          "number": 2,
+          "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثانی",
+          "publication_year": "1420",
+          "pages_count": 352
+        },
+        {
+          "number": 3,
+          "title": "فهرست مخطوطات مکتبة الخطیب الشیخ علی حیدر المؤید - الجزء الثالث",
+          "publication_year": "1420",
+          "pages_count": 664
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37640,
+          "name": "محمدباقر انصاری زنجانی خوئی",
+          "new": true
+        }
+      ],
+      "volume_library": "mshhd-shykh-aaly-hydr-205"
+    },
+    {
+      "library": "shyraz-mly-91",
+      "series": "ف",
+      "source": "mtif.org/book/176; fankha:297-298",
+      "source_text": "نگارش علی نقی بهروزی، محمد صادق فقیری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21518,
+          "title": "فهرست کتب خطی کتابخانه ملی فارس - 1",
+          "publication_year": "1351",
+          "pages_count": 416
+        },
+        {
+          "number": 2,
+          "mtif_entry_id": 21519,
+          "title": "فهرست کتب خطی کتابخانه ملی فارس - 2",
+          "publication_year": "1351",
+          "pages_count": 400
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37301,
+          "slug": "علینقی-بهروزی",
+          "name": "علینقی بهروزی"
+        },
+        {
+          "mtif_entry_id": 37302,
+          "name": "محمدصادق فقیری"
+        }
+      ]
+    },
+    {
+      "library": "km-tbsy-68",
+      "series": "ف مخ",
+      "source": "fankha:435-436",
+      "source_text": "فهرست نسخ خطی کتابخانه طبسی حائری (قم)، جلد ۱ و ۲، ابوالفضل حافظیان، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی کتابخانه طبسی حائری (قم) - 1",
+          "pages_count": 476
+        },
+        {
+          "number": 2,
+          "title": "فهرست نسخ خطی کتابخانه طبسی حائری (قم) - 2",
+          "pages_count": 451
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 56965,
+          "name": "ابوالفضل حافظیان بابلی"
+        }
+      ]
+    },
+    {
+      "library": "km-aaathm-km-997",
+      "series": "ف مخ",
+      "source": "fankha:429-433",
+      "source_text": "فهرست نسخ خطی کتابخانه مسجد اعظم قم، جلد ۱ تا ۵، طیار مراغی - حسن‌زاده، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 1"
+        },
+        {
+          "number": 2,
+          "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 2"
+        },
+        {
+          "number": 3,
+          "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 3"
+        },
+        {
+          "number": 4,
+          "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 4"
+        },
+        {
+          "number": 5,
+          "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 5"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ]
+    },
+    {
+      "library": "kashan-mdrsh-sltany-67",
+      "series": "ف مخ",
+      "source": "fankha:459-460",
+      "source_text": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)، طیار مراغه‌ای، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)",
+          "pages_count": 510
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ]
+    },
+    {
+      "library": "kashan-gaafry-169",
+      "series": "ف مخ",
+      "source": "fankha:459-460",
+      "source_text": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)، طیار مراغه‌ای، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)",
+          "pages_count": 510
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ],
+      "volume_library": "kashan-mdrsh-sltany-67"
+    },
+    {
+      "library": "aran-kashan-mhmd-hlal-65",
+      "series": "ف مخ",
+      "source": "fankha:1",
+      "source_text": "فهرست نسخ خطی آران کاشان (امامزاده هلال)، طیار مراغه‌ای، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی آران کاشان (امامزاده هلال)",
+          "pages_count": 303
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ]
+    },
+    {
+      "library": "aran-kashan-amamzadh-mhmd-hlal-207",
+      "series": "ف مخ",
+      "source": "fankha:1",
+      "source_text": "فهرست نسخ خطی آران کاشان (امامزاده هلال)، طیار مراغه‌ای، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی آران کاشان (امامزاده هلال)",
+          "pages_count": 303
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ],
+      "volume_library": "aran-kashan-mhmd-hlal-65"
+    },
+    {
+      "library": "frdos-mdrsh-hbybyh-190",
+      "series": "ف مخ",
+      "source": "fankha:336",
+      "source_text": "فهرست مدرسه حبیبیه، محمد ترابیان، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی مدرسه حبیبیه فردوس"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37806,
+          "name": "محمد ترابیان فردوسی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "bshroyh-amyralmomnyn-94",
+      "series": "ف مخ",
+      "source": "fankha:58",
+      "source_text": "کتابخانه امیرالمؤمنین، محمد ترابیان، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی کتابخانه امیرالمؤمنین بشرویه"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37806,
+          "name": "محمد ترابیان فردوسی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "kochan-mdrsh-aaodyh-120",
+      "series": "ف مخ",
+      "source": "fankha:445",
+      "source_text": "فهرست نسخ خطی مدرسه عوضیه، رمضانعلی انتظاری، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخ خطی مدرسه عوضیه قوچان"
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "رمضانعلی-انتظاری",
+          "name": "رمضانعلی انتظاری",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "mshhd-mdrsh-bakryh-87",
+      "series": "تراثنا",
+      "source": "fankha:536",
+      "source_text": "مدرسه باقریه، مجله تراثنا، محمود فاضل",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مدرسة الباقریة (مشهد)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37263,
+          "name": "محمود فاضل"
+        }
+      ]
+    },
+    {
+      "library": "km-fadl-kayyny-73",
+      "series": "تراثنا",
+      "source": "fankha:425",
+      "source_text": "مکتبة علی فاضل قائنی، مجله تراثنا، علی فاضلی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة علی فاضل قائنی"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 45266,
+          "name": "علی فاضلی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "km-fadl-kayny-916",
+      "series": "تراثنا",
+      "source": "fankha:425",
+      "source_text": "مکتبة علی فاضل قائنی، مجله تراثنا، علی فاضلی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة علی فاضل قائنی"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 45266,
+          "name": "علی فاضلی",
+          "new": true
+        }
+      ],
+      "volume_library": "km-fadl-kayyny-73"
+    },
+    {
+      "library": "km-fadl-kayyny-ktabkhanh-322",
+      "series": "تراثنا",
+      "source": "fankha:425",
+      "source_text": "مکتبة علی فاضل قائنی، مجله تراثنا، علی فاضلی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة علی فاضل قائنی"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 45266,
+          "name": "علی فاضلی",
+          "new": true
+        }
+      ],
+      "volume_library": "km-fadl-kayyny-73"
+    },
+    {
+      "library": "krmanshah-fyd-mhdoy-ktabkhanh-186",
+      "series": "تراثنا",
+      "source": "fankha:469",
+      "source_text": "کتابخانه فیض مهدوی، مجله تراثنا، سید احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة فیض مهدوی (کرمانشاه)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "krmanshah-fyd-mhdoy-1034",
+      "series": "تراثنا",
+      "source": "fankha:469",
+      "source_text": "کتابخانه فیض مهدوی، مجله تراثنا، سید احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة فیض مهدوی (کرمانشاه)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ],
+      "volume_library": "krmanshah-fyd-mhdoy-ktabkhanh-186"
+    },
+    {
+      "library": "km-mhdoy-ktabkhanh-206",
+      "series": "تراثنا",
+      "source": "fankha:426",
+      "source_text": "کتابخانه مهدوی، مجله تراثنا، سید احمد حسینی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة المهدوی (قم)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "mshhd-rgayy-mghzy-ktabkhanh-132",
+      "series": "تراثنا",
+      "source": "fankha:537",
+      "source_text": "کتابخانه رجائی معزی، مجله تراثنا، سید احمد حسینی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة رجائی معزی (مشهد)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "km-aalamh-tbatbayy-km-mktbh-280",
+      "series": "تراثنا",
+      "source": "fankha:424",
+      "source_text": "مکتبة العلامة الطباطبائی، مجله تراثنا، سید احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة العلامة الطباطبائی (قم)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "km-aalamh-tbatbayy-331",
+      "series": "تراثنا",
+      "source": "fankha:424",
+      "source_text": "مکتبة العلامة الطباطبائی، مجله تراثنا، سید احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله تراثنا: فهرست مخطوطات مکتبة العلامة الطباطبائی (قم)"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ],
+      "volume_library": "km-aalamh-tbatbayy-km-mktbh-280"
+    },
+    {
+      "library": "khoansar-mdrsh-aaloy-77",
+      "series": "آینه پژوهش",
+      "source": "fankha:264",
+      "source_text": "مدرسه علوی، مجله آینه پژوهش، سال چهارم، شماره ۲۲، رضا مختاری، قم ۱۳۷۲",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله آینه پژوهش، سال ۴، شماره‌ی ۲۲: نسخه‌های خطی مدرسه علوی خوانسار",
+          "publication_year": "1372"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37270,
+          "name": "رضا مختاری",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "mshhd-hydry-152",
+      "series": "اندیشه حوزه",
+      "source": "fankha:539",
+      "source_text": "معرفی نسخه‌های خطی کتابخانه شخصی حاج آقا حیدری، مجله اندیشه حوزه، سال ۲، شماره ۷، محمود یزدی مطلق (فاضل)، مشهد ۱۳۷۵",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مجله اندیشه حوزه، سال ۲، شماره‌ی ۷: معرفی نسخه‌های خطی کتابخانه شخصی حاج آقا حیدری",
+          "publication_year": "1375"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37263,
+          "name": "محمود فاضل"
         }
       ]
     }
