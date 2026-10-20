@@ -1,0 +1,611 @@
+{
+  "_comment": "Backlog item 49 (step 12.x): links Fankha citations to catalog volumes and catalogers. Natural keys only: library slug, MTIF printcopy id (catalog_volumes.mtif_entry_id), MTIF person id (catalogers.mtif_entry_id). Cataloger names approved by the user on 2026-10-20 from the MTIF dump.",
+  "links": [
+    {
+      "library": "mshhd-rdoy-1",
+      "series": "الفبائی",
+      "source": "mtif.org/book/696",
+      "source_text": "تالیف محمد آصف فکرت؛استدراک‌ و پیوست‌ محمد وفادار مرادی‌",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 22623,
+          "title": "فهرست الفبائی کتب خطی کتابخانه مرکزی آستان قدس رضوی",
+          "publication_year": "1369",
+          "pages_count": 948,
+          "match_title": "فهرست الفبایی کتب خطی کتابخانه آستان قدس رضوی"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37200,
+          "name": "محمد آصف فکرت"
+        },
+        {
+          "mtif_entry_id": 37490,
+          "name": "محمد وفادار مرادی"
+        }
+      ]
+    },
+    {
+      "library": "km-maasomyh-52",
+      "series": "آستانه قم",
+      "source": "mtif.org/book/146",
+      "source_text": "بکوشش محمد تقی دانش پژوه؛ بکوشش محمد تقی دانش پژوه",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21407,
+          "title": "فهرست نسخ خطی کتابخانه آستانه مقدسه قم",
+          "publication_year": "تابستان 1355",
+          "pages_count": 434
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37279,
+          "name": "محمدتقی دانش‌پژوه"
+        }
+      ]
+    },
+    {
+      "library": "yzd-kathmyny-28",
+      "series": "ف",
+      "source": "mtif.org/book/173",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21503,
+          "title": "فهرست نسخه های خطی کتابخانه میرزا محمد کاظمینی (یزد ـ ایران) - 1",
+          "publication_year": "1383",
+          "pages_count": 284
+        },
+        {
+          "number": 2,
+          "mtif_entry_id": 21504,
+          "title": "فهرست نسخه های خطی کتابخانه میرزا محمد کاظمینی (یزد ـ ایران) - 2",
+          "publication_year": "1383",
+          "pages_count": 279
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "mshhd-mybdy-81",
+      "series": "ف",
+      "source": "mtif.org/book/622",
+      "source_text": "تالیف احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 22419,
+          "title": "فهرست نسخه های کتابخانه شخصی میبدی( کرمانشاه ـ ایران ) - 1",
+          "publication_year": null,
+          "pages_count": 224
+        },
+        {
+          "number": 2,
+          "mtif_entry_id": 34199,
+          "title": "فهرست نسخه های کتابخانه شخصی میبدی( کرمانشاه ـ ایران ) - 2",
+          "publication_year": null,
+          "pages_count": 200
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "km-daralhdyth-80",
+      "series": "ف",
+      "source": "mtif.org/book/2193",
+      "source_text": "علی صدرایی خویی؛ علی صدرایی خویی",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 25655,
+          "title": "فهرست نسخه های خطی کتابخانه تخصصی مرکز تحقیقات دار الحدیث",
+          "publication_year": "1384",
+          "pages_count": 336
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37166,
+          "name": "علی صدرائی خوئی"
+        }
+      ]
+    },
+    {
+      "library": "shyraz-amam-aasr-55",
+      "series": "ف",
+      "source": "mtif.org/book/5014",
+      "source_text": "محمد برکت",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 30221,
+          "title": "فهرست نسخه های خطی مدرسه امام عصر (عج) شیراز",
+          "publication_year": "1374",
+          "pages_count": 155
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37244,
+          "name": "محمد برکت"
+        }
+      ]
+    },
+    {
+      "library": "thran-mynoy-143",
+      "series": "ف",
+      "source": "mtif.org/book/8437",
+      "source_text": "به‌کوشش‌ محمدتقی‌ دانش‌پژوه‌، ایرج‌ افشار",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 25167,
+          "title": "فهرستواره کتابخانه مینوی و کتابخانه مرکزی پژوهشگاه (خطی‌، عکسی‌، میکروفیلم‌، یادداشتها)",
+          "publication_year": "1374",
+          "pages_count": 252
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37279,
+          "name": "محمدتقی دانش‌پژوه"
+        },
+        {
+          "mtif_entry_id": 37239,
+          "name": "ایرج افشار"
+        }
+      ]
+    },
+    {
+      "library": "hmdan-danshgah-boaaly-23",
+      "series": "ف",
+      "source": "mtif.org/book/8298",
+      "source_text": "نگارش احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 34202,
+          "title": "فهرست نسخه های خطی دانشگاه بوعلی (همدان- ایران)",
+          "publication_year": "1384",
+          "pages_count": 222
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "krmanshah-mybdy-khandan-88",
+      "series": "ف",
+      "source": "mtif.org/book/172",
+      "source_text": "نگارش احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21502,
+          "title": "فهرست نسخه های خطی خاندان میبدی(کرمانشاه ـ ایران)",
+          "publication_year": "زمستان 1381",
+          "pages_count": 223
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "thran-mdark-frhngy-111",
+      "series": "ف",
+      "source": "mtif.org/book/183",
+      "source_text": "به کوشش معصومه فرشچی",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21526,
+          "title": "فهرست نسخ خطی فارسی موجود در کتابخانه سازمان مدارک فرهنگی انقلاب اسلامی",
+          "publication_year": "پاییز 1377",
+          "pages_count": null
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37306,
+          "name": "معصومه فرشچی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "tbryz-trbyt-148",
+      "series": "ف",
+      "source": "mtif.org/book/156",
+      "source_text": "نویسنده محمد نخجوانی",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21481,
+          "title": "فهرست کتابخانه دولتی تربیت تبریز،کتب خطی",
+          "publication_year": "1329",
+          "pages_count": 319
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37291,
+          "name": "محمد نخجوانی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "kayn-mdrsh-gaafryh-101",
+      "series": "کتابخانه‌های قائن",
+      "source": "mtif.org/book/8291",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 34194,
+          "title": "فهرست نسخه های خطی کتابخانه های قائن (قائن ـ ایران)",
+          "publication_year": "1381",
+          "pages_count": 256
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "sary-aamomy-6",
+      "series": "عمومی ساری و تنکابن",
+      "source": "mtif.org/book/389",
+      "source_text": "به اهتمام محمود یزدی مطلق؛با همکاری زین العابدین درگاهی",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21810,
+          "title": "نگاهی به نسخه های خطی کتابخانه های عمومی ساری و تنکابن",
+          "publication_year": "زمستان 1383",
+          "pages_count": 240
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37263,
+          "name": "محمود فاضل",
+          "nickname": "فاضل"
+        },
+        {
+          "mtif_entry_id": 37492,
+          "name": "زین‌العابدین درگاهی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "byrgnd-dyany-86",
+      "series": "ف",
+      "source": "mtif.org/book/164",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21494,
+          "title": "فهرست نسخه های خطی کتابخانه شیخ محمد علی دیانی ( بیرجند ـ ایران )",
+          "publication_year": "1384",
+          "pages_count": 184
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "damghan-kmr-bny-hashm-93",
+      "series": "ف مخ",
+      "source": "mtif.org/book/8314",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 34219,
+          "title": "فهرست نسخه های خطی کتابخانه قمر بنی هاشم علیه السلام (دامغان ـ ایران)",
+          "publication_year": "1427",
+          "pages_count": 186
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "mshhd-mdrsh-ayh-allh-khoyy-74",
+      "series": "ف",
+      "source": "mtif.org/book/137",
+      "source_text": "سید احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21395,
+          "title": "فهرست نسخه های خطی کتابخانه مدرسه علمیه  آیة الله العظمی خوئی قدس‌سره‌مشهد مقدس‌- ایران‌",
+          "publication_year": "1377",
+          "pages_count": 150
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "km-astady-rda-151",
+      "series": "صد و شصت نسخه",
+      "source": "mtif.org/book/127",
+      "source_text": "رضا استادی",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21376,
+          "title": "یکصد و شصت نسخه از یک کتابخانه شخصی",
+          "publication_year": "1354",
+          "pages_count": 79
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37206,
+          "name": "رضا استادی"
+        }
+      ]
+    },
+    {
+      "library": "glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72",
+      "series": "کتابخانه‌های گلپایگان",
+      "source": "mtif.org/book/167",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21497,
+          "title": "فهرست نسخه های خطی کتابخانه های گلپایگان ( گلپایگان ـ ایران )",
+          "publication_year": "زمستان 1381",
+          "pages_count": 280
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "yzd-sdoky-yzdy-44",
+      "series": "ف",
+      "source": "mtif.org/book/166",
+      "source_text": "نگارش احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21496,
+          "title": "فهرست نسخه های خطی کتابخانه صدوقی یزد( یزد ـ ایران )",
+          "publication_year": "1383",
+          "pages_count": null
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "kzoyn-fhol-kzoyny-185",
+      "series": "ف",
+      "source": "mtif.org/book/423",
+      "source_text": "تالیف احمد الحسینی الاشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21866,
+          "title": "مخطوطات مکتبة فحول القزوینی( قزوین ـ ایران )",
+          "publication_year": "1424",
+          "pages_count": 44
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "km-mfty-alshyaah-137",
+      "series": "ف",
+      "source": "mtif.org/book/117",
+      "source_text": "احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21363,
+          "title": "فهرست نسخه های خطی کتابخانه مفتی الشیعه( ایران ـ قم )",
+          "publication_year": "1423",
+          "pages_count": 130
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "zhan-mdrsh-gaafryh-zhan-121",
+      "series": "ف",
+      "source": "mtif.org/book/169",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21499,
+          "title": "فهرست نسخه های خطی کتابخانه مدرسه جعفریه ( زهان ـ ایران )",
+          "publication_year": "1383",
+          "pages_count": 190
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "yzd-mdrsh-khan-141",
+      "series": "ف",
+      "source": "mtif.org/book/1372",
+      "source_text": "احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 23996,
+          "title": "فهرست نسخه های خطی کتابخانه مدرسه خان (یزد ـ ایران)",
+          "publication_year": "1384",
+          "pages_count": 128
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "kashan-aaatfy-afshyn-9",
+      "series": "ف",
+      "source": "mtif.org/book/8309",
+      "source_text": "نگارش صادق حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 34213,
+          "title": "فهرست نسخه های خطی کتابخانه افشین عاطفی (کاشان ـ ایران)",
+          "publication_year": "1386",
+          "pages_count": 141
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37268,
+          "name": "سید صادق حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "ashtyan-hozh-aalmyh-159",
+      "series": "ف",
+      "source": "mtif.org/book/1368",
+      "source_text": "صادق حضرتی",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 25584,
+          "title": "فهرست نسخه های خطی کتابخانه حوزه علمیه آشتیان",
+          "publication_year": "12/1384",
+          "pages_count": 227
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 38338,
+          "name": "صادق حضرتی"
+        }
+      ]
+    },
+    {
+      "library": "km-amam-sadk-124",
+      "series": "ف",
+      "source": "mtif.org/book/118",
+      "source_text": "نگارش احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "mtif_entry_id": 21364,
+          "title": "فهرست نسخه های خطی کتابخانه مؤسسه امام صادق علیه السلام (قم - ایران)",
+          "publication_year": "1425",
+          "pages_count": 130
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    }
+  ],
+  "malek": {
+    "library": "thran-mlk-15",
+    "volumes": [
+      21446,
+      21447,
+      21448,
+      21450,
+      21451,
+      21452,
+      22625,
+      26653
+    ],
+    "razavi_library": "mshhd-rdoy-1",
+    "razavi_volumes": {
+      "1": 21397,
+      "2": 21409,
+      "3": 21410,
+      "4": 21411,
+      "5": 21412,
+      "6": 21413,
+      "7": 21449,
+      "8": 21417,
+      "9": 21418,
+      "10": 21419,
+      "11": 21420,
+      "12": 21421,
+      "13": 21422
+    }
+  }
+}
