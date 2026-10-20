@@ -1,0 +1,5316 @@
+{
+ "generated_at": "2026-10-20",
+ "note": "Decisions for the duplicate-person groups that are not merged automatically (tier review). decision: merge (merge_ids into target_id) | skip | unsure. Groups the reviewer decided on the review page override the model review.",
+ "groups": [
+  {
+   "key": "محمدبنمحمدعلیطبیبکاشانی",
+   "decision": "merge",
+   "merge_ids": [
+    28698,
+    41337,
+    42695,
+    55442,
+    66759,
+    66767,
+    68602
+   ],
+   "target_id": 55442,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام بسیار کلی و بدون شاخصه مشترک، قرن‌ها و شهرها متفاوت"
+  },
+  {
+   "key": "بهاییبناحمدعاملی",
+   "decision": "merge",
+   "merge_ids": [
+    4162,
+    9406,
+    17360,
+    17920,
+    72649
+   ],
+   "target_id": 4162,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدسامعبنمحمدنصیر",
+   "decision": "merge",
+   "merge_ids": [
+    7320,
+    13999,
+    36881,
+    58066,
+    60625
+   ],
+   "target_id": 13999,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسنبنعبداللهکاتب",
+   "decision": "merge",
+   "merge_ids": [
+    12220,
+    12221,
+    12225,
+    24549,
+    68972
+   ],
+   "target_id": 12221,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمومنبنعبدالعلی",
+   "decision": "merge",
+   "merge_ids": [
+    46819,
+    52105
+   ],
+   "target_id": 52105,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد قم (۱۰۲۶–۱۰۶۳)؛ دو رکورد کاشان (۱۱۶۸–۱۱۸۰: 15100 و 28381) خود یک شخص‌اند و باید جداگانه ادغام شوند، 72733 مبهم است"
+  },
+  {
+   "key": "محمدمومنحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1782,
+    65316,
+    66148
+   ],
+   "target_id": 1782,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 29386 آمیخته است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 1840 آمیخته است؛ بقیه نام کلی با شهرها و سال‌های پراکنده"
+  },
+  {
+   "key": "محمدتقیبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 3946 آمیخته است؛ بقیه نام کلی و بدون پشتوانه"
+  },
+  {
+   "key": "محمدبنزینعابدینموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    13227,
+    21138
+   ],
+   "target_id": 21138,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد قم ۱۲۵۵–۱۲۸۳؛ رکورد 2194 آمیخته است و 72525 جدا ماند"
+  },
+  {
+   "key": "محمدکاظمبنمحمدشریفخاتونابادی",
+   "decision": "merge",
+   "merge_ids": [
+    66744,
+    73105
+   ],
+   "target_id": 66744,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 2503 آمیخته است و 27363 (۱۰۱۶) فاصله زمانی زیاد دارد"
+  },
+  {
+   "key": "محمدبنمحمدباقرحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    2929,
+    3192
+   ],
+   "target_id": 2929,
+   "source": "model review",
+   "comment": "ادغام جزئی: نام کلی؛ دو رکورد قم/۱۲۶۰؛ 4869 مؤلف قرن ۱۲ و 65251 جدا ماند"
+  },
+  {
+   "key": "محمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی با جزئیات متفاوت و فاصله زمانی زیاد"
+  },
+  {
+   "key": "محمدتقیبنمحمدصادقموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    5080,
+    17757,
+    19557,
+    19578
+   ],
+   "target_id": 5080,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "فضللهبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 6249 آمیخته است و نسبت‌های کاشانی/قمی در تعارض‌اند"
+  },
+  {
+   "key": "علیاکبر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی با جزئیات متناقض و سال‌های دور از هم"
+  },
+  {
+   "key": "فیضیکاشانیعبدالباقیبنصدرالدینمحمدبنابوتراب",
+   "decision": "merge",
+   "merge_ids": [
+    7971,
+    8604,
+    33339,
+    73909
+   ],
+   "target_id": 33339,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "خدارحمبنخداکرمبروجردی",
+   "decision": "merge",
+   "merge_ids": [
+    10491,
+    68222,
+    73023
+   ],
+   "target_id": 10491,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 8182 آمیخته است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "احمدبنزینعابدینعلویعاملی",
+   "decision": "merge",
+   "merge_ids": [
+    8708,
+    18782,
+    27652,
+    43197
+   ],
+   "target_id": 8708,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام تک‌جزئی و جزئیات بی‌ارتباط، بدون پشتوانه"
+  },
+  {
+   "key": "شیخعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی؛ تنها مشترک تخمین قرن مرگ است، شواهد کافی نیست"
+  },
+  {
+   "key": "نصرتطبیبقوچانی",
+   "decision": "merge",
+   "merge_ids": [
+    14015,
+    28477,
+    36520,
+    54124
+   ],
+   "target_id": 14015,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    34056,
+    58448,
+    69088
+   ],
+   "target_id": 34056,
+   "source": "model review",
+   "comment": "ادغام جزئی: سه رکورد «پسر قائم مقام»؛ 23663 شخص دیگری است"
+  },
+  {
+   "key": "محمدحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی با جزئیات و تاریخ‌های ناسازگار"
+  },
+  {
+   "key": "احمدبنمحمدعلیاصفهانی",
+   "decision": "merge",
+   "merge_ids": [
+    43954,
+    43963
+   ],
+   "target_id": 43954,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد کاشان ۱۲۷۸/۱۲۸۰؛ رکورد 34503 آمیخته است و 37075 بدون شاهد"
+  },
+  {
+   "key": "ابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام تک‌جزئی با جزئیات متفاوت و فاصله زمانی زیاد"
+  },
+  {
+   "key": "محمدبنحسینخراسانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 11 آمیخته است و دو رکورد دیگر ۶۴ سال فاصله دارند، نام کلی"
+  },
+  {
+   "key": "حسینبنعلیرضاندوشنییزدی",
+   "decision": "merge",
+   "merge_ids": [
+    165,
+    22489,
+    49319
+   ],
+   "target_id": 165,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیکرمانشاهی",
+   "decision": "merge",
+   "merge_ids": [
+    16656,
+    68223
+   ],
+   "target_id": 68223,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد تهران ۱۲۸۶–۱۳۰۸؛ رکورد 414 آمیخته است"
+  },
+  {
+   "key": "احمدبنمحمدرضاحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    3000,
+    72582
+   ],
+   "target_id": 3000,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 437 آمیخته است؛ دو رکورد مشهد ۱۳۲۱–۱۳۵۷"
+  },
+  {
+   "key": "محمدکاظمبنمحمدصادق",
+   "decision": "merge",
+   "merge_ids": [
+    47746,
+    61597
+   ],
+   "target_id": 47746,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 587 آمیخته است؛ دو رکورد با فاصله ۵ سال و آثار حدیثی"
+  },
+  {
+   "key": "محمدصالححسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 22023 آمیخته است و دو رکورد دیگر قرن و شهر متفاوت دارند"
+  },
+  {
+   "key": "حسینعلیبنمحمدحسین",
+   "decision": "merge",
+   "merge_ids": [
+    873,
+    2803,
+    9230
+   ],
+   "target_id": 9230,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیاسترابادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 38996 آمیخته است؛ 1300 (م ۱۲۵۰) و 21329 (قرن ۱۱) ناسازگارند"
+  },
+  {
+   "key": "احمدبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 1359 آمیخته است؛ بقیه تاریخ‌ها ناسازگار یا بدون شاهد"
+  },
+  {
+   "key": "شاهولیبنمحمدامینسمنانی",
+   "decision": "merge",
+   "merge_ids": [
+    1559,
+    63883,
+    72561
+   ],
+   "target_id": 1559,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 1774 آمیخته است و 4448 با بازه ۶۱ ساله و تخمین قرن ۱۲ پشتوانه کافی ندارد"
+  },
+  {
+   "key": "قربانعلیبنمحمدرضاهزارجریبی",
+   "decision": "merge",
+   "merge_ids": [
+    2571,
+    52980
+   ],
+   "target_id": 2571,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد مشهد ۱۱۹۹؛ رکورد 6707 آمیخته است (احتمالاً ۱۱۱۹ غلط تایپی)"
+  },
+  {
+   "key": "احمدبنجعفرموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    2684,
+    30702,
+    41344
+   ],
+   "target_id": 2684,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبناحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 9754 آمیخته است و نام بسیار کلی با دوره‌های ناسازگار"
+  },
+  {
+   "key": "محمدعلیاصفهانی",
+   "decision": "merge",
+   "merge_ids": [
+    2946,
+    4456
+   ],
+   "target_id": 4456,
+   "source": "model review",
+   "comment": "ادغام جزئی: هر دو تهران ۱۲۷۳؛ رکورد 2777 آمیخته است"
+  },
+  {
+   "key": "محمدتقیبنعلی",
+   "decision": "merge",
+   "merge_ids": [
+    2868,
+    29419
+   ],
+   "target_id": 2868,
+   "source": "model review",
+   "comment": "ادغام جزئی: نام کلی؛ دو رکورد قم ۱۲۷۲/۱۲۷۳؛ 44741 (چالوس ۱۲۴۱) جدا ماند"
+  },
+  {
+   "key": "محمدامینبنمحمدقاسم",
+   "decision": "merge",
+   "merge_ids": [
+    3067,
+    37090
+   ],
+   "target_id": 3067,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد تهران ۱۰۹۸؛ رکورد 3068 آمیخته است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "جمالدینمحمدحسنی",
+   "decision": "merge",
+   "merge_ids": [
+    3075,
+    33462,
+    73420
+   ],
+   "target_id": 3075,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدقاسمبنمحمدرضا",
+   "decision": "merge",
+   "merge_ids": [
+    3372,
+    47054
+   ],
+   "target_id": 3372,
+   "source": "model review",
+   "comment": "ادغام جزئی: نام کلی؛ دو رکورد تهران ۱۱۰۰؛ 62272 (اصفهان ۱۰۸۷) جدا ماند"
+  },
+  {
+   "key": "محمدحسینتبریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 3680 آمیخته است و 32068 (م ۹۵۰) با 69131 (۱۰۴۲) ناسازگار است"
+  },
+  {
+   "key": "میرعلیاکبرولدمیرمحمدمحسنزکیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    3901,
+    51945
+   ],
+   "target_id": 3901,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 22196 آمیخته است (۱۱۱۹ و ۱۲۱۸)"
+  },
+  {
+   "key": "علیبنعبدالله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 5630 آمیخته است؛ نام بسیار کلی و بدون شاهد"
+  },
+  {
+   "key": "حسینبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 4135 آمیخته است؛ بقیه نام کلی با فاصله زمانی و بدون شاهد"
+  },
+  {
+   "key": "رضاقلیادیبشیرازی",
+   "decision": "merge",
+   "merge_ids": [
+    4214,
+    4380
+   ],
+   "target_id": 4380,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 4206 آمیخته است (۱۰۳۷ تا ۱۳۱۰)"
+  },
+  {
+   "key": "محمدحسنبنمحمدعلیسمنانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "هر دو رکورد بزرگ آمیخته‌اند (بازه بیش از ۲۰۰ سال)"
+  },
+  {
+   "key": "احمدنیریزی",
+   "decision": "merge",
+   "merge_ids": [
+    4445,
+    4574
+   ],
+   "target_id": 4445,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 4444 آمیخته است؛ دو رکورد ادعیه تهران"
+  },
+  {
+   "key": "محمدعلیخوانساری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "هر دو رکورد اصلی آمیخته‌اند (بازه ۹۵ تا ۱۴۷ سال)"
+  },
+  {
+   "key": "محمدبنحسن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 4802 آمیخته است و نام بسیار کلی"
+  },
+  {
+   "key": "محمدبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 4922 آمیخته است و نام بسیار کلی با قرن‌های ناسازگار"
+  },
+  {
+   "key": "محمدتقیموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 5085 آمیخته است و بقیه فرزند مؤلف یا بدون شاهد"
+  },
+  {
+   "key": "سیدمحمدبنصادقطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    5542,
+    11977,
+    30009
+   ],
+   "target_id": 5542,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقبنمحمدجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 22355 آمیخته است؛ نام کلی با شهر و آثار متفاوت"
+  },
+  {
+   "key": "مصطفیحسینیصفاییخوانساری",
+   "decision": "merge",
+   "merge_ids": [
+    5863,
+    21610,
+    21611
+   ],
+   "target_id": 5863,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمدجعفرکاشانی",
+   "decision": "merge",
+   "merge_ids": [
+    6890,
+    21088
+   ],
+   "target_id": 6890,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 6059 آمیخته است (۱۲۷۰ تا ۱۳۸۲)"
+  },
+  {
+   "key": "ابوطالببنمحمدحسنارانیکاشانی",
+   "decision": "merge",
+   "merge_ids": [
+    6134,
+    9606
+   ],
+   "target_id": 9606,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 43457 آمیخته است (۱۲۲۵ تا ۱۳۰۷)"
+  },
+  {
+   "key": "حسنبنسیدکاظمطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    6142,
+    9879,
+    22039
+   ],
+   "target_id": 6142,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبناحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 10194 آمیخته است و بقیه دوره‌های ناسازگار"
+  },
+  {
+   "key": "سلیمان",
+   "decision": "merge",
+   "merge_ids": [
+    30741,
+    32002
+   ],
+   "target_id": 32002,
+   "source": "model review",
+   "comment": "ادغام جزئی: هر دو «من قرایا سراب»، قم ۱۱۲۸؛ 7315 جدا ماند"
+  },
+  {
+   "key": "محمدحسنبنمحمدکاظم",
+   "decision": "merge",
+   "merge_ids": [
+    7324,
+    67109
+   ],
+   "target_id": 7324,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد کاشان ۱۲۸۷؛ رکورد 53788 آمیخته است"
+  },
+  {
+   "key": "عبدالرحمنبنشرف",
+   "decision": "merge",
+   "merge_ids": [
+    7514,
+    7515,
+    68378
+   ],
+   "target_id": 7515,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیبنکاظم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی با شهرها و آثار متفاوت"
+  },
+  {
+   "key": "یعقوببنمقیمدرزیبارفروشی",
+   "decision": "merge",
+   "merge_ids": [
+    7962,
+    19872,
+    19873
+   ],
+   "target_id": 19872,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقرحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 8082 آمیخته است و بقیه نام کلی بدون شاهد"
+  },
+  {
+   "key": "سیدابوالقاسمنجفیاصفهانی",
+   "decision": "merge",
+   "merge_ids": [
+    8129,
+    8147,
+    13249
+   ],
+   "target_id": 8129,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدکاظمطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    8139,
+    50193
+   ],
+   "target_id": 8139,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد قم ۱۲۷۲/۱۲۷۹؛ 43293 (تهران ۱۲۸۲) نام کلی و جدا ماند"
+  },
+  {
+   "key": "محمدحسینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 23963 آمیخته است و دو رکورد دیگر نام کلی و بازه‌های جدا"
+  },
+  {
+   "key": "محمدبنحسنموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی؛ دو نسخه ۳۸ سال و دو شهر فاصله دارند"
+  },
+  {
+   "key": "محمدحسینتفرشی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 8610 آمیخته است و بقیه شاهد کافی ندارند"
+  },
+  {
+   "key": "محمدحسینطباطبایی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 29354 آمیخته است و 8647 بازه ۵۴ ساله دارد"
+  },
+  {
+   "key": "هادیبنعبداللهبنداودبنمحمدبنصلاحبنداود",
+   "decision": "merge",
+   "merge_ids": [
+    9221,
+    13430,
+    66536
+   ],
+   "target_id": 9221,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 9699 آمیخته است؛ نام کلی و دوره‌های متفاوت"
+  },
+  {
+   "key": "محمدحسینشیرازی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 9849 آمیخته است؛ نام کلی و دوره‌های ناسازگار"
+  },
+  {
+   "key": "محمدصالحبنمحمدمومنتونی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 10734 آمیخته است و 10669 و 67394 بیش از ۵۰ سال فاصله دارند"
+  },
+  {
+   "key": "حسینبنملاحسنبنملاقاسم",
+   "decision": "merge",
+   "merge_ids": [
+    11068,
+    12967,
+    36837
+   ],
+   "target_id": 11068,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 11242 آمیخته است و نام کلی"
+  },
+  {
+   "key": "محمدمحسنشریف",
+   "decision": "merge",
+   "merge_ids": [
+    11624,
+    18232,
+    59458
+   ],
+   "target_id": 11624,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمدعلیموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    12196,
+    12199,
+    57584
+   ],
+   "target_id": 12199,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "مهدیبناسماعیلحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 13225 آمیخته است و بقیه با تاریخ‌های ۱۱۶۱ و ۱۲۵۹ شاهد ندارند"
+  },
+  {
+   "key": "محمدحسنرجاییزفرهای",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "دو رکورد آمیخته‌اند (تقویم شمسی/قمری)، باید ابتدا تفکیک شوند"
+  },
+  {
+   "key": "محمدحسنطباطباییبروجردی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "جزئیات متناقض (آیت‌الله بروجردی / فرزند او) و نام آیت‌الله نیز مشکوک"
+  },
+  {
+   "key": "علیبنموسی",
+   "decision": "merge",
+   "merge_ids": [
+    15204,
+    29336
+   ],
+   "target_id": 15204,
+   "source": "model review",
+   "comment": "ادغام جزئی: هر دو ثقة‌الاسلام تبریزی، قم ۱۳۰۷؛ 15110 جدا ماند"
+  },
+  {
+   "key": "عبداللهبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 15243 آمیخته است و نام بسیار کلی"
+  },
+  {
+   "key": "حسنبنحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 38106 آمیخته است و نام بسیار کلی با قرن‌های متفاوت"
+  },
+  {
+   "key": "احمدبنمحمدحسن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 16053 آمیخته است؛ نام کلی و دو نسخه در شهرها و موضوعات متفاوت"
+  },
+  {
+   "key": "محمدبنسعیدمقابی",
+   "decision": "merge",
+   "merge_ids": [
+    17196,
+    47464,
+    62834
+   ],
+   "target_id": 17196,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 19109 آمیخته است و بقیه نام کلی با فاصله ۱۳۰ ساله"
+  },
+  {
+   "key": "محمدرضابنعزیزله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 21715 آمیخته است و 31987 (۱۱۸۶) فاصله زیاد دارد"
+  },
+  {
+   "key": "محمدبنصادقحسینیطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    19783,
+    33122,
+    50180
+   ],
+   "target_id": 33122,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصالحبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 35063 آمیخته است و 20672 بیش از ۱۰۰ سال فاصله دارد"
+  },
+  {
+   "key": "محمدباقرفرزندمحمدجعفرفرزندمحمدکافیبهاریهمدانی",
+   "decision": "merge",
+   "merge_ids": [
+    20720,
+    30560,
+    68526
+   ],
+   "target_id": 20720,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنمطهربنیوسفبنابوسعیدقاضینیشابوری",
+   "decision": "merge",
+   "merge_ids": [
+    21866,
+    47147
+   ],
+   "target_id": 21866,
+   "source": "model review",
+   "comment": "ادغام جزئی: رکورد 34393 آمیخته است (۸۲۹ تا ۹۸۲)"
+  },
+  {
+   "key": "عبدالله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "جزئیات بی‌ارتباط و ناسازگار؛ نام تک‌جزئی"
+  },
+  {
+   "key": "محمدمهدیبنمحمدباقر",
+   "decision": "merge",
+   "merge_ids": [
+    23159,
+    39447
+   ],
+   "target_id": 23159,
+   "source": "model review",
+   "comment": "ادغام جزئی: نام کلی؛ دو نسخه ۱۲۳۶/۱۲۳۷ با آثار دعایی؛ رکورد 50589 آمیخته است"
+  },
+  {
+   "key": "مرتضیبنشاهمرتضیبنشاهمحمودکاشانی",
+   "decision": "merge",
+   "merge_ids": [
+    24058,
+    31925,
+    41110
+   ],
+   "target_id": 24058,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقربنمحمدهادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 37952 آمیخته است و دو رکورد دیگر ۱۵۰ سال فاصله دارند"
+  },
+  {
+   "key": "محمدتقیبنعلیمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    28128,
+    37162,
+    38128
+   ],
+   "target_id": 37162,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحفیظبنمحمداشرفحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    28359,
+    39333,
+    55051
+   ],
+   "target_id": 28359,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقربنمحمدحسینتبریزی",
+   "decision": "merge",
+   "merge_ids": [
+    44537,
+    51949
+   ],
+   "target_id": 44537,
+   "source": "model review",
+   "comment": "ادغام جزئی: دو رکورد تهران ۱۲۴۴/۱۲۴۸؛ رکورد 31296 آمیخته است"
+  },
+  {
+   "key": "محمدحسنبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی؛ هیچ شاهد مشترکی نیست"
+  },
+  {
+   "key": "محمدتقیبنمحمدکاظم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام کلی؛ بازه ۴۷ ساله و موضوعات متفاوت"
+  },
+  {
+   "key": "محمدبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 188 آمیخته است و دیگری ۸۵۸ با نسبت کوچنانی"
+  },
+  {
+   "key": "جعفربنابراهیمبنجمال",
+   "decision": "merge",
+   "merge_ids": [
+    244,
+    51256
+   ],
+   "target_id": 244,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسنشیرازی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 9556 آمیخته است و نام کلی"
+  },
+  {
+   "key": "محمدحسنبنعلیاکبرشریف",
+   "decision": "merge",
+   "merge_ids": [
+    332,
+    16584
+   ],
+   "target_id": 16584,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سلطانعلیمشهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 337 آمیخته است (۷۹۵ تا ۱۲۰۵)"
+  },
+  {
+   "key": "علیبنمحمدعاملی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 15183 آمیخته است (۹۷۹ تا ۱۰۹۰) و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدصادقبنمحمدموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    424,
+    70914
+   ],
+   "target_id": 424,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 442 آمیخته است و دیگری ۱۰۸۷ اراک"
+  },
+  {
+   "key": "غلاممحییدین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 452 آمیخته است و دیگری بدون شاهد"
+  },
+  {
+   "key": "محمدکریمبنمحمدباقرحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    543,
+    16043
+   ],
+   "target_id": 543,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 16940 آمیخته است و 548 شاهد کافی برای ادغام جداگانه ندارد"
+  },
+  {
+   "key": "ابوالحسنبنزینعابدین",
+   "decision": "merge",
+   "merge_ids": [
+    557,
+    29078
+   ],
+   "target_id": 29078,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدرضابنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 565 آمیخته است و دیگری ۱۲۶۸ بیدگل"
+  },
+  {
+   "key": "محمدرحیمبنعلیاکبر",
+   "decision": "merge",
+   "merge_ids": [
+    600,
+    8315
+   ],
+   "target_id": 8315,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیدزفولی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 650 آمیخته است و دیگری فقط مؤلف"
+  },
+  {
+   "key": "اسماعیلبنعبدالله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 719 آمیخته است"
+  },
+  {
+   "key": "محمدکاظماصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 759 آمیخته است"
+  },
+  {
+   "key": "علیبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 782 آمیخته است و نام بسیار کلی"
+  },
+  {
+   "key": "علیبنمحمدجرجانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد 802 آمیخته است (۸۸۴ تا ۱۰۲۴) و دیگری ۱۲۵۴"
+  },
+  {
+   "key": "احمدبنمحمدطاهر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیبناسماعیلحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1081,
+    70886
+   ],
+   "target_id": 1081,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیبنمحمدحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1106,
+    70766
+   ],
+   "target_id": 1106,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "یوسفبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدرضااصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدشفیعبنمحمدمقیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنمحمدمومن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدهادیبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبناسعددوانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسینبنابراهیمتنکابنی",
+   "decision": "merge",
+   "merge_ids": [
+    1432,
+    55095
+   ],
+   "target_id": 1432,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنمحمدطاهرتنکابنی",
+   "decision": "merge",
+   "merge_ids": [
+    1446,
+    41414
+   ],
+   "target_id": 1446,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرمحمدزمانحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1457,
+    32269
+   ],
+   "target_id": 1457,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابراهیمبنعلیاصغر",
+   "decision": "merge",
+   "merge_ids": [
+    1478,
+    60890
+   ],
+   "target_id": 1478,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنمحمدکاظم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی و بدون شاهد کافی"
+  },
+  {
+   "key": "عبدالغفارحسینیتویسرکانی",
+   "decision": "merge",
+   "merge_ids": [
+    1525,
+    32546
+   ],
+   "target_id": 1525,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنمحمدیوسف",
+   "decision": "merge",
+   "merge_ids": [
+    1535,
+    53156
+   ],
+   "target_id": 1535,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرجعفربنعبداللهحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1564,
+    3220
+   ],
+   "target_id": 3220,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمداسماعیلبنمحمدصالححسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1592,
+    18519
+   ],
+   "target_id": 18519,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیتفرشی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدمهدیبنحسنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهر و تاریخ متفاوت"
+  },
+  {
+   "key": "ابوالقاسمبنحسینعلیشریفقزوینی",
+   "decision": "merge",
+   "merge_ids": [
+    1732,
+    39979
+   ],
+   "target_id": 1732,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "فضللهبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنحسینشیخبهایی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "مهدیبنحسنحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    1785,
+    9743
+   ],
+   "target_id": 9743,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصالححایریمازندرانی",
+   "decision": "merge",
+   "merge_ids": [
+    1799,
+    49374
+   ],
+   "target_id": 1799,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنعزیزلهطباطبایی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدامیناسترابادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنعلینقیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "محمدابراهیمقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدتقیبنمحمدقلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "سیدمحمدموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقرهزارجریبی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسینبنمحمدابراهیمقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۲۲۲۵ ترکیبی است؛ ابتدا باید جدا شود"
+  },
+  {
+   "key": "احمدبنمحمدهادیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نسخه ۱۰۲۱ پیش از قرن ۱۲ مرگ است؛ تناقض"
+  },
+  {
+   "key": "محمدباقربنمحمدحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسنبنابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقربنمحمدسمیعخراسانی",
+   "decision": "merge",
+   "merge_ids": [
+    2467,
+    36893
+   ],
+   "target_id": 2467,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمودبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبدالغفاربنمحمدمهدیتبریزی",
+   "decision": "merge",
+   "merge_ids": [
+    2522,
+    31105
+   ],
+   "target_id": 2522,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنمحمدبناحمدبنعلیبنیحییبنمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    2671,
+    68105
+   ],
+   "target_id": 2671,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدابراهیمبنمحمداسماعیلاصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقرشیرازی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عیسیبندرویش",
+   "decision": "merge",
+   "merge_ids": [
+    2745,
+    70802
+   ],
+   "target_id": 2745,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنرحیمتبریزی",
+   "decision": "merge",
+   "merge_ids": [
+    2815,
+    39911
+   ],
+   "target_id": 2815,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبدالمجیدبنمحمدمهدی",
+   "decision": "merge",
+   "merge_ids": [
+    2819,
+    70809
+   ],
+   "target_id": 2819,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنهادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "زینعابدینخوانساری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عباسبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیرضابنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "سیدمحمدطباطبایی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدهاشماصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنمحمدباقر",
+   "decision": "merge",
+   "merge_ids": [
+    3189,
+    66517
+   ],
+   "target_id": 3189,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابوالقاسمبنمحمدحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    3202,
+    66503
+   ],
+   "target_id": 66503,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "غلاممحیدین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبناحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ بدون تاریخ"
+  },
+  {
+   "key": "محمودبنمحمدعلیمازندرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنمحمدعلیخاوری",
+   "decision": "merge",
+   "merge_ids": [
+    3310,
+    50153
+   ],
+   "target_id": 3310,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابوالقاسمبنحسینموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    3373,
+    41759
+   ],
+   "target_id": 41759,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاصغرهزارجریبی",
+   "decision": "merge",
+   "merge_ids": [
+    3400,
+    15096
+   ],
+   "target_id": 3400,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیرضاحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینگرگانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنمحمدمومنابهریجیاصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدتقیبنحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    3540,
+    6811
+   ],
+   "target_id": 3540,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "جمالدینمحمدموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    3582,
+    48884
+   ],
+   "target_id": 3582,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدشفیعحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدهاشمبنمحمدحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    3659,
+    18672
+   ],
+   "target_id": 3659,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابراهیمبنمحمدامینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    3666,
+    70295
+   ],
+   "target_id": 3666,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدقلینوری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنحاجیمبارک",
+   "decision": "merge",
+   "merge_ids": [
+    3903,
+    3990
+   ],
+   "target_id": 3903,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدابراهیمبنمحمدصادقموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    3979,
+    23724
+   ],
+   "target_id": 23724,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاکبرتفرشی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدمومنمازندرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "مسعودبنحبیبله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدرحیمبنمحمدباقر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "کمالبنشهابدیننیشابوری",
+   "decision": "merge",
+   "merge_ids": [
+    4175,
+    63210
+   ],
+   "target_id": 4175,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "هاشمبنحسینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیبنطیفوربسطامی",
+   "decision": "merge",
+   "merge_ids": [
+    4233,
+    10587
+   ],
+   "target_id": 4233,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقشیرازی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنابیطالبتستری",
+   "decision": "merge",
+   "merge_ids": [
+    4375,
+    19855
+   ],
+   "target_id": 4375,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "اسماعیلبنحاجیمقیمسمنانی",
+   "decision": "merge",
+   "merge_ids": [
+    4451,
+    40646
+   ],
+   "target_id": 4451,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرزاباباتاجرشیرازی",
+   "decision": "merge",
+   "merge_ids": [
+    4458,
+    4459
+   ],
+   "target_id": 4458,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینمازندرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیاکبرصاحبزمانی",
+   "decision": "merge",
+   "merge_ids": [
+    4519,
+    4520
+   ],
+   "target_id": 4519,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنمحمدجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسینشریفگلپایگانی",
+   "decision": "merge",
+   "merge_ids": [
+    4538,
+    4539
+   ],
+   "target_id": 4538,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابوطالبکشمیرینجفی",
+   "decision": "merge",
+   "merge_ids": [
+    4558,
+    4861
+   ],
+   "target_id": 4861,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدرضاتبریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "میرزااحمدنیریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیتبریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حاجیمحمدکاتب",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام بسیار عمومی با علامت تردید"
+  },
+  {
+   "key": "محمدحسیناصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبدالرحیمبنمحمدتقی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسناصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدصادقبنعلیمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "عبداللهبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی"
+  },
+  {
+   "key": "محمدبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبداللهبنمحمدبنعبدالله",
+   "decision": "merge",
+   "merge_ids": [
+    4931,
+    15992
+   ],
+   "target_id": 4931,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنمحمدمهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۲۷۸ بیش از ۶۰ سال را می‌پوشاند؛ نام عمومی"
+  },
+  {
+   "key": "محمدجعفربنعبدالرحیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "مرتضیبنشاهمرتضیاولبنشاهمحمودکاشانی",
+   "decision": "merge",
+   "merge_ids": [
+    5294,
+    6412
+   ],
+   "target_id": 5294,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدلکسلماسی",
+   "decision": "merge",
+   "merge_ids": [
+    5405,
+    17562
+   ],
+   "target_id": 17562,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنسلیمان",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدیوسفطالقانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیبنحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیبنابیطالب",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدامینبنمحمدعلی",
+   "decision": "merge",
+   "merge_ids": [
+    5823,
+    44582
+   ],
+   "target_id": 5823,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدکاظمبنمحمدمهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدمومنبنمحمدامینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    6084,
+    69411
+   ],
+   "target_id": 6084,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاکبرشیرازی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدابراهیمکاظمی",
+   "decision": "merge",
+   "merge_ids": [
+    6373,
+    6374
+   ],
+   "target_id": 6373,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینبنعلیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنبنمحمدمعصومقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "کاتب=مولف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنعبدالکریم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ترکیبی از هم‌نام‌ها است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدجعفربنمحمدرحیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "علیاکبرکرمانشاهی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "مصطفیبنمحمدخویی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "سیدعلیمحمدموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    6994,
+    18086
+   ],
+   "target_id": 6994,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیبنحسینعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدتقیاصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنیعقوببنعلیبنداودبنعبداللهبنمحمدمالکیزبیری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "یحییبنشاهقلیقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدمهدیبنعلیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدصادقبنمحمدتقیورنوسفادرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدجعفربنمحمدکاظم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدبنحسینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "سیدنقیمدرسمصدق",
+   "decision": "merge",
+   "merge_ids": [
+    7319,
+    19247
+   ],
+   "target_id": 19247,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنملامحمدتقی",
+   "decision": "merge",
+   "merge_ids": [
+    7349,
+    24435
+   ],
+   "target_id": 7349,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنمظفرحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبداللهبنابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدطاهرحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدشفیعتبریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "میرزاابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدعلیبنرضاحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    7601,
+    8815
+   ],
+   "target_id": 7601,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنابراهیمحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    7652,
+    7803
+   ],
+   "target_id": 7803,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدمحمدجلالدین",
+   "decision": "merge",
+   "merge_ids": [
+    7677,
+    36007
+   ],
+   "target_id": 7677,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابراهیمبنمرتضیحسینیزنجانی",
+   "decision": "merge",
+   "merge_ids": [
+    7913,
+    19715
+   ],
+   "target_id": 19715,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنمحمدحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنحسنبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدصالحشریف",
+   "decision": "merge",
+   "merge_ids": [
+    8023,
+    37742
+   ],
+   "target_id": 8023,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمداسماعیلبنمحمدکاظم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنمحمدصادق",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "سیدسلیماننجفیاصفهانی",
+   "decision": "merge",
+   "merge_ids": [
+    8155,
+    8165
+   ],
+   "target_id": 8155,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینبنمحمدتقیطبرسی",
+   "decision": "merge",
+   "merge_ids": [
+    8175,
+    66094
+   ],
+   "target_id": 8175,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیمشهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیمازندرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "احمدبنعلیمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدهادیبنمحمدباقر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبدالصمدبنمحمدحسینهمدانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنحاجمیرعلی",
+   "decision": "merge",
+   "merge_ids": [
+    8629,
+    73967
+   ],
+   "target_id": 8629,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "درویشعلیبنشمسدین",
+   "decision": "merge",
+   "merge_ids": [
+    8640,
+    57817
+   ],
+   "target_id": 8640,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "زینعابدینبنمحمدعلیسبزواری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدسعیدلاهیجانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنعبدالله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدمومنبنجلالدینمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    9083,
+    26056
+   ],
+   "target_id": 9083,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدرضاتهرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "علیبناحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنمحمدباقراصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "غلامعلیبنزینعابدین",
+   "decision": "merge",
+   "merge_ids": [
+    9587,
+    11704
+   ],
+   "target_id": 9587,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیکاشانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبدالمطلببنغیاثدینمحمدعلایی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدکاظمبناقامحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقرموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدتقیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنحسنحر",
+   "decision": "merge",
+   "merge_ids": [
+    9934,
+    58042
+   ],
+   "target_id": 9934,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "یوسفبنمحمدبنمحمدبنزیندینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    9987,
+    31231
+   ],
+   "target_id": 9987,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "مرادعلیبنحسیندماوندی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "بنشمسدینمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدباقراصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنحسناصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدکاظمبنزینعابدینموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    10202,
+    65947
+   ],
+   "target_id": 10202,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسنبنعلیقفطانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "سیدعلیخان",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدرضاحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدکاظمبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقربن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدبنجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنمحمدباقر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدصادقاصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیعبرتمصاحبینایینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبداللهبنیحییبنعلیبنسلیمان",
+   "decision": "merge",
+   "merge_ids": [
+    11089,
+    69193
+   ],
+   "target_id": 11089,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدابراهیمحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقرطباطبایی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "حسینبنمحمدمهدیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "احمدبنملاعلی",
+   "decision": "merge",
+   "merge_ids": [
+    11296,
+    59901
+   ],
+   "target_id": 11296,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقریزدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبداللهبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "یوسفبنملاکریم",
+   "decision": "merge",
+   "merge_ids": [
+    11569,
+    41932
+   ],
+   "target_id": 11569,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاکبرحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیاکبرتبریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنمحمدحسینطالقانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسنبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنزینعابدینحسنیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    11715,
+    68711
+   ],
+   "target_id": 11715,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ناصربنحسنبنمحمدبحرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "فضللهبناسحاقرازی",
+   "decision": "merge",
+   "merge_ids": [
+    11729,
+    68032
+   ],
+   "target_id": 11729,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیفراهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "مصطفیبناحمدحسینیخوانساری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنبنملاعلی",
+   "decision": "merge",
+   "merge_ids": [
+    11995,
+    31065
+   ],
+   "target_id": 31065,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنمحمدابراهیم",
+   "decision": "merge",
+   "merge_ids": [
+    12101,
+    19625
+   ],
+   "target_id": 12101,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمدجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقربنحسنعلی",
+   "decision": "merge",
+   "merge_ids": [
+    12125,
+    18400
+   ],
+   "target_id": 12125,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنمحمدتقی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدرضابنمیرزاابوالحسن",
+   "decision": "merge",
+   "merge_ids": [
+    12262,
+    47663
+   ],
+   "target_id": 12262,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابوالقاسمبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "عبدالرحیمبنابوالحسنشریف",
+   "decision": "merge",
+   "merge_ids": [
+    12355,
+    73995
+   ],
+   "target_id": 12355,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حیدربنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدابراهیمبنمحمدمهدیرازی",
+   "decision": "merge",
+   "merge_ids": [
+    12659,
+    12660
+   ],
+   "target_id": 12660,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیبنمحمدعلیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    12851,
+    67002
+   ],
+   "target_id": 12851,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقربنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدمهدیگلپایگانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنحاجمحمدشریف",
+   "decision": "merge",
+   "merge_ids": [
+    13025,
+    32094
+   ],
+   "target_id": 13025,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیحسینیقمی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "سلطانمحمدخندان",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "میرعلیکاتب",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدجعفربنمحمدهادی",
+   "decision": "merge",
+   "merge_ids": [
+    13349,
+    59190
+   ],
+   "target_id": 13349,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنعبداللهبحرانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنمحمدشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیاکبربنمحمدتقی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدحسینبنعلیعسکر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    13621,
+    22389
+   ],
+   "target_id": 22389,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عباسعلیبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدباقربنمحمدجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدبنعلیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنمحمدکاظم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدعلیشیرازی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "نورمحمدبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدامینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیخانبنعلیبیک",
+   "decision": "merge",
+   "merge_ids": [
+    14611,
+    61484
+   ],
+   "target_id": 14611,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمومنمشهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنکاظمبروجردی",
+   "decision": "merge",
+   "merge_ids": [
+    14886,
+    40319
+   ],
+   "target_id": 40319,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدباقربنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنبنمیرزاباقرطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    15077,
+    41100
+   ],
+   "target_id": 15077,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "مرتضیقلیبنمحمدصادقطالقانی",
+   "decision": "merge",
+   "merge_ids": [
+    15383,
+    53367
+   ],
+   "target_id": 15383,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحکیمزاده",
+   "decision": "merge",
+   "merge_ids": [
+    15489,
+    68552
+   ],
+   "target_id": 15489,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنحسن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "شیخیوسفبنشیخاحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی یا شواهد ناکافی/متناقض برای ادغام"
+  },
+  {
+   "key": "محمدبنعلیاصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدمومنبنمحمدشفیع",
+   "decision": "merge",
+   "merge_ids": [
+    15658,
+    70208
+   ],
+   "target_id": 15658,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنلطفله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدرضابنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدجعفریزدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دارای نام‌های هم‌نام مخلوط است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمداسمعیلبنمحمدابراهیم",
+   "decision": "merge",
+   "merge_ids": [
+    16118,
+    32239
+   ],
+   "target_id": 16118,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدرضاگلپایگانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "سلطانمحمدبنحسنکاشانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "احمدبنمحمدحموی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدباقرهادیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    16327,
+    48558
+   ],
+   "target_id": 16327,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "زینعابدینبنمحمدباقرحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدحسینبنعلیاکبر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدشریفبنمحمدعلی",
+   "decision": "merge",
+   "merge_ids": [
+    16418,
+    44734
+   ],
+   "target_id": 16418,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "فضللهحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدبنعلیرامهرمزی",
+   "decision": "merge",
+   "merge_ids": [
+    16511,
+    23297
+   ],
+   "target_id": 23297,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "یوسفبناحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدصادقبنحسینخاتونابادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "عبداللهبنمحمدجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدصادقحسنی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "حسنبنغلامعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "ابراهیمبنغلامعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدصادقبنمحمدکاظماصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "کمالدینمحمدلاری",
+   "decision": "merge",
+   "merge_ids": [
+    17210,
+    33800
+   ],
+   "target_id": 17210,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبناسماعیلحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    17549,
+    64325
+   ],
+   "target_id": 17549,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدزمانحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "حسینبنفضلعلیتبریزی",
+   "decision": "merge",
+   "merge_ids": [
+    18072,
+    50067
+   ],
+   "target_id": 50067,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنمحمدمومن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "علینقیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدصادقبنحاجیمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    18392,
+    48143
+   ],
+   "target_id": 18392,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علینصرتقوچانی",
+   "decision": "merge",
+   "merge_ids": [
+    18411,
+    63193
+   ],
+   "target_id": 18411,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدهادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدمهدیبنملاجعفرقلی",
+   "decision": "merge",
+   "merge_ids": [
+    18459,
+    31435
+   ],
+   "target_id": 18459,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبدالحسینبنحسین",
+   "decision": "merge",
+   "merge_ids": [
+    18500,
+    41254
+   ],
+   "target_id": 41254,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیبنمحمدشفیعکازرونی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدعلیبنسیدعبدالوهاببنسیدخان",
+   "decision": "merge",
+   "merge_ids": [
+    18677,
+    31914
+   ],
+   "target_id": 31914,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیبناحمدنباطی",
+   "decision": "merge",
+   "merge_ids": [
+    18840,
+    42361
+   ],
+   "target_id": 42361,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسنبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدباقربنفخرالدینرومی",
+   "decision": "merge",
+   "merge_ids": [
+    18934,
+    37496
+   ],
+   "target_id": 18934,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقرحسنی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدصادقبنعلیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "ابوالقاسمبنمحمدمهدیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    19090,
+    65236
+   ],
+   "target_id": 65236,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینسبزواری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدکاظمبنمحمدرضاسبزواری",
+   "decision": "merge",
+   "merge_ids": [
+    19292,
+    30148
+   ],
+   "target_id": 19292,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنملاعبدالله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدابراهیمبنمحمدنصیرجبلعاملیقزوینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "ابراهیمبنمظفردماوندی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "عبدالکریمبنملاعلی",
+   "decision": "merge",
+   "merge_ids": [
+    19470,
+    19471
+   ],
+   "target_id": 19470,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیبنمحمدهادی",
+   "decision": "merge",
+   "merge_ids": [
+    19628,
+    19881
+   ],
+   "target_id": 19628,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیبنجعفر",
+   "decision": "merge",
+   "merge_ids": [
+    19782,
+    19798
+   ],
+   "target_id": 19798,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتبریزی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "رضابنقاسم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدهاشمبنمحمدیحیی",
+   "decision": "merge",
+   "merge_ids": [
+    20004,
+    20005
+   ],
+   "target_id": 20004,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینبنمحمدباقر",
+   "decision": "merge",
+   "merge_ids": [
+    20044,
+    26579
+   ],
+   "target_id": 20044,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیبنعلیبنیوسفحسنیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    20067,
+    20577
+   ],
+   "target_id": 20067,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبدالرحمنبنمحمدبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "علیبنمحمدشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "بنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "احمدبنکمالبناحمد",
+   "decision": "merge",
+   "merge_ids": [
+    20199,
+    45657
+   ],
+   "target_id": 20199,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسنبنمحمدتقی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "احمدبنحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدجعفربنابوالحسن",
+   "decision": "merge",
+   "merge_ids": [
+    21017,
+    29990
+   ],
+   "target_id": 21017,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "قاسمبنحسن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدعلیبنزینعابدین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدیوسفبنمحمدمومن",
+   "decision": "merge",
+   "merge_ids": [
+    21523,
+    21555
+   ],
+   "target_id": 21523,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنروحلهطبیب",
+   "decision": "merge",
+   "merge_ids": [
+    21631,
+    42435
+   ],
+   "target_id": 21631,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "جمالدیناحمدبنمحمدگیلانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "شیخعلیزاهدقمی",
+   "decision": "merge",
+   "merge_ids": [
+    21891,
+    74033
+   ],
+   "target_id": 74033,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "فخرالدیننصیریامینی",
+   "decision": "merge",
+   "merge_ids": [
+    21936,
+    59857
+   ],
+   "target_id": 21936,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "شهابدینعلیعلویحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    22191,
+    42929
+   ],
+   "target_id": 22191,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنمحمدبنعبدالله",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدباقرشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدجعفرشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "عبدالعلیبنغلامعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدعلیبنمحمدباقرحسینییزدی",
+   "decision": "merge",
+   "merge_ids": [
+    22750,
+    25937
+   ],
+   "target_id": 22750,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقربنمحمدصالح",
+   "decision": "merge",
+   "merge_ids": [
+    22792,
+    57340
+   ],
+   "target_id": 22792,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدعلیاکبربنسیدعبدالحسینبناقاسیدمحمدصادقطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    22833,
+    31864
+   ],
+   "target_id": 31864,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنعلیبنحسنحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    22840,
+    66204
+   ],
+   "target_id": 22840,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنحسنحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدحسنبنمحمدصادق",
+   "decision": "merge",
+   "merge_ids": [
+    23318,
+    55860
+   ],
+   "target_id": 23318,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حیدربنعلیکرکی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدکریمبنمحمدرحیم",
+   "decision": "merge",
+   "merge_ids": [
+    23421,
+    50136
+   ],
+   "target_id": 50136,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیبن",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "ابوالقاسمبنعباسموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    23518,
+    64355
+   ],
+   "target_id": 23518,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرزاعلیخانصفاسلطنهنایینی",
+   "decision": "merge",
+   "merge_ids": [
+    23870,
+    61527
+   ],
+   "target_id": 23870,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ضیادینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدطاهربنعبدالله",
+   "decision": "merge",
+   "merge_ids": [
+    23936,
+    37653
+   ],
+   "target_id": 23936,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدجمالبنمحمدحسین",
+   "decision": "merge",
+   "merge_ids": [
+    23945,
+    54937
+   ],
+   "target_id": 23945,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "مرتضیبناحمدحسینیرشتی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "یحییبناحمدحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    24141,
+    67225
+   ],
+   "target_id": 24141,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدهاشمبنمحمدقاسم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "اسماعیلبنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "احمدبنمحمدجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "علیاکبربنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدبنحسنبنحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدبنعلیبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدشفیعموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدشریفبنشمسدینمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    25629,
+    27954
+   ],
+   "target_id": 25629,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدکاظمبنمحمدصادقبنمحمدرضا",
+   "decision": "merge",
+   "merge_ids": [
+    25666,
+    56685
+   ],
+   "target_id": 25666,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرعبدالهادیبنرضابنابی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "سیدهاشمبنمیرمحمدعلیطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    25784,
+    54114
+   ],
+   "target_id": 25784,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمدرضاحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    26225,
+    26226
+   ],
+   "target_id": 26225,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقبنهدایهلهلاهیجی",
+   "decision": "merge",
+   "merge_ids": [
+    26387,
+    45090
+   ],
+   "target_id": 45090,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدرضابناحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدعلیبنعبدالغفاربیدگلی",
+   "decision": "merge",
+   "merge_ids": [
+    26477,
+    55597
+   ],
+   "target_id": 26477,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمدطاهرهمدانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدحسینبنمحمدرضاطالقانی",
+   "decision": "merge",
+   "merge_ids": [
+    26619,
+    52685
+   ],
+   "target_id": 26619,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمودبنمحمدکاظمحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    26662,
+    62884
+   ],
+   "target_id": 26662,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدرودباریارمانی",
+   "decision": "merge",
+   "merge_ids": [
+    26719,
+    74417
+   ],
+   "target_id": 26719,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینخانمروی",
+   "decision": "merge",
+   "merge_ids": [
+    26764,
+    26884
+   ],
+   "target_id": 26764,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدرحیمبنمحمود",
+   "decision": "merge",
+   "merge_ids": [
+    26908,
+    65090
+   ],
+   "target_id": 26908,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حاجیاحمدبنمحمدبنحاج",
+   "decision": "merge",
+   "merge_ids": [
+    26915,
+    65213
+   ],
+   "target_id": 26915,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاصغردامغانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدرضابنمحمدحسین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "علیبنحسینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "محمدکاظمطالقانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "عبداللهبنعلیبروجردی",
+   "decision": "merge",
+   "merge_ids": [
+    27854,
+    40783
+   ],
+   "target_id": 40783,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنمحمدعلیطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    28259,
+    65913
+   ],
+   "target_id": 28259,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیمیرزابنعلیجان",
+   "decision": "merge",
+   "merge_ids": [
+    28323,
+    51426
+   ],
+   "target_id": 28323,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علینقیبنعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "محمدکاظمبنحاجمحمدصادق",
+   "decision": "merge",
+   "merge_ids": [
+    28819,
+    59812
+   ],
+   "target_id": 28819,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "نورلهحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    29017,
+    37206
+   ],
+   "target_id": 29017,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنملامیر",
+   "decision": "merge",
+   "merge_ids": [
+    29165,
+    31977
+   ],
+   "target_id": 29165,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی است و شواهد پشتیبان کافی برای یکی بودن وجود ندارد."
+  },
+  {
+   "key": "احمدبنعبداللهحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    29465,
+    68133
+   ],
+   "target_id": 29465,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدتقیبنعیسی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد دست‌کم یکی از اعضا نام‌های هم‌نام را درهم آمیخته است و پیش از ادغام باید تفکیک شود."
+  },
+  {
+   "key": "علیبنشریفحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    29657,
+    29658
+   ],
+   "target_id": 29657,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنحسینموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۲۹۱۱۰ ترکیبی از هم‌نام‌هاست و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیاکبرکرمانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام رایج و نویسنده بدون تاریخ"
+  },
+  {
+   "key": "محمدرضابنعبدالکریم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها و آثار متفاوت"
+  },
+  {
+   "key": "احمدبنمحمدحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    30771,
+    72595
+   ],
+   "target_id": 30771,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنعبدالحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    30797,
+    53088
+   ],
+   "target_id": 53088,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنسلیمانبنحسینبنمحمدبناحمدبنسلیمان",
+   "decision": "merge",
+   "merge_ids": [
+    31046,
+    56276
+   ],
+   "target_id": 31046,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "دوستمحمدکاتب",
+   "decision": "merge",
+   "merge_ids": [
+    31064,
+    60883
+   ],
+   "target_id": 60883,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدقاسمبنمحمدکاظم",
+   "decision": "merge",
+   "merge_ids": [
+    31445,
+    53066
+   ],
+   "target_id": 53066,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "دوستمحمدقندهاری",
+   "decision": "merge",
+   "merge_ids": [
+    31528,
+    55202
+   ],
+   "target_id": 31528,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبداللطیفبنعبداللهعباسی",
+   "decision": "merge",
+   "merge_ids": [
+    31562,
+    60727
+   ],
+   "target_id": 31562,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدابراهیمبنمحمدرضا",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۴۷۵۳۱ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "زینعابدین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی و تاریخ‌ها ناهمخوان"
+  },
+  {
+   "key": "محمدبنملامیرحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    31947,
+    33790
+   ],
+   "target_id": 31947,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سلمانبنشیخجلیل",
+   "decision": "merge",
+   "merge_ids": [
+    32067,
+    49088
+   ],
+   "target_id": 32067,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "موسیبنجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۴۱۷۸۴ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبدالحسینبنمحمدرضا",
+   "decision": "merge",
+   "merge_ids": [
+    32462,
+    66707
+   ],
+   "target_id": 32462,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنمحمدمومن",
+   "decision": "merge",
+   "merge_ids": [
+    32467,
+    32626
+   ],
+   "target_id": 32626,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنمحمدتقیطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    32587,
+    69797
+   ],
+   "target_id": 32587,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقربنمرتضیحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام رایج؛ شواهد کافی نیست"
+  },
+  {
+   "key": "علیاکبرهزارجریبی",
+   "decision": "merge",
+   "merge_ids": [
+    32800,
+    41703
+   ],
+   "target_id": 32800,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینیزینعابدین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی با شواهد ناکافی"
+  },
+  {
+   "key": "سیدباقربنمحمدحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    33262,
+    65654
+   ],
+   "target_id": 33262,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسنبنابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۳۲۶۹ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "قاسمبنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "میرحسینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۳۸۲۴ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنزینعابدینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدعلیبنمحمدصادقحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها و آثار متفاوت"
+  },
+  {
+   "key": "احمدبنمحمدموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۴۰۴۹۷ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علیاکبربنمهدیقزوینی",
+   "decision": "merge",
+   "merge_ids": [
+    36195,
+    65087
+   ],
+   "target_id": 36195,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسیناردوبادی",
+   "decision": "merge",
+   "merge_ids": [
+    36201,
+    64250
+   ],
+   "target_id": 36201,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "زیندینابوالقاسممحمدجعفربنسیدحسینموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    36428,
+    73124
+   ],
+   "target_id": 36428,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیهمدانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۶۵۹۸ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنحاجیعبدالباقی",
+   "decision": "merge",
+   "merge_ids": [
+    36808,
+    36809
+   ],
+   "target_id": 36808,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنزنوزی",
+   "decision": "merge",
+   "merge_ids": [
+    36827,
+    64880
+   ],
+   "target_id": 36827,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدشریفحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "میرزاابراهیماصفهانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۶۹۵۵ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدبنعیسیحافظمولویقونوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۷۰۱۸ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلییزدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدحسیننجفی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "حسنعظیمابادی",
+   "decision": "merge",
+   "merge_ids": [
+    37289,
+    37617
+   ],
+   "target_id": 37289,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدرضاموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۴۶۴۸ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدرضابنمحمدتقی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۷۵۲۷ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسنخوانساری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۳۷۹۵۶ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "عبداللهبنمحمدزمان",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدباقربنمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    38676,
+    43848
+   ],
+   "target_id": 38676,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میراسماعیلبنحاجیمیرهادی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "فاصله ۵۹ سال و شهرهای متفاوت"
+  },
+  {
+   "key": "محمدتقیبنمحمدموسوی",
+   "decision": "merge",
+   "merge_ids": [
+    39029,
+    44325
+   ],
+   "target_id": 39029,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عباسبنمحمدبنعلیطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    39090,
+    62946
+   ],
+   "target_id": 39090,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حبیبلهبنعبداللهاشتیانی",
+   "decision": "merge",
+   "merge_ids": [
+    39585,
+    52831
+   ],
+   "target_id": 39585,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدجعفربنابراهیم",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ آثار و شهرها متفاوت"
+  },
+  {
+   "key": "مومنبنعابدین",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدبنعلیانصاریاسترابادی",
+   "decision": "merge",
+   "merge_ids": [
+    40037,
+    55331
+   ],
+   "target_id": 40037,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنعلیعجیمی",
+   "decision": "merge",
+   "merge_ids": [
+    41233,
+    41621
+   ],
+   "target_id": 41621,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدحسنموسویبنمیرسیدعلی",
+   "decision": "merge",
+   "merge_ids": [
+    41322,
+    50761
+   ],
+   "target_id": 41322,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "طاهربنحسنبنعمر",
+   "decision": "merge",
+   "merge_ids": [
+    41520,
+    73349
+   ],
+   "target_id": 41520,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدمرتضیحسین",
+   "decision": "merge",
+   "merge_ids": [
+    41865,
+    52913
+   ],
+   "target_id": 52913,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "غیاثدینمحمدخوانساری",
+   "decision": "merge",
+   "merge_ids": [
+    41883,
+    43058
+   ],
+   "target_id": 41883,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "یدالله",
+   "decision": "merge",
+   "merge_ids": [
+    41898,
+    52246
+   ],
+   "target_id": 41898,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدهاشمحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۴۲۱۰۷ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "حسینعمیدیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    43343,
+    62639
+   ],
+   "target_id": 43343,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیرضابنمحمدحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۵۶۰۳ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدهادیبنمحمدتقیحسنیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    43575,
+    57683
+   ],
+   "target_id": 43575,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "فرجلهبنرحیمابروجردی",
+   "decision": "merge",
+   "merge_ids": [
+    44085,
+    55450
+   ],
+   "target_id": 44085,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابوالحسنبناحمد",
+   "decision": "merge",
+   "merge_ids": [
+    44101,
+    65871
+   ],
+   "target_id": 44101,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنحسینموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "فاصله ۶۲ سال و شهرهای متفاوت"
+  },
+  {
+   "key": "احمدبنعبدالباقیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    44151,
+    44152
+   ],
+   "target_id": 44151,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدهادیهمدانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۵۵۶۸ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدحسینبنحاجیمحمدجزایری",
+   "decision": "merge",
+   "merge_ids": [
+    45064,
+    45065
+   ],
+   "target_id": 45064,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقبنمختارگلپایگانی",
+   "decision": "merge",
+   "merge_ids": [
+    45161,
+    66553
+   ],
+   "target_id": 66553,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسنبنملاعبدالله",
+   "decision": "merge",
+   "merge_ids": [
+    45550,
+    61412
+   ],
+   "target_id": 61412,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "زینعابدینبنمحمدعلی",
+   "decision": "merge",
+   "merge_ids": [
+    46195,
+    48314
+   ],
+   "target_id": 46195,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "صادقبنحسین",
+   "decision": "merge",
+   "merge_ids": [
+    46208,
+    46212
+   ],
+   "target_id": 46208,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "شیخمحمدطاهربنشیخحسنعلی",
+   "decision": "merge",
+   "merge_ids": [
+    46603,
+    64842
+   ],
+   "target_id": 46603,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ابوالحسنبنمحمدباقر",
+   "decision": "merge",
+   "merge_ids": [
+    46778,
+    61046
+   ],
+   "target_id": 46778,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنعبدالباقیحسنیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    47205,
+    61012
+   ],
+   "target_id": 61012,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبنرضاقلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۴۷۶۶۵ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "معیندینحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدمهدیخوانساری",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۴۸۱۳۱ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "ابراهیمبنجعفر",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها متفاوت"
+  },
+  {
+   "key": "زینعابدینبنحاجیمحمد",
+   "decision": "merge",
+   "merge_ids": [
+    48602,
+    72400
+   ],
+   "target_id": 48602,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام پدرها متناقض است"
+  },
+  {
+   "key": "رضابنمحمدعلی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۲۱۲۹ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "علینقیبنمحمدحسن",
+   "decision": "merge",
+   "merge_ids": [
+    49200,
+    50287
+   ],
+   "target_id": 49200,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیحسینیموسوی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ بدون تاریخ و آثار نامرتبط"
+  },
+  {
+   "key": "محمدصادقشریف",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "تاریخ‌ها ناسازگار: وفات قرن ۱۲ و نسخه سال ۱۰۶۰"
+  },
+  {
+   "key": "سیدیعقوببنحاجیسیدحسین",
+   "decision": "merge",
+   "merge_ids": [
+    49971,
+    50744
+   ],
+   "target_id": 49971,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علینقیبنمحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها و آثار متفاوت"
+  },
+  {
+   "key": "عبدالباقیبنصالححسینیحسینبنمحمدبنابراهیمحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    50334,
+    50335
+   ],
+   "target_id": 50334,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدعلیبناسماعیلحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    50673,
+    69490
+   ],
+   "target_id": 50673,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "صادقحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "علیرضابنمحمدمهدی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها و آثار متفاوت"
+  },
+  {
+   "key": "حسینبنمهدیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    51814,
+    61870
+   ],
+   "target_id": 61870,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدصادقبنحاجی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام بسیار عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدقاسمبنملاحاجی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها و آثار متفاوت"
+  },
+  {
+   "key": "علیبنعلیاصغرطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    53457,
+    66010
+   ],
+   "target_id": 53457,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبدالصاحببنمحمدجعفردوانی",
+   "decision": "merge",
+   "merge_ids": [
+    53650,
+    58226
+   ],
+   "target_id": 58226,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرزاسیدعبدالعلیبنحاجمیرزامحمدحسین",
+   "decision": "merge",
+   "merge_ids": [
+    54044,
+    61863
+   ],
+   "target_id": 54044,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیبنهلال",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۴۱۸۵ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدقدسیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    54962,
+    54963
+   ],
+   "target_id": 54962,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاکبربنمحمدحسینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    55172,
+    67424
+   ],
+   "target_id": 55172,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنشیخاحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شهرها و آثار متفاوت"
+  },
+  {
+   "key": "شریفبنفتحلهشریف",
+   "decision": "merge",
+   "merge_ids": [
+    55968,
+    62679
+   ],
+   "target_id": 55968,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "ملامحمدمومن",
+   "decision": "merge",
+   "merge_ids": [
+    56660,
+    59457
+   ],
+   "target_id": 56660,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیدحسنبنمحمدحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    56866,
+    68727
+   ],
+   "target_id": 56866,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "میرحسنبنمیرهادی",
+   "decision": "merge",
+   "merge_ids": [
+    57394,
+    70091
+   ],
+   "target_id": 57394,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبداللهبنمحمودبنحسین",
+   "decision": "merge",
+   "merge_ids": [
+    57459,
+    57501
+   ],
+   "target_id": 57459,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "جلالبنمحمدبنعلی",
+   "decision": "merge",
+   "merge_ids": [
+    57520,
+    57521
+   ],
+   "target_id": 57520,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیخراسانی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدحسینبنجعفرحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    58621,
+    70951
+   ],
+   "target_id": 58621,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدحسینبنعبدالغنی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "رکورد ۵۸۹۵۹ ترکیبی است و باید ابتدا تفکیک شود"
+  },
+  {
+   "key": "محمدعلیبنمحمداسمعیل",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "فاصله ۳۹ سال و شهرهای متفاوت"
+  },
+  {
+   "key": "حسنبنمحمدمهدیطباطبایی",
+   "decision": "merge",
+   "merge_ids": [
+    60410,
+    64786
+   ],
+   "target_id": 60410,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدکریمبنمحمدشفیع",
+   "decision": "merge",
+   "merge_ids": [
+    61712,
+    71224
+   ],
+   "target_id": 61712,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدشریفبنمحمدتقیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    62285,
+    65442
+   ],
+   "target_id": 62285,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبداللهبنمحمدهاشمتبریزی",
+   "decision": "merge",
+   "merge_ids": [
+    62344,
+    67783
+   ],
+   "target_id": 62344,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبدالحسینبنامراللهاصطهباناتی",
+   "decision": "merge",
+   "merge_ids": [
+    64640,
+    73152
+   ],
+   "target_id": 64640,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "عبداللهبنمحمدهادیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    65645,
+    65646
+   ],
+   "target_id": 65645,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدمهدیبنمحمدصادق",
+   "decision": "merge",
+   "merge_ids": [
+    65712,
+    69742
+   ],
+   "target_id": 65712,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسینبنحسنحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    66802,
+    71221
+   ],
+   "target_id": 66802,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدباقربنعلیمحمدحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    67827,
+    72452
+   ],
+   "target_id": 67827,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاکبربنمحمدمهدی",
+   "decision": "merge",
+   "merge_ids": [
+    67871,
+    71762
+   ],
+   "target_id": 67871,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "سیداحمد",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "نام بسیار عمومی؛ شواهد ناکافی"
+  },
+  {
+   "key": "محمدمسیحکمرهای",
+   "decision": "merge",
+   "merge_ids": [
+    69079,
+    69133
+   ],
+   "target_id": 69079,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "علیاصغربنزینعابدین",
+   "decision": "merge",
+   "merge_ids": [
+    69486,
+    69492
+   ],
+   "target_id": 69486,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنزینعابدینحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    70476,
+    72550
+   ],
+   "target_id": 70476,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "احمدبنمحمدبنیوسفبنکاظمموسی",
+   "decision": "merge",
+   "merge_ids": [
+    71755,
+    73880
+   ],
+   "target_id": 71755,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "مجلسیماسیاصفهانیحسنعلی",
+   "decision": "merge",
+   "merge_ids": [
+    71975,
+    73392
+   ],
+   "target_id": 71975,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "نصراللهبنثنوانجزایری",
+   "decision": "merge",
+   "merge_ids": [
+    72577,
+    73727
+   ],
+   "target_id": 73727,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "محمدبنمحمدقاسمحسینی",
+   "decision": "skip",
+   "source": "model review",
+   "comment": "فاصله ۴۰ سال و شهرهای متفاوت"
+  },
+  {
+   "key": "محمدحسینبنعبداللهحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    74132,
+    74133
+   ],
+   "target_id": 74132,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "مهدیبنمحمدحسینحسنیحسینی",
+   "decision": "merge",
+   "merge_ids": [
+    74454,
+    74476
+   ],
+   "target_id": 74476,
+   "source": "model review",
+   "comment": null
+  },
+  {
+   "key": "حسنبنحاجملاعلی",
+   "decision": "merge",
+   "merge_ids": [
+    74500,
+    74537
+   ],
+   "target_id": 74537,
+   "source": "model review",
+   "comment": null
+  }
+ ]
+}

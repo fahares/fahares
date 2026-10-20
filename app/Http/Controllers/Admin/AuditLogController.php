@@ -124,9 +124,13 @@ class AuditLogController extends Controller
             if (! empty($primaryWorkIds)) {
                 Work::whereIn('id', $primaryWorkIds)->where('author_id', $target->id)->update(['author_id' => $sourceId]);
             }
-            Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
-                ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
-                ->update(['author_name' => $sourceName]);
+            // A bulk de-duplication left the printed names alone, so the rollback does too
+            $restoreNames = empty($old['kept_printed_names']);
+            if ($restoreNames) {
+                Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
+                    ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
+                    ->update(['author_name' => $sourceName]);
+            }
 
             // Revert manuscripts
             DB::table('manuscript_scribe')->where('person_id', $target->id)
@@ -139,9 +143,11 @@ class AuditLogController extends Controller
             if (! empty($primaryManuscriptIds)) {
                 Manuscript::whereIn('id', $primaryManuscriptIds)->where('scribe_id', $target->id)->update(['scribe_id' => $sourceId]);
             }
-            Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
-                ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
-                ->update(['scribe_name' => $sourceName]);
+            if ($restoreNames) {
+                Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
+                    ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
+                    ->update(['scribe_name' => $sourceName]);
+            }
 
             Work::normalizeContributorPositions($transferredWorkIds);
             Manuscript::normalizeContributorPositions($transferredManuscriptIds);

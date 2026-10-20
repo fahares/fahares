@@ -17,9 +17,13 @@ use Illuminate\Support\Facades\DB;
  */
 class PersonMerger
 {
-    public function merge(Person $source, Person $target, ?int $userId = null, ?string $ip = null, array $extraNewValues = []): AuditLog
+    /**
+     * @param bool $keepPrintedNames leave author_name / scribe_name as the catalog printed them (bulk de-duplication),
+     *                               instead of writing the kept record's name on single-person records (the admin tool)
+     */
+    public function merge(Person $source, Person $target, ?int $userId = null, ?string $ip = null, array $extraNewValues = [], bool $keepPrintedNames = false): AuditLog
     {
-        return DB::transaction(function () use ($source, $target, $userId, $ip, $extraNewValues) {
+        return DB::transaction(function () use ($source, $target, $userId, $ip, $extraNewValues, $keepPrintedNames) {
             // Capture snapshot of source person before changes
             $sourceSnapshot = $source->getAttributes();
             foreach ($sourceSnapshot as $k => $v) {
@@ -42,9 +46,11 @@ class PersonMerger
             DB::table('work_author')->where('person_id', $source->id)->whereIn('work_id', $collapsedWorkIds)->delete();
             DB::table('work_author')->where('person_id', $source->id)->update(['person_id' => $target->id]);
             Work::where('author_id', $source->id)->update(['author_id' => $target->id]);
-            Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
-                ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
-                ->update(['author_name' => $target->name]);
+            if (! $keepPrintedNames) {
+                Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
+                    ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
+                    ->update(['author_name' => $target->name]);
+            }
 
             // 2. Transfer Manuscripts (as scribe); likewise for the scribe name
             // Other roles in manuscripts (owner, endower…) follow the person; a rollback moves them back
@@ -54,9 +60,11 @@ class PersonMerger
             DB::table('manuscript_scribe')->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
             DB::table('manuscript_scribe')->where('person_id', $source->id)->update(['person_id' => $target->id]);
             Manuscript::where('scribe_id', $source->id)->update(['scribe_id' => $target->id]);
-            Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
-                ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
-                ->update(['scribe_name' => $target->name]);
+            if (! $keepPrintedNames) {
+                Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
+                    ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
+                    ->update(['scribe_name' => $target->name]);
+            }
 
             Work::normalizeContributorPositions($transferredWorkIds);
             Manuscript::normalizeContributorPositions($transferredManuscriptIds);
@@ -100,6 +108,7 @@ class PersonMerger
                     'collapsed_work_ids' => $collapsedWorkIds,
                     'collapsed_manuscript_ids' => $collapsedManuscriptIds,
                     'transferred_role_ids' => $transferredRoleIds,
+                    'kept_printed_names' => $keepPrintedNames,
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),
                 ],
