@@ -2766,3 +2766,8 @@
 - **استقرار:** پس از پوش، این دو دستور با `ssh fahares-app` اجرا شوند:
   1. `php artisan migrate --force`. ابعاد نشان‌های موجود را پر می‌کند.
   2. `php artisan fahares:apply-library-logos --force --only=razavi.png,nlai.png,masoumeh.png,tums.png,majles.png,golestan.png,darolhadith.png,shahcheragh.png,vaziri.jpg`
+- **استقرار پروداکشن (۲۸ مهر ۱۴۰۵):**
+  - کامیت `ccaf880` پوش و با Coolify مستقر شد.
+  - با `ssh fahares-app` دستور `migrate --force` اجرا شد. ابعاد هر ۳۱ نشان موجود پر شد و هیچ نشانی بی‌ابعاد نماند.
+  - سپس دستور `--force --only=…` برای ۹ فایل اجرا شد: «11 of 11». رضوی و مجلس هر کدام روی دو کتابخانه می‌نشینند.
+  - صفحه‌ی نسخه‌ای از کتابخانه‌ی مجلس روی fahares.net نوار نشان را با عرض ۱۴۷ پیکسل و ارتفاع ۱۲۸ پیکسل (فایل ۴۱۷×۳۶۲) نشان داد و فایل نشان پاسخ ۲۰۰ داد.
