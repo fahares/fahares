@@ -38,7 +38,7 @@ class CatalogerController extends Controller
                   ->orderBy('name');
         }
 
-        $catalogers = $query->paginate(24)->withQueryString();
+        $catalogers = $query->paginate(30)->withQueryString();
 
         $stats = [
             'total_catalogers' => Cataloger::count(),
