@@ -157,32 +157,56 @@ class LinkCatalogVolumesCommand extends Command
             }
             $volumes[] = [
                 'id' => $volume?->id, 'number' => (int) $spec['number'], 'part' => $spec['part'] ?? null,
-                'pages' => $spec['pages'] ?? null, 'cataloger_id' => $catalogers->first()?->id,
+                'pages' => $spec['pages'] ?? null, 'default' => ! empty($spec['default']),
+                'cataloger_id' => $catalogers->first()?->id,
                 'names' => $catalogers->pluck('name')->implode('، '),
             ];
         }
         $single = count($volumes) === 1 ? $volumes[0]['number'] : null;
         $parts = ! empty($link['parts']);
+        // authoritative: every copy of the library with a citation of this series is matched again, linked
+        // ones included, and a copy left on one of these volumes although its citation names another one
+        // is taken off it
+        $authoritative = ! empty($link['authoritative']);
+        $ownVolumeIds = array_values(array_filter(array_column($volumes, 'id')));
 
         $matched = [];
+        $unlinked = [];
         $skipped = 0;
-        DB::table('manuscripts')->where('library_id', $library->id)
-            ->where(fn ($q) => $q->whereNull('cataloger_id')->orWhereIn('id', $released))
-            ->select(['id', 'metadata', 'raw_text'])
-            ->chunkById(2000, function ($chunk) use ($link, $volumes, $single, $parts, &$matched, &$skipped) {
+        $query = DB::table('manuscripts')->where('library_id', $library->id);
+        if (! $authoritative) {
+            $query->where(fn ($q) => $q->whereNull('cataloger_id')->orWhereIn('id', $released));
+        }
+        $freedIds = array_flip($released);
+        $query->select(['id', 'metadata', 'raw_text', 'catalog_volume_id', 'cataloger_id'])
+            ->chunkById(2000, function ($chunk) use ($link, $volumes, $single, $parts, $authoritative, $ownVolumeIds, $freedIds, &$matched, &$unlinked, &$skipped) {
                 foreach ($chunk as $ms) {
                     $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), $link['series'], $parts);
                     if (! $parsed) {
                         continue;
                     }
                     $index = self::pickVolume($volumes, $parsed + ['volume' => null], $single);
+                    $freed = isset($freedIds[$ms->id]);
                     if ($index !== null) {
-                        $matched[$index][] = $ms->id;
+                        $target = $volumes[$index];
+                        $same = ! $freed && $target['id'] !== null && (int) $ms->catalog_volume_id === $target['id']
+                            && (int) $ms->cataloger_id === (int) $target['cataloger_id'];
+                        if (! $same) {
+                            $matched[$index][] = $ms->id;
+                        }
                     } else {
                         $skipped++;
+                        if ($authoritative && ! $freed && in_array((int) $ms->catalog_volume_id, $ownVolumeIds, true)) {
+                            $unlinked[] = $ms->id;
+                        }
                     }
                 }
             });
+        if (! $this->dry) {
+            foreach (array_chunk($unlinked, 1000) as $part) {
+                DB::table('manuscripts')->whereIn('id', $part)->update(['catalog_volume_id' => null, 'cataloger_id' => null]);
+            }
+        }
 
         $total = 0;
         foreach ($matched as $index => $ids) {
@@ -197,8 +221,9 @@ class LinkCatalogVolumesCommand extends Command
             }
         }
         $names = collect($volumes)->pluck('names')->unique()->implode(' | ');
-        $this->line(sprintf('%-40s [%s] %5d linked%s → %s (%s)', $library->name, $link['series'], $total,
-            $skipped ? ", {$skipped} with an unlisted volume" : '', $names, $link['source']));
+        $this->line(sprintf('%-40s [%s] %5d linked%s%s → %s (%s)', $library->name, $link['series'], $total,
+            $skipped ? ", {$skipped} with an unlisted volume" : '',
+            $unlinked ? ', ' . count($unlinked) . ' taken off a volume their citation does not name' : '', $names, $link['source']));
         $this->dropReleasedVolumes($link, $volumeLibrary);
     }
 
@@ -221,6 +246,14 @@ class LinkCatalogVolumesCommand extends Command
             } elseif (($parsed['page'] ?? null) !== null && $v['pages']
                 && $parsed['page'] >= $v['pages'][0] && $parsed['page'] <= $v['pages'][1]) {
                 return $index;
+            }
+        }
+        // a citation that names no part and falls in no page range goes to the part marked default
+        if (($parsed['part'] ?? null) === null) {
+            foreach ($candidates as $index => $v) {
+                if (! empty($v['default'])) {
+                    return $index;
+                }
             }
         }
 
@@ -493,6 +526,16 @@ class LinkCatalogVolumesCommand extends Command
             }
 
             return ['volume' => $volume, 'part' => $part, 'page' => (int) $v[4]];
+        }
+        // a volume with its page left out: «47 -», «47/1 -», «18 -؛ …»
+        if ($parts && preg_match('/^(\d+)\s*(?:\/\s*(\d+))?\s*-\s*(?:$|؛)/u', $rest, $v)) {
+            $volume = (int) $v[1];
+            $part = ($v[2] ?? '') !== '' ? (int) $v[2] : null;
+            if ($part !== null && $volume <= 3 && $part > 3) {
+                [$volume, $part] = [$part, $volume];
+            }
+
+            return ['volume' => $volume, 'part' => $part, 'page' => null];
         }
 
         return ['volume' => null, 'part' => null, 'page' => preg_match('/^-\s*(\d+)/u', $rest, $v) ? (int) $v[1] : null];

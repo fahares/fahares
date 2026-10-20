@@ -52,6 +52,10 @@ class LinkCatalogVolumesTest extends TestCase
         $this->assertNull(Linker::parseCitation('ف: 47/1 - 15', 'ف')['volume']);
         $this->assertSame(['volume' => 47, 'part' => 1, 'page' => 15], Linker::parseCitation('ف: 47/1 - 15', 'ف', true));
         $this->assertSame(['volume' => 27, 'part' => 1, 'page' => 9], Linker::parseCitation('ف: 1/27 - 9', 'ف', true));
+        $this->assertSame(['volume' => 47, 'part' => null, 'page' => null], Linker::parseCitation('ف: 47 -', 'ف', true));
+        $this->assertSame(['volume' => 47, 'part' => 1, 'page' => null], Linker::parseCitation('ف: 47/1 -', 'ف', true));
+        $this->assertSame(18, Linker::parseCitation('ف: 18 -؛ فهرست رایانه ای ص 730', 'ف', true)['volume']);
+        $this->assertNull(Linker::parseCitation('ف: 47 -', 'ف')['volume']);
         $this->assertSame(['volume' => 2, 'part' => 1, 'page' => 112], Linker::parseCitation('اهدائی رهبر: 2 اخبار 1-112', 'اهدائی رهبر', true));
         $this->assertSame(['volume' => 2, 'part' => 2, 'page' => 543], Linker::parseCitation('اهدائی رهبر: 2اخبار2-543', 'اهدائی رهبر', true));
         $this->assertSame(['volume' => 2, 'part' => 1, 'page' => 401], Linker::parseCitation('اهدائی رهبر: 2 اخبار/ 1-401', 'اهدائی رهبر', true));
@@ -161,6 +165,43 @@ class LinkCatalogVolumesTest extends TestCase
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
         $this->assertSame(1, CatalogVolume::where('mtif_entry_id', 880001)->count());
         $this->assertSame(1, Cataloger::where('mtif_entry_id', 990002)->count());
+    }
+
+    public function test_an_authoritative_link_moves_copies_to_the_volume_their_citation_names()
+    {
+        $library = Library::create(['name' => 'مجلس آزمایشی', 'city' => 'تهران', 'slug' => 'majlis-auth-' . uniqid()]);
+        $old = Cataloger::create(['name' => 'فهرست‌نگار جلد دوم', 'slug' => 'v2-' . uniqid()]);
+        $mansur = Cataloger::create(['name' => 'منصور آزمایشی', 'slug' => 'mansur-' . uniqid()]);
+        $nazari = Cataloger::create(['name' => 'نظری آزمایشی', 'slug' => 'nazari-' . uniqid()]);
+        $vol2 = CatalogVolume::create(['title' => 'مجلس - جلد دوم', 'volume_number' => 2, 'library_id' => $library->id]);
+        $vol2->catalogers()->attach($old->id, ['role' => 'cataloger']);
+        $right = $this->manuscript($library, '[ف: 2-10]', null, $vol2->id);
+        $right->update(['cataloger_id' => $old->id]);
+        $partTwo = $this->manuscript($library, '[ف: 24/2 - 30]', null, $vol2->id);
+        $partTwo->update(['cataloger_id' => $old->id]);
+        $noPart = $this->manuscript($library, '[ف: 24 - 5]');
+        $unlisted = $this->manuscript($library, '[ف: 60 - 5]', null, $vol2->id);
+        $unlisted->update(['cataloger_id' => $old->id]);
+        $noPage = $this->manuscript($library, '[ف: 2 -]');
+
+        $this->writeData([[
+            'library' => $library->slug, 'series' => 'ف', 'parts' => true, 'authoritative' => true, 'source' => 's', 'source_text' => 's',
+            'volumes' => [
+                ['number' => 2, 'title' => 'مجلس - جلد دوم', 'match_title' => 'مجلس - جلد دوم', 'existing_catalogers' => true],
+                ['number' => 24, 'part' => 1, 'default' => true, 'title' => 'مجلس - جلد ۱/۲۴', 'catalogers' => [['slug' => $mansur->slug, 'name' => 'منصور آزمایشی']]],
+                ['number' => 24, 'part' => 2, 'title' => 'مجلس - جلد ۲/۲۴', 'catalogers' => [['slug' => $nazari->slug, 'name' => 'نظری آزمایشی']]],
+            ],
+        ]]);
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+
+        $one = CatalogVolume::where('title', 'مجلس - جلد ۱/۲۴')->sole();
+        $two = CatalogVolume::where('title', 'مجلس - جلد ۲/۲۴')->sole();
+        $this->assertSame([$vol2->id, $old->id], [$right->fresh()->catalog_volume_id, $right->fresh()->cataloger_id]);
+        $this->assertSame([$two->id, $nazari->id], [$partTwo->fresh()->catalog_volume_id, $partTwo->fresh()->cataloger_id]);
+        $this->assertSame([$one->id, $mansur->id], [$noPart->fresh()->catalog_volume_id, $noPart->fresh()->cataloger_id]);
+        $this->assertSame([null, null], [$unlisted->fresh()->catalog_volume_id, $unlisted->fresh()->cataloger_id]);
+        $this->assertSame($vol2->id, $noPage->fresh()->catalog_volume_id);
     }
 
     public function test_volumes_without_mtif_are_keyed_by_title_and_a_shared_catalogue_stays_under_one_library()
