@@ -137,8 +137,7 @@ class Insights
             ->orderByDesc('n')
             ->get();
 
-        // Some script records hold a note with the script («تحریری، بی‌کا»); they go under «سایر»
-        $named = $rows->reject(fn ($r) => str_contains($r->name, '،'))->take(config('insights.scripts_shown'));
+        $named = $rows->take(config('insights.scripts_shown'));
         $items = $named->map(fn ($r) => ['id' => $r->id, 'name' => $r->name, 'count' => (int) $r->n])->values()->all();
         $counted = (int) $rows->sum('n');
 

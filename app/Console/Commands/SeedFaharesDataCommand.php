@@ -329,10 +329,9 @@ class SeedFaharesDataCommand extends Command
             // Script String & Quality
             $scriptStr = null;
             $scriptList = $m['scripts'] ?? [];
+            // A «خط:» value with no script (only «بی‌کا» or a scribe's name) leaves «نوع خط» empty
             if (!empty($scriptList)) {
                 $scriptStr = implode('، ', $scriptList);
-            } elseif (!empty($m['script'])) {
-                $scriptStr = $m['script'];
             }
 
             $styleStr = null;
