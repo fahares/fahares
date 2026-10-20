@@ -142,4 +142,24 @@ class CleanScriptNamesTest extends TestCase
 
         $this->artisan('fahares:clean-script-names')->expectsOutput('All script records are clean.')->assertSuccessful();
     }
+
+    public function test_dates_and_hedged_autographs_are_restored_from_the_raw_text()
+    {
+        $work = Work::create(['primary_title' => 'اثر آزمایشی بازگردانی', 'clean_title' => 'اثر آزمایشی بازگردانی', 'slug' => 'scripts-r-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $dated = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1,
+            'raw_text' => "قم؛ آزمایشی؛ شماره نسخه: 1\nخط: تحریری، بیکاتی 1241ق؛ 276 ص"]);
+        $hedged = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 2, 'volume_number' => 1, 'page_start' => 1,
+            'raw_text' => "قم؛ آزمایشی؛ شماره نسخه: 2\nخط: نسخ، كاتب = مؤلف (احتمالاً)، تا: قرن 14؛ واقف: آزمایشی"]);
+        $scribed = Manuscript::create(['work_id' => $work->id, 'sequence_number' => 3, 'volume_number' => 1, 'page_start' => 1, 'scribe_name' => 'کاتب دیگر',
+            'raw_text' => "قم؛ آزمایشی؛ شماره نسخه: 3\nخط: نسخ، کاتب = مؤلف (گویا)، بی‌تا"]);
+
+        $this->artisan('fahares:restore-script-notes')->assertSuccessful();
+
+        $this->assertSame('1241ق', $dated->fresh()->copy_date_raw);
+        $this->assertSame(1241, (int) $dated->fresh()->copy_date_hijri_year);
+        $this->assertTrue((bool) $hedged->fresh()->is_autograph);
+        $this->assertFalse((bool) $scribed->fresh()->is_autograph);
+
+        $this->artisan('fahares:restore-script-notes')->expectsOutput('Nothing to restore.')->assertSuccessful();
+    }
 }
