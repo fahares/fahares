@@ -26,10 +26,16 @@
 
     {{-- Search sheet --}}
     <section class="max-w-5xl mx-auto px-4 sm:px-6 {{ $hero ? '-mt-14 sm:-mt-[110px]' : 'mt-10' }} relative z-20">
-        <div class="bg-surface border border-gold shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line),0_20px_40px_-24px_rgb(0_0_0/0.45)] px-5 py-7 sm:px-10 sm:py-9 text-center space-y-4">
-            <p class="text-xs sm:text-sm font-bold text-cinnabar">{{ SiteSetting::get('home.eyebrow') }}</p>
-            <h1 class="font-naskh text-[26px] sm:text-[38px] font-bold text-ink leading-[1.6] text-balance">{{ SiteSetting::get('home.headline') }}</h1>
-            <p class="text-sm text-muted max-w-2xl mx-auto leading-relaxed">{{ SiteSetting::get('home.lede') }}</p>
+        <div class="relative bg-surface border border-gold shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line),0_20px_40px_-24px_rgb(0_0_0/0.45)] px-5 py-7 sm:px-10 sm:py-9 text-center space-y-4">
+            <div class="flex flex-col items-center md:flex-row md:justify-center md:gap-8 md:pt-4">
+                <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-512.png') }}" alt="" width="176" height="176" class="h-24 w-24 sm:h-32 sm:w-32 md:h-44 md:w-44 shrink-0">
+                <div class="flex flex-col items-center mt-4 md:mt-0 md:items-start md:text-right">
+                    <h1 class="font-naskh text-[40px] sm:text-[60px] font-bold text-ink leading-[1.3]">فهارس</h1>
+                    <p class="text-base sm:text-xl font-bold text-cinnabar">{{ SiteSetting::get('home.eyebrow') }}</p>
+                    <p class="text-sm text-muted max-w-2xl leading-relaxed mt-2 md:mt-1">{{ SiteSetting::get('home.lede') }}</p>
+                </div>
+            </div>
+            <h2 class="font-naskh text-lg sm:text-[22px] font-bold text-ink leading-[1.6] text-balance md:pt-2">{{ SiteSetting::get('home.headline') }}</h2>
 
             <div x-data="{ activeTab: 'works' }" class="max-w-3xl mx-auto text-right pt-2">
                 <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنه‌ی جستجو">

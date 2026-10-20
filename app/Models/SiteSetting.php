@@ -13,17 +13,17 @@ class SiteSetting extends Model
 {
     public const DEFAULTS = [
         'home.eyebrow' => 'پایگاه جامع نسخه‌های خطی',
-        'home.headline' => 'جستجو در آثار و نسخه‌های خطی',
-        'home.lede' => 'شناسنامه‌ی آثار، نسخه‌ها، پدیدآوران، کاتبان و کتابخانه‌ها، گردآمده از فهرست‌های معتبر. هر داده به مأخذ چاپی خودش ارجاع دارد.',
+        'home.headline' => 'جست‌وجو در آثار و نسخه‌های خطی',
+        'home.lede' => 'مجموعه اطلاعات الذریعة، إیضاح المکنون، فنخا …',
         'home.treasures_title' => 'از گنجینه‌ها',
         'home.catalogers_title' => 'فهرست‌نگاران',
         'home.slide_interval' => '7',
     ];
 
     public const LABELS = [
-        'home.eyebrow' => 'سرعنوان کوچک بالای عنوان',
-        'home.headline' => 'عنوان اصلی صفحه‌ی خانه',
-        'home.lede' => 'توضیح زیر عنوان',
+        'home.eyebrow' => 'عنوان فرعی زیر نام فهارس',
+        'home.headline' => 'عنوان بالای کادر جستجو',
+        'home.lede' => 'توضیح زیر عنوان فرعی',
         'home.treasures_title' => 'عنوان بخش تصویرهای برگزیده',
         'home.catalogers_title' => 'عنوان بخش فهرست‌نگاران',
         'home.slide_interval' => 'فاصله‌ی چرخش اسلایدها (ثانیه)',
