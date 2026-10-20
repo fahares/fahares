@@ -133,35 +133,51 @@ class LinkCatalogVolumesCommand extends Command
     {
         /** @var Library $library */
         $library = $link['library_model'];
-        $catalogers = $this->catalogers($link);
-        $primary = $catalogers->first();
+        $volumeLibrary = $link['volume_library_model'];
+        $released = $this->release($link, $library, $volumeLibrary);
 
-        // volume number => volume id
+        // a volume may name its own catalogers (the parts of one catalogue were written by different hands)
+        $default = isset($link['catalogers']) ? $this->catalogers($link['catalogers'], $link) : collect();
         $volumes = [];
         foreach ($link['volumes'] as $spec) {
-            $volume = $this->volume($link['volume_library_model'], $spec, $link['source']);
-            $volumes[(int) $spec['number']] = $volume?->id;
-            if ($volume && ! $this->dry) {
+            $volume = $this->volume($volumeLibrary, $spec, $link['source']);
+            if (! empty($spec['existing_catalogers'])) {
+                // an existing volume whose catalogers were settled before: its copies elsewhere follow it
+                if (! $volume?->exists) {
+                    throw new \RuntimeException("Volume «{$spec['match_title']}» with existing catalogers not found");
+                }
+                $catalogers = $volume->catalogers()->wherePivot('role', 'cataloger')->orderBy('catalog_volume_cataloger.id')->get();
+            } else {
+                $catalogers = isset($spec['catalogers']) ? $this->catalogers($spec['catalogers'], $link) : $default;
+            }
+            if ($volume && empty($spec['existing_catalogers']) && ! $this->dry) {
                 $volume->catalogers()->syncWithoutDetaching(
                     $catalogers->mapWithKeys(fn ($c) => [$c->id => ['role' => 'cataloger']])->all()
                 );
             }
+            $volumes[] = [
+                'id' => $volume?->id, 'number' => (int) $spec['number'], 'part' => $spec['part'] ?? null,
+                'pages' => $spec['pages'] ?? null, 'cataloger_id' => $catalogers->first()?->id,
+                'names' => $catalogers->pluck('name')->implode('، '),
+            ];
         }
-        $single = count($volumes) === 1 ? array_key_first($volumes) : null;
+        $single = count($volumes) === 1 ? $volumes[0]['number'] : null;
+        $parts = ! empty($link['parts']);
 
         $matched = [];
         $skipped = 0;
-        DB::table('manuscripts')->where('library_id', $library->id)->whereNull('cataloger_id')
+        DB::table('manuscripts')->where('library_id', $library->id)
+            ->where(fn ($q) => $q->whereNull('cataloger_id')->orWhereIn('id', $released))
             ->select(['id', 'metadata', 'raw_text'])
-            ->chunkById(2000, function ($chunk) use ($link, $volumes, $single, &$matched, &$skipped) {
+            ->chunkById(2000, function ($chunk) use ($link, $volumes, $single, $parts, &$matched, &$skipped) {
                 foreach ($chunk as $ms) {
-                    $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), $link['series']);
+                    $parsed = self::parseCitation(self::citationOf($ms->metadata, $ms->raw_text), $link['series'], $parts);
                     if (! $parsed) {
                         continue;
                     }
-                    $number = $parsed['volume'] ?? $single;
-                    if ($number !== null && array_key_exists($number, $volumes)) {
-                        $matched[$number][] = $ms->id;
+                    $index = self::pickVolume($volumes, $parsed + ['volume' => null], $single);
+                    if ($index !== null) {
+                        $matched[$index][] = $ms->id;
                     } else {
                         $skipped++;
                     }
@@ -169,20 +185,86 @@ class LinkCatalogVolumesCommand extends Command
             });
 
         $total = 0;
-        foreach ($matched as $number => $ids) {
+        foreach ($matched as $index => $ids) {
             $total += count($ids);
             if (! $this->dry) {
                 foreach (array_chunk($ids, 1000) as $part) {
                     DB::table('manuscripts')->whereIn('id', $part)->update([
-                        'catalog_volume_id' => $volumes[$number],
-                        'cataloger_id' => $primary?->id,
+                        'catalog_volume_id' => $volumes[$index]['id'],
+                        'cataloger_id' => $volumes[$index]['cataloger_id'],
                     ]);
                 }
             }
         }
-        $names = $catalogers->pluck('name')->implode('، ');
+        $names = collect($volumes)->pluck('names')->unique()->implode(' | ');
         $this->line(sprintf('%-40s [%s] %5d linked%s → %s (%s)', $library->name, $link['series'], $total,
             $skipped ? ", {$skipped} with an unlisted volume" : '', $names, $link['source']));
+        $this->dropReleasedVolumes($link, $volumeLibrary);
+    }
+
+    /**
+     * The volume a parsed citation belongs to: by number, then, when a number has several parts, by the
+     * part the citation names or by the page range of each part.
+     */
+    public static function pickVolume(array $volumes, array $parsed, ?int $single): ?int
+    {
+        $number = $parsed['volume'] ?? $single;
+        $candidates = array_filter($volumes, fn ($v) => $v['number'] === $number);
+        if (count($candidates) <= 1) {
+            return $candidates ? array_key_first($candidates) : null;
+        }
+        foreach ($candidates as $index => $v) {
+            if (($parsed['part'] ?? null) !== null && $v['part'] !== null) {
+                if ((int) $v['part'] === $parsed['part']) {
+                    return $index;
+                }
+            } elseif (($parsed['page'] ?? null) !== null && $v['pages']
+                && $parsed['page'] >= $v['pages'][0] && $parsed['page'] <= $v['pages'][1]) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Frees the copies of this library linked to volumes the user found wrong («release_volumes», by
+     * title within the volume library), so they are matched again. Returns their ids; in a dry run they
+     * are only reported.
+     *
+     * @return array<int, int>
+     */
+    protected function release(array $link, Library $library, Library $volumeLibrary): array
+    {
+        if (empty($link['release_volumes'])) {
+            return [];
+        }
+        $volumeIds = CatalogVolume::where('library_id', $volumeLibrary->id)->whereIn('title', $link['release_volumes'])->pluck('id');
+        $ids = DB::table('manuscripts')->where('library_id', $library->id)->whereIn('catalog_volume_id', $volumeIds)->pluck('id')->all();
+        $this->line(sprintf('  released %d copies from %d wrong volume records', count($ids), $volumeIds->count()));
+        if (! $this->dry) {
+            foreach (array_chunk($ids, 1000) as $part) {
+                DB::table('manuscripts')->whereIn('id', $part)->update(['catalog_volume_id' => null, 'cataloger_id' => null]);
+            }
+        }
+
+        return $ids;
+    }
+
+    /** Deletes the released volume records once no copy is left on them (their duplicates included). */
+    protected function dropReleasedVolumes(array $link, Library $volumeLibrary): void
+    {
+        if (empty($link['release_volumes']) || $this->dry) {
+            return;
+        }
+        $empty = CatalogVolume::where('library_id', $volumeLibrary->id)->whereIn('title', $link['release_volumes'])
+            ->whereNotExists(fn ($q) => $q->from('manuscripts')->whereColumn('manuscripts.catalog_volume_id', 'catalog_volumes.id'))
+            ->get();
+        foreach ($empty as $volume) {
+            $volume->catalogers()->detach();
+            $volume->delete();
+        }
+        $this->line("  deleted {$empty->count()} empty wrong volume records");
     }
 
     /**
@@ -190,9 +272,9 @@ class LinkCatalogVolumesCommand extends Command
      * created before their MTIF id was known, which then receive it). New ones are created only when
      * marked so.
      */
-    protected function catalogers(array $link): Collection
+    protected function catalogers(array $specs, array $link): Collection
     {
-        return collect($link['catalogers'])->map(function ($spec) use ($link) {
+        return collect($specs)->map(function ($spec) use ($link) {
             $mtif = $spec['mtif_entry_id'] ?? null;
             $cataloger = $mtif ? Cataloger::where('mtif_entry_id', $mtif)->first() : null;
             if (! $cataloger && ! empty($spec['slug'])) {
@@ -202,6 +284,11 @@ class LinkCatalogVolumesCommand extends Command
                 }
             }
             if ($cataloger) {
+                // a record named by surname only takes the full name the source gives
+                if (! empty($spec['rename']) && $cataloger->name !== $spec['name'] && ! $this->dry) {
+                    $cataloger->update(['name' => $spec['name']]);
+                }
+
                 return $cataloger;
             }
             $key = $mtif ? "MTIF id {$mtif}" : 'slug ' . ($spec['slug'] ?? '?');
@@ -366,11 +453,14 @@ class LinkCatalogVolumesCommand extends Command
     /**
      * Parses a citation of the given series. «ف» is the library's own catalogue («ف: 2-45», «ف: -50»);
      * any other series is a named catalogue («الفبائی: -512», «کتابخانه‌های قائن: ف: 75», «ف مخ: 1»).
-     * Returns null when the citation is of another series, else the volume number (null when not given).
+     * Returns null when the citation is of another series, else the volume number (null when not given)
+     * and the page. With $parts, a volume may also carry a part, as «47/1 - 15», «2 اخبار 1-112» or
+     * «1علوم قرآن - 79» (volume 2 part 1, volume 1 with its subject); without it such forms give no
+     * volume, as before, so a single-volume catalogue still takes them.
      *
-     * @return array{volume: int|null}|null
+     * @return array{volume: int|null, part: int|null, page: int|null}|null
      */
-    public static function parseCitation(string $citation, string $series): ?array
+    public static function parseCitation(string $citation, string $series, bool $parts = false): ?array
     {
         $series = self::normalize($series);
         if ($series === 'ف') {
@@ -389,8 +479,23 @@ class LinkCatalogVolumesCommand extends Command
             }
             $rest = preg_replace('/^[\s:\-؛،]*(?:ف\s*:)?\s*/u', '', $rest);
         }
+        $rest = trim($rest);
 
-        return ['volume' => preg_match('/^(\d+)\s*-\s*\d/u', trim($rest), $v) ? (int) $v[1] : null];
+        if (preg_match('/^(\d+)\s*-\s*(\d+)/u', $rest, $v)) {
+            return ['volume' => (int) $v[1], 'part' => null, 'page' => (int) $v[2]];
+        }
+        if ($parts && preg_match('/^(\d+)\s*(?:\/\s*(\d+)|[^\d\-\/]+?\s*\/?\s*(\d+)?)\s*-\s*(\d+)/u', $rest, $v)) {
+            $volume = (int) $v[1];
+            $part = ($v[2] ?? '') !== '' ? (int) $v[2] : (($v[3] ?? '') !== '' ? (int) $v[3] : null);
+            // «1/27» is part 1 of volume 27 as much as «27/1»: parts run to three at most
+            if (($v[2] ?? '') !== '' && $volume <= 3 && $part > 3) {
+                [$volume, $part] = [$part, $volume];
+            }
+
+            return ['volume' => $volume, 'part' => $part, 'page' => (int) $v[4]];
+        }
+
+        return ['volume' => null, 'part' => null, 'page' => preg_match('/^-\s*(\d+)/u', $rest, $v) ? (int) $v[1] : null];
     }
 
     /** «رایانه» is the library's own database and «د.ث.»/«د.ت.» its register: no printed catalogue. */

@@ -34,17 +34,83 @@ class LinkCatalogVolumesTest extends TestCase
 
     public function test_citations_are_parsed_by_series()
     {
-        $this->assertSame(['volume' => 2], Linker::parseCitation(Linker::normalize('[ف: ۲-۴۵]'), 'ف'));
-        $this->assertSame(['volume' => null], Linker::parseCitation('ف: -50', 'ف'));
+        $this->assertSame(['volume' => 2, 'part' => null, 'page' => 45], Linker::parseCitation(Linker::normalize('[ف: ۲-۴۵]'), 'ف'));
+        $this->assertSame(['volume' => null, 'part' => null, 'page' => 50], Linker::parseCitation('ف: -50', 'ف'));
         $this->assertNull(Linker::parseCitation('ف مخ: 1', 'ف'));
         $this->assertNull(Linker::parseCitation('فهرست عراقی: 1-136', 'ف'));
-        $this->assertSame(['volume' => null], Linker::parseCitation('الفبائی: -512', 'الفبائی'));
-        $this->assertSame(['volume' => null], Linker::parseCitation(Linker::normalize('کتابخانه‌های قائن - ف: - 170'), 'کتابخانه‌های قائن'));
-        $this->assertSame(['volume' => null], Linker::parseCitation('ف مخ: 1', 'ف مخ'));
+        $this->assertNull(Linker::parseCitation('الفبائی: -512', 'الفبائی')['volume']);
+        $this->assertNull(Linker::parseCitation(Linker::normalize('کتابخانه‌های قائن - ف: - 170'), 'کتابخانه‌های قائن')['volume']);
+        $this->assertNull(Linker::parseCitation('ف مخ: 1', 'ف مخ')['volume']);
         $this->assertNull(Linker::parseCitation('ف مخطوطات: 1', 'ف مخ'));
         $this->assertSame(Linker::SOURCE_LIBRARY_DATABASE, Linker::nonCatalogSource('رایانه'));
         $this->assertSame(Linker::SOURCE_REGISTER, Linker::nonCatalogSource('د.ث. مجلس'));
         $this->assertNull(Linker::nonCatalogSource('ف: 1-2'));
+    }
+
+    public function test_parts_are_read_only_when_the_link_asks_for_them()
+    {
+        $this->assertNull(Linker::parseCitation('ف: 47/1 - 15', 'ف')['volume']);
+        $this->assertSame(['volume' => 47, 'part' => 1, 'page' => 15], Linker::parseCitation('ف: 47/1 - 15', 'ف', true));
+        $this->assertSame(['volume' => 27, 'part' => 1, 'page' => 9], Linker::parseCitation('ف: 1/27 - 9', 'ف', true));
+        $this->assertSame(['volume' => 2, 'part' => 1, 'page' => 112], Linker::parseCitation('اهدائی رهبر: 2 اخبار 1-112', 'اهدائی رهبر', true));
+        $this->assertSame(['volume' => 2, 'part' => 2, 'page' => 543], Linker::parseCitation('اهدائی رهبر: 2اخبار2-543', 'اهدائی رهبر', true));
+        $this->assertSame(['volume' => 2, 'part' => 1, 'page' => 401], Linker::parseCitation('اهدائی رهبر: 2 اخبار/ 1-401', 'اهدائی رهبر', true));
+        $this->assertSame(['volume' => 1, 'part' => null, 'page' => 79], Linker::parseCitation('اهدائی رهبر: 1علوم قرآن - 79', 'اهدائی رهبر', true));
+        $this->assertSame(['volume' => 3, 'part' => null, 'page' => 37], Linker::parseCitation('اهدائی رهبر: 3 - 37', 'اهدائی رهبر', true));
+
+        $volumes = [
+            ['number' => 3, 'part' => 1, 'pages' => [1, 440]],
+            ['number' => 3, 'part' => 2, 'pages' => [446, 879]],
+            ['number' => 8, 'part' => null, 'pages' => null],
+        ];
+        $this->assertSame(1, Linker::pickVolume($volumes, ['volume' => 3, 'part' => null, 'page' => 500], null));
+        $this->assertSame(0, Linker::pickVolume($volumes, ['volume' => 3, 'part' => 1, 'page' => 500], null));
+        $this->assertNull(Linker::pickVolume($volumes, ['volume' => 3, 'part' => null, 'page' => 443], null));
+        $this->assertSame(2, Linker::pickVolume($volumes, ['volume' => 8, 'part' => null, 'page' => 5], null));
+        $this->assertNull(Linker::pickVolume($volumes, ['volume' => 10, 'part' => null, 'page' => 5], null));
+    }
+
+    public function test_wrong_volumes_are_released_and_parts_get_their_own_catalogers()
+    {
+        $library = Library::create(['name' => 'رضوی آزمایشی', 'city' => 'مشهد', 'slug' => 'rz-parts-' . uniqid()]);
+        $surname = Cataloger::create(['name' => 'قاسمی', 'slug' => 'ghasemi-' . uniqid()]);
+        $first = Cataloger::create(['name' => 'نگارنده‌ی بخش یک', 'slug' => 'part-one-' . uniqid()]);
+        $wrong = CatalogVolume::create(['title' => 'جلد نادرست', 'volume_number' => 1, 'library_id' => $library->id]);
+        $duplicate = CatalogVolume::create(['title' => 'جلد نادرست', 'volume_number' => 1, 'library_id' => $library->id]);
+        $vol10 = $this->manuscript($library, '[اهدائی رهبر: 10 - 33]', null, $wrong->id);
+        $vol10->update(['cataloger_id' => $surname->id]);
+        $partOne = $this->manuscript($library, '[اهدائی رهبر: 2 اخبار 1-112]', null, $wrong->id);
+        $partOne->update(['cataloger_id' => $surname->id]);
+        $partTwo = $this->manuscript($library, '[اهدائی رهبر: 2اخبار2-600]');
+        $newSlug = 'part-two-' . uniqid();
+
+        $this->writeData([[
+            'library' => $library->slug, 'series' => 'اهدائی رهبر', 'parts' => true, 'source' => 'fankha:545', 'source_text' => 'آزمایشی',
+            'release_volumes' => ['جلد نادرست'],
+            'volumes' => [
+                ['number' => 2, 'part' => 1, 'pages' => [1, 475], 'title' => 'ج ۲ بخش ۱', 'catalogers' => [
+                    ['slug' => $first->slug, 'name' => 'نگارنده‌ی بخش یک'], ['slug' => $surname->slug, 'name' => 'حسین قاسمی', 'rename' => true],
+                ]],
+                ['number' => 2, 'part' => 2, 'pages' => [488, 940], 'title' => 'ج ۲ بخش ۲', 'catalogers' => [
+                    ['slug' => $newSlug, 'name' => 'نگارنده‌ی بخش دو', 'new' => true],
+                ]],
+            ],
+        ]]);
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath, '--dry-run' => true])->assertSuccessful();
+        $this->assertSame($wrong->id, $vol10->fresh()->catalog_volume_id);
+
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+
+        $one = CatalogVolume::where('title', 'ج ۲ بخش ۱')->sole();
+        $two = CatalogVolume::where('title', 'ج ۲ بخش ۲')->sole();
+        $this->assertSame([$one->id, $first->id], [$partOne->fresh()->catalog_volume_id, $partOne->fresh()->cataloger_id]);
+        $this->assertSame([$two->id, Cataloger::where('slug', $newSlug)->value('id')], [$partTwo->fresh()->catalog_volume_id, $partTwo->fresh()->cataloger_id]);
+        $this->assertSame([null, null], [$vol10->fresh()->catalog_volume_id, $vol10->fresh()->cataloger_id]);
+        $this->assertNull(CatalogVolume::find($wrong->id));
+        $this->assertNull(CatalogVolume::find($duplicate->id));
+        $this->assertSame('حسین قاسمی', $surname->fresh()->name);
+        $this->assertEqualsCanonicalizing([$first->id, $surname->id], $one->catalogers()->pluck('catalogers.id')->all());
     }
 
     public function test_citation_falls_back_to_the_last_bracket_of_the_raw_text()
@@ -128,6 +194,30 @@ class LinkCatalogVolumesTest extends TestCase
         $this->assertSame(990011, (int) $known->fresh()->mtif_entry_id);
         $this->assertSame(1, Cataloger::where('name', 'نگارنده‌ی بی‌شناسه')->count());
         $this->assertSame(0, $unrelated->fresh()->manuscripts_count);
+    }
+
+    public function test_copies_of_a_duplicate_library_follow_the_catalogers_of_an_existing_volume()
+    {
+        $main = Library::create(['name' => 'مجلس آزمایشی', 'city' => 'تهران', 'slug' => 'majlis-' . uniqid()]);
+        $duplicate = Library::create(['name' => 'شورا آزمایشی', 'city' => 'تهران', 'slug' => 'shora-' . uniqid()]);
+        $first = Cataloger::create(['name' => 'فهرست‌نگار نخست', 'slug' => 'f1-' . uniqid()]);
+        $second = Cataloger::create(['name' => 'فهرست‌نگار دوم', 'slug' => 'f2-' . uniqid()]);
+        $volume = CatalogVolume::create(['title' => 'فهرست مجلس - جلد ۲۹', 'volume_number' => 29, 'library_id' => $main->id]);
+        $volume->catalogers()->attach($second->id, ['role' => 'editor']);
+        $volume->catalogers()->attach($first->id, ['role' => 'cataloger']);
+        $copy = $this->manuscript($duplicate, '[ف: 1/29 - 455]');
+        $other = $this->manuscript($duplicate, '[ف: 24 - 10]');
+
+        $this->writeData([[
+            'library' => $duplicate->slug, 'volume_library' => $main->slug, 'series' => 'ف', 'parts' => true,
+            'source' => 'mirror', 'source_text' => 'آزمایشی',
+            'volumes' => [['number' => 29, 'title' => 'فهرست مجلس - جلد ۲۹', 'match_title' => 'فهرست مجلس - جلد ۲۹', 'existing_catalogers' => true]],
+        ]]);
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
+
+        $this->assertSame([$volume->id, $first->id], [$copy->fresh()->catalog_volume_id, $copy->fresh()->cataloger_id]);
+        $this->assertNull($other->fresh()->catalog_volume_id);
+        $this->assertSame(1, $volume->catalogers()->count() - 1);
     }
 
     public function test_unknown_cataloger_not_marked_new_stops_the_run()
