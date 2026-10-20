@@ -15,6 +15,8 @@ class Library extends Model
             'manuscripts_count' => 'integer',
             'aliases' => 'array',
             'logo_on_dark' => 'boolean',
+            'logo_width' => 'integer',
+            'logo_height' => 'integer',
         ];
     }
 
@@ -35,6 +37,7 @@ class Library extends Model
     {
         $old = $this->logo_path;
         $ext = strtolower($file->extension() ?: 'png');
+        [$this->logo_width, $this->logo_height] = @getimagesize($file->getRealPath()) ?: [null, null];
         $this->logo_path = \Illuminate\Support\Facades\Storage::disk('public')
             ->putFileAs('libraries/logos', $file, "library_{$this->id}_" . now()->timestamp . ".{$ext}");
         $this->save();
@@ -43,12 +46,21 @@ class Library extends Model
         }
     }
 
+    /**
+     * Largest CSS height (px) the logo can take and stay sharp on a 2× screen, capped at $want;
+     * $want when the file's size is unknown.
+     */
+    public function logoMaxHeight(int $want): int
+    {
+        return $this->logo_height ? min($want, intdiv($this->logo_height, 2)) : $want;
+    }
+
     public function removeLogo(): void
     {
         if ($this->logo_path) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($this->logo_path);
         }
-        $this->update(['logo_path' => null]);
+        $this->update(['logo_path' => null, 'logo_width' => null, 'logo_height' => null]);
     }
 
     // Other names are matched with LIKE, so Persian text is stored as is, not as \u escapes

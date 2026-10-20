@@ -176,4 +176,34 @@ class LibraryLogoTest extends TestCase
         Storage::disk('public')->assertMissing($oldPath);
         $this->assertNull($untouched->fresh()->logo_url);
     }
+
+    /** A real 400×100 PNG. */
+    private function widePng(): UploadedFile
+    {
+        return UploadedFile::fake()->createWithContent('wide.png', base64_decode('iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAMAAACfFZZFAAAAA1BMVEUSNFaB+k3yAAAAPklEQVR42u3BMQEAAADCoPVPbQsvoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgKcBnKQAAdh7HF4AAAAASUVORK5CYII='));
+    }
+
+    public function test_logo_size_is_recorded_and_cleared()
+    {
+        $library = $this->library();
+        $library->storeLogo($this->widePng());
+        $this->assertSame([400, 100], [$library->fresh()->logo_width, $library->fresh()->logo_height]);
+
+        $library->removeLogo();
+        $this->assertNull($library->fresh()->logo_width);
+    }
+
+    public function test_a_logo_is_never_drawn_beyond_half_its_pixel_size()
+    {
+        $library = $this->library();
+        $library->storeLogo($this->widePng());
+
+        // 400×100 at most 50px high: 200px wide in the card band, though the band would allow 128px height
+        $this->assertSame(50, $library->logoMaxHeight(128));
+        $this->assertStringContainsString('style="width: 200px; max-width: 100%; height: auto"', view('components.library-logo', ['library' => $library, 'size' => 'band'])->render());
+
+        $work = Work::create(['primary_title' => 'اثر آزمایشی نوار نشان', 'clean_title' => 'اثر آزمایشی نوار نشان', 'slug' => 'work-band-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $manuscript = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'library' => $library->name, 'city' => $library->city, 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
+        $this->get(route('manuscripts.show', $manuscript))->assertOk()->assertSee('flex w-full px-4 py-5', false);
+    }
 }

@@ -2741,3 +2741,28 @@
   - پیش از اجرا، مقدار فعلی سه ستون ۱۸۵ اثر در `/app/storage/app/backup_before_corpus_v1.1.4.json` ذخیره شد. یک رونوشت هم در `fahares-corpus/scratch/` هست.
   - `--apply` ۱۸۵ اثر را به‌روز و ۸۵ اثر را دوباره نمایه کرد. اجرای دوم «already 284» داد.
   - صفحه‌ی زنده‌ی اثر #38 پیوندهای ج ۹ ص ۸۶۵ و ج ۲ ص ۲۲۱ را دارد و ج ۲۶ ص ۲۸۷ را در نمایشگر باز می‌کند.
+
+### گام ۱۲.۳۲: اندازه‌ی نشان به اندازه‌ی کیفیت
+
+- **مایگریشن:** `2026_10_20_000001_add_logo_size_to_libraries_table`:
+  - دو ستون `logo_width` و `logo_height` (`unsignedSmallInteger`، nullable) افزود.
+  - ابعاد نشان‌های موجود را با `getimagesize` روی دیسک `public` پر می‌کند.
+- **مدل:**
+  - `storeLogo()` ابعاد فایل را ثبت می‌کند و `removeLogo()` آن‌ها را پاک می‌کند.
+  - `logoMaxHeight($want)` برابر `min($want, logo_height / 2)` است.
+- **کامپوننت:** [library-logo](../resources/views/components/library-logo.blade.php):
+  - اندازه‌ی تازه‌ی `band` یک نوار تمام‌عرض است، با ارتفاع مطلوب ۱۲۸ و حداکثر عرض ۲۴۰ پیکسل.
+  - برای `md`، `lg` و `band`، عرض نمایش این‌طور حساب می‌شود و `height: auto` می‌گیرد:
+    - `min(logoMaxHeight × نسبت ابعاد، حداکثر عرض، عرض واقعی / 2)`
+    - کمینه‌ی آن ۱۶ پیکسل است.
+  - `sm` (فهرست) همان جای ثابت ۶۴×۴۰ پیکسل را دارد.
+  - تصویر `width` و `height` ذاتی هم می‌گیرد تا هنگام بارگذاری صفحه جابه‌جا نشود.
+- **صفحه‌ی نسخه:** نشان با `size="band"` بالای کارت «محل نگهداری» آمده، خارج از بلوک نام.
+- **داده:**
+  - این ۹ فایل از `../fahares-sources/library-logos` با `-resize 960x480>` دوباره ساخته شدند: `razavi`، `nlai`، `masoumeh`، `tums`، `majles`، `golestan`، `darolhadith`، `shahcheragh` و `vaziri`.
+  - `vaziri.png` به `vaziri.jpg` تبدیل شد (کیفیت ۸۸، از ۳۸۴ به ۷۶ کیلوبایت) و `library_logos.json` به‌روز شد. پوشه‌ی داده حالا ۱٫۲ مگابایت است.
+  - `dehkhoda` و `isca` (گام جداگانه) دست نخوردند.
+- **آزمون:** دو آزمون تازه در [LibraryLogoTest](../tests/Feature/LibraryLogoTest.php): ثبت و پاک شدن ابعاد، و سقف نصف اندازه.
+- **استقرار:** پس از پوش، این دو دستور با `ssh fahares-app` اجرا شوند:
+  1. `php artisan migrate --force`. ابعاد نشان‌های موجود را پر می‌کند.
+  2. `php artisan fahares:apply-library-logos --force --only=razavi.png,nlai.png,masoumeh.png,tums.png,majles.png,golestan.png,darolhadith.png,shahcheragh.png,vaziri.jpg`
