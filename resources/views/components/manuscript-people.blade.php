@@ -21,6 +21,7 @@
                             <div>
                                 @if($p->person)
                                     <a href="{{ route('people.show', $p->person) }}" class="font-semibold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $p->person->name }}</a>
+                                    <x-ui.life :person="$p->person" />
                                 @else
                                     <span class="font-semibold text-ink">{{ $p->name }}</span>
                                 @endif

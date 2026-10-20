@@ -423,6 +423,7 @@
                                 <td class="py-2.5 px-3">
                                     @if($ms->scribe_name)
                                         {{ $ms->scribe_name }}
+                                        <x-ui.life :person="$ms->scribe" />
                                         @if($ms->is_autograph)<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 ms-1">(مؤلف)</span>@endif
                                     @elseif($ms->is_autograph)
                                         <span class="text-emerald-700 dark:text-emerald-400">{{ $work->author?->name ?? $work->author_name ?? '' }} <span class="text-xs font-semibold">(مؤلف)</span></span>

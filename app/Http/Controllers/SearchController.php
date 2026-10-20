@@ -206,11 +206,11 @@ class SearchController extends Controller
                         $options['filter'] = $filterString;
                     }
                     return $meili->search($searchQuery, $options);
-                })->query(fn($q) => $q->with(['catalog', 'work.author', 'libraryRecord', 'scripts']));
+                })->query(fn($q) => $q->with(['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts']));
 
                 $results = $builder->paginate($perPage)->withQueryString();
             } else {
-                $builder = Manuscript::query()->with(['catalog', 'work.author', 'libraryRecord', 'scripts']);
+                $builder = Manuscript::query()->with(['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts']);
                 if ($libraryId) {
                     $builder->where('library_id', $libraryId);
                 }
@@ -642,7 +642,7 @@ class SearchController extends Controller
                     ->map(fn($p) => [
                         'id' => $p->id,
                         'name' => $p->name,
-                        'death_hijri' => $p->death_year_hijri ? "متوفای {$p->death_year_hijri} ق" : ($p->death_century_hijri ? "قرن {$p->death_century_hijri} ق" : null),
+                        'death_hijri' => $p->life_span,
                         'works_count' => $p->works_count,
                         'url' => route('people.show', $p, false),
                     ]);

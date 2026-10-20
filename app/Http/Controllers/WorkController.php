@@ -46,7 +46,7 @@ class WorkController extends Controller
         $sort = $request->input('sort', 'sequence');
         $direction = strtolower($request->input('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-        $query = $work->manuscripts()->with(['catalog', 'libraryRecord', 'scripts']);
+        $query = $work->manuscripts()->with(['catalog', 'libraryRecord', 'scripts', 'scribe']);
 
         switch ($sort) {
             case 'library':

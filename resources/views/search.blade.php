@@ -685,14 +685,14 @@
                                 </div>
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink/80">
                                     @if($ms->work?->author)
-                                        <span>از <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($ms->work->author->name, $query)</a></span>
+                                        <span>از <a href="{{ route('people.show', $ms->work->author) }}" class="font-semibold text-ink hover:text-cinnabar">@highlight($ms->work->author->name, $query)</a> <x-ui.life :person="$ms->work->author" /></span>
                                     @elseif($ms->work?->author_name)
                                         <span>از <span class="font-semibold text-ink">@highlight($ms->work->author_name, $query)</span></span>
                                     @endif
                                     <span><span class="font-semibold text-ink" title="{{ $ms->libraryRecord?->display_name }}">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</span>@if($ms->city)، {{ $ms->city }}@endif</span>
                                     <span>شماره‌ی <span dir="ltr" class="font-semibold text-cinnabar">@highlight($ms->shelfmark ?? 'بی‌شماره', $query)</span></span>
                                     @if($ms->scribe_name)
-                                        <span>کاتب: @highlight($ms->scribe_name, $query)</span>
+                                        <span>کاتب: @highlight($ms->scribe_name, $query) <x-ui.life :person="$ms->scribe" /></span>
                                     @elseif($ms->is_autograph)
                                         <span>کاتب: <span class="text-emerald-700 dark:text-emerald-300">مؤلف</span></span>
                                     @elseif($ms->is_bika)

@@ -254,11 +254,13 @@
                             @php $autographPerson = $manuscript->work?->author ?? $manuscript->scribe; @endphp
                             @if($autographPerson)
                                 <a href="{{ route('people.show', $autographPerson) }}" class="font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">دستخط مؤلف ({{ $autographPerson->name }})</a>
+                                <x-ui.life :person="$autographPerson" />
                             @else
                                 <span class="font-semibold text-emerald-700 dark:text-emerald-400">مؤلف (نسخه‌ی اصل)</span>
                             @endif
                         @elseif($manuscript->scribe_id)
                             <a href="{{ route('people.show', $manuscript->scribe_id) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $manuscript->scribe_name ?: 'دیدن کاتب' }}</a>
+                            <x-ui.life :person="$manuscript->scribe" />
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
                         @elseif($manuscript->is_bika)

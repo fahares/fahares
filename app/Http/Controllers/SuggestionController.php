@@ -233,10 +233,6 @@ class SuggestionController extends Controller
 
     public static function lifeYears(Person $p): ?string
     {
-        if ($p->death_year_hijri) {
-            return $p->birth_year_hijri ? "{$p->birth_year_hijri}–{$p->death_year_hijri} ق" : "د. {$p->death_year_hijri} ق";
-        }
-
-        return $p->century_hijri ? "سده‌ی {$p->century_hijri} ق" : null;
+        return $p->life_span;
     }
 }
