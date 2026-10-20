@@ -30,7 +30,7 @@
             <div class="flex flex-col items-center md:flex-row md:justify-center md:gap-8 md:pt-4">
                 <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-512.png') }}" alt="" width="176" height="176" class="h-24 w-24 sm:h-32 sm:w-32 md:h-44 md:w-44 shrink-0">
                 <div class="flex flex-col items-center mt-4 md:mt-0 md:items-start md:text-right">
-                    <h1 class="font-naskh text-[36px] sm:text-[52px] font-bold text-ink leading-[1.3]">فهارس</h1>
+                    <h1 class="font-naskh text-[32px] sm:text-[44px] font-bold text-ink leading-[1.3]">فهارس</h1>
                     <p class="text-base sm:text-xl font-bold text-cinnabar">{{ SiteSetting::get('home.eyebrow') }}</p>
                     <p class="text-sm text-muted max-w-2xl leading-relaxed mt-2 md:mt-1">{{ SiteSetting::get('home.lede') }}</p>
                 </div>
