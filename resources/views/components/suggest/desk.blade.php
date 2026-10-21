@@ -12,7 +12,8 @@
         ->pluck('n', 'field_name');
 
     $fields = [];
-    foreach (SuggestionRegistry::fields($type) as $name => $def) {
+    // With one address field per catalogue reference of the copy (backlog item 51)
+    foreach (SuggestionRegistry::recordFields($record) as $name => $def) {
         $field = ['name' => $name] + $def;
         $current = SuggestionRegistry::currentValue($record, $field);
         $fields[$name] = [
@@ -22,6 +23,8 @@
             // Start the edit from the stored text, never from display stand-ins like «بی‌تاریخ»
             'prefill' => $def['input'] === 'boolean' || (! empty($def['bit_column']) && $record->{$name} === null) ? '' : ($current ?? ''),
             'pending' => (int) ($pending[$name] ?? 0),
+            'withRow' => ! empty($def['with_row']),
+            'canBeAbsent' => ! empty($def['can_be_absent']),
         ];
     }
 
@@ -252,6 +255,32 @@
 
                         <template x-if="mode === 'field' && field.input === 'integer'">
                             <input type="text" inputmode="numeric" x-model="value" required class="{{ $inputClass }} font-mono w-40">
+                        </template>
+
+                        <!-- An address in a source: volume, page (and row in Fankha), composed into «ج ۲، ص ۷» -->
+                        <template x-if="mode === 'field' && field.input === 'catalog_page'">
+                            <div x-data="{
+                                    vol: '', pg: '', row: '', absent: false,
+                                    read(text, key) { const m = (text || '').replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).match(new RegExp(key + '\\s*(\\d+)')); return m ? m[1] : ''; },
+                                    compose() { value = this.absent ? 'نیست' : (this.vol && this.pg ? 'ج ' + this.vol + '، ص ' + this.pg + (this.row ? '، ردیف ' + this.row : '') : ''); },
+                                }"
+                                x-init="vol = read(value, 'ج'); pg = read(value, 'ص'); row = read(value, 'ردیف'); absent = value === 'نیست'; compose()"
+                                class="space-y-2">
+                                <div class="flex flex-wrap items-end gap-3" :class="absent && 'opacity-40'">
+                                    <label class="grid gap-1"><span class="text-stone-500">جلد</span>
+                                        <input type="text" inputmode="numeric" x-model="vol" @input="compose()" :disabled="absent" :required="!absent" class="{{ $inputClass }} font-mono w-24"></label>
+                                    <label class="grid gap-1"><span class="text-stone-500">صفحه</span>
+                                        <input type="text" inputmode="numeric" x-model="pg" @input="compose()" :disabled="absent" :required="!absent" class="{{ $inputClass }} font-mono w-24"></label>
+                                    <template x-if="field.withRow">
+                                        <label class="grid gap-1"><span class="text-stone-500">ردیف</span>
+                                            <input type="text" inputmode="numeric" x-model="row" @input="compose()" :disabled="absent" class="{{ $inputClass }} font-mono w-24"></label>
+                                    </template>
+                                </div>
+                                <template x-if="field.canBeAbsent">
+                                    <label class="inline-flex items-center gap-1.5"><input type="checkbox" x-model="absent" @change="compose()" class="text-cinnabar"> این نسخه در این فهرست نیامده است</label>
+                                </template>
+                                <p class="text-stone-400">صفحه‌ای را بنویسید که مدخل این نسخه از آن آغاز می‌شود.</p>
+                            </div>
                         </template>
 
                         <template x-if="mode === 'field' && field.input === 'boolean'">

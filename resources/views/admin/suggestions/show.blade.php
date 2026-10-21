@@ -247,7 +247,24 @@
                                 مقدار نهایی «{{ $field['label'] }}» (می‌توانید پیش از تأیید ویرایش کنید):
                             </label>
                             <textarea name="applied_value" rows="{{ in_array($field['input'], ['quote', 'list', 'textarea'], true) ? 5 : 2 }}" class="w-full p-3 rounded-xl border border-line-strong bg-paper text-ink font-semibold focus:border-gold">{{ old('applied_value', $suggestion->applied_value ?? $suggestion->suggested_value) }}</textarea>
-                            @if($field['input'] === 'list')
+                            @if($field['input'] === 'catalog_page')
+                                @php
+                                    $pageRef = isset($field['reference_id']) ? \App\Models\ManuscriptCatalogReference::with('catalogVolume')->find($field['reference_id']) : null;
+                                    $suggestedPage = \App\Suggestions\SuggestionRegistry::parseCatalogPage($suggestion->applied_value ?? $suggestion->suggested_value);
+                                @endphp
+                                <p class="text-stone-400">
+                                    به شکل «ج ۲، ص ۷»@if(! empty($field['with_row']))، و «، ردیف ۳» اگر ردیف هم تغییر کرده است@endif.
+                                    @if(! empty($field['can_be_absent'])) «نیست» یعنی نسخه در این فهرست نیامده است و پیوندش از صفحه‌ی نسخه برداشته می‌شود. با تأیید، نشانی «دستی و بازبینی‌شده» می‌شود و نشان ⓘ برداشته می‌شود.@endif
+                                </p>
+                                @if($pageRef && ($viewer = $pageRef->viewer()))
+                                    <div class="flex flex-wrap gap-2 pt-1">
+                                        <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 font-bold text-ink hover:bg-cinnabar hover:text-white transition cursor-pointer">برگه‌ی فعلی (ص {{ \App\Support\Fa::digits($viewer['page']) }})</button>
+                                        @if($suggestedPage)
+                                            <button type="button" @click="$dispatch('open-catalog-viewer', @js(['volume' => $suggestedPage['volume'], 'page' => $suggestedPage['page']] + $viewer))" class="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 font-bold text-ink hover:bg-cinnabar hover:text-white transition cursor-pointer">برگه‌ی پیشنهادی (ص {{ \App\Support\Fa::digits($suggestedPage['page']) }})</button>
+                                        @endif
+                                    </div>
+                                @endif
+                            @elseif($field['input'] === 'list')
                                 <p class="text-stone-400">هر مورد در یک سطر. فهرست فعلی به‌طور کامل جایگزین می‌شود.</p>
                             @elseif($field['input'] === 'quote' && count($target?->metadata[$field['meta_key']] ?? []) > 1)
                                 <p class="text-amber-700 dark:text-amber-400 font-bold">این نسخه اکنون {{ count($target->metadata[$field['meta_key']]) }} مورد ثبت‌شده دارد. با تأیید، همه با همین یک متن جایگزین می‌شوند.</p>
@@ -440,4 +457,5 @@
     @endif
 
 </div>
+<x-catalog-viewer />
 @endsection

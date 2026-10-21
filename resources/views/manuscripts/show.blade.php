@@ -227,12 +227,14 @@
                     <div class="space-y-2 pb-4 border-b border-line" data-viewer-card>
                         <div class="flex items-start gap-1">
                             <div class="text-sm font-bold text-ink leading-6">{{ $refLabel }}</div>
+                            @php $refField = \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id; @endphp
                             @if($ref->isAwaitingReview())
                                 <x-ui.machine-badge class="shrink-0 mt-0.5"
                                     text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
-                                    :report="['general' => true, 'value' => 'نشانی این نسخه در ' . $refLabel . ' نادرست است. نشانی درست: ']" />
+                                    :report="['field' => $refField]" />
                             @endif
+                            <x-suggest.field :name="$refField" class="shrink-0" />
                         </div>
                         <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="block w-full group cursor-pointer" title="دیدن برگه در فهرست کتابخانه">
                             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
@@ -244,7 +246,7 @@
                 @endforeach
                 <div class="space-y-2">
                     <div>
-                        <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
+                        <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif <x-suggest.field name="fankha_page" class="ms-1" /></div>
                         @if($manuscript->catalogVolume && $editionRefs->isEmpty())
                             <div class="text-xs text-muted mt-0.5">{{ $manuscript->catalogVolume->title }}</div>
                         @endif

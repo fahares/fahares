@@ -4,6 +4,7 @@ namespace App\Suggestions;
 
 use App\Models\Library;
 use App\Models\Manuscript;
+use App\Models\ManuscriptCatalogReference;
 use App\Models\Person;
 use App\Models\Work;
 use App\Support\HijriYear;
@@ -22,6 +23,10 @@ use Illuminate\Database\Eloquent\Model;
  *   quote        incipit/explicit: column plus the metadata list the page renders (meta_key)
  *   list         one item per line; stored in a metadata list (meta_key) or in the field's own
  *                JSON column, as strings or as objects keyed by item_key
+ *   catalog_page where the record stands in a source, as «ج 2، ص 7» (and «، ردیف 3» with with_row):
+ *                the record's own Fankha columns (columns), or one catalogue reference (reference_id,
+ *                in a field named catalog_reference_{id}, see catalogReferenceField); «نیست» (absent)
+ *                rejects that reference. See SuggestionApplier::applyCatalogPage.
  *
  * Optional keys: required (no empty value), mirror (columns that take the same value, e.g. clean_title),
  * bit_column/bit_label (a flag meaning "the catalog says there is none").
@@ -133,7 +138,7 @@ class SuggestionRegistry
         if ($name === null) {
             return null;
         }
-        $field = self::fields($type)[$name] ?? null;
+        $field = self::fields($type)[$name] ?? (self::typeKey($type) === 'manuscript' ? self::catalogReferenceField($name) : null);
 
         return $field ? ['name' => $name] + $field : null;
     }
@@ -202,6 +207,68 @@ class SuggestionRegistry
         };
     }
 
+    public const CATALOG_REFERENCE_PREFIX = 'catalog_reference_';
+
+    /** Value of a catalog_page field that says the record is not in that source at all. */
+    public const ABSENT = 'نیست';
+
+    /**
+     * The fields of one record: the fixed list plus, for a manuscript, one address field per catalogue
+     * reference shown on its page (backlog item 51).
+     */
+    public static function recordFields(Model $record): array
+    {
+        $fields = self::fields($record::class);
+        if ($record instanceof Manuscript) {
+            foreach ($record->catalogReferences as $ref) {
+                if ($ref->viewer() && ($field = self::catalogReferenceField(self::CATALOG_REFERENCE_PREFIX . $ref->id, $ref))) {
+                    $fields[self::CATALOG_REFERENCE_PREFIX . $ref->id] = $field;
+                }
+            }
+        }
+
+        return $fields;
+    }
+
+    /** The address field of one catalogue reference, «catalog_reference_{id}». */
+    public static function catalogReferenceField(string $name, ?ManuscriptCatalogReference $ref = null): ?array
+    {
+        if (! preg_match('/^' . self::CATALOG_REFERENCE_PREFIX . '(\d+)$/', $name, $m)) {
+            return null;
+        }
+        $ref ??= ManuscriptCatalogReference::with('catalogVolume')->find((int) $m[1]);
+        if (! $ref || $ref->source === ManuscriptCatalogReference::SOURCE_FANKHA) {
+            return null;
+        }
+        $volume = $ref->catalogVolume;
+
+        return [
+            'label' => 'نشانی در ' . implode('، ', array_filter([$volume?->short_title, $volume?->edition_label ? 'چاپ ' . $volume->edition_label : null])),
+            'input' => 'catalog_page',
+            'reference_id' => $ref->id,
+            'can_be_absent' => true,
+        ];
+    }
+
+    /** «ج 2، ص 7، ردیف 3» read back into numbers; null when the volume or the page is missing. */
+    public static function parseCatalogPage(?string $value): ?array
+    {
+        $value = strtr((string) $value, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        $read = fn (string $key) => preg_match('/' . $key . '\s*\.?\s*:?\s*(\d+)/u', $value, $m) ? (int) $m[1] : null;
+        $parsed = ['volume' => $read('ج'), 'page' => $read('ص'), 'row' => $read('ردیف')];
+
+        return $parsed['volume'] && $parsed['page'] ? $parsed : null;
+    }
+
+    public static function formatCatalogPage(?int $volume, ?int $page, ?int $row = null): ?string
+    {
+        if (! $volume || ! $page) {
+            return null;
+        }
+
+        return \App\Support\Fa::digits("ج {$volume}، ص {$page}" . ($row ? "، ردیف {$row}" : ''));
+    }
+
     /** The field's current value as plain text, for the suggestion form and the reviewer's comparison. */
     public static function currentValue(Model $record, array $field): ?string
     {
@@ -211,6 +278,9 @@ class SuggestionRegistry
             'boolean' => $record->{$name} ? 'بله' : 'خیر',
             'quote' => implode("\n\n", array_column(self::metaList($record, $field['meta_key']), 'text')) ?: $record->{$name},
             'list' => implode("\n", self::listItems($record, $field)),
+            'catalog_page' => isset($field['reference_id'])
+                ? (fn ($ref) => $ref ? self::formatCatalogPage($ref->volume_number, $ref->page_start) : null)(ManuscriptCatalogReference::find($field['reference_id']))
+                : self::formatCatalogPage(...array_map(fn ($c) => $record->{$c}, $field['columns'])),
             default => $record->{$name},
         };
 
@@ -258,6 +328,8 @@ class SuggestionRegistry
             'incipit_text' => ['label' => 'آغاز نسخه', 'input' => 'quote', 'meta_key' => 'incipits'],
             'explicit_text' => ['label' => 'انجام نسخه', 'input' => 'quote', 'meta_key' => 'explicits'],
             'ownership_and_seals' => ['label' => 'مهرها، تملک‌ها و وقف‌نامه‌ها', 'input' => 'list', 'meta_key' => 'ownership_and_seals'],
+            // Where the copy stands in Fankha; the library catalogues get catalog_reference_{id} fields
+            'fankha_page' => ['label' => 'نشانی در فنخا', 'input' => 'catalog_page', 'columns' => ['volume_number', 'page_start', 'sequence_number'], 'with_row' => true],
         ];
 
         foreach (self::FLAG_LABELS as $name => $label) {

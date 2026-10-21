@@ -64,8 +64,12 @@ class SuggestionController extends Controller
         $field = null;
         if ($validated['kind'] === 'field') {
             $field = SuggestionRegistry::field($validated['type'], $validated['field_name'] ?? null);
-            if (! $field) {
+            if (! $field || (isset($field['reference_id']) && \App\Models\ManuscriptCatalogReference::whereKey($field['reference_id'])->value('manuscript_id') !== $record->id)) {
                 throw ValidationException::withMessages(['field_name' => 'این فیلد برای پیشنهاد اصلاح تعریف نشده است.']);
+            }
+            if ($field['input'] === 'catalog_page' && ! SuggestionRegistry::parseCatalogPage($validated['suggested_value'] ?? '')
+                && ! (! empty($field['can_be_absent']) && trim($validated['suggested_value'] ?? '') === SuggestionRegistry::ABSENT)) {
+                throw ValidationException::withMessages(['suggested_value' => 'شماره‌ی جلد و صفحه را بنویسید.']);
             }
             if (mb_strlen(trim($validated['rationale_citation'] ?? '')) < 5) {
                 throw ValidationException::withMessages(['rationale_citation' => 'مستند یا منبع پیشنهاد را بنویسید (دست‌کم ۵ نویسه).']);
@@ -97,7 +101,9 @@ class SuggestionController extends Controller
             'field_name' => $field['name'] ?? $relation['key'] ?? null,
             'current_value' => $field ? SuggestionRegistry::currentValue($record, $field) : null,
             // A relation needs no extra text; its label stands in when the submitter adds none
-            'suggested_value' => trim($validated['suggested_value'] ?? '') ?: $relation['label'],
+            'suggested_value' => ($field && $field['input'] === 'catalog_page' && ($page = SuggestionRegistry::parseCatalogPage($validated['suggested_value'])))
+                ? SuggestionRegistry::formatCatalogPage($page['volume'], $page['page'], $page['row'])
+                : (trim($validated['suggested_value'] ?? '') ?: $relation['label']),
             'rationale_citation' => $validated['rationale_citation'] ?? null,
             'payload' => $payload ?: null,
             'user_id' => $user?->id,

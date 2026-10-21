@@ -3142,7 +3142,15 @@
   - در Blade، نوشتن `<x-…>` حتی درون کامنت PHP پراپ‌ها هم کامپایل می‌شود و خطای `$component` می‌دهد.
   - `suggest-desk.js`: `start({general: true, value})` متن آغازین را می‌گیرد، پس asset باید دوباره ساخته شود (در استقرار Coolify خودکار است).
 - **صف داوری:** [CatalogReferenceController](../app/Http/Controllers/Admin/CatalogReferenceController.php) با مسیرهای `admin.catalog-references.index|verify|reject`. ترتیب ردیف‌ها از کم‌اطمینان به پراطمینان است و ۴۰ ردیف در هر صفحه می‌آید. شمار در انتظار در نوار کناری نشان داده می‌شود. تأیید یا رد ردیف `fankha` پاسخ ۴۰۴ می‌دهد. «تأیید همه‌ی ردیف‌های پراطمینان» هنوز ساخته نشده است.
-- **آزمون:** [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php)، ۱۰ آزمون: رابطه‌ها و پنهان‌بودن `source_url`، `viewer()`، نبود `source_url` در HTML و JSON-LD، تجزیه‌ی ارجاع، تکرارنشدن انتقال، `sync-editions`، شباهت عنوان، تطبیق و نگه‌داشتن ردیف بازبینی‌شده، نمایش و نشان، و صف داوری با دسترسی. از worktree با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شد، با vendor و .env شاخه‌ی اصلی فقط‌خواندنی و پایگاه جدای `fahares_refs_test`.
+- **پیشنهاد اصلاح نشانی:**
+  - [SuggestionRegistry](../app/Suggestions/SuggestionRegistry.php) نوع ورودی تازه‌ی `catalog_page` دارد. مقدارش متنی مانند «ج ۲، ص ۷، ردیف ۳» است (`parseCatalogPage`/`formatCatalogPage`)، و «نیست» (`ABSENT`) فقط برای ارجاع فهرست کتابخانه پذیرفته است.
+  - فیلد ثابت `fankha_page` ستون‌های `volume_number`، `page_start` و `sequence_number` نسخه را دارد.
+  - فیلد پویای `catalog_reference_{id}` با `field()` و `catalogReferenceField()` شناخته می‌شود. `recordFields($record)` برای میز پیشنهاد، فیلد ارجاع‌های نمایش‌داده‌شده‌ی نسخه را می‌افزاید. پس قول‌ها و نشان «N قول» هر ارجاع جدا شمرده می‌شوند.
+  - `SuggestionController::store` ارجاعِ نسخه‌ی دیگر و نشانی بی جلد یا صفحه را رد می‌کند و مقدار را با رقم فارسی ذخیره می‌کند.
+  - `SuggestionApplier::applyCatalogReference` ردیف ارجاع را می‌نویسد (یا `rejected` می‌کند). `old_values.catalog_reference` لاگ ممیزی را `AuditLogController::rollbackVerify` به همان ردیف برمی‌گرداند.
+  - `catalogs:match-edition` از نسخه‌هایی که برای آن چاپ ردیف غیر `ai_match` دارند می‌گذرد.
+  - فرم در [desk](../resources/views/components/suggest/desk.blade.php) خانه‌های جلد، صفحه و ردیف را به متن مقدار تبدیل می‌کند (`withRow`، `canBeAbsent`).
+- **آزمون:** [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php)، ۱۳ آزمون: رابطه‌ها و پنهان‌بودن `source_url`، `viewer()`، نبود `source_url` در HTML و JSON-LD، تجزیه‌ی ارجاع، تکرارنشدن انتقال، `sync-editions`، شباهت عنوان، تطبیق و نگه‌داشتن ردیف بازبینی‌شده، نمایش و نشان، و صف داوری با دسترسی. از worktree با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شد، با vendor و .env شاخه‌ی اصلی فقط‌خواندنی و پایگاه جدای `fahares_refs_test`.
 - **طرح استقرار** (هر مرحله با تأیید جداگانه‌ی کاربر):
   1. rebase روی آخرین `origin/main` و اجرای دوباره‌ی آزمون‌ها. سپس push به main (استقرار Coolify)، و پس از بالا آمدن، `ssh fahares-app php artisan migrate --status` و `php artisan migrate --force`. باید فقط دو migration این گام در انتظار باشند. تا migrate اجرا نشود، صفحه‌ی نسخه خطا می‌دهد، چون جدول تازه را می‌خواند. پس این دو کار باید پشت سر هم انجام شوند.
   2. انتقال `storage/app/public/catalogs/masjid-azam-ostadi/v02` (۸۲۷ پرونده، ۴۷ مگابایت) به حجم پایدار storage پروداکشن، به همان روش زرکلی، و وارسی نام، اندازه و HTTP 200.

@@ -377,6 +377,11 @@ class AuditLogController extends Controller
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
         unset($old['contributors'], $old['people_roles'], $old['relations']);
+        // A corrected catalogue reference (backlog item 51) is a row of its own: its earlier columns go back there
+        if ($reference = $old['catalog_reference'] ?? null) {
+            unset($old['catalog_reference']);
+            \App\Models\ManuscriptCatalogReference::whereKey($reference['id'])->first()?->forceFill(array_diff_key($reference, ['id' => 0]))->save();
+        }
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
         }

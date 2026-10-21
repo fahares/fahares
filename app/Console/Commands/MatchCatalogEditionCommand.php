@@ -22,7 +22,8 @@ use Illuminate\Support\Facades\DB;
  *  - ambiguous: several places and none clearly better; the best is written with confidence 10, the rest in notes.
  *
  * page_start is the page where the entry begins (the viewer opens it) and shelfmark_page where the number stands.
- * Running it again updates the unverified matches and leaves the reviewed ones (verified or rejected) alone.
+ * Running it again updates the unverified matches and leaves the reviewed ones (verified or rejected), and the copies
+ * whose address was corrected by hand (source manual), alone.
  */
 class MatchCatalogEditionCommand extends Command
 {
@@ -232,6 +233,8 @@ class MatchCatalogEditionCommand extends Command
     {
         $stats = ['insert' => 0, 'update' => 0, 'unchanged' => 0, 'reviewed, kept' => 0];
         $existing = Ref::where('catalog_volume_id', $edition->id)->where('source', Ref::SOURCE_AI_MATCH)->get()->keyBy('manuscript_id');
+        // a copy whose address a reviewer set by hand (an approved correction) is not matched again
+        $manual = Ref::where('catalog_volume_id', $edition->id)->where('source', '!=', Ref::SOURCE_AI_MATCH)->pluck('manuscript_id')->flip();
         $now = now();
         $inserts = [];
         foreach ($matches as $match) {
@@ -242,7 +245,9 @@ class MatchCatalogEditionCommand extends Command
                 'match_method' => $match['match_method'], 'confidence' => $match['confidence'], 'notes' => $match['notes'],
             ];
             $old = $existing[$match['manuscript_id']] ?? null;
-            if (! $old) {
+            if (isset($manual[$match['manuscript_id']])) {
+                $stats['reviewed, kept']++;
+            } elseif (! $old) {
                 $stats['insert']++;
                 $inserts[] = $values + ['manuscript_id' => $match['manuscript_id'], 'catalog_volume_id' => $edition->id, 'source' => Ref::SOURCE_AI_MATCH,
                     'status' => Ref::STATUS_UNVERIFIED, 'created_at' => $now, 'updated_at' => $now];

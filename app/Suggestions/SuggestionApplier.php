@@ -3,6 +3,7 @@
 namespace App\Suggestions;
 
 use App\Helpers\TextNormalizer;
+use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\Person;
 use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
@@ -32,7 +33,25 @@ class SuggestionApplier
             throw new InvalidArgumentException('این فیلد نمی‌تواند خالی بماند.');
         }
 
+        // A catalogue reference lives in its own table: written there, and the record itself is left as it is
+        if ($field['input'] === 'catalog_page' && isset($field['reference_id'])) {
+            return $this->applyCatalogReference($record, $field, $value);
+        }
+
         switch ($field['input']) {
+            case 'catalog_page':
+                $page = SuggestionRegistry::parseCatalogPage($value);
+                if (! $page) {
+                    throw new InvalidArgumentException('نشانی را به شکل «ج ۲، ص ۷، ردیف ۳» بنویسید.');
+                }
+                [$volumeColumn, $pageColumn, $rowColumn] = $field['columns'];
+                $record->{$volumeColumn} = $page['volume'];
+                $record->{$pageColumn} = $page['page'];
+                if ($page['row'] !== null) {
+                    $record->{$rowColumn} = $page['row'];
+                }
+                break;
+
             case 'integer':
                 if ($value !== null && ! ctype_digit($value = $this->latinDigits($value))) {
                     throw new InvalidArgumentException('مقدار این فیلد باید عدد صحیح باشد.');
@@ -107,6 +126,43 @@ class SuggestionApplier
         }
 
         return ['old' => $old, 'new' => $new, 'resolution' => $resolution];
+    }
+
+    /**
+     * The corrected address of a catalogue reference (backlog item 51): it becomes a manual, verified reference
+     * at the new page, so the review badge goes away and catalogs:match-edition no longer rewrites it. «نیست»
+     * rejects it, and the link leaves the record page.
+     */
+    private function applyCatalogReference(Model $record, array $field, ?string $value): array
+    {
+        $ref = Ref::find($field['reference_id']);
+        if (! $ref || $ref->manuscript_id !== $record->getKey()) {
+            throw new InvalidArgumentException('این ارجاع از این نسخه نیست.');
+        }
+        $reviewer = ['reviewed_by' => auth()->id(), 'reviewed_at' => now()];
+        if ($value === SuggestionRegistry::ABSENT) {
+            $ref->fill(['status' => Ref::STATUS_REJECTED] + $reviewer);
+        } else {
+            $page = SuggestionRegistry::parseCatalogPage($value);
+            if (! $page) {
+                throw new InvalidArgumentException('نشانی را به شکل «ج ۲، ص ۷» بنویسید، یا «نیست» اگر نسخه در این فهرست نیامده است.');
+            }
+            $ref->fill([
+                'volume_number' => $page['volume'],
+                'page_start' => $page['page'],
+                // the entry still ends where it did when the new page falls inside it
+                'page_end' => $ref->page_end && $page['page'] <= $ref->page_end && $page['page'] >= (int) $ref->page_start ? $ref->page_end : null,
+                'source' => Ref::SOURCE_MANUAL,
+                'status' => Ref::STATUS_VERIFIED,
+            ] + $reviewer);
+        }
+        $old = array_intersect_key($ref->getOriginal(), $ref->getDirty());
+        $ref->save();
+        $new = $ref->getChanges();
+        unset($new['updated_at'], $new['reviewed_at']);
+
+        // The audit log entry is the manuscript's; the reference's before and after go with it
+        return ['old' => ['catalog_reference' => ['id' => $ref->id] + $old], 'new' => ['catalog_reference' => ['id' => $ref->id] + $new], 'resolution' => ['reference_id' => $ref->id]];
     }
 
     private function resolvePerson(Model $record, array $field, ?string $name, array $input): array

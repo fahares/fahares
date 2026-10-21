@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Console\Commands\ImportFankhaCatalogReferencesCommand as Import;
 use App\Console\Commands\MatchCatalogEditionCommand as Matcher;
+use App\Models\AuditLog;
 use App\Models\Catalog;
 use App\Models\CatalogVolume;
+use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\ManuscriptCatalogReference as Ref;
@@ -258,5 +260,88 @@ class CatalogReferencesTest extends TestCase
         // Fankha rows are not machine matches and cannot be reviewed here
         $fankha = Ref::create(['manuscript_id' => $high->manuscript_id, 'catalog_volume_id' => $this->fankhaVolume->id, 'source' => Ref::SOURCE_FANKHA]);
         $this->actingAs($admin)->post(route('admin.catalog-references.verify', $fankha))->assertNotFound();
+    }
+
+    private function admin(): User
+    {
+        $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
+        $admin->forceFill(['role' => 'admin'])->save();
+
+        return $admin;
+    }
+
+    private function suggestAddress(Manuscript $ms, string $field, string $value)
+    {
+        return $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $ms->id, 'kind' => 'field', 'field_name' => $field,
+            'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی فهرست را دیدم']);
+    }
+
+    private function approveLatest(Manuscript $ms, array $data = [])
+    {
+        $s = FieldSuggestion::where('suggestable_id', $ms->id)->where('status', 'pending')->latest('id')->firstOrFail();
+
+        return $this->actingAs($this->admin())->post("/admin/suggestions/{$s->id}/approve", $data + ['applied_value' => $s->suggested_value, 'outcome' => 'adopt']);
+    }
+
+    public function test_address_pencils_appear_beside_each_source_in_suggestion_mode()
+    {
+        $ms = $this->manuscript();
+        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+
+        $this->get(route('manuscripts.show', $ms))->assertOk()
+            ->assertSee("field: 'fankha_page'", false)
+            ->assertSee("field: 'catalog_reference_{$ref->id}'", false)
+            ->assertSee('نشانی در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی')
+            ->assertSee('ج ۲، ص ۴۱۴');
+    }
+
+    public function test_an_approved_address_corrects_the_reference_and_the_matcher_keeps_it()
+    {
+        $ms = $this->manuscript(['shelfmark' => '1939']);
+        $ms->work->update(['primary_title' => 'دیوان قاسمی']);
+        $pages = $this->pages();
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
+        $ref = Ref::where('manuscript_id', $ms->id)->sole();
+        $this->assertSame(414, $ref->page_start);
+
+        // another copy's reference cannot be corrected through this one
+        $other = $this->manuscript(['shelfmark' => '1']);
+        $this->suggestAddress($other, "catalog_reference_{$ref->id}", 'ج ۲، ص ۴۱۶')->assertStatus(422);
+        $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'ص ۴۱۶')->assertStatus(422);
+
+        $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'ج 2، ص 416')->assertOk();
+        $this->assertSame('ج ۲، ص ۴۱۶', FieldSuggestion::latest('id')->first()->suggested_value);
+        $this->assertSame('ج ۲، ص ۴۱۴', FieldSuggestion::latest('id')->first()->current_value);
+        $this->approveLatest($ms)->assertSessionHasNoErrors();
+
+        $ref->refresh();
+        $this->assertSame([416, Ref::SOURCE_MANUAL, Ref::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->source, $ref->status, $ref->reviewed_by]);
+        $this->assertSame([1, 1, 1], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number], 'the Fankha columns are untouched');
+        $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
+        $this->assertSame([416], Ref::where('manuscript_id', $ms->id)->pluck('page_start')->all());
+
+        // the rollback of the approval puts the machine match back
+        $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->latest('id')->value('id') . '/rollback')->assertSessionHas('success');
+        $this->assertSame([414, Ref::SOURCE_AI_MATCH, Ref::STATUS_UNVERIFIED], [$ref->fresh()->page_start, $ref->fresh()->source, $ref->fresh()->status]);
+        unlink($pages);
+    }
+
+    public function test_a_copy_reported_absent_loses_the_link_and_fankha_addresses_are_applied_to_the_copy()
+    {
+        $ms = $this->manuscript();
+        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 30]);
+
+        $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'نیست')->assertOk();
+        $this->approveLatest($ms)->assertSessionHasNoErrors();
+        $this->assertSame(Ref::STATUS_REJECTED, $ref->fresh()->status);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('masjid-azam-ostadi/v02/p0414.webp', false);
+
+        $this->suggestAddress($ms, 'fankha_page', 'نیست')->assertStatus(422);
+        $this->suggestAddress($ms, 'fankha_page', 'ج ۳، ص ۱۲، ردیف ۴')->assertOk();
+        $this->assertSame('ج ۱، ص ۱، ردیف ۱', FieldSuggestion::latest('id')->first()->current_value);
+        $this->approveLatest($ms)->assertSessionHasNoErrors();
+        $this->assertSame([3, 12, 4], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number]);
     }
 }
