@@ -9,6 +9,7 @@ use App\Models\CatalogVolume;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\ManuscriptCatalogReference as Ref;
+use App\Models\User;
 use App\Models\Work;
 use Tests\TestCase;
 
@@ -227,5 +228,34 @@ class CatalogReferencesTest extends TestCase
 
         $ref->update(['status' => Ref::STATUS_REJECTED]);
         $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴');
+    }
+
+    public function test_reviewers_verify_and_reject_machine_matches_in_the_queue()
+    {
+        $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
+        $admin->forceFill(['role' => 'admin'])->save();
+        $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
+        $high = Ref::create(['manuscript_id' => $this->manuscript(['shelfmark' => '3002'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 7, 'shelfmark_page' => 8, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 95]);
+        $low = Ref::create(['manuscript_id' => $this->manuscript(['shelfmark' => '2000'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 50, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'ambiguous', 'confidence' => 10, 'notes' => 'جاهای دیگر: ص 60']);
+
+        $this->actingAs($user)->get(route('admin.catalog-references.index'))->assertForbidden();
+        $this->actingAs($user)->post(route('admin.catalog-references.verify', $high))->assertForbidden();
+
+        $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id]))->assertOk()
+            ->assertSee('۳۰۰۲')->assertSee('۲۰۰۰')->assertSee('شماره در ص ۸')->assertSee('جاهای دیگر')->assertDontSee('scan-source');
+        $this->actingAs($admin)->get(route('admin.catalog-references.index', ['confidence' => 'low']))->assertOk()
+            ->assertSee('۲۰۰۰')->assertDontSee('۳۰۰۲');
+
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $high))->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.catalog-references.reject', $low))->assertRedirect();
+        $this->assertSame([Ref::STATUS_VERIFIED, $admin->id], [$high->fresh()->status, $high->fresh()->reviewed_by]);
+        $this->assertNotNull($high->fresh()->reviewed_at);
+        $this->assertSame(Ref::STATUS_REJECTED, $low->fresh()->status);
+        $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('۳۰۰۲');
+        $this->actingAs($admin)->get(route('admin.catalog-references.index', ['status' => 'verified']))->assertOk()->assertSee('۳۰۰۲')->assertSee('داور آزمایشی');
+
+        // Fankha rows are not machine matches and cannot be reviewed here
+        $fankha = Ref::create(['manuscript_id' => $high->manuscript_id, 'catalog_volume_id' => $this->fankhaVolume->id, 'source' => Ref::SOURCE_FANKHA]);
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $fankha))->assertNotFound();
     }
 }

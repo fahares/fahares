@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\CatalogerController as AdminCatalogerController;
+use App\Http\Controllers\Admin\CatalogReferenceController as AdminCatalogReferenceController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HomePageController as AdminHomePageController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
@@ -203,6 +204,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/people/search', [AdminPersonController::class, 'search'])->name('people.search');
     Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
     Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update']);
+
+    // Catalogue references matched by machine (backlog item 51)
+    Route::get('/catalog-references', [AdminCatalogReferenceController::class, 'index'])->name('catalog-references.index');
+    Route::post('/catalog-references/{reference}/verify', [AdminCatalogReferenceController::class, 'verify'])->name('catalog-references.verify');
+    Route::post('/catalog-references/{reference}/reject', [AdminCatalogReferenceController::class, 'reject'])->name('catalog-references.reject');
 
     // Catalogers & Bibliographers
     Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update']);
