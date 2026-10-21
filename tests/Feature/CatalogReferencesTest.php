@@ -30,7 +30,7 @@ class CatalogReferencesTest extends TestCase
         $this->fankhaVolume = CatalogVolume::create(['title' => 'فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد دوم', 'volume_number' => 2, 'library_id' => $this->library->id, 'catalog_id' => $fankha->id]);
         $this->edition = CatalogVolume::create([
             'title' => 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد دوم', 'volume_number' => 2, 'library_id' => $this->library->id,
-            'edition_of_id' => $this->fankhaVolume->id, 'edition_label' => 'چاپ ۱۳۶۵، رضا استادی',
+            'edition_of_id' => $this->fankhaVolume->id, 'edition_label' => '۱۳۶۵، رضا استادی',
             'facsimile_code' => 'masjid-azam-ostadi', 'page_first' => 1, 'page_last' => 827, 'source_url' => self::SECRET_URL,
         ]);
     }
@@ -76,7 +76,7 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript();
         Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
 
-        $html = $this->get(route('manuscripts.show', $ms))->assertOk()->getContent();
+        $html = $this->get(route('manuscripts.show', $ms))->assertOk()->assertSee('ص ۴۱۴')->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
         $this->assertStringNotContainsString('504138', $html);
         preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m);
@@ -206,5 +206,26 @@ class CatalogReferencesTest extends TestCase
         $this->assertSame([1, Ref::STATUS_REJECTED], [$ref->fresh()->page_start, $ref->fresh()->status]);
         $this->assertSame(2, Ref::where('source', Ref::SOURCE_AI_MATCH)->count());
         unlink($pages);
+    }
+
+    public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()
+    {
+        $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);
+        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+        Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->fankhaVolume->id, 'raw_text' => '[ف مخ: 2 - 817]', 'volume_number' => 2, 'page_start' => 817, 'source' => Ref::SOURCE_FANKHA]);
+        $note = 'این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
+
+        $this->get(route('manuscripts.show', $ms))->assertOk()
+            ->assertSee($this->fankhaVolume->title)
+            ->assertSee('دیدن در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')
+            ->assertSee('masjid-azam-ostadi')
+            ->assertSee($note)
+            ->assertSee('گزارش نشانی نادرست');
+
+        $ref->update(['status' => Ref::STATUS_VERIFIED]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
+
+        $ref->update(['status' => Ref::STATUS_REJECTED]);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴');
     }
 }

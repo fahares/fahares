@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EntityRedirect;
 use App\Models\Manuscript;
+use App\Models\ManuscriptCatalogReference;
 use Illuminate\Http\Request;
 
 class ManuscriptController extends Controller
@@ -22,6 +23,8 @@ class ManuscriptController extends Controller
             'libraryRecord',
             'scripts',
             'sourceCitations.catalog',
+            // Pages in other printings of the library catalogue; the Fankha row repeats metadata.catalog_citation
+            'catalogReferences' => fn ($q) => $q->where('source', '!=', ManuscriptCatalogReference::SOURCE_FANKHA)->where('status', '!=', ManuscriptCatalogReference::STATUS_REJECTED)->with('catalogVolume')->orderBy('id'),
             'fieldSuggestions' => fn($q) => $q->where('status', 'approved'),
         ])->find($numericId);
 

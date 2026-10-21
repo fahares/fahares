@@ -1,5 +1,5 @@
 // The suggestion modal shared by record pages. Per-field buttons dispatch
-// `suggest-field` with {field}; the general button dispatches it with {general: true}.
+// `suggest-field` with {field}; the general button dispatches it with {general: true} (and an optional starting {value}).
 // Templates read field.* before any field is chosen, so "no field" is a blank object, never null
 const BLANK_FIELD = { name: null, label: '', input: '', current: null, prefill: '', pending: 0 };
 
@@ -63,7 +63,8 @@ export default (config) => ({
         } else if (detail.general) {
             this.mode = 'general';
             this.field = BLANK_FIELD;
-            this.value = '';
+            // e.g. «گزارش نشانی نادرست» starts the text with the reference it is about
+            this.value = detail.value ?? '';
             // Opened for one relation type, e.g. from «اشخاص مرتبط با نسخه»
             if (detail.relation && this.config.relations.some((r) => r.key === detail.relation)) this.relationKey = detail.relation;
         } else {

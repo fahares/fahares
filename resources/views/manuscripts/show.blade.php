@@ -212,6 +212,29 @@
                     @if($manuscript->catalogVolume)
                         <div class="text-xs text-muted mt-0.5">{{ $manuscript->catalogVolume->title }}</div>
                     @endif
+                    {{-- The same copy in another printing of the library catalogue (backlog item 51) --}}
+                    @foreach($manuscript->catalogReferences as $ref)
+                        @continue(! ($viewer = $ref->viewer()))
+                        @php
+                            $edition = $ref->catalogVolume;
+                            $refLabel = Fa::digits(implode('، ', array_filter([
+                                $edition->short_title,
+                                $edition->edition_label ? 'چاپ ' . $edition->edition_label : null,
+                                "ج {$viewer['volume']}",
+                                "ص {$viewer['page']}",
+                            ])));
+                        @endphp
+                        <div class="mt-1.5 flex items-start gap-1 text-xs">
+                            <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))"
+                                class="text-right font-semibold text-cinnabar hover:underline cursor-pointer leading-5">دیدن در {{ $refLabel }}</button>
+                            @if($ref->isAwaitingReview())
+                                <x-ui.machine-badge class="shrink-0"
+                                    text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
+                                    report-label="گزارش نشانی نادرست"
+                                    :report="['general' => true, 'value' => 'نشانی این نسخه در ' . $refLabel . ' نادرست است. نشانی درست: ']" />
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
                 @if($pageThumb)
                     <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
