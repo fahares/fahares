@@ -438,8 +438,14 @@ class LinkCatalogVolumesCommand extends Command
         }
     }
 
-    /** Same rule as the remediation command: direct links plus the copies of the cataloger's volumes. */
     protected function recount(): void
+    {
+        self::recountVolumesAndCatalogers();
+        $this->line('Volume and cataloger counts recalculated.');
+    }
+
+    /** Same rule as the remediation command: direct links plus the copies of the cataloger's volumes. */
+    public static function recountVolumesAndCatalogers(): void
     {
         $counts = DB::table('manuscripts')->whereNotNull('catalog_volume_id')
             ->groupBy('catalog_volume_id')->selectRaw('catalog_volume_id, count(*) as n')->pluck('n', 'catalog_volume_id');
@@ -454,7 +460,6 @@ class LinkCatalogVolumesCommand extends Command
                     ->count(),
             ]);
         });
-        $this->line('Volume and cataloger counts recalculated.');
     }
 
     /** The catalogue citation: the parsed field, else the last bracket of the raw text. */

@@ -1,0 +1,1002 @@
+{
+  "_comment": "Backlog item 38: duplicate libraries folded into the kept record with LibraryMerger (logged, undoable from the audit log), misattributed «امام صادق» catalogue volumes corrected, and duplicate volumes folded. Natural keys only: library slug, MTIF entry id, or library slug and volume title. Approved by the user on 2026-10-21.",
+  "libraries": [
+    {
+      "target": "mshhd-rdoy-1",
+      "target_name": "رضوی (مشهد)",
+      "sources": [
+        {
+          "slug": "mshhd-rdo-222",
+          "name": "رضوى (مشهد)"
+        }
+      ]
+    },
+    {
+      "target": "km-mraashy-2",
+      "target_name": "مرعشی (قم)",
+      "sources": [
+        {
+          "slug": "km-mraash-257",
+          "name": "مرعشى (قم)"
+        }
+      ]
+    },
+    {
+      "target": "thran-mly-11",
+      "target_name": "ملی (تهران)",
+      "sources": [
+        {
+          "slug": "thran-ml-215",
+          "name": "ملى (تهران)"
+        },
+        {
+          "slug": "thran-mly-ayran-363",
+          "name": "ملی ایران (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "km-glpaygany-5",
+      "target_name": "گلپایگانی (قم)",
+      "sources": [
+        {
+          "slug": "km-glpaygan-993",
+          "name": "گلپایگانى (قم)"
+        }
+      ]
+    },
+    {
+      "target": "yzd-ozyry-32",
+      "target_name": "وزیری (یزد)",
+      "sources": [
+        {
+          "slug": "yzd-ozyr-352",
+          "name": "وزیرى (یزد)"
+        }
+      ]
+    },
+    {
+      "target": "mshhd-alhyat-38",
+      "target_name": "الهیات (مشهد)",
+      "sources": [
+        {
+          "slug": "mshhd-danshkdh-alhyat-992",
+          "name": "دانشکده الهیات (مشهد)"
+        }
+      ]
+    },
+    {
+      "target": "thran-alhyat-40",
+      "target_name": "الهیات (تهران)",
+      "sources": [
+        {
+          "slug": "thran-danshkdh-alhyat-335",
+          "name": "دانشکده الهیات (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "thran-adbyat-17",
+      "target_name": "ادبیات (تهران)",
+      "sources": [
+        {
+          "slug": "thran-danshkdh-adbyat-1005",
+          "name": "دانشکده ادبیات (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "shyraz-aalamh-tbatbayy-64",
+      "target_name": "علامه طباطبائی (شیراز)",
+      "sources": [
+        {
+          "slug": "shyraz-aalamh-tbatbay-877",
+          "name": "علامه طباطبائى (شیراز)"
+        },
+        {
+          "slug": "shyraz-aalamh-tbatbayy-ktabkhanh-885",
+          "name": "علامه طباطبائی (کتابخانه) (شیراز)"
+        }
+      ]
+    },
+    {
+      "target": "asfhan-danshgah-30",
+      "target_name": "دانشگاه (اصفهان)",
+      "sources": [
+        {
+          "slug": "asfhan-danshgah-asfhan-218",
+          "name": "دانشگاه اصفهان (اصفهان)"
+        }
+      ]
+    },
+    {
+      "target": "tbryz-mly-14",
+      "target_name": "ملی (تبریز)",
+      "sources": [
+        {
+          "slug": "tbryz-mly-tbryz-859",
+          "name": "ملی تبریز (تبریز)"
+        }
+      ]
+    },
+    {
+      "target": "khoy-nmazy-19",
+      "target_name": "نمازی (خوی)",
+      "sources": [
+        {
+          "slug": "khoy-mdrsh-nmazy-919",
+          "name": "مدرسه نمازی (خوی)"
+        }
+      ]
+    },
+    {
+      "target": "thran-mroy-7",
+      "target_name": "مروی (تهران)",
+      "sources": [
+        {
+          "slug": "thran-mro-220",
+          "name": "مروى (تهران)"
+        },
+        {
+          "slug": "thran-mdrsh-mroy-256",
+          "name": "مدرسه مروی (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "km-tbsy-68",
+      "target_name": "طبسی (قم)",
+      "sources": [
+        {
+          "slug": "km-tbsy-hayry-925",
+          "name": "طبسی حائری (قم)"
+        },
+        {
+          "slug": "km-tbs-1032",
+          "name": "طبسى (قم)"
+        }
+      ]
+    },
+    {
+      "target": "shyraz-mly-91",
+      "target_name": "ملی (شیراز)",
+      "sources": [
+        {
+          "slug": "shyraz-ml-223",
+          "name": "ملى (شیراز)"
+        },
+        {
+          "slug": "shyraz-mly-shyraz-344",
+          "name": "ملی شیراز (شیراز)"
+        }
+      ]
+    },
+    {
+      "target": "mshhd-noab-13",
+      "target_name": "نواب (مشهد)",
+      "sources": [
+        {
+          "slug": "mshhd-mdrsh-noab-878",
+          "name": "مدرسه نواب (مشهد)"
+        }
+      ]
+    },
+    {
+      "target": "thran-hkok-26",
+      "target_name": "حقوق (تهران)",
+      "sources": [
+        {
+          "slug": "thran-danshkdh-hkok-338",
+          "name": "دانشکده حقوق (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "km-hgtyh-115",
+      "target_name": "حجتیه (قم)",
+      "sources": [
+        {
+          "slug": "km-mdrsh-hgtyh-340",
+          "name": "مدرسه حجتیه (قم)"
+        }
+      ]
+    },
+    {
+      "target": "thran-mynoy-143",
+      "target_name": "مینوی (تهران)",
+      "sources": [
+        {
+          "slug": "thran-myno-305",
+          "name": "مینوى (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "yzd-kathmyny-28",
+      "target_name": "کاظمینی (یزد)",
+      "sources": [
+        {
+          "slug": "yzd-kathmyny-myrza-mhmd-1003",
+          "name": "کاظمینی، میرزا محمد (یزد)"
+        }
+      ]
+    },
+    {
+      "target": "ardkan-yzd-amam-sadk-56",
+      "target_name": "امام صادق (اردکان یزد)",
+      "sources": [
+        {
+          "slug": "ardkan-yzd-hozh-aalmyh-amam-sadk-314",
+          "name": "حوزه علمیه امام صادق (اردکان یزد)"
+        }
+      ]
+    },
+    {
+      "target": "thran-lght-namh-dhkhda-27",
+      "target_name": "لغت نامه دهخدا (تهران)",
+      "sources": [
+        {
+          "slug": "thran-lghtnamh-dhkhda-289",
+          "name": "لغت‌نامه دهخدا (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "asfhan-aamomy-asfhan-frhng-sabk-144",
+      "target_name": "عمومی اصفهان (فرهنگ سابق) (اصفهان)",
+      "sources": [
+        {
+          "slug": "asfhan-aamomy-asfhan-frhng-sabk-918",
+          "name": "عمومی اصفهان فرهنگ (سابق) (اصفهان)"
+        }
+      ]
+    },
+    {
+      "target": "babl-khatm-alanbyaaa-89",
+      "target_name": "خاتم الانبیاء (بابل)",
+      "sources": [
+        {
+          "slug": "babl-mdrsh-khatm-alanbyaaa-sdr-334",
+          "name": "مدرسه خاتم الانبیاء (صدر) (بابل)"
+        }
+      ]
+    },
+    {
+      "target": "aran-kashan-mhmd-hlal-65",
+      "target_name": "محمد هلال (آران کاشان)",
+      "sources": [
+        {
+          "slug": "aran-kashan-amamzadh-mhmd-hlal-207",
+          "name": "امامزاده محمد هلال (آران کاشان)"
+        },
+        {
+          "slug": "aran-kashan-mhmdhlal-1043",
+          "name": "محمدهلال (آران کاشان)"
+        }
+      ]
+    },
+    {
+      "target": "ngf-abad-hggy-58",
+      "target_name": "حججی (نجف آباد)",
+      "sources": [
+        {
+          "slug": "ngf-abad-hgg-221",
+          "name": "حججى (نجف آباد)"
+        }
+      ]
+    },
+    {
+      "target": "km-fadl-kayyny-73",
+      "target_name": "فاضل قائینی (قم)",
+      "sources": [
+        {
+          "slug": "km-fadl-kayyny-ktabkhanh-322",
+          "name": "فاضل قائینی (کتابخانه) (قم)"
+        }
+      ]
+    },
+    {
+      "target": "mraghh-aamomy-174",
+      "target_name": "عمومی (مراغه)",
+      "sources": [
+        {
+          "slug": "mraghh-aamomy-mraghh-ktabkhanh-347",
+          "name": "عمومی مراغه (کتابخانه) (مراغه)"
+        },
+        {
+          "slug": "mraghh-aamomy-mraghh-1010",
+          "name": "عمومی مراغه (مراغه)"
+        }
+      ]
+    },
+    {
+      "target": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-99",
+      "target_name": "دانش‌سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی (تهران)",
+      "sources": [
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-178",
+          "name": "دانش‌سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرکانی (تهران)"
+        },
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-261",
+          "name": "دانشسرای عالی -کتابخانه میرزا عبدالعظیم خان قریب گرکانی (تهران)"
+        },
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-308",
+          "name": "دانش‌سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرکانی (تهران)"
+        },
+        {
+          "slug": "thran-dansh-sray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-915",
+          "name": "دانش سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرکانی (تهران)"
+        },
+        {
+          "slug": "thran-dansh-sray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-984",
+          "name": "دانش سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی (تهران)"
+        },
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-129",
+          "name": "دانش‌سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرگانی (تهران)"
+        },
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-304",
+          "name": "دانش‌سرای عالی - کتابخانه میرزا عبدالعظیم خان قریب گرگانی (تهران)"
+        },
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-867",
+          "name": "دانش‌سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرگانی (تهران)"
+        },
+        {
+          "slug": "thran-dansh-sray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-966",
+          "name": "دانش سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرگانی (تهران)"
+        },
+        {
+          "slug": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grgany-1033",
+          "name": "دانش‌سرای عالی -کتابخانه میرزا عبدالعظیم خان قریب گرگانی (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "damghan-kmr-bny-hashm-93",
+      "target_name": "قمر بنی هاشم (دامغان)",
+      "sources": [
+        {
+          "slug": "damghan-kmr-bn-hashm-1042",
+          "name": "قمر بنى هاشم (دامغان)"
+        }
+      ]
+    },
+    {
+      "target": "sary-aamomy-6",
+      "target_name": "عمومی (ساری)",
+      "sources": [
+        {
+          "slug": "sary-aamomy-sary-217",
+          "name": "عمومی ساری (ساری)"
+        }
+      ]
+    },
+    {
+      "target": "glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72",
+      "target_name": "کتابخانه حجة الاسلام گلپایگانی (گلپایگان)",
+      "sources": [
+        {
+          "slug": "glpaygan-hgh-alaslam-glpaygany-1011",
+          "name": "حجة الاسلام گلپایگانی (گلپایگان)"
+        }
+      ]
+    },
+    {
+      "target": "byrgnd-dyany-86",
+      "target_name": "دیانی (بیرجند)",
+      "sources": [
+        {
+          "slug": "byrgnd-dyany-shykh-mhmd-aaly-348",
+          "name": "دیانی، شیخ محمد علی (بیرجند)"
+        }
+      ]
+    },
+    {
+      "target": "krmanshah-fyd-mhdoy-ktabkhanh-186",
+      "target_name": "فیض مهدوی (کتابخانه) (کرمانشاه)",
+      "sources": [
+        {
+          "slug": "krmanshah-fyd-mhdoy-1034",
+          "name": "فیض مهدوی (کرمانشاه)"
+        }
+      ]
+    },
+    {
+      "target": "km-amam-sadk-124",
+      "target_name": "امام صادق (قم)",
+      "sources": [
+        {
+          "slug": "km-mossh-amam-sadk-145",
+          "name": "مؤسسه امام صادق (قم)"
+        }
+      ]
+    },
+    {
+      "target": "thran-mtalaaat-frhngy-60",
+      "target_name": "مطالعات فرهنگی (تهران)",
+      "sources": [
+        {
+          "slug": "thran-ktabkhanh-pzhohshgah-mossh-mtalaaat-o-thkykat-frhngy-346",
+          "name": "کتابخانه (پژوهشگاه) مؤسسه مطالعات و تحقیقات فرهنگی (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "shyraz-bnyad-farsshnasy-50",
+      "target_name": "بنیاد فارس‌شناسی (شیراز)",
+      "sources": [
+        {
+          "slug": "shyraz-bnyad-fars-shnasy-303",
+          "name": "بنیاد فارس شناسی (شیراز)"
+        }
+      ]
+    },
+    {
+      "target": "kashan-rdoy-197",
+      "target_name": "رضوی (کاشان)",
+      "sources": [
+        {
+          "slug": "kashan-rdo-1040",
+          "name": "رضوى (کاشان)"
+        }
+      ]
+    },
+    {
+      "target": "asfhan-adbyat-36",
+      "target_name": "ادبیات (اصفهان)",
+      "sources": [
+        {
+          "slug": "asfhan-danshkdh-adbyat-1007",
+          "name": "دانشکده ادبیات (اصفهان)"
+        }
+      ]
+    },
+    {
+      "target": "kashan-frhng-o-arshad-229",
+      "target_name": "فرهنگ و ارشاد (کاشان)",
+      "sources": [
+        {
+          "slug": "kashan-frhng-o-arshad-aslamy-1004",
+          "name": "فرهنگ و ارشاد اسلامی (کاشان)"
+        }
+      ]
+    },
+    {
+      "target": "khoansar-fadl-khoansary-855",
+      "target_name": "فاضل خوانساری (خوانسار)",
+      "sources": [
+        {
+          "slug": "khoansar-fadl-khoansar-963",
+          "name": "فاضل خوانسارى (خوانسار)"
+        }
+      ]
+    },
+    {
+      "target": "khoansar-fadl-90",
+      "target_name": "فاضل (خوانسار)",
+      "sources": [
+        {
+          "slug": "khoansar-fadl-khoansary-ayh-allh-865",
+          "name": "فاضل خوانساری (آیة الله) (خوانسار)"
+        }
+      ]
+    },
+    {
+      "target": "yzd-mdrsy-189",
+      "target_name": "مدرسی (یزد)",
+      "sources": [
+        {
+          "slug": "yzd-mdrsy-syd-mhmd-ktabkhanh-228",
+          "name": "مدرسی، سید محمد (کتابخانه) (یزد)"
+        }
+      ]
+    },
+    {
+      "target": "asfhan-ktabkhanhhay-asfhan-105",
+      "target_name": "کتابخانه‌های اصفهان (اصفهان)",
+      "sources": [
+        {
+          "slug": "asfhan-ktabkhanh-hay-asfhan-175",
+          "name": "کتابخانه های اصفهان (اصفهان)"
+        }
+      ]
+    },
+    {
+      "target": "mshhd-asghr-zadh-51",
+      "target_name": "اصغر زاده (مشهد)",
+      "sources": [
+        {
+          "slug": "mshhd-asghrzadh-381",
+          "name": "اصغرزاده (مشهد)"
+        }
+      ]
+    },
+    {
+      "target": "ahoaz-danshgah-242",
+      "target_name": "دانشگاه (اهواز)",
+      "sources": [
+        {
+          "slug": "ahoaz-danshgah-ahoaz-287",
+          "name": "دانشگاه اهواز (اهواز)"
+        }
+      ]
+    },
+    {
+      "target": "rsht-mly-212",
+      "target_name": "ملی (رشت)",
+      "sources": [
+        {
+          "slug": "rsht-mly-rsht-71",
+          "name": "ملی رشت (رشت)"
+        }
+      ]
+    },
+    {
+      "target": "yzd-sryzdymsgdhthyrh-324",
+      "target_name": "سریزدی(مسجدحظیره) (یزد)",
+      "sources": [
+        {
+          "slug": "yzd-sryzdy-msgdhthyrh-888",
+          "name": "سریزدی (مسجدحظیره) (یزد)"
+        }
+      ]
+    },
+    {
+      "target": "tnkabn-aamomy-379",
+      "target_name": "عمومی (تنکابن)",
+      "sources": [
+        {
+          "slug": "tnkabn-aamomy-tnkabn-ktabkhanh-356",
+          "name": "عمومی تنکابن (کتابخانه) (تنکابن)"
+        }
+      ]
+    },
+    {
+      "target": "asfhan-aamomy-asfhan-872",
+      "target_name": "عمومی اصفهان (اصفهان)",
+      "sources": [
+        {
+          "slug": "asfhan-aamomy-895",
+          "name": "عمومی (اصفهان)"
+        }
+      ]
+    },
+    {
+      "target": "zngan-akhoan-zngany-glyl-321",
+      "target_name": "اخوان زنجانی-جلیل (زنجان)",
+      "sources": [
+        {
+          "slug": "zngan-akhoan-zngany-glyl-991",
+          "name": "اخوان زنجانی - جلیل (زنجان)"
+        }
+      ]
+    },
+    {
+      "target": "kashan-mythm-nmkykhsosy-922",
+      "target_name": "میثم نمکی(خصوصی) (کاشان)",
+      "sources": [
+        {
+          "slug": "kashan-mythm-nmky-khsosy-1002",
+          "name": "میثم نمکی (خصوصی) (کاشان)"
+        }
+      ]
+    },
+    {
+      "target": "ardstan-ardstany-ayh-allh-syd-aalyrda-959",
+      "target_name": "اردستانی - آیة الله سید علیرضا (اردستان)",
+      "sources": [
+        {
+          "slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-1030",
+          "name": "اردستانی- آیة الله سید علیرضا (اردستان)"
+        }
+      ]
+    },
+    {
+      "target": "khoy-aamomy-khoy-354",
+      "target_name": "عمومی خوی (خوی)",
+      "sources": [
+        {
+          "slug": "khoy-aamomy-960",
+          "name": "عمومی (خوی)"
+        }
+      ]
+    },
+    {
+      "target": "thran-mgls-4",
+      "target_name": "مجلس (تهران)",
+      "sources": [
+        {
+          "slug": "thran-shora-883",
+          "name": "شورا (تهران)"
+        },
+        {
+          "slug": "thran-mgls-shora-362",
+          "name": "مجلس شورا (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "km-msgd-aaathm-21",
+      "target_name": "مسجد اعظم (قم)",
+      "sources": [
+        {
+          "slug": "km-aaathm-km-997",
+          "name": "اعظم قم (قم)"
+        },
+        {
+          "slug": "km-msgd-aaathm-km-887",
+          "name": "مسجد اعظم قم (قم)"
+        }
+      ]
+    },
+    {
+      "target": "thran-dayrh-almaaarf-20",
+      "target_name": "دائرة المعارف (تهران)",
+      "sources": [
+        {
+          "slug": "thran-dayrh-almaaarf-bzrg-aslamy-333",
+          "name": "دائرة المعارف بزرگ اسلامی (تهران)"
+        }
+      ]
+    },
+    {
+      "target": "kzoyn-amam-sadk-83",
+      "target_name": "امام صادق (قزوین)",
+      "sources": [
+        {
+          "slug": "kzoyn-mdrsh-amam-sadk-332",
+          "name": "مدرسه امام صادق (قزوین)"
+        },
+        {
+          "slug": "kzoyn-mdrsh-amam-sadk-kzoyn-317",
+          "name": "مدرسه امام صادق قزوین (قزوین)"
+        }
+      ]
+    },
+    {
+      "target": "chalos-amam-sadk-109",
+      "target_name": "امام صادق (چالوس)",
+      "sources": [
+        {
+          "slug": "chalos-mdrsh-amam-sadk-chalos-319",
+          "name": "مدرسه امام صادق چالوس (چالوس)"
+        }
+      ]
+    }
+  ],
+  "volume_fixes": [
+    {
+      "library": "ardkan-yzd-amam-sadk-56",
+      "titles": [
+        "فهرست نسخه‌های خطی مدرسه امام صادق (ع) چالوس",
+        "فهرست نسخه‌های خطی کتابخانه حوزه علمیه امام صادق (ع) اردکان - دفتر اول"
+      ],
+      "set": {
+        "title": "فهرست نسخه‌های خطی کتابخانه حوزه علمیه امام صادق (ع) اردکان - دفتر اول",
+        "volume_number": 1,
+        "publication_year": "1384",
+        "mtif_entry_id": null
+      },
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ],
+      "split": [
+        {
+          "number": 2,
+          "title": "فهرست نسخه‌های خطی کتابخانه حوزه علمیه امام صادق (ع) اردکان - دفتر دوم",
+          "publication_year": "1384"
+        }
+      ],
+      "source": "فهرست مآخذ فنخا ردیف ۱۰ و ۱۱ و MTIF book/174: سید جعفر حسینی اشکوری. پیش‌تر فهرست مدرسه امام صادق چالوس به‌نادرست اینجا نشسته بود."
+    },
+    {
+      "library": "chalos-amam-sadk-109",
+      "titles": [
+        "فهرست نسخه‌های خطی مدرسه امام صادق (ع) چهارباغ اصفهان",
+        "فهرست نسخه‌های خطی مدرسه امام صادق (ع) چالوس"
+      ],
+      "set": {
+        "title": "فهرست نسخه‌های خطی مدرسه امام صادق (ع) چالوس",
+        "volume_number": 1,
+        "publication_year": "1381"
+      },
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ],
+      "source": "فهرست مآخذ فنخا ردیف ۲۶۰ و MTIF book/171: به کوشش محمود طیار مراغی. پیش‌تر فهرست مدرسه امام صادق چهارباغ اصفهان به‌نادرست اینجا نشسته بود."
+    },
+    {
+      "library": "kzoyn-amam-sadk-83",
+      "titles": [
+        "فهرست نسخه‌های خطی کتابخانه دانشگاه امام صادق (ع) - جلد 1",
+        "فهرست نسخه‌های خطی کتابخانه امام صادق قزوین - جلد اول"
+      ],
+      "set": {
+        "title": "فهرست نسخه‌های خطی کتابخانه امام صادق قزوین - جلد اول",
+        "volume_number": 1,
+        "publication_year": "1378"
+      },
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ],
+      "source": "فهرست مآخذ فنخا ردیف ۳۴۳: تحقیق و نگارش محمود طیار مراغی، حوزه علمیه قزوین ۱۳۷۸. MTIF book/57313 «محمدکریم باریک‌بین» را گردآورنده آورده است. پیش‌تر فهرست دانشگاه امام صادق (منزوی) به‌نادرست اینجا نشسته بود."
+    },
+    {
+      "library": "kzoyn-amam-sadk-83",
+      "titles": [
+        "فهرست نسخه‌های خطی کتابخانه دانشگاه امام صادق (ع) - جلد 2",
+        "فهرست نسخه‌های خطی کتابخانه امام صادق قزوین - جلد دوم"
+      ],
+      "set": {
+        "title": "فهرست نسخه‌های خطی کتابخانه امام صادق قزوین - جلد دوم",
+        "volume_number": 2
+      },
+      "catalogers": [],
+      "source": "فهرست‌نگار نامعلوم: فهرست مآخذ فنخا فقط جلد اول را آورده است (مورد ۵۶). پیش‌تر فهرست دانشگاه امام صادق (منزوی) به‌نادرست اینجا نشسته بود."
+    },
+    {
+      "library": "kashan-amyrkbyr-54",
+      "also_library_null": true,
+      "titles": [
+        "فهرست نسخه‌های خطی مدرسه امام صادق قزوین",
+        "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 4"
+      ],
+      "set": {
+        "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 4",
+        "volume_number": 4,
+        "publication_year": "1344",
+        "library": null,
+        "citation_pattern": "نشریه: 4"
+      },
+      "catalogers": [
+        {
+          "mtif_entry_id": 37239,
+          "name": "ایرج افشار"
+        },
+        {
+          "mtif_entry_id": 37279,
+          "name": "محمدتقی دانش‌پژوه"
+        }
+      ],
+      "source": "فهرست مآخذ فنخا ردیف ۴۵۰: نسخه‌های خطی، دفتر چهارم، نشریه کتابخانه مرکزی دانشگاه تهران، زیر نظر محمدتقی دانش‌پژوه و ایرج افشار، ۱۳۴۴. پیش‌تر فهرست مدرسه امام صادق قزوین به‌نادرست اینجا نشسته بود."
+    },
+    {
+      "library": "km-msgd-aaathm-21",
+      "mtif": 57010,
+      "titles": [
+        "فهرست کتب خطی کتابخانه‌های اصفهان - جلد 1",
+        "فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد اول"
+      ],
+      "set": {
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد اول"
+      },
+      "source": "عنوان از رکورد MTIF همین جلد (۵۷۰۱۰): «فهرست نسخه های خطی کتابخانه مسجد اعظم قم- 1»."
+    }
+  ],
+  "volume_merges": [
+    {
+      "drop": {
+        "mtif": 21446
+      },
+      "keep": {
+        "mtif": 21618
+      },
+      "note": "ملک ج ۱"
+    },
+    {
+      "drop": {
+        "mtif": 21447
+      },
+      "keep": {
+        "mtif": 21619
+      },
+      "note": "ملک ج ۲"
+    },
+    {
+      "drop": {
+        "mtif": 26653
+      },
+      "keep": {
+        "library": "thran-mlk-15",
+        "title": "فهرست کتابهای خطی کتابخانه ملی ملک - جلد سوم (بخش اول): کتابهای فارسی"
+      },
+      "note": "ملک: جلد «وابسته به آستان قدس رضوی» تکرار جلد اصلی ملک است"
+    },
+    {
+      "drop": {
+        "mtif": 21448
+      },
+      "keep": {
+        "library": "thran-mlk-15",
+        "title": "فهرست کتابهای خطی کتابخانه ملی ملک - جلد پنجم: مجموعه‌ها و جنگ‌ها"
+      },
+      "note": "ملک: جلد «وابسته به آستان قدس رضوی» تکرار جلد اصلی ملک است"
+    },
+    {
+      "drop": {
+        "mtif": 22625
+      },
+      "keep": {
+        "library": "thran-mlk-15",
+        "title": "فهرست کتابهای خطی کتابخانه ملی ملک - جلد ششم: مجموعه‌ها و جنگ‌ها"
+      },
+      "note": "ملک: جلد «وابسته به آستان قدس رضوی» تکرار جلد اصلی ملک است"
+    },
+    {
+      "drop": {
+        "mtif": 21450
+      },
+      "keep": {
+        "library": "thran-mlk-15",
+        "title": "فهرست کتابهای خطی کتابخانه ملی ملک - جلد هشتم: مجموعه‌ها و جنگ‌ها"
+      },
+      "note": "ملک: جلد «وابسته به آستان قدس رضوی» تکرار جلد اصلی ملک است"
+    },
+    {
+      "drop": {
+        "mtif": 21451
+      },
+      "keep": {
+        "library": "thran-mlk-15",
+        "title": "فهرست کتابهای خطی کتابخانه ملی ملک - جلد نهم: مجموعه‌ها و جنگ‌ها"
+      },
+      "note": "ملک: جلد «وابسته به آستان قدس رضوی» تکرار جلد اصلی ملک است"
+    },
+    {
+      "drop": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 1"
+      },
+      "keep": {
+        "mtif": 57010
+      },
+      "note": "«اعظم قم» رکورد تکراری مسجد اعظم است"
+    },
+    {
+      "drop": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 2"
+      },
+      "keep": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد دوم"
+      },
+      "note": "«اعظم قم» رکورد تکراری مسجد اعظم است"
+    },
+    {
+      "drop": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 3"
+      },
+      "keep": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد سوم"
+      },
+      "note": "«اعظم قم» رکورد تکراری مسجد اعظم است"
+    },
+    {
+      "drop": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 4"
+      },
+      "keep": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد چهارم"
+      },
+      "note": "«اعظم قم» رکورد تکراری مسجد اعظم است"
+    },
+    {
+      "drop": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - 5"
+      },
+      "keep": {
+        "library": "km-msgd-aaathm-21",
+        "title": "فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد پنجم"
+      },
+      "note": "«اعظم قم» رکورد تکراری مسجد اعظم است"
+    },
+    {
+      "drop": {
+        "library": "thran-dayrh-almaaarf-20",
+        "title": "فهرست نسخه‌های خطی مرکز دائرة المعارف بزرگ اسلامی - جلد اول"
+      },
+      "keep": {
+        "library": "thran-dayrh-almaaarf-20",
+        "title": "فهرست نسخه‌های خطی مرکز دائرةالمعارف بزرگ اسلامی - جلد 1"
+      },
+      "note": "دائرة المعارف ج ۱"
+    },
+    {
+      "drop": {
+        "library": "thran-dayrh-almaaarf-20",
+        "title": "فهرست نسخه‌های خطی مرکز دائرة المعارف بزرگ اسلامی - جلد دوم"
+      },
+      "keep": {
+        "library": "thran-dayrh-almaaarf-20",
+        "title": "فهرست نسخه‌های خطی مرکز دائرةالمعارف بزرگ اسلامی - جلد 2"
+      },
+      "note": "دائرة المعارف ج ۲"
+    },
+    {
+      "drop": {
+        "library": "thran-mgls-4",
+        "title": "فهرست نسخه‌های خطی کتابخانه مجلس سنا - جلد 1"
+      },
+      "keep": {
+        "library": "thran-mgls-4",
+        "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد اول"
+      },
+      "note": "سنا ج ۱ از رکورد «شورا»"
+    },
+    {
+      "drop": {
+        "library": "thran-mgls-4",
+        "title": "فهرست نسخه‌های خطی کتابخانه مجلس سنا - جلد 2"
+      },
+      "keep": {
+        "library": "thran-mgls-4",
+        "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد دوم"
+      },
+      "note": "سنا ج ۲ از رکورد «شورا»"
+    },
+    {
+      "drop": {
+        "mtif": 21323
+      },
+      "keep": {
+        "mtif": 21319
+      },
+      "note": "احیاء ج ۱"
+    },
+    {
+      "drop": {
+        "mtif": 21429
+      },
+      "keep": {
+        "mtif": 21428
+      },
+      "note": "احیاء ج ۵"
+    },
+    {
+      "drop": {
+        "mtif": 21382
+      },
+      "keep": {
+        "mtif": 32526
+      },
+      "note": "گلپایگانی ج ۱"
+    },
+    {
+      "drop": {
+        "mtif": 24298
+      },
+      "keep": {
+        "mtif": 35712
+      },
+      "note": "اهدایی محفوظ"
+    },
+    {
+      "drop": {
+        "mtif": 28879
+      },
+      "keep": {
+        "mtif": 29196
+      },
+      "note": "مشکوة ج ۲"
+    }
+  ]
+}
