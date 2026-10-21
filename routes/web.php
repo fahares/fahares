@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HomePageController as AdminHomePageController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
+use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
 use App\Http\Controllers\Admin\SuggestionController as AdminSuggestionController;
 use App\Http\Controllers\Admin\SystemController as AdminSystemController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ManuscriptController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\InsightsController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
@@ -75,6 +77,12 @@ Route::get('/catalogers', [CatalogerController::class, 'index'])->name('cataloge
 Route::get('/catalogers/{id}', [CatalogerController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('catalogers.show');
+
+// Posts: reports, introductions to manuscripts and other writings published from the admin panel
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/{id}', [PostController::class, 'show'])
+    ->where('id', '[0-9]+.*')
+    ->name('posts.show');
 
 // Field Suggestions (Crowdsourced corrections)
 Route::post('/suggestions', [SuggestionController::class, 'store'])
@@ -223,6 +231,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/home-page/catalogers', [AdminHomePageController::class, 'addCataloger'])->name('home.catalogers.add');
     Route::delete('/home-page/catalogers/{cataloger}', [AdminHomePageController::class, 'removeCataloger'])->name('home.catalogers.remove');
     Route::post('/home-page/catalogers/{cataloger}/move', [AdminHomePageController::class, 'moveCataloger'])->name('home.catalogers.move');
+
+    // Posts
+    Route::post('/posts/{post}/images', [AdminPostController::class, 'storeImage'])->name('posts.images.store');
+    Route::delete('/posts/{post}/images', [AdminPostController::class, 'destroyImage'])->name('posts.images.destroy');
+    Route::resource('posts', AdminPostController::class)->except(['show']);
 
     // Libraries & Archives
     Route::resource('libraries', AdminLibraryController::class)->only(['index', 'edit', 'update']);

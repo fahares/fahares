@@ -171,6 +171,13 @@
             <!-- Group: زیرساخت و کاربران -->
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">سامانه و زیرساخت</span>
+                <a href="{{ route('admin.posts.index') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.posts.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    <span>یادداشت‌ها</span>
+                </a>
                 <a href="{{ route('admin.home.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.home.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

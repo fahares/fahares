@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -184,6 +185,21 @@ class SitemapController extends Controller
                 'priority' => '0.8',
             ],
         ];
+
+        $urls[] = [
+            'loc' => route('posts.index'),
+            'lastmod' => $defaultDate,
+            'changefreq' => 'weekly',
+            'priority' => '0.6',
+        ];
+        foreach (Post::published()->orderBy('id')->get() as $post) {
+            $urls[] = [
+                'loc' => route('posts.show', $post),
+                'lastmod' => $post->updated_at?->toIso8601String() ?? $defaultDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.7',
+            ];
+        }
 
         // All subjects taxonomy
         $subjects = DB::table('subjects')
