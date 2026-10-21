@@ -2398,6 +2398,641 @@
           ]
         }
       ]
+    },
+    {
+      "library": "asfhan-danshgah-30",
+      "series": "ف",
+      "source": "mtif.org/book/5181; fankha:13",
+      "source_text": "نگارش جعفر حسینی اشکوری؛ دفتر اول (۱–۴۰۰)",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه مرکزی و مرکز اسناد دانشگاه اصفهان - 1",
+          "mtif_entry_id": 30466,
+          "publication_year": "1385",
+          "pages_count": 324
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "asfhan-aamomy-asfhan-frhng-sabk-144",
+      "series": "ف",
+      "source": "mtif.org/book/188",
+      "source_text": "تهیه و تنظیم جواد مقصود",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه عمومی اصفهان",
+          "mtif_entry_id": 21531,
+          "publication_year": "1349",
+          "pages_count": 396
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "جواد-مقصود-همدانی",
+          "name": "جواد مقصود همدانی",
+          "new": true,
+          "mtif_entry_id": 37304
+        }
+      ]
+    },
+    {
+      "library": "babl-khatm-alanbyaaa-89",
+      "series": "ف",
+      "source": "fankha:56",
+      "source_text": "فهرست نسخه‌های خطی مدرسه خاتم الانبیاء (صدر) بابل، به کوشش علی صدرائی خوئی، محمود طیار مراغی، ابوالفضل حافظیان بابلی، آینه میراث، تهران ۱۳۷۶",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی مدرسه خاتم الانبیاء (صدر) بابل",
+          "publication_year": "1376",
+          "pages_count": 280
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37166,
+          "name": "علی صدرائی خوئی"
+        },
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        },
+        {
+          "mtif_entry_id": 56965,
+          "name": "ابوالفضل حافظیان بابلی"
+        }
+      ]
+    },
+    {
+      "library": "ngf-abad-hggy-58",
+      "series": "ف",
+      "source": "fankha:37",
+      "source_text": "نگارش ابوالفضل حافظیان، مجمع ذخائر اسلامی، قم ۱۳۸۶",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی کتابخانه آیت‌الله حججی (نجف‌آباد - ایران)",
+          "publication_year": "1386",
+          "pages_count": 248
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 56965,
+          "name": "ابوالفضل حافظیان بابلی"
+        }
+      ]
+    },
+    {
+      "library": "mraghh-aamomy-174",
+      "series": "ف",
+      "source": "fankha:475",
+      "source_text": "محمود طیار مراغی، انتشارات آل علی، قم ۱۳۷۹",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی کتابخانه عمومی مراغه",
+          "publication_year": "1379",
+          "pages_count": 312
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37297,
+          "name": "محمود طیار مراغی"
+        }
+      ]
+    },
+    {
+      "library": "asfhan-mktbh-alzhraaa-142",
+      "series": "ف",
+      "source": "fankha:31",
+      "source_text": "تألیف سید احمد فقیه امامی؛ مقدمه و تصحیح سید صادق حسینی اشکوری، مجمع ذخائر اسلامی، قم ۱۳۸۵",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی مکتبة الزهراء (اصفهان - ایران)",
+          "publication_year": "1385",
+          "pages_count": 182
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "سید-احمد-فقیه-امامی",
+          "name": "سید احمد فقیه امامی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "thran-mossh-mtalaaat-aslamy-114",
+      "series": "ف",
+      "source": "fankha:258",
+      "source_text": "فهرست نسخه‌های خطی کتابخانه دکتر مهدی محقق موجود در مؤسسه مطالعات اسلامی، توفیق هـ. سبحانی، تهران ۱۳۸۳",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی کتابخانه دکتر مهدی محقق موجود در مؤسسه مطالعات اسلامی دانشگاه تهران - دانشگاه مک گیل",
+          "publication_year": "1383",
+          "pages_count": 135
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37816,
+          "name": "توفیق هاشم پور سبحانی"
+        }
+      ]
+    },
+    {
+      "library": "thran-mozh-mly-47",
+      "series": "ف",
+      "source": "fankha:247",
+      "source_text": "فهرست میکروفیلم‌ها و نسخ خطی موزه ملی ایران، محمدرضا ریاضی، سازمان میراث فرهنگی کشور، تهران ۱۳۷۴",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست میکروفیلم‌ها و نسخ خطی موزه ملی ایران",
+          "publication_year": "1374",
+          "pages_count": 224
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "محمدرضا-ریاضی",
+          "name": "محمدرضا ریاضی",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "krmanshah-mdrsh-ayh-allh-brogrdy-135",
+      "series": "ف",
+      "source": "mtif.org/book/165; fankha:465",
+      "source_text": "نگارش احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه مدرسه آیت الله بروجردی (کرمانشاه - ایران)",
+          "mtif_entry_id": 21495,
+          "publication_year": "1380",
+          "pages_count": 138
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "asfhan-mhdoy-mslh-aldyn-92",
+      "series": "ف",
+      "source": "fankha:52",
+      "source_text": "نسخه‌های خطی سید مصلح الدین مهدوی اهدائی به گنجینه نسخ خطی اصفهان، محمدعلی هدایت، مجمع ذخائر اسلامی، قم ۱۳۸۷",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "نسخه‌های خطی سید مصلح‌الدین مهدوی (اصفهان - ایران)",
+          "publication_year": "1387",
+          "pages_count": 172
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "محمدعلی-هدایت",
+          "name": "محمدعلی هدایت",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "thran-mdrsh-maamarbashy-133",
+      "series": "ف",
+      "source": "mtif.org/book/8297",
+      "source_text": "نگارش محمدحسین حکیم",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه مدرسه معمار باشی (تهران - ایران)",
+          "mtif_entry_id": 34201,
+          "publication_year": "1385",
+          "pages_count": 155
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37255,
+          "name": "محمدحسین حکیم"
+        }
+      ]
+    },
+    {
+      "library": "km-argany-bhbhany-112",
+      "series": "ف",
+      "source": "mtif.org/book/5668; fankha:419",
+      "source_text": "شیخ محمود ارگانی بهبهانی حائری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست کتابخانه شیخ محمود ارگانی بهبهانی حائری (ایران - قم)",
+          "mtif_entry_id": 31081,
+          "publication_year": "1385",
+          "pages_count": 320
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "شیخ-محمود-ارگانی-بهبهانی-حائری",
+          "name": "شیخ محمود ارگانی بهبهانی حائری",
+          "new": true,
+          "mtif_entry_id": 38301
+        }
+      ]
+    },
+    {
+      "library": "mshhd-amam-hady-102",
+      "series": "ف",
+      "source": "fankha:521",
+      "source_text": "فهرست نسخه‌های خطی کتابخانه عمومی امام هادی (ع)، سید احمد حسینی اشکوری، مجمع ذخائر اسلامی، قم ۱۳۷۷",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی کتابخانه عمومی امام هادی (ع) (مشهد - ایران)",
+          "publication_year": "1377",
+          "pages_count": 100
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "shyraz-bnyad-farsshnasy-50",
+      "series": "ف",
+      "source": "mtif.org/book/5698; fankha:302",
+      "source_text": "محمد برکت",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی بنیاد فارس شناسی",
+          "mtif_entry_id": 31100,
+          "publication_year": "1384",
+          "pages_count": 175
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37244,
+          "name": "محمد برکت"
+        }
+      ]
+    },
+    {
+      "library": "shahrod-mdrsh-asmaaaylyh-162",
+      "series": "ف",
+      "source": "fankha:294",
+      "source_text": "مخطوطات مکتبة مدرسة الاسماعیلیة (شاهرود - ایران)، سید احمد حسینی، مجمع ذخائر اسلامی، قم ۱۴۲۴",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مخطوطات مکتبة مدرسة الاسماعیلیة (شاهرود - ایران)",
+          "publication_year": "1424",
+          "pages_count": 36
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "kashan-frhng-o-arshad-229",
+      "series": "ف",
+      "source": "mtif.org/book/168; fankha:458",
+      "source_text": "سید احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه فرهنگ و ارشاد اسلامی (کاشان - ایران)",
+          "mtif_entry_id": 21498,
+          "publication_year": "1381",
+          "pages_count": 119
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "km-hgt-kohkmry-196",
+      "series": "ف",
+      "source": "fankha:387",
+      "source_text": "فهرست کتب خطی کتابخانه سید محمد حجت کوهکمری، جعفر حسینی اشکوری، مجمع ذخائر اسلامی، قم ۱۳۷۷",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست کتب خطی کتابخانه سید محمد حجت کوهکمری",
+          "publication_year": "1377",
+          "pages_count": 80
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "khoansar-fadl-khoansary-855",
+      "series": "ف",
+      "source": "mtif.org/book/133; fankha:262-263",
+      "source_text": "تدوین و نگارش جعفر حسینی اشکوری؛ زیر نظر محمدحسن فاضلی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه حضرت آیة الله فاضل خوانساری - 1",
+          "mtif_entry_id": 21384,
+          "publication_year": "1416",
+          "pages_count": 184
+        },
+        {
+          "number": 2,
+          "title": "فهرست نسخه های خطی کتابخانه حضرت آیة الله فاضل خوانساری - 2",
+          "mtif_entry_id": 21385,
+          "publication_year": "1416",
+          "pages_count": 371
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "mshhd-mrtdoy-46",
+      "series": "ف",
+      "source": "mtif.org/book/384; fankha:538",
+      "source_text": "تالیف احمد الحسینی",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "مخطوطات مکتبة المرتضوی (مشهد - ایران)",
+          "mtif_entry_id": 21804,
+          "publication_year": "1424",
+          "pages_count": 48
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "khoy-mdrsh-nmazy-919",
+      "series": "ف",
+      "source": "fankha:266",
+      "source_text": "فهرست نسخه‌های خطی مدرسه نمازی خوی، علی صدرائی، انجمن آثار و مفاخر فرهنگی، تهران ۱۳۷۶",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی مدرسه نمازی خوی",
+          "publication_year": "1376",
+          "pages_count": 560
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37166,
+          "name": "علی صدرائی خوئی"
+        }
+      ]
+    },
+    {
+      "library": "asfhan-mdrsh-sdr-khoago-227",
+      "series": "ف",
+      "source": "mtif.org/book/8300; fankha:36",
+      "source_text": "نگارش جعفر حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه صدر خواجو (ایران - اصفهان)",
+          "mtif_entry_id": 34205,
+          "publication_year": "1426",
+          "pages_count": 96
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37267,
+          "name": "سید جعفر حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "thran-ozart-amor-khargh-168",
+      "series": "ف",
+      "source": "fankha:221",
+      "source_text": "بررسی کتب خطی یا قدیمه وزارت امور خارجه جمهوری اسلامی ایران، علیرضا سالاری، انتشارات وزارت امور خارجه، تهران ۱۳۷۷",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "بررسی کتب خطی یا قدیمه وزارت امور خارجه جمهوری اسلامی ایران",
+          "publication_year": "1377",
+          "pages_count": 227
+        }
+      ],
+      "catalogers": [
+        {
+          "slug": "علیرضا-سالاری",
+          "name": "علیرضا سالاری",
+          "new": true
+        }
+      ]
+    },
+    {
+      "library": "km-mossh-hdrt-ayh-allh-alaathmy-brogrdy-337",
+      "series": "ف",
+      "source": "mtif.org/book/1371; fankha:416-417",
+      "source_text": "نگارش احمد حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی - 1",
+          "mtif_entry_id": 23991,
+          "publication_year": "1384",
+          "pages_count": 254
+        },
+        {
+          "number": 2,
+          "title": "فهرست نسخه های خطی کتابخانه مؤسسه حضرت آیة الله العظمی بروجردی - 2",
+          "mtif_entry_id": 23992,
+          "publication_year": "1384"
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37228,
+          "name": "سید احمد حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "bydgl-mgthd-alzman-bydgly-128",
+      "series": "ف",
+      "source": "mtif.org/book/8295; fankha:447",
+      "source_text": "نگارش سید صادق حسینی اشکوری",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی کتابخانه مجتهد الزمان بیدگلی (بیدگل - ایران)",
+          "mtif_entry_id": 34198,
+          "publication_year": "1385",
+          "pages_count": 270
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37268,
+          "name": "سید صادق حسینی اشکوری"
+        }
+      ]
+    },
+    {
+      "library": "arak-dhgan-abrahym-328",
+      "series": "ف",
+      "source": "fankha:6-7",
+      "source_text": "کتابخانه استاد ابراهیم دهگان، فهرست نسخه‌های خطی، دفتر اول و دوم، صادق حضرتی، مجمع ذخائر اسلامی، قم ۱۳۸۷",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی کتابخانه استاد ابراهیم دهگان - دفتر اول",
+          "publication_year": "1387",
+          "pages_count": 261
+        },
+        {
+          "number": 2,
+          "title": "فهرست نسخه‌های خطی کتابخانه استاد ابراهیم دهگان - دفتر دوم",
+          "publication_year": "1387",
+          "pages_count": 256
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 38338,
+          "name": "صادق حضرتی"
+        }
+      ]
+    },
+    {
+      "library": "thran-mdrsh-knbr-aaly-khan-hdrt-oly-aasr-233",
+      "series": "ف",
+      "source": "mtif.org/book/8315; fankha:207",
+      "source_text": "نگارش محمدحسین حکیم",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه های خطی مدرسه قنبرعلی خان (حضرت ولی عصر عج) (تهران - ایران)",
+          "mtif_entry_id": 34220,
+          "publication_year": "1428",
+          "pages_count": 286
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37255,
+          "name": "محمدحسین حکیم"
+        }
+      ]
+    },
+    {
+      "library": "thran-hozh-astan-hdrt-aabdalaathym-161",
+      "series": "ف",
+      "source": "fankha:284",
+      "source_text": "فهرست نسخه‌های خطی حوزه و موزه آستانه حضرت عبدالعظیم حسنی، نگارش ابوالفضل حافظیان بابلی، دار الحدیث، قم ۱۳۸۲",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی حوزه و موزه آستانه حضرت عبدالعظیم حسنی",
+          "publication_year": "1382",
+          "pages_count": 264
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 56965,
+          "name": "ابوالفضل حافظیان بابلی"
+        }
+      ]
+    },
+    {
+      "library": "thran-mozh-astan-hdrt-aabdalaathym-258",
+      "series": "ف",
+      "source": "fankha:284",
+      "source_text": "فهرست نسخه‌های خطی حوزه و موزه آستانه حضرت عبدالعظیم حسنی، نگارش ابوالفضل حافظیان بابلی، دار الحدیث، قم ۱۳۸۲",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی حوزه و موزه آستانه حضرت عبدالعظیم حسنی",
+          "publication_year": "1382",
+          "pages_count": 264
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 56965,
+          "name": "ابوالفضل حافظیان بابلی"
+        }
+      ],
+      "volume_library": "thran-hozh-astan-hdrt-aabdalaathym-161"
+    },
+    {
+      "library": "thran-dayrh-almaaarf-bzrg-aslamy-333",
+      "series": "ف",
+      "source": "fankha:194-195",
+      "source_text": "فهرست نسخه‌های خطی مرکز دائرة المعارف بزرگ اسلامی، جلد اول و دوم، احمد منزوی، تهران ۱۳۷۷ و ۱۳۸۴",
+      "volumes": [
+        {
+          "number": 1,
+          "title": "فهرست نسخه‌های خطی مرکز دائرة المعارف بزرگ اسلامی - جلد اول",
+          "publication_year": "1377",
+          "pages_count": 472
+        },
+        {
+          "number": 2,
+          "title": "فهرست نسخه‌های خطی مرکز دائرة المعارف بزرگ اسلامی - جلد دوم",
+          "publication_year": "1384",
+          "pages_count": 552
+        }
+      ],
+      "catalogers": [
+        {
+          "mtif_entry_id": 37283,
+          "name": "احمد منزوی"
+        }
+      ]
     }
   ],
   "malek": {

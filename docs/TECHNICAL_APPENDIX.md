@@ -3044,3 +3044,10 @@
   - **آزمون:** `test_zirikli_opens_the_viewer_under_all_its_names_and_not_for_other_alam_books` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php). دو آزمون قدیمی «الأعلام» را منبع ناشناخته گرفته بودند: یکی به «معجم المطبوعات» تغییر کرد و دیگری (`ج6ص41`) حالا پیوند زرکلی را هم انتظار دارد.
   - **اجرای آزمون از worktree:** کانتینر `fahares_app` کد checkout اصلی را اجرا می‌کند. پس آزمون‌ها با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شدند. `vendor` و `.env` شاخه‌ی اصلی فقط‌خواندنی mount شدند، و `phpunit.xml` با پایگاه جداگانه‌ی `fahares_zirikli_test`، تا `RefreshDatabase` پایگاه `fahares_test` پنجره‌ی دیگر را پاک نکند.
 - **انتقال به سرور (۲۸ مهر ۱۴۰۵، به تأیید کاربر):** هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/zirikli --no-same-owner -xf -"` فرستاده شد. فهرست نام و اندازه‌ی ۲٬۷۶۲ فایل دو سو یکسان بود. سپس `chown -R ubuntu:ubuntu` و `chmod -R 777` اجرا شد و `https://fahares.net/storage/catalogs/zirikli/v01/p0193.webp`، `v04/p0030`، `v08/p0195` و `v08/p0373` پاسخ ۲۰۰ دادند.
+
+### گام ۱۲.۴۸: دسته‌ی ۵ اتصال فهرست‌نگاران
+- **داده:** ۲۹ ردیف تازه در [catalog_volume_links.json](../database/data/catalog_volume_links.json)، همه با سلسله‌ی `ف`. ۱۴ ردیف شناسه‌ی جلد MTIF دارند. بقیه جلد بی‌MTIF‌اند و با عنوان کلید می‌خورند. منبع هر ردیف `fankha:<مدخل>` یا `mtif.org/book/<id>` است.
+- **استخراج MTIF:** با سه پرس‌وجو از `mtif_dump` ساخته شد: عنوان‌ها از `event.rabt_title='عنوان'` برای book، bookprint، printcopy و person؛ فیلدهای آزاد شرح پدیدآور، توضیح، تاریخ نشر، شماره جلد و تعداد صفحات؛ و پیوندهای `table='entry'`. ساختار همان `mtif_catalogs.json` گام ۱۲.۳۷ است، با شناسه‌ی شخص کنار نام.
+- **سنجش صفحه:** برای انتخاب میان فهرست مستقل و مقاله‌ی «نشریه کتابخانه مرکزی دانشگاه تهران»، عدد پایانی ارجاع «ف: …-N» با صفحه‌شمار هر منبع سنجیده شد.
+- **فهرست‌نگاران تازه‌ی بی‌MTIF:** slug ثابت دارند: `سید-احمد-فقیه-امامی`، `محمدرضا-ریاضی`، `محمدعلی-هدایت` و `علیرضا-سالاری`. ارگانی با MTIF 38301 ساخته می‌شود.
+
