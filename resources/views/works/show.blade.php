@@ -185,7 +185,7 @@
                         $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
                     @endphp
                     <div class="space-y-2 pb-4 border-b border-line" data-viewer-card>
-                        <div class="text-sm font-bold text-ink">{{ $vp['catalogName'] }}، {{ $vpRef }}</div>
+                        <div class="text-sm font-bold text-ink">{{ $vp['catalogName'] }}، {{ $vpRef }} <x-suggest.field :name="\App\Suggestions\SuggestionRegistry::bibliographyPageName($vp)" class="ms-1" /></div>
                         <button type="button" @click="$dispatch('open-catalog-viewer', @js($vp))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $vp['catalogName'] }}">
                             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
                                 <img src="{{ $vpThumb }}" alt="برگه‌ی {{ $vpRef }} در {{ $vp['catalogName'] }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
@@ -195,7 +195,7 @@
                     </div>
                 @endforeach
                 <div class="space-y-2">
-                    <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
+                    <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif <x-suggest.field name="fankha_page" class="ms-1" /></div>
                     @if($pageThumb)
                         <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
                             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">

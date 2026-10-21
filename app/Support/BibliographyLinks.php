@@ -56,6 +56,66 @@ class BibliographyLinks
     }
 
     /**
+     * The entries with every citation of one viewer page ($old: catalog, volume, page) changed to another volume
+     * and page, written in the form the citation had: «101/25» (page/volume), «25/101», «ج 25، ص 101», «1-93»
+     * or «1: 127» (volume first), or a bare page when only the page changes. Null when no citation of that page
+     * is found or the new text would not link to the new page, so the reviewer edits the entry by hand.
+     *
+     * @param  list<string>  $entries
+     * @return list<string>|null
+     */
+    public static function rewriteCitation(array $entries, array $old, int $volume, int $page): ?array
+    {
+        $changed = false;
+        foreach ($entries as $i => $entry) {
+            $out = '';
+            foreach (self::segments((string) $entry) as $seg) {
+                $v = $seg['viewer'] ?? null;
+                if ($v && $v['catalog'] === $old['catalog'] && $v['volume'] === $old['volume'] && $v['page'] === $old['page']) {
+                    $text = self::renumber($seg['text'], $old['volume'], $old['page'], $volume, $page);
+                    if ($text === null) {
+                        return null;
+                    }
+                    $out .= $text;
+                    $changed = true;
+                } else {
+                    $out .= $seg['text'];
+                }
+            }
+            $entries[$i] = $out;
+        }
+        $target = ['catalog' => $old['catalog'], 'volume' => $volume, 'page' => $page];
+        $found = collect(self::viewerPages($entries))->contains(fn ($v) => array_intersect_key($v, $target) == $target);
+
+        return $changed && $found ? $entries : null;
+    }
+
+    /** One citation's numbers changed: which number is the volume follows the citation's own form. */
+    private static function renumber(string $text, int $oldVolume, int $oldPage, int $volume, int $page): ?string
+    {
+        preg_match_all('/[0-9۰-۹]+/u', $text, $m);
+        $numbers = array_map(fn ($n) => self::int($n), $m[0]);
+        if (count($numbers) === 1) {
+            return $volume === $oldVolume ? preg_replace('/[0-9۰-۹]+/u', (string) $page, $text, 1) : null;
+        }
+        if (count($numbers) !== 2) {
+            return null;
+        }
+        // «ج 25، ص 101», «1-93» and «1: 127» name the volume first; Fankha's «page/volume» the page
+        $volumeFirst = match (true) {
+            $numbers === [$oldVolume, $oldPage] && $numbers !== [$oldPage, $oldVolume] => true,
+            $numbers === [$oldPage, $oldVolume] && $numbers !== [$oldVolume, $oldPage] => false,
+            default => (bool) preg_match('/ج|-|:/u', $text),
+        };
+        $new = $volumeFirst ? [$volume, $page] : [$page, $volume];
+        $k = 0;
+
+        return preg_replace_callback('/[0-9۰-۹]+/u', function () use ($new, &$k) {
+            return (string) $new[$k++];
+        }, $text);
+    }
+
+    /**
      * @return list<array{text: string, url?: string, title?: string, viewer?: array}>
      */
     public static function segments(string $entry): array

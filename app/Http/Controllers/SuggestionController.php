@@ -64,7 +64,9 @@ class SuggestionController extends Controller
         $field = null;
         if ($validated['kind'] === 'field') {
             $field = SuggestionRegistry::field($validated['type'], $validated['field_name'] ?? null);
-            if (! $field || (isset($field['reference_id']) && \App\Models\ManuscriptCatalogReference::whereKey($field['reference_id'])->value('manuscript_id') !== $record->id)) {
+            // an address field must be one of this record's own: its reference, or a page its bibliography cites
+            if (! $field || (isset($field['reference_id']) && \App\Models\ManuscriptCatalogReference::whereKey($field['reference_id'])->value('manuscript_id') !== $record->id)
+                || (isset($field['bibliography']) && ! array_key_exists($field['name'], SuggestionRegistry::recordFields($record)))) {
                 throw ValidationException::withMessages(['field_name' => 'این فیلد برای پیشنهاد اصلاح تعریف نشده است.']);
             }
             if ($field['input'] === 'catalog_page' && ! SuggestionRegistry::parseCatalogPage($validated['suggested_value'] ?? '')
@@ -102,7 +104,7 @@ class SuggestionController extends Controller
             'current_value' => $field ? SuggestionRegistry::currentValue($record, $field) : null,
             // A relation needs no extra text; its label stands in when the submitter adds none
             'suggested_value' => ($field && $field['input'] === 'catalog_page' && ($page = SuggestionRegistry::parseCatalogPage($validated['suggested_value'])))
-                ? SuggestionRegistry::formatCatalogPage($page['volume'], $page['page'], $page['row'])
+                ? SuggestionRegistry::formatCatalogPage($page['volume'], $page['page'], $page['row'], $field['unit'] ?? 'ص')
                 : (trim($validated['suggested_value'] ?? '') ?: $relation['label']),
             'rationale_citation' => $validated['rationale_citation'] ?? null,
             'payload' => $payload ?: null,

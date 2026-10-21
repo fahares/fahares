@@ -344,4 +344,48 @@ class CatalogReferencesTest extends TestCase
         $this->approveLatest($ms)->assertSessionHasNoErrors();
         $this->assertSame([3, 12, 4], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number]);
     }
+
+    public function test_bibliography_citations_are_rewritten_in_their_own_form()
+    {
+        $old = ['catalog' => 'dharia', 'volume' => 25, 'page' => 101];
+        $rewrite = fn (array $entries, int $v, int $p, array $o = null) => \App\Support\BibliographyLinks::rewriteCitation($entries, $o ?? $old, $v, $p);
+
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $rewrite(['منزوی 977/2', 'الذریعه 101/25'], 25, 102));
+        $this->assertSame(['الذریعه 50/24'], $rewrite(['الذریعه 101/25'], 24, 50));
+        $this->assertSame(['الذریعة ج 25، ص 102'], $rewrite(['الذریعة ج 25، ص 101'], 25, 102));
+        $joined = ['catalog' => 'dharia', 'volume' => 24, 'page' => 131];
+        $this->assertSame(['الذریعه 130/24 و 132'], $rewrite(['الذریعه 130/24 و 131'], 24, 132, $joined));
+        $this->assertNull($rewrite(['الذریعه 130/24 و 131'], 25, 132, $joined), 'a bare page cannot change volume');
+        $this->assertNull($rewrite(['منزوی 977/2'], 25, 102), 'the page is not cited');
+    }
+
+    public function test_work_source_addresses_are_suggested_and_applied()
+    {
+        $work = Work::create(['primary_title' => 'اثر مآخذدار', 'clean_title' => 'اثر مآخذدار', 'slug' => 'work-bib-' . uniqid(),
+            'volume_number' => 3, 'page_start' => 10, 'page_end' => 11, 'bibliography' => ['منزوی 977/2', 'الذریعه 101/25']]);
+        $suggest = fn (string $field, string $value) => $this->postJson('/suggestions', ['type' => 'work', 'id' => $work->id, 'kind' => 'field',
+            'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم']);
+        $approve = function () use ($work) {
+            $s = FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $work->id)->where('status', 'pending')->latest('id')->firstOrFail();
+
+            return $this->actingAs($this->admin())->post("/admin/suggestions/{$s->id}/approve", ['applied_value' => $s->suggested_value, 'outcome' => 'adopt']);
+        };
+
+        $this->get(route('works.show', $work))->assertOk()
+            ->assertSee("field: 'bibliography_page_dharia_25_101'", false)->assertSee("field: 'fankha_page'", false);
+
+        $suggest('bibliography_page_dharia_25_99', 'ج ۲۵، ص ۱۰۲')->assertStatus(422);
+        $suggest('bibliography_page_dharia_25_101', 'ج ۲۵، ص ۱۰۲')->assertOk();
+        $this->assertSame(['ج ۲۵، ص ۱۰۱', 'ج ۲۵، ص ۱۰۲'], [FieldSuggestion::latest('id')->first()->current_value, FieldSuggestion::latest('id')->first()->suggested_value]);
+        $approve()->assertSessionHasNoErrors();
+        $this->assertSame(['منزوی 977/2', 'الذریعه 102/25'], $work->fresh()->bibliography);
+
+        $suggest('fankha_page', 'ج ۴، ص ۲۰')->assertOk();
+        $approve()->assertSessionHasNoErrors();
+        $this->assertSame([4, 20, 21], [$work->fresh()->volume_number, $work->fresh()->page_start, $work->fresh()->page_end]);
+
+        // the rollback restores the bibliography text
+        $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->where('auditable_id', $work->id)->orderBy('id')->value('id') . '/rollback')->assertSessionHas('success');
+        $this->assertSame(['منزوی 977/2', 'الذریعه 101/25'], $work->fresh()->bibliography);
+    }
 }

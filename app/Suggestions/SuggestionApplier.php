@@ -44,10 +44,24 @@ class SuggestionApplier
                 if (! $page) {
                     throw new InvalidArgumentException('نشانی را به شکل «ج ۲، ص ۷، ردیف ۳» بنویسید.');
                 }
-                [$volumeColumn, $pageColumn, $rowColumn] = $field['columns'];
+                if (isset($field['bibliography'])) {
+                    // a page the bibliography cites: the citation is rewritten where it stands in the entries
+                    $entries = \App\Support\BibliographyLinks::rewriteCitation((array) ($record->bibliography ?? []), $field['bibliography'], $page['volume'], $page['page']);
+                    if ($entries === null) {
+                        throw new InvalidArgumentException('این ارجاع در متن مآخذ خودکار بازنویسی نشد. آن را در فیلد «مآخذ کتاب‌شناسی» دستی اصلاح کنید.');
+                    }
+                    $record->bibliography = $entries;
+                    break;
+                }
+                [$volumeColumn, $pageColumn] = $field['columns'];
+                $rowColumn = $field['columns'][2] ?? null;
+                // the entry keeps its length: its last page moves with its first
+                if (($endColumn = $field['end_column'] ?? null) && $record->{$endColumn} && $record->{$pageColumn}) {
+                    $record->{$endColumn} = $page['page'] + max(0, $record->{$endColumn} - $record->{$pageColumn});
+                }
                 $record->{$volumeColumn} = $page['volume'];
                 $record->{$pageColumn} = $page['page'];
-                if ($page['row'] !== null) {
+                if ($rowColumn && $page['row'] !== null) {
                     $record->{$rowColumn} = $page['row'];
                 }
                 break;

@@ -26,7 +26,8 @@ use Illuminate\Database\Eloquent\Model;
  *   catalog_page where the record stands in a source, as «ج 2، ص 7» (and «، ردیف 3» with with_row):
  *                the record's own Fankha columns (columns), or one catalogue reference (reference_id,
  *                in a field named catalog_reference_{id}, see catalogReferenceField); «نیست» (absent)
- *                rejects that reference. See SuggestionApplier::applyCatalogPage.
+ *                rejects that reference; or one page a work's bibliography cites (bibliography_page_{catalog}_{volume}_{page},
+ *                see bibliographyPageField), rewritten in the bibliography text. See SuggestionApplier.
  *
  * Optional keys: required (no empty value), mirror (columns that take the same value, e.g. clean_title),
  * bit_column/bit_label (a flag meaning "the catalog says there is none").
@@ -138,7 +139,11 @@ class SuggestionRegistry
         if ($name === null) {
             return null;
         }
-        $field = self::fields($type)[$name] ?? (self::typeKey($type) === 'manuscript' ? self::catalogReferenceField($name) : null);
+        $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
+            'manuscript' => self::catalogReferenceField($name),
+            'work' => self::bibliographyPageField($name),
+            default => null,
+        };
 
         return $field ? ['name' => $name] + $field : null;
     }
@@ -226,6 +231,12 @@ class SuggestionRegistry
                 }
             }
         }
+        if ($record instanceof Work) {
+            foreach (\App\Support\BibliographyLinks::viewerPages($record->bibliography ?? []) as $vp) {
+                $name = self::bibliographyPageName($vp);
+                $fields[$name] = self::bibliographyPageField($name);
+            }
+        }
 
         return $fields;
     }
@@ -250,23 +261,50 @@ class SuggestionRegistry
         ];
     }
 
+    public const BIBLIOGRAPHY_PAGE_PREFIX = 'bibliography_page_';
+
+    /** The address field of one page a work's bibliography cites, by the viewer detail of that page. */
+    public static function bibliographyPageName(array $viewer): string
+    {
+        return self::BIBLIOGRAPHY_PAGE_PREFIX . "{$viewer['catalog']}_{$viewer['volume']}_{$viewer['page']}";
+    }
+
+    /** «bibliography_page_dharia_25_101»: page 101 of volume 25 of al-Dharia, as cited in the work's bibliography. */
+    public static function bibliographyPageField(string $name): ?array
+    {
+        if (! preg_match('/^' . self::BIBLIOGRAPHY_PAGE_PREFIX . '([a-z0-9-]+)_(\d+)_(\d+)$/', $name, $m)) {
+            return null;
+        }
+        $source = collect(config('bibliography.sources', []))->first(fn ($src) => ($src['viewer']['catalog'] ?? null) === $m[1]);
+        if (! $source) {
+            return null;
+        }
+
+        return [
+            'label' => 'نشانی در ' . $source['viewer']['name'],
+            'input' => 'catalog_page',
+            'bibliography' => ['catalog' => $m[1], 'volume' => (int) $m[2], 'page' => (int) $m[3]],
+            'unit' => $source['unit'] ?? 'ص',
+        ];
+    }
+
     /** «ج 2، ص 7، ردیف 3» read back into numbers; null when the volume or the page is missing. */
     public static function parseCatalogPage(?string $value): ?array
     {
         $value = strtr((string) $value, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
-        $read = fn (string $key) => preg_match('/' . $key . '\s*\.?\s*:?\s*(\d+)/u', $value, $m) ? (int) $m[1] : null;
-        $parsed = ['volume' => $read('ج'), 'page' => $read('ص'), 'row' => $read('ردیف')];
+        $read = fn (string $key) => preg_match('/(?:' . $key . ')\s*\.?\s*:?\s*(\d+)/u', $value, $m) ? (int) $m[1] : null;
+        $parsed = ['volume' => $read('ج'), 'page' => $read('ص|ستون'), 'row' => $read('ردیف')];
 
         return $parsed['volume'] && $parsed['page'] ? $parsed : null;
     }
 
-    public static function formatCatalogPage(?int $volume, ?int $page, ?int $row = null): ?string
+    public static function formatCatalogPage(?int $volume, ?int $page, ?int $row = null, string $unit = 'ص'): ?string
     {
         if (! $volume || ! $page) {
             return null;
         }
 
-        return \App\Support\Fa::digits("ج {$volume}، ص {$page}" . ($row ? "، ردیف {$row}" : ''));
+        return \App\Support\Fa::digits("ج {$volume}، {$unit} {$page}" . ($row ? "، ردیف {$row}" : ''));
     }
 
     /** The field's current value as plain text, for the suggestion form and the reviewer's comparison. */
@@ -278,9 +316,11 @@ class SuggestionRegistry
             'boolean' => $record->{$name} ? 'بله' : 'خیر',
             'quote' => implode("\n\n", array_column(self::metaList($record, $field['meta_key']), 'text')) ?: $record->{$name},
             'list' => implode("\n", self::listItems($record, $field)),
-            'catalog_page' => isset($field['reference_id'])
-                ? (fn ($ref) => $ref ? self::formatCatalogPage($ref->volume_number, $ref->page_start) : null)(ManuscriptCatalogReference::find($field['reference_id']))
-                : self::formatCatalogPage(...array_map(fn ($c) => $record->{$c}, $field['columns'])),
+            'catalog_page' => match (true) {
+                isset($field['reference_id']) => (fn ($ref) => $ref ? self::formatCatalogPage($ref->volume_number, $ref->page_start) : null)(ManuscriptCatalogReference::find($field['reference_id'])),
+                isset($field['bibliography']) => self::formatCatalogPage($field['bibliography']['volume'], $field['bibliography']['page'], null, $field['unit']),
+                default => self::formatCatalogPage($record->{$field['columns'][0]}, $record->{$field['columns'][1]}, isset($field['columns'][2]) ? $record->{$field['columns'][2]} : null),
+            },
             default => $record->{$name},
         };
 
@@ -358,6 +398,9 @@ class SuggestionRegistry
             'print_info' => ['label' => 'چاپ‌ها و سوابق اثر', 'input' => 'textarea'],
             'commentaries_and_glosses' => ['label' => 'شروح، حواشی و منظومه‌ها', 'input' => 'list'],
             'bibliography' => ['label' => 'مآخذ کتاب‌شناسی', 'input' => 'list'],
+            // Where the work's entry starts in Fankha (page_end moves with it); each cited bibliography page gets a
+            // bibliography_page_{catalog}_{volume}_{page} field
+            'fankha_page' => ['label' => 'نشانی در فنخا', 'input' => 'catalog_page', 'columns' => ['volume_number', 'page_start'], 'end_column' => 'page_end'],
         ];
     }
 
