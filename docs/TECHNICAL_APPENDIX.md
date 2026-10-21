@@ -3109,3 +3109,44 @@
 - **اجرا روی پروداکشن:** `php artisan catalogs:merge-duplicates --dry-run`، سپس بدون آن، و بعد `php artisan catalogs:link-volumes`. slugها و عنوان جلدها در نسخه‌ی محلی پروداکشن یکی است، ولی شناسه‌ی جلدها فرق دارد (مثلاً قزوین ج ۱: ۵۱۶ در محیط محلی و ۵۲۰ در پروداکشن).
 - **آزمون:** [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) چهار آزمون دارد: ادغام کتابخانه همراه لاگ، ریدایرکت و تکرار بی‌اثر؛ اصلاح جلد همراه جدا کردن دفتر دوم؛ فهرست خالی فهرست‌نگاران؛ و ادغام جلد همراه اجرای دوم پس از گرفتن شناسه‌ی MTIF.
 
+
+### گام ۱۲.۵۲: ارجاع‌های فهرست (`manuscript_catalog_references`) و چاپ‌های تازه (مورد ۵۱ بک‌لاگ)
+- **Migrationها، هر دو افزایشی:**
+  - `2026_10_21_100001_add_edition_columns_to_catalog_volumes_table`: ستون‌های `edition_of_id` (FK به همین جدول، `nullOnDelete`)، `edition_label`، `facsimile_code` (ایندکس‌دار)، `page_first`، `page_last` و `source_url`.
+  - `2026_10_21_100002_create_manuscript_catalog_references_table`: ستون‌ها `manuscript_id` (cascade)، `catalog_volume_id`، `volume_number`، `page_start`، `page_end`، `shelfmark_page`، `entry_number`، `raw_text`، `source`، `match_method`، `confidence` (۰ تا ۱۰۰، مانند `work_relations`)، `status` (پیش‌فرض `unverified`)، `reviewed_by`، `reviewed_at` و `notes`. یکتایی روی (`manuscript_id`، `catalog_volume_id`، `page_start`، `source`) است، و ایندکس صف `manuscript_catalog_references_queue` روی (`catalog_volume_id`، `source`، `status`). نام پیش‌فرض ایندکس از ۶۴ نویسه‌ی MariaDB درازتر بود. چون `page_start` می‌تواند NULL باشد، تکرارنشدن را خود دستورها تضمین می‌کنند و نه ایندکس.
+- **مدل‌ها:**
+  - [ManuscriptCatalogReference](../app/Models/ManuscriptCatalogReference.php)، با ثابت‌های منبع و وضع، scope `awaitingReview()` (`ai_match` + `unverified`)، `viewer()` (جزئیات رویداد `open-catalog-viewer` یا null وقتی جلد تصویر ندارد) و `review($user, $status)`.
+  - `CatalogVolume`: `$hidden = ['source_url']`، رابطه‌های `editionOf` و `editions` و `catalogReferences`، و `short_title` (عنوان بی «- جلد …»).
+  - `Manuscript::catalogReferences()`. [ManuscriptController](../app/Http/Controllers/ManuscriptController.php) فقط ردیف‌های غیر `fankha` و ردنشده را بار می‌کند.
+  - شمار کل جلدها در صفحه‌ی فهرست‌نگاران، چاپ‌های تازه را نمی‌شمرد (`whereNull('edition_of_id')`).
+- **`catalogs:import-fankha-references {--dry-run} {--chunk=2000}`** ([پرونده](../app/Console/Commands/ImportFankhaCatalogReferencesCommand.php)):
+  - برای هر نسخه یک ردیف `fankha` می‌سازد. ارجاع از `metadata.catalog_citation` خوانده می‌شود، یا از آخرین قلاب `raw_text`، مانند `LinkCatalogVolumesCommand::citationOf`.
+  - `parse()`: سلسله پیش از «:» است. «ف:» آغازین باقی‌مانده حذف می‌شود («سنا: ف2-157»، «رشت و همدان: ف: -1398»). الگوهای خوانده‌شده: `N-M`، `N/P-M` (با جابه‌جایی «1/27» مانند `parseCitation`)، `N موضوع P-M`، `-M`، `N-` و `…-M` برای شماره‌ی نشریه‌ها. از چند ارجاعِ جداشده با «؛» فقط نخستین خوانده می‌شود، و شماره‌ی تنها خوانده نمی‌شود.
+  - اجرای دوباره ردیف‌های تازه را می‌افزاید و ردیف‌هایی را که ارجاع یا جلدشان عوض شده به‌روز می‌کند (مثلاً پس از `catalogs:link-volumes`). کلید این کار (`manuscript_id`، `source = fankha`) است. زمان اجرا روی ۳۲۴ هزار نسخه حدود ۲۰ ثانیه است.
+- **`catalogs:sync-editions {--dry-run} {--data=}`** ([پرونده](../app/Console/Commands/SyncCatalogEditionsCommand.php)، داده‌ی [catalog_editions.json](../database/data/catalog_editions.json)):
+  - چاپ را با (`facsimile_code`، `volume_number`) پیدا می‌کند یا می‌سازد.
+  - جلد فنخا با slug کتابخانه و شماره‌ی جلد پیدا می‌شود (`catalog_id` پر و `edition_of_id` خالی) و باید یکتا باشد. مسجد اعظم ج ۲ در محیط محلی #۴۴۸ است و در پروداکشن #۴۵۵.
+  - **نکته:** نسخه‌هایی که در چاپ استادی پیدا شدند، در فنخا در هر پنج جلد پخش‌اند. ۱٬۲۰۰ تا از آن‌ها «ف مخ» یا «ف» ج ۱ تا ۵ دارند. پس `edition_of_id` فقط نشان می‌دهد این چاپ کدام جلد فهرست کتابخانه است، و ارجاع هر نسخه از ردیف خودش می‌آید.
+- **تصویرها:** `python3 scripts/facsimile/extract_edition_pages.py ../fahares-sources/ghaemiyeh-test/masjid-azam_v02.pdf --code masjid-azam-ostadi --volume 2 --offset 2 --first 1 --last 827 --out <storage/app/public/catalogs>`
+  - تصویر صفحه‌های PDF، JPEG رنگی ۸۹۹×۱۵۵۱ است (`pdfimages -list`). خروجی خاکستری با همان پهنا است، `cwebp -q 75`.
+  - ۸۲۷ پرونده، ۴۷ مگابایت، حدود ۹۵ ثانیه با ۶ کارگر.
+- **`catalogs:match-edition {edition} {pages} {--volume=} {--dry-run} {--report=}`** ([پرونده](../app/Console/Commands/MatchCatalogEditionCommand.php)):
+  - `pages` پوشه‌ای از JSONهای `{page, text}` است، یا یک `.jsonl`/`.jsonl.gz`. متن مسجد اعظم ج ۲ در `../fahares-sources/ghaemiyeh-test/masjid-azam_v02_pages.jsonl.gz` است (۳۹۰ کیلوبایت، از `get-page/504138`). فهرست مطالب کتاب (`get-book-info`، ۱٬۱۴۶ سرفصل) برای وارسی در `~/.cache/fahares-pilot/ma2_book_info.json` است.
+  - مدخل با `^\s*(\d+)\s*[-–]\s*(.+?)…$` شناخته می‌شود (عنوان زیر ۱۲۰ نویسه، و سطری که با «ش» آغاز نشود). شماره با `(?:^|[\s،(])ش\s*(\d+)` پیدا می‌شود. `page_end` مدخل صفحه‌ی آغاز مدخل بعدی است، یا صفحه‌ی پیش از آن وقتی مدخل بعدی صفحه را آغاز کند.
+  - شباهت عنوان همان `difflib.SequenceMatcher.ratio` است: `similar_text` روی رمزگذاری یک‌بایتی هر نویسه، چون `similar_text` بایت‌ها را می‌سنجد. `norm()` همان `norm` آزمایش است، با `(*UCP)` برای `\b` و `\w`.
+  - آستانه‌ها و confidence همان آزمایش‌اند: ۰٫۶ و بی‌هم‌تراز در صفحه‌ی دیگر، سپس ۰٫۳۵ و همه در یک صفحه، سپس `shelfmark_only` با ۲۵ و `ambiguous` با ۱۰. در `ambiguous` جاهای دیگر در `notes` می‌آیند. `raw_text` سرعنوان مدخل است همراه سطر شماره.
+  - اجرای دوباره ردیف‌های `unverified` را به‌روز می‌کند و ردیف‌های `verified`/`rejected` را دست نمی‌زند.
+  - **باگ رفع‌شده:** `preg_split('/\R/')` بی `/u` بایت 0x85 را مرز سطر می‌گیرد، و این بایت درون «م» (D9 85) است. خواندن jsonl با `explode("\n")` انجام می‌شود.
+- **نمایش:**
+  - [machine-badge](../resources/views/components/ui/machine-badge.blade.php) پراپ‌های `text`، `report` (جزئیات `suggest-field`) و `report-label` را دارد. کلیک همیشه باز می‌کند، چون لمس پیش از کلیک mouseenter می‌فرستد و toggle آن را می‌بست. با کلیک بیرون، Esc یا رفتن فوکوس بسته می‌شود.
+  - در Blade، نوشتن `<x-…>` حتی درون کامنت PHP پراپ‌ها هم کامپایل می‌شود و خطای `$component` می‌دهد.
+  - `suggest-desk.js`: `start({general: true, value})` متن آغازین را می‌گیرد، پس asset باید دوباره ساخته شود (در استقرار Coolify خودکار است).
+- **صف داوری:** [CatalogReferenceController](../app/Http/Controllers/Admin/CatalogReferenceController.php) با مسیرهای `admin.catalog-references.index|verify|reject`. ترتیب ردیف‌ها از کم‌اطمینان به پراطمینان است و ۴۰ ردیف در هر صفحه می‌آید. شمار در انتظار در نوار کناری نشان داده می‌شود. تأیید یا رد ردیف `fankha` پاسخ ۴۰۴ می‌دهد. «تأیید همه‌ی ردیف‌های پراطمینان» هنوز ساخته نشده است.
+- **آزمون:** [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php)، ۱۰ آزمون: رابطه‌ها و پنهان‌بودن `source_url`، `viewer()`، نبود `source_url` در HTML و JSON-LD، تجزیه‌ی ارجاع، تکرارنشدن انتقال، `sync-editions`، شباهت عنوان، تطبیق و نگه‌داشتن ردیف بازبینی‌شده، نمایش و نشان، و صف داوری با دسترسی. از worktree با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شد، با vendor و .env شاخه‌ی اصلی فقط‌خواندنی و پایگاه جدای `fahares_refs_test`.
+- **طرح استقرار** (هر مرحله با تأیید جداگانه‌ی کاربر):
+  1. rebase روی آخرین `origin/main`، اجرای دوباره‌ی آزمون‌ها، و push به main (استقرار Coolify، با migration خودکار در صورتی که استقرار migrate را اجرا کند؛ وگرنه `php artisan migrate --force`).
+  2. انتقال `storage/app/public/catalogs/masjid-azam-ostadi/v02` (۸۲۷ پرونده، ۴۷ مگابایت) به حجم پایدار storage پروداکشن، به همان روش زرکلی، و وارسی نام، اندازه و HTTP 200.
+  3. `php artisan catalogs:sync-editions --dry-run`، سپس بدون آن.
+  4. `php artisan catalogs:import-fankha-references --dry-run`، سپس بدون آن.
+  5. کپی `masjid-azam_v02_pages.jsonl.gz` به کانتینر، `php artisan catalogs:match-edition masjid-azam-ostadi <path> --dry-run` (باید ۱٬۶۱۵ تطبیق بدهد)، سپس بدون آن.
+  6. وارسی fahares.net/manuscripts/<شناسه‌ی پروداکشن نسخه‌ی ۳۰۰۲ مسجد اعظم> و صف داوری.
