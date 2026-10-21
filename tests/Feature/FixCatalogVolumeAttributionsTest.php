@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Console\Commands\FixCatalogVolumeAttributionsCommand as Fix;
 use App\Models\Cataloger;
 use App\Models\CatalogVolume;
+use App\Models\EntityRedirect;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Work;
@@ -87,7 +88,18 @@ class FixCatalogVolumeAttributionsTest extends TestCase
             $this->assertArrayHasKey('cataloger_source', $this->v[$key]->fresh()->metadata);
         }
         $this->assertSame(1, $this->c[Fix::MAQSUD]->fresh()->volumes_count);
-        $this->assertSame(0, $this->c[Fix::AZKAEI]->fresh()->manuscripts_count);
+    }
+
+    public function test_azkaei_is_removed_with_a_redirect_to_the_gharb_library()
+    {
+        $azkaeiId = $this->c[Fix::AZKAEI]->id;
+        $this->artisan('catalogs:fix-volume-attributions')->assertSuccessful();
+
+        $this->assertNull(Cataloger::find($azkaeiId));
+        $this->assertSame(
+            $this->v['hmdan-mdrsh-ghrb-29#1']->library_id,
+            EntityRedirect::resolveTargetId('cataloger_library', $azkaeiId)
+        );
     }
 
     public function test_faqir_is_renamed_and_credited_with_the_fars_volumes_only()

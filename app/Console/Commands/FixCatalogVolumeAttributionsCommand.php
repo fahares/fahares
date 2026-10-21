@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Cataloger;
 use App\Models\CatalogVolume;
+use App\Models\EntityRedirect;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\DB;
  *    (Rasht and Hamedan vol. 3, MTIF 21525). His copy links move to Maqsud and his volume link is removed.
  *  - «محمد صادق فقیر» (MTIF 37302) is the spelling of the name; he is linked to the two Fars National Library volumes
  *    (MTIF 21518, 21519) he authored.
+ *
+ *  - «پرویز اذکائی» is left with no volume and no copy by this, so his record is deleted and its old links
+ *    redirect to the Gharb school library, the only place he was linked to (user's decision, 2026-10-21).
  *
  * Volumes are found by library slug + volume number and catalogers by MTIF entry id, never by local id, so the
  * same command runs on production. Safe to run again.
@@ -65,7 +69,8 @@ class FixCatalogVolumeAttributionsCommand extends Command
         $ids = [self::BARAKAT, self::BEHROUZI, self::FAQIR, self::MAQSUD, self::AZKAEI, self::SHIRVANI];
         // toBase(): Eloquent's only() would filter by primary key, not by MTIF id
         $catalogers = Cataloger::whereIn('mtif_entry_id', $ids)->get()->keyBy('mtif_entry_id')->toBase();
-        $missing = array_diff($ids, $catalogers->keys()->all());
+        // Azkaei is deleted by the first run, so a rerun must not need him
+        $missing = array_diff($ids, $catalogers->keys()->all(), [self::AZKAEI]);
         if ($missing) {
             $this->error('Catalogers not found by MTIF id: ' . implode(', ', $missing));
 
@@ -121,14 +126,29 @@ class FixCatalogVolumeAttributionsCommand extends Command
                 $volume->catalogers()->syncWithoutDetaching([$faqir->id => ['role' => 'cataloger']]);
             }
 
-            foreach ($catalogers as $cataloger) {
+            foreach ($catalogers->except(self::AZKAEI) as $cataloger) {
                 $this->recount($cataloger);
+            }
+
+            if ($catalogers->has(self::AZKAEI)) {
+                $this->removeIfEmpty($catalogers[self::AZKAEI], $plan[3][0]->library_id);
             }
         });
 
         $this->info('Done.');
 
         return self::SUCCESS;
+    }
+
+    /** Deletes the cataloger once nothing points at him, leaving a redirect to the library. */
+    protected function removeIfEmpty(Cataloger $cataloger, int $libraryId): void
+    {
+        if ($cataloger->catalogVolumes()->exists() || DB::table('manuscripts')->where('cataloger_id', $cataloger->id)->exists()) {
+            return;
+        }
+        $cataloger->delete();
+        EntityRedirect::recordRedirect('cataloger_library', $cataloger->id, $libraryId);
+        $this->line("«{$cataloger->name}» ({$cataloger->id}) removed; old links redirect to library {$libraryId}");
     }
 
     protected function volume(string $librarySlug, int $number): ?CatalogVolume
