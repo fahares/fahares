@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Console\Commands\ImportFankhaCatalogReferencesCommand as Import;
 use App\Models\CatalogVolume;
 use App\Models\Library;
 use App\Models\Manuscript;
@@ -80,5 +81,53 @@ class CatalogReferencesTest extends TestCase
         foreach ($m[1] as $json) {
             $this->assertStringNotContainsString('scan-source', $json);
         }
+    }
+
+    public function test_fankha_citations_are_parsed_into_volume_and_page()
+    {
+        $cases = [
+            '[ف: 2 - 224]' => ['ف', 2, 224],
+            '[ف: ۲-۲۲۴]' => ['ف', 2, 224],
+            '[ف مخ: 2 - 817]' => ['ف مخ', 2, 817],
+            '[ف مخ - 3 - 1159]' => ['ف مخ', 3, 1159],
+            '[رشت و همدان: ف: -1398]' => ['رشت و همدان', null, 1398],
+            '[سنا: ف2-157]' => ['سنا', 2, 157],
+            '[الفبائی: 9-]' => ['الفبائی', 9, null],
+            '[ف: 47/1 - 15]' => ['ف', 47, 15],
+            '[ف: 1/27-9]' => ['ف', 27, 9],
+            '[اهدائی رهبر: 2 اخبار 1-112]' => ['اهدائی رهبر', 2, 112],
+            '[تراثنا: س13ش1-123]' => ['تراثنا', null, 123],
+            '[ف: 18-5؛ فهرست رایانه‌ای ج3-730]' => ['ف', 18, 5],
+            '[مختصر ف: 10]' => ['مختصر ف', null, null],
+            '[رایانه]' => ['رایانه', null, null],
+            '[ف مخ]' => ['ف مخ', null, null],
+        ];
+        foreach ($cases as $citation => [$series, $volume, $page]) {
+            $this->assertSame(['series' => $series, 'volume' => $volume, 'page' => $page], Import::parse($citation), $citation);
+        }
+        $this->assertSame('[ف مخ: 1]', Import::rawCitation(null, "متن نسخه [ف مخ: 1]"));
+        $this->assertNull(Import::rawCitation('{"catalog_citation": ""}', 'بی‌ارجاع'));
+    }
+
+    public function test_the_import_adds_one_fankha_row_per_copy_and_never_duplicates()
+    {
+        $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);
+        $bare = $this->manuscript(['catalog_volume_id' => null, 'metadata' => []]);
+
+        $this->artisan('catalogs:import-fankha-references', ['--dry-run' => true])->assertSuccessful();
+        $this->assertSame(0, Ref::count());
+
+        $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
+        $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
+        $rows = Ref::where('manuscript_id', $ms->id)->get();
+        $this->assertCount(1, $rows);
+        $this->assertSame(['[ف مخ: 2 - 817]', 2, 817, $this->fankhaVolume->id, Ref::SOURCE_FANKHA],
+            [$rows[0]->raw_text, $rows[0]->volume_number, $rows[0]->page_start, $rows[0]->catalog_volume_id, $rows[0]->source]);
+        $this->assertSame(0, Ref::where('manuscript_id', $bare->id)->count());
+
+        // a later relink of the copy is followed on the next run
+        $ms->update(['catalog_volume_id' => $this->edition->id]);
+        $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
+        $this->assertSame([$this->edition->id], Ref::where('manuscript_id', $ms->id)->pluck('catalog_volume_id')->all());
     }
 }
