@@ -1,0 +1,19 @@
+{
+    "_comment": "Later printings of library catalogue volumes whose page images the viewer shows (backlog item 51). edition_of names the volume Fankha cites, by library slug and volume number; source_url is kept in the database only and never shown. Applied by catalogs:sync-editions.",
+    "editions": [
+        {
+            "facsimile_code": "masjid-azam-ostadi",
+            "volume_number": 2,
+            "library_slug": "km-msgd-aaathm-21",
+            "edition_of": {"volume_number": 2},
+            "title": "فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد دوم",
+            "edition_label": "۱۳۶۵، رضا استادی",
+            "publication_year": "۱۳۶۵",
+            "page_first": 1,
+            "page_last": 827,
+            "pages_count": 827,
+            "source_url": "https://ghaemiyeh.com/show-book/504138",
+            "metadata": {"source": "ghaemiyeh", "pdf_leaf_offset": 2, "note": "PDF leaf = printed page + 2, checked on the headers of pp. 100, 415, 700 and 827"}
+        }
+    ]
+}

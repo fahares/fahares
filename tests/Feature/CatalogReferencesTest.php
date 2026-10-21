@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Console\Commands\ImportFankhaCatalogReferencesCommand as Import;
+use App\Models\Catalog;
 use App\Models\CatalogVolume;
 use App\Models\Library;
 use App\Models\Manuscript;
@@ -24,7 +25,8 @@ class CatalogReferencesTest extends TestCase
     {
         parent::setUp();
         $this->library = Library::create(['name' => 'مسجد اعظم', 'city' => 'قم', 'slug' => 'masjid-azam-' . uniqid()]);
-        $this->fankhaVolume = CatalogVolume::create(['title' => 'فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد دوم', 'volume_number' => 2, 'library_id' => $this->library->id]);
+        $fankha = Catalog::firstOrCreate(['code' => 'fankha'], ['name' => 'فهرستگان نسخه‌های خطی ایران', 'short_name' => 'فنخا']);
+        $this->fankhaVolume = CatalogVolume::create(['title' => 'فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد دوم', 'volume_number' => 2, 'library_id' => $this->library->id, 'catalog_id' => $fankha->id]);
         $this->edition = CatalogVolume::create([
             'title' => 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد دوم', 'volume_number' => 2, 'library_id' => $this->library->id,
             'edition_of_id' => $this->fankhaVolume->id, 'edition_label' => 'چاپ ۱۳۶۵، رضا استادی',
@@ -129,5 +131,24 @@ class CatalogReferencesTest extends TestCase
         $ms->update(['catalog_volume_id' => $this->edition->id]);
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->assertSame([$this->edition->id], Ref::where('manuscript_id', $ms->id)->pluck('catalog_volume_id')->all());
+    }
+
+    public function test_editions_are_synced_by_natural_key()
+    {
+        $path = tempnam(sys_get_temp_dir(), 'editions');
+        file_put_contents($path, json_encode(['editions' => [[
+            'facsimile_code' => 'test-edition', 'volume_number' => 2, 'library_slug' => $this->library->slug, 'edition_of' => ['volume_number' => 2],
+            'title' => 'فهرست آزمایشی - جلد دوم', 'edition_label' => '۱۳۶۵', 'page_first' => 1, 'page_last' => 10, 'source_url' => self::SECRET_URL,
+        ]]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('catalogs:sync-editions', ['--data' => $path, '--dry-run' => true])->assertSuccessful();
+        $this->assertNull(CatalogVolume::where('facsimile_code', 'test-edition')->first());
+        $this->artisan('catalogs:sync-editions', ['--data' => $path])->assertSuccessful();
+        $this->artisan('catalogs:sync-editions', ['--data' => $path])->expectsOutputToContain('unchanged')->assertSuccessful();
+        unlink($path);
+
+        $edition = CatalogVolume::where('facsimile_code', 'test-edition')->sole();
+        $this->assertSame([$this->fankhaVolume->id, null, self::SECRET_URL, 10], [$edition->edition_of_id, $edition->catalog_id, $edition->source_url, $edition->page_last]);
+        $this->assertCount(0, $edition->catalogers);
     }
 }

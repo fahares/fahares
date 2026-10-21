@@ -42,7 +42,7 @@ class CatalogerController extends Controller
 
         $stats = [
             'total_catalogers' => Cataloger::count(),
-            'total_volumes' => CatalogVolume::count(),
+            'total_volumes' => CatalogVolume::whereNull('edition_of_id')->count(),
             'total_manuscripts' => Manuscript::whereNotNull('cataloger_id')->count(),
         ];
 
