@@ -109,10 +109,10 @@
                         <input type="file" name="images[]" multiple required accept="image/jpeg,image/png,image/webp" class="{{ $input }} file:ml-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-cinnabar file:text-on-cinnabar">
                         <button type="submit" class="{{ $btn }}">بارگذاری</button>
                     </form>
-                    <p class="text-stone-500">نشانی هر تصویر را رونوشت کنید و در متن، هر جا که تصویر باید بیاید، بگذارید. متن پس از ذخیره روی صفحه دیده می‌شود.</p>
+                    <p class="text-stone-500">نشانی هر تصویر را رونوشت کنید و در متن، هر جا که تصویر باید بیاید، در سطری جداگانه بگذارید. به جای «توضیح تصویر» زیرنویس آن را بنویسید تا زیر تصویر بیاید. متن پس از ذخیره روی صفحه دیده می‌شود.</p>
                     <ul class="space-y-3">
                         @forelse($post->images() as $image)
-                            @php $snippet = "![توضیح تصویر]({$image['url']})"; @endphp
+                            @php $snippet = '![' . \App\Models\Post::IMAGE_ALT_PLACEHOLDER . "]({$image['url']})"; @endphp
                             <li class="flex gap-3 items-start border-t border-line pt-3" x-data="{ copied: false }">
                                 <a href="{{ $image['url'] }}" target="_blank" class="shrink-0"><img src="{{ $image['url'] }}" alt="" class="w-16 h-16 object-cover rounded-lg border border-line"></a>
                                 <div class="min-w-0 flex-1 space-y-1.5">
@@ -144,7 +144,7 @@
                     <div><dt><code>- مورد</code></dt> <dd>— فهرست؛ <code>1. مورد</code> برای فهرست شماره‌دار</dd></div>
                     <div><dt><code>&gt; متن</code></dt> <dd>— نقل‌قول</dd></div>
                     <div><dt><code>[متن](/works/123)</code></dt> <dd>— پیوند</dd></div>
-                    <div><dt><code>![توضیح](نشانی)</code></dt> <dd>— تصویر</dd></div>
+                    <div><dt><code>![زیرنویس](نشانی)</code></dt> <dd>— تصویر، با زیرنویس زیر آن</dd></div>
                     <div><dt><code>---</code></dt> <dd>— خط جداکننده</dd></div>
                 </dl>
                 <p class="text-stone-400">برای آغاز بند تازه، یک سطر خالی بگذارید.</p>

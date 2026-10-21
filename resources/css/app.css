@@ -181,6 +181,9 @@ body {
     line-height: 2.1;
 }
 .post-body > * + * { margin-top: 1.1em; }
+.post-body p,
+.post-body li,
+.post-body blockquote { text-align: justify; text-justify: inter-word; }
 .post-body h2,
 .post-body h3,
 .post-body h4 {
@@ -202,6 +205,14 @@ body {
     color: var(--muted);
 }
 .post-body img { max-width: 100%; height: auto; margin-inline: auto; border-radius: 2px; border: 1px solid var(--line); }
+.post-body figure { margin-block: 1.8em; }
+.post-body figcaption {
+    margin-top: 0.6em;
+    font-size: 0.8125rem;
+    line-height: 1.9;
+    color: var(--muted);
+    text-align: center;
+}
 .post-body hr { border: 0; height: 5px; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold); margin-block: 2em; }
 .post-body table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
 .post-body th,

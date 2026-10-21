@@ -61,13 +61,26 @@ class Post extends Model
         return $this->whereKey((int) $value)->firstOrFail();
     }
 
-    /** The body as HTML. Only Markdown is rendered for now; body_format leaves room for another editor. */
+    /** Alt text the admin page offers in the copied snippet; it is not a caption until it is replaced. */
+    public const IMAGE_ALT_PLACEHOLDER = 'توضیح تصویر';
+
+    /**
+     * The body as HTML. Only Markdown is rendered for now; body_format leaves room for another editor.
+     * A picture on a line of its own becomes a figure, with its alt text as the caption below it.
+     */
     public function getBodyHtmlAttribute(): string
     {
-        return Str::markdown((string) $this->body, [
+        $html = Str::markdown((string) $this->body, [
             'html_input' => 'escape',
             'allow_unsafe_links' => false,
         ]);
+
+        return preg_replace_callback('#<p>(<img [^>]*?alt="([^"]*)"[^>]*>)</p>#u', function ($m) {
+            $caption = trim($m[2]);
+            $caption = $caption === self::IMAGE_ALT_PLACEHOLDER ? '' : $caption;
+
+            return '<figure>' . $m[1] . ($caption !== '' ? "<figcaption>{$caption}</figcaption>" : '') . '</figure>';
+        }, $html);
     }
 
     /** The summary, or the start of the body as plain text, for lists and the meta description. */

@@ -81,6 +81,16 @@ class PostTest extends TestCase
             ->assertDontSee('href="javascript:', false);
     }
 
+    public function test_a_picture_on_its_own_line_gets_its_alt_text_as_a_caption()
+    {
+        $post = new Post(['body' => "![برگ نخست نسخه](/storage/a.jpg)\n\n![توضیح تصویر](/storage/b.jpg)\n\nمتن با ![درون‌خطی](/storage/c.jpg) در میان."]);
+
+        $this->assertStringContainsString('<figure><img src="/storage/a.jpg" alt="برگ نخست نسخه" /><figcaption>برگ نخست نسخه</figcaption></figure>', $post->body_html);
+        // The placeholder of the copied snippet is not shown as a caption
+        $this->assertStringContainsString('<figure><img src="/storage/b.jpg" alt="توضیح تصویر" /></figure>', $post->body_html);
+        $this->assertStringNotContainsString('<figcaption>درون‌خطی', $post->body_html);
+    }
+
     public function test_images_for_the_body_are_uploaded_listed_and_removed_with_the_post()
     {
         $post = Post::create(['title' => 'معرفی نسخه']);
