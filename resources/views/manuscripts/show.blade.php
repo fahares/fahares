@@ -205,45 +205,55 @@
                 @endif
             </x-ui.card>
 
-            <x-ui.card class="space-y-3">
-                <div>
-                    <div class="text-xs text-muted">مأخذ</div>
-                    <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
-                    @if($manuscript->catalogVolume)
-                        <div class="text-xs text-muted mt-0.5">{{ $manuscript->catalogVolume->title }}</div>
+            <!-- Codicological sources: the catalog (فنخا) first, then other printings of the library catalogue (backlog item 51) -->
+            <x-ui.card class="space-y-4">
+                <div class="text-xs text-muted">در مآخذ نسخه‌شناسی</div>
+                <div class="space-y-2">
+                    <div>
+                        <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif</div>
+                        @if($manuscript->catalogVolume)
+                            <div class="text-xs text-muted mt-0.5">{{ $manuscript->catalogVolume->title }}</div>
+                        @endif
+                    </div>
+                    @if($pageThumb)
+                        <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $catShort }}">
+                            <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                                <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
+                            </div>
+                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $catShort }}</span>
+                        </button>
                     @endif
-                    {{-- The same copy in another printing of the library catalogue (backlog item 51) --}}
-                    @foreach($manuscript->catalogReferences as $ref)
-                        @continue(! ($viewer = $ref->viewer()))
-                        @php
-                            $edition = $ref->catalogVolume;
-                            $refLabel = Fa::digits(implode('، ', array_filter([
-                                $edition->short_title,
-                                $edition->edition_label ? 'چاپ ' . $edition->edition_label : null,
-                                "ج {$viewer['volume']}",
-                                "ص {$viewer['page']}",
-                            ])));
-                        @endphp
-                        <div class="mt-1.5 flex items-start gap-1 text-xs">
-                            <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))"
-                                class="text-right font-semibold text-cinnabar hover:underline cursor-pointer leading-5">دیدن در {{ $refLabel }}</button>
+                </div>
+                @foreach($manuscript->catalogReferences as $ref)
+                    @continue(! ($viewer = $ref->viewer()))
+                    @php
+                        $edition = $ref->catalogVolume;
+                        $refLabel = Fa::digits(implode('، ', array_filter([
+                            $edition->short_title,
+                            $edition->edition_label ? 'چاپ ' . $edition->edition_label : null,
+                            "ج {$viewer['volume']}",
+                            "ص {$viewer['page']}",
+                        ])));
+                        $refThumb = asset('storage/catalogs/' . $viewer['catalog'] . '/v' . str_pad($viewer['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($viewer['page'], 4, '0', STR_PAD_LEFT) . '.webp');
+                    @endphp
+                    <div class="space-y-2 pt-4 border-t border-line" data-viewer-card>
+                        <div class="flex items-start gap-1">
+                            <div class="text-sm font-bold text-ink leading-6">{{ $refLabel }}</div>
                             @if($ref->isAwaitingReview())
-                                <x-ui.machine-badge class="shrink-0"
+                                <x-ui.machine-badge class="shrink-0 mt-0.5"
                                     text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
                                     :report="['general' => true, 'value' => 'نشانی این نسخه در ' . $refLabel . ' نادرست است. نشانی درست: ']" />
                             @endif
                         </div>
-                    @endforeach
-                </div>
-                @if($pageThumb)
-                    <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
-                        <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
-                            <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
-                        </div>
-                        <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در مأخذ چاپی</span>
-                    </button>
-                @endif
+                        <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="block w-full group cursor-pointer" title="دیدن برگه در فهرست کتابخانه">
+                            <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
+                                <img src="{{ $refThumb }}" alt="برگه‌ی {{ $refLabel }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
+                            </div>
+                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در فهرست کتابخانه</span>
+                        </button>
+                    </div>
+                @endforeach
                 @if($manuscript->cataloger)
                     <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="flex items-center gap-3 pt-3 border-t border-line group">
                         <span class="w-11 h-14 shrink-0 rounded-t-full overflow-hidden border border-gold bg-paper grid place-items-center">

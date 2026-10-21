@@ -218,7 +218,7 @@ class CatalogReferencesTest extends TestCase
 
         $this->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSee($this->fankhaVolume->title)
-            ->assertSee('دیدن در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')
+            ->assertSee('در مآخذ نسخه‌شناسی')->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
             ->assertSee('masjid-azam-ostadi')
             ->assertSee($note)
             ->assertSee('گزارش نشانی نادرست');
