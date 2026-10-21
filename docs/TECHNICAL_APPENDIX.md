@@ -3144,9 +3144,9 @@
 - **صف داوری:** [CatalogReferenceController](../app/Http/Controllers/Admin/CatalogReferenceController.php) با مسیرهای `admin.catalog-references.index|verify|reject`. ترتیب ردیف‌ها از کم‌اطمینان به پراطمینان است و ۴۰ ردیف در هر صفحه می‌آید. شمار در انتظار در نوار کناری نشان داده می‌شود. تأیید یا رد ردیف `fankha` پاسخ ۴۰۴ می‌دهد. «تأیید همه‌ی ردیف‌های پراطمینان» هنوز ساخته نشده است.
 - **آزمون:** [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php)، ۱۰ آزمون: رابطه‌ها و پنهان‌بودن `source_url`، `viewer()`، نبود `source_url` در HTML و JSON-LD، تجزیه‌ی ارجاع، تکرارنشدن انتقال، `sync-editions`، شباهت عنوان، تطبیق و نگه‌داشتن ردیف بازبینی‌شده، نمایش و نشان، و صف داوری با دسترسی. از worktree با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شد، با vendor و .env شاخه‌ی اصلی فقط‌خواندنی و پایگاه جدای `fahares_refs_test`.
 - **طرح استقرار** (هر مرحله با تأیید جداگانه‌ی کاربر):
-  1. rebase روی آخرین `origin/main`، اجرای دوباره‌ی آزمون‌ها، و push به main (استقرار Coolify، با migration خودکار در صورتی که استقرار migrate را اجرا کند؛ وگرنه `php artisan migrate --force`).
+  1. rebase روی آخرین `origin/main` و اجرای دوباره‌ی آزمون‌ها. سپس push به main (استقرار Coolify)، و پس از بالا آمدن، `ssh fahares-app php artisan migrate --status` و `php artisan migrate --force`. باید فقط دو migration این گام در انتظار باشند. تا migrate اجرا نشود، صفحه‌ی نسخه خطا می‌دهد، چون جدول تازه را می‌خواند. پس این دو کار باید پشت سر هم انجام شوند.
   2. انتقال `storage/app/public/catalogs/masjid-azam-ostadi/v02` (۸۲۷ پرونده، ۴۷ مگابایت) به حجم پایدار storage پروداکشن، به همان روش زرکلی، و وارسی نام، اندازه و HTTP 200.
   3. `php artisan catalogs:sync-editions --dry-run`، سپس بدون آن.
   4. `php artisan catalogs:import-fankha-references --dry-run`، سپس بدون آن.
-  5. کپی `masjid-azam_v02_pages.jsonl.gz` به کانتینر، `php artisan catalogs:match-edition masjid-azam-ostadi <path> --dry-run` (باید ۱٬۶۱۵ تطبیق بدهد)، سپس بدون آن.
+  5. کپی `masjid-azam_v02_pages.jsonl.gz` به `/tmp` کانتینر (`storage/app` پایدار نیست)، `php artisan catalogs:match-edition masjid-azam-ostadi <path> --dry-run` (باید ۱٬۶۱۵ تطبیق بدهد)، سپس بدون آن.
   6. وارسی fahares.net/manuscripts/<شناسه‌ی پروداکشن نسخه‌ی ۳۰۰۲ مسجد اعظم> و صف داوری.
