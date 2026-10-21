@@ -200,10 +200,16 @@ class MergeCatalogDuplicatesCommand extends Command
         if ($this->dry) {
             return;
         }
-        DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->update(['catalog_volume_id' => $keep->id]);
-        $keep->catalogers()->syncWithoutDetaching(
-            $drop->catalogers()->get()->mapWithKeys(fn ($c) => [$c->id => ['role' => $c->pivot->role]])->all()
-        );
+        if (! empty($merge['reassign'])) {
+            // the duplicate's catalogers were wrong: its copies take the kept volume's cataloger
+            $catalogerId = $keep->catalogers()->wherePivot('role', 'cataloger')->orderBy('catalog_volume_cataloger.id')->value('catalogers.id');
+            DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->update(['catalog_volume_id' => $keep->id, 'cataloger_id' => $catalogerId]);
+        } else {
+            DB::table('manuscripts')->where('catalog_volume_id', $drop->id)->update(['catalog_volume_id' => $keep->id]);
+            $keep->catalogers()->syncWithoutDetaching(
+                $drop->catalogers()->get()->mapWithKeys(fn ($c) => [$c->id => ['role' => $c->pivot->role]])->all()
+            );
+        }
         $mtif = $drop->mtif_entry_id;
         $drop->catalogers()->detach();
         $drop->delete();

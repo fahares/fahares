@@ -126,6 +126,23 @@ class MergeCatalogDuplicatesTest extends TestCase
         $this->assertSame($keep->id, $copy->fresh()->catalog_volume_id);
     }
 
+    public function test_a_reassigning_merge_gives_the_copies_the_kept_volumes_cataloger()
+    {
+        $library = Library::create(['name' => 'فاضل', 'city' => 'خوانسار', 'slug' => 'fazel-' . uniqid()]);
+        $right = Cataloger::create(['name' => 'درست', 'slug' => 'right-' . uniqid()]);
+        $wrong = Cataloger::create(['name' => 'نادرست', 'slug' => 'wrong-' . uniqid()]);
+        $keep = CatalogVolume::create(['title' => 'فاضل - 1', 'volume_number' => 1, 'library_id' => $library->id, 'mtif_entry_id' => 881384]);
+        $drop = CatalogVolume::create(['title' => 'عمومی فاضل - جلد 1', 'volume_number' => 1, 'library_id' => $library->id]);
+        $keep->catalogers()->attach($right->id, ['role' => 'cataloger']);
+        $drop->catalogers()->attach($wrong->id, ['role' => 'cataloger']);
+        $copy = $this->manuscript($library, '[ف: 1-3]', $drop->id, $wrong->id);
+        $this->write(['volume_merges' => [['drop' => ['library' => $library->slug, 'title' => 'عمومی فاضل - جلد 1'], 'keep' => ['mtif' => 881384], 'reassign' => true]]]);
+
+        $this->artisan('catalogs:merge-duplicates', ['--data' => $this->dataPath])->assertSuccessful();
+        $this->assertSame([$keep->id, $right->id], [$copy->fresh()->catalog_volume_id, $copy->fresh()->cataloger_id]);
+        $this->assertSame([$right->id], $keep->catalogers()->pluck('catalogers.id')->all());
+    }
+
     private function manuscript(Library $library, string $citation, ?int $volumeId = null, ?int $catalogerId = null): Manuscript
     {
         return Manuscript::create([
