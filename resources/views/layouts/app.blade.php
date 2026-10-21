@@ -64,7 +64,6 @@
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
                                 <span class="font-naskh text-[28px] font-bold text-ink leading-none group-hover:text-cinnabar transition-colors">فهارس</span>
-                                <span class="inline-block px-2 py-px rounded-full text-[10px] font-bold text-muted border border-line-strong">آزمایشی</span>
                             </div>
                             <span class="text-[11px] text-muted font-medium mt-1">پایگاه جامع نسخه‌های خطی</span>
                         </div>
