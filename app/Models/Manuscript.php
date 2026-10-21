@@ -420,6 +420,12 @@ class Manuscript extends Model
         return $this->belongsTo(CatalogVolume::class);
     }
 
+    /** Where the copy is described in library catalogues (backlog item 51); rejected matches are kept for the record only. */
+    public function catalogReferences(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ManuscriptCatalogReference::class);
+    }
+
     public function work(): BelongsTo
     {
         return $this->belongsTo(Work::class);
