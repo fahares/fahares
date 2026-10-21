@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Console\Commands\ImportFankhaCatalogReferencesCommand as Import;
+use App\Console\Commands\MatchCatalogEditionCommand as Matcher;
 use App\Models\Catalog;
 use App\Models\CatalogVolume;
 use App\Models\Library;
@@ -150,5 +151,60 @@ class CatalogReferencesTest extends TestCase
         $edition = CatalogVolume::where('facsimile_code', 'test-edition')->sole();
         $this->assertSame([$this->fankhaVolume->id, null, self::SECRET_URL, 10], [$edition->edition_of_id, $edition->catalog_id, $edition->source_url, $edition->page_last]);
         $this->assertCount(0, $edition->catalogers);
+    }
+
+    private function pages(): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'pages') . '.jsonl';
+        $pages = [
+            [414, "606- دیوان قاسمی (فارسی)\nاز: قاسمی\nآغاز: «ای دل و جان عاشقان»"],
+            [415, "انجام: «صلوات خدای»\nش ۱۹۳۹، ۲۰۷ برگ، نستعلیق\n\n607- دیوان قدسی (فارسی)\nاز: قدسی\nش 3543، 164 برگ\nش 2000، جنگ"],
+            [416, "608- جنگ اشعار = بیاض (فارسی)\nش 2000/2، 50 برگ\nش 1939، 10 برگ"],
+        ];
+        file_put_contents($path, implode("\n", array_map(fn ($p) => json_encode(['page' => $p[0], 'text' => $p[1]], JSON_UNESCAPED_UNICODE), $pages)));
+
+        return $path;
+    }
+
+    public function test_titles_are_compared_like_the_pilot()
+    {
+        $this->assertSame('حدیقه شیعه', Matcher::norm('حديقة الشيعة'));
+        $this->assertSame('تحریر مساکن', Matcher::norm('رساله در تحریر المساکن'));
+        $this->assertEqualsWithDelta(1.0, Matcher::similarity('دیوان قدسی', 'دیوان قدسی'), 0.001);
+        $this->assertEqualsWithDelta(0.75, Matcher::similarity('ابجد', 'ابجه'), 0.001); // 3 of 4 + 4 characters
+        $this->assertSame(0.0, Matcher::similarity('ا', 'ب'));
+    }
+
+    public function test_copies_are_matched_by_shelfmark_and_title_to_the_page_where_the_entry_starts()
+    {
+        $ms = $this->manuscript(['shelfmark' => '1939']);
+        $ms->work->update(['primary_title' => 'دیوان قاسمی']);
+        $generic = $this->manuscript(['shelfmark' => '2000']);
+        $generic->work->update(['primary_title' => 'مجموعه']);
+        $absent = $this->manuscript(['shelfmark' => '9999']);
+        $pages = $this->pages();
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages, '--dry-run' => true])->assertSuccessful();
+        $this->assertSame(0, Ref::count());
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
+
+        $ref = Ref::where('manuscript_id', $ms->id)->sole();
+        $this->assertSame([Ref::SOURCE_AI_MATCH, Ref::STATUS_UNVERIFIED, Matcher::METHOD_TITLE, 100, 414, 415, 415, 606, $this->edition->id, 2],
+            [$ref->source, $ref->status, $ref->match_method, $ref->confidence, $ref->page_start, $ref->page_end, $ref->shelfmark_page, $ref->entry_number, $ref->catalog_volume_id, $ref->volume_number]);
+        $this->assertStringContainsString('ش 1939', $ref->raw_text);
+
+        // «2000» stands in two entries on two pages and the title fits neither: recorded with low confidence
+        $low = Ref::where('manuscript_id', $generic->id)->sole();
+        $this->assertSame(Matcher::METHOD_AMBIGUOUS, $low->match_method);
+        $this->assertSame(10, $low->confidence);
+        $this->assertStringContainsString('جاهای دیگر', $low->notes);
+        $this->assertSame(0, Ref::where('manuscript_id', $absent->id)->count());
+
+        // a reviewed match is kept as it is on the next run, and nothing is duplicated
+        $ref->update(['status' => Ref::STATUS_REJECTED, 'page_start' => 1]);
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
+        $this->assertSame([1, Ref::STATUS_REJECTED], [$ref->fresh()->page_start, $ref->fresh()->status]);
+        $this->assertSame(2, Ref::where('source', Ref::SOURCE_AI_MATCH)->count());
+        unlink($pages);
     }
 }
