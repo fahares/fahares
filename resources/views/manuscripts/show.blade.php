@@ -459,9 +459,6 @@
                 <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
                     <x-slot:actions>
                         <span class="text-muted">{{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}</span>
-                        @if($openViewer)
-                            <x-ui.btn size="sm" @click="{{ $openViewer }}">دیدن برگه</x-ui.btn>
-                        @endif
                         <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                             <span x-show="!copied">رونوشت متن</span>
                             <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
