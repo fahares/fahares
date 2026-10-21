@@ -217,8 +217,9 @@ class CatalogReferencesTest extends TestCase
         $note = 'این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
 
         $this->get(route('manuscripts.show', $ms))->assertOk()
-            ->assertSee($this->fankhaVolume->title)
-            ->assertSee('در مآخذ نسخه‌شناسی')->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
+            // the library catalogue first, Fankha last, without repeating the volume title under it
+            ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'چاپ ۱۳۶۵', 'دیدن برگه در فنخا'])
+            ->assertDontSee($this->fankhaVolume->title)->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
             ->assertSee('masjid-azam-ostadi')
             ->assertSee($note)
             ->assertSee('گزارش نشانی نادرست');
@@ -227,7 +228,7 @@ class CatalogReferencesTest extends TestCase
         $this->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
 
         $ref->update(['status' => Ref::STATUS_REJECTED]);
-        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴');
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
     }
 
     public function test_reviewers_verify_and_reject_machine_matches_in_the_queue()
