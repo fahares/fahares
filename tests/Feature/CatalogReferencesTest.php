@@ -156,6 +156,91 @@ class CatalogReferencesTest extends TestCase
         $this->assertCount(0, $edition->catalogers);
     }
 
+    public function test_a_sync_corrects_the_cited_volume_and_detaches_a_foreign_cataloger()
+    {
+        $this->fankhaVolume->update(['publisher' => 'نشر نفایس مخطوطات اصفهان', 'publication_year' => '۱۳۳۷-۱۳۴۱', 'pages_count' => 623]);
+        $foreign = \App\Models\Cataloger::create(['name' => 'فهرست‌نگار دیگر', 'slug' => 'foreign-' . uniqid(), 'volumes_count' => 1]);
+        $own = \App\Models\Cataloger::create(['name' => 'فهرست‌نگار همین جلد', 'slug' => 'own-' . uniqid()]);
+        $this->fankhaVolume->catalogers()->attach([$foreign->id => ['role' => 'cataloger'], $own->id => ['role' => 'cataloger']]);
+        $path = tempnam(sys_get_temp_dir(), 'editions');
+        file_put_contents($path, json_encode(['editions' => [[
+            'facsimile_code' => 'test-edition', 'volume_number' => 2, 'library_slug' => $this->library->slug,
+            'edition_of' => ['volume_number' => 2, 'set' => ['publisher' => 'مؤسسه الجواد', 'publication_year' => 'مخطوط', 'pages_count' => null],
+                'detach_catalogers' => ['فهرست‌نگار دیگر']],
+            'title' => 'فهرست آزمایشی - جلد دوم', 'page_first' => 1, 'page_last' => 10,
+        ]]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('catalogs:sync-editions', ['--data' => $path, '--dry-run' => true])->expectsOutputToContain('correct: volume')->assertSuccessful();
+        $this->assertSame('۱۳۳۷-۱۳۴۱', $this->fankhaVolume->fresh()->publication_year);
+        $this->artisan('catalogs:sync-editions', ['--data' => $path])->assertSuccessful();
+        $this->artisan('catalogs:sync-editions', ['--data' => $path])->doesntExpectOutputToContain('correct: volume')->assertSuccessful();
+        unlink($path);
+
+        $volume = $this->fankhaVolume->fresh();
+        $this->assertSame(['مؤسسه الجواد', 'مخطوط', null], [$volume->publisher, $volume->publication_year, $volume->pages_count]);
+        $this->assertSame([$own->id], $volume->catalogers()->pluck('catalogers.id')->all());
+        $this->assertSame(0, $foreign->fresh()->volumes_count);
+    }
+
+    public function test_treatises_of_a_composite_volume_are_matched_by_shelfmark_part()
+    {
+        $first = $this->manuscript(['shelfmark' => '5/1']);
+        $first->work->update(['primary_title' => 'الحبل المتین']);
+        $second = $this->manuscript(['shelfmark' => '5/2']);
+        $second->work->update(['primary_title' => 'الوجیزة فی الدرایة']);
+        $missing = $this->manuscript(['shelfmark' => '5/3']);
+        $shifted = $this->manuscript(['shelfmark' => '5/1']);
+        $shifted->work->update(['primary_title' => 'الوجیزة']);
+        $later = $this->manuscript(['shelfmark' => '17/2']);
+        $later->work->update(['primary_title' => 'صیغ العقود و الایقاعات']);
+        $path = tempnam(sys_get_temp_dir(), 'pages') . '.jsonl';
+        $pages = [
+            [7, "( شماره 5 )\n\n1 - حبل المتین «برگ 1 - 143» (فقه - عربی)\nاز: شیخ بهاء الدین\n\n2 - الوجیزة (144 - 145) (درایه - عربی)\nاز: همو\n145 برگ، 21 × 29\n\n( 17 )\n\n1 - تحفة الأبرار «1 - 246» (فقه - فارسی)\nاز: شفتی"],
+            [8, "2 ـ صیغ العقود والایقاعات «247 ـ 260» (فقه ـ عربی)\nاز: ؟\n(1)\n3 - رسالة اخری (فقه - عربی)"],
+        ];
+        file_put_contents($path, implode("\n", array_map(fn ($p) => json_encode(['page' => $p[0], 'text' => $p[1]], JSON_UNESCAPED_UNICODE), $pages)));
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $path])->assertSuccessful();
+        unlink($path);
+
+        $refs = Ref::where('source', Ref::SOURCE_AI_MATCH)->get()->keyBy('manuscript_id');
+        $this->assertSame([7, 1, Matcher::METHOD_TITLE], [$refs[$first->id]->page_start, $refs[$first->id]->entry_number, $refs[$first->id]->match_method]);
+        $this->assertSame([7, 2, Matcher::METHOD_SINGLE_PAGE], [$refs[$second->id]->page_start, $refs[$second->id]->entry_number, $refs[$second->id]->match_method]);
+        $this->assertSame([8, 2, Matcher::METHOD_TITLE], [$refs[$later->id]->page_start, $refs[$later->id]->entry_number, $refs[$later->id]->match_method]);
+        $this->assertStringStartsWith('( 17 )', $refs[$later->id]->raw_text);
+        $this->assertArrayNotHasKey($missing->id, $refs->all());
+        // numbered 1 by Fankha, but only the second treatise fits: taken, with a note for the reviewer
+        $this->assertSame([2, Matcher::METHOD_TITLE], [$refs[$shifted->id]->entry_number, $refs[$shifted->id]->match_method]);
+        $this->assertStringContainsString('ردیف 2', $refs[$shifted->id]->notes);
+        $this->assertSame('حبل المتین', Matcher::entryTitle('حبل المتین «برگ 1 - 143»'));
+        $this->assertSame('روزنامه «ساعت نامه»', Matcher::entryTitle('روزنامه «ساعت نامه»'));
+    }
+
+    public function test_a_weak_match_gives_way_to_a_title_match_in_another_volume_of_the_printing()
+    {
+        $volume1 = CatalogVolume::create(['title' => 'فهرست - جلد اول', 'volume_number' => 1, 'library_id' => $this->library->id,
+            'edition_of_id' => $this->fankhaVolume->id, 'facsimile_code' => 'masjid-azam-ostadi']);
+        $ms = $this->manuscript(['shelfmark' => '3950']);
+        $ms->work->update(['primary_title' => 'تحفة الزائر']);
+        $write = function (array $pages, int $volume) {
+            $path = tempnam(sys_get_temp_dir(), 'pages') . '.jsonl';
+            file_put_contents($path, implode("\n", array_map(fn ($p) => json_encode(['page' => $p[0], 'text' => $p[1]], JSON_UNESCAPED_UNICODE), $pages)));
+            $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $path, '--volume' => $volume])->assertSuccessful();
+            unlink($path);
+        };
+
+        // volume 1 first: the number alone stands under the Quran, a weak match
+        $write([[17, "1- القرآن الکریم\nش 3950، نسخ"]], 1);
+        $this->assertSame(Matcher::METHOD_SHELFMARK_ONLY, Ref::where('catalog_volume_id', $volume1->id)->sole()->match_method);
+        // volume 2 confirms it by title, and the weak row of volume 1 goes
+        $write([[90, "153- تحفه الزائر (دعا وزیارت، فارسی)\nش 3950، 20 برگ"]], 2);
+        $this->assertSame(0, Ref::where('catalog_volume_id', $volume1->id)->count());
+        $this->assertSame(Matcher::METHOD_TITLE, Ref::where('catalog_volume_id', $this->edition->id)->sole()->match_method);
+        // and running volume 1 again does not bring it back
+        $write([[17, "1- القرآن الکریم\nش 3950، نسخ"]], 1);
+        $this->assertSame(0, Ref::where('catalog_volume_id', $volume1->id)->count());
+    }
+
     private function pages(): string
     {
         $path = tempnam(sys_get_temp_dir(), 'pages') . '.jsonl';

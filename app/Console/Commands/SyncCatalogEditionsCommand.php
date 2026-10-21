@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Cataloger;
 use App\Models\CatalogVolume;
 use App\Models\Library;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -12,6 +14,10 @@ use Illuminate\Support\Facades\File;
  * printing of a library catalogue volume, as a catalog_volumes row with no catalog_id and no catalogers (so it
  * changes no cataloger count), pointing through edition_of_id at the volume Fankha cites. Rows are found by
  * facsimile_code and volume number, the library and the cited volume by slug and number, never by local id.
+ *
+ * edition_of may also correct the cited volume: «set» writes its columns and «detach_catalogers» (names) removes
+ * catalogers another catalogue brought to it, e.g. Masjid-e A'zam vol 1, which carried the year, publisher and
+ * cataloger of the Isfahan series.
  */
 class SyncCatalogEditionsCommand extends Command
 {
@@ -46,6 +52,8 @@ class SyncCatalogEditionsCommand extends Command
                 return self::FAILURE;
             }
 
+            $this->correctCited($cited[0], $spec['edition_of'], $dry);
+
             $values = collect($spec)->except(['library_slug', 'edition_of', 'facsimile_code', 'volume_number'])->all()
                 + ['library_id' => $library->id, 'edition_of_id' => $cited[0]->id, 'catalog_id' => null];
             $edition = CatalogVolume::firstOrNew(['facsimile_code' => $spec['facsimile_code'], 'volume_number' => $spec['volume_number']]);
@@ -58,5 +66,27 @@ class SyncCatalogEditionsCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function correctCited(CatalogVolume $volume, array $spec, bool $dry): void
+    {
+        $volume->fill($spec['set'] ?? []);
+        $detach = $volume->catalogers()->whereIn('name', $spec['detach_catalogers'] ?? [])->pluck('catalogers.id');
+        if (! $volume->isDirty() && $detach->isEmpty()) {
+            return;
+        }
+        $changes = collect($volume->getDirty())->map(fn ($v, $k) => "{$k}: «{$volume->getOriginal($k)}» → «{$v}»")->values()
+            ->when($detach->isNotEmpty(), fn ($c) => $c->push('detach catalogers ' . $detach->implode(', ')));
+        $this->line("correct: volume #{$volume->id} ({$volume->title}): " . $changes->implode('; '));
+        if (! $dry) {
+            $volume->save();
+            $volume->catalogers()->detach($detach->all());
+            // the same counts as LinkCatalogVolumesCommand::recountVolumesAndCatalogers, for the detached only
+            Cataloger::whereIn('id', $detach)->each(function (Cataloger $cataloger) {
+                $volumeIds = $cataloger->catalogVolumes()->pluck('catalog_volumes.id');
+                $cataloger->update(['volumes_count' => $volumeIds->count(), 'manuscripts_count' => DB::table('manuscripts')
+                    ->where(fn ($q) => $q->where('cataloger_id', $cataloger->id)->orWhereIn('catalog_volume_id', $volumeIds))->count()]);
+            });
+        }
     }
 }

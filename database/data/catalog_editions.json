@@ -1,19 +1,93 @@
 {
-    "_comment": "Later printings of library catalogue volumes whose page images the viewer shows (backlog item 51). edition_of names the volume Fankha cites, by library slug and volume number; source_url is kept in the database only and never shown. Applied by catalogs:sync-editions.",
+    "_comment": "Later printings of library catalogue volumes whose page images the viewer shows (backlog item 51). edition_of names the volume Fankha cites, by library slug and volume number, and may correct it (set: columns, detach_catalogers: names); source_url is kept in the database only and never shown. Applied by catalogs:sync-editions.",
     "editions": [
+        {
+            "facsimile_code": "masjid-azam-ostadi",
+            "volume_number": 1,
+            "library_slug": "km-msgd-aaathm-21",
+            "edition_of": {
+                "volume_number": 1,
+                "set": {
+                    "publisher": "مؤسسه الجواد",
+                    "publication_year": "مخطوط",
+                    "pages_count": null
+                },
+                "detach_catalogers": [
+                    "سید محمدعلی روضاتی"
+                ]
+            },
+            "title": "فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد اول",
+            "edition_label": "۱۳۸۸، به کوشش رضا استادی",
+            "publication_year": "۱۳۸۸",
+            "page_first": 1,
+            "page_last": 623,
+            "pages_count": 623,
+            "source_url": "https://ghaemiyeh.com/show-book/504133",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "note": "PDF leaf = printed page + 2, checked on the headers of pp. 17, 300 and 623. Colophon (p. 2): first printing 1388 ش; the 1365 of the reader's record is the national library's date for the set. The cited volume carried the publisher, year and a cataloger of the Isfahan series (MTIF 57010), corrected here."
+            }
+        },
         {
             "facsimile_code": "masjid-azam-ostadi",
             "volume_number": 2,
             "library_slug": "km-msgd-aaathm-21",
-            "edition_of": {"volume_number": 2},
+            "edition_of": {
+                "volume_number": 2
+            },
             "title": "فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد دوم",
-            "edition_label": "۱۳۶۵، رضا استادی",
-            "publication_year": "۱۳۶۵",
+            "edition_label": "۱۳۸۸، به کوشش رضا استادی",
+            "publication_year": "۱۳۸۸",
             "page_first": 1,
             "page_last": 827,
             "pages_count": 827,
             "source_url": "https://ghaemiyeh.com/show-book/504138",
-            "metadata": {"source": "ghaemiyeh", "pdf_leaf_offset": 2, "note": "PDF leaf = printed page + 2, checked on the headers of pp. 100, 415, 700 and 827"}
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "note": "PDF leaf = printed page + 2, checked on the headers of pp. 100, 415, 700 and 827. Colophon (p. 2): first printing 1388 ش."
+            }
+        },
+        {
+            "facsimile_code": "masjid-azam-ostadi",
+            "volume_number": 3,
+            "library_slug": "km-msgd-aaathm-21",
+            "edition_of": {
+                "volume_number": 3
+            },
+            "title": "فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد سوم",
+            "edition_label": "کتابخانه مسجد اعظم، به کوشش رضا استادی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 647,
+            "pages_count": 647,
+            "source_url": "https://ghaemiyeh.com/show-book/504144",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 0,
+                "note": "PDF leaf = printed page, checked on the headers of pp. 9, 302 and 647. No colophon; the cover names Reza Ostadi, Sadegh Hasanzadeh and Mahmud Tayyar Maraghi, with no year."
+            }
+        },
+        {
+            "facsimile_code": "masjid-azam-ostadi",
+            "volume_number": 4,
+            "library_slug": "km-msgd-aaathm-21",
+            "edition_of": {
+                "volume_number": 4
+            },
+            "title": "فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم - جلد چهارم",
+            "edition_label": "کتابخانه مسجد اعظم، به کوشش رضا استادی",
+            "publication_year": null,
+            "page_first": 1,
+            "page_last": 766,
+            "pages_count": 766,
+            "source_url": "https://ghaemiyeh.com/show-book/504150",
+            "metadata": {
+                "source": "ghaemiyeh",
+                "pdf_leaf_offset": 2,
+                "note": "PDF leaf = printed page + 2, checked on the headers of pp. 100, 400 and 766. No colophon; the cover names Reza Ostadi, Sadegh Hasanzadeh and Mahmud Tayyar Maraghi, with no year."
+            }
         }
     ]
 }

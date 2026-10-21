@@ -21,6 +21,15 @@ use Illuminate\Support\Facades\DB;
  *  - shelfmark_only: the number appears in one entry only but the titles differ (often «جنگ», «بیاض»), confidence 25;
  *  - ambiguous: several places and none clearly better; the best is written with confidence 10, the rest in notes.
  *
+ * Volumes 3 and 4 of the Masjid-e A'zam catalogue describe composite volumes instead: «( شماره 5 )» or «( 17 )» heads
+ * a volume, and its treatises follow as «1 - حبل المتین «برگ 1 - 143» (فقه - عربی)», «2 ـ …». Every treatise is a
+ * place of the heading's number with its part, so the copy «5/1» is compared with the first treatise only.
+ *
+ * A copy may stand by number in two volumes of the printing; both are kept when both are confirmed by title (vol 1
+ * names the treatises of a composite volume that vol 3 or 4 describes). A weak match (shelfmark_only, ambiguous, or
+ * shelfmark_single_page under 0.5) gives way to a confirmed one, or a verified one, in another volume of the same
+ * facsimile_code: it is not written, and an unverified weak row already there is deleted, whichever volume runs first.
+ *
  * page_start is the page where the entry begins (the viewer opens it) and shelfmark_page where the number stands.
  * Running it again updates the unverified matches and leaves the reviewed ones (verified or rejected), and the copies
  * whose address was corrected by hand (source manual), alone.
@@ -44,7 +53,16 @@ class MatchCatalogEditionCommand extends Command
 
     public const METHOD_AMBIGUOUS = 'ambiguous';
 
-    private const ENTRY = '/^\s*(\d+)\s*[-–]\s*(.+?)\s*(?:\(([^)]*)\))?\s*$/u';
+    /** A match confirmed by its title: shelfmark_title, or shelfmark_single_page from a similarity of 0.5 up. */
+    public static function confirmed(string $method, int $confidence): bool
+    {
+        return $method === self::METHOD_TITLE || ($method === self::METHOD_SINGLE_PAGE && $confidence >= 50);
+    }
+
+    private const ENTRY = '/^\s*(\d+)\s*[-–ـ]\s*(.+?)\s*(?:\(([^)]*)\))?\s*$/u';
+
+    /** «( شماره 5 )», «( 3619 )», «( 652 شامل ده رساله )»: the shelfmark heading a composite volume */
+    private const VOLUME = '/^\s*\(\s*(?:شماره\s*)?(\d+)(?:\s+[^)\d]{1,30})?\s*\)\s*$/u';
 
     private const SHELF = '/(?:^|[\s،(])ش\s*(\d+)(?:\s*\/\s*(\d+))?/u';
 
@@ -85,7 +103,7 @@ class MatchCatalogEditionCommand extends Command
             $matches[] = $match;
         }
 
-        $write = ['insert' => 0, 'update' => 0, 'unchanged' => 0, 'reviewed, kept' => 0];
+        $write = [];
         if ($matches) {
             $write = $this->write($edition, $matches, (bool) $this->option('dry-run'));
         }
@@ -140,20 +158,48 @@ class MatchCatalogEditionCommand extends Command
         $index = [];
         $entries = [];
         $current = null;
+        $volume = null; // the composite volume being read: [number, heading, last part]
         foreach ($pages as $page => $text) {
             $first = true;
             foreach (preg_split('/\R/u', self::digits($text)) as $line) {
                 if (trim($line) === '') {
                     continue;
                 }
-                if (preg_match(self::ENTRY, $line, $m) && mb_strlen($m[2]) < 120 && ! str_starts_with(ltrim($line), 'ش')) {
+                if (preg_match(self::VOLUME, $line, $m)) {
+                    $volume = [$m[1], trim($line), 0, false]; // number, heading, last part, in a contents list
+
+                    continue;
+                }
+                $entry = preg_match(self::ENTRY, $line, $m) && mb_strlen($m[2]) < 120 && ! str_starts_with(ltrim($line), 'ش');
+                $part = null;
+                if ($entry && $volume) {
+                    // a treatise follows the last part (a heading or two may be lost) and carries its leaves «1 ـ 38» or
+                    // its «(subject ـ language)»; a bare heading only as the very next part, and not once a contents
+                    // list has begun inside the treatise («1 ـ مقدمه…» after part 1)
+                    $n = (int) $m[1];
+                    $marked = preg_match('/«[^»]*\d[^»]*»|\(\s*\d+\s*[-–ـ]\s*\d+\s*\)|\)\s*$/u', $line);
+                    if ($volume[2] === 0 ? $n === 1 : ($marked ? $n > $volume[2] && $n <= $volume[2] + 3 : $n === $volume[2] + 1 && ! $volume[3])) {
+                        $part = $n;
+                    } elseif ($volume[2] === 0) {
+                        $volume = null; // not a composite volume after all, e.g. a stray «(1)» line
+                    } else {
+                        $volume[3] = $volume[3] || $n <= $volume[2];
+                        $entry = false;
+                    }
+                }
+                // «2 ـ …» heads a treatise only inside a composite volume; elsewhere it is a numbered list in an entry
+                if ($entry && ($part !== null || ! preg_match('/^\s*\d+\s*ـ/u', $line))) {
                     if ($current !== null) {
                         // the previous entry ends here, or on the page before when this one opens the page
                         $entries[$current]['page_end'] = $first ? max($entries[$current]['page_start'], $page - 1) : $page;
                     }
-                    $entries[] = ['number' => (int) $m[1], 'title' => trim($m[2]), 'heading' => trim($line), 'page_start' => $page, 'page_end' => $page];
+                    $entries[] = ['number' => (int) $m[1], 'title' => self::entryTitle($m[2]), 'heading' => trim($line), 'page_start' => $page, 'page_end' => $page];
                     $current = array_key_last($entries);
                     $first = false;
+                    if ($part !== null) {
+                        [$volume[2], $volume[3]] = [$part, false];
+                        $index[$volume[0]][] = ['page' => $page, 'entry' => $current, 'line' => $volume[1], 'part' => $part];
+                    }
 
                     continue;
                 }
@@ -181,16 +227,30 @@ class MatchCatalogEditionCommand extends Command
     /** The match of one copy ({id, shelfmark, primary_title}), or null when its number is not in the edition. */
     public static function match(object $copy, array $index): ?array
     {
-        if (! preg_match('/\d+/', self::digits((string) $copy->shelfmark), $base) || empty($index[$base[0]])) {
+        if (! preg_match('/(\d+)(?:\s*\/\s*(\d+))?/', self::digits((string) $copy->shelfmark), $base) || empty($index[$base[1]])) {
             return null;
         }
         $title = self::norm((string) $copy->primary_title);
-        $scored = [];
-        foreach ($index[$base[0]] as $place) {
+        $note = null;
+        $all = [];
+        foreach ($index[$base[1]] as $place) {
             $parts = explode('=', $place['entry']['title'] ?? '');
-            $scored[] = ['score' => max(array_map(fn ($part) => self::similarity($title, self::norm($part)), $parts)), 'place' => $place];
+            $all[] = ['score' => max(array_map(fn ($part) => self::similarity($title, self::norm($part)), $parts)), 'place' => $place];
         }
-        usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
+        usort($all, fn ($a, $b) => $b['score'] <=> $a['score']);
+        // «5/1» is the first treatise of volume 5: the other treatises of that volume are not its places, unless the
+        // same part does not fit and one other treatise clearly does (the two catalogues numbered the parts apart)
+        $part = isset($base[2]) ? (int) $base[2] : null;
+        $scored = array_values(array_filter($all, fn ($s) => $part === null || ! isset($s['place']['part']) || $s['place']['part'] === $part));
+        $shifted = array_values(array_filter($all, fn ($s) => $part !== null && isset($s['place']['part']) && $s['place']['part'] !== $part));
+        if ($shifted && $shifted[0]['score'] >= 0.8 && ($scored[0]['score'] ?? 0) < 0.5
+            && ! (isset($shifted[1]) && $shifted[1]['score'] === $shifted[0]['score'])) {
+            $scored = [$shifted[0]];
+            $note = sprintf('ردیف %d این مجموعه در فهرست، نه %d', $shifted[0]['place']['part'], $part);
+        }
+        if (! $scored) {
+            return null;
+        }
         $best = $scored[0];
         $ties = array_filter($scored, fn ($s) => $s['score'] === $best['score'] && $s['place']['page'] !== $best['place']['page']);
         $pages = array_unique(array_map(fn ($s) => $s['place']['page'], $scored));
@@ -220,18 +280,21 @@ class MatchCatalogEditionCommand extends Command
             'page_end' => $entry['page_end'] ?? $place['page'],
             'shelfmark_page' => $place['page'],
             'entry_number' => $entry['number'] ?? null,
-            'raw_text' => mb_substr(trim(($entry['heading'] ?? '') . "\n" . $place['line']), 0, 1000),
+            'raw_text' => mb_substr(trim(isset($place['part']) ? $place['line'] . "\n" . $entry['heading'] : ($entry['heading'] ?? '') . "\n" . $place['line']), 0, 1000),
             'match_method' => $method,
             'confidence' => min(100, $confidence),
             'score' => round($best['score'], 2),
             'candidates' => count($scored),
-            'notes' => $others ? 'جاهای دیگر: ' . $others : null,
+            'notes' => $others ? 'جاهای دیگر: ' . $others : $note,
         ];
     }
 
     private function write(CatalogVolume $edition, array $matches, bool $dry): array
     {
-        $stats = ['insert' => 0, 'update' => 0, 'unchanged' => 0, 'reviewed, kept' => 0];
+        $stats = ['insert' => 0, 'update' => 0, 'unchanged' => 0, 'reviewed, kept' => 0, 'weak, superseded' => 0, 'sibling weak, deleted' => 0];
+        $siblings = CatalogVolume::where('facsimile_code', $edition->facsimile_code)->where('id', '!=', $edition->id)->pluck('id');
+        $siblingRefs = Ref::whereIn('catalog_volume_id', $siblings)->where('source', Ref::SOURCE_AI_MATCH)->where('status', '!=', Ref::STATUS_REJECTED)
+            ->get(['id', 'manuscript_id', 'match_method', 'confidence', 'status'])->groupBy('manuscript_id');
         $existing = Ref::where('catalog_volume_id', $edition->id)->where('source', Ref::SOURCE_AI_MATCH)->get()->keyBy('manuscript_id');
         // a copy whose address a reviewer set by hand (an approved correction) is not matched again
         $manual = Ref::where('catalog_volume_id', $edition->id)->where('source', '!=', Ref::SOURCE_AI_MATCH)->pluck('manuscript_id')->flip();
@@ -245,6 +308,19 @@ class MatchCatalogEditionCommand extends Command
                 'match_method' => $match['match_method'], 'confidence' => $match['confidence'], 'notes' => $match['notes'],
             ];
             $old = $existing[$match['manuscript_id']] ?? null;
+            $others = $siblingRefs[$match['manuscript_id']] ?? collect();
+            if (self::confirmed($match['match_method'], $match['confidence'])) {
+                $weak = $others->filter(fn ($r) => $r->status === Ref::STATUS_UNVERIFIED && ! self::confirmed($r->match_method, $r->confidence));
+                $stats['sibling weak, deleted'] += $weak->count();
+                $dry || ($weak->isNotEmpty() && Ref::whereIn('id', $weak->pluck('id'))->delete());
+            } elseif ($others->contains(fn ($r) => self::confirmed($r->match_method, $r->confidence) || $r->status === Ref::STATUS_VERIFIED)) {
+                $stats['weak, superseded']++;
+                if ($old && $old->status === Ref::STATUS_UNVERIFIED) {
+                    $dry || $old->delete();
+                }
+
+                continue;
+            }
             if (isset($manual[$match['manuscript_id']])) {
                 $stats['reviewed, kept']++;
             } elseif (! $old) {
@@ -270,6 +346,14 @@ class MatchCatalogEditionCommand extends Command
         }
 
         return $stats;
+    }
+
+    /** The entry title without the leaf range of a treatise: «حبل المتین «برگ 1 - 143»», «الوجیزة (144 - 145)». */
+    public static function entryTitle(string $title): string
+    {
+        $title = preg_replace('/«[^»]*\d[^»]*»|\(\s*\d+\s*[-–ـ]\s*\d+\s*\)/u', ' ', $title);
+
+        return trim(preg_replace('/\s+/u', ' ', $title));
     }
 
     public static function digits(string $text): string
