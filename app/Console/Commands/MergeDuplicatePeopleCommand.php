@@ -20,6 +20,7 @@ class MergeDuplicatePeopleCommand extends Command
                             {--report= : Report of fahares:find-duplicate-people (default: storage/app/duplicate_people.json)}
                             {--decisions= : Reviewed decisions for non-auto groups (default: database/data/duplicate_people_decisions.json)}
                             {--tier=likely : Tier merged without review}
+                            {--limit=0 : Stop after this many merges (run again to continue; merged records are skipped)}
                             {--dry-run : Report what would change without writing}';
 
     protected $description = 'Merge person records reported as the same person written differently';
@@ -41,6 +42,7 @@ class MergeDuplicatePeopleCommand extends Command
         $dry = (bool) $this->option('dry-run');
         $merger = app(PersonMerger::class);
         $stats = ['groups' => 0, 'merges' => 0, 'skipped' => 0];
+        $limit = (int) $this->option('limit');
 
         foreach ($groups as $group) {
             $decision = $decisions[$group['key']] ?? null;
@@ -63,6 +65,9 @@ class MergeDuplicatePeopleCommand extends Command
 
             $merged = 0;
             foreach (array_diff($ids, [$targetId]) as $sourceId) {
+                if ($limit && $stats['merges'] + $merged >= $limit) {
+                    break;
+                }
                 $source = $this->current($sourceId, $group['key']);
                 if (! $source || $source->id === $target->id) {
                     continue;
@@ -71,6 +76,13 @@ class MergeDuplicatePeopleCommand extends Command
                     $merger->merge($source, $target, null, null, ['reason' => 'fahares:merge-duplicate-people', 'group' => $group['key']], keepPrintedNames: true);
                 }
                 $merged++;
+            }
+
+            if ($limit && $stats['merges'] + $merged >= $limit) {
+                $stats['groups'] += $merged ? 1 : 0;
+                $stats['merges'] += $merged;
+                $this->info(sprintf('Stopped at the limit of %d merges; run again to continue.', $limit));
+                break;
             }
 
             if ($merged) {
