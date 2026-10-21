@@ -139,10 +139,6 @@ class EnrichCatalogersProfilesCommand extends Command
                     $fieldsToUpdate['death_year_hijri'] = $item['death_year_hijri'];
                 }
 
-                if (array_key_exists('is_alive', $item)) {
-                    $fieldsToUpdate['is_alive'] = (bool) $item['is_alive'];
-                }
-
                 // Link to the people entry by exact name, since person ids differ between databases.
                 if (!empty($item['person_name']) && !$cataloger->person_id) {
                     $personIds = Person::where('name', $item['person_name'])->limit(2)->pluck('id');

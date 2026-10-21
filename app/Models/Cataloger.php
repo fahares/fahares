@@ -19,7 +19,6 @@ class Cataloger extends Model
             'death_year_solar' => 'integer',
             'birth_year_hijri' => 'integer',
             'death_year_hijri' => 'integer',
-            'is_alive' => 'boolean',
             'manuscripts_count' => 'integer',
             'volumes_count' => 'integer',
             'metadata' => 'array',

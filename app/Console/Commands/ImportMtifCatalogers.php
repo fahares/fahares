@@ -110,7 +110,6 @@ class ImportMtifCatalogers extends Command
                 'death_year_solar' => $c['death_year_solar'] ?? null,
                 'birth_year_hijri' => $c['birth_year_hijri'] ?? null,
                 'death_year_hijri' => $c['death_year_hijri'] ?? null,
-                'is_alive' => (bool) ($c['is_alive'] ?? false),
                 'bio' => !empty($c['bio']) ? trim($c['bio']) : null,
                 'avatar_path' => $avatarPath,
                 'mtif_entry_id' => $c['mtif_id'],

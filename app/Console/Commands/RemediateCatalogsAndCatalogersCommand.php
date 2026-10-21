@@ -117,58 +117,12 @@ class RemediateCatalogsAndCatalogersCommand extends Command
             }
         }
 
-        // 3. Known years for specific catalogers if not set
-        $knownYears = [
-            'علینقی منزوی' => ['birth' => 1302, 'death' => 1389],
-            'محمدتقی دانش‌پژوه' => ['birth' => 1290, 'death' => 1375],
-            'سید احمد حسینی اشکوری' => ['birth' => 1310, 'death' => null],
-            'سید جعفر حسینی اشکوری' => ['birth' => 1344, 'death' => null],
-            'عبدالحسین حائری' => ['birth' => 1306, 'death' => 1394],
-            'احمد منزوی' => ['birth' => 1304, 'death' => 1394],
-            'علی صدرائی خوئی' => ['birth' => 1342, 'death' => null],
-            'ابوالفضل حافظیان بابلی' => ['birth' => 1344, 'death' => null],
-            'سید محمدعلی روضاتی' => ['birth' => 1308, 'death' => 1391],
-            'عبدالله انوار' => ['birth' => 1303, 'death' => 1401],
-            'محمدباقر حجتی' => ['birth' => 1311, 'death' => null],
-            'محمود فاضل' => ['birth' => 1312, 'death' => 1400],
-            'محمود طیار مراغی' => ['birth' => 1348, 'death' => null],
-            'محمد شیروانی' => ['birth' => 1308, 'death' => 1370],
-            'براتعلی غلامی مقدم' => ['birth' => 1335, 'death' => null],
-            'سید عبدالعزیز طباطبائی' => ['birth' => 1308, 'death' => 1374],
-            'یوسف اعتصامی' => ['birth' => 1253, 'death' => 1316],
-            'ابن یوسف شیرازی' => ['birth' => 1261, 'death' => 1330],
-            'سعید نفیسی' => ['birth' => 1274, 'death' => 1345],
-            'ایرج افشار' => ['birth' => 1304, 'death' => 1389],
-            'رضا استادی' => ['birth' => 1316, 'death' => null],
-            'سید صادق حسینی اشکوری' => ['birth' => 1349, 'death' => null],
-            'حبیب‌الله عظیمی' => ['birth' => 1338, 'death' => null],
-            'احمد گلچین معانی' => ['birth' => 1295, 'death' => 1379],
-            'فخری راستکار' => ['birth' => 1298, 'death' => 1374],
-            'محمد وفادار مرادی' => ['birth' => 1340, 'death' => null],
-            'محمد آصف فکرت' => ['birth' => 1325, 'death' => 1401],
-            'غلامعلی عرفانیان' => ['birth' => 1315, 'death' => null],
-            'محمد نخجوانی' => ['birth' => 1260, 'death' => 1341],
-            'میرودود سید یونسی' => ['birth' => 1298, 'death' => 1378],
-            'محمدحسین حکیم' => ['birth' => 1354, 'death' => null],
-            'مصطفی درایتی' => ['birth' => 1337, 'death' => null],
-        ];
-
-        // 4. Fetch all existing and create any missing from verified dataset
+        // 3. Fetch all existing and create any missing from verified dataset
         $catalogerMap = [];
         foreach (Cataloger::all() as $cat) {
             $norm = $this->normalizeName($cat->name);
             $catalogerMap[$norm] = $cat;
             $catalogerMap[$cat->name] = $cat;
-
-            if (!$dryRun && isset($knownYears[$cat->name])) {
-                $y = $knownYears[$cat->name];
-                $updates = [];
-                if (empty($cat->birth_year_solar) && $y['birth']) $updates['birth_year_solar'] = $y['birth'];
-                if (empty($cat->death_year_solar) && $y['death']) $updates['death_year_solar'] = $y['death'];
-                if (!empty($updates)) {
-                    $cat->update($updates);
-                }
-            }
         }
 
         return $catalogerMap;

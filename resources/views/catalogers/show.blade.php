@@ -57,7 +57,8 @@
                     <div class="mt-4 pt-3 border-t border-line">
                         <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
                             @if(! empty($cataloger->metadata['birth_place']))<x-ui.meta label="زادگاه">{{ $cataloger->metadata['birth_place'] }}</x-ui.meta>@endif
-                            @if(! empty($cataloger->metadata['resting_place']) || ! empty($cataloger->metadata['death_place']))<x-ui.meta label="آرامگاه">{{ $cataloger->metadata['resting_place'] ?? $cataloger->metadata['death_place'] }}</x-ui.meta>@endif
+                            @if(! empty($cataloger->metadata['death_place']))<x-ui.meta label="درگذشت در">{{ $cataloger->metadata['death_place'] }}</x-ui.meta>@endif
+                            @if(! empty($cataloger->metadata['resting_place']))<x-ui.meta label="آرامگاه">{{ $cataloger->metadata['resting_place'] }}</x-ui.meta>@endif
                         </x-ui.meta-list>
                     </div>
                 @endif
@@ -68,6 +69,13 @@
             @if($cataloger->bio)
                 <x-ui.section title="زندگی‌نامه و کارنامه">
                     <p class="text-sm sm:text-[15px] text-ink leading-loose whitespace-pre-line text-justify max-w-[72ch]">{{ $cataloger->bio }}</p>
+                    @if(! empty($cataloger->metadata['sources']))
+                        <p class="mt-3 text-xs text-muted leading-loose">منابع:
+                            @foreach($cataloger->metadata['sources'] as $source)
+                                <a href="{{ $source['url'] }}" target="_blank" rel="noopener" class="underline decoration-line-strong underline-offset-4 hover:text-ink">{{ $source['title'] }}</a>@if(! $loop->last)، @endif
+                            @endforeach
+                        </p>
+                    @endif
                 </x-ui.section>
             @endif
 
