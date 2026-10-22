@@ -219,6 +219,7 @@
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
                             <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights') ? 'text-cinnabar font-bold' : '' }}">بینش آماری</a>
+                            <a href="{{ route('about') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('about') ? 'text-cinnabar font-bold' : '' }}">درباره ما</a>
                             <div class="my-1 border-t border-line-strong sm:hidden"></div>
                             <button type="button" @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" class="sm:hidden w-full text-right px-4 py-2 hover:bg-paper">
                                 <span x-show="darkMode" x-cloak>حالت روز</span>
@@ -360,6 +361,7 @@
                         <li><a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-amber-100 transition">پدیدآوران، شارحان و کاتبان</a></li>
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
                         <li><a href="{{ route('insights') }}" class="hover:text-amber-100 transition">بینش آماری: نسخه‌ها در گذر سده‌ها</a></li>
+                        <li><a href="{{ route('about') }}" class="hover:text-amber-100 transition">درباره فهارس</a></li>
                         <li x-data><button type="button" @click="$dispatch('open-feedback')" class="hover:text-amber-100 transition cursor-pointer text-right">گزارش اشکال یا پیشنهاد</button></li>
                     </ul>
                 </div>

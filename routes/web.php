@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CatalogReferenceController as AdminCatalogReferen
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HomePageController as AdminHomePageController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
+use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\CatalogerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LibraryController;
 use App\Http\Controllers\ManuscriptController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\InsightsController;
@@ -83,6 +85,9 @@ Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
 Route::get('/posts/{id}', [PostController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('posts.show');
+
+// Fixed pages whose text is edited in the admin panel
+Route::get('/about', [PageController::class, 'about'])->name('about');
 
 // Field Suggestions (Crowdsourced corrections)
 Route::post('/suggestions', [SuggestionController::class, 'store'])
@@ -236,6 +241,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/posts/{post}/images', [AdminPostController::class, 'storeImage'])->name('posts.images.store');
     Route::delete('/posts/{post}/images', [AdminPostController::class, 'destroyImage'])->name('posts.images.destroy');
     Route::resource('posts', AdminPostController::class)->except(['show']);
+
+    // Fixed pages, such as «درباره ما»
+    Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');
+    Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
 
     // Libraries & Archives
     Route::resource('libraries', AdminLibraryController::class)->only(['index', 'edit', 'update']);

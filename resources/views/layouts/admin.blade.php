@@ -185,6 +185,13 @@
                     </svg>
                     <span>صفحه‌ی خانه</span>
                 </a>
+                <a href="{{ route('admin.pages.edit', 'about') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.pages.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>درباره ما</span>
+                </a>
                 <a href="{{ route('admin.system.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.system.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

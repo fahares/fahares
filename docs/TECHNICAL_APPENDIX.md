@@ -3186,3 +3186,9 @@
 - **پس از تغییر:** DNS همه‌ی نودهای ایرانی `162.35.127.157` برگرداند. `https://fahares.net` و `https://www.fahares.net` روی ۷ از ۷ نود با ۲۰۰ در کمتر از ۲ ثانیه باز شدند. مرورگر کاربر داخل ایران هم سایت را باز کرد.
 - **باز:** علت قطع شدن TLS با SNI `fahares.net` روی IPهای Cloudflare از ایران روشن نشد. اگر روزی پروکسی برگردانده شود، باید پیش از آن از نودهای ایرانی آزموده شود.
 
+### گام ۱۲.۵۸: صفحه‌ی «درباره ما» و ویرایش آن در پنل
+- **داده:** جدول `pages` (`slug` یکتا، `title`، `body` به Markdown، `user_id` آخرین ویرایشگر). migration `2026_10_22_000001_create_pages_table` ردیف `about` را با متن [database/content/about.md](../database/content/about.md) می‌سازد. این فایل فقط متن آغازین است و پس از آن متن زنده در پایگاه داده است.
+- **مدل:** [Page](../app/Models/Page.php). `ROUTES` نام مسیر عمومی هر slug را نگه می‌دارد. `body_html` مثل یادداشت‌ها با `html_input: escape` رندر می‌شود. بند آغازینِ «بسم الله …» کلاس `basmala` می‌گیرد و وسط‌چین می‌شود (قاعده در `resources/css/app.css`).
+- **مسیرها:** عمومی `GET /about` (`about`) در [PageController](../app/Http/Controllers/PageController.php). پنل `GET /admin/pages/{slug}/edit` و `PUT /admin/pages/{slug}` در [Admin\PageController](../app/Http/Controllers/Admin/PageController.php). به‌روزرسانی رخداد `update` با عنوان و متن پیشین می‌نویسد، پس `rollbackUpdate` عمومی گزارش رخدادها آن را برمی‌گرداند. `/about` به نقشه‌ی سایت (static) هم افزوده شد.
+- **متن:** ساختار فایل Word حفظ شد: تیترهای Heading2 به `##`، گام‌های «آنچه تاکنون انجام شده» و بندهای مرامنامه به `###` شماره‌دار، و برنامه‌های «چشم‌انداز» به فهرست شماره‌دار با سرواژه‌ی پررنگ. فقط این غلط‌های املایی اصلاح شد: «تغدیه» به «تغذیه»، «بارگزاری» به «بارگذاری» و یک ویرگول تکراری.
+- **آزمون:** [PageTest](../tests/Feature/Admin/PageTest.php) سه آزمون دارد: نمایش متن migration، ویرایش در پنل همراه ثبت رخداد و escape شدن HTML، و دسترسی نداشتن مهمان. `docker exec fahares_app php artisan test`: ۲۰۹ آزمون موفق.

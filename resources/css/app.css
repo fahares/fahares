@@ -184,6 +184,7 @@ body {
 .post-body p,
 .post-body li,
 .post-body blockquote { text-align: justify; text-justify: inter-word; }
+.post-body .basmala { text-align: center; font-family: var(--font-naskh); font-size: 1.15em; }
 .post-body h2,
 .post-body h3,
 .post-body h4 {
