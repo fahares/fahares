@@ -3251,6 +3251,23 @@
   4. `catalogs:match-edition`: dry-run و دو گذر واقعی (۱، ۳، ۴، ۲) با عددهای رونوشت یکی بودند. نتیجه: ج ۱ ۱٬۷۴۲، ج ۲ ۱٬۶۱۹ (۲۴ ردیف سست پاک شد)، ج ۳ ۱٬۲۵۳ و ج ۴ ۱٬۵۱۰. گذر دوم هیچ درج یا به‌روزرسانی نداشت. متن‌های `/tmp` پاک شد.
   5. fahares.net/manuscripts/86135 (326/2) دو ارجاع ج ۱ ص ۱۰۹ و ج ۳ ص ۱۴ را نشان می‌دهد، و نمایشگر ج ۳ ص ۱۴ را با «( 326 )» باز می‌کند. 210715 (3408/2) ج ۴ ص ۶۲۳ را دارد.
 
+### گام ۱۲.۶۲: «تأیید گروهی» در صف «نشانی‌های خودکار فهرست»
+- **کد:**
+  - [CatalogReferenceController](../app/Http/Controllers/Admin/CatalogReferenceController.php): پالایه‌ی تازه‌ی `method`، و کنش‌های `bulkVerify` (`POST admin/catalog-references/bulk-verify`) و `revertBulk` (`POST admin/catalog-references/bulk/{batch}/revert`). هر دو در گروه `auth` + `admin` هستند، همان دسترسی داوری تک‌تک (نقش admin یا editor).
+  - [ManuscriptCatalogReference](../app/Models/ManuscriptCatalogReference.php): `bulkVerify()`، `revertBulkVerify()`، `lastBulkVerify()` و ثابت `BULK_METHOD = shelfmark_title`.
+  - دستور [`catalogs:revert-bulk-verify`](../app/Console/Commands/RevertCatalogBulkVerifyCommand.php) `{batch?} {--list} {--force}`.
+- **محدودیت روش (تصمیم):** تأیید گروهی فقط برای `shelfmark_title` است؛ کنترلر روش دیگر یا خالی را با 422 رد می‌کند و صف به‌جای دکمه پیوند «پالایه‌ی پیشنهادی: شماره و عنوان، اطمینان بالا» را نشان می‌دهد. دلیل:
+  - `shelfmark_only` (۲۵) و `ambiguous` (۱۰) عددی ثابت‌اند و جز شماره هیچ گواهی ندارند. `ambiguous` چند جای ممکن دارد و تأیید گروهی یکی از آن‌ها را به‌تصادف درست می‌شمارد.
+  - `shelfmark_single_page` شباهت عنوان ۰٫۳۵ تا ۰٫۶ دارد (روی رونوشت فقط یک ردیف ۶۰)، یعنی عنوان شماره را تأیید نمی‌کند. هشدار در کنار دکمه برای چنین عددی کافی نیست.
+  - همه‌ی ۴٬۸۹۱ ردیف `shelfmark_title` اطمینان ۶۰ تا ۱۰۰ دارند، پس پالایه‌ی «اطمینان بالا» برای آن‌ها چیزی کم نمی‌کند (ج ۱ ۱٬۴۷۱، ج ۲ ۱٬۲۹۵، ج ۳ ۹۸۰، ج ۴ ۱٬۱۴۵).
+- **اجرا:** پرسش `confirm()` شمار پالایه را می‌آورد («۴٬۸۹۱ تطبیق تأیید شود؟») و همین شمار با `expected` فرستاده می‌شود. اگر شمار بازبینی‌نشده‌های پالایه تا آن لحظه عوض شده باشد، کاری انجام نمی‌شود و پیام خطا می‌آید. در یک `DB::transaction` شناسه‌ها با `lockForUpdate` خوانده و در دسته‌های ۱٬۰۰۰تایی `status = verified`، `reviewed_by` و یک `reviewed_at` مشترک (بی کسر ثانیه) نوشته می‌شود.
+- **لاگ ممیزی:** `action = bulk_verify`، `auditable_type = ManuscriptCatalogReference`، `auditable_id = 0`؛ `old_values = {status, ids}` و `new_values = {status, count, filters, reviewed_at}`. شناسه‌ی همین ردیف «شناسه‌ی دسته» است.
+- **برگرداندن:** فقط ردیف‌هایی از `ids` که هنوز `verified` با همان `reviewed_by` و `reviewed_at` دسته‌اند به `unverified` برمی‌گردند (و داور و زمانشان پاک می‌شود). ردیفی که از آن پس جداگانه رد یا دوباره تأیید شده دست نمی‌خورد و در پیام «دست نخورد» شمرده می‌شود. برگرداندن ردیف `rollback_bulk_verify` با `auditable_type = AuditLog` و `auditable_id` = شناسه‌ی دسته می‌نویسد، و همان دسته دوباره برنمی‌گردد. صف آخرین دسته‌ی برنگشته را با دکمه‌ی «برگرداندن این دسته» نشان می‌دهد؛ دسته‌های قدیم‌تر با `catalogs:revert-bulk-verify <id>` (فهرست با `--list`).
+- **migration:** ندارد؛ شناسه‌ها در لاگ ممیزی‌اند (حدود ۳۰ کیلوبایت JSON برای ۴٬۸۹۱ ردیف).
+- **آزمون:** `test_reviewers_verify_title_matches_in_bulk_and_revert_the_batch` در [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php): دسترسی، رد روش‌های دیگر، شمار ناهمخوان، لاگ، برگرداندن با ردیفی که جداگانه رد شده، برگرداندن دوباره و دستور artisan. همه‌ی ۲۱۴ آزمون موفق.
+- **وارسی محلی:** worktree روی رونوشت پروداکشن `fahares_refs` (http://localhost:8011). دارایی‌های Vite با `node` درون ایمیج `fahares-app` (Alpine) ساخته شد، چون `node_modules` checkout اصلی باینری musl دارد. تأیید ۴٬۸۹۱ ردیف (دسته‌ی #۳۶۶۷) و برگرداندنش (#۳۶۶۸، ۴٬۸۹۱ برگشت و ۰ دست‌نخورده) هر کدام زیر سه ثانیه بود؛ رونوشت دوباره ۶٬۱۲۴ ردیف بازبینی‌نشده دارد.
+- **طرح استقرار:** rebase روی `origin/main` و push؛ migration و دستور داده‌ای در کار نیست. تأیید گروهی روی پروداکشن را کاربر یا داور از پنل انجام می‌دهد.
+
 ### گام ۱۲.۶۳: سقف بارگذاری PHP
 - **علت:** در پروداکشن (Nixpacks، `php artisan serve`) `upload_max_filesize=2M` و `post_max_size=8M`، پیش‌فرض PHP. قاعده‌های `max:5120` (کاور و تصاویر مقاله) و `max:3072` (آواتار) از این بیشتر بودند؛ فایل بالای ۲ مگابایت به قاعده‌ی `uploaded` می‌خورد (exception نیست، پس در لاگ نمی‌آید) و بارگذاری چندتصویری بالای ۸ مگابایت ۴۱۳ می‌داد.
 - **رفع:** `docker/php/uploads.ini` (`upload_max_filesize=10M`، `post_max_size=110M`، `max_file_uploads=20`) با `PHP_INI_SCAN_DIR` بارگذاری می‌شود: در `nixpacks.toml` برابر `:/app/docker/php` و در `docker-compose.yml` برابر `:/var/www/html/docker/php`. `:` آغازین پوشه‌ی پیش‌فرض (افزونه‌ها) را نگه می‌دارد.
