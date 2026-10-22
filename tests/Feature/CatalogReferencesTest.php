@@ -385,7 +385,9 @@ class CatalogReferencesTest extends TestCase
 
         $html = $this->get(route('manuscripts.show', $ms))->assertOk()
             // one «متن مأخذ» heading: the library's printed catalogue first, then Fankha
-            ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'فهرستگان نسخه‌های خطی ایران', 'متن فنخا برای این نسخه'])
+            // both alike: the address, «دیدن برگه» and «رونوشت متن»
+            ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', 'رونوشت متن', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.',
+                'فهرستگان نسخه‌های خطی ایران (فنخا)', 'ج ۱، ص ۱، ردیف ۱', 'دیدن برگه', 'رونوشت متن', 'متن فنخا برای این نسخه'])
             ->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
         $this->assertStringNotContainsString('504138', $html);
