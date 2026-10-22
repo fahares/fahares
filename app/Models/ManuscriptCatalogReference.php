@@ -104,16 +104,17 @@ class ManuscriptCatalogReference extends Model
     }
 
     /**
-     * The heading of that text on the record page: «متن فهرست مسجد اعظم، چاپ ۱۳۸۸», the library's catalogue and the
-     * year of the printing when its label gives one (vols 3 and 4 of Masjid-e A'zam have none).
+     * The heading of that text under «متن مأخذ» on the record page: «فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸», the library's
+     * catalogue and the year of the printing when its label gives one (vols 3 and 4 of Masjid-e A'zam have none).
      */
     public function printedTextTitle(): string
     {
         $volume = $this->catalogVolume;
-        $name = $volume?->library?->name ? 'فهرست ' . $volume->library->name : ($volume?->short_title ?: 'فهرست کتابخانه');
+        $library = (string) $volume?->library?->name;
+        $name = $library !== '' ? 'فهرست ' . (str_starts_with($library, 'کتابخانه') ? '' : 'کتابخانه ') . $library : ($volume?->short_title ?: 'فهرست کتابخانه');
         $year = preg_match('/[0-9۰-۹]{4}/u', (string) $volume?->edition_label, $m) ? '، چاپ ' . $m[0] : '';
 
-        return Fa::digits("متن {$name}{$year}");
+        return Fa::digits($name . $year);
     }
 
     public function review(User $user, string $status): void

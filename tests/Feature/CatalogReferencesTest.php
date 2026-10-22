@@ -375,7 +375,7 @@ class CatalogReferencesTest extends TestCase
         $this->assertSame(1, Ref::count());
     }
 
-    public function test_the_printed_text_stands_above_fankhas_text_until_the_reference_is_rejected()
+    public function test_the_printed_text_comes_first_under_the_source_text_until_the_reference_is_rejected()
     {
         $this->edition->update(['edition_label' => '۱۳۸۸، به کوشش رضا استادی']);
         $ms = $this->manuscript(['raw_text' => 'متن فنخا برای این نسخه']);
@@ -384,20 +384,26 @@ class CatalogReferencesTest extends TestCase
         $note = 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
 
         $html = $this->get(route('manuscripts.show', $ms))->assertOk()
-            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'متن مأخذ', 'متن فنخا برای این نسخه'])
+            // one «متن مأخذ» heading: the library's printed catalogue first, then Fankha
+            ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'فهرستگان نسخه‌های خطی ایران', 'متن فنخا برای این نسخه'])
             ->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
         $this->assertStringNotContainsString('504138', $html);
 
         // a printing without a year in its label is named by the catalogue alone
         $this->edition->update(['edition_label' => 'کتابخانه مسجد اعظم، به کوشش رضا استادی']);
-        $this->get(route('manuscripts.show', $ms))->assertSee('متن فهرست مسجد اعظم')->assertDontSee('متن فهرست مسجد اعظم، چاپ');
+        $this->get(route('manuscripts.show', $ms))->assertSee('فهرست کتابخانه مسجد اعظم')->assertDontSee('فهرست کتابخانه مسجد اعظم، چاپ');
 
         $ref->update(['status' => Ref::STATUS_VERIFIED]);
         $this->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
 
         $ref->update(['status' => Ref::STATUS_REJECTED]);
-        $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('متن فهرست مسجد اعظم')->assertSee('متن فنخا برای این نسخه');
+        $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('فهرست کتابخانه مسجد اعظم')->assertSeeInOrder(['متن مأخذ', 'متن فنخا برای این نسخه']);
+
+        // without Fankha's text the heading still stands over the printed catalogue's
+        $ref->update(['status' => Ref::STATUS_VERIFIED]);
+        $ms->update(['raw_text' => null]);
+        $this->get(route('manuscripts.show', $ms))->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم', '۶۰۷- دیوان قدسی'])->assertDontSee('متن فنخا');
     }
 
     public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()

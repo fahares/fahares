@@ -457,61 +457,68 @@
                 </x-ui.section>
             @endif
 
-            <!-- The printed catalogue's own entry at each of its references (backlog item 60): a primary source, so above Fankha's text and open -->
-            @foreach($manuscript->catalogReferences->filter(fn ($ref) => $ref->hasPrintedText()) as $ref)
-                @php
-                    $viewer = $ref->viewer();
-                    $printedAt = Fa::digits(implode('، ', array_filter([
-                        ($ref->volume_number ?? $ref->catalogVolume?->volume_number) ? 'ج ' . ($ref->volume_number ?? $ref->catalogVolume->volume_number) : null,
-                        $ref->page_start ? 'ص ' . $ref->page_start : null,
-                    ])));
-                @endphp
-                <section class="scroll-mt-24" data-printed-text>
-                    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
-                        <h2 class="rubric text-lg">
-                            <span>{{ $ref->printedTextTitle() }}</span>
-                            @if($ref->isAwaitingReview())
-                                <x-ui.machine-badge
-                                    text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
-                                    report-label="گزارش نشانی نادرست"
-                                    :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id]" />
-                            @endif
-                        </h2>
-                        <div class="flex flex-wrap items-center gap-2 text-xs">
-                            @if($printedAt)
-                                <span class="text-muted">{{ $printedAt }}</span>
-                            @endif
-                            @if($viewer)
-                                <x-ui.btn size="sm" x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">دیدن برگه</x-ui.btn>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="p-4 sm:p-5 bg-surface border border-line text-[13px] sm:text-sm text-ink leading-loose text-right">
-                        @if($ref->entry_text)
-                            <div class="whitespace-pre-line">{{ Fa::digits($ref->entry_text) }}</div>
-                        @endif
-                        @if($ref->copy_text)
-                            <div @class(['whitespace-pre-line font-semibold', 'mt-3 pt-3 border-t border-dashed border-line' => filled($ref->entry_text)])>{{ Fa::digits($ref->copy_text) }}</div>
-                        @endif
-                    </div>
-                </section>
-            @endforeach
+            <!-- Source texts under one heading: the printed library catalogue first (backlog item 60), a primary source, open; then Fankha's, a secondary one -->
+            @php $printedRefs = $manuscript->catalogReferences->filter(fn ($ref) => $ref->hasPrintedText()); @endphp
+            @if($printedRefs->isNotEmpty() || $manuscript->clean_raw_text)
+                <x-ui.section title="متن مأخذ">
+                    <div class="space-y-6">
+                        @foreach($printedRefs as $ref)
+                            @php
+                                $viewer = $ref->viewer();
+                                $printedAt = Fa::digits(implode('، ', array_filter([
+                                    ($ref->volume_number ?? $ref->catalogVolume?->volume_number) ? 'ج ' . ($ref->volume_number ?? $ref->catalogVolume->volume_number) : null,
+                                    $ref->page_start ? 'ص ' . $ref->page_start : null,
+                                ])));
+                            @endphp
+                            <div data-printed-text>
+                                <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 mb-2">
+                                    <h3 class="flex items-center gap-1 text-sm font-bold text-ink">
+                                        <span>{{ $ref->printedTextTitle() }}</span>
+                                        @if($ref->isAwaitingReview())
+                                            <x-ui.machine-badge
+                                                text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
+                                                report-label="گزارش نشانی نادرست"
+                                                :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id]" />
+                                        @endif
+                                    </h3>
+                                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                                        @if($printedAt)
+                                            <span class="text-muted">{{ $printedAt }}</span>
+                                        @endif
+                                        @if($viewer)
+                                            <x-ui.btn size="sm" x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">دیدن برگه</x-ui.btn>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="p-4 sm:p-5 bg-surface border border-line text-[13px] sm:text-sm text-ink leading-loose text-right">
+                                    @if($ref->entry_text)
+                                        <div class="whitespace-pre-line">{{ Fa::digits($ref->entry_text) }}</div>
+                                    @endif
+                                    @if($ref->copy_text)
+                                        <div @class(['whitespace-pre-line font-semibold', 'mt-3 pt-3 border-t border-dashed border-line' => filled($ref->entry_text)])>{{ Fa::digits($ref->copy_text) }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
 
-            @if($manuscript->clean_raw_text)
-                <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
-                    <x-slot:actions>
-                        <span class="text-muted">{{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}</span>
-                        <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
-                            <span x-show="!copied">رونوشت متن</span>
-                            <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
-                        </x-ui.btn>
-                    </x-slot:actions>
-                    <div class="relative">
-                        <div x-ref="rawTextContent" :class="open ? '' : 'max-h-64 overflow-hidden'"
-                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $manuscript->clean_raw_text }}</div>
-                        <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
-                            <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
-                        </div>
+                        @if($manuscript->clean_raw_text)
+                            <div x-data="{ copied: false, open: false }" data-fankha-text>
+                                <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 mb-2">
+                                    <h3 class="text-sm font-bold text-ink">{{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}</h3>
+                                    <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
+                                        <span x-show="!copied">رونوشت متن</span>
+                                        <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
+                                    </x-ui.btn>
+                                </div>
+                                <div class="relative">
+                                    <div x-ref="rawTextContent" :class="open ? '' : 'max-h-64 overflow-hidden'"
+                                         class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $manuscript->clean_raw_text }}</div>
+                                    <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
+                                        <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </x-ui.section>
             @endif
