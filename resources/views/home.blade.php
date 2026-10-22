@@ -155,7 +155,7 @@
             </div>
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
                 @foreach($homeCatalogers as $c)
-                    <a href="{{ route('catalogers.show', $c) }}" class="group grid justify-items-center gap-1.5 text-center">
+                    <a href="{{ route('catalogers.show', $c) }}" class="group grid justify-items-center gap-1.5 text-center content-start">
                         <div class="w-full aspect-[4/5] rounded-t-full rounded-b-sm border border-gold p-1 bg-surface">
                             <div class="w-full h-full rounded-t-full rounded-b-[2px] overflow-hidden bg-paper">
                                 @if($c->avatar_url)

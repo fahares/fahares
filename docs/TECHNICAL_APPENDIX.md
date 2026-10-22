@@ -3288,3 +3288,8 @@
 - **`AuditLogController::undo`:** بدنه‌ی `rollback` جدا شد و دو محافظ گرفت: `AuditLog::isRolledBack()` (رخداد `rollback_*` با `rolled_back_log_id`، یا برای `rollback_verify/update` قدیمی، `old_values` برابر `new_values` رخداد) و `laterOverlappingChange()` (رخداد `verify/update` بعدی همان رکورد که کلیدهای `old_values` مشترک دارد و برنگشته). `rollback_verify` و `rollback_update` اکنون `rolled_back_log_id` را هم در `old_values` نگه می‌دارند.
 - **اصلاح جانبی:** بازگرداندن ارتقای قول دیگر، `resolution` را به `['applied' => false]` برمی‌گرداند؛ پیش‌تر `applied: true` می‌ماند.
 - **آزمون:** چهار آزمون در [SuggestionWorkflowTest](../tests/Feature/SuggestionWorkflowTest.php): لغو رد و تأیید دوباره، لغو تأیید کاتب و رد بازگردانی دوباره از جدول رخدادها، انتظار برای بازگرداندن تأیید بعدی همان فیلد، و بازگشت قول مختارِ ارتقایافته به قول دیگر و سپس به صف. `docker exec fahares_app php artisan test` — ۲۱۸ آزمون موفق.
+
+### گام ۱۲.۶۶: `content-start` روی کارت فهرست‌نگار در `home.blade.php`
+- **علت:** کارت (`<a class="grid justify-items-center">`) در گرید بیرونی کش می‌آید تا هم‌بلندِ ردیف شود. در کارتی که `life_years_text` ندارد (مهدی ولائی، شناسه‌ی ۹۹)، `align-content: normal` ردیف‌های auto را کش می‌داد. قاب `aspect-[4/5]` با بلندیِ بیشتر، پهنای بیشتری می‌خواست و ستون درونی ۱۶۳ پیکسل شد، در حالی که کارت ۱۵۵ پیکسل بود. اندازه‌ها روی fahares.net در نمای سه‌ستونی گرفته شد.
+- **رفع:** `content-start` روی کارت. `catalogers/index.blade.php` همین کلاس را از پیش داشت.
+
