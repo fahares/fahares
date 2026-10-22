@@ -71,7 +71,7 @@
                 </div>
 
                 <!-- Desktop Navigation Links -->
-                <nav class="hidden md:flex items-center gap-1 text-sm font-semibold text-ink">
+                <nav class="hidden lg:flex items-center gap-1 text-sm font-semibold text-ink">
                     <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('home') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         صفحه نخست
                     </a>
@@ -84,19 +84,19 @@
                     <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('catalogers.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         فهرست‌نگاران
                     </a>
-                    {{-- These three from xl up only: below that the bar is full; the footer links them there --}}
-                    <a href="{{ route('posts.index') }}" class="hidden xl:block px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                                        <a href="{{ route('posts.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         جریده
                     </a>
-                    <a href="{{ route('insights') }}" class="hidden xl:block px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('insights') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         آمار
                     </a>
-                    <a href="{{ route('about') }}" class="hidden xl:block px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('about') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('about') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('about') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         درباره ما
                     </a>
                 </nav>
 
                 <!-- Actions: Search Trigger & Dark Mode Toggle -->
+                {{-- From lg the nav takes the bar; below xl the actions shrink to icons so all seven links fit --}}
                 <div class="flex items-center gap-2 sm:gap-3">
                     
                     <!-- Search Input Trigger Button (Opens Ctrl+K Spotlight Modal) -->
@@ -106,8 +106,8 @@
                         class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-line-strong bg-paper text-xs text-stone-500 hover:border-gold hover:text-cinnabar transition group shadow-sm cursor-pointer"
                         title="جستجوی سریع (Ctrl+K)">
                         <svg class="w-4 h-4 text-stone-400 group-hover:text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <span class="hidden sm:inline">کاوش سریع...</span>
-                        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300 font-mono">Ctrl+K</kbd>
+                        <span class="hidden sm:inline lg:hidden xl:inline">کاوش سریع...</span>
+                        <kbd class="hidden sm:inline-block lg:hidden xl:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300 font-mono">Ctrl+K</kbd>
                     </button>
 
                     <!-- Dark Mode Toggle Button -->
@@ -132,16 +132,16 @@
                         @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
                         <div x-data="{ userMenuOpen: false }" class="relative">
                             <button @click="userMenuOpen = !userMenuOpen" aria-label="حساب کاربری: {{ auth()->user()->name }}"
-                                    class="relative flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full border border-gold/40 bg-cinnabar/10 text-ink text-xs font-bold hover:border-gold transition cursor-pointer">
-                                <span class="hidden sm:inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <svg class="sm:hidden w-5 h-5 text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    class="relative flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 lg:p-2 xl:px-3 xl:py-1.5 rounded-full border border-gold/40 bg-cinnabar/10 text-ink text-xs font-bold hover:border-gold transition cursor-pointer">
+                                <span class="hidden sm:inline-block lg:hidden xl:inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <svg class="sm:hidden lg:block xl:hidden w-5 h-5 text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                                 </svg>
-                                <span class="hidden sm:inline max-w-[140px] truncate">{{ auth()->user()->name }}</span>
+                                <span class="hidden sm:inline lg:hidden xl:inline max-w-[120px] truncate">{{ auth()->user()->name }}</span>
                                 @if($unreadNotifications)
-                                    <span class="absolute -top-1 -left-1 sm:static px-1.5 min-w-[1.25rem] text-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold" title="اعلان خوانده‌نشده">{{ $unreadNotifications }}</span>
+                                    <span class="absolute -top-1 -left-1 sm:static lg:absolute xl:static px-1.5 min-w-[1.25rem] text-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold" title="اعلان خوانده‌نشده">{{ $unreadNotifications }}</span>
                                 @endif
-                                <svg class="hidden sm:block w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="hidden sm:block lg:hidden xl:block w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
@@ -206,16 +206,16 @@
                         </div>
                     @else
                         <a href="{{ route('register') }}" class="sm:hidden inline-flex items-center px-3.5 py-1.5 rounded-full bg-cinnabar hover:opacity-90 text-white text-xs font-bold whitespace-nowrap shadow-sm transition">عضویت</a>
-                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap rounded-full border border-line-strong bg-paper text-xs font-bold text-ink hover:border-gold hover:text-cinnabar transition shadow-sm">
+                        <a href="{{ route('login') }}" title="ورود / عضویت" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 whitespace-nowrap rounded-full border border-line-strong bg-paper text-xs font-bold text-ink hover:border-gold hover:text-cinnabar transition shadow-sm">
                             <svg class="w-3.5 h-3.5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                             </svg>
-                            <span>ورود / عضویت</span>
+                            <span class="lg:hidden xl:inline">ورود / عضویت</span>
                         </a>
                     @endauth
 
                     <!-- Mobile Menu Button (Alpine) -->
-                    <div x-data="{ open: false }" class="md:hidden relative">
+                    <div x-data="{ open: false }" class="lg:hidden relative">
                         <button @click="open = !open" class="p-2 rounded-lg border border-line-strong text-ink/80">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         </button>
