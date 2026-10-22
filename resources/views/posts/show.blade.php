@@ -13,7 +13,7 @@
     <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
         <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
         <span aria-hidden="true">/</span>
-        <a href="{{ route('posts.index') }}" class="hover:text-cinnabar">یادداشت‌ها</a>
+        <a href="{{ route('posts.index') }}" class="hover:text-cinnabar">جریده</a>
         <span aria-hidden="true">/</span>
         <span class="text-ink font-semibold truncate">{{ $post->title }}</span>
     </nav>

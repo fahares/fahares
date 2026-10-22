@@ -3311,3 +3311,7 @@
 - **آزمون:** پنج آزمون در [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php): مدخل شکسته میان دو صفحه، دو نسخه با سطر ادامه، یادداشت مشترک و نمایه‌ی پایانی؛ رساله‌ی مجموعه با یادداشت‌های پایانی؛ `--texts` روی ارجاع تأییدشده (فقط دو ستون عوض می‌شود، dry-run چیزی نمی‌نویسد)؛ نمایش بالای متن فنخا، بی سال، تأییدشده بی ⓘ، ردشده پنهان، و نبودن `source_url`. همه‌ی ۲۲۲ آزمون موفق (`~/.cache/wt-run-bulk.sh`).
 - **وارسی محلی:** worktree روی `fahares_refs` (http://localhost:8011): نسخه‌ی ۴۹۸/۲ ج ۳، ۶۰۰ ج ۲ و ۲۹۶۷/۷ ج ۴، در دسکتاپ روشن و تیره و موبایل ۳۷۵ پیکسل بی سرریز افقی؛ «دیدن برگه» نمایشگر را روی ج ۳ ص ۲۶ باز کرد.
 - **طرح استقرار:** rebase روی `origin/main` و push؛ پس از ساخت Coolify، `php artisan migrate --force`؛ سپس برای هر جلد، اول با `--dry-run`: `php artisan catalogs:match-edition masjid-azam-ostadi <pages> --volume=N --texts`. متن صفحه‌ها روی سرور نیست و باید از `fahares-sources` (ج ۲ از `ghaemiyeh-test/`) به کانتینر رونوشت شود.
+
+### گام ۱۲.۶۸: نام «جریده» برای `posts.index`
+- **منو:** در `layouts/app.blade.php` پیوند `route('posts.index')` با حالت فعالِ `routeIs('posts.*')` به نوار بالا (`hidden xl:block`، پیش از «آمار»)، منوی موبایل و فهرست «دسترسی سریع» پانویس افزوده شد. در عرض ۱۲۸۰ همه‌ی هفت پیوند در یک سطر جا می‌شوند.
+- **عنوان‌ها:** `posts/index` (title و h1)، مسیرنمای `posts/show` و `admin/posts/edit`، برچسب نوار کناری `layouts/admin` و عنوان `admin/posts/index`. نام تک‌نوشته‌ها («یادداشت تازه»، «حذف این یادداشت») و مسیر `/posts` دست نخورد.

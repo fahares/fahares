@@ -16,7 +16,7 @@
 @section('breadcrumb')
     <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
     <span>/</span>
-    <a href="{{ route('admin.posts.index') }}" class="hover:text-cinnabar">یادداشت‌ها</a>
+    <a href="{{ route('admin.posts.index') }}" class="hover:text-cinnabar">جریده</a>
     <span>/</span>
     <span class="text-stone-400">{{ $exists ? "ویرایش #{$post->id}" : 'تازه' }}</span>
 @endsection
@@ -61,7 +61,7 @@
             <div>
                 <label for="summary" class="{{ $label }}">چکیده (اختیاری)</label>
                 <textarea name="summary" id="summary" rows="2" class="{{ $input }}">{{ old('summary', $post->summary) }}</textarea>
-                <p class="{{ $hint }}">در فهرست یادداشت‌ها و در پیش‌نمایش پیوند (شبکه‌های اجتماعی و موتورهای جستجو) می‌آید. اگر خالی بماند، آغاز متن به کار می‌رود.</p>
+                <p class="{{ $hint }}">در فهرست جریده و در پیش‌نمایش پیوند (شبکه‌های اجتماعی و موتورهای جستجو) می‌آید. اگر خالی بماند، آغاز متن به کار می‌رود.</p>
             </div>
 
             <div>

@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'یادداشت‌ها')
-@section('page_title', 'یادداشت‌ها')
+@section('title', 'جریده')
+@section('page_title', 'جریده')
 @section('breadcrumb')
     <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
     <span>/</span>
-    <span class="text-stone-400">یادداشت‌ها</span>
+    <span class="text-stone-400">جریده</span>
 @endsection
 
 @php

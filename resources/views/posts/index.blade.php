@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'یادداشت‌ها | فهارس')
+@section('title', 'جریده | فهارس')
 @section('meta_description', 'گزارش نشست‌های علمی، معرفی نسخه‌های خطی و یادداشت‌های دیگر در فهارس')
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     <header class="text-center grid justify-items-center gap-2 pb-2">
-        <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">یادداشت‌ها</h1>
+        <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">جریده</h1>
         <p class="text-sm text-muted max-w-2xl leading-relaxed">گزارش نشست‌های علمی، معرفی نسخه‌ها و نوشته‌های دیگر.</p>
     </header>
 
