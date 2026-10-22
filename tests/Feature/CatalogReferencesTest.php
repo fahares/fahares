@@ -347,6 +347,65 @@ class CatalogReferencesTest extends TestCase
         $this->actingAs($admin)->post(route('admin.catalog-references.verify', $fankha))->assertNotFound();
     }
 
+    public function test_reviewers_verify_title_matches_in_bulk_and_revert_the_batch()
+    {
+        $admin = $this->admin();
+        $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
+        $ref = fn (string $shelfmark, string $method, int $confidence, array $extra = []) => Ref::create($extra + [
+            'manuscript_id' => $this->manuscript(['shelfmark' => $shelfmark])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2,
+            'page_start' => (int) $shelfmark, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => $method, 'confidence' => $confidence]);
+        $titles = collect(['4001', '4002', '4003'])->map(fn ($s) => $ref($s, 'shelfmark_title', 80));
+        $single = $ref('4004', 'shelfmark_single_page', 59);
+        $only = $ref('4005', 'shelfmark_only', 25);
+        $done = $ref('4006', 'shelfmark_title', 90, ['status' => Ref::STATUS_REJECTED]);
+        $filters = ['volume' => $this->edition->id, 'method' => 'shelfmark_title', 'confidence' => 'high'];
+
+        // The queue offers the button only for title matches, with the count to confirm
+        $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id, 'method' => 'shelfmark_only']))->assertOk()
+            ->assertSee('۴۰۰۵')->assertDontSee('۴۰۰۱')->assertDontSee('تأیید همه‌ی')->assertSee('پالایه‌ی پیشنهادی');
+        $this->actingAs($admin)->get(route('admin.catalog-references.index', $filters))->assertOk()
+            ->assertSee('تأیید همه‌ی ۳ نشانی این پالایه')->assertSee('۳ تطبیق تأیید شود؟', false);
+
+        // Only reviewers, only title matches, and only the count the reviewer saw
+        $this->actingAs($user)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 3])->assertForbidden();
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['method' => 'shelfmark_only', 'expected' => 1])->assertStatus(422);
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['method' => '', 'expected' => 5])->assertStatus(422);
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 2])->assertSessionHas('error');
+        $this->assertSame(0, Ref::where('status', Ref::STATUS_VERIFIED)->count());
+
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 3])->assertSessionHas('success');
+        foreach ($titles as $title) {
+            $this->assertSame([Ref::STATUS_VERIFIED, $admin->id], [$title->fresh()->status, $title->fresh()->reviewed_by]);
+        }
+        $this->assertSame(1, $titles->map(fn ($t) => $t->fresh()->reviewed_at->toDateTimeString())->unique()->count());
+        $this->assertSame([Ref::STATUS_UNVERIFIED, Ref::STATUS_UNVERIFIED, Ref::STATUS_REJECTED], [$single->fresh()->status, $only->fresh()->status, $done->fresh()->status]);
+
+        $batch = AuditLog::where('action', Ref::ACTION_BULK_VERIFY)->latest('id')->firstOrFail();
+        $this->assertSame($admin->id, $batch->user_id);
+        $this->assertSame($titles->pluck('id')->all(), $batch->old_values['ids']);
+        $this->assertSame([3, $filters], [$batch->new_values['count'], $batch->new_values['filters']]);
+        $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertSee('آخرین تأیید گروهی')->assertSee('برگرداندن این دسته');
+
+        // A row rejected by hand since keeps its review; the rest return to the queue, once only
+        $titles[2]->fresh()->review($admin, Ref::STATUS_REJECTED);
+        $this->travel(5)->seconds();
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('success');
+        $this->assertSame([Ref::STATUS_UNVERIFIED, null, null], [$titles[0]->fresh()->status, $titles[0]->fresh()->reviewed_by, $titles[0]->fresh()->reviewed_at]);
+        $this->assertSame(Ref::STATUS_UNVERIFIED, $titles[1]->fresh()->status);
+        $this->assertSame(Ref::STATUS_REJECTED, $titles[2]->fresh()->status);
+        $this->assertSame(['reverted' => 2, 'kept' => 1], AuditLog::where('action', Ref::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->sole()->new_values);
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('error');
+        $this->assertNull(Ref::lastBulkVerify());
+        $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('آخرین تأیید گروهی');
+
+        // The artisan command reverts the latest batch the same way
+        $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 2])->assertSessionHas('success');
+        $this->assertSame(Ref::STATUS_VERIFIED, $titles[0]->fresh()->status);
+        $this->artisan('catalogs:revert-bulk-verify', ['--force' => true])->expectsOutputToContain('Reverted 2; kept 0')->assertSuccessful();
+        $this->assertSame(Ref::STATUS_UNVERIFIED, $titles[0]->fresh()->status);
+        $this->artisan('catalogs:revert-bulk-verify', ['--force' => true])->assertFailed();
+    }
+
     private function admin(): User
     {
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
