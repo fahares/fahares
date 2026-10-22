@@ -3273,4 +3273,9 @@
 - **رفع:** `docker/php/uploads.ini` (`upload_max_filesize=10M`، `post_max_size=110M`، `max_file_uploads=20`) با `PHP_INI_SCAN_DIR` بارگذاری می‌شود: در `nixpacks.toml` برابر `:/app/docker/php` و در `docker-compose.yml` برابر `:/var/www/html/docker/php`. `:` آغازین پوشه‌ی پیش‌فرض (افزونه‌ها) را نگه می‌دارد.
 - **`artisan serve`:** وقتی `.env` هست، متغیرهای محیطی بیرون از `ServeCommand::$passthroughVariables` را از فرزند `php -S` پاک می‌کند؛ `AppServiceProvider::register` `PHP_INI_SCAN_DIR` را به این فهرست می‌افزاید.
 - **پیام:** `lang/fa/validation.php` فقط با کلید `uploaded`.
-- **باز:** `fallback_locale` هم `fa` است، پس پیام‌های validation بی‌ترجمه به‌صورت کلید خام (مثل `validation.required`) نمایش داده می‌شوند.
+- **باز:** `fallback_locale` هم `fa` است، پس پیام‌های validation بی‌ترجمه به‌صورت کلید خام (مثل `validation.required`) نمایش داده می‌شوند. (رفع در گام ۱۲.۶۴)
+
+### گام ۱۲.۶۴: `lang/fa/validation.php` کامل
+- **علت:** `APP_LOCALE=fa` و `fallback_locale` هم `fa`؛ `lang/fa/validation.php` فقط `uploaded` را داشت و `lang/en` منتشر نشده، پس Translator برای قاعده‌های دیگر خود کلید را برمی‌گرداند.
+- **رفع:** همه‌ی کلیدهای `validation.php` انگلیسی Laravel 13 (`vendor/laravel/framework/src/Illuminate/Translation/lang/en/`) با گونه‌های `array/file/numeric/string` و `password.*` به فارسی، و `attributes` برای همه‌ی نام‌هایی که در `app/Http` در `validate()` آمده‌اند (به‌همراه `files.*`، `images.*`، `manuscript_ids.*`، `role_ids.*`، `work_ids.*`). نام فیلد بی‌ترجمه با فاصله به‌جای `_` نمایش داده می‌شود. پیام‌های اختصاصی کنترلرها اولویت خود را دارند.
+- **وارسی:** `docker exec fahares_app php artisan tinker` برای `required`، `required_without`، `max` (رشته و فایل)، `image`، `mimes`، `email` و `file` پیام فارسی داد. `docker exec fahares_app php artisan test` — ۲۱۷ آزمون موفق.
