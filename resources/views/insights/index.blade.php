@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'بینش آماری: نسخه‌های خطی در گذر سده‌ها | فهارس')
+@section('title', 'آمار: نسخه‌های خطی در گذر سده‌ها | فهارس')
 @section('meta_description', 'خط زمانی کتابت نسخه‌های خطی از سده‌ی چهارم تا چهاردهم هجری، کانون‌های تاریخی استنساخ، آثار پرنسخه و سهم خطوط و زبان‌ها در فهارس')
 
 @section('content')
@@ -34,7 +34,7 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
     <header class="text-center grid justify-items-center gap-2">
-        <p class="text-xs font-bold text-cinnabar">بینش آماری</p>
+        <p class="text-xs font-bold text-cinnabar">آمار</p>
         <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">نسخه‌ها در گذر سده‌ها</h1>
         <p class="text-sm text-muted max-w-2xl leading-relaxed">
             آنچه {{ Fa::approx($data['totals']['manuscripts']) }} نسخه‌ی خطی و {{ Fa::approx($data['totals']['works']) }} اثرِ ثبت‌شده در فهارس درباره‌ی زمان و جای کتابت، آثار پرنسخه و خطوط و زبان‌ها می‌گوید.
