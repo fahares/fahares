@@ -494,8 +494,23 @@
                                 $fankhaName = $manuscript->catalog?->name;
                                 $fankhaTitle = $fankhaName ? $fankhaName . ($catShort && ! str_contains($fankhaName, $catShort) ? " ({$catShort})" : '') : 'فهرستگان نسخه‌های خطی ایران (فنخا)';
                             @endphp
-                            <x-ui.source-text data-fankha-text :title="$fankhaTitle" :address="$pageRef" :viewer="$openViewer" :collapsible="true">
-                                <div class="whitespace-pre-line">{{ $manuscript->clean_raw_text }}</div>
+                            @php $workText = $manuscript->work?->clean_raw_text; @endphp
+                            {{-- Fankha prints the work's bibliography, then its copies: the work's part first (clipped, as it can be long), «...» for the copies before this one, then this copy's --}}
+                            <x-ui.source-text data-fankha-text :title="$fankhaTitle" :address="$pageRef" :viewer="$openViewer" :collapsible="! $workText">
+                                @if($workText)
+                                    <div x-data="{ more: false }" class="relative" data-fankha-work-text>
+                                        <div :class="more ? '' : 'max-h-48 overflow-hidden'" class="whitespace-pre-line" data-copy>{{ $workText }}</div>
+                                        <div x-show="! more" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent flex items-end justify-center">
+                                            <button type="button" @click="more = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن کتاب‌شناسی</button>
+                                        </div>
+                                    </div>
+                                    @if(($manuscript->sequence_number ?? 1) > 1)
+                                        <div class="my-2 text-center text-muted tracking-widest" data-copy>...</div>
+                                    @else
+                                        <div class="my-3 border-t border-dashed border-line"></div>
+                                    @endif
+                                @endif
+                                <div class="whitespace-pre-line" data-copy>{{ $manuscript->clean_raw_text }}</div>
                             </x-ui.source-text>
                         @endif
                     </div>

@@ -408,6 +408,21 @@ class CatalogReferencesTest extends TestCase
         $this->get(route('manuscripts.show', $ms))->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم', '۶۰۷- دیوان قدسی'])->assertDontSee('متن فنخا');
     }
 
+    public function test_fankhas_text_on_the_record_page_starts_with_the_works_bibliography()
+    {
+        $ms = $this->manuscript(['raw_text' => '196. قم؛ مسجد اعظم؛ شماره نسخه: 498/2', 'sequence_number' => 196]);
+        $ms->work->update(['raw_text' => "● التنبیهات العلیة = اسرار الصلاة / عربی\nشهید ثانی"]);
+
+        // the work's part, «...» for the 195 copies before this one, then this copy's; one «رونوشت متن» copies all three
+        $this->get(route('manuscripts.show', $ms))->assertOk()
+            ->assertSeeInOrder(['متن مأخذ', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'رونوشت متن', '● التنبیهات العلیة = اسرار الصلاة / عربی', 'نمایش کامل متن کتاب‌شناسی', '...', '196. قم؛ مسجد اعظم؛ شماره نسخه: 498/2']);
+
+        // the first copy follows the bibliography directly
+        $ms->update(['sequence_number' => 1]);
+        $html = $this->get(route('manuscripts.show', $ms))->assertSeeInOrder(['● التنبیهات العلیة', '196. قم؛ مسجد اعظم'])->getContent();
+        $this->assertStringNotContainsString('tracking-widest" data-copy>...', $html);
+    }
+
     public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()
     {
         $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);

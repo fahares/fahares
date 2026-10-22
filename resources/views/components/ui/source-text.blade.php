@@ -9,7 +9,8 @@
     'collapsible' => false,
 ])
 {{-- One source text under «متن مأخذ» on the record page (backlog item 60): the printed library catalogue's and Fankha's
-     look alike, with the address, «دیدن برگه» and «رونوشت متن»; an optional `badge` slot follows the title. --}}
+     look alike, with the address, «دیدن برگه» and «رونوشت متن»; an optional `badge` slot follows the title. When the text
+     has parts marked data-copy, «رونوشت متن» copies those alone, leaving out buttons inside it. --}}
 <div x-data="{ copied: false, open: {{ $collapsible ? 'false' : 'true' }} }" {{ $attributes }}>
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 mb-2">
         <h3 class="flex items-center gap-1 text-sm font-bold text-ink">
@@ -23,7 +24,7 @@
             @if($viewer)
                 <x-ui.btn size="sm" x-on:click="{{ $viewer }}">دیدن برگه</x-ui.btn>
             @endif
-            <x-ui.btn size="sm" x-on:click="navigator.clipboard.writeText($refs.text.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
+            <x-ui.btn size="sm" x-on:click="navigator.clipboard.writeText([...$refs.text.querySelectorAll('[data-copy]')].map(e => e.innerText.trim()).join('\n\n') || $refs.text.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                 <span x-show="!copied">رونوشت متن</span>
                 <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
             </x-ui.btn>
