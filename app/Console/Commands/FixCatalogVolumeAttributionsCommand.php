@@ -21,6 +21,11 @@ use Illuminate\Support\Facades\DB;
  *  - «محمد صادق فقیر» (MTIF 37302) is the spelling of the name; he is linked to the two Fars National Library volumes
  *    (MTIF 21518, 21519) he authored.
  *
+ *  - Follow-ups: the volume «فهرست مدرسه رضویه قم» (MTIF 21378) moves from the Razavi library of Mashhad to the
+ *    Madrese Razaviyye of Qom; the year of «آشنایی با چند نسخه خطی» becomes 1350 (Fankha vol. 24: «قم، ۱۳۵۰ ش»,
+ *    where «1396» was a guess of the remediation command); the publisher of Shahchragh vol. 3 becomes «فلاح»;
+ *    and «حسن‌زاده» becomes «صادق حسن‌زاده» (preface of the Masjid-e A'zam catalogue, ghbook 15891:
+ *    «حجة الاسلام صادق حسن‌زاده مراغه‌ای»).
  *  - «پرویز اذکائی» is left with no volume and no copy by this, so his record is deleted and its old links
  *    redirect to the Gharb school library, the only place he was linked to (user's decision, 2026-10-21).
  *
@@ -47,13 +52,31 @@ class FixCatalogVolumeAttributionsCommand extends Command
 
     public const FAQIR_NAME = 'محمدصادق فقیر';
 
+    public const HASANZADEH_SLUG = 'حسنزاده';
+
+    public const HASANZADEH_OLD_NAME = 'حسن‌زاده';
+
+    public const HASANZADEH_NAME = 'صادق حسن‌زاده';
+
+    public const QOM_RAZAVIYYE_MTIF_VOLUME = 21378;
+
+    public const QOM_RAZAVIYYE_LIBRARY_SLUG = 'km-mdrsh-rdoyh-140';
+
+    public const ASHNAYI_CITATION = 'آشنایی با چند نسخه خطی';
+
+    public const ASHNAYI_YEAR = '1350';
+
+    public const ASHNAYI_GUESSED_YEAR = '1396';
+
+    public const SHAHCHRAGH_PUBLISHER = 'فلاح';
+
     /**
      * library slug, volume number, MTIF ids to detach, MTIF id to attach, source
      *
      * @var array<int, array{0: string, 1: int, 2: array<int, int>, 3: int, 4: string}>
      */
     public const FIXES = [
-        ['shyraz-shahchragh-97', 3, [self::BEHROUZI, self::FAQIR], self::BARAKAT, 'ensani.ir/fa/article/download/203309: جلد سوم، ۱۳۸۲، با تلاش محمد برکت'],
+        ['shyraz-shahchragh-97', 3, [self::BEHROUZI, self::FAQIR], self::BARAKAT, 'mtif.org/book/9217: جلد سوم به گردآوری محمد برکت، فلاح شیراز ۱۳۸۲؛ ensani.ir/fa/article/download/203309'],
         ['yzd-ozyry-32', 4, [self::FAQIR], self::SHIRVANI, 'فنخا ۲۵۰ و MTIF book/21389'],
         ['yzd-ozyry-32', 5, [self::FAQIR], self::SHIRVANI, 'فنخا ۲۵۱ و MTIF book/21390'],
         ['hmdan-mdrsh-ghrb-29', 1, [self::AZKAEI], self::MAQSUD, 'MTIF book/21524'],
@@ -130,6 +153,8 @@ class FixCatalogVolumeAttributionsCommand extends Command
                 $this->recount($cataloger);
             }
 
+            $this->followUps();
+
             if ($catalogers->has(self::AZKAEI)) {
                 $this->removeIfEmpty($catalogers[self::AZKAEI], $plan[3][0]->library_id);
             }
@@ -138,6 +163,38 @@ class FixCatalogVolumeAttributionsCommand extends Command
         $this->info('Done.');
 
         return self::SUCCESS;
+    }
+
+    /** Library, year, publisher and name corrections that need no cataloger change. */
+    protected function followUps(): void
+    {
+        $qom = \App\Models\Library::where('slug', self::QOM_RAZAVIYYE_LIBRARY_SLUG)->first();
+        $razaviyye = CatalogVolume::where('mtif_entry_id', self::QOM_RAZAVIYYE_MTIF_VOLUME)->first();
+        if ($qom && $razaviyye && $razaviyye->library_id !== $qom->id) {
+            $razaviyye->update(['library_id' => $qom->id]);
+            $this->line("Volume {$razaviyye->id} moved to library {$qom->slug}");
+        }
+
+        $ashnayi = CatalogVolume::where('citation_pattern', self::ASHNAYI_CITATION)
+            ->where('publication_year', self::ASHNAYI_GUESSED_YEAR)->get();
+        foreach ($ashnayi as $volume) {
+            $volume->update([
+                'publication_year' => self::ASHNAYI_YEAR,
+                'metadata' => array_merge($volume->metadata ?? [], ['year_source' => 'فنخا ج ۲۴: «آشنایی با چند نسخه خطی، به کوشش حسین مدرسی طباطبایی، قم، ۱۳۵۰ ش»']),
+            ]);
+            $this->line("Volume {$volume->id} year set to " . self::ASHNAYI_YEAR);
+        }
+
+        $shahchragh = $this->volume('shyraz-shahchragh-97', 3);
+        if ($shahchragh && $shahchragh->publisher !== self::SHAHCHRAGH_PUBLISHER) {
+            $shahchragh->update(['publisher' => self::SHAHCHRAGH_PUBLISHER]);
+        }
+
+        $hasanzadeh = Cataloger::where('slug', self::HASANZADEH_SLUG)->where('name', self::HASANZADEH_OLD_NAME)->first();
+        if ($hasanzadeh) {
+            $hasanzadeh->update(['name' => self::HASANZADEH_NAME]);
+            $this->line("Cataloger {$hasanzadeh->id} renamed to " . self::HASANZADEH_NAME);
+        }
     }
 
     /** Deletes the cataloger once nothing points at him, leaving a redirect to the library. */

@@ -124,4 +124,21 @@ class FixCatalogVolumeAttributionsTest extends TestCase
         $this->v['yzd-ozyry-32#5']->delete();
         $this->artisan('catalogs:fix-volume-attributions')->assertFailed();
     }
+
+    public function test_follow_ups_fix_library_year_publisher_and_hasanzadeh_name()
+    {
+        $razavi = Library::create(['name' => 'رضوی', 'city' => 'مشهد', 'slug' => 'mshhd-rdoy-test-' . uniqid()]);
+        $qom = Library::create(['name' => 'مدرسه رضویه', 'city' => 'قم', 'slug' => Fix::QOM_RAZAVIYYE_LIBRARY_SLUG]);
+        $razaviyye = CatalogVolume::create(['title' => 'فهرست مدرسه رضویه قم', 'library_id' => $razavi->id, 'mtif_entry_id' => Fix::QOM_RAZAVIYYE_MTIF_VOLUME]);
+        $ashnayi = CatalogVolume::create(['title' => 'آشنایی با چند نسخه خطی', 'citation_pattern' => Fix::ASHNAYI_CITATION, 'publication_year' => Fix::ASHNAYI_GUESSED_YEAR]);
+        $hasanzadeh = Cataloger::create(['name' => Fix::HASANZADEH_OLD_NAME, 'slug' => Fix::HASANZADEH_SLUG]);
+        $this->v['shyraz-shahchragh-97#3']->update(['publisher' => 'کتابخانه آستانه شیراز']);
+
+        $this->artisan('catalogs:fix-volume-attributions')->assertSuccessful();
+
+        $this->assertSame($qom->id, $razaviyye->fresh()->library_id);
+        $this->assertSame(Fix::ASHNAYI_YEAR, $ashnayi->fresh()->publication_year);
+        $this->assertSame(Fix::HASANZADEH_NAME, $hasanzadeh->fresh()->name);
+        $this->assertSame(Fix::SHAHCHRAGH_PUBLISHER, $this->v['shyraz-shahchragh-97#3']->fresh()->publisher);
+    }
 }
