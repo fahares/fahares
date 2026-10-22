@@ -60,7 +60,7 @@
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-4">
                     <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
-                        <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-180.png') }}" alt="" width="48" height="48" class="h-12 w-12 group-hover:rotate-[22.5deg] transition-transform duration-500 motion-reduce:transition-none">
+                        <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-180.png') }}" alt="" width="48" height="48" class="h-12 w-12">
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
                                 <span class="font-naskh text-[28px] font-bold text-ink leading-none group-hover:text-cinnabar transition-colors">فهارس</span>
