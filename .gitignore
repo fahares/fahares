@@ -45,3 +45,5 @@ mariadb_data/
 .idea/
 .vscode/
 .DS_Store
+# Claude Code local files (worktrees, personal settings)
+/.claude/
