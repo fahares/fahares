@@ -3270,10 +3270,9 @@
 
 ### گام ۱۲.۶۳: سقف بارگذاری PHP
 - **علت:** در پروداکشن (Nixpacks، `php artisan serve`) `upload_max_filesize=2M` و `post_max_size=8M`، پیش‌فرض PHP. قاعده‌های `max:5120` (کاور و تصاویر مقاله) و `max:3072` (آواتار) از این بیشتر بودند؛ فایل بالای ۲ مگابایت به قاعده‌ی `uploaded` می‌خورد (exception نیست، پس در لاگ نمی‌آید) و بارگذاری چندتصویری بالای ۸ مگابایت ۴۱۳ می‌داد.
-- **رفع:** `docker/php/uploads.ini` (`upload_max_filesize=10M`، `post_max_size=110M`، `max_file_uploads=20`) با `PHP_INI_SCAN_DIR` بارگذاری می‌شود: در `nixpacks.toml` برابر `:/app/docker/php` و در `docker-compose.yml` برابر `:/var/www/html/docker/php`. `:` آغازین پوشه‌ی پیش‌فرض (افزونه‌ها) را نگه می‌دارد.
-- **`artisan serve`:** وقتی `.env` هست، متغیرهای محیطی بیرون از `ServeCommand::$passthroughVariables` را از فرزند `php -S` پاک می‌کند؛ `AppServiceProvider::register` `PHP_INI_SCAN_DIR` را به این فهرست می‌افزاید.
-- **پیام:** `lang/fa/validation.php` فقط با کلید `uploaded`.
-- **باز:** `fallback_locale` هم `fa` است، پس پیام‌های validation بی‌ترجمه به‌صورت کلید خام (مثل `validation.required`) نمایش داده می‌شوند. (رفع در گام ۱۲.۶۴)
+- **رفع:** `docker/php/uploads.ini` (`upload_max_filesize=10M`، `post_max_size=110M`، `max_file_uploads=20`). `App\Console\Commands\ServeCommand` فرمان `serve` فریم‌ورک را جایگزین می‌کند و مقادیر این فایل را به‌صورت `-d` به فرزند `php -S` می‌دهد؛ پس فرمان آغاز Coolify (`php artisan serve --host=0.0.0.0 --port=80`) و محیط محلی بی‌تغییر می‌مانند.
+- **پیام:** `lang/fa/validation.php` با کلید `uploaded` (بعدتر در کامیت جداگانه کامل شد).
+- **تلاش نخست ناموفق:** نسخه‌ی اول `PHP_INI_SCAN_DIR=:/app/docker/php` را در `nixpacks.toml` گذاشت. در نیکس `:` آغازین فقط پوشه‌ی کامپایل‌شده‌ی PHP را نگه می‌دارد، نه پوشه‌ی wrapper که افزونه‌ها (iconv و...) را فعال می‌کند؛ `composer install` در build شکست خورد و استقرارهای ۲۳۹ تا ۲۴۲ ناموفق ماندند تا `nixpacks.toml` برداشته شد.
 
 ### گام ۱۲.۶۴: `lang/fa/validation.php` کامل
 - **علت:** `APP_LOCALE=fa` و `fallback_locale` هم `fa`؛ `lang/fa/validation.php` فقط `uploaded` را داشت و `lang/en` منتشر نشده، پس Translator برای قاعده‌های دیگر خود کلید را برمی‌گرداند.

@@ -6,7 +6,6 @@ use App\Helpers\SearchHelper;
 use App\Suggestions\SuggestionReadings;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Foundation\Console\ServeCommand;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
@@ -19,8 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // artisan serve strips unlisted env vars from its php -S child when .env exists; keep the upload limits (docker/php)
-        ServeCommand::$passthroughVariables[] = 'PHP_INI_SCAN_DIR';
+        //
     }
 
     /**
