@@ -452,6 +452,23 @@
             <div class="text-[10px] text-stone-400 pt-2 font-mono">
                 داوری توسط {{ $suggestion->reviewer?->name ?: 'سیستم' }} در تاریخ @jdate($suggestion->reviewed_at, 'datetime')
             </div>
+            @if(in_array($suggestion->status, ['approved', 'rejected'], true))
+                <form action="{{ route('admin.suggestions.reopen', $suggestion) }}" method="POST" class="pt-3 mt-2 border-t border-line flex flex-wrap items-center gap-3"
+                      onsubmit="return confirm('{{ $suggestion->status === 'rejected' ? 'این پیشنهاد به صف داوری بازگردد؟' : 'تغییری که این تأیید در رکورد داده بازگردانده شود و پیشنهاد دوباره داوری شود؟' }}')">
+                    @csrf
+                    <button type="submit" class="px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                        <span>{{ $wasPromoted ? 'بازگرداندن به «قول دیگر»' : ($suggestion->status === 'rejected' ? 'لغو رد و بازگشت به صف داوری' : 'لغو تأیید و بازگشت به صف داوری') }}</span>
+                    </button>
+                    <span class="text-[11px] text-stone-400">
+                        @if($suggestion->status === 'approved')
+                            اگر داوری به اشتباه بوده، تغییر رکورد هم برمی‌گردد. پیام قبلی به پیشنهاددهنده پس گرفته نمی‌شود.
+                        @else
+                            اگر رد به اشتباه بوده، پیشنهاد دوباره در انتظار داوری قرار می‌گیرد.@if(in_array($suggestion->kind, ['note', 'feedback'], true)) پرونده‌های پیوست هنگام رد حذف شده‌اند.@endif
+                        @endif
+                    </span>
+                </form>
+            @endif
         </div>
     @endif
     @endif

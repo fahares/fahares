@@ -49,6 +49,7 @@ class SuggestionWorkflowTest extends TestCase
         foreach ($targets as $class => $ids) {
             $suggestionIds = FieldSuggestion::where('suggestable_type', $class)->whereIn('suggestable_id', $ids)->pluck('id');
             ScholarlyAnnotation::whereIn('suggestion_id', $suggestionIds)->delete();
+            AuditLog::where('auditable_type', FieldSuggestion::class)->whereIn('auditable_id', $suggestionIds)->delete();
             FieldSuggestion::whereIn('id', $suggestionIds)->delete();
             AuditLog::where('auditable_type', $class)->whereIn('auditable_id', $ids)->delete();
         }
@@ -606,6 +607,96 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame('تبریز', $m->fresh()->copy_place);
         $this->assertSame('approved', $alt->fresh()->status);
         $this->assertSame('alternative', $alt->fresh()->standing);
+    }
+
+    public function test_a_mistaken_rejection_returns_to_the_queue()
+    {
+        $m = $this->manuscript(['copy_place' => 'تبریز']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $s = $this->pendingFor($m);
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/reopen")->assertStatus(409);
+
+        $this->post("/admin/suggestions/{$s->id}/reject", ['public_note' => 'مستند ناکافی', 'admin_notes' => 'اشتباه'])->assertRedirect('/admin/suggestions');
+        $this->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('لغو رد و بازگشت به صف داوری');
+
+        $this->post("/admin/suggestions/{$s->id}/reopen")->assertRedirect("/admin/suggestions/{$s->id}")->assertSessionHas('success');
+        $s->refresh();
+        $this->assertSame('pending', $s->status);
+        $this->assertNull($s->public_note);
+        $this->assertNull($s->reviewed_at);
+        $this->assertSame('rejected', AuditLog::where('auditable_type', FieldSuggestion::class)->where('auditable_id', $s->id)->sole()->old_values['status']);
+
+        // Reviewed again, now approved
+        $this->approve($s, ['applied_value' => 'هرات', 'outcome' => 'adopt'])->assertRedirect('/admin/suggestions');
+        $this->assertSame('هرات', $m->fresh()->copy_place);
+    }
+
+    public function test_a_mistaken_approval_is_undone_from_the_suggestion_page()
+    {
+        $old = $this->person('کاتب پیشین');
+        $new = $this->person('کاتب تازه');
+        $m = $this->manuscript(['scribe_id' => $old->id, 'scribe_name' => $old->name]);
+        $old->recountContributions();
+        $this->suggest($m, ['field_name' => 'scribe_name', 'suggested_value' => $new->name, 'rationale_citation' => 'ترقیمه', 'person_id' => $new->id])->assertOk();
+        $s = $this->pendingFor($m);
+        $this->approve($s, ['person_pick' => 'p:' . $new->id])->assertRedirect('/admin/suggestions');
+        $this->get("/admin/suggestions/{$s->id}")->assertOk()->assertSee('لغو تأیید و بازگشت به صف داوری');
+
+        $this->post("/admin/suggestions/{$s->id}/reopen")->assertSessionHas('success');
+        $this->assertSame($old->id, $m->fresh()->scribe_id);
+        $this->assertSame(1, $old->fresh()->manuscripts_count);
+        $this->assertSame(0, $new->fresh()->manuscripts_count);
+        $this->assertSame('pending', $s->fresh()->status);
+
+        // The audit log refuses to undo the same approval a second time
+        $log = AuditLog::where('auditable_type', Manuscript::class)->where('auditable_id', $m->id)->where('action', 'verify')->sole();
+        $this->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('error');
+        $this->assertSame($old->id, $m->fresh()->scribe_id);
+    }
+
+    public function test_undoing_an_approval_waits_for_later_changes_to_the_same_field()
+    {
+        $m = $this->manuscript(['copy_place' => 'تبریز']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه'])->assertOk();
+        $first = $this->pendingFor($m);
+        $this->approve($first, ['applied_value' => 'هرات', 'outcome' => 'adopt']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی دیگر'])->assertOk();
+        $second = $this->pendingFor($m);
+        $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'superseded', 'public_note' => 'روشن‌تر است']);
+
+        // The first approval cannot be undone over the second
+        $this->post("/admin/suggestions/{$first->id}/reopen")->assertSessionHas('error');
+        $this->assertSame('مشهد', $m->fresh()->copy_place);
+        $this->assertSame('approved', $first->fresh()->status);
+
+        $this->post("/admin/suggestions/{$second->id}/reopen")->assertSessionHas('success');
+        $this->assertSame('هرات', $m->fresh()->copy_place);
+        $this->assertSame('adopted', $first->fresh()->standing);
+        $this->post("/admin/suggestions/{$first->id}/reopen")->assertSessionHas('success');
+        $this->assertSame('تبریز', $m->fresh()->copy_place);
+        $this->assertSame('pending', $first->fresh()->status);
+    }
+
+    public function test_taking_back_an_adopted_alternative_keeps_it_an_alternative()
+    {
+        $m = $this->manuscript(['copy_place' => 'تبریز']);
+        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'شیراز', 'rationale_citation' => 'فهرست دیگر'])->assertOk();
+        $alt = $this->pendingFor($m);
+        $this->approve($alt, ['applied_value' => 'شیراز', 'outcome' => 'alternative', 'public_note' => 'مستند فهرست چاپی قوی‌تر است']);
+        $this->approve($alt, ['applied_value' => 'شیراز']);
+        $this->assertSame('شیراز', $m->fresh()->copy_place);
+        $this->get("/admin/suggestions/{$alt->id}")->assertOk()->assertSee('بازگرداندن به «قول دیگر»');
+
+        $this->post("/admin/suggestions/{$alt->id}/reopen")->assertSessionHas('success');
+        $this->assertSame('تبریز', $m->fresh()->copy_place);
+        $this->assertSame('approved', $alt->fresh()->status);
+        $this->assertSame('alternative', $alt->fresh()->standing);
+
+        // Once more: the alternative itself goes back to the queue
+        $this->post("/admin/suggestions/{$alt->id}/reopen")->assertSessionHas('success');
+        $this->assertSame('pending', $alt->fresh()->status);
+        $this->assertNull($alt->fresh()->standing);
+        $this->assertSame('تبریز', $m->fresh()->copy_place);
     }
 
     public function test_edits_fix_values_without_becoming_readings()

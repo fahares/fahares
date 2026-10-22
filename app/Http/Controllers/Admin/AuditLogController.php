@@ -43,31 +43,39 @@ class AuditLogController extends Controller
             abort(403, 'دسترسی مجاز نمی‌باشد.');
         }
 
-        if (empty($log->old_values)) {
-            return back()->with('error', 'اطلاعات وضعیت پیشین برای این رخداد موجود نیست و امکان بازگردانی وجود ندارد.');
-        }
-
         try {
-            DB::transaction(function () use ($log, $request) {
-                if ($log->action === 'merge') {
-                    $this->rollbackMerge($log, $request);
-                } elseif ($log->action === 'verify') {
-                    $this->rollbackVerify($log, $request);
-                } elseif ($log->action === 'split') {
-                    $this->rollbackSplit($log, $request);
-                } elseif ($log->action === 'remove') {
-                    $this->rollbackRemove($log, $request);
-                } elseif ($log->action === 'update') {
-                    $this->rollbackUpdate($log, $request);
-                } else {
-                    throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد.");
-                }
-            });
+            DB::transaction(fn () => $this->undo($log, $request));
 
             return back()->with('success', "تغییرات رخداد #{$log->id} با موفقیت به حالت قبل بازگردانده (Rollback) شد.");
         } catch (\Throwable $e) {
             return back()->with('error', "خطا در فرآیند بازگردانی: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Undoes one logged change; the caller runs it in a transaction. Also used by the suggestions
+     * desk to take back an approval (see SuggestionController::reopen).
+     */
+    public function undo(AuditLog $log, Request $request): void
+    {
+        if (empty($log->old_values)) {
+            throw new \Exception('اطلاعات وضعیت پیشین برای این رخداد موجود نیست و امکان بازگردانی وجود ندارد.');
+        }
+        if ($log->isRolledBack()) {
+            throw new \Exception("رخداد #{$log->id} پیش‌تر بازگردانده شده است.");
+        }
+        if ($later = $log->laterOverlappingChange()) {
+            throw new \Exception("رخداد #{$later->id} بعداً همین فیلدها را تغییر داده است؛ نخست آن را بازگردانید.");
+        }
+
+        match ($log->action) {
+            'merge' => $this->rollbackMerge($log, $request),
+            'verify' => $this->rollbackVerify($log, $request),
+            'split' => $this->rollbackSplit($log, $request),
+            'remove' => $this->rollbackRemove($log, $request),
+            'update' => $this->rollbackUpdate($log, $request),
+            default => throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد."),
+        };
     }
 
     protected function rollbackMerge(AuditLog $log, Request $request): void
@@ -483,7 +491,7 @@ class AuditLogController extends Controller
         }
 
         if (! empty($log->new_values['promoted'])) {
-            $suggestion?->update(['standing' => 'alternative', 'superseded_by' => null]);
+            $suggestion?->update(['standing' => 'alternative', 'superseded_by' => null, 'resolution' => ['applied' => false]]);
             $suggestion = null;
         }
         $suggestion?->update(['status' => 'pending', 'standing' => null, 'applied_value' => null, 'superseded_by' => null, 'resolution' => null, 'reviewed_by' => null, 'reviewed_at' => null]);
@@ -493,7 +501,7 @@ class AuditLogController extends Controller
             'auditable_type' => $log->auditable_type,
             'auditable_id' => $log->auditable_id,
             'action' => 'rollback_verify',
-            'old_values' => $log->new_values,
+            'old_values' => $log->new_values + ['rolled_back_log_id' => $log->id],
             'new_values' => $log->old_values,
             'ip_address' => $request->ip(),
         ]);
@@ -560,7 +568,7 @@ class AuditLogController extends Controller
             'auditable_type' => $log->auditable_type,
             'auditable_id' => $log->auditable_id,
             'action' => 'rollback_update',
-            'old_values' => $log->new_values,
+            'old_values' => $log->new_values + ['rolled_back_log_id' => $log->id],
             'new_values' => $log->old_values,
             'ip_address' => $request->ip(),
         ]);

@@ -76,7 +76,11 @@ class SuggestionController extends Controller
         $relation = $suggestion->relationDefinition();
         $relationTarget = $suggestion->relationTarget();
 
-        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted'));
+        // Taking back the adoption of an alternative leaves it an alternative (see reopen)
+        $wasPromoted = $suggestion->standing === 'adopted'
+            && ! empty(AuditLog::activeForSuggestion($suggestion->id)?->new_values['promoted']);
+
+        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted'));
     }
 
     /** Reviewer outcomes for a field suggestion and the standing each gives it. */
@@ -877,6 +881,62 @@ class SuggestionController extends Controller
         $suggestion->update(['credit_name' => $name]);
 
         return back()->with('success', $name ? "نام «{$name}» برای پیشنهاد #{$suggestion->id} ثبت شد." : "نام پیشنهاد #{$suggestion->id} از نمایش عمومی برداشته شد.");
+    }
+
+    /**
+     * Takes back a decision made by mistake. A rejected suggestion returns to the queue; an approved
+     * one is first undone on the record through its audit log, which also reopens it (a promoted
+     * alternative goes back to being an alternative). The submitter's earlier notice is not recalled.
+     */
+    public function reopen(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_unless(in_array($suggestion->status, ['approved', 'rejected'], true), 409, 'فقط پیشنهاد تأییدشده یا ردشده را می‌توان بازگرداند.');
+
+        $log = $suggestion->status === 'approved' ? AuditLog::activeForSuggestion($suggestion->id) : null;
+        $undo = $log && ! empty($log->old_values);
+        if ($suggestion->status === 'approved' && ! empty($suggestion->resolution['applied']) && ! $undo) {
+            return back()->with('error', 'رخداد این تأیید در جدول رخدادها پیدا نشد یا قابل بازگردانی خودکار نیست؛ تغییر رکورد را دستی بازگردانید.');
+        }
+
+        try {
+            DB::transaction(function () use ($suggestion, $log, $undo, $request) {
+                if ($undo) {
+                    app(AuditLogController::class)->undo($log, $request);
+
+                    return;
+                }
+
+                // Nothing was applied to a record: only the decision is taken back
+                AuditLog::create([
+                    'user_id' => auth()->id(),
+                    'auditable_type' => FieldSuggestion::class,
+                    'auditable_id' => $suggestion->id,
+                    'action' => 'reopen',
+                    'old_values' => $suggestion->only(['status', 'standing', 'public_note', 'reviewed_by']) + ['reviewed_at' => $suggestion->reviewed_at?->toDateTimeString()],
+                    'new_values' => ['status' => 'pending'],
+                    'ip_address' => $request->ip(),
+                ]);
+                $suggestion->update([
+                    'status' => 'pending',
+                    'standing' => null,
+                    'superseded_by' => null,
+                    // A rejection's public note explained the rejection; an approval's stays as a draft
+                    'public_note' => $suggestion->status === 'rejected' ? null : $suggestion->public_note,
+                    'resolution' => $suggestion->kind === 'note' ? $suggestion->resolution : null,
+                    'reviewed_by' => null,
+                    'reviewed_at' => null,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            return back()->with('error', 'بازگردانی انجام نشد: ' . $e->getMessage());
+        }
+
+        $fresh = $suggestion->fresh();
+        $message = $fresh->status === 'pending'
+            ? "پیشنهاد #{$suggestion->id} به صف داوری بازگشت" . ($undo ? ' و تغییر آن در رکورد بازگردانده شد.' : '.')
+            : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان قول مختار بازگردانده شد؛ دوباره «قول دیگر» است.";
+
+        return redirect()->route('admin.suggestions.show', $suggestion)->with('success', $message);
     }
 
     public function reject(Request $request, FieldSuggestion $suggestion)
