@@ -1,0 +1,3 @@
+# Extra PHP ini files (upload limits) on top of the build's own; the leading ':' keeps the default scan dir.
+[variables]
+PHP_INI_SCAN_DIR = ":/app/docker/php"

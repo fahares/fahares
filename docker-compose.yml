@@ -18,6 +18,7 @@ services:
       - DB_PASSWORD=${MARIADB_PASSWORD}
       - MEILISEARCH_HOST=http://meilisearch:7700
       - MEILISEARCH_KEY=${MEILI_MASTER_KEY}
+      - PHP_INI_SCAN_DIR=:/var/www/html/docker/php
     ports:
       - "8000:8000"
     depends_on:

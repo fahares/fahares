@@ -3250,3 +3250,10 @@
   3. `catalogs:sync-editions`: چاپ‌های #۶۸۵ (ج ۱)، #۶۸۶ (ج ۳) و #۶۸۷ (ج ۴) ساخته شد. برچسب #۶۸۴ (ج ۲) به‌روز و ردیف #۱ اصلاح شد، و روضاتی (#۴۲) جدا شد. اجرای دوم «unchanged» داد.
   4. `catalogs:match-edition`: dry-run و دو گذر واقعی (۱، ۳، ۴، ۲) با عددهای رونوشت یکی بودند. نتیجه: ج ۱ ۱٬۷۴۲، ج ۲ ۱٬۶۱۹ (۲۴ ردیف سست پاک شد)، ج ۳ ۱٬۲۵۳ و ج ۴ ۱٬۵۱۰. گذر دوم هیچ درج یا به‌روزرسانی نداشت. متن‌های `/tmp` پاک شد.
   5. fahares.net/manuscripts/86135 (326/2) دو ارجاع ج ۱ ص ۱۰۹ و ج ۳ ص ۱۴ را نشان می‌دهد، و نمایشگر ج ۳ ص ۱۴ را با «( 326 )» باز می‌کند. 210715 (3408/2) ج ۴ ص ۶۲۳ را دارد.
+
+### گام ۱۲.۶۳: سقف بارگذاری PHP
+- **علت:** در پروداکشن (Nixpacks، `php artisan serve`) `upload_max_filesize=2M` و `post_max_size=8M`، پیش‌فرض PHP. قاعده‌های `max:5120` (کاور و تصاویر مقاله) و `max:3072` (آواتار) از این بیشتر بودند؛ فایل بالای ۲ مگابایت به قاعده‌ی `uploaded` می‌خورد (exception نیست، پس در لاگ نمی‌آید) و بارگذاری چندتصویری بالای ۸ مگابایت ۴۱۳ می‌داد.
+- **رفع:** `docker/php/uploads.ini` (`upload_max_filesize=10M`، `post_max_size=110M`، `max_file_uploads=20`) با `PHP_INI_SCAN_DIR` بارگذاری می‌شود: در `nixpacks.toml` برابر `:/app/docker/php` و در `docker-compose.yml` برابر `:/var/www/html/docker/php`. `:` آغازین پوشه‌ی پیش‌فرض (افزونه‌ها) را نگه می‌دارد.
+- **`artisan serve`:** وقتی `.env` هست، متغیرهای محیطی بیرون از `ServeCommand::$passthroughVariables` را از فرزند `php -S` پاک می‌کند؛ `AppServiceProvider::register` `PHP_INI_SCAN_DIR` را به این فهرست می‌افزاید.
+- **پیام:** `lang/fa/validation.php` فقط با کلید `uploaded`.
+- **باز:** `fallback_locale` هم `fa` است، پس پیام‌های validation بی‌ترجمه به‌صورت کلید خام (مثل `validation.required`) نمایش داده می‌شوند.
