@@ -24,7 +24,7 @@ class ManuscriptController extends Controller
             'scripts',
             'sourceCitations.catalog',
             // Pages in other printings of the library catalogue; the Fankha row repeats metadata.catalog_citation
-            'catalogReferences' => fn ($q) => $q->where('source', '!=', ManuscriptCatalogReference::SOURCE_FANKHA)->where('status', '!=', ManuscriptCatalogReference::STATUS_REJECTED)->with('catalogVolume')->orderBy('id'),
+            'catalogReferences' => fn ($q) => $q->where('source', '!=', ManuscriptCatalogReference::SOURCE_FANKHA)->where('status', '!=', ManuscriptCatalogReference::STATUS_REJECTED)->with('catalogVolume.library')->orderBy('id'),
             'fieldSuggestions' => fn($q) => $q->where('status', 'approved'),
         ])->find($numericId);
 

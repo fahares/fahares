@@ -457,6 +457,46 @@
                 </x-ui.section>
             @endif
 
+            <!-- The printed catalogue's own entry at each of its references (backlog item 60): a primary source, so above Fankha's text and open -->
+            @foreach($manuscript->catalogReferences->filter(fn ($ref) => $ref->hasPrintedText()) as $ref)
+                @php
+                    $viewer = $ref->viewer();
+                    $printedAt = Fa::digits(implode('، ', array_filter([
+                        ($ref->volume_number ?? $ref->catalogVolume?->volume_number) ? 'ج ' . ($ref->volume_number ?? $ref->catalogVolume->volume_number) : null,
+                        $ref->page_start ? 'ص ' . $ref->page_start : null,
+                    ])));
+                @endphp
+                <section class="scroll-mt-24" data-printed-text>
+                    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
+                        <h2 class="rubric text-lg">
+                            <span>{{ $ref->printedTextTitle() }}</span>
+                            @if($ref->isAwaitingReview())
+                                <x-ui.machine-badge
+                                    text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
+                                    report-label="گزارش نشانی نادرست"
+                                    :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id]" />
+                            @endif
+                        </h2>
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
+                            @if($printedAt)
+                                <span class="text-muted">{{ $printedAt }}</span>
+                            @endif
+                            @if($viewer)
+                                <x-ui.btn size="sm" x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">دیدن برگه</x-ui.btn>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="p-4 sm:p-5 bg-surface border border-line text-[13px] sm:text-sm text-ink leading-loose text-right">
+                        @if($ref->entry_text)
+                            <div class="whitespace-pre-line">{{ Fa::digits($ref->entry_text) }}</div>
+                        @endif
+                        @if($ref->copy_text)
+                            <div @class(['whitespace-pre-line font-semibold', 'mt-3 pt-3 border-t border-dashed border-line' => filled($ref->entry_text)])>{{ Fa::digits($ref->copy_text) }}</div>
+                        @endif
+                    </div>
+                </section>
+            @endforeach
+
             @if($manuscript->clean_raw_text)
                 <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
                     <x-slot:actions>

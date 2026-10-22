@@ -13,6 +13,7 @@ use App\Models\Manuscript;
 use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\User;
 use App\Models\Work;
+use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 class CatalogReferencesTest extends TestCase
@@ -294,6 +295,109 @@ class CatalogReferencesTest extends TestCase
         $this->assertSame([1, Ref::STATUS_REJECTED], [$ref->fresh()->page_start, $ref->fresh()->status]);
         $this->assertSame(2, Ref::where('source', Ref::SOURCE_AI_MATCH)->count());
         unlink($pages);
+    }
+
+    private function writePages(array $pages): string
+    {
+        $path = tempnam(sys_get_temp_dir(), 'pages') . '.jsonl';
+        file_put_contents($path, implode("\n", array_map(fn ($p) => json_encode(['page' => $p[0], 'text' => $p[1]], JSON_UNESCAPED_UNICODE), $pages)));
+
+        return $path;
+    }
+
+    public function test_the_entry_and_the_copy_line_are_taken_from_the_printed_pages()
+    {
+        $ms = $this->manuscript(['shelfmark' => '2953']);
+        $ms->work->update(['primary_title' => 'منیة المرید']);
+        $other = $this->manuscript(['shelfmark' => '584']);
+        $other->work->update(['primary_title' => 'منیة المرید']);
+        $last = $this->manuscript(['shelfmark' => '4134']);
+        $last->work->update(['primary_title' => 'یوسف و زلیخا']);
+        // the description breaks at the page and goes on; the copies follow, one with a second line; the index of titles closes the volume
+        $path = $this->writePages([
+            [549, "ش 509، 188 برگ.\n\n684- منیة المرید فی آداب المفید والمستفید (اخلاق، عربی)\nاز: شهید ثانی (966 ق)\nآداب تعلیم و تعلم را با استفاده از آیات و روایات و سخن\n"],
+            [550, "بزرگان در یک مقدمه بیان نموده است.\nآغاز: «اعلم ان اللّه سبحانه...».\nش 584، 138 برگ، نسخ محمد بن علی در .1086\nآغازش افتادگی دارد.\n\nش 2953، 122 برگ، 10×15، نسخ در 1252. تصحیح شده است.\n\nهر دو نسخه در یک جلد آمده است.\n\n685- یوسف و زلیخا (فارسی)\nاز: جامی\nش 4134، 104 برگ، اول وآخر ناقص.\n"],
+            [551, "فهرست نام کتاب ها\nآتشکده آذر 5\n"],
+        ]);
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $path])->assertSuccessful();
+        unlink($path);
+
+        $ref = Ref::where('manuscript_id', $ms->id)->sole();
+        $this->assertSame("684- منیة المرید فی آداب المفید والمستفید (اخلاق، عربی)\nاز: شهید ثانی (966 ق)\nآداب تعلیم و تعلم را با استفاده از آیات و روایات و سخن بزرگان در یک مقدمه بیان نموده است.\nآغاز: «اعلم ان اللّه سبحانه...».\nهر دو نسخه در یک جلد آمده است.", $ref->entry_text);
+        $this->assertSame('ش 2953، 122 برگ، 10×15، نسخ در 1252. تصحیح شده است.', $ref->copy_text);
+        $this->assertSame("ش 584، 138 برگ، نسخ محمد بن علی در .1086\nآغازش افتادگی دارد.", Ref::where('manuscript_id', $other->id)->sole()->copy_text);
+        $tail = Ref::where('manuscript_id', $last->id)->sole();
+        $this->assertSame(["685- یوسف و زلیخا (فارسی)\nاز: جامی", 'ش 4134، 104 برگ، اول وآخر ناقص.'], [$tail->entry_text, $tail->copy_text]);
+    }
+
+    public function test_a_treatise_of_a_composite_volume_gets_its_part_and_the_volume_notes()
+    {
+        $second = $this->manuscript(['shelfmark' => '498/2']);
+        $second->work->update(['primary_title' => 'اسرار الصلاة']);
+        $first = $this->manuscript(['shelfmark' => '498/1']);
+        $first->work->update(['primary_title' => 'منهاج الکرامة']);
+        $path = $this->writePages([
+            [25, "( 476 )\n\n1 - عمدة المراد «1 - 108» (نحو - عربی)\nاز: مازندرانی.\nهر دو نستعلیق.\n113 برگ، 15 × 20\n"],
+            [26, "( 498 )\n\n1 - منهاج الکرامة «4 - 80» (امامت - عربی)\nاز: علامه حلی.\nچاپ شده است.\n\n2 - اسرار الصلاة = التنبیهات العلیة «80 - 131» (عربی)\nاز: شهید ثانی.\nچاپ شده است.\nکتاب اول نسخ ابوالقاسم 1092 با مهر بیضوی «عبده\nالراجی حسین 1237».\nوکتاب دوم تحریر سده 11 بدون نام کاتب.\n131 برگ، 12 × 19\n\n( 500 )\n\n1 - تقاسیم العلل «6 - 173» (طب - عربی)\nاز: رازی.\n"],
+        ]);
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $path])->assertSuccessful();
+        unlink($path);
+
+        $notes = "( 498 )\nکتاب اول نسخ ابوالقاسم 1092 با مهر بیضوی «عبده\nالراجی حسین 1237».\nوکتاب دوم تحریر سده 11 بدون نام کاتب.\n131 برگ، 12 × 19";
+        $ref = Ref::where('manuscript_id', $second->id)->sole();
+        $this->assertSame(["2 - اسرار الصلاة = التنبیهات العلیة «80 - 131» (عربی)\nاز: شهید ثانی.\nچاپ شده است.", $notes], [$ref->entry_text, $ref->copy_text]);
+        $ref = Ref::where('manuscript_id', $first->id)->sole();
+        $this->assertSame(["1 - منهاج الکرامة «4 - 80» (امامت - عربی)\nاز: علامه حلی.\nچاپ شده است.", $notes], [$ref->entry_text, $ref->copy_text]);
+    }
+
+    public function test_the_texts_pass_fills_reviewed_references_at_their_address_and_changes_nothing_else()
+    {
+        $ms = $this->manuscript(['shelfmark' => '1939']);
+        $reviewer = User::factory()->create();
+        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'page_end' => 415,
+            'shelfmark_page' => 415, 'entry_number' => 606, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => Matcher::METHOD_SINGLE_PAGE, 'confidence' => 40,
+            'status' => Ref::STATUS_VERIFIED, 'reviewed_by' => $reviewer->id, 'reviewed_at' => now()->subDay()->startOfSecond()]);
+        $before = $ref->fresh()->toArray();
+        $pages = $this->pages();
+
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages, '--texts' => true, '--dry-run' => true])->assertSuccessful();
+        $this->assertNull($ref->fresh()->entry_text);
+        $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages, '--texts' => true])->assertSuccessful();
+        unlink($pages);
+
+        $after = $ref->fresh();
+        // the entry of 606 runs over two pages; 1939 also stands under 608, which is not this reference's address
+        $this->assertSame("606- دیوان قاسمی (فارسی)\nاز: قاسمی\nآغاز: «ای دل و جان عاشقان»\nانجام: «صلوات خدای»", $after->entry_text);
+        $this->assertSame('ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق', $after->copy_text);
+        $this->assertSame(Arr::except($before, ['entry_text', 'copy_text']), Arr::except($after->toArray(), ['entry_text', 'copy_text']));
+        $this->assertSame(1, Ref::count());
+    }
+
+    public function test_the_printed_text_stands_above_fankhas_text_until_the_reference_is_rejected()
+    {
+        $this->edition->update(['edition_label' => '۱۳۸۸، به کوشش رضا استادی']);
+        $ms = $this->manuscript(['raw_text' => 'متن فنخا برای این نسخه']);
+        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
+            'confidence' => 90, 'entry_text' => "607- دیوان قدسی (فارسی)\nاز: قدسی", 'copy_text' => 'ش 1939، 207 برگ، نستعلیق. این نسخه جلد چهارم است.']);
+        $note = 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
+
+        $html = $this->get(route('manuscripts.show', $ms))->assertOk()
+            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'متن مأخذ', 'متن فنخا برای این نسخه'])
+            ->getContent();
+        $this->assertStringNotContainsString('scan-source', $html);
+        $this->assertStringNotContainsString('504138', $html);
+
+        // a printing without a year in its label is named by the catalogue alone
+        $this->edition->update(['edition_label' => 'کتابخانه مسجد اعظم، به کوشش رضا استادی']);
+        $this->get(route('manuscripts.show', $ms))->assertSee('متن فهرست مسجد اعظم')->assertDontSee('متن فهرست مسجد اعظم، چاپ');
+
+        $ref->update(['status' => Ref::STATUS_VERIFIED]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
+
+        $ref->update(['status' => Ref::STATUS_REJECTED]);
+        $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('متن فهرست مسجد اعظم')->assertSee('متن فنخا برای این نسخه');
     }
 
     public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()

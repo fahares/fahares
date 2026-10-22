@@ -33,6 +33,10 @@ use Illuminate\Support\Facades\DB;
  * page_start is the page where the entry begins (the viewer opens it) and shelfmark_page where the number stands.
  * Running it again updates the unverified matches and leaves the reviewed ones (verified or rejected), and the copies
  * whose address was corrected by hand (source manual), alone.
+ *
+ * Each match also keeps the printed text (backlog item 60, texts()): entry_text, the entry or treatise, and copy_text,
+ * the copy's own line or the composite volume's closing notes. --texts fills them for every reference of the edition,
+ * reviewed ones too, at the address it has, and changes nothing else.
  */
 class MatchCatalogEditionCommand extends Command
 {
@@ -40,6 +44,7 @@ class MatchCatalogEditionCommand extends Command
         {edition : facsimile_code of the edition (catalog_volumes row)}
         {pages : Directory of page JSON files, or a .jsonl / .jsonl.gz file, with "page" and "text"}
         {--volume= : Volume number of the edition, when the code has several}
+        {--texts : Only fill entry_text and copy_text of every reference of the edition, at the address it has}
         {--dry-run : Report the counts without saving anything}
         {--report= : Write every match as JSON to this path}';
 
@@ -64,6 +69,9 @@ class MatchCatalogEditionCommand extends Command
     /** «( شماره 5 )», «( 3619 )», «( 652 شامل ده رساله )»: the shelfmark heading a composite volume */
     private const VOLUME = '/^\s*\(\s*(?:شماره\s*)?(\d+)(?:\s+[^)\d]{1,30})?\s*\)\s*$/u';
 
+    /** «فهرست نام کتاب‌ها», the index of titles after the last entry */
+    private const BACK_MATTER = '/^\s*فهرست\s+نام\s+کتاب[\s\x{200C}]*ها\s*$/u';
+
     private const SHELF = '/(?:^|[\s،(])ش\s*(\d+)(?:\s*\/\s*(\d+))?/u';
 
     public function handle(): int
@@ -83,8 +91,15 @@ class MatchCatalogEditionCommand extends Command
             return self::FAILURE;
         }
 
-        [$index, $entries] = self::index($pages);
+        [$index, $entries, $lines] = self::index($pages);
         $this->line(sprintf('%s v%d: %d pages, %d entries, %d shelfmarks indexed', $edition->facsimile_code, $edition->volume_number, count($pages), $entries, count($index)));
+        if ($this->option('texts')) {
+            $stats = $this->fillTexts($edition, $index, $lines, (bool) $this->option('dry-run'));
+            $this->table(['', 'count'], collect($stats)->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
+            $this->option('dry-run') && $this->warn('Dry run: nothing is saved.');
+
+            return self::SUCCESS;
+        }
 
         $copies = DB::table('manuscripts')->leftJoin('works', 'works.id', '=', 'manuscripts.work_id')
             ->where('manuscripts.library_id', $edition->library_id)
@@ -93,7 +108,7 @@ class MatchCatalogEditionCommand extends Command
         $stats = ['copies' => $copies->count(), 'no shelfmark in edition' => 0] + array_fill_keys([self::METHOD_TITLE, self::METHOD_SINGLE_PAGE, self::METHOD_SHELFMARK_ONLY, self::METHOD_AMBIGUOUS], 0);
         $matches = [];
         foreach ($copies as $copy) {
-            $match = self::match($copy, $index);
+            $match = self::match($copy, $index, $lines);
             if (! $match) {
                 $stats['no shelfmark in edition']++;
 
@@ -148,25 +163,39 @@ class MatchCatalogEditionCommand extends Command
     }
 
     /**
-     * Every shelfmark base number with the places it stands: the page, and the entry it belongs to (number, title,
-     * first and last page).
+     * Every shelfmark base number with the places it stands: the page, the line, and the entry it belongs to (number,
+     * title, first and last page, first line and the line after its last). The lines are the page texts as printed,
+     * without blank lines, for texts().
      *
-     * @return array{0: array<string, list<array>>, 1: int}
+     * @return array{0: array<string, list<array>>, 1: int, 2: list<array{page: int, text: string, page_start: bool, gap: bool}>}
      */
     public static function index(array $pages): array
     {
         $index = [];
         $entries = [];
+        $lines = [];
+        $volumes = []; // the line of a composite volume's heading => its first and last treatise
         $current = null;
-        $volume = null; // the composite volume being read: [number, heading, last part]
+        $volume = null; // the composite volume being read: [number, heading, last part, in a contents list, line]
+        $break = true; // a blank line before the next line: a new paragraph
         foreach ($pages as $page => $text) {
             $first = true;
-            foreach (preg_split('/\R/u', self::digits($text)) as $line) {
+            $top = true;
+            $printed = preg_split('/\R/u', $text);
+            foreach (preg_split('/\R/u', self::digits($text)) as $i => $line) {
                 if (trim($line) === '') {
+                    $break = true;
+
                     continue;
                 }
+                $ln = count($lines);
+                $lines[] = ['page' => $page, 'text' => trim($printed[$i]), 'page_start' => $top, 'gap' => $break];
+                [$top, $break] = [false, false];
+                if ($current !== null && preg_match(self::BACK_MATTER, $line)) {
+                    $entries[$current]['line_end'] ??= $ln; // the last entry's text stops at the index of titles
+                }
                 if (preg_match(self::VOLUME, $line, $m)) {
-                    $volume = [$m[1], trim($line), 0, false]; // number, heading, last part, in a contents list
+                    $volume = [$m[1], trim($line), 0, false, $ln]; // number, heading, last part, in a contents list, line
 
                     continue;
                 }
@@ -192,13 +221,17 @@ class MatchCatalogEditionCommand extends Command
                     if ($current !== null) {
                         // the previous entry ends here, or on the page before when this one opens the page
                         $entries[$current]['page_end'] = $first ? max($entries[$current]['page_start'], $page - 1) : $page;
+                        // the text of the previous entry stops at the heading of the composite volume its first treatise opens
+                        $entries[$current]['line_end'] ??= $part === 1 ? $volume[4] : $ln;
                     }
-                    $entries[] = ['number' => (int) $m[1], 'title' => self::entryTitle($m[2]), 'heading' => trim($line), 'page_start' => $page, 'page_end' => $page];
+                    $entries[] = ['number' => (int) $m[1], 'title' => self::entryTitle($m[2]), 'heading' => trim($line), 'page_start' => $page, 'page_end' => $page, 'line' => $ln, 'line_end' => null];
                     $current = array_key_last($entries);
                     $first = false;
                     if ($part !== null) {
                         [$volume[2], $volume[3]] = [$part, false];
-                        $index[$volume[0]][] = ['page' => $page, 'entry' => $current, 'line' => $volume[1], 'part' => $part];
+                        $volumes[$volume[4]]['first'] ??= $current;
+                        $volumes[$volume[4]]['last'] = $current;
+                        $index[$volume[0]][] = ['page' => $page, 'entry' => $current, 'line' => $volume[1], 'part' => $part, 'line_no' => $volume[4]];
                     }
 
                     continue;
@@ -206,26 +239,35 @@ class MatchCatalogEditionCommand extends Command
                 $first = false;
                 if (preg_match_all(self::SHELF, $line, $all, PREG_SET_ORDER)) {
                     foreach ($all as $s) {
-                        $index[$s[1]][] = ['page' => $page, 'entry' => $current, 'line' => trim($line)];
+                        $index[$s[1]][] = ['page' => $page, 'entry' => $current, 'line' => trim($line), 'line_no' => $ln];
                     }
                 }
             }
             if ($current !== null) {
                 $entries[$current]['page_end'] = max($entries[$current]['page_end'], $page);
             }
+            // a page that ends in an empty line ends its paragraph; otherwise the next page may go on with it
+            $break = (bool) preg_match('/\R[^\S\r\n]*\R\s*$/u', $text);
         }
-        // places resolved to their entry once every entry has its last page
+        if ($current !== null) {
+            $entries[$current]['line_end'] ??= count($lines);
+        }
+        // places resolved to their entry once every entry has its last page; a treatise also to its volume's lines
         foreach ($index as &$places) {
             foreach ($places as &$place) {
+                if (isset($place['part'])) {
+                    $volume = $volumes[$place['line_no']];
+                    $place['volume'] = ['line' => $place['line_no'], 'first' => $entries[$volume['first']]['line'], 'last' => $entries[$volume['last']]['line'], 'end' => $entries[$volume['last']]['line_end']];
+                }
                 $place['entry'] = $place['entry'] === null ? null : $entries[$place['entry']];
             }
         }
 
-        return [$index, count($entries)];
+        return [$index, count($entries), $lines];
     }
 
     /** The match of one copy ({id, shelfmark, primary_title}), or null when its number is not in the edition. */
-    public static function match(object $copy, array $index): ?array
+    public static function match(object $copy, array $index, array $lines = []): ?array
     {
         if (! preg_match('/(\d+)(?:\s*\/\s*(\d+))?/', self::digits((string) $copy->shelfmark), $base) || empty($index[$base[1]])) {
             return null;
@@ -268,6 +310,7 @@ class MatchCatalogEditionCommand extends Command
 
         $place = $best['place'];
         $entry = $place['entry'];
+        [$entryText, $copyText] = self::texts($place, $lines);
         $others = $method === self::METHOD_AMBIGUOUS
             ? collect($scored)->skip(1)->map(fn ($s) => sprintf('ص %d، مدخل %s (%.2f)', $s['place']['page'], $s['place']['entry']['number'] ?? '؟', $s['score']))->unique()->implode('؛ ')
             : null;
@@ -281,12 +324,158 @@ class MatchCatalogEditionCommand extends Command
             'shelfmark_page' => $place['page'],
             'entry_number' => $entry['number'] ?? null,
             'raw_text' => mb_substr(trim(isset($place['part']) ? $place['line'] . "\n" . $entry['heading'] : ($entry['heading'] ?? '') . "\n" . $place['line']), 0, 1000),
+            'entry_text' => $entryText,
+            'copy_text' => $copyText,
             'match_method' => $method,
             'confidence' => min(100, $confidence),
             'score' => round($best['score'], 2),
             'candidates' => count($scored),
             'notes' => $others ? 'جاهای دیگر: ' . $others : $note,
         ];
+    }
+
+    /**
+     * The printed text at a place (backlog item 60): [entry_text, copy_text].
+     *
+     * In an ordinary entry, a copy is its line «ش 2366، 162 برگ، …» with the lines that follow it up to a blank line,
+     * the next copy or the end of the entry; the entry text is the rest (heading, author, description, incipit,
+     * explicit, and a closing note such as «هر سه نسخه بیاض است»). A number cited inside a sentence has that line.
+     *
+     * In a composite volume, the entry text is the treatise from its heading to the next; the copy text is the volume's
+     * heading «( 937 )» with the notes that close the volume after its last treatise, «کتاب اول … 75 برگ، 10 × 15»,
+     * which describe every treatise of it. Lines broken by a page are joined when the sentence goes on.
+     *
+     * @return array{0: ?string, 1: ?string}
+     */
+    public static function texts(array $place, array $lines): array
+    {
+        $entry = $place['entry'] ?? null;
+        if (! $entry || ! $lines) {
+            return [null, null];
+        }
+        $end = $entry['line_end'] ?? count($lines);
+        if (isset($place['volume'])) {
+            $volume = $place['volume'];
+            $closing = self::closing($lines, $volume['last'], $volume['end']);
+            $body = range($entry['line'], ($end === $volume['end'] ? $closing : $end) - 1);
+            $copy = array_merge(range($volume['line'], $volume['first'] - 1), $closing < $volume['end'] ? range($closing, $volume['end'] - 1) : []);
+
+            return [self::joinLines($lines, $body), self::joinLines($lines, $copy)];
+        }
+        $owner = []; // line => the copy line it belongs to
+        $copyLine = null;
+        for ($i = $entry['line'] + 1; $i < $end; $i++) {
+            if (preg_match(self::COPY, self::digits($lines[$i]['text']))) {
+                $copyLine = $i;
+            } elseif ($copyLine !== null && $lines[$i]['gap']) {
+                $copyLine = null;
+            }
+            if ($copyLine !== null) {
+                $owner[$i] = $copyLine;
+            }
+        }
+        $body = array_values(array_filter(range($entry['line'], $end - 1), fn ($i) => ! isset($owner[$i])));
+        $own = $owner[$place['line_no'] ?? -1] ?? null;
+        $copy = $own === null ? (isset($place['line_no']) ? [$place['line_no']] : []) : array_keys($owner, $own, true);
+
+        return [self::joinLines($lines, $body), self::joinLines($lines, $copy)];
+    }
+
+    /** A copy's own line: «ش 2366، …», «ش 1120، تحریر …», or the number alone before its leaves, «4036، 192 برگ». */
+    private const COPY = '/^\s*(?:ش\s*\d+|\d+\s*[،,]\s*\d+\s*برگ)/u';
+
+    /** The first note that closes a composite volume: «کتاب اول …», «رساله‌های 1 و 2 …», «هر سه …», «هیچ کدام …». */
+    private const CLOSING = '/^\s*(?:(?:کتاب|رساله|نسخه)(?:\s*\x{200C}?\s*(?:ها|های))?\s*(?:اول|نخست|یکم|دوم|دوّم|سوم|سوّم|چهارم|پنجم|ششم|هفتم|هشتم|نهم|دهم|یازدهم|دوازدهم|\d)|هر\s*(?:دو|سه|چهار|پنج|شش|هفت|هشت|نه|ده)(?:\s|$)|همه\s*(?:ی|\x{200C}ی)?\s*(?:رساله|کتاب|نسخه)|هیچ\s*(?:کدام|یک)|بقیه|سایر|این مجموعه|\d+\s*برگ)/u';
+
+    /** Where the closing notes of a composite volume begin among the lines of its last treatise (from its heading). */
+    private static function closing(array $lines, int $last, int $end): int
+    {
+        // the leaves and size close the volume, «75 برگ، 10 × 15»; a note before them that speaks of the treatises opens it
+        for ($i = $last + 2; $i < $end; $i++) {
+            if (preg_match(self::CLOSING, self::digits($lines[$i]['text']))) {
+                return $i;
+            }
+        }
+
+        return $end;
+    }
+
+    /** Lines joined as printed: a line the page broke goes on after a space, a gap between parts is one line break. */
+    private static function joinLines(array $lines, array $ids): ?string
+    {
+        $out = null;
+        $prev = null;
+        foreach ($ids as $i) {
+            $text = $lines[$i]['text'];
+            if ($out === null) {
+                $out = $text;
+            } elseif ($i === $prev + 1 && $lines[$i]['page_start'] && ! $lines[$i]['gap'] && self::continues($lines[$prev]['text'], $text)) {
+                $out .= ' ' . $text;
+            } else {
+                $out .= "\n" . $text;
+            }
+            $prev = $i;
+        }
+
+        return $out === null ? null : mb_substr($out, 0, 20000);
+    }
+
+    /**
+     * Whether the first line of a page goes on with the sentence the last line of the page before left open. A line
+     * that ends in a number ends a sentence too: the reader's text puts the full stop before it («در .1070») or drops it.
+     */
+    private static function continues(string $before, string $after): bool
+    {
+        return ! preg_match('/[.!؟?:»\]…\d۰-۹]\s*$/u', $before)
+            && ! preg_match('/^\s*(?:آغاز|انجام|از\s*:|ش\s*[\d۰-۹]|\[|[\d۰-۹]+\s*[-–ـ]|\(\s*(?:شماره\s*)?[\d۰-۹]+\s*\)$)/u', $after)
+            && ! preg_match(self::CLOSING, self::digits($after));
+    }
+
+    /**
+     * Fills the printed text of every reference of the edition, reviewed or not and whatever its source, from the entry
+     * at its stored address (page_start and entry_number, or the treatise of the shelfmark's part); nothing else changes.
+     */
+    private function fillTexts(CatalogVolume $edition, array $index, array $lines, bool $dry): array
+    {
+        $stats = ['references' => 0, 'filled' => 0, 'unchanged' => 0, 'entry not found' => 0];
+        Ref::where('catalog_volume_id', $edition->id)->with('manuscript:id,shelfmark')->orderBy('id')
+            ->chunkById(500, function ($refs) use ($index, $lines, $dry, &$stats) {
+                foreach ($refs as $ref) {
+                    $stats['references']++;
+                    $place = self::placeOf($ref, $index);
+                    if (! $place) {
+                        $stats['entry not found']++;
+
+                        continue;
+                    }
+                    [$entryText, $copyText] = self::texts($place, $lines);
+                    if ($ref->entry_text === $entryText && $ref->copy_text === $copyText) {
+                        $stats['unchanged']++;
+
+                        continue;
+                    }
+                    $stats['filled']++;
+                    // the review's time stays the reference's last change
+                    $dry || Ref::whereKey($ref->id)->update(['entry_text' => $entryText, 'copy_text' => $copyText]);
+                }
+            });
+
+        return $stats;
+    }
+
+    /** The place of a stored reference: its shelfmark's number in the entry that begins at its page_start. */
+    public static function placeOf(Ref $ref, array $index): ?array
+    {
+        if (! $ref->page_start || ! preg_match('/(\d+)(?:\s*\/\s*(\d+))?/', self::digits((string) $ref->manuscript?->shelfmark), $base)) {
+            return null;
+        }
+        $part = isset($base[2]) ? (int) $base[2] : null;
+        $places = array_filter($index[$base[1]] ?? [], fn ($p) => ($p['entry']['page_start'] ?? null) === $ref->page_start
+            && ($ref->entry_number === null || ($p['entry']['number'] ?? null) === $ref->entry_number));
+        // the same part first, then the page where the number stands
+        usort($places, fn ($a, $b) => [($a['part'] ?? $part) !== $part, $a['page'] !== $ref->shelfmark_page] <=> [($b['part'] ?? $part) !== $part, $b['page'] !== $ref->shelfmark_page]);
+
+        return $places[0] ?? null;
     }
 
     private function write(CatalogVolume $edition, array $matches, bool $dry): array
@@ -305,6 +494,7 @@ class MatchCatalogEditionCommand extends Command
                 'volume_number' => $edition->volume_number,
                 'page_start' => $match['page_start'], 'page_end' => $match['page_end'], 'shelfmark_page' => $match['shelfmark_page'],
                 'entry_number' => $match['entry_number'], 'raw_text' => $match['raw_text'],
+                'entry_text' => $match['entry_text'], 'copy_text' => $match['copy_text'],
                 'match_method' => $match['match_method'], 'confidence' => $match['confidence'], 'notes' => $match['notes'],
             ];
             $old = $existing[$match['manuscript_id']] ?? null;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Fa;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -94,6 +95,25 @@ class ManuscriptCatalogReference extends Model
             'volume' => (int) ($this->volume_number ?? $volume->volume_number ?? 1),
             'page' => $this->page_start,
         ];
+    }
+
+    /** Whether the printed catalogue's own text was taken at this reference (backlog item 60). */
+    public function hasPrintedText(): bool
+    {
+        return filled($this->entry_text) || filled($this->copy_text);
+    }
+
+    /**
+     * The heading of that text on the record page: «متن فهرست مسجد اعظم، چاپ ۱۳۸۸», the library's catalogue and the
+     * year of the printing when its label gives one (vols 3 and 4 of Masjid-e A'zam have none).
+     */
+    public function printedTextTitle(): string
+    {
+        $volume = $this->catalogVolume;
+        $name = $volume?->library?->name ? 'فهرست ' . $volume->library->name : ($volume?->short_title ?: 'فهرست کتابخانه');
+        $year = preg_match('/[0-9۰-۹]{4}/u', (string) $volume?->edition_label, $m) ? '، چاپ ' . $m[0] : '';
+
+        return Fa::digits("متن {$name}{$year}");
     }
 
     public function review(User $user, string $status): void
