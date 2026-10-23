@@ -65,7 +65,7 @@ class SuggestionController extends Controller
         if ($validated['kind'] === 'field') {
             $field = SuggestionRegistry::field($validated['type'], $validated['field_name'] ?? null);
             // an address field must be one of this record's own: its reference, or a page its bibliography cites
-            if (! $field || (isset($field['reference_id']) && \App\Models\ManuscriptCatalogReference::whereKey($field['reference_id'])->value('manuscript_id') !== $record->id)
+            if (! $field || (isset($field['entry_id']) && ! \App\Models\SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
                 || (isset($field['bibliography']) && ! array_key_exists($field['name'], SuggestionRegistry::recordFields($record)))) {
                 throw ValidationException::withMessages(['field_name' => 'این فیلد برای پیشنهاد اصلاح تعریف نشده است.']);
             }

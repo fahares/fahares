@@ -222,19 +222,18 @@
                             "ص {$viewer['page']}",
                         ])));
                         $refThumb = $ref->thumbUrl();
-                        // the suggestion fields still name the manuscript_catalog_references row (step 13.3 moves them here)
-                        $refField = $ref->referenceId() ? \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->referenceId() : null;
+                        $refField = \App\Suggestions\SuggestionRegistry::SOURCE_ENTRY_PREFIX . $ref->id;
                     @endphp
                     <div class="space-y-2 pb-4 border-b border-line" data-viewer-card>
                         <div class="flex items-start gap-1">
                             <div class="text-sm font-bold text-ink leading-6">{{ $refLabel }}</div>
-                            @if($refField && $ref->isAwaitingReview())
+                            @if($ref->isAwaitingReview())
                                 <x-ui.machine-badge class="shrink-0 mt-0.5"
                                     text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
                                     :report="['field' => $refField]" />
                             @endif
-                            @if($refField)<x-suggest.field :name="$refField" class="shrink-0" />@endif
+                            <x-suggest.field :name="$refField" class="shrink-0" />
                         </div>
                         <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="block w-full group cursor-pointer" title="دیدن برگه در فهرست کتابخانه">
                             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
@@ -467,11 +466,11 @@
                     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
                         <h2 class="rubric text-lg">
                             <span>{{ $ref->printedTextTitle() }}</span>
-                            @if($ref->referenceId() && $ref->isAwaitingReview())
+                            @if($ref->isAwaitingReview())
                                 <x-ui.machine-badge
                                     text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
-                                    :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->referenceId()]" />
+                                    :report="['field' => \App\Suggestions\SuggestionRegistry::SOURCE_ENTRY_PREFIX . $ref->id]" />
                             @endif
                         </h2>
                         <div class="flex flex-wrap items-center gap-2 text-xs">

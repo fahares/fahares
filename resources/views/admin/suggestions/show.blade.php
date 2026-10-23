@@ -249,7 +249,7 @@
                             <textarea name="applied_value" rows="{{ in_array($field['input'], ['quote', 'list', 'textarea'], true) ? 5 : 2 }}" class="w-full p-3 rounded-xl border border-line-strong bg-paper text-ink font-semibold focus:border-gold">{{ old('applied_value', $suggestion->applied_value ?? $suggestion->suggested_value) }}</textarea>
                             @if($field['input'] === 'catalog_page')
                                 @php
-                                    $pageRef = isset($field['reference_id']) ? \App\Models\ManuscriptCatalogReference::with('catalogVolume')->find($field['reference_id']) : null;
+                                    $pageRef = isset($field['entry_id']) ? \App\Models\SourceEntry::with(['source', 'sourceVolume'])->find($field['entry_id']) : null;
                                     $suggestedPage = \App\Suggestions\SuggestionRegistry::parseCatalogPage($suggestion->applied_value ?? $suggestion->suggested_value);
                                 @endphp
                                 <p class="text-stone-400">

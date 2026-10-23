@@ -62,7 +62,7 @@
     </form>
 
     <!-- Bulk verification (title matches only) and the revert of the last one -->
-    @if($status === \App\Models\ManuscriptCatalogReference::STATUS_UNVERIFIED && ! ($bulkAllowed && $references->total() === 0))
+    @if($status === \App\Models\SourceEntry::STATUS_UNVERIFIED && ! ($bulkAllowed && $references->total() === 0))
         <div class="flex flex-wrap items-center gap-3 rounded-2xl border p-4 text-xs leading-6 {{ $bulkAllowed ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30' : 'border-line bg-paper' }}">
             @if($bulkAllowed)
                 <div class="flex-1 min-w-64 text-ink">
@@ -115,9 +115,9 @@
                         @php $viewer = $ref->viewer(); @endphp
                         <tr class="align-top hover:bg-paper transition">
                             <td class="p-3 min-w-48">
-                                @if($ref->manuscript)
-                                    <a href="{{ route('manuscripts.show', $ref->manuscript) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $ref->manuscript->work?->primary_title ?? 'بی‌عنوان' }}</a>
-                                    <div class="text-stone-500 mt-0.5">شماره‌ی <span dir="ltr" class="font-mono">{{ Fa::digits($ref->manuscript->shelfmark) }}</span></div>
+                                @if($ref->citable)
+                                    <a href="{{ route('manuscripts.show', $ref->citable) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $ref->citable->work?->primary_title ?? 'بی‌عنوان' }}</a>
+                                    <div class="text-stone-500 mt-0.5">شماره‌ی <span dir="ltr" class="font-mono">{{ Fa::digits($ref->citable->shelfmark) }}</span></div>
                                 @endif
                             </td>
                             <td class="p-3 min-w-72">
@@ -130,9 +130,9 @@
                                     @endif
                                     @if($ref->entry_number)<span class="text-stone-400">مدخل {{ Fa::digits($ref->entry_number) }}</span>@endif
                                 </div>
-                                <div class="text-[11px] text-stone-400 mt-0.5">{{ $ref->catalogVolume?->short_title }}، ج {{ Fa::digits($ref->volume_number) }}</div>
-                                @if($ref->raw_text)
-                                    <div class="mt-1.5 text-ink/80 leading-6 whitespace-pre-line line-clamp-3">{{ $ref->raw_text }}</div>
+                                <div class="text-[11px] text-stone-400 mt-0.5">{{ $ref->sourceName() }}، ج {{ Fa::digits($ref->volumeNumber()) }}</div>
+                                @if($ref->citation_text)
+                                    <div class="mt-1.5 text-ink/80 leading-6 whitespace-pre-line line-clamp-3">{{ $ref->citation_text }}</div>
                                 @endif
                                 @if($ref->notes)
                                     <div class="mt-1 text-amber-700 dark:text-amber-400">{{ $ref->notes }}</div>
@@ -143,7 +143,7 @@
                                 <span class="inline-block mt-1 px-2 py-0.5 rounded-full font-mono font-bold text-[11px] {{ $ref->confidence >= 60 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' : ($ref->confidence >= 35 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300' : 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300') }}">{{ Fa::digits($ref->confidence) }}٪</span>
                             </td>
                             <td class="p-3 text-center whitespace-nowrap">
-                                @if($ref->status === \App\Models\ManuscriptCatalogReference::STATUS_UNVERIFIED)
+                                @if($ref->status === \App\Models\SourceEntry::STATUS_UNVERIFIED)
                                     <div class="flex items-center justify-center gap-2">
                                         <form method="POST" action="{{ route('admin.catalog-references.verify', $ref) }}">
                                             @csrf

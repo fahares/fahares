@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
-use App\Models\CatalogVolume;
-use App\Support\Fa;
 use App\Models\ManuscriptCatalogReference as Ref;
+use App\Models\SourceEntry as Entry;
+use App\Models\SourceVolume;
+use App\Support\Fa;
 use Illuminate\Http\Request;
 
 /**
- * Review queue of the catalogue references matched by machine (backlog item 51): each match is checked against
- * the page image and verified or rejected; reviewed_by and reviewed_at record who did it and when.
+ * Review queue of the catalogue pages matched by machine (backlog item 51), the source entries of origin match
+ * (step 13.3): each match is checked against the page image and verified or rejected; reviewed_by and reviewed_at
+ * record who did it and when.
  */
 class CatalogReferenceController extends Controller
 {
@@ -22,9 +24,9 @@ class CatalogReferenceController extends Controller
     ];
 
     public const STATUSES = [
-        Ref::STATUS_UNVERIFIED => 'بازبینی‌نشده',
-        Ref::STATUS_VERIFIED => 'تأییدشده',
-        Ref::STATUS_REJECTED => 'ردشده',
+        Entry::STATUS_UNVERIFIED => 'بازبینی‌نشده',
+        Entry::STATUS_VERIFIED => 'تأییدشده',
+        Entry::STATUS_REJECTED => 'ردشده',
     ];
 
     public const METHODS = [
@@ -36,20 +38,20 @@ class CatalogReferenceController extends Controller
 
     public function index(Request $request)
     {
-        $status = array_key_exists($request->query('status'), self::STATUSES) ? $request->query('status') : Ref::STATUS_UNVERIFIED;
+        $status = array_key_exists($request->query('status'), self::STATUSES) ? $request->query('status') : Entry::STATUS_UNVERIFIED;
 
-        $base = Ref::where('source', Ref::SOURCE_AI_MATCH);
-        $volumes = CatalogVolume::whereIn('id', (clone $base)->select('catalog_volume_id'))->orderBy('title')->get();
-        $counts = (clone $base)->when($request->integer('volume'), fn ($q, $v) => $q->where('catalog_volume_id', $v))
+        $base = Entry::where('origin', Entry::ORIGIN_MATCH);
+        $volumes = SourceVolume::whereIn('id', (clone $base)->select('source_volume_id'))->orderBy('title')->get();
+        $counts = (clone $base)->when($request->integer('volume'), fn ($q, $v) => $q->where('source_volume_id', $v))
             ->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
 
-        $references = $this->filtered($request)->with(['manuscript.work', 'catalogVolume', 'reviewer'])
+        $references = $this->filtered($request)->with(['citable.work', 'source', 'sourceVolume', 'reviewer'])
             ->where('status', $status)
-            ->orderBy('confidence')->orderBy('catalog_volume_id')->orderBy('page_start')->orderBy('id')
+            ->orderBy('confidence')->orderBy('source_volume_id')->orderBy('page_start')->orderBy('id')
             ->paginate(40)->withQueryString();
 
-        $bulkAllowed = $status === Ref::STATUS_UNVERIFIED && $request->query('method') === Ref::BULK_METHOD;
-        $lastBulk = Ref::lastBulkVerify()?->load('user');
+        $bulkAllowed = $status === Entry::STATUS_UNVERIFIED && $request->query('method') === Ref::BULK_METHOD;
+        $lastBulk = Entry::lastBulkVerify()?->load('user');
 
         return view('admin.catalog_references.index', compact('references', 'volumes', 'counts', 'status', 'bulkAllowed', 'lastBulk'));
     }
@@ -67,16 +69,16 @@ class CatalogReferenceController extends Controller
             return back()->with('error', 'شمار نشانی‌های این پالایه تغییر کرده است (' . Fa::num($count) . '). صفحه را دوباره ببینید و از نو تأیید کنید.');
         }
 
-        $batch = Ref::bulkVerify($query, $request->user(), $this->filters($request), $request->ip());
+        $batch = Entry::bulkVerify($query, $request->user(), $this->filters($request), $request->ip());
 
         return back()->with('success', Fa::num($batch->new_values['count']) . ' نشانی یک‌جا تأیید شد (دسته‌ی #' . Fa::digits($batch->id) . ').');
     }
 
     public function revertBulk(Request $request, AuditLog $batch)
     {
-        abort_unless(Ref::isBulkVerify($batch), 404);
+        abort_unless(Entry::isBulkVerify($batch), 404);
         try {
-            [$reverted, $kept] = Ref::revertBulkVerify($batch, $request->user(), $request->ip());
+            [$reverted, $kept] = Entry::revertBulkVerify($batch, $request->user(), $request->ip());
         } catch (\RuntimeException $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -99,27 +101,27 @@ class CatalogReferenceController extends Controller
     {
         $filters = $this->filters($request);
 
-        return Ref::where('source', Ref::SOURCE_AI_MATCH)
-            ->when($filters['volume'] ?? null, fn ($q, $v) => $q->where('catalog_volume_id', $v))
+        return Entry::where('origin', Entry::ORIGIN_MATCH)
+            ->when($filters['volume'] ?? null, fn ($q, $v) => $q->where('source_volume_id', $v))
             ->when($filters['method'] ?? null, fn ($q, $m) => $q->where('match_method', $m))
             ->when($filters['confidence'] ?? null, fn ($q, $b) => $q->whereBetween('confidence', self::CONFIDENCE_BANDS[$b]['range']));
     }
 
-    public function verify(Request $request, Ref $reference)
+    public function verify(Request $request, Entry $reference)
     {
-        return $this->review($request, $reference, Ref::STATUS_VERIFIED, 'تأیید شد');
+        return $this->review($request, $reference, Entry::STATUS_VERIFIED, 'تأیید شد');
     }
 
-    public function reject(Request $request, Ref $reference)
+    public function reject(Request $request, Entry $reference)
     {
-        return $this->review($request, $reference, Ref::STATUS_REJECTED, 'رد شد');
+        return $this->review($request, $reference, Entry::STATUS_REJECTED, 'رد شد');
     }
 
-    private function review(Request $request, Ref $reference, string $status, string $done)
+    private function review(Request $request, Entry $reference, string $status, string $done)
     {
-        abort_unless($reference->source === Ref::SOURCE_AI_MATCH, 404);
+        abort_unless($reference->origin === Entry::ORIGIN_MATCH, 404);
         $reference->review($request->user(), $status);
 
-        return back()->with('success', 'نشانی نسخه‌ی «' . Fa::digits($reference->manuscript?->shelfmark) . "» {$done}.");
+        return back()->with('success', 'نشانی نسخه‌ی «' . Fa::digits($reference->citable?->shelfmark) . "» {$done}.");
     }
 }

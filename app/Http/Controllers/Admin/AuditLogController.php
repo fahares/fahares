@@ -385,10 +385,24 @@ class AuditLogController extends Controller
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
         unset($old['contributors'], $old['people_roles'], $old['relations']);
-        // A corrected catalogue reference (backlog item 51) is a row of its own: its earlier columns go back there
+        // A corrected entry in another source (step 13.3) is a row of its own: its earlier columns go back there
+        if ($entry = $old['source_entry'] ?? null) {
+            unset($old['source_entry']);
+            if ($restored = \App\Models\SourceEntry::find($entry['id'])) {
+                $restored->forceFill(array_diff_key($entry, ['id' => 0]))->save();
+                \App\Sources\LegacyMirror::reference($restored);
+            }
+        }
+        // ...and before step 13.3, a catalogue reference (backlog item 51): it goes back with the entry copied from it
         if ($reference = $old['catalog_reference'] ?? null) {
             unset($old['catalog_reference']);
-            \App\Models\ManuscriptCatalogReference::whereKey($reference['id'])->first()?->forceFill(array_diff_key($reference, ['id' => 0]))->save();
+            $columns = array_diff_key($reference, ['id' => 0]);
+            \App\Models\ManuscriptCatalogReference::whereKey($reference['id'])->first()?->forceFill($columns)->save();
+            if (array_key_exists('source', $columns)) {
+                $columns['origin'] = array_flip([\App\Models\SourceEntry::ORIGIN_MATCH => 'ai_match', \App\Models\SourceEntry::ORIGIN_MANUAL => 'manual', \App\Models\SourceEntry::ORIGIN_FANKHA_CITATION => 'fankha'])[$columns['source']] ?? \App\Models\SourceEntry::ORIGIN_MANUAL;
+            }
+            \App\Models\SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', $reference['id'])
+                ->update(array_intersect_key($columns, array_flip(['volume_number', 'page_start', 'page_end', 'origin', 'status', 'reviewed_by', 'reviewed_at'])));
         }
         if ($relationRow = $log->new_values['added_record_relation'] ?? null) {
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();

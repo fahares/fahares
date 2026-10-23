@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\AuditLog;
 use App\Models\ManuscriptCatalogReference as Ref;
+use App\Models\SourceEntry;
 use Illuminate\Console\Command;
 
 /**
@@ -24,15 +25,15 @@ class RevertCatalogBulkVerifyCommand extends Command
         if ($this->option('list')) {
             $reverted = AuditLog::where('auditable_type', AuditLog::class)->where('action', Ref::ACTION_BULK_REVERT)->pluck('auditable_id')->all();
             $this->table(['batch', 'reviewer', 'reviewed_at', 'count', 'filters', 'reverted'], AuditLog::with('user')
-                ->where('auditable_type', Ref::class)->where('action', Ref::ACTION_BULK_VERIFY)->latest('id')->get()
+                ->whereIn('auditable_type', [SourceEntry::class, Ref::class])->where('action', Ref::ACTION_BULK_VERIFY)->latest('id')->get()
                 ->map(fn ($log) => [$log->id, $log->user?->email, $log->new_values['reviewed_at'] ?? '', $log->new_values['count'] ?? 0,
                     json_encode($log->new_values['filters'] ?? [], JSON_UNESCAPED_UNICODE), in_array($log->id, $reverted) ? 'yes' : '']));
 
             return self::SUCCESS;
         }
 
-        $batch = $this->argument('batch') ? AuditLog::find($this->argument('batch')) : Ref::lastBulkVerify();
-        if (! $batch || ! Ref::isBulkVerify($batch)) {
+        $batch = $this->argument('batch') ? AuditLog::find($this->argument('batch')) : SourceEntry::lastBulkVerify();
+        if (! $batch || ! SourceEntry::isBulkVerify($batch)) {
             $this->error('No such bulk verification.');
 
             return self::FAILURE;
@@ -44,7 +45,7 @@ class RevertCatalogBulkVerifyCommand extends Command
         }
 
         try {
-            [$reverted, $kept] = Ref::revertBulkVerify($batch);
+            [$reverted, $kept] = SourceEntry::revertBulkVerify($batch);
         } catch (\RuntimeException $e) {
             $this->error($e->getMessage());
 

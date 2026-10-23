@@ -38,12 +38,13 @@ class SourcePagesTest extends TestCase
         return SourceEntry::create($values + ['citable_type' => $record::class, 'citable_id' => $record->id, 'origin' => SourceEntry::ORIGIN_MANUAL]);
     }
 
+    /** The Fankha entry saving the record made, changed so the page can only have its text from the entry. */
     protected function fankha(Work|Manuscript $record, array $values): SourceEntry
     {
-        $volume = SourceVolume::where('source_id', 1)->where('volume_number', 15)->value('id');
+        $entry = SourceEntry::where('citable_type', $record::class)->where('citable_id', $record->id)->where('is_primary', true)->sole();
+        $entry->update($values + ['page_start' => 121, 'text_page' => 121]);
 
-        return $this->entry($record, $values + ['source_id' => 1, 'source_volume_id' => $volume, 'volume_number' => 15, 'page_start' => 121,
-            'is_primary' => true, 'origin' => SourceEntry::ORIGIN_FANKHA, 'status' => SourceEntry::STATUS_VERIFIED]);
+        return $entry;
     }
 
     public function test_the_manuscript_page_shows_the_library_catalogue_before_fankha()

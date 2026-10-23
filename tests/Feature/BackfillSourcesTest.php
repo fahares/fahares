@@ -176,10 +176,14 @@ class BackfillSourcesTest extends TestCase
 
     public function test_a_dry_run_writes_nothing()
     {
+        // saving a record already wrote its own entries and its catalog's source
+        $entries = SourceEntry::count();
+        $sources = Source::count();
         $this->backfill(['--dry-run' => true]);
 
-        $this->assertSame(0, SourceEntry::count());
-        $this->assertSame(0, Source::count());
+        $this->assertSame($entries, SourceEntry::count());
+        $this->assertSame($sources, Source::count());
+        $this->assertSame(0, SourceEntry::where('legacy_type', 'catalog_reference')->count());
     }
 
     public function test_rationales_become_the_researchers_evidence()

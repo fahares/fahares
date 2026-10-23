@@ -11,6 +11,7 @@ use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\ManuscriptCatalogReference as Ref;
+use App\Models\SourceEntry;
 use App\Models\User;
 use App\Models\Work;
 use Illuminate\Support\Arr;
@@ -48,6 +49,12 @@ class CatalogReferencesTest extends TestCase
         \Illuminate\Support\Facades\Artisan::call('sources:backfill');
 
         return $this;
+    }
+
+    /** The entry sources:backfill copied from a reference. */
+    protected function entryOf(Ref $ref): SourceEntry
+    {
+        return SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', $ref->id)->sole();
     }
 
     protected function manuscript(array $attributes = []): Manuscript
@@ -91,7 +98,7 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript();
         Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
 
-        $html = $this->get(route('manuscripts.show', $ms))->assertOk()->assertSee('ص ۴۱۴')->getContent();
+        $html = $this->synced()->get(route('manuscripts.show', $ms))->assertOk()->assertSee('ص ۴۱۴')->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
         $this->assertStringNotContainsString('504138', $html);
         preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m);
@@ -440,26 +447,30 @@ class CatalogReferencesTest extends TestCase
         $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
         $high = Ref::create(['manuscript_id' => $this->manuscript(['shelfmark' => '3002'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 7, 'shelfmark_page' => 8, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 95]);
         $low = Ref::create(['manuscript_id' => $this->manuscript(['shelfmark' => '2000'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 50, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'ambiguous', 'confidence' => 10, 'notes' => 'جاهای دیگر: ص 60']);
+        // the queue reviews the entries copied from them, and writes each review back to its reference
+        $this->synced();
+        [$highEntry, $lowEntry] = [$this->entryOf($high), $this->entryOf($low)];
 
         $this->actingAs($user)->get(route('admin.catalog-references.index'))->assertForbidden();
-        $this->actingAs($user)->post(route('admin.catalog-references.verify', $high))->assertForbidden();
+        $this->actingAs($user)->post(route('admin.catalog-references.verify', $highEntry))->assertForbidden();
 
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id]))->assertOk()
             ->assertSee('۳۰۰۲')->assertSee('۲۰۰۰')->assertSee('شماره در ص ۸')->assertSee('جاهای دیگر')->assertDontSee('scan-source');
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['confidence' => 'low']))->assertOk()
             ->assertSee('۲۰۰۰')->assertDontSee('۳۰۰۲');
 
-        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $high))->assertRedirect();
-        $this->actingAs($admin)->post(route('admin.catalog-references.reject', $low))->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $highEntry))->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.catalog-references.reject', $lowEntry))->assertRedirect();
+        $this->assertSame([SourceEntry::STATUS_VERIFIED, $admin->id], [$highEntry->fresh()->status, $highEntry->fresh()->reviewed_by]);
         $this->assertSame([Ref::STATUS_VERIFIED, $admin->id], [$high->fresh()->status, $high->fresh()->reviewed_by]);
         $this->assertNotNull($high->fresh()->reviewed_at);
-        $this->assertSame(Ref::STATUS_REJECTED, $low->fresh()->status);
+        $this->assertSame([SourceEntry::STATUS_REJECTED, Ref::STATUS_REJECTED], [$lowEntry->fresh()->status, $low->fresh()->status]);
         $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('۳۰۰۲');
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['status' => 'verified']))->assertOk()->assertSee('۳۰۰۲')->assertSee('داور آزمایشی');
 
         // Fankha rows are not machine matches and cannot be reviewed here
         $fankha = Ref::create(['manuscript_id' => $high->manuscript_id, 'catalog_volume_id' => $this->fankhaVolume->id, 'source' => Ref::SOURCE_FANKHA]);
-        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $fankha))->assertNotFound();
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $this->synced()->entryOf($fankha)))->assertNotFound();
     }
 
     public function test_reviewers_verify_title_matches_in_bulk_and_revert_the_batch()
@@ -474,6 +485,8 @@ class CatalogReferencesTest extends TestCase
         $only = $ref('4005', 'shelfmark_only', 25);
         $done = $ref('4006', 'shelfmark_title', 90, ['status' => Ref::STATUS_REJECTED]);
         $filters = ['volume' => $this->edition->id, 'method' => 'shelfmark_title', 'confidence' => 'high'];
+        $this->synced();
+        $entries = $titles->map(fn ($t) => $this->entryOf($t));
 
         // The queue offers the button only for title matches, with the count to confirm
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id, 'method' => 'shelfmark_only']))->assertOk()
@@ -497,12 +510,13 @@ class CatalogReferencesTest extends TestCase
 
         $batch = AuditLog::where('action', Ref::ACTION_BULK_VERIFY)->latest('id')->firstOrFail();
         $this->assertSame($admin->id, $batch->user_id);
-        $this->assertSame($titles->pluck('id')->all(), $batch->old_values['ids']);
+        $this->assertSame($entries->pluck('id')->all(), $batch->old_values['ids']);
+        $this->assertSame(SourceEntry::class, $batch->auditable_type);
         $this->assertSame([3, $filters], [$batch->new_values['count'], $batch->new_values['filters']]);
         $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertSee('آخرین تأیید گروهی')->assertSee('برگرداندن این دسته');
 
         // A row rejected by hand since keeps its review; the rest return to the queue, once only
-        $titles[2]->fresh()->review($admin, Ref::STATUS_REJECTED);
+        $entries[2]->fresh()->review($admin, SourceEntry::STATUS_REJECTED);
         $this->travel(5)->seconds();
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('success');
         $this->assertSame([Ref::STATUS_UNVERIFIED, null, null], [$titles[0]->fresh()->status, $titles[0]->fresh()->reviewed_by, $titles[0]->fresh()->reviewed_at]);
@@ -510,7 +524,7 @@ class CatalogReferencesTest extends TestCase
         $this->assertSame(Ref::STATUS_REJECTED, $titles[2]->fresh()->status);
         $this->assertSame(['reverted' => 2, 'kept' => 1], AuditLog::where('action', Ref::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->sole()->new_values);
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('error');
-        $this->assertNull(Ref::lastBulkVerify());
+        $this->assertNull(SourceEntry::lastBulkVerify());
         $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('آخرین تأیید گروهی');
 
         // The artisan command reverts the latest batch the same way
@@ -549,7 +563,7 @@ class CatalogReferencesTest extends TestCase
 
         $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSee("field: 'fankha_page'", false)
-            ->assertSee("field: 'catalog_reference_{$ref->id}'", false)
+            ->assertSee("field: 'source_entry_{$this->entryOf($ref)->id}'", false)
             ->assertSee('نشانی در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی')
             ->assertSee('ج ۲، ص ۴۱۴');
     }
@@ -562,6 +576,8 @@ class CatalogReferencesTest extends TestCase
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
         $ref = Ref::where('manuscript_id', $ms->id)->sole();
         $this->assertSame(414, $ref->page_start);
+        // a suggestion made before step 13.3 names the reference; the entry copied from it takes the correction
+        $this->synced();
 
         // another copy's reference cannot be corrected through this one
         $other = $this->manuscript(['shelfmark' => '1']);
@@ -591,10 +607,11 @@ class CatalogReferencesTest extends TestCase
     {
         $ms = $this->manuscript();
         $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 30]);
+        $entry = $this->synced()->entryOf($ref);
 
-        $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'نیست')->assertOk();
+        $this->suggestAddress($ms, "source_entry_{$entry->id}", 'نیست')->assertOk();
         $this->approveLatest($ms)->assertSessionHasNoErrors();
-        $this->assertSame(Ref::STATUS_REJECTED, $ref->fresh()->status);
+        $this->assertSame([SourceEntry::STATUS_REJECTED, Ref::STATUS_REJECTED], [$entry->fresh()->status, $ref->fresh()->status]);
         $this->synced()->get(route('manuscripts.show', $ms))->assertDontSee('masjid-azam-ostadi/v02/p0414.webp', false);
 
         $this->suggestAddress($ms, 'fankha_page', 'نیست')->assertStatus(422);

@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\ManuscriptCatalogReference as Ref;
+use App\Sources\LegacyMirror;
 use App\Support\Fa;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Where a work, manuscript or person stands in a source, and the text printed there (step 13.1). The text keeps
@@ -110,19 +114,103 @@ class SourceEntry extends Model
         return $this->notes && $this->legacy_type === 'source_citation' ? $this->notes : (self::ROLE_LABELS[$this->role] ?? $this->role);
     }
 
+    /** Machine matches nobody has reviewed yet: the review queue, and the ⓘ badge on the record page. */
+    public function scopeAwaitingReview(Builder $query): Builder
+    {
+        return $query->where('origin', self::ORIGIN_MATCH)->where('status', self::STATUS_UNVERIFIED);
+    }
+
+    public function review(User $user, string $status): void
+    {
+        $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
+        LegacyMirror::reference($this);
+    }
+
+    /**
+     * Verifies every machine match of the query that awaits review, in one transaction and chunks of 1,000, with one
+     * reviewed_at for the batch. The audit log row keeps the ids, the filters and that time: revertBulkVerify() undoes it.
+     */
+    public static function bulkVerify(Builder $query, User $user, array $filters, ?string $ip = null): AuditLog
+    {
+        return DB::transaction(function () use ($query, $user, $filters, $ip) {
+            $ids = (clone $query)->awaitingReview()->lockForUpdate()->orderBy('id')->pluck('id')->all();
+            $now = now()->startOfSecond();
+            $values = ['status' => self::STATUS_VERIFIED, 'reviewed_by' => $user->id, 'reviewed_at' => $now, 'updated_at' => $now];
+            foreach (array_chunk($ids, 1000) as $chunk) {
+                static::whereIn('id', $chunk)->update($values);
+            }
+            LegacyMirror::reviews($ids, $values);
+
+            return AuditLog::create([
+                'user_id' => $user->id,
+                'auditable_type' => static::class,
+                'auditable_id' => 0,
+                'action' => Ref::ACTION_BULK_VERIFY,
+                'old_values' => ['status' => self::STATUS_UNVERIFIED, 'ids' => $ids],
+                'new_values' => ['status' => self::STATUS_VERIFIED, 'count' => count($ids), 'filters' => $filters, 'reviewed_at' => $now->toDateTimeString()],
+                'ip_address' => $ip,
+                'created_at' => $now,
+            ]);
+        });
+    }
+
+    /** A bulk verification, of entries or, before step 13.3, of manuscript_catalog_references rows. */
+    public static function isBulkVerify(AuditLog $log): bool
+    {
+        return $log->action === Ref::ACTION_BULK_VERIFY && in_array($log->auditable_type, [static::class, Ref::class], true);
+    }
+
+    /** The latest bulk verification that has not been reverted, if any. */
+    public static function lastBulkVerify(): ?AuditLog
+    {
+        return AuditLog::whereIn('auditable_type', [static::class, Ref::class])->where('action', Ref::ACTION_BULK_VERIFY)
+            ->whereNotIn('id', AuditLog::where('auditable_type', AuditLog::class)->where('action', Ref::ACTION_BULK_REVERT)->select('auditable_id'))
+            ->latest('id')->first();
+    }
+
+    /**
+     * Returns a bulk verification's entries to the queue: those still verified by the same reviewer at the batch's
+     * time. An entry reviewed again since (rejected, or verified by hand) keeps its review. Returns [reverted, kept].
+     */
+    public static function revertBulkVerify(AuditLog $batch, ?User $user = null, ?string $ip = null): array
+    {
+        throw_unless(self::isBulkVerify($batch), new \InvalidArgumentException("Audit log #{$batch->id} is not a bulk verification."));
+
+        return DB::transaction(function () use ($batch, $user, $ip) {
+            throw_if(AuditLog::where('auditable_type', AuditLog::class)->where('action', Ref::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->lockForUpdate()->exists(),
+                new \RuntimeException("تأیید گروهی #{$batch->id} پیش‌تر برگردانده شده است."));
+            $ids = $batch->old_values['ids'] ?? [];
+            // a batch of before step 13.3 names the references; their entries are the ones to revert
+            if ($batch->auditable_type === Ref::class) {
+                $ids = collect(array_chunk($ids, 1000))->flatMap(fn ($chunk) => static::where('legacy_type', 'catalog_reference')->whereIn('legacy_id', $chunk)->pluck('id'))->all();
+            }
+            $reverted = [];
+            foreach (array_chunk($ids, 1000) as $chunk) {
+                $match = static::whereIn('id', $chunk)->where('origin', self::ORIGIN_MATCH)->where('status', self::STATUS_VERIFIED)
+                    ->where('reviewed_by', $batch->user_id)->where('reviewed_at', $batch->new_values['reviewed_at']);
+                $found = (clone $match)->pluck('id')->all();
+                $match->update(['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null, 'updated_at' => now()]);
+                $reverted = array_merge($reverted, $found);
+            }
+            LegacyMirror::reviews($reverted, ['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null, 'updated_at' => now()]);
+            $count = count($batch->old_values['ids'] ?? []);
+            AuditLog::create([
+                'user_id' => $user?->id,
+                'auditable_type' => AuditLog::class,
+                'auditable_id' => $batch->id,
+                'action' => Ref::ACTION_BULK_REVERT,
+                'new_values' => ['reverted' => count($reverted), 'kept' => $count - count($reverted)],
+                'ip_address' => $ip,
+            ]);
+
+            return [count($reverted), $count - count($reverted)];
+        });
+    }
+
     /** A machine match nobody has reviewed yet: the ⓘ badge on the record page. */
     public function isAwaitingReview(): bool
     {
         return $this->origin === self::ORIGIN_MATCH && $this->status === self::STATUS_UNVERIFIED;
-    }
-
-    /**
-     * The manuscript_catalog_references row this entry was copied from: the suggestion fields still name it until
-     * corrections are written here (step 13.3).
-     */
-    public function referenceId(): ?int
-    {
-        return $this->legacy_type === 'catalog_reference' ? $this->legacy_id : null;
     }
 
     /** The source as a page names it: «فنخا», «الذریعة», «فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم». */

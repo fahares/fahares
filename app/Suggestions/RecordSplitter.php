@@ -129,6 +129,8 @@ class RecordSplitter
             Manuscript::whereIn('id', $old['manuscript_ids'])->where('work_id', $createdId)->update(['work_id' => $sourceId]);
             $authorId = $created->author_id;
             $created->delete();
+            // the entries saving the new work made (its Fankha place) go with it
+            \App\Models\SourceEntry::where('citable_type', Work::class)->where('citable_id', $createdId)->delete();
             $this->recountWorks([$sourceId]);
             $this->recountTaxonomies($source);
             Person::find($authorId)?->recountContributions();

@@ -2,11 +2,11 @@
 
 namespace App\Suggestions;
 
-use App\Models\Catalog;
 use App\Models\EntityRedirect;
 use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
 use App\Models\Person;
+use App\Models\SourceEntry;
 use App\Models\Work;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -76,7 +76,6 @@ class RecordMerger
         $relations = RecordRelations::moveOnMerge($source, $target);
 
         $attachments = $this->moveAttachments($source, $target);
-        $entry = $this->citeEntry($source, $target);
 
         $counters = $source->only(['work_id', 'library_id', 'catalog_volume_id', 'cataloger_id']);
         $people = DB::table('manuscript_scribe')->where('manuscript_id', $source->id)->pluck('person_id')->all();
@@ -96,7 +95,6 @@ class RecordMerger
             'added_scribe_ids' => $addedScribes,
             'relations' => $relations,
             'redirects' => $redirects,
-            'cited_entry_id' => $entry,
         ] + $attachments;
     }
 
@@ -181,7 +179,6 @@ class RecordMerger
         DB::table('referrals')->whereIn('id', $referrals)->update(['target_work_id' => $target->id]);
 
         $attachments = $this->moveAttachments($source, $target);
-        $entry = $this->citeEntry($source, $target);
 
         $people = DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all();
         $subjectIds = DB::table('subject_work')->whereIn('work_id', [$source->id, $target->id])->pluck('subject_id')->all();
@@ -208,7 +205,6 @@ class RecordMerger
             'referral_ids' => $referrals,
             'relations' => $relations,
             'redirects' => $redirects,
-            'cited_entry_id' => $entry,
         ] + $attachments;
     }
 
@@ -265,41 +261,45 @@ class RecordMerger
             . preg_replace('/\s+/u', '', \App\Helpers\TextNormalizer::normalize($m->shelfmark));
     }
 
-    /** Source citations and still-open suggestions follow the record that is kept. */
+    /**
+     * The duplicate's places in the sources and its still-open suggestions follow the record that is kept (step 13.3):
+     * its entries in other sources, its addenda, and its own Fankha entry, which stays citable on the kept record as
+     * an entry of its own. Its bibliography stays with it, since the kept record's list is its own.
+     */
     private function moveAttachments($source, $target): array
     {
         $citations = $source->sourceCitations()->pluck('id')->all();
         $source->sourceCitations()->update(['citable_id' => $target->id]);
+        $entries = SourceEntry::where('citable_type', $source::class)->where('citable_id', $source->id)
+            ->where('role', '!=', SourceEntry::ROLE_CITATION)->get(['id', 'is_primary', 'legacy_type', 'legacy_id'])
+            ->map(fn ($e) => $e->only(['id', 'is_primary', 'legacy_type', 'legacy_id']))->all();
+        foreach ($entries as $e) {
+            // the record and its catalogue references go with the duplicate; an addendum's row moves with it
+            $keepsLegacy = $e['legacy_type'] === 'source_citation';
+            SourceEntry::whereKey($e['id'])->update(['citable_id' => $target->id, 'is_primary' => false]
+                + ($keepsLegacy ? [] : ['legacy_type' => null, 'legacy_id' => null]));
+        }
         $suggestions = FieldSuggestion::where('suggestable_type', $source::class)->where('suggestable_id', $source->id)
             ->where('status', 'pending')->pluck('id')->all();
         FieldSuggestion::whereIn('id', $suggestions)->update(['suggestable_id' => $target->id]);
 
-        return ['citation_ids' => $citations, 'suggestion_ids' => $suggestions];
+        return ['citation_ids' => $citations, 'moved_entries' => $entries, 'suggestion_ids' => $suggestions];
     }
 
     private function undoAttachments($source, $target, array $old): void
     {
         $target->sourceCitations()->whereIn('id', $old['citation_ids'] ?? [])->update(['citable_id' => $source->id]);
+        // a merge of before step 13.3 cited the duplicate's entry in a source citation of its own
         if ($entry = $old['cited_entry_id'] ?? null) {
             $target->sourceCitations()->whereKey($entry)->delete();
+            SourceEntry::where('legacy_type', 'source_citation')->where('legacy_id', $entry)->delete();
+        }
+        foreach ($old['moved_entries'] ?? [] as $e) {
+            SourceEntry::whereKey($e['id'])->where('citable_id', $target->id)
+                ->update(['citable_id' => $source->id] + array_intersect_key($e, array_flip(['is_primary', 'legacy_type', 'legacy_id'])));
         }
         FieldSuggestion::where('suggestable_type', $source::class)->where('suggestable_id', $target->id)
             ->whereIn('id', $old['suggestion_ids'] ?? [])->update(['suggestable_id' => $source->id]);
-    }
-
-    /** The duplicate's own catalog entry stays citable on the kept record; returns the id of a citation it adds. */
-    private function citeEntry($source, $target): ?int
-    {
-        $catalogId = $source->catalog_id ?? Catalog::where('code', 'fankha')->value('id');
-        if (! $catalogId || ! $source->volume_number) {
-            return null;
-        }
-        $citation = $target->sourceCitations()->firstOrCreate(
-            ['catalog_id' => $catalogId, 'volume_number' => $source->volume_number, 'page_start' => $source->page_start, 'role' => 'entry'],
-            ['page_end' => $source->page_end, 'raw_text' => $source->raw_text]
-        );
-
-        return $citation->wasRecentlyCreated ? $citation->id : null;
     }
 
     /** Records the redirect; returns the earlier redirects into $sourceId that now point at $targetId. */

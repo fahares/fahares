@@ -8,7 +8,7 @@ use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\Work;
-use App\Support\BibliographyLinks;
+use App\Sources\SourceEntrySync as Sync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -93,21 +93,10 @@ class BackfillSourcesCommand extends Command
         $now = now();
 
         foreach (DB::table('catalogs')->orderBy('id')->get() as $c) {
-            $this->upsertSource(['id' => $c->id], [
-                'code' => $c->code,
-                'kind' => Source::KIND_UNION_CATALOGUE,
-                'rank' => Source::KIND_RANKS[Source::KIND_UNION_CATALOGUE],
-                'title' => $c->name,
-                'short_name' => $c->short_name,
-                'compiler' => $c->compiler,
-                'publisher' => $c->publisher,
-                'volumes_count' => $c->volumes_count,
-                'description' => $c->description,
-                'citation_format' => $c->citation_format,
-            ]);
+            $this->upsertSource(['id' => $c->id], Sync::catalogSourceValues($c));
             $stats['catalogs']++;
             // Fankha's page images are the viewer's default folder, storage/app/public/catalogs/fankha
-            $stats['volumes made'] += $this->ensureVolumes($c->id, range(1, max(1, (int) $c->volumes_count)), $c->code === 'fankha' ? 'fankha' : null);
+            $stats['volumes made'] += Sync::ensureVolumes($c->id, range(1, max(1, (int) $c->volumes_count)), $c->code === 'fankha' ? 'fankha' : null, null, $this->dry);
         }
 
         foreach (config('bibliography.sources') as $key => $src) {
@@ -123,8 +112,8 @@ class BackfillSourcesCommand extends Command
             ]);
             $stats['reference works']++;
             $viewer = $src['viewer'] ?? [];
-            $stats['volumes made'] += $this->ensureVolumes($id, range(1, $src['volumes']), $viewer['catalog'] ?? null,
-                fn ($v) => ['page_first' => $viewer['first_pages'][$v] ?? ($viewer ? 1 : null), 'page_last' => $viewer['last_pages'][$v] ?? null]);
+            $stats['volumes made'] += Sync::ensureVolumes($id, range(1, $src['volumes']), $viewer['catalog'] ?? null,
+                fn ($v) => ['page_first' => $viewer['first_pages'][$v] ?? ($viewer ? 1 : null), 'page_last' => $viewer['last_pages'][$v] ?? null], $this->dry);
         }
 
         // catalog_volumes: one source per library and title, and one per later printing
@@ -196,44 +185,21 @@ class BackfillSourcesCommand extends Command
     private function fankha(): array
     {
         return [
-            'works' => $this->copyRecords('works', Work::class, 'work', 'entry_text'),
-            'manuscripts' => $this->copyRecords('manuscripts', Manuscript::class, 'manuscript', 'copy_text'),
+            'works' => $this->copyRecords('works', Work::class, 'work'),
+            'manuscripts' => $this->copyRecords('manuscripts', Manuscript::class, 'manuscript'),
         ];
     }
 
-    /** The Fankha entry of each record of a table, its raw_text in $textColumn. */
-    private function copyRecords(string $table, string $class, string $legacy, string $textColumn): int
+    /** The Fankha entry of each record of a table (SourceEntrySync::primaryValues). */
+    private function copyRecords(string $table, string $class, string $legacy): int
     {
-        $addenda = config('catalogs.addenda', []);
-        $codes = DB::table('catalogs')->pluck('code', 'id');
+        $codes = DB::table('catalogs')->pluck('code', 'id')->all();
         $count = 0;
         DB::table($table)->whereNotNull('catalog_id')->select(['id', 'catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text', 'created_at'])
-            ->chunkById(self::CHUNK, function ($records) use ($class, $legacy, $textColumn, $addenda, $codes, &$count) {
+            ->chunkById(self::CHUNK, function ($records) use ($class, $codes, &$count) {
                 $rows = [];
                 foreach ($records as $r) {
-                    $hasText = filled($r->raw_text);
-                    $volume = $r->volume_number !== null ? (int) $r->volume_number : null;
-                    $page = $r->page_start !== null ? (int) $r->page_start : null;
-                    $rows[] = $this->entryRow([
-                        'citable_type' => $class,
-                        'citable_id' => $r->id,
-                        'source_id' => $r->catalog_id,
-                        'source_volume_id' => $this->volumeIds[$r->catalog_id][$volume] ?? null,
-                        'volume_number' => $volume,
-                        'page_start' => $page,
-                        'page_end' => $r->page_end,
-                        'role' => self::inAddenda($addenda[$codes[$r->catalog_id] ?? ''] ?? [], $volume, $page) ? SourceEntry::ROLE_ADDENDUM : SourceEntry::ROLE_ENTRY,
-                        'is_primary' => true,
-                        $textColumn => $hasText ? $r->raw_text : null,
-                        'text_volume_number' => $hasText ? $volume : null,
-                        'text_page' => $hasText ? $page : null,
-                        'text_status' => $hasText ? SourceEntry::TEXT_AUTO : SourceEntry::TEXT_NONE,
-                        'origin' => SourceEntry::ORIGIN_FANKHA,
-                        // the entry is Fankha itself: nothing about it awaits review
-                        'status' => SourceEntry::STATUS_VERIFIED,
-                        'legacy_type' => $legacy,
-                        'legacy_id' => $r->id,
-                    ], $r->created_at);
+                    $rows[] = Sync::row(Sync::primaryValues($r, $class, $this->volumeIds, $codes), $r->created_at);
                 }
                 $count += count($rows);
                 $this->write($rows);
@@ -249,7 +215,7 @@ class BackfillSourcesCommand extends Command
         foreach (DB::table('source_citations')->orderBy('id')->get() as $c) {
             $text = filled($c->raw_text) ? $c->raw_text : null;
             $volume = $c->volume_number !== null ? (int) $c->volume_number : null;
-            $rows[] = $this->entryRow([
+            $rows[] = Sync::row([
                 'citable_type' => $c->citable_type,
                 'citable_id' => $c->citable_id,
                 'source_id' => $c->catalog_id,
@@ -291,7 +257,7 @@ class BackfillSourcesCommand extends Command
                 $stats[$origin]++;
                 $hasText && $stats['with text']++;
                 $r->catalog_volume_id || $stats['no volume']++;
-                $rows[] = $this->entryRow([
+                $rows[] = Sync::row([
                     'citable_type' => Manuscript::class,
                     'citable_id' => $r->manuscript_id,
                     'source_id' => $r->catalog_volume_id ? $this->volumeSources[$r->catalog_volume_id] ?? null : null,
@@ -333,39 +299,16 @@ class BackfillSourcesCommand extends Command
             ->chunkById(self::CHUNK, function ($works) use (&$stats) {
                 $rows = [];
                 foreach ($works as $w) {
-                    $entries = array_values(array_filter((array) json_decode($w->bibliography, true), fn ($e) => is_string($e) && trim($e) !== ''));
-                    if (! $entries) {
+                    $values = Sync::bibliographyValues($w->id, Sync::bibliographyStrings($w->bibliography), $this->configSources, $this->volumeIds);
+                    if (! $values) {
                         continue;
                     }
                     $stats['works']++;
-                    foreach ($entries as $i => $entry) {
-                        $places = array_map(fn ($c) => [
-                            'source_id' => $this->configSources[$c['source']] ?? null,
-                            'volume' => $c['volume'],
-                            'page' => $c['page'],
-                        ], BibliographyLinks::citations($entry));
-                        $first = $places[0] ?? null;
+                    foreach ($values as $v) {
                         $stats['citations']++;
-                        $first && $stats['of a known source']++;
-                        $stats['places'] += count($places);
-                        $rows[] = $this->entryRow([
-                            'citable_type' => Work::class,
-                            'citable_id' => $w->id,
-                            'source_id' => $first['source_id'] ?? null,
-                            'source_volume_id' => $first ? $this->volumeIds[$first['source_id']][$first['volume']] ?? null : null,
-                            'volume_number' => $first['volume'] ?? null,
-                            'page_start' => $first['page'] ?? null,
-                            'role' => SourceEntry::ROLE_CITATION,
-                            'citation_text' => $entry,
-                            'locations' => count($places) > 1 ? json_encode($places) : null,
-                            'origin' => SourceEntry::ORIGIN_BIBLIOGRAPHY,
-                            // Fankha's own words: nothing about them awaits review
-                            'status' => SourceEntry::STATUS_VERIFIED,
-                            'sort_order' => $i,
-                            'legacy_type' => 'work_bibliography',
-                            'legacy_id' => $w->id,
-                            'legacy_index' => $i,
-                        ], $w->created_at);
+                        $v['source_id'] && $stats['of a known source']++;
+                        $stats['places'] += $v['locations'] ? count(json_decode($v['locations'])) : ($v['page_start'] ? 1 : 0);
+                        $rows[] = Sync::row($v, $w->created_at);
                     }
                 }
                 $this->write($rows);
@@ -429,32 +372,12 @@ class BackfillSourcesCommand extends Command
         ];
     }
 
-    /** Every column of source_entries, so the rows of one upsert have the same keys. */
-    private function entryRow(array $values, $created = null, $updated = null): array
-    {
-        $now = now();
-
-        return $values + [
-            'source_id' => null, 'source_volume_id' => null, 'volume_number' => null, 'page_start' => null, 'page_end' => null,
-            'entry_number' => null, 'shelfmark_page' => null, 'role' => SourceEntry::ROLE_ENTRY, 'is_primary' => false,
-            'citation_text' => null, 'locations' => null, 'entry_text' => null, 'copy_text' => null,
-            'text_volume_number' => null, 'text_page' => null, 'text_status' => SourceEntry::TEXT_NONE,
-            'match_method' => null, 'confidence' => null, 'status' => SourceEntry::STATUS_UNVERIFIED,
-            'reviewed_by' => null, 'reviewed_at' => null, 'notes' => null, 'sort_order' => 0, 'legacy_index' => 0,
-            'created_at' => $created ?? $now, 'updated_at' => $updated ?? $created ?? $now,
-        ];
-    }
-
     private function write(array $rows): void
     {
         if ($this->dry || ! $rows) {
             return;
         }
-        $keys = ['legacy_type', 'legacy_id', 'legacy_index'];
-        // a thousand works give several thousand bibliography rows, past the 65,535 placeholders of one statement
-        foreach (array_chunk($rows, self::CHUNK) as $chunk) {
-            DB::table('source_entries')->upsert($chunk, $keys, array_diff(array_keys($chunk[0]), [...$keys, 'created_at']));
-        }
+        Sync::upsert($rows);
     }
 
     /** Removes the copies of rows that are no longer in their table (a record deleted or merged). */
@@ -481,31 +404,15 @@ class BackfillSourcesCommand extends Command
         return DB::table('sources')->insertGetId($key + $values + ['created_at' => now(), 'updated_at' => now()]);
     }
 
-    /** Makes the volumes a source lacks; returns how many were made. */
-    private function ensureVolumes(int $sourceId, array $numbers, ?string $facsimile, ?callable $extra = null): int
-    {
-        $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('volume_number')->map(fn ($n) => (int) $n)->all();
-        $rows = [];
-        foreach (array_diff($numbers, $have) as $n) {
-            $rows[] = ['source_id' => $sourceId, 'volume_number' => $n, 'facsimile_code' => $facsimile, 'created_at' => now(), 'updated_at' => now()]
-                + ($extra ? $extra($n) : []);
-        }
-        $this->dry || ! $rows || DB::table('source_volumes')->insert($rows);
-
-        return count($rows);
-    }
-
     private function loadRegistry(): void
     {
         if ($this->volumeIds) {
             return;
         }
-        foreach (DB::table('source_volumes')->orderBy('id')->get(['id', 'source_id', 'volume_number']) as $v) {
-            $this->volumeSources[$v->id] = $v->source_id;
-            // a source's first volume of a number is the one a bare «volume/page» means
-            $this->volumeIds[$v->source_id][$v->volume_number] ??= $v->id;
-        }
-        $this->configSources = DB::table('sources')->whereIn('code', array_keys(config('bibliography.sources')))->pluck('id', 'code')->all();
+        // a source's first volume of a number is the one a bare «volume/page» means
+        $this->volumeIds = Sync::volumeIds();
+        $this->volumeSources = DB::table('source_volumes')->pluck('source_id', 'id')->all();
+        $this->configSources = Sync::configSources();
     }
 
     /** One source per library and title, and one per later printing (the Masjid-e A'zam catalogue of 1388). */
@@ -530,16 +437,5 @@ class BackfillSourcesCommand extends Command
         $at = mb_strrpos($title, ' - ');
 
         return $at === false ? $title : trim(mb_substr($title, 0, $at));
-    }
-
-    private static function inAddenda(array $ranges, ?int $volume, ?int $page): bool
-    {
-        foreach ($ranges as $range) {
-            if ($volume === $range['volume'] && $page >= $range['from'] && $page <= $range['to']) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -44,11 +44,16 @@ class RecordSources
         return $this->entries->first(fn (SourceEntry $e) => $e->origin === SourceEntry::ORIGIN_FANKHA_CITATION && $e->source_volume_id);
     }
 
-    /** Further places of the record in a source it is already in: addenda and errata. */
+    /**
+     * Further places of the record in the source it was made from: addenda, errata, and the Fankha entry of a
+     * duplicate merged into it, shown with their own page and text below the record's entry.
+     */
     public function others(): Collection
     {
-        return $this->entries->filter(fn (SourceEntry $e) => ! $e->is_primary
-            && in_array($e->role, [SourceEntry::ROLE_ADDENDUM, SourceEntry::ROLE_ERRATUM], true))->values();
+        $own = $this->primary()?->source_id;
+
+        return $this->entries->filter(fn (SourceEntry $e) => ! $e->is_primary && $e->role !== SourceEntry::ROLE_CITATION
+            && (in_array($e->role, [SourceEntry::ROLE_ADDENDUM, SourceEntry::ROLE_ERRATUM], true) || ($own && $e->source_id === $own)))->values();
     }
 
     /** The work's bibliography (مآخذ کتاب‌شناسی) as Fankha gives it, in its order. */
@@ -60,8 +65,11 @@ class RecordSources
     /** Entries of the record in another source than the one it was made from, not rejected. */
     private function placed(): Collection
     {
+        $own = $this->primary()?->source_id;
+
         return $this->entries->filter(fn (SourceEntry $e) => ! $e->is_primary && $e->role === SourceEntry::ROLE_ENTRY
-            && $e->status !== SourceEntry::STATUS_REJECTED && $e->origin !== SourceEntry::ORIGIN_FANKHA_CITATION);
+            && $e->status !== SourceEntry::STATUS_REJECTED && $e->origin !== SourceEntry::ORIGIN_FANKHA_CITATION
+            && ! ($own && $e->source_id === $own));
     }
 
     private function ranked(Collection $entries): Collection

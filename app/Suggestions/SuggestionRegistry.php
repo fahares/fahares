@@ -4,7 +4,7 @@ namespace App\Suggestions;
 
 use App\Models\Library;
 use App\Models\Manuscript;
-use App\Models\ManuscriptCatalogReference;
+use App\Models\SourceEntry;
 use App\Models\Person;
 use App\Models\Work;
 use App\Support\HijriYear;
@@ -24,9 +24,9 @@ use Illuminate\Database\Eloquent\Model;
  *   list         one item per line; stored in a metadata list (meta_key) or in the field's own
  *                JSON column, as strings or as objects keyed by item_key
  *   catalog_page where the record stands in a source, as «ج 2، ص 7» (and «، ردیف 3» with with_row):
- *                the record's own Fankha columns (columns), or one catalogue reference (reference_id,
- *                in a field named catalog_reference_{id}, see catalogReferenceField); «نیست» (absent)
- *                rejects that reference; or one page a work's bibliography cites (bibliography_page_{catalog}_{volume}_{page},
+ *                the record's own Fankha columns (columns), or its entry in another source (entry_id,
+ *                in a field named source_entry_{id}, see sourceEntryField); «نیست» (absent)
+ *                rejects that entry; or one page a work's bibliography cites (bibliography_page_{catalog}_{volume}_{page},
  *                see bibliographyPageField), rewritten in the bibliography text. See SuggestionApplier.
  *
  * Optional keys: required (no empty value), mirror (columns that take the same value, e.g. clean_title),
@@ -140,7 +140,7 @@ class SuggestionRegistry
             return null;
         }
         $field = self::fields($type)[$name] ?? match (self::typeKey($type)) {
-            'manuscript' => self::catalogReferenceField($name),
+            'manuscript' => self::sourceEntryField($name),
             'work' => self::bibliographyPageField($name),
             default => null,
         };
@@ -212,6 +212,10 @@ class SuggestionRegistry
         };
     }
 
+    /** The address field of a manuscript's entry in another source (step 13.3). */
+    public const SOURCE_ENTRY_PREFIX = 'source_entry_';
+
+    /** The name that field had before step 13.3, by the manuscript_catalog_references row. */
     public const CATALOG_REFERENCE_PREFIX = 'catalog_reference_';
 
     /** Value of a catalog_page field that says the record is not in that source at all. */
@@ -225,17 +229,15 @@ class SuggestionRegistry
     {
         $fields = self::fields($record::class);
         if ($record instanceof Manuscript) {
-            // the references the page shows: not the Fankha row, which repeats metadata.catalog_citation, nor a rejected one
-            $shown = $record->catalogReferences->filter(fn ($ref) => $ref->source !== ManuscriptCatalogReference::SOURCE_FANKHA
-                && $ref->status !== ManuscriptCatalogReference::STATUS_REJECTED);
-            foreach ($shown as $ref) {
-                if ($ref->viewer() && ($field = self::catalogReferenceField(self::CATALOG_REFERENCE_PREFIX . $ref->id, $ref))) {
-                    $fields[self::CATALOG_REFERENCE_PREFIX . $ref->id] = $field;
+            // the entries in other sources the page shows with their page image
+            foreach ($record->sources()->withPages() as $entry) {
+                if ($field = self::sourceEntryField(self::SOURCE_ENTRY_PREFIX . $entry->id, $entry)) {
+                    $fields[self::SOURCE_ENTRY_PREFIX . $entry->id] = $field;
                 }
             }
         }
         if ($record instanceof Work) {
-            foreach (\App\Support\BibliographyLinks::viewerPages($record->bibliography ?? []) as $vp) {
+            foreach (\App\Support\BibliographyLinks::viewerPages($record->sources()->bibliography()->pluck('citation_text')) as $vp) {
                 $name = self::bibliographyPageName($vp);
                 $fields[$name] = self::bibliographyPageField($name);
             }
@@ -244,22 +246,28 @@ class SuggestionRegistry
         return $fields;
     }
 
-    /** The address field of one catalogue reference, «catalog_reference_{id}». */
-    public static function catalogReferenceField(string $name, ?ManuscriptCatalogReference $ref = null): ?array
+    /**
+     * The address field of a manuscript's entry in another source, «source_entry_{id}» (step 13.3). A suggestion made
+     * before it names the manuscript_catalog_references row, «catalog_reference_{id}», and finds the entry copied from it.
+     */
+    public static function sourceEntryField(string $name, ?SourceEntry $entry = null): ?array
     {
-        if (! preg_match('/^' . self::CATALOG_REFERENCE_PREFIX . '(\d+)$/', $name, $m)) {
+        if (! $entry) {
+            $entry = match (true) {
+                (bool) preg_match('/^' . self::SOURCE_ENTRY_PREFIX . '(\d+)$/', $name, $m) => SourceEntry::find((int) $m[1]),
+                (bool) preg_match('/^' . self::CATALOG_REFERENCE_PREFIX . '(\d+)$/', $name, $m) => SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', (int) $m[1])->first(),
+                default => null,
+            };
+        }
+        // Fankha's own entry is fankha_page; the page Fankha cites has no image to compare with
+        if (! $entry || $entry->is_primary || $entry->role !== SourceEntry::ROLE_ENTRY || $entry->origin === SourceEntry::ORIGIN_FANKHA_CITATION) {
             return null;
         }
-        $ref ??= ManuscriptCatalogReference::with('catalogVolume')->find((int) $m[1]);
-        if (! $ref || $ref->source === ManuscriptCatalogReference::SOURCE_FANKHA) {
-            return null;
-        }
-        $volume = $ref->catalogVolume;
 
         return [
-            'label' => 'نشانی در ' . implode('، ', array_filter([$volume?->short_title, $volume?->edition_label ? 'چاپ ' . $volume->edition_label : null])),
+            'label' => 'نشانی در ' . implode('، ', array_filter([$entry->sourceName(), $entry->editionLabel() ? 'چاپ ' . $entry->editionLabel() : null])),
             'input' => 'catalog_page',
-            'reference_id' => $ref->id,
+            'entry_id' => $entry->id,
             'can_be_absent' => true,
         ];
     }
@@ -320,7 +328,7 @@ class SuggestionRegistry
             'quote' => implode("\n\n", array_column(self::metaList($record, $field['meta_key']), 'text')) ?: $record->{$name},
             'list' => implode("\n", self::listItems($record, $field)),
             'catalog_page' => match (true) {
-                isset($field['reference_id']) => (fn ($ref) => $ref ? self::formatCatalogPage($ref->volume_number, $ref->page_start) : null)(ManuscriptCatalogReference::find($field['reference_id'])),
+                isset($field['entry_id']) => (fn ($e) => $e ? self::formatCatalogPage($e->volumeNumber(), $e->page_start) : null)(SourceEntry::find($field['entry_id'])),
                 isset($field['bibliography']) => self::formatCatalogPage($field['bibliography']['volume'], $field['bibliography']['page'], null, $field['unit']),
                 default => self::formatCatalogPage($record->{$field['columns'][0]}, $record->{$field['columns'][1]}, isset($field['columns'][2]) ? $record->{$field['columns'][2]} : null),
             },
@@ -371,7 +379,7 @@ class SuggestionRegistry
             'incipit_text' => ['label' => 'آغاز نسخه', 'input' => 'quote', 'meta_key' => 'incipits'],
             'explicit_text' => ['label' => 'انجام نسخه', 'input' => 'quote', 'meta_key' => 'explicits'],
             'ownership_and_seals' => ['label' => 'مهرها، تملک‌ها و وقف‌نامه‌ها', 'input' => 'list', 'meta_key' => 'ownership_and_seals'],
-            // Where the copy stands in Fankha; the library catalogues get catalog_reference_{id} fields
+            // Where the copy stands in Fankha; the library catalogues get source_entry_{id} fields
             'fankha_page' => ['label' => 'نشانی در فنخا', 'input' => 'catalog_page', 'columns' => ['volume_number', 'page_start', 'sequence_number'], 'with_row' => true],
         ];
 
