@@ -132,11 +132,8 @@
                         @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
                         <div x-data="{ userMenuOpen: false }" class="relative">
                             <button @click="userMenuOpen = !userMenuOpen" aria-label="حساب کاربری: {{ auth()->user()->name }}"
-                                    class="relative flex items-center gap-2 p-2 sm:px-3 sm:py-1.5 lg:p-2 xl:px-3 xl:py-1.5 rounded-full border border-gold/40 bg-cinnabar/10 text-ink text-xs font-bold hover:border-gold transition cursor-pointer">
-                                <span class="hidden sm:inline-block lg:hidden xl:inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <svg class="sm:hidden lg:block xl:hidden w-5 h-5 text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                </svg>
+                                    class="relative flex items-center gap-2 p-1 sm:ps-1 sm:pe-3 lg:p-1 xl:ps-1 xl:pe-3 rounded-full border border-gold/40 bg-cinnabar/10 text-ink text-xs font-bold hover:border-gold transition cursor-pointer">
+                                <x-ui.avatar :user="auth()->user()" size="sm" class="!w-7 !h-7" />
                                 <span class="hidden sm:inline lg:hidden xl:inline max-w-[120px] truncate">{{ auth()->user()->name }}</span>
                                 @if($unreadNotifications)
                                     <span class="absolute -top-1 -left-1 sm:static lg:absolute xl:static px-1.5 min-w-[1.25rem] text-center rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold" title="اعلان خوانده‌نشده">{{ $unreadNotifications }}</span>
@@ -148,16 +145,25 @@
 
                             <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-cloak x-transition
                                  class="absolute left-0 mt-2 w-52 bg-surface rounded-2xl shadow-xl border border-line-strong py-2 z-50 text-xs divide-y divide-line">
-                                <div class="px-4 py-2">
-                                    <p class="font-bold text-ink truncate">{{ auth()->user()->name }}</p>
-                                    <p class="text-[10px] text-stone-400 truncate dir-ltr text-right">{{ auth()->user()->email }}</p>
-                                </div>
+                                <a href="{{ route('profile') }}" class="flex items-center gap-2.5 px-4 py-2 hover:bg-paper transition" title="حساب من و تصویر کاربر">
+                                    <x-ui.avatar :user="auth()->user()" size="md" />
+                                    <span class="min-w-0">
+                                        <span class="block font-bold text-ink truncate">{{ auth()->user()->name }}</span>
+                                        <span class="block text-[10px] text-stone-400 truncate dir-ltr text-right">{{ auth()->user()->email }}</span>
+                                    </span>
+                                </a>
                                 <div class="py-1">
                                     <a href="{{ route('my.suggestions') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                                         </svg>
                                         <span>پیشنهادهای من</span>
+                                    </a>
+                                    <a href="{{ route('contributions.index') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        <span>اصلاحات پژوهشگران</span>
                                     </a>
                                     <a href="{{ route('notifications.index') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -369,6 +375,7 @@
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
                         <li><a href="{{ route('posts.index') }}" class="hover:text-amber-100 transition">جریده: گزارش‌ها و یادداشت‌ها</a></li>
                         <li><a href="{{ route('insights') }}" class="hover:text-amber-100 transition">آمار: نسخه‌ها در گذر سده‌ها</a></li>
+                        <li><a href="{{ route('contributions.index') }}" class="hover:text-amber-100 transition">اصلاحات پژوهشگران</a></li>
                         <li><a href="{{ route('about') }}" class="hover:text-amber-100 transition">درباره فهارس</a></li>
                         <li x-data><button type="button" @click="$dispatch('open-feedback')" class="hover:text-amber-100 transition cursor-pointer text-right">گزارش اشکال یا پیشنهاد</button></li>
                     </ul>

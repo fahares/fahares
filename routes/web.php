@@ -31,6 +31,8 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\MySuggestionsController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ContributionsController;
 use App\Http\Controllers\NoteFileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuggestionController;
@@ -89,6 +91,10 @@ Route::get('/posts/{id}', [PostController::class, 'show'])
 // Fixed pages whose text is edited in the admin panel
 Route::get('/about', [PageController::class, 'about'])->name('about');
 
+// Approved corrections, site-wide and per credited researcher (backlog item 63)
+Route::get('/contributions', [ContributionsController::class, 'index'])->name('contributions.index');
+Route::get('/contributors/{user}', [ContributionsController::class, 'show'])->whereNumber('user')->name('contributors.show');
+
 // Field Suggestions (Crowdsourced corrections)
 Route::post('/suggestions', [SuggestionController::class, 'store'])
     ->middleware('throttle:20,60')
@@ -109,6 +115,9 @@ Route::get('/notes/{suggestion}/files/{index}', [NoteFileController::class, 'sho
 // A signed-in user's own suggestions
 Route::middleware('auth')->group(function () {
     Route::get('/my/suggestions', [MySuggestionsController::class, 'index'])->name('my.suggestions');
+    Route::get('/settings/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/settings/profile/avatar', [ProfileController::class, 'updateAvatar'])->middleware('throttle:20,60')->name('profile.avatar');
+    Route::delete('/settings/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     Route::post('/my/suggestions/{suggestion}/credit', [MySuggestionsController::class, 'credit'])->name('my.suggestions.credit');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/settings/notifications', [NotificationController::class, 'settings'])->name('notifications.settings');

@@ -23,9 +23,12 @@
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     <div class="bg-surface p-6 sm:p-8 rounded-sm border border-line shadow-sm space-y-5">
-        <div>
-            <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">پیشنهادهای من</h1>
-            <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام.</p>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('profile') }}" title="تصویر کاربر"><x-ui.avatar :user="auth()->user()" size="lg" /></a>
+            <div class="min-w-0">
+                <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">پیشنهادهای من</h1>
+                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشده‌ی همه‌ی پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">اصلاحات پژوهشگران</a> آمده است.</p>
+            </div>
         </div>
         <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             @foreach([['total', 'همه‌ی پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'قول مختار'], ['pending', 'در انتظار داوری']] as [$key, $label])

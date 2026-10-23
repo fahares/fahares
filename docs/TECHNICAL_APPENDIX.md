@@ -3489,3 +3489,44 @@
   - چهار فایل `masjid-azam_v0N_pages.jsonl.gz` با `ssh fahares-app "cat > /tmp/…"` رفتند و اندازه‌ها برابر بود. سپس `sources:import-pages … --volume=N --extractor=numbered_catalogue`: ۶۲۳ + ۸۲۷ + ۶۴۷ + ۷۶۶ = ۲٬۸۶۳ صفحه. فایل‌های `/tmp` پس از کار پاک شدند.
   - `sources:retext --dry-run`، سپس اجرای اصلی: یک مدخل علامت‌خورده (#۷۲۳۸۹۶، نسخه‌ی ۱۷۳۵۴) ← مدخل ۹، ص ۵۹۶، `auto`، با لاگ `update` #۱۲۲۰ که برگشت‌پذیر است.
   - `fahares.net/m/17354` دیگر `data-stale-text` ندارد، و زیر «متن مأخذ»، «فهرست کتابخانه مسجد اعظم» با «۹ ـ اجوبة مسائل الاصفهانی «۹۱ ـ ۹۳» …» آمده است.
+
+### گام ۱۳.۷: `/contributions`، `Contributions`، و آواتار کاربر (موارد ۶۳ و ۶۶)
+- **[Contributions](../app/Suggestions/Contributions.php)، کد مشترک با مورد ۳۹:**
+  - `publicQuery()`: `status = approved`، `kind` از `field`، `note` و `relation`، و `general` فقط با `public_note`. بازخورد (`suggestable_type` تهی) بیرون است. `direct-edit` ردیف پیشنهاد نمی‌سازد.
+  - `creditedTo($user)`: فقط ردیف‌های همان کاربر که `credit_name` دارند.
+  - `contributor()`: `credited` (نام، کاربر و پیوند صفحه)، `staff` («ویراستار فهارس»، برای فرستنده‌ی `canAccessAdmin()` بی `credit_name`) و `anonymous` («یک پژوهشگر»). نام مهمانی که داور برایش `credit_name` گذاشته، بی پیوند و بی تصویر می‌آید.
+  - `summarize()`: برای ردیف‌های `relation` لاگ‌های ممیزی را یک بار با `JSON_VALUE(new_values, '$.suggestion_id') IN (…)` می‌خواند (۱٬۲۲۹ لاگ در پروداکشن). خروجی هر ردیف: `action`، `record`، `before`/`after` (`label` و `url`)، `text`، `standing` و `contributor`. شاخه‌ها بر پایه‌ی `apply`:
+    - `move`: `from_work_id` در resolution، وگرنه `old_values.work_id`. نمونه: #۱۲ پروداکشن، ۵۱۷۲۷ ← ۲۶۲۷۱.
+    - `merge` و `merge_library`: رکورد ماندنی از `kept_id`، و نام حذف‌شده از `source_snapshot`.
+    - بقیه: `contributor_set`/`add`، `alias`، `person_role`، `record_relation` (جهت از `from`/`to`)، `relocate`، `rename_library`، `remove` (`snapshot.attributes`) و `split`.
+- **[Admin/SuggestionController::approveRelation](../app/Http/Controllers/Admin/SuggestionController.php):** انتقال نسخه اکنون `from_work_id` را هم در resolution می‌نویسد.
+- **[ContributionsController](../app/Http/Controllers/ContributionsController.php):**
+  - مسیرها: `contributions.index` (`/contributions`) و `contributors.show` (`/contributors/{user}`). صفحه‌ی پژوهشگر وقتی کاربر ردیف `creditedTo` نداشته باشد، ۴۰۴ می‌دهد.
+  - فیلترها: `researcher` (فقط ردیف‌های با نام)، `type`، `kind` (`note` یادداشت و کلی را با هم دارد) و `period` (۳۰ یا ۳۶۵ روز).
+  - آمار: همه، `distinct user_id`، رکوردهای یکتا و ۳۰ روز اخیر. هر صفحه ۳۰ ردیف دارد.
+  - نما: [contributions/index](../resources/views/contributions/index.blade.php)، با سرعنوان ماه شمسی (`Jalali::format($d, 'MMMM y')`) و `data-contribution` روی هر کارت.
+- **آواتار:**
+  - migration [`2026_10_24_200001_add_avatar_to_users_table`](../database/migrations/2026_10_24_200001_add_avatar_to_users_table.php): `avatar_path` و `avatar_source` (`upload`، `google` یا `none`؛ `none` یعنی کاربر تصویر را برداشته است).
+  - [UserAvatar](../app/Support/UserAvatar.php): `upload()`، `syncGoogle()` و `remove()`. برش مرکزی با GD، ۲۵۶ پیکسل، WebP با کیفیت ۸۵، روی دیسک `public` در `users/avatars/{id}-{random}.webp`. پرونده‌ی پیشین پاک می‌شود. در پروداکشن `storage/app/public` روی volume دائمی است.
+  - `syncGoogle()` اندازه‌ی `=sNN-c` را به `=s256-c` تبدیل می‌کند و با مهلت ۵ ثانیه دانلود می‌کند. شکست فقط در لاگ ثبت می‌شود. [GoogleController](../app/Http/Controllers/Auth/GoogleController.php) پس از یافتن یا ساختن کاربر آن را صدا می‌زند.
+  - `User::avatar_url` با `asset('storage/…')` ساخته می‌شود.
+  - [x-ui.avatar](../resources/views/components/ui/avatar.blade.php): تصویر؛ یا حرف نخست، بی پیشوند «سید/شیخ/…»، با رنگی از شش رنگ بر پایه‌ی شناسه؛ یا نشان «ویراستار فهارس» (`kind=staff`)؛ یا نشان خنثی.
+  - [ProfileController](../app/Http/Controllers/ProfileController.php) و [my/profile](../resources/views/my/profile.blade.php): `/settings/profile`، `POST` و `DELETE /settings/profile/avatar` (`image`، تا ۵ مگابایت، `throttle:20,60`).
+- **جاهای نمایش و پیوند:**
+  - منوی حساب: تصویر در دکمه و بالای منو، که به «حساب من» پیوند دارد، و پیوند «اصلاحات پژوهشگران».
+  - پانویس (دسترسی سریع)، بالای [my/suggestions](../resources/views/my/suggestions.blade.php)، و فهرست و نمایش میز داوری.
+  - صفحه‌ی «درباره» متن قابل‌ویرایش در پنل است و پیوندی به آن افزوده نشد.
+- **[x-ui.btn](../resources/views/components/ui/btn.blade.php):** `type` اکنون با `merge` تعیین می‌شود. پیش‌تر `type="submit"` به دنبال `type="button"` می‌آمد و بی‌اثر بود.
+- **Dockerfile محلی:** GD با jpeg، webp و freetype افزوده شد، چون پروداکشن آن را داشت و محلی نداشت. ساخت `docker compose build` با خطای DNS و نبودن buildx شکست خورد. پس با `DOCKER_BUILDKIT=0 docker build --network host` از پوشه‌ای که فقط Dockerfile را داشت ساخته شد، و سپس `docker compose up -d --no-build app`.
+- **آزمون:** [ContributionsTest](../tests/Feature/ContributionsTest.php)، شش آزمون:
+  - فقط ردیف‌های عمومی، و نام‌ها فقط با اجازه، بی ایمیل و بی نام مهمان؛
+  - صفحه‌ی پژوهشگر بی ردیف‌های بی‌نام همان کاربر، و ۴۰۴؛
+  - `from_work_id` و بازگشت به لاگ ممیزی؛
+  - بارگذاری، جایگزینی و حذف تصویر؛
+  - رونوشت گوگل، `none` و شکست دانلود؛
+  - تصویر فقط کنار نام مجاز.
+
+  همه‌ی ۲۵۶ آزمون موفق.
+- **وارسی مرورگر:** با سه ردیف نمونه‌ی موقت در `fahares_db` (یک فیلد، یک یادداشت، و یک انتقال با لاگ ممیزی) و دو کاربر نمونه که پس از وارسی پاک شدند. وارسی در حالت تیره و روشن و عرض ۳۷۵ انجام شد و `scrollWidth` برابر عرض بود. ردیف انتقال «پیشین / تازه» را از لاگ ممیزی نشان داد. برای کلاس‌های تازه `npm run build` محلی لازم بود.
+- **استقرار (هنوز انجام نشده):** push، سپس `migrate --force` (دو ستون nullable). داده‌ای دستکاری نمی‌شود.
+

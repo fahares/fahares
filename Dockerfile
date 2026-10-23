@@ -10,15 +10,21 @@ RUN apk add --no-cache \
     icu-data-full \
     mariadb-client \
     nodejs \
-    npm
+    npm \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    freetype-dev
 
-# Install PHP extensions
-RUN docker-php-ext-install -j$(nproc) \
+# Install PHP extensions (gd with WebP for user avatars, as on production)
+RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
+    && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
     bcmath \
     pcntl \
     zip \
-    intl
+    intl \
+    gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

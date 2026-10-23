@@ -258,7 +258,8 @@ class SuggestionController extends Controller
                 if ($relation['key'] === 'move_to_work') {
                     $result = $merger->moveManuscript($record, $other);
                     $log = ['action' => 'verify', 'type' => $record::class, 'id' => $record->id, 'old' => $result['old'], 'new' => $result['new']];
-                    $resolution = ['applied' => true] + $result['new'];
+                    // The earlier work too, for the public history of both works (backlog items 39 and 63)
+                    $resolution = ['applied' => true] + $result['new'] + ['from_work_id' => $result['old']['work_id']];
                 } else {
                     // The reviewer may keep either record; by default the one the suggestion points at
                     [$source, $kept] = ($validated['keep'] ?? 'target') === 'source' ? [$other, $record] : [$record, $other];

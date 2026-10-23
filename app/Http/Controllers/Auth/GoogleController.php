@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Support\UserAvatar;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
@@ -64,6 +65,9 @@ class GoogleController extends Controller
         } elseif (! $user->google_id) {
             $user->forceFill(['google_id' => $google->getId()])->save();
         }
+
+        // A local copy of the Google picture, unless the user uploaded or removed one (backlog item 66)
+        UserAvatar::syncGoogle($user, $google->getAvatar());
 
         if (! $user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();

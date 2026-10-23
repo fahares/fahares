@@ -57,6 +57,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return in_array($this->role, ['admin', 'editor']);
     }
 
+    /** The user's picture, uploaded or copied from Google (backlog item 66); null means the initial of the name. */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path ? asset('storage/' . $this->avatar_path) : null;
+    }
+
     public function suggestions()
     {
         return $this->hasMany(FieldSuggestion::class);

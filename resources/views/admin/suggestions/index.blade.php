@@ -101,10 +101,15 @@
                                 </span>
                             </td>
                             <td class="p-4">
-                                <div class="font-medium text-ink">{{ $sug->guest_name ?: 'پژوهشگر مهمان' }}</div>
-                                @if($sug->guest_email)
-                                    <div class="text-[10px] text-stone-400 dir-ltr text-right">{{ $sug->guest_email }}</div>
-                                @endif
+                                <div class="flex items-center gap-2">
+                                    <x-ui.avatar :user="$sug->user" :name="$sug->guest_name" size="sm" />
+                                    <div class="min-w-0">
+                                        <div class="font-medium text-ink">{{ $sug->guest_name ?: 'پژوهشگر مهمان' }}</div>
+                                        @if($sug->guest_email)
+                                            <div class="text-[10px] text-stone-400 dir-ltr text-right">{{ $sug->guest_email }}</div>
+                                        @endif
+                                    </div>
+                                </div>
                             </td>
                             <td class="p-4">
                                 @if($sug->status === 'pending')

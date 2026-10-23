@@ -59,6 +59,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-ink/80">
             <div>
                 <span class="text-stone-400">پژوهشگر ارائه‌دهنده:</span>
+                <x-ui.avatar :user="$suggestion->user" :name="$suggestion->guest_name" size="sm" class="align-middle ms-1" />
                 <strong class="text-ink mr-1">{{ $suggestion->guest_name ?: 'پژوهشگر مهمان' }}</strong>
                 @if($suggestion->guest_email)
                     <span class="text-stone-400 dir-ltr font-mono text-[11px] block mt-0.5">({{ $suggestion->guest_email }})</span>
