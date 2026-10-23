@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Fa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -101,6 +102,108 @@ class SourceEntry extends Model
     public function hasText(): bool
     {
         return filled($this->entry_text) || filled($this->copy_text);
+    }
+
+    /** «استدراک», «اصلاحیه»: the label a copied citation had, or its role's. */
+    public function roleLabel(): string
+    {
+        return $this->notes && $this->legacy_type === 'source_citation' ? $this->notes : (self::ROLE_LABELS[$this->role] ?? $this->role);
+    }
+
+    /** A machine match nobody has reviewed yet: the ⓘ badge on the record page. */
+    public function isAwaitingReview(): bool
+    {
+        return $this->origin === self::ORIGIN_MATCH && $this->status === self::STATUS_UNVERIFIED;
+    }
+
+    /**
+     * The manuscript_catalog_references row this entry was copied from: the suggestion fields still name it until
+     * corrections are written here (step 13.3).
+     */
+    public function referenceId(): ?int
+    {
+        return $this->legacy_type === 'catalog_reference' ? $this->legacy_id : null;
+    }
+
+    /** The source as a page names it: «فنخا», «الذریعة», «فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم». */
+    public function sourceName(): string
+    {
+        return $this->source?->short_name ?: ($this->source?->title ?? '');
+    }
+
+    public function volumeNumber(): ?int
+    {
+        return $this->volume_number ?? $this->sourceVolume?->volume_number;
+    }
+
+    /** «ج 2، ص 414» (or «ستون» in the books numbered by column), with «–415» when the entry runs on. */
+    public function placeLabel(bool $range = false): string
+    {
+        $unit = $this->source?->unit === 'ستون' ? 'ستون' : 'ص';
+
+        return Fa::digits(implode('، ', array_filter([
+            $this->volumeNumber() ? 'ج ' . $this->volumeNumber() : null,
+            $this->page_start ? "{$unit} {$this->page_start}" . ($range && $this->page_end > $this->page_start ? "–{$this->page_end}" : '') : null,
+        ])));
+    }
+
+    /** The detail of the `open-catalog-viewer` event, or null when the volume has no page images. */
+    public function viewer(): ?array
+    {
+        $code = $this->sourceVolume?->facsimile_code;
+        if (! $code || ! $this->page_start) {
+            return null;
+        }
+
+        return ['catalog' => $code, 'catalogName' => $this->sourceName(), 'volume' => $this->volumeNumber() ?? 1, 'page' => $this->page_start];
+    }
+
+    /** The page image the viewer opens, small enough for the side card. */
+    public function thumbUrl(): ?string
+    {
+        $v = $this->viewer();
+
+        return $v ? asset('storage/catalogs/' . $v['catalog'] . '/v' . str_pad($v['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($v['page'], 4, '0', STR_PAD_LEFT) . '.webp') : null;
+    }
+
+    /** The printing as its volume, or else its source, names it: «۱۳۸۸، به کوشش رضا استادی». */
+    public function editionLabel(): ?string
+    {
+        return $this->sourceVolume?->edition_label ?: $this->source?->edition_label;
+    }
+
+    /**
+     * The heading of the printed text on the record page: «متن فهرست مسجد اعظم، چاپ ۱۳۸۸», the library's catalogue
+     * and the year of the printing when its label gives one (vols 3 and 4 of Masjid-e A'zam have none).
+     */
+    public function printedTextTitle(): string
+    {
+        $library = $this->source?->library?->name;
+        $name = $library ? 'فهرست ' . $library : ($this->sourceName() ?: 'فهرست کتابخانه');
+        $year = preg_match('/[0-9۰-۹]{4}/u', (string) $this->sourceVolume?->edition_label, $m) ? '، چاپ ' . $m[0] : '';
+
+        return Fa::digits("متن {$name}{$year}");
+    }
+
+    /** The text as the page shows it: Fankha's page marks out, blank lines and spaces folded. */
+    public static function cleanText(?string $text): ?string
+    {
+        if (blank($text)) {
+            return null;
+        }
+        $cleaned = preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $text);
+        $cleaned = str_replace(["\r\n", "\r"], "\n", $cleaned);
+        $cleaned = preg_replace('/^[ \t]+$/m', '', $cleaned);
+        $cleaned = preg_replace('/[ \t]{2,}/u', ' ', $cleaned);
+        $cleaned = preg_replace("/\n{3,}/u", "\n\n", $cleaned);
+
+        return trim($cleaned);
+    }
+
+    /** The entry's own text, cleaned: a work's entry, or a copy's line. */
+    public function cleanEntryText(): ?string
+    {
+        return self::cleanText($this->entry_text ?? $this->copy_text);
     }
 
     /** Whether the text was taken at another place than the one the entry now has. */

@@ -225,7 +225,10 @@ class SuggestionRegistry
     {
         $fields = self::fields($record::class);
         if ($record instanceof Manuscript) {
-            foreach ($record->catalogReferences as $ref) {
+            // the references the page shows: not the Fankha row, which repeats metadata.catalog_citation, nor a rejected one
+            $shown = $record->catalogReferences->filter(fn ($ref) => $ref->source !== ManuscriptCatalogReference::SOURCE_FANKHA
+                && $ref->status !== ManuscriptCatalogReference::STATUS_REJECTED);
+            foreach ($shown as $ref) {
                 if ($ref->viewer() && ($field = self::catalogReferenceField(self::CATALOG_REFERENCE_PREFIX . $ref->id, $ref))) {
                     $fields[self::CATALOG_REFERENCE_PREFIX . $ref->id] = $field;
                 }

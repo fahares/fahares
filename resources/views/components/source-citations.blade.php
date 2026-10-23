@@ -1,19 +1,20 @@
 @props(['citations'])
 
-{{-- Citations of a record beyond its primary catalog entry: addenda, errata, other catalogs --}}
+{{-- Further places of a record in a source it is already in: addenda and errata (source entries, step 13.2) --}}
 @if($citations->isNotEmpty())
     <x-ui.section title="ارجاع‌های دیگر در مآخذ چاپی">
 
         <div class="space-y-4">
             @foreach($citations as $citation)
                 @php
-                    $catalogCode = $citation->catalog?->code ?? 'fankha';
-                    $catalogName = $citation->catalog?->short_name ?? 'فنخا';
+                    $catalogName = $citation->sourceName() ?: 'فنخا';
+                    $viewer = $citation->viewer();
+                    $text = $citation->cleanEntryText();
                 @endphp
                 <div x-data="{ open: false }" class="space-y-3">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold {{ $citation->role === 'erratum' ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50' : 'bg-amber-50 dark:bg-amber-950/40 text-cinnabar dark:text-amber-300 border border-amber-200 dark:border-amber-800/60' }}">
-                            {{ $citation->role_label }}
+                            {{ $citation->roleLabel() }}
                         </span>
                         <span class="text-sm font-bold text-ink tabular-nums">
                             {{ $catalogName }}، ج {{ \App\Support\Fa::digits($citation->volume_number) }}، ص {{ \App\Support\Fa::digits($citation->page_start) }}
@@ -22,10 +23,10 @@
                             @endif
                         </span>
 
-                        @if($citation->volume_number && $citation->page_start)
+                        @if($viewer)
                             <button
                                 type="button"
-                                @click="$dispatch('open-catalog-viewer', { catalog: '{{ $catalogCode }}', catalogName: '{{ $catalogName }}', volume: {{ $citation->volume_number }}, page: {{ $citation->page_start }} })"
+                                @click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})"
                                 class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-sm border border-line-strong bg-surface text-[11px] font-semibold text-ink hover:text-cinnabar hover:border-cinnabar transition cursor-pointer"
                                 title="مشاهده برگه در مأخذ چاپی {{ $catalogName }}">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,7 +36,7 @@
                             </button>
                         @endif
 
-                        @if($citation->clean_raw_text)
+                        @if($text)
                             <button
                                 type="button"
                                 @click="open = !open"
@@ -47,9 +48,9 @@
                         @endif
                     </div>
 
-                    @if($citation->clean_raw_text)
+                    @if($text)
                         <div x-show="open" style="display: none;"
-                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $citation->clean_raw_text }}</div>
+                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $text }}</div>
                     @endif
                 </div>
             @endforeach

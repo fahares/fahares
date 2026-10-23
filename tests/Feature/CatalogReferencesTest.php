@@ -39,6 +39,17 @@ class CatalogReferencesTest extends TestCase
         ]);
     }
 
+    /**
+     * Copies the old tables into source_entries, which the record pages read (step 13.2), until corrections are
+     * written there too (step 13.3).
+     */
+    protected function synced(): static
+    {
+        \Illuminate\Support\Facades\Artisan::call('sources:backfill');
+
+        return $this;
+    }
+
     protected function manuscript(array $attributes = []): Manuscript
     {
         $work = Work::create(['primary_title' => 'دیوان قدسی', 'clean_title' => 'دیوان قدسی', 'slug' => 'work-ref-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
@@ -383,7 +394,7 @@ class CatalogReferencesTest extends TestCase
             'confidence' => 90, 'entry_text' => "607- دیوان قدسی (فارسی)\nاز: قدسی", 'copy_text' => 'ش 1939، 207 برگ، نستعلیق. این نسخه جلد چهارم است.']);
         $note = 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
 
-        $html = $this->get(route('manuscripts.show', $ms))->assertOk()
+        $html = $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'متن مأخذ', 'متن فنخا برای این نسخه'])
             ->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
@@ -391,13 +402,13 @@ class CatalogReferencesTest extends TestCase
 
         // a printing without a year in its label is named by the catalogue alone
         $this->edition->update(['edition_label' => 'کتابخانه مسجد اعظم، به کوشش رضا استادی']);
-        $this->get(route('manuscripts.show', $ms))->assertSee('متن فهرست مسجد اعظم')->assertDontSee('متن فهرست مسجد اعظم، چاپ');
+        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('متن فهرست مسجد اعظم')->assertDontSee('متن فهرست مسجد اعظم، چاپ');
 
         $ref->update(['status' => Ref::STATUS_VERIFIED]);
-        $this->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
+        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
 
         $ref->update(['status' => Ref::STATUS_REJECTED]);
-        $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('متن فهرست مسجد اعظم')->assertSee('متن فنخا برای این نسخه');
+        $this->synced()->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('متن فهرست مسجد اعظم')->assertSee('متن فنخا برای این نسخه');
     }
 
     public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()
@@ -407,7 +418,7 @@ class CatalogReferencesTest extends TestCase
         Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->fankhaVolume->id, 'raw_text' => '[ف مخ: 2 - 817]', 'volume_number' => 2, 'page_start' => 817, 'source' => Ref::SOURCE_FANKHA]);
         $note = 'این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
 
-        $this->get(route('manuscripts.show', $ms))->assertOk()
+        $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
             // the library catalogue first, Fankha last, without repeating the volume title under it
             ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'چاپ ۱۳۶۵', 'دیدن برگه در فنخا'])
             ->assertDontSee($this->fankhaVolume->title)->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
@@ -416,10 +427,10 @@ class CatalogReferencesTest extends TestCase
             ->assertSee('گزارش نشانی نادرست');
 
         $ref->update(['status' => Ref::STATUS_VERIFIED]);
-        $this->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
+        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
 
         $ref->update(['status' => Ref::STATUS_REJECTED]);
-        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
+        $this->synced()->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
     }
 
     public function test_reviewers_verify_and_reject_machine_matches_in_the_queue()
@@ -536,7 +547,7 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript();
         $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
 
-        $this->get(route('manuscripts.show', $ms))->assertOk()
+        $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSee("field: 'fankha_page'", false)
             ->assertSee("field: 'catalog_reference_{$ref->id}'", false)
             ->assertSee('نشانی در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی')
@@ -565,7 +576,7 @@ class CatalogReferencesTest extends TestCase
         $ref->refresh();
         $this->assertSame([416, Ref::SOURCE_MANUAL, Ref::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->source, $ref->status, $ref->reviewed_by]);
         $this->assertSame([1, 1, 1], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number], 'the Fankha columns are untouched');
-        $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
+        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
 
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
         $this->assertSame([416], Ref::where('manuscript_id', $ms->id)->pluck('page_start')->all());
@@ -584,7 +595,7 @@ class CatalogReferencesTest extends TestCase
         $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'نیست')->assertOk();
         $this->approveLatest($ms)->assertSessionHasNoErrors();
         $this->assertSame(Ref::STATUS_REJECTED, $ref->fresh()->status);
-        $this->get(route('manuscripts.show', $ms))->assertDontSee('masjid-azam-ostadi/v02/p0414.webp', false);
+        $this->synced()->get(route('manuscripts.show', $ms))->assertDontSee('masjid-azam-ostadi/v02/p0414.webp', false);
 
         $this->suggestAddress($ms, 'fankha_page', 'نیست')->assertStatus(422);
         $this->suggestAddress($ms, 'fankha_page', 'ج ۳، ص ۱۲، ردیف ۴')->assertOk();
@@ -619,7 +630,7 @@ class CatalogReferencesTest extends TestCase
             return $this->actingAs($this->admin())->post("/admin/suggestions/{$s->id}/approve", ['applied_value' => $s->suggested_value, 'outcome' => 'adopt']);
         };
 
-        $this->get(route('works.show', $work))->assertOk()
+        $this->synced()->get(route('works.show', $work))->assertOk()
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)->assertSee("field: 'fankha_page'", false);
 
         $suggest('bibliography_page_dharia_25_99', 'ج ۲۵، ص ۱۰۲')->assertStatus(422);

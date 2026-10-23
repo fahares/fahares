@@ -53,6 +53,8 @@ return new class extends Migration
             $table->unsignedSmallInteger('volume_number')->nullable();
             $table->string('title', 500)->nullable();
             $table->foreignId('edition_of_id')->nullable()->constrained('source_volumes')->nullOnDelete();
+            // the printing as its own volume names it; the volumes of one printing may differ («۱۳۸۸، به کوشش …»)
+            $table->string('edition_label', 255)->nullable();
             $table->string('facsimile_code', 60)->nullable()->index();
             $table->string('cover_image_path', 500)->nullable();
             $table->string('publisher', 255)->nullable();

@@ -164,6 +164,7 @@ class BackfillSourcesCommand extends Command
                 'source_id' => $groupSource[self::groupKey($v)],
                 'volume_number' => $v->volume_number,
                 'title' => $v->title,
+                'edition_label' => $v->edition_label,
                 'facsimile_code' => $v->facsimile_code,
                 'cover_image_path' => $v->cover_image_path,
                 'publisher' => $v->publisher,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSourceCitations;
+use App\Models\Concerns\HasSourceEntries;
 use App\Models\Concerns\SyncsPrimaryContributor;
 use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use Laravel\Scout\Searchable;
 class Manuscript extends Model
 {
     use HasSourceCitations;
+    use HasSourceEntries;
     use Searchable;
     use SyncsPrimaryContributor;
 

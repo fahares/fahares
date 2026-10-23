@@ -57,16 +57,16 @@
 
     @php
         use App\Support\Fa;
-        $catShort = $manuscript->catalog?->short_name ?? 'فنخا';
-        $catCode = $manuscript->catalog?->code ?? 'fankha';
+        // the record's sources (step 13.2): its Fankha entry, the library catalogue's pages and texts, the addenda
+        $sources = $manuscript->sources();
+        $fankha = $sources->primary();
+        $catShort = $fankha?->sourceName() ?: 'فنخا';
         $libraryName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'کتابخانه‌ی نامشخص';
-        $hasPage = $manuscript->volume_number && $manuscript->page_start;
-        $pageRef = $hasPage ? Fa::digits("ج {$manuscript->volume_number}، ص {$manuscript->page_start}، ردیف {$manuscript->sequence_number}") : null;
-        $pageThumb = $hasPage
-            ? asset('storage/catalogs/' . $catCode . '/v' . str_pad($manuscript->volume_number, 2, '0', STR_PAD_LEFT) . '/p' . str_pad($manuscript->page_start, 4, '0', STR_PAD_LEFT) . '.webp')
-            : null;
-        $openViewer = $hasPage
-            ? "\$dispatch('open-catalog-viewer', { catalog: '{$catCode}', catalogName: '{$catShort}', volume: {$manuscript->volume_number}, page: {$manuscript->page_start} })"
+        $hasPage = $fankha?->volume_number && $fankha?->page_start;
+        $pageRef = $hasPage ? Fa::digits("ج {$fankha->volume_number}، ص {$fankha->page_start}، ردیف {$manuscript->sequence_number}") : null;
+        $pageThumb = $hasPage ? $fankha->thumbUrl() : null;
+        $openViewer = $hasPage && $fankha->viewer()
+            ? "\$dispatch('open-catalog-viewer', " . \Illuminate\Support\Js::from($fankha->viewer()) . ")"
             : null;
         $formerLocations = (array) ($manuscript->metadata['former_locations'] ?? []);
         $imageNote = ($researchNotes ?? collect())->firstWhere('field_name', 'image');
@@ -126,7 +126,7 @@
             @if($manuscript->is_illuminated)<x-ui.chip tone="accent">مذهّب</x-ui.chip>@endif
             @if($manuscript->is_illustrated)<x-ui.chip tone="accent">مصوّر</x-ui.chip>@endif
             @if($manuscript->is_distinct_work)<x-ui.chip title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">اثر متمایز</x-ui.chip>@endif
-            @if($manuscript->is_addendum_entry)<x-ui.chip tone="accent" title="این نسخه در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
+            @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این نسخه در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
         </div>
     </header>
 
@@ -210,31 +210,31 @@
                 <div class="text-xs text-muted">در مآخذ نسخه‌شناسی</div>
                 @php
                     // References whose volume has page images; once the library catalogue itself is listed, the Fankha block need not repeat its title
-                    $editionRefs = $manuscript->catalogReferences->filter(fn ($ref) => $ref->viewer());
+                    $editionRefs = $sources->withPages();
                 @endphp
                 @foreach($editionRefs as $ref)
                     @php $viewer = $ref->viewer(); @endphp
                     @php
-                        $edition = $ref->catalogVolume;
                         $refLabel = Fa::digits(implode('، ', array_filter([
-                            $edition->short_title,
-                            $edition->edition_label ? 'چاپ ' . $edition->edition_label : null,
+                            $ref->sourceName(),
+                            $ref->editionLabel() ? 'چاپ ' . $ref->editionLabel() : null,
                             "ج {$viewer['volume']}",
                             "ص {$viewer['page']}",
                         ])));
-                        $refThumb = asset('storage/catalogs/' . $viewer['catalog'] . '/v' . str_pad($viewer['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($viewer['page'], 4, '0', STR_PAD_LEFT) . '.webp');
+                        $refThumb = $ref->thumbUrl();
+                        // the suggestion fields still name the manuscript_catalog_references row (step 13.3 moves them here)
+                        $refField = $ref->referenceId() ? \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->referenceId() : null;
                     @endphp
                     <div class="space-y-2 pb-4 border-b border-line" data-viewer-card>
                         <div class="flex items-start gap-1">
                             <div class="text-sm font-bold text-ink leading-6">{{ $refLabel }}</div>
-                            @php $refField = \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id; @endphp
-                            @if($ref->isAwaitingReview())
+                            @if($refField && $ref->isAwaitingReview())
                                 <x-ui.machine-badge class="shrink-0 mt-0.5"
                                     text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
                                     :report="['field' => $refField]" />
                             @endif
-                            <x-suggest.field :name="$refField" class="shrink-0" />
+                            @if($refField)<x-suggest.field :name="$refField" class="shrink-0" />@endif
                         </div>
                         <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="block w-full group cursor-pointer" title="دیدن برگه در فهرست کتابخانه">
                             <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
@@ -247,8 +247,8 @@
                 <div class="space-y-2">
                     <div>
                         <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif <x-suggest.field name="fankha_page" class="ms-1" /></div>
-                        @if($manuscript->catalogVolume && $editionRefs->isEmpty())
-                            <div class="text-xs text-muted mt-0.5">{{ $manuscript->catalogVolume->title }}</div>
+                        @if($sources->cited() && $editionRefs->isEmpty())
+                            <div class="text-xs text-muted mt-0.5">{{ $sources->cited()->sourceVolume->title }}</div>
                         @endif
                     </div>
                     @if($pageThumb)
@@ -458,23 +458,20 @@
             @endif
 
             <!-- The printed catalogue's own entry at each of its references (backlog item 60): a primary source, so above Fankha's text and open -->
-            @foreach($manuscript->catalogReferences->filter(fn ($ref) => $ref->hasPrintedText()) as $ref)
+            @foreach($sources->printed() as $ref)
                 @php
                     $viewer = $ref->viewer();
-                    $printedAt = Fa::digits(implode('، ', array_filter([
-                        ($ref->volume_number ?? $ref->catalogVolume?->volume_number) ? 'ج ' . ($ref->volume_number ?? $ref->catalogVolume->volume_number) : null,
-                        $ref->page_start ? 'ص ' . $ref->page_start : null,
-                    ])));
+                    $printedAt = $ref->placeLabel();
                 @endphp
                 <section class="scroll-mt-24" data-printed-text>
                     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
                         <h2 class="rubric text-lg">
                             <span>{{ $ref->printedTextTitle() }}</span>
-                            @if($ref->isAwaitingReview())
+                            @if($ref->referenceId() && $ref->isAwaitingReview())
                                 <x-ui.machine-badge
                                     text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
-                                    :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id]" />
+                                    :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->referenceId()]" />
                             @endif
                         </h2>
                         <div class="flex flex-wrap items-center gap-2 text-xs">
@@ -486,6 +483,7 @@
                             @endif
                         </div>
                     </div>
+                    <x-source.stale-text :entry="$ref" />
                     <div class="p-4 sm:p-5 bg-surface border border-line text-[13px] sm:text-sm text-ink leading-loose text-right">
                         @if($ref->entry_text)
                             <div class="whitespace-pre-line">{{ Fa::digits($ref->entry_text) }}</div>
@@ -497,18 +495,19 @@
                 </section>
             @endforeach
 
-            @if($manuscript->clean_raw_text)
+            @if($fankha?->cleanEntryText())
                 <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
                     <x-slot:actions>
-                        <span class="text-muted">{{ $manuscript->catalog?->citation_format ?? ($manuscript->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}</span>
+                        <span class="text-muted">{{ $fankha->source?->citation_format ?? ($fankha->source?->title ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)') }}</span>
                         <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.rawTextContent.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                             <span x-show="!copied">رونوشت متن</span>
                             <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                         </x-ui.btn>
                     </x-slot:actions>
+                    <x-source.stale-text :entry="$fankha" />
                     <div class="relative">
                         <div x-ref="rawTextContent" :class="open ? '' : 'max-h-64 overflow-hidden'"
-                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $manuscript->clean_raw_text }}</div>
+                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $fankha->cleanEntryText() }}</div>
                         <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
                             <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
                         </div>
@@ -517,7 +516,7 @@
             @endif
 
             <!-- OTHER CATALOG CITATIONS (addenda, errata) -->
-            <x-source-citations :citations="$manuscript->sourceCitations" />
+            <x-source-citations :citations="$sources->others()" />
 
             <!-- READINGS: adopted, alternative and superseded readings from researchers -->
             <x-suggest.readings />
@@ -633,7 +632,7 @@
             </p>
 
             @php
-                $fankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($manuscript->volume_number ?? '-') . "، ص " . ($manuscript->page_start ?? '-') . "، ردیف " . ($manuscript->sequence_number ?? '-') . ".";
+                $fankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($fankha?->volume_number ?? '-') . "، ص " . ($fankha?->page_start ?? '-') . "، ردیف " . ($manuscript->sequence_number ?? '-') . ".";
                 
                 $workTitle = $manuscript->work?->primary_title ?? 'نسخه خطی';
                 $authorName = $manuscript->work?->author?->name ?? 'ناشناخته';

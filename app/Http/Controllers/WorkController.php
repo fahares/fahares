@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EntityRedirect;
 use App\Models\Work;
+use App\Support\RecordSources;
 use Illuminate\Http\Request;
 
 class WorkController extends Controller
@@ -20,7 +21,7 @@ class WorkController extends Controller
             'languages',
             'referrals',
             'scholarlyAnnotations',
-            'sourceCitations.catalog',
+            ...RecordSources::RELATIONS,
         ])
         ->withCount('manuscripts')
         ->find($numericId);

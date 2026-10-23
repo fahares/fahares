@@ -57,17 +57,19 @@
 
     @php
         use App\Support\Fa;
-        $catShort = $work->catalog?->short_name ?? 'فنخا';
-        $catCode = $work->catalog?->code ?? 'fankha';
-        $hasPage = $work->volume_number && $work->page_start;
+        // the record's sources (step 13.2): its Fankha entry, its bibliography and the addenda
+        $sources = $work->sources();
+        $fankha = $sources->primary();
+        $bibliography = $sources->bibliography()->pluck('citation_text');
+        $catShort = $fankha?->sourceName() ?: 'فنخا';
+        $catName = $fankha?->source?->title ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)';
+        $hasPage = $fankha?->volume_number && $fankha?->page_start;
         $pageRef = $hasPage
-            ? Fa::digits("ج {$work->volume_number}، ص {$work->page_start}" . ($work->page_end && $work->page_end > $work->page_start ? "–{$work->page_end}" : ''))
+            ? Fa::digits("ج {$fankha->volume_number}، ص {$fankha->page_start}" . ($fankha->page_end && $fankha->page_end > $fankha->page_start ? "–{$fankha->page_end}" : ''))
             : null;
-        $pageThumb = $hasPage
-            ? asset('storage/catalogs/' . $catCode . '/v' . str_pad($work->volume_number, 2, '0', STR_PAD_LEFT) . '/p' . str_pad($work->page_start, 4, '0', STR_PAD_LEFT) . '.webp')
-            : null;
-        $openViewer = $hasPage
-            ? "\$dispatch('open-catalog-viewer', { catalog: '{$catCode}', catalogName: '{$catShort}', volume: {$work->volume_number}, page: {$work->page_start} })"
+        $pageThumb = $hasPage ? $fankha->thumbUrl() : null;
+        $openViewer = $hasPage && $fankha->viewer()
+            ? "\$dispatch('open-catalog-viewer', " . \Illuminate\Support\Js::from($fankha->viewer()) . ")"
             : null;
         $hasAltTitles = collect($work->alternative_titles ?? [])->contains(fn ($alt) => is_array($alt) && ! empty($alt['title']));
     @endphp
@@ -123,7 +125,7 @@
                 <x-ui.chip :href="route('subjects.show', $subj)">{{ $subj->title }}</x-ui.chip>
             @endforeach
             @if($work->has_autograph)<x-ui.chip tone="good">نسخه‌ی اصل (دستخط مؤلف)</x-ui.chip>@endif
-            @if($work->is_addendum_entry)<x-ui.chip tone="accent" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
+            @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
         </div>
     </header>
 
@@ -179,7 +181,7 @@
             <!-- Cited sources: bibliographies with a scanned page first, the catalog (فنخا) last -->
             <x-ui.card class="space-y-4">
                 <div class="text-xs text-muted">در مآخذ کتاب‌شناسی</div>
-                @foreach(\App\Support\BibliographyLinks::viewerPages($work->bibliography ?? []) as $vp)
+                @foreach(\App\Support\BibliographyLinks::viewerPages($bibliography) as $vp)
                     @php
                         $vpRef = Fa::digits("ج {$vp['volume']}، " . config("bibliography.sources.{$vp['catalog']}.unit", 'ص') . " {$vp['page']}");
                         $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
@@ -302,7 +304,7 @@
             <!-- The catalog this record comes from closes the list, alone when there is no other source -->
             <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
                 <ul class="space-y-1 text-sm">
-                    @foreach($work->bibliography ?? [] as $bib)
+                    @foreach($bibliography as $bib)
                         <li class="flex gap-2.5 leading-relaxed">
                             <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
                             <span class="text-ink">{{ \App\Support\BibliographyLinks::html($bib) }}</span>
@@ -310,23 +312,24 @@
                     @endforeach
                     <li class="flex gap-2.5 leading-relaxed">
                         <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                        <span class="text-ink">{{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)' }}@if($pageRef)، @if($openViewer)<a href="#" @click.prevent="{{ $openViewer }}" title="دیدن برگه در {{ $catShort }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $pageRef }}</a>@else{{ $pageRef }}@endif @endif</span>
+                        <span class="text-ink">{{ $catName }}@if($pageRef)، @if($openViewer)<a href="#" @click.prevent="{{ $openViewer }}" title="دیدن برگه در {{ $catShort }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $pageRef }}</a>@else{{ $pageRef }}@endif @endif</span>
                     </li>
                 </ul>
             </x-ui.section>
 
-            @if($work->clean_raw_text)
+            @if($fankha?->cleanEntryText())
                 <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
                     <x-slot:actions>
-                        <span class="text-muted">{{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)' }}</span>
+                        <span class="text-muted">{{ $catName }}</span>
                         <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.workRawText.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                             <span x-show="!copied">رونوشت متن</span>
                             <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                         </x-ui.btn>
                     </x-slot:actions>
+                    <x-source.stale-text :entry="$fankha" />
                     <div class="relative">
                         <div x-ref="workRawText" :class="open ? '' : 'max-h-64 overflow-hidden'"
-                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $work->clean_raw_text }}</div>
+                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $fankha->cleanEntryText() }}</div>
                         <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
                             <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
                         </div>
@@ -337,7 +340,7 @@
             <!-- Relations with other works (commentary on, translation of…) -->
             <x-record-relations :record="$work" />
 
-            <x-source-citations :citations="$work->sourceCitations" />
+            <x-source-citations :citations="$sources->others()" />
 
             <x-suggest.readings />
 
@@ -570,7 +573,7 @@
             </p>
 
             @php
-                $workFankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($work->volume_number ?? '-') . "، ص " . ($work->page_start ?? '-') . ($work->page_end && $work->page_end > $work->page_start ? " تا {$work->page_end}" : "") . "، مدخل «" . $work->primary_title . "».";
+                $workFankhaCitation = "درایتی، مصطفی. فهرستگان نسخه‌های خطی ایران (فنخا). ج " . ($fankha?->volume_number ?? '-') . "، ص " . ($fankha?->page_start ?? '-') . ($fankha?->page_end && $fankha->page_end > $fankha->page_start ? " تا {$fankha->page_end}" : "") . "، مدخل «" . $work->primary_title . "».";
                 
                 $authorPrefix = $work->author ? $work->author->name . '. ' : ($work->author_name ? $work->author_name . '. ' : '');
                 $shortUrlWork = url('/w/' . $work->id);
@@ -589,7 +592,7 @@
                             <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-cinnabar text-[11px] font-bold">
                                 قالب ۱
                             </span>
-                            <span class="text-xs font-bold text-ink">قالب مأخذ ({{ $work->catalog?->name ?? 'فهرستگان نسخه‌های خطی ایران' }})</span>
+                            <span class="text-xs font-bold text-ink">قالب مأخذ ({{ $fankha?->source?->title ?? 'فهرستگان نسخه‌های خطی ایران' }})</span>
                         </div>
                         <button 
                             type="button" 
@@ -671,7 +674,7 @@
   @if($work->author)"author": { "@type": "Person", "name": "{{ addcslashes($work->author->name, '"\\') }}" },@endif
  "inLanguage": "fa",
  "url": "{{ route('works.show', $work) }}",
- "description": "{{ addcslashes(str_replace(["\r", "\n"], ' ', Str::limit(strip_tags($work->description ?? $work->clean_raw_text ?? ''), 250)), '"\\') }}"
+ "description": "{{ addcslashes(str_replace(["\r", "\n"], ' ', Str::limit(strip_tags($work->description ?? $fankha?->cleanEntryText() ?? ''), 250)), '"\\') }}"
 }
 </script>
 @endpush
