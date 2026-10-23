@@ -474,6 +474,68 @@ class CatalogReferencesTest extends TestCase
         $this->actingAs($admin)->post(route('admin.catalog-references.verify', $fankha))->assertNotFound();
     }
 
+    public function test_reviewers_verify_and_reject_from_the_badge_on_the_record_page_and_undo()
+    {
+        $admin = $this->admin();
+        $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
+        $ms = $this->manuscript(['shelfmark' => '3010']);
+        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
+            'confidence' => 90, 'entry_text' => '607- دیوان قدسی', 'copy_text' => 'ش 3010، 207 برگ']);
+        $verify = route('admin.catalog-references.verify', $ref);
+
+        // Guests and other users see «گزارش نادرستی» only, and their requests are turned away
+        foreach ([null, $user] as $viewer) {
+            $viewer ? $this->actingAs($viewer) : auth()->logout();
+            $this->get(route('manuscripts.show', $ms))->assertOk()->assertSee('گزارش نشانی نادرست')
+                ->assertDontSee('درست است')->assertDontSee('نادرست است')->assertDontSee($verify)->assertDontSee('data-machine-review', false);
+        }
+        auth()->logout();
+        $this->postJson($verify)->assertUnauthorized();
+        $this->actingAs($user)->postJson($verify)->assertForbidden();
+        $this->actingAs($user)->postJson(route('admin.catalog-references.reject', $ref))->assertForbidden();
+        $this->actingAs($user)->postJson(route('admin.catalog-references.reopen', $ref), ['status' => 'verified'])->assertForbidden();
+        $this->assertSame([Ref::STATUS_UNVERIFIED, 0], [$ref->fresh()->status, AuditLog::where('auditable_type', Ref::class)->where('auditable_id', $ref->id)->count()]);
+
+        // Reviewers get both buttons on both badges (the sidebar card and the printed text), keyed to the elements a rejection hides
+        $html = $this->actingAs($admin)->get(route('manuscripts.show', $ms))->assertOk()
+            ->assertSeeInOrder(['درست است', 'نادرست است', 'گزارش نشانی نادرست'])->assertSee('data-machine-review-toast', false)->getContent();
+        $this->assertSame(2, substr_count($html, 'data-machine-badge="catalog-reference-' . $ref->id . '"'));
+        $this->assertSame(2, substr_count($html, 'data-machine-item="catalog-reference-' . $ref->id . '"'));
+        $this->assertStringContainsString($verify, str_replace('\\', '', $html)); // inside @js(), with its slashes escaped
+        $this->assertStringNotContainsString('scan-source', $html);
+
+        // JSON for the badge; the review and its undo are in the audit log
+        $this->actingAs($admin)->postJson($verify)->assertOk()->assertExactJson([
+            'status' => Ref::STATUS_VERIFIED, 'message' => 'نشانی نسخه‌ی «۳۰۱۰» تأیید شد.', 'undo' => route('admin.catalog-references.reopen', $ref),
+        ]);
+        $this->assertSame([Ref::STATUS_VERIFIED, $admin->id], [$ref->fresh()->status, $ref->fresh()->reviewed_by]);
+        $review = AuditLog::where('auditable_type', Ref::class)->where('auditable_id', $ref->id)->where('action', Ref::ACTION_REVIEW)->sole();
+        $this->assertSame([$admin->id, Ref::STATUS_UNVERIFIED, Ref::STATUS_VERIFIED], [$review->user_id, $review->old_values['status'], $review->new_values['status']]);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('درست است')->assertSee('۶۰۷- دیوان قدسی');
+
+        // «بازگردانی» needs the status the badge saw, and returns the reference to the queue
+        $this->actingAs($admin)->postJson(route('admin.catalog-references.reopen', $ref), ['status' => 'unverified'])->assertStatus(422);
+        $this->actingAs($admin)->postJson(route('admin.catalog-references.reopen', $ref), ['status' => Ref::STATUS_VERIFIED])->assertOk()
+            ->assertJson(['status' => Ref::STATUS_UNVERIFIED, 'undo' => null]);
+        $this->assertSame([Ref::STATUS_UNVERIFIED, null, null], [$ref->fresh()->status, $ref->fresh()->reviewed_by, $ref->fresh()->reviewed_at]);
+        $undo = AuditLog::where('auditable_id', $ref->id)->where('action', Ref::ACTION_REOPEN)->sole();
+        $this->assertSame([$review->id, Ref::STATUS_VERIFIED], [$undo->old_values['rolled_back_log_id'], $undo->old_values['status']]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('درست است');
+
+        // A rejection hides the reference from the page; its undo is refused once another reviewer has reviewed it again
+        $this->actingAs($admin)->postJson(route('admin.catalog-references.reject', $ref))->assertOk()->assertJson(['status' => Ref::STATUS_REJECTED]);
+        $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی');
+        $other = User::firstOrCreate(['email' => 'refs-editor@fahares.net'], ['name' => 'ویراستار', 'password' => 'password123', 'role' => 'editor']);
+        $ref->fresh()->review($other, Ref::STATUS_REJECTED);
+        $this->actingAs($admin)->postJson(route('admin.catalog-references.reopen', $ref), ['status' => Ref::STATUS_REJECTED])->assertStatus(409)->assertJsonPath('message', fn ($m) => str_contains($m, 'دوباره داوری'));
+        $this->assertSame([Ref::STATUS_REJECTED, $other->id], [$ref->fresh()->status, $ref->fresh()->reviewed_by]);
+
+        // The queue's forms still get a redirect
+        $this->actingAs($other)->post(route('admin.catalog-references.reopen', $ref), ['status' => Ref::STATUS_REJECTED])->assertRedirect()->assertSessionHas('success');
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $ref))->assertRedirect()->assertSessionHas('success');
+        $this->assertSame(6, AuditLog::where('auditable_type', Ref::class)->where('auditable_id', $ref->id)->count());
+    }
+
     public function test_reviewers_verify_title_matches_in_bulk_and_revert_the_batch()
     {
         $admin = $this->admin();

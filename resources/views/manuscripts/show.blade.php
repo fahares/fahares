@@ -224,7 +224,7 @@
                         ])));
                         $refThumb = asset('storage/catalogs/' . $viewer['catalog'] . '/v' . str_pad($viewer['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($viewer['page'], 4, '0', STR_PAD_LEFT) . '.webp');
                     @endphp
-                    <div class="space-y-2 pb-4 border-b border-line" data-viewer-card>
+                    <div class="space-y-2 pb-4 border-b border-line" data-viewer-card data-machine-item="{{ $ref->reviewKey() }}">
                         <div class="flex items-start gap-1">
                             <div class="text-sm font-bold text-ink leading-6">{{ $refLabel }}</div>
                             @php $refField = \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id; @endphp
@@ -232,7 +232,7 @@
                                 <x-ui.machine-badge class="shrink-0 mt-0.5"
                                     text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
                                     report-label="گزارش نشانی نادرست"
-                                    :report="['field' => $refField]" />
+                                    :report="['field' => $refField]" :review="$ref->badgeReview()" />
                             @endif
                             <x-suggest.field :name="$refField" class="shrink-0" />
                         </div>
@@ -471,13 +471,13 @@
                                 ])));
                                 $openPrinted = $viewer ? "\$dispatch('open-catalog-viewer', " . \Illuminate\Support\Js::from($viewer) . ')' : null;
                             @endphp
-                            <x-ui.source-text data-printed-text :title="$ref->printedTextTitle()" :address="$printedAt" :viewer="$openPrinted">
+                            <x-ui.source-text data-printed-text data-machine-item="{{ $ref->reviewKey() }}" :title="$ref->printedTextTitle()" :address="$printedAt" :viewer="$openPrinted">
                                 @if($ref->isAwaitingReview())
                                     <x-slot:badge>
                                         <x-ui.machine-badge
                                             text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
                                             report-label="گزارش نشانی نادرست"
-                                            :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id]" />
+                                            :report="['field' => \App\Suggestions\SuggestionRegistry::CATALOG_REFERENCE_PREFIX . $ref->id]" :review="$ref->badgeReview()" />
                                     </x-slot:badge>
                                 @endif
                                 @if($ref->entry_text)

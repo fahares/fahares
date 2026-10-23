@@ -31,6 +31,11 @@ class ManuscriptCatalogReference extends Model
 
     public const ACTION_BULK_REVERT = 'rollback_bulk_verify';
 
+    /** Audit log actions of one reference's review and of its «بازگردانی» (backlog item 59); not in AuditLog::UNDOABLE, the undo has its own route. */
+    public const ACTION_REVIEW = 'review';
+
+    public const ACTION_REOPEN = 'rollback_review';
+
     /**
      * The only match method the queue may verify in bulk: the title confirms the number. A close title on a single
      * page (shelfmark_single_page, 35 to 60), the number alone (shelfmark_only, 25) or several places (ambiguous, 10)
@@ -81,6 +86,21 @@ class ManuscriptCatalogReference extends Model
         return $this->source === self::SOURCE_AI_MATCH && $this->status === self::STATUS_UNVERIFIED;
     }
 
+    /** The `review` prop of its ⓘ badge (backlog item 59); the key also marks the elements a rejection hides (data-machine-item). */
+    public function badgeReview(): array
+    {
+        return [
+            'key' => $this->reviewKey(),
+            'verify' => route('admin.catalog-references.verify', $this),
+            'reject' => route('admin.catalog-references.reject', $this),
+        ];
+    }
+
+    public function reviewKey(): string
+    {
+        return 'catalog-reference-' . $this->id;
+    }
+
     /** The detail of the `open-catalog-viewer` event, or null when the volume has no page images. */
     public function viewer(): ?array
     {
@@ -117,9 +137,51 @@ class ManuscriptCatalogReference extends Model
         return Fa::digits($name . $year);
     }
 
-    public function review(User $user, string $status): void
+    /** Verifies or rejects the reference, in the admin queue or from its ⓘ badge (backlog item 59); the audit log keeps the review it replaced. */
+    public function review(User $user, string $status, ?string $ip = null): AuditLog
     {
-        $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
+        return DB::transaction(function () use ($user, $status, $ip) {
+            $old = $this->only(['status', 'reviewed_by', 'reviewed_at']);
+            $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
+
+            return $this->logReview(self::ACTION_REVIEW, $user, $old, $ip);
+        });
+    }
+
+    /**
+     * The «بازگردانی» of a review from the badge: back to the queue, only while the review is still the one this user
+     * made. Returns null when someone has reviewed the reference again since.
+     */
+    public function reopen(User $user, string $expected, ?string $ip = null): ?AuditLog
+    {
+        return DB::transaction(function () use ($user, $expected, $ip) {
+            $this->refresh();
+            if ($this->source !== self::SOURCE_AI_MATCH || $this->status !== $expected || (int) $this->reviewed_by !== $user->id) {
+                return null;
+            }
+            $review = AuditLog::where('auditable_type', static::class)->where('auditable_id', $this->id)
+                ->where('action', self::ACTION_REVIEW)->latest('id')->first();
+            $old = $this->only(['status', 'reviewed_by', 'reviewed_at']) + ['rolled_back_log_id' => $review?->id];
+            $this->update(['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null]);
+
+            return $this->logReview(self::ACTION_REOPEN, $user, $old, $ip);
+        });
+    }
+
+    private function logReview(string $action, User $user, array $old, ?string $ip): AuditLog
+    {
+        $at = fn ($v) => $v instanceof \DateTimeInterface ? $v->format('Y-m-d H:i:s') : $v;
+
+        return AuditLog::create([
+            'user_id' => $user->id,
+            'auditable_type' => static::class,
+            'auditable_id' => $this->id,
+            'action' => $action,
+            'old_values' => array_map($at, $old),
+            'new_values' => array_map($at, $this->only(['status', 'reviewed_by', 'reviewed_at'])),
+            'ip_address' => $ip,
+            'created_at' => now(),
+        ]);
     }
 
     /**
