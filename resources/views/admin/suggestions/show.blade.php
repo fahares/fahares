@@ -271,6 +271,8 @@
                             @endif
                         </div>
 
+                        @include('admin.suggestions.partials.retext')
+
                         @if($field['input'] === 'hijri_date')
                             <div class="space-y-1">
                                 <label class="block font-bold text-ink">سال هجری قمری برای مرتب‌سازی و جستجو:</label>

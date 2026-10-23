@@ -385,6 +385,11 @@ class AuditLogController extends Controller
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
         unset($old['contributors'], $old['people_roles'], $old['relations']);
+        // Texts taken again at the corrected place (step 13.6) go back first, the entry's address after them
+        foreach ($old['retexts'] ?? [] as $retext) {
+            \App\Models\SourceEntry::find($retext['id'])?->forceFill(array_diff_key($retext, ['id' => 0]))->save();
+        }
+        unset($old['retexts']);
         // A corrected entry in another source (step 13.3) is a row of its own: its earlier columns go back there
         if ($entry = $old['source_entry'] ?? null) {
             unset($old['source_entry']);

@@ -3443,3 +3443,44 @@
 - **دو خطای اجرا (برای استقرارهای بعد):**
   - **فاصله‌ی بالا آمدن کانتینر تا حالت نگهداری:** در ۱۲:۴۰، کمتر از یک دقیقه، صفحه‌ها خطای «Table 'default.source_entries' doesn't exist» دادند. کد تازه پیش از migrate زنده می‌شود. `artisan down` روی کانتینر کهنه هم کمکی نمی‌کرد، چون `storage` ماندگار نیست. برای migrationی که کد فوراً به آن نیاز دارد، باید کد با نبودن جدول هم کار کند، یا migrate در فرمان آغاز کانتینر اجرا شود.
   - **حالت نگهداری طولانی‌تر از برنامه:** پُرسازی در ۱۲:۴۳ تمام شد، ولی سایت تا ۱۳:۰۷ در حالت نگهداری ماند. علت این بود که وارسی پایان کار `pgrep -f "artisan sources:backfill"` را درون همان پوسته‌ی `ssh` اجرا می‌کرد، و خط فرمان خود آن پوسته هم با این الگو جور می‌شد، پس همیشه «در حال اجرا» گزارش می‌داد. راه درست: نوشتن PID با `echo $!` و وارسی آن با `kill -0`، یا گذاشتن نشانه‌ی پایان در گزارش.
+
+### گام ۱۳.۶: `source_pages`، استخراج‌گرها و برداشت دوباره‌ی متن
+- **مسئله (نسخه‌ی ۱۷۳۵۴ پروداکشن):** پیشنهاد #۱۹ (`shelfmark` ‎2967/7 ← 2967/9‎) و #۲۰ (`catalog_reference_328525` ص ۵۹۵ ← ۵۹۶) هر دو تأیید شده بودند. مدخل #۷۲۳۸۹۶ ص ۵۹۶، `entry_number = 7` و `text_status = stale` داشت، و متن همان رساله‌ی ۷ از ص ۵۹۵ بود. رساله‌ی ۹ در ص ۵۹۶ آغاز می‌شود، و «انجام» آن در فهرست با «انجام» متن فنخا یکی است. متن فنخای همین نسخه «شماره نسخه: 2967/7» دارد که خطای خود فنخاست، و طبق مورد ۶۲ دست نمی‌خورد.
+- **migration [`2026_10_24_100001_create_source_pages_table`](../database/migrations/2026_10_24_100001_create_source_pages_table.php):** جدول `source_pages` (`source_volume_id`، `page`، `text`، یکتا بر جلد و صفحه) و ستون `sources.extractor`.
+- **[sources:import-pages](../app/Console/Commands/ImportSourcePagesCommand.php):** `{facsimile_code} {pages} --volume= --extractor= --dry-run`. همان فایل‌های `match-edition` را می‌خواند (`readPages()`)، با `upsert` در بسته‌های ۲۰۰تایی، و `--extractor` را روی منبع جلد می‌نشاند.
+- **استخراج‌گرها ([app/Sources/Extractors](../app/Sources/Extractors/)):**
+  - [EntryTextExtractor](../app/Sources/Extractors/EntryTextExtractor.php): `extract($pages, $shelfmark, $page, $hints)` ← `{entry_text, copy_text, page_start, page_end, shelfmark_page, entry_number}` یا null.
+  - [NumberedCatalogueExtractor](../app/Sources/Extractors/NumberedCatalogueExtractor.php) (`numbered_catalogue`): بر `index()` و `texts()` فرمان `match-edition` تکیه دارد. خواندن یک جلد برای هر درخواست کش می‌شود (کلید: صفحه‌ها و طول متن). نامزدها مدخل‌هایی‌اند که در صفحه آغاز می‌شوند، یا اگر نباشند آن‌هایی که شماره‌ی نسخه در صفحه دارند. ترتیب اولویت مانند `placeOf()` است: شماره‌ی مدخل ثبت‌شده، سپس شماره‌ی بخش، سپس `shelfmark_page`. `strict_part` در جلد مجموعه‌ای جز رساله‌ی همان بخش را نمی‌پذیرد.
+  - [Extractors](../app/Sources/Extractors/Extractors.php): `FORMATS`، `for()`، `canRead()` (استخراج‌گر و صفحه‌های جلد)، `extract($entry, $page, $shelfmark, $strictPart)` و `pages()` (کش در درخواست). نشانه‌ها (شماره‌ی مدخل و صفحه‌ی شماره) فقط وقتی داده می‌شوند که متن از همان صفحه برداشته شده باشد و `stale` نباشد. `strict_part` وقتی روشن است که شماره‌ی نسخه با شماره‌ی کنونی نسخه فرق کند، یا وقتی صدا زننده بخواهد.
+- **[TextRefresh](../app/Sources/TextRefresh.php):**
+  - `candidates($suggestion, $value)`: برای فیلد `source_entry_*`، مدخل همان فیلد در صفحه‌ی پیشنهادی. برای فیلد `shelfmark`، همه‌ی کارت‌های غیر بنیادی و خواندنی نسخه، با شماره‌ی پیشنهادی.
+  - `find($entry, $shelfmark)`: جست‌وجو در صفحه‌ی مدخل، چهار صفحه‌ی پس از آن و یک صفحه‌ی پیش از آن، با `strict_part`، چون رساله‌ی دیگر یک مجموعه ممکن است چند صفحه آن‌سوتر آغاز شود.
+  - `apply($entry, $page, $shelfmark)`: متن، نشانی منشأ، `text_status = auto`، `page_start`، `page_end`، `shelfmark_page` و `entry_number` را می‌نویسد و ستون‌های پیشین (`COLUMNS`) را برمی‌گرداند.
+- **داوری ([admin/suggestions/show](../resources/views/admin/suggestions/show.blade.php) و [partials/retext](../resources/views/admin/suggestions/partials/retext.blade.php)):** برای هر نامزد، «متن کنونی (از ص N)» کنار «متن در جای تازه (ص N، مدخل N)» می‌آید، با جعبه‌ی `retext[]` که پیش‌فرض تیک‌خورده است. اگر متن پیدا نشود، پیوند صفحه‌ی متن مدخل نمایش داده می‌شود. در [Admin/SuggestionController::approve](../app/Http/Controllers/Admin/SuggestionController.php)، `retext()` پس از `apply()` درون همان تراکنش، برای مدخل‌های تیک‌خورده‌ی همان رکورد `TextRefresh::apply()` را اجرا می‌کند. برای نشانی، صفحه همان صفحه‌ی تازه‌ی مدخل است و شماره‌ی نسخه شماره‌ی کنونی آن. ستون‌های پیشین در `old.retexts` لاگ `verify` ذخیره می‌شوند. [rollbackVerify](../app/Http/Controllers/Admin/AuditLogController.php) اول `retexts` را برمی‌گرداند و سپس `source_entry` را.
+- **صفحه‌ی متن مدخل ([Admin/SourceEntryController](../app/Http/Controllers/Admin/SourceEntryController.php)، `admin/source-entries/{entry}/text`):** این صفحه دارد:
+  - متن پیدا‌شده در نشانی کنونی، با «همین متن را بگذار» (`mode=found`) و «به ویرایش دستی ببر»؛
+  - ویرایش دستی متن مدخل و سطر نسخه (`mode=manual` ← `text_status = edited`)؛
+  - متن خام صفحه‌ها از `page_start` تا `page_end`، با «صفحه‌ی پیش»، «صفحه‌ی بعد» و «یک صفحه کمتر»، حداکثر ۱۲ صفحه، و «دیدن برگه» برای هر صفحه.
+
+  هر ذخیره یک لاگ `update` روی `SourceEntry` می‌سازد و `rollbackUpdate` عمومی آن را برمی‌گرداند. [source/stale-text](../resources/views/components/source/stale-text.blade.php) برای کاربران پنل پیوند «برداشتن دوباره‌ی متن» دارد. `match-edition --texts` متن `edited` را دست نمی‌زند، و `sources:retext` هم.
+- **[sources:retext](../app/Console/Commands/RetextSourceEntriesCommand.php):** مدخل‌های `stale`، یا آن‌هایی که `text_page != page_start` دارند، جز `edited`. `--entry=*` و `--dry-run` دارد. برای هر مدخل `TextRefresh::find()` و `apply()` اجرا می‌شود، با لاگ `update` (`command = sources:retext`).
+- **آزمون:** [SourceTextRefreshTest](../tests/Feature/SourceTextRefreshTest.php)، هفت آزمون روی ص ۵۹۳ تا ۵۹۷ کوتاه‌شده‌ی ج ۴:
+  - استخراج‌گر: بخش سخت و نرم، و شماره‌ی مدخل؛
+  - نشانی با متن، و بازگردانی‌اش؛
+  - نشانی بی متن، که علامت و پیوند صفحه‌ی متن می‌گیرد؛
+  - شماره‌ی نسخه با متن رساله‌ی تازه؛
+  - صفحه‌ی متن: دسترسی، صفحه‌ی بعد، `found`، `manual` و بازگردانی؛
+  - `sources:retext` که از متن دستی می‌گذرد؛
+  - `sources:import-pages`.
+
+  همه‌ی ۲۵۰ آزمون موفق.
+- **رونوشت پروداکشن (`fahares_refs`):**
+  - **ورود صفحه‌ها:** ج ۱ تا ۴ = ۶۲۳ + ۸۲۷ + ۶۴۷ + ۷۶۶ = ۲٬۸۶۳ صفحه.
+  - **سنجش استخراج‌گر:** روی همه‌ی تطبیق‌ها در نشانی خودشان. نخستین نسخه ۶٬۰۲۵ برابر، ۳۹ ناهمسان و ۵۹ «پیدا نشد» داد، از دو علت: چند مدخل در یک صفحه، و جلد مجموعه‌ای که شماره‌ی بخش فنخا با ردیف فهرست فرق دارد (مثل ‎1332/2‎ ← رساله‌ی ۳). با اولویت‌بندی بالا: ۶٬۱۲۳ برابر و صفر ناهمسان. پیش از کش، خواندن جلد ۴۰ میلی‌ثانیه برای هر مدخل بود.
+  - **حالت نسخه‌ی ۱۷۳۵۴:** پس از ساختن حالت پروداکشن (`shelfmark = 2967/9`، ص ۵۹۶، `stale`)، `sources:retext --dry-run` یک مدخل یافت و اجرای اصلی مدخل ۹ ص ۵۹۶ را با `auto` نوشت.
+  - **مرورگر:** صفحه‌ی متن مدخل با یک داور آزمایشی محلی که پس از وارسی حذف شد. رساله‌ی ۹ و یادداشت‌های پایانی مجموعه، و «صفحه‌ی بعد» به ص ۵۹۶ تا ۵۹۸، درست بودند.
+- **طرح استقرار:**
+  1. push؛
+  2. `migrate --force`، که تنها یک جدول تازه و یک ستون است و کد پیش از آن نیز کار می‌کند (`canRead()` خالی می‌ماند)؛
+  3. رونوشت چهار فایل `jsonl.gz` به کانتینر (`/tmp`) و `sources:import-pages masjid-azam-ostadi … --volume=N --extractor=numbered_catalogue` برای هر جلد؛
+  4. `sources:retext --dry-run`، سپس `sources:retext`.

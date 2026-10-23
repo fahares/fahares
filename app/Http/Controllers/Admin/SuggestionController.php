@@ -124,6 +124,9 @@ class SuggestionController extends Controller
             'outcome' => ['nullable', Rule::in(array_keys(self::OUTCOMES))],
             'previous_standing' => ['nullable', Rule::in(['alternative', 'superseded'])],
             'public_note' => 'nullable|string|max:2000',
+            // the entries whose printed text is taken again at the corrected place (step 13.6)
+            'retext' => 'nullable|array',
+            'retext.*' => 'integer',
         ]);
 
         // Older forms send only the category: a scholarly correction is adopted, the others are edits
@@ -158,6 +161,10 @@ class SuggestionController extends Controller
                 if ($field && $target && $standing !== 'alternative') {
                     $result = $applier->apply($target, $field, $validated);
                     $result['resolution']['applied'] = true;
+                    if ($retexts = self::retext($target->fresh(), $field, $validated['retext'] ?? [])) {
+                        $result['old']['retexts'] = $retexts;
+                        $result['new']['retexts'] = array_column($retexts, 'id');
+                    }
 
                     if ($previous) {
                         $logExtra['demoted'] = ['id' => $previous->id, 'standing' => 'adopted'];
@@ -300,6 +307,24 @@ class SuggestionController extends Controller
         } catch (\Throwable) {
             return Person::where('name', 'like', '%' . $name . '%')->orderByDesc('manuscripts_count')->limit(8)->get();
         }
+    }
+
+    /**
+     * Takes the printed text of each ticked entry of the record again at its corrected place (step 13.6): an address's
+     * entry at its new page, a copy's entries for its new shelfmark. Returns each entry's earlier columns.
+     */
+    private static function retext($record, array $field, array $ids): array
+    {
+        $old = [];
+        foreach (array_unique(array_map('intval', $ids)) as $id) {
+            $entry = \App\Models\SourceEntry::where('citable_type', $record::class)->where('citable_id', $record->id)->find($id);
+            $page = $entry && ($field['entry_id'] ?? null) === $entry->id ? $entry->page_start : null;
+            if ($entry && ($columns = \App\Sources\TextRefresh::apply($entry, $page, $record->shelfmark ?? null))) {
+                $old[] = $columns;
+            }
+        }
+
+        return $old;
     }
 
     /**
