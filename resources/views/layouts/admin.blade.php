@@ -111,7 +111,7 @@
                         </svg>
                         <span>نشانی‌های خودکار فهرست</span>
                     </div>
-                    @php $machineRefs = \App\Models\ManuscriptCatalogReference::awaitingReview()->count(); @endphp
+                    @php $machineRefs = \App\Models\SourceEntry::awaitingReview()->count(); @endphp
                     @if($machineRefs > 0)
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500 text-stone-950">{{ number_format($machineRefs) }}</span>
                     @endif

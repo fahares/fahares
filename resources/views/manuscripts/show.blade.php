@@ -402,10 +402,17 @@
                 </x-ui.section>
             @endif
 
-            <!-- The text printed at each of those places (backlog item 60, step 13.4), in the same order -->
-            @foreach($sources->texts() as $entry)
-                <x-source.text :entry="$entry" />
-            @endforeach
+            <!-- The text printed at each of those places, under one heading and in the same order (backlog item 60, steps 12.68 and 13.4) -->
+            @php $texts = $sources->texts(); @endphp
+            @if($texts->isNotEmpty())
+                <x-ui.section title="متن مأخذ">
+                    <div class="space-y-6">
+                        @foreach($texts as $entry)
+                            <x-source.text :entry="$entry" :record="$manuscript" />
+                        @endforeach
+                    </div>
+                </x-ui.section>
+            @endif
 
             <!-- READINGS: adopted, alternative and superseded readings from researchers -->
             <x-suggest.readings />

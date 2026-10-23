@@ -307,10 +307,17 @@
                 </ul>
             </x-ui.section>
 
-            <!-- The text printed at each of those places, in the same order -->
-            @foreach($sources->texts() as $entry)
-                <x-source.text :entry="$entry" />
-            @endforeach
+            <!-- The text printed at each of those places, under one heading and in the same order -->
+            @php $texts = $sources->texts(); @endphp
+            @if($texts->isNotEmpty())
+                <x-ui.section title="متن مأخذ">
+                    <div class="space-y-6">
+                        @foreach($texts as $entry)
+                            <x-source.text :entry="$entry" :record="$work" />
+                        @endforeach
+                    </div>
+                </x-ui.section>
+            @endif
 
             <!-- Relations with other works (commentary on, translation of…) -->
             <x-record-relations :record="$work" />

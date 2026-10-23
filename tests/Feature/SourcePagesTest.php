@@ -60,8 +60,8 @@ class SourcePagesTest extends TestCase
         $this->get(route('manuscripts.show', $this->manuscript))->assertOk()
             // every source alike, in the order of its rank: no «متن مأخذ» above the others
             ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۸۸، به کوشش رضا استادی، ج ۲، ص ۴۱۴', 'فنخا، ج ۱۵، ص ۱۲۱، ردیف ۳', 'فنخا (استدراک)، ج ۳۴، ص ۹۷۰'])
-            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', 'متن مدخل فهرست', 'ش ۱۹۳۹، ۱۶۲ برگ', 'متن فنخا', "متن فنخای نسخه \nادامه", 'متن فنخا (استدراک)', 'متن استدراک'])
-            ->assertDontSee('متن مأخذ')
+            ->assertSeeInOrder(['متن مأخذ', 'فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸', 'متن مدخل فهرست', 'ش ۱۹۳۹، ۱۶۲ برگ', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'ج ۱۵، ص ۱۲۱، ردیف ۳', "متن فنخای نسخه \nادامه", 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن استدراک'])
+            ->assertDontSee('ارجاع‌های دیگر')
             ->assertSee('catalogs/fankha/v15/p0121.webp', false)
             ->assertDontSee('ستون کهنه‌ی نسخه')
             ->assertDontSee('<!-- page', false);
@@ -96,7 +96,7 @@ class SourcePagesTest extends TestCase
         $this->entry($this->work, ['source_id' => $dharia, 'role' => SourceEntry::ROLE_CITATION, 'citation_text' => 'الذریعة 101/25', 'sort_order' => 0]);
 
         $this->get(route('works.show', $this->work))->assertOk()
-            ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'فهرستگان نسخه‌های خطی ایران', '(استدراک)، ', 'ج ۱۵، ص ۱۲۱–۱۲۲', 'متن فنخا (استدراک)', 'متن فنخای اثر'])
+            ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'فهرستگان نسخه‌های خطی ایران', '(استدراک)، ', 'ج ۱۵، ص ۱۲۱–۱۲۲', 'متن مأخذ', 'فهرستگان نسخه‌های خطی ایران (فنخا)، استدراک', 'متن فنخای اثر'])
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)
             ->assertSeeInOrder(['معرفی اثر', 'به روایت فنخا', 'معرفی آزمایشی اثر'])
             ->assertSee('استدراک')

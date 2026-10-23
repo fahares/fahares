@@ -225,6 +225,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/catalog-references/bulk/{batch}/revert', [AdminCatalogReferenceController::class, 'revertBulk'])->name('catalog-references.bulk-revert');
     Route::post('/catalog-references/{reference}/verify', [AdminCatalogReferenceController::class, 'verify'])->name('catalog-references.verify');
     Route::post('/catalog-references/{reference}/reject', [AdminCatalogReferenceController::class, 'reject'])->name('catalog-references.reject');
+    Route::post('/catalog-references/{reference}/reopen', [AdminCatalogReferenceController::class, 'reopen'])->name('catalog-references.reopen');
 
     // Catalogers & Bibliographers
     Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update']);

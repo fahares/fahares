@@ -730,6 +730,10 @@
     <!-- Global Catalog Facsimile Viewer Modal -->
     <x-catalog-viewer />
 
+    @if(auth()->user()?->canAccessAdmin())
+        <x-ui.machine-review-toast />
+    @endif
+
     @stack('scripts')
 </body>
 </html>

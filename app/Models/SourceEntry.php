@@ -120,10 +120,68 @@ class SourceEntry extends Model
         return $query->where('origin', self::ORIGIN_MATCH)->where('status', self::STATUS_UNVERIFIED);
     }
 
-    public function review(User $user, string $status): void
+    /** Verifies or rejects a match, in the admin queue or from its ⓘ badge (backlog item 59); the audit log keeps the review it replaced. */
+    public function review(User $user, string $status, ?string $ip = null): AuditLog
     {
-        $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
-        LegacyMirror::reference($this);
+        return DB::transaction(function () use ($user, $status, $ip) {
+            $old = $this->only(['status', 'reviewed_by', 'reviewed_at']);
+            $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
+            LegacyMirror::reference($this);
+
+            return $this->logReview(Ref::ACTION_REVIEW, $user, $old, $ip);
+        });
+    }
+
+    /**
+     * The «بازگردانی» of a review from the badge: back to the queue, only while the review is still the one this user
+     * made. Returns null when someone has reviewed the entry again since.
+     */
+    public function reopen(User $user, string $expected, ?string $ip = null): ?AuditLog
+    {
+        return DB::transaction(function () use ($user, $expected, $ip) {
+            $this->refresh();
+            if ($this->origin !== self::ORIGIN_MATCH || $this->status !== $expected || (int) $this->reviewed_by !== $user->id) {
+                return null;
+            }
+            $review = AuditLog::where('auditable_type', static::class)->where('auditable_id', $this->id)
+                ->where('action', Ref::ACTION_REVIEW)->latest('id')->first();
+            $old = $this->only(['status', 'reviewed_by', 'reviewed_at']) + ['rolled_back_log_id' => $review?->id];
+            $this->update(['status' => self::STATUS_UNVERIFIED, 'reviewed_by' => null, 'reviewed_at' => null]);
+            LegacyMirror::reference($this);
+
+            return $this->logReview(Ref::ACTION_REOPEN, $user, $old, $ip);
+        });
+    }
+
+    private function logReview(string $action, User $user, array $old, ?string $ip): AuditLog
+    {
+        $at = fn ($v) => $v instanceof \DateTimeInterface ? $v->format('Y-m-d H:i:s') : $v;
+
+        return AuditLog::create([
+            'user_id' => $user->id,
+            'auditable_type' => static::class,
+            'auditable_id' => $this->id,
+            'action' => $action,
+            'old_values' => array_map($at, $old),
+            'new_values' => array_map($at, $this->only(['status', 'reviewed_by', 'reviewed_at'])),
+            'ip_address' => $ip,
+            'created_at' => now(),
+        ]);
+    }
+
+    /** The `review` prop of its ⓘ badge (backlog item 59); the key also marks the elements a rejection hides (data-machine-item). */
+    public function badgeReview(): array
+    {
+        return [
+            'key' => $this->reviewKey(),
+            'verify' => route('admin.catalog-references.verify', $this),
+            'reject' => route('admin.catalog-references.reject', $this),
+        ];
+    }
+
+    public function reviewKey(): string
+    {
+        return 'source-entry-' . $this->id;
     }
 
     /**
@@ -270,12 +328,21 @@ class SourceEntry extends Model
         return \App\Suggestions\SuggestionRegistry::sourceEntryField($name, $this) ? $name : null;
     }
 
-    /** «متن فهرست مسجد اعظم، چاپ ۱۳۸۸», «متن فنخا (استدراک)»: the heading of the entry's text on the record page. */
+    /**
+     * The heading of the entry's text under «متن مأخذ»: «فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸», «فهرستگان نسخه‌های خطی ایران
+     * (فنخا)», «…، استدراک».
+     */
     public function textTitle(): string
     {
-        $title = $this->source?->kind === Source::KIND_LIBRARY_CATALOGUE ? $this->printedTextTitle() : 'متن ' . $this->sourceName();
+        $title = (string) $this->source?->title;
+        $short = (string) $this->source?->short_name;
+        $title = match (true) {
+            $this->source?->kind === Source::KIND_LIBRARY_CATALOGUE => $this->printedTextTitle(),
+            $title !== '' => $title . ($short !== '' && ! str_contains($title, $short) ? " ({$short})" : ''),
+            default => $this->sourceName(),
+        };
 
-        return $this->role === self::ROLE_ENTRY ? $title : "{$title} ({$this->roleLabel()})";
+        return $this->role === self::ROLE_ENTRY ? $title : "{$title}، {$this->roleLabel()}";
     }
 
     /** The detail of the `open-catalog-viewer` event, or null when the volume has no page images. */
@@ -304,16 +371,17 @@ class SourceEntry extends Model
     }
 
     /**
-     * The heading of the printed text on the record page: «متن فهرست مسجد اعظم، چاپ ۱۳۸۸», the library's catalogue
-     * and the year of the printing when its label gives one (vols 3 and 4 of Masjid-e A'zam have none).
+     * The heading of a library catalogue's text under «متن مأخذ» on the record page: «فهرست کتابخانه مسجد اعظم، چاپ ۱۳۸۸»,
+     * the library's catalogue and the year of the printing when its volume's label gives one (vols 3 and 4 of
+     * Masjid-e A'zam have none).
      */
     public function printedTextTitle(): string
     {
-        $library = $this->source?->library?->name;
-        $name = $library ? 'فهرست ' . $library : ($this->sourceName() ?: 'فهرست کتابخانه');
+        $library = (string) $this->source?->library?->name;
+        $name = $library !== '' ? 'فهرست ' . (str_starts_with($library, 'کتابخانه') ? '' : 'کتابخانه ') . $library : ($this->sourceName() ?: 'فهرست کتابخانه');
         $year = preg_match('/[0-9۰-۹]{4}/u', (string) $this->sourceVolume?->edition_label, $m) ? '، چاپ ' . $m[0] : '';
 
-        return Fa::digits("متن {$name}{$year}");
+        return Fa::digits($name . $year);
     }
 
     /** The text as the page shows it: Fankha's page marks out, blank lines and spaces folded. */

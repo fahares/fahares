@@ -48,6 +48,14 @@
     display: none !important;
 }
 
+/* Machine-extracted data just rejected from its ⓘ badge, until the «بازگردانی» toast is gone (backlog item 59) */
+[data-machine-rejected] {
+    opacity: 0.4;
+    filter: grayscale(1);
+    text-decoration: line-through;
+    pointer-events: none;
+}
+
 /* Custom Manuscript & Archival Styling */
 :root {
     color-scheme: light;

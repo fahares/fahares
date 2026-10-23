@@ -117,11 +117,42 @@ class CatalogReferenceController extends Controller
         return $this->review($request, $reference, Entry::STATUS_REJECTED, 'رد شد');
     }
 
+    /** The «بازگردانی» of the ⓘ badge (backlog item 59): returns the entry to the queue if the user's review still stands. */
+    public function reopen(Request $request, Entry $reference)
+    {
+        abort_unless($reference->origin === Entry::ORIGIN_MATCH, 404);
+        $expected = $request->input('status');
+        abort_unless(in_array($expected, [Entry::STATUS_VERIFIED, Entry::STATUS_REJECTED], true), 422);
+
+        if (! $reference->reopen($request->user(), $expected, $request->ip())) {
+            $message = 'این نشانی را پس از شما دوباره داوری کرده‌اند و بازگردانده نشد. صفحه را تازه کنید.';
+
+            return $request->expectsJson() ? response()->json(['message' => $message], 409) : back()->with('error', $message);
+        }
+
+        return $this->reviewed($request, $reference, 'به صف داوری برگشت');
+    }
+
     private function review(Request $request, Entry $reference, string $status, string $done)
     {
         abort_unless($reference->origin === Entry::ORIGIN_MATCH, 404);
-        $reference->review($request->user(), $status);
+        $reference->review($request->user(), $status, $request->ip());
 
-        return back()->with('success', 'نشانی نسخه‌ی «' . Fa::digits($reference->citable?->shelfmark) . "» {$done}.");
+        return $this->reviewed($request, $reference, $done);
+    }
+
+    /** JSON for the badge's fetch on the record page, a redirect back for the queue's forms. */
+    private function reviewed(Request $request, Entry $reference, string $done)
+    {
+        $message = 'نشانی نسخه‌ی «' . Fa::digits($reference->citable?->shelfmark) . "» {$done}.";
+        if (! $request->expectsJson()) {
+            return back()->with('success', $message);
+        }
+
+        return response()->json([
+            'status' => $reference->status,
+            'message' => $message,
+            'undo' => $reference->status === Entry::STATUS_UNVERIFIED ? null : route('admin.catalog-references.reopen', $reference),
+        ]);
     }
 }

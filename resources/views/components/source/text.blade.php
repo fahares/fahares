@@ -1,53 +1,53 @@
-@props(['entry'])
+@props(['entry', 'record' => null])
 
-{{-- The text printed at one place of the record (steps 13.2 and 13.4): every source alike, headed by its name and
-     address, in the order of the sources' rank; a long text opens on request. --}}
+{{-- The text printed at one place of the record, under «متن مأخذ» (backlog item 60, steps 12.68 and 13.4): every source
+     alike in x-ui.source-text, in the order of the sources' rank. A copy's own line in Fankha follows the work's part of
+     the entry it stands in (clipped, as it can be long), with «...» for the copies before it. --}}
 @php
     use App\Support\Fa;
+    use App\Models\SourceEntry;
     $viewer = $entry->viewer();
-    $entryText = \App\Models\SourceEntry::cleanText($entry->entry_text);
-    $copyText = \App\Models\SourceEntry::cleanText($entry->copy_text);
-    $long = mb_strlen((string) $entryText . $copyText) > 700;
+    $entryText = SourceEntry::cleanText($entry->entry_text);
+    $copyText = SourceEntry::cleanText($entry->copy_text);
+    // Fankha prints the work's entry, then its copies: a copy's Fankha entry has its line alone, the work has the rest
+    $workText = ! $entryText && $entry->is_primary && $record instanceof \App\Models\Manuscript
+        ? $record->work?->sources()->primary()?->cleanEntryText() : null;
+    $long = ! $workText && mb_strlen((string) $entryText . $copyText) > 700;
+    $field = $entry->suggestionField();
+    // the copy's row in the Fankha entry its record was made from
+    $address = $entry->placeLabel() . ($entry->is_primary && $record instanceof \App\Models\Manuscript && $record->sequence_number ? Fa::digits('، ردیف ' . $record->sequence_number) : '');
+    // a printed catalogue's text in Persian digits; Fankha's as the corpus has it
+    $digits = fn (?string $t) => $entry->source?->kind === \App\Models\Source::KIND_LIBRARY_CATALOGUE ? Fa::digits($t) : $t;
 @endphp
-<section class="scroll-mt-24" data-source-text x-data="{ copied: false, open: {{ $long ? 'false' : 'true' }} }">
-    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
-        <h2 class="rubric text-lg">
-            <span>{{ $entry->textTitle() }}</span>
-            @if($entry->isAwaitingReview() && ($field = $entry->suggestionField()))
-                <x-ui.machine-badge
-                    text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
-                    report-label="گزارش نشانی نادرست"
-                    :report="['field' => $field]" />
-            @endif
-        </h2>
-        <div class="flex flex-wrap items-center gap-2 text-xs">
-            @if($place = $entry->placeLabel())
-                <span class="text-muted">{{ $place }}</span>
-            @endif
-            @if($viewer)
-                <x-ui.btn size="sm" x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">دیدن برگه</x-ui.btn>
-            @endif
-            <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.text.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
-                <span x-show="!copied">رونوشت متن</span>
-                <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
-            </x-ui.btn>
-        </div>
-    </div>
+<x-ui.source-text data-source-text data-machine-item="{{ $entry->reviewKey() }}" :title="$entry->textTitle()" :address="$address"
+    :viewer="$viewer ? '$dispatch(\'open-catalog-viewer\', ' . \Illuminate\Support\Js::from($viewer) . ')' : null" :collapsible="$long">
+    @if($entry->isAwaitingReview() && $field)
+        <x-slot:badge>
+            <x-ui.machine-badge
+                text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
+                report-label="گزارش نشانی نادرست"
+                :report="['field' => $field]" :review="$entry->badgeReview()" />
+        </x-slot:badge>
+    @endif
     <x-source.stale-text :entry="$entry" />
-    <div class="relative">
-        <div x-ref="text" :class="open ? '' : 'max-h-64 overflow-hidden'" class="p-4 sm:p-5 bg-surface border border-line text-[13px] sm:text-sm text-ink leading-loose text-right">
-            @if($entryText)
-                <div class="whitespace-pre-line">{{ Fa::digits($entryText) }}</div>
-            @endif
-            @if($copyText)
-                {{-- a copy's own line under the entry it belongs to --}}
-                <div @class(['whitespace-pre-line', 'mt-3 pt-3 border-t border-dashed border-line font-semibold' => filled($entryText)])>{{ Fa::digits($copyText) }}</div>
-            @endif
-        </div>
-        @if($long)
-            <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
-                <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
+    @if($workText)
+        <div x-data="{ more: false }" class="relative" data-fankha-work-text>
+            <div :class="more ? '' : 'max-h-48 overflow-hidden'" class="whitespace-pre-line" data-copy>{{ $digits($workText) }}</div>
+            <div x-show="! more" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent flex items-end justify-center">
+                <button type="button" @click="more = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن کتاب‌شناسی</button>
             </div>
+        </div>
+        @if(($record->sequence_number ?? 1) > 1)
+            <div class="my-2 text-center text-muted tracking-widest" data-copy>...</div>
+        @else
+            <div class="my-3 border-t border-dashed border-line"></div>
         @endif
-    </div>
-</section>
+    @endif
+    @if($entryText)
+        <div class="whitespace-pre-line" data-copy>{{ $digits($entryText) }}</div>
+    @endif
+    @if($copyText)
+        {{-- a copy's own line under the entry it belongs to --}}
+        <div @class(['whitespace-pre-line', 'mt-3 pt-3 border-t border-dashed border-line font-semibold' => filled($entryText)]) data-copy>{{ $digits($copyText) }}</div>
+    @endif
+</x-ui.source-text>

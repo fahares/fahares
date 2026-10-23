@@ -180,8 +180,8 @@ class SourceCorrectionsTest extends TestCase
         $this->assertSame($this->primary($this->manuscript)->id, $this->manuscript->fresh()->sources()->primary()->id);
         // the duplicate's texts stand with the kept copy's, all alike: the library catalogue first, then both Fankha entries
         $this->get(route('manuscripts.show', $this->manuscript))
-            ->assertSeeInOrder(['متن مدخل فهرست', 'متن فنخا', 'قم؛ مسجد اعظم؛ شماره نسخه: ۱۹۳۹', 'متن فنخا', 'قم؛ مسجد اعظم؛ شماره نسخه: ۱۹۴۰'])
-            ->assertDontSee('متن مأخذ')->assertDontSee('ارجاع‌های دیگر');
+            ->assertSeeInOrder(['متن مأخذ', 'متن مدخل فهرست', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'متن فنخای اثر', 'قم؛ مسجد اعظم؛ شماره نسخه: 1939', 'فهرستگان نسخه‌های خطی ایران (فنخا)', 'قم؛ مسجد اعظم؛ شماره نسخه: 1940'])
+            ->assertDontSee('ارجاع‌های دیگر');
 
         $merger->undoManuscriptMerge($this->manuscript->fresh(), $old);
         $this->assertSame([$dup->id, true, 'manuscript', $dup->id], [$primary->fresh()->citable_id, $primary->fresh()->is_primary, $primary->fresh()->legacy_type, $primary->fresh()->legacy_id]);

@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import suggestDesk from './suggest-desk';
 import convertDesk from './convert-desk';
 import feedbackForm from './feedback-form';
+import machineReview from './machine-review';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -14,6 +15,8 @@ Alpine.store('suggest', {
         this.on = !this.on;
     },
 });
+// Review of machine-extracted data from its ⓘ badge (backlog item 59)
+Alpine.store('machineReview', machineReview);
 Alpine.data('suggestDesk', suggestDesk);
 Alpine.data('convertDesk', convertDesk);
 Alpine.data('feedbackForm', feedbackForm);

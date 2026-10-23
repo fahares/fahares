@@ -8,7 +8,7 @@
     $field = $entry->suggestionField();
     $name = $entry->sourceName();
 @endphp
-<div class="space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-card>
+<div class="space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-card data-machine-item="{{ $entry->reviewKey() }}">
     <div class="flex items-start gap-1">
         <div class="min-w-0">
             <div class="text-sm font-bold text-ink leading-6">{{ $label }}</div>
@@ -20,7 +20,7 @@
             <x-ui.machine-badge class="shrink-0 mt-0.5"
                 text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
                 report-label="گزارش نشانی نادرست"
-                :report="['field' => $field]" />
+                :report="['field' => $field]" :review="$entry->badgeReview()" />
         @endif
         @if($field)<x-suggest.field :name="$field" class="shrink-0" />@endif
     </div>
