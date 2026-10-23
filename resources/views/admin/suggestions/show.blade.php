@@ -209,7 +209,7 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <h3 class="text-sm font-bold">{{ $relation ? $relation['action'] : ($promoting ? 'انتخاب این «قول دیگر» به‌عنوان قول مختار' : ($field ? 'تأیید و اعمال اصلاحیه در پایگاه داده' : 'رسیدگی به پیشنهاد')) }}</h3>
+                    <h3 class="text-sm font-bold">{{ $relation ? $relation['action'] : ($promoting ? 'انتخاب این «قول دیگر» به‌عنوان مقدار منتخب' : ($field ? 'تأیید و اعمال اصلاحیه در پایگاه داده' : 'رسیدگی به پیشنهاد')) }}</h3>
                 </div>
 
                 @if($relation)
@@ -320,7 +320,7 @@
                             <div class="space-y-1.5">
                                 <label class="block font-bold text-ink">نتیجه‌ی داوری:</label>
                                 @foreach([
-                                    'adopt' => ['قول علمی: اعمال به‌عنوان مقدار اصلی (قول مختار)', 'با نام پیشنهاددهنده (اگر رضایت داده) در صفحه نمایش داده می‌شود.'],
+                                    'adopt' => ['قول علمی: اعمال به‌عنوان مقدار منتخب', 'با نام پیشنهاددهنده (اگر رضایت داده) در صفحه نمایش داده می‌شود.'],
                                     'alternative' => ['قول علمی: نگه‌داشتن به‌عنوان «قول دیگر»', 'مقدار رکورد تغییر نمی‌کند؛ این قول با مستندش در پایین صفحه می‌ماند.'],
                                     'ocr_fix' => ['ویرایش: غلط چاپی یا نویسه‌خوان (OCR)', 'اعمال می‌شود ولی قول به‌شمار نمی‌آید.'],
                                     'parser_fix' => ['ویرایش: خطای پارسر (تفکیک اشتباه فیلدها)', 'اعمال می‌شود ولی قول به‌شمار نمی‌آید.'],
@@ -336,7 +336,7 @@
                         @if($previousAdopted)
                             <div x-show="outcome === 'adopt'" class="space-y-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-800">
                                 <div class="font-bold text-amber-900 dark:text-amber-200">
-                                    این فیلد قول مختار دارد: «{{ \Illuminate\Support\Str::limit($previousAdopted->display_value, 120) }}»
+                                    این فیلد مقدار منتخب دارد: «{{ \Illuminate\Support\Str::limit($previousAdopted->display_value, 120) }}»
                                     <span class="font-normal">(قائل: {{ $previousAdopted->credit_name ?: $previousAdopted->guest_name ?: 'نامشخص' }}، <a href="{{ route('admin.suggestions.show', $previousAdopted) }}" class="underline">#{{ $previousAdopted->id }}</a>)</span>
                                 </div>
                                 <div class="text-ink/80">با تأیید این پیشنهاد، آن قول:</div>
@@ -356,7 +356,7 @@
                                 @if($previousAdopted)<span x-show="outcome === 'adopt'" class="text-red-600">الزامی</span>@endif
                                 <span x-show="outcome === 'alternative'" class="text-red-600">الزامی</span>
                             </label>
-                            <textarea name="public_note" rows="2" placeholder="مثال: قول مختار به استناد ترقیمه‌ی رساله‌ی هشتم همین مجموعه ترجیح داده شد." class="w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink">{{ old('public_note', $promoting ? $suggestion->public_note : '') }}</textarea>
+                            <textarea name="public_note" rows="2" placeholder="مثال: مقدار منتخب به استناد ترقیمه‌ی رساله‌ی هشتم همین مجموعه ترجیح داده شد." class="w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink">{{ old('public_note', $promoting ? $suggestion->public_note : '') }}</textarea>
                         </div>
                     @endif
 

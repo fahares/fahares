@@ -10,7 +10,7 @@
     $pills = [
         'pending' => ['در انتظار داوری', 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900/60'],
         'rejected' => ['رد شد', 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900/60'],
-        'adopted' => ['قول مختار', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
+        'adopted' => ['مقدار منتخب', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
         'alternative' => ['قول دیگر', 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-900/60'],
         'superseded' => ['منسوخ', 'bg-stone-100 dark:bg-stone-800 text-ink/80 border-line-strong'],
         'edit' => ['ویرایش اعمال شد', 'bg-stone-100 dark:bg-stone-800 text-ink/80 border-line-strong'],
@@ -31,7 +31,7 @@
             </div>
         </div>
         <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            @foreach([['total', 'همه‌ی پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'قول مختار'], ['pending', 'در انتظار داوری']] as [$key, $label])
+            @foreach([['total', 'همه‌ی پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'مقدار منتخب'], ['pending', 'در انتظار داوری']] as [$key, $label])
                 <div class="p-3 rounded-sm bg-paper border border-line">
                     <dd class="text-xl font-bold text-cinnabar">{{ \App\Support\Fa::num($stats[$key]) }}</dd>
                     <dt class="text-[11px] text-muted">{{ $label }}</dt>
@@ -74,7 +74,7 @@
             @if($s->standing === 'superseded' && $s->supersededBy)
                 <p class="text-ink/80">این قول جای خود را به قول «{{ \Illuminate\Support\Str::limit($s->supersededBy->display_value, 120) }}» داد.</p>
             @elseif($s->standing === 'alternative' && $s->superseded_by)
-                <p class="text-ink/80">این قول پیش‌تر مختار بود و اکنون در کنار قول مختار تازه به‌عنوان «قول دیگر» نمایش داده می‌شود.</p>
+                <p class="text-ink/80">این قول پیش‌تر مقدار منتخب بود و اکنون در کنار مقدار منتخب تازه به‌عنوان «قول دیگر» نمایش داده می‌شود.</p>
             @endif
             @if($s->status === 'converted')
                 <p class="text-ink/80">داور این پیشنهاد را به شکل استاندارد درآورد{{ count($s->resolution['converted_to'] ?? []) > 1 ? ' و به چند پیشنهاد تفکیک کرد' : '' }}: {{ collect($s->resolution['converted_to'] ?? [])->map(fn ($id) => '#' . $id)->join('، ') }}. وضعیت {{ count($s->resolution['converted_to'] ?? []) > 1 ? 'آن‌ها' : 'آن' }} را در همین فهرست می‌بینید.</p>

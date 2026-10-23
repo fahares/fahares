@@ -14,7 +14,7 @@ class FieldSuggestion extends Model
 
     /** Standings of an approved field suggestion; see the add_opinions migration. */
     public const STANDINGS = [
-        'adopted' => 'قول مختار',
+        'adopted' => 'مقدار منتخب',
         'alternative' => 'قول دیگر',
         'superseded' => 'منسوخ',
         'edit' => 'ویرایش',

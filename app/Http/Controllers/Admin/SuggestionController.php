@@ -141,12 +141,12 @@ class SuggestionController extends Controller
             ? FieldSuggestion::adoptedFor($suggestion->suggestable_type, $suggestion->suggestable_id, $suggestion->field_name)->whereKeyNot($suggestion->id)->first()
             : null;
         if ($previous && empty($validated['previous_standing'])) {
-            return back()->withInput()->withErrors(['previous_standing' => 'وضعیت قول مختار پیشین را تعیین کنید: «قول دیگر» یا «منسوخ».']);
+            return back()->withInput()->withErrors(['previous_standing' => 'وضعیت مقدار منتخب پیشین را تعیین کنید: «قول دیگر» یا «منسوخ».']);
         }
         if ($field && ($standing === 'alternative' || $previous) && ! $publicNote) {
             return back()->withInput()->withErrors(['public_note' => $standing === 'alternative'
                 ? 'برای «قول دیگر» یادداشت عمومی بنویسید: چرا این قول ترجیح داده نشد.'
-                : 'یادداشت عمومی بنویسید: چرا این قول بر قول مختار پیشین ترجیح داده شد.']);
+                : 'یادداشت عمومی بنویسید: چرا این قول بر مقدار منتخب پیشین ترجیح داده شد.']);
         }
 
         try {
@@ -208,7 +208,7 @@ class SuggestionController extends Controller
             ! $field => "پیشنهاد #{$suggestion->id} به‌عنوان «رسیدگی‌شده» ثبت شد. تغییرات لازم را دستی اعمال کنید.",
             $standing === 'alternative' => "پیشنهاد #{$suggestion->id} به‌عنوان «قول دیگر» با مستندش ثبت شد. مقدار رکورد تغییر نکرد.",
             $standing === 'edit' => "ویرایش #{$suggestion->id} در شناسنامه‌ی رکورد اعمال شد.",
-            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان قول مختار تأیید و در شناسنامه‌ی رکورد اعمال شد.",
+            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان مقدار منتخب تأیید و در شناسنامه‌ی رکورد اعمال شد.",
         };
 
         SuggestionNotifier::reviewed($suggestion->fresh());
@@ -960,7 +960,7 @@ class SuggestionController extends Controller
         $fresh = $suggestion->fresh();
         $message = $fresh->status === 'pending'
             ? "پیشنهاد #{$suggestion->id} به صف داوری بازگشت" . ($undo ? ' و تغییر آن در رکورد بازگردانده شد.' : '.')
-            : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان قول مختار بازگردانده شد؛ دوباره «قول دیگر» است.";
+            : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان مقدار منتخب بازگردانده شد؛ دوباره «قول دیگر» است.";
 
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', $message);
     }

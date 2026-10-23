@@ -43,7 +43,7 @@ class SuggestionReviewed extends SuggestionNotification
                 ? 'قول شما در «سابقه‌ی اصلاحات» صفحه می‌ماند و سهم شما در آن دیده می‌شود.'
                 : 'قول شما با مستندش به‌عنوان «قول دیگر» در صفحه می‌ماند.';
             if ($replacement) {
-                $lines[] = 'قول مختار تازه: ' . self::short($replacement->display_value, 200);
+                $lines[] = 'مقدار منتخب تازه: ' . self::short($replacement->display_value, 200);
                 if ($replacement->public_note) {
                     $lines[] = 'یادداشت داور: ' . self::short($replacement->public_note, 500);
                 }
@@ -57,7 +57,7 @@ class SuggestionReviewed extends SuggestionNotification
             $s->kind === 'feedback' => 'داور به گزارش شما رسیدگی کرد.',
             $s->status === 'rejected' => 'داور پیشنهاد را نپذیرفت.',
             $s->kind === 'note' => 'یادداشت شما در صفحه‌ی رکورد، بخش «یادداشت‌ها و منابع پژوهشی»، منتشر شد.',
-            $s->standing === 'adopted' => 'پیشنهاد در شناسنامه‌ی رکورد اعمال شد و به‌عنوان «قول مختار» با مستندش در صفحه نمایش داده می‌شود.',
+            $s->standing === 'adopted' => 'پیشنهاد در شناسنامه‌ی رکورد اعمال شد و به‌عنوان «مقدار منتخب» با مستندش در صفحه نمایش داده می‌شود.',
             $s->standing === 'alternative' => 'مقدار رکورد تغییر نکرد، ولی پیشنهاد شما با مستندش به‌عنوان «قول دیگر» در صفحه نمایش داده می‌شود.',
             $s->standing === 'edit' => 'اصلاح در شناسنامه‌ی رکورد اعمال شد.',
             default => 'داور به پیشنهاد شما رسیدگی کرد.',

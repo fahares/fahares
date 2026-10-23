@@ -3555,3 +3555,9 @@
   در همه‌ی حالت‌ها همه‌ی پیوندها در یک خط بودند (`offsetTop` یکسان). در عرض ۳۷۵، منوی کشویی هشت پیوند دارد.
 - **کلاس تازه:** `lg:px-2.5` کلاس تازه است. ساخت پروداکشن (nixpacks) `npm run build` را خودش اجرا می‌کند. در محیط محلی `npm run build` لازم بود.
 
+### گام ۱۳.۹: گلوله‌ی «مقدار منتخب» در [suggest/reading](../resources/views/components/suggest/reading.blade.php)
+- **کامپوننت:** `<x-suggest.reading>` prop تازه‌ی `chosen` گرفت (و `tag` اختیاری شد). با `chosen` به‌جای برچسب، یک `span` گرد سبز (`size-2.5 rounded-full bg-emerald-500`) با `title` و `aria-label` «مقدار منتخب» و `role="img"` نمایش داده می‌شود. [suggest/readings](../resources/views/components/suggest/readings.blade.php) برای `$r['adopted']` از آن استفاده می‌کند.
+- **صفحه‌ی اصلاحات:** در [contributions/index](../resources/views/contributions/index.blade.php) برای پیشنهاد فیلدی با `standing === 'adopted'` همان گلوله جای چیپ را گرفت. چیپ وضعیت‌های دیگر لحن پیش‌فرض دارد.
+- **متن:** `FieldSuggestion::STANDINGS['adopted']` اکنون «مقدار منتخب» است (برچسب در سابقه‌ی اصلاحات، فهرست داوری و ستون وضعیت صفحه‌ی اصلاحات). متن‌های [my/suggestions](../resources/views/my/suggestions.blade.php)، [admin/dashboard](../resources/views/admin/dashboard.blade.php)، [admin/suggestions/show](../resources/views/admin/suggestions/show.blade.php)، [SuggestionReviewed](../app/Notifications/SuggestionReviewed.php) و [Admin\SuggestionController](../app/Http/Controllers/Admin/SuggestionController.php) هم به‌روز شد. ثبت‌های پیشین مستندات تغییر نکرد.
+- **آزمون:** سه `assertSee` در [SuggestionWorkflowTest](../tests/Feature/SuggestionWorkflowTest.php) به متن تازه تغییر کرد. کل مجموعه: ۲۵۶ آزمون موفق.
+- **وارسی:** نسخه‌ی محلی ۵۲۵۶۱ و `/contributions` در حالت تیره: گلوله ۱۰ پیکسل است و عبارت «قول مختار» در صفحه نیست. `size-2.5` کلاس تازه بود و ساخت دوباره‌ی دارایی‌ها (`vite build` در کانتینر) لازم شد.

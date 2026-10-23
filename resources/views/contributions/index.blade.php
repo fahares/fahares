@@ -144,8 +144,10 @@
                 <div class="flex flex-wrap items-center gap-1.5">
                     <x-ui.chip>{{ $item['type'] }}</x-ui.chip>
                     <x-ui.chip tone="accent">{{ $item['action'] }}</x-ui.chip>
-                    @if($item['standing'])
-                        <x-ui.chip :tone="$s->standing === 'adopted' ? 'good' : 'default'">{{ $item['standing'] }}</x-ui.chip>
+                    @if($s->kind === 'field' && $s->standing === 'adopted')
+                        <span class="inline-block size-2.5 rounded-full bg-emerald-500 shrink-0 self-center" title="مقدار منتخب" aria-label="مقدار منتخب" role="img"></span>
+                    @elseif($item['standing'])
+                        <x-ui.chip>{{ $item['standing'] }}</x-ui.chip>
                     @endif
                 </div>
 

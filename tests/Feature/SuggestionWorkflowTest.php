@@ -550,7 +550,7 @@ class SuggestionWorkflowTest extends TestCase
 
         $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی رساله‌ی دیگر', 'credit_name' => 'دومین'])->assertOk();
         $second = $this->pendingFor($m);
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$second->id}")->assertOk()->assertSee('این فیلد قول مختار دارد');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$second->id}")->assertOk()->assertSee('این فیلد مقدار منتخب دارد');
 
         // The previous adopted reading must be given a standing, and the preference explained
         $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt'])->assertSessionHasErrors('previous_standing');
@@ -596,7 +596,7 @@ class SuggestionWorkflowTest extends TestCase
             ->assertSee('مستند فهرست چاپی قوی‌تر است')->assertSee('2 قول');
 
         // Later evidence: the alternative is adopted from the same desk, and a rollback returns it to alternative
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$alt->id}")->assertOk()->assertSee('انتخاب این «قول دیگر» به‌عنوان قول مختار');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$alt->id}")->assertOk()->assertSee('انتخاب این «قول دیگر» به‌عنوان مقدار منتخب');
         $this->approve($alt, ['applied_value' => 'شیراز'])->assertRedirect('/admin/suggestions');
         $this->assertSame('شیراز', $m->fresh()->copy_place);
         $this->assertSame('adopted', $alt->fresh()->standing);
@@ -755,7 +755,7 @@ class SuggestionWorkflowTest extends TestCase
 
         $this->approve($mine, ['applied_value' => 'هرات', 'outcome' => 'adopt', 'public_note' => 'سپاس از دقت شما']);
         $this->actingAs($user)->get('/my/suggestions')->assertOk()
-            ->assertSee('قول مختار')->assertSee('سپاس از دقت شما')->assertSee('هرات')
+            ->assertSee('مقدار منتخب')->assertSee('سپاس از دقت شما')->assertSee('هرات')
             ->assertDontSee('شمارش');
 
         $this->post("/my/suggestions/{$mine->id}/credit", ['credit_name' => 'دکتر آزمون'])->assertSessionHas('success');
