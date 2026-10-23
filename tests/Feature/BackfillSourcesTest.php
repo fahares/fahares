@@ -118,14 +118,18 @@ class BackfillSourcesTest extends TestCase
             'shelfmark_page' => 415, 'entry_number' => 606, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 90,
             'entry_text' => 'دیوان قدسی، شعر', 'copy_text' => 'ش 1939، 162 برگ',
         ]);
-        Ref::create(['manuscript_id' => $this->manuscript->id, 'catalog_volume_id' => null, 'raw_text' => '[رایانه]', 'source' => Ref::SOURCE_FANKHA]);
+        $computer = Manuscript::create(['work_id' => $this->work->id, 'shelfmark' => '7', 'volume_number' => 15, 'page_start' => 121, 'sequence_number' => 2, 'raw_text' => 'قم؛ مسجد اعظم؛ شماره نسخه: 7 [رایانه]']);
+        // the Fankha row only repeated the copy's own citation: the entry is made from the manuscript, and only once
+        DB::table('source_entries')->where('legacy_type', 'fankha_citation')->delete();
 
         $this->backfill();
 
-        $cited = SourceEntry::where('legacy_type', 'catalog_reference')->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->whereNotNull('source_volume_id')->sole();
-        $this->assertSame('[ف: 2-414]', $cited->citation_text);
+        $cited = SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $this->manuscript->id)->sole();
+        $this->assertSame(['[ف: 2-414]', 2, 414, $this->cited->id, SourceEntry::ORIGIN_FANKHA_CITATION],
+            [$cited->citation_text, $cited->volume_number, $cited->page_start, $cited->source_volume_id, $cited->origin]);
         $this->assertSame(SourceVolume::find($this->cited->id)->source_id, $cited->source_id);
         $this->assertSame(SourceEntry::TEXT_NONE, $cited->text_status);
+        $this->assertSame(0, SourceEntry::where('legacy_type', 'catalog_reference')->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->count());
 
         $entry = SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', $match->id)->sole();
         $this->assertSame([SourceEntry::ORIGIN_MATCH, 'shelfmark_title', 90, SourceEntry::STATUS_UNVERIFIED], [$entry->origin, $entry->match_method, $entry->confidence, $entry->status]);
@@ -133,7 +137,8 @@ class BackfillSourcesTest extends TestCase
         $this->assertSame(['دیوان قدسی، شعر', 'ش 1939، 162 برگ'], [$entry->entry_text, $entry->copy_text]);
         $this->assertSame([2, 414, SourceEntry::TEXT_AUTO], [$entry->text_volume_number, $entry->text_page, $entry->text_status]);
 
-        $loose = SourceEntry::where('citation_text', '[رایانه]')->sole();
+        $loose = SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $computer->id)->sole();
+        $this->assertSame('[رایانه]', $loose->citation_text);
         $this->assertNull($loose->source_id, 'a citation of no registered source stays, by its text');
     }
 
@@ -208,7 +213,7 @@ class BackfillSourcesTest extends TestCase
 
     public function test_a_volume_title_loses_its_volume_part_only()
     {
-        $this->assertSame('فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی', Backfill::stem('فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد دوم: کتب خطی'));
-        $this->assertSame('فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان', Backfill::stem('فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان'));
+        $this->assertSame('فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی', \App\Sources\SourceEntrySync::stem('فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد دوم: کتب خطی'));
+        $this->assertSame('فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان', \App\Sources\SourceEntrySync::stem('فهرست نسخه‌های خطی کتابخانه‌های رشت و همدان'));
     }
 }

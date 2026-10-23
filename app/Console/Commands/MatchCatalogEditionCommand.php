@@ -2,14 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CatalogVolume;
-use App\Models\ManuscriptCatalogReference as Ref;
+use App\Models\Manuscript;
+use App\Models\SourceEntry as Entry;
+use App\Models\SourceVolume;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Finds the copies of a library in the text of another printing of its catalogue (backlog item 51) and writes
- * them as ai_match + unverified catalogue references for the review queue.
+ * them as source entries of origin match, unverified, for the review queue (step 13.4; before it,
+ * manuscript_catalog_references rows of source ai_match).
  *
  * The page texts (one {"page": printed page, "text": …} per page, e.g. from Ghaemiyeh's reader) are read entry by
  * entry: «607- دیوان قدسی (فارسی)» opens an entry, and every «ش 1939» inside it is a copy of that work. Each copy
@@ -76,7 +79,7 @@ class MatchCatalogEditionCommand extends Command
 
     public function handle(): int
     {
-        $editions = CatalogVolume::where('facsimile_code', $this->argument('edition'))
+        $editions = SourceVolume::with('source')->where('facsimile_code', $this->argument('edition'))
             ->when($this->option('volume'), fn ($q, $v) => $q->where('volume_number', $v))->get();
         if ($editions->count() !== 1) {
             $this->error("Expected one edition {$this->argument('edition')}, found {$editions->count()} (use --volume)");
@@ -102,7 +105,7 @@ class MatchCatalogEditionCommand extends Command
         }
 
         $copies = DB::table('manuscripts')->leftJoin('works', 'works.id', '=', 'manuscripts.work_id')
-            ->where('manuscripts.library_id', $edition->library_id)
+            ->where('manuscripts.library_id', $edition->source->library_id)
             ->select('manuscripts.id', 'manuscripts.shelfmark', 'works.primary_title')->orderBy('manuscripts.id')->get();
 
         $stats = ['copies' => $copies->count(), 'no shelfmark in edition' => 0] + array_fill_keys([self::METHOD_TITLE, self::METHOD_SINGLE_PAGE, self::METHOD_SHELFMARK_ONLY, self::METHOD_AMBIGUOUS], 0);
@@ -435,38 +438,57 @@ class MatchCatalogEditionCommand extends Command
      * Fills the printed text of every reference of the edition, reviewed or not and whatever its source, from the entry
      * at its stored address (page_start and entry_number, or the treatise of the shelfmark's part); nothing else changes.
      */
-    private function fillTexts(CatalogVolume $edition, array $index, array $lines, bool $dry): array
+    private function fillTexts(SourceVolume $edition, array $index, array $lines, bool $dry): array
     {
-        $stats = ['references' => 0, 'filled' => 0, 'unchanged' => 0, 'entry not found' => 0];
-        Ref::where('catalog_volume_id', $edition->id)->with('manuscript:id,shelfmark')->orderBy('id')
-            ->chunkById(500, function ($refs) use ($index, $lines, $dry, &$stats) {
-                foreach ($refs as $ref) {
+        $stats = ['references' => 0, 'filled' => 0, 'unchanged' => 0, 'entry not found' => 0, 'edited, kept' => 0];
+        Entry::where('source_volume_id', $edition->id)->where('citable_type', Manuscript::class)->with('citable:id,shelfmark')->orderBy('id')
+            ->chunkById(500, function ($entries) use ($index, $lines, $dry, &$stats) {
+                foreach ($entries as $entry) {
                     $stats['references']++;
-                    $place = self::placeOf($ref, $index);
+                    // a text a reader corrected is theirs
+                    if ($entry->text_status === Entry::TEXT_EDITED) {
+                        $stats['edited, kept']++;
+
+                        continue;
+                    }
+                    $place = self::placeOf($entry, $index);
                     if (! $place) {
                         $stats['entry not found']++;
 
                         continue;
                     }
                     [$entryText, $copyText] = self::texts($place, $lines);
-                    if ($ref->entry_text === $entryText && $ref->copy_text === $copyText) {
+                    $values = self::textValues($entryText, $copyText, $entry->volumeNumber(), $entry->page_start);
+                    if (array_intersect_key($entry->getAttributes(), $values) == $values) {
                         $stats['unchanged']++;
 
                         continue;
                     }
                     $stats['filled']++;
-                    // the review's time stays the reference's last change
-                    $dry || Ref::whereKey($ref->id)->update(['entry_text' => $entryText, 'copy_text' => $copyText]);
+                    // the review's time stays the entry's last change
+                    $dry || DB::table('source_entries')->where('id', $entry->id)->update($values);
                 }
             });
 
         return $stats;
     }
 
-    /** The place of a stored reference: its shelfmark's number in the entry that begins at its page_start. */
-    public static function placeOf(Ref $ref, array $index): ?array
+    /** The printed text of an entry and the place it was taken from. */
+    private static function textValues(?string $entryText, ?string $copyText, ?int $volume, ?int $page): array
     {
-        if (! $ref->page_start || ! preg_match('/(\d+)(?:\s*\/\s*(\d+))?/', self::digits((string) $ref->manuscript?->shelfmark), $base)) {
+        $has = filled($entryText) || filled($copyText);
+
+        return [
+            'entry_text' => $entryText, 'copy_text' => $copyText,
+            'text_volume_number' => $has ? $volume : null, 'text_page' => $has ? $page : null,
+            'text_status' => $has ? Entry::TEXT_AUTO : Entry::TEXT_NONE,
+        ];
+    }
+
+    /** The place of a stored entry: its shelfmark's number in the entry that begins at its page_start. */
+    public static function placeOf(Entry $ref, array $index): ?array
+    {
+        if (! $ref->page_start || ! preg_match('/(\d+)(?:\s*\/\s*(\d+))?/', self::digits((string) $ref->citable?->shelfmark), $base)) {
             return null;
         }
         $part = isset($base[2]) ? (int) $base[2] : null;
@@ -478,34 +500,33 @@ class MatchCatalogEditionCommand extends Command
         return $places[0] ?? null;
     }
 
-    private function write(CatalogVolume $edition, array $matches, bool $dry): array
+    private function write(SourceVolume $edition, array $matches, bool $dry): array
     {
         $stats = ['insert' => 0, 'update' => 0, 'unchanged' => 0, 'reviewed, kept' => 0, 'weak, superseded' => 0, 'sibling weak, deleted' => 0];
-        $siblings = CatalogVolume::where('facsimile_code', $edition->facsimile_code)->where('id', '!=', $edition->id)->pluck('id');
-        $siblingRefs = Ref::whereIn('catalog_volume_id', $siblings)->where('source', Ref::SOURCE_AI_MATCH)->where('status', '!=', Ref::STATUS_REJECTED)
-            ->get(['id', 'manuscript_id', 'match_method', 'confidence', 'status'])->groupBy('manuscript_id');
-        $existing = Ref::where('catalog_volume_id', $edition->id)->where('source', Ref::SOURCE_AI_MATCH)->get()->keyBy('manuscript_id');
+        $copies = fn ($query) => $query->where('citable_type', Manuscript::class);
+        $siblings = SourceVolume::where('facsimile_code', $edition->facsimile_code)->where('id', '!=', $edition->id)->pluck('id');
+        $siblingRefs = $copies(Entry::whereIn('source_volume_id', $siblings))->where('origin', Entry::ORIGIN_MATCH)->where('status', '!=', Entry::STATUS_REJECTED)
+            ->get(['id', 'citable_id', 'match_method', 'confidence', 'status'])->groupBy('citable_id');
+        $existing = $copies(Entry::where('source_volume_id', $edition->id))->where('origin', Entry::ORIGIN_MATCH)->get()->keyBy('citable_id');
         // a copy whose address a reviewer set by hand (an approved correction) is not matched again
-        $manual = Ref::where('catalog_volume_id', $edition->id)->where('source', '!=', Ref::SOURCE_AI_MATCH)->pluck('manuscript_id')->flip();
-        $now = now();
+        $manual = $copies(Entry::where('source_volume_id', $edition->id))->where('origin', '!=', Entry::ORIGIN_MATCH)->pluck('citable_id')->flip();
         $inserts = [];
         foreach ($matches as $match) {
             $values = [
                 'volume_number' => $edition->volume_number,
                 'page_start' => $match['page_start'], 'page_end' => $match['page_end'], 'shelfmark_page' => $match['shelfmark_page'],
-                'entry_number' => $match['entry_number'], 'raw_text' => $match['raw_text'],
-                'entry_text' => $match['entry_text'], 'copy_text' => $match['copy_text'],
+                'entry_number' => $match['entry_number'], 'citation_text' => $match['raw_text'],
                 'match_method' => $match['match_method'], 'confidence' => $match['confidence'], 'notes' => $match['notes'],
-            ];
+            ] + self::textValues($match['entry_text'], $match['copy_text'], $edition->volume_number, $match['page_start']);
             $old = $existing[$match['manuscript_id']] ?? null;
             $others = $siblingRefs[$match['manuscript_id']] ?? collect();
             if (self::confirmed($match['match_method'], $match['confidence'])) {
-                $weak = $others->filter(fn ($r) => $r->status === Ref::STATUS_UNVERIFIED && ! self::confirmed($r->match_method, $r->confidence));
+                $weak = $others->filter(fn ($r) => $r->status === Entry::STATUS_UNVERIFIED && ! self::confirmed($r->match_method, $r->confidence));
                 $stats['sibling weak, deleted'] += $weak->count();
-                $dry || ($weak->isNotEmpty() && Ref::whereIn('id', $weak->pluck('id'))->delete());
-            } elseif ($others->contains(fn ($r) => self::confirmed($r->match_method, $r->confidence) || $r->status === Ref::STATUS_VERIFIED)) {
+                $dry || ($weak->isNotEmpty() && Entry::whereIn('id', $weak->pluck('id'))->delete());
+            } elseif ($others->contains(fn ($r) => self::confirmed($r->match_method, $r->confidence) || $r->status === Entry::STATUS_VERIFIED)) {
                 $stats['weak, superseded']++;
-                if ($old && $old->status === Ref::STATUS_UNVERIFIED) {
+                if ($old && $old->status === Entry::STATUS_UNVERIFIED) {
                     $dry || $old->delete();
                 }
 
@@ -515,9 +536,10 @@ class MatchCatalogEditionCommand extends Command
                 $stats['reviewed, kept']++;
             } elseif (! $old) {
                 $stats['insert']++;
-                $inserts[] = $values + ['manuscript_id' => $match['manuscript_id'], 'catalog_volume_id' => $edition->id, 'source' => Ref::SOURCE_AI_MATCH,
-                    'status' => Ref::STATUS_UNVERIFIED, 'created_at' => $now, 'updated_at' => $now];
-            } elseif ($old->status !== Ref::STATUS_UNVERIFIED) {
+                $inserts[] = SourceEntrySync::row($values + ['citable_type' => Manuscript::class, 'citable_id' => $match['manuscript_id'],
+                    'source_id' => $edition->source_id, 'source_volume_id' => $edition->id, 'origin' => Entry::ORIGIN_MATCH,
+                    'legacy_type' => null, 'legacy_id' => null]);
+            } elseif ($old->status !== Entry::STATUS_UNVERIFIED) {
                 $stats['reviewed, kept']++;
             } else {
                 $old->fill($values);
@@ -531,7 +553,7 @@ class MatchCatalogEditionCommand extends Command
         }
         if (! $dry) {
             foreach (array_chunk($inserts, 500) as $batch) {
-                Ref::insert($batch);
+                DB::table('source_entries')->insert($batch);
             }
         }
 

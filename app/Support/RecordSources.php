@@ -7,8 +7,9 @@ use App\Models\SourceEntry;
 use Illuminate\Support\Collection;
 
 /**
- * A record's source entries as its page shows them (step 13.2): each group in the order of its sources' rank, so a
- * library's own catalogue comes before the bibliographies and Fankha, compiled from the others, last.
+ * A record's source entries as its page shows them (steps 13.2 and 13.4): all of them alike, in the order of their
+ * sources' rank, so a library's own catalogue comes before the bibliographies and Fankha, compiled from the others,
+ * last. The entry the record was made from (is_primary) is data only and stands above no other.
  */
 class RecordSources
 {
@@ -26,34 +27,19 @@ class RecordSources
         return $this->entries->first(fn (SourceEntry $e) => $e->is_primary);
     }
 
-    /** Entries of the record in other sources that have a page image, for the side card: a library catalogue first. */
-    public function withPages(): Collection
-    {
-        return $this->ranked($this->placed()->filter(fn (SourceEntry $e) => $e->viewer()));
-    }
-
-    /** Entries of other sources with their printed text, shown above Fankha's text (backlog item 60). */
-    public function printed(): Collection
-    {
-        return $this->ranked($this->placed()->filter(fn (SourceEntry $e) => $e->hasText()));
-    }
-
-    /** The library catalogue page Fankha cites, «[ف: 30-576]». */
-    public function cited(): ?SourceEntry
-    {
-        return $this->entries->first(fn (SourceEntry $e) => $e->origin === SourceEntry::ORIGIN_FANKHA_CITATION && $e->source_volume_id);
-    }
-
     /**
-     * Further places of the record in the source it was made from: addenda, errata, and the Fankha entry of a
-     * duplicate merged into it, shown with their own page and text below the record's entry.
+     * The record's places in the sources for the side card, in the order of their sources' rank: every entry of a
+     * registered source but the bibliography's, not rejected. No entry stands above another but by its source's rank.
      */
-    public function others(): Collection
+    public function cards(): Collection
     {
-        $own = $this->primary()?->source_id;
+        return $this->ranked($this->shown()->filter(fn (SourceEntry $e) => $e->source_id));
+    }
 
-        return $this->entries->filter(fn (SourceEntry $e) => ! $e->is_primary && $e->role !== SourceEntry::ROLE_CITATION
-            && (in_array($e->role, [SourceEntry::ROLE_ADDENDUM, SourceEntry::ROLE_ERRATUM], true) || ($own && $e->source_id === $own)))->values();
+    /** The texts printed at those places, in the same order. */
+    public function texts(): Collection
+    {
+        return $this->ranked($this->shown()->filter(fn (SourceEntry $e) => $e->hasText()));
     }
 
     /** The work's bibliography (مآخذ کتاب‌شناسی) as Fankha gives it, in its order. */
@@ -62,18 +48,15 @@ class RecordSources
         return $this->entries->filter(fn (SourceEntry $e) => $e->role === SourceEntry::ROLE_CITATION)->sortBy('sort_order')->values();
     }
 
-    /** Entries of the record in another source than the one it was made from, not rejected. */
-    private function placed(): Collection
+    private function shown(): Collection
     {
-        $own = $this->primary()?->source_id;
-
-        return $this->entries->filter(fn (SourceEntry $e) => ! $e->is_primary && $e->role === SourceEntry::ROLE_ENTRY
-            && $e->status !== SourceEntry::STATUS_REJECTED && $e->origin !== SourceEntry::ORIGIN_FANKHA_CITATION
-            && ! ($own && $e->source_id === $own));
+        return $this->entries->filter(fn (SourceEntry $e) => $e->role !== SourceEntry::ROLE_CITATION && $e->status !== SourceEntry::STATUS_REJECTED);
     }
 
     private function ranked(Collection $entries): Collection
     {
-        return $entries->sortBy(fn (SourceEntry $e) => [$e->source?->rank ?? Source::KIND_RANKS[Source::KIND_OTHER], $e->id])->values();
+        // within a rank, a page seen in the source before one known only from Fankha's citation of it
+        return $entries->sortBy(fn (SourceEntry $e) => [$e->source?->rank ?? Source::KIND_RANKS[Source::KIND_OTHER], $e->origin === SourceEntry::ORIGIN_FANKHA_CITATION,
+            $e->source_id, $e->volumeNumber() ?? 0, $e->page_start ?? 0, $e->id])->values();
     }
 }

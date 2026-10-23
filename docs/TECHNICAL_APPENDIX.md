@@ -3382,3 +3382,40 @@
 
   در [CatalogReferencesTest](../tests/Feature/CatalogReferencesTest.php)، صف و تأیید گروهی روی مدخل‌ها سنجیده می‌شوند و آینه‌ی `Ref` هم وارسی می‌شود. `entryOf()` مدخل رونوشت‌شده را می‌دهد. همه‌ی ۲۴۱ آزمون موفق.
 - **رونوشت پروداکشن (`fahares_refs`)، در تراکنشی که برگردانده شد:** نسخه‌ی ۱۱۸۷۸ فیلد `source_entry_719220` گرفت و `awaitingReview` ۶٬۱۲۴ بود. ذخیره‌ی `page_start` مدخل و `text_page` را در ۷ میلی‌ثانیه برد. بازنویسی `bibliography` مدخل‌ها را برابر ستون کرد.
+
+### گام ۱۳.۴: فرمان‌ها روی `source_entries`، و نمایش یکدست مأخذها
+- **[catalogs:match-edition](../app/Console/Commands/MatchCatalogEditionCommand.php):** چاپ را با `SourceVolume` می‌یابد (`facsimile_code`، `volume_number`) و نسخه‌های کتابخانه‌ی منبع آن (`source.library_id`) را تطبیق می‌دهد. `write()` روی مدخل‌های `citable_type = Manuscript` همان جلد کار می‌کند: `origin = match` برای تطبیق‌ها، و `origin != match` یعنی نشانی داور، که دست نمی‌خورد. تطبیق ضعیفِ جلد هم‌چاپ (`facsimile_code` یکسان) مانند پیش حذف یا جانشین می‌شود. درج‌ها با `SourceEntrySync::row()`، بی کلید legacy، و با `citation_text`، متن، و `text_volume_number`/`text_page` برابر نشانی‌اند. `--texts` (`fillTexts()`) همه‌ی مدخل‌های جلد را، جز `text_status = edited`، با متن و نشانی منشأ و `text_status = auto` بازمی‌نویسد، با `DB::table` و بی `updated_at`. `placeOf()` مدخل را می‌گیرد و شماره‌ی قفسه را از `citable` می‌خواند.
+- **ارجاع فنخا به فهرست کتابخانه (`fankha_citation`):** از ستون‌های خود نسخه ساخته می‌شود: [SourceEntrySync::citedValues()](../app/Sources/SourceEntrySync.php) از `rawCitation()` و `parse()` فرمان ورود، با `source_volume_id = catalog_volume_id` و کلید legacy `fankha_citation` + شناسه‌ی نسخه، یک مدخل برای هر نسخه. `syncCited()` آن را می‌نویسد یا از نسخه‌ی بی‌ارجاع برمی‌دارد. `syncRecord()` نسخه آن را هم دارد و قلاب ذخیره به `metadata` و `catalog_volume_id` هم نگاه می‌کند (`MANUSCRIPT_COLUMNS`). [catalogs:import-fankha-references](../app/Console/Commands/ImportFankhaCatalogReferencesCommand.php) همین را برای همه‌ی نسخه‌ها انجام می‌دهد، با شمار «written / removed». در `sources:backfill`، بخش references این‌ها را از نسخه‌ها می‌سازد، رونوشت‌های پیشین از ردیف‌های `source = fankha` را حذف می‌کند و فقط ردیف‌های غیر فنخا را رونوشت می‌کند.
+- **[fahares:reconcile-addenda](../app/Console/Commands/ReconcileAddendaCommand.php):** `cite()` یک مدخل `role = addendum|erratum` با `firstOrCreate` می‌سازد (رکورد، منبع فهرست، جلد، صفحه، نقش)، با متن و نشانی منشأ. مدخل‌های رکوردی که این فرمان حذف می‌کند (اثر استدراکی یا نسخه‌ی تکراری) هم حذف می‌شوند، چون این فرمان بازگردانی ندارد.
+- **نوشتن با `DB::table`:** `SourceEntrySync::syncIds($class, $ids)` رکوردها را در بسته‌های ۱٬۰۰۰تایی بار می‌کند و `syncRecord()` را صدا می‌زند. این فرمان‌ها آن را به کار می‌برند:
+  - `SyncWorkDetails`: آثار و نسخه‌هایی که به‌روز شدند، درون همان تراکنش؛
+  - `ApplyCorpusDiff`؛
+  - `SyncFixedShelfmarks`.
+
+  این فرمان‌ها پس از نوشتن `catalog_volume_id` یا `metadata`، `syncCited()` را روی همان نسخه‌ها اجرا می‌کنند:
+  - `ApplyCorpusCitations`؛
+  - `LinkCatalogVolumes`، در هر سه جای پیوند و رهاسازی؛
+  - `MergeCatalogDuplicates`.
+
+  `SeedFaharesData` در پایان `sources:backfill` را اجرا می‌کند. فرمان‌هایی که فقط `raw_text` را می‌خوانند (پالایش خط، تاریخ، کاتب و …) تغییر نکردند، چون ستون و مدخل یکی‌اند.
+- **جلدهای فهرست:** `CatalogVolume::booted()` در `saved` تابع `SourceEntrySync::syncVolume()` را صدا می‌زند. اگر جلد در `source_volumes` باشد، ستون‌هایش به‌روز می‌شوند و منبعش می‌ماند، تا گروه‌بندی‌ای که بعدها در ثبت منابع انجام شود پایدار بماند. اگر نباشد، با همان شناسه زیر منبعِ «کتابخانه + عنوان» یا چاپ خود ساخته می‌شود و `edition_of_id` جلد و منبع را می‌گیرد. `groupKey()`، `groupCode()`، `stem()` و `volumeValues()` از فرمان بازپُرسازی به سرویس آمدند و هر دو از یک جا می‌خوانند. این مسیر `SyncCatalogEditions`، `MergeCatalogDuplicates`، `ImportMtifCatalogers` و هر ذخیره‌ی Eloquent دیگر را می‌پوشاند.
+- **[LegacyMirror](../app/Sources/LegacyMirror.php) (تصمیم):** نگه داشته شد. اصلاح نشانی و داوری همچنان در ردیف `manuscript_catalog_references` هم نوشته می‌شوند. دیگر هیچ کدی آن جدول را نمی‌خواند، ولی اگر استقرار به کد پیش از ۱۳.۲ برگردانده شود، داوری‌ها از دست نمی‌روند. تطبیق‌های تازه فقط در مدخل‌ها هستند. آینه با حذف جدول‌های قدیم برداشته می‌شود.
+- **نمایش (خواست کاربر: «متن مأخذ اصلی نباید داشته باشیم… همه‌ی این منابع مأخذ هستند… چیزی که داریم رتبه‌بندی است»):**
+  - [RecordSources](../app/Support/RecordSources.php): `cards()`، همه‌ی مدخل‌های منبع ثبت‌شده جز `citation`، ردنشده؛ `texts()`، همان‌ها با متن. ترتیب: `[rank، fankha_citation پس از دیگران، source_id، جلد، صفحه، id]`. `withPages()`، `printed()`، `others()` و `cited()` برداشته شدند. `is_primary` فقط در داده می‌ماند: قلم `fankha_page`، نشان استدراک و قالب استناد فنخا.
+  - [SourceEntry](../app/Models/SourceEntry.php): `sourceLabel()` («فنخا (استدراک)»؛ برای `fankha_citation`، عنوان جلد)، `cardLabel($record)` (با «ردیف N» نسخه در مدخل بنیادی، و دامنه‌ی صفحه برای اثر)، `suggestionField()` (`fankha_page`، یا `source_entry_{id}` اگر `sourceEntryField()` آن را بپذیرد)، و `textTitle()` («متن فهرست مسجد اعظم، چاپ ۱۳۸۸»، «متن فنخا»، «متن فنخا (استدراک)»).
+  - اجزای [source/page-card](../resources/views/components/source/page-card.blade.php) و [source/text](../resources/views/components/source/text.blade.php) در هر دو صفحه یکسان‌اند. متن با `Fa::digits` نمایش داده می‌شود، اکنون متن فنخا هم، و بیش از ۷۰۰ نویسه بسته باز می‌شود. سطر نسخه فقط زیر متن مدخل پررنگ است. `source-citations.blade.php` حذف شد. در صفحه‌ی اثر، فهرست «مآخذ کتاب‌شناسی» پس از رشته‌های فنخا یک سطر برای هر کارت دارد، و «به روایت فنخا» در معرفی اثر از `$fankha` می‌آید. یک خطای ۵۰۰ از متغیر حذف‌شده‌ی `$catShort` در همین وارسی پیدا شد و آزمونش افزوده شد.
+- **آزمون:** آزمون‌های `match-edition`، صف، ورود ارجاع فنخا و استدراک‌ها روی مدخل‌ها بازنویسی شدند. `synced()` و `entryOf()` رفتند و `refEntry()` (مدخلی به شکل ردیف پیشین) و `matched()` جایشان آمدند. [SourcePagesTest](../tests/Feature/SourcePagesTest.php) و [SourceCorrectionsTest](../tests/Feature/SourceCorrectionsTest.php) ترتیب یکدست را می‌سنجند و نبودن «متن مأخذ» و «ارجاع‌های دیگر» را. همه‌ی ۲۴۱ آزمون موفق.
+- **رونوشت پروداکشن (`fahares_refs`):**
+  - `sources:backfill` در ۲ دقیقه و ۲۶ ثانیه: ۳۲۳٬۷۷۷ `fankha_citation`. تنها ردیف قدیمی که مدخل نگرفت (#۳۱۸۷۹۲) نه ارجاع داشت و نه جلد. مقایسه‌ی ارجاع، جلد و صفحه با ردیف‌های `source = fankha` صفر ناهمخوانی داد.
+  - `match-edition` و `--texts` روی ج ۱ تا ۴ (`masjid-azam_v0N_pages.jsonl.gz`): درج و به‌روزرسانی صفر. «unchanged» ۱٬۷۴۲ + ۱٬۶۱۹ + ۱٬۲۵۳ + ۱٬۵۱۰ = ۶٬۱۲۴ بود و `entry not found` صفر.
+  - صفحه‌ی نسخه‌ی ۱۱۸۷۸: کارت‌ها به ترتیب «… مسجد اعظم قم، چاپ ۱۳۸۸، به کوشش رضا استادی، ج ۲، ص ۹»، «فهرست نسخ خطی کتابخانه مسجد اعظم قم - جلد اول، ج ۱، ص ۱۷ / به نشانی فنخا» و «فنخا، ج ۱، ص ۱۸۵، ردیف ۲». متن‌ها به ترتیب «متن فهرست مسجد اعظم، چاپ ۱۳۸۸» و «متن فنخا».
+  - ۶۵ صفحه‌ی نمونه (اثر با و بی معرفی، نسخه با و بی تطبیق، اثر با استدراک) همه ۲۰۰ دادند.
+  - کانتینر پیش‌نمایش باید با کاربر کانتینر اصلی (`0:0`) اجرا شود، وگرنه نوشتن در گزارش و نماهای کامپایل‌شده شکست می‌خورد و خطای واقعی پنهان می‌ماند.
+- **پایگاه محلی توسعه (`fahares_db`):** سایت `localhost:8000` در ۱۱:۵۱ و ۱۱:۵۷ خطای «Table 'fahares_db.source_entries' doesn't exist» داد. `migrate` (از جمله migration جاماندهٔ مورد ۶۰) و `sources:backfill` روی آن اجرا شد و صفحه‌ها ۲۰۰ دادند.
+- **طرح استقرار گام‌های ۱۳.۲ تا ۱۳.۴ (با هم):**
+  1. پشتیبان پایگاه داده.
+  2. سنجش فضای دیسک (حدود ۶۰۰ مگابایت داده و نمایه‌ی `source_entries`).
+  3. push.
+  4. پس از ساخت Coolify: `php artisan migrate --force`.
+  5. `php artisan sources:backfill`، حدود ۲.۵ دقیقه، که تا پایان آن صفحه‌ی رکوردها منابع را نشان نمی‌دهند. پس در ساعت کم‌بازدید.
+  6. مورد ۶۰ با `--texts` پر می‌شود و متن صفحه‌ها باید به کانتینر رونوشت شود.

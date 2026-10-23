@@ -99,18 +99,18 @@ class ReconcileAddendaTest extends TestCase
         // The copy already listed under the main entry stays single; its addendum description becomes a citation
         $this->assertNull(Manuscript::find($duplicate->id));
         $this->assertEquals($kept->id, EntityRedirect::resolveTargetId('manuscripts', $duplicate->id));
-        $this->assertEquals(['addendum'], $kept->sourceCitations()->pluck('role')->all());
+        $this->assertEquals(['addendum'], $kept->sourceEntries()->where('is_primary', false)->pluck('role')->all());
 
         // The addendum text is preserved as a citation of the main entry
-        $citation = $target->sourceCitations()->first();
+        $citation = $target->sourceEntries()->where('is_primary', false)->first();
         $this->assertEquals('addendum', $citation->role);
         $this->assertEquals([34, 979], [$citation->volume_number, $citation->page_start]);
-        $this->assertStringContainsString('حاشیه آزمایشی استدراک', $citation->raw_text);
+        $this->assertStringContainsString('حاشیه آزمایشی استدراک', $citation->entry_text ?? $citation->copy_text);
 
         // Erratum: author corrected, correction kept as a citation, pseudo-entry removed
         $erratumTarget->refresh();
         $this->assertEquals($newAuthor->id, $erratumTarget->author_id);
-        $this->assertEquals('erratum', $erratumTarget->sourceCitations()->value('role'));
+        $this->assertEquals('erratum', $erratumTarget->sourceEntries()->where('is_primary', false)->value('role'));
         $this->assertNull(Work::find($erratum->id));
         $this->assertEquals(0, $oldAuthor->fresh()->works_count);
         $this->assertEquals(1, $newAuthor->fresh()->works_count);
@@ -119,7 +119,7 @@ class ReconcileAddendaTest extends TestCase
         $this->artisan('fahares:reconcile-addenda', ['--file' => $this->file])
             ->expectsOutputToContain('Merged 0 entries')
             ->assertSuccessful();
-        $this->assertEquals(1, $target->sourceCitations()->count());
+        $this->assertEquals(1, $target->sourceEntries()->where('is_primary', false)->count());
     }
 
     public function test_dry_run_writes_nothing()
@@ -136,7 +136,7 @@ class ReconcileAddendaTest extends TestCase
         $this->artisan('fahares:reconcile-addenda', ['--file' => $this->file, '--dry-run' => true])->assertSuccessful();
 
         $this->assertNotNull(Work::find($source->id));
-        $this->assertEquals(0, $target->sourceCitations()->count());
+        $this->assertEquals(0, $target->sourceEntries()->where('is_primary', false)->count());
     }
 
     public function test_title_mismatch_is_skipped()

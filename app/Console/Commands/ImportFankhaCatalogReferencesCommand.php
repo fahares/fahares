@@ -3,18 +3,19 @@
 namespace App\Console\Commands;
 
 use App\Console\Commands\LinkCatalogVolumesCommand as Linker;
-use App\Models\ManuscriptCatalogReference as Ref;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Copies each manuscript's Fankha citation («[ف: 2 - 224]», «[ف مخ: 2 - 817]», «[الفبائی: 9-]» …) and its
- * catalog_volume_id into manuscript_catalog_references as a source=fankha row (backlog item 51). The raw
+ * Writes each manuscript's Fankha citation («[ف: 2 - 224]», «[ف مخ: 2 - 817]», «[الفبائی: 9-]» …) and its
+ * catalog_volume_id as a source entry of origin fankha_citation (backlog item 51; before step 13.4 a
+ * manuscript_catalog_references row of source fankha). Saving a manuscript keeps its own in step; this does them all. The raw
  * citation is kept as it is; volume and page are parsed where the citation gives them. The manuscript keeps
  * its catalog_volume_id, so the cataloger chain (items 49 and 56) is untouched.
  *
- * One fankha row per manuscript: running it again inserts the missing rows and updates the ones whose
- * citation or volume changed since (for instance after catalogs:link-volumes), and never duplicates.
+ * One entry per manuscript: running it again inserts the missing entries, updates the ones whose citation or volume
+ * changed since (for instance after catalogs:link-volumes, which writes with DB::table), and never duplicates.
  */
 class ImportFankhaCatalogReferencesCommand extends Command
 {
@@ -22,7 +23,7 @@ class ImportFankhaCatalogReferencesCommand extends Command
         {--dry-run : Report the counts without saving anything}
         {--chunk=2000 : Manuscripts read per batch}';
 
-    protected $description = 'Copy the Fankha catalogue citation of every manuscript into manuscript_catalog_references';
+    protected $description = 'Write the Fankha catalogue citation of every manuscript as its source entry';
 
     public function handle(): int
     {
@@ -32,18 +33,12 @@ class ImportFankhaCatalogReferencesCommand extends Command
             $this->warn('Dry run: nothing is saved.');
         }
 
-        $stats = array_fill_keys(['manuscripts', 'no citation or volume', 'volume and page', 'page only', 'volume only', 'not parsed', 'insert', 'update', 'unchanged'], 0);
+        $stats = array_fill_keys(['manuscripts', 'no citation or volume', 'volume and page', 'page only', 'volume only', 'not parsed', 'written', 'removed'], 0);
         $series = [];
-        $now = now();
 
         DB::table('manuscripts')->select('id', 'catalog_volume_id', 'metadata', 'raw_text')
             ->orderBy('id')
-            ->chunkById((int) $this->option('chunk'), function ($rows) use (&$stats, &$series, $dry, $now) {
-                $existing = DB::table('manuscript_catalog_references')
-                    ->where('source', Ref::SOURCE_FANKHA)->whereIn('manuscript_id', $rows->pluck('id'))
-                    ->get()->keyBy('manuscript_id');
-                $inserts = [];
-
+            ->chunkById((int) $this->option('chunk'), function ($rows) use (&$stats, &$series, $dry) {
                 foreach ($rows as $row) {
                     $stats['manuscripts']++;
                     $raw = self::rawCitation($row->metadata, $row->raw_text);
@@ -61,31 +56,11 @@ class ImportFankhaCatalogReferencesCommand extends Command
                     }]++;
                     $key = $parsed['series'] ?? '(none)';
                     $series[$key] = ($series[$key] ?? 0) + 1;
-
-                    $values = [
-                        'catalog_volume_id' => $row->catalog_volume_id,
-                        'volume_number' => $parsed['volume'],
-                        'page_start' => $parsed['page'],
-                        'raw_text' => $raw,
-                    ];
-                    $old = $existing[$row->id] ?? null;
-                    if (! $old) {
-                        $stats['insert']++;
-                        $inserts[] = $values + ['manuscript_id' => $row->id, 'source' => Ref::SOURCE_FANKHA, 'status' => Ref::STATUS_UNVERIFIED, 'created_at' => $now, 'updated_at' => $now];
-                    } elseif (self::differs($old, $values)) {
-                        $stats['update']++;
-                        if (! $dry) {
-                            DB::table('manuscript_catalog_references')->where('id', $old->id)->update($values + ['updated_at' => $now]);
-                        }
-                    } else {
-                        $stats['unchanged']++;
-                    }
                 }
-
-                if (! $dry && $inserts) {
-                    foreach (array_chunk($inserts, 500) as $batch) {
-                        DB::table('manuscript_catalog_references')->insert($batch);
-                    }
+                if (! $dry) {
+                    [$written, $removed] = SourceEntrySync::syncCited($rows);
+                    $stats['written'] += $written;
+                    $stats['removed'] += $removed;
                 }
             });
 
@@ -160,16 +135,5 @@ class ImportFankhaCatalogReferencesCommand extends Command
         }
 
         return ['series' => $series ?: null, 'volume' => $volume, 'page' => $page];
-    }
-
-    private static function differs(object $old, array $values): bool
-    {
-        foreach ($values as $k => $v) {
-            if ((string) $old->{$k} !== (string) $v) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

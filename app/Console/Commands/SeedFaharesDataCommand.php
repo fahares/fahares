@@ -143,6 +143,8 @@ class SeedFaharesDataCommand extends Command
 
         // Update taxonomy counters
         $this->updateTaxonomyCounts();
+        // the records were inserted with DB::table: their entries in the sources come from them in one pass (step 13.4)
+        $this->call('sources:backfill');
 
         $totalDuration = round(microtime(true) - $startTime, 2);
         $this->newLine();

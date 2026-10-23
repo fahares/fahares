@@ -235,6 +235,49 @@ class SourceEntry extends Model
         ])));
     }
 
+    /** «فنخا (استدراک)»: the source, and the entry's role when it is not an entry. */
+    public function sourceLabel(): string
+    {
+        $name = $this->origin === self::ORIGIN_FANKHA_CITATION ? ($this->sourceVolume?->title ?: $this->sourceName()) : $this->sourceName();
+
+        return $this->role === self::ROLE_ENTRY ? $name : "{$name} ({$this->roleLabel()})";
+    }
+
+    /**
+     * The entry on the record's side card: «فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۸۸، ج ۲، ص ۹»,
+     * «فنخا، ج ۱، ص ۱۸۵، ردیف ۲» (the row of a copy in the entry its record was made from).
+     */
+    public function cardLabel(?Model $record = null): string
+    {
+        $row = $this->is_primary && $record instanceof Manuscript && $record->sequence_number ? 'ردیف ' . $record->sequence_number : null;
+
+        return Fa::digits(implode('، ', array_filter([
+            $this->sourceLabel(),
+            $this->origin !== self::ORIGIN_FANKHA_CITATION && $this->editionLabel() ? 'چاپ ' . $this->editionLabel() : null,
+            $this->placeLabel($record instanceof Work),
+            $row,
+        ])));
+    }
+
+    /** The suggestion field of the entry's address: Fankha's own is the record's fankha_page, any other its own. */
+    public function suggestionField(): ?string
+    {
+        if ($this->is_primary) {
+            return 'fankha_page';
+        }
+        $name = \App\Suggestions\SuggestionRegistry::SOURCE_ENTRY_PREFIX . $this->id;
+
+        return \App\Suggestions\SuggestionRegistry::sourceEntryField($name, $this) ? $name : null;
+    }
+
+    /** «متن فهرست مسجد اعظم، چاپ ۱۳۸۸», «متن فنخا (استدراک)»: the heading of the entry's text on the record page. */
+    public function textTitle(): string
+    {
+        $title = $this->source?->kind === Source::KIND_LIBRARY_CATALOGUE ? $this->printedTextTitle() : 'متن ' . $this->sourceName();
+
+        return $this->role === self::ROLE_ENTRY ? $title : "{$title} ({$this->roleLabel()})";
+    }
+
     /** The detail of the `open-catalog-viewer` event, or null when the volume has no page images. */
     public function viewer(): ?array
     {

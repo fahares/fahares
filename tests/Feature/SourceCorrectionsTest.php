@@ -178,10 +178,10 @@ class SourceCorrectionsTest extends TestCase
         $this->assertSame([$this->manuscript->id, false, null], [$primary->fresh()->citable_id, $primary->fresh()->is_primary, $primary->fresh()->legacy_type],
             "the duplicate's Fankha entry stays citable on the kept copy");
         $this->assertSame($this->primary($this->manuscript)->id, $this->manuscript->fresh()->sources()->primary()->id);
-        // the duplicate's catalogue text stands with the kept copy's; its Fankha entry goes under the other places
-        // in Fankha, below the kept copy's own text, as before step 13.3
+        // the duplicate's texts stand with the kept copy's, all alike: the library catalogue first, then both Fankha entries
         $this->get(route('manuscripts.show', $this->manuscript))
-            ->assertSeeInOrder(['متن مدخل فهرست', 'متن مأخذ', 'قم؛ مسجد اعظم؛ شماره نسخه: 1939', 'ارجاع‌های دیگر در مآخذ چاپی', 'مدخل', 'فنخا، ج ۱۵، ص ۱۲۱', 'قم؛ مسجد اعظم؛ شماره نسخه: 1940']);
+            ->assertSeeInOrder(['متن مدخل فهرست', 'متن فنخا', 'قم؛ مسجد اعظم؛ شماره نسخه: ۱۹۳۹', 'متن فنخا', 'قم؛ مسجد اعظم؛ شماره نسخه: ۱۹۴۰'])
+            ->assertDontSee('متن مأخذ')->assertDontSee('ارجاع‌های دیگر');
 
         $merger->undoManuscriptMerge($this->manuscript->fresh(), $old);
         $this->assertSame([$dup->id, true, 'manuscript', $dup->id], [$primary->fresh()->citable_id, $primary->fresh()->is_primary, $primary->fresh()->legacy_type, $primary->fresh()->legacy_id]);

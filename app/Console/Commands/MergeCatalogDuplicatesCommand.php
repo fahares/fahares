@@ -7,6 +7,7 @@ use App\Models\Cataloger;
 use App\Models\CatalogVolume;
 use App\Models\Library;
 use App\Suggestions\LibraryMerger;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -152,6 +153,8 @@ class MergeCatalogDuplicatesCommand extends Command
                     'metadata' => ['cataloger_note' => $fix['source']],
                 ]);
             DB::table('manuscripts')->whereIn('id', $ids)->update(['catalog_volume_id' => $split->id]);
+            // the page Fankha cites goes with the volume (step 13.4)
+            SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $ids)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
             $targets[] = $split;
         }
         if ($catalogers !== null) {

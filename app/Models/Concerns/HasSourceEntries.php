@@ -19,7 +19,11 @@ trait HasSourceEntries
     public static function bootHasSourceEntries(): void
     {
         static::saved(function ($record) {
-            $columns = [...SourceEntrySync::RECORD_COLUMNS, ...($record instanceof \App\Models\Work ? ['bibliography'] : [])];
+            $columns = [...SourceEntrySync::RECORD_COLUMNS, ...match (true) {
+                $record instanceof \App\Models\Work => ['bibliography'],
+                $record instanceof \App\Models\Manuscript => SourceEntrySync::MANUSCRIPT_COLUMNS,
+                default => [],
+            }];
             if ($record->wasRecentlyCreated || $record->wasChanged($columns)) {
                 SourceEntrySync::syncRecord($record);
                 $record->unsetRelation('sourceEntries');

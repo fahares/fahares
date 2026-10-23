@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Manuscript;
 use App\Suggestions\ProtectedColumns;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -91,6 +92,8 @@ class ApplyCorpusCitationsCommand extends Command
                     foreach ($chunk as $id => $metadata) {
                         DB::table('manuscripts')->where('id', $id)->update(['metadata' => $metadata]);
                     }
+                    // the citation is the library catalogue page Fankha cites (step 13.4)
+                    SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', array_keys($chunk))->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
                 });
             }
         }

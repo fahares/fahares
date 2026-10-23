@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Manuscript;
 use App\Suggestions\ProtectedColumns;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -114,6 +115,8 @@ class SyncFixedShelfmarksCommand extends Command
             $totalUpdated++;
         }
 
+        // their Fankha entries and cited pages follow (step 13.4)
+        SourceEntrySync::syncIds(Manuscript::class, $updatedIds);
         $this->info("Total manuscripts updated in MariaDB: {$totalUpdated} / " . count($updates));
         if (isset($guard)) {
             $guard->printTo($this, 'manuscript');

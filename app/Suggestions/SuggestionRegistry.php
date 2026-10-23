@@ -229,8 +229,8 @@ class SuggestionRegistry
     {
         $fields = self::fields($record::class);
         if ($record instanceof Manuscript) {
-            // the entries in other sources the page shows with their page image
-            foreach ($record->sources()->withPages() as $entry) {
+            // the record's entries the page shows, each with its own address field (Fankha's own is fankha_page)
+            foreach ($record->sources()->cards() as $entry) {
                 if ($field = self::sourceEntryField(self::SOURCE_ENTRY_PREFIX . $entry->id, $entry)) {
                     $fields[self::SOURCE_ENTRY_PREFIX . $entry->id] = $field;
                 }

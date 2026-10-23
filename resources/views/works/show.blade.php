@@ -57,20 +57,11 @@
 
     @php
         use App\Support\Fa;
-        // the record's sources (step 13.2): its Fankha entry, its bibliography and the addenda
+        // the record's sources (steps 13.2 and 13.4), all alike in the order of their rank; its Fankha entry gives the
+        // addendum chip and the Fankha citation format
         $sources = $work->sources();
         $fankha = $sources->primary();
         $bibliography = $sources->bibliography()->pluck('citation_text');
-        $catShort = $fankha?->sourceName() ?: 'فنخا';
-        $catName = $fankha?->source?->title ?? 'فهرستگان نسخه‌های خطی ایران (فنخا)';
-        $hasPage = $fankha?->volume_number && $fankha?->page_start;
-        $pageRef = $hasPage
-            ? Fa::digits("ج {$fankha->volume_number}، ص {$fankha->page_start}" . ($fankha->page_end && $fankha->page_end > $fankha->page_start ? "–{$fankha->page_end}" : ''))
-            : null;
-        $pageThumb = $hasPage ? $fankha->thumbUrl() : null;
-        $openViewer = $hasPage && $fankha->viewer()
-            ? "\$dispatch('open-catalog-viewer', " . \Illuminate\Support\Js::from($fankha->viewer()) . ")"
-            : null;
         $hasAltTitles = collect($work->alternative_titles ?? [])->contains(fn ($alt) => is_array($alt) && ! empty($alt['title']));
     @endphp
 
@@ -196,17 +187,9 @@
                         </button>
                     </div>
                 @endforeach
-                <div class="space-y-2">
-                    <div class="text-sm font-bold text-ink">{{ $catShort }}@if($pageRef)، {{ $pageRef }}@endif <x-suggest.field name="fankha_page" class="ms-1" /></div>
-                    @if($pageThumb)
-                        <button type="button" @click="{{ $openViewer }}" class="block w-full group cursor-pointer" title="دیدن برگه در مأخذ چاپی">
-                            <div class="aspect-[16/9] lg:aspect-[4/3] overflow-hidden border border-line bg-white">
-                                <img src="{{ $pageThumb }}" alt="برگه‌ی {{ $pageRef }} در {{ $catShort }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('button').remove()">
-                            </div>
-                            <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $catShort }}</span>
-                        </button>
-                    @endif
-                </div>
+                @foreach($sources->cards() as $entry)
+                    <x-source.page-card :entry="$entry" :record="$work" />
+                @endforeach
             </x-ui.card>
         </aside>
 
@@ -241,7 +224,7 @@
 
             @if(! empty($work->description))
                 <x-ui.section title="معرفی اثر" field="description">
-                    <x-slot:actions><span class="text-muted">به روایت {{ $catShort }}</span></x-slot:actions>
+                    <x-slot:actions><span class="text-muted">به روایت {{ $fankha?->sourceName() ?: 'فنخا' }}</span></x-slot:actions>
                     <div class="text-ink text-sm sm:text-[15px] leading-loose text-justify whitespace-pre-line max-w-[72ch]">{{ $work->description }}</div>
                 </x-ui.section>
             @endif
@@ -286,7 +269,7 @@
 
             @if(! empty($work->commentaries_and_glosses) && count($work->commentaries_and_glosses) > 0)
                 <x-ui.section title="شروح، حواشی و منظومه‌ها" field="commentaries_and_glosses" :count="count($work->commentaries_and_glosses)">
-                    <x-slot:actions><span class="text-muted">به روایت {{ $catShort }}</span></x-slot:actions>
+                    <x-slot:actions><span class="text-muted">به روایت {{ $fankha?->sourceName() ?: 'فنخا' }}</span></x-slot:actions>
                     <ul class="space-y-1.5 text-sm" x-data="{ all: false }">
                         @foreach($work->commentaries_and_glosses as $comm)
                             <li class="flex gap-2.5 leading-relaxed" @if($loop->index >= 12) x-show="all" x-cloak @endif>
@@ -301,7 +284,7 @@
                 </x-ui.section>
             @endif
 
-            <!-- The catalog this record comes from closes the list, alone when there is no other source -->
+            <!-- Fankha's bibliography of the work, then the work's places in the sources, Fankha last (step 13.4) -->
             <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
                 <ul class="space-y-1 text-sm">
                     @foreach($bibliography as $bib)
@@ -310,37 +293,27 @@
                             <span class="text-ink">{{ \App\Support\BibliographyLinks::html($bib) }}</span>
                         </li>
                     @endforeach
-                    <li class="flex gap-2.5 leading-relaxed">
-                        <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                        <span class="text-ink">{{ $catName }}@if($pageRef)، @if($openViewer)<a href="#" @click.prevent="{{ $openViewer }}" title="دیدن برگه در {{ $catShort }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $pageRef }}</a>@else{{ $pageRef }}@endif @endif</span>
-                    </li>
+                    @foreach($sources->cards() as $entry)
+                        @php
+                            $place = $entry->placeLabel(true);
+                            $viewer = $entry->viewer();
+                            $named = $entry->source?->title . ($entry->role !== \App\Models\SourceEntry::ROLE_ENTRY ? ' (' . $entry->roleLabel() . ')' : '');
+                        @endphp
+                        <li class="flex gap-2.5 leading-relaxed">
+                            <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                            <span class="text-ink">{{ $named }}@if($place)، @if($viewer)<a href="#" @click.prevent="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})" title="دیدن برگه در {{ $entry->sourceName() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $place }}</a>@else{{ $place }}@endif @endif</span>
+                        </li>
+                    @endforeach
                 </ul>
             </x-ui.section>
 
-            @if($fankha?->cleanEntryText())
-                <x-ui.section title="متن مأخذ" x-data="{ copied: false, open: false }">
-                    <x-slot:actions>
-                        <span class="text-muted">{{ $catName }}</span>
-                        <x-ui.btn size="sm" @click="navigator.clipboard.writeText($refs.workRawText.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
-                            <span x-show="!copied">رونوشت متن</span>
-                            <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
-                        </x-ui.btn>
-                    </x-slot:actions>
-                    <x-source.stale-text :entry="$fankha" />
-                    <div class="relative">
-                        <div x-ref="workRawText" :class="open ? '' : 'max-h-64 overflow-hidden'"
-                             class="p-4 sm:p-5 bg-surface border border-line text-xs sm:text-[13px] text-ink leading-loose whitespace-pre-line text-right">{{ $fankha->cleanEntryText() }}</div>
-                        <div x-show="! open" class="absolute inset-x-px bottom-px h-20 bg-gradient-to-t from-surface to-transparent flex items-end justify-center pb-2">
-                            <button type="button" @click="open = true" class="text-xs font-semibold text-cinnabar hover:underline cursor-pointer">نمایش کامل متن</button>
-                        </div>
-                    </div>
-                </x-ui.section>
-            @endif
+            <!-- The text printed at each of those places, in the same order -->
+            @foreach($sources->texts() as $entry)
+                <x-source.text :entry="$entry" />
+            @endforeach
 
             <!-- Relations with other works (commentary on, translation of…) -->
             <x-record-relations :record="$work" />
-
-            <x-source-citations :citations="$sources->others()" />
 
             <x-suggest.readings />
 

@@ -8,15 +8,17 @@ use App\Models\EntityRedirect;
 use App\Models\Language;
 use App\Models\Manuscript;
 use App\Models\Person;
+use App\Models\SourceEntry;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Applies a catalog addenda reconciliation file (fahares-corpus/reconciliations/*.json):
  * merges addendum entries into their main works, applies errata, and records every
- * addendum page as a source citation so nothing from the printed addenda is lost.
+ * addendum page as a source entry of the record (step 13.4) so nothing from the printed addenda is lost.
  * Safe to re-run: entries already applied are skipped.
  */
 class ReconcileAddendaCommand extends Command
@@ -142,6 +144,7 @@ class ReconcileAddendaCommand extends Command
                 $this->cite($existing, $catalog, $ms->volume_number, $ms->page_start, $ms->page_end, 'addendum', $ms->raw_text);
                 EntityRedirect::recordRedirect('manuscripts', $ms->id, $existing->id);
                 $ms->delete();
+                SourceEntry::where('citable_type', Manuscript::class)->where('citable_id', $ms->id)->delete();
                 continue;
             }
 
@@ -181,11 +184,23 @@ class ReconcileAddendaCommand extends Command
         $target->searchable();
     }
 
+    /** The addendum or erratum page as an entry of the record in the catalog (step 13.4; before it, a source_citations row). */
     protected function cite($record, Catalog $catalog, ?int $volume, ?int $from, ?int $to, string $role, ?string $rawText): void
     {
-        $record->sourceCitations()->firstOrCreate(
-            ['catalog_id' => $catalog->id, 'volume_number' => $volume, 'page_start' => $from, 'role' => $role],
-            ['page_end' => $to, 'raw_text' => $rawText]
+        $sourceId = SourceEntrySync::ensureCatalogSource($catalog->id);
+        $text = filled($rawText) ? $rawText : null;
+        SourceEntry::firstOrCreate(
+            ['citable_type' => $record::class, 'citable_id' => $record->id, 'source_id' => $sourceId, 'volume_number' => $volume, 'page_start' => $from, 'role' => $role],
+            [
+                'source_volume_id' => SourceEntrySync::volumeIds([$sourceId])[$sourceId][$volume] ?? null,
+                'page_end' => $to,
+                $record instanceof Manuscript ? 'copy_text' : 'entry_text' => $text,
+                'text_volume_number' => $text ? $volume : null,
+                'text_page' => $text ? $from : null,
+                'text_status' => $text ? SourceEntry::TEXT_AUTO : SourceEntry::TEXT_NONE,
+                'origin' => SourceEntry::ORIGIN_FANKHA,
+                'status' => SourceEntry::STATUS_VERIFIED,
+            ]
         );
     }
 
@@ -197,6 +212,8 @@ class ReconcileAddendaCommand extends Command
 
         EntityRedirect::recordRedirect('works', $source->id, $target->id);
         $source->delete();
+        // its place in the catalog is cited on the target; this command has no undo to bring the entry back for
+        SourceEntry::where('citable_type', Work::class)->where('citable_id', $source->id)->delete();
     }
 
     protected function recount(): void

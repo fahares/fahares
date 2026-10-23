@@ -11,6 +11,12 @@ class CatalogVolume extends Model
 {
     protected $guarded = ['id'];
 
+    /** A volume saved here is a volume of the source registry too, under the same id (step 13.4). */
+    protected static function booted(): void
+    {
+        static::saved(fn (self $volume) => \App\Sources\SourceEntrySync::syncVolume($volume));
+    }
+
     /** Where a scan came from is kept for the record only and never reaches the site or an export. */
     protected $hidden = ['source_url'];
 

@@ -26,7 +26,8 @@ class SourcePagesTest extends TestCase
         Artisan::call('sources:backfill', ['--only' => ['registry']]);
         $library = Library::create(['name' => 'مسجد اعظم', 'city' => 'قم', 'slug' => 'masjid-azam-' . uniqid()]);
         $this->work = Work::create(['primary_title' => 'دیوان قدسی', 'clean_title' => 'دیوان قدسی', 'slug' => 'work-pages-' . uniqid(),
-            'volume_number' => 15, 'page_start' => 120, 'raw_text' => 'ستون کهنه‌ی اثر', 'bibliography' => ['ستون کهنه‌ی مآخذ']]);
+            'volume_number' => 15, 'page_start' => 120, 'raw_text' => 'ستون کهنه‌ی اثر', 'bibliography' => ['ستون کهنه‌ی مآخذ'],
+            'description' => 'معرفی آزمایشی اثر']);
         $this->manuscript = Manuscript::create(['work_id' => $this->work->id, 'library_id' => $library->id, 'shelfmark' => '1939',
             'volume_number' => 15, 'page_start' => 120, 'sequence_number' => 3, 'raw_text' => 'ستون کهنه‌ی نسخه']);
         $this->catalogue = Source::create(['code' => 'test-catalogue', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10,
@@ -57,8 +58,10 @@ class SourcePagesTest extends TestCase
             'origin' => SourceEntry::ORIGIN_FANKHA, 'copy_text' => 'متن استدراک']);
 
         $this->get(route('manuscripts.show', $this->manuscript))->assertOk()
-            ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۸۸، به کوشش رضا استادی، ج ۲، ص ۴۱۴', 'فنخا، ج ۱۵، ص ۱۲۱، ردیف ۳'])
-            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', 'متن مدخل فهرست', 'ش ۱۹۳۹، ۱۶۲ برگ', 'متن مأخذ', "متن فنخای نسخه \nادامه", 'استدراک', 'متن استدراک'])
+            // every source alike, in the order of its rank: no «متن مأخذ» above the others
+            ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۸۸، به کوشش رضا استادی، ج ۲، ص ۴۱۴', 'فنخا، ج ۱۵، ص ۱۲۱، ردیف ۳', 'فنخا (استدراک)، ج ۳۴، ص ۹۷۰'])
+            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', 'متن مدخل فهرست', 'ش ۱۹۳۹، ۱۶۲ برگ', 'متن فنخا', "متن فنخای نسخه \nادامه", 'متن فنخا (استدراک)', 'متن استدراک'])
+            ->assertDontSee('متن مأخذ')
             ->assertSee('catalogs/fankha/v15/p0121.webp', false)
             ->assertDontSee('ستون کهنه‌ی نسخه')
             ->assertDontSee('<!-- page', false);
@@ -93,8 +96,9 @@ class SourcePagesTest extends TestCase
         $this->entry($this->work, ['source_id' => $dharia, 'role' => SourceEntry::ROLE_CITATION, 'citation_text' => 'الذریعة 101/25', 'sort_order' => 0]);
 
         $this->get(route('works.show', $this->work))->assertOk()
-            ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'فهرستگان نسخه‌های خطی ایران', 'ج ۱۵، ص ۱۲۱–۱۲۲', 'متن مأخذ', 'متن فنخای اثر'])
+            ->assertSeeInOrder(['مآخذ کتاب‌شناسی', 'الذریعة', 'دنا', 'فهرستگان نسخه‌های خطی ایران', '(استدراک)، ', 'ج ۱۵، ص ۱۲۱–۱۲۲', 'متن فنخا (استدراک)', 'متن فنخای اثر'])
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)
+            ->assertSeeInOrder(['معرفی اثر', 'به روایت فنخا', 'معرفی آزمایشی اثر'])
             ->assertSee('استدراک')
             // the suggestion desk still offers the bibliography column, which corrections write until step 13.3
             ->assertDontSee('ستون کهنه‌ی اثر');

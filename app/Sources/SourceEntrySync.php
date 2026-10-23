@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\DB;
  */
 class SourceEntrySync
 {
-    /** The columns of a record its entries follow. */
+    /** The columns of a record its entries follow; a manuscript's also give the library catalogue page Fankha cites. */
     public const RECORD_COLUMNS = ['catalog_id', 'volume_number', 'page_start', 'page_end', 'raw_text'];
+
+    public const MANUSCRIPT_COLUMNS = ['metadata', 'catalog_volume_id'];
 
     /** Every column of source_entries but the keys, so the rows of one upsert have the same keys. */
     public static function row(array $values, $created = null, $updated = null): array
@@ -138,6 +140,60 @@ class SourceEntrySync
         if ($record instanceof Work) {
             self::syncBibliography($record);
         }
+        if ($record instanceof Manuscript) {
+            // the row as stored: a model just made holds only the columns it was given
+            self::syncCited([DB::table('manuscripts')->where('id', $record->id)->first(['id', 'metadata', 'raw_text', 'catalog_volume_id'])]);
+        }
+    }
+
+    /**
+     * The library catalogue page Fankha cites for a manuscript (backlog item 51): its citation as printed, «[ف: 2 - 224]»,
+     * read into volume and page where it gives them, at its catalog_volume_id. Null when the copy has neither.
+     *
+     * @param  array  $volumeSources  source_volumes.id => sources.id
+     */
+    public static function citedValues(object $m, array $volumeSources): ?array
+    {
+        $raw = \App\Console\Commands\ImportFankhaCatalogReferencesCommand::rawCitation($m->metadata, $m->raw_text);
+        if ($raw === null && ! $m->catalog_volume_id) {
+            return null;
+        }
+        $parsed = $raw === null ? ['volume' => null, 'page' => null] : \App\Console\Commands\ImportFankhaCatalogReferencesCommand::parse($raw);
+        $volume = $m->catalog_volume_id && isset($volumeSources[$m->catalog_volume_id]) ? (int) $m->catalog_volume_id : null;
+
+        return [
+            'citable_type' => Manuscript::class,
+            'citable_id' => $m->id,
+            'source_id' => $volume ? $volumeSources[$volume] : null,
+            'source_volume_id' => $volume,
+            'volume_number' => $parsed['volume'],
+            'page_start' => $parsed['page'],
+            'citation_text' => $raw,
+            'origin' => SourceEntry::ORIGIN_FANKHA_CITATION,
+            'legacy_type' => 'fankha_citation',
+            'legacy_id' => $m->id,
+        ];
+    }
+
+    /**
+     * Writes the cited page of each manuscript (rows with id, metadata, raw_text, catalog_volume_id) and removes
+     * it from a copy that no longer has one. Returns [written, removed].
+     */
+    public static function syncCited(iterable $manuscripts): array
+    {
+        $manuscripts = collect($manuscripts);
+        $volumeIds = $manuscripts->pluck('catalog_volume_id')->filter()->unique()->values();
+        $volumeSources = $volumeIds->isEmpty() ? [] : DB::table('source_volumes')->whereIn('id', $volumeIds)->pluck('source_id', 'id')->all();
+        $rows = [];
+        $none = [];
+        foreach ($manuscripts as $m) {
+            $values = self::citedValues($m, $volumeSources);
+            $values ? $rows[] = self::row($values) : $none[] = $m->id;
+        }
+        $rows && self::upsert($rows);
+        $removed = $none ? DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $none)->delete() : 0;
+
+        return [count($rows), $removed];
     }
 
     public static function syncBibliography(Work $work): void
@@ -150,6 +206,19 @@ class SourceEntrySync
         // strings past the new end are gone
         DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('legacy_id', $work->id)
             ->where('legacy_index', '>=', count($strings))->delete();
+    }
+
+    /**
+     * Brings the entries of records written with DB::table in line (a command's bulk update skips the save hook),
+     * a thousand records at a time.
+     *
+     * @param  class-string<Work|Manuscript>  $class
+     */
+    public static function syncIds(string $class, iterable $ids): void
+    {
+        foreach (collect($ids)->unique()->chunk(1000) as $chunk) {
+            $class::whereIn('id', $chunk->all())->get()->each(fn ($record) => self::syncRecord($record));
+        }
     }
 
     /** Inserts or updates rows by the record they come from (legacy_type, legacy_id, legacy_index). */
@@ -228,6 +297,90 @@ class SourceEntrySync
     public static function configSources(): array
     {
         return DB::table('sources')->whereIn('code', array_keys(config('bibliography.sources')))->pluck('id', 'code')->all();
+    }
+
+    /** One source per library and title, and one per later printing (the Masjid-e A'zam catalogue of 1388). */
+    public static function groupKey(object $volume): string
+    {
+        if ($volume->edition_of_id) {
+            return 'edition|' . ($volume->facsimile_code ?: $volume->library_id . '|' . self::stem($volume->title));
+        }
+
+        return 'catalogue|' . ($volume->library_id ?? '') . '|' . self::stem($volume->title);
+    }
+
+    public static function groupCode(string $key, object $first): string
+    {
+        return $first->edition_of_id && $first->facsimile_code ? $first->facsimile_code : 'catalogue-' . substr(sha1($key), 0, 12);
+    }
+
+    /** A volume's title without its volume part: «فهرست … آستان قدس رضوی - جلد دوم: کتب خطی» → «فهرست … آستان قدس رضوی». */
+    public static function stem(string $title): string
+    {
+        $title = trim(preg_replace('/\s+/u', ' ', $title));
+        $at = mb_strrpos($title, ' - ');
+
+        return $at === false ? $title : trim(mb_substr($title, 0, $at));
+    }
+
+    /** The columns a catalog_volumes row gives its source volume (same id). */
+    public static function volumeValues(object $v): array
+    {
+        return [
+            'volume_number' => $v->volume_number,
+            'title' => $v->title,
+            'edition_label' => $v->edition_label,
+            'facsimile_code' => $v->facsimile_code,
+            'cover_image_path' => $v->cover_image_path,
+            'publisher' => $v->publisher,
+            'publication_year' => $v->publication_year,
+            'pages_count' => $v->pages_count,
+            'page_first' => $v->page_first,
+            'page_last' => $v->page_last,
+            'manuscripts_range' => $v->manuscripts_range,
+            'citation_pattern' => $v->citation_pattern,
+            'mtif_entry_id' => $v->mtif_entry_id,
+            'source_url' => $v->source_url,
+            'metadata' => is_array($v->metadata) ? json_encode($v->metadata, JSON_UNESCAPED_UNICODE) : $v->metadata,
+        ];
+    }
+
+    /**
+     * Brings one catalog_volumes row into source_volumes under its id (step 13.4): a volume already there keeps its
+     * source, so a regrouping made in the registry stays; a new one joins the source of its library and title, or of
+     * its printing, made when there is none.
+     */
+    public static function syncVolume(\App\Models\CatalogVolume $volume): void
+    {
+        // the row as stored: a model just made holds only the columns it was given
+        $row = DB::table('catalog_volumes')->find($volume->id);
+        $values = self::volumeValues($row) + ['updated_at' => now()];
+        if (DB::table('source_volumes')->where('id', $volume->id)->exists()) {
+            DB::table('source_volumes')->where('id', $volume->id)->update($values);
+        } else {
+            $key = self::groupKey($row);
+            $sourceId = DB::table('sources')->where('code', self::groupCode($key, $row))->value('id')
+                ?? DB::table('sources')->insertGetId([
+                    'code' => self::groupCode($key, $row),
+                    'kind' => Source::KIND_LIBRARY_CATALOGUE,
+                    'rank' => Source::KIND_RANKS[Source::KIND_LIBRARY_CATALOGUE],
+                    'title' => self::stem($row->title),
+                    'library_id' => $row->library_id,
+                    'edition_label' => $row->edition_label,
+                    'publisher' => $row->publisher,
+                    'volumes_count' => 1,
+                    'metadata' => json_encode(['group' => $key], JSON_UNESCAPED_UNICODE),
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+            DB::table('source_volumes')->insert(['id' => $volume->id, 'source_id' => $sourceId, 'created_at' => now()] + $values);
+        }
+        if ($volume->edition_of_id && ($of = \App\Models\CatalogVolume::find($volume->edition_of_id))) {
+            DB::table('source_volumes')->where('id', $of->id)->exists() || self::syncVolume($of);
+            DB::table('source_volumes')->where('id', $volume->id)->update(['edition_of_id' => $of->id]);
+            $source = DB::table('source_volumes')->where('id', $volume->id)->value('source_id');
+            DB::table('sources')->where('id', $source)->whereNull('edition_of_id')
+                ->update(['edition_of_id' => DB::table('source_volumes')->where('id', $of->id)->value('source_id')]);
+        }
     }
 
     private static function inRanges(array $ranges, ?int $volume, ?int $page): bool

@@ -12,9 +12,11 @@ use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\SourceEntry;
+use App\Models\SourceVolume;
 use App\Models\User;
 use App\Models\Work;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CatalogReferencesTest extends TestCase
@@ -41,20 +43,27 @@ class CatalogReferencesTest extends TestCase
     }
 
     /**
-     * Copies the old tables into source_entries, which the record pages read (step 13.2), until corrections are
-     * written there too (step 13.3).
+     * A copy's entry in a library catalogue, given as the manuscript_catalog_references row it was before step 13.4:
+     * manuscript_id, catalog_volume_id (the source volume of the same id), source and raw_text.
      */
-    protected function synced(): static
+    protected function refEntry(array $v): SourceEntry
     {
-        \Illuminate\Support\Facades\Artisan::call('sources:backfill');
+        $volume = SourceVolume::findOrFail($v['catalog_volume_id']);
+        $origins = [Ref::SOURCE_AI_MATCH => SourceEntry::ORIGIN_MATCH, Ref::SOURCE_MANUAL => SourceEntry::ORIGIN_MANUAL, Ref::SOURCE_FANKHA => SourceEntry::ORIGIN_FANKHA_CITATION];
+        $hasText = filled($v['entry_text'] ?? null) || filled($v['copy_text'] ?? null);
 
-        return $this;
+        return SourceEntry::create([
+            'citable_type' => Manuscript::class, 'citable_id' => $v['manuscript_id'], 'source_id' => $volume->source_id, 'source_volume_id' => $volume->id,
+            'origin' => $origins[$v['source']], 'citation_text' => $v['raw_text'] ?? null,
+            'text_volume_number' => $hasText ? ($v['volume_number'] ?? null) : null, 'text_page' => $hasText ? ($v['page_start'] ?? null) : null,
+            'text_status' => $hasText ? SourceEntry::TEXT_AUTO : SourceEntry::TEXT_NONE,
+        ] + array_diff_key($v, array_flip(['manuscript_id', 'catalog_volume_id', 'source', 'raw_text'])));
     }
 
-    /** The entry sources:backfill copied from a reference. */
-    protected function entryOf(Ref $ref): SourceEntry
+    /** The copies' entries in the library catalogues: what catalogs:match-edition and the reviewers write (step 13.4). */
+    protected function matched()
     {
-        return SourceEntry::where('legacy_type', 'catalog_reference')->where('legacy_id', $ref->id)->sole();
+        return SourceEntry::where('citable_type', Manuscript::class)->whereIn('origin', [SourceEntry::ORIGIN_MATCH, SourceEntry::ORIGIN_MANUAL]);
     }
 
     protected function manuscript(array $attributes = []): Manuscript
@@ -79,26 +88,26 @@ class CatalogReferencesTest extends TestCase
     public function test_a_reference_opens_the_page_where_the_entry_starts()
     {
         $ms = $this->manuscript();
-        $ref = Ref::create([
+        $ref = $this->refEntry([
             'manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2,
             'page_start' => 414, 'shelfmark_page' => 415, 'entry_number' => 606, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90,
         ]);
 
-        $this->assertTrue($ms->catalogReferences->first()->is($ref));
+        $this->assertTrue($ms->sources()->cards()->first()->is($ref));
         $this->assertTrue($ref->isAwaitingReview());
-        $this->assertSame(1, Ref::awaitingReview()->where('manuscript_id', $ms->id)->count());
+        $this->assertSame(1, SourceEntry::awaitingReview()->where('citable_id', $ms->id)->count());
         $this->assertSame(['catalog' => 'masjid-azam-ostadi', 'catalogName' => 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم', 'volume' => 2, 'page' => 414], $ref->viewer());
 
-        $ref->update(['catalog_volume_id' => $this->fankhaVolume->id]);
+        $ref->update(['source_volume_id' => $this->fankhaVolume->id]);
         $this->assertNull($ref->fresh()->viewer(), 'a volume without page images has no viewer');
     }
 
     public function test_the_source_url_never_reaches_the_manuscript_page()
     {
         $ms = $this->manuscript();
-        Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+        $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
 
-        $html = $this->synced()->get(route('manuscripts.show', $ms))->assertOk()->assertSee('ص ۴۱۴')->getContent();
+        $html = $this->get(route('manuscripts.show', $ms))->assertOk()->assertSee('ص ۴۱۴')->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
         $this->assertStringNotContainsString('504138', $html);
         preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m);
@@ -139,21 +148,26 @@ class CatalogReferencesTest extends TestCase
         $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);
         $bare = $this->manuscript(['catalog_volume_id' => null, 'metadata' => []]);
 
+        $cited = fn (Manuscript $m) => SourceEntry::where('citable_id', $m->id)->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION);
+        // saving the copy wrote it already; the command does every copy, as after a relink written with DB::table
+        $cited($ms)->delete();
         $this->artisan('catalogs:import-fankha-references', ['--dry-run' => true])->assertSuccessful();
-        $this->assertSame(0, Ref::count());
+        $this->assertSame(0, $cited($ms)->count());
 
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
-        $rows = Ref::where('manuscript_id', $ms->id)->get();
+        $rows = $cited($ms)->get();
         $this->assertCount(1, $rows);
-        $this->assertSame(['[ف مخ: 2 - 817]', 2, 817, $this->fankhaVolume->id, Ref::SOURCE_FANKHA],
-            [$rows[0]->raw_text, $rows[0]->volume_number, $rows[0]->page_start, $rows[0]->catalog_volume_id, $rows[0]->source]);
-        $this->assertSame(0, Ref::where('manuscript_id', $bare->id)->count());
+        $this->assertSame(['[ف مخ: 2 - 817]', 2, 817, $this->fankhaVolume->id],
+            [$rows[0]->citation_text, $rows[0]->volume_number, $rows[0]->page_start, $rows[0]->source_volume_id]);
+        $this->assertSame(0, $cited($bare)->count());
 
-        // a later relink of the copy is followed on the next run
+        // a later relink of the copy is followed on save, and by the command after a relink written with DB::table
         $ms->update(['catalog_volume_id' => $this->edition->id]);
+        $this->assertSame([$this->edition->id], $cited($ms)->pluck('source_volume_id')->all());
+        DB::table('manuscripts')->where('id', $ms->id)->update(['catalog_volume_id' => $this->fankhaVolume->id]);
         $this->artisan('catalogs:import-fankha-references')->assertSuccessful();
-        $this->assertSame([$this->edition->id], Ref::where('manuscript_id', $ms->id)->pluck('catalog_volume_id')->all());
+        $this->assertSame([$this->fankhaVolume->id], $cited($ms)->pluck('source_volume_id')->all());
     }
 
     public function test_editions_are_synced_by_natural_key()
@@ -222,11 +236,11 @@ class CatalogReferencesTest extends TestCase
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $path])->assertSuccessful();
         unlink($path);
 
-        $refs = Ref::where('source', Ref::SOURCE_AI_MATCH)->get()->keyBy('manuscript_id');
+        $refs = $this->matched()->where('origin', SourceEntry::ORIGIN_MATCH)->get()->keyBy('citable_id');
         $this->assertSame([7, 1, Matcher::METHOD_TITLE], [$refs[$first->id]->page_start, $refs[$first->id]->entry_number, $refs[$first->id]->match_method]);
         $this->assertSame([7, 2, Matcher::METHOD_SINGLE_PAGE], [$refs[$second->id]->page_start, $refs[$second->id]->entry_number, $refs[$second->id]->match_method]);
         $this->assertSame([8, 2, Matcher::METHOD_TITLE], [$refs[$later->id]->page_start, $refs[$later->id]->entry_number, $refs[$later->id]->match_method]);
-        $this->assertStringStartsWith('( 17 )', $refs[$later->id]->raw_text);
+        $this->assertStringStartsWith('( 17 )', $refs[$later->id]->citation_text);
         $this->assertArrayNotHasKey($missing->id, $refs->all());
         // numbered 1 by Fankha, but only the second treatise fits: taken, with a note for the reviewer
         $this->assertSame([2, Matcher::METHOD_TITLE], [$refs[$shifted->id]->entry_number, $refs[$shifted->id]->match_method]);
@@ -250,14 +264,14 @@ class CatalogReferencesTest extends TestCase
 
         // volume 1 first: the number alone stands under the Quran, a weak match
         $write([[17, "1- القرآن الکریم\nش 3950، نسخ"]], 1);
-        $this->assertSame(Matcher::METHOD_SHELFMARK_ONLY, Ref::where('catalog_volume_id', $volume1->id)->sole()->match_method);
+        $this->assertSame(Matcher::METHOD_SHELFMARK_ONLY, $this->matched()->where('source_volume_id', $volume1->id)->sole()->match_method);
         // volume 2 confirms it by title, and the weak row of volume 1 goes
         $write([[90, "153- تحفه الزائر (دعا وزیارت، فارسی)\nش 3950، 20 برگ"]], 2);
-        $this->assertSame(0, Ref::where('catalog_volume_id', $volume1->id)->count());
-        $this->assertSame(Matcher::METHOD_TITLE, Ref::where('catalog_volume_id', $this->edition->id)->sole()->match_method);
+        $this->assertSame(0, $this->matched()->where('source_volume_id', $volume1->id)->count());
+        $this->assertSame(Matcher::METHOD_TITLE, $this->matched()->where('source_volume_id', $this->edition->id)->sole()->match_method);
         // and running volume 1 again does not bring it back
         $write([[17, "1- القرآن الکریم\nش 3950، نسخ"]], 1);
-        $this->assertSame(0, Ref::where('catalog_volume_id', $volume1->id)->count());
+        $this->assertSame(0, $this->matched()->where('source_volume_id', $volume1->id)->count());
     }
 
     private function pages(): string
@@ -292,26 +306,26 @@ class CatalogReferencesTest extends TestCase
         $pages = $this->pages();
 
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages, '--dry-run' => true])->assertSuccessful();
-        $this->assertSame(0, Ref::count());
+        $this->assertSame(0, $this->matched()->count());
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
 
-        $ref = Ref::where('manuscript_id', $ms->id)->sole();
-        $this->assertSame([Ref::SOURCE_AI_MATCH, Ref::STATUS_UNVERIFIED, Matcher::METHOD_TITLE, 100, 414, 415, 415, 606, $this->edition->id, 2],
-            [$ref->source, $ref->status, $ref->match_method, $ref->confidence, $ref->page_start, $ref->page_end, $ref->shelfmark_page, $ref->entry_number, $ref->catalog_volume_id, $ref->volume_number]);
-        $this->assertStringContainsString('ش 1939', $ref->raw_text);
+        $ref = $this->matched()->where('citable_id', $ms->id)->sole();
+        $this->assertSame([SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED, Matcher::METHOD_TITLE, 100, 414, 415, 415, 606, $this->edition->id, 2],
+            [$ref->origin, $ref->status, $ref->match_method, $ref->confidence, $ref->page_start, $ref->page_end, $ref->shelfmark_page, $ref->entry_number, $ref->source_volume_id, $ref->volume_number]);
+        $this->assertStringContainsString('ش 1939', $ref->citation_text);
 
         // «2000» stands in two entries on two pages and the title fits neither: recorded with low confidence
-        $low = Ref::where('manuscript_id', $generic->id)->sole();
+        $low = $this->matched()->where('citable_id', $generic->id)->sole();
         $this->assertSame(Matcher::METHOD_AMBIGUOUS, $low->match_method);
         $this->assertSame(10, $low->confidence);
         $this->assertStringContainsString('جاهای دیگر', $low->notes);
-        $this->assertSame(0, Ref::where('manuscript_id', $absent->id)->count());
+        $this->assertSame(0, $this->matched()->where('citable_id', $absent->id)->count());
 
         // a reviewed match is kept as it is on the next run, and nothing is duplicated
-        $ref->update(['status' => Ref::STATUS_REJECTED, 'page_start' => 1]);
+        $ref->update(['status' => SourceEntry::STATUS_REJECTED, 'page_start' => 1]);
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
-        $this->assertSame([1, Ref::STATUS_REJECTED], [$ref->fresh()->page_start, $ref->fresh()->status]);
-        $this->assertSame(2, Ref::where('source', Ref::SOURCE_AI_MATCH)->count());
+        $this->assertSame([1, SourceEntry::STATUS_REJECTED], [$ref->fresh()->page_start, $ref->fresh()->status]);
+        $this->assertSame(2, $this->matched()->where('origin', SourceEntry::ORIGIN_MATCH)->count());
         unlink($pages);
     }
 
@@ -341,11 +355,11 @@ class CatalogReferencesTest extends TestCase
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $path])->assertSuccessful();
         unlink($path);
 
-        $ref = Ref::where('manuscript_id', $ms->id)->sole();
+        $ref = $this->matched()->where('citable_id', $ms->id)->sole();
         $this->assertSame("684- منیة المرید فی آداب المفید والمستفید (اخلاق، عربی)\nاز: شهید ثانی (966 ق)\nآداب تعلیم و تعلم را با استفاده از آیات و روایات و سخن بزرگان در یک مقدمه بیان نموده است.\nآغاز: «اعلم ان اللّه سبحانه...».\nهر دو نسخه در یک جلد آمده است.", $ref->entry_text);
         $this->assertSame('ش 2953، 122 برگ، 10×15، نسخ در 1252. تصحیح شده است.', $ref->copy_text);
-        $this->assertSame("ش 584، 138 برگ، نسخ محمد بن علی در .1086\nآغازش افتادگی دارد.", Ref::where('manuscript_id', $other->id)->sole()->copy_text);
-        $tail = Ref::where('manuscript_id', $last->id)->sole();
+        $this->assertSame("ش 584، 138 برگ، نسخ محمد بن علی در .1086\nآغازش افتادگی دارد.", $this->matched()->where('citable_id', $other->id)->sole()->copy_text);
+        $tail = $this->matched()->where('citable_id', $last->id)->sole();
         $this->assertSame(["685- یوسف و زلیخا (فارسی)\nاز: جامی", 'ش 4134، 104 برگ، اول وآخر ناقص.'], [$tail->entry_text, $tail->copy_text]);
     }
 
@@ -364,9 +378,9 @@ class CatalogReferencesTest extends TestCase
         unlink($path);
 
         $notes = "( 498 )\nکتاب اول نسخ ابوالقاسم 1092 با مهر بیضوی «عبده\nالراجی حسین 1237».\nوکتاب دوم تحریر سده 11 بدون نام کاتب.\n131 برگ، 12 × 19";
-        $ref = Ref::where('manuscript_id', $second->id)->sole();
+        $ref = $this->matched()->where('citable_id', $second->id)->sole();
         $this->assertSame(["2 - اسرار الصلاة = التنبیهات العلیة «80 - 131» (عربی)\nاز: شهید ثانی.\nچاپ شده است.", $notes], [$ref->entry_text, $ref->copy_text]);
-        $ref = Ref::where('manuscript_id', $first->id)->sole();
+        $ref = $this->matched()->where('citable_id', $first->id)->sole();
         $this->assertSame(["1 - منهاج الکرامة «4 - 80» (امامت - عربی)\nاز: علامه حلی.\nچاپ شده است.", $notes], [$ref->entry_text, $ref->copy_text]);
     }
 
@@ -374,9 +388,10 @@ class CatalogReferencesTest extends TestCase
     {
         $ms = $this->manuscript(['shelfmark' => '1939']);
         $reviewer = User::factory()->create();
-        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'page_end' => 415,
-            'shelfmark_page' => 415, 'entry_number' => 606, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => Matcher::METHOD_SINGLE_PAGE, 'confidence' => 40,
-            'status' => Ref::STATUS_VERIFIED, 'reviewed_by' => $reviewer->id, 'reviewed_at' => now()->subDay()->startOfSecond()]);
+        $ref = SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $ms->id, 'source_id' => SourceVolume::find($this->edition->id)->source_id,
+            'source_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'page_end' => 415,
+            'shelfmark_page' => 415, 'entry_number' => 606, 'origin' => SourceEntry::ORIGIN_MATCH, 'match_method' => Matcher::METHOD_SINGLE_PAGE, 'confidence' => 40,
+            'status' => SourceEntry::STATUS_VERIFIED, 'reviewed_by' => $reviewer->id, 'reviewed_at' => now()->subDay()->startOfSecond()]);
         $before = $ref->fresh()->toArray();
         $pages = $this->pages();
 
@@ -389,55 +404,56 @@ class CatalogReferencesTest extends TestCase
         // the entry of 606 runs over two pages; 1939 also stands under 608, which is not this reference's address
         $this->assertSame("606- دیوان قاسمی (فارسی)\nاز: قاسمی\nآغاز: «ای دل و جان عاشقان»\nانجام: «صلوات خدای»", $after->entry_text);
         $this->assertSame('ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق', $after->copy_text);
-        $this->assertSame(Arr::except($before, ['entry_text', 'copy_text']), Arr::except($after->toArray(), ['entry_text', 'copy_text']));
-        $this->assertSame(1, Ref::count());
+        $this->assertSame([2, 414, SourceEntry::TEXT_AUTO], [$after->text_volume_number, $after->text_page, $after->text_status]);
+        $texts = ['entry_text', 'copy_text', 'text_volume_number', 'text_page', 'text_status'];
+        $this->assertSame(Arr::except($before, $texts), Arr::except($after->toArray(), $texts));
+        $this->assertSame(1, $this->matched()->count());
     }
 
     public function test_the_printed_text_stands_above_fankhas_text_until_the_reference_is_rejected()
     {
         $this->edition->update(['edition_label' => '۱۳۸۸، به کوشش رضا استادی']);
         $ms = $this->manuscript(['raw_text' => 'متن فنخا برای این نسخه']);
-        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH,
             'confidence' => 90, 'entry_text' => "607- دیوان قدسی (فارسی)\nاز: قدسی", 'copy_text' => 'ش 1939، 207 برگ، نستعلیق. این نسخه جلد چهارم است.']);
         $note = 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.';
 
-        $html = $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
-            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'متن مأخذ', 'متن فنخا برای این نسخه'])
+        $html = $this->get(route('manuscripts.show', $ms))->assertOk()
+            ->assertSeeInOrder(['متن فهرست مسجد اعظم، چاپ ۱۳۸۸', $note, 'ج ۲، ص ۴۱۴', 'دیدن برگه', '۶۰۷- دیوان قدسی (فارسی)', 'ش ۱۹۳۹، ۲۰۷ برگ، نستعلیق. این نسخه جلد چهارم است.', 'متن فنخا', 'متن فنخا برای این نسخه'])
             ->getContent();
         $this->assertStringNotContainsString('scan-source', $html);
         $this->assertStringNotContainsString('504138', $html);
 
         // a printing without a year in its label is named by the catalogue alone
         $this->edition->update(['edition_label' => 'کتابخانه مسجد اعظم، به کوشش رضا استادی']);
-        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('متن فهرست مسجد اعظم')->assertDontSee('متن فهرست مسجد اعظم، چاپ');
+        $this->get(route('manuscripts.show', $ms))->assertSee('متن فهرست مسجد اعظم')->assertDontSee('متن فهرست مسجد اعظم، چاپ');
 
-        $ref->update(['status' => Ref::STATUS_VERIFIED]);
-        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
+        $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('۶۰۷- دیوان قدسی')->assertDontSee($note);
 
-        $ref->update(['status' => Ref::STATUS_REJECTED]);
-        $this->synced()->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('متن فهرست مسجد اعظم')->assertSee('متن فنخا برای این نسخه');
+        $ref->update(['status' => SourceEntry::STATUS_REJECTED]);
+        $this->get(route('manuscripts.show', $ms))->assertOk()->assertDontSee('۶۰۷- دیوان قدسی')->assertDontSee('متن فهرست مسجد اعظم')->assertSee('متن فنخا برای این نسخه');
     }
 
     public function test_the_manuscript_page_links_the_entry_page_with_the_review_badge()
     {
         $ms = $this->manuscript(['metadata' => ['catalog_citation' => '[ف مخ: 2 - 817]']]);
-        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
-        Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->fankhaVolume->id, 'raw_text' => '[ف مخ: 2 - 817]', 'volume_number' => 2, 'page_start' => 817, 'source' => Ref::SOURCE_FANKHA]);
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'shelfmark_page' => 415, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
         $note = 'این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
 
-        $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
-            // the library catalogue first, Fankha last, without repeating the volume title under it
-            ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'چاپ ۱۳۶۵', 'دیدن برگه در فنخا'])
-            ->assertDontSee($this->fankhaVolume->title)->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
+        $this->get(route('manuscripts.show', $ms))->assertOk()
+            // the library catalogues first (the page seen before the one Fankha cites), Fankha last
+            ->assertSeeInOrder(['در مآخذ نسخه‌شناسی', 'چاپ ۱۳۶۵', $this->fankhaVolume->title, 'به نشانی فنخا', 'دیدن برگه در فنخا'])
+            ->assertSee('فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی، ج ۲، ص ۴۱۴')->assertSee('catalogs/masjid-azam-ostadi/v02/p0414.webp', false)
             ->assertSee('masjid-azam-ostadi')
             ->assertSee($note)
             ->assertSee('گزارش نشانی نادرست');
 
-        $ref->update(['status' => Ref::STATUS_VERIFIED]);
-        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
+        $ref->update(['status' => SourceEntry::STATUS_VERIFIED]);
+        $this->get(route('manuscripts.show', $ms))->assertSee('ص ۴۱۴')->assertDontSee($note);
 
-        $ref->update(['status' => Ref::STATUS_REJECTED]);
-        $this->synced()->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
+        $ref->update(['status' => SourceEntry::STATUS_REJECTED]);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
     }
 
     public function test_reviewers_verify_and_reject_machine_matches_in_the_queue()
@@ -445,48 +461,43 @@ class CatalogReferencesTest extends TestCase
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
         $admin->forceFill(['role' => 'admin'])->save();
         $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
-        $high = Ref::create(['manuscript_id' => $this->manuscript(['shelfmark' => '3002'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 7, 'shelfmark_page' => 8, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 95]);
-        $low = Ref::create(['manuscript_id' => $this->manuscript(['shelfmark' => '2000'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 50, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'ambiguous', 'confidence' => 10, 'notes' => 'جاهای دیگر: ص 60']);
-        // the queue reviews the entries copied from them, and writes each review back to its reference
-        $this->synced();
-        [$highEntry, $lowEntry] = [$this->entryOf($high), $this->entryOf($low)];
+        $high = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '3002'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 7, 'shelfmark_page' => 8, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 95]);
+        $low = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '2000'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 50, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'ambiguous', 'confidence' => 10, 'notes' => 'جاهای دیگر: ص 60']);
 
         $this->actingAs($user)->get(route('admin.catalog-references.index'))->assertForbidden();
-        $this->actingAs($user)->post(route('admin.catalog-references.verify', $highEntry))->assertForbidden();
+        $this->actingAs($user)->post(route('admin.catalog-references.verify', $high))->assertForbidden();
 
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id]))->assertOk()
             ->assertSee('۳۰۰۲')->assertSee('۲۰۰۰')->assertSee('شماره در ص ۸')->assertSee('جاهای دیگر')->assertDontSee('scan-source');
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['confidence' => 'low']))->assertOk()
             ->assertSee('۲۰۰۰')->assertDontSee('۳۰۰۲');
 
-        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $highEntry))->assertRedirect();
-        $this->actingAs($admin)->post(route('admin.catalog-references.reject', $lowEntry))->assertRedirect();
-        $this->assertSame([SourceEntry::STATUS_VERIFIED, $admin->id], [$highEntry->fresh()->status, $highEntry->fresh()->reviewed_by]);
-        $this->assertSame([Ref::STATUS_VERIFIED, $admin->id], [$high->fresh()->status, $high->fresh()->reviewed_by]);
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $high))->assertRedirect();
+        $this->actingAs($admin)->post(route('admin.catalog-references.reject', $low))->assertRedirect();
+        $this->assertSame([SourceEntry::STATUS_VERIFIED, $admin->id], [$high->fresh()->status, $high->fresh()->reviewed_by]);
         $this->assertNotNull($high->fresh()->reviewed_at);
-        $this->assertSame([SourceEntry::STATUS_REJECTED, Ref::STATUS_REJECTED], [$lowEntry->fresh()->status, $low->fresh()->status]);
+        $this->assertSame(SourceEntry::STATUS_REJECTED, $low->fresh()->status);
         $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('۳۰۰۲');
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['status' => 'verified']))->assertOk()->assertSee('۳۰۰۲')->assertSee('داور آزمایشی');
 
         // Fankha rows are not machine matches and cannot be reviewed here
-        $fankha = Ref::create(['manuscript_id' => $high->manuscript_id, 'catalog_volume_id' => $this->fankhaVolume->id, 'source' => Ref::SOURCE_FANKHA]);
-        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $this->synced()->entryOf($fankha)))->assertNotFound();
+        $fankha = SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $high->citable_id)->sole();
+        $this->actingAs($admin)->post(route('admin.catalog-references.verify', $fankha))->assertNotFound();
     }
 
     public function test_reviewers_verify_title_matches_in_bulk_and_revert_the_batch()
     {
         $admin = $this->admin();
         $user = User::firstOrCreate(['email' => 'refs-user@fahares.net'], ['name' => 'کاربر', 'password' => 'password123', 'role' => 'user']);
-        $ref = fn (string $shelfmark, string $method, int $confidence, array $extra = []) => Ref::create($extra + [
+        $ref = fn (string $shelfmark, string $method, int $confidence, array $extra = []) => $this->refEntry($extra + [
             'manuscript_id' => $this->manuscript(['shelfmark' => $shelfmark])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2,
             'page_start' => (int) $shelfmark, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => $method, 'confidence' => $confidence]);
         $titles = collect(['4001', '4002', '4003'])->map(fn ($s) => $ref($s, 'shelfmark_title', 80));
         $single = $ref('4004', 'shelfmark_single_page', 59);
         $only = $ref('4005', 'shelfmark_only', 25);
-        $done = $ref('4006', 'shelfmark_title', 90, ['status' => Ref::STATUS_REJECTED]);
+        $done = $ref('4006', 'shelfmark_title', 90, ['status' => SourceEntry::STATUS_REJECTED]);
         $filters = ['volume' => $this->edition->id, 'method' => 'shelfmark_title', 'confidence' => 'high'];
-        $this->synced();
-        $entries = $titles->map(fn ($t) => $this->entryOf($t));
+        $entries = $titles;
 
         // The queue offers the button only for title matches, with the count to confirm
         $this->actingAs($admin)->get(route('admin.catalog-references.index', ['volume' => $this->edition->id, 'method' => 'shelfmark_only']))->assertOk()
@@ -499,14 +510,14 @@ class CatalogReferencesTest extends TestCase
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['method' => 'shelfmark_only', 'expected' => 1])->assertStatus(422);
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), ['method' => '', 'expected' => 5])->assertStatus(422);
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 2])->assertSessionHas('error');
-        $this->assertSame(0, Ref::where('status', Ref::STATUS_VERIFIED)->count());
+        $this->assertSame(0, $this->matched()->where('status', SourceEntry::STATUS_VERIFIED)->count());
 
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 3])->assertSessionHas('success');
         foreach ($titles as $title) {
-            $this->assertSame([Ref::STATUS_VERIFIED, $admin->id], [$title->fresh()->status, $title->fresh()->reviewed_by]);
+            $this->assertSame([SourceEntry::STATUS_VERIFIED, $admin->id], [$title->fresh()->status, $title->fresh()->reviewed_by]);
         }
         $this->assertSame(1, $titles->map(fn ($t) => $t->fresh()->reviewed_at->toDateTimeString())->unique()->count());
-        $this->assertSame([Ref::STATUS_UNVERIFIED, Ref::STATUS_UNVERIFIED, Ref::STATUS_REJECTED], [$single->fresh()->status, $only->fresh()->status, $done->fresh()->status]);
+        $this->assertSame([SourceEntry::STATUS_UNVERIFIED, SourceEntry::STATUS_UNVERIFIED, SourceEntry::STATUS_REJECTED], [$single->fresh()->status, $only->fresh()->status, $done->fresh()->status]);
 
         $batch = AuditLog::where('action', Ref::ACTION_BULK_VERIFY)->latest('id')->firstOrFail();
         $this->assertSame($admin->id, $batch->user_id);
@@ -519,9 +530,9 @@ class CatalogReferencesTest extends TestCase
         $entries[2]->fresh()->review($admin, SourceEntry::STATUS_REJECTED);
         $this->travel(5)->seconds();
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('success');
-        $this->assertSame([Ref::STATUS_UNVERIFIED, null, null], [$titles[0]->fresh()->status, $titles[0]->fresh()->reviewed_by, $titles[0]->fresh()->reviewed_at]);
-        $this->assertSame(Ref::STATUS_UNVERIFIED, $titles[1]->fresh()->status);
-        $this->assertSame(Ref::STATUS_REJECTED, $titles[2]->fresh()->status);
+        $this->assertSame([SourceEntry::STATUS_UNVERIFIED, null, null], [$titles[0]->fresh()->status, $titles[0]->fresh()->reviewed_by, $titles[0]->fresh()->reviewed_at]);
+        $this->assertSame(SourceEntry::STATUS_UNVERIFIED, $titles[1]->fresh()->status);
+        $this->assertSame(SourceEntry::STATUS_REJECTED, $titles[2]->fresh()->status);
         $this->assertSame(['reverted' => 2, 'kept' => 1], AuditLog::where('action', Ref::ACTION_BULK_REVERT)->where('auditable_id', $batch->id)->sole()->new_values);
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertSessionHas('error');
         $this->assertNull(SourceEntry::lastBulkVerify());
@@ -529,9 +540,9 @@ class CatalogReferencesTest extends TestCase
 
         // The artisan command reverts the latest batch the same way
         $this->actingAs($admin)->post(route('admin.catalog-references.bulk-verify'), $filters + ['expected' => 2])->assertSessionHas('success');
-        $this->assertSame(Ref::STATUS_VERIFIED, $titles[0]->fresh()->status);
+        $this->assertSame(SourceEntry::STATUS_VERIFIED, $titles[0]->fresh()->status);
         $this->artisan('catalogs:revert-bulk-verify', ['--force' => true])->expectsOutputToContain('Reverted 2; kept 0')->assertSuccessful();
-        $this->assertSame(Ref::STATUS_UNVERIFIED, $titles[0]->fresh()->status);
+        $this->assertSame(SourceEntry::STATUS_UNVERIFIED, $titles[0]->fresh()->status);
         $this->artisan('catalogs:revert-bulk-verify', ['--force' => true])->assertFailed();
     }
 
@@ -559,11 +570,11 @@ class CatalogReferencesTest extends TestCase
     public function test_address_pencils_appear_beside_each_source_in_suggestion_mode()
     {
         $ms = $this->manuscript();
-        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 90]);
 
-        $this->synced()->get(route('manuscripts.show', $ms))->assertOk()
+        $this->get(route('manuscripts.show', $ms))->assertOk()
             ->assertSee("field: 'fankha_page'", false)
-            ->assertSee("field: 'source_entry_{$this->entryOf($ref)->id}'", false)
+            ->assertSee("field: 'source_entry_{$ref->id}'", false)
             ->assertSee('نشانی در فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم، چاپ ۱۳۶۵، رضا استادی')
             ->assertSee('ج ۲، ص ۴۱۴');
     }
@@ -574,45 +585,43 @@ class CatalogReferencesTest extends TestCase
         $ms->work->update(['primary_title' => 'دیوان قاسمی']);
         $pages = $this->pages();
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
-        $ref = Ref::where('manuscript_id', $ms->id)->sole();
+        $ref = $this->matched()->where('citable_id', $ms->id)->sole();
         $this->assertSame(414, $ref->page_start);
-        // a suggestion made before step 13.3 names the reference; the entry copied from it takes the correction
-        $this->synced();
 
-        // another copy's reference cannot be corrected through this one
+        // another copy's entry cannot be corrected through this one
         $other = $this->manuscript(['shelfmark' => '1']);
-        $this->suggestAddress($other, "catalog_reference_{$ref->id}", 'ج ۲، ص ۴۱۶')->assertStatus(422);
-        $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'ص ۴۱۶')->assertStatus(422);
+        $this->suggestAddress($other, "source_entry_{$ref->id}", 'ج ۲، ص ۴۱۶')->assertStatus(422);
+        $this->suggestAddress($ms, "source_entry_{$ref->id}", 'ص ۴۱۶')->assertStatus(422);
 
-        $this->suggestAddress($ms, "catalog_reference_{$ref->id}", 'ج 2، ص 416')->assertOk();
+        $this->suggestAddress($ms, "source_entry_{$ref->id}", 'ج 2، ص 416')->assertOk();
         $this->assertSame('ج ۲، ص ۴۱۶', FieldSuggestion::latest('id')->first()->suggested_value);
         $this->assertSame('ج ۲، ص ۴۱۴', FieldSuggestion::latest('id')->first()->current_value);
         $this->approveLatest($ms)->assertSessionHasNoErrors();
 
         $ref->refresh();
-        $this->assertSame([416, Ref::SOURCE_MANUAL, Ref::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->source, $ref->status, $ref->reviewed_by]);
+        $this->assertSame([416, SourceEntry::ORIGIN_MANUAL, SourceEntry::STATUS_VERIFIED, $this->admin()->id], [$ref->page_start, $ref->origin, $ref->status, $ref->reviewed_by]);
         $this->assertSame([1, 1, 1], [$ms->fresh()->volume_number, $ms->fresh()->page_start, $ms->fresh()->sequence_number], 'the Fankha columns are untouched');
-        $this->synced()->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
+        $this->get(route('manuscripts.show', $ms))->assertSee('ج ۲، ص ۴۱۶')->assertDontSee('هنوز به دست انسان بازبینی نشده');
 
         $this->artisan('catalogs:match-edition', ['edition' => 'masjid-azam-ostadi', 'pages' => $pages])->assertSuccessful();
-        $this->assertSame([416], Ref::where('manuscript_id', $ms->id)->pluck('page_start')->all());
+        $this->assertSame([416], $this->matched()->where('citable_id', $ms->id)->pluck('page_start')->all());
 
         // the rollback of the approval puts the machine match back
         $this->actingAs($this->admin())->post('/admin/audit-logs/' . AuditLog::where('action', 'verify')->latest('id')->value('id') . '/rollback')->assertSessionHas('success');
-        $this->assertSame([414, Ref::SOURCE_AI_MATCH, Ref::STATUS_UNVERIFIED], [$ref->fresh()->page_start, $ref->fresh()->source, $ref->fresh()->status]);
+        $this->assertSame([414, SourceEntry::ORIGIN_MATCH, SourceEntry::STATUS_UNVERIFIED], [$ref->fresh()->page_start, $ref->fresh()->origin, $ref->fresh()->status]);
         unlink($pages);
     }
 
     public function test_a_copy_reported_absent_loses_the_link_and_fankha_addresses_are_applied_to_the_copy()
     {
         $ms = $this->manuscript();
-        $ref = Ref::create(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 30]);
-        $entry = $this->synced()->entryOf($ref);
+        $ref = $this->refEntry(['manuscript_id' => $ms->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 414, 'source' => Ref::SOURCE_AI_MATCH, 'confidence' => 30]);
+        $entry = $ref;
 
         $this->suggestAddress($ms, "source_entry_{$entry->id}", 'نیست')->assertOk();
         $this->approveLatest($ms)->assertSessionHasNoErrors();
-        $this->assertSame([SourceEntry::STATUS_REJECTED, Ref::STATUS_REJECTED], [$entry->fresh()->status, $ref->fresh()->status]);
-        $this->synced()->get(route('manuscripts.show', $ms))->assertDontSee('masjid-azam-ostadi/v02/p0414.webp', false);
+        $this->assertSame(SourceEntry::STATUS_REJECTED, $entry->fresh()->status);
+        $this->get(route('manuscripts.show', $ms))->assertDontSee('masjid-azam-ostadi/v02/p0414.webp', false);
 
         $this->suggestAddress($ms, 'fankha_page', 'نیست')->assertStatus(422);
         $this->suggestAddress($ms, 'fankha_page', 'ج ۳، ص ۱۲، ردیف ۴')->assertOk();
@@ -647,7 +656,7 @@ class CatalogReferencesTest extends TestCase
             return $this->actingAs($this->admin())->post("/admin/suggestions/{$s->id}/approve", ['applied_value' => $s->suggested_value, 'outcome' => 'adopt']);
         };
 
-        $this->synced()->get(route('works.show', $work))->assertOk()
+        $this->get(route('works.show', $work))->assertOk()
             ->assertSee("field: 'bibliography_page_dharia_25_101'", false)->assertSee("field: 'fankha_page'", false);
 
         $suggest('bibliography_page_dharia_25_99', 'ج ۲۵، ص ۱۰۲')->assertStatus(422);

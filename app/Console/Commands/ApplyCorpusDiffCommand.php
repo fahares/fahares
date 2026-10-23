@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Work;
 use App\Suggestions\ProtectedColumns;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -79,6 +80,8 @@ class ApplyCorpusDiffCommand extends Command
                 foreach ($updates as $id => $payload) {
                     DB::table('works')->where('id', $id)->update($payload);
                 }
+                // their Fankha entries and bibliographies follow (step 13.4)
+                SourceEntrySync::syncIds(Work::class, array_keys($updates));
             });
             // The description is part of the search index
             $reindex = array_keys(array_filter($updates, fn ($p) => array_key_exists('description', $p)));

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Cataloger;
 use App\Models\CatalogVolume;
 use App\Models\Library;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -205,6 +206,8 @@ class LinkCatalogVolumesCommand extends Command
         if (! $this->dry) {
             foreach (array_chunk($unlinked, 1000) as $part) {
                 DB::table('manuscripts')->whereIn('id', $part)->update(['catalog_volume_id' => null, 'cataloger_id' => null]);
+                // the page Fankha cites goes with the volume (step 13.4)
+                SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
             }
         }
 
@@ -217,6 +220,7 @@ class LinkCatalogVolumesCommand extends Command
                         'catalog_volume_id' => $volumes[$index]['id'],
                         'cataloger_id' => $volumes[$index]['cataloger_id'],
                     ]);
+                    SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
                 }
             }
         }
@@ -278,6 +282,8 @@ class LinkCatalogVolumesCommand extends Command
         if (! $this->dry) {
             foreach (array_chunk($ids, 1000) as $part) {
                 DB::table('manuscripts')->whereIn('id', $part)->update(['catalog_volume_id' => null, 'cataloger_id' => null]);
+                // the page Fankha cites goes with the volume (step 13.4)
+                SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $part)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
             }
         }
 

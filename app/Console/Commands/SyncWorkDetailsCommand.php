@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Manuscript;
 use App\Models\Work;
 use App\Suggestions\ProtectedColumns;
+use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -176,6 +177,7 @@ class SyncWorkDetailsCommand extends Command
 
             // Perform updates inside database transaction
             DB::transaction(function () use ($workUpdates, $manuscriptUpdates, $workGuard, $manuscriptGuard) {
+                $synced = ['works' => [], 'manuscripts' => []];
                 foreach (array_chunk($workUpdates, 250) as $chunk) {
                     foreach ($chunk as $w) {
                         $payload = $workGuard->strip($w['id'], [
@@ -191,6 +193,7 @@ class SyncWorkDetailsCommand extends Command
                         ]);
                         if ($payload) {
                             DB::table('works')->where('id', $w['id'])->update($payload);
+                            $synced['works'][] = $w['id'];
                         }
                     }
                 }
@@ -203,9 +206,13 @@ class SyncWorkDetailsCommand extends Command
                         ]);
                         if ($payload) {
                             DB::table('manuscripts')->where('id', $m['id'])->update($payload);
+                            $synced['manuscripts'][] = $m['id'];
                         }
                     }
                 }
+                // the Fankha entries and bibliographies of what changed (step 13.4)
+                SourceEntrySync::syncIds(Work::class, $synced['works']);
+                SourceEntrySync::syncIds(Manuscript::class, $synced['manuscripts']);
             });
 
             $volDuration = round(microtime(true) - $volStartTime, 2);

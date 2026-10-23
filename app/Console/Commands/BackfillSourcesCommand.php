@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\DB;
  * - fankha: the Fankha entry of every work and manuscript, its raw_text as the entry's text (a manuscript's
  *   is the copy's own line, so copy_text).
  * - addenda: source_citations (addenda and errata).
- * - references: manuscript_catalog_references, the library catalogue pages Fankha cites and the matched printings.
+ * - references: the library catalogue page Fankha cites for each manuscript (SourceEntrySync::citedValues, from its
+ *   own columns), and the pages of manuscript_catalog_references matched in other printings or set by hand.
  * - bibliography: each string of works.bibliography, with the places it cites of the sources the site knows.
  * - evidence: the rationale of suggestions (field_suggestions.rationale_citation, scholarly_annotations).
  *
@@ -120,15 +121,15 @@ class BackfillSourcesCommand extends Command
         $volumes = DB::table('catalog_volumes')->orderBy('id')->get();
         $groups = [];
         foreach ($volumes as $v) {
-            $groups[self::groupKey($v)][] = $v;
+            $groups[Sync::groupKey($v)][] = $v;
         }
         $groupSource = [];
         foreach ($groups as $key => $members) {
             $first = $members[0];
-            $groupSource[$key] = $this->upsertSource(['code' => self::groupCode($key, $first)], [
+            $groupSource[$key] = $this->upsertSource(['code' => Sync::groupCode($key, $first)], [
                 'kind' => Source::KIND_LIBRARY_CATALOGUE,
                 'rank' => Source::KIND_RANKS[Source::KIND_LIBRARY_CATALOGUE],
-                'title' => self::stem($first->title),
+                'title' => Sync::stem($first->title),
                 'library_id' => $first->library_id,
                 'edition_label' => $first->edition_label,
                 'publisher' => $first->publisher,
@@ -142,33 +143,14 @@ class BackfillSourcesCommand extends Command
         foreach ($groups as $key => $members) {
             $of = $members[0]->edition_of_id ? $byId[$members[0]->edition_of_id] ?? null : null;
             if ($of && ! $this->dry) {
-                DB::table('sources')->where('id', $groupSource[$key])->update(['edition_of_id' => $groupSource[self::groupKey($of)]]);
+                DB::table('sources')->where('id', $groupSource[$key])->update(['edition_of_id' => $groupSource[Sync::groupKey($of)]]);
             }
         }
 
         $rows = [];
         foreach ($volumes as $v) {
-            $rows[] = [
-                'id' => $v->id,
-                'source_id' => $groupSource[self::groupKey($v)],
-                'volume_number' => $v->volume_number,
-                'title' => $v->title,
-                'edition_label' => $v->edition_label,
-                'facsimile_code' => $v->facsimile_code,
-                'cover_image_path' => $v->cover_image_path,
-                'publisher' => $v->publisher,
-                'publication_year' => $v->publication_year,
-                'pages_count' => $v->pages_count,
-                'page_first' => $v->page_first,
-                'page_last' => $v->page_last,
-                'manuscripts_range' => $v->manuscripts_range,
-                'citation_pattern' => $v->citation_pattern,
-                'mtif_entry_id' => $v->mtif_entry_id,
-                'source_url' => $v->source_url,
-                'metadata' => $v->metadata,
-                'created_at' => $v->created_at ?? $now,
-                'updated_at' => $v->updated_at ?? $now,
-            ];
+            $rows[] = ['id' => $v->id, 'source_id' => $groupSource[Sync::groupKey($v)]] + Sync::volumeValues($v)
+                + ['created_at' => $v->created_at ?? $now, 'updated_at' => $v->updated_at ?? $now];
         }
         // edition_of_id points at rows of the same table, so it goes in once every volume is there
         foreach (array_chunk($rows, self::CHUNK) as $chunk) {
@@ -249,7 +231,20 @@ class BackfillSourcesCommand extends Command
     {
         $origins = [Ref::SOURCE_FANKHA => SourceEntry::ORIGIN_FANKHA_CITATION, Ref::SOURCE_AI_MATCH => SourceEntry::ORIGIN_MATCH, Ref::SOURCE_MANUAL => SourceEntry::ORIGIN_MANUAL];
         $stats = array_fill_keys(array_values($origins), 0) + ['with text' => 0, 'no volume' => 0];
-        DB::table('manuscript_catalog_references')->chunkById(self::CHUNK, function ($refs) use ($origins, &$stats) {
+        // Fankha's citation is the manuscript's own (one per copy); the rows of source fankha only repeated it
+        DB::table('manuscripts')->select(['id', 'metadata', 'raw_text', 'catalog_volume_id'])->chunkById(self::CHUNK, function ($rows) use (&$stats) {
+            if ($this->dry) {
+                $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += $rows->filter(fn ($m) => Sync::citedValues($m, $this->volumeSources))->count();
+
+                return;
+            }
+            $stats[SourceEntry::ORIGIN_FANKHA_CITATION] += Sync::syncCited($rows)[0];
+        });
+        $this->dry || DB::table('source_entries')->where('legacy_type', 'catalog_reference')
+            ->whereIn('legacy_id', DB::table('manuscript_catalog_references')->where('source', Ref::SOURCE_FANKHA)->select('id'))->delete();
+        $this->prune('fankha_citation', 'manuscripts');
+
+        DB::table('manuscript_catalog_references')->where('source', '!=', Ref::SOURCE_FANKHA)->chunkById(self::CHUNK, function ($refs) use ($origins, &$stats) {
             $rows = [];
             foreach ($refs as $r) {
                 $hasText = filled($r->entry_text) || filled($r->copy_text);
@@ -413,29 +408,5 @@ class BackfillSourcesCommand extends Command
         $this->volumeIds = Sync::volumeIds();
         $this->volumeSources = DB::table('source_volumes')->pluck('source_id', 'id')->all();
         $this->configSources = Sync::configSources();
-    }
-
-    /** One source per library and title, and one per later printing (the Masjid-e A'zam catalogue of 1388). */
-    public static function groupKey(object $volume): string
-    {
-        if ($volume->edition_of_id) {
-            return 'edition|' . ($volume->facsimile_code ?: $volume->library_id . '|' . self::stem($volume->title));
-        }
-
-        return 'catalogue|' . ($volume->library_id ?? '') . '|' . self::stem($volume->title);
-    }
-
-    private static function groupCode(string $key, object $first): string
-    {
-        return $first->edition_of_id && $first->facsimile_code ? $first->facsimile_code : 'catalogue-' . substr(sha1($key), 0, 12);
-    }
-
-    /** A volume's title without its volume part: «فهرست … آستان قدس رضوی - جلد دوم: کتب خطی» → «فهرست … آستان قدس رضوی». */
-    public static function stem(string $title): string
-    {
-        $title = trim(preg_replace('/\s+/u', ' ', $title));
-        $at = mb_strrpos($title, ' - ');
-
-        return $at === false ? $title : trim(mb_substr($title, 0, $at));
     }
 }
