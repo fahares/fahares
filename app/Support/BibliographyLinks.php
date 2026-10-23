@@ -116,7 +116,18 @@ class BibliographyLinks
     }
 
     /**
-     * @return list<array{text: string, url?: string, title?: string, viewer?: array}>
+     * The citations of an entry that name a source of config('bibliography.sources'), in order: its key, volume and
+     * page (or column).
+     *
+     * @return list<array{source: string, volume: int, page: int}>
+     */
+    public static function citations(string $entry): array
+    {
+        return array_values(array_filter(array_column(self::segments($entry), 'cite')));
+    }
+
+    /**
+     * @return list<array{text: string, url?: string, title?: string, viewer?: array, cite?: array}>
      */
     public static function segments(string $entry): array
     {
@@ -306,7 +317,7 @@ class BibliographyLinks
             ];
         }
 
-        return $link ? $link + ['volume' => $volume] : null;
+        return $link ? $link + ['volume' => $volume, 'cite' => ['source' => $key, 'volume' => $volume, 'page' => $page]] : null;
     }
 
     private static function pushText(array &$segments, string $text): void
