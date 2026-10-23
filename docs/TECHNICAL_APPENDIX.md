@@ -3484,3 +3484,8 @@
   2. `migrate --force`، که تنها یک جدول تازه و یک ستون است و کد پیش از آن نیز کار می‌کند (`canRead()` خالی می‌ماند)؛
   3. رونوشت چهار فایل `jsonl.gz` به کانتینر (`/tmp`) و `sources:import-pages masjid-azam-ostadi … --volume=N --extractor=numbered_catalogue` برای هر جلد؛
   4. `sources:retext --dry-run`، سپس `sources:retext`.
+- **استقرار (کامیت `f2db3ca`، push `fdeff14..d096fa5`):** همراه این push سه کامیت فقط‌مستندات از نشست دیگری در همین پوشه هم رفت: `af922da` (پروتکل افزودن منبع)، `050b07c` و `d096fa5` (مورد ۶۶). Coolify در حدود ۱۰۵ ثانیه مستقر کرد. وارسی استقرار این بار با وجود فایل تازه بود، نه `pgrep`.
+  - `migrate --force` (۰.۳ ثانیه، بی حالت نگهداری).
+  - چهار فایل `masjid-azam_v0N_pages.jsonl.gz` با `ssh fahares-app "cat > /tmp/…"` رفتند و اندازه‌ها برابر بود. سپس `sources:import-pages … --volume=N --extractor=numbered_catalogue`: ۶۲۳ + ۸۲۷ + ۶۴۷ + ۷۶۶ = ۲٬۸۶۳ صفحه. فایل‌های `/tmp` پس از کار پاک شدند.
+  - `sources:retext --dry-run`، سپس اجرای اصلی: یک مدخل علامت‌خورده (#۷۲۳۸۹۶، نسخه‌ی ۱۷۳۵۴) ← مدخل ۹، ص ۵۹۶، `auto`، با لاگ `update` #۱۲۲۰ که برگشت‌پذیر است.
+  - `fahares.net/m/17354` دیگر `data-stale-text` ندارد، و زیر «متن مأخذ»، «فهرست کتابخانه مسجد اعظم» با «۹ ـ اجوبة مسائل الاصفهانی «۹۱ ـ ۹۳» …» آمده است.
