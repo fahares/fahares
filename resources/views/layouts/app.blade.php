@@ -289,10 +289,10 @@
     <main class="flex-grow">
         @auth
             @unless(auth()->user()->hasVerifiedEmail() || request()->routeIs('verification.*'))
-                {{-- Verification is optional; it lets the account claim its earlier guest suggestions --}}
+                {{-- Suggestions do not wait for it, but the name beside them is published only after it (backlog item 76) --}}
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                     <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-2">
-                        <span>ایمیل حساب شما هنوز تأیید نشده است. با تأیید آن، پیشنهادهایی که پیش‌تر بدون ورود فرستاده‌اید به حسابتان وصل می‌شوند.</span>
+                        <span>ایمیل حساب شما هنوز تأیید نشده است. پیشنهادهای شما ثبت می‌شوند، ولی نامتان پس از تأیید ایمیل کنار آن‌ها منتشر می‌شود.</span>
                         <a href="{{ route('verification.notice') }}" class="font-bold text-cinnabar hover:underline shrink-0">تأیید ایمیل</a>
                     </div>
                 </div>

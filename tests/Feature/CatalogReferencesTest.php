@@ -661,7 +661,7 @@ class CatalogReferencesTest extends TestCase
 
     private function suggestAddress(Manuscript $ms, string $field, string $value)
     {
-        return $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $ms->id, 'kind' => 'field', 'field_name' => $field,
+        return $this->suggestJson(['type' => 'manuscript', 'id' => $ms->id, 'kind' => 'field', 'field_name' => $field,
             'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی فهرست را دیدم']);
     }
 
@@ -753,7 +753,7 @@ class CatalogReferencesTest extends TestCase
     {
         $work = Work::create(['primary_title' => 'اثر مآخذدار', 'clean_title' => 'اثر مآخذدار', 'slug' => 'work-bib-' . uniqid(),
             'volume_number' => 3, 'page_start' => 10, 'page_end' => 11, 'bibliography' => ['منزوی 977/2', 'الذریعه 101/25']]);
-        $suggest = fn (string $field, string $value) => $this->postJson('/suggestions', ['type' => 'work', 'id' => $work->id, 'kind' => 'field',
+        $suggest = fn (string $field, string $value) => $this->suggestJson(['type' => 'work', 'id' => $work->id, 'kind' => 'field',
             'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم']);
         $approve = function () use ($work) {
             $s = FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $work->id)->where('status', 'pending')->latest('id')->firstOrFail();

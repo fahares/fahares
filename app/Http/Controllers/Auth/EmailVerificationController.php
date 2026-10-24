@@ -3,13 +3,15 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Auth\GuestSuggestionLinker;
+use App\Auth\HeldCredit;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
 /**
- * Email verification. Nothing on the site requires it; a verified email lets the account
- * claim the suggestions sent earlier as a guest with that address.
+ * Email verification. Suggestions are accepted without it, but the name asked for beside them is published
+ * only once the email is verified (HeldCredit). It also lets the account claim the suggestions sent earlier
+ * as a guest with that address.
  */
 class EmailVerificationController extends Controller
 {
@@ -24,9 +26,10 @@ class EmailVerificationController extends Controller
     {
         $request->fulfill();
         $linked = GuestSuggestionLinker::link($request->user());
+        $released = HeldCredit::release($request->user());
 
         return redirect()->route('my.suggestions')
-            ->with('success', trim('ایمیل شما تأیید شد. ' . GuestSuggestionLinker::message($linked)));
+            ->with('success', trim('ایمیل شما تأیید شد. ' . ($released ? 'نام شما کنار پیشنهادهایتان منتشر می‌شود. ' : '') . GuestSuggestionLinker::message($linked)));
     }
 
     public function send(Request $request)

@@ -34,7 +34,8 @@ class SuggestionWorkflowTest extends TestCase
             ['email' => 'test-admin@fahares.net'],
             ['name' => 'Admin Tester', 'password' => 'password123', 'role' => 'admin']
         );
-        $this->admin->forceFill(['role' => 'admin'])->save();
+        // Verified, so the name asked for beside a suggestion is published at once (HeldCredit)
+        $this->admin->forceFill(['role' => 'admin', 'email_verified_at' => $this->admin->email_verified_at ?? now()])->save();
     }
 
     protected function tearDown(): void
@@ -106,7 +107,7 @@ class SuggestionWorkflowTest extends TestCase
     {
         $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
 
-        return $this->postJson('/suggestions', $data + ['type' => $type, 'id' => $record->id, 'kind' => 'field']);
+        return $this->suggestJson($data + ['type' => $type, 'id' => $record->id, 'kind' => 'field']);
     }
 
     protected function pendingFor($record): FieldSuggestion
@@ -162,8 +163,6 @@ class SuggestionWorkflowTest extends TestCase
             ->assertStatus(422)->assertJsonValidationErrors('field_name');
         $this->suggest($m, ['field_name' => 'dimensions', 'suggested_value' => '۱۲×۱۸', 'rationale_citation' => ''])
             ->assertStatus(422)->assertJsonValidationErrors('rationale_citation');
-        $this->suggest($m, ['field_name' => 'dimensions', 'suggested_value' => '۱۲×۱۸', 'rationale_citation' => 'منبع آزمایشی', 'website' => 'spam'])
-            ->assertStatus(422);
 
         $this->suggest($m, ['field_name' => 'dimensions', 'suggested_value' => '۱۲×۱۸', 'rationale_citation' => 'منبع آزمایشی', 'current_value' => 'جعلی'])
             ->assertOk();
@@ -177,10 +176,10 @@ class SuggestionWorkflowTest extends TestCase
     {
         $m = $this->manuscript();
 
-        $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'این نسخه از اثر دیگری است'])
+        $this->suggestJson(['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'این نسخه از اثر دیگری است'])
             ->assertOk();
         // A page cached before the per-field desk posts the class name and the old "other" field
-        $this->post('/suggestions', [
+        $this->suggestPost([
             'suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'field_name' => 'other',
             'suggested_value' => 'نکته‌ی دیگر', 'rationale_citation' => 'منبع آزمایشی',
         ])->assertRedirect();
@@ -261,7 +260,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->suggest($m, ['field_name' => 'incipit_text', 'suggested_value' => 'بسم الله الرحمن الرحیم', 'rationale_citation' => 'برگ نخست'])->assertOk();
         $this->suggest($m, ['field_name' => 'ownership_and_seals', 'suggested_value' => "مهر الف\nتملک ب", 'rationale_citation' => 'برگ نخست'])->assertOk();
         $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '۱۲۰', 'rationale_citation' => 'شمارش برگ‌ها'])->assertOk();
-        $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'رکورد تکراری است'])->assertOk();
+        $this->suggestJson(['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'رکورد تکراری است'])->assertOk();
 
         foreach (FieldSuggestion::where('suggestable_id', $m->id)->where('suggestable_type', Manuscript::class)->get() as $s) {
             $this->approve($s)->assertRedirect('/admin/suggestions');
@@ -382,7 +381,7 @@ class SuggestionWorkflowTest extends TestCase
     {
         $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
 
-        return $this->postJson('/suggestions', $extra + [
+        return $this->suggestJson($extra + [
             'type' => $type, 'id' => $record->id, 'kind' => 'relation', 'field_name' => $key,
             'target_id' => $other?->id, 'suggested_value' => '', 'rationale_citation' => 'مقایسه‌ی دو فهرست',
         ]);
@@ -739,7 +738,7 @@ class SuggestionWorkflowTest extends TestCase
 
     public function test_users_see_and_manage_their_own_suggestions()
     {
-        $user = User::firstOrCreate(['email' => 'test-researcher@fahares.net'], ['name' => 'پژوهشگر آزمون', 'password' => 'password123', 'role' => 'user']);
+        $user = $this->researcher('test-researcher@fahares.net');
         $other = User::firstOrCreate(['email' => 'test-other@fahares.net'], ['name' => 'دیگری', 'password' => 'password123', 'role' => 'user']);
         $m = $this->manuscript();
 
@@ -785,7 +784,7 @@ class SuggestionWorkflowTest extends TestCase
     protected function researcher(string $email, string $role = 'user'): User
     {
         $user = User::firstOrCreate(['email' => $email], ['name' => 'آزمونگر ' . $role, 'password' => 'password123', 'role' => $role]);
-        $user->forceFill(['role' => $role])->save();
+        $user->forceFill(['role' => $role, 'email_verified_at' => $user->email_verified_at ?? now()])->save();
 
         return $user;
     }
@@ -828,14 +827,11 @@ class SuggestionWorkflowTest extends TestCase
         $reviewed = \App\Notifications\SuggestionReviewed::class;
         \Illuminate\Support\Facades\Notification::assertSentTo($user, $reviewed, fn ($n) => $n->event === 'reviewed' && $n->suggestion->is($first));
 
-        // A guest who opted in hears by email; one who did not hears nothing
+        // A guest who opted in, before guests stopped suggesting (backlog item 76), hears by email; one who did not hears nothing
         $this->post('/logout');
-        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی دیگر', 'guest_email' => 'guest-yes@example.com', 'notify_submitter' => 1])->assertOk();
-        $second = $this->pendingFor($m);
-        $this->suggest($m, ['field_name' => 'folios', 'suggested_value' => '9', 'rationale_citation' => 'شمارش', 'guest_email' => 'guest-no@example.com'])->assertOk();
-        $silent = $this->pendingFor($m);
-        $this->assertTrue($second->notify_submitter);
-        $this->assertFalse($silent->notify_submitter);
+        $legacy = ['suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'kind' => 'field', 'status' => 'pending', 'guest_name' => 'پژوهشگر مهمان'];
+        $second = FieldSuggestion::create($legacy + ['field_name' => 'copy_place', 'current_value' => 'هرات', 'suggested_value' => 'مشهد', 'rationale_citation' => 'ترقیمه‌ی دیگر', 'guest_email' => 'guest-yes@example.com', 'notify_submitter' => true]);
+        $silent = FieldSuggestion::create($legacy + ['field_name' => 'folios', 'suggested_value' => '9', 'rationale_citation' => 'شمارش', 'guest_email' => 'guest-no@example.com', 'notify_submitter' => false]);
 
         $this->approve($second, ['applied_value' => 'مشهد', 'outcome' => 'adopt', 'previous_standing' => 'alternative', 'public_note' => 'ترقیمه‌ی دوم روشن‌تر است']);
         $this->post("/admin/suggestions/{$silent->id}/reject", ['public_note' => 'نادرست']);
@@ -886,8 +882,8 @@ class SuggestionWorkflowTest extends TestCase
     {
         \Illuminate\Support\Facades\Notification::fake();
         $m = $this->manuscript();
-        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'guest_email' => 'Claimer@Example.com'])->assertOk();
-        $guest = $this->pendingFor($m);
+        // Sent as a guest before suggestions needed an account (backlog item 76)
+        $guest = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'kind' => 'field', 'field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'status' => 'pending', 'guest_name' => 'پژوهشگر مهمان', 'guest_email' => 'Claimer@Example.com']);
 
         // Registering sends the verification link but claims nothing: anyone can type someone else's email
         $this->post('/register', ['name' => 'مدعی', 'email' => 'claimer@example.com', 'password' => 'password123', 'password_confirmation' => 'password123'])->assertRedirect();
@@ -920,8 +916,7 @@ class SuggestionWorkflowTest extends TestCase
     public function test_google_sign_in_creates_or_links_accounts()
     {
         $m = $this->manuscript();
-        $this->suggest($m, ['field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'guest_email' => 'g-new@example.com'])->assertOk();
-        $guest = $this->pendingFor($m);
+        $guest = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'kind' => 'field', 'field_name' => 'copy_place', 'suggested_value' => 'هرات', 'rationale_citation' => 'ترقیمه', 'status' => 'pending', 'guest_name' => 'پژوهشگر مهمان', 'guest_email' => 'g-new@example.com']);
 
         // The button only appears once a Google client is configured
         config(['services.google.client_id' => null]);
@@ -985,7 +980,7 @@ class SuggestionWorkflowTest extends TestCase
     {
         $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
 
-        return $this->post('/suggestions', $extra + ['type' => $type, 'id' => $record->id, 'kind' => 'note', 'field_name' => $noteType, 'note' => $note], ['Accept' => 'application/json']);
+        return $this->suggestPost($extra + ['type' => $type, 'id' => $record->id, 'kind' => 'note', 'field_name' => $noteType, 'note' => $note], ['Accept' => 'application/json']);
     }
 
     public function test_research_notes_are_reviewed_edited_and_published()
@@ -1031,11 +1026,13 @@ class SuggestionWorkflowTest extends TestCase
         $jpeg = base64_decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=');
         $file = fn () => \Illuminate\Http\UploadedFile::fake()->createWithContent('page.jpg', $jpeg);
 
-        $this->addNote($m, 'image', ['caption' => 'برگ نخست'], ['files' => [$file()], 'rights_confirmed' => 1])->assertStatus(422)->assertJsonValidationErrors('files');
-        $this->addNote($m, 'image', ['caption' => 'بی‌پیوند و بی‌تصویر'])->assertStatus(422)->assertJsonValidationErrors('note.url');
+        // Guests send nothing, images or otherwise (backlog item 76)
+        $this->post('/suggestions', ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'note', 'field_name' => 'image', 'note' => ['caption' => 'برگ نخست'], 'files' => [$file()], 'rights_confirmed' => 1], ['Accept' => 'application/json'])->assertUnauthorized();
+        $this->assertSame(0, FieldSuggestion::where('suggestable_id', $m->id)->where('suggestable_type', Manuscript::class)->count());
 
         $user = $this->researcher('test-uploader@fahares.net');
         $this->actingAs($user);
+        $this->addNote($m, 'image', ['caption' => 'بی‌پیوند و بی‌تصویر'])->assertStatus(422)->assertJsonValidationErrors('note.url');
         $this->addNote($m, 'image', ['caption' => 'برگ نخست'], ['files' => [$file()]])->assertStatus(422)->assertJsonValidationErrors('rights_confirmed');
         $this->addNote($m, 'image', ['caption' => 'برگ نخست'], ['files' => [$file(), $file()], 'rights_confirmed' => 1])->assertOk();
         $note = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->sole();

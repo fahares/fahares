@@ -71,6 +71,9 @@
                     @if($suggestion->credit_name)
                         <b class="text-emerald-800 dark:text-emerald-300">{{ $suggestion->credit_name }}</b>
                         <span class="text-xs text-muted">{{ $suggestion->status === 'approved' ? '(نمایش داده می‌شود)' : '(پس از تأیید نمایش داده می‌شود)' }}</span>
+                    @elseif($suggestion->held_credit_name)
+                        <b>{{ $suggestion->held_credit_name }}</b>
+                        <span class="text-xs text-muted">(پس از تأیید ایمیل پیشنهاددهنده نمایش داده می‌شود)</span>
                     @else
                         بدون نام
                     @endif

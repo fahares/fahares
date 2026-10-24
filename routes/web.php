@@ -97,9 +97,9 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contributions', [ContributionsController::class, 'index'])->name('contributions.index');
 Route::get('/contributors/{user}', [ContributionsController::class, 'show'])->whereNumber('user')->name('contributors.show');
 
-// Field Suggestions (Crowdsourced corrections)
+// Field Suggestions (Crowdsourced corrections); signed-in users only (backlog item 76), which covers research notes and links
 Route::post('/suggestions', [SuggestionController::class, 'store'])
-    ->middleware('throttle:20,60')
+    ->middleware(['auth', 'throttle:20,60'])
     ->name('suggestions.store');
 Route::get('/api/suggestions/people', [SuggestionController::class, 'people'])
     ->middleware('throttle:120,1')
@@ -118,6 +118,9 @@ Route::get('/notes/{suggestion}/files/{index}', [NoteFileController::class, 'sho
 Route::middleware('auth')->group(function () {
     Route::get('/my/suggestions', [MySuggestionsController::class, 'index'])->name('my.suggestions');
     Route::get('/settings/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/settings/profile', [ProfileController::class, 'update'])->middleware('throttle:20,60')->name('profile.update');
+    Route::get('/account/complete', [ProfileController::class, 'complete'])->name('account.complete');
+    Route::post('/account/complete', [ProfileController::class, 'saveComplete'])->name('account.complete.save');
     Route::post('/settings/profile/avatar', [ProfileController::class, 'updateAvatar'])->middleware('throttle:20,60')->name('profile.avatar');
     Route::delete('/settings/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     Route::post('/my/suggestions/{suggestion}/credit', [MySuggestionsController::class, 'credit'])->name('my.suggestions.credit');
@@ -192,7 +195,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
 
-// Email verification (not required anywhere; it lets an account claim its earlier guest suggestions)
+// Email verification (not required to suggest; it publishes the name beside suggestions and claims earlier guest suggestions)
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');

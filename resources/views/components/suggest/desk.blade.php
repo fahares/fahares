@@ -45,13 +45,18 @@
         }])->values(),
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
+        // Guests get a sign-in dialog instead of the form (backlog item 76); the name is published once the email is verified
+        'signedIn' => auth()->check(),
+        'verified' => (bool) auth()->user()?->hasVerifiedEmail(),
+        'registerUrl' => route('register.post'),
+        'loginUrl' => route('login'),
+        'googleUrl' => route('auth.google'),
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
-        // Research notes (see NoteTypes); images can be uploaded only when signed in
+        // Research notes (see NoteTypes)
         'noteTypes' => \App\Suggestions\NoteTypes::forRecord($type),
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
         'maxFiles' => \App\Suggestions\NoteTypes::MAX_FILES,
-        'canUpload' => auth()->check(),
         // The current number, shown beside the «moved or renumbered» suggestion
         'shelfmark' => $type === 'manuscript' ? $record->shelfmark : null,
     ];
@@ -99,7 +104,7 @@
             </template>
 
             <template x-if="!done">
-                <form @submit.prevent="submit()" class="space-y-4">
+                <form @submit.prevent="submit()" @input="saveDraft()" @change="saveDraft()" class="space-y-4">
 
                     <template x-if="mode === 'general'">
                         <div class="space-y-3">
@@ -216,7 +221,6 @@
                             <template x-if="noteDef.files">
                                 <div class="space-y-1.5 p-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-line">
                                     <span class="block font-semibold text-ink">بارگذاری تصویر (اختیاری؛ حداکثر <span x-text="config.maxFiles"></span> تصویر):</span>
-                                    <template x-if="config.canUpload">
                                         <div class="space-y-1.5">
                                             <input type="file" accept="image/jpeg,image/png,image/webp" multiple @change="pickFiles($event)" class="block w-full text-ink/80">
                                             <p class="text-stone-400">تصویرهای بزرگ پیش از ارسال کوچک می‌شوند.</p>
@@ -229,10 +233,6 @@
                                             </label>
                                             <p x-show="errors.files || errors.rights_confirmed" x-text="errors.files || errors.rights_confirmed" class="text-red-600 dark:text-red-400 font-bold"></p>
                                         </div>
-                                    </template>
-                                    <template x-if="!config.canUpload">
-                                        <p class="text-stone-500">برای بارگذاری تصویر <a href="{{ route('login') }}" class="text-cinnabar hover:underline font-bold">وارد شوید</a>. پیوند تصویر را بدون ورود هم می‌توانید بفرستید.</p>
-                                    </template>
                                 </div>
                             </template>
                         </div>
@@ -328,35 +328,11 @@
                         </div>
                     </template>
 
-                    <!-- Honeypot: hidden from people, bots fill it -->
-                    <div class="hidden" aria-hidden="true">
-                        <label>وب‌سایت <input type="text" x-model="website" tabindex="-1" autocomplete="off"></label>
-                    </div>
-
                     @auth
                         <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                             <span>ثبت پیشنهاد با نام <strong>{{ auth()->user()->name }}</strong></span>
                         </div>
-                    @else
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="space-y-1">
-                                <label class="block font-semibold text-ink">نام شما (اختیاری):</label>
-                                <input type="text" x-model="guestName" class="{{ $inputClass }}">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="block font-semibold text-ink">ایمیل (اختیاری):</label>
-                                <input type="email" x-model="guestEmail" dir="ltr" class="{{ $inputClass }}">
-                                <p x-show="errors.guest_email" x-text="errors.guest_email" class="text-red-600 dark:text-red-400 font-bold"></p>
-                            </div>
-                        </div>
-                        <label x-show="guestEmail.trim()" x-cloak class="flex items-start gap-2 cursor-pointer text-ink">
-                            <input type="checkbox" x-model="notifyOn" class="mt-0.5 rounded border-stone-300 dark:border-stone-600 text-cinnabar focus:ring-cinnabar">
-                            <span>نتیجه‌ی داوری را به این ایمیل خبر دهید.</span>
-                        </label>
-                        <p class="text-[11px] text-stone-400">
-                            با <a href="{{ route('login') }}" class="text-cinnabar hover:underline font-medium">ورود</a> یا <a href="{{ route('register') }}" class="text-cinnabar hover:underline font-medium">عضویت</a>، پیشنهادها به نام شما ثبت می‌شوند.
-                        </p>
                     @endauth
 
                     <div class="space-y-2">
@@ -368,15 +344,16 @@
                             <label class="block font-semibold text-ink">نام به این صورت درج شود:</label>
                             <input type="text" x-model="creditName" maxlength="150" :required="creditOn" class="{{ $inputClass }}" placeholder="مثلاً: دکتر … ، پژوهشگر نسخ خطی">
                             <p x-show="errors.credit_name" x-text="errors.credit_name" class="text-red-600 dark:text-red-400 font-bold"></p>
+                            <p x-show="!config.verified" class="text-stone-500">نام شما پس از <a href="{{ route('verification.notice') }}" target="_blank" class="text-cinnabar hover:underline font-bold">تأیید ایمیل</a> منتشر می‌شود؛ پیشنهاد همین حالا ثبت می‌شود.</p>
                         </div>
                     </div>
 
-                    <p x-show="errors.form || errors.field_name || errors.id || errors.website"
-                        x-text="errors.form || errors.field_name || errors.id || errors.website"
+                    <p x-show="errors.form || errors.field_name || errors.id"
+                        x-text="errors.form || errors.field_name || errors.id"
                         class="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 font-bold"></p>
 
                     <div class="pt-3 flex items-center justify-end gap-3 border-t border-line">
-                        <button type="button" @click="close()" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-paper font-semibold">انصراف</button>
+                        <button type="button" @click="cancel()" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-paper font-semibold">انصراف</button>
                         <template x-if="config.directUrl && mode === 'field'">
                             <button type="button" @click="submitDirect()" :disabled="submitting"
                                 title="فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید"
@@ -390,6 +367,49 @@
                     </div>
                 </form>
             </template>
+        </div>
+    </div>
+    <!-- Sign-in dialog for guests (backlog item 76) -->
+    <div x-show="gate" x-cloak x-transition.opacity
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div @click.outside="close()" role="dialog" aria-modal="true" aria-labelledby="suggest-gate-title"
+            class="bg-surface w-full max-w-md rounded-sm p-6 sm:p-8 border border-gold shadow-2xl space-y-5 text-right max-h-[90vh] overflow-y-auto">
+            <div class="flex items-start justify-between gap-3">
+                <h3 id="suggest-gate-title" class="font-naskh text-xl font-bold text-ink leading-relaxed">پیشنهاد اصلاح</h3>
+                <button type="button" @click="close()" class="text-stone-400 hover:text-stone-600 text-lg" aria-label="بستن">✕</button>
+            </div>
+            <p class="text-sm text-ink leading-7">برای ثبت اصلاح وارد شوید یا در یک دقیقه ثبت‌نام کنید؛ نام شما کنار اصلاحتان منتشر می‌شود.</p>
+
+            @include('auth.partials.google-button', ['label' => 'ورود با حساب گوگل', 'hrefExpr' => 'authUrl(config.googleUrl)'])
+
+            @guest
+                @php $gateField = 'w-full px-3 py-2.5 rounded-sm border border-line-strong bg-paper text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none'; @endphp
+                <form @submit.prevent="register($el)" class="space-y-3">
+                    @include('auth.partials.name-field', ['inputClass' => $gateField])
+                    <p x-show="gateErrors.name" x-text="gateErrors.name" class="text-[11px] text-red-500 font-medium -mt-2"></p>
+                    <div class="space-y-1">
+                        <label for="gate-email" class="block text-xs font-bold text-ink">ایمیل:</label>
+                        <input type="email" id="gate-email" name="email" required dir="ltr" autocomplete="email" maxlength="255" class="{{ $gateField }} text-left">
+                        <p x-show="gateErrors.email" x-text="gateErrors.email" class="text-[11px] text-red-500 font-medium"></p>
+                    </div>
+                    <div class="space-y-1">
+                        <label for="gate-password" class="block text-xs font-bold text-ink">گذرواژه (دست‌کم ۸ نویسه):</label>
+                        <div class="relative" x-data="{ show: false }">
+                            <input type="password" :type="show ? 'text' : 'password'" id="gate-password" name="password" required minlength="8" dir="ltr" autocomplete="new-password" class="{{ $gateField }} text-left pl-11">
+                            <x-password-toggle />
+                        </div>
+                        <p x-show="gateErrors.password" x-text="gateErrors.password" class="text-[11px] text-red-500 font-medium"></p>
+                    </div>
+                    <p x-show="gateErrors.form" x-text="gateErrors.form" class="p-2.5 rounded-sm bg-red-50 dark:bg-red-950/30 text-xs text-red-700 dark:text-red-300 font-bold"></p>
+                    <button type="submit" :disabled="gateBusy" class="w-full py-2.5 px-4 rounded-sm bg-cinnabar text-on-cinnabar font-bold text-sm hover:opacity-90 disabled:opacity-60 transition">
+                        <span x-text="gateBusy ? 'در حال ثبت‌نام…' : 'ثبت‌نام و ادامه‌ی اصلاح'"></span>
+                    </button>
+                </form>
+            @endguest
+
+            <p class="pt-3 border-t border-line text-center text-xs text-muted">
+                حساب دارید؟ <a :href="authUrl(config.loginUrl)" class="font-bold text-cinnabar hover:underline">ورود</a>
+            </p>
         </div>
     </div>
 </div>

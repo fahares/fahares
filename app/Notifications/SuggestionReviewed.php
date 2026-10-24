@@ -65,7 +65,7 @@ class SuggestionReviewed extends SuggestionNotification
         if ($s->public_note) {
             $lines[] = 'یادداشت داور: ' . self::short($s->public_note, 500);
         }
-        if ($s->status === 'approved' && (($s->standing && $s->standing !== 'edit') || $s->kind === 'note') && ! $s->credit_name && $notifiable instanceof User) {
+        if ($s->status === 'approved' && (($s->standing && $s->standing !== 'edit') || $s->kind === 'note') && ! $s->credit_name && ! $s->held_credit_name && $notifiable instanceof User) {
             $lines[] = 'اگر مایلید نامتان کنار این قول نمایش داده شود، آن را در «پیشنهادهای من» ثبت کنید.';
         }
 

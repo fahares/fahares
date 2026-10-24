@@ -14,6 +14,21 @@
     @endif
 
     <x-ui.card class="space-y-5">
+        <h2 class="rubric text-lg">مشخصات</h2>
+        @php $field = 'w-full px-3 py-2.5 rounded-sm border border-line-strong bg-paper text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none'; @endphp
+        <form action="{{ route('profile.update') }}" method="POST" class="space-y-4">
+            @csrf
+            @include('auth.partials.name-field', ['value' => $user->name, 'inputClass' => $field])
+            <div class="space-y-1">
+                <label for="affiliation" class="block text-xs font-bold text-ink">وابستگی دانشگاهی / حوزوی / پژوهشی <span class="text-muted font-normal">(اختیاری)</span>:</label>
+                <input type="text" id="affiliation" name="affiliation" value="{{ old('affiliation', $user->affiliation) }}" maxlength="255" class="{{ $field }}">
+            </div>
+            @include('auth.partials.phone-field', ['value' => $user->phone, 'inputClass' => $field])
+            <x-ui.btn type="submit" variant="primary">ذخیره‌ی مشخصات</x-ui.btn>
+        </form>
+    </x-ui.card>
+
+    <x-ui.card class="space-y-5">
         <h2 class="rubric text-lg">تصویر کاربر</h2>
         <div class="flex flex-col sm:flex-row sm:items-center gap-5">
             <x-ui.avatar :user="$user" size="xl" />

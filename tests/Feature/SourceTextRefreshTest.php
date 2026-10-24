@@ -65,7 +65,7 @@ class SourceTextRefreshTest extends TestCase
 
     protected function suggest(string $field, string $value): FieldSuggestion
     {
-        $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $this->manuscript->id, 'kind' => 'field', 'field_name' => $field,
+        $this->suggestJson(['type' => 'manuscript', 'id' => $this->manuscript->id, 'kind' => 'field', 'field_name' => $field,
             'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم'])->assertOk();
 
         return FieldSuggestion::latest('id')->firstOrFail();

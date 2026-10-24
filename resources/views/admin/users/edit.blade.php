@@ -15,6 +15,12 @@
         <div class="min-w-0">
             <p class="text-muted break-all" dir="ltr">{{ $user->email }}</p>
             <p class="text-xs text-muted">عضو از @jdate($user->created_at)</p>
+            {{-- Given by the user for scholarly cooperation; never public (backlog item 74) --}}
+            @can('users.contact')
+                <p class="text-xs text-muted">شماره‌ی تماس:
+                    @if($user->phone)<a href="tel:{{ $user->phone }}" class="text-ink hover:text-cinnabar" dir="ltr">{{ $user->phone }}</a>@else نداده است@endif
+                </p>
+            @endcan
         </div>
     </div>
 

@@ -90,9 +90,12 @@
                 <form action="{{ route('my.suggestions.credit', $s) }}" method="POST" class="flex flex-wrap items-center gap-2 pt-2 border-t border-line text-xs">
                     @csrf
                     <label class="text-muted" for="credit-{{ $s->id }}">نام در صفحه‌ی عمومی:</label>
-                    <input id="credit-{{ $s->id }}" type="text" name="credit_name" value="{{ $s->credit_name }}" maxlength="150" placeholder="خالی: بدون نام"
+                    <input id="credit-{{ $s->id }}" type="text" name="credit_name" value="{{ $s->credit_name ?? $s->held_credit_name }}" maxlength="150" placeholder="خالی: بدون نام"
                         class="flex-1 min-w-40 p-2 rounded-lg border border-line-strong bg-paper text-ink">
                     <button type="submit" class="px-3 py-2 rounded-sm bg-cinnabar text-on-cinnabar hover:opacity-90 font-bold">ذخیره</button>
+                    @if($s->held_credit_name)
+                        <p class="basis-full text-[11px] text-amber-800 dark:text-amber-300">این نام پس از <a href="{{ route('verification.notice') }}" class="font-bold hover:underline">تأیید ایمیل</a> شما منتشر می‌شود.</p>
+                    @endif
                 </form>
             @endif
         </article>

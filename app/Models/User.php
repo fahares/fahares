@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'google_id', 'password', 'role', 'affiliation', 'is_verified_scholar'])]
-#[Hidden(['password', 'remember_token', 'google_id'])]
+#[Fillable(['name', 'email', 'google_id', 'password', 'role', 'affiliation', 'phone', 'is_verified_scholar'])]
+// The phone is never shown publicly; the panel shows it only with the users.contact permission (backlog item 74)
+#[Hidden(['password', 'remember_token', 'google_id', 'phone'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
