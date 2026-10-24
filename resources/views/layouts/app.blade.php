@@ -59,7 +59,8 @@
                 
                 <!-- Logo & Brand -->
                 <div class="flex items-center gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0">
+                    {{-- The way home on wide screens, where the nav has no «صفحه نخست» link --}}
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 group shrink-0" title="صفحه نخست" aria-label="فهارس، صفحه نخست">
                         <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-180.png') }}" alt="" width="48" height="48" class="h-12 w-12">
                         <div class="flex flex-col">
                             <div class="flex items-center gap-2">
@@ -72,31 +73,31 @@
 
                 <!-- Desktop Navigation Links -->
                 <nav class="hidden lg:flex items-center gap-1 text-sm font-semibold text-ink">
-                    <a href="{{ route('home') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('home') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
-                        صفحه نخست
-                    </a>
-                    <a href="{{ route('subjects.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('subjects.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('subjects.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('subjects.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         موضوعات
                     </a>
-                    <a href="{{ route('libraries.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('libraries.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('libraries.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('libraries.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         کتابخانه‌ها و مراکز
                     </a>
-                    <a href="{{ route('catalogers.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('catalogers.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('catalogers.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('catalogers.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         فهرست‌نگاران
                     </a>
-                                        <a href="{{ route('posts.index') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                                        <a href="{{ route('posts.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         جریده
                     </a>
-                    <a href="{{ route('insights') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('contributions.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                        اصلاحات پژوهشگران
+                    </a>
+                    <a href="{{ route('insights') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         آمار
                     </a>
-                    <a href="{{ route('about') }}" class="px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('about') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                    <a href="{{ route('about') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('about') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         درباره ما
                     </a>
                 </nav>
 
                 <!-- Actions: Search Trigger & Dark Mode Toggle -->
-                {{-- From lg the nav takes the bar; below xl the actions shrink to icons so all seven links fit --}}
+                {{-- From lg the nav takes the bar; below xl the actions shrink to icons so all seven links fit (no «صفحه نخست»: the logo is the way home) --}}
                 <div class="flex items-center gap-2 sm:gap-3">
                     
                     <!-- Search Input Trigger Button (Opens Ctrl+K Spotlight Modal) -->
@@ -231,6 +232,7 @@
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
                             <a href="{{ route('posts.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('posts.*') ? 'text-cinnabar font-bold' : '' }}">جریده</a>
+                            <a href="{{ route('contributions.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar font-bold' : '' }}">اصلاحات پژوهشگران</a>
                             <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights') ? 'text-cinnabar font-bold' : '' }}">آمار</a>
                             <a href="{{ route('about') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('about') ? 'text-cinnabar font-bold' : '' }}">درباره ما</a>
                             <div class="my-1 border-t border-line-strong sm:hidden"></div>
