@@ -72,7 +72,8 @@ class AdminPanelTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get('/admin');
         $response->assertStatus(200);
-        $response->assertSee('مرکز فرماندهی پایگاه فهارس');
+        $response->assertSee('پیشخوان');
+        $response->assertSee('منتظر داوری');
     }
 
     public function test_admin_can_view_suggestions()

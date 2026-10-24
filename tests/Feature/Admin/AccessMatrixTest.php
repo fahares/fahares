@@ -229,4 +229,30 @@ class AccessMatrixTest extends TestCase
         $this->assertContains($this->researcher->id, $ids());
         $this->assertContains($this->admin->id, $ids());
     }
+
+    public function test_dashboard_queue_counts_waiting_work_and_follows_the_matrix()
+    {
+        $library = Library::create(['name' => 'کتابخانه‌ی صف', 'city' => 'قم', 'slug' => 'matrix-queue-' . uniqid()]);
+        foreach (['field' => 'name', 'general' => 'general', 'relation' => 'duplicate', 'feedback' => 'bug'] as $kind => $field) {
+            FieldSuggestion::create(['kind' => $kind, 'field_name' => $field, 'suggested_value' => 'y', 'rationale_citation' => 'z', 'guest_name' => 'مهمان', 'status' => 'pending']
+                + ($kind === 'feedback' ? ['payload' => ['url' => '/search']] : ['suggestable_type' => Library::class, 'suggestable_id' => $library->id]));
+        }
+
+        // Field and general suggestions count together; each box links to its filtered list
+        $this->actingAs($this->editor)->get('/admin')->assertOk()
+            ->assertSee('منتظر داوری')->assertSee('اصلاح فیلد')->assertSee('نشانی خودکار')
+            ->assertSee(route('admin.suggestions.index', ['status' => 'pending', 'kind' => 'field']))
+            ->assertSee('رخدادهای اخیر');
+        $this->get('/admin/suggestions?kind=field')->assertOk()->assertSee('فقط اصلاح فیلد و کلی');
+        $this->assertSame(2, FieldSuggestion::whereIn('kind', ['field', 'general'])->count());
+
+        // Without the review permissions the queue and the lists are gone, and the menu loses those items
+        $grants = Permissions::matrix();
+        $grants['editor'] = ['panel.access', 'people.edit'];
+        Permissions::save($grants);
+        $this->get('/admin')->assertOk()
+            ->assertDontSee('منتظر داوری')->assertDontSee('تازه‌ترین پیشنهادها')->assertDontSee('رخدادهای اخیر')
+            ->assertDontSee(route('admin.suggestions.index'), false)
+            ->assertSee(route('admin.people.index'), false);
+    }
 }

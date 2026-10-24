@@ -41,6 +41,12 @@ class SuggestionController extends Controller
             $query->where('suggestable_type', 'like', "%{$type}%");
         }
 
+        // From the dashboard's queue; field suggestions include the general ones
+        $kind = $request->query('kind');
+        if (in_array($kind, ['field', 'relation', 'note', 'feedback'], true)) {
+            $query->whereIn('kind', $kind === 'field' ? ['field', 'general'] : [$kind]);
+        }
+
         $suggestions = $query->latest('id')->paginate(20)->withQueryString();
 
         $stats = [

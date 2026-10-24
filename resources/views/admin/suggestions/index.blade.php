@@ -60,6 +60,12 @@
             </div>
         </div>
 
+        {{-- The kind chosen in the dashboard's queue --}}
+        @php $kindLabels = ['field' => 'اصلاح فیلد و کلی', 'relation' => 'پیشنهاد ساختاری', 'note' => 'یادداشت پژوهشی', 'feedback' => 'گزارش اشکال سایت']; @endphp
+        @if(isset($kindLabels[request('kind')]))
+            <x-ui.chip tone="accent" :href="route('admin.suggestions.index', ['status' => $status, 'type' => $type])">فقط {{ $kindLabels[request('kind')] }} ✕</x-ui.chip>
+        @endif
+
     </div>
 
     <!-- Suggestions Table -->
