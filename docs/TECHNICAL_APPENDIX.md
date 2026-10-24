@@ -3776,3 +3776,22 @@
   - بازگردانی، `{"status":"verified"}` را به `…/reopen` فرستاد و زبانه‌ها به ۳/۰/۱ رسیدند.
   - پاسخ ۴۱۹، پیام نشست منقضی را زیر همان سطر نشان داد.
   - درخواست واقعی به سرور در این وارسی فرستاده نشد. آن را آزمون JSON می‌پوشاند.
+
+### گام ۱۳.۱۷: فرم‌های ویرایش و [roles/index](../resources/views/admin/roles/index.blade.php) (مورد ۶۵، بند ۵)
+- **اجزای تازه:**
+  - `x-admin.field`: برچسب با `for`، کنترل در slot، و `hint` و `error`. `error` نام فیلدی است که `@error` آن را می‌خواند.
+  - `x-admin.form-actions`: «انصراف» با `x-ui.btn ghost` و «ذخیره‌ی تغییرات» با `primary`.
+  - `x-admin.file`: `input[type=file]` با `sr-only` و `peer`، برچسبی که دکمه‌ی «انتخاب پرونده» است، و نام پرونده‌ی برگزیده با Alpine.
+- **فرم‌ها:** [people/edit](../resources/views/admin/people/edit.blade.php)، [libraries/edit](../resources/views/admin/libraries/edit.blade.php)، [catalogers/edit](../resources/views/admin/catalogers/edit.blade.php) و [users/edit](../resources/views/admin/users/edit.blade.php).
+  - نام و id فیلدها، و مسیرها، تغییری نکرد.
+  - `page_title` نام رکورد است و breadcrumb «فهرست / ویرایش #شناسه» با ارقام فارسی.
+  - دکمه‌ی ادغام زیر `@can('people.merge')` است.
+  - پیوند ماتریس در فرم کاربر زیر `@can('roles.manage')` است.
+  - کاربر تصویر خود (`x-ui.avatar lg`) و تاریخ عضویت را دارد.
+- **ماتریس:**
+  - breadcrumb تکراری برداشته شد، چون قاب نام گروه منو را نشان می‌دهد.
+  - زبانه‌های موبایل همان شکل `x-admin.tabs` را گرفتند. سرفصل گروه‌ها `.rubric` شد.
+  - نشان «حساس» حاشیه‌ی شنگرفی دارد و «≠ پیش‌فرض» `text-gold` است.
+  - دکمه‌ها `x-ui.btn` شدند و `number_format` جای خود را به `Fa::num` داد. منطق و تأیید فرم تغییری نکرد.
+- **وارسی:** هر پنج صفحه با کد worktree و داده‌ی `fahares_db` به HTML ساخته شدند. شخص پرکار، کتابخانه‌ی رضوی، نخستین فهرست‌نگار و یک کاربر غیرمدیر به کار رفتند. عرض‌های ۱۲۸۰ و ۳۷۵ وارسی شد. انتخاب پرونده با `DataTransfer` شبیه‌سازی شد و نام «نشان-رضوی.png» نمایش داده شد. کل مجموعه: ۲۷۵ آزمون موفق.
+- **مانده:** ورودی‌های عددی (`type=number`) ارقام را به زبان مرورگر نشان می‌دهند. این رفتار خود مرورگر است و تغییر داده نشد.
