@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\CatalogerController as AdminCatalogerController;
 use App\Http\Controllers\Admin\CatalogReferenceController as AdminCatalogReferenceController;
+use App\Http\Controllers\Admin\PersonReviewController as AdminPersonReviewController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HomePageController as AdminHomePageController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
@@ -235,6 +236,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
     });
     Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update'])->middleware('can:people.edit');
+
+    // Person review queues: namesakes to merge, records holding several people to split (backlog item 78); each action checks its own permission
+    Route::get('/person-reviews', [AdminPersonReviewController::class, 'index'])->name('person-reviews.index');
+    Route::post('/person-reviews/{review}/merge', [AdminPersonReviewController::class, 'merge'])->name('person-reviews.merge');
+    Route::post('/person-reviews/{review}/split', [AdminPersonReviewController::class, 'split'])->name('person-reviews.split');
+    Route::post('/person-reviews/{review}/status', [AdminPersonReviewController::class, 'status'])->name('person-reviews.status');
 
     // Catalogue references matched by machine (backlog item 51)
     Route::middleware('can:catalog_refs.review')->group(function () {

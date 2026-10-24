@@ -28,6 +28,10 @@ class AdminNav
             ['title' => 'داده‌ها و مراجع', 'items' => [
                 ['label' => 'اشخاص', 'route' => 'admin.people.index', 'active' => ['admin.people.index', 'admin.people.edit'], 'can' => 'people.edit'],
                 ['label' => 'ادغام اشخاص', 'route' => 'admin.people.merge', 'active' => 'admin.people.merge', 'can' => 'people.merge'],
+                ['label' => 'اشخاص هم‌نام', 'route' => 'admin.person-reviews.index', 'active' => fn () => request()->routeIs('admin.person-reviews.*') && request()->query('type') !== 'mixed', 'can' => 'people.merge',
+                    'count' => fn () => \App\Models\PersonReview::where('type', 'duplicate')->where('status', 'open')->count()],
+                ['label' => 'رکوردهای قاطی‌شده', 'route' => ['admin.person-reviews.index', ['type' => 'mixed']], 'active' => fn () => request()->routeIs('admin.person-reviews.*') && request()->query('type') === 'mixed', 'can' => 'structure.split',
+                    'count' => fn () => \App\Models\PersonReview::where('type', 'mixed')->where('status', 'open')->count()],
                 ['label' => 'فهرست‌نگاران', 'route' => 'admin.catalogers.index', 'active' => 'admin.catalogers.*', 'can' => 'catalogers.edit'],
                 ['label' => 'کتابخانه‌ها', 'route' => 'admin.libraries.index', 'active' => 'admin.libraries.*', 'can' => 'libraries.edit'],
                 ['label' => 'موضوعات', 'route' => 'admin.subjects.index', 'active' => ['admin.subjects.index', 'admin.subjects.create', 'admin.subjects.edit', 'admin.subjects.tree'], 'can' => 'subjects.edit'],
@@ -57,7 +61,8 @@ class AdminNav
                 $items[] = [
                     'label' => $item['label'],
                     'url' => route($name, $params),
-                    'active' => request()->routeIs(...(array) $item['active']),
+                    // a route pattern, or a check for items that share a route and differ by query
+                    'active' => $item['active'] instanceof \Closure ? ($item['active'])() : request()->routeIs(...(array) $item['active']),
                     'count' => isset($item['count']) ? ($item['count'])() : 0,
                     'soft' => $item['soft'] ?? false,
                 ];
