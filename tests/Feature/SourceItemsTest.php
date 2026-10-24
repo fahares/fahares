@@ -44,6 +44,31 @@ class SourceItemsTest extends TestCase
         $this->assertSame([3, 'ablibrary', 'auto'], [$items[0]->volume_number, $items[0]->text_origin, $items[0]->text_status]);
     }
 
+    public function test_link_items_ties_fankhas_citation_to_the_entry_and_keeps_a_reviewed_tie()
+    {
+        $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();
+        $work = Work::create(['primary_title' => 'التحفة', 'clean_title' => 'التحفة', 'slug' => 'tuhfa-' . uniqid(), 'volume_number' => 1,
+            'page_start' => 1, 'author_name' => 'تفرشی، مراد بن علی خان']);
+        $citation = SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id, 'source_id' => $this->volume->source_id,
+            'volume_number' => 3, 'page_start' => 402, 'role' => SourceEntry::ROLE_CITATION, 'origin' => SourceEntry::ORIGIN_BIBLIOGRAPHY,
+            'status' => SourceEntry::STATUS_VERIFIED, 'citation_text' => 'الذریعة 402/3']);
+
+        $this->artisan('sources:link-items', ['volume' => 'dharia-test'])->assertSuccessful();
+
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->sole();
+        $item = SourceItem::where('item_key', '1446')->sole();
+        $this->assertSame([$work->id, $item->id, SourceEntry::ROLE_ENTRY, SourceEntry::STATUS_UNVERIFIED, 'title_author'],
+            [$tie->citable_id, $tie->source_item_id, $tie->role, $tie->status, $tie->match_method]);
+        $this->assertSame([$item->text, SourceEntry::TEXT_AUTO, 1446], [$tie->entry_text, $tie->text_status, $tie->entry_number]);
+        $this->assertSame(SourceEntry::ROLE_CITATION, $citation->fresh()->role);
+
+        // a reviewer moved it; a second run leaves it alone
+        $tie->update(['status' => SourceEntry::STATUS_REJECTED]);
+        $this->artisan('sources:link-items', ['volume' => 'dharia-test'])->assertSuccessful();
+        $this->assertSame(SourceEntry::STATUS_REJECTED, $tie->fresh()->status);
+        $this->assertSame(1, SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->count());
+    }
+
     public function test_a_second_run_keeps_ids_edited_text_and_linked_entries()
     {
         $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();

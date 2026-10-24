@@ -26,11 +26,15 @@ class SourceEntry extends Model
 
     public const ROLE_CITATION = 'citation';
 
+    /** The record is only named inside another work's entry of the source (al-Dhari'a: the poet's divan). */
+    public const ROLE_MENTION = 'mention';
+
     public const ROLE_LABELS = [
         self::ROLE_ENTRY => 'مدخل',
         self::ROLE_ADDENDUM => 'استدراک',
         self::ROLE_ERRATUM => 'اصلاحیه',
         self::ROLE_CITATION => 'یادکرد',
+        self::ROLE_MENTION => 'یاد شده در مدخل دیگر',
     ];
 
     /** Fankha's own entry of the record. */
