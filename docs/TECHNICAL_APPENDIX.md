@@ -1850,6 +1850,7 @@
   - **کنش‌ها:** ادغام با `PersonMerger` و `keepPrintedNames`. تفکیک با `RecordSplitter::splitPerson` و لاگ `split`، که از لاگ ممیزی بازگرداندنی است.
   - **منو:** دو مورد تازه در منو با شمار موارد باز. منو حالا برای `active` یک closure هم می‌پذیرد.
 - **اجرای پروداکشن (۲ آبان ۱۴۰۵):** پشتیبان کامل در `~/backups/before_person_reviews_20261024_1448.sql.gz` روی میزبان گرفته شد. سپس push و `migrate --force`، و بعد `fahares:refresh-person-reviews`: ۱٬۴۶۰ مورد ساخته شد. صف هم‌نام ۱۰۳ مورد باز و ۳۵۳ مورد «جدا به داوری خودکار» دارد و صف قاطی‌شده ۱٬۰۰۴ مورد باز. هر دو صفحه برای مدیر کد ۲۰۰ دادند و خطایی در لاگ نبود.
+- **زمان‌بندی:** `fahares:refresh-person-reviews` هر شب ساعت ۴:۱۵ اجرا می‌شود ([routes/console.php](../routes/console.php))، پس از ساختن آمار ساعت ۳:۳۰، با `withoutOverlapping`.
 - **آزمون‌ها:** [PersonReviewTest.php](../tests/Feature/PersonReviewTest.php) شامل ورود به صف، ادغام از پنل، ماندگاری «جدا» و بازگشایی با عضو تازه، تفکیک، و دسترسی. ۲۷۱ آزمون موفق.
 
 ---
