@@ -28,7 +28,12 @@ class CollectiveReview
     /** @return array<string, class-string<ReviewQueue>> */
     public const QUEUES = [
         'catalog' => CatalogMatchQueue::class,
+        'namesake' => NamesakeQueue::class,
+        'mixed' => MixedRecordQueue::class,
     ];
+
+    /** Queues whose items are decided only in the panel's queue, never by approving an answer on the desk. */
+    public const DECIDED_IN_QUEUE = ['namesake', 'mixed'];
 
     public static function title(): string
     {
@@ -198,7 +203,15 @@ class CollectiveReview
      */
     public static function opinionsFor(iterable $suggestions, bool $withOpinions = false): array
     {
-        $items = collect($suggestions)->filter(fn ($s) => $s->review_queue)->map(fn ($s) => [$s->review_queue, (int) $s->review_item_id])->unique(fn ($k) => implode(':', $k));
+        return self::opinionsOn(collect($suggestions)->filter(fn ($s) => $s->review_queue)->map(fn ($s) => [$s->review_queue, (int) $s->review_item_id])->all(), $withOpinions);
+    }
+
+    /**
+     * The same, for queue items: [[queue, id], …]. Keyed «queue:id».
+     */
+    public static function opinionsOn(array $items, bool $withOpinions = false): array
+    {
+        $items = collect($items)->unique(fn ($k) => implode(':', $k));
         if ($items->isEmpty()) {
             return [];
         }

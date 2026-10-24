@@ -3795,3 +3795,17 @@
   - در «تصحیح جمعی» پیش‌فرض `session('contribute.credit', true)` است.
 - **آزمون:** `test_the_card_shows_the_opening_and_closing_words_and_credits_by_default`. کل مجموعه ۲۸۵ آزمون موفق است.
 
+### گام ۱۳.۲۱: صف‌های اشخاص در «تصحیح جمعی» و نوار خانه (مورد ۸۰)
+- **کلاس‌ها:** [PersonQueue](../app/Review/PersonQueue.php) پایه‌ی دو صف است. موردها ردیف‌های `PersonReview` با وضع `open` یا `deferred` هستند. فیلتر سده با `JSON_CONTAINS(person_reviews.person_ids, CAST(people.id AS JSON))` کار می‌کند. [NamesakeQueue](../app/Review/NamesakeQueue.php) (`namesake`) و [MixedRecordQueue](../app/Review/MixedRecordQueue.php) (`mixed`) دو صف‌اند. `profiles()` از `PersonReviewController` به `App\Services\PersonReviewQueue` رفت و هر دو از آن استفاده می‌کنند.
+- **پاسخ‌ها:**
+  - `same` و `some:{ids}`: relation `duplicate` روی کوچک‌ترین شناسه، با `payload.target_id` و `merge_ids`.
+  - `distinct`: relation `namesakes_apart`.
+  - `split`: relation `conflated` با `payload.manuscript_ids` (فقط نسخه‌های کارت، حداکثر ۲۰۰) و `name`.
+  - `one`: relation `one_person`.
+- **نوع‌های ویژه‌ی صف:** `SuggestionRegistry::QUEUE_RELATIONS` با `apply = queue` و `queue_only`. `relation()` آن‌ها را می‌یابد، ولی فرم‌ها فقط `RELATIONS` را می‌خوانند و `RelationInput::validate` آن‌ها را رد می‌کند.
+- **پاسخ‌های چندمرحله‌ای:** `ReviewQueue::detailed()` پاسخ‌هایی را نام می‌برد که مرحله‌ی دوم دارند: catalog `page`، namesake `some` و mixed `split`. دکمه‌ی آن‌ها پنل `contribute/details/{key}-{answer}` را باز می‌کند. کادرهای کارت با `form="review-answer"` به فرم می‌پیوندند، و `x-data` روی کارت است تا کارت و فرم یک وضعیت داشته باشند. کلید `hide` در داده‌ی کارت پاسخی را پنهان می‌کند، مثلاً «برخی» در گروه دوتایی.
+- **بستن:** `PersonReviewController::decide` با `NamesakeQueue::decision()` (merged → `same` یا `some:{ids}`؛ distinct → `distinct`) و `MixedRecordQueue::decision()` (split → `split`؛ dismissed → `one`) `settle()` را صدا می‌زند. `CollectiveReview::DECIDED_IN_QUEUE` تأیید این پاسخ‌ها را در `approve()` میز داوری می‌بندد و `show` به‌جای فرم، پیوند مورد را نشان می‌دهد.
+- **صف پنل:** در نمای «در انتظار» با `leftJoinSub(agreement)` مرتب می‌شود. `CollectiveReview::opinionsOn()` نظرها را می‌آورد و بخش `data-collective-opinions` و نشان «کاتب دیگر به نظر n پژوهشگر» روی نسخه‌ها را می‌سازد. هر مورد `id="person-review-{id}"` دارد.
+- **خانه:** `HomeController::contributions()` (کش ۱۰ دقیقه، کلید `home.contributions`) شمار اصلاحات عمومی، پژوهشگران، تازه‌ترین خلاصه و جمع `waiting` صف‌ها را می‌سازد. نوار `data-home-contributions` در [home.blade.php](../resources/views/home.blade.php) است.
+- **آزمون:** سه آزمون تازه در CollectiveReviewTest: هم‌نام‌ها (خطای «همه را برگزیده‌اید»، بی‌ادغامی، مسدود بودن تأیید در میز، نمایش در صف پنل، بستن با «چند نفرند»، رد شدن `namesakes_apart` از فرم عمومی)؛ رکورد قاطی‌شده (علامت نسخه‌ها، جابه‌جا نشدن نسخه، نشان در پنل، بستن با «یک نفر است»)؛ و نوار خانه. کل مجموعه: ۲۸۸ آزمون موفق. مسیر ادغام واقعی در این آزمون‌ها نیست، فقط نگاشت `decision()` آن.
+

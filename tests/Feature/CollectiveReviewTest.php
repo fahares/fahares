@@ -6,6 +6,8 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
+use App\Models\Person;
+use App\Models\PersonReview;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceVolume;
@@ -221,5 +223,88 @@ class CollectiveReviewTest extends TestCase
         }
         $this->answer($user, $entries->last(), 'yes')->assertStatus(429);
         $this->assertSame(40, FieldSuggestion::count());
+    }
+
+    protected function person(string $name, ?int $death = null): Person
+    {
+        return Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'cr-person-' . uniqid(), 'is_scribe' => true, 'death_year_hijri' => $death]);
+    }
+
+    protected function copyBy(Person $scribe, int $year): Manuscript
+    {
+        return Manuscript::create(['work_id' => $this->work->id, 'volume_number' => 1, 'page_start' => 1, 'scribe_id' => $scribe->id,
+            'scribe_name' => $scribe->name, 'copy_date_hijri_year' => $year, 'raw_text' => 'نسخه‌ی آزمایشی']);
+    }
+
+    public function test_namesakes_are_answered_without_merging_and_settled_by_the_panel()
+    {
+        [$a, $b, $c] = [$this->person('حسن کاشی', 1100), $this->person('حسن کاشی', 1102), $this->person('حسن کاشی', 900)];
+        $review = PersonReview::create(['type' => 'duplicate', 'key' => 'cr-' . uniqid(), 'person_ids' => [$a->id, $b->id, $c->id], 'status' => 'open', 'reason' => 'test']);
+        $people = Person::count();
+
+        $this->get(route('contribute.show', ['namesake', $review->id]))->assertOk()->assertSee('آیا این‌ها یک نفرند؟')->assertSee('ورود و پاسخ');
+        $one = $this->user('یک');
+        $this->actingAs($one)->get(route('contribute.show', ['namesake', $review->id]))->assertSee('برخی یک نفرند');
+        $this->actingAs($one)->post(route('contribute.answer', ['namesake', $review->id]), ['answer' => 'some', 'people' => [$a->id, $b->id, $c->id]])->assertSessionHasErrors('people');
+        $this->actingAs($one)->post(route('contribute.answer', ['namesake', $review->id]), ['answer' => 'some', 'people' => [$b->id, $a->id]])->assertSessionHasNoErrors();
+        $this->answerOn('namesake', $review, $this->user('دو', scholar: true), 'distinct');
+
+        $some = FieldSuggestion::where('user_id', $one->id)->sole();
+        $this->assertSame(['relation', 'duplicate', 'some:' . $a->id . ',' . $b->id, $a->id], [$some->kind, $some->field_name, $some->review_answer, (int) $some->suggestable_id]);
+        $this->assertSame([$a->id, $b->id], $some->payload['merge_ids']);
+        $this->assertSame([$people, 'open'], [Person::count(), $review->fresh()->status], 'an answer merges nobody and decides nothing');
+
+        // The desk sends the reviewer to the panel's queue, which shows the answers
+        $admin = $this->admin();
+        $admin->save();
+        $this->actingAs($admin)->post(route('admin.suggestions.approve', $some))->assertSessionHasErrors('applied_value');
+        $this->actingAs($admin)->get(route('admin.person-reviews.index'))->assertOk()->assertSee('data-collective-opinions', false)->assertSee('چند نفرند');
+
+        $this->actingAs($admin)->post(route('admin.person-reviews.status', $review), ['status' => 'distinct'])->assertSessionHas('success');
+        $this->assertSame(['rejected', 'approved'], FieldSuggestion::orderBy('id')->pluck('status')->all());
+        $this->assertSame($people, Person::count());
+
+        // The answer that keeps people apart is the queue's only: the public form refuses it
+        $this->actingAs($one)->postJson('/suggestions', ['type' => 'person', 'id' => $a->id, 'kind' => 'relation', 'field_name' => 'namesakes_apart',
+            'suggested_value' => 'x', 'rationale_citation' => 'مستند آزمایشی'])->assertStatus(422);
+    }
+
+    public function test_a_mixed_record_is_answered_by_marking_copies_and_settled_by_the_panel()
+    {
+        $p = $this->person('علی کاتب');
+        $early = $this->copyBy($p, 1050);
+        $this->copyBy($p, 1060);
+        $late = $this->copyBy($p, 1250);
+        $review = PersonReview::create(['type' => 'mixed', 'key' => 'person:' . $p->id, 'person_ids' => [$p->id], 'status' => 'open', 'reason' => 'test']);
+
+        $this->get(route('contribute.show', ['mixed', $review->id]))->assertOk()->assertSee('آیا همه‌ی این نسخه‌ها را یک نفر نوشته است؟')
+            ->assertSee('name="copies[]" value="' . $late->id . '"', false)->assertDontSee('تفکیک');
+        $user = $this->user('یک');
+        $this->actingAs($user)->post(route('contribute.answer', ['mixed', $review->id]), ['answer' => 'split'])->assertSessionHasErrors('copies');
+        $this->actingAs($user)->post(route('contribute.answer', ['mixed', $review->id]), ['answer' => 'split', 'copies' => [$late->id, 999999], 'name' => 'علی کاتب دوم']);
+        $this->answerOn('mixed', $review, $this->user('دو'), 'one');
+
+        $split = FieldSuggestion::where('user_id', $user->id)->sole();
+        $this->assertSame(['conflated', 'split', [$late->id], 'علی کاتب دوم'], [$split->field_name, $split->review_answer, $split->payload['manuscript_ids'], $split->payload['name']]);
+        $this->assertSame($p->id, (int) $late->fresh()->scribe_id, 'an answer moves no copy');
+
+        $admin = $this->admin();
+        $admin->save();
+        $this->actingAs($admin)->get(route('admin.person-reviews.index', ['type' => 'mixed']))->assertOk()->assertSee('کاتب دیگر به نظر ۱ پژوهشگر');
+        $this->actingAs($admin)->post(route('admin.person-reviews.status', $review), ['status' => 'dismissed'])->assertSessionHas('success');
+        $this->assertSame(['rejected', 'approved'], FieldSuggestion::orderBy('id')->pluck('status')->all());
+        $this->assertSame(1050, $early->fresh()->copy_date_hijri_year);
+    }
+
+    public function test_the_home_page_reports_corrections_and_invites_to_contribute()
+    {
+        $this->match();
+        $this->get(route('home'))->assertOk()->assertSee('data-home-contributions', false)
+            ->assertSee(config('contributions.title'))->assertSee('مشارکت کنید')->assertSee(route('contribute.index'));
+    }
+
+    protected function answerOn(string $queue, PersonReview $review, User $user, string $answer)
+    {
+        return $this->actingAs($user)->post(route('contribute.answer', [$queue, $review->id]), ['answer' => $answer])->assertSessionHasNoErrors();
     }
 }

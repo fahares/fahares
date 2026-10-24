@@ -65,6 +65,11 @@ class ContributeController extends Controller
             'page' => 'nullable|string|max:50',
             'note' => 'nullable|string|max:2000',
             'credit' => 'nullable|boolean',
+            'people' => 'nullable|array|max:100',
+            'people.*' => 'integer',
+            'copies' => 'nullable|array|max:500',
+            'copies.*' => 'integer',
+            'name' => 'nullable|string|max:300',
         ], ['answer.required' => 'یکی از پاسخ‌ها را برگزینید.']);
         $request->session()->put('contribute.credit', $request->boolean('credit'));
 

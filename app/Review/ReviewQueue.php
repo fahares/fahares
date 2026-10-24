@@ -44,6 +44,17 @@ abstract class ReviewQueue
     abstract public function answers(): array;
 
     /**
+     * Answers with a second step (a page to write, records or copies to mark): their button opens the panel
+     * contribute.details.{key}-{answer} instead of sending the answer.
+     *
+     * @return list<string>
+     */
+    public function detailed(): array
+    {
+        return [];
+    }
+
+    /**
      * Checks one answer and returns the suggestion's own columns: kind, field_name, current_value, suggested_value,
      * payload and review_answer (the comparable form of the answer, for counting opinions that agree).
      *

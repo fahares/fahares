@@ -119,6 +119,11 @@ class SuggestionController extends Controller
         $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative';
         abort_unless($suggestion->status === 'pending' || $promoting, 409, 'این پیشنهاد پیش‌تر داوری شده است.');
 
+        // An answer of «تصحیح جمعی» on people is decided with its item in the panel's queue, which settles it
+        if (in_array($suggestion->review_queue, CollectiveReview::DECIDED_IN_QUEUE, true)) {
+            return back()->withErrors(['applied_value' => 'درباره‌ی این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
+        }
+
         if ($suggestion->kind === 'relation') {
             $this->authorizeTool($request, $suggestion);
 

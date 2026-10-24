@@ -4,7 +4,9 @@
 @php
     $answerLabels = $queue->answers();
     $previous = $opinion?->status === 'pending' ? $opinion : null;
-    $previousAnswer = $previous ? (str_starts_with((string) $previous->review_answer, 'page:') ? 'page' : $previous->review_answer) : null;
+    // «page:ج ۲، ص ۴۵», «some:12,15»: the answer's button is the part before the colon
+    $previousAnswer = $previous ? strtok((string) $previous->review_answer, ':') : null;
+    $detailed = $queue->detailed();
     $hidden = fn () => collect($filters)->map(fn ($v, $k) => '<input type="hidden" name="filters[' . e($k) . ']" value="' . e($v) . '">')->implode('');
 @endphp
 
@@ -21,12 +23,13 @@
             <x-ui.btn :href="route('contribute.next', [$queue->key()] + $filters)" variant="primary">مورد بعدی</x-ui.btn>
         </x-ui.card>
     @else
-        <x-ui.card framed class="space-y-5 sm:p-7" data-review-card="{{ $queue->key() }}:{{ $itemId }}">
-            @include('contribute.cards.' . $queue->key(), $card)
+        {{-- The card's own inputs (records or copies to mark) join the answer form through form="review-answer" --}}
+        <x-ui.card framed class="space-y-5 sm:p-7" data-review-card="{{ $queue->key() }}:{{ $itemId }}"
+                   x-data="{ answer: {{ \Illuminate\Support\Js::from(old('answer', $previousAnswer)) }}, notes: {{ \Illuminate\Support\Js::from((bool) old('note', $previous?->rationale_citation)) }} }">
+            @include('contribute.cards.' . $queue->key(), $card + ['previous' => $previous])
 
             @auth
-                <form method="POST" action="{{ route('contribute.answer', [$queue->key(), $itemId]) }}" class="space-y-3 pt-4 border-t border-line"
-                      x-data="{ answer: @js(old('answer', $previousAnswer)), notes: @js((bool) old('note', $previous?->rationale_citation)) }">
+                <form id="review-answer" method="POST" action="{{ route('contribute.answer', [$queue->key(), $itemId]) }}" class="space-y-3 pt-4 border-t border-line">
                     @csrf
                     {!! $hidden() !!}
 
@@ -46,11 +49,12 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        @foreach($answerLabels as $value => $label)
-                            @if($value === 'page')
-                                <button type="button" @click="answer = 'page'; $nextTick(() => $refs.page.focus())"
-                                        :class="answer === 'page' ? 'border-cinnabar text-cinnabar' : ''"
-                                        class="px-4 py-3 rounded-sm border border-line-strong bg-surface text-ink text-sm font-semibold hover:border-cinnabar hover:text-cinnabar transition cursor-pointer text-center">{{ $label }}</button>
+                        @foreach(array_diff_key($answerLabels, array_flip($card['hide'] ?? [])) as $value => $label)
+                            @if(in_array($value, $detailed, true))
+                                {{-- An answer with a second step: what to mark or write shows below --}}
+                                <button type="button" @click="answer = '{{ $value }}'" :class="answer === '{{ $value }}' ? 'border-cinnabar text-cinnabar' : ''"
+                                        @class(['px-4 py-3 rounded-sm border border-line-strong bg-surface text-ink text-sm font-semibold hover:border-cinnabar hover:text-cinnabar transition cursor-pointer text-center',
+                                            'ring-2 ring-offset-2 ring-gold ring-offset-surface' => $previousAnswer === $value])>{{ $label }}</button>
                             @else
                                 <button type="submit" name="answer" value="{{ $value }}"
                                         @class(['px-4 py-3 rounded-sm border text-sm font-semibold transition cursor-pointer text-center',
@@ -63,17 +67,11 @@
                                 class="px-4 py-3 rounded-sm border border-transparent text-muted text-sm hover:text-cinnabar transition cursor-pointer text-center">نمی‌دانم؛ مورد بعدی</button>
                     </div>
 
-                    @isset($answerLabels['page'])
-                        <div x-show="answer === 'page'" x-cloak class="flex flex-wrap items-end gap-2 p-3 bg-paper border border-line rounded-sm">
-                            <label class="flex-1 min-w-40 space-y-1">
-                                <span class="block text-[11px] text-muted">نشانی درست در همین فهرست</span>
-                                <input x-ref="page" type="text" name="page" value="{{ old('page', $previous && $previousAnswer === 'page' ? $previous->suggested_value : '') }}" maxlength="50"
-                                       placeholder="{{ ($card['volume'] ?? null) ? 'مثلاً ' . Fa::digits('45') . ' یا «ج ' . Fa::digits((string) $card['volume']) . '، ص ' . Fa::digits('45') . '»' : 'مثلاً ۴۵' }}"
-                                       class="w-full p-2 rounded-sm border border-line-strong bg-surface text-ink text-sm">
-                            </label>
-                            <x-ui.btn type="submit" name="answer" value="page" variant="primary">ثبت نشانی</x-ui.btn>
+                    @foreach($detailed as $value)
+                        <div x-show="answer === '{{ $value }}'" x-cloak class="flex flex-wrap items-end gap-2 p-3 bg-paper border border-line rounded-sm">
+                            @include('contribute.details.' . $queue->key() . '-' . $value, $card + ['previous' => $previousAnswer === $value ? $previous : null])
                         </div>
-                    @endisset
+                    @endforeach
 
                     <label class="flex items-start gap-2 text-xs text-muted cursor-pointer">
                         <input type="hidden" name="credit" value="0">

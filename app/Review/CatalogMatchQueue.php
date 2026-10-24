@@ -138,6 +138,11 @@ class CatalogMatchQueue extends ReviewQueue
         return $item ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $item['text'])) : null;
     }
 
+    public function detailed(): array
+    {
+        return ['page'];
+    }
+
     public function answers(): array
     {
         return self::ANSWERS;

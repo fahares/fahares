@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Person;
 use App\Models\PersonReview;
+use App\Review\CollectiveReview;
+use App\Review\MixedRecordQueue;
+use App\Review\NamesakeQueue;
 use App\Services\PersonMerger;
+use App\Services\PersonReviewQueue;
 use App\Suggestions\RecordSplitter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,20 +36,27 @@ class PersonReviewController extends Controller
         Gate::authorize($this->permission($type));
         $view = array_key_exists($request->query('view'), self::VIEWS) ? $request->query('view') : 'open';
 
-        $query = PersonReview::where('type', $type)->whereIn('status', self::VIEWS[$view]['statuses']);
+        $query = PersonReview::where('person_reviews.type', $type)->whereIn('person_reviews.status', self::VIEWS[$view]['statuses']);
         if ($view === 'auto') {
             $query->whereNull('decided_by');
         } elseif ($view === 'done') {
             $query->whereNotNull('decided_by');
         }
-        $reviews = $query->orderByRaw("tier = 'likely' desc")->orderBy('id')->paginate(15)->withQueryString();
+        // Items the researchers of «تصحیح جمعی» agree on come first (backlog item 80)
+        $queue = $type === 'mixed' ? 'mixed' : 'namesake';
+        if ($view === 'open') {
+            $query->leftJoinSub(CollectiveReview::agreement($queue), 'agreement', 'agreement.review_item_id', '=', 'person_reviews.id')
+                ->select('person_reviews.*')->orderByRaw('COALESCE(agreement.agreement, 0) DESC');
+        }
+        $reviews = $query->orderByRaw("person_reviews.tier = 'likely' desc")->orderBy('person_reviews.id')->paginate(15)->withQueryString();
+        $opinions = CollectiveReview::opinionsOn($reviews->getCollection()->map(fn ($r) => [$queue, $r->id])->all(), true);
 
         $ids = $reviews->getCollection()->flatMap(fn($r) => $r->person_ids)->unique()->values()->all();
-        $people = $this->profiles($ids, $type === 'mixed');
+        $people = app(PersonReviewQueue::class)->profiles($ids, $type === 'mixed');
 
         $counts = PersonReview::selectRaw('type, status, decided_by IS NULL auto, COUNT(*) n')->groupBy('type', 'status', DB::raw('decided_by IS NULL'))->get();
 
-        return view('admin.person-reviews.index', compact('type', 'view', 'reviews', 'people', 'counts'));
+        return view('admin.person-reviews.index', compact('type', 'view', 'reviews', 'people', 'counts', 'queue', 'opinions'));
     }
 
     public function merge(Request $request, PersonReview $review)
@@ -149,50 +160,18 @@ class PersonReviewController extends Controller
             'decided_by' => $status === 'open' ? null : auth()->id(),
             'decided_at' => $status === 'open' ? null : now(),
         ]);
+
+        // The researchers' opinions on the item in «تصحیح جمعی» (backlog item 80)
+        [$queue, $answer] = $review->type === 'mixed'
+            ? ['mixed', MixedRecordQueue::decision($review)]
+            : ['namesake', NamesakeQueue::decision($review)];
+        if ($answer) {
+            CollectiveReview::settle($queue, $review->id, $answer, auth()->user());
+        }
     }
 
     protected function permission(string $type): string
     {
         return $type === 'mixed' ? 'structure.split' : 'people.merge';
-    }
-
-    /**
-     * What a reviewer needs to judge each person: dates, counts, and samples of their works and copies
-     * (all copies, in date order, for a record that may hold several people).
-     */
-    protected function profiles(array $ids, bool $allCopies): array
-    {
-        if (! $ids) {
-            return [];
-        }
-        $people = Person::whereIn('id', $ids)->get(['id', 'name', 'aliases', 'death_year_hijri', 'century_hijri', 'works_count', 'manuscripts_count'])->keyBy('id');
-
-        $copies = DB::table('manuscript_scribe as s')
-            ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
-            ->leftJoin('works as w', 'w.id', '=', 'm.work_id')
-            ->whereIn('s.person_id', $ids)
-            ->orderBy('s.person_id')->orderByRaw('m.copy_date_hijri_year IS NULL, m.copy_date_hijri_year')
-            ->get(['s.person_id', 'm.id', 'm.city', 'm.library', 'm.shelfmark', 'm.copy_date_hijri_year as year', 'm.scribe_name', 'w.primary_title as title'])
-            ->groupBy('person_id');
-        $works = DB::table('work_author as a')->join('works as w', 'w.id', '=', 'a.work_id')
-            ->whereIn('a.person_id', $ids)->get(['a.person_id', 'w.id', 'w.primary_title as title'])->groupBy('person_id');
-
-        $out = [];
-        foreach ($ids as $id) {
-            $p = $people[$id] ?? null;
-            if (! $p) {
-                continue;
-            }
-            $c = $copies[$id] ?? collect();
-            $years = $c->pluck('year')->filter();
-            $out[$id] = [
-                'person' => $p,
-                'span' => $years->isNotEmpty() ? [$years->min(), $years->max()] : null,
-                'copies' => $allCopies ? $c->take(400)->values() : $c->take(4)->values(),
-                'works' => ($works[$id] ?? collect())->take($allCopies ? 20 : 3)->values(),
-            ];
-        }
-
-        return $out;
     }
 }

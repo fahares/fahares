@@ -88,6 +88,26 @@
         </div>
     </section>
 
+    {{-- «اصلاحات و تعلیقات» in one slim line, with the way into «تصحیح جمعی» (backlog item 80) --}}
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-5" data-home-contributions>
+        <div class="flex items-center gap-3 px-3 sm:px-4 py-2 bg-surface border border-line border-s-4 border-s-gold text-xs sm:text-sm">
+            <p class="flex-1 min-w-0 m-0 leading-6 text-muted">
+                <a href="{{ route('contributions.index') }}" class="font-bold text-ink hover:text-cinnabar">{{ config('contributions.title') }}</a>:
+                @if($contributions['total'])
+                    {{ Fa::num($contributions['total']) }} اصلاح تأییدشده از {{ Fa::num($contributions['researchers']) }} پژوهشگر@if($contributions['latest'])<span class="hidden md:inline">؛ تازه‌ترین: {{ $contributions['latest']['action'] }}@if($contributions['latest']['record']) در «{{ \Illuminate\Support\Str::limit($contributions['latest']['record']['label'], 50) }}»@endif</span>@endif.
+                @endif
+                <span class="hidden sm:inline">
+                    @if($contributions['waiting'])
+                        <a href="{{ route('contribute.index') }}" class="hover:text-cinnabar">{{ Fa::num($contributions['waiting']) }} داده‌ی ماشینی در «{{ config('contributions.review_title') }}» منتظر پاسخ شماست.</a>
+                    @else
+                        با پیشنهاد اصلاح در صفحه‌ی هر نسخه یا اثر، در درستی داده‌ها سهیم شوید.
+                    @endif
+                </span>
+            </p>
+            <a href="{{ route('contribute.index') }}" class="shrink-0 px-3 py-1.5 rounded-sm bg-cinnabar text-on-cinnabar font-semibold hover:opacity-90 transition whitespace-nowrap">مشارکت کنید</a>
+        </div>
+    </section>
+
     {{-- Slides below the search box (admin → صفحه‌ی خانه → اسلایدها) --}}
     @if($slides->isNotEmpty())
         <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14"
