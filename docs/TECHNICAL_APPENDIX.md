@@ -3776,3 +3776,15 @@
   - بازگردانی، `{"status":"verified"}` را به `…/reopen` فرستاد و زبانه‌ها به ۳/۰/۱ رسیدند.
   - پاسخ ۴۱۹، پیام نشست منقضی را زیر همان سطر نشان داد.
   - درخواست واقعی به سرور در این وارسی فرستاده نشد. آن را آزمون JSON می‌پوشاند.
+
+### گام ۱۳.۱۷: «تصحیح جمعی» (مورد ۸۰)
+- **ساختار:** ساختار تازه‌ای کنار پیشنهادها ساخته نشد. مهاجرت `2026_10_24_500001` سه ستون به `field_suggestions` افزود: `review_queue`، `review_item_id` و `review_answer` (شکل مقایسه‌پذیر پاسخ، مثلاً `yes`، `no` یا `page:ج ۲، ص ۴۵`)، با نمایه‌ی `(review_queue, review_item_id, status)`.
+- **کلاس‌ها:** [ReviewQueue](../app/Review/ReviewQueue.php) قرارداد هر صف است: موردهای باز، فیلترها، داده‌ی کارت، پاسخ‌ها، ستون‌های پیشنهاد و توصیف یک پاسخ. [CatalogMatchQueue](../app/Review/CatalogMatchQueue.php) نخستین صف است. [CollectiveReview](../app/Review/CollectiveReview.php) فهرست صف‌ها (`QUEUES`)، وزن (`SCHOLAR_WEIGHT = 2`)، آستانه (`ENOUGH = 3`)، `agreement()`، `next()`، `answer()`، `settle()` و `opinionsFor()` را دارد. صف آینده با یک کلاس و یک نمای `contribute/cards/{key}` افزوده می‌شود.
+- **پاسخ نشانی فهرست:** پیشنهاد `field` روی `source_entry_{id}` است: «آری» نشانی کنونی را می‌فرستد، «نه» مقدار `نیست` را، و «صفحه‌ی دیگر» نشانی تازه را («۴۵» یعنی همان جلد).
+- **تغییر در اعمال:** `SuggestionApplier::applySourceEntry` نشانی تأییدشده در همان صفحه را دیگر `manual` نمی‌کند. فقط `status` آن `verified` می‌شود و `origin = match` می‌ماند.
+- **بستن نظرها:** `settle()` در سه جا صدا زده می‌شود: `SourceEntry::review` (صف پنل و نشان ⓘ)، `SourceEntry::bulkVerify` (برای شناسه‌هایی که پاسخ دارند) و `Admin\SuggestionController::approve` (جز «قول دیگر»). پاسخ‌های بسته‌شده `resolution.collective = true` و `standing = null` دارند. `Contributions::summary` آن‌ها را با توصیف صف نشان می‌دهد، نه به‌صورت «پیشین → تازه».
+- **میز داوری:** در وضع «در انتظار» با `leftJoinSub(agreement)` مرتب می‌شود: `COALESCE(agreement, 1) DESC` و سپس پاسخ‌های یک مورد کنار هم. نمای [collective.blade.php](../resources/views/admin/suggestions/partials/collective.blade.php) نظرها را کنار هم نشان می‌دهد.
+- **مسیرها:** `contribute.index` (رفتن به `#review`)، `contribute.next`، `contribute.show`، `contribute.skip` (موردهای ردشده در نشست) و با `auth`، `contribute.sign-in` و `contribute.answer` (`throttle:40,10`). کنترلر: [ContributeController](../app/Http/Controllers/ContributeController.php).
+- **آزمون:** [CollectiveReviewTest](../tests/Feature/CollectiveReviewTest.php)، ۹ آزمون: تغییر نام و بخش، مهمان، بی‌اثری پاسخ (بی لاگ ممیزی) و جایگزینی، ترتیب صف و آستانه، ترتیب و نمای میز، بستن با تصمیم صف، تأیید از میز، دسترسی، و محدودیت نرخ. از worktree با `docker run` از image `fahares-app` و پایگاه جدای `fahares_c80_test` اجرا شد.
+- **وارسی:** رونوشت `fahares_refs` در `fahares_c80` (http://localhost:8013) با حساب‌های آزمایشی محلی. ۶٬۱۲۳ مورد مانده بود.
+
