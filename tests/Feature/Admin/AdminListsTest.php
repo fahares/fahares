@@ -59,4 +59,18 @@ class AdminListsTest extends TestCase
         $this->actingAs($this->admin)->get('/admin/audit-logs?action=rollback')
             ->assertOk()->assertSee('بازگردانی ادغام')->assertDontSee('نام پیشین');
     }
+
+    public function test_subject_pages_render_in_persian_and_say_a_merge_can_be_undone(): void
+    {
+        $root = \App\Models\Subject::create(['name' => 'فقه آزمایشی', 'slug' => 'lists-root-' . uniqid()]);
+        $child = \App\Models\Subject::create(['name' => 'طهارت آزمایشی', 'slug' => 'lists-child-' . uniqid(), 'parent_id' => $root->id]);
+
+        foreach (['/admin/subjects', '/admin/subjects/tree', '/admin/subjects/merge', '/admin/subjects/create', "/admin/subjects/{$child->id}/edit"] as $uri) {
+            $this->actingAs($this->admin)->get($uri)->assertOk()
+                ->assertDontSee('Tree)')->assertDontSee('Taxonomy')->assertDontSee('Subject Merger')->assertDontSee('Root Category')->assertDontSee('rounded-2xl');
+        }
+
+        $this->actingAs($this->admin)->get('/admin/subjects/tree')->assertOk()->assertSee('فقه آزمایشی')->assertSee('طهارت آزمایشی')->assertDontSee('۱۲۹ موضوع');
+        $this->actingAs($this->admin)->get('/admin/subjects/merge')->assertOk()->assertSee('بازگرداندنی')->assertDontSee('قابل بازگشت نیست');
+    }
 }
