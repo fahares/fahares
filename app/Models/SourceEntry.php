@@ -127,6 +127,10 @@ class SourceEntry extends Model
             $old = $this->only(['status', 'reviewed_by', 'reviewed_at']);
             $this->update(['status' => $status, 'reviewed_by' => $user->id, 'reviewed_at' => now()]);
             LegacyMirror::reference($this);
+            // the researchers' opinions on the match in «تصحیح جمعی» (backlog item 80)
+            if ($decision = \App\Review\CatalogMatchQueue::decision($this)) {
+                \App\Review\CollectiveReview::settle('catalog', $this->id, $decision, $user);
+            }
 
             return $this->logReview(Ref::ACTION_REVIEW, $user, $old, $ip);
         });
@@ -198,6 +202,11 @@ class SourceEntry extends Model
                 static::whereIn('id', $chunk)->update($values);
             }
             LegacyMirror::reviews($ids, $values);
+            $answered = \App\Models\FieldSuggestion::where('review_queue', 'catalog')->whereIn('review_item_id', $ids)->where('status', 'pending')
+                ->distinct()->pluck('review_item_id');
+            foreach ($answered as $id) {
+                \App\Review\CollectiveReview::settle('catalog', (int) $id, 'yes', $user);
+            }
 
             return AuditLog::create([
                 'user_id' => $user->id,

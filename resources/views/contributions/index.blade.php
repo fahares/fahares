@@ -3,7 +3,7 @@
 @use('App\Support\Fa')
 @use('App\Support\Jalali')
 @php
-    $title = $researcher ? 'اصلاحات ' . $researcher['name'] : 'اصلاحات پژوهشگران';
+    $title = $researcher ? 'اصلاحات ' . $researcher['name'] : config('contributions.title');
     $route = $researcher ? route('contributors.show', $researcher['user']) : route('contributions.index');
     $filtering = array_filter($filters);
     $select = 'w-full p-2 rounded-sm border border-line-strong bg-paper text-ink text-xs sm:text-sm';
@@ -23,7 +23,7 @@
             <div class="flex items-center gap-4">
                 <x-ui.avatar :user="$researcher['user']" :name="$researcher['name']" size="xl" class="!w-16 !h-16 sm:!w-24 sm:!h-24 !text-2xl sm:!text-4xl" />
                 <div class="min-w-0">
-                    <p class="text-xs text-muted"><a href="{{ route('contributions.index') }}" class="hover:text-cinnabar">اصلاحات پژوهشگران</a></p>
+                    <p class="text-xs text-muted"><a href="{{ route('contributions.index') }}" class="hover:text-cinnabar">{{ config('contributions.title') }}</a></p>
                     <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed break-words">{{ $researcher['name'] }}</h1>
                     <p class="text-xs sm:text-sm text-muted">
                         {{ Fa::num($researcher['count']) }} اصلاح تأییدشده در {{ Fa::num($researcher['records']) }} رکورد
@@ -33,7 +33,7 @@
             </div>
         @else
             <div>
-                <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">اصلاحات پژوهشگران</h1>
+                <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">{{ config('contributions.title') }}</h1>
                 <p class="mt-1 text-xs sm:text-sm text-muted leading-6">
                     اصلاحاتی که پژوهشگران در داده‌های فهارس پیشنهاد کرده‌اند و داوران پس از بررسی پذیرفته‌اند، تازه‌ترین در بالا.
                     نام هر پژوهشگر فقط با اجازه‌ی خود او آمده است. در صفحه‌ی هر نسخه، اثر، شخص یا کتابخانه می‌توانید با «پیشنهاد اصلاح» در این کار سهیم شوید.
@@ -49,6 +49,10 @@
             </dl>
         @endif
     </x-ui.card>
+
+    @if($review)
+        @include('contributions.review')
+    @endif
 
     {{-- Thanks: the researchers shown by name --}}
     @if($researchers->isNotEmpty())

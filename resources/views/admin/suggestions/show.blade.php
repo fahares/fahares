@@ -155,6 +155,8 @@
         @endif
     </div>
 
+    @includeWhen($suggestion->review_queue, 'admin.suggestions.partials.collective')
+
     <x-ui.card class="space-y-2">
         <h3 class="rubric text-base">مستند و منبع پژوهشگر</h3>
         <div class="whitespace-pre-line leading-7 text-ink">{{ $suggestion->rationale_citation ?: '— مستندی ذکر نشده است —' }}</div>
