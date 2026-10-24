@@ -8,10 +8,12 @@
     use App\Http\Controllers\Admin\CatalogReferenceController as Queue;
     use App\Support\Fa;
     $methods = Queue::METHODS;
+    // Blade directives do not run inside a component tag's attributes, so the token is prepared here
+    $csrf = \Illuminate\Support\Js::from(csrf_token());
     $filters = array_filter(['volume' => request()->integer('volume') ?: null, 'method' => request('method'), 'confidence' => request('confidence')]);
     $tabs = [];
     foreach (Queue::STATUSES as $key => $label) {
-        $tabs[] = ['label' => $label, 'url' => route('admin.catalog-references.index', ['status' => $key] + $filters), 'active' => $status === $key, 'count' => $counts[$key] ?? 0];
+        $tabs[] = ['label' => $label, 'url' => route('admin.catalog-references.index', ['status' => $key] + $filters), 'active' => $status === $key, 'count' => $counts[$key] ?? 0, 'key' => $key];
     }
 @endphp
 
@@ -97,7 +99,7 @@
             $tone = $ref->confidence >= 60 ? 'border-emerald-600/40 text-emerald-800 dark:text-emerald-300'
                 : ($ref->confidence >= 35 ? 'border-amber-600/50 text-amber-800 dark:text-amber-300' : 'border-cinnabar/50 text-cinnabar');
         @endphp
-        <x-admin.row>
+        <x-admin.row x-data="referenceReview({ csrf: {{ $csrf }} })" ::class="status !== 'unverified' && 'opacity-60'">
             <x-admin.cell main class="md:min-w-48">
                 @if($ref->citable)
                     <a href="{{ route('manuscripts.show', $ref->citable) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $ref->citable->work?->primary_title ?? 'بی‌عنوان' }}</a>
@@ -128,16 +130,22 @@
             </x-admin.cell>
             <x-admin.cell actions>
                 @if($ref->status === \App\Models\SourceEntry::STATUS_UNVERIFIED)
-                    <span class="inline-flex items-center gap-1.5">
-                        <form method="POST" action="{{ route('admin.catalog-references.verify', $ref) }}">
+                    {{-- Sent without a reload; the forms still post on their own when scripts do not run --}}
+                    <span x-show="status === 'unverified'" class="inline-flex items-center gap-1.5">
+                        <form method="POST" action="{{ route('admin.catalog-references.verify', $ref) }}" @submit.prevent="send($el)">
                             @csrf
-                            <button type="submit" class="px-3 py-1 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer">تأیید</button>
+                            <button type="submit" :disabled="busy" class="px-3 py-1 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer disabled:opacity-50">تأیید</button>
                         </form>
-                        <form method="POST" action="{{ route('admin.catalog-references.reject', $ref) }}">
+                        <form method="POST" action="{{ route('admin.catalog-references.reject', $ref) }}" @submit.prevent="send($el)">
                             @csrf
-                            <x-ui.btn type="submit" size="sm">رد</x-ui.btn>
+                            <x-ui.btn type="submit" size="sm" ::disabled="busy" class="disabled:opacity-50">رد</x-ui.btn>
                         </form>
                     </span>
+                    <span x-show="status !== 'unverified'" x-cloak class="inline-flex items-center gap-1.5">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs leading-5" :class="status === 'verified' ? 'border-emerald-600/40 text-emerald-700 dark:text-emerald-300 bg-emerald-600/5' : 'border-cinnabar/40 text-cinnabar bg-cinnabar/5'" x-text="label"></span>
+                        <x-ui.btn size="sm" variant="ghost" @click="undo()" ::disabled="busy">بازگردانی</x-ui.btn>
+                    </span>
+                    <span x-show="error" x-cloak role="alert" class="block mt-1 text-xs text-cinnabar md:max-w-56 md:whitespace-normal" x-text="error"></span>
                 @else
                     <x-ui.chip :tone="$ref->status === 'verified' ? 'good' : 'accent'">{{ Queue::STATUSES[$ref->status] }}</x-ui.chip>
                     <span class="block text-xs text-muted mt-0.5">{{ $ref->reviewer?->name }}@if($ref->reviewed_at)، {{ \App\Support\Jalali::format($ref->reviewed_at) }}@endif</span>
