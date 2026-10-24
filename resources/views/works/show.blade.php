@@ -172,7 +172,13 @@
             <!-- Cited sources: bibliographies with a scanned page first, the catalog (فنخا) last -->
             <x-ui.card class="space-y-4">
                 <div class="text-xs text-muted">در مآخذ کتاب‌شناسی</div>
-                @foreach(\App\Support\BibliographyLinks::viewerPages($bibliography) as $vp)
+                @php
+                    // a cited page whose printed entry is on the card below needs no card of its own
+                    $entryCards = $sources->cards()->reject(fn ($e) => $e->isMention());
+                    $coveredPages = $entryCards->filter(fn ($e) => $e->sourceItem)->map(fn ($e) => [$e->sourceVolume?->facsimile_code, $e->volumeNumber(), $e->sourceItem->page_start, $e->sourceItem->page_end]);
+                    $covered = fn ($vp) => $coveredPages->contains(fn ($c) => $c[0] === $vp['catalog'] && $c[1] === (int) $vp['volume'] && $vp['page'] >= $c[2] && $vp['page'] <= $c[3]);
+                @endphp
+                @foreach(collect(\App\Support\BibliographyLinks::viewerPages($bibliography))->reject($covered) as $vp)
                     @php
                         $vpRef = Fa::digits("ج {$vp['volume']}، " . config("bibliography.sources.{$vp['catalog']}.unit", 'ص') . " {$vp['page']}");
                         $vpThumb = asset('storage/catalogs/' . $vp['catalog'] . '/v' . str_pad($vp['volume'], 2, '0', STR_PAD_LEFT) . '/p' . str_pad($vp['page'], 4, '0', STR_PAD_LEFT) . '.webp');
@@ -187,7 +193,7 @@
                         </button>
                     </div>
                 @endforeach
-                @foreach($sources->cards() as $entry)
+                @foreach($entryCards as $entry)
                     <x-source.page-card :entry="$entry" :record="$work" />
                 @endforeach
             </x-ui.card>
@@ -294,6 +300,17 @@
                         </li>
                     @endforeach
                     @foreach($sources->cards() as $entry)
+                        @if($entry->isMention() && $entry->sourceItem)
+                            {{-- named inside another work's entry: one line, never that entry's text (plan dharia-text) --}}
+                            <li class="flex gap-2.5 leading-relaxed" data-machine-item="{{ $entry->reviewKey() }}" data-source-mention>
+                                <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                                <span class="text-ink">یاد شده در {{ $entry->sourceName() }}، {{ \App\Support\Fa::digits('ج ' . $entry->volumeNumber() . '، ص ' . $entry->sourceItem->page_start) }}، ذیل
+                                    <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">«{{ $entry->sourceItem->title }}»</a>@if($entry->sourceItem->entry_number) ({{ $entry->itemLabel() }})@endif
+                                    @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
+                                </span>
+                            </li>
+                            @continue
+                        @endif
                         @php
                             $place = $entry->placeLabel(true);
                             $viewer = $entry->viewer();
@@ -301,7 +318,10 @@
                         @endphp
                         <li class="flex gap-2.5 leading-relaxed">
                             <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                            <span class="text-ink">{{ $named }}@if($place)، @if($viewer)<a href="#" @click.prevent="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})" title="دیدن برگه در {{ $entry->sourceName() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $place }}</a>@else{{ $place }}@endif @endif</span>
+                            <span class="text-ink">{{ $named }}@if($place)، @if($viewer)<a href="#" @click.prevent="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})" title="دیدن برگه در {{ $entry->sourceName() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $place }}</a>@else{{ $place }}@endif @endif
+                                @if($entry->sourceItem)، <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">{{ $entry->itemLabel() }}</a>
+                                    @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
+                                @endif</span>
                         </li>
                     @endforeach
                 </ul>

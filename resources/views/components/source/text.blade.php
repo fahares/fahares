@@ -15,18 +15,20 @@
     $long = ! $workText && mb_strlen((string) $entryText . $copyText) > 700;
     $field = $entry->suggestionField();
     // the copy's row in the Fankha entry its record was made from
-    $address = $entry->placeLabel() . ($entry->is_primary && $record instanceof \App\Models\Manuscript && $record->sequence_number ? Fa::digits('، ردیف ' . $record->sequence_number) : '');
-    // a printed catalogue's text in Persian digits; Fankha's as the corpus has it
-    $digits = fn (?string $t) => $entry->source?->kind === \App\Models\Source::KIND_LIBRARY_CATALOGUE ? Fa::digits($t) : $t;
+    $address = $entry->placeLabel() . ($entry->is_primary && $record instanceof \App\Models\Manuscript && $record->sequence_number ? Fa::digits('، ردیف ' . $record->sequence_number) : '')
+        . ($entry->itemLabel() ? '، ' . $entry->itemLabel() : '');
+    // a printed catalogue's or bibliography's text in Persian digits; Fankha's as the corpus has it
+    $digits = fn (?string $t) => in_array($entry->source?->kind, [\App\Models\Source::KIND_LIBRARY_CATALOGUE, \App\Models\Source::KIND_BIBLIOGRAPHY], true) ? Fa::digits($t) : $t;
 @endphp
 <x-ui.source-text data-source-text data-machine-item="{{ $entry->reviewKey() }}" :title="$entry->textTitle()" :address="$address"
-    :viewer="$viewer ? '$dispatch(\'open-catalog-viewer\', ' . \Illuminate\Support\Js::from($viewer) . ')' : null" :collapsible="$long">
-    @if($entry->isAwaitingReview() && $field)
+    :viewer="$viewer ? '$dispatch(\'open-catalog-viewer\', ' . \Illuminate\Support\Js::from($viewer) . ')' : null" :collapsible="$long"
+    :link="$entry->sourceItem?->url()">
+    @if($entry->isAwaitingReview() && ($field || $entry->source_item_id))
         <x-slot:badge>
             <x-ui.machine-badge
-                text="این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است."
+                :text="$entry->source_item_id ? $entry->machineNote() : 'این متن را هوشواره با تطبیق شماره‌ی نسخه از چاپ فهرست برداشته و هنوز به دست انسان بازبینی نشده است.'"
                 report-label="گزارش نشانی نادرست"
-                :report="['field' => $field]" :review="$entry->badgeReview()" />
+                :report="$field ? ['field' => $field] : null" :review="$entry->badgeReview()" />
         </x-slot:badge>
     @endif
     <x-source.stale-text :entry="$entry" />

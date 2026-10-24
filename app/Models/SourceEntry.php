@@ -275,6 +275,35 @@ class SourceEntry extends Model
         });
     }
 
+    /** Whether the record is only named inside another entry of the source. */
+    public function isMention(): bool
+    {
+        return $this->role === self::ROLE_MENTION;
+    }
+
+    /** What the machine did, under the ⓘ badge: matched a copy by its shelfmark, or a work by its title and author. */
+    public function machineNote(): string
+    {
+        if ($this->source_item_id) {
+            return $this->isMention()
+                ? 'هوشواره این اثر را در متن این مدخل یافته است، با سنجیدن عنوان و مؤلف آن. این پیوند هنوز به دست انسان بازبینی نشده است.'
+                : 'هوشواره این مدخل را با سنجیدن عنوان و مؤلف اثر با مدخل‌های صفحه‌ای که فنخا نشانی داده برگزیده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
+        }
+
+        return 'این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است.';
+    }
+
+    /** «ش ۱۴۴۲»: the printed entry's number, or its heading when it has none. */
+    public function itemLabel(): ?string
+    {
+        $item = $this->sourceItem;
+        if (! $item) {
+            return null;
+        }
+
+        return $item->entry_number ? Fa::digits('ش ' . $item->entry_number) : '«' . $item->title . '»';
+    }
+
     /** A machine match nobody has reviewed yet: the ⓘ badge on the record page. */
     public function isAwaitingReview(): bool
     {
@@ -323,6 +352,7 @@ class SourceEntry extends Model
             $this->sourceLabel(),
             $this->origin !== self::ORIGIN_FANKHA_CITATION && $this->editionLabel() ? 'چاپ ' . $this->editionLabel() : null,
             $this->placeLabel($record instanceof Work),
+            $this->itemLabel(),
             $row,
         ])));
     }

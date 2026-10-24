@@ -104,6 +104,16 @@ class ItemMatcher
             }
         }
         usort($mentions, fn ($a, $b) => $b['author'] <=> $a['author']);
+        // named right after the heading with its author there too: the same work by another name («( بيدل ) المسمى
+        // ب‍ ( تحفة الذاكرين ) أيضا … للكرمانشاهي», «( تاج الاشعار ) أو سلوة الشيعة …»)
+        foreach ($mentions as $m) {
+            $opening = ' ' . self::norm(mb_substr(preg_replace('/^\(.*?\)\s*/u', '', ltrim($m['item']['text']), 1), 0, 80)) . ' ';
+            // «المسمى», «أو», «ويقال له», «اسمه»: an alias, not «وله …», another work of his
+            if ($m['author'] && preg_match('/ (مسمی|او|یقال له|ویقال له|اسمه|یسمی|ویسمی|یعرف) /u', $opening)
+                && collect($titles)->contains(fn ($t) => str_contains($opening, ' ' . $t . ' '))) {
+                return $this->result($m['item'], 'entry', 'other_title', 70, 0.0, $author, $death);
+            }
+        }
         if ($mentions) {
             return $this->result($mentions[0]['item'], 'mention', 'title_in_text', $mentions[0]['author'] ? 60 : 40, 0.0, $author, $death);
         }

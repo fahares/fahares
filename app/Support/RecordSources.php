@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
 class RecordSources
 {
     /** The relations to load with a record's sourceEntries. */
-    public const RELATIONS = ['sourceEntries.source.library', 'sourceEntries.sourceVolume'];
+    public const RELATIONS = ['sourceEntries.source.library', 'sourceEntries.sourceVolume', 'sourceEntries.sourceItem'];
 
     /** @param  Collection<int, SourceEntry>  $entries */
     public function __construct(public readonly Collection $entries)

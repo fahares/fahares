@@ -66,6 +66,13 @@ class ItemMatcherTest extends TestCase
         $this->assertNull((new ItemMatcher)->match(['تاج المآثر'], 'نظامی نیشابوری، حسن بن محمد', 626, $page));
     }
 
+    public function test_the_works_other_title_opening_an_entry_of_its_author_is_that_entry(): void
+    {
+        $page = [$this->item(1, 668, 'بيدل', 'المسمى ب‍ ( تحفة الذاكرين ) أيضا مقتل فارسي ، لميرزا حاج محمد بن ميرزا علي محمد المازندراني الكرمانشاهي')];
+        $match = (new ItemMatcher)->match(['تحفة الذاکرین'], 'بیدل کرمانشاهی، محمد بن علیمحمد', 1289, $page);
+        $this->assertSame(['entry', 'other_title'], [$match['role'], $match['method']]);
+    }
+
     public function test_short_titles_need_to_be_close(): void
     {
         $page = [$this->item(1, 900, 'تاريخ تستر', 'للسيد عبد الله بن السيد نور الدين الجزائري المتوفى 1173')];

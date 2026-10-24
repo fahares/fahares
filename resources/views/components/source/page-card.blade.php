@@ -12,15 +12,20 @@
     <div class="flex items-start gap-1">
         <div class="min-w-0">
             <div class="text-sm font-bold text-ink leading-6">{{ $label }}</div>
+            @if($entry->sourceItem)
+                {{-- the printed entry on the site: its heading, and «یاد شده» when the work is only named in it --}}
+                <a href="{{ $entry->sourceItem->url() }}" class="text-xs font-semibold text-cinnabar hover:underline">
+                    {{ $entry->isMention() ? 'یاد شده ذیل' : 'مدخل' }} «{{ $entry->sourceItem->title }}»
+                </a>
+            @endif
             @if($entry->origin === \App\Models\SourceEntry::ORIGIN_FANKHA_CITATION)
                 <div class="text-[11px] text-muted">به نشانی فنخا</div>
             @endif
         </div>
-        @if($entry->isAwaitingReview() && $field)
-            <x-ui.machine-badge class="shrink-0 mt-0.5"
-                text="این نشانی را هوشواره با تطبیق شماره‌ی نسخه استخراج کرده و هنوز به دست انسان بازبینی نشده است."
+        @if($entry->isAwaitingReview() && ($field || $entry->source_item_id))
+            <x-ui.machine-badge class="shrink-0 mt-0.5" :text="$entry->machineNote()"
                 report-label="گزارش نشانی نادرست"
-                :report="['field' => $field]" :review="$entry->badgeReview()" />
+                :report="$field ? ['field' => $field] : null" :review="$entry->badgeReview()" />
         @endif
         @if($field)<x-suggest.field :name="$field" class="shrink-0" />@endif
     </div>

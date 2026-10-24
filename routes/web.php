@@ -54,6 +54,12 @@ Route::get('/works/{id}', [WorkController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('works.show');
 
+// The printed entries of a source (al-Dhari'a): /sources/dharia/3/1442, «1345-2» for a number printed twice,
+// «1442.1» for the first unnumbered entry after 1442
+Route::get('/sources/{code}/{volume}/{key}', [\App\Http\Controllers\SourceItemController::class, 'show'])
+    ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+', 'key' => '[0-9p][0-9.\-]*'])
+    ->name('source-items.show');
+
 // Manuscripts
 Route::get('/manuscripts/{id}', [ManuscriptController::class, 'show'])
     ->where('id', '[0-9]+.*')

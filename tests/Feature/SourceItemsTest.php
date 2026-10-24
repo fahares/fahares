@@ -69,6 +69,44 @@ class SourceItemsTest extends TestCase
         $this->assertSame(1, SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->count());
     }
 
+    public function test_the_work_page_shows_the_entry_text_and_a_mention_as_one_line_and_the_entry_has_its_page()
+    {
+        $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();
+        $item = SourceItem::where('item_key', '1447')->sole();
+        $sub = SourceItem::where('item_key', '1447/1')->sole();
+        $work = Work::create(['primary_title' => 'تحفه حکیم مؤمن', 'clean_title' => 'تحفه حکیم مؤمن', 'slug' => 'tuhfa-' . uniqid(),
+            'volume_number' => 1, 'page_start' => 1]);
+        $other = Work::create(['primary_title' => 'تحفة المؤمنين', 'clean_title' => 'تحفة المؤمنين', 'slug' => 'tm-' . uniqid(),
+            'volume_number' => 1, 'page_start' => 1]);
+        $tie = fn (Work $w, SourceItem $i, string $role) => SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $w->id,
+            'source_id' => $this->volume->source_id, 'source_volume_id' => $this->volume->id, 'source_item_id' => $i->id, 'volume_number' => 3,
+            'page_start' => $i->page_start, 'role' => $role, 'origin' => SourceEntry::ORIGIN_MATCH, 'match_method' => 'title_author',
+            'entry_text' => $role === SourceEntry::ROLE_ENTRY ? $i->text : null, 'text_status' => $role === SourceEntry::ROLE_ENTRY ? 'auto' : 'none']);
+        $tie($work, $item, SourceEntry::ROLE_ENTRY);
+        $tie($other, $item, SourceEntry::ROLE_MENTION);
+
+        $this->get(route('works.show', $work))->assertOk()
+            ->assertSee('ش ۱۴۴۷', false)
+            ->assertSee($item->url(), false)
+            ->assertSee('صفحه‌ی مدخل', false)
+            ->assertSee('في الطب', false);
+        // a mention is one line under the bibliography, never the other entry's text
+        $this->get(route('works.show', $other))->assertOk()
+            ->assertSee('data-source-mention', false)
+            ->assertSee('یاد شده در', false)
+            ->assertDontSee('في الطب', false);
+
+        $this->get('/sources/dharia-test/3/1447')->assertOk()
+            ->assertSee('التحفة', false)
+            ->assertSee('data-page-turn', false)
+            ->assertSee('ص ۴۰۳', false)
+            ->assertSee('تحفه حکیم مؤمن', false)
+            ->assertSee('فقط در متن این مدخل یاد شده است', false)
+            ->assertSee($sub->url(), false);
+        $this->get($sub->url())->assertOk()->assertSee('ذیل', false);
+        $this->get('/sources/dharia-test/3/9999')->assertNotFound();
+    }
+
     public function test_a_second_run_keeps_ids_edited_text_and_linked_entries()
     {
         $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();
