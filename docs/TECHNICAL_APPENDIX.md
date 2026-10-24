@@ -3777,6 +3777,46 @@
   - پاسخ ۴۱۹، پیام نشست منقضی را زیر همان سطر نشان داد.
   - درخواست واقعی به سرور در این وارسی فرستاده نشد. آن را آزمون JSON می‌پوشاند.
 
+### گام ۱۳.۱۷: فرم‌های ویرایش و [roles/index](../resources/views/admin/roles/index.blade.php) (مورد ۶۵، بند ۵)
+- **اجزای تازه:**
+  - `x-admin.field`: برچسب با `for`، کنترل در slot، و `hint` و `error`. `error` نام فیلدی است که `@error` آن را می‌خواند.
+  - `x-admin.form-actions`: «انصراف» با `x-ui.btn ghost` و «ذخیره‌ی تغییرات» با `primary`.
+  - `x-admin.file`: `input[type=file]` با `sr-only` و `peer`، برچسبی که دکمه‌ی «انتخاب پرونده» است، و نام پرونده‌ی برگزیده با Alpine.
+- **فرم‌ها:** [people/edit](../resources/views/admin/people/edit.blade.php)، [libraries/edit](../resources/views/admin/libraries/edit.blade.php)، [catalogers/edit](../resources/views/admin/catalogers/edit.blade.php) و [users/edit](../resources/views/admin/users/edit.blade.php).
+  - نام و id فیلدها، و مسیرها، تغییری نکرد.
+  - `page_title` نام رکورد است و breadcrumb «فهرست / ویرایش #شناسه» با ارقام فارسی.
+  - دکمه‌ی ادغام زیر `@can('people.merge')` است.
+  - پیوند ماتریس در فرم کاربر زیر `@can('roles.manage')` است.
+  - کاربر تصویر خود (`x-ui.avatar lg`) و تاریخ عضویت را دارد.
+- **ماتریس:**
+  - breadcrumb تکراری برداشته شد، چون قاب نام گروه منو را نشان می‌دهد.
+  - زبانه‌های موبایل همان شکل `x-admin.tabs` را گرفتند. سرفصل گروه‌ها `.rubric` شد.
+  - نشان «حساس» حاشیه‌ی شنگرفی دارد و «≠ پیش‌فرض» `text-gold` است.
+  - دکمه‌ها `x-ui.btn` شدند و `number_format` جای خود را به `Fa::num` داد. منطق و تأیید فرم تغییری نکرد.
+- **وارسی:** هر پنج صفحه با کد worktree و داده‌ی `fahares_db` به HTML ساخته شدند. شخص پرکار، کتابخانه‌ی رضوی، نخستین فهرست‌نگار و یک کاربر غیرمدیر به کار رفتند. عرض‌های ۱۲۸۰ و ۳۷۵ وارسی شد. انتخاب پرونده با `DataTransfer` شبیه‌سازی شد و نام «نشان-رضوی.png» نمایش داده شد. کل مجموعه: ۲۷۵ آزمون موفق.
+- **مانده:** ورودی‌های عددی (`type=number`) ارقام را به زبان مرورگر نشان می‌دهند. این رفتار خود مرورگر است و تغییر داده نشد.
+
+### گام ۱۳.۱۸: [admin/subjects](../resources/views/admin/subjects/) (مورد ۶۵، بند ۵)
+- **فهرست:**
+  - `x-admin.filters` و `x-admin.table` به کار رفتند.
+  - کنش‌ها در `page_actions` هستند. «ادغام موضوعات» و دکمه‌ی ادغام هر سطر زیر `@can('subjects.merge')` آمدند.
+  - شاخه‌ی بالاتر با `x-ui.chip` نشان داده می‌شود، و برای شاخه‌ی اصلی `text-gold`. ایموجی 🔄 برداشته شد.
+- **درخت:**
+  - هر شاخه‌ی اصلی یک `<section x-data="{ open: true }">` است که به رویداد `tree-toggle.window` گوش می‌دهد. دکمه‌های «باز کردن همه» و «بستن همه» با `$dispatch('tree-toggle', true|false)` آن را می‌فرستند.
+  - زیرشاخه‌ها فهرست `.leader` با شمار آثار هستند و پیوند ویرایش دارند.
+  - شمار ثابت «۱۲۹» با `$rootSubjects->count()` و شمار فرزندان جایگزین شد.
+- **ادغام:** راهنما با `x-admin.notice` نشان داده می‌شود و با بازگردانی `AuditLogController` (شاخه‌ی Subject در `rollback`) می‌خواند. پیش از این، متن «قابل بازگشت نیست» نادرست بود. نام فیلدها (`source_subject_id` و `target_subject_id`) تغییری نکرد.
+- **ساخت و ویرایش:** فیلدهای مشترک در [partials/fields](../resources/views/admin/subjects/partials/fields.blade.php) با `$subject` یا `null` هستند. کنش‌ها `x-admin.form-actions` هستند.
+- **آزمون:** `test_subject_pages_render_in_persian_and_say_a_merge_can_be_undone` در AdminListsTest این‌ها را می‌سنجد:
+  - پنج صفحه بی عنوان انگلیسی و بی `rounded-2xl` هستند.
+  - درخت ریشه و فرزند را نشان می‌دهد و «۱۲۹ موضوع» را ندارد.
+  - صفحه‌ی ادغام «بازگرداندنی» را دارد.
+
+  کل مجموعه: ۲۷۶ آزمون موفق.
+- **وارسی:** صفحه‌ها با داده‌ی `fahares_db` (۲۲ شاخه‌ی اصلی و ۱۳۹ موضوع) به HTML ساخته و در عرض ۱۲۸۰ و ۳۷۵ دیده شدند.
+  - درگاه ۸۰۱۳ را برنامه‌ی دیگری گرفته بود و به آن دست زده نشد. پیش‌نمایش به ۸۰۱۴ رفت.
+  - **دام وارسی:** وقتی پنجره‌ی مرورگر داخلی پنهان است، `requestAnimationFrame` اجرا نمی‌شود و `x-show` در Alpine اثر نمی‌کند. صفحه شکسته به نظر می‌رسد، در حالی که کد درست است. با جایگزین `requestAnimationFrame = cb => setTimeout(cb)` این رفتار سنجیده شد: پس از «بستن همه» از ۲۲ شاخه ۰ باز ماند، با یک کلیک ۱ باز شد، و پس از «باز کردن همه» ۲۲ شاخه باز بودند.
+
 ### گام ۱۳.۱۹: «تصحیح جمعی» (مورد ۸۰)
 - **ساختار:** ساختار تازه‌ای کنار پیشنهادها ساخته نشد. مهاجرت `2026_10_24_500001` سه ستون به `field_suggestions` افزود: `review_queue`، `review_item_id` و `review_answer` (شکل مقایسه‌پذیر پاسخ، مثلاً `yes`، `no` یا `page:ج ۲، ص ۴۵`)، با نمایه‌ی `(review_queue, review_item_id, status)`.
 - **کلاس‌ها:** [ReviewQueue](../app/Review/ReviewQueue.php) قرارداد هر صف است: موردهای باز، فیلترها، داده‌ی کارت، پاسخ‌ها، ستون‌های پیشنهاد و توصیف یک پاسخ. [CatalogMatchQueue](../app/Review/CatalogMatchQueue.php) نخستین صف است. [CollectiveReview](../app/Review/CollectiveReview.php) فهرست صف‌ها (`QUEUES`)، وزن (`SCHOLAR_WEIGHT = 2`)، آستانه (`ENOUGH = 3`)، `agreement()`، `next()`، `answer()`، `settle()` و `opinionsFor()` را دارد. صف آینده با یک کلاس و یک نمای `contribute/cards/{key}` افزوده می‌شود.
