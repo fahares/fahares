@@ -1719,9 +1719,9 @@ class SuggestionWorkflowTest extends TestCase
         $ps = $this->pendingFor($person);
 
         // Still linked: the reviewer sees what blocks it and approval is refused
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$ws->id}")->assertOk()->assertSee('1 نسخه پیوند دارد', false);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$ws->id}")->assertOk()->assertSee('۱ نسخه پیوند دارد', false);
         $this->approve($ws)->assertSessionHasErrors('applied_value');
-        $this->actingAs($this->admin)->get("/admin/suggestions/{$ps->id}")->assertOk()->assertSee('1 اثر');
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$ps->id}")->assertOk()->assertSee('۱ اثر');
         $this->approve($ps)->assertSessionHasErrors('applied_value');
         $this->assertNotNull(Work::find($work->id));
 

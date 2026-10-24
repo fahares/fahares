@@ -31,18 +31,18 @@
         'otherRecord' => (bool) old('target_ref') || ! $hasRecord,
         'prefill' => $suggestion->kind === 'note' ? ($suggestion->payload['text'] ?? $suggestion->suggested_value) : $suggestion->suggested_value,
     ];
-    $input = 'w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink';
+    $input = 'admin-field w-full';
     $prefill = $suggestion->kind === 'note' ? ($suggestion->payload['text'] ?? $suggestion->suggested_value) : $suggestion->suggested_value;
 @endphp
 <details @if($errors->hasAny(['target_ref', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role', 'role_name', 'shelfmark']) || $errors->has('note.*')) open @endif
-    class="p-6 rounded-2xl bg-surface border border-sky-500/30 shadow-xs text-xs">
-    <summary class="cursor-pointer text-sm font-bold text-sky-800 dark:text-sky-300">تبدیل به پیشنهاد دیگر</summary>
-    <p class="mt-2 text-stone-500 leading-relaxed">اگر پژوهشگر نکته را در جای نادرست فرستاده (مثلاً نام کاتب را به‌صورت یادداشت)، از روی آن یک پیشنهاد استاندارد بسازید. پیشنهاد تازه به نام همین پژوهشگر و با رضایت او به درج نام ثبت می‌شود و مانند هر پیشنهاد دیگری داوری می‌شود.</p>
+    class="p-4 sm:p-5 bg-surface border border-line text-xs">
+    <summary class="cursor-pointer font-naskh text-base font-bold text-cinnabar">تبدیل به پیشنهاد دیگر</summary>
+    <p class="mt-2 text-muted leading-relaxed">اگر پژوهشگر نکته را در جای نادرست فرستاده (مثلاً نام کاتب را به‌صورت یادداشت)، از روی آن یک پیشنهاد استاندارد بسازید. پیشنهاد تازه به نام همین پژوهشگر و با رضایت او به درج نام ثبت می‌شود و مانند هر پیشنهاد دیگری داوری می‌شود.</p>
 
     <form action="{{ route('admin.suggestions.convert', $suggestion) }}" method="POST" class="mt-4 space-y-3" x-data="convertDesk(@js($setup))">
         @csrf
         @if($errors->hasAny(['target_ref', 'field_name', 'suggested_value', 'relation_target', 'target_id', 'role', 'role_name', 'shelfmark']) || $errors->has('note.*'))
-            <div class="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 font-bold">{{ $errors->first() }}</div>
+            <div class="px-4 py-3 bg-surface border border-s-4 border-cinnabar/50 text-cinnabar font-bold">{{ $errors->first() }}</div>
         @endif
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -55,10 +55,10 @@
             <div class="space-y-1">
                 <span class="block font-bold text-ink">کدام رکورد:</span>
                 @if($hasRecord)
-                    <label class="flex items-center gap-2" x-show="targetType === @js($ownType)"><input type="checkbox" x-model="otherRecord" class="rounded"> رکورد دیگری است</label>
+                    <label class="flex items-center gap-2" x-show="targetType === @js($ownType)"><input type="checkbox" x-model="otherRecord" class="accent-cinnabar"> رکورد دیگری است</label>
                 @endif
                 <input type="text" name="target_ref" x-show="otherRecord" value="{{ old('target_ref') }}" placeholder="پیوند یا شناسه‌ی فهارس، مثلاً fahares.net/w/123" dir="ltr" class="{{ $input }}">
-                <span x-show="!otherRecord" class="block text-stone-500">همین رکورد</span>
+                <span x-show="!otherRecord" class="block text-muted">همین رکورد</span>
             </div>
         </div>
 
@@ -95,18 +95,18 @@
                 <span class="block font-bold text-ink"
                     x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:'})[relation.target])"></span>
                 <input type="text" name="relation_target" x-model="relationTarget" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جستجوی عنوان و نام" class="{{ $input }}">
-                <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-line-strong bg-white dark:bg-paper shadow-xl">
+                <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-surface shadow-lg">
                     <template x-for="r in targetResults" :key="r.id">
                         <li>
-                            <button type="button" @click="pickTarget(r)" class="w-full text-right px-3 py-2 hover:bg-sky-50 dark:hover:bg-sky-950/40">
+                            <button type="button" @click="pickTarget(r)" class="w-full text-right px-3 py-2 hover:bg-paper">
                                 <span class="block font-bold text-ink" x-text="r.label"></span>
-                                <span class="block text-stone-400" x-text="'#' + r.id + (r.sub ? ' · ' + r.sub : '')"></span>
+                                <span class="block text-muted" x-text="'#' + r.id + (r.sub ? ' · ' + r.sub : '')"></span>
                             </button>
                         </li>
                     </template>
                 </ul>
                 <template x-if="target">
-                    <div class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200">
+                    <div class="px-3 py-2 bg-surface border border-s-4 border-emerald-600/40 text-emerald-800 dark:text-emerald-300">
                         ✓ <a :href="target.url" target="_blank" class="font-bold hover:underline" x-text="target.label"></a>
                         <span x-text="'#' + target.id"></span>
                     </div>
@@ -142,7 +142,7 @@
             <div class="space-y-3">
                 <template x-for="f in note.fields" :key="fieldName + f">
                     <label class="block space-y-1">
-                        <span class="block font-bold text-ink"><span x-text="noteFields[f]"></span><span x-show="note.required.includes(f)" class="text-red-600"> *</span></span>
+                        <span class="block font-bold text-ink"><span x-text="noteFields[f]"></span><span x-show="note.required.includes(f)" class="text-cinnabar"> *</span></span>
                         <template x-if="f === 'text'">
                             <textarea name="note[text]" rows="4" class="{{ $input }}" x-text="prefill"></textarea>
                         </template>
@@ -151,11 +151,11 @@
                         </template>
                     </label>
                 </template>
-                <p x-show="note.files" class="text-stone-400">تصاویر بارگذاری‌شده‌ی پیشنهاد اصلی منتقل نمی‌شوند؛ اگر لازم است، پیوند تصویر را بنویسید.</p>
+                <p x-show="note.files" class="text-muted">تصاویر بارگذاری‌شده‌ی پیشنهاد اصلی منتقل نمی‌شوند؛ اگر لازم است، پیوند تصویر را بنویسید.</p>
             </div>
         </template>
 
-        <label class="flex items-center gap-2"><input type="checkbox" name="close_original" value="1" checked class="rounded"> پیشنهاد اصلی بسته شود («تبدیل‌شده»)؛ برای تفکیک به چند پیشنهاد، تیک را در تبدیل‌های پیش از آخر بردارید.</label>
-        <button type="submit" class="w-full py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold">ساختن پیشنهاد تازه</button>
+        <label class="flex items-center gap-2"><input type="checkbox" name="close_original" value="1" checked class="accent-cinnabar"> پیشنهاد اصلی بسته شود («تبدیل‌شده»)؛ برای تفکیک به چند پیشنهاد، تیک را در تبدیل‌های پیش از آخر بردارید.</label>
+        <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-ink text-paper hover:opacity-90 font-bold transition cursor-pointer">ساختن پیشنهاد تازه</button>
     </form>
 </details>

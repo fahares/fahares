@@ -80,7 +80,7 @@ class AdminPanelTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get('/admin/suggestions');
         $response->assertStatus(200);
-        $response->assertSee('میز کار داوری و اصلاحات علمی');
+        $response->assertSee('پیشنهادهای اصلاح');
     }
 
     public function test_admin_can_approve_suggestion()
