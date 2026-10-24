@@ -46,7 +46,7 @@
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
         // Reviewers may fix a typo at once, without a suggestion or a reading
-        'directUrl' => auth()->user()?->canAccessAdmin() ? route('admin.suggestions.direct-edit') : null,
+        'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
         // Research notes (see NoteTypes); images can be uploaded only when signed in
         'noteTypes' => \App\Suggestions\NoteTypes::forRecord($type),
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,

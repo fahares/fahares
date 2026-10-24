@@ -19,7 +19,7 @@ class NoteFileController extends Controller
 
         // Feedback screenshots are never public
         $user = $request->user();
-        $visible = ($suggestion->kind === 'note' && $suggestion->status === 'approved') || $user?->canAccessAdmin() || ($user && $user->id === $suggestion->user_id);
+        $visible = ($suggestion->kind === 'note' && $suggestion->status === 'approved') || $user?->can('suggestions.review') || ($user && $user->id === $suggestion->user_id);
         abort_unless($visible, 404);
 
         return Storage::disk('public')->response($path, null, [

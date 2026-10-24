@@ -3561,3 +3561,55 @@
 - **متن:** `FieldSuggestion::STANDINGS['adopted']` اکنون «مقدار منتخب» است (برچسب در سابقه‌ی اصلاحات، فهرست داوری و ستون وضعیت صفحه‌ی اصلاحات). متن‌های [my/suggestions](../resources/views/my/suggestions.blade.php)، [admin/dashboard](../resources/views/admin/dashboard.blade.php)، [admin/suggestions/show](../resources/views/admin/suggestions/show.blade.php)، [SuggestionReviewed](../app/Notifications/SuggestionReviewed.php) و [Admin\SuggestionController](../app/Http/Controllers/Admin/SuggestionController.php) هم به‌روز شد. ثبت‌های پیشین مستندات تغییر نکرد.
 - **آزمون:** سه `assertSee` در [SuggestionWorkflowTest](../tests/Feature/SuggestionWorkflowTest.php) به متن تازه تغییر کرد. کل مجموعه: ۲۵۶ آزمون موفق.
 - **وارسی:** نسخه‌ی محلی ۵۲۵۶۱ و `/contributions` در حالت تیره: گلوله ۱۰ پیکسل است و عبارت «قول مختار» در صفحه نیست. `size-2.5` کلاس تازه بود و ساخت دوباره‌ی دارایی‌ها (`vite build` در کانتینر) لازم شد.
+
+### گام ۱۳.۱۰: ماتریس دسترسی، [Permissions](../app/Auth/Permissions.php) و [admin/roles](../resources/views/admin/roles/index.blade.php) (مورد ۶۵)
+- **پروداکشن پیش از کار (`ssh fahares-app`، فقط خواندن):** نقش‌ها: admin ۳ (id 1، 2 و 8)، editor ۱ (id 14، ساخته‌ی ۲۰۲۶-۱۰-۲۲، بی ردیف در `audit_logs`)، researcher ۴ و user ۱۱.
+- **حفره‌ها پیش از کار:** `canAccessAdmin()` برای admin و editor درست بود و هیچ کنترلری `isAdmin()` را نمی‌سنجید. `UserController::update` فقط `in:admin,editor,researcher,user` را بررسی می‌کرد، پس داور می‌توانست خودش را admin کند.
+- **مدل داده:** پیاده‌سازی خودی است، نه spatie/laravel-permission، که `users.role` را به جدول چندبه‌چند می‌برد.
+  - مایگریشن `2026_10_24_300001` جدول `roles` (key، label، is_system، sort_order) را با چهار نقش کنونی و جدول `role_permissions` (role، permission) را با پیش‌فرض‌ها می‌سازد.
+  - تعریف مجوزها (کلید، گروه، برچسب، توضیح و نقش‌های پیش‌فرض) در `Permissions::ALL` است.
+  - `Permissions::allows()` برای `admin` همیشه true برمی‌گرداند و نقشه‌ی دیگر نقش‌ها را از کش (`role_permissions`) می‌خواند. `save()` نقش admin و کلیدهای ناشناخته را نادیده می‌گیرد و کش را پاک می‌کند.
+- **Gate:** `Gate::before` در `AppServiceProvider` هر کلید مجوز را به `User::hasPermission()` می‌سپارد. `canAccessAdmin()` اکنون `hasPermission('panel.access')` است.
+- **مسیرها:** همه‌ی گروه‌های `admin/*` در [routes/web.php](../routes/web.php) میان‌افزار `can:<key>` گرفتند. `direct-edit` مجوز `suggestions.direct_edit`، `audit-logs.rollback` مجوز `audit.rollback` و `subjects.merge` و `people.merge`/`people.search` مجوز جدا دارند.
+- **ابزارهای ساختاری:** `SuggestionController::authorizeTool()` در `approve` (برای `kind = relation`) و در `reopen` (برای پیشنهاد تأییدشده) مجوز `Permissions::FOR_APPLY[apply]` را می‌خواهد:
+  - `structure.link`
+  - `structure.move`
+  - `structure.merge_records`
+  - `structure.library`
+  - `structure.split`
+  - `structure.remove`
+  - `people.merge`
+
+  میز داوری به‌جای فرم تأیید پیامی نشان می‌دهد و دکمه‌ی بازگشایی را پنهان می‌کند.
+- **کاربران:**
+  - نقش‌ها با `Rule::exists('roles', 'key')` اعتبارسنجی می‌شوند.
+  - دادن یا برداشتن نقش admin، و حذف admin، فقط با admin است (۴۰۳).
+  - کسی نقش admin را از خودش برنمی‌دارد و آخرین admin حذف یا تنزل نمی‌شود.
+  - فرم ویرایش، فهرست نقش‌ها را از `Role::options()` می‌خواند.
+- **لاگ ممیزی:** هر ذخیره‌ی ماتریس برای هر نقش تغییرکرده یک ردیف `action = permissions` روی `Role` می‌سازد، با old و new و `added`/`removed`. کسی که `users.manage` ندارد ردیف‌های `User` و `Role` و ایمیل کاربران را در لاگ و پیشخوان نمی‌بیند. فید پیشخوان بدون `audit.view` خالی است.
+- **اعلان:**
+  - [AccessMatrixChanged](../app/Notifications/AccessMatrixChanged.php)، نوع `permissions.changed`، برای نقش admin است.
+  - `suggestion.submitted` اکنون با `'permission' => 'suggestions.review'` گیرنده می‌گیرد. `NotificationPreferences` کلید `permission` را می‌شناسد.
+- **صفحه‌های عمومی:** `canAccessAdmin()` به این مجوزها تغییر کرد:
+  - `suggestions.direct_edit` در `suggest/desk`
+  - `catalog_refs.review` در `machine-badge` و `machine-review-toast`
+  - `pages.manage` و `posts.manage` در صفحه‌ها، نوشته‌ها و پیش‌نمایش پیش‌نویس
+  - `suggestions.review` در `NoteFileController`
+  - `source_entries.edit` در `stale-text`
+
+  ورود به پنل و `Contributions` همان `canAccessAdmin()` ماندند.
+- **منو:** هر پیوند [layouts/admin](../resources/views/layouts/admin.blade.php) در `@can` است و گروه‌های خالی با `@canany` پنهان می‌شوند. پیوند «ماتریس دسترسی» افزوده شد.
+- **آزمون:** [AccessMatrixTest](../tests/Feature/Admin/AccessMatrixTest.php) ۱۰ آزمون دارد:
+  - ۳۰ مسیر فقط-مدیر برای داور ۴۰۳ می‌دهند.
+  - مسیرهای مجاز داور ۲۰۰ می‌دهند.
+  - researcher و user از پنل بیرون می‌مانند.
+  - منو فقط بخش‌های مجاز را نشان می‌دهد.
+  - تغییر ماتریس، لاگ و اعلان آن، و بازگشت به پیش‌فرض کار می‌کنند.
+  - ستون admin گرفتنی نیست.
+  - فقط admin مدیر کل می‌سازد یا برمی‌دارد، و آخرین admin می‌ماند.
+  - ابزار ادغام کتابخانه مجوز جدا می‌خواهد.
+  - کنش‌های صفحه‌ی عمومی و گیرندگان اعلان از ماتریس پیروی می‌کنند.
+
+  کل مجموعه: ۲۶۶ آزمون موفق.
+- **استقرار:** پس از استقرار، `migrate --force` لازم است. کلاس‌های تازه‌ی Tailwind (`md:table-cell` و دیگران) در ساخت nixpacks ساخته می‌شوند. در محیط محلی `npm run build` اجرا شد.
+

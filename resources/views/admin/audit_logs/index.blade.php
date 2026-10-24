@@ -72,7 +72,7 @@
                                 <span class="font-bold text-ink">
                                     {{ $log->user?->name ?: 'سیستم خودکار' }}
                                 </span>
-                                @if($log->user)
+                                @if($log->user && auth()->user()->can('users.manage'))
                                     <div class="text-[10px] text-stone-400 font-mono">{{ $log->user->email }}</div>
                                 @endif
                             </td>
@@ -103,7 +103,7 @@
                                         <svg :class="expanded ? 'rotate-180' : ''" class="w-3 h-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
 
-                                    @if(in_array($log->action, ['merge', 'verify', 'update', 'remove', 'split']) && !empty($log->old_values))
+                                    @if(in_array($log->action, ['merge', 'verify', 'update', 'remove', 'split']) && !empty($log->old_values) && auth()->user()->can('audit.rollback'))
                                         <form action="{{ route('admin.audit-logs.rollback', $log) }}" method="POST" class="inline" 
                                               onsubmit="return confirm('هشدار: آیا از بازگردانی (Rollback) این تغییر و احیای وضعیت قبلی اطمینان کامل دارید؟')">
                                             @csrf

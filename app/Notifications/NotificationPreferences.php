@@ -67,13 +67,21 @@ class NotificationPreferences
     /** Users whose role may receive the type. */
     public static function recipients(string $type): Collection
     {
-        $roles = self::types()[$type]['roles'] ?? [];
+        $definition = self::types()[$type] ?? [];
+        if (isset($definition['permission'])) {
+            return User::all()->filter(fn (User $user) => $user->hasPermission($definition['permission']))->values();
+        }
+        $roles = $definition['roles'] ?? [];
 
         return in_array('*', $roles, true) ? User::all() : User::whereIn('role', $roles)->get();
     }
 
     private static function allowed(User $user, array $definition): bool
     {
+        if (isset($definition['permission'])) {
+            return $user->hasPermission($definition['permission']);
+        }
+
         return in_array('*', $definition['roles'], true) || in_array($user->role, $definition['roles'], true);
     }
 }

@@ -74,6 +74,7 @@
                         <span>داشبورد آماری</span>
                     </div>
                 </a>
+                @can('audit.view')
                 <a href="{{ route('admin.audit-logs.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,11 +82,13 @@
                     </svg>
                     <span>گزارش ممیزی و تغییرات</span>
                 </a>
+                @endcan
             </div>
 
             <!-- Group: داوری و اصلاحات -->
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">داوری و ویرایش علمی</span>
+                @can('suggestions.review')
                 <a href="{{ route('admin.suggestions.index') }}" 
                    class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.suggestions.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <div class="flex items-center gap-3">
@@ -103,6 +106,8 @@
                         </span>
                     @endif
                 </a>
+                @endcan
+                @can('catalog_refs.review')
                 <a href="{{ route('admin.catalog-references.index') }}"
                    class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.catalog-references.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <div class="flex items-center gap-3">
@@ -116,6 +121,7 @@
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500 text-stone-950">{{ number_format($machineRefs) }}</span>
                     @endif
                 </a>
+                @endcan
                 @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
                 <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition text-stone-300 hover:bg-white/5 hover:text-white">
                     <div class="flex items-center gap-3">
@@ -130,9 +136,11 @@
                 </a>
             </div>
 
+            @canany(['subjects.edit', 'people.edit'])
             <!-- Group: تاکسونومی و اعلام -->
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">تاکسونومی و پدیدآوران</span>
+                @can('subjects.edit')
                 <a href="{{ route('admin.subjects.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.subjects.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,6 +148,8 @@
                     </svg>
                     <span>درخت و ادغام موضوعات</span>
                 </a>
+                @endcan
+                @can('people.edit')
                 <a href="{{ route('admin.people.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.people.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,11 +157,15 @@
                     </svg>
                     <span>اشخاص، مؤلفان و ادغام اعلام</span>
                 </a>
+                @endcan
             </div>
+            @endcanany
 
+            @canany(['catalogers.edit', 'libraries.edit'])
             <!-- Group: منابع و کتابخانه‌ها -->
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">فهرستگان و مراکز</span>
+                @can('catalogers.edit')
                 <a href="{{ route('admin.catalogers.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.catalogers.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -159,6 +173,8 @@
                     </svg>
                     <span>فهرست‌نگاران</span>
                 </a>
+                @endcan
+                @can('libraries.edit')
                 <a href="{{ route('admin.libraries.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.libraries.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,11 +182,15 @@
                     </svg>
                     <span>کتابخانه‌ها و آرشیوها</span>
                 </a>
+                @endcan
             </div>
+            @endcanany
 
+            @canany(['posts.manage', 'home.manage', 'pages.manage', 'system.manage', 'users.manage', 'roles.manage'])
             <!-- Group: زیرساخت و کاربران -->
             <div class="space-y-1">
                 <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">سامانه و زیرساخت</span>
+                @can('posts.manage')
                 <a href="{{ route('admin.posts.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.posts.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,6 +198,8 @@
                     </svg>
                     <span>جریده</span>
                 </a>
+                @endcan
+                @can('home.manage')
                 <a href="{{ route('admin.home.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.home.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,6 +207,8 @@
                     </svg>
                     <span>صفحه‌ی خانه</span>
                 </a>
+                @endcan
+                @can('pages.manage')
                 <a href="{{ route('admin.pages.edit', 'about') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.pages.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -192,6 +216,8 @@
                     </svg>
                     <span>درباره ما</span>
                 </a>
+                @endcan
+                @can('system.manage')
                 <a href="{{ route('admin.system.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.system.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,6 +225,8 @@
                     </svg>
                     <span>عملیات کش و Meilisearch</span>
                 </a>
+                @endcan
+                @can('users.manage')
                 <a href="{{ route('admin.users.index') }}" 
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,7 +234,18 @@
                     </svg>
                     <span>کاربران و پژوهشگران</span>
                 </a>
+                @endcan
+                @can('roles.manage')
+                <a href="{{ route('admin.roles.index') }}" 
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.roles.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span>ماتریس دسترسی</span>
+                </a>
+                @endcan
             </div>
+            @endcanany
 
         </div>
 
@@ -220,7 +259,7 @@
                     <div class="overflow-hidden">
                         <p class="text-xs font-bold text-white truncate max-w-[130px]">{{ auth()->user()->name }}</p>
                         <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300">
-                            {{ auth()->user()->role === 'admin' ? 'مدیر ارشد' : 'دبیر علمی' }}
+                            {{ \App\Models\Role::where('key', auth()->user()->role)->value('label') ?? auth()->user()->role }}
                         </span>
                     </div>
                 </div>

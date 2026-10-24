@@ -36,11 +36,11 @@
         <div class="space-y-1.5">
             <label for="role" class="block font-bold text-ink">نقش کاربری و سطح دسترسی:</label>
             <select name="role" id="role" required class="w-full p-3 rounded-xl border border-line-strong bg-paper text-ink font-semibold focus:border-gold outline-none">
-                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>مدیر ارشد (Super Admin) - دسترسی کامل</option>
-                <option value="editor" {{ old('role', $user->role) === 'editor' ? 'selected' : '' }}>دبیر علمی (Editor) - داوری، ادغام و ویرایش داده‌ها</option>
-                <option value="researcher" {{ old('role', $user->role) === 'researcher' ? 'selected' : '' }}>پژوهشگر ارشد (Researcher)</option>
-                <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>کاربر عادی (User)</option>
+                @foreach(\App\Models\Role::options() as $key => $label)
+                    <option value="{{ $key }}" @selected(old('role', $user->role) === $key)>{{ $label }}</option>
+                @endforeach
             </select>
+            <p class="text-[11px] text-stone-400">دسترسی هر نقش در <a href="{{ route('admin.roles.index') }}" class="text-cinnabar hover:underline">ماتریس دسترسی</a> تعیین می‌شود.</p>
         </div>
 
         <!-- Affiliation -->

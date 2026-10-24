@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Auth\Permissions;
 use App\Helpers\SearchHelper;
 use App\Suggestions\SuggestionReadings;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // The access matrix's permissions answer as Gate abilities; any other ability falls through to its own gate or policy
+        Gate::before(fn ($user, string $ability) => Permissions::exists($ability) ? $user->hasPermission($ability) : null);
+
         Blade::directive('highlight', function ($expression) {
             return "<?php echo \App\Helpers\SearchHelper::highlight({$expression}); ?>";
         });

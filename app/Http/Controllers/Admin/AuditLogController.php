@@ -23,6 +23,10 @@ class AuditLogController extends Controller
         $type = $request->query('type');
 
         $query = AuditLog::with('user');
+        // Changes to accounts and roles hold personal data; only those who manage users see them
+        if (! $request->user()->can('users.manage')) {
+            $query->whereNotIn('auditable_type', [\App\Models\User::class, \App\Models\Role::class]);
+        }
 
         if ($action) {
             $query->where('action', $action);
@@ -39,10 +43,6 @@ class AuditLogController extends Controller
 
     public function rollback(AuditLog $log, Request $request)
     {
-        if (! auth()->user()->canAccessAdmin()) {
-            abort(403, 'دسترسی مجاز نمی‌باشد.');
-        }
-
         try {
             DB::transaction(fn () => $this->undo($log, $request));
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Auth\Permissions;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
@@ -98,6 +99,8 @@ class SuggestionController extends Controller
         abort_unless($suggestion->status === 'pending' || $promoting, 409, 'این پیشنهاد پیش‌تر داوری شده است.');
 
         if ($suggestion->kind === 'relation') {
+            $this->authorizeTool($request, $suggestion);
+
             return $this->approveRelation($request, $suggestion, app(RecordMerger::class));
         }
 
@@ -217,6 +220,16 @@ class SuggestionController extends Controller
         }
 
         return redirect()->route('admin.suggestions.index')->with('success', $message);
+    }
+
+    /**
+     * Approving a relational suggestion runs a structural tool (merge, split, removal...), and reopening it undoes
+     * that tool, so both need the tool's permission of the access matrix besides suggestions.review.
+     */
+    private function authorizeTool(Request $request, FieldSuggestion $suggestion): void
+    {
+        $permission = Permissions::FOR_APPLY[$suggestion->relationDefinition()['apply'] ?? ''] ?? null;
+        abort_if($permission && ! $request->user()->can($permission), 403, '«' . Permissions::label((string) $permission) . '» برای نقش شما مجاز نیست.');
     }
 
     /**
@@ -917,6 +930,9 @@ class SuggestionController extends Controller
     public function reopen(Request $request, FieldSuggestion $suggestion)
     {
         abort_unless(in_array($suggestion->status, ['approved', 'rejected'], true), 409, 'فقط پیشنهاد تأییدشده یا ردشده را می‌توان بازگرداند.');
+        if ($suggestion->status === 'approved') {
+            $this->authorizeTool($request, $suggestion);
+        }
 
         $log = $suggestion->status === 'approved' ? AuditLog::activeForSuggestion($suggestion->id) : null;
         $undo = $log && ! empty($log->old_values);

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
 use App\Http\Controllers\Admin\SuggestionController as AdminSuggestionController;
 use App\Http\Controllers\Admin\SystemController as AdminSystemController;
@@ -201,80 +202,106 @@ Route::middleware('auth')->group(function () {
 // Editorial & Admin Command Center Routes
 // ==========================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Every section needs its permission of the access matrix (App\Auth\Permissions, backlog item 65);
+    // 'admin' only lets in users who hold panel.access
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Suggestions Desk
-    Route::get('/suggestions', [AdminSuggestionController::class, 'index'])->name('suggestions.index');
-    Route::get('/suggestions/{suggestion}', [AdminSuggestionController::class, 'show'])->name('suggestions.show');
-    Route::post('/suggestions/{suggestion}/approve', [AdminSuggestionController::class, 'approve'])->name('suggestions.approve');
-    Route::post('/suggestions/{suggestion}/reject', [AdminSuggestionController::class, 'reject'])->name('suggestions.reject');
-    Route::post('/suggestions/{suggestion}/reopen', [AdminSuggestionController::class, 'reopen'])->name('suggestions.reopen');
-    Route::post('/suggestions/{suggestion}/credit', [AdminSuggestionController::class, 'credit'])->name('suggestions.credit');
-    Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->name('suggestions.direct-edit');
-    Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
-    Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
-    Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
-    Route::post('/suggestions/{suggestion}/resolve', [AdminSuggestionController::class, 'resolveFeedback'])->name('suggestions.resolve');
-
+    // Suggestions Desk; approving or reopening a relational suggestion also needs the permission of its tool (see SuggestionController)
+    Route::middleware('can:suggestions.review')->group(function () {
+        Route::get('/suggestions', [AdminSuggestionController::class, 'index'])->name('suggestions.index');
+        Route::get('/suggestions/{suggestion}', [AdminSuggestionController::class, 'show'])->name('suggestions.show');
+        Route::post('/suggestions/{suggestion}/approve', [AdminSuggestionController::class, 'approve'])->name('suggestions.approve');
+        Route::post('/suggestions/{suggestion}/reject', [AdminSuggestionController::class, 'reject'])->name('suggestions.reject');
+        Route::post('/suggestions/{suggestion}/reopen', [AdminSuggestionController::class, 'reopen'])->name('suggestions.reopen');
+        Route::post('/suggestions/{suggestion}/credit', [AdminSuggestionController::class, 'credit'])->name('suggestions.credit');
+        Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
+        Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
+        Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
+        Route::post('/suggestions/{suggestion}/resolve', [AdminSuggestionController::class, 'resolveFeedback'])->name('suggestions.resolve');
+    });
+    Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit');
 
     // Taxonomy & Knowledge Tree
-    Route::get('/subjects/tree', [AdminSubjectController::class, 'tree'])->name('subjects.tree');
-    Route::match(['get', 'post'], '/subjects/merge', [AdminSubjectController::class, 'merge'])->name('subjects.merge');
-    Route::post('/subjects/recount', [AdminSubjectController::class, 'recount'])->name('subjects.recount');
-    Route::resource('subjects', AdminSubjectController::class);
+    Route::match(['get', 'post'], '/subjects/merge', [AdminSubjectController::class, 'merge'])->middleware('can:subjects.merge')->name('subjects.merge');
+    Route::middleware('can:subjects.edit')->group(function () {
+        Route::get('/subjects/tree', [AdminSubjectController::class, 'tree'])->name('subjects.tree');
+        Route::post('/subjects/recount', [AdminSubjectController::class, 'recount'])->name('subjects.recount');
+        Route::resource('subjects', AdminSubjectController::class);
+    });
 
     // Authorities / People Deduplication & Management
-    Route::get('/people/search', [AdminPersonController::class, 'search'])->name('people.search');
-    Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
-    Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update']);
+    Route::middleware('can:people.merge')->group(function () {
+        Route::get('/people/search', [AdminPersonController::class, 'search'])->name('people.search');
+        Route::match(['get', 'post'], '/people/merge', [AdminPersonController::class, 'merge'])->name('people.merge');
+    });
+    Route::resource('people', AdminPersonController::class)->only(['index', 'edit', 'update'])->middleware('can:people.edit');
 
     // Catalogue references matched by machine (backlog item 51)
-    Route::get('/catalog-references', [AdminCatalogReferenceController::class, 'index'])->name('catalog-references.index');
-    Route::post('/catalog-references/bulk-verify', [AdminCatalogReferenceController::class, 'bulkVerify'])->name('catalog-references.bulk-verify');
-    Route::post('/catalog-references/bulk/{batch}/revert', [AdminCatalogReferenceController::class, 'revertBulk'])->name('catalog-references.bulk-revert');
-    Route::get('/source-entries/{entry}/text', [\App\Http\Controllers\Admin\SourceEntryController::class, 'text'])->name('source-entries.text');
-    Route::post('/source-entries/{entry}/text', [\App\Http\Controllers\Admin\SourceEntryController::class, 'update'])->name('source-entries.update');
-    Route::post('/catalog-references/{reference}/verify', [AdminCatalogReferenceController::class, 'verify'])->name('catalog-references.verify');
-    Route::post('/catalog-references/{reference}/reject', [AdminCatalogReferenceController::class, 'reject'])->name('catalog-references.reject');
-    Route::post('/catalog-references/{reference}/reopen', [AdminCatalogReferenceController::class, 'reopen'])->name('catalog-references.reopen');
+    Route::middleware('can:catalog_refs.review')->group(function () {
+        Route::get('/catalog-references', [AdminCatalogReferenceController::class, 'index'])->name('catalog-references.index');
+        Route::post('/catalog-references/bulk-verify', [AdminCatalogReferenceController::class, 'bulkVerify'])->name('catalog-references.bulk-verify');
+        Route::post('/catalog-references/bulk/{batch}/revert', [AdminCatalogReferenceController::class, 'revertBulk'])->name('catalog-references.bulk-revert');
+        Route::post('/catalog-references/{reference}/verify', [AdminCatalogReferenceController::class, 'verify'])->name('catalog-references.verify');
+        Route::post('/catalog-references/{reference}/reject', [AdminCatalogReferenceController::class, 'reject'])->name('catalog-references.reject');
+        Route::post('/catalog-references/{reference}/reopen', [AdminCatalogReferenceController::class, 'reopen'])->name('catalog-references.reopen');
+    });
+    Route::middleware('can:source_entries.edit')->group(function () {
+        Route::get('/source-entries/{entry}/text', [\App\Http\Controllers\Admin\SourceEntryController::class, 'text'])->name('source-entries.text');
+        Route::post('/source-entries/{entry}/text', [\App\Http\Controllers\Admin\SourceEntryController::class, 'update'])->name('source-entries.update');
+    });
 
     // Catalogers & Bibliographers
-    Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update']);
+    Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update'])->middleware('can:catalogers.edit');
 
     // Home page content: texts, banner slides, featured images, home catalogers
-    Route::get('/home-page', [AdminHomePageController::class, 'index'])->name('home.index');
-    Route::put('/home-page/settings', [AdminHomePageController::class, 'updateSettings'])->name('home.settings');
-    Route::post('/home-page/items', [AdminHomePageController::class, 'storeItem'])->name('home.items.store');
-    Route::put('/home-page/items/{item}', [AdminHomePageController::class, 'updateItem'])->name('home.items.update');
-    Route::delete('/home-page/items/{item}', [AdminHomePageController::class, 'destroyItem'])->name('home.items.destroy');
-    Route::post('/home-page/items/{item}/move', [AdminHomePageController::class, 'moveItem'])->name('home.items.move');
-    Route::post('/home-page/catalogers', [AdminHomePageController::class, 'addCataloger'])->name('home.catalogers.add');
-    Route::delete('/home-page/catalogers/{cataloger}', [AdminHomePageController::class, 'removeCataloger'])->name('home.catalogers.remove');
-    Route::post('/home-page/catalogers/{cataloger}/move', [AdminHomePageController::class, 'moveCataloger'])->name('home.catalogers.move');
+    Route::middleware('can:home.manage')->group(function () {
+        Route::get('/home-page', [AdminHomePageController::class, 'index'])->name('home.index');
+        Route::put('/home-page/settings', [AdminHomePageController::class, 'updateSettings'])->name('home.settings');
+        Route::post('/home-page/items', [AdminHomePageController::class, 'storeItem'])->name('home.items.store');
+        Route::put('/home-page/items/{item}', [AdminHomePageController::class, 'updateItem'])->name('home.items.update');
+        Route::delete('/home-page/items/{item}', [AdminHomePageController::class, 'destroyItem'])->name('home.items.destroy');
+        Route::post('/home-page/items/{item}/move', [AdminHomePageController::class, 'moveItem'])->name('home.items.move');
+        Route::post('/home-page/catalogers', [AdminHomePageController::class, 'addCataloger'])->name('home.catalogers.add');
+        Route::delete('/home-page/catalogers/{cataloger}', [AdminHomePageController::class, 'removeCataloger'])->name('home.catalogers.remove');
+        Route::post('/home-page/catalogers/{cataloger}/move', [AdminHomePageController::class, 'moveCataloger'])->name('home.catalogers.move');
+    });
 
     // Posts
-    Route::post('/posts/{post}/images', [AdminPostController::class, 'storeImage'])->name('posts.images.store');
-    Route::delete('/posts/{post}/images', [AdminPostController::class, 'destroyImage'])->name('posts.images.destroy');
-    Route::resource('posts', AdminPostController::class)->except(['show']);
+    Route::middleware('can:posts.manage')->group(function () {
+        Route::post('/posts/{post}/images', [AdminPostController::class, 'storeImage'])->name('posts.images.store');
+        Route::delete('/posts/{post}/images', [AdminPostController::class, 'destroyImage'])->name('posts.images.destroy');
+        Route::resource('posts', AdminPostController::class)->except(['show']);
+    });
 
     // Fixed pages, such as «درباره ما»
-    Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');
-    Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
+    Route::middleware('can:pages.manage')->group(function () {
+        Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');
+        Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
+    });
 
     // Libraries & Archives
-    Route::resource('libraries', AdminLibraryController::class)->only(['index', 'edit', 'update']);
+    Route::resource('libraries', AdminLibraryController::class)->only(['index', 'edit', 'update'])->middleware('can:libraries.edit');
 
     // Audit Trail & Activity Logs
-    Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->name('audit-logs.index');
-    Route::post('/audit-logs/{log}/rollback', [AdminAuditLogController::class, 'rollback'])->name('audit-logs.rollback');
+    Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->middleware('can:audit.view')->name('audit-logs.index');
+    Route::post('/audit-logs/{log}/rollback', [AdminAuditLogController::class, 'rollback'])->middleware('can:audit.rollback')->name('audit-logs.rollback');
 
     // System Operations & Cache Management
-    Route::get('/system', [AdminSystemController::class, 'index'])->name('system.index');
-    Route::post('/system/clear-cache', [AdminSystemController::class, 'clearCache'])->name('system.clear-cache');
-    Route::post('/system/reindex', [AdminSystemController::class, 'reindex'])->name('system.reindex');
+    Route::middleware('can:system.manage')->group(function () {
+        Route::get('/system', [AdminSystemController::class, 'index'])->name('system.index');
+        Route::post('/system/clear-cache', [AdminSystemController::class, 'clearCache'])->name('system.clear-cache');
+        Route::post('/system/reindex', [AdminSystemController::class, 'reindex'])->name('system.reindex');
+    });
 
     // User & Roles Management
-    Route::resource('users', AdminUserController::class)->only(['index', 'edit', 'update', 'destroy']);
+    Route::resource('users', AdminUserController::class)->only(['index', 'edit', 'update', 'destroy'])->middleware('can:users.manage');
+
+    // The access matrix
+    Route::middleware('can:roles.manage')->group(function () {
+        Route::get('/roles', [AdminRoleController::class, 'index'])->name('roles.index');
+        Route::put('/roles', [AdminRoleController::class, 'update'])->name('roles.update');
+        Route::post('/roles/reset', [AdminRoleController::class, 'reset'])->name('roles.reset');
+    });
 });
 
 

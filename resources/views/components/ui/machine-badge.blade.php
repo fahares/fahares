@@ -5,11 +5,11 @@
     'report' => null,
     'reportLabel' => 'گزارش نادرستی',
     // Review on the page (backlog item 59): ['key' => one name for every badge and element of the same datum,
-    // 'verify' => url, 'reject' => url]. Only users who can access the admin panel see «درست است» and «نادرست است»;
+    // 'verify' => url, 'reject' => url]. Only users with catalog_refs.review see «درست است» and «نادرست است»;
     // elements marked data-machine-item="{key}" are dimmed after a rejection, then hidden. See resources/js/machine-review.js.
     'review' => null,
 ])
-@php $review = $review && auth()->user()?->canAccessAdmin() ? $review + ['csrf' => csrf_token()] : null; @endphp
+@php $review = $review && auth()->user()?->can('catalog_refs.review') ? $review + ['csrf' => csrf_token()] : null; @endphp
 {{-- ⓘ beside data produced automatically and not yet reviewed (backlog item 51): references matched by shelfmark,
      and later the bibliography links and related works. Hover, focus or a tap shows the note (a tap also fires mouseenter, so it never toggles); a tap or click outside, or Esc, hides it. --}}
 <span x-data="{ open: false, timer: null, show() { clearTimeout(this.timer); this.open = true }, hide() { this.timer = setTimeout(() => this.open = false, 150) } }"

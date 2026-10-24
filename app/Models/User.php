@@ -52,9 +52,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return in_array($this->role, ['admin', 'editor']);
     }
 
+    /** Whether the user may enter the admin panel; each section has its own permission (App\Auth\Permissions) */
     public function canAccessAdmin(): bool
     {
-        return in_array($this->role, ['admin', 'editor']);
+        return $this->hasPermission('panel.access');
+    }
+
+    /** A permission of the access matrix; also available as a Gate ability, e.g. `can:people.edit` */
+    public function hasPermission(string $key): bool
+    {
+        return \App\Auth\Permissions::allows($this->role, $key);
     }
 
     /** The user's picture, uploaded or copied from Google (backlog item 66); null means the initial of the name. */

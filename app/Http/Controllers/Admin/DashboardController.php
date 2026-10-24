@@ -36,7 +36,9 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        $recentLogs = AuditLog::with('user')
+        // The live feed follows the audit log page: hidden without audit.view, and without account changes for those who do not manage users
+        $recentLogs = ! auth()->user()->can('audit.view') ? collect() : AuditLog::with('user')
+            ->when(! auth()->user()->can('users.manage'), fn ($q) => $q->whereNotIn('auditable_type', [\App\Models\User::class, \App\Models\Role::class]))
             ->latest('id')
             ->take(8)
             ->get();

@@ -172,9 +172,11 @@
                 </p>
             </div>
             <div class="mt-5">
+                @can('system.manage')
                 <a href="{{ route('admin.system.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-line-strong hover:bg-stone-50 dark:hover:bg-stone-800 text-ink text-xs font-bold transition">
                     <span>مدیریت نمایه‌ها و کش</span>
                 </a>
+                @endcan
             </div>
         </div>
 
@@ -264,9 +266,11 @@
                     </span>
                     <h3 class="text-sm font-bold text-ink">فید زنده تغییرات و ممیزی سیستم</h3>
                 </div>
+                @can('audit.view')
                 <a href="{{ route('admin.audit-logs.index') }}" class="text-xs font-bold text-cinnabar hover:underline">
                     گزارش کامل
                 </a>
+                @endcan
             </div>
 
             <div class="divide-y divide-line">

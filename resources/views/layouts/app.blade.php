@@ -739,7 +739,7 @@
     <!-- Global Catalog Facsimile Viewer Modal -->
     <x-catalog-viewer />
 
-    @if(auth()->user()?->canAccessAdmin())
+    @if(auth()->user()?->can('catalog_refs.review'))
         <x-ui.machine-review-toast />
     @endif
 

@@ -212,7 +212,12 @@
                     <h3 class="text-sm font-bold">{{ $relation ? $relation['action'] : ($promoting ? 'انتخاب این «قول دیگر» به‌عنوان مقدار منتخب' : ($field ? 'تأیید و اعمال اصلاحیه در پایگاه داده' : 'رسیدگی به پیشنهاد')) }}</h3>
                 </div>
 
-                @if($relation)
+                @php $toolPermission = $relation ? (\App\Auth\Permissions::FOR_APPLY[$relation['apply'] ?? ''] ?? null) : null; @endphp
+                @if($toolPermission && ! auth()->user()->can($toolPermission))
+                    <p class="p-3 rounded-xl bg-paper border border-line text-xs text-stone-500">
+                        اجرای «{{ \App\Auth\Permissions::label($toolPermission) }}» برای نقش شما مجاز نیست. داوری این پیشنهاد با مدیر کل است؛ می‌توانید آن را رد کنید یا یادداشت بگذارید.
+                    </p>
+                @elseif($relation)
                     @include('admin.suggestions.partials.relation-approve')
                 @else
                 <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4 text-xs"
@@ -455,7 +460,8 @@
             <div class="text-[10px] text-stone-400 pt-2 font-mono">
                 داوری توسط {{ $suggestion->reviewer?->name ?: 'سیستم' }} در تاریخ @jdate($suggestion->reviewed_at, 'datetime')
             </div>
-            @if(in_array($suggestion->status, ['approved', 'rejected'], true))
+            @php $reopenPermission = $suggestion->status === 'approved' ? (\App\Auth\Permissions::FOR_APPLY[$suggestion->relationDefinition()['apply'] ?? ''] ?? null) : null; @endphp
+            @if(in_array($suggestion->status, ['approved', 'rejected'], true) && (! $reopenPermission || auth()->user()->can($reopenPermission)))
                 <form action="{{ route('admin.suggestions.reopen', $suggestion) }}" method="POST" class="pt-3 mt-2 border-t border-line flex flex-wrap items-center gap-3"
                       onsubmit="return confirm('{{ $suggestion->status === 'rejected' ? 'این پیشنهاد به صف داوری بازگردد؟' : 'تغییری که این تأیید در رکورد داده بازگردانده شود و پیشنهاد دوباره داوری شود؟' }}')">
                     @csrf
