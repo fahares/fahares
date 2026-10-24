@@ -98,6 +98,12 @@ class SourceEntry extends Model
         return $this->belongsTo(SourceVolume::class);
     }
 
+    /** The printed entry this place is, when the source's entries are on the site (al-Dhari'a). */
+    public function sourceItem(): BelongsTo
+    {
+        return $this->belongsTo(SourceItem::class);
+    }
+
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');

@@ -7,7 +7,9 @@ ends and the printed number is read from each page afterwards (extract).
     fetch    one request every --delay seconds (default 3); a page already saved is skipped, so a stopped run
              resumes where it left off. Raw pages go to OUT/raw/{book}/{index:04d}.html.gz
     extract  OUT/{volume:02d}.jsonl.gz, one {"page", "label", "book", "index", "text"} per printed page, for
-             `sources:import-pages`; front matter and index pages keep their label and have page null
+             `sources:import-pages`. The reader's paragraphs (an entry begins one) are kept apart by a blank line.
+             Front matter keeps its label and has page null: a label met again later in the volume (the cover leaves
+             of a book are labelled 1 and 2 like its first pages) belongs to the later leaf
 
 Usage (al-Dhari'a, plan docs/plans/dharia-text.md):
     python3 fetch_ablibrary.py fetch   OUT [--delay 3] [--books 2149,2150]
@@ -103,7 +105,7 @@ def page_text(body):
         p = html.unescape(re.sub(r'<[^>]+>', '', re.sub(r'<br\s*/?>', '\n', p))).strip()
         if p:
             parts.append(p)
-    return '\n'.join(parts)
+    return '\n\n'.join(parts)
 
 
 def extract(out):
@@ -124,13 +126,20 @@ def extract(out):
             by_volume.setdefault(volume, []).append(
                 {'page': page, 'label': label, 'book': book, 'index': int(name[:4]), 'text': page_text(body)})
     for volume, rows in sorted(by_volume.items()):
+        last = {}
+        for i, r in enumerate(rows):
+            if r['page'] is not None:
+                last[r['page']] = i
+        dupes = sorted(p for p in last if sum(1 for r in rows if r['page'] == p) > 1)
+        for i, r in enumerate(rows):
+            if r['page'] is not None and last[r['page']] != i:
+                r['page'] = None
         pages = [r['page'] for r in rows if r['page'] is not None]
-        dupes = sorted({p for p in pages if pages.count(p) > 1})
         with gzip.open(os.path.join(out, f'{volume:02d}.jsonl.gz'), 'wt', encoding='utf-8') as f:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False) + '\n')
         print(f'volume {volume}: {len(rows)} pages, printed {min(pages, default=0)}-{max(pages, default=0)}'
-              f', unlabelled {len(rows) - len(pages)}, duplicate labels {dupes[:10]}')
+              f', front matter {len(rows) - len(pages)}, labels met twice {dupes[:10]}')
 
 
 if __name__ == '__main__':
