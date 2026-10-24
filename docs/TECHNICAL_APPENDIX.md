@@ -1978,7 +1978,7 @@
 - **کاربرد:** [auth/login](../resources/views/auth/login.blade.php)، و فیلدهای `password` و `password_confirmation` در [auth/register](../resources/views/auth/register.blade.php) و [auth/reset-password](../resources/views/auth/reset-password.blade.php).
 - **پیش از Alpine:** `type="password"` ایستا کنار `:type` نگه داشته شد تا گذرواژه پیش از بارگذاری Alpine یا بدون جاوااسکریپت به‌صورت متن دیده نشود. فرم ورود در گام ۱۱.۱۳ این را نداشت.
 
-### گام ۱۱.۱۲: بازخورد سایت
+### گام ۱۱.۲۹: بازخورد سایت
 
 - **داده:** مایگریشن `allow_site_feedback_in_field_suggestions` ستون‌های `suggestable_type` و `suggestable_id` را nullable می‌کند. بازخورد پیشنهادی با `kind = feedback` و بدون رکورد است. دسته در `field_name` قرار می‌گیرد (`SuggestionRegistry::FEEDBACK_CATEGORIES`: `bug`، `data`، `idea`، `other`) و `payload` این‌ها را نگه می‌دارد: `url` (فقط مسیر و query روی همین سایت)، `title`، `agent` و `files`. `typeKey()` و `typeLabel()` مقدار null را می‌پذیرند. دسترسی‌گرهای تازه‌ی `place_label` و `place_url` در `FieldSuggestion` «کجا»ی هر پیشنهاد را می‌دهند (رکورد یا صفحه) و فهرست داوری، داشبورد، صفحه‌ی داوری، «پیشنهادهای من» و اعلان‌ها از آن‌ها استفاده می‌کنند.
 - **ثبت ([FeedbackController](../app/Http/Controllers/FeedbackController.php)):** `POST /feedback` با `throttle:10,60` و honeypot. حداکثر ۲ تصویر فقط برای کاربر واردشده پذیرفته می‌شود و در `storage/app/public/feedback/{id}/` ذخیره می‌شود. `NoteFileController` تصویر بازخورد را هرگز عمومی نمی‌کند و فقط داوران و فرستنده آن را می‌بینند. مهمان با `notify_submitter` پاسخ را به ایمیل می‌گیرد.
@@ -1986,7 +1986,7 @@
 - **داوری:** فیلتر `type=feedback` در فهرست، [partials/feedback-review](../resources/views/admin/suggestions/partials/feedback-review.blade.php)، و `POST /admin/suggestions/{id}/resolve` (`resolveFeedback`) که وضعیت `approved` و یادداشت عمومی را ثبت و اعلان نتیجه را می‌فرستد. رد بازخورد تصویرهایش را پاک می‌کند. تبدیل برای بازخورد رکورد مقصد را الزامی می‌کند (`$hasRecord`). اعلان‌ها برای بازخورد عنوان و متن جداگانه دارند.
 - **آزمون‌ها:** آزمون تازه‌ی `test_site_feedback_from_any_page`: نگه‌داشتن فقط مسیر، تصویر فقط برای کاربر واردشده، اعلان، فیلتر و رسیدگی همراه پاسخ، خصوصی ماندن تصویر، تبدیل به پیشنهاد رکورد، و پاک شدن تصویر هنگام رد. کل مجموعه: ۷۰ آزمون موفق.
 
-### گام ۱۱.۱۳: پیشنهادهای رابطه‌ای، مرحله‌ی ۲ (اشخاص مرتبط با نسخه)
+### گام ۱۱.۳۰: پیشنهادهای رابطه‌ای، مرحله‌ی ۲ (اشخاص مرتبط با نسخه)
 
 - **داده:** جدول `manuscript_people` با ستون‌های `manuscript_id` (cascade)، `person_id` (nullable، nullOnDelete)، `name`، `role`، `note`، `position` و `suggestion_id`. مدل [ManuscriptPerson](../app/Models/ManuscriptPerson.php) با `ROLES` (`owner`، `endower`، `corrector`، `collator`، `glossator`، `patron`، `illuminator`، `painter`، `binder`، `reader`) تعریف شده و رابطه‌ها `Manuscript::otherPeople()` و `Person::manuscriptRoles()` هستند.
 - **پیشنهاد:** رابطه‌ی `manuscript.person_role` با `target_optional` و `apply = person_role`. ثبت، `role` (از `ROLES`) و یکی از شخص یا `role_name` را الزامی می‌کند و هر دو در `payload` ذخیره می‌شوند. میز پیشنهاد فهرست نقش و فیلد نام را نشان می‌دهد و با `suggest-field {general, relation}` می‌تواند با همین نوع از پیش انتخاب‌شده باز شود.
@@ -1995,7 +1995,7 @@
 - **نمایش:** کامپوننت [x-manuscript-people](../resources/views/components/manuscript-people.blade.php) در صفحه‌ی نسخه، کنار کارت کاتب، اشخاص را گروه‌بندی‌شده بر اساس نقش، همراه یادداشت و نام پیشنهاددهنده، و دکمه‌ی افزودن نشان می‌دهد. صفحه‌ی شخص هم کارت «پیوند با نسخه‌ها در نقش‌های دیگر» دارد.
 - **آزمون‌ها:** دو آزمون تازه: ثبت و داوری (شخص پیوندخورده و نامِ تنها، رد نقش نامعتبر و تکرار، نمایش در دو صفحه، بازگردانی، انتقال در ادغام نسخه)، و جابه‌جایی ردیف‌ها در ادغام اشخاص و بازگردانی آن. کل مجموعه: ۷۲ آزمون موفق.
 
-### گام ۱۱.۱۴: پیشنهادهای رابطه‌ای، مرحله‌ی ۳ (روابط آثار و نسخه‌ها)
+### گام ۱۱.۳۱: پیشنهادهای رابطه‌ای، مرحله‌ی ۳ (روابط آثار و نسخه‌ها)
 
 - **داده:** جدول `work_relations` با ستون‌های `work_id`، `related_work_id`، `type`، `note`، `source` (پیش‌فرض `suggestion`)، `confidence` و `suggestion_id`، و ایندکس یکتای `work_id + related_work_id + type`. جدول `manuscript_relations` همین ساختار را بدون `source` و `confidence` دارد. هر ردیف خوانده می‌شود: «{رکورد} یک {نوع} است از/بر {رکورد مرتبط}».
 - **منطق ([RecordRelations](../app/Suggestions/RecordRelations.php)):** `WORK_TYPES` و `MANUSCRIPT_TYPES` برای هر نوع دو برچسب دارند، یکی برای صفحه‌ی هر طرف. `options()` گزینه‌های هر دو جهت را می‌سازد؛ گزینه‌ی `~type` دو رکورد را جابه‌جا می‌کند و `same_set` جهت ندارد. `add()` رابطه‌ی تکراری و رابطه‌ی رکورد با خودش را رد می‌کند و لاگ `added_record_relation` را برمی‌گرداند. `for()` روابط هر دو جهت را بر اساس برچسب گروه‌بندی می‌کند. `moveOnMerge()` روابط رکورد حذف‌شده را به رکورد ماندنی می‌برد و روابط تکراری و رابطه‌ی رکورد با خودش را حذف می‌کند.
@@ -2003,7 +2003,7 @@
 - **داوری و بازگردانی:** فرم داوری نوع رابطه و یادداشت را دارد. `rollbackVerify` ردیف `added_record_relation` را حذف می‌کند. `RecordMerger` در ادغام نسخه و اثر `moveOnMerge` را فرامی‌خواند.
 - **آزمون‌ها:** آزمون تازه‌ی `test_relations_between_works_and_between_manuscripts`: پیشنهاد از صفحه‌ی متن مادر با جهت معکوس، نمایش در دو صفحه با برچسب هر طرف، رد تکرار، بازگردانی، بی‌جهت بودن `same_set`، و انتقال و حذف رابطه در ادغام. کل مجموعه: ۷۳ آزمون موفق.
 
-### گام ۱۱.۱۵: رساله‌های دیگر همان مجموعه
+### گام ۱۱.۳۲: رساله‌های دیگر همان مجموعه
 
 - **تجزیه (`Manuscript::collectionKey`):** رقم‌های فارسی به لاتین برگردانده و الگوی `{base}/{part}[-{tail}]` خوانده می‌شود. `base` و `part` باید رقم داشته باشند. `tail` اگر حرف داشته باشد (`\p{L}`) نام مجموعه است و در کلید می‌ماند (`513/8-طباطبائی`، `1804/10-عکسی`، `5468/1-ف`)؛ اگر فقط عددی باشد (`5722/2-29/62`، که در پایگاه محلی حدود ۱۷٬۷۰۰ شماره‌ی خط‌تیره‌دار دارد) کنار گذاشته می‌شود.
 - **جستجو (`collectionSiblings`):** با ایندکس موجود `manuscripts_library_id_shelfmark_key_index`: `library_id` برابر (یا اگر خالی بود، `library` متنی برابر) و `shelfmark_key LIKE '{base}/%'` (با escape)، حداکثر ۴۰۰ ردیف. سپس با `collectionKey` صافی می‌شود، تا مثلاً `90011/1` در مجموعه‌ی `9001` نیاید و مجموعه‌ی طباطبائی جدا بماند، و بر اساس شماره‌ی رساله مرتب می‌شود. ۱۱ شماره‌ی با رقم فارسی با این پیشوند پیدا نمی‌شوند.
@@ -2067,7 +2067,7 @@
   - `createLibrary(name, city, ?country)`: کتابخانه‌ی تکراری (همان شهر و نام، کلید یکتای جدول) را نمی‌پذیرد. slug به شکل `{slug نام و شهر}-{id}`.
 - [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `approveRelocation()` با `library_choice` = `target|keep|manual|new`. لاگ با `action = verify`، و `created_library_id` در `new_values` اگر کتابخانه ساخته شده باشد. فرم داوری در [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php).
 - [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php) `rollbackVerify`: با `library_id` در `old_values` هر دو کتابخانه دوباره شمرده می‌شوند. کتابخانه‌ی `created_library_id`، اگر نه نسخه‌ای داشته باشد نه مجلد فهرستی، حذف می‌شود. `metadata` با همان `forceFill` عمومی به حالت پیش برمی‌گردد.
-- [Manuscript.php](../app/Models/Manuscript.php): در `saving`، اگر `shelfmark` تغییر کند و `shelfmark_key` نه، کلید برابر `mb_substr(shelfmark, 0, 100)` می‌شود. در پایگاه محلی این برابری برای همه‌ی ۳۲۳٬۸۸۰ نسخه برقرار بود. پیش‌تر پیشنهاد اصلاح فیلد `shelfmark` کلید را کهنه می‌گذاشت، و «رساله‌های این مجموعه» (گام ۱۱.۱۵) و مرتب‌سازی بر پایه‌ی کلید کار می‌کنند.
+- [Manuscript.php](../app/Models/Manuscript.php): در `saving`، اگر `shelfmark` تغییر کند و `shelfmark_key` نه، کلید برابر `mb_substr(shelfmark, 0, 100)` می‌شود. در پایگاه محلی این برابری برای همه‌ی ۳۲۳٬۸۸۰ نسخه برقرار بود. پیش‌تر پیشنهاد اصلاح فیلد `shelfmark` کلید را کهنه می‌گذاشت، و «رساله‌های این مجموعه» (گام ۱۱.۳۲) و مرتب‌سازی بر پایه‌ی کلید کار می‌کنند.
 - [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php): سطر «نشانی پیشین» زیر نوار کتابخانه و شماره.
 - **محدودیت‌ها:** شماره‌های پیشین در نمایه‌ی جستجو نیستند. رساله‌های دیگر همان مجلد خودکار با هم منتقل نمی‌شوند و هر کدام پیشنهاد جدا می‌خواهند.
 - آزمون تازه: `test_a_manuscript_moved_to_another_library_or_renumbered` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).
@@ -2392,7 +2392,7 @@
   - هر دو دستور اول آزمایشی و سپس واقعی اجرا شدند: «مرکز مطالعات» #۴۱ و «لغت نامه دهخدا» #۲۷، هر کدام «1 of 1». اجرای آزمایشی کل فایل پس از آن «0 of 31; 31 already had one» بود.
   - صفحه‌ی هر دو کتابخانه روی fahares.net نشان تازه را دارد و فایل نشان با پاسخ ۲۰۰ و `image/png` بارگذاری می‌شود.
 
-### گام ۱۲.۱۵: نگاشت صفحه‌های الذریعة
+### گام ۱۲.۷۱: نگاشت صفحه‌های الذریعة
 
 - **منبع:** `../fahares-sources/dharia/*_text.pdf`، ۲۸ فایل و ۱۱٬۲۳۰ برگه. تصویرها ۳۰۰ dpi و از نوع MRC هستند (JPX و JBIG2). جلد ۹ چهار فایل `09-1` تا `09-4` دارد و صفحه‌شماری‌اش پیوسته است.
 - **چرا خواندن چشمی:** `*_page_numbers.json` در archive.org تقریباً خالی است (جلد ۳ دو برگه، جلد ۲۵ هیچ). ارقام لایه‌ی OCR هم گم شده یا وارونه‌اند، و Tesseract نصب نیست.
@@ -2416,14 +2416,14 @@
 - **آزمایش جلد ۳:** ۴۹۱ صفحه، ۱۲۳۳×۱۸۵۰ پیکسل، ۵۶ مگابایت (میانگین ۱۱۴ کیلوبایت)، ۴۲ ثانیه با ۶ پردازه. نمایشگر با `open-catalog-viewer` و `catalog: 'dharia'` بدون تغییر کد آن را نمایش داد.
 - **استخراج کامل (۲۷ مهر ۱۴۰۵):** `extract_dharia_pages.py --workers 8` اجرا شد و ۱۱٬۰۸۴ فایل ساخت، بی هیچ فایل ناقص؛ همه با `PIL.verify` سالم بودند. جلدهای ۱، ۹، ۱۴، ۱۸ و ۲۱ اسکن بزرگ‌تری دارند (۱۸۰۵ تا ۲۱۱۶ پیکسل در ۳۰۰ dpi). برای همین اسکریپت به‌جای `-r 300` از `-scale-to-x 1240 -scale-to-y -1` استفاده می‌کند و این پنج جلد دوباره ساخته شدند (۳٬۱۶۶ برگه در ۷٫۵ دقیقه). حجم کل ۱٫۴ گیگابایت است. جلد ۲۴ صفحه‌ی ۴۸۶ در خود کتاب سفید است (۴ کیلوبایت).
 
-### گام ۱۲.۱۶: ارجاع الذریعة به نمایشگر برگه
+### گام ۱۲.۷۲: ارجاع الذریعة به نمایشگر برگه
 
 - [config/bibliography.php](../config/bibliography.php): کلید اختیاری `viewer` با `catalog`، `name`، `last_pages` (آخرین صفحه‌ی هر جلد) و `missing` (صفحه‌های گم‌شده‌ی جلد ۹ و ۱۸) برای `dharia`. این مقدارها از `scripts/facsimile/dharia_page_mapping.json` درآمده‌اند.
 - [BibliographyLinks](../app/Support/BibliographyLinks.php): `link()` وقتی صفحه موجود است `viewer` را با مقدارهای `{catalog, catalogName, volume, page}` می‌گذارد. `html()` برای چنین ارجاعی `onclick` اضافه می‌کند که `open-catalog-viewer` را روی `window` می‌فرستد و رفتار پیش‌فرض را می‌گیرد. `href` همچنان نشانی فقاهت است، برای کلیک وسط و حالت بدون جاوااسکریپت.
 - **آزمون:** `test_dharia_citations_open_the_page_viewer_unless_the_scan_lacks_the_page` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php).
 - **سرور:** `/app/storage/app/public` روی دیسک ماندگار `/dev/sda4` است (۶۵ گیگابایت آزاد) و `catalogs/fankha` آنجاست. در کانتینر `rsync` نیست و `tar` هست.
 
-### گام ۱۲.۱۷: کارت الذریعة در ستون کناری
+### گام ۱۲.۷۳: کارت الذریعة در ستون کناری
 
 - [BibliographyLinks::viewerPages()](../app/Support/BibliographyLinks.php): از میان همه‌ی مدخل‌های `bibliography`، برگه‌هایی را که `viewer` دارند بی‌تکرار و به ترتیب نخستین ذکر برمی‌گرداند. کلید یکتایی `catalog/volume/page` است.
 - [works/show.blade.php](../resources/views/works/show.blade.php): در `<aside>` برای هر برگه یک `x-ui.card` با `data-viewer-card` گذاشته می‌شود. تصویر کوچک `storage/catalogs/{catalog}/vNN/pNNNN.webp` است و دکمه‌اش `open-catalog-viewer` را با `@js($vp)` می‌فرستد. `onerror` کل کارت را حذف می‌کند.
