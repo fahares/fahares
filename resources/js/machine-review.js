@@ -4,7 +4,7 @@
 // shares a key (data-machine-badge, data-machine-item), so the sidebar card and the printed text go together.
 const UNDO_MS = 8000;
 
-const FAILURES = {
+export const FAILURES = {
     401: 'از حساب خارج شده‌اید؛ دوباره وارد شوید و از نو داوری کنید.',
     403: 'این حساب اجازه‌ی داوری ندارد.',
     419: 'نشست شما منقضی شده است؛ صفحه را تازه کنید و دوباره بکوشید.',
