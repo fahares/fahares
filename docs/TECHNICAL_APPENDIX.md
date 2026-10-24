@@ -3754,3 +3754,25 @@
 - **کادرها:** تأیید گروهی (`x-admin.notice` با لحن `good`، یا `info` با پیوند پالایه‌ی پیشنهادی) و آخرین دسته (`info`). نام فیلدها و متن تأییدها تغییری نکرد.
 - **جدول:** `x-admin.table` با صفحه‌بندی فارسی. پیش از این، `links()` پیش‌فرض با ارقام لاتین به کار می‌رفت. سلول مدخل در موبایل تمام‌عرض است و برچسب ندارد. چیپ اطمینان `border` رنگی روی `bg-surface` است. کنش‌ها `bg-emerald-700` برای تأیید و `x-ui.btn` برای رد هستند. وضع داوری‌شده با `x-ui.chip` (`good` یا `accent`) نشان داده می‌شود.
 - **وارسی:** `fahares_db` نشانی `origin = match` ندارد. درون یک تراکنش، چهار `SourceEntry` با روش‌ها و اطمینان‌های گوناگون (۱۰۰، ۸۰، ۴۵ و ۲۰) و یک یادداشت ساخته شد. صفحه با بی‌پالایه و با `method=shelfmark_title` به HTML ساخته شد و تراکنش برگردانده شد (پس از آن ۰ ردیف). عرض‌های ۳۷۵ و ۱۲۸۰ وارسی شد. CatalogReferencesTest: ۲۵ آزمون موفق. کل مجموعه: ۲۷۴ آزمون موفق.
+
+### گام ۱۳.۱۶: [reference-queue.js](../resources/js/reference-queue.js) (مورد ۶۵)
+- **سمت سرور:** `CatalogReferenceController::verify`، `reject` و `reopen` از گام ۱۳.۵ (مورد ۵۹، نشان ⓘ) به درخواست JSON پاسخ `{status, message, undo}` می‌دادند. سمت سرور تغییری نکرد.
+- **اسکریپت:** `Alpine.data('referenceReview')` روی هر `<tr>` نشسته است و `status`، `undoUrl`، `busy` و `error` را نگه می‌دارد.
+  - `send(form)` فرم را با `fetch` و `Accept: application/json` و سرآیند `X-CSRF-TOKEN` می‌فرستد. فرم‌ها `@submit.prevent` دارند، پس بی جاوااسکریپت همان POST و بازگشت پیشین انجام می‌شود.
+  - `undo()` با `{status}` به `reopen` می‌فرستد.
+  - `count()` شمار `[data-tab-count]` را با `toLocaleString('fa-IR')` جابه‌جا می‌کند.
+  - پیام‌های خطا (`FAILURES`، اکنون export شده) از [machine-review.js](../resources/js/machine-review.js) گرفته می‌شوند.
+- **زبانه‌ها:** کلید اختیاری `key` در `x-admin.tabs` روی شمار، `data-tab-count` و `data-n` می‌گذارد.
+- **دام Blade:** دستورهای `@js` و `@csrf` درون ویژگی‌های تگ کامپوننت (`<x-admin.row x-data="…@js(…)…">`) اجرا نمی‌شوند و بی‌تغییر در HTML می‌مانند. در نخستین نسخه، x-data شکست خورد و همه‌ی سطرها «داوری‌شده» نمایش داده شدند. توکن اکنون در `@php` با `Js::from(csrf_token())` ساخته و با `{{ }}` گذاشته می‌شود. آزمون، `assertDontSee('@js(')` را هم می‌سنجد.
+- **آزمون:** `test_the_queue_reviews_a_match_without_a_reload_and_can_put_it_back` در CatalogReferencesTest این‌ها را می‌سنجد:
+  - x-data و `@submit.prevent` در صفحه هستند.
+  - `data-tab-count` با `data-n` درست است.
+  - پاسخ JSON تأیید `undo` را برمی‌گرداند.
+  - بازگردانی وضع `unverified` را برمی‌گرداند.
+
+  کل مجموعه: ۲۷۵ آزمون موفق.
+- **وارسی:** روی HTML ایستای صف (چهار نشانی نمونه درون تراکنش برگردانده‌شده) `window.fetch` با پاسخ‌های هم‌شکل سرور جایگزین شد.
+  - تأیید سطر ۱ و رد سطر ۲ بی تغییر نشانی صفحه انجام شد. درخواست‌ها با روش POST، JSON و CSRF به `…/verify` و `…/reject` رفتند و زبانه‌ها ۴/۰/۰ به ۲/۱/۱ رسیدند.
+  - بازگردانی، `{"status":"verified"}` را به `…/reopen` فرستاد و زبانه‌ها به ۳/۰/۱ رسیدند.
+  - پاسخ ۴۱۹، پیام نشست منقضی را زیر همان سطر نشان داد.
+  - درخواست واقعی به سرور در این وارسی فرستاده نشد. آن را آزمون JSON می‌پوشاند.
