@@ -3736,3 +3736,15 @@
   برای ارقام فارسی، `number_format(` به `Fa::num(` و `#{{ $x->id }}` به `Fa::digits` تبدیل شد.
 - **آزمون:** دو `assertSee` به متن تازه تغییر کرد: «۱ نسخه پیوند دارد» و «۱ اثر» در SuggestionWorkflowTest، و عنوان فهرست در AdminPanelTest. کل مجموعه: ۲۷۴ آزمون موفق.
 - **وارسی:** درون یک تراکنش روی `fahares_db`، سه پیشنهاد در انتظار ساخته شد: فیلد `copy_date_raw`، `move_to_work` و گزارش اشکال. صفحه‌های آن‌ها و پیشنهاد تأییدشده‌ی ۱۹۴ به HTML ساخته شدند و تراکنش برگردانده شد (شمار پیشنهادهای در انتظار پس از آن ۰). در عرض ۳۷۵ و ۱۲۸۰، و در حالت تیره دیده شدند.
+
+### گام ۱۳.۱۴: [people/merge](../resources/views/admin/people/merge.blade.php) (مورد ۶۵، بند ۵)
+- **Alpine:** `authorityMerger` به `personMerger` تبدیل شد، با `sides.source` و `sides.target`. هر کدام `person`، `query`، `results`، `loading`، `open` و `searched` دارد. دو طرف با یک `@foreach` روی `$sides` ساخته می‌شوند. توابع `search(key)`، `pick`، `clear` و `swap` و دو getter، `same` و `ready`، در آن هستند.
+- **ارقام:** `fa()` برای شمارها `toLocaleString('fa-IR')` است و `digits()` برای شناسه‌ها و سال‌ها، بی جداکننده‌ی هزارگان.
+- **فرم:** نام فیلدها (`source_id`، `target_id` و `suggestion_id`) و مسیر تغییری نکرد. تأیید ادغام با `$event.preventDefault()` لغو می‌شود. «شخصی پیدا نشد» پس از جستجوی بی‌نتیجه نمایش داده می‌شود.
+- **پیام موفقیت:** در `PersonController::merge` شناسه‌ها با `Fa::digits` و نام‌ها در گیومه آمدند.
+- **وارسی:** صفحه با کد worktree و داده‌ی `fahares_db` ساخته شد:
+  - بی انتخاب، و با `source_id` و `target_id` از پیش داده‌شده.
+  - فهرست نتیجه‌ها با داده‌ی تزریقی، انتخاب، و جابه‌جایی. پس از جابه‌جایی `target_id=12`، `source_id` خالی است و دکمه غیرفعال است.
+  - عرض ۳۷۵ و ۱۲۸۰، و حالت تیره.
+  
+  جستجوی زنده (`admin.people.search`) در این وارسی ایستا آزموده نشد. کد آن تغییری نکرد.
