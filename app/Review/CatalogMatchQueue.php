@@ -117,9 +117,25 @@ class CatalogMatchQueue extends ReviewQueue
                 'شماره‌ی نسخه' => $copy?->shelfmark ? Fa::digits($copy->shelfmark) : null,
                 'کاتب' => $copy?->scribe_name,
                 'تاریخ کتابت' => $copy?->copy_date_raw ? Fa::digits($copy->copy_date_raw) : null,
+                'نوع خط' => $copy?->script_names,
                 'شمار برگ' => $copy?->folios ? Fa::digits((string) $copy->folios) : null,
+                'شمار سطر' => $copy?->lines ? Fa::digits((string) $copy->lines) : null,
+                'اندازه' => $copy?->dimensions ? Fa::digits($copy->dimensions) : null,
+            ]),
+            // the opening and closing words: often the surest match with the catalogue's entry
+            'quotes' => array_filter([
+                'آغاز' => $this->quote($copy?->incipits_list ?? []),
+                'انجام' => $this->quote($copy?->explicits_list ?? []),
             ]),
         ];
+    }
+
+    /** The copy's own first opening or closing words; not the stand-in text of a «برابر» with no work text. */
+    private function quote(array $list): ?string
+    {
+        $item = collect($list)->first(fn ($q) => empty($q['is_placeholder']) && trim((string) ($q['text'] ?? '')) !== '');
+
+        return $item ? trim(preg_replace('/<!--\s*page:\s*\d+\s*-->/u', '', $item['text'])) : null;
     }
 
     public function answers(): array

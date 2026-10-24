@@ -84,6 +84,22 @@ class CollectiveReviewTest extends TestCase
         $this->assertSame(0, FieldSuggestion::count());
     }
 
+    public function test_the_card_shows_the_opening_and_closing_words_and_credits_by_default()
+    {
+        $entry = $this->match();
+        $entry->citable->update(['incipit_text' => 'بسم الله آغاز تذکره', 'explicit_text' => 'تمام شد انجام تذکره', 'script_names' => 'نستعلیق']);
+        $user = $this->user('پژوهشگر');
+        $this->actingAs($user)->get(route('contribute.show', ['catalog', $entry->id]))->assertOk()
+            ->assertSee('بسم الله آغاز تذکره')->assertSee('تمام شد انجام تذکره')->assertSee('نستعلیق')
+            ->assertSee('name="credit" value="1" checked', false);
+
+        // Unticked once, the box stays unticked for the session's next cards
+        $this->answer($user, $entry, 'yes', ['credit' => 0]);
+        $this->assertNull(FieldSuggestion::sole()->credit_name);
+        $other = $this->match('200');
+        $this->actingAs($user)->get(route('contribute.show', ['catalog', $other->id]))->assertDontSee('name="credit" value="1" checked', false);
+    }
+
     public function test_an_answer_is_a_pending_suggestion_that_changes_nothing()
     {
         $entry = $this->match();

@@ -3777,7 +3777,7 @@
   - پاسخ ۴۱۹، پیام نشست منقضی را زیر همان سطر نشان داد.
   - درخواست واقعی به سرور در این وارسی فرستاده نشد. آن را آزمون JSON می‌پوشاند.
 
-### گام ۱۳.۱۷: «تصحیح جمعی» (مورد ۸۰)
+### گام ۱۳.۱۹: «تصحیح جمعی» (مورد ۸۰)
 - **ساختار:** ساختار تازه‌ای کنار پیشنهادها ساخته نشد. مهاجرت `2026_10_24_500001` سه ستون به `field_suggestions` افزود: `review_queue`، `review_item_id` و `review_answer` (شکل مقایسه‌پذیر پاسخ، مثلاً `yes`، `no` یا `page:ج ۲، ص ۴۵`)، با نمایه‌ی `(review_queue, review_item_id, status)`.
 - **کلاس‌ها:** [ReviewQueue](../app/Review/ReviewQueue.php) قرارداد هر صف است: موردهای باز، فیلترها، داده‌ی کارت، پاسخ‌ها، ستون‌های پیشنهاد و توصیف یک پاسخ. [CatalogMatchQueue](../app/Review/CatalogMatchQueue.php) نخستین صف است. [CollectiveReview](../app/Review/CollectiveReview.php) فهرست صف‌ها (`QUEUES`)، وزن (`SCHOLAR_WEIGHT = 2`)، آستانه (`ENOUGH = 3`)، `agreement()`، `next()`، `answer()`، `settle()` و `opinionsFor()` را دارد. صف آینده با یک کلاس و یک نمای `contribute/cards/{key}` افزوده می‌شود.
 - **پاسخ نشانی فهرست:** پیشنهاد `field` روی `source_entry_{id}` است: «آری» نشانی کنونی را می‌فرستد، «نه» مقدار `نیست` را، و «صفحه‌ی دیگر» نشانی تازه را («۴۵» یعنی همان جلد).
@@ -3787,4 +3787,11 @@
 - **مسیرها:** `contribute.index` (رفتن به `#review`)، `contribute.next`، `contribute.show`، `contribute.skip` (موردهای ردشده در نشست) و با `auth`، `contribute.sign-in` و `contribute.answer` (`throttle:40,10`). کنترلر: [ContributeController](../app/Http/Controllers/ContributeController.php).
 - **آزمون:** [CollectiveReviewTest](../tests/Feature/CollectiveReviewTest.php)، ۹ آزمون: تغییر نام و بخش، مهمان، بی‌اثری پاسخ (بی لاگ ممیزی) و جایگزینی، ترتیب صف و آستانه، ترتیب و نمای میز، بستن با تصمیم صف، تأیید از میز، دسترسی، و محدودیت نرخ. از worktree با `docker run` از image `fahares-app` و پایگاه جدای `fahares_c80_test` اجرا شد.
 - **وارسی:** رونوشت `fahares_refs` در `fahares_c80` (http://localhost:8013) با حساب‌های آزمایشی محلی. ۶٬۱۲۳ مورد مانده بود.
+
+### گام ۱۳.۲۰: کارت کامل‌تر و درج نام پیش‌فرض (مورد ۸۰)
+- **کارت:** `CatalogMatchQueue::card()` کلید `quotes` را دارد: نخستین مورد `incipits_list` و `explicits_list`، بی متن جانشین «برابر» (`is_placeholder`) و بی نشانه‌ی `<!-- page -->`. در `facts` هم `script_names`، `lines` و `dimensions` آمده است.
+- **نام:** `FieldSuggestion::creditNameFor(User)` آخرین `credit_name` کاربر را برمی‌گرداند، و اگر نباشد نام حساب را. هم `ContributeController` از آن استفاده می‌کند و هم پیکربندی `creditName` در `x-suggest.desk`.
+  - در [suggest-desk.js](../resources/js/suggest-desk.js)، `creditOn` به‌طور پیش‌فرض `true` است و `start()` با `toggleCredit()` نام را پر می‌کند. هنگام ارسال، اگر کادر نام خالی باشد `guestName` فرستاده می‌شود. کادر نام برای مهمانی که نامش را نوشته الزامی نیست.
+  - در «تصحیح جمعی» پیش‌فرض `session('contribute.credit', true)` است.
+- **آزمون:** `test_the_card_shows_the_opening_and_closing_words_and_credits_by_default`. کل مجموعه ۲۸۵ آزمون موفق است.
 

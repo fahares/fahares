@@ -45,6 +45,7 @@
         }])->values(),
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
+        'creditName' => auth()->user() ? \App\Models\FieldSuggestion::creditNameFor(auth()->user()) : null,
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
         // Research notes (see NoteTypes); images can be uploaded only when signed in
@@ -366,7 +367,7 @@
                         </label>
                         <div x-show="creditOn" x-cloak class="space-y-1">
                             <label class="block font-semibold text-ink">نام به این صورت درج شود:</label>
-                            <input type="text" x-model="creditName" maxlength="150" :required="creditOn" class="{{ $inputClass }}" placeholder="مثلاً: دکتر … ، پژوهشگر نسخ خطی">
+                            <input type="text" x-model="creditName" maxlength="150" :required="creditOn && ! guestName.trim()" class="{{ $inputClass }}" placeholder="مثلاً: دکتر … ، پژوهشگر نسخ خطی">
                             <p x-show="errors.credit_name" x-text="errors.credit_name" class="text-red-600 dark:text-red-400 font-bold"></p>
                         </div>
                     </div>

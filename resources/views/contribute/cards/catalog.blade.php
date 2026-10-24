@@ -5,9 +5,9 @@
     <h2 class="font-naskh text-lg sm:text-xl font-bold text-ink leading-relaxed m-0">آیا این نسخه همان است که در این برگه‌ی فهرست وصف شده؟</h2>
     <p class="text-xs sm:text-sm text-muted leading-6 m-0">
         @if(! empty($facts['شماره‌ی نسخه']))
-            در برگه دنبال شماره‌ی <b class="text-ink">{{ $facts['شماره‌ی نسخه'] }}</b> بگردید و عنوان و کاتب و تاریخ را با این نسخه بسنجید.
+            در برگه دنبال شماره‌ی <b class="text-ink">{{ $facts['شماره‌ی نسخه'] }}</b> بگردید و عنوان، آغاز و انجام، کاتب و تاریخ را با این نسخه بسنجید.
         @else
-            برگه را بخوانید و عنوان و کاتب و تاریخ را با این نسخه بسنجید.
+            برگه را بخوانید و عنوان، آغاز و انجام، کاتب و تاریخ را با این نسخه بسنجید.
         @endif
     </p>
 </div>
@@ -29,6 +29,12 @@
                 <dd class="m-0 text-ink break-words">{{ $value }}</dd>
             @endforeach
         </dl>
+        @foreach($quotes as $label => $quote)
+            <div class="text-xs sm:text-sm">
+                <span class="text-muted">{{ $label }}:</span>
+                <span class="font-naskh text-ink leading-8 break-words">{{ \Illuminate\Support\Str::limit($quote, 400) }}</span>
+            </div>
+        @endforeach
     </section>
 
     <section class="space-y-2 min-w-0">

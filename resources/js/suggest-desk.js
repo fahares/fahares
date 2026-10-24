@@ -20,8 +20,8 @@ export default (config) => ({
     targetTimer: null,
     guestName: '',
     guestEmail: '',
-    // Opt-in: the name shown beside the correction on the record page once approved
-    creditOn: false,
+    // The name shown beside the correction once approved: on by default, the submitter may untick it
+    creditOn: true,
     creditName: '',
     // Guests only: email the review outcome
     notifyOn: false,
@@ -72,12 +72,13 @@ export default (config) => ({
             this.field = { name: detail.field, ...this.config.fields[detail.field] };
             this.value = this.field.prefill;
         }
+        this.toggleCredit();
         this.open = true;
     },
 
     toggleCredit() {
         // Start from the submitter's own name the first time the box is ticked
-        if (this.creditOn && !this.creditName.trim()) this.creditName = this.guestName.trim() || this.config.userName || '';
+        if (this.creditOn && !this.creditName.trim()) this.creditName = this.guestName.trim() || this.config.creditName || this.config.userName || '';
     },
 
     close() {
@@ -233,7 +234,8 @@ export default (config) => ({
         if (this.personId) body.append('person_id', this.personId);
         body.append('guest_name', this.guestName);
         body.append('guest_email', this.guestEmail);
-        if (this.creditOn) body.append('credit_name', this.creditName);
+        // A guest who left the name box empty is credited by the name they gave above
+        if (this.creditOn) body.append('credit_name', this.creditName.trim() || this.guestName.trim());
         if (this.notifyOn) body.append('notify_submitter', '1');
         body.append('website', this.website);
 

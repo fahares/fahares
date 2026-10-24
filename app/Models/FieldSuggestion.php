@@ -93,6 +93,13 @@ class FieldSuggestion extends Model
         return $record ? SuggestionRegistry::describe($record)['url'] : null;
     }
 
+    /** The name a user chose last time beside a correction, or their account's name: the credit box starts from it. */
+    public static function creditNameFor(User $user): string
+    {
+        return self::where('user_id', $user->id)->whereNotNull('credit_name')->where('credit_name', '!=', '')
+            ->latest('id')->value('credit_name') ?: $user->name;
+    }
+
     public function annotations(): HasMany
     {
         return $this->hasMany(ScholarlyAnnotation::class, 'suggestion_id');

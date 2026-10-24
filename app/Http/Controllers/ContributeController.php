@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\FieldSuggestion;
-use App\Models\User;
 use App\Review\CollectiveReview;
 use App\Review\ReviewQueue;
 use Illuminate\Http\Request;
@@ -71,7 +70,7 @@ class ContributeController extends Controller
 
         $user = $request->user();
         $replaced = CollectiveReview::opinionOf($user, $queue->key(), $item)?->status === 'pending';
-        CollectiveReview::answer($queue, $open, $user, $validated['answer'], $validated + ['credit_name' => $request->boolean('credit') ? $this->creditName($user) : null]);
+        CollectiveReview::answer($queue, $open, $user, $validated['answer'], $validated + ['credit_name' => $request->boolean('credit') ? FieldSuggestion::creditNameFor($user) : null]);
 
         return redirect()->route('contribute.next', [$queue->key()] + $filters)
             ->with('success', $replaced ? 'پاسخ تازه‌ی شما جای پاسخ پیشین نشست. سپاس.' : 'پاسخ شما ثبت شد و به داوران رسید. سپاس.');
@@ -102,13 +101,6 @@ class ContributeController extends Controller
         return (array) $request->session()->get('contribute.skipped.' . $queue->key(), []);
     }
 
-    /** The name a researcher chose last time beside a correction, or their account's name. */
-    private function creditName(User $user): string
-    {
-        return FieldSuggestion::where('user_id', $user->id)->whereNotNull('credit_name')->where('credit_name', '!=', '')
-            ->latest('id')->value('credit_name') ?: $user->name;
-    }
-
     /** What every card page shows around the card: the queue, its counts, the filters and the researcher's share. */
     private function frame(Request $request, ReviewQueue $queue, array $filters): array
     {
@@ -120,8 +112,9 @@ class ContributeController extends Controller
             'filterOptions' => $queue->filterOptions(),
             'waiting' => CollectiveReview::waiting($queue, $filters)->count(),
             'mine' => $user ? CollectiveReview::contributionsOf($user) : null,
-            'credit' => (bool) $request->session()->get('contribute.credit', $user && FieldSuggestion::where('user_id', $user->id)->whereNotNull('credit_name')->where('credit_name', '!=', '')->exists()),
-            'creditName' => $user ? $this->creditName($user) : null,
+            // the name goes beside an accepted answer unless the researcher unticked it before
+            'credit' => (bool) $request->session()->get('contribute.credit', true),
+            'creditName' => $user ? FieldSuggestion::creditNameFor($user) : null,
         ];
     }
 }
