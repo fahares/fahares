@@ -1833,6 +1833,25 @@
   - مجموع: ۳٬۸۲۸ ادغام در ۳٬۳۴۳ شخص، برابر با اجرای آزمایشی. ناهمخوانی و پیوند یتیم صفر بود. شمار اشخاص ۷۰٬۴۳۶ شد. گزارش پس از اجرا: محتمل ۰، بازبینی ۴۵۶، تعارض ۲۴۹.
 - **آزمون‌ها:** [DuplicatePeopleTest.php](../tests/Feature/DuplicatePeopleTest.php) شامل کلید، دسته‌بندی، ادغام با نام چاپیِ دست‌نخورده، بازگردانی، و ادغام بخشی از یک گروه بازبینی‌شده. ۱۷۱ آزمون موفق.
 
+
+### گام ۱۰.۴: صف «بازبینی اشخاص» در پنل مدیریت
+
+- **جدول `person_reviews`** ([مایگریشن](../database/migrations/2026_10_24_400001_create_person_reviews_table.php)، مدل [PersonReview](../app/Models/PersonReview.php)):
+  - ستون‌ها: `type` (`duplicate`، `mixed`)، `key` (کلید نام گروه یا `person:<id>`)، `person_ids`، `tier`، `reason`، `suggestion`، `status`، `decision`، `note`، `decided_by` و `decided_at`. جفت `(type, key)` یکتاست.
+  - وضعیت‌ها: `open`، `deferred`، `merged`، `distinct`، `split`، `dismissed` و `gone`.
+- **سرویس [PersonReviewQueue](../app/Services/PersonReviewQueue.php)** و دستور [`fahares:refresh-person-reviews`](../app/Console/Commands/RefreshPersonReviewsCommand.php):
+  - **صف هم‌نام:** گروه‌های «محتمل» و «بازبینی» از [DuplicatePeopleFinder](../app/Services/DuplicatePeopleFinder.php) می‌آیند. منطق گزارش از دستور به این سرویس منتقل شد و `FindDuplicatePeopleCommand` فقط آن را می‌نویسد.
+  - **صف قاطی‌شده:** اشخاصی که تاریخ نسخه‌هایشان بیش از ۷۰ سال پراکنده است.
+  - **ماندگاری تصمیم:** با هر اجرا تصمیم‌ها سر جایشان می‌مانند. گروهِ تصمیم‌گرفته فقط وقتی دوباره باز می‌شود که رکوردی تازه به آن بپیوندد. موردِ بازی که دیگر در داده نیست `gone` می‌شود.
+  - **داوری‌های پیشین:** داوری‌های گام ۱۰.۳ از [duplicate_people_review_suggestions.json](../database/data/duplicate_people_review_suggestions.json) پیشنهاد آغازین موارد تازه‌اند. «جدا»ی خودکار با وضعیت `distinct` و بدون `decided_by` ثبت می‌شود.
+- **پنل** ([PersonReviewController](../app/Http/Controllers/Admin/PersonReviewController.php)، [نما](../resources/views/admin/person-reviews/index.blade.php)، [AdminNav](../app/Support/AdminNav.php)):
+  - **مسیرها:** `admin.person-reviews.index` (با `type=mixed` و `view=open|deferred|auto|done`) و کنش‌های `merge`، `split` و `status`.
+  - **دسترسی:** `people.merge` برای صف هم‌نام و `structure.split` برای صف قاطی‌شده.
+  - **کنش‌ها:** ادغام با `PersonMerger` و `keepPrintedNames`. تفکیک با `RecordSplitter::splitPerson` و لاگ `split`، که از لاگ ممیزی بازگرداندنی است.
+  - **منو:** دو مورد تازه در منو با شمار موارد باز. منو حالا برای `active` یک closure هم می‌پذیرد.
+- **اجرای پروداکشن (۲ آبان ۱۴۰۵):** پشتیبان کامل در `~/backups/before_person_reviews_20261024_1448.sql.gz` روی میزبان گرفته شد. سپس push و `migrate --force`، و بعد `fahares:refresh-person-reviews`: ۱٬۴۶۰ مورد ساخته شد. صف هم‌نام ۱۰۳ مورد باز و ۳۵۳ مورد «جدا به داوری خودکار» دارد و صف قاطی‌شده ۱٬۰۰۴ مورد باز. هر دو صفحه برای مدیر کد ۲۰۰ دادند و خطایی در لاگ نبود.
+- **آزمون‌ها:** [PersonReviewTest.php](../tests/Feature/PersonReviewTest.php) شامل ورود به صف، ادغام از پنل، ماندگاری «جدا» و بازگشایی با عضو تازه، تفکیک، و دسترسی. ۲۷۱ آزمون موفق.
+
 ---
 
 ## فاز ۱۱: مشارکت پژوهشگران
