@@ -3671,3 +3671,28 @@
   - از مسیرهای `admin/*`، میان‌افزار `can:` ۴۰ مسیر را برای او می‌بندد (موضوعات، صفحه‌ی خانه، صفحه‌ها، نوشته‌ها، بازگردانی لاگ، سامانه، کاربران و نقش‌ها) و ۳۱ مسیر را باز می‌گذارد. تنها مسیر بی `can:` خود پیشخوان (`admin`) است که با میان‌افزار `admin` (یعنی `panel.access`) محافظت می‌شود.
   - کش `database` است، پس سنجش `can()` ممکن است ردیف کش نقشه‌ی مجوزها را ساخته باشد. داده‌ای تغییر نکرد.
 
+### گام ۱۳.۱۲: اجزای [components/admin](../resources/views/components/admin/) و پنج صفحه‌ی فهرستی (مورد ۶۵، بند ۵)
+- **اجزا:**
+  - `x-admin.filters`: فرم GET با `action`، `reset` (پیوند «همه»، فقط وقتی فیلتری فعال است)، `total` و `noun`.
+  - `x-admin.tabs`: فهرست `['label', 'url', 'active', 'count']`.
+  - `x-admin.table`، `x-admin.th`، `x-admin.row` و `x-admin.cell`. جدول زیر `md` با `block` و سطرها با `flex flex-wrap` کارت می‌شوند. `thead` در موبایل پنهان است و هر `cell` برچسب خود را با `md:hidden` نشان می‌دهد. `main` سطر نخست کارت و `actions` پانویس آن است. با `grouped` هر مورد `tbody` خودش را دارد، برای سطری که زیر سطر اصلی باز می‌شود (جزئیات لاگ).
+  - [admin/partials/pagination](../resources/views/admin/partials/pagination.blade.php): صفحه‌بندی با `Fa::num` و `rounded-sm`. جدول آن را با `links('admin.partials.pagination')` صدا می‌زند. صفحه‌بندی سایت عمومی دست نخورد.
+  - کلاس `.admin-field` در `app.css` برای ورودی و فهرست کشویی.
+- **صفحه‌ها:** [people](../resources/views/admin/people/index.blade.php)، [libraries](../resources/views/admin/libraries/index.blade.php)، [catalogers](../resources/views/admin/catalogers/index.blade.php)، [users](../resources/views/admin/users/index.blade.php) و [audit_logs](../resources/views/admin/audit_logs/index.blade.php).
+  - ستون جدای شناسه برداشته شد. شناسه با ارقام فارسی کنار نام می‌آید.
+  - عنوان صفحه همان نام منو است و دکمه‌ی «ادغام اشخاص تکراری» در `page_actions` و زیر `@can('people.merge')` است.
+  - رنگ‌های آبی و نیلی و کهربایی چیپ‌ها جای خود را به `x-ui.chip` دادند.
+- **کاربران:** `UserController::index` پارامتر `q` (نام یا رایانامه) را می‌پذیرد و `roles` (`Role::options()`) و `roleCounts` را به نما می‌دهد. برچسب‌های ثابت «مدیر ارشد» و «دبیر علمی» حذف شد. تأیید حذف با `@js` ساخته می‌شود.
+- **لاگ ممیزی:**
+  - `AuditLog::ACTION_LABELS` و `TYPE_LABELS`، و متدهای `actionLabel()` (که `rollback_*` را «بازگردانی …» می‌خواند) و `typeLabel()`. پیشخوان هم از آن‌ها استفاده می‌کند.
+  - `action=rollback` در `AuditLogController::index` همه‌ی `rollback%` را می‌آورد.
+  - فیلتر `type` (که از پیش در کنترلر بود) اکنون فهرست کشویی دارد. برای کسی که `users.manage` ندارد، `User` و `Role` در آن نمی‌آیند.
+  - جزئیات: جدول کلید، پیشین و تازه با `Str::limit(…, 400)`. IP فقط وقتی ثبت شده نشان داده می‌شود و پیش‌فرض ساختگی `127.0.0.1` حذف شد.
+- **آزمون:** [AdminListsTest](../tests/Feature/Admin/AdminListsTest.php) سه آزمون دارد:
+  - پنج صفحه بی عنوان انگلیسی و بی `rounded-2xl` باز می‌شوند.
+  - جستجو و زبانه‌ی کاربران کار می‌کند.
+  - برچسب‌ها و جزئیات لاگ، و زبانه‌ی بازگردانی درست‌اند.
+
+  کل مجموعه: ۲۷۰ آزمون موفق.
+- **وارسی:** صفحه‌ها با کد همین worktree و داده‌ی `fahares_db`، در کانتینر و با `SESSION_DRIVER=array`، به HTML ایستا ساخته و در مرورگر دیده شدند. عرض ۳۷۵ و ۱۲۸۰، و حالت تیره، و باز و بسته شدن جزئیات لاگ وارسی شد. نسخه‌ی داور (با نقش `editor` در حافظه، بی ذخیره) دکمه‌ی بازگردانی و گزینه‌ی «کاربر» را نشان نمی‌دهد.
+- **محیط worktree:** پیوند نمادین `vendor` باعث می‌شد کلاس‌های `App\` از مخزن اصلی بار شوند، پس `vendor` رونوشت شد. `vite build` در کانتینر و در مسیر worktree اجرا شد.
