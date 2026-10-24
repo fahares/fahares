@@ -195,7 +195,7 @@ class PersonController extends Controller
         });
 
         return redirect()->route('admin.people.index')
-            ->with('success', "شخص تکراری [{$source->name} #{$source->id}] با موفقیت در [{$target->name} #{$target->id}] ادغام شد.");
+            ->with('success', 'شخص تکراری «' . $source->name . '» (#' . \App\Support\Fa::digits($source->id) . ') در «' . $target->name . '» (#' . \App\Support\Fa::digits($target->id) . ') ادغام شد.');
     }
 
     protected function formatPersonResult(Person $p): array
