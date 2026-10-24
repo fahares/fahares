@@ -28,7 +28,10 @@ class AuditLogController extends Controller
             $query->whereNotIn('auditable_type', [\App\Models\User::class, \App\Models\Role::class]);
         }
 
-        if ($action) {
+        // «rollback» gathers every rollback_* action
+        if ($action === 'rollback') {
+            $query->where('action', 'like', 'rollback%');
+        } elseif ($action) {
             $query->where('action', $action);
         }
 

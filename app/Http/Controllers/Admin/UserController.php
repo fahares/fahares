@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Auth\Permissions;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,15 +15,21 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $role = $request->query('role');
+        $search = trim((string) $request->query('q'));
         $query = User::query();
 
         if ($role) {
             $query->where('role', $role);
         }
+        if ($search !== '') {
+            $query->where(fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
+        }
 
         $users = $query->latest('id')->paginate(25)->withQueryString();
+        $roles = Role::options();
+        $roleCounts = User::selectRaw('role, count(*) AS c')->groupBy('role')->pluck('c', 'role');
 
-        return view('admin.users.index', compact('users', 'role'));
+        return view('admin.users.index', compact('users', 'role', 'search', 'roles', 'roleCounts'));
     }
 
     public function edit(User $user)

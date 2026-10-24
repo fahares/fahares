@@ -74,7 +74,7 @@
                         @forelse($recentLogs as $log)
                             <div class="flex items-start justify-between gap-3 py-2">
                                 <span class="min-w-0">
-                                    <span class="block font-semibold text-ink">{{ $log->action }} · {{ class_basename($log->auditable_type) }} #{{ \App\Support\Fa::digits($log->auditable_id) }}</span>
+                                    <span class="block font-semibold text-ink">{{ $log->actionLabel() }} · {{ $log->typeLabel() }} #{{ \App\Support\Fa::digits($log->auditable_id) }}</span>
                                     <span class="block text-muted">{{ $log->user?->name ?: 'سامانه' }}</span>
                                 </span>
                                 <span class="text-muted whitespace-nowrap">@jago($log->created_at)</span>

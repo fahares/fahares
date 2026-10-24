@@ -227,3 +227,19 @@ body {
 .post-body th,
 .post-body td { border: 1px solid var(--line); padding: 0.4em 0.7em; text-align: start; }
 .post-body code { font-size: 0.9em; background: var(--surface); padding: 0.1em 0.3em; border-radius: 2px; }
+
+/* Input and select of the admin panel's filters and forms (backlog item 65) */
+.admin-field {
+    min-width: 0;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 13px;
+}
+.admin-field:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold);
+}

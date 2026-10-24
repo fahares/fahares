@@ -1,155 +1,99 @@
 @extends('layouts.admin')
 
-@section('title', 'گزارش ممیزی و تغییرات سیستم')
-@section('page_title', 'گزارش ممیزی و تاریخچه تغییرات پایگاه (Audit Logs)')
-@section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
-    <span>/</span>
-    <span class="text-stone-400">گزارش ممیزی</span>
-@endsection
+@section('title', 'لاگ ممیزی')
+@section('page_title', 'لاگ ممیزی')
 
 @section('content')
-<div class="space-y-6">
+@php
+    $fa = fn ($v) => \App\Support\Fa::digits($v);
+    $tabs = [];
+    foreach (['' => 'همه', 'merge' => 'ادغام', 'update' => 'ویرایش', 'verify' => 'تأیید پیشنهاد', 'create' => 'ایجاد', 'remove' => 'حذف', 'split' => 'تفکیک', 'rollback' => 'بازگردانی'] as $key => $label) {
+        $tabs[] = ['label' => $label, 'url' => route('admin.audit-logs.index', array_filter(['action' => $key, 'type' => $type])), 'active' => (string) $action === $key];
+    }
+    $types = collect(\App\Models\AuditLog::TYPE_LABELS)
+        ->when(! auth()->user()->can('users.manage'), fn ($t) => $t->except([\App\Models\User::class, \App\Models\Role::class]));
+    // A value of a change, short enough for a table cell
+    $show = fn ($v) => is_null($v) ? '—' : (is_scalar($v) ? (is_bool($v) ? ($v ? 'بله' : 'خیر') : (string) $v) : json_encode($v, JSON_UNESCAPED_UNICODE));
+    $canRollback = auth()->user()->can('audit.rollback');
+@endphp
+<x-admin.tabs :options="$tabs" />
 
-    <!-- Action Filter Toolbar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
-        
-        <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
-            <a href="{{ route('admin.audit-logs.index') }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ empty($action) ? 'bg-ink text-paper' : 'bg-surface text-ink/80' }}">
-                همه عملیات‌ها
-            </a>
-            <a href="{{ route('admin.audit-logs.index', ['action' => 'verify']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'verify' ? 'bg-amber-500 text-stone-950 font-black' : 'bg-surface text-ink/80' }}">
-                داوری و تایید اصلاحیه (Verify)
-            </a>
-            <a href="{{ route('admin.audit-logs.index', ['action' => 'merge']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'merge' ? 'bg-indigo-600 text-white font-black' : 'bg-surface text-ink/80' }}">
-                ادغام اعلام و موضوعات (Merge)
-            </a>
-            <a href="{{ route('admin.audit-logs.index', ['action' => 'remove']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'remove' ? 'bg-red-600 text-white font-black' : 'bg-surface text-ink/80' }}">
-                حذف رکورد زائد (Remove)
-            </a>
-            <a href="{{ route('admin.audit-logs.index', ['action' => 'update']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'update' ? 'bg-blue-600 text-white font-black' : 'bg-surface text-ink/80' }}">
-                ویرایش‌ها (Update)
-            </a>
-            <a href="{{ route('admin.audit-logs.index', ['action' => 'create']) }}" 
-               class="px-3.5 py-1.5 rounded-xl transition {{ $action === 'create' ? 'bg-emerald-600 text-white font-black' : 'bg-surface text-ink/80' }}">
-                ایجاد جدید (Create)
-            </a>
-        </div>
+<x-admin.filters :action="route('admin.audit-logs.index')" :reset="$type ? route('admin.audit-logs.index', array_filter(['action' => $action])) : null" :total="$logs->total()" noun="رخداد">
+    @if($action)<input type="hidden" name="action" value="{{ $action }}">@endif
+    <select name="type" aria-label="نوع رکورد" class="admin-field">
+        <option value="">همه‌ی رکوردها</option>
+        @foreach($types as $class => $label)
+            <option value="{{ class_basename($class) }}" @selected($type === class_basename($class))>{{ $label }}</option>
+        @endforeach
+    </select>
+</x-admin.filters>
 
-        <div class="text-xs text-stone-400">
-            تعداد رخدادها: <strong class="text-ink">{{ number_format($logs->total()) }}</strong>
-        </div>
-
-    </div>
-
-    <!-- Audit Logs Table -->
-    <div class="bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-right text-xs">
-                <thead class="bg-paper text-stone-500 border-b border-line">
-                    <tr>
-                        <th class="p-4 font-bold">شناسه و زمان</th>
-                        <th class="p-4 font-bold">اقدام‌کننده</th>
-                        <th class="p-4 font-bold">نوع اقدام</th>
-                        <th class="p-4 font-bold">موجودیت هدف</th>
-                        <th class="p-4 font-bold">نشانی IP</th>
-                        <th class="p-4 font-bold">جزئیات تغییرات</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @forelse($logs as $log)
-                        <tr x-data="{ expanded: false }" class="hover:bg-paper transition">
-                            <td class="p-4">
-                                <span class="font-mono font-bold text-ink">#{{ $log->id }}</span>
-                                <div class="text-[10px] text-stone-400 font-mono mt-0.5">@jdate($log->created_at, 'seconds')</div>
-                            </td>
-                            <td class="p-4">
-                                <span class="font-bold text-ink">
-                                    {{ $log->user?->name ?: 'سیستم خودکار' }}
-                                </span>
-                                @if($log->user && auth()->user()->can('users.manage'))
-                                    <div class="text-[10px] text-stone-400 font-mono">{{ $log->user->email }}</div>
-                                @endif
-                            </td>
-                            <td class="p-4">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold 
-                                    {{ $log->action === 'create' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : '' }}
-                                    {{ $log->action === 'update' ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300' : '' }}
-                                    {{ in_array($log->action, ['delete', 'remove'], true) ? 'bg-red-500/15 text-red-700 dark:text-red-300' : '' }}
-                                    {{ $log->action === 'verify' ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300' : '' }}
-                                    {{ in_array($log->action, ['merge', 'split'], true) ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300' : '' }}
-                                    {{ str_starts_with($log->action, 'rollback') ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300' : '' }}">
-                                    {{ $log->action }}
-                                </span>
-                            </td>
-                            <td class="p-4">
-                                <span class="font-mono text-ink font-bold block">
-                                    {{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }}
-                                </span>
-                            </td>
-                            <td class="p-4 font-mono text-stone-400 text-[11px] dir-ltr text-right">
-                                {{ $log->ip_address ?: '127.0.0.1' }}
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <button type="button" @click="expanded = !expanded" 
-                                            class="px-2.5 py-1 rounded-lg border border-line-strong hover:bg-paper text-[11px] font-bold transition flex items-center gap-1 cursor-pointer">
-                                        <span x-text="expanded ? 'بستن' : 'مشاهده Diff'">مشاهده Diff</span>
-                                        <svg :class="expanded ? 'rotate-180' : ''" class="w-3 h-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                                    </button>
-
-                                    @if(in_array($log->action, ['merge', 'verify', 'update', 'remove', 'split']) && !empty($log->old_values) && auth()->user()->can('audit.rollback'))
-                                        <form action="{{ route('admin.audit-logs.rollback', $log) }}" method="POST" class="inline" 
-                                              onsubmit="return confirm('هشدار: آیا از بازگردانی (Rollback) این تغییر و احیای وضعیت قبلی اطمینان کامل دارید؟')">
-                                            @csrf
-                                            <button type="submit" 
-                                                    title="بازگردانی به وضعیت قبل"
-                                                    class="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-600 text-rose-700 hover:text-white dark:text-rose-300 border border-rose-500/20 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer">
-                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                                                <span>بازگردانی (Undo)</span>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-
-                                <div x-show="expanded" x-cloak class="mt-3 p-3 rounded-xl bg-stone-900 text-stone-100 font-mono text-[11px] dir-ltr text-left space-y-2 max-w-lg overflow-x-auto shadow-inner">
-                                    @if($log->old_values)
-                                        <div>
-                                            <span class="text-red-400 font-bold">--- OLD VALUES:</span>
-                                            <pre class="text-[10px] text-red-300 whitespace-pre-wrap">{{ json_encode($log->old_values, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
-                                        </div>
-                                    @endif
-                                    @if($log->new_values)
-                                        <div>
-                                            <span class="text-emerald-400 font-bold">+++ NEW VALUES:</span>
-                                            <pre class="text-[10px] text-emerald-300 whitespace-pre-wrap">{{ json_encode($log->new_values, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
-                                        </div>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="p-12 text-center text-xs text-stone-400">
-                                لاگ ممیزی ثبت نشده است.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if($logs->hasPages())
-            <div class="p-4 border-t border-line">
-                {{ $logs->links() }}
-            </div>
+<x-admin.table grouped :paginator="$logs" :is-empty="$logs->isEmpty()" empty="رخدادی با این مشخصات ثبت نشده است.">
+    <x-slot:head>
+        <x-admin.th>رخداد</x-admin.th>
+        <x-admin.th>رکورد</x-admin.th>
+        <x-admin.th>کاربر</x-admin.th>
+        <x-admin.th>زمان</x-admin.th>
+        <x-admin.th><span class="sr-only">کنش‌ها</span></x-admin.th>
+    </x-slot:head>
+    @foreach($logs as $log)
+        @php
+            $old = (array) ($log->old_values ?? []);
+            $new = (array) ($log->new_values ?? []);
+            $keys = array_values(array_unique([...array_keys($old), ...array_keys($new)]));
+        @endphp
+        <tbody x-data="{ open: false }" class="block md:table-row-group border-b border-line last:border-0">
+        <x-admin.row>
+            <x-admin.cell main>
+                <x-ui.chip :tone="str_starts_with($log->action, 'rollback') || in_array($log->action, ['remove', 'delete'], true) ? 'accent' : ($log->action === 'verify' ? 'good' : 'default')">{{ $log->actionLabel() }}</x-ui.chip>
+                <span class="text-xs text-muted tabular-nums">#{{ $fa($log->id) }}</span>
+            </x-admin.cell>
+            <x-admin.cell label="رکورد">{{ $log->typeLabel() }} <span class="tabular-nums">#{{ $fa($log->auditable_id) }}</span></x-admin.cell>
+            <x-admin.cell label="کاربر">
+                {{ $log->user?->name ?: 'سامانه' }}
+                @if($log->user && auth()->user()->can('users.manage'))
+                    <span class="hidden md:block text-xs text-muted" dir="ltr">{{ $log->user->email }}</span>
+                @endif
+            </x-admin.cell>
+            <x-admin.cell label="زمان" class="text-muted whitespace-nowrap">@jdate($log->created_at, 'seconds')</x-admin.cell>
+            <x-admin.cell actions>
+                <span class="inline-flex items-center gap-1">
+                    @if($keys)
+                        <x-ui.btn size="sm" @click="open = !open" ::aria-expanded="open">
+                            <span x-text="open ? 'بستن' : 'جزئیات'">جزئیات</span>
+                        </x-ui.btn>
+                    @endif
+                    @if($canRollback && in_array($log->action, \App\Models\AuditLog::UNDOABLE, true) && $old)
+                        <form action="{{ route('admin.audit-logs.rollback', $log) }}" method="POST"
+                              onsubmit="return confirm('این تغییر بازگردانده و وضع پیشین رکورد برگردانده شود؟')">
+                            @csrf
+                            <x-ui.btn type="submit" size="sm" variant="ghost" title="بازگرداندن به وضع پیش از این تغییر">بازگردانی</x-ui.btn>
+                        </form>
+                    @endif
+                </span>
+            </x-admin.cell>
+        </x-admin.row>
+        {{-- The change field by field, opened under its row --}}
+        @if($keys)
+            <tr x-show="open" x-cloak class="block md:table-row bg-paper">
+                <td colspan="5" class="block md:table-cell px-4 py-3">
+                    <dl class="grid grid-cols-1 sm:grid-cols-[max-content_minmax(0,1fr)_minmax(0,1fr)] gap-x-4 gap-y-1 text-xs">
+                        <dt class="hidden sm:block font-bold text-muted">فیلد</dt>
+                        <dd class="hidden sm:block font-bold text-muted">پیشین</dd>
+                        <dd class="hidden sm:block font-bold text-muted">تازه</dd>
+                        @foreach($keys as $k)
+                            <dt class="font-bold text-ink pt-1 sm:pt-0" dir="auto">{{ $k }}</dt>
+                            <dd class="break-words text-cinnabar" dir="auto"><span class="sm:hidden text-muted">پیشین: </span>{{ \Illuminate\Support\Str::limit($show($old[$k] ?? null), 400) }}</dd>
+                            <dd class="break-words text-emerald-800 dark:text-emerald-300" dir="auto"><span class="sm:hidden text-muted">تازه: </span>{{ \Illuminate\Support\Str::limit($show($new[$k] ?? null), 400) }}</dd>
+                        @endforeach
+                    </dl>
+                    @if($log->ip_address)
+                        <p class="mt-2 text-xs text-muted">نشانی IP: <span dir="ltr">{{ $log->ip_address }}</span></p>
+                    @endif
+                </td>
+            </tr>
         @endif
-    </div>
-
-</div>
+        </tbody>
+    @endforeach
+</x-admin.table>
 @endsection
