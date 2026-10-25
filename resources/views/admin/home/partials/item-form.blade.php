@@ -1,6 +1,6 @@
 @php
     $key = $item ? "item{$item->id}" : "new_{$section}";
-    $input = 'w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink focus:border-gold outline-none';
+    $input = 'admin-field w-full';
     $label = 'block font-bold text-ink mb-1';
 @endphp
 <form action="{{ $item ? route('admin.home.items.update', $item) : route('admin.home.items.store') }}" method="POST" enctype="multipart/form-data" class="grid gap-3 sm:grid-cols-2">
@@ -25,13 +25,13 @@
     </div>
     <div>
         <label for="{{ $key }}_image" class="{{ $label }}">{{ $item ? 'تصویر تازه (اختیاری)' : 'تصویر' }}</label>
-        <input type="file" name="image" id="{{ $key }}_image" accept="image/jpeg,image/png,image/webp" {{ $item ? '' : 'required' }} class="{{ $input }} file:ml-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-cinnabar file:text-on-cinnabar">
+        <x-admin.file name="image" :id="$key . '_image'" accept="image/jpeg,image/png,image/webp" :required="! $item" />
     </div>
     <div class="sm:col-span-2 flex flex-wrap items-center gap-5">
-        <label class="inline-flex items-center gap-2"><input type="checkbox" name="is_active" value="1" {{ ($item?->is_active ?? true) ? 'checked' : '' }}> نمایش در سایت</label>
+        <label class="inline-flex items-center gap-2 cursor-pointer"><input type="checkbox" name="is_active" value="1" {{ ($item?->is_active ?? true) ? 'checked' : '' }} class="accent-cinnabar"> نمایش در سایت</label>
         @if($section === 'slides')
-            <label class="inline-flex items-center gap-2"><input type="checkbox" name="show_caption" value="1" {{ $item?->show_caption ? 'checked' : '' }}> عنوان و توضیح روی بنر نوشته شود (برای تصویری که خودش نوشته ندارد)</label>
+            <label class="inline-flex items-center gap-2 cursor-pointer"><input type="checkbox" name="show_caption" value="1" {{ $item?->show_caption ? 'checked' : '' }} class="accent-cinnabar"> عنوان و توضیح روی بنر نوشته شود (برای تصویری که خودش نوشته ندارد)</label>
         @endif
-        <button type="submit" class="mr-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-cinnabar text-on-cinnabar hover:opacity-90 transition cursor-pointer">{{ $item ? 'ذخیره' : 'افزودن' }}</button>
+        <button type="submit" class="ms-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-sm text-xs font-semibold bg-cinnabar text-on-cinnabar hover:opacity-90 transition cursor-pointer">{{ $item ? 'ذخیره' : 'افزودن' }}</button>
     </div>
 </form>
