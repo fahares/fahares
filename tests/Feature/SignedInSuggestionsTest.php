@@ -207,6 +207,31 @@ class SignedInSuggestionsTest extends TestCase
         $this->get('/')->assertDontSee($bar, false);
     }
 
+    public function test_users_with_a_latin_name_are_asked_once_by_notice_and_email()
+    {
+        Notification::fake();
+        $latin = $this->user(['name' => 'Ali Rezaei']);
+        $kept = $this->user(['name' => 'John Smith']);
+        $kept->forceFill(['name_kept_at' => now()])->save();
+        $persian = $this->user(['name' => 'مریم احمدی']);
+
+        $this->artisan('fahares:ask-persian-names', ['--dry-run' => true])->expectsOutputToContain('Would notify 1 user(s).')->assertSuccessful();
+        Notification::assertNothingSent();
+
+        $this->artisan('fahares:ask-persian-names')->expectsOutputToContain('Notifying 1 user(s).')->assertSuccessful();
+        Notification::assertSentTo($latin, \App\Notifications\PersianNameRequest::class, function ($n, $channels) use ($latin) {
+            $mail = (string) $n->toMail($latin)->render();
+
+            return $channels === ['database', 'mail'] && str_contains($mail, 'Ali Rezaei') && str_contains($mail, route('profile'))
+                && $n->toArray($latin)['title'] === 'لطفاً نام خود را به فارسی بنویسید';
+        });
+        Notification::assertNotSentTo([$kept, $persian], \App\Notifications\PersianNameRequest::class);
+
+        // A user already asked is not asked again
+        $latin->notifications()->create(['id' => (string) \Illuminate\Support\Str::uuid(), 'type' => \App\Notifications\PersianNameRequest::class, 'data' => []]);
+        $this->artisan('fahares:ask-persian-names', ['--dry-run' => true])->expectsOutputToContain('Would notify 0 user(s).');
+    }
+
     protected function fakeGoogle(string $id, string $email, string $name): void
     {
         config(['services.google.client_id' => 'test-client', 'services.google.client_secret' => 'x']);

@@ -3905,5 +3905,11 @@
 - **مسیر:** `POST /settings/profile/keep-name` (`profile.keep-name`، با `auth`) در `ProfileController::keepName` مقدار `name_kept_at` را می‌گذارد.
 - **نما:** نوار `data-persian-name-bar` در [layouts/app](../resources/views/layouts/app.blade.php) زیر نوار تأیید ایمیل است، و جز در مسیرهای `profile` و `account.complete` نمایش داده می‌شود. نام کاربر در `<bdi>` می‌آید تا جهت متن به‌هم نریزد. پنل (`layouts.admin`) این نوار را ندارد.
 - **سنجش پروداکشن:** `tinker` روی `ssh fahares-app` با همان الگوی `\p{Latin}` بی `\p{Arabic}`: ۱۰ از ۳۶ کاربر، همه با `google_id`.
-- **آزمون:** `test_existing_users_with_a_latin_name_are_asked_for_a_persian_one_until_they_change_or_keep_it` در [SignedInSuggestionsTest](../tests/Feature/SignedInSuggestionsTest.php). کل مجموعه: ۲۹۹ آزمون موفق.
+- **اعلان:** [PersianNameRequest](../app/Notifications/PersianNameRequest.php) (`ShouldQueue`) همیشه با کانال‌های `database` و `mail` فرستاده می‌شود. این پیام یک‌باره‌ی حساب است و نوعی از `config/notifications.php` نیست، پس تنظیمات اعلان کاربر بر آن اثر ندارد.
+- **دستور:** [AskPersianNamesCommand](../app/Console/Commands/AskPersianNamesCommand.php) (`fahares:ask-persian-names {--dry-run}`) کاربرانی را برمی‌گزیند که `shouldWriteNameInPersian()` برایشان درست است و ردیفی از `notifications` با `type` همین کلاس ندارند. با `--dry-run` فقط جدول id، نام، نقش و روش ورود را چاپ می‌کند.
+- **آزمون:** در [SignedInSuggestionsTest](../tests/Feature/SignedInSuggestionsTest.php):
+  - `test_existing_users_with_a_latin_name_are_asked_for_a_persian_one_until_they_change_or_keep_it`
+  - `test_users_with_a_latin_name_are_asked_once_by_notice_and_email`: `--dry-run` چیزی نمی‌فرستد؛ کانال‌ها و متن ایمیل بررسی می‌شوند؛ نام نگه‌داشته و نام فارسی پیامی نمی‌گیرند؛ پیام تکراری فرستاده نمی‌شود.
+
+  کل مجموعه: ۳۰۰ آزمون موفق.
 
