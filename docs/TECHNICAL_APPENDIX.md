@@ -4105,3 +4105,15 @@
     - یادکرد: `title_in_text` ۵۲۰ و `derivative_of_heading` ۴۸؛
     - بی‌تطبیق ۲٬۱۲۸، و بی‌مدخل در صفحه ۹۸ (صفحه‌ی نمایه یا نشانی نادرست).
 - **اجرای محلی:** worktree `vendor` ندارد. رونوشتی با hard link از `vendor` نسخه‌ی اصلی ساخته شد. `vendor/composer` و `vendor/autoload.php` جدا کپی شدند و `composer dump-autoload` اجرا شد. این‌طور فایل‌های نسخه‌ی اصلی دست نخوردند و کد شاخه بارگذاری شد. کل مجموعه ۳۱۸ آزمون موفق.
+
+### گام ۱۳.۳۲: اعلان `user.registered` و کانال Web Push (مورد ۲۵)
+- **ثبت‌نام:** شنونده‌ی [NotifyNewUserRegistered](../app/Listeners/NotifyNewUserRegistered.php) به رویداد `Registered` لاراول گوش می‌دهد (کشف خودکار شنونده‌ها در `app/Listeners`). فرم ثبت‌نام این رویداد را از پیش می‌فرستاد. [GoogleController](../app/Http/Controllers/Auth/GoogleController.php) هم آن را در نخستین ورود، پس از `markEmailAsVerified` می‌فرستد تا ایمیل تأیید فرستاده نشود. پس هر مسیر ثبت‌نام آینده هم کافی است همین رویداد را بفرستد.
+  - [UserRegistered](../app/Notifications/UserRegistered.php): نام، ایمیل، روش ثبت‌نام (از `google_id`)، وابستگی سازمانی، و شماره‌ی تماس فقط برای گیرنده‌ی دارای `users.contact`. پیوند به `admin.users.edit`.
+  - گیرندگان با `permission: users.manage` در [config/notifications.php](../config/notifications.php) تعیین می‌شوند، نه نقش ثابت، تا ماتریس دسترسی (مورد ۶۵) حاکم باشد.
+- **Web Push:** بسته‌ی `laravel-notification-channels/webpush` ‏(۱۳.۰، با `minishlink/web-push` ‏۱۱؛ افزونه‌ی gmp لازم نیست).
+  - جدول `push_subscriptions` (مهاجرت ۲۰۲۶_۱۰_۲۵_۲۰۰۰۰۱، از stub بسته؛ فقط ساختار). اشتراکی که سرویس push با ۴۰۴ یا ۴۱۰ رد کند، `ReportHandler` بسته پاک می‌کند (آزموده شد).
+  - `NotificationPreferences::channelsFor` کانال `webpush` را فقط برای کاربر دارای اشتراک و به نام `WebPushChannel::class` برمی‌گرداند. [PushSubscriptionController](../app/Http/Controllers/PushSubscriptionController.php) پس از اشتراک، `enableWebPushDefaults` را اجرا می‌کند: کانال مرورگر برای نوع‌هایی روشن می‌شود که کاربر هنوز درباره‌شان انتخابی نکرده است.
+  - `toWebPush` در [SuggestionNotification](../app/Notifications/SuggestionNotification.php) فقط عنوان، رکورد و پیوند را می‌فرستد، چون متن از سرویس push مرورگر می‌گذرد.
+  - سمت مرورگر: [web-push.js](../resources/js/web-push.js) (کامپوننت Alpine ‏`webPush`)، [components/web-push](../resources/views/components/web-push.blade.php) با سه زمینه‌ی `settings`، `suggest` و `dashboard`، [public/sw.js](../public/sw.js) که چیزی cache نمی‌کند، و [public/manifest.json](../public/manifest.json). دعوت بسته‌شده در `localStorage` به ازای هر زمینه به خاطر سپرده می‌شود. بی‌کلید VAPID هیچ‌چیز نمایش داده نمی‌شود.
+  - متغیرهای محیطی: `VAPID_PUBLIC_KEY`، `VAPID_PRIVATE_KEY` و `VAPID_SUBJECT` (مثلاً `mailto:…`)، ساخته‌شده با `php artisan webpush:vapid --show`.
+- **آزمون:** [UserRegisteredTest](../tests/Feature/Notifications/UserRegisteredTest.php) و [WebPushTest](../tests/Feature/Notifications/WebPushTest.php).
