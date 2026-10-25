@@ -98,6 +98,7 @@
             <template x-if="done">
                 <div class="space-y-4">
                     <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 font-bold leading-relaxed" x-text="done"></div>
+                    @auth<x-web-push context="suggest" />@endauth
                     <div class="flex justify-end">
                         <button type="button" @click="close()" class="px-5 py-2.5 bg-cinnabar hover:opacity-90 text-on-cinnabar rounded-xl font-bold">بستن</button>
                     </div>

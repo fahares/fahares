@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Models\NotificationPreference;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use NotificationChannels\WebPush\WebPushChannel;
 
 /**
  * Who receives which notification over which channel, from the registry in config/notifications.php
@@ -48,8 +49,11 @@ class NotificationPreferences
             if ($channel === 'mail' && ! $user->email) {
                 continue;
             }
+            if ($channel === 'webpush' && ! $user->pushSubscriptions()->exists()) {
+                continue;
+            }
             if (self::enabled($user, $type, $channel)) {
-                $channels[] = $channel;
+                $channels[] = $channel === 'webpush' ? WebPushChannel::class : $channel;
             }
         }
 
@@ -62,6 +66,17 @@ class NotificationPreferences
             ['user_id' => $user->id, 'notification_type' => $type, 'channel' => $channel],
             ['enabled' => $enabled],
         );
+    }
+
+    /** A browser was just subscribed: turns on the browser channel of each type the user has not chosen for yet. */
+    public static function enableWebPushDefaults(User $user): void
+    {
+        foreach (self::typesFor($user) as $type => $definition) {
+            $chosen = NotificationPreference::where('user_id', $user->id)->where('notification_type', $type)->where('channel', 'webpush')->exists();
+            if (array_key_exists('webpush', $definition['channels']) && ! $chosen) {
+                self::set($user, $type, 'webpush', true);
+            }
+        }
     }
 
     /** Users whose role may receive the type. */

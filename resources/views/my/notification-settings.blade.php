@@ -9,6 +9,7 @@
         <p class="mt-1 text-xs text-muted">برای هر نوع اعلان، راه دریافت آن را انتخاب کنید. ایمیل‌ها به {{ auth()->user()->email }} فرستاده می‌شوند.</p>
     </div>
 
+    <x-web-push context="settings" />
 
     <form action="{{ route('notifications.settings.save') }}" method="POST" class="bg-surface rounded-sm border border-line shadow-sm overflow-hidden">
         @csrf

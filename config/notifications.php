@@ -15,19 +15,21 @@ return [
     'channels' => [
         'database' => 'داخل سایت',
         'mail' => 'ایمیل',
+        // Web Push (backlog item 25): off until the user subscribes a browser on the settings page
+        'webpush' => 'مرورگر',
     ],
 
     'types' => [
         'suggestion.submitted' => [
             'label' => 'پیشنهاد اصلاحی تازه برای داوری',
             'permission' => 'suggestions.review',
-            'channels' => ['database' => true, 'mail' => true],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false],
             'group' => ['telegram'],
         ],
         'suggestion.reviewed' => [
             'label' => 'نتیجه‌ی داوری پیشنهادهای من، و تغییر وضعیت قول‌هایم',
             'roles' => ['*'],
-            'channels' => ['database' => true, 'mail' => true],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false],
         ],
         'user.registered' => [
             'label' => 'ثبت‌نام کاربر تازه',
