@@ -8,7 +8,7 @@ ablibrary pages have, so sources:segment reads both alike: paragraphs apart by a
 «( 1442 : التحفة )», and the page's footnotes as closing paragraphs «( 1 ) …».
 
 Noor's text is edited, not a copy of the page: it adds headings of its own in brackets («[بيان]», «[تحفه الأبرار]»)
-and page ranges of a section («(البائية الحميرية ص 3 - …)»); both are left out. Noor has the end indexes (vol 9 from
+and page ranges of a section («(البائية الحميرية ص 3 - …)»); both are left out (see heading()). Noor has the end indexes (vol 9 from
 p. 1323, the addenda of vol 25 from p. 312, …) only as scans, so those pages get no text. A page Noor has without
 text while ablibrary has one (vol 25 pp. 309-310) takes the ablibrary text when --ablibrary is given, with origin
 "ablibrary". The database is opened read-only.
@@ -33,18 +33,55 @@ def strip(xml):
     return html.unescape(re.sub(r'<(?!page )[^>]+>', '', xml))
 
 
-def heading(title):
-    """Noor's heading in the printed form, or nothing for a heading Noor added."""
-    title = ' '.join(strip(title).split())
-    if not title or title.startswith('[') or re.search(r'ص \d+\s*-', title):
+# headings Noor gives a passage of its own, never printed
+NOOR_LABELS = {'بيان', 'مقدمة', 'المقدمة', 'تمهيد', 'تنبيه', 'فائدة', 'خاتمة', 'تذييل', 'تكملة'}
+JOIN = '\ue000'  # after a heading: it runs on with the paragraph that follows, as printed
+
+
+def plain(title):
+    return ' '.join(strip(title).split())
+
+
+def bare(title):
+    m = NUMBERED.match(title)
+    return re.sub(r'[\s"()\[\]]', '', m.group(2) if m else title).replace('ة', 'ه').replace('أ', 'ا').replace('إ', 'ا')
+
+
+def heading(title, following):
+    """Noor's heading in the printed form, or nothing for a heading Noor added: a section's page range, a generic
+    label in brackets («[بيان]»), or a bracketed name over the entry of that name right after it («[تحفه الأبرار]»
+    before «1450: تحفه الأبرار»). Other bracketed headings are printed ones («( بحر الأنساب )»)."""
+    if not title or re.search(r'ص \d+\s*-', title):
         return ''
+    if title.startswith('['):
+        inner = title.strip('[] ')
+        if inner in NOOR_LABELS or (following is not None and bare(following).startswith(bare(inner))):
+            return ''
+        title = inner
     # the print quotes a title inside a title («" صنائع الأسحار "»), where Noor has parentheses
     title = re.sub(r'\(([^\d()][^()]*)\)', r'" \1 "', title)
     m = NUMBERED.match(title)
-    return (f'( {m.group(1)} : {m.group(2)} )' if m else f'( {title} )') + '\n'
+    return '\n' + (f'( {m.group(1)} : {m.group(2)} )' if m else f'( {title} )') + JOIN
+
+
+def headings(xml):
+    found = list(HEADING.finditer(xml))
+    titles = [plain(m.group(1)) for m in found]
+    out, at = [], 0
+    for i, m in enumerate(found):
+        out.append(xml[at:m.start()])
+        out.append(heading(titles[i], titles[i + 1] if i + 1 < len(found) else None))
+        at = m.end()
+    return ''.join(out) + xml[at:]
 
 
 def tidy(text):
+    # a section's page range Noor adds under its heading: «(البائية الحميرية ص 3 - البيوع و المزارعات ص 196)»
+    text = re.sub(r'\([^()\n]*ص \d+\s*-[^()\n]*ص \d+\s*\)', '', text)
+    # Noor's «\» between words, where the print has a space
+    text = text.replace('\\', ' ')
+    # a heading and the first line of its paragraph make one line, unless an entry heading comes next
+    text = re.sub(JOIN + r'\s*(?!\(\s*\d+\s*:)(?=[^\s' + JOIN + '])', ' ', text).replace(JOIN, '\n')
     paragraphs = []
     for p in re.split(r'\n\s*\n', text):
         lines = [' '.join(line.split()) for line in p.split('\n')]
@@ -57,7 +94,7 @@ def tidy(text):
 def volume_pages(db, volume):
     doc = f'03264_{volume:03d}'
     rows = db.execute('SELECT story_id, text_xml FROM book_texts WHERE document_id = ? ORDER BY item_id', (doc,)).fetchall()
-    main = ''.join(x for story, x in rows if story == 1)
+    main = headings(''.join(x for story, x in rows if story == 1))
     order, body, notes = [], {}, {}
     label = None
     for i, part in enumerate(PAGE.split(main.replace('</p>', '\n\n'))):
@@ -69,7 +106,7 @@ def volume_pages(db, volume):
             continue
         if label is None:
             continue
-        body[label] += HEADING.sub(lambda m: '\n' + heading(m.group(1)), part)
+        body[label] += part
     for story, x in rows:
         if story == 1:
             continue
