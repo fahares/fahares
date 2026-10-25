@@ -12,8 +12,14 @@ and page ranges of a section («(البائية الحميرية ص 3 - …)»);
 p. 1323, the addenda of vol 25 from p. 312, …) only as scans, so those pages get no text. A page Noor has without
 text while ablibrary has one (vol 25 pp. 309-310) takes the ablibrary text when --ablibrary is given, with origin
 "ablibrary". The database is opened read-only.
+
+Noor shortens «عليه السلام» and «صلى الله عليه وآله» to «ع» and «ص». The print writes them out in some volumes
+(1-5, 13, 14) and has «ع» in others, and «ص» is also «page», «ع 1» a month; so no rule can tell. With --ablibrary,
+a lone «ع» or «ص» is written out only where the two texts, aligned word by word, have that one abbreviation against
+that one phrase in ablibrary (see honorifics()).
 """
 import argparse
+import difflib
 import gzip
 import html
 import json
@@ -128,6 +134,43 @@ def volume_pages(db, volume):
     return pages
 
 
+TOKEN = re.compile(r'[^\s()«»"،.:؛\[\]]+')
+HONORIFIC = re.compile(r'^(عليه السلام|عليهم السلام|عليهما السلام|عليها السلام|صلى الله عليه وآله(?: وسلم)?)$')
+MARKS = re.compile(r'[\u064B-\u0652]')
+
+
+def honorifics(text, printed):
+    """Noor's text with each «ع» / «ص» that ablibrary's page has written out at the same place written out the same
+    way; and how many were."""
+    ours = [(m.start(), m.end(), MARKS.sub('', m.group())) for m in TOKEN.finditer(text)]
+    theirs = [MARKS.sub('', t) for t in TOKEN.findall(printed)]
+    changes = []
+    matcher = difflib.SequenceMatcher(None, [t for _, _, t in ours], theirs, autojunk=False)
+    for op, i1, i2, j1, j2 in matcher.get_opcodes():
+        if op != 'replace':
+            continue
+        short = [i for i in range(i1, i2) if ours[i][2] in ('ع', 'ص')]
+        if len(short) != 1:
+            continue
+        i = short[0]
+        # the words around the abbreviation must stand unchanged on both sides of it
+        before, after = ours[i1:i][::-1], ours[i + 1:i2]
+        words = theirs[j1:j2]
+        if len(words) < len(before) + len(after) + 2:
+            continue
+        if any(w[2] != words[k] for k, w in enumerate(ours[i1:i])) or \
+                any(w[2] != words[len(words) - len(after) + k] for k, w in enumerate(after)):
+            continue
+        phrase = ' '.join(words[i - i1:len(words) - len(after)])
+        m = HONORIFIC.match(phrase)
+        if not m or (ours[i][2] == 'ص') != m.group(1).startswith('صلى'):
+            continue
+        changes.append((ours[i][0], ours[i][1], m.group(1)))
+    for start, end, phrase in reversed(changes):
+        text = text[:start] + phrase + text[end:]
+    return text, len(changes)
+
+
 def ablibrary(directory, volume):
     path = Path(directory) / f'{volume:02d}.jsonl.gz'
     pages = {}
@@ -152,7 +195,7 @@ def main():
     for volume in map(int, args.volumes.split(',')):
         pages = volume_pages(db, volume)
         ab = ablibrary(args.ablibrary, volume) if args.ablibrary else {}
-        rows, seen, filled = [], set(), []
+        rows, seen, filled, written = [], set(), [], 0
         for label, text in pages:
             if not label.isdigit() or int(label) < 1 or label in seen:
                 continue
@@ -161,13 +204,16 @@ def main():
             if len(text) < 50 and len(ab.get(label, '')) > 200:
                 text, origin = ab[label], 'ablibrary'
                 filled.append(label)
+            elif label in ab:
+                text, n = honorifics(text, ab[label])
+                written += n
             if text:
                 rows.append({'page': int(label), 'label': label, 'text': text, 'origin': origin})
         with gzip.open(out / f'{volume:02d}.jsonl.gz', 'wt', encoding='utf-8') as f:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False) + '\n')
         print(f'v{volume}: {len(rows)} pages, {rows[0]["page"]}–{rows[-1]["page"]}; '
-              f'from ablibrary: {",".join(filled) or "-"}')
+              f'from ablibrary: {",".join(filled) or "-"}; honorifics written out: {written}')
 
 
 if __name__ == '__main__':
