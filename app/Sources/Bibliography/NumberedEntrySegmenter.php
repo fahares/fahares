@@ -11,10 +11,15 @@ use App\Console\Commands\MatchCatalogEditionCommand;
  * where a paragraph begins or the line before ended a sentence, so an incipit or a reference that happens to open a
  * line («( الحمد لله … )» after «أوله») is not taken for one. A paragraph «( 1 ) …» closing a page is a footnote of
  * the entry it stands under. Text before the volume's first entry (the preface, a letter's heading) is its own item.
+ * Vol 26 (the addenda) numbers an entry on a line of its own, «[ 469 ]», before «( بزم آرا ) …»; that is read as
+ * «( 469 : بزم آرا ) …». The texts are ablibrary's or Noor's (scripts/sources/noor_aqabozorg.py), in the same layout.
  */
 class NumberedEntrySegmenter
 {
     // a title may carry a footnote mark: «( 20 : الواجب في الاحكام اللواذب ( 1 ) )»
+    // vol 26: «[ 469 ]» on its own line, then the entry's «( title ) …»
+    private const BRACKETED = '/^\[\s*(\d{1,5})\s*\]\s*\n(?:\s*\n)?\s*\(\s*/mu';
+
     private const NUMBERED = '/^\(\s*(\d{1,5})\s*:\s*([^\d\s()](?:[^()]|\(\s*\d{1,2}\s*\))*?)\s*\)\s*/u';
 
     private const UNNUMBERED = '/^\(\s*([^\d\s()](?:[^()]|\(\s*\d{1,2}\s*\)){0,150}?)\s*\)\s*/u';
@@ -51,7 +56,8 @@ class NumberedEntrySegmenter
         };
 
         foreach ($pages as $page => $text) {
-            $paragraphs = preg_split('/\n\s*\n/u', trim(str_replace("\r", '', (string) $text)));
+            $text = preg_replace(self::BRACKETED, '( $1 : ', str_replace("\r", '', (string) $text));
+            $paragraphs = preg_split('/\n\s*\n/u', trim($text));
             // footnotes: the paragraphs closing the page that open with «( 1 )» or «1 -», never the page's first
             $footStart = count($paragraphs);
             for ($i = count($paragraphs) - 1; $i > 0; $i--) {

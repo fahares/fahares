@@ -89,4 +89,16 @@ class NumberedEntrySegmenterTest extends TestCase
         $this->assertStringContainsString('( 610 ) عن ماية', $items[0]['text']);
         $this->assertSame(4, $items[0]['page_end']);
     }
+
+    public function test_a_number_on_its_own_line_heads_the_entry_after_it_as_in_vol_26(): void
+    {
+        $items = $this->segment([
+            100 => "[ 469 ]\n\n( بزم آرا ) في تذكرة الشعراء ، هو بعينه \" لباب الألباب \" للعوفي .\n\n"
+                . "[ 470 ]\n\n( بزم وصال ) من مثنويات وصال الشيرازي ، نقل بعضه في \" مجمع الفصحاء \"\nج 2 ص 541 .",
+        ]);
+
+        $this->assertSame(['469', '470'], array_column($items, 'key'));
+        $this->assertSame([470, 'بزم وصال', 'entry'], [$items[1]['entry_number'], $items[1]['title'], $items[1]['kind']]);
+        $this->assertStringContainsString('نقل بعضه', $items[1]['text']);
+    }
 }

@@ -36,6 +36,7 @@ def strip(xml):
 # headings Noor gives a passage of its own, never printed
 NOOR_LABELS = {'بيان', 'مقدمة', 'المقدمة', 'تمهيد', 'تنبيه', 'فائدة', 'خاتمة', 'تذييل', 'تكملة'}
 JOIN = '\ue000'  # after a heading: it runs on with the paragraph that follows, as printed
+CLOSED = '\ue001'  # after a heading whose «)» Noor left in the paragraph that follows
 
 
 def plain(title):
@@ -53,15 +54,21 @@ def heading(title, following):
     before «1450: تحفه الأبرار»). Other bracketed headings are printed ones («( بحر الأنساب )»)."""
     if not title or re.search(r'ص \d+\s*-', title):
         return ''
+    m = re.match(r'^\[\s*(\d+)\s*\]\s*\((.*)\)$', title, re.S)
+    if m:  # vol 26 numbers an entry on a line of its own: «[ 469 ]», then «( بزم آرا ) …»
+        return f'\n[ {m.group(1)} ]\n\n( {m.group(2).strip()} )' + JOIN
     if title.startswith('['):
         inner = title.strip('[] ')
         if inner in NOOR_LABELS or (following is not None and bare(following).startswith(bare(inner))):
             return ''
         title = inner
+    # «749: نسخه الرضا (ع» with «)» opening the next paragraph: the parenthesis is closed here
+    closed = title.count('(') > title.count(')')
+    title += ')' * (title.count('(') - title.count(')')) if closed else ''
     # the print quotes a title inside a title («" صنائع الأسحار "»), where Noor has parentheses
     title = re.sub(r'\(([^\d()][^()]*)\)', r'" \1 "', title)
     m = NUMBERED.match(title)
-    return '\n' + (f'( {m.group(1)} : {m.group(2)} )' if m else f'( {title} )') + JOIN
+    return '\n' + (f'( {m.group(1)} : {m.group(2)} )' if m else f'( {title} )') + (CLOSED if closed else '') + JOIN
 
 
 def headings(xml):
@@ -80,6 +87,7 @@ def tidy(text):
     text = re.sub(r'\([^()\n]*ص \d+\s*-[^()\n]*ص \d+\s*\)', '', text)
     # Noor's «\» between words, where the print has a space
     text = text.replace('\\', ' ')
+    text = re.sub(CLOSED + JOIN + r'(\s*)\)', JOIN + r'\1', text).replace(CLOSED, '')
     # a heading and the first line of its paragraph make one line, unless an entry heading comes next
     text = re.sub(JOIN + r'\s*(?!\(\s*\d+\s*:)(?=[^\s' + JOIN + '])', ' ', text).replace(JOIN, '\n')
     paragraphs = []
