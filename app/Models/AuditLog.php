@@ -51,6 +51,9 @@ class AuditLog extends Model
         SiteSetting::class => 'تنظیمات سایت',
         User::class => 'کاربر',
         Role::class => 'نقش',
+        // Operations of the system page, logged without a model
+        'System' => 'سامانه',
+        'Meilisearch' => 'نمایه‌ی جستجو',
     ];
 
     protected function casts(): array

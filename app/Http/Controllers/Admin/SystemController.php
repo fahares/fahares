@@ -21,7 +21,7 @@ class SystemController extends Controller
             'queue_connection' => config('queue.default'),
             'scout_driver' => config('scout.driver'),
             'app_env' => config('app.env'),
-            'app_debug' => config('app.debug') ? 'روشن (Debug On)' : 'خاموش (Debug Off)',
+            'app_debug' => config('app.debug') ? 'روشن' : 'خاموش',
         ];
 
         // Meilisearch Index Stats
@@ -61,7 +61,7 @@ class SystemController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        return back()->with('success', 'حافظه‌های موقت (Cache, Views, Routes) با موفقیت پاکسازی شدند.');
+        return back()->with('success', 'کش برنامه، قالب‌ها و مسیرها پاک شد.');
     }
 
     public function reindex(Request $request)
@@ -70,10 +70,10 @@ class SystemController extends Controller
 
         if ($model === 'Work') {
             Artisan::queue('scout:import', ['model' => 'App\Models\Work']);
-            $msg = 'عملیات بازنمایه‌سازی آثار (Works) در صف پردازش پس‌زمینه قرار گرفت.';
+            $msg = 'بازنمایه‌سازی آثار در صف کارهای پس‌زمینه قرار گرفت.';
         } elseif ($model === 'Manuscript') {
             Artisan::queue('scout:import', ['model' => 'App\Models\Manuscript']);
-            $msg = 'عملیات بازنمایه‌سازی نسخه‌ها (Manuscripts) در صف پردازش پس‌زمینه قرار گرفت.';
+            $msg = 'بازنمایه‌سازی نسخه‌ها در صف کارهای پس‌زمینه قرار گرفت.';
         } else {
             return back()->with('error', 'مدل انتخابی معتبر نیست.');
         }
