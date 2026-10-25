@@ -1,7 +1,7 @@
 {{-- Readings of the record's fields from approved suggestions (shared by the record page, see AppServiceProvider and SuggestionReadings) --}}
 @php $readings = $suggestionReadings ?? collect(); @endphp
 @if($readings->isNotEmpty())
-    <x-ui.section id="suggestion-readings" title="اقوال و اصلاحات پژوهشگران">
+    <x-ui.section id="suggestion-readings" title="اقوال، اصلاحات و تعلیقات">
         <div class="space-y-5">
 
         @foreach($readings as $r)

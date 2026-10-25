@@ -7,7 +7,7 @@
 @php
     $fa = fn ($v) => \App\Support\Fa::digits($v);
     $kind = request('kind');
-    $kindLabels = ['field' => 'اصلاح فیلد و کلی', 'relation' => 'پیشنهاد ساختاری', 'note' => 'یادداشت پژوهشی', 'feedback' => 'گزارش اشکال سایت'];
+    $kindLabels = ['field' => 'اصلاح فیلد و کلی', 'relation' => 'پیشنهاد ساختاری', 'note' => 'یادداشت پژوهشی', 'feedback' => 'گزارش اشکال سایت', 'collective' => config('contributions.review_title')];
     $statusTabs = [];
     foreach (['pending' => 'در انتظار', 'approved' => 'تأییدشده', 'rejected' => 'ردشده', 'all' => 'همه'] as $key => $label) {
         $statusTabs[] = ['label' => $label, 'url' => route('admin.suggestions.index', array_filter(['status' => $key, 'type' => $type, 'kind' => $kind])),
@@ -63,7 +63,17 @@
                 <x-ui.chip :tone="$sug->kind === 'relation' ? 'accent' : 'default'" title="{{ $sug->field_name }}">{{ $sug->field_label }}</x-ui.chip>
             </x-admin.cell>
             <x-admin.cell label="مقدار" class="md:max-w-xs">
-                <span class="text-ink" title="{{ $sug->suggested_value }}">{{ \Illuminate\Support\Str::limit($sug->suggested_value, 70) ?: '—' }}</span>
+                @if($sug->review_queue && ($queue = \App\Review\CollectiveReview::queue($sug->review_queue)))
+                    {{-- An answer of «تصحیح جمعی»: what it says, and how the opinions on its item stand (backlog item 80) --}}
+                    <span class="text-ink">{{ $queue->describe($sug) }}</span>
+                    @if($item = $opinions[$sug->review_queue . ':' . $sug->review_item_id] ?? null)
+                        <span class="block mt-1 text-[11px] text-muted">{{ config('contributions.review_title') }}:
+                            @foreach($item['answers'] as $a){{ $loop->first ? '' : '؛ ' }}{{ \App\Support\Fa::num($a['count']) }} «{{ \Illuminate\Support\Str::limit($a['label'], 30) }}» (وزن {{ \App\Support\Fa::num($a['weight']) }})@endforeach
+                        </span>
+                    @endif
+                @else
+                    <span class="text-ink" title="{{ $sug->suggested_value }}">{{ \Illuminate\Support\Str::limit($sug->suggested_value, 70) ?: '—' }}</span>
+                @endif
             </x-admin.cell>
             <x-admin.cell label="از">
                 <span class="inline-flex items-center gap-1.5 align-middle">

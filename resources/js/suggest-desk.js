@@ -20,8 +20,8 @@ export default (config) => ({
     targetResults: [],
     target: null,
     targetTimer: null,
-    // Opt-in: the name shown beside the correction on the record page once approved
-    creditOn: false,
+    // The name shown beside the correction once approved: on by default, the submitter may untick it
+    creditOn: true,
     creditName: '',
     // A person connected with the copy (relation person_role)
     roleKey: '',
@@ -149,6 +149,7 @@ export default (config) => ({
             this.field = { name: detail.field, ...this.config.fields[detail.field] };
             this.value = this.field.prefill;
         }
+        this.toggleCredit();
         this.restoreDraft();
         if (!this.config.signedIn) {
             // Keeps e.g. the reference a «گزارش نشانی نادرست» starts with, for the form opened after signing in
@@ -162,7 +163,7 @@ export default (config) => ({
 
     toggleCredit() {
         // Start from the submitter's own name the first time the box is ticked
-        if (this.creditOn && !this.creditName.trim()) this.creditName = this.config.userName || '';
+        if (this.creditOn && !this.creditName.trim()) this.creditName = this.config.creditName || this.config.userName || '';
     },
 
     close() {

@@ -9,6 +9,7 @@ use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Models\Manuscript;
 use App\Notifications\SuggestionNotifier;
+use App\Review\CollectiveReview;
 use App\Suggestions\RecordMerger;
 use App\Suggestions\NoteTypes;
 use App\Suggestions\RelationInput;
@@ -46,8 +47,22 @@ class SuggestionController extends Controller
         if (in_array($kind, ['field', 'relation', 'note', 'feedback'], true)) {
             $query->whereIn('kind', $kind === 'field' ? ['field', 'general'] : [$kind]);
         }
+        // The answers of «تصحیح جمعی» (backlog item 80)
+        if ($kind === 'collective') {
+            $query->whereNotNull('field_suggestions.review_queue');
+        }
 
-        $suggestions = $query->latest('id')->paginate(20)->withQueryString();
+        // Agreeing opinions of «تصحیح جمعی» move their item up: by the weight of its best-supported answer (any other
+        // suggestion counts as one), the opinions on one item together, newest first
+        if ($status === 'pending') {
+            $query->leftJoinSub(CollectiveReview::agreement(), 'agreement', fn ($j) => $j->on('agreement.review_queue', '=', 'field_suggestions.review_queue')
+                ->on('agreement.review_item_id', '=', 'field_suggestions.review_item_id'))
+                ->select('field_suggestions.*')
+                ->orderByRaw('COALESCE(agreement.agreement, 1) DESC')
+                ->orderByRaw('field_suggestions.review_queue IS NULL, field_suggestions.review_queue, field_suggestions.review_item_id');
+        }
+        $suggestions = $query->latest('field_suggestions.id')->paginate(20)->withQueryString();
+        $opinions = CollectiveReview::opinionsFor($suggestions->getCollection());
 
         $stats = [
             'pending' => FieldSuggestion::where('status', 'pending')->count(),
@@ -56,7 +71,7 @@ class SuggestionController extends Controller
             'total' => FieldSuggestion::count(),
         ];
 
-        return view('admin.suggestions.index', compact('suggestions', 'stats', 'status', 'type'));
+        return view('admin.suggestions.index', compact('suggestions', 'stats', 'status', 'type', 'opinions'));
     }
 
     public function show(FieldSuggestion $suggestion)
@@ -103,6 +118,11 @@ class SuggestionController extends Controller
         // An alternative reading can later be adopted; anything else is reviewed once
         $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative';
         abort_unless($suggestion->status === 'pending' || $promoting, 409, 'این پیشنهاد پیش‌تر داوری شده است.');
+
+        // An answer of «تصحیح جمعی» on people is decided with its item in the panel's queue, which settles it
+        if (in_array($suggestion->review_queue, CollectiveReview::DECIDED_IN_QUEUE, true)) {
+            return back()->withErrors(['applied_value' => 'درباره‌ی این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
+        }
 
         if ($suggestion->kind === 'relation') {
             $this->authorizeTool($request, $suggestion);
@@ -208,6 +228,11 @@ class SuggestionController extends Controller
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
                 ]);
+
+                // An answer of «تصحیح جمعی» decides its item: the other opinions on it are settled with it (backlog item 80)
+                if ($suggestion->review_queue && $standing !== 'alternative') {
+                    CollectiveReview::settle($suggestion->review_queue, (int) $suggestion->review_item_id, (string) $suggestion->review_answer, $request->user(), $suggestion->id);
+                }
             });
         } catch (InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);

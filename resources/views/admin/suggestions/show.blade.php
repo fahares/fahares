@@ -158,6 +158,8 @@
         @endif
     </div>
 
+    @includeWhen($suggestion->review_queue, 'admin.suggestions.partials.collective')
+
     <x-ui.card class="space-y-2">
         <h3 class="rubric text-base">مستند و منبع پژوهشگر</h3>
         <div class="whitespace-pre-line leading-7 text-ink">{{ $suggestion->rationale_citation ?: '— مستندی ذکر نشده است —' }}</div>
@@ -172,7 +174,13 @@
                 <h3 class="rubric text-base !text-emerald-800 dark:!text-emerald-300">{{ $relation ? $relation['action'] : ($promoting ? 'انتخاب این «قول دیگر» به‌عنوان مقدار منتخب' : ($field ? 'تأیید و اعمال اصلاحیه در پایگاه داده' : 'رسیدگی به پیشنهاد')) }}</h3>
 
                 @php $toolPermission = $relation ? (\App\Auth\Permissions::FOR_APPLY[$relation['apply'] ?? ''] ?? null) : null; @endphp
-                @if($toolPermission && ! auth()->user()->can($toolPermission))
+                @if(in_array($suggestion->review_queue, \App\Review\CollectiveReview::DECIDED_IN_QUEUE, true))
+                    {{-- People are merged or kept apart in the panel's queue, which settles every answer on the item --}}
+                    <x-admin.notice>
+                        این پاسخی در «{{ config('contributions.review_title') }}» است. درباره‌ی این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ همه‌ی پاسخ‌های آن با همان تصمیم بسته می‌شوند.
+                        <a href="{{ \App\Review\CollectiveReview::queue($suggestion->review_queue)->reviewUrl((int) $suggestion->review_item_id) }}" class="text-cinnabar font-bold hover:underline">رفتن به مورد</a>
+                    </x-admin.notice>
+                @elseif($toolPermission && ! auth()->user()->can($toolPermission))
                     <x-admin.notice>
                         اجرای «{{ \App\Auth\Permissions::label($toolPermission) }}» برای نقش شما مجاز نیست. داوری این پیشنهاد با مدیر کل است؛ می‌توانید آن را رد کنید یا یادداشت بگذارید.
                     </x-admin.notice>

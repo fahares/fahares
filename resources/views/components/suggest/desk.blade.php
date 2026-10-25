@@ -45,6 +45,7 @@
         }])->values(),
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
+        'creditName' => auth()->user() ? \App\Models\FieldSuggestion::creditNameFor(auth()->user()) : null,
         // Guests get a sign-in dialog instead of the form (backlog item 76); the name is published once the email is verified
         'signedIn' => auth()->check(),
         'verified' => (bool) auth()->user()?->hasVerifiedEmail(),

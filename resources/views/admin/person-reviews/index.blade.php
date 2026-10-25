@@ -68,7 +68,7 @@
             $targetId = $suggestion['target_id'] ?? ($review->person_ids[0] ?? null);
             $members = collect($review->person_ids)->map(fn ($id) => $people[$id] ?? null)->filter();
         @endphp
-        <article class="bg-surface rounded-2xl border border-line shadow-xs p-4 sm:p-5 space-y-3">
+        <article id="person-review-{{ $review->id }}" class="bg-surface rounded-2xl border border-line shadow-xs p-4 sm:p-5 space-y-3 scroll-mt-20">
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <div class="flex flex-wrap items-baseline gap-2 text-xs">
                     <span class="text-muted tabular-nums">#{{ $review->id }}</span>
@@ -96,9 +96,26 @@
             @if($review->note)
                 <div class="text-xs text-muted">یادداشت: {{ $review->note }}</div>
             @endif
+            @if($item = $opinions[$queue . ':' . $review->id] ?? null)
+                {{-- What the researchers of «تصحیح جمعی» answered (backlog item 80); deciding here settles their answers --}}
+                <div class="text-xs rounded-xl bg-paper border border-line px-3 py-2 leading-6" data-collective-opinions>
+                    <b>{{ config('contributions.review_title') }}:</b>
+                    @foreach($item['answers'] as $a){{ $loop->first ? '' : '؛ ' }}{{ \App\Support\Fa::num($a['count']) }} نفر «{{ $a['label'] }}» (وزن {{ \App\Support\Fa::num($a['weight']) }})@endforeach
+                    @foreach($item['answers'] as $a)
+                        @foreach($a['opinions'] as $o)
+                            @if($o->rationale_citation)<span class="block text-muted">{{ $o->user?->name }}: {{ \Illuminate\Support\Str::limit($o->rationale_citation, 200) }}</span>@endif
+                        @endforeach
+                    @endforeach
+                </div>
+            @endif
 
             @if($isMixed)
-                @php $m = $members->first(); @endphp
+                @php
+                    $m = $members->first();
+                    // how many researchers of «تصحیح جمعی» marked each copy as another scribe's
+                    $markedBy = collect($item['answers'] ?? [])->where('answer', 'split')->flatMap(fn ($a) => $a['opinions'])
+                        ->flatMap(fn ($o) => $o->payload['manuscript_ids'] ?? [])->countBy();
+                @endphp
                 @if($m)
                     <form method="POST" action="{{ route('admin.person-reviews.split', $review) }}" class="space-y-3">
                         @csrf
@@ -117,7 +134,7 @@
                                         <tr class="hover:bg-paper">
                                             <td class="p-2"><input type="checkbox" name="manuscript_ids[]" value="{{ $copy->id }}" id="r{{ $review->id }}-m{{ $copy->id }}" class="accent-emerald-600" @checked(in_array($copy->id, old('manuscript_ids', [])))></td>
                                             <td class="p-2 tabular-nums whitespace-nowrap"><label for="r{{ $review->id }}-m{{ $copy->id }}">{{ $copy->year ? $copy->year . 'ق' : '—' }}</label></td>
-                                            <td class="p-2"><a href="{{ route('manuscripts.permalink', $copy->id) }}" target="_blank" class="hover:text-cinnabar">{{ $copy->title }}</a></td>
+                                            <td class="p-2"><a href="{{ route('manuscripts.permalink', $copy->id) }}" target="_blank" class="hover:text-cinnabar">{{ $copy->title }}</a>@if($markedBy[$copy->id] ?? 0) <span class="ms-1 px-1.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[10px] whitespace-nowrap">کاتب دیگر به نظر {{ \App\Support\Fa::num($markedBy[$copy->id]) }} پژوهشگر</span>@endif</td>
                                             <td class="p-2 text-muted">{{ $copy->city }}، {{ $copy->library }} {{ $copy->shelfmark }}</td>
                                             <td class="p-2 text-muted">{{ $copy->scribe_name }}</td>
                                         </tr>

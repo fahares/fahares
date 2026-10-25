@@ -35,6 +35,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\MySuggestionsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ContributionsController;
+use App\Http\Controllers\ContributeController;
 use App\Http\Controllers\NoteFileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuggestionController;
@@ -96,6 +97,20 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 // Approved corrections, site-wide and per credited researcher (backlog item 63)
 Route::get('/contributions', [ContributionsController::class, 'index'])->name('contributions.index');
 Route::get('/contributors/{user}', [ContributionsController::class, 'show'])->whereNumber('user')->name('contributors.show');
+
+// «تصحیح جمعی» (backlog item 80): the panel's review queues answered by researchers, one card at a time. The section's
+// title lives in config/contributions.php and never in these addresses. Anyone may look; answering needs an account.
+Route::get('/contribute', [ContributeController::class, 'index'])->name('contribute.index');
+Route::get('/contribute/{queue}', [ContributeController::class, 'next'])->where('queue', '[a-z]+')->name('contribute.next');
+Route::get('/contribute/{queue}/{item}', [ContributeController::class, 'show'])->where('queue', '[a-z]+')->whereNumber('item')->name('contribute.show');
+Route::post('/contribute/{queue}/{item}/skip', [ContributeController::class, 'skip'])->where('queue', '[a-z]+')->whereNumber('item')
+    ->middleware('throttle:120,10')->name('contribute.skip');
+Route::middleware('auth')->group(function () {
+    // the way in for a guest: sign in, then back to the same card
+    Route::get('/contribute/{queue}/{item}/sign-in', [ContributeController::class, 'signIn'])->where('queue', '[a-z]+')->whereNumber('item')->name('contribute.sign-in');
+    Route::post('/contribute/{queue}/{item}', [ContributeController::class, 'answer'])->where('queue', '[a-z]+')->whereNumber('item')
+        ->middleware('throttle:40,10')->name('contribute.answer');
+});
 
 // Field Suggestions (Crowdsourced corrections); signed-in users only (backlog item 76), which covers research notes and links
 Route::post('/suggestions', [SuggestionController::class, 'store'])

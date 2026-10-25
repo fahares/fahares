@@ -3795,3 +3795,57 @@
   - دکمه‌ها `x-ui.btn` شدند و `number_format` جای خود را به `Fa::num` داد. منطق و تأیید فرم تغییری نکرد.
 - **وارسی:** هر پنج صفحه با کد worktree و داده‌ی `fahares_db` به HTML ساخته شدند. شخص پرکار، کتابخانه‌ی رضوی، نخستین فهرست‌نگار و یک کاربر غیرمدیر به کار رفتند. عرض‌های ۱۲۸۰ و ۳۷۵ وارسی شد. انتخاب پرونده با `DataTransfer` شبیه‌سازی شد و نام «نشان-رضوی.png» نمایش داده شد. کل مجموعه: ۲۷۵ آزمون موفق.
 - **مانده:** ورودی‌های عددی (`type=number`) ارقام را به زبان مرورگر نشان می‌دهند. این رفتار خود مرورگر است و تغییر داده نشد.
+
+### گام ۱۳.۱۸: [admin/subjects](../resources/views/admin/subjects/) (مورد ۶۵، بند ۵)
+- **فهرست:**
+  - `x-admin.filters` و `x-admin.table` به کار رفتند.
+  - کنش‌ها در `page_actions` هستند. «ادغام موضوعات» و دکمه‌ی ادغام هر سطر زیر `@can('subjects.merge')` آمدند.
+  - شاخه‌ی بالاتر با `x-ui.chip` نشان داده می‌شود، و برای شاخه‌ی اصلی `text-gold`. ایموجی 🔄 برداشته شد.
+- **درخت:**
+  - هر شاخه‌ی اصلی یک `<section x-data="{ open: true }">` است که به رویداد `tree-toggle.window` گوش می‌دهد. دکمه‌های «باز کردن همه» و «بستن همه» با `$dispatch('tree-toggle', true|false)` آن را می‌فرستند.
+  - زیرشاخه‌ها فهرست `.leader` با شمار آثار هستند و پیوند ویرایش دارند.
+  - شمار ثابت «۱۲۹» با `$rootSubjects->count()` و شمار فرزندان جایگزین شد.
+- **ادغام:** راهنما با `x-admin.notice` نشان داده می‌شود و با بازگردانی `AuditLogController` (شاخه‌ی Subject در `rollback`) می‌خواند. پیش از این، متن «قابل بازگشت نیست» نادرست بود. نام فیلدها (`source_subject_id` و `target_subject_id`) تغییری نکرد.
+- **ساخت و ویرایش:** فیلدهای مشترک در [partials/fields](../resources/views/admin/subjects/partials/fields.blade.php) با `$subject` یا `null` هستند. کنش‌ها `x-admin.form-actions` هستند.
+- **آزمون:** `test_subject_pages_render_in_persian_and_say_a_merge_can_be_undone` در AdminListsTest این‌ها را می‌سنجد:
+  - پنج صفحه بی عنوان انگلیسی و بی `rounded-2xl` هستند.
+  - درخت ریشه و فرزند را نشان می‌دهد و «۱۲۹ موضوع» را ندارد.
+  - صفحه‌ی ادغام «بازگرداندنی» را دارد.
+
+  کل مجموعه: ۲۷۶ آزمون موفق.
+- **وارسی:** صفحه‌ها با داده‌ی `fahares_db` (۲۲ شاخه‌ی اصلی و ۱۳۹ موضوع) به HTML ساخته و در عرض ۱۲۸۰ و ۳۷۵ دیده شدند.
+  - درگاه ۸۰۱۳ را برنامه‌ی دیگری گرفته بود و به آن دست زده نشد. پیش‌نمایش به ۸۰۱۴ رفت.
+  - **دام وارسی:** وقتی پنجره‌ی مرورگر داخلی پنهان است، `requestAnimationFrame` اجرا نمی‌شود و `x-show` در Alpine اثر نمی‌کند. صفحه شکسته به نظر می‌رسد، در حالی که کد درست است. با جایگزین `requestAnimationFrame = cb => setTimeout(cb)` این رفتار سنجیده شد: پس از «بستن همه» از ۲۲ شاخه ۰ باز ماند، با یک کلیک ۱ باز شد، و پس از «باز کردن همه» ۲۲ شاخه باز بودند.
+
+### گام ۱۳.۱۹: «تصحیح جمعی» (مورد ۸۰)
+- **ساختار:** ساختار تازه‌ای کنار پیشنهادها ساخته نشد. مهاجرت `2026_10_24_500001` سه ستون به `field_suggestions` افزود: `review_queue`، `review_item_id` و `review_answer` (شکل مقایسه‌پذیر پاسخ، مثلاً `yes`، `no` یا `page:ج ۲، ص ۴۵`)، با نمایه‌ی `(review_queue, review_item_id, status)`.
+- **کلاس‌ها:** [ReviewQueue](../app/Review/ReviewQueue.php) قرارداد هر صف است: موردهای باز، فیلترها، داده‌ی کارت، پاسخ‌ها، ستون‌های پیشنهاد و توصیف یک پاسخ. [CatalogMatchQueue](../app/Review/CatalogMatchQueue.php) نخستین صف است. [CollectiveReview](../app/Review/CollectiveReview.php) فهرست صف‌ها (`QUEUES`)، وزن (`SCHOLAR_WEIGHT = 2`)، آستانه (`ENOUGH = 3`)، `agreement()`، `next()`، `answer()`، `settle()` و `opinionsFor()` را دارد. صف آینده با یک کلاس و یک نمای `contribute/cards/{key}` افزوده می‌شود.
+- **پاسخ نشانی فهرست:** پیشنهاد `field` روی `source_entry_{id}` است: «آری» نشانی کنونی را می‌فرستد، «نه» مقدار `نیست` را، و «صفحه‌ی دیگر» نشانی تازه را («۴۵» یعنی همان جلد).
+- **تغییر در اعمال:** `SuggestionApplier::applySourceEntry` نشانی تأییدشده در همان صفحه را دیگر `manual` نمی‌کند. فقط `status` آن `verified` می‌شود و `origin = match` می‌ماند.
+- **بستن نظرها:** `settle()` در سه جا صدا زده می‌شود: `SourceEntry::review` (صف پنل و نشان ⓘ)، `SourceEntry::bulkVerify` (برای شناسه‌هایی که پاسخ دارند) و `Admin\SuggestionController::approve` (جز «قول دیگر»). پاسخ‌های بسته‌شده `resolution.collective = true` و `standing = null` دارند. `Contributions::summary` آن‌ها را با توصیف صف نشان می‌دهد، نه به‌صورت «پیشین → تازه».
+- **میز داوری:** در وضع «در انتظار» با `leftJoinSub(agreement)` مرتب می‌شود: `COALESCE(agreement, 1) DESC` و سپس پاسخ‌های یک مورد کنار هم. نمای [collective.blade.php](../resources/views/admin/suggestions/partials/collective.blade.php) نظرها را کنار هم نشان می‌دهد.
+- **مسیرها:** `contribute.index` (رفتن به `#review`)، `contribute.next`، `contribute.show`، `contribute.skip` (موردهای ردشده در نشست) و با `auth`، `contribute.sign-in` و `contribute.answer` (`throttle:40,10`). کنترلر: [ContributeController](../app/Http/Controllers/ContributeController.php).
+- **آزمون:** [CollectiveReviewTest](../tests/Feature/CollectiveReviewTest.php)، ۹ آزمون: تغییر نام و بخش، مهمان، بی‌اثری پاسخ (بی لاگ ممیزی) و جایگزینی، ترتیب صف و آستانه، ترتیب و نمای میز، بستن با تصمیم صف، تأیید از میز، دسترسی، و محدودیت نرخ. از worktree با `docker run` از image `fahares-app` و پایگاه جدای `fahares_c80_test` اجرا شد.
+- **وارسی:** رونوشت `fahares_refs` در `fahares_c80` (http://localhost:8013) با حساب‌های آزمایشی محلی. ۶٬۱۲۳ مورد مانده بود.
+
+### گام ۱۳.۲۰: کارت کامل‌تر و درج نام پیش‌فرض (مورد ۸۰)
+- **کارت:** `CatalogMatchQueue::card()` کلید `quotes` را دارد: نخستین مورد `incipits_list` و `explicits_list`، بی متن جانشین «برابر» (`is_placeholder`) و بی نشانه‌ی `<!-- page -->`. در `facts` هم `script_names`، `lines` و `dimensions` آمده است.
+- **نام:** `FieldSuggestion::creditNameFor(User)` آخرین `credit_name` کاربر را برمی‌گرداند، و اگر نباشد نام حساب را. هم `ContributeController` از آن استفاده می‌کند و هم پیکربندی `creditName` در `x-suggest.desk`.
+  - در [suggest-desk.js](../resources/js/suggest-desk.js)، `creditOn` به‌طور پیش‌فرض `true` است و `start()` با `toggleCredit()` نام را پر می‌کند. هنگام ارسال، اگر کادر نام خالی باشد `guestName` فرستاده می‌شود. کادر نام برای مهمانی که نامش را نوشته الزامی نیست.
+  - در «تصحیح جمعی» پیش‌فرض `session('contribute.credit', true)` است.
+- **آزمون:** `test_the_card_shows_the_opening_and_closing_words_and_credits_by_default`. کل مجموعه ۲۸۵ آزمون موفق است.
+
+### گام ۱۳.۲۱: صف‌های اشخاص در «تصحیح جمعی» و نوار خانه (مورد ۸۰)
+- **کلاس‌ها:** [PersonQueue](../app/Review/PersonQueue.php) پایه‌ی دو صف است. موردها ردیف‌های `PersonReview` با وضع `open` یا `deferred` هستند. فیلتر سده با `JSON_CONTAINS(person_reviews.person_ids, CAST(people.id AS JSON))` کار می‌کند. [NamesakeQueue](../app/Review/NamesakeQueue.php) (`namesake`) و [MixedRecordQueue](../app/Review/MixedRecordQueue.php) (`mixed`) دو صف‌اند. `profiles()` از `PersonReviewController` به `App\Services\PersonReviewQueue` رفت و هر دو از آن استفاده می‌کنند.
+- **پاسخ‌ها:**
+  - `same` و `some:{ids}`: relation `duplicate` روی کوچک‌ترین شناسه، با `payload.target_id` و `merge_ids`.
+  - `distinct`: relation `namesakes_apart`.
+  - `split`: relation `conflated` با `payload.manuscript_ids` (فقط نسخه‌های کارت، حداکثر ۲۰۰) و `name`.
+  - `one`: relation `one_person`.
+- **نوع‌های ویژه‌ی صف:** `SuggestionRegistry::QUEUE_RELATIONS` با `apply = queue` و `queue_only`. `relation()` آن‌ها را می‌یابد، ولی فرم‌ها فقط `RELATIONS` را می‌خوانند و `RelationInput::validate` آن‌ها را رد می‌کند.
+- **پاسخ‌های چندمرحله‌ای:** `ReviewQueue::detailed()` پاسخ‌هایی را نام می‌برد که مرحله‌ی دوم دارند: catalog `page`، namesake `some` و mixed `split`. دکمه‌ی آن‌ها پنل `contribute/details/{key}-{answer}` را باز می‌کند. کادرهای کارت با `form="review-answer"` به فرم می‌پیوندند، و `x-data` روی کارت است تا کارت و فرم یک وضعیت داشته باشند. کلید `hide` در داده‌ی کارت پاسخی را پنهان می‌کند، مثلاً «برخی» در گروه دوتایی.
+- **بستن:** `PersonReviewController::decide` با `NamesakeQueue::decision()` (merged → `same` یا `some:{ids}`؛ distinct → `distinct`) و `MixedRecordQueue::decision()` (split → `split`؛ dismissed → `one`) `settle()` را صدا می‌زند. `CollectiveReview::DECIDED_IN_QUEUE` تأیید این پاسخ‌ها را در `approve()` میز داوری می‌بندد و `show` به‌جای فرم، پیوند مورد را نشان می‌دهد.
+- **صف پنل:** در نمای «در انتظار» با `leftJoinSub(agreement)` مرتب می‌شود. `CollectiveReview::opinionsOn()` نظرها را می‌آورد و بخش `data-collective-opinions` و نشان «کاتب دیگر به نظر n پژوهشگر» روی نسخه‌ها را می‌سازد. هر مورد `id="person-review-{id}"` دارد.
+- **خانه:** `HomeController::contributions()` (کش ۱۰ دقیقه، کلید `home.contributions`) شمار اصلاحات عمومی، پژوهشگران، تازه‌ترین خلاصه و جمع `waiting` صف‌ها را می‌سازد. نوار `data-home-contributions` در [home.blade.php](../resources/views/home.blade.php) است.
+- **آزمون:** سه آزمون تازه در CollectiveReviewTest: هم‌نام‌ها (خطای «همه را برگزیده‌اید»، بی‌ادغامی، مسدود بودن تأیید در میز، نمایش در صف پنل، بستن با «چند نفرند»، رد شدن `namesakes_apart` از فرم عمومی)؛ رکورد قاطی‌شده (علامت نسخه‌ها، جابه‌جا نشدن نسخه، نشان در پنل، بستن با «یک نفر است»)؛ و نوار خانه. کل مجموعه: ۲۸۸ آزمون موفق. مسیر ادغام واقعی در این آزمون‌ها نیست، فقط نگاشت `decision()` آن.
+

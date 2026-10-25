@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Review\CollectiveReview;
 use App\Suggestions\Contributions;
 use App\Suggestions\SuggestionRegistry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * «اصلاحات پژوهشگران» (backlog item 63): the approved corrections of the whole site, newest first, and
+ * «اصلاحات و تعلیقات», config('contributions.title') (backlog items 63 and 80): the approved corrections of the whole site, newest first, and
  * the page of each researcher who let their name be shown. What is public is decided by Contributions.
  */
 class ContributionsController extends Controller
@@ -36,6 +38,7 @@ class ContributionsController extends Controller
         return view('contributions.index', [
             'items' => $this->page($query),
             'stats' => $stats,
+            'review' => $this->review($request),
             'researchers' => $this->researchers(),
             'filters' => $filters,
             'researcher' => null,
@@ -53,6 +56,7 @@ class ContributionsController extends Controller
         return view('contributions.index', [
             'items' => $this->page($this->filtered(clone $credited, $filters)),
             'stats' => null,
+            'review' => null,
             'researchers' => collect(),
             'filters' => $filters,
             'researcher' => [
@@ -63,6 +67,17 @@ class ContributionsController extends Controller
                 'first' => (clone $credited)->min('reviewed_at'),
             ],
         ]);
+    }
+
+    /** «تصحیح جمعی» (backlog item 80): each queue with what is left, and the signed-in researcher's share. */
+    private function review(Request $request): array
+    {
+        $counts = Cache::remember('collective-review.counts', 300, fn () => CollectiveReview::counts());
+
+        return [
+            'queues' => CollectiveReview::queues()->map(fn ($queue, $key) => ['queue' => $queue] + ($counts[$key] ?? ['open' => 0, 'waiting' => 0]))->all(),
+            'mine' => $request->user() ? CollectiveReview::contributionsOf($request->user()) : null,
+        ];
     }
 
     private function filters(Request $request): array

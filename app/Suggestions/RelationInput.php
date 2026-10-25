@@ -21,7 +21,7 @@ class RelationInput
     public static function validate(string $type, Model $record, array $input): array
     {
         $relation = SuggestionRegistry::relation($type, $input['field_name'] ?? null);
-        if (! $relation) {
+        if (! $relation || ! empty($relation['queue_only'])) {
             throw ValidationException::withMessages(['field_name' => 'این نوع پیشنهاد برای این رکورد تعریف نشده است.']);
         }
         $apply = $relation['apply'] ?? null;

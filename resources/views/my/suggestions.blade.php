@@ -27,7 +27,7 @@
             <a href="{{ route('profile') }}" title="تصویر کاربر"><x-ui.avatar :user="auth()->user()" size="lg" /></a>
             <div class="min-w-0">
                 <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">پیشنهادهای من</h1>
-                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشده‌ی همه‌ی پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">اصلاحات پژوهشگران</a> آمده است.</p>
+                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشده‌ی همه‌ی پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">{{ config('contributions.title') }}</a> آمده است.</p>
             </div>
         </div>
         <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
