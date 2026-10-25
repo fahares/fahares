@@ -185,6 +185,28 @@ class SignedInSuggestionsTest extends TestCase
         $this->get("/admin/users/{$user->id}/edit")->assertOk()->assertSee('+989121234567');
     }
 
+    public function test_existing_users_with_a_latin_name_are_asked_for_a_persian_one_until_they_change_or_keep_it()
+    {
+        $bar = 'data-persian-name-bar';
+        $latin = $this->user(['name' => 'Ali Rezaei']);
+        $this->actingAs($latin)->get('/')->assertOk()->assertSee($bar, false)->assertSee('Ali Rezaei');
+        $this->get('/settings/profile')->assertOk()->assertDontSee($bar, false);
+
+        // Writing it in Persian ends the request; so does keeping it
+        $this->post('/settings/profile', ['name' => 'علی رضایی'])->assertSessionHas('success');
+        $this->get('/')->assertDontSee($bar, false);
+
+        $abroad = $this->user(['name' => 'John Smith']);
+        $this->actingAs($abroad)->post('/settings/profile/keep-name')->assertSessionHas('success');
+        $this->assertNotNull($abroad->fresh()->name_kept_at);
+        $this->get('/')->assertDontSee($bar, false);
+
+        // A Persian name, or a guest, never sees it
+        $this->actingAs($this->user(['name' => 'مریم احمدی']))->get('/')->assertDontSee($bar, false);
+        $this->post('/logout');
+        $this->get('/')->assertDontSee($bar, false);
+    }
+
     protected function fakeGoogle(string $id, string $email, string $name): void
     {
         config(['services.google.client_id' => 'test-client', 'services.google.client_secret' => 'x']);

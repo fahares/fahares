@@ -3899,3 +3899,11 @@
   - نماها با Vite درون همان image ساخته شدند، با `node_modules` شاخه‌ی اصلی. `node_modules` میزبان برای rolldown بایندینگ ندارد.
   - سرور: `php -S` روی درگاه ۸۰۷۴ با پایگاه محلی `fahares_db`. migration روی آن اجرا شد و کاربر و پیشنهاد آزمایشی پس از وارسی پاک شدند.
 
+### گام ۱۳.۲۳: نوار درخواست نام فارسی (مورد ۷۵)
+- **migration:** [2026_10_25_100001_add_name_kept_at_to_users](../database/migrations/2026_10_25_100001_add_name_kept_at_to_users.php) ستون `users.name_kept_at` (timestamp، nullable) را می‌افزاید.
+- **مدل:** `User::shouldWriteNameInPersian()` درست است اگر `name_kept_at` تهی باشد و `PersonName::isLatinOnly(name)` درست باشد.
+- **مسیر:** `POST /settings/profile/keep-name` (`profile.keep-name`، با `auth`) در `ProfileController::keepName` مقدار `name_kept_at` را می‌گذارد.
+- **نما:** نوار `data-persian-name-bar` در [layouts/app](../resources/views/layouts/app.blade.php) زیر نوار تأیید ایمیل است، و جز در مسیرهای `profile` و `account.complete` نمایش داده می‌شود. نام کاربر در `<bdi>` می‌آید تا جهت متن به‌هم نریزد. پنل (`layouts.admin`) این نوار را ندارد.
+- **سنجش پروداکشن:** `tinker` روی `ssh fahares-app` با همان الگوی `\p{Latin}` بی `\p{Arabic}`: ۱۰ از ۳۶ کاربر، همه با `google_id`.
+- **آزمون:** `test_existing_users_with_a_latin_name_are_asked_for_a_persian_one_until_they_change_or_keep_it` در [SignedInSuggestionsTest](../tests/Feature/SignedInSuggestionsTest.php). کل مجموعه: ۲۹۹ آزمون موفق.
+

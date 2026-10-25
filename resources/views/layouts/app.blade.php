@@ -297,6 +297,21 @@
                     </div>
                 </div>
             @endunless
+            @if(auth()->user()->shouldWriteNameInPersian() && ! request()->routeIs('profile', 'account.complete'))
+                {{-- The account name is published beside corrections; a Latin one may be kept, e.g. by a scholar outside Iran (backlog item 75) --}}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4" data-persian-name-bar>
+                    <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-2">
+                        <span>نام حساب شما «<bdi>{{ auth()->user()->name }}</bdi>» با حروف لاتین است. این نام کنار اصلاحات شما منتشر می‌شود؛ لطفاً آن را به فارسی بنویسید.</span>
+                        <span class="flex items-center gap-3 shrink-0">
+                            <a href="{{ route('profile') }}" class="font-bold text-cinnabar hover:underline">ویرایش نام</a>
+                            <form action="{{ route('profile.keep-name') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-muted hover:text-ink hover:underline cursor-pointer">نامم همین بماند</button>
+                            </form>
+                        </span>
+                    </div>
+                </div>
+            @endif
         @endauth
         @yield('content')
     </main>

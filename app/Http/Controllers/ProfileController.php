@@ -25,6 +25,14 @@ class ProfileController extends Controller
         return back()->with('success', 'مشخصات شما ذخیره شد.');
     }
 
+    /** «نامم همین بماند» on the bar that asks for a Persian name, e.g. for a scholar outside Iran */
+    public function keepName(Request $request)
+    {
+        $request->user()->forceFill(['name_kept_at' => now()])->save();
+
+        return back()->with('success', 'نام شما همین‌گونه می‌ماند. هر وقت خواستید، آن را در «حساب من» تغییر دهید.');
+    }
+
     /** Shown once, after a first Google sign-in with a Latin name; may be skipped. */
     public function complete(Request $request)
     {

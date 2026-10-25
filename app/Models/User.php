@@ -29,7 +29,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_verified_scholar' => 'boolean',
+            'name_kept_at' => 'datetime',
         ];
+    }
+
+    /** A Latin-only name the user has not chosen to keep: a bar asks them to write it in Persian (backlog item 75). */
+    public function shouldWriteNameInPersian(): bool
+    {
+        return ! $this->name_kept_at && \App\Support\PersonName::isLatinOnly($this->name);
     }
 
     /** In Persian whatever APP_LOCALE says, like the other notifications. */

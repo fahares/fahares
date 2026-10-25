@@ -9,10 +9,6 @@
         <p class="mt-1 text-xs text-muted">{{ $user->name }} · <span class="dir-ltr inline-block">{{ $user->email }}</span></p>
     </div>
 
-    @if(session('success'))
-        <div class="p-3 rounded-sm border border-emerald-600/30 bg-emerald-600/5 text-emerald-800 dark:text-emerald-300 text-sm">{{ session('success') }}</div>
-    @endif
-
     <x-ui.card class="space-y-5">
         <h2 class="rubric text-lg">مشخصات</h2>
         @php $field = 'w-full px-3 py-2.5 rounded-sm border border-line-strong bg-paper text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none'; @endphp
