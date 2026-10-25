@@ -29,6 +29,11 @@ return [
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true],
         ],
+        'user.registered' => [
+            'label' => 'ثبت‌نام کاربر تازه',
+            'permission' => 'users.manage',
+            'channels' => ['database' => true, 'mail' => true],
+        ],
         'permissions.changed' => [
             'label' => 'تغییر دسترسی نقش‌ها در پنل مدیریت',
             'roles' => ['admin'],
