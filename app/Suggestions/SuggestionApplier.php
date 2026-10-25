@@ -163,7 +163,9 @@ class SuggestionApplier
             if (! $page) {
                 throw new InvalidArgumentException('نشانی را به شکل «ج ۲، ص ۷» بنویسید، یا «نیست» اگر نسخه در این فهرست نیامده است.');
             }
-            $entry->fill([
+            // a machine match confirmed at its own page stays a match, now verified (backlog item 80)
+            $same = $page['volume'] === $entry->volumeNumber() && $page['page'] === (int) $entry->page_start;
+            $entry->fill($same ? ['status' => SourceEntry::STATUS_VERIFIED] + $reviewer : [
                 'volume_number' => $page['volume'],
                 'page_start' => $page['page'],
                 // the entry still ends where it did when the new page falls inside it

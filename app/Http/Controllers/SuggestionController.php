@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Auth\HeldCredit;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Notifications\SuggestionNotifier;
@@ -13,6 +14,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Suggestions, relations and research notes come only from signed-in users (backlog item 76; the route has
+ * `auth`). Earlier guest suggestions keep their guest_name and guest_email.
+ */
 class SuggestionController extends Controller
 {
     public function store(Request $request)
@@ -35,10 +40,7 @@ class SuggestionController extends Controller
             'rationale_citation' => 'nullable|string|max:5000',
             'person_id' => 'nullable|integer|exists:people,id',
             'target_id' => 'nullable|integer',
-            'guest_name' => 'nullable|string|max:100',
-            'guest_email' => 'nullable|email|max:100',
             'credit_name' => 'nullable|string|max:150',
-            'notify_submitter' => 'nullable|boolean',
             'role' => 'nullable|string|max:30',
             'role_name' => 'nullable|string|max:600',
             'shelfmark' => 'nullable|string|max:255',
@@ -46,10 +48,8 @@ class SuggestionController extends Controller
             'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,
             'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'rights_confirmed' => 'nullable|boolean',
-            'website' => 'nullable|max:0', // honeypot, hidden from people
         ], [
             'suggested_value.required' => 'متن پیشنهاد را وارد کنید.',
-            'website.max' => 'ارسال پذیرفته نشد.',
             'files.max' => 'حداکثر ' . NoteTypes::MAX_FILES . ' تصویر می‌توانید بارگذاری کنید.',
             'files.*.image' => 'فقط تصویر (JPG، PNG یا WebP) پذیرفته می‌شود.',
             'files.*.mimes' => 'فقط تصویر (JPG، PNG یا WebP) پذیرفته می‌شود.',
@@ -108,15 +108,12 @@ class SuggestionController extends Controller
                 : (trim($validated['suggested_value'] ?? '') ?: $relation['label']),
             'rationale_citation' => $validated['rationale_citation'] ?? null,
             'payload' => $payload ?: null,
-            'user_id' => $user?->id,
-            'guest_name' => $user ? $user->name : ($validated['guest_name'] ?? 'پژوهشگر مهمان'),
-            'guest_email' => $user ? $user->email : ($validated['guest_email'] ?? null),
-            // Sent only when the submitter ticked the consent box
-            'credit_name' => trim($validated['credit_name'] ?? '') ?: null,
-            // Guests opt in to hear the outcome by email; signed-in users follow their notification settings
-            'notify_submitter' => ! $user && ! empty($validated['guest_email']) && $request->boolean('notify_submitter'),
+            'user_id' => $user->id,
+            'guest_name' => $user->name,
+            'guest_email' => $user->email,
             'status' => 'pending',
-        ]);
+            // credit_name is sent only when the submitter ticked the consent box; held until the email is verified
+        ] + HeldCredit::columns($user, $validated['credit_name'] ?? null));
 
         SuggestionNotifier::submitted($suggestion);
 
@@ -128,8 +125,8 @@ class SuggestionController extends Controller
     }
 
     /**
-     * A research note: its typed fields in payload and, for images, uploaded files. Files only come
-     * from signed-in users who confirm they may publish them; they stay unlisted until approval.
+     * A research note: its typed fields in payload and, for images, uploaded files. Files come with the
+     * submitter's confirmation that they may publish them; they stay unlisted until approval.
      */
     private function storeNote(Request $request, $record, array $validated)
     {
@@ -141,9 +138,6 @@ class SuggestionController extends Controller
 
         $user = $request->user();
         $files = empty(NoteTypes::TYPES[$noteType]['files']) ? [] : $request->file('files', []);
-        if ($files && ! $user) {
-            throw ValidationException::withMessages(['files' => 'برای بارگذاری تصویر وارد حساب کاربری شوید. پیوند تصویر را بدون ورود هم می‌توانید بفرستید.']);
-        }
         if ($files && ! $request->boolean('rights_confirmed')) {
             throw ValidationException::withMessages(['rights_confirmed' => 'تأیید کنید که تصویر را خودتان تهیه کرده‌اید یا اجازه‌ی انتشار آن را دارید.']);
         }
@@ -157,13 +151,11 @@ class SuggestionController extends Controller
             'suggested_value' => NoteTypes::summary($noteType, $values),
             'rationale_citation' => trim($validated['rationale_citation'] ?? '') ?: null,
             'payload' => $values,
-            'user_id' => $user?->id,
-            'guest_name' => $user ? $user->name : ($validated['guest_name'] ?? 'پژوهشگر مهمان'),
-            'guest_email' => $user ? $user->email : ($validated['guest_email'] ?? null),
-            'credit_name' => trim($validated['credit_name'] ?? '') ?: null,
-            'notify_submitter' => ! $user && ! empty($validated['guest_email']) && $request->boolean('notify_submitter'),
+            'user_id' => $user->id,
+            'guest_name' => $user->name,
+            'guest_email' => $user->email,
             'status' => 'pending',
-        ]);
+        ] + HeldCredit::columns($user, $validated['credit_name'] ?? null));
 
         if ($files) {
             $paths = [];

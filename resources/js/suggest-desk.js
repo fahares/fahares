@@ -1,5 +1,7 @@
 // The suggestion modal shared by record pages. Per-field buttons dispatch
 // `suggest-field` with {field}; the general button dispatches it with {general: true} (and an optional starting {value}).
+// Only signed-in users suggest (backlog item 76): a guest gets a sign-in dialog instead, and returns to the same
+// page with `?suggest=<key>`, which reopens the same form. What was typed is kept in sessionStorage meanwhile.
 // Templates read field.* before any field is chosen, so "no field" is a blank object, never null
 const BLANK_FIELD = { name: null, label: '', input: '', current: null, prefill: '', pending: 0 };
 
@@ -18,13 +20,9 @@ export default (config) => ({
     targetResults: [],
     target: null,
     targetTimer: null,
-    guestName: '',
-    guestEmail: '',
-    // Opt-in: the name shown beside the correction on the record page once approved
-    creditOn: false,
+    // The name shown beside the correction once approved: on by default, the submitter may untick it
+    creditOn: true,
     creditName: '',
-    // Guests only: email the review outcome
-    notifyOn: false,
     // A person connected with the copy (relation person_role)
     roleKey: '',
     roleName: '',
@@ -35,12 +33,91 @@ export default (config) => ({
     note: {},
     noteFiles: [],
     rightsOk: false,
-    website: '',
     submitting: false,
     errors: {},
     done: null,
+    // The form being filled, as a key for the return address and the saved draft: field.<name>, general[.<relation>] or note
+    formKey: null,
+    // Sign-in dialog for guests
+    gate: false,
+    gateErrors: {},
+    gateBusy: false,
+
+    init() {
+        const params = new URLSearchParams(window.location.search);
+        const key = params.get('suggest');
+        if (!key) return;
+        // Back from signing in: drop the parameter and open the form the guest asked for
+        params.delete('suggest');
+        const query = params.toString();
+        window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+        if (!this.config.signedIn) return;
+        const detail = this.detailFor(key);
+        if (detail) this.$nextTick(() => this.start(detail));
+    },
+
+    keyFor(detail) {
+        if (detail.mode) return 'mode';
+        if (detail.note) return 'note';
+        if (detail.general) return detail.relation ? 'general.' + detail.relation : 'general';
+        return 'field.' + detail.field;
+    },
+
+    detailFor(key) {
+        const [kind, ...rest] = key.split('.');
+        const name = rest.join('.');
+        if (kind === 'mode') return { mode: true };
+        if (kind === 'note') return Object.keys(this.config.noteTypes).length ? { note: true } : null;
+        if (kind === 'general') return name ? { general: true, relation: name } : { general: true };
+        return kind === 'field' && this.config.fields[name] ? { field: name } : null;
+    },
+
+    // Where to come back after signing in: this page, with the form to reopen
+    get intended() {
+        const params = new URLSearchParams(window.location.search);
+        params.set('suggest', this.formKey ?? 'mode');
+        return window.location.pathname + '?' + params.toString();
+    },
+
+    authUrl(base) {
+        return base + '?intended=' + encodeURIComponent(this.intended);
+    },
+
+    draftKey() {
+        return 'suggest-draft:' + window.location.pathname + ':' + this.formKey;
+    },
+
+    saveDraft() {
+        if (!this.formKey || this.formKey === 'mode') return;
+        const draft = {
+            value: this.value, rationale: this.rationale, personId: this.personId, relationKey: this.relationKey,
+            roleKey: this.roleKey, roleName: this.roleName, newShelfmark: this.newShelfmark,
+            noteType: this.noteType, note: this.note, creditOn: this.creditOn, creditName: this.creditName,
+        };
+        try { sessionStorage.setItem(this.draftKey(), JSON.stringify(draft)); } catch (e) { /* storage blocked */ }
+    },
+
+    restoreDraft() {
+        let draft = null;
+        try { draft = JSON.parse(sessionStorage.getItem(this.draftKey()) ?? 'null'); } catch (e) { /* storage blocked */ }
+        if (draft) Object.assign(this, draft);
+    },
+
+    clearDraft() {
+        try { sessionStorage.removeItem(this.draftKey()); } catch (e) { /* storage blocked */ }
+    },
 
     start(detail) {
+        this.formKey = this.keyFor(detail);
+        if (detail.mode) {
+            // The «پیشنهاد اصلاح» button of a guest: suggestion mode starts once signed in
+            if (this.config.signedIn) {
+                this.$store.suggest.on = true;
+            } else {
+                this.gate = true;
+            }
+            return;
+        }
         this.errors = {};
         this.done = null;
         this.personId = null;
@@ -72,16 +149,58 @@ export default (config) => ({
             this.field = { name: detail.field, ...this.config.fields[detail.field] };
             this.value = this.field.prefill;
         }
+        this.toggleCredit();
+        this.restoreDraft();
+        if (!this.config.signedIn) {
+            // Keeps e.g. the reference a «گزارش نشانی نادرست» starts with, for the form opened after signing in
+            this.saveDraft();
+            this.gateErrors = {};
+            this.gate = true;
+            return;
+        }
         this.open = true;
     },
 
     toggleCredit() {
         // Start from the submitter's own name the first time the box is ticked
-        if (this.creditOn && !this.creditName.trim()) this.creditName = this.guestName.trim() || this.config.userName || '';
+        if (this.creditOn && !this.creditName.trim()) this.creditName = this.config.creditName || this.config.userName || '';
     },
 
     close() {
         this.open = false;
+        this.gate = false;
+    },
+
+    // «انصراف» drops what was typed; closing the window any other way keeps it for next time
+    cancel() {
+        this.clearDraft();
+        this.close();
+    },
+
+    // The short sign-up form of the dialog; on success the page reloads at the intended address
+    async register(form) {
+        this.gateBusy = true;
+        this.gateErrors = {};
+        const body = new FormData(form);
+        body.append('intended', this.intended);
+        try {
+            const res = await fetch(this.config.registerUrl, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': this.config.csrf },
+                body,
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.redirect) {
+                window.location.assign(data.redirect);
+                return;
+            }
+            this.gateErrors = res.status === 422
+                ? Object.fromEntries(Object.entries(data.errors ?? {}).map(([k, v]) => [k, v[0]]))
+                : { form: res.status === 429 ? 'تلاش‌ها بیش از حد بود. کمی بعد دوباره تلاش کنید.' : 'ثبت‌نام انجام نشد. صفحه را تازه کنید و دوباره تلاش کنید.' };
+        } catch (e) {
+            this.gateErrors = { form: 'ارتباط با سرور برقرار نشد. لطفاً دوباره تلاش کنید.' };
+        }
+        this.gateBusy = false;
     },
 
     get noteDef() {
@@ -231,11 +350,7 @@ export default (config) => ({
         body.append('suggested_value', this.value);
         body.append('rationale_citation', this.rationale);
         if (this.personId) body.append('person_id', this.personId);
-        body.append('guest_name', this.guestName);
-        body.append('guest_email', this.guestEmail);
         if (this.creditOn) body.append('credit_name', this.creditName);
-        if (this.notifyOn) body.append('notify_submitter', '1');
-        body.append('website', this.website);
 
         try {
             const res = await fetch(this.config.storeUrl, {
@@ -246,7 +361,17 @@ export default (config) => ({
             const data = await res.json().catch(() => ({}));
             if (res.ok) {
                 this.done = data.message;
+                this.clearDraft();
                 if (this.mode === 'field') this.config.fields[this.field.name].pending++;
+            } else if (res.status === 401) {
+                // Signed out meanwhile: keep the text and offer to sign in again
+                this.saveDraft();
+                this.config.signedIn = false;
+                this.open = false;
+                this.gate = true;
+            } else if (res.status === 419) {
+                this.saveDraft();
+                this.errors = { form: 'نشست شما منقضی شده است. صفحه را تازه کنید؛ متنی که نوشته‌اید نگه داشته شده است.' };
             } else if (res.status === 422) {
                 this.errors = Object.fromEntries(Object.entries(data.errors ?? {}).map(([k, v]) => [k, v[0]]));
             } else if (res.status === 429) {

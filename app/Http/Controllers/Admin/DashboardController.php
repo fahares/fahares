@@ -9,60 +9,75 @@ use App\Models\FieldSuggestion;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Person;
+use App\Models\Role;
+use App\Models\SourceEntry;
 use App\Models\Subject;
 use App\Models\User;
 use App\Models\Work;
-use Illuminate\Support\Facades\Http;
 
+/**
+ * The panel's front page (backlog item 65): the work waiting for review first, each kind with its count and
+ * its oldest item; then the latest pending suggestions, the database at a glance and the recent changes.
+ */
 class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+        $queue = [];
+
+        if ($user->can('suggestions.review')) {
+            $pending = FieldSuggestion::where('status', 'pending')
+                ->selectRaw("CASE WHEN kind = 'general' THEN 'field' ELSE kind END AS bucket, count(*) AS c, min(created_at) AS oldest")
+                ->groupBy('bucket')->get()->keyBy('bucket');
+            foreach ([
+                'field' => ['اصلاح فیلد', 'کلی و فیلدی'],
+                'relation' => ['پیشنهاد ساختاری', 'ادغام، انتقال و رابطه'],
+                'note' => ['یادداشت پژوهشی', 'پیش از انتشار'],
+                'feedback' => ['گزارش اشکال سایت', 'از فرم گزارش اشکال'],
+            ] as $kind => [$label, $hint]) {
+                $row = $pending[$kind] ?? null;
+                $queue[] = [
+                    'label' => $label,
+                    'count' => (int) ($row->c ?? 0),
+                    'hint' => $row ? 'قدیمی‌ترین: ' . \App\Support\Jalali::ago(\Illuminate\Support\Carbon::parse($row->oldest)) : $hint,
+                    'url' => route('admin.suggestions.index', ['status' => 'pending', 'kind' => $kind]),
+                ];
+            }
+        }
+        if ($user->can('catalog_refs.review')) {
+            $queue[] = [
+                'label' => 'نشانی خودکار',
+                'count' => SourceEntry::awaitingReview()->count(),
+                'hint' => 'تطبیق‌های بازبینی‌نشده',
+                'url' => route('admin.catalog-references.index'),
+            ];
+        }
+
+        $pendingSuggestions = ! $user->can('suggestions.review') ? collect() : FieldSuggestion::with(['user', 'suggestable'])
+            ->where('status', 'pending')
+            ->latest('id')
+            ->take(5)
+            ->get();
+
         $counts = [
-            'works' => Work::count(),
-            'manuscripts' => Manuscript::count(),
-            'people' => Person::count(),
-            'libraries' => Library::count(),
-            'catalogers' => Cataloger::count(),
-            'subjects' => Subject::count(),
-            'users' => User::count(),
-            'readings' => FieldSuggestion::where('status', 'approved')->whereIn('standing', ['adopted', 'alternative'])->count(),
-            'pending_suggestions' => FieldSuggestion::where('status', 'pending')->count(),
+            'نسخه' => Manuscript::count(),
+            'اثر' => Work::count(),
+            'شخص' => Person::count(),
+            'کتابخانه' => Library::count(),
+            'فهرست‌نگار' => Cataloger::count(),
+            'موضوع' => Subject::count(),
+            'کاربر' => User::count(),
+            'اصلاح پذیرفته در ۳۰ روز' => FieldSuggestion::where('status', 'approved')->where('reviewed_at', '>=', now()->subDays(30))->count(),
         ];
 
-        $pendingSuggestions = FieldSuggestion::with(['user', 'suggestable'])
-            ->where('status', 'pending')
+        // The recent changes follow the audit log page: hidden without audit.view, and without account changes for those who do not manage users
+        $recentLogs = ! $user->can('audit.view') ? collect() : AuditLog::with('user')
+            ->when(! $user->can('users.manage'), fn ($q) => $q->whereNotIn('auditable_type', [User::class, Role::class]))
             ->latest('id')
             ->take(6)
             ->get();
 
-        $recentLogs = AuditLog::with('user')
-            ->latest('id')
-            ->take(8)
-            ->get();
-
-        // Check Meilisearch Health
-        $meiliStatus = ['healthy' => false, 'version' => null, 'error' => null];
-        try {
-            $host = config('scout.meilisearch.host') ?: 'http://127.0.0.1:7700';
-            $key = config('scout.meilisearch.key');
-            $response = Http::timeout(2)
-                ->withHeaders($key ? ['Authorization' => "Bearer {$key}"] : [])
-                ->get(rtrim($host, '/') . '/health');
-
-            if ($response->successful() && $response->json('status') === 'available') {
-                $meiliStatus['healthy'] = true;
-                $versionRes = Http::timeout(2)
-                    ->withHeaders($key ? ['Authorization' => "Bearer {$key}"] : [])
-                    ->get(rtrim($host, '/') . '/version');
-                if ($versionRes->successful()) {
-                    $meiliStatus['version'] = $versionRes->json('pkgVersion');
-                }
-            }
-        } catch (\Throwable $e) {
-            $meiliStatus['error'] = $e->getMessage();
-        }
-
-        return view('admin.dashboard', compact('counts', 'pendingSuggestions', 'recentLogs', 'meiliStatus'));
+        return view('admin.dashboard', compact('queue', 'pendingSuggestions', 'counts', 'recentLogs'));
     }
 }

@@ -1,74 +1,60 @@
 @extends('layouts.admin')
 
 @section('title', 'نشانی‌های خودکار فهرست')
-@section('page_title', 'داوری نشانی‌های خودکار فهرست')
-@section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
-    <span>/</span>
-    <span class="text-stone-400">نشانی‌های خودکار فهرست</span>
-@endsection
+@section('page_title', 'نشانی‌های خودکار فهرست')
 
 @section('content')
 @php
     use App\Http\Controllers\Admin\CatalogReferenceController as Queue;
     use App\Support\Fa;
     $methods = Queue::METHODS;
+    // Blade directives do not run inside a component tag's attributes, so the token is prepared here
+    $csrf = \Illuminate\Support\Js::from(csrf_token());
+    $filters = array_filter(['volume' => request()->integer('volume') ?: null, 'method' => request('method'), 'confidence' => request('confidence')]);
+    $tabs = [];
+    foreach (Queue::STATUSES as $key => $label) {
+        $tabs[] = ['label' => $label, 'url' => route('admin.catalog-references.index', ['status' => $key] + $filters), 'active' => $status === $key, 'count' => $counts[$key] ?? 0, 'key' => $key];
+    }
 @endphp
-<div class="space-y-6">
-    <p class="text-xs text-stone-500 leading-6">
-        هوشواره این نسخه‌ها را با شماره‌ی نسخه در چاپ دیگری از فهرست کتابخانه پیدا کرده است. هر نشانی را با برگه بسنجید:
-        نمایشگر صفحه‌ی آغاز مدخل را باز می‌کند، و شماره‌ی نسخه ممکن است در صفحه‌ی بعد باشد. با تأیید، نشان ⓘ از صفحه‌ی نسخه برداشته می‌شود و با رد، پیوند پنهان می‌شود.
-    </p>
 
-    <!-- Filters -->
-    <form method="GET" class="flex flex-wrap items-end gap-3 border-b border-line pb-4 text-xs">
-        <label class="grid gap-1">
-            <span class="font-bold text-stone-500">وضع</span>
-            <select name="status" class="p-2 rounded-xl border border-line-strong bg-paper text-ink">
-                @foreach(Queue::STATUSES as $key => $label)
-                    <option value="{{ $key }}" @selected($status === $key)>{{ $label }} ({{ Fa::num($counts[$key] ?? 0) }})</option>
-                @endforeach
-            </select>
-        </label>
-        <label class="grid gap-1">
-            <span class="font-bold text-stone-500">جلد</span>
-            <select name="volume" class="p-2 rounded-xl border border-line-strong bg-paper text-ink max-w-xs">
-                <option value="">همه</option>
-                @foreach($volumes as $volume)
-                    <option value="{{ $volume->id }}" @selected(request()->integer('volume') === $volume->id)>{{ $volume->title }}@if($volume->edition_label) (چاپ {{ $volume->edition_label }})@endif</option>
-                @endforeach
-            </select>
-        </label>
-        <label class="grid gap-1">
-            <span class="font-bold text-stone-500">روش</span>
-            <select name="method" class="p-2 rounded-xl border border-line-strong bg-paper text-ink">
-                <option value="">همه</option>
-                @foreach($methods as $key => $label)
-                    <option value="{{ $key }}" @selected(request('method') === $key)>{{ $label }}</option>
-                @endforeach
-            </select>
-        </label>
-        <label class="grid gap-1">
-            <span class="font-bold text-stone-500">اطمینان</span>
-            <select name="confidence" class="p-2 rounded-xl border border-line-strong bg-paper text-ink">
-                <option value="">همه</option>
-                @foreach(Queue::CONFIDENCE_BANDS as $key => $band)
-                    <option value="{{ $key }}" @selected(request('confidence') === $key)>{{ $band['label'] }}</option>
-                @endforeach
-            </select>
-        </label>
-        <button type="submit" class="px-4 py-2 rounded-xl bg-stone-800 text-white font-bold hover:bg-cinnabar transition cursor-pointer">پالایش</button>
-        <span class="ms-auto font-bold text-ink">{{ Fa::num($references->total()) }} نشانی</span>
-    </form>
+<p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">
+    هوشواره این نسخه‌ها را با شماره‌ی نسخه در چاپ دیگری از فهرست کتابخانه پیدا کرده است. هر نشانی را با برگه بسنجید:
+    نمایشگر صفحه‌ی آغاز مدخل را باز می‌کند، و شماره‌ی نسخه ممکن است در صفحه‌ی بعد باشد. با تأیید، نشان ⓘ از صفحه‌ی نسخه برداشته می‌شود و با رد، پیوند پنهان می‌شود.
+</p>
 
-    <!-- Bulk verification (title matches only) and the revert of the last one -->
+<x-admin.tabs :options="$tabs" />
+
+<x-admin.filters :action="route('admin.catalog-references.index')" :reset="$filters ? route('admin.catalog-references.index', ['status' => $status]) : null" :total="$references->total()" noun="نشانی">
+    <input type="hidden" name="status" value="{{ $status }}">
+    <select name="volume" aria-label="جلد" class="admin-field max-w-xs">
+        <option value="">همه‌ی جلدها</option>
+        @foreach($volumes as $volume)
+            <option value="{{ $volume->id }}" @selected(request()->integer('volume') === $volume->id)>{{ $volume->title }}@if($volume->edition_label) (چاپ {{ $volume->edition_label }})@endif</option>
+        @endforeach
+    </select>
+    <select name="method" aria-label="روش" class="admin-field">
+        <option value="">همه‌ی روش‌ها</option>
+        @foreach($methods as $key => $label)
+            <option value="{{ $key }}" @selected(request('method') === $key)>{{ $label }}</option>
+        @endforeach
+    </select>
+    <select name="confidence" aria-label="اطمینان" class="admin-field">
+        <option value="">هر اطمینانی</option>
+        @foreach(Queue::CONFIDENCE_BANDS as $key => $band)
+            <option value="{{ $key }}" @selected(request('confidence') === $key)>{{ $band['label'] }}</option>
+        @endforeach
+    </select>
+</x-admin.filters>
+
+<div class="space-y-3 mb-4 text-[13px]">
+    {{-- Bulk verification (title matches only) and the revert of the last one --}}
     @if($status === \App\Models\SourceEntry::STATUS_UNVERIFIED && ! ($bulkAllowed && $references->total() === 0))
-        <div class="flex flex-wrap items-center gap-3 rounded-2xl border p-4 text-xs leading-6 {{ $bulkAllowed ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/30' : 'border-line bg-paper' }}">
+        <x-admin.notice :tone="$bulkAllowed ? 'good' : 'info'" class="flex flex-wrap items-center gap-3">
             @if($bulkAllowed)
-                <div class="flex-1 min-w-64 text-ink">
-                    <span class="font-bold">تأیید گروهی:</span>
+                <p class="flex-1 min-w-64 text-ink">
+                    <b>تأیید گروهی:</b>
                     شماره‌ی نسخه و عنوان اثر هر دو با مدخل چاپ همخوان‌اند. نمونه‌ها را با برگه بسنجید و سپس همه‌ی نشانی‌های این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
-                </div>
+                </p>
                 @php $count = Fa::num($references->total()); @endphp
                 <form method="POST" action="{{ route('admin.catalog-references.bulk-verify') }}" onsubmit="return confirm(@js($count . ' تطبیق تأیید شود؟'))">
                     @csrf
@@ -76,100 +62,98 @@
                     <input type="hidden" name="method" value="{{ request('method') }}">
                     <input type="hidden" name="confidence" value="{{ request('confidence') }}">
                     <input type="hidden" name="expected" value="{{ $references->total() }}">
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition cursor-pointer">تأیید همه‌ی {{ $count }} نشانی این پالایه</button>
+                    <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همه‌ی {{ $count }} نشانی این پالایه</button>
                 </form>
             @else
-                <div class="flex-1 min-w-64 text-stone-500">
+                <p class="flex-1 min-w-64 text-muted">
                     تأیید گروهی فقط برای روش «شماره و عنوان» است. در روش‌های «شماره، عنوان نزدیک»، «فقط شماره» و «مبهم» عنوان شماره را تأیید نمی‌کند و هر نشانی باید جداگانه با برگه سنجیده شود.
-                </div>
-                <a href="{{ route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\ManuscriptCatalogReference::BULK_METHOD, 'confidence' => 'high'])) }}" class="px-4 py-2 rounded-xl border border-line-strong font-bold text-ink hover:text-cinnabar transition">پالایه‌ی پیشنهادی: شماره و عنوان، اطمینان بالا</a>
+                </p>
+                <x-ui.btn :href="route('admin.catalog-references.index', array_filter(['volume' => request()->integer('volume') ?: null, 'method' => \App\Models\ManuscriptCatalogReference::BULK_METHOD, 'confidence' => 'high']))">پالایه‌ی پیشنهادی: شماره و عنوان، اطمینان بالا</x-ui.btn>
             @endif
-        </div>
+        </x-admin.notice>
     @endif
     @if($lastBulk)
-        <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-paper p-4 text-xs leading-6 text-stone-600 dark:text-stone-300">
-            <div class="flex-1 min-w-64">
+        <x-admin.notice class="flex flex-wrap items-center gap-3">
+            <p class="flex-1 min-w-64">
                 آخرین تأیید گروهی (دسته‌ی #{{ Fa::digits($lastBulk->id) }}): {{ Fa::num($lastBulk->new_values['count'] ?? 0) }} نشانی،
                 به دست {{ $lastBulk->user?->name ?? '—' }}، {{ \App\Support\Jalali::format($lastBulk->created_at, 'datetime') }}.
-            </div>
+            </p>
             <form method="POST" action="{{ route('admin.catalog-references.bulk-revert', $lastBulk) }}" onsubmit="return confirm('نشانی‌های این دسته به صف داوری برگردند؟ آن‌هایی که از آن پس جداگانه داوری شده‌اند دست نمی‌خورند.')">
                 @csrf
-                <button type="submit" class="px-4 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-ink font-bold hover:bg-red-600 hover:text-white transition cursor-pointer">برگرداندن این دسته</button>
+                <x-ui.btn type="submit">برگرداندن این دسته</x-ui.btn>
             </form>
-        </div>
+        </x-admin.notice>
     @endif
-
-    <div class="bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-right text-xs">
-                <thead class="bg-paper text-stone-500 border-b border-line">
-                    <tr>
-                        <th class="p-3 font-bold">نسخه</th>
-                        <th class="p-3 font-bold">مدخل در چاپ</th>
-                        <th class="p-3 font-bold">روش و اطمینان</th>
-                        <th class="p-3 font-bold text-center">داوری</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @forelse($references as $ref)
-                        @php $viewer = $ref->viewer(); @endphp
-                        <tr class="align-top hover:bg-paper transition">
-                            <td class="p-3 min-w-48">
-                                @if($ref->citable)
-                                    <a href="{{ route('manuscripts.show', $ref->citable) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $ref->citable->work?->primary_title ?? 'بی‌عنوان' }}</a>
-                                    <div class="text-stone-500 mt-0.5">شماره‌ی <span dir="ltr" class="font-mono">{{ Fa::digits($ref->citable->shelfmark) }}</span></div>
-                                @endif
-                            </td>
-                            <td class="p-3 min-w-72">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    @if($viewer)
-                                        <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="font-bold text-cinnabar hover:underline cursor-pointer">ص {{ Fa::digits($ref->page_start) }}</button>
-                                        @if($ref->shelfmark_page && $ref->shelfmark_page !== $ref->page_start)
-                                            <button type="button" @click="$dispatch('open-catalog-viewer', @js(['page' => $ref->shelfmark_page] + $viewer))" class="text-stone-500 hover:text-cinnabar cursor-pointer">شماره در ص {{ Fa::digits($ref->shelfmark_page) }}</button>
-                                        @endif
-                                    @endif
-                                    @if($ref->entry_number)<span class="text-stone-400">مدخل {{ Fa::digits($ref->entry_number) }}</span>@endif
-                                </div>
-                                <div class="text-[11px] text-stone-400 mt-0.5">{{ $ref->sourceName() }}، ج {{ Fa::digits($ref->volumeNumber()) }}</div>
-                                @if($ref->citation_text)
-                                    <div class="mt-1.5 text-ink/80 leading-6 whitespace-pre-line line-clamp-3">{{ $ref->citation_text }}</div>
-                                @endif
-                                @if($ref->notes)
-                                    <div class="mt-1 text-amber-700 dark:text-amber-400">{{ $ref->notes }}</div>
-                                @endif
-                            </td>
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="font-bold text-ink">{{ $methods[$ref->match_method] ?? $ref->match_method }}</div>
-                                <span class="inline-block mt-1 px-2 py-0.5 rounded-full font-mono font-bold text-[11px] {{ $ref->confidence >= 60 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' : ($ref->confidence >= 35 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300' : 'bg-red-100 text-red-800 dark:bg-red-950/50 dark:text-red-300') }}">{{ Fa::digits($ref->confidence) }}٪</span>
-                            </td>
-                            <td class="p-3 text-center whitespace-nowrap">
-                                @if($ref->status === \App\Models\SourceEntry::STATUS_UNVERIFIED)
-                                    <div class="flex items-center justify-center gap-2">
-                                        <form method="POST" action="{{ route('admin.catalog-references.verify', $ref) }}">
-                                            @csrf
-                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition cursor-pointer">تأیید</button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.catalog-references.reject', $ref) }}">
-                                            @csrf
-                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 text-ink font-bold hover:bg-red-600 hover:text-white transition cursor-pointer">رد</button>
-                                        </form>
-                                    </div>
-                                @else
-                                    <div class="font-bold {{ $ref->status === 'verified' ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400' }}">{{ Queue::STATUSES[$ref->status] }}</div>
-                                    <div class="text-[11px] text-stone-400 mt-0.5">{{ $ref->reviewer?->name }}@if($ref->reviewed_at)، {{ \App\Support\Jalali::format($ref->reviewed_at) }}@endif</div>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="4" class="p-8 text-center text-stone-500">نشانی‌ای با این پالایه نیست.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div>{{ $references->links() }}</div>
 </div>
+
+<x-admin.table :paginator="$references" :is-empty="$references->isEmpty()" empty="نشانی‌ای با این پالایه نیست.">
+    <x-slot:head>
+        <x-admin.th>نسخه</x-admin.th>
+        <x-admin.th>مدخل در چاپ</x-admin.th>
+        <x-admin.th>روش و اطمینان</x-admin.th>
+        <x-admin.th><span class="sr-only">داوری</span></x-admin.th>
+    </x-slot:head>
+    @foreach($references as $ref)
+        @php
+            $viewer = $ref->viewer();
+            $tone = $ref->confidence >= 60 ? 'border-emerald-600/40 text-emerald-800 dark:text-emerald-300'
+                : ($ref->confidence >= 35 ? 'border-amber-600/50 text-amber-800 dark:text-amber-300' : 'border-cinnabar/50 text-cinnabar');
+        @endphp
+        <x-admin.row x-data="referenceReview({ csrf: {{ $csrf }} })" ::class="status !== 'unverified' && 'opacity-60'">
+            <x-admin.cell main class="md:min-w-48">
+                @if($ref->citable)
+                    <a href="{{ route('manuscripts.show', $ref->citable) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $ref->citable->work?->primary_title ?? 'بی‌عنوان' }}</a>
+                    <span class="block text-xs text-muted">شماره‌ی <span dir="ltr">{{ Fa::digits($ref->citable->shelfmark) }}</span></span>
+                @endif
+            </x-admin.cell>
+            <x-admin.cell class="basis-full md:min-w-72">
+                <span class="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
+                    @if($viewer)
+                        <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="font-bold text-cinnabar hover:underline cursor-pointer">ص {{ Fa::digits($ref->page_start) }}</button>
+                        @if($ref->shelfmark_page && $ref->shelfmark_page !== $ref->page_start)
+                            <button type="button" @click="$dispatch('open-catalog-viewer', @js(['page' => $ref->shelfmark_page] + $viewer))" class="text-muted hover:text-cinnabar cursor-pointer">شماره در ص {{ Fa::digits($ref->shelfmark_page) }}</button>
+                        @endif
+                    @endif
+                    @if($ref->entry_number)<span class="text-muted">مدخل {{ Fa::digits($ref->entry_number) }}</span>@endif
+                </span>
+                <span class="block text-xs text-muted mt-0.5">{{ $ref->sourceName() }}، ج {{ Fa::digits($ref->volumeNumber()) }}</span>
+                @if($ref->citation_text)
+                    <span class="block mt-1.5 text-ink leading-6 whitespace-pre-line line-clamp-3">{{ $ref->citation_text }}</span>
+                @endif
+                @if($ref->notes)
+                    <span class="block mt-1 text-amber-800 dark:text-amber-300">{{ $ref->notes }}</span>
+                @endif
+            </x-admin.cell>
+            <x-admin.cell label="روش" class="whitespace-nowrap">
+                <span class="font-bold text-ink">{{ $methods[$ref->match_method] ?? $ref->match_method }}</span>
+                <span class="inline-block md:block md:w-fit mt-1 px-2 rounded-full border bg-surface text-xs font-bold tabular-nums {{ $tone }}" title="اطمینان">{{ Fa::digits($ref->confidence) }}٪</span>
+            </x-admin.cell>
+            <x-admin.cell actions>
+                @if($ref->status === \App\Models\SourceEntry::STATUS_UNVERIFIED)
+                    {{-- Sent without a reload; the forms still post on their own when scripts do not run --}}
+                    <span x-show="status === 'unverified'" class="inline-flex items-center gap-1.5">
+                        <form method="POST" action="{{ route('admin.catalog-references.verify', $ref) }}" @submit.prevent="send($el)">
+                            @csrf
+                            <button type="submit" :disabled="busy" class="px-3 py-1 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition cursor-pointer disabled:opacity-50">تأیید</button>
+                        </form>
+                        <form method="POST" action="{{ route('admin.catalog-references.reject', $ref) }}" @submit.prevent="send($el)">
+                            @csrf
+                            <x-ui.btn type="submit" size="sm" ::disabled="busy" class="disabled:opacity-50">رد</x-ui.btn>
+                        </form>
+                    </span>
+                    <span x-show="status !== 'unverified'" x-cloak class="inline-flex items-center gap-1.5">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-xs leading-5" :class="status === 'verified' ? 'border-emerald-600/40 text-emerald-700 dark:text-emerald-300 bg-emerald-600/5' : 'border-cinnabar/40 text-cinnabar bg-cinnabar/5'" x-text="label"></span>
+                        <x-ui.btn size="sm" variant="ghost" @click="undo()" ::disabled="busy">بازگردانی</x-ui.btn>
+                    </span>
+                    <span x-show="error" x-cloak role="alert" class="block mt-1 text-xs text-cinnabar md:max-w-56 md:whitespace-normal" x-text="error"></span>
+                @else
+                    <x-ui.chip :tone="$ref->status === 'verified' ? 'good' : 'accent'">{{ Queue::STATUSES[$ref->status] }}</x-ui.chip>
+                    <span class="block text-xs text-muted mt-0.5">{{ $ref->reviewer?->name }}@if($ref->reviewed_at)، {{ \App\Support\Jalali::format($ref->reviewed_at) }}@endif</span>
+                @endif
+            </x-admin.cell>
+        </x-admin.row>
+    @endforeach
+</x-admin.table>
 
 <x-catalog-viewer />
 @endsection

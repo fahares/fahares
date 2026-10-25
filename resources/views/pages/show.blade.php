@@ -20,7 +20,7 @@
 
     <div class="post-body">{!! $page->body_html !!}</div>
 
-    @if(auth()->user()?->canAccessAdmin())
+    @if(auth()->user()?->can('pages.manage'))
         <p class="pt-6 border-t border-line text-xs">
             <a href="{{ route('admin.pages.edit', $page) }}" class="text-cinnabar hover:underline font-bold">ویرایش این صفحه در پنل</a>
         </p>

@@ -4,6 +4,7 @@ import suggestDesk from './suggest-desk';
 import convertDesk from './convert-desk';
 import feedbackForm from './feedback-form';
 import machineReview from './machine-review';
+import referenceReview from './reference-queue';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -20,5 +21,6 @@ Alpine.store('machineReview', machineReview);
 Alpine.data('suggestDesk', suggestDesk);
 Alpine.data('convertDesk', convertDesk);
 Alpine.data('feedbackForm', feedbackForm);
+Alpine.data('referenceReview', referenceReview);
 
 Alpine.start();

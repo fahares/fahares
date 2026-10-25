@@ -14,7 +14,7 @@ class FieldSuggestion extends Model
 
     /** Standings of an approved field suggestion; see the add_opinions migration. */
     public const STANDINGS = [
-        'adopted' => 'قول مختار',
+        'adopted' => 'مقدار منتخب',
         'alternative' => 'قول دیگر',
         'superseded' => 'منسوخ',
         'edit' => 'ویرایش',
@@ -91,6 +91,13 @@ class FieldSuggestion extends Model
         $record = $this->suggestable;
 
         return $record ? SuggestionRegistry::describe($record)['url'] : null;
+    }
+
+    /** The name a user chose last time beside a correction, or their account's name: the credit box starts from it. */
+    public static function creditNameFor(User $user): string
+    {
+        return self::where('user_id', $user->id)->whereNotNull('credit_name')->where('credit_name', '!=', '')
+            ->latest('id')->value('credit_name') ?: $user->name;
     }
 
     public function annotations(): HasMany

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Auth\Permissions;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Models\Manuscript;
 use App\Notifications\SuggestionNotifier;
+use App\Review\CollectiveReview;
 use App\Suggestions\RecordMerger;
 use App\Suggestions\NoteTypes;
 use App\Suggestions\RelationInput;
@@ -40,7 +42,27 @@ class SuggestionController extends Controller
             $query->where('suggestable_type', 'like', "%{$type}%");
         }
 
-        $suggestions = $query->latest('id')->paginate(20)->withQueryString();
+        // From the dashboard's queue; field suggestions include the general ones
+        $kind = $request->query('kind');
+        if (in_array($kind, ['field', 'relation', 'note', 'feedback'], true)) {
+            $query->whereIn('kind', $kind === 'field' ? ['field', 'general'] : [$kind]);
+        }
+        // The answers of «تصحیح جمعی» (backlog item 80)
+        if ($kind === 'collective') {
+            $query->whereNotNull('field_suggestions.review_queue');
+        }
+
+        // Agreeing opinions of «تصحیح جمعی» move their item up: by the weight of its best-supported answer (any other
+        // suggestion counts as one), the opinions on one item together, newest first
+        if ($status === 'pending') {
+            $query->leftJoinSub(CollectiveReview::agreement(), 'agreement', fn ($j) => $j->on('agreement.review_queue', '=', 'field_suggestions.review_queue')
+                ->on('agreement.review_item_id', '=', 'field_suggestions.review_item_id'))
+                ->select('field_suggestions.*')
+                ->orderByRaw('COALESCE(agreement.agreement, 1) DESC')
+                ->orderByRaw('field_suggestions.review_queue IS NULL, field_suggestions.review_queue, field_suggestions.review_item_id');
+        }
+        $suggestions = $query->latest('field_suggestions.id')->paginate(20)->withQueryString();
+        $opinions = CollectiveReview::opinionsFor($suggestions->getCollection());
 
         $stats = [
             'pending' => FieldSuggestion::where('status', 'pending')->count(),
@@ -49,7 +71,7 @@ class SuggestionController extends Controller
             'total' => FieldSuggestion::count(),
         ];
 
-        return view('admin.suggestions.index', compact('suggestions', 'stats', 'status', 'type'));
+        return view('admin.suggestions.index', compact('suggestions', 'stats', 'status', 'type', 'opinions'));
     }
 
     public function show(FieldSuggestion $suggestion)
@@ -97,7 +119,14 @@ class SuggestionController extends Controller
         $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative';
         abort_unless($suggestion->status === 'pending' || $promoting, 409, 'این پیشنهاد پیش‌تر داوری شده است.');
 
+        // An answer of «تصحیح جمعی» on people is decided with its item in the panel's queue, which settles it
+        if (in_array($suggestion->review_queue, CollectiveReview::DECIDED_IN_QUEUE, true)) {
+            return back()->withErrors(['applied_value' => 'درباره‌ی این مورد در صف «بازبینی اشخاص» تصمیم بگیرید؛ این پاسخ با همان تصمیم بسته می‌شود.']);
+        }
+
         if ($suggestion->kind === 'relation') {
+            $this->authorizeTool($request, $suggestion);
+
             return $this->approveRelation($request, $suggestion, app(RecordMerger::class));
         }
 
@@ -141,12 +170,12 @@ class SuggestionController extends Controller
             ? FieldSuggestion::adoptedFor($suggestion->suggestable_type, $suggestion->suggestable_id, $suggestion->field_name)->whereKeyNot($suggestion->id)->first()
             : null;
         if ($previous && empty($validated['previous_standing'])) {
-            return back()->withInput()->withErrors(['previous_standing' => 'وضعیت قول مختار پیشین را تعیین کنید: «قول دیگر» یا «منسوخ».']);
+            return back()->withInput()->withErrors(['previous_standing' => 'وضعیت مقدار منتخب پیشین را تعیین کنید: «قول دیگر» یا «منسوخ».']);
         }
         if ($field && ($standing === 'alternative' || $previous) && ! $publicNote) {
             return back()->withInput()->withErrors(['public_note' => $standing === 'alternative'
                 ? 'برای «قول دیگر» یادداشت عمومی بنویسید: چرا این قول ترجیح داده نشد.'
-                : 'یادداشت عمومی بنویسید: چرا این قول بر قول مختار پیشین ترجیح داده شد.']);
+                : 'یادداشت عمومی بنویسید: چرا این قول بر مقدار منتخب پیشین ترجیح داده شد.']);
         }
 
         try {
@@ -199,6 +228,11 @@ class SuggestionController extends Controller
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
                 ]);
+
+                // An answer of «تصحیح جمعی» decides its item: the other opinions on it are settled with it (backlog item 80)
+                if ($suggestion->review_queue && $standing !== 'alternative') {
+                    CollectiveReview::settle($suggestion->review_queue, (int) $suggestion->review_item_id, (string) $suggestion->review_answer, $request->user(), $suggestion->id);
+                }
             });
         } catch (InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
@@ -208,7 +242,7 @@ class SuggestionController extends Controller
             ! $field => "پیشنهاد #{$suggestion->id} به‌عنوان «رسیدگی‌شده» ثبت شد. تغییرات لازم را دستی اعمال کنید.",
             $standing === 'alternative' => "پیشنهاد #{$suggestion->id} به‌عنوان «قول دیگر» با مستندش ثبت شد. مقدار رکورد تغییر نکرد.",
             $standing === 'edit' => "ویرایش #{$suggestion->id} در شناسنامه‌ی رکورد اعمال شد.",
-            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان قول مختار تأیید و در شناسنامه‌ی رکورد اعمال شد.",
+            default => "پیشنهاد اصلاحی #{$suggestion->id} به‌عنوان مقدار منتخب تأیید و در شناسنامه‌ی رکورد اعمال شد.",
         };
 
         SuggestionNotifier::reviewed($suggestion->fresh());
@@ -217,6 +251,16 @@ class SuggestionController extends Controller
         }
 
         return redirect()->route('admin.suggestions.index')->with('success', $message);
+    }
+
+    /**
+     * Approving a relational suggestion runs a structural tool (merge, split, removal...), and reopening it undoes
+     * that tool, so both need the tool's permission of the access matrix besides suggestions.review.
+     */
+    private function authorizeTool(Request $request, FieldSuggestion $suggestion): void
+    {
+        $permission = Permissions::FOR_APPLY[$suggestion->relationDefinition()['apply'] ?? ''] ?? null;
+        abort_if($permission && ! $request->user()->can($permission), 403, '«' . Permissions::label((string) $permission) . '» برای نقش شما مجاز نیست.');
     }
 
     /**
@@ -917,6 +961,9 @@ class SuggestionController extends Controller
     public function reopen(Request $request, FieldSuggestion $suggestion)
     {
         abort_unless(in_array($suggestion->status, ['approved', 'rejected'], true), 409, 'فقط پیشنهاد تأییدشده یا ردشده را می‌توان بازگرداند.');
+        if ($suggestion->status === 'approved') {
+            $this->authorizeTool($request, $suggestion);
+        }
 
         $log = $suggestion->status === 'approved' ? AuditLog::activeForSuggestion($suggestion->id) : null;
         $undo = $log && ! empty($log->old_values);
@@ -960,7 +1007,7 @@ class SuggestionController extends Controller
         $fresh = $suggestion->fresh();
         $message = $fresh->status === 'pending'
             ? "پیشنهاد #{$suggestion->id} به صف داوری بازگشت" . ($undo ? ' و تغییر آن در رکورد بازگردانده شد.' : '.')
-            : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان قول مختار بازگردانده شد؛ دوباره «قول دیگر» است.";
+            : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان مقدار منتخب بازگردانده شد؛ دوباره «قول دیگر» است.";
 
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', $message);
     }

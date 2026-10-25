@@ -26,320 +26,113 @@
     @stack('styles')
 </head>
 <body class="bg-paper text-ink font-sans min-h-screen flex selection:bg-cinnabar/20 selection:text-cinnabar">
+@php
+    $navGroups = \App\Support\AdminNav::groups(auth()->user());
+    $navGroup = \App\Support\AdminNav::currentGroup($navGroups);
+@endphp
 
-    <!-- Mobile Sidebar Backdrop -->
-    <div x-show="sidebarOpen" 
-         @click="sidebarOpen = false" 
-         x-cloak
-         x-transition:enter="transition-opacity ease-linear duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition-opacity ease-linear duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-40 bg-stone-950/60 backdrop-blur-sm lg:hidden"></div>
+    {{-- Phone: the menu slides in over a scrim --}}
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" x-cloak x-transition.opacity
+         class="fixed inset-0 z-40 bg-black/40 lg:hidden"></div>
 
-    <!-- Sidebar Navigation -->
+    {{-- Menu on the page's own paper (backlog item 65, option «الف»): four groups with rubric headings --}}
     <aside :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
-           class="fixed inset-y-0 right-0 z-50 w-72 bg-[#221C17] text-stone-300 flex flex-col border-l border-gold/30 shadow-2xl transition-transform duration-300 ease-in-out">
-        
-        <!-- Sidebar Brand Header -->
-        <div class="h-20 flex items-center justify-between px-6 border-b border-stone-800/80 bg-[#1A1511]">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-64.png') }}" alt="" width="40" height="40" class="h-10 w-10">
-                <div>
-                    <span class="font-naskh text-2xl font-bold text-amber-50 leading-none block">فهارس</span>
-                    <span class="text-[10px] text-[#C9A45C] font-medium">پنل مدیریت و داوری</span>
-                </div>
+           class="fixed inset-y-0 right-0 z-50 w-64 bg-surface border-l border-line flex flex-col transition-transform duration-200 ease-out motion-reduce:transition-none">
+        <div class="h-16 flex items-center justify-between px-5 border-b border-line">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5">
+                <img src="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-64.png') }}" alt="" width="36" height="36" class="h-9 w-9">
+                <span>
+                    <span class="font-naskh text-2xl font-bold text-ink leading-none block">فهارس</span>
+                    <span class="text-[11px] text-gold">پنل مدیریت و داوری</span>
+                </span>
             </a>
-            <button @click="sidebarOpen = false" class="lg:hidden text-stone-400 hover:text-white p-1">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+            <button type="button" @click="sidebarOpen = false" class="lg:hidden p-1.5 text-muted hover:text-cinnabar cursor-pointer" aria-label="بستن منو">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
-        <!-- Sidebar Navigation Items (Scrollable) -->
-        <div class="flex-1 overflow-y-auto px-4 py-6 space-y-6 text-xs font-semibold custom-scrollbar">
-            
-            <!-- Group: پیشخوان و مانیتورینگ -->
-            <div class="space-y-1">
-                <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">نظارت عمومی</span>
-                <a href="{{ route('admin.dashboard') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                        </svg>
-                        <span>داشبورد آماری</span>
-                    </div>
-                </a>
-                <a href="{{ route('admin.audit-logs.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.audit-logs.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                    </svg>
-                    <span>گزارش ممیزی و تغییرات</span>
-                </a>
-            </div>
-
-            <!-- Group: داوری و اصلاحات -->
-            <div class="space-y-1">
-                <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">داوری و ویرایش علمی</span>
-                <a href="{{ route('admin.suggestions.index') }}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.suggestions.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
-                        </svg>
-                        <span>پیشنهادات اصلاحی</span>
-                    </div>
-                    @php
-                        $pendingCount = \App\Models\FieldSuggestion::where('status', 'pending')->count();
-                    @endphp
-                    @if($pendingCount > 0)
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-stone-950">
-                            {{ number_format($pendingCount) }}
-                        </span>
-                    @endif
-                </a>
-                <a href="{{ route('admin.catalog-references.index') }}"
-                   class="flex items-center justify-between px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.catalog-references.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                        <span>نشانی‌های خودکار فهرست</span>
-                    </div>
-                    @php $machineRefs = \App\Models\SourceEntry::awaitingReview()->count(); @endphp
-                    @if($machineRefs > 0)
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500 text-stone-950">{{ number_format($machineRefs) }}</span>
-                    @endif
-                </a>
-                @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
-                <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition text-stone-300 hover:bg-white/5 hover:text-white">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                        <span>اعلان‌های من</span>
-                    </div>
-                    @if($unreadNotifications)
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-stone-950">{{ $unreadNotifications }}</span>
-                    @endif
-                </a>
-            </div>
-
-            <!-- Group: تاکسونومی و اعلام -->
-            <div class="space-y-1">
-                <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">تاکسونومی و پدیدآوران</span>
-                <a href="{{ route('admin.subjects.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.subjects.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
-                    <span>درخت و ادغام موضوعات</span>
-                </a>
-                <a href="{{ route('admin.people.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.people.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                    <span>اشخاص، مؤلفان و ادغام اعلام</span>
-                </a>
-            </div>
-
-            <!-- Group: منابع و کتابخانه‌ها -->
-            <div class="space-y-1">
-                <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">فهرستگان و مراکز</span>
-                <a href="{{ route('admin.catalogers.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.catalogers.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                    <span>فهرست‌نگاران</span>
-                </a>
-                <a href="{{ route('admin.libraries.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.libraries.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
-                    <span>کتابخانه‌ها و آرشیوها</span>
-                </a>
-            </div>
-
-            <!-- Group: زیرساخت و کاربران -->
-            <div class="space-y-1">
-                <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400">سامانه و زیرساخت</span>
-                <a href="{{ route('admin.posts.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.posts.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    <span>جریده</span>
-                </a>
-                <a href="{{ route('admin.home.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.home.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span>صفحه‌ی خانه</span>
-                </a>
-                <a href="{{ route('admin.pages.edit', 'about') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.pages.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>درباره ما</span>
-                </a>
-                <a href="{{ route('admin.system.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.system.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    </svg>
-                    <span>عملیات کش و Meilisearch</span>
-                </a>
-                <a href="{{ route('admin.users.index') }}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-[#C9A45C] text-[#1A1511] font-bold' : 'text-stone-300 hover:bg-white/5 hover:text-white' }}">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                    <span>کاربران و پژوهشگران</span>
-                </a>
-            </div>
-
-        </div>
-
-        <!-- Sidebar Footer (Admin Profile & Back to site) -->
-        <div class="p-4 border-t border-stone-800/80 bg-[#1A1511] space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-cinnabar/20 border border-gold/40 flex items-center justify-center font-bold text-amber-300 text-sm">
-                        {{ mb_substr(auth()->user()->name, 0, 1) }}
-                    </div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs font-bold text-white truncate max-w-[130px]">{{ auth()->user()->name }}</p>
-                        <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300">
-                            {{ auth()->user()->role === 'admin' ? 'مدیر ارشد' : 'دبیر علمی' }}
-                        </span>
-                    </div>
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-4 text-[13px]" aria-label="منوی پنل">
+            @foreach($navGroups as $group)
+                <div>
+                    <h2 class="rubric text-sm px-2 pb-1">{{ $group['title'] }}</h2>
+                    @foreach($group['items'] as $item)
+                        <a href="{{ $item['url'] }}" @if($item['active']) aria-current="page" @endif
+                           class="flex items-center justify-between gap-2 px-3 py-1.5 rounded-sm transition {{ $item['active'] ? 'bg-paper text-cinnabar font-bold shadow-[inset_-3px_0_0_var(--cinnabar)]' : 'text-ink hover:bg-paper' }}">
+                            <span>{{ $item['label'] }}</span>
+                            @if($item['count'])
+                                <span class="px-1.5 min-w-5 text-center rounded-full text-[11px] font-bold tabular-nums {{ $item['soft'] ? 'border border-line text-muted' : 'bg-cinnabar text-on-cinnabar' }}">{{ \App\Support\Fa::num($item['count']) }}</span>
+                            @endif
+                        </a>
+                    @endforeach
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" title="خروج" class="p-2 text-stone-400 hover:text-red-400 rounded-lg hover:bg-white/5 transition">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                    </button>
-                </form>
+            @endforeach
+        </nav>
+
+        <div class="border-t border-line px-5 py-3 flex items-center gap-2.5 text-xs">
+            <x-ui.avatar :user="auth()->user()" />
+            <div class="min-w-0 flex-1">
+                <p class="font-bold text-ink truncate">{{ auth()->user()->name }}</p>
+                <p class="text-muted">{{ \App\Models\Role::where('key', auth()->user()->role)->value('label') ?? auth()->user()->role }}</p>
             </div>
-
-            <a href="{{ route('home') }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-stone-700 bg-stone-800/60 hover:bg-stone-700 text-stone-300 hover:text-white text-xs font-semibold transition">
-                <svg class="w-4 h-4 text-cinnabar" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                </svg>
-                <span>مشاهده وب‌سایت عمومی</span>
-            </a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="text-muted hover:text-cinnabar transition cursor-pointer">خروج</button>
+            </form>
         </div>
-
     </aside>
 
-    <!-- Main Admin Shell Area -->
-    <div class="flex-1 flex flex-col min-w-0 lg:mr-72">
-        
-        <!-- Admin Top Navigation Bar -->
-        <header class="h-20 bg-surface border-b border-line px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-            
-            <!-- Left: Sidebar Trigger & Page Title -->
-            <div class="flex items-center gap-4">
-                <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-xl text-ink/80 hover:bg-paper">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
+    <div class="flex-1 flex flex-col min-w-0 lg:mr-64">
+
+        <header class="h-14 bg-surface border-b border-line px-3 sm:px-6 flex items-center justify-between gap-3 sticky top-0 z-30">
+            <div class="flex items-center gap-3 min-w-0">
+                <button type="button" @click="sidebarOpen = true" class="lg:hidden size-9 grid place-items-center rounded-sm border border-line-strong bg-paper text-ink cursor-pointer" aria-label="منو">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
-                <div>
-                    <h1 class="text-lg sm:text-xl font-black text-ink">
-                        @yield('page_title', 'مرکز مدیریت فهارس')
-                    </h1>
-                    <div class="text-[11px] text-muted flex items-center gap-2">
-                        @yield('breadcrumb')
-                    </div>
-                </div>
+                <span class="lg:hidden font-naskh text-xl font-bold">فهارس</span>
             </div>
-
-            <!-- Right: Actions & Theme -->
-            <div class="flex items-center gap-3">
-                
-                <!-- Dark Mode Switch -->
-                <button type="button" 
-                        @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)" 
-                        class="p-2.5 rounded-xl border border-line-strong bg-paper text-stone-600 dark:text-amber-300 hover:text-cinnabar transition shadow-xs cursor-pointer"
-                        title="تغییر تم">
-                    <svg x-show="darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-                    </svg>
-                    <svg x-show="!darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-                    </svg>
+            <div class="flex items-center gap-2 text-xs">
+                <span class="hidden sm:inline text-muted">{{ auth()->user()->name }}</span>
+                <button type="button"
+                        @click="darkMode = !darkMode; localStorage.setItem('theme', darkMode ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', darkMode)"
+                        class="size-8 grid place-items-center rounded-sm border border-line-strong bg-paper text-ink hover:text-cinnabar transition cursor-pointer" title="روشن یا تیره" aria-label="روشن یا تیره">
+                    <svg x-show="darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                    <svg x-show="!darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                 </button>
-
-                <!-- Status Badge -->
-                <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>سامانه برخط</span>
-                </div>
-
+                <x-ui.btn :href="route('home')" size="sm" target="_blank">مشاهده‌ی سایت</x-ui.btn>
             </div>
-
         </header>
 
-        <!-- Flash Alert Messages -->
-        <div class="px-4 sm:px-8 pt-6">
-            @if(session('success'))
-                <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs flex items-center justify-between shadow-xs">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>{{ session('success') }}</span>
-                    </div>
+        {{-- Page heading: the menu group above the title, then the page's own actions --}}
+        <div class="px-3 sm:px-6 pt-5 flex flex-wrap items-end justify-between gap-3">
+            <div class="min-w-0">
+                <div class="text-xs text-muted flex flex-wrap items-center gap-1.5">
+                    @hasSection('breadcrumb')
+                        @yield('breadcrumb')
+                    @else
+                        {{ $navGroup }}
+                    @endif
                 </div>
-            @endif
-
-            @if(session('error'))
-                <div class="p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 text-red-900 dark:text-red-200 text-xs flex items-center justify-between shadow-xs">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>{{ session('error') }}</span>
-                    </div>
-                </div>
-            @endif
-
-            @if(session('warning'))
-                <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between shadow-xs">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                        </svg>
-                        <span>{{ session('warning') }}</span>
-                    </div>
-                </div>
+                <h1 class="font-naskh text-2xl font-bold text-ink leading-snug text-balance">@yield('page_title', 'پنل مدیریت')</h1>
+            </div>
+            @hasSection('page_actions')
+                <div class="flex flex-wrap items-center gap-2">@yield('page_actions')</div>
             @endif
         </div>
 
-        <!-- Content Body Area -->
-        <main class="flex-1 px-4 sm:px-8 py-6">
+        {{-- Flash messages --}}
+        @if(session()->hasAny(['success', 'error', 'warning', 'info']))
+        <div class="px-3 sm:px-6 pt-4 space-y-2">
+            @foreach(['success' => 'border-emerald-600/40 text-emerald-800 dark:text-emerald-300', 'error' => 'border-cinnabar/50 text-cinnabar', 'warning' => 'border-amber-600/50 text-amber-800 dark:text-amber-300', 'info' => 'border-line-strong text-ink'] as $key => $tone)
+                @if(session($key))
+                    <div role="status" class="px-4 py-2.5 bg-surface border border-s-4 {{ $tone }} text-[13px]">{{ session($key) }}</div>
+                @endif
+            @endforeach
+        </div>
+        @endif
+
+        <main class="flex-1 px-3 sm:px-6 py-5">
             @yield('content')
         </main>
-
-        <!-- Admin Footer -->
-        <footer class="h-14 border-t border-line px-4 sm:px-8 flex items-center justify-between text-xs text-muted bg-surface">
-            <div>پایگاه فهارس نسخه خطی ایران • پنل نظارت علمی</div>
-            <div class="font-mono text-[11px]">Laravel 13 • PHP 8.3 • Meilisearch</div>
-        </footer>
-
     </div>
 
     @stack('scripts')

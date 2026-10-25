@@ -19,7 +19,7 @@
 
         <!-- Benefits Note -->
         <div class="p-3 rounded-sm bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
-            با عضویت در پایگاه، پیشنهادات اصلاحی و استنادات نسخه‌پژوهی شما به نام خودتان ثبت شده و بدون نیاز به ورود مکرر مشخصات بررسی می‌گردد.
+            ثبت پیشنهاد اصلاح، یادداشت و منبع پژوهشی ویژه‌ی اعضاست. با عضویت، پیشنهادهای شما به نام خودتان ثبت می‌شود و اگر بخواهید، نامتان کنار اصلاحاتتان منتشر می‌شود.
         </div>
 
         @include('auth.partials.google-button', ['label' => 'ثبت‌نام با حساب گوگل'])
@@ -29,15 +29,7 @@
             @csrf
 
             <!-- Name -->
-            <div class="space-y-1">
-                <label for="name" class="block text-xs font-bold text-ink">نام و نام خانوادگی:</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus
-                       placeholder="مثال: دکتر علی رضایی"
-                       class="w-full px-4 py-2.5 rounded-sm border @error('name') border-red-400 bg-red-50/30 @else border-line-strong bg-paper @enderror text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none">
-                @error('name')
-                    <p class="text-[11px] text-red-500 font-medium">{{ $message }}</p>
-                @enderror
-            </div>
+            @include('auth.partials.name-field', ['autofocus' => true, 'inputClass' => 'w-full px-4 py-2.5 rounded-sm border ' . ($errors->has('name') ? 'border-red-400 bg-red-50/30' : 'border-line-strong bg-paper') . ' text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none'])
 
             <!-- Email -->
             <div class="space-y-1">
@@ -59,6 +51,9 @@
                        placeholder="مثال: دانشگاه تهران، پژوهشکده زبان و ادبیات..."
                        class="w-full px-4 py-2.5 rounded-sm border border-line-strong bg-paper text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none">
             </div>
+
+            <!-- Phone (optional) -->
+            @include('auth.partials.phone-field', ['inputClass' => 'w-full px-4 py-2.5 rounded-sm border ' . ($errors->has('phone') ? 'border-red-400 bg-red-50/30' : 'border-line-strong bg-paper') . ' text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none'])
 
             <!-- Password -->
             <div class="space-y-1">

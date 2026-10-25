@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'google_id', 'password', 'role', 'affiliation', 'is_verified_scholar'])]
-#[Hidden(['password', 'remember_token', 'google_id'])]
+#[Fillable(['name', 'email', 'google_id', 'password', 'role', 'affiliation', 'phone', 'is_verified_scholar'])]
+// The phone is never shown publicly; the panel shows it only with the users.contact permission (backlog item 74)
+#[Hidden(['password', 'remember_token', 'google_id', 'phone'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
@@ -28,7 +29,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_verified_scholar' => 'boolean',
+            'name_kept_at' => 'datetime',
         ];
+    }
+
+    /** A Latin-only name the user has not chosen to keep: a bar asks them to write it in Persian (backlog item 75). */
+    public function shouldWriteNameInPersian(): bool
+    {
+        return ! $this->name_kept_at && \App\Support\PersonName::isLatinOnly($this->name);
     }
 
     /** In Persian whatever APP_LOCALE says, like the other notifications. */
@@ -52,9 +60,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return in_array($this->role, ['admin', 'editor']);
     }
 
+    /** Whether the user may enter the admin panel; each section has its own permission (App\Auth\Permissions) */
     public function canAccessAdmin(): bool
     {
-        return in_array($this->role, ['admin', 'editor']);
+        return $this->hasPermission('panel.access');
+    }
+
+    /** A permission of the access matrix; also available as a Gate ability, e.g. `can:people.edit` */
+    public function hasPermission(string $key): bool
+    {
+        return \App\Auth\Permissions::allows($this->role, $key);
     }
 
     /** The user's picture, uploaded or copied from Google (backlog item 66); null means the initial of the name. */

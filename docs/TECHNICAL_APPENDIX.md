@@ -1812,6 +1812,47 @@
 - **باقی‌مانده‌ها:** ۶ رکورد «نیاز به بررسی بیشتر» (46373، 50542، 51611، 55392، 57148، 58788)، و رکورد 56225 که روی پروداکشن دو تطبیق «حسین بن منصور سبزواری» دارد.
 - **آزمون‌ها:** آزمون تازه در [SplitCompoundPeopleTest.php](../tests/Feature/SplitCompoundPeopleTest.php) برای نام بی‌رکورد، `set`، `edit`، `manuscript_set`، ادغام پیش از تفکیک و نمایش صفحه. ۶۶ آزمون با ۶۵۸ Assertion موفق.
 
+
+### گام ۱۰.۳: یکی‌کردن اشخاصِ تکراری
+
+- **دستور [`fahares:find-duplicate-people`](../app/Console/Commands/FindDuplicatePeopleCommand.php)** (فقط‌خواندنی، خروجی در `storage/app/duplicate_people.json`):
+  - **کلید گروه:** نام نرمال‌شده، بدون متن پرانتز و گیومه، با برگرداندن صورت وارونه‌ی «X، Y» به «Y X»، بدون نشانه‌ها، «ابن» به «بن»، بدون «ال» آغاز واژه و بدون فاصله.
+  - **دسته‌ی «تعارض»:** سال‌های وفات بیش از ۲ سال فاصله دارند؛ یا سده‌ها بیش از ۱ سده؛ یا تاریخ کتابت پس از وفات است (۵ سال، و برای وفات‌های پس از ۱۳۰۰ به دلیل احتمال تاریخ شمسی ۵۰ سال) یا بیش از ۹۰ سال پیش از آن؛ یا تاریخ‌های کتابت گروه بیش از ۷۰ سال پراکنده‌اند.
+  - **سال وفات میانه‌ی سده** (۱۰۵۰، ۱۲۵۰ و مانند آن)، که پارسر از «ق ۱۱» و «ق ۱۳» ساخته، فقط سده حساب می‌شود.
+  - **دسته‌ی «بازبینی»:** نام عام (همه‌ی واژه‌ها از فهرست نام‌ها و لقب‌های رایج)؛ یا رکوردی که خودش نسخه‌هایی با بیش از ۷۰ سال فاصله دارد؛ یا توضیح پرانتز متفاوت؛ یا مؤلف و کاتبِ بی‌تاریخ.
+  - **رکورد اصلی:** رکورد دارای سال وفات، سپس بیشترین پیوند، سپس قدیمی‌ترین شناسه.
+- **دستور [`fahares:merge-duplicate-people`](../app/Console/Commands/MergeDuplicatePeopleCommand.php)** با `--report`، `--decisions`، `--tier`، `--limit` و `--dry-run`: دسته‌ی «محتمل» و تصمیم‌های `merge` در [duplicate_people_decisions.json](../database/data/duplicate_people_decisions.json) را از راه `PersonMerger` اجرا می‌کند. هر عضو پیش از ادغام از راه ریدایرکت پیدا می‌شود و کلیدش با گروه سنجیده می‌شود.
+- **[PersonMerger](../app/Services/PersonMerger.php):** گزینه‌ی تازه‌ی `keepPrintedNames` نام چاپی (`author_name`/`scribe_name`) را دست نمی‌زند و در لاگ با `kept_printed_names` ثبت می‌شود. بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) هم در این حالت نام‌ها را برنمی‌گرداند.
+- **داوری گروه‌های «بازبینی»:** ۷۱۵ گروه در پنج دسته با زیرعامل Sonnet داوری شد، با تاریخ‌ها و نمونه‌ی آثار و نسخه‌های هر رکورد. نتیجه: ۲۸۶ ادغام مطمئن، ۳۵۳ جدا، ۶۵ نامطمئن و ۱۱ ادغام کم‌اطمینان. ادغام‌های مطمئن و تصمیم‌های «جدا» در فایل تصمیم‌ها ثبت شد. ۷۶ گروه باقی‌مانده در [صفحه‌ی بازبینی هم‌نام‌ها](https://claude.ai/artifact/EhtfVk9ESg5hjBWNtjBUE5) منتظر تصمیم کاربرند.
+- **تمرین:** روی `fahares_prod` (کپی ۲۲ مهر) ۳٬۴۹۶ ادغام در ۴۵ ثانیه، با صفر ناهمخوانی و صفر پیوند یتیم.
+- **اجرای پروداکشن:**
+  - پشتیبان کامل در `~/backups/before_dedupe_people_20261021_0855.sql.gz` روی میزبان گرفته شد. گزارش روی پروداکشن همان عددهای تمرین را داد: ۳٬۰۵۷ / ۷۱۵ / ۲۴۸.
+  - اجرای نخست پس از ۹۰۲ ادغام با کد ۱۳۷ کشته شد. هر ادغام در تراکنش خودش است، پس داده سالم ماند.
+  - گزینه‌ی `--limit` افزوده شد. دسته‌های بعدی به دلیل استقرار هم‌زمان قطع شدند، چون `storage/app` در کانتینر ماندگار نیست و گزارش از بین رفت.
+  - اجرای نهایی (۲ آبان) در دسته‌های ۳۰۰تایی انجام شد؛ هر دسته در یک اتصال، اول گزارش را از نو می‌سازد و بعد ادغام می‌کند.
+  - مجموع: ۳٬۸۲۸ ادغام در ۳٬۳۴۳ شخص، برابر با اجرای آزمایشی. ناهمخوانی و پیوند یتیم صفر بود. شمار اشخاص ۷۰٬۴۳۶ شد. گزارش پس از اجرا: محتمل ۰، بازبینی ۴۵۶، تعارض ۲۴۹.
+- **آزمون‌ها:** [DuplicatePeopleTest.php](../tests/Feature/DuplicatePeopleTest.php) شامل کلید، دسته‌بندی، ادغام با نام چاپیِ دست‌نخورده، بازگردانی، و ادغام بخشی از یک گروه بازبینی‌شده. ۱۷۱ آزمون موفق.
+
+
+### گام ۱۰.۴: صف «بازبینی اشخاص» در پنل مدیریت
+
+- **جدول `person_reviews`** ([مایگریشن](../database/migrations/2026_10_24_400001_create_person_reviews_table.php)، مدل [PersonReview](../app/Models/PersonReview.php)):
+  - ستون‌ها: `type` (`duplicate`، `mixed`)، `key` (کلید نام گروه یا `person:<id>`)، `person_ids`، `tier`، `reason`، `suggestion`، `status`، `decision`، `note`، `decided_by` و `decided_at`. جفت `(type, key)` یکتاست.
+  - وضعیت‌ها: `open`، `deferred`، `merged`، `distinct`، `split`، `dismissed` و `gone`.
+- **سرویس [PersonReviewQueue](../app/Services/PersonReviewQueue.php)** و دستور [`fahares:refresh-person-reviews`](../app/Console/Commands/RefreshPersonReviewsCommand.php):
+  - **صف هم‌نام:** گروه‌های «محتمل» و «بازبینی» از [DuplicatePeopleFinder](../app/Services/DuplicatePeopleFinder.php) می‌آیند. منطق گزارش از دستور به این سرویس منتقل شد و `FindDuplicatePeopleCommand` فقط آن را می‌نویسد.
+  - **صف قاطی‌شده:** اشخاصی که تاریخ نسخه‌هایشان بیش از ۷۰ سال پراکنده است.
+  - **ماندگاری تصمیم:** با هر اجرا تصمیم‌ها سر جایشان می‌مانند. گروهِ تصمیم‌گرفته فقط وقتی دوباره باز می‌شود که رکوردی تازه به آن بپیوندد. موردِ بازی که دیگر در داده نیست `gone` می‌شود.
+  - **داوری‌های پیشین:** داوری‌های گام ۱۰.۳ از [duplicate_people_review_suggestions.json](../database/data/duplicate_people_review_suggestions.json) پیشنهاد آغازین موارد تازه‌اند. «جدا»ی خودکار با وضعیت `distinct` و بدون `decided_by` ثبت می‌شود.
+- **پنل** ([PersonReviewController](../app/Http/Controllers/Admin/PersonReviewController.php)، [نما](../resources/views/admin/person-reviews/index.blade.php)، [AdminNav](../app/Support/AdminNav.php)):
+  - **مسیرها:** `admin.person-reviews.index` (با `type=mixed` و `view=open|deferred|auto|done`) و کنش‌های `merge`، `split` و `status`.
+  - **دسترسی:** `people.merge` برای صف هم‌نام و `structure.split` برای صف قاطی‌شده.
+  - **کنش‌ها:** ادغام با `PersonMerger` و `keepPrintedNames`. تفکیک با `RecordSplitter::splitPerson` و لاگ `split`، که از لاگ ممیزی بازگرداندنی است.
+  - **منو:** دو مورد تازه در منو با شمار موارد باز. منو حالا برای `active` یک closure هم می‌پذیرد.
+- **اجرای پروداکشن (۲ آبان ۱۴۰۵):** پشتیبان کامل در `~/backups/before_person_reviews_20261024_1448.sql.gz` روی میزبان گرفته شد. سپس push و `migrate --force`، و بعد `fahares:refresh-person-reviews`: ۱٬۴۶۰ مورد ساخته شد. صف هم‌نام ۱۰۳ مورد باز و ۳۵۳ مورد «جدا به داوری خودکار» دارد و صف قاطی‌شده ۱٬۰۰۴ مورد باز. هر دو صفحه برای مدیر کد ۲۰۰ دادند و خطایی در لاگ نبود.
+- **زمان‌بندی:** `fahares:refresh-person-reviews` هر شب ساعت ۴:۱۵ اجرا می‌شود ([routes/console.php](../routes/console.php))، پس از ساختن آمار ساعت ۳:۳۰، با `withoutOverlapping`.
+- **آزمون‌ها:** [PersonReviewTest.php](../tests/Feature/PersonReviewTest.php) شامل ورود به صف، ادغام از پنل، ماندگاری «جدا» و بازگشایی با عضو تازه، تفکیک، و دسترسی. ۲۷۱ آزمون موفق.
+
 ---
 
 ## فاز ۱۱: مشارکت پژوهشگران
@@ -1978,7 +2019,7 @@
 - **کاربرد:** [auth/login](../resources/views/auth/login.blade.php)، و فیلدهای `password` و `password_confirmation` در [auth/register](../resources/views/auth/register.blade.php) و [auth/reset-password](../resources/views/auth/reset-password.blade.php).
 - **پیش از Alpine:** `type="password"` ایستا کنار `:type` نگه داشته شد تا گذرواژه پیش از بارگذاری Alpine یا بدون جاوااسکریپت به‌صورت متن دیده نشود. فرم ورود در گام ۱۱.۱۳ این را نداشت.
 
-### گام ۱۱.۱۲: بازخورد سایت
+### گام ۱۱.۲۹: بازخورد سایت
 
 - **داده:** مایگریشن `allow_site_feedback_in_field_suggestions` ستون‌های `suggestable_type` و `suggestable_id` را nullable می‌کند. بازخورد پیشنهادی با `kind = feedback` و بدون رکورد است. دسته در `field_name` قرار می‌گیرد (`SuggestionRegistry::FEEDBACK_CATEGORIES`: `bug`، `data`، `idea`، `other`) و `payload` این‌ها را نگه می‌دارد: `url` (فقط مسیر و query روی همین سایت)، `title`، `agent` و `files`. `typeKey()` و `typeLabel()` مقدار null را می‌پذیرند. دسترسی‌گرهای تازه‌ی `place_label` و `place_url` در `FieldSuggestion` «کجا»ی هر پیشنهاد را می‌دهند (رکورد یا صفحه) و فهرست داوری، داشبورد، صفحه‌ی داوری، «پیشنهادهای من» و اعلان‌ها از آن‌ها استفاده می‌کنند.
 - **ثبت ([FeedbackController](../app/Http/Controllers/FeedbackController.php)):** `POST /feedback` با `throttle:10,60` و honeypot. حداکثر ۲ تصویر فقط برای کاربر واردشده پذیرفته می‌شود و در `storage/app/public/feedback/{id}/` ذخیره می‌شود. `NoteFileController` تصویر بازخورد را هرگز عمومی نمی‌کند و فقط داوران و فرستنده آن را می‌بینند. مهمان با `notify_submitter` پاسخ را به ایمیل می‌گیرد.
@@ -1986,7 +2027,7 @@
 - **داوری:** فیلتر `type=feedback` در فهرست، [partials/feedback-review](../resources/views/admin/suggestions/partials/feedback-review.blade.php)، و `POST /admin/suggestions/{id}/resolve` (`resolveFeedback`) که وضعیت `approved` و یادداشت عمومی را ثبت و اعلان نتیجه را می‌فرستد. رد بازخورد تصویرهایش را پاک می‌کند. تبدیل برای بازخورد رکورد مقصد را الزامی می‌کند (`$hasRecord`). اعلان‌ها برای بازخورد عنوان و متن جداگانه دارند.
 - **آزمون‌ها:** آزمون تازه‌ی `test_site_feedback_from_any_page`: نگه‌داشتن فقط مسیر، تصویر فقط برای کاربر واردشده، اعلان، فیلتر و رسیدگی همراه پاسخ، خصوصی ماندن تصویر، تبدیل به پیشنهاد رکورد، و پاک شدن تصویر هنگام رد. کل مجموعه: ۷۰ آزمون موفق.
 
-### گام ۱۱.۱۳: پیشنهادهای رابطه‌ای، مرحله‌ی ۲ (اشخاص مرتبط با نسخه)
+### گام ۱۱.۳۰: پیشنهادهای رابطه‌ای، مرحله‌ی ۲ (اشخاص مرتبط با نسخه)
 
 - **داده:** جدول `manuscript_people` با ستون‌های `manuscript_id` (cascade)، `person_id` (nullable، nullOnDelete)، `name`، `role`، `note`، `position` و `suggestion_id`. مدل [ManuscriptPerson](../app/Models/ManuscriptPerson.php) با `ROLES` (`owner`، `endower`، `corrector`، `collator`، `glossator`، `patron`، `illuminator`، `painter`، `binder`، `reader`) تعریف شده و رابطه‌ها `Manuscript::otherPeople()` و `Person::manuscriptRoles()` هستند.
 - **پیشنهاد:** رابطه‌ی `manuscript.person_role` با `target_optional` و `apply = person_role`. ثبت، `role` (از `ROLES`) و یکی از شخص یا `role_name` را الزامی می‌کند و هر دو در `payload` ذخیره می‌شوند. میز پیشنهاد فهرست نقش و فیلد نام را نشان می‌دهد و با `suggest-field {general, relation}` می‌تواند با همین نوع از پیش انتخاب‌شده باز شود.
@@ -1995,7 +2036,7 @@
 - **نمایش:** کامپوننت [x-manuscript-people](../resources/views/components/manuscript-people.blade.php) در صفحه‌ی نسخه، کنار کارت کاتب، اشخاص را گروه‌بندی‌شده بر اساس نقش، همراه یادداشت و نام پیشنهاددهنده، و دکمه‌ی افزودن نشان می‌دهد. صفحه‌ی شخص هم کارت «پیوند با نسخه‌ها در نقش‌های دیگر» دارد.
 - **آزمون‌ها:** دو آزمون تازه: ثبت و داوری (شخص پیوندخورده و نامِ تنها، رد نقش نامعتبر و تکرار، نمایش در دو صفحه، بازگردانی، انتقال در ادغام نسخه)، و جابه‌جایی ردیف‌ها در ادغام اشخاص و بازگردانی آن. کل مجموعه: ۷۲ آزمون موفق.
 
-### گام ۱۱.۱۴: پیشنهادهای رابطه‌ای، مرحله‌ی ۳ (روابط آثار و نسخه‌ها)
+### گام ۱۱.۳۱: پیشنهادهای رابطه‌ای، مرحله‌ی ۳ (روابط آثار و نسخه‌ها)
 
 - **داده:** جدول `work_relations` با ستون‌های `work_id`، `related_work_id`، `type`، `note`، `source` (پیش‌فرض `suggestion`)، `confidence` و `suggestion_id`، و ایندکس یکتای `work_id + related_work_id + type`. جدول `manuscript_relations` همین ساختار را بدون `source` و `confidence` دارد. هر ردیف خوانده می‌شود: «{رکورد} یک {نوع} است از/بر {رکورد مرتبط}».
 - **منطق ([RecordRelations](../app/Suggestions/RecordRelations.php)):** `WORK_TYPES` و `MANUSCRIPT_TYPES` برای هر نوع دو برچسب دارند، یکی برای صفحه‌ی هر طرف. `options()` گزینه‌های هر دو جهت را می‌سازد؛ گزینه‌ی `~type` دو رکورد را جابه‌جا می‌کند و `same_set` جهت ندارد. `add()` رابطه‌ی تکراری و رابطه‌ی رکورد با خودش را رد می‌کند و لاگ `added_record_relation` را برمی‌گرداند. `for()` روابط هر دو جهت را بر اساس برچسب گروه‌بندی می‌کند. `moveOnMerge()` روابط رکورد حذف‌شده را به رکورد ماندنی می‌برد و روابط تکراری و رابطه‌ی رکورد با خودش را حذف می‌کند.
@@ -2003,7 +2044,7 @@
 - **داوری و بازگردانی:** فرم داوری نوع رابطه و یادداشت را دارد. `rollbackVerify` ردیف `added_record_relation` را حذف می‌کند. `RecordMerger` در ادغام نسخه و اثر `moveOnMerge` را فرامی‌خواند.
 - **آزمون‌ها:** آزمون تازه‌ی `test_relations_between_works_and_between_manuscripts`: پیشنهاد از صفحه‌ی متن مادر با جهت معکوس، نمایش در دو صفحه با برچسب هر طرف، رد تکرار، بازگردانی، بی‌جهت بودن `same_set`، و انتقال و حذف رابطه در ادغام. کل مجموعه: ۷۳ آزمون موفق.
 
-### گام ۱۱.۱۵: رساله‌های دیگر همان مجموعه
+### گام ۱۱.۳۲: رساله‌های دیگر همان مجموعه
 
 - **تجزیه (`Manuscript::collectionKey`):** رقم‌های فارسی به لاتین برگردانده و الگوی `{base}/{part}[-{tail}]` خوانده می‌شود. `base` و `part` باید رقم داشته باشند. `tail` اگر حرف داشته باشد (`\p{L}`) نام مجموعه است و در کلید می‌ماند (`513/8-طباطبائی`، `1804/10-عکسی`، `5468/1-ف`)؛ اگر فقط عددی باشد (`5722/2-29/62`، که در پایگاه محلی حدود ۱۷٬۷۰۰ شماره‌ی خط‌تیره‌دار دارد) کنار گذاشته می‌شود.
 - **جستجو (`collectionSiblings`):** با ایندکس موجود `manuscripts_library_id_shelfmark_key_index`: `library_id` برابر (یا اگر خالی بود، `library` متنی برابر) و `shelfmark_key LIKE '{base}/%'` (با escape)، حداکثر ۴۰۰ ردیف. سپس با `collectionKey` صافی می‌شود، تا مثلاً `90011/1` در مجموعه‌ی `9001` نیاید و مجموعه‌ی طباطبائی جدا بماند، و بر اساس شماره‌ی رساله مرتب می‌شود. ۱۱ شماره‌ی با رقم فارسی با این پیشوند پیدا نمی‌شوند.
@@ -2067,7 +2108,7 @@
   - `createLibrary(name, city, ?country)`: کتابخانه‌ی تکراری (همان شهر و نام، کلید یکتای جدول) را نمی‌پذیرد. slug به شکل `{slug نام و شهر}-{id}`.
 - [Admin/SuggestionController.php](../app/Http/Controllers/Admin/SuggestionController.php): `approveRelocation()` با `library_choice` = `target|keep|manual|new`. لاگ با `action = verify`، و `created_library_id` در `new_values` اگر کتابخانه ساخته شده باشد. فرم داوری در [relation-approve.blade.php](../resources/views/admin/suggestions/partials/relation-approve.blade.php).
 - [AuditLogController.php](../app/Http/Controllers/Admin/AuditLogController.php) `rollbackVerify`: با `library_id` در `old_values` هر دو کتابخانه دوباره شمرده می‌شوند. کتابخانه‌ی `created_library_id`، اگر نه نسخه‌ای داشته باشد نه مجلد فهرستی، حذف می‌شود. `metadata` با همان `forceFill` عمومی به حالت پیش برمی‌گردد.
-- [Manuscript.php](../app/Models/Manuscript.php): در `saving`، اگر `shelfmark` تغییر کند و `shelfmark_key` نه، کلید برابر `mb_substr(shelfmark, 0, 100)` می‌شود. در پایگاه محلی این برابری برای همه‌ی ۳۲۳٬۸۸۰ نسخه برقرار بود. پیش‌تر پیشنهاد اصلاح فیلد `shelfmark` کلید را کهنه می‌گذاشت، و «رساله‌های این مجموعه» (گام ۱۱.۱۵) و مرتب‌سازی بر پایه‌ی کلید کار می‌کنند.
+- [Manuscript.php](../app/Models/Manuscript.php): در `saving`، اگر `shelfmark` تغییر کند و `shelfmark_key` نه، کلید برابر `mb_substr(shelfmark, 0, 100)` می‌شود. در پایگاه محلی این برابری برای همه‌ی ۳۲۳٬۸۸۰ نسخه برقرار بود. پیش‌تر پیشنهاد اصلاح فیلد `shelfmark` کلید را کهنه می‌گذاشت، و «رساله‌های این مجموعه» (گام ۱۱.۳۲) و مرتب‌سازی بر پایه‌ی کلید کار می‌کنند.
 - [manuscripts/show.blade.php](../resources/views/manuscripts/show.blade.php): سطر «نشانی پیشین» زیر نوار کتابخانه و شماره.
 - **محدودیت‌ها:** شماره‌های پیشین در نمایه‌ی جستجو نیستند. رساله‌های دیگر همان مجلد خودکار با هم منتقل نمی‌شوند و هر کدام پیشنهاد جدا می‌خواهند.
 - آزمون تازه: `test_a_manuscript_moved_to_another_library_or_renumbered` در [SuggestionWorkflowTest.php](../tests/Feature/SuggestionWorkflowTest.php).
@@ -2392,7 +2433,7 @@
   - هر دو دستور اول آزمایشی و سپس واقعی اجرا شدند: «مرکز مطالعات» #۴۱ و «لغت نامه دهخدا» #۲۷، هر کدام «1 of 1». اجرای آزمایشی کل فایل پس از آن «0 of 31; 31 already had one» بود.
   - صفحه‌ی هر دو کتابخانه روی fahares.net نشان تازه را دارد و فایل نشان با پاسخ ۲۰۰ و `image/png` بارگذاری می‌شود.
 
-### گام ۱۲.۱۵: نگاشت صفحه‌های الذریعة
+### گام ۱۲.۷۱: نگاشت صفحه‌های الذریعة
 
 - **منبع:** `../fahares-sources/dharia/*_text.pdf`، ۲۸ فایل و ۱۱٬۲۳۰ برگه. تصویرها ۳۰۰ dpi و از نوع MRC هستند (JPX و JBIG2). جلد ۹ چهار فایل `09-1` تا `09-4` دارد و صفحه‌شماری‌اش پیوسته است.
 - **چرا خواندن چشمی:** `*_page_numbers.json` در archive.org تقریباً خالی است (جلد ۳ دو برگه، جلد ۲۵ هیچ). ارقام لایه‌ی OCR هم گم شده یا وارونه‌اند، و Tesseract نصب نیست.
@@ -2416,14 +2457,14 @@
 - **آزمایش جلد ۳:** ۴۹۱ صفحه، ۱۲۳۳×۱۸۵۰ پیکسل، ۵۶ مگابایت (میانگین ۱۱۴ کیلوبایت)، ۴۲ ثانیه با ۶ پردازه. نمایشگر با `open-catalog-viewer` و `catalog: 'dharia'` بدون تغییر کد آن را نمایش داد.
 - **استخراج کامل (۲۷ مهر ۱۴۰۵):** `extract_dharia_pages.py --workers 8` اجرا شد و ۱۱٬۰۸۴ فایل ساخت، بی هیچ فایل ناقص؛ همه با `PIL.verify` سالم بودند. جلدهای ۱، ۹، ۱۴، ۱۸ و ۲۱ اسکن بزرگ‌تری دارند (۱۸۰۵ تا ۲۱۱۶ پیکسل در ۳۰۰ dpi). برای همین اسکریپت به‌جای `-r 300` از `-scale-to-x 1240 -scale-to-y -1` استفاده می‌کند و این پنج جلد دوباره ساخته شدند (۳٬۱۶۶ برگه در ۷٫۵ دقیقه). حجم کل ۱٫۴ گیگابایت است. جلد ۲۴ صفحه‌ی ۴۸۶ در خود کتاب سفید است (۴ کیلوبایت).
 
-### گام ۱۲.۱۶: ارجاع الذریعة به نمایشگر برگه
+### گام ۱۲.۷۲: ارجاع الذریعة به نمایشگر برگه
 
 - [config/bibliography.php](../config/bibliography.php): کلید اختیاری `viewer` با `catalog`، `name`، `last_pages` (آخرین صفحه‌ی هر جلد) و `missing` (صفحه‌های گم‌شده‌ی جلد ۹ و ۱۸) برای `dharia`. این مقدارها از `scripts/facsimile/dharia_page_mapping.json` درآمده‌اند.
 - [BibliographyLinks](../app/Support/BibliographyLinks.php): `link()` وقتی صفحه موجود است `viewer` را با مقدارهای `{catalog, catalogName, volume, page}` می‌گذارد. `html()` برای چنین ارجاعی `onclick` اضافه می‌کند که `open-catalog-viewer` را روی `window` می‌فرستد و رفتار پیش‌فرض را می‌گیرد. `href` همچنان نشانی فقاهت است، برای کلیک وسط و حالت بدون جاوااسکریپت.
 - **آزمون:** `test_dharia_citations_open_the_page_viewer_unless_the_scan_lacks_the_page` در [BibliographyLinksTest](../tests/Unit/BibliographyLinksTest.php).
 - **سرور:** `/app/storage/app/public` روی دیسک ماندگار `/dev/sda4` است (۶۵ گیگابایت آزاد) و `catalogs/fankha` آنجاست. در کانتینر `rsync` نیست و `tar` هست.
 
-### گام ۱۲.۱۷: کارت الذریعة در ستون کناری
+### گام ۱۲.۷۳: کارت الذریعة در ستون کناری
 
 - [BibliographyLinks::viewerPages()](../app/Support/BibliographyLinks.php): از میان همه‌ی مدخل‌های `bibliography`، برگه‌هایی را که `viewer` دارند بی‌تکرار و به ترتیب نخستین ذکر برمی‌گرداند. کلید یکتایی `catalog/volume/page` است.
 - [works/show.blade.php](../resources/views/works/show.blade.php): در `<aside>` برای هر برگه یک `x-ui.card` با `data-viewer-card` گذاشته می‌شود. تصویر کوچک `storage/catalogs/{catalog}/vNN/pNNNN.webp` است و دکمه‌اش `open-catalog-viewer` را با `@js($vp)` می‌فرستد. `onerror` کل کارت را حذف می‌کند.
@@ -3078,6 +3119,11 @@
   - **تمرین روی `fahares_prod` محلی:** ۲۵٬۷۹۲ نسخه منتقل شد. اجرای دوم «already 25792» گزارش کرد.
     - ۷ تعارض: نسخه‌ای که با اثر، شماره و شماره‌ی کتابخانه پیدا می‌شود ارجاع دیگری دارد و `raw_text` آن نسخه‌ی دیگری است. نمونه: #33509 در «اسناد فرقه خاکسار» شماره‌ی کتابخانه‌ی 16375 مجلس را دارد، ولی متنش «تهران؛ دانشگاه؛ 6937-عکس» است. این نسخه‌ها دست نخوردند.
     - ۱ نسخه پیدا نشد: v34-2357 «10684/1».
+  - **اجرا روی production (۲ آبان ۱۴۰۵، با `ssh fahares-app`، به تأیید کاربر):**
+    - **پشتیبان:** `../fahares-sources/backups/item49_citations/production_metadata_before_20261024.jsonl`، ستون `metadata` همه‌ی ۳۲۳٬۸۸۰ نسخه با `END` در پایان (۱۲۴ مگابایت). پشتیبان ۲۹ مهر (`production_metadata_before.jsonl`) هم نگه داشته شد.
+    - **پیش‌نمایش:** «moved 25792، conflict 7، missing 1»، همان نتیجه‌ی تمرین و همان ۷ شناسه‌ی تعارض (#33509، #73031، #143936، #159825، #203373، #225293، #319284).
+    - **اجرا:** «Updated 25792 copies». اجرای دوم «already 25792» و «Updated 0 copies» گزارش کرد.
+    - **وارسی:** صفحه‌ی نسخه‌ی #10219 («آتشکده آذر»، رضوی 4296) پاسخ ۲۰۰ داد و ارجاع «الفبائی: 9-» را نشان داد.
   - **آزمون:** [ApplyCorpusCitationsCommandTest](../tests/Feature/ApplyCorpusCitationsCommandTest.php) این‌ها را می‌سنجد: انتقال، یادداشت میان یادداشت‌ها، نسخه‌ی دارای ارجاع، ستون محافظت‌شده، اثر ادغام‌شده، نسخه‌ی تکراری، نسخه‌ی ناموجود و تکرار بی‌اثر.
 - **حذف دستور:** `app/Console/Commands/LinkUnlinkedManuscriptsCommand.php` حذف شد. آزمون، زمان‌بندی یا دستور دیگری آن را صدا نمی‌زد. ۱۶۸ آزمون موفق است. `vendor` این worktree کهنه بود و Socialite نداشت، پس پیش از آزمون `composer install` شد.
 
@@ -3555,15 +3601,434 @@
   در همه‌ی حالت‌ها همه‌ی پیوندها در یک خط بودند (`offsetTop` یکسان). در عرض ۳۷۵، منوی کشویی هشت پیوند دارد.
 - **کلاس تازه:** `lg:px-2.5` کلاس تازه است. ساخت پروداکشن (nixpacks) `npm run build` را خودش اجرا می‌کند. در محیط محلی `npm run build` لازم بود.
 
+### گام ۱۳.۹: گلوله‌ی «مقدار منتخب» در [suggest/reading](../resources/views/components/suggest/reading.blade.php)
+- **کامپوننت:** `<x-suggest.reading>` prop تازه‌ی `chosen` گرفت (و `tag` اختیاری شد). با `chosen` به‌جای برچسب، یک `span` گرد سبز (`size-2.5 rounded-full bg-emerald-500`) با `title` و `aria-label` «مقدار منتخب» و `role="img"` نمایش داده می‌شود. [suggest/readings](../resources/views/components/suggest/readings.blade.php) برای `$r['adopted']` از آن استفاده می‌کند.
+- **صفحه‌ی اصلاحات:** در [contributions/index](../resources/views/contributions/index.blade.php) برای پیشنهاد فیلدی با `standing === 'adopted'` همان گلوله جای چیپ را گرفت. چیپ وضعیت‌های دیگر لحن پیش‌فرض دارد.
+- **متن:** `FieldSuggestion::STANDINGS['adopted']` اکنون «مقدار منتخب» است (برچسب در سابقه‌ی اصلاحات، فهرست داوری و ستون وضعیت صفحه‌ی اصلاحات). متن‌های [my/suggestions](../resources/views/my/suggestions.blade.php)، [admin/dashboard](../resources/views/admin/dashboard.blade.php)، [admin/suggestions/show](../resources/views/admin/suggestions/show.blade.php)، [SuggestionReviewed](../app/Notifications/SuggestionReviewed.php) و [Admin\SuggestionController](../app/Http/Controllers/Admin/SuggestionController.php) هم به‌روز شد. ثبت‌های پیشین مستندات تغییر نکرد.
+- **آزمون:** سه `assertSee` در [SuggestionWorkflowTest](../tests/Feature/SuggestionWorkflowTest.php) به متن تازه تغییر کرد. کل مجموعه: ۲۵۶ آزمون موفق.
+- **وارسی:** نسخه‌ی محلی ۵۲۵۶۱ و `/contributions` در حالت تیره: گلوله ۱۰ پیکسل است و عبارت «قول مختار» در صفحه نیست. `size-2.5` کلاس تازه بود و ساخت دوباره‌ی دارایی‌ها (`vite build` در کانتینر) لازم شد.
 
-### گام ۱۳.۲۵: طرح و دریافت متن الذریعة
+### گام ۱۳.۱۰: ماتریس دسترسی، [Permissions](../app/Auth/Permissions.php) و [admin/roles](../resources/views/admin/roles/index.blade.php) (مورد ۶۵)
+- **پروداکشن پیش از کار (`ssh fahares-app`، فقط خواندن):** نقش‌ها: admin ۳ (id 1، 2 و 8)، editor ۱ (id 14، ساخته‌ی ۲۰۲۶-۱۰-۲۲، بی ردیف در `audit_logs`)، researcher ۴ و user ۱۱.
+- **حفره‌ها پیش از کار:** `canAccessAdmin()` برای admin و editor درست بود و هیچ کنترلری `isAdmin()` را نمی‌سنجید. `UserController::update` فقط `in:admin,editor,researcher,user` را بررسی می‌کرد، پس داور می‌توانست خودش را admin کند.
+- **مدل داده:** پیاده‌سازی خودی است، نه spatie/laravel-permission، که `users.role` را به جدول چندبه‌چند می‌برد.
+  - مایگریشن `2026_10_24_300001` جدول `roles` (key، label، is_system، sort_order) را با چهار نقش کنونی و جدول `role_permissions` (role، permission) را با پیش‌فرض‌ها می‌سازد.
+  - تعریف مجوزها (کلید، گروه، برچسب، توضیح و نقش‌های پیش‌فرض) در `Permissions::ALL` است.
+  - `Permissions::allows()` برای `admin` همیشه true برمی‌گرداند و نقشه‌ی دیگر نقش‌ها را از کش (`role_permissions`) می‌خواند. `save()` نقش admin و کلیدهای ناشناخته را نادیده می‌گیرد و کش را پاک می‌کند.
+- **Gate:** `Gate::before` در `AppServiceProvider` هر کلید مجوز را به `User::hasPermission()` می‌سپارد. `canAccessAdmin()` اکنون `hasPermission('panel.access')` است.
+- **مسیرها:** همه‌ی گروه‌های `admin/*` در [routes/web.php](../routes/web.php) میان‌افزار `can:<key>` گرفتند. `direct-edit` مجوز `suggestions.direct_edit`، `audit-logs.rollback` مجوز `audit.rollback` و `subjects.merge` و `people.merge`/`people.search` مجوز جدا دارند.
+- **ابزارهای ساختاری:** `SuggestionController::authorizeTool()` در `approve` (برای `kind = relation`) و در `reopen` (برای پیشنهاد تأییدشده) مجوز `Permissions::FOR_APPLY[apply]` را می‌خواهد:
+  - `structure.link`
+  - `structure.move`
+  - `structure.merge_records`
+  - `structure.library`
+  - `structure.split`
+  - `structure.remove`
+  - `people.merge`
+
+  میز داوری به‌جای فرم تأیید پیامی نشان می‌دهد و دکمه‌ی بازگشایی را پنهان می‌کند.
+- **کاربران:**
+  - نقش‌ها با `Rule::exists('roles', 'key')` اعتبارسنجی می‌شوند.
+  - دادن یا برداشتن نقش admin، و حذف admin، فقط با admin است (۴۰۳).
+  - کسی نقش admin را از خودش برنمی‌دارد و آخرین admin حذف یا تنزل نمی‌شود.
+  - فرم ویرایش، فهرست نقش‌ها را از `Role::options()` می‌خواند.
+- **لاگ ممیزی:** هر ذخیره‌ی ماتریس برای هر نقش تغییرکرده یک ردیف `action = permissions` روی `Role` می‌سازد، با old و new و `added`/`removed`. کسی که `users.manage` ندارد ردیف‌های `User` و `Role` و ایمیل کاربران را در لاگ و پیشخوان نمی‌بیند. فید پیشخوان بدون `audit.view` خالی است.
+- **اعلان:**
+  - [AccessMatrixChanged](../app/Notifications/AccessMatrixChanged.php)، نوع `permissions.changed`، برای نقش admin است.
+  - `suggestion.submitted` اکنون با `'permission' => 'suggestions.review'` گیرنده می‌گیرد. `NotificationPreferences` کلید `permission` را می‌شناسد.
+- **صفحه‌های عمومی:** `canAccessAdmin()` به این مجوزها تغییر کرد:
+  - `suggestions.direct_edit` در `suggest/desk`
+  - `catalog_refs.review` در `machine-badge` و `machine-review-toast`
+  - `pages.manage` و `posts.manage` در صفحه‌ها، نوشته‌ها و پیش‌نمایش پیش‌نویس
+  - `suggestions.review` در `NoteFileController`
+  - `source_entries.edit` در `stale-text`
+
+  ورود به پنل و `Contributions` همان `canAccessAdmin()` ماندند.
+- **منو:** هر پیوند [layouts/admin](../resources/views/layouts/admin.blade.php) در `@can` است و گروه‌های خالی با `@canany` پنهان می‌شوند. پیوند «ماتریس دسترسی» افزوده شد.
+- **آزمون:** [AccessMatrixTest](../tests/Feature/Admin/AccessMatrixTest.php) ۱۰ آزمون دارد:
+  - ۳۰ مسیر فقط-مدیر برای داور ۴۰۳ می‌دهند.
+  - مسیرهای مجاز داور ۲۰۰ می‌دهند.
+  - researcher و user از پنل بیرون می‌مانند.
+  - منو فقط بخش‌های مجاز را نشان می‌دهد.
+  - تغییر ماتریس، لاگ و اعلان آن، و بازگشت به پیش‌فرض کار می‌کنند.
+  - ستون admin گرفتنی نیست.
+  - فقط admin مدیر کل می‌سازد یا برمی‌دارد، و آخرین admin می‌ماند.
+  - ابزار ادغام کتابخانه مجوز جدا می‌خواهد.
+  - کنش‌های صفحه‌ی عمومی و گیرندگان اعلان از ماتریس پیروی می‌کنند.
+
+  کل مجموعه: ۲۶۶ آزمون موفق.
+- **استقرار:** پس از استقرار، `migrate --force` لازم است. کلاس‌های تازه‌ی Tailwind (`md:table-cell` و دیگران) در ساخت nixpacks ساخته می‌شوند. در محیط محلی `npm run build` اجرا شد.
+
+### گام ۱۳.۱۱: [layouts/admin](../resources/views/layouts/admin.blade.php)، [AdminNav](../app/Support/AdminNav.php) و پیشخوان (مورد ۶۵، بندهای ۳ و ۴)
+- **پیش‌نمایش:** این پیش‌نمایش در artifact `KYaR14kW33PByJJTnL7ZX5` است و با توکن‌های `app.css` و نسخه‌های روشن و تیره و قاب موبایل (container query) ساخته شد. گزینه‌ها: الف کاغذی، ب جلد چرمی و ج منوی بالا. کاربر الف را برگزید. از بخش‌های پیشخوان، خط وضعیت سامانه (Meilisearch) کنار رفت.
+- **منو:** `AdminNav::groups($user)` چهار گروه دارد و هر مورد را با `$user->can()` بر پایه‌ی ماتریس گام ۱۳.۱۰ صافی می‌کند. شمار موارد این‌هاست:
+  - پیشنهادهای `pending`
+  - `SourceEntry::awaitingReview()`
+  - اعلان‌های خوانده‌نشده، با نشان کم‌رنگ
+
+  گروه‌های بی‌مورد نمایش داده نمی‌شوند. `currentGroup()` نام گروه را بالای عنوان صفحه می‌گذارد، وقتی صفحه `breadcrumb` ندارد.
+- **قاب:**
+  - منوی کناری `bg-surface` و `w-64` است، با سرفصل‌های `.rubric` و مورد فعال `shadow-[inset_-3px_0_0_var(--cinnabar)]`. در موبایل کشویی است و پرده‌ی تیره دارد.
+  - سربرگ ۵۶ پیکسلی دکمه‌ی روشن و تیره و «مشاهده‌ی سایت» (`x-ui.btn`) را دارد.
+  - عنوان صفحه با `font-naskh` در بالای محتوا می‌آید. بخش اختیاری تازه‌ی `@section('page_actions')` هم هست.
+  - پیام‌های `success`، `error`، `warning` و `info` یک الگو دارند. پانویس فنی حذف شد.
+- **پیشخوان:**
+  - `DashboardController` صف را با یک پرس‌وجوی گروه‌بندی‌شده می‌سازد: `general` با `field` در یک ستون است، و `relation`، `note` و `feedback` هرکدام ستون خود را دارند، هرکدام با `min(created_at)`. اگر `catalog_refs.review` باشد، نشانی‌های خودکار هم می‌آیند.
+  - هر خانه به `admin.suggestions.index?kind=…` پیوند دارد. پارامتر `kind` در `SuggestionController::index` تازه است و میز داوری آن را با یک چیپ قابل‌حذف نشان می‌دهد.
+  - بررسی سلامت Meilisearch از پیشخوان برداشته شد، پس دو درخواست HTTP در هر بارگذاری کم شد.
+  - آمار پایگاه با `.leader` فهرست نقطه‌چین است.
+- **آزمون:**
+  - `test_admin_can_access_dashboard` به متن تازه تغییر کرد.
+  - `test_dashboard_queue_counts_waiting_work_and_follows_the_matrix` افزوده شد. داوری که فقط `people.edit` دارد صف، پیشنهادها و رخدادها را نمی‌بیند.
+
+  کل مجموعه: ۲۶۷ آزمون موفق.
+- **دارایی‌ها:** کلاس‌های تازه (`lg:mr-64` و دیگران) با `vite build` در کانتینر ساخته شدند. در پروداکشن، nixpacks خودش می‌سازد.
+- **وارسی پروداکشن پس از استقرار (`ssh fahares-app`، فقط خواندن با tinker، بی ورود به حساب داور، ۲ آبان):**
+  - `SOURCE_COMMIT` برابر `2a5eb4e` است و مایگریشن `2026_10_24_300001` اجرا شده است.
+  - کاربر ۱۴ (`editor`) ۱۳ مجوز دارد: `panel.access`، `suggestions.review`، `suggestions.direct_edit`، `catalog_refs.review`، `source_entries.edit`، `people.edit`، `people.merge`، `catalogers.edit`، `libraries.edit`، `structure.link`، `structure.move`، `structure.merge_records` و `audit.view`. ۱۲ مجوز دیگر را ندارد.
+  - `AdminNav::groups()` برای او سه گروه می‌دهد: «داوری» (پیشخوان، پیشنهادها ۰، نشانی‌های خودکار ۱٬۲۳۱، اعلان‌ها ۷)، «داده‌ها و مراجع» (اشخاص، ادغام اشخاص، فهرست‌نگاران، کتابخانه‌ها) و «سامانه» (فقط لاگ ممیزی). «محتوای سایت»، موضوعات، کاربران، ماتریس و کش پنهان‌اند.
+  - صف پیشخوان: هیچ پیشنهاد `pending` در پروداکشن نیست، پس چهار خانه‌ی پیشنهاد صفرند و خانه‌ی نشانی خودکار ۱٬۲۳۱ است.
+  - از مسیرهای `admin/*`، میان‌افزار `can:` ۴۰ مسیر را برای او می‌بندد (موضوعات، صفحه‌ی خانه، صفحه‌ها، نوشته‌ها، بازگردانی لاگ، سامانه، کاربران و نقش‌ها) و ۳۱ مسیر را باز می‌گذارد. تنها مسیر بی `can:` خود پیشخوان (`admin`) است که با میان‌افزار `admin` (یعنی `panel.access`) محافظت می‌شود.
+  - کش `database` است، پس سنجش `can()` ممکن است ردیف کش نقشه‌ی مجوزها را ساخته باشد. داده‌ای تغییر نکرد.
+
+### گام ۱۳.۱۲: اجزای [components/admin](../resources/views/components/admin/) و پنج صفحه‌ی فهرستی (مورد ۶۵، بند ۵)
+- **اجزا:**
+  - `x-admin.filters`: فرم GET با `action`، `reset` (پیوند «همه»، فقط وقتی فیلتری فعال است)، `total` و `noun`.
+  - `x-admin.tabs`: فهرست `['label', 'url', 'active', 'count']`.
+  - `x-admin.table`، `x-admin.th`، `x-admin.row` و `x-admin.cell`. جدول زیر `md` با `block` و سطرها با `flex flex-wrap` کارت می‌شوند. `thead` در موبایل پنهان است و هر `cell` برچسب خود را با `md:hidden` نشان می‌دهد. `main` سطر نخست کارت و `actions` پانویس آن است. با `grouped` هر مورد `tbody` خودش را دارد، برای سطری که زیر سطر اصلی باز می‌شود (جزئیات لاگ).
+  - [admin/partials/pagination](../resources/views/admin/partials/pagination.blade.php): صفحه‌بندی با `Fa::num` و `rounded-sm`. جدول آن را با `links('admin.partials.pagination')` صدا می‌زند. صفحه‌بندی سایت عمومی دست نخورد.
+  - کلاس `.admin-field` در `app.css` برای ورودی و فهرست کشویی.
+- **صفحه‌ها:** [people](../resources/views/admin/people/index.blade.php)، [libraries](../resources/views/admin/libraries/index.blade.php)، [catalogers](../resources/views/admin/catalogers/index.blade.php)، [users](../resources/views/admin/users/index.blade.php) و [audit_logs](../resources/views/admin/audit_logs/index.blade.php).
+  - ستون جدای شناسه برداشته شد. شناسه با ارقام فارسی کنار نام می‌آید.
+  - عنوان صفحه همان نام منو است و دکمه‌ی «ادغام اشخاص تکراری» در `page_actions` و زیر `@can('people.merge')` است.
+  - رنگ‌های آبی و نیلی و کهربایی چیپ‌ها جای خود را به `x-ui.chip` دادند.
+- **کاربران:** `UserController::index` پارامتر `q` (نام یا رایانامه) را می‌پذیرد و `roles` (`Role::options()`) و `roleCounts` را به نما می‌دهد. برچسب‌های ثابت «مدیر ارشد» و «دبیر علمی» حذف شد. تأیید حذف با `@js` ساخته می‌شود.
+- **لاگ ممیزی:**
+  - `AuditLog::ACTION_LABELS` و `TYPE_LABELS`، و متدهای `actionLabel()` (که `rollback_*` را «بازگردانی …» می‌خواند) و `typeLabel()`. پیشخوان هم از آن‌ها استفاده می‌کند.
+  - `action=rollback` در `AuditLogController::index` همه‌ی `rollback%` را می‌آورد.
+  - فیلتر `type` (که از پیش در کنترلر بود) اکنون فهرست کشویی دارد. برای کسی که `users.manage` ندارد، `User` و `Role` در آن نمی‌آیند.
+  - جزئیات: جدول کلید، پیشین و تازه با `Str::limit(…, 400)`. IP فقط وقتی ثبت شده نشان داده می‌شود و پیش‌فرض ساختگی `127.0.0.1` حذف شد.
+- **آزمون:** [AdminListsTest](../tests/Feature/Admin/AdminListsTest.php) سه آزمون دارد:
+  - پنج صفحه بی عنوان انگلیسی و بی `rounded-2xl` باز می‌شوند.
+  - جستجو و زبانه‌ی کاربران کار می‌کند.
+  - برچسب‌ها و جزئیات لاگ، و زبانه‌ی بازگردانی درست‌اند.
+
+  کل مجموعه: ۲۷۰ آزمون موفق.
+- **وارسی:** صفحه‌ها با کد همین worktree و داده‌ی `fahares_db`، در کانتینر و با `SESSION_DRIVER=array`، به HTML ایستا ساخته و در مرورگر دیده شدند. عرض ۳۷۵ و ۱۲۸۰، و حالت تیره، و باز و بسته شدن جزئیات لاگ وارسی شد. نسخه‌ی داور (با نقش `editor` در حافظه، بی ذخیره) دکمه‌ی بازگردانی و گزینه‌ی «کاربر» را نشان نمی‌دهد.
+- **محیط worktree:** پیوند نمادین `vendor` باعث می‌شد کلاس‌های `App\` از مخزن اصلی بار شوند، پس `vendor` رونوشت شد. `vite build` در کانتینر و در مسیر worktree اجرا شد.
+
+### گام ۱۳.۱۳: میز داوری، [suggestions/index](../resources/views/admin/suggestions/index.blade.php)، [show](../resources/views/admin/suggestions/show.blade.php) و پاره‌ها (مورد ۶۵، بند ۵)
+- **فهرست:** دو ردیف `x-admin.tabs`، یکی برای وضعیت (با شمار `stats`) و دیگری برای نوع رکورد. هر دو پارامترهای دیگر (`type`، `kind`) را نگه می‌دارند. چیپ `kind` پیشخوان با ✕ برداشته می‌شود. ستون‌ها: رکورد (با شناسه، زمان نسبی و پیوند سایت)، فیلد، مقدار، پیشنهاددهنده، وضعیت. رایانامه‌ی مهمان از فهرست برداشته شد و فقط در صفحه‌ی داوری می‌آید.
+- **صفحه‌ی داوری:**
+  - وضعیت و پیوند رکورد به `page_actions` رفتند. `targetUrl` در `@php` بالای نما ساخته می‌شود.
+  - کارت خلاصه با `x-ui.meta-list` نمایش داده می‌شود.
+  - مقدار پیشنهادی در `x-ui.card framed` می‌آید. برای پیشنهاد ساختاری بی متن و بی شماره، این کارت نمایش داده نمی‌شود.
+  - برچسب‌ها با `for` به فیلدها وصل شدند. گروه‌های رادیویی `fieldset` و `legend` گرفتند.
+  - تأییدها با `@js` ساخته می‌شوند.
+- **جزء تازه:** `x-admin.notice` با لحن‌های `info`، `good`، `warn` و `error`، هم‌قالب پیام‌های قاب.
+- **پاره‌ها:** جایگزینی یکدست کلاس‌ها:
+  - ورودی‌ها `admin-field` گرفتند.
+  - دکمه‌ی تأیید `bg-emerald-700` است، دکمه‌ی حذف `bg-cinnabar` و دکمه‌ی رد حاشیه‌ی شنگرفی دارد.
+  - کادرهای خطا و هشدار `border-s-4` گرفتند.
+  - `stone-*` به `text-muted` و `bg-paper` تبدیل شد، و `rounded-xl/2xl/lg` به `rounded-sm`.
+  - رادیوها `accent-cinnabar` گرفتند.
+
+  برای ارقام فارسی، `number_format(` به `Fa::num(` و `#{{ $x->id }}` به `Fa::digits` تبدیل شد.
+- **آزمون:** دو `assertSee` به متن تازه تغییر کرد: «۱ نسخه پیوند دارد» و «۱ اثر» در SuggestionWorkflowTest، و عنوان فهرست در AdminPanelTest. کل مجموعه: ۲۷۴ آزمون موفق.
+- **وارسی:** درون یک تراکنش روی `fahares_db`، سه پیشنهاد در انتظار ساخته شد: فیلد `copy_date_raw`، `move_to_work` و گزارش اشکال. صفحه‌های آن‌ها و پیشنهاد تأییدشده‌ی ۱۹۴ به HTML ساخته شدند و تراکنش برگردانده شد (شمار پیشنهادهای در انتظار پس از آن ۰). در عرض ۳۷۵ و ۱۲۸۰، و در حالت تیره دیده شدند.
+
+### گام ۱۳.۱۴: [people/merge](../resources/views/admin/people/merge.blade.php) (مورد ۶۵، بند ۵)
+- **Alpine:** `authorityMerger` به `personMerger` تبدیل شد، با `sides.source` و `sides.target`. هر کدام `person`، `query`، `results`، `loading`، `open` و `searched` دارد. دو طرف با یک `@foreach` روی `$sides` ساخته می‌شوند. توابع `search(key)`، `pick`، `clear` و `swap` و دو getter، `same` و `ready`، در آن هستند.
+- **ارقام:** `fa()` برای شمارها `toLocaleString('fa-IR')` است و `digits()` برای شناسه‌ها و سال‌ها، بی جداکننده‌ی هزارگان.
+- **فرم:** نام فیلدها (`source_id`، `target_id` و `suggestion_id`) و مسیر تغییری نکرد. تأیید ادغام با `$event.preventDefault()` لغو می‌شود. «شخصی پیدا نشد» پس از جستجوی بی‌نتیجه نمایش داده می‌شود.
+- **پیام موفقیت:** در `PersonController::merge` شناسه‌ها با `Fa::digits` و نام‌ها در گیومه آمدند.
+- **وارسی:** صفحه با کد worktree و داده‌ی `fahares_db` ساخته شد:
+  - بی انتخاب، و با `source_id` و `target_id` از پیش داده‌شده.
+  - فهرست نتیجه‌ها با داده‌ی تزریقی، انتخاب، و جابه‌جایی. پس از جابه‌جایی `target_id=12`، `source_id` خالی است و دکمه غیرفعال است.
+  - عرض ۳۷۵ و ۱۲۸۰، و حالت تیره.
+  
+  جستجوی زنده (`admin.people.search`) در این وارسی ایستا آزموده نشد. کد آن تغییری نکرد.
+
+### گام ۱۳.۱۵: [catalog_references/index](../resources/views/admin/catalog_references/index.blade.php) (مورد ۶۵، بند ۵)
+- **فیلتر:** `status` دیگر فهرست کشویی نیست. `x-admin.tabs` آن را با شمار `$counts` نشان می‌دهد و پالایه‌های دیگر (`volume`، `method` و `confidence`) را در پیوند نگه می‌دارد. در فرم، `status` یک فیلد پنهان است.
+- **کادرها:** تأیید گروهی (`x-admin.notice` با لحن `good`، یا `info` با پیوند پالایه‌ی پیشنهادی) و آخرین دسته (`info`). نام فیلدها و متن تأییدها تغییری نکرد.
+- **جدول:** `x-admin.table` با صفحه‌بندی فارسی. پیش از این، `links()` پیش‌فرض با ارقام لاتین به کار می‌رفت. سلول مدخل در موبایل تمام‌عرض است و برچسب ندارد. چیپ اطمینان `border` رنگی روی `bg-surface` است. کنش‌ها `bg-emerald-700` برای تأیید و `x-ui.btn` برای رد هستند. وضع داوری‌شده با `x-ui.chip` (`good` یا `accent`) نشان داده می‌شود.
+- **وارسی:** `fahares_db` نشانی `origin = match` ندارد. درون یک تراکنش، چهار `SourceEntry` با روش‌ها و اطمینان‌های گوناگون (۱۰۰، ۸۰، ۴۵ و ۲۰) و یک یادداشت ساخته شد. صفحه با بی‌پالایه و با `method=shelfmark_title` به HTML ساخته شد و تراکنش برگردانده شد (پس از آن ۰ ردیف). عرض‌های ۳۷۵ و ۱۲۸۰ وارسی شد. CatalogReferencesTest: ۲۵ آزمون موفق. کل مجموعه: ۲۷۴ آزمون موفق.
+
+### گام ۱۳.۱۶: [reference-queue.js](../resources/js/reference-queue.js) (مورد ۶۵)
+- **سمت سرور:** `CatalogReferenceController::verify`، `reject` و `reopen` از گام ۱۳.۵ (مورد ۵۹، نشان ⓘ) به درخواست JSON پاسخ `{status, message, undo}` می‌دادند. سمت سرور تغییری نکرد.
+- **اسکریپت:** `Alpine.data('referenceReview')` روی هر `<tr>` نشسته است و `status`، `undoUrl`، `busy` و `error` را نگه می‌دارد.
+  - `send(form)` فرم را با `fetch` و `Accept: application/json` و سرآیند `X-CSRF-TOKEN` می‌فرستد. فرم‌ها `@submit.prevent` دارند، پس بی جاوااسکریپت همان POST و بازگشت پیشین انجام می‌شود.
+  - `undo()` با `{status}` به `reopen` می‌فرستد.
+  - `count()` شمار `[data-tab-count]` را با `toLocaleString('fa-IR')` جابه‌جا می‌کند.
+  - پیام‌های خطا (`FAILURES`، اکنون export شده) از [machine-review.js](../resources/js/machine-review.js) گرفته می‌شوند.
+- **زبانه‌ها:** کلید اختیاری `key` در `x-admin.tabs` روی شمار، `data-tab-count` و `data-n` می‌گذارد.
+- **دام Blade:** دستورهای `@js` و `@csrf` درون ویژگی‌های تگ کامپوننت (`<x-admin.row x-data="…@js(…)…">`) اجرا نمی‌شوند و بی‌تغییر در HTML می‌مانند. در نخستین نسخه، x-data شکست خورد و همه‌ی سطرها «داوری‌شده» نمایش داده شدند. توکن اکنون در `@php` با `Js::from(csrf_token())` ساخته و با `{{ }}` گذاشته می‌شود. آزمون، `assertDontSee('@js(')` را هم می‌سنجد.
+- **آزمون:** `test_the_queue_reviews_a_match_without_a_reload_and_can_put_it_back` در CatalogReferencesTest این‌ها را می‌سنجد:
+  - x-data و `@submit.prevent` در صفحه هستند.
+  - `data-tab-count` با `data-n` درست است.
+  - پاسخ JSON تأیید `undo` را برمی‌گرداند.
+  - بازگردانی وضع `unverified` را برمی‌گرداند.
+
+  کل مجموعه: ۲۷۵ آزمون موفق.
+- **وارسی:** روی HTML ایستای صف (چهار نشانی نمونه درون تراکنش برگردانده‌شده) `window.fetch` با پاسخ‌های هم‌شکل سرور جایگزین شد.
+  - تأیید سطر ۱ و رد سطر ۲ بی تغییر نشانی صفحه انجام شد. درخواست‌ها با روش POST، JSON و CSRF به `…/verify` و `…/reject` رفتند و زبانه‌ها ۴/۰/۰ به ۲/۱/۱ رسیدند.
+  - بازگردانی، `{"status":"verified"}` را به `…/reopen` فرستاد و زبانه‌ها به ۳/۰/۱ رسیدند.
+  - پاسخ ۴۱۹، پیام نشست منقضی را زیر همان سطر نشان داد.
+  - درخواست واقعی به سرور در این وارسی فرستاده نشد. آن را آزمون JSON می‌پوشاند.
+
+### گام ۱۳.۱۷: فرم‌های ویرایش و [roles/index](../resources/views/admin/roles/index.blade.php) (مورد ۶۵، بند ۵)
+- **اجزای تازه:**
+  - `x-admin.field`: برچسب با `for`، کنترل در slot، و `hint` و `error`. `error` نام فیلدی است که `@error` آن را می‌خواند.
+  - `x-admin.form-actions`: «انصراف» با `x-ui.btn ghost` و «ذخیره‌ی تغییرات» با `primary`.
+  - `x-admin.file`: `input[type=file]` با `sr-only` و `peer`، برچسبی که دکمه‌ی «انتخاب پرونده» است، و نام پرونده‌ی برگزیده با Alpine.
+- **فرم‌ها:** [people/edit](../resources/views/admin/people/edit.blade.php)، [libraries/edit](../resources/views/admin/libraries/edit.blade.php)، [catalogers/edit](../resources/views/admin/catalogers/edit.blade.php) و [users/edit](../resources/views/admin/users/edit.blade.php).
+  - نام و id فیلدها، و مسیرها، تغییری نکرد.
+  - `page_title` نام رکورد است و breadcrumb «فهرست / ویرایش #شناسه» با ارقام فارسی.
+  - دکمه‌ی ادغام زیر `@can('people.merge')` است.
+  - پیوند ماتریس در فرم کاربر زیر `@can('roles.manage')` است.
+  - کاربر تصویر خود (`x-ui.avatar lg`) و تاریخ عضویت را دارد.
+- **ماتریس:**
+  - breadcrumb تکراری برداشته شد، چون قاب نام گروه منو را نشان می‌دهد.
+  - زبانه‌های موبایل همان شکل `x-admin.tabs` را گرفتند. سرفصل گروه‌ها `.rubric` شد.
+  - نشان «حساس» حاشیه‌ی شنگرفی دارد و «≠ پیش‌فرض» `text-gold` است.
+  - دکمه‌ها `x-ui.btn` شدند و `number_format` جای خود را به `Fa::num` داد. منطق و تأیید فرم تغییری نکرد.
+- **وارسی:** هر پنج صفحه با کد worktree و داده‌ی `fahares_db` به HTML ساخته شدند. شخص پرکار، کتابخانه‌ی رضوی، نخستین فهرست‌نگار و یک کاربر غیرمدیر به کار رفتند. عرض‌های ۱۲۸۰ و ۳۷۵ وارسی شد. انتخاب پرونده با `DataTransfer` شبیه‌سازی شد و نام «نشان-رضوی.png» نمایش داده شد. کل مجموعه: ۲۷۵ آزمون موفق.
+- **مانده:** ورودی‌های عددی (`type=number`) ارقام را به زبان مرورگر نشان می‌دهند. این رفتار خود مرورگر است و تغییر داده نشد.
+
+### گام ۱۳.۱۸: [admin/subjects](../resources/views/admin/subjects/) (مورد ۶۵، بند ۵)
+- **فهرست:**
+  - `x-admin.filters` و `x-admin.table` به کار رفتند.
+  - کنش‌ها در `page_actions` هستند. «ادغام موضوعات» و دکمه‌ی ادغام هر سطر زیر `@can('subjects.merge')` آمدند.
+  - شاخه‌ی بالاتر با `x-ui.chip` نشان داده می‌شود، و برای شاخه‌ی اصلی `text-gold`. ایموجی 🔄 برداشته شد.
+- **درخت:**
+  - هر شاخه‌ی اصلی یک `<section x-data="{ open: true }">` است که به رویداد `tree-toggle.window` گوش می‌دهد. دکمه‌های «باز کردن همه» و «بستن همه» با `$dispatch('tree-toggle', true|false)` آن را می‌فرستند.
+  - زیرشاخه‌ها فهرست `.leader` با شمار آثار هستند و پیوند ویرایش دارند.
+  - شمار ثابت «۱۲۹» با `$rootSubjects->count()` و شمار فرزندان جایگزین شد.
+- **ادغام:** راهنما با `x-admin.notice` نشان داده می‌شود و با بازگردانی `AuditLogController` (شاخه‌ی Subject در `rollback`) می‌خواند. پیش از این، متن «قابل بازگشت نیست» نادرست بود. نام فیلدها (`source_subject_id` و `target_subject_id`) تغییری نکرد.
+- **ساخت و ویرایش:** فیلدهای مشترک در [partials/fields](../resources/views/admin/subjects/partials/fields.blade.php) با `$subject` یا `null` هستند. کنش‌ها `x-admin.form-actions` هستند.
+- **آزمون:** `test_subject_pages_render_in_persian_and_say_a_merge_can_be_undone` در AdminListsTest این‌ها را می‌سنجد:
+  - پنج صفحه بی عنوان انگلیسی و بی `rounded-2xl` هستند.
+  - درخت ریشه و فرزند را نشان می‌دهد و «۱۲۹ موضوع» را ندارد.
+  - صفحه‌ی ادغام «بازگرداندنی» را دارد.
+
+  کل مجموعه: ۲۷۶ آزمون موفق.
+- **وارسی:** صفحه‌ها با داده‌ی `fahares_db` (۲۲ شاخه‌ی اصلی و ۱۳۹ موضوع) به HTML ساخته و در عرض ۱۲۸۰ و ۳۷۵ دیده شدند.
+  - درگاه ۸۰۱۳ را برنامه‌ی دیگری گرفته بود و به آن دست زده نشد. پیش‌نمایش به ۸۰۱۴ رفت.
+  - **دام وارسی:** وقتی پنجره‌ی مرورگر داخلی پنهان است، `requestAnimationFrame` اجرا نمی‌شود و `x-show` در Alpine اثر نمی‌کند. صفحه شکسته به نظر می‌رسد، در حالی که کد درست است. با جایگزین `requestAnimationFrame = cb => setTimeout(cb)` این رفتار سنجیده شد: پس از «بستن همه» از ۲۲ شاخه ۰ باز ماند، با یک کلیک ۱ باز شد، و پس از «باز کردن همه» ۲۲ شاخه باز بودند.
+
+### گام ۱۳.۱۹: «تصحیح جمعی» (مورد ۸۰)
+- **ساختار:** ساختار تازه‌ای کنار پیشنهادها ساخته نشد. مهاجرت `2026_10_24_500001` سه ستون به `field_suggestions` افزود: `review_queue`، `review_item_id` و `review_answer` (شکل مقایسه‌پذیر پاسخ، مثلاً `yes`، `no` یا `page:ج ۲، ص ۴۵`)، با نمایه‌ی `(review_queue, review_item_id, status)`.
+- **کلاس‌ها:** [ReviewQueue](../app/Review/ReviewQueue.php) قرارداد هر صف است: موردهای باز، فیلترها، داده‌ی کارت، پاسخ‌ها، ستون‌های پیشنهاد و توصیف یک پاسخ. [CatalogMatchQueue](../app/Review/CatalogMatchQueue.php) نخستین صف است. [CollectiveReview](../app/Review/CollectiveReview.php) فهرست صف‌ها (`QUEUES`)، وزن (`SCHOLAR_WEIGHT = 2`)، آستانه (`ENOUGH = 3`)، `agreement()`، `next()`، `answer()`، `settle()` و `opinionsFor()` را دارد. صف آینده با یک کلاس و یک نمای `contribute/cards/{key}` افزوده می‌شود.
+- **پاسخ نشانی فهرست:** پیشنهاد `field` روی `source_entry_{id}` است: «آری» نشانی کنونی را می‌فرستد، «نه» مقدار `نیست` را، و «صفحه‌ی دیگر» نشانی تازه را («۴۵» یعنی همان جلد).
+- **تغییر در اعمال:** `SuggestionApplier::applySourceEntry` نشانی تأییدشده در همان صفحه را دیگر `manual` نمی‌کند. فقط `status` آن `verified` می‌شود و `origin = match` می‌ماند.
+- **بستن نظرها:** `settle()` در سه جا صدا زده می‌شود: `SourceEntry::review` (صف پنل و نشان ⓘ)، `SourceEntry::bulkVerify` (برای شناسه‌هایی که پاسخ دارند) و `Admin\SuggestionController::approve` (جز «قول دیگر»). پاسخ‌های بسته‌شده `resolution.collective = true` و `standing = null` دارند. `Contributions::summary` آن‌ها را با توصیف صف نشان می‌دهد، نه به‌صورت «پیشین → تازه».
+- **میز داوری:** در وضع «در انتظار» با `leftJoinSub(agreement)` مرتب می‌شود: `COALESCE(agreement, 1) DESC` و سپس پاسخ‌های یک مورد کنار هم. نمای [collective.blade.php](../resources/views/admin/suggestions/partials/collective.blade.php) نظرها را کنار هم نشان می‌دهد.
+- **مسیرها:** `contribute.index` (رفتن به `#review`)، `contribute.next`، `contribute.show`، `contribute.skip` (موردهای ردشده در نشست) و با `auth`، `contribute.sign-in` و `contribute.answer` (`throttle:40,10`). کنترلر: [ContributeController](../app/Http/Controllers/ContributeController.php).
+- **آزمون:** [CollectiveReviewTest](../tests/Feature/CollectiveReviewTest.php)، ۹ آزمون: تغییر نام و بخش، مهمان، بی‌اثری پاسخ (بی لاگ ممیزی) و جایگزینی، ترتیب صف و آستانه، ترتیب و نمای میز، بستن با تصمیم صف، تأیید از میز، دسترسی، و محدودیت نرخ. از worktree با `docker run` از image `fahares-app` و پایگاه جدای `fahares_c80_test` اجرا شد.
+- **وارسی:** رونوشت `fahares_refs` در `fahares_c80` (http://localhost:8013) با حساب‌های آزمایشی محلی. ۶٬۱۲۳ مورد مانده بود.
+
+### گام ۱۳.۲۰: کارت کامل‌تر و درج نام پیش‌فرض (مورد ۸۰)
+- **کارت:** `CatalogMatchQueue::card()` کلید `quotes` را دارد: نخستین مورد `incipits_list` و `explicits_list`، بی متن جانشین «برابر» (`is_placeholder`) و بی نشانه‌ی `<!-- page -->`. در `facts` هم `script_names`، `lines` و `dimensions` آمده است.
+- **نام:** `FieldSuggestion::creditNameFor(User)` آخرین `credit_name` کاربر را برمی‌گرداند، و اگر نباشد نام حساب را. هم `ContributeController` از آن استفاده می‌کند و هم پیکربندی `creditName` در `x-suggest.desk`.
+  - در [suggest-desk.js](../resources/js/suggest-desk.js)، `creditOn` به‌طور پیش‌فرض `true` است و `start()` با `toggleCredit()` نام را پر می‌کند. هنگام ارسال، اگر کادر نام خالی باشد `guestName` فرستاده می‌شود. کادر نام برای مهمانی که نامش را نوشته الزامی نیست.
+  - در «تصحیح جمعی» پیش‌فرض `session('contribute.credit', true)` است.
+- **آزمون:** `test_the_card_shows_the_opening_and_closing_words_and_credits_by_default`. کل مجموعه ۲۸۵ آزمون موفق است.
+
+### گام ۱۳.۲۱: صف‌های اشخاص در «تصحیح جمعی» و نوار خانه (مورد ۸۰)
+- **کلاس‌ها:** [PersonQueue](../app/Review/PersonQueue.php) پایه‌ی دو صف است. موردها ردیف‌های `PersonReview` با وضع `open` یا `deferred` هستند. فیلتر سده با `JSON_CONTAINS(person_reviews.person_ids, CAST(people.id AS JSON))` کار می‌کند. [NamesakeQueue](../app/Review/NamesakeQueue.php) (`namesake`) و [MixedRecordQueue](../app/Review/MixedRecordQueue.php) (`mixed`) دو صف‌اند. `profiles()` از `PersonReviewController` به `App\Services\PersonReviewQueue` رفت و هر دو از آن استفاده می‌کنند.
+- **پاسخ‌ها:**
+  - `same` و `some:{ids}`: relation `duplicate` روی کوچک‌ترین شناسه، با `payload.target_id` و `merge_ids`.
+  - `distinct`: relation `namesakes_apart`.
+  - `split`: relation `conflated` با `payload.manuscript_ids` (فقط نسخه‌های کارت، حداکثر ۲۰۰) و `name`.
+  - `one`: relation `one_person`.
+- **نوع‌های ویژه‌ی صف:** `SuggestionRegistry::QUEUE_RELATIONS` با `apply = queue` و `queue_only`. `relation()` آن‌ها را می‌یابد، ولی فرم‌ها فقط `RELATIONS` را می‌خوانند و `RelationInput::validate` آن‌ها را رد می‌کند.
+- **پاسخ‌های چندمرحله‌ای:** `ReviewQueue::detailed()` پاسخ‌هایی را نام می‌برد که مرحله‌ی دوم دارند: catalog `page`، namesake `some` و mixed `split`. دکمه‌ی آن‌ها پنل `contribute/details/{key}-{answer}` را باز می‌کند. کادرهای کارت با `form="review-answer"` به فرم می‌پیوندند، و `x-data` روی کارت است تا کارت و فرم یک وضعیت داشته باشند. کلید `hide` در داده‌ی کارت پاسخی را پنهان می‌کند، مثلاً «برخی» در گروه دوتایی.
+- **بستن:** `PersonReviewController::decide` با `NamesakeQueue::decision()` (merged → `same` یا `some:{ids}`؛ distinct → `distinct`) و `MixedRecordQueue::decision()` (split → `split`؛ dismissed → `one`) `settle()` را صدا می‌زند. `CollectiveReview::DECIDED_IN_QUEUE` تأیید این پاسخ‌ها را در `approve()` میز داوری می‌بندد و `show` به‌جای فرم، پیوند مورد را نشان می‌دهد.
+- **صف پنل:** در نمای «در انتظار» با `leftJoinSub(agreement)` مرتب می‌شود. `CollectiveReview::opinionsOn()` نظرها را می‌آورد و بخش `data-collective-opinions` و نشان «کاتب دیگر به نظر n پژوهشگر» روی نسخه‌ها را می‌سازد. هر مورد `id="person-review-{id}"` دارد.
+- **خانه:** `HomeController::contributions()` (کش ۱۰ دقیقه، کلید `home.contributions`) شمار اصلاحات عمومی، پژوهشگران، تازه‌ترین خلاصه و جمع `waiting` صف‌ها را می‌سازد. نوار `data-home-contributions` در [home.blade.php](../resources/views/home.blade.php) است.
+- **آزمون:** سه آزمون تازه در CollectiveReviewTest: هم‌نام‌ها (خطای «همه را برگزیده‌اید»، بی‌ادغامی، مسدود بودن تأیید در میز، نمایش در صف پنل، بستن با «چند نفرند»، رد شدن `namesakes_apart` از فرم عمومی)؛ رکورد قاطی‌شده (علامت نسخه‌ها، جابه‌جا نشدن نسخه، نشان در پنل، بستن با «یک نفر است»)؛ و نوار خانه. کل مجموعه: ۲۸۸ آزمون موفق. مسیر ادغام واقعی در این آزمون‌ها نیست، فقط نگاشت `decision()` آن.
+
+### گام ۱۳.۲۲: پیشنهاد فقط با حساب، شماره‌ی تماس و نام فارسی (موارد ۷۴ تا ۷۶)
+- **سنجش پروداکشن:** با `tinker` روی `ssh fahares-app`، فقط شمارش: ۲۹ پیشنهاد، ۱ پیشنهاد با `user_id` تهی (kind `note`، `rejected`، بی `guest_email`). در `pages`، `home_items` و `site_settings` متنی که مهمان را به پیشنهاد دعوت کند نبود.
+- **migration:** [2026_10_24_500001_add_phone_and_held_credit](../database/migrations/2026_10_24_500001_add_phone_and_held_credit.php) دو ستون می‌افزاید: `users.phone` (string 20، nullable) و `field_suggestions.held_credit_name` (string 150، nullable).
+- **مسیر و کنترلر:**
+  - `POST /suggestions` میان‌افزار `auth` گرفت. پاسخ مهمان در درخواست JSON کد 401 است و در فرم عادی به `/login` می‌رود. یادداشت و رابطه هم از همین مسیرند.
+  - در [SuggestionController](../app/Http/Controllers/SuggestionController.php) قاعده‌های `guest_name`، `guest_email`، `notify_submitter` و `website` برداشته شدند. `guest_name` و `guest_email` از حساب پر می‌شوند و `notify_submitter` همیشه false است.
+  - [FeedbackController](../app/Http/Controllers/FeedbackController.php) دست نخورد.
+- **نام تا تأیید ایمیل:** [HeldCredit](../app/Auth/HeldCredit.php) این کارها را می‌کند:
+  - `columns(user, name)` برای کاربر تأییدنشده `held_credit_name` را پر می‌کند و `credit_name` را تهی می‌گذارد.
+  - `release(user)` پس از تأیید ایمیل نام نگه‌داشته را به `credit_name` می‌برد. در `EmailVerificationController::verify` و ورود با گوگل صدا زده می‌شود.
+  - هر جا نام درج می‌شود، از `columns()` استفاده می‌کند: `store` پیشنهاد و یادداشت، `MySuggestionsController::credit` و `CollectiveReview::answer`.
+  - `SuggestionReviewed` اگر نامی نگه داشته شده باشد، دعوت به ثبت نام نمی‌کند. «پیشنهادهای من» و میز داوری نام نگه‌داشته را با توضیح نشان می‌دهند.
+- **بازگشت پس از ورود:** [IntendedUrl](../app/Support/IntendedUrl.php) پارامتر `intended` را در `url.intended` نشست می‌گذارد، فقط اگر مسیری روی همین سایت باشد (آغاز با `/`، نه `//` و نه `\`). در این‌ها صدا زده می‌شود: صفحه‌ی ورود، صفحه و POST ثبت‌نام، و `GoogleController::redirect`.
+  - `RegisterController::register` برای درخواست JSON پاسخ `{redirect}` می‌دهد. اگر `password_confirmation` نیاید، تکرار گذرواژه را نمی‌خواهد (فرم کوتاه پنجره). نشست را هم پس از ورود از نو می‌سازد.
+- **میز پیشنهاد** ([desk](../resources/views/components/suggest/desk.blade.php) و [suggest-desk.js](../resources/js/suggest-desk.js)):
+  - پیکربندی تازه: `signedIn`، `verified`، `registerUrl`، `loginUrl` و `googleUrl`.
+  - `start()` کلید فرم (`formKey`) را می‌سازد: `field.<name>`، `general` یا `general.<relation>`، `note`، یا `mode` برای دکمه‌ی «پیشنهاد اصلاح». برای مهمان، به‌جای فرم پنجره‌ی ورود (`gate`) باز می‌شود. نشانی بازگشت `intended` همان صفحه است با `?suggest=<key>`.
+  - `init()` این پارامتر را می‌خواند، با `history.replaceState` از نشانی برمی‌دارد و همان فرم را باز می‌کند. `mode` حالت پیشنهاد اصلاح را روشن می‌کند.
+  - پیش‌نویس در `sessionStorage` با کلید `suggest-draft:<path>:<formKey>` ذخیره می‌شود: با هر `input` و `change` در فرم، و پیش از باز شدن پنجره‌ی ورود. ارسال موفق و «انصراف» آن را پاک می‌کنند.
+  - پاسخ 401 هنگام ارسال پیش‌نویس را نگه می‌دارد و پنجره‌ی ورود را باز می‌کند. پاسخ 419 پیش‌نویس را نگه می‌دارد و پیام «صفحه را تازه کنید» می‌دهد.
+  - [toggle](../resources/views/components/suggest/toggle.blade.php) برای مهمان رویداد `suggest-field` را با `{ mode: true }` می‌فرستد.
+  - [google-button](../resources/views/auth/partials/google-button.blade.php) پارامتر `intended` یا عبارت Alpine `hrefExpr` را می‌پذیرد.
+- **شماره:**
+  - [Phone::normalize](../app/Support/Phone.php) این کارها را می‌کند: تبدیل ارقام فارسی و عربی، حذف فاصله، خط تیره، نقطه و پرانتز، «۰۰» به «+»، صفر آغازین به `+98`، `9xxxxxxxxx` و `989xxxxxxxxx` بی پیشوند، و حذف صفر پس از `+98`.
+  - شماره‌ی پذیرفتنی باید با الگوی `^\+[1-9]\d{6,14}$` بخواند. شماره‌ی ایران دقیقاً ۱۳ نویسه است.
+  - `Phone::rule()` قاعده‌ی اعتبارسنجی فیلد اختیاری است.
+  - `phone` در `#[Hidden]` مدل `User` است. مجوز `users.contact` در [Permissions](../app/Auth/Permissions.php) آمد، بی پیش‌فرض برای نقش‌های دیگر. [admin/users/edit](../resources/views/admin/users/edit.blade.php) شماره را با `@can('users.contact')` نشان می‌دهد.
+- **نام فارسی:**
+  - پاره‌ی [name-field](../resources/views/auth/partials/name-field.blade.php) راهنما و هشدار (`\p{Script=Latin}` بی `\p{Script=Arabic}`) را دارد. [phone-field](../resources/views/auth/partials/phone-field.blade.php) هم پاره‌ی شماره است.
+  - `ProfileController::update` و `POST /settings/profile` (`profile.update`) نام، وابستگی و شماره را ذخیره می‌کنند.
+  - `GoogleController::callback` حسابی را که تازه ساخته و [PersonName::isLatinOnly](../app/Support/PersonName.php) نامش را لاتین می‌داند، به `account.complete` می‌فرستد. [auth/complete](../resources/views/auth/complete.blade.php) با `skip=1` («بعداً») چیزی را تغییر نمی‌دهد. هر دو حالت به `redirect()->intended()` می‌روند.
+- **ادغام با main:** گام‌های ۱۳.۲۰ و ۱۳.۲۱ (مورد ۸۰) درج نام پیش‌فرض و `FieldSuggestion::creditNameFor` را آورده بودند. پس از برداشتن فیلدهای مهمان، این دو نگه داشته شدند.
+- **آزمون:**
+  - [SignedInSuggestionsTest](../tests/Feature/SignedInSuggestionsTest.php) با ۹ آزمون:
+    - رد مهمان و باز ماندن بازخورد
+    - پیشنهاد با حساب
+    - نگه‌داشتن نام تا تأیید
+    - نرمال‌سازی شماره
+    - ثبت‌نام از پنجره با `intended`
+    - بازگشت پس از ورود
+    - راهنمای نام و صفحه‌ی حساب
+    - پنهان ماندن شماره و مجوز آن
+    - تکمیل حساب گوگل
+  - `TestCase` دو helper دارد: `suggestJson` و `suggestPost`. پیشنهاد را با یک کاربر آزمون تأییدشده می‌فرستند و پس از آن کاربر پیشین را بازمی‌گردانند. آزمون‌های قدیمی که پیشنهاد مهمانی را می‌سنجیدند، اکنون آن را مستقیم به‌عنوان داده‌ی قدیمی می‌سازند. کاربران آزمون در `SuggestionWorkflowTest` و `CollectiveReviewTest` ایمیل تأییدشده گرفتند.
+  - کل مجموعه: ۲۹۸ آزمون موفق.
+  - **روش اجرا:** کانتینر `fahares_app` کد checkout اصلی را اجرا می‌کند. پس آزمون‌ها با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شدند، با `vendor` و `.env` شاخه‌ی اصلی به‌صورت فقط‌خواندنی و پایگاه جداگانه‌ی `fahares_ws74_test`. نام پایگاه باید به `_test` ختم شود، چون `TestCase` جز این را نمی‌پذیرد.
+- **وارسی مرورگر:**
+  - نماها با Vite درون همان image ساخته شدند، با `node_modules` شاخه‌ی اصلی. `node_modules` میزبان برای rolldown بایندینگ ندارد.
+  - سرور: `php -S` روی درگاه ۸۰۷۴ با پایگاه محلی `fahares_db`. migration روی آن اجرا شد و کاربر و پیشنهاد آزمایشی پس از وارسی پاک شدند.
+
+### گام ۱۳.۲۳: نوار درخواست نام فارسی (مورد ۷۵)
+- **migration:** [2026_10_25_100001_add_name_kept_at_to_users](../database/migrations/2026_10_25_100001_add_name_kept_at_to_users.php) ستون `users.name_kept_at` (timestamp، nullable) را می‌افزاید.
+- **مدل:** `User::shouldWriteNameInPersian()` درست است اگر `name_kept_at` تهی باشد و `PersonName::isLatinOnly(name)` درست باشد.
+- **مسیر:** `POST /settings/profile/keep-name` (`profile.keep-name`، با `auth`) در `ProfileController::keepName` مقدار `name_kept_at` را می‌گذارد.
+- **نما:** نوار `data-persian-name-bar` در [layouts/app](../resources/views/layouts/app.blade.php) زیر نوار تأیید ایمیل است، و جز در مسیرهای `profile` و `account.complete` نمایش داده می‌شود. نام کاربر در `<bdi>` می‌آید تا جهت متن به‌هم نریزد. پنل (`layouts.admin`) این نوار را ندارد.
+- **سنجش پروداکشن:** `tinker` روی `ssh fahares-app` با همان الگوی `\p{Latin}` بی `\p{Arabic}`: ۱۰ از ۳۶ کاربر، همه با `google_id`.
+- **اعلان:** [PersianNameRequest](../app/Notifications/PersianNameRequest.php) (`ShouldQueue`) همیشه با کانال‌های `database` و `mail` فرستاده می‌شود. این پیام یک‌باره‌ی حساب است و نوعی از `config/notifications.php` نیست، پس تنظیمات اعلان کاربر بر آن اثر ندارد.
+- **دستور:** [AskPersianNamesCommand](../app/Console/Commands/AskPersianNamesCommand.php) (`fahares:ask-persian-names {--dry-run}`) کاربرانی را برمی‌گزیند که `shouldWriteNameInPersian()` برایشان درست است و ردیفی از `notifications` با `type` همین کلاس ندارند. با `--dry-run` فقط جدول id، نام، نقش و روش ورود را چاپ می‌کند.
+- **آزمون:** در [SignedInSuggestionsTest](../tests/Feature/SignedInSuggestionsTest.php):
+  - `test_existing_users_with_a_latin_name_are_asked_for_a_persian_one_until_they_change_or_keep_it`
+  - `test_users_with_a_latin_name_are_asked_once_by_notice_and_email`: `--dry-run` چیزی نمی‌فرستد؛ کانال‌ها و متن ایمیل بررسی می‌شوند؛ نام نگه‌داشته و نام فارسی پیامی نمی‌گیرند؛ پیام تکراری فرستاده نمی‌شود.
+
+  کل مجموعه: ۳۰۰ آزمون موفق.
+
+### گام ۱۳.۲۴: [admin/home](../resources/views/admin/home/index.blade.php) (مورد ۶۵، بند ۵)
+- **کلاس‌ها:**
+  - متغیرهای `$box`، `$input`، `$btn` و `$btnPri` بالای نما به کلاس‌های پنل تبدیل شدند: `admin-field` و `rounded-sm`. همچنین `disabled:opacity-40` برای ↑ در ردیف نخست و ↓ در ردیف آخر.
+  - سرفصل‌ها `.rubric` شدند.
+  - پیوندهای درون‌صفحه‌ای به هر بخش از یک آرایه ساخته می‌شوند.
+  - خطاها در `x-admin.notice tone=error` هستند.
+- **پرونده:** `x-admin.file` اکنون `$attributes` را به `input` می‌دهد. [partials/item-form](../resources/views/admin/home/partials/item-form.blade.php) آن را با `:id` و `:required="! $item"` صدا می‌زند. HTML ساخته‌شده `required="required"` را فقط برای فرم «افزودن» دارد.
+- **تغییرنکرده:** نام فیلدها و مسیرها.
+- **وارسی:** صفحه با ۸ ردیف `HomeItem` در `fahares_db` به HTML ساخته و در عرض‌های ۱۲۸۰ و ۳۷۵ دیده شد. تصویرهای اسلاید و گنجینه در محیط محلی نیستند، و جای خالی آن‌ها اشکال نما نیست. کل مجموعه، با آزمون‌های تازه‌ی جلسه‌های دیگر: ۲۸۹ آزمون موفق.
+
+### گام ۱۳.۲۵: [posts](../resources/views/admin/posts/) و [pages/edit](../resources/views/admin/pages/edit.blade.php) (مورد ۶۵، بند ۵)
+- **فهرست:** `x-admin.table` با صفحه‌بندی فارسی. پیش از این، `links()` پیش‌فرض به کار می‌رفت. وضعیت با `x-ui.chip` (`good` برای منتشرشده) نشان داده می‌شود.
+- **ویرایشگرها:**
+  - متغیرهای کلاس بالای نما به `admin-field` و `rounded-sm` تبدیل شدند.
+  - خطاها در `x-admin.notice` هستند. پیوند سایت در `page_actions` است، در ویرایشگر یادداشت فقط وقتی یادداشت ذخیره شده است.
+  - متن به‌جای `font-mono` با `text-sm leading-8` نوشته می‌شود.
+- **پرونده:**
+  - `x-admin.file` برای `cover` و `images[]` به کار رفت، با `id="post_images" multiple required`.
+  - این جزء برای چند پرونده «N پرونده» با `toLocaleString('fa-IR')` را نشان می‌دهد.
+- **راهنمای Markdown:** [admin/partials/markdown-guide](../resources/views/admin/partials/markdown-guide.blade.php) با `images` (سطر تصویر) و `note` (متن افزوده‌ی صفحه‌ها). در نخستین نسخه `dir="ltr"` روی نمونه‌ها بود و «## عنوان» وارونه دیده می‌شد. این ویژگی برداشته شد.
+- **آزمون و وارسی:**
+  - PostTest و PageTest بی تغییر موفق‌اند. کل مجموعه: ۲۸۹ آزمون موفق.
+  - `fahares_db` یادداشتی ندارد. درون یک تراکنش، یک پیش‌نویس و یک یادداشت منتشرشده ساخته شد. فهرست و ویرایشگر و ساخت و صفحه‌ی `about` به HTML ساخته شدند و تراکنش برگردانده شد (۰ یادداشت). عرض‌های ۱۲۸۰ و ۳۷۵ وارسی شد.
+
+### گام ۱۳.۲۶: [admin/system](../resources/views/admin/system/index.blade.php) (مورد ۶۵، بند ۵)
+- **نما:**
+  - کلیدهای `$systemInfo` با آرایه‌ی `$labels` در نما فارسی می‌شوند. مقدارها فنی‌اند و با `dir="ltr"` می‌آیند.
+  - وضع Meilisearch با `x-ui.chip` (`good` یا `accent`) نشان داده می‌شود و اگر پاسخ ندهد، `x-admin.notice tone=warn` می‌آید.
+  - شمار تقریبی نسخه‌ها، `Fa::approx`، هم روی دکمه و هم در تأیید (`@js`) آمده است.
+- **کنترلر:** پیام‌های `clearCache` و `reindex` و مقدار `app_debug` فارسی شدند. منطق کنترلر تغییری نکرد.
+- **لاگ:** `AuditLog::TYPE_LABELS` اکنون برای `System` «سامانه» و برای `Meilisearch` «نمایه‌ی جستجو» را دارد. این دو نوع رکورد بی مدل‌اند و پیش از این با نام انگلیسی نشان داده می‌شدند.
+- **آزمون:** `test_system_page_is_in_persian_and_its_audit_rows_have_persian_names` با `Http::fake` (موتور در دسترس نیست) این‌ها را می‌سنجد:
+  - متن‌های فارسی صفحه هستند.
+  - عنوان‌های انگلیسی نیستند.
+  - ردیف لاگ «سامانه #۱» را نشان می‌دهد (با `assertSeeText`، چون شناسه در span جداست).
+- **وارسی:** صفحه با سه نمایه‌ی محلی (`manuscripts_index`، `people_index` و `works_index`) در عرض‌های ۱۲۸۰ و ۳۷۵ دیده شد.
+- **شماره‌ی گام‌ها:** در همین فاصله، جلسه‌های دیگر گام‌های ۱۳.۲۲ و ۱۳.۲۳ را برای موارد ۷۴ تا ۷۶ برداشتند. سه گام این کار (صفحه‌ی خانه، جریده و سامانه) به ۱۳.۲۴ تا ۱۳.۲۶ رفتند. شاخه روی origin/main از نو چیده شد: سه کامیت کد cherry-pick شدند و مستندات یک‌جا نوشته شد. کل مجموعه پس از آن: ۳۰۱ آزمون موفق.
+
+### گام ۱۳.۲۷: nginx و php-fpm در پروداکشن (مورد ۷۷)
+- **وضع پیشین:** فرمان آغاز Coolify `php artisan serve --host=0.0.0.0 --port=80` بود که فرزند `php -S` (تک‌رشته‌ای) را اجرا می‌کرد. کانتینر ۲ هسته و بی سقف حافظه دارد. میزبان مشترک است، load آن حدود ۴ است و swap آن (۱ گیگابایت) پر است. MariaDB هنگام سنجش حدود ۳۳٪ CPU مصرف می‌کرد.
+- **پیکربندی پیش‌فرض Nixpacks به کار نمی‌آید:** `/assets/nginx.template.conf` وقتی `IS_LARAVEL` و `NIXPACKS_PHP_FALLBACK_PATH` هر دو تنظیم شده‌اند (که در پروداکشن هستند)، `location /` را دو بار تعریف می‌کند. php-fpm آن هم با کاربر `nobody` و ۵۰ کارگر اجرا می‌شود.
+- **فایل‌ها:**
+  - [docker/start.sh](../docker/start.sh) کارهای زیر را انجام می‌دهد:
+    - مقادیر `docker/php/uploads.ini` را همراه `max_execution_time=120` به‌صورت `-d` به php-fpm می‌دهد. `artisan serve` سقف زمان نداشت.
+    - `client_max_body_size` را برابر `post_max_size` می‌گذارد.
+    - مسیر `mime.types` و `fastcgi_params` را از `nginx -V` پیدا می‌کند: `--conf-path` یا `<prefix>/conf` در نیکس.
+    - اگر `public/storage` نباشد، `storage:link` را اجرا می‌کند.
+    - php-fpm را با `-F -R` و nginx را با `-e stderr` اجرا می‌کند.
+    - TERM، INT و QUIT را به هر دو می‌رساند. اگر یکی بیفتد، اسکریپت خارج می‌شود تا Coolify کانتینر را دوباره بالا بیاورد.
+  - [docker/nginx.conf](../docker/nginx.conf):
+    - قالبی با `@PORT@`، `@ROOT@`، `@MIME_TYPES@`، `@FASTCGI_PARAMS@` و `@BODY_SIZE@` که در `/tmp/nginx.conf` نوشته می‌شود.
+    - `user root`: دو پوشه‌ی `catalogs/masjid-azam-ostadi/v01` و `v03` روی حجم ماندگار برای دیگران خواندنی نیستند و کاربر `nobody` روی آن‌ها ۴۰۳ می‌گرفت. `php -S` هم با root اجرا می‌شد.
+    - فقط `index.php` اجرا می‌شود و هر `.php` دیگری ۴۰۴ می‌گیرد. فایل‌های پنهان، مانند `.env`، ۴۰۳ می‌گیرند.
+    - `/build/` کش یک‌ساله با `immutable` دارد.
+    - gzip روشن است. HTML صفحه‌ی شخص پرنسخه از ۱۹۰ کیلوبایت به ۲۸ کیلوبایت رسید. `php -S` فشرده نمی‌کرد.
+    - `fastcgi_read_timeout` برابر ۱۳۰ ثانیه است.
+  - [docker/php-fpm.conf](../docker/php-fpm.conf):
+    - `pm = dynamic` با بیشینه‌ی ۶ کارگر، `pm.max_requests = 500` و `request_terminate_timeout = 150s`.
+    - `clear_env = no` لازم است، چون پروداکشن `.env` ندارد و تنظیمات از متغیرهای محیطی Coolify می‌آیند.
+    - هر کارگر حدود ۵۰ مگابایت حافظه می‌گیرد.
+  - `App\Console\Commands\ServeCommand` برای محیط محلی می‌ماند.
+- **بازآزمایی محلی:**
+  - ایمیج `php:8.3-fpm-alpine` با همان افزونه‌ها و nginx آلپاین ساخته شد. worktree و پایگاه `fahares_prod` به آن وصل شد.
+  - صفحه‌ها، تصویر عکسی، ۴۰۴، `.env`، بارگذاری ۲۰ مگابایتی (به Laravel رسید و ۴۱۹ گرفت) و ۱۲۰ مگابایتی (۴۱۳) درست کار کردند.
+  - شش درخواست هم‌زمان به صفحه‌ی شخص ۰٫۱۳ ثانیه طول کشید، در برابر ۰٫۲۶ ثانیه با `php -S`.
+  - `php artisan test`: ۲۷۵ آزمون موفق. دو آزمون آواتار فقط با mount فقط‌خواندنی شکست خوردند و جداگانه موفق شدند.
+  - ایمیج php-fpm رسمی `STOPSIGNAL SIGQUIT` دارد. به همین دلیل QUIT هم به trap اضافه شد. توقف حالا ۰٫۱۵ ثانیه طول می‌کشد، نه ۱۰ ثانیه و kill.
+  - پیش از روشن شدن، `nginx -t` و `php-fpm -t` درون کانتینر پروداکشن با باینری‌های نیکس اجرا شد و هر دو موفق بودند.
+- **استقرار (۳ آبان ۱۴۰۵، به تأیید کاربر):**
+  - کامیت `cc26291` push شد. کاربر فرمان آغاز را در Coolify به `bash /app/docker/start.sh` تغییر داد. post-deploy command همان `php artisan storage:link` است.
+  - Redeploy معمولی ایمیج ساخته‌شده‌ی همان کامیت را دوباره به کار برد و فرمان قدیمی را نگه داشت. در Nixpacks فرمان آغاز موقع ساخت در `CMD` ایمیج نوشته می‌شود، پس Force Rebuild لازم بود.
+  - تغییر فرمان آغاز در Coolify همیشه به Force Rebuild نیاز دارد.
+- **Health check:**
+  - پیش از این خاموش بود. Coolify کانتینر کهنه را پیش از آماده شدن کانتینر تازه متوقف می‌کرد و در این فاصله Traefik پیام «no available server» نشان می‌داد.
+  - با `ssh fahares-server` و مدل `Application` خود Coolify (tinker)، به اجازه‌ی کاربر، این مقادیر گذاشته شد: `health_check_enabled = true`، `health_check_path = /up`، `health_check_port = 80`، `health_check_start_period = 15`.
+  - از استقرار بعد، به‌روزرسانی تدریجی است.
+- **سنجش** (curl از ماشین محلی، سه بار پشت سر هم، بی `--compressed`؛ «درون» یعنی `curl http://127.0.0.1` در کانتینر):
+
+| صفحه | پیش (`artisan serve`) | پس (nginx + php-fpm) |
+| :--- | :---: | :---: |
+| خانه، بیرون | ۵٫۶ تا ۹٫۰ ثانیه | ۱٫۴ تا ۴٫۶ ثانیه (با gzip ۰٫۸ تا ۱٫۷) |
+| شخص احسائی (۳۶۲ اثر)، بیرون | ۷٫۷ تا ۱۴٫۰ ثانیه | ۵٫۲ تا ۹٫۷ ثانیه (با gzip ۱٫۰ تا ۱٫۳) |
+| شخص احسائی، درون | — | ۰٫۰۹ تا ۰٫۱۶ ثانیه |
+| جستجوی «شرح»، بیرون | ۱۰٫۷ تا ۱۵٫۵ ثانیه | ۳٫۱ تا ۵٫۶ ثانیه |
+| جستجوی «شرح»، درون | — | ۰٫۹۵ تا ۱٫۶ ثانیه |
+| تصویر عکسی ۱۵۰ کیلوبایتی، بیرون | ۱۳ ثانیه، سپس ۵۰۲ و ۵۰۴ | ۱٫۲ تا ۲٫۱ ثانیه |
+| `/up`، درون | ۰٫۹ تا ۲٫۱ ثانیه | ۰٫۰۲ ثانیه |
+| ۶ درخواست هم‌زمان به خانه، بیرون | ۱۵٫۲ ثانیه | ۱٫۸۵ ثانیه |
+
+- **باقی‌مانده‌ی زمان بیرونی:** بیشتر آن مسیر شبکه از ماشین سنجش است. TLS حدود ۰٫۵۶ ثانیه و TTFB برای `robots.txt` حدود ۰٫۷۵ ثانیه است. جستجو درون کانتینر هنوز حدود ۱ ثانیه است و اگر لازم شد، جدا بررسی شود.
+- **بازگشت:** فرمان آغاز Coolify را به `php artisan serve --host=0.0.0.0 --port=80` برگردانید و Force Rebuild بزنید.
+
+### گام ۱۳.۲۸: [source_entries/text](../resources/views/admin/source_entries/text.blade.php) و [person-reviews](../resources/views/admin/person-reviews/index.blade.php) (مورد ۶۵، بند ۵)
+- **متن مأخذ:**
+  - `x-ui.card`، `.rubric`، `x-admin.field`، `x-admin.notice` و `x-admin.form-actions` به کار رفتند.
+  - `breadcrumb` رکورد و نوع مدخل را نشان می‌دهد و «دیدن برگه» و «صفحه در سایت» به `page_actions` رفتند.
+  - `@js` در ویژگی‌های کامپوننت Blade ترجمه نمی‌شود و ابتدا به خطای Alpine («Invalid or unexpected token») انجامید. برای همین دو دکمه‌ای که `@js` می‌خواهند `<button>` ساده با کلاس‌های `x-ui.btn` (متغیر `$btn`) هستند.
+  - متن‌ها در [SourceTextRefreshTest](../tests/Feature/SourceTextRefreshTest.php) به عبارت تازه تغییر کرد.
+- **صف بازبینی اشخاص:**
+  - صف (هم‌نام یا قاطی‌شده) و نما (منتظر، بعداً، خودکار، داوری‌شده) با `x-admin.tabs` نمایش داده می‌شوند. زبانه‌ی صف فقط وقتی دیده می‌شود که کاربر به هر دو مجوز (`people.merge` و `structure.split`) دسترسی داشته باشد.
+  - کارت‌ها `border-line` و `rounded-sm` دارند و ورودی‌ها `admin-field` هستند.
+  - دکمه‌ی اصلی شنگرفی است و «بعداً» دکمه‌ی کم‌رنگ. انتخاب‌ها `accent-cinnabar` گرفتند.
+  - شناسه‌ها، سال‌ها، شماره‌ها و شمارنده‌ها با `Fa::digits` و `Fa::num` فارسی شدند.
+  - صفحه‌بندی `admin.partials.pagination` است.
+- **ادغام پیش از کار:** `main` محلی و `origin/main` از هم جدا شده بودند و هر دو شماره‌ی ۱۳.۲۴ را برداشته بودند. گام nginx، که دیرتر ثبت شده بود، در ادغام به ۱۳.۲۷ رفت.
+- **دیسک:** دیسک سیستم دو بار پر شد. بار دوم یک ذخیره‌ی نیمه‌کاره فایل نمای متن مأخذ را ناقص کرد، که از نو نوشته شد. علت این بود که `xfdesktop` در حلقه‌ی خطای `xfdesktop_icon_view_item_in_grid_slot` گیر کرده بود و `~/.xsession-errors` را به ۱۷۹ گیگابایت رسانده بود. گزارش خالی شد، نمونه‌ی گیرکرده با `kill -9` بسته شد و مدیر نشست آن را از نو راه انداخت. کش ساخت و ایمیج‌های بی‌استفاده‌ی داکر و کش‌های بازسازی‌پذیر `~/.cache` هم پاک شدند.
+- **آزمون:** کل مجموعه: ۳۰۱ آزمون موفق.
+
+### گام ۱۳.۲۹: طرح و دریافت متن الذریعة
 - **طرح:** [docs/plans/dharia-text.md](plans/dharia-text.md)، با شمار نمونه‌گیری و تصمیم‌های نهایی کاربر (بند ۹-الف).
 - **دریافت:** [scripts/sources/fetch_ablibrary.py](../scripts/sources/fetch_ablibrary.py) روی سرور (`~/fahares-fetch/`، `nohup`، فاصله‌ی ۲ ثانیه، قابل ادامه پس از قطع). شناسه‌ی کتاب‌های ablibrary در `DHARIA` همان اسکریپت است.
   - **نتیجه:** ۱۰٬۸۴۳ صفحه، بی خطا. HTML خام ۲۹۷ MB روی سرور ماند و متن ۷٫۴ MB با `MD5SUMS` در `fahares-sources/dharia/ablibrary/` است.
   - **قالب:** هر صفحه `{page, label, book, index, text}`. بندهای خواننده با خط خالی از هم جدا شده‌اند. برگ‌های پیش از متن، که برچسب «1» و «2» تکراری دارند، `page = null` می‌گیرند.
   - **کمبود:** نمایه‌های پایان جلدها و استدراکات ج ۲۵ (ص ۳۱۱ تا ۴۹۶) در ablibrary نیست. فنخا فقط ۶ بار به این صفحه‌ها ارجاع داده است.
 
-### گام ۱۳.۲۶: جلد آزمایشی ۳ — مدخل‌ها، پیوند ارجاع‌های فنخا، نمایش
+### گام ۱۳.۳۰: جلد آزمایشی ۳ — مدخل‌ها، پیوند ارجاع‌های فنخا، نمایش
 - **جدول‌ها:** [migration](../database/migrations/2026_10_25_100001_create_source_items_tables.php) سه چیز می‌سازد:
   - `source_items`: کلید پایدار `item_key` («1442»، «1345#2»، «1442/1»، «p3/0»)، `page_start`/`page_end`، `metadata.page_breaks` و `flags.sequence`؛
   - `source_item_refs`: ارجاع‌های درونی، که هنوز پر نشده است؛
@@ -3592,7 +4057,7 @@
 - **آزمون:** [NumberedEntrySegmenterTest](../tests/Unit/NumberedEntrySegmenterTest.php)، [ItemMatcherTest](../tests/Unit/ItemMatcherTest.php) و [SourceItemsTest](../tests/Feature/SourceItemsTest.php). پایگاه آزمون جداگانه‌ی `fahares_dharia_test` است.
 - **مانده‌ها:** پیوند (ب)، ارجاع‌های درونی (`source_item_refs`)، صف داوری در پنل، نقشه‌ی سایت، جستجو، دیگر جلدها و استقرار.
 
-### گام ۱۳.۲۷: خواننده‌ی متن نور برای الذریعة
+### گام ۱۳.۳۱: خواننده‌ی متن نور برای الذریعة
 - **اسکریپت:** [noor_aqabozorg.py](../scripts/sources/noor_aqabozorg.py)، با `python3 -I scripts/sources/noor_aqabozorg.py DB OUT [--ablibrary DIR] [--volumes 3,9,25]`. پایگاه با `mode=ro` باز می‌شود. خروجی `{جلد}.jsonl.gz` با `page`، `label`، `text` و `origin` برای `sources:import-pages` است.
 - **ساخت صفحه:**
   - متن اصلی `story_id = 1` از `book_texts` به ترتیب `item_id` است و نشانگرهای `<page number="N"/>` آن را به صفحه‌ها می‌شکنند.
@@ -3603,3 +4068,4 @@
 - **سنجش:** ج ۳: ۴۹۲ صفحه؛ ج ۹: ۱٬۳۲۲ صفحه؛ ج ۲۵: ۳۱۱ صفحه. `sources:segment dharia --volume=3 --origin=noor --dry-run` ۱٬۸۱۷ مدخل و ۴۳ زیرمدخل داد، با ۸ ناهنجاری شماره که همه در `book_toc` نور هم هستند. پیش از قاعده‌ی گیومه ۴ مدخل گم می‌شد (۱۷۵، ۱۹۹، ۵۱۹، ۵۶۳).
 - **بازسازی ج ۳ روی `fahares_refs` (به اجازه‌ی کاربر):** نتیجه این بود: `created 7, updated 1854, removed 205, kept_linked 8`. حالا ۱٬۸۱۷ مدخل و ۴۳ زیرمدخل از نور هست، و ۸ زیرمدخل ablibrary که پیوند داشتند ماندند. زیرمدخل‌ها از ۲۴۹ به ۴۳ رسیدند، چون نور بسیاری از سرعنوان‌های بی‌شماره‌ی چاپ را یا سرعنوان نکرده یا در کروشه آورده است. از ۹۲ سرعنوان کروشه‌دار ج ۳، ۳۲ تا در چاپ هم به شکل «( عنوان )» هستند، مثل «[بحر الأنساب]». پس حذف همه‌ی کروشه‌دارها درست نیست و قاعده باید بازبینی شود. افزوده‌های خود نور، مانند «[بيان]» و «[مقدمة]»، از این جدا هستند.
 - **اجرای محلی:** کد این شاخه با `php -d auto_prepend_file=…` روی `vendor` نسخه‌ی اصلی اجرا شد، چون worktree خودش `vendor` ندارد.
+

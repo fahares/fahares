@@ -13,6 +13,49 @@ class AuditLog extends Model
     /** Changes the audit log can undo; each has a rollback_* counterpart. */
     public const UNDOABLE = ['merge', 'verify', 'update', 'remove', 'split'];
 
+    /** Persian names of the actions, for the audit log page and the dashboard; unknown ones show their key */
+    public const ACTION_LABELS = [
+        'create' => 'ایجاد',
+        'update' => 'ویرایش',
+        'verify' => 'تأیید پیشنهاد',
+        'bulk_verify' => 'تأیید گروهی',
+        'review' => 'داوری',
+        'reopen' => 'بازگشایی',
+        'merge' => 'ادغام',
+        'split' => 'تفکیک',
+        'remove' => 'حذف',
+        'delete' => 'حذف',
+        'permissions' => 'تغییر دسترسی',
+        'profile_correction' => 'اصلاح شناسنامه',
+        'home_texts' => 'متن‌های صفحه‌ی خانه',
+        'home_item_delete' => 'حذف از صفحه‌ی خانه',
+        'home_cataloger_add' => 'افزودن فهرست‌نگار به خانه',
+        'home_cataloger_remove' => 'برداشتن فهرست‌نگار از خانه',
+        'post_delete' => 'حذف نوشته',
+    ];
+
+    /** Persian names of the record types */
+    public const TYPE_LABELS = [
+        Manuscript::class => 'نسخه',
+        Work::class => 'اثر',
+        Person::class => 'شخص',
+        Library::class => 'کتابخانه',
+        Cataloger::class => 'فهرست‌نگار',
+        Subject::class => 'موضوع',
+        SourceEntry::class => 'مدخل مأخذ',
+        ManuscriptCatalogReference::class => 'نشانی فهرست',
+        FieldSuggestion::class => 'پیشنهاد',
+        Page::class => 'صفحه',
+        Post::class => 'نوشته',
+        HomeItem::class => 'صفحه‌ی خانه',
+        SiteSetting::class => 'تنظیمات سایت',
+        User::class => 'کاربر',
+        Role::class => 'نقش',
+        // Operations of the system page, logged without a model
+        'System' => 'سامانه',
+        'Meilisearch' => 'نمایه‌ی جستجو',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -20,6 +63,20 @@ class AuditLog extends Model
             'new_values' => 'array',
             'created_at' => 'datetime',
         ];
+    }
+
+    public function actionLabel(): string
+    {
+        if (str_starts_with($this->action, 'rollback_')) {
+            return 'بازگردانی ' . (self::ACTION_LABELS[substr($this->action, 9)] ?? substr($this->action, 9));
+        }
+
+        return self::ACTION_LABELS[$this->action] ?? $this->action;
+    }
+
+    public function typeLabel(): string
+    {
+        return self::TYPE_LABELS[$this->auditable_type] ?? class_basename($this->auditable_type);
     }
 
     public function user(): BelongsTo

@@ -7,7 +7,7 @@
     <div class="p-8 rounded-sm bg-surface border border-line shadow-sm space-y-4 text-center">
         <h1 class="text-lg font-bold text-ink">تأیید ایمیل</h1>
         <p class="text-sm text-ink/80 leading-relaxed">
-            پیوند تأیید به <strong dir="ltr">{{ auth()->user()->email }}</strong> فرستاده می‌شود. با تأیید ایمیل، پیشنهادهایی که پیش‌تر بدون ورود و با همین ایمیل فرستاده‌اید به حساب شما وصل می‌شوند.
+            پیوند تأیید به <strong dir="ltr">{{ auth()->user()->email }}</strong> فرستاده می‌شود. با تأیید ایمیل، نام شما کنار پیشنهادهایی که اجازه‌ی نمایش نام را داده‌اید منتشر می‌شود، و پیشنهادهایی که پیش‌تر بدون ورود و با همین ایمیل فرستاده بودید به حساب شما وصل می‌شوند.
         </p>
         @if(session('info'))
             <div class="p-3 rounded-sm bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-900 text-sky-800 dark:text-sky-200 text-xs font-bold">{{ session('info') }}</div>

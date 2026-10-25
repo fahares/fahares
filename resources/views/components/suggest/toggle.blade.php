@@ -1,6 +1,7 @@
-{{-- Turns suggestion mode on and off: reveals a button beside every field (see <x-suggest.field>) --}}
+{{-- Turns suggestion mode on and off: reveals a button beside every field (see <x-suggest.field>). A guest gets the
+     sign-in dialog of <x-suggest.desk> instead (backlog item 76) --}}
 <button
-    @click="$store.suggest.toggle()"
+    @click="{{ auth()->check() ? '$store.suggest.toggle()' : "\$dispatch('suggest-field', { mode: true })" }}"
     type="button"
     :class="$store.suggest.on ? 'bg-cinnabar text-on-cinnabar border-gold' : 'border-line-strong text-ink/80 hover:border-gold hover:text-cinnabar hover:bg-white dark:hover:bg-surface'"
     {{ $attributes->merge(['class' => 'px-3.5 py-2 rounded-xl border font-semibold text-xs transition duration-200 inline-flex items-center gap-1.5 shadow-2xs cursor-pointer']) }}>

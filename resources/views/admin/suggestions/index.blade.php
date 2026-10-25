@@ -1,161 +1,91 @@
 @extends('layouts.admin')
 
-@section('title', 'میز کار داوری پیشنهادات اصلاحی')
-@section('page_title', 'میز کار داوری و اصلاحات علمی')
-@section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
-    <span>/</span>
-    <span class="text-stone-400">پیشنهادات اصلاحی پژوهشگران</span>
-@endsection
+@section('title', 'پیشنهادهای اصلاح')
+@section('page_title', 'پیشنهادهای اصلاح')
 
 @section('content')
-<div class="space-y-6">
+@php
+    $fa = fn ($v) => \App\Support\Fa::digits($v);
+    $kind = request('kind');
+    $kindLabels = ['field' => 'اصلاح فیلد و کلی', 'relation' => 'پیشنهاد ساختاری', 'note' => 'یادداشت پژوهشی', 'feedback' => 'گزارش اشکال سایت', 'collective' => config('contributions.review_title')];
+    $statusTabs = [];
+    foreach (['pending' => 'در انتظار', 'approved' => 'تأییدشده', 'rejected' => 'ردشده', 'all' => 'همه'] as $key => $label) {
+        $statusTabs[] = ['label' => $label, 'url' => route('admin.suggestions.index', array_filter(['status' => $key, 'type' => $type, 'kind' => $kind])),
+            'active' => $status === $key, 'count' => $stats[$key === 'all' ? 'total' : $key]];
+    }
+    $typeTabs = [];
+    foreach (['' => 'همه‌ی رکوردها', 'Manuscript' => 'نسخه‌ها', 'Work' => 'آثار', 'Person' => 'اشخاص', 'feedback' => 'بازخورد سایت'] as $key => $label) {
+        $typeTabs[] = ['label' => $label, 'url' => route('admin.suggestions.index', array_filter(['status' => $status, 'type' => $key, 'kind' => $kind])), 'active' => (string) $type === $key];
+    }
+    $statusChip = function ($sug) {
+        return match (true) {
+            $sug->status === 'pending' => ['در انتظار', 'accent'],
+            $sug->status === 'approved' => [$sug->kind === 'note' ? 'منتشر شد' : ($sug->standing_label ?? 'تأیید شد'), 'good'],
+            $sug->status === 'converted' => ['تبدیل شد', 'default'],
+            $sug->status === 'withdrawn' => ['برداشته شد', 'default'],
+            default => ['رد شد', 'default'],
+        };
+    };
+@endphp
 
-    <!-- Top Status Filter Tabs -->
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
-        
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.suggestions.index', ['status' => 'pending', 'type' => $type]) }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $status === 'pending' ? 'bg-amber-500 text-stone-950 shadow-md' : 'bg-surface text-ink/80 hover:bg-stone-50 dark:hover:bg-stone-800' }}">
-                <span>در انتظار بررسی</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] {{ $status === 'pending' ? 'bg-stone-950 text-amber-300' : 'bg-stone-200 dark:bg-stone-700' }}">
-                    {{ number_format($stats['pending']) }}
-                </span>
-            </a>
-
-            <a href="{{ route('admin.suggestions.index', ['status' => 'approved', 'type' => $type]) }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $status === 'approved' ? 'bg-emerald-600 text-white shadow-md' : 'bg-surface text-ink/80 hover:bg-stone-50 dark:hover:bg-stone-800' }}">
-                <span>تایید و اعمال‌شده</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] {{ $status === 'approved' ? 'bg-white/20 text-white' : 'bg-stone-200 dark:bg-stone-700' }}">
-                    {{ number_format($stats['approved']) }}
-                </span>
-            </a>
-
-            <a href="{{ route('admin.suggestions.index', ['status' => 'rejected', 'type' => $type]) }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $status === 'rejected' ? 'bg-red-600 text-white shadow-md' : 'bg-surface text-ink/80 hover:bg-stone-50 dark:hover:bg-stone-800' }}">
-                <span>رد شده</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] {{ $status === 'rejected' ? 'bg-white/20 text-white' : 'bg-stone-200 dark:bg-stone-700' }}">
-                    {{ number_format($stats['rejected']) }}
-                </span>
-            </a>
-
-            <a href="{{ route('admin.suggestions.index', ['status' => 'all', 'type' => $type]) }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $status === 'all' ? 'bg-ink text-paper shadow-md' : 'bg-surface text-ink/80 hover:bg-stone-50 dark:hover:bg-stone-800' }}">
-                <span>همه</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] bg-stone-200 dark:bg-stone-700">
-                    {{ number_format($stats['total']) }}
-                </span>
-            </a>
-        </div>
-
-        <!-- Entity Type Filter Dropdown -->
-        <div class="flex items-center gap-2 text-xs">
-            <span class="text-stone-400">موجودیت:</span>
-            <div class="flex items-center gap-1">
-                <a href="{{ route('admin.suggestions.index', ['status' => $status]) }}" class="px-2.5 py-1 rounded-lg {{ empty($type) ? 'bg-cinnabar/20 text-cinnabar font-bold' : 'text-stone-500 hover:text-stone-800' }}">همه</a>
-                <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'Manuscript']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'Manuscript' ? 'bg-cinnabar/20 text-cinnabar font-bold' : 'text-stone-500 hover:text-stone-800' }}">نسخه‌ها</a>
-                <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'Work']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'Work' ? 'bg-cinnabar/20 text-cinnabar font-bold' : 'text-stone-500 hover:text-stone-800' }}">آثار</a>
-                <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'Person']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'Person' ? 'bg-cinnabar/20 text-cinnabar font-bold' : 'text-stone-500 hover:text-stone-800' }}">اشخاص</a>
-                <a href="{{ route('admin.suggestions.index', ['status' => $status, 'type' => 'feedback']) }}" class="px-2.5 py-1 rounded-lg {{ $type === 'feedback' ? 'bg-cinnabar/20 text-cinnabar font-bold' : 'text-stone-500 hover:text-stone-800' }}">بازخورد سایت</a>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Suggestions Table -->
-    <div class="bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-right text-xs">
-                <thead class="bg-paper text-stone-500 border-b border-line">
-                    <tr>
-                        <th class="p-4 font-bold">شناسه و تاریخ</th>
-                        <th class="p-4 font-bold">موجودیت هدف</th>
-                        <th class="p-4 font-bold">فیلد اصلاحی</th>
-                        <th class="p-4 font-bold">مقدار پیشنهادی</th>
-                        <th class="p-4 font-bold">پژوهشگر ارائه‌دهنده</th>
-                        <th class="p-4 font-bold">وضعیت</th>
-                        <th class="p-4 font-bold text-center">عملیات</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @forelse($suggestions as $sug)
-                        <tr class="hover:bg-paper transition">
-                            <td class="p-4">
-                                <span class="font-mono font-bold text-ink">#{{ $sug->id }}</span>
-                                <div class="text-[10px] text-stone-400 mt-0.5">@jdate($sug->created_at, 'datetime')</div>
-                            </td>
-                            <td class="p-4">
-                                <a href="{{ $sug->place_url ?? '#' }}" target="_blank" class="text-cinnabar hover:underline font-bold inline-flex items-center gap-1">
-                                    <span>{{ \Illuminate\Support\Str::limit($sug->place_label, 40) }}</span>
-                                    <svg class="w-3 h-3 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                                </a>
-                            </td>
-                            <td class="p-4">
-                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold {{ $sug->kind === 'general' ? 'bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-200' : 'bg-stone-100 dark:bg-stone-800 text-ink' }}" title="{{ $sug->field_name }}">
-                                    {{ $sug->field_label }}
-                                </span>
-                            </td>
-                            <td class="p-4 max-w-xs truncate">
-                                <span class="font-medium text-ink" title="{{ $sug->suggested_value }}">
-                                    {{ Str::limit($sug->suggested_value, 45) }}
-                                </span>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex items-center gap-2">
-                                    <x-ui.avatar :user="$sug->user" :name="$sug->guest_name" size="sm" />
-                                    <div class="min-w-0">
-                                        <div class="font-medium text-ink">{{ $sug->guest_name ?: 'پژوهشگر مهمان' }}</div>
-                                        @if($sug->guest_email)
-                                            <div class="text-[10px] text-stone-400 dir-ltr text-right">{{ $sug->guest_email }}</div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                @if($sug->status === 'pending')
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        در انتظار داوری
-                                    </span>
-                                @elseif($sug->status === 'approved')
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
-                                        {{ $sug->kind === 'note' ? 'منتشر شد' : ($sug->standing_label ?? 'تایید و اعمال شد') }}
-                                    </span>
-                                @elseif(in_array($sug->status, ['converted', 'withdrawn'], true))
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-800 dark:text-sky-300">
-                                        {{ $sug->status === 'converted' ? 'تبدیل شد' : 'برداشته شد' }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-800 dark:text-red-300">
-                                        رد شده
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="p-4 text-center">
-                                <a href="{{ route('admin.suggestions.show', $sug) }}" 
-                                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-cinnabar hover:text-white text-ink font-bold transition shadow-2xs">
-                                    <span>بررسی</span>
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="p-12 text-center text-xs text-stone-400">
-                                هیچ پیشنهادی با این فیلترها یافت نشد.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if($suggestions->hasPages())
-            <div class="p-4 border-t border-line">
-                {{ $suggestions->links() }}
-            </div>
-        @endif
-    </div>
-
+<x-admin.tabs :options="$statusTabs" />
+<div class="flex flex-wrap items-center gap-2 mb-4">
+    <x-admin.tabs :options="$typeTabs" class="!mb-0" />
+    {{-- The kind chosen in the dashboard's queue --}}
+    @if(isset($kindLabels[$kind]))
+        <x-ui.chip tone="accent" :href="route('admin.suggestions.index', array_filter(['status' => $status, 'type' => $type]))" title="برداشتن این فیلتر">فقط {{ $kindLabels[$kind] }} ✕</x-ui.chip>
+    @endif
+    <span class="ms-auto text-xs text-muted"><b class="text-ink tabular-nums">{{ \App\Support\Fa::num($suggestions->total()) }}</b> پیشنهاد</span>
 </div>
+
+<x-admin.table :paginator="$suggestions" :is-empty="$suggestions->isEmpty()" empty="پیشنهادی با این فیلترها یافت نشد.">
+    <x-slot:head>
+        <x-admin.th>رکورد</x-admin.th>
+        <x-admin.th>فیلد یا نوع</x-admin.th>
+        <x-admin.th>مقدار پیشنهادی</x-admin.th>
+        <x-admin.th>پیشنهاددهنده</x-admin.th>
+        <x-admin.th>وضعیت</x-admin.th>
+        <x-admin.th><span class="sr-only">کنش‌ها</span></x-admin.th>
+    </x-slot:head>
+    @foreach($suggestions as $sug)
+        @php [$statusLabel, $statusTone] = $statusChip($sug); @endphp
+        <x-admin.row>
+            <x-admin.cell main>
+                <a href="{{ route('admin.suggestions.show', $sug) }}" class="font-bold text-ink hover:text-cinnabar">{{ $fa(\Illuminate\Support\Str::limit($sug->place_label, 60)) }}</a>
+                <span class="block text-xs text-muted">
+                    <span class="tabular-nums">#{{ $fa($sug->id) }}</span> · @jago($sug->created_at)
+                    @if($sug->place_url)
+                        · <a href="{{ $sug->place_url }}" target="_blank" class="hover:text-cinnabar">صفحه در سایت ↗</a>
+                    @endif
+                </span>
+            </x-admin.cell>
+            <x-admin.cell label="فیلد">
+                <x-ui.chip :tone="$sug->kind === 'relation' ? 'accent' : 'default'" title="{{ $sug->field_name }}">{{ $sug->field_label }}</x-ui.chip>
+            </x-admin.cell>
+            <x-admin.cell label="مقدار" class="md:max-w-xs">
+                @if($sug->review_queue && ($queue = \App\Review\CollectiveReview::queue($sug->review_queue)))
+                    {{-- An answer of «تصحیح جمعی»: what it says, and how the opinions on its item stand (backlog item 80) --}}
+                    <span class="text-ink">{{ $queue->describe($sug) }}</span>
+                    @if($item = $opinions[$sug->review_queue . ':' . $sug->review_item_id] ?? null)
+                        <span class="block mt-1 text-[11px] text-muted">{{ config('contributions.review_title') }}:
+                            @foreach($item['answers'] as $a){{ $loop->first ? '' : '؛ ' }}{{ \App\Support\Fa::num($a['count']) }} «{{ \Illuminate\Support\Str::limit($a['label'], 30) }}» (وزن {{ \App\Support\Fa::num($a['weight']) }})@endforeach
+                        </span>
+                    @endif
+                @else
+                    <span class="text-ink" title="{{ $sug->suggested_value }}">{{ \Illuminate\Support\Str::limit($sug->suggested_value, 70) ?: '—' }}</span>
+                @endif
+            </x-admin.cell>
+            <x-admin.cell label="از">
+                <span class="inline-flex items-center gap-1.5 align-middle">
+                    <x-ui.avatar :user="$sug->user" :name="$sug->guest_name" size="sm" />
+                    <span>{{ $sug->user?->name ?: ($sug->guest_name ?: 'مهمان') }}</span>
+                </span>
+            </x-admin.cell>
+            <x-admin.cell label="وضعیت" class="whitespace-nowrap"><x-ui.chip :tone="$statusTone">{{ $statusLabel }}</x-ui.chip></x-admin.cell>
+            <x-admin.cell actions>
+                <x-ui.btn :href="route('admin.suggestions.show', $sug)" size="sm" :variant="$sug->status === 'pending' ? 'primary' : 'default'">{{ $sug->status === 'pending' ? 'داوری' : 'مشاهده' }}</x-ui.btn>
+            </x-admin.cell>
+        </x-admin.row>
+    @endforeach
+</x-admin.table>
 @endsection

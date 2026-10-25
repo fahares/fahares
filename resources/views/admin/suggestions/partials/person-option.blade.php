@@ -1,12 +1,12 @@
 <label class="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-1">
-    <input type="radio" name="person_pick" value="p:{{ $person->id }}" @checked($checked) class="text-cinnabar">
+    <input type="radio" name="person_pick" value="p:{{ $person->id }}" @checked($checked) class="accent-cinnabar">
     <a href="{{ route('people.show', $person) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $person->name }}</a>
-    <span class="font-mono text-stone-400">#{{ $person->id }}</span>
+    <span class="text-muted tabular-nums">#{{ \App\Support\Fa::digits($person->id) }}</span>
     @if($years = \App\Http\Controllers\SuggestionController::lifeYears($person))
-        <span class="text-stone-500">({{ $years }})</span>
+        <span class="text-muted">({{ $years }})</span>
     @endif
-    <span class="text-stone-400">{{ (int) $person->manuscripts_count }} نسخه، {{ (int) $person->works_count }} اثر</span>
+    <span class="text-muted">{{ \App\Support\Fa::num($person->manuscripts_count) }} نسخه، {{ \App\Support\Fa::num($person->works_count) }} اثر</span>
     @if($note)
-        <span class="px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/50 text-cinnabar text-[10px] font-bold">{{ $note }}</span>
+        <span class="px-1.5 rounded-sm border border-cinnabar/40 bg-cinnabar/5 text-cinnabar text-xs">{{ $note }}</span>
     @endif
 </label>

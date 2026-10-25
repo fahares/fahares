@@ -10,7 +10,7 @@
     $pills = [
         'pending' => ['در انتظار داوری', 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900/60'],
         'rejected' => ['رد شد', 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900/60'],
-        'adopted' => ['قول مختار', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
+        'adopted' => ['مقدار منتخب', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
         'alternative' => ['قول دیگر', 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-900/60'],
         'superseded' => ['منسوخ', 'bg-stone-100 dark:bg-stone-800 text-ink/80 border-line-strong'],
         'edit' => ['ویرایش اعمال شد', 'bg-stone-100 dark:bg-stone-800 text-ink/80 border-line-strong'],
@@ -27,11 +27,11 @@
             <a href="{{ route('profile') }}" title="تصویر کاربر"><x-ui.avatar :user="auth()->user()" size="lg" /></a>
             <div class="min-w-0">
                 <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">پیشنهادهای من</h1>
-                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشده‌ی همه‌ی پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">اصلاحات پژوهشگران</a> آمده است.</p>
+                <p class="mt-1 text-xs text-muted">پیشنهادهایی که با این حساب فرستاده‌اید، با وضعیت داوری هر کدام. اصلاحات تأییدشده‌ی همه‌ی پژوهشگران در <a href="{{ route('contributions.index') }}" class="text-cinnabar hover:underline">{{ config('contributions.title') }}</a> آمده است.</p>
             </div>
         </div>
         <dl class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            @foreach([['total', 'همه‌ی پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'قول مختار'], ['pending', 'در انتظار داوری']] as [$key, $label])
+            @foreach([['total', 'همه‌ی پیشنهادها'], ['approved', 'تأییدشده'], ['adopted', 'مقدار منتخب'], ['pending', 'در انتظار داوری']] as [$key, $label])
                 <div class="p-3 rounded-sm bg-paper border border-line">
                     <dd class="text-xl font-bold text-cinnabar">{{ \App\Support\Fa::num($stats[$key]) }}</dd>
                     <dt class="text-[11px] text-muted">{{ $label }}</dt>
@@ -74,7 +74,7 @@
             @if($s->standing === 'superseded' && $s->supersededBy)
                 <p class="text-ink/80">این قول جای خود را به قول «{{ \Illuminate\Support\Str::limit($s->supersededBy->display_value, 120) }}» داد.</p>
             @elseif($s->standing === 'alternative' && $s->superseded_by)
-                <p class="text-ink/80">این قول پیش‌تر مختار بود و اکنون در کنار قول مختار تازه به‌عنوان «قول دیگر» نمایش داده می‌شود.</p>
+                <p class="text-ink/80">این قول پیش‌تر مقدار منتخب بود و اکنون در کنار مقدار منتخب تازه به‌عنوان «قول دیگر» نمایش داده می‌شود.</p>
             @endif
             @if($s->status === 'converted')
                 <p class="text-ink/80">داور این پیشنهاد را به شکل استاندارد درآورد{{ count($s->resolution['converted_to'] ?? []) > 1 ? ' و به چند پیشنهاد تفکیک کرد' : '' }}: {{ collect($s->resolution['converted_to'] ?? [])->map(fn ($id) => '#' . $id)->join('، ') }}. وضعیت {{ count($s->resolution['converted_to'] ?? []) > 1 ? 'آن‌ها' : 'آن' }} را در همین فهرست می‌بینید.</p>
@@ -90,9 +90,12 @@
                 <form action="{{ route('my.suggestions.credit', $s) }}" method="POST" class="flex flex-wrap items-center gap-2 pt-2 border-t border-line text-xs">
                     @csrf
                     <label class="text-muted" for="credit-{{ $s->id }}">نام در صفحه‌ی عمومی:</label>
-                    <input id="credit-{{ $s->id }}" type="text" name="credit_name" value="{{ $s->credit_name }}" maxlength="150" placeholder="خالی: بدون نام"
+                    <input id="credit-{{ $s->id }}" type="text" name="credit_name" value="{{ $s->credit_name ?? $s->held_credit_name }}" maxlength="150" placeholder="خالی: بدون نام"
                         class="flex-1 min-w-40 p-2 rounded-lg border border-line-strong bg-paper text-ink">
                     <button type="submit" class="px-3 py-2 rounded-sm bg-cinnabar text-on-cinnabar hover:opacity-90 font-bold">ذخیره</button>
+                    @if($s->held_credit_name)
+                        <p class="basis-full text-[11px] text-amber-800 dark:text-amber-300">این نام پس از <a href="{{ route('verification.notice') }}" class="font-bold hover:underline">تأیید ایمیل</a> شما منتشر می‌شود.</p>
+                    @endif
                 </form>
             @endif
         </article>

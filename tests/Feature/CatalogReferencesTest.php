@@ -479,6 +479,26 @@ class CatalogReferencesTest extends TestCase
         $this->get(route('manuscripts.show', $ms))->assertDontSee('ص ۴۱۴')->assertSee($this->fankhaVolume->title);
     }
 
+    public function test_the_queue_reviews_a_match_without_a_reload_and_can_put_it_back()
+    {
+        $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
+        $admin->forceFill(['role' => 'admin'])->save();
+        $ref = $this->refEntry(['manuscript_id' => $this->manuscript(['shelfmark' => '3003'])->id, 'catalog_volume_id' => $this->edition->id, 'volume_number' => 2, 'page_start' => 9, 'source' => Ref::SOURCE_AI_MATCH, 'match_method' => 'shelfmark_title', 'confidence' => 90]);
+
+        // Each row sends its form by fetch, and the status tabs carry counts the script keeps current
+        $this->actingAs($admin)->get(route('admin.catalog-references.index'))->assertOk()
+            ->assertSee("referenceReview({ csrf: '", false)->assertDontSee('@js(', false)->assertSee('@submit.prevent="send($el)"', false)
+            ->assertSee('data-tab-count="unverified" data-n="1"', false)->assertSee('data-tab-count="verified" data-n="0"', false);
+
+        $undo = $this->actingAs($admin)->postJson(route('admin.catalog-references.verify', $ref))->assertOk()
+            ->assertJson(['status' => SourceEntry::STATUS_VERIFIED, 'undo' => route('admin.catalog-references.reopen', $ref)])->json('undo');
+        $this->assertSame(SourceEntry::STATUS_VERIFIED, $ref->fresh()->status);
+
+        $this->actingAs($admin)->postJson($undo, ['status' => SourceEntry::STATUS_VERIFIED])->assertOk()
+            ->assertJson(['status' => SourceEntry::STATUS_UNVERIFIED, 'undo' => null]);
+        $this->assertSame(SourceEntry::STATUS_UNVERIFIED, $ref->fresh()->status);
+    }
+
     public function test_reviewers_verify_and_reject_machine_matches_in_the_queue()
     {
         $admin = User::firstOrCreate(['email' => 'refs-admin@fahares.net'], ['name' => 'داور آزمایشی', 'password' => 'password123', 'role' => 'admin']);
@@ -641,7 +661,7 @@ class CatalogReferencesTest extends TestCase
 
     private function suggestAddress(Manuscript $ms, string $field, string $value)
     {
-        return $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $ms->id, 'kind' => 'field', 'field_name' => $field,
+        return $this->suggestJson(['type' => 'manuscript', 'id' => $ms->id, 'kind' => 'field', 'field_name' => $field,
             'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی فهرست را دیدم']);
     }
 
@@ -733,7 +753,7 @@ class CatalogReferencesTest extends TestCase
     {
         $work = Work::create(['primary_title' => 'اثر مآخذدار', 'clean_title' => 'اثر مآخذدار', 'slug' => 'work-bib-' . uniqid(),
             'volume_number' => 3, 'page_start' => 10, 'page_end' => 11, 'bibliography' => ['منزوی 977/2', 'الذریعه 101/25']]);
-        $suggest = fn (string $field, string $value) => $this->postJson('/suggestions', ['type' => 'work', 'id' => $work->id, 'kind' => 'field',
+        $suggest = fn (string $field, string $value) => $this->suggestJson(['type' => 'work', 'id' => $work->id, 'kind' => 'field',
             'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم']);
         $approve = function () use ($work) {
             $s = FieldSuggestion::where('suggestable_type', Work::class)->where('suggestable_id', $work->id)->where('status', 'pending')->latest('id')->firstOrFail();

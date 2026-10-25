@@ -47,7 +47,7 @@
 
     <div class="post-body">{!! $post->body_html !!}</div>
 
-    @if(auth()->user()?->canAccessAdmin())
+    @if(auth()->user()?->can('posts.manage'))
         <p class="pt-6 border-t border-line text-xs">
             <a href="{{ route('admin.posts.edit', $post) }}" class="text-cinnabar hover:underline font-bold">ویرایش این یادداشت در پنل</a>
         </p>

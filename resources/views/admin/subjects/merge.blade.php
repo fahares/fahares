@@ -1,94 +1,49 @@
 @extends('layouts.admin')
 
-@section('title', 'ابزار ادغام موضوعات همپوشان')
-@section('page_title', 'ابزار ادغام و تجمیع موضوعات (Subject Merger)')
+@section('title', 'ادغام موضوعات')
+@section('page_title', 'ادغام موضوعات')
 @section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
-    <span>/</span>
     <a href="{{ route('admin.subjects.index') }}" class="hover:text-cinnabar">موضوعات</a>
     <span>/</span>
-    <span class="text-stone-400">ادغام موضوعات</span>
+    <span>ادغام</span>
 @endsection
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-6">
+@php $option = fn ($s) => $s->name . ' (#' . \App\Support\Fa::digits($s->id) . '، ' . \App\Support\Fa::num($s->works_count) . ' اثر)'; @endphp
+<div class="max-w-3xl space-y-5 text-[13px]">
+    <x-admin.notice>
+        همه‌ی آثار <b>موضوع تکراری</b> به <b>موضوع اصلی</b> منتقل و شمارها دوباره حساب می‌شوند، و موضوع تکراری حذف می‌شود.
+        ادغام در لاگ ممیزی ثبت می‌شود و از همان‌جا بازگرداندنی است.
+    </x-admin.notice>
 
-    <!-- Warning Banner -->
-    <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 space-y-2 leading-relaxed">
-        <div class="flex items-center gap-2 font-bold text-sm text-amber-800 dark:text-amber-300">
-            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <span>راهنمای ادغام موضوعات و رده‌های دانشی:</span>
-        </div>
-        <p>
-            با اجرای این عملیات، تمامی آثار و رساله‌های منتسب به «موضوع مبدأ» به «موضوع مقصد» منتقل شده، شمارنده‌های آماری به صورت خودکار بازشماری می‌شوند و در نهایت رکورد موضوع مبدأ حذف خواهد شد. این عملیات در یک تراکنش امن انجام می‌پذیرد و در گزارش ممیزی سیستم ثبت می‌گردد.
-        </p>
-    </div>
-
-    <!-- Merge Form Card -->
-    <div class="p-8 rounded-2xl bg-surface border border-line shadow-xs space-y-6">
-        <form action="{{ route('admin.subjects.merge') }}" method="POST" class="space-y-6 text-xs">
+    <x-ui.card>
+        <form action="{{ route('admin.subjects.merge') }}" method="POST" class="space-y-5">
             @csrf
 
-            <!-- Source Subject -->
-            <div class="space-y-1.5">
-                <label for="source_subject_id" class="block font-bold text-red-600 dark:text-red-400">
-                    ۱. موضوع مبدأ (تکراری / حذف‌شونده):
-                </label>
-                <select name="source_subject_id" id="source_subject_id" required 
-                        class="w-full p-3 rounded-xl border border-red-300 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/20 text-ink font-semibold focus:border-red-500 outline-none">
-                    <option value="">-- انتخاب موضوعی که باید حذف و ادغام شود --</option>
+            <x-admin.field label="۱. موضوع تکراری (حذف می‌شود)" for="source_subject_id" error="source_subject_id">
+                <select name="source_subject_id" id="source_subject_id" required class="admin-field w-full !border-cinnabar/50">
+                    <option value="">موضوعی را که در موضوع دیگر ادغام می‌شود برگزینید</option>
                     @foreach($subjects as $s)
-                        <option value="{{ $s->id }}" {{ old('source_subject_id', $preloadedSourceId ?? '') == $s->id ? 'selected' : '' }}>
-                            {{ $s->name }} (شناسه #{{ $s->id }} • {{ number_format($s->works_count) }} اثر)
-                        </option>
+                        <option value="{{ $s->id }}" @selected(old('source_subject_id', $preloadedSourceId ?? '') == $s->id)>{{ $option($s) }}</option>
                     @endforeach
                 </select>
-                @error('source_subject_id')
-                    <p class="text-[11px] text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
+            </x-admin.field>
 
-            <!-- Arrow Indicator -->
-            <div class="flex items-center justify-center">
-                <div class="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 shadow-inner">
-                    <svg class="w-5 h-5 rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-                </div>
-            </div>
-
-            <!-- Target Subject -->
-            <div class="space-y-1.5">
-                <label for="target_subject_id" class="block font-bold text-emerald-600 dark:text-emerald-400">
-                    ۲. موضوع مقصد (موضوع اصلی / حفظ‌شونده):
-                </label>
-                <select name="target_subject_id" id="target_subject_id" required 
-                        class="w-full p-3 rounded-xl border border-emerald-300 dark:border-emerald-900/50 bg-emerald-50/30 dark:bg-emerald-950/20 text-ink font-semibold focus:border-emerald-500 outline-none">
-                    <option value="">-- انتخاب موضوعی که آثار به آن منتقل می‌شود --</option>
+            <x-admin.field label="۲. موضوع اصلی (می‌ماند)" for="target_subject_id" error="target_subject_id">
+                <select name="target_subject_id" id="target_subject_id" required class="admin-field w-full !border-emerald-600/50">
+                    <option value="">موضوعی را که آثار به آن می‌رسد برگزینید</option>
                     @foreach($subjects as $s)
-                        <option value="{{ $s->id }}" {{ old('target_subject_id', $preloadedTargetId ?? '') == $s->id ? 'selected' : '' }}>
-                            {{ $s->name }} (شناسه #{{ $s->id }} • {{ number_format($s->works_count) }} اثر)
-                        </option>
+                        <option value="{{ $s->id }}" @selected(old('target_subject_id', $preloadedTargetId ?? '') == $s->id)>{{ $option($s) }}</option>
                     @endforeach
                 </select>
-                @error('target_subject_id')
-                    <p class="text-[11px] text-red-500">{{ $message }}</p>
-                @enderror
-            </div>
+            </x-admin.field>
 
-            <!-- Submit -->
-            <div class="pt-4 flex items-center justify-between border-t border-line">
-                <a href="{{ route('admin.subjects.index') }}" class="px-4 py-2 text-stone-500 hover:text-stone-800 font-bold">
-                    انصراف
-                </a>
-                <button type="submit" 
-                        onclick="return confirm('هشدار: این عملیات قابل بازگشت نیست. آیا از انتقال آثار و حذف موضوع مبدأ کاملاً اطمینان دارید؟')"
-                        class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                    <span>اجرای قطعی ادغام موضوعات</span>
-                </button>
+            <div class="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line">
+                <x-ui.btn :href="route('admin.subjects.index')" variant="ghost">انصراف</x-ui.btn>
+                <button type="submit" onclick="return confirm('آثار موضوع تکراری به موضوع اصلی منتقل و موضوع تکراری حذف شود؟')"
+                        class="px-6 py-2.5 rounded-sm bg-cinnabar text-on-cinnabar font-bold hover:opacity-90 transition cursor-pointer">ادغام موضوعات</button>
             </div>
-
         </form>
-    </div>
-
+    </x-ui.card>
 </div>
 @endsection

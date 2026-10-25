@@ -103,9 +103,20 @@ class SuggestionRegistry
         ],
     ];
 
+    /**
+     * Answers of «تصحیح جمعی» (backlog item 80) that keep the data as it is: kept out of the suggestion forms, filed
+     * only by a queue, and decided in the panel's queue (apply «queue»).
+     */
+    public const QUEUE_RELATIONS = [
+        'person' => [
+            'namesakes_apart' => ['label' => 'این اشخاص هم‌نام چند نفرند و جدا می‌مانند', 'target' => null, 'action' => 'جدا ماندن اشخاص هم‌نام', 'apply' => 'queue', 'queue_only' => true],
+            'one_person' => ['label' => 'همه‌ی نسخه‌های این رکورد از یک نفرند', 'target' => null, 'action' => 'یک نفر بودن رکورد', 'apply' => 'queue', 'queue_only' => true],
+        ],
+    ];
+
     public static function relation(string $type, ?string $key): ?array
     {
-        $relation = self::RELATIONS[self::typeKey($type)][$key] ?? null;
+        $relation = self::RELATIONS[self::typeKey($type)][$key] ?? self::QUEUE_RELATIONS[self::typeKey($type)][$key] ?? null;
 
         return $relation ? ['key' => $key] + $relation : null;
     }

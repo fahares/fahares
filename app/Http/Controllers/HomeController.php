@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cataloger;
+use App\Review\CollectiveReview;
+use App\Suggestions\Contributions;
 use App\Models\HomeItem;
 use App\Models\Library;
 use App\Models\Subject;
@@ -25,7 +27,29 @@ class HomeController extends Controller
 
         $suggestedSearches = collect($this->getSuggestedSearchesPool())->random(7)->values()->all();
 
-        return view('home', compact('stats', 'topSubjects', 'topLibraries', 'hero', 'slides', 'treasures', 'homeCatalogers', 'suggestedSearches'));
+        $contributions = $this->contributions();
+
+        return view('home', compact('stats', 'topSubjects', 'topLibraries', 'hero', 'slides', 'treasures', 'homeCatalogers', 'suggestedSearches', 'contributions'));
+    }
+
+    /**
+     * The strip under the search sheet (backlog item 80): the approved corrections in short, the latest of them, and
+     * how much «تصحیح جمعی» still waits for.
+     */
+    private function contributions(): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember('home.contributions', 600, function () {
+            $all = Contributions::publicQuery();
+            $latest = (clone $all)->with(['user', 'suggestable'])->orderByDesc('reviewed_at')->orderByDesc('id')->first();
+            $summary = $latest ? Contributions::summary($latest) : null;
+
+            return [
+                'total' => (clone $all)->count(),
+                'researchers' => (clone $all)->whereNotNull('user_id')->distinct()->count('user_id'),
+                'latest' => $summary ? ['action' => $summary['action'], 'record' => $summary['record']] : null,
+                'waiting' => collect(CollectiveReview::counts())->sum('waiting'),
+            ];
+        });
     }
 
     /**

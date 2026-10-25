@@ -86,7 +86,7 @@
                         جریده
                     </a>
                     <a href="{{ route('contributions.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
-                        اصلاحات پژوهشگران
+                        {{ config('contributions.title') }}
                     </a>
                     <a href="{{ route('insights') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('insights') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         آمار
@@ -164,7 +164,7 @@
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         </svg>
-                                        <span>اصلاحات پژوهشگران</span>
+                                        <span>{{ config('contributions.title') }}</span>
                                     </a>
                                     <a href="{{ route('notifications.index') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,7 +232,7 @@
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
                             <a href="{{ route('posts.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('posts.*') ? 'text-cinnabar font-bold' : '' }}">جریده</a>
-                            <a href="{{ route('contributions.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar font-bold' : '' }}">اصلاحات پژوهشگران</a>
+                            <a href="{{ route('contributions.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar font-bold' : '' }}">{{ config('contributions.title') }}</a>
                             <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights') ? 'text-cinnabar font-bold' : '' }}">آمار</a>
                             <a href="{{ route('about') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('about') ? 'text-cinnabar font-bold' : '' }}">درباره ما</a>
                             <div class="my-1 border-t border-line-strong sm:hidden"></div>
@@ -289,14 +289,29 @@
     <main class="flex-grow">
         @auth
             @unless(auth()->user()->hasVerifiedEmail() || request()->routeIs('verification.*'))
-                {{-- Verification is optional; it lets the account claim its earlier guest suggestions --}}
+                {{-- Suggestions do not wait for it, but the name beside them is published only after it (backlog item 76) --}}
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                     <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-2">
-                        <span>ایمیل حساب شما هنوز تأیید نشده است. با تأیید آن، پیشنهادهایی که پیش‌تر بدون ورود فرستاده‌اید به حسابتان وصل می‌شوند.</span>
+                        <span>ایمیل حساب شما هنوز تأیید نشده است. پیشنهادهای شما ثبت می‌شوند، ولی نامتان پس از تأیید ایمیل کنار آن‌ها منتشر می‌شود.</span>
                         <a href="{{ route('verification.notice') }}" class="font-bold text-cinnabar hover:underline shrink-0">تأیید ایمیل</a>
                     </div>
                 </div>
             @endunless
+            @if(auth()->user()->shouldWriteNameInPersian() && ! request()->routeIs('profile', 'account.complete'))
+                {{-- The account name is published beside corrections; a Latin one may be kept, e.g. by a scholar outside Iran (backlog item 75) --}}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4" data-persian-name-bar>
+                    <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-2">
+                        <span>نام حساب شما «<bdi>{{ auth()->user()->name }}</bdi>» با حروف لاتین است. این نام کنار اصلاحات شما منتشر می‌شود؛ لطفاً آن را به فارسی بنویسید.</span>
+                        <span class="flex items-center gap-3 shrink-0">
+                            <a href="{{ route('profile') }}" class="font-bold text-cinnabar hover:underline">ویرایش نام</a>
+                            <form action="{{ route('profile.keep-name') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-muted hover:text-ink hover:underline cursor-pointer">نامم همین بماند</button>
+                            </form>
+                        </span>
+                    </div>
+                </div>
+            @endif
         @endauth
         @yield('content')
     </main>
@@ -377,7 +392,7 @@
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
                         <li><a href="{{ route('posts.index') }}" class="hover:text-amber-100 transition">جریده: گزارش‌ها و یادداشت‌ها</a></li>
                         <li><a href="{{ route('insights') }}" class="hover:text-amber-100 transition">آمار: نسخه‌ها در گذر سده‌ها</a></li>
-                        <li><a href="{{ route('contributions.index') }}" class="hover:text-amber-100 transition">اصلاحات پژوهشگران</a></li>
+                        <li><a href="{{ route('contributions.index') }}" class="hover:text-amber-100 transition">{{ config('contributions.title') }}</a></li>
                         <li><a href="{{ route('about') }}" class="hover:text-amber-100 transition">درباره فهارس</a></li>
                         <li x-data><button type="button" @click="$dispatch('open-feedback')" class="hover:text-amber-100 transition cursor-pointer text-right">گزارش اشکال یا پیشنهاد</button></li>
                     </ul>
@@ -739,7 +754,7 @@
     <!-- Global Catalog Facsimile Viewer Modal -->
     <x-catalog-viewer />
 
-    @if(auth()->user()?->canAccessAdmin())
+    @if(auth()->user()?->can('catalog_refs.review'))
         <x-ui.machine-review-toast />
     @endif
 

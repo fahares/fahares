@@ -33,11 +33,13 @@ class MySuggestionsController extends Controller
     {
         abort_unless($suggestion->user_id === $request->user()->id, 403);
         $validated = $request->validate(['credit_name' => 'nullable|string|max:150']);
-        $suggestion->update(['credit_name' => trim($validated['credit_name'] ?? '') ?: null]);
+        $suggestion->update(\App\Auth\HeldCredit::columns($request->user(), $validated['credit_name'] ?? null));
 
-        return back()->with('success', $suggestion->credit_name
-            ? "نام «{$suggestion->credit_name}» برای این پیشنهاد ثبت شد."
-            : 'نام شما از کنار این پیشنهاد برداشته شد.');
+        return back()->with('success', match (true) {
+            (bool) $suggestion->credit_name => "نام «{$suggestion->credit_name}» برای این پیشنهاد ثبت شد.",
+            (bool) $suggestion->held_credit_name => "نام «{$suggestion->held_credit_name}» ثبت شد و پس از تأیید ایمیل شما منتشر می‌شود.",
+            default => 'نام شما از کنار این پیشنهاد برداشته شد.',
+        });
     }
 
     /** Public page of the record a suggestion is about, or null once it is gone (e.g. merged away). */

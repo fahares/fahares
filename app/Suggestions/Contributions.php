@@ -104,6 +104,15 @@ class Contributions
             'contributor' => self::contributor($s),
         ];
 
+        // An answer of «تصحیح جمعی» that a reviewer agreed with reads as the answer, not as a field's before and after
+        if ($s->review_queue && ($queue = \App\Review\CollectiveReview::queue($s->review_queue))) {
+            return array_merge($summary, [
+                'action' => config('contributions.review_title') . ': ' . $queue->title(),
+                'standing' => null,
+                'text' => $queue->describe($s),
+            ]);
+        }
+
         return match ($s->kind) {
             'field' => array_merge($summary, [
                 'before' => self::plain($s->current_value),

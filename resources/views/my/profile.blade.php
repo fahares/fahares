@@ -9,9 +9,20 @@
         <p class="mt-1 text-xs text-muted">{{ $user->name }} · <span class="dir-ltr inline-block">{{ $user->email }}</span></p>
     </div>
 
-    @if(session('success'))
-        <div class="p-3 rounded-sm border border-emerald-600/30 bg-emerald-600/5 text-emerald-800 dark:text-emerald-300 text-sm">{{ session('success') }}</div>
-    @endif
+    <x-ui.card class="space-y-5">
+        <h2 class="rubric text-lg">مشخصات</h2>
+        @php $field = 'w-full px-3 py-2.5 rounded-sm border border-line-strong bg-paper text-ink text-sm focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 transition outline-none'; @endphp
+        <form action="{{ route('profile.update') }}" method="POST" class="space-y-4">
+            @csrf
+            @include('auth.partials.name-field', ['value' => $user->name, 'inputClass' => $field])
+            <div class="space-y-1">
+                <label for="affiliation" class="block text-xs font-bold text-ink">وابستگی دانشگاهی / حوزوی / پژوهشی <span class="text-muted font-normal">(اختیاری)</span>:</label>
+                <input type="text" id="affiliation" name="affiliation" value="{{ old('affiliation', $user->affiliation) }}" maxlength="255" class="{{ $field }}">
+            </div>
+            @include('auth.partials.phone-field', ['value' => $user->phone, 'inputClass' => $field])
+            <x-ui.btn type="submit" variant="primary">ذخیره‌ی مشخصات</x-ui.btn>
+        </form>
+    </x-ui.card>
 
     <x-ui.card class="space-y-5">
         <h2 class="rubric text-lg">تصویر کاربر</h2>

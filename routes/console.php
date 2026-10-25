@@ -17,3 +17,7 @@ Schedule::command('queue:prune-failed --hours=720')->daily();
 
 // Figures of the insights page (/insights): heavy queries, so built once a night, not per view
 Schedule::command('fahares:build-insights')->dailyAt('03:30')->withoutOverlapping(30);
+
+// The admin queues «بازبینی اشخاص» (item 78): new namesake groups and mixed records after the day's
+// merges, splits and imports; after the insights build, so the two heavy jobs do not overlap
+Schedule::command('fahares:refresh-person-reviews')->dailyAt('04:15')->withoutOverlapping(30);

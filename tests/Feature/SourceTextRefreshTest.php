@@ -65,7 +65,7 @@ class SourceTextRefreshTest extends TestCase
 
     protected function suggest(string $field, string $value): FieldSuggestion
     {
-        $this->postJson('/suggestions', ['type' => 'manuscript', 'id' => $this->manuscript->id, 'kind' => 'field', 'field_name' => $field,
+        $this->suggestJson(['type' => 'manuscript', 'id' => $this->manuscript->id, 'kind' => 'field', 'field_name' => $field,
             'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم'])->assertOk();
 
         return FieldSuggestion::latest('id')->firstOrFail();
@@ -145,7 +145,7 @@ class SourceTextRefreshTest extends TestCase
         $this->entry->update(['page_start' => 596]);
 
         $this->actingAs($this->admin())->get(route('admin.source-entries.text', $this->entry))->assertOk()
-            ->assertSeeInOrder(['متنی که صفحه‌های مأخذ در نشانی کنونی نشان می‌دهند', '۹ ـ اجوبة مسائل الاصفهانی', 'همین متن را بگذار', 'ویرایش دستی', 'متن صفحه‌های مأخذ (ص ۵۹۶ تا ۵۹۶)'])
+            ->assertSeeInOrder(['صفحه‌های مأخذ در نشانی کنونی این متن را نشان می‌دهند', '۹ ـ اجوبة مسائل الاصفهانی', 'همین متن را بگذار', 'ویرایش دستی', 'متن صفحه‌های مأخذ', 'ص ۵۹۶ تا ۵۹۶'])
             ->assertSee('صفحه‌ی بعد');
         // the entry runs over two pages: «صفحه‌ی بعد» adds the next
         $this->actingAs($this->admin())->get(route('admin.source-entries.text', ['entry' => $this->entry, 'from' => 596, 'to' => 597]))

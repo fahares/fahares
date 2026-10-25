@@ -1,4 +1,4 @@
-@props(['s', 'tag', 'tone' => 'stone'])
+@props(['s', 'tag' => null, 'tone' => 'stone', 'chosen' => false])
 {{-- One approved reading in <x-suggest.readings>: value, who holds it, when, the evidence and the reviewer's public note --}}
 @php
     $tones = [
@@ -10,7 +10,11 @@
 @endphp
 <div x-data="{ open: false }" class="space-y-1.5">
     <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold {{ $tones[$tone] }}">{{ $tag }}</span>
+        @if($chosen)
+            <span class="inline-block size-2.5 rounded-full bg-emerald-500 shrink-0 self-center" title="مقدار منتخب" aria-label="مقدار منتخب" role="img"></span>
+        @else
+            <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold {{ $tones[$tone] }}">{{ $tag }}</span>
+        @endif
         <span class="font-bold text-ink whitespace-pre-line">{{ $s->display_value }}</span>
     </div>
     <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] text-muted">

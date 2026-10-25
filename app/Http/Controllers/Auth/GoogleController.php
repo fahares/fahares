@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Auth\GuestSuggestionLinker;
+use App\Auth\HeldCredit;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Support\IntendedUrl;
+use App\Support\PersonName;
 use App\Support\UserAvatar;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
@@ -26,6 +29,7 @@ class GoogleController extends Controller
     public function redirect()
     {
         abort_unless(self::enabled(), 404);
+        IntendedUrl::remember(request());
 
         return Socialite::driver('google')->redirect();
     }
@@ -73,9 +77,15 @@ class GoogleController extends Controller
             $user->markEmailAsVerified();
         }
         $linked = GuestSuggestionLinker::link($user);
+        HeldCredit::release($user);
 
         Auth::login($user, true);
         request()->session()->regenerate();
+
+        // A new account with a Latin Google name is asked once for its Persian name and an optional phone (backlog item 75)
+        if ($created && PersonName::isLatinOnly($user->name)) {
+            return redirect()->route('account.complete');
+        }
 
         $welcome = $created ? "حساب شما با گوگل ساخته شد. {$user->name}، به فهارس خوش آمدید." : "{$user->name}، خوش آمدید.";
 

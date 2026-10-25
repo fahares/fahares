@@ -1,7 +1,7 @@
 {{-- Readings of the record's fields from approved suggestions (shared by the record page, see AppServiceProvider and SuggestionReadings) --}}
 @php $readings = $suggestionReadings ?? collect(); @endphp
 @if($readings->isNotEmpty())
-    <x-ui.section id="suggestion-readings" title="اقوال و اصلاحات پژوهشگران">
+    <x-ui.section id="suggestion-readings" title="اقوال، اصلاحات و تعلیقات">
         <div class="space-y-5">
 
         @foreach($readings as $r)
@@ -9,7 +9,7 @@
                 <h3 class="text-xs font-bold text-muted">{{ $r['label'] }}</h3>
 
                 @if($r['adopted'])
-                    <x-suggest.reading :s="$r['adopted']" tag="قول مختار" tone="emerald" />
+                    <x-suggest.reading :s="$r['adopted']" chosen />
                 @elseif($r['current'] !== null)
                     <div class="flex flex-wrap items-baseline gap-2">
                         <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60">ضبط فعلی (فهرست)</span>
