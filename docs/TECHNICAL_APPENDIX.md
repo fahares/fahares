@@ -4117,3 +4117,20 @@
   - سمت مرورگر: [web-push.js](../resources/js/web-push.js) (کامپوننت Alpine ‏`webPush`)، [components/web-push](../resources/views/components/web-push.blade.php) با سه زمینه‌ی `settings`، `suggest` و `dashboard`، [public/sw.js](../public/sw.js) که چیزی cache نمی‌کند، و [public/manifest.json](../public/manifest.json). دعوت بسته‌شده در `localStorage` به ازای هر زمینه به خاطر سپرده می‌شود. بی‌کلید VAPID هیچ‌چیز نمایش داده نمی‌شود.
   - متغیرهای محیطی: `VAPID_PUBLIC_KEY`، `VAPID_PRIVATE_KEY` و `VAPID_SUBJECT` (مثلاً `mailto:…`)، ساخته‌شده با `php artisan webpush:vapid --show`.
 - **آزمون:** [UserRegisteredTest](../tests/Feature/Notifications/UserRegisteredTest.php) و [WebPushTest](../tests/Feature/Notifications/WebPushTest.php).
+
+### گام ۱۳.۳۳: رویدادهای تازه‌ی اعلان (مورد ۲۵)
+- **ساختار:** [SiteNotification](../app/Notifications/SiteNotification.php) پایه‌ی مشترک (عنوان، سطرها، پیوند؛ ایمیل، داخل سایت، تلگرام) است و نوع را از `type()` می‌خواند. [Notice](../app/Notifications/Notice.php) نمونه‌ی متن‌ثابت آن است و بیشتر نوع‌های تازه با آن فرستاده می‌شوند. `UserRegistered` و `AccessMatrixChanged` هم به همین پایه منتقل شدند.
+  - `NotificationPreferences::broadcast($type, $notification, $except)` به گیرندگان نوع و به گروه‌های آن (`telegram`: داوران، `alerts`: ‏`TELEGRAM_ALERTS_CHAT_ID`) می‌فرستد و خطا را فقط لاگ می‌کند.
+  - `locked` در [config/notifications.php](../config/notifications.php): پیش‌فرض همیشه برقرار است، `set()` اثری ندارد، پیوند لغو اشتراک ۴۰۴ می‌دهد و چک‌باکس در تنظیمات غیرفعال است.
+  - ستون‌های «مرورگر» و «تلگرام» فقط وقتی کلیدشان در محیط سرور هست نمایش داده می‌شوند.
+- **رویدادها:**
+  - [NotifyQueueFailure](../app/Listeners/NotifyQueueFailure.php) روی `JobFailed`؛ خطای Meilisearch با `report` در [bootstrap/app.php](../bootstrap/app.php). [SystemNotices](../app/Notifications/SystemNotices.php) هر کدام را حداکثر یک بار در ساعت، با شمار رخدادهای جمع‌شده، می‌فرستد.
+  - [NotifyHeavyCommandFinished](../app/Listeners/NotifyHeavyCommandFinished.php) روی `CommandStarting` و `CommandFinished`، فقط در production و برای `notifications.heavy_commands`.
+  - [UserNotices](../app/Observers/UserNotices.php) (`#[ObservedBy]` روی `User`): تغییر `role`، `is_verified_scholar`، `email` و `password` از هر مسیری.
+  - [NotifyNewDeviceSignIn](../app/Listeners/NotifyNewDeviceSignIn.php) روی `Login` برای دارندگان `panel.access`: توکن تصادفی در کوکی پنج‌ساله `fahares_device` و هش آن در جدول تازه‌ی `known_devices`. نخستین مرورگر هر حساب اعلان نمی‌شود.
+  - [AuditLogConflicts](../app/Observers/AuditLogConflicts.php) (`#[ObservedBy]` روی `AuditLog`): پس از commit، برای `update`، `merge`، `split`، `remove` و `delete` روی رکوردی (یا رکورد مبدأ ادغام) که پیشنهاد در انتظار از کسی جز انجام‌دهنده دارد. پیشنهادی که خود این کنش اعمالش کرده (`new_values.suggestion_id`) شمرده نمی‌شود. حداکثر یک بار در ساعت برای هر رکورد.
+  - دستورهای `notifications:digest` (هر روز ۷:۳۰ تهران) و `notifications:stale-suggestions` (شنبه‌ها ۸:۰۰) در [routes/console.php](../routes/console.php). ستون `digest` کانال لاراول نیست و `channelsFor` آن را برنمی‌گرداند.
+  - `CollectiveReview::answer` دیگر `SuggestionNotifier::submitted` را صدا نمی‌زند.
+- **تلگرام شخصی:** [TelegramLinkController](../app/Http/Controllers/TelegramLinkController.php). توکن ۳۰ دقیقه‌ای در cache است. وب‌هوک `POST /telegram/webhook` (بیرون از CSRF) سرآیند `X-Telegram-Bot-Api-Secret-Token` را می‌سنجد و فقط گفت‌وگوی خصوصی را وصل می‌کند. `/stop` اتصال را برمی‌دارد. ستون `users.telegram_chat_id` در `User::routeNotificationForTelegram` است. وب‌هوک با `php artisan notifications:telegram-webhook` تنظیم می‌شود.
+- **مهاجرت:** `2026_10_25_200002_add_notification_channels_to_users` (فقط ساختار: ستون `telegram_chat_id` و جدول `known_devices`).
+- **آزمون:** [EventNoticesTest](../tests/Feature/Notifications/EventNoticesTest.php).
