@@ -4004,6 +4004,16 @@
 
 - **باقی‌مانده‌ی زمان بیرونی:** بیشتر آن مسیر شبکه از ماشین سنجش است. TLS حدود ۰٫۵۶ ثانیه و TTFB برای `robots.txt` حدود ۰٫۷۵ ثانیه است. جستجو درون کانتینر هنوز حدود ۱ ثانیه است و اگر لازم شد، جدا بررسی شود.
 - **بازگشت:** فرمان آغاز Coolify را به `php artisan serve --host=0.0.0.0 --port=80` برگردانید و Force Rebuild بزنید.
+- **migrate خودکار (۳ آبان ۱۴۰۵، به تصمیم کاربر):**
+  - post-deploy command در Coolify، با `ssh fahares-server` و مدل `Application` خود Coolify، از `php artisan storage:link` به `php artisan storage:link && php artisan migrate --force` تغییر کرد.
+  - `storage:link` وقتی پیوند از پیش هست (که `start.sh` آن را می‌سازد) پیام «already exists» می‌دهد، ولی کد خروجش ۰ است. پس `&&` جلوی migrate را نمی‌گیرد.
+  - **نحوه‌ی اجرا در Coolify 4.5:** `ApplicationDeploymentJob::run_post_deployment_command` فرمان را با `docker exec <container> sh -c '…'` در کانتینر تازه اجرا می‌کند، پس از سالم شدن آن. شکست فرمان استقرار را ناموفق نمی‌کند و فقط «Post-deployment command failed.» و خروجی آن را در لاگ استقرار می‌نویسد. پس پس از استقراری که migration دارد، `php artisan migrate:status` با `ssh fahares-app` وارسی شود.
+  - **چرا pre-deploy نه:** pre-deploy در کانتینر قدیمی اجرا می‌شود و migrationهای تازه را ندارد.
+  - **قاعده‌ها:**
+    - migration فقط تغییر ساختار است.
+    - تغییر انبوه داده (ادغام، بازسازی، پرکردن) دستور artisan جداست و با پشتیبان و تأیید کاربر اجرا می‌شود.
+    - چند ثانیه کد تازه روی ساختار قدیمی کار می‌کند، پس migration افزایشی باشد. حذف یا تغییر نام ستونی که کد قبلی می‌خواند به استقرار بعد بماند.
+    - migrationی که روی جدول‌های بزرگ (`manuscripts`، `source_entries` و مانند آن‌ها) قفل طولانی می‌گذارد، پیش از push روی `fahares_prod` محلی زمان‌سنجی شود.
 
 ### گام ۱۳.۲۸: [source_entries/text](../resources/views/admin/source_entries/text.blade.php) و [person-reviews](../resources/views/admin/person-reviews/index.blade.php) (مورد ۶۵، بند ۵)
 - **متن مأخذ:**
