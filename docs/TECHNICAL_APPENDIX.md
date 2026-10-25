@@ -3849,3 +3849,53 @@
 - **خانه:** `HomeController::contributions()` (کش ۱۰ دقیقه، کلید `home.contributions`) شمار اصلاحات عمومی، پژوهشگران، تازه‌ترین خلاصه و جمع `waiting` صف‌ها را می‌سازد. نوار `data-home-contributions` در [home.blade.php](../resources/views/home.blade.php) است.
 - **آزمون:** سه آزمون تازه در CollectiveReviewTest: هم‌نام‌ها (خطای «همه را برگزیده‌اید»، بی‌ادغامی، مسدود بودن تأیید در میز، نمایش در صف پنل، بستن با «چند نفرند»، رد شدن `namesakes_apart` از فرم عمومی)؛ رکورد قاطی‌شده (علامت نسخه‌ها، جابه‌جا نشدن نسخه، نشان در پنل، بستن با «یک نفر است»)؛ و نوار خانه. کل مجموعه: ۲۸۸ آزمون موفق. مسیر ادغام واقعی در این آزمون‌ها نیست، فقط نگاشت `decision()` آن.
 
+### گام ۱۳.۲۲: پیشنهاد فقط با حساب، شماره‌ی تماس و نام فارسی (موارد ۷۴ تا ۷۶)
+- **سنجش پروداکشن:** با `tinker` روی `ssh fahares-app`، فقط شمارش: ۲۹ پیشنهاد، ۱ پیشنهاد با `user_id` تهی (kind `note`، `rejected`، بی `guest_email`). در `pages`، `home_items` و `site_settings` متنی که مهمان را به پیشنهاد دعوت کند نبود.
+- **migration:** [2026_10_24_500001_add_phone_and_held_credit](../database/migrations/2026_10_24_500001_add_phone_and_held_credit.php) دو ستون می‌افزاید: `users.phone` (string 20، nullable) و `field_suggestions.held_credit_name` (string 150، nullable).
+- **مسیر و کنترلر:**
+  - `POST /suggestions` میان‌افزار `auth` گرفت. پاسخ مهمان در درخواست JSON کد 401 است و در فرم عادی به `/login` می‌رود. یادداشت و رابطه هم از همین مسیرند.
+  - در [SuggestionController](../app/Http/Controllers/SuggestionController.php) قاعده‌های `guest_name`، `guest_email`، `notify_submitter` و `website` برداشته شدند. `guest_name` و `guest_email` از حساب پر می‌شوند و `notify_submitter` همیشه false است.
+  - [FeedbackController](../app/Http/Controllers/FeedbackController.php) دست نخورد.
+- **نام تا تأیید ایمیل:** [HeldCredit](../app/Auth/HeldCredit.php) این کارها را می‌کند:
+  - `columns(user, name)` برای کاربر تأییدنشده `held_credit_name` را پر می‌کند و `credit_name` را تهی می‌گذارد.
+  - `release(user)` پس از تأیید ایمیل نام نگه‌داشته را به `credit_name` می‌برد. در `EmailVerificationController::verify` و ورود با گوگل صدا زده می‌شود.
+  - هر جا نام درج می‌شود، از `columns()` استفاده می‌کند: `store` پیشنهاد و یادداشت، `MySuggestionsController::credit` و `CollectiveReview::answer`.
+  - `SuggestionReviewed` اگر نامی نگه داشته شده باشد، دعوت به ثبت نام نمی‌کند. «پیشنهادهای من» و میز داوری نام نگه‌داشته را با توضیح نشان می‌دهند.
+- **بازگشت پس از ورود:** [IntendedUrl](../app/Support/IntendedUrl.php) پارامتر `intended` را در `url.intended` نشست می‌گذارد، فقط اگر مسیری روی همین سایت باشد (آغاز با `/`، نه `//` و نه `\`). در این‌ها صدا زده می‌شود: صفحه‌ی ورود، صفحه و POST ثبت‌نام، و `GoogleController::redirect`.
+  - `RegisterController::register` برای درخواست JSON پاسخ `{redirect}` می‌دهد. اگر `password_confirmation` نیاید، تکرار گذرواژه را نمی‌خواهد (فرم کوتاه پنجره). نشست را هم پس از ورود از نو می‌سازد.
+- **میز پیشنهاد** ([desk](../resources/views/components/suggest/desk.blade.php) و [suggest-desk.js](../resources/js/suggest-desk.js)):
+  - پیکربندی تازه: `signedIn`، `verified`، `registerUrl`، `loginUrl` و `googleUrl`.
+  - `start()` کلید فرم (`formKey`) را می‌سازد: `field.<name>`، `general` یا `general.<relation>`، `note`، یا `mode` برای دکمه‌ی «پیشنهاد اصلاح». برای مهمان، به‌جای فرم پنجره‌ی ورود (`gate`) باز می‌شود. نشانی بازگشت `intended` همان صفحه است با `?suggest=<key>`.
+  - `init()` این پارامتر را می‌خواند، با `history.replaceState` از نشانی برمی‌دارد و همان فرم را باز می‌کند. `mode` حالت پیشنهاد اصلاح را روشن می‌کند.
+  - پیش‌نویس در `sessionStorage` با کلید `suggest-draft:<path>:<formKey>` ذخیره می‌شود: با هر `input` و `change` در فرم، و پیش از باز شدن پنجره‌ی ورود. ارسال موفق و «انصراف» آن را پاک می‌کنند.
+  - پاسخ 401 هنگام ارسال پیش‌نویس را نگه می‌دارد و پنجره‌ی ورود را باز می‌کند. پاسخ 419 پیش‌نویس را نگه می‌دارد و پیام «صفحه را تازه کنید» می‌دهد.
+  - [toggle](../resources/views/components/suggest/toggle.blade.php) برای مهمان رویداد `suggest-field` را با `{ mode: true }` می‌فرستد.
+  - [google-button](../resources/views/auth/partials/google-button.blade.php) پارامتر `intended` یا عبارت Alpine `hrefExpr` را می‌پذیرد.
+- **شماره:**
+  - [Phone::normalize](../app/Support/Phone.php) این کارها را می‌کند: تبدیل ارقام فارسی و عربی، حذف فاصله، خط تیره، نقطه و پرانتز، «۰۰» به «+»، صفر آغازین به `+98`، `9xxxxxxxxx` و `989xxxxxxxxx` بی پیشوند، و حذف صفر پس از `+98`.
+  - شماره‌ی پذیرفتنی باید با الگوی `^\+[1-9]\d{6,14}$` بخواند. شماره‌ی ایران دقیقاً ۱۳ نویسه است.
+  - `Phone::rule()` قاعده‌ی اعتبارسنجی فیلد اختیاری است.
+  - `phone` در `#[Hidden]` مدل `User` است. مجوز `users.contact` در [Permissions](../app/Auth/Permissions.php) آمد، بی پیش‌فرض برای نقش‌های دیگر. [admin/users/edit](../resources/views/admin/users/edit.blade.php) شماره را با `@can('users.contact')` نشان می‌دهد.
+- **نام فارسی:**
+  - پاره‌ی [name-field](../resources/views/auth/partials/name-field.blade.php) راهنما و هشدار (`\p{Script=Latin}` بی `\p{Script=Arabic}`) را دارد. [phone-field](../resources/views/auth/partials/phone-field.blade.php) هم پاره‌ی شماره است.
+  - `ProfileController::update` و `POST /settings/profile` (`profile.update`) نام، وابستگی و شماره را ذخیره می‌کنند.
+  - `GoogleController::callback` حسابی را که تازه ساخته و [PersonName::isLatinOnly](../app/Support/PersonName.php) نامش را لاتین می‌داند، به `account.complete` می‌فرستد. [auth/complete](../resources/views/auth/complete.blade.php) با `skip=1` («بعداً») چیزی را تغییر نمی‌دهد. هر دو حالت به `redirect()->intended()` می‌روند.
+- **ادغام با main:** گام‌های ۱۳.۲۰ و ۱۳.۲۱ (مورد ۸۰) درج نام پیش‌فرض و `FieldSuggestion::creditNameFor` را آورده بودند. پس از برداشتن فیلدهای مهمان، این دو نگه داشته شدند.
+- **آزمون:**
+  - [SignedInSuggestionsTest](../tests/Feature/SignedInSuggestionsTest.php) با ۹ آزمون:
+    - رد مهمان و باز ماندن بازخورد
+    - پیشنهاد با حساب
+    - نگه‌داشتن نام تا تأیید
+    - نرمال‌سازی شماره
+    - ثبت‌نام از پنجره با `intended`
+    - بازگشت پس از ورود
+    - راهنمای نام و صفحه‌ی حساب
+    - پنهان ماندن شماره و مجوز آن
+    - تکمیل حساب گوگل
+  - `TestCase` دو helper دارد: `suggestJson` و `suggestPost`. پیشنهاد را با یک کاربر آزمون تأییدشده می‌فرستند و پس از آن کاربر پیشین را بازمی‌گردانند. آزمون‌های قدیمی که پیشنهاد مهمانی را می‌سنجیدند، اکنون آن را مستقیم به‌عنوان داده‌ی قدیمی می‌سازند. کاربران آزمون در `SuggestionWorkflowTest` و `CollectiveReviewTest` ایمیل تأییدشده گرفتند.
+  - کل مجموعه: ۲۹۸ آزمون موفق.
+  - **روش اجرا:** کانتینر `fahares_app` کد checkout اصلی را اجرا می‌کند. پس آزمون‌ها با `docker run` از image `fahares-app` روی پوشه‌ی worktree اجرا شدند، با `vendor` و `.env` شاخه‌ی اصلی به‌صورت فقط‌خواندنی و پایگاه جداگانه‌ی `fahares_ws74_test`. نام پایگاه باید به `_test` ختم شود، چون `TestCase` جز این را نمی‌پذیرد.
+- **وارسی مرورگر:**
+  - نماها با Vite درون همان image ساخته شدند، با `node_modules` شاخه‌ی اصلی. `node_modules` میزبان برای rolldown بایندینگ ندارد.
+  - سرور: `php -S` روی درگاه ۸۰۷۴ با پایگاه محلی `fahares_db`. migration روی آن اجرا شد و کاربر و پیشنهاد آزمایشی پس از وارسی پاک شدند.
+
