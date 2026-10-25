@@ -4105,3 +4105,4 @@
     - یادکرد: `title_in_text` ۵۲۰ و `derivative_of_heading` ۴۸؛
     - بی‌تطبیق ۲٬۱۲۸، و بی‌مدخل در صفحه ۹۸ (صفحه‌ی نمایه یا نشانی نادرست).
 - **اجرای محلی:** worktree `vendor` ندارد. رونوشتی با hard link از `vendor` نسخه‌ی اصلی ساخته شد. `vendor/composer` و `vendor/autoload.php` جدا کپی شدند و `composer dump-autoload` اجرا شد. این‌طور فایل‌های نسخه‌ی اصلی دست نخوردند و کد شاخه بارگذاری شد. کل مجموعه ۳۱۸ آزمون موفق.
+- **استقرار:** push `15a65c0` به `main`. پس از استقرار Coolify، `2026_10_25_100001_create_source_items_tables` خودکار اجرا شد (دسته‌ی ۳۹). در پروداکشن `source_items` صفر ردیف دارد و ستون `source_entries.source_item_id` ساخته شده است. `/up` پاسخ ۲۰۰ می‌دهد.
