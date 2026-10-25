@@ -2,69 +2,41 @@
 
 @section('title', 'جریده')
 @section('page_title', 'جریده')
-@section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
-    <span>/</span>
-    <span class="text-stone-400">جریده</span>
+@section('page_actions')
+    <x-ui.btn :href="route('posts.index')" target="_blank" size="sm">فهرست در سایت ↗</x-ui.btn>
+    <x-ui.btn :href="route('admin.posts.create')" size="sm" variant="primary">یادداشت تازه</x-ui.btn>
 @endsection
 
-@php
-    $btn = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-line-strong hover:border-gold hover:text-cinnabar transition cursor-pointer';
-    $btnPri = 'inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-cinnabar text-on-cinnabar hover:opacity-90 transition cursor-pointer';
-@endphp
-
 @section('content')
-<div class="space-y-6 text-xs">
+<p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">گزارش نشست‌ها، معرفی نسخه‌ها و نوشته‌های دیگری که در سایت منتشر می‌شوند. پیش‌نویس‌ها فقط برای کاربران پنل دیده می‌شوند.</p>
 
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-        <p class="text-stone-500 max-w-3xl">گزارش نشست‌ها، معرفی نسخه‌ها و نوشته‌های دیگری که در سایت منتشر می‌شوند. پیش‌نویس‌ها فقط برای کاربران پنل دیده می‌شوند.</p>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('posts.index') }}" target="_blank" class="{{ $btn }}">فهرست در سایت ↗</a>
-            <a href="{{ route('admin.posts.create') }}" class="{{ $btnPri }}">+ یادداشت تازه</a>
-        </div>
-    </div>
-
-    <div class="bg-surface rounded-2xl border border-line shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-right text-xs">
-                <thead class="bg-paper text-stone-500 border-b border-line">
-                    <tr>
-                        <th class="p-4 font-bold">شناسه</th>
-                        <th class="p-4 font-bold">عنوان</th>
-                        <th class="p-4 font-bold">وضعیت</th>
-                        <th class="p-4 font-bold">نشانی برای پیوند</th>
-                        <th class="p-4 font-bold text-center">عملیات</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @forelse($posts as $post)
-                        <tr class="hover:bg-paper transition">
-                            <td class="p-4 font-mono font-bold text-stone-400">#{{ $post->id }}</td>
-                            <td class="p-4">
-                                <a href="{{ route('admin.posts.edit', $post) }}" class="font-bold text-ink hover:text-cinnabar">{{ $post->title }}</a>
-                                @if($post->byline)<span class="block text-stone-400 mt-0.5">{{ $post->byline }}</span>@endif
-                            </td>
-                            <td class="p-4 whitespace-nowrap">
-                                @if($post->isPublished())
-                                    <span class="px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-600">منتشرشده، @jdate($post->published_at, 'long')</span>
-                                @else
-                                    <span class="px-2 py-0.5 rounded-full font-bold bg-amber-500/10 text-amber-600">پیش‌نویس</span>
-                                @endif
-                            </td>
-                            <td class="p-4 font-mono text-stone-500" dir="ltr">/posts/{{ $post->id }}</td>
-                            <td class="p-4 text-center whitespace-nowrap space-x-2 space-x-reverse">
-                                <a href="{{ route('admin.posts.edit', $post) }}" class="{{ $btn }}">ویرایش</a>
-                                <a href="{{ route('posts.show', $post) }}" target="_blank" class="{{ $btn }}">{{ $post->isPublished() ? 'دیدن' : 'پیش‌نمایش' }} ↗</a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="5" class="p-10 text-center text-stone-400">هنوز یادداشتی نوشته نشده است.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {{ $posts->links() }}
-</div>
+<x-admin.table :paginator="$posts" :is-empty="$posts->isEmpty()" empty="هنوز یادداشتی نوشته نشده است.">
+    <x-slot:head>
+        <x-admin.th>عنوان</x-admin.th>
+        <x-admin.th>وضعیت</x-admin.th>
+        <x-admin.th>نشانی برای پیوند</x-admin.th>
+        <x-admin.th><span class="sr-only">کنش‌ها</span></x-admin.th>
+    </x-slot:head>
+    @foreach($posts as $post)
+        <x-admin.row>
+            <x-admin.cell main>
+                <a href="{{ route('admin.posts.edit', $post) }}" class="font-bold text-ink hover:text-cinnabar">{{ $post->title }}</a>
+                <span class="text-xs text-muted tabular-nums">#{{ \App\Support\Fa::digits($post->id) }}</span>
+                @if($post->byline)<span class="block text-xs text-muted">{{ $post->byline }}</span>@endif
+            </x-admin.cell>
+            <x-admin.cell label="وضعیت" class="whitespace-nowrap">
+                @if($post->isPublished())
+                    <x-ui.chip tone="good">منتشرشده، @jdate($post->published_at, 'long')</x-ui.chip>
+                @else
+                    <x-ui.chip>پیش‌نویس</x-ui.chip>
+                @endif
+            </x-admin.cell>
+            <x-admin.cell label="نشانی"><code class="text-xs text-muted" dir="ltr">/posts/{{ $post->id }}</code></x-admin.cell>
+            <x-admin.cell actions>
+                <x-ui.btn :href="route('admin.posts.edit', $post)" size="sm">ویرایش</x-ui.btn>
+                <x-ui.btn :href="route('posts.show', $post)" target="_blank" size="sm" variant="ghost">{{ $post->isPublished() ? 'دیدن' : 'پیش‌نمایش' }} ↗</x-ui.btn>
+            </x-admin.cell>
+        </x-admin.row>
+    @endforeach
+</x-admin.table>
 @endsection

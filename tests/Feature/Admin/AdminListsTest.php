@@ -73,4 +73,17 @@ class AdminListsTest extends TestCase
         $this->actingAs($this->admin)->get('/admin/subjects/tree')->assertOk()->assertSee('فقه آزمایشی')->assertSee('طهارت آزمایشی')->assertDontSee('۱۲۹ موضوع');
         $this->actingAs($this->admin)->get('/admin/subjects/merge')->assertOk()->assertSee('بازگرداندنی')->assertDontSee('قابل بازگشت نیست');
     }
+
+    public function test_system_page_is_in_persian_and_its_audit_rows_have_persian_names(): void
+    {
+        \Illuminate\Support\Facades\Http::fake(['*' => \Illuminate\Support\Facades\Http::response([], 500)]);
+
+        $this->actingAs($this->admin)->get('/admin/system')->assertOk()
+            ->assertSee('کش و نمایه‌سازی')->assertSee('در دسترس نیست')->assertSee('حالت اشکال‌زدایی')
+            ->assertDontSee('Cache Flushing')->assertDontSee('(Works)')->assertDontSee('rounded-2xl');
+
+        AuditLog::create(['auditable_type' => 'System', 'auditable_id' => 1, 'action' => 'update', 'user_id' => $this->admin->id,
+            'new_values' => ['operation' => 'clear_cache'], 'created_at' => now()]);
+        $this->actingAs($this->admin)->get('/admin/audit-logs')->assertOk()->assertSeeText('سامانه #۱');
+    }
 }
