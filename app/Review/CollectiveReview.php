@@ -141,7 +141,6 @@ class CollectiveReview
         return DB::transaction(function () use ($queue, $item, $user, $columns, $record, $credit, $input) {
             $existing = FieldSuggestion::where('review_queue', $queue->key())->where('review_item_id', $item->getKey())
                 ->where('user_id', $user->id)->where('status', 'pending')->lockForUpdate()->first();
-            $first = ! $existing && ! FieldSuggestion::where('review_queue', $queue->key())->where('review_item_id', $item->getKey())->where('status', 'pending')->exists();
 
             $values = $columns + [
                 'suggestable_type' => $record::class,
@@ -158,10 +157,8 @@ class CollectiveReview
             ] + \App\Auth\HeldCredit::columns($user, $credit);
             $opinion = $existing ? tap($existing)->update($values) : FieldSuggestion::create($values);
 
-            // The reviewers hear of an item's first opinion; the later ones only reorder the desk
-            if ($first) {
-                DB::afterCommit(fn () => SuggestionNotifier::submitted($opinion));
-            }
+            // Opinions are not announced one by one: the reviewers get them in the daily digest
+            // (notifications:digest, type collective.opinions), so a busy day does not flood them (backlog items 25 and 80)
 
             return $opinion;
         });

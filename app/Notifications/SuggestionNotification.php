@@ -13,6 +13,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use NotificationChannels\WebPush\WebPushMessage;
 
 /**
  * Shared shape of the suggestion notifications: one title, a few lines and a link, rendered
@@ -83,6 +84,18 @@ abstract class SuggestionNotification extends Notification implements ShouldQueu
         $lines = array_map(fn ($l) => e($l), $this->lines($notifiable));
 
         return '<b>' . e($this->title()) . "</b>\n\n" . implode("\n", $lines) . "\n\n" . '<a href="' . e($this->url($notifiable)) . '">' . e($this->actionLabel()) . '</a>';
+    }
+
+    /** Browser push passes through the browser vendor's service, so it carries the title, the record and the link only. */
+    public function toWebPush(object $notifiable, $notification = null): WebPushMessage
+    {
+        return (new WebPushMessage)
+            ->title($this->title())
+            ->body(self::short($this->placeLine(), 120))
+            ->icon(asset('images/brand/shamseh-192.png'))
+            ->tag(static::TYPE . '-' . $this->suggestion->id)
+            ->data(['url' => $this->url($notifiable)])
+            ->options(['TTL' => 86400, 'urgency' => 'normal']);
     }
 
     /** The "where" line: the record, or for site feedback the page it was sent from. */

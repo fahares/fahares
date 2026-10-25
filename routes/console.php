@@ -21,3 +21,8 @@ Schedule::command('fahares:build-insights')->dailyAt('03:30')->withoutOverlappin
 // The admin queues «بازبینی اشخاص» (item 78): new namesake groups and mixed records after the day's
 // merges, splits and imports; after the insights build, so the two heavy jobs do not overlap
 Schedule::command('fahares:refresh-person-reviews')->dailyAt('04:15')->withoutOverlapping(30);
+
+// Notifications (backlog item 25): the daily digest in the morning, Tehran time, and the weekly reminder of
+// suggestions left unreviewed on Saturday morning
+Schedule::command('notifications:digest')->dailyAt('07:30')->timezone('Asia/Tehran')->withoutOverlapping(30);
+Schedule::command('notifications:stale-suggestions')->saturdays()->at('08:00')->timezone('Asia/Tehran');

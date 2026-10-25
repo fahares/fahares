@@ -41,6 +41,14 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-32.png') }}">
     <link rel="icon" type="image/png" sizes="256x256" href="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-256.png') }}">
     <link rel="apple-touch-icon" href="{{ \App\Support\VersionedAsset::url('images/brand/shamseh-180.png') }}">
+    {{-- Lets iPhone and iPad add the site to the home screen, where browser notifications work (backlog item 25) --}}
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#A23A26">
+    @auth
+        @if(config('webpush.vapid.public_key'))
+            <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
+        @endif
+    @endauth
     
     <!-- Google Fonts: Vazirmatn for text, Noto Naskh Arabic for headings and work titles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

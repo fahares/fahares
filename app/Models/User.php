@@ -4,19 +4,23 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use App\Observers\UserNotices;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
+#[ObservedBy(UserNotices::class)]
 #[Fillable(['name', 'email', 'google_id', 'password', 'role', 'affiliation', 'phone', 'is_verified_scholar'])]
 // The phone is never shown publicly; the panel shows it only with the users.contact permission (backlog item 74)
-#[Hidden(['password', 'remember_token', 'google_id', 'phone'])]
+#[Hidden(['password', 'remember_token', 'google_id', 'phone', 'telegram_chat_id'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasPushSubscriptions, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -91,5 +95,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    /** The user's own Telegram chat, linked from the notification settings (backlog item 25). */
+    public function routeNotificationForTelegram(): ?string
+    {
+        return $this->telegram_chat_id;
     }
 }

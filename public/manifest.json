@@ -1,0 +1,15 @@
+{
+    "name": "فهارس، فهرستگان نسخ خطی ایران",
+    "short_name": "فهارس",
+    "lang": "fa",
+    "dir": "rtl",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#F4EFE4",
+    "theme_color": "#A23A26",
+    "icons": [
+        { "src": "/images/brand/shamseh-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/images/brand/shamseh-512.png", "sizes": "512x512", "type": "image/png" }
+    ]
+}

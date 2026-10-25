@@ -5,6 +5,9 @@
 
 @section('content')
 <div class="space-y-6">
+    @can('suggestions.review')
+        <x-web-push context="dashboard" />
+    @endcan
 
     @if($queue)
         <section>

@@ -6,6 +6,7 @@ use App\Auth\GuestSuggestionLinker;
 use App\Auth\HeldCredit;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -75,6 +76,10 @@ class GoogleController extends Controller
 
         if (! $user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
+        }
+        if ($created) {
+            // After verification, so the framework sends no verification link; tells the admins (backlog item 25)
+            event(new Registered($user));
         }
         $linked = GuestSuggestionLinker::link($user);
         HeldCredit::release($user);
