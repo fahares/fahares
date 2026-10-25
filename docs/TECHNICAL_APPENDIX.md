@@ -4105,6 +4105,7 @@
     - یادکرد: `title_in_text` ۵۲۰ و `derivative_of_heading` ۴۸؛
     - بی‌تطبیق ۲٬۱۲۸، و بی‌مدخل در صفحه ۹۸ (صفحه‌ی نمایه یا نشانی نادرست).
 - **اجرای محلی:** worktree `vendor` ندارد. رونوشتی با hard link از `vendor` نسخه‌ی اصلی ساخته شد. `vendor/composer` و `vendor/autoload.php` جدا کپی شدند و `composer dump-autoload` اجرا شد. این‌طور فایل‌های نسخه‌ی اصلی دست نخوردند و کد شاخه بارگذاری شد. کل مجموعه ۳۱۸ آزمون موفق.
+- **استقرار:** push `15a65c0` به `main`. پس از استقرار Coolify، `2026_10_25_100001_create_source_items_tables` خودکار اجرا شد (دسته‌ی ۳۹). در پروداکشن `source_items` صفر ردیف دارد و ستون `source_entries.source_item_id` ساخته شده است. `/up` پاسخ ۲۰۰ می‌دهد.
 
 ### گام ۱۳.۳۲: اعلان `user.registered` و کانال Web Push (مورد ۲۵)
 - **ثبت‌نام:** شنونده‌ی [NotifyNewUserRegistered](../app/Listeners/NotifyNewUserRegistered.php) به رویداد `Registered` لاراول گوش می‌دهد (کشف خودکار شنونده‌ها در `app/Listeners`). فرم ثبت‌نام این رویداد را از پیش می‌فرستاد. [GoogleController](../app/Http/Controllers/Auth/GoogleController.php) هم آن را در نخستین ورود، پس از `markEmailAsVerified` می‌فرستد تا ایمیل تأیید فرستاده نشود. پس هر مسیر ثبت‌نام آینده هم کافی است همین رویداد را بفرستد.
