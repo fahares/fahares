@@ -3556,14 +3556,14 @@
 - **کلاس تازه:** `lg:px-2.5` کلاس تازه است. ساخت پروداکشن (nixpacks) `npm run build` را خودش اجرا می‌کند. در محیط محلی `npm run build` لازم بود.
 
 
-### گام ۱۳.۹: طرح و دریافت متن الذریعة
+### گام ۱۳.۲۵: طرح و دریافت متن الذریعة
 - **طرح:** [docs/plans/dharia-text.md](plans/dharia-text.md)، با شمار نمونه‌گیری و تصمیم‌های نهایی کاربر (بند ۹-الف).
 - **دریافت:** [scripts/sources/fetch_ablibrary.py](../scripts/sources/fetch_ablibrary.py) روی سرور (`~/fahares-fetch/`، `nohup`، فاصله‌ی ۲ ثانیه، قابل ادامه پس از قطع). شناسه‌ی کتاب‌های ablibrary در `DHARIA` همان اسکریپت است.
   - **نتیجه:** ۱۰٬۸۴۳ صفحه، بی خطا. HTML خام ۲۹۷ MB روی سرور ماند و متن ۷٫۴ MB با `MD5SUMS` در `fahares-sources/dharia/ablibrary/` است.
   - **قالب:** هر صفحه `{page, label, book, index, text}`. بندهای خواننده با خط خالی از هم جدا شده‌اند. برگ‌های پیش از متن، که برچسب «1» و «2» تکراری دارند، `page = null` می‌گیرند.
   - **کمبود:** نمایه‌های پایان جلدها و استدراکات ج ۲۵ (ص ۳۱۱ تا ۴۹۶) در ablibrary نیست. فنخا فقط ۶ بار به این صفحه‌ها ارجاع داده است.
 
-### گام ۱۳.۱۰: جلد آزمایشی ۳ — مدخل‌ها، پیوند ارجاع‌های فنخا، نمایش
+### گام ۱۳.۲۶: جلد آزمایشی ۳ — مدخل‌ها، پیوند ارجاع‌های فنخا، نمایش
 - **جدول‌ها:** [migration](../database/migrations/2026_10_25_100001_create_source_items_tables.php) سه چیز می‌سازد:
   - `source_items`: کلید پایدار `item_key` («1442»، «1345#2»، «1442/1»، «p3/0»)، `page_start`/`page_end`، `metadata.page_breaks` و `flags.sequence`؛
   - `source_item_refs`: ارجاع‌های درونی، که هنوز پر نشده است؛
@@ -3591,3 +3591,14 @@
   - **وارسی:** در دسکتاپ و موبایل ۳۷۵، روشن و تیره، بی سرریز افقی و بی خطای کنسول. پیش‌نمایش با کانتینر `fahares_dharia_web` (پورت ۸۰۱۲) روی `fahares_refs` اجرا شد. CSS در worktree با `vite build` (درون image) ساخته شد. در پروداکشن nixpacks خودش می‌سازد.
 - **آزمون:** [NumberedEntrySegmenterTest](../tests/Unit/NumberedEntrySegmenterTest.php)، [ItemMatcherTest](../tests/Unit/ItemMatcherTest.php) و [SourceItemsTest](../tests/Feature/SourceItemsTest.php). پایگاه آزمون جداگانه‌ی `fahares_dharia_test` است.
 - **مانده‌ها:** پیوند (ب)، ارجاع‌های درونی (`source_item_refs`)، صف داوری در پنل، نقشه‌ی سایت، جستجو، دیگر جلدها و استقرار.
+
+### گام ۱۳.۲۷: خواننده‌ی متن نور برای الذریعة
+- **اسکریپت:** [noor_aqabozorg.py](../scripts/sources/noor_aqabozorg.py)، با `python3 -I scripts/sources/noor_aqabozorg.py DB OUT [--ablibrary DIR] [--volumes 3,9,25]`. پایگاه با `mode=ro` باز می‌شود. خروجی `{جلد}.jsonl.gz` با `page`، `label`، `text` و `origin` برای `sources:import-pages` است.
+- **ساخت صفحه:**
+  - متن اصلی `story_id = 1` از `book_texts` به ترتیب `item_id` است و نشانگرهای `<page number="N"/>` آن را به صفحه‌ها می‌شکنند.
+  - پانویس‌ها (`story_id` دیگر) نشانگر صفحه‌ی خود را دارند و به شکل «( 1 ) …» بندهای پایانی همان صفحه می‌شوند. نشان پانویس در متن (`<lfootnote>`) «( 1 )» می‌شود.
+  - سرعنوان‌ها به شکل چاپی «( 1442 : التحفة )» درمی‌آیند. پرانتز درون عنوان به گیومه‌ی «" … "» برمی‌گردد، وگرنه `NumberedEntrySegmenter` آن را نمی‌خواند. سرعنوان‌های کروشه‌دار نور و سرعنوان بازه‌ی صفحه («… ص 3 - … ص 196») حذف می‌شوند.
+  - برچسب‌های غیرعددی و «0» (برگ‌های آغازین) کنار گذاشته می‌شوند.
+  - صفحه‌ای که در نور کمتر از ۵۰ نویسه و در ablibrary بیش از ۲۰۰ نویسه دارد، متن ablibrary را با `origin=ablibrary` می‌گیرد (ج ۲۵، ص ۳۰۹ و ۳۱۰).
+- **سنجش:** ج ۳: ۴۹۲ صفحه؛ ج ۹: ۱٬۳۲۲ صفحه؛ ج ۲۵: ۳۱۱ صفحه. `sources:segment dharia --volume=3 --origin=noor --dry-run` ۱٬۸۱۷ مدخل و ۴۳ زیرمدخل داد، با ۸ ناهنجاری شماره که همه در `book_toc` نور هم هستند. پیش از قاعده‌ی گیومه ۴ مدخل گم می‌شد (۱۷۵، ۱۹۹، ۵۱۹، ۵۶۳).
+- **اجرای محلی:** کد این شاخه با `php -d auto_prepend_file=…` روی `vendor` نسخه‌ی اصلی اجرا شد، چون worktree خودش `vendor` ندارد.
