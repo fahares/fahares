@@ -2,6 +2,8 @@
 
 @php
     $isMixed = $type === 'mixed';
+    $fa = fn ($v) => \App\Support\Fa::digits((string) $v);
+    $num = fn ($n) => \App\Support\Fa::num($n);
     $reasonText = function (?string $r) {
         if (! $r) return '';
         if ($r === 'generic name') return 'نام عام است و به‌تنهایی کسی را مشخص نمی‌کند';
@@ -23,16 +25,11 @@
 
 @section('title', $isMixed ? 'رکوردهای قاطی‌شده' : 'اشخاص هم‌نام')
 @section('page_title', $isMixed ? 'رکوردهای قاطی‌شده: یک رکورد، چند نفر' : 'اشخاص هم‌نام: چند رکورد، یک نفر')
-@section('breadcrumb')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-cinnabar">پیشخوان</a>
-    <span>/</span>
-    <span class="text-stone-400">بازبینی اشخاص</span>
-@endsection
 
 @section('content')
-<div class="space-y-5 max-w-5xl">
+<div class="space-y-5 max-w-5xl text-[13px]">
 
-    <p class="text-xs text-muted leading-6 max-w-3xl">
+    <p class="text-muted leading-7 max-w-3xl">
         @if($isMixed)
             این اشخاص نسخه‌هایی دارند که تاریخ کتابتشان بیش از {{ \App\Services\PersonReviewQueue::MIXED_SPAN }} سال پراکنده است؛ احتمالاً چند کاتبِ هم‌نام زیر یک رکورد آمده‌اند. نسخه‌ها به ترتیب تاریخ آمده‌اند. نسخه‌هایی را که مال نفر دیگرند علامت بزنید و نامش را بنویسید تا به رکورد تازه‌ای منتقل شوند. تفکیک از لاگ ممیزی قابل بازگردانی است.
         @else
@@ -40,25 +37,25 @@
         @endif
     </p>
 
-    <div class="flex flex-wrap items-center gap-2 text-xs">
-        @can('people.merge')
-            <a href="{{ route('admin.person-reviews.index') }}" class="px-3 py-1.5 rounded-full border font-bold {{ ! $isMixed ? 'bg-ink text-paper border-ink' : 'border-line bg-surface' }}">اشخاص هم‌نام</a>
-        @endcan
-        @can('structure.split')
-            <a href="{{ route('admin.person-reviews.index', ['type' => 'mixed']) }}" class="px-3 py-1.5 rounded-full border font-bold {{ $isMixed ? 'bg-ink text-paper border-ink' : 'border-line bg-surface' }}">رکوردهای قاطی‌شده</a>
-        @endcan
-        <span class="mx-2 text-line-strong">|</span>
-        @foreach(\App\Http\Controllers\Admin\PersonReviewController::VIEWS as $key => $v)
-            @continue($key === 'auto' && $isMixed)
-            <a href="{{ route('admin.person-reviews.index', array_filter(['type' => $isMixed ? 'mixed' : null, 'view' => $key === 'open' ? null : $key])) }}"
-               class="px-3 py-1.5 rounded-full border {{ $view === $key ? 'border-cinnabar text-cinnabar font-bold' : 'border-line bg-surface text-muted' }}">
-                {{ $v['label'] }} ({{ number_format($viewCounts[$key]) }})
-            </a>
-        @endforeach
+    @php
+        $queues = array_values(array_filter([
+            auth()->user()->can('people.merge') ? ['label' => 'اشخاص هم‌نام', 'url' => route('admin.person-reviews.index'), 'active' => ! $isMixed] : null,
+            auth()->user()->can('structure.split') ? ['label' => 'رکوردهای قاطی‌شده', 'url' => route('admin.person-reviews.index', ['type' => 'mixed']), 'active' => $isMixed] : null,
+        ]));
+        $views = [];
+        foreach (\App\Http\Controllers\Admin\PersonReviewController::VIEWS as $key => $v) {
+            if ($key === 'auto' && $isMixed) continue;
+            $views[] = ['label' => $v['label'], 'count' => $viewCounts[$key], 'active' => $view === $key,
+                'url' => route('admin.person-reviews.index', array_filter(['type' => $isMixed ? 'mixed' : null, 'view' => $key === 'open' ? null : $key]))];
+        }
+    @endphp
+    <div class="flex flex-wrap items-start gap-x-6">
+        @if(count($queues) > 1)<x-admin.tabs :options="$queues" />@endif
+        <x-admin.tabs :options="$views" />
     </div>
 
     @if($errors->any())
-        <div class="rounded-xl border border-rose-300 bg-rose-50 dark:bg-rose-950/30 text-rose-800 dark:text-rose-200 text-xs p-3">{{ $errors->first() }}</div>
+        <x-admin.notice tone="error">{{ $errors->first() }}</x-admin.notice>
     @endif
 
     @forelse($reviews as $review)
@@ -68,17 +65,17 @@
             $targetId = $suggestion['target_id'] ?? ($review->person_ids[0] ?? null);
             $members = collect($review->person_ids)->map(fn ($id) => $people[$id] ?? null)->filter();
         @endphp
-        <article id="person-review-{{ $review->id }}" class="bg-surface rounded-2xl border border-line shadow-xs p-4 sm:p-5 space-y-3 scroll-mt-20">
+        <article id="person-review-{{ $review->id }}" class="bg-surface border border-line p-4 sm:p-5 space-y-3 scroll-mt-20">
             <div class="flex flex-wrap items-baseline justify-between gap-2">
                 <div class="flex flex-wrap items-baseline gap-2 text-xs">
-                    <span class="text-muted tabular-nums">#{{ $review->id }}</span>
+                    <span class="text-muted tabular-nums">#{{ $fa($review->id) }}</span>
                     <span class="font-bold">{{ $reasonText($review->reason) }}</span>
                     @if($review->tier === 'likely')
-                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">قرینه‌ها کافی است</span>
+                        <x-ui.chip tone="good">قرینه‌ها کافی است</x-ui.chip>
                     @endif
                 </div>
                 @unless($review->isOpen())
-                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-paper border border-line">
+                    <span class="text-[11px] px-2 py-0.5 rounded-full bg-paper border border-line text-muted">
                         {{ \App\Models\PersonReview::STATUSES[$review->status] ?? $review->status }}
                         @if($review->decider) · {{ $review->decider->name }} @elseif($review->status === 'distinct') · داوری خودکار @endif
                         @if($review->decided_at) · {{ \App\Support\Jalali::format($review->decided_at) }} @endif
@@ -87,7 +84,7 @@
             </div>
 
             @if(! empty($suggestion['comment']) || ! empty($suggestion['decision']))
-                <div class="text-xs rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 px-3 py-2 leading-6">
+                <div class="text-xs px-3 py-2 leading-6 bg-paper border border-s-4 border-amber-600/50 text-amber-800 dark:text-amber-300">
                     <b>داوری پیشین:</b>
                     {{ ['merge' => 'ادغام', 'skip' => 'جدا بمانند', 'unsure' => 'نامطمئن'][$suggestion['decision'] ?? ''] ?? '' }}
                     {{ $suggestion['comment'] ?? '' }}
@@ -98,7 +95,7 @@
             @endif
             @if($item = $opinions[$queue . ':' . $review->id] ?? null)
                 {{-- What the researchers of «تصحیح جمعی» answered (backlog item 80); deciding here settles their answers --}}
-                <div class="text-xs rounded-xl bg-paper border border-line px-3 py-2 leading-6" data-collective-opinions>
+                <div class="text-xs px-3 py-2 leading-6 bg-paper border border-s-4 border-gold" data-collective-opinions>
                     <b>{{ config('contributions.review_title') }}:</b>
                     @foreach($item['answers'] as $a){{ $loop->first ? '' : '؛ ' }}{{ \App\Support\Fa::num($a['count']) }} نفر «{{ $a['label'] }}» (وزن {{ \App\Support\Fa::num($a['weight']) }})@endforeach
                     @foreach($item['answers'] as $a)
@@ -121,10 +118,10 @@
                         @csrf
                         <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
                             <a href="{{ route('people.show', $m['person']) }}" target="_blank" class="font-bold text-base text-cinnabar hover:underline">{{ $m['person']->name }}</a>
-                            <span class="text-xs text-muted tabular-nums">#{{ $m['person']->id }} · {{ number_format($m['person']->manuscripts_count) }} نسخه · {{ number_format($m['person']->works_count) }} اثر
-                                @if($m['person']->death_year_hijri) · د. {{ $m['person']->death_year_hijri }}ق @endif</span>
+                            <span class="text-xs text-muted tabular-nums">#{{ $fa($m['person']->id) }} · {{ $num($m['person']->manuscripts_count) }} نسخه · {{ $num($m['person']->works_count) }} اثر
+                                @if($m['person']->death_year_hijri) · د. {{ $fa($m['person']->death_year_hijri) }} ق @endif</span>
                         </div>
-                        <div class="overflow-x-auto border border-line rounded-xl max-h-96 overflow-y-auto">
+                        <div class="overflow-x-auto border border-line max-h-96 overflow-y-auto">
                             <table class="w-full text-xs text-right">
                                 <thead class="bg-paper text-muted sticky top-0">
                                     <tr><th class="p-2 w-8"></th><th class="p-2">تاریخ</th><th class="p-2">اثر</th><th class="p-2">کتابخانه</th><th class="p-2">نام کاتب در فهرست</th></tr>
@@ -132,10 +129,10 @@
                                 <tbody class="divide-y divide-line">
                                     @foreach($m['copies'] as $copy)
                                         <tr class="hover:bg-paper">
-                                            <td class="p-2"><input type="checkbox" name="manuscript_ids[]" value="{{ $copy->id }}" id="r{{ $review->id }}-m{{ $copy->id }}" class="accent-emerald-600" @checked(in_array($copy->id, old('manuscript_ids', [])))></td>
-                                            <td class="p-2 tabular-nums whitespace-nowrap"><label for="r{{ $review->id }}-m{{ $copy->id }}">{{ $copy->year ? $copy->year . 'ق' : '—' }}</label></td>
-                                            <td class="p-2"><a href="{{ route('manuscripts.permalink', $copy->id) }}" target="_blank" class="hover:text-cinnabar">{{ $copy->title }}</a>@if($markedBy[$copy->id] ?? 0) <span class="ms-1 px-1.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[10px] whitespace-nowrap">کاتب دیگر به نظر {{ \App\Support\Fa::num($markedBy[$copy->id]) }} پژوهشگر</span>@endif</td>
-                                            <td class="p-2 text-muted">{{ $copy->city }}، {{ $copy->library }} {{ $copy->shelfmark }}</td>
+                                            <td class="p-2"><input type="checkbox" name="manuscript_ids[]" value="{{ $copy->id }}" id="r{{ $review->id }}-m{{ $copy->id }}" class="size-4 accent-cinnabar" @checked(in_array($copy->id, old('manuscript_ids', [])))></td>
+                                            <td class="p-2 tabular-nums whitespace-nowrap"><label for="r{{ $review->id }}-m{{ $copy->id }}">{{ $copy->year ? $fa($copy->year) . ' ق' : '—' }}</label></td>
+                                            <td class="p-2"><a href="{{ route('manuscripts.permalink', $copy->id) }}" target="_blank" class="hover:text-cinnabar">{{ $copy->title }}</a>@if($markedBy[$copy->id] ?? 0) <span class="ms-1 px-1.5 rounded-full border border-amber-600/40 text-amber-800 dark:text-amber-300 text-[10px] whitespace-nowrap">کاتب دیگر به نظر {{ \App\Support\Fa::num($markedBy[$copy->id]) }} پژوهشگر</span>@endif</td>
+                                            <td class="p-2 text-muted">{{ $copy->city }}، {{ $copy->library }} {{ $fa($copy->shelfmark) }}</td>
                                             <td class="p-2 text-muted">{{ $copy->scribe_name }}</td>
                                         </tr>
                                     @endforeach
@@ -145,18 +142,18 @@
                         @if($review->isOpen())
                             <div class="grid sm:grid-cols-[1fr_8rem] gap-2">
                                 <input type="text" name="new_name" value="{{ old('new_name', $m['person']->name) }}" aria-label="نام شخص تازه" placeholder="نام شخص تازه"
-                                       class="w-full px-3 py-2 rounded-xl border border-line-strong bg-surface text-xs focus:border-gold outline-none">
+                                       class="admin-field w-full">
                                 <input type="number" name="death_year_hijri" aria-label="سال وفات (اختیاری)" placeholder="سال وفات"
-                                       class="w-full px-3 py-2 rounded-xl border border-line-strong bg-surface text-xs focus:border-gold outline-none">
+                                       class="admin-field w-full">
                             </div>
-                            <textarea name="note" rows="1" placeholder="یادداشت (اختیاری)" aria-label="یادداشت" class="w-full px-3 py-2 rounded-xl border border-line-strong bg-surface text-xs focus:border-gold outline-none"></textarea>
+                            <textarea name="note" rows="1" placeholder="یادداشت (اختیاری)" aria-label="یادداشت" class="admin-field w-full"></textarea>
                             <div class="flex flex-wrap gap-2 text-xs">
-                                <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">انتقال نسخه‌های علامت‌خورده به شخص تازه</button>
-                                <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="dismissed" class="px-4 py-2 rounded-xl border border-line bg-surface font-bold">یک نفر است</button>
-                                <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="deferred" class="px-4 py-2 rounded-xl border border-line bg-surface">بعداً</button>
+                                <button type="submit" class="px-3.5 py-2 rounded-sm border border-cinnabar bg-cinnabar text-on-cinnabar font-semibold hover:opacity-90 cursor-pointer">انتقال نسخه‌های علامت‌خورده به شخص تازه</button>
+                                <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="dismissed" class="px-3.5 py-2 rounded-sm border border-line-strong bg-surface text-ink font-semibold hover:border-cinnabar hover:text-cinnabar cursor-pointer">یک نفر است</button>
+                                <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="deferred" class="px-3.5 py-2 rounded-sm text-muted hover:text-cinnabar cursor-pointer">بعداً</button>
                             </div>
                         @else
-                            <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="open" class="px-4 py-2 rounded-xl border border-line bg-surface text-xs">بازگشایی</button>
+                            <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="open" class="px-3.5 py-2 rounded-sm border border-line-strong bg-surface text-ink text-xs hover:border-cinnabar hover:text-cinnabar cursor-pointer">بازگشایی</button>
                         @endif
                     </form>
                 @endif
@@ -169,26 +166,26 @@
                                 $p = $m['person'];
                                 $checked = in_array($p->id, $suggestedIds, true) || $review->tier === 'likely';
                             @endphp
-                            <div class="grid grid-cols-[auto_1fr] gap-3 items-start rounded-xl border border-line p-3">
-                                <input type="checkbox" name="merge_ids[]" value="{{ $p->id }}" id="r{{ $review->id }}-p{{ $p->id }}" class="mt-1 w-4 h-4 accent-emerald-600" @checked($checked) aria-label="همین شخص است: {{ $p->name }}">
+                            <div class="grid grid-cols-[auto_1fr] gap-3 items-start border border-line bg-paper/40 p-3">
+                                <input type="checkbox" name="merge_ids[]" value="{{ $p->id }}" id="r{{ $review->id }}-p{{ $p->id }}" class="mt-1 size-4 accent-cinnabar" @checked($checked) aria-label="همین شخص است: {{ $p->name }}">
                                 <div class="min-w-0 space-y-1">
                                     <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                                         <a href="{{ route('people.show', $p) }}" target="_blank" class="font-bold text-sm hover:text-cinnabar break-words">{{ $p->name }}</a>
-                                        <label class="text-[11px] text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1">
-                                            <input type="radio" name="target_id" value="{{ $p->id }}" @checked($targetId === $p->id) class="accent-emerald-600"> رکورد اصلی
+                                        <label class="text-[11px] text-cinnabar inline-flex items-center gap-1 cursor-pointer">
+                                            <input type="radio" name="target_id" value="{{ $p->id }}" @checked($targetId === $p->id) class="accent-cinnabar"> رکورد اصلی
                                         </label>
                                     </div>
                                     <div class="text-[11px] text-muted tabular-nums flex flex-wrap gap-x-3">
-                                        <span>#{{ $p->id }}</span>
-                                        @if($p->death_year_hijri)<span>د. {{ $p->death_year_hijri }}ق</span>@elseif($p->century_hijri)<span>سده‌ی {{ $p->century_hijri }}</span>@endif
-                                        @if($m['span'])<span>کتابت {{ $m['span'][0] }}{{ $m['span'][1] !== $m['span'][0] ? '–' . $m['span'][1] : '' }}ق</span>@endif
-                                        <span>{{ number_format($p->manuscripts_count) }} نسخه</span>
-                                        <span>{{ number_format($p->works_count) }} اثر</span>
+                                        <span>#{{ $fa($p->id) }}</span>
+                                        @if($p->death_year_hijri)<span>د. {{ $fa($p->death_year_hijri) }} ق</span>@elseif($p->century_hijri)<span>سده‌ی {{ $fa($p->century_hijri) }}</span>@endif
+                                        @if($m['span'])<span>کتابت {{ $fa($m['span'][0]) }}{{ $m['span'][1] !== $m['span'][0] ? '–' . $fa($m['span'][1]) : '' }} ق</span>@endif
+                                        <span>{{ $num($p->manuscripts_count) }} نسخه</span>
+                                        <span>{{ $num($p->works_count) }} اثر</span>
                                     </div>
                                     @if($m['works']->isNotEmpty() || $m['copies']->isNotEmpty())
                                         <ul class="text-[11px] text-muted list-disc pr-4 space-y-0.5">
                                             @foreach($m['works'] as $w)<li>تألیف: {{ $w->title }}</li>@endforeach
-                                            @foreach($m['copies'] as $c)<li>کتابت: {{ $c->title }} ({{ $c->city }}{{ $c->year ? '، ' . $c->year . 'ق' : '' }})</li>@endforeach
+                                            @foreach($m['copies'] as $c)<li>کتابت: {{ $c->title }} ({{ $c->city }}{{ $c->year ? '، ' . $fa($c->year) . ' ق' : '' }})</li>@endforeach
                                         </ul>
                                     @endif
                                 </div>
@@ -196,22 +193,22 @@
                         @endforeach
                     </div>
                     @if($review->isOpen())
-                        <textarea name="note" rows="1" placeholder="یادداشت (اختیاری)" aria-label="یادداشت" class="w-full px-3 py-2 rounded-xl border border-line-strong bg-surface text-xs focus:border-gold outline-none"></textarea>
+                        <textarea name="note" rows="1" placeholder="یادداشت (اختیاری)" aria-label="یادداشت" class="admin-field w-full"></textarea>
                         <div class="flex flex-wrap gap-2 text-xs">
-                            <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">ادغام رکوردهای علامت‌خورده</button>
-                            <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="distinct" class="px-4 py-2 rounded-xl border border-line bg-surface font-bold">چند نفرند، جدا بمانند</button>
-                            <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="deferred" class="px-4 py-2 rounded-xl border border-line bg-surface">بعداً</button>
+                            <button type="submit" class="px-3.5 py-2 rounded-sm border border-cinnabar bg-cinnabar text-on-cinnabar font-semibold hover:opacity-90 cursor-pointer">ادغام رکوردهای علامت‌خورده</button>
+                            <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="distinct" class="px-3.5 py-2 rounded-sm border border-line-strong bg-surface text-ink font-semibold hover:border-cinnabar hover:text-cinnabar cursor-pointer">چند نفرند، جدا بمانند</button>
+                            <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="deferred" class="px-3.5 py-2 rounded-sm text-muted hover:text-cinnabar cursor-pointer">بعداً</button>
                         </div>
                     @else
-                        <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="open" class="px-4 py-2 rounded-xl border border-line bg-surface text-xs">بازگشایی</button>
+                        <button type="submit" formaction="{{ route('admin.person-reviews.status', $review) }}" name="status" value="open" class="px-3.5 py-2 rounded-sm border border-line-strong bg-surface text-ink text-xs hover:border-cinnabar hover:text-cinnabar cursor-pointer">بازگشایی</button>
                     @endif
                 </form>
             @endif
         </article>
     @empty
-        <div class="bg-surface rounded-2xl border border-dashed border-line p-8 text-center text-sm text-muted">در این بخش موردی نیست.</div>
+        <x-ui.card class="py-10 text-center text-muted">در این بخش موردی نیست.</x-ui.card>
     @endforelse
 
-    {{ $reviews->links() }}
+    {{ $reviews->links('admin.partials.pagination') }}
 </div>
 @endsection
