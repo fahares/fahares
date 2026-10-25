@@ -3,33 +3,26 @@
 namespace App\Notifications;
 
 use App\Models\User;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 /**
  * Tells the users who manage accounts that someone signed up (backlog item 25), with a link to the new
  * user's panel page. The phone is shown only to recipients who hold users.contact.
  */
-class UserRegistered extends Notification implements ShouldQueue
+class UserRegistered extends SiteNotification
 {
-    use Queueable;
-
     public const TYPE = 'user.registered';
 
     public function __construct(public User $user)
     {
-        $this->locale('fa');
+        parent::__construct();
     }
 
-    public function via(object $notifiable): array
+    protected function title(): string
     {
-        return $notifiable instanceof User ? NotificationPreferences::channelsFor($notifiable, self::TYPE) : [];
+        return 'ثبت‌نام کاربر تازه: ' . $this->user->name;
     }
 
-    /** @return string[] */
-    private function lines(object $notifiable): array
+    protected function lines(object $notifiable): array
     {
         $lines = [
             'نام: ' . $this->user->name,
@@ -46,28 +39,13 @@ class UserRegistered extends Notification implements ShouldQueue
         return $lines;
     }
 
-    private function url(): string
+    protected function url(object $notifiable): string
     {
         return route('admin.users.edit', $this->user);
     }
 
-    public function toMail(object $notifiable): MailMessage
+    protected function actionLabel(): string
     {
-        $mail = (new MailMessage)->subject('ثبت‌نام کاربر تازه | فهارس')->greeting('کاربر تازه ثبت‌نام کرد');
-        foreach ($this->lines($notifiable) as $line) {
-            $mail->line($line);
-        }
-
-        return $mail->action('صفحه‌ی کاربر در پنل', $this->url())->salutation('فهارس، فهرستگان نسخ خطی ایران');
-    }
-
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'type' => self::TYPE,
-            'title' => 'ثبت‌نام کاربر تازه: ' . $this->user->name,
-            'body' => implode("\n", $this->lines($notifiable)),
-            'url' => $this->url(),
-        ];
+        return 'صفحه‌ی کاربر در پنل';
     }
 }

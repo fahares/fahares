@@ -15,11 +15,16 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->validateCsrfTokens(except: ['telegram/webhook']);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // The admins hear of search index errors, at most once an hour (backlog item 25); the error is still logged
+        $exceptions->report(function (\Meilisearch\Exceptions\ApiException|\Meilisearch\Exceptions\CommunicationException|\Meilisearch\Exceptions\TimeOutException $e) {
+            \App\Notifications\SystemNotices::searchFailed($e);
+        });
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );

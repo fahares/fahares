@@ -23,7 +23,12 @@ class NotificationController extends Controller
     {
         $user = $request->user();
         $types = NotificationPreferences::typesFor($user);
-        $channels = NotificationPreferences::channels();
+        // Browser and Telegram columns show only once the server has their keys (backlog item 25)
+        $channels = array_filter(NotificationPreferences::channels(), fn ($key) => match ($key) {
+            'webpush' => (bool) config('webpush.vapid.public_key'),
+            'telegram' => config('notifications.telegram.bot_username') && config('notifications.telegram.webhook_secret'),
+            default => true,
+        }, ARRAY_FILTER_USE_KEY);
         $enabled = [];
         foreach ($types as $type => $definition) {
             foreach (array_keys($definition['channels']) as $channel) {
@@ -50,7 +55,7 @@ class NotificationController extends Controller
     /** One-click unsubscribe from an email footer; the link is signed, so no sign-in is needed. */
     public function unsubscribe(User $user, string $type, string $channel)
     {
-        abort_unless(array_key_exists($type, NotificationPreferences::types()), 404);
+        abort_unless(array_key_exists($type, NotificationPreferences::types()) && ! NotificationPreferences::locked($type), 404);
         NotificationPreferences::set($user, $type, $channel, false);
 
         return view('my.unsubscribed', [

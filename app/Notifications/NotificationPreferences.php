@@ -6,6 +6,7 @@ use App\Models\NotificationPreference;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use NotificationChannels\WebPush\WebPushChannel;
+use App\Notifications\Channels\TelegramChannel;
 
 /**
  * Who receives which notification over which channel, from the registry in config/notifications.php
@@ -35,6 +36,9 @@ class NotificationPreferences
         if (! $definition || ! self::allowed($user, $definition) || ! array_key_exists($channel, $definition['channels'])) {
             return false;
         }
+        if (! empty($definition['locked'])) {
+            return $definition['channels'][$channel];
+        }
         $stored = NotificationPreference::where('user_id', $user->id)
             ->where('notification_type', $type)->where('channel', $channel)->value('enabled');
 
@@ -52,16 +56,32 @@ class NotificationPreferences
             if ($channel === 'webpush' && ! $user->pushSubscriptions()->exists()) {
                 continue;
             }
+            if (($channel === 'telegram' && ! $user->telegram_chat_id) || $channel === 'digest') {
+                continue;
+            }
             if (self::enabled($user, $type, $channel)) {
-                $channels[] = $channel === 'webpush' ? WebPushChannel::class : $channel;
+                $channels[] = match ($channel) {
+                    'webpush' => WebPushChannel::class,
+                    'telegram' => TelegramChannel::class,
+                    default => $channel,
+                };
             }
         }
 
         return $channels;
     }
 
+    /** Security notices: always on, whatever is stored. */
+    public static function locked(string $type): bool
+    {
+        return ! empty(self::types()[$type]['locked']);
+    }
+
     public static function set(User $user, string $type, string $channel, bool $enabled): void
     {
+        if (self::locked($type)) {
+            return;
+        }
         NotificationPreference::updateOrCreate(
             ['user_id' => $user->id, 'notification_type' => $type, 'channel' => $channel],
             ['enabled' => $enabled],
@@ -76,6 +96,24 @@ class NotificationPreferences
             if (array_key_exists('webpush', $definition['channels']) && ! $chosen) {
                 self::set($user, $type, 'webpush', true);
             }
+        }
+    }
+
+    /**
+     * Sends a type to everyone it is for (except $except), and once to each of its site groups that has a chat.
+     * A failure is logged and never stops the action that caused it.
+     */
+    public static function broadcast(string $type, \Illuminate\Notifications\Notification $notification, ?int $except = null): void
+    {
+        try {
+            \Illuminate\Support\Facades\Notification::send(self::recipients($type)->reject(fn (User $u) => $u->id === $except), $notification);
+            foreach (self::types()[$type]['group'] ?? [] as $group) {
+                if ($chatId = config('notifications.telegram.' . ($group === 'telegram' ? 'reviewers' : $group) . '_chat_id')) {
+                    \Illuminate\Support\Facades\Notification::route('telegram', $chatId)->notify($notification);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Notification {$type} failed: " . $e->getMessage());
         }
     }
 

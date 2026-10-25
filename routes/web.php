@@ -150,6 +150,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/notifications', [NotificationController::class, 'settings'])->name('notifications.settings');
     Route::post('/settings/notifications', [NotificationController::class, 'saveSettings'])->name('notifications.settings.save');
     Route::post('/push-subscriptions', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->middleware('throttle:20,1')->name('push.subscribe');
+    Route::post('/settings/telegram', [\App\Http\Controllers\TelegramLinkController::class, 'link'])->name('telegram.link');
+    Route::delete('/settings/telegram', [\App\Http\Controllers\TelegramLinkController::class, 'unlink'])->name('telegram.unlink');
     Route::delete('/push-subscriptions', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->middleware('throttle:20,1')->name('push.unsubscribe');
 });
 Route::get('/notifications/unsubscribe/{user}/{type}/{channel}', [NotificationController::class, 'unsubscribe'])
@@ -338,5 +340,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 });
 
-
-
+// Telegram posts here when a user follows the link of the settings page (backlog item 25); checked by its secret header
+Route::post('/telegram/webhook', [\App\Http\Controllers\TelegramLinkController::class, 'webhook'])->middleware('throttle:60,1')->name('telegram.webhook');

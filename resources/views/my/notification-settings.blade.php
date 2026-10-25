@@ -11,6 +11,22 @@
 
     <x-web-push context="settings" />
 
+    @if(isset($channels['telegram']))
+        <div class="bg-surface rounded-sm border border-line p-4 text-sm flex flex-wrap items-center justify-between gap-3">
+            @if(auth()->user()->telegram_chat_id)
+                <p class="text-ink">تلگرام شما وصل است. ستون «تلگرام» تعیین می‌کند کدام اعلان‌ها به آن برسد.</p>
+                <form action="{{ route('telegram.unlink') }}" method="POST">@csrf @method('DELETE')
+                    <button type="submit" class="px-4 py-2 rounded-sm text-sm font-bold border border-line hover:bg-paper transition">برداشتن اتصال تلگرام</button>
+                </form>
+            @else
+                <p class="text-ink">اعلان‌ها را در تلگرام خودتان بگیرید: پس از زدن دکمه، در تلگرام «Start» را بزنید.</p>
+                <form action="{{ route('telegram.link') }}" method="POST" target="_blank">@csrf
+                    <button type="submit" class="px-4 py-2 rounded-sm text-sm font-bold border border-line hover:bg-paper transition">اتصال تلگرام</button>
+                </form>
+            @endif
+        </div>
+    @endif
+
     <form action="{{ route('notifications.settings.save') }}" method="POST" class="bg-surface rounded-sm border border-line shadow-sm overflow-hidden">
         @csrf
         <div class="overflow-x-auto">
@@ -26,11 +42,11 @@
                 <tbody class="divide-y divide-line">
                     @foreach($types as $type => $definition)
                         <tr>
-                            <td class="p-4 text-ink">{{ $definition['label'] }}</td>
+                            <td class="p-4 text-ink">{{ $definition['label'] }}@if(! empty($definition['locked']))<span class="block text-xs text-muted">اعلان امنیتی؛ خاموش نمی‌شود.</span>@endif</td>
                             @foreach($channels as $key => $label)
                                 <td class="p-4 text-center">
                                     @if(array_key_exists($key, $definition['channels']))
-                                        <input type="checkbox" name="enabled[{{ $type }}][{{ $key }}]" value="1" @checked($enabled[$type][$key]) aria-label="{{ $definition['label'] }}: {{ $label }}"
+                                        <input type="checkbox" name="enabled[{{ $type }}][{{ $key }}]" value="1" @checked($enabled[$type][$key]) @disabled(! empty($definition['locked'])) aria-label="{{ $definition['label'] }}: {{ $label }}"
                                             class="w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-cinnabar focus:ring-cinnabar">
                                     @else
                                         <span class="text-stone-300 dark:text-stone-600">—</span>
