@@ -66,12 +66,12 @@ class TextNormalizer
         // 2. Remove Arabic diacritics / tashkeel & tanwin (َ ِ ُ ً ٍ ٌ ّ ْ ٔ ٓ) and standalone hamza (ء)
         $text = preg_replace('/[\x{064B}-\x{065F}\x{0670}\x{0621}]/u', '', $text);
 
-        // 3. Normalize Arabic eastern digits to Persian
-        $text = str_replace(
-            ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
-            ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'],
-            $text
-        );
+        // 3. Persian and Arabic digits to Latin: shelfmarks and dates are stored with Latin digits, and a
+        // Persian keyboard types Persian ones (backlog item 83)
+        $text = strtr($text, [
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+        ]);
 
         // 4. Collapse multiple whitespace and trim
         return trim(preg_replace('/\s+/u', ' ', $text));
@@ -79,7 +79,8 @@ class TextNormalizer
 
     /**
      * Expand text for indexing to include variants for words originally with ة (Teh Marbuta)
-     * e.g. "بهجة" produces "بهجه" and also attaches "بهجت".
+     * e.g. "بهجة" produces "بهجه" and also attaches "بهجت"; and each word with the Arabic article
+     * once more without it, so «کافی» finds «الکافی» (backlog item 83).
      *
      * @param string|null $text
      * @return string
@@ -113,6 +114,11 @@ class TextNormalizer
                 }
             }
         }
+
+        // A word with the article gets its bare form just before it, not at the end, so the search ranks «کافی»
+        // in «الکافی» like a title's first word. At least three letters after the article: «الشفا» gives «شفا»,
+        // «الله» and «الی» stay as they are.
+        $normalized = preg_replace_callback('/(?<![\p{L}])ال(\p{L}{3,})/u', fn ($m) => $m[1] . ' ' . $m[0], $normalized);
 
         if (!empty($tVariants)) {
             $tVariants = array_unique($tVariants);

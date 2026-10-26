@@ -7,6 +7,7 @@ use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Script;
+use App\Models\SearchLog;
 use App\Helpers\TextNormalizer;
 use App\Models\Subject;
 use App\Models\Work;
@@ -505,7 +506,10 @@ class SearchController extends Controller
             $suggestion = $this->getDidYouMeanSuggestion($searchQuery, $type);
         }
 
+        $searchLogId = $this->logSearch($request, $searchQuery, $type, $scope, $results);
+
         return view('search', compact(
+            'searchLogId',
             'results',
             'query',
             'type',
@@ -539,10 +543,64 @@ class SearchController extends Controller
         ));
     }
 
+    /** The filters of the search page, recorded with each search */
+    private const LOGGED_FILTERS = ['subject_id', 'library_id', 'script_id', 'century', 'copy_city', 'language_id', 'work_form', 'manuscripts_range', 'flags', 'flag'];
+
+    /**
+     * Records the search for the admin's search stats (backlog item 83) and returns its id, which the page
+     * sends back with the rank of the result opened. Only a search's first page, by a person, with a query
+     * or a filter, is counted; browsing on to page 2 is not a new search.
+     */
+    protected function logSearch(Request $request, string $searchQuery, string $type, string $scope, $results): ?int
+    {
+        $filters = $request->only(self::LOGGED_FILTERS);
+        // The single «flag» of older links is one of the flags
+        if (isset($filters['flag'])) {
+            $filters['flags'] = array_values(array_unique([...(array) ($filters['flags'] ?? []), $filters['flag']]));
+            unset($filters['flag']);
+        }
+        $filters = array_filter($filters, fn ($v) => $v !== null && $v !== '' && $v !== []);
+        if (($searchQuery === '' && ! $filters) || ! $results || $results->currentPage() > 1 || ! SearchLog::isCountable($request)) {
+            return null;
+        }
+
+        try {
+            return SearchLog::create([
+                'query' => mb_substr($searchQuery, 0, 200),
+                'type' => $type,
+                'scope' => $scope,
+                'filters' => $filters ?: null,
+                'results_count' => $results->total(),
+                'is_member' => $request->user() !== null,
+            ])->id;
+        } catch (\Throwable $e) {
+            // The stats must never break the search
+            Log::warning('Search log failed: ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /** The rank of the result opened from a logged search; only the first one opened counts */
+    public function click(Request $request)
+    {
+        $data = $request->validate([
+            'log' => ['required', 'integer'],
+            'position' => ['required', 'integer', 'min:1', 'max:10000'],
+        ]);
+
+        SearchLog::whereKey($data['log'])
+            ->whereNull('clicked_position')
+            ->where('created_at', '>=', now()->subHours(6))
+            ->update(['clicked_position' => $data['position']]);
+
+        return response()->noContent();
+    }
+
     /**
      * Attributes each search tab searches on for a scope; null means every searchable attribute ("all").
      */
-    protected static function scopeAttributes(string $type, string $scope): ?array
+    public static function scopeAttributes(string $type, string $scope): ?array
     {
         return [
             'works' => [
@@ -551,7 +609,8 @@ class SearchController extends Controller
             ],
             'manuscripts' => [
                 'titles' => ['work_title'],
-                'titles_names' => ['work_title', 'author_name', 'scribe_name'],
+                // The shelfmark and library too, so «مجلس ۱۱۸۹» finds the manuscript (backlog item 83)
+                'titles_names' => ['work_title', 'author_name', 'shelfmark', 'scribe_name', 'library', 'library_full_name'],
             ],
             'people' => [
                 'titles' => ['name'],
