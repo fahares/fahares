@@ -29,7 +29,7 @@ class SearchExportTest extends TestCase
         $this->assertMatchesRegularExpression('/E-500.*\n.*E-900/u', $text);
         $this->assertStringNotContainsString('E-elsewhere', $text);
         $this->assertStringContainsString(url('/m/'), $text);
-        $this->assertSame(0, SearchLog::count(), 'an export is not a search');
+        $this->assertSame(SearchLog::KIND_EXPORT, SearchLog::sole()->kind, 'an export is logged as an export, not as a search');
 
         $xlsx = $this->get(route('search.export', $params));
         $xlsx->assertOk()->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

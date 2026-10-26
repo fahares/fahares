@@ -71,7 +71,7 @@
                 @foreach($searches as $s)
                     <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-1.5">
                         <a href="{{ route('search', ['q' => $s->query, 'type' => $s->type]) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $s->query !== '' ? $s->query : 'فقط فیلتر' }}</a>
-                        <span class="text-xs text-muted">{{ ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$s->type] ?? $s->type }} · {{ \App\Support\Fa::num($s->results_count) }} نتیجه{{ $s->clicked_position ? ' · رتبه‌ی ' . \App\Support\Fa::digits($s->clicked_position) . ' باز شد' : '' }}</span>
+                        <span class="text-xs text-muted">{{ ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$s->type] ?? $s->type }} · {{ $s->kind === \App\Models\SearchLog::KIND_EXPORT ? 'خروجی ' . strtoupper((string) $s->format) . ' · ' : '' }}{{ \App\Support\Fa::num($s->results_count) }} نتیجه{{ $s->clicked_position ? ' · رتبه‌ی ' . \App\Support\Fa::digits($s->clicked_position) . ' باز شد' : '' }}</span>
                         <span class="ms-auto text-xs text-muted whitespace-nowrap">@jdate($s->created_at, 'datetime')</span>
                     </li>
                 @endforeach

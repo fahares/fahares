@@ -150,12 +150,17 @@ return [
                     'work_form',
                     'subjects',
                     'languages',
+                    'era_year',
+                    'has_autograph',
+                    'bibliographies',
                 ],
                 'sortableAttributes' => [
                     'composition_year_hijri',
                     'manuscripts_count',
                     'volume_number',
                     'primary_title',
+                    'author_death_year',
+                    'era_year',
                 ],
                 // Among equal text matches, a base text before the works made on it, then the work found in more
                 // manuscripts: «کافی» is al-Kafi of Kulayni, «تجرید» the Tajrid before its commentaries. A chosen
@@ -226,6 +231,10 @@ return [
                     'is_bika',
                     'is_bita',
                     'scripts',
+                    'subjects',
+                    'languages',
+                    'folios',
+                    'has_author_marginalia',
                 ],
                 'sortableAttributes' => [
                     'copy_date_hijri_year',
@@ -251,6 +260,10 @@ return [
                 ],
                 'pagination' => [
                     'maxTotalHits' => 100000,
+                ],
+                // Libraries and cities: every value, not Meilisearch's first 100
+                'faceting' => [
+                    'maxValuesPerFacet' => 500,
                 ],
                 'synonyms' => [
                     'بهجه' => ['بهجت'],

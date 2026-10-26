@@ -25,7 +25,7 @@ class SearchBenchmarkCommand extends Command
     /** Benchmark field => the record's value, per tab; compared on the record, since the index holds search variants */
     private const FIELDS = [
         'works' => ['title' => 'primary_title', 'author' => 'author_name'],
-        'manuscripts' => ['title' => 'work.primary_title', 'library' => 'library', 'shelfmark' => 'shelfmark'],
+        'manuscripts' => ['title' => 'work.primary_title', 'author' => 'work.author_name', 'library' => 'library', 'shelfmark' => 'shelfmark', 'scribe' => 'scribe_name'],
         'people' => ['name' => 'name'],
     ];
 

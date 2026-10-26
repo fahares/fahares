@@ -125,5 +125,46 @@
             @endforeach
         </div>
     @endif
+
+    {{-- Downloads of the results as files (backlog item 85) --}}
+    <section class="space-y-3">
+        <h2 class="rubric text-base">خروجی‌های اکسل و CSV</h2>
+        @if($exports['total'] === 0)
+            <p class="text-xs text-muted">در این بازه خروجی‌ای گرفته نشده است.</p>
+        @else
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                @foreach([
+                    ['خروجی', Fa::num($exports['total']), ''],
+                    ['اکسل / CSV', Fa::num((int) ($exports['formats']['xlsx'] ?? 0)) . ' / ' . Fa::num((int) ($exports['formats']['csv'] ?? 0)), ''],
+                    ['بیش از سقف ردیف', Fa::num($exports['capped']), 'فایل بریده شده است'],
+                    ['تب‌ها', collect($exports['tabs'])->map(fn ($n, $t) => ($tabLabels[$t] ?? $t) . ' ' . Fa::num($n))->implode('، '), ''],
+                ] as [$label, $value, $note])
+                    <x-ui.card class="!p-4">
+                        <div class="text-xs text-muted">{{ $label }}</div>
+                        <div class="text-lg font-bold text-ink tabular-nums mt-1">{{ $value }}</div>
+                        @if($note)<div class="text-[11px] text-muted mt-1">{{ $note }}</div>@endif
+                    </x-ui.card>
+                @endforeach
+            </div>
+            <x-admin.table :is-empty="$exports['top']->isEmpty()" empty="">
+                <x-slot:head>
+                    <x-admin.th>جستجوی خروجی‌گرفته</x-admin.th>
+                    <x-admin.th>دفعات</x-admin.th>
+                    <x-admin.th>بیشترین نتیجه</x-admin.th>
+                    <x-admin.th>تب</x-admin.th>
+                    <x-admin.th>آخرین بار</x-admin.th>
+                </x-slot:head>
+                @foreach($exports['top'] as $row)
+                    <x-admin.row>
+                        <x-admin.cell main>@if($row->query !== '')<a href="{{ $searchUrl($row) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $row->query }}</a>@else<span class="text-muted">فقط فیلتر یا همه</span>@endif</x-admin.cell>
+                        <x-admin.cell label="دفعات" class="tabular-nums">{{ Fa::num($row->n) }}</x-admin.cell>
+                        <x-admin.cell label="بیشترین نتیجه" class="tabular-nums">{{ Fa::num((int) $row->results) }}</x-admin.cell>
+                        <x-admin.cell label="تب">{{ $tabLabels[$row->type] ?? $row->type }}</x-admin.cell>
+                        <x-admin.cell label="آخرین بار" class="text-muted whitespace-nowrap">@jdate(\Illuminate\Support\Carbon::parse($row->last_at), 'date')</x-admin.cell>
+                    </x-admin.row>
+                @endforeach
+            </x-admin.table>
+        @endif
+    </section>
 </div>
 @endsection

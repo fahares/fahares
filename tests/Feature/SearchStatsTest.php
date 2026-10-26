@@ -23,7 +23,7 @@ class SearchStatsTest extends TestCase
         $log = SearchLog::sole();
         $this->assertSame('', $log->query);
         $this->assertSame('manuscripts', $log->type);
-        $this->assertSame(['library_id' => (string) $library->id, 'flags' => ['is_autograph']], $log->filters);
+        $this->assertSame(['library_id' => $library->id, 'flags' => ['is_autograph']], $log->filters);
         $this->assertSame(0, $log->results_count);
         $this->assertFalse($log->is_member);
         $this->assertNull($log->clicked_position);

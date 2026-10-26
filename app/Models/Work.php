@@ -97,7 +97,8 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases', 'manuscripts:id,work_id,incipit_text,explicit_text']);
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,death_year_hijri', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph',
+            'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
     }
 
     /** First words of a title that make the work a commentary, gloss, abridgement or translation of another */
@@ -118,6 +119,18 @@ class Work extends Model
         }
 
         return in_array(strtok($title, ' '), self::DERIVATIVE_OPENERS, true);
+    }
+
+    /** The bibliographies and biographical works that mention this work, for the search filter «یادشده در» */
+    public function bibliographyIds(): array
+    {
+        $kinds = \App\Support\SearchFilters::SOURCE_KINDS;
+        $sourceIds = \Illuminate\Support\Facades\Cache::remember('search.bibliography-source-ids', 3600,
+            fn () => \App\Models\Source::whereIn('kind', $kinds)->pluck('id')->all());
+
+        return $this->sourceEntries
+            ->filter(fn ($e) => in_array($e->source_id, $sourceIds, true) && $e->status !== SourceEntry::STATUS_REJECTED)
+            ->pluck('source_id')->unique()->values()->map(fn ($id) => (int) $id)->all();
     }
 
     /** Caps on the manuscript incipits/explicits folded into one work's search document. */
@@ -211,6 +224,12 @@ class Work extends Model
             'language_summary' => $this->language_summary,
             'manuscripts_count' => (int) $this->manuscripts_count,
             'derivative' => (int) $this->isDerivative(),
+            // Search filters and orders of backlog item 83, phase 5: the work's era is its composition, or else its
+            // author's death, which only 14% of works lack against 86% without a composition year
+            'author_death_year' => $this->author?->death_year_hijri ? (int) $this->author->death_year_hijri : null,
+            'era_year' => ($era = $this->composition_year_hijri ?: $this->author?->death_year_hijri) ? (int) $era : null,
+            'has_autograph' => $this->manuscripts->contains('is_autograph', true),
+            'bibliographies' => $this->bibliographyIds(),
             'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
             'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
             'description' => $this->description ? \App\Helpers\TextNormalizer::normalize(mb_substr($this->description, 0, 500)) : null,

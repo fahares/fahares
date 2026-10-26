@@ -18,6 +18,11 @@ class SearchLog extends Model
 
     public const UPDATED_AT = null;
 
+    public const KIND_SEARCH = 'search';
+
+    /** A download of the results as a file (backlog item 85) */
+    public const KIND_EXPORT = 'export';
+
     /** How long a search is kept */
     public const KEEP_DAYS = 365;
 

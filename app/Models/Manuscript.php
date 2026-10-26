@@ -347,7 +347,7 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name', 'scripts:id,name', 'libraryRecord:id,full_name']);
+        return $query->with(['work:id,primary_title,clean_title,author_name', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'libraryRecord:id,full_name']);
     }
 
     public function toSearchableArray(): array
@@ -404,6 +404,9 @@ class Manuscript extends Model
             'is_illustrated' => (bool) $this->is_illustrated,
             'has_author_marginalia' => (bool) $this->has_author_marginalia,
             'scripts' => $this->relationLoaded('scripts') ? $this->scripts->pluck('name')->all() : [],
+            // The work's subjects and languages, as filters of the manuscripts tab (backlog item 83, phase 5)
+            'subjects' => $this->work?->subjects->pluck('name')->all() ?? [],
+            'languages' => $this->work?->languages->pluck('name')->all() ?? [],
         ];
     }
 

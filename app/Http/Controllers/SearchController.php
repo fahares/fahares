@@ -14,6 +14,7 @@ use App\Models\Work;
 use App\Support\CopyPlaces;
 use App\Support\DirectAnswer;
 use App\Support\SearchExport;
+use App\Support\SearchFilters;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Meilisearch\Client as MeiliClient;
@@ -33,51 +34,13 @@ class SearchController extends Controller
      */
     protected function search(Request $request, ?int $exportLimit = null): array|\Illuminate\Http\RedirectResponse
     {
-        $rawQuery = trim($request->input('q', ''));
+        $rawQuery = trim((string) $request->input('q', ''));
         $searchQuery = TextNormalizer::normalize($rawQuery);
         $query = $rawQuery;
-        $type = $request->input('type', 'works');
-        $scope = $request->input('scope', 'titles_names');
-        if (!in_array($scope, ['titles', 'titles_names', 'all'])) {
-            $scope = 'titles_names';
-        }
-
-        $subjectId = $request->input('subject_id');
-        $libraryId = $request->input('library_id');
-        $scriptId = $request->input('script_id');
-        $century = $request->input('century');
-        // City of copying (config/insights.php copy_places), linked from the insights map
-        $copyCity = CopyPlaces::isCity($request->input('copy_city')) ? $request->input('copy_city') : null;
-        $languageId = $request->input('language_id');
-        $workForm = $request->input('work_form');
-        $manuscriptsRange = $request->input('manuscripts_range');
-
-        $validFlags = ['is_autograph', 'is_illuminated', 'is_illustrated', 'is_corrected', 'has_marginal_notes', 'is_collated'];
-        $rawFlags = (array) $request->input('flags', []);
-        if ($request->filled('flag')) {
-            $rawFlags[] = $request->input('flag');
-        }
-        $flags = array_values(array_unique(array_intersect($rawFlags, $validFlags)));
-        $flag = !empty($flags) ? $flags[0] : null;
-
-        $validWorkForms = [
-            'translation' => 'ترجمه',
-            'selection' => 'گزیده و تلخیص',
-            'treatise' => 'رساله',
-            'verse' => 'منظوم (شعر)',
-            'table' => 'جدول و تقویم',
-            'compilation' => 'جنگ و مجموعه',
-            'notes' => 'یادداشت‌ها و تعلیقات',
-            'commentary' => 'شرح',
-            'lecture_notes' => 'تقریرات',
-        ];
-
-        $validManuscriptRanges = [
-            'single' => 'تک‌نسخه (۱ نسخه)',
-            'few' => 'کم‌نسخه (۲ تا ۴ نسخه)',
-            'multiple' => 'پرنسخه (۵ تا ۱۹ نسخه)',
-            'very_frequent' => 'بسیار پرنسخه (۲۰ نسخه به بالا)',
-        ];
+        $type = in_array($request->input('type'), ['works', 'manuscripts', 'people'], true) ? $request->input('type') : 'works';
+        $scope = self::scopeAvailable($type, (string) $request->input('scope')) ? $request->input('scope') : 'titles_names';
+        // Every filter of the tab, defined once for the engine and the database (backlog item 83, phase 5)
+        $filters = SearchFilters::fromRequest($request, $type);
 
         $perPage = $exportLimit ?? (in_array((int) $request->input('per_page'), self::PER_PAGE, true) ? (int) $request->input('per_page') : 20);
         // The chosen order of the tab; none means by relevance, or the tab's own order when browsing (backlog item 83, phase 3)
@@ -86,507 +49,243 @@ class SearchController extends Controller
         // An export needs only the ids from the engine; the records come from the database
         $engineSort = fn (array $options) => ($sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options)
             + ($exportLimit ? ['attributesToRetrieve' => ['id']] : []);
-        $dbSort = fn ($builder) => $builder->orderByRaw("{$sort[1]} IS NULL")->orderBy($sort[1], $sort[2]);
+        $dbSort = function ($builder) use ($sort) {
+            // A field the table lacks (the author's death of a work) is given as an expression
+            $expr = $sort[3] ?? $builder->getModel()->getTable() . '.' . $sort[1];
+
+            return $builder->orderByRaw("{$expr} IS NULL")->orderByRaw("{$expr} {$sort[2]}");
+        };
 
         // A search that names a shelfmark or a catalogue page is answered directly (backlog item 83, phase 2);
         // one manuscript is opened at once
         $direct = null;
-        if (! $exportLimit && $rawQuery !== '' && (int) $request->input('page', 1) === 1 && ! array_filter($request->only(self::LOGGED_FILTERS))) {
+        if (! $exportLimit && $rawQuery !== '' && (int) $request->input('page', 1) === 1 && $filters->isEmpty()) {
             $direct = DirectAnswer::for($rawQuery);
             if ($single = $direct?->single()) {
-                $this->logSearch($request, $searchQuery, $type, $scope, 1, 1, clickedPosition: 1);
+                $this->logSearch($request, $searchQuery, $type, $scope, $filters, 1, 1, clickedPosition: 1);
 
                 return redirect()->route('manuscripts.show', $single);
             }
         }
 
-        $results = null;
+        $searchAttrs = self::scopeAttributes($type, $scope);
+        $facets = $searchQuery !== '' && ! $exportLimit ? $this->facets($type, $searchQuery, $searchAttrs) : [];
+        $options = $exportLimit ? [] : $this->filterOptions($type, $filters, $facets, $searchQuery !== '');
 
-        $subjects = collect();
-        $scripts = collect();
-        $libraries = collect();
-        $languages = collect();
-        $centuries = [];
-        $flagCounts = [];
-        $workFormCounts = [];
-        $totalFacetManuscripts = 0;
+        $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class][$type];
+        $with = [
+            'works' => ['catalog', 'author', 'subjects', 'languages'],
+            'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts'],
+            'people' => [],
+        ][$type];
+        $prepare = fn ($q) => $type === 'people' ? $q->withCount(['works', 'scribedManuscripts']) : $q->with($with);
 
-        $selectedSubject = $subjectId ? Subject::with(['children', 'parent'])->find($subjectId) : null;
-        $selectedLibrary = $libraryId ? Library::find($libraryId) : null;
-        $selectedScript = $scriptId ? Script::find($scriptId) : null;
-        $selectedLanguage = $languageId ? Language::find($languageId) : null;
-
-        if ($type === 'manuscripts') {
-            // Determine attributes to search on based on scope
-            $searchAttrs = self::scopeAttributes('manuscripts', $scope);
-
-            // 1. Fetch dynamic faceted distribution for manuscripts
-            $meiliClient = app(MeiliClient::class);
-            $facetDistribution = [];
-
-            if ($searchQuery !== '') {
-                try {
-                    $facetOptions = [
-                        'matchingStrategy' => 'all',
-                        'facets' => [
-                            'library_id',
-                            'scripts',
-                            'copy_date_hijri_year',
-                            'is_autograph',
-                            'is_illuminated',
-                            'is_illustrated',
-                            'is_corrected',
-                            'has_marginal_notes',
-                            'is_collated',
-                        ],
-                        'limit' => 0,
-                    ];
-                    if ($searchAttrs) {
-                        $facetOptions['attributesToSearchOn'] = $searchAttrs;
-                    }
-
-                    $facetRes = $meiliClient->index('manuscripts_index')->search($searchQuery, $facetOptions);
-                    $facetDistribution = $facetRes->getFacetDistribution() ?? [];
-                } catch (\Throwable $e) {
-                    Log::warning('Meilisearch facet retrieval failed: ' . $e->getMessage());
+        $matchedFields = [];
+        if ($searchQuery !== '') {
+            $engineFilter = $filters->engine();
+            $builder = $model::search($searchQuery, function ($meili, $searchQuery, $options) use ($type, $searchAttrs, $engineFilter, $engineSort, &$matchedFields) {
+                $options = $engineSort($options);
+                $options['matchingStrategy'] = 'all';
+                if ($searchAttrs) {
+                    $options['attributesToSearchOn'] = $searchAttrs;
+                } elseif ($type === 'works') {
+                    // Only the "all" scope reaches text fields; record which fields matched to explain the hit
+                    $options['showMatchesPosition'] = true;
+                }
+                if ($engineFilter) {
+                    $options['filter'] = $engineFilter;
+                }
+                $result = $meili->search($searchQuery, $options);
+                foreach ($result->getHits() as $hit) {
+                    $matchedFields[$hit['id']] = array_keys($hit['_matchesPosition'] ?? []);
                 }
 
-                // Process Libraries Facet
-                $libCounts = $facetDistribution['library_id'] ?? [];
-                $totalFacetManuscripts = array_sum($libCounts);
-
-                if (!empty($libCounts)) {
-                    $libIds = array_keys($libCounts);
-                    $libraries = Library::whereIn('id', $libIds)->get()->map(function ($lib) use ($libCounts) {
-                        $lib->matching_count = $libCounts[$lib->id] ?? 0;
-                        return $lib;
-                    })->sortByDesc('matching_count')->values();
-                }
-
-                // Process Scripts Facet
-                $scriptCounts = $facetDistribution['scripts'] ?? [];
-                if (!empty($scriptCounts)) {
-                    $scriptNames = array_keys($scriptCounts);
-                    $scripts = Script::whereIn('name', $scriptNames)->get()->map(function ($sc) use ($scriptCounts) {
-                        $sc->matching_count = $scriptCounts[$sc->name] ?? 0;
-                        return $sc;
-                    })->sortByDesc('matching_count')->values();
-                }
-
-                // Process Centuries Facet
-                $yearCounts = $facetDistribution['copy_date_hijri_year'] ?? [];
-                foreach ($yearCounts as $yr => $cnt) {
-                    $y = (int) $yr;
-                    if ($y >= 100 && $y <= 1500) {
-                        $c = (int) ceil($y / 100);
-                        $centuries[$c] = ($centuries[$c] ?? 0) + $cnt;
-                    }
-                }
-                ksort($centuries);
-
-                // Process Flags Facet
-                foreach ($validFlags as $vf) {
-                    $flagCounts[$vf] = $facetDistribution[$vf]['true'] ?? 0;
-                }
-            } else {
-                // Browsing without keyword: show top repositories and standard scripts
-                $libraries = Library::where('manuscripts_count', '>', 0)
-                    ->orderByDesc('manuscripts_count')
-                    ->take(50)
-                    ->get()
-                    ->map(function ($lib) {
-                        $lib->matching_count = $lib->manuscripts_count;
-                        return $lib;
-                    });
-                // Ids differ between local and production, so pick the most used scripts by count
-                $scripts = Script::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->take(12)->get();
-                for ($c = 4; $c <= 14; $c++) {
-                    $centuries[$c] = null;
-                }
-            }
-
-            // Ensure currently selected entities remain in lists
-            if ($selectedLibrary && !$libraries->contains('id', $selectedLibrary->id)) {
-                $selectedLibrary->matching_count = 0;
-                $libraries->prepend($selectedLibrary);
-            }
-            if ($selectedScript && !$scripts->contains('id', $selectedScript->id)) {
-                $scripts->prepend($selectedScript);
-            }
-
-            // 2. Execute Search with filters applied directly in engine
-            if ($searchQuery !== '') {
-                $meiliFilters = [];
-                if ($libraryId) {
-                    $meiliFilters[] = 'library_id = ' . (int) $libraryId;
-                }
-                if ($century) {
-                    $centuryStart = ($century - 1) * 100 + 1;
-                    $centuryEnd = $century * 100;
-                    $meiliFilters[] = "(copy_date_hijri_year >= {$centuryStart} AND copy_date_hijri_year <= {$centuryEnd})";
-                }
-                if ($selectedScript) {
-                    $meiliFilters[] = 'scripts = "' . addslashes($selectedScript->name) . '"';
-                }
-                if ($copyCity) {
-                    // The index keeps copy_place normalized
-                    $places = collect(CopyPlaces::variants($copyCity))
-                        ->map(fn ($p) => '"' . addslashes(TextNormalizer::normalize($p)) . '"')->unique()->implode(', ');
-                    $meiliFilters[] = $places !== '' ? "copy_place IN [{$places}]" : 'id = 0';
-                }
-                foreach ($flags as $f) {
-                    $meiliFilters[] = "{$f} = true";
-                }
-
-                $filterString = !empty($meiliFilters) ? implode(' AND ', $meiliFilters) : null;
-
-                $builder = Manuscript::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $searchAttrs, $engineSort) {
-                    $options = $engineSort($options);
-                    $options['matchingStrategy'] = 'all';
-                    if ($searchAttrs) {
-                        $options['attributesToSearchOn'] = $searchAttrs;
-                    }
-                    if ($filterString) {
-                        $options['filter'] = $filterString;
-                    }
-                    return $meili->search($searchQuery, $options);
-                })->query(fn($q) => $q->with(['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts']));
-
-                $results = $builder->paginate($perPage)->withQueryString();
-            } else {
-                $builder = Manuscript::query()->with(['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts']);
-                if ($libraryId) {
-                    $builder->where('library_id', $libraryId);
-                }
-                if ($century) {
-                    $centuryStart = ($century - 1) * 100 + 1;
-                    $centuryEnd = $century * 100;
-                    $builder->whereBetween('copy_date_hijri_year', [$centuryStart, $centuryEnd]);
-                }
-                if ($scriptId) {
-                    $builder->whereHas('scripts', fn($sq) => $sq->where('scripts.id', $scriptId));
-                }
-                if ($copyCity) {
-                    $builder->whereIn('copy_place', CopyPlaces::variants($copyCity));
-                }
-                foreach ($flags as $f) {
-                    $builder->where($f, true);
-                }
-                $results = ($sort ? $dbSort($builder) : $builder->orderBy('id'))->paginate($perPage)->withQueryString();
-            }
-        } elseif ($type === 'people') {
-            $peopleSearchAttrs = self::scopeAttributes('people', $scope);
-
-            if ($searchQuery !== '') {
-                $results = Person::search($searchQuery, function ($meili, $searchQuery, $options) use ($peopleSearchAttrs, $engineSort) {
-                    $options = $engineSort($options);
-                    $options['matchingStrategy'] = 'all';
-                    if ($peopleSearchAttrs) {
-                        $options['attributesToSearchOn'] = $peopleSearchAttrs;
-                    }
-                    return $meili->search($searchQuery, $options);
-                })
-                ->query(fn($q) => $q->withCount(['works', 'scribedManuscripts']))
-                ->paginate($perPage)
-                ->withQueryString();
-            } else {
-                $builder = Person::query()->withCount(['works', 'scribedManuscripts']);
-                $results = ($sort ? $dbSort($builder) : $builder->orderByDesc('works_count'))
-                    ->paginate($perPage)
-                    ->withQueryString();
-            }
+                return $result;
+            })->query($prepare);
+            $results = $builder->paginate($perPage)->withQueryString();
         } else {
-            // Default: works
-            $type = 'works';
-
-            $workSearchAttrs = self::scopeAttributes('works', $scope);
-
-            // 1. Facet distribution for works
-            if ($searchQuery !== '') {
-                try {
-                    $meiliClient = app(MeiliClient::class);
-                    $facetOptions = [
-                        'matchingStrategy' => 'all',
-                        'facets' => ['subjects', 'languages', 'composition_year_hijri', 'work_form'],
-                        'limit' => 0,
-                    ];
-                    if ($workSearchAttrs) {
-                        $facetOptions['attributesToSearchOn'] = $workSearchAttrs;
-                    }
-
-                    $facetRes = $meiliClient->index('works_index')->search($searchQuery, $facetOptions);
-                    $facetDist = $facetRes->getFacetDistribution() ?? [];
-
-                    $subjCounts = $facetDist['subjects'] ?? [];
-                    if (!empty($subjCounts)) {
-                        $allSubjects = Subject::with(['parent', 'children'])
-                            ->where('works_count', '>', 0)
-                            ->get();
-
-                        foreach ($allSubjects as $s) {
-                            $count = $subjCounts[$s->name] ?? 0;
-                            if ($s->children->isNotEmpty()) {
-                                foreach ($s->children as $child) {
-                                    $count += ($subjCounts[$child->name] ?? 0);
-                                }
-                            }
-                            $s->matching_count = $count;
-                        }
-
-                        $subjects = $allSubjects->filter(fn($s) => $s->matching_count > 0)
-                            ->sortByDesc('matching_count')
-                            ->values();
-
-                        if ($subjects->isEmpty()) {
-                            $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                        }
-                    } else {
-                        $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                    }
-
-                    $langCounts = $facetDist['languages'] ?? [];
-                    if (!empty($langCounts)) {
-                        $languages = Language::whereIn('name', array_keys($langCounts))->get()->map(function ($l) use ($langCounts) {
-                            $l->matching_count = $langCounts[$l->name] ?? 0;
-                            return $l;
-                        })->sortByDesc('matching_count')->values();
-                    } else {
-                        $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                    }
-
-                    $compYearCounts = $facetDist['composition_year_hijri'] ?? [];
-                    foreach ($compYearCounts as $yr => $cnt) {
-                        $y = (int) $yr;
-                        if ($y >= 100 && $y <= 1500) {
-                            $c = (int) ceil($y / 100);
-                            $centuries[$c] = ($centuries[$c] ?? 0) + $cnt;
-                        }
-                    }
-                    ksort($centuries);
-
-                    $workFormCounts = $facetDist['work_form'] ?? [];
-                } catch (\Throwable $e) {
-                    Log::warning('Meilisearch works facet failed: ' . $e->getMessage());
-                    $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                    $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                }
-            } else {
-                $subjects = Subject::with('parent')->where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                $languages = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get();
-                for ($c = 4; $c <= 14; $c++) {
-                    $centuries[$c] = null;
-                }
-            }
-
-            if ($selectedSubject && !$subjects->contains('id', $selectedSubject->id)) {
-                $subjects->prepend($selectedSubject);
-            }
-            if ($selectedLanguage && !$languages->contains('id', $selectedLanguage->id)) {
-                $selectedLanguage->matching_count = 0;
-                $languages->prepend($selectedLanguage);
-            }
-
-            // 2. Execute Works Search
-            if ($searchQuery !== '') {
-                $workFilters = [];
-                if ($selectedSubject) {
-                    $targetSubjectNames = [$selectedSubject->name];
-                    foreach ($selectedSubject->children as $child) {
-                        $targetSubjectNames[] = $child->name;
-                    }
-                    if (count($targetSubjectNames) === 1) {
-                        $workFilters[] = 'subjects = "' . addslashes($targetSubjectNames[0]) . '"';
-                    } else {
-                        $orFilters = array_map(fn($n) => 'subjects = "' . addslashes($n) . '"', $targetSubjectNames);
-                        $workFilters[] = '(' . implode(' OR ', $orFilters) . ')';
-                    }
-                }
-                if ($selectedLanguage) {
-                    $workFilters[] = 'languages = "' . addslashes($selectedLanguage->name) . '"';
-                }
-                if ($century) {
-                    $centuryStart = ($century - 1) * 100 + 1;
-                    $centuryEnd = $century * 100;
-                    $workFilters[] = "(composition_year_hijri >= {$centuryStart} AND composition_year_hijri <= {$centuryEnd})";
-                }
-                if ($workForm && isset($validWorkForms[$workForm])) {
-                    $workFilters[] = 'work_form = "' . addslashes($workForm) . '"';
-                }
-                if ($manuscriptsRange) {
-                    if ($manuscriptsRange === 'single') {
-                        $workFilters[] = 'manuscripts_count = 1';
-                    } elseif ($manuscriptsRange === 'few') {
-                        $workFilters[] = '(manuscripts_count >= 2 AND manuscripts_count <= 4)';
-                    } elseif ($manuscriptsRange === 'multiple') {
-                        $workFilters[] = '(manuscripts_count >= 5 AND manuscripts_count <= 19)';
-                    } elseif ($manuscriptsRange === 'very_frequent') {
-                        $workFilters[] = 'manuscripts_count >= 20';
-                    }
-                }
-
-                $filterString = !empty($workFilters) ? implode(' AND ', $workFilters) : null;
-
-                $workMatchedFields = [];
-                $builder = Work::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $workSearchAttrs, &$workMatchedFields, $engineSort) {
-                    $options = $engineSort($options);
-                    $options['matchingStrategy'] = 'all';
-                    if ($workSearchAttrs) {
-                        $options['attributesToSearchOn'] = $workSearchAttrs;
-                    } else {
-                        // Only the "all" scope reaches text fields; record which fields matched to explain the hit
-                        $options['showMatchesPosition'] = true;
-                    }
-                    if ($filterString) {
-                        $options['filter'] = $filterString;
-                    }
-                    $result = $meili->search($searchQuery, $options);
-                    foreach ($result->getHits() as $hit) {
-                        $workMatchedFields[$hit['id']] = array_keys($hit['_matchesPosition'] ?? []);
-                    }
-                    return $result;
-                })->query(fn($q) => $q->with(['catalog', 'author', 'subjects', 'languages']));
-
-                $results = $builder->paginate($perPage)->withQueryString();
-                foreach ($results as $work) {
-                    $work->match_reason = self::workMatchReason($workMatchedFields[$work->id] ?? []);
-                }
-            } else {
-                $builder = Work::query()->with(['catalog', 'author', 'subjects', 'languages']);
-                if ($subjectId && $selectedSubject) {
-                    $targetSubjectIds = [$selectedSubject->id];
-                    foreach ($selectedSubject->children as $child) {
-                        $targetSubjectIds[] = $child->id;
-                    }
-                    $builder->whereHas('subjects', fn($sq) => $sq->whereIn('subjects.id', $targetSubjectIds));
-                }
-                if ($languageId) {
-                    $builder->whereHas('languages', fn($lq) => $lq->where('languages.id', $languageId));
-                }
-                if ($century) {
-                    $centuryStart = ($century - 1) * 100 + 1;
-                    $centuryEnd = $century * 100;
-                    $builder->whereBetween('composition_year_hijri', [$centuryStart, $centuryEnd]);
-                }
-                if ($workForm && isset($validWorkForms[$workForm])) {
-                    $builder->where('work_form', $workForm);
-                }
-                if ($manuscriptsRange) {
-                    if ($manuscriptsRange === 'single') {
-                        $builder->where('manuscripts_count', 1);
-                    } elseif ($manuscriptsRange === 'few') {
-                        $builder->whereBetween('manuscripts_count', [2, 4]);
-                    } elseif ($manuscriptsRange === 'multiple') {
-                        $builder->whereBetween('manuscripts_count', [5, 19]);
-                    } elseif ($manuscriptsRange === 'very_frequent') {
-                        $builder->where('manuscripts_count', '>=', 20);
-                    }
-                }
-                $results = ($sort ? $dbSort($builder) : $builder->orderByDesc('manuscripts_count'))->paginate($perPage)->withQueryString();
-            }
-
-            // Calculate manuscript century ranges and autograph status for all works on current page
-            // The copying centuries and autograph badge are for the page, not for an export
-            $workIds = $exportLimit ? [] : $results->pluck('id')->filter()->all();
-            if (!empty($workIds)) {
-                $allYearsByWork = Manuscript::whereIn('work_id', $workIds)
-                    ->whereNotNull('copy_date_hijri_year')
-                    ->where('copy_date_hijri_year', '>=', 300)
-                    ->where('copy_date_hijri_year', '<=', 1500)
-                    ->select('work_id', 'copy_date_hijri_year')
-                    ->distinct()
-                    ->get()
-                    ->groupBy('work_id');
-
-                $autographWorkIds = Manuscript::whereIn('work_id', $workIds)
-                    ->where('is_autograph', true)
-                    ->pluck('work_id')
-                    ->flip()
-                    ->all();
-
-                foreach ($results as $work) {
-                    $work->has_autograph = isset($autographWorkIds[$work->id]);
-
-                    $minAllowedYear = 300;
-                    if ($work->composition_year_hijri) {
-                        $minAllowedYear = max($minAllowedYear, $work->composition_year_hijri - 40);
-                    } elseif ($work->author?->death_year_hijri) {
-                        $minAllowedYear = max($minAllowedYear, $work->author->death_year_hijri - 90);
-                    } elseif ($work->author?->century_hijri) {
-                        $minAllowedYear = max($minAllowedYear, ($work->author->century_hijri - 2) * 100);
-                    }
-
-                    $years = ($allYearsByWork->get($work->id) ?? collect())
-                        ->pluck('copy_date_hijri_year')
-                        ->filter(fn($y) => $y >= $minAllowedYear);
-
-                    if ($years->isNotEmpty()) {
-                        $minYear = $years->min();
-                        $maxYear = $years->max();
-                        $minCentury = (int) ceil($minYear / 100);
-                        $maxCentury = (int) ceil($maxYear / 100);
-                        $work->copy_century_text = ($minCentury === $maxCentury)
-                            ? "قرن {$minCentury} هـ.ق"
-                            : "از قرن {$minCentury} تا {$maxCentury} هـ.ق";
-                    } else {
-                        $work->copy_century_text = null;
-                    }
-                }
-            }
+            $builder = $filters->apply($prepare($model::query()));
+            $results = ($sort ? $dbSort($builder) : match ($type) {
+                'works' => $builder->orderByDesc('works.manuscripts_count'),
+                // The stored count: ordering by the counted one counts every person's works first
+                'people' => $builder->orderByDesc('people.works_count'),
+                default => $builder->orderBy('manuscripts.id'),
+            })->paginate($perPage)->withQueryString();
         }
 
-        $tabCounts = $searchQuery !== '' && $results ? $this->tabCounts($searchQuery, $scope, $type, $results->total()) : [];
-
-        $suggestion = null;
-        if ($results && $results->total() === 0 && $searchQuery !== '') {
-            $suggestion = $this->getDidYouMeanSuggestion($searchQuery, $type);
+        if ($type === 'works' && ! $exportLimit) {
+            foreach ($results as $work) {
+                $work->match_reason = self::workMatchReason($matchedFields[$work->id] ?? []);
+            }
+            $this->addCopyCenturies($results);
         }
 
-        $searchLogId = $results && ! $exportLimit ? $this->logSearch($request, $searchQuery, $type, $scope, $results->total(), $results->currentPage()) : null;
+        $tabCounts = $searchQuery !== '' && ! $exportLimit ? $this->tabCounts($searchQuery, $scope, $type, $results->total()) : [];
+        $suggestion = ! $exportLimit && $results->total() === 0 && $searchQuery !== '' ? $this->getDidYouMeanSuggestion($searchQuery, $type) : null;
+        $searchLogId = $exportLimit ? null : $this->logSearch($request, $searchQuery, $type, $scope, $filters, $results->total(), $results->currentPage());
+        $validWorkForms = SearchFilters::WORK_FORMS;
 
-        return compact(
-            'sortKey',
-            'perPage',
-            'direct',
-            'searchLogId',
-            'results',
-            'query',
-            'type',
-            'scope',
-            'subjects',
-            'scripts',
-            'libraries',
-            'centuries',
-            'flagCounts',
-            'totalFacetManuscripts',
-            'subjectId',
-            'libraryId',
-            'scriptId',
-            'century',
-            'copyCity',
-            'flag',
-            'flags',
-            'selectedSubject',
-            'selectedLibrary',
-            'selectedScript',
-            'languages',
-            'selectedLanguage',
-            'languageId',
-            'workForm',
-            'workFormCounts',
-            'validWorkForms',
-            'manuscriptsRange',
-            'validManuscriptRanges',
-            'suggestion',
-            'tabCounts'
-        );
+        return compact('results', 'query', 'type', 'scope', 'filters', 'options', 'sortKey', 'perPage', 'direct', 'searchLogId',
+            'tabCounts', 'suggestion', 'validWorkForms');
     }
 
-    /** Each tab's orders: key => [label, field, direction]; the fields are sortable in the index and columns in the table */
+    /** The engine's counts of the values of each filter among the matches of the words, before any filter */
+    protected function facets(string $type, string $searchQuery, ?array $searchAttrs): array
+    {
+        $names = [
+            'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
+            'manuscripts' => ['library_id', 'city', 'scripts', 'copy_date_hijri_year', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
+            'people' => ['century_hijri', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
+        ][$type];
+        $index = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'][$type];
+        try {
+            $options = ['matchingStrategy' => 'all', 'facets' => $names, 'limit' => 0];
+            if ($searchAttrs) {
+                $options['attributesToSearchOn'] = $searchAttrs;
+            }
+
+            return app(MeiliClient::class)->index($index)->search($searchQuery, $options)->getFacetDistribution() ?? [];
+        } catch (\Throwable $e) {
+            Log::warning("Meilisearch {$type} facets failed: " . $e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
+     * The choices of each filter in the sidebar, with how many matches each has: counted by the engine for a search
+     * with words, or the stored totals when browsing. A chosen value stays in its list even with no match.
+     */
+    protected function filterOptions(string $type, SearchFilters $filters, array $facets, bool $hasWords): array
+    {
+        $options = [];
+        $count = fn (string $facet, $value) => $hasWords ? (int) ($facets[$facet][$value] ?? 0) : null;
+        $centuries = function (string $facet) use ($facets, $hasWords) {
+            if (! $hasWords) {
+                return array_fill_keys(range(3, 14), null);
+            }
+            $byCentury = [];
+            foreach ($facets[$facet] ?? [] as $year => $n) {
+                if ($year >= 1 && $year <= 1500) {
+                    $c = (int) ceil($year / 100);
+                    $byCentury[$c] = ($byCentury[$c] ?? 0) + $n;
+                }
+            }
+            ksort($byCentury);
+
+            return $byCentury;
+        };
+
+        if ($type === 'people') {
+            $options['centuries'] = $hasWords ? collect($facets['century_hijri'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->sortKeys()->all()
+                : array_fill_keys(range(1, 15), null);
+            $options['roles'] = collect(SearchFilters::ROLES)->map(fn ($label, $role) => [$label, $count("is_{$role}", 'true')])->all();
+
+            return $options;
+        }
+
+        // Subjects: a parent counts its children's matches too
+        $subjects = Subject::with(['parent', 'children'])->where('works_count', '>', 0)->get();
+        foreach ($subjects as $s) {
+            $s->matching_count = $hasWords
+                ? collect([$s, ...$s->children])->sum(fn ($x) => $facets['subjects'][$x->name] ?? 0)
+                : ($type === 'works' ? $s->works_count : null);
+        }
+        $options['subjects'] = $subjects->filter(fn ($s) => ! $hasWords || $s->matching_count > 0 || $s->id === $filters->subject?->id)
+            ->sortByDesc('matching_count')->values();
+        $options['languages'] = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get()
+            ->each(fn ($l) => $l->matching_count = $hasWords ? (int) ($facets['languages'][$l->name] ?? 0) : ($type === 'works' ? $l->works_count : null))
+            ->filter(fn ($l) => ! $hasWords || $l->matching_count > 0 || $l->id === $filters->language?->id)
+            ->sortByDesc('matching_count')->values();
+
+        if ($type === 'works') {
+            $options['centuries'] = $centuries('era_year');
+            $options['workForms'] = collect(SearchFilters::WORK_FORMS)->map(fn ($label, $form) => [$label, $count('work_form', $form)])->all();
+            $options['sources'] = \App\Models\Source::whereIn('kind', SearchFilters::SOURCE_KINDS)->orderBy('rank')->orderBy('id')->get()
+                ->each(fn ($s) => $s->matching_count = $count('bibliographies', $s->id));
+            $options['autographs'] = $count('has_autograph', 'true');
+
+            return $options;
+        }
+
+        // Manuscripts: every library, so one with few matches can still be chosen
+        $libCounts = $facets['library_id'] ?? [];
+        $options['libraries'] = Library::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->get(['id', 'name', 'full_name', 'city', 'manuscripts_count'])
+            ->each(fn ($l) => $l->matching_count = $hasWords ? (int) ($libCounts[$l->id] ?? 0) : $l->manuscripts_count)
+            ->filter(fn ($l) => ! $hasWords || $l->matching_count > 0 || $l->id === $filters->library?->id)
+            ->sortByDesc('matching_count')->values();
+        $options['cities'] = $hasWords
+            ? collect($facets['city'] ?? [])->sortDesc()->all()
+            : Library::where('manuscripts_count', '>', 0)->whereNotNull('city')->where('city', '!=', '')
+                ->selectRaw('city, SUM(manuscripts_count) AS n')->groupBy('city')->orderByDesc('n')->pluck('n', 'city')->map(fn ($n) => (int) $n)->all();
+        $options['scripts'] = Script::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->get()
+            ->each(fn ($s) => $s->matching_count = $hasWords ? (int) ($facets['scripts'][$s->name] ?? 0) : $s->manuscripts_count)
+            ->filter(fn ($s) => ! $hasWords || $s->matching_count > 0 || $s->id === $filters->script?->id)
+            ->sortByDesc('matching_count')->values();
+        $options['centuries'] = $centuries('copy_date_hijri_year');
+        $options['flags'] = collect(SearchFilters::FLAGS)->map(fn ($label, $flag) => [$label, $count($flag, 'true')])->all();
+        $options['facsimile'] = ['0' => $count('is_facsimile', 'false'), '1' => $count('is_facsimile', 'true')];
+        $options['copyCities'] = array_keys(CopyPlaces::cities());
+
+        return $options;
+    }
+
+    /** Beside each work of the page: the centuries its manuscripts were copied in, and whether one is the author's own */
+    protected function addCopyCenturies($results): void
+    {
+        $workIds = $results->pluck('id')->filter()->all();
+        if (empty($workIds)) {
+            return;
+        }
+        $allYearsByWork = Manuscript::whereIn('work_id', $workIds)
+            ->whereNotNull('copy_date_hijri_year')
+            ->where('copy_date_hijri_year', '>=', 300)
+            ->where('copy_date_hijri_year', '<=', 1500)
+            ->select('work_id', 'copy_date_hijri_year')
+            ->distinct()
+            ->get()
+            ->groupBy('work_id');
+        $autographWorkIds = Manuscript::whereIn('work_id', $workIds)->where('is_autograph', true)->pluck('work_id')->flip()->all();
+
+        foreach ($results as $work) {
+            $work->has_autograph = isset($autographWorkIds[$work->id]);
+
+            $minAllowedYear = 300;
+            if ($work->composition_year_hijri) {
+                $minAllowedYear = max($minAllowedYear, $work->composition_year_hijri - 40);
+            } elseif ($work->author?->death_year_hijri) {
+                $minAllowedYear = max($minAllowedYear, $work->author->death_year_hijri - 90);
+            } elseif ($work->author?->century_hijri) {
+                $minAllowedYear = max($minAllowedYear, ($work->author->century_hijri - 2) * 100);
+            }
+
+            $years = ($allYearsByWork->get($work->id) ?? collect())
+                ->pluck('copy_date_hijri_year')
+                ->filter(fn ($y) => $y >= $minAllowedYear);
+
+            if ($years->isNotEmpty()) {
+                $minCentury = (int) ceil($years->min() / 100);
+                $maxCentury = (int) ceil($years->max() / 100);
+                $work->copy_century_text = ($minCentury === $maxCentury)
+                    ? "قرن {$minCentury} هـ.ق"
+                    : "از قرن {$minCentury} تا {$maxCentury} هـ.ق";
+            } else {
+                $work->copy_century_text = null;
+            }
+        }
+    }
+
+    /**
+     * Each tab's orders: key => [label, field, direction, the database expression when the table lacks the field];
+     * the fields are sortable in the index
+     */
     public const SORTS = [
         'works' => [
             'manuscripts' => ['بیشترین نسخه', 'manuscripts_count', 'desc'],
             'oldest' => ['کهن‌ترین تألیف', 'composition_year_hijri', 'asc'],
             'newest' => ['تازه‌ترین تألیف', 'composition_year_hijri', 'desc'],
+            'author_oldest' => ['کهن‌ترین مؤلف', 'author_death_year', 'asc', '(SELECT death_year_hijri FROM people WHERE people.id = works.author_id)'],
+            'author_newest' => ['تازه‌ترین مؤلف', 'author_death_year', 'desc', '(SELECT death_year_hijri FROM people WHERE people.id = works.author_id)'],
         ],
         'manuscripts' => [
             'oldest' => ['کهن‌ترین کتابت', 'copy_date_hijri_year', 'asc'],
@@ -602,24 +301,16 @@ class SearchController extends Controller
 
     public const PER_PAGE = [20, 50, 100];
 
-    /** The filters of the search page, recorded with each search */
-    private const LOGGED_FILTERS = ['subject_id', 'library_id', 'script_id', 'century', 'copy_city', 'language_id', 'work_form', 'manuscripts_range', 'flags', 'flag'];
-
     /**
      * Records the search for the admin's search stats (backlog item 83) and returns its id, which the page
      * sends back with the rank of the result opened. Only a search's first page, by a person, with a query
      * or a filter, is counted; browsing on to page 2 is not a new search.
      */
-    protected function logSearch(Request $request, string $searchQuery, string $type, string $scope, int $total, int $page, ?int $clickedPosition = null): ?int
+    protected function logSearch(Request $request, string $searchQuery, string $type, string $scope, SearchFilters $searchFilters, int $total, int $page, ?int $clickedPosition = null, string $kind = SearchLog::KIND_SEARCH, ?string $format = null): ?int
     {
-        $filters = $request->only(self::LOGGED_FILTERS);
-        // The single «flag» of older links is one of the flags
-        if (isset($filters['flag'])) {
-            $filters['flags'] = array_values(array_unique([...(array) ($filters['flags'] ?? []), $filters['flag']]));
-            unset($filters['flag']);
-        }
-        $filters = array_filter($filters, fn ($v) => $v !== null && $v !== '' && $v !== []);
-        if (($searchQuery === '' && ! $filters) || $page > 1 || ! SearchLog::isCountable($request)) {
+        $filters = $searchFilters->values;
+        // An export of everything counts too; a bare page without words or filters is not a search
+        if (($searchQuery === '' && ! $filters && $kind === SearchLog::KIND_SEARCH) || $page > 1 || ! SearchLog::isCountable($request)) {
             return null;
         }
 
@@ -634,6 +325,8 @@ class SearchController extends Controller
                 'is_member' => $request->user() !== null,
                 // Kept with the account unless the user turned it off in «حساب من»
                 'user_id' => $request->user()?->search_history ? $request->user()->id : null,
+                'kind' => $kind,
+                'format' => $format,
             ])->id;
         } catch (\Throwable $e) {
             // The stats must never break the search
@@ -654,6 +347,9 @@ class SearchController extends Controller
         ini_set('memory_limit', '192M');
         $data = $this->search($request->merge(['page' => 1]), $limit);
         $type = $data['type'];
+        // Exports count in the search stats too (backlog item 85)
+        $this->logSearch($request, TextNormalizer::normalize($data['query']), $type, $data['scope'], $data['filters'],
+            $data['results']->total(), 1, kind: SearchLog::KIND_EXPORT, format: $request->input('format') === 'csv' ? 'csv' : 'xlsx');
         $name = trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', 'فهارس-' . ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$type] . '-' . $data['query']), '-');
 
         return SearchExport::download($data['results'] ?? [], $type, $request->input('format') === 'csv' ? 'csv' : 'xlsx', $name);
@@ -676,10 +372,40 @@ class SearchController extends Controller
     }
 
     /**
+     * Searching one field only, beside the three general scopes (backlog item 83, phase 5): «only the scribe»,
+     * «only the incipit and explicit»… key => [label, attributes]
+     */
+    public const FIELD_SCOPES = [
+        'works' => [
+            'author' => ['پدیدآور', ['author_name', 'author_aliases']],
+            'texts' => ['آغاز و انجام', ['incipit_text', 'explicit_text', 'manuscript_texts']],
+            'description' => ['معرفی اثر', ['description']],
+        ],
+        'manuscripts' => [
+            'author' => ['پدیدآور', ['author_name']],
+            'scribe' => ['کاتب', ['scribe_name']],
+            'commissioned' => ['سفارش‌دهنده', ['commissioned_by']],
+            'texts' => ['آغاز و انجام', ['incipit_text', 'explicit_text']],
+            'shelfmark' => ['شماره‌ی نسخه', ['shelfmark', 'shelfmark_key']],
+            'place' => ['محل کتابت', ['copy_place']],
+        ],
+        'people' => [],
+    ];
+
+    public static function scopeAvailable(string $type, string $scope): bool
+    {
+        return in_array($scope, ['titles', 'titles_names', 'all'], true) || isset(self::FIELD_SCOPES[$type][$scope]);
+    }
+
+    /**
      * Attributes each search tab searches on for a scope; null means every searchable attribute ("all").
      */
     public static function scopeAttributes(string $type, string $scope): ?array
     {
+        if (isset(self::FIELD_SCOPES[$type][$scope])) {
+            return self::FIELD_SCOPES[$type][$scope][1];
+        }
+
         return [
             'works' => [
                 'titles' => ['primary_title', 'clean_title', 'alternative_titles'],
@@ -729,7 +455,8 @@ class SearchController extends Controller
         try {
             $meili = app(MeiliClient::class);
             foreach ($indexes as $tab => $index) {
-                if ($tab === $type) {
+                // A field of this tab alone («only the scribe») is not searched in the others
+                if ($tab === $type || ! self::scopeAvailable($tab, $scope)) {
                     continue;
                 }
                 $options = ['matchingStrategy' => 'all', 'limit' => 0];

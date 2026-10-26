@@ -44,4 +44,9 @@ return [
     ['q' => 'مجلس ۱۱۸۹', 'type' => 'manuscripts', 'top' => 1, 'expect' => ['library' => 'مجلس', 'shelfmark' => '^1189']],
     ['q' => '۱۱۸۹', 'type' => 'manuscripts', 'top' => 1, 'expect' => ['shelfmark' => '^1189']],
     ['q' => 'کافی', 'type' => 'manuscripts', 'top' => 5, 'expect' => ['title' => 'الکافی']],
+
+    // One field only (phase 5): «مجلسی» as the scribe is not the author Majlisi, and the other way round
+    ['q' => 'مجلسی', 'type' => 'manuscripts', 'scope' => 'scribe', 'top' => 1, 'expect' => ['scribe' => 'مجلسی']],
+    ['q' => 'مجلسی', 'type' => 'manuscripts', 'scope' => 'author', 'top' => 1, 'expect' => ['author' => 'مجلسی']],
+    ['q' => 'ابن سینا', 'type' => 'works', 'scope' => 'author', 'top' => 1, 'expect' => ['author' => 'ابن سینا'], 'min_manuscripts' => 200],
 ];

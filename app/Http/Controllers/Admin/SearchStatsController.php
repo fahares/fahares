@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SearchLog;
+use App\Support\SearchExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,13 +18,22 @@ class SearchStatsController extends Controller
     public const FILTER_LABELS = [
         'subject_id' => 'موضوع',
         'library_id' => 'کتابخانه',
+        'city' => 'شهر کتابخانه',
         'script_id' => 'خط',
         'century' => 'سده',
+        'year_from' => 'سال از',
+        'year_to' => 'سال تا',
         'copy_city' => 'محل کتابت',
         'language_id' => 'زبان',
         'work_form' => 'قالب اثر',
-        'manuscripts_range' => 'فراوانی نسخ',
+        'source_id' => 'یادشده در منبع',
+        'has_autograph' => 'دارای دستخط مؤلف',
+        'facsimile' => 'اصل یا عکسی',
+        'folios_from' => 'برگ از',
+        'folios_to' => 'برگ تا',
         'flags' => 'ویژگی‌های نسخه',
+        'role' => 'نقش شخص',
+        'manuscripts_range' => 'فراوانی نسخ (پیشین)',
     ];
 
     public function index(Request $request)
@@ -33,7 +43,8 @@ class SearchStatsController extends Controller
             $days = 30;
         }
         $since = now()->subDays($days)->startOfDay();
-        $base = fn () => SearchLog::where('created_at', '>=', $since);
+        $base = fn () => SearchLog::where('kind', SearchLog::KIND_SEARCH)->where('created_at', '>=', $since);
+        $exportsBase = fn () => SearchLog::where('kind', SearchLog::KIND_EXPORT)->where('created_at', '>=', $since);
 
         $totals = $base()->selectRaw('COUNT(*) AS searches')
             ->selectRaw("COUNT(DISTINCT NULLIF(query, '')) AS queries")
@@ -77,7 +88,20 @@ class SearchStatsController extends Controller
             ->selectRaw("CASE WHEN clicked_position <= 3 THEN clicked_position WHEN clicked_position <= 10 THEN 4 ELSE 11 END AS bucket, COUNT(*) AS n")
             ->groupBy('bucket')->pluck('n', 'bucket');
 
+        // Exports (backlog item 85): how many, in which format and tab, of which searches, and how often the file
+        // was cut at its row limit, which tells whether a larger, queued export is needed
+        $exports = [
+            'total' => $exportsBase()->count(),
+            'formats' => $exportsBase()->selectRaw('format, COUNT(*) AS n')->groupBy('format')->pluck('n', 'format'),
+            'tabs' => $exportsBase()->selectRaw('type, COUNT(*) AS n')->groupBy('type')->pluck('n', 'type'),
+            'capped' => $exportsBase()->where(fn ($q) => $q->where(fn ($q) => $q->where('is_member', true)->where('results_count', '>', SearchExport::MEMBER_LIMIT))
+                ->orWhere(fn ($q) => $q->where('is_member', false)->where('results_count', '>', SearchExport::GUEST_LIMIT)))->count(),
+            'top' => $exportsBase()->select('query')->selectRaw("COUNT(*) AS n, MAX(results_count) AS results, MAX(type) AS type, MAX(created_at) AS last_at")
+                ->groupBy('query')->orderByDesc('n')->limit(15)->get(),
+        ];
+
         return view('admin.search_stats.index', [
+            'exports' => $exports,
             'days' => $days,
             'totals' => $totals,
             'daily' => $calendar,
