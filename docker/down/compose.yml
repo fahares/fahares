@@ -1,0 +1,37 @@
+# A page for when the app is unreachable, in place of Traefik's bare "no available server".
+# Runs on the production host beside Coolify, not inside the app (which is what is down):
+#   docker compose -f docker/down/compose.yml -p fahares-down up -d
+# Two cases, both on Coolify's proxy (Traefik):
+#   - the app's routers exist but no container is healthy (503 "no available server"), or the
+#     app answers 502/504: the fahares-down-errors middleware, which must be added to the app's
+#     https routers in Coolify's container labels (middlewares=gzip-sse,fahares-down-errors@docker);
+#   - the app's routers are gone (no container at all): the fallback routers below, with the
+#     lowest priority, so they never win while the app's routers exist.
+services:
+  fahares-down:
+    image: nginx:1.27-alpine
+    container_name: fahares-down
+    restart: unless-stopped
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - coolify
+    mem_limit: 32m
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: coolify
+      traefik.http.services.fahares-down.loadbalancer.server.port: "80"
+      traefik.http.middlewares.fahares-down-errors.errors.status: "502-504"
+      traefik.http.middlewares.fahares-down-errors.errors.service: fahares-down
+      traefik.http.middlewares.fahares-down-errors.errors.query: /
+      traefik.http.routers.fahares-down.rule: Host(`fahares.net`) || Host(`www.fahares.net`)
+      traefik.http.routers.fahares-down.priority: "1"
+      traefik.http.routers.fahares-down.entrypoints: https
+      traefik.http.routers.fahares-down.tls: "true"
+      traefik.http.routers.fahares-down.tls.certresolver: letsencrypt
+      traefik.http.routers.fahares-down.service: fahares-down
+
+networks:
+  coolify:
+    external: true
