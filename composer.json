@@ -13,6 +13,7 @@
         "laravel/socialite": "^5.31",
         "laravel/tinker": "^3.0",
         "meilisearch/meilisearch-php": "^1.17",
+        "openspout/openspout": "^4.28",
         "resend/resend-php": "^1.16"
     },
     "require-dev": {

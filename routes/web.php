@@ -50,6 +50,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/api/search', [SearchController::class, 'api'])->name('search.api');
 // The result opened from a search page, for the admin's search stats (backlog item 83)
+// The results as a file (backlog item 83); limited, as a bulk download is the costliest request of the site
+Route::get('/search/export', [SearchController::class, 'export'])->middleware('throttle:10,1')->name('search.export');
 Route::post('/search/click', [SearchController::class, 'click'])->middleware('throttle:60,1')->name('search.click');
 
 // Statistical insights: figures built nightly by fahares:build-insights

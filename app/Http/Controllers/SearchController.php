@@ -13,6 +13,7 @@ use App\Models\Subject;
 use App\Models\Work;
 use App\Support\CopyPlaces;
 use App\Support\DirectAnswer;
+use App\Support\SearchExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Meilisearch\Client as MeiliClient;
@@ -20,6 +21,17 @@ use Meilisearch\Client as MeiliClient;
 class SearchController extends Controller
 {
     public function index(Request $request)
+    {
+        $data = $this->search($request);
+
+        return is_array($data) ? view('search', $data) : $data;
+    }
+
+    /**
+     * The results of the search page and everything the page shows beside them, or a redirect to the one
+     * manuscript a search names. An export (backlog item 83, phase 4) asks for one large page of the same results.
+     */
+    protected function search(Request $request, ?int $exportLimit = null): array|\Illuminate\Http\RedirectResponse
     {
         $rawQuery = trim($request->input('q', ''));
         $searchQuery = TextNormalizer::normalize($rawQuery);
@@ -67,17 +79,19 @@ class SearchController extends Controller
             'very_frequent' => 'بسیار پرنسخه (۲۰ نسخه به بالا)',
         ];
 
-        $perPage = in_array((int) $request->input('per_page'), self::PER_PAGE, true) ? (int) $request->input('per_page') : 20;
+        $perPage = $exportLimit ?? (in_array((int) $request->input('per_page'), self::PER_PAGE, true) ? (int) $request->input('per_page') : 20);
         // The chosen order of the tab; none means by relevance, or the tab's own order when browsing (backlog item 83, phase 3)
         $sort = self::SORTS[$type][$request->input('sort')] ?? null;
         $sortKey = $sort ? $request->input('sort') : '';
-        $engineSort = fn (array $options) => $sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options;
+        // An export needs only the ids from the engine; the records come from the database
+        $engineSort = fn (array $options) => ($sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options)
+            + ($exportLimit ? ['attributesToRetrieve' => ['id']] : []);
         $dbSort = fn ($builder) => $builder->orderByRaw("{$sort[1]} IS NULL")->orderBy($sort[1], $sort[2]);
 
         // A search that names a shelfmark or a catalogue page is answered directly (backlog item 83, phase 2);
         // one manuscript is opened at once
         $direct = null;
-        if ($rawQuery !== '' && (int) $request->input('page', 1) === 1 && ! array_filter($request->only(self::LOGGED_FILTERS))) {
+        if (! $exportLimit && $rawQuery !== '' && (int) $request->input('page', 1) === 1 && ! array_filter($request->only(self::LOGGED_FILTERS))) {
             $direct = DirectAnswer::for($rawQuery);
             if ($single = $direct?->single()) {
                 $this->logSearch($request, $searchQuery, $type, $scope, 1, 1, clickedPosition: 1);
@@ -471,7 +485,8 @@ class SearchController extends Controller
             }
 
             // Calculate manuscript century ranges and autograph status for all works on current page
-            $workIds = $results->pluck('id')->filter()->all();
+            // The copying centuries and autograph badge are for the page, not for an export
+            $workIds = $exportLimit ? [] : $results->pluck('id')->filter()->all();
             if (!empty($workIds)) {
                 $allYearsByWork = Manuscript::whereIn('work_id', $workIds)
                     ->whereNotNull('copy_date_hijri_year')
@@ -526,9 +541,9 @@ class SearchController extends Controller
             $suggestion = $this->getDidYouMeanSuggestion($searchQuery, $type);
         }
 
-        $searchLogId = $results ? $this->logSearch($request, $searchQuery, $type, $scope, $results->total(), $results->currentPage()) : null;
+        $searchLogId = $results && ! $exportLimit ? $this->logSearch($request, $searchQuery, $type, $scope, $results->total(), $results->currentPage()) : null;
 
-        return view('search', compact(
+        return compact(
             'sortKey',
             'perPage',
             'direct',
@@ -563,7 +578,7 @@ class SearchController extends Controller
             'validManuscriptRanges',
             'suggestion',
             'tabCounts'
-        ));
+        );
     }
 
     /** Each tab's orders: key => [label, field, direction]; the fields are sortable in the index and columns in the table */
@@ -626,6 +641,22 @@ class SearchController extends Controller
 
             return null;
         }
+    }
+
+    /**
+     * The results of a search as an Excel or CSV file, with its filters and order (backlog item 83, phase 4):
+     * the first GUEST_LIMIT rows for a guest, MEMBER_LIMIT for a signed-in user.
+     */
+    public function export(Request $request)
+    {
+        $limit = $request->user() ? SearchExport::MEMBER_LIMIT : SearchExport::GUEST_LIMIT;
+        // Room for the largest file above php-fpm's 128 MB; the route is throttled
+        ini_set('memory_limit', '192M');
+        $data = $this->search($request->merge(['page' => 1]), $limit);
+        $type = $data['type'];
+        $name = trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', 'فهارس-' . ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$type] . '-' . $data['query']), '-');
+
+        return SearchExport::download($data['results'] ?? [], $type, $request->input('format') === 'csv' ? 'csv' : 'xlsx', $name);
     }
 
     /** The rank of the result opened from a logged search; only the first one opened counts */

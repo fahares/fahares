@@ -8,3 +8,5 @@ User-agent: *
 Disallow: /*?*sort=
 Disallow: /*?*direction=
 Disallow: /*?*page=
+# Search results as Excel or CSV files
+Disallow: /search/export

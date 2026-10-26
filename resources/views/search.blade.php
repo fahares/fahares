@@ -669,6 +669,22 @@
                         <span x-show="!copied">پیوند این جستجو</span>
                         <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                     </x-ui.btn>
+                    {{-- The results as a file, with the same filters and order (backlog item 83, phase 4) --}}
+                    @php
+                        $exportLimit = auth()->check() ? \App\Support\SearchExport::MEMBER_LIMIT : \App\Support\SearchExport::GUEST_LIMIT;
+                        $exportUrl = fn ($format) => route('search.export', array_merge(request()->except(['page', 'per_page']), ['format' => $format]));
+                    @endphp
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                        <x-ui.btn size="sm" @click="open = !open" ::aria-expanded="open">خروجی</x-ui.btn>
+                        <div x-show="open" x-cloak class="absolute end-0 z-20 mt-1 w-60 bg-surface border border-line shadow-lg p-2 text-xs space-y-1">
+                            <a href="{{ $exportUrl('xlsx') }}" rel="nofollow" class="block px-2 py-1.5 hover:bg-paper hover:text-cinnabar">اکسل (xlsx)</a>
+                            <a href="{{ $exportUrl('csv') }}" rel="nofollow" class="block px-2 py-1.5 hover:bg-paper hover:text-cinnabar">CSV</a>
+                            <p class="px-2 pt-1 border-t border-line text-muted leading-5">
+                                {{ Fa::num(min($exportLimit, $results->total())) }} نتیجه‌ی نخست، با همین فیلترها و ترتیب.
+                                @guest <a href="{{ route('login') }}" class="text-cinnabar hover:underline">با ورود</a> تا {{ Fa::num(\App\Support\SearchExport::MEMBER_LIMIT) }} نتیجه. @endguest
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div @if($searchLogId) data-search-log="{{ $searchLogId }}" data-click-url="{{ route('search.click') }}" @endif>

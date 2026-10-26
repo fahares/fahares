@@ -4206,3 +4206,10 @@
 - `SearchController::SORTS` برای هر تب `key => [برچسب، فیلد، جهت]` است. فیلدها هم در `sortableAttributes` نمایه هستند و هم ستون جدول. پارامتر `sort` در جستجوی متنی به `options['sort']` موتور (قاعده‌ی `sort` در رتبه‌بندی پیش از قاعده‌های سفارشی است) و در مرور بی‌عبارت به `orderByRaw('field IS NULL')->orderBy(field, dir)` می‌رود. ‏`per_page` از `PER_PAGE` = ۲۰، ۵۰، ۱۰۰. مقدار ناشناخته نادیده گرفته می‌شود.
 - عنوان کنار گذاشته شد: `primary_title` نمایه گونه‌های جستجو را دارد («کافی الکافی») و ترتیب الفبایی‌اش نادرست می‌شد.
 - فرم ترتیب همه‌ی پارامترهای دیگر جستجو را به‌صورت hidden نگه می‌دارد. آزمون: [SearchSortTest](../tests/Feature/SearchSortTest.php).
+
+### گام ۱۳.۴۱: خروجی اکسل و CSV
+- **وابستگی تازه:** `openspout/openspout` ^4.28 (نوشتن جریانی XLSX و CSV).
+- **مسیر:** `GET /search/export` (`search.export`، `throttle:10,1`، `Disallow` در [robots.txt](../public/robots.txt)) با همه‌ی پارامترهای صفحه‌ی جستجو و `format=xlsx|csv`. ‏`SearchController::index` به `search(Request, ?int $exportLimit)` و نمایش جدا شد. خروجی همان `search()` را با یک صفحه به اندازه‌ی سقف می‌خواند. در حالت خروجی پاسخ مستقیم و ثبت جستجو اجرا نمی‌شود، از موتور فقط `id` گرفته می‌شود (`attributesToRetrieve`) و سده‌های کتابت و نشان دستخط مؤلف آثار حساب نمی‌شود.
+- **[SearchExport](../app/Support/SearchExport.php):** ستون‌های هر تب (`columns()`)، سرستون پررنگ، `SheetView::setRightToLeft`، CSV با BOM، نشانی کوتاه `/w/`، `/m/` و `/p/`. سقف: `GUEST_LIMIT` ۵۰۰ و `MEMBER_LIMIT` ۲۰۰۰؛ `memory_limit` فقط برای این مسیر ۱۹۲M.
+- **سنجش محلی:** ۵۰۰۰ نسخه پیش از گرفتن فقط شناسه از موتور ۶٫۵ ثانیه و ۴۰۸ مگابایت، پس از آن ۳٫۳ ثانیه و ۱۴۴ مگابایت. با سقف ۲۰۰۰: مرور آثار ۰٫۵ ثانیه و ۹۰ مگابایت، جستجوی «شرح» در آثار و نسخه‌ها حدود ۲٫۵ ثانیه، مرور اشخاص ۸٫۸ ثانیه.
+- **آزمون:** [SearchExportTest](../tests/Feature/SearchExportTest.php).
