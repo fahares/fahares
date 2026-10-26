@@ -67,7 +67,12 @@ class SearchController extends Controller
             'very_frequent' => 'بسیار پرنسخه (۲۰ نسخه به بالا)',
         ];
 
-        $perPage = 20;
+        $perPage = in_array((int) $request->input('per_page'), self::PER_PAGE, true) ? (int) $request->input('per_page') : 20;
+        // The chosen order of the tab; none means by relevance, or the tab's own order when browsing (backlog item 83, phase 3)
+        $sort = self::SORTS[$type][$request->input('sort')] ?? null;
+        $sortKey = $sort ? $request->input('sort') : '';
+        $engineSort = fn (array $options) => $sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options;
+        $dbSort = fn ($builder) => $builder->orderByRaw("{$sort[1]} IS NULL")->orderBy($sort[1], $sort[2]);
 
         // A search that names a shelfmark or a catalogue page is answered directly (backlog item 83, phase 2);
         // one manuscript is opened at once
@@ -221,7 +226,8 @@ class SearchController extends Controller
 
                 $filterString = !empty($meiliFilters) ? implode(' AND ', $meiliFilters) : null;
 
-                $builder = Manuscript::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $searchAttrs) {
+                $builder = Manuscript::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $searchAttrs, $engineSort) {
+                    $options = $engineSort($options);
                     $options['matchingStrategy'] = 'all';
                     if ($searchAttrs) {
                         $options['attributesToSearchOn'] = $searchAttrs;
@@ -252,13 +258,14 @@ class SearchController extends Controller
                 foreach ($flags as $f) {
                     $builder->where($f, true);
                 }
-                $results = $builder->orderBy('id')->paginate($perPage)->withQueryString();
+                $results = ($sort ? $dbSort($builder) : $builder->orderBy('id'))->paginate($perPage)->withQueryString();
             }
         } elseif ($type === 'people') {
             $peopleSearchAttrs = self::scopeAttributes('people', $scope);
 
             if ($searchQuery !== '') {
-                $results = Person::search($searchQuery, function ($meili, $searchQuery, $options) use ($peopleSearchAttrs) {
+                $results = Person::search($searchQuery, function ($meili, $searchQuery, $options) use ($peopleSearchAttrs, $engineSort) {
+                    $options = $engineSort($options);
                     $options['matchingStrategy'] = 'all';
                     if ($peopleSearchAttrs) {
                         $options['attributesToSearchOn'] = $peopleSearchAttrs;
@@ -269,9 +276,8 @@ class SearchController extends Controller
                 ->paginate($perPage)
                 ->withQueryString();
             } else {
-                $results = Person::query()
-                    ->withCount(['works', 'scribedManuscripts'])
-                    ->orderByDesc('works_count')
+                $builder = Person::query()->withCount(['works', 'scribedManuscripts']);
+                $results = ($sort ? $dbSort($builder) : $builder->orderByDesc('works_count'))
                     ->paginate($perPage)
                     ->withQueryString();
             }
@@ -407,7 +413,8 @@ class SearchController extends Controller
                 $filterString = !empty($workFilters) ? implode(' AND ', $workFilters) : null;
 
                 $workMatchedFields = [];
-                $builder = Work::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $workSearchAttrs, &$workMatchedFields) {
+                $builder = Work::search($searchQuery, function ($meili, $searchQuery, $options) use ($filterString, $workSearchAttrs, &$workMatchedFields, $engineSort) {
+                    $options = $engineSort($options);
                     $options['matchingStrategy'] = 'all';
                     if ($workSearchAttrs) {
                         $options['attributesToSearchOn'] = $workSearchAttrs;
@@ -460,7 +467,7 @@ class SearchController extends Controller
                         $builder->where('manuscripts_count', '>=', 20);
                     }
                 }
-                $results = $builder->orderByDesc('manuscripts_count')->paginate($perPage)->withQueryString();
+                $results = ($sort ? $dbSort($builder) : $builder->orderByDesc('manuscripts_count'))->paginate($perPage)->withQueryString();
             }
 
             // Calculate manuscript century ranges and autograph status for all works on current page
@@ -522,6 +529,8 @@ class SearchController extends Controller
         $searchLogId = $results ? $this->logSearch($request, $searchQuery, $type, $scope, $results->total(), $results->currentPage()) : null;
 
         return view('search', compact(
+            'sortKey',
+            'perPage',
             'direct',
             'searchLogId',
             'results',
@@ -556,6 +565,27 @@ class SearchController extends Controller
             'tabCounts'
         ));
     }
+
+    /** Each tab's orders: key => [label, field, direction]; the fields are sortable in the index and columns in the table */
+    public const SORTS = [
+        'works' => [
+            'manuscripts' => ['بیشترین نسخه', 'manuscripts_count', 'desc'],
+            'oldest' => ['کهن‌ترین تألیف', 'composition_year_hijri', 'asc'],
+            'newest' => ['تازه‌ترین تألیف', 'composition_year_hijri', 'desc'],
+        ],
+        'manuscripts' => [
+            'oldest' => ['کهن‌ترین کتابت', 'copy_date_hijri_year', 'asc'],
+            'newest' => ['تازه‌ترین کتابت', 'copy_date_hijri_year', 'desc'],
+            'folios' => ['بیشترین برگ', 'folios', 'desc'],
+        ],
+        'people' => [
+            'oldest' => ['کهن‌ترین وفات', 'death_year_hijri', 'asc'],
+            'newest' => ['تازه‌ترین وفات', 'death_year_hijri', 'desc'],
+            'works' => ['بیشترین اثر', 'works_count', 'desc'],
+        ],
+    ];
+
+    public const PER_PAGE = [20, 50, 100];
 
     /** The filters of the search page, recorded with each search */
     private const LOGGED_FILTERS = ['subject_id', 'library_id', 'script_id', 'century', 'copy_city', 'language_id', 'work_form', 'manuscripts_range', 'flags', 'flag'];

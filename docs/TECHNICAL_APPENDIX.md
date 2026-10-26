@@ -4201,3 +4201,8 @@
 - **[SearchController](../app/Http/Controllers/SearchController.php):** فقط در صفحه‌ی اول و بی فیلتر. `single()` (حالت `shelfmark` با یک نسخه) با `302` به صفحه‌ی نسخه می‌برد و جستجو را با `results_count = 1` و `clicked_position = 1` ثبت می‌کند. کارت [search/direct-answer.blade.php](../resources/views/search/direct-answer.blade.php) بالای شبکه‌ی فیلتر و نتایج است. اگر کارت پاسخی داشته باشد، پیام «نتیجه‌ای پیدا نشد» پنهان می‌شود. ‏`/api/search` تا ۵ نسخه‌ی پاسخ مستقیم را پیش از نتایج موتور می‌گذارد.
 - **آزمون:** [DirectAnswerTest](../tests/Feature/DirectAnswerTest.php) با `scout.driver = null`، چون موتور `collection` محیط آزمون کالبک‌های Meilisearch صفحه‌ی جستجو را اجرا نمی‌کند. به همین دلیل هیچ آزمون پیشینی جستجوی متنی صفحه را نمی‌آزمود.
 - **داده (پروداکشن):** `Library` ‏۳۶۲ («مجلس شورا») پیش‌تر در ۴ ادغام شده بود. ‏۳۵۹ («کتابخانه مجلس»، قم، ۱ نسخه) کتابخانه‌ی دیگری است. ۴۶ کتابخانه از ۴۱۰ `aliases` دارند. تطبیق نام کتابخانه‌های بزرگ بدون افزودن `aliases` تازه کار کرد.
+
+### گام ۱۳.۴۰: مرتب‌سازی نتایج جستجو
+- `SearchController::SORTS` برای هر تب `key => [برچسب، فیلد، جهت]` است. فیلدها هم در `sortableAttributes` نمایه هستند و هم ستون جدول. پارامتر `sort` در جستجوی متنی به `options['sort']` موتور (قاعده‌ی `sort` در رتبه‌بندی پیش از قاعده‌های سفارشی است) و در مرور بی‌عبارت به `orderByRaw('field IS NULL')->orderBy(field, dir)` می‌رود. ‏`per_page` از `PER_PAGE` = ۲۰، ۵۰، ۱۰۰. مقدار ناشناخته نادیده گرفته می‌شود.
+- عنوان کنار گذاشته شد: `primary_title` نمایه گونه‌های جستجو را دارد («کافی الکافی») و ترتیب الفبایی‌اش نادرست می‌شد.
+- فرم ترتیب همه‌ی پارامترهای دیگر جستجو را به‌صورت hidden نگه می‌دارد. آزمون: [SearchSortTest](../tests/Feature/SearchSortTest.php).
