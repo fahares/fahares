@@ -4179,3 +4179,9 @@
 - **نتیجه‌ی محک:** ۲۵ از ۲۵ (۲۲ مورد نخست و سه مورد نگهبان برای عنوان کامل اثر کم‌نسخه). ۳۴۳ آزمون موفق.
 - **استقرار:** پس از استقرار، `php artisan scout:sync-index-settings` و سپس `scout:import` برای `Work`، `Person` و `Manuscript` در پروداکشن لازم است (آثار و اشخاص هر کدام حدود یک دقیقه، نسخه‌ها طولانی‌تر). ‏Meilisearch پس از پایان import هم چند دقیقه کارهای صف‌شده را پردازش می‌کند.
 - **اپ dawawin روی همان میزبان (۴ آبان):** py-spy (از container موقت `python:3.12-slim` با `--pid=container:…`، که سپس پاک شد) نشان داد چند thread در `search_couplets` روی `count(*)` جستجوی FTS با ده‌ها شرط `LIKE`، بی سقف زمانی، تا ۱۰ ساعت در حال اجرا بودند. با اجازه‌ی کاربر `docker update --cpus 1` و `docker restart` شد. load میزبان از حدود ۱۲ به حدود ۵ رسید. این سقف با redeploy ‏dawawin در Coolify پاک می‌شود. اصلاح ریشه‌ای (`set_progress_handler` برای قطع پرس‌وجوهای طولانی) در مخزن dawawin مانده است.
+
+### گام ۱۳.۳۷: ستون مرورگر برای همه‌ی نوع‌ها و اعلان آزمایشی
+- **ستون مرورگر:** هر نوع قفل‌نشده‌ای که کانال فوری دارد، در [config/notifications.php](../config/notifications.php) کانال `'webpush' => false` گرفت. `push_on_subscribe` تعیین می‌کند که `enableWebPushDefaults` هنگام اشتراک کدام نوع‌ها را روشن کند (فقط `suggestion.submitted` و `suggestion.reviewed`).
+- **متن اعلان:** `SiteNotification::toWebPush` فقط برچسب نوع، «برای دیدن جزئیات بزنید» و پیوند را می‌فرستد.
+- **اعلان آزمایشی:** `POST /push-subscriptions/test` ‏(`push.test`، حداکثر ۵ بار در دقیقه) با [PushTest](../app/Notifications/PushTest.php) و `notifyNow`، فقط از کانال `WebPushChannel`.
+- **متغیرهای Coolify:** با `php artisan tinker` در کانتینر `coolify` روی مدل `EnvironmentVariable` (`is_runtime`، `is_literal`) نوشته شدند، تا مقدارها رمزگذاری شوند و در خروجی نیایند.
