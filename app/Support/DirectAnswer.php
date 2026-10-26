@@ -168,11 +168,10 @@ class DirectAnswer
         return Manuscript::query()->where(function ($q) use ($forms) {
             foreach ($forms as $form) {
                 $like = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $form);
-                // The shelfmark itself, a part of its bound volume, or the number with a collection's mark
-                $q->orWhere('shelfmark_key', $form)
-                    ->orWhere('shelfmark_key', 'like', "{$like}/%")
-                    ->orWhere('shelfmark_key', 'like', "{$like} %")
-                    ->orWhere('shelfmark_key', 'like', "{$like}-%");
+                // The shelfmark itself, a part of its bound volume («1189/4»), or the number with a collection's
+                // mark («1189 ط»، «1189ع»، «3429ـ ف»): anything but another digit after it. The prefix uses the index.
+                $q->orWhere(fn ($q) => $q->where('shelfmark_key', 'like', "{$like}%")
+                    ->whereRaw('shelfmark_key REGEXP ?', ['^' . preg_quote($form) . '([^0-9۰-۹]|$)']));
             }
         });
     }

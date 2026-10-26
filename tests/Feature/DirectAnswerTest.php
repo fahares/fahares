@@ -41,11 +41,12 @@ class DirectAnswerTest extends TestCase
         $this->manuscript($this->majlis, '1189/2');
         $this->manuscript($this->majlis, '1189 ط');
         $this->manuscript($this->majlis, '1189/1');
+        $this->manuscript($this->majlis, '1189ع');
         $this->manuscript($this->majlis, '11890');
         $this->manuscript($this->qom, '1189');
 
         $this->get(route('search', ['q' => 'کتابخانه‌ی مجلس، شماره‌ی ۱۱۸۹']))->assertOk()
-            ->assertSeeInOrder(['شماره‌ی', 'کتابخانه مجلس (تهران)', '1189/1', '1189/2', '1189 ط', 'کتابخانه‌ی دیگری با همین نام', 'کتابخانه مجلس (قم)'])
+            ->assertSeeInOrder(['شماره‌ی', 'کتابخانه مجلس (تهران)', '1189/1', '1189/2', '1189 ط', '1189ع', 'کتابخانه‌ی دیگری با همین نام', 'کتابخانه مجلس (قم)'])
             ->assertDontSee('11890');
 
         // The city picks the other library of the same name
