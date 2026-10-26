@@ -4106,6 +4106,16 @@
     - بی‌تطبیق ۲٬۱۲۸، و بی‌مدخل در صفحه ۹۸ (صفحه‌ی نمایه یا نشانی نادرست).
 - **اجرای محلی:** worktree `vendor` ندارد. رونوشتی با hard link از `vendor` نسخه‌ی اصلی ساخته شد. `vendor/composer` و `vendor/autoload.php` جدا کپی شدند و `composer dump-autoload` اجرا شد. این‌طور فایل‌های نسخه‌ی اصلی دست نخوردند و کد شاخه بارگذاری شد. کل مجموعه ۳۱۸ آزمون موفق.
 - **استقرار:** push `15a65c0` به `main`. پس از استقرار Coolify، `2026_10_25_100001_create_source_items_tables` خودکار اجرا شد (دسته‌ی ۳۹). در پروداکشن `source_items` صفر ردیف دارد و ستون `source_entries.source_item_id` ساخته شده است. `/up` پاسخ ۲۰۰ می‌دهد.
+- **داده‌ی پروداکشن (۴ آبان، به اجازه‌ی کاربر):**
+  - فایل‌های `../fahares-sources/dharia/noor/*.jsonl.gz` با tar از راه `ssh fahares-app` به `/tmp/noor` رفتند و با `MD5SUMS` وارسی شدند.
+  - پس از آن، `sources:import-pages`، `sources:segment --origin=noor` و `sources:link-items` برای هر ۲۶ جلد با `nohup` در کانتینر اجرا شدند.
+  - **قطع کار:** push کامیت مستندات (`ab5043b`) استقرار تازه‌ای راه انداخت و کانتینر را وسط ورود ج ۹ عوض کرد. ج ۱ تا ۸ سالم ثبت شده بودند. فایل‌ها دوباره بارگذاری شدند و کار از ج ۹ ادامه یافت.
+  - **درس:** پیش از کار داده‌ای بلند روی پروداکشن، هیچ push‌ای نباید در راه باشد. هر جلدِ `segment` و `link-items` یک تراکنش است، پس قطع شدن فقط همان جلد را برمی‌گرداند.
+  - **نتیجه:**
+    - مدخل‌ها: ۵۳٬۵۱۰ مدخل، ۹٬۲۰۱ زیرمدخل و ۲۶ پیش‌گفتار.
+    - پیوندها: ۶٬۱۵۰ مدخل و ۵۶۹ یادکرد. `source_entries` از ۷۷۰٬۵۵۶ ردیف به ۷۷۷٬۲۷۵ رسید.
+    - اختلاف با تمرین محلی: یک مدخل، ۵ زیرمدخل و یک پیوند کمتر. این اختلاف از برگ‌هایی است که در تمرین متن ablibrary داشتند (مثلاً ج ۱۴ ص ۱)، ولی پروداکشن هرگز متن ablibrary نداشته است.
+  - **وارسی:** [اثر ۱۴۹۶۱](https://fahares.net/works/14961) کارت «الذریعة، ج ۱۱، ص ۱۴۶، ش ۹۱۳» را نشان می‌دهد و [`/sources/dharia/25/852`](https://fahares.net/sources/dharia/25/852) متن مدخل را دارد. `cache:clear` هم اجرا شد.
 
 ### گام ۱۳.۳۲: اعلان `user.registered` و کانال Web Push (مورد ۲۵)
 - **ثبت‌نام:** شنونده‌ی [NotifyNewUserRegistered](../app/Listeners/NotifyNewUserRegistered.php) به رویداد `Registered` لاراول گوش می‌دهد (کشف خودکار شنونده‌ها در `app/Listeners`). فرم ثبت‌نام این رویداد را از پیش می‌فرستاد. [GoogleController](../app/Http/Controllers/Auth/GoogleController.php) هم آن را در نخستین ورود، پس از `markEmailAsVerified` می‌فرستد تا ایمیل تأیید فرستاده نشود. پس هر مسیر ثبت‌نام آینده هم کافی است همین رویداد را بفرستد.
@@ -4135,3 +4145,37 @@
 - **تلگرام شخصی:** [TelegramLinkController](../app/Http/Controllers/TelegramLinkController.php). توکن ۳۰ دقیقه‌ای در cache است. وب‌هوک `POST /telegram/webhook` (بیرون از CSRF) سرآیند `X-Telegram-Bot-Api-Secret-Token` را می‌سنجد و فقط گفت‌وگوی خصوصی را وصل می‌کند. `/stop` اتصال را برمی‌دارد. ستون `users.telegram_chat_id` در `User::routeNotificationForTelegram` است. وب‌هوک با `php artisan notifications:telegram-webhook` تنظیم می‌شود.
 - **مهاجرت:** `2026_10_25_200002_add_notification_channels_to_users` (فقط ساختار: ستون `telegram_chat_id` و جدول `known_devices`).
 - **آزمون:** [EventNoticesTest](../tests/Feature/Notifications/EventNoticesTest.php).
+
+### گام ۱۳.۳۴: مهار crawlerها
+- **علت (۳ آبان ۱۴۰۵، ۱۷:۰۰ UTC):** در ۲۰ دقیقه حدود ۳۶۰۰ درخواست crawler (حدود ۲۲۰۰ از `meta-externalagent`، ۶۰۰ از Amazonbot، ۵۵۰ از Applebot، و DataForSeoBot و Reflectionbot) روی `/works/{id}?sort=…&direction=…&page=…`. سرور دو هسته دارد، load حدود ۲۶ بود و swap پر. php-fpm فقط ۶ worker دارد و هر درخواست حدود ۱۷ ثانیه در صف می‌ماند. `/up` هم timeout می‌شد و Traefik container را ناسالم می‌دید. container دیگر میزبان (`dawawin`) هم حدود ۶۷٪ CPU می‌گرفت.
+- **[robots.txt](../public/robots.txt):** `Disallow: /` برای `meta-externalagent`؛ برای بقیه `Disallow` روی `/*?*sort=`، `/*?*direction=` و `/*?*page=`.
+- **[docker/nginx.conf](../docker/nginx.conf):** `map` روی `$http_user_agent`. ‏`$blocked_bot` به `meta-externalagent` پاسخ 403 می‌دهد. ‏`$bot_name` نام crawler است و کلید `limit_req_zone bots` با `rate=20r/m` و `burst=10 nodelay` و پاسخ 429. کلید به ازای هر crawler است، نه هر IP، چون IP واقعی پشت پراکسی است و هر crawler از IPهای بسیار می‌آید. هر دو قاعده فقط در `location = /index.php` اند و robots.txt و فایل‌های ایستا باز می‌مانند. Googlebot و bingbot در فهرست نیستند.
+- **آزمون:** `nginx -t` و اجرای پیکربندی در `nginx:1.27-alpine` بی php-fpm: ‏Meta روی صفحه 403 و روی robots.txt ‏200، ‏`/up` و مرورگر عادی 502 (بدون محدودیت)، و Amazonbot ‏۱۱ درخواست عبور و دوازدهمی 429.
+- **پس از استقرار:** در سه دقیقه‌ی اول ۱۴۶ پاسخ 403، ‏۳۵ پاسخ 429 و ۲۴۸ پاسخ 200 یا 301. دو پردازه‌ی python در container ‏`dawawin` (اپ دیگر میزبان، unhealthy) حدود ۱٫۵ هسته می‌گرفتند.
+- **صفحه‌ی «موقتاً در دسترس نیست»:** [docker/down](../docker/down/compose.yml) روی میزبان، در `~/fahares-down` (کاربر `tabib`، گروه docker)، با `docker compose -f compose.yml -p fahares-down up -d` اجرا می‌شود. nginx:1.27-alpine با `mem_limit: 32m` روی شبکه‌ی `coolify` است و هر درخواست را با 503 و `Retry-After: 120` و [index.html](../docker/down/index.html) پاسخ می‌دهد. صفحه هر ۱۰ تا ۶۰ ثانیه `/up` را می‌خواند و با پاسخ 200 صفحه را دوباره بار می‌کند. دو مسیر در Traefik:
+  - middleware ‏`fahares-down-errors@docker` (‏`errors`، ‏status ‏502-504، ‏query `/`). در Container Labels اپ در Coolify به `middlewares` دو router ‏`https-0` و `https-1` افزوده شد (۴ آبان، به دست کاربر): `gzip-sse,fahares-down-errors@docker`. وضعیت 503 ‏`php artisan down` هم با همین صفحه پوشانده می‌شود.
+  - router ‏`fahares-down` با `priority: 1` برای `fahares.net` و `www.fahares.net`، برای وقتی که routerهای اپ نیستند.
+  - آزمون: container موقت با router روی `fdt.162.35.127.157.sslip.io` و پورتی که چیزی رویش نیست. پاسخ 502 بود و بدنه‌ی آن همین صفحه.
+
+### گام ۱۳.۳۵: طرح بازسازی جستجو و آمار جستجو
+- **طرح:** مورد ۸۳ در [BACKLOG](BACKLOG.md)، با فازهای ۰ تا ۸.
+- **ثبت جستجو:** جدول `search_logs` ([migration](../database/migrations/2026_10_26_100001_create_search_logs_table.php)) با `query` (نرمال‌شده)، `type`، `scope`، `filters` (JSON)، `results_count`، `is_member`، `clicked_position` و `created_at`؛ بدون `user_id`، IP و نشست. ‏`SearchController::logSearch` فقط صفحه‌ی اول جستجویی را که عبارت یا فیلتر دارد ثبت می‌کند. ‏[SearchLog::isCountable](../app/Models/SearchLog.php) رباط‌ها (الگوی user agent) و پیش‌بارگذاری مرورگر (`Sec-Purpose`/`Purpose`) را کنار می‌گذارد. پارامتر قدیمی `flag` در `flags` ادغام می‌شود. خطای ثبت جستجو فقط لاگ می‌شود.
+- **رتبه‌ی نتیجه‌ی بازشده:** هر `<li>` نتیجه `data-pos` دارد. اسکریپت [search.blade.php](../resources/views/search.blade.php) با نخستین `click` یا `auxclick` روی پیوندی در نتیجه، با `navigator.sendBeacon` به `POST /search/click` ‏(`throttle:60,1`، بیرون از CSRF در [bootstrap/app.php](../bootstrap/app.php)) می‌فرستد. فقط نخستین کلیک و تا ۶ ساعت پس از جستجو ثبت می‌شود. جستجوی فوری سربرگ (`/api/search`) ثبت نمی‌شود.
+- **صفحه‌ی پنل:** `/admin/search-stats` ([SearchStatsController](../app/Http/Controllers/Admin/SearchStatsController.php))، مجوز تازه‌ی `search.stats` در گروه «سامانه» (پیش‌فرض فقط مدیر کل)، بازه‌ی ۷، ۳۰، ۹۰ یا ۳۶۵ روز. همه‌ی شمارش‌ها با SQL گروهی؛ شمار هر فیلتر با `JSON_EXTRACT`.
+- **نگه‌داری:** `SearchLog` ‏`Prunable` است (۳۶۵ روز) و `model:prune` هر روز ساعت ۵ در [routes/console.php](../routes/console.php) اجرا می‌شود.
+- **محک:** `php artisan fahares:search-benchmark [--failed]` ([SearchBenchmarkCommand](../app/Console/Commands/SearchBenchmarkCommand.php)) موارد [config/search_benchmark.php](../config/search_benchmark.php) را با همان گزینه‌های صفحه‌ی جستجو (`matchingStrategy: all` و `SearchController::scopeAttributes`) روی نمایه‌ی زنده اجرا می‌کند و تا عمق ۲۰ رتبه‌ی نتیجه‌ی مورد انتظار را می‌یابد. مقایسه روی رکورد پایگاه داده است، نه سند نمایه (که گونه‌های جستجو را دارد)، و با شناسه نیست چون شناسه‌ها در محلی و پروداکشن فرق دارند. اگر موردی شکست بخورد، کد خروج ۱ است.
+- **پایه (نمایه‌ی محلی، پیش از گام ۱۳.۳۶):** ۷ از ۲۲.
+- **محیط محلی:** `vendor` کانتینر بسته‌ی web-push گام ۱۳.۳۲ را نداشت و migrationها می‌شکستند. ‏`composer install` درون کانتینر اجرا شد.
+
+### گام ۱۳.۳۶: درستی لایه‌ی پایه‌ی جستجو
+- **ارقام:** گام ۳ [TextNormalizer::normalize](../app/Helpers/TextNormalizer.php) ارقام فارسی و عربی را به لاتین برمی‌گرداند (پیش از این عربی را به فارسی). همه‌ی کاربردهای دیگر `normalize` دو سوی یک مقایسه را نرمال می‌کنند. ‏`normalized_name` اشخاصی که رقم فارسی دارند تا ذخیره‌ی بعدی با رقم فارسی می‌ماند. در [Manuscript::toSearchableArray](../app/Models/Manuscript.php)، ‏`shelfmark` و `copy_date_raw` نرمال نمایه می‌شوند.
+- **حرف تعریف:** `expandVariants` پیش از هر واژه‌ی «ال» با دست‌کم سه حرف پس از آن، صورت بی‌حرف تعریف را می‌گذارد: «الکافی» ← «کافی الکافی». ‏Meilisearch خودش هم «ال» را جدا می‌کند، ولی صورت صریح به نسخه‌ی tokenizer وابسته نیست.
+- **رتبه‌بندی** ([config/scout.php](../config/scout.php)):
+  - آثار: `words, typo, proximity, sort, derivative:asc, manuscripts_count:desc, attribute, exactness`. ‏`derivative` فیلد تازه‌ی نمایه است ([Work::isDerivative](../app/Models/Work.php)): واژه‌ی نخست عنوان در `DERIVATIVE_OPENERS` (شرح، حاشیه، تعلیقه، منتخب، مختصر، ترجمه، فهرست و …) یا برچسب پایانی پرانتزی در `DERIVATIVE_MARKS` («(ترجمه)»، «(منتخب)» و …).
+  - اشخاص: `words, typo, proximity, sort, works_count:desc, manuscripts_count:desc, attribute, exactness`.
+  - `sort` پیش از قاعده‌های سفارشی آمد تا مرتب‌سازی کاربر در فاز ۳ بر آن‌ها مقدم باشد.
+  - آزموده‌ها: «attribute پیش از شمار نسخه» ۱۵ از ۲۲؛ «exactness پیش از شمار» ۱۵؛ «شمار نسخه پیش از attribute» ۱۸ (شکست «تجرید»: چهار شرح پرنسخه‌تر پیش از متن اصلی، رتبه‌ی ۹). قاعده‌ی `attribute` در Meilisearch 1.6 فاصله‌ی واژه‌ها را هم می‌سنجد (`queryWordDistanceScore`) و «حاشیه تهذیب الاحکام» را پیش از خود «تهذیب الاحکام» می‌نشاند. ‏`derivative` این را حل کرد.
+- **دامنه‌ی پیش‌فرض نسخه‌ها:** `titles_names` حالا `work_title, author_name, shelfmark, scribe_name, library, library_full_name` است.
+- **نتیجه‌ی محک:** ۲۵ از ۲۵ (۲۲ مورد نخست و سه مورد نگهبان برای عنوان کامل اثر کم‌نسخه). ۳۴۳ آزمون موفق.
+- **استقرار:** پس از استقرار، `php artisan scout:sync-index-settings` و سپس `scout:import` برای `Work`، `Person` و `Manuscript` در پروداکشن لازم است (آثار و اشخاص هر کدام حدود یک دقیقه، نسخه‌ها طولانی‌تر). ‏Meilisearch پس از پایان import هم چند دقیقه کارهای صف‌شده را پردازش می‌کند.
+- **اپ dawawin روی همان میزبان (۴ آبان):** py-spy (از container موقت `python:3.12-slim` با `--pid=container:…`، که سپس پاک شد) نشان داد چند thread در `search_couplets` روی `count(*)` جستجوی FTS با ده‌ها شرط `LIKE`، بی سقف زمانی، تا ۱۰ ساعت در حال اجرا بودند. با اجازه‌ی کاربر `docker update --cpus 1` و `docker restart` شد. load میزبان از حدود ۱۲ به حدود ۵ رسید. این سقف با redeploy ‏dawawin در Coolify پاک می‌شود. اصلاح ریشه‌ای (`set_progress_handler` برای قطع پرس‌وجوهای طولانی) در مخزن dawawin مانده است.

@@ -157,6 +157,10 @@ return [
                     'volume_number',
                     'primary_title',
                 ],
+                // Among equal text matches, a base text before the works made on it, then the work found in more
+                // manuscripts: «کافی» is al-Kafi of Kulayni, «تجرید» the Tajrid before its commentaries. A chosen
+                // sort comes first. Checked with fahares:search-benchmark (backlog item 83)
+                'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'derivative:asc', 'manuscripts_count:desc', 'attribute', 'exactness'],
                 'searchableAttributes' => [
                     'primary_title',
                     'clean_title',
@@ -288,6 +292,8 @@ return [
                     'works_count',
                     'manuscripts_count',
                 ],
+                // Among equal text matches, the better-known bearer of a name first (backlog item 83)
+                'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'works_count:desc', 'manuscripts_count:desc', 'attribute', 'exactness'],
                 'searchableAttributes' => [
                     'name',
                     'normalized_name',

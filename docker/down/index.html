@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>فهارس | موقتاً در دسترس نیست</title>
+<style>
+    /* The palette of resources/css/app.css; no external fonts or files, since the app is what is down */
+    :root {
+        color-scheme: light dark;
+        --paper: #F4EFE4;
+        --surface: #FBF8F1;
+        --ink: #241F1A;
+        --muted: #6B6257;
+        --line: #DED4C2;
+        --cinnabar: #A23A26;
+        --gold: #A8843F;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --paper: #171411;
+            --surface: #211C18;
+            --ink: #EDE6D8;
+            --muted: #A89E8E;
+            --line: #3A322A;
+            --cinnabar: #E2826A;
+            --gold: #C9A45C;
+        }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Vazirmatn', Tahoma, 'Segoe UI', system-ui, sans-serif;
+        line-height: 1.9;
+    }
+    main {
+        width: 100%;
+        max-width: 520px;
+        padding: 40px 32px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-top: 3px solid var(--gold);
+        border-radius: 12px;
+        text-align: center;
+    }
+    .logo {
+        font-family: 'Noto Naskh Arabic', 'Vazirmatn', serif;
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .tagline { margin: 4px 0 28px; color: var(--muted); font-size: 13px; }
+    h1 { margin: 0 0 12px; font-size: 20px; color: var(--cinnabar); }
+    p { margin: 0 0 12px; font-size: 15px; }
+    .status { margin-top: 24px; color: var(--muted); font-size: 13px; }
+    .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-left: 6px;
+        border-radius: 50%;
+        background: var(--gold);
+        animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+    button {
+        margin-top: 8px;
+        padding: 8px 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    button:hover { border-color: var(--gold); }
+</style>
+</head>
+<body>
+<main>
+    <div class="logo">فهارس</div>
+    <div class="tagline">پایگاه جامع نسخه‌های خطی</div>
+    <h1>سایت چند لحظه در دسترس نیست</h1>
+    <p>سرور فهارس زیر فشار است یا در حال به‌روزرسانی است. معمولاً در یکی دو دقیقه برمی‌گردد.</p>
+    <p>نیازی به کاری نیست: همین صفحه هر چند ثانیه سایت را بررسی می‌کند و به محض بازگشت، خودش آن را باز می‌کند.</p>
+    <div class="status" id="status"><span class="dot"></span>در انتظار بازگشت سایت…</div>
+    <button type="button" onclick="location.reload()">تلاش دوباره</button>
+</main>
+<script>
+    // /up answers 200 only when the app itself is back (this page answers 503)
+    (function () {
+        var delay = 10000;
+        function check() {
+            fetch('/up', { cache: 'no-store' })
+                .then(function (r) { if (r.ok) { location.reload(); } else { later(); } })
+                .catch(later);
+        }
+        function later() {
+            delay = Math.min(delay * 1.5, 60000);
+            setTimeout(check, delay);
+        }
+        setTimeout(check, delay);
+    })();
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
+use App\Http\Controllers\Admin\SearchStatsController as AdminSearchStatsController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
 use App\Http\Controllers\Admin\SuggestionController as AdminSuggestionController;
 use App\Http\Controllers\Admin\SystemController as AdminSystemController;
@@ -48,6 +49,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Search Engine
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/api/search', [SearchController::class, 'api'])->name('search.api');
+// The result opened from a search page, for the admin's search stats (backlog item 83)
+Route::post('/search/click', [SearchController::class, 'click'])->middleware('throttle:60,1')->name('search.click');
 
 // Statistical insights: figures built nightly by fahares:build-insights
 Route::get('/insights', [InsightsController::class, 'index'])->name('insights');
@@ -322,6 +325,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Audit Trail & Activity Logs
     Route::get('/audit-logs', [AdminAuditLogController::class, 'index'])->middleware('can:audit.view')->name('audit-logs.index');
     Route::post('/audit-logs/{log}/rollback', [AdminAuditLogController::class, 'rollback'])->middleware('can:audit.rollback')->name('audit-logs.rollback');
+
+    // What people search for (backlog item 83)
+    Route::get('/search-stats', [AdminSearchStatsController::class, 'index'])->middleware('can:search.stats')->name('search-stats.index');
 
     // System Operations & Cache Management
     Route::middleware('can:system.manage')->group(function () {

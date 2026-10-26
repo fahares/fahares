@@ -100,6 +100,26 @@ class Work extends Model
         return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases', 'manuscripts:id,work_id,incipit_text,explicit_text']);
     }
 
+    /** First words of a title that make the work a commentary, gloss, abridgement or translation of another */
+    public const DERIVATIVE_OPENERS = ['شرح', 'حاشیه', 'حواشی', 'تعلیقه', 'تعلیقات', 'تحشیه', 'منتخب', 'مختصر', 'تلخیص', 'ترجمه', 'فهرست', 'ذیل', 'تکمله', 'نقد', 'رد'];
+
+    /** The same, marked after the title in parentheses: «الرسالة الذهبیة (ترجمه)» */
+    public const DERIVATIVE_MARKS = ['ترجمه', 'منتخب', 'مختصر', 'ترجمه و شرح', 'منظوم', 'گزیده'];
+
+    /**
+     * Whether the work is made on another one, by its title. The search puts the base text before these
+     * when both match equally: «تجرید» is the Tajrid, then its commentaries (backlog item 83).
+     */
+    public function isDerivative(): bool
+    {
+        $title = \App\Helpers\TextNormalizer::normalize($this->primary_title);
+        if (preg_match('/\(([^()]+)\)\s*$/u', $title, $m) && in_array(trim($m[1]), self::DERIVATIVE_MARKS, true)) {
+            return true;
+        }
+
+        return in_array(strtok($title, ' '), self::DERIVATIVE_OPENERS, true);
+    }
+
     /** Caps on the manuscript incipits/explicits folded into one work's search document. */
     public const SEARCH_MANUSCRIPT_TEXTS_MAX = 50;
     public const SEARCH_MANUSCRIPT_TEXTS_MAX_CHARS = 20000;
@@ -190,6 +210,7 @@ class Work extends Model
             'subject_summary' => $this->subject_summary,
             'language_summary' => $this->language_summary,
             'manuscripts_count' => (int) $this->manuscripts_count,
+            'derivative' => (int) $this->isDerivative(),
             'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
             'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
             'description' => $this->description ? \App\Helpers\TextNormalizer::normalize(mb_substr($this->description, 0, 500)) : null,

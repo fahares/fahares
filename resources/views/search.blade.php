@@ -647,10 +647,11 @@
                     </x-ui.btn>
                 </div>
 
+                <div @if($searchLogId) data-search-log="{{ $searchLogId }}" data-click-url="{{ route('search.click') }}" @endif>
                 @if($type === 'works')
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $work)
-                            <li class="py-4 space-y-1.5">
+                            <li class="py-4 space-y-1.5" data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
                                 <div class="flex items-baseline gap-2">
                                     <a href="{{ route('works.show', $work) }}" class="font-naskh text-lg sm:text-xl font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($work->primary_title, $query)</a>
                                     <span class="leader hidden sm:block" aria-hidden="true"></span>
@@ -688,7 +689,7 @@
                 @elseif($type === 'manuscripts')
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $ms)
-                            <li class="py-4 space-y-1.5">
+                            <li class="py-4 space-y-1.5" data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
                                 <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                                     <a href="{{ route('manuscripts.show', $ms) }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">@highlight($ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان', $query)</a>
                                     @if($ms->is_autograph)<x-ui.chip tone="good" class="!text-[11px] !py-0">دستخط مؤلف</x-ui.chip>@endif
@@ -751,7 +752,7 @@
                 @elseif($type === 'people')
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $person)
-                            <li>
+                            <li data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
                                 <a href="{{ route('people.show', $person) }}" class="flex items-baseline gap-2 py-3 group">
                                     <span class="min-w-0">
                                         <span class="font-naskh text-lg font-bold text-ink group-hover:text-cinnabar transition">@highlight($person->name, $query)</span>
@@ -764,6 +765,27 @@
                             </li>
                         @endforeach
                     </ul>
+                @endif
+                </div>
+                @if($searchLogId)
+                    {{-- The rank of the first result opened, for the admin's search stats (backlog item 83) --}}
+                    <script>
+                        (() => {
+                            const box = document.querySelector('[data-search-log]');
+                            let sent = false;
+                            const send = (e) => {
+                                const item = !sent && e.target.closest('a') && e.target.closest('[data-pos]');
+                                if (!item || !box.contains(item)) return;
+                                sent = true;
+                                const body = new FormData();
+                                body.append('log', box.dataset.searchLog);
+                                body.append('position', item.dataset.pos);
+                                navigator.sendBeacon(box.dataset.clickUrl, body);
+                            };
+                            box.addEventListener('click', send);
+                            box.addEventListener('auxclick', send);
+                        })();
+                    </script>
                 @endif
 
                 <div class="pt-6">
