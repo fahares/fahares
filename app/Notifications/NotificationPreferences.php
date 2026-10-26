@@ -88,12 +88,12 @@ class NotificationPreferences
         );
     }
 
-    /** A browser was just subscribed: turns on the browser channel of each type the user has not chosen for yet. */
+    /** A browser was just subscribed: turns on the browser channel of the push_on_subscribe types the user has not chosen for yet. */
     public static function enableWebPushDefaults(User $user): void
     {
         foreach (self::typesFor($user) as $type => $definition) {
             $chosen = NotificationPreference::where('user_id', $user->id)->where('notification_type', $type)->where('channel', 'webpush')->exists();
-            if (array_key_exists('webpush', $definition['channels']) && ! $chosen) {
+            if (in_array($type, config('notifications.push_on_subscribe', []), true) && array_key_exists('webpush', $definition['channels']) && ! $chosen) {
                 self::set($user, $type, 'webpush', true);
             }
         }

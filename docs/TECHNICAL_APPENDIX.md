@@ -4179,7 +4179,13 @@
 - **نتیجه‌ی محک:** ۲۵ از ۲۵ (۲۲ مورد نخست و سه مورد نگهبان برای عنوان کامل اثر کم‌نسخه). ۳۴۳ آزمون موفق.
 - **استقرار (۴ آبان، کامیت `acd6bf2`):** migration خودکار اجرا شد. سپس `scout:sync-index-settings` و `scout:import`. اجرای نخست با `--chunk=1000` در import آثار با کد ۱۳۷ (کمبود حافظه؛ swap سرور پر بود) کشته شد، چون هر دسته‌ی آثار آغاز و انجام همه‌ی نسخه‌هایش را هم بار می‌کند. با `--chunk=200` برای آثار و `--chunk=500` برای اشخاص و نسخه‌ها کامل شد: آثار ۲:۲۳، اشخاص ۰:۲۲، نسخه‌ها ۶:۵۵، و سپس حدود ۴ دقیقه صف Meilisearch. محک پروداکشن پیش از بازسازی ۱۳ از ۲۵ و پس از آن ۲۵ از ۲۵.
 
-### گام ۱۳.۳۷: سابقه‌ی جستجوی هر کاربر
+### گام ۱۳.۳۷: ستون مرورگر برای همه‌ی نوع‌ها و اعلان آزمایشی
+- **ستون مرورگر:** هر نوع قفل‌نشده‌ای که کانال فوری دارد، در [config/notifications.php](../config/notifications.php) کانال `'webpush' => false` گرفت. `push_on_subscribe` تعیین می‌کند که `enableWebPushDefaults` هنگام اشتراک کدام نوع‌ها را روشن کند (فقط `suggestion.submitted` و `suggestion.reviewed`).
+- **متن اعلان:** `SiteNotification::toWebPush` فقط برچسب نوع، «برای دیدن جزئیات بزنید» و پیوند را می‌فرستد.
+- **اعلان آزمایشی:** `POST /push-subscriptions/test` ‏(`push.test`، حداکثر ۵ بار در دقیقه) با [PushTest](../app/Notifications/PushTest.php) و `notifyNow`، فقط از کانال `WebPushChannel`.
+- **متغیرهای Coolify:** با `php artisan tinker` در کانتینر `coolify` روی مدل `EnvironmentVariable` (`is_runtime`، `is_literal`) نوشته شدند، تا مقدارها رمزگذاری شوند و در خروجی نیایند.
+
+### گام ۱۳.۳۸: سابقه‌ی جستجوی هر کاربر
 - **ساختار:** [migration](../database/migrations/2026_10_26_200001_add_user_to_search_logs.php): ‏`search_logs.user_id` (nullable، `nullOnDelete`؛ با حذف حساب جستجوها بی‌نام می‌مانند) و `users.search_history` (پیش‌فرض روشن؛ در مدل هم `$attributes` پیش‌فرض دارد).
 - **ثبت:** `SearchController::logSearch` ‏`user_id` را فقط وقتی می‌گذارد که `search_history` کاربر روشن باشد. ‏`is_member` مثل قبل برای همه‌ی کاربران واردشده ثبت می‌شود.
 - **خاموش کردن:** `POST /settings/search-history` ‏(`ProfileController::searchHistory`). خاموش کردن `user_id` همه‌ی جستجوهای پیشین کاربر را `null` می‌کند.

@@ -100,6 +100,21 @@ export default (context = 'settings') => ({
         }
     },
 
+    async test() {
+        this.busy = true;
+        try {
+            const r = await fetch('/push-subscriptions/test', {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+            });
+            this.message = (await r.json()).message;
+        } catch (e) {
+            this.message = 'فرستادن اعلان آزمایشی انجام نشد.';
+        } finally {
+            this.busy = false;
+        }
+    },
+
     dismiss() {
         this.dismissed = true;
         try {

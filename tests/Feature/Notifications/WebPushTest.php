@@ -121,4 +121,30 @@ class WebPushTest extends TestCase
         $this->actingAs($user)->get(route('notifications.settings'))->assertOk()
             ->assertSee('name="vapid-public-key" content="BTestPublicKey"', false)->assertSee('webPush(', false)->assertSee('/manifest.json', false);
     }
+
+    public function test_every_switchable_type_offers_the_browser_off_by_default_and_pushes_no_personal_details(): void
+    {
+        $admin = $this->user('admin');
+        foreach (['user.registered', 'review.stale', 'system.queue_failed', 'account.role'] as $type) {
+            $this->assertArrayHasKey('webpush', NotificationPreferences::types()[$type]['channels'], $type);
+            $this->assertFalse(NotificationPreferences::enabled($admin, $type, 'webpush'), $type);
+        }
+        $this->assertArrayNotHasKey('webpush', NotificationPreferences::types()['account.security']['channels']);
+
+        $new = $this->user();
+        $push = (new \App\Notifications\UserRegistered($new))->toWebPush($admin)->toArray();
+        $this->assertSame('ثبت‌نام کاربر تازه', $push['title']);
+        $this->assertStringNotContainsString($new->email, json_encode($push, JSON_UNESCAPED_UNICODE));
+    }
+
+    public function test_the_test_push_needs_a_subscribed_browser(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $user = $this->user();
+        $this->actingAs($user)->postJson('/push-subscriptions/test')->assertUnprocessable();
+
+        $this->subscribe($user);
+        $this->actingAs($user)->postJson('/push-subscriptions/test')->assertOk();
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\PushTest::class);
+    }
 }
