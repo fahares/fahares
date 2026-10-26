@@ -143,6 +143,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/my/suggestions', [MySuggestionsController::class, 'index'])->name('my.suggestions');
     Route::get('/settings/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/settings/profile', [ProfileController::class, 'update'])->middleware('throttle:20,60')->name('profile.update');
+    Route::post('/settings/search-history', [ProfileController::class, 'searchHistory'])->name('profile.search-history');
     Route::post('/settings/profile/keep-name', [ProfileController::class, 'keepName'])->name('profile.keep-name');
     Route::get('/account/complete', [ProfileController::class, 'complete'])->name('account.complete');
     Route::post('/account/complete', [ProfileController::class, 'saveComplete'])->name('account.complete.save');

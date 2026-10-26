@@ -63,6 +63,20 @@
         @endif
     </x-ui.card>
 
+    <x-ui.card id="search-history" class="space-y-3 scroll-mt-24">
+        <h2 class="rubric text-lg">سابقه‌ی جستجو</h2>
+        <p class="text-xs sm:text-sm text-ink/85 leading-6 m-0">
+            جستجوهایی که در فهارس می‌کنید، با حسابتان نگه داشته می‌شود تا ببینیم پژوهشگران چه می‌جویند و کجا جستجو آن‌ها را به نتیجه نمی‌رساند، و جستجو را بهتر کنیم.
+            این سابقه فقط در آمار مدیران سایت دیده می‌شود و هیچ‌جا منتشر نمی‌شود. اگر خاموشش کنید، جستجوهایتان بی‌نام شمرده می‌شود و سابقه‌ی پیشین هم از حسابتان جدا می‌شود.
+        </p>
+        <form action="{{ route('profile.search-history') }}" method="POST" class="flex flex-wrap items-center gap-3">
+            @csrf
+            <input type="hidden" name="search_history" value="{{ $user->search_history ? 0 : 1 }}">
+            <span class="text-xs text-muted">اکنون: <b class="text-ink">{{ $user->search_history ? 'روشن' : 'خاموش' }}</b></span>
+            <x-ui.btn type="submit" size="sm">{{ $user->search_history ? 'خاموش کردن' : 'روشن کردن' }}</x-ui.btn>
+        </form>
+    </x-ui.card>
+
     <div class="flex flex-wrap gap-2 text-xs">
         <x-ui.btn :href="route('my.suggestions')">پیشنهادهای من</x-ui.btn>
         <x-ui.btn :href="route('notifications.settings')">تنظیمات اعلان</x-ui.btn>

@@ -56,4 +56,27 @@
         <x-admin.form-actions :cancel="route('admin.users.index')" />
     </form>
 </x-ui.card>
+
+{{-- The user's recent searches, when they keep their history (backlog item 83) --}}
+@can('search.stats')
+    @php $searches = $user->search_history ? \App\Models\SearchLog::where('user_id', $user->id)->latest('id')->limit(30)->get() : collect(); @endphp
+    <x-ui.card class="max-w-2xl mt-5 space-y-3 text-[13px]">
+        <h2 class="rubric text-base">جستجوهای اخیر</h2>
+        @if(! $user->search_history)
+            <p class="text-xs text-muted">این کاربر نگه‌داری سابقه‌ی جستجو را خاموش کرده است.</p>
+        @elseif($searches->isEmpty())
+            <p class="text-xs text-muted">جستجویی ثبت نشده است.</p>
+        @else
+            <ul class="divide-y divide-line">
+                @foreach($searches as $s)
+                    <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-1.5">
+                        <a href="{{ route('search', ['q' => $s->query, 'type' => $s->type]) }}" target="_blank" class="font-bold text-ink hover:text-cinnabar">{{ $s->query !== '' ? $s->query : 'فقط فیلتر' }}</a>
+                        <span class="text-xs text-muted">{{ ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$s->type] ?? $s->type }} · {{ \App\Support\Fa::num($s->results_count) }} نتیجه{{ $s->clicked_position ? ' · رتبه‌ی ' . \App\Support\Fa::digits($s->clicked_position) . ' باز شد' : '' }}</span>
+                        <span class="ms-auto text-xs text-muted whitespace-nowrap">@jdate($s->created_at, 'datetime')</span>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </x-ui.card>
+@endcan
 @endsection

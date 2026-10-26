@@ -572,6 +572,8 @@ class SearchController extends Controller
                 'filters' => $filters ?: null,
                 'results_count' => $results->total(),
                 'is_member' => $request->user() !== null,
+                // Kept with the account unless the user turned it off in «حساب من»
+                'user_id' => $request->user()?->search_history ? $request->user()->id : null,
             ])->id;
         } catch (\Throwable $e) {
             // The stats must never break the search

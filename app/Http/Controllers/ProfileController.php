@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SearchLog;
 use App\Support\Phone;
 use App\Support\UserAvatar;
 use Illuminate\Http\Request;
@@ -31,6 +32,22 @@ class ProfileController extends Controller
         $request->user()->forceFill(['name_kept_at' => now()])->save();
 
         return back()->with('success', 'نام شما همین‌گونه می‌ماند. هر وقت خواستید، آن را در «حساب من» تغییر دهید.');
+    }
+
+    /**
+     * Keeping the user's searches with their account (backlog item 83). Turning it off also detaches the searches
+     * kept so far; they stay in the stats, anonymous.
+     */
+    public function searchHistory(Request $request)
+    {
+        $user = $request->user();
+        $on = $request->boolean('search_history');
+        $user->forceFill(['search_history' => $on])->save();
+        if (! $on) {
+            SearchLog::where('user_id', $user->id)->update(['user_id' => null]);
+        }
+
+        return back()->with('success', $on ? 'سابقه‌ی جستجوی شما از این پس با حسابتان نگه داشته می‌شود.' : 'سابقه‌ی جستجوی شما دیگر با حسابتان نگه داشته نمی‌شود و سابقه‌ی پیشین هم از حسابتان جدا شد.');
     }
 
     /** Shown once, after a first Google sign-in with a Latin name; may be skipped. */

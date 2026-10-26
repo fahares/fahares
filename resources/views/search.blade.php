@@ -791,6 +791,9 @@
                 <div class="pt-6">
                     {{ $results->links() }}
                 </div>
+                @if(auth()->user()?->search_history)
+                    <p class="pt-4 text-[11px] text-muted">جستجوهای شما برای بهتر شدن جستجوی فهارس با حسابتان نگه داشته می‌شود. <a href="{{ route('profile') }}#search-history" class="underline hover:text-cinnabar">تنظیم</a></p>
+                @endif
 
             @else
                 <!-- No Results State -->

@@ -22,6 +22,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasPushSubscriptions, Notifiable;
 
+    /** Searches are kept with the account until the user turns it off (backlog item 83) */
+    protected $attributes = ['search_history' => true];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -34,6 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'is_verified_scholar' => 'boolean',
             'name_kept_at' => 'datetime',
+            'search_history' => 'boolean',
         ];
     }
 

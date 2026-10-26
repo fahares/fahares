@@ -43,6 +43,7 @@ class SearchStatsController extends Controller
             ->selectRaw('SUM(clicked_position = 1) AS first_clicked')
             ->selectRaw('AVG(clicked_position) AS avg_position')
             ->selectRaw('SUM(is_member) AS members')
+            ->selectRaw('COUNT(DISTINCT user_id) AS users')
             ->first();
 
         $daily = $base()->selectRaw('DATE(created_at) AS day, COUNT(*) AS n, SUM(results_count = 0) AS empty')

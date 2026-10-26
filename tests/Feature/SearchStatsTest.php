@@ -68,6 +68,36 @@ class SearchStatsTest extends TestCase
         $this->actingAs($editor)->get(route('admin.search-stats.index'))->assertForbidden();
     }
 
+    public function test_a_users_searches_are_kept_with_the_account_until_turned_off(): void
+    {
+        $user = User::create(['name' => 'پژوهشگر سابقه', 'email' => 'history-user@fahares.net', 'password' => 'password123', 'role' => 'user']);
+        $user->markEmailAsVerified();
+        $search = fn () => $this->actingAs($user)->withHeaders(self::BROWSER)->get(route('search', ['type' => 'manuscripts', 'century' => 11]))->assertOk();
+
+        $search();
+        $this->assertSame($user->id, SearchLog::sole()->user_id);
+
+        $this->actingAs($user)->get(route('profile'))->assertOk()->assertSee('سابقه‌ی جستجو')->assertSee('خاموش کردن');
+        $this->actingAs($user)->post(route('profile.search-history'), ['search_history' => 0])->assertRedirect();
+        $this->assertFalse($user->fresh()->search_history);
+        $this->assertNull(SearchLog::sole()->user_id, 'turning it off detaches the searches kept so far');
+
+        $search();
+        $this->assertSame(0, SearchLog::whereNotNull('user_id')->count());
+        $this->assertSame(2, SearchLog::where('is_member', true)->count());
+    }
+
+    public function test_the_admin_sees_a_users_recent_searches(): void
+    {
+        $admin = User::create(['name' => 'مدیر سابقه', 'email' => 'history-admin@fahares.net', 'password' => 'password123', 'role' => 'admin']);
+        $user = User::create(['name' => 'جستجوگر', 'email' => 'history-searcher@fahares.net', 'password' => 'password123', 'role' => 'user']);
+        SearchLog::create(['query' => 'تجرید', 'type' => 'works', 'scope' => 'titles_names', 'results_count' => 90, 'user_id' => $user->id, 'is_member' => true, 'clicked_position' => 2]);
+
+        $this->actingAs($admin)->get(route('admin.users.edit', $user))->assertOk()
+            ->assertSee('جستجوهای اخیر')->assertSee('تجرید')->assertSee('رتبه‌ی ۲ باز شد');
+        $this->actingAs($admin)->get(route('admin.search-stats.index'))->assertOk()->assertSee('۱ کاربر یکتا');
+    }
+
     public function test_digits_are_latin_and_titles_are_indexed_without_the_article(): void
     {
         $this->assertSame('1189/4', TextNormalizer::normalize('۱۱۸۹/۴'));
