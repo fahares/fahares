@@ -12,7 +12,7 @@
 | group: site-level channels sent once per event, not per user (the reviewers' Telegram group, 'telegram';
 |        the admins' alerts chat, 'alerts')
 |
-| Channels: webpush needs a subscribed browser, telegram a linked chat (backlog item 25); digest is not
+| Channels: webpush needs a subscribed browser (any switchable type may use it, off by default), telegram a linked chat (backlog item 25); digest is not
 | sent per event but gathered into the daily email of `notifications:digest`.
 */
 
@@ -40,12 +40,12 @@ return [
         'review.stale' => [
             'label' => 'یادآور هفتگی پیشنهادهایی که بیش از یک هفته بی‌داوری مانده‌اند',
             'permission' => 'suggestions.review',
-            'channels' => ['database' => true, 'mail' => true, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
         'review.conflict' => [
             'label' => 'ویرایش یا ادغام رکوردی که پیشنهاد در انتظار داوری دارد، به دست دیگری',
             'permission' => 'suggestions.review',
-            'channels' => ['database' => true, 'mail' => false, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false],
         ],
         'suggestion.reviewed' => [
             'label' => 'نتیجه‌ی داوری پیشنهادهای من، و تغییر وضعیت قول‌هایم',
@@ -55,7 +55,7 @@ return [
         'account.role' => [
             'label' => 'تغییر نقش حساب من، یا تأیید آن به‌عنوان پژوهشگر',
             'roles' => ['*'],
-            'channels' => ['database' => true, 'mail' => true],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false],
         ],
         'account.security' => [
             'label' => 'تغییر ایمیل یا گذرواژه‌ی حساب من',
@@ -72,7 +72,7 @@ return [
         'user.registered' => [
             'label' => 'ثبت‌نام کاربر تازه',
             'permission' => 'users.manage',
-            'channels' => ['database' => true, 'mail' => true, 'telegram' => false, 'digest' => false],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false, 'digest' => false],
         ],
         'user.role_changed' => [
             'label' => 'تغییر نقش کاربران',
@@ -83,30 +83,33 @@ return [
         'permissions.changed' => [
             'label' => 'تغییر دسترسی نقش‌ها در پنل مدیریت',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => true],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false],
         ],
         'system.queue_failed' => [
             'label' => 'شکست کارهای صف (مانند ایمیل‌های اعلان)',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => true, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
             'group' => ['alerts'],
         ],
         'system.search_failed' => [
             'label' => 'خطای نمایه‌ی جستجو (Meilisearch)',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => true, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
             'group' => ['alerts'],
         ],
         'system.command_finished' => [
             'label' => 'پایان دستورهای سنگین روی سرور (نمایه‌سازی، فهرست‌ها)',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => false, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false],
             'group' => ['alerts'],
         ],
     ],
 
     // Artisan commands whose end is announced on production (system.command_finished); * matches any tail
     'heavy_commands' => ['scout:import', 'scout:sync-index-settings', 'catalogs:*', 'sources:*', 'fahares:seed'],
+
+    // A browser just subscribed switches on its column for these types only; the others stay as the user set them
+    'push_on_subscribe' => ['suggestion.submitted', 'suggestion.reviewed'],
 
     // Pending suggestions older than this many days are listed in the weekly reminder
     'stale_after_days' => 7,

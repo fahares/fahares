@@ -152,6 +152,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/push-subscriptions', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->middleware('throttle:20,1')->name('push.subscribe');
     Route::post('/settings/telegram', [\App\Http\Controllers\TelegramLinkController::class, 'link'])->name('telegram.link');
     Route::delete('/settings/telegram', [\App\Http\Controllers\TelegramLinkController::class, 'unlink'])->name('telegram.unlink');
+    Route::post('/push-subscriptions/test', [\App\Http\Controllers\PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
     Route::delete('/push-subscriptions', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->middleware('throttle:20,1')->name('push.unsubscribe');
 });
 Route::get('/notifications/unsubscribe/{user}/{type}/{channel}', [NotificationController::class, 'unsubscribe'])

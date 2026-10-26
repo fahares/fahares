@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Notifications\NotificationPreferences;
 use Illuminate\Http\Request;
+use App\Notifications\PushTest;
 use NotificationChannels\WebPush\PushSubscription;
 
 /**
@@ -27,6 +28,18 @@ class PushSubscriptionController extends Controller
         NotificationPreferences::enableWebPushDefaults($user);
 
         return response()->json(['message' => 'اعلان مرورگر در این مرورگر فعال شد.']);
+    }
+
+    /** A test push to every browser the user has subscribed, from the settings page. */
+    public function test(Request $request)
+    {
+        $user = $request->user();
+        if (! $user->pushSubscriptions()->exists()) {
+            return response()->json(['message' => 'هیچ مرورگری برای این حساب فعال نشده است.'], 422);
+        }
+        $user->notifyNow(new PushTest);
+
+        return response()->json(['message' => 'اعلان آزمایشی فرستاده شد. اگر تا یک دقیقه نیامد، اجازه‌ی اعلان را در تنظیمات مرورگر و سیستم‌عامل ببینید.']);
     }
 
     public function destroy(Request $request)

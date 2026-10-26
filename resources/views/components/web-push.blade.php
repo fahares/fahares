@@ -13,7 +13,9 @@
             </template>
             <template x-if="supported && !needsHomeScreen">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-ink" x-text="subscribed ? 'اعلان مرورگر در این مرورگر فعال است. ستون «مرورگر» در جدول زیر تعیین می‌کند کدام اعلان‌ها بیاید.' : (permission === 'denied' ? 'این مرورگر اجازه‌ی اعلان را برای فهارس بسته است؛ از تنظیمات سایت در مرورگر بازش کنید.' : 'اعلان مرورگر: بی‌آنکه سایت باز باشد، در همین مرورگر خبردار شوید.')"></p>
+                    <p class="text-ink" x-text="subscribed ? 'اعلان مرورگر در این مرورگر فعال است. ستون «مرورگر» در جدول زیر تعیین می‌کند کدام اعلان‌ها بیاید.' : (permission === 'denied' ? 'این مرورگر اجازه‌ی اعلان را برای فهارس بسته است؛ از تنظیمات سایت در مرورگر بازش کنید.' : 'اعلان مرورگر هنوز در این مرورگر فعال نیست. تیک ستون «مرورگر» فقط پس از زدن این دکمه اثر دارد.')"></p>
+                    <button type="button" x-show="subscribed" @click="test()" :disabled="busy"
+                        class="px-4 py-2 rounded-sm text-sm font-bold border border-line hover:bg-paper transition">اعلان آزمایشی</button>
                     <button type="button" x-show="permission !== 'denied' || subscribed" @click="subscribed ? disable() : enable()" :disabled="busy"
                         class="px-4 py-2 rounded-sm text-sm font-bold border border-line hover:bg-paper transition" x-text="subscribed ? 'خاموش‌کردن در این مرورگر' : 'فعال‌سازی در این مرورگر'"></button>
                 </div>

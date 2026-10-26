@@ -10,6 +10,7 @@ use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
+use NotificationChannels\WebPush\WebPushMessage;
 
 /**
  * Shared shape of the notifications that are not about one suggestion (backlog item 25): a title, a few lines
@@ -76,6 +77,20 @@ abstract class SiteNotification extends Notification implements ShouldQueue
             'body' => implode("\n", $this->lines($notifiable)),
             'url' => $this->url($notifiable),
         ];
+    }
+
+    /**
+     * Browser push passes through the browser vendor's service, so it carries only the type's label and the link:
+     * no names, emails or addresses (the details are one tap away, on the site).
+     */
+    public function toWebPush(object $notifiable, $notification = null): WebPushMessage
+    {
+        return (new WebPushMessage)
+            ->title(NotificationPreferences::types()[$this->type()]['label'] ?? 'فهارس')
+            ->body('برای دیدن جزئیات بزنید.')
+            ->icon(asset('images/brand/shamseh-192.png'))
+            ->data(['url' => $this->url($notifiable)])
+            ->options(['TTL' => 86400, 'urgency' => 'normal']);
     }
 
     public function toTelegram(object $notifiable): string
