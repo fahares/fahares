@@ -183,6 +183,11 @@
     </div>
 
     <!-- Main Grid: Sidebar Filters + Results List -->
+    {{-- Above filters and results, so a phone sees it first --}}
+    @if($direct ?? null)
+        <div class="mb-6">@include('search.direct-answer')</div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         <!-- SIDEBAR FILTERS -->
@@ -795,6 +800,8 @@
                     <p class="pt-4 text-[11px] text-muted">جستجوهای شما برای بهتر شدن جستجوی فهارس با حسابتان نگه داشته می‌شود. <a href="{{ route('profile') }}#search-history" class="underline hover:text-cinnabar">تنظیم</a></p>
                 @endif
 
+            @elseif(($direct ?? null) && ! $direct->isEmpty())
+                {{-- The direct answer above is the result --}}
             @else
                 <!-- No Results State -->
                 <div class="py-12 text-center space-y-5">

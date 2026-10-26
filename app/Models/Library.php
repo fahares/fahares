@@ -9,6 +9,13 @@ class Library extends Model
 {
     protected $guarded = ['id'];
 
+    protected static function booted(): void
+    {
+        // A renamed, merged or removed library is found by its new names in searches at once (DirectAnswer)
+        static::saved(fn () => \App\Support\DirectAnswer::forgetLibraries());
+        static::deleted(fn () => \App\Support\DirectAnswer::forgetLibraries());
+    }
+
     protected function casts(): array
     {
         return [

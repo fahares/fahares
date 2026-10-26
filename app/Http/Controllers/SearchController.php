@@ -12,6 +12,7 @@ use App\Helpers\TextNormalizer;
 use App\Models\Subject;
 use App\Models\Work;
 use App\Support\CopyPlaces;
+use App\Support\DirectAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Meilisearch\Client as MeiliClient;
@@ -67,6 +68,18 @@ class SearchController extends Controller
         ];
 
         $perPage = 20;
+
+        // A search that names a shelfmark or a catalogue page is answered directly (backlog item 83, phase 2);
+        // one manuscript is opened at once
+        $direct = null;
+        if ($rawQuery !== '' && (int) $request->input('page', 1) === 1 && ! array_filter($request->only(self::LOGGED_FILTERS))) {
+            $direct = DirectAnswer::for($rawQuery);
+            if ($single = $direct?->single()) {
+                $this->logSearch($request, $searchQuery, $type, $scope, 1, 1, clickedPosition: 1);
+
+                return redirect()->route('manuscripts.show', $single);
+            }
+        }
 
         $results = null;
 
@@ -506,9 +519,10 @@ class SearchController extends Controller
             $suggestion = $this->getDidYouMeanSuggestion($searchQuery, $type);
         }
 
-        $searchLogId = $this->logSearch($request, $searchQuery, $type, $scope, $results);
+        $searchLogId = $results ? $this->logSearch($request, $searchQuery, $type, $scope, $results->total(), $results->currentPage()) : null;
 
         return view('search', compact(
+            'direct',
             'searchLogId',
             'results',
             'query',
@@ -551,7 +565,7 @@ class SearchController extends Controller
      * sends back with the rank of the result opened. Only a search's first page, by a person, with a query
      * or a filter, is counted; browsing on to page 2 is not a new search.
      */
-    protected function logSearch(Request $request, string $searchQuery, string $type, string $scope, $results): ?int
+    protected function logSearch(Request $request, string $searchQuery, string $type, string $scope, int $total, int $page, ?int $clickedPosition = null): ?int
     {
         $filters = $request->only(self::LOGGED_FILTERS);
         // The single «flag» of older links is one of the flags
@@ -560,7 +574,7 @@ class SearchController extends Controller
             unset($filters['flag']);
         }
         $filters = array_filter($filters, fn ($v) => $v !== null && $v !== '' && $v !== []);
-        if (($searchQuery === '' && ! $filters) || ! $results || $results->currentPage() > 1 || ! SearchLog::isCountable($request)) {
+        if (($searchQuery === '' && ! $filters) || $page > 1 || ! SearchLog::isCountable($request)) {
             return null;
         }
 
@@ -570,7 +584,8 @@ class SearchController extends Controller
                 'type' => $type,
                 'scope' => $scope,
                 'filters' => $filters ?: null,
-                'results_count' => $results->total(),
+                'results_count' => $total,
+                'clicked_position' => $clickedPosition,
                 'is_member' => $request->user() !== null,
                 // Kept with the account unless the user turned it off in «حساب من»
                 'user_id' => $request->user()?->search_history ? $request->user()->id : null,
@@ -724,10 +739,15 @@ class SearchController extends Controller
             }
 
             if ($type === 'all' || $type === 'manuscripts') {
-                $response['manuscripts'] = Manuscript::search($searchQuery)
+                // The manuscripts a shelfmark or a catalogue page names come first (backlog item 83)
+                $named = (DirectAnswer::for($rawQuery)?->manuscripts ?? collect())->take(5);
+                $response['manuscripts'] = $named->concat(Manuscript::search($searchQuery)
                     ->query(fn($q) => $q->with(['work.author', 'libraryRecord']))
                     ->take(5)
-                    ->get()
+                    ->get())
+                    ->unique('id')
+                    ->take(5)
+                    ->values()
                     ->map(fn($m) => [
                         'id' => $m->id,
                         'work_title' => $m->work?->title ?? 'نسخه بدون عنوان',
