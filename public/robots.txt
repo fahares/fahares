@@ -1,2 +1,10 @@
+# Meta's AI crawler fetched every sort/page variant of the work pages and took the site down
+# (25 Oct 2026); docker/nginx.conf also answers it with 403
+User-agent: meta-externalagent
+Disallow: /
+
+# Sorted and paged copies of the same lists are not worth crawling
 User-agent: *
-Disallow:
+Disallow: /*?*sort=
+Disallow: /*?*direction=
+Disallow: /*?*page=
