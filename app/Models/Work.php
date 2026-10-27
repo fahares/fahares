@@ -97,7 +97,7 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,death_year_hijri', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph',
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph',
             'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
     }
 
@@ -230,6 +230,8 @@ class Work extends Model
             'era_year' => ($era = $this->composition_year_hijri ?: $this->author?->death_year_hijri) ? (int) $era : null,
             'has_autograph' => $this->manuscripts->contains('is_autograph', true),
             'bibliographies' => $this->bibliographyIds(),
+            // Every author, not only the first: «the works of this person» (backlog item 83, phase 6)
+            'author_ids' => $this->authors->pluck('id')->map(fn ($id) => (int) $id)->all(),
             'incipit_text' => \App\Helpers\TextNormalizer::normalize($this->incipit_text),
             'explicit_text' => \App\Helpers\TextNormalizer::normalize($this->explicit_text),
             'description' => $this->description ? \App\Helpers\TextNormalizer::normalize(mb_substr($this->description, 0, 500)) : null,

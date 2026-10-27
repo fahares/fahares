@@ -351,6 +351,9 @@
 
     <!-- MANUSCRIPTS TABLE SECTION -->
     <x-ui.section id="manuscripts" title="نسخه‌ها" :count="$work->manuscripts_count">
+        @if($work->manuscripts_count > 1)
+            <x-search.list-tools :params="['type' => 'manuscripts', 'work_id' => $work->id]" placeholder="کتابخانه، کاتب یا شماره در نسخه‌های این اثر…" />
+        @endif
         @if(isset($sort) && $sort !== 'sequence')
             <x-slot:actions>
                 <span class="text-muted">مرتب‌شده بر اساس:</span>

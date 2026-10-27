@@ -49,4 +49,12 @@ return [
     ['q' => 'مجلسی', 'type' => 'manuscripts', 'scope' => 'scribe', 'top' => 1, 'expect' => ['scribe' => 'مجلسی']],
     ['q' => 'مجلسی', 'type' => 'manuscripts', 'scope' => 'author', 'top' => 1, 'expect' => ['author' => 'مجلسی']],
     ['q' => 'ابن سینا', 'type' => 'works', 'scope' => 'author', 'top' => 1, 'expect' => ['author' => 'ابن سینا'], 'min_manuscripts' => 200],
+
+    // Operators (phase 8): any of several parts, and a word left out
+    ['q' => 'شافی | کافی', 'type' => 'works', 'top' => 3, 'expect' => ['title' => 'الکافی', 'author' => 'کلینی']],
+    ['q' => 'تجرید -شرح -حاشیه', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'تجرید', 'author' => 'نصیرالدین طوسی']],
+
+    // The printed entries of the sources (phase 7): a title, and words of the text
+    ['q' => 'اثبات النص', 'type' => 'sources', 'top' => 3, 'expect' => ['title' => 'اثبات النص']],
+    ['q' => 'عقائد الصدوق', 'type' => 'sources', 'top' => 3, 'expect' => ['title' => 'عقاید الصدوق']],
 ];

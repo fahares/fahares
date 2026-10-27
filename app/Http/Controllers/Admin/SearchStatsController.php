@@ -92,7 +92,9 @@ class SearchStatsController extends Controller
         // was cut at its row limit, which tells whether a larger, queued export is needed
         $exports = [
             'total' => $exportsBase()->count(),
-            'formats' => $exportsBase()->selectRaw('format, COUNT(*) AS n')->groupBy('format')->pluck('n', 'format'),
+            // «xlsx-queued»: a file built in the queue, counted with its format and on its own
+            'formats' => $exportsBase()->selectRaw("SUBSTRING_INDEX(format, '-', 1) AS f, COUNT(*) AS n")->groupBy('f')->pluck('n', 'f'),
+            'queued' => $exportsBase()->where('format', 'like', '%-queued')->count(),
             'tabs' => $exportsBase()->selectRaw('type, COUNT(*) AS n')->groupBy('type')->pluck('n', 'type'),
             'capped' => $exportsBase()->where(fn ($q) => $q->where(fn ($q) => $q->where('is_member', true)->where('results_count', '>', SearchExport::MEMBER_LIMIT))
                 ->orWhere(fn ($q) => $q->where('is_member', false)->where('results_count', '>', SearchExport::GUEST_LIMIT)))->count(),

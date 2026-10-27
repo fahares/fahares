@@ -27,11 +27,12 @@ class SearchBenchmarkCommand extends Command
         'works' => ['title' => 'primary_title', 'author' => 'author_name'],
         'manuscripts' => ['title' => 'work.primary_title', 'author' => 'work.author_name', 'library' => 'library', 'shelfmark' => 'shelfmark', 'scribe' => 'scribe_name'],
         'people' => ['name' => 'name'],
+        'sources' => ['title' => 'title', 'text' => 'text'],
     ];
 
-    private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class];
+    private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => \App\Models\SourceItem::class];
 
-    private const INDEXES = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'];
+    private const INDEXES = SearchController::INDEXES;
 
     /** How deep a hit is looked for, to tell «a bit too low» from «not found» */
     private const DEPTH = 20;
@@ -49,7 +50,12 @@ class SearchBenchmarkCommand extends Command
                 $options['attributesToSearchOn'] = $attrs;
             }
             $options['attributesToRetrieve'] = ['id'];
-            $ids = array_column($meili->index(self::INDEXES[$type])->search(TextNormalizer::normalize($case['q']), $options)->getHits(), 'id');
+            $words = TextNormalizer::normalize($case['q']);
+            // «الف | ب»: one federated search of the parts, as the search page sends it
+            $ids = ($parts = SearchController::alternatives($words))
+                ? array_column($meili->multiSearch(SearchController::partQueries(self::INDEXES[$type], $parts, $options['attributesToSearchOn'] ?? null),
+                    (new \Meilisearch\Contracts\MultiSearchFederation)->setLimit(self::DEPTH))['hits'] ?? [], 'id')
+                : array_column($meili->index(self::INDEXES[$type])->search($words, $options)->getHits(), 'id');
             $records = self::MODELS[$type]::whereKey($ids)->get()->keyBy('id');
 
             $rank = null;

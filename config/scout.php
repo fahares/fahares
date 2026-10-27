@@ -153,6 +153,7 @@ return [
                     'era_year',
                     'has_autograph',
                     'bibliographies',
+                    'author_ids',
                 ],
                 'sortableAttributes' => [
                     'composition_year_hijri',
@@ -182,6 +183,10 @@ return [
                 ],
                 'pagination' => [
                     'maxTotalHits' => 100000,
+                ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
                 ],
                 'faceting' => [
                     'maxValuesPerFacet' => 500,
@@ -235,6 +240,7 @@ return [
                     'languages',
                     'folios',
                     'has_author_marginalia',
+                    'scribe_ids',
                 ],
                 'sortableAttributes' => [
                     'copy_date_hijri_year',
@@ -261,9 +267,48 @@ return [
                 'pagination' => [
                     'maxTotalHits' => 100000,
                 ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
+                ],
                 // Libraries and cities: every value, not Meilisearch's first 100
                 'faceting' => [
                     'maxValuesPerFacet' => 500,
+                ],
+                'synonyms' => [
+                    'بهجه' => ['بهجت'],
+                    'بهجت' => ['بهجه'],
+                    'حجه' => ['حجت'],
+                    'حجت' => ['حجه'],
+                    'کفایه' => ['کفایت'],
+                    'کفایت' => ['کفایه'],
+                    'نزهه' => ['نزهت'],
+                    'نزهت' => ['نزهه'],
+                    'حکمه' => ['حکمت'],
+                    'حکمت' => ['حکمه'],
+                    'رحمه' => ['رحمت'],
+                    'رحمت' => ['رحمه'],
+                    'تحفه' => ['تحفت'],
+                    'تحفت' => ['تحفه'],
+                    'روضه' => ['روضت'],
+                    'روضت' => ['روضه'],
+                    'هدایه' => ['هدایت'],
+                    'هدایت' => ['هدایه'],
+                    'بدایه' => ['بدایت'],
+                    'بدایت' => ['بدایه'],
+                ],
+            ],
+            // The printed entries of the sources, al-Dhari'a first (backlog item 83, phase 7)
+            \App\Models\SourceItem::class => [
+                'filterableAttributes' => ['source_id', 'volume_number', 'kind'],
+                'sortableAttributes' => ['volume_number', 'position'],
+                'searchableAttributes' => ['title', 'text'],
+                'pagination' => [
+                    'maxTotalHits' => 100000,
+                ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
                 ],
                 'synonyms' => [
                     'بهجه' => ['بهجت'],
@@ -315,6 +360,10 @@ return [
                 ],
                 'pagination' => [
                     'maxTotalHits' => 100000,
+                ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
                 ],
             ],
         ],

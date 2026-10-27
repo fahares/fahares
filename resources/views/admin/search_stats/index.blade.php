@@ -136,7 +136,7 @@
                 @foreach([
                     ['خروجی', Fa::num($exports['total']), ''],
                     ['اکسل / CSV', Fa::num((int) ($exports['formats']['xlsx'] ?? 0)) . ' / ' . Fa::num((int) ($exports['formats']['csv'] ?? 0)), ''],
-                    ['بیش از سقف ردیف', Fa::num($exports['capped']), 'فایل بریده شده است'],
+                    ['بیش از سقف ردیف', Fa::num($exports['capped']), Fa::num($exports['queued']) . ' بار فایل کامل در صف ساخته شد'],
                     ['تب‌ها', collect($exports['tabs'])->map(fn ($n, $t) => ($tabLabels[$t] ?? $t) . ' ' . Fa::num($n))->implode('، '), ''],
                 ] as [$label, $value, $note])
                     <x-ui.card class="!p-4">

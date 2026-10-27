@@ -25,4 +25,25 @@ class SearchSortTest extends TestCase
         // An unknown order is ignored
         $this->get($url('bogus'))->assertOk()->assertSee('S-900');
     }
+    public function test_a_search_says_so_when_the_engine_is_down_instead_of_failing(): void
+    {
+        config(['scout.driver' => 'meilisearch']);
+        $this->app->instance(\Meilisearch\Client::class, new \Meilisearch\Client('http://127.0.0.1:9'));
+
+        $this->get(route('search', ['q' => 'کافی', 'type' => 'works']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
+    }
+
+    public function test_any_of_several_parts_is_split_and_survives_an_engine_failure(): void
+    {
+        $alternatives = \App\Http\Controllers\SearchController::alternatives(...);
+        $this->assertSame(['کافی', 'شافی'], $alternatives('کافی | شافی'));
+        $this->assertSame(['کافی'], $alternatives('کافی |'), 'one part left is a plain search');
+        $this->assertSame([], $alternatives('کافی شافی'));
+        $this->assertCount(5, $alternatives('a|b|c|d|e|f|g'));
+
+        config(['scout.driver' => 'meilisearch']);
+        $this->app->instance(\Meilisearch\Client::class, new \Meilisearch\Client('http://127.0.0.1:9'));
+        $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
+        $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works', 'sort' => 'manuscripts']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
+    }
 }

@@ -47,7 +47,7 @@ services:
       retries: 5
 
   meilisearch:
-    image: getmeili/meilisearch:v1.6
+    image: getmeili/meilisearch:v1.55.0
     container_name: fahares_meilisearch
     restart: always
     environment:

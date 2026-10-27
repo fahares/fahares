@@ -52,6 +52,11 @@ return [
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
+        'search.export_ready' => [
+            'label' => 'آماده شدن خروجی بزرگ جستجو',
+            'roles' => ['*'],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+        ],
         'account.role' => [
             'label' => 'تغییر نقش حساب من، یا تأیید آن به‌عنوان پژوهشگر',
             'roles' => ['*'],

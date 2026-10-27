@@ -20,6 +20,29 @@
         <button type="submit" class="text-xs text-cinnabar font-semibold hover:underline">اعمال فیلتر</button>
     </div>
 
+    @if($type === 'sources')
+        <div class="space-y-2">
+            <label for="f-source" class="{{ $label }}">منبع</label>
+            <select id="f-source" name="source_id" class="{{ $field }}">
+                <option value="">همه‌ی منابع</option>
+                @foreach($options['sources'] as $source)
+                    <option value="{{ $source->id }}" @selected($v('source_id') === $source->id)>{{ $source->short_name ?: $source->title }}{{ $n($source->matching_count) }}</option>
+                @endforeach
+            </select>
+        </div>
+        @if($options['volumes'])
+            <div class="space-y-2">
+                <label for="f-volume" class="{{ $label }}">جلد</label>
+                <select id="f-volume" name="volume" class="{{ $field }}">
+                    <option value="">همه‌ی جلدها</option>
+                    @foreach($options['volumes'] as $vol => $count)
+                        <option value="{{ $vol }}" @selected($v('volume') === $vol)>جلد {{ Fa::digits($vol) }}{{ $n($count) }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+    @endif
+
     @if($type === 'people')
         <div class="space-y-2">
             <label for="f-role" class="{{ $label }}">نقش</label>
@@ -89,7 +112,7 @@
     @endif
 
     @if($type === 'manuscripts')
-        <x-search.combobox name="library_id" label="کتابخانه" :selected="$v('library_id')" all="همه‌ی کتابخانه‌ها" placeholder="نام کتابخانه یا شهر…" unit="کتابخانه"
+        <x-search.combobox name="library_id" label="کتابخانه" :selected="$v('library_id') ?? []" multiple all="همه‌ی کتابخانه‌ها" placeholder="نام کتابخانه یا شهر؛ چند تا هم می‌شود…" unit="کتابخانه"
             :items="$options['libraries']->map(fn ($l) => ['id' => $l->id, 'name' => $l->short_name, 'count' => $l->matching_count, 'hint' => $l->city])->values()->all()" />
         <x-search.combobox name="city" label="شهر کتابخانه" :selected="$v('city')" all="همه‌ی شهرها" placeholder="نام شهر…" unit="شهر"
             :items="collect($options['cities'])->map(fn ($count, $city) => ['id' => $city, 'name' => $city, 'count' => $count, 'hint' => null])->values()->all()" />

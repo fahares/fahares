@@ -61,6 +61,7 @@
 
         <!-- MANUSCRIPTS TABLE -->
         <x-ui.section id="manuscripts" title="نسخه‌ها" :count="$library->manuscripts_count">
+            <x-search.list-tools :params="['type' => 'manuscripts', 'library_id' => $library->id]" placeholder="عنوان، پدیدآور، کاتب یا شماره در این کتابخانه…" />
             <div class="bg-surface border border-line">
                 <div class="overflow-x-auto">
                     <table class="w-full text-right text-xs sm:text-[13px] min-w-[640px]">

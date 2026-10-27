@@ -875,7 +875,7 @@ class SuggestionController extends Controller
                     if ($value === '') {
                         return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید.']);
                     }
-                    $attributes += ['field_name' => $field['name'], 'suggested_value' => $value, 'current_value' => SuggestionRegistry::currentValue($record, $field)];
+                    $attributes = ['field_name' => $field['name'], 'suggested_value' => $value, 'current_value' => SuggestionRegistry::currentValue($record, $field)] + $attributes;
                     break;
                 case 'note':
                     if (! NoteTypes::allowed($type, $validated['field_name'] ?? null)) {

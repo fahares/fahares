@@ -52,6 +52,9 @@ Route::get('/api/search', [SearchController::class, 'api'])->name('search.api');
 // The result opened from a search page, for the admin's search stats (backlog item 83)
 // The results as a file (backlog item 83); limited, as a bulk download is the costliest request of the site
 Route::get('/search/export', [SearchController::class, 'export'])->middleware('throttle:10,1')->name('search.export');
+// A larger file built in the queue for a signed-in user, and its signed, expiring link
+Route::post('/search/export/queue', [SearchController::class, 'queueExport'])->middleware(['auth', 'throttle:3,10'])->name('search.export.queue');
+Route::get('/search/export/file/{file}', [SearchController::class, 'downloadExport'])->middleware('signed')->name('search.export.file');
 Route::post('/search/click', [SearchController::class, 'click'])->middleware('throttle:60,1')->name('search.click');
 
 // Statistical insights: figures built nightly by fahares:build-insights

@@ -30,9 +30,10 @@
             @if($direct->kind === DirectAnswer::SHELFMARK)
                 شماره‌ی <span dir="ltr">{{ Fa::digits($direct->number) }}</span> در {{ $libName }}
             @else
-                {{ $direct->fankha ? 'فنخا' : 'فهرست‌های ' . $libName }}@if($direct->volume)، ج {{ Fa::digits($direct->volume) }}@endif، ص {{ Fa::digits($direct->page) }}
+                {{ $direct->source ? ($direct->source->short_name ?: $direct->source->title) : ($direct->fankha ? 'فنخا' : 'فهرست‌های ' . $libName) }}@if($direct->volume)، ج {{ Fa::digits($direct->volume) }}@endif، ص {{ Fa::digits($direct->page) }}
             @endif
             @if($direct->manuscripts->isNotEmpty())<span class="font-sans text-xs font-semibold text-muted tabular-nums">{{ Fa::num($direct->manuscripts->count()) }} نسخه</span>@endif
+            @if($direct->items->isNotEmpty())<span class="font-sans text-xs font-semibold text-muted tabular-nums">{{ Fa::num($direct->items->count()) }} مدخل</span>@endif
         </h2>
 
         @if($direct->isEmpty())
@@ -43,6 +44,21 @@
                     مدخلی در این جلد و صفحه پیدا نشد.
                 @endif
             </p>
+        @endif
+
+        {{-- The printed entries of a source on that page (phase 7) --}}
+        @if($direct->items->isNotEmpty())
+            <ul class="divide-y divide-line text-[13px]">
+                @foreach($direct->items as $i => $item)
+                    <li class="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-1.5" @if($i >= $shown) x-show="more" x-cloak @endif>
+                        <a href="{{ $item->url() }}" class="font-naskh text-base font-bold text-ink hover:text-cinnabar">{{ $item->title ?: 'مدخل بی‌عنوان' }}</a>
+                        <span class="text-xs text-muted">{{ $item->placeLabel() }}</span>
+                    </li>
+                @endforeach
+            </ul>
+            @if($direct->items->count() > $shown)
+                <button type="button" x-show="!more" @click="more = true" class="text-xs text-cinnabar hover:underline">و {{ Fa::num($direct->items->count() - $shown) }} مدخل دیگر</button>
+            @endif
         @endif
 
         @foreach([['works', 'آثار'], ['manuscripts', 'نسخه‌ها']] as [$list, $label])
