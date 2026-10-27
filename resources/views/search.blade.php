@@ -372,6 +372,11 @@
                     <p class="pt-4 text-[11px] text-muted">جستجوهای شما برای بهتر شدن جستجوی فهارس با حسابتان نگه داشته می‌شود. <a href="{{ route('profile') }}#search-history" class="underline hover:text-cinnabar">تنظیم</a></p>
                 @endif
 
+            @elseif($engineDown ?? false)
+                <div class="py-12 text-center space-y-3">
+                    <p class="font-naskh text-2xl font-bold text-ink">جستجو موقتاً در دسترس نیست</p>
+                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">موتور جستجو پاسخ نداد یا نمایه‌ی آن در حال ساخت است. چند دقیقه‌ی دیگر دوباره امتحان کنید؛ مرور با فیلترها بی‌عبارت جستجو کار می‌کند.</p>
+                </div>
             @elseif(($direct ?? null) && ! $direct->isEmpty())
                 {{-- The direct answer above is the result --}}
             @else

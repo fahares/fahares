@@ -87,6 +87,7 @@ class SearchController extends Controller
 
         $matchedFields = [];
         $snippets = [];
+        $engineDown = false;
         if ($searchQuery !== '') {
             $engineFilter = $filters->engine();
             $builder = $model::search($searchQuery, function ($meili, $searchQuery, $options) use ($type, $searchAttrs, $engineFilter, $engineSort, $exportLimit, &$matchedFields, &$snippets) {
@@ -122,10 +123,20 @@ class SearchController extends Controller
             }
             // No query() callback: with one, Scout counts the total by fetching every match from the engine and
             // counting it in the database (40 s for «کافی» in production). The relations are loaded for the page alone.
-            $results = $builder->paginate($perPage)->withQueryString();
-            $type === 'people'
-                ? $results->getCollection()->loadCount(['works', 'scribedManuscripts'])
-                : $results->getCollection()->load($with);
+            try {
+                $results = $builder->paginate($perPage)->withQueryString();
+            } catch (\Meilisearch\Exceptions\ApiException|\Meilisearch\Exceptions\CommunicationException|\Meilisearch\Exceptions\TimeOutException $e) {
+                // The engine is down or an index is still being built: an empty page that says so, not an error page;
+                // the admins still hear of it (bootstrap/app.php)
+                report($e);
+                $engineDown = true;
+                $results = new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage, 1, ['path' => $request->url(), 'query' => $request->query()]);
+            }
+            if (! $engineDown) {
+                $type === 'people'
+                    ? $results->getCollection()->loadCount(['works', 'scribedManuscripts'])
+                    : $results->getCollection()->load($with);
+            }
         } else {
             $builder = $filters->apply($prepare($model::query()));
             $ordered = $sort ? $dbSort($builder) : match ($type) {
@@ -161,10 +172,10 @@ class SearchController extends Controller
 
         $tabCounts = $searchQuery !== '' && ! $exportLimit ? $this->tabCounts($searchQuery, $scope, $type, $results->total()) : [];
         $suggestion = ! $exportLimit && $results->total() === 0 && $searchQuery !== '' ? $this->getDidYouMeanSuggestion($searchQuery, $type) : null;
-        $searchLogId = $exportLimit ? null : $this->logSearch($request, $searchQuery, $type, $scope, $filters, $results->total(), $results->currentPage());
+        $searchLogId = $exportLimit || $engineDown ? null : $this->logSearch($request, $searchQuery, $type, $scope, $filters, $results->total(), $results->currentPage());
         $validWorkForms = SearchFilters::WORK_FORMS;
 
-        return compact('results', 'query', 'type', 'scope', 'filters', 'options', 'sortKey', 'perPage', 'direct', 'searchLogId',
+        return compact('results', 'query', 'type', 'scope', 'filters', 'options', 'sortKey', 'perPage', 'direct', 'searchLogId', 'engineDown',
             'tabCounts', 'suggestion', 'validWorkForms');
     }
 

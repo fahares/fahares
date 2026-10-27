@@ -25,4 +25,11 @@ class SearchSortTest extends TestCase
         // An unknown order is ignored
         $this->get($url('bogus'))->assertOk()->assertSee('S-900');
     }
+    public function test_a_search_says_so_when_the_engine_is_down_instead_of_failing(): void
+    {
+        config(['scout.driver' => 'meilisearch']);
+        $this->app->instance(\Meilisearch\Client::class, new \Meilisearch\Client('http://127.0.0.1:9'));
+
+        $this->get(route('search', ['q' => 'کافی', 'type' => 'works']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
+    }
 }
