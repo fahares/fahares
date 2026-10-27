@@ -61,7 +61,8 @@ class LibraryController extends Controller
 
         $manuscripts = $library->manuscripts()
             ->with(['work.author', 'scripts'])
-            ->orderBy('shelfmark')
+            // By number, not as text: 2 before 10, and the parts of a bound volume (1189/2) after it
+            ->orderByRaw("shelfmark_key IS NULL, shelfmark_key REGEXP '^[0-9]' DESC, CAST(shelfmark_key AS UNSIGNED), shelfmark_key")
             ->paginate(30);
 
         return view('libraries.show', compact('library', 'manuscripts'));

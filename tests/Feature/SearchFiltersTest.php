@@ -97,6 +97,39 @@ class SearchFiltersTest extends TestCase
         $page->assertSee(e(route('search', ['type' => 'people', 'century' => 11])), false);
     }
 
+    public function test_record_pages_open_their_lists_in_the_search_with_every_author_and_scribe(): void
+    {
+        $first = Person::create(['name' => 'مؤلف نخست', 'normalized_name' => 'مؤلف نخست', 'slug' => 'f-first-' . uniqid(), 'is_author' => true, 'is_scribe' => true]);
+        $second = Person::create(['name' => 'مؤلف دوم', 'normalized_name' => 'مؤلف دوم', 'slug' => 'f-second-' . uniqid(), 'is_author' => true]);
+        $own = $this->work(['primary_title' => 'اثر خود او', 'author_id' => $first->id]);
+        $shared = $this->work(['primary_title' => 'اثر دونفره', 'author_id' => $second->id]);
+        $other = $this->work(['primary_title' => 'اثر دیگری']);
+        // The first author is linked by author_id itself; the second is added
+        $shared->authors()->syncWithoutDetaching([$first->id => ['position' => 2]]);
+        $copied = $this->manuscript($other, 'S-1');
+        $copied->scribes()->attach($first->id, ['position' => 1]);
+        $this->manuscript($other, 'S-2');
+        $library = Library::create(['name' => 'کتابخانه‌ی ترتیب عددی', 'city' => 'قم', 'slug' => 'f-order-' . uniqid(), 'manuscripts_count' => 3]);
+        foreach (['10', '2', 'بی‌شماره'] as $shelfmark) {
+            $this->manuscript($own, $shelfmark, ['library_id' => $library->id]);
+        }
+
+        // The works of a person include those written with another; the manuscripts, those copied with another
+        $this->get(route('search', ['type' => 'works', 'author_id' => $first->id]))->assertOk()
+            ->assertSee('آثار مؤلف نخست')->assertSee('اثر خود او')->assertSee('اثر دونفره')->assertDontSee('اثر دیگری');
+        $this->get(route('search', ['type' => 'manuscripts', 'scribe_id' => $first->id]))->assertOk()
+            ->assertSee('کتابت مؤلف نخست')->assertSee('S-1')->assertDontSee('S-2');
+        $this->get(route('search', ['type' => 'manuscripts', 'work_id' => $other->id]))->assertOk()
+            ->assertSee('نسخه‌های اثر: اثر دیگری')->assertSee('S-1')->assertSee('S-2')->assertDontSee('بی‌شماره');
+
+        $this->get(route('people.show', $first))->assertOk()
+            ->assertSee(e(route('search', ['type' => 'works', 'author_id' => $first->id])), false)->assertSee('خروجی اکسل این آثار');
+        // A library's manuscripts by number: 2 before 10, the unnumbered last
+        $this->get(route('libraries.show', $library))->assertOk()
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'library_id' => $library->id])), false)
+            ->assertSeeInOrder(['<span dir="ltr">۲<', '<span dir="ltr">۱۰<', 'بی‌شماره'], false);
+    }
+
     public function test_an_export_is_logged_apart_from_searches(): void
     {
         $this->withHeaders(['User-Agent' => 'Mozilla/5.0 Firefox/131.0'])->get(route('search.export', ['type' => 'people', 'format' => 'csv']))->assertOk();

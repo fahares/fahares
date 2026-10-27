@@ -68,8 +68,10 @@ class SearchController extends Controller
         }
 
         $searchAttrs = self::scopeAttributes($type, $scope);
-        $facets = $searchQuery !== '' && ! $exportLimit ? $this->facets($type, $searchQuery, $searchAttrs) : [];
-        $options = $exportLimit ? [] : $this->filterOptions($type, $filters, $facets, $searchQuery !== '');
+        // The counts beside each filter's choices, among the matches of the words (or all records) within the list
+        // the tab is narrowed to; when the engine fails, the stored totals
+        $facets = $exportLimit ? null : $this->facets($type, $searchQuery, $searchAttrs, $filters->contextEngine());
+        $options = $exportLimit ? [] : $this->filterOptions($type, $filters, $facets ?? [], $facets !== null);
 
         $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class][$type];
         $with = [
@@ -133,8 +135,11 @@ class SearchController extends Controller
             'tabCounts', 'suggestion', 'validWorkForms');
     }
 
-    /** The engine's counts of the values of each filter among the matches of the words, before any filter */
-    protected function facets(string $type, string $searchQuery, ?array $searchAttrs): array
+    /**
+     * The engine's counts of the values of each filter among the matches of the words, or among all records when
+     * there are none, within the context filter and before the others; null when the engine fails
+     */
+    protected function facets(string $type, string $searchQuery, ?array $searchAttrs, ?string $context = null): ?array
     {
         $names = [
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
@@ -144,28 +149,31 @@ class SearchController extends Controller
         $index = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'][$type];
         try {
             $options = ['matchingStrategy' => 'all', 'facets' => $names, 'limit' => 0];
-            if ($searchAttrs) {
+            if ($searchAttrs && $searchQuery !== '') {
                 $options['attributesToSearchOn'] = $searchAttrs;
+            }
+            if ($context) {
+                $options['filter'] = $context;
             }
 
             return app(MeiliClient::class)->index($index)->search($searchQuery, $options)->getFacetDistribution() ?? [];
         } catch (\Throwable $e) {
             Log::warning("Meilisearch {$type} facets failed: " . $e->getMessage());
 
-            return [];
+            return null;
         }
     }
 
     /**
-     * The choices of each filter in the sidebar, with how many matches each has: counted by the engine for a search
-     * with words, or the stored totals when browsing. A chosen value stays in its list even with no match.
+     * The choices of each filter in the sidebar, with how many matches each has: counted by the engine ($counted:
+     * counts are known), or the stored totals when it failed. A chosen value stays in its list even with no match.
      */
-    protected function filterOptions(string $type, SearchFilters $filters, array $facets, bool $hasWords): array
+    protected function filterOptions(string $type, SearchFilters $filters, array $facets, bool $counted): array
     {
         $options = [];
-        $count = fn (string $facet, $value) => $hasWords ? (int) ($facets[$facet][$value] ?? 0) : null;
-        $centuries = function (string $facet) use ($facets, $hasWords) {
-            if (! $hasWords) {
+        $count = fn (string $facet, $value) => $counted ? (int) ($facets[$facet][$value] ?? 0) : null;
+        $centuries = function (string $facet) use ($facets, $counted) {
+            if (! $counted) {
                 return array_fill_keys(range(3, 14), null);
             }
             $byCentury = [];
@@ -181,7 +189,7 @@ class SearchController extends Controller
         };
 
         if ($type === 'people') {
-            $options['centuries'] = $hasWords ? collect($facets['century_hijri'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->sortKeys()->all()
+            $options['centuries'] = $counted ? collect($facets['century_hijri'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->sortKeys()->all()
                 : array_fill_keys(range(1, 15), null);
             $options['roles'] = collect(SearchFilters::ROLES)->map(fn ($label, $role) => [$label, $count("is_{$role}", 'true')])->all();
 
@@ -191,15 +199,15 @@ class SearchController extends Controller
         // Subjects: a parent counts its children's matches too
         $subjects = Subject::with(['parent', 'children'])->where('works_count', '>', 0)->get();
         foreach ($subjects as $s) {
-            $s->matching_count = $hasWords
+            $s->matching_count = $counted
                 ? collect([$s, ...$s->children])->sum(fn ($x) => $facets['subjects'][$x->name] ?? 0)
                 : ($type === 'works' ? $s->works_count : null);
         }
-        $options['subjects'] = $subjects->filter(fn ($s) => ! $hasWords || $s->matching_count > 0 || $s->id === $filters->subject?->id)
+        $options['subjects'] = $subjects->filter(fn ($s) => ! $counted || $s->matching_count > 0 || $s->id === $filters->subject?->id)
             ->sortByDesc('matching_count')->values();
         $options['languages'] = Language::where('works_count', '>', 0)->orderByDesc('works_count')->get()
-            ->each(fn ($l) => $l->matching_count = $hasWords ? (int) ($facets['languages'][$l->name] ?? 0) : ($type === 'works' ? $l->works_count : null))
-            ->filter(fn ($l) => ! $hasWords || $l->matching_count > 0 || $l->id === $filters->language?->id)
+            ->each(fn ($l) => $l->matching_count = $counted ? (int) ($facets['languages'][$l->name] ?? 0) : ($type === 'works' ? $l->works_count : null))
+            ->filter(fn ($l) => ! $counted || $l->matching_count > 0 || $l->id === $filters->language?->id)
             ->sortByDesc('matching_count')->values();
 
         if ($type === 'works') {
@@ -215,16 +223,16 @@ class SearchController extends Controller
         // Manuscripts: every library, so one with few matches can still be chosen
         $libCounts = $facets['library_id'] ?? [];
         $options['libraries'] = Library::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->get(['id', 'name', 'full_name', 'city', 'manuscripts_count'])
-            ->each(fn ($l) => $l->matching_count = $hasWords ? (int) ($libCounts[$l->id] ?? 0) : $l->manuscripts_count)
-            ->filter(fn ($l) => ! $hasWords || $l->matching_count > 0 || $l->id === $filters->library?->id)
+            ->each(fn ($l) => $l->matching_count = $counted ? (int) ($libCounts[$l->id] ?? 0) : $l->manuscripts_count)
+            ->filter(fn ($l) => ! $counted || $l->matching_count > 0 || $l->id === $filters->library?->id)
             ->sortByDesc('matching_count')->values();
-        $options['cities'] = $hasWords
+        $options['cities'] = $counted
             ? collect($facets['city'] ?? [])->sortDesc()->all()
             : Library::where('manuscripts_count', '>', 0)->whereNotNull('city')->where('city', '!=', '')
                 ->selectRaw('city, SUM(manuscripts_count) AS n')->groupBy('city')->orderByDesc('n')->pluck('n', 'city')->map(fn ($n) => (int) $n)->all();
         $options['scripts'] = Script::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->get()
-            ->each(fn ($s) => $s->matching_count = $hasWords ? (int) ($facets['scripts'][$s->name] ?? 0) : $s->manuscripts_count)
-            ->filter(fn ($s) => ! $hasWords || $s->matching_count > 0 || $s->id === $filters->script?->id)
+            ->each(fn ($s) => $s->matching_count = $counted ? (int) ($facets['scripts'][$s->name] ?? 0) : $s->manuscripts_count)
+            ->filter(fn ($s) => ! $counted || $s->matching_count > 0 || $s->id === $filters->script?->id)
             ->sortByDesc('matching_count')->values();
         $options['centuries'] = $centuries('copy_date_hijri_year');
         $options['flags'] = collect(SearchFilters::FLAGS)->map(fn ($label, $flag) => [$label, $count($flag, 'true')])->all();
@@ -417,8 +425,9 @@ class SearchController extends Controller
             ],
             'manuscripts' => [
                 'titles' => ['work_title'],
-                // The shelfmark and library too, so «مجلس ۱۱۸۹» finds the manuscript (backlog item 83)
-                'titles_names' => ['work_title', 'author_name', 'shelfmark', 'scribe_name', 'library', 'library_full_name'],
+                // The shelfmark and library too, so «مجلس ۱۱۸۹» finds the manuscript, and the library's city, so «قم»
+                // narrows a work's manuscripts to Qom's (backlog item 83)
+                'titles_names' => ['work_title', 'author_name', 'shelfmark', 'scribe_name', 'library', 'library_full_name', 'city'],
             ],
             'people' => [
                 'titles' => ['name'],

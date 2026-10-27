@@ -20,10 +20,13 @@ use Illuminate\Support\Facades\DB;
  */
 class SearchFilters
 {
-    /** The query parameters of each tab's filters */
+    /**
+     * The query parameters of each tab's filters. The first ones narrow the tab to one record's list (the works of
+     * an author, the manuscripts of a work or of a scribe), as the pages of those records link to it (phase 6).
+     */
     public const PARAMS = [
-        'works' => ['subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph'],
-        'manuscripts' => ['library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
+        'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph'],
+        'manuscripts' => ['work_id', 'scribe_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags'],
         'people' => ['role', 'century'],
     ];
@@ -67,6 +70,11 @@ class SearchFilters
     public ?Script $script = null;
     public ?Language $language = null;
     public ?Source $source = null;
+    public ?\App\Models\Work $work = null;
+    public ?\App\Models\Person $person = null;
+
+    /** The parameters that narrow a tab to one record's list; the counts of the other filters are taken within it */
+    public const CONTEXT = ['work_id', 'scribe_id', 'author_id'];
 
     /** @param array<string, mixed> $values the valid values, by parameter */
     public function __construct(public string $type, public array $values = [])
@@ -76,8 +84,11 @@ class SearchFilters
         $this->script = isset($values['script_id']) ? Script::find($values['script_id']) : null;
         $this->language = isset($values['language_id']) ? Language::find($values['language_id']) : null;
         $this->source = isset($values['source_id']) ? Source::whereIn('kind', self::SOURCE_KINDS)->find($values['source_id']) : null;
+        $this->work = isset($values['work_id']) ? \App\Models\Work::find($values['work_id']) : null;
+        $this->person = ($id = $values['scribe_id'] ?? $values['author_id'] ?? null) ? \App\Models\Person::find($id) : null;
         // A filter whose record is gone is no filter
-        foreach (['subject_id' => 'subject', 'library_id' => 'library', 'script_id' => 'script', 'language_id' => 'language', 'source_id' => 'source'] as $param => $record) {
+        foreach (['subject_id' => 'subject', 'library_id' => 'library', 'script_id' => 'script', 'language_id' => 'language', 'source_id' => 'source',
+            'work_id' => 'work', 'scribe_id' => 'person', 'author_id' => 'person'] as $param => $record) {
             if (isset($this->values[$param]) && ! $this->$record) {
                 unset($this->values[$param]);
             }
@@ -104,7 +115,7 @@ class SearchFilters
         }
 
         return match ($param) {
-            'subject_id', 'library_id', 'script_id', 'language_id', 'source_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
+            'subject_id', 'library_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
             'century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
             'year_from', 'year_to', 'folios_from', 'folios_to' => ctype_digit(TextNormalizer::normalize((string) $value)) ? (int) TextNormalizer::normalize((string) $value) : null,
             'city' => is_string($value) && trim($value) !== '' ? mb_substr(trim($value), 0, 60) : null,
@@ -162,6 +173,9 @@ class SearchFilters
 
         foreach ($this->values as $param => $value) {
             $parts[] = match ($param) {
+                'work_id' => "work_id = {$value}",
+                'scribe_id' => "scribe_ids = {$value}",
+                'author_id' => "author_ids = {$value}",
                 'subject_id' => 'subjects IN [' . $this->subjectFamily()->map(fn ($s) => $quote($s->name))->implode(', ') . ']',
                 'language_id' => 'languages = ' . $quote($this->language->name),
                 'library_id' => 'library_id = ' . $value,
@@ -191,6 +205,14 @@ class SearchFilters
         return $parts ? implode(' AND ', array_map(fn ($p) => "({$p})", $parts)) : null;
     }
 
+    /** The Meilisearch filter of the list the tab is narrowed to (CONTEXT), or null */
+    public function contextEngine(): ?string
+    {
+        $context = new self($this->type, array_intersect_key($this->values, array_flip(self::CONTEXT)));
+
+        return $context->engine();
+    }
+
     /** The same filters on a query of the tab's model */
     public function apply(Builder $query): Builder
     {
@@ -198,6 +220,9 @@ class SearchFilters
             match ($param) {
                 // Subqueries on the link tables, not whereHas: the database runs them as one semi-join instead of
                 // a lookup per manuscript (10 s for a subject over 324 000 manuscripts)
+                'work_id' => $query->where('manuscripts.work_id', $value),
+                'scribe_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_scribe')->where('person_id', $value)->select('manuscript_id')),
+                'author_id' => $query->whereIn('works.id', DB::table('work_author')->where('person_id', $value)->select('work_id')),
                 'subject_id' => $query->whereIn($this->workKey(), DB::table('subject_work')->whereIn('subject_id', $this->subjectFamily()->pluck('id'))->select('work_id')),
                 'language_id' => $query->whereIn($this->workKey(), DB::table('language_work')->where('language_id', $value)->select('work_id')),
                 'library_id' => $query->where('library_id', $value),
@@ -248,6 +273,9 @@ class SearchFilters
         $chips = [];
         foreach ($this->values as $param => $value) {
             $label = match ($param) {
+                'work_id' => 'نسخه‌های اثر: ' . $this->work->primary_title,
+                'scribe_id' => 'کتابت ' . $this->person->name,
+                'author_id' => 'آثار ' . $this->person->name,
                 'subject_id' => 'موضوع: ' . ($this->subject->title ?: $this->subject->name) . ($this->subject->children->isNotEmpty() ? ' (با زیرموضوع‌ها)' : ''),
                 'language_id' => 'زبان: ' . $this->language->name,
                 'library_id' => 'کتابخانه: ' . $this->library->short_name . ($this->library->city ? '، ' . $this->library->city : ''),

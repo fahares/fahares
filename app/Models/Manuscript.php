@@ -347,7 +347,7 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'libraryRecord:id,full_name']);
+        return $query->with(['work:id,primary_title,clean_title,author_name', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name']);
     }
 
     public function toSearchableArray(): array
@@ -407,6 +407,8 @@ class Manuscript extends Model
             // The work's subjects and languages, as filters of the manuscripts tab (backlog item 83, phase 5)
             'subjects' => $this->work?->subjects->pluck('name')->all() ?? [],
             'languages' => $this->work?->languages->pluck('name')->all() ?? [],
+            // Every scribe, not only the first: «the manuscripts this person copied» (backlog item 83, phase 6)
+            'scribe_ids' => $this->scribes->pluck('id')->map(fn ($id) => (int) $id)->all(),
         ];
     }
 

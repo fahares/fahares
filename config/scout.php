@@ -153,6 +153,7 @@ return [
                     'era_year',
                     'has_autograph',
                     'bibliographies',
+                    'author_ids',
                 ],
                 'sortableAttributes' => [
                     'composition_year_hijri',
@@ -235,6 +236,7 @@ return [
                     'languages',
                     'folios',
                     'has_author_marginalia',
+                    'scribe_ids',
                 ],
                 'sortableAttributes' => [
                     'copy_date_hijri_year',
