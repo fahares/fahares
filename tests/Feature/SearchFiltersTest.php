@@ -130,6 +130,26 @@ class SearchFiltersTest extends TestCase
             ->assertSeeInOrder(['<span dir="ltr">۲<', '<span dir="ltr">۱۰<', 'بی‌شماره'], false);
     }
 
+    public function test_several_libraries_can_be_chosen_and_removed_one_by_one(): void
+    {
+        $work = $this->work();
+        $libs = collect(['الف', 'ب', 'ج'])->map(fn ($n) => Library::create(['name' => "کتابخانه‌ی {$n}", 'city' => 'قم', 'slug' => 'f-multi-' . uniqid(), 'manuscripts_count' => 1]));
+        foreach ($libs as $i => $lib) {
+            $this->manuscript($work, "M-{$i}", ['library_id' => $lib->id]);
+        }
+        $chosen = [$libs[0]->id, $libs[1]->id];
+
+        $filters = SearchFilters::fromRequest(Request::create('/search', 'GET', ['library_id' => [...$chosen, 'x', 999999]]), 'manuscripts');
+        $this->assertSame("(library_id IN [{$chosen[0]}, {$chosen[1]}])", $filters->engine());
+
+        $page = $this->get(route('search', ['type' => 'manuscripts', 'library_id' => $chosen]))->assertOk()
+            ->assertSee('M-0')->assertSee('M-1')->assertDontSee('M-2')->assertSee('کتابخانه: کتابخانه‌ی الف، قم');
+        // Removing one keeps the other
+        $page->assertSee(e(route('search', ['type' => 'manuscripts', 'library_id' => [$chosen[1]]])), false);
+        // One library, as the record pages and older links send it
+        $this->get(route('search', ['type' => 'manuscripts', 'library_id' => $libs[2]->id]))->assertOk()->assertSee('M-2')->assertDontSee('M-0');
+    }
+
     public function test_an_export_is_logged_apart_from_searches(): void
     {
         $this->withHeaders(['User-Agent' => 'Mozilla/5.0 Firefox/131.0'])->get(route('search.export', ['type' => 'people', 'format' => 'csv']))->assertOk();

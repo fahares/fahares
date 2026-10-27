@@ -35,4 +35,37 @@ class SearchExportTest extends TestCase
         $xlsx->assertOk()->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $this->assertStringStartsWith('PK', $xlsx->streamedContent());
     }
+    public function test_a_larger_export_is_built_in_the_queue_and_its_link_is_sent(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        \Illuminate\Support\Facades\Notification::fake();
+        $user = \App\Models\User::create(['name' => 'پژوهشگر خروجی', 'email' => 'queued-export@fahares.net', 'password' => 'password123', 'role' => 'user']);
+        $library = Library::create(['name' => 'کتابخانه‌ی صف', 'city' => 'قم', 'slug' => 'queue-lib-' . uniqid()]);
+        $work = Work::create(['primary_title' => 'اثر صف', 'clean_title' => 'اثر صف', 'slug' => 'queue-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        foreach (['Q-2' => 1100, 'Q-1' => 900] as $shelfmark => $year) {
+            Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark, 'copy_date_hijri_year' => $year,
+                'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1, 'raw_text' => 'نسخه']);
+        }
+
+        $this->post(route('search.export.queue', ['type' => 'manuscripts', 'library_id' => $library->id, 'sort' => 'oldest']), ['format' => 'csv'])
+            ->assertRedirect(route('login'));
+        $this->actingAs($user)->from(route('search', ['type' => 'manuscripts']))
+            ->post(route('search.export.queue', ['type' => 'manuscripts', 'library_id' => $library->id, 'sort' => 'oldest']), ['format' => 'csv', 'total' => 2])
+            ->assertRedirect()->assertSessionHas('success');
+
+        $files = \Illuminate\Support\Facades\Storage::disk('public')->files(\App\Support\SearchExport::DIRECTORY);
+        $this->assertCount(1, $files);
+        $this->assertMatchesRegularExpression('/^exports\/[a-f0-9]{32}\.csv$/', $files[0]);
+        $this->assertMatchesRegularExpression('/Q-1.*\n.*Q-2/u', \Illuminate\Support\Facades\Storage::disk('public')->get($files[0]), 'in the chosen order');
+
+        $link = null;
+        \Illuminate\Support\Facades\Notification::assertSentTo($user, \App\Notifications\Notice::class, function ($notice) use (&$link) {
+            $link = $notice->link;
+
+            return $notice->noticeType === 'search.export_ready';
+        });
+        $this->get($link)->assertOk()->assertDownload();
+        $this->get(route('search.export.file', ['file' => basename($files[0])]))->assertForbidden();
+        $this->assertSame('csv-queued', SearchLog::where('kind', SearchLog::KIND_EXPORT)->value('format'));
+    }
 }

@@ -42,6 +42,9 @@ class DirectAnswer
         public ?int $volume = null,
         public ?int $page = null,
         public bool $fankha = false,
+        /** The printed entries of a source on the page (al-Dhari'a…), and that source */
+        public Collection $items = new Collection,
+        public ?\App\Models\Source $source = null,
     ) {}
 
     public static function for(string $query): ?self
@@ -85,7 +88,7 @@ class DirectAnswer
 
     public function isEmpty(): bool
     {
-        return $this->manuscripts->isEmpty() && $this->works->isEmpty() && $this->libraryCounts->isEmpty();
+        return $this->manuscripts->isEmpty() && $this->works->isEmpty() && $this->libraryCounts->isEmpty() && $this->items->isEmpty();
     }
 
     /** Manuscripts of a library whose shelfmark is the number, or a part or variant of it: «1189»، «1189/4»، «1189 ط» */
@@ -139,6 +142,16 @@ class DirectAnswer
                 volume: $volume, page: $page, fankha: true);
         }
 
+        // A source whose printed entries the site holds: «ذریعه ج ۳ ص ۴۰۲» (phase 7)
+        if ($source = self::matchSource($rest)) {
+            $items = \App\Models\SourceItem::with('source')->where('source_id', $source->id)->where('kind', '!=', 'preface')
+                ->when($volume, fn ($q) => $q->where('volume_number', $volume))
+                ->where('page_start', '<=', $page)->whereRaw('COALESCE(page_end, page_start) >= ?', [$page])
+                ->orderBy('volume_number')->orderBy('position')->limit(self::LIMIT)->get();
+
+            return new self(self::CITATION, (string) $page, volume: $volume, page: $page, items: $items, source: $source);
+        }
+
         [$library, $alternatives] = self::matchLibrary($rest);
         if (! $library) {
             return null;
@@ -174,6 +187,36 @@ class DirectAnswer
                     ->whereRaw('shelfmark_key REGEXP ?', ['^' . preg_quote($form) . '([^0-9۰-۹]|$)']));
             }
         });
+    }
+
+    /** The source with printed entries on the site that the words name, by its short name or title, with or without the article */
+    private static function matchSource(string $words): ?\App\Models\Source
+    {
+        $padded = ' ' . $words . ' ';
+        // id => the normalized forms of its names; plain arrays, as the cache serializes them
+        $sources = Cache::remember('direct-answer.item-sources', 3600, function () {
+            $forms = [];
+            foreach (\App\Models\Source::whereIn('id', \App\Models\SourceItem::query()->select('source_id')->distinct())->get(['id', 'short_name', 'title']) as $source) {
+                foreach (array_filter([$source->short_name, $source->title]) as $name) {
+                    $name = self::words(TextNormalizer::normalize($name));
+                    // «الذریعه» is also «ذریعه»
+                    $forms[$source->id][] = $name;
+                    $forms[$source->id][] = preg_replace('/(?<!\p{L})ال(?=\p{L}{3,})/u', '', $name);
+                }
+                $forms[$source->id] = array_values(array_unique(array_filter($forms[$source->id] ?? [])));
+            }
+
+            return $forms;
+        });
+        foreach ($sources as $id => $forms) {
+            foreach ($forms as $form) {
+                if (str_contains($padded, " {$form} ")) {
+                    return \App\Models\Source::find($id);
+                }
+            }
+        }
+
+        return null;
     }
 
     /** The text without punctuation and filler words */

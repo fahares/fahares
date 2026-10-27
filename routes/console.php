@@ -29,3 +29,13 @@ Schedule::command('notifications:stale-suggestions')->saturdays()->at('08:00')->
 
 // Search stats (backlog item 83): searches older than a year are dropped
 Schedule::command('model:prune', ['--model' => [\App\Models\SearchLog::class]])->dailyAt('05:00');
+
+// Queued search exports (backlog item 83) are kept for a week
+Schedule::call(function () {
+    $disk = \Illuminate\Support\Facades\Storage::disk('public');
+    foreach ($disk->files(\App\Support\SearchExport::DIRECTORY) as $file) {
+        if ($disk->lastModified($file) < now()->subDays(\App\Support\SearchExport::KEEP_DAYS)->getTimestamp()) {
+            $disk->delete($file);
+        }
+    }
+})->name('search-exports:prune')->dailyAt('05:10');

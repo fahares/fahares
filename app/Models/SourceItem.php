@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 
 /**
  * One printed entry of a source (plan docs/plans/dharia-text.md): its place, number, title, author as printed and
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class SourceItem extends Model
 {
+    use Searchable;
+
     public const KIND_ENTRY = 'entry';
 
     public const KIND_SUB_ENTRY = 'sub_entry';
@@ -35,6 +38,31 @@ class SourceItem extends Model
             'author_death_year' => 'integer',
             'flags' => 'array',
             'metadata' => 'array',
+        ];
+    }
+
+    public function searchableAs(): string
+    {
+        return 'source_items_index';
+    }
+
+    /** The printed entries are searched by their words, the tab «در منابع» (backlog item 83, phase 7); a preface is not */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->kind !== 'preface' && trim((string) $this->text) !== '';
+    }
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int) $this->id,
+            'source_id' => (int) $this->source_id,
+            'volume_number' => (int) $this->volume_number,
+            'position' => (int) $this->position,
+            'entry_number' => $this->entry_number ? (int) $this->entry_number : null,
+            'kind' => $this->kind,
+            'title' => \App\Helpers\TextNormalizer::expandVariants($this->title),
+            'text' => \App\Helpers\TextNormalizer::normalize($this->text),
         ];
     }
 

@@ -67,6 +67,11 @@
                         class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'people' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
                         پدیدآوران و کاتبان@isset($tabCounts['people']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['people']) }})</span>@endisset
                     </button>
+                    {{-- The printed entries of the sources: al-Dhari'a… (backlog item 83, phase 7) --}}
+                    <button type="submit" onclick="document.getElementById('search-type-input').value='sources'"
+                        class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'sources' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
+                        در منابع@isset($tabCounts['sources']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['sources']) }})</span>@endisset
+                    </button>
                 </div>
 
                 @if($results)
@@ -132,7 +137,7 @@
                          }
                      }">
                     <h2 class="rubric text-lg">
-                        <span><span class="tabular-nums">{{ Fa::num($results->total()) }}</span> {{ ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص'][$type] ?? 'نتیجه' }}</span>
+                        <span><span class="tabular-nums">{{ Fa::num($results->total()) }}</span> {{ ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص', 'sources' => 'مدخل'][$type] ?? 'نتیجه' }}</span>
                         @if($query)<span class="font-sans text-sm font-normal text-muted">برای «<span class="text-ink font-semibold">{{ $query }}</span>»</span>@endif
                     </h2>
                     {{-- Order and page size (backlog item 83, phase 3); the other parameters of the search are kept --}}
@@ -173,6 +178,20 @@
                                 {{ Fa::num(min($exportLimit, $results->total())) }} نتیجه‌ی نخست، با همین فیلترها و ترتیب.
                                 @guest <a href="{{ route('login') }}" class="text-cinnabar hover:underline">با ورود</a> تا {{ Fa::num(\App\Support\SearchExport::MEMBER_LIMIT) }} نتیجه. @endguest
                             </p>
+                            {{-- More than a file built here can hold: the whole list, built in the queue (backlog item 83) --}}
+                            @auth
+                                @if($results->total() > \App\Support\SearchExport::MEMBER_LIMIT)
+                                    <form method="POST" action="{{ route('search.export.queue', request()->except(['page', 'per_page'])) }}" class="px-2 pt-2 border-t border-line space-y-1.5">
+                                        @csrf
+                                        <input type="hidden" name="total" value="{{ $results->total() }}">
+                                        <p class="text-muted leading-5">همه‌ی {{ Fa::num(min($results->total(), \App\Support\SearchExport::QUEUED_LIMIT)) }} نتیجه در پس‌زمینه ساخته و پیوندش برایتان فرستاده می‌شود:</p>
+                                        <div class="flex gap-1.5">
+                                            <x-ui.btn type="submit" size="sm" name="format" value="xlsx">اکسل کامل</x-ui.btn>
+                                            <x-ui.btn type="submit" size="sm" name="format" value="csv">CSV کامل</x-ui.btn>
+                                        </div>
+                                    </form>
+                                @endif
+                            @endauth
                         </div>
                     </div>
                 </div>
@@ -295,6 +314,34 @@
                             </li>
                         @endforeach
                     </ul>
+
+                @elseif($type === 'sources')
+                    @php
+                        // The engine's marks (\x01…\x02) around the words found, kept through the escaping; the engine
+                        // counts the article «ال» as a word of its own, and marking it in every word is noise
+                        $marked = fn (?string $text) => str_replace(["\x01ال\x02", "\x01", "\x02"], ['ال', '<mark class="bg-gold/30 text-ink rounded-sm px-0.5">', '</mark>'], e($text));
+                    @endphp
+                    <ul class="divide-y divide-line border-y border-line">
+                        @foreach($results as $item)
+                            <li class="py-4 space-y-1.5" data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
+                                <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                    <a href="{{ $item->url() }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">{!! $item->snippet['title'] ?? null ? $marked($item->snippet['title']) : e($item->title ?: 'مدخل بی‌عنوان') !!}</a>
+                                    <span class="text-xs text-muted whitespace-nowrap">{{ $item->source?->short_name ?: $item->source?->title }}، {{ $item->placeLabel() }}</span>
+                                </div>
+                                <p class="text-[13px] text-ink/85 leading-7 font-naskh border-s-2 border-gold ps-3">
+                                    {!! $item->snippet['text'] ?? null ? $marked($item->snippet['text']) : e(Str::limit($item->text, 260)) !!}
+                                </p>
+                                @if(($item->linked_works ?? collect())->isNotEmpty())
+                                    <div class="flex flex-wrap items-center gap-2 text-xs">
+                                        <span class="text-muted">در فهارس:</span>
+                                        @foreach($item->linked_works as $linked)
+                                            <a href="{{ route('works.show', $linked) }}" class="text-cinnabar hover:underline">{{ $linked->primary_title }}</a>@if(! $loop->last)<span class="text-muted">·</span>@endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
                 @endif
                 </div>
                 @if($searchLogId)
@@ -333,7 +380,7 @@
                     <p class="font-naskh text-2xl font-bold text-ink">نتیجه‌ای پیدا نشد</p>
 
                     @php
-                        $tabLabels = ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص'];
+                        $tabLabels = ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص', 'sources' => 'مدخل در منابع'];
                         $elsewhere = collect($tabCounts ?? [])->except($type)->filter();
                     @endphp
                     @if($elsewhere->isNotEmpty())

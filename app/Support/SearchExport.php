@@ -47,6 +47,16 @@ class SearchExport
                 'ارجاع فهرست' => fn (Manuscript $m) => $m->catalog_citation,
                 'نشانی در فهارس' => fn (Manuscript $m) => url("/m/{$m->id}"),
             ],
+            'sources' => [
+                'شناسه' => fn (\App\Models\SourceItem $i) => $i->id,
+                'منبع' => fn (\App\Models\SourceItem $i) => $i->source?->short_name ?: $i->source?->title,
+                'جلد' => fn (\App\Models\SourceItem $i) => $i->volume_number,
+                'صفحه' => fn (\App\Models\SourceItem $i) => $i->page_start,
+                'شماره‌ی مدخل' => fn (\App\Models\SourceItem $i) => $i->entry_number,
+                'عنوان' => fn (\App\Models\SourceItem $i) => $i->title,
+                'متن' => fn (\App\Models\SourceItem $i) => $i->text,
+                'نشانی در فهارس' => fn (\App\Models\SourceItem $i) => $i->url(),
+            ],
             'people' => [
                 'شناسه' => fn (Person $p) => $p->id,
                 'نام' => fn (Person $p) => $p->name,
@@ -71,24 +81,39 @@ class SearchExport
         };
     }
 
+    /**
+     * The largest file, built in the queue and sent by a notification (App\Jobs\ExportSearchResults); kept on the
+     * uploads volume for KEEP_DAYS days
+     */
+    public const QUEUED_LIMIT = 50000;
+    public const KEEP_DAYS = 7;
+    public const DIRECTORY = 'exports';
+
     public static function download(iterable $records, string $type, string $format, string $filename): StreamedResponse
+    {
+        return response()->streamDownload(fn () => self::write($records, $type, $format, 'php://output'),
+            "{$filename}." . ($format === 'csv' ? 'csv' : 'xlsx'), ['Content-Type' => self::contentType($format)]);
+    }
+
+    public static function contentType(string $format): string
+    {
+        return $format === 'csv' ? 'text/csv; charset=UTF-8' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+
+    /** Writes the records, one row at a time, to a file or a stream */
+    public static function write(iterable $records, string $type, string $format, string $target): void
     {
         $columns = self::columns($type);
         $csv = $format === 'csv';
-
-        return response()->streamDownload(function () use ($records, $columns, $csv) {
-            $writer = $csv ? new CsvWriter : new XlsxWriter;
-            $writer->openToFile('php://output');
-            if (! $csv) {
-                $writer->getCurrentSheet()->setSheetView((new SheetView)->setRightToLeft(true));
-            }
-            $writer->addRow(Row::fromValues(array_keys($columns), (new Style)->setFontBold()));
-            foreach ($records as $record) {
-                $writer->addRow(Row::fromValues(array_map(fn ($value) => $value($record), array_values($columns))));
-            }
-            $writer->close();
-        }, "{$filename}." . ($csv ? 'csv' : 'xlsx'), [
-            'Content-Type' => $csv ? 'text/csv; charset=UTF-8' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
+        $writer = $csv ? new CsvWriter : new XlsxWriter;
+        $writer->openToFile($target);
+        if (! $csv) {
+            $writer->getCurrentSheet()->setSheetView((new SheetView)->setRightToLeft(true));
+        }
+        $writer->addRow(Row::fromValues(array_keys($columns), (new Style)->setFontBold()));
+        foreach ($records as $record) {
+            $writer->addRow(Row::fromValues(array_map(fn ($value) => $value($record), array_values($columns))));
+        }
+        $writer->close();
     }
 }

@@ -27,11 +27,12 @@ class SearchBenchmarkCommand extends Command
         'works' => ['title' => 'primary_title', 'author' => 'author_name'],
         'manuscripts' => ['title' => 'work.primary_title', 'author' => 'work.author_name', 'library' => 'library', 'shelfmark' => 'shelfmark', 'scribe' => 'scribe_name'],
         'people' => ['name' => 'name'],
+        'sources' => ['title' => 'title', 'text' => 'text'],
     ];
 
-    private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class];
+    private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => \App\Models\SourceItem::class];
 
-    private const INDEXES = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'];
+    private const INDEXES = SearchController::INDEXES;
 
     /** How deep a hit is looked for, to tell «a bit too low» from «not found» */
     private const DEPTH = 20;

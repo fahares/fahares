@@ -290,6 +290,37 @@ return [
                     'بدایت' => ['بدایه'],
                 ],
             ],
+            // The printed entries of the sources, al-Dhari'a first (backlog item 83, phase 7)
+            \App\Models\SourceItem::class => [
+                'filterableAttributes' => ['source_id', 'volume_number', 'kind'],
+                'sortableAttributes' => ['volume_number', 'position'],
+                'searchableAttributes' => ['title', 'text'],
+                'pagination' => [
+                    'maxTotalHits' => 100000,
+                ],
+                'synonyms' => [
+                    'بهجه' => ['بهجت'],
+                    'بهجت' => ['بهجه'],
+                    'حجه' => ['حجت'],
+                    'حجت' => ['حجه'],
+                    'کفایه' => ['کفایت'],
+                    'کفایت' => ['کفایه'],
+                    'نزهه' => ['نزهت'],
+                    'نزهت' => ['نزهه'],
+                    'حکمه' => ['حکمت'],
+                    'حکمت' => ['حکمه'],
+                    'رحمه' => ['رحمت'],
+                    'رحمت' => ['رحمه'],
+                    'تحفه' => ['تحفت'],
+                    'تحفت' => ['تحفه'],
+                    'روضه' => ['روضت'],
+                    'روضت' => ['روضه'],
+                    'هدایه' => ['هدایت'],
+                    'هدایت' => ['هدایه'],
+                    'بدایه' => ['بدایت'],
+                    'بدایت' => ['بدایه'],
+                ],
+            ],
             \App\Models\Person::class => [
                 'filterableAttributes' => [
                     'id',

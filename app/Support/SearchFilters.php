@@ -29,6 +29,8 @@ class SearchFilters
         'manuscripts' => ['work_id', 'scribe_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags'],
         'people' => ['role', 'century'],
+        // The printed entries of the sources (phase 7): which source, which volume
+        'sources' => ['source_id', 'volume'],
     ];
 
     public const WORK_FORMS = [
@@ -67,6 +69,9 @@ class SearchFilters
 
     public ?Subject $subject = null;
     public ?Library $library = null;
+
+    /** The libraries chosen; several can be (phase 5), and $library is the first */
+    public \Illuminate\Support\Collection $libraries;
     public ?Script $script = null;
     public ?Language $language = null;
     public ?Source $source = null;
@@ -80,14 +85,22 @@ class SearchFilters
     public function __construct(public string $type, public array $values = [])
     {
         $this->subject = isset($values['subject_id']) ? Subject::with(['children', 'parent'])->find($values['subject_id']) : null;
-        $this->library = isset($values['library_id']) ? Library::find($values['library_id']) : null;
+        $this->libraries = isset($values['library_id']) ? Library::whereIn('id', $values['library_id'])->get() : collect();
+        // Only the libraries that exist stay chosen
+        if (isset($this->values['library_id'])) {
+            $this->values['library_id'] = $this->libraries->pluck('id')->map(fn ($id) => (int) $id)->sort()->values()->all() ?: null;
+            if (! $this->values['library_id']) {
+                unset($this->values['library_id']);
+            }
+        }
+        $this->library = $this->libraries->first();
         $this->script = isset($values['script_id']) ? Script::find($values['script_id']) : null;
         $this->language = isset($values['language_id']) ? Language::find($values['language_id']) : null;
         $this->source = isset($values['source_id']) ? Source::whereIn('kind', self::SOURCE_KINDS)->find($values['source_id']) : null;
         $this->work = isset($values['work_id']) ? \App\Models\Work::find($values['work_id']) : null;
         $this->person = ($id = $values['scribe_id'] ?? $values['author_id'] ?? null) ? \App\Models\Person::find($id) : null;
         // A filter whose record is gone is no filter
-        foreach (['subject_id' => 'subject', 'library_id' => 'library', 'script_id' => 'script', 'language_id' => 'language', 'source_id' => 'source',
+        foreach (['subject_id' => 'subject', 'script_id' => 'script', 'language_id' => 'language', 'source_id' => 'source',
             'work_id' => 'work', 'scribe_id' => 'person', 'author_id' => 'person'] as $param => $record) {
             if (isset($this->values[$param]) && ! $this->$record) {
                 unset($this->values[$param]);
@@ -110,13 +123,20 @@ class SearchFilters
 
     private static function clean(string $param, mixed $value): mixed
     {
+        // Several libraries, as library_id[]; one, as library_id, from older links and the record pages
+        if ($param === 'library_id') {
+            $ids = array_values(array_unique(array_map('intval', array_filter((array) $value, fn ($v) => is_scalar($v) && ctype_digit((string) $v) && (int) $v > 0))));
+
+            return $ids ? array_slice($ids, 0, 30) : null;
+        }
         if (is_array($value) && $param !== 'flags') {
             return null;
         }
 
         return match ($param) {
-            'subject_id', 'library_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
+            'subject_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
             'century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
+            'volume' => ctype_digit(TextNormalizer::normalize((string) $value)) && (int) TextNormalizer::normalize((string) $value) > 0 ? (int) TextNormalizer::normalize((string) $value) : null,
             'year_from', 'year_to', 'folios_from', 'folios_to' => ctype_digit(TextNormalizer::normalize((string) $value)) ? (int) TextNormalizer::normalize((string) $value) : null,
             'city' => is_string($value) && trim($value) !== '' ? mb_substr(trim($value), 0, 60) : null,
             'copy_city' => CopyPlaces::isCity($value) ? $value : null,
@@ -178,7 +198,7 @@ class SearchFilters
                 'author_id' => "author_ids = {$value}",
                 'subject_id' => 'subjects IN [' . $this->subjectFamily()->map(fn ($s) => $quote($s->name))->implode(', ') . ']',
                 'language_id' => 'languages = ' . $quote($this->language->name),
-                'library_id' => 'library_id = ' . $value,
+                'library_id' => count($value) === 1 ? "library_id = {$value[0]}" : 'library_id IN [' . implode(', ', $value) . ']',
                 'city' => 'city = ' . $quote($value),
                 'script_id' => 'scripts = ' . $quote($this->script->name),
                 'copy_city' => ($places = collect(CopyPlaces::variants($value))->map(fn ($p) => $quote(TextNormalizer::normalize($p)))->unique()->implode(', ')) !== ''
@@ -188,7 +208,8 @@ class SearchFilters
                 'folios_to' => "folios <= {$value}",
                 'flags' => implode(' AND ', array_map(fn ($f) => "{$f} = true", $value)),
                 'work_form' => 'work_form = ' . $quote($value),
-                'source_id' => "bibliographies = {$value}",
+                'source_id' => $this->type === 'sources' ? "source_id = {$value}" : "bibliographies = {$value}",
+                'volume' => "volume_number = {$value}",
                 'has_autograph' => 'has_autograph = true',
                 'role' => "is_{$value} = true",
                 'century' => $this->type === 'people' ? "century_hijri = {$value}" : null,
@@ -225,7 +246,7 @@ class SearchFilters
                 'author_id' => $query->whereIn('works.id', DB::table('work_author')->where('person_id', $value)->select('work_id')),
                 'subject_id' => $query->whereIn($this->workKey(), DB::table('subject_work')->whereIn('subject_id', $this->subjectFamily()->pluck('id'))->select('work_id')),
                 'language_id' => $query->whereIn($this->workKey(), DB::table('language_work')->where('language_id', $value)->select('work_id')),
-                'library_id' => $query->where('library_id', $value),
+                'library_id' => $query->whereIn('manuscripts.library_id', $value),
                 'city' => $query->where('city', $value),
                 'script_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id')),
                 'copy_city' => $query->whereIn('copy_place', CopyPlaces::variants($value)),
@@ -234,7 +255,8 @@ class SearchFilters
                 'folios_to' => $query->where('folios', '<=', $value),
                 'flags' => array_map(fn ($f) => $query->where($f, true), $value),
                 'work_form' => $query->where('work_form', $value),
-                'source_id' => $query->whereExists(fn ($q) => $q->from('source_entries')->whereColumn('source_entries.citable_id', 'works.id')
+                'volume' => $query->where('source_items.volume_number', $value),
+                'source_id' => $this->type === 'sources' ? $query->where('source_items.source_id', $value) : $query->whereExists(fn ($q) => $q->from('source_entries')->whereColumn('source_entries.citable_id', 'works.id')
                     ->where('source_entries.citable_type', \App\Models\Work::class)->where('source_entries.source_id', $value)
                     ->where('source_entries.status', '!=', SourceEntry::STATUS_REJECTED)),
                 'has_autograph' => $query->whereIn('works.id', DB::table('manuscripts')->where('is_autograph', true)->whereNotNull('work_id')->select('work_id')),
@@ -278,13 +300,14 @@ class SearchFilters
                 'author_id' => 'آثار ' . $this->person->name,
                 'subject_id' => 'موضوع: ' . ($this->subject->title ?: $this->subject->name) . ($this->subject->children->isNotEmpty() ? ' (با زیرموضوع‌ها)' : ''),
                 'language_id' => 'زبان: ' . $this->language->name,
-                'library_id' => 'کتابخانه: ' . $this->library->short_name . ($this->library->city ? '، ' . $this->library->city : ''),
+                'library_id' => null,
                 'city' => 'شهر کتابخانه: ' . $value,
                 'script_id' => 'خط: ' . $this->script->name,
                 'copy_city' => 'محل کتابت: ' . $value,
                 'facsimile' => $value === '1' ? 'فقط عکسی' : 'فقط اصل (بی عکسی)',
                 'work_form' => 'قالب: ' . self::WORK_FORMS[$value],
-                'source_id' => 'یادشده در ' . ($this->source->short_name ?: $this->source->title),
+                'source_id' => ($this->type === 'sources' ? 'در ' : 'یادشده در ') . ($this->source->short_name ?: $this->source->title),
+                'volume' => 'جلد ' . $fa($value),
                 'has_autograph' => 'دارای دستخط مؤلف',
                 'role' => 'نقش: ' . self::ROLES[$value],
                 'century' => 'سده‌ی ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'people' => ' (وفات)', default => ' (کتابت)' },
@@ -292,6 +315,11 @@ class SearchFilters
             };
             if ($label) {
                 $chips[] = [$label, [$param]];
+            }
+            if ($param === 'library_id') {
+                foreach ($this->libraries as $lib) {
+                    $chips[] = ['کتابخانه: ' . $lib->short_name . ($lib->city ? '، ' . $lib->city : ''), ['library_id' => array_values(array_diff($value, [$lib->id]))]];
+                }
             }
             if ($param === 'flags') {
                 foreach ($value as $flag) {

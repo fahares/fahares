@@ -8,6 +8,8 @@ use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Script;
 use App\Models\SearchLog;
+use App\Models\SourceEntry;
+use App\Models\SourceItem;
 use App\Helpers\TextNormalizer;
 use App\Models\Subject;
 use App\Models\Work;
@@ -17,6 +19,7 @@ use App\Support\SearchExport;
 use App\Support\SearchFilters;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Meilisearch\Client as MeiliClient;
 
 class SearchController extends Controller
@@ -32,12 +35,12 @@ class SearchController extends Controller
      * The results of the search page and everything the page shows beside them, or a redirect to the one
      * manuscript a search names. An export (backlog item 83, phase 4) asks for one large page of the same results.
      */
-    protected function search(Request $request, ?int $exportLimit = null): array|\Illuminate\Http\RedirectResponse
+    protected function search(Request $request, ?int $exportLimit = null, bool $idsOnly = false): array|\Illuminate\Http\RedirectResponse
     {
         $rawQuery = trim((string) $request->input('q', ''));
         $searchQuery = TextNormalizer::normalize($rawQuery);
         $query = $rawQuery;
-        $type = in_array($request->input('type'), ['works', 'manuscripts', 'people'], true) ? $request->input('type') : 'works';
+        $type = in_array($request->input('type'), self::TYPES, true) ? $request->input('type') : 'works';
         $scope = self::scopeAvailable($type, (string) $request->input('scope')) ? $request->input('scope') : 'titles_names';
         // Every filter of the tab, defined once for the engine and the database (backlog item 83, phase 5)
         $filters = SearchFilters::fromRequest($request, $type);
@@ -70,23 +73,30 @@ class SearchController extends Controller
         $searchAttrs = self::scopeAttributes($type, $scope);
         // The counts beside each filter's choices, among the matches of the words (or all records) within the list
         // the tab is narrowed to; when the engine fails, the stored totals
-        $facets = $exportLimit ? null : $this->facets($type, $searchQuery, $searchAttrs, $filters->contextEngine());
-        $options = $exportLimit ? [] : $this->filterOptions($type, $filters, $facets ?? [], $facets !== null);
+        $facets = $exportLimit || $idsOnly ? null : $this->facets($type, $searchQuery, $searchAttrs, $filters->contextEngine());
+        $options = $exportLimit || $idsOnly ? [] : $this->filterOptions($type, $filters, $facets ?? [], $facets !== null);
 
-        $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class][$type];
-        $with = [
-            'works' => ['catalog', 'author', 'subjects', 'languages'],
-            'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts'],
-            'people' => [],
-        ][$type];
-        $prepare = fn ($q) => $type === 'people' ? $q->withCount(['works', 'scribedManuscripts']) : $q->with($with);
+        $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => SourceItem::class][$type];
+        $with = self::WITH[$type];
+        $prepare = fn ($q) => match ($type) {
+            'people' => $q->withCount(['works', 'scribedManuscripts']),
+            // A preface is not an entry, and the index leaves it out too
+            'sources' => $q->with($with)->where('source_items.kind', '!=', 'preface'),
+            default => $q->with($with),
+        };
 
         $matchedFields = [];
+        $snippets = [];
         if ($searchQuery !== '') {
             $engineFilter = $filters->engine();
-            $builder = $model::search($searchQuery, function ($meili, $searchQuery, $options) use ($type, $searchAttrs, $engineFilter, $engineSort, &$matchedFields) {
+            $builder = $model::search($searchQuery, function ($meili, $searchQuery, $options) use ($type, $searchAttrs, $engineFilter, $engineSort, $exportLimit, &$matchedFields, &$snippets) {
                 $options = $engineSort($options);
                 $options['matchingStrategy'] = 'all';
+                if ($type === 'sources' && ! $exportLimit) {
+                    // The words in their place in the printed text, marked; \x01 and \x02 survive the escaping of the page
+                    $options = ['attributesToRetrieve' => ['id', 'title', 'text'], 'attributesToCrop' => ['text:36'], 'cropMarker' => '…',
+                        'attributesToHighlight' => ['title', 'text'], 'highlightPreTag' => "\x01", 'highlightPostTag' => "\x02"] + $options;
+                }
                 if ($searchAttrs) {
                     $options['attributesToSearchOn'] = $searchAttrs;
                 } elseif ($type === 'works') {
@@ -99,10 +109,17 @@ class SearchController extends Controller
                 $result = $meili->search($searchQuery, $options);
                 foreach ($result->getHits() as $hit) {
                     $matchedFields[$hit['id']] = array_keys($hit['_matchesPosition'] ?? []);
+                    if (isset($hit['_formatted'])) {
+                        $snippets[$hit['id']] = ['title' => $hit['_formatted']['title'] ?? null, 'text' => $hit['_formatted']['text'] ?? null];
+                    }
                 }
 
                 return $result;
             });
+            if ($idsOnly) {
+                // A queued export: only the ids, in the order of the results, up to its limit
+                return ['type' => $type, 'query' => $query, 'ids' => $builder->take($exportLimit)->keys()->map(fn ($id) => (int) $id)->all()];
+            }
             // No query() callback: with one, Scout counts the total by fetching every match from the engine and
             // counting it in the database (40 s for «کافی» in production). The relations are loaded for the page alone.
             $results = $builder->paginate($perPage)->withQueryString();
@@ -111,12 +128,28 @@ class SearchController extends Controller
                 : $results->getCollection()->load($with);
         } else {
             $builder = $filters->apply($prepare($model::query()));
-            $results = ($sort ? $dbSort($builder) : match ($type) {
+            $ordered = $sort ? $dbSort($builder) : match ($type) {
                 'works' => $builder->orderByDesc('works.manuscripts_count'),
                 // The stored count: ordering by the counted one counts every person's works first
                 'people' => $builder->orderByDesc('people.works_count'),
+                'sources' => $builder->orderBy('source_items.volume_number')->orderBy('source_items.position'),
                 default => $builder->orderBy('manuscripts.id'),
-            })->paginate($perPage)->withQueryString();
+            };
+            if ($idsOnly) {
+                $table = $ordered->getModel()->getTable();
+
+                return ['type' => $type, 'query' => $query, 'ids' => $ordered->setEagerLoads([])->limit($exportLimit)->pluck("{$table}.id")->map(fn ($id) => (int) $id)->all()];
+            }
+            $results = $ordered->paginate($perPage)->withQueryString();
+        }
+
+        if ($type === 'sources') {
+            foreach ($results as $item) {
+                $item->snippet = $snippets[$item->id] ?? null;
+            }
+            if (! $exportLimit) {
+                $this->addSourceLinks($results);
+            }
         }
 
         if ($type === 'works' && ! $exportLimit) {
@@ -145,8 +178,9 @@ class SearchController extends Controller
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
             'manuscripts' => ['library_id', 'city', 'scripts', 'copy_date_hijri_year', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
             'people' => ['century_hijri', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
+            'sources' => ['source_id', 'volume_number'],
         ][$type];
-        $index = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'][$type];
+        $index = self::INDEXES[$type];
         try {
             $options = ['matchingStrategy' => 'all', 'facets' => $names, 'limit' => 0];
             if ($searchAttrs && $searchQuery !== '') {
@@ -188,6 +222,17 @@ class SearchController extends Controller
             return $byCentury;
         };
 
+        if ($type === 'sources') {
+            // The sources whose entries are searchable, and the volumes of the one chosen
+            $options['sources'] = \App\Models\Source::whereIn('id', SourceItem::query()->select('source_id')->distinct())->orderBy('rank')->orderBy('id')->get()
+                ->each(fn ($src) => $src->matching_count = $count('source_id', $src->id));
+            $options['volumes'] = $filters->source
+                ? collect($facets['volume_number'] ?? [])->mapWithKeys(fn ($n, $v) => [(int) $v => $n])->sortKeys()->all()
+                : [];
+
+            return $options;
+        }
+
         if ($type === 'people') {
             $options['centuries'] = $counted ? collect($facets['century_hijri'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->sortKeys()->all()
                 : array_fill_keys(range(1, 15), null);
@@ -224,7 +269,7 @@ class SearchController extends Controller
         $libCounts = $facets['library_id'] ?? [];
         $options['libraries'] = Library::where('manuscripts_count', '>', 0)->orderByDesc('manuscripts_count')->get(['id', 'name', 'full_name', 'city', 'manuscripts_count'])
             ->each(fn ($l) => $l->matching_count = $counted ? (int) ($libCounts[$l->id] ?? 0) : $l->manuscripts_count)
-            ->filter(fn ($l) => ! $counted || $l->matching_count > 0 || $l->id === $filters->library?->id)
+            ->filter(fn ($l) => ! $counted || $l->matching_count > 0 || $filters->libraries->contains('id', $l->id))
             ->sortByDesc('matching_count')->values();
         $options['cities'] = $counted
             ? collect($facets['city'] ?? [])->sortDesc()->all()
@@ -240,6 +285,19 @@ class SearchController extends Controller
         $options['copyCities'] = array_keys(CopyPlaces::cities());
 
         return $options;
+    }
+
+    /** The works of the site each printed entry of the page is tied to, a reviewed tie first */
+    protected function addSourceLinks($results): void
+    {
+        $links = SourceEntry::with('citable:id,primary_title,slug')
+            ->whereIn('source_item_id', $results->pluck('id'))->where('citable_type', Work::class)
+            ->where('status', '!=', SourceEntry::STATUS_REJECTED)
+            ->orderByRaw('status = ? desc', [SourceEntry::STATUS_VERIFIED])->get()
+            ->filter(fn ($l) => $l->citable)->groupBy('source_item_id');
+        foreach ($results as $item) {
+            $item->linked_works = ($links->get($item->id) ?? collect())->pluck('citable')->unique('id')->values();
+        }
     }
 
     /** Beside each work of the page: the centuries its manuscripts were copied in, and whether one is the author's own */
@@ -309,7 +367,21 @@ class SearchController extends Controller
             'newest' => ['تازه‌ترین وفات', 'death_year_hijri', 'desc'],
             'works' => ['بیشترین اثر', 'works_count', 'desc'],
         ],
+        'sources' => [],
     ];
+
+    /** The relations each tab's results show */
+    public const WITH = [
+        'works' => ['catalog', 'author', 'subjects', 'languages'],
+        'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts'],
+        'people' => [],
+        'sources' => ['source'],
+    ];
+
+    /** The search tabs: works, manuscripts, people, and the printed entries of the sources (phase 7) */
+    public const TYPES = ['works', 'manuscripts', 'people', 'sources'];
+
+    public const INDEXES = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index', 'sources' => 'source_items_index'];
 
     public const PER_PAGE = [20, 50, 100];
 
@@ -362,9 +434,41 @@ class SearchController extends Controller
         // Exports count in the search stats too (backlog item 85)
         $this->logSearch($request, TextNormalizer::normalize($data['query']), $type, $data['scope'], $data['filters'],
             $data['results']->total(), 1, kind: SearchLog::KIND_EXPORT, format: $request->input('format') === 'csv' ? 'csv' : 'xlsx');
-        $name = trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', 'فهارس-' . ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$type] . '-' . $data['query']), '-');
+        $name = trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', 'فهارس-' . ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص', 'sources' => 'منابع'][$type] . '-' . $data['query']), '-');
 
         return SearchExport::download($data['results'] ?? [], $type, $request->input('format') === 'csv' ? 'csv' : 'xlsx', $name);
+    }
+
+    /** The ids of a search's results, in order, for a queued export (App\Jobs\ExportSearchResults) */
+    public function exportIds(Request $request, int $limit): array
+    {
+        return $this->search($request->merge(['page' => 1]), $limit, idsOnly: true);
+    }
+
+    /**
+     * A file larger than MEMBER_LIMIT rows, built in the queue; the user is told when it is ready (backlog item 83,
+     * phase 4). For signed-in users only.
+     */
+    public function queueExport(Request $request)
+    {
+        $format = $request->input('format') === 'csv' ? 'csv' : 'xlsx';
+        $params = $request->except(['_token', 'format', 'page', 'per_page']);
+        \App\Jobs\ExportSearchResults::dispatch($request->user()->id, $params, $format);
+        $data = ['query' => TextNormalizer::normalize((string) ($params['q'] ?? '')), 'type' => in_array($params['type'] ?? null, self::TYPES, true) ? $params['type'] : 'works'];
+        $this->logSearch($request, $data['query'], $data['type'], (string) ($params['scope'] ?? 'titles_names'), SearchFilters::fromRequest($request, $data['type']),
+            (int) $request->input('total', 0), 1, kind: SearchLog::KIND_EXPORT, format: "{$format}-queued");
+
+        return back()->with('success', 'ساخت فایل کامل آغاز شد. وقتی آماده شد، پیوند دانلودش را در اعلان‌ها و ایمیل‌تان می‌فرستیم.');
+    }
+
+    /** A queued export's file, by its signed and expiring link */
+    public function downloadExport(string $file)
+    {
+        abort_unless(preg_match('/^[a-f0-9]{32}\.(xlsx|csv)$/', $file, $m), 404);
+        $path = Storage::disk('public')->path(SearchExport::DIRECTORY . '/' . $file);
+        abort_unless(is_file($path), 404, 'این فایل دیگر نگه داشته نمی‌شود. خروجی را دوباره بگیرید.');
+
+        return response()->download($path, 'فهارس-خروجی.' . $m[1], ['Content-Type' => SearchExport::contentType($m[1])]);
     }
 
     /** The rank of the result opened from a logged search; only the first one opened counts */
@@ -402,6 +506,7 @@ class SearchController extends Controller
             'place' => ['محل کتابت', ['copy_place']],
         ],
         'people' => [],
+        'sources' => [],
     ];
 
     public static function scopeAvailable(string $type, string $scope): bool
@@ -433,6 +538,11 @@ class SearchController extends Controller
                 'titles' => ['name'],
                 'titles_names' => ['name', 'normalized_name', 'transliteration'],
             ],
+            // An entry is searched in its text by default: that is what this tab is for
+            'sources' => [
+                'titles' => ['title'],
+                'titles_names' => ['title', 'text'],
+            ],
         ][$type][$scope] ?? null;
     }
 
@@ -463,7 +573,7 @@ class SearchController extends Controller
      */
     protected function tabCounts(string $searchQuery, string $scope, string $type, int $currentTotal): array
     {
-        $indexes = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index'];
+        $indexes = self::INDEXES;
         $counts = [$type => $currentTotal];
         try {
             $meili = app(MeiliClient::class);
