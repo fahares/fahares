@@ -46,9 +46,8 @@ class SearchController extends Controller
         // The chosen order of the tab; none means by relevance, or the tab's own order when browsing (backlog item 83, phase 3)
         $sort = self::SORTS[$type][$request->input('sort')] ?? null;
         $sortKey = $sort ? $request->input('sort') : '';
-        // An export needs only the ids from the engine; the records come from the database
-        $engineSort = fn (array $options) => ($sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options)
-            + ($exportLimit ? ['attributesToRetrieve' => ['id']] : []);
+        // Only the ids come from the engine; the records come from the database
+        $engineSort = fn (array $options) => ($sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options) + ['attributesToRetrieve' => ['id']];
         $dbSort = function ($builder) use ($sort) {
             // A field the table lacks (the author's death of a work) is given as an expression
             $expr = $sort[3] ?? $builder->getModel()->getTable() . '.' . $sort[1];
@@ -101,8 +100,13 @@ class SearchController extends Controller
                 }
 
                 return $result;
-            })->query($prepare);
+            });
+            // No query() callback: with one, Scout counts the total by fetching every match from the engine and
+            // counting it in the database (40 s for «کافی» in production). The relations are loaded for the page alone.
             $results = $builder->paginate($perPage)->withQueryString();
+            $type === 'people'
+                ? $results->getCollection()->loadCount(['works', 'scribedManuscripts'])
+                : $results->getCollection()->load($with);
         } else {
             $builder = $filters->apply($prepare($model::query()));
             $results = ($sort ? $dbSort($builder) : match ($type) {
