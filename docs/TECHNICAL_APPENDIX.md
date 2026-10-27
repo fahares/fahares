@@ -4229,3 +4229,11 @@
 - **شمار فیلترها:** `facets()` همیشه اجرا می‌شود، با عبارت خالی هم (جستجوی placeholder)، و با `filter` قید (`contextEngine()`). در خطای موتور `null` برمی‌گرداند و `filterOptions` به شمار ذخیره‌شده برمی‌گردد. هزینه‌ی محلی: همه‌ی نسخه‌ها ۰٫۱۲ ثانیه، یک اثر ۰٫۰۱ ثانیه، همه‌ی آثار ۰٫۰۲ ثانیه.
 - **نما:** [components/search/list-tools](../resources/views/components/search/list-tools.blade.php) در `libraries/show`، `works/show` (بیش از یک نسخه) و دو زبانه‌ی `people/show` (بیش از یک مورد).
 - **ترتیب عددی کتابخانه:** `LibraryController::show` با `orderByRaw("shelfmark_key IS NULL, shelfmark_key REGEXP '^[0-9]' DESC, CAST(shelfmark_key AS UNSIGNED), shelfmark_key")`.
+
+### گام ۱۳.۴۴: `current_value` در `convert`
+
+- **ریشه:** در `Admin/SuggestionController::convert`، `$attributes` با `'current_value' => null` آغاز می‌شد و شاخه‌ی `field` مقدار را با `$attributes += [...]` می‌افزود. عملگر `+=` آرایه‌ی PHP کلید موجود را نگه می‌دارد، پس `SuggestionRegistry::currentValue()` هیچ‌گاه ثبت نمی‌شد. این شاخه اکنون `$attributes = [...] + $attributes` است. شاخه‌ی `general` همان `+=` را دارد، ولی مقدار فعلی‌اش عمداً خالی است.
+- **آزمون:** `test_reviewer_converts_a_misfiled_suggestion_keeping_the_submitter` اکنون `current_value` پیشنهاد مشتق `copy_date_raw` را می‌سنجد. بدون اصلاح شکست می‌خورد. کل مجموعه: ۳۶۰ آزمون موفق.
+- **داده‌ی پروداکشن (وارسی فقط‌خواندنی):** فقط دو پیشنهاد فیلدیِ مشتق با `current_value` خالی وجود دارد. #۴۱ (`author_name` اثر ۳۷۳۱۷، تأییدشده) مقدار قبلی‌اش در لاگ ممیزی #۴۱۶۹ «مجدالدین بغدادی، محمد» است. #۵ (`shelfmark` نسخه‌ی ۵۳۷۴۰، ردشده) مقدارش «10002» است، چون این نسخه هیچ لاگ ممیزی ندارد. بازگردانی از لاگ ممیزی به `old_values` تکیه دارد و به این خطا وابسته نبود.
+- **اصلاح داده (۵ آبان ۱۴۰۵، به اجازه‌ی کاربر):** با `ssh fahares-app` و یک `update` محدود به شناسه، نام فیلد و `current_value IS NULL`: #۴۱ ← «مجدالدین بغدادی، محمد» و #۵ ← «10002». هر کدام یک ردیف. به رکورد اثر و نسخه دست زده نشد.
+

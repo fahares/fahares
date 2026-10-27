@@ -1069,6 +1069,7 @@ class SuggestionWorkflowTest extends TestCase
         \Illuminate\Support\Facades\Notification::fake();
         $user = $this->researcher('test-misfiled@fahares.net');
         $m = $this->manuscript();
+        $m->update(['copy_date_raw' => '۹۰۰ق']);
         $this->actingAs($user);
         // A scribe's name and a copy date, sent together as a research note
         $this->addNote($m, 'observation', ['text' => 'کاتب این نسخه عبدالله بن محمود است و تاریخ کتابت ۸۹۷ است'], ['credit_name' => 'پژوهشگر آزمون'])->assertOk();
@@ -1089,6 +1090,8 @@ class SuggestionWorkflowTest extends TestCase
         $this->post("/admin/suggestions/{$note->id}/convert", ['target_type' => 'manuscript', 'kind' => 'field', 'field_name' => 'copy_date_raw', 'suggested_value' => '۸۹۷', 'close_original' => 1])->assertRedirect();
         $this->assertSame('converted', $note->fresh()->status);
         $this->assertCount(2, $note->fresh()->resolution['converted_to']);
+        // The derived field suggestion records the field's value at conversion time, not an empty one
+        $this->assertSame('۹۰۰ق', FieldSuggestion::where('suggestable_id', $m->id)->where('field_name', 'copy_date_raw')->sole()->current_value);
         $this->post("/admin/suggestions/{$note->id}/convert", ['target_type' => 'manuscript', 'kind' => 'general', 'suggested_value' => 'x'])->assertStatus(409);
 
         // Converting is the reviewer's own work: no "new suggestion" notifications
