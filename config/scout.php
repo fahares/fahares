@@ -184,6 +184,10 @@ return [
                 'pagination' => [
                     'maxTotalHits' => 100000,
                 ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
+                ],
                 'faceting' => [
                     'maxValuesPerFacet' => 500,
                 ],
@@ -263,6 +267,10 @@ return [
                 'pagination' => [
                     'maxTotalHits' => 100000,
                 ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
+                ],
                 // Libraries and cities: every value, not Meilisearch's first 100
                 'faceting' => [
                     'maxValuesPerFacet' => 500,
@@ -297,6 +305,10 @@ return [
                 'searchableAttributes' => ['title', 'text'],
                 'pagination' => [
                     'maxTotalHits' => 100000,
+                ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
                 ],
                 'synonyms' => [
                     'بهجه' => ['بهجت'],
@@ -348,6 +360,10 @@ return [
                 ],
                 'pagination' => [
                     'maxTotalHits' => 100000,
+                ],
+                // A number is matched as written: «1189» is not «1188» or «11890» (Meilisearch ≥ 1.15, backlog item 83)
+                'typoTolerance' => [
+                    'disableOnNumbers' => true,
                 ],
             ],
         ],

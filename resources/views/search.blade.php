@@ -51,6 +51,18 @@
                         @endif
                     </select>
                 </label>
+                {{-- What the box understands, which no one finds by chance (backlog item 83, phase 8) --}}
+                <details class="relative text-ink/80">
+                    <summary class="cursor-pointer list-none text-cinnabar hover:underline">راهنمای جستجو</summary>
+                    <div class="absolute z-30 mt-2 w-[min(22rem,85vw)] end-0 bg-surface border border-line shadow-xl p-4 space-y-2 leading-6">
+                        <p><b>عبارت دقیق</b> در گیومه: <code dir="rtl">"شرح لمعه"</code></p>
+                        <p><b>بی این واژه</b> با خط تیره پیش از آن: <code dir="rtl">شرح -حاشیه</code></p>
+                        <p><b>این یا آن</b> با خط عمودی: <code dir="rtl">کافی | شافی</code></p>
+                        <p><b>شماره‌ی نسخه:</b> <code dir="rtl">مجلس ۱۱۸۹</code>؛ <b>صفحه‌ی فهرست:</b> <code dir="rtl">مرعشی ج ۳۳ ص ۲۹۴</code>، <code dir="rtl">ذریعه ج ۳ ص ۴۰۲</code></p>
+                        <p><b>فقط یک فیلد</b> (کاتب، پدیدآور، آغاز و انجام…): از «جستجوی عبارت در».</p>
+                        <p class="text-muted">ارقام فارسی و لاتین، «ي/ی» و «ك/ک»، و «ال» یکسان شمرده می‌شوند.</p>
+                    </div>
+                </details>
 
                 <!-- Type Tabs -->
                 <div class="flex items-center gap-2">
@@ -317,7 +329,8 @@
 
                 @elseif($type === 'sources')
                     @php
-                        // The engine's marks (\x01…\x02) around the words found, kept through the escaping; the engine
+                        // The engine's marks (\x01…\x02) around the words found in the text, kept through the escaping (the
+                        // title is shown from the record: the index holds its search variants); the engine
                         // counts the article «ال» as a word of its own, and marking it in every word is noise
                         $marked = fn (?string $text) => str_replace(["\x01ال\x02", "\x01", "\x02"], ['ال', '<mark class="bg-gold/30 text-ink rounded-sm px-0.5">', '</mark>'], e($text));
                     @endphp
@@ -325,7 +338,7 @@
                         @foreach($results as $item)
                             <li class="py-4 space-y-1.5" data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
                                 <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                                    <a href="{{ $item->url() }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">{!! $item->snippet['title'] ?? null ? $marked($item->snippet['title']) : e($item->title ?: 'مدخل بی‌عنوان') !!}</a>
+                                    <a href="{{ $item->url() }}" class="font-naskh text-lg font-bold text-ink hover:text-cinnabar transition leading-relaxed">{{ $item->title ?: 'مدخل بی‌عنوان' }}</a>
                                     <span class="text-xs text-muted whitespace-nowrap">{{ $item->source?->short_name ?: $item->source?->title }}، {{ $item->placeLabel() }}</span>
                                 </div>
                                 <p class="text-[13px] text-ink/85 leading-7 font-naskh border-s-2 border-gold ps-3">

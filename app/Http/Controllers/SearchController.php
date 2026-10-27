@@ -21,6 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Meilisearch\Client as MeiliClient;
+use Meilisearch\Contracts\MultiSearchFederation;
+use Meilisearch\Contracts\SearchQuery;
 
 class SearchController extends Controller
 {
@@ -39,6 +41,12 @@ class SearchController extends Controller
     {
         $rawQuery = trim((string) $request->input('q', ''));
         $searchQuery = TextNormalizer::normalize($rawQuery);
+        // «کافی | شافی»: any of the parts (phase 8); one part left is a plain search
+        $alternatives = self::alternatives($searchQuery);
+        if (count($alternatives) === 1) {
+            [$searchQuery] = $alternatives;
+            $alternatives = [];
+        }
         $query = $rawQuery;
         $type = in_array($request->input('type'), self::TYPES, true) ? $request->input('type') : 'works';
         $scope = self::scopeAvailable($type, (string) $request->input('scope')) ? $request->input('scope') : 'titles_names';
@@ -61,7 +69,7 @@ class SearchController extends Controller
         // A search that names a shelfmark or a catalogue page is answered directly (backlog item 83, phase 2);
         // one manuscript is opened at once
         $direct = null;
-        if (! $exportLimit && $rawQuery !== '' && (int) $request->input('page', 1) === 1 && $filters->isEmpty()) {
+        if (! $exportLimit && $rawQuery !== '' && ! $alternatives && (int) $request->input('page', 1) === 1 && $filters->isEmpty()) {
             $direct = DirectAnswer::for($rawQuery);
             if ($single = $direct?->single()) {
                 $this->logSearch($request, $searchQuery, $type, $scope, $filters, 1, 1, clickedPosition: 1);
@@ -73,7 +81,7 @@ class SearchController extends Controller
         $searchAttrs = self::scopeAttributes($type, $scope);
         // The counts beside each filter's choices, among the matches of the words (or all records) within the list
         // the tab is narrowed to; when the engine fails, the stored totals
-        $facets = $exportLimit || $idsOnly ? null : $this->facets($type, $searchQuery, $searchAttrs, $filters->contextEngine());
+        $facets = $exportLimit || $idsOnly ? null : $this->facets($type, $searchQuery, $searchAttrs, $filters->contextEngine(), $alternatives);
         $options = $exportLimit || $idsOnly ? [] : $this->filterOptions($type, $filters, $facets ?? [], $facets !== null);
 
         $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => SourceItem::class][$type];
@@ -88,7 +96,18 @@ class SearchController extends Controller
         $matchedFields = [];
         $snippets = [];
         $engineDown = false;
-        if ($searchQuery !== '') {
+        if ($alternatives) {
+            try {
+                $results = $this->anyOf($request, $type, $alternatives, $searchAttrs, $filters->engine(), $sort, $dbSort, $prepare, $perPage, $exportLimit, $idsOnly, $snippets, $matchedFields);
+            } catch (\Meilisearch\Exceptions\ApiException|\Meilisearch\Exceptions\CommunicationException|\Meilisearch\Exceptions\TimeOutException $e) {
+                report($e);
+                $engineDown = true;
+                $results = $idsOnly ? [] : new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage, 1, ['path' => $request->url(), 'query' => $request->query()]);
+            }
+            if ($idsOnly) {
+                return ['type' => $type, 'query' => $query, 'ids' => $results];
+            }
+        } elseif ($searchQuery !== '') {
             $engineFilter = $filters->engine();
             $builder = $model::search($searchQuery, function ($meili, $searchQuery, $options) use ($type, $searchAttrs, $engineFilter, $engineSort, $exportLimit, &$matchedFields, &$snippets) {
                 $options = $engineSort($options);
@@ -170,7 +189,7 @@ class SearchController extends Controller
             $this->addCopyCenturies($results);
         }
 
-        $tabCounts = $searchQuery !== '' && ! $exportLimit ? $this->tabCounts($searchQuery, $scope, $type, $results->total()) : [];
+        $tabCounts = $searchQuery !== '' && ! $exportLimit ? $this->tabCounts($searchQuery, $scope, $type, $results->total(), $alternatives) : [];
         $suggestion = ! $exportLimit && $results->total() === 0 && $searchQuery !== '' ? $this->getDidYouMeanSuggestion($searchQuery, $type) : null;
         $searchLogId = $exportLimit || $engineDown ? null : $this->logSearch($request, $searchQuery, $type, $scope, $filters, $results->total(), $results->currentPage());
         $validWorkForms = SearchFilters::WORK_FORMS;
@@ -183,7 +202,7 @@ class SearchController extends Controller
      * The engine's counts of the values of each filter among the matches of the words, or among all records when
      * there are none, within the context filter and before the others; null when the engine fails
      */
-    protected function facets(string $type, string $searchQuery, ?array $searchAttrs, ?string $context = null): ?array
+    protected function facets(string $type, string $searchQuery, ?array $searchAttrs, ?string $context = null, array $alternatives = []): ?array
     {
         $names = [
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
@@ -193,6 +212,11 @@ class SearchController extends Controller
         ][$type];
         $index = self::INDEXES[$type];
         try {
+            if ($alternatives) {
+                // Any of the parts: the engine merges the counts of their matches
+                return app(MeiliClient::class)->multiSearch(self::partQueries($index, $alternatives, $searchAttrs, $context),
+                    (new MultiSearchFederation)->setLimit(0)->setFacetsByIndex([$index => $names])->setMergeFacets(['maxValuesPerFacet' => 500]))['facetDistribution'] ?? [];
+            }
             $options = ['matchingStrategy' => 'all', 'facets' => $names, 'limit' => 0];
             if ($searchAttrs && $searchQuery !== '') {
                 $options['attributesToSearchOn'] = $searchAttrs;
@@ -296,6 +320,84 @@ class SearchController extends Controller
         $options['copyCities'] = array_keys(CopyPlaces::cities());
 
         return $options;
+    }
+
+    /** The most results a search with «|» and a chosen order is sorted among: the engine cannot sort a union */
+    public const ANY_OF_SORT_LIMIT = 10000;
+
+    /** The parts of «الف | ب | ج», at most five; an empty part is dropped */
+    public static function alternatives(string $searchQuery): array
+    {
+        if (! str_contains($searchQuery, '|')) {
+            return [];
+        }
+
+        return array_slice(array_values(array_filter(array_map('trim', explode('|', $searchQuery)), fn ($p) => $p !== '')), 0, 5);
+    }
+
+    /** One engine query per part, in the same scope and filter */
+    public static function partQueries(string $index, array $alternatives, ?array $searchAttrs, ?string $filter = null, ?callable $tune = null): array
+    {
+        return array_map(function ($part) use ($index, $searchAttrs, $filter, $tune) {
+            $query = (new SearchQuery)->setIndexUid($index)->setQuery($part)->setMatchingStrategy('all');
+            $searchAttrs && $query->setAttributesToSearchOn($searchAttrs);
+            $filter && $query->setFilter([$filter]);
+
+            return $tune ? $tune($query) : $query;
+        }, $alternatives);
+    }
+
+    /**
+     * A search for any of several parts (phase 8), as one federated search of the engine: the matches of all parts,
+     * each once, ranked together. The engine ranks a union by relevance only, so a chosen order is applied by the
+     * database to the first ANY_OF_SORT_LIMIT matches.
+     */
+    protected function anyOf(Request $request, string $type, array $alternatives, ?array $searchAttrs, ?string $filter, ?array $sort, callable $dbSort,
+        callable $prepare, int $perPage, ?int $exportLimit, bool $idsOnly, array &$snippets, array &$matchedFields): array|\Illuminate\Pagination\LengthAwarePaginator
+    {
+        $index = self::INDEXES[$type];
+        $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => SourceItem::class][$type];
+        $table = (new $model)->getTable();
+        $page = max(1, (int) $request->input('page', 1));
+        $tune = function (SearchQuery $q) use ($type, $searchAttrs, $exportLimit, $sort) {
+            if ($type === 'sources' && ! $exportLimit && ! $sort) {
+                return $q->setAttributesToRetrieve(['id', 'title', 'text'])->setAttributesToCrop(['text:36'])->setCropMarker('…')
+                    ->setAttributesToHighlight(['title', 'text'])->setHighlightPreTag("\x01")->setHighlightPostTag("\x02");
+            }
+            if ($type === 'works' && ! $searchAttrs) {
+                $q->setShowMatchesPosition(true);
+            }
+
+            return $q->setAttributesToRetrieve(['id']);
+        };
+        $federated = fn (int $limit, int $offset) => app(MeiliClient::class)->multiSearch(self::partQueries($index, $alternatives, $searchAttrs, $filter, $tune),
+            (new MultiSearchFederation)->setLimit($limit)->setOffset($offset));
+
+        if ($sort) {
+            $ids = array_column($federated(self::ANY_OF_SORT_LIMIT, 0)['hits'] ?? [], 'id');
+            $ordered = $dbSort($prepare($model::query())->whereIn("{$table}.id", $ids ?: [0]));
+
+            return $idsOnly
+                ? $ordered->setEagerLoads([])->limit($exportLimit)->pluck("{$table}.id")->map(fn ($id) => (int) $id)->all()
+                : $ordered->paginate($perPage)->withQueryString();
+        }
+
+        $result = $idsOnly ? $federated($exportLimit, 0) : $federated($perPage, ($page - 1) * $perPage);
+        $ids = [];
+        foreach ($result['hits'] ?? [] as $hit) {
+            $ids[] = (int) $hit['id'];
+            $matchedFields[$hit['id']] = array_keys($hit['_matchesPosition'] ?? []);
+            if (isset($hit['_formatted'])) {
+                $snippets[$hit['id']] = ['title' => $hit['_formatted']['title'] ?? null, 'text' => $hit['_formatted']['text'] ?? null];
+            }
+        }
+        if ($idsOnly) {
+            return $ids;
+        }
+        $records = $prepare($model::query())->whereIn("{$table}.id", $ids ?: [0])->get()->keyBy('id');
+
+        return new \Illuminate\Pagination\LengthAwarePaginator(collect($ids)->map(fn ($id) => $records->get($id))->filter()->values(),
+            (int) ($result['estimatedTotalHits'] ?? count($ids)), $perPage, $page, ['path' => $request->url(), 'query' => $request->query()]);
     }
 
     /** The works of the site each printed entry of the page is tied to, a reviewed tie first */
@@ -582,7 +684,7 @@ class SearchController extends Controller
      * Hit counts for the three tabs, so a search on the wrong tab points to where the matches are.
      * The current tab keeps its filtered total; the others count the bare query in the same scope.
      */
-    protected function tabCounts(string $searchQuery, string $scope, string $type, int $currentTotal): array
+    protected function tabCounts(string $searchQuery, string $scope, string $type, int $currentTotal, array $alternatives = []): array
     {
         $indexes = self::INDEXES;
         $counts = [$type => $currentTotal];
@@ -593,8 +695,14 @@ class SearchController extends Controller
                 if ($tab === $type || ! self::scopeAvailable($tab, $scope)) {
                     continue;
                 }
+                $attrs = self::scopeAttributes($tab, $scope);
+                if ($alternatives) {
+                    $counts[$tab] = (int) ($meili->multiSearch(self::partQueries($index, $alternatives, $attrs), (new MultiSearchFederation)->setLimit(0))['estimatedTotalHits'] ?? 0);
+
+                    continue;
+                }
                 $options = ['matchingStrategy' => 'all', 'limit' => 0];
-                if ($attrs = self::scopeAttributes($tab, $scope)) {
+                if ($attrs) {
                     $options['attributesToSearchOn'] = $attrs;
                 }
                 $counts[$tab] = (int) $meili->index($index)->search($searchQuery, $options)->getEstimatedTotalHits();

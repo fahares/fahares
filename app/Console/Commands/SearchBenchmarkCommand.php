@@ -50,7 +50,12 @@ class SearchBenchmarkCommand extends Command
                 $options['attributesToSearchOn'] = $attrs;
             }
             $options['attributesToRetrieve'] = ['id'];
-            $ids = array_column($meili->index(self::INDEXES[$type])->search(TextNormalizer::normalize($case['q']), $options)->getHits(), 'id');
+            $words = TextNormalizer::normalize($case['q']);
+            // «الف | ب»: one federated search of the parts, as the search page sends it
+            $ids = ($parts = SearchController::alternatives($words))
+                ? array_column($meili->multiSearch(SearchController::partQueries(self::INDEXES[$type], $parts, $options['attributesToSearchOn'] ?? null),
+                    (new \Meilisearch\Contracts\MultiSearchFederation)->setLimit(self::DEPTH))['hits'] ?? [], 'id')
+                : array_column($meili->index(self::INDEXES[$type])->search($words, $options)->getHits(), 'id');
             $records = self::MODELS[$type]::whereKey($ids)->get()->keyBy('id');
 
             $rank = null;
