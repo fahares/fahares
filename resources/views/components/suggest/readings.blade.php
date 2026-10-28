@@ -4,12 +4,12 @@
     <x-ui.section id="suggestion-readings" title="اقوال، اصلاحات و تعلیقات">
         <div class="space-y-5">
 
-        @foreach($readings as $r)
+        @foreach($readings->reject(fn ($r) => isset($r['merged_into'])) as $r)
             <section class="space-y-3 text-sm {{ $loop->first ? '' : 'pt-5 border-t border-line' }}">
                 <h3 class="text-xs font-bold text-muted">{{ $r['label'] }}</h3>
 
                 @if($r['adopted'])
-                    <x-suggest.reading :s="$r['adopted']" chosen />
+                    <x-suggest.reading :s="$r['adopted']" :value="$r['value'] ?? null" chosen />
                 @elseif($r['current'] !== null)
                     <div class="flex flex-wrap items-baseline gap-2">
                         <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60">ضبط فعلی (فهرست)</span>

@@ -21,7 +21,7 @@ class SuggestionReadings
     {
         $type = SuggestionRegistry::typeKey($record::class);
 
-        return FieldSuggestion::where('suggestable_type', $record::class)
+        $sections = FieldSuggestion::where('suggestable_type', $record::class)
             ->where('suggestable_id', $record->getKey())
             ->where('kind', 'field')
             ->where('status', 'approved')
@@ -60,6 +60,41 @@ class SuggestionReadings
                 ];
             })
             ->filter(fn ($r) => $r['adopted'] || $r['alternatives']->isNotEmpty() || $r['history']->isNotEmpty());
+
+        return self::joinConverted($sections);
+    }
+
+    /**
+     * One suggestion converted into edits of several fields (death year unknown, century 4) reads as a single
+     * statement: the fields whose adopted readings come from the same original are shown as one section, under
+     * the first field; the other fields keep the section for their badges and are marked merged_into.
+     */
+    private static function joinConverted(Collection $sections): Collection
+    {
+        $groups = $sections->filter(fn ($r) => isset($r['adopted']?->payload['derived_from']))
+            ->groupBy(fn ($r) => $r['adopted']->payload['derived_from'], preserveKeys: true)
+            ->filter(fn ($g) => $g->count() > 1);
+
+        foreach ($groups as $group) {
+            $line = fn (array $r, ?string $value) => $r['label'] . ': ' . ($value === null || trim($value) === '' ? 'نامشخص' : $value);
+            $baselines = $group->filter(fn ($r) => $r['baseline'] !== null)->map(fn ($r) => $line($r, $r['baseline']));
+            $joined = [
+                'label' => $group->pluck('label')->implode(' و '),
+                'adopted' => $group->first()['adopted'],
+                'value' => $group->map(fn ($r) => $line($r, $r['adopted']->display_value))->implode("\n"),
+                'current' => null,
+                'alternatives' => $group->pluck('alternatives')->flatten(1)->values(),
+                'baseline' => $baselines->isEmpty() ? null : $baselines->implode("\n"),
+                'history' => $group->pluck('history')->flatten(1)->values(),
+            ];
+            $joined['count'] = 1 + $joined['alternatives']->count() + ($joined['baseline'] !== null ? 1 : 0);
+            $first = $group->keys()->first();
+            foreach ($group->keys() as $key) {
+                $sections[$key] = $joined + ($key === $first ? [] : ['merged_into' => $first]);
+            }
+        }
+
+        return $sections;
     }
 
     /** Names credited for the main reading of a field, for the badge beside it. */

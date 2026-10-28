@@ -1,4 +1,4 @@
-@props(['s', 'tag' => null, 'tone' => 'stone', 'chosen' => false])
+@props(['s', 'value' => null, 'tag' => null, 'tone' => 'stone', 'chosen' => false])
 {{-- One approved reading in <x-suggest.readings>: value, who holds it, when, the evidence and the reviewer's public note --}}
 @php
     $tones = [
@@ -15,7 +15,7 @@
         @else
             <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold {{ $tones[$tone] }}">{{ $tag }}</span>
         @endif
-        <span class="font-bold text-ink whitespace-pre-line">{{ $s->display_value }}</span>
+        <span class="font-bold text-ink whitespace-pre-line">{{ $value ?? $s->display_value }}</span>
     </div>
     <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[11px] text-muted">
         <span>{{ $s->standing === 'edit' ? 'ویرایش به پیشنهاد' : 'قائل:' }} <strong class="text-ink">{{ $s->credit_name ?: 'یکی از پژوهشگران' }}</strong></span>
