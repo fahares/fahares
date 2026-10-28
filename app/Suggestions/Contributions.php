@@ -82,7 +82,26 @@ class Contributions
         $suggestions = collect($suggestions);
         $logs = self::auditLogs($suggestions->where('kind', 'relation')->pluck('id')->all());
 
-        return $suggestions->map(fn (FieldSuggestion $s) => self::summary($s, $logs[$s->id] ?? null));
+        return self::joinConverted($suggestions->map(fn (FieldSuggestion $s) => self::summary($s, $logs[$s->id] ?? null)));
+    }
+
+    /**
+     * Field edits converted from one suggestion (death year unknown, century 4) read as one correction,
+     * in the place of the first of them; the original itself may be approved too, so it groups by its own id.
+     */
+    private static function joinConverted(Collection $summaries): Collection
+    {
+        $key = fn (array $item) => $item['suggestion']->kind === 'field' && ! $item['suggestion']->review_queue
+            ? $item['suggestion']->suggestable_type . ':' . $item['suggestion']->suggestable_id . ':' . ($item['suggestion']->payload['derived_from'] ?? $item['suggestion']->id)
+            : 'item:' . $item['suggestion']->id;
+        $lines = fn ($group, string $side) => $group->every(fn ($i) => $i[$side] === null) ? null
+            : ['label' => $group->map(fn ($i) => $i['action'] . ': ' . ($i[$side]['label'] ?? 'نامشخص'))->implode('؛ '), 'url' => null];
+
+        return $summaries->groupBy($key)->map(fn (Collection $group) => $group->count() === 1 ? $group->first() : array_merge($group->first(), [
+            'action' => $group->pluck('action')->implode(' و '),
+            'before' => $lines($group, 'before'),
+            'after' => $lines($group, 'after'),
+        ]))->values();
     }
 
     /**

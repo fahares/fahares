@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\FieldSuggestion;
 use App\Models\Person;
+use App\Suggestions\Contributions;
 use App\Suggestions\SuggestionReadings;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -32,5 +33,10 @@ class ConvertedReadingsTest extends TestCase
         $this->assertSame('death_year_hijri', $readings['century_hijri']['merged_into']);
         $this->assertSame("سال وفات (قمری): نامشخص\nسده (قمری): 4", $readings['death_year_hijri']['value']);
         $this->assertNotNull(SuggestionReadings::badge($readings, 'century_hijri'));
+
+        $items = Contributions::summarize(FieldSuggestion::where('suggestable_id', $person->id)->where('suggestable_type', Person::class)->orderBy('id')->get());
+        $this->assertCount(1, $items);
+        $this->assertSame('سال وفات (قمری) و سده (قمری)', $items[0]['action']);
+        $this->assertSame('سال وفات (قمری): نامشخص؛ سده (قمری): 4', $items[0]['after']['label']);
     }
 }
