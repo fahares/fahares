@@ -69,7 +69,7 @@
         <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
             <x-ui.card :framed="true">
                 <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
-                    <x-ui.meta label="سده">{{ $person->century_hijri ? 'سده‌ی ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
+                    <x-ui.meta label="سده" field="century_hijri">{{ $person->century_hijri ? 'سده‌ی ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
                     <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق</x-ui.meta>
                     <x-ui.meta label="وفات" field="death_year_hijri">
                         @if($person->death_year_hijri){{ Fa::digits($person->death_year_hijri) }} ق@else<span class="text-muted">نامشخص</span>@endif

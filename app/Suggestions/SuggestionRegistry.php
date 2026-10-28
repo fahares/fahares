@@ -432,6 +432,7 @@ class SuggestionRegistry
             'name' => ['label' => 'نام', 'input' => 'text', 'required' => true],
             'aliases' => ['label' => 'شهرت‌ها و القاب', 'input' => 'list'],
             'transliteration' => ['label' => 'آوانگاری نام', 'input' => 'text'],
+            'century_hijri' => ['label' => 'سده (قمری)', 'input' => 'integer', 'min' => 1, 'max' => 15],
             'birth_year_hijri' => ['label' => 'سال تولد (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_hijri' => ['label' => 'سال وفات (قمری)', 'input' => 'integer', 'min' => 1, 'max' => HijriYear::MAX],
             'death_year_gregorian' => ['label' => 'سال وفات (میلادی)', 'input' => 'integer', 'min' => 500, 'max' => 2100],
