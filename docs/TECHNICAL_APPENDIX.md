@@ -4292,3 +4292,26 @@
   - نسخه‌ها از ۳۲۳٬۸۸۴ به ۳۲۱٬۳۳۵ رسیدند. ۲٬۵۴۰ نسخه ادغام شد و ۹ نسخه سرسطر استاندارد ندارند و هنوز بررسی نشده‌اند.
   - ۱۳۷٬۰۲۶ نسخه یادداشت بی‌نوع (`remark`) دارند. این دامنه‌ی کار مورد ۴ است.
 
+### گام ۱۳.۵۰: مقایسه‌ی v2 با پایگاه داده
+- **ابزار:** `fahares-corpus/scripts/fankha_v2_db_compare.py [--out DIR] [--volumes …] [--db fahares_prod]`. فقط می‌خواند. پایگاه داده را با `docker exec fahares_mariadb` و `JSON_OBJECT` سطر به سطر می‌خواند. خروجی `reports/fankha_v2_db/` بیرون از گیت است: `diffs.jsonl`، `report.json` با ۳۰ نمونه‌ی reservoir (seed 87) از هر دسته، و `report.md`. اجرای ۳۴ جلد حدود ۲٫۵ دقیقه است.
+- **تطبیق:**
+  - **اثر:** پسوند slug `-v{vol}-{ordinal}` با `key.ordinal` در v2.
+  - **نسخه درون اثر:**
+    1. `norm(raw_text)`: برچسب صفحه، نیم‌فاصله، ی/ک عربی و نقطه‌گذاری حذف.
+    2. پیشوند متن.
+    3. ردیف «همان نسخه بالا» بی «نسخه اصل» → `merged_in_v2`.
+    4. شهر، کتابخانه و شماره.
+  - **نسخه زیر اثری دیگر:** نمایه‌ی متنِ همه‌ی نسخه‌های v2 در سراسر جلدها؛ بیشترش استدراک جلد ۳۴.
+- **نگاشت ستون‌ها:**
+  - `scribe_name` ← `scribes[0].name`
+  - `is_bika` ← `no_scribe`، `is_bita` ← `undated`
+  - `copy_date_raw` ← `copy_date.raw`، `copy_place` ← `copy_place.v`
+  - `folios` و `lines` ← عدد آغازین. صفرِ سایت یعنی خالی.
+  - `incipit_text` / `explicit_text` ← `.text`
+  - `catalog_citation` ← `metadata.catalog_citation`
+  - نُه پرچم ← `flags`
+  - برای آثار: `clean_title` ← `title`، `author_name` ← `author.name`، `composition_date_raw` و `composition_place` ← `composition`، `commentaries_and_glosses` ← `commentaries`.
+- **دسته‌ها:** `categorise()`، به ترتیب: `page_tag_only`، `trivial`، `filled`، `emptied`، `hedge_split`، `trimmed`، `extended`، `trimmed_inner`، `extended_inner`، `different`؛ و برای پرچم‌ها `flag_on` / `flag_off`.
+  - **وضع سایت:** `site` برابر `v1` (مقدار سایت = v1.1.6)، `edited` یا `unknown` (بی ردیف v1).
+  - **حفاظت:** `protected` از لاگ ممیزی `verify`، همان منطق `ProtectedColumns`.
+  - **سرنوشت متن برداشته:** `fate` برابر `moved` (متن برداشته در فیلد دیگری از همان رکورد v2 هست) یا `dropped`.
