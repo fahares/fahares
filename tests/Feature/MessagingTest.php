@@ -250,6 +250,8 @@ class MessagingTest extends TestCase
         $this->assertSame('خط اول', ReplyText::extract("خط اول\n-- \nامضا"));
         $this->assertSame('از html', ReplyText::extract(null, '<div>از html</div><blockquote>نقل قول</blockquote>'));
         $this->assertSame("یک\nدو", ReplyText::extract("یک\n> نقل\nدو"));
+        // Gmail's header line in a right-to-left reply, wrapped in direction marks
+        $this->assertSame("سلام.\nپاسخ تستی ارسال شد.\nموفق باشید.", ReplyText::extract("سلام.\nپاسخ تستی ارسال شد.\nموفق باشید.\n\n\u{202A}On Wed, Oct 28, 2026 at 9:51 PM \u{202B}فهارس\u{202C}\u{200E} <noreply@fahares.net> wrote:\u{202C}\n"));
     }
 
     public function test_the_persian_name_request_is_a_direct_message_from_its_template(): void

@@ -4,7 +4,7 @@ namespace App\Messaging;
 
 /**
  * The new text of an email reply (backlog item 91): the plain text (or the HTML made plain), cut at the first line
- * that opens the quoted history — «On … wrote:», its Persian and Arabic forms, a forwarded-header block, or the
+ * that opens the quoted history (invisible direction marks aside) — «On … wrote:», its Persian and Arabic forms, a forwarded-header block, or the
  * «>» quote lines — and at a signature delimiter.
  */
 class ReplyText
@@ -27,7 +27,8 @@ class ReplyText
         $lines = preg_split("~\r\n|\r|\n~", (string) $text);
         $kept = [];
         foreach ($lines as $line) {
-            $trimmed = trim($line);
+            // Gmail wraps the «On … wrote:» line in invisible direction marks (U+202A, U+202B, U+200E …)
+            $trimmed = trim(preg_replace('~\p{Cf}+~u', '', $line));
             if ($trimmed === '--' || $trimmed === '-- ') {
                 break;
             }
