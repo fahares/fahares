@@ -65,7 +65,7 @@ class FieldSuggestion extends Model
     /** The reading as a reader sees it: the reviewer's clean value, with yes/no for flags. */
     public function getDisplayValueAttribute(): string
     {
-        $value = $this->applied_value ?? $this->suggested_value;
+        $value = $this->applied_value ?? (($this->resolution['cleared'] ?? false) ? '' : $this->suggested_value);
         if (($this->fieldDefinition()['input'] ?? null) === 'boolean') {
             return in_array($value, ['1', 'true', 'بله'], true) ? 'بله' : 'خیر';
         }

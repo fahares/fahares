@@ -190,6 +190,10 @@ class SuggestionController extends Controller
                 if ($field && $target && $standing !== 'alternative') {
                     $result = $applier->apply($target, $field, $validated);
                     $result['resolution']['applied'] = true;
+                    // An emptied value clears the field; without the mark the reading would fall back to the suggested text
+                    if ($appliedValue === null) {
+                        $result['resolution']['cleared'] = true;
+                    }
                     if ($retexts = self::retext($target->fresh(), $field, $validated['retext'] ?? [])) {
                         $result['old']['retexts'] = $retexts;
                         $result['new']['retexts'] = array_column($retexts, 'id');

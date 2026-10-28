@@ -39,4 +39,11 @@ class ConvertedReadingsTest extends TestCase
         $this->assertSame('سال وفات (قمری) و سده (قمری)', $items[0]['action']);
         $this->assertSame('سال وفات (قمری): نامشخص؛ سده (قمری): 4', $items[0]['after']['label']);
     }
+
+    public function test_an_emptied_value_reads_as_cleared_not_as_the_suggested_text()
+    {
+        $s = new FieldSuggestion(['field_name' => 'death_year_hijri', 'suggested_value' => 'قرن۴', 'resolution' => ['applied' => true, 'cleared' => true]]);
+
+        $this->assertSame('', $s->display_value);
+    }
 }
