@@ -19,7 +19,7 @@ class AdminNav
             ['title' => 'داوری', 'items' => [
                 ['label' => 'پیشخوان', 'route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'can' => 'panel.access'],
                 ['label' => 'پیشنهادهای اصلاح', 'route' => 'admin.suggestions.index', 'active' => 'admin.suggestions.*', 'can' => 'suggestions.review',
-                    'count' => fn () => FieldSuggestion::where('status', 'pending')->count()],
+                    'count' => fn () => FieldSuggestion::inQueue()->count()],
                 ['label' => 'نشانی‌های خودکار فهرست', 'route' => 'admin.catalog-references.index', 'active' => 'admin.catalog-references.*', 'can' => 'catalog_refs.review',
                     'count' => fn () => SourceEntry::awaitingReview()->count()],
                 ['label' => 'اعلان‌های من', 'route' => 'notifications.index', 'active' => 'notifications.*', 'can' => 'panel.access',
@@ -44,6 +44,8 @@ class AdminNav
             ]],
             ['title' => 'سامانه', 'items' => [
                 ['label' => 'کاربران', 'route' => 'admin.users.index', 'active' => 'admin.users.*', 'can' => 'users.manage'],
+                ['label' => 'پیام به کاربران', 'route' => 'admin.messages.index', 'active' => 'admin.messages.*', 'can' => 'users.message',
+                    'count' => fn () => \App\Models\MessageThread::where('kind', 'direct')->unreadByStaff()->count()],
                 ['label' => 'ماتریس دسترسی', 'route' => 'admin.roles.index', 'active' => 'admin.roles.*', 'can' => 'roles.manage'],
                 ['label' => 'لاگ ممیزی', 'route' => 'admin.audit-logs.index', 'active' => 'admin.audit-logs.*', 'can' => 'audit.view'],
                 ['label' => 'آمار جستجو', 'route' => 'admin.search-stats.index', 'active' => 'admin.search-stats.*', 'can' => 'search.stats'],

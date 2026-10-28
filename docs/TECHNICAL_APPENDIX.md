@@ -4259,3 +4259,28 @@
 - **عنوان مدخل‌های منبع:** از رکورد نشان داده می‌شود، نه از `_formatted` نمایه که گونه‌های جستجو را دارد.
 - **ارتقای پروداکشن (۶ آبان، با اجازه‌ی کاربر برای `ssh fahares-server`):** Meilisearch پروداکشن کانتینر دستی است، نه Coolify (`docker run`، شبکه‌ی `coolify`، `restart=always`، env فقط `MEILI_MASTER_KEY` و `MEILI_ENV`). کانتینر v1.6 متوقف، به `fahares-meilisearch-v1.6` تغییر نام و `restart=no` شد و با volume `fahares_meilidata` نگه داشته شد. کانتینر `fahares-meilisearch` با `getmeili/meilisearch:v1.55.0` و همان env (از فایل موقت `umask 077`، سپس پاک) روی volume تازه‌ی `fahares_meilidata_v1_55` بالا آمد. اجرای هم‌زمان دو موتور به خاطر حافظه‌ی تنگ سرور کنار گذاشته شد، پس جستجوی متنی حدود ۴۵ دقیقه در دسترس نبود؛ صفحه بی خطا «نتیجه‌ای پیدا نشد» یا پیام موتور را نشان می‌داد. ساخت نمایه‌ها: اشخاص و منابع، سپس آثار و نسخه‌ها؛ بار سرور به ۱۰٫۹ رسید و SSH در میانه بسته شد، ولی فرایند import زنده ماند. یک import تکراری که دوباره فرستاده بودم متوقف شد. شمار اسناد با پایگاه داده برابر شد (۷۱٬۵۱۶ / ۳۲۳٬۸۸۰ / ۷۰٬۴۳۰ / ۶۲٬۷۱۱). محک با کد پیشین ۳۰ از ۳۰، پس از استقرار `4732a8c` و `scout:sync-index-settings` ۳۲ از ۳۲.
 - **پاک‌سازی (۶ آبان، با موافقت کاربر):** کانتینر `fahares-meilisearch-v1.6` و volume `fahares_meilidata` (۵٫۴ گیگابایت) حذف شدند. برگشت به v1.6 از این پس یعنی کانتینر تازه با همان ایمیج و ساخت دوباره‌ی نمایه‌ها.
+
+### گام ۱۳.۴۸: مکاتبه با کاربران (مورد ۹۱)
+- **مدل داده** (migration `2026_10_28_100001`):
+  - `message_threads`: `kind` (`suggestion` یا `direct`)، `user_id`، `field_suggestion_id` (یکتا)، `subject`، `started_by`، `template`، `reply_token` (۳۲ حرفی، یکتا)، `closed`، `last_message_at`، `user_read_at`، `staff_read_at` و `reported_at`.
+  - `messages`: `author_id`، `is_staff`، `body` (تا ۵۰۰۰ نویسه) و `via` (`site` یا `email`).
+  - `message_templates` با سه بذر: `welcome`، `thanks` و `persian_name`.
+  - در `field_suggestions`: `awaiting_reply_since`، `reply_reminded_at` و `reply_state` (`answered` یا `unanswered`).
+- **چرا وضعیت تازه ساخته نشد:** `'pending'` در ۴۱ جای کد آمده است. پس `status` همان `pending` می‌ماند و scope تازه‌ی `FieldSuggestion::inQueue()` (یعنی `pending` با `awaiting_reply_since` خالی) جای «در انتظار» را در صف پیش‌فرض، پیشخوان، شمار منوی پنل و یادآور هفتگی گرفت. قلاب `saving` مدل، هنگام خروج از `pending`، `awaiting_reply_since` را پاک می‌کند تا بازگشایی پیشنهاد آن را «منتظر» نکند.
+- **منطق:** [Conversations](../app/Messaging/Conversations.php) با `ask`، `sendDirect`، `staffWrite`، `userReply`، `report` و `expire`. اعلان [ThreadNotice](../app/Notifications/ThreadNotice.php) زیرکلاس `Notice` است. ایمیل گیرنده‌ی کاربر پانویس «این پیام از سوی فهارس…» و reply-to رشته را می‌گیرد. اعلان پاسخ به آخرین کارمندی می‌رسد که در رشته نوشته است، اگر هنوز مجوز رشته را دارد. در غیر این صورت با `broadcast` به همه‌ی دارندگان مجوز می‌رسد.
+- **نوع‌های اعلان:** `suggestion.question`، `suggestion.replied`، `admin.message`، `message.replied` و `message.reported`. کلید تازه‌ی `required` در `config/notifications.php` یک کانال را خاموش‌نشدنی می‌کند (`NotificationPreferences::required`)؛ برای `admin.message` این کانال `database` است.
+- **مسیرها:**
+  - کاربر: `my/messages` (فهرست، نمایش، پاسخ و گزارش). دسترسی به رشته‌ی دیگران ۴۰۴ برمی‌گرداند تا وجود آن هم آشکار نشود.
+  - پنل: `admin/messages` (فهرست، تازه، قالب‌ها، نمایش، پاسخ، بستن) زیر `can:users.message`. پرسش در `admin/suggestions/{id}/ask` زیر `can:suggestions.review` است.
+  - webhook: `POST /messages/inbound`، بیرون از CSRF.
+- **پاسخ ایمیلی:** [InboundEmailController](../app/Http/Controllers/InboundEmailController.php) امضای Svix را می‌سنجد: HMAC-SHA256 روی `id.timestamp.body` با کلید base64 پس از `whsec_`، با تحمل پنج دقیقه. سپس `to` را با `reply+<token>@<domain>` و `from` را با ایمیل کاربر رشته (بی‌حساسیت به بزرگی حروف) تطبیق می‌دهد. متن را از `GET https://api.resend.com/emails/receiving/{email_id}` می‌گیرد و با [ReplyText](../app/Messaging/ReplyText.php) تاریخچه را می‌بُرد: «On … wrote:»، «در تاریخ … نوشت:»، سطرهای «>»، «--» و `blockquote` در HTML. ایمیل ناجور با ۲۰۰ کنار گذاشته می‌شود تا Resend دوباره نفرستد؛ شکست API پاسخ ۵۰۲ می‌گیرد تا Resend دوباره بفرستد. دریافت ایمیل در Resend طبق مستندات هنوز بتاست.
+- **پیکربندی پس از استقرار** (هر دو اختیاری‌اند؛ بی آن‌ها ایمیل reply-to ندارد):
+  - `MESSAGES_REPLY_DOMAIN`، مثلاً `reply.fahares.net`، با رکورد MX همان زیردامنه طبق داشبورد Resend.
+  - `RESEND_INBOUND_WEBHOOK_SECRET`، رمز webhook رویداد `email.received` به نشانی `https://fahares.net/messages/inbound`.
+- **زمان‌بندی:** `notifications:suggestion-questions` هر روز ساعت ۷:۰۰ به وقت تهران اجرا می‌شود. مهلت‌ها در `question_reminder_days` و `question_deadline_days` هستند.
+- **حذف:** `App\Notifications\PersianNameRequest`. ‏`fahares:ask-persian-names` اکنون `Conversations::sendDirect` را با قالب `persian_name` صدا می‌زند. کسی که اعلان پیشین را گرفته یا رشته‌ای با `template = persian_name` دارد، دوباره پیام نمی‌گیرد.
+- **آزمون:** [MessagingTest](../tests/Feature/MessagingTest.php) با ۱۰ آزمون:
+  - حریم خصوصی: کاربر دیگر و مهمان به رشته دسترسی ندارند.
+  - دسترسی: داور بی `users.message` در همه‌ی مسیرهای پیام مستقیم ۴۰۳ می‌گیرد، و پس از اعطای مجوز در ماتریس می‌تواند پیام بفرستد.
+  - پیشنهاد مهمانی ۴۲۲ می‌گیرد.
+  - کانال اجباری، یادآوری و مهلت، امضا و فرستنده‌ی webhook، و بریدن تاریخچه.

@@ -35,6 +35,9 @@ class AuditLog extends Model
         'home_cataloger_add' => 'افزودن فهرست‌نگار به خانه',
         'home_cataloger_remove' => 'برداشتن فهرست‌نگار از خانه',
         'post_delete' => 'حذف نوشته',
+        'ask' => 'پرسش از پیشنهاددهنده',
+        'message' => 'پیام به کاربر',
+        'message_template' => 'ویرایش قالب پیام',
     ];
 
     /** Persian names of the record types */
@@ -53,6 +56,7 @@ class AuditLog extends Model
         HomeItem::class => 'صفحه‌ی خانه',
         SiteSetting::class => 'تنظیمات سایت',
         User::class => 'کاربر',
+        MessageTemplate::class => 'قالب پیام',
         Role::class => 'نقش',
         // Operations of the system page, logged without a model
         'System' => 'سامانه',

@@ -32,9 +32,13 @@ class SuggestionController extends Controller
 
         $query = FieldSuggestion::with(['user', 'reviewer']);
 
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
+        // Pending ones asked about wait in their own tab until the submitter answers (backlog item 91)
+        match ($status) {
+            'all' => null,
+            'pending' => $query->inQueue(),
+            'awaiting' => $query->where('status', 'pending')->whereNotNull('awaiting_reply_since'),
+            default => $query->where('status', $status),
+        };
 
         if ($type === 'feedback') {
             $query->where('kind', 'feedback');
@@ -65,7 +69,8 @@ class SuggestionController extends Controller
         $opinions = CollectiveReview::opinionsFor($suggestions->getCollection());
 
         $stats = [
-            'pending' => FieldSuggestion::where('status', 'pending')->count(),
+            'pending' => FieldSuggestion::inQueue()->count(),
+            'awaiting' => FieldSuggestion::where('status', 'pending')->whereNotNull('awaiting_reply_since')->count(),
             'approved' => FieldSuggestion::where('status', 'approved')->count(),
             'rejected' => FieldSuggestion::where('status', 'rejected')->count(),
             'total' => FieldSuggestion::count(),
@@ -76,7 +81,8 @@ class SuggestionController extends Controller
 
     public function show(FieldSuggestion $suggestion)
     {
-        $suggestion->load(['user', 'reviewer']);
+        $suggestion->load(['user', 'reviewer', 'thread.messages.author']);
+        $suggestion->thread?->update(['staff_read_at' => now()]);
         $target = $suggestion->suggestable;
         $field = $suggestion->fieldDefinition();
 
@@ -1014,6 +1020,19 @@ class SuggestionController extends Controller
             : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان مقدار منتخب بازگردانده شد؛ دوباره «قول دیگر» است.";
 
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', $message);
+    }
+
+    /** A question to the submitter before deciding (backlog item 91); the suggestion waits for the answer */
+    public function ask(Request $request, FieldSuggestion $suggestion)
+    {
+        abort_unless($suggestion->status === 'pending', 409, 'این پیشنهاد پیش‌تر داوری شده است.');
+        abort_unless((bool) $suggestion->user_id, 422, 'پیشنهاد مهمان پیشنهاددهنده‌ای برای پرسش ندارد.');
+        $validated = $request->validate(['body' => 'required|string|max:' . \App\Models\Message::MAX_LENGTH]);
+
+        \App\Messaging\Conversations::ask($suggestion, $request->user(), $validated['body']);
+
+        return redirect()->route('admin.suggestions.show', $suggestion)->withFragment('conversation')
+            ->with('success', 'پرسش فرستاده شد. پیشنهاد تا پاسخ پیشنهاددهنده در تب «منتظر پاسخ» می‌ماند.');
     }
 
     public function reject(Request $request, FieldSuggestion $suggestion)

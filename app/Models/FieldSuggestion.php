@@ -20,6 +20,16 @@ class FieldSuggestion extends Model
         'edit' => 'ویرایش',
     ];
 
+    protected static function booted(): void
+    {
+        // Decided while waiting for the submitter's answer: no longer waiting (backlog item 91)
+        static::saving(function (self $s) {
+            if ($s->isDirty('status') && $s->status !== 'pending') {
+                $s->awaiting_reply_since = null;
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [
@@ -27,6 +37,8 @@ class FieldSuggestion extends Model
             'payload' => 'array',
             'resolution' => 'array',
             'notify_submitter' => 'boolean',
+            'awaiting_reply_since' => 'datetime',
+            'reply_reminded_at' => 'datetime',
         ];
     }
 
@@ -43,6 +55,18 @@ class FieldSuggestion extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /** The reviewers' questions to the submitter and their answers (backlog item 91) */
+    public function thread(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(MessageThread::class);
+    }
+
+    /** Pending and in the reviewers' queue: not waiting for the submitter's answer to a question */
+    public function scopeInQueue($query)
+    {
+        return $query->where('status', 'pending')->whereNull('awaiting_reply_since');
     }
 
     public function supersededBy(): BelongsTo

@@ -155,6 +155,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/profile/avatar', [ProfileController::class, 'updateAvatar'])->middleware('throttle:20,60')->name('profile.avatar');
     Route::delete('/settings/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     Route::post('/my/suggestions/{suggestion}/credit', [MySuggestionsController::class, 'credit'])->name('my.suggestions.credit');
+    // Letters with the site's staff (backlog item 91)
+    Route::get('/my/messages', [\App\Http\Controllers\MessagesController::class, 'index'])->name('my.messages');
+    Route::get('/my/messages/{thread}', [\App\Http\Controllers\MessagesController::class, 'show'])->name('my.messages.show');
+    Route::post('/my/messages/{thread}', [\App\Http\Controllers\MessagesController::class, 'reply'])->middleware('throttle:20,60')->name('my.messages.reply');
+    Route::post('/my/messages/{thread}/report', [\App\Http\Controllers\MessagesController::class, 'report'])->middleware('throttle:10,60')->name('my.messages.report');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/settings/notifications', [NotificationController::class, 'settings'])->name('notifications.settings');
     Route::post('/settings/notifications', [NotificationController::class, 'saveSettings'])->name('notifications.settings.save');
@@ -258,6 +263,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
         Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
         Route::post('/suggestions/{suggestion}/resolve', [AdminSuggestionController::class, 'resolveFeedback'])->name('suggestions.resolve');
+        Route::post('/suggestions/{suggestion}/ask', [AdminSuggestionController::class, 'ask'])->middleware('throttle:30,60')->name('suggestions.ask');
     });
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit');
 
@@ -345,6 +351,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // User & Roles Management
     Route::resource('users', AdminUserController::class)->only(['index', 'edit', 'update', 'destroy'])->middleware('can:users.manage');
 
+    // Direct messages to users and their templates (backlog item 91)
+    Route::middleware('can:users.message')->prefix('messages')->name('messages.')->controller(\App\Http\Controllers\Admin\MessageController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/new', 'create')->name('create');
+        Route::post('/', 'store')->middleware('throttle:30,60')->name('store');
+        Route::get('/templates', 'templates')->name('templates');
+        Route::put('/templates/{template}', 'updateTemplate')->name('templates.update');
+        Route::get('/{thread}', 'show')->whereNumber('thread')->name('show');
+        Route::post('/{thread}', 'reply')->whereNumber('thread')->name('reply');
+        Route::post('/{thread}/toggle', 'toggle')->whereNumber('thread')->name('toggle');
+    });
+
     // The access matrix
     Route::middleware('can:roles.manage')->group(function () {
         Route::get('/roles', [AdminRoleController::class, 'index'])->name('roles.index');
@@ -354,4 +372,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 // Telegram posts here when a user follows the link of the settings page (backlog item 25); checked by its secret header
+// Resend posts each email received at the reply domain here (backlog item 91); checked by its signature
+Route::post('/messages/inbound', [\App\Http\Controllers\InboundEmailController::class, 'store'])->middleware('throttle:120,1')->name('messages.inbound');
 Route::post('/telegram/webhook', [\App\Http\Controllers\TelegramLinkController::class, 'webhook'])->middleware('throttle:60,1')->name('telegram.webhook');

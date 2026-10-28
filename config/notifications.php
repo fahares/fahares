@@ -9,6 +9,7 @@
 |        of the access matrix (App\Auth\Permissions), as edited at admin/roles
 | channels: channel => default for users who have not chosen
 | locked: security notices; the defaults always hold and the settings page shows them fixed
+| required: channels of an otherwise switchable type that cannot be switched off (a direct message always reaches the site)
 | group: site-level channels sent once per event, not per user (the reviewers' Telegram group, 'telegram';
 |        the admins' alerts chat, 'alerts')
 |
@@ -51,6 +52,33 @@ return [
             'label' => 'نتیجه‌ی داوری پیشنهادهای من، و تغییر وضعیت قول‌هایم',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+        ],
+        // Letters between the staff and a user (backlog item 91)
+        'suggestion.question' => [
+            'label' => 'پرسش داور درباره‌ی پیشنهادهای من، پیش از داوری',
+            'roles' => ['*'],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+        ],
+        'suggestion.replied' => [
+            'label' => 'پاسخ پیشنهاددهنده به پرسش داور',
+            'permission' => 'suggestions.review',
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+        ],
+        'admin.message' => [
+            'label' => 'پیام مدیریت فهارس به من',
+            'roles' => ['*'],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+            'required' => ['database'],
+        ],
+        'message.replied' => [
+            'label' => 'پاسخ کاربران به پیام‌های مستقیم',
+            'permission' => 'users.message',
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+        ],
+        'message.reported' => [
+            'label' => 'گزارش یک پیام به دست کاربر',
+            'roles' => ['admin'],
+            'channels' => ['database' => true, 'mail' => true],
         ],
         'search.export_ready' => [
             'label' => 'آماده شدن خروجی بزرگ جستجو',
@@ -118,6 +146,20 @@ return [
 
     // Pending suggestions older than this many days are listed in the weekly reminder
     'stale_after_days' => 7,
+
+    // A reviewer's question on a suggestion (backlog item 91): one reminder after this many days, and after
+    // the deadline the suggestion goes back to the queue marked «بی‌پاسخ»
+    'question_reminder_days' => 7,
+    'question_deadline_days' => 14,
+
+    // Replies by email (backlog item 91): each email of a thread is sent with the reply-to
+    // reply+<token>@<reply_domain>; Resend receives that domain and posts email.received to /messages/inbound.
+    // Without the domain the emails carry no reply-to and users answer on the site.
+    'inbound' => [
+        'reply_domain' => env('MESSAGES_REPLY_DOMAIN'),
+        // The signing secret (whsec_…) of the Resend webhook
+        'webhook_secret' => env('RESEND_INBOUND_WEBHOOK_SECRET'),
+    ],
 
     // Both bots' values are set in the server environment, never in code
     'telegram' => [

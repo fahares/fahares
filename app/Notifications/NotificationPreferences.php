@@ -39,6 +39,9 @@ class NotificationPreferences
         if (! empty($definition['locked'])) {
             return $definition['channels'][$channel];
         }
+        if (self::required($type, $channel)) {
+            return true;
+        }
         $stored = NotificationPreference::where('user_id', $user->id)
             ->where('notification_type', $type)->where('channel', $channel)->value('enabled');
 
@@ -77,9 +80,15 @@ class NotificationPreferences
         return ! empty(self::types()[$type]['locked']);
     }
 
+    /** A channel of a switchable type that is always on (config 'required') */
+    public static function required(string $type, string $channel): bool
+    {
+        return in_array($channel, self::types()[$type]['required'] ?? [], true);
+    }
+
     public static function set(User $user, string $type, string $channel, bool $enabled): void
     {
-        if (self::locked($type)) {
+        if (self::locked($type) || self::required($type, $channel)) {
             return;
         }
         NotificationPreference::updateOrCreate(
