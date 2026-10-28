@@ -15,12 +15,15 @@ class ConvertedReadingsTest extends TestCase
     public function test_fields_converted_from_one_suggestion_read_as_one_section()
     {
         $person = Person::create(['name' => 'آزمون سده', 'normalized_name' => 'ازمون سده', 'slug' => 'test-century-'.uniqid()]);
+        // The original suggestion is approved with its value cleared; the century is converted from it
+        $originalId = null;
         foreach (['death_year_hijri' => ['۳۲۹', ''], 'century_hijri' => [null, '4']] as $field => [$current, $value]) {
-            FieldSuggestion::create([
+            $id = FieldSuggestion::create([
                 'suggestable_type' => Person::class, 'suggestable_id' => $person->id, 'kind' => 'field',
                 'field_name' => $field, 'current_value' => $current, 'suggested_value' => $value,
-                'payload' => ['derived_from' => 999999], 'status' => 'approved', 'standing' => 'adopted', 'reviewed_at' => now(),
-            ]);
+                'payload' => $originalId ? ['derived_from' => $originalId] : null, 'status' => 'approved', 'standing' => 'adopted', 'reviewed_at' => now(),
+            ])->id;
+            $originalId ??= $id;
         }
 
         $readings = SuggestionReadings::for($person);

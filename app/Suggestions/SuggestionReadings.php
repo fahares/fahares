@@ -71,8 +71,9 @@ class SuggestionReadings
      */
     private static function joinConverted(Collection $sections): Collection
     {
-        $groups = $sections->filter(fn ($r) => isset($r['adopted']?->payload['derived_from']))
-            ->groupBy(fn ($r) => $r['adopted']->payload['derived_from'], preserveKeys: true)
+        // The original itself may be approved too (the death year cleared), so it groups by its own id
+        $groups = $sections->filter(fn ($r) => $r['adopted'] !== null)
+            ->groupBy(fn ($r) => $r['adopted']->payload['derived_from'] ?? $r['adopted']->id, preserveKeys: true)
             ->filter(fn ($g) => $g->count() > 1);
 
         foreach ($groups as $group) {
