@@ -31,6 +31,33 @@
             <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $relInput }}">
             <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'person_role' && $target && ! empty($relation['remove']))
+        @php
+            $payload = $suggestion->payload ?? [];
+            $removeRows = $target->workPeople()->with('person')->get();
+            // The row the suggestion was sent from, else the first that matches its role and person or name
+            $suggestedRow = $removeRows->firstWhere('id', $payload['row_id'] ?? 0)
+                ?? $removeRows->first(fn ($r) => $r->role === ($payload['role'] ?? null) && ($relationTarget ? $r->person_id === $relationTarget->id : $r->name === ($payload['name'] ?? null)));
+            $pickedRow = (int) old('role_row_id', $suggestedRow?->id);
+        @endphp
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
+            @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
+            <p class="leading-relaxed text-ink">سطری که انتخاب می‌کنید از بخش «اشخاص مرتبط با اثر» حذف می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است و سطر با همه‌ی اطلاعاتش برمی‌گردد.</p>
+            @if($removeRows->isEmpty())
+                <p class="text-muted">این اثر اکنون شخص مرتبطی ندارد؛ پیشنهاد را رد یا بایگانی کنید.</p>
+            @else
+                <div class="space-y-1.5 p-3 bg-paper border border-line">
+                    <span class="block font-bold text-ink">شخص مرتبطی که حذف می‌شود:</span>
+                    @foreach($removeRows as $row)
+                        <label class="flex items-center gap-2"><input type="radio" name="role_row_id" value="{{ $row->id }}" @checked($pickedRow === $row->id) class="accent-cinnabar">
+                            {{ $row->role_label }}: {{ $row->display_name }}@if($row->hedge_label) ({{ $row->hedge_label }})@endif @if($row->note)<span class="text-muted">— {{ $row->note }}</span>@endif</label>
+                    @endforeach
+                </div>
+                <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                    class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
+            @endif
+        </form>
     @elseif($apply === 'person_role' && $target)
         @php
             $roleInput = 'admin-field w-full';
@@ -40,7 +67,8 @@
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
-            <p class="leading-relaxed text-ink">شخص با نقشی که تعیین می‌کنید در بخش «اشخاص مرتبط با نسخه» در صفحه‌ی نسخه، و اگر به جدول اشخاص پیوند بخورد در صفحه‌ی آن شخص هم، نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
+            @php $roleRecord = $target instanceof \App\Models\Work ? 'اثر' : 'نسخه'; @endphp
+            <p class="leading-relaxed text-ink">شخص با نقشی که تعیین می‌کنید در بخش «اشخاص مرتبط با {{ $roleRecord }}» در صفحه‌ی {{ $roleRecord }}، و اگر به جدول اشخاص پیوند بخورد در صفحه‌ی آن شخص هم، نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نقش:</span>
                 <select name="role" class="{{ $roleInput }}">
@@ -58,6 +86,17 @@
                 <label class="flex items-center gap-2"><input type="radio" name="role_link" value="name" @checked($defaultLink === 'name') class="accent-cinnabar"> فقط نام، بدون پیوند:</label>
                 <input type="text" name="role_name" value="{{ old('role_name', $payload['name'] ?? $relationTarget?->name) }}" class="{{ $roleInput }}">
             </div>
+            @if($target instanceof \App\Models\Work)
+                <label class="block space-y-1">
+                    <span class="block font-bold text-ink">قطعیت انتساب (اختیاری):</span>
+                    <select name="certainty" class="{{ $roleInput }}">
+                        <option value="">نامشخص (فهرست چیزی نگفته است)</option>
+                        @foreach(\App\Models\WorkPerson::CERTAINTIES as $key => $label)
+                            <option value="{{ $key }}" @selected(old('certainty') === $key)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            @endif
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">یادداشت (اختیاری؛ مثلاً «مهر بیضی به تاریخ ۱۲۴۰ق در برگ نخست»):</span>
                 <input type="text" name="contributor_note" value="{{ old('contributor_note', $suggestion->suggested_value !== $relation['label'] ? $suggestion->suggested_value : '') }}" class="{{ $roleInput }}">
@@ -152,6 +191,7 @@
                 $splitWorks = $target->authoredWorks()->orderBy('works.id')->limit(2000)->get();
                 $splitCopies = $target->scribedManuscripts()->with(['work', 'libraryRecord'])->orderBy('manuscripts.id')->limit(2000)->get();
                 $splitRoles = \App\Models\ManuscriptPerson::with('manuscript.work')->where('person_id', $target->id)->orderBy('id')->get();
+                $splitWorkRoles = \App\Models\WorkPerson::with('work')->where('person_id', $target->id)->orderBy('id')->get();
             }
         @endphp
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
@@ -189,6 +229,7 @@
                 ! $isWork && $splitWorks->isNotEmpty() ? ['work_ids', 'آثاری که از شخص تازه‌اند', $splitWorks->map(fn ($w) => [$w->id, $w->primary_title . ($w->composition_date_raw ? ' · ' . $w->composition_date_raw : ''), route('works.show', $w)])] : null,
                 $splitCopies->isNotEmpty() ? ['manuscript_ids', $isWork ? 'نسخه‌هایی که از اثر تازه‌اند' : 'نسخه‌هایی که کاتبشان شخص تازه است', $splitCopies->map(fn ($m) => [$m->id, ($isWork ? '' : ($m->work?->primary_title . ' — ')) . $copyLabel($m), route('manuscripts.show', $m)])] : null,
                 ! $isWork && $splitRoles->isNotEmpty() ? ['role_ids', 'نقش‌های دیگری که از شخص تازه‌اند', $splitRoles->map(fn ($r) => [$r->id, (\App\Models\ManuscriptPerson::ROLES[$r->role] ?? $r->role) . ' — ' . ($r->manuscript?->work?->primary_title ?? 'نسخه') . ' #' . $r->manuscript_id, $r->manuscript ? route('manuscripts.show', $r->manuscript) : null])] : null,
+                ! $isWork && $splitWorkRoles->isNotEmpty() ? ['work_role_ids', 'نقش‌هایی در آثار که از شخص تازه‌اند', $splitWorkRoles->map(fn ($r) => [$r->id, $r->role_label . ' — ' . ($r->work?->primary_title ?? 'اثر') . ' #' . $r->work_id, $r->work ? route('works.show', $r->work) : null])] : null,
             ]) as [$field, $caption, $items])
                 <div class="space-y-1">
                     <span class="block font-bold text-ink">{{ $caption }} ({{ \App\Support\Fa::num($items->count()) }} مورد):</span>

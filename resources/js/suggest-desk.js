@@ -26,6 +26,8 @@ export default (config) => ({
     // A person connected with the copy (relation person_role)
     roleKey: '',
     roleName: '',
+    // The work's people row a removal is about (relation person_role_removed, from that row's own button)
+    roleRowId: null,
     // The copy moved or was renumbered (relation relocate)
     newShelfmark: '',
     // Research notes
@@ -132,6 +134,7 @@ export default (config) => ({
         this.target = null;
         this.roleKey = '';
         this.roleName = '';
+        this.roleRowId = null;
         this.newShelfmark = '';
         if (detail.note) {
             this.mode = 'note';
@@ -154,6 +157,13 @@ export default (config) => ({
         }
         this.toggleCredit();
         this.restoreDraft();
+        // Opened from one of the record's people rows: its role, person or name, and the row itself (over any draft)
+        if (this.relationKey && detail.roleRowId) {
+            this.roleKey = detail.role ?? '';
+            this.roleName = detail.roleName ?? '';
+            this.target = detail.target ?? null;
+            this.roleRowId = detail.roleRowId;
+        }
         if (!this.config.signedIn) {
             // Keeps e.g. the reference a «گزارش نشانی نادرست» starts with, for the form opened after signing in
             this.saveDraft();
@@ -359,6 +369,7 @@ export default (config) => ({
             body.append('target_id', this.target?.id ?? '');
             if (this.relation?.options) body.append('role', this.roleKey);
             if (this.relation?.apply === 'person_role') body.append('role_name', this.roleName);
+            if (this.relation?.remove && this.roleRowId) body.append('role_row_id', this.roleRowId);
             if (this.relation?.apply === 'relocate') body.append('shelfmark', this.newShelfmark);
         }
         body.append('suggested_value', this.value);

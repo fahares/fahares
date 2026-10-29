@@ -545,6 +545,8 @@ class SuggestionController extends Controller
             'role_link' => 'nullable|in:target,manual,name',
             'role_person_id' => 'nullable|integer',
             'role_name' => 'nullable|string|max:600',
+            'role_row_id' => 'nullable|integer',
+            'certainty' => 'nullable|in:' . implode(',', array_keys(\App\Models\WorkPerson::CERTAINTIES)),
             'public_note' => 'nullable|string|max:2000',
             'admin_notes' => 'nullable|string|max:1000',
         ]);
@@ -564,8 +566,8 @@ class SuggestionController extends Controller
                         $record, $person, (string) ($validated['role'] ?? $suggestion->payload['role'] ?? ''),
                         trim($validated['contributor_note'] ?? '') ?: null, $suggestion->id,
                     ),
-                    // The reviewer links the suggested person, another person by id, or keeps only the name
-                    'person_role' => $relations->addRole(
+                    // A removal deletes the row the reviewer picked among the work's people
+                    'person_role' => ! empty($relation['remove']) ? $relations->removeRole($record, (int) ($validated['role_row_id'] ?? $suggestion->payload['row_id'] ?? 0)) : $relations->addRole(
                         $record,
                         (string) ($validated['role'] ?? $suggestion->payload['role'] ?? ''),
                         match ($validated['role_link'] ?? ($person ? 'target' : 'name')) {
@@ -576,6 +578,7 @@ class SuggestionController extends Controller
                         $validated['role_name'] ?? $suggestion->payload['name'] ?? null,
                         trim($validated['contributor_note'] ?? '') ?: null,
                         $suggestion->id,
+                        ['certainty' => $validated['certainty'] ?? null],
                     ),
                 };
 
@@ -689,6 +692,8 @@ class SuggestionController extends Controller
             'work_ids.*' => 'integer',
             'role_ids' => 'nullable|array',
             'role_ids.*' => 'integer',
+            'work_role_ids' => 'nullable|array',
+            'work_role_ids.*' => 'integer',
             'public_note' => 'nullable|string|max:2000',
             'admin_notes' => 'nullable|string|max:1000',
         ]);
@@ -701,7 +706,7 @@ class SuggestionController extends Controller
             DB::transaction(function () use ($suggestion, $record, $splitter, $validated, $request) {
                 $result = $record instanceof \App\Models\Work
                     ? $splitter->splitWork($record, ['title' => $validated['new_title'] ?? '', 'author' => $validated['author'] ?? 'same', 'author_id' => $validated['author_id'] ?? null, 'copy_subjects' => $request->boolean('copy_subjects')], $validated['manuscript_ids'] ?? [])
-                    : $splitter->splitPerson($record, ['name' => $validated['new_name'] ?? '', 'death_year_hijri' => $validated['death_year_hijri'] ?? null], ['works' => $validated['work_ids'] ?? [], 'manuscripts' => $validated['manuscript_ids'] ?? [], 'roles' => $validated['role_ids'] ?? []]);
+                    : $splitter->splitPerson($record, ['name' => $validated['new_name'] ?? '', 'death_year_hijri' => $validated['death_year_hijri'] ?? null], ['works' => $validated['work_ids'] ?? [], 'manuscripts' => $validated['manuscript_ids'] ?? [], 'roles' => $validated['role_ids'] ?? [], 'work_roles' => $validated['work_role_ids'] ?? []]);
 
                 AuditLog::create([
                     'user_id' => auth()->id(),
@@ -863,6 +868,7 @@ class SuggestionController extends Controller
             'relation_target' => 'nullable|string|max:500',
             'role' => 'nullable|string|max:30',
             'role_name' => 'nullable|string|max:600',
+            'role_row_id' => 'nullable|integer',
             'shelfmark' => 'nullable|string|max:255',
             'suggested_value' => 'nullable|string|max:20000',
             'rationale_citation' => 'nullable|string|max:5000',

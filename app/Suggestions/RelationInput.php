@@ -2,7 +2,6 @@
 
 namespace App\Suggestions;
 
-use App\Models\ManuscriptPerson;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 
@@ -44,7 +43,7 @@ class RelationInput
             throw ValidationException::withMessages(['role' => 'نوع رابطه را انتخاب کنید.']);
         }
         if ($apply === 'person_role') {
-            if (! array_key_exists($input['role'] ?? '', ManuscriptPerson::ROLES)) {
+            if (! array_key_exists($input['role'] ?? '', SuggestionRegistry::personRoles($type))) {
                 throw ValidationException::withMessages(['role' => 'نقش این شخص را انتخاب کنید.']);
             }
             if (! $target && trim($input['role_name'] ?? '') === '') {
@@ -72,6 +71,8 @@ class RelationInput
             'target_id' => $target?->id,
             'role' => in_array($apply, ['person_role', 'record_relation'], true) ? $input['role'] : null,
             'name' => $apply === 'person_role' ? (trim($input['role_name'] ?? '') ?: null) : null,
+            // The row a removal points at, when it was sent from that row's own button
+            'row_id' => ! empty($relation['remove']) && method_exists($record, 'workPeople') && $record->workPeople()->whereKey((int) ($input['role_row_id'] ?? 0))->exists() ? (int) $input['role_row_id'] : null,
             'shelfmark' => $apply === 'relocate' ? (trim($input['shelfmark'] ?? '') ?: null) : null,
         ])];
     }

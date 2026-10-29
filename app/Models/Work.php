@@ -340,6 +340,12 @@ class Work extends Model
         return $this->hasMany(WorkAuthor::class)->orderBy('position')->orderBy('id');
     }
 
+    /** People other than the authors: translators, dedicatees, commissioners… in role order. */
+    public function workPeople(): HasMany
+    {
+        return $this->hasMany(WorkPerson::class)->orderBy('position')->orderBy('id');
+    }
+
     public function manuscripts(): HasMany
     {
         return $this->hasMany(Manuscript::class);

@@ -43,6 +43,7 @@ class SuggestionController extends Controller
             'credit_name' => 'nullable|string|max:150',
             'role' => 'nullable|string|max:30',
             'role_name' => 'nullable|string|max:600',
+            'role_row_id' => 'nullable|integer',
             'shelfmark' => 'nullable|string|max:255',
             'note' => 'nullable|array',
             'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,

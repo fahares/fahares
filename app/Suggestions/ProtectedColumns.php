@@ -17,10 +17,25 @@ use Illuminate\Console\Command;
 class ProtectedColumns
 {
     /** Keys a verify log carries beside the changed columns. */
-    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role', 'added_record_relation', 'corpus_fix'];
+    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role', 'removed_person_role', 'added_record_relation', 'corpus_fix'];
+
+    /**
+     * Keys of a verify log that changed a record's child rows rather than a column, by the rows they protect.
+     * A sync that writes those rows (e.g. fahares:backfill-work-people) leaves the record's rows alone.
+     */
+    private const ROW_KEYS = [
+        'added_person_role' => 'people',
+        'removed_person_role' => 'people',
+        'added_contributor' => 'contributors',
+        'removed_name_row' => 'contributors',
+        'added_record_relation' => 'relations',
+    ];
 
     /** @var array<int, array<string, true>> record id => protected columns */
     private array $columns = [];
+
+    /** @var array<int, array<string, true>> record id => protected kinds of child rows (see ROW_KEYS) */
+    private array $rows = [];
 
     /** @var array<int, string[]> record id => columns a sync left alone */
     private array $skipped = [];
@@ -33,6 +48,9 @@ class ProtectedColumns
             ->orderBy('id')
             ->each(function (AuditLog $log) use ($guard) {
                 foreach (array_keys($log->new_values ?? []) as $column) {
+                    if (isset(self::ROW_KEYS[$column])) {
+                        $guard->rows[$log->auditable_id][self::ROW_KEYS[$column]] = true;
+                    }
                     if (! in_array($column, self::META_KEYS, true)) {
                         $guard->columns[$log->auditable_id][$column] = true;
                     }
@@ -53,9 +71,20 @@ class ProtectedColumns
         return array_diff_key($payload, $protected);
     }
 
+    /** Whether reviewers changed this kind of the record's child rows ('people', 'contributors', 'relations'); the skip is remembered for the report. */
+    public function protectsRows(int $id, string $kind): bool
+    {
+        if (empty($this->rows[$id][$kind])) {
+            return false;
+        }
+        $this->skipped[$id] = array_merge($this->skipped[$id] ?? [], ["@{$kind}"]);
+
+        return true;
+    }
+
     public function isEmpty(): bool
     {
-        return $this->columns === [];
+        return $this->columns === [] && $this->rows === [];
     }
 
     /** @return array<int, string[]> */

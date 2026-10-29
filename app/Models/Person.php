@@ -157,6 +157,12 @@ class Person extends Model
         return $this->hasMany(ManuscriptPerson::class);
     }
 
+    /** Works this person is connected with in a role other than author (translator, dedicatee…). */
+    public function workRoles(): HasMany
+    {
+        return $this->hasMany(WorkPerson::class);
+    }
+
     public function recountContributions(): void
     {
         $works = $this->authoredWorks()->count();

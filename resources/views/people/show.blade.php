@@ -8,7 +8,16 @@
     // Show only tabs that have records; open on the one with data (or the one being paginated).
     $hasAuthored = $authoredWorks->total() > 0;
     $hasScribed = $scribedManuscripts->total() > 0;
-    $defaultTab = $hasScribed && (! $hasAuthored || request()->has('manuscripts_page')) ? 'scribed' : 'authored';
+    // Works this person translated, had dedicated to them, commissioned…: one tab per role that has any
+    $workRoleGroups = $person->workRoles()->with('work')->orderBy('id')->limit(1000)->get()
+        ->filter(fn ($r) => $r->work)
+        ->sortBy(fn ($r) => array_search($r->role, array_keys(\App\Models\WorkPerson::ROLES), true))
+        ->groupBy('role');
+    $tabs = array_filter([
+        'authored' => $hasAuthored ? 'آثار' : null,
+        'scribed' => $hasScribed ? 'نسخه‌های کتابت‌شده' : null,
+    ]) + $workRoleGroups->mapWithKeys(fn ($rows, $role) => ['role-' . $role => \App\Models\WorkPerson::PERSON_TABS[$role] ?? $role])->all();
+    $defaultTab = $hasScribed && (! $hasAuthored || request()->has('manuscripts_page')) ? 'scribed' : ($hasAuthored ? 'authored' : (array_key_first($tabs) ?? 'authored'));
 @endphp
 @php
     use App\Support\Fa;
@@ -106,20 +115,19 @@
             </x-ui.section>
             </div>
 
-            @if(! $hasAuthored && ! $hasScribed)
+            @if(! $tabs)
                 <p class="text-sm text-muted">اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.</p>
             @endif
 
-            @if($hasAuthored && $hasScribed)
-                <div class="inline-flex border border-line-strong rounded-sm overflow-hidden text-sm" role="tablist">
-                    <button type="button" role="tab" @click="activeTab = 'authored'" :aria-selected="activeTab === 'authored'"
-                        :class="activeTab === 'authored' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer">
-                        آثار <span class="tabular-nums">{{ Fa::num($worksTotal) }}</span>
-                    </button>
-                    <button type="button" role="tab" @click="activeTab = 'scribed'" :aria-selected="activeTab === 'scribed'"
-                        :class="activeTab === 'scribed' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer border-s border-line-strong">
-                        نسخه‌های کتابت‌شده <span class="tabular-nums">{{ Fa::num($scribedTotal) }}</span>
-                    </button>
+            @if(count($tabs) > 1)
+                <div class="inline-flex flex-wrap border border-line-strong rounded-sm overflow-hidden text-sm" role="tablist">
+                    @foreach($tabs as $tabKey => $tabLabel)
+                        @php $tabCount = match ($tabKey) { 'authored' => $worksTotal, 'scribed' => $scribedTotal, default => $workRoleGroups[substr($tabKey, 5)]->count() }; @endphp
+                        <button type="button" role="tab" @click="activeTab = '{{ $tabKey }}'" :aria-selected="activeTab === '{{ $tabKey }}'"
+                            :class="activeTab === '{{ $tabKey }}' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer @unless($loop->first) border-s border-line-strong @endunless">
+                            {{ $tabLabel }} <span class="tabular-nums">{{ Fa::num($tabCount) }}</span>
+                        </button>
+                    @endforeach
                 </div>
             @endif
 
@@ -178,6 +186,28 @@
                     @endif
                 </x-ui.section>
             @endif
+
+            <!-- WORK ROLES: works this person translated, had dedicated to them, commissioned… (one tab each) -->
+            @foreach($workRoleGroups as $role => $rows)
+                <x-ui.section :title="\App\Models\WorkPerson::PERSON_TABS[$role] ?? $role" :count="$rows->count()" x-show="activeTab === 'role-{{ $role }}'" :style="$defaultTab !== 'role-' . $role ? 'display: none' : null">
+                    <ul class="divide-y divide-line border-y border-line">
+                        @foreach($rows as $row)
+                            <li class="py-3">
+                                <a href="{{ route('works.show', $row->work) }}" class="flex items-baseline gap-2 group">
+                                    <span class="font-naskh text-base sm:text-lg font-bold text-ink group-hover:text-cinnabar transition">{{ $row->work->primary_title }}</span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($row->work->manuscripts_count) }} نسخه</span>
+                                </a>
+                                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                                    @if($row->work->author_name && $row->work->author_id !== $person->id)<span>از {{ $row->work->author_name }}</span>@endif
+                                    @if($row->hedge_label)<span>{{ $row->hedge_label }}</span>@endif
+                                    @if($row->note)<span>{{ $row->note }}</span>@endif
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-ui.section>
+            @endforeach
 
             <!-- OTHER ROLES: manuscripts this person owned, endowed, corrected… -->
             @if($roleRows->isNotEmpty())

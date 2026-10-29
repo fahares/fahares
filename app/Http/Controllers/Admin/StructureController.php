@@ -125,6 +125,7 @@ class StructureController extends Controller
             'suggested_value' => 'nullable|string|max:20000',
             'role' => 'nullable|string|max:30',
             'role_name' => 'nullable|string|max:600',
+            'role_row_id' => 'nullable|integer',
             'shelfmark' => 'nullable|string|max:255',
         ]);
         $relation = SuggestionRegistry::relation($type, $input['relation']);
