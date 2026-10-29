@@ -298,6 +298,17 @@ export default (config) => ({
         this.personResults = [];
     },
 
+    // Admins only: the chosen relation, opened in the panel's structural tools to preview and apply (backlog item 45)
+    openStructure() {
+        const params = new URLSearchParams({ relation: this.relationKey });
+        if (this.target) params.set('target', this.target.id);
+        if (this.value) params.set('suggested_value', this.value);
+        if (this.relation?.options && this.roleKey) params.set('role', this.roleKey);
+        if (this.relation?.apply === 'person_role' && this.roleName) params.set('role_name', this.roleName);
+        if (this.relation?.apply === 'relocate' && this.newShelfmark) params.set('shelfmark', this.newShelfmark);
+        window.location = this.config.structureUrl + '?' + params.toString();
+    },
+
     // Reviewers only: applies the value at once and reloads the page to show it
     async submitDirect() {
         this.submitting = true;

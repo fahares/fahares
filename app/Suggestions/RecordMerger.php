@@ -8,6 +8,7 @@ use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Work;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -255,6 +256,27 @@ class RecordMerger
     }
 
     /** Same library and shelfmark: the same physical copy (rule used by the addenda reconciliation) */
+    /**
+     * What a merge of $source into $target would do, without doing it, for the admin's preview (backlog item 45):
+     * the copies that move or fold into a copy of the same place, and the fields the removed record would fill.
+     * Values both records hold and that differ are kept as the target has them (backlog item 46 is to decide those).
+     *
+     * @return array{moved: int, folded: int, filled: string[], dropped: string[]}
+     */
+    public function preview(Model $source, Model $target): array
+    {
+        $fill = $source instanceof Work ? self::WORK_FILL : self::MANUSCRIPT_FILL;
+        $filled = array_values(array_filter($fill, fn ($c) => blank($target->{$c}) && filled($source->{$c})));
+        $dropped = array_values(array_filter($fill, fn ($c) => filled($target->{$c}) && filled($source->{$c}) && (string) $target->{$c} !== (string) $source->{$c}));
+        if (! $source instanceof Work) {
+            return ['moved' => 0, 'folded' => 0, 'filled' => $filled, 'dropped' => $dropped];
+        }
+        $keys = $target->manuscripts()->get()->map(fn (Manuscript $m) => $this->copyKey($m))->flip();
+        $folded = $source->manuscripts()->get()->filter(fn (Manuscript $m) => $keys->has($this->copyKey($m)))->count();
+
+        return ['moved' => $source->manuscripts()->count() - $folded, 'folded' => $folded, 'filled' => $filled, 'dropped' => $dropped];
+    }
+
     private function copyKey(Manuscript $m): string
     {
         return \App\Helpers\TextNormalizer::normalize($m->city) . '|' . \App\Helpers\TextNormalizer::normalize($m->library) . '|'

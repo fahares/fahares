@@ -7,7 +7,9 @@
         $suggestion->status === 'pending' && $suggestion->reply_state === 'answered' => ['در انتظار داوری، پیشنهاددهنده پاسخ داد', 'good'],
         $suggestion->status === 'pending' && $suggestion->reply_state === 'unanswered' => ['در انتظار داوری، پرسش بی‌پاسخ ماند', 'accent'],
         $suggestion->status === 'pending' => ['در انتظار داوری', 'accent'],
+        $suggestion->status === 'approved' && ! empty($suggestion->payload['direct']) => ['اقدام مستقیم، به دست ' . ($suggestion->reviewer?->name ?: 'مدیر'), 'good'],
         $suggestion->status === 'approved' => [($suggestion->kind === 'note' ? 'منتشر شد' : 'تأیید شد') . '، به دست ' . ($suggestion->reviewer?->name ?: 'مدیر'), 'good'],
+        $suggestion->status === 'undone' => ['اقدام مستقیم بازگردانده شد', 'default'],
         $suggestion->status === 'converted' => ['تبدیل شد', 'default'],
         $suggestion->status === 'withdrawn' => ['از صفحه برداشته شد', 'default'],
         default => ['رد شد، به دست ' . ($suggestion->reviewer?->name ?: 'مدیر'), 'default'],
@@ -30,6 +32,7 @@
 @endsection
 @section('page_actions')
     <x-ui.chip :tone="$statusTone">{{ $statusText }}</x-ui.chip>
+    <x-ui.btn href="#conversation" size="sm">گفت‌وگو با پیشنهاددهنده{{ $suggestion->thread ? ' (' . \App\Support\Fa::num($suggestion->thread->messages->count()) . ')' : '' }}</x-ui.btn>
     @if($targetUrl)
         <x-ui.btn :href="$targetUrl" target="_blank" size="sm">صفحه‌ی رکورد در سایت ↗</x-ui.btn>
     @endif
@@ -118,8 +121,10 @@
 
     @if($suggestion->kind === 'note')
         @include('admin.suggestions.partials.note-review')
+        @include('admin.suggestions.partials.conversation')
     @elseif($suggestion->kind === 'feedback')
         @include('admin.suggestions.partials.feedback-review')
+        @include('admin.suggestions.partials.conversation')
     @else
     @if($suggestion->kind === 'relation')
         {{-- The two records the suggestion connects --}}

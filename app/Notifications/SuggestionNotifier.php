@@ -28,6 +28,10 @@ class SuggestionNotifier
     /** @param  string  $event  "reviewed", or "demoted" when another reading replaced this adopted one */
     public static function reviewed(FieldSuggestion $suggestion, string $event = 'reviewed'): void
     {
+        // The admin's own direct action (backlog item 45) has nobody to tell
+        if (! empty($suggestion->payload['direct'])) {
+            return;
+        }
         self::safely(function () use ($suggestion, $event) {
             $notification = new SuggestionReviewed($suggestion, $event);
             if ($suggestion->user) {

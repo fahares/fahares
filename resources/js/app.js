@@ -2,6 +2,7 @@ import Alpine from 'alpinejs';
 import QRCode from 'qrcode';
 import suggestDesk from './suggest-desk';
 import convertDesk from './convert-desk';
+import structureDesk from './structure-desk';
 import feedbackForm from './feedback-form';
 import machineReview from './machine-review';
 import referenceReview from './reference-queue';
@@ -39,6 +40,7 @@ Alpine.data('suggestToggle', () => ({
 Alpine.store('machineReview', machineReview);
 Alpine.data('suggestDesk', suggestDesk);
 Alpine.data('convertDesk', convertDesk);
+Alpine.data('structureDesk', structureDesk);
 Alpine.data('feedbackForm', feedbackForm);
 Alpine.data('referenceReview', referenceReview);
 Alpine.data('webPush', webPush);

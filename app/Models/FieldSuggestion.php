@@ -22,10 +22,12 @@ class FieldSuggestion extends Model
 
     protected static function booted(): void
     {
-        // Decided while waiting for the submitter's answer: no longer waiting (backlog item 91)
+        // Decided while waiting for the submitter's answer: no longer waiting (backlog item 91). The decision's
+        // time is kept even where the path does not set it: a reviewer's letter after it reopens the thread.
         static::saving(function (self $s) {
             if ($s->isDirty('status') && $s->status !== 'pending') {
                 $s->awaiting_reply_since = null;
+                $s->reviewed_at ??= now();
             }
         });
     }

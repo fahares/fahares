@@ -18,6 +18,7 @@
         'published' => ['منتشر شد', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
         'converted' => ['تبدیل شد', 'bg-sky-50 dark:bg-sky-950/30 text-sky-800 dark:text-sky-300 border-sky-200 dark:border-sky-900/60'],
         'withdrawn' => ['برداشته شد', 'bg-stone-100 dark:bg-stone-800 text-ink/80 border-line-strong'],
+        'undone' => ['بازگردانده شد', 'bg-stone-100 dark:bg-stone-800 text-ink/80 border-line-strong'],
         'approved' => ['رسیدگی شد', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
     ];
 @endphp

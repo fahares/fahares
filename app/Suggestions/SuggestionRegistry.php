@@ -44,6 +44,15 @@ class SuggestionRegistry
     // note: a research note added to the record, see NoteTypes; feedback: about the site, no record
     public const KINDS = ['field', 'general', 'relation', 'note', 'feedback'];
 
+    /** How the reviewer's forms name each kind. */
+    public const KIND_LABELS = [
+        'field' => 'اصلاح یک فیلد',
+        'note' => 'یادداشت یا منبع پژوهشی',
+        'general' => 'پیشنهاد کلی',
+        'relation' => 'رابطه یا اصلاح ساختاری (انتقال، ادغام، تکراری…)',
+        'feedback' => 'بازخورد سایت (بی‌رکورد)',
+    ];
+
     /** Categories of site feedback, kept in field_name. */
     public const FEEDBACK_CATEGORIES = [
         'bug' => 'اشکال فنی (چیزی کار نمی‌کند)',
@@ -121,6 +130,56 @@ class SuggestionRegistry
         return $relation ? ['key' => $key] + $relation : null;
     }
 
+    /**
+     * The relations a form offers for one record type, each with its options: the public suggestion form, the
+     * reviewer's convert form and the admin's direct structural tools all read this, so a new relation reaches them all.
+     *
+     * @return array<int, array> each relation with its key and options (null when it has none)
+     */
+    public static function relationChoices(string $type): array
+    {
+        $type = self::typeKey($type);
+        $choices = [];
+        foreach (self::RELATIONS[$type] ?? [] as $key => $relation) {
+            $choices[] = ['key' => $key] + $relation + ['options' => self::relationOptions($type, $relation)];
+        }
+
+        return $choices;
+    }
+
+    /** The options of a relation that needs one (a person's role in the copy, a kind of relation between records). */
+    public static function relationOptions(string $type, array $relation): ?array
+    {
+        return match ($relation['apply'] ?? null) {
+            'person_role' => \App\Models\ManuscriptPerson::ROLES,
+            'record_relation' => RecordRelations::options($type),
+            default => null,
+        };
+    }
+
+    /**
+     * A record's fields as the suggestion forms describe them to the browser: input type and the address field's
+     * flags, with the dynamic fields of the record (source_entry_N, bibliography_page_*) when a record is given.
+     *
+     * @return array<string, array{name: string, label: string, input: string, withRow: bool, canBeAbsent: bool, unit: string}>
+     */
+    public static function fieldChoices(string $type, ?Model $record = null): array
+    {
+        $choices = [];
+        foreach ($record ? self::recordFields($record) : self::fields($type) as $name => $def) {
+            $choices[$name] = [
+                'name' => $name,
+                'label' => $def['label'],
+                'input' => $def['input'],
+                'withRow' => ! empty($def['with_row']),
+                'canBeAbsent' => ! empty($def['can_be_absent']),
+                'unit' => $def['unit'] ?? 'ص',
+            ];
+        }
+
+        return $choices;
+    }
+
     private const FLAG_LABELS = [
         'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
         'has_author_marginalia' => 'حواشی به خط مؤلف',
@@ -157,6 +216,39 @@ class SuggestionRegistry
         };
 
         return $field ? ['name' => $name] + $field : null;
+    }
+
+    /**
+     * A field of this very record, or null: an address field must be one of the record's own, its entry in another
+     * source or a page its bibliography cites. Used by the public form and by the reviewer's convert form.
+     */
+    public static function fieldOf(Model $record, ?string $name): ?array
+    {
+        $field = self::field($record::class, $name);
+        if (! $field || (isset($field['entry_id']) && ! SourceEntry::whereKey($field['entry_id'])->where('citable_type', $record::class)->where('citable_id', $record->id)->exists())
+            || (isset($field['bibliography']) && ! array_key_exists($field['name'], self::recordFields($record)))) {
+            return null;
+        }
+
+        return $field;
+    }
+
+    /**
+     * The submitted value in its stored form: an address is written as «ج 2، ص 7» whatever the submitter typed.
+     * Throws ValidationException (suggested_value) when an address has no volume and page.
+     */
+    public static function submittedValue(array $field, ?string $value): string
+    {
+        $value = trim(str_replace(["\r\n", "\r"], "\n", (string) $value));
+        if ($field['input'] !== 'catalog_page' || (! empty($field['can_be_absent']) && $value === self::ABSENT)) {
+            return $value;
+        }
+        $page = self::parseCatalogPage($value);
+        if (! $page) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['suggested_value' => 'شماره‌ی جلد و صفحه را بنویسید.']);
+        }
+
+        return self::formatCatalogPage($page['volume'], $page['page'], $page['row'], $field['unit'] ?? 'ص');
     }
 
     /** Accepts a short key ('manuscript') or a model class. */

@@ -8,6 +8,9 @@
     <span>ویرایش #{{ \App\Support\Fa::digits($library->id) }}</span>
 @endsection
 @section('page_actions')
+    @can('structure.direct')
+        <x-ui.btn :href="route('admin.structure.show', ['library', $library->id])" size="sm" title="ادغام کتابخانه‌ی تکراری یا تغییر نام، با پیش‌نمایش">ادغام و تغییر نام</x-ui.btn>
+    @endcan
     <x-ui.btn :href="route('libraries.show', $library)" target="_blank" size="sm">صفحه در سایت ↗</x-ui.btn>
 @endsection
 

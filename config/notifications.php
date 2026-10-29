@@ -55,7 +55,7 @@ return [
         ],
         // Letters between the staff and a user (backlog item 91)
         'suggestion.question' => [
-            'label' => 'پرسش داور درباره‌ی پیشنهادهای من، پیش از داوری',
+            'label' => 'پرسش و پیام داور درباره‌ی پیشنهادهای من',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],

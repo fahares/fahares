@@ -38,11 +38,7 @@
         'peopleUrl' => route('suggestions.people'),
         'lookupUrl' => route('suggestions.lookup'),
         // Relations with options carry them: roles of people in the copy, or the kinds of relation between records
-        'relations' => collect(SuggestionRegistry::RELATIONS[$type] ?? [])->map(fn ($r, $key) => ['key' => $key] + $r + ['options' => match ($r['apply'] ?? null) {
-            'person_role' => \App\Models\ManuscriptPerson::ROLES,
-            'record_relation' => \App\Suggestions\RecordRelations::options($type),
-            default => null,
-        }])->values(),
+        'relations' => SuggestionRegistry::relationChoices($type),
         'csrf' => csrf_token(),
         'userName' => auth()->user()?->name,
         'creditName' => auth()->user() ? \App\Models\FieldSuggestion::creditNameFor(auth()->user()) : null,
@@ -54,6 +50,8 @@
         'googleUrl' => route('auth.google'),
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
+        // ...and run a structural tool at once, after its preview in the panel (backlog item 45)
+        'structureUrl' => auth()->user()?->can('structure.direct') ? route('admin.structure.show', [$type, $record->id]) : null,
         // Research notes (see NoteTypes)
         'noteTypes' => \App\Suggestions\NoteTypes::forRecord($type),
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
@@ -356,6 +354,13 @@
 
                     <div class="pt-3 flex items-center justify-end gap-3 border-t border-line">
                         <button type="button" @click="cancel()" class="px-4 py-2 rounded-xl text-stone-500 hover:bg-paper font-semibold">انصراف</button>
+                        <template x-if="config.structureUrl && mode === 'general' && relationKey">
+                            <button type="button" @click="openStructure()"
+                                title="بی‌آنکه پیشنهادی ثبت شود: در پنل، اثر تغییر را می‌بینید و پس از تأیید اجرا می‌شود"
+                                class="px-4 py-2.5 rounded-xl border border-gold text-cinnabar hover:bg-amber-50 dark:hover:bg-amber-950/30 font-bold transition">
+                                اعمال مستقیم (با پیش‌نمایش)
+                            </button>
+                        </template>
                         <template x-if="config.directUrl && mode === 'field'">
                             <button type="button" @click="submitDirect()" :disabled="submitting"
                                 title="فقط برای غلط تایپی و خطای آشکار: بی‌درنگ اعمال می‌شود، مستند نمی‌خواهد و قول به‌شمار نمی‌آید"

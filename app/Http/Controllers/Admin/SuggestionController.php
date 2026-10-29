@@ -842,18 +842,20 @@ class SuggestionController extends Controller
 
     /**
      * Turns a suggestion the submitter filed in the wrong place (e.g. a scribe's name sent as a note)
-     * into a standard one: a field correction, a research note, a general report or a relation (this copy
-     * belongs to another work…), on this or another record. The new suggestion keeps the submitter, their consent to be named and the date, and waits
+     * into a standard one of any kind the registry defines (backlog item 68): a field correction (the record's
+     * dynamic address fields included), a research note, a general report, a relation, or site feedback, on this
+     * or another record. The new suggestion keeps the submitter, their consent to be named and the date, and waits
      * for review like any other; the original is kept and can be closed as converted.
      */
     public function convert(Request $request, FieldSuggestion $suggestion)
     {
         abort_unless($suggestion->status === 'pending', 409, 'فقط پیشنهاد در انتظار داوری را می‌توان تبدیل کرد.');
         $validated = $request->validate([
-            'target_type' => ['required', Rule::in(array_keys(SuggestionRegistry::TYPES))],
+            'kind' => ['required', Rule::in(SuggestionRegistry::KINDS)],
+            'target_type' => ['required_unless:kind,feedback', 'nullable', Rule::in(array_keys(SuggestionRegistry::TYPES))],
             'target_ref' => 'nullable|string|max:500',
-            'kind' => ['required', Rule::in(['field', 'note', 'general', 'relation'])],
             'field_name' => 'nullable|string|max:100',
+            'person_id' => 'nullable|integer|exists:people,id',
             'relation_target' => 'nullable|string|max:500',
             'role' => 'nullable|string|max:30',
             'role_name' => 'nullable|string|max:600',
@@ -864,28 +866,43 @@ class SuggestionController extends Controller
             'close_original' => 'nullable|boolean',
         ]);
 
-        $type = $validated['target_type'];
-        $class = SuggestionRegistry::modelClass($type);
-        $ref = trim((string) ($validated['target_ref'] ?? ''));
-        $id = $ref === '' && $suggestion->suggestable_type === $class ? $suggestion->suggestable_id : self::recordId($type, $ref);
-        $record = $id ? $class::find($id) : null;
-        if (! $record) {
-            return back()->withInput()->withErrors(['target_ref' => 'رکورد مقصد پیدا نشد. پیوند یا شناسه‌ی فهارس را بنویسید.']);
+        $value = trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['suggested_value'] ?? '')));
+        $record = null;
+        if ($validated['kind'] === 'feedback') {
+            // Site feedback has no record; the original's page, if it was feedback, goes with it
+            if (! array_key_exists($validated['field_name'] ?? '', SuggestionRegistry::FEEDBACK_CATEGORIES)) {
+                return back()->withInput()->withErrors(['field_name' => 'دسته‌ی بازخورد را انتخاب کنید.']);
+            }
+            if ($value === '') {
+                return back()->withInput()->withErrors(['suggested_value' => 'متن بازخورد را بنویسید.']);
+            }
+            $attributes = ['field_name' => $validated['field_name'], 'suggested_value' => $value, 'current_value' => null,
+                'payload' => array_intersect_key($suggestion->kind === 'feedback' ? (array) $suggestion->payload : [], array_flip(['url', 'title'])) + ['derived_from' => $suggestion->id]];
+        } else {
+            $type = $validated['target_type'];
+            $record = self::convertTarget($suggestion, $type, (string) ($validated['target_ref'] ?? ''));
+            if (! $record) {
+                return back()->withInput()->withErrors(['target_ref' => 'رکورد مقصد پیدا نشد. پیوند یا شناسه‌ی فهارس را بنویسید.']);
+            }
+            $attributes = ['current_value' => null, 'payload' => ['derived_from' => $suggestion->id]];
         }
 
-        $value = trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['suggested_value'] ?? '')));
-        $attributes = ['current_value' => null, 'payload' => ['derived_from' => $suggestion->id]];
         try {
             switch ($validated['kind']) {
+                case 'feedback':
+                    break;
                 case 'field':
-                    $field = SuggestionRegistry::field($type, $validated['field_name'] ?? null);
+                    // Any field of the record, its address in each source included, as the public form offers it
+                    $field = SuggestionRegistry::fieldOf($record, $validated['field_name'] ?? null);
                     if (! $field) {
                         return back()->withInput()->withErrors(['field_name' => 'فیلد مقصد را انتخاب کنید.']);
                     }
                     if ($value === '') {
                         return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید.']);
                     }
-                    $attributes = ['field_name' => $field['name'], 'suggested_value' => $value, 'current_value' => SuggestionRegistry::currentValue($record, $field)] + $attributes;
+                    $personId = $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null;
+                    $attributes = ['field_name' => $field['name'], 'suggested_value' => SuggestionRegistry::submittedValue($field, $value), 'current_value' => SuggestionRegistry::currentValue($record, $field),
+                        'payload' => array_filter(['person_id' => $personId]) + $attributes['payload']];
                     break;
                 case 'note':
                     if (! NoteTypes::allowed($type, $validated['field_name'] ?? null)) {
@@ -916,8 +933,8 @@ class SuggestionController extends Controller
         }
 
         $derived = new FieldSuggestion($attributes + [
-            'suggestable_type' => $record::class,
-            'suggestable_id' => $record->id,
+            'suggestable_type' => $record ? $record::class : null,
+            'suggestable_id' => $record?->id,
             'kind' => $validated['kind'],
             'rationale_citation' => trim($validated['rationale_citation'] ?? '') ?: null,
             'user_id' => $suggestion->user_id,
@@ -941,8 +958,34 @@ class SuggestionController extends Controller
             ->with('success', "پیشنهاد #{$derived->id} از روی پیشنهاد #{$suggestion->id} ساخته شد" . ($request->boolean('close_original') ? ' و پیشنهاد اصلی بسته شد.' : '. پیشنهاد اصلی هنوز باز است.'));
     }
 
+    /** The record a conversion lands on: the suggestion's own when no other is named, else a pasted link or id. */
+    private static function convertTarget(FieldSuggestion $suggestion, string $type, string $ref)
+    {
+        $class = SuggestionRegistry::modelClass($type);
+        $ref = trim($ref);
+        $id = $ref === '' && $suggestion->suggestable_type === $class ? $suggestion->suggestable_id : self::recordId($type, $ref);
+
+        return $id ? $class::find($id) : null;
+    }
+
+    /**
+     * The fields of the record a conversion would land on, with its dynamic address fields (its entry in each
+     * source, each page its bibliography cites), for the convert form once the reviewer names the record.
+     */
+    public function convertFields(Request $request, FieldSuggestion $suggestion)
+    {
+        $type = SuggestionRegistry::typeKey((string) $request->query('type'));
+        abort_unless((bool) $type, 404);
+        $record = self::convertTarget($suggestion, $type, (string) $request->query('ref', ''));
+
+        return response()->json([
+            'record' => $record ? SuggestionRegistry::describe($record) : null,
+            'fields' => array_values(SuggestionRegistry::fieldChoices($type, $record)),
+        ]);
+    }
+
     /** A record id from a pasted fahares link (/m/12, /works/12-…) or a bare id, Persian digits included. */
-    private static function recordId(string $type, string $ref): ?int
+    public static function recordId(string $type, string $ref): ?int
     {
         $ref = strtr($ref, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
         $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people', 'library' => 'l|libraries'][$type];
@@ -1015,24 +1058,29 @@ class SuggestionController extends Controller
         }
 
         $fresh = $suggestion->fresh();
-        $message = $fresh->status === 'pending'
-            ? "پیشنهاد #{$suggestion->id} به صف داوری بازگشت" . ($undo ? ' و تغییر آن در رکورد بازگردانده شد.' : '.')
-            : "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان مقدار منتخب بازگردانده شد؛ دوباره «قول دیگر» است.";
+        $message = match ($fresh->status) {
+            'pending' => "پیشنهاد #{$suggestion->id} به صف داوری بازگشت" . ($undo ? ' و تغییر آن در رکورد بازگردانده شد.' : '.'),
+            'undone' => "اقدام مستقیم #{$suggestion->id} در رکورد بازگردانده شد.",
+            default => "انتخاب پیشنهاد #{$suggestion->id} به‌عنوان مقدار منتخب بازگردانده شد؛ دوباره «قول دیگر» است.",
+        };
 
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', $message);
     }
 
-    /** A question to the submitter before deciding (backlog item 91); the suggestion waits for the answer */
+    /** Writing to the submitter (backlog item 91): a question that the pending suggestion waits for, or after the decision a plain letter */
     public function ask(Request $request, FieldSuggestion $suggestion)
     {
-        abort_unless($suggestion->status === 'pending', 409, 'این پیشنهاد پیش‌تر داوری شده است.');
         abort_unless((bool) $suggestion->user_id, 422, 'پیشنهاد مهمان پیشنهاددهنده‌ای برای پرسش ندارد.');
         $validated = $request->validate(['body' => 'required|string|max:' . \App\Models\Message::MAX_LENGTH]);
+        $pending = $suggestion->status === 'pending';
 
-        \App\Messaging\Conversations::ask($suggestion, $request->user(), $validated['body']);
+        // A question on a pending suggestion, a plain letter on a decided one
+        \App\Messaging\Conversations::toSubmitter($suggestion, $request->user(), $validated['body']);
 
         return redirect()->route('admin.suggestions.show', $suggestion)->withFragment('conversation')
-            ->with('success', 'پرسش فرستاده شد. پیشنهاد تا پاسخ پیشنهاددهنده در تب «منتظر پاسخ» می‌ماند.');
+            ->with('success', $pending
+                ? 'پرسش فرستاده شد. پیشنهاد تا پاسخ پیشنهاددهنده در تب «منتظر پاسخ» می‌ماند.'
+                : 'پیام فرستاده شد. وضعیت پیشنهاد تغییر نکرد.');
     }
 
     public function reject(Request $request, FieldSuggestion $suggestion)

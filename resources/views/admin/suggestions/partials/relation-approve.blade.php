@@ -6,16 +6,22 @@
         </div>
     @endif
 
-    @php $apply = $relation['apply'] ?? null; @endphp
+    @php
+        $apply = $relation['apply'] ?? null;
+        // The admin's direct action (backlog item 45) posts the same form to its own route, with the tool's choices
+        $formAction ??= route('admin.suggestions.approve', $suggestion);
+        $directFields ??= [];
+    @endphp
     @if($apply === 'record_relation' && $target && $relationTarget)
         @php $relInput = 'admin-field w-full'; @endphp
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">رابطه در صفحه‌ی هر دو رکورد نمایش داده می‌شود. «این» یعنی رکورد #{{ \App\Support\Fa::digits($target->id) }} و «انتخاب‌شده» یعنی #{{ \App\Support\Fa::digits($relationTarget->id) }}. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نوع رابطه:</span>
                 <select name="role" class="{{ $relInput }}">
-                    @foreach(\App\Suggestions\RecordRelations::options($suggestion->suggestable_type) as $key => $label)
+                    @foreach(\App\Suggestions\SuggestionRegistry::relationOptions($suggestion->suggestable_type, $relation) as $key => $label)
                         <option value="{{ $key }}" @selected(old('role', $suggestion->payload['role'] ?? '') === $key)>{{ $label }}</option>
                     @endforeach
                 </select>
@@ -31,13 +37,14 @@
             $payload = $suggestion->payload ?? [];
             $defaultLink = old('role_link', $relationTarget ? 'target' : 'name');
         @endphp
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">شخص با نقشی که تعیین می‌کنید در بخش «اشخاص مرتبط با نسخه» در صفحه‌ی نسخه، و اگر به جدول اشخاص پیوند بخورد در صفحه‌ی آن شخص هم، نمایش داده می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.</p>
             <label class="block space-y-1">
                 <span class="block font-bold text-ink">نقش:</span>
                 <select name="role" class="{{ $roleInput }}">
-                    @foreach(\App\Models\ManuscriptPerson::ROLES as $key => $label)
+                    @foreach(\App\Suggestions\SuggestionRegistry::relationOptions($suggestion->suggestable_type, $relation) as $key => $label)
                         <option value="{{ $key }}" @selected(old('role', $payload['role'] ?? '') === $key)>{{ $label }}</option>
                     @endforeach
                 </select>
@@ -60,8 +67,9 @@
             <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
     @elseif(in_array($apply, ['contributor_set', 'contributor_add', 'alias'], true) && $target && ($relationTarget || ! $relation['target']))
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">
                 @switch($apply)
                     @case('contributor_set')
@@ -102,8 +110,9 @@
             $locInput = 'admin-field w-full';
             $choice = old('library_choice', $relationTarget ? 'target' : 'keep');
         @endphp
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">
                 نشانی کنونی: <strong>{{ $target->libraryRecord?->name ?? $target->library ?? '—' }}</strong>{{ $target->city ? '، ' . $target->city : '' }}، شماره‌ی <strong>{{ $target->shelfmark ?? 'بی‌شماره' }}</strong>.
                 نشانی پیشین در شناسنامه‌ی نسخه با عنوان «نشانی پیشین» می‌ماند و شمار نسخه‌های هر دو کتابخانه به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
@@ -145,8 +154,9 @@
                 $splitRoles = \App\Models\ManuscriptPerson::with('manuscript.work')->where('person_id', $target->id)->orderBy('id')->get();
             }
         @endphp
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">
                 {{ $isWork ? 'اثر' : 'شخص' }} تازه‌ای ساخته می‌شود و موارد تیک‌خورده به آن منتقل می‌شوند. بقیه در رکورد کنونی (#{{ \App\Support\Fa::digits($target->id) }}) می‌مانند. این تغییر از «گزارش ممیزی» بازگرداندنی است.
             </p>
@@ -207,8 +217,9 @@
                 نخست آن‌ها را به رکورد درست منتقل یا ادغام کنید، سپس این پیشنهاد را تأیید کنید.
             </p>
         @else
-            <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+            <form action="{{ $formAction }}" method="POST" class="space-y-4">
                 @csrf
+                @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
                 <div class="px-4 py-3 bg-surface border border-s-4 border-amber-600/50 text-amber-800 dark:text-amber-300 leading-relaxed">
                     رکورد #{{ \App\Support\Fa::digits($target->id) }} حذف می‌شود و نشانی‌اش صفحه‌ی «این رکورد حذف شده است» را نشان می‌دهد{{ $target instanceof \App\Models\Manuscript ? '، و به صفحه‌ی اثرش هدایت می‌شود' : '' }}.
                     اطلاعات کامل آن در گزارش ممیزی می‌ماند و از همان‌جا با همان شناسه بازگرداندنی است.
@@ -221,8 +232,9 @@
         @endif
     @elseif($apply === 'rename_library' && $target)
         @php $libInput = 'admin-field w-full'; @endphp
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <p class="leading-relaxed text-ink">
                 نام کنونی: <strong>{{ $target->name }}</strong>، {{ $target->city }}.
                 نام کتابخانه در همه‌ی {{ \App\Support\Fa::num($target->manuscripts_count) }} نسخه‌اش هم به‌روز می‌شود. این تغییر از «گزارش ممیزی» بازگرداندنی است.
@@ -239,8 +251,9 @@
         </form>
     @elseif($apply === 'merge_library' && $target && $relationTarget)
         @php $libInput = 'admin-field w-full'; @endphp
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <div class="space-y-1.5">
                 <span class="block font-bold text-ink">کدام کتابخانه بماند؟</span>
                 <label class="flex items-center gap-2"><input type="radio" name="keep" value="target" @checked(old('keep', 'target') === 'target') class="accent-cinnabar"> «{{ $relationTarget->name }}»، {{ $relationTarget->city }} (#{{ \App\Support\Fa::digits($relationTarget->id) }}، {{ \App\Support\Fa::num($relationTarget->manuscripts_count) }} نسخه) بماند</label>
@@ -262,13 +275,14 @@
         <p class="leading-relaxed text-ink">
             ادغام اشخاص با ابزار ادغام اشخاص انجام می‌شود. در آنجا مقایسه‌ی کامل دو شخص را می‌بینید و می‌توانید جای مبدأ و مقصد را عوض کنید. با انجام ادغام، این پیشنهاد خودکار «تأییدشده» ثبت می‌شود و با بازگردانی ادغام، دوباره «در انتظار» می‌شود.
         </p>
-        <a href="{{ route('admin.people.merge', ['source_id' => $target->id, 'target_id' => $relationTarget->id, 'suggestion_id' => $suggestion->id]) }}"
+        <a href="{{ route('admin.people.merge', ['source_id' => $target->id, 'target_id' => $relationTarget->id, 'suggestion_id' => $suggestion->id ?: null]) }}"
            class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer flex items-center justify-center gap-2">
             رفتن به ابزار ادغام اشخاص
         </a>
     @else
-        <form action="{{ route('admin.suggestions.approve', $suggestion) }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
             @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
 
             @if($relation['key'] === 'move_to_work')
                 <p class="leading-relaxed text-ink">
