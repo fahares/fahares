@@ -48,6 +48,10 @@
             @endforeach
             <x-suggest.field name="aliases" />
         </div>
+        {{-- Misspelt forms (backlog item 90): searchable, named once here, not listed with the other names --}}
+        @if(! empty($person->wrong_names))
+            <p class="text-xs text-muted mt-1">در برخی منابع به صورت {{ collect($person->wrong_names)->map(fn ($n) => '«' . $n . '»')->implode('؛ ') }} آمده است.</p>
+        @endif
         <div class="flex flex-wrap justify-center gap-1.5 mt-1">
             @if($person->is_author)<x-ui.chip tone="accent">پدیدآور</x-ui.chip>@endif
             @if($person->is_scribe || $scribedTotal > 0)<x-ui.chip>کاتب</x-ui.chip>@endif

@@ -19,13 +19,15 @@
 <div x-data="personMerger({
         source: {{ Js::from($preloadedSource) }},
         target: {{ Js::from($preloadedTarget) }},
-        searchUrl: @js(route('admin.people.search'))
+        searchUrl: @js(route('admin.people.search')),
+        comparedPair: @js($comparison !== null ? $preloadedSource['id'] . '-' . $preloadedTarget['id'] : null),
+        compareUrl: @js(route('admin.people.merge', array_filter(['suggestion_id' => $suggestionId ?? null]))),
     })"
     class="max-w-5xl space-y-5 text-[13px]">
 
     <x-admin.notice>
         دو شخص را با جستجوی نام یا شناسه برگزینید. همه‌ی آثار، نسخه‌ها و نقش‌های <b>شخص تکراری</b> به <b>شخص اصلی</b> منتقل و شمارها دوباره حساب می‌شوند.
-        نام‌های شخص تکراری به نام‌های دیگر شخص اصلی افزوده می‌شود و نشانی‌اش به صفحه‌ی شخص اصلی می‌رود.
+        نام‌های شخص تکراری به نام‌های دیگر شخص اصلی افزوده می‌شود و نشانی‌اش به صفحه‌ی شخص اصلی می‌رود. اگر نام شخص تکراری نادرست است، در جدول مقایسه «نادرست» را برگزینید تا فقط برای جستجو بماند.
         ادغام در لاگ ممیزی ثبت می‌شود و از همان‌جا بازگرداندنی است.
     </x-admin.notice>
 
@@ -120,6 +122,17 @@
             </p>
         </x-ui.card>
 
+        {{-- The fields to decide (backlog items 46 and 90), drawn for the pair the page was opened with --}}
+        <x-ui.card x-show="ready && pair === comparedPair" x-cloak class="space-y-3">
+            @if($comparison !== null)
+                <input type="hidden" name="compared" :value="pair === comparedPair ? comparedPair : ''">
+                @include('admin.partials.merge-compare', ['rows' => $comparison, 'inputName' => 'fields', 'keptLabel' => 'شخص اصلی', 'removedLabel' => 'شخص تکراری'])
+            @endif
+        </x-ui.card>
+        <x-admin.notice x-show="ready && pair !== comparedPair" x-cloak>
+            برای دیدن اختلاف فیلدهای دو شخص و تصمیم درباره‌ی هر یک (و نادرست بودن نام)، <a :href="compareHref" class="font-bold text-cinnabar hover:underline">مقایسه‌ی فیلدها</a> را باز کنید. بی‌آن، ادغام با پیش‌فرض‌ها انجام می‌شود: جای خالی پر می‌شود و در اختلاف، مقدار شخص اصلی می‌ماند.
+        </x-admin.notice>
+
         <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-line">
             <x-ui.btn :href="route('admin.people.index')" variant="ghost">انصراف</x-ui.btn>
             <button type="submit" :disabled="!ready"
@@ -143,6 +156,17 @@ function personMerger(config) {
         },
         get ready() {
             return this.sides.source.person && this.sides.target.person && ! this.same;
+        },
+        comparedPair: config.comparedPair,
+        get pair() {
+            return this.ready ? this.sides.source.person.id + '-' + this.sides.target.person.id : null;
+        },
+        get compareHref() {
+            if (! this.ready) return '#';
+            const url = new URL(config.compareUrl, window.location.origin);
+            url.searchParams.set('source_id', this.sides.source.person.id);
+            url.searchParams.set('target_id', this.sides.target.person.id);
+            return url.toString();
         },
 
         // Persian digits with the Persian thousands separator

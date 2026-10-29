@@ -169,7 +169,11 @@ class AuditLogController extends Controller
             Work::normalizeContributorPositions($transferredWorkIds);
             Manuscript::normalizeContributorPositions($transferredManuscriptIds);
 
-            // Recount works & manuscripts for target, and drop the aliases this merge added
+            // The fields the merge decided go back, its name included (backlog items 46 and 90)
+            \App\Suggestions\MergeComparison::undo($target, $old['fields'] ?? []);
+            $wrongNames = array_values(array_diff((array) ($target->wrong_names ?? []), (array) ($log->new_values['added_wrong_names'] ?? [])));
+
+            // Recount works & manuscripts for target, and drop the aliases and misspelt forms this merge added
             $targetWorks = $target->authoredWorks()->count();
             $targetManuscripts = $target->scribedManuscripts()->count();
             $addedAliases = $this->aliasesToDropOnRollback($log);
@@ -179,6 +183,7 @@ class AuditLogController extends Controller
                 'is_author' => $targetWorks > 0,
                 'is_scribe' => $targetManuscripts > 0,
                 'aliases' => array_values(array_diff((array) ($target->aliases ?? []), $addedAliases)),
+                'wrong_names' => $wrongNames ?: null,
             ]);
 
             // Recount works & manuscripts for restored source

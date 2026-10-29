@@ -97,7 +97,7 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title',
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,wrong_names,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title',
             'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
     }
 
@@ -240,10 +240,13 @@ class Work extends Model
         }
 
         $authorAliases = [];
+        $authorWrongNames = [];
         if ($this->relationLoaded('author') && $this->author) {
             $authorAliases = (array) ($this->author->aliases ?? []);
+            $authorWrongNames = (array) ($this->author->wrong_names ?? []);
         } elseif (!empty($this->author_id)) {
             $authorAliases = (array) ($this->author?->aliases ?? []);
+            $authorWrongNames = (array) ($this->author?->wrong_names ?? []);
         }
 
         $authorSearchText = $this->author_name;
@@ -275,7 +278,8 @@ class Work extends Model
             'transliteration' => $this->transliteration,
             'alternative_titles' => $alts,
             'author_name' => \App\Helpers\TextNormalizer::normalize($authorSearchText),
-            'author_aliases' => array_map(fn($a) => \App\Helpers\TextNormalizer::normalize($a), $authorAliases),
+            // A misspelt form of the author's name finds the work too, without ranking it like a name (backlog item 90)
+            'author_aliases' => array_map(fn($a) => \App\Helpers\TextNormalizer::normalize($a), [...$authorAliases, ...$authorWrongNames]),
             'author_id' => $this->author_id ? (int) $this->author_id : null,
             'composition_year_hijri' => $this->composition_year_hijri ? (int) $this->composition_year_hijri : null,
             'volume_number' => (int) $this->volume_number,
