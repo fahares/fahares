@@ -4563,3 +4563,75 @@
   - **صفحه‌ی شخص:** سطر کم‌رنگ زیر نام‌های دیگر.
 - **آزمون:** [MergeComparisonTest](../tests/Feature/MergeComparisonTest.php) هفت آزمون دارد: ردیف‌ها و پیش‌فرض‌ها؛ ادغام نسخه از تأیید پیشنهاد، با جایگزینی، خالی ماندن، OR پرچم، یکی‌کردن مهرها و بازگردانی؛ ادغام اثر از ابزار مستقیم، با «هر دو» برای معرفی، یکی‌کردن مآخذ و بازگردانی؛ ادغام کتابخانه با بازگردانی؛ نام نادرست، با جستجوی شخص و اثر، سطر صفحه‌ی شخص و بازگردانی؛ نام اصلی شدن نام مبدأ و نادیده ماندن انتخاب‌های جفت دیگر؛ و جابه‌جایی نام‌ها در ویرایش. یک بند `StructureToolsTest` هم با متن تازه‌ی پیش‌نمایش هماهنگ شد. `docker exec fahares_app php artisan test`: ۴۳۵ آزمون موفق.
 - **آزمون مرورگر (پایگاه محلی، رکوردهای آزمایشی که پس از آن حذف شدند):** ادغام مستقیم اثر و بازگردانی آن از صفحه‌ی پیشنهاد، تأیید پیشنهاد ادغام اثر و بازگردانی آن، و ادغام شخص با «نادرست» و بازگردانی آن از لاگ ممیزی آزموده شد. جستجوی «غلط‌نویس» شخص را یافت و نشانی قدیم ۳۰۱ داد. در پنل پنهان مرورگر، `requestAnimationFrame` اجرا نمی‌شود، پس جابه‌جایی دو جدول با «کدام رکورد بماند» دیده نشد، هرچند داده‌ی Alpine عوض می‌شد. آزمون HTTP هر دو جدول را می‌سنجد.
+
+### گام ۱۳.۶۸: `work_people` (مورد ۳۵، گام ۱ مسیر ترکیبی)
+- **migration:** [create_work_people_table](../database/migrations/2026_10_29_100001_create_work_people_table.php).
+  - **ستون‌ها:** `work_id` (cascade)، `person_id` (nullable، nullOnDelete)، `name` (۶۰۰)، `role` (۳۰)، `note` (۵۰۰)، `position`، `certainty` (۱۰، nullable)، `hedge_raw` (۶۰، nullable)، `source_entry_id` (FK به `source_entries`، nullOnDelete)، `suggestion_id` (FK به `field_suggestions`) و timestamps.
+  - **نمایه‌ها:** `(work_id, role)` و `(person_id, role)`.
+  - فقط ساختار است و داده‌ای جابه‌جا نمی‌کند، پس اجرای خودکارش در استقرار بی‌خطر است.
+- **مدل:** [WorkPerson](../app/Models/WorkPerson.php).
+  - **ثابت‌ها:** `ROLES` (translator، original_author، dedicatee، commissioner، subject، editor، other)، `PERSON_TABS` (عنوان زبانه‌ی هر نقش در صفحه‌ی شخص) و `CERTAINTIES`.
+  - **`hedge_label`:** اگر `hedge_raw` باشد همان، وگرنه برچسب قطعیتِ محتمل یا مشکوک.
+  - **رابطه‌ها:** `Work::workPeople()` و `Person::workRoles()`.
+- **مسیر نوشتن:** `ContributorRelations::addRole(Manuscript|Work …, array $extra)`.
+  - نقش‌ها را از `SuggestionRegistry::personRoles($type)` می‌گیرد.
+  - تکرار همان شخص یا همان نامِ بی‌پیوند با همان نقش را نمی‌پذیرد.
+  - برای اثر، `certainty`، `hedge_raw` و `source_entry_id` را هم می‌نویسد. مترجمِ پیوندخورده `is_translator` می‌گیرد.
+  - **`removeRole(Work, rowId)`:** سطر را حذف می‌کند و کل آن را در `old_values.removed_person_role` نگه می‌دارد. **`roleRows()`:** سطرهای نقش هر رکورد.
+- **رجیستری و پیشنهاد:**
+  - **دو رابطه‌ی تازه‌ی اثر در [SuggestionRegistry](../app/Suggestions/SuggestionRegistry.php):** `person_role` و `person_role_removed`. هر دو `apply: person_role` دارند و دومی `remove: true` هم دارد. پس مجوز (`structure.link`)، فرم عمومی، فرم تبدیل و ابزار مستقیم بی‌تغییر آن‌ها را می‌شناسند.
+  - **[RelationInput](../app/Suggestions/RelationInput.php):** نقش را با `personRoles` می‌سنجد. در حذف، اگر `role_row_id` از سطرهای همان اثر باشد، آن را در `payload.row_id` نگه می‌دارد.
+  - **[SuggestionController](../app/Http/Controllers/Admin/SuggestionController.php):** `certainty` و `role_row_id` را می‌پذیرد. در `person_role` با `remove` به `removeRole` می‌رود. تفکیک شخص `work_role_ids` را می‌پذیرد.
+  - **فرم‌ها:** [relation-approve](../resources/views/admin/suggestions/partials/relation-approve.blade.php) برای حذف فهرست رادیویی سطرهای اثر را نشان می‌دهد و سطر پیشنهاد یا سطر هم‌نقش و هم‌نام را از پیش برمی‌گزیند. برای افزودن روی اثر، انتخاب قطعیت دارد. در تفکیک شخص، فهرست «نقش‌هایی در آثار» هم می‌آید.
+  - **[suggest-desk.js](../resources/js/suggest-desk.js):** `roleRowId` دارد. اگر فرم از دکمه‌ی یک سطر باز شود، نقش و شخص یا نام آن سطر پس از بازیابی پیش‌نویس پر می‌شوند و `role_row_id` فرستاده می‌شود.
+  - **[Contributions](../app/Suggestions/Contributions.php):** برچسب نقش را از `personRoles` می‌گیرد. حذف را با «(حذف شد)» و مقدار «پیش» نشان می‌دهد.
+- **بازگردانی ([AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php)):**
+  - **`added_person_role`:** سطر را از جدول نوع رکورد حذف می‌کند (`WorkPerson` یا `ManuscriptPerson`).
+  - **`removed_person_role`:** سطر را با همان شناسه با `insertOrIgnore` برمی‌گرداند و پیش از `forceFill` از `$old` برداشته می‌شود.
+  - **ادغام شخص:** `transferred_work_role_ids` را برمی‌گرداند.
+- **ابزارهای ساختاری:**
+  - **[PersonMerger](../app/Services/PersonMerger.php):** سطرهای شخص مبدأ را منتقل می‌کند و `is_translator` مقصد را به‌روز می‌کند.
+  - **[RecordSplitter](../app/Suggestions/RecordSplitter.php):** `splitPerson` گزینه‌ی `work_roles` را می‌پذیرد و `undo` آن را برمی‌گرداند.
+  - **[RecordMerger](../app/Suggestions/RecordMerger.php):** `mergeWork` سطرها را به اثر ماندگار می‌برد، جز شخص یا نامی که آنجا با همان نقش هست. شناسه‌ها در `moved_people_ids` می‌مانند و `work_people` در snapshot است. `undoWorkMerge` منتقل‌شده‌ها را برمی‌گرداند و بقیه را از snapshot درج می‌کند.
+  - **[RecordRemover](../app/Suggestions/RecordRemover.php):** `work_people` در pivotهای اثر است و شمار «اثر (نقش‌های دیگر)» در موانع حذف شخص.
+  - **[StructurePreview](../app/Suggestions/StructurePreview.php):** «شخص مرتبط» برای اثر و «نقش در اثر» برای شخص.
+- **[ProtectedColumns](../app/Suggestions/ProtectedColumns.php):**
+  - **`ROW_KEYS`:** کلیدهای لاگ verify را به گونه‌ی سطرهای فرزند نگاشت می‌کند: `people` (افزودن و حذف نقش)، `contributors` و `relations`.
+  - **`protectsRows($id, $kind)`:** می‌گوید آیا داوری آن گونه سطرها را برای آن رکورد تغییر داده است، و رد شدن را با `@kind` در گزارش ثبت می‌کند. `removed_person_role` به `META_KEYS` افزوده شد.
+- **نماها:**
+  - **[work-people](../resources/views/components/work-people.blade.php):** هم‌شکل `manuscript-people` است و پس از «مشخصات» در صفحه‌ی اثر می‌آید.
+  - **[people/show](../resources/views/people/show.blade.php):** زبانه‌ها از آرایه‌ی `$tabs` ساخته می‌شوند: آثار، نسخه‌ها، و `role-{نقش}` برای هر نقش دارای داده (تا ۱۰۰۰ سطر). نوار زبانه وقتی دو زبانه یا بیشتر باشد نمایش داده می‌شود. زبانه‌ی پیش‌فرض اگر شخص اثر یا نسخه نداشته باشد، نخستین نقش است.
+- **فرمان [fahares:backfill-work-people](../app/Console/Commands/BackfillWorkPeopleCommand.php):**
+  - **گزینه‌ها:** `--dry-run`، `--source` (پیش‌فرض `../fahares-corpus/json/fankha_v2`)، `--volume` و `--show`.
+  - **پاک‌سازی نام:** فاصله‌ی پیش از «،» برداشته می‌شود. پرانتز پایانی به `note` می‌رود.
+  - **کنار گذاشتن:** «نامعلوم» و هم‌خانواده‌هایش، و نام درهم با توصیف (بیش از ۸۰ نویسه یا «.»، «؛» و «:» پیش از فاصله یا در پایان).
+  - **فقط نام، بی‌پیوند:** چندنفره («و» یا دو «،»)، تک‌واژه، بی‌همتا، چندهمتا، سده‌ی وفات ناسازگار، و نام دوواژه‌ای بی سده‌ی هم‌خوان.
+  - **نمایه‌ی نام‌ها:** `normalized_name` و `aliases` همه‌ی اشخاص در حافظه بار می‌شود.
+  - **قطعیت:** «؟» و «شاید» مشکوک‌اند. «محتملا»، «احتمالا»، «ظاهرا» و «گویا» محتمل‌اند.
+  - **`source_entry_id`:** مدخل فنخای همان جلد اثر (`is_primary` نخست).
+  - **رد شدن:** اثری که `protectsRows(…, 'people')` دارد، و سطر موجود.
+  - هر جلد در یک تراکنش نوشته می‌شود و اجرای دوباره چیزی نمی‌افزاید.
+- **تمرین (`fahares_prod` محلی، dry run):**
+
+| | مترجم | مؤلف متن اصلی |
+| :--- | ---: | ---: |
+| نامزد | ۲۶۹ | ۵ |
+| پیوند به شخص | ۱۶۴ | ۱ |
+| فقط نام: بی‌همتا | ۶۷ | — |
+| فقط نام: تک‌واژه | ۲۴ | — |
+| فقط نام: چندنفره | ۲ | — |
+| فقط نام: سده‌ی ناسازگار | ۲ | — |
+| کنار: درهم با توصیف | ۷ | ۴ |
+| کنار: نامعلوم | ۲ | — |
+| کنار: اثر در پایگاه نیست | ۱ | — |
+| با واژه‌ی تردید | ۱ | — |
+
+  - نخستین اجرا ۱۵۹ پیوند داشت. پاک کردن فاصله‌ی پیش از «،» (مثلاً «طالبوف ، عبدالرحیم») آن را به ۱۶۴ رساند. قاعده‌ی نام دوواژه‌ای در این داده نامی را کنار نگذاشت.
+  - نمونه‌ی پیوندها: حنین بن اسحاق (#۵۰۴، ۴۲ اثر)، قسطا بن لوقا، ابوریحان بیرونی و اعتماد السلطنه. migration روی `fahares_prod` اجرا شد و جز آن چیزی نوشته نشد.
+- **آزمون:** [WorkPeopleTest](../tests/Feature/WorkPeopleTest.php)، ۴ آزمون:
+  - افزودن با پیوند و با نام و قطعیت، صفحه‌ی اثر و زبانه‌ی شخص، تکرار، بازگردانی و حفاظت سطرها؛
+  - حذف و بازگشت سطر با واژه‌ی تردید؛
+  - ادغام و بازگردانی شخص، تفکیک و بازگردانی، ادغام و بازگردانی اثر، و حذف اثر؛
+  - پر کردن خودکار با ده حالت.
+  - کل مجموعه: ۴۳۲ آزمون موفق (۴٬۳۰۹ assertion). پس از rebase روی گام ۱۳.۶۷ (که سطرهای `work_people` را در ادغام اثر کنار مقایسه‌ی فیلدها نگه می‌دارد)، و سپس روی گام‌های ۱۳.۶۵ و ۱۳.۶۶: ۴۴۰ آزمون موفق (۴٬۳۹۴ assertion).
+  - **روش اجرا:** آزمون‌ها با `docker run` از image `fahares-app`، با worktree و `vendor` و `.env` شاخه‌ی اصلی، اجرا شدند. `migrate:fresh` روی `fahares_test` بی‌خطا بود. ولی در اجرای کل مجموعه روی `fahares_test`، جلسه‌ی دیگری هم‌زمان همین پایگاه را می‌ساخت: یک بار migration روی قفل metadata ماند و بار دیگر ۱۶ آزمون با «جدول users نیست» شکست خوردند. پس کل مجموعه روی پایگاه جداگانه‌ی `fahares_wp35_test` اجرا شد و آن پایگاه پس از آن حذف شد.
