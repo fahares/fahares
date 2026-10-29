@@ -30,6 +30,7 @@ class AuditLog extends Model
         'delete' => 'حذف',
         'permissions' => 'تغییر دسترسی',
         'profile_correction' => 'اصلاح شناسنامه',
+        'corpus_update' => 'به‌روزرسانی از پیکره',
         'home_texts' => 'متن‌های صفحه‌ی خانه',
         'home_item_delete' => 'حذف از صفحه‌ی خانه',
         'home_cataloger_add' => 'افزودن فهرست‌نگار به خانه',
