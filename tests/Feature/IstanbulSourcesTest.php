@@ -63,6 +63,18 @@ class IstanbulSourcesTest extends TestCase
         $this->assertSame(['13#8', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
     }
 
+    public function test_a_commentary_told_inside_the_entry_of_its_book_is_a_mention()
+    {
+        $items = [
+            ['id' => 1, 'entry_number' => null, 'title' => 'الجامع الصحيح', 'text' => "الجامع الصحيح\n- للامام البخارى. " . str_repeat('و هو اصح الكتب بعد كتاب اللّه تعالى. ', 10) . "و من شروحه فتح البارى للحافظ شهاب الدين احمد بن على بن حجر العسقلانى المتوفى سنة 852 اثنتين و خمسين و ثمانمائة. و شرحه الكرمانى."],
+            ['id' => 2, 'entry_number' => null, 'title' => 'الجامع الصغير', 'text' => "الجامع الصغير\n- للسيوطى المتوفى سنة 911."],
+        ];
+        $match = (new \App\Sources\Bibliography\ItemMatcher)->match(['فتح الباری فی شرح صحیح البخاری'], 'ابن حجر عسقلانی، احمد بن علی', 852, $items);
+        $this->assertSame([1, SourceEntry::ROLE_MENTION, 'author_in_entry'], [$match['id'], $match['role'], $match['method']]);
+        // the name without the year, or the year in another sentence, is not enough
+        $this->assertNull((new \App\Sources\Bibliography\ItemMatcher)->match(['شرح البخاری'], 'ابن حجر عسقلانی، احمد بن علی', 900, $items));
+    }
+
     private function volume(string $code, string $title, int $number, int $first, int $last): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => $title,
