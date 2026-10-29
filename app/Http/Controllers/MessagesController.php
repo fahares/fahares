@@ -39,7 +39,7 @@ class MessagesController extends Controller
 
         Conversations::userReply($thread, $validated['body']);
 
-        return redirect()->route('my.messages.show', $thread)->with('success', $thread->kind === MessageThread::KIND_SUGGESTION
+        return redirect()->route('my.messages.show', $thread)->with('success', $thread->suggestion?->status === 'pending'
             ? 'پاسخ شما فرستاده شد و پیشنهاد به صف داوری برگشت.'
             : 'پاسخ شما فرستاده شد.');
     }

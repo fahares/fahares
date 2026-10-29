@@ -50,6 +50,42 @@ class Conversations
         return $thread;
     }
 
+    /**
+     * A reviewer writes to the submitter from the suggestion's page, whatever its status: on a pending suggestion
+     * it is a question that waits for the answer (ask); on a decided one a plain letter on the same thread, which
+     * leaves the suggestion as it is and lets the submitter answer again. Returns the thread.
+     */
+    public static function toSubmitter(FieldSuggestion $suggestion, User $staff, string $body): MessageThread
+    {
+        if ($suggestion->status === 'pending') {
+            return self::ask($suggestion, $staff, $body);
+        }
+        abort_unless((bool) $suggestion->user_id, 422, 'پیشنهاد مهمان پیشنهاددهنده‌ای برای پیام ندارد.');
+
+        $thread = DB::transaction(function () use ($suggestion, $staff, $body) {
+            $thread = $suggestion->thread ?? MessageThread::create([
+                'kind' => MessageThread::KIND_SUGGESTION,
+                'user_id' => $suggestion->user_id,
+                'field_suggestion_id' => $suggestion->id,
+                'subject' => 'درباره‌ی پیشنهاد #' . \App\Support\Fa::digits($suggestion->id) . ' (' . $suggestion->field_label . ')',
+                'started_by' => $staff->id,
+                'reply_token' => self::token(),
+            ]);
+            self::write($thread, $staff, $body, true);
+            self::log($staff, $suggestion, 'message', $thread);
+
+            return $thread;
+        });
+
+        self::notify($thread->user, new ThreadNotice($thread, 'suggestion.question',
+            'پیام داور درباره‌ی پیشنهاد شما',
+            ['رکورد: ' . self::recordLabel($suggestion), 'پیشنهاد شما: ' . Str::limit((string) $suggestion->suggested_value, 200), 'پیام داور: ' . $body,
+                'این پیشنهاد پیش‌تر داوری شده است و این پیام وضعیت آن را تغییر نمی‌دهد. اگر خواستید، پاسخ دهید.'],
+            route('my.messages.show', $thread)));
+
+        return $thread;
+    }
+
     /** An admin's direct message to a user (no $staff: sent by a server command); returns the new thread */
     public static function sendDirect(User $recipient, ?User $staff, string $subject, string $body, ?string $template = null): MessageThread
     {
@@ -76,7 +112,7 @@ class Conversations
     public static function staffWrite(MessageThread $thread, User $staff, string $body): void
     {
         if ($thread->kind === MessageThread::KIND_SUGGESTION) {
-            self::ask($thread->suggestion, $staff, $body);
+            self::toSubmitter($thread->suggestion, $staff, $body);
 
             return;
         }
@@ -89,6 +125,7 @@ class Conversations
     public static function userReply(MessageThread $thread, string $body, string $via = 'site'): Message
     {
         $user = $thread->user;
+        $backToQueue = $thread->suggestion?->status === 'pending';
         $message = DB::transaction(function () use ($thread, $user, $body, $via) {
             $message = self::write($thread, $user, $body, false, $via);
             $thread->update(['user_read_at' => now()]);
@@ -102,7 +139,8 @@ class Conversations
 
         if ($thread->kind === MessageThread::KIND_SUGGESTION) {
             $notice = new ThreadNotice($thread, 'suggestion.replied', 'پاسخ پیشنهاددهنده به پرسش شما',
-                ['پیشنهاد #' . $thread->field_suggestion_id . ' — ' . self::recordLabel($thread->suggestion), 'پاسخ: ' . Str::limit($body, 1000), 'پیشنهاد به صف داوری برگشت.'],
+                ['پیشنهاد #' . $thread->field_suggestion_id . ' — ' . self::recordLabel($thread->suggestion), 'پاسخ: ' . Str::limit($body, 1000),
+                    $backToQueue ? 'پیشنهاد به صف داوری برگشت.' : 'این پیشنهاد پیش‌تر داوری شده است؛ وضعیتش تغییر نکرد.'],
                 route('admin.suggestions.show', $thread->field_suggestion_id), 'مشاهده');
             self::notifyStaff($thread, 'suggestion.replied', $notice);
         } else {

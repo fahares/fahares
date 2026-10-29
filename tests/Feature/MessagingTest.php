@@ -96,6 +96,79 @@ class MessagingTest extends TestCase
         $this->actingAs($submitter)->post(route('my.messages.reply', $thread), ['body' => 'دیر شد'])->assertStatus(409);
     }
 
+    /** @return array<string, array{string}> */
+    public static function decidedStatuses(): array
+    {
+        return ['approved' => ['approved'], 'rejected' => ['rejected'], 'converted' => ['converted'], 'withdrawn' => ['withdrawn']];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('decidedStatuses')]
+    public function test_a_reviewer_writes_to_the_submitter_of_a_decided_suggestion_without_changing_it(string $status): void
+    {
+        Notification::fake();
+        $editor = $this->user('editor');
+        $submitter = $this->user();
+        $s = $this->suggestion($submitter, ['status' => $status, 'reviewed_by' => $editor->id]);
+        $this->assertNotNull($s->reviewed_at);
+
+        // The card and its form are on the page, as a letter rather than a question
+        $this->travel(1)->minutes();
+        $this->actingAs($editor)->get(route('admin.suggestions.show', $s))->assertOk()
+            ->assertSee('id="conversation"', false)->assertSee('فرستادن پیام')->assertDontSee('فرستادن پرسش');
+
+        $this->ask($editor, $s, 'این پیشنهاد را به این دلیل چنین داوری کردیم.')->assertRedirect()->assertSessionHas('success', 'پیام فرستاده شد. وضعیت پیشنهاد تغییر نکرد.');
+        $s->refresh();
+        $this->assertSame($status, $s->status);
+        $this->assertNull($s->awaiting_reply_since);
+        $thread = MessageThread::sole();
+        $this->assertSame($s->id, $thread->field_suggestion_id);
+        $this->assertSame('message', AuditLog::where('auditable_type', FieldSuggestion::class)->sole()->action);
+        Notification::assertSentTo($submitter, ThreadNotice::class, fn (ThreadNotice $n) => $n->type() === 'suggestion.question'
+            && str_contains((string) $n->toMail($submitter)->render(), 'وضعیت آن را تغییر نمی‌دهد'));
+
+        // The submitter may answer; the suggestion stays decided and the reviewer hears
+        $this->assertTrue($thread->fresh()->acceptsReplies());
+        $this->actingAs($submitter)->post(route('my.messages.reply', $thread), ['body' => 'سپاس از توضیح'])
+            ->assertRedirect()->assertSessionHas('success', 'پاسخ شما فرستاده شد.');
+        $s->refresh();
+        $this->assertSame($status, $s->status);
+        $this->assertNull($s->awaiting_reply_since);
+        $this->assertSame(0, FieldSuggestion::inQueue()->count());
+        Notification::assertSentTo($editor, ThreadNotice::class, fn (ThreadNotice $n) => $n->type() === 'suggestion.replied');
+        $this->actingAs($editor)->get(route('admin.suggestions.show', $s))->assertSee('سپاس از توضیح');
+    }
+
+    public function test_a_letter_after_the_decision_reopens_the_thread_of_an_earlier_question(): void
+    {
+        Notification::fake();
+        $editor = $this->user('editor');
+        $submitter = $this->user();
+        $s = $this->suggestion($submitter);
+        $this->ask($editor, $s);
+        $this->actingAs($editor)->post(route('admin.suggestions.reject', $s), ['public_note' => 'مستند کافی نبود']);
+        $thread = MessageThread::sole();
+        $this->assertFalse($thread->fresh()->acceptsReplies());
+
+        $this->travel(1)->minutes();
+        $this->ask($editor, $s->fresh(), 'اگر مستند تازه‌ای دارید، بفرستید.')->assertRedirect();
+        $this->assertSame(1, MessageThread::count());
+        $this->assertSame(2, $thread->messages()->where('is_staff', true)->count());
+        $this->assertSame('rejected', $s->fresh()->status);
+        $this->assertTrue($thread->fresh()->acceptsReplies());
+    }
+
+    public function test_the_conversation_card_shows_for_notes_and_feedback_too(): void
+    {
+        Notification::fake();
+        $editor = $this->user('editor');
+        $submitter = $this->user();
+        foreach (['note' => 'approved', 'feedback' => 'pending'] as $kind => $status) {
+            $s = $this->suggestion($submitter, ['kind' => $kind, 'field_name' => $kind === 'note' ? 'note' : 'bug', 'status' => $status, 'payload' => []]);
+            $this->actingAs($editor)->get(route('admin.suggestions.show', $s))->assertOk()
+                ->assertSee('گفت‌وگو با پیشنهاددهنده')->assertSee('id="conversation"', false);
+        }
+    }
+
     public function test_a_user_reaches_only_their_own_threads(): void
     {
         Notification::fake();
@@ -126,6 +199,9 @@ class MessagingTest extends TestCase
         $editor = $this->user('editor');
         $this->ask($editor, $guest)->assertStatus(422);
         $this->actingAs($editor)->get(route('admin.suggestions.show', $guest))->assertSee('پرسش از پیشنهاددهنده ممکن نیست');
+        $guest->update(['status' => 'rejected']);
+        $this->ask($editor, $guest)->assertStatus(422);
+        $this->actingAs($editor)->get(route('admin.suggestions.show', $guest))->assertSee('پرسش از پیشنهاددهنده ممکن نیست')->assertDontSee('فرستادن پیام');
         $this->assertSame(0, MessageThread::count());
     }
 

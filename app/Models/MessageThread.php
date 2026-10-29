@@ -87,14 +87,25 @@ class MessageThread extends Model
         return $this->kind === self::KIND_SUGGESTION ? 'داور فهارس' : 'مدیریت فهارس';
     }
 
-    /** Whether the user may still write in it: open, and for a suggestion only while it is pending */
+    /**
+     * Whether the user may still write in it: open, and for a suggestion while it is pending, or after the
+     * decision once a reviewer has written since (a question left before it does not reopen the thread)
+     */
     public function acceptsReplies(): bool
     {
         if ($this->closed) {
             return false;
         }
+        if ($this->kind !== self::KIND_SUGGESTION) {
+            return true;
+        }
+        $suggestion = $this->suggestion;
+        if ($suggestion?->status === 'pending') {
+            return true;
+        }
 
-        return $this->kind !== self::KIND_SUGGESTION || $this->suggestion?->status === 'pending';
+        return $suggestion?->reviewed_at !== null
+            && $this->messages->contains(fn (Message $m) => $m->is_staff && $m->created_at->gt($suggestion->reviewed_at));
     }
 
     /** The permission a staff member needs to read and write in it */

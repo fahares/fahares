@@ -30,6 +30,7 @@
 @endsection
 @section('page_actions')
     <x-ui.chip :tone="$statusTone">{{ $statusText }}</x-ui.chip>
+    <x-ui.btn href="#conversation" size="sm">گفت‌وگو با پیشنهاددهنده{{ $suggestion->thread ? ' (' . \App\Support\Fa::num($suggestion->thread->messages->count()) . ')' : '' }}</x-ui.btn>
     @if($targetUrl)
         <x-ui.btn :href="$targetUrl" target="_blank" size="sm">صفحه‌ی رکورد در سایت ↗</x-ui.btn>
     @endif
@@ -118,8 +119,10 @@
 
     @if($suggestion->kind === 'note')
         @include('admin.suggestions.partials.note-review')
+        @include('admin.suggestions.partials.conversation')
     @elseif($suggestion->kind === 'feedback')
         @include('admin.suggestions.partials.feedback-review')
+        @include('admin.suggestions.partials.conversation')
     @else
     @if($suggestion->kind === 'relation')
         {{-- The two records the suggestion connects --}}

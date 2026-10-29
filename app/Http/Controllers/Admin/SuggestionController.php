@@ -1022,17 +1022,20 @@ class SuggestionController extends Controller
         return redirect()->route('admin.suggestions.show', $suggestion)->with('success', $message);
     }
 
-    /** A question to the submitter before deciding (backlog item 91); the suggestion waits for the answer */
+    /** Writing to the submitter (backlog item 91): a question that the pending suggestion waits for, or after the decision a plain letter */
     public function ask(Request $request, FieldSuggestion $suggestion)
     {
-        abort_unless($suggestion->status === 'pending', 409, 'این پیشنهاد پیش‌تر داوری شده است.');
         abort_unless((bool) $suggestion->user_id, 422, 'پیشنهاد مهمان پیشنهاددهنده‌ای برای پرسش ندارد.');
         $validated = $request->validate(['body' => 'required|string|max:' . \App\Models\Message::MAX_LENGTH]);
+        $pending = $suggestion->status === 'pending';
 
-        \App\Messaging\Conversations::ask($suggestion, $request->user(), $validated['body']);
+        // A question on a pending suggestion, a plain letter on a decided one
+        \App\Messaging\Conversations::toSubmitter($suggestion, $request->user(), $validated['body']);
 
         return redirect()->route('admin.suggestions.show', $suggestion)->withFragment('conversation')
-            ->with('success', 'پرسش فرستاده شد. پیشنهاد تا پاسخ پیشنهاددهنده در تب «منتظر پاسخ» می‌ماند.');
+            ->with('success', $pending
+                ? 'پرسش فرستاده شد. پیشنهاد تا پاسخ پیشنهاددهنده در تب «منتظر پاسخ» می‌ماند.'
+                : 'پیام فرستاده شد. وضعیت پیشنهاد تغییر نکرد.');
     }
 
     public function reject(Request $request, FieldSuggestion $suggestion)
