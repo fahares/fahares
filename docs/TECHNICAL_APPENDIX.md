@@ -4380,3 +4380,14 @@
 - **اجرا:** `python3 scripts/fankha_column_check.py [--no-images]`. بی تصویر چند ثانیه طول می‌کشد. با سنجش تصویر، روی ۸ هسته حدود ۱۰ دقیقه.
 - **حکم هر صفحه:** در یادداشت‌های جلسه‌ها (`fankha-column-check-verdicts.md`) آمده است: print، swap، duplicate، missing، ocr.
 - **کامیت‌های پیکره:** `294cb8b` (اسکریپت) و `aad50a5` (ج ۴ ص ۱۲۵ و ج ۲ ص ۳۶–۳۷).
+
+### گام ۱۳.۵۶: `fahares:apply-corpus-structure`
+- **فایل تصمیم:**
+  - `moves`: هر گروه `from`/`to` پسوند slug اثر است، با فهرست `[city, library, shelfmark]`.
+  - `duplicates`: هر گروه `work` دارد، با فهرست `[sequence_number, shelfmark]`. وقتی برای یک جفت درست دو ردیف هست، ردیف با id بزرگ‌تر در کوچک‌تر ادغام می‌شود.
+- **لاگ ممیزی:**
+  - جابه‌جایی: `verify` با `work_id`، که پس از آن حفاظت‌شده می‌شود.
+  - ادغام: `merge` با خروجی `mergeManuscript`، برای `undo`.
+  - هر دو کلید `corpus_fix` را دارند. این کلید به `ProtectedColumns::META_KEYS` افزوده شد.
+- **تکرارپذیری:** موردی که پیش‌تر انجام شده «already» گزارش می‌شود.
+- **آزمون:** `ApplyCorpusStructureCommandTest`.
