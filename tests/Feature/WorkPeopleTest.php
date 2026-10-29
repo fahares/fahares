@@ -243,4 +243,66 @@ class WorkPeopleTest extends TestCase
         $this->assertSame(6, WorkPerson::count());
         File::deleteDirectory($dir);
     }
+
+    public function test_a_name_with_alef_madda_matches_and_an_earlier_text_row_is_linked()
+    {
+        // normalized_name keeps «آ» as written
+        $avanes = Person::create(['name' => 'آوانس ارمنی تبریزی', 'normalized_name' => 'آوانس ارمنی تبریزی', 'slug' => 'test-wp-' . uniqid()]);
+        $work = $this->work(['slug' => 'test-backfill-v2-1']);
+        // An earlier run kept the name as text; a reviewer's text row of another work stays as it is
+        $old = WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی تبریزی', 'role' => 'translator']);
+        $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
+        File::ensureDirectoryExists($dir);
+        File::put("{$dir}/fankha_vol_02.json", json_encode(['works' => [
+            ['key' => ['vol' => 2, 'ordinal' => 1], 'translator' => ['name' => 'آوانس ارمنی تبریزی', 'hedge' => null, 'death' => null]],
+        ]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 2])->assertSuccessful();
+        $this->assertSame([[$old->id, $avanes->id, null]], WorkPerson::where('work_id', $work->id)->get()->map(fn ($r) => [$r->id, $r->person_id, $r->name])->all());
+        $this->assertTrue($avanes->fresh()->is_translator);
+        File::deleteDirectory($dir);
+    }
+
+    public function test_backfill_of_dedicatees_and_commissioners()
+    {
+        $naser = $this->person('ناصرالدین قاجار، شاه ایران', ['death_year_hijri' => 1313]);
+        // A scribe who only shares the name: no death year in the field confirms him
+        $this->person('شمس الدین محمد بن علی');
+        $dated = $this->person('رستم پاشا وزیر', ['death_year_hijri' => 968]);
+        $w1 = $this->work(['dedication' => 'ناصر الدین شاه (1264-1313ق) و وزیرش آقاخان نوری']);
+        $w2 = $this->work(['dedication' => 'به درخواست حاجی میرزا آقاسی']);
+        $w3 = $this->work(['dedication' => 'شاه عباس صفوی']);
+        $w4 = $this->work(['dedication' => 'شمس الدین محمد بن علی؛ رستم پاشا وزیر (-968ق)']);
+        $w5 = $this->work(['dedication' => 'ناصرالدین شاه (شاید)']);
+        $reviewed = $this->work(['dedication' => 'ناصرالدین شاه']);
+        AuditLog::create(['user_id' => $this->admin->id, 'auditable_type' => Work::class, 'auditable_id' => $reviewed->id, 'action' => 'verify', 'new_values' => ['added_person_role' => 1]]);
+        $only = implode(',', [$w1->id, $w2->id, $w3->id, $w4->id, $w5->id, $reviewed->id]);
+
+        $this->artisan('fahares:backfill-work-dedications', ['--dry-run' => true, '--only' => $only])->assertSuccessful();
+        $this->assertSame(0, WorkPerson::count());
+        $this->assertFalse(Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->exists());
+
+        $this->artisan('fahares:backfill-work-dedications', ['--only' => $only])->assertSuccessful();
+        $rows = fn (Work $w) => WorkPerson::where('work_id', $w->id)->orderBy('id')->get()->map(fn ($r) => [$r->role, $r->person_id, $r->name, $r->note])->all();
+        // A ruler by any spelling links to the authority record; the dates go to the note
+        $this->assertSame([['dedicatee', $naser->id, null, '1264-1313ق'], ['dedicatee', null, 'وزیرش آقاخان نوری', null]], $rows($w1));
+        // A ruler with no record gets one, with the death year
+        $aqasi = Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->firstOrFail();
+        $this->assertSame([1265, 13], [$aqasi->death_year_hijri, $aqasi->century_hijri]);
+        $this->assertSame([['commissioner', $aqasi->id, null, null]], $rows($w2));
+        // An ambiguous spelling stays text; a namesake links only when the field's dates confirm him
+        $this->assertSame([['dedicatee', null, 'شاه عباس صفوی', null]], $rows($w3));
+        $this->assertSame([['dedicatee', null, 'شمس الدین محمد بن علی', null], ['dedicatee', $dated->id, null, '-968ق']], $rows($w4));
+        $this->assertSame(['شاید', 'doubtful'], [WorkPerson::where('work_id', $w5->id)->value('hedge_raw'), WorkPerson::where('work_id', $w5->id)->value('certainty')]);
+        $this->assertSame([], $rows($reviewed));
+        $this->get(route('people.show', $naser))->assertOk()->assertSee('آثار تقدیم‌شده به او');
+        $this->get(route('people.show', $aqasi))->assertOk()->assertSee('آثار به سفارش او');
+
+        // A second run adds nothing, and makes no second record
+        $count = WorkPerson::count();
+        $this->artisan('fahares:backfill-work-dedications', ['--only' => $only])->assertSuccessful();
+        $this->assertSame($count, WorkPerson::count());
+        $this->assertSame(1, Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->count());
+    }
 }
+
