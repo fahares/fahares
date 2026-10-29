@@ -4520,4 +4520,4 @@
   - **`php artisan scout:sync-index-settings`، بی‌درنگ:** تا این دستور اجرا نشده، دامنه‌ی پیش‌فرض `base_titles` را می‌خواهد و موتور خطای `invalid_search_attributes_to_search_on` می‌دهد.
   - **سپس `nohup php artisan scout:import "App\Models\Work"`:** تا این کار تمام نشده، شرح‌ها هنوز سند قدیم را دارند. نمایه‌ی نسخه‌ها لازم نیست.
   - **وارسی:** در پایان، `php artisan fahares:search-benchmark` اجرا می‌شود.
-
+- **انجام در پروداکشن (۸ آبان، `ssh fahares-app`):** کامیت‌های `0f51ed4` و `b92053a` مستقر شدند. `scout:sync-index-settings` بی‌درنگ اجرا شد. سپس `scout:import "App\Models\Work" --chunk=200` با `nohup` اجرا شد. نمایه‌ی آثار ۷۱٬۵۱۶ سند دارد. محک پروداکشن ۴۷ از ۴۷ است و رتبه‌های پنج مورد تازه همان رتبه‌های محلی‌اند.
