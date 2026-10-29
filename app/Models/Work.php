@@ -97,29 +97,78 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph',
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title',
             'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
     }
 
-    /** First words of a title that make the work a commentary, gloss, abridgement or translation of another */
-    public const DERIVATIVE_OPENERS = ['شرح', 'حاشیه', 'حواشی', 'تعلیقه', 'تعلیقات', 'تحشیه', 'منتخب', 'مختصر', 'تلخیص', 'ترجمه', 'فهرست', 'ذیل', 'تکمله', 'نقد', 'رد'];
-
-    /** The same, marked after the title in parentheses: «الرسالة الذهبیة (ترجمه)» */
-    public const DERIVATIVE_MARKS = ['ترجمه', 'منتخب', 'مختصر', 'ترجمه و شرح', 'منظوم', 'گزیده'];
-
     /**
-     * Whether the work is made on another one, by its title. The search puts the base text before these
-     * when both match equally: «تجرید» is the Tajrid, then its commentaries (backlog item 83).
+     * The work's own titles as the search splits them (backlog item 95): those that name it, and those that name it
+     * by the work it is made on («شرح نهج البلاغة», «الروضة البهیة فی شرح اللمعة»), indexed whole after them with
+     * its base titles: the engine ranks each query word by its field, so a head in the first field would put
+     * «اللمعة الماردینیة فی شرح الیاسمینیة» before al-Rawda for «شرح اللمعه». The relation is read by
+     * WorkRelationParser, shared with the linking of backlog item 6.
+     *
+     * @return array{0: list<string>, 1: list<string>} naming titles and derivative titles, as written
      */
-    public function isDerivative(): bool
+    public function searchTitles(): array
     {
-        $title = \App\Helpers\TextNormalizer::normalize($this->primary_title);
-        if (preg_match('/\(([^()]+)\)\s*$/u', $title, $m) && in_array(trim($m[1]), self::DERIVATIVE_MARKS, true)) {
-            return true;
+        $titles = [$this->primary_title, $this->clean_title];
+        foreach ((array) $this->alternative_titles as $item) {
+            $titles[] = is_array($item) ? ($item['title'] ?? null) : $item;
         }
 
-        return in_array(strtok($title, ' '), self::DERIVATIVE_OPENERS, true);
+        $naming = $derivative = [];
+        foreach (array_filter($titles, fn ($t) => is_string($t) && trim($t) !== '') as $title) {
+            $relation = \App\Support\WorkRelationParser::parseTitle($title);
+            if ($relation) {
+                $derivative[] = $title;
+            } else {
+                $naming[] = $title;
+            }
+        }
+
+        // A title that is only the base's, «نهج البلاغة» as the clean title of «نهج البلاغة (ترجمه)», does not name it
+        $bases = array_map(fn ($t) => \App\Helpers\TextNormalizer::normalize(\App\Support\WorkRelationParser::parseTitle($t)['base']), $derivative);
+        $naming = array_filter($naming, fn ($t) => ! in_array(\App\Helpers\TextNormalizer::normalize($t), $bases, true));
+
+        return [array_values($naming), $derivative];
     }
+
+    /**
+     * Titles of the works this one is made on (backlog item 95): from the relations in work_relations when there
+     * are any, else read from its own titles («شرح X» is made on X) and its related work recorded as text.
+     *
+     * @return list<string> as written
+     */
+    public function baseTitles(): array
+    {
+        $bases = $this->relationLoaded('baseWorks') ? $this->baseWorks : $this->baseWorks()->get(['works.id', 'primary_title', 'clean_title']);
+        if ($bases->isNotEmpty()) {
+            $titles = $bases->flatMap(fn (Work $w) => [$w->primary_title, $w->clean_title])->all();
+        } else {
+            $titles = [];
+            foreach ($this->searchTitles()[1] as $title) {
+                $titles[] = \App\Support\WorkRelationParser::parseTitle($title)['base'] ?? null;
+            }
+            foreach (\App\Support\WorkRelationParser::parseEntries($this->related_work) as $entry) {
+                array_push($titles, ...$entry['titles']);
+            }
+        }
+
+        // One of each, compared normalized
+        $unique = [];
+        foreach (array_filter($titles, fn ($t) => is_string($t) && $t !== '') as $title) {
+            $unique[\App\Helpers\TextNormalizer::normalize($title)] ??= $title;
+        }
+
+        return array_values($unique);
+    }
+
+    /**
+     * Epithets naming the author by another work, «شارح نهج‌البلاغه» or «صاحب جواهر», normalized: kept out of
+     * titles_names, so the author's works do not rank with that work's title (backlog item 95).
+     */
+    public const AUTHOR_EPITHETS = ['شارح', 'صاحب', 'مصنف', 'مولف', 'محشی', 'مترجم', 'ناظم'];
 
     /** The bibliographies and biographical works that mention this work, for the search filter «یادشده در» */
     public function bibliographyIds(): array
@@ -206,13 +255,20 @@ class Work extends Model
         // Each title in its own words, then its forms without the article and with «ت» (backlog item 93)
         $titles = \App\Helpers\TextNormalizer::titleForms($this->primary_title);
         $cleanTitles = \App\Helpers\TextNormalizer::titleForms($cleanTitle);
+        $forms = fn (array $list) => array_merge([], ...array_map(fn ($t) => \App\Helpers\TextNormalizer::titleForms($t), $list));
+        [$namingTitles, $derivativeTitles] = $this->searchTitles();
         $authorNames = array_map(fn ($a) => \App\Helpers\TextNormalizer::normalize($a), array_filter([$this->author_name, ...$authorAliases]));
+        $authorNames = array_filter($authorNames, fn ($a) => ! in_array(strtok($a, ' '), self::AUTHOR_EPITHETS, true));
 
         return [
             'id' => (int) $this->id,
             // The titles and the author together, the first field searched: a match in any of them ranks the same,
-            // and before one in the incipits or the description (backlog item 93)
-            'titles_names' => array_values(array_unique([...$titles, ...$cleanTitles, ...$alts, ...$authorNames])),
+            // and before one in the incipits or the description (backlog item 93). Without the titles naming the work
+            // by another one or the epithets naming the author by a work (backlog item 95)
+            'titles_names' => array_values(array_unique([...$forms($namingTitles), ...$authorNames])),
+            // The titles of the works this one is made on, and its own titles naming it by them: after its own
+            // titles, so «نهج البلاغه» is Nahj al-Balagha, then its commentaries by their manuscripts (backlog item 95)
+            'base_titles' => array_values(array_unique($forms([...$derivativeTitles, ...$this->baseTitles()]))),
             'primary_title' => $titles,
             'clean_title' => $cleanTitles,
             'slug' => $this->slug,
@@ -229,7 +285,6 @@ class Work extends Model
             'subject_summary' => $this->subject_summary,
             'language_summary' => $this->language_summary,
             'manuscripts_count' => (int) $this->manuscripts_count,
-            'derivative' => (int) $this->isDerivative(),
             // Search filters and orders of backlog item 83, phase 5: the work's era is its composition, or else its
             // author's death, which only 14% of works lack against 86% without a composition year
             'author_death_year' => $this->author?->death_year_hijri ? (int) $this->author->death_year_hijri : null,
@@ -265,6 +320,12 @@ class Work extends Model
         return $this->belongsToMany(Person::class, 'work_author')
             ->withPivot(['position', 'note'])
             ->orderByPivot('position');
+    }
+
+    /** The works this one is made on, by the relations in work_relations: a commentary's base text */
+    public function baseWorks(): BelongsToMany
+    {
+        return $this->belongsToMany(Work::class, 'work_relations', 'work_id', 'related_work_id')->withPivot('type');
     }
 
     /**

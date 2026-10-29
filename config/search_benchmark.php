@@ -34,6 +34,15 @@ return [
     ['q' => 'کشف الغمه', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^کشف الغمه', 'author' => 'اربلی']],
     ['q' => 'مصباح المتهجد', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^مصباح المتهجد', 'author' => 'شیخ طوسی']],
 
+    // A commentary is found by the title of its base text after that text, and among the commentaries the one found in
+    // more manuscripts first, whatever its own title (backlog item 95). Works whose own name holds the base's title,
+    // «معارج نهج البلاغه», still come before them
+    ['q' => 'مصباح السالکین', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^مصباح السالکین', 'author' => 'ابن میثم']],
+    ['q' => 'شرح نهج البلاغه', 'type' => 'works', 'top' => 3, 'expect' => ['title' => '^شرح نهج البلاغه', 'author' => 'ابن ابی الحدید']],
+    ['q' => 'نهج البلاغه', 'type' => 'works', 'top' => 10, 'expect' => ['title' => '^شرح نهج البلاغه', 'author' => 'ابن ابی الحدید']],
+    ['q' => 'نهج البلاغه', 'type' => 'works', 'top' => 10, 'expect' => ['title' => '^مصباح السالکین', 'author' => 'ابن میثم']],
+    ['q' => 'تجرید', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'تجرید', 'author' => 'نصیرالدین طوسی']],
+
     // A rare work named in full is not buried under well-known ones sharing a word
     ['q' => 'کافی در ترسیم', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'کافی در ترسیم']],
     ['q' => 'شفاء العلیل', 'type' => 'works', 'top' => 3, 'expect' => ['title' => 'شفا العلیل']],

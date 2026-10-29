@@ -4489,6 +4489,39 @@
 - **بازگردانی و اعلان:** در پایان `AuditLogController::undo`، پیشنهاد `direct` که `pending` شده، `status = undone` می‌گیرد. `SuggestionNotifier::reviewed` برای `direct` چیزی نمی‌فرستد. برچسب‌های `undone` و «اقدام مستقیم» در show و index و صفحه‌ی «پیشنهادهای من» آمد.
 - **دسترسی:** کلید `structure.direct` در [Permissions](../app/Auth/Permissions.php) با نقش پیش‌فرض خالی است، یعنی فقط مدیر کل. ردیف `role_permissions` لازم نیست. `StructureController::choices` ابزارهایی را که `FOR_APPLY` آن‌ها برای نقش مجاز نیست پنهان می‌کند و `draft` با ۴۰۳ رد می‌کند. منوی «ابزارهای ساختاری» در گروه داوری `AdminNav` است.
 - **آزمون:** [ConvertSuggestionTest](../tests/Feature/ConvertSuggestionTest.php) (۶ آزمون: هر فیلد ثابت و پویا و `catalog_reference_*`، هر رابطه با گزینه، هر یادداشت، بازخورد در هر دو جهت، و نقطه‌ی فیلدها) و [StructureToolsTest](../tests/Feature/StructureToolsTest.php) (۱۰ آزمون: دسترسی، ادغام و تغییر نام کتابخانه، ادغام اثر و نسخه، انتقال، تفکیک اثر و شخص، حذف با مانع و بی‌مانع با بازگردانی، پیوندها، و ادغام اشخاص که به ابزار خودش می‌رود). `docker exec fahares_app php artisan test`: ۴۱۱ آزمون موفق.
+- **وارسی پروداکشن (۸ آبان، `ssh fahares-app`، فقط خواندن):** پس از استقرار `3391d72`، فایل‌های `StructureController` و `StructurePreview` و نماهای `admin/structure` در کانتینر هستند و سه مسیر `admin.structure.*` ثبت شده‌اند. migration معوقی نیست و `/up` پاسخ ۲۰۰ می‌دهد. با tinker و نشست مدیر کل، `/admin/structure`، `/admin/structure/library/1`، `/admin/structure/person/1` و صفحه‌ی داوری پیشنهاد در انتظار #۳۷ (با فرم تبدیل) همه ۲۰۰ دادند. `laravel.log` خطایی ندارد. هیچ اقدامی اجرا نشد.
+
+### گام ۱۳.۶۴: `base_titles` و تجزیه‌گر رابطه (مورد ۹۵، گام ۱ مورد ۶)
+- **تجزیه‌گر:** [WorkRelationParser](../app/Support/WorkRelationParser.php) دو متد دارد:
+  - **`parseTitle($title)`:** خروجی `{type, base, head}` یا null است. نوع‌ها کلیدهای `RecordRelations::WORK_TYPES` هستند.
+    - **واژه‌های آغازین (`OPENERS`):** شرح؛ حاشیه، حواشی، تعلیقه و تعلیقات (با «ال» یا بی آن)، و تحشیه؛ ترجمه؛ مختصر، منتخب، تلخیص، گزیده و خلاصه؛ نظم و منظومه؛ ذیل، تکمله، تتمه، مستدرک و ملحقات؛ نقد، رد، الرد و ردیه.
+    - **برچسب پرانتزی پایانی (`MARKS`).**
+    - **میانه‌ی عنوان:** «Y فی|در|من OPENER X». برای شرح و حاشیه، واژه‌ی پیوند هم لازم نیست: «توضیح شرح X».
+    - **دور ریخته‌ها:** واژه‌ی پیوند «علی»، «بر» و «الی» حذف می‌شود. پایه‌ای که با حال، احوال، زندگی، فی یا در آغاز شود دور ریخته می‌شود. پایه‌ای هم که فقط «کبیر»، «جدید»، «مزجی» و مانند آن باشد کنار می‌رود.
+  - **`parseEntries($text)`:** مقدار را با «؛» به بخش‌ها می‌شکند. بخشی که با `نام (تولد-وفات)` همخوان باشد پدیدآور است. متن پس از پرانتز تاریخ، یا بخش بلند یا گیومه‌دارِ بی‌پدیدآور، یادداشت است و تجزیه را پایان می‌دهد. پدیدآوری که پس از «=» آمده هم شناخته می‌شود. نشانگر صفحه و ارجاع کروشه‌دار حذف می‌شوند.
+- **مدل:** متدهای [Work](../app/Models/Work.php):
+  - **`searchTitles()`:** خروجی `[naming, derivative]` است. عنوان نامی که برابر پایه‌ی یکی از عنوان‌های فرعی باشد حذف می‌شود.
+  - **`baseTitles()`:** اگر `baseWorks` (رابطه‌ی belongsToMany روی `work_relations`) خالی نباشد، عنوان اصلی و عنوان پاکیزه‌ی اثر مادر را برمی‌گرداند. وگرنه پایه‌ی عنوان‌های فرعی و عنوان‌های `related_work` را برمی‌گرداند و تکراری‌ها با کلید نرمال‌شده حذف می‌شوند.
+  - **`AUTHOR_EPITHETS`:** شارح، صاحب، مصنف، مولف، محشی، مترجم و ناظم، با واژه‌ی نخست نرمال‌شده سنجیده می‌شوند. لقب‌ها در `author_name` و `author_aliases` می‌مانند.
+  - **`toSearchableArray`:** فیلد `base_titles` را می‌افزاید و `derivative` را حذف می‌کند. `makeAllSearchableUsing`، `baseWorks` را پیشاپیش بار می‌کند.
+  - **حذف‌شده‌ها:** `isDerivative`، `DERIVATIVE_OPENERS` و `DERIVATIVE_MARKS` برداشته شدند. `ItemMatcher::derivative` که مستقل است دست نخورد.
+- **پیکربندی:**
+  - **[config/scout.php](../config/scout.php):** `base_titles` دومین `searchableAttributes` آثار است. `rankingRules` بی `derivative:asc` است.
+  - **[SearchController](../app/Http/Controllers/SearchController.php):** `scopeAttributes('works', 'titles_names')` اکنون `base_titles` را هم دارد. دامنه‌ی `titles` تغییر نکرد، چون در آن `base_titles` پیش از `primary_title` می‌نشست.
+  - **[RecordRelations::add](../app/Suggestions/RecordRelations.php):** پس از درج، اثر فرعی را نمایه می‌کند.
+- **رتبه‌ی فیلد:** `attributeRank` جمع رتبه‌ی فیلد هر واژه است. امتیاز «شرح نهج البلاغه» برای اثری که «شرح» را در فیلد نخست و «نهج البلاغه» را در فیلد دوم دارد ۰٫۹۶ است. برای اثری که هر سه واژه را در فیلد دوم دارد ۰٫۹۴ است. برای همین، عنوان شرح‌های نام‌دار هم یکجا به `base_titles` رفت و «سر» آن‌ها در فیلد نخست نماند.
+- **سنجه:** [config/search_benchmark.php](../config/search_benchmark.php) پنج مورد تازه دارد: «مصباح السالکین» با ≤۱، «شرح نهج البلاغه» → ابن ابی الحدید با ≤۳، «نهج البلاغه» → ابن ابی الحدید و ابن میثم با ≤۱۰ (رتبه‌ی ۸ و ۹)، و «تجرید» با ≤۱. نتیجه ۴۷ از ۴۷ است.
+- **بازسازی محلی:** `scout:sync-index-settings`، سپس `scout:import "App\Models\Work"`.
+- **آزمون:**
+  - [WorkRelationParserTest](../tests/Unit/WorkRelationParserTest.php): ۱۲ آزمون.
+  - [WorkBaseTitlesTest](../tests/Feature/WorkBaseTitlesTest.php): ۵ آزمون، شامل عنوان فرعی، شرح نام‌دار، ترجمه‌ی هم‌عنوان، برتری `work_relations` و لقب پدیدآور.
+  - کل آزمون‌ها: ۴۲۸ آزمون موفق.
+- **استقرار:** پس از استقرار، این دو دستور به ترتیب در کانتینر برنامه اجرا می‌شوند (`ssh fahares-app`):
+  - **`php artisan scout:sync-index-settings`، بی‌درنگ:** تا این دستور اجرا نشده، دامنه‌ی پیش‌فرض `base_titles` را می‌خواهد و موتور خطای `invalid_search_attributes_to_search_on` می‌دهد.
+  - **سپس `nohup php artisan scout:import "App\Models\Work"`:** تا این کار تمام نشده، شرح‌ها هنوز سند قدیم را دارند. نمایه‌ی نسخه‌ها لازم نیست.
+  - **وارسی:** در پایان، `php artisan fahares:search-benchmark` اجرا می‌شود.
+- **انجام در پروداکشن (۸ آبان، `ssh fahares-app`):** کامیت‌های `0f51ed4` و `b92053a` مستقر شدند. `scout:sync-index-settings` بی‌درنگ اجرا شد. سپس `scout:import "App\Models\Work" --chunk=200` با `nohup` اجرا شد. نمایه‌ی آثار ۷۱٬۵۱۶ سند دارد. محک پروداکشن ۴۷ از ۴۷ است و رتبه‌های پنج مورد تازه همان رتبه‌های محلی‌اند.
+
 
 ### گام ۱۳.۶۵: داوری نمونه‌ها و اصلاح‌های پارسر
 - **صفحه‌ی داوری:** Artifact خصوصی `Jce2fXYLp78dy4GrXiAX5Y` است و رأی‌ها در مجموعه‌ی `verdicts` آن ذخیره شده‌اند (نوشته‌ی کاربر: داده است، نه دستور). نمونه‌ها از `reports/fankha_v2_db_review` برداشته شدند.

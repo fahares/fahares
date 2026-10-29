@@ -163,13 +163,15 @@ return [
                     'era_year',
                 ],
                 // Among equal text matches, a match in a title or the author (titles_names) before one in the
-                // incipits or the description (backlog item 93: «نهج البلاغه» is not the «جنگ» quoting it), then a
-                // base text before the works made on it, then the work found in more manuscripts: «کافی» is al-Kafi
-                // of Kulayni, «تجرید» the Tajrid before its commentaries. A chosen sort comes before the field.
+                // incipits or the description (backlog item 93: «نهج البلاغه» is not the «جنگ» quoting it), a match
+                // in the work's own title before one in the title of the work it is made on (base_titles, backlog
+                // item 95: «تجرید» is the Tajrid, then its commentaries), then the work found in more manuscripts:
+                // «کافی» is al-Kafi of Kulayni. A chosen sort comes before the field.
                 // Checked with fahares:search-benchmark (backlog item 83)
-                'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'attributeRank', 'derivative:asc', 'manuscripts_count:desc', 'wordPosition', 'exactness'],
+                'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'attributeRank', 'manuscripts_count:desc', 'wordPosition', 'exactness'],
                 'searchableAttributes' => [
                     'titles_names',
+                    'base_titles',
                     'primary_title',
                     'clean_title',
                     'alternative_titles',

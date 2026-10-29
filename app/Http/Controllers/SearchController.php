@@ -639,7 +639,8 @@ class SearchController extends Controller
         return [
             'works' => [
                 'titles' => ['primary_title', 'clean_title', 'alternative_titles'],
-                'titles_names' => ['titles_names', 'primary_title', 'clean_title', 'alternative_titles', 'author_name'],
+                // The titles of the work a commentary is made on too, ranked after the work's own (backlog item 95)
+                'titles_names' => ['titles_names', 'base_titles', 'primary_title', 'clean_title', 'alternative_titles', 'author_name'],
             ],
             'manuscripts' => [
                 'titles' => ['work_title'],

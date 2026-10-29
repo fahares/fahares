@@ -96,6 +96,10 @@ class RecordRelations
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        // The work made on another one is searched by that one's titles (Work::baseTitles, backlog item 95)
+        if ($from instanceof Work) {
+            $from->searchable();
+        }
 
         return [
             'old' => ['relations' => DB::table($table)->where($key, $record->id)->orWhere($relatedKey, $record->id)->count() - 1],
