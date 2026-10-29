@@ -92,10 +92,12 @@ class ApplyCorpusCategoriesCommand extends Command
                 }
             });
         }
-        // is_facsimile is a search filter of the manuscripts tab; print_info is not indexed
+        // is_facsimile is a search filter of the manuscripts tab; print_info is not indexed. Small chunks: on
+        // production 500 copies at a time ran out of memory (step 13.66)
         $copies = collect($writes)->filter(fn ($w) => $w[0] === 'manuscripts')->map(fn ($w) => $w[1]['id']);
-        foreach ($copies->chunk(500) as $ids) {
+        foreach ($copies->chunk(100) as $ids) {
             Manuscript::whereIn('id', $ids->values())->get()->searchable();
+            gc_collect_cycles();
         }
         $this->info('Done; reindexed ' . $copies->count() . ' manuscripts.');
 
