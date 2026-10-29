@@ -6,6 +6,7 @@ import feedbackForm from './feedback-form';
 import machineReview from './machine-review';
 import referenceReview from './reference-queue';
 import webPush from './web-push';
+import catalogViewer from './catalog-viewer';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -41,5 +42,6 @@ Alpine.data('convertDesk', convertDesk);
 Alpine.data('feedbackForm', feedbackForm);
 Alpine.data('referenceReview', referenceReview);
 Alpine.data('webPush', webPush);
+Alpine.data('catalogViewer', catalogViewer);
 
 Alpine.start();
