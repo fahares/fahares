@@ -4363,12 +4363,12 @@
   - آزمون: `CleanPageMarkersCommandTest`.
 - **اجرای آزمون‌ها از worktree:** کانتینر `fahares_app` شاخه‌ی اصلی را mount کرده است. آزمون‌های worktree با `docker run --network container:fahares_app` و همان image اجرا شدند، با worktree در `/var/www/html` و `vendor` و `.env` شاخه‌ی اصلی.
 
-### گام ۱۳.۵۳: اجرای `clean-page-markers --fields` روی پروداکشن
+### گام ۱۳.۵۶: اجرای `clean-page-markers --fields` روی پروداکشن
 - **پشتیبان:** از راه `ssh fahares-app` و `php artisan tinker`، شناسه و ستون‌های درگیر همه‌ی ردیف‌هایی که برچسب داشتند به JSONL برده شد. فایل در `fahares-sources/backups/item19/prod_before_20261029.jsonl` است: ۹٬۰۴۵ ردیف، با sha256 که با `177a6c1e…` آغاز می‌شود.
 - **برگرداندن، در صورت نیاز:** هر سطر را با `DB::table($table)->where('id', $id)->update($cols)` نوشت. سپس `SourceEntrySync::syncIds()` و نمایه‌ی دوباره لازم است.
 - **زمان:** اجرا حدود ۳٫۵ دقیقه طول کشید. نمایه‌ی آثار و نسخه‌ها در بسته‌های ۵۰۰تایی ساخته شد.
 
-### گام ۱۳.۵۴: اصلاح پارسر v2 پس از مقایسه
+### گام ۱۳.۵۷: اصلاح پارسر v2 پس از مقایسه
 - **پرچم‌ها:** `FLAG_RULES` در `fankha_parser_v2.py` از قاعده‌های `fankha_parser.py` (حدود سطر ۱۷۸۰ تا ۱۸۷۵) آمده است و روی متن کالبدی نسخه، بیرون از سطر آغاز و انجام، اجرا می‌شود. برای `ruled`، متن «جلد: …» با `BINDING_TEXT` کنار گذاشته می‌شود. «حواشی مؤلف» پرچم «محشی» را هم روشن می‌کند. `FLAG_SCAN` پیشین حذف شد.
 - **مرز آغاز و انجام:** `BARE_EXPLICIT` بخشی را که با «آغاز» شروع می‌شود یک بار در «انجام(\s+نسخه|کتاب|متن)?:» می‌بُرد: پس از فاصله یا «،»، یا چسبیده به «برابر» یا «برابرN».
 - **سطر کالبدی چسبیده:** الگوی جداکننده‌ی دنباله در `parse_ie_line` حالا «کاتب =» پس از «خط:» و «کا: …، تا:» را هم می‌شناسد.
@@ -4376,12 +4376,12 @@
 - **جلد:** تکه‌ی بی‌برچسب پس از جلد، بی «:» و بی عدد و تا ۸ واژه، پیش از `flag_chunk` به جلد افزوده می‌شود.
 - **گزارش‌ها:** مقایسه‌ی پس از اصلاح در `fahares-corpus/reports/fankha_v2_db_fix1/` است (بیرون از گیت).
 
-### گام ۱۳.۵۵: `fankha_column_check.py`
+### گام ۱۳.۵۸: `fankha_column_check.py`
 - **اجرا:** `python3 scripts/fankha_column_check.py [--no-images]`. بی تصویر چند ثانیه طول می‌کشد. با سنجش تصویر، روی ۸ هسته حدود ۱۰ دقیقه.
 - **حکم هر صفحه:** در یادداشت‌های جلسه‌ها (`fankha-column-check-verdicts.md`) آمده است: print، swap، duplicate، missing، ocr.
 - **کامیت‌های پیکره:** `294cb8b` (اسکریپت) و `aad50a5` (ج ۴ ص ۱۲۵ و ج ۲ ص ۳۶–۳۷).
 
-### گام ۱۳.۵۶: `fahares:apply-corpus-structure`
+### گام ۱۳.۵۹: `fahares:apply-corpus-structure`
 - **فایل تصمیم:**
   - `moves`: هر گروه `from`/`to` پسوند slug اثر است، با فهرست `[city, library, shelfmark]`.
   - `duplicates`: هر گروه `work` دارد، با فهرست `[sequence_number, shelfmark]`. وقتی برای یک جفت درست دو ردیف هست، ردیف با id بزرگ‌تر در کوچک‌تر ادغام می‌شود.
