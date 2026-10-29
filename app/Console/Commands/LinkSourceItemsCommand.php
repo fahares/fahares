@@ -24,6 +24,7 @@ class LinkSourceItemsCommand extends Command
     protected $signature = 'sources:link-items
         {volume : facsimile_code of the volume (source_volumes row)}
         {--volume= : Volume number, when the code has several}
+        {--near : When nothing on the cited page matches, look at the pages either side of it}
         {--report= : Write every decision to this JSON file}
         {--dry-run : Match and count without saving}';
 
@@ -48,7 +49,9 @@ class LinkSourceItemsCommand extends Command
         }
 
         $decisions = [];
-        $citations = SourceEntry::where('source_id', $volume->source_id)->where('origin', SourceEntry::ORIGIN_BIBLIOGRAPHY)
+        // a string that cites another source first has its source_id, and this one among its locations
+        $citations = SourceEntry::where(fn ($q) => $q->where('source_id', $volume->source_id)
+            ->orWhere('locations', 'like', '%"source_id":' . $volume->source_id . ',%'))->where('origin', SourceEntry::ORIGIN_BIBLIOGRAPHY)
             ->where('citable_type', Work::class)->orderBy('id')->get();
         foreach ($citations as $citation) {
             $places = $citation->locations ?: [['source_id' => $citation->source_id, 'volume' => $citation->volume_number, 'page' => $citation->page_start]];
@@ -133,13 +136,24 @@ class LinkSourceItemsCommand extends Command
     {
         $work = Work::find($citation->citable_id);
         $person = $work?->author_id ? Person::find($work->author_id) : null;
-        $titles = array_merge([$work?->primary_title], array_column($work?->alternative_titles ?? [], 'title'));
-        $onPage = $items->filter(fn ($i) => $i->page_start <= $page && $i->page_end >= $page)
+        $titles = self::titleForms(array_merge([$work?->primary_title], array_column($work?->alternative_titles ?? [], 'title')),
+            (string) $citation->citation_text);
+        $on = fn (int $from, int $to) => $items->filter(fn ($i) => $i->page_start <= $to && $i->page_end >= $from)
             ->map(fn ($i) => ['id' => $i->id, 'entry_number' => $i->entry_number, 'title' => $i->title, 'text' => $i->text])->values()->all();
+        $onPage = $on($page, $page);
         // «الذریعة 424/1 ش 2175»: the entry number Fankha gives, when its citation has one place
         $number = preg_match('/(?:ش|رقم|شماره)\s*\.?\s*(\d+)/u', MatchCatalogEditionCommand::digits((string) $citation->citation_text), $m)
             && count($citation->locations ?? []) <= 1 ? (int) $m[1] : null;
         $match = $work && $onPage ? $matcher->match($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $onPage, $number) : null;
+        // an entry the page before or after begins or ends on: Fankha's page is the entry's other one; a mention there
+        // is too far to tell
+        if ($work && $this->option('near') && (! $match || $match['role'] !== SourceEntry::ROLE_ENTRY)) {
+            $near = $matcher->match($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on($page - 1, $page + 1), $number);
+            if ($near && $near['role'] === SourceEntry::ROLE_ENTRY && $near['method'] !== 'ambiguous' && ! collect($onPage)->contains('id', $near['id'])) {
+                $match = ['method' => 'near_' . $near['method'], 'confidence' => min($near['confidence'], 60)] + $near;
+                $onPage = $on($page - 1, $page + 1);
+            }
+        }
 
         return [
             'citation_id' => $citation->id, 'index' => $index, 'work_id' => $citation->citable_id, 'page' => $page,
@@ -149,5 +163,26 @@ class LinkSourceItemsCommand extends Command
             'reason' => ! $work ? 'no_work' : (! $onPage ? 'no_entries_on_page' : 'no_match'),
             'page_titles' => array_column($onPage, 'title'),
         ];
+    }
+
+    /**
+     * The work's titles with the forms a bibliography heads them by: «منهاج البیان (ترجمه)» is Monzavi's «ترجمۀ منهاج
+     * البیان», and a title the citation quotes («فهرستواره منزوی 2745/4 «مقداریه»») is the one the source uses.
+     *
+     * @param  list<?string>  $titles
+     * @return list<string>
+     */
+    public static function titleForms(array $titles, string $citation): array
+    {
+        $forms = [];
+        foreach (array_filter($titles) as $title) {
+            $forms[] = $title;
+            if (preg_match('/^(.+?)\s*\((ترجمه|شرح|ترجمه و شرح|حاشیه)[^)]*\)\s*$/u', $title, $m)) {
+                $forms[] = $m[2] . ' ' . $m[1];
+            }
+        }
+        preg_match_all('/«([^»]{3,80})»/u', $citation, $quoted);
+
+        return array_values(array_unique(array_merge($forms, $quoted[1])));
     }
 }

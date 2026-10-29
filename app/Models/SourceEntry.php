@@ -398,7 +398,7 @@ class SourceEntry extends Model
     public function viewer(): ?array
     {
         $code = $this->sourceVolume?->facsimile_code;
-        if (! $code || ! $this->page_start) {
+        if (! $code || ! $this->page_start || $this->source?->hasPageImages() === false) {
             return null;
         }
 

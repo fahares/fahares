@@ -145,7 +145,7 @@ class SourceItem extends Model
     /** The detail of the `open-catalog-viewer` event for a page of the entry. */
     public function viewer(?int $page = null): ?array
     {
-        $code = $this->sourceVolume?->facsimile_code;
+        $code = $this->source?->hasPageImages() === false ? null : $this->sourceVolume?->facsimile_code;
 
         return $code ? ['catalog' => $code, 'catalogName' => $this->source?->short_name ?: $this->source?->title,
             'volume' => $this->volume_number, 'page' => $page ?? $this->page_start] : null;

@@ -270,9 +270,17 @@ class BibliographyLinks
         return $series ? $src['series_volumes'][$n] ?? null : null;
     }
 
-    /** The volume holding a column, for a source whose column count runs on across volumes (first_pages). */
+    /**
+     * The volume holding a column, for a source whose column count runs on across volumes (first_pages); for a text
+     * source, the one volume whose pages hold it («فهرستواره منزوی 3259» is in volume 5, «… 125» in any of five).
+     */
     private static function volumeOfColumn(string $key, int $column): ?int
     {
+        if ($text = self::sources()[$key]['text'] ?? null) {
+            $holding = array_keys(array_filter($text['last_pages'], fn ($last, $v) => $column >= ($text['first_pages'][$v] ?? 1) && $column <= $last, ARRAY_FILTER_USE_BOTH));
+
+            return count($holding) === 1 ? $holding[0] : null;
+        }
         $viewer = self::sources()[$key]['viewer'] ?? [];
         if (empty($viewer['first_pages'])) {
             return null;
@@ -317,7 +325,35 @@ class BibliographyLinks
             ];
         }
 
-        return $link ? $link + ['volume' => $volume, 'cite' => ['source' => $key, 'volume' => $volume, 'page' => $page]] : null;
+        // a source the site has as text only: the citation is not a link, but its place is known
+        if (! $link && isset($src['text']) && ($volume = self::textVolume($src['text'], $volume, $page))) {
+            $link = [];
+        }
+
+        return $link !== null ? $link + ['volume' => $volume, 'cite' => ['source' => $key, 'volume' => $volume, 'page' => $page]] : null;
+    }
+
+    /**
+     * The volume of a text source that holds the page: the cited one, or another of its run when the cited one does
+     * not («فهرستواره منزوی 3257/4» is in volume 5, whose pages go on from volume 4's).
+     */
+    private static function textVolume(array $text, int $volume, int $page): ?int
+    {
+        $holds = fn (int $v) => $page >= ($text['first_pages'][$v] ?? 1) && $page <= ($text['last_pages'][$v] ?? 0);
+        if ($holds($volume)) {
+            return $volume;
+        }
+        foreach ($text['runs'] ?? [] as $run) {
+            if (in_array($volume, $run, true)) {
+                foreach ($run as $v) {
+                    if ($holds($v)) {
+                        return $v;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private static function pushText(array &$segments, string $text): void

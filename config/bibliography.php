@@ -15,6 +15,11 @@ return [
      *   instead of following the url. last_pages is the last printed page of each volume, first_pages the first
      *   where it is not 1, and missing the pages the scan lacks; those citations keep the url
      *   (scripts/facsimile/dharia_page_mapping.json, kashf_page_mapping.json).
+     * - text (optional, instead of url and viewer): the site has the source's page texts and entries but no page
+     *   images; catalog is the volumes' facsimile_code, first_pages and last_pages bound the pages a citation can
+     *   name, and runs lists the volumes whose page numbers run on, so a citation naming the wrong one of them is
+     *   placed by its page. Its citations are not links; the work page shows the entry matched to them.
+     * - kind, compiler, publisher, edition_label (optional): the source's registry row (sources:backfill --only=registry).
      */
     'sources' => [
         'dharia' => [
@@ -131,6 +136,27 @@ return [
                 'catalog' => 'zirikli',
                 'name' => 'الأعلام',
                 'last_pages' => [1 => 336, 2 => 341, 3 => 355, 4 => 334, 5 => 336, 6 => 335, 7 => 352, 8 => 373],
+            ],
+        ],
+        // Monzavi's «فهرستواره کتاب‌های فارسی», the Center for the Great Islamic Encyclopaedia's ten volumes, as text
+        // from Noor (item 86, scripts/sources/noor_monzavi.py). Fankha writes «فهرستواره منزوی 3366/5», «فهرستواره
+        // 128/1», «فهرستواره کتابهای فارسی: 56/6» or «فهرستواره منزوی 4: 2761»; not «فهرستواره مینوی» or «فهرستواره
+        // فقه …», other books, nor «منزوی» alone, mostly his «نسخه‌های خطی فارسی». Volumes 1-5 and 7-8 are numbered
+        // on; each volume's front matter, numbered apart, is left out of first_pages.
+        'monzavi' => [
+            'label' => 'فهرستواره کتاب‌های فارسی',
+            'pattern' => 'فهرستواره(?: ?(?:منزوی|کتابهای فارسی|کتاب های فارسی|فارسی))?',
+            'volumes' => 10,
+            'pairs_after_name' => true,
+            'kind' => 'bibliography',
+            'compiler' => 'احمد منزوی',
+            'publisher' => 'مرکز دائرة‌المعارف بزرگ اسلامی',
+            'text' => [
+                'catalog' => 'monzavi',
+                'name' => 'فهرستواره منزوی',
+                'first_pages' => [2 => 805, 3 => 1527, 4 => 2591, 5 => 3255, 8 => 816],
+                'last_pages' => [1 => 795, 2 => 1518, 3 => 2571, 4 => 3244, 5 => 4173, 6 => 910, 7 => 817, 8 => 1498, 9 => 765, 10 => 931],
+                'runs' => [[1, 2, 3, 4, 5], [7, 8]],
             ],
         ],
     ],

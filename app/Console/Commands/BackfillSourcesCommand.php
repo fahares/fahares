@@ -101,20 +101,21 @@ class BackfillSourcesCommand extends Command
         }
 
         foreach (config('bibliography.sources') as $key => $src) {
-            $kind = self::CONFIG_KINDS[$key] ?? Source::KIND_OTHER;
+            $kind = $src['kind'] ?? self::CONFIG_KINDS[$key] ?? Source::KIND_OTHER;
+            // the page images the viewer shows, or the page texts of a source the site has as text only
+            $pages = $src['viewer'] ?? $src['text'] ?? [];
             $id = $this->upsertSource(['code' => $key], [
                 'kind' => $kind,
                 'rank' => Source::KIND_RANKS[$kind],
                 'title' => $src['label'],
-                'short_name' => $src['viewer']['name'] ?? $src['label'],
+                'short_name' => $pages['name'] ?? $src['label'],
                 'volumes_count' => $src['volumes'],
                 'unit' => ($src['unit'] ?? null) === 'ستون' ? 'ستون' : 'صفحه',
-                'metadata' => json_encode(['config' => $key], JSON_UNESCAPED_UNICODE),
-            ]);
+                'metadata' => json_encode(['config' => $key] + (isset($src['viewer']) || ! isset($src['text']) ? [] : ['images' => false]), JSON_UNESCAPED_UNICODE),
+            ] + array_intersect_key($src, array_flip(['compiler', 'publisher', 'edition_label'])));
             $stats['reference works']++;
-            $viewer = $src['viewer'] ?? [];
-            $stats['volumes made'] += Sync::ensureVolumes($id, range(1, $src['volumes']), $viewer['catalog'] ?? null,
-                fn ($v) => ['page_first' => $viewer['first_pages'][$v] ?? ($viewer ? 1 : null), 'page_last' => $viewer['last_pages'][$v] ?? null], $this->dry);
+            $stats['volumes made'] += Sync::ensureVolumes($id, range(1, $src['volumes']), $pages['catalog'] ?? null,
+                fn ($v) => ['page_first' => $pages['first_pages'][$v] ?? ($pages ? 1 : null), 'page_last' => $pages['last_pages'][$v] ?? null], $this->dry);
         }
 
         // catalog_volumes: one source per library and title, and one per later printing

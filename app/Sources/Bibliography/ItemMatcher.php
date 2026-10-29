@@ -151,10 +151,14 @@ class ItemMatcher
         return $scored[0]['score'] - $scored[1]['score'] >= 0.1 ? $scored[0] : null;
     }
 
-    /** Text::norm, with the hamza that ablibrary writes after a final heh («تحفهء شاهي») and its seats unified. */
+    /**
+     * Text::norm, with the hamza that ablibrary writes after a final heh («تحفهء شاهي») and its seats unified, and
+     * the Arabic and Persian forms of a letter alike: Fankha's «تحفه» is Monzavi's «تحفۀ» and al-Dhari'a's «تحفة».
+     */
     public static function norm(string $text): string
     {
-        return Text::norm(str_replace(['ء', 'ئ', 'ؤ'], ['', 'ی', 'و'], $text));
+        return Text::norm(strtr($text, ['ء' => '', 'ئ' => 'ی', 'ؤ' => 'و', 'ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'ۀ' => 'ه', 'ة' => 'ه',
+            'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا']));
     }
 
     /** Whether a title names a work made on another: a commentary, gloss, translation, summary or selection. */

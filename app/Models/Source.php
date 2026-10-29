@@ -53,6 +53,12 @@ class Source extends Model
         ];
     }
 
+    /** Whether the site has the source's page images; a source it has as text only («فهرستواره منزوی») has none. */
+    public function hasPageImages(): bool
+    {
+        return ($this->metadata['images'] ?? true) !== false;
+    }
+
     public function volumes(): HasMany
     {
         return $this->hasMany(SourceVolume::class)->orderBy('volume_number')->orderBy('id');
