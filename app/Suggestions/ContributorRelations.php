@@ -4,8 +4,9 @@ namespace App\Suggestions;
 
 use App\Helpers\TextNormalizer;
 use App\Models\Manuscript;
-use App\Models\ManuscriptPerson;
 use App\Models\Person;
+use App\Models\Work;
+use App\Models\WorkPerson;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -101,37 +102,73 @@ class ContributorRelations
     }
 
     /**
-     * A person connected with the copy in a role other than scribe (owner, endower, corrector…):
-     * a linked person or only a name, with a note such as «مهر بیضی، ۱۲۴۰ق».
+     * A person connected with the copy in a role other than scribe (owner, endower, corrector…), or with the
+     * work in a role other than author (translator, dedicatee, commissioner…): a linked person or only a name,
+     * with a note such as «مهر بیضی، ۱۲۴۰ق». The one write path for these rows: reviewed suggestions, the
+     * admin's structural tools and the corpus backfill (fahares:backfill-work-people) all come through here.
+     * $extra: certainty, hedge_raw and source_entry_id of a work's row.
      */
-    public function addRole(Manuscript $manuscript, string $role, ?Person $person, ?string $name, ?string $note, ?int $suggestionId): array
+    public function addRole(Manuscript|Work $record, string $role, ?Person $person, ?string $name, ?string $note, ?int $suggestionId, array $extra = []): array
     {
-        if (! array_key_exists($role, ManuscriptPerson::ROLES)) {
+        if (! array_key_exists($role, SuggestionRegistry::personRoles($record::class))) {
             throw new InvalidArgumentException('نقش انتخاب‌شده نامعتبر است.');
         }
         $name = $name !== null ? trim(preg_replace('/\s+/u', ' ', $name)) : null;
         if (! $person && ! $name) {
             throw new InvalidArgumentException('شخص را انتخاب کنید یا نامش را بنویسید.');
         }
-        if ($person && $manuscript->otherPeople()->where('person_id', $person->id)->where('role', $role)->exists()) {
-            throw new InvalidArgumentException('این شخص با همین نقش هم‌اکنون برای این نسخه ثبت شده است.');
+        $rows = fn () => self::roleRows($record);
+        $label = $record instanceof Work ? 'اثر' : 'نسخه';
+        if ($person && $rows()->where('person_id', $person->id)->where('role', $role)->exists()) {
+            throw new InvalidArgumentException("این شخص با همین نقش هم‌اکنون برای این {$label} ثبت شده است.");
+        }
+        if (! $person && $rows()->whereNull('person_id')->where('name', $name)->where('role', $role)->exists()) {
+            throw new InvalidArgumentException("این نام با همین نقش هم‌اکنون برای این {$label} ثبت شده است.");
+        }
+        $extra = $record instanceof Work ? array_intersect_key($extra, array_flip(['certainty', 'hedge_raw', 'source_entry_id'])) : [];
+        if (isset($extra['certainty']) && ! array_key_exists($extra['certainty'], WorkPerson::CERTAINTIES)) {
+            throw new InvalidArgumentException('میزان قطعیت نامعتبر است.');
         }
 
-        $before = $manuscript->otherPeople()->pluck('id')->all();
-        $row = $manuscript->otherPeople()->create([
+        $before = $rows()->pluck('id')->all();
+        $row = $rows()->create([
             'person_id' => $person?->id,
             'name' => $person ? null : mb_substr($name, 0, 600),
             'role' => $role,
             'note' => $note ? mb_substr($note, 0, 500) : null,
-            'position' => (int) $manuscript->otherPeople()->max('position') + 1,
+            'position' => (int) $rows()->max('position') + 1,
             'suggestion_id' => $suggestionId,
-        ]);
+        ] + array_filter($extra, fn ($v) => $v !== null && $v !== ''));
+        if ($person && $role === 'translator' && ! $person->is_translator) {
+            $person->update(['is_translator' => true]);
+        }
 
         return [
             'old' => ['people_roles' => $before],
             'new' => ['added_person_role' => $row->id],
             'resolution' => ['person_role_id' => $row->id, 'person_id' => $person?->id, 'role' => $role],
         ];
+    }
+
+    /** One of the work's people rows is deleted; the audit log keeps the whole row, so a rollback puts it back. */
+    public function removeRole(Work $work, int $rowId): array
+    {
+        $row = $work->workPeople()->whereKey($rowId)->first()
+            ?? throw new InvalidArgumentException('شخص مرتبطی که باید حذف شود را انتخاب کنید.');
+        $snapshot = $row->getAttributes();
+        $row->delete();
+
+        return [
+            'old' => ['removed_person_role' => $snapshot],
+            'new' => ['removed_person_role' => $rowId],
+            'resolution' => ['person_role_id' => $rowId, 'person_id' => $snapshot['person_id'], 'role' => $snapshot['role'], 'removed' => true, 'name' => $snapshot['name']],
+        ];
+    }
+
+    /** The rows of people in other roles: manuscript_people for a copy, work_people for a work. */
+    public static function roleRows(Manuscript|Work $record): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $record instanceof Work ? $record->workPeople() : $record->otherPeople();
     }
 
     /** Another name of the person, appended to their aliases unless already there. */

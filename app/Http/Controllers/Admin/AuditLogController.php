@@ -123,6 +123,7 @@ class AuditLogController extends Controller
             $transferredWorkIds = (array) ($old['transferred_work_ids'] ?? []);
             $transferredManuscriptIds = (array) ($old['transferred_manuscript_ids'] ?? []);
             DB::table('manuscript_people')->whereIn('id', (array) ($old['transferred_role_ids'] ?? []))->update(['person_id' => $sourceId]);
+            DB::table('work_people')->whereIn('id', (array) ($old['transferred_work_role_ids'] ?? []))->update(['person_id' => $sourceId]);
 
             // Logs written before the pivots existed list only primary links
             $primaryWorkIds = (array) ($old['primary_work_ids'] ?? $transferredWorkIds);
@@ -399,6 +400,11 @@ class AuditLogController extends Controller
         $old = $log->old_values ?? [];
         // An added scribe or author is one pivot row; "contributors" only records the list before
         unset($old['contributors'], $old['people_roles'], $old['relations']);
+        // A removed person of a work (relation person_role_removed) comes back with its id
+        if ($removedRole = $old['removed_person_role'] ?? null) {
+            unset($old['removed_person_role']);
+            DB::table('work_people')->insertOrIgnore($removedRole);
+        }
         // Texts taken again at the corrected place (step 13.6) go back first, the entry's address after them
         foreach ($old['retexts'] ?? [] as $retext) {
             \App\Models\SourceEntry::find($retext['id'])?->forceFill(array_diff_key($retext, ['id' => 0]))->save();
@@ -427,7 +433,7 @@ class AuditLogController extends Controller
             DB::table($relationRow['table'])->where('id', $relationRow['id'])->delete();
         }
         if ($roleId = $log->new_values['added_person_role'] ?? null) {
-            \App\Models\ManuscriptPerson::whereKey($roleId)->delete();
+            ($target instanceof \App\Models\Work ? \App\Models\WorkPerson::class : \App\Models\ManuscriptPerson::class)::whereKey($roleId)->delete();
         }
         if ($added = $log->new_values['added_contributor'] ?? null) {
             DB::table($added['table'])->where('id', $added['id'])->delete();

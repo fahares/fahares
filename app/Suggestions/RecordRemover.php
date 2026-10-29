@@ -21,7 +21,7 @@ class RecordRemover
     /** Pivot tables deleted with the record (cascade), by record type: table => key column */
     private const PIVOTS = [
         Manuscript::class => ['manuscript_scribe' => 'manuscript_id', 'manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id'],
-        Work::class => ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id'],
+        Work::class => ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id', 'work_people' => 'work_id'],
         Person::class => [],
     ];
 
@@ -43,6 +43,7 @@ class RecordRemover
                 'اثر' => DB::table('work_author')->where('person_id', $record->id)->count() + Work::where('author_id', $record->id)->whereNotIn('id', DB::table('work_author')->where('person_id', $record->id)->select('work_id'))->count(),
                 'نسخه (کاتب)' => DB::table('manuscript_scribe')->where('person_id', $record->id)->count() + Manuscript::where('scribe_id', $record->id)->whereNotIn('id', DB::table('manuscript_scribe')->where('person_id', $record->id)->select('manuscript_id'))->count(),
                 'نسخه (نقش‌های دیگر)' => DB::table('manuscript_people')->where('person_id', $record->id)->count(),
+                'اثر (نقش‌های دیگر)' => DB::table('work_people')->where('person_id', $record->id)->count(),
                 'فهرست‌نگار' => DB::table('catalogers')->where('person_id', $record->id)->count(),
             ],
             default => [],

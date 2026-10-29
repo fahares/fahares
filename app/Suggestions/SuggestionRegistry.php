@@ -69,7 +69,8 @@ class SuggestionRegistry
      * contributor_set (the record's primary scribe or author becomes the target person),
      * contributor_add (the target person is added as a further scribe or author),
      * alias (no target: the submitted text is added to the person's other names),
-     * person_role (a person connected with the copy in a role; the target is optional, a name will do),
+     * person_role (a person connected with the copy or work in a role; the target is optional, a name will do;
+ * with remove, the reviewer deletes one of the record's rows instead),
      * record_relation (a commentary on, copied from… another record; see RecordRelations),
      * relocate (the copy is now in another library or has a new shelfmark; see ManuscriptLocation),
      * merge_library (a duplicate library, or one absorbed into another, is folded into it; see LibraryMerger),
@@ -95,6 +96,9 @@ class SuggestionRegistry
             'duplicate' => ['label' => 'این اثر تکراری است (همان اثر دیگری است)', 'target' => 'work', 'action' => 'ادغام اثر تکراری', 'apply' => 'merge'],
             'author_is' => ['label' => 'پدیدآور این اثر شخص دیگری است (انتساب فعلی نادرست است)', 'target' => 'person', 'action' => 'تعیین پدیدآور', 'apply' => 'contributor_set'],
             'author_also' => ['label' => 'این اثر پدیدآور دیگری هم دارد', 'target' => 'person', 'action' => 'افزودن پدیدآور', 'apply' => 'contributor_add'],
+            'person_role' => ['label' => 'شخص دیگری با این اثر مرتبط است (مترجم، تقدیم‌شده به، به سفارش، مصحح…)', 'target' => 'person', 'target_optional' => true, 'action' => 'افزودن شخص مرتبط با اثر', 'apply' => 'person_role'],
+            // remove: the reviewer picks the row to delete; role, person or name only point at it
+            'person_role_removed' => ['label' => 'یکی از اشخاص مرتبط با این اثر نادرست ثبت شده است و باید حذف شود', 'target' => 'person', 'target_optional' => true, 'action' => 'حذف شخص مرتبط با اثر', 'apply' => 'person_role', 'remove' => true],
             'work_relation' => ['label' => 'این اثر با اثر دیگری رابطه دارد (شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله، ردیه…)', 'target' => 'work', 'action' => 'ثبت رابطه‌ی دو اثر', 'apply' => 'record_relation'],
             'redundant' => ['label' => 'این رکورد زائد است (اثری وجود ندارد؛ مثلاً توضیح یا سرعنوانی که به‌اشتباه اثر ثبت شده)', 'target' => null, 'action' => 'حذف رکورد زائد', 'apply' => 'remove'],
             'conflated' => ['label' => 'دو اثر متفاوت در این رکورد خلط شده‌اند (برخی نسخه‌ها از اثر دیگری‌اند)', 'target' => null, 'action' => 'تفکیک اثر', 'apply' => 'split', 'needs_text' => true],
@@ -151,10 +155,16 @@ class SuggestionRegistry
     public static function relationOptions(string $type, array $relation): ?array
     {
         return match ($relation['apply'] ?? null) {
-            'person_role' => \App\Models\ManuscriptPerson::ROLES,
+            'person_role' => self::personRoles($type),
             'record_relation' => RecordRelations::options($type),
             default => null,
         };
+    }
+
+    /** The roles a person can have in a copy (owner, endower…) or a work (translator, dedicatee…), besides scribe and author. */
+    public static function personRoles(string $type): array
+    {
+        return self::typeKey($type) === 'work' ? \App\Models\WorkPerson::ROLES : \App\Models\ManuscriptPerson::ROLES;
     }
 
     /**

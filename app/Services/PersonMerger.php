@@ -68,6 +68,9 @@ class PersonMerger
             // Other roles in manuscripts (owner, endower…) follow the person; a rollback moves them back
             $transferredRoleIds = DB::table('manuscript_people')->where('person_id', $source->id)->pluck('id')->all();
             DB::table('manuscript_people')->whereIn('id', $transferredRoleIds)->update(['person_id' => $target->id]);
+            // ...and so do their roles in works (translator, dedicatee…)
+            $transferredWorkRoleIds = DB::table('work_people')->where('person_id', $source->id)->pluck('id')->all();
+            DB::table('work_people')->whereIn('id', $transferredWorkRoleIds)->update(['person_id' => $target->id]);
 
             DB::table('manuscript_scribe')->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
             DB::table('manuscript_scribe')->where('person_id', $source->id)->update(['person_id' => $target->id]);
@@ -91,6 +94,7 @@ class PersonMerger
                 'manuscripts_count' => $newManuscriptsCount,
                 'is_author' => $target->is_author || ($newWorksCount > 0),
                 'is_scribe' => $target->is_scribe || ($newManuscriptsCount > 0),
+                'is_translator' => $target->is_translator || DB::table('work_people')->where('person_id', $target->id)->where('role', 'translator')->exists(),
                 'aliases' => array_values(array_merge((array) ($target->aliases ?? []), $addedAliases)),
                 'wrong_names' => array_values(array_merge((array) ($target->wrong_names ?? []), $addedWrongNames)) ?: null,
             ]);
@@ -123,6 +127,7 @@ class PersonMerger
                     'collapsed_work_ids' => $collapsedWorkIds,
                     'collapsed_manuscript_ids' => $collapsedManuscriptIds,
                     'transferred_role_ids' => $transferredRoleIds,
+                    'transferred_work_role_ids' => $transferredWorkRoleIds,
                     'kept_printed_names' => $keepPrintedNames,
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),

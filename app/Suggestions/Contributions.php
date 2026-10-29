@@ -4,7 +4,6 @@ namespace App\Suggestions;
 
 use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
-use App\Models\ManuscriptPerson;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -171,8 +170,10 @@ class Contributions
             'contributor_add' => ['after' => self::recordLink('person', $resolution['person_id'] ?? null)],
             'alias' => ['after' => self::plain($resolution['alias'] ?? $s->suggested_value)],
             'person_role' => [
-                'after' => self::recordLink('person', $resolution['person_id'] ?? null) ?? self::plain($s->payload['name'] ?? null),
-                'text' => ($role = $resolution['role'] ?? $s->payload['role'] ?? null) ? 'نقش: ' . (ManuscriptPerson::ROLES[$role] ?? $role) : null,
+                (! empty($resolution['removed']) ? 'before' : 'after') => self::recordLink('person', $resolution['person_id'] ?? null) ?? self::plain($resolution['name'] ?? $s->payload['name'] ?? null),
+                'text' => ($role = $resolution['role'] ?? $s->payload['role'] ?? null)
+                    ? 'نقش: ' . (SuggestionRegistry::personRoles($s->suggestable_type)[$role] ?? $role) . (! empty($resolution['removed']) ? ' (حذف شد)' : '')
+                    : null,
             ],
             'record_relation' => self::recordRelation($s, $resolution, $target),
             'relocate' => [

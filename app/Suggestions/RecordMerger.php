@@ -128,7 +128,7 @@ class RecordMerger
         if ($source->is($target)) {
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
-        $snapshot = $this->snapshot($source, ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id']);
+        $snapshot = $this->snapshot($source, ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id', 'work_people' => 'work_id']);
         $targetBefore = $target->only(['alternative_titles']);
         // Compared before the copies move, on the two works as the admin saw them
         $compared = MergeComparison::apply($source, $target, $fields);
@@ -158,6 +158,12 @@ class RecordMerger
         }
 
         $target->forceFill(['alternative_titles' => $titles ?: null])->save();
+
+        // Translators, dedicatees… move to the kept work, unless it lists the same person in the same role
+        $people = DB::table('work_people')->where('work_id', $source->id)->get();
+        $movedPeople = $people->reject(fn ($row) => DB::table('work_people')->where('work_id', $target->id)->where('role', $row->role)
+            ->where(fn ($q) => $row->person_id ? $q->where('person_id', $row->person_id) : $q->whereNull('person_id')->where('name', $row->name))->exists())->pluck('id')->all();
+        DB::table('work_people')->whereIn('id', $movedPeople)->update(['work_id' => $target->id]);
 
         $relations = RecordRelations::moveOnMerge($source, $target);
         $subjects = array_diff($source->subjects()->pluck('subjects.id')->all(), $target->subjects()->pluck('subjects.id')->all());
@@ -194,6 +200,7 @@ class RecordMerger
             'added_subject_ids' => array_values($subjects),
             'added_language_ids' => array_values($languages),
             'referral_ids' => $referrals,
+            'moved_people_ids' => $movedPeople,
             'relations' => $relations,
             'redirects' => $redirects,
         ] + $attachments;
@@ -210,6 +217,9 @@ class RecordMerger
         foreach (['work_author', 'subject_work', 'language_work'] as $table) {
             DB::table($table)->insertOrIgnore($snapshot['pivots'][$table] ?? []);
         }
+        // Moved people rows come back; the ones the kept work already listed were deleted with the duplicate
+        DB::table('work_people')->whereIn('id', $old['moved_people_ids'] ?? [])->update(['work_id' => $source->id]);
+        DB::table('work_people')->insertOrIgnore($snapshot['pivots']['work_people'] ?? []);
 
         // Copies folded into one of the kept work's copies come back first (they belong to the restored work)
         foreach (array_reverse($old['folded_manuscripts'], true) as $data) {

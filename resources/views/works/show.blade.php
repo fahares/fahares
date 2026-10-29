@@ -228,6 +228,9 @@
                 </x-ui.meta-list>
             </x-ui.section>
 
+            <!-- People connected with the work other than its authors: translators, dedicatees… -->
+            <x-work-people :work="$work" />
+
             @if(! empty($work->description))
                 <x-ui.section title="معرفی اثر" field="description">
                     <x-slot:actions><span class="text-muted">به روایت {{ $fankha?->sourceName() ?: 'فنخا' }}</span></x-slot:actions>

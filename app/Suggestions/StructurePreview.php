@@ -9,6 +9,7 @@ use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use App\Support\Fa;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -114,6 +115,7 @@ class StructurePreview
                 'نسخه' => $record->manuscripts()->count(),
                 'مدخل مأخذ' => $entries(),
                 'رابطه با اثر دیگر' => DB::table('work_relations')->where('work_id', $record->id)->orWhere('related_work_id', $record->id)->count(),
+                'شخص مرتبط' => WorkPerson::where('work_id', $record->id)->count(),
             ],
             $record instanceof Manuscript => [
                 'کاتب' => DB::table('manuscript_scribe')->where('manuscript_id', $record->id)->count(),
@@ -123,6 +125,7 @@ class StructurePreview
             ],
             $record instanceof Person => app(RecordRemover::class)->blockers($record) + [
                 'نقش در نسخه' => ManuscriptPerson::where('person_id', $record->id)->count(),
+                'نقش در اثر' => WorkPerson::where('person_id', $record->id)->count(),
             ],
             $record instanceof Library => [
                 'نسخه' => $record->manuscripts()->count(),

@@ -159,7 +159,7 @@
                                     <p x-show="errors.target_id" x-text="errors.target_id" class="text-red-600 dark:text-red-400 font-bold"></p>
                                     <template x-if="relation.apply === 'person_role' && !target">
                                         <div class="space-y-1 pt-1">
-                                            <label class="block font-semibold text-ink">یا نام او، همان‌گونه که در نسخه آمده:</label>
+                                            <label class="block font-semibold text-ink" x-text="config.type === 'work' ? 'یا نام او، همان‌گونه که در فهرست یا دیباچه آمده:' : 'یا نام او، همان‌گونه که در نسخه آمده:'"></label>
                                             <input type="text" x-model="roleName" class="{{ $inputClass }}" placeholder="مثلاً محمدحسین بن علی تبریزی">
                                             <p x-show="errors.role_name" x-text="errors.role_name" class="text-red-600 dark:text-red-400 font-bold"></p>
                                         </div>

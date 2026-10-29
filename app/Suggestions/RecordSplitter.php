@@ -78,7 +78,8 @@ class RecordSplitter
         $works = DB::table('work_author')->where('person_id', $person->id)->whereIn('work_id', $picked['works'] ?? [])->pluck('work_id')->all();
         $manuscripts = DB::table('manuscript_scribe')->where('person_id', $person->id)->whereIn('manuscript_id', $picked['manuscripts'] ?? [])->pluck('manuscript_id')->all();
         $roles = DB::table('manuscript_people')->where('person_id', $person->id)->whereIn('id', $picked['roles'] ?? [])->pluck('id')->all();
-        if (! $works && ! $manuscripts && ! $roles) {
+        $workRoles = DB::table('work_people')->where('person_id', $person->id)->whereIn('id', $picked['work_roles'] ?? [])->pluck('id')->all();
+        if (! $works && ! $manuscripts && ! $roles && ! $workRoles) {
             throw new InvalidArgumentException('دست‌کم یک اثر یا نسخه را برای انتقال به شخص تازه انتخاب کنید.');
         }
 
@@ -98,8 +99,10 @@ class RecordSplitter
         $primaryManuscripts = Manuscript::whereIn('id', $manuscripts)->where('scribe_id', $person->id)->pluck('id')->all();
         Manuscript::whereIn('id', $primaryManuscripts)->update(['scribe_id' => $created->id]);
         DB::table('manuscript_people')->whereIn('id', $roles)->update(['person_id' => $created->id]);
+        DB::table('work_people')->whereIn('id', $workRoles)->update(['person_id' => $created->id]);
 
-        $created->update(['is_author' => (bool) $works, 'is_scribe' => (bool) $manuscripts]);
+        $created->update(['is_author' => (bool) $works, 'is_scribe' => (bool) $manuscripts,
+            'is_translator' => DB::table('work_people')->whereIn('id', $workRoles)->where('role', 'translator')->exists()]);
         $person->recountContributions();
         $created->recountContributions();
         Work::whereIn('id', $works)->searchable();
@@ -112,6 +115,7 @@ class RecordSplitter
             'work_ids' => $works, 'primary_work_ids' => $primaryWorks,
             'manuscript_ids' => $manuscripts, 'primary_manuscript_ids' => $primaryManuscripts,
             'role_ids' => $roles,
+            'work_role_ids' => $workRoles,
         ];
     }
 
@@ -145,6 +149,7 @@ class RecordSplitter
         DB::table('manuscript_scribe')->where('person_id', $createdId)->whereIn('manuscript_id', $old['manuscript_ids'])->update(['person_id' => $sourceId]);
         Manuscript::whereIn('id', $old['primary_manuscript_ids'])->where('scribe_id', $createdId)->update(['scribe_id' => $sourceId]);
         DB::table('manuscript_people')->whereIn('id', $old['role_ids'])->where('person_id', $createdId)->update(['person_id' => $sourceId]);
+        DB::table('work_people')->whereIn('id', $old['work_role_ids'] ?? [])->where('person_id', $createdId)->update(['person_id' => $sourceId]);
         if ($blockers = app(RecordRemover::class)->blockers($created)) {
             throw new InvalidArgumentException("پس از تفکیک، پیوندهای دیگری هم به شخص #{$createdId} افزوده شده است. نخست آن‌ها را منتقل کنید.");
         }
