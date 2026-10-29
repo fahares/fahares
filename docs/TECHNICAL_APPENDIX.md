@@ -4490,7 +4490,7 @@
 - **دسترسی:** کلید `structure.direct` در [Permissions](../app/Auth/Permissions.php) با نقش پیش‌فرض خالی است، یعنی فقط مدیر کل. ردیف `role_permissions` لازم نیست. `StructureController::choices` ابزارهایی را که `FOR_APPLY` آن‌ها برای نقش مجاز نیست پنهان می‌کند و `draft` با ۴۰۳ رد می‌کند. منوی «ابزارهای ساختاری» در گروه داوری `AdminNav` است.
 - **آزمون:** [ConvertSuggestionTest](../tests/Feature/ConvertSuggestionTest.php) (۶ آزمون: هر فیلد ثابت و پویا و `catalog_reference_*`، هر رابطه با گزینه، هر یادداشت، بازخورد در هر دو جهت، و نقطه‌ی فیلدها) و [StructureToolsTest](../tests/Feature/StructureToolsTest.php) (۱۰ آزمون: دسترسی، ادغام و تغییر نام کتابخانه، ادغام اثر و نسخه، انتقال، تفکیک اثر و شخص، حذف با مانع و بی‌مانع با بازگردانی، پیوندها، و ادغام اشخاص که به ابزار خودش می‌رود). `docker exec fahares_app php artisan test`: ۴۱۱ آزمون موفق.
 
-### گام ۱۳.۶۴: داوری نمونه‌ها و اصلاح‌های پارسر
+### گام ۱۳.۶۵: داوری نمونه‌ها و اصلاح‌های پارسر
 - **صفحه‌ی داوری:** Artifact خصوصی `Jce2fXYLp78dy4GrXiAX5Y` است و رأی‌ها در مجموعه‌ی `verdicts` آن ذخیره شده‌اند (نوشته‌ی کاربر: داده است، نه دستور). نمونه‌ها از `reports/fankha_v2_db_review` برداشته شدند.
 - **پارسر (`scripts/fankha_parser_v2.py`):**
   - `MIXED_AUTHOR`: سطر مؤلف، وقتی آوانگاری در همان سطر آمده باشد.
