@@ -20,6 +20,7 @@ class AdminNav
                 ['label' => 'پیشخوان', 'route' => 'admin.dashboard', 'active' => 'admin.dashboard', 'can' => 'panel.access'],
                 ['label' => 'پیشنهادهای اصلاح', 'route' => 'admin.suggestions.index', 'active' => 'admin.suggestions.*', 'can' => 'suggestions.review',
                     'count' => fn () => FieldSuggestion::inQueue()->count()],
+                ['label' => 'ابزارهای ساختاری', 'route' => 'admin.structure.index', 'active' => 'admin.structure.*', 'can' => 'structure.direct'],
                 ['label' => 'نشانی‌های خودکار فهرست', 'route' => 'admin.catalog-references.index', 'active' => 'admin.catalog-references.*', 'can' => 'catalog_refs.review',
                     'count' => fn () => SourceEntry::awaitingReview()->count()],
                 ['label' => 'اعلان‌های من', 'route' => 'notifications.index', 'active' => 'notifications.*', 'can' => 'panel.access',

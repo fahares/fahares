@@ -10,6 +10,9 @@
     <span>ویرایش #{{ $fa($person->id) }}</span>
 @endsection
 @section('page_actions')
+    @can('structure.direct')
+        <x-ui.btn :href="route('admin.structure.show', ['person', $person->id])" size="sm" title="تفکیک، حذف رکورد زائد یا نام دیگر، با پیش‌نمایش">ابزارهای ساختاری</x-ui.btn>
+    @endcan
     @can('people.merge')
         <x-ui.btn :href="route('admin.people.merge', ['source_id' => $person->id])" size="sm" title="ادغام این شخص در شخص دیگر">ادغام با شخص دیگر</x-ui.btn>
     @endcan

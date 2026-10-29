@@ -79,6 +79,12 @@ class AuditLogController extends Controller
             'update' => $this->rollbackUpdate($log, $request),
             default => throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد."),
         };
+
+        // An undone direct action of the admin (backlog item 45) is not a suggestion to review again
+        $suggestion = FieldSuggestion::find($log->new_values['suggestion_id'] ?? 0);
+        if ($suggestion && $suggestion->status === 'pending' && ! empty($suggestion->payload['direct'])) {
+            $suggestion->update(['status' => 'undone', 'reviewed_by' => auth()->id(), 'reviewed_at' => now()]);
+        }
     }
 
     protected function rollbackMerge(AuditLog $log, Request $request): void

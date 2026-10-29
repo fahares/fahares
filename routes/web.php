@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SearchStatsController as AdminSearchStatsController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
 use App\Http\Controllers\Admin\SuggestionController as AdminSuggestionController;
+use App\Http\Controllers\Admin\StructureController as AdminStructureController;
 use App\Http\Controllers\Admin\SystemController as AdminSystemController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\EmailVerificationController;
@@ -267,10 +268,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/suggestions/{suggestion}/note', [AdminSuggestionController::class, 'saveNote'])->name('suggestions.note');
         Route::post('/suggestions/{suggestion}/withdraw', [AdminSuggestionController::class, 'withdrawNote'])->name('suggestions.withdraw');
         Route::post('/suggestions/{suggestion}/convert', [AdminSuggestionController::class, 'convert'])->name('suggestions.convert');
+        Route::get('/suggestions/{suggestion}/convert-fields', [AdminSuggestionController::class, 'convertFields'])->name('suggestions.convert-fields');
         Route::post('/suggestions/{suggestion}/resolve', [AdminSuggestionController::class, 'resolveFeedback'])->name('suggestions.resolve');
         Route::post('/suggestions/{suggestion}/ask', [AdminSuggestionController::class, 'ask'])->middleware('throttle:30,60')->name('suggestions.ask');
     });
     Route::post('/suggestions/direct-edit', [AdminSuggestionController::class, 'directEdit'])->middleware('can:suggestions.direct_edit')->name('suggestions.direct-edit');
+
+    // Structural tools run directly, with a preview and confirmation, through the same code as an approved suggestion (backlog item 45)
+    Route::middleware('can:structure.direct')->group(function () {
+        Route::get('/structure', [AdminStructureController::class, 'index'])->name('structure.index');
+        Route::get('/structure/{type}/{id}', [AdminStructureController::class, 'show'])->whereIn('type', array_keys(\App\Suggestions\SuggestionRegistry::TYPES))->whereNumber('id')->name('structure.show');
+        Route::post('/structure/{type}/{id}', [AdminStructureController::class, 'apply'])->whereIn('type', array_keys(\App\Suggestions\SuggestionRegistry::TYPES))->whereNumber('id')->name('structure.apply');
+    });
 
     // Taxonomy & Knowledge Tree
     Route::match(['get', 'post'], '/subjects/merge', [AdminSubjectController::class, 'merge'])->middleware('can:subjects.merge')->name('subjects.merge');

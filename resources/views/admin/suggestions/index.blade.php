@@ -23,9 +23,10 @@
             $sug->status === 'pending' && $sug->reply_state === 'answered' => ['پاسخ داد', 'good'],
             $sug->status === 'pending' && $sug->reply_state === 'unanswered' => ['بی‌پاسخ ماند', 'accent'],
             $sug->status === 'pending' => ['در انتظار', 'accent'],
-            $sug->status === 'approved' => [$sug->kind === 'note' ? 'منتشر شد' : ($sug->standing_label ?? 'تأیید شد'), 'good'],
+            $sug->status === 'approved' => [$sug->kind === 'note' ? 'منتشر شد' : (! empty($sug->payload['direct']) ? 'اقدام مستقیم' : ($sug->standing_label ?? 'تأیید شد')), 'good'],
             $sug->status === 'converted' => ['تبدیل شد', 'default'],
             $sug->status === 'withdrawn' => ['برداشته شد', 'default'],
+            $sug->status === 'undone' => ['اقدام مستقیم، بازگردانده شد', 'default'],
             default => ['رد شد', 'default'],
         };
     };
