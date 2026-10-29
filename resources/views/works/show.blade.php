@@ -307,7 +307,7 @@
                             {{-- named inside another work's entry: one line, never that entry's text (plan dharia-text) --}}
                             <li class="flex gap-2.5 leading-relaxed" data-machine-item="{{ $entry->reviewKey() }}" data-source-mention>
                                 <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                                <span class="text-ink">یاد شده در {{ $entry->sourceName() }}، {{ \App\Support\Fa::digits('ج ' . $entry->volumeNumber() . '، ص ' . $entry->sourceItem->page_start) }}، ذیل
+                                <span class="text-ink">یاد شده در {{ $entry->sourceName() }}، {{ \App\Support\Fa::digits('ج ' . $entry->volumeNumber() . '، ' . ($entry->source?->unit === 'ستون' ? 'ستون ' : 'ص ') . $entry->sourceItem->page_start) }}، ذیل
                                     <a href="{{ $entry->sourceItem->url() }}" class="text-cinnabar border-b border-cinnabar/40 hover:border-cinnabar transition">«{{ $entry->sourceItem->title }}»</a>@if($entry->sourceItem->entry_number) ({{ $entry->itemLabel() }})@endif
                                     @if($entry->isAwaitingReview())<x-ui.machine-badge class="ms-0.5" :text="$entry->machineNote()" :review="$entry->badgeReview()" />@endif
                                 </span>

@@ -293,6 +293,9 @@ class SourceEntry extends Model
     /** What the machine did, under the ⓘ badge: matched a copy by its shelfmark, or a work by its title and author. */
     public function machineNote(): string
     {
+        if ($this->source_item_id && $this->match_method === 'llm') {
+            return 'یک مدل زبانی این پیوند را با خواندن متن مدخل‌های صفحه‌ای که فنخا نشانی داده پیشنهاد کرده، و عبارتی که از متن مدخل شاهد آورده وارسی شده است. این پیوند هنوز به دست انسان بازبینی نشده است.';
+        }
         if ($this->source_item_id) {
             return $this->isMention()
                 ? 'هوشواره این اثر را در متن این مدخل یافته است، با سنجیدن عنوان و مؤلف آن. این پیوند هنوز به دست انسان بازبینی نشده است.'

@@ -25,6 +25,7 @@ class LinkSourceItemsCommand extends Command
         {volume : facsimile_code of the volume (source_volumes row)}
         {--volume= : Volume number, when the code has several}
         {--near : When nothing on the cited page matches, look at the pages either side of it}
+        {--decisions= : A JSON file of the decisions a model made for the citations nothing else matches (see llmDecision())}
         {--report= : Write every decision to this JSON file}
         {--dry-run : Match and count without saving}';
 
@@ -41,13 +42,17 @@ class LinkSourceItemsCommand extends Command
         }
         $volume = $volumes[0];
         $items = SourceItem::where('source_volume_id', $volume->id)->orderBy('position')
-            ->get(['id', 'entry_number', 'title', 'text', 'page_start', 'page_end']);
+            ->get(['id', 'item_key', 'entry_number', 'title', 'text', 'page_start', 'page_end']);
         if ($items->isEmpty()) {
             $this->error('No entries for this volume: run sources:segment first.');
 
             return self::FAILURE;
         }
 
+        $llm = [];
+        foreach ($this->option('decisions') ? json_decode(file_get_contents($this->option('decisions')), true) : [] as $d) {
+            $llm[$d['citation_id'] . ':' . $d['index']] = $d;
+        }
         $decisions = [];
         // a string that cites another source first has its source_id, and this one among its locations
         $citations = SourceEntry::where(fn ($q) => $q->where('source_id', $volume->source_id)
@@ -59,7 +64,11 @@ class LinkSourceItemsCommand extends Command
                 if ((int) ($place['source_id'] ?? 0) !== $volume->source_id || (int) ($place['volume'] ?? 0) !== $volume->volume_number) {
                     continue;
                 }
-                $decisions[] = $this->decide($matcher, $citation, $index, (int) $place['page'], $items);
+                $decision = $this->decide($matcher, $citation, $index, (int) $place['page'], $items);
+                if (! $decision['match'] && isset($llm[$citation->id . ':' . $index])) {
+                    $decision = $this->llmDecision($decision, $llm[$citation->id . ':' . $index], $items);
+                }
+                $decisions[] = $decision;
             }
         }
 
@@ -163,6 +172,24 @@ class LinkSourceItemsCommand extends Command
             'reason' => ! $work ? 'no_work' : (! $onPage ? 'no_entries_on_page' : 'no_match'),
             'page_titles' => array_column($onPage, 'title'),
         ];
+    }
+
+    /**
+     * A model's decision for a citation the matcher left without one (item 86): {citation_id, index, role ("entry",
+     * "mention" or "none"), key (the entry's item_key), evidence (words it copied from the entry), confidence}. It
+     * stands only when the evidence is in the entry's title or text, and never above 70.
+     */
+    private function llmDecision(array $decision, array $llm, $items): array
+    {
+        $item = in_array($llm['role'] ?? null, [SourceEntry::ROLE_ENTRY, SourceEntry::ROLE_MENTION], true)
+            ? $items->firstWhere('item_key', $llm['key'] ?? null) : null;
+        $evidence = trim((string) ($llm['evidence'] ?? ''));
+        if (! $item || mb_strlen($evidence) < 4 || (! str_contains($item->text, $evidence) && ! str_contains($item->title, $evidence))) {
+            return $decision + ['llm' => $item ? 'evidence_not_found' : 'none'];
+        }
+
+        return array_merge($decision, ['item' => $item->title, 'match' => ['id' => $item->id, 'role' => $llm['role'], 'method' => 'llm',
+            'confidence' => min((int) ($llm['confidence'] ?? 0), 70), 'title_score' => 0.0, 'author' => false, 'death' => false]]);
     }
 
     /**

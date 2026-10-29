@@ -49,6 +49,32 @@ class IstanbulSourcesTest extends TestCase
         $this->get('/sources/kashf/1/500-1')->assertOk()->assertSee('تنقيح الفهوم', false)->assertSee('ج ۱، ستون ۵۰۰', false);
     }
 
+    public function test_a_model_decision_stands_only_with_its_evidence_in_the_entry()
+    {
+        $this->volume('kashf', 'کشف الظنون', 1, 1, 940);
+        $this->artisan('sources:import-pages', ['volume' => 'kashf', 'pages' => self::FIXTURES . 'kashf-v01-c500.jsonl', '--volume' => 1])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'kashf', '--volume' => 1, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'kashf-v01-c500.entries.jsonl'])->assertSuccessful();
+        $maknun = $this->work('kashf', 'مختصر القانون', 'مجهول', 900, 1, 500, 'کشف الظنون 500/1');
+        $made = $this->work('kashf', 'شرح التنقیح', 'مجهول', 900, 1, 500, 'کشف الظنون 500/1');
+        $citation = fn (Work $w) => SourceEntry::where('citable_id', $w->id)->where('origin', SourceEntry::ORIGIN_BIBLIOGRAPHY)->value('id');
+        $file = tempnam(sys_get_temp_dir(), 'llm');
+        file_put_contents($file, json_encode([
+            ['citation_id' => $citation($maknun), 'index' => 0, 'role' => 'mention', 'key' => '500#3', 'evidence' => 'اختصر القانون في الطب و سماه المكنون', 'confidence' => 85],
+            // evidence the entry does not have
+            ['citation_id' => $citation($made), 'index' => 0, 'role' => 'mention', 'key' => '500#3', 'evidence' => 'شرح التنقيح للخجندى', 'confidence' => 90],
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('sources:link-items', ['volume' => 'kashf', '--volume' => 1, '--decisions' => $file])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $maknun->id)->sole();
+        $this->assertSame(['500#3', SourceEntry::ROLE_MENTION, 'llm', 70, SourceEntry::STATUS_UNVERIFIED],
+            [$tie->sourceItem->item_key, $tie->role, $tie->match_method, $tie->confidence, $tie->status]);
+        $this->assertFalse(SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $made->id)->exists());
+        $this->get(route('works.show', $maknun))->assertOk()->assertSee('یاد شده در کشف الظنون، ج ۱، ستون ۵۰۰', false)
+            ->assertSee('یک مدل زبانی این پیوند را', false);
+        unlink($file);
+    }
+
     public function test_a_hadiyya_entry_is_an_author_and_his_works_are_named_in_it()
     {
         $volume = $this->volume('hadiyya', 'هدیة العارفین', 1, 1, 842);
