@@ -4362,3 +4362,8 @@
   - **پس از نوشتن:** برای ستون‌های JSON، `SourceEntrySync::syncIds()` اجرا می‌شود، تا مآخذ اثر و صفحه‌ی فهرستِ ارجاع نسخه همگام شوند. سپس رکوردها دوباره نمایه می‌شوند.
   - آزمون: `CleanPageMarkersCommandTest`.
 - **اجرای آزمون‌ها از worktree:** کانتینر `fahares_app` شاخه‌ی اصلی را mount کرده است. آزمون‌های worktree با `docker run --network container:fahares_app` و همان image اجرا شدند، با worktree در `/var/www/html` و `vendor` و `.env` شاخه‌ی اصلی.
+
+### گام ۱۳.۵۳: اجرای `clean-page-markers --fields` روی پروداکشن
+- **پشتیبان:** از راه `ssh fahares-app` و `php artisan tinker`، شناسه و ستون‌های درگیر همه‌ی ردیف‌هایی که برچسب داشتند به JSONL برده شد. فایل در `fahares-sources/backups/item19/prod_before_20261029.jsonl` است: ۹٬۰۴۵ ردیف، با sha256 که با `177a6c1e…` آغاز می‌شود.
+- **برگرداندن، در صورت نیاز:** هر سطر را با `DB::table($table)->where('id', $id)->update($cols)` نوشت. سپس `SourceEntrySync::syncIds()` و نمایه‌ی دوباره لازم است.
+- **زمان:** اجرا حدود ۳٫۵ دقیقه طول کشید. نمایه‌ی آثار و نسخه‌ها در بسته‌های ۵۰۰تایی ساخته شد.
