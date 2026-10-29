@@ -639,7 +639,7 @@ class SearchController extends Controller
         return [
             'works' => [
                 'titles' => ['primary_title', 'clean_title', 'alternative_titles'],
-                'titles_names' => ['primary_title', 'clean_title', 'alternative_titles', 'author_name'],
+                'titles_names' => ['titles_names', 'primary_title', 'clean_title', 'alternative_titles', 'author_name'],
             ],
             'manuscripts' => [
                 'titles' => ['work_title'],
@@ -851,7 +851,9 @@ class SearchController extends Controller
 
         foreach ($hits as $hit) {
             foreach ($fields as $field) {
-                $val = trim($hit[$field] ?? '');
+                // A title is indexed with its variant forms after it (backlog item 93): the first is as written
+                $val = $hit[$field] ?? '';
+                $val = trim(is_array($val) ? (string) ($val[0] ?? '') : (string) $val);
                 if (!empty($val) && mb_strtolower($val) !== mb_strtolower($query)) {
                     similar_text(mb_strtolower($query), mb_strtolower($val), $percent);
                     if ($percent > $highestScore && $percent >= 30) {

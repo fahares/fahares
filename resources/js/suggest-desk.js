@@ -53,7 +53,10 @@ export default (config) => ({
         window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
         if (!this.config.signedIn) return;
         const detail = this.detailFor(key);
-        if (detail) this.$nextTick(() => this.start(detail));
+        if (!detail) return;
+        // Bring the field itself into view too, for when the form closes
+        if (detail.field) document.querySelector(`[data-suggest-field="${CSS.escape(detail.field)}"]`)?.scrollIntoView({ block: 'center' });
+        this.$nextTick(() => this.start(detail));
     },
 
     keyFor(detail) {

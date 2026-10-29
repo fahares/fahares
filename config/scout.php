@@ -159,15 +159,17 @@ return [
                     'composition_year_hijri',
                     'manuscripts_count',
                     'volume_number',
-                    'primary_title',
                     'author_death_year',
                     'era_year',
                 ],
-                // Among equal text matches, a base text before the works made on it, then the work found in more
-                // manuscripts: «کافی» is al-Kafi of Kulayni, «تجرید» the Tajrid before its commentaries. A chosen
-                // sort comes first. Checked with fahares:search-benchmark (backlog item 83)
-                'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'derivative:asc', 'manuscripts_count:desc', 'attribute', 'exactness'],
+                // Among equal text matches, a match in a title or the author (titles_names) before one in the
+                // incipits or the description (backlog item 93: «نهج البلاغه» is not the «جنگ» quoting it), then a
+                // base text before the works made on it, then the work found in more manuscripts: «کافی» is al-Kafi
+                // of Kulayni, «تجرید» the Tajrid before its commentaries. A chosen sort comes before the field.
+                // Checked with fahares:search-benchmark (backlog item 83)
+                'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'attributeRank', 'derivative:asc', 'manuscripts_count:desc', 'wordPosition', 'exactness'],
                 'searchableAttributes' => [
+                    'titles_names',
                     'primary_title',
                     'clean_title',
                     'alternative_titles',
@@ -248,6 +250,9 @@ return [
                     'volume_number',
                     'folios',
                 ],
+                // Meilisearch's own order, with the manuscript of the work found in more manuscripts first among
+                // equal matches in the same field (backlog item 93)
+                'rankingRules' => ['words', 'typo', 'proximity', 'attributeRank', 'sort', 'work_manuscripts_count:desc', 'wordPosition', 'exactness'],
                 'searchableAttributes' => [
                     'work_title',
                     'author_name',

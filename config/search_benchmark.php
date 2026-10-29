@@ -22,6 +22,18 @@ return [
     ['q' => 'الرسالة الذهبیة', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'الرساله الذهبیه', 'author' => 'علی بن موسی']],
     ['q' => 'رساله ذهبیه', 'type' => 'works', 'top' => 3, 'expect' => ['title' => 'الرساله الذهبیه', 'author' => 'علی بن موسی']],
 
+    // Two-word titles whose second word has the article: the words stay side by side in the index, and a match in a
+    // title comes before one in a manuscript's text (backlog item 93)
+    ['q' => 'نهج البلاغه', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^نهج البلاغه', 'author' => 'شریف الرضی']],
+    ['q' => 'نهج البلاغة', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^نهج البلاغه', 'author' => 'شریف الرضی']],
+    ['q' => 'نهج البلاغه', 'type' => 'works', 'scope' => 'all', 'top' => 1, 'expect' => ['title' => '^نهج البلاغه', 'author' => 'شریف الرضی']],
+    ['q' => 'شرح اللمعه', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^الروضه البهیه', 'author' => 'شهید ثانی']],
+    ['q' => 'اللمعة الدمشقیة', 'type' => 'works', 'top' => 3, 'expect' => ['title' => '^اللمعه الدمشقیه', 'author' => 'شهید اول']],
+    ['q' => 'تهذیب الاحکام', 'type' => 'works', 'scope' => 'all', 'top' => 1, 'expect' => ['title' => 'تهذیب الاحکام', 'author' => 'شیخ طوسی']],
+    ['q' => 'مفتاح الفلاح', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^مفتاح الفلاح', 'author' => 'شیخ بهائی']],
+    ['q' => 'کشف الغمه', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^کشف الغمه', 'author' => 'اربلی']],
+    ['q' => 'مصباح المتهجد', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^مصباح المتهجد', 'author' => 'شیخ طوسی']],
+
     // A rare work named in full is not buried under well-known ones sharing a word
     ['q' => 'کافی در ترسیم', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'کافی در ترسیم']],
     ['q' => 'شفاء العلیل', 'type' => 'works', 'top' => 3, 'expect' => ['title' => 'شفا العلیل']],
@@ -44,6 +56,7 @@ return [
     ['q' => 'مجلس ۱۱۸۹', 'type' => 'manuscripts', 'top' => 1, 'expect' => ['library' => 'مجلس', 'shelfmark' => '^1189']],
     ['q' => '۱۱۸۹', 'type' => 'manuscripts', 'top' => 1, 'expect' => ['shelfmark' => '^1189']],
     ['q' => 'کافی', 'type' => 'manuscripts', 'top' => 5, 'expect' => ['title' => 'الکافی']],
+    ['q' => 'نهج البلاغه', 'type' => 'manuscripts', 'top' => 1, 'expect' => ['title' => '^نهج البلاغه']],
 
     // One field only (phase 5): «مجلسی» as the scribe is not the author Majlisi, and the other way round
     ['q' => 'مجلسی', 'type' => 'manuscripts', 'scope' => 'scribe', 'top' => 1, 'expect' => ['scribe' => 'مجلسی']],

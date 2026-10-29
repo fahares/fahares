@@ -347,7 +347,7 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name']);
+        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name']);
     }
 
     public function toSearchableArray(): array
@@ -366,7 +366,10 @@ class Manuscript extends Model
         return [
             'id' => (int) $this->id,
             'work_id' => (int) $this->work_id,
-            'work_title' => \App\Helpers\TextNormalizer::expandVariants($workTitle),
+            'work_title' => \App\Helpers\TextNormalizer::titleForms($workTitle),
+            // Among equal matches, a manuscript of the work found in more manuscripts: «کافی» is al-Kafi, not
+            // «کافی در ترسیم» (backlog item 93)
+            'work_manuscripts_count' => (int) ($this->work?->manuscripts_count ?? 0),
             'author_name' => \App\Helpers\TextNormalizer::normalize($authorName),
             'library_id' => $this->library_id ? (int) $this->library_id : null,
             'library' => $this->library,

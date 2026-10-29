@@ -4363,6 +4363,76 @@
   - آزمون: `CleanPageMarkersCommandTest`.
 - **اجرای آزمون‌ها از worktree:** کانتینر `fahares_app` شاخه‌ی اصلی را mount کرده است. آزمون‌های worktree با `docker run --network container:fahares_app` و همان image اجرا شدند، با worktree در `/var/www/html` و `vendor` و `.env` شاخه‌ی اصلی.
 
+### گام ۱۳.۵۳: دکمه‌ی فیلد با hover (مورد ۹۲)
+- **دکمه‌ی فیلد** ([field](../resources/views/components/suggest/field.blade.php)): دیگر `x-show` ندارد. کلاس `suggest-btn` دارد و در حالت پیشنهاد `is-on` می‌گیرد. قاعده‌ها در `resources/css/app.css` هستند:
+  - بیرون از حالت پیشنهاد، `display: none`.
+  - زیر `@media (hover: hover)`، `opacity: 0` با `pointer-events: none`. با `:hover` یا `:focus-within` روی `.suggest-row` یا روی پدر مستقیم دکمه، و با `:focus-visible` خود دکمه، دیده می‌شود.
+  - `.suggest-row` روی سطر `x-ui.meta` (که `display: contents` است، پس hover برچسب هم حساب می‌شود)، روی `x-ui.quote` و روی کارت منبع (`x-source.page-card`) است. جاهای دیگر، مانند عنوان، شماره‌ی نسخه، بند نشان‌ها و سرعنوان بخش‌ها، با قاعده‌ی پدر مستقیم پوشش داده می‌شوند. سرعنوان بخش عمداً `.suggest-row` نگرفت تا hover روی سطرهای درون بخش، دکمه‌ی خود بخش را نشان ندهد.
+  - `data-suggest-field` روی دکمه، نشانه‌ی بازگشت پس از ورود است: `suggestDesk.init` با `?suggest=field.<name>` آن را `scrollIntoView` می‌کند.
+- **دکمه‌ی حالت** ([toggle](../resources/views/components/suggest/toggle.blade.php)): داده‌ی Alpine `suggestToggle` در `resources/js/app.js`.
+  - `IntersectionObserver` روی دکمه، `away` را فقط وقتی دکمه بالای صفحه از دید رفته روشن می‌کند. دکمه‌ی شناور با `x-teleport` به `body` می‌رود و `fixed bottom-4 end-4` است.
+  - راهنما با کلید `suggest-hint-seen` در `localStorage` (درون try/catch) یک بار نشان داده می‌شود. متن ماوس و لمس با `.hover-only` و `.touch-only` جدا شده‌اند.
+- **نکته‌ی Blade:** نام یک کامپوننت در کامنت HTML (`<!-- ... -->`) کامپایل می‌شود و قالب را می‌شکند؛ در کامنت HTML نام کامپوننت نیاید، یا کامنت Blade (`{{-- --}}`) به کار رود.
+- **آزمون:** `SignedInSuggestionsTest::test_field_buttons_render_for_hover_with_the_toggle_hint_and_its_floating_copy`.
+
+### گام ۱۳.۵۴: نمایشگر برگه‌های چاپی برای موبایل (مورد ۹۴)
+- **فایل‌ها:** منطق در [catalog-viewer.js](../resources/js/catalog-viewer.js) است و با `Alpine.data('catalogViewer')` در `resources/js/app.js` ثبت می‌شود. قالب در [catalog-viewer](../resources/views/components/catalog-viewer.blade.php) است. رویدادهای `open-catalog-viewer` و `open-fankha-viewer` و شکل detail آن‌ها (`catalog`، `catalogName`، `volume`، `page`) تغییر نکرد، پس هیچ‌یک از جاهای باز کردن نمایشگر دست نخورد.
+- **هندسه:** تصویر در گوشه‌ی بالا-چپ بوم است و با `translate3d(x, y) scale(s)` و `transform-origin: 0 0` جابه‌جا می‌شود. `zoomTo(s, px, py)` نقطه‌ی (px, py) را ثابت نگه می‌دارد. در پینچ، نقطه‌ای از تصویر که زیر میانه‌ی آغازین دو انگشت بود، دنبال میانه‌ی کنونی می‌رود.
+  - **مرزبندی:** `clamp` تصویر را در محوری که جا می‌شود وسط می‌گذارد و در محوری که بزرگ‌تر است، لبه‌به‌لبه نگه می‌دارد.
+  - **فضای نمایش:** بوم تمام‌صفحه است و نوارها روی آن شناورند. مقیاس پایه فضای میان دو نوار را می‌گیرد. وقتی نوارها پنهان‌اند، مرز پن تا لبه‌ی صفحه باز می‌شود.
+  - **مقیاس‌ها:** «جا شدن» `min(W/w, h/h)` با حاشیه‌ی ۴ پیکسل در گوشی و ۱۶ پیکسل در دسکتاپ است، و «هم‌عرض» `W/w`. کمینه نیم برابرِ «جا شدن» است و بیشینه ۵ برابر آن (دست‌کم ۲٫۵ برابرِ «هم‌عرض»). درصد زوم نسبت به «جا شدن» است.
+- **حرکت‌ها:** با `pointerdown/move/up/cancel` و `setPointerCapture` روی بوم کار می‌کنند. بوم `touch-action: none` دارد.
+  - **یک اشاره‌گر:** تا ۱۰ پیکسل حرکت «ضربه» است.
+  - **سوایپ:** در زوم پایه، کشیدن لمسیِ بیشتر افقی «سوایپ» است. سوایپ از ۶۰ پیکسل به بالا صفحه را عوض می‌کند و کمتر از آن برمی‌گردد.
+  - **کشیدن:** بقیه‌ی حرکت‌ها پن است. ماوس هیچ‌گاه سوایپ نمی‌کند.
+  - **پینچ:** دو اشاره‌گر پینچ است. با برداشتن یک انگشت، انگشت دیگر پن را ادامه می‌دهد و آن حرکت دیگر ضربه حساب نمی‌شود.
+  - **ضربه:** دو ضربه در ۳۰۰ میلی‌ثانیه و ۳۰ پیکسل `cycleZoom` است. یک ضربه‌ی لمسی پس از ۳۰۰ میلی‌ثانیه نوارها را پنهان یا آشکار می‌کند. کلیک ماوس نوارها را جابه‌جا نمی‌کند.
+- **چرخ و کلیدها:** چرخ ماوس پن می‌کند. Ctrl یا ⌘ با چرخ، و پینچ ترک‌پد، با ضریب `exp(-deltaY·0.0025)` دور نشانگر زوم می‌کنند. کلیدهای گذشته ماندند: پیکان‌ها پن ۷۵ پیکسلی می‌کنند، PgUp/PgDn ورق می‌زنند، `+` `=` `-` `_` زوم می‌کنند (گام ۱٫۲۵)، `0` به حالت پایه برمی‌گردد و Esc می‌بندد. درون کادر پرش، کلیدها به آن کادر می‌روند و Esc فقط آن را می‌بندد.
+- **ناوبری:**
+  - **بازه‌ی صفحه‌ها:** نقطه‌ی تازه‌ی `GET /api/page-images/{code}/{volume}` (`PageImagesController`) `{first, last}` را از نام فایل‌های `storage/app/public/catalogs/{code}/vNN/p*.webp` می‌خواند. پاسخ یک روز کش می‌شود. اگر تصویری نباشد، ۴۰۴ برمی‌گردد.
+  - **چرا از فایل‌ها:** `pages_count` در `source_volumes` برای همه‌ی جلدهای دارای تصویر خالی است (در رونوشت محلی، `catalog_volumes` هیچ جلدی با `facsimile_code` ندارد). کشف الظنون ج ۲ هم از ص ۹۴۵ آغاز می‌شود، پس شمار صفحه‌ها سقف درستی نمی‌داد.
+  - **پرش:** کادر پرش رقم فارسی و عربی را هم می‌پذیرد.
+  - **پیش‌بارگذاری:** تصویرها با `new Image()` بار می‌شوند و تا ۱۲ وعده نگه داشته می‌شوند. `<img>` فقط پس از `load` نشانی تازه می‌گیرد. «تلاش دوباره» کش مرورگر را با `?t=` دور می‌زند.
+  - **دکمه‌ی بازگشت:** باز شدن یک `history.pushState({catalogViewer: true})` می‌سازد و `popstate` نمایشگر را می‌بندد. بستن با دکمه یا Esc، `history.back()` می‌زند تا آن ورودی تاریخچه نماند.
+- **چیدمان:**
+  - **نوارها:** زیر `sm` (۶۴۰ پیکسل)، نوار بالا فقط بستن، نام منبع، نشان «ج x، ص y» (پرش) و «زبانه‌ی تازه» را دارد. نوار پایین قبلی و بعدی (۴۴ پیکسل)، «صفحه‌ی x از y» و دکمه‌ی حالت را دارد. از `sm` به بالا، ابزار ورق زدن، زوم و حالت در نوار بالاست.
+  - **راهنمای کلیدها:** نوار پایین دسکتاپ با متغیر `[@media(hover:hover)]` فقط برای دستگاه دارای ماوس است.
+  - **ارتفاع و لبه‌ها:** قاب `h-dvh` است. نوارها `env(safe-area-inset-*)` دارند. متای viewport سایت `viewport-fit=cover` ندارد، پس در iOS این مقدارها صفرند و مرورگر خود لبه‌ها را خالی نگه می‌دارد.
+  - **جداکننده:** در نشان جلد و صفحه، «،» به‌جای «•» آمد، چون «•» کنار رقم فارسی مانند «۰» خوانده می‌شد.
+- **دو دام Alpine:**
+  - **`x-show` تودرتو:** درون قاب، `x-show` نشانگر بارگذاری پس از برگشتن پرچم پنهان نمی‌شد. نشانگر، پیام خطا و تصویر با `:class` (`hidden`/`flex`) پنهان می‌شوند.
+  - **وابستگی به `requestAnimationFrame`:** `$nextTick` و `x-transition` به آن تکیه دارند و در زبانه‌ی پس‌زمینه یا پنهان اجرا نمی‌شوند. چون هندسه به DOM تازه نیاز ندارد، `resetView` مستقیم صدا زده می‌شود و فوکوس با `setTimeout` می‌آید. fade ورود قاب و کادر پرش هم برداشته شد.
+- **آزمون:** `PageImagesTest` سه آزمون دارد: بازه‌ی ۹۴۵ تا ۲۰۵۶ از فایل‌های ساختگی، ۴۰۴ برای جلد بی‌تصویر و کد نامعتبر، و سیم‌کشی `catalogViewer` و نشانی نقطه در صفحه.
+
+### گام ۱۳.۵۵: شکل‌های عنوان در نمایه و رتبه‌ی فیلد (مورد ۹۳)
+- **`TextNormalizer::titleForms()`** ([TextNormalizer](../app/Helpers/TextNormalizer.php)): آرایه‌ی شکل نرمال‌شده، سپس شکل بی «ال» (دست‌کم سه حرف پس از آن)، شکل «ة»←«ت» و هر دو با هم، بی تکرار. موتور میان مقدارهای یک آرایه فاصله می‌گذارد، پس `proximity` هر شکل جداگانه سنجیده می‌شود. `expandVariants()` برای اشخاص و منابع بی‌تغییر ماند. آزمون: `tests/Unit/TitleFormsTest.php`.
+- **نمایه‌ی آثار** ([Work](../app/Models/Work.php)): `primary_title`، `clean_title` و `alternative_titles` آرایه‌ی شکل‌ها هستند. فیلد تازه‌ی `titles_names` همه‌ی شکل‌های عنوان، عنوان‌های دیگر، `author_name` و هر نام دیگر پدیدآور را جدا جدا دارد، نخستین `searchableAttribute` است و به دامنه‌ی `titles_names` در `SearchController::scopeAttributes()` افزوده شد. `primary_title` از `sortableAttributes` برداشته شد (به کار نمی‌رفت و اکنون آرایه است). ‏`findCandidateInIndex()` («آیا منظورتان…») از آرایه، مقدار نخست را برمی‌دارد.
+- **قاعده‌های رتبه‌ی آثار** ([config/scout.php](../config/scout.php)):
+  - پیشین: `words, typo, proximity, sort, derivative:asc, manuscripts_count:desc, attribute, exactness`.
+  - تازه: `words, typo, proximity, sort, attributeRank, derivative:asc, manuscripts_count:desc, wordPosition, exactness`.
+  - `attributeRank` و `wordPosition` در Meilisearch 1.55 دو نیمه‌ی `attribute` هستند. فقط نیمه‌ی نخست پیش از شمار نسخه آمد.
+- **سنجش گزینه‌ها (محک ۴۳ موردی، با «شرح نهج البلاغه»):**
+
+  | گزینه | نتیجه | علت |
+  | :--- | :---: | :--- |
+  | کد پیشین | ۳۷ | |
+  | `attributeRank` پیش از شمار، عنوان‌ها پیش از پدیدآور | ۳۹ | «ابن سینا» و «مجلسی» نگذشتند. |
+  | پدیدآور پیش از عنوان‌ها | ۳۲ | `author_aliases` واژه‌های عنوان دارد، مانند لقب «شارح نهج البلاغه». |
+  | فیلد مشترک `titles_names` | ۴۱ | |
+- **نمایه‌ی نسخه‌ها** ([Manuscript](../app/Models/Manuscript.php)):
+  - `work_title` آرایه‌ی شکل‌ها است.
+  - فیلد تازه‌ی `work_manuscripts_count` از `works.manuscripts_count` پر می‌شود. eager load در `makeAllSearchableUsing` و `ApplyLibraryFullNamesCommand` این ستون را هم می‌گیرد.
+  - قاعده‌ها: `words, typo, proximity, attributeRank, sort, work_manuscripts_count:desc, wordPosition, exactness`، یعنی پیش‌فرض موتور با یک قاعده‌ی افزوده.
+  - **چرا لازم شد:** با آرایه، `exactness` و `wordPosition` فقط مقدار نخست را آغاز فیلد می‌شمارند. پس «کافی» در نسخه‌ها از رتبه‌ی ۳ (هم‌رتبه، با ترتیب شناسه) به رتبه‌ی ۲۳ رفت. «نهج البلاغه» در نسخه‌ها در رتبه‌ی ۲ ماند، پس از منهاج البراعة.
+  - **محدودیت:** این شمار فقط با بازسازی نسخه‌ها تازه می‌شود. برای جدا کردن تطابق‌های هم‌رتبه، تازه‌بودن آن مهم نیست.
+- **`exactness` و آرایه:** حتی وقتی مقدار نخست آرایه با عبارت برابر است، `matchType` همان `matchesStart` است. `exactMatch` فقط وقتی پیش می‌آید که کل فیلد یک مقدار باشد. پس «عنوانِ برابر با عبارت» با این قاعده از دیگر عنوان‌ها جدا نمی‌شود. نهج البلاغة با شمار نسخه اول می‌آید.
+- **سنجه** ([config/search_benchmark.php](../config/search_benchmark.php)): ده مورد افزوده شد. «شرح نهج البلاغه» با انتظار ابن ابی الحدید (رتبه‌ی ۱۵، قاعده‌ی `derivative`) کنار گذاشته شد و به مورد ۹۵ رفت. نتیجه ۴۲ از ۴۲.
+- **بازسازی محلی:** `scout:sync-index-settings`، سپس `scout:import "App\Models\Work"` (۴ دقیقه و ۳۴ ثانیه) و `scout:import "App\Models\Manuscript"` (۳ تا ۷ دقیقه). تنظیم فیلدهای جستجوی آثار ۱۶ ثانیه طول کشید.
+- **پروداکشن، پس از استقرار:**
+  - **فوراً:** `php artisan scout:sync-index-settings` در کانتینر برنامه. تا این دستور اجرا نشده، دامنه‌ی پیش‌فرض آثار `titles_names` را می‌خواهد و موتور خطای `invalid_search_attributes_to_search_on` می‌دهد. صفحه پیام «موقتاً در دسترس نیست» نشان می‌دهد و خطا به مدیران گزارش می‌شود.
+  - **سپس:** `scout:import` آثار و نسخه‌ها.
+  - **در پایان:** `fahares:search-benchmark`.
+
 ### گام ۱۳.۵۶: اجرای `clean-page-markers --fields` روی پروداکشن
 - **پشتیبان:** از راه `ssh fahares-app` و `php artisan tinker`، شناسه و ستون‌های درگیر همه‌ی ردیف‌هایی که برچسب داشتند به JSONL برده شد. فایل در `fahares-sources/backups/item19/prod_before_20261029.jsonl` است: ۹٬۰۴۵ ردیف، با sha256 که با `177a6c1e…` آغاز می‌شود.
 - **برگرداندن، در صورت نیاز:** هر سطر را با `DB::table($table)->where('id', $id)->update($cols)` نوشت. سپس `SourceEntrySync::syncIds()` و نمایه‌ی دوباره لازم است.

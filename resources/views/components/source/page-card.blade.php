@@ -8,7 +8,7 @@
     $field = $entry->suggestionField();
     $name = $entry->sourceName();
 @endphp
-<div class="space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-card data-machine-item="{{ $entry->reviewKey() }}">
+<div class="suggest-row space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-card data-machine-item="{{ $entry->reviewKey() }}">
     <div class="flex items-start gap-1">
         <div class="min-w-0">
             <div class="text-sm font-bold text-ink leading-6">{{ $label }}</div>

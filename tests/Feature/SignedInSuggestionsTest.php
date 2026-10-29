@@ -61,6 +61,16 @@ class SignedInSuggestionsTest extends TestCase
             ->assertDontSee('نتیجه‌ی داوری را به این ایمیل خبر دهید');
     }
 
+    public function test_field_buttons_render_for_hover_with_the_toggle_hint_and_its_floating_copy()
+    {
+        // Backlog item 92: every field button is in the page (CSS reveals it on hover), tagged for the return after sign-in
+        $this->get(route('manuscripts.show', $this->manuscript()))->assertOk()
+            ->assertSee('data-suggest-field="shelfmark"', false)
+            ->assertSee('suggest-btn', false)
+            ->assertSee('x-data="suggestToggle"', false)
+            ->assertSee('نشانگر را روی هر فیلد ببرید');
+    }
+
     public function test_a_signed_in_user_suggests_under_their_account()
     {
         Notification::fake();

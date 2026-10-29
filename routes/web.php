@@ -71,6 +71,11 @@ Route::get('/sources/{code}/{volume}/{key}', [\App\Http\Controllers\SourceItemCo
     ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+', 'key' => '[0-9p][0-9.\-]*'])
     ->name('source-items.show');
 
+// The page range of a volume's scanned pages, for the page viewer (backlog item 94)
+Route::get('/api/page-images/{code}/{volume}', [\App\Http\Controllers\PageImagesController::class, 'show'])
+    ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+'])
+    ->name('page-images.show');
+
 // Manuscripts
 Route::get('/manuscripts/{id}', [ManuscriptController::class, 'show'])
     ->where('id', '[0-9]+.*')
