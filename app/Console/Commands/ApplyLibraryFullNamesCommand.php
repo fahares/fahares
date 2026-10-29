@@ -59,7 +59,7 @@ class ApplyLibraryFullNamesCommand extends Command
         if (! $dry && $changed && ! $this->option('no-reindex')) {
             // The manuscripts index carries the library's full name, so renamed libraries' copies are re-sent
             $count = 0;
-            Manuscript::whereIn('library_id', $changed)->with(['work:id,primary_title,clean_title,author_name', 'scripts:id,name', 'libraryRecord:id,full_name'])
+            Manuscript::whereIn('library_id', $changed)->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'scripts:id,name', 'libraryRecord:id,full_name'])
                 ->chunkById(1000, function ($manuscripts) use (&$count) {
                     $manuscripts->searchable();
                     $count += $manuscripts->count();

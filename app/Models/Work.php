@@ -183,10 +183,9 @@ class Work extends Model
         $alts = [];
         if (!empty($this->alternative_titles)) {
             foreach ($this->alternative_titles as $item) {
-                if (is_array($item) && !empty($item['title'])) {
-                    $alts[] = \App\Helpers\TextNormalizer::expandVariants($item['title']);
-                } elseif (is_string($item)) {
-                    $alts[] = \App\Helpers\TextNormalizer::expandVariants($item);
+                $title = is_array($item) ? ($item['title'] ?? null) : $item;
+                if (is_string($title) && $title !== '') {
+                    array_push($alts, ...\App\Helpers\TextNormalizer::titleForms($title));
                 }
             }
         }
@@ -204,11 +203,18 @@ class Work extends Model
         }
 
         $cleanTitle = $this->clean_title ?: $this->primary_title;
+        // Each title in its own words, then its forms without the article and with «ت» (backlog item 93)
+        $titles = \App\Helpers\TextNormalizer::titleForms($this->primary_title);
+        $cleanTitles = \App\Helpers\TextNormalizer::titleForms($cleanTitle);
+        $authorNames = array_map(fn ($a) => \App\Helpers\TextNormalizer::normalize($a), array_filter([$this->author_name, ...$authorAliases]));
 
         return [
             'id' => (int) $this->id,
-            'primary_title' => \App\Helpers\TextNormalizer::expandVariants($this->primary_title),
-            'clean_title' => \App\Helpers\TextNormalizer::expandVariants($cleanTitle),
+            // The titles and the author together, the first field searched: a match in any of them ranks the same,
+            // and before one in the incipits or the description (backlog item 93)
+            'titles_names' => array_values(array_unique([...$titles, ...$cleanTitles, ...$alts, ...$authorNames])),
+            'primary_title' => $titles,
+            'clean_title' => $cleanTitles,
             'slug' => $this->slug,
             'transliteration' => $this->transliteration,
             'alternative_titles' => $alts,

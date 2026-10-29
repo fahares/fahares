@@ -127,4 +127,28 @@ class TextNormalizer
 
         return $normalized;
     }
+
+    /**
+     * A title for the index: normalized as written, then whole again without the Arabic article and with «ة» as «ت»,
+     * each form a value of its own. «نهج البلاغة» gives «نهج البلاغه», «نهج بلاغه», «نهج البلاغت» and «نهج بلاغت»:
+     * «کافی» still finds «الکافی», and the words of every form stay side by side (backlog item 93; expandVariants
+     * put the bare word between them, so «نهج» was no longer beside «البلاغه»).
+     *
+     * @param string|null $text
+     * @return string[]
+     */
+    public static function titleForms(?string $text): array
+    {
+        $normalized = self::normalize($text);
+        if ($normalized === '') {
+            return [];
+        }
+
+        // «ة» at the end of a word, kept apart from «ه» by normalizing it as «ت»
+        $withT = self::normalize(preg_replace('/(?<=\p{L}{2})ة(?!\p{L})/u', 'ت', $text));
+        // At least three letters after the article: «الشفا» gives «شفا», «الله» and «الی» stay as they are
+        $bare = fn (string $s) => preg_replace('/(?<![\p{L}])ال(\p{L}{3,})/u', '$1', $s);
+
+        return array_values(array_unique([$normalized, $bare($normalized), $withT, $bare($withT)]));
+    }
 }

@@ -4403,3 +4403,33 @@
   - **`x-show` تودرتو:** درون قاب، `x-show` نشانگر بارگذاری پس از برگشتن پرچم پنهان نمی‌شد. نشانگر، پیام خطا و تصویر با `:class` (`hidden`/`flex`) پنهان می‌شوند.
   - **وابستگی به `requestAnimationFrame`:** `$nextTick` و `x-transition` به آن تکیه دارند و در زبانه‌ی پس‌زمینه یا پنهان اجرا نمی‌شوند. چون هندسه به DOM تازه نیاز ندارد، `resetView` مستقیم صدا زده می‌شود و فوکوس با `setTimeout` می‌آید. fade ورود قاب و کادر پرش هم برداشته شد.
 - **آزمون:** `PageImagesTest` سه آزمون دارد: بازه‌ی ۹۴۵ تا ۲۰۵۶ از فایل‌های ساختگی، ۴۰۴ برای جلد بی‌تصویر و کد نامعتبر، و سیم‌کشی `catalogViewer` و نشانی نقطه در صفحه.
+
+### گام ۱۳.۵۵: شکل‌های عنوان در نمایه و رتبه‌ی فیلد (مورد ۹۳)
+- **`TextNormalizer::titleForms()`** ([TextNormalizer](../app/Helpers/TextNormalizer.php)): آرایه‌ی شکل نرمال‌شده، سپس شکل بی «ال» (دست‌کم سه حرف پس از آن)، شکل «ة»←«ت» و هر دو با هم، بی تکرار. موتور میان مقدارهای یک آرایه فاصله می‌گذارد، پس `proximity` هر شکل جداگانه سنجیده می‌شود. `expandVariants()` برای اشخاص و منابع بی‌تغییر ماند. آزمون: `tests/Unit/TitleFormsTest.php`.
+- **نمایه‌ی آثار** ([Work](../app/Models/Work.php)): `primary_title`، `clean_title` و `alternative_titles` آرایه‌ی شکل‌ها هستند. فیلد تازه‌ی `titles_names` همه‌ی شکل‌های عنوان، عنوان‌های دیگر، `author_name` و هر نام دیگر پدیدآور را جدا جدا دارد، نخستین `searchableAttribute` است و به دامنه‌ی `titles_names` در `SearchController::scopeAttributes()` افزوده شد. `primary_title` از `sortableAttributes` برداشته شد (به کار نمی‌رفت و اکنون آرایه است). ‏`findCandidateInIndex()` («آیا منظورتان…») از آرایه، مقدار نخست را برمی‌دارد.
+- **قاعده‌های رتبه‌ی آثار** ([config/scout.php](../config/scout.php)):
+  - پیشین: `words, typo, proximity, sort, derivative:asc, manuscripts_count:desc, attribute, exactness`.
+  - تازه: `words, typo, proximity, sort, attributeRank, derivative:asc, manuscripts_count:desc, wordPosition, exactness`.
+  - `attributeRank` و `wordPosition` در Meilisearch 1.55 دو نیمه‌ی `attribute` هستند. فقط نیمه‌ی نخست پیش از شمار نسخه آمد.
+- **سنجش گزینه‌ها (محک ۴۳ موردی، با «شرح نهج البلاغه»):**
+
+  | گزینه | نتیجه | علت |
+  | :--- | :---: | :--- |
+  | کد پیشین | ۳۷ | |
+  | `attributeRank` پیش از شمار، عنوان‌ها پیش از پدیدآور | ۳۹ | «ابن سینا» و «مجلسی» نگذشتند. |
+  | پدیدآور پیش از عنوان‌ها | ۳۲ | `author_aliases` واژه‌های عنوان دارد، مانند لقب «شارح نهج البلاغه». |
+  | فیلد مشترک `titles_names` | ۴۱ | |
+- **نمایه‌ی نسخه‌ها** ([Manuscript](../app/Models/Manuscript.php)):
+  - `work_title` آرایه‌ی شکل‌ها است.
+  - فیلد تازه‌ی `work_manuscripts_count` از `works.manuscripts_count` پر می‌شود. eager load در `makeAllSearchableUsing` و `ApplyLibraryFullNamesCommand` این ستون را هم می‌گیرد.
+  - قاعده‌ها: `words, typo, proximity, attributeRank, sort, work_manuscripts_count:desc, wordPosition, exactness`، یعنی پیش‌فرض موتور با یک قاعده‌ی افزوده.
+  - **چرا لازم شد:** با آرایه، `exactness` و `wordPosition` فقط مقدار نخست را آغاز فیلد می‌شمارند. پس «کافی» در نسخه‌ها از رتبه‌ی ۳ (هم‌رتبه، با ترتیب شناسه) به رتبه‌ی ۲۳ رفت. «نهج البلاغه» در نسخه‌ها در رتبه‌ی ۲ ماند، پس از منهاج البراعة.
+  - **محدودیت:** این شمار فقط با بازسازی نسخه‌ها تازه می‌شود. برای جدا کردن تطابق‌های هم‌رتبه، تازه‌بودن آن مهم نیست.
+- **`exactness` و آرایه:** حتی وقتی مقدار نخست آرایه با عبارت برابر است، `matchType` همان `matchesStart` است. `exactMatch` فقط وقتی پیش می‌آید که کل فیلد یک مقدار باشد. پس «عنوانِ برابر با عبارت» با این قاعده از دیگر عنوان‌ها جدا نمی‌شود. نهج البلاغة با شمار نسخه اول می‌آید.
+- **سنجه** ([config/search_benchmark.php](../config/search_benchmark.php)): ده مورد افزوده شد. «شرح نهج البلاغه» با انتظار ابن ابی الحدید (رتبه‌ی ۱۵، قاعده‌ی `derivative`) کنار گذاشته شد و به مورد ۹۵ رفت. نتیجه ۴۲ از ۴۲.
+- **بازسازی محلی:** `scout:sync-index-settings`، سپس `scout:import "App\Models\Work"` (۴ دقیقه و ۳۴ ثانیه) و `scout:import "App\Models\Manuscript"` (۳ تا ۷ دقیقه). تنظیم فیلدهای جستجوی آثار ۱۶ ثانیه طول کشید.
+- **پروداکشن، پس از استقرار:**
+  - **فوراً:** `php artisan scout:sync-index-settings` در کانتینر برنامه. تا این دستور اجرا نشده، دامنه‌ی پیش‌فرض آثار `titles_names` را می‌خواهد و موتور خطای `invalid_search_attributes_to_search_on` می‌دهد. صفحه پیام «موقتاً در دسترس نیست» نشان می‌دهد و خطا به مدیران گزارش می‌شود.
+  - **سپس:** `scout:import` آثار و نسخه‌ها.
+  - **در پایان:** `fahares:search-benchmark`.
+
