@@ -17,11 +17,11 @@ use InvalidArgumentException;
  */
 class LibraryMerger
 {
-    // Descriptive columns the kept library inherits when its own value is empty
-    private const FILL = ['full_name', 'description'];
-
-    /** Folds $source into $target and deletes it behind a permanent redirect. */
-    public function merge(Library $source, Library $target): array
+    /**
+     * Folds $source into $target and deletes it behind a permanent redirect. $fields holds the admin's choice for each
+     * field the two libraries hold differently (MergeComparison); a field not chosen takes the default.
+     */
+    public function merge(Library $source, Library $target, ?array $fields = null): array
     {
         if ($source->is($target)) {
             throw new InvalidArgumentException('کتابخانه‌ی مبدأ و مقصد یکی است.');
@@ -39,12 +39,6 @@ class LibraryMerger
         $pointers = $this->pendingPointersTo($source);
         $formerLocations = $this->formerLocationsOf($source);
 
-        $filled = [];
-        foreach (self::FILL as $column) {
-            if (blank($target->{$column}) && filled($source->{$column})) {
-                $filled[$column] = $source->{$column};
-            }
-        }
         $added = [];
         $aliases = (array) ($target->aliases ?? []);
         foreach (array_merge([$source->name, $source->full_name], (array) ($source->aliases ?? [])) as $name) {
@@ -54,7 +48,9 @@ class LibraryMerger
                 $target->aliases = $aliases;
             }
         }
-        $target->forceFill($filled)->save();
+        // After the names, so a full name the kept library takes stays among its other names too
+        $compared = MergeComparison::apply($source, $target, $fields);
+        $target->save();
 
         Manuscript::where('library_id', $source->id)->update(['library_id' => $target->id, 'library' => $target->name, 'city' => $target->city]);
         $source->catalogVolumes()->update(['library_id' => $target->id]);
@@ -76,7 +72,7 @@ class LibraryMerger
             'suggestion_ids' => $suggestions,
             'pointer_ids' => $pointers,
             'former_location_ids' => $formerLocations,
-            'filled' => $filled,
+            'fields' => $compared,
             'added_aliases' => $added,
         ];
     }
@@ -110,11 +106,13 @@ class LibraryMerger
         $this->repointFormerLocations((array) ($old['former_location_ids'] ?? []), $target->id, $sourceId);
 
         $target->aliases = array_values(array_diff((array) ($target->aliases ?? []), (array) ($old['added_aliases'] ?? []))) ?: null;
+        // A merge of before backlog item 46 filled empty columns only
         foreach ((array) ($old['filled'] ?? []) as $column => $value) {
             if ($target->{$column} === $value) {
                 $target->{$column} = null;
             }
         }
+        MergeComparison::undo($target, $old['fields'] ?? []);
         $target->save();
 
         EntityRedirect::removeRedirect('libraries', (int) $sourceId);

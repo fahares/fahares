@@ -22,15 +22,6 @@ use InvalidArgumentException;
  */
 class RecordMerger
 {
-    // Descriptive manuscript columns the kept record inherits when its own value is empty
-    private const MANUSCRIPT_FILL = [
-        'scribe_id', 'scribe_name', 'copy_date_raw', 'copy_date_hijri_year', 'copy_place', 'commissioned_by',
-        'script_names', 'script_style', 'folios', 'lines', 'dimensions', 'paper', 'binding',
-        'incipit_text', 'explicit_text',
-    ];
-
-    private const WORK_FILL = ['author_id', 'author_name', 'composition_date_raw', 'composition_year_hijri', 'composition_place', 'description', 'incipit_text', 'explicit_text'];
-
     /** @return array{old: array, new: array} */
     public function moveManuscript(Manuscript $manuscript, Work $target): array
     {
@@ -45,23 +36,19 @@ class RecordMerger
         return ['old' => ['work_id' => $from], 'new' => ['work_id' => $target->id]];
     }
 
-    /** Folds $source into $target and deletes it behind a permanent redirect. */
-    public function mergeManuscript(Manuscript $source, Manuscript $target): array
+    /**
+     * Folds $source into $target and deletes it behind a permanent redirect. $fields holds the admin's choice for each
+     * field the two records hold differently (MergeComparison); a field not chosen takes the default.
+     */
+    public function mergeManuscript(Manuscript $source, Manuscript $target, ?array $fields = null): array
     {
         if ($source->is($target)) {
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
         $snapshot = $this->snapshot($source, ['manuscript_scribe' => 'manuscript_id', 'manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id']);
 
-        $filled = [];
-        foreach (self::MANUSCRIPT_FILL as $column) {
-            if (($target->{$column} === null || $target->{$column} === '') && $source->{$column} !== null && $source->{$column} !== '') {
-                $filled[$column] = $source->{$column};
-            }
-        }
-        if ($filled) {
-            $target->forceFill($filled)->save();
-        }
+        $compared = MergeComparison::apply($source, $target, $fields);
+        $target->save();
         // Scribes the kept copy does not list yet
         $addedScribes = [];
         $position = (int) DB::table('manuscript_scribe')->where('manuscript_id', $target->id)->max('position');
@@ -92,7 +79,7 @@ class RecordMerger
 
         return [
             'source_snapshot' => $snapshot,
-            'filled' => $filled,
+            'fields' => $compared,
             'added_scribe_ids' => $addedScribes,
             'relations' => $relations,
             'redirects' => $redirects,
@@ -112,7 +99,10 @@ class RecordMerger
         }
         DB::table('manuscript_people')->whereIn('id', array_column($snapshot['pivots']['manuscript_people'] ?? [], 'id'))->update(['manuscript_id' => $source->id]);
         DB::table('manuscript_scribe')->whereIn('id', $old['added_scribe_ids'])->delete();
+        // A merge of before backlog item 46 filled empty columns only
         $this->unfill($target, $old['filled'] ?? []);
+        MergeComparison::undo($target, $old['fields'] ?? []);
+        $target->save();
         RecordRelations::undoMove($old['relations'] ?? [], $source->id);
         $this->undoAttachments($source, $target, $old);
         $this->undoRedirect('manuscripts', $source->id, $old['redirects'] ?? []);
@@ -129,14 +119,19 @@ class RecordMerger
         return $source;
     }
 
-    /** Moves the duplicate work's manuscripts under $target (folding identical copies) and deletes it. */
-    public function mergeWork(Work $source, Work $target): array
+    /**
+     * Moves the duplicate work's manuscripts under $target (folding identical copies, each with the default choices)
+     * and deletes it. $fields as in mergeManuscript().
+     */
+    public function mergeWork(Work $source, Work $target, ?array $fields = null): array
     {
         if ($source->is($target)) {
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
         $snapshot = $this->snapshot($source, ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id']);
-        $targetBefore = $target->only(array_merge(['alternative_titles'], self::WORK_FILL));
+        $targetBefore = $target->only(['alternative_titles']);
+        // Compared before the copies move, on the two works as the admin saw them
+        $compared = MergeComparison::apply($source, $target, $fields);
 
         $targetByKey = $target->manuscripts()->get()->keyBy(fn (Manuscript $m) => $this->copyKey($m));
         $moved = [];
@@ -162,13 +157,7 @@ class RecordMerger
             }
         }
 
-        $fill = ['alternative_titles' => $titles ?: null];
-        foreach (self::WORK_FILL as $column) {
-            if (($target->{$column} === null || $target->{$column} === '') && $source->{$column} !== null && $source->{$column} !== '') {
-                $fill[$column] = $source->{$column};
-            }
-        }
-        $target->forceFill($fill)->save();
+        $target->forceFill(['alternative_titles' => $titles ?: null])->save();
 
         $relations = RecordRelations::moveOnMerge($source, $target);
         $subjects = array_diff($source->subjects()->pluck('subjects.id')->all(), $target->subjects()->pluck('subjects.id')->all());
@@ -201,6 +190,7 @@ class RecordMerger
             'folded_manuscripts' => $folded,
             'target_before' => $targetBefore,
             'target_after' => $target->only(array_keys($targetBefore)),
+            'fields' => $compared,
             'added_subject_ids' => array_values($subjects),
             'added_language_ids' => array_values($languages),
             'referral_ids' => $referrals,
@@ -229,13 +219,15 @@ class RecordMerger
         }
         Manuscript::whereIn('id', $old['moved_manuscript_ids'] ?? [])->where('work_id', $target->id)->update(['work_id' => $source->id]);
 
-        // Columns the merge set go back, unless they were edited since
+        // Columns the merge set go back, unless they were edited since (a merge of before backlog item 46 kept
+        // the filled columns in target_before too)
         $after = $old['target_after'] ?? [];
         foreach ($old['target_before'] ?? [] as $column => $value) {
             if ($target->{$column} == ($after[$column] ?? null)) {
                 $target->{$column} = $value;
             }
         }
+        MergeComparison::undo($target, $old['fields'] ?? []);
         $target->save();
         $target->subjects()->detach($old['added_subject_ids'] ?? []);
         $target->languages()->detach($old['added_language_ids'] ?? []);
@@ -255,28 +247,25 @@ class RecordMerger
         return $source;
     }
 
-    /** Same library and shelfmark: the same physical copy (rule used by the addenda reconciliation) */
     /**
      * What a merge of $source into $target would do, without doing it, for the admin's preview (backlog item 45):
-     * the copies that move or fold into a copy of the same place, and the fields the removed record would fill.
-     * Values both records hold and that differ are kept as the target has them (backlog item 46 is to decide those).
+     * the copies that move or fold into a copy of the same place. The fields are decided in the comparison
+     * (MergeComparison::rows).
      *
-     * @return array{moved: int, folded: int, filled: string[], dropped: string[]}
+     * @return array{moved: int, folded: int}
      */
     public function preview(Model $source, Model $target): array
     {
-        $fill = $source instanceof Work ? self::WORK_FILL : self::MANUSCRIPT_FILL;
-        $filled = array_values(array_filter($fill, fn ($c) => blank($target->{$c}) && filled($source->{$c})));
-        $dropped = array_values(array_filter($fill, fn ($c) => filled($target->{$c}) && filled($source->{$c}) && (string) $target->{$c} !== (string) $source->{$c}));
         if (! $source instanceof Work) {
-            return ['moved' => 0, 'folded' => 0, 'filled' => $filled, 'dropped' => $dropped];
+            return ['moved' => 0, 'folded' => 0];
         }
         $keys = $target->manuscripts()->get()->map(fn (Manuscript $m) => $this->copyKey($m))->flip();
         $folded = $source->manuscripts()->get()->filter(fn (Manuscript $m) => $keys->has($this->copyKey($m)))->count();
 
-        return ['moved' => $source->manuscripts()->count() - $folded, 'folded' => $folded, 'filled' => $filled, 'dropped' => $dropped];
+        return ['moved' => $source->manuscripts()->count() - $folded, 'folded' => $folded];
     }
 
+    /** Same library and shelfmark: the same physical copy (rule used by the addenda reconciliation) */
     private function copyKey(Manuscript $m): string
     {
         return \App\Helpers\TextNormalizer::normalize($m->city) . '|' . \App\Helpers\TextNormalizer::normalize($m->library) . '|'
@@ -350,7 +339,7 @@ class RecordMerger
         return $class::findOrFail($attributes['id']);
     }
 
-    /** Empties the columns a merge filled, unless they were edited since. */
+    /** Empties the columns a merge filled, unless they were edited since. Leaves the record unsaved. */
     private function unfill($record, array $filled): void
     {
         foreach ($filled as $column => $value) {
@@ -358,7 +347,6 @@ class RecordMerger
                 $record->{$column} = null;
             }
         }
-        $record->save();
     }
 
     private function snapshot($record, array $pivots): array

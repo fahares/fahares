@@ -30,6 +30,8 @@ class Person extends Model
     {
         return [
             'aliases' => 'array',
+            // Misspelt forms (backlog item 90): searchable, not listed among the other names
+            'wrong_names' => 'array',
             'birth_year_hijri' => 'integer',
             'death_year_hijri' => 'integer',
             'century_hijri' => 'integer',
@@ -87,9 +89,15 @@ class Person extends Model
         return 'people_index';
     }
 
+    /** Other names and misspelt forms: a search by either finds the person (backlog item 90). */
+    public function searchAliases(): array
+    {
+        return array_values(array_merge((array) ($this->aliases ?? []), (array) ($this->wrong_names ?? [])));
+    }
+
     public function toSearchableArray(): array
     {
-        $aliases = (array) ($this->aliases ?? []);
+        $aliases = $this->searchAliases();
         $normalizedWithAliases = trim($this->normalized_name . ' ' . implode(' ', $aliases));
 
         return [

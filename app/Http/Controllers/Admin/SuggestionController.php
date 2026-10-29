@@ -281,6 +281,7 @@ class SuggestionController extends Controller
     {
         $validated = $request->validate([
             'keep' => 'nullable|in:target,source',
+            'fields' => 'nullable|array',
             'admin_notes' => 'nullable|string|max:1000',
         ]);
 
@@ -317,7 +318,9 @@ class SuggestionController extends Controller
                 } else {
                     // The reviewer may keep either record; by default the one the suggestion points at
                     [$source, $kept] = ($validated['keep'] ?? 'target') === 'source' ? [$other, $record] : [$record, $other];
-                    $result = $source instanceof Manuscript ? $merger->mergeManuscript($source, $kept) : $merger->mergeWork($source, $kept);
+                    // The comparison table of each direction posts its own choices (backlog item 46)
+                    $fields = (array) $request->input('fields.' . ($validated['keep'] ?? 'target'), []);
+                    $result = $source instanceof Manuscript ? $merger->mergeManuscript($source, $kept, $fields) : $merger->mergeWork($source, $kept, $fields);
                     $log = [
                         'action' => 'merge', 'type' => $kept::class, 'id' => $kept->id,
                         'old' => ['source_id' => $source->id] + $result,
@@ -787,6 +790,7 @@ class SuggestionController extends Controller
     {
         $validated = $request->validate([
             'keep' => 'nullable|in:target,source',
+            'fields' => 'nullable|array',
             'name' => 'nullable|string|max:255',
             'keep_former_name' => 'nullable|boolean',
             'public_note' => 'nullable|string|max:2000',
@@ -802,7 +806,7 @@ class SuggestionController extends Controller
             DB::transaction(function () use ($suggestion, $relation, $record, $other, $merger, $validated, $request) {
                 if ($relation['apply'] === 'merge_library') {
                     [$source, $kept] = ($validated['keep'] ?? 'target') === 'source' ? [$other, $record] : [$record, $other];
-                    $result = $merger->merge($source, $kept);
+                    $result = $merger->merge($source, $kept, (array) $request->input('fields.' . ($validated['keep'] ?? 'target'), []));
                     $log = ['action' => 'merge', 'id' => $kept->id, 'old' => $result, 'new' => ['target_id' => $kept->id, 'added_aliases' => $result['added_aliases']]];
                     $resolution = ['applied' => true, 'kept_id' => $kept->id, 'removed_id' => $source->id];
                 } else {

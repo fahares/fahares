@@ -61,6 +61,8 @@ class PersonController extends Controller
             'death_year_gregorian' => 'nullable|integer',
             'transliteration' => 'nullable|string',
             'bio_notes' => 'nullable|string',
+            'aliases' => 'nullable|string|max:20000',
+            'wrong_names' => 'nullable|string|max:20000',
             'is_author' => 'boolean',
             'is_scribe' => 'boolean',
         ]);
@@ -76,6 +78,9 @@ class PersonController extends Controller
             'death_year_gregorian' => $validated['death_year_gregorian'] ?? null,
             'transliteration' => $validated['transliteration'] ?? null,
             'bio_notes' => $validated['bio_notes'] ?? null,
+            // One name a line; a misspelt form stays searchable but is not listed (backlog item 90)
+            'aliases' => self::nameLines($validated['aliases'] ?? null),
+            'wrong_names' => self::nameLines($validated['wrong_names'] ?? null),
             'is_author' => $request->boolean('is_author'),
             'is_scribe' => $request->boolean('is_scribe'),
         ]);
@@ -139,8 +144,7 @@ class PersonController extends Controller
     public function merge(Request $request)
     {
         if ($request->isMethod('GET')) {
-            $preloadedSource = null;
-            $preloadedTarget = null;
+            $preloadedSource = $preloadedTarget = $source = $target = null;
 
             if ($request->filled('source_id')) {
                 $source = Person::find($request->query('source_id'));
@@ -157,13 +161,17 @@ class PersonController extends Controller
             }
 
             $suggestionId = $request->integer('suggestion_id') ?: null;
+            // Both people known: the fields to decide before the merge (backlog items 46 and 90)
+            $comparison = $source && $target && ! $source->is($target)
+                ? \App\Suggestions\MergeComparison::rows($source, $target) : null;
 
-            return view('admin.people.merge', compact('preloadedSource', 'preloadedTarget', 'suggestionId'));
+            return view('admin.people.merge', compact('preloadedSource', 'preloadedTarget', 'suggestionId', 'comparison'));
         }
 
         $validated = $request->validate([
             'source_id' => 'required|integer|exists:people,id|different:target_id',
             'target_id' => 'required|integer|exists:people,id',
+            'fields' => 'nullable|array',
         ], [
             'source_id.required' => 'شناسه شخص مبدأ الزامی است.',
             'target_id.required' => 'شناسه شخص مقصد الزامی است.',
@@ -183,8 +191,10 @@ class PersonController extends Controller
         }
 
         DB::transaction(function () use ($source, $target, $request, $suggestion) {
+            // The comparison posts its choices for the pair it was drawn for; another pair takes the defaults
+            $compared = $request->input('compared') === $source->id . '-' . $target->id;
             app(PersonMerger::class)->merge($source, $target, auth()->id(), $request->ip(),
-                $suggestion ? ['suggestion_id' => $suggestion->id] : []);
+                $suggestion ? ['suggestion_id' => $suggestion->id] : [], fields: $compared ? (array) $request->input('fields', []) : null);
 
             $suggestion?->update([
                 'status' => 'approved',
@@ -198,7 +208,14 @@ class PersonController extends Controller
             ->with('success', 'شخص تکراری «' . $source->name . '» (#' . \App\Support\Fa::digits($source->id) . ') در «' . $target->name . '» (#' . \App\Support\Fa::digits($target->id) . ') ادغام شد.');
     }
 
-    protected function formatPersonResult(Person $p): array
+    private static function nameLines(?string $text): ?array
+    {
+        $names = array_values(array_unique(array_filter(array_map('trim', preg_split('/\R/u', (string) $text)), 'strlen')));
+
+        return $names ?: null;
+    }
+
+        protected function formatPersonResult(Person $p): array
     {
         return [
             'id' => $p->id,

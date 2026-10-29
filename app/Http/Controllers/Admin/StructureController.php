@@ -25,8 +25,8 @@ use Throwable;
  * approval's own. Undoing it leaves the row «undone» instead of sending it to the review queue.
  *
  * Needs structure.direct, and for each tool the permission an approval of it needs (Permissions::FOR_APPLY).
- * What the removed record's own differing values become in a merge is kept as the merge does it today; the
- * preview names them (backlog item 46 is to decide them).
+ * What the removed record's own differing values become in a merge is decided in the comparison table of the
+ * approval form (MergeComparison, backlog item 46).
  */
 class StructureController extends Controller
 {

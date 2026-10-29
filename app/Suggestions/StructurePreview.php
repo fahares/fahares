@@ -44,26 +44,18 @@ class StructurePreview
                 $merger = app(RecordMerger::class);
                 foreach ([[$record, $other], [$other, $record]] as $i => [$source, $kept]) {
                     $p = $merger->preview($source, $kept);
-                    // Columns by the field names the public reads; link and year columns go with their field
-                    $labels = SuggestionRegistry::fields($source::class);
-                    foreach (['filled', 'dropped'] as $side) {
-                        $p[$side] = array_values(array_unique(array_filter(array_map(fn ($c) => $labels[$c]['label'] ?? null, $p[$side]))));
-                    }
                     $lead = $i === 0 ? 'اگر #' . Fa::digits($kept->id) . ' بماند (پیش‌فرض)' : 'اگر #' . Fa::digits($kept->id) . ' بماند';
                     $parts = [];
                     if ($source instanceof Work) {
                         $parts[] = "{$n($p['moved'])} نسخه منتقل و {$n($p['folded'])} نسخه‌ی هم‌نشانی ادغام می‌شود";
                     }
-                    $parts[] = $p['filled'] ? $n(count($p['filled'])) . ' فیلد خالی پر می‌شود' : 'فیلد خالی‌ای پر نمی‌شود';
-                    if ($p['dropped']) {
-                        $parts[] = $n(count($p['dropped'])) . ' مقدار متفاوت رکورد حذف‌شونده فقط در لاگ ممیزی می‌ماند (' . implode('، ', $p['dropped']) . ')';
-                    }
+                    $parts[] = self::fieldsLine(MergeComparison::rows($source, $kept));
                     $lines[] = $lead . ': ' . implode('؛ ', $parts) . '.';
                 }
                 break;
             case 'merge_library':
-                $lines[] = "اگر «{$other->name}» بماند (پیش‌فرض): {$n($record->manuscripts()->count())} نسخه و {$n($record->catalogVolumes()->count())} جلد فهرست از «{$record->name}» منتقل می‌شوند.";
-                $lines[] = "اگر «{$record->name}» بماند: {$n($other->manuscripts()->count())} نسخه و {$n($other->catalogVolumes()->count())} جلد فهرست از «{$other->name}» منتقل می‌شوند.";
+                $lines[] = "اگر «{$other->name}» بماند (پیش‌فرض): {$n($record->manuscripts()->count())} نسخه و {$n($record->catalogVolumes()->count())} جلد فهرست از «{$record->name}» منتقل می‌شوند؛ " . self::fieldsLine(MergeComparison::rows($record, $other)) . '.';
+                $lines[] = "اگر «{$record->name}» بماند: {$n($other->manuscripts()->count())} نسخه و {$n($other->catalogVolumes()->count())} جلد فهرست از «{$other->name}» منتقل می‌شوند؛ " . self::fieldsLine(MergeComparison::rows($other, $record)) . '.';
                 break;
             case 'rename_library':
                 $lines[] = "نام کتابخانه در {$n($record->manuscripts()->count())} نسخه‌اش هم به‌روز می‌شود.";
@@ -95,6 +87,21 @@ class StructurePreview
         }
 
         return ['records' => $records, 'lines' => $lines, 'warnings' => $warnings];
+    }
+
+    /** The comparison of a merge in a few words; the table under the preview decides each field (backlog item 46). */
+    private static function fieldsLine(array $rows): string
+    {
+        $filled = count(array_filter($rows, fn ($r) => $r['default'] !== MergeComparison::KEEP));
+        $conflicts = count($rows) - $filled;
+        if (! $rows) {
+            return 'رکورد حذف‌شونده داده‌ای ندارد که در رکورد ماندنی نباشد';
+        }
+
+        return implode('، ', array_filter([
+            $filled ? Fa::num($filled) . ' فیلد پر یا یکی می‌شود' : null,
+            $conflicts ? Fa::num($conflicts) . ' مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند (پیش‌فرض: مقدار رکورد ماندنی)' : null,
+        ]));
     }
 
     /** What hangs on a record, as labelled counts; zero counts are left out. */

@@ -8,6 +8,7 @@ use App\Models\EntityRedirect;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Work;
+use App\Suggestions\MergeComparison;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -20,16 +21,27 @@ class PersonMerger
     /**
      * @param bool $keepPrintedNames leave author_name / scribe_name as the catalog printed them (bulk de-duplication),
      *                               instead of writing the kept record's name on single-person records (the admin tool)
+     * @param array|null $fields the admin's choice for each field the two hold differently, the removed name included
+     *                           (MergeComparison, backlog items 46 and 90); a field not chosen takes the default
      */
-    public function merge(Person $source, Person $target, ?int $userId = null, ?string $ip = null, array $extraNewValues = [], bool $keepPrintedNames = false): AuditLog
+    public function merge(Person $source, Person $target, ?int $userId = null, ?string $ip = null, array $extraNewValues = [], bool $keepPrintedNames = false, ?array $fields = null): AuditLog
     {
-        return DB::transaction(function () use ($source, $target, $userId, $ip, $extraNewValues, $keepPrintedNames) {
+        return DB::transaction(function () use ($source, $target, $userId, $ip, $extraNewValues, $keepPrintedNames, $fields) {
             // Capture snapshot of source person before changes
             $sourceSnapshot = $source->getAttributes();
             foreach ($sourceSnapshot as $k => $v) {
                 if (is_array($v)) {
                     $sourceSnapshot[$k] = json_encode($v, JSON_UNESCAPED_UNICODE);
                 }
+            }
+
+            // The fields first: a name taken from the removed record is the one written on its works below
+            $compared = MergeComparison::apply($source, $target, $fields);
+            $nameChoice = $compared['choices']['name'] ?? MergeComparison::ALIAS;
+            ['aliases' => $addedAliases, 'wrong' => $addedWrongNames] = $this->collectNewNames($source, $target, $nameChoice);
+            if ($nameChoice === MergeComparison::TAKE) {
+                $compared['before']['name'] = $target->name;
+                $target->name = $compared['after']['name'] = $source->name;
             }
 
             // Identify exact works and manuscripts to transfer (every link, primary or not)
@@ -73,19 +85,22 @@ class PersonMerger
             $newWorksCount = $target->authoredWorks()->count();
             $newManuscriptsCount = $target->scribedManuscripts()->count();
 
-            // 3.1 Keep source name and its aliases as parallel names of the target
-            $addedAliases = $this->collectNewAliases($source, $target);
-
+            // 3.1 Keep source name and its aliases as parallel names of the target, a misspelt name as a hidden form
             $target->update([
                 'works_count' => $newWorksCount,
                 'manuscripts_count' => $newManuscriptsCount,
                 'is_author' => $target->is_author || ($newWorksCount > 0),
                 'is_scribe' => $target->is_scribe || ($newManuscriptsCount > 0),
                 'aliases' => array_values(array_merge((array) ($target->aliases ?? []), $addedAliases)),
+                'wrong_names' => array_values(array_merge((array) ($target->wrong_names ?? []), $addedWrongNames)) ?: null,
             ]);
 
             if (method_exists($target, 'searchable')) {
                 $target->searchable();
+            }
+            // The kept person's own works are found by the names it gained too
+            if ($addedAliases || $addedWrongNames || $nameChoice === MergeComparison::TAKE) {
+                Work::where('author_id', $target->id)->searchable();
             }
             // Their author or scribe name and aliases are part of the search index
             Work::whereIn('id', $transferredWorkIds)->searchable();
@@ -111,6 +126,7 @@ class PersonMerger
                     'kept_printed_names' => $keepPrintedNames,
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),
+                    'fields' => $compared,
                 ],
                 'new_values' => [
                     'target_id' => $target->id,
@@ -118,6 +134,8 @@ class PersonMerger
                     'new_works_count' => $newWorksCount,
                     'new_manuscripts_count' => $newManuscriptsCount,
                     'added_aliases' => $addedAliases,
+                    'added_wrong_names' => $addedWrongNames,
+                    'name_choice' => $nameChoice,
                 ] + $extraNewValues,
                 'ip_address' => $ip,
             ]);
@@ -133,24 +151,39 @@ class PersonMerger
     }
 
     /**
-     * Source name and aliases that the target does not already have (compared in normalized form).
+     * The names the target gains (compared in normalized form): the source's other names, and its own name as another
+     * name, as a misspelt form (backlog item 90) or, when it becomes the target's name, the target's former name in
+     * its place. The source's misspelt forms stay misspelt.
+     *
+     * @return array{aliases: string[], wrong: string[]}
      */
-    protected function collectNewAliases(Person $source, Person $target): array
+    protected function collectNewNames(Person $source, Person $target, string $nameChoice): array
     {
-        $known = collect([$target->name])
+        $known = collect([$nameChoice === MergeComparison::TAKE ? $source->name : $target->name])
             ->concat((array) ($target->aliases ?? []))
-            ->map(fn($n) => TextNormalizer::normalize($n))
+            ->concat((array) ($target->wrong_names ?? []))
+            ->map(fn ($n) => TextNormalizer::normalize($n))
             ->all();
 
-        $added = [];
-        foreach (array_merge([$source->name], (array) ($source->aliases ?? [])) as $name) {
-            $name = trim((string) $name);
-            $key = TextNormalizer::normalize($name);
-            if ($key === '' || in_array($key, $known, true)) {
-                continue;
+        $aliases = (array) ($source->aliases ?? []);
+        $wrong = (array) ($source->wrong_names ?? []);
+        match ($nameChoice) {
+            MergeComparison::WRONG => array_unshift($wrong, $source->name),
+            MergeComparison::TAKE => array_unshift($aliases, $target->name),
+            default => array_unshift($aliases, $source->name),
+        };
+
+        $added = ['aliases' => [], 'wrong' => []];
+        foreach (['aliases' => $aliases, 'wrong' => $wrong] as $list => $names) {
+            foreach ($names as $name) {
+                $name = trim((string) $name);
+                $key = TextNormalizer::normalize($name);
+                if ($key === '' || in_array($key, $known, true)) {
+                    continue;
+                }
+                $known[] = $key;
+                $added[$list][] = $name;
             }
-            $known[] = $key;
-            $added[] = $name;
         }
 
         return $added;

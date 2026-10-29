@@ -251,19 +251,20 @@
         </form>
     @elseif($apply === 'merge_library' && $target && $relationTarget)
         @php $libInput = 'admin-field w-full'; @endphp
-        <form action="{{ $formAction }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4" x-data="{ keep: @js(old('keep', 'target')) }">
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
             <div class="space-y-1.5">
                 <span class="block font-bold text-ink">کدام کتابخانه بماند؟</span>
-                <label class="flex items-center gap-2"><input type="radio" name="keep" value="target" @checked(old('keep', 'target') === 'target') class="accent-cinnabar"> «{{ $relationTarget->name }}»، {{ $relationTarget->city }} (#{{ \App\Support\Fa::digits($relationTarget->id) }}، {{ \App\Support\Fa::num($relationTarget->manuscripts_count) }} نسخه) بماند</label>
-                <label class="flex items-center gap-2"><input type="radio" name="keep" value="source" @checked(old('keep') === 'source') class="accent-cinnabar"> «{{ $target->name }}»، {{ $target->city }} (#{{ \App\Support\Fa::digits($target->id) }}، {{ \App\Support\Fa::num($target->manuscripts_count) }} نسخه) بماند</label>
+                <label class="flex items-center gap-2"><input type="radio" name="keep" value="target" x-model="keep" @checked(old('keep', 'target') === 'target') class="accent-cinnabar"> «{{ $relationTarget->name }}»، {{ $relationTarget->city }} (#{{ \App\Support\Fa::digits($relationTarget->id) }}، {{ \App\Support\Fa::num($relationTarget->manuscripts_count) }} نسخه) بماند</label>
+                <label class="flex items-center gap-2"><input type="radio" name="keep" value="source" x-model="keep" @checked(old('keep') === 'source') class="accent-cinnabar"> «{{ $target->name }}»، {{ $target->city }} (#{{ \App\Support\Fa::digits($target->id) }}، {{ \App\Support\Fa::num($target->manuscripts_count) }} نسخه) بماند</label>
             </div>
             <div class="px-4 py-3 bg-surface border border-s-4 border-amber-600/50 text-amber-800 dark:text-amber-300 leading-relaxed">
                 نسخه‌ها و جلدهای فهرست کتابخانه‌ی حذف‌شونده به کتابخانه‌ی ماندنی منتقل می‌شوند و نام و شهر کتابخانه‌ی ماندنی را می‌گیرند.
                 نام کتابخانه‌ی حذف‌شونده در «نام‌های دیگر» کتابخانه‌ی ماندنی می‌ماند و نشانی‌اش با ریدایرکت دائمی به آن می‌رود.
                 این ادغام از «گزارش ممیزی» بازگرداندنی است.
             </div>
+            @include('admin.suggestions.partials.merge-directions')
             <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $libInput }}">
             <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $libInput }}">
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
@@ -280,7 +281,7 @@
             رفتن به ابزار ادغام اشخاص
         </a>
     @else
-        <form action="{{ $formAction }}" method="POST" class="space-y-4">
+        <form action="{{ $formAction }}" method="POST" class="space-y-4" x-data="{ keep: @js(old('keep', 'target')) }">
             @csrf
             @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
 
@@ -291,18 +292,19 @@
             @else
                 <div class="space-y-1.5">
                     <span class="block font-bold text-ink">کدام رکورد بماند؟</span>
-                    <label class="flex items-center gap-2"><input type="radio" name="keep" value="target" checked class="accent-cinnabar"> رکورد مقصد (#{{ \App\Support\Fa::digits($relationTarget->id) }}) بماند و این رکورد (#{{ \App\Support\Fa::digits($target->id) }}) در آن ادغام شود</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="keep" value="source" class="accent-cinnabar"> این رکورد (#{{ \App\Support\Fa::digits($target->id) }}) بماند و رکورد مقصد (#{{ \App\Support\Fa::digits($relationTarget->id) }}) در آن ادغام شود</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="keep" value="target" x-model="keep" class="accent-cinnabar"> رکورد مقصد (#{{ \App\Support\Fa::digits($relationTarget->id) }}) بماند و این رکورد (#{{ \App\Support\Fa::digits($target->id) }}) در آن ادغام شود</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="keep" value="source" x-model="keep" class="accent-cinnabar"> این رکورد (#{{ \App\Support\Fa::digits($target->id) }}) بماند و رکورد مقصد (#{{ \App\Support\Fa::digits($relationTarget->id) }}) در آن ادغام شود</label>
                 </div>
                 <div class="px-4 py-3 bg-surface border border-s-4 border-amber-600/50 text-amber-800 dark:text-amber-300 leading-relaxed">
                     @if($relation['target'] === 'work')
                         نسخه‌های اثر حذف‌شونده به اثر ماندنی منتقل می‌شوند و نسخه‌هایی که با همان کتابخانه و شماره در اثر ماندنی هست، ادغام می‌شوند. عنوان اثر حذف‌شونده به عناوین دیگر، و موضوع‌ها و زبان‌هایش به اثر ماندنی افزوده می‌شود.
                     @else
-                        فیلدهای خالی نسخه‌ی ماندنی از نسخه‌ی حذف‌شونده پر می‌شود و کاتبانش به آن افزوده می‌شوند.
+                        کاتبان و اشخاص مرتبط نسخه‌ی حذف‌شونده به نسخه‌ی ماندنی افزوده می‌شوند.
                     @endif
                     ارجاع مأخذ رکورد حذف‌شونده روی رکورد ماندنی ثبت می‌شود و نشانی‌اش با ریدایرکت دائمی به آن می‌رود.
                     این ادغام از «گزارش ممیزی» بازگرداندنی است: رکورد حذف‌شده با همان شناسه بازمی‌گردد.
                 </div>
+                @include('admin.suggestions.partials.merge-directions')
             @endif
 
             <div class="space-y-1">
