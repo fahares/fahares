@@ -1,0 +1,6052 @@
+{
+ "source": "site copies rebuilt from fankha parser v2 (/tmp/claude-1000/-home-tabib-projects-apps-fahares--claude-worktrees-jolly-tharp-df1676/6b77a56a-61e4-4137-bc1b-0f2f66b1744c/scratchpad/rebuild_ids.tsv), 2026-10-30",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 10641,
+   "shelfmark": "6030/8-ف",
+   "category": "rebuild",
+   "v2": "v1-115#1",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1296/21\nآغاز و انجام: برابر\nخط: نستعلیق؛ بی‌کا، بی‌تا؛ 2ص (70-72) [عکسی - ف: 3-665]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 6030/8-ف\nنسخه اصل: همان نسخه بالا [فیلم‌ها - ف: 3-193]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی - ف: 3-665]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلم‌ها - ف: 3-193]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11792,
+   "shelfmark": "532/1-ف",
+   "category": "rebuild",
+   "v2": "v1-400#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1359/1عکسی\nآغاز: برابر\nنسخه اصل: کتابخانه چستربیتی، ش 3854 (فهرس تشستربیتی، 500/1-504)؛ خط: نسخ؛ بی‌کا، تا: 5 شوال 736؛ 28ص (3-30)، 22 سطر [عکسی - ف: 4-121]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 532/1-ف\nنسخه اصل: اسعد افندی ش 1808؛ خط: نسخ؛ کا: عمر الشهدشتی، تا: دهه سوم رجب 1000؛ 191گ (1-91) [فیلم‌ها - ف: 1-496]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "عمر الشهدشتی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "5 شوال 736",
+     "to": "دهه سوم رجب 1000"
+    },
+    "copy_date_hijri_year": {
+     "from": 736,
+     "to": 1000
+    },
+    "folios": {
+     "from": null,
+     "to": 191
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی - ف: 4-121]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلم‌ها - ف: 1-496]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 42907,
+   "shelfmark": "2541/15-ف",
+   "category": "rebuild",
+   "v2": "v4-1326#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1366/2عکسی\nآغاز: بسمله. قال الشيخ الامام أبو معشر المقرى الطبرى نزيل مكه حرسها الله و رضى الله عن الحمد لله المتفرد بالدوام المتطول بالانعام؛ انجام: فی جميع ذلك استغنا عنها فاعلم ذلك موفقاً لطريق الحق و منهاج الصواب و بالله التوفيق.\nنسخه اصل: کتابخانه چستربیتی در ایرلند جنوبی، ش 3925 (فهرس المخطوطات العربية فى مكتبة شستربيتي، ترجمه محمود شاكر سعيد 537/1-539)؛ خط: نسخ، بی‌کا، بی‌تا؛ جا: مدرسه حنفيه حماة؛ كاتب این نسخه را برای استفاده خودش کتابت کرده، مصحح، مقابله شده، با نشان بلاغ، چند یادداشت مطالعه و نظر در رساله‌های مجموعه در نسخه ثبت شده از جمله به وسیله يحيى بن محمد ناصری انصاری؛ 26ص (99-124)، 17 سطر [عکسی ف: 4-133]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 2541/15-ف\nنسخه اصل: برلین 8066 .Or (پرچ ش 303 ص 326)؛ خط: نستعلیق، بی‌کا، تا: 1063ق؛ 7گ (145ر-151پ) [فیلمها ف: 1-714]"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1063ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1063
+    },
+    "copy_place": {
+     "from": "مدرسه حنفيه حماة",
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 7
+    },
+    "incipit_text": {
+     "from": "بسمله. قال الشيخ الامام أبو معشر المقرى الطبرى نزيل مكه حرسها الله و رضى الله عن الحمد لله المتفرد بالدوام المتطول بالانعام",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "فی جميع ذلك استغنا عنها فاعلم ذلك موفقاً لطريق الحق و منهاج الصواب و بالله التوفيق",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "is_collated": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. قال الشيخ الامام أبو معشر المقرى الطبرى نزيل مكه حرسها الله و رضى الله عن الحمد لله المتفرد بالدوام المتطول بالانعام"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "فی جميع ذلك استغنا عنها فاعلم ذلك موفقاً لطريق الحق و منهاج الصواب و بالله التوفيق"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-133]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1-714]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17339,
+   "shelfmark": "4002/2-ف و",
+   "category": "rebuild",
+   "v2": "v1-2139#20",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دانشگاه؛ شماره نسخه: 7198-عکس\nنسخه اصل: همان نسخه بالا؛ 25گ (129پ-154پ) [فیلم‌ها - ف: 3-279]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 4002/2-ف و\n4128/2-ف نسخه اصل: همان نسخه بالا؛ تا: شعبان 1308ق [فیلم‌ها- ف: 3-1 و ف: 3-18]"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شعبان 1308ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1308
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلم‌ها - ف: 3-279]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "4128/2-ف نسخه اصل: همان نسخه بالا"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلم‌ها- ف: 3-1 و ف: 3-18]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23096,
+   "shelfmark": "115/1",
+   "category": "rebuild",
+   "v2": "v2-1088#0",
+   "changes": {
+    "raw_text": {
+     "from": "67. مشهد؛ مدرسه آیة الله خوئی؛ شماره نسخه: 115/1\nخط: نسخ، بی‌کا، تا: غره رجب 1262ق؛ مصحح؛ جلد: مقوایی عطف تیماج قهوه‌ای، 79گ (13ر-91پ)، اندازه: 14×21سم [ف: - 74]",
+     "to": "قائن؛ مدرسه جعفریه؛ شماره نسخه: 115/1\nخط: نسخ و نستعلیق، کا: عبدالبدیع بن غیاث الدین طباطبائی، تا: 16 شوال 1008ق؛ 21ص (1-21)، اندازه: 13×23/5سم [کتابخانه‌های قائن: ف: 100]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالبدیع بن غیاث الدین طباطبائی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "غره رجب 1262ق",
+     "to": "16 شوال 1008ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1262,
+     "to": 1008
+    },
+    "folios": {
+     "from": null,
+     "to": 21
+    },
+    "dimensions": {
+     "from": "14×21سم",
+     "to": "13×23/5سم"
+    },
+    "binding": {
+     "from": "مقوایی عطف تیماج قهوه‌ای",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 74]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[کتابخانه‌های قائن: ف: 100]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59322,
+   "shelfmark": "89",
+   "category": "rebuild",
+   "v2": "v6-708#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 1011/7\nآغاز: الحمد لله رب العالمین ... فی بیع الوقف و قبل الشروع فی اصل المقصود ینبغی تمهید امور الاول انه لا اشكال فی ان مقتضی الاصل عدم جواز بيع الوقف؛\nنسخه اصل: کتابخانه شیخ لطف الله صافی قم؛ خط: نستعلیق، کاتب = مؤلف، تا: با تاریخ 1315ق؛ 23ص (175-197) [عکسی ف: 3-263]",
+     "to": "قم؛ امام صادق؛ شماره نسخه: 89\nخط: نستعلیق، کاتب = مؤلف، تا: 17 جمادی الاول 1389ق؛ 22گ، مختلف السطر، اندازه: 18×22سم [ف: 73]"
+    },
+    "copy_date_raw": {
+     "from": "با تاریخ 1315ق",
+     "to": "17 جمادی الاول 1389ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1315,
+     "to": 1389
+    },
+    "folios": {
+     "from": null,
+     "to": 22
+    },
+    "dimensions": {
+     "from": null,
+     "to": "18×22سم"
+    },
+    "incipit_text": {
+     "from": "الحمد لله رب العالمین ... فی بیع الوقف و قبل الشروع فی اصل المقصود ینبغی تمهید امور الاول انه لا اشكال فی ان مقتضی الاصل عدم جواز بيع الوقف",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمد لله رب العالمین ... فی بیع الوقف و قبل الشروع فی اصل المقصود ینبغی تمهید امور الاول انه لا اشكال فی ان مقتضی الاصل عدم جواز بيع الوقف"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [
+       "وقف و قبل الشروع فی اصل المقصود ینبغی تمهید امور الاول انه لا اشكال فی ان مقتضی الاصل عدم جواز بيع الوقف"
+      ],
+      "catalog_citation": "[عکسی ف: 3-263]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 73]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223315,
+   "shelfmark": "21 عکسی حکمت",
+   "category": "rebuild",
+   "v2": "v23-1223#1",
+   "changes": {
+    "raw_text": {
+     "from": "2. تهران؛ دانشگاه؛ شماره نسخه: 375/6-ف\nنسخه اصل: ایاصوفیا ش 2049. جزو 1-5؛ خط: نسخ، بی‌کا، بی‌تا؛ 23گ (78-100) [فیلمها ف: 1 - 461]",
+     "to": "2. تهران؛ دانشکده ادبیات؛ شماره نسخه: 21 عکسی حکمت\nعکس نسخه‌ای است؛ خط: نسخ نزدیک به تعلیق، بی‌کا، تا: قرن 8 و 9؛ 6گ (149ر-154پ) [ف: 2 - 82]"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 8 و 9"
+    },
+    "folios": {
+     "from": null,
+     "to": 6
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1 - 461]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "عکس نسخه‌ای است"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 2 - 82]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51287,
+   "shelfmark": "2070-ف",
+   "category": "rebuild",
+   "v2": "v5-857#1",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 620/5\nآغاز: بسم الله الرحمن الرحيم ... و بعد فان كتابنا هذا مبنى على مقدمة واحدا و عشرين بابا و خاتمة فالمقدمة في حد الفن و موضوعه و غايته\nنسخه اصل: کتابخانه آکادمی لینچی-رم 305؛ خط: نسخ نازیبا، کا: احمد بن احمد شرفی زیدی عدلی، تا: رجب 1209ق؛ 202گ (165-366) [عکسی ف: 2-239]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 2070-ف\nنسخه اصل: همان نسخه بالا [فیلمها ف: 1-288]"
+    },
+    "scribe_name": {
+     "from": "احمد بن احمد شرفی زیدی عدلی",
+     "to": null
+    },
+    "copy_date_raw": {
+     "from": "رجب 1209ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1209,
+     "to": null
+    },
+    "incipit_text": {
+     "from": "بسم الله الرحمن الرحيم ... و بعد فان كتابنا هذا مبنى على مقدمة واحدا و عشرين بابا و خاتمة فالمقدمة في حد الفن و موضوعه و غايته",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسم الله الرحمن الرحيم ... و بعد فان كتابنا هذا مبنى على مقدمة واحدا و عشرين بابا و خاتمة فالمقدمة في حد الفن و موضوعه و غايته"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2-239]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1-288]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15697,
+   "shelfmark": "3894/6",
+   "category": "rebuild",
+   "v2": "v1-1353#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1479/8عکسی\nنسخه اصل: همان نسخه بالا [عکسی ف: 4-353]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 3894/6\nخط: نستعلیق، کا: نصرالله بن احمد نراقی، تا: 1294ق، جا: تهران؛ کاغذ: فرنگی، جلد: تیماج حنایی ضربی مقوایی، 3گ (169-171)، 16 سطر (7×12)، اندازه: 11×16سم [ف: 12-2881]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "نصرالله بن احمد نراقی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1294ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1294
+    },
+    "copy_place": {
+     "from": null,
+     "to": "تهران"
+    },
+    "folios": {
+     "from": null,
+     "to": 3
+    },
+    "lines": {
+     "from": null,
+     "to": 16
+    },
+    "dimensions": {
+     "from": null,
+     "to": "11×16سم"
+    },
+    "paper": {
+     "from": null,
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج حنایی ضربی مقوایی"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-353]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 12-2881]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257082,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v26-1611#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1450/1عکسی\nآغاز: بسمله. الحمد لله الذى فضل العلم واجله و اشرف قدره و محله ... و بعد فقد سألنى بعض رؤسا المملكة ... فى شأن الكواكب الذى ظهر فى السماء و فى الحكم عليه؛ انجام: و فى القوس يدل على الغلا و الوفا بخراسان و فتنة بأرض المشرق و المغرب و الله تعالى اعلم.\nنسخه اصل: کتابخانه سلیمانیه در استانبول، شماره 2704؛ خط: نسخ، بی‌کا، بی‌تا؛ 4ص (1-4)، 17 سطر [عکسی ف: 4-296]",
+     "to": "تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [میراث اسلامی: 5-605]"
+    },
+    "incipit_text": {
+     "from": "بسمله. الحمد لله الذى فضل العلم واجله و اشرف قدره و محله ... و بعد فقد سألنى بعض رؤسا المملكة ... فى شأن الكواكب الذى ظهر فى السماء و فى الحكم عليه",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "و فى القوس يدل على الغلا و الوفا بخراسان و فتنة بأرض المشرق و المغرب و الله تعالى اعلم",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. الحمد لله الذى فضل العلم واجله و اشرف قدره و محله ... و بعد فقد سألنى بعض رؤسا المملكة ... فى شأن الكواكب الذى ظهر فى السماء و فى الحكم عليه"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و فى القوس يدل على الغلا و الوفا بخراسان و فتنة بأرض المشرق و المغرب و الله تعالى اعلم"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-296]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5-605]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49603,
+   "shelfmark": "31",
+   "category": "rebuild",
+   "v2": "v5-478#88",
+   "changes": {
+    "raw_text": {
+     "from": "505. قم؛ فیضیه؛ شماره نسخه: 31\nبی‌کا، بی‌تا؛ کاغذ: سفید معمولی، جلد: تیماج مشکی [فهرست عراقی: 1-20]",
+     "to": "88. اصفهان؛ ابوالبرکات، رضا؛ شماره نسخه: 31\nخط: نستعلیق، بی‌کا، تا: 1285ق؛ جلد: تیماج قهوه‌ای بدون مقوا، 28گ، 14 سطر [سه کتابخانه اصفهان: ف: 34]"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1285ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1285
+    },
+    "folios": {
+     "from": null,
+     "to": 28
+    },
+    "lines": {
+     "from": null,
+     "to": 14
+    },
+    "paper": {
+     "from": "سفید معمولی",
+     "to": null
+    },
+    "binding": {
+     "from": "تیماج مشکی",
+     "to": "تیماج قهوه‌ای بدون مقوا"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فهرست عراقی: 1-20]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[سه کتابخانه اصفهان: ف: 34]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 47522,
+   "shelfmark": "88",
+   "category": "rebuild",
+   "v2": "v5-228#13",
+   "changes": {
+    "raw_text": {
+     "from": "3. قزوین؛ میر حسینا قزوینی؛ شماره نسخه: 88\nخط: نسخ، کا: محمد باقر بن حاج محب، تا: سه‌شنبه 17 جمادی الاول 1099ق [نشریه: 6-337]",
+     "to": "13. اصفهان؛ دانشگاه اصفهان؛ شماره نسخه: 88\nعبادات ناتمام؛ خط: نسخ، بی‌کا، تا: قرن 13؛ کاغذ: آبی [نشریه: 11-883]"
+    },
+    "scribe_name": {
+     "from": "محمد باقر بن حاج محب",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "سه‌شنبه 17 جمادی الاول 1099ق",
+     "to": "قرن 13"
+    },
+    "copy_date_hijri_year": {
+     "from": 1099,
+     "to": null
+    },
+    "paper": {
+     "from": null,
+     "to": "آبی"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 6-337]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "عبادات ناتمام"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 11-883]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121579,
+   "shelfmark": "2809/5-ف",
+   "category": "rebuild",
+   "v2": "v13-221#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. تهران؛ دائرة المعارف؛ شماره نسخه: 162/3-عکسی\nآغاز و انجام: برابر\nاصل نسخه: گنج بخش، ش 4409؛ خط: نستعلیق خوش، بی‌کا، تا: 851ق؛ در انجامه نسخه به نام «حقایق الاسماء» آمده است؛ 136گ (29-164) [عکسی ف: 2 - 102]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 2809/5-ف\nنسخه اصل: نفیسی ش 429؛ بی‌کا، بی‌تا [فیلمها ف: 1 - 733]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "851ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 851,
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 102]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1 - 733]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 155171,
+   "shelfmark": "441/11ـ ف",
+   "category": "rebuild",
+   "v2": "v16-1525#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ ملک؛ شماره نسخه: 4053/2\nآغاز: بسمله. رب يسر ... الحمدلله الذى فتق رتق وجود الموجودات بقدرته ... و بعد فقد سألنی بعض الاخوان فالله ... ان ارسم رسالة الى الاخوان فی سایر البلدان؛ انجام: و المكالمة و المشاهدة بغير حجاب و هو كريم الوهاب.\nبی‌کا، بی‌تا؛ کاغذ: دولت آبادی، جلد: میشن سیاه، 19 سطر، اندازه: 15/7×23/3سم [ف: 7 - 171]",
+     "to": "1. تهران؛ دانشگاه؛ شماره نسخه: 441/11ـ ف\nنسخه اصل: بایزید ولی الدین ش 1819؛ بی‌کا، تا: قرن 9؛ در 68-73 پراکنده ها است [فیلمها ف: 1 - 474]"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 9"
+    },
+    "dimensions": {
+     "from": "15/7×23/3سم",
+     "to": null
+    },
+    "paper": {
+     "from": "دولت آبادی",
+     "to": null
+    },
+    "binding": {
+     "from": "میشن سیاه",
+     "to": null
+    },
+    "incipit_text": {
+     "from": "بسمله. رب يسر ... الحمدلله الذى فتق رتق وجود الموجودات بقدرته ... و بعد فقد سألنی بعض الاخوان فالله ... ان ارسم رسالة الى الاخوان فی سایر البلدان",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "و المكالمة و المشاهدة بغير حجاب و هو كريم الوهاب",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. رب يسر ... الحمدلله الذى فتق رتق وجود الموجودات بقدرته ... و بعد فقد سألنی بعض الاخوان فالله ... ان ارسم رسالة الى الاخوان فی سایر البلدان"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و المكالمة و المشاهدة بغير حجاب و هو كريم الوهاب"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 7 - 171]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "در 68-73 پراکنده ها است"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1 - 474]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200559,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v21-720#358",
+   "changes": {
+    "raw_text": {
+     "from": "1. قم؛ مرعشی؛ شماره نسخه: بدون شماره\nرساله در خصوص شروط صلوة و ارکان و واجبات و مستحبات و مکروهات از علمای نیمه نخست سده سیزده قمری؛ خط: نسخ درشت، کا: حسین بن عبدالله بن ابراهیم بن سلیم ستتری بحرانی، تا: 20 شوال 1264ق؛ به دستور ملا محمد لاری سالن لنجه؛ قطع: جیبی [میراث شهاب: س6ش4 - 18]",
+     "to": "356. قزوین؛ فحول قزوینی؛ شماره نسخه: بدون شماره\nجلد دوم؛ کا: مهدی بن عبدالرحیم، تا: دهه سوم صفر 1240ق، به دستور مولی اسدالله [ف: - 20]"
+    },
+    "scribe_name": {
+     "from": "حسین بن عبدالله بن ابراهیم بن سلیم ستتری بحرانی",
+     "to": "مهدی بن عبدالرحیم"
+    },
+    "copy_date_raw": {
+     "from": "20 شوال 1264ق",
+     "to": "دهه سوم صفر 1240ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1264,
+     "to": 1240
+    },
+    "commissioned_by": {
+     "from": null,
+     "to": "مولی اسدالله"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س6ش4 - 18]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 20]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202348,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v21-876#223",
+   "changes": {
+    "raw_text": {
+     "from": "1. قم؛ مرعشی؛ شماره نسخه: بدون شماره\nرساله در خصوص شروط صلوة و ارکان و واجبات و مستحبات و مکروهات از علمای نیمه نخست سده سیزده قمری؛ خط: نسخ درشت، کا: حسین بن عبدالله بن ابراهیم بن سلیم ستتری بحرانی، تا: 20 شوال 1264ق؛ به دستور ملا محمد لاری سالن لنجه؛ قطع: جیبی [میراث شهاب: س6ش4 - 18]",
+     "to": "223. قم؛ علامة طباطبائی قم (مکتبه)؛ شماره نسخه: بدون شماره\nبی‌کا، تا: قرن 11؛ مجدول [تراثنا: س2ش3 - 155]"
+    },
+    "scribe_name": {
+     "from": "حسین بن عبدالله بن ابراهیم بن سلیم ستتری بحرانی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "20 شوال 1264ق",
+     "to": "قرن 11"
+    },
+    "copy_date_hijri_year": {
+     "from": 1264,
+     "to": null
+    },
+    "is_ruled": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س6ش4 - 18]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[تراثنا: س2ش3 - 155]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203373,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v21-876#1235",
+   "changes": {
+    "raw_text": {
+     "from": "1. قم؛ مرعشی؛ شماره نسخه: بدون شماره\nرساله در خصوص شروط صلوة و ارکان و واجبات و مستحبات و مکروهات از علمای نیمه نخست سده سیزده قمری؛ خط: نسخ درشت، کا: حسین بن عبدالله بن ابراهیم بن سلیم ستتری بحرانی، تا: 20 شوال 1264ق؛ به دستور ملا محمد لاری سالن لنجه؛ قطع: جیبی [میراث شهاب: س6ش4 - 18]",
+     "to": "1235. اهواز؛ دانشگاه؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا؛ با یادداشت علی دزفولی [میراث اسلامی: 5 – 590]"
+    },
+    "scribe_name": {
+     "from": "حسین بن عبدالله بن ابراهیم بن سلیم ستتری بحرانی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "20 شوال 1264ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1264,
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س6ش4 - 18]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "با یادداشت علی دزفولی"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 – 590]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114557,
+   "shelfmark": "1388 ط",
+   "category": "rebuild",
+   "v2": "v12-689#2",
+   "changes": {
+    "raw_text": {
+     "from": "3. مشهد؛ رضوی؛ شماره نسخه: 511\nآغاز: قوله بلسان الرمز بل بلسان عربی مبین حسم ان الجامع؛\nانجام: و يصيب عليه الماء حتى يزول عنه اثره مجمع\nنام مؤلف در فهرست نیامده و در «کتاب‌شناسی ملاصدرا» شناسانده شده است؛ خط: شکسته نستعلیق، کا: فرج الله ساوجبلاغی، تا: ذیحجه 1296ق؛ واقف: نائینی، 163گ، 17 سطر، اندازه: 15×25سم [ف: 4 - 91]",
+     "to": "3. تهران؛ مجلس؛ شماره نسخه: 1388 ط\nحاشیه شواهد و مفاتیح الغیب؛ خط: نستعلیق، کا: عبدالله؟، تا: ذیحجه 1291ق؛ 263ص، 19 سطر، اندازه: 17×22سم [ف: 24/3 - 106]"
+    },
+    "scribe_name": {
+     "from": "فرج الله ساوجبلاغی",
+     "to": "عبدالله"
+    },
+    "copy_date_raw": {
+     "from": "ذیحجه 1296ق",
+     "to": "ذیحجه 1291ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1296,
+     "to": 1291
+    },
+    "folios": {
+     "from": null,
+     "to": 263
+    },
+    "lines": {
+     "from": null,
+     "to": 19
+    },
+    "dimensions": {
+     "from": "15×25سم",
+     "to": "17×22سم"
+    },
+    "incipit_text": {
+     "from": "قوله بلسان الرمز بل بلسان عربی مبین حسم ان الجامع",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "و يصيب عليه الماء حتى يزول عنه اثره مجمع\nنام مؤلف در فهرست نیامده و در «کتاب‌شناسی ملاصدرا» شناسانده شده است",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "قوله بلسان الرمز بل بلسان عربی مبین حسم ان الجامع"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و يصيب عليه الماء حتى يزول عنه اثره مجمع\nنام مؤلف در فهرست نیامده و در «کتاب‌شناسی ملاصدرا» شناسانده شده است"
+       }
+      ],
+      "editorial_notes": [
+       "نام مؤلف در فهرست نیامده و در «کتاب‌شناسی ملاصدرا» شناسانده شده است"
+      ],
+      "ownership_and_seals": [
+       "واقف: نائینی، 163گ، 17 سطر، اندازه: 15×25سم [ف: 4 - 91]"
+      ],
+      "catalog_citation": "[ف: 4 - 91]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "حاشیه شواهد و مفاتیح الغیب"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 24/3 - 106]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 112244,
+   "shelfmark": "4732",
+   "category": "rebuild",
+   "v2": "v12-482#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دائرة المعارف؛ شماره نسخه: 1/147-عکسی\nآغاز: الحمدلله علی قضائه فی جمیع الافعال، حسنه كانت او قبيحة من حيث القضاء ... می گوید شکسته نامراد، ترام اقدام، عبدالغفور، هر چند که از جهت جهالت خویش، به جهت قلت علم و حال؛ انجام: تا از خود خلاص شدمی. زیرکی بد است و حیرانی هنر، زیرکی بفروش و حیرانی بخر. و الله اعلم بالصواب.\nاصل نسخه: گنج بخش، ش 4075 (گنج 2/759)؛ خط: نستعلیق پخته، بی‌کا، تا: قرن 11 و 12؛ 169ص [عکسی ف: 2 - 97]",
+     "to": "همدان؛ مدرسه غرب؛ شماره نسخه: 4732\nخط: شکسته نستعلیق بدخط، بی‌کا، تا: 1025ق؛ قطع: ربعی [رشت و همدان: ف: - 1318]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 11 و 12",
+     "to": "1025ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1025
+    },
+    "incipit_text": {
+     "from": "الحمدلله علی قضائه فی جمیع الافعال، حسنه كانت او قبيحة من حيث القضاء ... می گوید شکسته نامراد، ترام اقدام، عبدالغفور، هر چند که از جهت جهالت خویش، به جهت قلت علم و حال",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "تا از خود خلاص شدمی. زیرکی بد است و حیرانی هنر، زیرکی بفروش و حیرانی بخر. و الله اعلم بالصواب",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمدلله علی قضائه فی جمیع الافعال، حسنه كانت او قبيحة من حيث القضاء ... می گوید شکسته نامراد، ترام اقدام، عبدالغفور، هر چند که از جهت جهالت خویش، به جهت قلت علم و حال"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "تا از خود خلاص شدمی. زیرکی بد است و حیرانی هنر، زیرکی بفروش و حیرانی بخر. و الله اعلم بالصواب"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 97]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[رشت و همدان: ف: - 1318]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111797,
+   "shelfmark": "2مجموعه بدون شماره",
+   "category": "rebuild",
+   "v2": "v12-404#23",
+   "changes": {
+    "raw_text": {
+     "from": "3. کرمانشاه؛ نجومی؛ شماره نسخه: 2مجموعه بدون شماره\nآغاز و انجام: برابر\nکا: محمد طاهر بن محمد صالح حسینی مازندرانی، تا: 17 ذیحجه 1235ق، جا: اصفهان؛ افتادگی: انجام [دلیل المخطوطات: 1 - 272]",
+     "to": "24. زنجان؛ امام جمعه؛ شماره نسخه: 2مجموعه بدون شماره\nکا: میر محمد حسین بن محمد تقی موسوی باب الامامی، بی‌تا [دلیل المخطوطات: 1 - 144]"
+    },
+    "scribe_name": {
+     "from": "محمد طاهر بن محمد صالح حسینی مازندرانی",
+     "to": "میر محمد حسین بن محمد تقی موسوی باب الامامی"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "17 ذیحجه 1235ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1235,
+     "to": null
+    },
+    "copy_place": {
+     "from": "اصفهان",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[دلیل المخطوطات: 1 - 272]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[دلیل المخطوطات: 1 - 144]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114879,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v12-790#48",
+   "changes": {
+    "raw_text": {
+     "from": "34. قم؛ مهدوی (کتابخانه)؛ شماره نسخه: بدون شماره\nبی‌کا، تا: قرن 10، مصحح، محشی [تراثنا: س18ش1و2 - 215]",
+     "to": "49. مشهد؛ مرتضوی؛ شماره نسخه: بدون شماره\nکا: محمد تقی، تا: پنج‌شنبه 12 جمادی الاول 1215ق؛ تملک: عبدالجواد حسینی [مخطوطات مرتضوی: ف: - 14]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "محمد تقی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "قرن 10",
+     "to": "پنج‌شنبه 12 جمادی الاول 1215ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1215
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[تراثنا: س18ش1و2 - 215]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [
+       "عبدالجواد حسینی"
+      ],
+      "catalog_citation": "[مخطوطات مرتضوی: ف: - 14]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33509,
+   "shelfmark": "16375",
+   "category": "rebuild",
+   "v2": "v3-1300#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. تهران؛ دانشگاه؛ شماره نسخه: 6937-عکس\nنامه‌های به عماد الدوله است تا شماره 9 با تاریخ 1280 سپس بی شماره؛ بی‌کا، بی‌تا؛ 42گ [فیلمها -ف: 3 - 266]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 16375\nکا: قطار علیشاه، تا: در تاریخ‌های 1321 و 1322ق، نسخه پاکیزه؛ قطع: بیاضی [د.ث. مجلس]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "قطار علیشاه"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "در تاریخ‌های 1321 و 1322ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1322
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها -ف: 3 - 266]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "نسخه پاکیزه"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[د.ث. مجلس]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 166951,
+   "shelfmark": "235",
+   "category": "rebuild",
+   "v2": "v17-1077#2",
+   "changes": {
+    "raw_text": {
+     "from": "232. قم؛ معصومیه؛ شماره نسخه: 235\nآغاز: برابر جلد 6؛ انجام: دعای صبح خیزانش قرین باد ×× سعادت یار و دولت همنشین باد\nجلد ششم؛ خط: نسخ، بی‌کا، تا: آخر رمضان 1047ق؛ جلد: تیماج مشکی، 264گ، 25 سطر، اندازه: 25/5×38سم [ف: 1-241]",
+     "to": "3. مشهد؛ الهیات؛ شماره نسخه: 235\nزیارت معروف جامعه است مترجم به خط خوشنویس معروف اقا محمد شفیع تبریزی در 1251ق؛ خط: نسخ، بی‌کا، بی‌تا؛ مجدول مذهب، دارای سرلوح مرصع؛ جلد: پارچه‌ای، 33گ، 6 سطر (4/2×8/2)، اندازه: 9×13/5سم [ف: 1 - 141]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "آخر رمضان 1047ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1047,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 33
+    },
+    "lines": {
+     "from": null,
+     "to": 6
+    },
+    "dimensions": {
+     "from": "25/5×38سم",
+     "to": "9×13/5سم"
+    },
+    "binding": {
+     "from": "تیماج مشکی",
+     "to": "پارچه‌ای"
+    },
+    "incipit_text": {
+     "from": "برابر جلد 6",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "دعای صبح خیزانش قرین باد ×× سعادت یار و دولت همنشین باد\nجلد ششم",
+     "to": null
+    },
+    "is_ruled": {
+     "from": 0,
+     "to": 1
+    },
+    "is_illuminated": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "برابر جلد 6"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "دعای صبح خیزانش قرین باد ×× سعادت یار و دولت همنشین باد\nجلد ششم"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1-241]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "زیارت معروف جامعه است مترجم به خط خوشنویس معروف اقا محمد شفیع تبریزی در 1251ق",
+       "مجدول مذهب",
+       "دارای سرلوح مرصع"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1 - 141]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54118,
+   "shelfmark": "1874",
+   "category": "rebuild",
+   "v2": "v5-1270#1",
+   "changes": {
+    "raw_text": {
+     "from": "2. تهران؛ دانشگاه؛ شماره نسخه: 8090\nخط: نستعلیق، بی‌کا، تا: قرن 11؛ کاغذ: هندی، جلد: مقوا عطف و گوشه‌ها پارچه سرخ، 186گ (86 برگ سفید)، 15 سطر (8×15/5)، قطع: ربعی، اندازه: 15×23سم [ف: 17-28]",
+     "to": "2. تهران؛ ملک؛ شماره نسخه: 1874\nجلد چهارم (بحر المصیبة)؛ خط: نستعلیق، کاتب = مؤلف، تا: 5 جمادی الثانی 1289ق؛ کاغذ: کاغذ فرنگی آهار مهره، جلد: میشن سیاه ضربی، 285گ، 17 سطر، اندازه: 18×27سم [ف: 2-51]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_autograph": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 11",
+     "to": "5 جمادی الثانی 1289ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1289
+    },
+    "folios": {
+     "from": null,
+     "to": 285
+    },
+    "lines": {
+     "from": null,
+     "to": 17
+    },
+    "dimensions": {
+     "from": "15×23سم",
+     "to": "18×27سم"
+    },
+    "paper": {
+     "from": "هندی",
+     "to": "کاغذ فرنگی آهار مهره"
+    },
+    "binding": {
+     "from": "مقوا عطف و گوشه‌ها پارچه سرخ",
+     "to": "میشن سیاه ضربی"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 17-28]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 2-51]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52344,
+   "shelfmark": "1916",
+   "category": "rebuild",
+   "v2": "v5-1107#11",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1913\nنسخه اصل: همان نسخه بالا [عکسی ف: 5-350]",
+     "to": "قم؛ مرعشی؛ شماره نسخه: 1916\nنسخه اصل: همان نسخه بالا [عکسی ف: 5-352]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 5-350]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 5-352]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52861,
+   "shelfmark": "6",
+   "category": "rebuild",
+   "v2": "v5-1107#528",
+   "changes": {
+    "raw_text": {
+     "from": "310. تهران؛ دانشگاه؛ شماره نسخه: 6\nخط: نسخ خوب، کا: محمد طاهر کازرونی، تا: 19 جمادی الثانی 1107ق؛ دارای سرلوح عالی، مجدول، مذهب، محشی به امضاهای مختلف: صحاح اللغة، تفسير ملا فتح الله، مظهر، مجمع، نیشابوری و غیره؛ چند تملک از سادات عباسی (در قرن سیزدهم)، و شاید خود این نسخه نیز در قرن دوازدهم برای همین خانواده نوشته شده باشد. این چند تملک که بر این نسخه مورد بحث موجود است خط چند تن از باقیماندگان این خاندان است که گویا معامله جد خود را با پادشاه عثمانی به رسمیت نشناخته و لقب امیر المومنین عباسی را تا قرن سیزدهم برای خود محفوظ داشته‌اند. از نظر اهمیت تاریخی ما عین عبارت این تملک‌ها را نقل می‌کنیم: «الحمد لله وحده. من كتب افقر العباد الى كرم الله الراجى عفوه و مغفرته المهدى لدين الله العباسي امير المومنين غفرالله له و لوالديه جميع الذنوب و تجاوز عنهم و عن المومنین و المومنات انه ولى الحسنات و حسبى الله و کفی و نعم الوکیل و صلى الله علی سیدنا محمد و آله آمین»، سپس در کنار آن چنین نوشته شده: «الحمدلله [وحده -ظ] من كتب ولده الامام الاعظم امير المومنین المنصور بالله رب العالمین [علی بن -ظ] امیر المومنین المهدی اسدالله به الدین و احیا به معالم شريعة جده الامين»، سپس در بالای اینها چنین نوشته شده است: «من انعام الله تعالى و تفضلاته و ... على عبده [محمد بن محمد الملقب -ظ] بالسعدى رضی عنه ربه آمین بالهبة ممن توجه الله بتاج الخلافة، و خلع عليه الشرافة، امير المومنين و سلام المسلمين المنصوربالله رب العالمین علی اعدائه، و جعله من خاصة اوليائه آمين. في محرم 1224»؛ تملک: سید حیدر حسینی عاملی و مهر او، محمد بن حسن بن هادی، شاید سید حیدر همان فرزند سید نورالدین باشد که در روضات (ص 631) ذکرش آمده است؛ 800ص، [ف: 1-15]",
+     "to": "516. یزد؛ کاظمینی؛ شماره نسخه: 6\nزندگانی پیامبر اکرم (ص) و از باب ام المعجزات القرآن الكريم و فيه بيان حقيقة الاعجاز و بعض النوادر تا باب غزوة بدر الصغرى و ساير ما جرى في تلك السنة الى غزوة الخندق؛ خط: نسخ، بی‌کا، تا: قرن 13؛ محشی؛ دو تاریخ تولد به سال 1316 و 1318؛ جلد: تیماج مشکی مجدول، 129گ، 27 سطر، اندازه: 20/5×31سم [ف: 1-21]"
+    },
+    "scribe_name": {
+     "from": "محمد طاهر کازرونی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "19 جمادی الثانی 1107ق",
+     "to": "قرن 13"
+    },
+    "copy_date_hijri_year": {
+     "from": 1107,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 129
+    },
+    "lines": {
+     "from": null,
+     "to": 27
+    },
+    "dimensions": {
+     "from": null,
+     "to": "20/5×31سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی مجدول"
+    },
+    "is_ruled": {
+     "from": 1,
+     "to": 0
+    },
+    "is_illuminated": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "وحده -ظ",
+       "علی بن -ظ",
+       "محمد بن محمد الملقب -ظ"
+      ],
+      "ownership_and_seals": [
+       "مهر او، محمد بن حسن بن هادی، شاید سید حیدر همان فرزند سید نورالدین باشد که در روضات (ص 631) ذکرش آمده است",
+       "تملک از سادات عباسی (در قرن سیزدهم)، و شاید خود این نسخه نیز در قرن دوازدهم برای همین خانواده نوشته شده باشد. این چند تملک که بر این نسخه مورد بحث موجود است خط چند تن از باقیماندگان این خاندان است که گویا معامله جد خود را با پادشاه عثمانی به رسمیت نشناخته و لقب امیر المومنین عباسی را تا قرن سیزدهم برای خود محفوظ داشته‌اند. از نظر اهمیت تاریخی ما عین عبارت این تملک‌ها را نقل می‌کنیم: «الحمد لله وحده. من كتب افقر العباد الى كرم الله الراجى عفوه و مغفرته المهدى لدين الله العباسي امير المومنين غفرالله له و لوالديه جميع الذنوب و تجاوز عنهم و عن المومنین و المومنات انه ولى الحسنات و حسبى الله و کفی و نعم الوکیل و صلى الله علی سیدنا محمد و آله آمین»، سپس در کنار آن چنین نوشته شده: «الحمدلله [وحده -ظ] من كتب ولده الامام الاعظم امير المومنین المنصور بالله رب العالمین [علی بن -ظ] امیر المومنین المهدی اسدالله به الدین و احیا به معالم شريعة جده الامين»، سپس در بالای اینها چنین نوشته شده است: «من انعام الله تعالى و تفضلاته و ... على عبده [محمد بن محمد الملقب -ظ] بالسعدى رضی عنه ربه آمین بالهبة ممن توجه الله بتاج الخلافة، و خلع عليه الشرافة، امير المومنين و سلام المسلمين المنصوربالله رب العالمین علی اعدائه، و جعله من خاصة اوليائه آمين. في محرم 1224»",
+       "تملک: سید حیدر حسینی عاملی و مهر او، محمد بن حسن بن هادی، شاید سید حیدر همان فرزند سید نورالدین باشد که در روضات (ص 631) ذکرش آمده است"
+      ],
+      "catalog_citation": "[ف: 1-15]",
+      "residual_notes": "به امضاهای مختلف: صحاح اللغة، تفسير ملا فتح الله، مظهر، مجمع، نیشابوری غیره؛ چند"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "زندگانی پیامبر اکرم (ص) و از باب ام المعجزات القرآن الكريم و فيه بيان حقيقة الاعجاز و بعض النوادر تا باب غزوة بدر الصغرى و ساير ما جرى في تلك السنة الى غزوة الخندق",
+       "دو تاریخ تولد به سال 1316 و 1318"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1-21]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52964,
+   "shelfmark": "5315",
+   "category": "rebuild",
+   "v2": "v5-1107#631",
+   "changes": {
+    "raw_text": {
+     "from": "4. قم؛ مرعشی؛ شماره نسخه: 5315\nانجام: و وضعت الموازین و نشرت الدواوین، هذا مجمل أحوال الفقیر من سنة 1050 الی سنة 189..\nخط: نسخ، بی‌کا، تا: یک‌شنبه 8 ربیع الثانی 1142ق؛ مصحح، مقابله شده توسط محمد رضا بن محمد صادق حسنی حسینی طباطبائی تبریزی به‌سال 1242 از روی نسخه خط مؤلف، نشانی استعاره اسماعیل بن حسن حسینی شبستری از آخوند ملا علی به تاریخ جمادی الثانی 1298؛ تملک: علی موسوی 6 رجب 1323؛ جلد: تیماج مشکی ضربی، 190گ، 41 سطر، اندازه: 26×36/5سم [ف: 14-103]",
+     "to": "619. تهران؛ سپهسالار؛ شماره نسخه: 5315\nجلد سوم؛ خط: نسخ، بی‌کا، تا: پنج‌شنبه 3 شعبان 1229ق؛ کاغذ: فرنگی سفید، جلد: مقوایی، 264گ، 31 سطر (12/5×23)، اندازه: 20×30سم [ف: 3-239]"
+    },
+    "copy_date_raw": {
+     "from": "یک‌شنبه 8 ربیع الثانی 1142ق",
+     "to": "پنج‌شنبه 3 شعبان 1229ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1142,
+     "to": 1229
+    },
+    "folios": {
+     "from": null,
+     "to": 264
+    },
+    "lines": {
+     "from": null,
+     "to": 31
+    },
+    "dimensions": {
+     "from": "26×36/5سم",
+     "to": "20×30سم"
+    },
+    "paper": {
+     "from": null,
+     "to": "فرنگی سفید"
+    },
+    "binding": {
+     "from": "تیماج مشکی ضربی",
+     "to": "مقوایی"
+    },
+    "explicit_text": {
+     "from": "و وضعت الموازین و نشرت الدواوین، هذا مجمل أحوال الفقیر من سنة 1050 الی سنة 189.",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "is_collated": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و وضعت الموازین و نشرت الدواوین، هذا مجمل أحوال الفقیر من سنة 1050 الی سنة 189."
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [
+       "تملک: علی موسوی 6 رجب 1323"
+      ],
+      "catalog_citation": "[ف: 14-103]",
+      "residual_notes": "نشانی استعاره اسماعیل بن حسن حسینی شبستری از آخوند ملا علی به تاریخ جمادی الثانی 1298"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-239]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55532,
+   "shelfmark": "846",
+   "category": "rebuild",
+   "v2": "v5-1686#30",
+   "changes": {
+    "raw_text": {
+     "from": "33. تهران؛ ملی؛ شماره نسخه: 846\nآغاز و انجام: برابر خط: نسخ، کا: رحیم، تا: 1262ق؛ کاغذ: فرنگی، جلد: تیماج قهوه‌ای مقوایی، 569گ، 20 سطر کامل (9×14/5)، اندازه: 15/5×20/5سم [ف: 8-348]",
+     "to": "31. تهران؛ مجلس؛ شماره نسخه: 846\nخط: نستعلیق، کا: محمد سعدالله مشهور به لطف الله افندی زاده، تا: 1179ق؛ دارای یک سرلوح، مجدول به طلا؛ کاغذ: سمرقندی، جلد: میشن ضربی، 529گ، 31 سطر، قطع: رحلی، اندازه: 17×30سم [ف: 3-79]"
+    },
+    "scribe_name": {
+     "from": "رحیم",
+     "to": "محمد سعدالله مشهور به لطف الله افندی زاده"
+    },
+    "copy_date_raw": {
+     "from": "1262ق",
+     "to": "1179ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1262,
+     "to": 1179
+    },
+    "folios": {
+     "from": null,
+     "to": 529
+    },
+    "lines": {
+     "from": null,
+     "to": 31
+    },
+    "dimensions": {
+     "from": "15/5×20/5سم",
+     "to": "17×30سم"
+    },
+    "paper": {
+     "from": "فرنگی",
+     "to": "سمرقندی"
+    },
+    "binding": {
+     "from": "تیماج قهوه‌ای مقوایی",
+     "to": "میشن ضربی"
+    },
+    "is_ruled": {
+     "from": 0,
+     "to": 1
+    },
+    "is_illuminated": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 8-348]",
+      "residual_notes": "کامل (9×14/5)"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "دارای یک سرلوح",
+       "مجدول به طلا"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-79]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55853,
+   "shelfmark": "1/38-عکس",
+   "category": "rebuild",
+   "v2": "v5-1750#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 2036/3\nآغاز: الحمد لله رب العالمين ... اما بعد معلوم احبا باد که چون ادویه یونانیه به سبب حوادث زمان و قلت اهل صناعت صیدنیه از جدید و تازه آنها کمیاب شده\nنسخه اصل: کتابخانه دانشگاه کراچی-پاکستان؛ خط: نستعلیق، کا: لاله تلوکچند کاتبئیه، بی‌تا؛ به نقل از نسخه مولوی غلام نبی صاحب؛ 26ص (558-583) [عکسی ف: 6-58]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 1/38-عکس\nبی‌کا، بی‌تا؛ 97گ (631ر-725پ) [فیلمها ف: 3-218]"
+    },
+    "scribe_name": {
+     "from": "لاله تلوکچند کاتبئیه",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "folios": {
+     "from": null,
+     "to": 97
+    },
+    "incipit_text": {
+     "from": "الحمد لله رب العالمين ... اما بعد معلوم احبا باد که چون ادویه یونانیه به سبب حوادث زمان و قلت اهل صناعت صیدنیه از جدید و تازه آنها کمیاب شده",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمد لله رب العالمين ... اما بعد معلوم احبا باد که چون ادویه یونانیه به سبب حوادث زمان و قلت اهل صناعت صیدنیه از جدید و تازه آنها کمیاب شده"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 6-58]",
+      "residual_notes": "به نقل از نسخه مولوی غلام نبی صاحب"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3-218]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101728,
+   "shelfmark": "1095/4",
+   "category": "rebuild",
+   "v2": "v11-407#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دائرة المعارف؛ شماره نسخه: 202/17-عکسی\nآغاز: بسمله. این رساله چهار پیر و چهارده خانواده است. قال النبی (ص) چهار پیران بر حقند و چهار پیغمبران ... و چهار خلیفه؛ انجام: و اگر درست نیست هم دروغ است. و الله اعلم بالصواب\nاصل نسخه: گنج بخش 745 (گنج 2108/4)؛ خط: نستعلیق، بی‌کا، تا: قرن 11 و 12؛ 3گ (224-226) [عکسی ف: 2 - 91]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 1095/4\nبی‌کا، تا: قرن 9؛ 48ص (109-156) [ف: 3 - 340]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 11 و 12",
+     "to": "قرن 9"
+    },
+    "folios": {
+     "from": null,
+     "to": 48
+    },
+    "incipit_text": {
+     "from": "بسمله. این رساله چهار پیر و چهارده خانواده است. قال النبی (ص) چهار پیران بر حقند و چهار پیغمبران ... و چهار خلیفه",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "و اگر درست نیست هم دروغ است. و الله اعلم بالصواب",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. این رساله چهار پیر و چهارده خانواده است. قال النبی (ص) چهار پیران بر حقند و چهار پیغمبران ... و چهار خلیفه"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و اگر درست نیست هم دروغ است. و الله اعلم بالصواب"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 91]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3 - 340]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143936,
+   "shelfmark": "17389",
+   "category": "rebuild",
+   "v2": "v15-847#0",
+   "changes": {
+    "raw_text": {
+     "from": "2. قم؛ مرعشی؛ شماره نسخه: 1248/16\nآغاز: آل بیت النبی مالی سواکم ×× ملجأ ارتجیه للکرب فی غد / ليس اخشى ريب الزمان و انتم ×× عمدتی فی الخطوب يا آل احمد؛ انجام: صل یا رب کل وقت علیه ×× دائماً فی دوام ذاتک سرمد / و علی الآل و الصحابة مهما ×× أنشأ المستهام مدحاً و انشد\nمنظومه دالیه ای است در 22 بیت که در نسخه چنین معرفی شده است: «للشیخ عبدالله بن محمد الشبراوى المصرى مستغیثاً بالامام الحسین ابن علی و أهل البیت علیهم السلام»؛ خط: نسخ، کا: یحیی بن صالح بن حسین بن علی سراجی صنعایی یمنی، تا: 5 جمادی الثانی 1395ق؛ 2ص (85-86)، 13 سطر [عکسی ف: 3 - 558]",
+     "to": "تهران؛ ملی؛ شماره نسخه: 17389\nاشعار شبلی؛ بی‌کا، بی‌تا؛ خریداری از مصطفی حسینی؛ 142ص، اندازه: 15/4×21/2سم [رایانه]"
+    },
+    "scribe_name": {
+     "from": "یحیی بن صالح بن حسین بن علی سراجی صنعایی یمنی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "5 جمادی الثانی 1395ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1395,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 142
+    },
+    "dimensions": {
+     "from": null,
+     "to": "15/4×21/2سم"
+    },
+    "incipit_text": {
+     "from": "آل بیت النبی مالی سواکم ×× ملجأ ارتجیه للکرب فی غد / ليس اخشى ريب الزمان و انتم ×× عمدتی فی الخطوب يا آل احمد",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "صل یا رب کل وقت علیه ×× دائماً فی دوام ذاتک سرمد / و علی الآل و الصحابة مهما ×× أنشأ المستهام مدحاً و انشد\nمنظومه دالیه ای است در 22 بیت که در نسخه چنین معرفی شده است: «للشیخ عبدالله بن محمد الشبراوى المصرى مستغیثاً بالامام الحسین ابن علی و أهل البیت علیهم السلام»",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "آل بیت النبی مالی سواکم ×× ملجأ ارتجیه للکرب فی غد / ليس اخشى ريب الزمان و انتم ×× عمدتی فی الخطوب يا آل احمد"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "صل یا رب کل وقت علیه ×× دائماً فی دوام ذاتک سرمد / و علی الآل و الصحابة مهما ×× أنشأ المستهام مدحاً و انشد\nمنظومه دالیه ای است در 22 بیت که در نسخه چنین معرفی شده است: «للشیخ عبدالله بن محمد الشبراوى المصرى مستغیثاً بالامام الحسین ابن علی و أهل البیت علیهم السلام»"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3 - 558]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "اشعار شبلی"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[رایانه]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136504,
+   "shelfmark": "2573",
+   "category": "rebuild",
+   "v2": "v14-1974#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. تهران؛ ملک؛ شماره نسخه: 2573\nخط: نستعلیق، کا: یعقوب فراهانی، تا: صفر 1294ق؛ افتادگی: آغاز؛ مجدول؛ کاغذ: فرنگی، جلد: مشمع سیاه، 151گ، 16 سطر، اندازه: 13×20/8سم [ف: 2 - 242]",
+     "to": "قم؛ مسجد اعظم؛ شماره نسخه: 2573\nخط: نستعلیق، بی‌کا، تا: 1335ق؛ جلد: مقوا، 41گ، اندازه: 9×13سم [ف مخ: 2 - 892]"
+    },
+    "scribe_name": {
+     "from": "یعقوب فراهانی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "صفر 1294ق",
+     "to": "1335ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1294,
+     "to": 1335
+    },
+    "folios": {
+     "from": null,
+     "to": 41
+    },
+    "dimensions": {
+     "from": "13×20/8سم",
+     "to": "9×13سم"
+    },
+    "paper": {
+     "from": "فرنگی",
+     "to": null
+    },
+    "binding": {
+     "from": "مشمع سیاه",
+     "to": "مقوا"
+    },
+    "is_ruled": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 2 - 242]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف مخ: 2 - 892]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 135676,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v14-1628#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ فرمانفرمائیان، حافظ (دکتر)؛ شماره نسخه: بدون شماره\nهمان نسخه بالا [نشریه: 7 - 544]",
+     "to": "تبریز؛ ثقة الاسلام؛ شماره نسخه: بدون شماره\nدر انشاء و مراسلات؛ بی‌کا، بی‌تا [نشریه: 7 - 535]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 7 - 544]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "در انشاء و مراسلات"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 7 - 535]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 138118,
+   "shelfmark": "2125/19",
+   "category": "rebuild",
+   "v2": "v14-2444#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دانشگاه؛ شماره نسخه: 6952/8-عکس\nبی‌کا، تا: با تاریخ 1161ق؛ 4ص [فیلمها ف: 3 - 269]",
+     "to": "تهران؛ ملک؛ شماره نسخه: 2125/19\nخط: شکسته نستعلیق، کا: محمد حسینی قاینی، تا: 1 رجب 1147ق [ف: 5 - 426]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "محمد حسینی قاینی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "با تاریخ 1161ق",
+     "to": "1 رجب 1147ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1161,
+     "to": 1147
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 269]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 5 - 426]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46506,
+   "shelfmark": "4179-ف",
+   "category": "rebuild",
+   "v2": "v4-2251#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1447/2 عکسی\nآغاز: الحمد لله رب العالمين وصلى الله على محمد خاتم النبيين و آله و صحبه أجمعين أما بعد فهذه ارجوزة فيمن روى له الشيخان من الأصحاب مختصرة من كشف النقاب للحافظ صلاح الدين العلائي مرتبة على أربعة أبواب، الباب الأول فيمن روى له أكثر من ألف حديث\nنسخه اصل: کتابخانه چستربیتی،دبلین ایرلند جنوبی،ش3458؛ خط: نسخ، بی‌کا، بی‌تا، 6ص (15-20)، 19 سطر [عکسی ف: 4-285]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 4179-ف\nنسخه اصل: ملی ونیز (فهرست تاریخ اسناد ایران ونیز ش 186)؛ بی‌کا، بی‌تا، در پایان یک صفحه است به ترکی و گویا می‌رساند که آن چاپ شده است [فیلمها ف: 3-27]"
+    },
+    "incipit_text": {
+     "from": "الحمد لله رب العالمين وصلى الله على محمد خاتم النبيين و آله و صحبه أجمعين أما بعد فهذه ارجوزة فيمن روى له الشيخان من الأصحاب مختصرة من كشف النقاب للحافظ صلاح الدين العلائي مرتبة على أربعة أبواب، الباب الأول فيمن روى له أكثر من ألف حديث",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمد لله رب العالمين وصلى الله على محمد خاتم النبيين و آله و صحبه أجمعين أما بعد فهذه ارجوزة فيمن روى له الشيخان من الأصحاب مختصرة من كشف النقاب للحافظ صلاح الدين العلائي مرتبة على أربعة أبواب، الباب الأول فيمن روى له أكثر من ألف حديث"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-285]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "در پایان یک صفحه است به ترکی و گویا می‌رساند که آن چاپ شده است"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3-27]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38170,
+   "shelfmark": "7041/3",
+   "category": "rebuild",
+   "v2": "v4-90#1",
+   "changes": {
+    "raw_text": {
+     "from": "2. تهران؛ سپهسالار؛ شماره نسخه: 2930/8\nآغاز و انجام: برابر\nبی‌کا، بی‌تا؛ کاغذ: سمرقندی نخودی، جلد: تیماج سرخ مقوایی ضربی، درون تیماج سرخ، 18گ (124پ-141ر)، 19 سطر، اندازه: 12/5×21/5سم [ف: 3-142]",
+     "to": "2. تهران؛ دانشگاه؛ شماره نسخه: 7041/3\nخط: نستعلیق، بی‌کا، تا: 1006ق؛ کاغذ: سمرقندی، جلد: مقوا عطف تیماج مشکی، 4گ (56پ-60ر)، 17 سطر (7×12)، قطع: ربعی، اندازه: 12×17سم [ف: 16-436]"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1006ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1006
+    },
+    "folios": {
+     "from": null,
+     "to": 4
+    },
+    "lines": {
+     "from": null,
+     "to": 17
+    },
+    "dimensions": {
+     "from": "12/5×21/5سم",
+     "to": "12×17سم"
+    },
+    "paper": {
+     "from": "سمرقندی نخودی",
+     "to": "سمرقندی"
+    },
+    "binding": {
+     "from": "تیماج سرخ مقوایی ضربی، درون تیماج سرخ",
+     "to": "مقوا عطف تیماج مشکی"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-142]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 16-436]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222647,
+   "shelfmark": "12570/4",
+   "category": "rebuild",
+   "v2": "v23-959#0",
+   "changes": {
+    "raw_text": {
+     "from": "9. قم؛ مرعشی؛ شماره نسخه: 1770/2\nنسخه اصل: کتابخانه ندوة العلماء، لکهنو، هند، شماره 11؛ خط: نستعلیق، بی‌کا، تا: قرن 13؛ مجدول؛ 2گ، 17سطر [عکسی ف: 5- 219]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 12570/4\nخط: نسخ، بی‌کا، بی‌تا؛ 10گ (40پ-49پ) [ف: 36 - 105]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 13",
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 10
+    },
+    "is_ruled": {
+     "from": 1,
+     "to": 0
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 5- 219]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 36 - 105]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226290,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v23-1868#25",
+   "changes": {
+    "raw_text": {
+     "from": "39. تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [میراث اسلامی: 5 - 600]",
+     "to": "26. قم؛ مهدوی (کتابخانه)؛ شماره نسخه: بدون شماره\nکا: محمد علی بن جلال الدین محمد استرابادی، تا: غره جمادی الثانی 1020ق، جا: لار [تراثنا: س18ش1و2 - 230]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "محمد علی بن جلال الدین محمد استرابادی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "غره جمادی الثانی 1020ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1020
+    },
+    "copy_place": {
+     "from": null,
+     "to": "لار"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 600]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[تراثنا: س18ش1و2 - 230]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225314,
+   "shelfmark": "29",
+   "category": "rebuild",
+   "v2": "v23-1734#0",
+   "changes": {
+    "raw_text": {
+     "from": "23. شاهرود؛ مدرسه اسماعیلیه؛ شماره نسخه: 29\nکا: میرزا محمد بن محمد سمنانی، تا: پنج شنبه 5 ربیع الثانی 1238ق [ف: - 14]",
+     "to": "تهران؛ شهشهانی ، حسین؛ شماره نسخه: 29\nحکم حشمت الدوله حکمران اصفهان بنا بر «تعلیقه صدر اعظم در تعقیب فرمان همیونی» مبنی بر اینکه چون میرزا محمد باقر شهشهانی فوت شده مستمری وی که مبلغ چهل و دو تومان نقد و ده خروار جنس است از «هذه السنه لوی ئیل» در حق میرزا صادق و میرزا قوام الدین و میرزا علیرضا و میرزا عبدالحسین اولادان متوفی پرداخت شود، محل تألیف: اصفهان، تاریخ تألیف: جمادی الثانی 1273؛ خط: شکسته نستعلیق، بی‌کا، بی‌تا؛ مهر: «گوهر فروزان دریای شاهی؛ حشمت الدوله 1265»؛ 5 سطر (19×34)، اندازه: 34×45 سم [نشریه: 1 - 249]"
+    },
+    "scribe_name": {
+     "from": "میرزا محمد بن محمد سمنانی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "پنج شنبه 5 ربیع الثانی 1238ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1238,
+     "to": null
+    },
+    "lines": {
+     "from": null,
+     "to": 5
+    },
+    "dimensions": {
+     "from": null,
+     "to": "34×45 سم"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 14]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "حکم حشمت الدوله حکمران اصفهان بنا بر «تعلیقه صدر اعظم در تعقیب فرمان همیونی» مبنی بر اینکه چون میرزا محمد باقر شهشهانی فوت شده مستمری وی که مبلغ چهل و دو تومان نقد و ده خروار جنس است از «هذه السنه لوی ئیل» در حق میرزا صادق و میرزا قوام الدین و میرزا علیرضا و میرزا عبدالحسین اولادان متوفی پرداخت شود، محل تألیف: اصفهان، تاریخ تألیف: جمادی الثانی 1273"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 1 - 249]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222519,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v23-932#315",
+   "changes": {
+    "raw_text": {
+     "from": "39. تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [میراث اسلامی: 5 - 600]",
+     "to": "314. جهرم؛ کریم اشراق؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [میراث اسلامی: 5 - 611]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 600]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 611]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232927,
+   "shelfmark": "140",
+   "category": "rebuild",
+   "v2": "v24-1334#0",
+   "changes": {
+    "raw_text": {
+     "from": "مشهد؛ رضوی؛ شماره نسخه: 140\nهمان نسخه بالا [اهدائی ف: - 182]",
+     "to": "قزوین؛ میر حسینا قزوینی؛ شماره نسخه: 140\nبی‌کا، تا: شنبه 25 ذیحجه 1089ق؛ مقابله شده با اصل. سه ماه و دوازده روز پس از مرگ قزوینی؛ [نشریه: 6 - 346]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "شنبه 25 ذیحجه 1089ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1089
+    },
+    "is_collated": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[اهدائی ف: - 182]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "مقابله شده با اصل. سه ماه و دوازده روز پس از مرگ قزوینی"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 6 - 346]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 220828,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v23-585#32",
+   "changes": {
+    "raw_text": {
+     "from": "39. تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [میراث اسلامی: 5 - 600]",
+     "to": "33. مشهد؛ مرتضوی؛ شماره نسخه: بدون شماره\nکا: علی اصغر بن علی اکبر کرمانی، تا: قرن 11؛ محشی؛ در آخر کتاب خطبه حضرت زهرا معروف به اللمة که در مسجد النبی ایراد کرده ملحق شده [ف: - 25]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "علی اصغر بن علی اکبر کرمانی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 600]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "در آخر کتاب خطبه حضرت زهرا معروف به اللمة که در مسجد النبی ایراد کرده ملحق شده"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 25]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 122275,
+   "shelfmark": "15940/20",
+   "category": "rebuild",
+   "v2": "v13-569#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دانشگاه؛ شماره نسخه: 6121/2-عکس\nنسخه اصل: موزه بریتانیا Add. 8149؛ بی‌کا، تا: 1128ق؛ 54گ (29-82) [فیلمها ف: 3 - 240]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 15940/20\nخط: نسخ و نستعلیق، بی‌کا، بی‌تا؛ جلد: تیماج فرنگی، 1ص (101پ)، اندازه: 16×22سم [ف: 44 - 147]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "1128ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1128,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 1
+    },
+    "dimensions": {
+     "from": null,
+     "to": "16×22سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج فرنگی"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 240]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 44 - 147]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119981,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v12-1784#26",
+   "changes": {
+    "raw_text": {
+     "from": "34. قم؛ مهدوی (کتابخانه)؛ شماره نسخه: بدون شماره\nبی‌کا، تا: قرن 10، مصحح، محشی [تراثنا: س18ش1و2 - 215]",
+     "to": "27. تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nکا: محمد قاسم بن محمد سعید، تا: 1229ق [میراث اسلامی: 5 - 598]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "محمد قاسم بن محمد سعید"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "قرن 10",
+     "to": "1229ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1229
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[تراثنا: س18ش1و2 - 215]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 598]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16454,
+   "shelfmark": "230/3",
+   "category": "rebuild",
+   "v2": "v1-1823#0",
+   "changes": {
+    "raw_text": {
+     "from": "مشهد؛ الهیات؛ شماره نسخه: 13118/3 عکسی\nنسخه اصل: همان نسخه بالا [ف: 3-1332]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 230/3\nخط: نستعلیق، بی‌کا، تا: قرن 11؛ افتادگی: انجام؛ کاغذ: سفید، جلد: مقوایی عطف و گوشه تیماج سرخ ضربی، 1ص (45)، 11 سطر (5×12)، اندازه: 11×18سم [سنا - ف: 1-114]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 11"
+    },
+    "folios": {
+     "from": null,
+     "to": 1
+    },
+    "lines": {
+     "from": null,
+     "to": 11
+    },
+    "dimensions": {
+     "from": null,
+     "to": "11×18سم"
+    },
+    "paper": {
+     "from": null,
+     "to": "سفید"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوایی عطف و گوشه تیماج سرخ ضربی"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-1332]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[سنا - ف: 1-114]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151611,
+   "shelfmark": "195/83-ف",
+   "category": "rebuild",
+   "v2": "v16-271#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. قم؛ مرکز احیاء؛ شماره نسخه: 776/16\nنسخه اصل: کتابخانه واتیکان-رم 1348؛ خط: نسخ درشت، بی‌کا، تا: قرن 11؛ 4گ (188-191) [عکسی ف: 2 - 457]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 195/83-ف\nنسخه اصل: حمدیه ش 1447؛ بی‌کا، تا: با تاریخ 755ق؛ در هامش [فیلمها ف: 1 - 427]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 11",
+     "to": "با تاریخ 755ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 755
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 457]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "در هامش"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1 - 427]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21766,
+   "shelfmark": "ف92",
+   "category": "rebuild",
+   "v2": "v2-804#6",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 929عکسی\nآغاز: برابر؛ انجام: باب چهارم در امامت ... و آمده است که قومی امامت را پس از اقامت تدافع نمودند حق تعالی ایشان را خسف.\nنسخه اصل: مجلس شورا (احتمالاً همان نسخه بالا). ترجمه ربع عبادات، مشتمل بر اول کتاب تا آغاز باب چهارم از کتاب اسرار نماز؛ خط: نسخ، بی‌کا، تا: احتمالاً اواخر قرن 11؛ افتادگی: انجام؛ مصحح، بعضی از لغات معنی شده است، در مقایسه بین این نسخه و نسخه موجود در «دارالکتب القومیه» قاهره به نظر می‌رسد که کاتب این نسخه نیز همان اسماعیل مراغی باشد که نسخه قاهره را در 21 صفر 1089ق به پایان آورده است؛ 117گ، 25 سطر [عکسی ف: 2 - 409]",
+     "to": "تهران؛ مطالعات فرهنگی؛ شماره نسخه: ف92\nنسخه اصل: همان نسخه اصل بالا [فهرستواره مینوی: - 166]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "احتمالاً اواخر قرن 11",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "باب چهارم در امامت ... و آمده است که قومی امامت را پس از اقامت تدافع نمودند حق تعالی ایشان را خسف",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [
+       {
+        "label": null,
+        "text": "باب چهارم در امامت ... و آمده است که قومی امامت را پس از اقامت تدافع نمودند حق تعالی ایشان را خسف"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 409]",
+      "residual_notes": "بعضی از لغات معنی شده است، در مقایسه بین این نسخه نسخه موجود در «دارالکتب القومیه» قاهره به نظر می‌رسد که کاتب این نسخه نیز همان اسماعیل مراغی باشد که نسخه قاهره را در 21 صفر 1089ق به پایان آورده است"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فهرستواره مینوی: - 166]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99512,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v11-65#0",
+   "changes": {
+    "raw_text": {
+     "from": "21. قزوین؛ فحول قزوینی؛ شماره نسخه: بدون شماره\nکا: محمد بن ابی الحسن، تا: 1320ق [ف: - 34]",
+     "to": "تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nجلد اول؛ کا: محمد شاه بن محمد علی، تا: 1023ق [میراث اسلامی: 5 - 597]"
+    },
+    "scribe_name": {
+     "from": "محمد بن ابی الحسن",
+     "to": "محمد شاه بن محمد علی"
+    },
+    "copy_date_raw": {
+     "from": "1320ق",
+     "to": "1023ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1320,
+     "to": 1023
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 34]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 597]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 256077,
+   "shelfmark": "1157/4-ف",
+   "category": "rebuild",
+   "v2": "v26-1450#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. تهران؛ دائرة المعارف؛ شماره نسخه: 250/7-عکسی\nآغاز: برابر1؛ انجام: دختر شب و روز می‌گریست، بعد از آن چند روز ...\nاصل نسخه: گنج بخش، ش 4011 (گنج، 959/2)؛ خط: نستعلیق پخته، بی‌کا، تا: قرن 11 و 12؛ 16ص (85-100) [عکسی ف: 2-227]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 1157/4-ف\nنسخه اصل: بادلیان ش 41 sal (1284). در طریقت و شریعت و حقیقت؛ خط: نسخ، بی‌کا، تا: 1012ق [فیلمها ف: 1-573]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 11 و 12",
+     "to": "1012ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1012
+    },
+    "incipit_text": {
+     "from": "برابر1",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "دختر شب و روز می‌گریست، بعد از آن چند روز ..",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "برابر1"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "دختر شب و روز می‌گریست، بعد از آن چند روز .."
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2-227]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1-573]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255411,
+   "shelfmark": "20بخش2",
+   "category": "rebuild",
+   "v2": "v26-1294#12",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ ملی؛ شماره نسخه: 98تا99-عکسی\nنسخه اصل: همان نسخه اصل بالا [نشریه: 2-278]",
+     "to": "تهران؛ مینوی؛ شماره نسخه: 20بخش2\nنسخه اصل: همان نسخه اصل بالا [ف: -66]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 2-278]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: -66]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255421,
+   "shelfmark": "2116/8 عکسی",
+   "category": "rebuild",
+   "v2": "v26-1294#22",
+   "changes": {
+    "raw_text": {
+     "from": "20. قم؛ مرکز احیاء؛ شماره نسخه: 1131/1\nآغاز: متعبد و روزه دار و شب نمازکن و هرگز خونی نریزد و ایذاء جیرانی جایز نشمرد\nنسخه اصلی: کتابخانه‌ای درهند؛ خط: نستعلیق، بی‌کا، تا: 12 ربیع الاول818ق؛ افتادگی: آغاز؛ با چهار تصویر نقاشی شده؛ 190ص (191-2) [عکسی ف: 3-413]",
+     "to": "قم؛ مرعشی؛ شماره نسخه: 2116/8 عکسی\nنسخه اصل: همان نسخه اصل بالا [میراث شهاب: س18ش1-52]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "12 ربیع الاول818ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 818,
+     "to": null
+    },
+    "incipit_text": {
+     "from": "متعبد و روزه دار و شب نمازکن و هرگز خونی نریزد و ایذاء جیرانی جایز نشمرد\nنسخه اصلی: کتابخانه‌ای درهند",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "متعبد و روزه دار و شب نمازکن و هرگز خونی نریزد و ایذاء جیرانی جایز نشمرد\nنسخه اصلی: کتابخانه‌ای درهند"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3-413]",
+      "residual_notes": "با چهار تصویر نقاشی شده"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س18ش1-52]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 247978,
+   "shelfmark": "6303",
+   "category": "rebuild",
+   "v2": "v25-1794#0",
+   "changes": {
+    "raw_text": {
+     "from": "34. تهران؛ دانشگاه؛ شماره نسخه: 6303\nاز مقاله 1 جزو 2 و ناقص در آخر؛ خط: نستعلیق، بی‌کا، تا: قرن 11؛ تملک: علی قلی میرزا وزیر علوم در ربیع الاول 1289ق؛ کاغذ: سپاهانی، جلد: تیماج، 389گ، 21 سطر (17×24)، اندازه: 23×33سم [ف: 16-237]",
+     "to": "تهران؛ ملک؛ شماره نسخه: 6303\nخط: شکسته نستعلیق وسیاق، بی‌کا، تا: قرن 13 و 14؛ جلد: رویه میشن، 4گ، اندازه: 16/7×21/7سم [ف: 3-611]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 11",
+     "to": "قرن 13 و 14"
+    },
+    "folios": {
+     "from": null,
+     "to": 4
+    },
+    "dimensions": {
+     "from": "23×33سم",
+     "to": "16/7×21/7سم"
+    },
+    "paper": {
+     "from": "سپاهانی",
+     "to": null
+    },
+    "binding": {
+     "from": "تیماج",
+     "to": "رویه میشن"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "از مقاله 1 جزو 2 و ناقص در آخر",
+       "از مقاله 1 جزو 2 و ناقص در آخر"
+      ],
+      "ownership_and_seals": [
+       "تملک: علی قلی میرزا وزیر علوم در ربیع الاول 1289ق"
+      ],
+      "catalog_citation": "[ف: 16-237]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-611]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255344,
+   "shelfmark": "758",
+   "category": "rebuild",
+   "v2": "v26-1276#0",
+   "changes": {
+    "raw_text": {
+     "from": "مشهد؛ رضوی؛ شماره نسخه: 758\nهمان نسخه بالا [اهدائی ف: -200]",
+     "to": "مشهد؛ الهیات؛ شماره نسخه: 758\nخط: نستعلیق، بی‌کا، تا: 1268ق؛ مجدول؛ جلد: تیماج، 62گ، 15 سطر (10×14)، اندازه: 16×22سم [ف: 1-234]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1268ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1268
+    },
+    "folios": {
+     "from": null,
+     "to": 62
+    },
+    "lines": {
+     "from": null,
+     "to": 15
+    },
+    "dimensions": {
+     "from": null,
+     "to": "16×22سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    },
+    "is_ruled": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[اهدائی ف: -200]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1-234]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 261806,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v27-770#0",
+   "changes": {
+    "raw_text": {
+     "from": "19. تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nکا: محمد ابراهیم بروجردی، تا: 1215ق [میراث اسلامی: 5-598]",
+     "to": "شیراز؛ بغایری، عبدالرزاق؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا؛ افتادگی: آغاز [میراث اسلامی: 5-570]"
+    },
+    "scribe_name": {
+     "from": "محمد ابراهیم بروجردی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "1215ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1215,
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5-598]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5-570]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262001,
+   "shelfmark": "30",
+   "category": "rebuild",
+   "v2": "v27-865#0",
+   "changes": {
+    "raw_text": {
+     "from": "10. کاشان؛ فرهنگ و ارشاد؛ شماره نسخه: 30\nخط: نسخ معرب زیبا، کا: قطب الدین بن حسن کرمانی، تا: 834ق؛ افتادگی: آغاز؛ مجدول؛ جلد: گالینگور، 68گ، 14سطر، اندازه: 14/5×21/5سم [ف: -39]",
+     "to": "مشهد؛ مدیر شانه چی؛ شماره نسخه: 30\nخط: نستعلیق، کاتب = مؤلف، بی‌تا؛ قطع: بغلی [نشریه: 5-588]"
+    },
+    "scribe_name": {
+     "from": "قطب الدین بن حسن کرمانی",
+     "to": null
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "is_autograph": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "834ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 834,
+     "to": null
+    },
+    "dimensions": {
+     "from": "14/5×21/5سم",
+     "to": null
+    },
+    "binding": {
+     "from": "گالینگور",
+     "to": null
+    },
+    "is_ruled": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: -39]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 5-588]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298327,
+   "shelfmark": "3752/3-عکس و",
+   "category": "rebuild",
+   "v2": "v31-266#1",
+   "changes": {
+    "raw_text": {
+     "from": "2. تهران؛ دانشگاه؛ شماره نسخه: 3844/1\nآغاز: برابر انجام: لیستا بمادة و لا.\nتذکر: نام مؤلف به قرینه آغاز نسخه تعیین شد؛ بی‌کا، تا: قرن 13؛ افتادگی: انجام؛ جلد: تیماج، 19گ (2پ-20پ)، 18سطر (14/5×8/5)، اندازه: 14×21سم [ف: 12-2826]",
+     "to": "2. تهران؛ دانشگاه؛ شماره نسخه: 3752/3-عکس و\n3753/3-عکس نسخه اصل: توبینگن 3784 Or .Oct ... این نسخه تنها سی و سه حکایت اخیر نسخه نافذ پاشا با چهار حکایت دیگر را دارد (از ص 153 حکایت 148 تا پایان چاپ 1340) در چاپ دوم از این نسخه توبینگن بهره برده شده؛ بی‌کا، بی‌تا؛ افتادگی: آغاز؛ 51گ (99پ-149ر) [فیلمها ف: 3-227]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 13",
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 51
+    },
+    "dimensions": {
+     "from": "14×21سم",
+     "to": null
+    },
+    "binding": {
+     "from": "تیماج",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "لیستا بمادة و لا",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [
+       {
+        "label": null,
+        "text": "لیستا بمادة و لا"
+       }
+      ],
+      "editorial_notes": [
+       "نام مؤلف به قرینه آغاز نسخه تعیین شد",
+       "تذکر: نام مؤلف به قرینه آغاز نسخه تعیین شد"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 12-2826]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3-227]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291430,
+   "shelfmark": "9/9 خوئی",
+   "category": "rebuild",
+   "v2": "v30-769#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. قم؛ مرعشی؛ شماره نسخه: 799عکسی\nنسخه اصل: اسکوریال، ش 1530(فهرست خطی عربی اسکوریال 121/3)؛ خط: مغربی، کا: محمد بن محمد بن احمد بن عیسی، تا: سه‌شنبه 3 رمضان688ق؛ مصحح، با اجازه‌ای که عبد ... بن محمد مالکی به تاریخ محرم 722ق برای ابا محمد صالح بن احمد اللخمی نوشته، همچنین مناوله‌ای به تاریخ محرم 730ق آمد؛ 119گ، 19سطر [عکسی ف: 2-275]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 9/9 خوئی\nبی‌کا، بی‌تا؛ 1ص (188) [ف: 7-274]"
+    },
+    "scribe_name": {
+     "from": "محمد بن محمد بن احمد بن عیسی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "سه‌شنبه 3 رمضان688ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 688,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 1
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2-275]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 7-274]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273178,
+   "shelfmark": "1486",
+   "category": "rebuild",
+   "v2": "v28-1052#0",
+   "changes": {
+    "raw_text": {
+     "from": "79. یزد؛ وزیری؛ شماره نسخه: 1486\nآغاز: برابر\nخط: نسخ، کا: محمد صالح بن محمد یوسف شوشتری، تا: 23 ذیحجه1082ق؛ مهر: «یا کبیر المتعال»؛ اهدایی: شیخ مهدی مجلسی؛ کاغذ: اصفهانی، جلد: تیماج، 383گ، 29سطر (10/5×21)، اندازه: 19×31سم [ف: 3-972]",
+     "to": "قم؛ مرکز احیاء؛ شماره نسخه: 1486\nخط: نسخ و نستعلیق، بی‌کا، تا: اواخر قرن 13؛ جلد: تیماج، 79گ، اندازه: 11×18سم [ف: 4-327]"
+    },
+    "scribe_name": {
+     "from": "محمد صالح بن محمد یوسف شوشتری",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "23 ذیحجه1082ق",
+     "to": "اواخر قرن 13"
+    },
+    "copy_date_hijri_year": {
+     "from": 1082,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 79
+    },
+    "dimensions": {
+     "from": "19×31سم",
+     "to": "11×18سم"
+    },
+    "paper": {
+     "from": "اصفهانی",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [
+       "مهر: «یا کبیر المتعال»"
+      ],
+      "catalog_citation": "[ف: 3-972]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 4-327]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298943,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v31-387#128",
+   "changes": {
+    "raw_text": {
+     "from": "5. زنجان؛ امام جمعه؛ شماره نسخه: بدون شماره\nبی‌کا، تا: 15 جمادی الثانی975ق [دلیل المخطوطات: 1-164]",
+     "to": "129. کرمانشاه؛ نجومی؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا[دلیل المخطوطات: 1-289]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "15 جمادی الثانی975ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 975,
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[دلیل المخطوطات: 1-164]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[دلیل المخطوطات: 1-289]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296942,
+   "shelfmark": "286",
+   "category": "rebuild",
+   "v2": "v30-1783#152",
+   "changes": {
+    "raw_text": {
+     "from": "446. اصفهان؛ مدرسه صدر بازار؛ شماره نسخه: 286\nخط: نسخ، کا: ملک محمد بن محمد حسن بروجنی، تا: 18 رمضان 1244ق؛ 103گ، 17سطر، اندازه: 15×21/5سم [ف: 1-205]",
+     "to": "152. تهران؛ سپهسالار؛ شماره نسخه: 286\nمشیر کتاب صلاة؛ خط: نسخ، بی‌کا، تا: 1270ق؛ مهر: مشیر؛ 378گ، 23 سطر (13×15/5)، اندازه: 21×31سم [ف: 5-627]"
+    },
+    "scribe_name": {
+     "from": "ملک محمد بن محمد حسن بروجنی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "18 رمضان 1244ق",
+     "to": "1270ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1244,
+     "to": 1270
+    },
+    "folios": {
+     "from": null,
+     "to": 378
+    },
+    "lines": {
+     "from": null,
+     "to": 23
+    },
+    "dimensions": {
+     "from": "15×21/5سم",
+     "to": "21×31سم"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1-205]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "مشیر کتاب صلاة"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 5-627]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303154,
+   "shelfmark": "12155/2",
+   "category": "rebuild",
+   "v2": "v31-1691#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 2022/3 عکسی\nآغاز: بسمله، و به ثقتى قوله قلت لأنهم كانوا يعبدون الخ لا يخفى ما فيه فانه بظاهره يدل على انه (ص) ما يعبد الرب قبل البعثة مدة اربعين سنة و هو ظاهر البطلان\nخط: نستعلیق، کا: محمد علی گلپایگانی، تا: رمضان1117ق؛ 2ص (367-368) [میراث شهاب: س17 ش1و2-115]\n\n\n<!-- page: 610 -->",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 12155/2\nدر تجوید؛ بی‌کا، بی‌تا؛ 24ص، اندازه: 12×18/5سم [ف: 35-155]"
+    },
+    "scribe_name": {
+     "from": "محمد علی گلپایگانی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "رمضان1117ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1117,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 24
+    },
+    "dimensions": {
+     "from": null,
+     "to": "12×18/5سم"
+    },
+    "incipit_text": {
+     "from": "بسمله، و به ثقتى قوله قلت لأنهم كانوا يعبدون الخ لا يخفى ما فيه فانه بظاهره يدل على انه (ص) ما يعبد الرب قبل البعثة مدة اربعين سنة و هو ظاهر البطلان",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله، و به ثقتى قوله قلت لأنهم كانوا يعبدون الخ لا يخفى ما فيه فانه بظاهره يدل على انه (ص) ما يعبد الرب قبل البعثة مدة اربعين سنة و هو ظاهر البطلان"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س17 ش1و2-115]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "در تجوید"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 35-155]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306326,
+   "shelfmark": "4735-ف",
+   "category": "rebuild",
+   "v2": "v32-17#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ ملی؛ شماره نسخه: 153-عکسی\nنسخه اصل: از ترکیه نسخه اسعد افندی شماره 3333؛ بی‌کا، تا: 1039ق؛ 168گ، 19سطر [نشریه: 2-280]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 4735-ف\nجلد 1؛ بی‌کا، بی‌تا؛ 525ص [فیلمها ف: 3-97]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "1039ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1039,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 525
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 2-280]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3-97]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 305851,
+   "shelfmark": "11650",
+   "category": "rebuild",
+   "v2": "v32-1#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ ملی؛ شماره نسخه: 100-عکسی\nنسخه اصل: کتابخانه شماره 8-1297. منشآت و مکاتیب از سلاطین و وزراء به ترکی و فارسی؛ بی‌کا، تا: قرن 11 [نشریه: 2- 281]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 11650\nصورت اسناد شرعی محاکم و ...؛ خط: رقاع، بی‌کا، تا: قرن 12؛ 94گ، 13 سطر (16/5×11/5)، اندازه: 21×14سم [ف: 34-31]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 11",
+     "to": "قرن 12"
+    },
+    "folios": {
+     "from": null,
+     "to": 94
+    },
+    "lines": {
+     "from": null,
+     "to": 13
+    },
+    "dimensions": {
+     "from": null,
+     "to": "21×14سم"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 2- 281]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "صورت اسناد شرعی محاکم و ..."
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 34-31]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 299663,
+   "shelfmark": "106/3",
+   "category": "rebuild",
+   "v2": "v31-607#0",
+   "changes": {
+    "raw_text": {
+     "from": "4. اصفهان؛ دانشگاه؛ شماره نسخه: 106/3\nخط: نسخ درشت، بی‌کا، تا: قرن11؛ کاغذ: سپاهانی [نشریه: 11-925]",
+     "to": "تهران؛ مینوی؛ شماره نسخه: 106/3\nکا: مینوی، مجتبی، بی‌تا؛ از روی نسخه چستربیتی ش 110 (32/1) از قرنهشتم با مقابله با چند نسخه دیگر [نشریه: 6-681]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "مینوی، مجتبی"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن11",
+     "to": null
+    },
+    "paper": {
+     "from": "سپاهانی",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 11-925]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "از روی نسخه چستربیتی ش 110 (32/1) از قرنهشتم با مقابله با چند نسخه دیگر"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 6-681]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323997,
+   "shelfmark": "6209-ف",
+   "category": "rebuild",
+   "v2": "v33-2186#1",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ مرکز فرهنگی خراسان؛ شماره نسخه: بدون شماره عکسی\nنسخه‌اصل: همان نسخه بالا [جنگ: 1-472]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 6209-ف\nنسخه اصل: همان نسخه بالا [فیلمها ف: 3-209]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[جنگ: 1-472]",
+      "residual_notes": "نسخه‌اصل: همان نسخه بالا"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3-209]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 324418,
+   "shelfmark": "43",
+   "category": "rebuild",
+   "v2": "v33-2196#3",
+   "changes": {
+    "raw_text": {
+     "from": "4. د15امغان؛ صادقیه؛ شماره نسخه: 43\nآغاز: براو باد و عاقت عن اتمام بقیة الکتاب و باز داشته بود مرا از تمام گردانیدن تتمه‌ء آن کتاب؛ انجام: آمیخت بر ما حدابیر السنین شتران لاغر قحط سال و لگد کوب شدیم بزیر دست و پای.\nترجمه‌ای است روان بر نهج البلاغه سید رضی که پس از آوردن مقداری از اصل ترجمه‌ء آنرا آورده است؛ خط: نسخ و نستعلیق، بی‌کا، تا: قرن 11یا 12؛ افتادگی: آغاز و انجام؛ مصحح؛ جلد: تیماج، 157گ، 21سطر ، اندازه: 18/5×28سم [ف مخ: -41]",
+     "to": "4. دامغان؛ صادقیه؛ شماره نسخه: 43\nآغاز: براو باد و عاقت عن اتمام بقیة الکتاب و باز داشته بود مرا از تمام گردانیدن تتمه‌ء آن کتاب؛ انجام: آمیخت بر ما حدابیر السنین شتران لاغر قحط سال و لگد کوب شدیم بزیر دست و پای.\nترجمه‌ای است روان بر نهج البلاغه سید رضی که پس از آوردن مقداری از اصل ترجمه‌ء آنرا آورده است؛ خط: نسخ و نستعلیق، بی‌کا، تا: قرن 11یا 12؛ افتادگی: آغاز و انجام؛ مصحح؛ جلد: تیماج، 157گ، 21سطر ، اندازه: 18/5×28سم [ف مخ: -41]"
+    },
+    "explicit_text": {
+     "from": "آمیخت بر ما حدابیر السنین شتران لاغر قحط سال و لگد کوب شدیم بزیر دست و پای.\nترجمه‌ای است روان بر نهج البلاغه سید رضی که پس از آوردن مقداری از اصل ترجمه‌ء آنرا آورده است",
+     "to": "آمیخت بر ما حدابیر السنین شتران لاغر قحط سال و لگد کوب شدیم بزیر دست و پای."
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "براو باد و عاقت عن اتمام بقیة الکتاب و باز داشته بود مرا از تمام گردانیدن تتمه‌ء آن کتاب"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "آمیخت بر ما حدابیر السنین شتران لاغر قحط سال و لگد کوب شدیم بزیر دست و پای.\nترجمه‌ای است روان بر نهج البلاغه سید رضی که پس از آوردن مقداری از اصل ترجمه‌ء آنرا آورده است"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف مخ: -41]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "ترجمه‌ای است روان بر نهج البلاغه سید رضی که پس از آوردن مقداری از اصل ترجمه‌ء آنرا آورده است"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف مخ: -41]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 313087,
+   "shelfmark": "462/30(آ)-463/30(ب)-ف",
+   "category": "rebuild",
+   "v2": "v32-1502#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 2116/30 عکسی\nنسخه اصل: همان نسخه بالا [میراث شهاب: س 18ش 1-53]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 462/30(آ)-463/30(ب)-ف\nنسخه اصل: کوپرولوش 1589. نامه‌ای به فارسی از مجدالدین بغدادی به شرف الدین افتخار المحققین؛ بی‌کا، تا: با تاریخ 754ق؛ مجدول؛ 2گ (415ر-416ر)، 33سطر [فیلمها ف: 1-481]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "با تاریخ 754ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 754
+    },
+    "folios": {
+     "from": null,
+     "to": 2
+    },
+    "lines": {
+     "from": null,
+     "to": 33
+    },
+    "is_ruled": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س 18ش 1-53]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1-481]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 313865,
+   "shelfmark": "1409/1-عکس",
+   "category": "rebuild",
+   "v2": "v32-1719#1",
+   "changes": {
+    "raw_text": {
+     "from": "2. مشهد؛ رضوی؛ شماره نسخه: 4957/15\nنامه‌ای از تاج الدین احمد بن ابراهیم؛ خط: نسخ، بی‌کا، تا: قرن 13؛ واقف: نائینی؛ 2ص (91-92)، اندازه: 17/5×21/8سم [ف: 7-817]",
+     "to": "2. تهران؛ دانشگاه؛ شماره نسخه: 1409/1-عکس\nنسخه اصل: کیمبریج، برون (11). نامه به شاه عباس؛ خط: نستعلیق، بی‌کا، بی‌تا [فیلمها ف: 3-221]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 13",
+     "to": null
+    },
+    "dimensions": {
+     "from": "17/5×21/8سم",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [
+       "واقف: نائینی"
+      ],
+      "catalog_citation": "[ف: 7-817]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3-221]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 312912,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v32-1439#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [میراث اسلامی: 5-601]",
+     "to": "شیراز؛ بغایری، عبدالرزاق؛ شماره نسخه: بدون شماره\nبی‌کا، تا: 1296ق [میراث اسلامی: 5-570]"
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1296ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1296
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5-601]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5-570]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319284,
+   "shelfmark": "27177",
+   "category": "rebuild",
+   "v2": "v33-1014#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 1590\nآغاز: الحمد لله الذی تستغرق مبادی ایادیه غایات الحمد و الشکر و تکل تباشیر تلالا آلائه بصر البصیرة\nکتابخانه واتیکان- رم 985.خط: نسخ معرب، کا: پیر احمد بن شیخ محمد بن عبد الله بن سعید، تا: جمادی الاول781ق؛ 388ص [عکسی ف: 4-459]",
+     "to": "تهران؛ ملی؛ شماره نسخه: 27177\nبی‌کا، بی‌تا؛ خریداری از رضا میدانی [رایانه]"
+    },
+    "scribe_name": {
+     "from": "پیر احمد بن شیخ محمد بن عبد الله بن سعید",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "جمادی الاول781ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 781,
+     "to": null
+    },
+    "incipit_text": {
+     "from": "الحمد لله الذی تستغرق مبادی ایادیه غایات الحمد و الشکر و تکل تباشیر تلالا آلائه بصر البصیرة\nکتابخانه واتیکان- رم 985",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمد لله الذی تستغرق مبادی ایادیه غایات الحمد و الشکر و تکل تباشیر تلالا آلائه بصر البصیرة\nکتابخانه واتیکان- رم 985"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-459]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[رایانه]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319934,
+   "shelfmark": "1478/1",
+   "category": "rebuild",
+   "v2": "v33-1272#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1346/4عکسی\nآغاز: بسمله. اما بعد حمد الله علی نعم عظمت أن یبلغ الألسن حق حمدها\nنسخه اصل: کتابخانه کوپریلی در ترکیه شماره 428 (فهرس مخطوطات مکتبة کوپریلی 221/1-223)؛ خط: نسخ، بی‌کا، تا: 855ق [عکسی ف: 4-93]",
+     "to": "یزد؛ وزیری؛ شماره نسخه: 1478/1\nخط: نسخ، بی‌کا، بی‌تا؛ مهر: «عبده میرزا عبدالله»، «یا ابا عبدالله»؛ جلد: تیماج، 32گ، اندازه: 10/5×13سم [ف: 3-970]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "855ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 855,
+     "to": null
+    },
+    "folios": {
+     "from": null,
+     "to": 32
+    },
+    "dimensions": {
+     "from": null,
+     "to": "10/5×13سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج"
+    },
+    "incipit_text": {
+     "from": "بسمله. اما بعد حمد الله علی نعم عظمت أن یبلغ الألسن حق حمدها",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. اما بعد حمد الله علی نعم عظمت أن یبلغ الألسن حق حمدها"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-93]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-970]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 321683,
+   "shelfmark": "5/12",
+   "category": "rebuild",
+   "v2": "v33-1619#1",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 2137/12\nنسخه اصل: همان نسخه بالا [عکسی ف: 6-179]",
+     "to": "مشهد؛ میبدی؛ شماره نسخه: 5/12\nهمان نسخه بالا؛ خط: نستعلیق، کا: بروجردی، عبدالکریم بن محمد اسماعیل، بی‌تا؛ اندازه: 16×25سم [ف: 1-27]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "بروجردی، عبدالکریم بن محمد اسماعیل"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "dimensions": {
+     "from": null,
+     "to": "16×25سم"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 6-179]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "همان نسخه بالا"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1-27]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 317521,
+   "shelfmark": "408/3",
+   "category": "rebuild",
+   "v2": "v33-568#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دائرة المعارف؛ شماره نسخه: 579/1-عکسی\nنسخه اصل: همان نسخه بالا [عکسی ف: 2-282]",
+     "to": "مشهد؛ مدرسه آیة الله خوئی؛ شماره نسخه: 408/3\nفواید؛ کا: شیخ محمد بن علی جزایری (شاگرد سید نعمة الله جزایری)، تا: 1114ق [اوراق عتیق: 1-251]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "شیخ محمد بن علی جزایری (شاگرد سید نعمة الله جزایری)"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1114ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1114
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2-282]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "فواید"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[اوراق عتیق: 1-251]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39051,
+   "shelfmark": "بدون شماره/3",
+   "category": "rebuild",
+   "v2": "v4-270#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 1519\nنسخه اصل: همان نسخه بالا [عکسی ف: 4-334]",
+     "to": "تبریز؛ قاضی طباطبائی؛ شماره نسخه: بدون شماره/3\nکا: ابوعلی محمد بن اسماعیل حائری، بی‌تا [نشریه: 7-521]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "ابوعلی محمد بن اسماعیل حائری"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-334]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 7-521]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 155256,
+   "shelfmark": "1388/2",
+   "category": "rebuild",
+   "v2": "v16-1553#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1120/2\nآغاز: رسالة لبعض الصوفية كتبت ايها السيد اليك و انا غايب عن شهادى لفرط شوقى الیک بارزقی کمونی لشدة أسفى عليك؛ انجام: فانک الجواد اذا لم تسأل فكيف اذا سئلت و المنعم اذا لم تطالب فكيف اذا طلب منك فلا اله الا أنت يا أرحم الراحمين.\nنسخه اصل: کتابخانه چستربیتی، ش 3883؛ خط: نسخ، بی‌کا، تا: با تاریخ قرن 8؛ 2ص (207-208)، 19 سطر [عکسی ف: 3 - 250]",
+     "to": "قزوین؛ امام صادق؛ شماره نسخه: 1388/2\nخط: نستعلیق، بی‌کا، تا: قرن 14، احتمال خط مؤلف می‌رود؛ 11گ، 25 سطر، اندازه: 12×18/5سم [ف: 2 - 403]"
+    },
+    "copy_date_raw": {
+     "from": "با تاریخ قرن 8",
+     "to": "قرن 14"
+    },
+    "folios": {
+     "from": null,
+     "to": 11
+    },
+    "lines": {
+     "from": null,
+     "to": 25
+    },
+    "dimensions": {
+     "from": null,
+     "to": "12×18/5سم"
+    },
+    "incipit_text": {
+     "from": "رسالة لبعض الصوفية كتبت ايها السيد اليك و انا غايب عن شهادى لفرط شوقى الیک بارزقی کمونی لشدة أسفى عليك",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "فانک الجواد اذا لم تسأل فكيف اذا سئلت و المنعم اذا لم تطالب فكيف اذا طلب منك فلا اله الا أنت يا أرحم الراحمين",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "رسالة لبعض الصوفية كتبت ايها السيد اليك و انا غايب عن شهادى لفرط شوقى الیک بارزقی کمونی لشدة أسفى عليك"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "فانک الجواد اذا لم تسأل فكيف اذا سئلت و المنعم اذا لم تطالب فكيف اذا طلب منك فلا اله الا أنت يا أرحم الراحمين"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3 - 250]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "احتمال خط مؤلف می‌رود"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 2 - 403]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152081,
+   "shelfmark": "533",
+   "category": "rebuild",
+   "v2": "v16-428#0",
+   "changes": {
+    "raw_text": {
+     "from": "96. تهران؛ مجلس؛ شماره نسخه: 533\nکامل؛ خط: نستعلیق، بی‌کا، تا: 977 و 978ق، جا: تبریز؛ مجدول، با سیزده سرلوح کوچک زرین، خطبه افتاده و گویا کندند؛ کاغذ: سفید، جلد: پارچه مخملی سبز، 740گ، 25 سطر (13×21)، اندازه: 25×37سم [ سنا: ف: 1 - 340]",
+     "to": "قم؛ حجتیه؛ شماره نسخه: 533\nکاتب = مؤلف، تا: 11 ذیقعده 1341ق [ف: - 13]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_autograph": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "977 و 978ق",
+     "to": "11 ذیقعده 1341ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 977,
+     "to": 1341
+    },
+    "copy_place": {
+     "from": "تبریز",
+     "to": null
+    },
+    "dimensions": {
+     "from": "25×37سم",
+     "to": null
+    },
+    "paper": {
+     "from": "سفید",
+     "to": null
+    },
+    "binding": {
+     "from": "پارچه مخملی سبز",
+     "to": null
+    },
+    "is_ruled": {
+     "from": 1,
+     "to": 0
+    },
+    "is_illuminated": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[سنا: ف: 1 - 340]",
+      "residual_notes": "با سیزده ، خطبه افتاده گویا کندند"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 13]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 156886,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v16-1982#0",
+   "changes": {
+    "raw_text": {
+     "from": "3. قم؛ مرعشی؛ شماره نسخه: 1007/3\nآغاز: برابر\nنسخه اصل: کتابخانه شخصی آیت الله سید محمد علی روضاتی در اصفهان؛ خط: نستعلیق زیبا، کا: سید محمد علی بن سید محمد هاشم روضاتی، بی‌تا؛ از روی دستخط بهاءالدین محمد بن عبدالله بن نورالدین بن نعمت الله موسوی جزایری تستری مورخه ذیحجه 1200؛ 12ص (46-57)، 14 سطر [عکسی ف: 3 - 27]",
+     "to": "تبریز؛ قاضی طباطبائی؛ شماره نسخه: بدون شماره\nبی‌کا، بی‌تا [نشریه: 7 - 515]"
+    },
+    "scribe_name": {
+     "from": "سید محمد علی بن سید محمد هاشم روضاتی",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3 - 27]",
+      "residual_notes": "از روی دستخط بهاءالدین محمد بن عبدالله بن نورالدین بن نعمت الله موسوی جزایری تستری مورخه ذیحجه 1200"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 7 - 515]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157703,
+   "shelfmark": "826",
+   "category": "rebuild",
+   "v2": "v16-2199#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 438\nنسخه اصل: همان نسخه بالا [عکسی ف: 2 - 33]",
+     "to": "تهران؛ مهدوی؛ شماره نسخه: 826\nخط: شکسته نستعلیق و نسخ، کا: عبدالجواد نیشابوری، تا: 1308ق؛ کاغذ: ترمه نازک [نشریه: 2 - 154]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالجواد نیشابوری"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1308ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1308
+    },
+    "paper": {
+     "from": null,
+     "to": "ترمه نازک"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 33]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 2 - 154]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 180119,
+   "shelfmark": "33",
+   "category": "rebuild",
+   "v2": "v19-378#0",
+   "changes": {
+    "raw_text": {
+     "from": "یزد؛ علومی، شیخ علی؛ شماره نسخه: 33\nخط: نسخ، بی‌کا، تا: 17 ربیع الاول 1103ق؛ قطع: ربعی [نشریه: 4- 440]",
+     "to": "مشهد؛ اصغر زاده؛ شماره نسخه: 33\nبی‌کا، تا: 745ق [نشریه: 7 - 770]"
+    },
+    "copy_date_raw": {
+     "from": "17 ربیع الاول 1103ق",
+     "to": "745ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1103,
+     "to": 745
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 4- 440]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 7 - 770]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 184566,
+   "shelfmark": "252/1",
+   "category": "rebuild",
+   "v2": "v19-1584#31",
+   "changes": {
+    "raw_text": {
+     "from": "32. دا5غان؛ صادقیه؛ شماره نسخه: 252/1\nآغاز: و أفاض برحمته محرکات اجرام الفلكية و الصلاة و السلام علی ذوات الانفس القدسية؛ انجام: و الصواب في تنقيح هذا الشرح بالعرض فی رسال فی كل حال و الصواب فی تنقیح الشرح للقدم علی هذا الديباجة فيكون هذا منضماً\nخط: نسخ و نستعلیق، بی‌کا، تا: 1215ق؛ افتادگی: آغاز؛ مصحح؛ جلد: تیماج مشکی، 6گ، اندازه: 16×21سم [ف مخ - 113]",
+     "to": "32. دامغان؛ صادقیه؛ شماره نسخه: 252/1\nآغاز: و أفاض برحمته محرکات اجرام الفلكية و الصلاة و السلام علی ذوات الانفس القدسية؛ انجام: و الصواب في تنقيح هذا الشرح بالعرض فی رسال فی كل حال و الصواب فی تنقیح الشرح للقدم علی هذا الديباجة فيكون هذا منضماً\nخط: نسخ و نستعلیق، بی‌کا، تا: 1215ق؛ افتادگی: آغاز؛ مصحح؛ جلد: تیماج مشکی، 6گ، اندازه: 16×21سم [ف مخ - 113]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "و أفاض برحمته محرکات اجرام الفلكية و الصلاة و السلام علی ذوات الانفس القدسية"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و الصواب في تنقيح هذا الشرح بالعرض فی رسال فی كل حال و الصواب فی تنقیح الشرح للقدم علی هذا الديباجة فيكون هذا منضماً"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف مخ - 113]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف مخ - 113]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189439,
+   "shelfmark": "1402-ف و",
+   "category": "rebuild",
+   "v2": "v20-315#7",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 1614/12\nآغاز: سبحانک لاعلم لنا الاما علمتنا انک انت العلیم الحکیم و الصلاة و السلام علی نبیک الکریم و رسولک العظیم\nنسخه اصل: کتابخانه واتیکان -رم 1078؛ خط: نسخ، کا: علی بن اسماعیل بن یحیی بن محسن بن حسین بن احمد بن حسن بن قاسم بن محمد، تا: دوشنبه 16 ربیع الثانی 1251ق؛ 12ص (462 حاشیه -473 حاشیه) [عکسی ف: 5 - 41]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 1402-ف و\n2050-ف نسخه اصل: همان نسخه بالا [فیلمها ف: 1 - 344]"
+    },
+    "scribe_name": {
+     "from": "علی بن اسماعیل بن یحیی بن محسن بن حسین بن احمد بن حسن بن قاسم بن محمد",
+     "to": null
+    },
+    "copy_date_raw": {
+     "from": "دوشنبه 16 ربیع الثانی 1251ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1251,
+     "to": null
+    },
+    "incipit_text": {
+     "from": "سبحانک لاعلم لنا الاما علمتنا انک انت العلیم الحکیم و الصلاة و السلام علی نبیک الکریم و رسولک العظیم",
+     "to": null
+    },
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "سبحانک لاعلم لنا الاما علمتنا انک انت العلیم الحکیم و الصلاة و السلام علی نبیک الکریم و رسولک العظیم"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 5 - 41]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "2050-ف نسخه اصل: همان نسخه بالا"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1 - 344]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 187488,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v19-2127#2",
+   "changes": {
+    "raw_text": {
+     "from": "3. مشهد؛ رضوی؛ شماره نسخه: 28109\nآغاز: هذه الرسالة اثر من آثارها و فیض من انوارها و كان شكر المنعم واجبا صدر الرسالة بحمدالله؛ انجام: اعلم من ان يكون بوسط بان يكتب النظرى من نظری آخر و آخر الى ان\nخط: نستعلیق تحریری، بی‌کا، تا: قرن 13؛ افتادگی: انجام؛ اهدایی: رهبری، دی 1381؛ کاغذ: نخودی، جلد: مقوا، 7گ، 21 سطر، اندازه: 16×21سم [اهدائی رهبر: 5 - 355]",
+     "to": "3. مشهد؛ رجائی مغزی (کتابخانه)؛ شماره نسخه: بدون شماره\nبی‌کا، تا: قرن 11 [تراثنا: س5ش3 - 100]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 13",
+     "to": "قرن 11"
+    },
+    "dimensions": {
+     "from": "16×21سم",
+     "to": null
+    },
+    "paper": {
+     "from": "نخودی",
+     "to": null
+    },
+    "binding": {
+     "from": "مقوا",
+     "to": null
+    },
+    "incipit_text": {
+     "from": "هذه الرسالة اثر من آثارها و فیض من انوارها و كان شكر المنعم واجبا صدر الرسالة بحمدالله",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "اعلم من ان يكون بوسط بان يكتب النظرى من نظری آخر و آخر الى ان",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "هذه الرسالة اثر من آثارها و فیض من انوارها و كان شكر المنعم واجبا صدر الرسالة بحمدالله"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "اعلم من ان يكون بوسط بان يكتب النظرى من نظری آخر و آخر الى ان"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[اهدائی رهبر: 5 - 355]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[تراثنا: س5ش3 - 100]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181206,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v19-511#24",
+   "changes": {
+    "raw_text": {
+     "from": "53. مشهد؛ مرتضوی؛ شماره نسخه: بدون شماره\nخط: عبدالرزاق بن حسن، تا: 24 ذیقعده 1043ق؛ مصحح، محشی [ف: - 19]",
+     "to": "25. قزوین؛ فحول قزوینی؛ شماره نسخه: بدون شماره\nشرح بر تصریف زنجانی به صورت سؤال و جواب؛ بی‌کا، بی‌تا [ف: - 28]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "24 ذیقعده 1043ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1043,
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 19]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: - 28]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198491,
+   "shelfmark": "6575",
+   "category": "rebuild",
+   "v2": "v21-374#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 804/1\nنسخه اصل: همان نسخه بالا [عکسی ف: 3 - 7]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 6575\nخط: نستعلیق، بی‌کا، تا: 1065ق؛ مجدول، روی برگ اول نام کتاب به خط سید محمد جزائری با اشاره به اینکه مؤلف ایرانی ساکن قسطنطنیه بوده آمده؛ در هشت برگ آغازین جدول‌های نجومی پراکنده؛ جلد: تیماج قهوه‌ای، 75گ، 12 سطر، اندازه: 15×21/5سم [ف: 20 - 134]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1065ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1065
+    },
+    "folios": {
+     "from": null,
+     "to": 75
+    },
+    "lines": {
+     "from": null,
+     "to": 12
+    },
+    "dimensions": {
+     "from": null,
+     "to": "15×21/5سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    },
+    "is_ruled": {
+     "from": 0,
+     "to": 1
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3 - 7]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "روی برگ اول نام کتاب به خط سید محمد جزائری با اشاره به اینکه مؤلف ایرانی ساکن قسطنطنیه بوده آمده",
+       "در هشت برگ آغازین جدول‌های نجومی پراکنده"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 20 - 134]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172650,
+   "shelfmark": "6151/91",
+   "category": "rebuild",
+   "v2": "v18-1153#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 1356/25\nنسخه اصل: همان نسخه بالا [عکسی ف: 4 - 175]",
+     "to": "تهران؛ ملک؛ شماره نسخه: 6151/91\nخط: نسخ، بی‌کا، تا: قرن 13؛ 1ص(279) [ف: 9 - 198]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "folios": {
+     "from": null,
+     "to": 1
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4 - 175]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 9 - 198]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172106,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": "v18-939#4",
+   "changes": {
+    "raw_text": {
+     "from": "4. قم؛ لاجوردی، سید مهدی؛ شماره نسخه: 7\nخط: نستعلیق هندی، بی‌کا، تا: قرن 12؛ در مجموعه‌ای که رساله دیگر آن «غوث الاعظم» است [چند نسخه-ف: - 106]",
+     "to": "4. تهران؛ شهشهانی ، حسین؛ شماره نسخه: بدون شماره\nبی‌کا، تا: 1071ق [میراث اسلامی: 5 - 603]"
+    },
+    "copy_date_raw": {
+     "from": "قرن 12",
+     "to": "1071ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1071
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[چند نسخه-ف: - 106]",
+      "residual_notes": "در مجموعه‌ای که رساله دیگر آن «غوث الاعظم» است"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث اسلامی: 5 - 603]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174176,
+   "shelfmark": "14907/1",
+   "category": "rebuild",
+   "v2": "v18-1706#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 628عکسی\nآغاز: و اخرى تحبونها نصر من الله و فتح قریب؛ انجام: و قال (ص): العبد اذا نصح لسيده و احسن عبادة ربه فله اجره مرتين.\nنسخه اصل: سلطان احمد ثالث - استانبول، بشماره (2992 A) (فهرست عربی طوپ قاپی 557/3)؛ خط: نسخ، بی‌کا، تا: احتمالاً قرن 10، برای خزانه اینال الاشقر الملکی الظاهری؛ مصحح؛ 236برگ، 13سطر، [عکسی ف: 2 - 111]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 14907/1\nخط: نستعلیق، کاتب = مؤلف، تا: قرن 13؛ 88گ (2ر-89 ر) [مختصر ف: - 460]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_autograph": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "احتمالاً قرن 10، برای خزانه اینال الاشقر الملکی الظاهری",
+     "to": "قرن 13"
+    },
+    "folios": {
+     "from": null,
+     "to": 88
+    },
+    "incipit_text": {
+     "from": "و اخرى تحبونها نصر من الله و فتح قریب",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "و قال (ص): العبد اذا نصح لسيده و احسن عبادة ربه فله اجره مرتين",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "و اخرى تحبونها نصر من الله و فتح قریب"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "و قال (ص): العبد اذا نصح لسيده و احسن عبادة ربه فله اجره مرتين"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 111]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[مختصر ف: - 460]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174603,
+   "shelfmark": "4752/52-4754-ف",
+   "category": "rebuild",
+   "v2": "v18-1812#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 169\nنسخه اصل: همان نسخه بالا [عکسی ف: 1 - 189]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 4752/52-4754-ف\nبی‌کا، بی‌تا [فیلمها ف: 3 - 101]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 1 - 189]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 101]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208387,
+   "shelfmark": "4260-ف تا 4264-ف",
+   "category": "rebuild",
+   "v2": "v22-199#3",
+   "changes": {
+    "raw_text": {
+     "from": "1. قم؛ مرعشی؛ شماره نسخه: 425عکسی\nآغاز و انجام: برابر\nنسخه اصل: ظاهریه - دمشق به شماره تاریخ 65. تمام کتاب؛ خط: تعلیق، بی‌کا، تا: قرن 7؛ مصحح، دارای سماعات متعدده و در آخر نسخه دو سماع به خط یوسف بن خلیل بن عبدالله دمشقی مزی تاریخ اولی روز دوشنبه 19 ذیحجه و دومی چهارشنبه 20 ذیحجه 635؛ 168گ، 21 سطر [عکسی ف: 1 - 374]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 4260-ف تا 4264-ف\nنسخه اصل: احمد ثالث در طوپقپو سرای استانبول ش 2835 و 2845، جزو 1 و 3 تا 9 و 11 و طبقات النساء (فهرست قرطای ش 6206 تا 6215)؛ بی‌کا، بی‌تا [فیلمها ف: 3 - 38]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 7",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 1 - 374]",
+      "residual_notes": "دارای سماعات متعدده در آخر نسخه دو سماع به خط یوسف بن خلیل بن عبدالله دمشقی مزی تاریخ اولی روز دوشنبه 19 ذیحجه دومی چهارشنبه 20 ذیحجه 635"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 38]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60579,
+   "shelfmark": "842/2",
+   "category": "rebuild",
+   "v2": "v6-1182#0",
+   "changes": {
+    "raw_text": {
+     "from": "مشهد؛ الهیات؛ شماره نسخه: 40/86 عکسی\nنسخه اصل: همان نسخه بالا [ف: 3-1317]",
+     "to": "تهران؛ ملک؛ شماره نسخه: 842/2\nخط: نسخ، بی‌کا، تا: حدود 960ق؛ 2گ [ف: 5-203]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "حدود 960ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 960
+    },
+    "folios": {
+     "from": null,
+     "to": 2
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3-1317]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 5-203]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77455,
+   "shelfmark": "351/2بخش3",
+   "category": "rebuild",
+   "v2": "v8-1298#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1103/2\nآغاز: بسمله. تعلیق من کتاب الفخر رازی قال اذا كان تاخذ ريح القولنج و اذا لم يكن الطبيعة ... و صفته يوخذ ورق السداب يابساً عشرة دراهم؛ انجام: فی الفم دهن ورد فانه عجيب في ابرى هذه العلة جيد للعفن و للاكلة فی الفم ...\nنسخه اصل: کتابخانه خراجچی اوغلی در بروسه ترکیه، ش 1126؛ خط: نسخ، کا: حسن بن محمد، تا: 12 رجب 805ق؛ 33ص (52-84)، 16سطر [عکسی ف: 3 - 209]",
+     "to": "تهران؛ مینوی؛ شماره نسخه: 351/2بخش3\nبی‌کا، بی‌تا [ف: 148]"
+    },
+    "scribe_name": {
+     "from": "حسن بن محمد",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "12 رجب 805ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 805,
+     "to": null
+    },
+    "incipit_text": {
+     "from": "بسمله. تعلیق من کتاب الفخر رازی قال اذا كان تاخذ ريح القولنج و اذا لم يكن الطبيعة ... و صفته يوخذ ورق السداب يابساً عشرة دراهم",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "فی الفم دهن ورد فانه عجيب في ابرى هذه العلة جيد للعفن و للاكلة فی الفم ..",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. تعلیق من کتاب الفخر رازی قال اذا كان تاخذ ريح القولنج و اذا لم يكن الطبيعة ... و صفته يوخذ ورق السداب يابساً عشرة دراهم"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "فی الفم دهن ورد فانه عجيب في ابرى هذه العلة جيد للعفن و للاكلة فی الفم .."
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3 - 209]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 148]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 209545,
+   "shelfmark": "6187/2-ف",
+   "category": "rebuild",
+   "v2": "v22-423#1",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دائرة المعارف؛ شماره نسخه: 145/1-عکسی\nآغاز: الحمدلله بجماله و جلاله و الصلاة و السلام الاتمان ... اما بعد، حق تعالی جمیع محبان ارادت کیش و برخورداران، ابوالفضل غلام محمود و غلام محمدی سراج الدین محمد و رضیع الدین فیض الحق و؛ انجام: که با اعتقاد جازم از پیر خود داند. و غیر ذلک در امور دیگر.\nاصل نسخه: اسلام آباد گنج بخش، ش 346 (گنج، 727/2)؛ خط: نستعلیق شکسته، بی‌کا، تا: قرن 13؛ 184ص [عکسی ف: 2-189]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 6187/2-ف\nنسخه اصل: همان نسخه بالا [فیلمها ف: 3 - 207]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "قرن 13",
+     "to": null
+    },
+    "incipit_text": {
+     "from": "الحمدلله بجماله و جلاله و الصلاة و السلام الاتمان ... اما بعد، حق تعالی جمیع محبان ارادت کیش و برخورداران، ابوالفضل غلام محمود و غلام محمدی سراج الدین محمد و رضیع الدین فیض الحق و",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "که با اعتقاد جازم از پیر خود داند. و غیر ذلک در امور دیگر",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمدلله بجماله و جلاله و الصلاة و السلام الاتمان ... اما بعد، حق تعالی جمیع محبان ارادت کیش و برخورداران، ابوالفضل غلام محمود و غلام محمدی سراج الدین محمد و رضیع الدین فیض الحق و"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "که با اعتقاد جازم از پیر خود داند. و غیر ذلک در امور دیگر"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2-189]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 207]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65200,
+   "shelfmark": "2704",
+   "category": "rebuild",
+   "v2": "v7-196#101",
+   "changes": {
+    "raw_text": {
+     "from": "108. تهران؛ ملی؛ شماره نسخه: 1049/4\nآغاز: برابر؛ انجام: صور الافلاک و الله اعلم.\nخط: نسخ و نستعلیق، بی‌کا، تا: قرن 13؛ جلد: تیماج مشکی، 42ص (168- 209)، 18 سطر (8×15)، اندازه: 15×20/5سم [ف: 3 - 60]",
+     "to": "102. مشهد؛ رضوی؛ شماره نسخه: 2704\nآغاز: برابر؛ انجام: و كذا لو حصل الطاعون ببلد هو ساكن فيه\nمقدمه و قاعده اول (در عبادات) و دوم (تجارت و دین و رهن و مفلس و حجر و ضمان و كفالت و حواله و صلح و وكالت و اجاره و مزارعه و مساقات و سبق و رمایه و ودیعه و عاریه و قراض و هبات و وقف و وصیت)؛ خط: نسخ، کا: علی بن نورالدین السرعسی (كذا)، تا: ربیع الاول 978ق؛ افتادگی: آغاز و وسط؛ واقف: حاج قائم مقام، بهمن 1316؛ کاغذ: نخودی، جلد: تیماج یشمی، 292گ، 21 سطر، اندازه: 19×25سم [ف: 5-407]"
+    },
+    "explicit_text": {
+     "from": "و كذا لو حصل الطاعون ببلد هو ساكن فيه\nمقدمه و قاعده اول (در عبادات) و دوم (تجارت و دین و رهن و مفلس و حجر و ضمان و كفالت و حواله و صلح و وكالت و اجاره و مزارعه و مساقات و سبق و رمایه و ودیعه و عاریه و قراض و هبات و وقف و وصیت)",
+     "to": "و كذا لو حصل الطاعون ببلد هو ساكن فيه"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [
+       {
+        "label": "",
+        "text": "صور الافلاک و الله اعلم"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 3 - 60]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 5-407]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 66082,
+   "shelfmark": "291",
+   "category": "rebuild",
+   "v2": "v7-240#230",
+   "changes": {
+    "raw_text": {
+     "from": "238. تهران؛ دائرة المعارف؛ شماره نسخه: 1718-عکسی\nآغاز و انجام: برابر\nخط: نستعلیق شکسته، بی‌کا، تا: جمادی الثانی 1220ق؛ افتادگی: آغاز؛ مهر: «ابوالقاسم بن احمد الحسینی» (چهارگوش)، «الراجی حسن الحسینی» (بیضی)؛ 244ص، 17 سطر (5/5×17)، اندازه: 21×30سم [عکسی ف: 1-61]",
+     "to": "230. مشهد؛ الهیات؛ شماره نسخه: 291\nخط: نستعلیق، کا: مسعود ابن حبیب الله، تا: شعبان1217ق؛ جلد: تیماج قهوه‌ای، 118گ، مختلف السطر، اندازه: 11/5×20سم [ف: 170-1]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "مسعود ابن حبیب الله"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "جمادی الثانی 1220ق",
+     "to": "شعبان1217ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 1220,
+     "to": 1217
+    },
+    "folios": {
+     "from": null,
+     "to": 118
+    },
+    "dimensions": {
+     "from": "21×30سم",
+     "to": "11/5×20سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج قهوه‌ای"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [
+       "مهر: «ابوالقاسم بن احمد الحسینی» (چهارگوش)، «الراجی حسن الحسینی» (بیضی)"
+      ],
+      "catalog_citation": "[عکسی ف: 1-61]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 170-1]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61047,
+   "shelfmark": "3677 و",
+   "category": "rebuild",
+   "v2": "v6-1343#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ ملی؛ شماره نسخه: عکسی بدون شماره\nنسخه اصل: همان نسخه اصل بالا [نشریه: 3-100]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 3677 و\n3678عکس نسخه اصل: موزه آسیایی آکادمی علوم شوروی CCC. II؛ خط: نستعلیق، کا: علی رضا عباسی، تا: 1010ق؛ واقف: شاه عباس برای آستانه شاه صفی؛ 145گ [فیلمها ف: 1-30]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "علی رضا عباسی"
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "1010ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1010
+    },
+    "folios": {
+     "from": null,
+     "to": 145
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 3-100]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "3678عکس نسخه اصل: موزه آسیایی آکادمی علوم شوروی CCC. II"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 1-30]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73031,
+   "shelfmark": "17911",
+   "category": "rebuild",
+   "v2": "v7-1994#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1321/1عکسی\nآغاز: بسمله ... قال الاستاذ رضی الله عنه يجب أن يكون العبد مجرداً عن الدنيا لا يملک شيئاً\nنسخه اصل: کتابخانه ایاصوفیه در استانبول، ش 2910؛ خط: نسخ، بی‌کا، تا: پنج‌شنبه 9 ذیقعده 706ق؛ 15ص (1-15)، 15 سطر [عکسی ف: 4-36]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 17911\nبی‌کا، بی‌تا [د.ث. مجلس]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "پنج‌شنبه 9 ذیقعده 706ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 706,
+     "to": null
+    },
+    "incipit_text": {
+     "from": "بسمله ... قال الاستاذ رضی الله عنه يجب أن يكون العبد مجرداً عن الدنيا لا يملک شيئاً",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله ... قال الاستاذ رضی الله عنه يجب أن يكون العبد مجرداً عن الدنيا لا يملک شيئاً"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-36]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[د.ث. مجلس]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 74864,
+   "shelfmark": "7789/11",
+   "category": "rebuild",
+   "v2": "v8-487#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 1176/12\nآغاز: بسمله. أخبرنا الشيخ العالم المسند الأصيل شهاب الدين أبوالمعالی أحمد ... قال أبو جعفر أحمد بن سلامه الأزدی الطحاوى اختلف أهل العلم فی الرجل يقرأ عليه العالم و يقر له العالم به كيف يقول فيه أخبرنا أو حدثنا؛ انجام: فكذلك يجب ان يكون ذلك فی الحديث كذلك و الله أعلم بالصواب. تم الفصل <!-- page: 212 --> من كلام أبى جعفر الطحاوى رحمه الله و الحمدلله حق حمده ... نسخه اصل: كتابخانه چستربیتی، دوبلین ایرلند جنوبی، ش 3495؛ خط: نسخ معرب، بی‌کا، تا: با تاریخ 708ق؛ 8ص (116-123)، 17سطر [عکسی ف: 3 - 398]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 7789/11\nخط: نستعلیق هندی، کا: ابوالشرف سید عیسی حاجی میان، تا: 25 ذیقعده 1343ق، جا: محله چنچل کوره حیدر آباد دکن؛ کاغذ: هندی، جلد: مقوا، 21 سطر (16×26)، اندازه: 20×32سم [ف: 16-699]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "ابوالشرف سید عیسی حاجی میان"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "با تاریخ 708ق",
+     "to": "25 ذیقعده 1343ق"
+    },
+    "copy_date_hijri_year": {
+     "from": 708,
+     "to": 1343
+    },
+    "copy_place": {
+     "from": null,
+     "to": "محله چنچل کوره حیدر آباد دکن"
+    },
+    "lines": {
+     "from": null,
+     "to": 21
+    },
+    "dimensions": {
+     "from": null,
+     "to": "20×32سم"
+    },
+    "paper": {
+     "from": null,
+     "to": "هندی"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    },
+    "incipit_text": {
+     "from": "بسمله. أخبرنا الشيخ العالم المسند الأصيل شهاب الدين أبوالمعالی أحمد ... قال أبو جعفر أحمد بن سلامه الأزدی الطحاوى اختلف أهل العلم فی الرجل يقرأ عليه العالم و يقر له العالم به كيف يقول فيه أخبرنا أو حدثنا",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "فكذلك يجب ان يكون ذلك فی الحديث كذلك و الله أعلم بالصواب. تم الفصل من كلام أبى جعفر الطحاوى رحمه الله و الحمدلله حق حمده ..",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "بسمله. أخبرنا الشيخ العالم المسند الأصيل شهاب الدين أبوالمعالی أحمد ... قال أبو جعفر أحمد بن سلامه الأزدی الطحاوى اختلف أهل العلم فی الرجل يقرأ عليه العالم و يقر له العالم به كيف يقول فيه أخبرنا أو حدثنا"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "فكذلك يجب ان يكون ذلك فی الحديث كذلك و الله أعلم بالصواب. تم الفصل من كلام أبى جعفر الطحاوى رحمه الله و الحمدلله حق حمده .."
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3 - 398]",
+      "residual_notes": "كتابخانه چستربیتی، دوبلین ایرلند جنوبی، ش 3495"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 16-699]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208635,
+   "shelfmark": "2116/100",
+   "category": "rebuild",
+   "v2": "v22-265#2",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 964/40\nآغاز: قال رسول الله (ص) المعدة بيت كل داء و الحمية راس كل  <!-- page: 115 --> دواء ای عزیز اسعدک الله که معده خانه علتها بدان\nخط: نستعلیق، بی‌کا، بی‌تا؛ 5ص (643-647) [عکسی ف: 3- 206]",
+     "to": "قم؛ مرعشی؛ شماره نسخه: 2116/100\nنسخه اصل: همان نسخه اصل بالا [میراث شهاب: س18 ش1 - 58]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "incipit_text": {
+     "from": "قال رسول الله (ص) المعدة بيت كل داء و الحمية راس كل دواء ای عزیز اسعدک الله که معده خانه علتها بدان",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "قال رسول الله (ص) المعدة بيت كل داء و الحمية راس كل دواء ای عزیز اسعدک الله که معده خانه علتها بدان"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 3- 206]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[میراث شهاب: س18 ش1 - 58]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70228,
+   "shelfmark": "63",
+   "category": "rebuild",
+   "v2": "v7-1003#0",
+   "changes": {
+    "raw_text": {
+     "from": "24- تهران؛ علوم پزشکی؛ شماره نسخه: 63\nآغاز: برابر انجام: قدتم الفن المفردات علی ید الفقیر الى الله الغنى ابن مرحوم آخند ملافیض الله عصاره محمد رفیع عفی الله عنهما\nخط: نسخ، کا: محمد رفیع بن آخند ملا فیض الله عصاره، تا: قرن 12؛ افتادگی: انجام؛ قسم سوم از دستورات در معالجات را فاقد است؛ 514ص، 27 سطر (13×13/5)، اندازه: 18×26/5سم [نشریه: 3-306]",
+     "to": "مشهد؛ الهیات؛ شماره نسخه: 63\nخط: نسخ هندوستان، بی‌کا، تا: 1220ق؛ جلد: تیماج مشکی، 138گ، 17 سطر، اندازه: 16×21/5سم [ف: 1-35]"
+    },
+    "scribe_name": {
+     "from": "محمد رفیع بن آخند ملا فیض الله عصاره",
+     "to": null
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 12",
+     "to": "1220ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1220
+    },
+    "folios": {
+     "from": null,
+     "to": 138
+    },
+    "lines": {
+     "from": null,
+     "to": 17
+    },
+    "dimensions": {
+     "from": "18×26/5سم",
+     "to": "16×21/5سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی"
+    },
+    "explicit_text": {
+     "from": "قدتم الفن المفردات علی ید الفقیر الى الله الغنى ابن مرحوم آخند ملافیض الله عصاره محمد رفیع عفی الله عنهما",
+     "to": null
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [
+       {
+        "label": null,
+        "text": "قدتم الفن المفردات علی ید الفقیر الى الله الغنى ابن مرحوم آخند ملافیض الله عصاره محمد رفیع عفی الله عنهما"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 3-306]",
+      "residual_notes": "قسم سوم از دستورات در معالجات را فاقد است"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1-35]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68324,
+   "shelfmark": "462",
+   "category": "rebuild",
+   "v2": "v7-573#247",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 149/1\nآغاز: این بعضی از چیزهائیست که از کتاب تحفة المومنین مرحوم حکیم مومن\nنسخه اصل: کتابخانه شیخ حسن شریعتی -قم.؛ خط: نستعلیق، کا: کاتب = مؤلف، تا: 1107 و 1108ق؛ 117ص (3-119) [عکسی ف: 1-164]",
+     "to": "245- خوی؛ نمازی؛ شماره نسخه: 462\nشامل تشخیص سوم و چهارم و پنجم و دستور اول و دستور دوم تا باب هفدهم را شامل است؛ خط: نستعلیق، بی‌کا، بی‌تا؛ افتادگی: آغاز و انجام؛ 17 سطر، اندازه: 17×21سم [ف: 233]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "is_autograph": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "1107 و 1108ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 1107,
+     "to": null
+    },
+    "lines": {
+     "from": null,
+     "to": 17
+    },
+    "dimensions": {
+     "from": null,
+     "to": "17×21سم"
+    },
+    "incipit_text": {
+     "from": "این بعضی از چیزهائیست که از کتاب تحفة المومنین مرحوم حکیم مومن",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "این بعضی از چیزهائیست که از کتاب تحفة المومنین مرحوم حکیم مومن"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 1-164]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "شامل تشخیص سوم و چهارم و پنجم و دستور اول و دستور دوم تا باب هفدهم را شامل است"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 233]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 68594,
+   "shelfmark": "8730",
+   "category": "rebuild",
+   "v2": "v7-665#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. تهران؛ دائرة المعارف؛ شماره نسخه: 1969-عکسی\nآغاز: و هی من تألیفات شیخنا و سیدنا شیخالاسلام و خاتمة المجتهدین الذی برع فی العلوم الدینیة ... کاسمه علیا عالیا؛ انجام: فلیس بکافر و منها ای من الصلاة المندوبة بصلاة یوم الغدیر\nخط: نسخ پخته، بی‌کا، تا: قرن 11؛ افتادگی: آغاز (در دیباچه) و انجام؛ با یادداشتی درباره معرفی کتاب و دیگری در معرفی نگارنده، در این یکی به نقل از شیخ احمد احسایی آمده است که نگارنده شاگرد شیخ علی کرکی نگارنده متن بوده است؛ 860ص، 13سطر (10×14/5)، اندازه: 21×30سم [عکسی ف: 1-64]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 8730\nخط: نستعلیق، کا: مصطفی ذاکر بن آقا بزرگ، تا: 10 رجب 1302ق؛ مهر: «مصطفی» (بیضوی)؛ جلد: تیماج مشکی با ترنج و سرترنج، 110گ، 15 سطر، اندازه: 11×17/5سم [ف: 28-233]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "مصطفی ذاکر بن آقا بزرگ"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "copy_date_raw": {
+     "from": "قرن 11",
+     "to": "10 رجب 1302ق"
+    },
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1302
+    },
+    "folios": {
+     "from": null,
+     "to": 110
+    },
+    "lines": {
+     "from": null,
+     "to": 15
+    },
+    "dimensions": {
+     "from": "21×30سم",
+     "to": "11×17/5سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مشکی با ترنج و سرترنج"
+    },
+    "incipit_text": {
+     "from": "و هی من تألیفات شیخنا و سیدنا شیخالاسلام و خاتمة المجتهدین الذی برع فی العلوم الدینیة ... کاسمه علیا عالیا",
+     "to": null
+    },
+    "explicit_text": {
+     "from": "فلیس بکافر و منها ای من الصلاة المندوبة بصلاة یوم الغدیر",
+     "to": null
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "و هی من تألیفات شیخنا و سیدنا شیخالاسلام و خاتمة المجتهدین الذی برع فی العلوم الدینیة ... کاسمه علیا عالیا"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "فلیس بکافر و منها ای من الصلاة المندوبة بصلاة یوم الغدیر"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 1-64]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 28-233]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 87026,
+   "shelfmark": "6156-ف",
+   "category": "rebuild",
+   "v2": "v9-1054#0",
+   "changes": {
+    "raw_text": {
+     "from": "1. تهران؛ شورا؛ شماره نسخه: 10055/7\nآغاز: نسخهٔ کتاب ورد من الناحية المقدسة حرسها الله ... على الشيخ المفيد\nخط: نسخ و نستعلیق، بی‌کا، تا: قرن 11؛ مصحح، تمامی مجدول زرین و مرصع؛ جلد: تیماج قهوه‌ای، 2ص (57-58)، اندازه: 11/5×23سم [ف: 32 - 67]",
+     "to": "1. تهران؛ دانشگاه؛ شماره نسخه: 6156-ف\nبی‌کا، بی‌تا؛ چاپ سنگی مطبعه حسینی میرحسن رضوی با حواشی در 1260 [فیلمها ف: 3 - 203]"
+    },
+    "is_bita": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": "قرن 11",
+     "to": null
+    },
+    "dimensions": {
+     "from": "11/5×23سم",
+     "to": null
+    },
+    "binding": {
+     "from": "تیماج قهوه‌ای",
+     "to": null
+    },
+    "incipit_text": {
+     "from": "نسخهٔ کتاب ورد من الناحية المقدسة حرسها الله ... على الشيخ المفيد",
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    },
+    "is_ruled": {
+     "from": 1,
+     "to": 0
+    },
+    "is_illuminated": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "نسخهٔ کتاب ورد من الناحية المقدسة حرسها الله ... على الشيخ المفيد"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 32 - 67]",
+      "residual_notes": "تمامی"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "چاپ سنگی مطبعه حسینی میرحسن رضوی با حواشی در 1260"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 203]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 219482,
+   "shelfmark": "32/68-635/8",
+   "category": "rebuild",
+   "v2": "v23-353#2",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرعشی؛ شماره نسخه: 785عکسی و 132عکسی\nآغاز و انجام: برابر\nنسخه اصل: واتیکان، ش 1461؛ خط: نسخ، کا: یوسف بن عیسی بن علی، تا: 4 رجب 693ق؛ مصحح، با نسخه‌ای که در جمادی الاول 569ق بر شیخ تقی الدین ... احمد بن حمزة بن علی سلمی قرائت شده مقابله شده؛ 98گ، 17سطر [عکسی ف: 2 - 263] و [عکسی ف: 1 - 127]",
+     "to": "قم؛ گلپایگانی؛ شماره نسخه: 32/68-635/8\nنسخه اصل: همان نسخه بالا [ف: 5 - 2962]"
+    },
+    "scribe_name": {
+     "from": "یوسف بن عیسی بن علی",
+     "to": null
+    },
+    "copy_date_raw": {
+     "from": "4 رجب 693ق",
+     "to": null
+    },
+    "copy_date_hijri_year": {
+     "from": 693,
+     "to": null
+    },
+    "is_corrected": {
+     "from": 1,
+     "to": 0
+    },
+    "is_collated": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 1 - 127]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 5 - 2962]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328759,
+   "shelfmark": "595/6",
+   "category": "rebuild",
+   "v2": "v34-803#0",
+   "changes": {
+    "raw_text": {
+     "from": "قم؛ مرکز احیاء؛ شماره نسخه: 1206/30\nآغاز: گفت که رستگاری خلق در آن است که به اندرون ... باشند و به بیرون نیکوکار و به خدای تعالی امیدوار، و گفت هر چه باشد اگر نه از خدای بینی مشرک باشی\nنسخه اصل: کتابخانه ایاصوفیا، استانبول - ترکیه 4792؛ خط: نسخ، اسعد بن احمد، تا: قرن 9؛ 6ص (353-358در حاشیه) [عکسی ف: 4-27]",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 595/6\nدوبند از آن؛ خط: نستعلیق چلیپا، کا: محمد معصوم بیابانکی، تا: قرن 11؛ جلد: تیماج مذهب، 1ص (153)، 18سطر (5×12)، اندازه: 12×20سم [سنا: ف: 1-385]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "محمد معصوم بیابانکی"
+    },
+    "copy_date_raw": {
+     "from": "قرن 9",
+     "to": "قرن 11"
+    },
+    "folios": {
+     "from": null,
+     "to": 1
+    },
+    "lines": {
+     "from": null,
+     "to": 18
+    },
+    "dimensions": {
+     "from": null,
+     "to": "12×20سم"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج مذهب"
+    },
+    "incipit_text": {
+     "from": "گفت که رستگاری خلق در آن است که به اندرون ... باشند و به بیرون نیکوکار و به خدای تعالی امیدوار، و گفت هر چه باشد اگر نه از خدای بینی مشرک باشی",
+     "to": null
+    },
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "is_illuminated": {
+     "from": 0,
+     "to": 1
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "گفت که رستگاری خلق در آن است که به اندرون ... باشند و به بیرون نیکوکار و به خدای تعالی امیدوار، و گفت هر چه باشد اگر نه از خدای بینی مشرک باشی"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 4-27]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "دوبند از آن"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[سنا: ف: 1-385]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127758,
+   "shelfmark": "3419/3",
+   "category": "rebuild",
+   "v2": "v13-1859#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دائرة المعارف؛ شماره نسخه: 25/2-عکسی\nاصل نسخه: همان نسخه بالا [عکسی ف: 2 - 108]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 3419/3\nخط: نستعلیق، بی‌کا، تا: قرن 13؛ کاغذ: فرنگی، جلد: مقوا، 9گ (83ر-91پ)، 10 سطر (4×9)، اندازه: 10×18سم [ف: 11 - 2424]"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 13"
+    },
+    "folios": {
+     "from": null,
+     "to": 9
+    },
+    "lines": {
+     "from": null,
+     "to": 10
+    },
+    "dimensions": {
+     "from": null,
+     "to": "10×18سم"
+    },
+    "paper": {
+     "from": null,
+     "to": "فرنگی"
+    },
+    "binding": {
+     "from": null,
+     "to": "مقوا"
+    },
+    "is_facsimile": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[عکسی ف: 2 - 108]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 11 - 2424]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 129409,
+   "shelfmark": "4646-ف",
+   "category": "rebuild",
+   "v2": "v13-2064#5",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ دانشگاه؛ شماره نسخه: 5041-ف و 7080-عکس\nنسخه اصل: همان نسخه بالا [فیلمها ف: 3 - 126 و 277]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 4646-ف\nنسخه اصل: همان نسخه بالا [فیلمها ف: 3 - 83]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 126 و 277]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 83]",
+      "residual_notes": null
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 210929,
+   "shelfmark": "3059/3-ف",
+   "category": "rebuild",
+   "v2": "v22-906#1",
+   "changes": {
+    "raw_text": {
+     "from": "2. تهران؛ دانشگاه؛ شماره نسخه: 6010/4-عکس\nبی‌کا، بی‌تا [فیلمها ف: 3 - 236]",
+     "to": "تهران؛ دانشگاه؛ شماره نسخه: 3059/3-ف\nنسخه اصل: همان نسخه بالا [فیلمها ف: 2 - 51]"
+    },
+    "is_bika": {
+     "from": 1,
+     "to": 0
+    },
+    "is_bita": {
+     "from": 1,
+     "to": 0
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 3 - 236]",
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[فیلمها ف: 2 - 51]",
+      "residual_notes": null
+     }
+    }
+   }
+  }
+ ]
+}

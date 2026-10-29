@@ -1,0 +1,13 @@
+{
+    "source": "Copies the site keeps under another work than parser v2, checked against the page images (item 87, step 13.70)",
+    "moves": [
+        {
+            "note": "Vol 25 p. 356: copy 36 of «القضاء و القدر فی افعال البشر» (صدرالدین شیرازی) sat under «القضاء و القدر» (جرجانی, p. 339); its work has 34, 35, 37 and 38 but no 36",
+            "from": "-v25-757",
+            "to": "-v25-794",
+            "copies": [
+                ["تهران", "سپهسالار", "6319/7"]
+            ]
+        }
+    ]
+}

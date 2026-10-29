@@ -4703,3 +4703,17 @@
 
   نمونه‌ی دستی: `title_author` و `near` درست بودند. `author_death` گاه اثر دیگری از همان مؤلف است، مثلاً «اعتقادیه» در برابر «رسالۀ اعتراف»، و برای همین اطمینانش ۵۰ است.
 - **دام:** `gzfile()` در PHP خط را در ۸ کیلوبایت می‌بُرد، و مدخل‌های بلند منزوی (مثلاً «تاریخ طبری») از آن بلندترند. `readEntries` فایل را یکجا می‌خواند.
+
+### گام ۱۳.۷۰: نسخه‌های جابه‌جا و بازسازی محتوا
+- **فهرست جابه‌جاها:** `fankha_v2_db_compare.py` حالا `other_work.jsonl` هم می‌نویسد (`reports/fankha_v2_db_review3`).
+- **سنجش سرآغاز:** سطر نخست `raw_text` («شهر؛ کتابخانه؛ شماره نسخه: …») با ستون‌های `city`، `library` و `shelfmark` سنجیده شد. حروف عربی و فاصله پیش از سنجش یکسان شدند. برای هر نسخه‌ی ناهمخوان، نسخه‌ی v2 همان جلد، با صفحه‌ی ±۱ و همان شماره، جفت آن شد.
+- **`fahares:rebuild-copies`:** ستون‌های محتوا در `COLUMNS` تعریف شده‌اند. `metadata` از v2 ساخته می‌شود: `catalog_citation`، یادداشت‌ها در `editorial_notes`، و مهر و تملک در `ownership_and_seals`. لاگ از نوع `corpus_update` است و دسته‌اش `rebuild`. پس از اجرا باید `catalogs:link-volumes` و `fahares:rebuild-scripts` اجرا شوند.
+- **اجرا روی پروداکشن:** این ترتیب است:
+  1. پشتیبان ستون‌ها و جدول‌های وابسته؛
+  2. `fahares:apply-corpus-structure --file=database/data/fankha_other_work_20261029.json`؛
+  3. `fahares:rebuild-copies`؛
+  4. `catalogs:link-volumes`؛
+  5. `fahares:rebuild-scripts`.
+
+  هر فرمان اول بدون `--apply` اجرا می‌شود.
+
