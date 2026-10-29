@@ -48,6 +48,37 @@
     display: none !important;
 }
 
+/* Per-field «پیشنهاد اصلاح» buttons (<x-suggest.field>, backlog item 92): all of them in suggestion mode (.is-on);
+   on a mouse device also the one of the field under the pointer or holding focus (.suggest-row, or the button's
+   own parent). Hidden by opacity so the text does not move; a touch screen keeps them out until the mode is on. */
+.suggest-btn:not(.is-on) {
+    display: none;
+}
+.hover-only {
+    display: none;
+}
+@media (hover: hover) {
+    .suggest-btn:not(.is-on) {
+        display: inline-flex;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .suggest-row:hover .suggest-btn,
+    .suggest-row:focus-within .suggest-btn,
+    :hover > .suggest-btn,
+    :focus-within > .suggest-btn,
+    .suggest-btn:focus-visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .hover-only {
+        display: inline;
+    }
+    .touch-only {
+        display: none;
+    }
+}
+
 /* Machine-extracted data just rejected from its ⓘ badge, until the «بازگردانی» toast is gone (backlog item 59) */
 [data-machine-rejected] {
     opacity: 0.4;

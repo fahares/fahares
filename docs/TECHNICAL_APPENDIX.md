@@ -4284,3 +4284,15 @@
   - دسترسی: داور بی `users.message` در همه‌ی مسیرهای پیام مستقیم ۴۰۳ می‌گیرد، و پس از اعطای مجوز در ماتریس می‌تواند پیام بفرستد.
   - پیشنهاد مهمانی ۴۲۲ می‌گیرد.
   - کانال اجباری، یادآوری و مهلت، امضا و فرستنده‌ی webhook، و بریدن تاریخچه.
+
+### گام ۱۳.۴۹: دکمه‌ی فیلد با hover (مورد ۹۲)
+- **دکمه‌ی فیلد** ([field](../resources/views/components/suggest/field.blade.php)): دیگر `x-show` ندارد. کلاس `suggest-btn` دارد و در حالت پیشنهاد `is-on` می‌گیرد. قاعده‌ها در `resources/css/app.css` هستند:
+  - بیرون از حالت پیشنهاد، `display: none`.
+  - زیر `@media (hover: hover)`، `opacity: 0` با `pointer-events: none`. با `:hover` یا `:focus-within` روی `.suggest-row` یا روی پدر مستقیم دکمه، و با `:focus-visible` خود دکمه، دیده می‌شود.
+  - `.suggest-row` روی سطر `x-ui.meta` (که `display: contents` است، پس hover برچسب هم حساب می‌شود)، روی `x-ui.quote` و روی کارت منبع (`x-source.page-card`) است. جاهای دیگر، مانند عنوان، شماره‌ی نسخه، بند نشان‌ها و سرعنوان بخش‌ها، با قاعده‌ی پدر مستقیم پوشش داده می‌شوند. سرعنوان بخش عمداً `.suggest-row` نگرفت تا hover روی سطرهای درون بخش، دکمه‌ی خود بخش را نشان ندهد.
+  - `data-suggest-field` روی دکمه، نشانه‌ی بازگشت پس از ورود است: `suggestDesk.init` با `?suggest=field.<name>` آن را `scrollIntoView` می‌کند.
+- **دکمه‌ی حالت** ([toggle](../resources/views/components/suggest/toggle.blade.php)): داده‌ی Alpine `suggestToggle` در `resources/js/app.js`.
+  - `IntersectionObserver` روی دکمه، `away` را فقط وقتی دکمه بالای صفحه از دید رفته روشن می‌کند. دکمه‌ی شناور با `x-teleport` به `body` می‌رود و `fixed bottom-4 end-4` است.
+  - راهنما با کلید `suggest-hint-seen` در `localStorage` (درون try/catch) یک بار نشان داده می‌شود. متن ماوس و لمس با `.hover-only` و `.touch-only` جدا شده‌اند.
+- **نکته‌ی Blade:** نام یک کامپوننت در کامنت HTML (`<!-- ... -->`) کامپایل می‌شود و قالب را می‌شکند؛ در کامنت HTML نام کامپوننت نیاید، یا کامنت Blade (`{{-- --}}`) به کار رود.
+- **آزمون:** `SignedInSuggestionsTest::test_field_buttons_render_for_hover_with_the_toggle_hint_and_its_floating_copy`.
