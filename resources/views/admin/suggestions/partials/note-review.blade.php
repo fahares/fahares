@@ -100,6 +100,23 @@
                 </form>
             </div>
         @endif
+        @if(in_array($suggestion->status, ['approved', 'rejected'], true))
+            {{-- Takes back the decision, e.g. to ask the submitter about the note before deciding again --}}
+            <div class="p-4 sm:p-5 bg-surface border border-line space-y-3">
+                <h3 class="rubric text-base">بازگشت به صف داوری</h3>
+                <p class="text-muted">
+                    @if($suggestion->status === 'approved')
+                        یادداشت تا داوری دوباره از صفحه‌ی رکورد برداشته می‌شود و می‌توان از پیشنهاددهنده پرسید. پیام قبلی به پیشنهاددهنده پس گرفته نمی‌شود.
+                    @else
+                        اگر رد به اشتباه بوده، یادداشت دوباره در انتظار داوری قرار می‌گیرد. پرونده‌های پیوست هنگام رد حذف شده‌اند.
+                    @endif
+                </p>
+                <form action="{{ route('admin.suggestions.reopen', $suggestion) }}" method="POST">
+                    @csrf
+                    <button type="submit" onclick="return confirm('این یادداشت به صف داوری بازگردد؟')" class="w-full py-2.5 px-4 rounded-sm border border-line-strong text-ink hover:border-cinnabar hover:text-cinnabar font-bold transition cursor-pointer">{{ $suggestion->status === 'rejected' ? 'لغو رد و بازگشت به صف داوری' : 'لغو تأیید و بازگشت به صف داوری' }}</button>
+                </form>
+            </div>
+        @endif
         @if($suggestion->rationale_citation)
             <div class="p-4 sm:p-5 bg-surface border border-line space-y-2">
                 <h3 class="rubric text-base">توضیح پژوهشگر</h3>

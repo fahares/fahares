@@ -4476,3 +4476,8 @@
 - **پاسخ:** `MessageThread::acceptsReplies` برای رشته‌ی پیشنهاد داوری‌شده درست است اگر نامه‌ای از کارمند پس از `reviewed_at` باشد. قلاب `saving` در `FieldSuggestion` هنگام خروج از `pending`، اگر `reviewed_at` خالی باشد، آن را پر می‌کند، چون همه‌ی مسیرهای تأیید آن را نمی‌گذارند. `userReply` جمله‌ی «پیشنهاد به صف داوری برگشت» را فقط برای پیشنهاد در انتظار می‌آورد.
 - **نما:** `partials/conversation` همیشه رندر می‌شود و برای یادداشت و بازخورد پس از partial خودشان هم آمده است. مسیر همان `admin.suggestions.ask` است.
 - **آزمون:** در [MessagingTest](../tests/Feature/MessagingTest.php): `decidedStatuses` (approved، rejected، converted، withdrawn)، بازگشایی رشته پس از رد، نمایش برای note و feedback، و ۴۲۲ برای مهمانِ ردشده.
+
+### گام ۱۳.۶۲: بازگشت یادداشت پژوهشی به صف داوری
+- **نما:** در [note-review](../resources/views/admin/suggestions/partials/note-review.blade.php)، برای `approved` و `rejected` فرمی به `admin.suggestions.reopen` آمد، با برچسب «لغو تأیید / لغو رد و بازگشت به صف داوری». بخش «نتیجه‌ی داوری» در [show](../resources/views/admin/suggestions/show.blade.php) فقط در شاخه‌ی `@else` است (نه note و نه feedback). یادداشت برداشته‌شده (`withdrawn`) دکمه ندارد، چون `reopen` فقط approved و rejected را می‌پذیرد و همان «ذخیره و انتشار دوباره» را دارد.
+- **منطق:** بی‌تغییر. یادداشت تأییدشده `resolution['applied']` ندارد، پس `reopen` فقط رخداد `reopen` در لاگ ممیزی ثبت می‌کند و `status` را `pending` می‌کند. `resolution` یادداشت، که `original_payload` را دارد، حفظ می‌شود.
+- **آزمون:** `test_a_published_note_returns_to_the_queue_from_its_page` در [SuggestionWorkflowTest](../tests/Feature/SuggestionWorkflowTest.php). `docker exec fahares_app php artisan test --filter='SuggestionWorkflowTest|MessagingTest'`: ۷۲ آزمون موفق.

@@ -1017,6 +1017,32 @@ class SuggestionWorkflowTest extends TestCase
         $this->get(route('manuscripts.show', $m))->assertSee('علامه محمدباقر مجلسی');
     }
 
+    public function test_a_published_note_returns_to_the_queue_from_its_page()
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+        $m = $this->manuscript();
+        $this->addNote($m, 'observation', ['text' => 'نسخه به کتابخانه‌ی دیگری منتقل شده است'])->assertOk();
+        $note = FieldSuggestion::where('suggestable_id', $m->id)->where('kind', 'note')->sole();
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$note->id}")->assertOk()->assertDontSee('لغو تأیید و بازگشت به صف داوری');
+        $this->post("/admin/suggestions/{$note->id}/note", ['note' => ['text' => 'نسخه به کتابخانه‌ی ملی منتقل شده است']])->assertRedirect();
+
+        // Any reviewer sees the button on a published note and takes the decision back
+        $this->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('لغو تأیید و بازگشت به صف داوری');
+        $this->post("/admin/suggestions/{$note->id}/reopen")->assertRedirect("/admin/suggestions/{$note->id}")->assertSessionHas('success');
+        $note->refresh();
+        $this->assertSame('pending', $note->status);
+        $this->assertNull($note->reviewed_by);
+        $this->assertArrayHasKey('original_payload', $note->resolution);
+        $this->get(route('manuscripts.show', $m))->assertDontSee('کتابخانه‌ی ملی منتقل');
+        $this->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('تأیید و انتشار در صفحه‌ی رکورد');
+
+        // A rejected note can be taken back too
+        $this->post("/admin/suggestions/{$note->id}/reject", ['public_note' => 'مستند نیست'])->assertRedirect();
+        $this->get("/admin/suggestions/{$note->id}")->assertOk()->assertSee('لغو رد و بازگشت به صف داوری');
+        $this->post("/admin/suggestions/{$note->id}/reopen")->assertSessionHas('success');
+        $this->assertSame('pending', $note->fresh()->status);
+    }
+
     public function test_image_notes_upload_only_for_signed_in_users_and_stay_hidden_until_published()
     {
         \Illuminate\Support\Facades\Notification::fake();
