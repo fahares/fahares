@@ -22,6 +22,10 @@
                 </p>
             @endcan
         </div>
+        {{-- A direct message (backlog item 91) --}}
+        @can('users.message')
+            <x-ui.btn :href="route('admin.messages.create', ['user' => $user->id])" size="sm" class="ms-auto">فرستادن پیام</x-ui.btn>
+        @endcan
     </div>
 
     <form action="{{ route('admin.users.update', $user) }}" method="POST" class="space-y-5">

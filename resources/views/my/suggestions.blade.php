@@ -8,6 +8,7 @@
     $date = fn ($d) => \App\Support\Jalali::format($d, 'long');
     $pill = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold border';
     $pills = [
+        'awaiting' => ['منتظر پاسخ شما', 'bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800'],
         'pending' => ['در انتظار داوری', 'bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-900/60'],
         'rejected' => ['رد شد', 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900/60'],
         'adopted' => ['مقدار منتخب', 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/60'],
@@ -47,6 +48,7 @@
             $pillKey = match (true) {
                 $s->kind === 'note' && $s->status === 'approved' => 'published',
                 $s->status === 'approved' => $s->standing ?? 'approved',
+                $s->status === 'pending' && $s->awaiting_reply_since => 'awaiting',
                 default => $s->status,
             };
             [$statusLabel, $statusClass] = $pills[$pillKey] ?? $pills['pending'];
@@ -84,6 +86,16 @@
             @endif
             @if($s->public_note)
                 <p class="text-ink/80 whitespace-pre-line"><span class="font-bold text-muted">یادداشت داور:</span> {{ $s->public_note }}</p>
+            @endif
+            {{-- The reviewers' questions and the answers (backlog item 91) --}}
+            @if($s->thread)
+                <div @class(['p-3 rounded-sm border space-y-1', 'border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20' => $s->awaiting_reply_since, 'border-line' => ! $s->awaiting_reply_since])>
+                    @php $lastQuestion = $s->thread->messages->where('is_staff', true)->last(); @endphp
+                    @if($lastQuestion)
+                        <p class="text-ink/80 whitespace-pre-line break-words"><span class="font-bold text-muted">پرسش داور:</span> {{ \Illuminate\Support\Str::limit($lastQuestion->body, 300) }}</p>
+                    @endif
+                    <a href="{{ route('my.messages.show', $s->thread) }}" class="inline-block text-xs font-bold text-cinnabar hover:underline">{{ $s->awaiting_reply_since ? 'منتظر پاسخ شما؛ پاسخ دهید' : 'دیدن گفت‌وگو' }} ←</a>
+                </div>
             @endif
 
             @if(in_array($s->kind, ['field', 'note'], true) && $s->status !== 'rejected')

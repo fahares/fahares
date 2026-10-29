@@ -26,6 +26,8 @@ Schedule::command('fahares:refresh-person-reviews')->dailyAt('04:15')->withoutOv
 // suggestions left unreviewed on Saturday morning
 Schedule::command('notifications:digest')->dailyAt('07:30')->timezone('Asia/Tehran')->withoutOverlapping(30);
 Schedule::command('notifications:stale-suggestions')->saturdays()->at('08:00')->timezone('Asia/Tehran');
+// Reviewers' questions on suggestions (backlog item 91): reminders and expired deadlines, before the working day
+Schedule::command('notifications:suggestion-questions')->dailyAt('07:00')->timezone('Asia/Tehran');
 
 // Search stats (backlog item 83): searches older than a year are dropped
 Schedule::command('model:prune', ['--model' => [\App\Models\SearchLog::class]])->dailyAt('05:00');

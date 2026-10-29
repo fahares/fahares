@@ -27,7 +27,7 @@ class DashboardController extends Controller
         $queue = [];
 
         if ($user->can('suggestions.review')) {
-            $pending = FieldSuggestion::where('status', 'pending')
+            $pending = FieldSuggestion::inQueue()
                 ->selectRaw("CASE WHEN kind = 'general' THEN 'field' ELSE kind END AS bucket, count(*) AS c, min(created_at) AS oldest")
                 ->groupBy('bucket')->get()->keyBy('bucket');
             foreach ([
@@ -55,7 +55,7 @@ class DashboardController extends Controller
         }
 
         $pendingSuggestions = ! $user->can('suggestions.review') ? collect() : FieldSuggestion::with(['user', 'suggestable'])
-            ->where('status', 'pending')
+            ->inQueue()
             ->latest('id')
             ->take(5)
             ->get();

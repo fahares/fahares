@@ -138,7 +138,10 @@
 
                     <!-- User Account / Auth Actions -->
                     @auth
-                        @php $unreadNotifications = auth()->user()->unreadNotifications()->count(); @endphp
+                        @php
+                            $unreadNotifications = auth()->user()->unreadNotifications()->count();
+                            $unreadMessages = \App\Models\MessageThread::where('user_id', auth()->id())->unreadByUser()->count();
+                        @endphp
                         <div x-data="{ userMenuOpen: false }" class="relative">
                             <button @click="userMenuOpen = !userMenuOpen" aria-label="حساب کاربری: {{ auth()->user()->name }}"
                                     class="relative flex items-center gap-2 p-1 sm:ps-1 sm:pe-3 lg:p-1 xl:ps-1 xl:pe-3 rounded-full border border-gold/40 bg-cinnabar/10 text-ink text-xs font-bold hover:border-gold transition cursor-pointer">
@@ -167,6 +170,15 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                                         </svg>
                                         <span>پیشنهادهای من</span>
+                                    </a>
+                                    <a href="{{ route('my.messages') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span>پیام‌ها</span>
+                                        @if($unreadMessages)
+                                            <span class="ms-auto px-1.5 rounded-full bg-amber-500 text-stone-950 text-[10px] font-bold">{{ $unreadMessages }}</span>
+                                        @endif
                                     </a>
                                     <a href="{{ route('contributions.index') }}" class="flex items-center gap-2 px-4 py-2 text-ink hover:bg-paper font-medium transition">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

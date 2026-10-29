@@ -42,11 +42,11 @@
                 <tbody class="divide-y divide-line">
                     @foreach($types as $type => $definition)
                         <tr>
-                            <td class="p-4 text-ink">{{ $definition['label'] }}@if(! empty($definition['locked']))<span class="block text-xs text-muted">اعلان امنیتی؛ خاموش نمی‌شود.</span>@endif</td>
+                            <td class="p-4 text-ink">{{ $definition['label'] }}@if(! empty($definition['locked']))<span class="block text-xs text-muted">اعلان امنیتی؛ خاموش نمی‌شود.</span>@elseif(! empty($definition['required']))<span class="block text-xs text-muted">در «پیام‌ها»ی سایت همیشه می‌رسد.</span>@endif</td>
                             @foreach($channels as $key => $label)
                                 <td class="p-4 text-center">
                                     @if(array_key_exists($key, $definition['channels']))
-                                        <input type="checkbox" name="enabled[{{ $type }}][{{ $key }}]" value="1" @checked($enabled[$type][$key]) @disabled(! empty($definition['locked'])) aria-label="{{ $definition['label'] }}: {{ $label }}"
+                                        <input type="checkbox" name="enabled[{{ $type }}][{{ $key }}]" value="1" @checked($enabled[$type][$key]) @disabled(! empty($definition['locked']) || in_array($key, $definition['required'] ?? [], true)) aria-label="{{ $definition['label'] }}: {{ $label }}"
                                             class="w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-cinnabar focus:ring-cinnabar">
                                     @else
                                         <span class="text-stone-300 dark:text-stone-600">—</span>

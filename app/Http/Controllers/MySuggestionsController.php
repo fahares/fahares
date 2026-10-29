@@ -24,7 +24,7 @@ class MySuggestionsController extends Controller
             'pending' => (clone $query)->where('status', 'pending')->count(),
         ];
 
-        $suggestions = $query->with(['suggestable', 'supersededBy'])->latest('id')->paginate(25);
+        $suggestions = $query->with(['suggestable', 'supersededBy', 'thread.messages'])->latest('id')->paginate(25);
 
         return view('my.suggestions', compact('suggestions', 'stats'));
     }

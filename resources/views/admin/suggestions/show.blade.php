@@ -3,6 +3,9 @@
 @php
     $fa = fn ($v) => \App\Support\Fa::digits($v);
     [$statusText, $statusTone] = match (true) {
+        $suggestion->status === 'pending' && $suggestion->awaiting_reply_since => ['منتظر پاسخ پیشنهاددهنده', 'default'],
+        $suggestion->status === 'pending' && $suggestion->reply_state === 'answered' => ['در انتظار داوری، پیشنهاددهنده پاسخ داد', 'good'],
+        $suggestion->status === 'pending' && $suggestion->reply_state === 'unanswered' => ['در انتظار داوری، پرسش بی‌پاسخ ماند', 'accent'],
         $suggestion->status === 'pending' => ['در انتظار داوری', 'accent'],
         $suggestion->status === 'approved' => [($suggestion->kind === 'note' ? 'منتشر شد' : 'تأیید شد') . '، به دست ' . ($suggestion->reviewer?->name ?: 'مدیر'), 'good'],
         $suggestion->status === 'converted' => ['تبدیل شد', 'default'],
@@ -164,6 +167,8 @@
         <h3 class="rubric text-base">مستند و منبع پژوهشگر</h3>
         <div class="whitespace-pre-line leading-7 text-ink">{{ $suggestion->rationale_citation ?: '— مستندی ذکر نشده است —' }}</div>
     </x-ui.card>
+
+    @include('admin.suggestions.partials.conversation')
 
     @php $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative'; @endphp
     @if($suggestion->status === 'pending' || $promoting)

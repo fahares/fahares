@@ -219,16 +219,19 @@ class SignedInSuggestionsTest extends TestCase
         Notification::assertNothingSent();
 
         $this->artisan('fahares:ask-persian-names')->expectsOutputToContain('Notifying 1 user(s).')->assertSuccessful();
-        Notification::assertSentTo($latin, \App\Notifications\PersianNameRequest::class, function ($n, $channels) use ($latin) {
+        // Sent as a direct message from its template, which the user can answer (backlog item 91)
+        Notification::assertSentTo($latin, \App\Notifications\ThreadNotice::class, function ($n, $channels) use ($latin) {
             $mail = (string) $n->toMail($latin)->render();
 
             return $channels === ['database', 'mail'] && str_contains($mail, 'Ali Rezaei') && str_contains($mail, route('profile'))
                 && $n->toArray($latin)['title'] === 'لطفاً نام خود را به فارسی بنویسید';
         });
-        Notification::assertNotSentTo([$kept, $persian], \App\Notifications\PersianNameRequest::class);
+        Notification::assertNotSentTo([$kept, $persian], \App\Notifications\ThreadNotice::class);
 
-        // A user already asked is not asked again
-        $latin->notifications()->create(['id' => (string) \Illuminate\Support\Str::uuid(), 'type' => \App\Notifications\PersianNameRequest::class, 'data' => []]);
+        // A user already asked, now or by the one-off notice before item 91, is not asked again
+        $this->artisan('fahares:ask-persian-names', ['--dry-run' => true])->expectsOutputToContain('Would notify 0 user(s).');
+        \App\Models\MessageThread::query()->delete();
+        $latin->notifications()->create(['id' => (string) \Illuminate\Support\Str::uuid(), 'type' => 'App\\Notifications\\PersianNameRequest', 'data' => []]);
         $this->artisan('fahares:ask-persian-names', ['--dry-run' => true])->expectsOutputToContain('Would notify 0 user(s).');
     }
 

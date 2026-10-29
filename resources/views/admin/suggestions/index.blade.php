@@ -9,7 +9,7 @@
     $kind = request('kind');
     $kindLabels = ['field' => 'اصلاح فیلد و کلی', 'relation' => 'پیشنهاد ساختاری', 'note' => 'یادداشت پژوهشی', 'feedback' => 'گزارش اشکال سایت', 'collective' => config('contributions.review_title')];
     $statusTabs = [];
-    foreach (['pending' => 'در انتظار', 'approved' => 'تأییدشده', 'rejected' => 'ردشده', 'all' => 'همه'] as $key => $label) {
+    foreach (['pending' => 'در انتظار', 'awaiting' => 'منتظر پاسخ پیشنهاددهنده', 'approved' => 'تأییدشده', 'rejected' => 'ردشده', 'all' => 'همه'] as $key => $label) {
         $statusTabs[] = ['label' => $label, 'url' => route('admin.suggestions.index', array_filter(['status' => $key, 'type' => $type, 'kind' => $kind])),
             'active' => $status === $key, 'count' => $stats[$key === 'all' ? 'total' : $key]];
     }
@@ -19,6 +19,9 @@
     }
     $statusChip = function ($sug) {
         return match (true) {
+            $sug->status === 'pending' && $sug->awaiting_reply_since => ['منتظر پاسخ', 'default'],
+            $sug->status === 'pending' && $sug->reply_state === 'answered' => ['پاسخ داد', 'good'],
+            $sug->status === 'pending' && $sug->reply_state === 'unanswered' => ['بی‌پاسخ ماند', 'accent'],
             $sug->status === 'pending' => ['در انتظار', 'accent'],
             $sug->status === 'approved' => [$sug->kind === 'note' ? 'منتشر شد' : ($sug->standing_label ?? 'تأیید شد'), 'good'],
             $sug->status === 'converted' => ['تبدیل شد', 'default'],

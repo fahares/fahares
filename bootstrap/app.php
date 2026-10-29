@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
         // search/click only records which rank of an anonymous search was opened (SearchController::click)
-        $middleware->validateCsrfTokens(except: ['telegram/webhook', 'search/click']);
+        $middleware->validateCsrfTokens(except: ['telegram/webhook', 'search/click', 'messages/inbound']);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);

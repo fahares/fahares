@@ -18,7 +18,7 @@ class SendStaleSuggestionsReminderCommand extends Command
     public function handle(): int
     {
         $days = (int) config('notifications.stale_after_days', 7);
-        $stale = FieldSuggestion::where('status', 'pending')->where('created_at', '<', now()->subDays($days));
+        $stale = FieldSuggestion::inQueue()->where('created_at', '<', now()->subDays($days));
         $count = (clone $stale)->whereNull('review_queue')->count();
         $opinions = (clone $stale)->whereNotNull('review_queue')->distinct()->count('review_item_id');
         if ($count === 0 && $opinions === 0) {
