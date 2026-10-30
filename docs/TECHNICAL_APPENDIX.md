@@ -5026,3 +5026,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فایل‌ها با `tar` از راه `ssh fahares-app` به `/tmp/fankha-pages` رفتند و `md5sum -c` درست بود.
   - هر ۳۴ جلد وارد شد (۳۳٬۵۱۸ ردیف `source_pages` برای منبع ۱)، و پس از آن پوشه‌ی موقت پاک شد.
   - زمان تا نخستین بایت صفحه‌ی فنخا ۱ تا ۱٫۳ ثانیه بود. برای `/up` همین زمان ۰٫۹ ثانیه بود، پس بیشترش تأخیر شبکه است.
+
+### گام ۱۳.۷۹: «منابع و مراجع» و راه‌های رسیدن به متن صفحه
+- **مسیرها:** `sources.index` (`/sources`) و `sources.show` (`/sources/{code}`) در `SourceController`. هر دو پیش از مسیرهای `source-pages.show` و `source-items.show` تعریف شده‌اند.
+- **`App\Support\SourceShelf`:**
+  - **`counts()`:** برای هر منبع، شمار آثار و نسخه‌ها (`count(distinct citable_id)` از `source_entries` ردنشده)، مدخل‌ها (`source_items`) و صفحه‌های متن (`source_pages`). در کش `sources:shelf` یک روز نگه داشته می‌شود.
+  - **`hasImages()`:** منبعی که `images: false` ندارد و پوشه‌ی تصویر دست‌کم یک جلدش هست.
+  - **فهرست:** منبعی که نه خودش و نه چاپ‌هایش چیزی دارند، کنار می‌رود. چاپ‌ها (`edition_of_id`) زیر منبع اصلی می‌آیند.
+- **ورود به متن صفحه:**
+  - **`SourceEntry::pageTextUrl()`:** صفحه‌ی `text_page`، یا `page_start`، یا صفحه‌ی آغاز مدخل، اگر `PrintedPage::exists()` آن را بیابد. در `x-source.text` (پارامتر تازه‌ی `page` در `x-ui.source-text`) و `x-source.page-card` به کار رفته است.
+  - **`PrintedPage::urlForViewer()`:** برای کارت برگه‌ی ارجاع‌های کتاب‌شناسی در صفحه‌ی اثر.
+  - **`PageImagesController`:** کلید `text` را با نشانی `/sources/{code}/{volume}/page/` می‌دهد، اگر جلدی با همان `facsimile_code` متن یا مدخل داشته باشد. این مقدار یک ساعت نگه داشته می‌شود. `catalog-viewer.js` آن را در `textBase` نگه می‌دارد و دکمه‌ی «متن» به `textUrl` می‌رود.
+- **دیگر:**
+  - `LibraryController::show` منابعی را که `library_id` آن کتابخانه را دارند و چاپ منبع دیگری نیستند، به صفحه می‌دهد.
+  - `SitemapController::getStaticUrls` `/sources` و صفحه‌ی هر منبعِ دارای داده را می‌افزاید.
+- **آزمون:** `tests/Feature/SourcesShelfTest.php` (۵ آزمون).
