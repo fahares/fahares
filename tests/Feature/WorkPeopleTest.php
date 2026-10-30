@@ -304,6 +304,13 @@ class WorkPeopleTest extends TestCase
         $this->get(route('people.show', $naser))->assertOk()->assertSee('آثار تقدیم‌شده به او');
         $this->get(route('people.show', $aqasi))->assertOk()->assertSee('آثار به سفارش او');
 
+        // A row an earlier run linked to the first Abbas moves to the second when the field's dates name him
+        $abbas2 = Person::where('name', 'عباس صفوی دوم، شاه ایران')->value('id');
+        $w3->update(['dedication' => 'شاه عباس صفوی (1052-1077ق)']);
+        $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w3->id])->assertSuccessful();
+        $this->assertSame([['dedicatee', $abbas2, null, '1052-1077ق']], $rows($w3));
+        $this->assertNull(WorkPerson::where('work_id', $w3->id)->value('certainty'));
+
         // A second run adds nothing, and makes no second record
         $count = WorkPerson::count();
         $this->artisan('fahares:backfill-work-dedications', ['--only' => $only])->assertSuccessful();

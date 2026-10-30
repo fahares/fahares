@@ -168,6 +168,23 @@ class ContributorRelations
         return $row->id;
     }
 
+    /**
+     * A row a backfill linked to one of several rulers a spelling may mean (KnownRulers::USUALLY) moves to the one
+     * the field's dates now point at, with its certainty and note; rows a reviewer added are left alone.
+     *
+     * @param  int[]  $others  the group's other people
+     */
+    public function relinkRow(Work $work, string $role, array $others, Person $person, ?string $certainty, ?string $note, bool $dry = false): ?int
+    {
+        $row = $work->workPeople()->where('role', $role)->whereNull('suggestion_id')->whereIn('person_id', $others)->first();
+        if (! $row || $dry) {
+            return $row?->id;
+        }
+        $row->update(['person_id' => $person->id, 'certainty' => $certainty, 'note' => $note ? mb_substr($note, 0, 500) : null]);
+
+        return $row->id;
+    }
+
     /** One of the work's people rows is deleted; the audit log keeps the whole row, so a rollback puts it back. */
     public function removeRole(Work $work, int $rowId): array
     {

@@ -4849,15 +4849,55 @@
     3. **import-pages و segment:** با `SCOUT_DRIVER=null` و `nohup` اجرا شد. شمارها برابر تمرین بود.
     4. **link-items --near:** ۶٬۶۶۲ پیوند (۶٬۳۸۶ مدخل برای ۵٬۹۷۲ اثر، و ۲۷۶ یادکرد).
   - **نمایه‌ی جستجو (۹ آبان):** `SourceItem::where('source_id', 100184)->chunkById(500, fn ($c) => $c->searchable())` با `nohup php artisan tinker` اجرا شد و ۴۶٬۷۰۲ مدخل فرستاد. پس از پردازش Meilisearch، `source_items_index` ۱۰۹٬۴۱۳ سند داشت و هیچ کاری شکست نخورده بود. حافظه‌ی آزاد میزبان حدود ۱٫۲ گیگابایت ماند.
+- **سال وفات پرانتز (پس از وارسی پروداکشن):**
+  - `KnownRulers::find($piece, $year, $death)` نخست سال وفاتِ پرانتز را با پایان `lived` هر نامزد می‌سنجد (±۱)، سپس سال تألیف را.
+  - خروجی `group` دارد، یعنی نام همه‌ی نامزدهای گروه.
+  - `ContributorRelations::relinkRow()` سطرِ بی‌`suggestion_id` را که به نامزد دیگرِ گروه پیوند خورده، به نامزد تازه می‌برد و قطعیت و یادداشتش را تازه می‌کند (`relinked_ruler`).
+- **انجام در پروداکشن (۸ آبان، `ssh fahares-app`):**
+  - **مترجم‌ها:** با JSON سبک ۲۷۳ اثر، فرستاده و اجراشده در یک نشست، ۷ سطر `linked_existing_name` شد. نخستین اجرای واقعی در همان نشستِ dry run خروجی نداد و چیزی ننوشت، پس جدا و در پس‌زمینه دوباره اجرا شد. اجرای وارسی ۲۵۹ سطر و ۱ سطر را «موجود» دید.
+  - **تقدیم و سفارش:**
+    - اجرای اول: شمارها برابر جدول بالا، با ۱ سطر «موجود» (نام تکراری در یک اثر).
+    - پس از کامیت `2919386`: ۲ سطر `relinked_ruler` (#۷۴ و #۱۳۳۹۹ به #۷۰۶۱۳) و ۳ سطر `linked_existing_name`.
+    - اجرای وارسی: ۴٬۷۶۸ و ۲۷ «موجود» و ۳۱ `run_on`.
+  - **وارسی سایت:** `/people/801` «آثار تقدیم‌شده به او ۴۴۲» و `/people/70613` «۶۶» دارند. `/w/74` عباس دوم را با «(1033-1077ق)» نشان می‌دهد.
 
-### گام ۱۳.۷۳: صفحه‌ی «متن صفحه» (`source-pages.show`)
+### گام ۱۳.۷۳: سقف حافظه‌ی Meilisearch
+
+- **اندازه‌گیری پیش از تغییر (۸ آبان، `ssh fahares-server`):**
+  - رم ۵٬۴۰۸ مگابایت و ۲ هسته داشت. swap یک‌گیگابایتی (`/dev/sda3`) کاملاً پر بود و swappiness=60.
+  - هیچ کانتینری `--memory` نداشت.
+  - پیک cgroup: `fahares-meilisearch` ۲٬۶۴۸ مگابایت، dawawin ۱٬۱۸۸، coolify ۹۷۱ و MariaDB ۵۷۶.
+  - گزارش کامل بیرون از مخزن، در یادداشت‌های جلسه است.
+- **پیکربندی پیشین:** `fahares-meilisearch` با `docker run` ساده ساخته شده بود، بیرون از Compose و Coolify. شبکه‌اش `coolify` بود، بدون پورت منتشرشده، با volume `fahares_meilidata_v1_55` (۶٫۱ گیگابایت) و `restart=always`. env فقط `MEILI_MASTER_KEY` و `MEILI_ENV=production` بود.
+- **ساخت دوباره:**
+  - کانتینر قبلی `docker stop -t 60` شد، سیاست restart آن به `no` تغییر کرد و نامش `fahares-meilisearch-old-20261030` شد.
+  - کانتینر تازه با همان env (از راه یک env-file موقت با مجوز ۶۰۰ که بعد پاک شد) ساخته شد، به‌علاوه‌ی این‌ها:
+
+```
+docker run -d --name fahares-meilisearch --network coolify --restart always \
+  --memory 1536m --env-file <env> \
+  -e MEILI_MAX_INDEXING_MEMORY=512Mb -e MEILI_MAX_INDEXING_THREADS=1 \
+  --log-driver json-file --log-opt max-size=10m --log-opt max-file=3 \
+  -v fahares_meilidata_v1_55:/meili_data getmeili/meilisearch:v1.55.0
+```
+
+- **وارسی:**
+  - `/health` پس از ۱ ثانیه `available` بود.
+  - `/search` روی fahares.net کد ۲۰۰ داد. درخواست‌های هر ۴ نمایه ۲۰۰ بودند و `time.busy` زیر ۵ میلی‌ثانیه ماند، مثل پیش از تغییر.
+  - کانتینر پس از راه‌اندازی ۲۳۵ مگابایت مصرف داشت. حافظه‌ی در دسترس سرور از ۱٬۵۳۳ به ۲٬۵۵۵ مگابایت رسید.
+- **برگشت:** `docker rm -f fahares-meilisearch && docker rename fahares-meilisearch-old-20261030 fahares-meilisearch && docker update --restart=always fahares-meilisearch && docker start fahares-meilisearch`
+- **swap (کاربر با sudo اجرا کرد):** فایل swap چهارگیگابایتی `/swapfile` ساخته و در `/etc/fstab` ثبت شد. `vm.swappiness=10` هم در `/etc/sysctl.d/99-swappiness.conf` گذاشته شد. پس از آن کل swap ۵٬۱۱۹ مگابایت بود (۴٬۰۹۰ آزاد) و حافظه‌ی در دسترس ۲٬۹۱۱ مگابایت.
+
+
+### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
 - **طرح:** `docs/plans/source-page-text.md`.
 - **مسیر:** `/sources/{code}/{volume}/page/{page}` در `routes/web.php`، پیش از مسیر مدخل، با کنترلر `SourcePageController`.
   - صفحه‌ی ناموجود ۴۰۴ می‌دهد.
   - اگر `BibliographyLinks::textVolume()` جلد دیگری بدهد، ۳۰۱ به آن جلد. این متد حالا عمومی است و کلید منبع را هم می‌پذیرد.
 - **`App\Support\PrintedPage`:**
   - **`find()`:** اگر جلد ردیفی در `source_pages` دارد، متن همان صفحه را با `cut()` می‌برد. آغاز هر مدخل با ۴۰ نویسه‌ی سطر نخستش پیدا می‌شود. روی ۱۵۰ صفحه‌ی تصادفی از هر منبع، همه‌ی آغازها پیدا شدند: منزوی ۸۳۸ از ۸۳۸، کشف ۱٬۰۵۴، ایضاح ۱٬۷۱۴ و هدیه ۹۸۱.
-  - **منبع بی‌متن صفحه (الذریعة):** پاره‌ی هر مدخل از `SourceItem::pageSegments()` گرفته می‌شود.
+  - **جلد بی‌متن صفحه:** پاره‌ی هر مدخل از `SourceItem::pageSegments()` گرفته می‌شود. الذریعة روی پروداکشن متن صفحه دارد (نور، گام ۱۳.۳۱)، ولی `fahares_db` محلی ندارد.
+  - **ج ۲۶ الذریعة:** شماره در سطر جدا آمده است («[ 972 ]» و سپس «( ترجمه … )»). اگر سطر نخست مدخل پیدا نشد، `cut()` آن را بی شماره می‌جوید و آغاز را به «[ N ]» پیش از آن می‌برد.
   - **صفحه‌ی پیش و بعد:** از `source_pages` گرفته می‌شود، یا از بازه‌ی `page_start`/`page_end` مدخل‌ها. در لبه‌ی جلد، جلد پیش یا پس از همان منبع می‌آید.
   - **پیش‌گفتار:** صفحه‌ای است که شماره‌اش از کوچک‌ترین `page_start` مدخل‌های غیر `preface` جلد کمتر باشد.
 - **پیوندها:**
