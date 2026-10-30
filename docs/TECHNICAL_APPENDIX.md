@@ -4922,6 +4922,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تلاش:** گذاشتن `APP_PORT=127.0.0.1:8000` در `/data/coolify/source/.env` را `docker compose` با خطای `invalid start port` رد کرد، چون نگاشت `"${APP_PORT:-8000}:8080"` IP را درون متغیر نمی‌پذیرد. ۶۰۰۲ هم در `docker-compose.prod.yml` ثابت نوشته شده است.
   - **برگشت:** `.env` بی‌درنگ از `.env-before-localhost-ports` برگردانده شد و `compose config` معتبر بود. اگر آن سطرها می‌ماندند، به‌روزرسانی شبانه‌ی Coolify شکست می‌خورد. کانتینر Coolify در این میان ری‌استارت نشد.
   - **راه باقی‌مانده:** قانون فایروال در زنجیره‌ی `DOCKER-USER`، که ماندگار هم باشد. فعلاً انجام نشد، چون داشبورد از HTTPS در دسترس است و ورود رمز دارد.
+- **ایمیج‌های ساخته‌شده روی سرور:** هر ۸ ایمیج `9qjcshcsq1hcstpoorqvkew6:<sha>` پاک شد، چون build-arg ها و `.nixpacks/build.sh` آن‌ها مقادیر محرمانه داشت. `docker image prune` هم ۴٫۸ گیگابایت آزاد کرد. کانتینر جاری از `ghcr.io/fahares/fahares:latest` است و برگشت به نسخه‌های پیشین از راه برچسب‌های `<sha>` در GHCR انجام می‌شود.
 
 
 ### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
