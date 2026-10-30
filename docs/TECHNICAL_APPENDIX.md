@@ -4916,6 +4916,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **چرا فایل traefik دستی نوشته شد:** Coolify فایل `dynamic/coolify.yaml` را ننوشت، چون `servers.proxy` سرور ۰ کلید `type` ندارد و `setupDynamicProxyConfiguration()` فقط برای `TRAEFIK` کار می‌کند. همان پیکربندی Coolify (مسیرهای داشبورد، reverb و terminal با `certresolver: letsencrypt`) دستی در `/data/coolify/proxy/dynamic/coolify.yaml` نوشته شد. traefik بی‌ری‌استارت آن را خواند و گواهی Let's Encrypt گرفت.
   - **هشدار:** اگر دامنه‌ی instance عوض شود، این فایل خودکار به‌روز نمی‌شود.
   - **نتیجه:** `COOLIFY_URL` به `https://coolify.fahares.net` رفت. استقرار ۳۳۹ با فراخوانی HTTPS در ۴۲ ثانیه تمام شد، چون لایه‌ها از پیش کشیده شده بودند. پورت ۸۰۰۰ هنوز باز است.
+- **build-time:** `is_buildtime` از ۴۶ ردیف `environment_variables` برنامه برداشته شد (به‌جز `NIXPACKS_*`)، چون ساخت دیگر در Coolify نیست. `is_runtime` دست نخورد. استقرار ۳۴۰ (۱۳:۳۵ تا ۱۳:۳۷) نشان داد `APP_KEY`، `DB_PASSWORD` و `MEILISEARCH_KEY` در کانتینر هستند. `/up` و `/search` کد ۲۰۰ دادند.
 
 
 ### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
