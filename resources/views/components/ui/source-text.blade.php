@@ -9,6 +9,8 @@
     'collapsible' => false,
     // The entry's own page on the site, when the source's entries have one (al-Dhari'a)
     'link' => null,
+    // The text of the whole printed page on the site (/sources/fankha/2/page/926)
+    'page' => null,
 ])
 {{-- One source text under «متن مأخذ» on the record page (backlog item 60): the printed library catalogue's and Fankha's
      look alike, with the address, «دیدن برگه» and «رونوشت متن»; an optional `badge` slot follows the title. When the text
@@ -28,6 +30,9 @@
             @endif
             @if($link)
                 <x-ui.btn size="sm" href="{{ $link }}">صفحه‌ی مدخل</x-ui.btn>
+            @endif
+            @if($page)
+                <x-ui.btn size="sm" href="{{ $page }}" data-page-text>متن صفحه</x-ui.btn>
             @endif
             <x-ui.btn size="sm" x-on:click="navigator.clipboard.writeText([...$refs.text.querySelectorAll('[data-copy]')].map(e => e.innerText.trim()).join('\n\n') || $refs.text.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
                 <span x-show="!copied">رونوشت متن</span>

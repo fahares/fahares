@@ -65,6 +65,9 @@ class LibraryController extends Controller
             ->orderByRaw("shelfmark_key IS NULL, shelfmark_key REGEXP '^[0-9]' DESC, CAST(shelfmark_key AS UNSIGNED), shelfmark_key")
             ->paginate(30);
 
-        return view('libraries.show', compact('library', 'manuscripts'));
+        // the library's printed catalogues, each a source with its own page (step 13.79)
+        $catalogues = \App\Models\Source::where('library_id', $library->id)->whereNull('edition_of_id')->with('editions')->orderBy('title')->get();
+
+        return view('libraries.show', compact('library', 'manuscripts', 'catalogues'));
     }
 }

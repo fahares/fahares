@@ -59,6 +59,21 @@
             </x-ui.section>
         </div>
 
+        @if($catalogues->isNotEmpty())
+            <x-ui.section title="فهرست‌های چاپی" :count="$catalogues->count()">
+                <ul class="space-y-1 text-sm" data-library-catalogues>
+                    @foreach($catalogues as $catalogue)
+                        <li class="flex gap-2.5 leading-relaxed">
+                            <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                            <span><a href="{{ route('sources.show', $catalogue->code) }}" class="text-cinnabar hover:underline">{{ $catalogue->title }}</a>
+                                @foreach($catalogue->editions as $edition)<span class="text-muted">، </span><a href="{{ route('sources.show', $edition->code) }}" class="text-cinnabar hover:underline">{{ Fa::digits($edition->edition_label ?: $edition->title) }}</a>@endforeach
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </x-ui.section>
+        @endif
+
         <!-- MANUSCRIPTS TABLE -->
         <x-ui.section id="manuscripts" title="نسخه‌ها" :count="$library->manuscripts_count">
             <x-search.list-tools :params="['type' => 'manuscripts', 'library_id' => $library->id]" placeholder="عنوان، پدیدآور، کاتب یا شماره در این کتابخانه…" />

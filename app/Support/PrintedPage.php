@@ -157,6 +157,15 @@ class PrintedPage
         return $kept;
     }
 
+    /** The page text of a page the viewer shows (its volume's facsimile_code), when the site has that page's text. */
+    public static function urlForViewer(array $viewer): ?string
+    {
+        $volume = SourceVolume::with('source')->where('facsimile_code', $viewer['catalog'] ?? null)->where('volume_number', (int) ($viewer['volume'] ?? 0))->first();
+
+        return $volume?->source && self::exists($volume, (int) $viewer['page'])
+            ? route('source-pages.show', [$volume->source->code, $volume->volume_number, (int) $viewer['page']]) : null;
+    }
+
     /** Whether the volume has a printed page, as the text page and the links to it judge. */
     public static function exists(SourceVolume $volume, int $page): bool
     {

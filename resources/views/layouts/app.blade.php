@@ -91,6 +91,9 @@
                     <a href="{{ route('catalogers.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('catalogers.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         فهرست‌نگاران
                     </a>
+                    <a href="{{ route('sources.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('sources.*', 'source-pages.*', 'source-items.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                        منابع
+                    </a>
                                         <a href="{{ route('posts.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('posts.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         جریده
                     </a>
@@ -252,6 +255,7 @@
                             <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('subjects.*') ? 'text-cinnabar font-bold' : '' }}">موضوعات</a>
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
+                            <a href="{{ route('sources.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('sources.*', 'source-pages.*', 'source-items.*') ? 'text-cinnabar font-bold' : '' }}">منابع</a>
                             <a href="{{ route('posts.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('posts.*') ? 'text-cinnabar font-bold' : '' }}">جریده</a>
                             <a href="{{ route('contributions.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('contributions.*', 'contributors.*') ? 'text-cinnabar font-bold' : '' }}">{{ config('contributions.title') }}</a>
                             <a href="{{ route('insights') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('insights') ? 'text-cinnabar font-bold' : '' }}">آمار</a>
@@ -411,6 +415,7 @@
                         <li><a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-amber-100 transition">کاوش نسخه‌های کهن خطی</a></li>
                         <li><a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-amber-100 transition">پدیدآوران، شارحان و کاتبان</a></li>
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
+                        <li><a href="{{ route('sources.index') }}" class="hover:text-amber-100 transition">منابع و مراجع: فهرست‌ها و کتاب‌شناسی‌ها</a></li>
                         <li><a href="{{ route('posts.index') }}" class="hover:text-amber-100 transition">جریده: گزارش‌ها و یادداشت‌ها</a></li>
                         <li><a href="{{ route('insights') }}" class="hover:text-amber-100 transition">آمار: نسخه‌ها در گذر سده‌ها</a></li>
                         <li><a href="{{ route('contributions.index') }}" class="hover:text-amber-100 transition">{{ config('contributions.title') }}</a></li>

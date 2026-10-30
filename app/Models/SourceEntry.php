@@ -465,6 +465,20 @@ class SourceEntry extends Model
         return route('source-pages.show', [$this->source->code, $volume, $page]);
     }
 
+    /**
+     * The text of the printed page the entry is on, for any source whose page texts or entries the site has: «متن
+     * صفحه» beside «دیدن برگه» on the record page (step 13.79).
+     */
+    public function pageTextUrl(): ?string
+    {
+        $page = $this->text_page ?: $this->page_start ?: $this->sourceItem?->page_start;
+        if (! $page || ! $this->source || ! $this->sourceVolume || ! \App\Support\PrintedPage::exists($this->sourceVolume, $page)) {
+            return null;
+        }
+
+        return route('source-pages.show', [$this->source->code, $this->sourceVolume->volume_number, $page]);
+    }
+
     /** The page image the viewer opens, small enough for the side card. */
     public function thumbUrl(): ?string
     {

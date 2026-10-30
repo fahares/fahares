@@ -22,7 +22,7 @@
 @endphp
 <x-ui.source-text data-source-text data-machine-item="{{ $entry->reviewKey() }}" :title="$entry->textTitle()" :address="$address"
     :viewer="$viewer ? '$dispatch(\'open-catalog-viewer\', ' . \Illuminate\Support\Js::from($viewer) . ')' : null" :collapsible="$long"
-    :link="$entry->sourceItem?->url()">
+    :link="$entry->sourceItem?->url()" :page="$entry->pageTextUrl()">
     @if($entry->isAwaitingReview() && ($field || $entry->source_item_id))
         <x-slot:badge>
             <x-ui.machine-badge

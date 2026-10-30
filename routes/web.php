@@ -66,6 +66,12 @@ Route::get('/works/{id}', [WorkController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('works.show');
 
+// «منابع و مراجع»: the sources by kind, and one source with its volumes (step 13.79)
+Route::get('/sources', [\App\Http\Controllers\SourceController::class, 'index'])->name('sources.index');
+Route::get('/sources/{code}', [\App\Http\Controllers\SourceController::class, 'show'])
+    ->where('code', '[a-z0-9-]+')
+    ->name('sources.show');
+
 // The text of a printed page of a source: /sources/monzavi/5/page/3366 (plan docs/plans/source-page-text.md)
 Route::get('/sources/{code}/{volume}/page/{page}', [\App\Http\Controllers\SourcePageController::class, 'show'])
     ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+', 'page' => '[0-9]+'])

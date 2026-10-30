@@ -117,6 +117,13 @@
                 </button>
             </div>
 
+            <!-- The page's text on the site, when it has the volume's text -->
+            <a x-show="textUrl" :href="textUrl" aria-label="متن این صفحه" title="متن این صفحه" style="display: none;"
+                class="inline-flex items-center justify-center gap-1 shrink-0 h-9 px-3 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-line-strong text-xs font-bold text-ink hover:border-cinnabar hover:text-cinnabar transition">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10M4 18h7" /></svg>
+                <span>متن</span>
+            </a>
+
             <a :href="imageUrl" target="_blank" rel="noopener" aria-label="باز کردن تصویر در زبانه‌ی تازه" title="باز کردن تصویر در زبانه‌ی تازه"
                 class="inline-flex items-center justify-center shrink-0 w-11 h-11 sm:w-9 sm:h-9 rounded-2xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-stone-700 transition">
                 <svg class="w-5 h-5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 4h6v6m0-6L10 14M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5" /></svg>

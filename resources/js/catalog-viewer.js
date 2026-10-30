@@ -28,6 +28,8 @@ export default (config) => ({
     // The volume's page range, from the page-images endpoint; null until known (next is then not capped)
     first: 1,
     last: null,
+    // The address of the volume's page text without the page, when the site has its text
+    textBase: null,
     // The image on screen and its size; it changes only once the next page has loaded, so the old page stays meanwhile
     shownUrl: '',
     natW: 0,
@@ -112,6 +114,10 @@ export default (config) => ({
         return this.urlFor(this.page);
     },
 
+    get textUrl() {
+        return this.textBase ? this.textBase + this.page : null;
+    },
+
     openViewer(detail) {
         const catalog = detail.catalog || 'fankha';
         const volume = parseInt(detail.volume) || 1;
@@ -122,6 +128,7 @@ export default (config) => ({
         if (!sameVolume) {
             this.first = 1;
             this.last = null;
+            this.textBase = null;
         }
         this.mode = phone() ? 'width' : 'fit';
         this.barsHidden = false;
@@ -161,6 +168,7 @@ export default (config) => ({
         if (range && key === `${this.catalog}/${this.volume}`) {
             this.first = range.first;
             this.last = range.last;
+            this.textBase = range.text || null;
         }
     },
 

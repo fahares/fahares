@@ -37,4 +37,7 @@
             <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه در {{ $name }}</span>
         </button>
     @endif
+    @if($pageText = $entry->pageTextUrl())
+        <a href="{{ $pageText }}" class="inline-block text-xs text-muted hover:text-cinnabar" data-page-text>متن صفحه ←</a>
+    @endif
 </div>
