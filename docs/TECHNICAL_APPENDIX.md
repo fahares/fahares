@@ -4910,3 +4910,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - دو برگ زیرین با `box-shadow` ساخته شده‌اند و سوی آن‌ها با `--leaf` عوض می‌شود.
 - **robots:** `layouts/app.blade.php` حالا `@yield('robots')` را می‌خواند، که مورد ۷۲ هم به کارش می‌گیرد.
 - **آزمون:** `tests/Feature/SourcePageViewTest.php` (۶ آزمون). آزمون پیوند در `MonzaviSourceTest` هم به‌روز شد. اجرا روی `fahares_monzavi_test` بود، با رونوشت موقت `/tmp/phpunit_monzavi.xml` کانتینر با مسیرهای مطلق. هر ۴۶۲ آزمون موفق بود.
+
+
+### گام ۱۳.۷۵: صف داوری پیوندهای خودکار آثار (`admin.source-links.*`)
+- **کنترلر:** `App\Http\Controllers\Admin\SourceLinkController`. مسیرها در گروه `can:catalog_refs.review` در `routes/web.php` تعریف شده‌اند:
+  - `index`: صف.
+  - `show`: یک پیوند.
+  - `review`: فیلد `decision`، با مقدار `verified` یا `rejected`.
+  - `move`: فیلدهای `item` و `role`.
+  - هر کدام فقط ردیف `origin=match` با `citable_type=Work` و `source_item_id` را می‌پذیرد، وگرنه ۴۰۴ می‌دهد.
+- **پالایه‌ها در نشانی:** `source` (کد مأخذ؛ نبودنش یعنی `monzavi`، و `all` یعنی همه)، `volume`، `method`، `role`، `confidence` و `status`. مقدار `method=near` همه‌ی `near_*` را می‌گیرد. پالایه‌ها در صفحه‌ی بررسی و پس از هر داوری حفظ می‌شوند.
+- **ترتیب:** `CASE` روی `match_method` با فهرست `UNCERTAIN`، سپس `confidence` صعودی، جلد، صفحه و شناسه.
+- **صفحه‌ی ارجاع فنخا:** از ردیف ارجاع (`legacy_id`) و جای `legacy_index` در `locations` آن خوانده می‌شود، همان‌طور که `LinkSourceItemsCommand` می‌نویسد.
+- **`SourceEntry::moveToItem()`:**
+  - این ستون‌ها از مدخل تازه پر می‌شوند: `source_item_id`، `page_start`/`page_end` و `entry_number`. `role` همانی است که داور برگزیده.
+  - متن مدخل فقط برای نقش `entry` پر می‌شود، و فقط اگر `text_status` دستی (`edited`) نباشد.
+  - وضعیت `verified` می‌شود، و `reviewed_by`/`reviewed_at` ثبت می‌شوند. پس `sources:link-items` آن را بازنویسی نمی‌کند.
+  - رخداد `move_item` در `audit_logs` با ستون‌های `ITEM_COLUMNS` پیش و پس ثبت می‌شود.
+  - **مرزها:**
+    - مدخل باید در همان جلد باشد.
+    - پیوند دیگرِ ردنشده‌ی همان اثر به همان مدخل، جابه‌جایی را باز می‌دارد.
+    - «بازگردانی» (`reopen`) پس از جابه‌جایی فقط وضعیت را برمی‌گرداند، نه مدخل را.
+- **صف نسخه‌ها:** `CatalogReferenceController::index/filtered` به `citable_type=Manuscript` محدود شد. این محدودیت تأیید گروهی را هم در بر می‌گیرد. پیام JSON تأیید یا رد برای اثر «پیوند «عنوان» تأیید شد.» است.
+- **آزمون:** `tests/Feature/SourceLinksReviewTest.php` (۵ آزمون).
+
