@@ -328,6 +328,9 @@ class WorkPeopleTest extends TestCase
         $doc = $work->fresh()->toSearchableArray();
         $this->assertSame(['ناصرالدین قاجار، شاه ایران', 'ناصرالدین شاه', 'اوانس ارمنی'], $doc['related_people']);
         $this->assertSame([$naser->id], $doc['related_person_ids']);
+        // Searched by default, after the titles and the author, and on its own as a field scope
+        $this->assertSame('related_people', last(\App\Http\Controllers\SearchController::scopeAttributes('works', 'titles_names')));
+        $this->assertSame(['related_people'], \App\Http\Controllers\SearchController::scopeAttributes('works', 'people'));
         // Indexed after the titles and the author, before the incipits
         $settings = config('scout.meilisearch.index-settings')[Work::class];
         $this->assertGreaterThan(array_search('author_aliases', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));

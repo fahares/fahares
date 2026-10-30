@@ -607,6 +607,7 @@ class SearchController extends Controller
     public const FIELD_SCOPES = [
         'works' => [
             'author' => ['پدیدآور', ['author_name', 'author_aliases']],
+            'people' => ['مترجم، تقدیم‌شده به و…', ['related_people']],
             'texts' => ['آغاز و انجام', ['incipit_text', 'explicit_text', 'manuscript_texts']],
             'description' => ['معرفی اثر', ['description']],
         ],
@@ -639,8 +640,9 @@ class SearchController extends Controller
         return [
             'works' => [
                 'titles' => ['primary_title', 'clean_title', 'alternative_titles'],
-                // The titles of the work a commentary is made on too, ranked after the work's own (backlog item 95)
-                'titles_names' => ['titles_names', 'base_titles', 'primary_title', 'clean_title', 'alternative_titles', 'author_name'],
+                // The titles of the work a commentary is made on too, ranked after the work's own (backlog item 95),
+                // and the translators, dedicatees… last (backlog item 35)
+                'titles_names' => ['titles_names', 'base_titles', 'primary_title', 'clean_title', 'alternative_titles', 'author_name', 'related_people'],
             ],
             'manuscripts' => [
                 'titles' => ['work_title'],
