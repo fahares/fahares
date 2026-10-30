@@ -70,5 +70,5 @@ jobs:
           COOLIFY_URL: ${{ vars.COOLIFY_URL }}
         if: env.COOLIFY_TOKEN != ''
         run: |
-          curl -fsS -H "Authorization: Bearer ${COOLIFY_TOKEN}" \
+          curl -fsS -X POST -H "Authorization: Bearer ${COOLIFY_TOKEN}" \
             "${COOLIFY_URL}/api/v1/deploy?uuid=9qjcshcsq1hcstpoorqvkew6&force=false"
