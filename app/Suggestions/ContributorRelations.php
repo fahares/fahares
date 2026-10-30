@@ -142,6 +142,10 @@ class ContributorRelations
         if ($person && $role === 'translator' && ! $person->is_translator) {
             $person->update(['is_translator' => true]);
         }
+        // A work's people are in its search document (related_people)
+        if ($record instanceof Work) {
+            $this->reindex($record);
+        }
 
         return [
             'old' => ['people_roles' => $before],
@@ -164,6 +168,7 @@ class ContributorRelations
         if ($role === 'translator' && ! $person->is_translator) {
             $person->update(['is_translator' => true]);
         }
+        $this->reindex($work);
 
         return $row->id;
     }
@@ -181,6 +186,7 @@ class ContributorRelations
             return $row?->id;
         }
         $row->update(['person_id' => $person->id, 'certainty' => $certainty, 'note' => $note ? mb_substr($note, 0, 500) : null]);
+        $this->reindex($work);
 
         return $row->id;
     }
@@ -192,6 +198,7 @@ class ContributorRelations
             ?? throw new InvalidArgumentException('شخص مرتبطی که باید حذف شود را انتخاب کنید.');
         $snapshot = $row->getAttributes();
         $row->delete();
+        $this->reindex($work);
 
         return [
             'old' => ['removed_person_role' => $snapshot],
@@ -236,6 +243,8 @@ class ContributorRelations
 
     private function reindex(Model $record): void
     {
+        // The people rows just changed: the document is built from them afresh
+        $record->unsetRelation('workPeople');
         if (method_exists($record, 'searchable')) {
             $record->searchable();
         }

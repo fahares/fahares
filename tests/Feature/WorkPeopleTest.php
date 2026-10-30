@@ -317,5 +317,21 @@ class WorkPeopleTest extends TestCase
         $this->assertSame($count, WorkPerson::count());
         $this->assertSame(1, Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->count());
     }
+
+    public function test_the_people_of_a_work_are_in_its_search_document()
+    {
+        $naser = $this->person('ناصرالدین قاجار، شاه ایران', ['aliases' => ['ناصرالدین شاه']]);
+        $work = $this->work();
+        app(\App\Suggestions\ContributorRelations::class)->addRole($work, 'dedicatee', $naser, null, null, null);
+        app(\App\Suggestions\ContributorRelations::class)->addRole($work, 'translator', null, 'آوانس ارمنی', null, null);
+
+        $doc = $work->fresh()->toSearchableArray();
+        $this->assertSame(['ناصرالدین قاجار، شاه ایران', 'ناصرالدین شاه', 'اوانس ارمنی'], $doc['related_people']);
+        $this->assertSame([$naser->id], $doc['related_person_ids']);
+        // Indexed after the titles and the author, before the incipits
+        $settings = config('scout.meilisearch.index-settings')[Work::class];
+        $this->assertGreaterThan(array_search('author_aliases', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));
+        $this->assertLessThan(array_search('incipit_text', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));
+    }
 }
 

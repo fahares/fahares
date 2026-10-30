@@ -156,6 +156,7 @@ return [
                     'has_autograph',
                     'bibliographies',
                     'author_ids',
+                    'related_person_ids',
                 ],
                 'sortableAttributes' => [
                     'composition_year_hijri',
@@ -179,6 +180,8 @@ return [
                     'alternative_titles',
                     'author_name',
                     'author_aliases',
+                    // Translators, dedicatees, commissioners…: after the work's own titles and authors (backlog item 35)
+                    'related_people',
                     'transliteration',
                     'subject_summary',
                     'language_summary',
