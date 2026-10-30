@@ -5126,3 +5126,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `php artisan fahares:fill-copy-date-ranges --apply`. اگر استقراری آن را بکشد، اجرای دوباره بی‌خطر است.
   3. `php artisan fahares:backfill-work-dedications` برای `label_raw` تقدیم‌های موجود.
 
+### گام ۱۳.۸۳: جلد کتاب‌ها از MTIF، فهرست‌نگار جلدها و آوانگاری
+- **جلدها:**
+  - فرمان: `python3 -I scripts/sources/mtif_covers.py SOURCES_JSON storage/mtif_extracted_data.json ../fahares-sources/mtif-covers`
+  - `SOURCES_JSON` با tinker از جدول `sources` ساخته شد. هر ردیف `code`، `title`، `kind`، `edition_label`، `edition_of`، شناسه‌های MTIF جلدها و سال چاپ آن‌ها را دارد.
+  - جلد از `https://mtif.org/book/{series}` برداشته می‌شود، با `thumbnail.php?table=pic&full_size=1`، و به WebP با پهنای ۳۶۰ پیکسل تبدیل می‌شود.
+  - شرط `fits()`: دست‌کم ۶۰٪ واژه‌های ویژه‌ی عنوان منبع در `alt` باشد (واژه‌های همگانی مانند «فهرست»، «نسخه» و «کتابخانه» کنار می‌روند)، و «عکسی» در هر دو یکی باشد. فهرست `SKIP` جلدهایی است که با وارسی چشمی رد شدند.
+  - اجرای دوباره منبع‌های ثبت‌شده در `manifest.json` را دوباره نمی‌خواند.
+- **`Source::coverUrl()`:** `public/images/sources/covers/{code}.webp`، و اگر نبود، جلد منبعی که این چاپی از آن است.
+- **`SourceVolume::catalogers()`:** `belongsToMany` روی `catalog_volume_cataloger` (`catalog_volume_id`)، همراه `role`.
+- **تک‌جلدی:** `SourceController::show` اگر `volumes_count === 1` و یک جلد باشد، `$single` می‌سازد.
+- **آوانگاری:** `PrintedPage::text()` هر سطر را جدا escape می‌کند. سطری که `\p{Latin}` دارد و `\p{Arabic}` ندارد، در `span.book-sheet__latin` می‌آید (`inline-block`، پهنای کامل، `direction: ltr`).
+- **آزمون:** ۳ آزمون تازه در `SourcesShelfTest`، و بررسی آوانگاری در `SourcePageViewTest`.
