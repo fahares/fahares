@@ -73,6 +73,12 @@
                         @php
                             $item = $block['item'];
                             $lines = explode("\n", $block['text'], 2);
+                            // al-Dhari'a's volume 26 prints the number alone, «[ 972 ]», and the title on the next line
+                            // in parentheses: the title is linked too, the rest of its line goes on after it
+                            $title = null;
+                            if (preg_match('/^\[\s*\d+\s*\]$/u', trim($lines[0])) && preg_match('/^\s*(\([^)\n]+\))(.*)$/us', $lines[1] ?? '', $m)) {
+                                [$title, $lines[1]] = [$m[1], $m[2]];
+                            }
                         @endphp
                         <section class="book-sheet__entry" @if($item) data-entry="{{ $item->item_key }}" @endif>
                             @if($block['continued'])
@@ -82,7 +88,9 @@
                                 <div class="whitespace-pre-line">{{ Fa::digits($block['text']) }}</div>
                             @else
                                 <a href="{{ $item->url() }}" class="book-sheet__heading" data-entry-heading>{{ Fa::digits($lines[0]) }}</a>
-                                @if(isset($lines[1]) && trim($lines[1]) !== '')
+                                @if($title)
+                                    <div class="whitespace-pre-line"><a href="{{ $item->url() }}" class="book-sheet__heading book-sheet__heading--inline">{{ Fa::digits($title) }}</a>{{ Fa::digits(rtrim($lines[1])) }}</div>
+                                @elseif(isset($lines[1]) && trim($lines[1]) !== '')
                                     <div class="whitespace-pre-line">{{ Fa::digits(trim($lines[1], "\n")) }}</div>
                                 @endif
                             @endif

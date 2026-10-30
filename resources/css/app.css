@@ -360,6 +360,7 @@ body {
     transition: color 0.15s;
 }
 .book-sheet__heading:hover { color: var(--cinnabar); }
+.book-sheet__heading--inline { display: inline; }
 .book-sheet__cont {
     display: inline-block;
     margin-bottom: 0.25rem;

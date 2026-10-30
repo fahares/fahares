@@ -95,6 +95,23 @@ class SourcePageViewTest extends TestCase
         $this->get('/sources/dharia-test/3/1447')->assertOk()->assertSee('/sources/dharia-test/3/page/403', false);
     }
 
+    public function test_an_entry_whose_number_is_printed_on_its_own_line_is_found_and_its_title_linked()
+    {
+        // al-Dhari'a's volume 26 from Noor: «[ 972 ]», then the title in parentheses, where the entry reads «( 972 : …»
+        $source = Source::create(['code' => 'dharia-test', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 26, 'facsimile_code' => 'dharia-test']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 194,
+            'text' => "هر بعض مطبوعاته.\n\n[ 972 ]\n\n( ترجمه تاريخ عباسه ) أصله لجرجى زيدان و المترجم ميرزا"]);
+        $item = SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 26, 'item_key' => '972',
+            'position' => 1, 'kind' => SourceItem::KIND_ENTRY, 'entry_number' => 972, 'title' => 'ترجمه تاريخ عباسه', 'title_normalized' => 'ترجمه تاريخ عباسه',
+            'page_start' => 194, 'page_end' => 194, 'text' => '( 972 : ترجمه تاريخ عباسه ) أصله لجرجى زيدان و المترجم ميرزا']);
+
+        $response = $this->get('/sources/dharia-test/26/page/194')->assertOk()
+            ->assertSee('class="book-sheet__heading" data-entry-heading>[ ۹۷۲ ]</a>', false)
+            ->assertSee('<a href="' . $item->url() . '" class="book-sheet__heading book-sheet__heading--inline">( ترجمه تاريخ عباسه )</a> أصله لجرجى زيدان', false);
+        $this->assertSame(['972'], $this->headings($response->getContent()));
+    }
+
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
     {
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6 و 3257/4');
