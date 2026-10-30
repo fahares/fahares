@@ -5086,3 +5086,43 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`resources/views/layouts/app.blade.php`:** دکمه‌ای که رویداد `open-spotlight-modal` را می‌فرستاد حذف شد. شنونده‌ی آن رویداد و میان‌بر Ctrl+K در خود پنجره مانده‌اند.
 - پیوند `route('search')` با `request()->routeIs('search')` برای حالت فعال، اول `<nav>` دسکتاپ و پس از «صفحه نخست» در منوی موبایل افزوده شد.
 - زیر `lg` یک پیوند ذره‌بین (`lg:hidden`, `aria-label="جستجو"`) به `route('search')` پیش از دکمه‌ی حالت شب در بخش actions نوار بالا می‌آید.
+
+### گام ۱۳.۸۲: بازه‌ی تاریخ کتابت، سفارش‌دهنده و `label_raw` (مورد ۹۶)
+- **migration [add_copy_date_range_and_label_raw](../database/migrations/2026_10_30_200001_add_copy_date_range_and_label_raw.php):**
+  - روی `manuscripts`: `copy_date_from` و `copy_date_to` (smallint)، `copy_date_certainty` (۱۰)، `copy_date_hedge_raw` (۶۰) و `copy_date_note` (۵۰۰)، با نمایه‌ی `(copy_date_from, copy_date_to)`.
+  - روی `manuscript_people` و `work_people`: `label_raw` (۶۰).
+  - روی رونوشت محلی ۳ ثانیه طول کشید.
+- **[CopyDateRange](../app/Support/CopyDateRange.php):**
+  - **بخش تاریخ:** متن با «،» و «؛» شکسته می‌شود. نخستین بخشی که سده یا سالِ قابل‌خواندن با `HijriYear::parse` دارد، تاریخ است.
+  - **سده:** قیدهای اوایل، اواسط، اواخر، نیمه اول و نیمه دوم را می‌پذیرد، و سده‌ی دوم را با «و»، «-» یا «تا».
+  - **سال‌ها:** با فراخوانی پیاپی `HijriYear::parse` روی باقی متن خوانده می‌شوند، پس قاعده‌های آن (سال میلادی و شمسی، شمار برگ، صفر افتاده) همان است. یک سال یعنی `[y, y]`، و چند سال یعنی کمینه تا بیشینه.
+  - **قیدها:** «حدود/حوالی/نزدیک» یعنی ±۵، «پیش/قبل از» یعنی `[null, y]` و «پس/بعد از» یعنی `[y, null]`.
+  - **تردید:** واژه‌ی تردید یا «؟»، با `PersonNameMatcher::certainty`.
+- **[Manuscript](../app/Models/Manuscript.php):** `copyDateColumns($raw)` ستون‌ها را می‌سازد. هوک `saving` با تغییر `copy_date_raw` آن‌ها را پر می‌کند.
+- **فرمان [fahares:fill-copy-date-ranges](../app/Console/Commands/FillCopyDateRangesCommand.php):** گزینه‌های `--apply` و `--show` دارد. با `chunkById(2000)` می‌خواند و فقط سطرهای متفاوت را می‌نویسد. فهرست الگوی تاریخ‌های بی‌بازه را هم چاپ می‌کند.
+- **فایل تصمیم [fankha_v2_commissioners_20261030.json](../database/data/fankha_v2_commissioners_20261030.json):** اسکریپت پیکره `scripts/fankha_v2_apply_export.py` با دسته‌های `commissioner` و `copy_date_note` (کامیت پیکره `3b723a6`)، از `reports/fankha_v2_db_review3/diffs.jsonl` و `--db fahares_prod`.
+  - **`commissioner`:** نام v2 در `commissioner`. تغییر `copy_date_raw` فقط وقتی همراهش است که دنباله‌ی بریده‌شده با همان نام پایان یابد و پیش از نام دست‌کم ۳۰ نویسه‌ی بی‌رقم باشد: ۲٬۹۹۵ رکورد با تغییر و ۵۷۳ بی تغییر.
+  - **`copy_date_note`:** دنباله برابر یادداشت v2 است: ۱۲۵ رکورد.
+- **[ApplyCorpusCategoriesCommand](../app/Console/Commands/ApplyCorpusCategoriesCommand.php):**
+  - **فیلدهای مجاز نسخه:** `copy_date_raw` و `copy_date_note` به `FIELDS` نسخه افزوده شدند.
+  - **پیامد کوتاه شدن تاریخ:** `copy_date_hijri_year` و ستون‌های بازه هم نوشته می‌شوند.
+  - **رکورد `commissioner`:** وقتی `phrase()` تعبیری نیابد، `no commissioner phrase…` است. وقتی `protectsRows(…, 'people')` باشد، `people changed by a reviewer`. وقتی سطر patron با همین نام باشد، `already`. وگرنه `ContributorRelations::addRole($manuscript, 'patron', …, ['label_raw' => …])` و پر کردن `commissioned_by` اگر خالی باشد.
+  - **`phrase($raw, $name)`:** برچسب صفحه برداشته می‌شود و «ي» و «ك» یکی می‌شوند. سپس ۴۰ نویسه‌ی پیش از نام، از آخرین «،» یا «؛» یا سطر نو به بعد، با `COMMISSIONER_PHRASE` سنجیده می‌شود، با «بر حسب» و «از برای» هم.
+- **[ContributorRelations::addRole](../app/Suggestions/ContributorRelations.php):** `label_raw` را برای هر دو جدول می‌پذیرد.
+- **[DedicationParser](../app/Support/DedicationParser.php):** خروجی `label` را هم دارد. [BackfillWorkDedicationsCommand](../app/Console/Commands/BackfillWorkDedicationsCommand.php) آن را می‌نویسد، و برای سطرهای موجودِ بی‌`label_raw`، `label_added` را می‌شمارد.
+- **نماها:**
+  - **[manuscript-people](../resources/views/components/manuscript-people.blade.php) و [work-people](../resources/views/components/work-people.blade.php):** `label_raw` پیش از نام می‌آید.
+  - **[manuscripts/show](../resources/views/manuscripts/show.blade.php):** `copy_date_note` زیر تاریخ می‌آید. سطر «سفارش‌دهنده»ی مشخصات وقتی همان نام سطر patron باشد، پنهان می‌شود.
+- **تمرین (`fahares_prod` محلی):**
+  - **اعمال:** `apply-corpus-categories --apply`: ۳٬۵۲۰ commissioner، ۴۸ «no commissioner phrase» و ۱۲۵ copy_date_note. ۳٬۶۴۵ نسخه دوباره نمایه شد. اجرای دوم همه را `already` دید.
+  - **بازه:** `fill-copy-date-ranges --apply` ۲۳۸٬۸۶۵ سطر را نوشت. ۳٬۰۶۵ سطر دیگر را کوتاه شدن تاریخ پیش‌تر نوشته بود. اجرای دوم `changed 0` بود.
+- **آزمون:**
+  - [CopyDateRangeTest](../tests/Unit/CopyDateRangeTest.php)، ۴ آزمون.
+  - [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php)، ۲ آزمون تازه: سفارش‌دهنده با تعبیر، تاریخ و سال و بازه، رکورد داوری‌شده، یادداشت تاریخ، صفحه‌ی نسخه و اجرای دوباره؛ و پر شدن بازه و هوک ذخیره.
+  - افزوده‌هایی در [DedicationParserTest](../tests/Unit/DedicationParserTest.php) و [WorkPeopleTest](../tests/Feature/WorkPeopleTest.php).
+  - کل مجموعه ۴۸۶ آزمون موفق.
+- **ترتیب پروداکشن (`ssh fahares-app`، پس از استقرار و migration خودکار):**
+  1. `php artisan fahares:apply-corpus-categories --file=database/data/fankha_v2_commissioners_20261030.json`، و پس از وارسی با `--apply`.
+  2. `php artisan fahares:fill-copy-date-ranges --apply`. اگر استقراری آن را بکشد، اجرای دوباره بی‌خطر است.
+  3. `php artisan fahares:backfill-work-dedications` برای `label_raw` تقدیم‌های موجود.
+
