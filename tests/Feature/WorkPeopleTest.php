@@ -328,10 +328,20 @@ class WorkPeopleTest extends TestCase
         $doc = $work->fresh()->toSearchableArray();
         $this->assertSame(['ناصرالدین قاجار، شاه ایران', 'ناصرالدین شاه', 'اوانس ارمنی'], $doc['related_people']);
         $this->assertSame([$naser->id], $doc['related_person_ids']);
+        // Searched by default, after the titles and the author, and on its own as a field scope
+        $this->assertSame('related_people', last(\App\Http\Controllers\SearchController::scopeAttributes('works', 'titles_names')));
+        $this->assertSame(['related_people'], \App\Http\Controllers\SearchController::scopeAttributes('works', 'people'));
         // Indexed after the titles and the author, before the incipits
         $settings = config('scout.meilisearch.index-settings')[Work::class];
         $this->assertGreaterThan(array_search('author_aliases', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));
         $this->assertLessThan(array_search('incipit_text', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));
+    }
+
+    public function test_the_works_with_people_can_be_reindexed_alone()
+    {
+        $work = $this->work();
+        WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی', 'role' => 'translator']);
+        $this->artisan('fahares:reindex-work-people')->expectsOutput('Reindexed 1 of 1 works')->assertSuccessful();
     }
 }
 
