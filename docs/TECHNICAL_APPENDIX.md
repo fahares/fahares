@@ -5007,3 +5007,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - روی fahares.net، جستجوی آثار «ناصرالدین شاه» در دامنه‌ی پیش‌فرض ۵۲۹ نتیجه دارد و در دامنه‌ی `people` ۴۶۴.
   - «حنین بن اسحاق» ۷۷ و ۴۹ نتیجه دارد.
 
+### گام ۱۳.۷۸: متن صفحه‌ی فنخا و فهرست‌ها
+- **خواننده:**
+  - فرمان: `python3 -I scripts/sources/fankha_pages.py ../fahares-corpus/text/fankha ../fahares-sources/fankha/pages`
+  - شمار نویسه‌ها از ۳٫۳ تا ۳٫۹ میلیون در هر جلد است. صفحه‌ی خالی ۰ تا ۶ در هر جلد. `MD5SUMS` در همان پوشه است.
+- **`PrintedPage::marks()`:**
+  - اگر صفحه `source_items` ندارد، مدخل‌های منبع (`source_entries`، `role=entry`، ردنشده) با `page_start` از ۵ صفحه پیش تا همین صفحه خوانده می‌شوند. از میان آن‌ها مدخلی نگه داشته می‌شود که `text_page`، `shelfmark_page` یا بازه‌ی صفحه‌اش این صفحه باشد. این پرس‌وجو از نمایه‌ی `source_entries_place` استفاده می‌کند.
+  - ۴۰ نویسه‌ی سطر نخست هر مدخل در آغاز یک سطر جسته می‌شود و تا پایان همان سطر نشان می‌خورد.
+  - نسخه از `copy_text` پیدا می‌شود. اثر از `entry_text`. سرعنوان مشترک نسخه‌ها به `work` آن نسخه پیوند می‌شود.
+  - هر پیوند (سطر، نشانی) یک بار ثبت می‌شود. سطر تکراری به ترتیب `id` مدخل‌ها به آن‌ها می‌رسد.
+  - `PrintedPage::pieces()` متن را برای قالب می‌بُرد.
+- **دوستونی:** `config/catalogs.php` → `columns.fankha = 2`. کلاس `book-sheet--columns` با `column-count: 2` از ۷۶۸ پیکسل به بالا، و پهنای `62rem`.
+- **فرمان پروداکشن (با تأیید کاربر):**
+  1. فایل‌های `../fahares-sources/fankha/pages/*.jsonl.gz` (۵۲ مگابایت) به `/tmp/fankha-pages/` کانتینر برده شوند.
+  2. برای N از ۱ تا ۳۴: `php artisan sources:import-pages fankha /tmp/fankha-pages/NN.jsonl.gz --volume=N`.
+  3. نمایه‌ی جستجو لازم نیست، چون `source_pages` نمایه نمی‌شود.
