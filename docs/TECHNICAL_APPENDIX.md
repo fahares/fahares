@@ -5081,3 +5081,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `LibraryController::show` منابعی را که `library_id` آن کتابخانه را دارند و چاپ منبع دیگری نیستند، به صفحه می‌دهد.
   - `SitemapController::getStaticUrls` `/sources` و صفحه‌ی هر منبعِ دارای داده را می‌افزاید.
 - **آزمون:** `tests/Feature/SourcesShelfTest.php` (۵ آزمون).
+
+#### گام ۱۳.۸۱ — برداشتن دکمه‌ی «کاوش سریع» و افزودن «جستجو» به منو
+- **`resources/views/layouts/app.blade.php`:** دکمه‌ای که رویداد `open-spotlight-modal` را می‌فرستاد حذف شد. شنونده‌ی آن رویداد و میان‌بر Ctrl+K در خود پنجره مانده‌اند.
+- پیوند `route('search')` با `request()->routeIs('search')` برای حالت فعال، اول `<nav>` دسکتاپ و پس از «صفحه نخست» در منوی موبایل افزوده شد.
+- زیر `lg` یک پیوند ذره‌بین (`lg:hidden`, `aria-label="جستجو"`) به `route('search')` پیش از دکمه‌ی حالت شب در بخش actions نوار بالا می‌آید.

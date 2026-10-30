@@ -82,6 +82,9 @@
 
                 <!-- Desktop Navigation Links -->
                 <nav class="hidden lg:flex items-center gap-1 text-sm font-semibold text-ink">
+                    <a href="{{ route('search') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('search') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
+                        جستجو
+                    </a>
                     <a href="{{ route('subjects.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('subjects.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         موضوعات
                     </a>
@@ -108,20 +111,16 @@
                     </a>
                 </nav>
 
-                <!-- Actions: Search Trigger & Dark Mode Toggle -->
-                {{-- From lg the nav takes the bar; below xl the actions shrink to icons so all seven links fit (no «صفحه نخست»: the logo is the way home) --}}
+                <!-- Actions: Dark Mode Toggle & Account -->
+                {{-- From lg the nav takes the bar; below xl the actions shrink to icons so all the links fit (no «صفحه نخست»: the logo is the way home). The quick search has no button; Ctrl+K still opens it --}}
                 <div class="flex items-center gap-2 sm:gap-3">
                     
-                    <!-- Search Input Trigger Button (Opens Ctrl+K Spotlight Modal) -->
-                    <button 
-                        type="button" 
-                        @click="window.dispatchEvent(new CustomEvent('open-spotlight-modal'))"
-                        class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-line-strong bg-paper text-xs text-stone-500 hover:border-gold hover:text-cinnabar transition group shadow-sm cursor-pointer"
-                        title="جستجوی سریع (Ctrl+K)">
-                        <svg class="w-4 h-4 text-stone-400 group-hover:text-cinnabar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <span class="hidden sm:inline lg:hidden xl:inline">کاوش سریع...</span>
-                        <kbd class="hidden sm:inline-block lg:hidden xl:inline-block px-1.5 py-0.5 text-[10px] bg-stone-200 dark:bg-stone-700 rounded text-stone-500 dark:text-stone-300 font-mono">Ctrl+K</kbd>
-                    </button>
+                    {{-- Below lg the nav folds into the menu; the search page stays one tap away --}}
+                    <a href="{{ route('search') }}"
+                       class="lg:hidden inline-flex p-2 rounded-full border border-line-strong bg-paper text-ink/80 hover:border-gold hover:text-cinnabar transition shadow-sm {{ request()->routeIs('search') ? 'text-cinnabar border-gold' : '' }}"
+                       title="جستجو" aria-label="جستجو">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </a>
 
                     <!-- Dark Mode Toggle Button -->
                     <button 
@@ -252,6 +251,7 @@
                         </button>
                         <div x-show="open" @click.away="open = false" x-transition class="absolute left-0 mt-2 w-48 bg-surface rounded-xl shadow-xl border border-line-strong py-2 z-50 text-sm">
                             <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('home') ? 'text-cinnabar font-bold' : '' }}">صفحه نخست</a>
+                            <a href="{{ route('search') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('search') ? 'text-cinnabar font-bold' : '' }}">جستجو</a>
                             <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('subjects.*') ? 'text-cinnabar font-bold' : '' }}">موضوعات</a>
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
