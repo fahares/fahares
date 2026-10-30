@@ -20,7 +20,7 @@ class MonzaviSourceTest extends TestCase
 {
     private const FIXTURES = __DIR__ . '/../fixtures/monzavi/';
 
-    public function test_citations_find_their_volume_and_are_not_links()
+    public function test_citations_find_their_volume_and_link_to_its_page_text()
     {
         $cite = fn (string $s) => array_map(fn ($c) => [$c['volume'], $c['page']], array_filter(BibliographyLinks::citations($s), fn ($c) => $c['source'] === 'monzavi'));
 
@@ -39,8 +39,10 @@ class MonzaviSourceTest extends TestCase
         $this->assertSame([], $cite('منزوی 977/2'));
 
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6');
-        $this->assertStringContainsString('فهرستواره منزوی ۳۶۱/۶', $html);
-        $this->assertSame(1, substr_count($html, '<a '));
+        $this->assertStringContainsString('فهرستواره منزوی <a ', $html);
+        $this->assertStringContainsString('>۳۶۱/۶</a>', $html);
+        $this->assertSame(2, substr_count($html, '<a '));
+        $this->assertStringContainsString('/sources/monzavi/6/page/361', $html);
     }
 
     public function test_the_registry_makes_the_source_with_its_volumes_and_no_images()

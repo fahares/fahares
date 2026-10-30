@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')</title>
     <meta name="description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
+    @hasSection('robots')<meta name="robots" content="@yield('robots')">@endif
 
     <!-- Open Graph / Facebook -->
     <meta property="og:site_name" content="فهارس | پایگاه جامع نسخه‌های خطی">

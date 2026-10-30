@@ -97,7 +97,7 @@ class Work extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,wrong_names,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title',
+        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,wrong_names,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title', 'workPeople.person:id,name,aliases',
             'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
     }
 
@@ -227,6 +227,17 @@ class Work extends Model
         return $texts;
     }
 
+    /** The names of the people connected with the work in other roles: a linked person's name and other names, or the text. */
+    public function relatedPeopleNames(): array
+    {
+        $names = [];
+        foreach ($this->workPeople as $row) {
+            array_push($names, ...array_filter([$row->person?->name ?? $row->name, ...(array) ($row->person?->aliases ?? [])], 'is_string'));
+        }
+
+        return array_values(array_unique(array_map(fn ($n) => \App\Helpers\TextNormalizer::normalize($n), $names)));
+    }
+
     public function toSearchableArray(): array
     {
         $alts = [];
@@ -280,6 +291,10 @@ class Work extends Model
             'author_name' => \App\Helpers\TextNormalizer::normalize($authorSearchText),
             // A misspelt form of the author's name finds the work too, without ranking it like a name (backlog item 90)
             'author_aliases' => array_map(fn($a) => \App\Helpers\TextNormalizer::normalize($a), [...$authorAliases, ...$authorWrongNames]),
+            // Translators, dedicatees, commissioners… (work_people): «ناصرالدین شاه» finds the works dedicated to
+            // him, after the works whose title or author matches (backlog item 35)
+            'related_people' => $this->relatedPeopleNames(),
+            'related_person_ids' => $this->workPeople->pluck('person_id')->filter()->map(fn ($id) => (int) $id)->unique()->values()->all(),
             'author_id' => $this->author_id ? (int) $this->author_id : null,
             'composition_year_hijri' => $this->composition_year_hijri ? (int) $this->composition_year_hijri : null,
             'volume_number' => (int) $this->volume_number,

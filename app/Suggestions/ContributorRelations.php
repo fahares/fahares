@@ -142,12 +142,53 @@ class ContributorRelations
         if ($person && $role === 'translator' && ! $person->is_translator) {
             $person->update(['is_translator' => true]);
         }
+        // A work's people are in its search document (related_people)
+        if ($record instanceof Work) {
+            $this->reindex($record);
+        }
 
         return [
             'old' => ['people_roles' => $before],
             'new' => ['added_person_role' => $row->id],
             'resolution' => ['person_role_id' => $row->id, 'person_id' => $person?->id, 'role' => $role],
         ];
+    }
+
+    /**
+     * A name a backfill kept as text («فقط نام») is linked to the person it now confidently is, instead of a
+     * second row beside it. Rows a reviewer added (suggestion_id) are left as they are. Returns the row's id.
+     */
+    public function linkNameRow(Work $work, string $role, string $name, Person $person, bool $dry = false): ?int
+    {
+        $row = $work->workPeople()->where('role', $role)->whereNull('person_id')->whereNull('suggestion_id')->where('name', $name)->first();
+        if (! $row || $dry) {
+            return $row?->id;
+        }
+        $row->update(['person_id' => $person->id, 'name' => null]);
+        if ($role === 'translator' && ! $person->is_translator) {
+            $person->update(['is_translator' => true]);
+        }
+        $this->reindex($work);
+
+        return $row->id;
+    }
+
+    /**
+     * A row a backfill linked to one of several rulers a spelling may mean (KnownRulers::USUALLY) moves to the one
+     * the field's dates now point at, with its certainty and note; rows a reviewer added are left alone.
+     *
+     * @param  int[]  $others  the group's other people
+     */
+    public function relinkRow(Work $work, string $role, array $others, Person $person, ?string $certainty, ?string $note, bool $dry = false): ?int
+    {
+        $row = $work->workPeople()->where('role', $role)->whereNull('suggestion_id')->whereIn('person_id', $others)->first();
+        if (! $row || $dry) {
+            return $row?->id;
+        }
+        $row->update(['person_id' => $person->id, 'certainty' => $certainty, 'note' => $note ? mb_substr($note, 0, 500) : null]);
+        $this->reindex($work);
+
+        return $row->id;
     }
 
     /** One of the work's people rows is deleted; the audit log keeps the whole row, so a rollback puts it back. */
@@ -157,6 +198,7 @@ class ContributorRelations
             ?? throw new InvalidArgumentException('شخص مرتبطی که باید حذف شود را انتخاب کنید.');
         $snapshot = $row->getAttributes();
         $row->delete();
+        $this->reindex($work);
 
         return [
             'old' => ['removed_person_role' => $snapshot],
@@ -201,6 +243,8 @@ class ContributorRelations
 
     private function reindex(Model $record): void
     {
+        // The people rows just changed: the document is built from them afresh
+        $record->unsetRelation('workPeople');
         if (method_exists($record, 'searchable')) {
             $record->searchable();
         }

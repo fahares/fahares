@@ -68,9 +68,11 @@ return [
     |
     */
 
+    // 250, not 1000: the production host has 5.4 GB for every project on it, and a bulk import of
+    // manuscripts with their relations in 1000-row chunks has been killed for memory (step 13.73)
     'chunk' => [
-        'searchable' => 1000,
-        'unsearchable' => 1000,
+        'searchable' => 250,
+        'unsearchable' => 250,
     ],
 
     /*
@@ -154,6 +156,7 @@ return [
                     'has_autograph',
                     'bibliographies',
                     'author_ids',
+                    'related_person_ids',
                 ],
                 'sortableAttributes' => [
                     'composition_year_hijri',
@@ -177,6 +180,8 @@ return [
                     'alternative_titles',
                     'author_name',
                     'author_aliases',
+                    // Translators, dedicatees, commissioners…: after the work's own titles and authors (backlog item 35)
+                    'related_people',
                     'transliteration',
                     'subject_summary',
                     'language_summary',

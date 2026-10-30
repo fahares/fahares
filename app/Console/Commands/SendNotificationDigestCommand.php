@@ -10,8 +10,9 @@ use App\Review\CollectiveReview;
 use Illuminate\Console\Command;
 
 /**
- * The daily digest (backlog item 25): for each user, the last day's new suggestions, «تصحیح جمعی» opinions and
- * sign-ups, for the types whose «خلاصه‌ی روزانه» column the user has on. Opinions are announced only here, so a
+ * The daily digest (backlog item 25): for each user, the last day's new suggestions, «تصحیح جمعی» opinions,
+ * sign-ups and the site notices of the other gathered types (technical alerts, access changes), for the types whose
+ * «خلاصه‌ی روزانه» column the user has on. Opinions are announced only here, so a
  * busy day of collective review does not flood the reviewers (backlog item 80).
  */
 class SendNotificationDigestCommand extends Command
@@ -43,6 +44,11 @@ class SendNotificationDigestCommand extends Command
             if (NotificationPreferences::enabled($recipient, 'user.registered', 'digest') && $users->isNotEmpty()) {
                 $sections['کاربران تازه'] = $users->map(fn (User $u) => "{$u->name} ({$u->email})")->all();
             }
+            foreach (self::GATHERED as $type => $heading) {
+                if (NotificationPreferences::enabled($recipient, $type, 'digest') && ($lines = $this->noticeLines($recipient, $type, $since))) {
+                    $sections[$heading] = $lines;
+                }
+            }
             if ($sections) {
                 $recipient->notify(new DailyDigest($sections));
                 $sent++;
@@ -51,5 +57,23 @@ class SendNotificationDigestCommand extends Command
         $this->info("Digests sent: {$sent}");
 
         return self::SUCCESS;
+    }
+
+    /** Types gathered from the recipient's own site notices, with their section heading */
+    private const GATHERED = [
+        'system.queue_failed' => 'شکست کارهای صف',
+        'system.search_failed' => 'نمایه‌ی جستجو',
+        'system.command_finished' => 'دستورهای سرور',
+        'permissions.changed' => 'تغییر دسترسی نقش‌ها',
+    ];
+
+    /** @return string[] one line per distinct title, with its count */
+    private function noticeLines(User $recipient, string $type, \Carbon\CarbonInterface $since): array
+    {
+        return $recipient->notifications()->where('created_at', '>=', $since)->get()
+            ->filter(fn ($n) => ($n->data['type'] ?? null) === $type)
+            ->countBy(fn ($n) => $n->data['title'] ?? $type)
+            ->map(fn (int $count, string $title) => $count > 1 ? "{$title} ({$count} بار)" : $title)
+            ->values()->all();
     }
 }

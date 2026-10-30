@@ -117,6 +117,12 @@ class ItemMatcher
         if ($mentions) {
             return $this->result($mentions[0]['item'], 'mention', 'title_in_text', $mentions[0]['author'] ? 60 : 40, 0.0, $author, $death);
         }
+        // a commentary told inside the entry of the book it comments on, under no title of its own (Kashf's «و شرحه
+        // الشيخ … المتوفى سنة 902»): the one entry with a sentence naming the author and his death year
+        $told = array_values(array_filter($items, fn ($i) => self::toldIn($author, $death, $i['text'])));
+        if (count($told) === 1) {
+            return $this->result($told[0], 'mention', 'author_in_entry', 45, 0.0, $author, $death);
+        }
 
         return null;
     }
@@ -226,6 +232,21 @@ class ItemMatcher
         }
 
         return $hits;
+    }
+
+    /** Whether one sentence of the text names two distinctive parts of the author's name and his death year. */
+    public static function toldIn(?string $author, ?int $death, string $text): bool
+    {
+        if (! $death || blank($author)) {
+            return false;
+        }
+        foreach (preg_split('/[.\n]+/u', $text) as $sentence) {
+            if (self::authorHits($author, $sentence) >= 2 && self::deathIn($death, $sentence)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Whether the author's death year (±1) is printed in the text. */

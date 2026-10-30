@@ -36,8 +36,8 @@
                 :viewer="$item->viewer() ? '$dispatch(\'open-catalog-viewer\', ' . \Illuminate\Support\Js::from($item->viewer()) . ')' : null">
                 @foreach($item->pageSegments() as $i => $segment)
                     @if($i > 0)
-                        <div class="my-3 flex items-center gap-2 text-[11px] text-muted" aria-hidden="true" data-page-turn>
-                            <span class="flex-1 border-t border-dashed border-line"></span>{{ Fa::digits('ص ' . $segment['page']) }}<span class="flex-1 border-t border-dashed border-line"></span>
+                        <div class="my-3 flex items-center gap-2 text-[11px] text-muted" data-page-turn>
+                            <span class="flex-1 border-t border-dashed border-line"></span><a href="{{ $item->pageUrl($segment['page']) }}" class="hover:text-cinnabar" title="متن کامل صفحه">{{ Fa::digits(($item->source->unit === 'ستون' ? 'ستون ' : 'ص ') . $segment['page']) }}</a><span class="flex-1 border-t border-dashed border-line"></span>
                         </div>
                     @endif
                     <div class="whitespace-pre-line font-naskh text-base" data-copy>{{ Fa::digits($segment['text']) }}</div>
@@ -97,6 +97,14 @@
                             </div>
                             <span class="block mt-1.5 text-xs font-semibold text-cinnabar">{{ Fa::digits('دیدن برگه‌ی ص ' . $page) }}</span>
                         </button>
+                        <a href="{{ $item->pageUrl($page) }}" class="block -mt-2 text-xs text-muted hover:text-cinnabar" data-text-page>{{ Fa::digits('متن کامل ص ' . $page) }}</a>
+                    @endforeach
+                </x-ui.card>
+            @else
+                <x-ui.card class="space-y-2">
+                    <div class="text-xs text-muted">صفحه‌ی چاپی</div>
+                    @foreach(range($item->page_start, $item->page_end) as $page)
+                        <a href="{{ $item->pageUrl($page) }}" class="block text-sm font-semibold text-cinnabar hover:underline" data-text-page>{{ Fa::digits('متن کامل ' . ($item->source->unit === 'ستون' ? 'ستون ' : 'ص ') . $page) }} ←</a>
                     @endforeach
                 </x-ui.card>
             @endif

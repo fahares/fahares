@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Manuscript;
 use App\Models\ManuscriptCatalogReference as Ref;
 use App\Models\SourceEntry as Entry;
 use App\Models\SourceVolume;
@@ -40,7 +41,7 @@ class CatalogReferenceController extends Controller
     {
         $status = array_key_exists($request->query('status'), self::STATUSES) ? $request->query('status') : Entry::STATUS_UNVERIFIED;
 
-        $base = Entry::where('origin', Entry::ORIGIN_MATCH);
+        $base = Entry::where('origin', Entry::ORIGIN_MATCH)->where('citable_type', Manuscript::class);
         $volumes = SourceVolume::whereIn('id', (clone $base)->select('source_volume_id'))->orderBy('title')->get();
         $counts = (clone $base)->when($request->integer('volume'), fn ($q, $v) => $q->where('source_volume_id', $v))
             ->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
@@ -101,7 +102,8 @@ class CatalogReferenceController extends Controller
     {
         $filters = $this->filters($request);
 
-        return Entry::where('origin', Entry::ORIGIN_MATCH)
+        // the works tied to a bibliography's entries have their own queue (SourceLinkController)
+        return Entry::where('origin', Entry::ORIGIN_MATCH)->where('citable_type', Manuscript::class)
             ->when($filters['volume'] ?? null, fn ($q, $v) => $q->where('source_volume_id', $v))
             ->when($filters['method'] ?? null, fn ($q, $m) => $q->where('match_method', $m))
             ->when($filters['confidence'] ?? null, fn ($q, $b) => $q->whereBetween('confidence', self::CONFIDENCE_BANDS[$b]['range']));
@@ -144,7 +146,9 @@ class CatalogReferenceController extends Controller
     /** JSON for the badge's fetch on the record page, a redirect back for the queue's forms. */
     private function reviewed(Request $request, Entry $reference, string $done)
     {
-        $message = 'نشانی نسخه‌ی «' . Fa::digits($reference->citable?->shelfmark) . "» {$done}.";
+        $message = $reference->citable instanceof Manuscript
+            ? 'نشانی نسخه‌ی «' . Fa::digits($reference->citable->shelfmark) . "» {$done}."
+            : 'پیوند «' . $reference->citable?->primary_title . "» {$done}.";
         if (! $request->expectsJson()) {
             return back()->with('success', $message);
         }
