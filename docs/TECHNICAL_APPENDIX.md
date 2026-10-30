@@ -4918,6 +4918,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **نتیجه:** `COOLIFY_URL` به `https://coolify.fahares.net` رفت. استقرار ۳۳۹ با فراخوانی HTTPS در ۴۲ ثانیه تمام شد، چون لایه‌ها از پیش کشیده شده بودند. پورت ۸۰۰۰ هنوز باز است.
 - **build-time:** `is_buildtime` از ۴۶ ردیف `environment_variables` برنامه برداشته شد (به‌جز `NIXPACKS_*`)، چون ساخت دیگر در Coolify نیست. `is_runtime` دست نخورد. استقرار ۳۴۰ (۱۳:۳۵ تا ۱۳:۳۷) نشان داد `APP_KEY`، `DB_PASSWORD` و `MEILISEARCH_KEY` در کانتینر هستند. `/up` و `/search` کد ۲۰۰ دادند.
 - **webhook قدیمی:** webhook مخزن گیت‌هاب (`http://162.35.127.157:8000/webhooks/source/github/events/manual`، رویداد push) با تأیید کاربر حذف شد. استقرار حالا فقط از GitHub Actions راه می‌افتد.
+- **پورت‌های Coolify (۸۰۰۰، ۶۰۰۱ و ۶۰۰۲) هنوز روی 0.0.0.0 باز هستند:**
+  - **تلاش:** گذاشتن `APP_PORT=127.0.0.1:8000` در `/data/coolify/source/.env` را `docker compose` با خطای `invalid start port` رد کرد، چون نگاشت `"${APP_PORT:-8000}:8080"` IP را درون متغیر نمی‌پذیرد. ۶۰۰۲ هم در `docker-compose.prod.yml` ثابت نوشته شده است.
+  - **برگشت:** `.env` بی‌درنگ از `.env-before-localhost-ports` برگردانده شد و `compose config` معتبر بود. اگر آن سطرها می‌ماندند، به‌روزرسانی شبانه‌ی Coolify شکست می‌خورد. کانتینر Coolify در این میان ری‌استارت نشد.
+  - **راه باقی‌مانده:** قانون فایروال در زنجیره‌ی `DOCKER-USER`، که ماندگار هم باشد. فعلاً انجام نشد، چون داشبورد از HTTPS در دسترس است و ورود رمز دارد.
 
 
 ### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
