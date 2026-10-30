@@ -66,6 +66,11 @@ Route::get('/works/{id}', [WorkController::class, 'show'])
     ->where('id', '[0-9]+.*')
     ->name('works.show');
 
+// The text of a printed page of a source: /sources/monzavi/5/page/3366 (plan docs/plans/source-page-text.md)
+Route::get('/sources/{code}/{volume}/page/{page}', [\App\Http\Controllers\SourcePageController::class, 'show'])
+    ->where(['code' => '[a-z0-9-]+', 'volume' => '[0-9]+', 'page' => '[0-9]+'])
+    ->name('source-pages.show');
+
 // The printed entries of a source (al-Dhari'a): /sources/dharia/3/1442, «1345-2» for a number printed twice,
 // «1442.1» for the first unnumbered entry after 1442
 Route::get('/sources/{code}/{volume}/{key}', [\App\Http\Controllers\SourceItemController::class, 'show'])

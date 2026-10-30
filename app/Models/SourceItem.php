@@ -113,6 +113,12 @@ class SourceItem extends Model
         return route('source-items.show', [$this->source->code, $this->volume_number, $this->urlKey()]);
     }
 
+    /** The text of one of the entry's printed pages: /sources/monzavi/6/page/361. */
+    public function pageUrl(?int $page = null): string
+    {
+        return route('source-pages.show', [$this->source->code, $this->volume_number, $page ?? $this->page_start]);
+    }
+
     /** «ج ۳، ص ۴۰۲–۴۰۳، ش ۱۴۴۲» (or «ستون» in the books numbered by column). */
     public function placeLabel(): string
     {

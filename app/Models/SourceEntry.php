@@ -408,6 +408,17 @@ class SourceEntry extends Model
         return ['catalog' => $code, 'catalogName' => $this->sourceName(), 'volume' => $this->volumeNumber() ?? 1, 'page' => $this->page_start];
     }
 
+    /** The text of the cited page, for a source the site has as text only (plan docs/plans/source-page-text.md). */
+    public function textPageUrl(): ?string
+    {
+        $page = $this->page_start ?: $this->sourceItem?->page_start;
+        if (! $page || ! $this->source || $this->source->hasPageImages() || ! ($volume = $this->volumeNumber())) {
+            return null;
+        }
+
+        return route('source-pages.show', [$this->source->code, $volume, $page]);
+    }
+
     /** The page image the viewer opens, small enough for the side card. */
     public function thumbUrl(): ?string
     {

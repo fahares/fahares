@@ -13,7 +13,8 @@ class BibliographyLinks
 {
     /**
      * The entry as escaped HTML with Persian digits and the linked citations as anchors. A citation whose
-     * page image is on the site opens the page viewer; the anchor keeps the online edition as its href.
+     * page image is on the site opens the page viewer; the anchor keeps the online edition as its href. A source the
+     * site has as text only opens its page's text on the site, in the same tab.
      */
     public static function html(string $entry): HtmlString
     {
@@ -24,7 +25,7 @@ class BibliographyLinks
                 $html .= $text;
                 continue;
             }
-            $attrs = 'href="' . e($seg['url']) . '"' . ($seg['url'] === '#' ? '' : ' target="_blank" rel="noopener"') . ' title="' . e(Fa::digits($seg['title'])) . '"';
+            $attrs = 'href="' . e($seg['url']) . '"' . ($seg['url'] === '#' || isset($seg['internal']) ? '' : ' target="_blank" rel="noopener"') . ' title="' . e(Fa::digits($seg['title'])) . '"';
             if (isset($seg['viewer'])) {
                 $attrs .= ' onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent(\'open-catalog-viewer\', { detail: ' . e(json_encode($seg['viewer'], JSON_UNESCAPED_UNICODE)) . ' }))"';
             }
@@ -127,7 +128,7 @@ class BibliographyLinks
     }
 
     /**
-     * @return list<array{text: string, url?: string, title?: string, viewer?: array, cite?: array}>
+     * @return list<array{text: string, url?: string, title?: string, viewer?: array, internal?: bool, cite?: array}>
      */
     public static function segments(string $entry): array
     {
@@ -325,9 +326,13 @@ class BibliographyLinks
             ];
         }
 
-        // a source the site has as text only: the citation is not a link, but its place is known
+        // a source the site has as text only: the citation opens the printed page's text
         if (! $link && isset($src['text']) && ($volume = self::textVolume($src['text'], $volume, $page))) {
-            $link = [];
+            $link = [
+                'url' => route('source-pages.show', [$src['text']['catalog'], $volume, $page]),
+                'title' => "متن {$src['label']}، ج {$volume}، {$unit} {$page}",
+                'internal' => true,
+            ];
         }
 
         return $link !== null ? $link + ['volume' => $volume, 'cite' => ['source' => $key, 'volume' => $volume, 'page' => $page]] : null;
@@ -335,10 +340,14 @@ class BibliographyLinks
 
     /**
      * The volume of a text source that holds the page: the cited one, or another of its run when the cited one does
-     * not («فهرستواره منزوی 3257/4» is in volume 5, whose pages go on from volume 4's).
+     * not («فهرستواره منزوی 3257/4» is in volume 5, whose pages go on from volume 4's). Null for a source with no text
+     * in config/bibliography.php, or a page none of its volumes holds.
      */
-    private static function textVolume(array $text, int $volume, int $page): ?int
+    public static function textVolume(array|string $text, int $volume, int $page): ?int
     {
+        if (is_string($text) && ! ($text = self::sources()[$text]['text'] ?? null)) {
+            return null;
+        }
         $holds = fn (int $v) => $page >= ($text['first_pages'][$v] ?? 1) && $page <= ($text['last_pages'][$v] ?? 0);
         if ($holds($volume)) {
             return $volume;

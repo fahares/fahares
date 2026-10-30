@@ -42,6 +42,7 @@
     --color-cinnabar: var(--cinnabar);
     --color-on-cinnabar: var(--on-cinnabar);
     --color-gold: var(--gold);
+    --color-sheet: var(--sheet);
 }
 
 [x-cloak] {
@@ -99,6 +100,9 @@
     --cinnabar: #A23A26;
     --on-cinnabar: #FBF8F1;
     --gold: #A8843F;
+    /* a printed book's leaf (the source page text): whiter than the surface, its shade warm */
+    --sheet: #FFFDF8;
+    --sheet-shade: 74, 52, 24;
     --bg-page: #F4EFE4;
     --text-primary: #1F2238;
     --text-secondary: #575C7A;
@@ -118,6 +122,8 @@
     --cinnabar: #E2826A;
     --on-cinnabar: #171411;
     --gold: #C9A45C;
+    --sheet: #24201B;
+    --sheet-shade: 0, 0, 0;
     --bg-page: #171411;
     --text-primary: #EDE6D8;
     --text-secondary: #A89E8E;
@@ -274,3 +280,122 @@ body {
     border-color: var(--gold);
     box-shadow: 0 0 0 1px var(--gold);
 }
+
+/* One printed page of a source (resources/views/source-pages/show.blade.php): a book's leaf on the paper, with two
+   leaves under it, the running head over a thin double rule, the shade of the spine on the gutter side (right on an
+   odd page of a right-to-left book, left on an even one) and the page number at the foot. */
+.book-sheet {
+    --leaf: 1;
+    background-color: var(--sheet);
+    /* the spine's shade, on the left of an even page */
+    background-image: linear-gradient(to right, rgba(var(--sheet-shade), 0.08), transparent 2.5rem);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 1.75rem 1.25rem 1.5rem;
+    /* two leaves under it, out on the outer edge, each a sheet-coloured box ringed by a line-coloured one */
+    box-shadow:
+        calc(var(--leaf) * 4px) 4px 0 -1px var(--sheet), calc(var(--leaf) * 4px) 4px 0 0 var(--line),
+        calc(var(--leaf) * 8px) 8px 0 -1px var(--sheet), calc(var(--leaf) * 8px) 8px 0 0 var(--line),
+        0 14px 32px -14px rgba(var(--sheet-shade), 0.35);
+}
+.book-sheet--odd {
+    --leaf: -1;
+    background-image: linear-gradient(to left, rgba(var(--sheet-shade), 0.08), transparent 2.5rem);
+}
+@media (min-width: 640px) {
+    .book-sheet { padding: 2.75rem 3.5rem 2rem; }
+}
+.book-sheet__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px double var(--line-strong);
+    font-family: var(--font-naskh);
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+.book-sheet__title {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+}
+.book-sheet__folio {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+    min-width: 3rem;
+}
+.book-sheet__folio.order-last { text-align: left; }
+.book-sheet__volume { min-width: 3rem; }
+.book-sheet__volume.order-first { text-align: right; }
+.book-sheet__volume:not(.order-first) { text-align: left; }
+.book-sheet__label {
+    margin: -0.75rem 0 1.25rem;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+}
+.book-sheet__body {
+    font-family: var(--font-naskh);
+    font-size: 1.0625rem;
+    line-height: 2.15;
+    text-align: justify;
+    min-height: 24rem;
+}
+@media (min-width: 640px) {
+    .book-sheet__body { font-size: 1.1875rem; }
+}
+.book-sheet__entry + .book-sheet__entry { margin-top: 1.1rem; }
+.book-sheet__heading {
+    display: block;
+    font-weight: 700;
+    color: var(--ink);
+    transition: color 0.15s;
+}
+.book-sheet__heading:hover { color: var(--cinnabar); }
+.book-sheet__cont {
+    display: inline-block;
+    margin-bottom: 0.25rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: var(--muted);
+    border-bottom: 1px dotted var(--line-strong);
+}
+.book-sheet__cont:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+.book-sheet__foot {
+    margin-top: 2rem;
+    text-align: center;
+    font-family: var(--font-naskh);
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+.book-sheet__foot::before,
+.book-sheet__foot::after {
+    content: '';
+    display: inline-block;
+    width: 1.5rem;
+    border-top: 1px solid var(--line-strong);
+    vertical-align: middle;
+    margin: 0 0.6rem;
+}
+.book-turn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: border-color 0.15s, color 0.15s;
+}
+.book-turn:hover { border-color: var(--cinnabar); color: var(--cinnabar); }
