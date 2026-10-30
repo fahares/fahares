@@ -4849,3 +4849,24 @@
     3. **import-pages و segment:** با `SCOUT_DRIVER=null` و `nohup` اجرا شد. شمارها برابر تمرین بود.
     4. **link-items --near:** ۶٬۶۶۲ پیوند (۶٬۳۸۶ مدخل برای ۵٬۹۷۲ اثر، و ۲۷۶ یادکرد).
   - **نمایه‌ی جستجو (۹ آبان):** `SourceItem::where('source_id', 100184)->chunkById(500, fn ($c) => $c->searchable())` با `nohup php artisan tinker` اجرا شد و ۴۶٬۷۰۲ مدخل فرستاد. پس از پردازش Meilisearch، `source_items_index` ۱۰۹٬۴۱۳ سند داشت و هیچ کاری شکست نخورده بود. حافظه‌ی آزاد میزبان حدود ۱٫۲ گیگابایت ماند.
+
+### گام ۱۳.۷۳: صفحه‌ی «متن صفحه» (`source-pages.show`)
+- **طرح:** `docs/plans/source-page-text.md`.
+- **مسیر:** `/sources/{code}/{volume}/page/{page}` در `routes/web.php`، پیش از مسیر مدخل، با کنترلر `SourcePageController`.
+  - صفحه‌ی ناموجود ۴۰۴ می‌دهد.
+  - اگر `BibliographyLinks::textVolume()` جلد دیگری بدهد، ۳۰۱ به آن جلد. این متد حالا عمومی است و کلید منبع را هم می‌پذیرد.
+- **`App\Support\PrintedPage`:**
+  - **`find()`:** اگر جلد ردیفی در `source_pages` دارد، متن همان صفحه را با `cut()` می‌برد. آغاز هر مدخل با ۴۰ نویسه‌ی سطر نخستش پیدا می‌شود. روی ۱۵۰ صفحه‌ی تصادفی از هر منبع، همه‌ی آغازها پیدا شدند: منزوی ۸۳۸ از ۸۳۸، کشف ۱٬۰۵۴، ایضاح ۱٬۷۱۴ و هدیه ۹۸۱.
+  - **منبع بی‌متن صفحه (الذریعة):** پاره‌ی هر مدخل از `SourceItem::pageSegments()` گرفته می‌شود.
+  - **صفحه‌ی پیش و بعد:** از `source_pages` گرفته می‌شود، یا از بازه‌ی `page_start`/`page_end` مدخل‌ها. در لبه‌ی جلد، جلد پیش یا پس از همان منبع می‌آید.
+  - **پیش‌گفتار:** صفحه‌ای است که شماره‌اش از کوچک‌ترین `page_start` مدخل‌های غیر `preface` جلد کمتر باشد.
+- **پیوندها:**
+  - `BibliographyLinks::pageLink()` برای منبع `text` نشانی صفحه را با کلید `internal` می‌سازد، و `html()` برای آن `target="_blank"` نمی‌گذارد.
+  - `SourceEntry::textPageUrl()` (فقط منبع بی‌تصویر) در «مآخذ کتاب‌شناسی» صفحه‌ی اثر به کار رفته است.
+  - `SourceItem::pageUrl()` در صفحه‌ی مدخل به کار رفته است.
+- **ظاهر:**
+  - کلاس‌های `.book-sheet*` و `.book-turn` در `resources/css/app.css`.
+  - رنگ‌های تازه: `--sheet` (روشن `#FFFDF8`، تیره `#24201B`) و `--sheet-shade`.
+  - دو برگ زیرین با `box-shadow` ساخته شده‌اند و سوی آن‌ها با `--leaf` عوض می‌شود.
+- **robots:** `layouts/app.blade.php` حالا `@yield('robots')` را می‌خواند، که مورد ۷۲ هم به کارش می‌گیرد.
+- **آزمون:** `tests/Feature/SourcePageViewTest.php` (۶ آزمون). آزمون پیوند در `MonzaviSourceTest` هم به‌روز شد. اجرا روی `fahares_monzavi_test` بود، با رونوشت موقت `/tmp/phpunit_monzavi.xml` کانتینر با مسیرهای مطلق. هر ۴۶۲ آزمون موفق بود.
