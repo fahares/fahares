@@ -4839,6 +4839,14 @@
   - **نتیجه روی پایگاه محلی:** ۷٬۳۱۵ پیوند الذریعة (حدود ۸۰٪ جاهای ارجاع)، از جمله ۴۳۸ پیوند `llm` و ۴۵ پیوند `author_in_entry`. اجرای دوم «unchanged» بود.
   - **فایل‌ها:** `../fahares-sources/dharia-llm/` (`ddecisions_dharia_N.json`، `DINSTRUCTIONS.md`، `dmerge.py`، `MD5SUMS`).
   - **پروداکشن:** برای هر جلد N، `sources:link-items dharia --volume=N --decisions=…/ddecisions_dharia_N.json`. پیوندهای داوری‌شده‌ی پیشین دست نمی‌خورند (`kept_reviewed`).
+- **اجرای پروداکشن (۹ آبان ۱۴۰۵):**
+  - **پشتیبان:** با `ssh fahares-server` گرفته شد، در `~/backups/before_step13_72_istanbul_20261030_1135.sql.gz` (۲۰۷ مگابایت، «Dump completed»)، درست پیش از فرمان‌های داده‌ای. رونوشتش در `../fahares-sources/backups/step13/` است. تلاش نخست پشتیبان، هم‌زمان با ساخت Coolify یک جلسه‌ی دیگر، با «Lost connection» نیمه‌کاره ماند، چون حافظه‌ی میزبان پر بود. آن فایل پاک شد.
+  - **۱. متن و مدخل:** `import-pages` و `segment --entries`، با `SCOUT_DRIVER=null` و `nohup`. شمارها برابر اجرای محلی بود: کشف ۲٬۰۴۸ ستون و ۱۵٬۴۴۰ مدخل، ایضاح ۱٬۳۵۴ و ۱۵٬۵۶۱، هدیه ۱٬۴۰۰ و ۸٬۷۲۸.
+  - **۲. پیوند سه منبع:** اجرای نخست فقط پیوندهای قاعده‌ای را ساخت (۲٬۰۰۸). فایل‌های تصمیم با شناسه‌ی ارجاع‌های پایگاه محلی ساخته شده بودند و این شناسه‌ها روی پروداکشن فرق دارند. تصمیم‌ها با `remap.php` ترجمه شدند. این اسکریپت در `../fahares-sources/noor-istanbul/llm/` است و کلیدش `slug` اثر و متن ارجاع است، از `portable_decisions.json` (۷۴۵ تصمیم). سپس `link-items` دوباره اجرا شد: ۳۰۴ پیوند `llm` (کشف ۲۳۹، ایضاح ۱۹، هدیه ۴۶). سه تصمیم کلید یکتا نداشت.
+  - **۳. الذریعة:** اجرای آزمایشی در برابر ۶٬۷۱۹ پیوند موجود این را نشان داد: ۶٬۶۸۶ همان، ۶۰۲ تازه، ۳۲ تغییر، هیچ حذف، و ۱ داوری‌شده‌ی دست‌نخورده. پس از اجرا ۷٬۳۲۱ پیوند هست، از جمله ۴۳۷ `llm` و ۴۶ `author_in_entry`.
+  - **۴. نمایه:** `SourceItem::where('source_id', X)->chunkById(250, fn ($c) => $c->searchable())` برای سه منبع، روی هم ۳۹٬۷۲۹ مدخل. `source_items_index` اکنون ۱۴۹٬۱۴۲ سند دارد و هیچ کاری شکست نخورد.
+  - **وارسی:** `/works/832` و `/works/70473` (یادکرد `llm` با یادداشت ⓘ)، `/sources/kashf/1/500-3` و جستجوی «در منابع» روی fahares.net پاسخ ۲۰۰ دادند و «ستون» را درست نشان دادند. `laravel.log` خطایی نداشت.
+  - **دام:** در همین ساعت‌ها جلسه‌های دیگر شش بار push کردند. هر استقرار کانتینر را عوض می‌کند، `/tmp` را پاک می‌کند و فرمان `nohup` در حال اجرا را می‌کُشد. فرمان‌ها تکرارپذیر بودند، پس هر بار از جلد مانده ادامه یافت. برای اجرای داده‌ای طولانی، از جلسه‌های دیگر خواسته شود تا پایان کار push نکنند.
 - **آزمون:** `tests/Feature/IstanbulSourcesTest.php`، با کشف ستون ۵۰۰ و هدیه ج ۱ ستون ۱۳ (`tests/fixtures/istanbul/`). در ساعتی که جلسه‌ی دیگری کل آزمون‌ها را روی `fahares_test` اجرا می‌کرد، آزمون‌ها روی پایگاه جدای `fahares_i86_test` اجرا شد، با رونوشتی از `phpunit.xml`. پس از آن، هر ۴۴۶ آزمون روی خود `fahares_test` هم موفق بود.
 - **اجرای پروداکشن (۸ آبان ۱۴۰۵):**
   - **پشتیبان:** با `ssh fahares-server` گرفته شد: `~/backups/before_step13_69_monzavi_20261029_2012.sql.gz` (۱۸۲ مگابایت، «Dump completed»). رونوشتش در `../fahares-sources/backups/step13/` است.
@@ -4954,4 +4962,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - «بازگردانی» (`reopen`) پس از جابه‌جایی فقط وضعیت را برمی‌گرداند، نه مدخل را.
 - **صف نسخه‌ها:** `CatalogReferenceController::index/filtered` به `citable_type=Manuscript` محدود شد. این محدودیت تأیید گروهی را هم در بر می‌گیرد. پیام JSON تأیید یا رد برای اثر «پیوند «عنوان» تأیید شد.» است.
 - **آزمون:** `tests/Feature/SourceLinksReviewTest.php` (۵ آزمون).
+
+### گام ۱۳.۷۶: کم کردن اعلان‌های فنی
+
+- **`config/notifications.php`:**
+  - `system.queue_failed` و `system.search_failed`: ‏`mail` پیش‌فرض خاموش. این نوع‌ها و `system.command_finished` ستون `digest` پیش‌فرض روشن گرفتند. گروه `alerts` (کانال تلگرام هشدارها) مثل پیش می‌ماند.
+  - `user.registered` و `permissions.changed`: ‏`mail` خاموش و `digest` روشن.
+  - کلیدهای تازه: `heavy_command_min_minutes` (۱۰) و `alert_backoff_hours` (`[1, 4, 24]`).
+- **`SystemNotices`:**
+  - `commandFinished()` اجرایی را که `--dry-run` دارد، یا موفق و کوتاه‌تر از `heavy_command_min_minutes` است، رد می‌کند.
+  - `throttled()` به‌جای سقف یک‌ساعته، فاصله‌ی فزاینده دارد. کلیدهای کش: `notice-level:{type}` (پله‌ی فاصله؛ ماندگاری فاصله + ۲۴ ساعت، پس یک روز آرام از نو آغاز می‌کند)، `notice-sent:{type}` (تا پایان فاصله)، `notice-count:{type}` و `notice-last:{type}` (زمان آخرین خطا).
+  - `checkSearchRecovered()`: اگر هشدار جستجو فرستاده شده (`notice-level`)، ده دقیقه خطایی نبوده و `Meilisearch\Client::isHealthy()` درست باشد، پیام «جستجو دوباره کار می‌کند» را می‌فرستد و کلیدها را پاک می‌کند. زمان‌بندی: `notices:search-recovered` هر ۵ دقیقه در `routes/console.php`.
+- **`SendNotificationDigestCommand`:** بخش‌های تازه از اعلان‌های داخل سایتِ خود گیرنده (`notifications` با `data.type`) ساخته می‌شوند. هر عنوان یک سطر است، با شمار تکرار: «شکست صف»، «نمایه‌ی جستجو»، «دستورهای سرور» و «تغییر دسترسی نقش‌ها».
+- **مهاجرت `2026_10_30_100001_reset_technical_notice_channels`:** ردیف‌های `notification_preferences` این پنج نوع را روی کانال‌های `mail`، `webpush`، `telegram` و `digest` پاک می‌کند. ‏`down` چیزی برنمی‌گرداند.
+- **آزمون:** `EventNoticesTest` (فاصله‌ی فزاینده و پیام برگشت؛ dry-run و دستور کوتاه؛ خلاصه‌ی فنی)، و انتظار کانال `UserRegisteredTest` به `['database']`.
 
