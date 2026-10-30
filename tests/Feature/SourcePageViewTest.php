@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Manuscript;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceItem;
@@ -128,6 +129,66 @@ class SourcePageViewTest extends TestCase
         $this->assertSame(2, substr_count($html, 'rounded-full text-sky-700'));
     }
 
+    public function test_a_catalogue_page_links_its_works_headings_and_copies_lines_in_two_columns()
+    {
+        // Fankha vol. 2 p. 926 in short: two works with the same heading line, and their copies. Saving a record
+        // makes Fankha's source and volume (App\Sources\SourceEntrySync), so the pages come after the records.
+        $works = [];
+        foreach (['الاربعون حديثاً (قمی)', 'الاربعون حديثاً (یادگار)'] as $i => $title) {
+            $works[$i] = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'w-' . uniqid(), 'volume_number' => 2, 'page_start' => 926]);
+        }
+        $copies = [
+            Manuscript::create(['work_id' => $works[0]->id, 'shelfmark' => '7728', 'volume_number' => 2, 'page_start' => 926]),
+            Manuscript::create(['work_id' => $works[1]->id, 'shelfmark' => '13448', 'volume_number' => 2, 'page_start' => 926]),
+        ];
+        $source = Source::firstOrCreate(['code' => 'fankha'], ['kind' => Source::KIND_UNION_CATALOGUE, 'rank' => 90, 'title' => 'فهرستگان نسخه‌های خطی ایران (فنخا)']);
+        $volume = SourceVolume::firstOrCreate(['source_id' => $source->id, 'volume_number' => 2], ['facsimile_code' => 'fankha']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 926, 'text' => implode("\n", [
+            'انجام: و اما الكلمات اللائى فى الادب.',
+            '', '● الاربعون حديثاً / حدیث / عربی', 'al-arba‘ūn-a ḥadīṯā', '',
+            '1. تهران؛ مجلس؛ شماره نسخه: 7728', 'خط: نستعلیق، کاتب = مؤلف',
+            '', '● الاربعون حديثاً / حدیث / عربی', 'al-arba‘ūn-a ḥadīṯā', '',
+            'قم؛ مرعشی؛ شماره نسخه: 13448', 'آغاز: الحديث الثانى',
+        ])]);
+        foreach ($works as $work) {
+            $this->entry($source, $volume, $work, ['entry_text' => "● الاربعون حديثاً / حدیث / عربی\nal-arba‘ūn-a ḥadīṯā"]);
+        }
+        $this->entry($source, $volume, $copies[0], ['copy_text' => "1. تهران؛ مجلس؛ شماره نسخه: 7728\nخط: نستعلیق"]);
+        $this->entry($source, $volume, $copies[1], ['copy_text' => 'قم؛ مرعشی؛ شماره نسخه: 13448']);
+
+        $html = $this->get('/sources/fankha/2/page/926')->assertOk()
+            ->assertSee('book-sheet--columns', false)
+            ->assertSee('آثار این صفحه', false)
+            ->assertSee('<a href="' . route('manuscripts.show', $copies[0]) . '" class="book-sheet__mark book-sheet__mark--manuscript"', false)
+            ->assertSee('data-record-link="manuscript">۱. تهران؛ مجلس؛ شماره نسخه: ۷۷۲۸</a>', false)
+            ->getContent();
+        // the heading printed twice links each work in turn
+        preg_match_all('/<a href="([^"]+)" class="book-sheet__mark book-sheet__mark--work"/u', $html, $m);
+        $this->assertSame([route('works.show', $works[0]), route('works.show', $works[1])], $m[1]);
+        $this->assertSame(2, substr_count($html, 'data-record-link="manuscript"'));
+
+        // a one-column source keeps one column
+        $this->assertSame(1, (int) config('catalogs.columns.monzavi', 1));
+    }
+
+    public function test_a_heading_shared_by_a_catalogues_copies_links_their_work_once()
+    {
+        // Masjid-e A'zam: «1- القرآن الکریم» heads the copies «ش 714…» and «ش 1392…»
+        $source = Source::create(['code' => 'masjid-test', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 30, 'title' => 'فهرست نسخه‌های خطی کتابخانه مسجد اعظم قم']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => 'masjid-test']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 17,
+            'text' => "1- القرآن الکریم\nش 714، نسخ، بی کا، بی تا.\n\nش 1392، نسخ، بی کا، بی تا. قسمتی از سوره بقره است."]);
+        $work = Work::create(['primary_title' => 'القرآن الکریم', 'clean_title' => 'القرآن الکریم', 'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        foreach (['714', '1392'] as $shelfmark) {
+            $copy = Manuscript::create(['work_id' => $work->id, 'shelfmark' => $shelfmark, 'volume_number' => 1, 'page_start' => 17]);
+            $this->entry($source, $volume, $copy, ['entry_text' => '1- القرآن الکریم', 'copy_text' => "ش {$shelfmark}، نسخ، بی کا، بی تا.", 'page_start' => 17, 'text_page' => 17, 'shelfmark_page' => 17]);
+        }
+
+        $html = $this->get('/sources/masjid-test/1/page/17')->assertOk()->assertDontSee('book-sheet--columns', false)->getContent();
+        $this->assertSame(1, substr_count($html, 'data-record-link="work"'));
+        $this->assertSame(2, substr_count($html, 'data-record-link="manuscript"'));
+    }
+
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
     {
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6 و 3257/4');
@@ -190,6 +251,14 @@ class SourcePageViewTest extends TestCase
             'origin' => SourceEntry::ORIGIN_BIBLIOGRAPHY, 'status' => SourceEntry::STATUS_VERIFIED, 'citation_text' => $citation]);
 
         return $work;
+    }
+
+    /** A catalogue's entry for a work or copy, as the source backfill makes it from the record. */
+    private function entry(Source $source, SourceVolume $volume, $record, array $text): SourceEntry
+    {
+        return SourceEntry::create($text + ['citable_type' => $record::class, 'citable_id' => $record->id, 'source_id' => $source->id,
+            'source_volume_id' => $volume->id, 'volume_number' => $volume->volume_number, 'page_start' => 926, 'text_page' => 926,
+            'role' => SourceEntry::ROLE_ENTRY, 'origin' => 'fankha', 'status' => SourceEntry::STATUS_VERIFIED]);
     }
 
     /** The keys of the entries whose headings start on the page, in order. */

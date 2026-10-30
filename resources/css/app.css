@@ -363,6 +363,23 @@ body {
     transition: color 0.15s, border-color 0.15s;
 }
 .book-sheet__heading--work:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+/* a catalogue's lines that link their records: a work's heading in ink and bold, a copy's line in the text's weight */
+.book-sheet__mark {
+    border-bottom: 1px solid color-mix(in srgb, var(--cinnabar) 30%, transparent);
+    transition: color 0.15s, border-color 0.15s;
+}
+.book-sheet__mark--work { font-weight: 700; color: var(--ink); }
+.book-sheet__mark:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+/* a page printed in two columns (Fankha): two columns with a rule between, one on a narrow screen */
+@media (min-width: 768px) {
+    .book-sheet--columns .book-sheet__body {
+        column-count: 2;
+        column-gap: 2.5rem;
+        column-rule: 1px solid var(--line);
+        font-size: 1rem;
+        line-height: 2;
+    }
+}
 .book-sheet__cont {
     display: inline-block;
     margin-bottom: 0.25rem;

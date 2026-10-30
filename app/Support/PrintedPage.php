@@ -2,7 +2,9 @@
 
 namespace App\Support;
 
+use App\Models\Manuscript;
 use App\Models\Source;
+use App\Models\SourceEntry;
 use App\Models\SourceItem;
 use App\Models\SourceVolume;
 use Illuminate\Support\Collection;
@@ -13,12 +15,17 @@ use Illuminate\Support\Facades\DB;
  * text cut where its entries start, each part with the entry it belongs to. A source whose page texts are on the site
  * (source_pages: Monzavi, Kashf, Idah, Hadiyya) gives the printed page; al-Dhari'a, whose text is kept by entry only,
  * gives its entries' parts on that page.
+ *
+ * A library catalogue or Fankha has no entries of its own (source_items) but the records made from it: their lines on
+ * the page (a work's heading, «● الاربعون حديثاً / حدیث / عربی», a copy's «1. تهران؛ مجلس؛ شماره نسخه: 7728» or
+ * «ش 714، نسخ…») are marked and link the work or manuscript.
  */
 class PrintedPage
 {
     /**
      * @param  Collection<int, SourceItem>  $items  the entries on the page, in their order
-     * @param  list<array{item: ?SourceItem, text: string, continued: bool}>  $blocks
+     * @param  list<array{item: ?SourceItem, text: string, continued: bool, marks?: list<array{at: int, length: int, url: string, kind: string, title: string}>}>  $blocks
+     * @param  list<array{url: string, title: string, kind: string}>  $records  the works and manuscripts marked on the page, in order
      */
     private function __construct(
         public readonly Source $source,
@@ -29,6 +36,7 @@ class PrintedPage
         public readonly bool $frontMatter,
         public readonly ?array $previous,
         public readonly ?array $next,
+        public readonly array $records = [],
     ) {
     }
 
@@ -49,9 +57,104 @@ class PrintedPage
             'continued' => $item->page_start < $page,
         ])->filter(fn ($b) => $b['text'] !== '')->values()->all();
         $firstEntry = SourceItem::where('source_volume_id', $volume->id)->where('kind', '!=', 'preface')->min('page_start');
+        $records = [];
+        if ($paged && $items->isEmpty() && count($blocks) === 1) {
+            $blocks[0]['marks'] = self::marks($blocks[0]['text'], $source, $volume, $page);
+            $records = collect($blocks[0]['marks'])->unique('url')->map(fn ($m) => array_intersect_key($m, array_flip(['url', 'title', 'kind'])))->values()->all();
+        }
 
         return new self($source, $volume, $page, $items, $blocks, $firstEntry !== null && $page < $firstEntry,
-            self::neighbour($source, $volume, $page, -1), self::neighbour($source, $volume, $page, 1));
+            self::neighbour($source, $volume, $page, -1), self::neighbour($source, $volume, $page, 1), $records);
+    }
+
+    /** Whether the page is printed in two columns (config/catalogs.php: Fankha). */
+    public function columns(): int
+    {
+        return (int) config("catalogs.columns.{$this->source->code}", 1);
+    }
+
+    /**
+     * The block cut at its marks: plain text, and the marked lines with their record.
+     *
+     * @return list<array{text: string, url?: string, kind?: string, title?: string}>
+     */
+    public static function pieces(array $block): array
+    {
+        $pieces = [];
+        $from = 0;
+        foreach ($block['marks'] ?? [] as $mark) {
+            if ($mark['at'] > $from) {
+                $pieces[] = ['text' => mb_substr($block['text'], $from, $mark['at'] - $from)];
+            }
+            $pieces[] = ['text' => mb_substr($block['text'], $mark['at'], $mark['length'])] + $mark;
+            $from = $mark['at'] + $mark['length'];
+        }
+        $pieces[] = ['text' => mb_substr($block['text'], $from)];
+
+        return array_values(array_filter($pieces, fn ($p) => $p['text'] !== ''));
+    }
+
+    /**
+     * The lines of the records made from this page: each source entry on it is found by the first line of its text
+     * (a work's heading in entry_text, a copy's line in copy_text), and a heading shared by a catalogue's copies
+     * («1- القرآن الکریم») links their work. A line is marked to its end, once.
+     */
+    private static function marks(string $text, Source $source, SourceVolume $volume, int $page): array
+    {
+        // an entry is read from its first page on; a catalogue's entries are short, so a few pages back is enough
+        $entries = SourceEntry::with('citable')->where('source_id', $source->id)->where('volume_number', $volume->volume_number)
+            ->whereBetween('page_start', [$page - 5, $page])->where('role', SourceEntry::ROLE_ENTRY)->where('status', '!=', SourceEntry::STATUS_REJECTED)
+            ->get()->filter(fn (SourceEntry $e) => $e->citable && in_array($page, array_filter([$e->text_page, $e->shelfmark_page, $e->page_start]), true)
+                || ($e->citable && $e->page_start <= $page && ($e->page_end ?? $e->page_start) >= $page))
+            ->sortBy('id');
+        $entries->loadMorph('citable', [Manuscript::class => ['work:id,primary_title,clean_title', 'libraryRecord:id,name']]);
+
+        $wanted = [];
+        foreach ($entries as $e) {
+            $first = fn (?string $t) => trim((string) strtok(trim((string) $t), "\n"));
+            if ($e->citable instanceof Manuscript) {
+                $wanted[] = [$first($e->copy_text), route('manuscripts.show', $e->citable), 'manuscript', $first($e->copy_text)];
+                if ($e->citable->work && ($heading = $first($e->entry_text)) !== '') {
+                    $wanted[] = [$heading, route('works.show', $e->citable->work), 'work', $e->citable->work->primary_title];
+                }
+            } else {
+                $wanted[] = [$first($e->entry_text), route('works.show', $e->citable), 'work', $e->citable->primary_title ?? $first($e->entry_text)];
+            }
+        }
+
+        // a line printed twice («● الفرائض / فقه / عربی» of two authors) is claimed in turn, in the entries' order
+        $marks = [];
+        $seen = [];
+        $after = [];
+        foreach ($wanted as [$line, $url, $kind, $title]) {
+            $needle = mb_substr($line, 0, 40);
+            if (mb_strlen($needle) < 4 || isset($seen[$needle . "\0" . $url])) {
+                continue;
+            }
+            $seen[$needle . "\0" . $url] = true;
+            $at = mb_strpos($text, $needle, $after[$needle] ?? 0);
+            // the line, at its start, not inside another
+            while ($at !== false && $at > 0 && mb_substr($text, $at - 1, 1) !== "\n") {
+                $at = mb_strpos($text, $needle, $at + 1);
+            }
+            if ($at === false) {
+                continue;
+            }
+            $after[$needle] = $at + 1;
+            $end = mb_strpos($text, "\n", $at);
+            $marks[] = ['at' => $at, 'length' => ($end === false ? mb_strlen($text) : $end) - $at, 'url' => $url, 'kind' => $kind, 'title' => $title];
+        }
+        usort($marks, fn ($a, $b) => $a['at'] <=> $b['at']);
+
+        // overlapping lines keep the first
+        $kept = [];
+        foreach ($marks as $m) {
+            if (! $kept || $m['at'] >= end($kept)['at'] + end($kept)['length']) {
+                $kept[] = $m;
+            }
+        }
+
+        return $kept;
     }
 
     /** Whether the volume has a printed page, as the text page and the links to it judge. */

@@ -10,6 +10,7 @@
     $viewer = $printed->viewer();
     // a book's odd page lies left of the spine in a right-to-left book: its gutter is on the right, its number on the left
     $odd = $printed->page % 2 === 1;
+    $width = $printed->columns() > 1 ? 'max-w-[62rem]' : 'max-w-[46rem]';
     $snippet = mb_substr(preg_replace('/\s+/u', ' ', collect($printed->blocks)->pluck('text')->implode(' ')), 0, 150);
 @endphp
 
@@ -44,7 +45,7 @@
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] items-start">
         <div class="min-w-0 space-y-5" x-data="{ copied: false }">
-            <div class="flex flex-wrap items-center justify-between gap-2 text-xs max-w-[46rem] mx-auto">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs {{ $width }} mx-auto">
                 <span class="text-muted">متن صفحه‌ی چاپی</span>
                 <div class="flex flex-wrap items-center gap-2">
                     @if($viewer)
@@ -57,7 +58,7 @@
                 </div>
             </div>
 
-            <article @class(['book-sheet max-w-[46rem] mx-auto', 'book-sheet--odd' => $odd]) data-printed-page>
+            <article @class(['book-sheet mx-auto', $width, 'book-sheet--columns' => $printed->columns() > 1, 'book-sheet--odd' => $odd]) data-printed-page>
                 <header class="book-sheet__head">
                     <span @class(['book-sheet__folio', 'order-last' => $odd])>{{ Fa::digits($printed->page) }}</span>
                     <span class="book-sheet__title">{{ $source->title }}</span>
@@ -91,7 +92,14 @@
                                 @if($item)
                                     <a href="{{ $item->pageUrl() }}" class="book-sheet__cont" data-entry-continued>ادامه‌ی «{{ $item->title ?: 'پیش‌گفتار' }}» از {{ Fa::digits($printed->unit() . ' ' . $item->page_start) }}</a>
                                 @endif
-                                <div class="whitespace-pre-line">{{ Fa::digits($block['text']) }}</div>
+                                @if(! empty($block['marks']))
+                                    {{-- a catalogue's page: its works' headings and its copies' lines link their records --}}
+                                    <div class="whitespace-pre-line">{!! collect(\App\Support\PrintedPage::pieces($block))->map(fn ($p) => isset($p['url'])
+                                        ? '<a href="' . e($p['url']) . '" class="book-sheet__mark book-sheet__mark--' . $p['kind'] . '" title="' . e($p['title']) . '" data-record-link="' . $p['kind'] . '">' . e(Fa::digits($p['text'])) . '</a>'
+                                        : e(Fa::digits($p['text'])))->implode('') !!}</div>
+                                @else
+                                    <div class="whitespace-pre-line">{{ Fa::digits($block['text']) }}</div>
+                                @endif
                             @else
                                 <div class="book-sheet__headline">
                                     @if($workUrl && ! $title)
@@ -119,7 +127,7 @@
                 <footer class="book-sheet__foot" aria-hidden="true">{{ Fa::digits($printed->page) }}</footer>
             </article>
 
-            <nav class="flex justify-between gap-4 text-sm max-w-[46rem] mx-auto" aria-label="صفحه‌های پیش و پس">
+            <nav class="flex justify-between gap-4 text-sm {{ $width }} mx-auto" aria-label="صفحه‌های پیش و پس">
                 @if($printed->previous)
                     <a href="{{ $pageUrl($printed->previous) }}" class="book-turn" rel="prev"><span aria-hidden="true">→</span> {{ $pageLabel($printed->previous) }}</a>
                 @else<span></span>@endif
@@ -130,6 +138,19 @@
         </div>
 
         <aside class="space-y-4 lg:sticky lg:top-24">
+            @if($printed->items->isEmpty() && $printed->records)
+                <x-ui.card class="space-y-3">
+                    <div class="text-xs text-muted">آثار این صفحه</div>
+                    @foreach(collect($printed->records)->where('kind', 'work') as $record)
+                        <a href="{{ $record['url'] }}" class="flex items-baseline gap-1.5 text-sm text-ink hover:text-cinnabar" data-page-record>
+                            <span class="w-1.5 h-1.5 shrink-0 rotate-45 bg-gold translate-y-[-2px]" aria-hidden="true"></span>
+                            <span class="min-w-0">{{ $record['title'] }}</span>
+                        </a>
+                    @endforeach
+                    @php $copies = collect($printed->records)->where('kind', 'manuscript')->count(); @endphp
+                    @if($copies)<p class="text-xs text-muted">{{ Fa::digits($copies . ' نسخه، با پیوند در متن') }}</p>@endif
+                </x-ui.card>
+            @else
             <x-ui.card class="space-y-3">
                 <div class="text-xs text-muted">مدخل‌های این صفحه</div>
                 @forelse($printed->items as $item)
@@ -143,6 +164,7 @@
                     <p class="text-sm text-muted">این صفحه مدخلی ندارد.</p>
                 @endforelse
             </x-ui.card>
+            @endif
 
             @if($links->isNotEmpty())
                 <x-ui.card class="space-y-3" id="page-works">
