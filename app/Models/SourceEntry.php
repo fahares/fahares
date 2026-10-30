@@ -167,6 +167,52 @@ class SourceEntry extends Model
         });
     }
 
+    /** The audit action of a tie moved to another printed entry by a reviewer (step 13.72). */
+    public const ACTION_MOVE_ITEM = 'move_item';
+
+    /** The columns a move to another printed entry changes, kept in its audit log. */
+    public const ITEM_COLUMNS = ['source_item_id', 'page_start', 'page_end', 'entry_number', 'role', 'entry_text', 'text_status',
+        'text_volume_number', 'text_page', 'status', 'reviewed_by', 'reviewed_at'];
+
+    /**
+     * Ties the record to another printed entry of the same volume, as an entry or a mention, and verifies the tie: the
+     * reviewer chose it, so a later sources:link-items leaves it alone. A text written by hand stays.
+     */
+    public function moveToItem(SourceItem $item, string $role, User $user, ?string $ip = null): AuditLog
+    {
+        throw_unless($this->source_item_id && $item->source_volume_id === $this->source_volume_id, \InvalidArgumentException::class, 'The entry is not in the tie\'s volume.');
+        throw_unless(in_array($role, [self::ROLE_ENTRY, self::ROLE_MENTION], true), \InvalidArgumentException::class, "Unknown role {$role}.");
+
+        return DB::transaction(function () use ($item, $role, $user, $ip) {
+            $at = fn ($v) => $v instanceof \DateTimeInterface ? $v->format('Y-m-d H:i:s') : $v;
+            $old = array_map($at, $this->only(self::ITEM_COLUMNS));
+            $entry = $role === self::ROLE_ENTRY;
+            $values = [
+                'source_item_id' => $item->id, 'page_start' => $item->page_start,
+                'page_end' => $item->page_end > $item->page_start ? $item->page_end : null, 'entry_number' => $item->entry_number, 'role' => $role,
+                'status' => self::STATUS_VERIFIED, 'reviewed_by' => $user->id, 'reviewed_at' => now(),
+            ];
+            if ($this->text_status !== self::TEXT_EDITED) {
+                $values += [
+                    'entry_text' => $entry ? $item->text : null, 'text_status' => $entry ? self::TEXT_AUTO : self::TEXT_NONE,
+                    'text_volume_number' => $entry ? $item->volume_number : null, 'text_page' => $entry ? $item->page_start : null,
+                ];
+            }
+            $this->update($values);
+
+            return AuditLog::create([
+                'user_id' => $user->id,
+                'auditable_type' => static::class,
+                'auditable_id' => $this->id,
+                'action' => self::ACTION_MOVE_ITEM,
+                'old_values' => $old,
+                'new_values' => array_map($at, $this->only(self::ITEM_COLUMNS)),
+                'ip_address' => $ip,
+                'created_at' => now(),
+            ]);
+        });
+    }
+
     private function logReview(string $action, User $user, array $old, ?string $ip): AuditLog
     {
         $at = fn ($v) => $v instanceof \DateTimeInterface ? $v->format('Y-m-d H:i:s') : $v;

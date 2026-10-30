@@ -48,9 +48,15 @@ class DashboardController extends Controller
         if ($user->can('catalog_refs.review')) {
             $queue[] = [
                 'label' => 'نشانی خودکار',
-                'count' => SourceEntry::awaitingReview()->count(),
+                'count' => SourceEntry::awaitingReview()->where('citable_type', Manuscript::class)->count(),
                 'hint' => 'تطبیق‌های بازبینی‌نشده',
                 'url' => route('admin.catalog-references.index'),
+            ];
+            $queue[] = [
+                'label' => 'پیوند خودکار اثر',
+                'count' => SourceEntry::awaitingReview()->where('citable_type', Work::class)->whereNotNull('source_item_id')->count(),
+                'hint' => 'اثر و مدخل کتاب‌شناسی',
+                'url' => route('admin.source-links.index'),
             ];
         }
 

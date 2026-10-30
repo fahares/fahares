@@ -315,6 +315,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/catalog-references/{reference}/verify', [AdminCatalogReferenceController::class, 'verify'])->name('catalog-references.verify');
         Route::post('/catalog-references/{reference}/reject', [AdminCatalogReferenceController::class, 'reject'])->name('catalog-references.reject');
         Route::post('/catalog-references/{reference}/reopen', [AdminCatalogReferenceController::class, 'reopen'])->name('catalog-references.reopen');
+
+        // Works tied by machine to a printed entry of a bibliography (step 13.72): verify, reject or move to another entry
+        Route::get('/source-links', [\App\Http\Controllers\Admin\SourceLinkController::class, 'index'])->name('source-links.index');
+        Route::get('/source-links/{entry}', [\App\Http\Controllers\Admin\SourceLinkController::class, 'show'])->name('source-links.show');
+        Route::post('/source-links/{entry}/review', [\App\Http\Controllers\Admin\SourceLinkController::class, 'review'])->name('source-links.review');
+        Route::post('/source-links/{entry}/move', [\App\Http\Controllers\Admin\SourceLinkController::class, 'move'])->name('source-links.move');
     });
     Route::middleware('can:source_entries.edit')->group(function () {
         Route::get('/source-entries/{entry}/text', [\App\Http\Controllers\Admin\SourceEntryController::class, 'text'])->name('source-entries.text');
