@@ -4887,6 +4887,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - کانتینر پس از راه‌اندازی ۲۳۵ مگابایت مصرف داشت. حافظه‌ی در دسترس سرور از ۱٬۵۳۳ به ۲٬۵۵۵ مگابایت رسید.
 - **برگشت:** `docker rm -f fahares-meilisearch && docker rename fahares-meilisearch-old-20261030 fahares-meilisearch && docker update --restart=always fahares-meilisearch && docker start fahares-meilisearch`
 - **swap (کاربر با sudo اجرا کرد):** فایل swap چهارگیگابایتی `/swapfile` ساخته و در `/etc/fstab` ثبت شد. `vm.swappiness=10` هم در `/etc/sysctl.d/99-swappiness.conf` گذاشته شد. پس از آن کل swap ۵٬۱۱۹ مگابایت بود (۴٬۰۹۰ آزاد) و حافظه‌ی در دسترس ۲٬۹۱۱ مگابایت.
+- **`scout.chunk`:** از ۱۰۰۰ به ۲۵۰ رسید (`config/scout.php`).
+- **پاک‌سازی:** ۶ ایمیج قدیمی Coolify فهارس پاک شد و ایمیج جاری و قبلی ماندند. `docker builder prune -af` ۳٫۶ گیگابایت آزاد کرد و کانتینر `fahares-meilisearch-old-20261030` حذف شد. فضای آزاد دیسک از ۳۵ به ۴۰ گیگابایت رسید.
+- **ساخت در GitHub Actions** (`.github/workflows/image.yml`):
+  - **ساخت:** Nixpacks 1.41.0، همان نسخه‌ی `coolify-helper:1.0.19`. `NIXPACKS_*` برابر Coolify است، با `IS_LARAVEL=yes` و `--start-cmd "bash /app/docker/start.sh"`، و برچسب‌های `org.opencontainers.image.source` و `revision`.
+  - **آزمون دود:** PHP، `pdo_mysql`، nginx، `public/build/manifest.json` و `artisan --version`.
+  - **انتشار:** push به `ghcr.io/fahares/fahares:<sha>` و `:latest`. بسته عمومی است، چون مخزن عمومی است، و بی‌ورود کشیده می‌شود.
+  - **استقرار:** `POST $COOLIFY_URL/api/v1/deploy?uuid=9qjcshcsq1hcstpoorqvkew6`. `GET` پاسخ ۴۰۵ می‌دهد. توکن Coolify با دسترسی `deploy` و `read` در secret `COOLIFY_TOKEN` است و آدرس در متغیر مخزن `COOLIFY_URL`.
+- **Coolify:**
+  - در `applications` (id=1)، `build_pack` از `nixpacks` به `dockerimage` رفت، با `docker_registry_image_name=ghcr.io/fahares/fahares` و `docker_registry_image_tag=latest`.
+  - `application_settings.is_auto_deploy_enabled=false` شد، پس push دیگر ساخت روی سرور را راه نمی‌اندازد.
+  - دستور پس از استقرار (`storage:link && migrate --force`)، health check `/up` و دامنه‌ها دست نخوردند.
+  - **برگشت:** `build_pack='nixpacks'` و `is_auto_deploy_enabled=true`.
+- **وارسی:**
+  - **ساخت:** اجرای ۴۱۰۲۷۱۴۶۷۷۵ در ۲ دقیقه و ۲۸ ثانیه ساخت. اجرای ۴۱۰۶۰۱۷۶۰۹۴ ساخت و استقرار را با هم انجام داد.
+  - **استقرار:** استقرار ۳۳۷ Coolify از ۱۳:۰۶:۴۷ تا ۱۳:۰۹:۰۱ طول کشید. ایمیج کشیده شد، کانتینر در تلاش اول healthy بود و migrate پیام «Nothing to migrate» داد.
+  - **کانتینر:** برچسب revision کانتینر جاری `2eb52dc` است و `/up` کد ۲۰۰ داد. ایمیج تازه `.nixpacks/build.sh` ندارد و هیچ build-arg محرمانه‌ای در آن نیست.
 
 
 ### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
