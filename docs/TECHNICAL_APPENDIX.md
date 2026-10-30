@@ -4996,4 +4996,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `test_the_works_with_people_can_be_reindexed_alone`.
   - کل مجموعه ۴۶۹ آزمون موفق.
 - **انجام در پروداکشن (۸ آبان، `ssh fahares-app`):** کامیت `881bd8c` (با پیام step 13.76) مستقر شد و `scout:sync-index-settings` هر چهار نمایه را همگام کرد. `scout:import` آثار با `nohup` آغاز شد و با استقرار کامیت‌های دیگران (۱۷:۰۰) کشته شد. کامیت `0193460` مستقر شد و `fahares:reindex-work-people` ۴٬۵۰۶ اثر را نمایه کرد (`exit=0`). سپس کامیت دامنه‌ها push شد.
+  - **وارسی پس از استقرار دامنه‌ها (`64c95da`):** `fahares:search-benchmark` ۴۷ از ۴۷ است.
+  - روی fahares.net، جستجوی آثار «ناصرالدین شاه» در دامنه‌ی پیش‌فرض ۵۲۹ نتیجه دارد و در دامنه‌ی `people` ۴۶۴.
+  - «حنین بن اسحاق» ۷۷ و ۴۹ نتیجه دارد.
 
