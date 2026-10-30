@@ -61,8 +61,9 @@ class KnownRulers
     ];
 
     /**
-     * Spellings that name more than one ruler but mostly one (decided by the user, 8 Aban 1405). The work's year of
-     * composition, when known, picks the ruler whose lifetime holds it; outside every lifetime the name stays text.
+     * Spellings that name more than one ruler but mostly one (decided by the user, 8 Aban 1405). A death year in the
+     * field's own parentheses that ends one ruler's life (±1) picks him; else the work's year of composition, when
+     * known, picks the ruler whose lifetime holds it; outside every lifetime the name stays text.
      * With no year the usual one is taken, and when «doubt» is set the row is only probable and the note keeps the
      * other possibility.
      */
@@ -83,12 +84,13 @@ class KnownRulers
     private static ?array $bySpelling = null;
 
     /**
-     * The ruler a piece of the field names, given the work's year of composition: the LIST entry with the row's
-     * certainty and note, or null.
+     * The ruler a piece of the field names, given the work's year of composition and the death year the field's
+     * own parentheses give («(1052-1077ق)»): the LIST entry with the row's certainty and note, and for a USUALLY
+     * spelling the names of all its rulers (so an earlier row linked to another of them can be corrected), or null.
      *
-     * @return array{ruler: array, certainty: ?string, note: ?string}|null
+     * @return array{ruler: array, certainty: ?string, note: ?string, group: string[]}|null
      */
-    public static function find(string $piece, ?int $year = null): ?array
+    public static function find(string $piece, ?int $year = null, ?int $death = null): ?array
     {
         if (self::$bySpelling === null) {
             self::$bySpelling = [];
@@ -105,23 +107,32 @@ class KnownRulers
         }
         [$kind, $i] = self::$bySpelling[self::compact($piece)] ?? [null, null];
         if ($kind === 'list') {
-            return ['ruler' => self::LIST[$i], 'certainty' => null, 'note' => null];
+            return ['ruler' => self::LIST[$i], 'certainty' => null, 'note' => null, 'group' => []];
         }
         if ($kind !== 'usually') {
             return null;
         }
         $group = self::USUALLY[$i];
+        $names = array_column($group['rulers'], 'name');
+        // The field's own dates name the ruler: «شاه عباس صفوی (1052-1077ق)» is the second Abbas
+        if ($death) {
+            foreach ($group['rulers'] as $candidate) {
+                if (abs($death - $candidate['lived'][1]) <= 1) {
+                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null, 'group' => $names];
+                }
+            }
+        }
         if ($year) {
             foreach ($group['rulers'] as $candidate) {
                 if ($year >= $candidate['lived'][0] && $year <= $candidate['lived'][1]) {
-                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null];
+                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null, 'group' => $names];
                 }
             }
 
             return null;
         }
 
-        return ['ruler' => self::named($group['rulers'][0]['name']), 'certainty' => $group['doubt'] ? 'probable' : null, 'note' => $group['doubt']];
+        return ['ruler' => self::named($group['rulers'][0]['name']), 'certainty' => $group['doubt'] ? 'probable' : null, 'note' => $group['doubt'], 'group' => $names];
     }
 
     private static function named(string $name): array

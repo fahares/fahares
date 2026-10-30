@@ -115,6 +115,19 @@ class BackfillWorkDedicationsCommand extends Command
 
                 continue;
             }
+            // An earlier run linked «شاه عباس صفوی (1052-1077ق)» to the first Abbas before the dates were read
+            $others = [];
+            foreach ($person instanceof Person ? $usually['group'] : [] as $other) {
+                $others = array_merge($others, $this->matcher->ids($other));
+            }
+            $others = array_values(array_diff($others, [$person instanceof Person ? $person->id : 0]));
+            $note = implode('؛ ', array_filter([$usually['note'], $p['note']])) ?: null;
+            if ($person instanceof Person && $others && $relations->relinkRow($work, $role, $others, $person, PersonNameMatcher::certainty($p['hedge']) ?? $usually['certainty'], $note, $dry)) {
+                $this->count($role, 'relinked_ruler');
+                $this->example('relinked_ruler', "{$label} → #{$person->id} {$person->name}");
+
+                continue;
+            }
             if ($person instanceof Person && $relations->linkNameRow($work, $role, $name, $person, $dry)) {
                 $this->count($role, 'linked_existing_name');
                 $this->example('linked_existing_name', "{$label} → #{$person->id} {$person->name}");
@@ -133,7 +146,7 @@ class BackfillWorkDedicationsCommand extends Command
                 continue;
             }
             try {
-                $relations->addRole($work, $role, $person, $person ? null : $name, implode('؛ ', array_filter([$usually['note'], $p['note']])) ?: null, null, [
+                $relations->addRole($work, $role, $person, $person ? null : $name, $note, null, [
                     'certainty' => PersonNameMatcher::certainty($p['hedge']) ?? $usually['certainty'],
                     'hedge_raw' => $p['hedge'] ? mb_substr($p['hedge'], 0, 60) : null,
                     'source_entry_id' => $entry,
@@ -149,14 +162,14 @@ class BackfillWorkDedicationsCommand extends Command
      * or none (the reason), with the certainty and note a usual-but-not-sure spelling gives (KnownRulers::USUALLY).
      * In a dry run a ruler that would be created comes back as its name.
      *
-     * @return array{0: Person|string|null, 1: string, 2: array{certainty: ?string, note: ?string}}
+     * @return array{0: Person|string|null, 1: string, 2: array{certainty: ?string, note: ?string, group: string[]}}
      */
     private function person(string $name, ?int $death, ?int $year, bool $dry): array
     {
-        $none = ['certainty' => null, 'note' => null];
-        if ($found = KnownRulers::find($name, $year)) {
+        $none = ['certainty' => null, 'note' => null, 'group' => []];
+        if ($found = KnownRulers::find($name, $year, $death)) {
             $ruler = $found['ruler'];
-            $usually = ['certainty' => $found['certainty'], 'note' => $found['note']];
+            $usually = ['certainty' => $found['certainty'], 'note' => $found['note'], 'group' => $found['group']];
             $record = $this->ruler($ruler, $dry);
 
             return match (true) {

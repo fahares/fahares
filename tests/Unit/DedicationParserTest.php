@@ -63,6 +63,9 @@ class DedicationParserTest extends TestCase
         $this->assertSame(['عباس صفوی، شاه ایران', 'probable', 'شاید شاه عباس دوم'], array_values(self::flat(KnownRulers::find('شاه عباس صفوی'))));
         // A year in the second Abbas's lifetime picks him, and is sure
         $this->assertSame(['عباس صفوی دوم، شاه ایران', null, null], array_values(self::flat(KnownRulers::find('شاه عباس صفوی', 1060))));
+        // The field's own dates name the ruler, before the year of composition
+        $this->assertSame(['عباس صفوی دوم، شاه ایران', null, null], array_values(self::flat(KnownRulers::find('شاه عباس صفوی', null, 1077))));
+        $this->assertSame(['عباس صفوی، شاه ایران', null, null], array_values(self::flat(KnownRulers::find('شاه عباس', 1060, 1037))));
         // A year in neither lifetime: text
         $this->assertNull(KnownRulers::find('شاه عباس صفوی', 1040));
         // The first Tahmasp and the Qajar Mohammad Ali Shah are taken as they are, unless the year rules them out
