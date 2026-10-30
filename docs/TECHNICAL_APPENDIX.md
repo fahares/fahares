@@ -4978,3 +4978,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مهاجرت `2026_10_30_100001_reset_technical_notice_channels`:** ردیف‌های `notification_preferences` این پنج نوع را روی کانال‌های `mail`، `webpush`، `telegram` و `digest` پاک می‌کند. ‏`down` چیزی برنمی‌گرداند.
 - **آزمون:** `EventNoticesTest` (فاصله‌ی فزاینده و پیام برگشت؛ dry-run و دستور کوتاه؛ خلاصه‌ی فنی)، و انتظار کانال `UserRegisteredTest` به `['database']`.
 
+### گام ۱۳.۷۷: `related_people` در نمایه‌ی آثار
+- **[Work](../app/Models/Work.php):**
+  - **`relatedPeopleNames()`:** نام شخص پیوندخورده و `aliases` او، یا نام متنی سطر، نرمال‌شده و یکتا.
+  - **`toSearchableArray`:** `related_people` و `related_person_ids` را می‌افزاید. `makeAllSearchableUsing`، `workPeople.person:id,name,aliases` را پیشاپیش بار می‌کند.
+- **[config/scout.php](../config/scout.php):** `related_people` پس از `author_aliases` در `searchableAttributes` آمد، و `related_person_ids` در `filterableAttributes`.
+- **[SearchController](../app/Http/Controllers/SearchController.php):** `related_people` در پایان دامنه‌ی `titles_names` آثار آمد. دامنه‌ی فیلدی تازه‌ی `people` («مترجم، تقدیم‌شده به و…») هم فقط `related_people` را می‌گردد.
+- **[ContributorRelations](../app/Suggestions/ContributorRelations.php):** `addRole` (برای اثر)، `removeRole`، `linkNameRow` و `relinkRow` اثر را دوباره نمایه می‌کنند. `reindex()` پیش از آن `workPeople` را از رابطه‌های بارشده می‌زداید.
+- **ترتیب استقرار (پروداکشن، `ssh fahares-app`):**
+  1. **push کامیت نخست** (`feat(search): the people of a work … in its search document`). این کامیت جستجو را تغییر نمی‌دهد، چون دامنه‌ها هنوز `related_people` را نمی‌خواهند.
+  2. **`php artisan scout:sync-index-settings`.**
+  3. **`php artisan fahares:reindex-work-people`:** فقط آثاری که سطری در `work_people` دارند دوباره نمایه می‌شوند، در دسته‌های ۲۵۰تایی و با همان بارگذاری پیشاپیش `makeAllSearchableUsing`. سند آثار دیگر فیلد خالی می‌خواهد و نیازی به بازسازی ندارد. `scout:import` کامل در پروداکشن آزموده شد، ولی استقرارهای جلسه‌های دیگر کانتینر را عوض کردند و آن را کشتند.
+  4. **push کامیت دوم** (دامنه‌ها).
+  5. **`php artisan fahares:search-benchmark`.**
+- **آزمون:** در [WorkPeopleTest](../tests/Feature/WorkPeopleTest.php):
+  - `test_the_people_of_a_work_are_in_its_search_document`: سند، شناسه‌ها، دامنه‌ها، و جای فیلد میان فیلدهای جستجو.
+  - `test_the_works_with_people_can_be_reindexed_alone`.
+  - کل مجموعه ۴۶۹ آزمون موفق.
+- **انجام در پروداکشن (۸ آبان، `ssh fahares-app`):** کامیت `881bd8c` (با پیام step 13.76) مستقر شد و `scout:sync-index-settings` هر چهار نمایه را همگام کرد. `scout:import` آثار با `nohup` آغاز شد و با استقرار کامیت‌های دیگران (۱۷:۰۰) کشته شد. کامیت `0193460` مستقر شد و `fahares:reindex-work-people` ۴٬۵۰۶ اثر را نمایه کرد (`exit=0`). سپس کامیت دامنه‌ها push شد.
+
