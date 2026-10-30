@@ -27,9 +27,13 @@ class SourcePageViewTest extends TestCase
         $response = $this->get('/sources/monzavi/6/page/361')->assertOk()
             ->assertSee('<meta name="robots" content="noindex, follow">', false)
             ->assertSee('فهرستواره کتاب‌های فارسی، ج ۶، ص ۳۶۱', false)
-            // the entry that runs on from p. 360, then the three that start here, each heading a link to its entry
+            // the entry that runs on from p. 360, its label leading to that page; then the three that start here,
+            // whose headings link no work yet and so are not links: the entry's own page is only beside the sheet
+            ->assertSee('href="' . url('/sources/monzavi/6/page/360') . '" class="book-sheet__cont"', false)
             ->assertSee('ادامه‌ی «تحفة الامیر» از ص ۳۶۰', false)
-            ->assertSee('href="' . $items['361#2']->url() . '" class="book-sheet__heading"', false)
+            ->assertSee('<span class="book-sheet__heading" data-entry-heading>*تحفة الایادی.</span>', false)
+            ->assertSee('href="' . $items['361#2']->url() . '" class="flex', false)
+            ->assertDontSee('data-work-link', false)
             ->assertSee('همان سراینده و نویسندۀ پرکاری', false)
             ->assertSee('/sources/monzavi/6/page/360', false)
             ->assertSee('/sources/monzavi/6/page/362', false)
@@ -107,9 +111,21 @@ class SourcePageViewTest extends TestCase
             'page_start' => 194, 'page_end' => 194, 'text' => '( 972 : ترجمه تاريخ عباسه ) أصله لجرجى زيدان و المترجم ميرزا']);
 
         $response = $this->get('/sources/dharia-test/26/page/194')->assertOk()
-            ->assertSee('class="book-sheet__heading" data-entry-heading>[ ۹۷۲ ]</a>', false)
-            ->assertSee('<a href="' . $item->url() . '" class="book-sheet__heading book-sheet__heading--inline">( ترجمه تاريخ عباسه )</a> أصله لجرجى زيدان', false);
+            ->assertSee('<span class="book-sheet__heading" data-entry-heading>[ ۹۷۲ ]</span>', false)
+            ->assertSee('<span class="book-sheet__heading">( ترجمه تاريخ عباسه )</span> أصله لجرجى زيدان', false);
         $this->assertSame(['972'], $this->headings($response->getContent()));
+
+        // tied to a work, the title in parentheses leads to it, with ⓘ while the tie is a machine's
+        $work = Work::create(['primary_title' => 'ترجمه تاريخ عباسه', 'clean_title' => 'ترجمه تاريخ عباسه', 'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id, 'source_id' => $source->id, 'source_volume_id' => $volume->id,
+            'source_item_id' => $item->id, 'volume_number' => 26, 'page_start' => 194, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => SourceEntry::ORIGIN_MATCH,
+            'status' => SourceEntry::STATUS_UNVERIFIED, 'confidence' => 80]);
+        $html = $this->get('/sources/dharia-test/26/page/194')->assertOk()
+            ->assertSee('<span class="book-sheet__heading" data-entry-heading>[ ۹۷۲ ]</span>', false)
+            ->assertSee('<a href="' . route('works.show', $work) . '" class="book-sheet__heading book-sheet__heading--work" title="ترجمه تاريخ عباسه" data-work-link>( ترجمه تاريخ عباسه )</a>', false)
+            ->getContent();
+        // ⓘ by the heading and by the work beside the sheet
+        $this->assertSame(2, substr_count($html, 'rounded-full text-sky-700'));
     }
 
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
@@ -138,8 +154,17 @@ class SourcePageViewTest extends TestCase
         $this->get(route('works.show', $found))->assertOk()
             ->assertSee('href="' . url('/sources/monzavi/6/page/361') . '" title="متن صفحه در', false)
             ->assertSee($item->url(), false);
-        // the page lists the work tied to its entry
-        $this->get('/sources/monzavi/6/page/361')->assertSee(route('works.show', $found), false);
+        // the entry's heading on the page text leads to the work tied to it, with ⓘ; a second work shows «+۱»
+        $other = $this->work('تحفة الایادی (۲)', 'فهرستواره منزوی 361/6');
+        SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $other->id, 'source_id' => $volume->source_id, 'source_volume_id' => $volume->id,
+            'source_item_id' => $item->id, 'volume_number' => 6, 'page_start' => 361, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => SourceEntry::ORIGIN_MATCH,
+            'status' => SourceEntry::STATUS_UNVERIFIED, 'confidence' => 70]);
+        $html = $this->get('/sources/monzavi/6/page/361')->assertOk()
+            ->assertSee('<a href="' . route('works.show', $found) . '" class="book-sheet__heading book-sheet__heading--work" title="تحفة الایادی" data-entry-heading data-work-link>*تحفة الایادی.</a>', false)
+            ->assertSee('>+۱</a>', false)
+            ->assertSee(route('works.show', $other), false)
+            ->getContent();
+        $this->assertSame(1, substr_count($html, 'data-work-link'));
     }
 
     /** Monzavi's volume 6 pp. 360-362, its pages and entries as step 13.69 imports them. */
@@ -167,10 +192,10 @@ class SourcePageViewTest extends TestCase
         return $work;
     }
 
-    /** The keys of the entries whose headings the page links, in order. */
+    /** The keys of the entries whose headings start on the page, in order. */
     private function headings(string $html): array
     {
-        preg_match_all('/<section class="book-sheet__entry"\s+data-entry="([^"]+)"\s*>\s*<a href="[^"]+" class="book-sheet__heading"/u', $html, $m);
+        preg_match_all('/<section class="book-sheet__entry"\s+data-entry="([^"]+)"\s*>\s*<div class="book-sheet__headline">/u', $html, $m);
 
         return $m[1];
     }

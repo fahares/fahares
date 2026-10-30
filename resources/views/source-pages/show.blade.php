@@ -80,16 +80,32 @@
                                 [$title, $lines[1]] = [$m[1], $m[2]];
                             }
                         @endphp
+                        @php
+                            // the heading leads to the entry's work (ⓘ while a machine's guess), not to its text again
+                            $tied = $item ? ($works[$item->id] ?? collect()) : collect();
+                            $work = $tied->first();
+                            $workUrl = $work ? route('works.show', $work->citable) : null;
+                        @endphp
                         <section class="book-sheet__entry" @if($item) data-entry="{{ $item->item_key }}" @endif>
                             @if($block['continued'])
                                 @if($item)
-                                    <a href="{{ $item->url() }}" class="book-sheet__cont" data-entry-continued>ادامه‌ی «{{ $item->title ?: 'پیش‌گفتار' }}» از {{ Fa::digits($printed->unit() . ' ' . $item->page_start) }}</a>
+                                    <a href="{{ $item->pageUrl() }}" class="book-sheet__cont" data-entry-continued>ادامه‌ی «{{ $item->title ?: 'پیش‌گفتار' }}» از {{ Fa::digits($printed->unit() . ' ' . $item->page_start) }}</a>
                                 @endif
                                 <div class="whitespace-pre-line">{{ Fa::digits($block['text']) }}</div>
                             @else
-                                <a href="{{ $item->url() }}" class="book-sheet__heading" data-entry-heading>{{ Fa::digits($lines[0]) }}</a>
+                                <div class="book-sheet__headline">
+                                    @if($workUrl && ! $title)
+                                        <a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-entry-heading data-work-link>{{ Fa::digits($lines[0]) }}</a>
+                                    @else
+                                        <span class="book-sheet__heading" data-entry-heading>{{ Fa::digits($lines[0]) }}</span>
+                                    @endif
+                                    @if($work)
+                                        @if($work->isAwaitingReview())<x-ui.machine-badge class="ms-1 align-middle" :text="$work->machineNote()" :review="$work->badgeReview()" />@endif
+                                        @if($tied->count() > 1)<a href="#page-works" class="ms-1 font-sans text-xs text-muted hover:text-cinnabar" title="آثار دیگر این مدخل">{{ Fa::digits('+' . ($tied->count() - 1)) }}</a>@endif
+                                    @endif
+                                </div>
                                 @if($title)
-                                    <div class="whitespace-pre-line"><a href="{{ $item->url() }}" class="book-sheet__heading book-sheet__heading--inline">{{ Fa::digits($title) }}</a>{{ Fa::digits(rtrim($lines[1])) }}</div>
+                                    <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ Fa::digits($title) }}</a>@else<span class="book-sheet__heading">{{ Fa::digits($title) }}</span>@endif{{ Fa::digits(rtrim($lines[1])) }}</div>
                                 @elseif(isset($lines[1]) && trim($lines[1]) !== '')
                                     <div class="whitespace-pre-line">{{ Fa::digits(trim($lines[1], "\n")) }}</div>
                                 @endif
@@ -129,7 +145,7 @@
             </x-ui.card>
 
             @if($links->isNotEmpty())
-                <x-ui.card class="space-y-3">
+                <x-ui.card class="space-y-3" id="page-works">
                     <div class="text-xs text-muted">آثار فهارس</div>
                     @foreach($links as $link)
                         <div class="flex items-start gap-1 text-sm" data-machine-item="{{ $link->reviewKey() }}" data-item-link>

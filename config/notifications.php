@@ -13,6 +13,9 @@
 | group: site-level channels sent once per event, not per user (the reviewers' Telegram group, 'telegram';
 |        the admins' alerts chat, 'alerts')
 |
+| Technical alerts reach the admins at once only through the alerts chat; for each admin they are kept on the
+| site and gathered into the daily email (digest), so one event does not arrive four times.
+|
 | Channels: webpush needs a subscribed browser (any switchable type may use it, off by default), telegram a linked chat (backlog item 25); digest is not
 | sent per event but gathered into the daily email of `notifications:digest`.
 */
@@ -105,7 +108,7 @@ return [
         'user.registered' => [
             'label' => 'ثبت‌نام کاربر تازه',
             'permission' => 'users.manage',
-            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false, 'digest' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false, 'digest' => true],
         ],
         'user.role_changed' => [
             'label' => 'تغییر نقش کاربران',
@@ -116,30 +119,36 @@ return [
         'permissions.changed' => [
             'label' => 'تغییر دسترسی نقش‌ها در پنل مدیریت',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => true, 'webpush' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'digest' => true],
         ],
         'system.queue_failed' => [
             'label' => 'شکست کارهای صف (مانند ایمیل‌های اعلان)',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false, 'digest' => true],
             'group' => ['alerts'],
         ],
         'system.search_failed' => [
             'label' => 'خطای نمایه‌ی جستجو (Meilisearch)',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false, 'digest' => true],
             'group' => ['alerts'],
         ],
         'system.command_finished' => [
-            'label' => 'پایان دستورهای سنگین روی سرور (نمایه‌سازی، فهرست‌ها)',
+            'label' => 'پایان دستورهای طولانی روی سرور (نمایه‌سازی، فهرست‌ها)، و شکست آن‌ها',
             'roles' => ['admin'],
-            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false, 'digest' => true],
             'group' => ['alerts'],
         ],
     ],
 
-    // Artisan commands whose end is announced on production (system.command_finished); * matches any tail
+    // Artisan commands whose end is announced on production (system.command_finished); * matches any tail.
+    // A dry run is never announced, nor a successful run shorter than heavy_command_min_minutes; a failure always is.
     'heavy_commands' => ['scout:import', 'scout:sync-index-settings', 'catalogs:*', 'sources:*', 'fahares:seed'],
+    'heavy_command_min_minutes' => 10,
+
+    // The technical alerts (system.queue_failed, system.search_failed): the first goes at once, a failure that
+    // goes on is told again after each of these waits in turn (the last repeats); a quiet day starts afresh
+    'alert_backoff_hours' => [1, 4, 24],
 
     // A browser just subscribed switches on its column for these types only; the others stay as the user set them
     'push_on_subscribe' => ['suggestion.submitted', 'suggestion.reviewed'],

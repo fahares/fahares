@@ -115,6 +115,37 @@ class EventNoticesTest extends TestCase
         $this->assertSame([], $this->sentTypes($editor));
     }
 
+    public function test_a_failure_that_goes_on_is_told_again_after_growing_waits_and_its_recovery_once(): void
+    {
+        Notification::fake();
+        Cache::flush();
+        $admin = $this->user('admin');
+        $fail = fn () => SystemNotices::searchFailed(new \RuntimeException('Meilisearch unreachable'));
+
+        $fail();
+        $this->travel(61)->minutes();
+        $fail();
+        $this->travel(3)->hours();
+        $fail();
+        $this->assertCount(2, $this->sentTypes($admin));
+        $this->travel(62)->minutes();
+        $fail();
+        $this->assertCount(3, $this->sentTypes($admin));
+
+        $this->mock(\Meilisearch\Client::class, fn ($m) => $m->shouldReceive('isHealthy')->andReturn(true));
+        SystemNotices::checkSearchRecovered();
+        $this->assertCount(3, $this->sentTypes($admin), 'a failure in the last ten minutes');
+        $this->travel(11)->minutes();
+        SystemNotices::checkSearchRecovered();
+        SystemNotices::checkSearchRecovered();
+        Notification::assertSentToTimes($admin, Notice::class, 4);
+        Notification::assertSentTo($admin, Notice::class, fn (Notice $n) => $n->heading === 'جستجو دوباره کار می‌کند');
+
+        // The next failure starts afresh, at the first wait
+        $fail();
+        Notification::assertSentToTimes($admin, Notice::class, 5);
+    }
+
     public function test_the_end_of_a_heavy_command_is_announced_only_for_listed_commands(): void
     {
         $this->assertTrue(SystemNotices::isHeavy('scout:import'));
@@ -125,6 +156,13 @@ class EventNoticesTest extends TestCase
         $admin = $this->user('admin');
         SystemNotices::commandFinished('scout:import "App\Models\Work"', 1, 120);
         Notification::assertSentTo($admin, Notice::class, fn (Notice $n, array $channels) => $n->type() === 'system.command_finished' && $channels === ['database'] && str_contains($n->heading, 'شکست'));
+
+        // A dry run, or a short successful run, is not announced; a long one is
+        SystemNotices::commandFinished('sources:link-items --dry-run', 1, 900);
+        SystemNotices::commandFinished('sources:link-items 26', 0, 120);
+        Notification::assertSentToTimes($admin, Notice::class, 1);
+        SystemNotices::commandFinished('scout:import "App\Models\Work"', 0, 900);
+        Notification::assertSentTo($admin, Notice::class, fn (Notice $n) => str_contains($n->heading, 'پایان دستور'));
     }
 
     public function test_editing_a_record_with_pending_suggestions_tells_the_other_reviewers(): void
@@ -172,6 +210,21 @@ class EventNoticesTest extends TestCase
         $this->artisan('notifications:digest')->assertSuccessful();
         Notification::assertSentTo($admin, DailyDigest::class, fn (DailyDigest $d) => isset($d->sections['نظرهای تصحیح جمعی'], $d->sections['کاربران تازه']) && ! isset($d->sections['پیشنهادهای تازه']));
         Notification::assertNotSentTo($plain, DailyDigest::class);
+    }
+
+    public function test_the_daily_digest_gathers_the_admins_technical_notices(): void
+    {
+        $admin = $this->user('admin');
+        foreach (['شکست دستور: sources:segment', 'شکست دستور: sources:segment', 'خطای نمایه‌ی جستجو'] as $i => $title) {
+            $admin->notifications()->create(['id' => (string) \Illuminate\Support\Str::uuid(), 'type' => Notice::class,
+                'data' => ['type' => $i < 2 ? 'system.command_finished' : 'system.search_failed', 'title' => $title, 'body' => '', 'url' => '/']]);
+        }
+        $this->assertFalse(NotificationPreferences::enabled($admin, 'system.queue_failed', 'mail'));
+
+        Notification::fake();
+        $this->artisan('notifications:digest')->assertSuccessful();
+        Notification::assertSentTo($admin, DailyDigest::class, fn (DailyDigest $d) => ($d->sections['دستورهای سرور'] ?? null) === ['شکست دستور: sources:segment (2 بار)']
+            && ($d->sections['نمایه‌ی جستجو'] ?? null) === ['خطای نمایه‌ی جستجو']);
     }
 
     public function test_a_telegram_chat_links_through_the_start_token_and_receives_its_channel(): void

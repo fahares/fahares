@@ -28,11 +28,14 @@ class SourcePageController extends Controller
             return redirect()->route('source-pages.show', [$code, $other, $page], 301);
         }
 
-        // the works tied to the page's entries, a person's review first; a rejected tie is gone
-        $links = SourceEntry::with(['citable', 'sourceItem'])->whereIn('source_item_id', $printed->items->pluck('id'))->where('citable_type', Work::class)
+        // the works tied to the page's entries, a person's review first; a rejected tie is gone. An entry's heading
+        // links its first work, so the page leads to the records rather than to the entry's text again
+        $ties = SourceEntry::with(['citable', 'sourceItem'])->whereIn('source_item_id', $printed->items->pluck('id'))->where('citable_type', Work::class)
             ->where('status', '!=', SourceEntry::STATUS_REJECTED)->orderByRaw('status = ? desc', [SourceEntry::STATUS_VERIFIED])
-            ->orderByDesc('confidence')->get()->filter(fn ($l) => $l->citable)->unique('citable_id')->values();
+            ->orderByDesc('confidence')->get()->filter(fn ($l) => $l->citable);
+        $links = $ties->unique('citable_id')->values();
+        $works = $ties->groupBy('source_item_id')->map(fn ($l) => $l->unique('citable_id')->values());
 
-        return view('source-pages.show', ['printed' => $printed, 'links' => $links]);
+        return view('source-pages.show', ['printed' => $printed, 'links' => $links, 'works' => $works]);
     }
 }

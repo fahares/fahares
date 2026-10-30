@@ -354,13 +354,15 @@ body {
 }
 .book-sheet__entry + .book-sheet__entry { margin-top: 1.1rem; }
 .book-sheet__heading {
-    display: block;
     font-weight: 700;
     color: var(--ink);
-    transition: color 0.15s;
 }
-.book-sheet__heading:hover { color: var(--cinnabar); }
-.book-sheet__heading--inline { display: inline; }
+/* a heading that leads to the entry's work: the ink stays, a faint rule under it says it is a link */
+.book-sheet__heading--work {
+    border-bottom: 1px solid color-mix(in srgb, var(--cinnabar) 35%, transparent);
+    transition: color 0.15s, border-color 0.15s;
+}
+.book-sheet__heading--work:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
 .book-sheet__cont {
     display: inline-block;
     margin-bottom: 0.25rem;

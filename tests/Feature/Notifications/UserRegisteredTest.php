@@ -41,7 +41,7 @@ class UserRegisteredTest extends TestCase
         Notification::assertSentTo($admin, UserRegistered::class, function (UserRegistered $n, array $channels) use ($admin, $new) {
             $data = $n->toArray($admin);
 
-            return $n->user->is($new) && $channels === ['database', 'mail']
+            return $n->user->is($new) && $channels === ['database']
                 && str_contains($data['body'], 'دانشگاه تهران') && str_contains($data['body'], 'فرم ثبت‌نام')
                 && str_contains($data['body'], '+989121234567') && $data['url'] === route('admin.users.edit', $new);
         });
