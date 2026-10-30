@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class SourceController extends Controller
 {
     /** The kinds in the order the index shows them. */
-    private const KINDS = [Source::KIND_UNION_CATALOGUE, Source::KIND_LIBRARY_CATALOGUE, Source::KIND_BIBLIOGRAPHY, Source::KIND_BIOGRAPHICAL, Source::KIND_OTHER];
+    private const KINDS = [Source::KIND_BIBLIOGRAPHY, Source::KIND_BIOGRAPHICAL, Source::KIND_UNION_CATALOGUE, Source::KIND_LIBRARY_CATALOGUE, Source::KIND_OTHER];
 
     public function index()
     {
@@ -30,7 +30,7 @@ class SourceController extends Controller
 
     public function show(string $code)
     {
-        $source = Source::with(['library', 'volumes', 'editionOf', 'editions'])->where('code', $code)->firstOrFail();
+        $source = Source::with(['library', 'volumes.catalogers', 'editionOf', 'editions'])->where('code', $code)->firstOrFail();
         $counts = SourceShelf::counts()[$source->id] ?? ['works' => 0, 'manuscripts' => 0, 'items' => 0, 'pages' => 0];
         $volumeIds = $source->volumes->pluck('id');
         $pages = DB::table('source_pages')->whereIn('source_volume_id', $volumeIds)->selectRaw('source_volume_id, count(*) n, min(page) first_page')
@@ -50,6 +50,9 @@ class SourceController extends Controller
                 'volume' => $v->volume_number, 'page' => (int) ($v->page_first ?: $first ?: 1)] : null,
         ]);
 
-        return view('sources.show', compact('source', 'counts', 'volumes', 'images'));
+        // a book in one volume has no list of volumes: its one volume's buttons and catalogers go in the header
+        $single = $source->volumes_count === 1 && $volumes->count() === 1 ? $volumes->first() : null;
+
+        return view('sources.show', compact('source', 'counts', 'volumes', 'images', 'single'));
     }
 }

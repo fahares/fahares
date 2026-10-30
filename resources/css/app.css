@@ -370,6 +370,16 @@ body {
 }
 .book-sheet__mark--work { font-weight: 700; color: var(--ink); }
 .book-sheet__mark:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+/* a line wholly in Latin letters (Fankha's transliteration) reads left to right, on a line of its own */
+.book-sheet__latin {
+    display: inline-block;
+    width: 100%;
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+    font-family: var(--font-sans);
+    font-size: 0.9em;
+}
 /* a page printed in two columns (Fankha): two columns with a rule between, one on a narrow screen */
 @media (min-width: 768px) {
     .book-sheet--columns .book-sheet__body {

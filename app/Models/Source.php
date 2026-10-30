@@ -59,6 +59,19 @@ class Source extends Model
         return ($this->metadata['images'] ?? true) !== false;
     }
 
+    /**
+     * The cover of the printed book (step 13.81): public/images/sources/covers/{code}.webp, mostly from mtif.org
+     * (scripts/sources/mtif_covers.py); a printing without its own shows the book's.
+     */
+    public function coverUrl(): ?string
+    {
+        if (is_file(public_path("images/sources/covers/{$this->code}.webp"))) {
+            return asset("images/sources/covers/{$this->code}.webp");
+        }
+
+        return $this->edition_of_id ? $this->editionOf?->coverUrl() : null;
+    }
+
     public function volumes(): HasMany
     {
         return $this->hasMany(SourceVolume::class)->orderBy('volume_number')->orderBy('id');

@@ -7,6 +7,14 @@
     $name = $source->short_name ?: $source->title;
     $kind = Source::KIND_LABELS[$source->kind] ?? 'منبع';
     $about = array_filter([$source->compiler, $source->publisher, $source->edition_label]);
+    // «سید احمد حسینی اشکوری؛ زیر نظر سید محمود مرعشی», each name linking the cataloger
+    $catalogers = function ($volume) {
+        $link = fn ($c) => '<a href="' . e(route('catalogers.show', $c)) . '" class="text-ink hover:text-cinnabar">' . e($c->display_name ?? $c->name) . '</a>';
+        $by = $volume->catalogers->where('pivot.role', '!=', 'supervisor')->map($link)->implode('، ');
+        $over = $volume->catalogers->where('pivot.role', 'supervisor')->map($link)->implode('، ');
+
+        return new \Illuminate\Support\HtmlString(implode('؛ ', array_filter([$by, $over ? 'زیر نظر ' . $over : null])));
+    };
 @endphp
 
 @section('title', $source->title . ' | منابع و مراجع فهارس')
@@ -24,6 +32,9 @@
         <span class="text-ink font-semibold">{{ $name }}</span>
     </nav>
 
+    @if($cover = $source->coverUrl())
+        <img src="{{ $cover }}" alt="جلد {{ $source->title }}" class="mx-auto w-32 sm:w-40 border border-line shadow-[0_10px_30px_-12px_rgba(74,52,24,0.45)]" data-source-cover>
+    @endif
     <header class="text-center grid justify-items-center gap-2 pb-4">
         <p class="text-xs font-bold text-cinnabar">{{ $kind }}</p>
         <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">{{ $source->title }}</h1>
@@ -40,7 +51,12 @@
             @if($counts['items'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['items']) }}</span> مدخل چاپی</span>@endif
             @if($counts['pages'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['pages']) }}</span> صفحه‌ی متن</span>@endif
         </div>
+        @if($single && $single['volume']->catalogers->isNotEmpty())
+            <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }}</p>
+        @endif
         <div class="flex flex-wrap justify-center gap-2 mt-2">
+            @if($single && $single['read'])<x-ui.btn size="sm" variant="primary" :href="$single['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
+            @if($single && $single['viewer'])<x-ui.btn size="sm" x-data x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($single['viewer']) }})">دیدن برگه‌ها</x-ui.btn>@endif
             @if($counts['items'])
                 <x-ui.btn size="sm" :href="route('search', ['type' => 'sources', 'source_id' => $source->id])">جستجو در مدخل‌های این منبع</x-ui.btn>
             @endif
@@ -66,6 +82,7 @@
         </x-ui.section>
     @endif
 
+    @unless($single)
     <x-ui.section title="جلدها" :count="$volumes->count()">
         <ul class="divide-y divide-line border-y border-line" data-source-volumes>
             @foreach($volumes as $row)
@@ -76,6 +93,7 @@
                         @if($v->title && $v->title !== $source->title){{ Fa::digits($v->title) }} · @endif
                         @if($row['pages']){{ Fa::num($row['pages']) }} صفحه‌ی متن @elseif($row['items']){{ Fa::num($row['items']) }} مدخل @endif
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
+                        @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif
                     </span>
                     <span class="flex flex-wrap gap-2">
                         @if($row['read'])<x-ui.btn size="sm" :href="$row['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
@@ -85,5 +103,6 @@
             @endforeach
         </ul>
     </x-ui.section>
+    @endunless
 </div>
 @endsection

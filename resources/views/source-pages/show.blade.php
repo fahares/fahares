@@ -96,9 +96,9 @@
                                     {{-- a catalogue's page: its works' headings and its copies' lines link their records --}}
                                     <div class="whitespace-pre-line">{!! collect(\App\Support\PrintedPage::pieces($block))->map(fn ($p) => isset($p['url'])
                                         ? '<a href="' . e($p['url']) . '" class="book-sheet__mark book-sheet__mark--' . $p['kind'] . '" title="' . e($p['title']) . '" data-record-link="' . $p['kind'] . '">' . e(Fa::digits($p['text'])) . '</a>'
-                                        : e(Fa::digits($p['text'])))->implode('') !!}</div>
+                                        : (string) \App\Support\PrintedPage::text($p['text']))->implode('') !!}</div>
                                 @else
-                                    <div class="whitespace-pre-line">{{ Fa::digits($block['text']) }}</div>
+                                    <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text($block['text']) }}</div>
                                 @endif
                             @else
                                 <div class="book-sheet__headline">
@@ -115,7 +115,7 @@
                                 @if($title)
                                     <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ Fa::digits($title) }}</a>@else<span class="book-sheet__heading">{{ Fa::digits($title) }}</span>@endif{{ Fa::digits(rtrim($lines[1])) }}</div>
                                 @elseif(isset($lines[1]) && trim($lines[1]) !== '')
-                                    <div class="whitespace-pre-line">{{ Fa::digits(trim($lines[1], "\n")) }}</div>
+                                    <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text(trim($lines[1], "\n")) }}</div>
                                 @endif
                             @endif
                         </section>

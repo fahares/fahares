@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -28,6 +29,12 @@ class SourceVolume extends Model
     public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class);
+    }
+
+    /** Who catalogued the volume, and under whose supervision: a source volume shares its id with its catalog volume. */
+    public function catalogers(): BelongsToMany
+    {
+        return $this->belongsToMany(Cataloger::class, 'catalog_volume_cataloger', 'catalog_volume_id', 'cataloger_id')->withPivot('role');
     }
 
     public function editionOf(): BelongsTo

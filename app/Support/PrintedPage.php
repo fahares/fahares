@@ -8,6 +8,7 @@ use App\Models\SourceEntry;
 use App\Models\SourceItem;
 use App\Models\SourceVolume;
 use Illuminate\Support\Collection;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -71,6 +72,17 @@ class PrintedPage
     public function columns(): int
     {
         return (int) config("catalogs.columns.{$this->source->code}", 1);
+    }
+
+    /**
+     * A piece of the page's text as HTML: escaped, in Persian digits, and a line wholly in Latin letters (Fankha's
+     * transliteration, «erjā‘-ol-mote‘allemīn») set left to right with its own digits.
+     */
+    public static function text(string $text): HtmlString
+    {
+        return new HtmlString(implode("\n", array_map(fn (string $line) => preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
+            ? '<span dir="ltr" class="book-sheet__latin">' . e($line) . '</span>'
+            : e(Fa::digits($line)), explode("\n", $text))));
     }
 
     /**

@@ -48,7 +48,12 @@
                         $haystack = mb_strtolower($source->title . ' ' . $source->short_name . ' ' . $source->library?->display_name . ' ' . $source->compiler);
                     @endphp
                     <li x-show="! q || @js($haystack).includes(q.toLowerCase())" class="py-2 border-b border-line" data-source="{{ $source->code }}">
-                        <a href="{{ route('sources.show', $source->code) }}" class="group block">
+                        <a href="{{ route('sources.show', $source->code) }}" class="group flex items-start gap-3">
+                            @php $cover = $source->coverUrl(); @endphp
+                            <span class="w-9 h-12 shrink-0 border border-line bg-paper overflow-hidden" aria-hidden="true">
+                                @if($cover)<img src="{{ $cover }}" alt="" loading="lazy" class="w-full h-full object-cover">@else<span class="block w-full h-full border-s-4 border-gold/40"></span>@endif
+                            </span>
+                            <span class="min-w-0">
                             <span class="flex items-baseline gap-2">
                                 <span class="font-bold text-ink group-hover:text-cinnabar transition leading-7">{{ $source->title }}</span>
                                 @if($text)<span class="shrink-0 px-1.5 text-[10px] font-bold text-gold border border-gold/50 rounded-sm" title="متن صفحه‌ها در سایت هست">متن</span>@endif
@@ -57,9 +62,10 @@
                             <span class="block text-xs text-muted">
                                 {{ $source->library?->display_name ?? $source->compiler }}
                                 @if($source->editions->isNotEmpty())· {{ Fa::num($source->editions->count() + 1) }} چاپ@endif
-                                @if($source->volumes->count() > 1)· {{ Fa::num($source->volumes->count()) }} جلد@endif
+                                @if(($source->volumes_count ?? $source->volumes->count()) > 1)· {{ Fa::num($source->volumes_count ?? $source->volumes->count()) }} جلد@endif
                                 @if($n = $sum($source, 'manuscripts'))· {{ Fa::num($n) }} نسخه@endif
                                 @if($n = $sum($source, 'works'))· {{ Fa::num($n) }} اثر@endif
+                            </span>
                             </span>
                         </a>
                     </li>

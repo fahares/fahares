@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Cataloger;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Source;
@@ -48,6 +49,59 @@ class SourcesShelfTest extends TestCase
         // the library's page lists its catalogue
         $this->get(route('libraries.show', $library))->assertOk()->assertSee('data-library-catalogues', false)
             ->assertSee(route('sources.show', $catalogue->code), false);
+    }
+
+    public function test_bibliographies_and_biographies_come_first()
+    {
+        $this->catalogue();
+        $bib = Source::create(['code' => 'bib-test', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'کتاب‌شناسی آزمون']);
+        SourceEntry::create(['citable_type' => Work::class, 'citable_id' => Work::first()->id, 'source_id' => $bib->id, 'volume_number' => 1, 'page_start' => 1,
+            'role' => SourceEntry::ROLE_CITATION, 'origin' => 'bibliography', 'status' => SourceEntry::STATUS_VERIFIED]);
+
+        $html = $this->get('/sources')->assertOk()->getContent();
+        $this->assertLessThan(strpos($html, 'data-source-kind="' . Source::KIND_LIBRARY_CATALOGUE . '"'), strpos($html, 'data-source-kind="' . Source::KIND_BIBLIOGRAPHY . '"'));
+    }
+
+    public function test_a_book_in_one_volume_has_no_list_of_volumes_and_each_volume_names_its_catalogers()
+    {
+        [$catalogue, $volume] = $this->catalogue();
+        $cataloger = Cataloger::create(['name' => 'رضا استادی', 'slug' => 'ostadi-' . uniqid()]);
+        $supervisor = Cataloger::create(['name' => 'سید محمود مرعشی', 'slug' => 'marashi-' . uniqid()]);
+        // a source volume shares its id with its catalog volume, which holds the catalogers
+        DB::table('catalog_volumes')->insert(['id' => $volume->id, 'title' => $catalogue->title, 'volume_number' => 1]);
+        DB::table('catalog_volume_cataloger')->insert([
+            ['catalog_volume_id' => $volume->id, 'cataloger_id' => $cataloger->id, 'role' => 'cataloger'],
+            ['catalog_volume_id' => $volume->id, 'cataloger_id' => $supervisor->id, 'role' => 'supervisor'],
+        ]);
+
+        // two volumes: a list, each with its catalogers
+        $catalogue->update(['volumes_count' => 2]);
+        $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('data-source-volumes', false)
+            ->assertSee('data-volume-catalogers', false)->assertSee('رضا استادی', false)->assertSee('زیر نظر', false)
+            ->assertSee(route('catalogers.show', $cataloger), false);
+
+        // a book in one volume: its buttons and catalogers in the header
+        $catalogue->update(['volumes_count' => 1]);
+        $this->get('/sources/' . $catalogue->code)->assertOk()->assertDontSee('data-source-volumes', false)
+            ->assertSee('data-read-volume', false)->assertSee('فهرست‌نگار:', false);
+    }
+
+    public function test_a_source_shows_its_cover_and_a_printing_without_one_shows_the_books()
+    {
+        [$catalogue] = $this->catalogue();
+        $edition = Source::create(['code' => $catalogue->code . '-e', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'چاپ دیگر', 'edition_of_id' => $catalogue->id]);
+        $this->assertNull($catalogue->coverUrl());
+
+        $file = public_path("images/sources/covers/{$catalogue->code}.webp");
+        @mkdir(dirname($file), 0777, true);
+        file_put_contents($file, 'webp');
+        try {
+            $this->assertSame(asset("images/sources/covers/{$catalogue->code}.webp"), $catalogue->coverUrl());
+            $this->assertSame($catalogue->coverUrl(), $edition->fresh()->coverUrl());
+            $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('data-source-cover', false);
+        } finally {
+            @unlink($file);
+        }
     }
 
     public function test_the_sitemap_lists_the_index_and_the_sources_but_not_their_page_texts()

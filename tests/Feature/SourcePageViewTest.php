@@ -161,6 +161,8 @@ class SourcePageViewTest extends TestCase
             ->assertSee('آثار این صفحه', false)
             ->assertSee('<a href="' . route('manuscripts.show', $copies[0]) . '" class="book-sheet__mark book-sheet__mark--manuscript"', false)
             ->assertSee('data-record-link="manuscript">۱. تهران؛ مجلس؛ شماره نسخه: ۷۷۲۸</a>', false)
+            // a transliteration reads left to right, with its own digits
+            ->assertSee('<span dir="ltr" class="book-sheet__latin">al-arba‘ūn-a ḥadīṯā</span>', false)
             ->getContent();
         // the heading printed twice links each work in turn
         preg_match_all('/<a href="([^"]+)" class="book-sheet__mark book-sheet__mark--work"/u', $html, $m);
