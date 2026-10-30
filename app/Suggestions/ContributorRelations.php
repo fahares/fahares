@@ -150,6 +150,24 @@ class ContributorRelations
         ];
     }
 
+    /**
+     * A name a backfill kept as text («فقط نام») is linked to the person it now confidently is, instead of a
+     * second row beside it. Rows a reviewer added (suggestion_id) are left as they are. Returns the row's id.
+     */
+    public function linkNameRow(Work $work, string $role, string $name, Person $person, bool $dry = false): ?int
+    {
+        $row = $work->workPeople()->where('role', $role)->whereNull('person_id')->whereNull('suggestion_id')->where('name', $name)->first();
+        if (! $row || $dry) {
+            return $row?->id;
+        }
+        $row->update(['person_id' => $person->id, 'name' => null]);
+        if ($role === 'translator' && ! $person->is_translator) {
+            $person->update(['is_translator' => true]);
+        }
+
+        return $row->id;
+    }
+
     /** One of the work's people rows is deleted; the audit log keeps the whole row, so a rollback puts it back. */
     public function removeRole(Work $work, int $rowId): array
     {
