@@ -4917,6 +4917,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **هشدار:** اگر دامنه‌ی instance عوض شود، این فایل خودکار به‌روز نمی‌شود.
   - **نتیجه:** `COOLIFY_URL` به `https://coolify.fahares.net` رفت. استقرار ۳۳۹ با فراخوانی HTTPS در ۴۲ ثانیه تمام شد، چون لایه‌ها از پیش کشیده شده بودند. پورت ۸۰۰۰ هنوز باز است.
 - **build-time:** `is_buildtime` از ۴۶ ردیف `environment_variables` برنامه برداشته شد (به‌جز `NIXPACKS_*`)، چون ساخت دیگر در Coolify نیست. `is_runtime` دست نخورد. استقرار ۳۴۰ (۱۳:۳۵ تا ۱۳:۳۷) نشان داد `APP_KEY`، `DB_PASSWORD` و `MEILISEARCH_KEY` در کانتینر هستند. `/up` و `/search` کد ۲۰۰ دادند.
+- **webhook قدیمی:** webhook مخزن گیت‌هاب (`http://162.35.127.157:8000/webhooks/source/github/events/manual`، رویداد push) با تأیید کاربر حذف شد. استقرار حالا فقط از GitHub Actions راه می‌افتد.
 
 
 ### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
