@@ -5022,3 +5022,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. فایل‌های `../fahares-sources/fankha/pages/*.jsonl.gz` (۵۲ مگابایت) به `/tmp/fankha-pages/` کانتینر برده شوند.
   2. برای N از ۱ تا ۳۴: `php artisan sources:import-pages fankha /tmp/fankha-pages/NN.jsonl.gz --volume=N`.
   3. نمایه‌ی جستجو لازم نیست، چون `source_pages` نمایه نمی‌شود.
+- **اجرای پروداکشن (۹ آبان):**
+  - فایل‌ها با `tar` از راه `ssh fahares-app` به `/tmp/fankha-pages` رفتند و `md5sum -c` درست بود.
+  - هر ۳۴ جلد وارد شد (۳۳٬۵۱۸ ردیف `source_pages` برای منبع ۱)، و پس از آن پوشه‌ی موقت پاک شد.
+  - زمان تا نخستین بایت صفحه‌ی فنخا ۱ تا ۱٫۳ ثانیه بود. برای `/up` همین زمان ۰٫۹ ثانیه بود، پس بیشترش تأخیر شبکه است.
