@@ -8,7 +8,7 @@ use App\Support\SourceShelf;
 use Illuminate\Support\Facades\DB;
 
 /**
- * «منابع و مراجع» (step 13.79): every source the site is made from or ties its records to, by kind (/sources), and one
+ * «منابع و مراجع» (step 13.80): every source the site is made from or ties its records to, by kind (/sources), and one
  * source with its volumes, where to start reading its text or turning its page images (/sources/fankha).
  */
 class SourceController extends Controller

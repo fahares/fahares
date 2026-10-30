@@ -204,7 +204,7 @@ class SitemapController extends Controller
             'changefreq' => 'weekly',
             'priority' => '0.6',
         ];
-        // each source the site has something of (step 13.79); its page texts stay out (noindex)
+        // each source the site has something of (step 13.80); its page texts stay out (noindex)
         $shelf = \App\Support\SourceShelf::counts();
         foreach (\App\Models\Source::orderBy('id')->get(['id', 'code', 'updated_at']) as $source) {
             if (array_sum($shelf[$source->id] ?? []) > 0) {

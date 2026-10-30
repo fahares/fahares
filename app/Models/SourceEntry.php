@@ -467,7 +467,7 @@ class SourceEntry extends Model
 
     /**
      * The text of the printed page the entry is on, for any source whose page texts or entries the site has: «متن
-     * صفحه» beside «دیدن برگه» on the record page (step 13.79).
+     * صفحه» beside «دیدن برگه» on the record page (step 13.80).
      */
     public function pageTextUrl(): ?string
     {

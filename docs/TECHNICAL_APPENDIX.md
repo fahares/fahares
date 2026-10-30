@@ -5022,12 +5022,52 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. فایل‌های `../fahares-sources/fankha/pages/*.jsonl.gz` (۵۲ مگابایت) به `/tmp/fankha-pages/` کانتینر برده شوند.
   2. برای N از ۱ تا ۳۴: `php artisan sources:import-pages fankha /tmp/fankha-pages/NN.jsonl.gz --volume=N`.
   3. نمایه‌ی جستجو لازم نیست، چون `source_pages` نمایه نمی‌شود.
+
+### گام ۱۳.۷۹: افزودن آثار تازه‌ی v2
+- **وارسی:**
+  - بسته‌ها و نتیجه‌ها در `fahares-corpus/reports/fankha_v2_db_review3/new_works_check/` است: `INSTRUCTIONS.md`، `build.py`، `batch1-5.json` و `result1-5.json`.
+  - هر نتیجه این فیلدها را دارد: `heading`، `copies_ok`، `same_as_site_work`، `site_placement_right`، `doubt` و `note`.
+  - وارسی اثرهای خالی‌شده: اثرهای سایتی که همه‌ی نسخه‌هایشان از آنِ یک اثر تازه است (۱۳ مورد). ۳ مورد همان مدخل بودند و ۱۰ مورد مدخل قبلی.
+- **[fankha_v2_new_works_export.py](../../fahares-corpus/scripts/fankha_v2_new_works_export.py)** (پیکره `18b7628` و پس از آن):
+  - ورودی `new_works_plan.json` است. خروجی [`database/data/fankha_new_works_20261030.json`](../database/data/fankha_new_works_20261030.json) سه بخش دارد: `works`، `fills` و `work_updates`.
+  - **عنوان:** `primary_title` برابر `title_line` است و `clean_title` برابر `title`.
+  - **`raw_text` اثر:** سطرهای متن از سرآغاز مدخل تا پیش از نخستین نسخه، بی‌برچسب صفحه.
+  - **ستون‌های نسخه:** از `fankha_v2_rebuild_export.values`. نسخه‌ی بی‌شماره `sequence_number = 1` می‌گیرد.
+  - **ثابت‌ها:** `SAME_ON_SITE` (کلیدهای v2)، `EMPTIED_IDS` و `WORK_FIXES`. شناسه‌های محلی فقط برای خواندن slug به کار می‌روند.
+- **[fahares:add-corpus-works](../app/Console/Commands/AddCorpusWorksCommand.php):**
+  - **پیدا کردن رکوردها:**
+    - اثر تازه با پسوند slug پیدا می‌شود و اگر پسوند گرفته شده باشد، رد می‌شود.
+    - نسخه‌ی انتقالی با slug اثر مبدأ، شهر، کتابخانه و شماره‌ی نسخه پیدا می‌شود، و باید دقیقاً یکی باشد.
+  - **کتابخانه:** نام سایتی کتابخانه از بیشترینِ نسخه‌هایی گرفته می‌شود که `raw_text`شان با «شهر؛ کتابخانه؛» آغاز می‌شود (REGEXP). اگر چنین نسخه‌ای نباشد، از `libraries` گرفته می‌شود.
+  - **اشخاص و رده‌ها:**
+    - مؤلف و کاتب با `PersonNameMatcher::match` پیوند می‌خورند.
+    - مترجم با `ContributorRelations::addRole` و `source_entry_id` مدخل فنخا ثبت می‌شود.
+    - موضوع و زبان فقط به رکوردی پیوند می‌خورند که در سایت هست.
+  - **ثبت و انتقال:**
+    - انتقال با `RecordMerger::moveManuscript` انجام می‌شود و `sequence_number` نسخه از v2 گرفته می‌شود.
+    - لاگ‌ها: `create` برای اثر و نسخه‌ی تازه، و `corpus_update` برای انتقال و اصلاح.
+    - همه در یک تراکنش و بی‌همگام‌سازی جستجو انجام می‌شود. پس از آن `SourceEntrySync::syncIds` اجرا می‌شود و نمایه‌سازی در دسته‌های ۱۰۰تایی.
+  - **`fills`:** نسخه‌ای که اثر مقصد با همان شماره (و صفحه) دارد، رد می‌شود.
+  - **`work_updates`:** فقط اگر مقدار فعلی همان `from` باشد و ستون محافظت‌شده نباشد. تغییر `author_name` به `author_id` هم می‌رسد.
+  - **آزمون:** [AddCorpusWorksCommandTest](../tests/Feature/AddCorpusWorksCommandTest.php).
+- **تمرین (`fahares_prod`):**
+  - هر اجرا حدود ۳ دقیقه طول کشید، که بیشترش برای پیدا کردن کتابخانه‌ها بود.
+  - اجرای نخست به `sequence_number` تهی خورد و تراکنش کامل برگشت.
+  - پشتیبان: `fahares-sources/backups/item87_new_works_before_20261030_local.jsonl` (۴۰۶ ردیف).
+  - پس از آن: `catalogs:link-volumes` (۵۵ از ۱۹۵ نسخه‌ی تازه جلد گرفتند)، `fahares:rebuild-scripts` (۱۶۳ نسخه خط دارند) و `fahares:link-autograph-scribes` (۵۶ نسخه در کل سایت).
+- **ترتیب پروداکشن:**
+  1. پشتیبان ردیف‌های درگیر؛
+  2. `fahares:add-corpus-works`، اول بی `--apply`؛
+  3. `catalogs:link-volumes`؛
+  4. `fahares:rebuild-scripts`؛
+  5. `fahares:link-autograph-scribes`.
+
 - **اجرای پروداکشن (۹ آبان):**
   - فایل‌ها با `tar` از راه `ssh fahares-app` به `/tmp/fankha-pages` رفتند و `md5sum -c` درست بود.
   - هر ۳۴ جلد وارد شد (۳۳٬۵۱۸ ردیف `source_pages` برای منبع ۱)، و پس از آن پوشه‌ی موقت پاک شد.
   - زمان تا نخستین بایت صفحه‌ی فنخا ۱ تا ۱٫۳ ثانیه بود. برای `/up` همین زمان ۰٫۹ ثانیه بود، پس بیشترش تأخیر شبکه است.
 
-### گام ۱۳.۷۹: «منابع و مراجع» و راه‌های رسیدن به متن صفحه
+### گام ۱۳.۸۰: «منابع و مراجع» و راه‌های رسیدن به متن صفحه
 - **مسیرها:** `sources.index` (`/sources`) و `sources.show` (`/sources/{code}`) در `SourceController`. هر دو پیش از مسیرهای `source-pages.show` و `source-items.show` تعریف شده‌اند.
 - **`App\Support\SourceShelf`:**
   - **`counts()`:** برای هر منبع، شمار آثار و نسخه‌ها (`count(distinct citable_id)` از `source_entries` ردنشده)، مدخل‌ها (`source_items`) و صفحه‌های متن (`source_pages`). در کش `sources:shelf` یک روز نگه داشته می‌شود.

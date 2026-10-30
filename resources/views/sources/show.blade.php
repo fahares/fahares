@@ -13,7 +13,7 @@
 @section('meta_description', $kind . ': ' . $source->title . ($about ? '، ' . implode('، ', $about) : '') . '. جلدها، متن صفحه‌ها و برگه‌ی چاپی آن در فهارس.')
 
 @section('content')
-{{-- One source (step 13.79): what it is, what the site has of it, and each volume with where to start reading its text
+{{-- One source (step 13.80): what it is, what the site has of it, and each volume with where to start reading its text
      and turning its page images. --}}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     <nav class="flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="مسیر">

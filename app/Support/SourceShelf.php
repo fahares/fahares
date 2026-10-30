@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * What the site has of each source, for «منابع و مراجع» (/sources) and a source's page (step 13.79): the works and
+ * What the site has of each source, for «منابع و مراجع» (/sources) and a source's page (step 13.80): the works and
  * manuscripts made from it or tied to it, its printed entries, the pages whose text it has, and whether it has page
  * images. Counted over the whole tables, so kept a day.
  */

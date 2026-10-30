@@ -19,7 +19,7 @@
 @endphp
 
 @section('content')
-{{-- «منابع و مراجع» (step 13.79): the sources by kind, each with what the site has of it; a box narrows the list --}}
+{{-- «منابع و مراجع» (step 13.80): the sources by kind, each with what the site has of it; a box narrows the list --}}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" x-data="{ q: '' }">
     <header class="text-center grid justify-items-center gap-2 pb-2">
         <p class="text-xs font-bold text-cinnabar">کتاب‌هایی که فهارس از آن‌ها ساخته شده است</p>
