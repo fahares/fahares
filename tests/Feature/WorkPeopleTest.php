@@ -333,5 +333,12 @@ class WorkPeopleTest extends TestCase
         $this->assertGreaterThan(array_search('author_aliases', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));
         $this->assertLessThan(array_search('incipit_text', $settings['searchableAttributes']), array_search('related_people', $settings['searchableAttributes']));
     }
+
+    public function test_the_works_with_people_can_be_reindexed_alone()
+    {
+        $work = $this->work();
+        WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی', 'role' => 'translator']);
+        $this->artisan('fahares:reindex-work-people')->expectsOutput('Reindexed 1 of 1 works')->assertSuccessful();
+    }
 }
 
