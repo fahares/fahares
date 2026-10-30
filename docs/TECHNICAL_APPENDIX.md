@@ -4903,6 +4903,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **ساخت:** اجرای ۴۱۰۲۷۱۴۶۷۷۵ در ۲ دقیقه و ۲۸ ثانیه ساخت. اجرای ۴۱۰۶۰۱۷۶۰۹۴ ساخت و استقرار را با هم انجام داد.
   - **استقرار:** استقرار ۳۳۷ Coolify از ۱۳:۰۶:۴۷ تا ۱۳:۰۹:۰۱ طول کشید. ایمیج کشیده شد، کانتینر در تلاش اول healthy بود و migrate پیام «Nothing to migrate» داد.
   - **کانتینر:** برچسب revision کانتینر جاری `2eb52dc` است و `/up` کد ۲۰۰ داد. ایمیج تازه `.nixpacks/build.sh` ندارد و هیچ build-arg محرمانه‌ای در آن نیست.
+- **HTTPS برای API کوولیفای:**
+  - **دامنه:** رکورد A `coolify.fahares.net` در Cloudflare (DNS only) ساخته شد و دامنه‌ی instance در Coolify روی `https://coolify.fahares.net` گذاشته شد.
+  - **چرا فایل traefik دستی نوشته شد:** Coolify فایل `dynamic/coolify.yaml` را ننوشت، چون `servers.proxy` سرور ۰ کلید `type` ندارد و `setupDynamicProxyConfiguration()` فقط برای `TRAEFIK` کار می‌کند. همان پیکربندی Coolify (مسیرهای داشبورد، reverb و terminal با `certresolver: letsencrypt`) دستی در `/data/coolify/proxy/dynamic/coolify.yaml` نوشته شد. traefik بی‌ری‌استارت آن را خواند و گواهی Let's Encrypt گرفت.
+  - **هشدار:** اگر دامنه‌ی instance عوض شود، این فایل خودکار به‌روز نمی‌شود.
+  - **نتیجه:** `COOLIFY_URL` به `https://coolify.fahares.net` رفت. استقرار ۳۳۹ با فراخوانی HTTPS در ۴۲ ثانیه تمام شد، چون لایه‌ها از پیش کشیده شده بودند. پورت ۸۰۰۰ هنوز باز است.
 
 
 ### گام ۱۳.۷۴: صفحه‌ی «متن صفحه» (`source-pages.show`)
