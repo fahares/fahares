@@ -47,12 +47,33 @@ class DedicationParserTest extends TestCase
 
     public function test_known_rulers_are_found_by_any_spelling_but_not_when_ambiguous()
     {
-        $this->assertSame('ناصرالدین قاجار، شاه ایران', KnownRulers::find('ناصر الدین شاه')['name']);
-        $this->assertSame('فتحعلی شاه قاجار، شاه ایران', KnownRulers::find('فتح علی شاه قاجار')['name']);
-        $this->assertSame('عباس صفوی دوم، شاه ایران', KnownRulers::find('شاه عباس ثانی')['name']);
-        $this->assertSame('قطب شاه، عبدالله بن محمد', KnownRulers::find('سلطان عبدالله قطبشاه')['name']);
-        foreach (['شاه عباس صفوی', 'شاه طهماسب صفوی', 'ظل السلطان', 'محمد شاه', 'محمد علی شاه', 'عالمگیر'] as $ambiguous) {
+        $this->assertSame('ناصرالدین قاجار، شاه ایران', KnownRulers::find('ناصر الدین شاه')['ruler']['name']);
+        $this->assertSame('فتحعلی شاه قاجار، شاه ایران', KnownRulers::find('فتح علی شاه قاجار')['ruler']['name']);
+        $this->assertSame('عباس صفوی دوم، شاه ایران', KnownRulers::find('شاه عباس ثانی')['ruler']['name']);
+        $this->assertSame('قطب شاه، عبدالله بن محمد', KnownRulers::find('سلطان عبدالله قطبشاه')['ruler']['name']);
+        $this->assertNull(KnownRulers::find('شاه عباس ثانی')['certainty']);
+        foreach (['ظل السلطان', 'محمد شاه', 'عالمگیر'] as $ambiguous) {
             $this->assertNull(KnownRulers::find($ambiguous), $ambiguous);
         }
+    }
+
+    public function test_a_usual_spelling_is_decided_by_the_year_of_composition()
+    {
+        // No year: the usual one, kept as probable with the other possibility in the note
+        $this->assertSame(['عباس صفوی، شاه ایران', 'probable', 'شاید شاه عباس دوم'], array_values(self::flat(KnownRulers::find('شاه عباس صفوی'))));
+        // A year in the second Abbas's lifetime picks him, and is sure
+        $this->assertSame(['عباس صفوی دوم، شاه ایران', null, null], array_values(self::flat(KnownRulers::find('شاه عباس صفوی', 1060))));
+        // A year in neither lifetime: text
+        $this->assertNull(KnownRulers::find('شاه عباس صفوی', 1040));
+        // The first Tahmasp and the Qajar Mohammad Ali Shah are taken as they are, unless the year rules them out
+        $this->assertSame(['طهماسب صفوی اول، شاه ایران', null, null], array_values(self::flat(KnownRulers::find('شاه طهماسب صفوی'))));
+        $this->assertNull(KnownRulers::find('شاه طهماسب صفوی', 1140));
+        $this->assertSame(['محمد علی قاجار، شاه ایران', null, null], array_values(self::flat(KnownRulers::find('محمد علی شاه'))));
+        $this->assertNull(KnownRulers::find('محمد علی شاه', 1255));
+    }
+
+    private static function flat(array $found): array
+    {
+        return ['name' => $found['ruler']['name'], 'certainty' => $found['certainty'], 'note' => $found['note']];
     }
 }

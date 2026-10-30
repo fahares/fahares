@@ -274,9 +274,10 @@ class WorkPeopleTest extends TestCase
         $w3 = $this->work(['dedication' => 'شاه عباس صفوی']);
         $w4 = $this->work(['dedication' => 'شمس الدین محمد بن علی؛ رستم پاشا وزیر (-968ق)']);
         $w5 = $this->work(['dedication' => 'ناصرالدین شاه (شاید)']);
+        $w6 = $this->work(['dedication' => 'شاه عباس صفوی', 'composition_year_hijri' => 1060]);
         $reviewed = $this->work(['dedication' => 'ناصرالدین شاه']);
         AuditLog::create(['user_id' => $this->admin->id, 'auditable_type' => Work::class, 'auditable_id' => $reviewed->id, 'action' => 'verify', 'new_values' => ['added_person_role' => 1]]);
-        $only = implode(',', [$w1->id, $w2->id, $w3->id, $w4->id, $w5->id, $reviewed->id]);
+        $only = implode(',', [$w1->id, $w2->id, $w3->id, $w4->id, $w5->id, $w6->id, $reviewed->id]);
 
         $this->artisan('fahares:backfill-work-dedications', ['--dry-run' => true, '--only' => $only])->assertSuccessful();
         $this->assertSame(0, WorkPerson::count());
@@ -290,8 +291,13 @@ class WorkPeopleTest extends TestCase
         $aqasi = Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->firstOrFail();
         $this->assertSame([1265, 13], [$aqasi->death_year_hijri, $aqasi->century_hijri]);
         $this->assertSame([['commissioner', $aqasi->id, null, null]], $rows($w2));
-        // An ambiguous spelling stays text; a namesake links only when the field's dates confirm him
-        $this->assertSame([['dedicatee', null, 'شاه عباس صفوی', null]], $rows($w3));
+        // «شاه عباس صفوی» with no year: the first Abbas, probable, with the other possibility in the note
+        $abbas = Person::where('name', 'عباس صفوی، شاه ایران')->firstOrFail();
+        $this->assertSame([['dedicatee', $abbas->id, null, 'شاید شاه عباس دوم']], $rows($w3));
+        $this->assertSame('probable', WorkPerson::where('work_id', $w3->id)->value('certainty'));
+        // ...and with a year in the second Abbas's reign, the second one
+        $this->assertSame([['dedicatee', Person::where('name', 'عباس صفوی دوم، شاه ایران')->value('id'), null, null]], $rows($w6));
+        // A namesake links only when the field's dates confirm him
         $this->assertSame([['dedicatee', null, 'شمس الدین محمد بن علی', null], ['dedicatee', $dated->id, null, '-968ق']], $rows($w4));
         $this->assertSame(['شاید', 'doubtful'], [WorkPerson::where('work_id', $w5->id)->value('hedge_raw'), WorkPerson::where('work_id', $w5->id)->value('certainty')]);
         $this->assertSame([], $rows($reviewed));

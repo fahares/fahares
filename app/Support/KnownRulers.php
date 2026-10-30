@@ -8,9 +8,8 @@ use App\Helpers\TextNormalizer;
  * Rulers and patrons the Fankha «اهدا / به درخواست» field names most often, each with the name of its
  * authority record in the people table («ناصرالدین قاجار، شاه ایران»), the Hijri death year and the spellings
  * the field uses. Spellings are compared without spaces («ناصر الدین شاه» = «ناصرالدین شاه»).
- * A spelling that fits more than one person («شاه عباس صفوی»: the first or the second; «ظل السلطان» alone:
- * two princes held the title; «محمد شاه»: Qajar or Mughal; «محمد علی شاه» alone: Qajar or of Awadh; «عالمگیر» alone: the first or the second)
- * is left out on purpose and stays text.
+ * A spelling that fits more than one person («ظل السلطان» alone: two princes held the title; «محمد شاه»: Qajar or
+ * Mughal; «عالمگیر» alone: the first or the second) is left out on purpose and stays text, unless it is in USUALLY.
  * The list was built from the field's values on 7 Aban 1405 (backlog item 35, step 2) and reviewed by the user.
  */
 class KnownRulers
@@ -61,23 +60,78 @@ class KnownRulers
         ['name' => 'جوینی، بهاءالدین محمد بن محمد', 'death' => 678, 'spellings' => ['بهاءالدین محمد بن شمس الدین محمد جوینی', 'بهاءالدین محمد جوینی']],
     ];
 
-    /** @var array<string, int>|null compact spelling => index in LIST */
+    /**
+     * Spellings that name more than one ruler but mostly one (decided by the user, 8 Aban 1405). The work's year of
+     * composition, when known, picks the ruler whose lifetime holds it; outside every lifetime the name stays text.
+     * With no year the usual one is taken, and when «doubt» is set the row is only probable and the note keeps the
+     * other possibility.
+     */
+    public const USUALLY = [
+        ['spellings' => ['شاه عباس صفوی', 'شاه عباس', 'عباس شاه صفوی'], 'doubt' => 'شاید شاه عباس دوم', 'rulers' => [
+            ['name' => 'عباس صفوی، شاه ایران', 'lived' => [978, 1038]],
+            ['name' => 'عباس صفوی دوم، شاه ایران', 'lived' => [1042, 1077]],
+        ]],
+        ['spellings' => ['شاه طهماسب صفوی', 'شاه تهماسب صفوی', 'شاه طهماسب', 'شاه تهماسب'], 'doubt' => null, 'rulers' => [
+            ['name' => 'طهماسب صفوی اول، شاه ایران', 'lived' => [919, 984]],
+        ]],
+        ['spellings' => ['محمد علی شاه', 'محمدعلی شاه'], 'doubt' => null, 'rulers' => [
+            ['name' => 'محمد علی قاجار، شاه ایران', 'lived' => [1289, 1343]],
+        ]],
+    ];
+
+    /** @var array<string, array{0: string, 1: int}>|null compact spelling => [LIST or USUALLY, index] */
     private static ?array $bySpelling = null;
 
-    /** The ruler a piece of the field names, or null. */
-    public static function find(string $piece): ?array
+    /**
+     * The ruler a piece of the field names, given the work's year of composition: the LIST entry with the row's
+     * certainty and note, or null.
+     *
+     * @return array{ruler: array, certainty: ?string, note: ?string}|null
+     */
+    public static function find(string $piece, ?int $year = null): ?array
     {
         if (self::$bySpelling === null) {
             self::$bySpelling = [];
             foreach (self::LIST as $i => $ruler) {
                 foreach (array_merge([$ruler['name']], $ruler['spellings']) as $spelling) {
-                    self::$bySpelling[self::compact($spelling)] = $i;
+                    self::$bySpelling[self::compact($spelling)] = ['list', $i];
+                }
+            }
+            foreach (self::USUALLY as $i => $group) {
+                foreach ($group['spellings'] as $spelling) {
+                    self::$bySpelling[self::compact($spelling)] = ['usually', $i];
                 }
             }
         }
-        $i = self::$bySpelling[self::compact($piece)] ?? null;
+        [$kind, $i] = self::$bySpelling[self::compact($piece)] ?? [null, null];
+        if ($kind === 'list') {
+            return ['ruler' => self::LIST[$i], 'certainty' => null, 'note' => null];
+        }
+        if ($kind !== 'usually') {
+            return null;
+        }
+        $group = self::USUALLY[$i];
+        if ($year) {
+            foreach ($group['rulers'] as $candidate) {
+                if ($year >= $candidate['lived'][0] && $year <= $candidate['lived'][1]) {
+                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null];
+                }
+            }
 
-        return $i === null ? null : self::LIST[$i];
+            return null;
+        }
+
+        return ['ruler' => self::named($group['rulers'][0]['name']), 'certainty' => $group['doubt'] ? 'probable' : null, 'note' => $group['doubt']];
+    }
+
+    private static function named(string $name): array
+    {
+        foreach (self::LIST as $ruler) {
+            if ($ruler['name'] === $name) {
+                return $ruler;
+            }
+        }
+        throw new \LogicException("KnownRulers::USUALLY names «{$name}», which is not in LIST.");
     }
 
     public static function compact(string $text): string

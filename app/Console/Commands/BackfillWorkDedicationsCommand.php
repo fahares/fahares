@@ -19,7 +19,9 @@ use InvalidArgumentException;
 /**
  * Fills work_people with the dedicatees and commissioners of the Fankha «اهدا / به درخواست» field
  * (works.dedication; backlog item 35, step 2). DedicationParser splits the field into people with their role.
- * A ruler of KnownRulers links to its authority record, which is created when the people table has none;
+ * A ruler of KnownRulers links to its authority record, which is created when the people table has none; a
+ * spelling that usually means one ruler («شاه عباس صفوی») is decided by the work's year of composition, or, with
+ * no year, links to the usual one, as probable when the other possibility is real;
  * a spelling whose authority name fits more than one record stays text. Any other name links only on a
  * confident match (PersonNameMatcher) whose death century the field's own dates confirm, else it is kept as text. Works whose people reviewers already changed
  * are left out. Rows cite the work's Fankha entry and go through ContributorRelations::addRole.
@@ -58,7 +60,7 @@ class BackfillWorkDedicationsCommand extends Command
         $this->counts = [];
         $this->examples = [];
 
-        $query = Work::whereNotNull('dedication')->where('dedication', '<>', '')->select(['id', 'slug', 'volume_number', 'dedication']);
+        $query = Work::whereNotNull('dedication')->where('dedication', '<>', '')->select(['id', 'slug', 'volume_number', 'composition_year_hijri', 'dedication']);
         if ($only) {
             $query->whereIn('id', $only);
         }
@@ -105,7 +107,7 @@ class BackfillWorkDedicationsCommand extends Command
                 continue;
             }
 
-            [$person, $how] = $this->person($name, $p['death'], $dry);
+            [$person, $how, $usually] = $this->person($name, $p['death'], $work->composition_year_hijri, $dry);
             $exists = $work->workPeople()->where('role', $role)
                 ->where(fn ($q) => $person instanceof Person ? $q->where('person_id', $person->id) : $q->whereNull('person_id')->where('name', $name))->exists();
             if ($exists) {
@@ -124,12 +126,15 @@ class BackfillWorkDedicationsCommand extends Command
             if ($p['hedge']) {
                 $this->count($role, 'hedged');
             }
+            if ($usually['note']) {
+                $this->count($role, 'usual_ruler_probable');
+            }
             if ($dry) {
                 continue;
             }
             try {
-                $relations->addRole($work, $role, $person, $person ? null : $name, $p['note'], null, [
-                    'certainty' => PersonNameMatcher::certainty($p['hedge']),
+                $relations->addRole($work, $role, $person, $person ? null : $name, implode('؛ ', array_filter([$usually['note'], $p['note']])) ?: null, null, [
+                    'certainty' => PersonNameMatcher::certainty($p['hedge']) ?? $usually['certainty'],
                     'hedge_raw' => $p['hedge'] ? mb_substr($p['hedge'], 0, 60) : null,
                     'source_entry_id' => $entry,
                 ]);
@@ -141,26 +146,30 @@ class BackfillWorkDedicationsCommand extends Command
 
     /**
      * The person a name links to and how: a ruler's authority record (found or created), a confident match,
-     * or none (the reason). In a dry run a ruler that would be created comes back as its name.
+     * or none (the reason), with the certainty and note a usual-but-not-sure spelling gives (KnownRulers::USUALLY).
+     * In a dry run a ruler that would be created comes back as its name.
      *
-     * @return array{0: Person|string|null, 1: string}
+     * @return array{0: Person|string|null, 1: string, 2: array{certainty: ?string, note: ?string}}
      */
-    private function person(string $name, ?int $death, bool $dry): array
+    private function person(string $name, ?int $death, ?int $year, bool $dry): array
     {
-        if ($ruler = KnownRulers::find($name)) {
+        $none = ['certainty' => null, 'note' => null];
+        if ($found = KnownRulers::find($name, $year)) {
+            $ruler = $found['ruler'];
+            $usually = ['certainty' => $found['certainty'], 'note' => $found['note']];
             $record = $this->ruler($ruler, $dry);
 
             return match (true) {
-                $record instanceof Person => [$record, $this->rulers[$ruler['name'] . ':created'] ?? false ? 'linked_ruler_created' : 'linked_ruler'],
-                $record === 'new' => [$ruler['name'], 'linked_ruler_created'],
-                default => [null, 'name_only:ruler_ambiguous'],
+                $record instanceof Person => [$record, $this->rulers[$ruler['name'] . ':created'] ?? false ? 'linked_ruler_created' : 'linked_ruler', $usually],
+                $record === 'new' => [$ruler['name'], 'linked_ruler_created', $usually],
+                default => [null, 'name_only:ruler_ambiguous', $none],
             };
         }
         // Scribes and owners named «محمد علی میرزا» or «شمس الدین محمد» fill the people table: only a death
         // year in the field's own parentheses that agrees with the record makes the match confident
         [$person, $why] = $this->matcher->match($name, PersonNameMatcher::century($death), requireCentury: true);
 
-        return $person ? [$person, 'linked'] : [null, "name_only:{$why}"];
+        return $person ? [$person, 'linked', $none] : [null, "name_only:{$why}", $none];
     }
 
     /** A ruler's authority record: the one person of that name, a new one, or 'ambiguous' when there are several. */
