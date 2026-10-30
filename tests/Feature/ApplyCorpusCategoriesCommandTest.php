@@ -108,4 +108,71 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
             ->expectsOutputToContain('Would write 0 records.')
             ->assertSuccessful();
     }
+
+    public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
+    {
+        $w = $this->work('-v99-7');
+        $trim = $this->copy($w, '20/1');
+        $only = $this->copy($w, '20/2');
+        $note = $this->copy($w, '20/3');
+        $guarded = $this->copy($w, '20/4');
+        DB::table('manuscripts')->where('id', $trim)->update(['copy_date_raw' => '2 شعبان 1335، حسب الامر حاج آقا منیر',
+            'raw_text' => "تهران؛ دانشگاه؛ شماره نسخه: 20/1\nخط: نستعلیق، تا: 2 شعبان 1335، حسب الامر حاج آقا منیر"]);
+        DB::table('manuscripts')->where('id', $only)->update(['raw_text' => 'خط: نسخ، جا: اصفهان به جهت میرزا ابوتراب']);
+        DB::table('manuscripts')->where('id', $note)->update(['copy_date_raw' => 'قرن 12، در حیات مؤلف']);
+        DB::table('manuscripts')->where('id', $guarded)->update(['raw_text' => 'برای میرزا حسن']);
+        AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $guarded,
+            'action' => 'verify', 'old_values' => [], 'new_values' => ['added_person_role' => 1]]);
+        $commissioner = fn (int $id, string $shelfmark, string $name, array $changes = []) => ['table' => 'manuscripts', 'id' => $id,
+            'work_key' => '-v99-7', 'shelfmark' => $shelfmark, 'category' => 'commissioner', 'changes' => $changes, 'commissioner' => $name];
+        $this->plan([
+            $commissioner($trim, '20/1', 'حاج آقا منیر', ['copy_date_raw' => ['from' => '2 شعبان 1335، حسب الامر حاج آقا منیر', 'to' => '2 شعبان 1335']]),
+            $commissioner($only, '20/2', 'میرزا ابوتراب'),
+            $commissioner($guarded, '20/4', 'میرزا حسن'),
+            ['table' => 'manuscripts', 'id' => $note, 'work_key' => '-v99-7', 'shelfmark' => '20/3', 'category' => 'copy_date_note',
+                'changes' => ['copy_date_raw' => ['from' => 'قرن 12، در حیات مؤلف', 'to' => 'قرن 12'], 'copy_date_note' => ['from' => null, 'to' => 'در حیات مؤلف']]],
+        ]);
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file])->assertSuccessful();
+        $this->assertSame(0, DB::table('manuscript_people')->count());
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+        $people = fn (int $id) => DB::table('manuscript_people')->where('manuscript_id', $id)->get(['role', 'name', 'label_raw'])->map(fn ($r) => (array) $r)->all();
+        $this->assertSame([['role' => 'patron', 'name' => 'حاج آقا منیر', 'label_raw' => 'حسب الامر']], $people($trim));
+        $this->assertSame([['role' => 'patron', 'name' => 'میرزا ابوتراب', 'label_raw' => 'به جهت']], $people($only));
+        $this->assertSame([], $people($guarded));
+        $copy = Manuscript::find($trim);
+        $this->assertSame(['2 شعبان 1335', 1335, 1335, 1335, 'حاج آقا منیر'], [$copy->copy_date_raw, $copy->copy_date_hijri_year, $copy->copy_date_from, $copy->copy_date_to, $copy->commissioned_by]);
+        $this->assertSame(['قرن 12', 'در حیات مؤلف', 1101, 1200], [Manuscript::find($note)->copy_date_raw, Manuscript::find($note)->copy_date_note, Manuscript::find($note)->copy_date_from, Manuscript::find($note)->copy_date_to]);
+
+        // The copy's page shows the phrase and the note, and the commissioner once
+        $this->get(route('manuscripts.show', $copy))->assertOk()->assertSee('حسب الامر')
+            ->assertDontSee('data-suggest-field="commissioned_by"', false);
+        $this->get(route('manuscripts.show', Manuscript::find($note)))->assertOk()->assertSee('در حیات مؤلف');
+
+        // A second run writes nothing
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+        $this->assertSame(2, DB::table('manuscript_people')->count());
+    }
+
+    public function test_copy_date_ranges_are_filled_and_kept_in_step()
+    {
+        $w = $this->work('-v99-8');
+        $a = $this->copy($w, '30/1');
+        $b = $this->copy($w, '30/2');
+        DB::table('manuscripts')->where('id', $a)->update(['copy_date_raw' => 'محتملاً اواخر قرن 12']);
+        DB::table('manuscripts')->where('id', $b)->update(['copy_date_raw' => '1082 و 1083ق']);
+
+        $this->artisan('fahares:fill-copy-date-ranges')->assertSuccessful();
+        $this->assertNull(DB::table('manuscripts')->where('id', $a)->value('copy_date_from'));
+        $this->artisan('fahares:fill-copy-date-ranges', ['--apply' => true])->assertSuccessful();
+        $row = fn (int $id) => (array) DB::table('manuscripts')->where('id', $id)->first(['copy_date_from', 'copy_date_to', 'copy_date_certainty', 'copy_date_hedge_raw']);
+        $this->assertSame(['copy_date_from' => 1167, 'copy_date_to' => 1200, 'copy_date_certainty' => 'probable', 'copy_date_hedge_raw' => 'محتملاً'], $row($a));
+        $this->assertSame(['copy_date_from' => 1082, 'copy_date_to' => 1083, 'copy_date_certainty' => null, 'copy_date_hedge_raw' => null], $row($b));
+
+        // Saving a copy with another date keeps the range in step
+        Manuscript::find($b)->update(['copy_date_raw' => 'قرن 13']);
+        $this->assertSame(['copy_date_from' => 1201, 'copy_date_to' => 1300, 'copy_date_certainty' => null, 'copy_date_hedge_raw' => null], $row($b));
+    }
 }
+

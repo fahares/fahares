@@ -19,6 +19,8 @@
                     <dd class="m-0 mb-2 sm:mb-0 space-y-1">
                         @foreach($group as $p)
                             <div>
+                                {{-- The catalogue's own phrase before the name («حسب الامر», «به نام») --}}
+                                @if($p->label_raw)<span class="text-[12px] text-muted" title="تعبیر فهرست">{{ $p->label_raw }}</span>@endif
                                 @if($p->person)
                                     <a href="{{ route('people.show', $p->person) }}" class="font-semibold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $p->person->name }}</a>
                                     <x-ui.life :person="$p->person" />

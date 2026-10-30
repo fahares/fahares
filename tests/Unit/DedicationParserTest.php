@@ -32,6 +32,9 @@ class DedicationParserTest extends TestCase
         $this->assertSame([['commissioner', 'حاج ملا محمد صالح برغانی'], ['commissioner', 'آقا صالح']], $this->names('به درخواست حاج ملا محمد صالح برغانی و آقا صالح'));
         $this->assertSame([['commissioner', 'میرزا ابوالقاسم']], $this->names("حسب\u{200c}الامر میرزا ابوالقاسم"));
         $this->assertSame([['dedicatee', 'امین الملک']], $this->names('برای امین الملک'));
+        // The marker is kept as the catalogue wrote it, for each person it covers
+        $this->assertSame(['به درخواست', 'به درخواست', null], array_column(DedicationParser::parse('به درخواست الف و ب؛ ج'), 'label'));
+        $this->assertSame("حسب\u{200c}الامر", DedicationParser::parse("حسب\u{200c}الامر میرزا ابوالقاسم")[0]['label']);
         // «بهنام» is a name, not «به نام»
         $this->assertSame([['dedicatee', 'بهنام میرزا']], $this->names('بهنام میرزا'));
     }

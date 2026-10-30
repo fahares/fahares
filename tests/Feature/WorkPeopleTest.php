@@ -291,6 +291,8 @@ class WorkPeopleTest extends TestCase
         $aqasi = Person::where('name', 'حاج میرزا آقاسی، عباس بن مسلم')->firstOrFail();
         $this->assertSame([1265, 13], [$aqasi->death_year_hijri, $aqasi->century_hijri]);
         $this->assertSame([['commissioner', $aqasi->id, null, null]], $rows($w2));
+        $this->assertSame('به درخواست', WorkPerson::where('work_id', $w2->id)->value('label_raw'));
+        $this->get(route('works.show', $w2))->assertOk()->assertSee('به درخواست');
         // «شاه عباس صفوی» with no year: the first Abbas, probable, with the other possibility in the note
         $abbas = Person::where('name', 'عباس صفوی، شاه ایران')->firstOrFail();
         $this->assertSame([['dedicatee', $abbas->id, null, 'شاید شاه عباس دوم']], $rows($w3));

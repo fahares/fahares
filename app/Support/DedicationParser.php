@@ -20,7 +20,7 @@ class DedicationParser
     private const HEDGE_WORDS = 'شاید|ظاهرا|ظاهراً|گویا|احتمالا|احتمالاً|محتملا|محتملاً';
 
     /**
-     * @return array<int, array{role: string, name: string, note: ?string, hedge: ?string, death: ?int}>
+     * @return array<int, array{role: string, label: ?string, name: string, note: ?string, hedge: ?string, death: ?int}>
      */
     public static function parse(?string $text): array
     {
@@ -31,21 +31,32 @@ class DedicationParser
         $people = [];
         foreach (preg_split('/\s*؛\s*/u', $text, -1, PREG_SPLIT_NO_EMPTY) as $segment) {
             $role = 'dedicatee';
+            $label = null;
             foreach (self::pieces($segment) as $piece) {
                 if (preg_match(self::COMMISSIONER, $piece, $m)) {
                     $role = 'commissioner';
                     $piece = mb_substr($piece, mb_strlen($m[0]));
+                    $label = self::label($m[0]);
                 } elseif (preg_match(self::DEDICATEE, $piece, $m)) {
                     $role = 'dedicatee';
                     $piece = mb_substr($piece, mb_strlen($m[0]));
+                    $label = self::label($m[0]);
                 }
                 if ($person = self::person($piece)) {
-                    $people[] = ['role' => $role] + $person;
+                    $people[] = ['role' => $role, 'label' => $label] + $person;
                 }
             }
         }
 
         return $people;
+    }
+
+    /** The marker as the catalogue wrote it, without the colon: «به نام», «حسب‌الامر». */
+    private static function label(string $marker): ?string
+    {
+        $marker = preg_replace('/[\s\x{200c}:]+$/u', '', $marker);
+
+        return $marker === '' ? null : mb_substr($marker, 0, 60);
     }
 
     /** The segment split on « و », outside parentheses. */

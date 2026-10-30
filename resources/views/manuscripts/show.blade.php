@@ -257,6 +257,8 @@
                         @if($manuscript->copy_date_raw)
                             {{ Fa::digits($manuscript->copy_date_raw) }}
                             @if($showParsedYear)<span class="text-muted">({{ Fa::digits($manuscript->copy_date_hijri_year) }} ق)</span>@endif
+                            {{-- A note on the date the parser split off it («در حیات مؤلف»), backlog item 96 --}}
+                            @if($manuscript->copy_date_note)<span class="block text-[12px] text-muted">{{ $manuscript->copy_date_note }}</span>@endif
                         @elseif($manuscript->is_bita)
                             <span class="text-muted">بی‌تاریخ</span>
                         @else
@@ -266,7 +268,10 @@
                     <x-ui.meta label="محل کتابت" field="copy_place">
                         @if($manuscript->copy_place){{ $manuscript->copy_place }}@else<span class="text-muted">نامشخص</span>@endif
                     </x-ui.meta>
-                    <x-ui.meta label="سفارش‌دهنده" field="commissioned_by" :empty="! $manuscript->commissioned_by">{{ $manuscript->commissioned_by }}</x-ui.meta>
+                    {{-- A commissioner listed among the people of the copy (role patron, backlog item 96) is not repeated here --}}
+                    @unless($manuscript->commissioned_by && $manuscript->otherPeople()->where('role', 'patron')->whereNull('person_id')->where('name', $manuscript->commissioned_by)->exists())
+                        <x-ui.meta label="سفارش‌دهنده" field="commissioned_by" :empty="! $manuscript->commissioned_by">{{ $manuscript->commissioned_by }}</x-ui.meta>
+                    @endunless
                 </x-ui.meta-list>
             </x-ui.section>
 

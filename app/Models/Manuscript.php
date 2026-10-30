@@ -22,12 +22,25 @@ class Manuscript extends Model
 
     protected $guarded = ['id'];
 
+    /** The range columns of a copy date (CopyDateRange), as they are stored. */
+    public static function copyDateColumns(?string $raw): array
+    {
+        $range = \App\Support\CopyDateRange::parse($raw);
+
+        return ['copy_date_from' => $range['from'], 'copy_date_to' => $range['to'], 'copy_date_certainty' => $range['certainty'],
+            'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
+    }
+
     protected static function booted(): void
     {
         // Keep the sortable year in step with the date text unless the caller set both
         static::saving(function (Manuscript $manuscript) {
             if ($manuscript->isDirty('copy_date_raw') && ! $manuscript->isDirty('copy_date_hijri_year')) {
                 $manuscript->copy_date_hijri_year = HijriYear::parse($manuscript->copy_date_raw);
+            }
+            // ...and its range, certainty and hedge word (backlog item 96)
+            if ($manuscript->isDirty('copy_date_raw')) {
+                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw));
             }
             // The sort/collection key is the shelfmark cut to the indexed length
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {
@@ -74,6 +87,8 @@ class Manuscript extends Model
             'is_bita' => 'boolean',
             'is_autograph' => 'boolean',
             'copy_date_hijri_year' => 'integer',
+            'copy_date_from' => 'integer',
+            'copy_date_to' => 'integer',
             'folios' => 'integer',
             'lines' => 'integer',
             'is_corrected' => 'boolean',

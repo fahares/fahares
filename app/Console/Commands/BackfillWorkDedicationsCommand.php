@@ -111,6 +111,12 @@ class BackfillWorkDedicationsCommand extends Command
             $exists = $work->workPeople()->where('role', $role)
                 ->where(fn ($q) => $person instanceof Person ? $q->where('person_id', $person->id) : $q->whereNull('person_id')->where('name', $name))->exists();
             if ($exists) {
+                // Rows written before label_raw (item 96) get the catalogue's phrase now
+                if ($p['label'] && ! $dry && $work->workPeople()->where('role', $role)->whereNull('suggestion_id')->whereNull('label_raw')
+                    ->where(fn ($q) => $person instanceof Person ? $q->where('person_id', $person->id) : $q->whereNull('person_id')->where('name', $name))
+                    ->update(['label_raw' => $p['label']])) {
+                    $this->count($role, 'label_added');
+                }
                 $this->skip($role, 'exists', $label);
 
                 continue;
@@ -150,6 +156,7 @@ class BackfillWorkDedicationsCommand extends Command
                     'certainty' => PersonNameMatcher::certainty($p['hedge']) ?? $usually['certainty'],
                     'hedge_raw' => $p['hedge'] ? mb_substr($p['hedge'], 0, 60) : null,
                     'source_entry_id' => $entry,
+                    'label_raw' => $p['label'],
                 ]);
             } catch (InvalidArgumentException $e) {
                 $this->skip($role, 'refused', "{$label} ({$e->getMessage()})");

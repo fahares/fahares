@@ -125,7 +125,8 @@ class ContributorRelations
         if (! $person && $rows()->whereNull('person_id')->where('name', $name)->where('role', $role)->exists()) {
             throw new InvalidArgumentException("این نام با همین نقش هم‌اکنون برای این {$label} ثبت شده است.");
         }
-        $extra = $record instanceof Work ? array_intersect_key($extra, array_flip(['certainty', 'hedge_raw', 'source_entry_id'])) : [];
+        // label_raw: the catalogue's phrase before the name («حسب الامر», «به نام»); the rest is for a work's rows
+        $extra = array_intersect_key($extra, array_flip($record instanceof Work ? ['certainty', 'hedge_raw', 'source_entry_id', 'label_raw'] : ['label_raw']));
         if (isset($extra['certainty']) && ! array_key_exists($extra['certainty'], WorkPerson::CERTAINTIES)) {
             throw new InvalidArgumentException('میزان قطعیت نامعتبر است.');
         }

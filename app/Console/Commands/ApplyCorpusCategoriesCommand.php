@@ -28,8 +28,11 @@ class ApplyCorpusCategoriesCommand extends Command
     /** Tables and the fields a decision file may change */
     private const FIELDS = [
         'works' => ['print_info'],
-        'manuscripts' => ['is_facsimile'],
+        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note'],
     ];
+
+    /** A commissioner's phrase before the name in the copy's raw text («حسب الامر», «به جهت», «برای»…) */
+    private const COMMISSIONER_PHRASE = '/(?:(?:بر|از)[\s\x{200c}]+)?(?:حسب[\s\x{200c}]*(?:ال)?(?:امر|فرمایش|خواهش)|به[\s\x{200c}]*(?:جهت|دستور|سفارش|فرمایش|خواهش|درخواست|امر|فرمان)|بنا[\s\x{200c}]+(?:بر|به)[\s\x{200c}]+(?:خواهش|درخواست|امر)|برای|جهت)[\s:]*$/u';
 
     private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class];
 
@@ -80,7 +83,16 @@ class ApplyCorpusCategoriesCommand extends Command
         foreach (array_chunk($writes, 500) as $batch) {
             DB::transaction(function () use ($batch, $note) {
                 foreach ($batch as [$table, $rec, $payload, $old]) {
-                    DB::table($table)->where('id', $rec['id'])->update($payload + ['updated_at' => now()]);
+                    // A shorter date keeps its year and range in step (Manuscript::booted does it for saved models)
+                    if (array_key_exists('copy_date_raw', $payload)) {
+                        $payload += ['copy_date_hijri_year' => \App\Support\HijriYear::parse($payload['copy_date_raw'])] + Manuscript::copyDateColumns($payload['copy_date_raw']);
+                    }
+                    if ($payload) {
+                        DB::table($table)->where('id', $rec['id'])->update($payload + ['updated_at' => now()]);
+                    }
+                    if (isset($rec['commissioner'])) {
+                        $payload += $this->addCommissioner($rec);
+                    }
                     AuditLog::create([
                         'user_id' => null,
                         'auditable_type' => self::MODELS[$table],
@@ -104,6 +116,46 @@ class ApplyCorpusCategoriesCommand extends Command
         return 0;
     }
 
+    /**
+     * The commissioner as a people row of role patron, with the catalogue's phrase before the name (label_raw), and
+     * the name in commissioned_by, the column the manuscripts search reads, when it is empty.
+     *
+     * @return array what the audit log records
+     */
+    private function addCommissioner(array $rec): array
+    {
+        $manuscript = Manuscript::find($rec['id']);
+        if (! $manuscript || $manuscript->otherPeople()->where('role', 'patron')->whereNull('person_id')->where('name', $rec['commissioner'])->exists()) {
+            return [];
+        }
+        $label = $this->phrase((string) $manuscript->raw_text, $rec['commissioner']);
+        $result = app(\App\Suggestions\ContributorRelations::class)->addRole($manuscript, 'patron', null, $rec['commissioner'], null, null, ['label_raw' => $label]);
+        if (blank($manuscript->commissioned_by)) {
+            DB::table('manuscripts')->where('id', $manuscript->id)->update(['commissioned_by' => mb_substr($rec['commissioner'], 0, 500)]);
+        }
+
+        return ['added_person_role' => $result['new']['added_person_role'], 'label_raw' => $label];
+    }
+
+    /** The phrase the raw text puts right before the name, if it is one of a commissioner's («حسب الامر»). */
+    public function phrase(string $raw, string $name): ?string
+    {
+        // A page tag can sit between the phrase and the name; «ي» and «ك» are written the Arabic way too
+        $raw = str_replace(['ي', 'ك'], ['ی', 'ک'], preg_replace('/\s*<!--\s*page:\s*\d+\s*-->\s*/u', ' ', $raw));
+        $name = str_replace(['ي', 'ك'], ['ی', 'ک'], $name);
+        $at = mb_strpos($raw, $name);
+        if ($at === false) {
+            return null;
+        }
+        $before = preg_split('/[،؛\n]/u', mb_substr($raw, max(0, $at - 40), min($at, 40)));
+        $before = trim((string) end($before));
+        if (! preg_match(self::COMMISSIONER_PHRASE, $before, $m)) {
+            return null;
+        }
+
+        return mb_substr(trim(preg_replace('/[\s:]+$/u', '', $m[0])), 0, 60);
+    }
+
     /** @return array<int, object> */
     private function rows(string $table, array $ids): array
     {
@@ -111,7 +163,7 @@ class ApplyCorpusCategoriesCommand extends Command
         $query = DB::table($table)->whereIn("{$table}.id", $ids);
         if ($table === 'manuscripts') {
             $query->leftJoin('works', 'works.id', '=', 'manuscripts.work_id')
-                ->select(['manuscripts.id', 'manuscripts.shelfmark', 'works.slug as work_slug', DB::raw('NULL as bibliography'), ...array_map(fn ($f) => "manuscripts.{$f}", $fields)]);
+                ->select(['manuscripts.id', 'manuscripts.shelfmark', 'manuscripts.raw_text', 'works.slug as work_slug', DB::raw('NULL as bibliography'), ...array_map(fn ($f) => "manuscripts.{$f}", $fields)]);
         } else {
             $query->select(['id', 'slug as work_slug', 'bibliography', ...$fields]);
         }
@@ -151,11 +203,26 @@ class ApplyCorpusCategoriesCommand extends Command
             $payload[$field] = $change['to'];
             $old[$field] = $current;
         }
+        if ($payload && array_diff_key($payload, $guard->strip($rec['id'], $payload))) {
+            return ['protected by a reviewed correction', [], []];
+        }
+        // A commissioner (item 96) becomes a people row of role patron, unless reviewers changed the copy's people
+        // or it is there already
+        if (isset($rec['commissioner'])) {
+            // No commissioner's phrase before the name: the parser took a library or «کتابخانه مؤلف» for one
+            if ($this->phrase((string) $row->raw_text, $rec['commissioner']) === null) {
+                return ['no commissioner phrase before the name in the raw text', [], []];
+            }
+            if ($guard->protectsRows($rec['id'], 'people')) {
+                return ['people changed by a reviewer', [], []];
+            }
+            if (DB::table('manuscript_people')->where('manuscript_id', $rec['id'])->where('role', 'patron')->whereNull('person_id')->where('name', $rec['commissioner'])->exists()) {
+                return [$payload ? 'write' : 'already', $payload, $old];
+            }
+            return ['write', $payload, $old];
+        }
         if (! $payload) {
             return [$already ? 'already' : 'nothing to do', [], []];
-        }
-        if (array_diff_key($payload, $guard->strip($rec['id'], $payload))) {
-            return ['protected by a reviewed correction', [], []];
         }
         $have = $this->plain(implode(' ', json_decode($row->bibliography ?? 'null', true) ?? []));  // works only
         foreach ($rec['require_in_bibliography'] ?? [] as $citation) {
