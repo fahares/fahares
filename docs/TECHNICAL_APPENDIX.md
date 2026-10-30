@@ -4861,3 +4861,30 @@
     - اجرای وارسی: ۴٬۷۶۸ و ۲۷ «موجود» و ۳۱ `run_on`.
   - **وارسی سایت:** `/people/801` «آثار تقدیم‌شده به او ۴۴۲» و `/people/70613` «۶۶» دارند. `/w/74` عباس دوم را با «(1033-1077ق)» نشان می‌دهد.
 
+### گام ۱۳.۷۳: سقف حافظه‌ی Meilisearch
+
+- **اندازه‌گیری پیش از تغییر (۸ آبان، `ssh fahares-server`):**
+  - رم ۵٬۴۰۸ مگابایت و ۲ هسته داشت. swap یک‌گیگابایتی (`/dev/sda3`) کاملاً پر بود و swappiness=60.
+  - هیچ کانتینری `--memory` نداشت.
+  - پیک cgroup: `fahares-meilisearch` ۲٬۶۴۸ مگابایت، dawawin ۱٬۱۸۸، coolify ۹۷۱ و MariaDB ۵۷۶.
+  - گزارش کامل بیرون از مخزن، در یادداشت‌های جلسه است.
+- **پیکربندی پیشین:** `fahares-meilisearch` با `docker run` ساده ساخته شده بود، بیرون از Compose و Coolify. شبکه‌اش `coolify` بود، بدون پورت منتشرشده، با volume `fahares_meilidata_v1_55` (۶٫۱ گیگابایت) و `restart=always`. env فقط `MEILI_MASTER_KEY` و `MEILI_ENV=production` بود.
+- **ساخت دوباره:**
+  - کانتینر قبلی `docker stop -t 60` شد، سیاست restart آن به `no` تغییر کرد و نامش `fahares-meilisearch-old-20261030` شد.
+  - کانتینر تازه با همان env (از راه یک env-file موقت با مجوز ۶۰۰ که بعد پاک شد) ساخته شد، به‌علاوه‌ی این‌ها:
+
+```
+docker run -d --name fahares-meilisearch --network coolify --restart always \
+  --memory 1536m --env-file <env> \
+  -e MEILI_MAX_INDEXING_MEMORY=512Mb -e MEILI_MAX_INDEXING_THREADS=1 \
+  --log-driver json-file --log-opt max-size=10m --log-opt max-file=3 \
+  -v fahares_meilidata_v1_55:/meili_data getmeili/meilisearch:v1.55.0
+```
+
+- **وارسی:**
+  - `/health` پس از ۱ ثانیه `available` بود.
+  - `/search` روی fahares.net کد ۲۰۰ داد. درخواست‌های هر ۴ نمایه ۲۰۰ بودند و `time.busy` زیر ۵ میلی‌ثانیه ماند، مثل پیش از تغییر.
+  - کانتینر پس از راه‌اندازی ۲۳۵ مگابایت مصرف داشت. حافظه‌ی در دسترس سرور از ۱٬۵۳۳ به ۲٬۵۵۵ مگابایت رسید.
+- **برگشت:** `docker rm -f fahares-meilisearch && docker rename fahares-meilisearch-old-20261030 fahares-meilisearch && docker update --restart=always fahares-meilisearch && docker start fahares-meilisearch`
+- **swap (کاربر با sudo اجرا کرد):** فایل swap چهارگیگابایتی `/swapfile` ساخته و در `/etc/fstab` ثبت شد. `vm.swappiness=10` هم در `/etc/sysctl.d/99-swappiness.conf` گذاشته شد. پس از آن کل swap ۵٬۱۱۹ مگابایت بود (۴٬۰۹۰ آزاد) و حافظه‌ی در دسترس ۲٬۹۱۱ مگابایت.
+
