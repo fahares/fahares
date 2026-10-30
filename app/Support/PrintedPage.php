@@ -100,8 +100,16 @@ class PrintedPage
         $starts = [];
         $from = 0;
         foreach ($items->where('page_start', $page) as $item) {
-            $needle = mb_substr(trim(strtok((string) $item->text, "\n")), 0, 40);
+            $line = trim(strtok((string) $item->text, "\n"));
+            $needle = mb_substr($line, 0, 40);
             $at = $needle === '' ? false : mb_strpos($text, $needle, $from);
+            // al-Dhari'a's volume 26 prints the number on a line of its own: «[ 972 ]» then «( ترجمه تاريخ عباسه ) …»,
+            // where the entry reads «( 972 : ترجمه تاريخ عباسه ) …»
+            if ($at === false && preg_match('/^\(\s*(\d+)\s*:\s*(.+)$/u', $line, $m)
+                && ($at = mb_strpos($text, mb_substr('( ' . $m[2], 0, 40), $from)) !== false
+                && preg_match('/\[\s*' . $m[1] . '\s*\]\s*$/u', mb_substr($text, 0, $at), $number)) {
+                $at -= mb_strlen($number[0]);
+            }
             if ($at !== false) {
                 $starts[] = [$at, $item];
                 $from = $at + 1;
