@@ -56,8 +56,8 @@ class ExportSearchResults implements ShouldQueue
         SearchExport::write($this->records($type, $ids), $type, $this->format, Storage::disk('public')->path(SearchExport::DIRECTORY . '/' . $file));
 
         $link = URL::temporarySignedRoute('search.export.file', now()->addDays(SearchExport::KEEP_DAYS), ['file' => $file]);
-        $user->notify(new Notice('search.export_ready', 'خروجی جستجو آماده است',
-            [($query !== '' ? "خروجی جستجوی «{$query}»" : 'خروجی فهرست') . ' با ' . Fa::num(count($ids)) . ' ردیف ساخته شد.',
+        $user->notify(new Notice('search.export_ready', 'خروجی جست‌وجو آماده است',
+            [($query !== '' ? "خروجی جست‌وجوی «{$query}»" : 'خروجی فهرست') . ' با ' . Fa::num(count($ids)) . ' ردیف ساخته شد.',
                 'این پیوند تا ' . Fa::num(SearchExport::KEEP_DAYS) . ' روز کار می‌کند.'],
             $link, 'دانلود فایل'));
     }

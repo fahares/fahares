@@ -61,7 +61,7 @@ class SearchStatsTest extends TestCase
         }
 
         $this->actingAs($admin)->get(route('admin.search-stats.index'))->assertOk()
-            ->assertSeeInOrder(['پرتکرارترین جستجوها', 'کافی', 'جستجوهای بی‌نتیجه', 'واژه‌ی ناپیدا', 'نتیجه‌دار ولی بی‌کلیک', 'بی‌کلیک'])
+            ->assertSeeInOrder(['پرتکرارترین جست‌وجوها', 'کافی', 'جست‌وجوهای بی‌نتیجه', 'واژه‌ی ناپیدا', 'نتیجه‌دار ولی بی‌کلیک', 'بی‌کلیک'])
             ->assertSee('سده')->assertSee('۵');
 
         $editor = User::create(['name' => 'ویراستار آمار', 'email' => 'stats-editor@fahares.net', 'password' => 'password123', 'role' => 'editor']);
@@ -77,7 +77,7 @@ class SearchStatsTest extends TestCase
         $search();
         $this->assertSame($user->id, SearchLog::sole()->user_id);
 
-        $this->actingAs($user)->get(route('profile'))->assertOk()->assertSee('سابقه‌ی جستجو')->assertSee('خاموش کردن');
+        $this->actingAs($user)->get(route('profile'))->assertOk()->assertSee('سابقه‌ی جست‌وجو')->assertSee('خاموش کردن');
         $this->actingAs($user)->post(route('profile.search-history'), ['search_history' => 0])->assertRedirect();
         $this->assertFalse($user->fresh()->search_history);
         $this->assertNull(SearchLog::sole()->user_id, 'turning it off detaches the searches kept so far');
@@ -94,7 +94,7 @@ class SearchStatsTest extends TestCase
         SearchLog::create(['query' => 'تجرید', 'type' => 'works', 'scope' => 'titles_names', 'results_count' => 90, 'user_id' => $user->id, 'is_member' => true, 'clicked_position' => 2]);
 
         $this->actingAs($admin)->get(route('admin.users.edit', $user))->assertOk()
-            ->assertSee('جستجوهای اخیر')->assertSee('تجرید')->assertSee('رتبه‌ی ۲ باز شد');
+            ->assertSee('جست‌وجوهای اخیر')->assertSee('تجرید')->assertSee('رتبه‌ی ۲ باز شد');
         $this->actingAs($admin)->get(route('admin.search-stats.index'))->assertOk()->assertSee('۱ کاربر یکتا');
     }
 

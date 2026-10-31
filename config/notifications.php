@@ -84,7 +84,7 @@ return [
             'channels' => ['database' => true, 'mail' => true],
         ],
         'search.export_ready' => [
-            'label' => 'آماده شدن خروجی بزرگ جستجو',
+            'label' => 'آماده شدن خروجی بزرگ جست‌وجو',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
@@ -128,7 +128,7 @@ return [
             'group' => ['alerts'],
         ],
         'system.search_failed' => [
-            'label' => 'خطای نمایه‌ی جستجو (Meilisearch)',
+            'label' => 'خطای نمایه‌ی جست‌وجو (Meilisearch)',
             'roles' => ['admin'],
             'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false, 'digest' => true],
             'group' => ['alerts'],

@@ -16,7 +16,7 @@
 
 @section('content')
 <x-admin.filters :action="route('admin.subjects.index')" :reset="$search ? route('admin.subjects.index') : null" :total="$subjects->total()" noun="موضوع">
-    <input type="search" name="q" value="{{ $search }}" placeholder="نام موضوع" aria-label="جستجوی موضوع" class="admin-field flex-1 basis-48 max-w-sm">
+    <input type="search" name="q" value="{{ $search }}" placeholder="نام موضوع" aria-label="جست‌وجوی موضوع" class="admin-field flex-1 basis-48 max-w-sm">
 </x-admin.filters>
 
 <x-admin.table :paginator="$subjects" :is-empty="$subjects->isEmpty()" empty="موضوعی یافت نشد.">

@@ -26,8 +26,8 @@
     class="max-w-5xl space-y-5 text-[13px]">
 
     <x-admin.notice>
-        دو شخص را با جستجوی نام یا شناسه برگزینید. همه‌ی آثار، نسخه‌ها و نقش‌های <b>شخص تکراری</b> به <b>شخص اصلی</b> منتقل و شمارها دوباره حساب می‌شوند.
-        نام‌های شخص تکراری به نام‌های دیگر شخص اصلی افزوده می‌شود و نشانی‌اش به صفحه‌ی شخص اصلی می‌رود. اگر نام شخص تکراری نادرست است، در جدول مقایسه «نادرست» را برگزینید تا فقط برای جستجو بماند.
+        دو شخص را با جست‌وجوی نام یا شناسه برگزینید. همه‌ی آثار، نسخه‌ها و نقش‌های <b>شخص تکراری</b> به <b>شخص اصلی</b> منتقل و شمارها دوباره حساب می‌شوند.
+        نام‌های شخص تکراری به نام‌های دیگر شخص اصلی افزوده می‌شود و نشانی‌اش به صفحه‌ی شخص اصلی می‌رود. اگر نام شخص تکراری نادرست است، در جدول مقایسه «نادرست» را برگزینید تا فقط برای جست‌وجو بماند.
         ادغام در لاگ ممیزی ثبت می‌شود و از همان‌جا بازگرداندنی است.
     </x-admin.notice>
 
@@ -52,14 +52,14 @@
 
                     {{-- Search, until a person is chosen --}}
                     <div x-show="!sides.{{ $key }}.person" class="relative" @click.outside="sides.{{ $key }}.open = false">
-                        <label for="merge-{{ $key }}" class="sr-only">جستجوی {{ $side['title'] }}</label>
+                        <label for="merge-{{ $key }}" class="sr-only">جست‌وجوی {{ $side['title'] }}</label>
                         <input id="merge-{{ $key }}" type="search" autocomplete="off"
                                x-model="sides.{{ $key }}.query"
                                @input.debounce.250ms="search('{{ $key }}')"
                                @focus="sides.{{ $key }}.open = sides.{{ $key }}.results.length > 0"
                                placeholder="نام، شهرت، کنیه یا شناسه"
                                class="admin-field w-full">
-                        <span x-show="sides.{{ $key }}.loading" x-cloak class="absolute left-3 top-2 text-xs text-muted">در جستجو…</span>
+                        <span x-show="sides.{{ $key }}.loading" x-cloak class="absolute left-3 top-2 text-xs text-muted">در جست‌وجو…</span>
 
                         <ul x-show="sides.{{ $key }}.open" x-cloak
                             class="absolute z-30 inset-x-0 mt-1 max-h-72 overflow-y-auto bg-surface border border-line-strong rounded-sm shadow-lg divide-y divide-line">

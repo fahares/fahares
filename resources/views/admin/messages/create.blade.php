@@ -15,7 +15,7 @@
             <x-admin.field label="گیرنده" for="q" hint="نام کاربر را بنویسید و از فهرست برگزینید.">
                 <div class="flex gap-2">
                     <input type="search" name="q" id="q" value="{{ $q }}" minlength="2" required class="admin-field flex-1" autofocus>
-                    <x-ui.btn type="submit">جستجو</x-ui.btn>
+                    <x-ui.btn type="submit">جست‌وجو</x-ui.btn>
                 </div>
             </x-admin.field>
         </form>

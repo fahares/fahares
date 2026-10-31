@@ -38,7 +38,7 @@
             <h2 class="font-naskh text-lg sm:text-[22px] font-bold text-ink leading-[1.6] text-balance md:pt-2 !mb-0">{{ SiteSetting::get('home.headline') }}</h2>
 
             <div x-data="{ activeTab: 'works' }" class="max-w-3xl mx-auto text-right pt-1">
-                <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنه‌ی جستجو">
+                <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنه‌ی جست‌وجو">
                     @foreach(['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'پدیدآوران و کاتبان'] as $tab => $tabLabel)
                         <button type="button" role="tab" @click="activeTab = '{{ $tab }}'" :aria-selected="activeTab === '{{ $tab }}'"
                                 :class="activeTab === '{{ $tab }}' ? 'bg-paper text-ink border-line-strong' : 'text-muted border-transparent hover:text-ink'"
@@ -49,14 +49,14 @@
                 <form action="{{ route('search') }}" method="GET" class="relative group">
                     <input type="hidden" name="type" :value="activeTab">
                     <input type="hidden" name="scope" value="all">
-                    <label for="home-search" class="sr-only">جستجو</label>
+                    <label for="home-search" class="sr-only">جست‌وجو</label>
                     <div class="relative flex items-center">
                         <input type="text" name="q" id="home-search" autocomplete="off"
                                placeholder="عنوان اثر، نام مؤلف، کاتب، آغاز و انجام، یا شماره‌ی نسخه"
                                class="w-full pr-12 pl-28 py-3.5 sm:py-4 bg-paper text-ink placeholder:text-muted text-base rounded-sm border border-line-strong focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 outline-none transition">
                         <svg class="absolute right-4 w-5 h-5 text-muted group-focus-within:text-cinnabar transition pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <button type="submit" class="absolute left-1.5 px-5 py-2.5 bg-cinnabar text-on-cinnabar font-semibold rounded-sm text-sm hover:opacity-90 transition flex items-center gap-1.5 cursor-pointer">
-                            <span>جستجو</span>
+                            <span>جست‌وجو</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m6-6-6 6 6 6"/></svg>
                         </button>
                     </div>

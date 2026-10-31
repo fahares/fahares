@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * «آمار جستجو» (backlog item 83, phase 0): what people search for, what finds nothing, and which rank they open.
+ * «آمار جست‌وجو» (backlog item 83, phase 0): what people search for, what finds nothing, and which rank they open.
  */
 class SearchStatsController extends Controller
 {

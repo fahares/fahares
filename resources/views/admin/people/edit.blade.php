@@ -42,7 +42,7 @@
             <x-admin.field label="نام‌های دیگر (شهرت، لقب، کنیه؛ هر نام در یک سطر)" for="aliases">
                 <textarea name="aliases" id="aliases" rows="4" class="admin-field w-full leading-7">{{ old('aliases', implode("\n", (array) ($person->aliases ?? []))) }}</textarea>
             </x-admin.field>
-            <x-admin.field label="صورت‌های نادرست (فقط برای جستجو؛ هر نام در یک سطر)" for="wrong_names">
+            <x-admin.field label="صورت‌های نادرست (فقط برای جست‌وجو؛ هر نام در یک سطر)" for="wrong_names">
                 <textarea name="wrong_names" id="wrong_names" rows="4" class="admin-field w-full leading-7">{{ old('wrong_names', implode("\n", (array) ($person->wrong_names ?? []))) }}</textarea>
                 <span class="block text-xs text-muted mt-1">در صفحه‌ی شخص فقط در یک سطر کم‌رنگ «در برخی منابع به صورت … آمده است» می‌آیند. برای عوض کردن نوع یک نام، آن را از یک کادر به دیگری ببرید.</span>
             </x-admin.field>

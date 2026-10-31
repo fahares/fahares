@@ -64,7 +64,7 @@
                     <div class="space-y-1 relative">
                         <span class="block font-bold text-ink"
                             x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:'})[relation.target])"></span>
-                        <input type="text" name="target" x-model="targetQuery" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جستجوی عنوان و نام" class="{{ $input }}">
+                        <input type="text" name="target" x-model="targetQuery" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جست‌وجوی عنوان و نام" class="{{ $input }}">
                         <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-surface shadow-lg">
                             <template x-for="r in targetResults" :key="r.id">
                                 <li>

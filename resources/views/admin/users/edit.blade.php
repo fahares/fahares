@@ -65,11 +65,11 @@
 @can('search.stats')
     @php $searches = $user->search_history ? \App\Models\SearchLog::where('user_id', $user->id)->latest('id')->limit(30)->get() : collect(); @endphp
     <x-ui.card class="max-w-2xl mt-5 space-y-3 text-[13px]">
-        <h2 class="rubric text-base">جستجوهای اخیر</h2>
+        <h2 class="rubric text-base">جست‌وجوهای اخیر</h2>
         @if(! $user->search_history)
-            <p class="text-xs text-muted">این کاربر نگه‌داری سابقه‌ی جستجو را خاموش کرده است.</p>
+            <p class="text-xs text-muted">این کاربر نگه‌داری سابقه‌ی جست‌وجو را خاموش کرده است.</p>
         @elseif($searches->isEmpty())
-            <p class="text-xs text-muted">جستجویی ثبت نشده است.</p>
+            <p class="text-xs text-muted">جست‌وجویی ثبت نشده است.</p>
         @else
             <ul class="divide-y divide-line">
                 @foreach($searches as $s)

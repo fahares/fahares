@@ -256,7 +256,7 @@
 
                         @if($field['input'] === 'hijri_date')
                             <div class="space-y-1">
-                                <label for="hijri_year" class="block font-bold text-ink">سال هجری قمری برای مرتب‌سازی و جستجو</label>
+                                <label for="hijri_year" class="block font-bold text-ink">سال هجری قمری برای مرتب‌سازی و جست‌وجو</label>
                                 <input id="hijri_year" type="number" name="hijri_year" min="{{ \App\Support\HijriYear::MIN }}" max="{{ \App\Support\HijriYear::MAX }}" value="{{ old('hijri_year', $parsedYear) }}" class="admin-field w-40 font-bold tabular-nums">
                                 <p class="text-xs text-muted">از متن پیشنهادی استخراج شد{{ $parsedYear ? '' : ' (سالی پیدا نشد)' }}. اگر تاریخ فقط سده است یا شمسی و میلادی است، خالی بگذارید.</p>
                             </div>

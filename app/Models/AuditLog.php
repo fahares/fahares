@@ -61,7 +61,7 @@ class AuditLog extends Model
         Role::class => 'نقش',
         // Operations of the system page, logged without a model
         'System' => 'سامانه',
-        'Meilisearch' => 'نمایه‌ی جستجو',
+        'Meilisearch' => 'نمایه‌ی جست‌وجو',
     ];
 
     protected function casts(): array

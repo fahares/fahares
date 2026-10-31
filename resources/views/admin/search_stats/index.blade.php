@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'آمار جستجو')
-@section('page_title', 'آمار جستجو')
+@section('title', 'آمار جست‌وجو')
+@section('page_title', 'آمار جست‌وجو')
 
 @section('content')
 @php
@@ -20,9 +20,9 @@
     $maxDay = max(1, ...array_column($daily, 'n'));
     $searchUrl = fn ($row) => route('search', ['q' => $row->query, 'type' => $row->type]);
     $tiles = [
-        ['جستجو', Fa::num($searches), Fa::num((int) $totals->queries) . ' عبارت متفاوت'],
-        ['بی‌نتیجه', $pct((int) $totals->empty, $searches), Fa::num((int) $totals->empty) . ' جستجو'],
-        ['نتیجه‌ای باز شد', $pct((int) $totals->clicked, $answered), 'از جستجوهای نتیجه‌دار'],
+        ['جست‌وجو', Fa::num($searches), Fa::num((int) $totals->queries) . ' عبارت متفاوت'],
+        ['بی‌نتیجه', $pct((int) $totals->empty, $searches), Fa::num((int) $totals->empty) . ' جست‌وجو'],
+        ['نتیجه‌ای باز شد', $pct((int) $totals->clicked, $answered), 'از جست‌وجوهای نتیجه‌دار'],
         ['نتیجه‌ی اول باز شد', $pct((int) $totals->first_clicked, (int) $totals->clicked), $totals->avg_position ? 'میانگین رتبه ' . Fa::digits(round($totals->avg_position, 1)) : 'از نتیجه‌های بازشده'],
         ['کاربران واردشده', $pct((int) $totals->members, $searches), Fa::num((int) $totals->users) . ' کاربر یکتا با سابقه‌ی روشن'],
     ];
@@ -32,7 +32,7 @@
 
 <div class="space-y-6 text-[13px]">
     <x-admin.notice>
-        جستجوهای نخستین صفحه‌ی نتایج ثبت می‌شوند. جستجوی مهمان بی‌نام است. جستجوی کاربر واردشده با حسابش نگه داشته می‌شود، مگر آنکه در «حساب من» خاموشش کرده باشد؛ جستجوهای هر کاربر در صفحه‌ی او در «کاربران» دیده می‌شود. ربات‌ها و جستجوی فوری سربرگ شمرده نمی‌شوند.
+        جست‌وجوهای نخستین صفحه‌ی نتایج ثبت می‌شوند. جست‌وجوی مهمان بی‌نام است. جست‌وجوی کاربر واردشده با حسابش نگه داشته می‌شود، مگر آنکه در «حساب من» خاموشش کرده باشد؛ جست‌وجوهای هر کاربر در صفحه‌ی او در «کاربران» دیده می‌شود. ربات‌ها و جست‌وجوی فوری سربرگ شمرده نمی‌شوند.
         «باز شد» یعنی کاربر از همان صفحه نتیجه‌ای را گشود.
     </x-admin.notice>
 
@@ -47,14 +47,14 @@
     </div>
 
     @if($searches === 0)
-        <p class="py-10 text-center text-muted">در این بازه جستجویی ثبت نشده است.</p>
+        <p class="py-10 text-center text-muted">در این بازه جست‌وجویی ثبت نشده است.</p>
     @else
         <x-ui.card class="space-y-3">
-            <h2 class="rubric text-base">جستجو در هر روز</h2>
+            <h2 class="rubric text-base">جست‌وجو در هر روز</h2>
             {{-- One series: the day's searches; the tooltip also gives the ones that found nothing --}}
-            <div class="flex items-end gap-[2px] h-32 border-b border-line-strong" role="img" aria-label="شمار جستجو در هر روز">
+            <div class="flex items-end gap-[2px] h-32 border-b border-line-strong" role="img" aria-label="شمار جست‌وجو در هر روز">
                 @foreach($daily as $d)
-                    <div class="flex-1 min-w-[1px] h-full flex items-end group relative" title="@jdate($d['day'], 'date'): {{ Fa::num($d['n']) }} جستجو، {{ Fa::num($d['empty']) }} بی‌نتیجه">
+                    <div class="flex-1 min-w-[1px] h-full flex items-end group relative" title="@jdate($d['day'], 'date'): {{ Fa::num($d['n']) }} جست‌وجو، {{ Fa::num($d['empty']) }} بی‌نتیجه">
                         <div class="w-full rounded-t-[4px] bg-cinnabar/80 group-hover:bg-cinnabar transition" style="height: {{ $d['n'] ? max(2, round(100 * $d['n'] / $maxDay)) : 0 }}%"></div>
                     </div>
                 @endforeach
@@ -67,14 +67,14 @@
         </x-ui.card>
 
         @foreach([
-            ['پرتکرارترین جستجوها', $top, 'جستجویی ثبت نشده است.'],
-            ['جستجوهای بی‌نتیجه', $empty, 'همه‌ی جستجوها نتیجه داشته‌اند.'],
-            ['نتیجه‌دار ولی بی‌کلیک', $unopened, 'جستجوی تکراری بی‌کلیکی نیست.'],
+            ['پرتکرارترین جست‌وجوها', $top, 'جست‌وجویی ثبت نشده است.'],
+            ['جست‌وجوهای بی‌نتیجه', $empty, 'همه‌ی جست‌وجوها نتیجه داشته‌اند.'],
+            ['نتیجه‌دار ولی بی‌کلیک', $unopened, 'جست‌وجوی تکراری بی‌کلیکی نیست.'],
         ] as [$title, $rows, $none])
             <section class="space-y-2">
                 <h2 class="rubric text-base">{{ $title }}</h2>
                 @if($title === 'نتیجه‌دار ولی بی‌کلیک')
-                    <p class="text-xs text-muted">دست‌کم دو بار جستجو شده و نتیجه داشته، ولی هیچ نتیجه‌ای باز نشده است: احتمالاً نتیجه‌ها آن چیزی نبوده که کاربر می‌خواست.</p>
+                    <p class="text-xs text-muted">دست‌کم دو بار جست‌وجو شده و نتیجه داشته، ولی هیچ نتیجه‌ای باز نشده است: احتمالاً نتیجه‌ها آن چیزی نبوده که کاربر می‌خواست.</p>
                 @endif
                 <x-admin.table :is-empty="$rows->isEmpty()" :empty="$none">
                     <x-slot:head>
@@ -101,8 +101,8 @@
 
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             @foreach([
-                ['تب جستجو', $tabs->mapWithKeys(fn ($n, $k) => [$tabLabels[$k] ?? $k => $n])],
-                ['دامنه‌ی جستجو', $scopes->mapWithKeys(fn ($n, $k) => [$scopeLabels[$k] ?? $k => $n])],
+                ['تب جست‌وجو', $tabs->mapWithKeys(fn ($n, $k) => [$tabLabels[$k] ?? $k => $n])],
+                ['دامنه‌ی جست‌وجو', $scopes->mapWithKeys(fn ($n, $k) => [$scopeLabels[$k] ?? $k => $n])],
                 ['فیلترهای به‌کاررفته', $filters->mapWithKeys(fn ($n, $k) => [Stats::FILTER_LABELS[$k] ?? $k => $n])],
                 ['رتبه‌ی نتیجه‌ی بازشده', collect([1 => 'اول', 2 => 'دوم', 3 => 'سوم', 4 => '۴ تا ۱۰', 11 => 'پس از ۱۰'])->mapWithKeys(fn ($l, $b) => [$l => $positions[$b] ?? 0])],
             ] as [$title, $counts])
@@ -148,7 +148,7 @@
             </div>
             <x-admin.table :is-empty="$exports['top']->isEmpty()" empty="">
                 <x-slot:head>
-                    <x-admin.th>جستجوی خروجی‌گرفته</x-admin.th>
+                    <x-admin.th>جست‌وجوی خروجی‌گرفته</x-admin.th>
                     <x-admin.th>دفعات</x-admin.th>
                     <x-admin.th>بیشترین نتیجه</x-admin.th>
                     <x-admin.th>تب</x-admin.th>

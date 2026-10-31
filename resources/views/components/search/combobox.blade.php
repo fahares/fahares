@@ -1,4 +1,4 @@
-@props(['name', 'label', 'items', 'selected' => null, 'all' => 'همه', 'placeholder' => 'جستجو…', 'unit' => null, 'multiple' => false])
+@props(['name', 'label', 'items', 'selected' => null, 'all' => 'همه', 'placeholder' => 'جست‌وجو…', 'unit' => null, 'multiple' => false])
 
 {{-- A filter of the search page as a dropdown with its own search box, for long lists (subjects, libraries):
      items are [id, name, count, hint]; count may be null when there is nothing to count. «multiple» lets several be

@@ -62,7 +62,7 @@ class SendNotificationDigestCommand extends Command
     /** Types gathered from the recipient's own site notices, with their section heading */
     private const GATHERED = [
         'system.queue_failed' => 'شکست کارهای صف',
-        'system.search_failed' => 'نمایه‌ی جستجو',
+        'system.search_failed' => 'نمایه‌ی جست‌وجو',
         'system.command_finished' => 'دستورهای سرور',
         'permissions.changed' => 'تغییر دسترسی نقش‌ها',
     ];

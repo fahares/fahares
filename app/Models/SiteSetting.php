@@ -22,7 +22,7 @@ class SiteSetting extends Model
 
     public const LABELS = [
         'home.eyebrow' => 'عنوان فرعی زیر نام فهارس',
-        'home.headline' => 'عنوان بالای کادر جستجو',
+        'home.headline' => 'عنوان بالای کادر جست‌وجو',
         'home.lede' => 'توضیح زیر عنوان فرعی',
         'home.treasures_title' => 'عنوان بخش تصویرهای برگزیده',
         'home.catalogers_title' => 'عنوان بخش فهرست‌نگاران',

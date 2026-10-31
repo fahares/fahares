@@ -76,7 +76,7 @@ class HomeController extends Controller
             ['label' => 'جامع التواریخ', 'url' => route('search', ['q' => 'جامع التواریخ', 'type' => 'works'], false)],
             ['label' => 'کلیله و دمنه', 'url' => route('search', ['q' => 'کلیله و دمنه', 'type' => 'works'], false)],
 
-            // ۲. جستجوهای ترکیبی هوشمند (اثر + پدیدآورنده)
+            // ۲. جست‌وجوهای ترکیبی هوشمند (اثر + پدیدآورنده)
             ['label' => 'قانون ابن سینا', 'url' => route('search', ['q' => 'قانون ابن سینا', 'type' => 'works'], false)],
             ['label' => 'شرح کافیه رضی', 'url' => route('search', ['q' => 'شرح کافیه رضی', 'type' => 'works'], false)],
             ['label' => 'شرح نهج‌البلاغه ابن ابی‌الحدید', 'url' => route('search', ['q' => 'شرح نهج البلاغه ابن ابی الحدید', 'type' => 'works'], false)],

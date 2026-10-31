@@ -51,7 +51,7 @@ class AdminNav
                     'count' => fn () => \App\Models\MessageThread::where('kind', 'direct')->unreadByStaff()->count()],
                 ['label' => 'ماتریس دسترسی', 'route' => 'admin.roles.index', 'active' => 'admin.roles.*', 'can' => 'roles.manage'],
                 ['label' => 'لاگ ممیزی', 'route' => 'admin.audit-logs.index', 'active' => 'admin.audit-logs.*', 'can' => 'audit.view'],
-                ['label' => 'آمار جستجو', 'route' => 'admin.search-stats.index', 'active' => 'admin.search-stats.*', 'can' => 'search.stats'],
+                ['label' => 'آمار جست‌وجو', 'route' => 'admin.search-stats.index', 'active' => 'admin.search-stats.*', 'can' => 'search.stats'],
                 ['label' => 'کش و نمایه‌سازی', 'route' => 'admin.system.index', 'active' => 'admin.system.*', 'can' => 'system.manage'],
             ]],
         ];

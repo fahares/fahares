@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'کاوش و جستجوی پیشرفته | فهارس')
+@section('title', 'کاوش و جست‌وجوی پیشرفته | فهارس')
 
 @section('content')
 @php use App\Support\Fa; @endphp
@@ -28,7 +28,7 @@
                 <button 
                     type="submit" 
                     class="absolute left-2 px-5 py-2 bg-cinnabar hover:opacity-90 text-on-cinnabar font-semibold rounded-sm text-sm transition shadow">
-                    جستجو
+                    جست‌وجو
                 </button>
             </div>
 
@@ -37,7 +37,7 @@
                 
                 <!-- Where the words are looked for: the three general scopes, or one field of the tab (backlog item 83) -->
                 <label class="flex flex-wrap items-center gap-2 text-ink/80">
-                    <span class="font-bold text-muted">جستجوی عبارت در:</span>
+                    <span class="font-bold text-muted">جست‌وجوی عبارت در:</span>
                     <select name="scope" onchange="this.form.submit()" class="py-1 ps-2 pe-7 rounded-sm border border-line-strong bg-paper text-ink text-xs">
                         <option value="titles" @selected($scope === 'titles')>فقط عنوان‌ها</option>
                         <option value="titles_names" @selected($scope === 'titles_names')>عنوان‌ها و نام‌ها{{ $type === 'manuscripts' ? '، شماره و کتابخانه' : '' }}</option>
@@ -53,13 +53,13 @@
                 </label>
                 {{-- What the box understands, which no one finds by chance (backlog item 83, phase 8) --}}
                 <details class="relative text-ink/80">
-                    <summary class="cursor-pointer list-none text-cinnabar hover:underline">راهنمای جستجو</summary>
+                    <summary class="cursor-pointer list-none text-cinnabar hover:underline">راهنمای جست‌وجو</summary>
                     <div class="absolute z-30 mt-2 w-[min(22rem,85vw)] end-0 bg-surface border border-line shadow-xl p-4 space-y-2 leading-6">
                         <p><b>عبارت دقیق</b> در گیومه: <code dir="rtl">"شرح لمعه"</code></p>
                         <p><b>بی این واژه</b> با خط تیره پیش از آن: <code dir="rtl">شرح -حاشیه</code></p>
                         <p><b>این یا آن</b> با خط عمودی: <code dir="rtl">کافی | شافی</code></p>
                         <p><b>شماره‌ی نسخه:</b> <code dir="rtl">مجلس ۱۱۸۹</code>؛ <b>صفحه‌ی فهرست:</b> <code dir="rtl">مرعشی ج ۳۳ ص ۲۹۴</code>، <code dir="rtl">ذریعه ج ۳ ص ۴۰۲</code></p>
-                        <p><b>فقط یک فیلد</b> (کاتب، پدیدآور، آغاز و انجام…): از «جستجوی عبارت در».</p>
+                        <p><b>فقط یک فیلد</b> (کاتب، پدیدآور، آغاز و انجام…): از «جست‌وجوی عبارت در».</p>
                         <p class="text-muted">ارقام فارسی و لاتین، «ي/ی» و «ك/ک»، و «ال» یکسان شمرده می‌شوند.</p>
                     </div>
                 </details>
@@ -173,7 +173,7 @@
                     </form>
                     <x-ui.btn size="sm" @click="copyLink()">
                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-                        <span x-show="!copied">پیوند این جستجو</span>
+                        <span x-show="!copied">پیوند این جست‌وجو</span>
                         <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                     </x-ui.btn>
                     {{-- The results as a file, with the same filters and order (backlog item 83, phase 4) --}}
@@ -382,13 +382,13 @@
                     {{ $results->links() }}
                 </div>
                 @if(auth()->user()?->search_history)
-                    <p class="pt-4 text-[11px] text-muted">جستجوهای شما برای بهتر شدن جستجوی فهارس با حسابتان نگه داشته می‌شود. <a href="{{ route('profile') }}#search-history" class="underline hover:text-cinnabar">تنظیم</a></p>
+                    <p class="pt-4 text-[11px] text-muted">جست‌وجوهای شما برای بهتر شدن جست‌وجوی فهارس با حسابتان نگه داشته می‌شود. <a href="{{ route('profile') }}#search-history" class="underline hover:text-cinnabar">تنظیم</a></p>
                 @endif
 
             @elseif($engineDown ?? false)
                 <div class="py-12 text-center space-y-3">
-                    <p class="font-naskh text-2xl font-bold text-ink">جستجو موقتاً در دسترس نیست</p>
-                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">موتور جستجو پاسخ نداد یا نمایه‌ی آن در حال ساخت است. چند دقیقه‌ی دیگر دوباره امتحان کنید؛ مرور با فیلترها بی‌عبارت جستجو کار می‌کند.</p>
+                    <p class="font-naskh text-2xl font-bold text-ink">جست‌وجو موقتاً در دسترس نیست</p>
+                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">موتور جست‌وجو پاسخ نداد یا نمایه‌ی آن در حال ساخت است. چند دقیقه‌ی دیگر دوباره امتحان کنید؛ مرور با فیلترها بی‌عبارت جست‌وجو کار می‌کند.</p>
                 </div>
             @elseif(($direct ?? null) && ! $direct->isEmpty())
                 {{-- The direct answer above is the result --}}
@@ -417,7 +417,7 @@
                         </p>
                     @endif
 
-                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">املای واژه‌ها را بازبینی کنید، یا دامنه‌ی جستجو و پالایه‌ها را تغییر دهید.</p>
+                    <p class="text-sm text-muted max-w-md mx-auto leading-relaxed">املای واژه‌ها را بازبینی کنید، یا دامنه‌ی جست‌وجو و پالایه‌ها را تغییر دهید.</p>
                     <x-ui.btn :href="route('search', ['type' => $type])">همه‌ی موارد این بخش</x-ui.btn>
                 </div>
             @endif

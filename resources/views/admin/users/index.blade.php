@@ -14,7 +14,7 @@
 
 <x-admin.filters :action="route('admin.users.index')" :reset="$search ? route('admin.users.index', array_filter(['role' => $role])) : null" :total="$users->total()" noun="حساب">
     @if($role)<input type="hidden" name="role" value="{{ $role }}">@endif
-    <input type="search" name="q" value="{{ $search }}" placeholder="نام یا رایانامه" aria-label="جستجوی کاربر" class="admin-field flex-1 basis-48">
+    <input type="search" name="q" value="{{ $search }}" placeholder="نام یا رایانامه" aria-label="جست‌وجوی کاربر" class="admin-field flex-1 basis-48">
 </x-admin.filters>
 
 <x-admin.table :paginator="$users" :is-empty="$users->isEmpty()" empty="کاربری با این مشخصات یافت نشد.">

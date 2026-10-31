@@ -62,7 +62,7 @@
 
     <x-ui.section title="آثار" :count="$works->total()">
         <x-slot:actions>
-            <x-ui.btn size="sm" :href="route('search', ['type' => 'works', 'subject_id' => $subject->id])">جستجوی پیشرفته در این موضوع</x-ui.btn>
+            <x-ui.btn size="sm" :href="route('search', ['type' => 'works', 'subject_id' => $subject->id])">جست‌وجوی پیشرفته در این موضوع</x-ui.btn>
         </x-slot:actions>
 
         <form action="{{ route('subjects.show', $subject) }}" method="GET" class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 mb-4">
@@ -75,7 +75,7 @@
                 <input type="hidden" name="scope" value="direct">
             @endif
             <div class="flex-1 relative">
-                <label for="subject-q" class="sr-only">جستجو در آثار این موضوع</label>
+                <label for="subject-q" class="sr-only">جست‌وجو در آثار این موضوع</label>
                 <input id="subject-q" type="text" name="q" value="{{ $search }}" placeholder="عنوان یا پدیدآور"
                     class="w-full pr-10 pl-4 py-2 bg-surface rounded-sm border border-line-strong text-sm text-ink placeholder:text-muted focus:border-cinnabar focus:ring-4 focus:ring-cinnabar/15 outline-none">
                 <svg class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -129,7 +129,7 @@
             <div class="py-10 text-center space-y-2">
                 <p class="text-sm text-muted">اثری با این مشخصات در این موضوع پیدا نشد.</p>
                 @if($search !== '')
-                    <a href="{{ route('subjects.show', $subject) }}" class="text-sm text-cinnabar hover:underline">برداشتن جستجو</a>
+                    <a href="{{ route('subjects.show', $subject) }}" class="text-sm text-cinnabar hover:underline">برداشتن جست‌وجو</a>
                 @endif
             </div>
         @endif

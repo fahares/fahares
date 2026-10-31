@@ -13,7 +13,7 @@
 
 @section('content')
 <x-admin.filters :action="route('admin.people.index')" :reset="($search || $role || $century) ? route('admin.people.index') : null" :total="$people->total()" noun="شخص">
-    <input type="search" name="q" value="{{ $search }}" placeholder="نام، کنیه یا لقب" aria-label="جستجوی نام" class="admin-field flex-1 basis-48">
+    <input type="search" name="q" value="{{ $search }}" placeholder="نام، کنیه یا لقب" aria-label="جست‌وجوی نام" class="admin-field flex-1 basis-48">
     <select name="role" aria-label="نقش" class="admin-field">
         <option value="">همه‌ی نقش‌ها</option>
         <option value="author" @selected($role === 'author')>مؤلف</option>

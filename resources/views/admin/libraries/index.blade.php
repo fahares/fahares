@@ -5,7 +5,7 @@
 
 @section('content')
 <x-admin.filters :action="route('admin.libraries.index')" :reset="($search || $city) ? route('admin.libraries.index') : null" :total="$libraries->total()" noun="کتابخانه">
-    <input type="search" name="q" value="{{ $search }}" placeholder="نام کتابخانه یا مرکز" aria-label="جستجوی نام" class="admin-field flex-1 basis-48">
+    <input type="search" name="q" value="{{ $search }}" placeholder="نام کتابخانه یا مرکز" aria-label="جست‌وجوی نام" class="admin-field flex-1 basis-48">
     <select name="city" aria-label="شهر" class="admin-field">
         <option value="">همه‌ی شهرها</option>
         @foreach($cities as $c)

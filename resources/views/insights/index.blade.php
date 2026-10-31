@@ -61,7 +61,7 @@
     <x-ui.section title="خط زمانی کتابت" id="timeline">
         <x-ui.card>
             <div x-data="{ sel: {{ $peak['century'] }}, cs: @js(collect($t['centuries'])->keyBy('century')) }">
-            <p class="text-xs text-muted mb-4">شمار نسخه‌های کتابت‌شده در هر سده‌ی هجری. روی هر سده بزنید تا نسخه‌های آن در جستجو باز شود.</p>
+            <p class="text-xs text-muted mb-4">شمار نسخه‌های کتابت‌شده در هر سده‌ی هجری. روی هر سده بزنید تا نسخه‌های آن در جست‌وجو باز شود.</p>
 
             <div class="flex items-end gap-1 sm:gap-2 h-56 border-b border-line-strong" role="list" aria-label="شمار نسخه‌ها در هر سده">
                 @foreach($t['centuries'] as $row)
@@ -111,7 +111,7 @@
                     </div>
                     <p class="mt-3 text-xs">
                         <a :href="`{{ route('search', ['type' => 'manuscripts']) }}&century=${sel}`" class="text-cinnabar font-semibold hover:underline">
-                            دیدن <span x-text="cs[sel].count.toLocaleString('fa-IR')"></span> نسخه‌ی سده‌ی <span x-text="sel.toLocaleString('fa-IR')"></span> در جستجو ←
+                            دیدن <span x-text="cs[sel].count.toLocaleString('fa-IR')"></span> نسخه‌ی سده‌ی <span x-text="sel.toLocaleString('fa-IR')"></span> در جست‌وجو ←
                         </a>
                     </p>
                 </div>

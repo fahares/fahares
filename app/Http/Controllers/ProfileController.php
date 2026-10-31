@@ -47,7 +47,7 @@ class ProfileController extends Controller
             SearchLog::where('user_id', $user->id)->update(['user_id' => null]);
         }
 
-        return back()->with('success', $on ? 'سابقه‌ی جستجوی شما از این پس با حسابتان نگه داشته می‌شود.' : 'سابقه‌ی جستجوی شما دیگر با حسابتان نگه داشته نمی‌شود و سابقه‌ی پیشین هم از حسابتان جدا شد.');
+        return back()->with('success', $on ? 'سابقه‌ی جست‌وجوی شما از این پس با حسابتان نگه داشته می‌شود.' : 'سابقه‌ی جست‌وجوی شما دیگر با حسابتان نگه داشته نمی‌شود و سابقه‌ی پیشین هم از حسابتان جدا شد.');
     }
 
     /** Shown once, after a first Google sign-in with a Latin name; may be skipped. */

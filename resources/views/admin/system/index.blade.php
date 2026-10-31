@@ -13,7 +13,7 @@
         'cache_driver' => 'کش',
         'session_driver' => 'نشست‌ها',
         'queue_connection' => 'صف کارها',
-        'scout_driver' => 'موتور جستجو',
+        'scout_driver' => 'موتور جست‌وجو',
         'app_env' => 'محیط',
         'app_debug' => 'حالت اشکال‌زدایی',
     ];
@@ -35,8 +35,8 @@
     <x-ui.card class="space-y-4">
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
-                <h2 class="rubric text-base">نمایه‌ی جستجو (Meilisearch)</h2>
-                <p class="text-xs text-muted mt-1 leading-6">جستجوی سایت از این نمایه‌ها می‌خواند. بازنمایه‌سازی در پس‌زمینه انجام می‌شود و چند دقیقه طول می‌کشد.</p>
+                <h2 class="rubric text-base">نمایه‌ی جست‌وجو (Meilisearch)</h2>
+                <p class="text-xs text-muted mt-1 leading-6">جست‌وجوی سایت از این نمایه‌ها می‌خواند. بازنمایه‌سازی در پس‌زمینه انجام می‌شود و چند دقیقه طول می‌کشد.</p>
             </div>
             <x-ui.chip :tone="$meiliStats['healthy'] ? 'good' : 'accent'">{{ $meiliStats['healthy'] ? 'در دسترس' : 'در دسترس نیست' }}</x-ui.chip>
         </div>
@@ -52,7 +52,7 @@
                 @endforeach
             </ul>
         @elseif(! $meiliStats['healthy'])
-            <x-admin.notice tone="warn">موتور جستجو پاسخ نمی‌دهد. تا دوباره برقرار شود، جستجوی سایت ممکن است درست کار نکند.</x-admin.notice>
+            <x-admin.notice tone="warn">موتور جست‌وجو پاسخ نمی‌دهد. تا دوباره برقرار شود، جست‌وجوی سایت ممکن است درست کار نکند.</x-admin.notice>
         @endif
 
         <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-line">

@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')</title>
-    <meta name="description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
+    <meta name="description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
     @hasSection('robots')<meta name="robots" content="@yield('robots')">@endif
 
     <!-- Open Graph / Facebook -->
     <meta property="og:site_name" content="فهارس | پایگاه جامع نسخه‌های خطی">
     <meta property="og:title" content="@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')">
-    <meta property="og:description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
+    <meta property="og:description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="@yield('og_type', 'website')">
     <meta property="og:image" content="@yield('og_image', \App\Support\VersionedAsset::url('images/brand/og-image.jpg'))">
@@ -23,7 +23,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')">
-    <meta name="twitter:description" content="@yield('meta_description', 'سامانه و موتور جستجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب')">
+    <meta name="twitter:description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب')">
     <meta name="twitter:image" content="@yield('og_image', \App\Support\VersionedAsset::url('images/brand/og-image.jpg'))">
 
     @stack('structured_data')
@@ -83,7 +83,7 @@
                 <!-- Desktop Navigation Links -->
                 <nav class="hidden lg:flex items-center gap-1 text-sm font-semibold text-ink">
                     <a href="{{ route('search') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('search') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
-                        جستجو
+                        جست‌وجو
                     </a>
                     <a href="{{ route('subjects.index') }}" class="px-3 lg:px-2.5 xl:px-3 py-2 rounded-lg whitespace-nowrap hover:text-cinnabar hover:bg-paper transition {{ request()->routeIs('subjects.*') ? 'text-cinnabar bg-amber-50/60 dark:bg-amber-950/20' : '' }}">
                         موضوعات
@@ -118,7 +118,7 @@
                     {{-- Below lg the nav folds into the menu; the search page stays one tap away --}}
                     <a href="{{ route('search') }}"
                        class="lg:hidden inline-flex p-2 rounded-full border border-line-strong bg-paper text-ink/80 hover:border-gold hover:text-cinnabar transition shadow-sm {{ request()->routeIs('search') ? 'text-cinnabar border-gold' : '' }}"
-                       title="جستجو" aria-label="جستجو">
+                       title="جست‌وجو" aria-label="جست‌وجو">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </a>
 
@@ -251,7 +251,7 @@
                         </button>
                         <div x-show="open" @click.away="open = false" x-transition class="absolute left-0 mt-2 w-48 bg-surface rounded-xl shadow-xl border border-line-strong py-2 z-50 text-sm">
                             <a href="{{ route('home') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('home') ? 'text-cinnabar font-bold' : '' }}">صفحه نخست</a>
-                            <a href="{{ route('search') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('search') ? 'text-cinnabar font-bold' : '' }}">جستجو</a>
+                            <a href="{{ route('search') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('search') ? 'text-cinnabar font-bold' : '' }}">جست‌وجو</a>
                             <a href="{{ route('subjects.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('subjects.*') ? 'text-cinnabar font-bold' : '' }}">موضوعات</a>
                             <a href="{{ route('libraries.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('libraries.*') ? 'text-cinnabar font-bold' : '' }}">کتابخانه‌ها و مراکز</a>
                             <a href="{{ route('catalogers.index') }}" class="block px-4 py-2 hover:bg-paper {{ request()->routeIs('catalogers.*') ? 'text-cinnabar font-bold' : '' }}">فهرست‌نگاران</a>
@@ -428,7 +428,7 @@
                 <div>
                     <h3 class="text-sm font-bold text-amber-200 tracking-wider mb-4 border-r-2 border-gold pr-2">امکانات پژوهشی</h3>
                     <ul class="space-y-2 text-sm text-stone-400">
-                        <li>جستجوی بلادرنگ با Meilisearch</li>
+                        <li>جست‌وجوی بلادرنگ با Meilisearch</li>
                         <li>فیلترهای کالبدشناسی (تذهیب، خط، سده)</li>
                         <li>سیستم مشارکت و ثبت تصحیحات پژوهشگران</li>
                         <li>داده‌های ساختاریافته و دسترسی باز</li>
@@ -644,19 +644,19 @@
                             <div class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-amber-500/10 text-cinnabar mb-3">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
-                            <p class="font-medium text-ink/80 text-sm mb-1">جستجوی بلادرنگ در آثار، اشخاص و نسخه‌ها</p>
+                            <p class="font-medium text-ink/80 text-sm mb-1">جست‌وجوی بلادرنگ در آثار، اشخاص و نسخه‌ها</p>
                             <p>دست‌کم ۲ حرف تایپ کنید؛ سپس با کلیدهای ↑ و ↓ میان گزینه‌ها حرکت کرده و با Enter وارد شوید.</p>
                         </div>
 
                         <!-- State: No Results -->
                         <div x-show="query.trim().length >= 2 && !loading && !hasResults()" class="p-8 text-center text-xs text-muted">
                             <p class="text-sm font-medium mb-1">موردی منطبق با «<span class="text-ink font-semibold" x-text="query"></span>» در عناوین اصلی یافت نشد.</p>
-                            <p class="mb-3 text-[11px] text-stone-400">می‌توانید همین عبارت را در کل فیلدها و کالبدشناسی نسخه‌ها جستجو کنید.</p>
+                            <p class="mb-3 text-[11px] text-stone-400">می‌توانید همین عبارت را در کل فیلدها و کالبدشناسی نسخه‌ها جست‌وجو کنید.</p>
                             <button 
                                 type="button" 
                                 @click="goToFullSearch()" 
                                 class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cinnabar hover:opacity-90 text-on-cinnabar text-xs font-semibold transition cursor-pointer shadow-sm">
-                                <span>جستجوی پیشرفته در کل پایگاه (Enter)</span>
+                                <span>جست‌وجوی پیشرفته در کل پایگاه (Enter)</span>
                                 <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
                         </div>

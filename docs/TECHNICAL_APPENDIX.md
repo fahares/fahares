@@ -5168,3 +5168,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `x-source.cover`: تصویر جلد، یا جلد پارچه‌ای با عنوان.
   - `x-source.toc`: یک `details` با فهرست چندستونی.
   - کلاس‌های `.book-nav` و `.book-nav__middle` در `app.css`.
+
+### گام ۱۳.۸۵: «جست‌وجو» با نیم‌فاصله
+- جایگزینی `جستجو` با `جست\u200cوجو` در `app`، `config`، `resources`، `database/content` و توضیح یک migration، و در assertهای آزمون‌ها.
+- `2026_10_31_100001_spell_jost_o_ju_in_pages`: `REPLACE()` روی `pages.title` و `pages.body`؛ `down()` آن را برمی‌گرداند.

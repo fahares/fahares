@@ -30,7 +30,7 @@ class SearchSortTest extends TestCase
         config(['scout.driver' => 'meilisearch']);
         $this->app->instance(\Meilisearch\Client::class, new \Meilisearch\Client('http://127.0.0.1:9'));
 
-        $this->get(route('search', ['q' => 'کافی', 'type' => 'works']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
+        $this->get(route('search', ['q' => 'کافی', 'type' => 'works']))->assertOk()->assertSee('جست‌وجو موقتاً در دسترس نیست');
     }
 
     public function test_any_of_several_parts_is_split_and_survives_an_engine_failure(): void
@@ -43,7 +43,7 @@ class SearchSortTest extends TestCase
 
         config(['scout.driver' => 'meilisearch']);
         $this->app->instance(\Meilisearch\Client::class, new \Meilisearch\Client('http://127.0.0.1:9'));
-        $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
-        $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works', 'sort' => 'manuscripts']))->assertOk()->assertSee('جستجو موقتاً در دسترس نیست');
+        $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works']))->assertOk()->assertSee('جست‌وجو موقتاً در دسترس نیست');
+        $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works', 'sort' => 'manuscripts']))->assertOk()->assertSee('جست‌وجو موقتاً در دسترس نیست');
     }
 }

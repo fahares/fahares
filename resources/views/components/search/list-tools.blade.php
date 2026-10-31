@@ -1,4 +1,4 @@
-@props(['params', 'placeholder' => 'جستجو در این فهرست…', 'plural' => 'نسخه‌ها'])
+@props(['params', 'placeholder' => 'جست‌وجو در این فهرست…', 'plural' => 'نسخه‌ها'])
 
 {{-- Above a record's list (a library's manuscripts, an author's works…): search within it, or open it in the search
      page, which narrows to it and adds the filters, orders and Excel export (backlog item 83, phase 6) --}}
@@ -9,7 +9,7 @@
         @endforeach
         <input type="search" name="q" placeholder="{{ $placeholder }}" aria-label="{{ $placeholder }}"
                class="flex-1 min-w-0 px-2.5 py-1.5 rounded-sm border border-line-strong bg-paper text-ink text-xs focus:border-cinnabar focus:ring-2 focus:ring-cinnabar/15 outline-none">
-        <x-ui.btn type="submit" size="sm">جستجو</x-ui.btn>
+        <x-ui.btn type="submit" size="sm">جست‌وجو</x-ui.btn>
     </form>
     <a href="{{ route('search', $params) }}" class="text-cinnabar hover:underline">فیلتر، مرتب‌سازی و خروجی اکسل این {{ $plural }} ←</a>
 </div>

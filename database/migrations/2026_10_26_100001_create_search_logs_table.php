@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * The site's searches, for the admin page «آمار جستجو» (backlog item 83, phase 0). Anonymous on purpose:
+ * The site's searches, for the admin page «آمار جست‌وجو» (backlog item 83, phase 0). Anonymous on purpose:
  * no user id, IP or session, only whether the searcher was signed in.
  */
 return new class extends Migration
