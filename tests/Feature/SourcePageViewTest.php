@@ -216,6 +216,24 @@ class SourcePageViewTest extends TestCase
         $this->assertSame("قال (وَ الْبٰاقِيٰاتُ) و A. Storey 1927 و قال النبي ص\nلا تم", \App\Support\PageMarks::strip($text));
     }
 
+    public function test_an_entry_whose_first_line_has_marks_is_found_and_its_heading_shows_none()
+    {
+        // al-Dhari'a vol. 9 p. 218: the heading runs on with its paragraph, whose names Noor tags
+        $source = Source::create(['code' => 'dharia-test', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 9, 'facsimile_code' => 'dharia-test']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 218,
+            'text' => "( 1333 : ديوان حاجي أردبيلي ) أورد شعره في (\u{E020}WB\u{E021}گلشن\u{E022} - ص 133)."]);
+        SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 9, 'item_key' => '1333', 'position' => 1,
+            'kind' => SourceItem::KIND_ENTRY, 'entry_number' => 1333, 'title' => 'ديوان حاجي أردبيلي', 'title_normalized' => 'ديوان حاجي اردبيلي',
+            'page_start' => 218, 'page_end' => 218, 'text' => '( 1333 : ديوان حاجي أردبيلي ) أورد شعره في (گلشن - ص 133).']);
+
+        $html = $this->get('/sources/dharia-test/9/page/218')->assertOk()
+            ->assertSee('<span class="book-sheet__heading" data-entry-heading>( ۱۳۳۳ : ديوان حاجي أردبيلي ) أورد شعره في (<span data-noor="WB">گلشن</span> - ص ۱۳۳).</span>', false)
+            ->getContent();
+        $this->assertSame(['1333'], $this->headings($html));
+        $this->assertStringNotContainsString("\u{E020}", $html);
+    }
+
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
     {
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6 و 3257/4');

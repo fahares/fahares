@@ -115,9 +115,9 @@
                             @else
                                 <div class="book-sheet__headline">
                                     @if($workUrl && ! $title)
-                                        <a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-entry-heading data-work-link>{{ Fa::digits($lines[0]) }}</a>
+                                        <a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-entry-heading data-work-link>{{ \App\Support\PrintedPage::text($lines[0]) }}</a>
                                     @else
-                                        <span class="book-sheet__heading" data-entry-heading>{{ Fa::digits($lines[0]) }}</span>
+                                        <span class="book-sheet__heading" data-entry-heading>{{ \App\Support\PrintedPage::text($lines[0]) }}</span>
                                     @endif
                                     @if($work)
                                         @if($work->isAwaitingReview())<x-ui.machine-badge class="ms-1 align-middle" :text="$work->machineNote()" :review="$work->badgeReview()" />@endif
@@ -125,7 +125,7 @@
                                     @endif
                                 </div>
                                 @if($title)
-                                    <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ Fa::digits($title) }}</a>@else<span class="book-sheet__heading">{{ Fa::digits($title) }}</span>@endif{{ Fa::digits(rtrim($lines[1])) }}</div>
+                                    <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ \App\Support\PrintedPage::text($title) }}</a>@else<span class="book-sheet__heading">{{ \App\Support\PrintedPage::text($title) }}</span>@endif{{ \App\Support\PrintedPage::text(rtrim($lines[1])) }}</div>
                                 @elseif(isset($lines[1]) && trim($lines[1]) !== '')
                                     <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text(trim($lines[1], "\n")) }}</div>
                                 @endif

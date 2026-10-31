@@ -299,21 +299,24 @@ class PrintedPage
      */
     private static function cut(string $text, Collection $items, int $page): array
     {
+        // the entries are looked for in the page's words, without Noor's marks (App\Support\PageMarks), and cut where
+        // those words stand in the page
+        [$plain, $at_in_text] = self::withoutMarks($text);
         $starts = [];
         $from = 0;
         foreach ($items->where('page_start', $page) as $item) {
             $line = trim(strtok((string) $item->text, "\n"));
             $needle = mb_substr($line, 0, 40);
-            $at = $needle === '' ? false : mb_strpos($text, $needle, $from);
+            $at = $needle === '' ? false : mb_strpos($plain, $needle, $from);
             // al-Dhari'a's volume 26 prints the number on a line of its own: «[ 972 ]» then «( ترجمه تاريخ عباسه ) …»,
             // where the entry reads «( 972 : ترجمه تاريخ عباسه ) …»
             if ($at === false && preg_match('/^\(\s*(\d+)\s*:\s*(.+)$/u', $line, $m)
-                && ($at = mb_strpos($text, mb_substr('( ' . $m[2], 0, 40), $from)) !== false
-                && preg_match('/\[\s*' . $m[1] . '\s*\]\s*$/u', mb_substr($text, 0, $at), $number)) {
+                && ($at = mb_strpos($plain, mb_substr('( ' . $m[2], 0, 40), $from)) !== false
+                && preg_match('/\[\s*' . $m[1] . '\s*\]\s*$/u', mb_substr($plain, 0, $at), $number)) {
                 $at -= mb_strlen($number[0]);
             }
             if ($at !== false) {
-                $starts[] = [$at, $item];
+                $starts[] = [$at_in_text[$at], $item];
                 $from = $at + 1;
             }
         }
@@ -329,6 +332,29 @@ class PrintedPage
         }
 
         return $blocks;
+    }
+
+    /**
+     * The text without Noor's marks, and where each of its characters stands in the text with them.
+     *
+     * @return array{0: string, 1: list<int>}
+     */
+    private static function withoutMarks(string $text): array
+    {
+        $plain = '';
+        $at = [];
+        $i = 0;
+        foreach (preg_split('/(' . trim(PageMarks::PATTERN, '/u') . ')/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE) as $k => $token) {
+            $length = mb_strlen($token);
+            if ($k % 2 === 0 && $length > 0) {
+                $plain .= $token;
+                array_push($at, ...range($i, $i + $length - 1));
+            }
+            $i += $length;
+        }
+        $at[] = $i;
+
+        return [$plain, $at];
     }
 
     /** The page before or after, in the volume or at the end of the volume next to it: [volume, page]. */
