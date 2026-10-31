@@ -5173,6 +5173,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `x-source.cover`: تصویر جلد، یا جلد پارچه‌ای با عنوان.
   - `x-source.toc`: یک `details` با فهرست چندستونی.
   - کلاس‌های `.book-nav` و `.book-nav__middle` در `app.css`.
+- **اجرای پروداکشن (۱۰ آبان):**
+  - `toc.json` (md5 `b559c8bf…`) از راه `ssh fahares-app` به `/tmp` رفت.
+  - `sources:import-toc /tmp/toc.json` نخست با `--dry-run` و سپس واقعی اجرا شد، و فایل موقت پاک شد.
+  - شمارها: منزوی ۶۵۵، کشف ۳۴، ایضاح ۳۰، هدیه ۲۹، الذریعة ۹۴.
 
 ### گام ۱۳.۸۵: «جست‌وجو» با نیم‌فاصله
 - جایگزینی `جستجو` با `جست\u200cوجو` در `app`، `config`، `resources`، `database/content` و توضیح یک migration، و در assertهای آزمون‌ها.
