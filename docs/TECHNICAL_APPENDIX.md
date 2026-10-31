@@ -5538,7 +5538,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **یافته:** `ufw status verbose` گفت `Status: inactive` (سرویس systemd آن active است ولی قانونی بار نشده). پس هر پورتی که فرایندی روی خود میزبان باز کند از بیرون در دسترس است.
 - **تغییر:** [fahares-docker-firewall.sh](../scripts/firewall/fahares-docker-firewall.sh) با `HOST_PORTS` (پیش‌فرض `2053 20128`) قانون `-i eth0 -p tcp --dport <port> -j DROP` را با همان برچسب در `INPUT` در iptables و ip6tables می‌گذارد؛ `remove` و `status` هم آن‌ها را می‌شناسند. [README](../scripts/firewall/README.md) به‌روز شد.
 - **وارسی:** check-host.net: ۲۰۵۳ و ۲۰۱۲۸ از ۳ نود timeout؛ ۲۰۹۶ و ۸۴۴۳ از ۳ نود وصل. درخواست محلی از راه میزبان (`lo`) به هر دو پاسخ داد.
-- **مانده:** فعال کردن ufw با سیاست پیش‌فرض رد؛ در گام ۱۳.۱۱۰ انجام شد.
+- **مانده:** فعال کردن ufw با سیاست پیش‌فرض رد؛ در گام ۱۳.۱۱۱ انجام شد.
 
 ### گام ۱۳.۱۰۸: فهرست پیوسته‌های منبع در `/sources/{code}`
 - **فهرست منابع:** در [SourceController](../app/Http/Controllers/SourceController.php)، `index` منبعِ `union_catalogue` را در گروه `library_catalogue` می‌گذارد و `KINDS` دیگر آن را ندارد. ترتیب همان `rank` و `title` است، پس فنخا الفبایی میان فهرست‌ها می‌آید.
@@ -5594,3 +5594,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ضامن:** `systemd-run --unit=ufw-safety --on-active=10min ufw disable` پیش از `ufw --force enable`؛ پس از وارسی، `systemctl stop ufw-safety.timer`. `ENABLED=yes` در `/etc/ufw/ufw.conf`.
 - **وارسی:** check-host.net: ۲۲، ۸۰، ۴۴۳، ۹۹۳ و پورت‌های مجاز از ۳ نود وصل؛ ۲۵ و ۵۸۷ از برخی نودها (نودها خروجی ایمیل را می‌بندند)؛ ۲۰۵۳ timeout. `fahares.net/up`، `coolify.fahares.net/login` و `dawawin.ir` کد ۲۰۰. ورود SSH کانتینر Coolify در ۱۴:۰۳ پس از فعال شدن.
 - **برگشت:** `sudo ufw disable`.
+
+### گام ۱۳.۱۱۲: `sources:fill-empty-catalogues`
+- **یافتن (فقط‌خواندنی، `fahares_prod` محلی):** برای هر یک از ۱۸ منبع، توزیع `metadata.catalog_citation` نسخه‌های کتابخانه‌اش به تفکیک `source_volumes`، رکورد `mtif_dump.entry`/`event` (شمار صفحه، شابک)، `catalog_volume_cataloger` و [fankha_catalogs_master_verified.json](../database/data/fankha_catalogs_master_verified.json) بررسی شد. دسته‌بندی کامل در یادداشت نشست‌ها (`empty-catalogue-sources-triage.md`) است.
+- **دستور:** [FillEmptyCataloguesCommand](../app/Console/Commands/FillEmptyCataloguesCommand.php) با `--dry-run`. کلیدها کد منبع (یا `Source::mergedInto`)، `mtif_entry_id`، عنوان `catalog_volumes` و slug کتابخانه‌اند، نه id محلی.
+  1. **MTIF میکروفیلم‌ها:** جلدی که `mtif_entry_id = 21479` و عنوان «… - جلد سوم» دارد، آن را به جلد شماره‌ی ۱ منبع `catalogue-09b1ef810b10` می‌دهد (در هر دو جدول). رکورد 21483 را `foldVolume` از جلد تکراری ۳ برمی‌دارد.
+  2. **`sources:merge-split --group`** برای `GROUPS` (کد نخست می‌ماند). شماره‌ی جلد میکروفیلم‌ها از عنوان خوانده می‌شود: #149 «جلد سوم» ۳ می‌شود و #153 در آن تا می‌شود. #539 (بی‌کتابخانه) جلد ۱ است.
+  3. **مختصر مجلس:** جلدی که عنوان `catalog_volumes` آن `BRIEF_HELD_AS` است، `source_id` منبع `catalogue-c799cf2caeda`، شماره‌ی ۱ و عنوان جلد MTIF 35032 را می‌گیرد. `source_entries` و `source_items` آن جابه‌جا می‌شوند. سپس `MergeSplitSourcesCommand::foldVolume` (اکنون `public static`) جلد MTIF را در آن تا می‌کند. `volumes_count` هر دو منبع دوباره شمرده می‌شود. با عنوان تازه، `stem` در `sources:backfill` همان گروهِ کد c799 را می‌سازد.
+  4. **گره‌زدن میکروفیلم‌ها:** نسخه‌های کتابخانه‌ی `thran-danshgah-3` که `rawCitation` آن‌ها با `[فیلم`/`[فيلم` آغاز می‌شود و `parse` برایشان جلد ۱ تا ۳ می‌دهد، به جلدی با همان شماره می‌روند. سپس `SourceEntrySync::syncCited` برای همه‌ی نسخه‌های ارجاع‌دار اجرا می‌شود، تا `volume_number`هایی که merge-split روی #149 از ۱ به ۳ برده بود، از ارجاع دوباره خوانده شوند. ارجاعِ بی‌جلد («- 126») دست نمی‌خورد.
+  - کش `sources:shelf` و `sources:copies`/`sources:linked` منبع‌های میکروفیلم، مختصر، مجلس و مشکوه پاک می‌شود.
+- **تمرین (`fahares_prod` محلی):**
+  - پشتیبان در پایگاه `fahares_prod_bak_13112` گرفته شد: جدول‌های کامل `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `field_evidence` و `source_entries`، و ستون‌های جلد از `manuscripts`، `manuscript_catalog_references` و `source_items`.
+  - اجرا ۵۴ ثانیه طول کشید. منبع‌ها ۱۷۰ ← ۱۶۲. مدخل‌ها ۷۸۵٬۵۸۳، بی‌تغییر. `catalog_volume_id` در ۷٬۷۹۳ نسخه عوض شد.
+  - میکروفیلم‌ها (100035): جلد ۱ #539 (MTIF 21479، ۶٬۱۸۱ ارجاع)، جلد ۲ #154 (۱٬۴۶۴)، جلد ۳ #149 (MTIF 21483، ۲٬۲۲۳).
+  - مختصر (100050): #441 با ۲٬۵۰۰ نسخه.
+  - اجرای دوم: «their MTIF records are in place»، «No catalogue is held as several sources»، «its copies are on its own source» و صفر گره تازه.
+- **آزمون:** [FillEmptyCataloguesTest](../tests/Feature/FillEmptyCataloguesTest.php) سه منبع میکروفیلم و جلد مختصر را می‌سازد. نسخه‌های جلد ۱، ۲ (روی جلد مشکوه) و ۳ (یکی بی‌جلد)، یک ارجاع بی‌جلد و یک ارجاع «ف» دارد. dry-run، اجرا، مدخل‌ها، فهرست‌نگار، ۳۰۱ و تکرار بی‌اثر آزموده می‌شوند. آزمون‌ها روی پایگاه جداگانه‌ی `fahares_emptycat_test` اجرا شدند و ۵۳۳ آزمون موفق بودند.

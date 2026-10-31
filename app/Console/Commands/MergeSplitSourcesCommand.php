@@ -138,7 +138,7 @@ class MergeSplitSourcesCommand extends Command
         }
 
         foreach ($drops as [$d, $k]) {
-            $this->foldVolume($d->volume->id, $k->volume->id);
+            self::foldVolume($d->volume->id, $k->volume->id);
         }
         $this->renumber($kept, $group, $volumes, $drops, $stays);
 
@@ -166,7 +166,7 @@ class MergeSplitSourcesCommand extends Command
     }
 
     /** Moves everything that hangs on a duplicate volume to the one kept, then deletes it with its catalog volume. */
-    private function foldVolume(int $drop, int $keep): void
+    public static function foldVolume(int $drop, int $keep): void
     {
         DB::table('source_entries')->where('source_volume_id', $drop)->update(['source_volume_id' => $keep]);
         // a printed entry or a page the kept volume has too is the same one
