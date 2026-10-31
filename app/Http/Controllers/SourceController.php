@@ -36,7 +36,13 @@ class SourceController extends Controller
 
     public function show(Request $request, string $code)
     {
-        $source = Source::with(['library', 'volumes.catalogers', 'editionOf', 'editions'])->where('code', $code)->firstOrFail();
+        $source = Source::with(['library', 'volumes.catalogers', 'editionOf', 'editions'])->where('code', $code)->first();
+        if (! $source) {
+            // a source folded into another (sources:merge-split) is found at the other's address
+            $merged = Source::mergedInto($code) ?? abort(404);
+
+            return redirect()->to(route('sources.show', $merged->code) . ($request->getQueryString() ? '?' . $request->getQueryString() : ''), 301);
+        }
         $counts = SourceShelf::counts()[$source->id] ?? ['works' => 0, 'manuscripts' => 0, 'items' => 0, 'pages' => 0];
         $volumeIds = $source->volumes->pluck('id');
         $pages = DB::table('source_pages')->whereIn('source_volume_id', $volumeIds)->selectRaw('source_volume_id, count(*) n, min(page) first_page')

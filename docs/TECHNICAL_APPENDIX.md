@@ -5547,3 +5547,43 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **شمارش:** شمار مدخل‌های فنخا (۳۲۴ هزار) بیش از یک ثانیه طول می‌کشد. شمار هر ترکیب منبع، نوع، جلد و `q` یک روز در کش `sources:linked:*` نگه داشته می‌شود و به `paginate` داده می‌شود.
 - **زمان (محلی، پس از کش):** فنخا بی‌جست‌وجو ۰٫۱۷ تا ۱٫۴ ثانیه، «کافیه» ۰٫۳ ثانیه، «شرح» صفحه‌ی ۷ حدود ۲ ثانیه.
 - **آزمون:** `test_a_source_page_lists_the_records_it_is_cited_for_and_searches_their_titles` و `test_a_union_catalogue_is_listed_among_the_libraries_catalogues` در [SourcesShelfTest](../tests/Feature/SourcesShelfTest.php). کل آزمون‌ها: ۵۲۷ موفق.
+
+### گام ۱۳.۱۱۰: `sources:merge-split`
+- **ریشه:** در `BackfillSourcesCommand::registry`، `SourceEntrySync::groupKey` = `catalogue|library_id|stem(title)`، و `stem` فقط بخشِ پس از آخرین « - » را می‌بُرد. کد منبع `catalogue-` + `substr(sha1(key), 0, 12)` است.
+- **دستور:** [MergeSplitSourcesCommand](../app/Console/Commands/MergeSplitSourcesCommand.php) با `--dry-run` و `--group=code1,code2` برای گروهی که عنوان‌ها نمی‌گویند (کد نخست می‌ماند).
+  - **کلید گروه:** `catalogueKey` = `kind|library_id|edition_of_id|edition_label|normalize(baseTitle(title))`. `baseTitle` پسوند `- (عکسی )جلد …` یا `- رقم` را برمی‌دارد. `normalize` حروف ي/ى را به ی و ك را به ک برمی‌گرداند، نیم‌فاصله را به فاصله تبدیل می‌کند، «حضرت» را برمی‌دارد و `آ[یي][ةت]\s*ال?له` را «آیت الله» می‌کند.
+  - **منبع ماندنی:** به ترتیب `coverUrl()`، شمار جلد، کوچک‌ترین شماره‌ی جلد و `id`.
+  - **شماره‌ی جلد:** `volumeNumber` شماره را از عنوان می‌خواند: رقم فارسی یا لاتین، ترتیبی‌ها (اول تا پنجاهم) و دهگان با «و» («سی و یکم»). اگر عنوان جلد شماره نداشت، از عنوان منبع، وگرنه همان `volume_number`. برای بخش (`isPart`: «/»، «بخش» یا «مجلد» پس از «جلد») همان `volume_number` می‌ماند.
+  - **جلد تکراری:** شماره‌ی برابر، از منبع دیگر، هیچ‌کدام بخش نباشد و زیرعنوانِ پس از «:» ناسازگار نباشد. `foldVolume` این‌ها را به جلد ماندنی می‌برد:
+    - `source_entries.source_volume_id`؛
+    - `source_items`: کلید هم‌نام یکی می‌شود و `source_item_id`، `target_item_id` و `parent_id` به آن اشاره می‌کنند؛
+    - `source_pages` که جلد ماندنی ندارد؛
+    - `edition_of_id` هر دو جدول؛
+    - `manuscripts.catalog_volume_id` و `manuscript_catalog_references.catalog_volume_id`؛
+    - فهرست‌نگارانِ تازه‌ی `catalog_volume_cataloger`؛
+    - ستون‌های تهیِ جلد ماندنی (`publication_year`، `mtif_entry_id`، …).
+    - سپس ردیف `source_volumes` و `catalog_volumes` پاک می‌شود.
+  - **شماره‌گذاری دوباره:** `source_volumes` و `catalog_volumes` (`volume_number`)، `source_items` (`source_id`، `volume_number`). در `source_entries`، `volume_number` و `text_volume_number` جلد به جلد عوض می‌شوند (فقط ردیف‌هایی که شماره‌ی قدیم را داشتند). ردیف‌های بی‌جلدِ منبع تاشده و `field_evidence` با یک `CASE` عوض می‌شوند تا ۱→۲ و ۲→۳ در هم نروند. `locations` در PHP بازنویسی می‌شود.
+  - **منبع ماندنی:** `title` = `baseTitle`، `volumes_count` = شمار جلدها، و `metadata.merged_codes` کدهای تاشده را نگه می‌دارد. ستون‌های تهی از منبع تاشده پر می‌شوند. کش `sources:shelf`، `sources:copies:{id}` و `sources:linked:*` بی‌جلد و بی‌`q` پاک می‌شود. هر گروه در یک تراکنش اجرا می‌شود.
+- **۳۰۱:** `Source::mergedInto($code)` (`whereJsonContains('metadata->merged_codes')`). `SourceController::show` اگر کد را نیابد، با رشته‌ی پرس‌وجو به منبع ماندنی هدایت می‌کند.
+- **`sources:backfill`:** اگر کد گروه منبعی با `merged_codes` باشد، یا در `merged_codes` منبعی آمده باشد، گروه فقط به آن اشاره می‌کند و `volumes_count` آن را جمع جلدهای گروه‌ها می‌گذارد. عنوان و `metadata` بازنویسی نمی‌شوند. منبعی که کدش را نیابد با `metadata->group` = کلید پیدا می‌کند و کدش را نگه می‌دارد (100071، ادبیات فردوسی: کدش با کتابخانه‌ی 14 ساخته شده بود و حالا زیر 113 است).
+- **تمرین (`fahares_prod` محلی):**
+  - پشتیبان ردیف‌ها در scratchpad نشست گرفته شد.
+  - اجرا ۳۱ ثانیه طول کشید. منبع‌ها از ۱۸۵ به ۱۷۰ و جلدها از ۵۴۳ به ۵۲۹ رسید. مدخل‌ها ۷۸۵٬۵۸۳، بی‌تغییر.
+  - گلپایگانی (100020): جلدهای ۱ تا ۸. مرعشی (100011): ۱ تا ۳۸، که ۵ تا ۱۲ از 100047 آمد و ۱۴ جلد تکراری پاک شد. مجلس (100030): ۴۹ جلد با بخش‌های ۲۴، ۲۷ و ۴۰. مشکوه (100054): ۱ تا ۷.
+  - اجرای دوم: «No catalogue is held as several sources.»
+  - `sources:backfill --only=registry` پس از آن: diff دامپ `sources`، `source_volumes`، `catalog_volumes` و `catalog_volume_cataloger` تهی بود (پیش از اصلاحِ `metadata->group`، فقط جلد 476 جابه‌جا می‌شد).
+  - وارسی صفحه‌ها روی worktree با `fahares_prod`: هر کد کهنه ۳۰۱ داد، کارت هر فهرست در `/sources` یک بار آمد، و `/catalogers/24` همان ۲۴ کارت را با پیوند به 100011 و 100010 نشان داد.
+  - `artisan serve` در کانتینر `.env` را دوباره می‌خواند و متغیر `DB_DATABASE` داکر را نادیده می‌گیرد. پس برای وارسی، `.env` جدا با `fahares_prod` mount شد.
+- **گروه‌های بیرون از کلید (برای تصمیم کاربر، با `--group`):**
+  - `catalogue-c2fbc4ca62d0` + `catalogue-56242973f0ee`: نسخه‌های عکسی مرعشی. جلد 39 «عکسی جلد 5» با `volume_number` 1، و مدخل‌هایش جلد ۵ می‌گویند.
+  - `catalogue-d788e304d962` + `catalogue-ae0847c98256`: میکروفیلم‌های دانشگاه تهران («میکرو فیلمها» و «میکروفیلم‌ها»).
+  - `catalogue-02c0a06ef7b7` + `catalogue-520c926fbc43`: فهرست الفبایی آستان قدس.
+  - `catalogue-e685ed25b6e2` + `catalogue-e745d8f70fe2`: اهدایی مشکوة. باید وارسی شود که هر دو یک کتاب‌اند.
+  - `catalogue-7ac531af190e` + `catalogue-bce863de9555`: ملک. باید وارسی شود.
+  - گلپایگانی `catalogue-bc42c942441f` («فهرست نسخه‌های خطی … حضرت آیة الله العظمی گلپایگانی»، بی‌مدخل) فهرست دیگری است و کنار ماند.
+- **آزمون:** [MergeSplitSourcesTest](../tests/Feature/MergeSplitSourcesTest.php) با سه آزمون: خواندن عنوان، یکی کردن همراه ۳۰۱ و تکرار بی‌اثر و backfill پس از آن، و `--group`. یک آزمون هم در [BackfillSourcesTest](../tests/Feature/BackfillSourcesTest.php) افزوده شد: یافتن با `metadata->group`. آزمون‌ها از worktree با `docker run` روی پایگاه جدای `fahares_mergesrc_test` اجرا شدند.
+- **ترتیب پروداکشن:**
+  1. پشتیبان: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `field_evidence`، و `source_entries` و `source_items` منبع‌های گروه‌ها، به‌علاوه‌ی `id, catalog_volume_id` نسخه‌ها و ارجاع‌های جلدهای آن‌ها.
+  2. `php artisan sources:merge-split --dry-run`، سپس مقایسه با تمرین محلی (شناسه‌ها روی پروداکشن ممکن است فرق کنند).
+  3. `php artisan sources:merge-split`.

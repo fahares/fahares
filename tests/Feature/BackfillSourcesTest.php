@@ -89,6 +89,21 @@ class BackfillSourcesTest extends TestCase
         $this->assertLessThan($fankha->rank, $dharia->rank);
     }
 
+    public function test_a_catalogue_source_made_under_another_library_is_found_by_its_group()
+    {
+        $this->backfill(['--only' => ['registry']]);
+        $source = SourceVolume::find($this->cited->id)->source;
+        // its code was made when the volumes were another library's (step 13.110)
+        $source->update(['code' => 'catalogue-madeelsewhere']);
+        $count = Source::count();
+
+        $this->backfill(['--only' => ['registry']]);
+
+        $this->assertSame($count, Source::count());
+        $this->assertSame($source->id, SourceVolume::find($this->cited->id)->source_id);
+        $this->assertSame('catalogue-madeelsewhere', $source->fresh()->code, 'its address stays');
+    }
+
     public function test_fankha_entries_carry_their_text_and_the_place_it_was_taken_from()
     {
         $this->backfill();
