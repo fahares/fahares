@@ -26,9 +26,6 @@ class SearchLog extends Model
     /** How long a search is kept */
     public const KEEP_DAYS = 365;
 
-    /** User agents of crawlers, link previews and scripts, whose searches are not people's */
-    private const BOT_AGENTS = '~bot|crawl|spider|slurp|preview|fetch|curl|wget|python|java/|go-http|headless|lighthouse|monitor~i';
-
     protected $guarded = [];
 
     protected $casts = [
@@ -49,14 +46,6 @@ class SearchLog extends Model
     /** Whether a request comes from a person, worth counting */
     public static function isCountable(Request $request): bool
     {
-        $agent = (string) $request->userAgent();
-        if ($agent === '' || preg_match(self::BOT_AGENTS, $agent)) {
-            return false;
-        }
-
-        // A page the browser fetched ahead of a click is not a search the user made
-        $purpose = strtolower($request->header('Sec-Purpose') ?? $request->header('Purpose') ?? '');
-
-        return ! str_contains($purpose, 'prefetch') && ! str_contains($purpose, 'prerender');
+        return \App\Support\Visitors::isPerson($request);
     }
 }

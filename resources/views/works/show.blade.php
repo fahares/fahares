@@ -144,7 +144,7 @@
             </x-ui.btn>
             <x-suggest.toggle />
         </div>
-        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $work->id }}</span></span>
+        <span class="text-xs text-muted"><x-visit-count type="work" :id="$work->id" />شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $work->id }}</span></span>
     </div>
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">

@@ -375,6 +375,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // What people search for (backlog item 83)
     Route::get('/search-stats', [AdminSearchStatsController::class, 'index'])->middleware('can:search.stats')->name('search-stats.index');
+    // Which pages and records people open (backlog item 103)
+    Route::get('/visit-stats', [\App\Http\Controllers\Admin\VisitStatsController::class, 'index'])->middleware('can:visits.stats')->name('visit-stats.index');
 
     // System Operations & Cache Management
     Route::middleware('can:system.manage')->group(function () {

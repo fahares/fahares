@@ -5330,3 +5330,42 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ماندگاری:** [fahares-docker-firewall.service](../scripts/firewall/fahares-docker-firewall.service) (`WantedBy=docker.service`، `PartOf=docker.service`) پس از هر آغاز Docker `apply` و هنگام توقف `remove` را اجرا می‌کند. نصب و برگشت در [README](../scripts/firewall/README.md).
 - **نصب:** کاربر با sudo روی میزبان نصب کرد؛ `status` سه قانون در هر دو جدول نشان داد و سرویس `active` و `enabled` است.
 - **وارسی:** آزمون از ماشین توسعه معتبر نیست، چون ترافیک آن از همین سرور بیرون می‌رود (IP خروجی همان IP سرور است). با check-host.net: TCP به ۸۰۰۰ از ۴ نود (اسرائیل، قزاقستان، صربستان، سنگاپور) و به ۶۰۰۱ از ۴ نود (اتریش، پرتغال، دو نود آمریکا) timeout شد؛ ۴۴۳ از ۴ نود (از جمله تهران) وصل شد. `https://coolify.fahares.net/login` و `https://fahares.net/up` کد ۲۰۰ دادند.
+
+### گام ۱۳.۹۸: آمار بازدید (`page_views`)
+- **ثبت:** `App\Http\Middleware\RecordPageView` به گروه `web` افزوده شده (`bootstrap/app.php`). `handle` کاری نمی‌کند و `terminate` تابع `PageViews::record()` را صدا می‌زند. زیر php-fpm، `Response::send()` پیش از `terminate` تابع `fastcgi_finish_request()` را صدا می‌زند، پس مرورگر منتظر ثبت نمی‌ماند.
+  - **شرط‌ها (`PageViews::shouldRecord`):** درخواست `GET` با پاسخ ۲۰۰ و `Content-Type: text/html`؛ نه ajax، `expectsJson` یا `X-Livewire`؛ نه `admin`، `admin/*` و `up`؛ نه از `127.0.0.1` و `::1`؛ با `Accept-Language` ناتهی؛ و `Visitors::isPerson()`. `Visitors::BOT_AGENTS` همان عبارت پیشین `SearchLog` است و `SearchLog::isCountable()` حالا به آن واگذار می‌کند. ریدایرکت‌های نشانی کوتاه و slug (۳۰۱/۳۰۲) و ۴۰۴ شمرده نمی‌شوند.
+  - **`subject()`:** مسیرهای `PageViews::RECORD_ROUTES` نوع رکورد و `(int) id` را می‌دهند. `source-pages.show` به `source_page` با `code/volume/page`، `source-items.show` به `source_item` با `code/volume/key`، `sources.show` به `source` با `code`، و `search` به `search` با تب (`type`) نگاشته می‌شوند. هر مسیر نام‌دار دیگر `page` با نام مسیر است.
+  - **ارجاع‌دهنده:** فقط host، کوچک‌شده و بی `www.`. host خود سایت `self` می‌شود و نبودِ ارجاع `null`.
+  - **موبایل:** `Mobi|Android|iPhone|iPad|iPod|Opera Mini|IEMobile` در user agent.
+  - **بازدیدکننده:** شانزده رقم نخست `sha256(salt|ip|ua)`. نمک ۳۲ بایت تصادفی است. اولین بازدید روز آن را در `salt-YYYY-MM-DD` درون پوشه‌ی بافر می‌سازد (`fopen(…, 'x')`، بی رقابت). `flush()` نمک روزهای گذشته را پاک می‌کند، پس هش روزهای پیش قابل بازسازی نیست.
+- **بافر:** `config('visits.buffer')`، پیش‌فرض `storage/framework/page-views`. هر بازدید یک سطر JSON است (`[day, type, ref, visitor, referrer, mobile, member]`) که با `FILE_APPEND | LOCK_EX` در `views-YmdHi.jsonl` (دقیقه‌ی UTC) نوشته می‌شود.
+  - **`fahares:flush-page-views`** (هر دقیقه، پیش از `queue:work` در `routes/console.php`): فایل‌های دقیقه‌ی جاری و پیشین را رها می‌کند، چون ممکن است هنوز در آن‌ها نوشته شود. بقیه را با rename به `.loading` برمی‌دارد و هزار‌تا‌هزارتا در `page_views` می‌گذارد. `.loading`های کهنه‌تر از ده دقیقه دوباره خوانده می‌شوند. `--all` همه را برمی‌دارد.
+  - با استقرار تازه، بافر و نمک کانتینر از بین می‌روند. یعنی حداکثر دو دقیقه بازدید گم می‌شود و بازدیدکننده‌ی آن روز ممکن است دو بار شمرده شود.
+  - در آزمون‌ها `PAGE_VIEWS_BUFFER=/tmp/fahares-page-views-test` است (`phpunit.xml`)، چون درخواست آزمایشی Laravel همیشه `Accept-Language` دارد.
+- **جدول‌ها** (`2026_10_31_300001_create_page_views_tables`، فقط ساخت جدول):
+  - `page_views(day, type, ref, visitor, referrer, is_mobile, is_member)` با نمایه‌های `(day, type, ref)` و `(type, ref)`؛
+  - `page_view_daily(day, type, ref, views, visitors)` با `unique(day, type, ref)` و نمایه‌های `(type, day)` و `(type, ref)`.
+  - ستون `ref` نام گرفت، نه `key`، چون `key` واژه‌ی رزروشده‌ی MariaDB است.
+- **`fahares:aggregate-page-views`** (روزانه ۰۰:۲۰ تهران): نخست `flush(true)`. سپس `aggregate()` برای هر روز `page_views` پیش از امروز، از آخرین روز جمع‌شده به بعد (خود آن روز هم دوباره)، ردیف‌های آن روز را در تراکنش پاک و از نو درج می‌کند، پس اجرای دوباره چیزی را دو بار نمی‌شمارد.
+  - **ردیف‌های روزانه:** یک ردیف برای هر `(type, ref)` و ردیف‌های کل سایت: `_site` (ref تهی)، `_device` (`mobile`/`desktop`)، `_member` (`member`/`guest`) و `_referrer` (دامنه، تهی برای مستقیم، `self`). `visitors` همان `COUNT(DISTINCT visitor)` روز است.
+  - **`prune()`:** فقط روزهای پیش از `min(امروز − ۳۰، آخرین روز جمع‌شده)` را پاک می‌کند، پس روز جمع‌نشده پاک نمی‌شود.
+- **خواندن:**
+  - `PageViews::rows()` ردیف‌های کل سایت را از `page_view_daily` تا آخرین روز جمع‌شده و از `page_views` برای روزهای پس از آن (معمولاً امروز) می‌دهد. اگر جمع شبانه اجرا نشود، صفحه همچنان کامل است، فقط کندتر.
+  - `top()` پربازدیدهای هر نوع را در SQL جمع می‌زند (از هر طرف پنج برابر حد) و در PHP یکی می‌کند.
+  - `total()` شمار کل یک رکورد است.
+- **پنل:**
+  - `Admin\VisitStatsController@index`، مسیر `admin.visit-stats.index` (`can:visits.stats`)، نمای `admin/visit_stats/index` و منوی «سامانه» در `AdminNav`.
+  - برچسب‌ها با یک پرس‌وجو برای هر نوع ساخته می‌شوند. رکورد حذف‌شده با «(یافت نشد)» می‌آید.
+  - جمع «بازدیدکننده‌ی روزانه» در چند روز، شمار آدم‌های یکتا نیست. صفحه این را می‌گوید.
+- **شمار رکورد برای مدیر:** کامپوننت `<x-visit-count>` (با `@can('visits.stats')`) در `manuscripts/show` و `works/show`.
+- **مجوز:** `visits.stats` در گروه `system`، بی نقش پیش‌فرض. مدیر کل همه‌ی مجوزها را دارد و migration لازم نیست.
+- **سنجش:**
+  - `record()` در ۲٬۰۰۰ تکرار ۶۳ تا ۳۰۰ میکروثانیه (فایل روی bind mount داکر).
+  - `flush` برای ۲٬۰۰۱ بازدید ۲۹۰ میلی‌ثانیه.
+  - صفحه‌ی اثر با `artisan serve` محلی، ۲۵ درخواست در هر حالت: میانه ۱۶۳ میلی‌ثانیه با ثبت و ۱۶۳ تا ۱۷۳ بی ثبت (user agent ‏curl).
+- **آزمون‌ها:** `tests/Feature/VisitStatsTest.php`:
+  - ثبت پس از پاسخ و نبودن IP در بافر و جدول؛
+  - کنار گذاشتن ربات، curl، درخواست بی زبان، پیش‌بارگذاری، ajax، loopback، ۴۰۴ و پنل؛
+  - بازدیدکننده‌ی یکسان در یک روز و متفاوت در روز بعد، و پاک شدن نمک دیروز؛
+  - جمع شبانه، اجرای دوباره و پاک‌سازی؛
+  - صفحه‌ی پنل، منو، شمار در صفحه‌ی اثر، و مجوز (ممنوع برای ویراستار تا مجوز بگیرد).

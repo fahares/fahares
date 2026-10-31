@@ -53,6 +53,7 @@ class AdminNav
                 ['label' => 'ماتریس دسترسی', 'route' => 'admin.roles.index', 'active' => 'admin.roles.*', 'can' => 'roles.manage'],
                 ['label' => 'لاگ ممیزی', 'route' => 'admin.audit-logs.index', 'active' => 'admin.audit-logs.*', 'can' => 'audit.view'],
                 ['label' => 'آمار جست‌وجو', 'route' => 'admin.search-stats.index', 'active' => 'admin.search-stats.*', 'can' => 'search.stats'],
+                ['label' => 'آمار بازدید', 'route' => 'admin.visit-stats.index', 'active' => 'admin.visit-stats.*', 'can' => 'visits.stats'],
                 ['label' => 'کش و نمایه‌سازی', 'route' => 'admin.system.index', 'active' => 'admin.system.*', 'can' => 'system.manage'],
             ]],
         ];

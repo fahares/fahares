@@ -8,6 +8,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+// Visit stats (backlog item 103): the page views noted in the last minutes go into page_views; first, so the
+// queue worker below, which may run for 50 seconds, does not hold them back
+Schedule::command('fahares:flush-page-views')->everyMinute()->withoutOverlapping(5);
+// and each night the past day is folded into daily counts and views older than 30 days are deleted
+Schedule::command('fahares:aggregate-page-views')->dailyAt('00:20')->timezone('Asia/Tehran')->withoutOverlapping(30);
+
 // Run every minute by a Coolify scheduled task (`php artisan schedule:run`): the queue holds
 // notifications, and this drains it without a long-running worker process
 Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')
