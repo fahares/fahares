@@ -41,4 +41,15 @@ class CatalogerCataloguesTest extends TestCase
         $this->assertSame(2, substr_count($html, 'data-cataloger-catalogue>'));
         $this->assertStringNotContainsString(route('sources.show', $sources[1]->code) . '"', $html);
     }
+
+    public function test_a_source_without_a_link_is_its_text()
+    {
+        $cataloger = Cataloger::create(['name' => 'اوکتایی', 'slug' => 'oktayi-' . uniqid(), 'bio' => 'فهرست‌نگار.', 'metadata' => [
+            'sources' => ['رکورد MTIF مجموعه (mtif.org/book/147)', ['title' => 'ویکی نور', 'url' => 'https://wikinoor.ir/x']],
+        ]]);
+
+        $this->get(route('catalogers.show', $cataloger))->assertOk()
+            ->assertSee('رکورد MTIF مجموعه (mtif.org/book/147)، ', false)
+            ->assertSee('href="https://wikinoor.ir/x"', false);
+    }
 }

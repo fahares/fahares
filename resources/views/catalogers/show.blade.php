@@ -72,7 +72,8 @@
                     @if(! empty($cataloger->metadata['sources']))
                         <p class="mt-3 text-xs text-muted leading-loose">منابع:
                             @foreach($cataloger->metadata['sources'] as $source)
-                                <a href="{{ $source['url'] }}" target="_blank" rel="noopener" class="underline decoration-line-strong underline-offset-4 hover:text-ink">{{ $source['title'] }}</a>@if(! $loop->last)، @endif
+                                {{-- a source without a link is its text alone («رکورد MTIF مجموعه: …») --}}
+                                @if(is_string($source)){{ $source }}@else<a href="{{ $source['url'] }}" target="_blank" rel="noopener" class="underline decoration-line-strong underline-offset-4 hover:text-ink">{{ $source['title'] }}</a>@endif{{ $loop->last ? '' : '، ' }}
                             @endforeach
                         </p>
                     @endif
