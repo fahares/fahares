@@ -35,7 +35,8 @@ class SegmentSourceItemsCommand extends Command
             return self::FAILURE;
         }
         $volume = $volumes[0];
-        $pages = DB::table('source_pages')->where('source_volume_id', $volume->id)->orderBy('page')->pluck('text', 'page')->all();
+        // the words of each page, without Noor's marks (App\Support\PageMarks)
+        $pages = array_map([\App\Support\PageMarks::class, 'strip'], DB::table('source_pages')->where('source_volume_id', $volume->id)->orderBy('page')->pluck('text', 'page')->all());
         if (! $pages) {
             $this->error('No page texts for this volume: run sources:import-pages first.');
 

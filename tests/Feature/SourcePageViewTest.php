@@ -202,6 +202,20 @@ class SourcePageViewTest extends TestCase
             . '<span class="book-poem__h">تاسعة و مائة و مرة</span><span class="book-poem__h">من بعد ألف من سنين الهجرة</span></span>يعني سنة ۱۲۰۹ ه‍.', $html);
     }
 
+    public function test_noors_marks_set_a_verse_a_hadith_and_latin_and_run_over_lines()
+    {
+        $text = "قال \u{E020}ayah 18:46\u{E021}(وَ الْبٰاقِيٰاتُ)\u{E022} و \u{E020}latin\u{E021}A. Storey 1927\u{E022} و \u{E020}hadith\u{E021}قال \u{E020}FB\u{E021}النبي ص\u{E022}\nلا\u{E022} تم";
+        $html = (string) \App\Support\PrintedPage::text($text);
+
+        $this->assertStringContainsString('<span class="book-ayah" title="سوره‌ی کهف، آیه‌ی ۴۶" data-ayah="18:46">(وَ الْبٰاقِيٰاتُ)</span>', $html);
+        // a passage in Latin letters keeps its own digits
+        $this->assertStringContainsString('<bdi dir="ltr" class="book-latin">A. Storey 1927</bdi>', $html);
+        // the hadith runs over the line break: closed at the line's end, opened again on the next
+        $this->assertStringContainsString('<span class="book-hadith">قال <span data-noor="FB">النبي ص</span></span>' . "\n" . '<span class="book-hadith">لا</span> تم', $html);
+        // whatever reads a page for its words gets them without the marks
+        $this->assertSame("قال (وَ الْبٰاقِيٰاتُ) و A. Storey 1927 و قال النبي ص\nلا تم", \App\Support\PageMarks::strip($text));
+    }
+
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
     {
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6 و 3257/4');

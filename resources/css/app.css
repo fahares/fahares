@@ -380,6 +380,19 @@ body {
     font-family: var(--font-sans);
     font-size: 0.9em;
 }
+/* Noor's marks in a page's text (App\Support\PageMarks): a Quran verse in its own colour, its sura and verse on hover;
+   a hadith set off a little; a passage in Latin letters left to right inside its line */
+.book-ayah {
+    color: #1f6b4f;
+    cursor: help;
+}
+.dark .book-ayah { color: #8fd0b0; }
+.book-hadith { color: #6a3f1d; }
+.dark .book-hadith { color: #e0b98c; }
+.book-latin {
+    font-family: var(--font-sans);
+    font-size: 0.9em;
+}
 /* a poem (Noor's <poem>): centred, two hemistichs to a verse, every hemistich as wide as the longest and spread to that
    width; a poem too wide for the page goes in steps, the first hemistich of each verse to the right, the second to the
    left (resources/views/source-pages/show.blade.php marks it .is-stepped) */

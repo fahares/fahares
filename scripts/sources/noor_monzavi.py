@@ -37,6 +37,47 @@ FRONT_OR_BACK = re.compile(r'شناسنامه|مقدمات|اختصارات|نم
 LINE = '\ue010'  # a line break the text keeps: before and after a verse that opens a line
 
 
+# Noor's marks kept in the page text (step 13.92), each span as OPEN + kind + SEP … CLOSE: a Quran verse
+# («ayah 18:46», «ayah 2:1-5»), a hadith («hadith»), a passage in Latin letters («latin»). A heading keeps none,
+# so an entry is still found by its first line. App\Support\PrintedPage::text() reads them.
+OPEN, SEP, CLOSE = '', '', ''
+FORMAT = re.compile(r'<format\b([^>]*?)(/?)>|</format>')
+
+
+def kind_of(attrs):
+    cls = (re.search(r'class="([^"]*)"', attrs) or [None, ''])[1]
+    if cls == 'ayah':
+        surah = (re.search(r'surah="(\d+)"', attrs) or [None, ''])[1]
+        ayah = (re.search(r'\bayah="(\d+)"', attrs) or [None, ''])[1]
+        to = (re.search(r'toAyah="(\d+)"', attrs) or [None, ''])[1]
+        return f'ayah {surah}:{ayah}' + (f'-{to}' if to and to != ayah else '') if surah and ayah else 'ayah'
+    if cls == 'hadith':
+        return 'hadith'
+    if cls == 'changeLang':
+        return 'latin'
+    return None
+
+
+def marks(xml):
+    """Noor's <format> spans as the marks above; the rest of them go."""
+    xml = re.sub(r'<heading[^>]*>.*?</heading>', lambda m: re.sub(r'</?format\b[^>]*>', '', m.group(0)), xml, flags=re.S)
+    out, stack, at = [], [], 0
+    for m in FORMAT.finditer(xml):
+        out.append(xml[at:m.start()])
+        at = m.end()
+        if m.group(0) == '</format>':
+            if stack and stack.pop():
+                out.append(CLOSE)
+        elif not m.group(2):
+            kind = kind_of(m.group(1))
+            stack.append(kind)
+            if kind:
+                out.append(OPEN + kind + SEP)
+    out.append(xml[at:])
+    # a span Noor left open closes at the end
+    return ''.join(out) + CLOSE * sum(1 for k in stack if k)
+
+
 def verse(m):
     """Noor's <poem>: a verse on a line of its own, its hemistichs apart by a tab (Noor's <gap/>, the « - » printed
     between them dropped; one hemistich keeps the tab after it), when it opens a line; a verse quoted inside a sentence
@@ -48,8 +89,11 @@ def verse(m):
     return LINE + '\t'.join(hemistichs) + ('\t' if len(hemistichs) == 1 else '') + LINE
 
 
-def text_of(xml):
-    """The text on one line, a verse of poetry that opens a line (<poem>) on a line of its own."""
+def text_of(xml, keep=True):
+    """The text on one line, a verse of poetry that opens a line (<poem>) on a line of its own; with keep, Noor's marks
+    too (marks()), which the page keeps and an entry does not."""
+    if keep:
+        xml = marks(xml)
     xml = re.sub(r'<poem>(.*?)</poem>', verse, xml, flags=re.S)
     lines = [' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', l)).split()) if '\t' not in l else l for l in xml.split(LINE)]
     return '\n'.join(l for l in lines if l.strip()).translate(PERSIAN)
@@ -91,12 +135,14 @@ def volume(db, number):
             t = text_of(part)
             if not t:
                 continue
+            # the entry's own text without Noor's marks, which only the page keeps
+            plain = text_of(part, keep=False)
             head = HEADING.search(part)
             level = int(head.group(1)) if head else None
             if level is not None and level <= 2:
                 in_body = bool(BODY.search(t)) and not FRONT_OR_BACK.search(t)
             if level in (4, 5) and in_body:
-                entries.append({'level': level, 'heading': t, 'page': label, 'lines': [t], 'breaks': []})
+                entries.append({'level': level, 'heading': plain, 'page': label, 'lines': [plain], 'breaks': []})
                 pages[label].append('')  # a blank line before each entry
             elif level is not None and level <= 3:
                 entries.append(None)  # a part or letter heading ends the entry before it
@@ -107,9 +153,9 @@ def volume(db, number):
                     # where the entry's text turns to the next page, as an offset into its text
                     e['breaks'].append((len('\n'.join(e['lines'])) + 1, label))
                 if runs_on and len(e['lines']) > 1:
-                    e['lines'][-1] += ' ' + t
+                    e['lines'][-1] += ' ' + plain
                 else:
-                    e['lines'].append(t)
+                    e['lines'].append(plain)
             pages[label].append(t)
     out_pages = []
     for label in order:

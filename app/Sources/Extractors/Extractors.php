@@ -56,13 +56,13 @@ class Extractors
     /** @return array<int, string> */
     public static function pages(int $volumeId): array
     {
-        return self::$pages[$volumeId] ??= DB::table('source_pages')->where('source_volume_id', $volumeId)->orderBy('page')->pluck('text', 'page')->all();
+        return self::$pages[$volumeId] ??= array_map([\App\Support\PageMarks::class, 'strip'], DB::table('source_pages')->where('source_volume_id', $volumeId)->orderBy('page')->pluck('text', 'page')->all());
     }
 
     /** A few pages of a volume for the reader, from $from to $to. */
     public static function pageRange(int $volumeId, int $from, int $to): array
     {
-        return DB::table('source_pages')->where('source_volume_id', $volumeId)->whereBetween('page', [$from, $to])->orderBy('page')->pluck('text', 'page')->all();
+        return array_map([\App\Support\PageMarks::class, 'strip'], DB::table('source_pages')->where('source_volume_id', $volumeId)->whereBetween('page', [$from, $to])->orderBy('page')->pluck('text', 'page')->all());
     }
 
     public static function forget(): void

@@ -75,13 +75,17 @@ class PrintedPage
     }
 
     /**
-     * A piece of the page's text as HTML: escaped, in Persian digits, a line wholly in Latin letters (Fankha's
-     * transliteration, «erjā‘-ol-mote‘allemīn») set left to right with its own digits, and the verses of a poem (lines
-     * whose hemistichs a tab parts, as the Noor readers write Noor's <poem>) set as a poem: centred, each hemistich as
-     * wide as the longest, the blank lines around it dropped.
+     * A piece of the page's text as HTML: escaped, in Persian digits, and
+     * - Noor's marks (App\Support\PageMarks) set: a Quran verse with its sura and verse on hover, a hadith, a passage in
+     *   Latin letters left to right with its own digits; al-Dhari'a's names kept as data-noor for later;
+     * - a line wholly in Latin letters (Fankha's transliteration, «erjā‘-ol-mote‘allemīn») left to right;
+     * - the verses of a poem (lines whose hemistichs a tab parts, as the Noor readers write Noor's <poem>) set as a poem:
+     *   centred, each hemistich as wide as the longest, the blank lines around it dropped.
+     * A mark that runs over a line break or into a poem closes at the line's end and opens again on the next.
      */
     public static function text(string $text): HtmlString
     {
+        $stack = [];
         $parts = [];
         foreach (explode("\n", $text) as $line) {
             if (str_contains($line, "\t")) {
@@ -92,15 +96,18 @@ class PrintedPage
                     }
                     $parts[] = ['poem' => true, 'html' => ''];
                 }
-                $parts[array_key_last($parts)]['html'] .= collect(explode("\t", $line))->map(fn ($h) => '<span class="book-poem__h">' . e(Fa::digits(trim($h))) . '</span>')->implode('');
+                foreach (explode("\t", $line) as $h) {
+                    $parts[array_key_last($parts)]['html'] .= '<span class="book-poem__h">' . self::inline(trim($h), $stack) . '</span>';
+                }
                 continue;
             }
             if ($line === '' && ($parts && end($parts)['poem'])) {
                 continue;
             }
-            $parts[] = ['poem' => false, 'html' => preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
+            $plain = PageMarks::strip($line);
+            $parts[] = ['poem' => false, 'html' => ! $stack && $plain === $line && preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
                 ? '<span dir="ltr" class="book-sheet__latin">' . e($line) . '</span>'
-                : e(Fa::digits($line))];
+                : self::inline($line, $stack)];
         }
 
         // a poem is a block of its own: no line break before or after it
@@ -114,6 +121,46 @@ class PrintedPage
         }
 
         return new HtmlString($html);
+    }
+
+    /** One line (or hemistich) with its marks as elements; $stack holds the marks still open when it ends. */
+    private static function inline(string $line, array &$stack): string
+    {
+        $html = implode('', array_map([self::class, 'openTag'], $stack));
+        foreach (preg_split('/(\x{E020}[^\x{E021}]*\x{E021}|\x{E022})/u', $line, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $token) {
+            if ($token === "\u{E022}") {
+                if ($stack) {
+                    $html .= self::closeTag(array_pop($stack));
+                }
+            } elseif (str_starts_with($token, "\u{E020}")) {
+                $stack[] = $kind = mb_substr($token, 1, -1);
+                $html .= self::openTag($kind);
+            } else {
+                $html .= in_array('latin', $stack, true) ? e($token) : e(Fa::digits($token));
+            }
+        }
+
+        return $html . implode('', array_map([self::class, 'closeTag'], array_reverse($stack)));
+    }
+
+    private static function openTag(string $kind): string
+    {
+        if (str_starts_with($kind, 'ayah')) {
+            $label = Quran::label(trim(substr($kind, 4)));
+
+            return '<span class="book-ayah"' . ($label ? ' title="' . e($label) . '"' : '') . ' data-ayah="' . e(trim(substr($kind, 4))) . '">';
+        }
+
+        return match ($kind) {
+            'hadith' => '<span class="book-hadith">',
+            'latin' => '<bdi dir="ltr" class="book-latin">',
+            default => '<span data-noor="' . e($kind) . '">',
+        };
+    }
+
+    private static function closeTag(string $kind): string
+    {
+        return $kind === 'latin' ? '</bdi>' : '</span>';
     }
 
     /**

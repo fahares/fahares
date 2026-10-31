@@ -32,6 +32,50 @@ HEADING = re.compile(r'<heading level="\d">(.*?)</heading>', re.S)
 NUMBERED = re.compile(r'^(\d{1,5})\s*:\s*(.+)$', re.S)
 
 
+# Noor's marks kept in the page text (step 13.92), each span as OPEN + kind + SEP … CLOSE: a Quran verse
+# («ayah 18:46», «ayah 2:1-5»), a hadith («hadith»), a passage in Latin letters («latin»), and in al-Dhari'a the names Noor tags («WB» a title, «FB» a person, «XB» a year …). A heading keeps none,
+# so an entry is still found by its first line. App\Support\PrintedPage::text() reads them.
+OPEN, SEP, CLOSE = '', '', ''
+FORMAT = re.compile(r'<format\b([^>]*?)(/?)>|</format>')
+
+
+def kind_of(attrs):
+    cls = (re.search(r'class="([^"]*)"', attrs) or [None, ''])[1]
+    if cls == 'ayah':
+        surah = (re.search(r'surah="(\d+)"', attrs) or [None, ''])[1]
+        ayah = (re.search(r'\bayah="(\d+)"', attrs) or [None, ''])[1]
+        to = (re.search(r'toAyah="(\d+)"', attrs) or [None, ''])[1]
+        return f'ayah {surah}:{ayah}' + (f'-{to}' if to and to != ayah else '') if surah and ayah else 'ayah'
+    if cls == 'hadith':
+        return 'hadith'
+    if cls == 'changeLang':
+        return 'latin'
+    # al-Dhari'a's names: «WB» a book's title, «FB» a person, «XB» a year, «QB» a place, «OB» where a copy is …
+    if re.fullmatch(r'[A-Z]B|Q', cls):
+        return cls
+    return None
+
+
+def marks(xml):
+    """Noor's <format> spans as the marks above; the rest of them go."""
+    xml = re.sub(r'<heading[^>]*>.*?</heading>', lambda m: re.sub(r'</?format\b[^>]*>', '', m.group(0)), xml, flags=re.S)
+    out, stack, at = [], [], 0
+    for m in FORMAT.finditer(xml):
+        out.append(xml[at:m.start()])
+        at = m.end()
+        if m.group(0) == '</format>':
+            if stack and stack.pop():
+                out.append(CLOSE)
+        elif not m.group(2):
+            kind = kind_of(m.group(1))
+            stack.append(kind)
+            if kind:
+                out.append(OPEN + kind + SEP)
+    out.append(xml[at:])
+    # a span Noor left open closes at the end
+    return ''.join(out) + CLOSE * sum(1 for k in stack if k)
+
+
 def verse(m):
     """Noor's <poem>: a verse on a line of its own, its hemistichs apart by a tab (Noor's <gap/>; one hemistich keeps
     the tab after it), when it opens a line; a verse quoted inside a sentence, «(… أفقه... إلخ)», stays in it."""
@@ -42,7 +86,10 @@ def verse(m):
     return '\n' + '\t'.join(hemistichs) + ('\t' if len(hemistichs) == 1 else '') + '\n'
 
 
-def strip(xml):
+def strip(xml, keep=True):
+    """The text of Noor's XML; with keep, Noor's marks too (marks())."""
+    if keep:
+        xml = marks(xml)
     xml = re.sub(r'<lfootnote[^>]*>\s*(\d+)\s*</lfootnote>', r' ( \1 ) ', xml)
     xml = re.sub(r'<mnote>\s*\((\d+)\)\s*</mnote>', r'( \1 ) ', xml)
     xml = re.sub(r'<poem>(.*?)</poem>', verse, xml, flags=re.S)
@@ -57,7 +104,7 @@ CLOSED = '\ue001'  # after a heading whose «)» Noor left in the paragraph that
 
 
 def plain(title):
-    return ' '.join(strip(title).split())
+    return ' '.join(strip(title, keep=False).split())
 
 
 def bare(title):
@@ -101,7 +148,9 @@ def headings(xml):
 
 def tidy(text):
     # a section's page range Noor adds under its heading: «(البائية الحميرية ص 3 - البيوع و المزارعات ص 196)»
-    text = re.sub(r'\([^()\n]*ص \d+\s*-[^()\n]*ص \d+\s*\)', '', text)
+    # «ص» is a word of its own: «(خص 8 - ص 295)» is a citation (a book's abbreviation, its volume and page), which this
+    # rule took out in 250 places until step 13.92
+    text = re.sub(r'\([^()\n]*(?<![^\s(])ص \d+\s*-[^()\n]*(?<![^\s(])ص \d+\s*\)', '', text)
     # Noor's «\» between words, where the print has a space
     text = text.replace('\\', ' ')
     text = re.sub(CLOSED + JOIN + r'(\s*)\)', JOIN + r'\1', text).replace(CLOSED, '')
@@ -149,19 +198,27 @@ def volume_pages(db, volume):
 TOKEN = re.compile(r'[^\s()«»"،.:؛\[\]]+')
 HONORIFIC = re.compile(r'^(عليه السلام|عليهم السلام|عليهما السلام|عليها السلام|صلى الله عليه وآله(?: وسلم)?)$')
 MARKS = re.compile(r'[\u064B-\u0652]')
+NOOR_MARK = re.compile('\ue020[^\ue021]*\ue021|\ue022')
 
 
 def honorifics(text, printed):
     """Noor's text with each «ع» / «ص» that ablibrary's page has written out at the same place written out the same
     way; and how many were."""
-    ours = [(m.start(), m.end(), MARKS.sub('', m.group())) for m in TOKEN.finditer(text)]
+    # a word is compared without Noor's marks around it, and written out between them; one with a mark inside never is
+    ours = []
+    for m in TOKEN.finditer(text):
+        edge = re.match(r'^((?:' + NOOR_MARK.pattern + r')*)(.*?)((?:' + NOOR_MARK.pattern + r')*)$', m.group(), re.S)
+        start, end = m.start() + len(edge.group(1)), m.end() - len(edge.group(3))
+        core = edge.group(2)
+        if core:
+            ours.append((start, end, MARKS.sub('', NOOR_MARK.sub('', core)), NOOR_MARK.search(core) is None))
     theirs = [MARKS.sub('', t) for t in TOKEN.findall(printed)]
     changes = []
-    matcher = difflib.SequenceMatcher(None, [t for _, _, t in ours], theirs, autojunk=False)
+    matcher = difflib.SequenceMatcher(None, [o[2] for o in ours], theirs, autojunk=False)
     for op, i1, i2, j1, j2 in matcher.get_opcodes():
         if op != 'replace':
             continue
-        short = [i for i in range(i1, i2) if ours[i][2] in ('ع', 'ص')]
+        short = [i for i in range(i1, i2) if ours[i][2] in ('ع', 'ص') and ours[i][3]]
         if len(short) != 1:
             continue
         i = short[0]

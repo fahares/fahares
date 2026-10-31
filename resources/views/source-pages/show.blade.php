@@ -11,7 +11,7 @@
     // a book's odd page lies left of the spine in a right-to-left book: its gutter is on the right, its number on the left
     $odd = $printed->page % 2 === 1;
     $width = $printed->columns() > 1 ? 'max-w-[62rem]' : 'max-w-[46rem]';
-    $snippet = mb_substr(preg_replace('/\s+/u', ' ', collect($printed->blocks)->pluck('text')->implode(' ')), 0, 150);
+    $snippet = mb_substr(preg_replace('/\s+/u', ' ', \App\Support\PageMarks::strip(collect($printed->blocks)->pluck('text')->implode(' '))), 0, 150);
 @endphp
 
 @section('title', $source->title . '، ' . $printed->placeLabel() . ' | فهارس')
