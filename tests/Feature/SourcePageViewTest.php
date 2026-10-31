@@ -134,8 +134,11 @@ class SourcePageViewTest extends TestCase
         // Fankha vol. 2 p. 926 in short: two works with the same heading line, and their copies. Saving a record
         // makes Fankha's source and volume (App\Sources\SourceEntrySync), so the pages come after the records.
         $works = [];
-        foreach (['الاربعون حديثاً (قمی)', 'الاربعون حديثاً (یادگار)'] as $i => $title) {
-            $works[$i] = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'w-' . uniqid(), 'volume_number' => 2, 'page_start' => 926]);
+        $authors = [];
+        foreach (['الاربعون حديثاً (قمی)' => 'قمی، علیقلی بن قره چغای', 'الاربعون حديثاً (یادگار)' => 'محمد جعفر بن میرزا یادگار'] as $title => $name) {
+            $authors[] = $author = \App\Models\Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'p-' . uniqid(), 'is_author' => true]);
+            $works[] = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'w-' . uniqid(), 'volume_number' => 2, 'page_start' => 926,
+                'author_id' => $author->id, 'author_name' => $name]);
         }
         $copies = [
             Manuscript::create(['work_id' => $works[0]->id, 'shelfmark' => '7728', 'volume_number' => 2, 'page_start' => 926]),
@@ -145,13 +148,13 @@ class SourcePageViewTest extends TestCase
         $volume = SourceVolume::firstOrCreate(['source_id' => $source->id, 'volume_number' => 2], ['facsimile_code' => 'fankha']);
         DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 926, 'text' => implode("\n", [
             'انجام: و اما الكلمات اللائى فى الادب.',
-            '', '● الاربعون حديثاً / حدیث / عربی', 'al-arba‘ūn-a ḥadīṯā', '',
+            '', '● الاربعون حديثاً / حدیث / عربی', 'al-arba‘ūn-a ḥadīṯā', '', 'قمی، علیقلی بن قره چغای، 1020؟ق', '',
             '1. تهران؛ مجلس؛ شماره نسخه: 7728', 'خط: نستعلیق، کاتب = مؤلف',
-            '', '● الاربعون حديثاً / حدیث / عربی', 'al-arba‘ūn-a ḥadīṯā', '',
+            '', '● الاربعون حديثاً / حدیث / عربی', 'al-arba‘ūn-a ḥadīṯā', '', 'محمد جعفر بن میرزا یادگار، ق 11 قمری', '',
             'قم؛ مرعشی؛ شماره نسخه: 13448', 'آغاز: الحديث الثانى',
         ])]);
-        foreach ($works as $work) {
-            $this->entry($source, $volume, $work, ['entry_text' => "● الاربعون حديثاً / حدیث / عربی\nal-arba‘ūn-a ḥadīṯā"]);
+        foreach ($works as $i => $work) {
+            $this->entry($source, $volume, $work, ['entry_text' => "● الاربعون حديثاً / حدیث / عربی\nal-arba‘ūn-a ḥadīṯā\n\n" . ['قمی، علیقلی بن قره چغای، 1020؟ق', 'محمد جعفر بن میرزا یادگار، ق 11 قمری'][$i]]);
         }
         $this->entry($source, $volume, $copies[0], ['copy_text' => "1. تهران؛ مجلس؛ شماره نسخه: 7728\nخط: نستعلیق"]);
         $this->entry($source, $volume, $copies[1], ['copy_text' => 'قم؛ مرعشی؛ شماره نسخه: 13448']);
@@ -168,6 +171,9 @@ class SourcePageViewTest extends TestCase
         preg_match_all('/<a href="([^"]+)" class="book-sheet__mark book-sheet__mark--work"/u', $html, $m);
         $this->assertSame([route('works.show', $works[0]), route('works.show', $works[1])], $m[1]);
         $this->assertSame(2, substr_count($html, 'data-record-link="manuscript"'));
+        // each work's author line links the author
+        $this->assertStringContainsString('<a href="' . route('people.show', $authors[0]) . '" class="book-sheet__mark book-sheet__mark--person" title="قمی، علیقلی بن قره چغای" data-record-link="person">قمی، علیقلی بن قره چغای، ۱۰۲۰؟ق</a>', $html);
+        $this->assertStringContainsString(route('people.show', $authors[1]), $html);
 
         // a one-column source keeps one column
         $this->assertSame(1, (int) config('catalogs.columns.monzavi', 1));

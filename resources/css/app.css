@@ -369,6 +369,7 @@ body {
     transition: color 0.15s, border-color 0.15s;
 }
 .book-sheet__mark--work { font-weight: 700; color: var(--ink); }
+.book-sheet__mark--person { color: var(--ink); }
 .book-sheet__mark:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
 /* a line wholly in Latin letters (Fankha's transliteration) reads left to right, on a line of its own */
 .book-sheet__latin {

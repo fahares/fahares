@@ -192,7 +192,8 @@ class PrintedPage
     /**
      * The lines of the records made from this page: each source entry on it is found by the first line of its text
      * (a work's heading in entry_text, a copy's line in copy_text), and a heading shared by a catalogue's copies
-     * («1- القرآن الکریم») links their work. A line is marked to its end, once.
+     * («1- القرآن الکریم») links their work, and a work's author line in Fankha («شیروانی، محمد بن حسن، 1033 - 1098
+     * قمری»), which opens with the author's name as the site has it, links the person. A line is marked to its end, once.
      */
     private static function marks(string $text, Source $source, SourceVolume $volume, int $page): array
     {
@@ -202,7 +203,8 @@ class PrintedPage
             ->get()->filter(fn (SourceEntry $e) => $e->citable && in_array($page, array_filter([$e->text_page, $e->shelfmark_page, $e->page_start]), true)
                 || ($e->citable && $e->page_start <= $page && ($e->page_end ?? $e->page_start) >= $page))
             ->sortBy('id');
-        $entries->loadMorph('citable', [Manuscript::class => ['work:id,primary_title,clean_title', 'libraryRecord:id,name']]);
+        $entries->loadMorph('citable', [Manuscript::class => ['work:id,primary_title,clean_title', 'libraryRecord:id,name'],
+            \App\Models\Work::class => ['author', 'authors']]);
 
         $wanted = [];
         foreach ($entries as $e) {
@@ -214,6 +216,15 @@ class PrintedPage
                 }
             } else {
                 $wanted[] = [$first($e->entry_text), route('works.show', $e->citable), 'work', $e->citable->primary_title ?? $first($e->entry_text)];
+                // its authors' lines, each the first of the entry's lines that opens with the author's name
+                $lines = array_values(array_filter(array_map('trim', explode("\n", (string) $e->entry_text))));
+                foreach (collect([$e->citable->author, ...($e->citable->authors ?? [])])->filter()->unique('id') as $person) {
+                    $line = $person->name ? collect($lines)->first(fn ($l) => str_starts_with($l, $person->name)) : null;
+                    if ($line) {
+                        // the same author's line under another work is that work's: claimed once for each
+                        $wanted[] = [$line, route('people.show', $person), 'person', $person->name, $e->id];
+                    }
+                }
             }
         }
 
@@ -221,12 +232,14 @@ class PrintedPage
         $marks = [];
         $seen = [];
         $after = [];
-        foreach ($wanted as [$line, $url, $kind, $title]) {
+        foreach ($wanted as $w) {
+            [$line, $url, $kind, $title] = $w;
             $needle = mb_substr($line, 0, 40);
-            if (mb_strlen($needle) < 4 || isset($seen[$needle . "\0" . $url])) {
+            $key = $needle . "\0" . $url . "\0" . ($w[4] ?? '');
+            if (mb_strlen($needle) < 4 || isset($seen[$key])) {
                 continue;
             }
-            $seen[$needle . "\0" . $url] = true;
+            $seen[$key] = true;
             $at = mb_strpos($text, $needle, $after[$needle] ?? 0);
             // the line, at its start, not inside another
             while ($at !== false && $at > 0 && mb_substr($text, $at - 1, 1) !== "\n") {
