@@ -5161,3 +5161,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - کل مجموعه ۴۸۹ آزمون موفق.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-extents` و بعد با `--apply`. اگر استقراری آن را بکشد، اجرای دوباره از همان‌جا ادامه می‌دهد.
 
+### گام ۱۳.۸۷: ردیف «فائده» جلد ۲۳
+- **فایل‌های تصمیم:**
+  - [`fankha_vol23_faeda_work_20261031.json`](../database/data/fankha_vol23_faeda_work_20261031.json): اثر `v23-851`، پسوند `-v23-2013`.
+  - [`fankha_vol23_faeda_copy_20261031.json`](../database/data/fankha_vol23_faeda_copy_20261031.json): نسخه‌ی ۲۲۲۰۴۹، فقط `shelfmark` و `raw_text`. `metadata` (که آغازهای برچسب‌دار سایت را دارد)، `folios` و انجام کنار گذاشته شدند.
+- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):** `shelfmark` به `COLUMNS` افزوده شد. اگر تغییر کند، `shelfmark_key` هم همراهش تغییر می‌کند. آزمون: `test_a_misread_shelfmark_is_corrected_with_its_sort_key`.
+- **پیکره:**
+  - `c26c8d1`: سطرهای ۲۷۰۶۱ و ۲۷۰۷۰ متن جلد ۲۳.
+  - `c4ada5e`: در `fankha_v2_rebuild_export.values`، `folios` فقط از مقداری که «گ» دارد.
+  - JSON جلد ۲۳ دوباره ساخته شد و فقط همین دو نسخه تغییر کرد.
+- **ترتیب پروداکشن:** `fahares:rebuild-copies --file=database/data/fankha_vol23_faeda_copy_20261031.json`، سپس `fahares:add-corpus-works --file=database/data/fankha_vol23_faeda_work_20261031.json`. هر کدام اول بی `--apply`.
+
