@@ -213,6 +213,11 @@ class WorkPeopleTest extends TestCase
         ]];
         $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
         File::ensureDirectoryExists($dir);
+        // Each v2 work carries the site work's title and page (FankhaWorkLocator); ordinal 9 has no work on the site
+        foreach ($json['works'] as &$jw) {
+            $jw += ['title' => ($works[$jw['key']['ordinal']] ?? null)?->primary_title ?? 'اثری که در سایت نیست', 'provenance' => ['page_start' => 1]];
+        }
+        unset($jw);
         File::put("{$dir}/fankha_vol_01.json", json_encode($json, JSON_UNESCAPED_UNICODE));
 
         $this->artisan('fahares:backfill-work-people', ['--dry-run' => true, '--source' => $dir, '--volume' => 1])->assertSuccessful();
@@ -248,13 +253,13 @@ class WorkPeopleTest extends TestCase
     {
         // normalized_name keeps «آ» as written
         $avanes = Person::create(['name' => 'آوانس ارمنی تبریزی', 'normalized_name' => 'آوانس ارمنی تبریزی', 'slug' => 'test-wp-' . uniqid()]);
-        $work = $this->work(['slug' => 'test-backfill-v2-1']);
+        $work = $this->work(['slug' => 'test-backfill-v2-1', 'volume_number' => 2]);
         // An earlier run kept the name as text; a reviewer's text row of another work stays as it is
         $old = WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی تبریزی', 'role' => 'translator']);
         $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
         File::ensureDirectoryExists($dir);
         File::put("{$dir}/fankha_vol_02.json", json_encode(['works' => [
-            ['key' => ['vol' => 2, 'ordinal' => 1], 'translator' => ['name' => 'آوانس ارمنی تبریزی', 'hedge' => null, 'death' => null]],
+            ['key' => ['vol' => 2, 'ordinal' => 1], 'title' => $work->primary_title, 'provenance' => ['page_start' => 1], 'translator' => ['name' => 'آوانس ارمنی تبریزی', 'hedge' => null, 'death' => null]],
         ]], JSON_UNESCAPED_UNICODE));
 
         $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 2])->assertSuccessful();
@@ -344,6 +349,45 @@ class WorkPeopleTest extends TestCase
         $work = $this->work();
         WorkPerson::create(['work_id' => $work->id, 'name' => 'آوانس ارمنی', 'role' => 'translator']);
         $this->artisan('fahares:reindex-work-people')->expectsOutput('Reindexed 1 of 1 works')->assertSuccessful();
+    }
+
+    public function test_a_translator_the_slug_suffix_gave_a_neighbour_moves_to_its_work()
+    {
+        // v2 restored a work at ordinal 5, so «الف» is v2's 6 though its slug says 5, and «ب» is v2's 7
+        $a = $this->work(['primary_title' => 'الف آزمایشی', 'slug' => 'test-shift-v3-5', 'volume_number' => 3, 'page_start' => 10]);
+        $b = $this->work(['primary_title' => 'ب آزمایشی (ترجمه)', 'slug' => 'test-shift-v3-6', 'volume_number' => 3, 'page_start' => 11]);
+        // Step 13.68 read v2's 6 as the site's «-v3-6» and gave «ب» both of «الف»'s translators
+        $stray = WorkPerson::create(['work_id' => $b->id, 'name' => 'مترجم الف', 'role' => 'translator']);
+        $shared = WorkPerson::create(['work_id' => $b->id, 'name' => 'مترجم هر دو', 'role' => 'translator']);
+        $t = fn ($name) => ['name' => $name, 'hedge' => null, 'death' => null];
+        $dir = storage_path('framework/testing/fankha_v2_' . uniqid());
+        File::ensureDirectoryExists($dir);
+        File::put("{$dir}/fankha_vol_03.json", json_encode(['works' => [
+            ['key' => ['vol' => 3, 'ordinal' => 5], 'title' => 'اثر بازگشته', 'provenance' => ['page_start' => 9]],
+            ['key' => ['vol' => 3, 'ordinal' => 6], 'title' => 'الف آزمایشی', 'provenance' => ['page_start' => 10], 'translator' => $t('مترجم الف')],
+            ['key' => ['vol' => 3, 'ordinal' => 7], 'title' => 'ب آزمایشی', 'provenance' => ['page_start' => 11], 'translator' => $t('مترجم هر دو')],
+        ]], JSON_UNESCAPED_UNICODE));
+        // «الف» has «مترجم هر دو» too in a second listing of its entry
+        $json = json_decode(File::get("{$dir}/fankha_vol_03.json"), true);
+        $json['works'][1]['original_author'] = $t('مترجم هر دو');
+        File::put("{$dir}/fankha_vol_03.json", json_encode($json, JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:backfill-work-people', ['--dry-run' => true, '--source' => $dir, '--volume' => 3])->assertSuccessful();
+        $this->assertSame($b->id, $stray->fresh()->work_id);
+
+        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 3])->assertSuccessful();
+        // The stray row went to its work, with the work's Fankha entry; the neighbour's own translator stayed
+        $this->assertSame($a->id, $stray->fresh()->work_id);
+        $this->assertSame(SourceEntry::where('citable_type', Work::class)->where('citable_id', $a->id)->value('id'), $stray->fresh()->source_entry_id);
+        $this->assertSame($b->id, $shared->fresh()->work_id);
+        $rows = fn (Work $w) => WorkPerson::where('work_id', $w->id)->orderBy('role')->orderBy('name')->get()->map(fn ($r) => [$r->role, $r->name])->all();
+        $this->assertSame([['original_author', 'مترجم هر دو'], ['translator', 'مترجم الف']], $rows($a));
+        $this->assertSame([['translator', 'مترجم هر دو']], $rows($b));
+
+        // A second run changes nothing
+        $this->artisan('fahares:backfill-work-people', ['--source' => $dir, '--volume' => 3])->assertSuccessful();
+        $this->assertSame(3, WorkPerson::whereIn('work_id', [$a->id, $b->id])->count());
+        File::deleteDirectory($dir);
     }
 }
 

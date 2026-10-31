@@ -192,6 +192,26 @@ class ContributorRelations
         return $row->id;
     }
 
+    /**
+     * A row a backfill gave the wrong work goes to the right one, with the right work's catalogue entry; when the
+     * right work lists the same person or name in that role already, the stray row is only deleted.
+     */
+    public function moveRole(WorkPerson $row, Work $to, ?int $sourceEntryId): void
+    {
+        $from = $row->work;
+        $twin = $to->workPeople()->where('role', $row->role)
+            ->where(fn ($q) => $row->person_id ? $q->where('person_id', $row->person_id) : $q->whereNull('person_id')->where('name', $row->name))->exists();
+        if ($twin) {
+            $row->delete();
+        } else {
+            $row->update(['work_id' => $to->id, 'source_entry_id' => $sourceEntryId,
+                'position' => (int) $to->workPeople()->max('position') + 1]);
+        }
+        foreach (array_filter([$from, $to]) as $work) {
+            $this->reindex($work);
+        }
+    }
+
     /** One of the work's people rows is deleted; the audit log keeps the whole row, so a rollback puts it back. */
     public function removeRole(Work $work, int $rowId): array
     {
