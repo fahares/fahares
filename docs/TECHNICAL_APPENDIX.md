@@ -4918,10 +4918,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **نتیجه:** `COOLIFY_URL` به `https://coolify.fahares.net` رفت. استقرار ۳۳۹ با فراخوانی HTTPS در ۴۲ ثانیه تمام شد، چون لایه‌ها از پیش کشیده شده بودند. پورت ۸۰۰۰ هنوز باز است.
 - **build-time:** `is_buildtime` از ۴۶ ردیف `environment_variables` برنامه برداشته شد (به‌جز `NIXPACKS_*`)، چون ساخت دیگر در Coolify نیست. `is_runtime` دست نخورد. استقرار ۳۴۰ (۱۳:۳۵ تا ۱۳:۳۷) نشان داد `APP_KEY`، `DB_PASSWORD` و `MEILISEARCH_KEY` در کانتینر هستند. `/up` و `/search` کد ۲۰۰ دادند.
 - **webhook قدیمی:** webhook مخزن گیت‌هاب (`http://162.35.127.157:8000/webhooks/source/github/events/manual`، رویداد push) با تأیید کاربر حذف شد. استقرار حالا فقط از GitHub Actions راه می‌افتد.
-- **پورت‌های Coolify (۸۰۰۰، ۶۰۰۱ و ۶۰۰۲) روی 0.0.0.0 منتشر می‌شوند** (از بیرون در گام ۱۳.۹۴ بسته شدند):
+- **پورت‌های Coolify (۸۰۰۰، ۶۰۰۱ و ۶۰۰۲) روی 0.0.0.0 منتشر می‌شوند** (از بیرون در گام ۱۳.۹۶ بسته شدند):
   - **تلاش:** گذاشتن `APP_PORT=127.0.0.1:8000` در `/data/coolify/source/.env` را `docker compose` با خطای `invalid start port` رد کرد، چون نگاشت `"${APP_PORT:-8000}:8080"` IP را درون متغیر نمی‌پذیرد. ۶۰۰۲ هم در `docker-compose.prod.yml` ثابت نوشته شده است.
   - **برگشت:** `.env` بی‌درنگ از `.env-before-localhost-ports` برگردانده شد و `compose config` معتبر بود. اگر آن سطرها می‌ماندند، به‌روزرسانی شبانه‌ی Coolify شکست می‌خورد. کانتینر Coolify در این میان ری‌استارت نشد.
-  - **راه باقی‌مانده:** قانون فایروال در زنجیره‌ی `DOCKER-USER`، که ماندگار هم باشد. در گام ۱۳.۹۴ انجام شد.
+  - **راه باقی‌مانده:** قانون فایروال در زنجیره‌ی `DOCKER-USER`، که ماندگار هم باشد. در گام ۱۳.۹۶ انجام شد.
 - **ایمیج‌های ساخته‌شده روی سرور:** هر ۸ ایمیج `9qjcshcsq1hcstpoorqvkew6:<sha>` پاک شد، چون build-arg ها و `.nixpacks/build.sh` آن‌ها مقادیر محرمانه داشت. `docker image prune` هم ۴٫۸ گیگابایت آزاد کرد. کانتینر جاری از `ghcr.io/fahares/fahares:latest` است و برگشت به نسخه‌های پیشین از راه برچسب‌های `<sha>` در GHCR انجام می‌شود.
 
 
@@ -5256,14 +5256,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - خطای «،» میان ماه و سال در تاریخ کتابت اصلاح شود.
   - فرمان‌های `rebuild-copies` و `add-corpus-works` یکای برگ و صفحه را بشناسند.
 
-### گام ۱۳.۹۲: مسیرهای شخصی
+### گام ۱۳.۹۲: `incipit_numbered` و `explicit_numbered` در پارسر v2
+- **[fankha_parser_v2.py](../../fahares-corpus/scripts/fankha_parser_v2.py)** (پیکره `e6ee42f`):
+  - **`NUM_IE_LINE`:** سطر مستقل «آغاز/انجام (کتاب|متن)؟ N:» یا «(N):».
+  - **`NUM_IE_VALUE`:** مقدارِ برچسب یا سطر ادامه: «N:»، «N.» (نقطه‌ای که پس از آن رقم نیامده) و «(N):».
+  - **ادامه:** سطرهای ادامه فقط تا وقتی گرفته می‌شوند که `num_side` روشن است، یعنی سطر قبل شماره‌دار همان سو بوده است.
+  - **`NUM_IE_NEXT` و `numbered_ies`:** شماره‌های پیاپیِ یک سطر را جدا می‌کنند، و فقط وقتی شماره یکی‌یکی بالا برود.
+  - **`NUM_IE_LABEL`:** برچسب پیش از متن، حداکثر دو واژه، بی رقم.
+  - `w['incipit']` و `w['explicit']` مثل پیش می‌مانند. اگر تهی باشند، سطر نخستِ شماره‌دار را می‌گیرند.
+  - **تاریخ:** در `parse_physical`، تکه‌ی «\d{3,4}(ق|ش|م)؟» پس از تاریخی که سال ندارد، به همان تاریخ افزوده می‌شود و `sort_year` دوباره خوانده می‌شود.
+- **آزمون:** `NumberedIncipitsTest` در `tests/test_fankha_v2_gold.py`. هر ۱۱ آزمون موفق بودند.
+- **سنجش:**
+  - فهرست ارجاع‌های بی‌مقصد: `fahares-corpus/reports/fankha_v2_numbered_ie_unmatched.json`.
+  - **مقایسه با JSON پیشین** (جلدهای ۲ تا ۳۴):
+    - `description` ۲۵۰ اثر، فقط حذف سطرهای شماره‌دار؛
+    - `incipit` ۴۳ و `explicit` ۱۱، همه از تهی به پر؛
+    - کتاب‌شناسی بی‌تغییر؛
+    - نسخه‌ها فقط همان ۳ تاریخ.
+
+### گام ۱۳.۹۳: مسیرهای شخصی
 - **`docs/BACKLOG.md`، `docs/TECHNICAL_APPENDIX.md`:** پایگاه‌های نور با `$NOOR_DB_DIR/`؛ `fahares-sources` و `fahares-corpus` با مسیر نسبی؛ پیوندهای `file:///` درون مخزن نسبی شدند و پیوندهای پوشه‌ی کاری ابزار پیشین به نام فایل ساده تبدیل شدند؛ مسیرهای میزبان با `~`.
 - **`scripts/backup/`:** پیش‌فرض `MEDIA_DIR` در `fahares-backup.sh` اکنون `$HOME/fahares_storage` است (cron با همان کاربر اجرا می‌شود و `sudo -u` در اوبونتو `HOME` را به کاربر مقصد می‌برد). `hermes.sudoers` و `README.md` جای‌نگهدار `<backup-user>` دارند که `visudo -c` آن را رد می‌کند تا پیش از نصب جایگزین شود.
 - **`database/data/fankha_*_2026103*.json`:** فیلد توضیحی `source` فقط نام فایل scratchpad را نگه می‌دارد.
 - **`fahares-corpus/scripts/audit_shelfmark_leaks.py`:** `CORPUS_DIR = Path(__file__).resolve().parent.parent`.
 - **وارسی:** `git grep` در هر دو مخزن برای نام کاربر و نام پوشه چیزی برنگرداند؛ `bash -n` اسکریپت بکاپ و بارگذاری JSONها موفق بود.
 
-### گام ۱۳.۹۳: `catalogs:repair-tabriz-volumes`
+### گام ۱۳.۹۴: `catalogs:repair-tabriz-volumes`
 - **ریشه (`fahares_prod` محلی):** `catalog_volumes` شماره‌ی 474، 475 و 476 با `library_id = 14` (ملی تبریز؛ 859 در ۲۰۲۶-۱۰-۲۱ در آن ادغام شد) عنوان گوهرشاد ۴ و ۵ و ادبیات فردوسی ۱ داشتند. در `fankha_catalogs_master_verified.json` این جلدها 25 و 113 دارند. `upsertCatalogVolumes` در `RemediateCatalogsAndCatalogersCommand` جلد را با کتابخانه و شماره پیدا می‌کند و عنوان را بازنویسی می‌کند، ولی `library_id` را نه. احتمالاً این رکوردها از همین‌جا عنوان دیگر گرفتند. نسخه‌های کتابخانه‌ی 14 با ارجاع «ف: ۱/۲/۳» به ترتیب روی 474، 475 و 476 بودند (۴۱۳، ۵۳۳ و ۶۰۴). `SourceEntrySync::groupKey` از «کتابخانه|عنوان» منبع 100070 (گوهرشاد زیر 14) را ساخته بود، و منبع 100071 (ادبیات فردوسی) هم زیر 14 بود.
 - **[RepairTabrizVolumesCommand](../app/Console/Commands/RepairTabrizVolumesCommand.php):** جلدهای تبریز را با stem عنوان «فهرست کتابخانه ملی تبریز (اهدایی محمد نخجوانی)» پیدا می‌کند و جلدهای اشتباه را از همان کتابخانه با stem دیگر. هیچ شناسه‌ای در کد ثابت نیست.
   - کتابخانه‌ی درست از فهرست مآخذ (`catalog_series|volume_number` → `library_db_id`) خوانده و از `entity_redirects` گذرانده می‌شود.
@@ -5273,7 +5291,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod` محلی):** dry run: `474→482: 410، 475→483: 533، 476→484: 604، 474→483: 2، 474→484: 1، none→483: 2` (۱٬۵۵۲). پس از `--apply`، منبع 100070 حذف شد. 100069 پنج جلد و ۳٬۸۰۳ نسخه دارد (۲٬۰۴۴ + ۵۲۱ + ۱٬۲۳۸)، 100071 زیر کتابخانه‌ی 113 است، و 100074 (تبریز) همه‌ی ۱٬۵۹۰ نسخه‌ی کتابخانه‌ی 14 را دارد. اجرای دوم «0 Tabriz copies to move» بود. `/sources` یک کارت گوهرشاد نشان داد. کل مجموعه ۵۰۳ آزمون موفق.
 - **پروداکشن:** پس از استقرار، `php artisan catalogs:repair-tabriz-volumes` و سپس `--apply`. نشانی `/sources/catalogue-0193dc5e4370` (منبع حذف‌شده) از آن پس ۴۰۴ می‌دهد.
 
-### گام ۱۳.۹۲: شعر در متن صفحه‌ها
+### گام ۱۳.۹۵: شعر در متن صفحه‌ها
 - **قرارداد متن:** سطری که tab دارد یک بیت است. مصراع‌هایش با tab از هم جدا می‌شوند، و مصراع تنها یک tab در پایان دارد.
 - **خواننده‌ها:**
   - `verse()` در هر سه خواننده بیت را تنها وقتی جدا می‌کند که پیش از `<poem>`، با گذشتن از برچسب‌ها و فاصله‌ها، `<br/>` یا `<p…>` یا `</poem>` آمده باشد، یا آغاز متن باشد.
@@ -5286,7 +5304,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `.is-stepped`: یک ستون. فرزندان فرد `justify-self: start` و زوج `end` دارند.
 - **فرمان پروداکشن (با تأیید کاربر):** برای هر جلد، `php artisan sources:import-pages {code} /tmp/noor-new/…NN.jsonl.gz --volume=N`.
 
-### گام ۱۳.۹۴: قانون `DOCKER-USER` برای پورت‌های Coolify
+### گام ۱۳.۹۶: قانون `DOCKER-USER` برای پورت‌های Coolify
 - **علت شکست راه پیشین:** نگاشت پورت در compose خود Coolify نشانی IP نمی‌پذیرد و به‌روزرسانی شبانه فایل‌ها را بازنویسی می‌کند. ufw (فعال) اثری ندارد، چون Docker پورت منتشرشده را در `PREROUTING` به کانتینر DNAT می‌کند و بسته از `FORWARD` می‌گذرد، نه `INPUT`.
 - **قانون:** [fahares-docker-firewall.sh](../scripts/firewall/fahares-docker-firewall.sh) برای هر پورت `-i eth0 -p tcp -m conntrack --ctorigdstport <port> --ctdir ORIGINAL -j DROP` را با برچسب `fahares-docker-firewall` در `DOCKER-USER` در iptables و ip6tables (هر دو `iptables-nft`) می‌گذارد. تطبیق روی پورت اصلی است، چون پس از DNAT پورت ۸۰۰۰ به ۸۰۸۰ کانتینر تبدیل شده است. ارتباط درون شبکه‌ی `coolify` (Traefik به `coolify`) از `eth0` نمی‌گذرد و دست نمی‌خورد. اجرای دوباره با `-C` قانون تکراری نمی‌سازد.
 - **ماندگاری:** [fahares-docker-firewall.service](../scripts/firewall/fahares-docker-firewall.service) (`WantedBy=docker.service`، `PartOf=docker.service`) پس از هر آغاز Docker `apply` و هنگام توقف `remove` را اجرا می‌کند. نصب و برگشت در [README](../scripts/firewall/README.md).
