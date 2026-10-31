@@ -5178,3 +5178,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تنظیم‌ها:** کلیدهای `mail.subtitle`، `mail.salutation`، `mail.footer` و `mail.show_logo` در `SiteSetting::DEFAULTS`. `SiteSetting::keys($group)` کلیدهای یک گروه را می‌دهد و فرم صفحه‌ی خانه فقط `home.*` را ذخیره می‌کند.
 - **مدیریت:** `Admin\MailTemplateController` (مسیرهای `admin.mail.index|update|preview`، میان‌افزار `can:home.manage`). ممیزی با `action = mail_template`. پیش‌نمایش `MailMessage::render()` یک ایمیل نمونه است.
 - **آزمون:** `tests/Feature/Admin/MailTemplateTest.php`.
+
+### گام ۱۳.۸۷: ورودهای بی‌مرورگر در `NotifyNewDeviceSignIn`
+- `app()->runningInConsole() && ! app()->runningUnitTests()`: رویداد `Login` در خط‌فرمان (tinker، `Request::create` در وارسی‌ها) نادیده گرفته می‌شود.
+- `$sameBrowser`: ردیفی از `known_devices` با همان کاربر و همان `user_agent` که در ۶۰ ثانیه‌ی گذشته ساخته شده باشد، اعلان را برمی‌دارد. ردیف و کوکی تازه همچنان ساخته می‌شوند و مرورگر آخرین کوکی را نگه می‌دارد.
+- **آزمون:** `EventNoticesTest::test_sign_ins_on_the_server_and_a_browsers_simultaneous_requests_are_not_announced`. ورود سوم آزمون قدیمی‌تر حالا user agent جدا دارد.
