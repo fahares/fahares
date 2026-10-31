@@ -1,0 +1,23 @@
+{
+ "source": "two copies listed twice by the old OCR, both rebuilt from the same v2 copy (step 13.100), 2026-10-31",
+ "duplicates": [
+  {
+   "work": "-v8-601",
+   "copies": [
+    [
+     108,
+     "1049/4"
+    ]
+   ]
+  },
+  {
+   "work": "-v10-822",
+   "copies": [
+    [
+     4,
+     "73"
+    ]
+   ]
+  }
+ ]
+}

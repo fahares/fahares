@@ -32,7 +32,7 @@ class RebuildCopiesCommand extends Command
         'copy_date_raw', 'copy_date_hijri_year', 'copy_place', 'commissioned_by', 'folios', 'lines', 'dimensions',
         'paper', 'binding', 'incipit_text', 'explicit_text', 'is_corrected', 'has_marginal_notes', 'is_ruled',
         'has_catchwords', 'is_facsimile', 'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia',
-        'metadata', 'shelfmark'];
+        'metadata', 'shelfmark', 'sequence_number'];
 
     public function handle(): int
     {
@@ -131,7 +131,8 @@ class RebuildCopiesCommand extends Command
         if (! $row) {
             return 'copy gone (merged or deleted)';
         }
-        if ($row->shelfmark !== $rec['shelfmark']) {
+        // a shelfmark this file corrects is the record's own on a second run
+        if ($row->shelfmark !== $rec['shelfmark'] && $row->shelfmark !== ($rec['changes']['shelfmark']['to'] ?? null)) {
             return 'shelfmark differs';
         }
         $already = true;

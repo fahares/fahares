@@ -5421,3 +5421,60 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تغییر:** [01-fahares-hardening.conf](../scripts/ssh/01-fahares-hardening.conf) در `/etc/ssh/sshd_config.d/`: `PasswordAuthentication no`، `KbdInteractiveAuthentication no`، `PermitRootLogin prohibit-password`، `X11Forwarding no`. sshd نخستین مقدار را نگه می‌دارد و پوشه را در آغاز `sshd_config` می‌خواند، پس نام فایل باید پیش از `50-cloud-init.conf` بیاید. نصب با `sshd -t` و `systemctl reload ssh` (نشست‌های باز قطع نمی‌شوند).
 - **وارسی:** `sshd -T`: `permitrootlogin prohibit-password`، `passwordauthentication no`. سرور به root، tabib و hermes فقط `publickey` پیشنهاد می‌کند. ورود کلیدی root از Coolify (۱۲:۲۵، پس از نصب در ۱۲:۲۴:۳۳) و ورود کلیدی مدیر برقرار ماند.
 - **برگشت:** `sudo rm /etc/ssh/sshd_config.d/01-fahares-hardening.conf && sudo systemctl reload ssh`.
+
+### گام ۱۳.۱۰۰: مقایسه‌ی تازه و پاک کردن یادداشت‌های مدل
+- **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):**
+  - `count_of(s, unit)` برای `folios` (گ) و `pages` (ص).
+  - نقشه‌ی `added`: از لاگ `create` با `new_values.v2`.
+  - گزارش در `reports/fankha_v2_db_review5`.
+- **جست‌وجو:**
+  - `raw_text like '%`%'`؛
+  - `regexp binary` روی واژه‌های انگلیسی رایج.
+  - جست‌وجوی بی‌binary «mahmmad» را «hmm» گرفته بود.
+  - دو مورد انگلیسیِ درست کنار گذاشته شدند: #61027 (نام کتاب مارکام) و #97303 (آغاز انگلیسی).
+- **فایل‌های تصمیم:**
+  - [`fankha_chatter_copies_20261031.json`](../database/data/fankha_chatter_copies_20261031.json): ۱۷ نسخه. جفت v2 هر نسخه با شماره‌ی نسخه و صفحه‌ی ±۱ پیدا شد. #75305/#75306 هر دو از `v8-604#111`، و #95649/#95650 هر دو از `v10-829#3`.
+  - [`fankha_chatter_folds_20261031.json`](../database/data/fankha_chatter_folds_20261031.json): `-v8-601` [108, 1049/4] و `-v10-822` [4, 73].
+  - [`fankha_chatter_works_20261031.json`](../database/data/fankha_chatter_works_20261031.json): `radd-ul-muabatiya-v16-902`، `rawat-ul-azhar-…-v16-2393` و `arjon-gita-v3-2`.
+- **تغییر فرمان‌ها:**
+  - `RebuildCopiesCommand::COLUMNS` حالا `sequence_number` هم دارد. شماره‌ی نسخه‌ای که همین فایل اصلاحش کرده، در اجرای دوم «shelfmark differs» نیست.
+  - `AddCorpusWorksCommand::UPDATE_COLUMNS` حالا `primary_title` و `clean_title` هم دارد.
+- **پیکره:** سطر ۱۶ متن جلد ۳.
+- **ترتیب پروداکشن:**
+  1. `rebuild-copies`؛
+  2. `apply-corpus-structure` با فایل folds؛
+  3. `add-corpus-works` با فایل works؛
+  4. `fill-extents`، `catalogs:link-volumes` و `rebuild-scripts`.
+
+  هر کدام اول بی `--apply`.
+- **دیده‌شده و کنار گذاشته:** شماره‌ی ردیف تکراری در یک اثر در سایت فراوان است (پارسر قدیم). کار جداست.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_chatter_prod_before_20261031.jsonl` (۷۶ ردیف).
+  - فرمان‌ها در یک `nohup` اجرا شدند.
+  - `fill-extents` (changed ۵)، `catalogs:link-volumes` و `rebuild-scripts --sync-search` (۲ نسخه).
+  - وارسی با `regexp binary`: ۰ نسخه و ۰ اثر. `/m/75306` به `/manuscripts/75305-…` می‌رود.
+
+### گام ۱۳.۱۰۱: بازه‌ی وفات اشخاص (مورد ۹۶)
+- **migration [add_death_range_to_people](../database/migrations/2026_10_31_400001_add_death_range_to_people.php):** `life_dates_raw` (۱۲۰)، `death_from`، `death_to`، `death_certainty` (۱۰) و `death_hedge_raw` (۶۰)، با نمایه‌ی `(death_from, death_to)`.
+- **[Person](../app/Models/Person.php):** `deathColumns($lifeDates, $deathYear)`:
+  - متنی که «میلاد»، «شمسی»، «خورشیدی»، «هجرت»، «م»، «ش» یا «ق.م» دارد، کنار می‌رود.
+  - بخش پس از آخرین `-` یا `–` گرفته می‌شود. «ق13» (بی حرف یا رقم پیش از «ق») «قرن 13» می‌شود، و سپس `CopyDateRange::parse` آن را می‌خواند.
+  - یک یا دو رقم پس از خط تیره، با «؟» یا بی آن، یک سال است. فقط اگر از سال تولد کمتر باشد، سده است («1297-14 ق»). این قاعده لازم است چون `HijriYear` سال‌های زیر ۱۰۰ را نمی‌پذیرد.
+  - بی بازه از متن، `death_year_hijri` بازه‌ی تک‌سال است.
+  - هوک `saving` با تغییر `life_dates_raw` یا `death_year_hijri` ستون‌ها را پر می‌کند.
+- **فایل تصمیم [fankha_v2_deaths_20261031.json](../database/data/fankha_v2_deaths_20261031.json)** (۹٫۶ مگابایت): ساخته‌ی `scripts/fankha_v2_deaths_export.py` در پیکره (کامیت `6b8696a`). ۴۲٬۱۶۵ اثر را دارد، با نام و `death.raw` پدیدآور و مترجم، و ۸٬۲۸۰ اثر هم‌عنوان (`peers`) برای `FankhaWorkLocator`.
+- **فرمان [fahares:fill-death-ranges](../app/Console/Commands/FillDeathRangesCommand.php):**
+  - **گزینه‌ها:** `--file`، `--apply` و `--show`.
+  - **شخص:** پدیدآور همان `works.author_id` است، و مترجم تنها مترجم `work_people`.
+  - **نام:** `sameName()` نام‌ها را پس از `TextNormalizer::normalize`، بی فاصله، نیم‌فاصله، «،»، «؟»، «.» و «-» مقایسه می‌کند. نام v2 باید آغاز نام سایت باشد («علی بن ابی طالب (ع)، امام اول»).
+  - **انتخاب:** متن‌ها با ستون‌هایی که می‌سازند گروه می‌شوند. گروهی برگزیده می‌شود که بیشترین متن را دارد و `death_year_hijri` را در خود دارد. در تساوی، اثر پیش‌تر برنده است.
+  - `life_dates_raw` فقط جایی پر می‌شود که خالی است. سپس ستون‌های همه‌ی اشخاص از نو ساخته می‌شوند و فقط تفاوت‌ها نوشته می‌شود، ۵٬۰۰۰تا ۵٬۰۰۰تا در یک تراکنش. نمایه‌ی جست‌وجو دست نمی‌خورد، چون این ستون‌ها در `toSearchableArray` نیستند.
+- **تمرین (`fahares_prod` محلی، `--apply`، حدود ۷۰ ثانیه):**
+  - **آثار:** works:found ۴۲٬۰۲۳ و not_found ۱۴۲. author:texts ۴۱٬۶۲۰، author:other_name ۴۳ و author:not_on_site ۲۷۷.
+  - **مترجم:** translator:texts فقط ۱ و translator:not_on_site ۲۴۵، چون `fahares_prod` محلی پیش از پر شدن مترجم‌ها (گام‌های ۱۳.۶۸ و ۱۳.۹۷) گرفته شده است. در پروداکشن عدد بیشتری انتظار می‌رود.
+  - **اشخاص:** people:life_dates ۱۲٬۲۷۱، people:ranged ۱۲٬۶۱۶ (one_year ۵٬۱۶۹، span ۷٬۴۴۷)، hedged ۷۴۴، without_death_year ۲۰۴ و texts_disagree ۴۶. بیشتر ناسازگاری‌ها فقط در «؟» است.
+  - texts:left_out ۱٬۸۸۱. اجرای دوم `people:changed` نداشت.
+  - **پرس‌وجوی وارسی:** هیچ `death_year_hijri` بیرون از بازه‌ی خودش نیست. ۶۰ بازه‌ی تک‌سالِ بی‌متن، سالی با ۵۰ در پایان دارند.
+- **آزمون:** [PersonDeathRangeTest](../tests/Unit/PersonDeathRangeTest.php) (۳) و [FillDeathRangesCommandTest](../tests/Feature/FillDeathRangesCommandTest.php) (۳). کل مجموعه ۵۲۱ آزمون موفق، روی `fahares_wpdeath_test`.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-death-ranges` و بعد با `--apply`.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت `0aaba71` مستقر شد و migration خودکار اجرا شد. dry run و `--apply`: works:found ۴۲٬۰۲۳، author:texts ۴۱٬۶۱۹، other_name ۴۴، translator:texts ۱۷۱ (not_on_site ۷۵)، people:life_dates ۱۲٬۲۷۲، ranged و changed ۱۲٬۶۲۵ (one_year ۵٬۱۷۷، span ۷٬۴۴۸)، hedged ۷۴۴، without_death_year ۲۰۶، left_out ۱٬۸۹۰. اجرای وارسی `people:changed` نداشت، و هیچ `death_year_hijri` بیرون از بازه‌اش نیست. **نمونه:** #۲۶۲۲ (امام علی) با `- 40 قمری` بازه‌ی ۴۰–۴۰ دارد، #۸۰۶ (احسائی) ۱۲۴۱ مردد، و #۱۴۳۸ ۱۲۰۱–۱۳۰۰.

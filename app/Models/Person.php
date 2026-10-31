@@ -23,7 +23,43 @@ class Person extends Model
             if ($person->isDirty('death_year_hijri') && ! $person->isDirty('century_hijri') && $person->death_year_hijri) {
                 $person->century_hijri = (int) ceil($person->death_year_hijri / 100);
             }
+            // ...and the death range, certainty and hedge word, as for a copy's date (backlog item 96)
+            if ($person->isDirty('life_dates_raw') || $person->isDirty('death_year_hijri')) {
+                $person->forceFill(self::deathColumns($person->life_dates_raw, $person->death_year_hijri));
+            }
         });
+    }
+
+    /**
+     * The death range columns (CopyDateRange) of the catalogue's life dates: the death is what follows the dash
+     * («1040 - 1124 ؟ قمری» is 1124 with «؟», «730؟ - 834» a certain 834) and «ق13» is «قرن 13». Solar, Gregorian and
+     * BC dates give no range. After a dash, one or two digits are a year of the first century («- 40 قمری»), or the
+     * century when they are less than the birth year («1297-14 ق»). Without a range from the text, a death year is a
+     * range of its own.
+     */
+    public static function deathColumns(?string $lifeDates, ?int $deathYear): array
+    {
+        $range = ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => null];
+        $text = strtr((string) $lifeDates, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        if (trim($text) !== '' && ! preg_match('/میلاد|شمسی|خورشیدی|هجرت|(?<!\p{L})(?:م|ش|ق\.\s*م)(?!\p{L})/u', $text)) {
+            $parts = preg_split('/\s*[-–]\s*/u', $text);
+            $death = preg_replace('/(?<![\p{L}\d])ق\s*(\d{1,2})(?!\d)/u', 'قرن $1', end($parts));
+            if (count($parts) > 1 && preg_match('/^\s*(\d{1,2})\s*(؟)?\s*(?:ق|قمری)?\s*(؟)?\s*$/u', $death, $m) && (int) $m[1] > 0) {
+                $hedge = ($m[2] ?? '') . ($m[3] ?? '') !== '' ? '؟' : null;
+                $birth = preg_match('/(?<!\d)(\d{1,4})(?!\d)/u', $parts[0], $b) ? (int) $b[1] : null;
+                $range = $birth !== null && (int) $m[1] < $birth
+                    ? \App\Support\CopyDateRange::parse("قرن {$m[1]}" . ($hedge ? ' ؟' : ''))
+                    : ['from' => (int) $m[1], 'to' => (int) $m[1], 'certainty' => \App\Support\PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
+            } else {
+                $range = \App\Support\CopyDateRange::parse($death);
+            }
+        }
+        if ($range['from'] === null && $range['to'] === null && $deathYear) {
+            $range = ['from' => $deathYear, 'to' => $deathYear, 'certainty' => null, 'hedge' => null];
+        }
+
+        return ['death_from' => $range['from'], 'death_to' => $range['to'], 'death_certainty' => $range['certainty'],
+            'death_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
     }
 
     protected function casts(): array
@@ -36,6 +72,8 @@ class Person extends Model
             'death_year_hijri' => 'integer',
             'century_hijri' => 'integer',
             'death_year_gregorian' => 'integer',
+            'death_from' => 'integer',
+            'death_to' => 'integer',
             'is_author' => 'boolean',
             'is_scribe' => 'boolean',
             'is_translator' => 'boolean',
