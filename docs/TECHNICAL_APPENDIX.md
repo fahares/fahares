@@ -5172,3 +5172,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۳.۸۵: «جست‌وجو» با نیم‌فاصله
 - جایگزینی `جستجو` با `جست\u200cوجو` در `app`، `config`، `resources`، `database/content` و توضیح یک migration، و در assertهای آزمون‌ها.
 - `2026_10_31_100001_spell_jost_o_ju_in_pages`: `REPLACE()` روی `pages.title` و `pages.body`؛ `down()` آن را برمی‌گرداند.
+
+### گام ۱۳.۸۶: قاب ایمیل‌ها
+- **قالب‌ها:** `resources/views/vendor/mail/html/message.blade.php` و `text/message.blade.php` جای قالب Laravel را می‌گیرند. سربرگ `images/brand/shamseh-180.png` (۵۲ پیکسل) و `.header-name`/`.header-subtitle` در `themes/default.css` است. `<title>` در `layout.blade.php` ثابت «فهارس» شد.
+- **تنظیم‌ها:** کلیدهای `mail.subtitle`، `mail.salutation`، `mail.footer` و `mail.show_logo` در `SiteSetting::DEFAULTS`. `SiteSetting::keys($group)` کلیدهای یک گروه را می‌دهد و فرم صفحه‌ی خانه فقط `home.*` را ذخیره می‌کند.
+- **مدیریت:** `Admin\MailTemplateController` (مسیرهای `admin.mail.index|update|preview`، میان‌افزار `can:home.manage`). ممیزی با `action = mail_template`. پیش‌نمایش `MailMessage::render()` یک ایمیل نمونه است.
+- **آزمون:** `tests/Feature/Admin/MailTemplateTest.php`.
