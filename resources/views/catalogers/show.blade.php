@@ -46,7 +46,7 @@
                 <div class="grid grid-cols-2 gap-2 text-center">
                     <div>
                         <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->manuscripts_count) }}</div>
-                        <div class="text-xs text-muted">نسخه‌ی شناسانده</div>
+                        <div class="text-xs text-muted">نسخه‌ی فهرست‌شده</div>
                     </div>
                     <div>
                         <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->volumes_count) }}</div>
@@ -105,11 +105,11 @@
             <div class="inline-flex border border-line-strong rounded-sm overflow-hidden text-sm" role="tablist">
                 <button type="button" role="tab" @click="activeTab = 'volumes'" :aria-selected="activeTab === 'volumes'"
                     :class="activeTab === 'volumes' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer">
-                    مجلدهای فهرست <span class="tabular-nums">{{ Fa::num($volumes->count()) }}</span>
+                    فهرست‌ها <span class="tabular-nums">{{ Fa::num($catalogues->count()) }}</span>
                 </button>
                 <button type="button" role="tab" @click="activeTab = 'manuscripts'" :aria-selected="activeTab === 'manuscripts'"
                     :class="activeTab === 'manuscripts' ? 'bg-ink text-paper' : 'text-muted hover:text-ink'" class="px-4 py-1.5 transition cursor-pointer border-s border-line-strong">
-                    نسخه‌های شناسانده <span class="tabular-nums">{{ Fa::num($manuscripts->total()) }}</span>
+                    نسخه‌های فهرست‌شده <span class="tabular-nums">{{ Fa::num($manuscripts->total()) }}</span>
                 </button>
             </div>
 
@@ -118,17 +118,27 @@
                 @if($volumes->isEmpty())
                     <p class="text-sm text-muted">مجلدی برای این فهرست‌نگار ثبت نشده است.</p>
                 @else
-                    <ul class="divide-y divide-line border-y border-line">
-                        @foreach($volumes as $vol)
-                            <li class="py-3 space-y-1">
-                                <div class="font-naskh text-base font-bold text-ink">{{ $vol->title }}@if($vol->volume_number) <span class="font-sans text-sm font-normal text-muted">· جلد {{ Fa::digits($vol->volume_number) }}</span>@endif</div>
-                                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
-                                    @if($vol->library)<span class="text-ink">{{ $vol->library->display_name }}</span>@endif
-                                    @if($vol->publisher)<span>{{ $vol->publisher }}</span>@endif
-                                    @if($vol->publication_year)<span>{{ Fa::digits($vol->publication_year) }}</span>@endif
-                                    @if($vol->pages_count)<span>{{ Fa::num($vol->pages_count) }} صفحه</span>@endif
-                                    @if($vol->manuscripts_range)<span>شماره‌های {{ Fa::digits($vol->manuscripts_range) }}</span>@endif
-                                </div>
+                    {{-- each printed catalogue once, with its cover, its page and the cataloger's volumes of it (step 13.109) --}}
+                    <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10" data-cataloger-catalogues>
+                        @foreach($catalogues as $cat)
+                            @php
+                                $source = $cat['source'];
+                                $first = $cat['volumes']->first();
+                                $numbers = $cat['labels'];
+                                $title = preg_replace('/\s*-\s*(?:جلد\s.*|[0-9۰-۹]+)$/u', '', $source->title);
+                                $years = $cat['volumes']->pluck('publication_year')->filter()->unique()->values();
+                            @endphp
+                            <li data-cataloger-catalogue>
+                                @if($cat['linked'])<a href="{{ route('sources.show', $source->code) }}" class="group grid gap-2 content-start">@else<div class="grid gap-2 content-start">@endif
+                                    <x-source.cover :source="$source" :title="$title" class="w-full {{ $cat['linked'] ? 'group-hover:-translate-y-1 transition duration-300 motion-reduce:transition-none' : '' }}" />
+                                    <span class="text-sm font-bold text-ink leading-6 {{ $cat['linked'] ? 'group-hover:text-cinnabar transition' : '' }}">{{ $title }}</span>
+                                    <span class="text-[11px] text-muted leading-5">
+                                        @if($first->library){{ $first->library->display_name }}@endif
+                                        {{-- a book in one volume says none --}}
+                                @if($numbers->isNotEmpty() && ! ($numbers->count() === 1 && in_array($numbers[0], ['1', 'اول'], true) && ($source->volumes_count ?? 1) <= 1))· {{ $numbers->count() > 1 ? 'جلدهای ' : 'جلد ' }}{{ Fa::digits($numbers->implode('، ')) }}@endif
+                                        @if($years->isNotEmpty())· {{ Fa::digits($years->implode('، ')) }}@endif
+                                    </span>
+                                @if($cat['linked'])</a>@else</div>@endif
                             </li>
                         @endforeach
                     </ul>
