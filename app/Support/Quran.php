@@ -2,7 +2,7 @@
 
 namespace App\Support;
 
-/** The suras by number, for naming a verse Noor marks in a page's text (step 13.92). */
+/** The suras by number, for naming a verse Noor marks in a page's text (step 13.95). */
 class Quran
 {
     public const SURAS = [1 => 'فاتحه', 'بقره', 'آل عمران', 'نساء', 'مائده', 'انعام', 'اعراف', 'انفال', 'توبه', 'یونس', 'هود', 'یوسف', 'رعد',

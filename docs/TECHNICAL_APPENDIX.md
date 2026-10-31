@@ -5292,7 +5292,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروداکشن:** پس از استقرار، `php artisan catalogs:repair-tabriz-volumes` و سپس `--apply`. نشانی `/sources/catalogue-0193dc5e4370` (منبع حذف‌شده) از آن پس ۴۰۴ می‌دهد.
 - **انجام در پروداکشن (۹ آبان، `ssh fahares-app`، با اجازه‌ی کاربر):** پس از استقرار کامیت `6e6b9a4`، پشتیبان ردیف‌های درگیر (جلدها، منبع‌ها، `catalog_volume_id` همه‌ی ۱٬۵۹۰ نسخه‌ی کتابخانه‌ی 14 و ۳٬۳۴۸ ارجاع) در `../fahares-sources/backups/tabriz_volumes_before_20261031.json` گرفته شد. dry run و `--apply` همان شمارهای تمرین را دادند و اجرای وارسی «0 Tabriz copies to move» بود. `/sources` اکنون «گوهرشاد · ۵ جلد · ۳٬۸۰۳ نسخه» و «ملی تبریز · ۳ جلد · ۱٬۵۹۰ نسخه» نشان می‌دهد. برچسب `corpus_fix` در `audit_logs` شماره‌ی پیشین این گام، «step 13.93»، را دارد.
 
-### گام ۱۳.۹۵: شعر در متن صفحه‌ها
+### گام ۱۳.۹۵: شعر و علامت‌های نور در متن صفحه‌ها
 - **قرارداد متن:** سطری که tab دارد یک بیت است. مصراع‌هایش با tab از هم جدا می‌شوند، و مصراع تنها یک tab در پایان دارد.
 - **خواننده‌ها:**
   - `verse()` در هر سه خواننده بیت را تنها وقتی جدا می‌کند که پیش از `<poem>`، با گذشتن از برچسب‌ها و فاصله‌ها، `<br/>` یا `<p…>` یا `</poem>` آمده باشد، یا آغاز متن باشد.
@@ -5303,6 +5303,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **CSS:**
   - `.book-poem`: `grid` با دو ستون `1fr` و پهنای `max-content`، که هر دو ستون را به پهنای بلندترین مصراع می‌رساند.
   - `.is-stepped`: یک ستون. فرزندان فرد `justify-self: start` و زوج `end` دارند.
+- **علامت‌ها:**
+  - **خواننده‌ها:** `marks()` در هر سه خواننده، پس از حذف `format`های درون `heading`، هر `<format class>` معنادار را به U+E020 + نوع + U+E021 … U+E022 برمی‌گرداند. این نوع‌ها نگه داشته می‌شوند:
+    - `ayah S:A[-B]` از `surah`، `ayah` و `toAyah`؛
+    - `hadith`؛
+    - `latin` از `changeLang`؛
+    - در الذریعة، کلاس‌های `[A-Z]B` و `Q`.
+  - **بقیه‌ی برچسب‌ها:** `ayahWord`، `ayahAddress` و دیگر برچسب‌های خودبسته حذف می‌شوند.
+  - **جای علامت‌ها:** فقط متن صفحه علامت دارد. `text_of(…, keep=False)` متن مدخل‌ها را بی علامت می‌سازد، و در الذریعة `plain()` سرعنوان‌ها را.
+  - **`honorifics()`:** توکن را بی علامت‌های دو سویش می‌سنجد. توکنی که درونش علامت دارد هرگز بازنویسی نمی‌شود.
+  - **`tidy()`:** «ص» در بازه‌ی صفحه با `(?<![^\s(])ص` کلمه‌ای جدا خواسته می‌شود.
+- **PHP:**
+  - **`App\Support\PageMarks`:** `PATTERN` و `strip()`. `SegmentSourceItemsCommand` و `Extractors::pages()`/`range()` صفحه را بی علامت می‌خوانند.
+  - **`PrintedPage::text()` و `inline()`:** هر سطر و مصراع را جدا می‌سازند. علامت باز در پایان سطر بسته و در آغاز سطر بعد دوباره باز می‌شود.
+    - `ayah` به `span.book-ayah` با `title` از `App\Support\Quran::label()` تبدیل می‌شود.
+    - `hadith` به `span.book-hadith`.
+    - `latin` به `bdi.book-latin`، بی تبدیل ارقام.
+    - دیگر نوع‌ها به `span[data-noor]`.
+  - `meta_description` بی علامت ساخته می‌شود.
+- **فایل‌ها:** پیش از جایگزینی در `../fahares-sources/backups/noor-pages-before-poems-2026-10-31/` پشتیبان گرفته شد.
 - **فرمان پروداکشن (با تأیید کاربر):** برای هر جلد، `php artisan sources:import-pages {code} /tmp/noor-new/…NN.jsonl.gz --volume=N`.
 
 ### گام ۱۳.۹۶: قانون `DOCKER-USER` برای پورت‌های Coolify

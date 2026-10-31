@@ -37,7 +37,7 @@ FRONT_OR_BACK = re.compile(r'شناسنامه|مقدمات|اختصارات|نم
 LINE = '\ue010'  # a line break the text keeps: before and after a verse that opens a line
 
 
-# Noor's marks kept in the page text (step 13.92), each span as OPEN + kind + SEP … CLOSE: a Quran verse
+# Noor's marks kept in the page text (step 13.95), each span as OPEN + kind + SEP … CLOSE: a Quran verse
 # («ayah 18:46», «ayah 2:1-5»), a hadith («hadith»), a passage in Latin letters («latin»). A heading keeps none,
 # so an entry is still found by its first line. App\Support\PrintedPage::text() reads them.
 OPEN, SEP, CLOSE = '', '', ''

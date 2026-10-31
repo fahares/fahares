@@ -32,7 +32,7 @@ HEADING = re.compile(r'<heading level="\d">(.*?)</heading>', re.S)
 NUMBERED = re.compile(r'^(\d{1,5})\s*:\s*(.+)$', re.S)
 
 
-# Noor's marks kept in the page text (step 13.92), each span as OPEN + kind + SEP … CLOSE: a Quran verse
+# Noor's marks kept in the page text (step 13.95), each span as OPEN + kind + SEP … CLOSE: a Quran verse
 # («ayah 18:46», «ayah 2:1-5»), a hadith («hadith»), a passage in Latin letters («latin»), and in al-Dhari'a the names Noor tags («WB» a title, «FB» a person, «XB» a year …). A heading keeps none,
 # so an entry is still found by its first line. App\Support\PrintedPage::text() reads them.
 OPEN, SEP, CLOSE = '', '', ''
@@ -149,7 +149,7 @@ def headings(xml):
 def tidy(text):
     # a section's page range Noor adds under its heading: «(البائية الحميرية ص 3 - البيوع و المزارعات ص 196)»
     # «ص» is a word of its own: «(خص 8 - ص 295)» is a citation (a book's abbreviation, its volume and page), which this
-    # rule took out in 250 places until step 13.92
+    # rule took out in 250 places until step 13.95
     text = re.sub(r'\([^()\n]*(?<![^\s(])ص \d+\s*-[^()\n]*(?<![^\s(])ص \d+\s*\)', '', text)
     # Noor's «\» between words, where the print has a space
     text = text.replace('\\', ' ')
