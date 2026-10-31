@@ -251,6 +251,10 @@ class SourcePageViewTest extends TestCase
         $cites = array_values(array_filter(BibliographyLinks::inProse('فی [الذريعة 69/13] و (ذریعه 1004/9)؛ کشف الظنون 1/500 و بدون'), fn ($s) => isset($s['cite'])));
         $this->assertSame([['dharia', 13, 69], ['dharia', 9, 1004], ['kashf', 1, 500]], array_map(fn ($s) => [$s['cite']['source'], $s['cite']['volume'], $s['cite']['page']], $cites));
 
+        // Monzavi's «همان‌جا» cites the book cited right before it, while that is one of the site's
+        $cites = array_values(array_filter(BibliographyLinks::inProse('ذریعه 280/9، همان‌جا 453/3 «تحفة...»، همان‌جا 138/19؛ مشترک 46/7، همان‌جا 53/10'), fn ($s) => isset($s['cite'])));
+        $this->assertSame([['280/9', 9, 280], ['453/3', 3, 453], ['138/19', 19, 138]], array_map(fn ($s) => [$s['text'], $s['cite']['volume'], $s['cite']['page']], $cites));
+
         // Monzavi's page 360 cites page 361 of its own volume: the page text links it
         $this->monzavi();
         $html = (string) \App\Support\PrintedPage::text('نسخه‌ها؛ فهرستواره 361/6 و ذریعه 9999/9');
