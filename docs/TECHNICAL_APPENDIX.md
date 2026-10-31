@@ -5448,4 +5448,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
   هر کدام اول بی `--apply`.
 - **دیده‌شده و کنار گذاشته:** شماره‌ی ردیف تکراری در یک اثر در سایت فراوان است (پارسر قدیم). کار جداست.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_chatter_prod_before_20261031.jsonl` (۷۶ ردیف).
+  - فرمان‌ها در یک `nohup` اجرا شدند.
+  - `fill-extents` (changed ۵)، `catalogs:link-volumes` و `rebuild-scripts --sync-search` (۲ نسخه).
+  - وارسی با `regexp binary`: ۰ نسخه و ۰ اثر. `/m/75306` به `/manuscripts/75305-…` می‌رود.
 
