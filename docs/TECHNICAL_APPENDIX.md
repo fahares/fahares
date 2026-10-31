@@ -5483,3 +5483,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان:** `job_watch` همان `job_status` را بی‌خروجی اجرا می‌کند؛ اگر کد خروج صفر نباشد (`status` ناموفق یا عمر آخرین بکاپ `db` بیش از `MAX_AGE_HOURS`، پیش‌فرض ۳۰ ساعت)، سطر آخر آن را با `notify` به `TG_CHAT_ID` می‌فرستد و با ۱ خارج می‌شود. هشدار شکست هر کار همچنان از `on_exit` می‌آید؛ `watch` کاری را می‌گیرد که اصلاً اجرا نشده است.
 - **زمان‌بندی:** `0 10 * * *` در crontab کاربر بکاپ ([crontab.example](../scripts/backup/crontab.example)). [README](../scripts/backup/README.md) به‌روز شد: پاییدن روزانه دیگر به Hermes سپرده نیست.
 - **نصب و وارسی:** نسخه‌ی میزبان در `/usr/local/bin` جایگزین شد؛ اجرای دستی `watch` کد ۰ داد و `status` گفت «OK: last db backup 9h ago».
+
+### گام ۱۳.۱۰۴: نسخه‌های گم‌شده
+- **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):** حالا `unmatched.jsonl` هم می‌نویسد، با سه نوع رکورد:
+  - `v2_work`؛
+  - `site_copy`: نسخه‌ی سایتِ بی‌جفت؛
+  - `v2_copy`: با `site_work_id` اثر جفت‌شده.
+  - گزارش در `reports/fankha_v2_db_review6`.
+- **دسته‌بندی:**
+  - **بودن در سایت:** با شماره‌ی نسخه‌ی یکسان‌شده و صفحه‌ی ±۱ در همان جلد وارسی شد: `none` ۵۶۲، `same_work` ۷ و `other_work` ۱.
+  - **شرط پذیرش:**
+    - `clean_title` برابر؛
+    - `author_name` برابر، یا تهی در سایت؛
+    - صفحه در `page_start-1 .. page_end+1`.
+  - **کنارمانده‌ها:** `reports/fankha_v2_db_review6/missing_copies_held.json` (۵۶).
+- **فایل تصمیم:** [`fankha_missing_copies_20261031.json`](../database/data/fankha_missing_copies_20261031.json). ۸۹ `fills` با `make` از `copy_record`.
+- **ترتیب پروداکشن:**
+  1. `fahares:add-corpus-works --file=…`؛
+  2. `fahares:fill-extents --apply`، `catalogs:link-volumes` و `fahares:rebuild-scripts --sync-search`.
+
