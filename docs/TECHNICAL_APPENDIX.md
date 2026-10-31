@@ -5216,6 +5216,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `c4ada5e`: در `fankha_v2_rebuild_export.values`، `folios` فقط از مقداری که «گ» دارد.
   - JSON جلد ۲۳ دوباره ساخته شد و فقط همین دو نسخه تغییر کرد.
 - **ترتیب پروداکشن:** `fahares:rebuild-copies --file=database/data/fankha_vol23_faeda_copy_20261031.json`، سپس `fahares:add-corpus-works --file=database/data/fankha_vol23_faeda_work_20261031.json`. هر کدام اول بی `--apply`.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_vol23_faeda_prod_before_20261031.json`.
+  - ترتیب: دو فرمان، سپس `fill-extents --apply` (changed ۱، with_range ۹۴٬۹۳۲)، سپس `catalogs:link-volumes`، `rebuild-scripts --sync-search` (۱ نسخه) و `link-autograph-scribes`.
+  - اثر تازه روی پروداکشن شناسه‌ی ۷۱۸۱۹ گرفت.
+  - **وارسی ۴۴ نسخه:** با کلید طبیعی (پسوند slug و شماره‌ی نسخه، یا شناسه‌ی نسخه‌های بازسازی‌شده)، هر ۴۴ نسخه `folios` تهی و `pages` پر دارند. یکی («احوال تاجران»، رضوی 16378/5) پس از ادغام کاربر زیر اثر ۳۱۳۵ است.
 
 ### گام ۱۳.۸۸: قاب ایمیل‌ها
 - **قالب‌ها:** `resources/views/vendor/mail/html/message.blade.php` و `text/message.blade.php` جای قالب Laravel را می‌گیرند. سربرگ `images/brand/shamseh-180.png` (۵۲ پیکسل) و `.header-name`/`.header-subtitle` در `themes/default.css` است. `<title>` در `layout.blade.php` ثابت «فهارس» شد.
