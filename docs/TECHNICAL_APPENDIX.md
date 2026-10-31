@@ -5273,3 +5273,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod` محلی):** dry run: `474→482: 410، 475→483: 533، 476→484: 604، 474→483: 2، 474→484: 1، none→483: 2` (۱٬۵۵۲). پس از `--apply`، منبع 100070 حذف شد. 100069 پنج جلد و ۳٬۸۰۳ نسخه دارد (۲٬۰۴۴ + ۵۲۱ + ۱٬۲۳۸)، 100071 زیر کتابخانه‌ی 113 است، و 100074 (تبریز) همه‌ی ۱٬۵۹۰ نسخه‌ی کتابخانه‌ی 14 را دارد. اجرای دوم «0 Tabriz copies to move» بود. `/sources` یک کارت گوهرشاد نشان داد. کل مجموعه ۵۰۳ آزمون موفق.
 - **پروداکشن:** پس از استقرار، `php artisan catalogs:repair-tabriz-volumes` و سپس `--apply`. نشانی `/sources/catalogue-0193dc5e4370` (منبع حذف‌شده) از آن پس ۴۰۴ می‌دهد.
 
+### گام ۱۳.۹۲: شعر در متن صفحه‌ها
+- **قرارداد متن:** سطری که tab دارد یک بیت است. مصراع‌هایش با tab از هم جدا می‌شوند، و مصراع تنها یک tab در پایان دارد.
+- **خواننده‌ها:**
+  - `verse()` در هر سه خواننده بیت را تنها وقتی جدا می‌کند که پیش از `<poem>`، با گذشتن از برچسب‌ها و فاصله‌ها، `<br/>` یا `<p…>` یا `</poem>` آمده باشد، یا آغاز متن باشد.
+  - در `noor_aqabozorg.py` جمع‌کردن فاصله‌های هر سطر tab را نگه می‌دارد.
+  - در `noor_monzavi.py` و `noor_istanbul.py`، `text_of()` سطرها را با `\ue010` جدا نگه می‌دارد و با `\n` می‌پیوندد.
+- **فایل‌های تازه:** `dharia/noor/NN.jsonl.gz` (۲۶)، `monzavi/noor/NN.jsonl.gz` (۱۰) و `noor-istanbul/{kashf,idah,hadiyya}/NN.jsonl.gz` (۶).
+- **`PrintedPage::text()`:** سطرهای پیاپی دارای tab در `span.book-poem` (`data-poem`) می‌آیند و هر مصراع در `span.book-poem__h`. سطر خالیِ کنار شعر حذف می‌شود و شعر بی شکست سطر به متن پیش و پس می‌چسبد.
+- **CSS:**
+  - `.book-poem`: `grid` با دو ستون `1fr` و پهنای `max-content`، که هر دو ستون را به پهنای بلندترین مصراع می‌رساند.
+  - `.is-stepped`: یک ستون. فرزندان فرد `justify-self: start` و زوج `end` دارند.
+- **فرمان پروداکشن (با تأیید کاربر):** برای هر جلد، `php artisan sources:import-pages {code} /tmp/noor-new/…NN.jsonl.gz --volume=N`.
