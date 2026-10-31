@@ -1,0 +1,14 @@
+[Unit]
+Description=Fahares: drop outside connections to Coolify's published ports (DOCKER-USER)
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/fahares-docker-firewall.sh apply
+ExecStop=/usr/local/sbin/fahares-docker-firewall.sh remove
+
+[Install]
+WantedBy=docker.service
