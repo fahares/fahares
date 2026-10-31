@@ -5610,3 +5610,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - مختصر (100050): #441 با ۲٬۵۰۰ نسخه.
   - اجرای دوم: «their MTIF records are in place»، «No catalogue is held as several sources»، «its copies are on its own source» و صفر گره تازه.
 - **آزمون:** [FillEmptyCataloguesTest](../tests/Feature/FillEmptyCataloguesTest.php) سه منبع میکروفیلم و جلد مختصر را می‌سازد. نسخه‌های جلد ۱، ۲ (روی جلد مشکوه) و ۳ (یکی بی‌جلد)، یک ارجاع بی‌جلد و یک ارجاع «ف» دارد. dry-run، اجرا، مدخل‌ها، فهرست‌نگار، ۳۰۱ و تکرار بی‌اثر آزموده می‌شوند. آزمون‌ها روی پایگاه جداگانه‌ی `fahares_emptycat_test` اجرا شدند و ۵۳۳ آزمون موفق بودند.
+- **پروداکشن (۱۰ آبان ۱۴۰۵):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.112_fill_empty_catalogues_prod_before_20261031.json` (۳۵ مگابایت). اسکریپت PHP آن از راه `ssh fahares-app 'cd /app && php'` اجرا شد و این‌ها را دارد:
+    - جدول‌های کامل `sources`، `source_volumes`، `catalog_volumes` و `catalog_volume_cataloger`؛
+    - ستون‌های جلدِ ۱۱۶٬۸۱۵ نسخه، `manuscript_catalog_references` و ۱۱۶٬۸۲۳ مدخلِ منبع‌های درگیر.
+  - dry-run و اجرا: idهای جلد و منبع با نسخه‌ی محلی یکی بودند و شمارها هم یکی. فقط الفبائی آستان قدس ۳٬۶۵۹ مدخل داشت.
+  - اجرا ۳۹ ثانیه طول کشید. منبع‌ها ۱۷۰ ← ۱۶۲ و جلدها ۵۲۹ ← ۵۲۳. مدخل‌ها ۷۸۸٬۵۰۰، بی‌تغییر. اجرای دوم صفر تغییر داشت.
+  - `catalogue-d788e304d962` و `catalogue-02c0a06ef7b7` با ۳۰۱ به `ae0847c98256` و `520c926fbc43` می‌روند.
