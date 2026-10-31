@@ -18,6 +18,10 @@ class SiteSetting extends Model
         'home.treasures_title' => 'از گنجینه‌ها',
         'home.catalogers_title' => 'فهرست‌نگاران',
         'home.slide_interval' => '7',
+        'mail.subtitle' => 'پایگاه جامع نسخه‌های خطی',
+        'mail.salutation' => 'فهارس، فهرستگان نسخ خطی ایران',
+        'mail.footer' => 'این ایمیل را سامانه‌ی فهارس فرستاده است.',
+        'mail.show_logo' => '1',
     ];
 
     public const LABELS = [
@@ -27,6 +31,10 @@ class SiteSetting extends Model
         'home.treasures_title' => 'عنوان بخش تصویرهای برگزیده',
         'home.catalogers_title' => 'عنوان بخش فهرست‌نگاران',
         'home.slide_interval' => 'فاصله‌ی چرخش اسلایدها (ثانیه)',
+        'mail.subtitle' => 'عنوان زیر نام فهارس در سربرگ ایمیل',
+        'mail.salutation' => 'امضای پایان ایمیل',
+        'mail.footer' => 'متن پانویس ایمیل (پیوند سایت خودکار افزوده می‌شود)',
+        'mail.show_logo' => 'نمایش شمسه در سربرگ',
     ];
 
     private const CACHE_KEY = 'site_settings';
@@ -41,6 +49,12 @@ class SiteSetting extends Model
         $all = Cache::rememberForever(self::CACHE_KEY, fn () => static::query()->pluck('value', 'key')->all());
 
         return $all[$key] ?? (self::DEFAULTS[$key] ?? null);
+    }
+
+    /** @return string[] the keys of one group, such as «home» or «mail» */
+    public static function keys(string $group): array
+    {
+        return array_values(array_filter(array_keys(self::DEFAULTS), fn ($k) => str_starts_with($k, "{$group}.")));
     }
 
     public static function put(string $key, ?string $value): void

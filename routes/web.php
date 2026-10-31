@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PersonReviewController as AdminPersonReviewContro
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\HomePageController as AdminHomePageController;
 use App\Http\Controllers\Admin\LibraryController as AdminLibraryController;
+use App\Http\Controllers\Admin\MailTemplateController as AdminMailTemplateController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PersonController as AdminPersonController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
@@ -336,8 +337,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Catalogers & Bibliographers
     Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update'])->middleware('can:catalogers.edit');
 
-    // Home page content: texts, banner slides, featured images, home catalogers
+    // Home page content: texts, banner slides, featured images, home catalogers; and the emails' shared frame
     Route::middleware('can:home.manage')->group(function () {
+        Route::get('/mail-template', [AdminMailTemplateController::class, 'index'])->name('mail.index');
+        Route::put('/mail-template', [AdminMailTemplateController::class, 'update'])->name('mail.update');
+        Route::get('/mail-template/preview', [AdminMailTemplateController::class, 'preview'])->name('mail.preview');
         Route::get('/home-page', [AdminHomePageController::class, 'index'])->name('home.index');
         Route::put('/home-page/settings', [AdminHomePageController::class, 'updateSettings'])->name('home.settings');
         Route::post('/home-page/items', [AdminHomePageController::class, 'storeItem'])->name('home.items.store');

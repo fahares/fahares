@@ -112,6 +112,22 @@ img {
 
 /* Logo */
 
+.header-name {
+    color: #18181b;
+    display: block;
+    font-size: 26px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.header-subtitle {
+    color: #71717a;
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    margin-top: 4px;
+}
+
 .logo {
     height: 75px;
     margin-top: 15px;

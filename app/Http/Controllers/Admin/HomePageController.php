@@ -23,18 +23,18 @@ class HomePageController extends Controller
         $items = HomeItem::query()->orderBy('sort_order')->orderBy('id')->get()->groupBy('section');
         $homeCatalogers = Cataloger::whereNotNull('home_order')->orderBy('home_order')->get();
         $otherCatalogers = Cataloger::whereNull('home_order')->orderBy('name')->get(['id', 'name', 'avatar_path', 'mtif_entry_id']);
-        $settings = collect(SiteSetting::LABELS)->map(fn ($label, $key) => [
-            'label' => $label,
+        $settings = collect(SiteSetting::keys('home'))->mapWithKeys(fn ($key) => [$key => [
+            'label' => SiteSetting::LABELS[$key],
             'value' => SiteSetting::get($key),
             'default' => SiteSetting::DEFAULTS[$key],
-        ]);
+        ]]);
 
         return view('admin.home.index', compact('items', 'homeCatalogers', 'otherCatalogers', 'settings'));
     }
 
     public function updateSettings(Request $request)
     {
-        $rules = collect(SiteSetting::DEFAULTS)->keys()
+        $rules = collect(SiteSetting::keys('home'))
             ->mapWithKeys(fn ($key) => [str_replace('.', '__', $key) => 'nullable|string|max:1000'])
             ->all();
         $rules['home__slide_interval'] = 'nullable|integer|min:3|max:60';
@@ -42,7 +42,7 @@ class HomePageController extends Controller
 
         $old = [];
         $new = [];
-        foreach (array_keys(SiteSetting::DEFAULTS) as $key) {
+        foreach (SiteSetting::keys('home') as $key) {
             $value = trim((string) ($validated[str_replace('.', '__', $key)] ?? ''));
             $value = $value === '' ? null : $value;
             $current = SiteSetting::find($key)?->value;

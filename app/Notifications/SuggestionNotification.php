@@ -59,7 +59,7 @@ abstract class SuggestionNotification extends Notification implements ShouldQueu
         foreach ($this->lines($notifiable) as $line) {
             $mail->line($line);
         }
-        $mail->action($this->actionLabel(), $this->url($notifiable))->salutation('فهارس، فهرستگان نسخ خطی ایران');
+        $mail->action($this->actionLabel(), $this->url($notifiable))->salutation(\App\Models\SiteSetting::get('mail.salutation'));
 
         if ($notifiable instanceof User) {
             $unsubscribe = URL::signedRoute('notifications.unsubscribe', ['user' => $notifiable->id, 'type' => static::TYPE, 'channel' => 'mail']);

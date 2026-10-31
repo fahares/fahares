@@ -2,7 +2,7 @@
 {{-- Persian, right to left; the rest of the mail views come from the framework --}}
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fa" dir="rtl">
 <head>
-<title>{{ config('app.name') }}</title>
+<title>فهارس</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta name="color-scheme" content="light">

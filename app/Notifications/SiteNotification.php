@@ -60,7 +60,7 @@ abstract class SiteNotification extends Notification implements ShouldQueue
         foreach ($this->lines($notifiable) as $line) {
             $mail->line($line);
         }
-        $mail->action($this->actionLabel(), $this->url($notifiable))->salutation('فهارس، فهرستگان نسخ خطی ایران');
+        $mail->action($this->actionLabel(), $this->url($notifiable))->salutation(\App\Models\SiteSetting::get('mail.salutation'));
         if ($notifiable instanceof User && ! NotificationPreferences::locked($this->type())) {
             $unsubscribe = URL::signedRoute('notifications.unsubscribe', ['user' => $notifiable->id, 'type' => $this->type(), 'channel' => 'mail']);
             $mail->line("برای قطع این نوع ایمیل: [لغو اشتراک]({$unsubscribe}) — همه‌ی تنظیمات اعلان: " . route('notifications.settings'));

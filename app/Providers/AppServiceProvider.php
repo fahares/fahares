@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
             ->line('پس از تأیید، پیشنهادهایی که پیش‌تر بدون ورود و با همین ایمیل فرستاده‌اید به حساب شما وصل می‌شوند.')
             ->action('تأیید ایمیل', $url)
             ->line('این پیوند تا ۶۰ دقیقه معتبر است. اگر در فهارس حساب نساخته‌اید، این ایمیل را نادیده بگیرید.')
-            ->salutation('فهارس، فهرستگان نسخ خطی ایران'));
+            ->salutation(\App\Models\SiteSetting::get('mail.salutation')));
 
         ResetPassword::toMailUsing(fn ($notifiable, string $token) => (new MailMessage)
             ->subject('بازیابی گذرواژه | فهارس')
@@ -55,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
             ->line("{$notifiable->name} گرامی، درخواست بازیابی گذرواژه‌ی حساب شما در فهارس ثبت شد.")
             ->action('تعیین گذرواژه‌ی تازه', route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]))
             ->line('این پیوند تا ۶۰ دقیقه معتبر است. اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید؛ گذرواژه‌ی شما تغییر نمی‌کند.')
-            ->salutation('فهارس، فهرستگان نسخ خطی ایران'));
+            ->salutation(\App\Models\SiteSetting::get('mail.salutation')));
 
         // Record pages share the readings of their fields so the per-field badges and the readings list can show them
         $records = ['manuscripts.show' => 'manuscript', 'works.show' => 'work', 'people.show' => 'person', 'libraries.show' => 'library'];
