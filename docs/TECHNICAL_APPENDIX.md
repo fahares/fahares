@@ -5183,3 +5183,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `app()->runningInConsole() && ! app()->runningUnitTests()`: رویداد `Login` در خط‌فرمان (tinker، `Request::create` در وارسی‌ها) نادیده گرفته می‌شود.
 - `$sameBrowser`: ردیفی از `known_devices` با همان کاربر و همان `user_agent` که در ۶۰ ثانیه‌ی گذشته ساخته شده باشد، اعلان را برمی‌دارد. ردیف و کوکی تازه همچنان ساخته می‌شوند و مرورگر آخرین کوکی را نگه می‌دارد.
 - **آزمون:** `EventNoticesTest::test_sign_ins_on_the_server_and_a_browsers_simultaneous_requests_are_not_announced`. ورود سوم آزمون قدیمی‌تر حالا user agent جدا دارد.
+
+### گام ۱۳.۸۸: پنهان کردن سطر تکراری فنخا در `works/show`
+- `BibliographyLinks::onlyCitations($entry)`: سطر فقط نام منبع‌های `config('bibliography.sources')` و نشانی‌های پیونددار است (علامت‌ها، «و»، «ج»، «ص»، «ستون» مجازند؛ عدد بی‌پیوند یا یادداشت نه).
+- `RecordSources::isCovered(SourceEntry $citation)`: مکان‌های سطر (`locations` یا `source_id`/`volume_number`/`page_start`) همه با کارتی از `cards()` که `sourceItem` دارد یکی‌اند: همان `source_id` و `volumeNumber()`، و صفحه میان `page_start` و `page_end` مدخل.
+- `resources/views/works/show.blade.php`: حلقه روی `$sources->bibliography()`. سطر پوشیده `x-show="$store.suggest.on"` و `data-covered-citation` و رنگ `text-muted` دارد. `$bibliography` (برای کارت‌های برگه‌ی سایدبار) دست نخورد.
+- **آزمون:** `SourceItemsTest::test_a_bibliography_line_whose_places_are_all_on_the_cards_shows_only_in_suggestion_mode` و `BibliographyLinksTest::test_only_citations_is_a_line_of_source_names_and_linked_citations`.
