@@ -4918,10 +4918,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **نتیجه:** `COOLIFY_URL` به `https://coolify.fahares.net` رفت. استقرار ۳۳۹ با فراخوانی HTTPS در ۴۲ ثانیه تمام شد، چون لایه‌ها از پیش کشیده شده بودند. پورت ۸۰۰۰ هنوز باز است.
 - **build-time:** `is_buildtime` از ۴۶ ردیف `environment_variables` برنامه برداشته شد (به‌جز `NIXPACKS_*`)، چون ساخت دیگر در Coolify نیست. `is_runtime` دست نخورد. استقرار ۳۴۰ (۱۳:۳۵ تا ۱۳:۳۷) نشان داد `APP_KEY`، `DB_PASSWORD` و `MEILISEARCH_KEY` در کانتینر هستند. `/up` و `/search` کد ۲۰۰ دادند.
 - **webhook قدیمی:** webhook مخزن گیت‌هاب (`http://162.35.127.157:8000/webhooks/source/github/events/manual`، رویداد push) با تأیید کاربر حذف شد. استقرار حالا فقط از GitHub Actions راه می‌افتد.
-- **پورت‌های Coolify (۸۰۰۰، ۶۰۰۱ و ۶۰۰۲) روی 0.0.0.0 منتشر می‌شوند** (از بیرون در گام ۱۳.۹۲ بسته شدند):
+- **پورت‌های Coolify (۸۰۰۰، ۶۰۰۱ و ۶۰۰۲) روی 0.0.0.0 منتشر می‌شوند** (از بیرون در گام ۱۳.۹۴ بسته شدند):
   - **تلاش:** گذاشتن `APP_PORT=127.0.0.1:8000` در `/data/coolify/source/.env` را `docker compose` با خطای `invalid start port` رد کرد، چون نگاشت `"${APP_PORT:-8000}:8080"` IP را درون متغیر نمی‌پذیرد. ۶۰۰۲ هم در `docker-compose.prod.yml` ثابت نوشته شده است.
   - **برگشت:** `.env` بی‌درنگ از `.env-before-localhost-ports` برگردانده شد و `compose config` معتبر بود. اگر آن سطرها می‌ماندند، به‌روزرسانی شبانه‌ی Coolify شکست می‌خورد. کانتینر Coolify در این میان ری‌استارت نشد.
-  - **راه باقی‌مانده:** قانون فایروال در زنجیره‌ی `DOCKER-USER`، که ماندگار هم باشد. در گام ۱۳.۹۲ انجام شد.
+  - **راه باقی‌مانده:** قانون فایروال در زنجیره‌ی `DOCKER-USER`، که ماندگار هم باشد. در گام ۱۳.۹۴ انجام شد.
 - **ایمیج‌های ساخته‌شده روی سرور:** هر ۸ ایمیج `9qjcshcsq1hcstpoorqvkew6:<sha>` پاک شد، چون build-arg ها و `.nixpacks/build.sh` آن‌ها مقادیر محرمانه داشت. `docker image prune` هم ۴٫۸ گیگابایت آزاد کرد. کانتینر جاری از `ghcr.io/fahares/fahares:latest` است و برگشت به نسخه‌های پیشین از راه برچسب‌های `<sha>` در GHCR انجام می‌شود.
 
 
@@ -5286,7 +5286,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `.is-stepped`: یک ستون. فرزندان فرد `justify-self: start` و زوج `end` دارند.
 - **فرمان پروداکشن (با تأیید کاربر):** برای هر جلد، `php artisan sources:import-pages {code} /tmp/noor-new/…NN.jsonl.gz --volume=N`.
 
-### گام ۱۳.۹۲: قانون `DOCKER-USER` برای پورت‌های Coolify
+### گام ۱۳.۹۴: قانون `DOCKER-USER` برای پورت‌های Coolify
 - **علت شکست راه پیشین:** نگاشت پورت در compose خود Coolify نشانی IP نمی‌پذیرد و به‌روزرسانی شبانه فایل‌ها را بازنویسی می‌کند. ufw (فعال) اثری ندارد، چون Docker پورت منتشرشده را در `PREROUTING` به کانتینر DNAT می‌کند و بسته از `FORWARD` می‌گذرد، نه `INPUT`.
 - **قانون:** [fahares-docker-firewall.sh](../scripts/firewall/fahares-docker-firewall.sh) برای هر پورت `-i eth0 -p tcp -m conntrack --ctorigdstport <port> --ctdir ORIGINAL -j DROP` را با برچسب `fahares-docker-firewall` در `DOCKER-USER` در iptables و ip6tables (هر دو `iptables-nft`) می‌گذارد. تطبیق روی پورت اصلی است، چون پس از DNAT پورت ۸۰۰۰ به ۸۰۸۰ کانتینر تبدیل شده است. ارتباط درون شبکه‌ی `coolify` (Traefik به `coolify`) از `eth0` نمی‌گذرد و دست نمی‌خورد. اجرای دوباره با `-C` قانون تکراری نمی‌سازد.
 - **ماندگاری:** [fahares-docker-firewall.service](../scripts/firewall/fahares-docker-firewall.service) (`WantedBy=docker.service`، `PartOf=docker.service`) پس از هر آغاز Docker `apply` و هنگام توقف `remove` را اجرا می‌کند. نصب و برگشت در [README](../scripts/firewall/README.md).
