@@ -7,6 +7,7 @@ use App\Models\SourceEntry;
 use App\Models\Work;
 use App\Suggestions\ContributorRelations;
 use App\Suggestions\ProtectedColumns;
+use App\Support\FankhaWorkLocator;
 use App\Support\PersonNameMatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,9 @@ use InvalidArgumentException;
 
 /**
  * Fills work_people with the translators and authors of the original that parser v2 reads from the Fankha
- * entries (work fields translator and original_author, each with name and hedge). Works are matched by their
- * natural key, the slug suffix «-v{vol}-{ordinal}». A row links a person only on a confident match (see
+ * entries (work fields translator and original_author, each with name and hedge). Works are found by title and page
+ * (FankhaWorkLocator): the slug suffix «-v{vol}-{ordinal}» of step 13.68 led 138 rows to a neighbour, and a row
+ * an earlier run so gave a neighbour is moved here. A row links a person only on a confident match (see
  * PersonNameMatcher); otherwise the name is kept as text. Names the parser ran into the description («… . این کتاب …»), «نامعلوم»
  * and works whose people reviewers already changed are left out. Every row cites the work's Fankha entry.
  * Rows go through ContributorRelations::addRole, the one write path for work_people.
@@ -37,6 +39,11 @@ class BackfillWorkPeopleCommand extends Command
     private const UNKNOWN = ['نامعلوم', 'ناشناخته', 'ناشناس', 'مجهول', 'نامشخص'];
 
     private PersonNameMatcher $matcher;
+
+    private FankhaWorkLocator $locator;
+
+    /** @var array<string, true> "work id|role|name" the v2 JSON gives */
+    private array $expected = [];
 
     /** @var array<string, array<string, int>> */
     private array $counts = [];
@@ -59,6 +66,26 @@ class BackfillWorkPeopleCommand extends Command
         $this->matcher = new PersonNameMatcher;
         $this->counts = [];
         $this->examples = [];
+        // Every volume's works, to find the site's work by title and page (FankhaWorkLocator), not by slug suffix
+        $all = [];
+        foreach (range(1, 34) as $v) {
+            $file = sprintf('%s/fankha_vol_%02d.json', rtrim($dir, '/'), $v);
+            foreach (File::exists($file) ? (json_decode(File::get($file), true)['works'] ?? []) : [] as $jw) {
+                $all[] = ['key' => $jw['key'], 'title' => $jw['title'] ?? '', 'provenance' => ['page_start' => $jw['provenance']['page_start'] ?? 0]]
+                    + array_intersect_key($jw, self::FIELDS);
+            }
+        }
+        $this->locator = new FankhaWorkLocator($all);
+        // Which work rightly has which translator: a neighbour that has the same one in its own entry keeps its row
+        $this->expected = [];
+        foreach ($all as $jw) {
+            foreach (self::FIELDS as $field => $role) {
+                if (! empty($jw[$field]['name']) && ($id = $this->locator->find($jw['key']['vol'], $jw['key']['ordinal'], $jw['title'], $jw['provenance']['page_start']))) {
+                    $this->expected["{$id}|{$role}|" . $this->cleanName($jw[$field]['name'])[0]] = true;
+                }
+            }
+        }
+        unset($all);
 
         foreach ($volumes as $vol) {
             $file = sprintf('%s/fankha_vol_%02d.json', rtrim($dir, '/'), $vol);
@@ -72,7 +99,7 @@ class BackfillWorkPeopleCommand extends Command
             foreach ($data['works'] ?? [] as $jw) {
                 foreach (self::FIELDS as $field => $role) {
                     if (! empty($jw[$field]['name'])) {
-                        $rows[] = [$jw['key']['ordinal'] ?? null, $role, $jw[$field]];
+                        $rows[] = [$jw['key']['ordinal'] ?? null, $role, $jw[$field], $jw['title'] ?? '', (int) ($jw['provenance']['page_start'] ?? 0)];
                     }
                 }
             }
@@ -81,8 +108,8 @@ class BackfillWorkPeopleCommand extends Command
             }
 
             $write = function () use ($rows, $vol, $guard, $relations, $dry) {
-                foreach ($rows as [$ordinal, $role, $value]) {
-                    $this->row($vol, (int) $ordinal, $role, $value, $guard, $relations, $dry);
+                foreach ($rows as [$ordinal, $role, $value, $title, $page]) {
+                    $this->row($vol, (int) $ordinal, $role, $value, $title, $page, $guard, $relations, $dry);
                 }
             };
             $dry ? $write() : DB::transaction($write);
@@ -93,22 +120,19 @@ class BackfillWorkPeopleCommand extends Command
         return self::SUCCESS;
     }
 
-    private function row(int $vol, int $ordinal, string $role, array $value, ProtectedColumns $guard, ContributorRelations $relations, bool $dry)
+    private function row(int $vol, int $ordinal, string $role, array $value, string $title, int $page, ProtectedColumns $guard, ContributorRelations $relations, bool $dry)
     {
-        $name = PersonNameMatcher::clean((string) $value['name']);
-        // «محمد عارف (ظاهراً از ترکی)»: the parenthesis is a note on the name
-        $note = null;
-        if (preg_match('/^(.+?)\s*\(([^()]+)\)$/u', $name, $m)) {
-            [$name, $note] = [trim($m[1]), trim($m[2])];
-        }
+        [$name, $note] = $this->cleanName((string) $value['name']);
         $label = "v{$vol}-{$ordinal} {$role}: {$name}";
         $this->count($role, 'candidates');
 
-        $suffix = "-v{$vol}-{$ordinal}";
-        $work = Work::where('slug', 'like', '%' . $suffix)->get()->first(fn ($w) => str_ends_with($w->slug, $suffix));
+        $work = Work::find($this->locator->find($vol, $ordinal, $title, $page) ?? 0);
         if (! $work) {
             return $this->skip($role, 'work_missing', $label);
         }
+        // The work the slug suffix named before step 13.92 (a neighbour, where v2's ordinals moved)
+        $wrongId = $this->locator->bySlugSuffix($vol, $ordinal);
+        $wrong = $wrongId && $wrongId !== $work->id ? Work::find($wrongId) : null;
         if ($guard->protectsRows($work->id, 'people')) {
             return $this->skip($role, 'protected', $label);
         }
@@ -122,6 +146,19 @@ class BackfillWorkPeopleCommand extends Command
         }
 
         [$person, $why] = $this->matcher->match($name, $value['death']['century'] ?? null);
+        // A row an earlier run gave the neighbour goes to this work (or away, when this work has it already)
+        if ($wrong && ! $guard->protectsRows($wrong->id, 'people') && ! isset($this->expected["{$wrong->id}|{$role}|{$name}"])) {
+            $row = $wrong->workPeople()->where('role', $role)->whereNull('suggestion_id')
+                ->where(fn ($q) => $q->where('name', $name)->when($person, fn ($q) => $q->orWhere('person_id', $person->id)))->first();
+            if ($row) {
+                $this->count($role, 'moved_from_neighbour');
+                $this->example('moved_from_neighbour', "{$label}: #{$wrong->id} «{$wrong->primary_title}» → #{$work->id} «{$work->primary_title}»");
+                if (! $dry) {
+                    $relations->moveRole($row, $work, SourceEntry::where('citable_type', Work::class)->where('citable_id', $work->id)
+                        ->where('origin', SourceEntry::ORIGIN_FANKHA)->where('volume_number', $vol)->orderByDesc('is_primary')->orderBy('id')->value('id'));
+                }
+            }
+        }
         $exists = $work->workPeople()->where('role', $role)
             ->where(fn ($q) => $person ? $q->where('person_id', $person->id) : $q->whereNull('person_id')->where('name', $name))->exists();
         if ($exists) {
@@ -160,6 +197,21 @@ class BackfillWorkPeopleCommand extends Command
         } catch (InvalidArgumentException $e) {
             $this->skip($role, 'refused', "{$label} ({$e->getMessage()})");
         }
+    }
+
+    /**
+     * The name as stored, and the parenthesis after it as a note: «محمد عارف (ظاهراً از ترکی)».
+     *
+     * @return array{0: string, 1: ?string}
+     */
+    private function cleanName(string $raw): array
+    {
+        $name = PersonNameMatcher::clean($raw);
+        if (preg_match('/^(.+?)\s*\(([^()]+)\)$/u', $name, $m)) {
+            return [trim($m[1]), trim($m[2])];
+        }
+
+        return [$name, null];
     }
 
     private function count(string $role, string $kind): void

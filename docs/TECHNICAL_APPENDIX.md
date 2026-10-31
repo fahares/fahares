@@ -5331,6 +5331,31 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نصب:** کاربر با sudo روی میزبان نصب کرد؛ `status` سه قانون در هر دو جدول نشان داد و سرویس `active` و `enabled` است.
 - **وارسی:** آزمون از ماشین توسعه معتبر نیست، چون ترافیک آن از همین سرور بیرون می‌رود (IP خروجی همان IP سرور است). با check-host.net: TCP به ۸۰۰۰ از ۴ نود (اسرائیل، قزاقستان، صربستان، سنگاپور) و به ۶۰۰۱ از ۴ نود (اتریش، پرتغال، دو نود آمریکا) timeout شد؛ ۴۴۳ از ۴ نود (از جمله تهران) وصل شد. `https://coolify.fahares.net/login` و `https://fahares.net/up` کد ۲۰۰ دادند.
 
+### گام ۱۳.۹۷: `FankhaWorkLocator` و جابه‌جایی مترجم‌ها
+- **[FankhaWorkLocator](../app/Support/FankhaWorkLocator.php):**
+  - **ساخت:** از اثرهای v2 (`key`، `title`، `provenance.page_start`) و همه‌ی اثرهای سایت (شناسه، slug، عنوان، جلد و صفحه) ساخته می‌شود.
+  - **`find($vol, $ordinal, $title, $page)`:** نامزدها اثرهایی‌اند با همان جلد و همان `title()` که صفحه‌شان ±۱ است. اگر یکی باشد، همان است. اگر چند تا باشند و شمارشان برابر اثرهای v2 هم‌عنوانِ همان صفحه‌ها باشد، n-امی با n-امی جفت می‌شود. وگرنه `null`.
+  - **`title()`:** «ي ك ة أ إ آ ى» یکی می‌شوند. پرانتز پایانی، فاصله، نیم‌فاصله، نشانه‌ها و «ال» آغازین برداشته می‌شوند.
+  - **`bySlugSuffix($vol, $ordinal)`:** اثر هم‌پسوند را از نمایه‌ی درون حافظه می‌دهد.
+- **[BackfillWorkPeopleCommand](../app/Console/Commands/BackfillWorkPeopleCommand.php):**
+  - **بارگذاری:** همه‌ی ۳۴ جلد را یک بار برای `FankhaWorkLocator` و برای فهرست `expected` (کلید `work id|role|name`) می‌خواند.
+  - **اثر:** با `find` پیدا می‌شود. اثر `bySlugSuffix` اگر شناسه‌ی دیگری داشته باشد، «همسایه» است.
+  - **جابه‌جایی:** سطرِ هم‌نقش و هم‌نام همسایه که `suggestion_id` ندارد، با `ContributorRelations::moveRole` منتقل می‌شود (`moved_from_neighbour`). این کار نمی‌شود اگر همسایه `protectsRows` داشته باشد یا آن سطر در `expected` همسایه باشد.
+  - **`cleanName()`:** پاک‌سازی نام و یادداشت پرانتزی در یک جا.
+- **[ContributorRelations::moveRole](../app/Suggestions/ContributorRelations.php):** سطر را به اثر درست می‌برد، با `source_entry_id` و `position` تازه. اگر اثر درست همان شخص یا نام را با همان نقش دارد، سطر حذف می‌شود. هر دو اثر دوباره نمایه می‌شوند.
+- **آزمون:** `test_a_translator_the_slug_suffix_gave_a_neighbour_moves_to_its_work` در [WorkPeopleTest](../tests/Feature/WorkPeopleTest.php). فایل‌های نمونه‌ی آزمون‌های پیشین عنوان و صفحه گرفتند. کل مجموعه ۵۰۵ آزمون موفق.
+- **پروداکشن:**
+  - JSON سبک باید `title` و `provenance` همه‌ی اثرها را داشته باشد.
+  - dry run باید حدود ۱۳۸ `moved_from_neighbour` نشان دهد، و سپس `--apply` بی گزینه‌ی `--dry-run`.
+  - گام ۱۳.۷۷ (`related_people`) خودش با هر جابه‌جایی هر دو اثر را دوباره نمایه می‌کند.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):**
+  - کامیت `151515e` مستقر شد.
+  - JSON سبکِ ۷۱٬۷۲۰ اثر (۹۹۰ کیلوبایت فشرده) در همان نشست فرستاده و اجرا شد. dry run محلی با آن همان شمارهای JSON کامل را داد.
+  - **dry run پروداکشن:** `moved_from_neighbour` ۱۳۲.
+  - **`--apply`:** moved ۱۳۲، linked ۲ و exists ۲۵۷.
+  - **وارسی:** exists ۲۵۹ و بی جابه‌جایی.
+  - **وارسی سایت:** `/w/9142`، `/w/9144`، `/w/3334` و `/w/3336`.
+
 ### گام ۱۳.۹۸: آمار بازدید (`page_views`)
 - **ثبت:** `App\Http\Middleware\RecordPageView` به گروه `web` افزوده شده (`bootstrap/app.php`). `handle` کاری نمی‌کند و `terminate` تابع `PageViews::record()` را صدا می‌زند. زیر php-fpm، `Response::send()` پیش از `terminate` تابع `fastcgi_finish_request()` را صدا می‌زند، پس مرورگر منتظر ثبت نمی‌ماند.
   - **شرط‌ها (`PageViews::shouldRecord`):** درخواست `GET` با پاسخ ۲۰۰ و `Content-Type: text/html`؛ نه ajax، `expectsJson` یا `X-Livewire`؛ نه `admin`، `admin/*` و `up`؛ نه از `127.0.0.1` و `::1`؛ با `Accept-Language` ناتهی؛ و `Visitors::isPerson()`. `Visitors::BOT_AGENTS` همان عبارت پیشین `SearchLog` است و `SearchLog::isCountable()` حالا به آن واگذار می‌کند. ریدایرکت‌های نشانی کوتاه و slug (۳۰۱/۳۰۲) و ۴۰۴ شمرده نمی‌شوند.
