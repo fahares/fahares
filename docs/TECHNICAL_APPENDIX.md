@@ -5414,6 +5414,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod` محلی، `--apply`):** works:found ۳۶۹، not_found ۲، و refs linked ۳٬۷۰۴ و ۷۲۷. unmatched ۵۱۳ و ۱۳۴ است، فهرستش در `text-excerpts-unmatched-fahares_prod.txt` در یادداشت‌های مشترک. در جدول ۹۲۲ سطر اثر و ۴٬۴۳۱ سطر نسخه است، و اجرای دوم همان ۵٬۳۵۳ سطر را داشت.
 - **آزمون:** [TextExcerptsTest](../tests/Feature/TextExcerptsTest.php)، ۲ آزمون. کل مجموعه ۵۱۵ آزمون موفق.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-text-excerpts` و بعد با `--apply`.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت `2ff310c` مستقر شد و migration خودکار اجرا شد. dry run و `--apply` همان شمارهای تمرین را دادند. **وارسی سایت:** `/m/10494` و `/w/72` (دو `id="excerpt-…"`).
 
 ### گام ۱۳.۱۰۰: `sshd` فقط با کلید
 - **پیش از تغییر:** `sshd -T`: `permitrootlogin yes` و `passwordauthentication yes`. `50-cloud-init.conf` همان `PasswordAuthentication yes` را دارد و fail2ban نصب نیست. `journalctl -u ssh`: ۸۳٬۱۸۶ «Failed password» یا «Invalid user» در ۷ روز؛ در ۳۰ روز همه‌ی ورودها `Accepted publickey` بود (root ۲۴٬۴۰۶ از کانتینر Coolify در `10.0.1.9`، و بقیه‌ی کاربران)، و هیچ `Accepted password`. همه‌ی کاربران دارای پوسته کلید ed25519 در `authorized_keys` دارند.
