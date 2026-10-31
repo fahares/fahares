@@ -5252,3 +5252,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - خطای «،» میان ماه و سال در تاریخ کتابت اصلاح شود.
   - فرمان‌های `rebuild-copies` و `add-corpus-works` یکای برگ و صفحه را بشناسند.
 
+### گام ۱۳.۹۲: `incipit_numbered` و `explicit_numbered` در پارسر v2
+- **[fankha_parser_v2.py](../../fahares-corpus/scripts/fankha_parser_v2.py)** (پیکره `e6ee42f`):
+  - **`NUM_IE_LINE`:** سطر مستقل «آغاز/انجام (کتاب|متن)؟ N:» یا «(N):».
+  - **`NUM_IE_VALUE`:** مقدارِ برچسب یا سطر ادامه: «N:»، «N.» (نقطه‌ای که پس از آن رقم نیامده) و «(N):».
+  - **ادامه:** سطرهای ادامه فقط تا وقتی گرفته می‌شوند که `num_side` روشن است، یعنی سطر قبل شماره‌دار همان سو بوده است.
+  - **`NUM_IE_NEXT` و `numbered_ies`:** شماره‌های پیاپیِ یک سطر را جدا می‌کنند، و فقط وقتی شماره یکی‌یکی بالا برود.
+  - **`NUM_IE_LABEL`:** برچسب پیش از متن، حداکثر دو واژه، بی رقم.
+  - `w['incipit']` و `w['explicit']` مثل پیش می‌مانند. اگر تهی باشند، سطر نخستِ شماره‌دار را می‌گیرند.
+  - **تاریخ:** در `parse_physical`، تکه‌ی «\d{3,4}(ق|ش|م)؟» پس از تاریخی که سال ندارد، به همان تاریخ افزوده می‌شود و `sort_year` دوباره خوانده می‌شود.
+- **آزمون:** `NumberedIncipitsTest` در `tests/test_fankha_v2_gold.py`. هر ۱۱ آزمون موفق بودند.
+- **سنجش:**
+  - فهرست ارجاع‌های بی‌مقصد: `fahares-corpus/reports/fankha_v2_numbered_ie_unmatched.json`.
+  - **مقایسه با JSON پیشین** (جلدهای ۲ تا ۳۴):
+    - `description` ۲۵۰ اثر، فقط حذف سطرهای شماره‌دار؛
+    - `incipit` ۴۳ و `explicit` ۱۱، همه از تهی به پر؛
+    - کتاب‌شناسی بی‌تغییر؛
+    - نسخه‌ها فقط همان ۳ تاریخ.
+
