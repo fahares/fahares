@@ -10,5 +10,7 @@ LOG=/var/backups/fahares/backup.log
 30 4 * * 5  /usr/local/bin/fahares-backup.sh media  >>$LOG 2>&1
 # Weekly configuration/secrets, Friday
 15 4 * * 5  /usr/local/bin/fahares-backup.sh config >>$LOG 2>&1
+# Daily check that the last DB backup is recent and OK; alerts on Telegram otherwise
+0 10 * * *  /usr/local/bin/fahares-backup.sh watch  >>$LOG 2>&1
 # Monthly integrity check of the Drive repository, 1st of the month
 30 5 1 * *  /usr/local/bin/fahares-backup.sh verify >>$LOG 2>&1

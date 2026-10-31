@@ -54,7 +54,7 @@ sudo -u <backup-user> /usr/local/bin/fahares-backup.sh db       # بکاپ فو�
 sudo -u <backup-user> /usr/local/bin/fahares-backup.sh verify   # بررسی سلامت مخزن Drive
 ```
 
-یک کار زمان‌بندی‌شده‌ی روزانه در Hermes (ساعت ۹ صبح) باید `status` را اجرا کند و اگر کد خروج ۱ بود، در تلگرام هشدار بدهد. فایل وضعیت در `/var/lib/fahares-backup/last.json` برای Hermes خواندنی است.
+کهنه شدن بکاپ را خود میزبان می‌پاید: `fahares-backup.sh watch` هر روز ساعت ۱۰ از cron اجرا می‌شود و اگر `status` شکست بخورد (بکاپ ناموفق، یا بکاپی که اصلاً اجرا نشده)، با ربات بکاپ در تلگرام هشدار می‌دهد. Hermes لازم نیست؛ فقط می‌تواند `status` را برای پاسخ به پرسش بخواند. فایل وضعیت در `/var/lib/fahares-backup/last.json` برای همه خواندنی است.
 
 هشدار شکست هر کار را خود اسکریپت مستقیماً با ربات بکاپ می‌فرستد. پس اگر Hermes از کار بیفتد، باز هم هشدار می‌رسد.
 

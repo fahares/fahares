@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Fahares production backup: MariaDB dump -> Telegram (age-encrypted chunks) + Google Drive (restic).
 #
-# Usage: fahares-backup.sh <db|media|config|verify|status|tg-chats|tg-test>
+# Usage: fahares-backup.sh <db|media|config|verify|status|watch|tg-chats|tg-test>
 #   db      dump the database, upload to Telegram and restic, rotate local copies
 #   media   back up storage/app/public (catalog page images) to restic, then prune the repo
 #   config  back up app/DB container environments (secrets) to Telegram and restic
 #   verify  restic integrity check + stream the latest DB snapshot and confirm it is complete
 #   status  print the last result of each job; exits 1 if the last DB backup is stale or failed
+#   watch   run status quietly and send a Telegram alert if it fails (daily cron; catches a backup that never ran)
 #   tg-chats  list chats the bot has seen (post something in the channel first) to find TG_CHAT_ID
 #   tg-test   send a test message to TG_CHAT_ID
 #
@@ -326,6 +327,14 @@ job_status() {
     echo "OK: last db backup ${age_h}h ago"
 }
 
+job_watch() {
+    local out
+    out="$(job_status 2>&1)" && return 0
+    notify "⚠️ Fahares backup is stale or failed on ${HOST}
+$(tail -n 1 <<<"$out")"
+    exit 1
+}
+
 job_tg_chats() {
     [ -n "$TG_BOT_TOKEN" ] || die "TG_BOT_TOKEN is not set"
     tg_api getUpdates -d 'allowed_updates=["channel_post","message","my_chat_member"]' \
@@ -343,6 +352,7 @@ job_tg_test() {
 case "$JOB" in
     db|media|config|verify) ;;
     status) job_status; exit ;;
+    watch) job_watch; exit ;;
     tg-chats) job_tg_chats; exit ;;
     tg-test) job_tg_test; exit ;;
     *) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
