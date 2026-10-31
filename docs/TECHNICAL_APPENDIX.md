@@ -5233,3 +5233,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `RecordSources::isCovered(SourceEntry $citation)`: مکان‌های سطر (`locations` یا `source_id`/`volume_number`/`page_start`) همه با کارتی از `cards()` که `sourceItem` دارد یکی‌اند: همان `source_id` و `volumeNumber()`، و صفحه میان `page_start` و `page_end` مدخل.
 - `resources/views/works/show.blade.php`: حلقه روی `$sources->bibliography()`. سطر پوشیده `x-show="$store.suggest.on"` و `data-covered-citation` و رنگ `text-muted` دارد. `$bibliography` (برای کارت‌های برگه‌ی سایدبار) دست نخورد.
 - **آزمون:** `SourceItemsTest::test_a_bibliography_line_whose_places_are_all_on_the_cards_shows_only_in_suggestion_mode` و `BibliographyLinksTest::test_only_citations_is_a_line_of_source_names_and_linked_citations`.
+
+### گام ۱۳.۹۱: `composition_date_*` آثار
+- **migration [add_composition_date_range_to_works](../database/migrations/2026_10_31_200001_add_composition_date_range_to_works.php):** چهار ستون، با نمایه‌ی `(composition_date_from, composition_date_to)`.
+- **[Work](../app/Models/Work.php):** `compositionDateColumns($raw)` با `CopyDateRange::parse`. هوک `saving` با تغییر `composition_date_raw` آن‌ها را پر می‌کند.
+- **[FillCopyDateRangesCommand](../app/Console/Commands/FillCopyDateRangesCommand.php):** گزینه‌ی `--works` جدول، ستون متن و ستون‌ها را عوض می‌کند (`works`، `composition_date_raw`، `composition_date_*`).
+- **تمرین (`fahares_prod` محلی):** `--works --apply`: dated ۹٬۸۰۶، ranged ۹٬۷۳۹، span ۴۹۸، open ۲۹ و hedged ۵۸. اجرای دوم `changed 0` بود. اجرای فرمان برای نسخه‌ها هم `changed 0` ماند.
+- **آزمون:** `test_dates_of_composition_get_ranges_too` در [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php). کل مجموعه ۴۹۱ آزمون موفق.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-copy-date-ranges --works --apply`.
+- **درخواست از مورد ۸۷ (پیام به جلسه‌ی آن، ۹ آبان):**
+  - آغازها و انجام‌های شماره‌دار اثر جدا شوند، مثلاً `incipit_numbered`. ۳۰۹ اثر نسخه‌هایی با `same_as_work_n` دارند.
+  - خطای «،» میان ماه و سال در تاریخ کتابت اصلاح شود.
+  - فرمان‌های `rebuild-copies` و `add-corpus-works` یکای برگ و صفحه را بشناسند.
+
