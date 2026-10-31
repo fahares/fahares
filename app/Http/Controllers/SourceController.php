@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\DB;
  */
 class SourceController extends Controller
 {
-    /** The kinds in the order the index shows them. */
-    private const KINDS = [Source::KIND_BIBLIOGRAPHY, Source::KIND_BIOGRAPHICAL, Source::KIND_UNION_CATALOGUE, Source::KIND_LIBRARY_CATALOGUE, Source::KIND_OTHER];
+    /** The kinds in the order the index shows them; a union catalogue (Fankha) goes first among the libraries' catalogues. */
+    private const KINDS = [Source::KIND_BIBLIOGRAPHY, Source::KIND_BIOGRAPHICAL, Source::KIND_LIBRARY_CATALOGUE, Source::KIND_OTHER];
 
     public function index()
     {
@@ -22,7 +22,8 @@ class SourceController extends Controller
         $sources = Source::with(['library', 'volumes', 'editions'])->whereNull('edition_of_id')->orderBy('rank')->orderBy('title')->get()
             // a source the site has nothing of, in itself or an edition, is left out
             ->filter(fn (Source $s) => collect([$s, ...$s->editions])->contains(fn ($e) => array_sum($counts[$e->id] ?? []) > 0))
-            ->groupBy('kind');
+            ->sortBy(fn (Source $s) => $s->kind === Source::KIND_UNION_CATALOGUE ? 0 : 1)
+            ->groupBy(fn (Source $s) => $s->kind === Source::KIND_UNION_CATALOGUE ? Source::KIND_LIBRARY_CATALOGUE : $s->kind);
         $groups = collect(self::KINDS)->filter(fn ($k) => $sources->has($k))->mapWithKeys(fn ($k) => [$k => $sources[$k]]);
 
         return view('sources.index', ['groups' => $groups, 'counts' => $counts]);

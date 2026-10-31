@@ -8,7 +8,6 @@
     use App\Models\Source;
     use App\Support\SourceShelf;
     $headings = [
-        Source::KIND_UNION_CATALOGUE => 'فهرستگان',
         Source::KIND_LIBRARY_CATALOGUE => 'فهرست‌های کتابخانه‌ها',
         Source::KIND_BIBLIOGRAPHY => 'کتاب‌شناسی‌ها',
         Source::KIND_BIOGRAPHICAL => 'تراجم',

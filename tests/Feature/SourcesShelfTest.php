@@ -62,6 +62,19 @@ class SourcesShelfTest extends TestCase
         $this->assertLessThan(strpos($html, 'data-source-kind="' . Source::KIND_LIBRARY_CATALOGUE . '"'), strpos($html, 'data-source-kind="' . Source::KIND_BIBLIOGRAPHY . '"'));
     }
 
+    public function test_a_union_catalogue_goes_first_among_the_libraries_catalogues()
+    {
+        [$catalogue] = $this->catalogue();
+        $union = Source::create(['code' => 'union-test', 'kind' => Source::KIND_UNION_CATALOGUE, 'rank' => 90, 'title' => 'فهرستگان آزمون']);
+        SourceEntry::create(['citable_type' => Work::class, 'citable_id' => Work::first()->id, 'source_id' => $union->id, 'volume_number' => 1, 'page_start' => 1,
+            'role' => SourceEntry::ROLE_CITATION, 'origin' => 'bibliography', 'status' => SourceEntry::STATUS_VERIFIED]);
+
+        $html = $this->get('/sources')->assertOk()->assertDontSee('data-source-kind="' . Source::KIND_UNION_CATALOGUE . '"', false)->getContent();
+        $section = strpos($html, 'data-source-kind="' . Source::KIND_LIBRARY_CATALOGUE . '"');
+        $this->assertLessThan(strpos($html, 'data-source="union-test"'), $section);
+        $this->assertLessThan(strpos($html, 'data-source="' . $catalogue->code . '"'), strpos($html, 'data-source="union-test"'));
+    }
+
     public function test_a_book_in_one_volume_has_no_list_of_volumes_and_each_volume_names_its_catalogers()
     {
         [$catalogue, $volume] = $this->catalogue();
