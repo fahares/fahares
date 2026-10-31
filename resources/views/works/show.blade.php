@@ -296,13 +296,15 @@
                 </x-ui.section>
             @endif
 
-            <!-- Fankha's bibliography of the work, then the work's places in the sources, Fankha last (step 13.4) -->
+            <!-- Fankha's bibliography of the work, then the work's places in the sources, Fankha last (step 13.4); a line
+                 whose every place is on a card below shows only in suggestion mode (step 13.88) -->
             <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
                 <ul class="space-y-1 text-sm">
-                    @foreach($bibliography as $bib)
-                        <li class="flex gap-2.5 leading-relaxed">
+                    @foreach($sources->bibliography() as $bib)
+                        @php $bibCovered = $sources->isCovered($bib); @endphp
+                        <li class="flex gap-2.5 leading-relaxed" @if($bibCovered) x-show="$store.suggest.on" x-cloak data-covered-citation title="نشانی‌های این سطرِ فنخا در سطرهای زیر آمده است" @endif>
                             <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                            <span class="text-ink">{{ \App\Support\BibliographyLinks::html($bib) }}</span>
+                            <span class="{{ $bibCovered ? 'text-muted' : 'text-ink' }}">{{ \App\Support\BibliographyLinks::html($bib->citation_text) }}</span>
                         </li>
                     @endforeach
                     @foreach($sources->cards() as $entry)

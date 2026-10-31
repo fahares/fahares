@@ -107,6 +107,35 @@ class SourceItemsTest extends TestCase
         $this->get('/sources/dharia-test/3/9999')->assertNotFound();
     }
 
+    public function test_a_bibliography_line_whose_places_are_all_on_the_cards_shows_only_in_suggestion_mode()
+    {
+        $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();
+        $item = SourceItem::where('item_key', '1447')->sole();
+        $work = Work::create(['primary_title' => 'تحفه حکیم مؤمن', 'clean_title' => 'تحفه حکیم مؤمن', 'slug' => 'tuhfa-' . uniqid(),
+            'volume_number' => 1, 'page_start' => 1]);
+        SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id, 'source_id' => $this->volume->source_id,
+            'source_volume_id' => $this->volume->id, 'source_item_id' => $item->id, 'volume_number' => 3, 'page_start' => 402,
+            'role' => SourceEntry::ROLE_MENTION, 'origin' => SourceEntry::ORIGIN_MATCH, 'match_method' => 'title_author']);
+        $line = fn (string $text, int $i, ?array $locations = null) => SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id,
+            'source_id' => $this->volume->source_id, 'volume_number' => 3, 'page_start' => 403, 'role' => SourceEntry::ROLE_CITATION,
+            'origin' => SourceEntry::ORIGIN_BIBLIOGRAPHY, 'status' => SourceEntry::STATUS_VERIFIED, 'citation_text' => $text, 'sort_order' => $i,
+            'locations' => $locations]);
+        $covered = $line('الذریعة 403/3', 0);
+        $noted = $line('الذریعة 403/3 (چاپ نجف)', 1);
+        $half = $line('الذریعة 403/3 و 120/5', 2, [['source_id' => $this->volume->source_id, 'volume' => 3, 'page' => 403],
+            ['source_id' => $this->volume->source_id, 'volume' => 5, 'page' => 120]]);
+
+        $sources = $work->fresh()->sources();
+        $this->assertSame([true, false, false], [$sources->isCovered($covered), $sources->isCovered($noted), $sources->isCovered($half)]);
+        $this->get(route('works.show', $work))->assertOk()
+            ->assertSee('data-covered-citation', false)
+            ->assertSee('یاد شده در', false);
+
+        // a rejected tie no longer covers the line
+        SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->update(['status' => SourceEntry::STATUS_REJECTED]);
+        $this->assertFalse($work->fresh()->sources()->isCovered($covered));
+    }
+
     public function test_a_second_run_keeps_ids_edited_text_and_linked_entries()
     {
         $this->artisan('sources:segment', ['volume' => 'dharia-test'])->assertSuccessful();

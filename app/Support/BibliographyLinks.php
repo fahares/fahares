@@ -128,6 +128,26 @@ class BibliographyLinks
     }
 
     /**
+     * Whether the entry is only names of sources and citations linked to them: «الذریعة 326/15 و 297/23» is, «دنا 1102/1
+     * (8 نسخه)», a number not linked or a note is not.
+     */
+    public static function onlyCitations(string $entry): bool
+    {
+        $segments = self::segments($entry);
+        foreach ($segments as $seg) {
+            if (isset($seg['cite'])) {
+                continue;
+            }
+            $name = self::normalize(preg_replace(['/[؛;،,:.\/\-–()]+/u', '/(^|\s)(?:و|ج|ص|ستون)(?=\s|$)/u'], ' ', $seg['text']));
+            if ($name !== '' && ! collect(self::sources())->contains(fn ($src) => preg_match('/^' . $src['pattern'] . '$/u', $name))) {
+                return false;
+            }
+        }
+
+        return collect($segments)->contains(fn ($seg) => isset($seg['cite']));
+    }
+
+    /**
      * @return list<array{text: string, url?: string, title?: string, viewer?: array, internal?: bool, cite?: array}>
      */
     public static function segments(string $entry): array

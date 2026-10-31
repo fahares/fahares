@@ -24,6 +24,18 @@ class BibliographyLinksTest extends TestCase
         ], $this->links('دنا 2/ 207؛ الذریعة 90/25 و 107/8؛ ریحانة الادب 369/4'));
     }
 
+    public function test_only_citations_is_a_line_of_source_names_and_linked_citations()
+    {
+        $this->assertTrue(BibliographyLinks::onlyCitations('الذریعة 326/15، 297/23'));
+        $this->assertTrue(BibliographyLinks::onlyCitations('الذریعة 326/15 و 297/23'));
+        $this->assertTrue(BibliographyLinks::onlyCitations('ریحانة الأدب 375/4'));
+        $this->assertTrue(BibliographyLinks::onlyCitations('الذریعة، ج 15، ص 326'));
+        $this->assertFalse(BibliographyLinks::onlyCitations('الذریعة 326/15 (چاپ نجف)'));
+        $this->assertFalse(BibliographyLinks::onlyCitations('الذریعة 326/15؛ دنا 1102/1'));
+        $this->assertFalse(BibliographyLinks::onlyCitations('دنا 1102/1 (8 نسخه)'));
+        $this->assertFalse(BibliographyLinks::onlyCitations('کتاب‌شناسی آثار فیض 138'));
+    }
+
     public function test_spellings_bare_continuations_and_ranges()
     {
         $this->assertSame([

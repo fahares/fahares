@@ -48,6 +48,24 @@ class RecordSources
         return $this->entries->filter(fn (SourceEntry $e) => $e->role === SourceEntry::ROLE_CITATION)->sortBy('sort_order')->values();
     }
 
+    /**
+     * Whether a line of the bibliography says nothing the cards do not: it is only source names and citations, and
+     * every place it cites is in the printed entry of a card the page shows (an entry, or a mention «یاد شده در …»).
+     * The page then leaves the line out but in suggestion mode; the entry stays as Fankha's words.
+     */
+    public function isCovered(SourceEntry $citation): bool
+    {
+        $places = $citation->locations ?? ($citation->source_id ? [['source_id' => $citation->source_id, 'volume' => $citation->volume_number, 'page' => $citation->page_start]] : []);
+        if (! $places || ! BibliographyLinks::onlyCitations((string) $citation->citation_text)) {
+            return false;
+        }
+        $items = $this->cards()->filter(fn (SourceEntry $e) => $e->sourceItem);
+
+        return collect($places)->every(fn ($p) => $items->contains(fn (SourceEntry $e) => (int) $e->source_id === (int) $p['source_id']
+            && (int) $e->volumeNumber() === (int) $p['volume']
+            && $p['page'] >= $e->sourceItem->page_start && $p['page'] <= ($e->sourceItem->page_end ?? $e->sourceItem->page_start)));
+    }
+
     private function shown(): Collection
     {
         return $this->entries->filter(fn (SourceEntry $e) => $e->role !== SourceEntry::ROLE_CITATION && $e->status !== SourceEntry::STATUS_REJECTED);
