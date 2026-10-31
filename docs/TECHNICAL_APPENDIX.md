@@ -5160,4 +5160,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `test_extents_move_pages_out_of_folios_and_keep_what_is_uncertain` در [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php).
   - کل مجموعه ۴۸۹ آزمون موفق.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-extents` و بعد با `--apply`. اگر استقراری آن را بکشد، اجرای دوباره از همان‌جا ادامه می‌دهد.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):**
+  - کامیت `5d0bec1` مستقر شد و migration خودکار اجرا شد.
+  - dry run و `--apply` همان شمارهای تمرین را دادند.
+  - اجرای وارسی هیچ `changed` نداشت.
+  - **وارسی سایت:** `/m/10109`، `/m/10616` و `/m/10690`.
 
