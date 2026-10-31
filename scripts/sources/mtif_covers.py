@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 """Cover images of the printed catalogues from mtif.org (بنیاد محقق طباطبایی), for «منابع و مراجع» (step 13.81).
 
-    python3 -I scripts/sources/mtif_covers.py SOURCES_JSON MTIF_JSON OUT_DIR
+    python3 -I scripts/sources/mtif_covers.py SOURCES_JSON MTIF_JSON OUT_DIR [--books BOOKS_JSON]
 
 SOURCES_JSON is the site's sources, [{"code", "title", "kind", "edition_label", "edition_of", "mtif": [volume entry
 ids], "years": [...]}]; MTIF_JSON is storage/mtif_extracted_data.json, whose catalog_volumes give a volume's series and
-whose catalog_series give the series' titles. A source finds its series by its volumes' MTIF ids, or else by its
-title. The series page, https://mtif.org/book/{series}, shows each printing («المطبوع من الكتاب») with its cover, whose
+whose catalog_series give the series' titles. BOOKS_JSON, [{"id", "title"}], is every book of MTIF's dump
+(../fahares-sources/mtif/mtif_db.sql.gz, entries of type «book» with their «عنوان»): a catalogue the extracted data
+lacks is found by the same title, and the bibliographies, which the extracted data never had, by BOOKS below. A source
+finds its series by its volumes' MTIF ids, or else by its title. The series page, https://mtif.org/book/{series}, shows each printing («المطبوع من الكتاب») with its cover, whose
 alt text is the printing's title. A cover is taken only when that title has most of the source's own words (the volume
 ids of the extracted data point to the wrong series now and then: Isfahan's catalogue to Marashi's); of those, the
-printing whose year is the source's, else the first. Each cover is written as OUT_DIR/{code}.webp, 360 px wide, and
-OUT_DIR/manifest.json says where each came from. A source done before is not fetched again.
+printing whose year is the source's, else the first. Each cover is written as OUT_DIR/{code}.webp, 640 px wide, and
+OUT_DIR/manifest.json says where each came from. A source done before is not fetched again; --refresh fetches the
+pictures of the manifest again, at the size above.
 """
 import argparse
 import html
@@ -48,6 +51,9 @@ def fits(alt: str, title: str) -> bool:
     return bool(own) and len(own & words(alt)) / len(own) >= 0.6 and ('عکسی' in norm(alt)) == ('عکسی' in norm(title))
 
 
+# the bibliographies' books in MTIF, whose titles differ from the site's or are shared with other books
+BOOKS = {'dharia': 55, 'kashf': 711, 'idah': 712, 'hadiyya': 703, 'zirikli': 701, 'monzavi': 8954, 'fankha': 63172, 'rayhana': 1090}
+
 # covers whose title fits but which are another book of the series, seen when the covers were checked by eye
 SKIP = {
     'catalogue-86c8a806d584': 'فهرست نسخ خطی قرآنهای مترجم، not the central library of Astan-e Quds',
@@ -77,23 +83,39 @@ def main():
     ap.add_argument('sources')
     ap.add_argument('mtif')
     ap.add_argument('out')
+    ap.add_argument('--books')
+    ap.add_argument('--refresh', action='store_true')
     args = ap.parse_args()
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     manifest_path = out / 'manifest.json'
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
 
+    if args.refresh:
+        for code, m in manifest.items():
+            if m.get('pic'):
+                image = Image.open(io.BytesIO(get(f"{SITE}/thumbnail.php?table=pic&full_size=1&id={m['pic']}"))).convert('RGB')
+                image.thumbnail((640, 960))
+                image.save(out / f'{code}.webp', 'WEBP', quality=82)
+                time.sleep(1)
+        print(f"{sum(1 for m in manifest.values() if m.get('pic'))} covers fetched again")
+        return
+
     mtif = json.loads(Path(args.mtif).read_text())
     series_of_volume = {v['mtif_id']: v['series_id'] for v in mtif['catalog_volumes']}
     series_by_title = {norm(s['title']): s['id'] for s in mtif['catalog_series']}
+    for book in json.loads(Path(args.books).read_text()) if args.books else []:
+        series_by_title.setdefault(norm(book['title']), book['id'])
     pages: dict[int, list] = {}
 
     for src in json.loads(Path(args.sources).read_text()):
         code = src['code']
-        if code in manifest or code in SKIP:
+        if manifest.get(code, {}).get('pic') or code in SKIP:
             continue
         # the series of the source's volumes, then the one of its title; the first whose cover names the source
         candidates = [(s, 'volume') for s in dict.fromkeys(series_of_volume[i] for i in src['mtif'] if i in series_of_volume)]
+        if code in BOOKS:
+            candidates.insert(0, (BOOKS[code], 'book'))
         if (by_title := series_by_title.get(norm(src['title']))) and by_title not in [c[0] for c in candidates]:
             candidates.append((by_title, 'title'))
         covers, series, how = [], None, None
@@ -120,7 +142,7 @@ def main():
         except Exception as e:
             print(f'{code}: picture {chosen["pic"]}: {e}')
             continue
-        image.thumbnail((360, 540))
+        image.thumbnail((640, 960))
         image.save(out / f'{code}.webp', 'WEBP', quality=82)
         manifest[code] = {'series': series, 'by': how, 'pic': chosen['pic'], 'alt': chosen['alt'], 'printing': chosen['text'][:160],
                           'year_matched': bool(years & set(chosen['years']))}

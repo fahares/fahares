@@ -32,43 +32,43 @@
         <span class="text-ink font-semibold">{{ $name }}</span>
     </nav>
 
-    @if($cover = $source->coverUrl())
-        <img src="{{ $cover }}" alt="جلد {{ $source->title }}" class="mx-auto w-32 sm:w-40 border border-line shadow-[0_10px_30px_-12px_rgba(74,52,24,0.45)]" data-source-cover>
-    @endif
-    <header class="text-center grid justify-items-center gap-2 pb-4">
-        <p class="text-xs font-bold text-cinnabar">{{ $kind }}</p>
-        <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">{{ $source->title }}</h1>
-        @if($about)<p class="text-sm text-muted">{{ Fa::digits(implode('، ', $about)) }}</p>@endif
-        @if($source->library)
-            <p class="text-sm"><a href="{{ route('libraries.show', $source->library) }}" class="text-cinnabar hover:underline">{{ $source->library->display_name }}</a></p>
-        @endif
-        @if($source->editionOf)
-            <p class="text-xs text-muted">چاپی از <a href="{{ route('sources.show', $source->editionOf->code) }}" class="text-cinnabar hover:underline">{{ $source->editionOf->title }}</a></p>
-        @endif
-        <div class="flex flex-wrap justify-center gap-x-5 gap-y-1 mt-2 text-sm text-muted" data-source-counts>
-            @if($counts['manuscripts'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['manuscripts']) }}</span> نسخه</span>@endif
-            @if($counts['works'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['works']) }}</span> اثر</span>@endif
-            @if($counts['items'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['items']) }}</span> مدخل چاپی</span>@endif
-            @if($counts['pages'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['pages']) }}</span> صفحه‌ی متن</span>@endif
-        </div>
-        @if($single && $single['volume']->catalogers->isNotEmpty())
-            <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }}</p>
-        @endif
-        <div class="flex flex-wrap justify-center gap-2 mt-2">
-            @if($single && $single['read'])<x-ui.btn size="sm" variant="primary" :href="$single['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
-            @if($single && $single['viewer'])<x-ui.btn size="sm" x-data x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($single['viewer']) }})">دیدن برگه‌ها</x-ui.btn>@endif
-            @if($counts['items'])
-                <x-ui.btn size="sm" :href="route('search', ['type' => 'sources', 'source_id' => $source->id])">جستجو در مدخل‌های این منبع</x-ui.btn>
+    {{-- the book beside what it is: a large cover, then its title, makers, counts and where to read --}}
+    <header class="grid gap-8 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:grid-cols-[17rem_minmax(0,1fr)] items-start pb-4">
+        <x-source.cover :source="$source" size="large" class="w-44 sm:w-52 md:w-full mx-auto" />
+        <div class="grid gap-2 justify-items-center md:justify-items-start text-center md:text-start md:pt-4">
+            <p class="text-xs font-bold text-cinnabar">{{ $kind }}</p>
+            <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">{{ $source->title }}</h1>
+            @if($about)<p class="text-sm text-muted">{{ Fa::digits(implode('، ', $about)) }}</p>@endif
+            @if($source->library)
+                <p class="text-sm"><a href="{{ route('libraries.show', $source->library) }}" class="text-cinnabar hover:underline">{{ $source->library->display_name }}</a></p>
             @endif
-            @if($counts['works'] && in_array($source->kind, SearchFilters::SOURCE_KINDS, true))
-                <x-ui.btn size="sm" :href="route('search', ['type' => 'works', 'source_id' => $source->id])">آثار یادشده در آن</x-ui.btn>
+            @if($source->editionOf)
+                <p class="text-xs text-muted">چاپی از <a href="{{ route('sources.show', $source->editionOf->code) }}" class="text-cinnabar hover:underline">{{ $source->editionOf->title }}</a></p>
+            @endif
+            <div class="flex flex-wrap justify-center md:justify-start gap-x-5 gap-y-1 mt-2 text-sm text-muted" data-source-counts>
+                @if($counts['manuscripts'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['manuscripts']) }}</span> نسخه</span>@endif
+                @if($counts['works'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['works']) }}</span> اثر</span>@endif
+                @if($counts['items'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['items']) }}</span> مدخل چاپی</span>@endif
+                @if($counts['pages'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['pages']) }}</span> صفحه‌ی متن</span>@endif
+            </div>
+            @if($single && $single['volume']->catalogers->isNotEmpty())
+                <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }}</p>
+            @endif
+            <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
+                @if($single && $single['read'])<x-ui.btn size="sm" variant="primary" :href="$single['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
+                @if($single && $single['viewer'])<x-ui.btn size="sm" x-data x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($single['viewer']) }})">دیدن برگه‌ها</x-ui.btn>@endif
+                @if($counts['items'])
+                    <x-ui.btn size="sm" :href="route('search', ['type' => 'sources', 'source_id' => $source->id])">جست‌وجو در مدخل‌های این منبع</x-ui.btn>
+                @endif
+                @if($counts['works'] && in_array($source->kind, SearchFilters::SOURCE_KINDS, true))
+                    <x-ui.btn size="sm" :href="route('search', ['type' => 'works', 'source_id' => $source->id])">آثار یادشده در آن</x-ui.btn>
+                @endif
+            </div>
+            @if($source->description)
+                <p class="max-w-3xl mt-3 text-sm text-ink leading-loose text-justify">{{ Fa::digits($source->description) }}</p>
             @endif
         </div>
     </header>
-
-    @if($source->description)
-        <p class="max-w-3xl mx-auto text-sm text-ink leading-loose text-justify">{{ Fa::digits($source->description) }}</p>
-    @endif
 
     <div class="jadval" aria-hidden="true"></div>
 
@@ -82,6 +82,12 @@
         </x-ui.section>
     @endif
 
+    @if($single && $single['toc'])
+        <x-ui.section title="فهرست مطالب">
+            <x-source.toc :toc="$single['toc']" open />
+        </x-ui.section>
+    @endif
+
     @unless($single)
     <x-ui.section title="جلدها" :count="$volumes->count()">
         <ul class="divide-y divide-line border-y border-line" data-source-volumes>
@@ -91,6 +97,7 @@
                     <span class="w-12 shrink-0 font-naskh text-lg font-bold text-ink">{{ Fa::digits('ج ' . $v->volume_number) }}</span>
                     <span class="flex-1 min-w-40 text-xs text-muted">
                         @if($v->title && $v->title !== $source->title){{ Fa::digits($v->title) }} · @endif
+                        @if($row['manuscripts']){{ Fa::num($row['manuscripts']) }} نسخه · @endif
                         @if($row['pages']){{ Fa::num($row['pages']) }} صفحه‌ی متن @elseif($row['items']){{ Fa::num($row['items']) }} مدخل @endif
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
                         @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif
@@ -99,6 +106,9 @@
                         @if($row['read'])<x-ui.btn size="sm" :href="$row['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
                         @if($row['viewer'])<x-ui.btn size="sm" x-data x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($row['viewer']) }})">دیدن برگه‌ها</x-ui.btn>@endif
                     </span>
+                    @if($row['toc'])
+                        <x-source.toc :toc="$row['toc']" class="basis-full" />
+                    @endif
                 </li>
             @endforeach
         </ul>

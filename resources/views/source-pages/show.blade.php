@@ -45,9 +45,18 @@
 
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] items-start">
         <div class="min-w-0 space-y-5" x-data="{ copied: false }">
-            <div class="flex flex-wrap items-center justify-between gap-2 text-xs {{ $width }} mx-auto">
-                <span class="text-muted">متن صفحه‌ی چاپی</span>
-                <div class="flex flex-wrap items-center gap-2">
+            {{-- turning the page: back, the page to go to with the tools, and on; the same bar under the sheet --}}
+            <nav class="book-nav {{ $width }} mx-auto" aria-label="صفحه‌های پیش و پس" data-page-nav>
+                @if($printed->previous)
+                    <a href="{{ $pageUrl($printed->previous) }}" class="book-turn" rel="prev"><span aria-hidden="true">→</span> {{ $pageLabel($printed->previous) }}</a>
+                @else<span class="book-turn invisible" aria-hidden="true">→</span>@endif
+                <div class="book-nav__middle">
+                    <form class="flex items-center gap-1.5" x-data="{ n: '' }"
+                          @submit.prevent="const p = String(n).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).trim(); if (/^\d+$/.test(p)) go(@js(route('source-pages.show', [$source->code, $volumeNumber, 0])).replace(/0$/, p))">
+                        <label for="go-to-page" class="text-xs text-muted whitespace-nowrap">{{ $printed->unit() === 'ستون' ? 'ستون' : 'صفحه' }}</label>
+                        <input id="go-to-page" x-model="n" inputmode="numeric" autocomplete="off" class="w-16 px-2 py-1 text-sm text-center bg-paper border border-line-strong text-ink focus:border-cinnabar focus:outline-none" placeholder="{{ Fa::digits($printed->page) }}" aria-label="رفتن به صفحه">
+                        <x-ui.btn size="sm" type="submit">برو</x-ui.btn>
+                    </form>
                     @if($viewer)
                         <x-ui.btn size="sm" x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">دیدن برگه</x-ui.btn>
                     @endif
@@ -56,7 +65,10 @@
                         <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                     </x-ui.btn>
                 </div>
-            </div>
+                @if($printed->next)
+                    <a href="{{ $pageUrl($printed->next) }}" class="book-turn" rel="next">{{ $pageLabel($printed->next) }} <span aria-hidden="true">←</span></a>
+                @else<span class="book-turn invisible" aria-hidden="true">←</span>@endif
+            </nav>
 
             <article @class(['book-sheet mx-auto', $width, 'book-sheet--columns' => $printed->columns() > 1, 'book-sheet--odd' => $odd]) data-printed-page>
                 <header class="book-sheet__head">
@@ -127,7 +139,7 @@
                 <footer class="book-sheet__foot" aria-hidden="true">{{ Fa::digits($printed->page) }}</footer>
             </article>
 
-            <nav class="flex justify-between gap-4 text-sm {{ $width }} mx-auto" aria-label="صفحه‌های پیش و پس">
+            <nav class="flex justify-between gap-4 text-sm {{ $width }} mx-auto" aria-label="صفحه‌های پیش و پس، زیر برگه">
                 @if($printed->previous)
                     <a href="{{ $pageUrl($printed->previous) }}" class="book-turn" rel="prev"><span aria-hidden="true">→</span> {{ $pageLabel($printed->previous) }}</a>
                 @else<span></span>@endif
@@ -195,16 +207,6 @@
                 </x-ui.card>
             @endif
 
-            <x-ui.card>
-                <form class="space-y-2" x-data="{ n: '' }"
-                      @submit.prevent="const p = String(n).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).trim(); if (/^\d+$/.test(p)) go(@js(route('source-pages.show', [$source->code, $volumeNumber, 0])).replace(/0$/, p))">
-                    <label for="go-to-page" class="block text-xs text-muted">رفتن به {{ $printed->unit() === 'ستون' ? 'ستون' : 'صفحه' }} در {{ Fa::digits('ج ' . $volumeNumber) }}</label>
-                    <div class="flex gap-2">
-                        <input id="go-to-page" x-model="n" inputmode="numeric" autocomplete="off" class="min-w-0 flex-1 px-2.5 py-1.5 text-sm bg-paper border border-line text-ink focus:border-cinnabar focus:outline-none" placeholder="{{ Fa::digits($printed->page) }}">
-                        <x-ui.btn size="sm" type="submit">برو</x-ui.btn>
-                    </div>
-                </form>
-            </x-ui.card>
         </aside>
     </div>
 </div>

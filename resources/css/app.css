@@ -429,3 +429,22 @@ body {
     transition: border-color 0.15s, color 0.15s;
 }
 .book-turn:hover { border-color: var(--cinnabar); color: var(--cinnabar); }
+/* the bar over the sheet: back on the right, on to the left, and between them the page to go to and the tools; on a
+   phone the two turns share a row and the middle goes under them */
+.book-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+.book-nav__middle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+@media (max-width: 639px) {
+    .book-nav__middle { order: 3; width: 100%; }
+}

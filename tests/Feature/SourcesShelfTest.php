@@ -104,6 +104,56 @@ class SourcesShelfTest extends TestCase
         }
     }
 
+    public function test_a_volume_shows_its_manuscripts_and_its_table_of_contents()
+    {
+        [$catalogue, $volume] = $this->catalogue();
+        $catalogue->update(['volumes_count' => 2]);
+        $this->artisan('sources:import-toc', ['file' => $this->tocFile([$catalogue->code => [1 => [
+            ['title' => 'بخش شانزدهم فلسفه', 'page' => 17, 'level' => 1],
+            ['title' => '«آ»', 'page' => 17, 'level' => 2],
+            ['title' => 'نمایه‌ها', 'page' => 900, 'level' => 1],
+        ]]])])->assertSuccessful();
+
+        $html = $this->get('/sources/' . $catalogue->code)->assertOk()
+            ->assertSee('۱ نسخه', false)
+            ->assertSee('data-source-toc', false)
+            ->assertSee('href="' . route('source-pages.show', [$catalogue->code, 1, 17]) . '" class="flex-1 min-w-0 text-ink hover:text-cinnabar">بخش شانزدهم فلسفه</a>', false)
+            ->getContent();
+        // a heading whose page the site lacks stays plain
+        $this->assertStringContainsString('<span class="flex-1 min-w-0 text-muted">نمایه‌ها</span>', $html);
+        $this->assertSame(3, count($volume->fresh()->metadata['toc']));
+
+        // a book in one volume has its table of contents open under its header
+        $catalogue->update(['volumes_count' => 1]);
+        $html = $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('فهرست مطالب', false)->getContent();
+        $this->assertMatchesRegularExpression('/<details[^>]*\sopen\s[^>]*data-source-toc/u', $html);
+    }
+
+    public function test_a_source_without_a_cover_shows_a_binding_with_its_title()
+    {
+        [$catalogue] = $this->catalogue();
+
+        $this->get('/sources')->assertOk()->assertSee('data-source-cover-plain', false);
+        $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('data-source-cover-plain', false);
+    }
+
+    public function test_the_page_text_turns_and_goes_to_a_page_from_a_bar_over_the_sheet()
+    {
+        [$catalogue] = $this->catalogue();
+
+        $html = $this->get(route('source-pages.show', [$catalogue->code, 1, 17]))->assertOk()->assertSee('data-page-nav', false)->getContent();
+        // the page to go to sits in the bar over the sheet, before it
+        $this->assertLessThan(strpos($html, 'data-printed-page'), strpos($html, 'id="go-to-page"'));
+    }
+
+    private function tocFile(array $toc): string
+    {
+        $file = tempnam(sys_get_temp_dir(), 'toc');
+        file_put_contents($file, json_encode($toc, JSON_UNESCAPED_UNICODE));
+
+        return $file;
+    }
+
     public function test_the_sitemap_lists_the_index_and_the_sources_but_not_their_page_texts()
     {
         [$catalogue] = $this->catalogue();
