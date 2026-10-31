@@ -5538,7 +5538,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **یافته:** `ufw status verbose` گفت `Status: inactive` (سرویس systemd آن active است ولی قانونی بار نشده). پس هر پورتی که فرایندی روی خود میزبان باز کند از بیرون در دسترس است.
 - **تغییر:** [fahares-docker-firewall.sh](../scripts/firewall/fahares-docker-firewall.sh) با `HOST_PORTS` (پیش‌فرض `2053 20128`) قانون `-i eth0 -p tcp --dport <port> -j DROP` را با همان برچسب در `INPUT` در iptables و ip6tables می‌گذارد؛ `remove` و `status` هم آن‌ها را می‌شناسند. [README](../scripts/firewall/README.md) به‌روز شد.
 - **وارسی:** check-host.net: ۲۰۵۳ و ۲۰۱۲۸ از ۳ نود timeout؛ ۲۰۹۶ و ۸۴۴۳ از ۳ نود وصل. درخواست محلی از راه میزبان (`lo`) به هر دو پاسخ داد.
-- **مانده:** فعال کردن ufw با سیاست پیش‌فرض رد. `DEFAULT_FORWARD_POLICY="DROP"` است، پس پیش از آن باید ترافیک کانتینر به میزبان (شبکه‌های `10.0.0.0/8`) سنجیده شود.
+- **مانده:** فعال کردن ufw با سیاست پیش‌فرض رد؛ در گام ۱۳.۱۱۰ انجام شد.
 
 ### گام ۱۳.۱۰۸: فهرست پیوسته‌های منبع در `/sources/{code}`
 - **فهرست منابع:** در [SourceController](../app/Http/Controllers/SourceController.php)، `index` منبعِ `union_catalogue` را در گروه `library_catalogue` می‌گذارد و `KINDS` دیگر آن را ندارد. ترتیب همان `rank` و `title` است، پس فنخا الفبایی میان فهرست‌ها می‌آید.
@@ -5547,3 +5547,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **شمارش:** شمار مدخل‌های فنخا (۳۲۴ هزار) بیش از یک ثانیه طول می‌کشد. شمار هر ترکیب منبع، نوع، جلد و `q` یک روز در کش `sources:linked:*` نگه داشته می‌شود و به `paginate` داده می‌شود.
 - **زمان (محلی، پس از کش):** فنخا بی‌جست‌وجو ۰٫۱۷ تا ۱٫۴ ثانیه، «کافیه» ۰٫۳ ثانیه، «شرح» صفحه‌ی ۷ حدود ۲ ثانیه.
 - **آزمون:** `test_a_source_page_lists_the_records_it_is_cited_for_and_searches_their_titles` و `test_a_union_catalogue_is_listed_among_the_libraries_catalogues` در [SourcesShelfTest](../tests/Feature/SourcesShelfTest.php). کل آزمون‌ها: ۵۲۷ موفق.
+
+### گام ۱۳.۱۱۰: ufw فعال
+- **سنجش پیش از تغییر:** نمونه‌ی یک‌دقیقه‌ای `ss -Htn` (هر ۵ ثانیه) فقط `10.0.1.9 → 22` (Coolify) را از شبکه‌های Docker به خود میزبان نشان داد. در `Env` کانتینرها جز نشانی سایت‌ها (`COOLIFY_URL`، `APP_URL`) اشاره‌ای به میزبان نبود؛ آن ترافیک از ۸۰/۴۴۳ منتشرشده‌ی Docker می‌گذرد. `coolify`، `coolify-proxy` و `coolify-sentinel` `host.docker.internal:host-gateway` دارند.
+- **قانون‌ها:** `default deny incoming`، `default allow outgoing`، `default allow routed` (تا ufw به FORWARD و شبکه‌ی Docker دست نزند). `allow 22/tcp`، چند پورت TCP سرویس‌های دیگر میزبان، و `allow from 10.0.0.0/8` (همه‌ی شبکه‌های Docker طبق `default-address-pools`). قانون‌های [fahares-docker-firewall](../scripts/firewall/README.md) بی‌تغییر ماندند.
+- **ضامن:** `systemd-run --unit=ufw-safety --on-active=10min ufw disable` پیش از `ufw --force enable`؛ پس از وارسی، `systemctl stop ufw-safety.timer`. `ENABLED=yes` در `/etc/ufw/ufw.conf`.
+- **وارسی:** check-host.net: ۲۲، ۸۰، ۴۴۳، ۹۹۳ و پورت‌های مجاز از ۳ نود وصل؛ ۲۵ و ۵۸۷ از برخی نودها (نودها خروجی ایمیل را می‌بندند)؛ ۲۰۵۳ timeout. `fahares.net/up`، `coolify.fahares.net/login` و `dawawin.ir` کد ۲۰۰. ورود SSH کانتینر Coolify در ۱۴:۰۳ پس از فعال شدن.
+- **برگشت:** `sudo ufw disable`.
