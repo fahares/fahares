@@ -22,6 +22,26 @@ class Manuscript extends Model
 
     protected $guarded = ['id'];
 
+    /**
+     * The copy's extent as a reader sees it: «۱۰ برگ (۳۴پ–۴۳ر)», «۲۸ صفحه (۱–۲۸)», «۸۶ برگ، ۱۷۰ صفحه» (backlog item 97).
+     * The range is the leaves or pages the copy takes in its volume.
+     */
+    public function extentLabel(bool $withRange = true): ?string
+    {
+        $parts = array_filter([
+            $this->folios ? \App\Support\Fa::digits($this->folios) . ' برگ' : null,
+            $this->pages ? \App\Support\Fa::digits($this->pages) . ' صفحه' : null,
+        ]);
+        if (! $parts) {
+            return null;
+        }
+        $range = $withRange && $this->range_from
+            ? ' (' . \App\Support\Fa::digits($this->range_from === $this->range_to ? $this->range_from : $this->range_from . '–' . $this->range_to) . ')'
+            : '';
+
+        return implode('، ', $parts) . $range;
+    }
+
     /** The range columns of a copy date (CopyDateRange), as they are stored. */
     public static function copyDateColumns(?string $raw): array
     {
@@ -90,6 +110,9 @@ class Manuscript extends Model
             'copy_date_from' => 'integer',
             'copy_date_to' => 'integer',
             'folios' => 'integer',
+            'pages' => 'integer',
+            'range_from_number' => 'integer',
+            'range_to_number' => 'integer',
             'lines' => 'integer',
             'is_corrected' => 'boolean',
             'has_marginal_notes' => 'boolean',

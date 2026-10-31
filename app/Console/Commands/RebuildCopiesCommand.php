@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\File;
 /**
  * Rebuilds copies whose content on the site came from a neighbouring copy (item 87, step 13.70): the record's
  * identity (work, sequence, city, library, shelfmark, pages) is right, but its raw text, date, scribe, size and
- * citation are another copy's. The decision file, written by the corpus script `fankha_v2_rebuild_export.py`,
+ * citation are another copy's, or whose shelfmark was misread (step 13.87). The decision file, written by the corpus script `fankha_v2_rebuild_export.py`,
  * gives every content column from parser v2 with the value the site had. A copy is rebuilt only when its shelfmark
  * is unchanged, every listed column still holds that value and no reviewed correction protects any of them; then
  * what was made from the old content follows: its Fankha entry and cited page, the legacy catalogue reference,
@@ -32,7 +32,7 @@ class RebuildCopiesCommand extends Command
         'copy_date_raw', 'copy_date_hijri_year', 'copy_place', 'commissioned_by', 'folios', 'lines', 'dimensions',
         'paper', 'binding', 'incipit_text', 'explicit_text', 'is_corrected', 'has_marginal_notes', 'is_ruled',
         'has_catchwords', 'is_facsimile', 'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia',
-        'metadata'];
+        'metadata', 'shelfmark'];
 
     public function handle(): int
     {
@@ -45,7 +45,7 @@ class RebuildCopiesCommand extends Command
         $apply = (bool) $this->option('apply');
         $guard = ProtectedColumns::for(Manuscript::class);
         $rows = DB::table('manuscripts')->whereIn('id', array_column($plan['records'], 'id'))
-            ->get(['id', 'shelfmark', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::COLUMNS])->keyBy('id');
+            ->get(['id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::COLUMNS])->keyBy('id');
         $counts = [];
         $problems = [];
         $writes = [];
@@ -99,6 +99,10 @@ class RebuildCopiesCommand extends Command
                 if (array_key_exists('scribe_name', $new)) {
                     $extra['scribe_id'] = null;
                     DB::table('manuscript_scribe')->where('manuscript_id', $rec['id'])->delete();
+                }
+                // a misread shelfmark (the printed page has another digit) moves its sort key with it
+                if (array_key_exists('shelfmark', $new)) {
+                    $extra['shelfmark_key'] = $new['shelfmark'] === null ? null : mb_substr($new['shelfmark'], 0, 100);
                 }
                 DB::table('manuscripts')->where('id', $rec['id'])->update($new + $extra + ['updated_at' => now()]);
                 AuditLog::create([

@@ -5061,6 +5061,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `catalogs:link-volumes`؛
   4. `fahares:rebuild-scripts`؛
   5. `fahares:link-autograph-scribes`.
+- **اجرای پروداکشن:** فرمان‌ها با `nohup` درون کانتینر اجرا شدند و خروجی در `/tmp/addworks.log` بود.
+  - **بار اول:** استقرارِ کار جلسه‌ای دیگر کانتینر را عوض کرد و لاگ هم رفت.
+  - **بار دوم:** خطای MariaDB 1020 («Record has changed since last read») هنگام `moveManuscript`، چون `fahares:fill-copy-date-ranges --apply` هم‌زمان در حال اجرا بود.
+  - **بار سوم:** پس از استقرار و بی فرمان هم‌زمان، موفق بود. شناسه‌ی اثرهای تازه روی پروداکشن از ۷۱۵۵۱ است.
+  - **وارسی:** با یک اسکریپت PHP موقت در `/tmp` روی لاگ‌های `create` و `corpus_update` این فایل: ۱۴۸ اثر، ۳۴۹ نسخه، ۰ اثر خالی، ۷۳ مؤلف پیوندخورده، ۱۹۵ نسخه‌ی تازه بی‌کمبود کتابخانه با ۳۹۰ مدخل مأخذ، و ۱۷۸ انتقال.
 
 - **اجرای پروداکشن (۹ آبان):**
   - فایل‌ها با `tar` از راه `ssh fahares-app` به `/tmp/fankha-pages` رفتند و `md5sum -c` درست بود.
@@ -5173,18 +5178,57 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - جایگزینی `جستجو` با `جست\u200cوجو` در `app`، `config`، `resources`، `database/content` و توضیح یک migration، و در assertهای آزمون‌ها.
 - `2026_10_31_100001_spell_jost_o_ju_in_pages`: `REPLACE()` روی `pages.title` و `pages.body`؛ `down()` آن را برمی‌گرداند.
 
-### گام ۱۳.۸۶: قاب ایمیل‌ها
+### گام ۱۳.۸۶: `pages`، `extent_raw` و بازه‌ی برگ (مورد ۹۷)
+- **migration [add_extent_columns_to_manuscripts](../database/migrations/2026_10_31_100001_add_extent_columns_to_manuscripts.php):** `pages` (smallint)، `extent_raw` (۱۲۰)، `range_from` و `range_to` (۱۲)، و `range_from_number` و `range_to_number` (smallint). روی رونوشت محلی ۱ ثانیه طول کشید.
+- **[CopyExtent::fromText](../app/Support/CopyExtent.php):**
+  - **تکه‌ها:** هر سطر متن خام با «،» و «؛» تکه می‌شود. برچسب صفحه و ارجاع کروشه‌ای پایانی («[ف: …]») کنار می‌روند.
+  - **شمار:** تکه‌ای که با `^\d+\s*(گ|برگ|ص)` آغاز شود و فقط پرانتزی پس از آن داشته باشد.
+  - **بازه:** بازه در همان پرانتز، یا «N-N» در تکه‌ی بعد. با «ر» یا «پ» نوشته می‌شود و اگر وارونه باشد جابه‌جا می‌شود.
+  - **`counts`:** بیشینه‌ی شمار تکه‌های برگ و تکه‌های صفحه.
+  - نخستین سطری که شمار دارد کافی است.
+- **[Manuscript::extentLabel](../app/Models/Manuscript.php):** برچسب نمایشی است. جاهایی که به کار رفته: [manuscripts/show](../resources/views/manuscripts/show.blade.php) (برچسب «شمار صفحه» وقتی فقط صفحه هست)، [manuscript-collection](../resources/views/components/manuscript-collection.blade.php)، [search](../resources/views/search.blade.php)، [works/show](../resources/views/works/show.blade.php) («N ص») و [SearchExport](../app/Support/SearchExport.php).
+- **فرمان [fahares:fill-extents](../app/Console/Commands/FillExtentsCommand.php):**
+  - **گزینه‌ها:** `--apply` و `--show`. با `chunkById(2000)` اجرا می‌شود.
+  - **شمار برگ:** `folios` فقط وقتی `counts === 1` تغییر می‌کند و `ProtectedColumns` آن را نگه نمی‌دارد. سه نوع تغییر دارد: `pages_out_of_folios` (برابر شمار صفحه، یا نیمه‌ی آن که پارسر قدیم ساخته بود)، `folios_corrected` و `folios_filled`.
+  - **رها شدن:** `counts > 1` (`kept:two_counts`) هیچ ستونی نمی‌نویسد. نبود شمار در متن (`kept:no_count_in_text`) مقدار سایت را نگه می‌دارد.
+  - **لاگ و نمایه:** هر تغییر `folios` یک `AuditLog` `corpus_update` می‌نویسد. نسخه‌های تغییرکرده‌ی هر دسته پس از نوشتن، ۱۰۰تا ۱۰۰تا دوباره نمایه می‌شوند.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - **شمارها:** changed ۲۴۵٬۵۶۷، `pages_out_of_folios` ۴۳٬۵۳۳، `folios_corrected` ۶۷۱، `folios_filled` ۶۴۸، `kept:two_counts` ۴۸، `kept:no_count_in_text` ۱٬۱۳۵ و with_range ۹۴٬۹۳۱.
+  - **زمان:** ۲ دقیقه و ۲۷ ثانیه. اجرای دوم هیچ `changed` نداشت.
+- **آزمون:**
+  - [CopyExtentTest](../tests/Unit/CopyExtentTest.php)، ۲ آزمون.
+  - `test_extents_move_pages_out_of_folios_and_keep_what_is_uncertain` در [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php).
+  - کل مجموعه ۴۸۹ آزمون موفق.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-extents` و بعد با `--apply`. اگر استقراری آن را بکشد، اجرای دوباره از همان‌جا ادامه می‌دهد.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):**
+  - کامیت `5d0bec1` مستقر شد و migration خودکار اجرا شد.
+  - dry run و `--apply` همان شمارهای تمرین را دادند.
+  - اجرای وارسی هیچ `changed` نداشت.
+  - **وارسی سایت:** `/m/10109`، `/m/10616` و `/m/10690`.
+
+### گام ۱۳.۸۷: ردیف «فائده» جلد ۲۳
+- **فایل‌های تصمیم:**
+  - [`fankha_vol23_faeda_work_20261031.json`](../database/data/fankha_vol23_faeda_work_20261031.json): اثر `v23-851`، پسوند `-v23-2013`.
+  - [`fankha_vol23_faeda_copy_20261031.json`](../database/data/fankha_vol23_faeda_copy_20261031.json): نسخه‌ی ۲۲۲۰۴۹، فقط `shelfmark` و `raw_text`. `metadata` (که آغازهای برچسب‌دار سایت را دارد)، `folios` و انجام کنار گذاشته شدند.
+- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):** `shelfmark` به `COLUMNS` افزوده شد. اگر تغییر کند، `shelfmark_key` هم همراهش تغییر می‌کند. آزمون: `test_a_misread_shelfmark_is_corrected_with_its_sort_key`.
+- **پیکره:**
+  - `c26c8d1`: سطرهای ۲۷۰۶۱ و ۲۷۰۷۰ متن جلد ۲۳.
+  - `c4ada5e`: در `fankha_v2_rebuild_export.values`، `folios` فقط از مقداری که «گ» دارد.
+  - JSON جلد ۲۳ دوباره ساخته شد و فقط همین دو نسخه تغییر کرد.
+- **ترتیب پروداکشن:** `fahares:rebuild-copies --file=database/data/fankha_vol23_faeda_copy_20261031.json`، سپس `fahares:add-corpus-works --file=database/data/fankha_vol23_faeda_work_20261031.json`. هر کدام اول بی `--apply`.
+
+### گام ۱۳.۸۸: قاب ایمیل‌ها
 - **قالب‌ها:** `resources/views/vendor/mail/html/message.blade.php` و `text/message.blade.php` جای قالب Laravel را می‌گیرند. سربرگ `images/brand/shamseh-180.png` (۵۲ پیکسل) و `.header-name`/`.header-subtitle` در `themes/default.css` است. `<title>` در `layout.blade.php` ثابت «فهارس» شد.
 - **تنظیم‌ها:** کلیدهای `mail.subtitle`، `mail.salutation`، `mail.footer` و `mail.show_logo` در `SiteSetting::DEFAULTS`. `SiteSetting::keys($group)` کلیدهای یک گروه را می‌دهد و فرم صفحه‌ی خانه فقط `home.*` را ذخیره می‌کند.
 - **مدیریت:** `Admin\MailTemplateController` (مسیرهای `admin.mail.index|update|preview`، میان‌افزار `can:home.manage`). ممیزی با `action = mail_template`. پیش‌نمایش `MailMessage::render()` یک ایمیل نمونه است.
 - **آزمون:** `tests/Feature/Admin/MailTemplateTest.php`.
 
-### گام ۱۳.۸۷: ورودهای بی‌مرورگر در `NotifyNewDeviceSignIn`
+### گام ۱۳.۸۹: ورودهای بی‌مرورگر در `NotifyNewDeviceSignIn`
 - `app()->runningInConsole() && ! app()->runningUnitTests()`: رویداد `Login` در خط‌فرمان (tinker، `Request::create` در وارسی‌ها) نادیده گرفته می‌شود.
 - `$sameBrowser`: ردیفی از `known_devices` با همان کاربر و همان `user_agent` که در ۶۰ ثانیه‌ی گذشته ساخته شده باشد، اعلان را برمی‌دارد. ردیف و کوکی تازه همچنان ساخته می‌شوند و مرورگر آخرین کوکی را نگه می‌دارد.
 - **آزمون:** `EventNoticesTest::test_sign_ins_on_the_server_and_a_browsers_simultaneous_requests_are_not_announced`. ورود سوم آزمون قدیمی‌تر حالا user agent جدا دارد.
 
-### گام ۱۳.۸۸: پنهان کردن سطر تکراری فنخا در `works/show`
+### گام ۱۳.۹۰: پنهان کردن سطر تکراری فنخا در `works/show`
 - `BibliographyLinks::onlyCitations($entry)`: سطر فقط نام منبع‌های `config('bibliography.sources')` و نشانی‌های پیونددار است (علامت‌ها، «و»، «ج»، «ص»، «ستون» مجازند؛ عدد بی‌پیوند یا یادداشت نه).
 - `RecordSources::isCovered(SourceEntry $citation)`: مکان‌های سطر (`locations` یا `source_id`/`volume_number`/`page_start`) همه با کارتی از `cards()` که `sourceItem` دارد یکی‌اند: همان `source_id` و `volumeNumber()`، و صفحه میان `page_start` و `page_end` مدخل.
 - `resources/views/works/show.blade.php`: حلقه روی `$sources->bibliography()`. سطر پوشیده `x-show="$store.suggest.on"` و `data-covered-citation` و رنگ `text-muted` دارد. `$bibliography` (برای کارت‌های برگه‌ی سایدبار) دست نخورد.

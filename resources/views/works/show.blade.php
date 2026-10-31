@@ -297,7 +297,7 @@
             @endif
 
             <!-- Fankha's bibliography of the work, then the work's places in the sources, Fankha last (step 13.4); a line
-                 whose every place is on a card below shows only in suggestion mode (step 13.88) -->
+                 whose every place is on a card below shows only in suggestion mode (step 13.90) -->
             <x-ui.section title="مآخذ کتاب‌شناسی" field="bibliography">
                 <ul class="space-y-1 text-sm">
                     @foreach($sources->bibliography() as $bib)
@@ -457,7 +457,7 @@
                                     @endif
                                 </td>
                                 <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>
-                                <td class="py-2.5 px-3">{{ $ms->folios ? Fa::digits($ms->folios) : '—' }}</td>
+                                <td class="py-2.5 px-3">{{ $ms->folios ? Fa::digits($ms->folios) : ($ms->pages ? Fa::digits($ms->pages) . ' ص' : '—') }}</td>
                             </tr>
                         @empty
                             <tr>

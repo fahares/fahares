@@ -89,4 +89,23 @@ class RebuildCopiesCommandTest extends TestCase
             ->expectsOutputToContain('Would rebuild 0 copies.')
             ->assertSuccessful();
     }
+
+    public function test_a_misread_shelfmark_is_corrected_with_its_sort_key()
+    {
+        $meta = ['incipits' => [], 'explicits' => [], 'editorial_notes' => [], 'ownership_and_seals' => [], 'catalog_citation' => '[ف: 44 - 112]', 'residual_notes' => null];
+        $id = $this->copy('15872/8', "تهران؛ مجلس؛ شماره نسخه: 15872/8\nبی‌کا", null, $meta);
+        file_put_contents($this->file, json_encode(['records' => [$this->record($id, '15872/8', [
+            'shelfmark' => ['from' => '15872/8', 'to' => '15877/8'],
+            'raw_text' => ['from' => "تهران؛ مجلس؛ شماره نسخه: 15872/8\nبی‌کا", 'to' => "تهران؛ مجلس؛ شماره نسخه: 15877/8\nبی‌کا"],
+        ])]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:rebuild-copies', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $row = DB::table('manuscripts')->where('id', $id)->first();
+        $this->assertSame(['15877/8', '15877/8'], [$row->shelfmark, $row->shelfmark_key]);
+        // the record now names the new shelfmark, so a second run finds it changed and leaves it
+        $this->artisan('fahares:rebuild-copies', ['--file' => $this->file])
+            ->expectsOutputToContain('Would rebuild 0 copies.')
+            ->assertSuccessful();
+    }
 }

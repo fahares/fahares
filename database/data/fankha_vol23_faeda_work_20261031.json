@@ -1,0 +1,94 @@
+{
+ "source": "«فائدة» of Shahid Thani, vol 23 p. 498, which the old parser lost (printed page checked), 2026-10-31",
+ "works": [
+  {
+   "v2": "v23-851",
+   "slug_suffix": "-v23-2013",
+   "columns": {
+    "primary_title": "فائدة",
+    "clean_title": "فائدة",
+    "alternative_titles": null,
+    "transliteration": "fā'eda",
+    "author_name": "شهید ثانی، زین الدین بن علی",
+    "composition_date_raw": null,
+    "composition_place": null,
+    "work_form": null,
+    "subject_summary": "فقه",
+    "language_summary": "عربی",
+    "incipit_text": null,
+    "explicit_text": null,
+    "description": null,
+    "bibliography": null,
+    "print_info": null,
+    "dedication": null,
+    "related_work": null,
+    "commentaries_and_glosses": null,
+    "raw_text": "● فائدة / فقه / عربی\nfā'eda\n\nشهید ثانی، زین الدین بن علی، 911 - 965 قمری\nšahīd-e sānī, zayn-od-dīn ebn-e ‘alī (1506 - 1558)",
+    "volume_number": 23,
+    "page_start": 498,
+    "page_end": 498
+   },
+   "author": {
+    "name": "شهید ثانی، زین الدین بن علی",
+    "hedge": null,
+    "century": 10,
+    "death_year": 965
+   },
+   "roles": [],
+   "subjects": [
+    "فقه"
+   ],
+   "languages": [
+    "عربی"
+   ],
+   "copies": [
+    {
+     "make": {
+      "raw_text": "تهران؛ مجلس؛ شماره نسخه: 5354/3\nآغاز: من فوائد الشهید الثانی الشیخ زین الدین علیه الرحمة و الغفران. مسئلة هل الدسوقة الظاهر علی البشرة الحاصلة من البدن تمنع من ازالة النجاسة؛ انجام: و اذا تعسر ذلك کفی فی تطهیرها ... فی الظاهر لعدم تعقل الفرق و الله تعالی اعلم بالصواب و الیه المرجع و المآب\nخط: نستعلیق، بی‌کا، تا: سلخ محرم 976ق؛ کاغذ: اصفهانی، جلد: تیماج، 3گ (115پ-117پ)، 15 سطر [ف: 16 - 265]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 1,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "سلخ محرم 976ق",
+      "copy_date_hijri_year": 976,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 3,
+      "lines": 15,
+      "dimensions": null,
+      "paper": "اصفهانی",
+      "binding": "تیماج",
+      "incipit_text": "من فوائد الشهید الثانی الشیخ زین الدین علیه الرحمة و الغفران. مسئلة هل الدسوقة الظاهر علی البشرة الحاصلة من البدن تمنع من ازالة النجاسة",
+      "explicit_text": "و اذا تعسر ذلك کفی فی تطهیرها ... فی الظاهر لعدم تعقل الفرق و الله تعالی اعلم بالصواب و الیه المرجع و المآب",
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 16 - 265]",
+       "residual_notes": null
+      },
+      "sequence_number": 1,
+      "page_start": 498,
+      "page_end": 498,
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "5354/3"
+     }
+    }
+   ]
+  }
+ ],
+ "fills": [],
+ "work_updates": []
+}
