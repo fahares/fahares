@@ -5448,6 +5448,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
   هر کدام اول بی `--apply`.
 - **دیده‌شده و کنار گذاشته:** شماره‌ی ردیف تکراری در یک اثر در سایت فراوان است (پارسر قدیم). کار جداست.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_chatter_prod_before_20261031.jsonl` (۷۶ ردیف).
+  - فرمان‌ها در یک `nohup` اجرا شدند.
+  - `fill-extents` (changed ۵)، `catalogs:link-volumes` و `rebuild-scripts --sync-search` (۲ نسخه).
+  - وارسی با `regexp binary`: ۰ نسخه و ۰ اثر. `/m/75306` به `/manuscripts/75305-…` می‌رود.
 
 ### گام ۱۳.۱۰۱: بازه‌ی وفات اشخاص (مورد ۹۶)
 - **migration [add_death_range_to_people](../database/migrations/2026_10_31_400001_add_death_range_to_people.php):** `life_dates_raw` (۱۲۰)، `death_from`، `death_to`، `death_certainty` (۱۰) و `death_hedge_raw` (۶۰)، با نمایه‌ی `(death_from, death_to)`.
