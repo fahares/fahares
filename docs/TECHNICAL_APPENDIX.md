@@ -5348,4 +5348,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - JSON سبک باید `title` و `provenance` همه‌ی اثرها را داشته باشد.
   - dry run باید حدود ۱۳۸ `moved_from_neighbour` نشان دهد، و سپس `--apply` بی گزینه‌ی `--dry-run`.
   - گام ۱۳.۷۷ (`related_people`) خودش با هر جابه‌جایی هر دو اثر را دوباره نمایه می‌کند.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):**
+  - کامیت `151515e` مستقر شد.
+  - JSON سبکِ ۷۱٬۷۲۰ اثر (۹۹۰ کیلوبایت فشرده) در همان نشست فرستاده و اجرا شد. dry run محلی با آن همان شمارهای JSON کامل را داد.
+  - **dry run پروداکشن:** `moved_from_neighbour` ۱۳۲.
+  - **`--apply`:** moved ۱۳۲، linked ۲ و exists ۲۵۷.
+  - **وارسی:** exists ۲۵۹ و بی جابه‌جایی.
+  - **وارسی سایت:** `/w/9142`، `/w/9144`، `/w/3334` و `/w/3336`.
 
