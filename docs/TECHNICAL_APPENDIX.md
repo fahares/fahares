@@ -5330,3 +5330,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ماندگاری:** [fahares-docker-firewall.service](../scripts/firewall/fahares-docker-firewall.service) (`WantedBy=docker.service`، `PartOf=docker.service`) پس از هر آغاز Docker `apply` و هنگام توقف `remove` را اجرا می‌کند. نصب و برگشت در [README](../scripts/firewall/README.md).
 - **نصب:** کاربر با sudo روی میزبان نصب کرد؛ `status` سه قانون در هر دو جدول نشان داد و سرویس `active` و `enabled` است.
 - **وارسی:** آزمون از ماشین توسعه معتبر نیست، چون ترافیک آن از همین سرور بیرون می‌رود (IP خروجی همان IP سرور است). با check-host.net: TCP به ۸۰۰۰ از ۴ نود (اسرائیل، قزاقستان، صربستان، سنگاپور) و به ۶۰۰۱ از ۴ نود (اتریش، پرتغال، دو نود آمریکا) timeout شد؛ ۴۴۳ از ۴ نود (از جمله تهران) وصل شد. `https://coolify.fahares.net/login` و `https://fahares.net/up` کد ۲۰۰ دادند.
+
+### گام ۱۳.۹۷: `FankhaWorkLocator` و جابه‌جایی مترجم‌ها
+- **[FankhaWorkLocator](../app/Support/FankhaWorkLocator.php):**
+  - **ساخت:** از اثرهای v2 (`key`، `title`، `provenance.page_start`) و همه‌ی اثرهای سایت (شناسه، slug، عنوان، جلد و صفحه) ساخته می‌شود.
+  - **`find($vol, $ordinal, $title, $page)`:** نامزدها اثرهایی‌اند با همان جلد و همان `title()` که صفحه‌شان ±۱ است. اگر یکی باشد، همان است. اگر چند تا باشند و شمارشان برابر اثرهای v2 هم‌عنوانِ همان صفحه‌ها باشد، n-امی با n-امی جفت می‌شود. وگرنه `null`.
+  - **`title()`:** «ي ك ة أ إ آ ى» یکی می‌شوند. پرانتز پایانی، فاصله، نیم‌فاصله، نشانه‌ها و «ال» آغازین برداشته می‌شوند.
+  - **`bySlugSuffix($vol, $ordinal)`:** اثر هم‌پسوند را از نمایه‌ی درون حافظه می‌دهد.
+- **[BackfillWorkPeopleCommand](../app/Console/Commands/BackfillWorkPeopleCommand.php):**
+  - **بارگذاری:** همه‌ی ۳۴ جلد را یک بار برای `FankhaWorkLocator` و برای فهرست `expected` (کلید `work id|role|name`) می‌خواند.
+  - **اثر:** با `find` پیدا می‌شود. اثر `bySlugSuffix` اگر شناسه‌ی دیگری داشته باشد، «همسایه» است.
+  - **جابه‌جایی:** سطرِ هم‌نقش و هم‌نام همسایه که `suggestion_id` ندارد، با `ContributorRelations::moveRole` منتقل می‌شود (`moved_from_neighbour`). این کار نمی‌شود اگر همسایه `protectsRows` داشته باشد یا آن سطر در `expected` همسایه باشد.
+  - **`cleanName()`:** پاک‌سازی نام و یادداشت پرانتزی در یک جا.
+- **[ContributorRelations::moveRole](../app/Suggestions/ContributorRelations.php):** سطر را به اثر درست می‌برد، با `source_entry_id` و `position` تازه. اگر اثر درست همان شخص یا نام را با همان نقش دارد، سطر حذف می‌شود. هر دو اثر دوباره نمایه می‌شوند.
+- **آزمون:** `test_a_translator_the_slug_suffix_gave_a_neighbour_moves_to_its_work` در [WorkPeopleTest](../tests/Feature/WorkPeopleTest.php). فایل‌های نمونه‌ی آزمون‌های پیشین عنوان و صفحه گرفتند. کل مجموعه ۵۰۵ آزمون موفق.
+- **پروداکشن:**
+  - JSON سبک باید `title` و `provenance` همه‌ی اثرها را داشته باشد.
+  - dry run باید حدود ۱۳۸ `moved_from_neighbour` نشان دهد، و سپس `--apply` بی گزینه‌ی `--dry-run`.
+  - گام ۱۳.۷۷ (`related_people`) خودش با هر جابه‌جایی هر دو اثر را دوباره نمایه می‌کند.
+
