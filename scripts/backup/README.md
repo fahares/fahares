@@ -23,10 +23,10 @@ Meilisearch پشتیبان‌گیری نمی‌شود و پس از بازیاب�
 این کارها با `ssh fahares-server` انجام می‌شود.
 
 1. نصب ابزارها: `sudo apt install age restic rclone`، و قرار دادن اسکریپت‌ها در `/usr/local/bin`.
-2. ساختن پوشه‌ها:
+2. ساختن پوشه‌ها (`<backup-user>` در این راهنما و در `hermes.sudoers` کاربری از میزبان است که بکاپ را اجرا می‌کند):
    ```bash
-   sudo install -d -o tabib -m 700 /etc/fahares-backup /var/backups/fahares
-   sudo install -d -o tabib -m 755 /var/lib/fahares-backup
+   sudo install -d -o <backup-user> -m 700 /etc/fahares-backup /var/backups/fahares
+   sudo install -d -o <backup-user> -m 755 /var/lib/fahares-backup
    ```
 3. پر کردن `/etc/fahares-backup/backup.env` با مجوز 600.
 4. ساختن رمز restic:
@@ -49,9 +49,9 @@ Meilisearch پشتیبان‌گیری نمی‌شود و پس از بازیاب�
 Hermes فقط سه فرمان را می‌تواند اجرا کند:
 
 ```bash
-sudo -u tabib /usr/local/bin/fahares-backup.sh status   # کد خروج ۱ = بکاپ کهنه یا ناموفق
-sudo -u tabib /usr/local/bin/fahares-backup.sh db       # بکاپ فوری
-sudo -u tabib /usr/local/bin/fahares-backup.sh verify   # بررسی سلامت مخزن Drive
+sudo -u <backup-user> /usr/local/bin/fahares-backup.sh status   # کد خروج ۱ = بکاپ کهنه یا ناموفق
+sudo -u <backup-user> /usr/local/bin/fahares-backup.sh db       # بکاپ فوری
+sudo -u <backup-user> /usr/local/bin/fahares-backup.sh verify   # بررسی سلامت مخزن Drive
 ```
 
 یک کار زمان‌بندی‌شده‌ی روزانه در Hermes (ساعت ۹ صبح) باید `status` را اجرا کند و اگر کد خروج ۱ بود، در تلگرام هشدار بدهد. فایل وضعیت در `/var/lib/fahares-backup/last.json` برای Hermes خواندنی است.

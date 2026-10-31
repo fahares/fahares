@@ -1,4 +1,4 @@
-# Install with: crontab -e   (as user tabib on the host)
+# Install with: crontab -e   (as the backup user on the host)
 # Times are Asia/Tehran if the host TZ is set to it; check with `timedatectl`.
 SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin

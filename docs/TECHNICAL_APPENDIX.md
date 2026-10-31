@@ -889,7 +889,7 @@
   - بررسی گزارش‌های کاربری (از جمله نسخه ۱۰۱۲۳ / آب حیات در کتابخانه ملی) نشان داد در برخی رکوردهای فایل‌های متنی منبع (`text/*.txt`) پس از درج شماره نسخه، سطر جدید شکسته نشده و ادامه مشخصات نسخه (خط، کاتب، تاریخ، اوراق، ابعاد و استناد فهرست) بلافاصله در همان سطر درج شده است.
   - در اثر این عدم شکستگی، موتور پارسر (`fankha_parser.py`) به شکل حریصانه تمام سطر را به عنوان شماره نسخه (`shelfmark`) ذخیره کرده و بدنه اصلی توصیف نسخه خالی مانده و در نتیجه فیلدهای کالبدشناسی دیتابیس استخراج نشده‌اند.
 - **طراحی و اجرای اسکریپت ممیزی جامع ۳۴ جلد (پالایش سه‌لایه‌ای):**
-  - توسعه و اجرای اسکریپت ردیاب هوشمند [audit_shelfmark_leaks.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/audit_shelfmark_leaks.py) روی کل ۳۴ جلد متن منبع.
+  - توسعه و اجرای اسکریپت ردیاب هوشمند [audit_shelfmark_leaks.py](../../fahares-corpus/scripts/audit_shelfmark_leaks.py) روی کل ۳۴ جلد متن منبع.
   - **حل چالش نشت یادداشت‌های میانی (پالایش لایه دوم):** مواردی که بین شماره نسخه و مشخصات کالبدشناسی دارای یادداشت‌های مفصل محتوایی (مانند «شامل سروده‌هایی از...»، «قطعات و رباعیات...»، «جلد اول/دوم» و...) بودند در شماره نسخه ادغام شده بودند. با بازطراحی استخراج به شیوه تطبیق سخت‌گیرانه پیشوند شماره نسخه بر اساس الگوهای استاندارد نسخه‌شناسی، تمامی یادداشت‌های میانی تفکیک و به بدنه منتقل شدند.
   - **رفع هشدارهای کاذب و اعتبارسنجی بافتی سطور بعد (پالایش لایه سوم):**
     - در ارزیابی تکمیلی مشخص شد مواردی چون پسوندهای تک‌حرفی مجموعه‌ها (مانند «۱۹۹خ»، «۳۹و۴۰د»، «۱۱۴۴/۲ـ ف» و...) به دلیل وجود سطرهای خالی و تگ‌های صفحه بین سطر عنوان و مشخصات نسخه، توسط اسکریپت به اشتباه به عنوان شکستگی ناقص تلقی می‌شدند در حالی که مشخصات کالبدشناسی آن‌ها در سطر بعدی منبع به درستی موجود بود.
@@ -899,18 +899,18 @@
     - **الگوی ب:** اتصال به یادداشت محتوایی/نسخه به‌علاوه مشخصات کالبدشناسی.
     - **الگوی ج و د:** استناد مستقیم به مآخذ چاپی یا یادداشت‌های متنی.
 - **تولید گزارش‌های تحلیلی و مستند:**
-  - به‌روزرسانی فایل ساختاریافته [shelfmark_leaks.json](file:///home/tabib/projects/apps/fahares-corpus/reports/shelfmark_leaks.json) شامل شماره جلد، سطر، صفحه، کتابخانه، شماره نسخه خالص پالایش‌شده و طول کاراکتر (۱,۴۸۹ رکورد قطعی).
-  - به‌روزرسانی گزارش جامع مارک‌داون [shelfmark_leakage_audit_report.md](file:///home/tabib/projects/apps/fahares-corpus/reports/shelfmark_leakage_audit_report.md) همراه با جدول تفصیلی تمام رکوردهای پالایش‌شده.
-  - تفکیک خطاهای املایی سورس (مانند نقطه‌ویرگول زاید در دل شماره نسخه بدون نشت کالبدشناسی) در [shelfmark_typos.json](file:///home/tabib/projects/apps/fahares-corpus/reports/shelfmark_typos.json).
+  - به‌روزرسانی فایل ساختاریافته [shelfmark_leaks.json](../../fahares-corpus/reports/shelfmark_leaks.json) شامل شماره جلد، سطر، صفحه، کتابخانه، شماره نسخه خالص پالایش‌شده و طول کاراکتر (۱,۴۸۹ رکورد قطعی).
+  - به‌روزرسانی گزارش جامع مارک‌داون [shelfmark_leakage_audit_report.md](../../fahares-corpus/reports/shelfmark_leakage_audit_report.md) همراه با جدول تفصیلی تمام رکوردهای پالایش‌شده.
+  - تفکیک خطاهای املایی سورس (مانند نقطه‌ویرگول زاید در دل شماره نسخه بدون نشت کالبدشناسی) در [shelfmark_typos.json](../../fahares-corpus/reports/shelfmark_typos.json).
 
 ### گام ۵.۲: اصلاح ساختاری شکست سطور، بازتولید موازی و همگام‌سازی دیتابیس (Shelfmark Leak Resolution & Multi-Core Rebuild)
 *(فاز ۳۵ در نسخه‌ی پیشین سند)*
 
 - **اصلاح فایل‌های متنی منبع (`text/*.txt`):**
-  - توسعه و اجرای اسکریپت خودکار [fix_shelfmark_leaks.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/fix_shelfmark_leaks.py).
+  - توسعه و اجرای اسکریپت خودکار [fix_shelfmark_leaks.py](../../fahares-corpus/scripts/fix_shelfmark_leaks.py).
   - درج شکستگی سطر (`\n`) دقیقاً پس از شماره نسخه خالص و تفکیک بدنه کالبدشناسی نشت‌کرده در تمامی ۱,۴۸۹ سطر آسیب‌دیده با حفظ یکپارچگی تگ‌های صفحه (`<!-- page: ... -->`).
 - **موازی‌سازی موتور پارسر مجلدات با مهار توان چندپردازنده‌ای:**
-  - بازطراحی اسکریپت [parse_all_volumes.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/parse_all_volumes.py) مبتنی بر `ProcessPoolExecutor` پایتون.
+  - بازطراحی اسکریپت [parse_all_volumes.py](../../fahares-corpus/scripts/parse_all_volumes.py) مبتنی بر `ProcessPoolExecutor` پایتون.
   - تجهیز اسکریپت به قابلیت تشخیص پویای تعداد هسته‌های سیستم میزبان (`os.cpu_count()`) و رهاسازی خودکار یک هسته جهت حفظ پایداری سیستم‌عامل (`max_workers = max(1, cpus - 1)`).
   - اجرای موازی روی ۷ هسته فعال و کاهش زمان پردازش و بازتولید ۳۴ جلد (۳۲۳,۸۸۴ نسخه خطی) از ۶ دقیقه به **۱۶۴ ثانیه** (کمتر از ۲.۸ دقیقه).
 - **همگام‌سازی مستقیم دیتابیس MariaDB و نمایه‌های Meilisearch:**
@@ -939,8 +939,8 @@
     - به‌روزرسانی بلادرنگ موتور جستجوی Meilisearch: حذف رکوردهای ادغام‌شده از ایندکس، بازنمایه‌سازی ۶۳ شخص، ۴۴ اثر و ۲۶۵ نسخه خطی.
 - **مقاوم‌سازی خط لوله داده‌ها و پالایش فایل‌های منبع (Corpus & Ingestion Hardening):**
   - ارتقای متد نرمال‌سازی `normalizePersianText` و متد `resolvePerson` در [SeedFaharesDataCommand.php](../app/Console/Commands/SeedFaharesDataCommand.php) جهت یکپارچه‌سازی خودکار فواصل علائم نگارشی پیش از تولید کش.
-  - ارتقای تابع `clean_author` در [fankha_parser.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/fankha_parser.py) در مخزن `fahares-corpus`.
-  - پالایش سطر ۳۴۱۹۴ متن جلد ۱ ([fahares_vol_01.txt](file:///home/tabib/projects/apps/fahares/sources/text/fahares_vol_01.txt)) و پالایش سراسری فایل‌های ساختاریافته JSON مجلدات ۳۴گانه در هر دو مخزن و رسیدن به آمار ناهنجاری صفر (`Remaining in JSON: authors=0, scribes=0`).
+  - ارتقای تابع `clean_author` در [fankha_parser.py](../../fahares-corpus/scripts/fankha_parser.py) در مخزن `fahares-corpus`.
+  - پالایش سطر ۳۴۱۹۴ متن جلد ۱ ([fahares_vol_01.txt](../sources/text/fahares_vol_01.txt)) و پالایش سراسری فایل‌های ساختاریافته JSON مجلدات ۳۴گانه در هر دو مخزن و رسیدن به آمار ناهنجاری صفر (`Remaining in JSON: authors=0, scribes=0`).
 
 ### گام ۵.۴: بازآرایی ساختار پیکره متنی بر پایه فهرست‌ها و پشتیبانی از معماری چندفهرستی (Multi-Catalog Corpus Refactoring)
 *(فاز ۳۷ در نسخه‌ی پیشین سند)*
@@ -952,9 +952,9 @@
   - انتقال ۳۴ جلد متن در مخزن `fahares-corpus` صرفاً از طریق دستور `git mv` در یک کامیت مجزا و خالص (`b5e8dd9`) بدون کوچک‌ترین تغییر در محتوای فایل‌ها.
   - ثبت با شاخص شباهت ۱۰۰٪ (`similarity index 100%`) در گیت و امکان ردیابی تاریخچه تغییرات هر فایل از ابتدای پروژه با فلگ `git log --follow`.
 - **ارتقای اسکریپت‌های پارسر و همگام‌ساز در هر دو مخزن:**
-  - به‌روزرسانی پارسر موازی [parse_all_volumes.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/parse_all_volumes.py) و پارسر پایه [fankha_parser.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/fankha_parser.py) جهت خواندن از `text/fankha/` و تولید در `json/fankha/`.
-  - به‌روزرسانی اسکریپت ممیزی [audit_shelfmark_leaks.py](file:///home/tabib/projects/apps/fahares-corpus/scripts/audit_shelfmark_leaks.py) و اسکریپت تجمیع متنی [build_full_text.sh](file:///home/tabib/projects/apps/fahares-corpus/scripts/build_full_text.sh).
-  - به‌روزرسانی اسکریپت‌های همگام‌سازی [sync_corpus.sh](file:///home/tabib/projects/apps/fahares/scripts/sync_corpus.sh) و دانلود داده‌ها [download_data.sh](file:///home/tabib/projects/apps/fahares/scripts/download_data.sh).
+  - به‌روزرسانی پارسر موازی [parse_all_volumes.py](../../fahares-corpus/scripts/parse_all_volumes.py) و پارسر پایه [fankha_parser.py](../../fahares-corpus/scripts/fankha_parser.py) جهت خواندن از `text/fankha/` و تولید در `json/fankha/`.
+  - به‌روزرسانی اسکریپت ممیزی [audit_shelfmark_leaks.py](../../fahares-corpus/scripts/audit_shelfmark_leaks.py) و اسکریپت تجمیع متنی [build_full_text.sh](../../fahares-corpus/scripts/build_full_text.sh).
+  - به‌روزرسانی اسکریپت‌های همگام‌سازی [sync_corpus.sh](../scripts/sync_corpus.sh) و دانلود داده‌ها [download_data.sh](../scripts/download_data.sh).
 - **مقاوم‌سازی و سازگاری عقبرو در سامانه فهارس (Backward Compatibility):**
   - ارتقای فرآیند رزولوشن فایل‌ها در دستورات کنسولی لاراول ([SeedFaharesDataCommand.php](../app/Console/Commands/SeedFaharesDataCommand.php)، [SyncWorkDetailsCommand.php](../app/Console/Commands/SyncWorkDetailsCommand.php) و [SyncWorkIncipitsCommand.php](../app/Console/Commands/SyncWorkIncipitsCommand.php)) با قابلیت شناسایی هوشمند ساختار جدید `fankha/fankha_vol_XX.json` در کنار حفظ پشتیبانی کامل از فایل‌های آرشیو نسخه‌های قبلی.
 
@@ -1332,7 +1332,7 @@
   - راستی‌آزمایی پاسخ HTTP 200 و ریدایرکت کاننیکال ۳۰۱ در صفحات شاخص فهرست‌نگاران (`/catalogers`)، پروفایل‌های اختصاصی (`/catalogers/{id}`) و شناسنامه نسخه‌ها (`/manuscripts/{id}`).
 - **پیکربندی حجم ماندگار (Persistent Volume) در بستر Coolify:**
   - ریشه‌یابی و حل مسأله عدم ماندگاری فایل‌های ذخیره‌شده بر اثر چرخه حیات کانتینرهای موقت در هر دیپلوی گیت.
-  - ثبت حجم پایدار محلی (`LocalPersistentVolume`) در هسته Coolify متصل به مسیر میزبانی `/home/tabib/fahares_storage` و نقطه اتصال کانتینری `/app/storage/app/public`.
+  - ثبت حجم پایدار محلی (`LocalPersistentVolume`) در هسته Coolify متصل به مسیر میزبانی `~/fahares_storage` و نقطه اتصال کانتینری `/app/storage/app/public`.
   - تنظیم دستور خودکار پس از استقرار (`post_deployment_command`) برای اتصال مداوم پیوند نمادین `storage:link`.
 - **انتقال داده‌های رسانه‌ای و تصاویر مآخذ:**
   - همگام‌سازی کامل تصاویر پرتره فهرست‌نگاران در مخزن و سرور.
@@ -1362,10 +1362,10 @@
   - استخراج جدول رسمی و شماره‌گذاری‌شده ۱۰۰ فهرست‌نگار مرجع فنخا (صفحات ۲۴ و ۲۵) و تطبیق رسم‌الخط نام‌ها (مانند «طباطبائی، عبدالعزیز» و «منزوی، علینقی»).
   - رمزگشایی از نشانه اختصاری «ف:» در ثبت مآخذ نسخه‌ها (ص ۱۰ مقدمه) و اثبات علت صفر بودن آمار نسخه‌های برخی پیشکسوتان (نظیر علینقی منزوی) به دلیل خلاصه بودن ارجاعات متنی در رکوردهای خام (`ف: مجلد/صفحه`).
 - **تدوین جدول جامع و تفصیلی ۷۴۷ مجلد فهارس فنخا (Comprehensive Catalogs Table Extraction):**
-  - استخراج ساختاریافته کلیه مجلدات و منابع خطی از صفحات ۴۷ تا ۹۴ مقدمه کتاب در قالب فایل داده ساختاریافته [scratch/fankha_catalogs_parsed.json](file:///home/tabib/.gemini/antigravity-ide/brain/fb444139-a800-4dd3-9af3-0f35faf898e4/scratch/fankha_catalogs_parsed.json).
+  - استخراج ساختاریافته کلیه مجلدات و منابع خطی از صفحات ۴۷ تا ۹۴ مقدمه کتاب در قالب فایل داده ساختاریافته `scratch/fankha_catalogs_parsed.json` (فایل کاری محلی، بیرون از مخزن).
   - تفکیک و رده‌بندی فهارس در ۳۰ شهر، ۳۴۴ مجموعه/کتابخانه و ۷۴۷ مجلد و منبع چاپی با تمام جزئیات (شهر، کتابخانه، عنوان فهرست، شماره مجلد، فهرست‌نگاران، سال چاپ، تعداد صفحات، ناشر و متن اصلی مأخذ).
   - تطبیق خودکار پدیدآورندگان با جدول رسمی ۱۰۰ فهرست‌نگار مرجع فنخا و استخراج کارنامه مجلدات اساتید (دانش‌پژوه: ۱۸۷ مجلد، افشار: ۱۴۳ مجلد، حسینی اشکوری: ۱۱۵ مجلد، احمد منزوی: ۳۵ مجلد، حائری: ۲۲ مجلد، علینقی منزوی: ۱۳ مجلد و...).
-  - تدوین سند آرتفکت تفصیلی [fankha_complete_catalogs_table.md](file:///home/tabib/.gemini/antigravity-ide/brain/fb444139-a800-4dd3-9af3-0f35faf898e4/fankha_complete_catalogs_table.md) به عنوان پایگاه مرجع جهت اتصال نسخه‌های بلاتکلیف و تصحیح پایگاه داده.
+  - تدوین سند آرتفکت تفصیلی `fankha_complete_catalogs_table.md` (فایل کاری محلی، بیرون از مخزن) به عنوان پایگاه مرجع جهت اتصال نسخه‌های بلاتکلیف و تصحیح پایگاه داده.
 
 - **استخراج بصری و تدوین مجموعه داده مرجع و پالایش‌شده فهارس کلان کشور (Master Verified Dataset & Visual Extraction):**
   - تبدیل ۵۵ صفحه از بخش منابع و مآخذ مقدمه جلد اول فنخا (صفحات ۴۷ تا ۱۰۱) به تصاویر باکیفیت PNG جهت بازبینی و راستی‌آزمایی بصری چندوجهی و رهایی از خطاهای Bidi و شلختگی‌های لایه متنی PDF.
@@ -1381,7 +1381,7 @@
     - تثبیت جایگاه استاد **محمدتقی دانش‌پژوه** با **۳۲٬۶۹۱ نسخه خطی** در ۶۲ مجلد به عنوان رتبه نخست فهرست‌نویسی کشور.
     - استاد **علی صدرائی خوئی** با **۱۹٬۷۵۵ نسخه**، استاد **سید احمد حسینی اشکوری** با **۱۹٬۷۴۱ نسخه**، استاد **ایرج افشار** با **۱۵٬۶۸۸ نسخه** و استاد **سید جعفر حسینی اشکوری** با **۱۲٬۳۴۲ نسخه** در رتبه‌های برتر میراث مکتوب.
     - بازشماری جامع شمارنده‌های `manuscripts_count` و `volumes_count` در جداول `catalogers` و `catalog_volumes` و ثبت مسیرهای تمیز و سئو-فرندلی برای تمام فهرست‌نگاران.
-  - **بایگانی دائمی داده‌ها و جداول مأخذ در پروژه:** انتقال و تثبیت کلیه فایل‌های JSON، جداول Markdown و متون خام استخراج‌شده مقدمه فنخا در مسیر دائمی [docs/catalogs_data/](file:///home/tabib/projects/apps/fahares/docs/catalogs_data/) به همراه فایل راهنمای اختصاصی جهت مراجعات آتی و استمرار توسعه.
+  - **بایگانی دائمی داده‌ها و جداول مأخذ در پروژه:** انتقال و تثبیت کلیه فایل‌های JSON، جداول Markdown و متون خام استخراج‌شده مقدمه فنخا در مسیر دائمی [docs/catalogs_data/](../docs/catalogs_data/) به همراه فایل راهنمای اختصاصی جهت مراجعات آتی و استمرار توسعه.
 
 - **پالایش اسناد مقدمه و تدوین راهنمای فنی، اصطلاحات و کارنامه فهرست‌نگاران (Fankha Intro Guide & Cleanup):**
   - **ریشه‌یابی و حذف فایل‌های خام مخدوش:** حذف فایل‌های متنی اولیه به دلیل کاراکترهای نامفهوم لایه ToUnicode فونت ایندیزاین در بخش ترجمه عربی.
@@ -1729,7 +1729,7 @@
   - [fahares-restore.sh](../scripts/backup/fahares-restore.sh):
     - منبع بازیابی یکی از این سه است: فایل، manifest تلگرام (sha256 هر تکه بررسی می‌شود) یا snapshot ‏restic.
     - کانتینر و پایگاه داده‌ی مقصد باید صریحاً نام برده شوند. اگر پایگاه داده‌ی مقصد جدول داشته باشد، بدون `--replace` بازیابی انجام نمی‌شود.
-  - فایل‌های همراه: [backup.env.example](../scripts/backup/backup.env.example)، [crontab.example](../scripts/backup/crontab.example)، [hermes.sudoers](../scripts/backup/hermes.sudoers) (اجازه‌ی محدود: `status`، `db` و `verify` با کاربر tabib)، و [README](../scripts/backup/README.md) (راهنمای راه‌اندازی و بازیابی).
+  - فایل‌های همراه: [backup.env.example](../scripts/backup/backup.env.example)، [crontab.example](../scripts/backup/crontab.example)، [hermes.sudoers](../scripts/backup/hermes.sudoers) (اجازه‌ی محدود: `status`، `db` و `verify` با کاربر میزبان)، و [README](../scripts/backup/README.md) (راهنمای راه‌اندازی و بازیابی).
 - **آزمون محلی:**
   - محیط آزمون: Docker محلی با یک سرور شبیه‌ساز Bot API تلگرام.
   - dump حدود ۹۰ ثانیه طول کشید: ۵۶۲ مگابایت SQL که به ۶۸ مگابایت فشرده شد، یعنی ۴ تکه.
@@ -4152,7 +4152,7 @@
 - **[docker/nginx.conf](../docker/nginx.conf):** `map` روی `$http_user_agent`. ‏`$blocked_bot` به `meta-externalagent` پاسخ 403 می‌دهد. ‏`$bot_name` نام crawler است و کلید `limit_req_zone bots` با `rate=20r/m` و `burst=10 nodelay` و پاسخ 429. کلید به ازای هر crawler است، نه هر IP، چون IP واقعی پشت پراکسی است و هر crawler از IPهای بسیار می‌آید. هر دو قاعده فقط در `location = /index.php` اند و robots.txt و فایل‌های ایستا باز می‌مانند. Googlebot و bingbot در فهرست نیستند.
 - **آزمون:** `nginx -t` و اجرای پیکربندی در `nginx:1.27-alpine` بی php-fpm: ‏Meta روی صفحه 403 و روی robots.txt ‏200، ‏`/up` و مرورگر عادی 502 (بدون محدودیت)، و Amazonbot ‏۱۱ درخواست عبور و دوازدهمی 429.
 - **پس از استقرار:** در سه دقیقه‌ی اول ۱۴۶ پاسخ 403، ‏۳۵ پاسخ 429 و ۲۴۸ پاسخ 200 یا 301.
-- **صفحه‌ی «موقتاً در دسترس نیست»:** [docker/down](../docker/down/compose.yml) روی میزبان، در `~/fahares-down` (کاربر `tabib`، گروه docker)، با `docker compose -f compose.yml -p fahares-down up -d` اجرا می‌شود. nginx:1.27-alpine با `mem_limit: 32m` روی شبکه‌ی `coolify` است و هر درخواست را با 503 و `Retry-After: 120` و [index.html](../docker/down/index.html) پاسخ می‌دهد. صفحه هر ۱۰ تا ۶۰ ثانیه `/up` را می‌خواند و با پاسخ 200 صفحه را دوباره بار می‌کند. دو مسیر در Traefik:
+- **صفحه‌ی «موقتاً در دسترس نیست»:** [docker/down](../docker/down/compose.yml) روی میزبان، در `~/fahares-down` (کاربر میزبان، گروه docker)، با `docker compose -f compose.yml -p fahares-down up -d` اجرا می‌شود. nginx:1.27-alpine با `mem_limit: 32m` روی شبکه‌ی `coolify` است و هر درخواست را با 503 و `Retry-After: 120` و [index.html](../docker/down/index.html) پاسخ می‌دهد. صفحه هر ۱۰ تا ۶۰ ثانیه `/up` را می‌خواند و با پاسخ 200 صفحه را دوباره بار می‌کند. دو مسیر در Traefik:
   - middleware ‏`fahares-down-errors@docker` (‏`errors`، ‏status ‏502-504، ‏query `/`). در Container Labels اپ در Coolify به `middlewares` دو router ‏`https-0` و `https-1` افزوده شد (۴ آبان، به دست کاربر): `gzip-sse,fahares-down-errors@docker`. وضعیت 503 ‏`php artisan down` هم با همین صفحه پوشانده می‌شود.
   - router ‏`fahares-down` با `priority: 1` برای `fahares.net` و `www.fahares.net`، برای وقتی که routerهای اپ نیستند.
   - آزمون: container موقت با router روی `fdt.162.35.127.157.sslip.io` و پورتی که چیزی رویش نیست. پاسخ 502 بود و بدنه‌ی آن همین صفحه.
@@ -4352,7 +4352,7 @@
   - `align()` در `fankha_v2_db_compare.py` دنباله‌ی عنوان آثار v2 و v1 هر جلد را با `difflib.SequenceMatcher` هم‌تراز می‌کند. اثر بی‌جفت `work_new_in_v2` است.
   - در `compare_v2.py`، میان آثار هم‌نام یک صفحه («جنگ»، «جنگ نامه») سطر مؤلف تصمیم می‌گیرد. میان‌بُر ردیف فقط وقتی به کار می‌رود که صفحه هم یکی باشد.
 - **رونوشت پروداکشن:**
-  - **دریافت:** `rsync --partial --append-verify fahares-server:/home/tabib/fahares-backups/work/fahares-db-<stamp>.sql.zst`. کپی در `fahares-sources/backups/prodcopy/` است.
+  - **دریافت:** `rsync --partial --append-verify fahares-server:~/fahares-backups/work/fahares-db-<stamp>.sql.zst`. کپی در `fahares-sources/backups/prodcopy/` است.
   - **بارگذاری:** dump با `--databases default` ساخته شده است، پس سطرهای `CREATE DATABASE` و `` USE `default` `` از ۴۰ سطر نخست با `sed` حذف و فایل در `fahares_prod_new` بارگذاری شد (حدود ۴٫۵ دقیقه).
   - **جابه‌جایی:** با `RENAME TABLE`، جدول‌های پیشین به `fahares_prod_20261014` رفتند و جدول‌های تازه به `fahares_prod`.
 - **`clean-page-markers --fields`:**
@@ -4645,7 +4645,7 @@
   - **وارسی سایت:** `/people/504` (حنین بن اسحاق) زبانه‌ی «ترجمه‌ها ۴۲» دارد، و صفحه‌ی «اسرار الرجال» او را زیر «مترجم» با «۱۹۴–۲۶۰ ق» نشان می‌دهد.
 
 ### گام ۱۳.۶۹: فهرستواره‌ی منزوی از «کتب مرجع ۲» نور (مورد ۸۶)
-- **پایگاه:** `/home/tabib/rawduljinan/raw_sources/KotobMarja2-DB/kotobmarja2.db`، فقط‌خواندنی، مجموعه‌ی `11578`، جلدهای `11578_001` تا `11578_010`. این پایگاه تصویر صفحه ندارد.
+- **پایگاه:** `$NOOR_DB_DIR/KotobMarja2-DB/kotobmarja2.db`، فقط‌خواندنی، مجموعه‌ی `11578`، جلدهای `11578_001` تا `11578_010`. این پایگاه تصویر صفحه ندارد.
   - **ساختار:** متن در `book_texts.text_xml` است. نشانه‌ی `<page number="N"/>` آغاز صفحه‌ی N است و با `book_page_breaks` می‌خواند.
   - **سرعنوان‌ها:** سطح ۲ برای بخش‌ها و پیش‌گفتار و نمایه است. سطح ۳ برای سرحرف‌ها و فهرست اختصارات است. سطح ۴ مدخل است، و سطح ۵ در ج ۸ زیرمدخل و در ج ۹ مدخل نمایه.
 - **صفحه‌ها:** هر جلد پیش‌گفتار با شماره‌ی جدا دارد، مثلاً ج ۲ ص ۱ تا ۵۳ و سپس ۸۰۵. محدوده‌ی بدنه‌ی هر جلد:
@@ -5233,3 +5233,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `RecordSources::isCovered(SourceEntry $citation)`: مکان‌های سطر (`locations` یا `source_id`/`volume_number`/`page_start`) همه با کارتی از `cards()` که `sourceItem` دارد یکی‌اند: همان `source_id` و `volumeNumber()`، و صفحه میان `page_start` و `page_end` مدخل.
 - `resources/views/works/show.blade.php`: حلقه روی `$sources->bibliography()`. سطر پوشیده `x-show="$store.suggest.on"` و `data-covered-citation` و رنگ `text-muted` دارد. `$bibliography` (برای کارت‌های برگه‌ی سایدبار) دست نخورد.
 - **آزمون:** `SourceItemsTest::test_a_bibliography_line_whose_places_are_all_on_the_cards_shows_only_in_suggestion_mode` و `BibliographyLinksTest::test_only_citations_is_a_line_of_source_names_and_linked_citations`.
+
+### گام ۱۳.۹۱: مسیرهای شخصی
+- **`docs/BACKLOG.md`، `docs/TECHNICAL_APPENDIX.md`:** پایگاه‌های نور با `$NOOR_DB_DIR/`؛ `fahares-sources` و `fahares-corpus` با مسیر نسبی؛ پیوندهای `file:///` درون مخزن نسبی شدند و پیوندهای پوشه‌ی کاری ابزار پیشین به نام فایل ساده تبدیل شدند؛ مسیرهای میزبان با `~`.
+- **`scripts/backup/`:** پیش‌فرض `MEDIA_DIR` در `fahares-backup.sh` اکنون `$HOME/fahares_storage` است (cron با همان کاربر اجرا می‌شود و `sudo -u` در اوبونتو `HOME` را به کاربر مقصد می‌برد). `hermes.sudoers` و `README.md` جای‌نگهدار `<backup-user>` دارند که `visudo -c` آن را رد می‌کند تا پیش از نصب جایگزین شود.
+- **`database/data/fankha_*_2026103*.json`:** فیلد توضیحی `source` فقط نام فایل scratchpad را نگه می‌دارد.
+- **`fahares-corpus/scripts/audit_shelfmark_leaks.py`:** `CORPUS_DIR = Path(__file__).resolve().parent.parent`.
+- **وارسی:** `git grep` در هر دو مخزن برای نام کاربر و نام پوشه چیزی برنگرداند؛ `bash -n` اسکریپت بکاپ و بارگذاری JSONها موفق بود.
