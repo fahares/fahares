@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 /**
  * A panel user who signs in from a browser not seen before is told by email (backlog item 25). A browser is
  * known by a random token in a long-lived cookie; the first browser an account is ever seen on is not announced.
+ * A sign-in made on the server itself (tinker, a smoke check after a deploy) has no browser and is not tracked.
  */
 class NotifyNewDeviceSignIn
 {
@@ -23,6 +24,9 @@ class NotifyNewDeviceSignIn
     {
         $user = $event->user;
         if (! $user instanceof User || ! $user->hasPermission('panel.access')) {
+            return;
+        }
+        if (app()->runningInConsole() && ! app()->runningUnitTests()) {
             return;
         }
         try {
@@ -36,6 +40,10 @@ class NotifyNewDeviceSignIn
             }
 
             $first = ! DB::table('known_devices')->where('user_id', $user->id)->exists();
+            // Requests a browser sends together before the first one's cookie lands each arrive without it
+            $sameBrowser = DB::table('known_devices')->where('user_id', $user->id)
+                ->where('user_agent', Str::limit((string) $request->userAgent(), 250, ''))
+                ->where('created_at', '>=', now()->subMinute())->exists();
             $token = Str::random(48);
             DB::table('known_devices')->insert([
                 'user_id' => $user->id, 'token_hash' => hash('sha256', $token),
@@ -44,7 +52,7 @@ class NotifyNewDeviceSignIn
             ]);
             Cookie::queue(self::COOKIE, $token, 60 * 24 * 365 * 5);
 
-            if (! $first) {
+            if (! $first && ! $sameBrowser) {
                 $user->notify(new Notice('account.new_device', 'ورود به حساب شما از دستگاه تازه', [
                     'زمان: ' . Jalali::format(now(), 'datetime'),
                     'نشانی IP: ' . $request->ip(),

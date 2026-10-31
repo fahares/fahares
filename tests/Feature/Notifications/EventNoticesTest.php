@@ -89,7 +89,7 @@ class EventNoticesTest extends TestCase
         auth()->logout();
         $this->flushSession();
         $this->defaultCookies = [];
-        $this->post('/login', ['email' => $admin->email, 'password' => 'password123']);
+        $this->withHeaders(['User-Agent' => 'Another browser'])->post('/login', ['email' => $admin->email, 'password' => 'password123']);
         Notification::assertSentTo($admin, Notice::class, fn (Notice $n, array $channels) => $n->type() === 'account.new_device' && $channels === ['database', 'mail']);
         $this->assertSame(2, \Illuminate\Support\Facades\DB::table('known_devices')->where('user_id', $admin->id)->count());
 
@@ -98,6 +98,29 @@ class EventNoticesTest extends TestCase
         auth()->logout();
         $this->post('/login', ['email' => $plainUser->email, 'password' => 'password123']);
         $this->assertSame(0, \Illuminate\Support\Facades\DB::table('known_devices')->where('user_id', $plainUser->id)->count());
+    }
+
+    public function test_sign_ins_on_the_server_and_a_browsers_simultaneous_requests_are_not_announced(): void
+    {
+        Notification::fake();
+        $admin = $this->user('admin', ['password' => 'password123']);
+        \Illuminate\Support\Facades\DB::table('known_devices')->insert(['user_id' => $admin->id, 'token_hash' => 'x', 'user_agent' => 'Old browser', 'created_at' => now()->subWeek(), 'updated_at' => now()->subWeek(), 'last_seen_at' => now()->subWeek()]);
+
+        // tinker or a smoke check on the server
+        $env = $this->app['env'];
+        $this->app['env'] = 'production';
+        event(new \Illuminate\Auth\Events\Login('web', $admin, false));
+        $this->app['env'] = $env;
+        $this->assertSame(1, \Illuminate\Support\Facades\DB::table('known_devices')->where('user_id', $admin->id)->count());
+
+        // Two requests of one new browser, neither carrying the other's cookie: one notice
+        foreach ([1, 2] as $i) {
+            auth()->logout();
+            $this->flushSession();
+            $this->defaultCookies = [];
+            $this->withHeaders(['User-Agent' => 'New browser'])->post('/login', ['email' => $admin->email, 'password' => 'password123']);
+        }
+        Notification::assertSentToTimes($admin, Notice::class, 1);
     }
 
     public function test_queue_and_search_failures_alert_the_admins_once_an_hour(): void
