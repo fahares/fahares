@@ -5528,6 +5528,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ترتیب پروداکشن:**
   1. `fahares:add-corpus-works --file=…`؛
   2. `fahares:fill-extents --apply`، `catalogs:link-volumes` و `fahares:rebuild-scripts --sync-search`.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_missing_copies_prod_before_20261031.json` (۸۹ اثر و ۱۴٬۲۰۶ شناسه‌ی نسخه).
+  - اجرای نخست با استقرار `63ec41f` کشته شد. ۰ لاگ نوشته شد.
+  - **پایش:** حالا اگر `/tmp/…log` گم شود، پایش فوراً خبر می‌دهد و تا پایان زمانش منتظر نمی‌ماند.
+  - **وارسی:** ۵۰۶ نسخه، `library_id` تهی ۰، ۱٬۰۱۲ مدخل مأخذ (فنخا و صفحه‌ی ارجاع)، نمونه‌ی `/m/334808` (کاشان، مدرسه سلطانی، 301) ۲۰۰.
 
 ### گام ۱۳.۱۰۷: پورت‌های ۲۰۵۳ و ۲۰۱۲۸ در `INPUT`
 - **یافته:** `ufw status verbose` گفت `Status: inactive` (سرویس systemd آن active است ولی قانونی بار نشده). پس هر پورتی که فرایندی روی خود میزبان باز کند از بیرون در دسترس است.
