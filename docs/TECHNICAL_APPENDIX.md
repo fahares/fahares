@@ -5421,3 +5421,31 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تغییر:** [01-fahares-hardening.conf](../scripts/ssh/01-fahares-hardening.conf) در `/etc/ssh/sshd_config.d/`: `PasswordAuthentication no`، `KbdInteractiveAuthentication no`، `PermitRootLogin prohibit-password`، `X11Forwarding no`. sshd نخستین مقدار را نگه می‌دارد و پوشه را در آغاز `sshd_config` می‌خواند، پس نام فایل باید پیش از `50-cloud-init.conf` بیاید. نصب با `sshd -t` و `systemctl reload ssh` (نشست‌های باز قطع نمی‌شوند).
 - **وارسی:** `sshd -T`: `permitrootlogin prohibit-password`، `passwordauthentication no`. سرور به root، tabib و hermes فقط `publickey` پیشنهاد می‌کند. ورود کلیدی root از Coolify (۱۲:۲۵، پس از نصب در ۱۲:۲۴:۳۳) و ورود کلیدی مدیر برقرار ماند.
 - **برگشت:** `sudo rm /etc/ssh/sshd_config.d/01-fahares-hardening.conf && sudo systemctl reload ssh`.
+
+### گام ۱۳.۱۰۰: مقایسه‌ی تازه و پاک کردن یادداشت‌های مدل
+- **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):**
+  - `count_of(s, unit)` برای `folios` (گ) و `pages` (ص).
+  - نقشه‌ی `added`: از لاگ `create` با `new_values.v2`.
+  - گزارش در `reports/fankha_v2_db_review5`.
+- **جست‌وجو:**
+  - `raw_text like '%`%'`؛
+  - `regexp binary` روی واژه‌های انگلیسی رایج.
+  - جست‌وجوی بی‌binary «mahmmad» را «hmm» گرفته بود.
+  - دو مورد انگلیسیِ درست کنار گذاشته شدند: #61027 (نام کتاب مارکام) و #97303 (آغاز انگلیسی).
+- **فایل‌های تصمیم:**
+  - [`fankha_chatter_copies_20261031.json`](../database/data/fankha_chatter_copies_20261031.json): ۱۷ نسخه. جفت v2 هر نسخه با شماره‌ی نسخه و صفحه‌ی ±۱ پیدا شد. #75305/#75306 هر دو از `v8-604#111`، و #95649/#95650 هر دو از `v10-829#3`.
+  - [`fankha_chatter_folds_20261031.json`](../database/data/fankha_chatter_folds_20261031.json): `-v8-601` [108, 1049/4] و `-v10-822` [4, 73].
+  - [`fankha_chatter_works_20261031.json`](../database/data/fankha_chatter_works_20261031.json): `radd-ul-muabatiya-v16-902`، `rawat-ul-azhar-…-v16-2393` و `arjon-gita-v3-2`.
+- **تغییر فرمان‌ها:**
+  - `RebuildCopiesCommand::COLUMNS` حالا `sequence_number` هم دارد. شماره‌ی نسخه‌ای که همین فایل اصلاحش کرده، در اجرای دوم «shelfmark differs» نیست.
+  - `AddCorpusWorksCommand::UPDATE_COLUMNS` حالا `primary_title` و `clean_title` هم دارد.
+- **پیکره:** سطر ۱۶ متن جلد ۳.
+- **ترتیب پروداکشن:**
+  1. `rebuild-copies`؛
+  2. `apply-corpus-structure` با فایل folds؛
+  3. `add-corpus-works` با فایل works؛
+  4. `fill-extents`، `catalogs:link-volumes` و `rebuild-scripts`.
+
+  هر کدام اول بی `--apply`.
+- **دیده‌شده و کنار گذاشته:** شماره‌ی ردیف تکراری در یک اثر در سایت فراوان است (پارسر قدیم). کار جداست.
+
