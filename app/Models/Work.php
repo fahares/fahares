@@ -29,7 +29,20 @@ class Work extends Model
             if ($work->isDirty('composition_date_raw') && ! $work->isDirty('composition_year_hijri')) {
                 $work->composition_year_hijri = HijriYear::parse($work->composition_date_raw);
             }
+            // ...and its range, certainty and hedge word, as for a copy's date (backlog item 96)
+            if ($work->isDirty('composition_date_raw')) {
+                $work->forceFill(self::compositionDateColumns($work->composition_date_raw));
+            }
         });
+    }
+
+    /** The range columns of a date of composition (CopyDateRange), as they are stored. */
+    public static function compositionDateColumns(?string $raw): array
+    {
+        $range = \App\Support\CopyDateRange::parse($raw);
+
+        return ['composition_date_from' => $range['from'], 'composition_date_to' => $range['to'], 'composition_date_certainty' => $range['certainty'],
+            'composition_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
     }
 
     protected static function primaryContributorPivot(): array
@@ -44,6 +57,8 @@ class Work extends Model
             'bibliography' => 'array',
             'commentaries_and_glosses' => 'array',
             'composition_year_hijri' => 'integer',
+            'composition_date_from' => 'integer',
+            'composition_date_to' => 'integer',
             'volume_number' => 'integer',
             'page_start' => 'integer',
             'page_end' => 'integer',
