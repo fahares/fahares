@@ -5220,6 +5220,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `c4ada5e`: در `fankha_v2_rebuild_export.values`، `folios` فقط از مقداری که «گ» دارد.
   - JSON جلد ۲۳ دوباره ساخته شد و فقط همین دو نسخه تغییر کرد.
 - **ترتیب پروداکشن:** `fahares:rebuild-copies --file=database/data/fankha_vol23_faeda_copy_20261031.json`، سپس `fahares:add-corpus-works --file=database/data/fankha_vol23_faeda_work_20261031.json`. هر کدام اول بی `--apply`.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_vol23_faeda_prod_before_20261031.json`.
+  - ترتیب: دو فرمان، سپس `fill-extents --apply` (changed ۱، with_range ۹۴٬۹۳۲)، سپس `catalogs:link-volumes`، `rebuild-scripts --sync-search` (۱ نسخه) و `link-autograph-scribes`.
+  - اثر تازه روی پروداکشن شناسه‌ی ۷۱۸۱۹ گرفت.
+  - **وارسی ۴۴ نسخه:** با کلید طبیعی (پسوند slug و شماره‌ی نسخه، یا شناسه‌ی نسخه‌های بازسازی‌شده)، هر ۴۴ نسخه `folios` تهی و `pages` پر دارند. یکی («احوال تاجران»، رضوی 16378/5) پس از ادغام کاربر زیر اثر ۳۱۳۵ است.
 
 ### گام ۱۳.۸۸: قاب ایمیل‌ها
 - **قالب‌ها:** `resources/views/vendor/mail/html/message.blade.php` و `text/message.blade.php` جای قالب Laravel را می‌گیرند. سربرگ `images/brand/shamseh-180.png` (۵۲ پیکسل) و `.header-name`/`.header-subtitle` در `themes/default.css` است. `<title>` در `layout.blade.php` ثابت «فهارس» شد.
@@ -5238,9 +5243,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - `resources/views/works/show.blade.php`: حلقه روی `$sources->bibliography()`. سطر پوشیده `x-show="$store.suggest.on"` و `data-covered-citation` و رنگ `text-muted` دارد. `$bibliography` (برای کارت‌های برگه‌ی سایدبار) دست نخورد.
 - **آزمون:** `SourceItemsTest::test_a_bibliography_line_whose_places_are_all_on_the_cards_shows_only_in_suggestion_mode` و `BibliographyLinksTest::test_only_citations_is_a_line_of_source_names_and_linked_citations`.
 
-### گام ۱۳.۹۱: مسیرهای شخصی
+### گام ۱۳.۹۱: `composition_date_*` آثار
+- **migration [add_composition_date_range_to_works](../database/migrations/2026_10_31_200001_add_composition_date_range_to_works.php):** چهار ستون، با نمایه‌ی `(composition_date_from, composition_date_to)`.
+- **[Work](../app/Models/Work.php):** `compositionDateColumns($raw)` با `CopyDateRange::parse`. هوک `saving` با تغییر `composition_date_raw` آن‌ها را پر می‌کند.
+- **[FillCopyDateRangesCommand](../app/Console/Commands/FillCopyDateRangesCommand.php):** گزینه‌ی `--works` جدول، ستون متن و ستون‌ها را عوض می‌کند (`works`، `composition_date_raw`، `composition_date_*`).
+- **تمرین (`fahares_prod` محلی):** `--works --apply`: dated ۹٬۸۰۶، ranged ۹٬۷۳۹، span ۴۹۸، open ۲۹ و hedged ۵۸. اجرای دوم `changed 0` بود. اجرای فرمان برای نسخه‌ها هم `changed 0` ماند.
+- **آزمون:** `test_dates_of_composition_get_ranges_too` در [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php). کل مجموعه ۴۹۱ آزمون موفق.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-copy-date-ranges --works --apply`.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت `fb4286e` مستقر شد و migration خودکار اجرا شد. dry run و `--apply` همان شمارهای تمرین را دادند (changed ۹٬۷۳۹). اجرای وارسی `changed 0` بود.
+- **درخواست از مورد ۸۷ (پیام به جلسه‌ی آن، ۹ آبان):**
+  - آغازها و انجام‌های شماره‌دار اثر جدا شوند، مثلاً `incipit_numbered`. ۳۰۹ اثر نسخه‌هایی با `same_as_work_n` دارند.
+  - خطای «،» میان ماه و سال در تاریخ کتابت اصلاح شود.
+  - فرمان‌های `rebuild-copies` و `add-corpus-works` یکای برگ و صفحه را بشناسند.
+
+### گام ۱۳.۹۲: مسیرهای شخصی
 - **`docs/BACKLOG.md`، `docs/TECHNICAL_APPENDIX.md`:** پایگاه‌های نور با `$NOOR_DB_DIR/`؛ `fahares-sources` و `fahares-corpus` با مسیر نسبی؛ پیوندهای `file:///` درون مخزن نسبی شدند و پیوندهای پوشه‌ی کاری ابزار پیشین به نام فایل ساده تبدیل شدند؛ مسیرهای میزبان با `~`.
 - **`scripts/backup/`:** پیش‌فرض `MEDIA_DIR` در `fahares-backup.sh` اکنون `$HOME/fahares_storage` است (cron با همان کاربر اجرا می‌شود و `sudo -u` در اوبونتو `HOME` را به کاربر مقصد می‌برد). `hermes.sudoers` و `README.md` جای‌نگهدار `<backup-user>` دارند که `visudo -c` آن را رد می‌کند تا پیش از نصب جایگزین شود.
 - **`database/data/fankha_*_2026103*.json`:** فیلد توضیحی `source` فقط نام فایل scratchpad را نگه می‌دارد.
 - **`fahares-corpus/scripts/audit_shelfmark_leaks.py`:** `CORPUS_DIR = Path(__file__).resolve().parent.parent`.
 - **وارسی:** `git grep` در هر دو مخزن برای نام کاربر و نام پوشه چیزی برنگرداند؛ `bash -n` اسکریپت بکاپ و بارگذاری JSONها موفق بود.
+
