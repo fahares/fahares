@@ -28,7 +28,7 @@
                         @endif
                         @if($m->work?->author_name)<span class="text-[11px] text-muted"> · {{ $m->work->author_name }}</span>@endif
                     </span>
-                    @if($m->folios)<span class="shrink-0 text-[11px] text-muted">{{ \App\Support\Fa::digits($m->folios) }} برگ</span>@endif
+                    @if($m->extentLabel())<span class="shrink-0 text-[11px] text-muted">{{ $m->extentLabel() }}</span>@endif
                 </li>
             @endforeach
         </ol>

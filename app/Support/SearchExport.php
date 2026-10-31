@@ -41,6 +41,8 @@ class SearchExport
                 'محل کتابت' => fn (Manuscript $m) => $m->copy_place,
                 'خط' => fn (Manuscript $m) => $m->script_names,
                 'برگ' => fn (Manuscript $m) => $m->folios,
+                'صفحه' => fn (Manuscript $m) => $m->pages,
+                'برگ‌ها در مجموعه' => fn (Manuscript $m) => $m->range_from ? ($m->range_from === $m->range_to ? $m->range_from : $m->range_from . '-' . $m->range_to) : null,
                 'سطر' => fn (Manuscript $m) => $m->lines,
                 'اندازه' => fn (Manuscript $m) => $m->dimensions,
                 'دستخط مؤلف' => fn (Manuscript $m) => $m->is_autograph ? 'بله' : null,

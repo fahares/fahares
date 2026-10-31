@@ -290,8 +290,9 @@
                         <span x-show="$store.suggest.on" x-cloak class="text-muted ms-1">کیفیت خط:</span>
                         <x-suggest.field name="script_style" />
                     </x-ui.meta>
-                    <x-ui.meta label="شمار برگ" field="folios">
-                        @if($manuscript->folios){{ Fa::digits($manuscript->folios) }} برگ@else<span class="text-muted">—</span>@endif
+                    {{-- Leaves or pages, and the leaves the copy takes in its volume (backlog item 97) --}}
+                    <x-ui.meta :label="$manuscript->pages && ! $manuscript->folios ? 'شمار صفحه' : 'شمار برگ'" field="folios">
+                        @if($manuscript->extentLabel()){{ $manuscript->extentLabel() }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                     <x-ui.meta label="شمار سطر" field="lines">
                         @if($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif

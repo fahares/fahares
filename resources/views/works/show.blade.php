@@ -455,7 +455,7 @@
                                     @endif
                                 </td>
                                 <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>
-                                <td class="py-2.5 px-3">{{ $ms->folios ? Fa::digits($ms->folios) : '—' }}</td>
+                                <td class="py-2.5 px-3">{{ $ms->folios ? Fa::digits($ms->folios) : ($ms->pages ? Fa::digits($ms->pages) . ' ص' : '—') }}</td>
                             </tr>
                         @empty
                             <tr>

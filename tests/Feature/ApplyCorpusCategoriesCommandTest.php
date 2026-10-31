@@ -174,5 +174,46 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         Manuscript::find($b)->update(['copy_date_raw' => 'قرن 13']);
         $this->assertSame(['copy_date_from' => 1201, 'copy_date_to' => 1300, 'copy_date_certainty' => null, 'copy_date_hedge_raw' => null], $row($b));
     }
+
+    public function test_extents_move_pages_out_of_folios_and_keep_what_is_uncertain()
+    {
+        $w = $this->work('-v99-9');
+        $ids = [];
+        foreach ([
+            'pages' => [28, "خط: نسخ؛ 28ص (1-28)، 20 سطر"],
+            'wrong' => [5, "محشی، 5 برگ ابتدایی حاشیه دارد؛ کاغذ: فرنگی، 29گ، مختلف السطر"],
+            'missing' => [null, "تا: 1250؛ 3گ (112ر-115ر)"],
+            'guarded' => [7, "14ص"],
+            'two' => [63, "63گ، 21گ"],
+            'none' => [9, "خط: نسخ، 12 سطر"],
+        ] as $key => [$folios, $raw]) {
+            $ids[$key] = $this->copy($w, "40/{$key}");
+            DB::table('manuscripts')->where('id', $ids[$key])->update(['folios' => $folios, 'raw_text' => $raw]);
+        }
+        AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $ids['guarded'],
+            'action' => 'verify', 'old_values' => ['folios' => 14], 'new_values' => ['folios' => 7]]);
+
+        $this->artisan('fahares:fill-extents')->assertSuccessful();
+        $this->assertSame(28, (int) DB::table('manuscripts')->where('id', $ids['pages'])->value('folios'));
+
+        $this->artisan('fahares:fill-extents', ['--apply' => true])->assertSuccessful();
+        $row = fn (string $k) => array_values((array) DB::table('manuscripts')->where('id', $ids[$k])->first(['folios', 'pages', 'range_from', 'range_to']));
+        $this->assertSame([null, 28, '1', '28'], $row('pages'));
+        $this->assertSame([29, null, null, null], $row('wrong'));
+        $this->assertSame([3, null, '112ر', '115ر'], $row('missing'));
+        // A reviewed correction of folios stays; the pages and wording are still filled
+        $this->assertSame([7, 14, null, null], $row('guarded'));
+        $this->assertSame([63, null, null, null], $row('two'));
+        $this->assertSame([9, null, null, null], $row('none'));
+        $this->assertSame(['folios' => 28], AuditLog::where('auditable_id', $ids['pages'])->where('action', 'corpus_update')->value('old_values'));
+
+        $this->get(route('manuscripts.show', Manuscript::find($ids['pages'])))->assertOk()->assertSee('شمار صفحه')->assertSee('۲۸ صفحه (۱–۲۸)');
+        $this->get(route('manuscripts.show', Manuscript::find($ids['missing'])))->assertOk()->assertSee('۳ برگ (۱۱۲ر–۱۱۵ر)');
+
+        // A second run writes nothing
+        $logs = AuditLog::where('action', 'corpus_update')->count();
+        $this->artisan('fahares:fill-extents', ['--apply' => true])->expectsOutputToContain('Written.')->assertSuccessful();
+        $this->assertSame($logs, AuditLog::where('action', 'corpus_update')->count());
+    }
 }
 

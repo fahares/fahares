@@ -294,7 +294,7 @@
                                 @php
                                     $msTags = array_filter([
                                         $ms->script_names ? 'خط ' . $ms->script_names : null,
-                                        $ms->folios ? Fa::digits($ms->folios) . ' برگ' : null,
+                                        $ms->extentLabel(false),
                                         $ms->has_author_marginalia ? 'حواشی مؤلف' : null,
                                         (! empty($ms->ownership_and_seals_list) && count($ms->ownership_and_seals_list)) ? 'مهر و تملک (' . Fa::digits(count($ms->ownership_and_seals_list)) . ')' : null,
                                         $ms->is_illuminated ? 'مذهّب' : null,
