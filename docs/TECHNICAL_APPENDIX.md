@@ -5483,3 +5483,49 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان:** `job_watch` همان `job_status` را بی‌خروجی اجرا می‌کند؛ اگر کد خروج صفر نباشد (`status` ناموفق یا عمر آخرین بکاپ `db` بیش از `MAX_AGE_HOURS`، پیش‌فرض ۳۰ ساعت)، سطر آخر آن را با `notify` به `TG_CHAT_ID` می‌فرستد و با ۱ خارج می‌شود. هشدار شکست هر کار همچنان از `on_exit` می‌آید؛ `watch` کاری را می‌گیرد که اصلاً اجرا نشده است.
 - **زمان‌بندی:** `0 10 * * *` در crontab کاربر بکاپ ([crontab.example](../scripts/backup/crontab.example)). [README](../scripts/backup/README.md) به‌روز شد: پاییدن روزانه دیگر به Hermes سپرده نیست.
 - **نصب و وارسی:** نسخه‌ی میزبان در `/usr/local/bin` جایگزین شد؛ اجرای دستی `watch` کد ۰ داد و `status` گفت «OK: last db backup 9h ago».
+
+### گام ۱۳.۱۰۴: بازه‌ها و تردید در `/insights` (مورد ۱۰۴)
+- **کلید کش:** `insights.v1` به `insights.v2` رفت، چون شکل داده عوض شد. بی این تغییر، صفحه پس از استقرار تا ساخت شبانه با داده‌ی کهنه می‌شکست.
+- **تنظیم‌ها** ([insights.php](../config/insights.php)):
+  - `author_centuries` = `[1, 15]`، سده‌های نمودار مؤلفان و آثار.
+  - `exact_span` = ۱۰: بازه‌ای تا ۱۰ سال (مثل «حدود 1086» = 1081 تا 1091) «سال معین» است و در میانه‌اش نهاده می‌شود. بازه‌ی پهن‌تر «تنها سده یا بخشی از آن» است.
+  - `copy_gap` = `[-80, 0, 50, 100, 200, 300, 500]`: لبه‌های ردیف‌های فاصله. هر ردیف از «بیش از» یک لبه تا «خودِ» لبه‌ی بعدی است. ردیف (‎-80، 0] «زمان حیات» است.
+- **`Insights::centuryLayers()`:** ورودی ردیف‌های `{f, t, d, n}` است (آغاز، پایان، مردد، شمار) که با `GROUP BY` ساخته می‌شوند.
+  - بازه‌ای که یک سرش تهی است، در `open` شمرده می‌شود.
+  - بازه‌ی معین به سده و دهه‌ی میانه‌اش می‌رود (`exact` یا `exact_doubtful`، و `decades` یا `decades_doubtful`).
+  - بازه‌ی پهن به نسبت سال‌هایش در هر سده پخش می‌شود (`range` یا `range_doubtful`). هر خانه در پایان گرد می‌شود، پس جمع لایه‌ها با `counted` تا چند واحد فرق دارد. سهم بیرون از سده‌های نمودار در `outside` است.
+  - «مردد» یعنی `*_certainty` تهی نیست، چه `probable` («محتملاً») چه `doubtful` («؟»).
+- **`copyDates()`:** یک گذر روی `manuscripts` با `GROUP BY work_id, from, to, certain` و `cursor()`. از همین گذر هم ردیف‌های خط زمانی ساخته می‌شود و هم فاصله‌ها، با نقشه‌ی `work_id` به بازه‌ی وفات مؤلف (`works.author_id`). join سه‌جدولی در SQL نسخه‌ها را ردیف‌به‌ردیف از راه نمایه‌ی اثر می‌خواند و حدود ۱۰ تا ۱۲ ثانیه طول می‌کشید. این گذر حدود ۳ ثانیه است.
+- **فاصله:** هر سو (نسخه یا وفات) اگر سال معین باشد، میانه‌اش است و گرنه کل بازه. بازه‌ی فاصله `[کتابت‌کمینه − وفات‌بیشینه، کتابت‌بیشینه − وفات‌کمینه]` است. اگر هر دو سرش در یک ردیف بیفتند، نسخه در آن ردیف شمرده می‌شود و گرنه در `unplaced`. مثلاً نسخه‌ی «قرن 15» از مؤلفِ درگذشته‌ی 1250 فاصله‌ی 151 تا 250 دارد و از لبه‌ی 200 می‌گذرد.
+- **نما:** [century-bars](../resources/views/insights/century-bars.blade.php) ستون‌های چهارلایه و راهنما را می‌کشد و در سه نمودار به کار رفته است. [doubtful-note](../resources/views/insights/doubtful-note.blade.php) جمله‌ی سهم مردد است. نمودار دهه‌ها تنها سال‌های معین را دارد، با لایه‌ی کم‌رنگ مردد. پیوند هر سده به جست‌وجو همان فیلتر `century` است که هنوز بر `copy_date_hijri_year` (نسخه‌ها)، `century_hijri` (اشخاص) و «سال تألیف یا وفات مؤلف» (آثار) تکیه دارد، پس شمار نتیجه با ستون نمودار یکی نیست.
+- **رقم‌ها روی `fahares_prod`:**
+
+| نمودار | شمرده | سال معین | تنها سده | مردد | باز |
+|---|---|---|---|---|---|
+| کتابت (سده‌ی ۴ تا ۱۴) | ۲۴۱٬۸۲۸ | ۱۵۱٬۵۵۷ | ۹۰٬۰۳۶ | ۲٬۶۶۸ (۱٫۱٪) | ۱۰۱ |
+| مؤلفان (وفات) | ۱۲٬۶۱۶ از ۱۵٬۴۲۸ | ۵٬۱۶۹ | ۷٬۴۴۷ | ۷۴۴ (۵٫۹٪) | ۰ |
+| آثار (تألیف) | ۹٬۷۱۰ | ۹٬۵۲۶ | ۱۸۳ | ۵۷ (۰٫۶٪) | ۲۹ |
+
+  - فاصله: ۱۹۵٬۴۷۴ نسخه هر دو تاریخ را دارند. ۱۲۸٬۲۲۱ در یک ردیف جای گرفتند و ۶۷٬۲۵۳ نه. ۵۴۱ نسخه بیش از ۸۰ سال پیش از وفات مؤلف‌اند. ۲۱٪ نسخه‌های جای‌گرفته تاریخ مردد دارند، بیشترشان از وفات مردد مؤلفان پرنسخه (احسائی، تفتازانی، دوانی، سعدی).
+- **زمان ساخت:** روی رونوشت، با کوئری‌های REGEXP هم‌زمان یک نشست دیگر، کل `build()` میان ۱۲ و ۵۲ ثانیه بود. سهم بخش‌ها در یک اجرا: `copyDates` ۷٫۷، `authors` ۰٫۶، `compositions` ۲٫۱، `places` ۶٫۲، `languages` ۴٫۲ ثانیه. کد پیشین روی همان میزبان ۱۶ ثانیه بود.
+- **پیش‌نمایش worktree:** `php artisan serve` متغیرهای محیطی کانتینر را به کارگرهایش نمی‌دهد و `php -S` هم آن‌ها را در `$_SERVER` نمی‌گذارد، پس `.env` رونوشتی با `DB_DATABASE=fahares_prod` و `CACHE_STORE=file` mount شد و `php -S` از درون `public/` اجرا شد.
+- **آزمون‌ها** (`InsightsPageTest`): `test_the_copy_timeline_layers_years_centuries_and_doubtful_dates`، `test_authors_are_counted_by_their_death_range_and_works_by_composition`، `test_copies_are_banded_by_the_years_after_their_authors_death`. دو آزمون پیشین حالا `copy_date_raw` می‌دهند، چون نمودار دیگر از `copy_date_hijri_year` نمی‌خواند.
+
+### گام ۱۳.۱۰۶: نسخه‌های گم‌شده
+- **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):** حالا `unmatched.jsonl` هم می‌نویسد، با سه نوع رکورد:
+  - `v2_work`؛
+  - `site_copy`: نسخه‌ی سایتِ بی‌جفت؛
+  - `v2_copy`: با `site_work_id` اثر جفت‌شده.
+  - گزارش در `reports/fankha_v2_db_review6`.
+- **دسته‌بندی:**
+  - **بودن در سایت:** با شماره‌ی نسخه‌ی یکسان‌شده و صفحه‌ی ±۱ در همان جلد وارسی شد: `none` ۵۶۲، `same_work` ۷ و `other_work` ۱.
+  - **شرط پذیرش:**
+    - `clean_title` برابر؛
+    - `author_name` برابر، یا تهی در سایت؛
+    - صفحه در `page_start-1 .. page_end+1`.
+  - **کنارمانده‌ها:** `reports/fankha_v2_db_review6/missing_copies_held.json` (۵۶).
+- **فایل تصمیم:** [`fankha_missing_copies_20261031.json`](../database/data/fankha_missing_copies_20261031.json). ۸۹ `fills` با `make` از `copy_record`.
+- **ترتیب پروداکشن:**
+  1. `fahares:add-corpus-works --file=…`؛
+  2. `fahares:fill-extents --apply`، `catalogs:link-volumes` و `fahares:rebuild-scripts --sync-search`.
+
