@@ -5587,3 +5587,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `field_evidence`، و `source_entries` و `source_items` منبع‌های گروه‌ها، به‌علاوه‌ی `id, catalog_volume_id` نسخه‌ها و ارجاع‌های جلدهای آن‌ها.
   2. `php artisan sources:merge-split --dry-run`، سپس مقایسه با تمرین محلی (شناسه‌ها روی پروداکشن ممکن است فرق کنند).
   3. `php artisan sources:merge-split`.
+- **اجرای پروداکشن (۱۰ آبان):**
+  - **استقرار:** `git push` (`9122fde..a92b010`).
+  - **پشتیبان:** [`step13.110_merge_split_sources_prod_before_20261031.json`](../../fahares-sources/backups/step13/step13.110_merge_split_sources_prod_before_20261031.json) (۲۰ مگابایت). همه‌ی `sources` (۱۸۵)، `source_volumes` (۵۴۳)، `catalog_volumes` (۴۳۸) و `catalog_volume_cataloger` (۵۹۳) را دارد. از ۲۱ منبع گروه‌ها هم این‌ها را دارد: `id, source_id, source_volume_id, source_item_id, volume_number, text_volume_number, locations` برای ۸۹٬۶۵۹ مدخل، و `id, catalog_volume_id` برای ۸۹٬۶۴۲ نسخه و ۸۹٬۵۶۹ ارجاع.
+    - کانتینر برنامه `mariadb-dump` ندارد، پس پشتیبان با `tinker` گرفته شد.
+    - شرط `locations LIKE` همه‌ی جدول را پیمایش کرد و پشتیبان‌گیری حدود ۴ دقیقه طول کشید.
+  - **dry-run:** جدا از شمار مدخل‌ها، خط‌به‌خط برابر تمرین محلی بود.
+  - **اجرا:** ۴۷ ثانیه. شمارش‌ها پیش و پس از اجرا:
+    - `sources`: ۱۸۵ → ۱۷۰؛
+    - `source_volumes`: ۵۴۳ → ۵۲۹؛
+    - `catalog_volumes`: ۴۳۸ → ۴۲۴؛
+    - `source_entries`: ۷۸۸٬۵۰۰، بی‌تغییر (۵۸٬۳۲۲ بی‌منبع).
+  - **اجرای دوم:** «No catalogue is held as several sources.»
+  - **وارسی `https://fahares.net`:**
+    - پنج کد کهنه ۳۰۱ دادند.
+    - مرعشی جلدهای ۱ تا ۳۸ را دارد و گلپایگانی ۱ تا ۸.
+    - `/sources` ۱۵۱ کارت دارد، کارت هر فهرست یک بار.
+    - `/catalogers/24` ۲۴ پیوند منبع دارد.
+  - نشست «Tie copies to the 18 catalogues» تا پایان این اجرا روی پروداکشن کاری نکرد. `catalogue-bc42c942441f` به گزارش آن نشست کتاب دیگری است: ۳۷۵ صفحه و بی شابک، در برابر ۸۵۰ صفحه‌ی جلد ۱.
