@@ -101,10 +101,15 @@ class PrintedPage
                 }
                 continue;
             }
-            if ($line === '' && ($parts && end($parts)['poem'])) {
+            $plain = PageMarks::strip($line);
+            if (trim($plain) === '') {
+                // a blank line, or one with only a mark's opening or closing: its marks still count, its text is none
+                self::inline($line, $stack);
+                if (! ($parts && end($parts)['poem'])) {
+                    $parts[] = ['poem' => false, 'html' => ''];
+                }
                 continue;
             }
-            $plain = PageMarks::strip($line);
             $parts[] = ['poem' => false, 'html' => ! $stack && $plain === $line && preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
                 ? '<span dir="ltr" class="book-sheet__latin">' . e($line) . '</span>'
                 : self::inline($line, $stack)];

@@ -214,6 +214,9 @@ class SourcePageViewTest extends TestCase
         $this->assertStringContainsString('<span class="book-hadith">قال <span data-noor="FB">النبي ص</span></span>' . "\n" . '<span class="book-hadith">لا</span> تم', $html);
         // whatever reads a page for its words gets them without the marks
         $this->assertSame("قال (وَ الْبٰاقِيٰاتُ) و A. Storey 1927 و قال النبي ص\nلا تم", \App\Support\PageMarks::strip($text));
+
+        // a line with only a mark's opening is blank: it goes before a poem as a blank line would
+        $this->assertStringStartsWith('أولها:<span class="book-poem"', (string) \App\Support\PrintedPage::text("أولها:\n\n\u{E020}IB\u{E021}\nحمدا\tالعالم\u{E022}"));
     }
 
     public function test_an_entry_whose_first_line_has_marks_is_found_and_its_heading_shows_none()
@@ -228,7 +231,9 @@ class SourcePageViewTest extends TestCase
             'page_start' => 218, 'page_end' => 218, 'text' => '( 1333 : ديوان حاجي أردبيلي ) أورد شعره في (گلشن - ص 133).']);
 
         $html = $this->get('/sources/dharia-test/9/page/218')->assertOk()
-            ->assertSee('<span class="book-sheet__heading" data-entry-heading>( ۱۳۳۳ : ديوان حاجي أردبيلي ) أورد شعره في (<span data-noor="WB">گلشن</span> - ص ۱۳۳).</span>', false)
+            // only the heading is the heading; its paragraph goes on after it
+            ->assertSee('<span class="book-sheet__heading" data-entry-heading>( ۱۳۳۳ : ديوان حاجي أردبيلي )</span>', false)
+            ->assertSee('<span class="book-sheet__rest"> أورد شعره في (<span data-noor="WB">گلشن</span> - ص ۱۳۳).</span>', false)
             ->getContent();
         $this->assertSame(['1333'], $this->headings($html));
         $this->assertStringNotContainsString("\u{E020}", $html);

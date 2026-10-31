@@ -89,6 +89,11 @@
                             // al-Dhari'a's volume 26 prints the number alone, «[ 972 ]», and the title on the next line
                             // in parentheses: the title is linked too, the rest of its line goes on after it
                             $title = null;
+                            // al-Dhari'a's heading, «( 5 : شارحة الصدور )», runs on with its paragraph: only the heading is the link
+                            $rest = '';
+                            if (preg_match('/^(\(\s*\d+\s*:[^)\n]*\))(.+)$/us', $lines[0], $split)) {
+                                [$lines[0], $rest] = [$split[1], $split[2]];
+                            }
                             if (preg_match('/^\[\s*\d+\s*\]$/u', trim($lines[0])) && preg_match('/^\s*(\([^)\n]+\))(.*)$/us', $lines[1] ?? '', $m)) {
                                 [$title, $lines[1]] = [$m[1], $m[2]];
                             }
@@ -123,6 +128,7 @@
                                         @if($work->isAwaitingReview())<x-ui.machine-badge class="ms-1 align-middle" :text="$work->machineNote()" :review="$work->badgeReview()" />@endif
                                         @if($tied->count() > 1)<a href="#page-works" class="ms-1 font-sans text-xs text-muted hover:text-cinnabar" title="آثار دیگر این مدخل">{{ Fa::digits('+' . ($tied->count() - 1)) }}</a>@endif
                                     @endif
+                                    @if($rest !== '')<span class="book-sheet__rest">{{ \App\Support\PrintedPage::text($rest) }}</span>@endif
                                 </div>
                                 @if($title)
                                     <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ \App\Support\PrintedPage::text($title) }}</a>@else<span class="book-sheet__heading">{{ \App\Support\PrintedPage::text($title) }}</span>@endif{{ \App\Support\PrintedPage::text(rtrim($lines[1])) }}</div>
