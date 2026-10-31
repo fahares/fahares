@@ -5449,3 +5449,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   هر کدام اول بی `--apply`.
 - **دیده‌شده و کنار گذاشته:** شماره‌ی ردیف تکراری در یک اثر در سایت فراوان است (پارسر قدیم). کار جداست.
 
+### گام ۱۳.۱۰۱: بازه‌ی وفات اشخاص (مورد ۹۶)
+- **migration [add_death_range_to_people](../database/migrations/2026_10_31_400001_add_death_range_to_people.php):** `life_dates_raw` (۱۲۰)، `death_from`، `death_to`، `death_certainty` (۱۰) و `death_hedge_raw` (۶۰)، با نمایه‌ی `(death_from, death_to)`.
+- **[Person](../app/Models/Person.php):** `deathColumns($lifeDates, $deathYear)`:
+  - متنی که «میلاد»، «شمسی»، «خورشیدی»، «هجرت»، «م»، «ش» یا «ق.م» دارد، کنار می‌رود.
+  - بخش پس از آخرین `-` یا `–` گرفته می‌شود. «ق13» (بی حرف یا رقم پیش از «ق») «قرن 13» می‌شود، و سپس `CopyDateRange::parse` آن را می‌خواند.
+  - یک یا دو رقم پس از خط تیره، با «؟» یا بی آن، یک سال است. فقط اگر از سال تولد کمتر باشد، سده است («1297-14 ق»). این قاعده لازم است چون `HijriYear` سال‌های زیر ۱۰۰ را نمی‌پذیرد.
+  - بی بازه از متن، `death_year_hijri` بازه‌ی تک‌سال است.
+  - هوک `saving` با تغییر `life_dates_raw` یا `death_year_hijri` ستون‌ها را پر می‌کند.
+- **فایل تصمیم [fankha_v2_deaths_20261031.json](../database/data/fankha_v2_deaths_20261031.json)** (۹٫۶ مگابایت): ساخته‌ی `scripts/fankha_v2_deaths_export.py` در پیکره (کامیت `6b8696a`). ۴۲٬۱۶۵ اثر را دارد، با نام و `death.raw` پدیدآور و مترجم، و ۸٬۲۸۰ اثر هم‌عنوان (`peers`) برای `FankhaWorkLocator`.
+- **فرمان [fahares:fill-death-ranges](../app/Console/Commands/FillDeathRangesCommand.php):**
+  - **گزینه‌ها:** `--file`، `--apply` و `--show`.
+  - **شخص:** پدیدآور همان `works.author_id` است، و مترجم تنها مترجم `work_people`.
+  - **نام:** `sameName()` نام‌ها را پس از `TextNormalizer::normalize`، بی فاصله، نیم‌فاصله، «،»، «؟»، «.» و «-» مقایسه می‌کند. نام v2 باید آغاز نام سایت باشد («علی بن ابی طالب (ع)، امام اول»).
+  - **انتخاب:** متن‌ها با ستون‌هایی که می‌سازند گروه می‌شوند. گروهی برگزیده می‌شود که بیشترین متن را دارد و `death_year_hijri` را در خود دارد. در تساوی، اثر پیش‌تر برنده است.
+  - `life_dates_raw` فقط جایی پر می‌شود که خالی است. سپس ستون‌های همه‌ی اشخاص از نو ساخته می‌شوند و فقط تفاوت‌ها نوشته می‌شود، ۵٬۰۰۰تا ۵٬۰۰۰تا در یک تراکنش. نمایه‌ی جست‌وجو دست نمی‌خورد، چون این ستون‌ها در `toSearchableArray` نیستند.
+- **تمرین (`fahares_prod` محلی، `--apply`، حدود ۷۰ ثانیه):**
+  - **آثار:** works:found ۴۲٬۰۲۳ و not_found ۱۴۲. author:texts ۴۱٬۶۲۰، author:other_name ۴۳ و author:not_on_site ۲۷۷.
+  - **مترجم:** translator:texts فقط ۱ و translator:not_on_site ۲۴۵، چون `fahares_prod` محلی پیش از پر شدن مترجم‌ها (گام‌های ۱۳.۶۸ و ۱۳.۹۷) گرفته شده است. در پروداکشن عدد بیشتری انتظار می‌رود.
+  - **اشخاص:** people:life_dates ۱۲٬۲۷۱، people:ranged ۱۲٬۶۱۶ (one_year ۵٬۱۶۹، span ۷٬۴۴۷)، hedged ۷۴۴، without_death_year ۲۰۴ و texts_disagree ۴۶. بیشتر ناسازگاری‌ها فقط در «؟» است.
+  - texts:left_out ۱٬۸۸۱. اجرای دوم `people:changed` نداشت.
+  - **پرس‌وجوی وارسی:** هیچ `death_year_hijri` بیرون از بازه‌ی خودش نیست. ۶۰ بازه‌ی تک‌سالِ بی‌متن، سالی با ۵۰ در پایان دارند.
+- **آزمون:** [PersonDeathRangeTest](../tests/Unit/PersonDeathRangeTest.php) (۳) و [FillDeathRangesCommandTest](../tests/Feature/FillDeathRangesCommandTest.php) (۳). کل مجموعه ۵۲۱ آزمون موفق، روی `fahares_wpdeath_test`.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-death-ranges` و بعد با `--apply`.
