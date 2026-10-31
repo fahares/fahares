@@ -5125,6 +5125,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `php artisan fahares:apply-corpus-categories --file=database/data/fankha_v2_commissioners_20261030.json`، و پس از وارسی با `--apply`.
   2. `php artisan fahares:fill-copy-date-ranges --apply`. اگر استقراری آن را بکشد، اجرای دوباره بی‌خطر است.
   3. `php artisan fahares:backfill-work-dedications` برای `label_raw` تقدیم‌های موجود.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت‌های `20a69df` و `90a37e3` مستقر شدند و migration خودکار اجرا شد.
+  - **dry run:** ۳٬۵۲۰ write، ۴۸ «no commissioner phrase» و ۱۲۵ copy_date_note.
+  - **`--apply`:** ۳٬۶۴۵ رکورد نوشته و نمایه شد.
+  - **`fill-copy-date-ranges --apply`:** dated ۲۴۳٬۳۹۶، ranged ۲۴۱٬۷۸۷ و changed ۲۳۸٬۷۲۲.
+  - **`backfill-work-dedications`:** `label_added` برای ۵۵ تقدیم و ۲۷ سفارش.
+  - **اجرای وارسی:** همه‌ی رکوردها `already` و `changed 0`.
+  - **وارسی سایت:** `/m/10174` و `/m/11222`.
 
 ### گام ۱۳.۸۳: جلد کتاب‌ها از MTIF، فهرست‌نگار جلدها و آوانگاری
 - **جلدها:**
