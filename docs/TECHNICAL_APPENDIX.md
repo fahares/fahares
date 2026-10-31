@@ -5138,3 +5138,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرای وارسی:** همه‌ی رکوردها `already` و `changed 0`.
   - **وارسی سایت:** `/m/10174` و `/m/11222`.
 
+### گام ۱۳.۸۶: `pages`، `extent_raw` و بازه‌ی برگ (مورد ۹۷)
+- **migration [add_extent_columns_to_manuscripts](../database/migrations/2026_10_31_100001_add_extent_columns_to_manuscripts.php):** `pages` (smallint)، `extent_raw` (۱۲۰)، `range_from` و `range_to` (۱۲)، و `range_from_number` و `range_to_number` (smallint). روی رونوشت محلی ۱ ثانیه طول کشید.
+- **[CopyExtent::fromText](../app/Support/CopyExtent.php):**
+  - **تکه‌ها:** هر سطر متن خام با «،» و «؛» تکه می‌شود. برچسب صفحه و ارجاع کروشه‌ای پایانی («[ف: …]») کنار می‌روند.
+  - **شمار:** تکه‌ای که با `^\d+\s*(گ|برگ|ص)` آغاز شود و فقط پرانتزی پس از آن داشته باشد.
+  - **بازه:** بازه در همان پرانتز، یا «N-N» در تکه‌ی بعد. با «ر» یا «پ» نوشته می‌شود و اگر وارونه باشد جابه‌جا می‌شود.
+  - **`counts`:** بیشینه‌ی شمار تکه‌های برگ و تکه‌های صفحه.
+  - نخستین سطری که شمار دارد کافی است.
+- **[Manuscript::extentLabel](../app/Models/Manuscript.php):** برچسب نمایشی است. جاهایی که به کار رفته: [manuscripts/show](../resources/views/manuscripts/show.blade.php) (برچسب «شمار صفحه» وقتی فقط صفحه هست)، [manuscript-collection](../resources/views/components/manuscript-collection.blade.php)، [search](../resources/views/search.blade.php)، [works/show](../resources/views/works/show.blade.php) («N ص») و [SearchExport](../app/Support/SearchExport.php).
+- **فرمان [fahares:fill-extents](../app/Console/Commands/FillExtentsCommand.php):**
+  - **گزینه‌ها:** `--apply` و `--show`. با `chunkById(2000)` اجرا می‌شود.
+  - **شمار برگ:** `folios` فقط وقتی `counts === 1` تغییر می‌کند و `ProtectedColumns` آن را نگه نمی‌دارد. سه نوع تغییر دارد: `pages_out_of_folios` (برابر شمار صفحه، یا نیمه‌ی آن که پارسر قدیم ساخته بود)، `folios_corrected` و `folios_filled`.
+  - **رها شدن:** `counts > 1` (`kept:two_counts`) هیچ ستونی نمی‌نویسد. نبود شمار در متن (`kept:no_count_in_text`) مقدار سایت را نگه می‌دارد.
+  - **لاگ و نمایه:** هر تغییر `folios` یک `AuditLog` `corpus_update` می‌نویسد. نسخه‌های تغییرکرده‌ی هر دسته پس از نوشتن، ۱۰۰تا ۱۰۰تا دوباره نمایه می‌شوند.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - **شمارها:** changed ۲۴۵٬۵۶۷، `pages_out_of_folios` ۴۳٬۵۳۳، `folios_corrected` ۶۷۱، `folios_filled` ۶۴۸، `kept:two_counts` ۴۸، `kept:no_count_in_text` ۱٬۱۳۵ و with_range ۹۴٬۹۳۱.
+  - **زمان:** ۲ دقیقه و ۲۷ ثانیه. اجرای دوم هیچ `changed` نداشت.
+- **آزمون:**
+  - [CopyExtentTest](../tests/Unit/CopyExtentTest.php)، ۲ آزمون.
+  - `test_extents_move_pages_out_of_folios_and_keep_what_is_uncertain` در [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php).
+  - کل مجموعه ۴۸۹ آزمون موفق.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-extents` و بعد با `--apply`. اگر استقراری آن را بکشد، اجرای دوباره از همان‌جا ادامه می‌دهد.
+
