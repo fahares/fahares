@@ -5587,6 +5587,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `field_evidence`، و `source_entries` و `source_items` منبع‌های گروه‌ها، به‌علاوه‌ی `id, catalog_volume_id` نسخه‌ها و ارجاع‌های جلدهای آن‌ها.
   2. `php artisan sources:merge-split --dry-run`، سپس مقایسه با تمرین محلی (شناسه‌ها روی پروداکشن ممکن است فرق کنند).
   3. `php artisan sources:merge-split`.
+- **اجرای پروداکشن (۱۰ آبان):**
+  - **استقرار:** `git push` (`9122fde..a92b010`).
+  - **پشتیبان:** [`step13.110_merge_split_sources_prod_before_20261031.json`](../../fahares-sources/backups/step13/step13.110_merge_split_sources_prod_before_20261031.json) (۲۰ مگابایت). همه‌ی `sources` (۱۸۵)، `source_volumes` (۵۴۳)، `catalog_volumes` (۴۳۸) و `catalog_volume_cataloger` (۵۹۳) را دارد. از ۲۱ منبع گروه‌ها هم این‌ها را دارد: `id, source_id, source_volume_id, source_item_id, volume_number, text_volume_number, locations` برای ۸۹٬۶۵۹ مدخل، و `id, catalog_volume_id` برای ۸۹٬۶۴۲ نسخه و ۸۹٬۵۶۹ ارجاع.
+    - کانتینر برنامه `mariadb-dump` ندارد، پس پشتیبان با `tinker` گرفته شد.
+    - شرط `locations LIKE` همه‌ی جدول را پیمایش کرد و پشتیبان‌گیری حدود ۴ دقیقه طول کشید.
+  - **dry-run:** جدا از شمار مدخل‌ها، خط‌به‌خط برابر تمرین محلی بود.
+  - **اجرا:** ۴۷ ثانیه. شمارش‌ها پیش و پس از اجرا:
+    - `sources`: ۱۸۵ → ۱۷۰؛
+    - `source_volumes`: ۵۴۳ → ۵۲۹؛
+    - `catalog_volumes`: ۴۳۸ → ۴۲۴؛
+    - `source_entries`: ۷۸۸٬۵۰۰، بی‌تغییر (۵۸٬۳۲۲ بی‌منبع).
+  - **اجرای دوم:** «No catalogue is held as several sources.»
+  - **وارسی `https://fahares.net`:**
+    - پنج کد کهنه ۳۰۱ دادند.
+    - مرعشی جلدهای ۱ تا ۳۸ را دارد و گلپایگانی ۱ تا ۸.
+    - `/sources` ۱۵۱ کارت دارد، کارت هر فهرست یک بار.
+    - `/catalogers/24` ۲۴ پیوند منبع دارد.
+  - نشست «Tie copies to the 18 catalogues» تا پایان این اجرا روی پروداکشن کاری نکرد. `catalogue-bc42c942441f` به گزارش آن نشست کتاب دیگری است: ۳۷۵ صفحه و بی شابک، در برابر ۸۵۰ صفحه‌ی جلد ۱.
 
 ### گام ۱۳.۱۱۱: ufw فعال
 - **سنجش پیش از تغییر:** نمونه‌ی یک‌دقیقه‌ای `ss -Htn` (هر ۵ ثانیه) فقط `10.0.1.9 → 22` (Coolify) را از شبکه‌های Docker به خود میزبان نشان داد. در `Env` کانتینرها جز نشانی سایت‌ها (`COOLIFY_URL`، `APP_URL`) اشاره‌ای به میزبان نبود؛ آن ترافیک از ۸۰/۴۴۳ منتشرشده‌ی Docker می‌گذرد. `coolify`، `coolify-proxy` و `coolify-sentinel` `host.docker.internal:host-gateway` دارند.
@@ -5617,3 +5635,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - dry-run و اجرا: idهای جلد و منبع با نسخه‌ی محلی یکی بودند و شمارها هم یکی. فقط الفبائی آستان قدس ۳٬۶۵۹ مدخل داشت.
   - اجرا ۳۹ ثانیه طول کشید. منبع‌ها ۱۷۰ ← ۱۶۲ و جلدها ۵۲۹ ← ۵۲۳. مدخل‌ها ۷۸۸٬۵۰۰، بی‌تغییر. اجرای دوم صفر تغییر داشت.
   - `catalogue-d788e304d962` و `catalogue-02c0a06ef7b7` با ۳۰۱ به `ae0847c98256` و `520c926fbc43` می‌روند.
+
+### گام ۱۳.۱۱۳: `catalogs:fix-awraq-atiq`
+- **یافته:** `catalog_volumes` شماره‌ی ۵۳۴ و ۵۳۵ (`citation_pattern` «اوراق عتیق: 1» و «2») در `LinkUnlinkedManuscriptsCommand::linkAwraqAtiqCollections` (کامیت `563ebe0`) ساخته شدند. همه‌ی نسخه‌ها `cataloger_id = 44` گرفتند و حکیم (۳۲) و صدرائی (۴۴) با نقش `cataloger` به هر دو جلد پیوستند.
+- **منبع نویسندگان:** `fahares-corpus/catalogs/fankha_complete_catalogs_table.md`، ردیف‌های ۷۳ (خادم حسینی، ص ۸۳–۱۲۱)، ۲۷۱ (ملا علی خوئی / جواد شریف، ص ۱۲۲–۱۴۳)، ۳۳۰ (ثامنی، برکت، ص ۲۶۵–۲۸۳) و ۵۲۰ (مدرسه‌ی آیة‌الله خوئی مشهد، غفرانی، ص ۲۴۱–۲۶۶). امام جمعه‌ی زنجان (ردیف ۲۸۷، اشکوری) در داده‌ی سایت نسخه‌ای ندارد. برای دفتر ۲ ردیفی نیست.
+- **دستور:** [FixAwraqAtiqCatalogersCommand](../app/Console/Commands/FixAwraqAtiqCatalogersCommand.php) جلدها را با `citation_pattern`، کتابخانه‌ها را با `slug` و فهرست‌نگاران را با `mtif_entry_id` (۳۷۲۵۵، ۳۷۱۶۶، ۳۷۲۴۴) پیدا می‌کند. غفرانی با `firstOrCreate` روی slug «عبدالله-غفرانی» ساخته می‌شود. دستور `cataloger_id` همه‌ی نسخه‌های دو جلد را تهی و سپس برای هر کتابخانه پر می‌کند، پیوند جلد را به `[حکیم => supervisor]` همگام می‌کند و `volumes_count`/`manuscripts_count` را با همان قاعده‌ی دستورهای پیشین دوباره می‌شمارد. `--dry-run` دارد و تکرارپذیر است.
+- **چرا نویسندگان به جلد نمی‌پیوندند:** `CatalogerController::show` و شمارش، همه‌ی نسخه‌های جلدهای پیوسته را به فهرست‌نگار می‌دهند. پیوستن برکت به دفتر ۱، ۶۶۲ نسخه را به او نسبت می‌داد.
+- **بازآزمایی روی `fahares_prod`:** دفتر ۱: ۱۵۵ + ۹۰ به صدرائی، ۷۱ به برکت، ۳۳۹ به غفرانی، ۷ بی‌فهرست‌نگار (۴ ادبیات اصفهان، ص ۴۰۰–۴۹۶؛ ۳ دانشگاه بوعلی که ارجاعشان «اوراق عتیق: 3-…» است و به‌خطا به دفتر ۱ پیوسته‌اند). دفتر ۲: ۳۳۶ بی‌فهرست‌نگار. شمارش‌ها: حکیم ۷ جلد / ۴٬۲۶۰، صدرائی ۲۳ / ۲۷٬۵۵۷، برکت ۴ / ۳٬۶۳۳، غفرانی ۰ / ۳۳۹.
+- **صفحه‌ی فهرست‌نگار:** `metadata.sources` گاه رشته است (`ReplaceRazaviInstitutionCatalogerCommand` برای اوکتایی). [catalogers/show](../resources/views/catalogers/show.blade.php) با `$source['url']` روی رشته می‌شکست (`/catalogers/109` روی پروداکشن ۵۰۰). حالا رشته همان متن است.
+- **آزمون:** [FixAwraqAtiqCatalogersTest](../tests/Feature/FixAwraqAtiqCatalogersTest.php) (۳) و `test_a_source_without_a_link_is_its_text` در [CatalogerCataloguesTest](../tests/Feature/CatalogerCataloguesTest.php).
+- **اجرا روی پروداکشن:** پس از استقرار، `php artisan catalogs:fix-awraq-atiq --dry-run` و سپس بدون آن.
