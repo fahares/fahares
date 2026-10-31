@@ -141,11 +141,38 @@ class PrintedPage
                 $stack[] = $kind = mb_substr($token, 1, -1);
                 $html .= self::openTag($kind);
             } else {
-                $html .= in_array('latin', $stack, true) ? e($token) : e(Fa::digits($token));
+                $html .= in_array('latin', $stack, true) ? e($token) : self::prose($token);
             }
         }
 
         return $html . implode('', array_map([self::class, 'closeTag'], array_reverse($stack)));
+    }
+
+    /**
+     * Running text in Persian digits, with the citations of the site's sources in it linked (backlog item 102): to the
+     * cited page's text when the site has it, else to the page in the viewer.
+     */
+    private static function prose(string $text): string
+    {
+        if (! preg_match('/[0-9۰-۹]/u', $text)) {
+            return e(Fa::digits($text));
+        }
+        $html = '';
+        foreach (BibliographyLinks::inProse($text) as $seg) {
+            $label = e(Fa::digits($seg['text']));
+            $cite = $seg['cite'] ?? null;
+            $volume = $cite ? SourceVolume::whereHas('source', fn ($q) => $q->where('code', $cite['source']))->where('volume_number', $cite['volume'])->first() : null;
+            if ($volume && self::exists($volume, $cite['page'])) {
+                $html .= '<a href="' . e(route('source-pages.show', [$cite['source'], $cite['volume'], $cite['page']])) . '" class="book-sheet__cite" data-cite>' . $label . '</a>';
+            } elseif (isset($seg['viewer'])) {
+                $html .= '<a href="#" class="book-sheet__cite" data-cite onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent(\'open-catalog-viewer\', { detail: '
+                    . e(json_encode($seg['viewer'], JSON_UNESCAPED_UNICODE)) . ' }))">' . $label . '</a>';
+            } else {
+                $html .= $label;
+            }
+        }
+
+        return $html;
     }
 
     private static function openTag(string $kind): string

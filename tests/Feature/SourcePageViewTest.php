@@ -245,6 +245,21 @@ class SourcePageViewTest extends TestCase
         $this->assertStringNotContainsString("\u{E020}", $html);
     }
 
+    public function test_a_citation_inside_a_page_text_links_the_cited_page()
+    {
+        // the words right before the number name the source, not all the text before it
+        $cites = array_values(array_filter(BibliographyLinks::inProse('فی [الذريعة 69/13] و (ذریعه 1004/9)؛ کشف الظنون 1/500 و بدون'), fn ($s) => isset($s['cite'])));
+        $this->assertSame([['dharia', 13, 69], ['dharia', 9, 1004], ['kashf', 1, 500]], array_map(fn ($s) => [$s['cite']['source'], $s['cite']['volume'], $s['cite']['page']], $cites));
+
+        // Monzavi's page 360 cites page 361 of its own volume: the page text links it
+        $this->monzavi();
+        $html = (string) \App\Support\PrintedPage::text('نسخه‌ها؛ فهرستواره 361/6 و ذریعه 9999/9');
+        $this->assertStringContainsString('<a href="' . route('source-pages.show', ['monzavi', 6, 361]) . '" class="book-sheet__cite" data-cite>۳۶۱/۶</a>', $html);
+        // a citation of a page the site lacks, of a source with no viewer either, stays text
+        $this->assertStringNotContainsString('9999/9"', $html);
+        $this->assertStringContainsString('۹۹۹۹/۹', $html);
+    }
+
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
     {
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6 و 3257/4');

@@ -397,6 +397,57 @@ class BibliographyLinks
         return (int) strtr($digits, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
     }
 
+    /**
+     * The citations inside running text, a page of a catalogue or bibliography («… [الذريعة 69/13]»، «(ذریعه 1004/9)»),
+     * as segments() gives them: there a source's name is the whole text before a number, here it is the words right
+     * before it, so each name a source's pattern matches, followed by its numbers, is read on its own.
+     *
+     * @return list<array{text: string, url?: string, title?: string, viewer?: array, internal?: bool, cite?: array}>
+     */
+    public static function inProse(string $text): array
+    {
+        static $regex = null;
+        $regex ??= '/(?<![\p{L}\p{M}])(?:' . implode('|', array_map(fn ($s) => '(?:' . $s['pattern'] . ')', self::sources()))
+            . ')(?![\p{L}\p{M}])[\s:،,]*(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?/u';
+
+        // the text as the patterns read it, a character for a character, and where each stands in the text
+        $chars = mb_str_split($text);
+        $plain = '';
+        $at = [];
+        foreach ($chars as $i => $c) {
+            $c = strtr($c, ['ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'ة' => 'ه', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', "\u{200C}" => ' ']);
+            if ($c === 'ـ' || preg_match('/^[\x{064B}-\x{0652}]$/u', $c)) {
+                continue;
+            }
+            $plain .= $c;
+            $at[] = $i;
+        }
+        $at[] = count($chars);
+
+        $out = [];
+        $from = 0;
+        if (preg_match_all($regex, $plain, $found, PREG_OFFSET_CAPTURE)) {
+            foreach ($found[0] as [$match, $byte]) {
+                $start = $at[mb_strlen(substr($plain, 0, $byte))];
+                $end = $at[mb_strlen(substr($plain, 0, $byte)) + mb_strlen($match)];
+                $segments = self::segments(implode('', array_slice($chars, $start, $end - $start)));
+                if (! array_filter($segments, fn ($seg) => isset($seg['cite']))) {
+                    continue;
+                }
+                if ($start > $from) {
+                    $out[] = ['text' => implode('', array_slice($chars, $from, $start - $from))];
+                }
+                array_push($out, ...$segments);
+                $from = $end;
+            }
+        }
+        if ($from < count($chars)) {
+            $out[] = ['text' => implode('', array_slice($chars, $from))];
+        }
+
+        return $out;
+    }
+
     private static function normalize(string $s): string
     {
         $s = strtr($s, ['ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'ة' => 'ه', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', "\u{200C}" => ' ', 'ـ' => '']);
