@@ -125,9 +125,21 @@ class BackfillSourcesCommand extends Command
             $groups[Sync::groupKey($v)][] = $v;
         }
         $groupSource = [];
+        // a catalogue sources:merge-split folded keeps its title and codes: its groups only point at it, and it counts them
+        $folded = [];
         foreach ($groups as $key => $members) {
             $first = $members[0];
-            $groupSource[$key] = $this->upsertSource(['code' => Sync::groupCode($key, $first)], [
+            $code = Sync::groupCode($key, $first);
+            if ($into = Source::where('code', $code)->whereNotNull('metadata->merged_codes')->first() ?? Source::mergedInto($code)) {
+                $groupSource[$key] = $into->id;
+                $folded[$into->id] = ($folded[$into->id] ?? 0) + count($members);
+                $stats['catalogue sources']++;
+
+                continue;
+            }
+            // a source whose volumes moved to another library keeps the code it was made with, and is found by its group
+            $found = DB::table('sources')->where('code', $code)->value('id') ?? DB::table('sources')->where('metadata->group', $key)->value('id');
+            $groupSource[$key] = $this->upsertSource($found ? ['id' => $found] : ['code' => $code], [
                 'kind' => Source::KIND_LIBRARY_CATALOGUE,
                 'rank' => Source::KIND_RANKS[Source::KIND_LIBRARY_CATALOGUE],
                 'title' => Sync::stem($first->title),
@@ -138,6 +150,9 @@ class BackfillSourcesCommand extends Command
                 'metadata' => json_encode(['group' => $key], JSON_UNESCAPED_UNICODE),
             ]);
             $stats['catalogue sources']++;
+        }
+        foreach ($folded as $id => $count) {
+            $this->dry || DB::table('sources')->where('id', $id)->update(['volumes_count' => $count]);
         }
         // a later printing's source is a printing of the source its first volume reprints
         $byId = $volumes->keyBy('id');
