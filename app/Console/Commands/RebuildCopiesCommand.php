@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\Manuscript;
 use App\Sources\SourceEntrySync;
 use App\Suggestions\ProtectedColumns;
+use App\Support\DerivedData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -18,7 +19,8 @@ use Illuminate\Support\Facades\File;
  * is unchanged, every listed column still holds that value and no reviewed correction protects any of them; then
  * what was made from the old content follows: its Fankha entry and cited page, the legacy catalogue reference,
  * its catalogue volume and cataloger (cleared for catalogs:link-volumes to relink) and a scribe link that named
- * the other copy's scribe. Run fahares:rebuild-scripts afterwards for the scripts. Without --apply it only reports.
+ * the other copy's scribe, and what is derived from the content (DerivedData::syncCopies: date range, extent, excerpt
+ * pointers, search documents). Run fahares:rebuild-scripts afterwards for the scripts. Without --apply it only reports.
  */
 class RebuildCopiesCommand extends Command
 {
@@ -117,10 +119,8 @@ class RebuildCopiesCommand extends Command
         });
         $ids = array_column($writes, 'id');
         SourceEntrySync::syncIds(Manuscript::class, $ids);
-        foreach (array_chunk($ids, 100) as $chunk) {
-            Manuscript::whereIn('id', $chunk)->get()->searchable();
-            gc_collect_cycles();
-        }
+        // DB::table runs no model hook: the date range, extent, excerpt pointers and search documents follow here
+        DerivedData::syncCopies($ids, $this);
         $this->info('Done. Now run catalogs:link-volumes and fahares:rebuild-scripts.');
 
         return 0;

@@ -6,6 +6,7 @@ use App\Models\Manuscript;
 use App\Models\Work;
 use App\Suggestions\ProtectedColumns;
 use App\Sources\SourceEntrySync;
+use App\Support\DerivedData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -175,8 +176,12 @@ class SyncWorkDetailsCommand extends Command
                 }
             }
 
+            // The dedications before the sync: a changed one gets its dedicatees and commissioners after it
+            $dedications = DB::table('works')->whereIn('id', array_column($workUpdates, 'id'))->pluck('dedication', 'id')->all();
+            $dedicationChanged = [];
+
             // Perform updates inside database transaction
-            DB::transaction(function () use ($workUpdates, $manuscriptUpdates, $workGuard, $manuscriptGuard) {
+            DB::transaction(function () use ($workUpdates, $manuscriptUpdates, $workGuard, $manuscriptGuard, $dedications, &$dedicationChanged) {
                 $synced = ['works' => [], 'manuscripts' => []];
                 foreach (array_chunk($workUpdates, 250) as $chunk) {
                     foreach ($chunk as $w) {
@@ -194,6 +199,9 @@ class SyncWorkDetailsCommand extends Command
                         if ($payload) {
                             DB::table('works')->where('id', $w['id'])->update($payload);
                             $synced['works'][] = $w['id'];
+                            if (array_key_exists('dedication', $payload) && $payload['dedication'] !== ($dedications[$w['id']] ?? null)) {
+                                $dedicationChanged[] = $w['id'];
+                            }
                         }
                     }
                 }
@@ -214,6 +222,11 @@ class SyncWorkDetailsCommand extends Command
                 SourceEntrySync::syncIds(Work::class, $synced['works']);
                 SourceEntrySync::syncIds(Manuscript::class, $synced['manuscripts']);
             });
+
+            // DB::table runs no model hook (item 87): work_people and the search documents follow the dedications
+            if ($dedicationChanged) {
+                DerivedData::syncWorks($dedicationChanged, $this);
+            }
 
             $volDuration = round(microtime(true) - $volStartTime, 2);
             $this->line("--> Volume {$volNum}: Synced " . count($workUpdates) . " works, " . count($manuscriptUpdates) . " manuscript page corrections in {$volDuration}s.");

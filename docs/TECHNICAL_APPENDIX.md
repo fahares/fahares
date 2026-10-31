@@ -5478,3 +5478,33 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** [PersonDeathRangeTest](../tests/Unit/PersonDeathRangeTest.php) (۳) و [FillDeathRangesCommandTest](../tests/Feature/FillDeathRangesCommandTest.php) (۳). کل مجموعه ۵۲۱ آزمون موفق، روی `fahares_wpdeath_test`.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-death-ranges` و بعد با `--apply`.
 - **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت `0aaba71` مستقر شد و migration خودکار اجرا شد. dry run و `--apply`: works:found ۴۲٬۰۲۳، author:texts ۴۱٬۶۱۹، other_name ۴۴، translator:texts ۱۷۱ (not_on_site ۷۵)، people:life_dates ۱۲٬۲۷۲، ranged و changed ۱۲٬۶۲۵ (one_year ۵٬۱۷۷، span ۷٬۴۴۸)، hedged ۷۴۴، without_death_year ۲۰۶، left_out ۱٬۸۹۰. اجرای وارسی `people:changed` نداشت، و هیچ `death_year_hijri` بیرون از بازه‌اش نیست. **نمونه:** #۲۶۲۲ (امام علی) با `- 40 قمری` بازه‌ی ۴۰–۴۰ دارد، #۸۰۶ (احسائی) ۱۲۴۱ مردد، و #۱۴۳۸ ۱۲۰۱–۱۳۰۰.
+
+### گام ۱۳.۱۰۴: داده‌ی مشتق هم‌گام با ستون‌های مبدأ (مورد ۸۷)
+- **[DerivedData](../app/Support/DerivedData.php):**
+  - **تابع‌های مقایسه:** `copyChanges($row, $guard)`، `workChanges($row)` و `personChanges($row)` ستون‌های مشتقی را برمی‌گردانند که با محاسبه‌ی دوباره فرق دارند. محاسبه با `Manuscript::copyDateColumns`، `CopyExtent::columns`، `Work::compositionDateColumns` و `Person::deathColumns` است. تاریخی که پاک شده، بازه‌اش را هم پاک می‌کند (`fill-copy-date-ranges` تاریخ تهی را نمی‌خواند). اندازه‌ای که متنش شمار ندارد یا دو شمار از یک نوع دارد، دست نمی‌خورد.
+  - **`syncCopies($ids, $command)`:** ستون‌های تاریخ و اندازه را می‌نویسد. برگِ تغییرکرده با `corpus_fix: derived data` در تاریخچه ثبت می‌شود، همان‌گونه که `fill-extents` ثبت می‌کند. اشاره‌ها با `linkCopy(..., prune: true)` ساخته می‌شوند، سپس نسخه‌ها و اثرهایشان بازنمایه می‌شوند.
+  - **`syncWorks($ids, $command)`:** بازه‌ی تألیف را می‌نویسد. برای آثاری که `dedication` دارند، `fahares:backfill-work-dedications --only=…` را اجرا می‌کند (هرگز با `--only` خالی، که همه را می‌گیرد). سپس بازنمایه می‌کند.
+- **استخراج از پرکننده‌ها:**
+  - `CopyExtent::columns($row, $guard)` تصمیم `fill-extents` است و نوع تغییر، ستون‌ها، برگ سایت و متن اندازه را برمی‌گرداند. `CopyExtent::stored($row)` ستون‌های ذخیره را با همان نوع داده می‌دهد.
+  - `FillTextExcerptsCommand::excerptsOf($workId)` آغاز و انجام‌های شماره‌دار و بخش‌دار اثر را از جدول می‌خواند، و `pointer($text, $excerpts)` و `linkCopy($copy, $excerpts, $apply, $prune)` را می‌دهد.
+  - `BackfillWorkDedicationsCommand::MAX_NAME` عمومی شد.
+- **هوک‌ها:**
+  - `RebuildCopiesCommand` به‌جای بازنمایه‌ی خودش، `syncCopies` را صدا می‌زند.
+  - `AddCorpusWorksCommand` پس از `SourceEntrySync`، `syncCopies` و `syncWorks` را صدا می‌زند. تابع پیکانی بیرونی `withoutSyncingToSearch` به closure با `use (&…)` تبدیل شد. پیش از این، `$touchedWorks` و `$touchedCopies` پس از تراکنش خالی بودند، پس `SourceEntrySync` و بازنمایه هیچ رکوردی نمی‌گرفتند. مدخل‌های فنخا در `fahares_prod` با این حال هستند، ولی بازنمایه‌ی گام ۱۳.۷۹ انجام نشده بود.
+  - `SyncWorkDetailsCommand` پیش از نوشتن، `dedication`های هر جلد را می‌خواند و برای آثاری که مقدارشان تغییر کرد، `syncWorks` را صدا می‌زند.
+  - `ApplyCorpusDiffCommand` برای همه‌ی آثار نوشته‌شده `syncWorks` را صدا می‌زند.
+  - `ApplyCorpusCategoriesCommand` پیش از این هم `copyDateColumns` را با تاریخ می‌نوشت، پس دست نخورد.
+- **فرمان [fahares:refresh-derived](../app/Console/Commands/RefreshDerivedCommand.php):**
+  - **گزینه‌ها:** `--apply`، `--show`، و `--excerpts` و `--deaths` (فایل‌های تصمیم دو پرکننده‌ی آخر).
+  - **انواع:** `copy_date_range`، `extent`، `composition_date_range`، `death_range` و `excerpt_pointers` (برای هر آغاز یا انجام، ردیف موجود در برابر ردیفی که `pointer()` می‌سازد).
+  - **`dedications_missing`:** شخصی که `DedicationParser` از `dedication` می‌دهد (تا `MAX_NAME` نویسه) و اثر ردیفی با همان نقش ندارد که «او را بدهد».
+  - **`dedications_not_given`:** ردیف `suggestion_id` تهی با نقش dedicatee یا commissioner که هیچ نام کنونی آن را نمی‌دهد. «دادن» برای ردیف بی‌شخص، برابری نام پاک‌شده است. برای ردیف پیوندی یکی از این‌هاست: برابری نام نرمال‌شده؛ `KnownRulers::find` با همان سال تألیف و سال وفات، به نام فرمانروا یا گروهش؛ یا `PersonNameMatcher` با `ids()` یا `match(..., requireCentury: true)`، یعنی همان قاعده‌های پرکننده. آثاری که بازبین ردیف‌هایشان را تغییر داده (`protectsRows(…, 'people')`)، کنار می‌روند. این ردیف‌ها فقط گزارش می‌شوند.
+  - **`--apply`:** این‌ها به ترتیب اجرا می‌شوند: `fill-copy-date-ranges`، همان با `--works`، `fill-extents`، `backfill-work-dedications`، و `fill-text-excerpts` و `fill-death-ranges` اگر فایلشان باشد. سپس انحراف دوباره سنجیده می‌شود و مانده‌ها از `syncCopies` و `syncWorks` و `deathColumns` نوشته می‌شوند، مثلاً بازه‌ی تاریخی که پاک شده یا اشاره‌ای که متن دیگر نمی‌سازد. در پایان گزارش «After» چاپ می‌شود.
+  - نمایه‌ی جست‌وجو مقایسه نمی‌شود. هر فرمانی که رکوردی می‌نویسد، خودش بازنمایه می‌کند.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - **dry run (۴۹ ثانیه):** copy_date_range ۳ (#35162، #88297، #95649)، extent ۶ (#35162، #88297، #88300، #88302، #95649، #334185)، dedications_missing ۴٬۲۹۵. انواع دیگر صفر بودند.
+  - **علت عدد بزرگ:** `fahares_prod` محلی فقط ۱ ردیف `work_people` دارد، چون پیش از گام‌های ۱۳.۶۸ و ۱۳.۹۷ گرفته شده است.
+  - **`--apply` (۵ دقیقه و ۱۶ ثانیه):** تاریخ ۳ و اندازه ۶ تغییر کرد. پرکننده‌ی اهدا ۴٬۸۰۷ نامزد dedicatee داشت (linked_ruler ۱٬۴۶۳، ruler_created ۶۶، name_only:no_match ۲٬۹۹۵، run_on ۳۱) و ۲۷ نامزد commissioner. `fill-text-excerpts` چیز تازه‌ای ننوشت (اشاره‌ها پیش‌تر بودند). `fill-death-ranges` people:changed نداشت.
+  - **پس از اجرا:** گزارش «After» برای همه‌ی انواع صفر بود. صفر بودن dedications_missing در برابر ۱٬۵۳۰ ردیف پیوندی نشان می‌دهد که قاعده‌ی «دادن» برای فرمانروایان هم درست کار می‌کند.
+- **آزمون:** [DerivedDataTest](../tests/Feature/DerivedDataTest.php) (۴): هوک `rebuild-copies`، هوک `add-corpus-works`، هوک `sync-work-details`، و گزارش و `--apply` فرمان `refresh-derived` با ردیفی که مبدأ دیگر نمی‌دهد و حذف نمی‌شود. کل مجموعه ۵۲۶ آزمون موفق، روی `fahares_derived_test`. آزمون `--apply` فایل‌های تصمیم کوچک می‌گیرد: با فایل ۹٫۶ مگابایتی وفات‌ها، حافظه‌ی فرایند آزمون از ۱۹۲ مگابایت (`ini_set` در خروجی اکسل) بالاتر می‌ماند و سه آزمون خروجی شکست می‌خوردند.
+- **پروداکشن (پس از استقرار):** `php artisan fahares:refresh-derived` و سپس با `--apply`، در یک نشست `ssh fahares-app`. سپس بازنمایه‌ی ۱۴۸ اثر و ۳۷۳ نسخه‌ی گام ۱۳.۷۹ وارسی شود.

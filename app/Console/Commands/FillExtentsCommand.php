@@ -44,36 +44,17 @@ class FillExtentsCommand extends Command
                 $writes = [];
                 $logs = [];
                 foreach ($rows as $row) {
-                    $e = CopyExtent::fromText($row->raw_text);
-                    if ($e['raw'] === null) {
-                        $count($row->folios === null ? 'no_extent' : 'kept:no_count_in_text');
+                    // The same decision the corpus apply commands write through (CopyExtent::columns)
+                    ['kind' => $kind, 'columns' => $new, 'site' => $site, 'raw' => $raw] = CopyExtent::columns($row, $guard);
+                    if ($new === null) {
+                        $count($kind, $kind === 'kept:two_counts' ? "#{$row->id} {$site} ← {$raw}" : null);
                         continue;
                     }
-                    $site = $row->folios === null ? null : (int) $row->folios;
-                    // Two counts of one kind: nothing of the extent is certain, so the copy is left as it is
-                    if ($e['counts'] > 1) {
-                        $count('kept:two_counts', "#{$row->id} {$site} ← {$e['raw']}");
-                        continue;
+                    $folios = $new['folios'];
+                    if ($kind !== null) {
+                        $count($kind, "#{$row->id} {$site}" . ($kind === 'kept:protected' ? " ← {$raw}" : ' → ' . ($folios ?? '—') . " ({$raw})"));
                     }
-                    $folios = $site;
-                    if ($e['counts'] === 1 && $e['folios'] !== $site) {
-                        $kind = match (true) {
-                            $site === null => 'folios_filled',
-                            $e['folios'] === null && ($e['pages'] === $site || intdiv((int) $e['pages'] + 1, 2) === $site) => 'pages_out_of_folios',
-                            default => 'folios_corrected',
-                        };
-                        if ($guard->strip($row->id, ['folios' => 1]) === []) {
-                            $count('kept:protected', "#{$row->id} {$site} ← {$e['raw']}");
-                        } else {
-                            $folios = $e['folios'];
-                            $count($kind, "#{$row->id} {$site} → " . ($folios ?? '—') . " ({$e['raw']})");
-                        }
-                    }
-                    $new = ['folios' => $folios, 'pages' => $e['pages'], 'extent_raw' => $e['raw'], 'range_from' => $e['range_from'], 'range_to' => $e['range_to'],
-                        'range_from_number' => $e['range_from_number'], 'range_to_number' => $e['range_to_number']];
-                    $old = ['folios' => $site, 'pages' => $row->pages === null ? null : (int) $row->pages, 'extent_raw' => $row->extent_raw, 'range_from' => $row->range_from,
-                        'range_to' => $row->range_to, 'range_from_number' => $row->range_from_number === null ? null : (int) $row->range_from_number,
-                        'range_to_number' => $row->range_to_number === null ? null : (int) $row->range_to_number];
+                    $old = CopyExtent::stored($row);
                     if ($new['range_from'] !== null) {
                         $count('with_range');
                     }
@@ -83,7 +64,7 @@ class FillExtentsCommand extends Command
                     $count('changed');
                     $writes[$row->id] = $new;
                     if ($folios !== $site) {
-                        $logs[$row->id] = ['old' => ['folios' => $site], 'new' => ['folios' => $folios, 'pages' => $e['pages'], 'extent_raw' => $e['raw']]];
+                        $logs[$row->id] = ['old' => ['folios' => $site], 'new' => ['folios' => $folios, 'pages' => $new['pages'], 'extent_raw' => $raw]];
                     }
                 }
                 if (! $apply || ! $writes) {
