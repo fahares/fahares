@@ -239,6 +239,33 @@ class Manuscript extends Model
         return !empty($list[0]['text']) ? $list[0]['text'] : $this->explicit_text;
     }
 
+    /**
+     * The work's incipit or explicit a copy's «برابر 2» or «برابر جلد دوم» points at (text_excerpts, backlog item 98),
+     * as an item of incipits_list or explicits_list; null when the text is no such pointer or it points at nothing.
+     */
+    public function pointedExcerpt(string $kind, string $text): ?array
+    {
+        if (! preg_match('/^برابر\s*\S/u', $text) || in_array($text, ['برابر است', 'برابر؛', 'برابر.'], true)) {
+            return null;
+        }
+        $this->pointers ??= $this->excerpts()->with('sameAs')->get()->keyBy('kind');
+        $target = $this->pointers->get($kind)?->sameAs;
+        if (! $target || blank($target->text)) {
+            return null;
+        }
+
+        return [
+            'label' => 'منطبق بر ' . $target->heading . ' اثر (در مأخذ: «' . $text . '»)',
+            'text' => $target->text,
+            'is_work_match' => true,
+            'is_placeholder' => false,
+            'work_excerpt_id' => $target->id,
+        ];
+    }
+
+    /** @var \Illuminate\Support\Collection<string, TextExcerpt>|null the copy's pointers by kind, loaded once */
+    private ?\Illuminate\Support\Collection $pointers = null;
+
     public function getIncipitsListAttribute(): array
     {
         $meta = $this->metadata['incipits'] ?? [];
@@ -253,6 +280,11 @@ class Manuscript extends Model
         $hasBarabar = false;
         foreach ($list as $item) {
             $txt = trim($item['text'] ?? '');
+            // «برابر 2», «برابر جلد دوم»: the work's excerpt the copy points at (backlog item 98)
+            if (($pointed = $this->pointedExcerpt('incipit', $txt)) !== null) {
+                $filtered[] = $pointed;
+                continue;
+            }
             if (in_array($txt, ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
                 $hasBarabar = true;
             } else {
@@ -300,6 +332,11 @@ class Manuscript extends Model
         $hasBarabar = false;
         foreach ($list as $item) {
             $txt = trim($item['text'] ?? '');
+            // «برابر 2», «برابر جلد دوم»: the work's excerpt the copy points at (backlog item 98)
+            if (($pointed = $this->pointedExcerpt('explicit', $txt)) !== null) {
+                $filtered[] = $pointed;
+                continue;
+            }
             if (in_array($txt, ['برابر', 'برابر است', 'برابر؛', 'برابر.'])) {
                 $hasBarabar = true;
             } else {
@@ -558,6 +595,12 @@ class Manuscript extends Model
             })
             ->sortBy(fn (self $m) => [(int) self::collectionKey($m->shelfmark)['part'], $m->id])
             ->values();
+    }
+
+    /** The copy's pointers at its work's incipits or explicits («برابر 2», «برابر جلد دوم»; backlog item 98). */
+    public function excerpts(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(TextExcerpt::class, 'owner');
     }
 
     /** People other than the scribes: owners, endowers, correctors… in role order. */

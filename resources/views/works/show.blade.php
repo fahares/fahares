@@ -241,15 +241,25 @@
                 </x-ui.section>
             @endif
 
-            @if(! empty($work->incipit_text) || ! empty($work->explicit_text))
+            @php
+                // Numbered incipits and explicits («آغاز ۱»، «آغاز ۲») stand for the main one; those of the parts («جلد دوم») follow it (backlog item 98)
+                $excerpts = $work->excerpts()->whereNotNull('text')->get()->groupBy(fn ($e) => $e->kind . ($e->is_part ? '_part' : '_numbered'));
+            @endphp
+            @if(! empty($work->incipit_text) || ! empty($work->explicit_text) || $excerpts->isNotEmpty())
                 <x-ui.section title="آغاز و انجام">
                     <div class="space-y-5">
-                        @if(! empty($work->incipit_text))
-                            <x-ui.quote label="آغاز" field="incipit_text">{{ trim($work->incipit_text, "«» \t\n\r\0\x0B") }}</x-ui.quote>
-                        @endif
-                        @if(! empty($work->explicit_text))
-                            <x-ui.quote label="انجام" field="explicit_text">{{ trim($work->explicit_text, "«» \t\n\r\0\x0B") }}</x-ui.quote>
-                        @endif
+                        @foreach(['incipit' => ['آغاز', 'incipit_text'], 'explicit' => ['انجام', 'explicit_text']] as $kind => [$kindLabel, $field])
+                            @if($excerpts->has("{$kind}_numbered"))
+                                @foreach($excerpts["{$kind}_numbered"] as $excerpt)
+                                    <x-ui.quote :label="$excerpt->heading" :field="$loop->first ? $field : null" id="excerpt-{{ $excerpt->id }}">{{ trim($excerpt->text, "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                                @endforeach
+                            @elseif(! empty($work->{$field}))
+                                <x-ui.quote :label="$kindLabel" :field="$field">{{ trim($work->{$field}, "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                            @endif
+                            @foreach($excerpts["{$kind}_part"] ?? [] as $excerpt)
+                                <x-ui.quote :label="$excerpt->heading" id="excerpt-{{ $excerpt->id }}">{{ trim($excerpt->text, "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                            @endforeach
+                        @endforeach
                     </div>
                 </x-ui.section>
             @endif
