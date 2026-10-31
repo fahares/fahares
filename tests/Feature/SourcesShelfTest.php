@@ -62,7 +62,7 @@ class SourcesShelfTest extends TestCase
         $this->assertLessThan(strpos($html, 'data-source-kind="' . Source::KIND_LIBRARY_CATALOGUE . '"'), strpos($html, 'data-source-kind="' . Source::KIND_BIBLIOGRAPHY . '"'));
     }
 
-    public function test_a_union_catalogue_goes_first_among_the_libraries_catalogues()
+    public function test_a_union_catalogue_is_listed_among_the_libraries_catalogues()
     {
         [$catalogue] = $this->catalogue();
         $union = Source::create(['code' => 'union-test', 'kind' => Source::KIND_UNION_CATALOGUE, 'rank' => 90, 'title' => 'فهرستگان آزمون']);
@@ -72,7 +72,25 @@ class SourcesShelfTest extends TestCase
         $html = $this->get('/sources')->assertOk()->assertDontSee('data-source-kind="' . Source::KIND_UNION_CATALOGUE . '"', false)->getContent();
         $section = strpos($html, 'data-source-kind="' . Source::KIND_LIBRARY_CATALOGUE . '"');
         $this->assertLessThan(strpos($html, 'data-source="union-test"'), $section);
-        $this->assertLessThan(strpos($html, 'data-source="' . $catalogue->code . '"'), strpos($html, 'data-source="union-test"'));
+    }
+
+    public function test_a_source_page_lists_the_records_it_is_cited_for_and_searches_their_titles()
+    {
+        [$catalogue, $volume, $library] = $this->catalogue();
+        $work = Work::create(['primary_title' => 'شرح الكافية', 'clean_title' => 'شرح الكافية', 'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $manuscript = Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => '902', 'volume_number' => 1, 'page_start' => 40]);
+        SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $manuscript->id, 'source_id' => $catalogue->id, 'source_volume_id' => $volume->id,
+            'volume_number' => 1, 'page_start' => 40, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => 'catalogue', 'status' => SourceEntry::STATUS_VERIFIED]);
+
+        // both, in the book's order, each with its page; the page the site has the text of opens it
+        $html = $this->get('/sources/' . $catalogue->code)->assertOk()->assertSee('data-source-linked="manuscripts"', false)
+            ->assertSee(route('source-pages.show', [$catalogue->code, 1, 17]), false)->getContent();
+        $this->assertLessThan(strpos($html, 'شرح الكافية'), strpos($html, 'القرآن الکریم</a>'));
+
+        // a title written with the Persian letters finds the Arabic one
+        $this->get('/sources/' . $catalogue->code . '?q=' . urlencode('کافیه'))->assertOk()
+            ->assertSee(route('manuscripts.show', $manuscript), false)->assertDontSee('القرآن الکریم</a>', false);
+        $this->get('/sources/' . $catalogue->code . '?q=' . urlencode('ناموجود'))->assertOk()->assertSee('چیزی با این عنوان پیدا نشد', false);
     }
 
     public function test_a_book_in_one_volume_has_no_list_of_volumes_and_each_volume_names_its_catalogers()

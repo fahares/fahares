@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\TextNormalizer;
+use App\Models\Manuscript;
 use App\Models\Source;
+use App\Models\SourceEntry;
 use App\Models\SourceItem;
 use App\Support\SourceShelf;
+use App\Models\Work;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -13,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  */
 class SourceController extends Controller
 {
-    /** The kinds in the order the index shows them; a union catalogue (Fankha) goes first among the libraries' catalogues. */
+    /** The kinds in the order the index shows them; a union catalogue (Fankha) is one of the libraries' catalogues. */
     private const KINDS = [Source::KIND_BIBLIOGRAPHY, Source::KIND_BIOGRAPHICAL, Source::KIND_LIBRARY_CATALOGUE, Source::KIND_OTHER];
 
     public function index()
@@ -22,14 +28,13 @@ class SourceController extends Controller
         $sources = Source::with(['library', 'volumes', 'editions'])->whereNull('edition_of_id')->orderBy('rank')->orderBy('title')->get()
             // a source the site has nothing of, in itself or an edition, is left out
             ->filter(fn (Source $s) => collect([$s, ...$s->editions])->contains(fn ($e) => array_sum($counts[$e->id] ?? []) > 0))
-            ->sortBy(fn (Source $s) => $s->kind === Source::KIND_UNION_CATALOGUE ? 0 : 1)
             ->groupBy(fn (Source $s) => $s->kind === Source::KIND_UNION_CATALOGUE ? Source::KIND_LIBRARY_CATALOGUE : $s->kind);
         $groups = collect(self::KINDS)->filter(fn ($k) => $sources->has($k))->mapWithKeys(fn ($k) => [$k => $sources[$k]]);
 
         return view('sources.index', ['groups' => $groups, 'counts' => $counts]);
     }
 
-    public function show(string $code)
+    public function show(Request $request, string $code)
     {
         $source = Source::with(['library', 'volumes.catalogers', 'editionOf', 'editions'])->where('code', $code)->firstOrFail();
         $counts = SourceShelf::counts()[$source->id] ?? ['works' => 0, 'manuscripts' => 0, 'items' => 0, 'pages' => 0];
@@ -61,7 +66,47 @@ class SourceController extends Controller
         // a book in one volume has no list of volumes: its one volume's buttons and catalogers go in the header
         $single = $source->volumes_count === 1 && $volumes->count() === 1 ? $volumes->first() : null;
 
-        return view('sources.show', compact('source', 'counts', 'volumes', 'images', 'single'));
+        $linked = $this->linked($request, $source, $counts, $volumes);
+
+        return view('sources.show', compact('source', 'counts', 'volumes', 'images', 'single', 'linked'));
+    }
+
+    /**
+     * The site's works or manuscripts this source is cited for, as its entries in the book's order (?list=works|
+     * manuscripts), narrowed by a word of the title (?q=) and a volume (?volume=): {type, types, q, volume, rows}, or
+     * null when the source is cited for none.
+     */
+    private function linked(Request $request, Source $source, array $counts, $volumes): ?array
+    {
+        $types = array_values(array_filter(['manuscripts', 'works'], fn ($t) => $counts[$t] > 0));
+        if (! $types) {
+            return null;
+        }
+        $type = in_array($request->query('list'), $types, true) ? $request->query('list') : $types[0];
+        $q = trim(mb_substr((string) $request->query('q', ''), 0, 100));
+        $volume = ctype_digit((string) $request->query('volume')) ? (int) $request->query('volume') : null;
+        $volume = $volume && $volumes->contains(fn ($r) => $r['volume']->volume_number === $volume) ? $volume : null;
+
+        $query = SourceEntry::where('source_id', $source->id)->where('citable_type', $type === 'works' ? Work::class : Manuscript::class)
+            ->where('status', '!=', SourceEntry::STATUS_REJECTED)
+            ->when($volume, fn ($e) => $e->where('volume_number', $volume));
+        if ($q !== '') {
+            // the titles keep the Arabic and the Persian letters as written: both sides are brought to the Persian ones
+            $title = 'primary_title';
+            foreach (['ي' => 'ی', 'ى' => 'ی', 'ئ' => 'ی', 'ك' => 'ک', 'ة' => 'ه', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ٱ' => 'ا', 'ؤ' => 'و', "\u{200c}" => ' '] as $from => $to) {
+                $title = "replace({$title}, '{$from}', '{$to}')";
+            }
+            // the works found first, so few of them are not looked for through all of a large source's entries
+            $titled = Work::whereRaw("{$title} like ?", ['%' . addcslashes(TextNormalizer::normalize($q), '%_\\') . '%'])->pluck('id')->all();
+            $query->whereIn('citable_id', $type === 'works' ? $titled : Manuscript::whereIn('work_id', $titled)->select('id'));
+        }
+        // Fankha's entries take a second or more to count, so the count is kept a day
+        $total = Cache::remember('sources:linked:' . md5(implode('|', [$source->id, $type, $volume, $q])), now()->addDay(), fn () => (clone $query)->count());
+        $rows = $query->with($type === 'works' ? ['citable.author'] : ['citable.work.author', 'citable.libraryRecord'])
+            ->orderBy('volume_number')->orderBy('page_start')->orderBy('id')
+            ->paginate(30, ['*'], 'page', null, $total)->withQueryString()->fragment('linked');
+
+        return compact('type', 'types', 'q', 'volume', 'rows');
     }
 
     /**

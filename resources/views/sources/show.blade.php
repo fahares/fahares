@@ -114,5 +114,81 @@
         </ul>
     </x-ui.section>
     @endunless
+
+    @if($linked)
+        @php
+            $labels = ['manuscripts' => 'نسخه‌ها', 'works' => 'آثار'];
+            // the volumes whose page texts the site has, for each entry's «ج ۳، ص ۱۲» to open its page
+            $read = $volumes->filter(fn ($r) => $r['pages'] > 0)->mapWithKeys(fn ($r) => [$r['volume']->volume_number => true]);
+        @endphp
+        {{-- The site's records this source is cited for (its entries in the book's order), searchable by title --}}
+        <x-ui.section id="linked" :title="$labels[$linked['type']] . ' پیوسته به این منبع'" :count="$linked['rows']->total()" data-source-linked="{{ $linked['type'] }}">
+            <form action="{{ route('sources.show', $source->code) }}#linked" method="GET" role="search" class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+                @if(count($linked['types']) > 1)
+                    <span class="flex rounded-sm border border-line-strong overflow-hidden" aria-label="نوع">
+                        @foreach($linked['types'] as $t)
+                            <a href="{{ route('sources.show', array_filter([$source->code, 'list' => $t, 'q' => $linked['q'], 'volume' => $linked['volume']])) }}#linked" @class(['px-3 py-1.5 font-bold', 'bg-cinnabar text-white' => $t === $linked['type'], 'bg-paper text-muted hover:text-ink' => $t !== $linked['type']]) @if($t === $linked['type']) aria-current="true" @endif>{{ $labels[$t] }} <span class="tabular-nums">{{ Fa::num($counts[$t]) }}</span></a>
+                        @endforeach
+                    </span>
+                @endif
+                <input type="hidden" name="list" value="{{ $linked['type'] }}">
+                <input type="search" name="q" value="{{ $linked['q'] }}" placeholder="عنوان اثر…" aria-label="عنوان اثر"
+                       class="flex-1 min-w-[12rem] max-w-sm px-2.5 py-1.5 rounded-sm border border-line-strong bg-paper text-ink text-xs focus:border-cinnabar focus:ring-2 focus:ring-cinnabar/15 outline-none">
+                @if($volumes->count() > 1)
+                    <select name="volume" aria-label="جلد" class="px-2 py-1.5 rounded-sm border border-line-strong bg-paper text-ink text-xs" onchange="this.form.requestSubmit()">
+                        <option value="">همه‌ی جلدها</option>
+                        @foreach($volumes as $row)
+                            <option value="{{ $row['volume']->volume_number }}" @selected($linked['volume'] === $row['volume']->volume_number)>{{ Fa::digits('ج ' . $row['volume']->volume_number) }}</option>
+                        @endforeach
+                    </select>
+                @endif
+                <x-ui.btn type="submit" size="sm">جست‌وجو</x-ui.btn>
+                @if($linked['q'] !== '' || $linked['volume'])
+                    <a href="{{ route('sources.show', [$source->code, 'list' => $linked['type']]) }}#linked" class="text-cinnabar hover:underline">پاک کردن</a>
+                @endif
+            </form>
+            <div class="bg-surface border border-line overflow-x-auto">
+                <table class="w-full text-right text-xs sm:text-[13px] min-w-[560px]">
+                    <thead class="text-muted border-b border-gold">
+                        <tr>
+                            <th class="py-3 px-3 font-semibold">{{ $linked['type'] === 'works' ? 'اثر' : 'نسخه' }}</th>
+                            <th class="py-3 px-3 font-semibold">پدیدآور</th>
+                            @if($linked['type'] === 'manuscripts')<th class="py-3 px-3 font-semibold">کتابخانه و شماره</th>@endif
+                            <th class="py-3 px-3 font-semibold">جای آن در منبع</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-line text-ink tabular-nums">
+                        @forelse($linked['rows'] as $entry)
+                            @php
+                                $record = $entry->citable;
+                                $work = $linked['type'] === 'works' ? $record : $record?->work;
+                                $place = $entry->volume_number ? Fa::digits(($volumes->count() > 1 ? 'ج ' . $entry->volume_number . '، ' : '') . 'ص ' . $entry->page_start) : null;
+                            @endphp
+                            @continue(! $record)
+                            <tr class="hover:bg-paper" data-linked-entry="{{ $entry->id }}">
+                                <td class="py-2.5 px-3">
+                                    <a href="{{ $linked['type'] === 'works' ? route('works.show', $record) : route('manuscripts.show', $record) }}" class="font-semibold hover:text-cinnabar">{{ $work?->primary_title ?? 'بی‌عنوان' }}</a>
+                                </td>
+                                <td class="py-2.5 px-3">{{ $work?->author?->name ?? $work?->author_name ?? '—' }}</td>
+                                @if($linked['type'] === 'manuscripts')
+                                    <td class="py-2.5 px-3">{{ $record->libraryRecord?->display_name ?? $record->library ?? '—' }}@if($record->shelfmark)<span class="text-muted"> · <span dir="ltr">{{ Fa::digits($record->shelfmark) }}</span></span>@endif</td>
+                                @endif
+                                <td class="py-2.5 px-3 whitespace-nowrap">
+                                    @if($place && $read->has($entry->volume_number) && $entry->page_start)
+                                        <a href="{{ route('source-pages.show', [$source->code, $entry->volume_number, $entry->page_start]) }}" class="text-cinnabar hover:underline">{{ $place }}</a>
+                                    @else
+                                        {{ $place ?? '—' }}
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4" class="py-8 text-center text-muted">چیزی با این عنوان پیدا نشد.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if($linked['rows']->hasPages())<div class="pt-4">{{ $linked['rows']->links() }}</div>@endif
+        </x-ui.section>
+    @endif
 </div>
 @endsection
