@@ -5394,3 +5394,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - بازدیدکننده‌ی یکسان در یک روز و متفاوت در روز بعد، و پاک شدن نمک دیروز؛
   - جمع شبانه، اجرای دوباره و پاک‌سازی؛
   - صفحه‌ی پنل، منو، شمار در صفحه‌ی اثر، و مجوز (ممنوع برای ویراستار تا مجوز بگیرد).
+
+### گام ۱۳.۹۹: `text_excerpts` (مورد ۹۸)
+- **migration [create_text_excerpts_table](../database/migrations/2026_10_31_300001_create_text_excerpts_table.php):** `owner` (morph)، `kind`، `n`، `label` (۱۲۰)، `is_part`، `text`، `position`، `same_as_excerpt_id` (FK به خود جدول، nullOnDelete) و `same_as_raw` (۱۲۰).
+- **مدل [TextExcerpt](../app/Models/TextExcerpt.php):** `heading` («آغاز ۲ (دیباچه)»، «آغاز جلد دوم»). رابطه‌ها: `Work::excerpts()` و `Manuscript::excerpts()`.
+- **فایل تصمیم [fankha_v2_excerpts_20261031.json](../database/data/fankha_v2_excerpts_20261031.json):** ساخته‌ی `scripts/fankha_v2_excerpts_export.py` در پیکره (کامیت `b34d085`). ۳۷۱ اثر را دارد، و ۱٬۴۸۸ اثر هم‌عنوان (`peers`) را فقط با کلید، عنوان و صفحه، برای `FankhaWorkLocator`.
+- **فرمان [fahares:fill-text-excerpts](../app/Console/Commands/FillTextExcerptsCommand.php):**
+  - **گزینه‌ها:** `--file`، `--apply` و `--show`.
+  - **ذخیره:** `updateOrCreate` با کلید (صاحب، نوع، `is_part`، `n`، `label`).
+  - **ارجاع شماره‌دار:** `^\d+` پس از «برابر»، اگر «و» یا «-» با رقم دیگری پس از آن نیاید.
+  - **ارجاع برچسب‌دار:** `labelKey()` واژه‌های ترتیبی را عدد می‌کند (اول تا دهم، نخست، یکم)، «ج» را «جلد» می‌کند، و فاصله و نشانه‌ها را برمی‌دارد.
+  - هر جلد ۵۰تا ۵۰تا در یک تراکنش نوشته می‌شود.
+- **[Manuscript](../app/Models/Manuscript.php):**
+  - **`pointedExcerpt($kind, $text)`:** برای متنی که با «برابر» و چیزی پس از آن آغاز می‌شود، آغاز یا انجامِ اشاره‌شده را یک بار بار می‌کند (`pointers`). آن را در `incipits_list` و `explicits_list` با `work_excerpt_id` می‌گذارد.
+  - «برابر» ساده مثل پیش آغاز اصلی اثر را نشان می‌دهد.
+- **نماها:**
+  - **[works/show](../resources/views/works/show.blade.php):** آغاز و انجام شماره‌دار جای آغاز یکپارچه را می‌گیرند. آغاز و انجام جلدها پس از آن می‌آیند، هر کدام با `id="excerpt-…"`.
+  - **[manuscripts/show](../resources/views/manuscripts/show.blade.php):** پیوند «در صفحه‌ی اثر ←» به همان `#excerpt-…`.
+- **تمرین (`fahares_prod` محلی، `--apply`):** works:found ۳۶۹، not_found ۲، و refs linked ۳٬۷۰۴ و ۷۲۷. unmatched ۵۱۳ و ۱۳۴ است، فهرستش در `text-excerpts-unmatched-fahares_prod.txt` در یادداشت‌های مشترک. در جدول ۹۲۲ سطر اثر و ۴٬۴۳۱ سطر نسخه است، و اجرای دوم همان ۵٬۳۵۳ سطر را داشت.
+- **آزمون:** [TextExcerptsTest](../tests/Feature/TextExcerptsTest.php)، ۲ آزمون. کل مجموعه ۵۱۵ آزمون موفق.
+- **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-text-excerpts` و بعد با `--apply`.
+

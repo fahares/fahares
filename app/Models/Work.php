@@ -376,6 +376,12 @@ class Work extends Model
         return $this->hasMany(WorkPerson::class)->orderBy('position')->orderBy('id');
     }
 
+    /** Numbered and part incipits and explicits beyond the main ones (backlog item 98), in their order. */
+    public function excerpts(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(TextExcerpt::class, 'owner')->orderBy('kind')->orderBy('is_part')->orderBy('position')->orderBy('id');
+    }
+
     public function manuscripts(): HasMany
     {
         return $this->hasMany(Manuscript::class);

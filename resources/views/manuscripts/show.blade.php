@@ -349,6 +349,10 @@
                                     </div>
                                 @else
                                     <x-ui.quote :label="$itemLabel ?? $kind">{{ trim($item['text'], "«» \t\n\r\0\x0B") }}</x-ui.quote>
+                                    {{-- A pointer at one of the work's numbered or part incipits leads to it (backlog item 98) --}}
+                                    @if(! empty($item['work_excerpt_id']) && $manuscript->work)
+                                        <a href="{{ route('works.show', $manuscript->work) }}#excerpt-{{ $item['work_excerpt_id'] }}" class="inline-block mt-1 text-[11px] text-cinnabar hover:underline">در صفحه‌ی اثر ←</a>
+                                    @endif
                                 @endif
                             @endforeach
                         </div>
