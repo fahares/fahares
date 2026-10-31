@@ -282,7 +282,7 @@ body {
 }
 
 /* One printed page of a source (resources/views/source-pages/show.blade.php): a book's leaf on the paper, with two
-   leaves under it, the running head over a thin double rule, the shade of the spine on the gutter side (right on an
+   leaves under it, the running head over a plain black rule, the shade of the spine on the gutter side (right on an
    odd page of a right-to-left book, left on an even one) and the page number at the foot. */
 .book-sheet {
     --leaf: 1;
@@ -310,9 +310,9 @@ body {
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.15rem;
     margin-bottom: 1.5rem;
-    border-bottom: 3px double var(--line-strong);
+    border-bottom: 1px solid var(--ink);
     font-family: var(--font-naskh);
     color: var(--muted);
     font-size: 0.8rem;
@@ -380,6 +380,29 @@ body {
     font-family: var(--font-sans);
     font-size: 0.9em;
 }
+/* a poem (Noor's <poem>): centred, two hemistichs to a verse, every hemistich as wide as the longest and spread to that
+   width; a poem too wide for the page goes in steps, the first hemistich of each verse to the right, the second to the
+   left (resources/views/source-pages/show.blade.php marks it .is-stepped) */
+.book-poem {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2.5em;
+    width: max-content;
+    margin: 0.35em auto;
+    white-space: normal;
+}
+.book-poem__h {
+    text-align: justify;
+    text-align-last: justify;
+}
+.book-poem.is-stepped {
+    grid-template-columns: 1fr;
+    width: auto;
+    margin-inline: 1.5em;
+}
+.book-poem.is-stepped .book-poem__h { text-align-last: auto; }
+.book-poem.is-stepped .book-poem__h:nth-child(odd) { justify-self: start; }
+.book-poem.is-stepped .book-poem__h:nth-child(even) { justify-self: end; }
 /* a page printed in two columns (Fankha): two columns with a rule between, one on a narrow screen */
 @media (min-width: 768px) {
     .book-sheet--columns .book-sheet__body {

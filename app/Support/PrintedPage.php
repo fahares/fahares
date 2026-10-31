@@ -75,14 +75,45 @@ class PrintedPage
     }
 
     /**
-     * A piece of the page's text as HTML: escaped, in Persian digits, and a line wholly in Latin letters (Fankha's
-     * transliteration, «erjā‘-ol-mote‘allemīn») set left to right with its own digits.
+     * A piece of the page's text as HTML: escaped, in Persian digits, a line wholly in Latin letters (Fankha's
+     * transliteration, «erjā‘-ol-mote‘allemīn») set left to right with its own digits, and the verses of a poem (lines
+     * whose hemistichs a tab parts, as the Noor readers write Noor's <poem>) set as a poem: centred, each hemistich as
+     * wide as the longest, the blank lines around it dropped.
      */
     public static function text(string $text): HtmlString
     {
-        return new HtmlString(implode("\n", array_map(fn (string $line) => preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
-            ? '<span dir="ltr" class="book-sheet__latin">' . e($line) . '</span>'
-            : e(Fa::digits($line)), explode("\n", $text))));
+        $parts = [];
+        foreach (explode("\n", $text) as $line) {
+            if (str_contains($line, "\t")) {
+                if (($parts[array_key_last($parts) ?? -1]['poem'] ?? false) === false) {
+                    // the blank line before a poem goes; so does the one after it, below
+                    while ($parts && end($parts)['html'] === '' && ! end($parts)['poem']) {
+                        array_pop($parts);
+                    }
+                    $parts[] = ['poem' => true, 'html' => ''];
+                }
+                $parts[array_key_last($parts)]['html'] .= collect(explode("\t", $line))->map(fn ($h) => '<span class="book-poem__h">' . e(Fa::digits(trim($h))) . '</span>')->implode('');
+                continue;
+            }
+            if ($line === '' && ($parts && end($parts)['poem'])) {
+                continue;
+            }
+            $parts[] = ['poem' => false, 'html' => preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
+                ? '<span dir="ltr" class="book-sheet__latin">' . e($line) . '</span>'
+                : e(Fa::digits($line))];
+        }
+
+        // a poem is a block of its own: no line break before or after it
+        $html = '';
+        foreach ($parts as $i => $part) {
+            if ($part['poem']) {
+                $html .= '<span class="book-poem" data-poem>' . $part['html'] . '</span>';
+                continue;
+            }
+            $html .= ($i > 0 && ! $parts[$i - 1]['poem'] ? "\n" : '') . $part['html'];
+        }
+
+        return new HtmlString($html);
     }
 
     /**

@@ -32,10 +32,21 @@ HEADING = re.compile(r'<heading level="\d">(.*?)</heading>', re.S)
 NUMBERED = re.compile(r'^(\d{1,5})\s*:\s*(.+)$', re.S)
 
 
+def verse(m):
+    """Noor's <poem>: a verse on a line of its own, its hemistichs apart by a tab (Noor's <gap/>; one hemistich keeps
+    the tab after it), when it opens a line; a verse quoted inside a sentence, «(… أفقه... إلخ)», stays in it."""
+    before = re.sub(r'(?:<(?!br|/?p\b|/poem)[^>]*>|\s)+$', '', m.string[:m.start()])
+    hemistichs = [' '.join(h.split()).strip(' -–') for h in m.group(1).split('<gap/>')]
+    if before and not re.search(r'(<br/?>|<p[^>]*>|</poem>)$', before):
+        return ' '.join(hemistichs)
+    return '\n' + '\t'.join(hemistichs) + ('\t' if len(hemistichs) == 1 else '') + '\n'
+
+
 def strip(xml):
     xml = re.sub(r'<lfootnote[^>]*>\s*(\d+)\s*</lfootnote>', r' ( \1 ) ', xml)
     xml = re.sub(r'<mnote>\s*\((\d+)\)\s*</mnote>', r'( \1 ) ', xml)
-    xml = re.sub(r'<br/?>|</poem>', '\n', xml)
+    xml = re.sub(r'<poem>(.*?)</poem>', verse, xml, flags=re.S)
+    xml = re.sub(r'<br/?>', '\n', xml)
     return html.unescape(re.sub(r'<(?!page )[^>]+>', '', xml))
 
 
@@ -98,7 +109,8 @@ def tidy(text):
     text = re.sub(JOIN + r'\s*(?!\(\s*\d+\s*:)(?=[^\s' + JOIN + '])', ' ', text).replace(JOIN, '\n')
     paragraphs = []
     for p in re.split(r'\n\s*\n', text):
-        lines = [' '.join(line.split()) for line in p.split('\n')]
+        # a verse keeps the tab between its hemistichs
+        lines = ['\t'.join(' '.join(h.split()) for h in line.split('\t')) if '\t' in line else ' '.join(line.split()) for line in p.split('\n')]
         p = '\n'.join(line for line in lines if line)
         if p:
             paragraphs.append(p)

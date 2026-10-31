@@ -210,4 +210,15 @@
         </aside>
     </div>
 </div>
+<script>
+    // a poem wider than its page goes in steps (.book-poem.is-stepped in app.css), measured again on a resize
+    (() => {
+        const step = () => document.querySelectorAll('[data-poem]').forEach((p) => {
+            p.classList.remove('is-stepped');
+            if (p.scrollWidth > p.parentElement.clientWidth + 1) p.classList.add('is-stepped');
+        });
+        step();
+        window.addEventListener('resize', step);
+    })();
+</script>
 @endsection

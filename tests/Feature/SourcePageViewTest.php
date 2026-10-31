@@ -191,6 +191,17 @@ class SourcePageViewTest extends TestCase
         $this->assertSame(2, substr_count($html, 'data-record-link="manuscript"'));
     }
 
+    public function test_a_poem_is_set_as_verses_without_the_blank_lines_around_it()
+    {
+        // al-Dhari'a vol. 13 p. 4: the Noor reader writes each verse on its own line, its hemistichs apart by a tab
+        $html = (string) \App\Support\PrintedPage::text("أولها:\n\nحمدا لربي واجب الوجود\tالعالم القدير و المريد\nإلى قوله:\n\n"
+            . "تم الختام ثامن العشرينا\tمن شهر شعبان من السنينا\nتاسعة و مائة و مرة\tمن بعد ألف من سنين الهجرة\nيعني سنة 1209 ه‍.");
+
+        $this->assertSame('أولها:<span class="book-poem" data-poem><span class="book-poem__h">حمدا لربي واجب الوجود</span><span class="book-poem__h">العالم القدير و المريد</span></span>'
+            . 'إلى قوله:<span class="book-poem" data-poem><span class="book-poem__h">تم الختام ثامن العشرينا</span><span class="book-poem__h">من شهر شعبان من السنينا</span>'
+            . '<span class="book-poem__h">تاسعة و مائة و مرة</span><span class="book-poem__h">من بعد ألف من سنين الهجرة</span></span>يعني سنة ۱۲۰۹ ه‍.', $html);
+    }
+
     public function test_citations_of_a_text_source_link_to_the_page_text_in_the_same_tab()
     {
         $html = (string) BibliographyLinks::html('الذریعة 2/1؛ فهرستواره منزوی 361/6 و 3257/4');

@@ -43,10 +43,27 @@ SOURCES = {
 }
 
 
+LINE = '\ue010'  # a line break the text keeps: before and after a verse that opens a line
+
+
+def verse(m):
+    """Noor's <poem>: a verse on a line of its own, its hemistichs apart by a tab (Noor's <gap/>, the « - » printed
+    between them dropped; one hemistich keeps the tab after it), when it opens a line; a verse quoted inside a sentence
+    stays in it."""
+    before = re.sub(r'(?:<(?!br|/?p\b|/poem)[^>]*>|\s)+$', '', m.string[:m.start()])
+    hemistichs = [' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', h)).split()).strip(' -–') for h in m.group(1).split('<gap/>')]
+    if before and not re.search(r'(<br/?>|<p[^>]*>|</poem>)$', before):
+        return ' ' + ' '.join(hemistichs) + ' '
+    return LINE + '\t'.join(hemistichs) + ('\t' if len(hemistichs) == 1 else '') + LINE
+
+
 def text_of(xml):
+    """The text on one line, a verse of poetry that opens a line (<poem>) on a line of its own."""
     xml = re.sub(r'<lfootnote[^>]*>\s*(\d+)\s*</lfootnote>', r' ( \1 ) ', xml)
     xml = re.sub(r'<mnote>\s*\((\d+)\)\s*</mnote>', r'( \1 ) ', xml)
-    return ' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', xml)).split())
+    xml = re.sub(r'<poem>(.*?)</poem>', verse, xml, flags=re.S)
+    lines = [' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', l)).split()) if '\t' not in l else l for l in xml.split(LINE)]
+    return '\n'.join(l for l in lines if l.strip())
 
 
 def is_label(heading):
