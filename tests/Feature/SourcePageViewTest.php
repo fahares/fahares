@@ -27,6 +27,9 @@ class SourcePageViewTest extends TestCase
 
         $response = $this->get('/sources/monzavi/6/page/361')->assertOk()
             ->assertSee('<meta name="robots" content="noindex, follow">', false)
+            // the path above the page leads to the sources, the source and its volume
+            ->assertSee('<a href="' . route('sources.index') . '" class="hover:text-cinnabar">منابع</a>', false)
+            ->assertSee('<a href="' . route('sources.show', 'monzavi') . '#v6" class="hover:text-cinnabar">ج ۶</a>', false)
             ->assertSee('فهرستواره کتاب‌های فارسی، ج ۶، ص ۳۶۱', false)
             // the entry that runs on from p. 360, its label leading to that page; then the three that start here,
             // whose headings link no work yet and so are not links: the entry's own page is only beside the sheet

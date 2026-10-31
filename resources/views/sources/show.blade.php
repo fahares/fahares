@@ -93,7 +93,7 @@
         <ul class="divide-y divide-line border-y border-line" data-source-volumes>
             @foreach($volumes as $row)
                 @php $v = $row['volume']; @endphp
-                <li class="flex flex-wrap items-center gap-x-4 gap-y-2 py-3" data-volume="{{ $v->volume_number }}">
+                <li id="v{{ $v->volume_number }}" class="flex flex-wrap items-center gap-x-4 gap-y-2 py-3 scroll-mt-24 target:bg-paper" data-volume="{{ $v->volume_number }}">
                     <span class="w-12 shrink-0 font-naskh text-lg font-bold text-ink">{{ Fa::digits('ج ' . $v->volume_number) }}</span>
                     <span class="flex-1 min-w-40 text-xs text-muted">
                         @if($v->title && $v->title !== $source->title){{ Fa::digits($v->title) }} · @endif

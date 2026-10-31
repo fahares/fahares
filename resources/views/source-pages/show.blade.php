@@ -30,9 +30,11 @@
     <nav class="flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="مسیر">
         <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
         <span aria-hidden="true">/</span>
-        <span>{{ $sourceName }}</span>
+        <a href="{{ route('sources.index') }}" class="hover:text-cinnabar">منابع</a>
         <span aria-hidden="true">/</span>
-        <span>{{ Fa::digits('ج ' . $volumeNumber) }}</span>
+        <a href="{{ route('sources.show', $source->code) }}" class="hover:text-cinnabar">{{ $sourceName }}</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('sources.show', $source->code) }}#v{{ $volumeNumber }}" class="hover:text-cinnabar">{{ Fa::digits('ج ' . $volumeNumber) }}</a>
         @if($printed->frontMatter)
             <span aria-hidden="true">/</span>
             <span>پیش‌گفتار</span>
