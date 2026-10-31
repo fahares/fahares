@@ -5415,3 +5415,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** [TextExcerptsTest](../tests/Feature/TextExcerptsTest.php)، ۲ آزمون. کل مجموعه ۵۱۵ آزمون موفق.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-text-excerpts` و بعد با `--apply`.
 
+### گام ۱۳.۱۰۰: `sshd` فقط با کلید
+- **پیش از تغییر:** `sshd -T`: `permitrootlogin yes` و `passwordauthentication yes`. `50-cloud-init.conf` همان `PasswordAuthentication yes` را دارد و fail2ban نصب نیست. `journalctl -u ssh`: ۸۳٬۱۸۶ «Failed password» یا «Invalid user» در ۷ روز؛ در ۳۰ روز همه‌ی ورودها `Accepted publickey` بود (root ۲۴٬۴۰۶ از کانتینر Coolify در `10.0.1.9`، و بقیه‌ی کاربران)، و هیچ `Accepted password`. همه‌ی کاربران دارای پوسته کلید ed25519 در `authorized_keys` دارند.
+- **تغییر:** [01-fahares-hardening.conf](../scripts/ssh/01-fahares-hardening.conf) در `/etc/ssh/sshd_config.d/`: `PasswordAuthentication no`، `KbdInteractiveAuthentication no`، `PermitRootLogin prohibit-password`، `X11Forwarding no`. sshd نخستین مقدار را نگه می‌دارد و پوشه را در آغاز `sshd_config` می‌خواند، پس نام فایل باید پیش از `50-cloud-init.conf` بیاید. نصب با `sshd -t` و `systemctl reload ssh` (نشست‌های باز قطع نمی‌شوند).
+- **وارسی:** `sshd -T`: `permitrootlogin prohibit-password`، `passwordauthentication no`. سرور به root، tabib و hermes فقط `publickey` پیشنهاد می‌کند. ورود کلیدی root از Coolify (۱۲:۲۵، پس از نصب در ۱۲:۲۴:۳۳) و ورود کلیدی مدیر برقرار ماند.
+- **برگشت:** `sudo rm /etc/ssh/sshd_config.d/01-fahares-hardening.conf && sudo systemctl reload ssh`.
