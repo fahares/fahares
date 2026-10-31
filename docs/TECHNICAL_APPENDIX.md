@@ -5529,3 +5529,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:add-corpus-works --file=…`؛
   2. `fahares:fill-extents --apply`، `catalogs:link-volumes` و `fahares:rebuild-scripts --sync-search`.
 
+### گام ۱۳.۱۰۷: پورت‌های ۲۰۵۳ و ۲۰۱۲۸ در `INPUT`
+- **یافته:** `ufw status verbose` گفت `Status: inactive` (سرویس systemd آن active است ولی قانونی بار نشده). پس هر پورتی که فرایندی روی خود میزبان باز کند از بیرون در دسترس است.
+- **تغییر:** [fahares-docker-firewall.sh](../scripts/firewall/fahares-docker-firewall.sh) با `HOST_PORTS` (پیش‌فرض `2053 20128`) قانون `-i eth0 -p tcp --dport <port> -j DROP` را با همان برچسب در `INPUT` در iptables و ip6tables می‌گذارد؛ `remove` و `status` هم آن‌ها را می‌شناسند. [README](../scripts/firewall/README.md) به‌روز شد.
+- **وارسی:** check-host.net: ۲۰۵۳ و ۲۰۱۲۸ از ۳ نود timeout؛ ۲۰۹۶ و ۸۴۴۳ از ۳ نود وصل. درخواست محلی از راه میزبان (`lo`) به هر دو پاسخ داد.
+- **مانده:** فعال کردن ufw با سیاست پیش‌فرض رد. `DEFAULT_FORWARD_POLICY="DROP"` است، پس پیش از آن باید ترافیک کانتینر به میزبان (شبکه‌های `10.0.0.0/8`) سنجیده شود.

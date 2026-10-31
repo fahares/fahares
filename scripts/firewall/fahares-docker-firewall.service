@@ -1,5 +1,5 @@
 [Unit]
-Description=Fahares: drop outside connections to Coolify's published ports (DOCKER-USER)
+Description=Fahares: drop outside connections to Coolify and admin-panel ports (DOCKER-USER, INPUT)
 After=docker.service
 Requires=docker.service
 PartOf=docker.service
