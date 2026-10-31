@@ -5138,3 +5138,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تک‌جلدی:** `SourceController::show` اگر `volumes_count === 1` و یک جلد باشد، `$single` می‌سازد.
 - **آوانگاری:** `PrintedPage::text()` هر سطر را جدا escape می‌کند. سطری که `\p{Latin}` دارد و `\p{Arabic}` ندارد، در `span.book-sheet__latin` می‌آید (`inline-block`، پهنای کامل، `direction: ltr`).
 - **آزمون:** ۳ آزمون تازه در `SourcesShelfTest`، و بررسی آوانگاری در `SourcePageViewTest`.
+
+### گام ۱۳.۸۴: جلد بزرگ، فهرست مطالب و نوار ورق زدن
+- **دامپ MTIF:**
+  - در پایگاه محلی `mtif_scratch` بارگذاری شد (`zcat … | mariadb mtif_scratch`).
+  - عنوان کتاب در `event` با `rabt_title = 'عنوان'` و ستون `free` است، و `entry.type` نوع کتاب است. `searchvals` نویسه‌هایش را دگرگون کرده است.
+  - کتاب‌ها با این پرس‌وجو به `books.json` رفتند: `SELECT ev.entry_id, ev.free FROM event ev JOIN entry en ON en.id = ev.entry_id WHERE ev.rabt_title = 'عنوان' AND en.type = 'book'`.
+- **`mtif_covers.py`:**
+  - گزینه‌ی تازه‌ی `--books`: عنوان‌های دامپ در کنار مجموعه‌ها جسته می‌شوند.
+  - نگاشت `BOOKS`: کتاب‌شناسی به شناسه‌ی کتاب MTIF (`dharia` 55، `kashf` 711، `idah` 712، `hadiyya` 703، `zirikli` 701، `monzavi` 8954، `fankha` 63172، `rayhana` 1090).
+  - گزینه‌ی تازه‌ی `--refresh`: تصویرهای `manifest.json` را با بیشینه‌ی ۶۴۰ در ۹۶۰ دوباره می‌گیرد.
+- **`noor_toc.py`:**
+  - سطح ۲ نور (بخش‌ها) همه می‌آید.
+  - سطح ۳ فقط وقتی می‌آید که همه‌ی فرزندان یک بخش حرف‌اند (`LETTER`) و بیش از ۴۰ نیستند. سرعنوانی که با رقم آغاز می‌شود کنار می‌رود.
+  - صفحه از آخرین `book_page_breaks` پیش از `(doc_item_id, start_offset)` سرعنوان گرفته می‌شود، و برچسبش از `book_pages.page_number`.
+  - خروجی در `../fahares-sources/noor-toc/toc.json` است.
+- **`sources:import-toc FILE [--dry-run]`:** برای هر کد و جلد، `metadata.toc = [{title, page, level}]`. اجرای دوباره جایگزین می‌کند.
+- **`SourceController`:**
+  - **`toc()`:** به هر سرعنوانی که صفحه‌اش در `source_pages` هست، یا در بازه‌ی مدخل‌ها برای جلدی که متن صفحه ندارد، `url` می‌دهد.
+  - **شمار نسخه‌ها:** کش `sources:copies:{id}` (یک روز) شمار نسخه‌های هر جلد را نگه می‌دارد.
+- **قالب‌ها:**
+  - `x-source.cover`: تصویر جلد، یا جلد پارچه‌ای با عنوان.
+  - `x-source.toc`: یک `details` با فهرست چندستونی.
+  - کلاس‌های `.book-nav` و `.book-nav__middle` در `app.css`.
