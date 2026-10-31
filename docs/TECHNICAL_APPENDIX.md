@@ -5061,6 +5061,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `catalogs:link-volumes`؛
   4. `fahares:rebuild-scripts`؛
   5. `fahares:link-autograph-scribes`.
+- **اجرای پروداکشن:** فرمان‌ها با `nohup` درون کانتینر اجرا شدند و خروجی در `/tmp/addworks.log` بود.
+  - **بار اول:** کانتینر با استقرار `fa60c98`ِ پیشین عوض شد و لاگ هم رفت.
+  - **بار دوم:** خطای MariaDB 1020 («Record has changed since last read») هنگام `moveManuscript`، چون `fahares:fill-copy-date-ranges --apply` هم‌زمان در حال اجرا بود.
+  - **بار سوم:** پس از استقرار و بی فرمان هم‌زمان، موفق بود. شناسه‌ی اثرهای تازه روی پروداکشن از ۷۱۵۵۱ است.
+  - **وارسی:** با یک اسکریپت PHP موقت در `/tmp` روی لاگ‌های `create` و `corpus_update` این فایل: ۱۴۸ اثر، ۳۴۹ نسخه، ۰ اثر خالی، ۷۳ مؤلف پیوندخورده، ۱۹۵ نسخه‌ی تازه بی‌کمبود کتابخانه با ۳۹۰ مدخل مأخذ، و ۱۷۸ انتقال.
 
 - **اجرای پروداکشن (۹ آبان):**
   - فایل‌ها با `tar` از راه `ssh fahares-app` به `/tmp/fankha-pages` رفتند و `md5sum -c` درست بود.
