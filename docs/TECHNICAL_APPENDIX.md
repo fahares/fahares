@@ -5478,3 +5478,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** [PersonDeathRangeTest](../tests/Unit/PersonDeathRangeTest.php) (۳) و [FillDeathRangesCommandTest](../tests/Feature/FillDeathRangesCommandTest.php) (۳). کل مجموعه ۵۲۱ آزمون موفق، روی `fahares_wpdeath_test`.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-death-ranges` و بعد با `--apply`.
 - **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت `0aaba71` مستقر شد و migration خودکار اجرا شد. dry run و `--apply`: works:found ۴۲٬۰۲۳، author:texts ۴۱٬۶۱۹، other_name ۴۴، translator:texts ۱۷۱ (not_on_site ۷۵)، people:life_dates ۱۲٬۲۷۲، ranged و changed ۱۲٬۶۲۵ (one_year ۵٬۱۷۷، span ۷٬۴۴۸)، hedged ۷۴۴، without_death_year ۲۰۶، left_out ۱٬۸۹۰. اجرای وارسی `people:changed` نداشت، و هیچ `death_year_hijri` بیرون از بازه‌اش نیست. **نمونه:** #۲۶۲۲ (امام علی) با `- 40 قمری` بازه‌ی ۴۰–۴۰ دارد، #۸۰۶ (احسائی) ۱۲۴۱ مردد، و #۱۴۳۸ ۱۲۰۱–۱۳۰۰.
+
+### گام ۱۳.۱۰۳: `fahares-backup.sh watch`
+- **فرمان:** `job_watch` همان `job_status` را بی‌خروجی اجرا می‌کند؛ اگر کد خروج صفر نباشد (`status` ناموفق یا عمر آخرین بکاپ `db` بیش از `MAX_AGE_HOURS`، پیش‌فرض ۳۰ ساعت)، سطر آخر آن را با `notify` به `TG_CHAT_ID` می‌فرستد و با ۱ خارج می‌شود. هشدار شکست هر کار همچنان از `on_exit` می‌آید؛ `watch` کاری را می‌گیرد که اصلاً اجرا نشده است.
+- **زمان‌بندی:** `0 10 * * *` در crontab کاربر بکاپ ([crontab.example](../scripts/backup/crontab.example)). [README](../scripts/backup/README.md) به‌روز شد: پاییدن روزانه دیگر به Hermes سپرده نیست.
+- **نصب و وارسی:** نسخه‌ی میزبان در `/usr/local/bin` جایگزین شد؛ اجرای دستی `watch` کد ۰ داد و `status` گفت «OK: last db backup 9h ago».
