@@ -238,13 +238,19 @@ class SourcePageViewTest extends TestCase
         SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 9, 'item_key' => '1333', 'position' => 1,
             'kind' => SourceItem::KIND_ENTRY, 'entry_number' => 1333, 'title' => 'ديوان حاجي أردبيلي', 'title_normalized' => 'ديوان حاجي اردبيلي',
             'page_start' => 218, 'page_end' => 218, 'text' => '( 1333 : ديوان حاجي أردبيلي ) أورد شعره في (گلشن - ص 133).']);
+        // an unnumbered entry under it: its heading alone is the heading too
+        DB::table('source_pages')->where('source_volume_id', $volume->id)->update(['text' => DB::raw("CONCAT(text, '\n\n( ديوان محمد مذهب ) له المعمى باسم جليل.')")]);
+        SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 9, 'item_key' => '1333.1', 'position' => 2,
+            'kind' => SourceItem::KIND_SUB_ENTRY, 'title' => 'ديوان محمد مذهب', 'title_normalized' => 'ديوان محمد مذهب',
+            'page_start' => 218, 'page_end' => 218, 'text' => '( ديوان محمد مذهب ) له المعمى باسم جليل.']);
 
         $html = $this->get('/sources/dharia-test/9/page/218')->assertOk()
             // only the heading is the heading; its paragraph goes on after it
             ->assertSee('<span class="book-sheet__heading" data-entry-heading>( ۱۳۳۳ : ديوان حاجي أردبيلي )</span>', false)
             ->assertSee('<span class="book-sheet__rest"> أورد شعره في (<span data-noor="WB">گلشن</span> - ص ۱۳۳).</span>', false)
+            ->assertSee('<span class="book-sheet__heading" data-entry-heading>( ديوان محمد مذهب )</span>', false)
             ->getContent();
-        $this->assertSame(['1333'], $this->headings($html));
+        $this->assertSame(['1333', '1333.1'], $this->headings($html));
         $this->assertStringNotContainsString("\u{E020}", $html);
     }
 

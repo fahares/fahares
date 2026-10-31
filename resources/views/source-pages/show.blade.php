@@ -91,9 +91,10 @@
                             // al-Dhari'a's volume 26 prints the number alone, «[ 972 ]», and the title on the next line
                             // in parentheses: the title is linked too, the rest of its line goes on after it
                             $title = null;
-                            // al-Dhari'a's heading, «( 5 : شارحة الصدور )», runs on with its paragraph: only the heading is the link
+                            // al-Dhari'a's heading, «( 5 : شارحة الصدور )» or an unnumbered «( ديوان محمد مذهب )», runs on with
+                            // its paragraph: only the heading is the link
                             $rest = '';
-                            if (preg_match('/^(\(\s*\d+\s*:[^)\n]*\))(.+)$/us', $lines[0], $split)) {
+                            if (preg_match('/^(\([^)\n]*\))(.+)$/us', $lines[0], $split)) {
                                 [$lines[0], $rest] = [$split[1], $split[2]];
                             }
                             if (preg_match('/^\[\s*\d+\s*\]$/u', trim($lines[0])) && preg_match('/^\s*(\([^)\n]+\))(.*)$/us', $lines[1] ?? '', $m)) {
