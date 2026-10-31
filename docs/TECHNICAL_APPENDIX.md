@@ -5246,6 +5246,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod` محلی):** `--works --apply`: dated ۹٬۸۰۶، ranged ۹٬۷۳۹، span ۴۹۸، open ۲۹ و hedged ۵۸. اجرای دوم `changed 0` بود. اجرای فرمان برای نسخه‌ها هم `changed 0` ماند.
 - **آزمون:** `test_dates_of_composition_get_ranges_too` در [ApplyCorpusCategoriesCommandTest](../tests/Feature/ApplyCorpusCategoriesCommandTest.php). کل مجموعه ۴۹۱ آزمون موفق.
 - **پروداکشن:** پس از استقرار و migration، `php artisan fahares:fill-copy-date-ranges --works --apply`.
+- **انجام در پروداکشن (۹ آبان، `ssh fahares-app`):** کامیت `fb4286e` مستقر شد و migration خودکار اجرا شد. dry run و `--apply` همان شمارهای تمرین را دادند (changed ۹٬۷۳۹). اجرای وارسی `changed 0` بود.
 - **درخواست از مورد ۸۷ (پیام به جلسه‌ی آن، ۹ آبان):**
   - آغازها و انجام‌های شماره‌دار اثر جدا شوند، مثلاً `incipit_numbered`. ۳۰۹ اثر نسخه‌هایی با `same_as_work_n` دارند.
   - خطای «،» میان ماه و سال در تاریخ کتابت اصلاح شود.
