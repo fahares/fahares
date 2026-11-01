@@ -5644,4 +5644,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **بازآزمایی روی `fahares_prod`:** دفتر ۱: ۱۵۵ + ۹۰ به صدرائی، ۷۱ به برکت، ۳۳۹ به غفرانی، ۷ بی‌فهرست‌نگار (۴ ادبیات اصفهان، ص ۴۰۰–۴۹۶؛ ۳ دانشگاه بوعلی که ارجاعشان «اوراق عتیق: 3-…» است و به‌خطا به دفتر ۱ پیوسته‌اند). دفتر ۲: ۳۳۶ بی‌فهرست‌نگار. شمارش‌ها: حکیم ۷ جلد / ۴٬۲۶۰، صدرائی ۲۳ / ۲۷٬۵۵۷، برکت ۴ / ۳٬۶۳۳، غفرانی ۰ / ۳۳۹.
 - **صفحه‌ی فهرست‌نگار:** `metadata.sources` گاه رشته است (`ReplaceRazaviInstitutionCatalogerCommand` برای اوکتایی). [catalogers/show](../resources/views/catalogers/show.blade.php) با `$source['url']` روی رشته می‌شکست (`/catalogers/109` روی پروداکشن ۵۰۰). حالا رشته همان متن است.
 - **آزمون:** [FixAwraqAtiqCatalogersTest](../tests/Feature/FixAwraqAtiqCatalogersTest.php) (۳) و `test_a_source_without_a_link_is_its_text` در [CatalogerCataloguesTest](../tests/Feature/CatalogerCataloguesTest.php).
-- **اجرا روی پروداکشن:** پس از استقرار، `php artisan catalogs:fix-awraq-atiq --dry-run` و سپس بدون آن.
+- **اجرای پروداکشن (۱۱ آبان، با اجازه‌ی کاربر):**
+  - **استقرار:** `git push` (`176b7f8..2a99117`).
+  - **dry-run:** شمار نسخه‌ها همان تمرین محلی بود (دفتر ۱: ۶۶۲؛ دفتر ۲: ۳۳۶).
+  - **اجرا:** حکیم (۳۲) ۷ جلد / ۴٬۲۶۲، صدرائی (۴۴) ۲۳ / ۲۷٬۵۷۲، برکت (۵۳) ۴ / ۳٬۶۳۶، غفرانی (۱۳۲، تازه) ۰ / ۳۳۹. اختلاف اندک با تمرین از نسخه‌هایی است که پس از کپی محلی به جلدهای دیگر این سه نفر افزوده شده‌اند.
+  - **وارسی:** `catalog_volume_cataloger` برای ۵۳۴ و ۵۳۵ تنها حکیم با نقش `supervisor` را دارد. نسخه‌ی ۲۳۲۹۸۸ (مدرسه‌ی آیة‌الله خوئی مشهد) غفرانی را نشان می‌دهد. `/catalogers/109` (اوکتایی)، `/catalogers/132` و `/catalogers/32` ۲۰۰ می‌دهند، و صفحه‌ی `catalogue-5c2b9b62d4d4` «زیر نظر محمدحسین حکیم» دارد.
