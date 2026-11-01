@@ -44,6 +44,26 @@ return [
     // Languages shown on their own in the share chart
     'languages_shown' => 6,
 
+    // A page narrowed to a scope (/insights?author=…, backlog item 107) is built when asked for and kept this long
+    'scope_ttl' => 86400,
+
+    // Scopes not yet in the cache that one visitor may have built in an hour
+    'scope_builds_per_hour' => 30,
+
+    // A chart of a scope that rests on fewer records than this is not drawn; below small_sample it carries a warning
+    'min_sample' => 10,
+    'small_sample' => 50,
+
+    // Movement of copies: the cities of copying (or of the present libraries) listed, and the places shown for each
+    'movement_cities' => 12,
+    'movement_shown' => 6,
+
+    // Subjects (main ones, or those under the scope's subject) in the grid of subjects per century
+    'subjects_shown' => 10,
+
+    // Features of the copies in the grid of features per century (columns of manuscripts, SearchFilters::FLAGS)
+    'features' => ['is_illuminated', 'is_corrected', 'is_collated', 'has_marginal_notes', 'is_autograph'],
+
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],
         'تهران' => ['lat' => 35.69, 'lon' => 51.39, 'aliases' => ['طهران']],

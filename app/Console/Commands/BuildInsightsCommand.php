@@ -21,7 +21,7 @@ class BuildInsightsCommand extends Command
         $data = Insights::refresh();
 
         $this->info(sprintf(
-            'Insights built in %.1fs: %d dated copies (%s%%, %d by century only), %d dated authors, %d copies placed after their author\'s death, %d copies in %d cities (%s%%), %d top works.',
+            'Insights built in %.1fs: %d dated copies (%s%%, %d by century only), %d dated authors, %d copies placed after their author\'s death, %d copies in %d cities (%s%%), %d works in %d cities of composition (%s%%), %d copies followed to their library (%s%% stayed), %d top works.',
             microtime(true) - $start,
             $data['timeline']['shown'],
             $data['timeline']['coverage'],
@@ -31,6 +31,11 @@ class BuildInsightsCommand extends Command
             $data['places']['mapped'],
             count($data['places']['cities']),
             $data['places']['coverage'],
+            $data['places']['composition']['mapped'],
+            $data['places']['composition']['cities'],
+            $data['places']['composition']['coverage'],
+            $data['movement']['mapped'],
+            $data['movement']['stayed_share'],
             count($data['top_works']['items']),
         ));
 
