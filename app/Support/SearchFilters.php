@@ -27,7 +27,7 @@ class SearchFilters
     public const PARAMS = [
         'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph'],
         'manuscripts' => ['work_id', 'scribe_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
-            'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags'],
+            'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'source_volume_id'],
         'people' => ['role', 'century'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
@@ -78,6 +78,9 @@ class SearchFilters
     public ?\App\Models\Work $work = null;
     public ?\App\Models\Person $person = null;
 
+    /** The printed catalogue volume whose copies are listed (step 13.116) */
+    public ?\App\Models\SourceVolume $sourceVolume = null;
+
     /** The parameters that narrow a tab to one record's list; the counts of the other filters are taken within it */
     public const CONTEXT = ['work_id', 'scribe_id', 'author_id'];
 
@@ -99,9 +102,10 @@ class SearchFilters
         $this->source = isset($values['source_id']) ? Source::whereIn('kind', self::SOURCE_KINDS)->find($values['source_id']) : null;
         $this->work = isset($values['work_id']) ? \App\Models\Work::find($values['work_id']) : null;
         $this->person = ($id = $values['scribe_id'] ?? $values['author_id'] ?? null) ? \App\Models\Person::find($id) : null;
+        $this->sourceVolume = isset($values['source_volume_id']) ? \App\Models\SourceVolume::with('source')->find($values['source_volume_id']) : null;
         // A filter whose record is gone is no filter
         foreach (['subject_id' => 'subject', 'script_id' => 'script', 'language_id' => 'language', 'source_id' => 'source',
-            'work_id' => 'work', 'scribe_id' => 'person', 'author_id' => 'person'] as $param => $record) {
+            'work_id' => 'work', 'scribe_id' => 'person', 'author_id' => 'person', 'source_volume_id' => 'sourceVolume'] as $param => $record) {
             if (isset($this->values[$param]) && ! $this->$record) {
                 unset($this->values[$param]);
             }
@@ -134,7 +138,7 @@ class SearchFilters
         }
 
         return match ($param) {
-            'subject_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
+            'subject_id', 'script_id', 'language_id', 'source_id', 'work_id', 'scribe_id', 'author_id', 'source_volume_id' => ctype_digit((string) $value) && (int) $value > 0 ? (int) $value : null,
             'century' => ctype_digit((string) $value) && $value >= 1 && $value <= 15 ? (int) $value : null,
             'volume' => ctype_digit(TextNormalizer::normalize((string) $value)) && (int) TextNormalizer::normalize((string) $value) > 0 ? (int) TextNormalizer::normalize((string) $value) : null,
             'year_from', 'year_to', 'folios_from', 'folios_to' => ctype_digit(TextNormalizer::normalize((string) $value)) ? (int) TextNormalizer::normalize((string) $value) : null,
@@ -211,6 +215,7 @@ class SearchFilters
                 'source_id' => $this->type === 'sources' ? "source_id = {$value}" : "bibliographies = {$value}",
                 'volume' => "volume_number = {$value}",
                 'has_autograph' => 'has_autograph = true',
+                'source_volume_id' => "source_volume_ids = {$value}",
                 'role' => "is_{$value} = true",
                 'century' => $this->type === 'people' ? "century_hijri = {$value}" : null,
                 default => null,
@@ -260,6 +265,8 @@ class SearchFilters
                     ->where('source_entries.citable_type', \App\Models\Work::class)->where('source_entries.source_id', $value)
                     ->where('source_entries.status', '!=', SourceEntry::STATUS_REJECTED)),
                 'has_autograph' => $query->whereIn('works.id', DB::table('manuscripts')->where('is_autograph', true)->whereNotNull('work_id')->select('work_id')),
+                'source_volume_id' => $query->whereIn('manuscripts.id', DB::table('source_entries')->where('source_volume_id', $value)
+                    ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', \App\Models\Manuscript::class)->select('citable_id')),
                 'role' => $query->where("is_{$value}", true),
                 'century' => $this->type === 'people' ? $query->where('century_hijri', $value) : null,
                 default => null,
@@ -309,6 +316,9 @@ class SearchFilters
                 'source_id' => ($this->type === 'sources' ? 'در ' : 'یادشده در ') . ($this->source->short_name ?: $this->source->title),
                 'volume' => 'جلد ' . $fa($value),
                 'has_autograph' => 'دارای دستخط مؤلف',
+                // «فهرست مرعشی ج ۳»; a book in one volume, by its title alone
+                'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
+                    . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
                 'role' => 'نقش: ' . self::ROLES[$value],
                 'century' => 'سده‌ی ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'people' => ' (وفات)', default => ' (کتابت)' },
                 default => null,
