@@ -5903,7 +5903,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۳.۱۲۸: `fahares:add-ruler-aliases`
 - **کد:** `AddRulerAliasesCommand` برای هر سطر `KnownRulers::LIST` رکورد را با `PersonNameMatcher::ids(normalize(name))` پیدا می‌کند و فقط وقتی یکتا باشد پیش می‌رود. املایی را می‌افزاید که با `KnownRulers::compact` (بی فاصله و «،» و «-») در نام و `aliases` شخص نباشد. ذخیره با مدل انجام می‌شود، پس Scout شخص را بازنمایه می‌کند. هر افزودن یک `AuditLog` با `action = corpus_update` و `corpus_fix = ruler spellings (item 35)` دارد. `USUALLY` کنار گذاشته می‌شود.
 - **dry run (`fahares_prod` محلی):** `rulers 35`، `not_found 0`، `ambiguous 0`، `people_changed 35`، `aliases_added 110`.
-- **اجرا در پروداکشن (پس از استقرار):** `php artisan fahares:add-ruler-aliases` و سپس همان با `--apply`.
+- **اجرا در پروداکشن (۱۱ آبان ۱۴۰۵، کامیت `98e9937`):** dry run و `--apply` هر دو `people_changed 35` و `aliases_added 110` گزارش دادند. اجرای سوم `0` بود. `Person::search("سنجر بن ملکشاه")` رکورد #74720 را برگرداند.
 - **وارسی‌های بی‌کد:**
   - «برابر» ساده: `Manuscript::getIncipitsListAttribute` و `getExplicitsListAttribute` با `$hasBarabar` آغاز یا انجام اثر را نشان می‌دهند.
   - یکاشناسی: `RebuildCopiesCommand` و `AddCorpusWorksCommand` هر دو `DerivedData::syncCopies` را صدا می‌زنند.
