@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'آمار: نسخه‌های خطی در گذر سده‌ها | فهارس')
-@section('meta_description', 'خط زمانی کتابت نسخه‌های خطی از سده‌ی چهارم تا چهاردهم هجری، کانون‌های تاریخی استنساخ، آثار پرنسخه و سهم خطوط و زبان‌ها در فهارس')
+@php $scopeLabels = array_column($scope->labels(), 1); @endphp
+@section('title', $scope->isEmpty() ? 'آمار: نسخه‌های خطی در گذر سده‌ها | فهارس' : 'آمار نسخه‌های ' . implode('، ', $scopeLabels) . ' | فهارس')
+@section('meta_description', 'خط زمانی کتابت نسخه‌های خطی از سده‌ی چهارم تا چهاردهم هجری، کانون‌های تاریخی استنساخ و تألیف، جابه‌جایی نسخه‌ها، موضوع‌ها و ویژگی‌های نسخه در گذر سده‌ها، آثار پرنسخه و سهم خطوط و زبان‌ها در فهارس')
+{{-- A scope is one of countless filter combinations: linked to, not indexed --}}
+@unless($scope->isEmpty())
+    @section('robots', 'noindex, follow')
+@endunless
 
 @section('content')
 @php
@@ -16,41 +21,80 @@
     $a = $data['authors'];
     $w = $data['compositions'];
     $g = $data['copy_gap'];
+    $cp = $p['composition'];
+    $mv = $data['movement'];
+    // The thin-data rule is for a scope; the whole data is drawn whatever it holds
+    $min = $scope->isEmpty() ? 0 : config('insights.min_sample');
+    // A link to the search, with the scope's filters the search has; the chart's own parameters come first
+    $search = fn (string $type, array $params = []) => route('search', ['type' => $type] + $params + $scope->searchParams($type));
     $lifetime = collect($g['bands'])->firstWhere('upto', 0);
     $maxCentury = max(array_column($t['centuries'], 'count')) ?: 1;
     $peak = collect($t['centuries'])->sortByDesc('count')->first();
 
-    // Names on the map: the largest centres, skipping one that sits too close to a larger one already named
-    $labels = [];
-    foreach ($p['cities'] as $city) {
-        if (count($labels) >= 14) {
-            break;
+    // Names on the map: the largest centres of a layer, skipping one that sits too close to a larger one already named
+    $mapLabels = function (string $count) use ($p) {
+        $cities = collect($p['cities'])->filter(fn ($c) => $c[$count] > 0)->sortByDesc($count)->values();
+        $top = max(1, $cities[0][$count] ?? 1);
+        $labels = [];
+        foreach ($cities as $city) {
+            if (count($labels) >= 14) {
+                break;
+            }
+            $near = collect($labels)->contains(fn ($o) => hypot($o['x'] - $city['x'], $o['y'] - $city['y']) < 34);
+            if (! $near) {
+                $labels[] = $city + ['gap' => max(3, 34 * sqrt($city[$count] / $top)) + 5];
+            }
         }
-        $near = collect($labels)->contains(fn ($o) => hypot($o['x'] - $city['x'], $o['y'] - $city['y']) < 34);
-        if (! $near) {
-            $labels[] = $city + ['gap' => max(3, 34 * sqrt($city['count'] / max(1, $p['cities'][0]['count']))) + 5];
-        }
-    }
-    $maxPlace = max(1, $p['cities'][0]['count'] ?? 1);
-    $mapCities = array_map(fn ($c) => ['n' => $c['name'], 'x' => $c['x'], 'y' => $c['y'], 't' => $c['count'], 'c' => (object) $c['centuries']], $p['cities']);
+
+        return $labels;
+    };
+    $layers = ['copy' => $mapLabels('count'), 'composition' => $mapLabels('works')];
+    $maxPlace = max([1, ...array_column($p['cities'], 'count')]);
+    $mapCities = array_map(fn ($c) => ['n' => $c['name'], 'x' => $c['x'], 'y' => $c['y'], 't' => $c['count'], 'c' => (object) $c['centuries'],
+        'w' => $c['works'], 'wc' => (object) $c['work_centuries']], $p['cities']);
     $mapCenturies = range(7, config('insights.centuries')[1]);
 @endphp
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
     <header class="text-center grid justify-items-center gap-2">
         <p class="text-xs font-bold text-cinnabar">آمار</p>
-        <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">نسخه‌ها در گذر سده‌ها</h1>
-        <p class="text-sm text-muted max-w-2xl leading-relaxed">
-            آنچه {{ Fa::approx($data['totals']['manuscripts']) }} نسخه‌ی خطی و {{ Fa::approx($data['totals']['works']) }} اثرِ ثبت‌شده در فهارس درباره‌ی زمان و جای کتابت، آثار پرنسخه و خطوط و زبان‌ها می‌گوید.
-            هر نمودار تنها بر بخشی از نسخه‌ها تکیه دارد که آن آگاهی را دارند؛ سهم هر یک زیر نمودار آمده است.
-        </p>
+        @if($scope->isEmpty())
+            <h1 class="font-naskh text-[28px] sm:text-[38px] font-bold leading-[1.6] text-ink text-balance">نسخه‌ها در گذر سده‌ها</h1>
+            <p class="text-sm text-muted max-w-2xl leading-relaxed">
+                آنچه {{ Fa::approx($data['totals']['manuscripts']) }} نسخه‌ی خطی و {{ Fa::approx($data['totals']['works']) }} اثرِ ثبت‌شده در فهارس درباره‌ی زمان و جای کتابت، آثار پرنسخه و خطوط و زبان‌ها می‌گوید.
+                هر نمودار تنها بر بخشی از نسخه‌ها تکیه دارد که آن آگاهی را دارند؛ سهم هر یک زیر نمودار آمده است.
+            </p>
+        @else
+            <h1 class="font-naskh text-[24px] sm:text-[32px] font-bold leading-[1.6] text-ink text-balance">آمار نسخه‌های {{ implode('، ', $scopeLabels) }}</h1>
+            <p class="text-sm text-muted">
+                {{ Fa::num($data['totals']['manuscripts']) }} نسخه از {{ Fa::num($data['totals']['works']) }} اثر
+                · <a href="{{ route('insights') }}" class="text-cinnabar font-semibold hover:underline">بازگشت به آمار کل</a>
+            </p>
+            <ul class="flex flex-wrap justify-center gap-2 text-xs" aria-label="فیلترهای این آمار">
+                @foreach($scope->labels() as [$param, $label, $link])
+                    <li class="inline-flex items-center gap-1 border border-line-strong bg-surface ps-2.5 rounded-full">
+                        @if($link)<a href="{{ $link }}" class="text-ink hover:text-cinnabar">{{ $label }}</a>@else<span class="text-ink">{{ $label }}</span>@endif
+                        <a href="{{ route('insights', $scope->without($param)) }}" class="px-2 py-0.5 text-muted hover:text-cinnabar" aria-label="برداشتن فیلتر {{ $label }}" title="برداشتن این فیلتر">×</a>
+                    </li>
+                @endforeach
+            </ul>
+            @if($scope->unsearchable())
+                <p class="text-[11px] text-muted max-w-2xl">پیوند نمودارها به جست‌وجوی نسخه‌ها فیلتر {{ implode(' و ', array_map(fn ($p) => ['author' => 'مؤلف', 'catalog' => 'فهرست'][$p], $scope->unsearchable())) }} را با خود نمی‌برد، چون جست‌وجوی نسخه‌ها آن را ندارد.</p>
+            @endif
+        @endif
     </header>
+
+    @include('insights.filter-form')
+
+    @if($data['totals']['manuscripts'] === 0 && $data['totals']['works'] === 0)
+        <x-ui.card><p class="text-sm text-muted text-center py-6">در این دامنه نسخه یا اثری نیست. فیلترها را کمتر کنید یا <a href="{{ route('insights') }}" class="text-cinnabar hover:underline">به آمار کل</a> برگردید.</p></x-ui.card>
+    @else
 
     <dl class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-line border border-line">
         @foreach([
             ['نسخه‌ی خطی', Fa::num($data['totals']['manuscripts']), 'متعلق به ' . Fa::num($data['totals']['works']) . ' اثر'],
             ['نسخه‌ی تاریخ‌دار', Fa::num($t['shown']), $pct($t['coverage']) . ' نسخه‌ها، با سده‌ای‌ها'],
-            ['اوج کتابت', 'سده‌ی ' . Fa::digits($peak['century']), Fa::num($peak['count']) . ' نسخه'],
+            ['اوج کتابت', $peak['count'] ? 'سده‌ی ' . Fa::digits($peak['century']) : '—', Fa::num($peak['count']) . ' نسخه'],
             ['کانون استنساخ', Fa::num(count($p['cities'])) . ' شهر', 'از ' . Fa::num($p['mapped']) . ' نسخه‌ی جای‌دار'],
         ] as [$label, $value, $note])
             <div class="bg-surface p-4 grid gap-0.5">
@@ -64,12 +108,16 @@
     {{-- 1. Timeline of copying --}}
     <x-ui.section title="خط زمانی کتابت" id="timeline">
         <x-ui.card>
+            @if($t['shown'] < $min)
+                @include('insights.thin', ['n' => $t['shown'], 'what' => 'نسخه‌ی تاریخ‌دار'])
+            @else
+            @include('insights.small', ['n' => $t['shown'], 'what' => 'نسخه‌ی تاریخ‌دار'])
             <div x-data="{ sel: {{ $peak['century'] }}, cs: @js(collect($t['centuries'])->keyBy('century')),
                 get decades() { return this.cs[this.sel].decades.map((n, i) => n + this.cs[this.sel].decades_doubtful[i]) } }">
             <p class="text-xs text-muted mb-4">شمار نسخه‌های کتابت‌شده در هر سده‌ی هجری. نسخه‌ای که تنها سده یا بخشی از سده دارد («قرن ۱۳»، «اواخر قرن ۱۲») لایه‌ی خود را دارد و اگر بازه‌اش دو سده را بگیرد، میان آن دو بخش شده است. روی هر سده بزنید تا نسخه‌های آن در جست‌وجو باز شود.</p>
 
             @include('insights.century-bars', ['rows' => $t['centuries'], 'unit' => 'نسخه', 'label' => 'شمار نسخه‌ها در هر سده',
-                'href' => fn ($c) => route('search', ['type' => 'manuscripts', 'century' => $c])])
+                'href' => fn ($c) => $search('manuscripts', ['century' => $c])])
 
             {{-- Decades of one century --}}
             <div class="mt-6 pt-4 border-t border-line">
@@ -103,7 +151,7 @@
                     </div>
                     <p class="mt-2 text-[11px] text-muted">تنها نسخه‌های سال‌دار، چون نسخه‌ای که تنها سده‌اش معلوم است، دهه ندارد.</p>
                     <p class="mt-3 text-xs">
-                        <a :href="`{{ route('search', ['type' => 'manuscripts']) }}&century=${sel}`" class="text-cinnabar font-semibold hover:underline">
+                        <a :href="`{{ $search('manuscripts') }}&century=${sel}`" class="text-cinnabar font-semibold hover:underline">
                             دیدن نسخه‌های سال‌دار سده‌ی <span x-text="sel.toLocaleString('fa-IR')"></span> در جست‌وجو ←
                         </a>
                     </p>
@@ -118,13 +166,17 @@
                 @if($t['open'] > 0){{ Fa::num($t['open']) }} نسخه با بازه‌ی باز («پیش از ۱۱۰۰»، «پس از ۱۲۰۰») جدا شمرده شده و در نمودار نیامده است.@endif
             </p>
             </div>
+            @endif
         </x-ui.card>
     </x-ui.section>
 
     {{-- 1b. Authors by death and works by composition --}}
     <x-ui.section title="پدیدآورندگان و آثار در گذر سده‌ها" id="authors">
         <x-ui.card>
-            <div x-data="{ by: 'authors' }">
+            @if($a['counted'] < $min && $w['counted'] < $min)
+                @include('insights.thin', ['n' => max($a['counted'], $w['counted']), 'what' => 'مؤلف یا اثرِ تاریخ‌دار'])
+            @else
+            <div x-data="{ by: '{{ $a['counted'] >= $min ? 'authors' : 'works' }}' }">
             <div class="flex flex-wrap items-center gap-1.5 text-xs mb-4">
                 <span class="text-muted me-1">بر پایه‌ی</span>
                 @foreach(['authors' => 'سال وفات مؤلفان', 'works' => 'سال تألیف آثار'] as $key => $name)
@@ -134,10 +186,11 @@
                 @endforeach
             </div>
 
-            <div x-show="by === 'authors'">
+            <div x-show="by === 'authors'" @if($a['counted'] < $min) x-cloak @endif>
+                @include('insights.small', ['n' => $a['counted'], 'what' => 'مؤلفِ تاریخ‌دار'])
                 <p class="text-xs text-muted mb-4">شمار مؤلفان (کسانی که اثری از آنان در فهارس هست) در هر سده‌ی هجری بر پایه‌ی سال وفات. وفاتی که تنها سده‌اش ثبت شده («ق۱۳»)، لایه‌ی خود را دارد.</p>
                 @include('insights.century-bars', ['rows' => $a['centuries'], 'unit' => 'مؤلف', 'label' => 'شمار مؤلفان در هر سده',
-                    'href' => fn ($c) => route('search', ['type' => 'people', 'role' => 'author', 'century' => $c])])
+                    'href' => fn ($c) => $search('people', ['role' => 'author', 'century' => $c])])
                 <p class="mt-5 text-xs text-muted leading-relaxed">
                     بر پایه‌ی {{ Fa::num($a['counted']) }} مؤلف، یعنی {{ $pct($a['coverage']) }} از {{ Fa::num($a['total']) }} مؤلف، که تاریخ وفاتشان ثبت شده است:
                     {{ Fa::num($a['exact']) }} با سال معین و {{ Fa::num($a['range']) }} تنها با سده.
@@ -145,10 +198,11 @@
                 </p>
             </div>
 
-            <div x-show="by === 'works'" x-cloak>
+            <div x-show="by === 'works'" @if($a['counted'] >= $min) x-cloak @endif>
+                @include('insights.small', ['n' => $w['counted'], 'what' => 'اثرِ تاریخ‌دار'])
                 <p class="text-xs text-muted mb-4">شمار آثار در هر سده‌ی هجری بر پایه‌ی تاریخ تألیف، آن‌جا که فهرست آن را آورده است.</p>
                 @include('insights.century-bars', ['rows' => $w['centuries'], 'unit' => 'اثر', 'label' => 'شمار آثار در هر سده',
-                    'href' => fn ($c) => route('search', ['type' => 'works', 'century' => $c])])
+                    'href' => fn ($c) => $search('works', ['century' => $c])])
                 <p class="mt-5 text-xs text-muted leading-relaxed">
                     بر پایه‌ی {{ Fa::num($w['counted']) }} اثر، یعنی تنها {{ $pct($w['coverage']) }} آثار، که تاریخ تألیفشان ثبت شده است.
                     @include('insights.doubtful-note', ['layers' => $w, 'unit' => 'اثر', 'what' => 'تاریخ تألیفشان'])
@@ -157,12 +211,17 @@
                 </p>
             </div>
             </div>
+            @endif
         </x-ui.card>
     </x-ui.section>
 
     {{-- 1c. Years from the author's death to the copy --}}
     <x-ui.section title="فاصله‌ی کتابت تا وفات مؤلف" id="copy-gap">
         <x-ui.card>
+            @if($g['placed'] < $min)
+                @include('insights.thin', ['n' => $g['placed'], 'what' => 'نسخه با تاریخ کتابت و وفات مؤلف'])
+            @else
+            @include('insights.small', ['n' => $g['placed'], 'what' => 'نسخه با تاریخ کتابت و وفات مؤلف'])
             @php $maxBand = max(1, ...array_column($g['bands'], 'count')); @endphp
             <p class="text-xs text-muted mb-4">
                 چند سال پس از وفات مؤلف از اثرش نسخه برداشته‌اند.
@@ -200,23 +259,41 @@
                 {{ Fa::num($g['doubtful']) }} نسخه ({{ $pct($g['doubtful_share']) }}) تاریخ کتابت یا وفات مردد دارند و کم‌رنگ آمده‌اند.
                 ردیف نخست، کتابتِ بیش از {{ Fa::digits(-config('insights.copy_gap')[0]) }} سال پیش از وفات، نشان خطایی در تاریخ یا در نسبت اثر به مؤلف است.
             </p>
+            @endif
         </x-ui.card>
     </x-ui.section>
 
-    {{-- 2. Centres of copying --}}
-    <x-ui.section title="کانون‌های تاریخی استنساخ" id="places">
+    {{-- 2. Centres of copying and of composition --}}
+    <x-ui.section title="کانون‌های تاریخی استنساخ و تألیف" id="places">
         <x-ui.card>
+            @if($p['mapped'] < $min && $cp['mapped'] < $min)
+                @include('insights.thin', ['n' => max($p['mapped'], $cp['mapped']), 'what' => 'نسخه یا اثر با جای شناخته'])
+            @else
             <div x-data="{
                 c: 'all',
+                layer: '{{ $p['mapped'] >= $min ? 'copy' : 'composition' }}',
                 hover: null,
                 cities: @js($mapCities),
                 n(city) { return this.c === 'all' ? city.t : (city.c[this.c] || 0) },
-                get max() { return Math.max(1, ...this.cities.map(city => this.n(city))) },
-                r(city) { const v = this.n(city); return v ? Math.max(3, 34 * Math.sqrt(v / this.max)) : 0 },
-                href(city) { return `{{ route('search', ['type' => 'manuscripts']) }}&amp;copy_city=${encodeURIComponent(city.n)}` + (this.c === 'all' ? '' : `&century=${this.c}`) },
-                get ranked() { return this.cities.filter(city => this.n(city) > 0).sort((a, b) => this.n(b) - this.n(a)).slice(0, 15) },
-                get total() { return this.cities.reduce((s, city) => s + this.n(city), 0) },
+                w(city) { return this.c === 'all' ? city.w : (city.wc[this.c] || 0) },
+                key(city) { return this.layer === 'composition' ? this.w(city) : this.n(city) },
+                get maxN() { return Math.max(1, ...this.cities.map(city => this.n(city))) },
+                get maxW() { return Math.max(1, ...this.cities.map(city => this.w(city))) },
+                r(city) { const v = this.layer === 'composition' ? 0 : this.n(city); return v ? Math.max(3, 34 * Math.sqrt(v / this.maxN)) : 0 },
+                rw(city) { const v = this.layer === 'copy' ? 0 : this.w(city); return v ? Math.max(3, 34 * Math.sqrt(v / this.maxW)) : 0 },
+                href(city) { return this.layer === 'composition' ? null : `{{ $search('manuscripts') }}&amp;copy_city=${encodeURIComponent(city.n)}` + (this.c === 'all' ? '' : `&century=${this.c}`) },
+                tip(city) { return [this.layer !== 'composition' ? this.n(city).toLocaleString('fa-IR') + ' نسخه' : null, this.layer !== 'copy' ? this.w(city).toLocaleString('fa-IR') + ' اثر' : null].filter(Boolean).join(' · ') },
+                get ranked() { return this.cities.filter(city => this.key(city) > 0).sort((a, b) => this.key(b) - this.key(a)).slice(0, 15) },
+                get total() { return this.cities.reduce((s, city) => s + this.key(city), 0) },
             }">
+            <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
+                <span class="text-muted me-1">لایه:</span>
+                @foreach(['copy' => 'جای کتابت', 'composition' => 'جای تألیف', 'both' => 'هر دو'] as $key => $name)
+                    <button type="button" @click="layer = '{{ $key }}'" :aria-pressed="(layer === '{{ $key }}').toString()"
+                            :class="layer === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
+                            class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
+                @endforeach
+            </div>
             <div class="flex flex-wrap items-center gap-1.5 text-xs mb-4">
                 <span class="text-muted me-1">سده:</span>
                 <button type="button" @click="c = 'all'" :aria-pressed="(c === 'all').toString()"
@@ -232,67 +309,207 @@
             <div class="grid lg:grid-cols-[1fr_16rem] gap-6">
                 <div class="relative">
                     <svg viewBox="0 0 {{ $map['width'] }} {{ $map['height'] }}" class="w-full h-auto bg-paper border border-line" role="img"
-                         aria-label="نقشه‌ی کانون‌های استنساخ؛ اندازه‌ی هر دایره شمار نسخه‌های کتابت‌شده در آن شهر است">
+                         aria-label="نقشه‌ی کانون‌های استنساخ و تألیف؛ اندازه‌ی هر دایره شمار نسخه‌های کتابت‌شده یا آثار تألیف‌شده در آن شهر است">
                         @include('insights.map-base')
                         <g>
                             @foreach($p['cities'] as $i => $city)
-                                <a href="{{ route('search', ['type' => 'manuscripts', 'copy_city' => $city['name']]) }}"
+                                <a href="{{ $search('manuscripts', ['copy_city' => $city['name']]) }}"
                                    :href="href(cities[{{ $i }}])"
                                    @mouseenter="hover = cities[{{ $i }}]" @mouseleave="hover = null" @focus="hover = cities[{{ $i }}]" @blur="hover = null"
                                    aria-label="{{ $city['name'] }}">
                                     <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}"
-                                            r="{{ max(3, round(34 * sqrt($city['count'] / $maxPlace), 1)) }}"
+                                            r="{{ $city['count'] ? max(3, round(34 * sqrt($city['count'] / $maxPlace), 1)) : 0 }}"
                                             :r="r(cities[{{ $i }}])"
                                             class="fill-cinnabar/55 stroke-surface hover:fill-cinnabar transition-colors cursor-pointer" stroke-width="2"/>
                                 </a>
                             @endforeach
                         </g>
-                        <g class="hidden sm:inline pointer-events-none" font-size="19" font-weight="600">
-                            @foreach($labels as $city)
-                                {{-- RTL text: «start» is the right edge, so a name sits left of its dot, or right of it near the left edge --}}
-                                <text x="{{ $city['x'] < 90 ? $city['x'] + $city['gap'] : $city['x'] - $city['gap'] }}" y="{{ $city['y'] + 6 }}" text-anchor="{{ $city['x'] < 90 ? 'end' : 'start' }}"
-                                      class="fill-ink" paint-order="stroke" stroke="var(--paper)" stroke-width="5" stroke-linejoin="round">{{ $city['name'] }}</text>
+                        {{-- The places of composition: discs alone, rings over the copies when both are shown --}}
+                        <g>
+                            @foreach($p['cities'] as $i => $city)
+                                @if($city['works'] > 0)
+                                    <circle cx="{{ $city['x'] }}" cy="{{ $city['y'] }}" r="0" :r="rw(cities[{{ $i }}])"
+                                            :class="layer === 'both' ? 'fill-transparent stroke-gold' : 'fill-gold/60 stroke-surface hover:fill-gold'"
+                                            :stroke-width="layer === 'both' ? 3 : 2" class="transition-colors"
+                                            @mouseenter="hover = cities[{{ $i }}]" @mouseleave="hover = null"/>
+                                @endif
                             @endforeach
                         </g>
+                        @foreach($layers as $layer => $labels)
+                            <g class="hidden sm:inline pointer-events-none" font-size="19" font-weight="600"
+                               @if($layer === 'copy') x-show="layer !== 'composition'" @else x-show="layer === 'composition'" x-cloak @endif>
+                                @foreach($labels as $city)
+                                    {{-- RTL text: «start» is the right edge, so a name sits left of its dot, or right of it near the left edge --}}
+                                    <text x="{{ $city['x'] < 90 ? $city['x'] + $city['gap'] : $city['x'] - $city['gap'] }}" y="{{ $city['y'] + 6 }}" text-anchor="{{ $city['x'] < 90 ? 'end' : 'start' }}"
+                                          class="fill-ink" paint-order="stroke" stroke="var(--paper)" stroke-width="5" stroke-linejoin="round">{{ $city['name'] }}</text>
+                                @endforeach
+                            </g>
+                        @endforeach
                     </svg>
                     <div x-cloak x-show="hover" class="absolute top-2 right-2 bg-surface border border-line-strong shadow-sm px-3 py-1.5 text-xs pointer-events-none">
                         <strong class="text-ink" x-text="hover?.n"></strong>
-                        <span class="text-muted tabular-nums" x-text="hover ? n(hover).toLocaleString('fa-IR') + ' نسخه' : ''"></span>
+                        <span class="text-muted tabular-nums" x-text="hover ? tip(hover) : ''"></span>
                     </div>
+                    <ul x-show="layer === 'both'" x-cloak class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full bg-cinnabar/55" aria-hidden="true"></span>جای کتابت (نسخه)</li>
+                        <li class="flex items-center gap-1.5"><span class="inline-block size-2.5 rounded-full border-2 border-gold" aria-hidden="true"></span>جای تألیف (اثر)</li>
+                        <li>اندازه‌ی دایره‌های هر لایه جدا سنجیده شده است.</li>
+                    </ul>
                 </div>
 
                 <div>
                     <p class="text-xs text-muted mb-2">
-                        پرکارترین شهرها
+                        <span x-text="layer === 'composition' ? 'شهرهای تألیف' : 'پرکارترین شهرها'"></span>
                         <span x-show="c !== 'all'" x-cloak>در سده‌ی <span x-text="Number(c).toLocaleString('fa-IR')"></span></span>
                     </p>
                     <ol class="text-sm">
                         <template x-for="city in ranked" :key="city.n">
                             <li class="border-b border-line">
                                 <a :href="href(city)" class="flex items-baseline gap-2 py-1.5 group">
-                                    <span class="text-ink group-hover:text-cinnabar transition" x-text="city.n"></span>
+                                    <span class="text-ink transition" :class="layer !== 'composition' && 'group-hover:text-cinnabar'" x-text="city.n"></span>
                                     <span class="leader" aria-hidden="true"></span>
-                                    <span class="text-xs text-muted tabular-nums" x-text="n(city).toLocaleString('fa-IR')"></span>
+                                    <span class="text-xs text-muted tabular-nums" x-text="layer === 'both' ? tip(city) : key(city).toLocaleString('fa-IR')"></span>
                                 </a>
                             </li>
                         </template>
                     </ol>
-                    <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این سده جای کتابتی ثبت نشده است.</p>
+                    <p x-show="ranked.length === 0" x-cloak class="text-xs text-muted py-4">برای این سده جایی ثبت نشده است.</p>
                 </div>
             </div>
 
-            <p class="mt-5 text-xs text-muted leading-relaxed">
-                بر پایه‌ی {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
+            <p x-show="layer !== 'composition'" class="mt-5 text-xs text-muted leading-relaxed">
+                جای کتابت: بر پایه‌ی {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
                 جای کتابت برای {{ Fa::num($p['with_place']) }} نسخه ({{ $pct($p['place_coverage']) }}) ثبت شده و {{ $pct($p['mapped_share']) }} آن‌ها به یکی از {{ Fa::num(count(config('insights.copy_places'))) }} شهر شناخته‌شده رسید؛
                 نام‌های کهن و گونه‌گون یک شهر (طهران، سپاهان، توس، قسطنطنیه …) یکی شمرده شده‌اند و جاهایی چون «ایران» یا «هندوستان» که شهر نیستند، روی نقشه نیامده‌اند.
-                <span x-show="c !== 'all'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخه‌ی جای‌دار و تاریخ‌دار هست.</span>
+                <span x-show="c !== 'all' && layer === 'copy'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخه‌ی جای‌دار و تاریخ‌دار هست.</span>
+            </p>
+            <p x-show="layer !== 'copy'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
+                جای تألیف: تنها {{ Fa::num($cp['with_place']) }} اثر، یعنی {{ $pct($cp['place_coverage']) }} آثار، جای تألیف دارند و {{ Fa::num($cp['mapped']) }} اثر از آن‌ها ({{ $pct($cp['mapped_share']) }}) به یکی از همین شهرها رسید.
+                پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند و سده‌ی هر اثر، سده‌ی سال تألیف آن است.
+                جست‌وجو فیلتر جای تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
             </p>
             </div>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 2b. From the place of copying to the present library --}}
+    <x-ui.section title="از جای کتابت تا کتابخانه‌ی امروز" id="movement">
+        <x-ui.card>
+            @if($mv['mapped'] < $min)
+                @include('insights.thin', ['n' => $mv['mapped'], 'what' => 'نسخه با جای کتابت شناخته'])
+            @else
+            @include('insights.small', ['n' => $mv['mapped'], 'what' => 'نسخه با جای کتابت شناخته'])
+            <div x-data="{
+                {{-- A scope of one library or city has one city of today: where its copies came from is the question --}}
+                dir: '{{ $scope->get('library') || $scope->get('city') ? 'to' : 'from' }}', sel: 0,
+                lists: { from: @js($mv['origins']), to: @js($mv['destinations']) },
+                get city() { return this.lists[this.dir][this.sel] },
+                get max() { return Math.max(1, ...this.city.items.map(r => r.count)) },
+                href(row) {
+                    const [from, to] = this.dir === 'from' ? [this.city.name, row.name] : [row.name, this.city.name];
+                    return `{{ $search('manuscripts') }}&amp;copy_city=${encodeURIComponent(from)}&amp;city=${encodeURIComponent(to)}`;
+                },
+                share(v) { return (Math.round(v * 1000 / Math.max(1, this.city.total)) / 10).toLocaleString('fa-IR') + '٪' },
+            }">
+            <p class="text-xs text-muted mb-3">نسخه‌هایی که در یک شهر کتابت شده‌اند امروز در کتابخانه‌های کدام شهرها هستند، یا نسخه‌های کتابخانه‌های یک شهر از کجا آمده‌اند.</p>
+            <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
+                @foreach(['from' => 'از جای کتابت', 'to' => 'به شهر امروز'] as $key => $name)
+                    <button type="button" @click="dir = '{{ $key }}'; sel = 0" :aria-pressed="(dir === '{{ $key }}').toString()"
+                            :class="dir === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
+                            class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
+                @endforeach
+            </div>
+            <div class="flex flex-wrap gap-1.5 text-xs mb-4">
+                <template x-for="(c, i) in lists[dir]" :key="dir + c.name">
+                    <button type="button" @click="sel = i" :aria-pressed="(sel === i).toString()"
+                            :class="sel === i ? 'border-cinnabar text-cinnabar bg-paper' : 'border-line text-ink bg-surface hover:border-cinnabar'"
+                            class="px-2 py-0.5 border rounded-sm transition cursor-pointer">
+                        <span x-text="c.name"></span> <span class="text-muted tabular-nums" x-text="c.total.toLocaleString('fa-IR')"></span>
+                    </button>
+                </template>
+            </div>
+            <div x-show="city" x-cloak>
+                <p class="text-sm text-ink mb-2">
+                    <span x-text="dir === 'from' ? `${city.total.toLocaleString('fa-IR')} نسخه‌ی کتابت‌شده در ${city.name}، امروز در این شهرها:` : `${city.total.toLocaleString('fa-IR')} نسخه‌ی جای‌دارِ کتابخانه‌های ${city.name}، کتابت‌شده در این شهرها:`"></span>
+                </p>
+                <ul class="space-y-2 text-sm">
+                    <template x-for="row in city.items" :key="row.name">
+                        <li>
+                            <a :href="href(row)" class="group block">
+                                <span class="flex items-baseline gap-2">
+                                    <span class="text-ink group-hover:text-cinnabar transition" x-text="row.name"></span>
+                                    <span x-show="row.name === city.name" class="text-[11px] text-gold" x-text="dir === 'from' ? '(در همان شهر مانده)' : '(کتابت‌شده در همین شهر)'"></span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    <span class="text-xs text-muted tabular-nums" x-text="`${row.count.toLocaleString('fa-IR')} · ${share(row.count)}`"></span>
+                                </span>
+                                <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                    <span class="block h-full rounded-full" :class="row.name === city.name ? 'bg-gold/80' : 'bg-cinnabar/70 group-hover:bg-cinnabar'" :style="`width: max(2px, ${row.count * 100 / max}%)`"></span>
+                                </span>
+                            </a>
+                        </li>
+                    </template>
+                    <li x-show="city.other > 0" class="text-muted text-sm flex items-baseline gap-2">
+                        <span x-text="`سایر (${city.other_kinds.toLocaleString('fa-IR')} شهر)`"></span>
+                        <span class="leader" aria-hidden="true"></span>
+                        <span class="text-xs tabular-nums" x-text="`${city.other.toLocaleString('fa-IR')} · ${share(city.other)}`"></span>
+                    </li>
+                </ul>
+            </div>
+            <p class="mt-5 text-xs text-muted leading-relaxed">
+                بر پایه‌ی {{ Fa::num($mv['mapped']) }} نسخه که جای کتابتشان به یکی از شهرهای نقشه رسید و کتابخانه‌شان شهر دارد.
+                {{ $pct($mv['stayed_share']) }} آن‌ها امروز در همان شهری‌اند که کتابت شده‌اند.
+                شهر امروز، شهر کتابخانه‌ی دارنده‌ی نسخه است.
+            </p>
+            </div>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 2c. Subjects across the centuries --}}
+    <x-ui.section title="موضوع‌ها در گذر سده‌ها" id="subjects">
+        <x-ui.card>
+            @php $sg = $data['subjects']; @endphp
+            @if($sg['counted'] < $min || count($sg['rows']) < 2)
+                @include('insights.thin', ['n' => $sg['counted'], 'what' => count($sg['rows']) < 2 && $sg['counted'] >= $min ? 'موضوع جدا' : 'نسخه‌ی موضوع‌دار و تاریخ‌دار'])
+            @else
+                @include('insights.small', ['n' => $sg['counted'], 'what' => 'نسخه‌ی موضوع‌دار و تاریخ‌دار'])
+                <p class="text-xs text-muted mb-4">
+                    سهم هر {{ $sg['children'] ? 'زیرموضوع' : 'موضوع اصلی' }} از نسخه‌های هر سده؛ برای نمونه، از نسخه‌های سده‌ی ۱۱ چند درصد فقه است. روی هر خانه بزنید تا نسخه‌های آن در جست‌وجو باز شود.
+                </p>
+                @include('insights.century-grid', ['grid' => $sg, 'label' => 'سهم موضوع‌ها در نسخه‌های هر سده',
+                    'href' => fn ($id, $c) => $search('manuscripts', ['subject_id' => $id, 'century' => $c])])
+                <p class="mt-4 text-xs text-muted leading-relaxed">
+                    بر پایه‌ی {{ Fa::num($sg['counted']) }} نسخه که اثرشان موضوع دارد و تاریخ کتابتشان در یک سده است؛ نسخه‌ای که بازه‌ی تاریخش دو سده را می‌گیرد در این جدول نیامده است.
+                    {{ Fa::num(count($sg['rows'])) }} {{ $sg['children'] ? 'زیرموضوع' : 'موضوع' }} پرنسخه از {{ Fa::num($sg['kinds']) }} آمده است.
+                    اثری که چند موضوع دارد در هر موضوعش شمرده شده است، پس جمع یک ستون می‌تواند از ۱۰۰ بیشتر شود.
+                </p>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 2d. Features of the copies across the centuries --}}
+    <x-ui.section title="ویژگی‌های نسخه‌ها در گذر سده‌ها" id="features">
+        <x-ui.card>
+            @php $fg = $data['features']; @endphp
+            @if($fg['counted'] < $min)
+                @include('insights.thin', ['n' => $fg['counted'], 'what' => 'نسخه‌ی تاریخ‌دار'])
+            @else
+                @include('insights.small', ['n' => $fg['counted'], 'what' => 'نسخه‌ی تاریخ‌دار'])
+                <p class="text-xs text-muted mb-4">سهم نسخه‌های مذهّب، تصحیح‌شده، مقابله‌شده، حاشیه‌دار و به خط مؤلف از نسخه‌های هر سده.</p>
+                @include('insights.century-grid', ['grid' => $fg, 'label' => 'سهم ویژگی‌های نسخه در هر سده',
+                    'href' => fn ($flag, $c) => $search('manuscripts', ['flags' => [$flag], 'century' => $c])])
+                <p class="mt-4 text-xs text-muted leading-relaxed">
+                    بر پایه‌ی {{ Fa::num($fg['counted']) }} نسخه که تاریخ کتابتشان در یک سده است.
+                    این ویژگی‌ها همان‌اند که فهرست‌نگار یاد کرده است؛ یاد نشدن یک ویژگی همیشه به معنای نبودن آن نیست، و فهرست‌ها در یاد کردن آن یکسان نیستند.
+                </p>
+            @endif
         </x-ui.card>
     </x-ui.section>
 
     {{-- 3. Most-copied works --}}
-    <x-ui.section title="آثار پرنسخه" :count="count($data['top_works']['items'])" id="top-works">
+    @if(count($data['top_works']['items']) > 1)
+    <x-ui.section :title="$scope->isEmpty() ? 'آثار پرنسخه' : 'آثار پرنسخه در این دامنه'" :count="count($data['top_works']['items'])" id="top-works">
         <x-ui.card class="!p-0 overflow-x-auto">
             @php $maxWork = max(1, $data['top_works']['items'][0]['count'] ?? 1); @endphp
             <table class="w-full text-sm">
@@ -341,16 +558,21 @@
             </p>
         @endif
     </x-ui.section>
+    @endif
 
     {{-- 4. Scripts and languages --}}
     <div class="grid lg:grid-cols-2 gap-8">
         <x-ui.section title="سهم خطوط" id="scripts">
             <x-ui.card>
+                @if($s['counted'] < $min)
+                    @include('insights.thin', ['n' => $s['counted'], 'what' => 'نسخه‌ی خط‌دار'])
+                @else
+                @include('insights.small', ['n' => $s['counted'], 'what' => 'نسخه‌ی خط‌دار'])
                 <p class="text-xs text-muted mb-3">خط اصلی هر نسخه. روی هر خط بزنید تا نسخه‌های آن خط را ببینید.</p>
                 <ul class="space-y-2.5 text-sm">
                     @foreach($s['items'] as $row)
                         <li>
-                            <a href="{{ route('search', ['type' => 'manuscripts', 'script_id' => $row['id']]) }}" class="group block">
+                            <a href="{{ $search('manuscripts', ['script_id' => $row['id']]) }}" class="group block">
                                 <span class="flex items-baseline gap-2">
                                     <span class="text-ink group-hover:text-cinnabar transition">{{ $row['name'] }}</span>
                                     <span class="leader" aria-hidden="true"></span>
@@ -376,11 +598,16 @@
                     @endif
                 </ul>
                 <p class="mt-4 text-xs text-muted">بر پایه‌ی {{ Fa::num($s['counted']) }} نسخه، یعنی {{ $pct($s['coverage']) }} نسخه‌ها، که خطشان ثبت شده است.</p>
+                @endif
             </x-ui.card>
         </x-ui.section>
 
         <x-ui.section title="سهم زبان‌ها" id="languages">
             <x-ui.card>
+            @if($l['with_language'] < $min)
+                @include('insights.thin', ['n' => $l['with_language'], 'what' => 'اثرِ زبان‌دار'])
+            @else
+            @include('insights.small', ['n' => $l['with_language'], 'what' => 'اثرِ زبان‌دار'])
             <div x-data="{ by: 'works', rows: @js($l['items']), other: @js($l['other']),
                 get sum() { return this.rows.reduce((s, r) => s + r[this.by], 0) + this.other[this.by] },
                 share(v) { return (Math.round(v * 1000 / Math.max(1, this.sum)) / 10).toLocaleString('fa-IR') + '٪' } }">
@@ -396,7 +623,7 @@
                 <ul class="space-y-2.5 text-sm">
                     @foreach($l['items'] as $i => $row)
                         <li>
-                            <a href="{{ route('search', ['type' => 'works', 'language_id' => $row['id']]) }}" class="group block">
+                            <a href="{{ $search('works', ['language_id' => $row['id']]) }}" class="group block">
                                 <span class="flex items-baseline gap-2">
                                     <span class="text-ink group-hover:text-cinnabar transition">{{ $row['name'] }}</span>
                                     <span class="leader" aria-hidden="true"></span>
@@ -426,12 +653,21 @@
                     در شمارش «نسخه‌ها» نسخه‌های هر اثر به زبان آن اثر نسبت داده شده است.
                 </p>
             </div>
+            @endif
             </x-ui.card>
         </x-ui.section>
     </div>
 
+    @endif
+
+    @include('insights.request-card')
+
     <p class="text-xs text-muted text-center">
-        این آمار هر شب از روی داده‌های فهارس از نو ساخته می‌شود؛ آخرین بار {{ Jalali::format(\Illuminate\Support\Carbon::parse($data['built_at']), 'long') }}.
+        @if($scope->isEmpty())
+            این آمار هر شب از روی داده‌های فهارس از نو ساخته می‌شود؛ آخرین بار {{ Jalali::format(\Illuminate\Support\Carbon::parse($data['built_at']), 'long') }}.
+        @else
+            آمار این دامنه هنگام درخواست ساخته شد ({{ Jalali::format(\Illuminate\Support\Carbon::parse($data['built_at']), 'long') }}) و تا یک روز همان می‌ماند.
+        @endif
     </p>
 </div>
 @endsection

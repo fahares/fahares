@@ -19,6 +19,11 @@
             @endif
         </dl>
         <div class="p-4 bg-paper border border-gold text-sm text-ink leading-relaxed whitespace-pre-line break-words">{{ $suggestion->suggested_value }}</div>
+        @foreach(['section' => 'درباره‌ی نمودار', 'question' => 'برای پاسخ به چه پرسشی', 'example' => 'نمونه یا توضیح'] as $key => $label)
+            @if(! empty($payload[$key]))
+                <p class="text-ink leading-relaxed whitespace-pre-line break-words"><span class="font-bold text-muted">{{ $label }}:</span> {{ $payload[$key] }}</p>
+            @endif
+        @endforeach
         @if(! empty($payload['files']))
             <div class="grid grid-cols-2 gap-3">
                 @foreach($payload['files'] as $i => $path)

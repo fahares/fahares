@@ -8,6 +8,7 @@ import machineReview from './machine-review';
 import referenceReview from './reference-queue';
 import webPush from './web-push';
 import catalogViewer from './catalog-viewer';
+import insightsCombo from './insights-filter';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -45,5 +46,6 @@ Alpine.data('feedbackForm', feedbackForm);
 Alpine.data('referenceReview', referenceReview);
 Alpine.data('webPush', webPush);
 Alpine.data('catalogViewer', catalogViewer);
+Alpine.data('insightsCombo', insightsCombo);
 
 Alpine.start();

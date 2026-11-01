@@ -61,6 +61,7 @@ Route::post('/search/click', [SearchController::class, 'click'])->middleware('th
 
 // Statistical insights: figures built nightly by fahares:build-insights
 Route::get('/insights', [InsightsController::class, 'index'])->name('insights');
+Route::get('/insights/lookup', [InsightsController::class, 'lookup'])->middleware('throttle:120,1')->name('insights.lookup');
 
 // Works
 Route::get('/works/{id}', [WorkController::class, 'show'])

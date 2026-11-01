@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Work;
 use App\Suggestions\ProtectedColumns;
 use App\Sources\SourceEntrySync;
+use App\Support\DerivedData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -83,12 +84,8 @@ class ApplyCorpusDiffCommand extends Command
                 // their Fankha entries and bibliographies follow (step 13.4)
                 SourceEntrySync::syncIds(Work::class, array_keys($updates));
             });
-            // The description is part of the search index
-            $reindex = array_keys(array_filter($updates, fn ($p) => array_key_exists('description', $p)));
-            foreach (array_chunk($reindex, 500) as $chunk) {
-                Work::whereIn('id', $chunk)->get()->searchable();
-            }
-            $this->info('Reindexed ' . count($reindex) . ' works in the search index.');
+            // The description and the bibliographies are in the search index; DB::table runs no model hook
+            DerivedData::syncWorks(array_keys($updates), $this);
         }
 
         $this->table(['outcome', 'fields'], collect($counts)->map(fn ($n, $k) => [$k, $n])->values()->all());

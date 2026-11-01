@@ -105,33 +105,83 @@ class FillTextExcerptsCommand extends Command
 
         // The copies of the work that point at one of them
         foreach (Manuscript::where('work_id', $id)->get(['id', 'incipit_text', 'explicit_text']) as $copy) {
-            foreach (['incipit' => $copy->incipit_text, 'explicit' => $copy->explicit_text] as $kind => $text) {
-                $text = trim((string) $text);
-                if (! preg_match('/^برابر\s*(.+)$/u', $text, $m)) {
-                    continue;
-                }
-                $ref = trim(strtr($m[1], ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']));
-                $target = null;
-                $found = false;
-                // «برابر3 خط: نستعلیق…»: the old parser glued the physical line on; the number still names the excerpt
-                if (preg_match('/^(\d+)(?!\d)(?![\s\x{200c}]*[و،-]\s*\d)/u', $ref, $num)) {
-                    $found = array_key_exists((int) $num[1], $excerpts[$kind]['n']);
-                    $target = $excerpts[$kind]['n'][(int) $num[1]] ?? null;
-                } elseif (array_key_exists(self::labelKey($ref), $excerpts[$kind]['label'])) {
-                    $found = true;
-                    $target = $excerpts[$kind]['label'][self::labelKey($ref)];
-                }
-                if (! $found) {
-                    $this->count("refs:{$kind}_unmatched", "#{$copy->id} {$label}: {$text}");
-                    continue;
-                }
-                $this->count("refs:{$kind}_linked");
-                if ($apply) {
-                    TextExcerpt::updateOrCreate(['owner_type' => Manuscript::class, 'owner_id' => $copy->id, 'kind' => $kind],
-                        ['same_as_excerpt_id' => $target?->id, 'same_as_raw' => mb_substr($text, 0, 120)]);
-                }
+            foreach (self::linkCopy($copy, $excerpts, $apply) as $kind => [$outcome, $text]) {
+                $this->count("refs:{$kind}_{$outcome}", $outcome === 'unmatched' ? "#{$copy->id} {$label}: {$text}" : null);
             }
         }
+    }
+
+    /**
+     * A work's excerpts on the site by kind, keyed by number and by part label (labelKey), as linkCopy takes them.
+     *
+     * @return array<string, array{n: array<int, TextExcerpt>, label: array<string, TextExcerpt>}>
+     */
+    public static function excerptsOf(int $workId): array
+    {
+        $excerpts = ['incipit' => ['n' => [], 'label' => []], 'explicit' => ['n' => [], 'label' => []]];
+        foreach (TextExcerpt::where('owner_type', Work::class)->where('owner_id', $workId)->orderBy('id')->get() as $row) {
+            if ($row->n !== null && ! $row->is_part) {
+                $excerpts[$row->kind]['n'][$row->n] = $row;
+            }
+            if ($row->label) {
+                $excerpts[$row->kind]['label'][self::labelKey($row->label)] = $row;
+            }
+        }
+
+        return $excerpts;
+    }
+
+    /**
+     * The excerpt a copy's incipit or explicit points at («برابر 2», «برابر جلد دوم»): null when the text is no
+     * pointer, else whether the work has the excerpt it names and that excerpt (null in a dry run of the filler).
+     *
+     * @return ?array{found: bool, target: ?TextExcerpt}
+     */
+    public static function pointer(?string $text, array $excerpts): ?array
+    {
+        if (! preg_match('/^برابر\s*(.+)$/u', trim((string) $text), $m)) {
+            return null;
+        }
+        $ref = trim(strtr($m[1], ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']));
+        // «برابر3 خط: نستعلیق…»: the old parser glued the physical line on; the number still names the excerpt
+        if (preg_match('/^(\d+)(?!\d)(?![\s\x{200c}]*[و،-]\s*\d)/u', $ref, $num)) {
+            return ['found' => array_key_exists((int) $num[1], $excerpts['n']), 'target' => $excerpts['n'][(int) $num[1]] ?? null];
+        }
+        $key = self::labelKey($ref);
+
+        return ['found' => array_key_exists($key, $excerpts['label']), 'target' => $excerpts['label'][$key] ?? null];
+    }
+
+    /**
+     * Gives a copy a pointer row for each of its incipit and explicit that names one of the work's excerpts; its own
+     * text is not touched. With $prune (a copy the corpus commands rebuilt) a row whose text no longer names one is
+     * removed. The one write path of the filler, the corpus apply commands and fahares:refresh-derived.
+     *
+     * @return array<string, array{0: string, 1: string}> kind => what happened (linked, unmatched, removed) and the text
+     */
+    public static function linkCopy(object $copy, array $excerpts, bool $apply, bool $prune = false): array
+    {
+        $out = [];
+        foreach (['incipit' => $copy->incipit_text, 'explicit' => $copy->explicit_text] as $kind => $text) {
+            $text = trim((string) $text);
+            $pointer = self::pointer($text, $excerpts[$kind]);
+            if ($pointer && $pointer['found']) {
+                $out[$kind] = ['linked', $text];
+                if ($apply) {
+                    TextExcerpt::updateOrCreate(['owner_type' => Manuscript::class, 'owner_id' => $copy->id, 'kind' => $kind],
+                        ['same_as_excerpt_id' => $pointer['target']?->id, 'same_as_raw' => mb_substr($text, 0, 120)]);
+                }
+                continue;
+            }
+            if ($pointer) {
+                $out[$kind] = ['unmatched', $text];
+            }
+            if ($prune && $apply && TextExcerpt::where('owner_type', Manuscript::class)->where('owner_id', $copy->id)->where('kind', $kind)->delete()) {
+                $out[$kind] = ['removed', $text];
+            }
+        }
+
+        return $out;
     }
 
     /** «جلد دوم», «جلد 2», «ج 2» and «جلد۲» alike; «دیباچه» as it is. */

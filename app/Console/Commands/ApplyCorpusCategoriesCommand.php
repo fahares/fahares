@@ -85,7 +85,9 @@ class ApplyCorpusCategoriesCommand extends Command
                 foreach ($batch as [$table, $rec, $payload, $old]) {
                     // A shorter date keeps its year and range in step (Manuscript::booted does it for saved models)
                     if (array_key_exists('copy_date_raw', $payload)) {
-                        $payload += ['copy_date_hijri_year' => \App\Support\HijriYear::parse($payload['copy_date_raw'])] + Manuscript::copyDateColumns($payload['copy_date_raw']);
+                        $death = \App\Support\CopyDateRange::namesAuthorTime($payload['copy_date_raw'])
+                            ? Manuscript::authorDeaths([DB::table('manuscripts')->where('id', $rec['id'])->value('work_id')]) : [];
+                        $payload += ['copy_date_hijri_year' => \App\Support\HijriYear::parse($payload['copy_date_raw'])] + Manuscript::copyDateColumns($payload['copy_date_raw'], reset($death) ?: null);
                     }
                     if ($payload) {
                         DB::table($table)->where('id', $rec['id'])->update($payload + ['updated_at' => now()]);
