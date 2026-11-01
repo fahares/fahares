@@ -11,6 +11,7 @@ use App\Sources\SourceEntrySync;
 use App\Suggestions\ContributorRelations;
 use App\Suggestions\ProtectedColumns;
 use App\Suggestions\RecordMerger;
+use App\Support\DerivedData;
 use App\Support\PersonNameMatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +33,9 @@ use InvalidArgumentException;
  *   holds the exported value and no reviewed correction protects the column.
  *
  * A work is added whole or not at all: one copy that cannot be found leaves it out. Everything is logged in the
- * records' history (create, corpus_update). Without --apply it only reports. Afterwards run catalogs:link-volumes,
+ * records' history (create, corpus_update). What is derived from the columns follows (DerivedData): the copies' extent
+ * and excerpt pointers, the works' dedicatees and commissioners, and the search documents of both. Without --apply it
+ * only reports. Afterwards run catalogs:link-volumes,
  * fahares:rebuild-scripts and fahares:link-autograph-scribes.
  */
 class AddCorpusWorksCommand extends Command
@@ -134,35 +137,33 @@ class AddCorpusWorksCommand extends Command
 
         $touchedWorks = [];
         $touchedCopies = [];
-        Work::withoutSyncingToSearch(fn () => Manuscript::withoutSyncingToSearch(function () use ($works, $fills, $updates, $merger, $relations, $note, &$touchedWorks, &$touchedCopies) {
-            DB::transaction(function () use ($works, $fills, $updates, $merger, $relations, $note, &$touchedWorks, &$touchedCopies) {
-                foreach ($works as [$w, $copies]) {
-                    $work = $this->makeWork($w, $relations, $note);
-                    $touchedWorks[] = $work->id;
-                    array_push($touchedCopies, ...$this->placeCopies($work, $copies, $merger, $note, $touchedWorks));
-                }
-                foreach ($fills as [$work, $f, $copies]) {
-                    $touchedWorks[] = $work->id;
-                    array_push($touchedCopies, ...$this->placeCopies($work, $copies, $merger, $note, $touchedWorks));
-                }
-                foreach ($updates as [$work, $u]) {
-                    $this->updateWork($work, $u, $note);
-                    $touchedWorks[] = $work->id;
-                }
-                $this->recount($touchedWorks);
+        // Not an arrow function outside: it would take the two lists by value and leave them empty here
+        Work::withoutSyncingToSearch(function () use ($works, $fills, $updates, $merger, $relations, $note, &$touchedWorks, &$touchedCopies) {
+            Manuscript::withoutSyncingToSearch(function () use ($works, $fills, $updates, $merger, $relations, $note, &$touchedWorks, &$touchedCopies) {
+                DB::transaction(function () use ($works, $fills, $updates, $merger, $relations, $note, &$touchedWorks, &$touchedCopies) {
+                    foreach ($works as [$w, $copies]) {
+                        $work = $this->makeWork($w, $relations, $note);
+                        $touchedWorks[] = $work->id;
+                        array_push($touchedCopies, ...$this->placeCopies($work, $copies, $merger, $note, $touchedWorks));
+                    }
+                    foreach ($fills as [$work, $f, $copies]) {
+                        $touchedWorks[] = $work->id;
+                        array_push($touchedCopies, ...$this->placeCopies($work, $copies, $merger, $note, $touchedWorks));
+                    }
+                    foreach ($updates as [$work, $u]) {
+                        $this->updateWork($work, $u, $note);
+                        $touchedWorks[] = $work->id;
+                    }
+                    $this->recount($touchedWorks);
+                });
             });
-        }));
+        });
 
         SourceEntrySync::syncIds(Work::class, $touchedWorks);
         SourceEntrySync::syncIds(Manuscript::class, $touchedCopies);
-        foreach (array_chunk(array_values(array_unique($touchedCopies)), 100) as $chunk) {
-            Manuscript::whereIn('id', $chunk)->get()->searchable();
-            gc_collect_cycles();
-        }
-        foreach (array_chunk(array_values(array_unique($touchedWorks)), 100) as $chunk) {
-            Work::whereIn('id', $chunk)->get()->searchable();
-            gc_collect_cycles();
-        }
+        // Their extent, excerpt pointers, dedicatees and commissioners, and search documents (the saves ran without search)
+        DerivedData::syncCopies($touchedCopies, $this);
+        DerivedData::syncWorks($touchedWorks, $this);
         $this->info('Done. Now run catalogs:link-volumes, fahares:rebuild-scripts and fahares:link-autograph-scribes.');
 
         return 0;
