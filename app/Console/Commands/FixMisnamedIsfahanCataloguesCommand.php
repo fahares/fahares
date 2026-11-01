@@ -296,7 +296,7 @@ class FixMisnamedIsfahanCataloguesCommand extends Command
     }
 
     /** Sets the columns a backup holds back on each row, one statement for the rows that had the same values. */
-    private static function restoreColumns(string $table, array $rows): void
+    public static function restoreColumns(string $table, array $rows): void
     {
         foreach (collect($rows)->groupBy(fn ($r) => json_encode(collect($r)->except('id')->all())) as $group) {
             $values = collect($group->first())->except('id')->all();
