@@ -6128,3 +6128,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
 - **داده:** [library_duplicates_step13_144.json](../database/data/library_duplicates_step13_144.json): `asfhan-aalamh-rodaty-ktabkhanh-283` ← `asfhan-rodaty-syd-mhmd-aaly-100`. اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_144.json`. هیچ منبع یا جلدی کتابخانه‌ی ۲۸۳ را نداشت.
 - **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۴۲):** ۴۰۶ ← ۴۰۵ کتابخانه؛ یک ردیف `merge` در `audit_logs`. `LibraryMerger::undoMerge` سنجه‌ی `crc32` جدول‌های گام ۱۳.۱۴۲ را دقیقاً برگرداند. سپس دستور دوباره اجرا شد و همان سنجه‌ی اجرای اول را داد.
+### گام ۱۳.۱۴۶: کلید سنا و نشانه‌ی چسبیده، `inMargin`
+- **`collectionKey($shelfmark, $rawText = null)`:**
+  - بخش رساله به رقم‌های آغازینش کوتاه می‌شود. «1ط» بخش «1» است.
+  - باقی بخش، پس از برداشتن ` _:؛ـ`، ZWNJ و `-` از دو سر، مجموعه شمرده می‌شود، به این شرط‌ها: حرف داشته باشد؛ با `بخش`، `تا`، `و`، `مکرر`، `حاشیه`، پرانتز یا رقم آغاز نشود؛ و برای کتابخانه‌ی متن در `DESCRIPTIVE_MARKS` نباشد (`['مرکز احیاء' => ['عکسی']]`). کتابخانه از فیلد دوم سطر اول متن خوانده می‌شود.
+  - نشانه‌ی پس از «-» همچنان پیش‌دست است. «-ط» به «طباطبائی» برگردانده می‌شود.
+  - پاک‌سازی دو سر با `preg_replace` و پرچم `u` انجام می‌شود، چون `trim` بایتی است و حرف پایانی «طباطبائی» را می‌برید.
+- **`collectionKeyOf($shelfmark, $rawText)`:** اگر `citesOnlySenate($rawText)` باشد (یعنی `[سنا:` یا `[سنا - ف:` هست و `[ف:` نیست)، مجموعه «سنا» یا «سنا-…» می‌شود.
+- **فراخوان‌ها:** هوک `saving` (با تغییر `shelfmark` یا `raw_text`)، `DerivedData::collectionChange` (که `raw_text` در `COPY_COLUMNS` دارد)، `FillCollectionKeysCommand` (که `raw_text` را هم می‌خواند)، `SyncFixedShelfmarksCommand` (shelfmark و متنی که نوشته می‌شود، یا مقدار ردیف) و `SeedFaharesDataCommand`. `collectionSiblings` در راه پشتیبان (نسخه‌ی بی کلید) هم متن را می‌دهد.
+- **`inMargin()`:** shelfmark به شکل `/N حاشیه`، یا بندی از متن (بریده با `؛`، `،` یا سطر نو) که برابر `^(نوشته شده )?در (هامش|حاشیه)( نوشته/نگاشته شده( است)?)?$` باشد. [manuscript-collection.blade.php](../resources/views/components/manuscript-collection.blade.php) برچسب «(در حاشیه)» را نشان می‌دهد.
+- **سنجش (`fahares_prod`):**
+  - کلید ۵٬۶۶۷ نسخه عوض شد. شمار مجلدها از ۳۳٬۰۲۱ به ۳۳٬۱۹۱ رسید، و مجلدهای دست‌کم دورساله‌ای از ۲۸٬۹۹۵ به ۲۹٬۱۵۷.
+  - هم‌پوشان: ۲٬۶۲۴ → ۲٬۵۵۱. گروه‌های دو اثر با یک شماره: ۲٬۰۱۱ مانده، در ۱٬۲۷۵ مجلد.
+  - افزودن «عکسی ف» و «فیلمها ف» به کلید ۲۰۹ گروه را حل می‌کرد، ولی ۲۰۳ مجلد را که شماره‌هایش هم‌دیگر را کامل می‌کنند، می‌شکست. پس کنار گذاشته شد.
+- **فهرست‌ها (`docs/plans/collection-overlaps/`):**
+  - `repeated-parts.tsv`: ۴٬۱۹۸ نسخه، با جلد و صفحه‌ی فنخا و ارجاع.
+  - `repeated-parts-by-catalogue.tsv`: ۳۳۰ جفت کتابخانه و جلد فهرست.
+  - `reversed-shelfmarks.tsv`: ۹۹۳ نامزد. ۵۰۱ تا شکل پیشنهادی دارند: ۳۲۱ گلپایگانی، با قاعده‌ی «a/b-c» → «c-a/b»، یا «b/a-c» وقتی b چهاررقمی باشد؛ و ۱۸۰ شماره‌ی ساده‌ی «a/b».
+- **وارسی با تصویر:** ج ۱ ص ۵۷ «۱۰۱۵-۶/۱۰۵» (گلپایگانی)، و ج ۶ ص ۳۴۳ «۲/۱۵۹۸۰» (مجلس، وارونه در خود چاپ).
+- **آزمون:** همان آزمون `DerivedDataTest` گسترش یافت: نشانه‌ها و استثناها، سنا، مرکز احیاء و برچسب حاشیه.
+
