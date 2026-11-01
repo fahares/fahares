@@ -5900,11 +5900,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فراخوان‌ها:** `SearchController::export` با `192M` و `ExportSearchResults::handle` با `256M`. دستورهای کنسول (`1024M` و `-1`) دست نخوردند.
 - **آزمون:** [MemoryLimitTest](../tests/Unit/MemoryLimitTest.php) سه حالت را می‌آزماید: بالا بردن، نگه داشتن سقف بالاتر یا نامحدود، و هدفی کمتر از حافظه‌ی در حال مصرف. اجرای کامل با کپی `phpunit.xml` روی `fahares_lehmann_test` انجام شد: ۵۷۱ موفق.
 
-### گام ۱۳.۱۲۸: `scripts/dev/reserve-step` و `merge=union`
-- **فهرست:** `~/.fahares/steps.tsv` (متغیر `FAHARES_STEPS_FILE`)، با ستون‌های شماره، زمان، نشست و عنوان. قفل `flock -w 30` روی `steps.tsv.lock` است. شماره‌ی بعدی یکی بالاتر از بیشینه‌ی فهرست و بیشینه‌ی `#### گام 13.N` در `origin/main:docs/PROCESS_DOCUMENTATION.md` است. رقم‌های فارسی با `sed 'y/…/…/'` برگردانده می‌شوند، چون `tr` چندبایتی نیست. فاز با `FAHARES_STEP_PHASE` عوض می‌شود (پیش‌فرض ۱۳). `--list [N]` آخرین رزروها را نشان می‌دهد.
-- **آزمون:** با فهرست موقت، سه و پنج فراخوان هم‌زمان (`&`) شماره‌های پیاپی و یکتا گرفتند (۱۳.۱۲۷ تا ۱۳.۱۲۹ پس از ۱۳.۱۲۶ مستندات).
-- **`.gitattributes`:** `docs/PROCESS_DOCUMENTATION.md` و `docs/TECHNICAL_APPENDIX.md` با `merge=union`. ادغام union خطی را که در هر دو شاخه ویرایش شده، دو بار نگه می‌دارد. پس پس از ادغام، تکرار و ترتیب گام‌ها بررسی می‌شود. این نکته در `CLAUDE.md` آمده است.
-- **[image.yml](../.github/workflows/image.yml):** `on.push.paths-ignore` شامل `docs/**`، `*.md` (فقط ریشه)، `scripts/**/*.md`، `.gitattributes` و `scripts/dev/**` است. `database/content/about.md` عمداً بیرون مانده است. GitHub این را روی همه‌ی فایل‌های یک push می‌سنجد، پس pushی که یک فایل کد هم دارد، همچنان می‌سازد و مستقر می‌کند. `workflow_dispatch` برای استقرار دستی بی‌تغییر است. Watch Paths خود Coolify به کار نمی‌آید، چون build pack «Docker Image» است و استقرار را workflow با API صدا می‌زند.
+### گام ۱۳.۱۲۸: `fahares:add-ruler-aliases`
+- **کد:** `AddRulerAliasesCommand` برای هر سطر `KnownRulers::LIST` رکورد را با `PersonNameMatcher::ids(normalize(name))` پیدا می‌کند و فقط وقتی یکتا باشد پیش می‌رود. املایی را می‌افزاید که با `KnownRulers::compact` (بی فاصله و «،» و «-») در نام و `aliases` شخص نباشد. ذخیره با مدل انجام می‌شود، پس Scout شخص را بازنمایه می‌کند. هر افزودن یک `AuditLog` با `action = corpus_update` و `corpus_fix = ruler spellings (item 35)` دارد. `USUALLY` کنار گذاشته می‌شود.
+- **dry run (`fahares_prod` محلی):** `rulers 35`، `not_found 0`، `ambiguous 0`، `people_changed 35`، `aliases_added 110`.
+- **اجرا در پروداکشن (۱۱ آبان ۱۴۰۵، کامیت `98e9937`):** dry run و `--apply` هر دو `people_changed 35` و `aliases_added 110` گزارش دادند. اجرای سوم `0` بود. `Person::search("سنجر بن ملکشاه")` رکورد #74720 را برگرداند.
+- **وارسی‌های بی‌کد:**
+  - «برابر» ساده: `Manuscript::getIncipitsListAttribute` و `getExplicitsListAttribute` با `$hasBarabar` آغاز یا انجام اثر را نشان می‌دهند.
+  - یکاشناسی: `RebuildCopiesCommand` و `AddCorpusWorksCommand` هر دو `DerivedData::syncCopies` را صدا می‌زنند.
+- **آزمون:** `AddRulerAliasesTest::test_a_rulers_spellings_are_added_once_to_his_other_names`.
+
 ### گام ۱۳.۱۲۹: `sources:link-dharia-titles` و `source_page_links`
 - **جدول:** `source_page_links` (migration `2026_11_01_100001`) ستون‌های `source_page_id`، `ordinal`، `kind`، `text`، `target_type`/`target_id`، `method`، `rejected_at`/`rejected_by` را دارد. `ordinal` شماره‌ی n-امین گشایش نشانه (`U+E020`) در متن صفحه است، از صفر. کلید یکتا `(source_page_id, ordinal)` است.
 - **دستور:** `sources:link-dharia-titles [--kinds=VB,…] [--volume=N] [--sample=FILE --per-kind=50] [--all] [--dry-run]` ([LinkDhariaTitlesCommand.php](../app/Console/Commands/LinkDhariaTitlesCommand.php)).
@@ -5926,6 +5930,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نسخه‌ی محلی پروداکشن (`fahares_prod`):** در متن صفحه‌های الذریعة نشانه ندارد، چون پیش از گام ۱۳.۹۵ گرفته شده است. سنجش روی `fahares_db` انجام شد که مدخل‌هایش رونوشت پروداکشن است. روی خود پروداکشن نشانه‌ها هست (پیوند مؤلف SB آنجا کار می‌کند).
 - **پروداکشن:** هنوز اجرا نشده است. نخست انتشار کد (migration خودکار)، سپس با اجازه‌ی کاربر `php artisan sources:link-dharia-titles`. این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links` است.
 - **آزمون:** [LinkDhariaTitlesTest.php](../tests/Feature/LinkDhariaTitlesTest.php).
+
+### گام ۱۳.۱۳۰: `scripts/dev/reserve-step` و `merge=union`
+- **فهرست:** `~/.fahares/steps.tsv` (متغیر `FAHARES_STEPS_FILE`)، با ستون‌های شماره، زمان، نشست و عنوان. قفل `flock -w 30` روی `steps.tsv.lock` است. شماره‌ی بعدی یکی بالاتر از بیشینه‌ی فهرست و بیشینه‌ی `#### گام 13.N` در `origin/main:docs/PROCESS_DOCUMENTATION.md` است. رقم‌های فارسی با `sed 'y/…/…/'` برگردانده می‌شوند، چون `tr` چندبایتی نیست. فاز با `FAHARES_STEP_PHASE` عوض می‌شود (پیش‌فرض ۱۳). `--list [N]` آخرین رزروها را نشان می‌دهد.
+- **آزمون:** با فهرست موقت، سه و پنج فراخوان هم‌زمان (`&`) شماره‌های پیاپی و یکتا گرفتند (۱۳.۱۲۷ تا ۱۳.۱۲۹ پس از ۱۳.۱۲۶ مستندات).
+- **`.gitattributes`:** `docs/PROCESS_DOCUMENTATION.md` و `docs/TECHNICAL_APPENDIX.md` با `merge=union`. ادغام union خطی را که در هر دو شاخه ویرایش شده، دو بار نگه می‌دارد. پس پس از ادغام، تکرار و ترتیب گام‌ها بررسی می‌شود. این نکته در `CLAUDE.md` آمده است.
+- **[image.yml](../.github/workflows/image.yml):** `on.push.paths-ignore` شامل `docs/**`، `*.md` (فقط ریشه)، `scripts/**/*.md`، `.gitattributes` و `scripts/dev/**` است. `database/content/about.md` عمداً بیرون مانده است. GitHub این را روی همه‌ی فایل‌های یک push می‌سنجد، پس pushی که یک فایل کد هم دارد، همچنان می‌سازد و مستقر می‌کند. `workflow_dispatch` برای استقرار دستی بی‌تغییر است. Watch Paths خود Coolify به کار نمی‌آید، چون build pack «Docker Image» است و استقرار را workflow با API صدا می‌زند.
+
+### گام ۱۳.۱۳۱: `sources:tie-odd-ehya-citations`
+- **یافتن (`fahares_prod` محلی):** نسخه‌های کتابخانه‌ی ۱۰ روی #448 و #449 یا بی‌جلد، که `parse` نخستین ارجاعشان جلدی خارج از فهرست یا هیچ جلدی نمی‌دهد:
+  - روی #448: ۱۲ «محدث ارموی مخ: P-1» و «10-404»، و ۱۱ «P-3» که درست بودند.
+  - بی‌جلد: ۵ «P-1»، ۹ صفحه‌ی تنها («263»، «- 389»، «373-»)، ۲۴ بی‌عدد؛ ۱۰۰ «ف مخ: 1-P» (دو تا «314-1») و یک «ف مخ».
+  - روی #449: ۱۴ «عکسی ف: P-V»، دو ارجاع پس از یادداشت («… [عکسی ف: 6-123]»، «… [عکسی ف: 1 - 246]»)، و «عکسی ف: 10».
+- **چاپ:** PDF فنخا (`fahares-sources/fankha/pdf/fankha-labeled.pdf`) برچسب صفحه‌ی «جلد-صفحه» دارد، ولی برچسب با شماره‌ی چاپی تا دو صفحه فاصله دارد. صفحه با شماره‌ی چاپی سرصفحه و بند نسخه با شماره‌ی نسخه پیدا شد. نمونه‌ها: ج ۲۶ ص ۳۶۶ «۲۴۸۶/۱» «[محدث ارموی مخ: ۱۱۴۵-۳]»؛ ج ۸ ص ۶۲۸ «۳۴۳۰/۲» «۱۰-۴۰۴»؛ ج ۶ ص ۲۹۴ «۲۷۷۳» «مخ:-۲۶۳»؛ ج ۴ ص ۴۸۵ «۷۴۱» «عکسی ف: ۴۱۲-۲»؛ ج ۳۳ ص ۷۵ «۲۰۰۴/۶» «عکسی ف: -۱۰».
+- **«ف مخ»:** توزیع `page_start` مدخل‌های جلد ۱ محدث ارموی در بازه‌های ۲۵ صفحه‌ای حدود ۵۰ تا ۷۰ است، ولی در ۳۰۰ و ۳۲۵ به ۲۱ و ۱۶ می‌رسد. صفحه‌های ارجاع‌های «ف مخ» در ۳۰۰–۳۷۵ (۸۶ از ۱۰۰) هستند. همه در جلدهای ۷ (۲۴) و ۸ (۷۷) فنخا آمده‌اند.
+- **دستور:** [TieOddEhyaCitationsCommand](../app/Console/Commands/TieOddEhyaCitationsCommand.php). جلدهای محدث ارموی با `citation_pattern` و جلدهای عکسی با MTIF (`SplitEhyaPhotographicCatalogueCommand::VOLUMES`) پیدا می‌شوند. `SplitMohaddesArmaviCatalogueCommand::SERIES` اکنون `public` است.
+  - `armaviCited(numbers)`: عدد تا ۳ جلد است و عدد بزرگ‌تر صفحه‌ای که جلدش از `VOLUMES` (صفحه‌ی نخست و آخر) خوانده می‌شود. همه باید یک جلد بدهند. دو عدد هر دو تا ۳ رها می‌شود.
+  - `photographicCited(numbers)`: دقیقاً دو عدد، دقیقاً یکی از ۱ تا ۷، و دیگری بیش از ۷ و تا شمار صفحه‌های همان جلد.
+  - سری `parse` یکی از `SERIES` محدث ارموی باشد (نسخه بی‌جلد یا روی جلدهای آن)، یا «ف مخ» (فقط بی‌جلد)، یا «عک» داشته باشد. اگر ارجاع پس از یادداشتی آمده باشد، سری `parse` متنی بلند و بی‌جلد است. نسخه بی‌جلد یا روی جلدهای عکسی است. اعداد از بخش پس از نام سری خوانده می‌شوند.
+  - پس از به‌روزرسانی `catalog_volume_id`، `SourceEntrySync::syncCited` و شمارش دوباره‌ی جلدهای دو منبع و فهرست‌نگارانشان. پشتیبان: `manuscripts_count` جلدها، `catalog_volume_id` نسخه‌ها، ستون‌های مدخل‌ها و شمارش فهرست‌نگاران. `--revert` همه را با `restoreColumns` برمی‌گرداند.
+- **تمرین (`fahares_prod` محلی):**
+  - پشتیبان JSON دستور: `fahares-sources/backups/step13/step13.131_tie_odd_ehya_citations_local_before_20261101.json`.
+  - ۱۴۰ نسخه جابه‌جا شد: محدث ارموی ۱ ← بی‌جلد ۱۰۰ («ف مخ») و ۱۴، ← #448 ۱۲؛ عکسی ۱ تا ۶ ← #449 ۲، ۳، ۱، ۲، ۳ و ۳.
+  - جلدها: #702 (محدث ارموی ۱) ۱٬۲۴۴ ← ۱٬۳۷۰ و #448 ۱٬۰۵۳ ← ۱٬۰۴۱. عکسی ۶۴۵/۹۰۸/۸۴۲/۸۵۳/۶۹۱/۸۰۲/۵۶۵ ← ۶۴۷/۹۱۱/۸۴۳/۸۵۵/۶۹۴/۸۰۵/۵۵۱. جعفر حسینی اشکوری ۳۱/۱۶٬۹۰۹ ← ۳۱/۱۷٬۰۲۳ و مصطفی درایتی ۱۵/۲۱٬۹۶۹ ← ۱۵/۲۲٬۰۸۳.
+  - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد و همان شمارها را داد.
+- **آزمون:** [TieOddEhyaCitationsTest](../tests/Feature/TieOddEhyaCitationsTest.php). دو تابع جلد جداگانه سنجیده می‌شوند. سپس هر حالت ساخته می‌شود: وارونه، «10-404»، صفحه‌ی تنها، «2-5» و «1-600» که رها می‌شوند، بی‌عدد، «ف مخ» مرکز احیاء و کتابخانه‌ی دیگر، عکسی وارونه و درست، ارجاع پس از یادداشت، «عکسی ف: 10» و «ف: … و عکسی ف: …» بی‌جلد. dry-run، اجرا، مدخل‌ها، شمارش‌ها، تکرار بی‌اثر و `--revert` سنجیده می‌شوند.
+- **پروداکشن (پس از انتشار، با اجازه‌ی کاربر):** `php artisan sources:tie-odd-ehya-citations --dry-run`، سپس اجرا با پشتیبان، کپی پشتیبان به `fahares-sources/backups/step13/` و نمایه‌ی دوباره‌ی نسخه‌های جابه‌جاشده.
 ### گام ۱۳.۱۳۴: `collection_key` و `fahares:fill-collection-keys`
 - **ستون:** `manuscripts.collection_key` varchar(100)، با نمایه‌ی `(library_id, collection_key)` (migration `2026_11_01_200001`). مقدار آن `Manuscript::collectionKeyOf($shelfmark)` است: `base` و، اگر باشد، `-collection` از `Manuscript::collectionKey`. پسوند عددی («5722/2-29/62») نادیده گرفته می‌شود، پسوند حرفی («513/8-طباطبائی») می‌ماند. شماره‌ی بی بخش («4825»، «5679-29/19») کلید null می‌گیرد.
 - **نوشتن:** hook `saving` مدل، وقتی `shelfmark` عوض شود و `collection_key` نه. `DerivedData::collectionChange` تصمیم مشترک است و `copyChanges` آن را زیر کلید `collection` برمی‌گرداند. `syncCopies` آن را می‌نویسد (شمار `collections`). `COPY_COLUMNS` اکنون `shelfmark` و `collection_key` را هم دارد. کلیدی که در یک لاگ `verify` آمده باشد (`ProtectedColumns`) دست نمی‌خورد. `SyncFixedShelfmarksCommand` و `SeedFaharesDataCommand` کلید را همراه با shelfmark می‌نویسند. `RebuildCopiesCommand` و `AddCorpusWorksCommand` از راه `syncCopies` هم‌گام می‌شوند.

@@ -47,7 +47,7 @@ class SplitMohaddesArmaviCatalogueCommand extends Command
     ];
 
     /** The series its copies are cited by, dashes and spaces aside. */
-    private const SERIES = ['محدث ارموی مخ', 'محدث ارموی ف مخ', 'محدث ارموی', 'محدث ارموی مرکز احیاء میراث اسلامی'];
+    public const SERIES = ['محدث ارموی مخ', 'محدث ارموی ف مخ', 'محدث ارموی', 'محدث ارموی مرکز احیاء میراث اسلامی'];
 
     private bool $dry = false;
 
