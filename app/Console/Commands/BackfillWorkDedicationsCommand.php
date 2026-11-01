@@ -36,7 +36,7 @@ class BackfillWorkDedicationsCommand extends Command
     protected $description = 'Fill work_people (dedicatee, commissioner) from works.dedication';
 
     /** A piece longer than this is a sentence of the description, not a name. */
-    private const MAX_NAME = 100;
+    public const MAX_NAME = 100;
 
     private PersonNameMatcher $matcher;
 
