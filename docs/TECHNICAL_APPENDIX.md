@@ -5962,6 +5962,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines`. ردیف‌های `lines/filled` از `reports/fankha_v2_db_review6/diffs.jsonl` خوانده می‌شوند. `raw_text` نسخه از `--db` گرفته می‌شود، بی برچسب صفحه و با رقم لاتین. `single_line_count` باید یک «N سطر» و فقط یکی بیابد، بی بازه («و» یا «-» پیش از عدد). نتیجه ۷۵۳ رکورد بود و ۵۵ رکورد کنار رفت. در برخی از آن‌ها `raw_text` سایت کوتاه‌تر از متن فنخاست، مانند #264068 که در «تا:» بریده شده است.
 - **فایل تصمیم:** `database/data/fankha_lines_20261101.json`.
 - **تمرین (`fahares_prod`):** `Would write 723`. ۲۹ رکورد `lines changed on the site since the comparison` بودند و یکی (#305859) `natural key differs`. پس از `--apply`، اجرای دوم `Would write 0` بود.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `56982d4`):** پشتیبان `fahares-sources/backups/item87_lines_prod_before_20261102.json` (۷۵۳ ردیف، ۷۲۴ بی‌سطر). `Would write 723`، `Writing 723`، سپس `Would write 0`. ۷۲۳ ردیف `audit_logs` با `corpus_fix = fankha_lines_20261101.json`.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_line_count_fills_only_a_copy_still_without_one`.
 - **دسته‌های بی‌تغییر:** `has_author_marginalia` flag_on ۷۳۵ و flag_off ۹۴۰. `lines` different ۳٬۲۴۰ (range ۲٬۸۶۹، multi ۳۴۰، به سود سایت ۲۷، به سود v2 ۳) و emptied ۱٬۲۱۶.
 ### گام ۱۳.۱۳۳: `sources:link-dharia-people`
@@ -6108,3 +6109,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۴۰۸ ← ۴۰۶ کتابخانه؛ دو ردیف `merge` در `audit_logs`؛ ۲ تغییرمسیر تازه.
   - `LibraryMerger::undoMerge` با `old_values` دو لاگ (به ترتیب وارونه) سنجه‌ی `crc32` کتابخانه‌ها، نسخه‌ها (`library_id`، `library`، `city`، `catalog_volume_id`)، جلدها، منابع و تغییرمسیرها را دقیقاً برگرداند. سپس دستور دوباره اجرا شد. اجرای سوم همان سنجه را داد.
 - **آزمون:** ابزار ادغام همان [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) است و آزمون تازه‌ای لازم نبود.
+### گام ۱۳.۱۳۹: دنباله‌ی انجام به `editorial_notes`
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py explicit_tail explicit_script`، از `reports/fankha_v2_db_review6/diffs.jsonl` (`explicit_text/trimmed`).
+  - **`explicit_tail`:** دنباله با «\n» آغاز می‌شود و یک سطر است. `v2 + tail` (با فاصله‌ی یکسان‌شده) در `raw_text` سایت هست. هر بخش «؛» نوعش را از `v2_parts` می‌گیرد: `contents_scope`، `copy_description` و `notes[].type` همان نسخه در v2، با کلید متن انجام. اگر بخشی بی‌نوع باشد یا بیش از سه بخش باشد، کل سطر یک یادداشت بی‌نوع می‌شود. «؛ خط: …» پس از یادداشت بیرون می‌ماند، به شرط آن‌که سایت `script_names` و تاریخ را داشته باشد.
+  - **`explicit_script`:** دنباله با «خط:»، «بی‌کا» یا «کا:» آغاز می‌شود. شرط: `script_names` (وقتی «خط:» هست) و `copy_date_raw` یا `is_bita`.
+  - **خروجی:** ۴۰٬۰۷۷ رکورد، ۵۹۲ کنار رفته.
+- **کد:** `ApplyCorpusCategoriesCommand` اکنون `explicit_text` را هم می‌پذیرد. رکوردی که `notes` دارد از `moveTail` می‌گذرد:
+  - `metadata.explicits[].text` برابر `from` به `to` تبدیل می‌شود؛
+  - `editorial_notes` یکتا و افزوده می‌شود؛
+  - `editorial_note_types[text] = type` ثبت می‌شود.
+
+  ممیزی فقط `explicits`، `editorial_notes` و `editorial_note_types` را پیش و پس نگه می‌دارد. اگر `metadata` در `ProtectedColumns` باشد، رکورد کنار می‌رود.
+- **فایل تصمیم:** `database/data/fankha_explicit_tails_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 40070` (`explicit_tail` ۳۹٬۶۲۷، `explicit_script` ۴۴۳). ۷ رکورد `natural key differs` بودند. اجرای `--apply` ۲ دقیقه و ۱۷ ثانیه طول کشید. اجرای دوم `Would write 0` بود.
+  - **پس از اجرا:** در هیچ رکوردی `explicit_text` «\n» ندارد. در ۴۰٬۰۶۹ رکورد متن انجام در `metadata.explicits` هست. استثنا #222552 است که فهرست `explicits` آن دنباله‌ی بلندتری از `explicit_text` داشت.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_explicit_becomes_typed_cataloguers_notes`.
