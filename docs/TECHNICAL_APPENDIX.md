@@ -5866,7 +5866,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل سایت:** [database/data/corpus_fankha_ranges_bibliography.json](../database/data/corpus_fankha_ranges_bibliography.json). `--export` آن را از `fahares_prod` ساخت: اثر با خود بازه‌ی وارونه در `bibliography` پیدا می‌شود (JSON سایت «/» را «\\/» می‌نویسد)، مقدار کهنه‌ی `bibliography` سایت و مقدار نو، و وصله‌ی `raw_text` برای سطر کروشه. همه‌ی ۸۰ سطر یک اثر یافتند.
 - **بازآزمایی روی `fahares_prod`:** پشتیبان `fahares-sources/backups/step13/step13.124_works_fahares_prod_before.json` (۸۰ اثر و ۵۱۵ مدخل منبع). `--apply` نتیجه داد: replaced ۸۰، patched ۸۰، conflict ۰. اجرای دوم already ۱۶۰ داد. اثر ۴۴۳۷۸: «فهرستواره منزوی 5: 3550-51» به ج ۵ ص ۳۵۵۰ رسید (پیش‌تر ج ۱ ص ۵۱).
 - **متن صفحه‌ی فنخا:** `scripts/sources/fankha_pages.py` برای همان ۲۰ جلد دوباره اجرا شد. ۸۱ صفحه تغییر کرد: ۸۰ کروشه، و ج ۲۳ ص ۴۹۸ که اصلاح پیشین پیکره (`c26c8d1`، دو شماره‌ی محلاتی) تا آن روز به صفحه‌ها نرسیده بود. فایل‌های پیشین در `fahares-sources/backups/step13/step13.124_fankha_pages_before/` هستند و `MD5SUMS` تازه شد. `sources:import-pages fankha` روی `fahares_prod` اجرا شد.
-- **پروداکشن (پس از push، با اجازه‌ی کاربر):** `php artisan fahares:apply-corpus-diff --file=database/data/corpus_fankha_ranges_bibliography.json --apply`، سپس برای هر یک از ۲۰ جلد `php artisan sources:import-pages fankha /tmp/…/NN.jsonl.gz --volume=N`.
+- **اجرای پروداکشن (۱۱ آبان، با اجازه‌ی کاربر، `ssh fahares-app`):**
+  - **پشتیبان:** `fahares-sources/backups/step13/step13.124_prod_before_20261101.json` (۱۲۰ مگابایت): ۸۰ اثر (`bibliography`، `raw_text`)، ۵۴۸ مدخل منبع آن‌ها، و ۱۹٬۵۹۹ صفحه‌ی `source_pages` از ۲۰ جلد فنخا. تلاش نخست با جایگزینی کانتینر در استقرار `1f2cc77` قطع شد و دوباره گرفته شد. خطای حافظه‌ی psysh پس از چاپ خروجی آمد و دنباله‌اش از فایل بریده شد.
+  - **`fahares:apply-corpus-diff --apply`:** dry-run همان تمرین بود. اجرا replaced ۸۰ و patched ۸۰ داد، بی تعارض، در ۵ ثانیه، و «Derived data of works: works=80». اجرای دوم already ۱۶۰ داد.
+  - **`sources:import-pages fankha`:** ۲۰ جلد (۱، ۶، ۸، ۱۳، ۱۴، ۱۷، ۲۰، ۲۲ تا ۳۴) وارد شد، از ۹۲۵ تا ۱٬۰۳۸ صفحه برای هر جلد.
+  - **وارسی:** `/works/44378` و `/sources/fankha/22/page/93` هر دو «۵: ۳۵۵۰» را به `/sources/monzavi/5/page/3550` پیوند می‌دهند.
 
 ### گام ۱۳.۱۲۵: آمارهای ۵ تا ۹ `/insights` و دو حالت جدول سده
 - **ستون‌های جدول موقت نسخه‌ها:** `scribe_id`، `library_id`، `catalog_volume_id`، `folios` و `` `lines` `` افزوده شدند.
@@ -5884,3 +5888,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - زیر `min_sample` (۱۰) خانه خالی می‌ماند.
 - **آزمون:** `test_scribes_libraries_sizes_languages_and_catalogues_of_a_scope` در [InsightsScopeTest](../tests/Feature/InsightsScopeTest.php).
 - **یادداشت:** `main` اکنون فیلتر «جلد فهرست» جست‌وجو را دارد (گام ۱۳.۱۱۶، `source_volume_id`). فیلتر `catalog` این صفحه `catalog_volume_id` است، پس هنوز به آن پیوند داده نشده است.
+
+### گام ۱۳.۱۲۶: `MemoryLimit::raiseTo`
+- **خطا:** `ErrorException: Failed to set memory limit to 201326592 bytes (Current memory usage is …)` در `SearchController::export`. اگر `memory_limit` کمتر از `memory_get_usage(true)` باشد، `ini_set` آن را نمی‌پذیرد و هشدار می‌دهد.
+- **[MemoryLimit](../app/Support/MemoryLimit.php):** سقف کنونی با `ini_parse_quantity(ini_get('memory_limit'))` خوانده می‌شود. اگر `-1` باشد، کاری نمی‌کند. هدف `max(ini_parse_quantity($limit), memory_get_usage(true) + 32M)` است. اگر هدف از سقف کنونی بیشتر نباشد، `false` برمی‌گرداند؛ وگرنه `ini_set` می‌کند.
+- **فراخوان‌ها:** `SearchController::export` با `192M` و `ExportSearchResults::handle` با `256M`. دستورهای کنسول (`1024M` و `-1`) دست نخوردند.
+- **آزمون:** [MemoryLimitTest](../tests/Unit/MemoryLimitTest.php) سه حالت را می‌آزماید: بالا بردن، نگه داشتن سقف بالاتر یا نامحدود، و هدفی کمتر از حافظه‌ی در حال مصرف. اجرای کامل با کپی `phpunit.xml` روی `fahares_lehmann_test` انجام شد: ۵۷۱ موفق.

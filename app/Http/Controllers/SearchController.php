@@ -15,6 +15,7 @@ use App\Models\Subject;
 use App\Models\Work;
 use App\Support\CopyPlaces;
 use App\Support\DirectAnswer;
+use App\Support\MemoryLimit;
 use App\Support\SearchExport;
 use App\Support\SearchFilters;
 use Illuminate\Http\Request;
@@ -541,7 +542,7 @@ class SearchController extends Controller
     {
         $limit = $request->user() ? SearchExport::MEMBER_LIMIT : SearchExport::GUEST_LIMIT;
         // Room for the largest file above php-fpm's 128 MB; the route is throttled
-        ini_set('memory_limit', '192M');
+        MemoryLimit::raiseTo('192M');
         $data = $this->search($request->merge(['page' => 1]), $limit);
         $type = $data['type'];
         // Exports count in the search stats too (backlog item 85)
