@@ -32,7 +32,9 @@ class ApplyCorpusCategoriesCommand extends Command
     ];
 
     /** A commissioner's phrase before the name in the copy's raw text («حسب الامر», «به جهت», «برای»…) */
-    private const COMMISSIONER_PHRASE = '/(?:(?:بر|از)[\s\x{200c}]+)?(?:حسب[\s\x{200c}]*(?:ال)?(?:امر|فرمایش|خواهش)|به[\s\x{200c}]*(?:جهت|دستور|سفارش|فرمایش|خواهش|درخواست|امر|فرمان)|بنا[\s\x{200c}]+(?:بر|به)[\s\x{200c}]+(?:خواهش|درخواست|امر)|برای|جهت)[\s:]*$/u';
+    // A commissioner's phrase, then up to six words of titles or «...» before the name: «بر حسب امر نواب مستطاب ...
+    // شاهزاده ... عماد الدوله», «بحسب الفرموده فضیلت و تقوی نشان آخوند مولانا محمد حسین باطاقی»
+    private const COMMISSIONER_PHRASE = '/((?:(?:بر|از|به)[\s\x{200c}]+)?(?:ب?حسب[\s\x{200c}]*(?:ال)?(?:امر|فرمایش|فرموده|خواهش)|به[\s\x{200c}]*(?:جهت|دستور|سفارش|فرمایش|خواهش|درخواست|امر|فرمان)|بجه[ةت]|بنا[\s\x{200c}]+(?:بر|به)[\s\x{200c}]+(?:خواهش|درخواست|امر)|برای|جهت))(?:[\s\x{200c}:]+(?:\.{2,}|…|[^\s\x{200c}]+)){0,6}?[\s\x{200c}:.…]*$/u';
 
     private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class];
 
@@ -139,23 +141,25 @@ class ApplyCorpusCategoriesCommand extends Command
         return ['added_person_role' => $result['new']['added_person_role'], 'label_raw' => $label];
     }
 
-    /** The phrase the raw text puts right before the name, if it is one of a commissioner's («حسب الامر»). */
+    /**
+     * The commissioner's phrase («حسب الامر») the raw text puts before the name, with at most six words of titles
+     * between them, at any place the name is written.
+     */
     public function phrase(string $raw, string $name): ?string
     {
         // A page tag can sit between the phrase and the name; «ي» and «ك» are written the Arabic way too
         $raw = str_replace(['ي', 'ك'], ['ی', 'ک'], preg_replace('/\s*<!--\s*page:\s*\d+\s*-->\s*/u', ' ', $raw));
         $name = str_replace(['ي', 'ك'], ['ی', 'ک'], $name);
-        $at = mb_strpos($raw, $name);
-        if ($at === false) {
-            return null;
-        }
-        $before = preg_split('/[،؛\n]/u', mb_substr($raw, max(0, $at - 40), min($at, 40)));
-        $before = trim((string) end($before));
-        if (! preg_match(self::COMMISSIONER_PHRASE, $before, $m)) {
-            return null;
+        // «جا: شیراز (مدرسه میر سید شریف)، برای میر سید شریف»: the name may be written first where it is no commissioner
+        for ($at = mb_strpos($raw, $name); $at !== false; $at = mb_strpos($raw, $name, $at + 1)) {
+            $before = preg_split('/[،؛\n]/u', mb_substr($raw, max(0, $at - 90), min($at, 90)));
+            $before = trim((string) end($before));
+            if (preg_match(self::COMMISSIONER_PHRASE, $before, $m)) {
+                return mb_substr(trim(preg_replace('/[\s:]+$/u', '', $m[1])), 0, 60);
+            }
         }
 
-        return mb_substr(trim(preg_replace('/[\s:]+$/u', '', $m[0])), 0, 60);
+        return null;
     }
 
     /** @return array<int, object> */

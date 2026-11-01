@@ -6036,3 +6036,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۳۷۶ نسخه جابه‌جا شد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). #497 از ۴۵۶ به ۸۰ رسید، #504 از ۱۶ به ۲۲۸ و #508 از ۲٬۴۳۹ به ۲٬۵۰۸. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۲۹ ← ۳۱/۳۳٬۵۹۸ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۸۶ ← ۶۶/۷۹٬۹۵۵. شمار `source_entries` ۷۸۵٬۵۸۳ ماند.
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد.
 - **آزمون:** [FixRowzatiIsfahanCatalogueTest](../tests/Feature/FixRowzatiIsfahanCatalogueTest.php). این آزمون نسخه‌های «فهرست روضاتی» با صفحه و بی‌صفحه، «ف»، «روضاتی - ف»، «نشریه: 5»، هر دو املای «نسخه پژوهی» و یک «ف» بی‌جلد را می‌سازد. سپس dry-run، اجرا، مدخل‌ها، جلد و کتابخانه، شمارش‌ها، تکرار بی‌اثر و `--revert` را می‌سنجد.
+
+### گام ۱۳.۱۴۱: `KnownRulers::find(..., $before)` و `ApplyCorpusCategoriesCommand::phrase()`
+- **«شاه عباس صفوی»:**
+  - `KnownRulers::find($piece, $year, $death, $before)`: وقتی سال تألیف و تاریخ خود فیلد نیست، فرمانروایانی که `lived[0]` آن‌ها پس از `$before` است کنار می‌روند. اگر یکی بماند، بی‌قید برگردانده می‌شود. خروجی کلید `doubt` (یادداشت تردید گروه `USUALLY`) را هم دارد.
+  - `BackfillWorkDedicationsCommand::latestYears()` برای هر اثر کمینه‌ی `people.death_to` مؤلف و `MIN(manuscripts.copy_date_to)` را می‌دهد.
+  - ردیفی که هست، با همان شخص، `certainty = probable` و `note = doubt` و بی `suggestion_id`، به `certainty = null` و `note = null` تبدیل می‌شود (`settled_ruler`).
+  - dry run (`fahares_prod` محلی): `settled_ruler 6` (آثار #18610، #22041، #61339، #62243، #67644 و #68501) و `skipped:exists` از ۴٬۷۷۶ به ۴٬۷۷۰. شمارهای دیگر دست نخوردند (مقایسه‌ی خروجی پیش و پس از تغییر).
+- **سفارش‌دهنده:**
+  - `COMMISSIONER_PHRASE` گروه ۱ عبارت را می‌گیرد. پس از آن `{0,6}?` واژه یا «..»/«…» تا پایان بند می‌پذیرد. `ب?حسب`، `الفرموده`، `بجه[ةت]` و پیشوند «به» افزوده شدند.
+  - `phrase()` همه‌ی جاهای نام را می‌آزماید (`mb_strpos` با offset) و پنجره را از ۴۰ به ۹۰ نویسه برده است.
+  - dry run با `fankha_v2_commissioners_20261030.json`: `already 3520`، `write 47`، `no commissioner phrase 1` (#54703).
+- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-dedications --dry-run` و سپس بی آن. `fahares:apply-corpus-categories --file=database/data/fankha_v2_commissioners_20261030.json` و سپس با `--apply`.
+- **آزمون‌ها:**
+  - `DedicationParserTest::test_a_usual_spelling_is_decided_by_the_year_of_composition` (بند `$before`).
+  - `WorkPeopleTest::test_backfill_of_dedicatees_and_commissioners` (قطعی شدن ردیف پیشین).
+  - `ApplyCorpusCategoriesCommandTest::test_a_commissioners_phrase_is_found_past_titles_and_at_a_later_place_of_the_name`.
+

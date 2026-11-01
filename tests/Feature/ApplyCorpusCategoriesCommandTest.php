@@ -173,6 +173,22 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertSame(2, DB::table('manuscript_people')->count());
     }
 
+    public function test_a_commissioners_phrase_is_found_past_titles_and_at_a_later_place_of_the_name()
+    {
+        $phrase = fn (string $raw, string $name) => app(\App\Console\Commands\ApplyCorpusCategoriesCommand::class)->phrase($raw, $name);
+        // Titles and «...» between the phrase and the name
+        $this->assertSame('بر حسب امر', $phrase('بر حسب امر نواب مستطاب ... شاهزاده ... عماد الدوله در دارالخلافه', 'عماد الدوله'));
+        $this->assertSame('بحسب الفرموده', $phrase('بحسب الفرموده فضیلت و تقوی نشان آخوند مولانا محمد حسین باطاقی', 'محمد حسین باطاقی'));
+        $this->assertSame('حسب الفرمایش', $phrase('انجام: حسب الفرمايش نواب علیه عالیه احترام الملوک', 'احترام الملوک'));
+        $this->assertSame('بجهة', $phrase('کتاب مجمع البیان بجهة عالیجاه ... حاجی ابراهیم خان', 'ابراهیم خان'));
+        // The name written first as the library, then after the copy date with the phrase
+        $this->assertSame('به دستور', $phrase("قم؛ مؤسسه آیة الله بروجردی؛ شماره نسخه: 247/5\nکا: حسن نوری همدانی، تا: 1378ق، به دستور آیة الله بروجردی", 'آیة الله بروجردی'));
+        // A library or a scribe, with no phrase anywhere before the name
+        $this->assertNull($phrase('نسخه اصل: کتابخانه مؤلف در کاظمین؛ خط: نسخ', 'مؤلف'));
+        // More than six words between: not the commissioner's
+        $this->assertNull($phrase('برای آن که یک دو سه چهار پنج شش هفت میرزا حسن', 'میرزا حسن'));
+    }
+
     public function test_copy_date_ranges_are_filled_and_kept_in_step()
     {
         $w = $this->work('-v99-8');

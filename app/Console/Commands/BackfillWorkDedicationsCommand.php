@@ -43,6 +43,9 @@ class BackfillWorkDedicationsCommand extends Command
     /** @var array<string, Person|string> ruler authority name => its record, or 'new' / 'ambiguous' */
     private array $rulers = [];
 
+    /** @var array<int, int> the latest year each work of the chunk can be from (latestYears) */
+    private array $before = [];
+
     /** @var array<string, array<string, int>> */
     private array $counts = [];
 
@@ -60,11 +63,12 @@ class BackfillWorkDedicationsCommand extends Command
         $this->counts = [];
         $this->examples = [];
 
-        $query = Work::whereNotNull('dedication')->where('dedication', '<>', '')->select(['id', 'slug', 'volume_number', 'composition_year_hijri', 'dedication']);
+        $query = Work::whereNotNull('dedication')->where('dedication', '<>', '')->select(['id', 'slug', 'volume_number', 'composition_year_hijri', 'dedication', 'author_id']);
         if ($only) {
             $query->whereIn('id', $only);
         }
         $query->orderBy('id')->chunkById(500, function ($works) use ($guard, $relations, $dry) {
+            $this->before = $this->latestYears($works);
             $write = function () use ($works, $guard, $relations, $dry) {
                 foreach ($works as $work) {
                     $this->work($work, $guard, $relations, $dry);
@@ -107,10 +111,21 @@ class BackfillWorkDedicationsCommand extends Command
                 continue;
             }
 
-            [$person, $how, $usually] = $this->person($name, $p['death'], $work->composition_year_hijri, $dry);
+            [$person, $how, $usually] = $this->person($name, $p['death'], $work->composition_year_hijri, $dry, $this->before[$work->id] ?? null);
             $exists = $work->workPeople()->where('role', $role)
                 ->where(fn ($q) => $person instanceof Person ? $q->where('person_id', $person->id) : $q->whereNull('person_id')->where('name', $name))->exists();
             if ($exists) {
+                // «شاه عباس صفوی» linked to the first Abbas as only probable, now that the work's dates rule out the second
+                if ($person instanceof Person && ($usually['doubt'] ?? null) && $usually['certainty'] === null) {
+                    $probable = $work->workPeople()->where('role', $role)->where('person_id', $person->id)->whereNull('suggestion_id')
+                        ->where('certainty', 'probable')->where('note', $usually['doubt']);
+                    if ($dry ? $probable->exists() : $probable->update(['certainty' => null, 'note' => null])) {
+                        $this->count($role, 'settled_ruler');
+                        $this->example('settled_ruler', "{$label} → #{$person->id} {$person->name}");
+
+                        continue;
+                    }
+                }
                 // Rows written before label_raw (item 96) get the catalogue's phrase now
                 if ($p['label'] && ! $dry && $work->workPeople()->where('role', $role)->whereNull('suggestion_id')->whereNull('label_raw')
                     ->where(fn ($q) => $person instanceof Person ? $q->where('person_id', $person->id) : $q->whereNull('person_id')->where('name', $name))
@@ -171,12 +186,12 @@ class BackfillWorkDedicationsCommand extends Command
      *
      * @return array{0: Person|string|null, 1: string, 2: array{certainty: ?string, note: ?string, group: string[]}}
      */
-    private function person(string $name, ?int $death, ?int $year, bool $dry): array
+    private function person(string $name, ?int $death, ?int $year, bool $dry, ?int $before = null): array
     {
         $none = ['certainty' => null, 'note' => null, 'group' => []];
-        if ($found = KnownRulers::find($name, $year, $death)) {
+        if ($found = KnownRulers::find($name, $year, $death, $before)) {
             $ruler = $found['ruler'];
-            $usually = ['certainty' => $found['certainty'], 'note' => $found['note'], 'group' => $found['group']];
+            $usually = ['certainty' => $found['certainty'], 'note' => $found['note'], 'group' => $found['group'], 'doubt' => $found['doubt'] ?? null];
             $record = $this->ruler($ruler, $dry);
 
             return match (true) {
@@ -190,6 +205,28 @@ class BackfillWorkDedicationsCommand extends Command
         [$person, $why] = $this->matcher->match($name, PersonNameMatcher::century($death), requireCentury: true);
 
         return $person ? [$person, 'linked', $none] : [null, "name_only:{$why}", $none];
+    }
+
+    /**
+     * The latest year each work can be from: the end of its author's death range or its earliest dated copy's,
+     * whichever is earlier (KnownRulers::find leaves out a ruler born after it).
+     *
+     * @return array<int, int> work id => year
+     */
+    private function latestYears($works): array
+    {
+        $deaths = DB::table('people')->whereIn('id', $works->pluck('author_id')->filter()->unique())->whereNotNull('death_to')->pluck('death_to', 'id');
+        $copies = DB::table('manuscripts')->whereIn('work_id', $works->pluck('id'))->whereNotNull('copy_date_to')
+            ->groupBy('work_id')->selectRaw('work_id, MIN(copy_date_to) AS y')->pluck('y', 'work_id');
+        $years = [];
+        foreach ($works as $work) {
+            $known = array_filter([$deaths[$work->author_id] ?? null, $copies[$work->id] ?? null], fn ($y) => $y !== null);
+            if ($known) {
+                $years[$work->id] = (int) min($known);
+            }
+        }
+
+        return $years;
     }
 
     /** A ruler's authority record: the one person of that name, a new one, or 'ambiguous' when there are several. */
