@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Step 13.128 (plan docs/plans/dharia-entity-links.md). The records a mark in a page's text links, made by a command
+     * Step 13.129 (plan docs/plans/dharia-entity-links.md). The records a mark in a page's text links, made by a command
      * beforehand, not as the page is shown: the page, which of its marks (its n-th opening, from 0) with the mark's kind
      * and text as they were, the record it links (target), how the link was found (method), and an editor's rejection,
      * which a later run keeps.

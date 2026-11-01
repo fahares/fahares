@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Links the titles Noor tags in al-Dhari'a's text to the al-Dhari'a entry of that title (step 13.128, plan
+ * Links the titles Noor tags in al-Dhari'a's text to the al-Dhari'a entry of that title (step 13.129, plan
  * docs/plans/dharia-entity-links.md, step 1): a title (WB), the author's other work (TB), the title the work is entered
  * under elsewhere («يأتي بعنوان …», VB), its other name (EB), its translation (HB) or the work it translates (CB).
  *
@@ -242,11 +242,11 @@ class LinkDhariaTitlesCommand extends Command
 
     private function sample(array $links, int $perKind): void
     {
-        mt_srand(13128);
+        mt_srand(13129);
         $out = [];
         foreach (collect($links)->groupBy(fn ($l) => $l['mark']['kind'] . ($l['method'] === 'ref+part' ? ' ref+part' : '')) as $kind => $group) {
             $out[] = "===== {$kind} ({$group->count()} links) =====";
-            $picked = $group->count() <= $perKind ? $group : $group->shuffle(13128)->take($perKind);
+            $picked = $group->count() <= $perKind ? $group : $group->shuffle(13129)->take($perKind);
             foreach ($picked->values() as $n => $l) {
                 $m = $l['mark'];
                 $head = mb_substr(trim(preg_replace('/\s+/u', ' ', (string) SourceItem::whereKey($l['item']->id)->value('text'))), 0, 160);
