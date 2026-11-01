@@ -5992,3 +5992,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش (`fahares_prod`):** اجرای آزمایشی: copies ۳۲۴٬۵۵۴، with_key ۱۴۵٬۰۱۹، changed ۱۴۵٬۰۱۹، volumes ۳۳٬۰۲۱، volumes_of_2+ ۲۸٬۹۹۵، copies_in_volumes_of_2+ ۱۴۰٬۹۹۳. اندازه‌ی مجلدها: ۱ رساله ۴٬۰۲۶، ۲ رساله ۱۱٬۶۴۰، ۳ رساله ۵٬۵۴۹، ۴ رساله ۳٬۲۴۴، ۵ تا ۱۹ رساله ۷٬۸۷۳، ۲۰ رساله و بیشتر ۶۸۹ (بزرگ‌ترین ۲۹۶). `--apply` در ۸۵ ثانیه انجام شد. پس از آن، اجرای دوباره ۰ تغییر داشت و `refresh-derived` برای `collection_key` ۰ گزارش کرد. انحراف `copy_date_range` (۷۲۰) و `excerpt_pointers` (۲۳) در همان گزارش به این گام ربطی ندارد. `collectionSiblings` برای مجلد ۲۶رساله‌ای «14709» ۲۰ میلی‌ثانیه طول کشید.
 - **پرسش‌های بیرون از این گام:** ۲٬۶۲۴ مجلد بازه‌ی هم‌پوشان دارند، مانند «3852/1» (۱ر تا ۳۰ر) و «3852/2» (۳پ تا ۶ر). بخشی خطای خواندن متن و بخشی رساله‌ی حاشیه است. ۱٬۶۰۰ مجلد یک شماره‌ی رساله را دو بار دارند. این‌ها نمایش داده می‌شوند و جداگانه داوری نشده‌اند.
 - **آزمون:** `test_a_copys_bound_volume_follows_its_shelfmark_and_its_treatises_are_listed_by_leaf` در [DerivedDataTest.php](../tests/Feature/DerivedDataTest.php).
+
+### گام ۱۳.۱۳۵: `fahares:backfill-work-subjects`
+- **کد:**
+  - `App\Support\KnownSubjects`: `WORDS` (واژه‌های آغاز عنوان)، `LIST` (۱۴ رکورد با املاها)، `fromTitle()` (واژه و تکه‌های موضوع، با حذف «(ع)»، «علیه السلام»، «صلی الله علیه و آله» و پرانتز پایانی) و `find()` (مقایسه با `KnownRulers::compact`). برای حذف «،» و نقطه از دو سر تکه از `preg_replace` استفاده می‌شود، نه `trim()`، چون `trim()` با «،» بایت نخست «ا» را می‌بُرد. این خطا در نخستین dry run بیشتر پیوندها را از دست داده بود.
+  - `BackfillWorkSubjectsCommand`:
+    - نام رکوردها را با `PersonNameMatcher::ids` یکتا پیدا می‌کند.
+    - `ProtectedColumns::protectsRows($id, 'people')` را رعایت می‌کند.
+    - ردیف `subject` تکراری را نمی‌نویسد.
+    - از `ContributorRelations::addRole` با `source_entry_id` مدخل فنخا و `label_raw` (واژه‌ی عنوان) می‌نویسد.
+    - `--candidates=file.json` عبارت‌های بی‌پیوند را با رکورد پیشنهادی تطبیق نام برای بازبینی می‌نویسد.
+  - فایل تصمیم `database/data/work_subjects_20261101.json` ۲۹ عبارت دارد که کاربر تأیید کرد (۱۱ آبان ۱۴۰۵).
+- **dry run (`fahares_prod` محلی):** `works:titled 749`، `linked:known 127`، `linked:reviewed 42`، `pieces:not_linked 681`. هیچ رکوردی پیدا نشد که نبود یا تکراری بود. از ۵۸۷ عبارت بی‌پیوند، بیشترشان شخص نیستند («الائمة»، «اهل البيت»، «قرآن»، «النفس»).
+- **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`.
+- **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون) و `BackfillWorkSubjectsTest::test_known_subjects_and_reviewed_phrases_are_linked_once`.
+
