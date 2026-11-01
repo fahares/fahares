@@ -106,6 +106,8 @@
                             $tied = $item ? ($works[$item->id] ?? collect()) : collect();
                             $work = $tied->first();
                             $workUrl = $work ? route('works.show', $work->citable) : null;
+                            // al-Dhari'a's author mark links the work's author when it names him
+                            $author = $item ? ($authors[$item->id] ?? null) : null;
                         @endphp
                         <section class="book-sheet__entry" @if($item) data-entry="{{ $item->item_key }}" @endif>
                             @if($block['continued'])
@@ -122,7 +124,7 @@
                                         default => (string) \App\Support\PrintedPage::text($p['text']),
                                     })->implode('') !!}</div>
                                 @else
-                                    <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text($block['text']) }}</div>
+                                    <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text($block['text'], $author) }}</div>
                                 @endif
                             @else
                                 <div class="book-sheet__headline">
@@ -135,12 +137,12 @@
                                         @if($work->isAwaitingReview())<x-ui.machine-badge class="ms-1 align-middle" :text="$work->machineNote()" :review="$work->badgeReview()" />@endif
                                         @if($tied->count() > 1)<a href="#page-works" class="ms-1 font-sans text-xs text-muted hover:text-cinnabar" title="آثار دیگر این مدخل">{{ Fa::digits('+' . ($tied->count() - 1)) }}</a>@endif
                                     @endif
-                                    @if($rest !== '')<span class="book-sheet__rest">{{ \App\Support\PrintedPage::text($rest) }}</span>@endif
+                                    @if($rest !== '')<span class="book-sheet__rest">{{ \App\Support\PrintedPage::text($rest, $author) }}</span>@endif
                                 </div>
                                 @if($title)
-                                    <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ \App\Support\PrintedPage::text($title) }}</a>@else<span class="book-sheet__heading">{{ \App\Support\PrintedPage::text($title) }}</span>@endif{{ \App\Support\PrintedPage::text(rtrim($lines[1])) }}</div>
+                                    <div class="whitespace-pre-line">@if($workUrl)<a href="{{ $workUrl }}" class="book-sheet__heading book-sheet__heading--work" title="{{ $work->citable->primary_title }}" data-work-link>{{ \App\Support\PrintedPage::text($title) }}</a>@else<span class="book-sheet__heading">{{ \App\Support\PrintedPage::text($title) }}</span>@endif{{ \App\Support\PrintedPage::text(rtrim($lines[1]), $author) }}</div>
                                 @elseif(isset($lines[1]) && trim($lines[1]) !== '')
-                                    <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text(trim($lines[1], "\n")) }}</div>
+                                    <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text(trim($lines[1], "\n"), $author) }}</div>
                                 @endif
                             @endif
                         </section>

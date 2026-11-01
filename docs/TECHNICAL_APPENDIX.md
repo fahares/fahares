@@ -5681,6 +5681,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** حکیم (۳۲) ۷ جلد / ۴٬۲۶۲، صدرائی (۴۴) ۲۳ / ۲۷٬۵۷۲، برکت (۵۳) ۴ / ۳٬۶۳۶، غفرانی (۱۳۲، تازه) ۰ / ۳۳۹. اختلاف اندک با تمرین از نسخه‌هایی است که پس از کپی محلی به جلدهای دیگر این سه نفر افزوده شده‌اند.
   - **وارسی:** `catalog_volume_cataloger` برای ۵۳۴ و ۵۳۵ تنها حکیم با نقش `supervisor` را دارد. نسخه‌ی ۲۳۲۹۸۸ (مدرسه‌ی آیة‌الله خوئی مشهد) غفرانی را نشان می‌دهد. `/catalogers/109` (اوکتایی)، `/catalogers/132` و `/catalogers/32` ۲۰۰ می‌دهند، و صفحه‌ی `catalogue-5c2b9b62d4d4` «زیر نظر محمدحسین حکیم» دارد.
 
+### گام ۱۳.۱۱۴: ارجاع «[ف: …]» در متن صفحه‌ی فنخا
+- **کد:** `PrintedPage::citations()` پس از `marks()`. مدخل‌های `origin = fankha_citation` نسخه‌های صفحه (`status != rejected`، با `page_start` و `citation_text`) گرفته می‌شوند. `citation_text` عین کروشه است، از سطر نسخه تا سطر نسخه‌ی بعدی جست‌وجو می‌شود، و نشان `kind = catalogue` درون کروشه می‌نشیند. نشانی: `SourceEntry::pageTextUrl()`، وگرنه `viewer()`. این نشان‌ها در «آثار این صفحه» نمی‌آیند. نمایش در [source-pages/show](../resources/views/source-pages/show.blade.php) با کلاس `book-sheet__cite`.
+- **سنجش روی `fahares_prod`:** تنها `library_catalogue` با برگه یا متن `masjid-azam-ostadi` است و هیچ مدخل `fankha_citation` ندارد. ارجاع‌های مسجد اعظم در فنخا «[ف مخ: …]» هستند (`catalogue-20097e616c1d`، فهرست دست‌نویس). در ۱۵۰ صفحه‌ی فنخا ۹۸۰ ارجاع هست و ۰ پیوند. هزینه یک پرس‌وجو در هر صفحه است.
+- **آزمون:** `test_a_copys_citation_of_its_librarys_catalogue_links_that_page` در [SourcePageViewTest](../tests/Feature/SourcePageViewTest.php): متن، نمایشگر، و بی‌برگه.
+- **کامیت:** `c148a22`.
+
+### گام ۱۳.۱۱۵: نام مؤلف (SB) در متن الذریعة
+- **کد:** `PrintedPage::authors($works)` برای هر مدخل نخستین `SB` را با تنها مؤلف اثر (`author` و `authors`) می‌سنجد (`names()`). نام سایت «نسبت، نام بن پدر» است و هر دو سو هنجار می‌شوند (ي/ى/ك/أ/إ/آ/ة، نیم‌فاصله، کشیده، نشانه‌ها). شرط پیوند یکی از این دو است: «نام بن پدر» کامل، یا «نام» به‌علاوه‌ی همه‌ی واژه‌های بیش از دو حرفی نسبت. `text($text, $author)` نشان SB را وقتی متنش همان باشد به `<a … data-noor="SB" data-record-link="person">` بدل می‌کند (روی پشته به شکل `SB\0url\0title`). `SourcePageController` مؤلف‌ها را بار می‌کند.
+- **سنجش (محلی، جلد ۱۳):** ۳۱۶ مدخل اثر دارند، ۳۱۱ با یک مؤلف، ۲۸۶ با SB. با شرط هم‌پوشانی یک واژه، ۲۳۲ پیوند می‌گرفت ولی نمونه‌ها نادرست داشتند («سمنانی، محمد رضا» ≠ «محمد زمان السمناني»). با شرط کنونی ۱۲۸ پیوند ساخته شد و نمونه‌ی ۲۵تایی درست بود. ۰٫۰۴ ثانیه برای هر صفحه.
+- **آزمون:** `test_al_dharias_author_mark_links_the_works_author_when_it_names_him`.
+- **کامیت:** `c6e1f12`.
+
 ### گام ۱۳.۱۱۷: درخواست آمار تازه در `/insights`
 - **دسته:** `stats` در [SuggestionRegistry::FEEDBACK_CATEGORIES](../app/Suggestions/SuggestionRegistry.php). برچسب پنل، «پیشنهادهای من» و اعلان‌ها از `FieldSuggestion::field_label` می‌آید و تغییری نخواست. فرم سراسری بازخورد هم این دسته را در فهرست گزینه‌هایش دارد.
 - **کنترلر:** [FeedbackController](../app/Http/Controllers/FeedbackController.php) سه ورودی اختیاری تازه می‌پذیرد: `question` (۱۰۰۰)، `example` (۲۰۰۰) و `section` (۲۰۰). این‌ها در `payload` کنار `url`، `title` و `agent` می‌مانند و خالی‌ها با `array_filter` حذف می‌شوند. مسیر همان `POST /feedback` با `throttle:10,60` و کادر دام `website` است. `page_url` از پیش مسیر و رشته‌ی پرسش را نگه می‌داشت.

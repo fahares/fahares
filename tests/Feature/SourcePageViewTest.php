@@ -254,6 +254,41 @@ class SourcePageViewTest extends TestCase
             . '<span class="book-poem__h">تاسعة و مائة و مرة</span><span class="book-poem__h">من بعد ألف من سنين الهجرة</span></span>يعني سنة ۱۲۰۹ ه‍.', $html);
     }
 
+    public function test_al_dharias_author_mark_links_the_works_author_when_it_names_him()
+    {
+        $source = Source::create(['code' => 'dharia-test', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 13, 'facsimile_code' => 'dharia-test']);
+        $sb = fn (string $name) => "\u{E020}SB\u{E021}{$name}\u{E022}";
+        $entries = [
+            ['5', 'شارحة الصدور', 'منظومة ' . $sb('للعلامة الشيخ حسين بن محمد بن أحمد آل عصفور البحراني') . ' ابن أخي ' . "\u{E020}FB\u{E021}صاحب الحدائق\u{E022}", 'آل عصفور، حسین بن محمد'],
+            // a commentary tied to the work it comments on: the mark names the commentator, not the work's author
+            ['6', 'شرح التجريد', 'شرح ' . $sb('لآية الله العلامة الحلي الشيخ أبي منصور الحسن بن يوسف'), 'نصیرالدین طوسی، محمد بن محمد'],
+        ];
+        $people = [];
+        $text = '';
+        foreach ($entries as $i => [$number, $title, $body, $author]) {
+            $line = "( {$number} : {$title} ) {$body}";
+            $text .= ($text === '' ? '' : "\n\n") . $line;
+            $item = SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 13, 'item_key' => $number,
+                'position' => $i + 1, 'kind' => SourceItem::KIND_ENTRY, 'entry_number' => (int) $number, 'title' => $title, 'title_normalized' => $title,
+                'page_start' => 4, 'page_end' => 4, 'text' => \App\Support\PageMarks::strip($line)]);
+            $people[] = $person = \App\Models\Person::create(['name' => $author, 'normalized_name' => $author, 'slug' => 'p-' . uniqid(), 'is_author' => true]);
+            $work = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1,
+                'author_id' => $person->id, 'author_name' => $author]);
+            SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id, 'source_id' => $source->id, 'source_volume_id' => $volume->id,
+                'source_item_id' => $item->id, 'volume_number' => 13, 'page_start' => 4, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => SourceEntry::ORIGIN_MATCH,
+                'status' => SourceEntry::STATUS_VERIFIED]);
+        }
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 4, 'text' => $text]);
+
+        $html = $this->get('/sources/dharia-test/13/page/4')->assertOk()->getContent();
+        $this->assertStringContainsString('<a href="' . route('people.show', $people[0]) . '" class="book-sheet__mark book-sheet__mark--person" title="آل عصفور، حسین بن محمد" data-noor="SB" data-record-link="person">للعلامة الشيخ حسين بن محمد بن أحمد آل عصفور البحراني</a>', $html);
+        $this->assertStringNotContainsString(route('people.show', $people[1]), $html);
+        $this->assertStringContainsString('<span data-noor="SB">لآية الله العلامة الحلي', $html);
+        // another person's mark stays a mark
+        $this->assertStringContainsString('<span data-noor="FB">صاحب الحدائق</span>', $html);
+    }
+
     public function test_noors_marks_set_a_verse_a_hadith_and_latin_and_run_over_lines()
     {
         $text = "قال \u{E020}ayah 18:46\u{E021}(وَ الْبٰاقِيٰاتُ)\u{E022} و \u{E020}latin\u{E021}A. Storey 1927\u{E022} و \u{E020}hadith\u{E021}قال \u{E020}FB\u{E021}النبي ص\u{E022}\nلا\u{E022} تم";
