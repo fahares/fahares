@@ -47,10 +47,11 @@ class PrintedPage
         $items = SourceItem::where('source_volume_id', $volume->id)->where('page_start', '<=', $page)->where('page_end', '>=', $page)
             ->orderBy('position')->get()->each->setRelation('source', $source);
         $paged = self::hasPageTexts($volume);
-        $text = $paged ? DB::table('source_pages')->where('source_volume_id', $volume->id)->where('page', $page)->value('text') : null;
-        if ($paged ? $text === null : $items->isEmpty()) {
+        $row = $paged ? DB::table('source_pages')->where('source_volume_id', $volume->id)->where('page', $page)->first(['id', 'text']) : null;
+        if ($paged ? $row === null : $items->isEmpty()) {
             return null;
         }
+        $text = $row ? self::linked($row->text, $row->id) : null;
 
         $blocks = $paged ? self::cut($text, $items, $page) : $items->map(fn (SourceItem $item) => [
             'item' => $item,
@@ -66,6 +67,32 @@ class PrintedPage
 
         return new self($source, $volume, $page, $items, $blocks, $firstEntry !== null && $page < $firstEntry,
             self::neighbour($source, $volume, $page, -1), self::neighbour($source, $volume, $page, 1), $records);
+    }
+
+    /**
+     * The page's text with the records its marks link (source_page_links, step 13.128: an al-Dhari'a title to its
+     * entry) written into those marks' kinds, «VB\0url\0title\0entry», for openTag().
+     */
+    private static function linked(string $text, int $pageId): string
+    {
+        $links = DB::table('source_page_links')->where('source_page_id', $pageId)->whereNull('rejected_at')
+            ->where('target_type', SourceItem::class)->get(['ordinal', 'kind', 'target_id'])->keyBy('ordinal');
+        if ($links->isEmpty()) {
+            return $text;
+        }
+        $entries = SourceItem::with('source')->whereIn('id', $links->pluck('target_id'))->get()->keyBy('id');
+        $n = -1;
+
+        return preg_replace_callback('/\x{E020}([^\x{E021}]*)\x{E021}/u', function ($m) use ($links, $entries, &$n) {
+            $link = $links->get(++$n);
+            $entry = $link && $link->kind === $m[1] ? $entries->get($link->target_id) : null;
+            if (! $entry) {
+                return $m[0];
+            }
+            $title = "الذریعة، {$entry->placeLabel()}: {$entry->title} (پیوند ماشینی)";
+
+            return "\u{E020}{$m[1]}\0{$entry->url()}\0{$title}\0entry\u{E021}";
+        }, $text);
     }
 
     /**
@@ -206,7 +233,7 @@ class PrintedPage
             } elseif (str_starts_with($token, "\u{E020}")) {
                 $kind = mb_substr($token, 1, -1);
                 if ($kind === 'SB' && $author && trim($tokens[$i + 1] ?? '') === $author['name']) {
-                    $kind .= "\0{$author['url']}\0{$author['title']}";
+                    $kind .= "\0{$author['url']}\0{$author['title']}\0person";
                 }
                 $stack[] = $kind;
                 $html .= self::openTag($kind);
@@ -248,9 +275,9 @@ class PrintedPage
     private static function openTag(string $kind): string
     {
         if (str_contains($kind, "\0")) {
-            [$noor, $url, $title] = explode("\0", $kind);
+            [$noor, $url, $title, $record] = explode("\0", $kind);
 
-            return '<a href="' . e($url) . '" class="book-sheet__mark book-sheet__mark--person" title="' . e($title) . '" data-noor="' . e($noor) . '" data-record-link="person">';
+            return '<a href="' . e($url) . '" class="book-sheet__mark book-sheet__mark--' . $record . '" title="' . e($title) . '" data-noor="' . e($noor) . '" data-record-link="' . $record . '">';
         }
         if (str_starts_with($kind, 'ayah')) {
             $label = Quran::label(trim(substr($kind, 4)));
