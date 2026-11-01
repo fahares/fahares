@@ -1,0 +1,10 @@
+{
+  "_comment": "Step 13.144, approved by the user: «علامه روضاتی» is Sayyed Mohammad Ali Rowzati (Wikishia); 39 of the 93 Noskhe-pazhuhi copies of «علامه روضاتی (کتابخانه)» note «نسخه نزد سید محمدعلی روضاتی بوده». Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_144.json",
+  "libraries": [
+    {
+      "target": "asfhan-rodaty-syd-mhmd-aaly-100",
+      "target_name": "روضاتی، سید محمد علی (اصفهان)",
+      "sources": [{"slug": "asfhan-aalamh-rodaty-ktabkhanh-283", "name": "علامه روضاتی (کتابخانه) (اصفهان)"}]
+    }
+  ]
+}
