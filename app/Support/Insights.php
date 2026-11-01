@@ -17,7 +17,11 @@ class Insights
 {
     // v2: the timelines read the date ranges and their hedges (backlog item 104)
     // v3: places of composition, movement of copies, subjects and features per century (backlog item 107)
-    private const CACHE_KEY = 'insights.v3';
+    // v4: scribes, libraries, sizes, languages and scripts per century, sources (backlog item 107, charts 5-9)
+    private const CACHE_KEY = 'insights.v4';
+
+    // The copies of one century per work and century (build)
+    private const WORK_CENTURIES = 'insights_work_centuries';
 
     // The century of a copy dated within one century (inOneCentury)
     private const CENTURY = 'FLOOR((manuscripts.copy_date_from - 1) / 100) + 1';
@@ -69,8 +73,17 @@ class Insights
     {
         $scope->open();
         try {
+            // The copies of one century per work, read by the grids of subjects and languages
+            [$first, $last] = config('insights.centuries');
+            $perWork = self::inOneCentury($scope)->whereNotNull('manuscripts.work_id')
+                ->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last])
+                ->selectRaw('manuscripts.work_id, ' . self::CENTURY . ' AS c, COUNT(*) AS n')
+                ->groupBy('manuscripts.work_id', 'c');
+            DB::statement('CREATE TEMPORARY TABLE ' . self::WORK_CENTURIES . ' (KEY (work_id)) ' . $perWork->toSql(), $perWork->getBindings());
+
             return self::figures($scope);
         } finally {
+            DB::statement('DROP TEMPORARY TABLE IF EXISTS ' . self::WORK_CENTURIES);
             $scope->close();
         }
     }
@@ -95,9 +108,14 @@ class Insights
             'movement' => self::movement($scope),
             'subjects' => self::subjectCenturies($scope),
             'features' => self::featureCenturies($scope),
+            'scribes' => self::scribes($scope),
+            'libraries' => self::libraries($scope),
+            'sizes' => self::sizes($scope),
+            'language_scripts' => self::languageScriptCenturies($scope),
             'scripts' => self::scripts($scope, $totals['manuscripts']),
             'languages' => self::languages($scope, $totals['works']),
             'top_works' => self::topWorks($scope),
+            'sources' => self::sources($scope, $totals['manuscripts']),
         ];
     }
 
@@ -453,17 +471,14 @@ class Insights
         [$first, $last] = config('insights.centuries');
         $family = ($subject = $scope->records['subject'] ?? null) ? collect([$subject->id])->concat($subject->children->pluck('id')) : null;
         // The copies per work and century, then the subjects of each work, so no copy is counted twice in one subject
-        $copies = fn () => self::inOneCentury($scope)
-            ->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last])
-            ->selectRaw('manuscripts.work_id, ' . self::CENTURY . ' AS c, COUNT(*) AS n')
-            ->groupBy('manuscripts.work_id', 'c');
+        $copies = fn () => DB::table(self::WORK_CENTURIES . ' as m');
         $subjects = DB::table('subject_work')->join('subjects', 'subjects.id', '=', 'subject_work.subject_id')
             ->when($family, fn ($q) => $q->whereIn('subject_work.subject_id', $family))
             ->distinct()->selectRaw('subject_work.work_id, ' . ($family ? 'subject_work.subject_id' : 'COALESCE(subjects.parent_id, subjects.id)') . ' AS s');
 
-        $cells = DB::query()->fromSub($copies(), 'm')->joinSub($subjects, 'r', 'r.work_id', '=', 'm.work_id')
+        $cells = $copies()->joinSub($subjects, 'r', 'r.work_id', '=', 'm.work_id')
             ->selectRaw('r.s, m.c, SUM(m.n) AS n')->groupBy('r.s', 'm.c')->get();
-        $totals = DB::query()->fromSub($copies(), 'm')
+        $totals = $copies()
             ->whereIn('m.work_id', DB::table('subject_work')->when($family, fn ($q) => $q->whereIn('subject_id', $family))->select('work_id'))
             ->selectRaw('m.c, SUM(m.n) AS n')->groupBy('m.c')->pluck('n', 'c')->map(fn ($n) => (int) $n)->all();
 
@@ -520,6 +535,198 @@ class Insights
         }
 
         return ['rows' => $rows, 'centuries' => $centuries, 'counted' => array_sum($totals)];
+    }
+
+    /**
+     * The scribes with the most copies (backlog item 107, chart 5): each with the span of the years of his dated
+     * copies and the city he copied in most.
+     */
+    private static function scribes(InsightsScope $scope): array
+    {
+        $top = $scope->manuscripts()->whereNotNull('scribe_id')
+            ->selectRaw('scribe_id, COUNT(*) AS n, MIN(copy_date_hijri_year) AS y0, MAX(copy_date_hijri_year) AS y1')
+            ->groupBy('scribe_id')->orderByDesc('n')->limit(config('insights.scribes_shown'))
+            ->get()->keyBy('scribe_id');
+        $places = $scope->manuscripts()->whereIn('scribe_id', $top->keys())
+            ->whereNotNull('copy_place')->where('copy_place', '!=', '')
+            ->selectRaw('scribe_id, copy_place, COUNT(*) AS n')->groupBy('scribe_id', 'copy_place')->get();
+        $cities = [];
+        foreach ($places as $row) {
+            if ($city = CopyPlaces::cityOf($row->copy_place)) {
+                $cities[$row->scribe_id][$city] = ($cities[$row->scribe_id][$city] ?? 0) + $row->n;
+            }
+        }
+        $people = \App\Models\Person::whereIn('id', $top->keys())->get(['id', 'name', 'slug'])->keyBy('id');
+
+        $items = [];
+        foreach ($top as $id => $row) {
+            if (! isset($people[$id])) {
+                continue;
+            }
+            $city = null;
+            if (! empty($cities[$id])) {
+                arsort($cities[$id]);
+                $city = array_key_first($cities[$id]);
+            }
+            $items[] = ['id' => (int) $id, 'key' => $people[$id]->getRouteKey(), 'name' => $people[$id]->name, 'count' => (int) $row->n,
+                'from' => $row->y0 === null ? null : (int) $row->y0, 'to' => $row->y1 === null ? null : (int) $row->y1, 'city' => $city];
+        }
+
+        return [
+            'items' => $items,
+            'with_scribe' => $scope->manuscripts()->whereNotNull('scribe_id')->count(),
+            'scribes' => $scope->manuscripts()->whereNotNull('scribe_id')->distinct()->count('scribe_id'),
+        ];
+    }
+
+    /**
+     * The libraries of the scope (chart 6): the largest, and the oldest by the mean year of their dated copies,
+     * among those with enough dated copies for a mean to say something.
+     */
+    private static function libraries(InsightsScope $scope): array
+    {
+        $rows = $scope->manuscripts()->whereNotNull('library_id')
+            ->selectRaw('library_id, COUNT(*) AS n, COUNT(copy_date_hijri_year) AS dated, AVG(copy_date_hijri_year) AS mean')
+            ->groupBy('library_id')->get();
+        $min = config('insights.oldest_min_dated');
+        $largest = $rows->sortByDesc('n')->take(config('insights.libraries_shown'));
+        $oldest = $rows->filter(fn ($r) => $r->dated >= $min)->sortBy('mean')->take(config('insights.libraries_shown'));
+        $libraries = \App\Models\Library::whereIn('id', $largest->pluck('library_id')->concat($oldest->pluck('library_id')))
+            ->get(['id', 'name', 'city', 'slug'])->keyBy('id');
+        $row = fn ($r) => isset($libraries[$r->library_id]) ? [
+            'id' => (int) $r->library_id, 'key' => $libraries[$r->library_id]->getRouteKey(), 'name' => $libraries[$r->library_id]->name,
+            'city' => $libraries[$r->library_id]->city, 'count' => (int) $r->n, 'dated' => (int) $r->dated,
+            'mean' => $r->mean === null ? null : (int) round($r->mean),
+        ] : null;
+
+        return [
+            'largest' => $largest->map($row)->filter()->values()->all(),
+            'oldest' => $oldest->map($row)->filter()->values()->all(),
+            'count' => $rows->count(),
+            'min_dated' => $min,
+        ];
+    }
+
+    /**
+     * The size of the copies (chart 7): how many fall in each band of folios, and the mean folios and lines of the
+     * copies of each century.
+     */
+    private static function sizes(InsightsScope $scope): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $edges = config('insights.folio_bands');
+        $band = 'CASE ' . implode(' ', array_map(fn ($e, $i) => "WHEN folios <= {$e} THEN {$i}", $edges, array_keys($edges))) . ' ELSE ' . count($edges) . ' END';
+        $counts = $scope->manuscripts()->where('folios', '>', 0)
+            ->selectRaw("{$band} AS b, COUNT(*) AS n")->groupBy('b')->pluck('n', 'b');
+        $bands = [];
+        foreach (range(0, count($edges)) as $i) {
+            $bands[] = ['above' => $edges[$i - 1] ?? 0, 'upto' => $edges[$i] ?? null, 'count' => (int) ($counts[$i] ?? 0)];
+        }
+
+        $means = self::inOneCentury($scope)
+            ->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last])
+            ->selectRaw(self::CENTURY . ' AS c, AVG(NULLIF(folios, 0)) AS folios, COUNT(NULLIF(folios, 0)) AS with_folios, AVG(NULLIF(`lines`, 0)) AS `lines`, COUNT(NULLIF(`lines`, 0)) AS with_lines')
+            ->groupBy('c')->get()->keyBy(fn ($r) => (int) $r->c);
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $r = $means[$c] ?? null;
+            $centuries[] = ['century' => $c,
+                'folios' => $r && $r->with_folios ? round($r->folios) : null, 'with_folios' => (int) ($r->with_folios ?? 0),
+                'lines' => $r && $r->with_lines ? round($r->lines, 1) : null, 'with_lines' => (int) ($r->with_lines ?? 0)];
+        }
+
+        return [
+            'bands' => $bands,
+            'with_folios' => (int) $counts->sum(),
+            'with_lines' => $scope->manuscripts()->where('lines', '>', 0)->count(),
+            'median' => self::medianFolios($scope, (int) $counts->sum()),
+            'centuries' => $centuries,
+        ];
+    }
+
+    /** The middle number of folios, read by its rank rather than by loading the folios into PHP */
+    private static function medianFolios(InsightsScope $scope, int $n): ?int
+    {
+        if ($n === 0) {
+            return null;
+        }
+        $folios = $scope->manuscripts()->where('folios', '>', 0)->orderBy('folios')->offset(intdiv($n - 1, 2))->limit(1)->value('folios');
+
+        return $folios === null ? null : (int) $folios;
+    }
+
+    /**
+     * The share of each language and of each main script in the copies of each century (chart 8): Persian rising,
+     * nastaliq rising. A work of two languages counts in each.
+     */
+    private static function languageScriptCenturies(InsightsScope $scope): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $copies = fn () => self::inOneCentury($scope)->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last]);
+        $grid = function ($cells, $totals, string $model, int $shown) use ($first, $last) {
+            $byKey = [];
+            foreach ($cells as $cell) {
+                $byKey[$cell->k][(int) $cell->c] = (int) $cell->n;
+            }
+            uasort($byKey, fn ($a, $b) => array_sum($b) <=> array_sum($a));
+            $byKey = array_slice($byKey, 0, $shown, true);
+            $names = $model::whereIn('id', array_keys($byKey))->pluck('name', 'id');
+            $rows = [];
+            foreach ($byKey as $id => $counts) {
+                $rows[] = ['key' => (int) $id, 'name' => $names[$id] ?? '', 'total' => array_sum($counts), 'cells' => $counts];
+            }
+
+            return self::centuryGrid($rows, $totals, $first, $last);
+        };
+
+        // Languages: the copies per work and century, joined to the work's languages
+        $perWork = fn () => DB::table(self::WORK_CENTURIES . ' as m');
+        $languages = $perWork()->join('language_work', 'language_work.work_id', '=', 'm.work_id')
+            ->selectRaw('language_work.language_id AS k, m.c, SUM(m.n) AS n')->groupBy('language_work.language_id', 'm.c')->get();
+        $languageTotals = $perWork()->whereIn('m.work_id', DB::table('language_work')->select('work_id'))
+            ->selectRaw('m.c, SUM(m.n) AS n')->groupBy('m.c')->pluck('n', 'c')->map(fn ($n) => (int) $n)->all();
+
+        // Scripts: the main script of each copy
+        $scripts = $copies()->join('manuscript_script', 'manuscript_script.manuscript_id', '=', 'manuscripts.id')
+            ->where('manuscript_script.is_primary', true)
+            ->selectRaw('manuscript_script.script_id AS k, ' . self::CENTURY . ' AS c, COUNT(*) AS n')->groupBy('manuscript_script.script_id', 'c')->get();
+        $scriptTotals = [];
+        foreach ($scripts as $cell) {
+            $scriptTotals[(int) $cell->c] = ($scriptTotals[(int) $cell->c] ?? 0) + (int) $cell->n;
+        }
+
+        return [
+            'languages' => $grid($languages, $languageTotals, \App\Models\Language::class, config('insights.languages_grid')),
+            'scripts' => $grid($scripts, $scriptTotals, \App\Models\Script::class, config('insights.scripts_grid')),
+        ];
+    }
+
+    /** The catalogues the figures rest on (chart 9): the copies each catalogue volume gave */
+    private static function sources(InsightsScope $scope, int $total): array
+    {
+        $rows = $scope->manuscripts()->whereNotNull('catalog_volume_id')
+            ->selectRaw('catalog_volume_id, COUNT(*) AS n')->groupBy('catalog_volume_id')->orderByDesc('n')->get();
+        $shown = $rows->take(config('insights.sources_shown'));
+        $volumes = \App\Models\CatalogVolume::with('library:id,name,city')->whereIn('id', $shown->pluck('catalog_volume_id'))
+            ->get(['id', 'title', 'volume_number', 'library_id'])->keyBy('id');
+        $items = $shown->map(fn ($r) => isset($volumes[$r->catalog_volume_id]) ? [
+            'id' => (int) $r->catalog_volume_id,
+            'title' => $volumes[$r->catalog_volume_id]->title,
+            'volume' => $volumes[$r->catalog_volume_id]->volume_number,
+            'library' => $volumes[$r->catalog_volume_id]->library?->name,
+            'count' => (int) $r->n,
+        ] : null)->filter()->values()->all();
+        $counted = (int) $rows->sum('n');
+
+        return [
+            'items' => $items,
+            'other' => $counted - array_sum(array_column($items, 'count')),
+            'other_kinds' => max(0, $rows->count() - count($items)),
+            'volumes' => $rows->count(),
+            'counted' => $counted,
+            'unknown' => $total - $counted,
+            'coverage' => self::share($counted, $total),
+        ];
     }
 
     private static function scripts(InsightsScope $scope, int $total): array

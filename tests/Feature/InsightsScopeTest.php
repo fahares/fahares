@@ -167,6 +167,36 @@ class InsightsScopeTest extends TestCase
         $this->assertEqualsCanonicalizing([$root->id, $child->id], array_column($bySubject['rows'], 'key'));
     }
 
+    public function test_scribes_libraries_sizes_languages_and_catalogues_of_a_scope()
+    {
+        $author = $this->person();
+        $scribe = $this->person('scribe');
+        $old = $this->library('هرات');
+        $new = $this->library('تهران');
+        $volume = \App\Models\CatalogVolume::create(['title' => 'فهرست آزمایشی دامنه ' . uniqid(), 'volume_number' => 2, 'library_id' => $old->id]);
+        $persian = \App\Models\Language::firstOrCreate(['name' => 'فارسی'], ['slug' => 'persian-' . uniqid()]);
+        $work = $this->work(['author_id' => $author->id]);
+        $work->languages()->attach($persian->id);
+        $this->copy($work, ['scribe_id' => $scribe->id, 'library_id' => $old->id, 'copy_date_raw' => '1050ق', 'copy_place' => 'هرات', 'folios' => 30, 'lines' => 15, 'catalog_volume_id' => $volume->id]);
+        $this->copy($work, ['scribe_id' => $scribe->id, 'library_id' => $old->id, 'copy_date_raw' => '1080ق', 'copy_place' => 'هرات', 'folios' => 250, 'lines' => 21, 'catalog_volume_id' => $volume->id]);
+        $this->copy($work, ['scribe_id' => $scribe->id, 'library_id' => $new->id, 'copy_date_raw' => '1250ق', 'copy_place' => 'تهران', 'folios' => 10]);
+
+        $data = Insights::build(InsightsScope::fromArray(['author' => $author->id]));
+
+        $this->assertSame([['id' => $scribe->id, 'key' => $scribe->getRouteKey(), 'name' => $scribe->name, 'count' => 3, 'from' => 1050, 'to' => 1250, 'city' => 'هرات']], $data['scribes']['items']);
+        $this->assertSame([$old->id, $new->id], array_column($data['libraries']['largest'], 'id'));
+        $this->assertSame(1065, $data['libraries']['largest'][0]['mean']);
+        $this->assertSame([], $data['libraries']['oldest']); // fewer dated copies than oldest_min_dated
+        $this->assertSame([1, 1, 0, 0, 1, 0], array_column($data['sizes']['bands'], 'count'));
+        $this->assertSame(30, $data['sizes']['median']);
+        $eleventh = collect($data['sizes']['centuries'])->firstWhere('century', 11);
+        $this->assertEquals(['century' => 11, 'folios' => 140, 'with_folios' => 2, 'lines' => 18.0, 'with_lines' => 2], $eleventh);
+        $this->assertSame(['count' => 2, 'share' => 100.0], $data['language_scripts']['languages']['rows'][0]['cells'][11]);
+        $this->assertSame($persian->id, $data['language_scripts']['languages']['rows'][0]['key']);
+        $this->assertSame([['id' => $volume->id, 'title' => $volume->title, 'volume' => 2, 'library' => $old->name, 'count' => 2]], $data['sources']['items']);
+        $this->assertSame(1, $data['sources']['unknown']);
+    }
+
     public function test_the_scoped_page_names_its_scope_and_carries_it_into_search_links()
     {
         $library = $this->library('شیراز');
@@ -211,7 +241,7 @@ class InsightsScopeTest extends TestCase
         $this->copy($this->work(), ['library_id' => $library->id]);
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
-        Cache::forever('insights.v3', Insights::build());
+        Cache::forever('insights.v4', Insights::build());
         $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');
