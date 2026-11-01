@@ -6004,7 +6004,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - `--candidates=file.json` عبارت‌های بی‌پیوند را با رکورد پیشنهادی تطبیق نام برای بازبینی می‌نویسد.
   - فایل تصمیم `database/data/work_subjects_20261101.json` ۲۹ عبارت دارد که کاربر تأیید کرد (۱۱ آبان ۱۴۰۵).
 - **dry run (`fahares_prod` محلی):** `works:titled 749`، `linked:known 127`، `linked:reviewed 42`، `pieces:not_linked 681`. هیچ رکوردی پیدا نشد که نبود یا تکراری بود. از ۵۸۷ عبارت بی‌پیوند، بیشترشان شخص نیستند («الائمة»، «اهل البيت»، «قرآن»، «النفس»).
-- **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `e8033f8`):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.135_work_people_before.json` (۵٬۰۶۲ سطر `work_people`، که هیچ‌کدام `subject` نبود).
+  - dry run و `--apply` هر دو `works:titled 748`، `linked:known 127`، `linked:reviewed 42` و `pieces:not_linked 680` گزارش دادند.
+  - اجرای سوم `pieces:exists 169` بود. شمار سطرهای `subject` ۱۶۹ است.
+  - `/people/33068` (امام حسین) زبانه‌ی «آثار درباره‌ی او» را با ۲۲ اثر نشان می‌دهد.
 - **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون) و `BackfillWorkSubjectsTest::test_known_subjects_and_reviewed_phrases_are_linked_once`.
 
 ### گام ۱۳.۱۳۶: «یادکرد در منابع» در صفحه‌ی شخص
