@@ -5914,3 +5914,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** با فهرست موقت، سه و پنج فراخوان هم‌زمان (`&`) شماره‌های پیاپی و یکتا گرفتند (۱۳.۱۲۷ تا ۱۳.۱۲۹ پس از ۱۳.۱۲۶ مستندات).
 - **`.gitattributes`:** `docs/PROCESS_DOCUMENTATION.md` و `docs/TECHNICAL_APPENDIX.md` با `merge=union`. ادغام union خطی را که در هر دو شاخه ویرایش شده، دو بار نگه می‌دارد. پس پس از ادغام، تکرار و ترتیب گام‌ها بررسی می‌شود. این نکته در `CLAUDE.md` آمده است.
 - **[image.yml](../.github/workflows/image.yml):** `on.push.paths-ignore` شامل `docs/**`، `*.md` (فقط ریشه)، `scripts/**/*.md`، `.gitattributes` و `scripts/dev/**` است. `database/content/about.md` عمداً بیرون مانده است. GitHub این را روی همه‌ی فایل‌های یک push می‌سنجد، پس pushی که یک فایل کد هم دارد، همچنان می‌سازد و مستقر می‌کند. `workflow_dispatch` برای استقرار دستی بی‌تغییر است. Watch Paths خود Coolify به کار نمی‌آید، چون build pack «Docker Image» است و استقرار را workflow با API صدا می‌زند.
+### گام ۱۳.۱۲۹: `sources:link-dharia-titles` و `source_page_links`
+- **جدول:** `source_page_links` (migration `2026_11_01_100001`) ستون‌های `source_page_id`، `ordinal`، `kind`، `text`، `target_type`/`target_id`، `method`، `rejected_at`/`rejected_by` را دارد. `ordinal` شماره‌ی n-امین گشایش نشانه (`U+E020`) در متن صفحه است، از صفر. کلید یکتا `(source_page_id, ordinal)` است.
+- **دستور:** `sources:link-dharia-titles [--kinds=VB,…] [--volume=N] [--sample=FILE --per-kind=50] [--all] [--dry-run]` ([LinkDhariaTitlesCommand.php](../app/Console/Commands/LinkDhariaTitlesCommand.php)).
+  - **کلید عنوان:** `MatchCatalogEditionCommand::norm`، و نیز بی «رساله»/«کتاب» آغازین. عنوان یک‌واژه‌ای کمتر از ۵ حرف یا از فهرست واژه‌های عام (`COMMON`) پیوند نمی‌گیرد.
+  - **روش `title`:** عنوانِ یک مدخل و فقط یکی. **`title-prefix`:** همان، پس از برداشتن «ب/ل/ك» آغازین.
+  - **پسوند `+ref`:** ارجاعِ پس از برچسب، «(476:2)» یا «(ج 4 - ص 135)»، از میان چند مدخل یکی را برمی‌گزیند یا یک مدخل را تأیید می‌کند. اگر ارجاع ناهمخوان باشد، پیوندی ساخته نمی‌شود (`reference-differs`).
+  - **روش `ref+part`:** عنوان چیزی نمی‌یابد، ولی ارجاع صفحه‌ای را می‌دهد، و در VB «في ص 909» یعنی همان جلد. کلید باید واژه‌به‌واژه درون عنوان یک مدخلِ آن صفحه باشد.
+  - مدخلی که برچسب در صفحه‌ی خودش است پیوند نمی‌گیرد (`own-page`).
+  - **ذخیره:** فقط `ENABLED = ['VB' => ['ref+part']]` ذخیره می‌شود، مگر با `--all`. پیوندهای پیشینِ همان نوع‌ها پاک و از نو ساخته می‌شوند، ولی ردیف ردشده (`rejected_at`) می‌ماند و جایش پیوند تازه نمی‌گیرد.
+- **نمایش:** `PrintedPage::find` شناسه‌ی صفحه را هم می‌خواند. `linked()` پیوندها را در نوعِ خود نشانه می‌نویسد، به شکل `VB\0url\0title\0entry`. `openTag` از آن `<a class="book-sheet__mark book-sheet__mark--entry" data-record-link="entry">` می‌سازد، و نشان مؤلف (SB) هم اکنون `…\0person` است. CSS `.book-sheet__mark--entry` خط زیرین نقطه‌چین دارد.
+- **سنجش (`fahares_db` محلی، ۲۶ جلد، نشانه‌دار):**
+  - **شمار پیوند با `--all`:** WB ۱۰٬۷۵۰، TB ۷٬۳۵۳، VB ۲٬۱۵۰، EB ۱٬۲۴۶، CB ۷۳ و HB ۳۴، روی هم ۲۱٬۶۰۶.
+  - **داوری:** نمونه‌ی ۴۴۷تایی را یک زیرعامل (Sonnet) داوری کرد. یک جفت درست و چهار مورد نادرست را دستی وارسی کردم و تأیید شد.
+  - **درستی به تفکیک روش، درست/نادرست/نامطمئن:**
+    - `title`: TB ۳۹/۴/۲، EB ۲۹/۸/۰، WB ۳۳/۷/۴، VB ۳۲/۶/۲، CB ۲۱/۱۰/۲، HB ۲۳/۰/۱.
+    - `ref+part`: VB ۵۰/۰/۰، TB ۴۸/۱/۱، WB ۴۸/۲/۰.
+    - روش‌های دارای ارجاع روی هم ۱۸۸/۵/۱ (۹۶٫۹٪).
+  - **خطای اصلی:** اثر هم‌نامِ دیگر، که الذریعة مدخلی برایش ندارد یا مدخلِ اثرِ هم‌نامِ دیگری را دارد.
+- **نسخه‌ی محلی پروداکشن (`fahares_prod`):** در متن صفحه‌های الذریعة نشانه ندارد، چون پیش از گام ۱۳.۹۵ گرفته شده است. سنجش روی `fahares_db` انجام شد که مدخل‌هایش رونوشت پروداکشن است. روی خود پروداکشن نشانه‌ها هست (پیوند مؤلف SB آنجا کار می‌کند).
+- **پروداکشن:** هنوز اجرا نشده است. نخست انتشار کد (migration خودکار)، سپس با اجازه‌ی کاربر `php artisan sources:link-dharia-titles`. این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links` است.
+- **آزمون:** [LinkDhariaTitlesTest.php](../tests/Feature/LinkDhariaTitlesTest.php).
+
