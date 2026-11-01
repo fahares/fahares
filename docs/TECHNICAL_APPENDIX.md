@@ -6095,3 +6095,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - با جدا کردن نشانه (جز «بخش»، «و» و پرانتز)، ۵۷۰ مجلد آمیخته (۵٬۷۵۷ نسخه) جدا می‌شوند.
   - شمار مجلدهای هم‌پوشان تنها از ۲٬۶۲۴ به ۲٬۵۳۸ می‌رسد.
 
+- **پروداکشن (۱۱ آبان ۱۴۰۵):** پس از استقرار `856e042`، `php artisan sources:fix-rowzati-isfahan --dry-run` همان ۳۷۶ نسخه را نشان داد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). اجرا با `--backup`؛ پشتیبان: `fahares-sources/backups/step13/step13.137_fix_rowzati_isfahan_prod_before_20261102.json`. پس از آن #497 = ۸۰ (کتابخانه‌ی ۱۰۵، MTIF ۲۱۵۳۰، ۴۰۸ صفحه)، #504 = ۲۲۸ و #508 = ۲٬۵۰۸ نسخه. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۳۵ ← ۳۱/۳۳٬۶۰۴ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۹۵ ← ۶۶/۷۹٬۹۶۴. `source_entries` = ۷۸۸٬۵۰۰. ۳۷۶ نسخه با `makeAllSearchableUsing(...)->searchable()` بی‌صف دوباره ایندکس شدند.
+
+### گام ۱۳.۱۴۲: ادغام کتابخانه‌های ۳۵ ← ۲۹۲ و ۱۴۹ ← ۶۴
+- **داده:** [library_duplicates_step13_142.json](../database/data/library_duplicates_step13_142.json). اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_142.json`، که کتابخانه را با slug پیدا می‌کند و `LibraryMerger::merge` را صدا می‌زند. هیچ `volume_fixes` یا `volume_merges` ندارد. در پایان `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` همه‌ی شمارش‌ها را دوباره می‌گیرد.
+  - `asfhan-rodaty-35` ← `asfhan-rodaty-syd-ahmd-292`؛ `shyraz-tbatbayy-149` ← `shyraz-aalamh-tbatbayy-64`. هیچ منبع یا جلدی کتابخانه‌ی ۳۵ یا ۱۴۹ را نداشت.
+- **یافتن (`fahares_prod` محلی):**
+  - ۲۲۸ نسخه‌ی #504 (۲۱۲ از ۳۵ و ۱۶ از ۲۹۲) به ترتیب شماره‌ی نسخه: ۲ بار افت صفحه، بی شماره‌ی تکراری.
+  - ۶۴ و ۱۴۹ به تفکیک دفتر نسخه‌پژوهی: در دفتر ۳ با ۹۸۸ نسخه ۱۹ افت صفحه دارند (دفتر ۲ به ترتیب شماره چیده نشده است). در هیچ دفتری شماره‌ی مشترک میان دو کتابخانه نیست.
+  - کتابخانه‌های ۱۰۰ و ۲۸۳: ۳۹ از ۹۳ متن نسخه‌ی ۲۸۳ «نسخه نزد سید محمدعلی روضاتی بوده» دارند. شماره‌گذاری دو کتابخانه فرق دارد (۱/۱ تا ۴/۲۷ در برابر «بدون شماره» و ۱۰۱۴ به بالا).
+- **تمرین (`fahares_prod` محلی):**
+  - ۴۰۸ ← ۴۰۶ کتابخانه؛ دو ردیف `merge` در `audit_logs`؛ ۲ تغییرمسیر تازه.
+  - `LibraryMerger::undoMerge` با `old_values` دو لاگ (به ترتیب وارونه) سنجه‌ی `crc32` کتابخانه‌ها، نسخه‌ها (`library_id`، `library`، `city`، `catalog_volume_id`)، جلدها، منابع و تغییرمسیرها را دقیقاً برگرداند. سپس دستور دوباره اجرا شد. اجرای سوم همان سنجه را داد.
+- **آزمون:** ابزار ادغام همان [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) است و آزمون تازه‌ای لازم نبود.
