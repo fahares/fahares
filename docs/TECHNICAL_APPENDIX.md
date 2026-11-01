@@ -6038,27 +6038,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد.
 - **آزمون:** [FixRowzatiIsfahanCatalogueTest](../tests/Feature/FixRowzatiIsfahanCatalogueTest.php). این آزمون نسخه‌های «فهرست روضاتی» با صفحه و بی‌صفحه، «ف»، «روضاتی - ف»، «نشریه: 5»، هر دو املای «نسخه پژوهی» و یک «ف» بی‌جلد را می‌سازد. سپس dry-run، اجرا، مدخل‌ها، جلد و کتابخانه، شمارش‌ها، تکرار بی‌اثر و `--revert` را می‌سنجد.
 
-### گام ۱۳.۱۴۰: ارجاع‌ها در صفحه‌ی مدخل
-- **داده:** `SourceMentions::forPerson()` جای خود را به `of(Model $record)` داد، که پیوندهای ردنشده به هر رکوردی را می‌خواند: شخص یا `SourceItem`.
-  - **مدخل دربردارنده:** نوع‌های `entry`، `sub_entry` و `addendum` را در نظر می‌گیرد.
-  - **دو سوزن، به ترتیب:** نخست نشانه و ۳۰ حرف پس از آن. اگر جواب یکتا نبود، ۲۰ حرف پیش از نشانه و خود نشانه.
-- **نمای صفحه:** جزء [source/mentions.blade.php](../resources/views/components/source/mentions.blade.php) سه ورودی دارد: `mentions`، `title` و `note`. هم [people/show](../resources/views/people/show.blade.php) و هم [source-items/show](../resources/views/source-items/show.blade.php) آن را به کار می‌برند. در صفحه‌ی مدخل، این بخش پیش از پیوندهای مدخل پیشین و پسین می‌آید.
-- **آزمون:** `LinkDhariaTitlesTest` صفحه‌ی مدخل دیوان، پیوند `#m0` و نیامدن پیوند ردشده را می‌آزماید.
-### گام ۱۳.۱۴۱: `KnownRulers::find(..., $before)` و `ApplyCorpusCategoriesCommand::phrase()`
-- **«شاه عباس صفوی»:**
-  - `KnownRulers::find($piece, $year, $death, $before)`: وقتی سال تألیف و تاریخ خود فیلد نیست، فرمانروایانی که `lived[0]` آن‌ها پس از `$before` است کنار می‌روند. اگر یکی بماند، بی‌قید برگردانده می‌شود. خروجی کلید `doubt` (یادداشت تردید گروه `USUALLY`) را هم دارد.
-  - `BackfillWorkDedicationsCommand::latestYears()` برای هر اثر کمینه‌ی `people.death_to` مؤلف و `MIN(manuscripts.copy_date_to)` را می‌دهد.
-  - ردیفی که هست، با همان شخص، `certainty = probable` و `note = doubt` و بی `suggestion_id`، به `certainty = null` و `note = null` تبدیل می‌شود (`settled_ruler`).
-  - dry run (`fahares_prod` محلی): `settled_ruler 6` (آثار #18610، #22041، #61339، #62243، #67644 و #68501) و `skipped:exists` از ۴٬۷۷۶ به ۴٬۷۷۰. شمارهای دیگر دست نخوردند (مقایسه‌ی خروجی پیش و پس از تغییر).
-- **سفارش‌دهنده:**
-  - `COMMISSIONER_PHRASE` گروه ۱ عبارت را می‌گیرد. پس از آن `{0,6}?` واژه یا «..»/«…» تا پایان بند می‌پذیرد. `ب?حسب`، `الفرموده`، `بجه[ةت]` و پیشوند «به» افزوده شدند.
-  - `phrase()` همه‌ی جاهای نام را می‌آزماید (`mb_strpos` با offset) و پنجره را از ۴۰ به ۹۰ نویسه برده است.
-  - dry run با `fankha_v2_commissioners_20261030.json`: `already 3520`، `write 47`، `no commissioner phrase 1` (#54703).
-- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-dedications --dry-run` و سپس بی آن. `fahares:apply-corpus-categories --file=database/data/fankha_v2_commissioners_20261030.json` و سپس با `--apply`.
-- **آزمون‌ها:**
-  - `DedicationParserTest::test_a_usual_spelling_is_decided_by_the_year_of_composition` (بند `$before`).
-  - `WorkPeopleTest::test_backfill_of_dedicatees_and_commissioners` (قطعی شدن ردیف پیشین).
-  - `ApplyCorpusCategoriesCommandTest::test_a_commissioners_phrase_is_found_past_titles_and_at_a_later_place_of_the_name`.
 ### گام ۱۳.۱۳۸: سنجش هم‌پوشانی‌ها و شماره‌های تکراری مجلدها
 - **داده:** `fahares_prod` محلی، ۱۴۵٬۰۱۹ نسخه با `collection_key`. اسکریپت‌های سنجش موقت بودند و در مخزن نیستند.
 - **تعریف هم‌پوشانی:** در گروه `(library_id, collection_key)`، پس از مرتب‌سازی بر پایه‌ی `(range_from_number, -range_to_number)`، جفتی که `from` دومی کمتر از `to` اولی باشد.
@@ -6098,17 +6077,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **پروداکشن (۱۱ آبان ۱۴۰۵):** پس از استقرار `856e042`، `php artisan sources:fix-rowzati-isfahan --dry-run` همان ۳۷۶ نسخه را نشان داد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). اجرا با `--backup`؛ پشتیبان: `fahares-sources/backups/step13/step13.137_fix_rowzati_isfahan_prod_before_20261102.json`. پس از آن #497 = ۸۰ (کتابخانه‌ی ۱۰۵، MTIF ۲۱۵۳۰، ۴۰۸ صفحه)، #504 = ۲۲۸ و #508 = ۲٬۵۰۸ نسخه. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۳۵ ← ۳۱/۳۳٬۶۰۴ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۹۵ ← ۶۶/۷۹٬۹۶۴. `source_entries` = ۷۸۸٬۵۰۰. ۳۷۶ نسخه با `makeAllSearchableUsing(...)->searchable()` بی‌صف دوباره ایندکس شدند.
 
-### گام ۱۳.۱۴۲: ادغام کتابخانه‌های ۳۵ ← ۲۹۲ و ۱۴۹ ← ۶۴
-- **داده:** [library_duplicates_step13_142.json](../database/data/library_duplicates_step13_142.json). اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_142.json`، که کتابخانه را با slug پیدا می‌کند و `LibraryMerger::merge` را صدا می‌زند. هیچ `volume_fixes` یا `volume_merges` ندارد. در پایان `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` همه‌ی شمارش‌ها را دوباره می‌گیرد.
-  - `asfhan-rodaty-35` ← `asfhan-rodaty-syd-ahmd-292`؛ `shyraz-tbatbayy-149` ← `shyraz-aalamh-tbatbayy-64`. هیچ منبع یا جلدی کتابخانه‌ی ۳۵ یا ۱۴۹ را نداشت.
-- **یافتن (`fahares_prod` محلی):**
-  - ۲۲۸ نسخه‌ی #504 (۲۱۲ از ۳۵ و ۱۶ از ۲۹۲) به ترتیب شماره‌ی نسخه: ۲ بار افت صفحه، بی شماره‌ی تکراری.
-  - ۶۴ و ۱۴۹ به تفکیک دفتر نسخه‌پژوهی: در دفتر ۳ با ۹۸۸ نسخه ۱۹ افت صفحه دارند (دفتر ۲ به ترتیب شماره چیده نشده است). در هیچ دفتری شماره‌ی مشترک میان دو کتابخانه نیست.
-  - کتابخانه‌های ۱۰۰ و ۲۸۳: ۳۹ از ۹۳ متن نسخه‌ی ۲۸۳ «نسخه نزد سید محمدعلی روضاتی بوده» دارند. شماره‌گذاری دو کتابخانه فرق دارد (۱/۱ تا ۴/۲۷ در برابر «بدون شماره» و ۱۰۱۴ به بالا).
-- **تمرین (`fahares_prod` محلی):**
-  - ۴۰۸ ← ۴۰۶ کتابخانه؛ دو ردیف `merge` در `audit_logs`؛ ۲ تغییرمسیر تازه.
-  - `LibraryMerger::undoMerge` با `old_values` دو لاگ (به ترتیب وارونه) سنجه‌ی `crc32` کتابخانه‌ها، نسخه‌ها (`library_id`، `library`، `city`، `catalog_volume_id`)، جلدها، منابع و تغییرمسیرها را دقیقاً برگرداند. سپس دستور دوباره اجرا شد. اجرای سوم همان سنجه را داد.
-- **آزمون:** ابزار ادغام همان [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) است و آزمون تازه‌ای لازم نبود.
 ### گام ۱۳.۱۳۹: دنباله‌ی انجام به `editorial_notes`
 - **صدور (پیکره):** `scripts/fankha_v2_apply_export.py explicit_tail explicit_script`، از `reports/fankha_v2_db_review6/diffs.jsonl` (`explicit_text/trimmed`).
   - **`explicit_tail`:** دنباله با «\n» آغاز می‌شود و یک سطر است. `v2 + tail` (با فاصله‌ی یکسان‌شده) در `raw_text` سایت هست. هر بخش «؛» نوعش را از `v2_parts` می‌گیرد: `contents_scope`، `copy_description` و `notes[].type` همان نسخه در v2، با کلید متن انجام. اگر بخشی بی‌نوع باشد یا بیش از سه بخش باشد، کل سطر یک یادداشت بی‌نوع می‌شود. «؛ خط: …» پس از یادداشت بیرون می‌ماند، به شرط آن‌که سایت `script_names` و تاریخ را داشته باشد.
@@ -6124,6 +6092,39 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `Would write 40070` (`explicit_tail` ۳۹٬۶۲۷، `explicit_script` ۴۴۳). ۷ رکورد `natural key differs` بودند. اجرای `--apply` ۲ دقیقه و ۱۷ ثانیه طول کشید. اجرای دوم `Would write 0` بود.
   - **پس از اجرا:** در هیچ رکوردی `explicit_text` «\n» ندارد. در ۴۰٬۰۶۹ رکورد متن انجام در `metadata.explicits` هست. استثنا #222552 است که فهرست `explicits` آن دنباله‌ی بلندتری از `explicit_text` داشت.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_explicit_becomes_typed_cataloguers_notes`.
+
+### گام ۱۳.۱۴۰: ارجاع‌ها در صفحه‌ی مدخل
+- **داده:** `SourceMentions::forPerson()` جای خود را به `of(Model $record)` داد، که پیوندهای ردنشده به هر رکوردی را می‌خواند: شخص یا `SourceItem`.
+  - **مدخل دربردارنده:** نوع‌های `entry`، `sub_entry` و `addendum` را در نظر می‌گیرد.
+  - **دو سوزن، به ترتیب:** نخست نشانه و ۳۰ حرف پس از آن. اگر جواب یکتا نبود، ۲۰ حرف پیش از نشانه و خود نشانه.
+- **نمای صفحه:** جزء [source/mentions.blade.php](../resources/views/components/source/mentions.blade.php) سه ورودی دارد: `mentions`، `title` و `note`. هم [people/show](../resources/views/people/show.blade.php) و هم [source-items/show](../resources/views/source-items/show.blade.php) آن را به کار می‌برند. در صفحه‌ی مدخل، این بخش پیش از پیوندهای مدخل پیشین و پسین می‌آید.
+- **آزمون:** `LinkDhariaTitlesTest` صفحه‌ی مدخل دیوان، پیوند `#m0` و نیامدن پیوند ردشده را می‌آزماید.
+### گام ۱۳.۱۴۱: `KnownRulers::find(..., $before)` و `ApplyCorpusCategoriesCommand::phrase()`
+- **«شاه عباس صفوی»:**
+  - `KnownRulers::find($piece, $year, $death, $before)`: وقتی سال تألیف و تاریخ خود فیلد نیست، فرمانروایانی که `lived[0]` آن‌ها پس از `$before` است کنار می‌روند. اگر یکی بماند، بی‌قید برگردانده می‌شود. خروجی کلید `doubt` (یادداشت تردید گروه `USUALLY`) را هم دارد.
+  - `BackfillWorkDedicationsCommand::latestYears()` برای هر اثر کمینه‌ی `people.death_to` مؤلف و `MIN(manuscripts.copy_date_to)` را می‌دهد.
+  - ردیفی که هست، با همان شخص، `certainty = probable` و `note = doubt` و بی `suggestion_id`، به `certainty = null` و `note = null` تبدیل می‌شود (`settled_ruler`).
+  - dry run (`fahares_prod` محلی): `settled_ruler 6` (آثار #18610، #22041، #61339، #62243، #67644 و #68501) و `skipped:exists` از ۴٬۷۷۶ به ۴٬۷۷۰. شمارهای دیگر دست نخوردند (مقایسه‌ی خروجی پیش و پس از تغییر).
+- **سفارش‌دهنده:**
+  - `COMMISSIONER_PHRASE` گروه ۱ عبارت را می‌گیرد. پس از آن `{0,6}?` واژه یا «..»/«…» تا پایان بند می‌پذیرد. `ب?حسب`، `الفرموده`، `بجه[ةت]` و پیشوند «به» افزوده شدند.
+  - `phrase()` همه‌ی جاهای نام را می‌آزماید (`mb_strpos` با offset) و پنجره را از ۴۰ به ۹۰ نویسه برده است.
+  - dry run با `fankha_v2_commissioners_20261030.json`: `already 3520`، `write 47`، `no commissioner phrase 1` (#54703).
+- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-dedications --dry-run` و سپس بی آن. `fahares:apply-corpus-categories --file=database/data/fankha_v2_commissioners_20261030.json` و سپس با `--apply`.
+- **آزمون‌ها:**
+  - `DedicationParserTest::test_a_usual_spelling_is_decided_by_the_year_of_composition` (بند `$before`).
+  - `WorkPeopleTest::test_backfill_of_dedicatees_and_commissioners` (قطعی شدن ردیف پیشین).
+  - `ApplyCorpusCategoriesCommandTest::test_a_commissioners_phrase_is_found_past_titles_and_at_a_later_place_of_the_name`.
+### گام ۱۳.۱۴۲: ادغام کتابخانه‌های ۳۵ ← ۲۹۲ و ۱۴۹ ← ۶۴
+- **داده:** [library_duplicates_step13_142.json](../database/data/library_duplicates_step13_142.json). اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_142.json`، که کتابخانه را با slug پیدا می‌کند و `LibraryMerger::merge` را صدا می‌زند. هیچ `volume_fixes` یا `volume_merges` ندارد. در پایان `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` همه‌ی شمارش‌ها را دوباره می‌گیرد.
+  - `asfhan-rodaty-35` ← `asfhan-rodaty-syd-ahmd-292`؛ `shyraz-tbatbayy-149` ← `shyraz-aalamh-tbatbayy-64`. هیچ منبع یا جلدی کتابخانه‌ی ۳۵ یا ۱۴۹ را نداشت.
+- **یافتن (`fahares_prod` محلی):**
+  - ۲۲۸ نسخه‌ی #504 (۲۱۲ از ۳۵ و ۱۶ از ۲۹۲) به ترتیب شماره‌ی نسخه: ۲ بار افت صفحه، بی شماره‌ی تکراری.
+  - ۶۴ و ۱۴۹ به تفکیک دفتر نسخه‌پژوهی: در دفتر ۳ با ۹۸۸ نسخه ۱۹ افت صفحه دارند (دفتر ۲ به ترتیب شماره چیده نشده است). در هیچ دفتری شماره‌ی مشترک میان دو کتابخانه نیست.
+  - کتابخانه‌های ۱۰۰ و ۲۸۳: ۳۹ از ۹۳ متن نسخه‌ی ۲۸۳ «نسخه نزد سید محمدعلی روضاتی بوده» دارند. شماره‌گذاری دو کتابخانه فرق دارد (۱/۱ تا ۴/۲۷ در برابر «بدون شماره» و ۱۰۱۴ به بالا).
+- **تمرین (`fahares_prod` محلی):**
+  - ۴۰۸ ← ۴۰۶ کتابخانه؛ دو ردیف `merge` در `audit_logs`؛ ۲ تغییرمسیر تازه.
+  - `LibraryMerger::undoMerge` با `old_values` دو لاگ (به ترتیب وارونه) سنجه‌ی `crc32` کتابخانه‌ها، نسخه‌ها (`library_id`، `library`، `city`، `catalog_volume_id`)، جلدها، منابع و تغییرمسیرها را دقیقاً برگرداند. سپس دستور دوباره اجرا شد. اجرای سوم همان سنجه را داد.
+- **آزمون:** ابزار ادغام همان [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) است و آزمون تازه‌ای لازم نبود.
 - **پروداکشن (۱۱ آبان ۱۴۰۵، پس از استقرار `f6d67e5`):** dry-run همان دو ادغام را نشان داد (۲۱۹ و ۳۸ نسخه). اجرا: ۴۰۸ ← ۴۰۶ کتابخانه؛ لاگ‌های `merge` با شناسه‌ی ۶۵۷۴۲ (۲۹۲) و ۶۵۷۴۳ (۶۴)؛ ۲۹۲ = ۲۳۵ و ۶۴ = ۲٬۳۸۸ نسخه. برگشت: `LibraryMerger::undoMerge` با `old_values` همین لاگ‌ها، به ترتیب وارونه.
 
 ### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
