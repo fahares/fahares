@@ -5936,3 +5936,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** با فهرست موقت، سه و پنج فراخوان هم‌زمان (`&`) شماره‌های پیاپی و یکتا گرفتند (۱۳.۱۲۷ تا ۱۳.۱۲۹ پس از ۱۳.۱۲۶ مستندات).
 - **`.gitattributes`:** `docs/PROCESS_DOCUMENTATION.md` و `docs/TECHNICAL_APPENDIX.md` با `merge=union`. ادغام union خطی را که در هر دو شاخه ویرایش شده، دو بار نگه می‌دارد. پس پس از ادغام، تکرار و ترتیب گام‌ها بررسی می‌شود. این نکته در `CLAUDE.md` آمده است.
 - **[image.yml](../.github/workflows/image.yml):** `on.push.paths-ignore` شامل `docs/**`، `*.md` (فقط ریشه)، `scripts/**/*.md`، `.gitattributes` و `scripts/dev/**` است. `database/content/about.md` عمداً بیرون مانده است. GitHub این را روی همه‌ی فایل‌های یک push می‌سنجد، پس pushی که یک فایل کد هم دارد، همچنان می‌سازد و مستقر می‌کند. `workflow_dispatch` برای استقرار دستی بی‌تغییر است. Watch Paths خود Coolify به کار نمی‌آید، چون build pack «Docker Image» است و استقرار را workflow با API صدا می‌زند.
+
+### گام ۱۳.۱۳۲: شمار سطر از v2 با `fahares:apply-corpus-categories`
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS['manuscripts']` اکنون `lines` را هم دارد. شرط‌ها مانند دیگر دسته‌هاست: کلید طبیعی، مقدار `from` (این‌جا `null`) و `ProtectedColumns`.
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines`. ردیف‌های `lines/filled` از `reports/fankha_v2_db_review6/diffs.jsonl` خوانده می‌شوند. `raw_text` نسخه از `--db` گرفته می‌شود، بی برچسب صفحه و با رقم لاتین. `single_line_count` باید یک «N سطر» و فقط یکی بیابد، بی بازه («و» یا «-» پیش از عدد). نتیجه ۷۵۳ رکورد بود و ۵۵ رکورد کنار رفت. در برخی از آن‌ها `raw_text` سایت کوتاه‌تر از متن فنخاست، مانند #264068 که در «تا:» بریده شده است.
+- **فایل تصمیم:** `database/data/fankha_lines_20261101.json`.
+- **تمرین (`fahares_prod`):** `Would write 723`. ۲۹ رکورد `lines changed on the site since the comparison` بودند و یکی (#305859) `natural key differs`. پس از `--apply`، اجرای دوم `Would write 0` بود.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_line_count_fills_only_a_copy_still_without_one`.
+- **دسته‌های بی‌تغییر:** `has_author_marginalia` flag_on ۷۳۵ و flag_off ۹۴۰. `lines` different ۳٬۲۴۰ (range ۲٬۸۶۹، multi ۳۴۰، به سود سایت ۲۷، به سود v2 ۳) و emptied ۱٬۲۱۶.
