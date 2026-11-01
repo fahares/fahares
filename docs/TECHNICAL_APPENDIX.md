@@ -5899,3 +5899,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[MemoryLimit](../app/Support/MemoryLimit.php):** سقف کنونی با `ini_parse_quantity(ini_get('memory_limit'))` خوانده می‌شود. اگر `-1` باشد، کاری نمی‌کند. هدف `max(ini_parse_quantity($limit), memory_get_usage(true) + 32M)` است. اگر هدف از سقف کنونی بیشتر نباشد، `false` برمی‌گرداند؛ وگرنه `ini_set` می‌کند.
 - **فراخوان‌ها:** `SearchController::export` با `192M` و `ExportSearchResults::handle` با `256M`. دستورهای کنسول (`1024M` و `-1`) دست نخوردند.
 - **آزمون:** [MemoryLimitTest](../tests/Unit/MemoryLimitTest.php) سه حالت را می‌آزماید: بالا بردن، نگه داشتن سقف بالاتر یا نامحدود، و هدفی کمتر از حافظه‌ی در حال مصرف. اجرای کامل با کپی `phpunit.xml` روی `fahares_lehmann_test` انجام شد: ۵۷۱ موفق.
+
+### گام ۱۳.۱۲۸: `fahares:add-ruler-aliases`
+- **کد:** `AddRulerAliasesCommand` برای هر سطر `KnownRulers::LIST` رکورد را با `PersonNameMatcher::ids(normalize(name))` پیدا می‌کند و فقط وقتی یکتا باشد پیش می‌رود. املایی را می‌افزاید که با `KnownRulers::compact` (بی فاصله و «،» و «-») در نام و `aliases` شخص نباشد. ذخیره با مدل انجام می‌شود، پس Scout شخص را بازنمایه می‌کند. هر افزودن یک `AuditLog` با `action = corpus_update` و `corpus_fix = ruler spellings (item 35)` دارد. `USUALLY` کنار گذاشته می‌شود.
+- **dry run (`fahares_prod` محلی):** `rulers 35`، `not_found 0`، `ambiguous 0`، `people_changed 35`، `aliases_added 110`.
+- **اجرا در پروداکشن (پس از استقرار):** `php artisan fahares:add-ruler-aliases` و سپس همان با `--apply`.
+- **وارسی‌های بی‌کد:**
+  - «برابر» ساده: `Manuscript::getIncipitsListAttribute` و `getExplicitsListAttribute` با `$hasBarabar` آغاز یا انجام اثر را نشان می‌دهند.
+  - یکاشناسی: `RebuildCopiesCommand` و `AddCorpusWorksCommand` هر دو `DerivedData::syncCopies` را صدا می‌زنند.
+- **آزمون:** `AddRulerAliasesTest::test_a_rulers_spellings_are_added_once_to_his_other_names`.
+
