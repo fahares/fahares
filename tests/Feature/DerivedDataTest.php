@@ -63,6 +63,25 @@ class DerivedDataTest extends TestCase
         ]);
     }
 
+    public function test_a_copy_date_naming_the_authors_time_is_ranged_from_the_authors_death()
+    {
+        $author = DB::table('people')->insertGetId(['name' => 'مؤلف آزمایشی بازه‌ی نسبی', 'normalized_name' => 'مولف ازمایشی بازه ی نسبی', 'slug' => 'test-relative-' . uniqid(), 'death_year_hijri' => 1050]);
+        try {
+            $work = $this->work(['author_id' => $author]);
+            // Saved as a model: the hook ranges it
+            $copy = Manuscript::find($this->copy($work));
+            $copy->update(['copy_date_raw' => 'نزدیک عصر مؤلف']);
+            $this->assertSame([1050, 1125, 'probable', 'نزدیک عصر مؤلف'], [$copy->copy_date_from, $copy->copy_date_to, $copy->copy_date_certainty, $copy->copy_date_hedge_raw]);
+            // Written with DB::table: refresh-derived finds it and ranges it
+            $other = $this->copy($work, ['copy_date_raw' => 'در حیات مؤلف']);
+            $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500])->assertSuccessful();
+            $this->assertSame([1000, 1050], [(int) DB::table('manuscripts')->where('id', $other)->value('copy_date_from'), (int) DB::table('manuscripts')->where('id', $other)->value('copy_date_to')]);
+        } finally {
+            DB::table('works')->whereIn('id', $this->works)->update(['author_id' => null]);
+            DB::table('people')->where('id', $author)->delete();
+        }
+    }
+
     public function test_rebuild_copies_brings_the_date_range_extent_and_excerpt_pointer_in_step()
     {
         $work = $this->work();

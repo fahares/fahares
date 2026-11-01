@@ -32,13 +32,14 @@ class DerivedData
 
     /**
      * A copy's derived columns that differ from what its source columns give: the date range (cleared when the date
-     * is) and the extent (left alone when its text has no single count, as fill-extents does).
+     * is; a date that names the author's time takes it from $authorDeath, Manuscript::authorDeaths) and the extent
+     * (left alone when its text has no single count, as fill-extents does).
      *
      * @return array{date: ?array, extent: ?array}
      */
-    public static function copyChanges(object $row, ProtectedColumns $guard): array
+    public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null): array
     {
-        $date = Manuscript::copyDateColumns($row->copy_date_raw);
+        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath);
         $extent = CopyExtent::columns($row, $guard)['columns'];
 
         return [
@@ -78,9 +79,10 @@ class DerivedData
         $workIds = [];
         foreach (array_chunk($ids, 500) as $chunk) {
             $rows = DB::table('manuscripts')->whereIn('id', $chunk)->get(self::COPY_COLUMNS);
-            DB::transaction(function () use ($rows, $guard, &$counts) {
+            $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
+            DB::transaction(function () use ($rows, $guard, $deaths, &$counts) {
                 foreach ($rows as $row) {
-                    ['date' => $date, 'extent' => $extent] = self::copyChanges($row, $guard);
+                    ['date' => $date, 'extent' => $extent] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
                     if (! $date && ! $extent) {
                         continue;
                     }

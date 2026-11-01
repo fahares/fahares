@@ -5692,3 +5692,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **سنجش (محلی، جلد ۱۳):** ۳۱۶ مدخل اثر دارند، ۳۱۱ با یک مؤلف، ۲۸۶ با SB. با شرط هم‌پوشانی یک واژه، ۲۳۲ پیوند می‌گرفت ولی نمونه‌ها نادرست داشتند («سمنانی، محمد رضا» ≠ «محمد زمان السمناني»). با شرط کنونی ۱۲۸ پیوند ساخته شد و نمونه‌ی ۲۵تایی درست بود. ۰٫۰۴ ثانیه برای هر صفحه.
 - **آزمون:** `test_al_dharias_author_mark_links_the_works_author_when_it_names_him`.
 - **کامیت:** `c6e1f12`.
+
+### گام ۱۳.۱۱۶: بازه‌ی تاریخ کتابت نسبی از وفات مؤلف
+- **کد:**
+  - `CopyDateRange::relative($raw, $authorDeath)`: فقط وقتی `parse()` سال یا قرنی نیابد. ثابت `RELATIVE` سال‌های پیش و پس از وفات را برای `life` (۵۰، ۰)، `time` (۵۰، ۲۵) و `near` (۰، ۷۵) نگه می‌دارد. `namesAuthorTime()` آزمون ارزان پیش از پرس‌وجوی وفات است. واژه‌های مؤلف در `AUTHOR` هستند.
+  - `Manuscript::copyDateColumns($raw, ?int $authorDeath)`: `relative() ?? parse()`.
+  - `Manuscript::authorDeaths($workIds)`: وفات مؤلفِ `works.author_id`، با `COALESCE(death_year_hijri, death_to, death_from)`.
+  - hook ذخیره‌ی نسخه وقتی `copy_date_raw` یا `work_id` عوض شود بازه را دوباره می‌سازد. فقط وقتی تاریخ عصر مؤلف را نام ببرد پرس‌وجو می‌کند.
+  - `DerivedData::copyChanges(..., $authorDeath)`، `syncCopies`، `drift` در `RefreshDerivedCommand`، `FillCopyDateRangesCommand` و `ApplyCorpusCategoriesCommand` وفات را برای هر دسته از نسخه‌ها یک‌جا می‌گیرند.
+- **dry run (`fahares_prod` محلی):** `fahares:fill-copy-date-ranges` گزارش ۷۲۰ نسخه‌ی تازه‌بازه داد، که همه‌شان نسبی‌اند، چون ناهمگامی دیگری پس از گام ۱۳.۱۰۵ نمانده بود. از این‌ها ۷۱۱ قطعیت `probable` و ۹ قطعیت `doubtful` دارند. ۲۴ نسخه بی‌بازه ماندند، چون مؤلف سال وفات ندارد.
+- **اجرا در پروداکشن (پس از استقرار):** `php artisan fahares:fill-copy-date-ranges` و سپس همان با `--apply`. بعد `fahares:refresh-derived` باید ناهمگامی `copy_date_range` را صفر نشان دهد.
+- **آزمون‌ها:** `CopyDateRangeTest::test_a_date_that_names_the_authors_time_is_ranged_from_the_authors_death` و `DerivedDataTest::test_a_copy_date_naming_the_authors_time_is_ranged_from_the_authors_death`.
+
