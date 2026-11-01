@@ -36,6 +36,8 @@ class SourcePageController extends Controller
         $links = $ties->unique('citable_id')->values();
         $works = $ties->groupBy('source_item_id')->map(fn ($l) => $l->unique('citable_id')->values());
 
-        return view('source-pages.show', ['printed' => $printed, 'links' => $links, 'works' => $works]);
+        $ties->load(['citable.author', 'citable.authors']);
+
+        return view('source-pages.show', ['printed' => $printed, 'links' => $links, 'works' => $works, 'authors' => $printed->authors($works)]);
     }
 }
