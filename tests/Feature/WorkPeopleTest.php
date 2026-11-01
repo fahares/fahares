@@ -15,6 +15,7 @@ use App\Suggestions\RecordMerger;
 use App\Suggestions\RecordRemover;
 use App\Suggestions\RecordSplitter;
 use App\Suggestions\StructurePreview;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -317,6 +318,15 @@ class WorkPeopleTest extends TestCase
         $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w3->id])->assertSuccessful();
         $this->assertSame([['dedicatee', $abbas2, null, '1052-1077ق']], $rows($w3));
         $this->assertNull(WorkPerson::where('work_id', $w3->id)->value('certainty'));
+
+        // A row an earlier run left probable is settled when a copy dated before the second Abbas's birth turns up
+        $w7 = $this->work(['dedication' => 'شاه عباس صفوی']);
+        $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w7->id])->assertSuccessful();
+        $this->assertSame('probable', WorkPerson::where('work_id', $w7->id)->value('certainty'));
+        DB::table('manuscripts')->insert(['work_id' => $w7->id, 'sequence_number' => 1, 'volume_number' => 98, 'page_start' => 1, 'page_end' => 1, 'copy_date_raw' => '1033ق', 'copy_date_from' => 1033, 'copy_date_to' => 1033]);
+        $this->artisan('fahares:backfill-work-dedications', ['--only' => (string) $w7->id])->assertSuccessful();
+        $this->assertSame([['dedicatee', $abbas->id, null, null]], $rows($w7));
+        $this->assertNull(WorkPerson::where('work_id', $w7->id)->value('certainty'));
 
         // A second run adds nothing, and makes no second record
         $count = WorkPerson::count();

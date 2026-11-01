@@ -64,8 +64,9 @@ class KnownRulers
      * Spellings that name more than one ruler but mostly one (decided by the user, 8 Aban 1405). A death year in the
      * field's own parentheses that ends one ruler's life (±1) picks him; else the work's year of composition, when
      * known, picks the ruler whose lifetime holds it; outside every lifetime the name stays text.
-     * With no year the usual one is taken, and when «doubt» is set the row is only probable and the note keeps the
-     * other possibility.
+     * With no year, a latest year the work can be from (its author's death or its earliest dated copy, $before)
+     * leaves out a ruler born after it: when one is left he is taken for certain. Otherwise the usual one is taken,
+     * and when «doubt» is set the row is only probable and the note keeps the other possibility.
      */
     public const USUALLY = [
         ['spellings' => ['شاه عباس صفوی', 'شاه عباس', 'عباس شاه صفوی'], 'doubt' => 'شاید شاه عباس دوم', 'rulers' => [
@@ -85,12 +86,14 @@ class KnownRulers
 
     /**
      * The ruler a piece of the field names, given the work's year of composition and the death year the field's
-     * own parentheses give («(1052-1077ق)»): the LIST entry with the row's certainty and note, and for a USUALLY
-     * spelling the names of all its rulers (so an earlier row linked to another of them can be corrected), or null.
+     * own parentheses give («(1052-1077ق)»), and the latest year the work can be from ($before): the LIST entry
+     * with the row's certainty and note, and for a USUALLY spelling the names of all its rulers (so an earlier row
+     * linked to another of them can be corrected) and its doubt note (so an earlier probable row can be settled),
+     * or null.
      *
-     * @return array{ruler: array, certainty: ?string, note: ?string, group: string[]}|null
+     * @return array{ruler: array, certainty: ?string, note: ?string, group: string[], doubt?: ?string}|null
      */
-    public static function find(string $piece, ?int $year = null, ?int $death = null): ?array
+    public static function find(string $piece, ?int $year = null, ?int $death = null, ?int $before = null): ?array
     {
         if (self::$bySpelling === null) {
             self::$bySpelling = [];
@@ -118,21 +121,28 @@ class KnownRulers
         if ($death) {
             foreach ($group['rulers'] as $candidate) {
                 if (abs($death - $candidate['lived'][1]) <= 1) {
-                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null, 'group' => $names];
+                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null, 'group' => $names, 'doubt' => $group['doubt']];
                 }
             }
         }
         if ($year) {
             foreach ($group['rulers'] as $candidate) {
                 if ($year >= $candidate['lived'][0] && $year <= $candidate['lived'][1]) {
-                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null, 'group' => $names];
+                    return ['ruler' => self::named($candidate['name']), 'certainty' => null, 'note' => null, 'group' => $names, 'doubt' => $group['doubt']];
                 }
             }
 
             return null;
         }
+        // «جامع عباسی»: its author died in 1030, so the second Abbas (born 1042) is out
+        if ($before !== null) {
+            $alive = array_values(array_filter($group['rulers'], fn ($candidate) => $candidate['lived'][0] <= $before));
+            if (count($alive) === 1) {
+                return ['ruler' => self::named($alive[0]['name']), 'certainty' => null, 'note' => null, 'group' => $names, 'doubt' => $group['doubt']];
+            }
+        }
 
-        return ['ruler' => self::named($group['rulers'][0]['name']), 'certainty' => $group['doubt'] ? 'probable' : null, 'note' => $group['doubt'], 'group' => $names];
+        return ['ruler' => self::named($group['rulers'][0]['name']), 'certainty' => $group['doubt'] ? 'probable' : null, 'note' => $group['doubt'], 'group' => $names, 'doubt' => $group['doubt']];
     }
 
     private static function named(string $name): array
