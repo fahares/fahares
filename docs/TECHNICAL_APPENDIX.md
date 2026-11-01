@@ -6037,3 +6037,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۳۷۶ نسخه جابه‌جا شد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). #497 از ۴۵۶ به ۸۰ رسید، #504 از ۱۶ به ۲۲۸ و #508 از ۲٬۴۳۹ به ۲٬۵۰۸. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۲۹ ← ۳۱/۳۳٬۵۹۸ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۸۶ ← ۶۶/۷۹٬۹۵۵. شمار `source_entries` ۷۸۵٬۵۸۳ ماند.
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد.
 - **آزمون:** [FixRowzatiIsfahanCatalogueTest](../tests/Feature/FixRowzatiIsfahanCatalogueTest.php). این آزمون نسخه‌های «فهرست روضاتی» با صفحه و بی‌صفحه، «ف»، «روضاتی - ف»، «نشریه: 5»، هر دو املای «نسخه پژوهی» و یک «ف» بی‌جلد را می‌سازد. سپس dry-run، اجرا، مدخل‌ها، جلد و کتابخانه، شمارش‌ها، تکرار بی‌اثر و `--revert` را می‌سنجد.
+
+### گام ۱۳.۱۳۹: دنباله‌ی انجام به `editorial_notes`
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py explicit_tail explicit_script`، از `reports/fankha_v2_db_review6/diffs.jsonl` (`explicit_text/trimmed`).
+  - **`explicit_tail`:** دنباله با «\n» آغاز می‌شود و یک سطر است. `v2 + tail` (با فاصله‌ی یکسان‌شده) در `raw_text` سایت هست. هر بخش «؛» نوعش را از `v2_parts` می‌گیرد: `contents_scope`، `copy_description` و `notes[].type` همان نسخه در v2، با کلید متن انجام. اگر بخشی بی‌نوع باشد یا بیش از سه بخش باشد، کل سطر یک یادداشت بی‌نوع می‌شود. «؛ خط: …» پس از یادداشت بیرون می‌ماند، به شرط آن‌که سایت `script_names` و تاریخ را داشته باشد.
+  - **`explicit_script`:** دنباله با «خط:»، «بی‌کا» یا «کا:» آغاز می‌شود. شرط: `script_names` (وقتی «خط:» هست) و `copy_date_raw` یا `is_bita`.
+  - **خروجی:** ۴۰٬۰۷۷ رکورد، ۵۹۲ کنار رفته.
+- **کد:** `ApplyCorpusCategoriesCommand` اکنون `explicit_text` را هم می‌پذیرد. رکوردی که `notes` دارد از `moveTail` می‌گذرد:
+  - `metadata.explicits[].text` برابر `from` به `to` تبدیل می‌شود؛
+  - `editorial_notes` یکتا و افزوده می‌شود؛
+  - `editorial_note_types[text] = type` ثبت می‌شود.
+
+  ممیزی فقط `explicits`، `editorial_notes` و `editorial_note_types` را پیش و پس نگه می‌دارد. اگر `metadata` در `ProtectedColumns` باشد، رکورد کنار می‌رود.
+- **فایل تصمیم:** `database/data/fankha_explicit_tails_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 40070` (`explicit_tail` ۳۹٬۶۲۷، `explicit_script` ۴۴۳). ۷ رکورد `natural key differs` بودند. اجرای `--apply` ۲ دقیقه و ۱۷ ثانیه طول کشید. اجرای دوم `Would write 0` بود.
+  - **پس از اجرا:** در هیچ رکوردی `explicit_text` «\n» ندارد. در ۴۰٬۰۶۹ رکورد متن انجام در `metadata.explicits` هست. استثنا #222552 است که فهرست `explicits` آن دنباله‌ی بلندتری از `explicit_text` داشت.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_explicit_becomes_typed_cataloguers_notes`.

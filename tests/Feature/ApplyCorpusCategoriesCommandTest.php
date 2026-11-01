@@ -127,6 +127,37 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertSame(19, (int) DB::table('manuscripts')->where('id', $counted)->value('lines'));
     }
 
+    public function test_the_line_after_an_explicit_becomes_typed_cataloguers_notes()
+    {
+        $id = $this->copy($this->work('-v99-5'), '15/1-ف');
+        $from = "و الله اعلم بالصواب\nجلد اول؛ از اول تا کتاب الصلاة";
+        DB::table('manuscripts')->where('id', $id)->update(['explicit_text' => $from, 'metadata' => json_encode([
+            'explicits' => [['label' => null, 'text' => $from]],
+            'editorial_notes' => ['نام مؤلف از الذریعة', 'نام مؤلف از الذریعة', 'جلد اول'],
+        ], JSON_UNESCAPED_UNICODE)]);
+        $this->plan([['table' => 'manuscripts', 'id' => $id, 'work_key' => '-v99-5', 'shelfmark' => '15/1-ف',
+            'category' => 'explicit_tail', 'changes' => ['explicit_text' => ['from' => $from, 'to' => 'و الله اعلم بالصواب']],
+            'notes' => [['text' => 'جلد اول', 'type' => 'contents_scope'], ['text' => 'از اول تا کتاب الصلاة', 'type' => 'contents']]]]);
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])
+            ->expectsOutputToContain('Writing 1 records.')
+            ->assertSuccessful();
+
+        $row = DB::table('manuscripts')->where('id', $id)->first();
+        $meta = json_decode($row->metadata, true);
+        $this->assertSame('و الله اعلم بالصواب', $row->explicit_text);
+        $this->assertSame('و الله اعلم بالصواب', $meta['explicits'][0]['text']);
+        // the note already there is not added again, and the one listed twice is listed once
+        $this->assertSame(['نام مؤلف از الذریعة', 'جلد اول', 'از اول تا کتاب الصلاة'], $meta['editorial_notes']);
+        $this->assertSame(['جلد اول' => 'contents_scope', 'از اول تا کتاب الصلاة' => 'contents'], $meta['editorial_note_types']);
+        $log = AuditLog::where('auditable_id', $id)->where('auditable_type', Manuscript::class)->sole();
+        $this->assertSame($from, $log->old_values['explicit_text']);
+        $this->assertCount(3, $log->old_values['metadata']['editorial_notes']);
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file])
+            ->expectsOutputToContain('Would write 0 records.')
+            ->assertSuccessful();
+    }
+
     public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
     {
         $w = $this->work('-v99-7');
