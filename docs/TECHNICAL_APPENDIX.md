@@ -5644,6 +5644,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **بازآزمایی روی `fahares_prod`:** دفتر ۱: ۱۵۵ + ۹۰ به صدرائی، ۷۱ به برکت، ۳۳۹ به غفرانی، ۷ بی‌فهرست‌نگار (۴ ادبیات اصفهان، ص ۴۰۰–۴۹۶؛ ۳ دانشگاه بوعلی که ارجاعشان «اوراق عتیق: 3-…» است و به‌خطا به دفتر ۱ پیوسته‌اند). دفتر ۲: ۳۳۶ بی‌فهرست‌نگار. شمارش‌ها: حکیم ۷ جلد / ۴٬۲۶۰، صدرائی ۲۳ / ۲۷٬۵۵۷، برکت ۴ / ۳٬۶۳۳، غفرانی ۰ / ۳۳۹.
 - **صفحه‌ی فهرست‌نگار:** `metadata.sources` گاه رشته است (`ReplaceRazaviInstitutionCatalogerCommand` برای اوکتایی). [catalogers/show](../resources/views/catalogers/show.blade.php) با `$source['url']` روی رشته می‌شکست (`/catalogers/109` روی پروداکشن ۵۰۰). حالا رشته همان متن است.
 - **آزمون:** [FixAwraqAtiqCatalogersTest](../tests/Feature/FixAwraqAtiqCatalogersTest.php) (۳) و `test_a_source_without_a_link_is_its_text` در [CatalogerCataloguesTest](../tests/Feature/CatalogerCataloguesTest.php).
+- **صفحه‌ی نسخه:** [manuscripts/show](../resources/views/manuscripts/show.blade.php) زیر فهرست‌نگار، اگر جلدِ نسخه ناظری (`role = supervisor`) جز خود فهرست‌نگار داشته باشد، می‌نویسد «در «عنوان جلد»، زیر نظر …» (`data-cataloger-volume`). کنترلر `catalogVolume.catalogers` را از پیش بار می‌کند. آزمون: `test_a_copy_names_the_volume_its_article_is_in`. این قاعده عام است و برای هر جلد دیگری که ناظر دارد هم نمایش داده می‌شود.
 - **اجرای پروداکشن (۱۱ آبان، با اجازه‌ی کاربر):**
   - **استقرار:** `git push` (`176b7f8..2a99117`).
   - **dry-run:** شمار نسخه‌ها همان تمرین محلی بود (دفتر ۱: ۶۶۲؛ دفتر ۲: ۳۳۶).
