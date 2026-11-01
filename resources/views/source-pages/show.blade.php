@@ -114,9 +114,13 @@
                                 @endif
                                 @if(! empty($block['marks']))
                                     {{-- a catalogue's page: its works' headings and its copies' lines link their records --}}
-                                    <div class="whitespace-pre-line">{!! collect(\App\Support\PrintedPage::pieces($block))->map(fn ($p) => isset($p['url'])
-                                        ? '<a href="' . e($p['url']) . '" class="book-sheet__mark book-sheet__mark--' . $p['kind'] . '" title="' . e($p['title']) . '" data-record-link="' . $p['kind'] . '">' . e(Fa::digits($p['text'])) . '</a>'
-                                        : (string) \App\Support\PrintedPage::text($p['text']))->implode('') !!}</div>
+                                    <div class="whitespace-pre-line">{!! collect(\App\Support\PrintedPage::pieces($block))->map(fn ($p) => match (true) {
+                                        ($p['kind'] ?? null) === 'catalogue' => '<a href="' . e($p['url']) . '" class="book-sheet__cite" title="' . e($p['title']) . '" data-cite="catalogue"'
+                                            . ($p['viewer'] ? ' onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent(\'open-catalog-viewer\', { detail: ' . e(json_encode($p['viewer'], JSON_UNESCAPED_UNICODE)) . ' }))"' : '')
+                                            . '>' . e(Fa::digits($p['text'])) . '</a>',
+                                        isset($p['url']) => '<a href="' . e($p['url']) . '" class="book-sheet__mark book-sheet__mark--' . $p['kind'] . '" title="' . e($p['title']) . '" data-record-link="' . $p['kind'] . '">' . e(Fa::digits($p['text'])) . '</a>',
+                                        default => (string) \App\Support\PrintedPage::text($p['text']),
+                                    })->implode('') !!}</div>
                                 @else
                                     <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text($block['text']) }}</div>
                                 @endif

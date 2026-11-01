@@ -61,7 +61,7 @@ class PrintedPage
         $records = [];
         if ($paged && $items->isEmpty() && count($blocks) === 1) {
             $blocks[0]['marks'] = self::marks($blocks[0]['text'], $source, $volume, $page);
-            $records = collect($blocks[0]['marks'])->unique('url')->map(fn ($m) => array_intersect_key($m, array_flip(['url', 'title', 'kind'])))->values()->all();
+            $records = collect($blocks[0]['marks'])->where('kind', '!=', 'catalogue')->unique('url')->map(fn ($m) => array_intersect_key($m, array_flip(['url', 'title', 'kind'])))->values()->all();
         }
 
         return new self($source, $volume, $page, $items, $blocks, $firstEntry !== null && $page < $firstEntry,
@@ -289,7 +289,55 @@ class PrintedPage
             }
         }
 
-        return $kept;
+        return self::citations($text, $kept, $entries);
+    }
+
+    /**
+     * A copy's «[ف: 26 - 218]» (backlog item 102, part 2): the page of its library's catalogue it cites, as the entry
+     * made from that citation (origin fankha_citation, whose citation_text is the bracket as printed) has it, when the
+     * site has that page's text or image. It is looked for in the copy's lines, from its line to the next copy's; on the
+     * copy's line itself («ش 714، نسخ… [ف: 3 - 12]») the line's mark ends before it.
+     */
+    private static function citations(string $text, array $marks, Collection $entries): array
+    {
+        $copies = $entries->filter(fn (SourceEntry $e) => $e->citable instanceof Manuscript)->pluck('citable_id')->unique();
+        if ($copies->isEmpty()) {
+            return $marks;
+        }
+        $cited = SourceEntry::with(['source', 'sourceVolume'])->where('citable_type', Manuscript::class)->whereIn('citable_id', $copies)
+            ->where('origin', SourceEntry::ORIGIN_FANKHA_CITATION)->where('status', '!=', SourceEntry::STATUS_REJECTED)
+            ->whereNotNull('page_start')->whereNotNull('citation_text')->get()->groupBy('citable_id');
+        $byUrl = $entries->filter(fn (SourceEntry $e) => $e->citable instanceof Manuscript)->keyBy(fn (SourceEntry $e) => route('manuscripts.show', $e->citable));
+
+        $added = [];
+        $starts = array_column(array_filter($marks, fn ($m) => $m['kind'] === 'manuscript'), 'at');
+        foreach ($marks as $i => $m) {
+            if ($m['kind'] !== 'manuscript' || ! ($copy = $byUrl->get($m['url']))) {
+                continue;
+            }
+            $end = min([...array_filter($starts, fn ($at) => $at > $m['at']), mb_strlen($text)]);
+            foreach ($cited->get($copy->citable_id, []) as $c) {
+                $needle = trim($c->citation_text);
+                $at = mb_strpos(mb_substr($text, $m['at'], $end - $m['at']), $needle);
+                $url = $c->pageTextUrl();
+                $viewer = $url ? null : $c->viewer();
+                if ($at === false || mb_strlen($needle) < 4 || (! $url && ! $viewer)) {
+                    continue;
+                }
+                $at += $m['at'];
+                if ($at < $m['at'] + $m['length']) {
+                    $marks[$i]['length'] = mb_strlen(rtrim(mb_substr($text, $m['at'], $at - $m['at'])));
+                }
+                // inside the brackets, as the prose citations are
+                $added[] = ['at' => $at + 1, 'length' => mb_strlen($needle) - 2, 'url' => $url ?? '#', 'kind' => 'catalogue',
+                    'title' => $c->cardLabel(), 'viewer' => $viewer];
+                break;
+            }
+        }
+        $marks = [...$marks, ...$added];
+        usort($marks, fn ($a, $b) => $a['at'] <=> $b['at']);
+
+        return $marks;
     }
 
     /** The page text of a page the viewer shows (its volume's facsimile_code), when the site has that page's text. */
