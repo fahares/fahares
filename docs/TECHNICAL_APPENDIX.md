@@ -5928,7 +5928,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - روش‌های دارای ارجاع روی هم ۱۸۸/۵/۱ (۹۶٫۹٪).
   - **خطای اصلی:** اثر هم‌نامِ دیگر، که الذریعة مدخلی برایش ندارد یا مدخلِ اثرِ هم‌نامِ دیگری را دارد.
 - **نسخه‌ی محلی پروداکشن (`fahares_prod`):** در متن صفحه‌های الذریعة نشانه ندارد، چون پیش از گام ۱۳.۹۵ گرفته شده است. سنجش روی `fahares_db` انجام شد که مدخل‌هایش رونوشت پروداکشن است. روی خود پروداکشن نشانه‌ها هست (پیوند مؤلف SB آنجا کار می‌کند).
-- **پروداکشن:** هنوز اجرا نشده است. نخست انتشار کد (migration خودکار)، سپس با اجازه‌ی کاربر `php artisan sources:link-dharia-titles`. این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links` است.
+- **پروداکشن:** با اجازه‌ی کاربر اجرا شد (۱۱ آبان ۱۴۰۵)، پس از انتشار b9f3b89. پیش از اجرا `source_page_links` خالی بود (پشتیبان همین است)، و ۱۰٬۴۲۹ صفحه از ۱۰٬۸۸۲ صفحه‌ی الذریعة نشانه داشت. `php artisan sources:link-dharia-titles` همان شمار تمرین را داد: ۲۵۶ پیوند VB با روش ref+part. برگشت: `DELETE FROM source_page_links WHERE target_type = 'App\\Models\\SourceItem'`.
 - **آزمون:** [LinkDhariaTitlesTest.php](../tests/Feature/LinkDhariaTitlesTest.php).
 
 ### گام ۱۳.۱۳۰: `scripts/dev/reserve-step` و `merge=union`
@@ -5981,7 +5981,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **داوری دور دوم (Sonnet، ۲۶۱ نمونه، پیش از روش سال):** FB name ۴۷/۲/۱، FB alias ۴۴/۲/۴، MB name ۴۴/۳/۳، DB name ۴۳/۵/۲.
   - **روش‌های `+year`:** ۵۰ نمونه‌ی FB name+year، ۵۰ نمونه‌ی FB alias+year و همه‌ی ۱۹ مورد MB، DB و ZB را دستی وارسی کردم. همه درست بودند.
   - **ذخیره:** ۳۰۶ پیوند، و اجرای دوم همان ۳۰۶ را می‌سازد.
-- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار و با اجازه‌ی کاربر، `php artisan sources:link-dharia-people` (حدود ۴ دقیقه). این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links WHERE target_type = 'App\\Models\\Person'` است.
+- **پروداکشن:** با اجازه‌ی کاربر اجرا شد (۱۱ آبان ۱۴۰۵)، پس از گام ۱۳.۱۲۹ (پیش از آن پیوند شخصی نبود). `php artisan sources:link-dharia-people` ۳۸۷ پیوند ذخیره کرد: ۲۲۴ name+year و ۱۶۳ alias+year. بیش از ۳۰۶ پیوند تمرین بود، با آنکه شمار اشخاص در دو پایگاه برابر است (۷۰٬۴۳۸)؛ علت وارسی نشد. ۲۵ پیوند تصادفی وارسی شد و همه درست بودند. برگشت: `DELETE FROM source_page_links WHERE target_type = 'App\\Models\\Person'`.
 - **آزمون:** [LinkDhariaPeopleTest.php](../tests/Feature/LinkDhariaPeopleTest.php).
 
 ### گام ۱۳.۱۳۴: `collection_key` و `fahares:fill-collection-keys`
