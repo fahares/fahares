@@ -19,11 +19,19 @@ use Illuminate\Support\Facades\DB;
  * «لتجريد العقائد») is read without it when it names nothing as it is. Left unlinked: a title of one short word or a
  * common one («الرسالة», «الحاشية»), a source's sign («تش»), and an entry on the mark's own page (the entry itself).
  *
- * The links go to source_page_links (one row a mark), made again on every run but for those an editor rejected.
+ * The links go to source_page_links (one row a mark), made again on every run but for those an editor rejected; only
+ * the ENABLED kinds and methods are saved.
  */
 class LinkDhariaTitlesCommand extends Command
 {
     public const KINDS = ['VB', 'CB', 'HB', 'EB', 'TB', 'WB'];
+
+    /**
+     * The kinds and methods whose links are saved: those a hand check found right in 49 of 50 or more (step 13.129: VB
+     * by a page reference, 50 of 50). A title alone, one entry's though it is, names another work of that name in about
+     * one link in five (TB 44, EB 40, WB 38, CB 34 of 50), so those are counted and sampled (--all saves them) only.
+     */
+    public const ENABLED = ['VB' => ['ref+part']];
 
     /** One-word titles too common to name one work. */
     private const COMMON = ['رساله', 'حاشیه', 'شرح', 'دیوان', 'تعلیقه', 'تعلیقات', 'کتاب', 'منتخب', 'مجموعه', 'فهرست', 'تفسیر', 'اجازه',
@@ -35,6 +43,7 @@ class LinkDhariaTitlesCommand extends Command
         {--volume= : Only this volume}
         {--sample= : Write a random sample of the links of each kind, with their context, to this file}
         {--per-kind=50 : Links of each kind in the sample}
+        {--all : Save the links of every method, not only the ENABLED ones (for measuring)}
         {--dry-run : Match and count without saving}';
 
     protected $description = "Link the titles tagged in al-Dhari'a's text to the al-Dhari'a entry of that title";
@@ -101,6 +110,9 @@ class LinkDhariaTitlesCommand extends Command
             return self::SUCCESS;
         }
 
+        if (! $this->option('all')) {
+            $links = array_values(array_filter($links, fn ($l) => in_array($l['method'], self::ENABLED[$l['mark']['kind']] ?? [], true)));
+        }
         $this->save($links, $kinds);
 
         return self::SUCCESS;

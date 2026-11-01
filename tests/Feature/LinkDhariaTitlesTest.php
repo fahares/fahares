@@ -39,7 +39,8 @@ class LinkDhariaTitlesTest extends TestCase
         $page9 = DB::table('source_pages')->insertGetId(['source_volume_id' => $diwan->source_volume_id, 'page' => 1003,
             'text' => 'راجع ' . $m('VB', 'قطب الدين') . ' في ص 909. و ' . $m('VB', 'قطب الدين') . ' في ص 500.']);
 
-        $this->artisan('sources:link-dharia-titles')->assertSuccessful();
+        // every method, as for measuring
+        $this->artisan('sources:link-dharia-titles --all')->assertSuccessful();
         $links = DB::table('source_page_links')->orderBy('source_page_id')->orderBy('ordinal')->get()
             ->map(fn ($l) => [$l->source_page_id, $l->ordinal, $l->kind, $l->target_id, $l->method])->all();
         $this->assertSame([
@@ -56,7 +57,7 @@ class LinkDhariaTitlesTest extends TestCase
 
         // an editor's rejection stays when the links are made again
         DB::table('source_page_links')->where('source_page_id', $page4)->where('ordinal', 2)->update(['rejected_at' => now()]);
-        $this->artisan('sources:link-dharia-titles')->assertSuccessful();
+        $this->artisan('sources:link-dharia-titles --all')->assertSuccessful();
         $this->assertSame(4, DB::table('source_page_links')->count());
         $this->assertNotNull(DB::table('source_page_links')->where('source_page_id', $page4)->where('ordinal', 2)->value('rejected_at'));
 
@@ -69,5 +70,10 @@ class LinkDhariaTitlesTest extends TestCase
         $this->assertStringContainsString('<span data-noor="TB">بتجارب السلف</span>', $html);
         $this->assertStringContainsString('<span data-noor="WB">الرسالة</span>', $html);
         $this->assertStringNotContainsString('href="' . $other->url() . '"', $html);
+
+        // without --all only the methods a hand check found right are saved: VB by a page reference; the rejection stays
+        $this->artisan('sources:link-dharia-titles')->assertSuccessful();
+        $this->assertSame([[$page4, 2, null], [$page9, 0, 'ref+part']], DB::table('source_page_links')->orderBy('source_page_id')->get()
+            ->map(fn ($l) => [$l->source_page_id, $l->ordinal, $l->rejected_at ? null : $l->method])->all());
     }
 }
