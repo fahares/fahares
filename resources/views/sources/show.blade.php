@@ -97,7 +97,7 @@
                     <span class="w-12 shrink-0 font-naskh text-lg font-bold text-ink">{{ Fa::digits('ج ' . $v->volume_number) }}</span>
                     <span class="flex-1 min-w-40 text-xs text-muted">
                         @if($v->title && $v->title !== $source->title){{ Fa::digits($v->title) }} · @endif
-                        @if($row['manuscripts']){{ Fa::num($row['manuscripts']) }} نسخه · @endif
+                        @if($row['manuscripts'])<a href="{{ route('search', ['type' => 'manuscripts', 'source_volume_id' => $v->id]) }}" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar" data-volume-manuscripts>{{ Fa::num($row['manuscripts']) }} نسخه</a> · @endif
                         @if($row['pages']){{ Fa::num($row['pages']) }} صفحه‌ی متن @elseif($row['items']){{ Fa::num($row['items']) }} مدخل @endif
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
                         @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif

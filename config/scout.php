@@ -250,6 +250,7 @@ return [
                     'folios',
                     'has_author_marginalia',
                     'scribe_ids',
+                    'source_volume_ids',
                 ],
                 'sortableAttributes' => [
                     'copy_date_hijri_year',

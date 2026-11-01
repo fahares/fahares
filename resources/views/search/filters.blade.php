@@ -11,7 +11,8 @@
     $subjectItems = fn () => $options['subjects']->map(fn ($s) => ['id' => $s->id, 'name' => $s->title ?: $s->name, 'count' => $s->matching_count, 'hint' => $s->parent?->name])->values()->all();
 @endphp
 <form action="{{ route('search') }}" method="GET" class="bg-surface p-5 rounded-sm border border-line shadow-sm space-y-5 text-sm">
-    @foreach(['q' => $query, 'type' => $type, 'scope' => $scope, 'sort' => $sortKey ?: null, 'per_page' => $perPage !== 20 ? $perPage : null] as $key => $value)
+    @foreach(['q' => $query, 'type' => $type, 'scope' => $scope, 'sort' => $sortKey ?: null, 'per_page' => $perPage !== 20 ? $perPage : null,
+        'source_volume_id' => $v('source_volume_id')] as $key => $value)
         @if($value !== null && $value !== '')<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
     @endforeach
 

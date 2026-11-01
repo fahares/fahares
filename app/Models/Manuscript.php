@@ -422,7 +422,8 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name']);
+        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name',
+            'catalogueEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_volume_id')]);
     }
 
     public function toSearchableArray(): array
@@ -487,6 +488,9 @@ class Manuscript extends Model
             'languages' => $this->work?->languages->pluck('name')->all() ?? [],
             // Every scribe, not only the first: «the manuscripts this person copied» (backlog item 83, phase 6)
             'scribe_ids' => $this->scribes->pluck('id')->map(fn ($id) => (int) $id)->all(),
+            // The printed catalogue volumes that describe the copy, so a source page's count of a volume's copies
+            // links to them (step 13.116)
+            'source_volume_ids' => $this->catalogueEntries->pluck('source_volume_id')->map(fn ($id) => (int) $id)->unique()->values()->all(),
         ];
     }
 
@@ -498,6 +502,12 @@ class Manuscript extends Model
     public function cataloger(): BelongsTo
     {
         return $this->belongsTo(Cataloger::class);
+    }
+
+    /** Its entries in the printed sources that name a volume and are not rejected: the volumes that describe it */
+    public function catalogueEntries(): MorphMany
+    {
+        return $this->morphMany(SourceEntry::class, 'citable')->whereNotNull('source_volume_id')->where('status', '!=', SourceEntry::STATUS_REJECTED);
     }
 
     public function catalogVolume(): BelongsTo
