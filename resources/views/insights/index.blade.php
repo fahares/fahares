@@ -430,6 +430,8 @@
         </x-ui.section>
     </div>
 
+    @include('insights.request-card')
+
     <p class="text-xs text-muted text-center">
         این آمار هر شب از روی داده‌های فهارس از نو ساخته می‌شود؛ آخرین بار {{ Jalali::format(\Illuminate\Support\Carbon::parse($data['built_at']), 'long') }}.
     </p>
