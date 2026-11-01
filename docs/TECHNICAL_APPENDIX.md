@@ -5909,11 +5909,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - یکاشناسی: `RebuildCopiesCommand` و `AddCorpusWorksCommand` هر دو `DerivedData::syncCopies` را صدا می‌زنند.
 - **آزمون:** `AddRulerAliasesTest::test_a_rulers_spellings_are_added_once_to_his_other_names`.
 
-### گام ۱۳.۱۳۰: `scripts/dev/reserve-step` و `merge=union`
-- **فهرست:** `~/.fahares/steps.tsv` (متغیر `FAHARES_STEPS_FILE`)، با ستون‌های شماره، زمان، نشست و عنوان. قفل `flock -w 30` روی `steps.tsv.lock` است. شماره‌ی بعدی یکی بالاتر از بیشینه‌ی فهرست و بیشینه‌ی `#### گام 13.N` در `origin/main:docs/PROCESS_DOCUMENTATION.md` است. رقم‌های فارسی با `sed 'y/…/…/'` برگردانده می‌شوند، چون `tr` چندبایتی نیست. فاز با `FAHARES_STEP_PHASE` عوض می‌شود (پیش‌فرض ۱۳). `--list [N]` آخرین رزروها را نشان می‌دهد.
-- **آزمون:** با فهرست موقت، سه و پنج فراخوان هم‌زمان (`&`) شماره‌های پیاپی و یکتا گرفتند (۱۳.۱۲۷ تا ۱۳.۱۲۹ پس از ۱۳.۱۲۶ مستندات).
-- **`.gitattributes`:** `docs/PROCESS_DOCUMENTATION.md` و `docs/TECHNICAL_APPENDIX.md` با `merge=union`. ادغام union خطی را که در هر دو شاخه ویرایش شده، دو بار نگه می‌دارد. پس پس از ادغام، تکرار و ترتیب گام‌ها بررسی می‌شود. این نکته در `CLAUDE.md` آمده است.
-- **[image.yml](../.github/workflows/image.yml):** `on.push.paths-ignore` شامل `docs/**`، `*.md` (فقط ریشه)، `scripts/**/*.md`، `.gitattributes` و `scripts/dev/**` است. `database/content/about.md` عمداً بیرون مانده است. GitHub این را روی همه‌ی فایل‌های یک push می‌سنجد، پس pushی که یک فایل کد هم دارد، همچنان می‌سازد و مستقر می‌کند. `workflow_dispatch` برای استقرار دستی بی‌تغییر است. Watch Paths خود Coolify به کار نمی‌آید، چون build pack «Docker Image» است و استقرار را workflow با API صدا می‌زند.
 ### گام ۱۳.۱۲۹: `sources:link-dharia-titles` و `source_page_links`
 - **جدول:** `source_page_links` (migration `2026_11_01_100001`) ستون‌های `source_page_id`، `ordinal`، `kind`، `text`، `target_type`/`target_id`، `method`، `rejected_at`/`rejected_by` را دارد. `ordinal` شماره‌ی n-امین گشایش نشانه (`U+E020`) در متن صفحه است، از صفر. کلید یکتا `(source_page_id, ordinal)` است.
 - **دستور:** `sources:link-dharia-titles [--kinds=VB,…] [--volume=N] [--sample=FILE --per-kind=50] [--all] [--dry-run]` ([LinkDhariaTitlesCommand.php](../app/Console/Commands/LinkDhariaTitlesCommand.php)).
@@ -5936,3 +5931,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروداکشن:** هنوز اجرا نشده است. نخست انتشار کد (migration خودکار)، سپس با اجازه‌ی کاربر `php artisan sources:link-dharia-titles`. این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links` است.
 - **آزمون:** [LinkDhariaTitlesTest.php](../tests/Feature/LinkDhariaTitlesTest.php).
 
+### گام ۱۳.۱۳۰: `scripts/dev/reserve-step` و `merge=union`
+- **فهرست:** `~/.fahares/steps.tsv` (متغیر `FAHARES_STEPS_FILE`)، با ستون‌های شماره، زمان، نشست و عنوان. قفل `flock -w 30` روی `steps.tsv.lock` است. شماره‌ی بعدی یکی بالاتر از بیشینه‌ی فهرست و بیشینه‌ی `#### گام 13.N` در `origin/main:docs/PROCESS_DOCUMENTATION.md` است. رقم‌های فارسی با `sed 'y/…/…/'` برگردانده می‌شوند، چون `tr` چندبایتی نیست. فاز با `FAHARES_STEP_PHASE` عوض می‌شود (پیش‌فرض ۱۳). `--list [N]` آخرین رزروها را نشان می‌دهد.
+- **آزمون:** با فهرست موقت، سه و پنج فراخوان هم‌زمان (`&`) شماره‌های پیاپی و یکتا گرفتند (۱۳.۱۲۷ تا ۱۳.۱۲۹ پس از ۱۳.۱۲۶ مستندات).
+- **`.gitattributes`:** `docs/PROCESS_DOCUMENTATION.md` و `docs/TECHNICAL_APPENDIX.md` با `merge=union`. ادغام union خطی را که در هر دو شاخه ویرایش شده، دو بار نگه می‌دارد. پس پس از ادغام، تکرار و ترتیب گام‌ها بررسی می‌شود. این نکته در `CLAUDE.md` آمده است.
+- **[image.yml](../.github/workflows/image.yml):** `on.push.paths-ignore` شامل `docs/**`، `*.md` (فقط ریشه)، `scripts/**/*.md`، `.gitattributes` و `scripts/dev/**` است. `database/content/about.md` عمداً بیرون مانده است. GitHub این را روی همه‌ی فایل‌های یک push می‌سنجد، پس pushی که یک فایل کد هم دارد، همچنان می‌سازد و مستقر می‌کند. `workflow_dispatch` برای استقرار دستی بی‌تغییر است. Watch Paths خود Coolify به کار نمی‌آید، چون build pack «Docker Image» است و استقرار را workflow با API صدا می‌زند.
