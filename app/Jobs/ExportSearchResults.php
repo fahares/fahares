@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Work;
 use App\Notifications\Notice;
 use App\Support\Fa;
+use App\Support\MemoryLimit;
 use App\Support\SearchExport;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +45,7 @@ class ExportSearchResults implements ShouldQueue
         if (! $user) {
             return;
         }
-        ini_set('memory_limit', '256M');
+        MemoryLimit::raiseTo('256M');
 
         $request = Request::create('/search', 'GET', $this->params);
         $request->setUserResolver(fn () => $user);
