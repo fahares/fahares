@@ -70,7 +70,7 @@ class PrintedPage
     }
 
     /**
-     * The page's text with the records its marks link (source_page_links, step 13.128: an al-Dhari'a title to its
+     * The page's text with the records its marks link (source_page_links, step 13.129: an al-Dhari'a title to its
      * entry) written into those marks' kinds, «VB\0url\0title\0entry», for openTag().
      */
     private static function linked(string $text, int $pageId): string

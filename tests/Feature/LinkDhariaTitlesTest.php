@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /**
- * sources:link-dharia-titles (step 13.128): the titles Noor tags in al-Dhari'a's text linked to the entry of that
+ * sources:link-dharia-titles (step 13.129): the titles Noor tags in al-Dhari'a's text linked to the entry of that
  * title, and the page showing them.
  */
 class LinkDhariaTitlesTest extends TestCase
