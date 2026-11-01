@@ -33,6 +33,9 @@ class BackfillWorkSubjectsCommand extends Command
 
     protected $description = 'Link the subject a work\'s title names (the Prophet, the Imams, and reviewed others) with the subject role';
 
+    /** A description names its subject in its first characters («قصیده‌ای است در مدح …»), not in a later chapter. */
+    private const DESCRIPTION_WITHIN = 70;
+
     private array $counts = [];
 
     private array $examples = [];
@@ -65,23 +68,37 @@ class BackfillWorkSubjectsCommand extends Command
         $guard = ProtectedColumns::for(Work::class);
         $candidates = [];
 
-        Work::query()->select(['id', 'primary_title'])->orderBy('id')->chunkById(5000, function ($works) use ($apply, $relations, $guard, $person, $decided, $matcher, &$candidates) {
+        Work::query()->select(['id', 'primary_title', 'description'])->orderBy('id')->chunkById(5000, function ($works) use ($apply, $relations, $guard, $person, $decided, &$candidates) {
             foreach ($works as $work) {
-                $read = KnownSubjects::fromTitle($work->primary_title);
-                if (! $read) {
-                    continue;
-                }
-                [$word, $pieces] = $read;
-                $this->count('works:titled');
-                foreach ($pieces as $piece) {
-                    $name = KnownSubjects::find($piece) ?? $decided[KnownRulers::compact($piece)] ?? null;
-                    if (! $name) {
-                        $this->count('pieces:not_linked');
-                        $key = KnownRulers::compact($piece);
-                        $candidates[$key] ??= ['phrase' => $piece, 'works' => [], 'suggested' => null];
-                        $candidates[$key]['works'][] = "#{$work->id} {$work->primary_title}";
-                        continue;
+                // [word, name, how] for each subject the work names, the first one for a person kept
+                $subjects = [];
+                if ($read = KnownSubjects::fromTitle($work->primary_title)) {
+                    [$word, $pieces] = $read;
+                    $this->count('works:titled');
+                    foreach ($pieces as $piece) {
+                        $name = KnownSubjects::find($piece) ?? $decided[KnownRulers::compact($piece)] ?? null;
+                        if (! $name) {
+                            $this->count('pieces:not_linked');
+                            $key = KnownRulers::compact($piece);
+                            $candidates[$key] ??= ['phrase' => $piece, 'works' => [], 'suggested' => null];
+                            $candidates[$key]['works'][] = "#{$work->id} {$work->primary_title}";
+                            continue;
+                        }
+                        $subjects[$name] ??= [$word, KnownSubjects::find($piece) ? 'known' : 'reviewed'];
                     }
+                } else {
+                    // «رسالة فی مناقب علی»: the word inside the title
+                    foreach ($this->fromText($work->primary_title, $decided) as $name => $found) {
+                        $subjects[$name] ??= [$found[0], $found[1] . ':title_inside'];
+                    }
+                }
+                // «قصیده‌ای است در مدح حضرت پیامبر (ص)»: the first sentence of the description
+                $first = preg_split('/(?<![0-9۰-۹])\.(?![0-9۰-۹])|\n/u', (string) $work->description)[0] ?? '';
+                foreach ($this->fromText($first, $decided, self::DESCRIPTION_WITHIN) as $name => $found) {
+                    $subjects[$name] ??= [$found[0], $found[1] . ':description'];
+                }
+
+                foreach ($subjects as $name => [$word, $how]) {
                     $subject = $person($name);
                     $label = "#{$work->id} «{$work->primary_title}» → {$name}";
                     if (! $subject) {
@@ -96,7 +113,7 @@ class BackfillWorkSubjectsCommand extends Command
                         $this->count('pieces:exists');
                         continue;
                     }
-                    $this->count(KnownSubjects::find($piece) ? 'linked:known' : 'linked:reviewed', $label);
+                    $this->count("linked:{$how}", str_ends_with($how, ':description') ? $label . ' ‹' . mb_substr($first, 0, 90) . '›' : $label);
                     if (! $apply) {
                         continue;
                     }
@@ -135,6 +152,29 @@ class BackfillWorkSubjectsCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The subjects a sentence names after a subject word (KnownSubjects::fromText and resolve), by record name, with
+     * the word and whether the name came from LIST or the reviewed phrases. The pieces after «و» are read only while
+     * each is a person: «احوال امامزادگان … و فاطمه …» names no one.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    private function fromText(?string $text, array $decided, ?int $within = null): array
+    {
+        $out = [];
+        foreach (KnownSubjects::fromText($text, $within) as [$word, $rests]) {
+            // «پیامبر اکرم و امیر المومنین و امام حسن»: a list of people, read while each piece is one
+            foreach ($rests as $rest) {
+                if (! ($found = KnownSubjects::resolve($rest, $decided))) {
+                    break;
+                }
+                $out[$found[0]] ??= [$word, KnownSubjects::find($found[1]) ? 'known' : 'reviewed'];
+            }
+        }
+
+        return $out;
     }
 
     private function count(string $kind, ?string $example = null): void

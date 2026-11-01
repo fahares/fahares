@@ -6053,3 +6053,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `WorkPeopleTest::test_backfill_of_dedicatees_and_commissioners` (قطعی شدن ردیف پیشین).
   - `ApplyCorpusCategoriesCommandTest::test_a_commissioners_phrase_is_found_past_titles_and_at_a_later_place_of_the_name`.
 
+### گام ۱۳.۱۴۳: `KnownSubjects::fromText()` و `resolve()`
+- **کد:**
+  - `KnownSubjects::fromText($text, $within)` واژه‌ی موضوع را (با `WORDS`، و «X و Y» مانند «فضایل و مناقب») هر جای جمله پیدا می‌کند. «حضرت»، «(ع)»، «علیه السلام» و «صلی الله علیه و آله» حذف می‌شوند. ادامه تا یکی از `.؛:«»()[]` بریده می‌شود و سپس بر «و» تکه می‌شود. با `$within` فقط نخستین واژه، و فقط اگر جای آن ≤ `$within` نویسه باشد.
+  - `KnownSubjects::resolve($rest, $decided)` از بلندترین پیشوند شش‌واژه‌ای آغاز می‌کند و با `find()` یا عبارت‌های بازبینی‌شده تطبیق می‌دهد. واژه‌های `BARE` («علی»، «حسین»، «الحسین»، «رسول» و …) فقط وقتی پذیرفته می‌شوند که واژه‌ی بعد در `STOP` باشد یا واژه‌ی بعدی نباشد.
+  - `BackfillWorkSubjectsCommand`:
+    - عنوانی که با واژه آغاز نمی‌شود با `fromText($title)` خوانده می‌شود (`:title_inside`).
+    - جمله‌ی نخست `description` (بریده بر نقطه‌ای که میان دو رقم نیست، یا بر سطر) با `fromText(..., 70)` خوانده می‌شود (`:description`).
+    - تکه‌ها تا نخستین تکه‌ای که شخص نیست خوانده می‌شوند.
+    - اگر یک شخص از چند جا آمده باشد، نخستین جا نگه داشته می‌شود.
+  - `پیغمبر اکرم` و `پیامبر اکرم` به املاهای پیامبر افزوده شدند.
+- **dry run (`fahares_prod` محلی، که گام ۱۳.۱۳۵ در آن اجرا نشده است):** `linked:known 128`، `linked:reviewed 42`، `linked:known:description 353`، `linked:reviewed:description 8`، `linked:known:title_inside 121`، `linked:reviewed:title_inside 1`.
+  - پیش از دو قید: بی `within` ۶۳۱ پیوند از معرفی، و بی زنجیره‌ی «و» ۳۹۰.
+  - رکورد امام نهم با نام «محمد بن علی (ع)، امام نهم» در کپی محلی نیست، پس پیوندهای او ساخته نمی‌شوند. فرمان هشدار «No record» می‌دهد.
+- **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`. ۱۶۹ پیوند گام ۱۳.۱۳۵ `pieces:exists` گزارش می‌شوند.
+- **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون تازه) و `BackfillWorkSubjectsTest` (معرفی، و فصل دیرآمده).
+

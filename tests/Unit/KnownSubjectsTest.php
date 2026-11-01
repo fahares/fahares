@@ -29,4 +29,25 @@ class KnownSubjectsTest extends TestCase
         $this->assertNull(KnownSubjects::find('ائمه'));
         $this->assertNull(KnownSubjects::find('شاه نعمت الله ولی'));
     }
+
+    public function test_a_sentence_names_its_subject_after_a_subject_word()
+    {
+        $this->assertSame([['مدح', ['پیامبر اکرم که شاعر سروده است']]], KnownSubjects::fromText('قصیده‌ای است در مدح حضرت پیامبر اکرم (ص) که شاعر سروده است'));
+        $this->assertSame([['فضایل و مناقب', ['امیرالمؤمنین که مؤلف گرد آورده']]], KnownSubjects::fromText('در فضایل و مناقب حضرت امیرالمؤمنین علیه السلام که مؤلف گرد آورده'));
+        // Within the first characters only, and only the first word: a later «احوال» is a chapter
+        $this->assertSame([], KnownSubjects::fromText('کتابی مفصل در فقه استدلالی در ده باب و یک مقدمه و یک خاتمه و چند فصل دیگر که در باب آخر آن احوال امام حسین آمده', 70));
+        $this->assertCount(1, KnownSubjects::fromText('در مدح علی و در مرثیه حسین', 70));
+    }
+
+    public function test_the_head_of_the_rest_is_read_and_a_bare_name_needs_nothing_after_it()
+    {
+        $this->assertSame(['محمد (ص)، پیامبر اسلام', 'پیامبر اکرم'], KnownSubjects::resolve('پیامبر اکرم که شاعر سروده است'));
+        $this->assertSame(['حسین بن علی (ع)، امام سوم', 'امام حسین'], KnownSubjects::resolve('امام حسین و یاران او'));
+        $this->assertSame(['حسین بن علی (ع)، امام سوم', 'حسین'], KnownSubjects::resolve('حسین که در کربلا'));
+        // «حسین خان»، «الحسین بن منصور»: another person
+        $this->assertNull(KnownSubjects::resolve('حسین خان سردار'));
+        $this->assertNull(KnownSubjects::resolve('الحسین بن منصور حلاج'));
+        // A reviewed phrase
+        $this->assertSame(['ابن سینا، حسین بن عبدالله', 'الشيخ الرئيس'], KnownSubjects::resolve('الشيخ الرئيس و آثار او', [\App\Support\KnownRulers::compact('الشيخ الرئيس') => 'ابن سینا، حسین بن عبدالله']));
+    }
 }
