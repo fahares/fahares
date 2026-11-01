@@ -24,6 +24,10 @@ class FeedbackController extends Controller
             'message' => 'required|string|min:5|max:5000',
             'page_url' => 'nullable|string|max:2000',
             'page_title' => 'nullable|string|max:300',
+            // A statistics request (insights/request-card): what it should answer, an example, the chart it is about
+            'question' => 'nullable|string|max:1000',
+            'example' => 'nullable|string|max:2000',
+            'section' => 'nullable|string|max:200',
             'guest_name' => 'nullable|string|max:100',
             'guest_email' => 'nullable|email|max:100',
             'notify_submitter' => 'nullable|boolean',
@@ -51,6 +55,9 @@ class FeedbackController extends Controller
             'url' => $path . ($query ? '?' . $query : ''),
             'title' => trim($validated['page_title'] ?? '') ?: null,
             'agent' => Str::limit((string) $request->userAgent(), 300, ''),
+            'section' => trim($validated['section'] ?? '') ?: null,
+            'question' => trim($validated['question'] ?? '') ?: null,
+            'example' => trim($validated['example'] ?? '') ?: null,
         ]);
 
         $suggestion = FieldSuggestion::create([

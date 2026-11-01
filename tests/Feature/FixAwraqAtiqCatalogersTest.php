@@ -75,6 +75,15 @@ class FixAwraqAtiqCatalogersTest extends TestCase
         $this->assertSame(6, $this->c[Fix::HAKIM]->fresh()->manuscripts_count);
     }
 
+    public function test_a_copy_names_the_volume_its_article_is_in(): void
+    {
+        $this->artisan('catalogs:fix-awraq-atiq')->assertSuccessful();
+
+        $this->get(route('manuscripts.show', $this->m['shyraz-thamny-mhmd-rda-172']->fresh()))->assertOk()
+            ->assertSee($this->c[Fix::BARAKAT]->name, false)
+            ->assertSee('در «اوراق عتیق - دفتر ۱»، زیر نظر ' . $this->c[Fix::HAKIM]->name, false);
+    }
+
     public function test_a_second_run_changes_nothing(): void
     {
         $this->artisan('catalogs:fix-awraq-atiq')->assertSuccessful();

@@ -660,6 +660,8 @@
 
     @endif
 
+    @include('insights.request-card')
+
     <p class="text-xs text-muted text-center">
         @if($scope->isEmpty())
             این آمار هر شب از روی داده‌های فهارس از نو ساخته می‌شود؛ آخرین بار {{ Jalali::format(\Illuminate\Support\Carbon::parse($data['built_at']), 'long') }}.

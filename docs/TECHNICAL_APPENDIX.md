@@ -5511,6 +5511,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پیش‌نمایش worktree:** `php artisan serve` متغیرهای محیطی کانتینر را به کارگرهایش نمی‌دهد و `php -S` هم آن‌ها را در `$_SERVER` نمی‌گذارد، پس `.env` رونوشتی با `DB_DATABASE=fahares_prod` و `CACHE_STORE=file` mount شد و `php -S` از درون `public/` اجرا شد.
 - **آزمون‌ها** (`InsightsPageTest`): `test_the_copy_timeline_layers_years_centuries_and_doubtful_dates`، `test_authors_are_counted_by_their_death_range_and_works_by_composition`، `test_copies_are_banded_by_the_years_after_their_authors_death`. دو آزمون پیشین حالا `copy_date_raw` می‌دهند، چون نمودار دیگر از `copy_date_hijri_year` نمی‌خواند.
 
+### گام ۱۳.۱۰۵: داده‌ی مشتق هم‌گام با ستون‌های مبدأ (مورد ۸۷)
+- **[DerivedData](../app/Support/DerivedData.php):**
+  - **تابع‌های مقایسه:** `copyChanges($row, $guard)`، `workChanges($row)` و `personChanges($row)` ستون‌های مشتقی را برمی‌گردانند که با محاسبه‌ی دوباره فرق دارند. محاسبه با `Manuscript::copyDateColumns`، `CopyExtent::columns`، `Work::compositionDateColumns` و `Person::deathColumns` است. تاریخی که پاک شده، بازه‌اش را هم پاک می‌کند (`fill-copy-date-ranges` تاریخ تهی را نمی‌خواند). اندازه‌ای که متنش شمار ندارد یا دو شمار از یک نوع دارد، دست نمی‌خورد.
+  - **`syncCopies($ids, $command)`:** ستون‌های تاریخ و اندازه را می‌نویسد. برگِ تغییرکرده با `corpus_fix: derived data` در تاریخچه ثبت می‌شود، همان‌گونه که `fill-extents` ثبت می‌کند. اشاره‌ها با `linkCopy(..., prune: true)` ساخته می‌شوند، سپس نسخه‌ها و اثرهایشان بازنمایه می‌شوند.
+  - **`syncWorks($ids, $command)`:** بازه‌ی تألیف را می‌نویسد. برای آثاری که `dedication` دارند، `fahares:backfill-work-dedications --only=…` را اجرا می‌کند (هرگز با `--only` خالی، که همه را می‌گیرد). سپس بازنمایه می‌کند.
+- **استخراج از پرکننده‌ها:**
+  - `CopyExtent::columns($row, $guard)` تصمیم `fill-extents` است و نوع تغییر، ستون‌ها، برگ سایت و متن اندازه را برمی‌گرداند. `CopyExtent::stored($row)` ستون‌های ذخیره را با همان نوع داده می‌دهد.
+  - `FillTextExcerptsCommand::excerptsOf($workId)` آغاز و انجام‌های شماره‌دار و بخش‌دار اثر را از جدول می‌خواند، و `pointer($text, $excerpts)` و `linkCopy($copy, $excerpts, $apply, $prune)` را می‌دهد.
+  - `BackfillWorkDedicationsCommand::MAX_NAME` عمومی شد.
+- **هوک‌ها:**
+  - `RebuildCopiesCommand` به‌جای بازنمایه‌ی خودش، `syncCopies` را صدا می‌زند.
+  - `AddCorpusWorksCommand` پس از `SourceEntrySync`، `syncCopies` و `syncWorks` را صدا می‌زند. تابع پیکانی بیرونی `withoutSyncingToSearch` به closure با `use (&…)` تبدیل شد. پیش از این، `$touchedWorks` و `$touchedCopies` پس از تراکنش خالی بودند، پس `SourceEntrySync` و بازنمایه هیچ رکوردی نمی‌گرفتند. مدخل‌های فنخا در `fahares_prod` با این حال هستند، ولی بازنمایه‌ی گام ۱۳.۷۹ انجام نشده بود.
+  - `SyncWorkDetailsCommand` پیش از نوشتن، `dedication`های هر جلد را می‌خواند و برای آثاری که مقدارشان تغییر کرد، `syncWorks` را صدا می‌زند.
+  - `ApplyCorpusDiffCommand` برای همه‌ی آثار نوشته‌شده `syncWorks` را صدا می‌زند.
+  - `ApplyCorpusCategoriesCommand` پیش از این هم `copyDateColumns` را با تاریخ می‌نوشت، پس دست نخورد.
+- **فرمان [fahares:refresh-derived](../app/Console/Commands/RefreshDerivedCommand.php):**
+  - **گزینه‌ها:** `--apply`، `--show`، و `--excerpts` و `--deaths` (فایل‌های تصمیم دو پرکننده‌ی آخر).
+  - **انواع:** `copy_date_range`، `extent`، `composition_date_range`، `death_range` و `excerpt_pointers` (برای هر آغاز یا انجام، ردیف موجود در برابر ردیفی که `pointer()` می‌سازد).
+  - **`dedications_missing`:** شخصی که `DedicationParser` از `dedication` می‌دهد (تا `MAX_NAME` نویسه) و اثر ردیفی با همان نقش ندارد که «او را بدهد».
+  - **`dedications_not_given`:** ردیف `suggestion_id` تهی با نقش dedicatee یا commissioner که هیچ نام کنونی آن را نمی‌دهد. «دادن» برای ردیف بی‌شخص، برابری نام پاک‌شده است. برای ردیف پیوندی یکی از این‌هاست: برابری نام نرمال‌شده؛ `KnownRulers::find` با همان سال تألیف و سال وفات، به نام فرمانروا یا گروهش؛ یا `PersonNameMatcher` با `ids()` یا `match(..., requireCentury: true)`، یعنی همان قاعده‌های پرکننده. آثاری که بازبین ردیف‌هایشان را تغییر داده (`protectsRows(…, 'people')`)، کنار می‌روند. این ردیف‌ها فقط گزارش می‌شوند.
+  - **`--apply`:** این‌ها به ترتیب اجرا می‌شوند: `fill-copy-date-ranges`، همان با `--works`، `fill-extents`، `backfill-work-dedications`، و `fill-text-excerpts` و `fill-death-ranges` اگر فایلشان باشد. سپس انحراف دوباره سنجیده می‌شود و مانده‌ها از `syncCopies` و `syncWorks` و `deathColumns` نوشته می‌شوند، مثلاً بازه‌ی تاریخی که پاک شده یا اشاره‌ای که متن دیگر نمی‌سازد. در پایان گزارش «After» چاپ می‌شود.
+  - نمایه‌ی جست‌وجو مقایسه نمی‌شود. هر فرمانی که رکوردی می‌نویسد، خودش بازنمایه می‌کند.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - **dry run (۴۹ ثانیه):** copy_date_range ۳ (#35162، #88297، #95649)، extent ۶ (#35162، #88297، #88300، #88302، #95649، #334185)، dedications_missing ۴٬۲۹۵. انواع دیگر صفر بودند.
+  - **علت عدد بزرگ:** `fahares_prod` محلی فقط ۱ ردیف `work_people` دارد، چون پیش از گام‌های ۱۳.۶۸ و ۱۳.۹۷ گرفته شده است.
+  - **`--apply` (۵ دقیقه و ۱۶ ثانیه):** تاریخ ۳ و اندازه ۶ تغییر کرد. پرکننده‌ی اهدا ۴٬۸۰۷ نامزد dedicatee داشت (linked_ruler ۱٬۴۶۳، ruler_created ۶۶، name_only:no_match ۲٬۹۹۵، run_on ۳۱) و ۲۷ نامزد commissioner. `fill-text-excerpts` چیز تازه‌ای ننوشت (اشاره‌ها پیش‌تر بودند). `fill-death-ranges` people:changed نداشت.
+  - **پس از اجرا:** گزارش «After» برای همه‌ی انواع صفر بود. صفر بودن dedications_missing در برابر ۱٬۵۳۰ ردیف پیوندی نشان می‌دهد که قاعده‌ی «دادن» برای فرمانروایان هم درست کار می‌کند.
+- **آزمون:** [DerivedDataTest](../tests/Feature/DerivedDataTest.php) (۴): هوک `rebuild-copies`، هوک `add-corpus-works`، هوک `sync-work-details`، و گزارش و `--apply` فرمان `refresh-derived` با ردیفی که مبدأ دیگر نمی‌دهد و حذف نمی‌شود. کل مجموعه ۵۲۶ آزمون موفق، روی `fahares_derived_test`. آزمون `--apply` فایل‌های تصمیم کوچک می‌گیرد: با فایل ۹٫۶ مگابایتی وفات‌ها، حافظه‌ی فرایند آزمون از ۱۹۲ مگابایت (`ini_set` در خروجی اکسل) بالاتر می‌ماند و سه آزمون خروجی شکست می‌خوردند.
+- **پروداکشن (پس از استقرار):** `php artisan fahares:refresh-derived` و سپس با `--apply`، در یک نشست `ssh fahares-app`. سپس بازنمایه‌ی ۱۴۸ اثر و ۳۷۳ نسخه‌ی گام ۱۳.۷۹ وارسی شود.
+
 ### گام ۱۳.۱۰۶: نسخه‌های گم‌شده
 - **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):** حالا `unmatched.jsonl` هم می‌نویسد، با سه نوع رکورد:
   - `v2_work`؛
@@ -5644,8 +5674,63 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **بازآزمایی روی `fahares_prod`:** دفتر ۱: ۱۵۵ + ۹۰ به صدرائی، ۷۱ به برکت، ۳۳۹ به غفرانی، ۷ بی‌فهرست‌نگار (۴ ادبیات اصفهان، ص ۴۰۰–۴۹۶؛ ۳ دانشگاه بوعلی که ارجاعشان «اوراق عتیق: 3-…» است و به‌خطا به دفتر ۱ پیوسته‌اند). دفتر ۲: ۳۳۶ بی‌فهرست‌نگار. شمارش‌ها: حکیم ۷ جلد / ۴٬۲۶۰، صدرائی ۲۳ / ۲۷٬۵۵۷، برکت ۴ / ۳٬۶۳۳، غفرانی ۰ / ۳۳۹.
 - **صفحه‌ی فهرست‌نگار:** `metadata.sources` گاه رشته است (`ReplaceRazaviInstitutionCatalogerCommand` برای اوکتایی). [catalogers/show](../resources/views/catalogers/show.blade.php) با `$source['url']` روی رشته می‌شکست (`/catalogers/109` روی پروداکشن ۵۰۰). حالا رشته همان متن است.
 - **آزمون:** [FixAwraqAtiqCatalogersTest](../tests/Feature/FixAwraqAtiqCatalogersTest.php) (۳) و `test_a_source_without_a_link_is_its_text` در [CatalogerCataloguesTest](../tests/Feature/CatalogerCataloguesTest.php).
+- **صفحه‌ی نسخه:** [manuscripts/show](../resources/views/manuscripts/show.blade.php) زیر فهرست‌نگار، اگر جلدِ نسخه ناظری (`role = supervisor`) جز خود فهرست‌نگار داشته باشد، می‌نویسد «در «عنوان جلد»، زیر نظر …» (`data-cataloger-volume`). کنترلر `catalogVolume.catalogers` را از پیش بار می‌کند. آزمون: `test_a_copy_names_the_volume_its_article_is_in`. این قاعده عام است و برای هر جلد دیگری که ناظر دارد هم نمایش داده می‌شود.
 - **اجرای پروداکشن (۱۱ آبان، با اجازه‌ی کاربر):**
   - **استقرار:** `git push` (`176b7f8..2a99117`).
   - **dry-run:** شمار نسخه‌ها همان تمرین محلی بود (دفتر ۱: ۶۶۲؛ دفتر ۲: ۳۳۶).
   - **اجرا:** حکیم (۳۲) ۷ جلد / ۴٬۲۶۲، صدرائی (۴۴) ۲۳ / ۲۷٬۵۷۲، برکت (۵۳) ۴ / ۳٬۶۳۶، غفرانی (۱۳۲، تازه) ۰ / ۳۳۹. اختلاف اندک با تمرین از نسخه‌هایی است که پس از کپی محلی به جلدهای دیگر این سه نفر افزوده شده‌اند.
   - **وارسی:** `catalog_volume_cataloger` برای ۵۳۴ و ۵۳۵ تنها حکیم با نقش `supervisor` را دارد. نسخه‌ی ۲۳۲۹۸۸ (مدرسه‌ی آیة‌الله خوئی مشهد) غفرانی را نشان می‌دهد. `/catalogers/109` (اوکتایی)، `/catalogers/132` و `/catalogers/32` ۲۰۰ می‌دهند، و صفحه‌ی `catalogue-5c2b9b62d4d4` «زیر نظر محمدحسین حکیم» دارد.
+
+### گام ۱۳.۱۱۴: ارجاع «[ف: …]» در متن صفحه‌ی فنخا
+- **کد:** `PrintedPage::citations()` پس از `marks()`. مدخل‌های `origin = fankha_citation` نسخه‌های صفحه (`status != rejected`، با `page_start` و `citation_text`) گرفته می‌شوند. `citation_text` عین کروشه است، از سطر نسخه تا سطر نسخه‌ی بعدی جست‌وجو می‌شود، و نشان `kind = catalogue` درون کروشه می‌نشیند. نشانی: `SourceEntry::pageTextUrl()`، وگرنه `viewer()`. این نشان‌ها در «آثار این صفحه» نمی‌آیند. نمایش در [source-pages/show](../resources/views/source-pages/show.blade.php) با کلاس `book-sheet__cite`.
+- **سنجش روی `fahares_prod`:** تنها `library_catalogue` با برگه یا متن `masjid-azam-ostadi` است و هیچ مدخل `fankha_citation` ندارد. ارجاع‌های مسجد اعظم در فنخا «[ف مخ: …]» هستند (`catalogue-20097e616c1d`، فهرست دست‌نویس). در ۱۵۰ صفحه‌ی فنخا ۹۸۰ ارجاع هست و ۰ پیوند. هزینه یک پرس‌وجو در هر صفحه است.
+- **آزمون:** `test_a_copys_citation_of_its_librarys_catalogue_links_that_page` در [SourcePageViewTest](../tests/Feature/SourcePageViewTest.php): متن، نمایشگر، و بی‌برگه.
+- **کامیت:** `c148a22`.
+
+### گام ۱۳.۱۱۵: نام مؤلف (SB) در متن الذریعة
+- **کد:** `PrintedPage::authors($works)` برای هر مدخل نخستین `SB` را با تنها مؤلف اثر (`author` و `authors`) می‌سنجد (`names()`). نام سایت «نسبت، نام بن پدر» است و هر دو سو هنجار می‌شوند (ي/ى/ك/أ/إ/آ/ة، نیم‌فاصله، کشیده، نشانه‌ها). شرط پیوند یکی از این دو است: «نام بن پدر» کامل، یا «نام» به‌علاوه‌ی همه‌ی واژه‌های بیش از دو حرفی نسبت. `text($text, $author)` نشان SB را وقتی متنش همان باشد به `<a … data-noor="SB" data-record-link="person">` بدل می‌کند (روی پشته به شکل `SB\0url\0title`). `SourcePageController` مؤلف‌ها را بار می‌کند.
+- **سنجش (محلی، جلد ۱۳):** ۳۱۶ مدخل اثر دارند، ۳۱۱ با یک مؤلف، ۲۸۶ با SB. با شرط هم‌پوشانی یک واژه، ۲۳۲ پیوند می‌گرفت ولی نمونه‌ها نادرست داشتند («سمنانی، محمد رضا» ≠ «محمد زمان السمناني»). با شرط کنونی ۱۲۸ پیوند ساخته شد و نمونه‌ی ۲۵تایی درست بود. ۰٫۰۴ ثانیه برای هر صفحه.
+- **آزمون:** `test_al_dharias_author_mark_links_the_works_author_when_it_names_him`.
+- **کامیت:** `c6e1f12`.
+
+### گام ۱۳.۱۱۷: `sources:retie-stray-copies`
+- **یافتن (فقط‌خواندنی، `fahares_prod` محلی):**
+  - کتابخانه‌ی ۳۴۱ (`mshhd-danshkdh-alhyat-mshhd-341`): ۶۲ نسخه، همه روی #412 (الهیات تهران، کتابخانه‌ی ۴۰)، با ارجاع «ف: 1–3». شماره‌ی هیچ‌یک با نسخه‌ای از کتابخانه‌ی ۳۸ همان اثر نیست.
+  - کتابخانه‌ی ۳۶۵ (`thran-danshgah-thran-365`): ۲۰ نسخه با ارجاع فهرست مرکزی و میکروفیلم‌ها. شماره‌های مشترک با کتابخانه‌ی ۳ اثرهای دیگرِ همان مجموعه‌اند، نه نسخه‌ی تکراری.
+  - #160 (MTIF 21490، جلد ۲ الهیات تهران) با `catalog_volumes.library_id = 3`.
+  - ۴۳ نسخه‌ی غیر کتابخانه‌ی ۳ با ارجاع «فیلمها ف»، روی جلد ۲ و ۳ مجلس (#130، #107)، #539 یا بی‌جلد.
+  - پس از گام ۱۳.۱۱۲: ۱۹ جلد `manuscripts_count` کهنه داشتند (مثلاً #149 ۸٬۸۳۸ به‌جای ۲٬۲۵۰، و #539 ۹۸۷ به‌جای ۷٬۰۱۸). ۶۶۶ نسخه‌ی جلدهای میکروفیلم `cataloger_id = 45` (منزوی) داشتند و ۴۹ نسخه تهی بودند.
+- **دستور:** [RetieStrayCopiesCommand](../app/Console/Commands/RetieStrayCopiesCommand.php) با `--dry-run`:
+  1. `VOLUME_LIBRARIES`: جلد MTIF 21490 کتابخانه‌ی `thran-alhyat-40` را می‌گیرد.
+  2. `LIBRARIES`: ادغام با `LibraryMerger::merge` و یک `AuditLog` با `action = merge`، مانند `catalogs:merge-duplicates`، که با `EntityRedirect` همراه است.
+  3. برای هر کتابخانه‌ی ماندنی، نسخه‌ای که `rawCitation` آن با `[ف:` آغاز می‌شود و جلدش بی‌جلد یا از کتابخانه‌ی دیگری است، به جلدی می‌رود که بیشترین نسخه‌های همان کتابخانه با همان V روی آن‌اند. شرط این است که آن جلد دست‌کم ۰٫۹ آن نسخه‌ها را داشته باشد.
+  4. هر نسخه، از هر کتابخانه، که ارجاعش با `[فیلم`/`[فيلم` آغاز می‌شود، به جلد V منبع `catalogue-ae0847c98256` می‌رود. این همان قاعده‌ی گام ۱۳.۱۱۲ است، بدون قید کتابخانه.
+  5. `SourceEntrySync::syncCited` برای نسخه‌های جابه‌جاشده اجرا می‌شود. `cataloger_id` نسخه‌های جابه‌جاشده و همه‌ی نسخه‌های جلدهای میکروفیلم، اگر از فهرست‌نگاران جلد نباشد، فهرست‌نگارِ غالب جلد را می‌گیرد. سپس `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` اجرا و کش `sources:shelf`/`sources:copies` پاک می‌شود.
+  - `$moved` در آغاز `handle` خالی می‌شود، چون در آزمون نمونه‌ی دستور میان دو اجرا یکی است.
+- **تمرین (`fahares_prod` محلی، پشتیبان در `fahares_prod_bak_13114`):**
+  - اجرا ۸۸ ثانیه طول کشید. ادغام‌ها: ۳۴۱ ← ۳۸، ۳۶۵ ← ۳.
+  - ۸۷ نسخه‌ی الهیات مشهد به #52/#331/#333 رفتند، ۷۰ نسخه‌ی مرکزی به جلدهای خودشان و ۳۶ نسخه به میکروفیلم‌ها: جمعاً ۱۹۳. ۸۳۹ نسخه فهرست‌نگار گرفتند.
+  - کتابخانه‌ها ۴۱۰ ← ۴۰۸ و مدخل‌ها ۷۸۵٬۵۸۳، بی‌تغییر. هیچ جلدی شمار کهنه ندارد. همه‌ی ۱۰٬۷۶۱ نسخه‌ی میکروفیلم‌ها فهرست‌نگار ۶۱ دارند.
+  - اجرای دوم: «already folded» و صفر تغییر.
+  - ماند: ۹ نسخه‌ی الهیات مشهد و ۵۳۶ نسخه‌ی مرکزی (بیشتر «ف: 19»)، که جلد ارجاعشان هیچ نسخه‌ای از کتابخانه ندارد.
+- **آزمون:** [RetieStrayCopiesTest](../tests/Feature/RetieStrayCopiesTest.php): ادغام، ۳۰۱، نام‌های دیگر، جلد و مدخل هر نسخه، فهرست‌نگار، کتابخانه‌ی جلد، شمارها و تکرار بی‌اثر. ۵۳۸ آزمون روی `fahares_emptycat_test` موفق بودند.
+
+### گام ۱۳.۱۱۸: بازه‌ی تاریخ کتابت نسبی از وفات مؤلف
+- **کد:**
+  - `CopyDateRange::relative($raw, $authorDeath)`: فقط وقتی `parse()` سال یا قرنی نیابد. ثابت `RELATIVE` سال‌های پیش و پس از وفات را برای `life` (۵۰، ۰)، `time` (۵۰، ۲۵) و `near` (۰، ۷۵) نگه می‌دارد. `namesAuthorTime()` آزمون ارزان پیش از پرس‌وجوی وفات است. واژه‌های مؤلف در `AUTHOR` هستند.
+  - `Manuscript::copyDateColumns($raw, ?int $authorDeath)`: `relative() ?? parse()`.
+  - `Manuscript::authorDeaths($workIds)`: وفات مؤلفِ `works.author_id`، با `COALESCE(death_year_hijri, death_to, death_from)`.
+  - hook ذخیره‌ی نسخه وقتی `copy_date_raw` یا `work_id` عوض شود بازه را دوباره می‌سازد. فقط وقتی تاریخ عصر مؤلف را نام ببرد پرس‌وجو می‌کند.
+  - `DerivedData::copyChanges(..., $authorDeath)`، `syncCopies`، `drift` در `RefreshDerivedCommand`، `FillCopyDateRangesCommand` و `ApplyCorpusCategoriesCommand` وفات را برای هر دسته از نسخه‌ها یک‌جا می‌گیرند.
+- **dry run (`fahares_prod` محلی):** `fahares:fill-copy-date-ranges` گزارش ۷۲۰ نسخه‌ی تازه‌بازه داد، که همه‌شان نسبی‌اند، چون ناهمگامی دیگری پس از گام ۱۳.۱۰۵ نمانده بود. از این‌ها ۷۱۱ قطعیت `probable` و ۹ قطعیت `doubtful` دارند. ۲۴ نسخه بی‌بازه ماندند، چون مؤلف سال وفات ندارد.
+- **اجرا در پروداکشن (پس از استقرار):** `php artisan fahares:fill-copy-date-ranges` و سپس همان با `--apply`. بعد `fahares:refresh-derived` باید ناهمگامی `copy_date_range` را صفر نشان دهد.
+- **آزمون‌ها:** `CopyDateRangeTest::test_a_date_that_names_the_authors_time_is_ranged_from_the_authors_death` و `DerivedDataTest::test_a_copy_date_naming_the_authors_time_is_ranged_from_the_authors_death`.
+
+### گام ۱۳.۱۱۹: درخواست آمار تازه در `/insights`
+- **دسته:** `stats` در [SuggestionRegistry::FEEDBACK_CATEGORIES](../app/Suggestions/SuggestionRegistry.php). برچسب پنل، «پیشنهادهای من» و اعلان‌ها از `FieldSuggestion::field_label` می‌آید و تغییری نخواست. فرم سراسری بازخورد هم این دسته را در فهرست گزینه‌هایش دارد.
+- **کنترلر:** [FeedbackController](../app/Http/Controllers/FeedbackController.php) سه ورودی اختیاری تازه می‌پذیرد: `question` (۱۰۰۰)، `example` (۲۰۰۰) و `section` (۲۰۰). این‌ها در `payload` کنار `url`، `title` و `agent` می‌مانند و خالی‌ها با `array_filter` حذف می‌شوند. مسیر همان `POST /feedback` با `throttle:10,60` و کادر دام `website` است. `page_url` از پیش مسیر و رشته‌ی پرسش را نگه می‌داشت.
+- **کارت:** [insights/request-card](../resources/views/insights/request-card.blade.php)، با یک `@include` پیش از سطر «این آمار هر شب…» در [insights/index](../resources/views/insights/index.blade.php). داده‌ی Alpine درون همان partial است تا `resources/js` و ساخت Vite دست نخورد. `@js` در صفت یک تگ کامپوننت Blade کامپایل نمی‌شود، پس `x-data` روی یک `div` بیرونی است و `x-ui.section` درون آن.
+- **پیوند هر بخش:** `init()` هر `section[id]` درون والد کارت را (جز خود کارت) پیدا می‌کند، نام را از `h2 > span` برمی‌دارد و دکمه‌ی «پیشنهاد درباره‌ی این نمودار» را به سطر عنوان (`h2.parentElement`، جای `actions` در `x-ui.section`) می‌افزاید. پس `index.blade.php` برای این پیوندها تغییری نخواست و بخش‌های مورد ۱۰۷ هم آن را می‌گیرند.
+- **پنل:** [feedback-review](../resources/views/admin/suggestions/partials/feedback-review.blade.php) سه کلید `section`، `question` و `example` را، اگر باشند، زیر متن نشان می‌دهد.
+- **آزمون:** [InsightsStatsRequestTest](../tests/Feature/InsightsStatsRequestTest.php) (۳): کارت و نمونه‌ها در صفحه؛ ثبت مهمان با `payload` و نشانی با رشته‌ی پرسش، اعلان مدیر و نمایش در صف و صفحه‌ی بررسی؛ رد متن خالی و کادر دام پر.
+- **اجرای آزمون‌ها:** چون جلسه‌های دیگر هم‌زمان روی `fahares_test` آزمون می‌گرفتند، این گام روی پایگاه جدای `fahares_stats_test` با `docker run` از تصویر `fahares-app` و worktree سوارشده آزموده شد.

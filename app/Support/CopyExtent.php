@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Suggestions\ProtectedColumns;
+
 /**
  * A copy's extent read from its Fankha text (backlog item 97), with the rule parser v2 uses: each line is cut on «،»
  * and «؛», and a piece (without a closing «[ف: …]» citation) that starts with a number and «گ», «برگ» or «ص» is the count; a parenthesis or «N-N» right after
@@ -68,6 +70,53 @@ class CopyExtent
         }
 
         return $result;
+    }
+
+    /**
+     * The extent columns a copy's text gives (fahares:fill-extents and the corpus apply commands write them through
+     * here), and what happens to its folios. The leaf count changes only where the text has one count and no reviewed
+     * correction protects it; with no count in the text, or two of one kind, the copy is left as it is (columns null).
+     *
+     * @param  object  $row  the copy's id, folios and raw_text
+     * @return array{kind: ?string, columns: ?array, site: ?int, raw: ?string}
+     */
+    public static function columns(object $row, ProtectedColumns $guard): array
+    {
+        $e = self::fromText($row->raw_text);
+        $site = $row->folios === null ? null : (int) $row->folios;
+        if ($e['raw'] === null) {
+            return ['kind' => $site === null ? 'no_extent' : 'kept:no_count_in_text', 'columns' => null, 'site' => $site, 'raw' => null];
+        }
+        // Two counts of one kind: nothing of the extent is certain, so the copy is left as it is
+        if ($e['counts'] > 1) {
+            return ['kind' => 'kept:two_counts', 'columns' => null, 'site' => $site, 'raw' => $e['raw']];
+        }
+        $folios = $site;
+        $kind = null;
+        if ($e['counts'] === 1 && $e['folios'] !== $site) {
+            $kind = match (true) {
+                $site === null => 'folios_filled',
+                $e['folios'] === null && ($e['pages'] === $site || intdiv((int) $e['pages'] + 1, 2) === $site) => 'pages_out_of_folios',
+                default => 'folios_corrected',
+            };
+            if ($guard->strip($row->id, ['folios' => 1]) === []) {
+                $kind = 'kept:protected';
+            } else {
+                $folios = $e['folios'];
+            }
+        }
+
+        return ['kind' => $kind, 'site' => $site, 'raw' => $e['raw'], 'columns' => ['folios' => $folios, 'pages' => $e['pages'], 'extent_raw' => $e['raw'],
+            'range_from' => $e['range_from'], 'range_to' => $e['range_to'], 'range_from_number' => $e['range_from_number'], 'range_to_number' => $e['range_to_number']]];
+    }
+
+    /** The stored extent columns of a copy row, typed as columns() gives them. */
+    public static function stored(object $row): array
+    {
+        $int = fn ($v) => $v === null ? null : (int) $v;
+
+        return ['folios' => $int($row->folios), 'pages' => $int($row->pages), 'extent_raw' => $row->extent_raw, 'range_from' => $row->range_from,
+            'range_to' => $row->range_to, 'range_from_number' => $int($row->range_from_number), 'range_to_number' => $int($row->range_to_number)];
     }
 
     /** «34پ-43ر», «1-28», «271»: the ends as written (with «ر» or «پ») and as numbers. */

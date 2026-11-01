@@ -5,11 +5,13 @@ namespace App\Models;
 use App\Models\Concerns\HasSourceCitations;
 use App\Models\Concerns\HasSourceEntries;
 use App\Models\Concerns\SyncsPrimaryContributor;
+use App\Support\CopyDateRange;
 use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\DB;
 use Laravel\Scout\ModelObserver;
 use Laravel\Scout\Searchable;
 
@@ -42,13 +44,34 @@ class Manuscript extends Model
         return implode('، ', $parts) . $range;
     }
 
-    /** The range columns of a copy date (CopyDateRange), as they are stored. */
-    public static function copyDateColumns(?string $raw): array
+    /**
+     * The range columns of a copy date (CopyDateRange), as they are stored; a date that names the author's time
+     * («نزدیک عصر مؤلف») takes its range from the death year of the work's author, when it is given.
+     */
+    public static function copyDateColumns(?string $raw, ?int $authorDeath = null): array
     {
-        $range = \App\Support\CopyDateRange::parse($raw);
+        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::parse($raw);
 
         return ['copy_date_from' => $range['from'], 'copy_date_to' => $range['to'], 'copy_date_certainty' => $range['certainty'],
             'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
+    }
+
+    /**
+     * The death year of each work's author (its Hijri death year, else an end of its death range), for the copy
+     * dates that name the author's time.
+     *
+     * @return array<int, int> work id => year
+     */
+    public static function authorDeaths(iterable $workIds): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', is_array($workIds) ? $workIds : iterator_to_array($workIds)))));
+        if (! $ids) {
+            return [];
+        }
+
+        return DB::table('works')->join('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
+            ->selectRaw('works.id AS id, COALESCE(people.death_year_hijri, people.death_to, people.death_from) AS year')
+            ->pluck('year', 'id')->filter()->map(fn ($y) => (int) $y)->all();
     }
 
     protected static function booted(): void
@@ -59,8 +82,9 @@ class Manuscript extends Model
                 $manuscript->copy_date_hijri_year = HijriYear::parse($manuscript->copy_date_raw);
             }
             // ...and its range, certainty and hedge word (backlog item 96)
-            if ($manuscript->isDirty('copy_date_raw')) {
-                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw));
+            if ($manuscript->isDirty('copy_date_raw') || $manuscript->isDirty('work_id')) {
+                $death = CopyDateRange::namesAuthorTime($manuscript->copy_date_raw) ? self::authorDeaths([$manuscript->work_id])[$manuscript->work_id] ?? null : null;
+                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death));
             }
             // The sort/collection key is the shelfmark cut to the indexed length
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {
