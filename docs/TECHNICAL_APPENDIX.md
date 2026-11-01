@@ -5974,3 +5974,55 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۳۷۶ نسخه جابه‌جا شد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). #497 از ۴۵۶ به ۸۰ رسید، #504 از ۱۶ به ۲۲۸ و #508 از ۲٬۴۳۹ به ۲٬۵۰۸. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۲۹ ← ۳۱/۳۳٬۵۹۸ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۸۶ ← ۶۶/۷۹٬۹۵۵. شمار `source_entries` ۷۸۵٬۵۸۳ ماند.
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد.
 - **آزمون:** [FixRowzatiIsfahanCatalogueTest](../tests/Feature/FixRowzatiIsfahanCatalogueTest.php). این آزمون نسخه‌های «فهرست روضاتی» با صفحه و بی‌صفحه، «ف»، «روضاتی - ف»، «نشریه: 5»، هر دو املای «نسخه پژوهی» و یک «ف» بی‌جلد را می‌سازد. سپس dry-run، اجرا، مدخل‌ها، جلد و کتابخانه، شمارش‌ها، تکرار بی‌اثر و `--revert` را می‌سنجد.
+- **پروداکشن (پس از انتشار، با اجازه‌ی کاربر):** `php artisan sources:tie-odd-ehya-citations --dry-run`، سپس اجرا با پشتیبان، کپی پشتیبان به `fahares-sources/backups/step13/` و نمایه‌ی دوباره‌ی نسخه‌های جابه‌جاشده.
+### گام ۱۳.۱۳۲: شمار سطر از v2 با `fahares:apply-corpus-categories`
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS['manuscripts']` اکنون `lines` را هم دارد. شرط‌ها مانند دیگر دسته‌هاست: کلید طبیعی، مقدار `from` (این‌جا `null`) و `ProtectedColumns`.
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines`. ردیف‌های `lines/filled` از `reports/fankha_v2_db_review6/diffs.jsonl` خوانده می‌شوند. `raw_text` نسخه از `--db` گرفته می‌شود، بی برچسب صفحه و با رقم لاتین. `single_line_count` باید یک «N سطر» و فقط یکی بیابد، بی بازه («و» یا «-» پیش از عدد). نتیجه ۷۵۳ رکورد بود و ۵۵ رکورد کنار رفت. در برخی از آن‌ها `raw_text` سایت کوتاه‌تر از متن فنخاست، مانند #264068 که در «تا:» بریده شده است.
+- **فایل تصمیم:** `database/data/fankha_lines_20261101.json`.
+- **تمرین (`fahares_prod`):** `Would write 723`. ۲۹ رکورد `lines changed on the site since the comparison` بودند و یکی (#305859) `natural key differs`. پس از `--apply`، اجرای دوم `Would write 0` بود.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_line_count_fills_only_a_copy_still_without_one`.
+- **دسته‌های بی‌تغییر:** `has_author_marginalia` flag_on ۷۳۵ و flag_off ۹۴۰. `lines` different ۳٬۲۴۰ (range ۲٬۸۶۹، multi ۳۴۰، به سود سایت ۲۷، به سود v2 ۳) و emptied ۱٬۲۱۶.
+### گام ۱۳.۱۳۳: `sources:link-dharia-people`
+- **دستور:** `sources:link-dharia-people [--kinds=FB,MB,AB,ZB,DB] [--volume=N] [--sample=FILE] [--all] [--dry-run]` ([LinkDhariaPeopleCommand.php](../app/Console/Commands/LinkDhariaPeopleCommand.php)). این دستور `LinkDhariaTitlesCommand` را گسترش می‌دهد (`marksOf`، `save($links, $kinds, Person::class)`).
+  - **واژه‌ها (`words()`):** حروف یکسان می‌شوند، «ال» از هر جای واژه برداشته می‌شود (`squash`)، و لقب‌ها (`HONORIFICS`: شیخ، سید، مولی، میرزا …) کنار می‌روند. «علامه» لقب شمرده نمی‌شود، تا «علامه مجلسی» بماند.
+  - **شکل `name`:** نامِ دارای ویرگول («نسبت، نام بن پدر»)، یا بی ویرگول با واژه‌ی آخرِ «…ی» که نام کوچک نیست (`GIVEN`). شرط‌ها: «بن» دارد، نسبت دارد، و دست‌کم دو واژه‌ی غیرعام (`COMMON`) دارد. **شکل `alias`:** دست‌کم دو واژه و دو واژه‌ی غیرعام، و نباید فقط از واژه‌های نام و نسبت ساخته شده باشد مگر «بن» داشته باشد.
+  - **تطبیق:** هر رشته‌ی نام به صورت واژه‌های کامل برچسب سنجیده می‌شود. مرز واژه با `|` است، و پیوند میان واژه‌ها آزاد است («فخرالدین» همان «فخر|دین» است). پیش از نخستین واژه «ل»، «ب» یا «و» مجاز است. پیش از نام، «بن» نباید باشد (lookbehind). اگر بیش از یک شخص بخورد، پیوندی ساخته نمی‌شود (`several`).
+  - **سال (۴۰ نویسه پس از برچسب):** سالی دیرتر از درگذشت + ۲ به `year-differs` می‌انجامد. سالی در فاصله‌ی ±۱ از درگذشت، پسوند `+year` می‌دهد.
+  - **ذخیره:** `ENABLED` = `name+year` و `alias+year` برای هر پنج نوع.
+- **نمایش:** `PrintedPage::linked()` اکنون هر دو گونه‌ی مقصد را بار می‌کند. شخص به شکل `FB\0url\0name (پیوند ماشینی)\0person-guess` درمی‌آید. CSS `.book-sheet__mark--person-guess` نقطه‌چین است.
+- **سنجش (`fahares_prod` محلی):**
+  - متن نشانه‌دار ۲۶ جلد الذریعة از `fahares_db` در آن ریخته شد. پشتیبان متن پیشین در جدول `fahares_prod.source_pages_dharia_bak_13133` است.
+  - **شمار با `--all`:**
+    - FB: name ۱۰۲۰، alias ۱۲۶۳، name+year ۲۰۷، alias+year ۷۴، several ۲۴۸، year-differs ۱۸۹.
+    - MB: name ۵۶، alias ۱۳، name+year ۱۳، alias+year ۶.
+    - DB: name ۷۳، alias ۱۸، name+year ۲، alias+year ۲.
+    - ZB: name ۱۳، alias ۷، name+year ۲.
+  - **داوری دور دوم (Sonnet، ۲۶۱ نمونه، پیش از روش سال):** FB name ۴۷/۲/۱، FB alias ۴۴/۲/۴، MB name ۴۴/۳/۳، DB name ۴۳/۵/۲.
+  - **روش‌های `+year`:** ۵۰ نمونه‌ی FB name+year، ۵۰ نمونه‌ی FB alias+year و همه‌ی ۱۹ مورد MB، DB و ZB را دستی وارسی کردم. همه درست بودند.
+  - **ذخیره:** ۳۰۶ پیوند، و اجرای دوم همان ۳۰۶ را می‌سازد.
+- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار و با اجازه‌ی کاربر، `php artisan sources:link-dharia-people` (حدود ۴ دقیقه). این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links WHERE target_type = 'App\\Models\\Person'` است.
+- **آزمون:** [LinkDhariaPeopleTest.php](../tests/Feature/LinkDhariaPeopleTest.php).
+
+### گام ۱۳.۱۳۴: `collection_key` و `fahares:fill-collection-keys`
+- **ستون:** `manuscripts.collection_key` varchar(100)، با نمایه‌ی `(library_id, collection_key)` (migration `2026_11_01_200001`). مقدار آن `Manuscript::collectionKeyOf($shelfmark)` است: `base` و، اگر باشد، `-collection` از `Manuscript::collectionKey`. پسوند عددی («5722/2-29/62») نادیده گرفته می‌شود، پسوند حرفی («513/8-طباطبائی») می‌ماند. شماره‌ی بی بخش («4825»، «5679-29/19») کلید null می‌گیرد.
+- **نوشتن:** hook `saving` مدل، وقتی `shelfmark` عوض شود و `collection_key` نه. `DerivedData::collectionChange` تصمیم مشترک است و `copyChanges` آن را زیر کلید `collection` برمی‌گرداند. `syncCopies` آن را می‌نویسد (شمار `collections`). `COPY_COLUMNS` اکنون `shelfmark` و `collection_key` را هم دارد. کلیدی که در یک لاگ `verify` آمده باشد (`ProtectedColumns`) دست نمی‌خورد. `SyncFixedShelfmarksCommand` و `SeedFaharesDataCommand` کلید را همراه با shelfmark می‌نویسند. `RebuildCopiesCommand` و `AddCorpusWorksCommand` از راه `syncCopies` هم‌گام می‌شوند.
+- **دستور:** `fahares:fill-collection-keys {--apply} {--show=12}` ([FillCollectionKeysCommand.php](../app/Console/Commands/FillCollectionKeysCommand.php)). شمارش‌ها: `copies`، `with_key`، `changed`، `kept:protected`، `volumes`، `volumes_of_2+`، `copies_in_volumes_of_2+`، و پراکندگی اندازه‌ی مجلدها. نمایه‌ی جست‌وجو تغییری نمی‌کند، پس بازنمایه نمی‌شود. `fahares:refresh-derived` نوع `collection_key` را گزارش می‌کند و با `--apply` این دستور را هم اجرا می‌کند.
+- **نمایش:** `collectionSiblings()` اکنون با برابری `collection_key` (و `library_id`، یا نام کتابخانه وقتی `library_id` نیست) می‌یابد، به جای `LIKE` و پالایش در PHP. نسخه‌ای که هنوز کلید ندارد (فاصله‌ی میان استقرار و اجرای دستور)، همان راه پیشین `LIKE` را می‌رود. `inLeafOrder` نسخه‌ها را نخست به ترتیب شماره‌ی رساله می‌چیند، سپس نسخه‌های بازه‌دار را در همان جایگاه‌هایشان به ترتیب `(range_from_number, range_to_number)` مرتب می‌کند. `Manuscript::rangeLabel()` «برگ‌های ۳۴پ تا ۴۳ر» یا «صفحه‌های …» (وقتی تنها شمار صفحه هست) یا «برگ ۳۶ر» را می‌سازد. [manuscript-collection.blade.php](../resources/views/components/manuscript-collection.blade.php) آن را در سطر توضیح می‌آورد.
+- **سنجش (`fahares_prod`):** اجرای آزمایشی: copies ۳۲۴٬۵۵۴، with_key ۱۴۵٬۰۱۹، changed ۱۴۵٬۰۱۹، volumes ۳۳٬۰۲۱، volumes_of_2+ ۲۸٬۹۹۵، copies_in_volumes_of_2+ ۱۴۰٬۹۹۳. اندازه‌ی مجلدها: ۱ رساله ۴٬۰۲۶، ۲ رساله ۱۱٬۶۴۰، ۳ رساله ۵٬۵۴۹، ۴ رساله ۳٬۲۴۴، ۵ تا ۱۹ رساله ۷٬۸۷۳، ۲۰ رساله و بیشتر ۶۸۹ (بزرگ‌ترین ۲۹۶). `--apply` در ۸۵ ثانیه انجام شد. پس از آن، اجرای دوباره ۰ تغییر داشت و `refresh-derived` برای `collection_key` ۰ گزارش کرد. انحراف `copy_date_range` (۷۲۰) و `excerpt_pointers` (۲۳) در همان گزارش به این گام ربطی ندارد. `collectionSiblings` برای مجلد ۲۶رساله‌ای «14709» ۲۰ میلی‌ثانیه طول کشید.
+- **پرسش‌های بیرون از این گام:** ۲٬۶۲۴ مجلد بازه‌ی هم‌پوشان دارند، مانند «3852/1» (۱ر تا ۳۰ر) و «3852/2» (۳پ تا ۶ر). بخشی خطای خواندن متن و بخشی رساله‌ی حاشیه است. ۱٬۶۰۰ مجلد یک شماره‌ی رساله را دو بار دارند. این‌ها نمایش داده می‌شوند و جداگانه داوری نشده‌اند.
+- **آزمون:** `test_a_copys_bound_volume_follows_its_shelfmark_and_its_treatises_are_listed_by_leaf` در [DerivedDataTest.php](../tests/Feature/DerivedDataTest.php).
+
+### گام ۱۳.۱۳۵: `fahares:backfill-work-subjects`
+- **کد:**
+  - `App\Support\KnownSubjects`: `WORDS` (واژه‌های آغاز عنوان)، `LIST` (۱۴ رکورد با املاها)، `fromTitle()` (واژه و تکه‌های موضوع، با حذف «(ع)»، «علیه السلام»، «صلی الله علیه و آله» و پرانتز پایانی) و `find()` (مقایسه با `KnownRulers::compact`). برای حذف «،» و نقطه از دو سر تکه از `preg_replace` استفاده می‌شود، نه `trim()`، چون `trim()` با «،» بایت نخست «ا» را می‌بُرد. این خطا در نخستین dry run بیشتر پیوندها را از دست داده بود.
+  - `BackfillWorkSubjectsCommand`:
+    - نام رکوردها را با `PersonNameMatcher::ids` یکتا پیدا می‌کند.
+    - `ProtectedColumns::protectsRows($id, 'people')` را رعایت می‌کند.
+    - ردیف `subject` تکراری را نمی‌نویسد.
+    - از `ContributorRelations::addRole` با `source_entry_id` مدخل فنخا و `label_raw` (واژه‌ی عنوان) می‌نویسد.
+    - `--candidates=file.json` عبارت‌های بی‌پیوند را با رکورد پیشنهادی تطبیق نام برای بازبینی می‌نویسد.
+  - فایل تصمیم `database/data/work_subjects_20261101.json` ۲۹ عبارت دارد که کاربر تأیید کرد (۱۱ آبان ۱۴۰۵).
+- **dry run (`fahares_prod` محلی):** `works:titled 749`، `linked:known 127`، `linked:reviewed 42`، `pieces:not_linked 681`. هیچ رکوردی پیدا نشد که نبود یا تکراری بود. از ۵۸۷ عبارت بی‌پیوند، بیشترشان شخص نیستند («الائمة»، «اهل البيت»، «قرآن»، «النفس»).
+- **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`.
+- **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون) و `BackfillWorkSubjectsTest::test_known_subjects_and_reviewed_phrases_are_linked_once`.
+

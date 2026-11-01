@@ -374,6 +374,7 @@ class SeedFaharesDataCommand extends Command
                 'library' => !empty($lib) ? mb_substr($lib, 0, 255) : null,
                 'shelfmark' => $m['shelfmark'] ?? null,
                 'shelfmark_key' => !empty($m['shelfmark']) ? mb_substr($m['shelfmark'], 0, 100) : null,
+                'collection_key' => \App\Models\Manuscript::collectionKeyOf($m['shelfmark'] ?? null),
                 'scribe_name' => !empty($scribeName) ? mb_substr($scribeName, 0, 600) : null,
                 'is_bika' => (bool) ($m['is_bika'] ?? false),
                 'is_bita' => (bool) ($m['is_bita'] ?? false),

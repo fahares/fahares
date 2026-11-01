@@ -109,6 +109,24 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_a_line_count_fills_only_a_copy_still_without_one()
+    {
+        $work = $this->work('-v99-4');
+        $empty = $this->copy($work, '14/1-ف');
+        $counted = $this->copy($work, '14/2-ف');
+        DB::table('manuscripts')->where('id', $counted)->update(['lines' => 19]);
+        $lines = fn ($id, $shelfmark) => ['table' => 'manuscripts', 'id' => $id, 'work_key' => '-v99-4', 'shelfmark' => $shelfmark,
+            'category' => 'lines', 'changes' => ['lines' => ['from' => null, 'to' => 21]]];
+        $this->plan([$lines($empty, '14/1-ف'), $lines($counted, '14/2-ف')]);
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])
+            ->expectsOutputToContain('Writing 1 records.')
+            ->assertSuccessful();
+        $this->assertSame(21, (int) DB::table('manuscripts')->where('id', $empty)->value('lines'));
+        // a count the site has, even another one, stays
+        $this->assertSame(19, (int) DB::table('manuscripts')->where('id', $counted)->value('lines'));
+    }
+
     public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
     {
         $w = $this->work('-v99-7');

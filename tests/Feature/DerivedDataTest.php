@@ -192,4 +192,52 @@ class DerivedDataTest extends TestCase
         $this->assertFalse(TextExcerpt::where('owner_type', Manuscript::class)->where('owner_id', $cleared)->exists());
         $this->assertSame(['امیر آزمایشی تازه', 'امیر پیشین آزمایشی'], DB::table('work_people')->where('work_id', $work)->orderBy('name')->pluck('name')->all());
     }
+
+    public function test_a_copys_bound_volume_follows_its_shelfmark_and_its_treatises_are_listed_by_leaf()
+    {
+        $this->assertSame('8740', Manuscript::collectionKeyOf('8740/7-58/190'));
+        $this->assertSame('1068-طباطبائی', Manuscript::collectionKeyOf('1068/2-طباطبائی'));
+        $this->assertNull(Manuscript::collectionKeyOf('4825'));
+
+        // Saved as a model: the hook keys it, and a corrected shelfmark moves it
+        $work = $this->work();
+        $model = Manuscript::find($this->copy($work));
+        $model->update(['shelfmark' => '9101/2']);
+        $this->assertSame('9101', $model->collection_key);
+        $model->update(['shelfmark' => '9102/2']);
+        $this->assertSame('9102', $model->fresh()->collection_key);
+
+        // Written with DB::table: the fillers key them; part 2 has no range and keeps its place, 3 and 4 swap by leaf
+        $lib = 'کتابخانه‌ی آزمایشی مجموعه ' . uniqid();
+        $part = fn (string $shelfmark, ?array $range = null, array $columns = []) => $this->copy($this->work(['primary_title' => "رساله‌ی {$shelfmark}"]), $columns + [
+            'library' => $lib, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark, 'folios' => $range ? $range[3] - $range[2] + 1 : null,
+            'range_from' => $range[0] ?? null, 'range_to' => $range[1] ?? null, 'range_from_number' => $range[2] ?? null, 'range_to_number' => $range[3] ?? null]);
+        $one = $part('9101/1', ['1پ', '33ر', 1, 33]);
+        $two = $part('9101/2');
+        $three = $part('9101/3', ['55ر', '60پ', 55, 60]);
+        $four = $part('9101/4', ['34پ', '43ر', 34, 43]);
+        $other = $part('9101/5-طباطبائی', ['1', '9', 1, 9]);
+
+        // Not keyed yet (the time between a deploy and the filler): the volume is found by the shelfmark's number
+        $this->assertSame([$one, $two, $four, $three], Manuscript::find($four)->collectionSiblings()->pluck('id')->all());
+        $this->artisan('fahares:fill-collection-keys')->expectsOutputToContain("#{$four} «9101/4»: — → 9101")->expectsOutputToContain('Dry run: nothing written.')->assertSuccessful();
+        $this->assertNull(DB::table('manuscripts')->where('id', $four)->value('collection_key'));
+        $this->artisan('fahares:fill-collection-keys', ['--apply' => true])->assertSuccessful();
+        $this->assertSame('9101-طباطبائی', DB::table('manuscripts')->where('id', $other)->value('collection_key'));
+
+        $this->assertSame([$one, $two, $four, $three], Manuscript::find($four)->collectionSiblings()->pluck('id')->all());
+        $this->get(route('manuscripts.show', Manuscript::find($four)))->assertOk()
+            ->assertSee('برگ‌های ۳۴پ تا ۴۳ر، همراه با این رساله‌ها (به ترتیب برگ)', false)
+            ->assertSeeInOrder(['رساله‌ی 9101/1', 'رساله‌ی 9101/2', 'رساله‌ی 9101/4', 'رساله‌ی 9101/3'])
+            ->assertDontSee('رساله‌ی 9101/5-طباطبائی');
+
+        // A shelfmark a corpus command rewrote: refresh-derived reports it and moves the key; one a reviewer set is kept
+        DB::table('manuscripts')->where('id', $two)->update(['shelfmark' => '9103/2']);
+        DB::table('manuscripts')->where('id', $three)->update(['collection_key' => '9101-دستی']);
+        AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $three, 'action' => 'verify', 'old_values' => [], 'new_values' => ['collection_key' => '9101-دستی', 'direct_edit' => true]]);
+        file_put_contents($this->file, json_encode(['works' => []]));
+        $this->artisan('fahares:refresh-derived', ['--show' => 500])->expectsOutputToContain("#{$two} «9103/2»: 9101 → 9103")->assertSuccessful();
+        $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500, '--excerpts' => $this->file, '--deaths' => $this->file])->assertSuccessful();
+        $this->assertSame(['9103', '9101-دستی'], [DB::table('manuscripts')->where('id', $two)->value('collection_key'), DB::table('manuscripts')->where('id', $three)->value('collection_key')]);
+    }
 }
