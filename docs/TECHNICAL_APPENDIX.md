@@ -5761,3 +5761,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «already folded» و «Nothing to do» داد.
   - `--revert` در ۲ ثانیه ۴ منبع، ۵۷ جلد، ۶٬۳۹۷ مدخل و ۳ نسخه را برگرداند. سنجه‌ی `crc32` هشت جدول درگیر (`sources`، دو جدول جلد، پیوند فهرست‌نگار، `catalogers`، `source_entries`، `manuscripts`، `manuscript_catalog_references`) با پایگاهی که از dump بالا بازسازی شد یکی بود. سپس دستور دوباره اجرا شد و همان شمارها را داد.
 - **آزمون:** [FixMisnamedIsfahanCataloguesTest](../tests/Feature/FixMisnamedIsfahanCataloguesTest.php) (۲). آزمون نخست دو دوره، رکوردهای دوم، روضاتی و فهرست‌نگاران را می‌سازد و dry-run، اجرا، ۳۰۱، ناشر منبع ماندنی، MTIF و صفحه، فهرست‌نگاران، مدخل‌ها، تکرار بی‌اثر و `--revert` را تا برابری کامل ردیف‌ها می‌سنجد. آزمون دوم رد شدن فایل بیگانه را می‌سنجد. آزمون‌ها روی پایگاه جداگانه‌ی `fahares_isfahan_test` اجرا شدند.
+- **پروداکشن (۱۱ آبان ۱۴۰۵):**
+  - استقرار `81e7c5a..fe2e6fe`. dry-run همان idها را داد: #5–#7 با ۴۳۷، ۴۹۹ و ۵۷۹ مدخل، #16–#23، رکوردهای دوم #9–#11 و #313–#320، و MTIF جلدهای #4، #5، #6، #7 و #98.
+  - پشتیبان JSON دستور (۰٫۹۷ مگابایت: ۴ منبع، ۵۷ جلد، ۸۳ پیوند فهرست‌نگار، ۶٬۳۹۷ مدخل، ۳ نسخه) از `storage/app/private/backups/` روی سرور به `fahares-sources/backups/step13/step13.121_fix_misnamed_isfahan_prod_before_20261101.json` کپی شد.
+  - اجرا ۱۵ ثانیه طول کشید. منبع‌ها ۱۶۲ ← ۱۶۰، `source_volumes` ۵۲۳ ← ۵۱۲ و `catalog_volumes` ۴۱۸ ← ۴۰۷. مدخل‌ها (۷۸۸٬۵۰۰) و نسخه‌های جلددار (۲۹۳٬۳۷۸) بی‌تغییر ماندند.
+  - فهرست‌نگاران: روضاتی ۱۳/۷٬۴۹۹ ← ۲/۱٬۱۰۵، مرعشی ۳۵/۲۵٬۵۰۳ ← ۴۳/۳۰٬۳۸۳ و اشکوری ۶۶/۴۵٬۶۳۹ بی‌تغییر.
+  - اجرای دوم «Nothing to do» داد. `catalogue-f619df859857` و `catalogue-f80eb658096d` با ۳۰۱ به `0fc97a930b14` و `4c7c0fc2e037` می‌روند.
