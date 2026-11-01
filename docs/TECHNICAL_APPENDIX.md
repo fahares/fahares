@@ -5723,7 +5723,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - hook ذخیره‌ی نسخه وقتی `copy_date_raw` یا `work_id` عوض شود بازه را دوباره می‌سازد. فقط وقتی تاریخ عصر مؤلف را نام ببرد پرس‌وجو می‌کند.
   - `DerivedData::copyChanges(..., $authorDeath)`، `syncCopies`، `drift` در `RefreshDerivedCommand`، `FillCopyDateRangesCommand` و `ApplyCorpusCategoriesCommand` وفات را برای هر دسته از نسخه‌ها یک‌جا می‌گیرند.
 - **dry run (`fahares_prod` محلی):** `fahares:fill-copy-date-ranges` گزارش ۷۲۰ نسخه‌ی تازه‌بازه داد، که همه‌شان نسبی‌اند، چون ناهمگامی دیگری پس از گام ۱۳.۱۰۵ نمانده بود. از این‌ها ۷۱۱ قطعیت `probable` و ۹ قطعیت `doubtful` دارند. ۲۴ نسخه بی‌بازه ماندند، چون مؤلف سال وفات ندارد.
-- **اجرا در پروداکشن (پس از استقرار):** `php artisan fahares:fill-copy-date-ranges` و سپس همان با `--apply`. بعد `fahares:refresh-derived` باید ناهمگامی `copy_date_range` را صفر نشان دهد.
+- **اجرا در پروداکشن (۱۱ آبان ۱۴۰۵، کامیت `1727578`):** `fahares:fill-copy-date-ranges` و سپس همان با `--apply`: `changed 720`، `ranged` از ۲۴۲٬۲۷۳ به ۲۴۲٬۹۹۳. dry run دوم `changed 0` بود و `fahares:refresh-derived` همه‌ی انواع ناهمگامی را صفر نشان داد.
 - **آزمون‌ها:** `CopyDateRangeTest::test_a_date_that_names_the_authors_time_is_ranged_from_the_authors_death` و `DerivedDataTest::test_a_copy_date_naming_the_authors_time_is_ranged_from_the_authors_death`.
 
 ### گام ۱۳.۱۱۹: درخواست آمار تازه در `/insights`
