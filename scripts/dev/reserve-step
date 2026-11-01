@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Reserve the next step number («گام») for docs/PROCESS_DOCUMENTATION.md, so that parallel sessions never take the
+# same one. The registry lives outside git (shared by every worktree on this machine) and is locked with flock.
+#
+#   scripts/dev/reserve-step "short title" <session-name>   reserve and print the next number, e.g. 13.127
+#   scripts/dev/reserve-step --list [N]                      show the last N reservations (default 15)
+#
+# The next number is one above the highest of the registry and of the steps already in origin/main's docs, so a step
+# written by hand still counts. A reservation that is never used stays as a gap; never reuse it.
+set -euo pipefail
+
+REGISTRY="${FAHARES_STEPS_FILE:-$HOME/.fahares/steps.tsv}"
+PHASE="${FAHARES_STEP_PHASE:-13}"
+REPO="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
+
+mkdir -p "$(dirname "$REGISTRY")"
+touch "$REGISTRY"
+
+if [[ "${1:-}" == "--list" ]]; then
+    tail -n "${2:-15}" "$REGISTRY" | column -t -s $'\t'
+    exit 0
+fi
+
+title="${1:?usage: reserve-step \"short title\" <session-name>}"
+session="${2:?usage: reserve-step \"short title\" <session-name>}"
+
+exec 9>>"$REGISTRY.lock"
+flock -w 30 9
+
+# Highest step of this phase in origin/main's process log (Persian digits), fetched quietly; 0 when unreadable
+git -C "$REPO" fetch -q origin main 2>/dev/null || true
+in_docs=$(git -C "$REPO" show origin/main:docs/PROCESS_DOCUMENTATION.md 2>/dev/null \
+    | sed 'y/۰۱۲۳۴۵۶۷۸۹/0123456789/' \
+    | grep -oE "^#### گام ${PHASE}\.[0-9]+" | sed -E "s/.*\.//" | sort -n | tail -1 || true)
+in_registry=$(awk -F'\t' -v p="$PHASE" '{ split($1, a, "."); if (a[1] == p) print a[2] }' "$REGISTRY" | sort -n | tail -1 || true)
+
+last=$(( ${in_docs:-0} > ${in_registry:-0} ? ${in_docs:-0} : ${in_registry:-0} ))
+step="${PHASE}.$(( last + 1 ))"
+printf '%s\t%s\t%s\t%s\n' "$step" "$(date '+%F %H:%M')" "$session" "${title//$'\t'/ }" >> "$REGISTRY"
+echo "$step"

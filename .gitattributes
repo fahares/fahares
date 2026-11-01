@@ -1,0 +1,3 @@
+# The step logs only grow at the end, so a merge keeps both sides (parallel sessions each add a step)
+docs/PROCESS_DOCUMENTATION.md merge=union
+docs/TECHNICAL_APPENDIX.md merge=union
