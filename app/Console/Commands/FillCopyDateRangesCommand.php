@@ -31,16 +31,18 @@ class FillCopyDateRangesCommand extends Command
 
         // A copy's date, or with --works a work's date of composition: the table, its date text and how its columns are made
         [$table, $prefix, $columns] = $this->option('works')
-            ? ['works', 'composition_date', fn ($raw) => Work::compositionDateColumns($raw)]
-            : ['manuscripts', 'copy_date', fn ($raw) => Manuscript::copyDateColumns($raw)];
+            ? ['works', 'composition_date', fn ($raw, $death) => Work::compositionDateColumns($raw)]
+            : ['manuscripts', 'copy_date', fn ($raw, $death) => Manuscript::copyDateColumns($raw, $death)];
         $raw = $table === 'works' ? 'composition_date_raw' : 'copy_date_raw';
         DB::table($table)->whereNotNull($raw)->where($raw, '<>', '')
-            ->select(['id', "{$raw} as raw", "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge"])
+            ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge"])
             ->orderBy('id')->chunkById(2000, function ($rows) use ($apply, $table, $prefix, $columns, &$counts, &$unranged) {
                 $updates = [];
+                // «نزدیک عصر مؤلف»: a copy date that names the author's time is ranged from the author's death
+                $deaths = $table === 'works' ? [] : Manuscript::authorDeaths($rows->pluck('work_id'));
                 foreach ($rows as $row) {
                     $counts['dated']++;
-                    $cols = $columns($row->raw);
+                    $cols = $columns($row->raw, $deaths[$row->work_id] ?? null);
                     if ($cols["{$prefix}_from"] === null && $cols["{$prefix}_to"] === null) {
                         $pattern = preg_replace('/[0-9۰-۹]+/u', 'N', mb_substr($row->raw, 0, 40));
                         $unranged[$pattern] = ($unranged[$pattern] ?? 0) + 1;

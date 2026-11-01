@@ -54,4 +54,25 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame(['doubtful', '؟'], array_values(array_intersect_key(CopyDateRange::parse('1000 (؟)'), ['hedge' => 0, 'certainty' => 0])));
         $this->assertSame([null, null], array_values(array_intersect_key(CopyDateRange::parse('قرن 13'), ['hedge' => 0, 'certainty' => 0])));
     }
+
+    public function test_a_date_that_names_the_authors_time_is_ranged_from_the_authors_death()
+    {
+        $r = fn (string $raw) => array_values(CopyDateRange::relative($raw, 1050) ?? []);
+        $this->assertSame([1000, 1050, 'probable', 'در حیات مؤلف'], $r('در حیات مؤلف'));
+        $this->assertSame([1000, 1050, 'probable', 'در زمان حیات مؤلف'], $r('در زمان حیات مؤلف'));
+        $this->assertSame([1000, 1050, 'probable', 'عصر تألیف'], $r('در عصر تألیف'));
+        $this->assertSame([1000, 1075, 'probable', 'در عصر مؤلف'], $r('در عصر مؤلف'));
+        $this->assertSame([1000, 1075, 'probable', 'از عصر مؤلف'], $r('از عصر مؤلف و به خط وی تصحیح شده'));
+        $this->assertSame([1000, 1075, 'probable', 'عصر مولف'], $r('عصر مولف'));
+        $this->assertSame([1050, 1125, 'probable', 'نزدیک عصر مؤلف'], $r('نزدیک عصر مؤلف'));
+        $this->assertSame([1050, 1125, 'probable', 'نزدیک به زمان ناظم'], $r('نزدیک به زمان ناظم'));
+        $this->assertSame([1000, 1075, 'probable', 'ظاهراً در عصر مؤلف'], $r('ظاهراً در عصر مؤلف'));
+        $this->assertSame([1000, 1075, 'doubtful', 'شاید از عصر مؤلف'], $r('شاید از عصر مؤلف'));
+        // A year of its own, another person's time, or no death year: not relative
+        $this->assertNull(CopyDateRange::relative('1080، در عصر مؤلف', 1050));
+        $this->assertNull(CopyDateRange::relative('قرن 11، عصر مؤلف', 1050));
+        $this->assertNull(CopyDateRange::relative('عصر مترجم', 1050));
+        $this->assertNull(CopyDateRange::relative('دوره صفوی', 1050));
+        $this->assertNull(CopyDateRange::relative('نزدیک عصر مؤلف', null));
+    }
 }

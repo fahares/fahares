@@ -12,6 +12,10 @@ namespace App\Support;
  *     («1082 و 1083ق», «1034 تا 1052») the span between the first and the last; «حدود 1086» is 1081-1091;
  *   - «پیش از 1100» has no start, «پس از 1100» no end.
  * The hedge word («محتملاً», «گویا», «(؟)») is kept as written, with its certainty.
+ *
+ * A date with no year that names the author's time takes its range from the author's death D (relative()):
+ * «در حیات مؤلف» and «در عصر تألیف» D−50 to D, «در/از عصر مؤلف» D−50 to D+25, «نزدیک عصر مؤلف» D to D+75. It is an estimate, so its
+ * certainty is at least probable, and the phrase is kept as the hedge.
  */
 class CopyDateRange
 {
@@ -52,6 +56,50 @@ class CopyDateRange
         }
 
         return ['from' => $from, 'to' => $to, 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
+    }
+
+    /** «حیات», «عصر», «نزدیک عصر»: the span around the author's death each takes, in years before and after it. */
+    private const RELATIVE = ['life' => [50, 0], 'time' => [50, 25], 'near' => [0, 75]];
+
+    private const AUTHOR = 'مؤلف|مولف|مصنف|ناظم|سراینده|نگارنده|شاعر|شارح';
+
+    /**
+     * The range of a date that names the author's time («نزدیک عصر مؤلف», «در حیات مؤلف», «ظاهراً از عصر ناظم»),
+     * from the author's death year; null when the date has a year or a century of its own, or names no such time.
+     *
+     * @return array{from: int, to: int, certainty: string, hedge: string}|null
+     */
+    public static function relative(?string $raw, ?int $authorDeath): ?array
+    {
+        $text = trim(strtr((string) $raw, self::DIGITS));
+        if (! $authorDeath || ! self::namesAuthorTime($text)) {
+            return null;
+        }
+        $own = self::parse($text);
+        if ($own['from'] !== null || $own['to'] !== null) {
+            return null;
+        }
+        $author = '(?:' . self::AUTHOR . ')';
+        if (preg_match('/(?:(?:در\s*)?(?:زمان\s*)?حیات\s*' . $author . '|(?:عصر|زمان|هنگام)\s*تألیف)/u', $text, $m)) {
+            $kind = 'life';
+        } elseif (preg_match('/نزدیک\s*(?:به\s*)?(?:عصر|زمان|روزگار|عهد)\s*' . $author . '/u', $text, $m)) {
+            $kind = 'near';
+        } elseif (preg_match('/(?:(?:در|از)\s*)?(?:عصر|زمان|روزگار|عهد)\s*' . $author . '/u', $text, $m)) {
+            $kind = 'time';
+        } else {
+            return null;
+        }
+        [$before, $after] = self::RELATIVE[$kind];
+        $hedge = preg_match('/(?:^|\s|\()(' . self::HEDGES . ')(?=\s|\)|$)/u', $text, $h) ? $h[1] : (str_contains($text, '؟') ? '؟' : null);
+
+        return ['from' => $authorDeath - $before, 'to' => $authorDeath + $after,
+            'certainty' => PersonNameMatcher::certainty($hedge) ?? 'probable', 'hedge' => trim(($hedge && $hedge !== '؟' ? $hedge . ' ' : '') . $m[0])];
+    }
+
+    /** Whether a date may name the author's time, so that its range needs the author's death year. */
+    public static function namesAuthorTime(?string $raw): bool
+    {
+        return (bool) preg_match('/(?:عصر|زمان|روزگار|عهد|حیات|هنگام)\s*(?:' . self::AUTHOR . '|تألیف)/u', (string) $raw);
     }
 
     /** @return array{0: int, 1: int}|null */

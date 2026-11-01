@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Two sources titled «فهرست کتب خطی کتابخانه‌های اصفهان» hold volumes 2–4 of Markaz-e Ehya's manuscript catalogue and
- * volumes 5–12 of Marashi's (step 13.118). The 1,515 and 4,879 copies on them are all of those two libraries and cite
+ * volumes 5–12 of Marashi's (step 13.121). The 1,515 and 4,879 copies on them are all of those two libraries and cite
  * «ف: V - P» with the volume's number; the volumes' pages, numbers of manuscripts (401-800 …) and MTIF records are those
  * books'. Only the titles, publisher («نشر نفایس مخطوطات اصفهان»), years (۱۳۳۷-۱۳۴۱) and cataloger (Rowzati) were
  * written on them, by the remediation that gave Rowzati's twelve Isfahan issues to the catalog volumes numbered 1 to 12.
