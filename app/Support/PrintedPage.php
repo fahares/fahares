@@ -70,28 +70,35 @@ class PrintedPage
     }
 
     /**
-     * The page's text with the records its marks link (source_page_links, step 13.129: an al-Dhari'a title to its
-     * entry) written into those marks' kinds, «VB\0url\0title\0entry», for openTag().
+     * The page's text with the records its marks link (source_page_links: an al-Dhari'a title to its entry, step
+     * 13.129; a person to his page, step 13.133) written into those marks' kinds, «VB\0url\0title\0entry», for
+     * openTag().
      */
     private static function linked(string $text, int $pageId): string
     {
         $links = DB::table('source_page_links')->where('source_page_id', $pageId)->whereNull('rejected_at')
-            ->where('target_type', SourceItem::class)->get(['ordinal', 'kind', 'target_id'])->keyBy('ordinal');
+            ->get(['ordinal', 'kind', 'target_type', 'target_id'])->keyBy('ordinal');
         if ($links->isEmpty()) {
             return $text;
         }
-        $entries = SourceItem::with('source')->whereIn('id', $links->pluck('target_id'))->get()->keyBy('id');
+        $ids = fn (string $type) => $links->where('target_type', $type)->pluck('target_id');
+        $records = [
+            SourceItem::class => SourceItem::with('source')->whereIn('id', $ids(SourceItem::class))->get()->keyBy('id'),
+            \App\Models\Person::class => \App\Models\Person::whereIn('id', $ids(\App\Models\Person::class))->get()->keyBy('id'),
+        ];
         $n = -1;
 
-        return preg_replace_callback('/\x{E020}([^\x{E021}]*)\x{E021}/u', function ($m) use ($links, $entries, &$n) {
+        return preg_replace_callback('/\x{E020}([^\x{E021}]*)\x{E021}/u', function ($m) use ($links, $records, &$n) {
             $link = $links->get(++$n);
-            $entry = $link && $link->kind === $m[1] ? $entries->get($link->target_id) : null;
-            if (! $entry) {
-                return $m[0];
+            $record = $link && $link->kind === $m[1] ? ($records[$link->target_type] ?? collect())->get($link->target_id) : null;
+            if ($record instanceof SourceItem) {
+                return "\u{E020}{$m[1]}\0{$record->url()}\0الذریعة، {$record->placeLabel()}: {$record->title} (پیوند ماشینی)\0entry\u{E021}";
             }
-            $title = "الذریعة، {$entry->placeLabel()}: {$entry->title} (پیوند ماشینی)";
+            if ($record) {
+                return "\u{E020}{$m[1]}\0" . route('people.show', $record) . "\0{$record->name} (پیوند ماشینی)\0person-guess\u{E021}";
+            }
 
-            return "\u{E020}{$m[1]}\0{$entry->url()}\0{$title}\0entry\u{E021}";
+            return $m[0];
         }, $text);
     }
 

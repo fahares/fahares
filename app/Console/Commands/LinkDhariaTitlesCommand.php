@@ -272,12 +272,13 @@ class LinkDhariaTitlesCommand extends Command
         $this->info('Sample written to ' . $this->option('sample'));
     }
 
-    private function save(array $links, array $kinds): void
+    /** The links of $kinds to records of $type made again, but for those an editor rejected (the record is each link's «item»). */
+    protected function save(array $links, array $kinds, string $type = SourceItem::class): void
     {
         $now = now();
-        DB::transaction(function () use ($links, $kinds, $now) {
+        DB::transaction(function () use ($links, $kinds, $now, $type) {
             $volume = $this->option('volume');
-            $scope = DB::table('source_page_links')->whereIn('kind', $kinds)->where('target_type', SourceItem::class)
+            $scope = DB::table('source_page_links')->whereIn('kind', $kinds)->where('target_type', $type)
                 ->when($volume, fn ($q) => $q->whereIn('source_page_id', DB::table('source_pages')
                     ->join('source_volumes', 'source_volumes.id', '=', 'source_pages.source_volume_id')
                     ->where('source_volumes.source_id', Source::where('code', 'dharia')->value('id'))
@@ -293,7 +294,7 @@ class LinkDhariaTitlesCommand extends Command
                 }
                 $rows[] = [
                     'source_page_id' => $l['page']->id, 'ordinal' => $l['mark']['ordinal'], 'kind' => $l['mark']['kind'],
-                    'text' => mb_substr($l['mark']['text'], 0, 500), 'target_type' => SourceItem::class, 'target_id' => $l['item']->id,
+                    'text' => mb_substr($l['mark']['text'], 0, 500), 'target_type' => $type, 'target_id' => $l['item']->id,
                     'method' => $l['method'], 'created_at' => $now, 'updated_at' => $now,
                 ];
             }

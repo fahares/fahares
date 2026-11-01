@@ -5963,6 +5963,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `Would write 723`. ۲۹ رکورد `lines changed on the site since the comparison` بودند و یکی (#305859) `natural key differs`. پس از `--apply`، اجرای دوم `Would write 0` بود.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_line_count_fills_only_a_copy_still_without_one`.
 - **دسته‌های بی‌تغییر:** `has_author_marginalia` flag_on ۷۳۵ و flag_off ۹۴۰. `lines` different ۳٬۲۴۰ (range ۲٬۸۶۹، multi ۳۴۰، به سود سایت ۲۷، به سود v2 ۳) و emptied ۱٬۲۱۶.
+### گام ۱۳.۱۳۳: `sources:link-dharia-people`
+- **دستور:** `sources:link-dharia-people [--kinds=FB,MB,AB,ZB,DB] [--volume=N] [--sample=FILE] [--all] [--dry-run]` ([LinkDhariaPeopleCommand.php](../app/Console/Commands/LinkDhariaPeopleCommand.php)). این دستور `LinkDhariaTitlesCommand` را گسترش می‌دهد (`marksOf`، `save($links, $kinds, Person::class)`).
+  - **واژه‌ها (`words()`):** حروف یکسان می‌شوند، «ال» از هر جای واژه برداشته می‌شود (`squash`)، و لقب‌ها (`HONORIFICS`: شیخ، سید، مولی، میرزا …) کنار می‌روند. «علامه» لقب شمرده نمی‌شود، تا «علامه مجلسی» بماند.
+  - **شکل `name`:** نامِ دارای ویرگول («نسبت، نام بن پدر»)، یا بی ویرگول با واژه‌ی آخرِ «…ی» که نام کوچک نیست (`GIVEN`). شرط‌ها: «بن» دارد، نسبت دارد، و دست‌کم دو واژه‌ی غیرعام (`COMMON`) دارد. **شکل `alias`:** دست‌کم دو واژه و دو واژه‌ی غیرعام، و نباید فقط از واژه‌های نام و نسبت ساخته شده باشد مگر «بن» داشته باشد.
+  - **تطبیق:** هر رشته‌ی نام به صورت واژه‌های کامل برچسب سنجیده می‌شود. مرز واژه با `|` است، و پیوند میان واژه‌ها آزاد است («فخرالدین» همان «فخر|دین» است). پیش از نخستین واژه «ل»، «ب» یا «و» مجاز است. پیش از نام، «بن» نباید باشد (lookbehind). اگر بیش از یک شخص بخورد، پیوندی ساخته نمی‌شود (`several`).
+  - **سال (۴۰ نویسه پس از برچسب):** سالی دیرتر از درگذشت + ۲ به `year-differs` می‌انجامد. سالی در فاصله‌ی ±۱ از درگذشت، پسوند `+year` می‌دهد.
+  - **ذخیره:** `ENABLED` = `name+year` و `alias+year` برای هر پنج نوع.
+- **نمایش:** `PrintedPage::linked()` اکنون هر دو گونه‌ی مقصد را بار می‌کند. شخص به شکل `FB\0url\0name (پیوند ماشینی)\0person-guess` درمی‌آید. CSS `.book-sheet__mark--person-guess` نقطه‌چین است.
+- **سنجش (`fahares_prod` محلی):**
+  - متن نشانه‌دار ۲۶ جلد الذریعة از `fahares_db` در آن ریخته شد. پشتیبان متن پیشین در جدول `fahares_prod.source_pages_dharia_bak_13133` است.
+  - **شمار با `--all`:**
+    - FB: name ۱۰۲۰، alias ۱۲۶۳، name+year ۲۰۷، alias+year ۷۴، several ۲۴۸، year-differs ۱۸۹.
+    - MB: name ۵۶، alias ۱۳، name+year ۱۳، alias+year ۶.
+    - DB: name ۷۳، alias ۱۸، name+year ۲، alias+year ۲.
+    - ZB: name ۱۳، alias ۷، name+year ۲.
+  - **داوری دور دوم (Sonnet، ۲۶۱ نمونه، پیش از روش سال):** FB name ۴۷/۲/۱، FB alias ۴۴/۲/۴، MB name ۴۴/۳/۳، DB name ۴۳/۵/۲.
+  - **روش‌های `+year`:** ۵۰ نمونه‌ی FB name+year، ۵۰ نمونه‌ی FB alias+year و همه‌ی ۱۹ مورد MB، DB و ZB را دستی وارسی کردم. همه درست بودند.
+  - **ذخیره:** ۳۰۶ پیوند، و اجرای دوم همان ۳۰۶ را می‌سازد.
+- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار و با اجازه‌ی کاربر، `php artisan sources:link-dharia-people` (حدود ۴ دقیقه). این دستور فقط در `source_page_links` می‌نویسد، و برگشتش `DELETE FROM source_page_links WHERE target_type = 'App\\Models\\Person'` است.
+- **آزمون:** [LinkDhariaPeopleTest.php](../tests/Feature/LinkDhariaPeopleTest.php).
+
 ### گام ۱۳.۱۳۴: `collection_key` و `fahares:fill-collection-keys`
 - **ستون:** `manuscripts.collection_key` varchar(100)، با نمایه‌ی `(library_id, collection_key)` (migration `2026_11_01_200001`). مقدار آن `Manuscript::collectionKeyOf($shelfmark)` است: `base` و، اگر باشد، `-collection` از `Manuscript::collectionKey`. پسوند عددی («5722/2-29/62») نادیده گرفته می‌شود، پسوند حرفی («513/8-طباطبائی») می‌ماند. شماره‌ی بی بخش («4825»، «5679-29/19») کلید null می‌گیرد.
 - **نوشتن:** hook `saving` مدل، وقتی `shelfmark` عوض شود و `collection_key` نه. `DerivedData::collectionChange` تصمیم مشترک است و `copyChanges` آن را زیر کلید `collection` برمی‌گرداند. `syncCopies` آن را می‌نویسد (شمار `collections`). `COPY_COLUMNS` اکنون `shelfmark` و `collection_key` را هم دارد. کلیدی که در یک لاگ `verify` آمده باشد (`ProtectedColumns`) دست نمی‌خورد. `SyncFixedShelfmarksCommand` و `SeedFaharesDataCommand` کلید را همراه با shelfmark می‌نویسند. `RebuildCopiesCommand` و `AddCorpusWorksCommand` از راه `syncCopies` هم‌گام می‌شوند.
