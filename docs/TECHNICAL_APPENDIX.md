@@ -6078,7 +6078,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `COMMISSIONER_PHRASE` گروه ۱ عبارت را می‌گیرد. پس از آن `{0,6}?` واژه یا «..»/«…» تا پایان بند می‌پذیرد. `ب?حسب`، `الفرموده`، `بجه[ةت]` و پیشوند «به» افزوده شدند.
   - `phrase()` همه‌ی جاهای نام را می‌آزماید (`mb_strpos` با offset) و پنجره را از ۴۰ به ۹۰ نویسه برده است.
   - dry run با `fankha_v2_commissioners_20261030.json`: `already 3520`، `write 47`، `no commissioner phrase 1` (#54703).
-- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-dedications --dry-run` و سپس بی آن. `fahares:apply-corpus-categories --file=database/data/fankha_v2_commissioners_20261030.json` و سپس با `--apply`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `f6d67e5`):**
+  - پشتیبان در `fahares-sources/backups/step13/`:
+    - `step13.141_work_people_before.json` (۵٬۲۳۱ سطر)
+    - `step13.141_manuscript_people_before.json` (۳٬۵۲۰ سطر)
+    - `step13.141_commissioner_copies_before.json` (۳٬۶۹۳ نسخه‌ی فایل تصمیم، با ستون‌های تاریخ و `commissioned_by`)
+  - `backfill-work-dedications`: `settled_ruler 6` (همان شش اثر). اجرای دوم `skipped:exists 4776` بود. شش سطر `person_id = 14078` اکنون `certainty` و `note` تهی دارند.
+  - `apply-corpus-categories --apply`: `write 47`، «Done; reindexed 47 manuscripts». اجرای دوم `already 3567` بود، و `no commissioner phrase 1`. شمار سطرهای `manuscript_people` ۳٬۵۶۷ است.
+  - `/manuscripts/15728` «به دستور» آیة الله بروجردی را نشان می‌دهد.
 - **آزمون‌ها:**
   - `DedicationParserTest::test_a_usual_spelling_is_decided_by_the_year_of_composition` (بند `$before`).
   - `WorkPeopleTest::test_backfill_of_dedicatees_and_commissioners` (قطعی شدن ردیف پیشین).
