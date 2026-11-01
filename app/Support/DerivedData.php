@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Keeps what is made from a copy's or a work's source columns in step when a corpus command writes them with
  * DB::table, which runs no model hook (item 87). For a copy: its date range (Manuscript::copyDateColumns), its extent
- * (CopyExtent::columns), its pointers at the work's excerpts (FillTextExcerptsCommand::linkCopy), its search document
+ * (CopyExtent::columns), its bound volume (Manuscript::collectionKeyOf), its pointers at the work's excerpts (FillTextExcerptsCommand::linkCopy), its search document
  * and those of the works its incipit and explicit are indexed under. For a work: its date of composition's range
  * (Work::compositionDateColumns), its dedicatees and commissioners (fahares:backfill-work-dedications) and its search
  * document. The fillers and fahares:refresh-derived use the same functions, so there is one write path, and only what
@@ -24,7 +24,8 @@ use Illuminate\Support\Facades\DB;
 class DerivedData
 {
     public const COPY_COLUMNS = ['id', 'work_id', 'raw_text', 'incipit_text', 'explicit_text', 'copy_date_raw', 'copy_date_from', 'copy_date_to',
-        'copy_date_certainty', 'copy_date_hedge_raw', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number'];
+        'copy_date_certainty', 'copy_date_hedge_raw', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number',
+        'shelfmark', 'collection_key'];
 
     public const WORK_COLUMNS = ['id', 'composition_date_raw', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_date_hedge_raw'];
 
@@ -33,9 +34,10 @@ class DerivedData
     /**
      * A copy's derived columns that differ from what its source columns give: the date range (cleared when the date
      * is; a date that names the author's time takes it from $authorDeath, Manuscript::authorDeaths) and the extent
-     * (left alone when its text has no single count, as fill-extents does).
+     * (left alone when its text has no single count, as fill-extents does) and the volume its shelfmark names (left
+     * alone where a reviewed correction set it).
      *
-     * @return array{date: ?array, extent: ?array}
+     * @return array{date: ?array, extent: ?array, collection: ?array}
      */
     public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null): array
     {
@@ -45,7 +47,16 @@ class DerivedData
         return [
             'date' => $date !== self::range($row, 'copy_date') ? $date : null,
             'extent' => $extent !== null && $extent !== CopyExtent::stored($row) ? $extent : null,
+            'collection' => self::collectionChange($row, $guard),
         ];
+    }
+
+    /** A copy's collection_key when its shelfmark names another volume and no reviewed correction set it, else null. */
+    public static function collectionChange(object $row, ProtectedColumns $guard): ?array
+    {
+        $key = Manuscript::collectionKeyOf($row->shelfmark);
+
+        return $key !== $row->collection_key && $guard->strip($row->id, ['collection_key' => 1]) !== [] ? ['collection_key' => $key] : null;
     }
 
     /** A work's composition date columns when they differ from what its date text gives, else null. */
@@ -67,7 +78,7 @@ class DerivedData
     /**
      * Brings copies the corpus commands wrote or made in step: their date and extent columns, their excerpt pointers
      * (a pointer whose text the rebuild took away is removed) and their search documents, then the works they are
-     * indexed under. A changed leaf count is logged as corpus_update, as fill-extents logs it.
+     * indexed under; and their bound volume. A changed leaf count is logged as corpus_update, as fill-extents logs it.
      *
      * @return array<string, int>
      */
@@ -75,20 +86,21 @@ class DerivedData
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
         $guard = ProtectedColumns::for(Manuscript::class);
-        $counts = ['copies' => count($ids), 'dates' => 0, 'extents' => 0, 'pointers_linked' => 0, 'pointers_removed' => 0];
+        $counts = ['copies' => count($ids), 'dates' => 0, 'extents' => 0, 'collections' => 0, 'pointers_linked' => 0, 'pointers_removed' => 0];
         $workIds = [];
         foreach (array_chunk($ids, 500) as $chunk) {
             $rows = DB::table('manuscripts')->whereIn('id', $chunk)->get(self::COPY_COLUMNS);
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             DB::transaction(function () use ($rows, $guard, $deaths, &$counts) {
                 foreach ($rows as $row) {
-                    ['date' => $date, 'extent' => $extent] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
-                    if (! $date && ! $extent) {
+                    ['date' => $date, 'extent' => $extent, 'collection' => $collection] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
+                    if (! $date && ! $extent && ! $collection) {
                         continue;
                     }
-                    DB::table('manuscripts')->where('id', $row->id)->update(($date ?? []) + ($extent ?? []));
+                    DB::table('manuscripts')->where('id', $row->id)->update(($date ?? []) + ($extent ?? []) + ($collection ?? []));
                     $counts['dates'] += $date ? 1 : 0;
                     $counts['extents'] += $extent ? 1 : 0;
+                    $counts['collections'] += $collection ? 1 : 0;
                     $site = $row->folios === null ? null : (int) $row->folios;
                     if ($extent && $extent['folios'] !== $site) {
                         AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $row->id, 'action' => 'corpus_update',

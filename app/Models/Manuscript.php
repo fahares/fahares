@@ -44,6 +44,20 @@ class Manuscript extends Model
         return implode('، ', $parts) . $range;
     }
 
+    /** «برگ‌های ۳۴پ تا ۴۳ر», «صفحه‌های ۱ تا ۲۸», «برگ ۳۶ر»: where the copy sits in its volume, or null without a range. */
+    public function rangeLabel(): ?string
+    {
+        if (! $this->range_from) {
+            return null;
+        }
+        $pages = ! $this->folios && $this->pages;
+        if ($this->range_from === $this->range_to) {
+            return ($pages ? 'صفحه‌ی ' : 'برگ ') . \App\Support\Fa::digits($this->range_from);
+        }
+
+        return ($pages ? 'صفحه‌های ' : 'برگ‌های ') . \App\Support\Fa::digits($this->range_from) . ' تا ' . \App\Support\Fa::digits($this->range_to);
+    }
+
     /**
      * The range columns of a copy date (CopyDateRange), as they are stored; a date that names the author's time
      * («نزدیک عصر مؤلف») takes its range from the death year of the work's author, when it is given.
@@ -89,6 +103,10 @@ class Manuscript extends Model
             // The sort/collection key is the shelfmark cut to the indexed length
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {
                 $manuscript->shelfmark_key = $manuscript->shelfmark === null ? null : mb_substr($manuscript->shelfmark, 0, 100);
+            }
+            // ...and so is the bound volume it names (backlog item 97)
+            if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('collection_key')) {
+                $manuscript->collection_key = self::collectionKeyOf($manuscript->shelfmark);
             }
         });
 
@@ -607,28 +625,53 @@ class Manuscript extends Model
         ];
     }
 
-    /** The other treatises bound in the same volume, by part number; empty when the shelfmark has no part. */
+    /** The stored form of a shelfmark's volume (the collection_key column): «8740» for «8740/7-58/190», «1068-طباطبائی» for «1068/2-طباطبائی». */
+    public static function collectionKeyOf(?string $shelfmark): ?string
+    {
+        $key = self::collectionKey($shelfmark);
+
+        return $key ? mb_substr($key['base'] . ($key['collection'] !== null ? '-' . $key['collection'] : ''), 0, 100) : null;
+    }
+
+    /**
+     * The treatises bound in the same volume, this copy among them, in the order of their leaves (backlog item 97):
+     * a copy whose range the catalogue gives takes its place by its first leaf, and one without a range keeps the
+     * place its part number gives it. Empty when the shelfmark has no part. A copy fahares:fill-collection-keys has
+     * not keyed yet finds its volume by the shelfmark's number.
+     */
     public function collectionSiblings(): \Illuminate\Support\Collection
     {
-        $key = self::collectionKey($this->shelfmark);
-        if (! $key) {
+        $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark);
+        if ($key === null) {
             return collect();
         }
-        $prefix = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $key['base']) . '/%';
-
-        return self::query()
+        $base = self::collectionKey($this->shelfmark)['base'] ?? null;
+        $byPart = self::query()
             ->when($this->library_id, fn ($q) => $q->where('library_id', $this->library_id), fn ($q) => $q->whereNull('library_id')->where('library', $this->library))
-            ->where('shelfmark_key', 'like', $prefix)
+            ->when($this->collection_key !== null || $base === null,
+                fn ($q) => $q->where('collection_key', $key),
+                fn ($q) => $q->where('shelfmark_key', 'like', str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base) . '/%'))
             ->with(['work', 'scribe'])
             ->limit(400)
             ->get()
-            ->filter(function (self $m) use ($key) {
-                $other = self::collectionKey($m->shelfmark);
-
-                return $other && $other['base'] === $key['base'] && $other['collection'] === $key['collection'];
-            })
-            ->sortBy(fn (self $m) => [(int) self::collectionKey($m->shelfmark)['part'], $m->id])
+            ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark)) === $key)
+            ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? 0), $m->id])
             ->values();
+
+        return self::inLeafOrder($byPart);
+    }
+
+    /** Copies in part order put in leaf order: the ranged ones are sorted by their first and last leaf in the places they hold, the others stay. */
+    public static function inLeafOrder(\Illuminate\Support\Collection $byPart): \Illuminate\Support\Collection
+    {
+        $slots = $byPart->keys()->filter(fn ($i) => $byPart[$i]->range_from_number !== null)->values();
+        $ranged = $slots->map(fn ($i) => $byPart[$i])->sortBy(fn (self $m) => [(int) $m->range_from_number, (int) $m->range_to_number])->values();
+        $ordered = $byPart->all();
+        foreach ($slots as $n => $i) {
+            $ordered[$i] = $ranged[$n];
+        }
+
+        return collect($ordered);
     }
 
     /** The copy's pointers at its work's incipits or explicits («برابر 2», «برابر جلد دوم»; backlog item 98). */

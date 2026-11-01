@@ -110,7 +110,12 @@ class SyncFixedShelfmarksCommand extends Command
 
             // Columns fixed by reviewed corrections are not overwritten from the corpus
             $guard ??= ProtectedColumns::for(Manuscript::class);
-            DB::table('manuscripts')->where('id', $dbMs->id)->update($guard->strip($dbMs->id, $updatePayload));
+            $updatePayload = $guard->strip($dbMs->id, $updatePayload);
+            // the bound volume follows the shelfmark it is written with (backlog item 97)
+            if (array_key_exists('shelfmark', $updatePayload)) {
+                $updatePayload['collection_key'] = Manuscript::collectionKeyOf($cleanSm);
+            }
+            DB::table('manuscripts')->where('id', $dbMs->id)->update($updatePayload);
             $updatedIds[] = $dbMs->id;
             $totalUpdated++;
         }
