@@ -5956,3 +5956,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد و همان شمارها را داد.
 - **آزمون:** [TieOddEhyaCitationsTest](../tests/Feature/TieOddEhyaCitationsTest.php). دو تابع جلد جداگانه سنجیده می‌شوند. سپس هر حالت ساخته می‌شود: وارونه، «10-404»، صفحه‌ی تنها، «2-5» و «1-600» که رها می‌شوند، بی‌عدد، «ف مخ» مرکز احیاء و کتابخانه‌ی دیگر، عکسی وارونه و درست، ارجاع پس از یادداشت، «عکسی ف: 10» و «ف: … و عکسی ف: …» بی‌جلد. dry-run، اجرا، مدخل‌ها، شمارش‌ها، تکرار بی‌اثر و `--revert` سنجیده می‌شوند.
 - **پروداکشن (پس از انتشار، با اجازه‌ی کاربر):** `php artisan sources:tie-odd-ehya-citations --dry-run`، سپس اجرا با پشتیبان، کپی پشتیبان به `fahares-sources/backups/step13/` و نمایه‌ی دوباره‌ی نسخه‌های جابه‌جاشده.
+### گام ۱۳.۱۳۲: شمار سطر از v2 با `fahares:apply-corpus-categories`
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS['manuscripts']` اکنون `lines` را هم دارد. شرط‌ها مانند دیگر دسته‌هاست: کلید طبیعی، مقدار `from` (این‌جا `null`) و `ProtectedColumns`.
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines`. ردیف‌های `lines/filled` از `reports/fankha_v2_db_review6/diffs.jsonl` خوانده می‌شوند. `raw_text` نسخه از `--db` گرفته می‌شود، بی برچسب صفحه و با رقم لاتین. `single_line_count` باید یک «N سطر» و فقط یکی بیابد، بی بازه («و» یا «-» پیش از عدد). نتیجه ۷۵۳ رکورد بود و ۵۵ رکورد کنار رفت. در برخی از آن‌ها `raw_text` سایت کوتاه‌تر از متن فنخاست، مانند #264068 که در «تا:» بریده شده است.
+- **فایل تصمیم:** `database/data/fankha_lines_20261101.json`.
+- **تمرین (`fahares_prod`):** `Would write 723`. ۲۹ رکورد `lines changed on the site since the comparison` بودند و یکی (#305859) `natural key differs`. پس از `--apply`، اجرای دوم `Would write 0` بود.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_line_count_fills_only_a_copy_still_without_one`.
+- **دسته‌های بی‌تغییر:** `has_author_marginalia` flag_on ۷۳۵ و flag_off ۹۴۰. `lines` different ۳٬۲۴۰ (range ۲٬۸۶۹، multi ۳۴۰، به سود سایت ۲۷، به سود v2 ۳) و emptied ۱٬۲۱۶.
