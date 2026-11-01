@@ -6049,3 +6049,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۴۰۸ ← ۴۰۶ کتابخانه؛ دو ردیف `merge` در `audit_logs`؛ ۲ تغییرمسیر تازه.
   - `LibraryMerger::undoMerge` با `old_values` دو لاگ (به ترتیب وارونه) سنجه‌ی `crc32` کتابخانه‌ها، نسخه‌ها (`library_id`، `library`، `city`، `catalog_volume_id`)، جلدها، منابع و تغییرمسیرها را دقیقاً برگرداند. سپس دستور دوباره اجرا شد. اجرای سوم همان سنجه را داد.
 - **آزمون:** ابزار ادغام همان [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) است و آزمون تازه‌ای لازم نبود.
+
+### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
+- **داده:** [library_duplicates_step13_144.json](../database/data/library_duplicates_step13_144.json): `asfhan-aalamh-rodaty-ktabkhanh-283` ← `asfhan-rodaty-syd-mhmd-aaly-100`. اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_144.json`. هیچ منبع یا جلدی کتابخانه‌ی ۲۸۳ را نداشت.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۴۲):** ۴۰۶ ← ۴۰۵ کتابخانه؛ یک ردیف `merge` در `audit_logs`. `LibraryMerger::undoMerge` سنجه‌ی `crc32` جدول‌های گام ۱۳.۱۴۲ را دقیقاً برگرداند. سپس دستور دوباره اجرا شد و همان سنجه‌ی اجرای اول را داد.
