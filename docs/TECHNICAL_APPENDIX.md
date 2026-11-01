@@ -6036,3 +6036,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۳۷۶ نسخه جابه‌جا شد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). #497 از ۴۵۶ به ۸۰ رسید، #504 از ۱۶ به ۲۲۸ و #508 از ۲٬۴۳۹ به ۲٬۵۰۸. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۲۹ ← ۳۱/۳۳٬۵۹۸ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۸۶ ← ۶۶/۷۹٬۹۵۵. شمار `source_entries` ۷۸۵٬۵۸۳ ماند.
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` هشت جدول را به پیش از اجرا برگرداند. سپس دستور دوباره اجرا شد.
 - **آزمون:** [FixRowzatiIsfahanCatalogueTest](../tests/Feature/FixRowzatiIsfahanCatalogueTest.php). این آزمون نسخه‌های «فهرست روضاتی» با صفحه و بی‌صفحه، «ف»، «روضاتی - ف»، «نشریه: 5»، هر دو املای «نسخه پژوهی» و یک «ف» بی‌جلد را می‌سازد. سپس dry-run، اجرا، مدخل‌ها، جلد و کتابخانه، شمارش‌ها، تکرار بی‌اثر و `--revert` را می‌سنجد.
+
+### گام ۱۳.۱۴۰: ارجاع‌ها در صفحه‌ی مدخل
+- **داده:** `SourceMentions::forPerson()` جای خود را به `of(Model $record)` داد، که پیوندهای ردنشده به هر رکوردی را می‌خواند: شخص یا `SourceItem`.
+  - **مدخل دربردارنده:** نوع‌های `entry`، `sub_entry` و `addendum` را در نظر می‌گیرد.
+  - **دو سوزن، به ترتیب:** نخست نشانه و ۳۰ حرف پس از آن. اگر جواب یکتا نبود، ۲۰ حرف پیش از نشانه و خود نشانه.
+- **نمای صفحه:** جزء [source/mentions.blade.php](../resources/views/components/source/mentions.blade.php) سه ورودی دارد: `mentions`، `title` و `note`. هم [people/show](../resources/views/people/show.blade.php) و هم [source-items/show](../resources/views/source-items/show.blade.php) آن را به کار می‌برند. در صفحه‌ی مدخل، این بخش پیش از پیوندهای مدخل پیشین و پسین می‌آید.
+- **آزمون:** `LinkDhariaTitlesTest` صفحه‌ی مدخل دیوان، پیوند `#m0` و نیامدن پیوند ردشده را می‌آزماید.
