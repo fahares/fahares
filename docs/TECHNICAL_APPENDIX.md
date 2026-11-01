@@ -5693,7 +5693,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_al_dharias_author_mark_links_the_works_author_when_it_names_him`.
 - **کامیت:** `c6e1f12`.
 
-### گام ۱۳.۱۱۷: درخواست آمار تازه در `/insights`
+### گام ۱۳.۱۱۷: `sources:retie-stray-copies`
+- **یافتن (فقط‌خواندنی، `fahares_prod` محلی):**
+  - کتابخانه‌ی ۳۴۱ (`mshhd-danshkdh-alhyat-mshhd-341`): ۶۲ نسخه، همه روی #412 (الهیات تهران، کتابخانه‌ی ۴۰)، با ارجاع «ف: 1–3». شماره‌ی هیچ‌یک با نسخه‌ای از کتابخانه‌ی ۳۸ همان اثر نیست.
+  - کتابخانه‌ی ۳۶۵ (`thran-danshgah-thran-365`): ۲۰ نسخه با ارجاع فهرست مرکزی و میکروفیلم‌ها. شماره‌های مشترک با کتابخانه‌ی ۳ اثرهای دیگرِ همان مجموعه‌اند، نه نسخه‌ی تکراری.
+  - #160 (MTIF 21490، جلد ۲ الهیات تهران) با `catalog_volumes.library_id = 3`.
+  - ۴۳ نسخه‌ی غیر کتابخانه‌ی ۳ با ارجاع «فیلمها ف»، روی جلد ۲ و ۳ مجلس (#130، #107)، #539 یا بی‌جلد.
+  - پس از گام ۱۳.۱۱۲: ۱۹ جلد `manuscripts_count` کهنه داشتند (مثلاً #149 ۸٬۸۳۸ به‌جای ۲٬۲۵۰، و #539 ۹۸۷ به‌جای ۷٬۰۱۸). ۶۶۶ نسخه‌ی جلدهای میکروفیلم `cataloger_id = 45` (منزوی) داشتند و ۴۹ نسخه تهی بودند.
+- **دستور:** [RetieStrayCopiesCommand](../app/Console/Commands/RetieStrayCopiesCommand.php) با `--dry-run`:
+  1. `VOLUME_LIBRARIES`: جلد MTIF 21490 کتابخانه‌ی `thran-alhyat-40` را می‌گیرد.
+  2. `LIBRARIES`: ادغام با `LibraryMerger::merge` و یک `AuditLog` با `action = merge`، مانند `catalogs:merge-duplicates`، که با `EntityRedirect` همراه است.
+  3. برای هر کتابخانه‌ی ماندنی، نسخه‌ای که `rawCitation` آن با `[ف:` آغاز می‌شود و جلدش بی‌جلد یا از کتابخانه‌ی دیگری است، به جلدی می‌رود که بیشترین نسخه‌های همان کتابخانه با همان V روی آن‌اند. شرط این است که آن جلد دست‌کم ۰٫۹ آن نسخه‌ها را داشته باشد.
+  4. هر نسخه، از هر کتابخانه، که ارجاعش با `[فیلم`/`[فيلم` آغاز می‌شود، به جلد V منبع `catalogue-ae0847c98256` می‌رود. این همان قاعده‌ی گام ۱۳.۱۱۲ است، بدون قید کتابخانه.
+  5. `SourceEntrySync::syncCited` برای نسخه‌های جابه‌جاشده اجرا می‌شود. `cataloger_id` نسخه‌های جابه‌جاشده و همه‌ی نسخه‌های جلدهای میکروفیلم، اگر از فهرست‌نگاران جلد نباشد، فهرست‌نگارِ غالب جلد را می‌گیرد. سپس `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` اجرا و کش `sources:shelf`/`sources:copies` پاک می‌شود.
+  - `$moved` در آغاز `handle` خالی می‌شود، چون در آزمون نمونه‌ی دستور میان دو اجرا یکی است.
+- **تمرین (`fahares_prod` محلی، پشتیبان در `fahares_prod_bak_13114`):**
+  - اجرا ۸۸ ثانیه طول کشید. ادغام‌ها: ۳۴۱ ← ۳۸، ۳۶۵ ← ۳.
+  - ۸۷ نسخه‌ی الهیات مشهد به #52/#331/#333 رفتند، ۷۰ نسخه‌ی مرکزی به جلدهای خودشان و ۳۶ نسخه به میکروفیلم‌ها: جمعاً ۱۹۳. ۸۳۹ نسخه فهرست‌نگار گرفتند.
+  - کتابخانه‌ها ۴۱۰ ← ۴۰۸ و مدخل‌ها ۷۸۵٬۵۸۳، بی‌تغییر. هیچ جلدی شمار کهنه ندارد. همه‌ی ۱۰٬۷۶۱ نسخه‌ی میکروفیلم‌ها فهرست‌نگار ۶۱ دارند.
+  - اجرای دوم: «already folded» و صفر تغییر.
+  - ماند: ۹ نسخه‌ی الهیات مشهد و ۵۳۶ نسخه‌ی مرکزی (بیشتر «ف: 19»)، که جلد ارجاعشان هیچ نسخه‌ای از کتابخانه ندارد.
+- **آزمون:** [RetieStrayCopiesTest](../tests/Feature/RetieStrayCopiesTest.php): ادغام، ۳۰۱، نام‌های دیگر، جلد و مدخل هر نسخه، فهرست‌نگار، کتابخانه‌ی جلد، شمارها و تکرار بی‌اثر. ۵۳۸ آزمون روی `fahares_emptycat_test` موفق بودند.
+
+### گام ۱۳.۱۱۹: درخواست آمار تازه در `/insights`
 - **دسته:** `stats` در [SuggestionRegistry::FEEDBACK_CATEGORIES](../app/Suggestions/SuggestionRegistry.php). برچسب پنل، «پیشنهادهای من» و اعلان‌ها از `FieldSuggestion::field_label` می‌آید و تغییری نخواست. فرم سراسری بازخورد هم این دسته را در فهرست گزینه‌هایش دارد.
 - **کنترلر:** [FeedbackController](../app/Http/Controllers/FeedbackController.php) سه ورودی اختیاری تازه می‌پذیرد: `question` (۱۰۰۰)، `example` (۲۰۰۰) و `section` (۲۰۰). این‌ها در `payload` کنار `url`، `title` و `agent` می‌مانند و خالی‌ها با `array_filter` حذف می‌شوند. مسیر همان `POST /feedback` با `throttle:10,60` و کادر دام `website` است. `page_url` از پیش مسیر و رشته‌ی پرسش را نگه می‌داشت.
 - **کارت:** [insights/request-card](../resources/views/insights/request-card.blade.php)، با یک `@include` پیش از سطر «این آمار هر شب…» در [insights/index](../resources/views/insights/index.blade.php). داده‌ی Alpine درون همان partial است تا `resources/js` و ساخت Vite دست نخورد. `@js` در صفت یک تگ کامپوننت Blade کامپایل نمی‌شود، پس `x-data` روی یک `div` بیرونی است و `x-ui.section` درون آن.
