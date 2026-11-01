@@ -29,6 +29,7 @@ class MergeSplitSourcesCommand extends Command
 {
     protected $signature = 'sources:merge-split
         {--group=* : Codes of sources to fold that the titles do not tell, comma-separated, the first kept}
+        {--only : Fold the --group groups only, not the ones the titles tell}
         {--dry-run : Report the groups and what would change without saving}';
 
     protected $description = 'Fold a catalogue the sources registry holds as several sources into one source';
@@ -72,7 +73,7 @@ class MergeSplitSourcesCommand extends Command
     private function groups(): array
     {
         $sources = Source::with('volumes')->orderBy('id')->get();
-        $groups = $sources->groupBy(fn (Source $s) => self::catalogueKey($s))->filter(fn ($g) => $g->count() > 1)
+        $groups = $this->option('only') ? [] : $sources->groupBy(fn (Source $s) => self::catalogueKey($s))->filter(fn ($g) => $g->count() > 1)
             ->map(fn ($g) => $g->sortBy([
                 fn ($a, $b) => (int) (bool) $b->coverUrl() <=> (int) (bool) $a->coverUrl(),
                 fn ($a, $b) => $b->volumes->count() <=> $a->volumes->count(),
