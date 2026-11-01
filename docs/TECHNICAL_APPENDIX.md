@@ -5484,7 +5484,34 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **زمان‌بندی:** `0 10 * * *` در crontab کاربر بکاپ ([crontab.example](../scripts/backup/crontab.example)). [README](../scripts/backup/README.md) به‌روز شد: پاییدن روزانه دیگر به Hermes سپرده نیست.
 - **نصب و وارسی:** نسخه‌ی میزبان در `/usr/local/bin` جایگزین شد؛ اجرای دستی `watch` کد ۰ داد و `status` گفت «OK: last db backup 9h ago».
 
-### گام ۱۳.۱۰۴: داده‌ی مشتق هم‌گام با ستون‌های مبدأ (مورد ۸۷)
+### گام ۱۳.۱۰۴: بازه‌ها و تردید در `/insights` (مورد ۱۰۴)
+- **کلید کش:** `insights.v1` به `insights.v2` رفت، چون شکل داده عوض شد. بی این تغییر، صفحه پس از استقرار تا ساخت شبانه با داده‌ی کهنه می‌شکست.
+- **تنظیم‌ها** ([insights.php](../config/insights.php)):
+  - `author_centuries` = `[1, 15]`، سده‌های نمودار مؤلفان و آثار.
+  - `exact_span` = ۱۰: بازه‌ای تا ۱۰ سال (مثل «حدود 1086» = 1081 تا 1091) «سال معین» است و در میانه‌اش نهاده می‌شود. بازه‌ی پهن‌تر «تنها سده یا بخشی از آن» است.
+  - `copy_gap` = `[-80, 0, 50, 100, 200, 300, 500]`: لبه‌های ردیف‌های فاصله. هر ردیف از «بیش از» یک لبه تا «خودِ» لبه‌ی بعدی است. ردیف (‎-80، 0] «زمان حیات» است.
+- **`Insights::centuryLayers()`:** ورودی ردیف‌های `{f, t, d, n}` است (آغاز، پایان، مردد، شمار) که با `GROUP BY` ساخته می‌شوند.
+  - بازه‌ای که یک سرش تهی است، در `open` شمرده می‌شود.
+  - بازه‌ی معین به سده و دهه‌ی میانه‌اش می‌رود (`exact` یا `exact_doubtful`، و `decades` یا `decades_doubtful`).
+  - بازه‌ی پهن به نسبت سال‌هایش در هر سده پخش می‌شود (`range` یا `range_doubtful`). هر خانه در پایان گرد می‌شود، پس جمع لایه‌ها با `counted` تا چند واحد فرق دارد. سهم بیرون از سده‌های نمودار در `outside` است.
+  - «مردد» یعنی `*_certainty` تهی نیست، چه `probable` («محتملاً») چه `doubtful` («؟»).
+- **`copyDates()`:** یک گذر روی `manuscripts` با `GROUP BY work_id, from, to, certain` و `cursor()`. از همین گذر هم ردیف‌های خط زمانی ساخته می‌شود و هم فاصله‌ها، با نقشه‌ی `work_id` به بازه‌ی وفات مؤلف (`works.author_id`). join سه‌جدولی در SQL نسخه‌ها را ردیف‌به‌ردیف از راه نمایه‌ی اثر می‌خواند و حدود ۱۰ تا ۱۲ ثانیه طول می‌کشید. این گذر حدود ۳ ثانیه است.
+- **فاصله:** هر سو (نسخه یا وفات) اگر سال معین باشد، میانه‌اش است و گرنه کل بازه. بازه‌ی فاصله `[کتابت‌کمینه − وفات‌بیشینه، کتابت‌بیشینه − وفات‌کمینه]` است. اگر هر دو سرش در یک ردیف بیفتند، نسخه در آن ردیف شمرده می‌شود و گرنه در `unplaced`. مثلاً نسخه‌ی «قرن 15» از مؤلفِ درگذشته‌ی 1250 فاصله‌ی 151 تا 250 دارد و از لبه‌ی 200 می‌گذرد.
+- **نما:** [century-bars](../resources/views/insights/century-bars.blade.php) ستون‌های چهارلایه و راهنما را می‌کشد و در سه نمودار به کار رفته است. [doubtful-note](../resources/views/insights/doubtful-note.blade.php) جمله‌ی سهم مردد است. نمودار دهه‌ها تنها سال‌های معین را دارد، با لایه‌ی کم‌رنگ مردد. پیوند هر سده به جست‌وجو همان فیلتر `century` است که هنوز بر `copy_date_hijri_year` (نسخه‌ها)، `century_hijri` (اشخاص) و «سال تألیف یا وفات مؤلف» (آثار) تکیه دارد، پس شمار نتیجه با ستون نمودار یکی نیست.
+- **رقم‌ها روی `fahares_prod`:**
+
+| نمودار | شمرده | سال معین | تنها سده | مردد | باز |
+|---|---|---|---|---|---|
+| کتابت (سده‌ی ۴ تا ۱۴) | ۲۴۱٬۸۲۸ | ۱۵۱٬۵۵۷ | ۹۰٬۰۳۶ | ۲٬۶۶۸ (۱٫۱٪) | ۱۰۱ |
+| مؤلفان (وفات) | ۱۲٬۶۱۶ از ۱۵٬۴۲۸ | ۵٬۱۶۹ | ۷٬۴۴۷ | ۷۴۴ (۵٫۹٪) | ۰ |
+| آثار (تألیف) | ۹٬۷۱۰ | ۹٬۵۲۶ | ۱۸۳ | ۵۷ (۰٫۶٪) | ۲۹ |
+
+  - فاصله: ۱۹۵٬۴۷۴ نسخه هر دو تاریخ را دارند. ۱۲۸٬۲۲۱ در یک ردیف جای گرفتند و ۶۷٬۲۵۳ نه. ۵۴۱ نسخه بیش از ۸۰ سال پیش از وفات مؤلف‌اند. ۲۱٪ نسخه‌های جای‌گرفته تاریخ مردد دارند، بیشترشان از وفات مردد مؤلفان پرنسخه (احسائی، تفتازانی، دوانی، سعدی).
+- **زمان ساخت:** روی رونوشت، با کوئری‌های REGEXP هم‌زمان یک نشست دیگر، کل `build()` میان ۱۲ و ۵۲ ثانیه بود. سهم بخش‌ها در یک اجرا: `copyDates` ۷٫۷، `authors` ۰٫۶، `compositions` ۲٫۱، `places` ۶٫۲، `languages` ۴٫۲ ثانیه. کد پیشین روی همان میزبان ۱۶ ثانیه بود.
+- **پیش‌نمایش worktree:** `php artisan serve` متغیرهای محیطی کانتینر را به کارگرهایش نمی‌دهد و `php -S` هم آن‌ها را در `$_SERVER` نمی‌گذارد، پس `.env` رونوشتی با `DB_DATABASE=fahares_prod` و `CACHE_STORE=file` mount شد و `php -S` از درون `public/` اجرا شد.
+- **آزمون‌ها** (`InsightsPageTest`): `test_the_copy_timeline_layers_years_centuries_and_doubtful_dates`، `test_authors_are_counted_by_their_death_range_and_works_by_composition`، `test_copies_are_banded_by_the_years_after_their_authors_death`. دو آزمون پیشین حالا `copy_date_raw` می‌دهند، چون نمودار دیگر از `copy_date_hijri_year` نمی‌خواند.
+
+### گام ۱۳.۱۰۵: داده‌ی مشتق هم‌گام با ستون‌های مبدأ (مورد ۸۷)
 - **[DerivedData](../app/Support/DerivedData.php):**
   - **تابع‌های مقایسه:** `copyChanges($row, $guard)`، `workChanges($row)` و `personChanges($row)` ستون‌های مشتقی را برمی‌گردانند که با محاسبه‌ی دوباره فرق دارند. محاسبه با `Manuscript::copyDateColumns`، `CopyExtent::columns`، `Work::compositionDateColumns` و `Person::deathColumns` است. تاریخی که پاک شده، بازه‌اش را هم پاک می‌کند (`fill-copy-date-ranges` تاریخ تهی را نمی‌خواند). اندازه‌ای که متنش شمار ندارد یا دو شمار از یک نوع دارد، دست نمی‌خورد.
   - **`syncCopies($ids, $command)`:** ستون‌های تاریخ و اندازه را می‌نویسد. برگِ تغییرکرده با `corpus_fix: derived data` در تاریخچه ثبت می‌شود، همان‌گونه که `fill-extents` ثبت می‌کند. اشاره‌ها با `linkCopy(..., prune: true)` ساخته می‌شوند، سپس نسخه‌ها و اثرهایشان بازنمایه می‌شوند.
@@ -5513,3 +5540,143 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** گزارش «After» برای همه‌ی انواع صفر بود. صفر بودن dedications_missing در برابر ۱٬۵۳۰ ردیف پیوندی نشان می‌دهد که قاعده‌ی «دادن» برای فرمانروایان هم درست کار می‌کند.
 - **آزمون:** [DerivedDataTest](../tests/Feature/DerivedDataTest.php) (۴): هوک `rebuild-copies`، هوک `add-corpus-works`، هوک `sync-work-details`، و گزارش و `--apply` فرمان `refresh-derived` با ردیفی که مبدأ دیگر نمی‌دهد و حذف نمی‌شود. کل مجموعه ۵۲۶ آزمون موفق، روی `fahares_derived_test`. آزمون `--apply` فایل‌های تصمیم کوچک می‌گیرد: با فایل ۹٫۶ مگابایتی وفات‌ها، حافظه‌ی فرایند آزمون از ۱۹۲ مگابایت (`ini_set` در خروجی اکسل) بالاتر می‌ماند و سه آزمون خروجی شکست می‌خوردند.
 - **پروداکشن (پس از استقرار):** `php artisan fahares:refresh-derived` و سپس با `--apply`، در یک نشست `ssh fahares-app`. سپس بازنمایه‌ی ۱۴۸ اثر و ۳۷۳ نسخه‌ی گام ۱۳.۷۹ وارسی شود.
+
+### گام ۱۳.۱۰۶: نسخه‌های گم‌شده
+- **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):** حالا `unmatched.jsonl` هم می‌نویسد، با سه نوع رکورد:
+  - `v2_work`؛
+  - `site_copy`: نسخه‌ی سایتِ بی‌جفت؛
+  - `v2_copy`: با `site_work_id` اثر جفت‌شده.
+  - گزارش در `reports/fankha_v2_db_review6`.
+- **دسته‌بندی:**
+  - **بودن در سایت:** با شماره‌ی نسخه‌ی یکسان‌شده و صفحه‌ی ±۱ در همان جلد وارسی شد: `none` ۵۶۲، `same_work` ۷ و `other_work` ۱.
+  - **شرط پذیرش:**
+    - `clean_title` برابر؛
+    - `author_name` برابر، یا تهی در سایت؛
+    - صفحه در `page_start-1 .. page_end+1`.
+  - **کنارمانده‌ها:** `reports/fankha_v2_db_review6/missing_copies_held.json` (۵۶).
+- **فایل تصمیم:** [`fankha_missing_copies_20261031.json`](../database/data/fankha_missing_copies_20261031.json). ۸۹ `fills` با `make` از `copy_record`.
+- **ترتیب پروداکشن:**
+  1. `fahares:add-corpus-works --file=…`؛
+  2. `fahares:fill-extents --apply`، `catalogs:link-volumes` و `fahares:rebuild-scripts --sync-search`.
+- **اجرای پروداکشن:**
+  - پشتیبان: `fahares-sources/backups/item87_missing_copies_prod_before_20261031.json` (۸۹ اثر و ۱۴٬۲۰۶ شناسه‌ی نسخه).
+  - اجرای نخست با استقرار `63ec41f` کشته شد. ۰ لاگ نوشته شد.
+  - **پایش:** حالا اگر `/tmp/…log` گم شود، پایش فوراً خبر می‌دهد و تا پایان زمانش منتظر نمی‌ماند.
+  - **وارسی:** ۵۰۶ نسخه، `library_id` تهی ۰، ۱٬۰۱۲ مدخل مأخذ (فنخا و صفحه‌ی ارجاع)، نمونه‌ی `/m/334808` (کاشان، مدرسه سلطانی، 301) ۲۰۰.
+
+### گام ۱۳.۱۰۷: پورت‌های ۲۰۵۳ و ۲۰۱۲۸ در `INPUT`
+- **یافته:** `ufw status verbose` گفت `Status: inactive` (سرویس systemd آن active است ولی قانونی بار نشده). پس هر پورتی که فرایندی روی خود میزبان باز کند از بیرون در دسترس است.
+- **تغییر:** [fahares-docker-firewall.sh](../scripts/firewall/fahares-docker-firewall.sh) با `HOST_PORTS` (پیش‌فرض `2053 20128`) قانون `-i eth0 -p tcp --dport <port> -j DROP` را با همان برچسب در `INPUT` در iptables و ip6tables می‌گذارد؛ `remove` و `status` هم آن‌ها را می‌شناسند. [README](../scripts/firewall/README.md) به‌روز شد.
+- **وارسی:** check-host.net: ۲۰۵۳ و ۲۰۱۲۸ از ۳ نود timeout؛ ۲۰۹۶ و ۸۴۴۳ از ۳ نود وصل. درخواست محلی از راه میزبان (`lo`) به هر دو پاسخ داد.
+- **مانده:** فعال کردن ufw با سیاست پیش‌فرض رد؛ در گام ۱۳.۱۱۱ انجام شد.
+
+### گام ۱۳.۱۰۸: فهرست پیوسته‌های منبع در `/sources/{code}`
+- **فهرست منابع:** در [SourceController](../app/Http/Controllers/SourceController.php)، `index` منبعِ `union_catalogue` را در گروه `library_catalogue` می‌گذارد و `KINDS` دیگر آن را ندارد. ترتیب همان `rank` و `title` است، پس فنخا الفبایی میان فهرست‌ها می‌آید.
+- **صفحه‌ی منبع:** `linked()` مدخل‌های `source_entries` منبع را (غیر `rejected`) برای `Manuscript` یا `Work` با `?list=` و `?q=` و `?volume=` به ترتیب `volume_number, page_start, id` و ۳۰ تایی برمی‌گرداند. هر مدخل یک ردیف است (بخش `#linked` در [sources/show](../resources/views/sources/show.blade.php)). اگر جلدِ مدخل متن صفحه داشته باشد، «ج، ص» به `source-pages.show` پیوند دارد.
+- **جست‌وجو:** ستون‌های عنوان `utf8mb4_unicode_ci` هستند و «ي/ی»، «ك/ک»، «ة/ه» و الف‌های همزه‌دار را برابر نمی‌گیرند. در عنوان‌ها هر دو شکل هست (۱۲٬۶۵۶ عنوان با «ي»). پس `primary_title` با `replace` تودرتو به حروف فارسی برگردانده می‌شود و `q` با `TextNormalizer::normalize`. شناسه‌ی آثار یافته‌شده اول با `pluck` گرفته می‌شود. وقتی زیرپرس‌وجو بود، MariaDB همه‌ی ۳۲ هزار مدخل الذریعة را می‌پیمود (۳٫۷ ثانیه برای ۱۲ نتیجه، و پس از این تغییر ۰٫۵ ثانیه).
+- **شمارش:** شمار مدخل‌های فنخا (۳۲۴ هزار) بیش از یک ثانیه طول می‌کشد. شمار هر ترکیب منبع، نوع، جلد و `q` یک روز در کش `sources:linked:*` نگه داشته می‌شود و به `paginate` داده می‌شود.
+- **زمان (محلی، پس از کش):** فنخا بی‌جست‌وجو ۰٫۱۷ تا ۱٫۴ ثانیه، «کافیه» ۰٫۳ ثانیه، «شرح» صفحه‌ی ۷ حدود ۲ ثانیه.
+- **آزمون:** `test_a_source_page_lists_the_records_it_is_cited_for_and_searches_their_titles` و `test_a_union_catalogue_is_listed_among_the_libraries_catalogues` در [SourcesShelfTest](../tests/Feature/SourcesShelfTest.php). کل آزمون‌ها: ۵۲۷ موفق.
+
+### گام ۱۳.۱۱۰: `sources:merge-split`
+- **ریشه:** در `BackfillSourcesCommand::registry`، `SourceEntrySync::groupKey` = `catalogue|library_id|stem(title)`، و `stem` فقط بخشِ پس از آخرین « - » را می‌بُرد. کد منبع `catalogue-` + `substr(sha1(key), 0, 12)` است.
+- **دستور:** [MergeSplitSourcesCommand](../app/Console/Commands/MergeSplitSourcesCommand.php) با `--dry-run` و `--group=code1,code2` برای گروهی که عنوان‌ها نمی‌گویند (کد نخست می‌ماند).
+  - **کلید گروه:** `catalogueKey` = `kind|library_id|edition_of_id|edition_label|normalize(baseTitle(title))`. `baseTitle` پسوند `- (عکسی )جلد …` یا `- رقم` را برمی‌دارد. `normalize` حروف ي/ى را به ی و ك را به ک برمی‌گرداند، نیم‌فاصله را به فاصله تبدیل می‌کند، «حضرت» را برمی‌دارد و `آ[یي][ةت]\s*ال?له` را «آیت الله» می‌کند.
+  - **منبع ماندنی:** به ترتیب `coverUrl()`، شمار جلد، کوچک‌ترین شماره‌ی جلد و `id`.
+  - **شماره‌ی جلد:** `volumeNumber` شماره را از عنوان می‌خواند: رقم فارسی یا لاتین، ترتیبی‌ها (اول تا پنجاهم) و دهگان با «و» («سی و یکم»). اگر عنوان جلد شماره نداشت، از عنوان منبع، وگرنه همان `volume_number`. برای بخش (`isPart`: «/»، «بخش» یا «مجلد» پس از «جلد») همان `volume_number` می‌ماند.
+  - **جلد تکراری:** شماره‌ی برابر، از منبع دیگر، هیچ‌کدام بخش نباشد و زیرعنوانِ پس از «:» ناسازگار نباشد. `foldVolume` این‌ها را به جلد ماندنی می‌برد:
+    - `source_entries.source_volume_id`؛
+    - `source_items`: کلید هم‌نام یکی می‌شود و `source_item_id`، `target_item_id` و `parent_id` به آن اشاره می‌کنند؛
+    - `source_pages` که جلد ماندنی ندارد؛
+    - `edition_of_id` هر دو جدول؛
+    - `manuscripts.catalog_volume_id` و `manuscript_catalog_references.catalog_volume_id`؛
+    - فهرست‌نگارانِ تازه‌ی `catalog_volume_cataloger`؛
+    - ستون‌های تهیِ جلد ماندنی (`publication_year`، `mtif_entry_id`، …).
+    - سپس ردیف `source_volumes` و `catalog_volumes` پاک می‌شود.
+  - **شماره‌گذاری دوباره:** `source_volumes` و `catalog_volumes` (`volume_number`)، `source_items` (`source_id`، `volume_number`). در `source_entries`، `volume_number` و `text_volume_number` جلد به جلد عوض می‌شوند (فقط ردیف‌هایی که شماره‌ی قدیم را داشتند). ردیف‌های بی‌جلدِ منبع تاشده و `field_evidence` با یک `CASE` عوض می‌شوند تا ۱→۲ و ۲→۳ در هم نروند. `locations` در PHP بازنویسی می‌شود.
+  - **منبع ماندنی:** `title` = `baseTitle`، `volumes_count` = شمار جلدها، و `metadata.merged_codes` کدهای تاشده را نگه می‌دارد. ستون‌های تهی از منبع تاشده پر می‌شوند. کش `sources:shelf`، `sources:copies:{id}` و `sources:linked:*` بی‌جلد و بی‌`q` پاک می‌شود. هر گروه در یک تراکنش اجرا می‌شود.
+- **۳۰۱:** `Source::mergedInto($code)` (`whereJsonContains('metadata->merged_codes')`). `SourceController::show` اگر کد را نیابد، با رشته‌ی پرس‌وجو به منبع ماندنی هدایت می‌کند.
+- **`sources:backfill`:** اگر کد گروه منبعی با `merged_codes` باشد، یا در `merged_codes` منبعی آمده باشد، گروه فقط به آن اشاره می‌کند و `volumes_count` آن را جمع جلدهای گروه‌ها می‌گذارد. عنوان و `metadata` بازنویسی نمی‌شوند. منبعی که کدش را نیابد با `metadata->group` = کلید پیدا می‌کند و کدش را نگه می‌دارد (100071، ادبیات فردوسی: کدش با کتابخانه‌ی 14 ساخته شده بود و حالا زیر 113 است).
+- **تمرین (`fahares_prod` محلی):**
+  - پشتیبان ردیف‌ها در scratchpad نشست گرفته شد.
+  - اجرا ۳۱ ثانیه طول کشید. منبع‌ها از ۱۸۵ به ۱۷۰ و جلدها از ۵۴۳ به ۵۲۹ رسید. مدخل‌ها ۷۸۵٬۵۸۳، بی‌تغییر.
+  - گلپایگانی (100020): جلدهای ۱ تا ۸. مرعشی (100011): ۱ تا ۳۸، که ۵ تا ۱۲ از 100047 آمد و ۱۴ جلد تکراری پاک شد. مجلس (100030): ۴۹ جلد با بخش‌های ۲۴، ۲۷ و ۴۰. مشکوه (100054): ۱ تا ۷.
+  - اجرای دوم: «No catalogue is held as several sources.»
+  - `sources:backfill --only=registry` پس از آن: diff دامپ `sources`، `source_volumes`، `catalog_volumes` و `catalog_volume_cataloger` تهی بود (پیش از اصلاحِ `metadata->group`، فقط جلد 476 جابه‌جا می‌شد).
+  - وارسی صفحه‌ها روی worktree با `fahares_prod`: هر کد کهنه ۳۰۱ داد، کارت هر فهرست در `/sources` یک بار آمد، و `/catalogers/24` همان ۲۴ کارت را با پیوند به 100011 و 100010 نشان داد.
+  - `artisan serve` در کانتینر `.env` را دوباره می‌خواند و متغیر `DB_DATABASE` داکر را نادیده می‌گیرد. پس برای وارسی، `.env` جدا با `fahares_prod` mount شد.
+- **گروه‌های بیرون از کلید (برای تصمیم کاربر، با `--group`):**
+  - `catalogue-c2fbc4ca62d0` + `catalogue-56242973f0ee`: نسخه‌های عکسی مرعشی. جلد 39 «عکسی جلد 5» با `volume_number` 1، و مدخل‌هایش جلد ۵ می‌گویند.
+  - `catalogue-d788e304d962` + `catalogue-ae0847c98256`: میکروفیلم‌های دانشگاه تهران («میکرو فیلمها» و «میکروفیلم‌ها»).
+  - `catalogue-02c0a06ef7b7` + `catalogue-520c926fbc43`: فهرست الفبایی آستان قدس.
+  - `catalogue-e685ed25b6e2` + `catalogue-e745d8f70fe2`: اهدایی مشکوة. باید وارسی شود که هر دو یک کتاب‌اند.
+  - `catalogue-7ac531af190e` + `catalogue-bce863de9555`: ملک. باید وارسی شود.
+  - گلپایگانی `catalogue-bc42c942441f` («فهرست نسخه‌های خطی … حضرت آیة الله العظمی گلپایگانی»، بی‌مدخل) فهرست دیگری است و کنار ماند.
+- **آزمون:** [MergeSplitSourcesTest](../tests/Feature/MergeSplitSourcesTest.php) با سه آزمون: خواندن عنوان، یکی کردن همراه ۳۰۱ و تکرار بی‌اثر و backfill پس از آن، و `--group`. یک آزمون هم در [BackfillSourcesTest](../tests/Feature/BackfillSourcesTest.php) افزوده شد: یافتن با `metadata->group`. آزمون‌ها از worktree با `docker run` روی پایگاه جدای `fahares_mergesrc_test` اجرا شدند.
+- **ترتیب پروداکشن:**
+  1. پشتیبان: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `field_evidence`، و `source_entries` و `source_items` منبع‌های گروه‌ها، به‌علاوه‌ی `id, catalog_volume_id` نسخه‌ها و ارجاع‌های جلدهای آن‌ها.
+  2. `php artisan sources:merge-split --dry-run`، سپس مقایسه با تمرین محلی (شناسه‌ها روی پروداکشن ممکن است فرق کنند).
+  3. `php artisan sources:merge-split`.
+- **اجرای پروداکشن (۱۰ آبان):**
+  - **استقرار:** `git push` (`9122fde..a92b010`).
+  - **پشتیبان:** [`step13.110_merge_split_sources_prod_before_20261031.json`](../../fahares-sources/backups/step13/step13.110_merge_split_sources_prod_before_20261031.json) (۲۰ مگابایت). همه‌ی `sources` (۱۸۵)، `source_volumes` (۵۴۳)، `catalog_volumes` (۴۳۸) و `catalog_volume_cataloger` (۵۹۳) را دارد. از ۲۱ منبع گروه‌ها هم این‌ها را دارد: `id, source_id, source_volume_id, source_item_id, volume_number, text_volume_number, locations` برای ۸۹٬۶۵۹ مدخل، و `id, catalog_volume_id` برای ۸۹٬۶۴۲ نسخه و ۸۹٬۵۶۹ ارجاع.
+    - کانتینر برنامه `mariadb-dump` ندارد، پس پشتیبان با `tinker` گرفته شد.
+    - شرط `locations LIKE` همه‌ی جدول را پیمایش کرد و پشتیبان‌گیری حدود ۴ دقیقه طول کشید.
+  - **dry-run:** جدا از شمار مدخل‌ها، خط‌به‌خط برابر تمرین محلی بود.
+  - **اجرا:** ۴۷ ثانیه. شمارش‌ها پیش و پس از اجرا:
+    - `sources`: ۱۸۵ → ۱۷۰؛
+    - `source_volumes`: ۵۴۳ → ۵۲۹؛
+    - `catalog_volumes`: ۴۳۸ → ۴۲۴؛
+    - `source_entries`: ۷۸۸٬۵۰۰، بی‌تغییر (۵۸٬۳۲۲ بی‌منبع).
+  - **اجرای دوم:** «No catalogue is held as several sources.»
+  - **وارسی `https://fahares.net`:**
+    - پنج کد کهنه ۳۰۱ دادند.
+    - مرعشی جلدهای ۱ تا ۳۸ را دارد و گلپایگانی ۱ تا ۸.
+    - `/sources` ۱۵۱ کارت دارد، کارت هر فهرست یک بار.
+    - `/catalogers/24` ۲۴ پیوند منبع دارد.
+  - نشست «Tie copies to the 18 catalogues» تا پایان این اجرا روی پروداکشن کاری نکرد. `catalogue-bc42c942441f` به گزارش آن نشست کتاب دیگری است: ۳۷۵ صفحه و بی شابک، در برابر ۸۵۰ صفحه‌ی جلد ۱.
+
+### گام ۱۳.۱۱۱: ufw فعال
+- **سنجش پیش از تغییر:** نمونه‌ی یک‌دقیقه‌ای `ss -Htn` (هر ۵ ثانیه) فقط `10.0.1.9 → 22` (Coolify) را از شبکه‌های Docker به خود میزبان نشان داد. در `Env` کانتینرها جز نشانی سایت‌ها (`COOLIFY_URL`، `APP_URL`) اشاره‌ای به میزبان نبود؛ آن ترافیک از ۸۰/۴۴۳ منتشرشده‌ی Docker می‌گذرد. `coolify`، `coolify-proxy` و `coolify-sentinel` `host.docker.internal:host-gateway` دارند.
+- **قانون‌ها:** `default deny incoming`، `default allow outgoing`، `default allow routed` (تا ufw به FORWARD و شبکه‌ی Docker دست نزند). `allow 22/tcp`، چند پورت TCP سرویس‌های دیگر میزبان، و `allow from 10.0.0.0/8` (همه‌ی شبکه‌های Docker طبق `default-address-pools`). قانون‌های [fahares-docker-firewall](../scripts/firewall/README.md) بی‌تغییر ماندند.
+- **ضامن:** `systemd-run --unit=ufw-safety --on-active=10min ufw disable` پیش از `ufw --force enable`؛ پس از وارسی، `systemctl stop ufw-safety.timer`. `ENABLED=yes` در `/etc/ufw/ufw.conf`.
+- **وارسی:** check-host.net: ۲۲، ۸۰، ۴۴۳، ۹۹۳ و پورت‌های مجاز از ۳ نود وصل؛ ۲۵ و ۵۸۷ از برخی نودها (نودها خروجی ایمیل را می‌بندند)؛ ۲۰۵۳ timeout. `fahares.net/up`، `coolify.fahares.net/login` و `dawawin.ir` کد ۲۰۰. ورود SSH کانتینر Coolify در ۱۴:۰۳ پس از فعال شدن.
+- **برگشت:** `sudo ufw disable`.
+
+### گام ۱۳.۱۱۲: `sources:fill-empty-catalogues`
+- **یافتن (فقط‌خواندنی، `fahares_prod` محلی):** برای هر یک از ۱۸ منبع، توزیع `metadata.catalog_citation` نسخه‌های کتابخانه‌اش به تفکیک `source_volumes`، رکورد `mtif_dump.entry`/`event` (شمار صفحه، شابک)، `catalog_volume_cataloger` و [fankha_catalogs_master_verified.json](../database/data/fankha_catalogs_master_verified.json) بررسی شد. دسته‌بندی کامل در یادداشت نشست‌ها (`empty-catalogue-sources-triage.md`) است.
+- **دستور:** [FillEmptyCataloguesCommand](../app/Console/Commands/FillEmptyCataloguesCommand.php) با `--dry-run`. کلیدها کد منبع (یا `Source::mergedInto`)، `mtif_entry_id`، عنوان `catalog_volumes` و slug کتابخانه‌اند، نه id محلی.
+  1. **MTIF میکروفیلم‌ها:** جلدی که `mtif_entry_id = 21479` و عنوان «… - جلد سوم» دارد، آن را به جلد شماره‌ی ۱ منبع `catalogue-09b1ef810b10` می‌دهد (در هر دو جدول). رکورد 21483 را `foldVolume` از جلد تکراری ۳ برمی‌دارد.
+  2. **`sources:merge-split --group`** برای `GROUPS` (کد نخست می‌ماند). شماره‌ی جلد میکروفیلم‌ها از عنوان خوانده می‌شود: #149 «جلد سوم» ۳ می‌شود و #153 در آن تا می‌شود. #539 (بی‌کتابخانه) جلد ۱ است.
+  3. **مختصر مجلس:** جلدی که عنوان `catalog_volumes` آن `BRIEF_HELD_AS` است، `source_id` منبع `catalogue-c799cf2caeda`، شماره‌ی ۱ و عنوان جلد MTIF 35032 را می‌گیرد. `source_entries` و `source_items` آن جابه‌جا می‌شوند. سپس `MergeSplitSourcesCommand::foldVolume` (اکنون `public static`) جلد MTIF را در آن تا می‌کند. `volumes_count` هر دو منبع دوباره شمرده می‌شود. با عنوان تازه، `stem` در `sources:backfill` همان گروهِ کد c799 را می‌سازد.
+  4. **گره‌زدن میکروفیلم‌ها:** نسخه‌های کتابخانه‌ی `thran-danshgah-3` که `rawCitation` آن‌ها با `[فیلم`/`[فيلم` آغاز می‌شود و `parse` برایشان جلد ۱ تا ۳ می‌دهد، به جلدی با همان شماره می‌روند. سپس `SourceEntrySync::syncCited` برای همه‌ی نسخه‌های ارجاع‌دار اجرا می‌شود، تا `volume_number`هایی که merge-split روی #149 از ۱ به ۳ برده بود، از ارجاع دوباره خوانده شوند. ارجاعِ بی‌جلد («- 126») دست نمی‌خورد.
+  - کش `sources:shelf` و `sources:copies`/`sources:linked` منبع‌های میکروفیلم، مختصر، مجلس و مشکوه پاک می‌شود.
+- **تمرین (`fahares_prod` محلی):**
+  - پشتیبان در پایگاه `fahares_prod_bak_13112` گرفته شد: جدول‌های کامل `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `field_evidence` و `source_entries`، و ستون‌های جلد از `manuscripts`، `manuscript_catalog_references` و `source_items`.
+  - اجرا ۵۴ ثانیه طول کشید. منبع‌ها ۱۷۰ ← ۱۶۲. مدخل‌ها ۷۸۵٬۵۸۳، بی‌تغییر. `catalog_volume_id` در ۷٬۷۹۳ نسخه عوض شد.
+  - میکروفیلم‌ها (100035): جلد ۱ #539 (MTIF 21479، ۶٬۱۸۱ ارجاع)، جلد ۲ #154 (۱٬۴۶۴)، جلد ۳ #149 (MTIF 21483، ۲٬۲۲۳).
+  - مختصر (100050): #441 با ۲٬۵۰۰ نسخه.
+  - اجرای دوم: «their MTIF records are in place»، «No catalogue is held as several sources»، «its copies are on its own source» و صفر گره تازه.
+- **آزمون:** [FillEmptyCataloguesTest](../tests/Feature/FillEmptyCataloguesTest.php) سه منبع میکروفیلم و جلد مختصر را می‌سازد. نسخه‌های جلد ۱، ۲ (روی جلد مشکوه) و ۳ (یکی بی‌جلد)، یک ارجاع بی‌جلد و یک ارجاع «ف» دارد. dry-run، اجرا، مدخل‌ها، فهرست‌نگار، ۳۰۱ و تکرار بی‌اثر آزموده می‌شوند. آزمون‌ها روی پایگاه جداگانه‌ی `fahares_emptycat_test` اجرا شدند و ۵۳۳ آزمون موفق بودند.
+- **پروداکشن (۱۰ آبان ۱۴۰۵):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.112_fill_empty_catalogues_prod_before_20261031.json` (۳۵ مگابایت). اسکریپت PHP آن از راه `ssh fahares-app 'cd /app && php'` اجرا شد و این‌ها را دارد:
+    - جدول‌های کامل `sources`، `source_volumes`، `catalog_volumes` و `catalog_volume_cataloger`؛
+    - ستون‌های جلدِ ۱۱۶٬۸۱۵ نسخه، `manuscript_catalog_references` و ۱۱۶٬۸۲۳ مدخلِ منبع‌های درگیر.
+  - dry-run و اجرا: idهای جلد و منبع با نسخه‌ی محلی یکی بودند و شمارها هم یکی. فقط الفبائی آستان قدس ۳٬۶۵۹ مدخل داشت.
+  - اجرا ۳۹ ثانیه طول کشید. منبع‌ها ۱۷۰ ← ۱۶۲ و جلدها ۵۲۹ ← ۵۲۳. مدخل‌ها ۷۸۸٬۵۰۰، بی‌تغییر. اجرای دوم صفر تغییر داشت.
+  - `catalogue-d788e304d962` و `catalogue-02c0a06ef7b7` با ۳۰۱ به `ae0847c98256` و `520c926fbc43` می‌روند.
+
+### گام ۱۳.۱۱۳: `catalogs:fix-awraq-atiq`
+- **یافته:** `catalog_volumes` شماره‌ی ۵۳۴ و ۵۳۵ (`citation_pattern` «اوراق عتیق: 1» و «2») در `LinkUnlinkedManuscriptsCommand::linkAwraqAtiqCollections` (کامیت `563ebe0`) ساخته شدند. همه‌ی نسخه‌ها `cataloger_id = 44` گرفتند و حکیم (۳۲) و صدرائی (۴۴) با نقش `cataloger` به هر دو جلد پیوستند.
+- **منبع نویسندگان:** `fahares-corpus/catalogs/fankha_complete_catalogs_table.md`، ردیف‌های ۷۳ (خادم حسینی، ص ۸۳–۱۲۱)، ۲۷۱ (ملا علی خوئی / جواد شریف، ص ۱۲۲–۱۴۳)، ۳۳۰ (ثامنی، برکت، ص ۲۶۵–۲۸۳) و ۵۲۰ (مدرسه‌ی آیة‌الله خوئی مشهد، غفرانی، ص ۲۴۱–۲۶۶). امام جمعه‌ی زنجان (ردیف ۲۸۷، اشکوری) در داده‌ی سایت نسخه‌ای ندارد. برای دفتر ۲ ردیفی نیست.
+- **دستور:** [FixAwraqAtiqCatalogersCommand](../app/Console/Commands/FixAwraqAtiqCatalogersCommand.php) جلدها را با `citation_pattern`، کتابخانه‌ها را با `slug` و فهرست‌نگاران را با `mtif_entry_id` (۳۷۲۵۵، ۳۷۱۶۶، ۳۷۲۴۴) پیدا می‌کند. غفرانی با `firstOrCreate` روی slug «عبدالله-غفرانی» ساخته می‌شود. دستور `cataloger_id` همه‌ی نسخه‌های دو جلد را تهی و سپس برای هر کتابخانه پر می‌کند، پیوند جلد را به `[حکیم => supervisor]` همگام می‌کند و `volumes_count`/`manuscripts_count` را با همان قاعده‌ی دستورهای پیشین دوباره می‌شمارد. `--dry-run` دارد و تکرارپذیر است.
+- **چرا نویسندگان به جلد نمی‌پیوندند:** `CatalogerController::show` و شمارش، همه‌ی نسخه‌های جلدهای پیوسته را به فهرست‌نگار می‌دهند. پیوستن برکت به دفتر ۱، ۶۶۲ نسخه را به او نسبت می‌داد.
+- **بازآزمایی روی `fahares_prod`:** دفتر ۱: ۱۵۵ + ۹۰ به صدرائی، ۷۱ به برکت، ۳۳۹ به غفرانی، ۷ بی‌فهرست‌نگار (۴ ادبیات اصفهان، ص ۴۰۰–۴۹۶؛ ۳ دانشگاه بوعلی که ارجاعشان «اوراق عتیق: 3-…» است و به‌خطا به دفتر ۱ پیوسته‌اند). دفتر ۲: ۳۳۶ بی‌فهرست‌نگار. شمارش‌ها: حکیم ۷ جلد / ۴٬۲۶۰، صدرائی ۲۳ / ۲۷٬۵۵۷، برکت ۴ / ۳٬۶۳۳، غفرانی ۰ / ۳۳۹.
+- **صفحه‌ی فهرست‌نگار:** `metadata.sources` گاه رشته است (`ReplaceRazaviInstitutionCatalogerCommand` برای اوکتایی). [catalogers/show](../resources/views/catalogers/show.blade.php) با `$source['url']` روی رشته می‌شکست (`/catalogers/109` روی پروداکشن ۵۰۰). حالا رشته همان متن است.
+- **آزمون:** [FixAwraqAtiqCatalogersTest](../tests/Feature/FixAwraqAtiqCatalogersTest.php) (۳) و `test_a_source_without_a_link_is_its_text` در [CatalogerCataloguesTest](../tests/Feature/CatalogerCataloguesTest.php).
+- **صفحه‌ی نسخه:** [manuscripts/show](../resources/views/manuscripts/show.blade.php) زیر فهرست‌نگار، اگر جلدِ نسخه ناظری (`role = supervisor`) جز خود فهرست‌نگار داشته باشد، می‌نویسد «در «عنوان جلد»، زیر نظر …» (`data-cataloger-volume`). کنترلر `catalogVolume.catalogers` را از پیش بار می‌کند. آزمون: `test_a_copy_names_the_volume_its_article_is_in`. این قاعده عام است و برای هر جلد دیگری که ناظر دارد هم نمایش داده می‌شود.
+- **اجرای پروداکشن (۱۱ آبان، با اجازه‌ی کاربر):**
+  - **استقرار:** `git push` (`176b7f8..2a99117`).
+  - **dry-run:** شمار نسخه‌ها همان تمرین محلی بود (دفتر ۱: ۶۶۲؛ دفتر ۲: ۳۳۶).
+  - **اجرا:** حکیم (۳۲) ۷ جلد / ۴٬۲۶۲، صدرائی (۴۴) ۲۳ / ۲۷٬۵۷۲، برکت (۵۳) ۴ / ۳٬۶۳۶، غفرانی (۱۳۲، تازه) ۰ / ۳۳۹. اختلاف اندک با تمرین از نسخه‌هایی است که پس از کپی محلی به جلدهای دیگر این سه نفر افزوده شده‌اند.
+  - **وارسی:** `catalog_volume_cataloger` برای ۵۳۴ و ۵۳۵ تنها حکیم با نقش `supervisor` را دارد. نسخه‌ی ۲۳۲۹۸۸ (مدرسه‌ی آیة‌الله خوئی مشهد) غفرانی را نشان می‌دهد. `/catalogers/109` (اوکتایی)، `/catalogers/132` و `/catalogers/32` ۲۰۰ می‌دهند، و صفحه‌ی `catalogue-5c2b9b62d4d4` «زیر نظر محمدحسین حکیم» دارد.

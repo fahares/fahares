@@ -15,6 +15,17 @@ return [
     // Hijri centuries on the timeline
     'centuries' => [4, 14],
 
+    // Hijri centuries on the timelines of authors (by death) and works (by composition)
+    'author_centuries' => [1, 15],
+
+    // A date range of up to this many years is a known year, put at its middle; a wider one («قرن 13», «اواخر قرن
+    // 12») is a century or a part of one, its own layer on the timelines
+    'exact_span' => 10,
+
+    // Bands of years from the author's death to a copy: a band runs from just above one edge to the next. The first,
+    // more than 80 years before the death, is a date or an attribution at fault; the second is the author's lifetime.
+    'copy_gap' => [-80, 0, 50, 100, 200, 300, 500],
+
     // Rows of the most-copied works table
     'top_works' => 20,
 

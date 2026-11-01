@@ -72,6 +72,12 @@ class Source extends Model
         return $this->edition_of_id ? $this->editionOf?->coverUrl() : null;
     }
 
+    /** The source a folded source's code now stands for (sources:merge-split keeps it in metadata.merged_codes). */
+    public static function mergedInto(string $code): ?self
+    {
+        return static::whereJsonContains('metadata->merged_codes', $code)->first();
+    }
+
     public function volumes(): HasMany
     {
         return $this->hasMany(SourceVolume::class)->orderBy('volume_number')->orderBy('id');

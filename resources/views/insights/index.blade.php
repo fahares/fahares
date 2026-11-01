@@ -13,6 +13,10 @@
     $p = $data['places'];
     $s = $data['scripts'];
     $l = $data['languages'];
+    $a = $data['authors'];
+    $w = $data['compositions'];
+    $g = $data['copy_gap'];
+    $lifetime = collect($g['bands'])->firstWhere('upto', 0);
     $maxCentury = max(array_column($t['centuries'], 'count')) ?: 1;
     $peak = collect($t['centuries'])->sortByDesc('count')->first();
 
@@ -45,7 +49,7 @@
     <dl class="grid grid-cols-2 lg:grid-cols-4 gap-px bg-line border border-line">
         @foreach([
             ['نسخه‌ی خطی', Fa::num($data['totals']['manuscripts']), 'متعلق به ' . Fa::num($data['totals']['works']) . ' اثر'],
-            ['نسخه‌ی تاریخ‌دار', Fa::num($t['shown']), $pct($t['coverage']) . ' نسخه‌ها'],
+            ['نسخه‌ی تاریخ‌دار', Fa::num($t['shown']), $pct($t['coverage']) . ' نسخه‌ها، با سده‌ای‌ها'],
             ['اوج کتابت', 'سده‌ی ' . Fa::digits($peak['century']), Fa::num($peak['count']) . ' نسخه'],
             ['کانون استنساخ', Fa::num(count($p['cities'])) . ' شهر', 'از ' . Fa::num($p['mapped']) . ' نسخه‌ی جای‌دار'],
         ] as [$label, $value, $note])
@@ -60,27 +64,12 @@
     {{-- 1. Timeline of copying --}}
     <x-ui.section title="خط زمانی کتابت" id="timeline">
         <x-ui.card>
-            <div x-data="{ sel: {{ $peak['century'] }}, cs: @js(collect($t['centuries'])->keyBy('century')) }">
-            <p class="text-xs text-muted mb-4">شمار نسخه‌های کتابت‌شده در هر سده‌ی هجری. روی هر سده بزنید تا نسخه‌های آن در جست‌وجو باز شود.</p>
+            <div x-data="{ sel: {{ $peak['century'] }}, cs: @js(collect($t['centuries'])->keyBy('century')),
+                get decades() { return this.cs[this.sel].decades.map((n, i) => n + this.cs[this.sel].decades_doubtful[i]) } }">
+            <p class="text-xs text-muted mb-4">شمار نسخه‌های کتابت‌شده در هر سده‌ی هجری. نسخه‌ای که تنها سده یا بخشی از سده دارد («قرن ۱۳»، «اواخر قرن ۱۲») لایه‌ی خود را دارد و اگر بازه‌اش دو سده را بگیرد، میان آن دو بخش شده است. روی هر سده بزنید تا نسخه‌های آن در جست‌وجو باز شود.</p>
 
-            <div class="flex items-end gap-1 sm:gap-2 h-56 border-b border-line-strong" role="list" aria-label="شمار نسخه‌ها در هر سده">
-                @foreach($t['centuries'] as $row)
-                    <a role="listitem" href="{{ route('search', ['type' => 'manuscripts', 'century' => $row['century']]) }}"
-                       class="group flex-1 h-full flex flex-col justify-end items-center gap-1 min-w-0 focus:outline-none"
-                       title="سده‌ی {{ Fa::digits($row['century']) }}: {{ Fa::num($row['count']) }} نسخه"
-                       aria-label="سده‌ی {{ Fa::digits($row['century']) }}: {{ Fa::num($row['count']) }} نسخه">
-                        <span class="text-[10px] sm:text-xs text-muted tabular-nums whitespace-nowrap group-hover:text-cinnabar">{{ Fa::approx($row['count']) }}</span>
-                        <span class="w-full max-w-12 rounded-t-[4px] bg-cinnabar/70 group-hover:bg-cinnabar group-focus-visible:bg-cinnabar group-focus-visible:ring-2 group-focus-visible:ring-gold transition"
-                              style="height: max(2px, {{ round($row['count'] * 100 / $maxCentury, 2) }}%)"></span>
-                    </a>
-                @endforeach
-            </div>
-            <div class="flex gap-1 sm:gap-2 mt-1.5" aria-hidden="true">
-                @foreach($t['centuries'] as $row)
-                    <span class="flex-1 text-center text-xs text-ink tabular-nums">{{ Fa::digits($row['century']) }}</span>
-                @endforeach
-            </div>
-            <p class="text-center text-[11px] text-muted mt-0.5">سده‌ی هجری</p>
+            @include('insights.century-bars', ['rows' => $t['centuries'], 'unit' => 'نسخه', 'label' => 'شمار نسخه‌ها در هر سده',
+                'href' => fn ($c) => route('search', ['type' => 'manuscripts', 'century' => $c])])
 
             {{-- Decades of one century --}}
             <div class="mt-6 pt-4 border-t border-line">
@@ -95,12 +84,15 @@
                 </div>
                 <div x-cloak class="mt-4">
                     <div class="flex items-end gap-1 h-28 border-b border-line">
-                        <template x-for="(n, i) in cs[sel].decades" :key="i">
+                        <template x-for="(n, i) in decades" :key="i">
                             <div class="flex-1 h-full flex flex-col justify-end items-center gap-0.5 min-w-0"
-                                 :title="`${((sel - 1) * 100 + i * 10 + 1).toLocaleString('fa-IR', {useGrouping: false})} تا ${((sel - 1) * 100 + i * 10 + 10).toLocaleString('fa-IR', {useGrouping: false})}: ${n.toLocaleString('fa-IR')} نسخه`">
+                                 :title="`${((sel - 1) * 100 + i * 10 + 1).toLocaleString('fa-IR', {useGrouping: false})} تا ${((sel - 1) * 100 + i * 10 + 10).toLocaleString('fa-IR', {useGrouping: false})}: ${n.toLocaleString('fa-IR')} نسخه` + (cs[sel].decades_doubtful[i] ? `، ${cs[sel].decades_doubtful[i].toLocaleString('fa-IR')} مردد` : '')">
                                 <span class="text-[10px] text-muted tabular-nums" x-text="n.toLocaleString('fa-IR')"></span>
-                                <span class="w-full max-w-10 rounded-t-[4px] bg-gold/70"
-                                      :style="`height: max(${n ? 2 : 0}px, ${n * 100 / Math.max(1, ...cs[sel].decades)}%)`"></span>
+                                <span class="w-full max-w-10 flex flex-col-reverse rounded-t-[4px] overflow-hidden"
+                                      :style="`height: max(${n ? 2 : 0}px, ${n * 100 / Math.max(1, ...decades)}%)`">
+                                    <span class="block w-full shrink-0 bg-cinnabar/75" :style="`height: ${cs[sel].decades[i] * 100 / Math.max(1, n)}%`"></span>
+                                    <span class="block w-full shrink-0 bg-cinnabar/30" :style="`height: ${cs[sel].decades_doubtful[i] * 100 / Math.max(1, n)}%`"></span>
+                                </span>
                             </div>
                         </template>
                     </div>
@@ -109,19 +101,105 @@
                             <span class="flex-1 text-center text-[10px] text-muted tabular-nums" x-text="((sel - 1) * 100 + (i - 1) * 10 + 1).toLocaleString('fa-IR', {useGrouping: false})"></span>
                         </template>
                     </div>
+                    <p class="mt-2 text-[11px] text-muted">تنها نسخه‌های سال‌دار، چون نسخه‌ای که تنها سده‌اش معلوم است، دهه ندارد.</p>
                     <p class="mt-3 text-xs">
                         <a :href="`{{ route('search', ['type' => 'manuscripts']) }}&century=${sel}`" class="text-cinnabar font-semibold hover:underline">
-                            دیدن <span x-text="cs[sel].count.toLocaleString('fa-IR')"></span> نسخه‌ی سده‌ی <span x-text="sel.toLocaleString('fa-IR')"></span> در جست‌وجو ←
+                            دیدن نسخه‌های سال‌دار سده‌ی <span x-text="sel.toLocaleString('fa-IR')"></span> در جست‌وجو ←
                         </a>
                     </p>
                 </div>
             </div>
 
             <p class="mt-5 text-xs text-muted leading-relaxed">
-                بر پایه‌ی {{ Fa::num($t['shown']) }} نسخه، یعنی {{ $pct($t['coverage']) }} نسخه‌ها، که سال کتابتشان ثبت شده است.
-                @if($t['outside'] > 0){{ Fa::num($t['outside']) }} نسخه‌ی کتابت‌شده پس از سال ۱۴۰۰ در نمودار نیامده است.@endif
+                بر پایه‌ی {{ Fa::num($t['shown']) }} نسخه، یعنی {{ $pct($t['coverage']) }} نسخه‌ها، که تاریخ کتابتشان ثبت شده است:
+                {{ Fa::num($t['exact']) }} با سال معین و {{ Fa::num($t['range']) }} تنها با سده یا بخشی از آن.
+                @include('insights.doubtful-note', ['layers' => $t, 'unit' => 'نسخه', 'what' => 'تاریخ کتابتشان'])
+                @if($t['outside'] > 0){{ Fa::num($t['outside']) }} نسخه‌ی بیرون از سده‌های {{ Fa::digits(config('insights.centuries')[0]) }} تا {{ Fa::digits(config('insights.centuries')[1]) }} در نمودار نیامده است.@endif
+                @if($t['open'] > 0){{ Fa::num($t['open']) }} نسخه با بازه‌ی باز («پیش از ۱۱۰۰»، «پس از ۱۲۰۰») جدا شمرده شده و در نمودار نیامده است.@endif
             </p>
             </div>
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 1b. Authors by death and works by composition --}}
+    <x-ui.section title="پدیدآورندگان و آثار در گذر سده‌ها" id="authors">
+        <x-ui.card>
+            <div x-data="{ by: 'authors' }">
+            <div class="flex flex-wrap items-center gap-1.5 text-xs mb-4">
+                <span class="text-muted me-1">بر پایه‌ی</span>
+                @foreach(['authors' => 'سال وفات مؤلفان', 'works' => 'سال تألیف آثار'] as $key => $name)
+                    <button type="button" @click="by = '{{ $key }}'" :aria-pressed="(by === '{{ $key }}').toString()"
+                            :class="by === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
+                            class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
+                @endforeach
+            </div>
+
+            <div x-show="by === 'authors'">
+                <p class="text-xs text-muted mb-4">شمار مؤلفان (کسانی که اثری از آنان در فهارس هست) در هر سده‌ی هجری بر پایه‌ی سال وفات. وفاتی که تنها سده‌اش ثبت شده («ق۱۳»)، لایه‌ی خود را دارد.</p>
+                @include('insights.century-bars', ['rows' => $a['centuries'], 'unit' => 'مؤلف', 'label' => 'شمار مؤلفان در هر سده',
+                    'href' => fn ($c) => route('search', ['type' => 'people', 'role' => 'author', 'century' => $c])])
+                <p class="mt-5 text-xs text-muted leading-relaxed">
+                    بر پایه‌ی {{ Fa::num($a['counted']) }} مؤلف، یعنی {{ $pct($a['coverage']) }} از {{ Fa::num($a['total']) }} مؤلف، که تاریخ وفاتشان ثبت شده است:
+                    {{ Fa::num($a['exact']) }} با سال معین و {{ Fa::num($a['range']) }} تنها با سده.
+                    @include('insights.doubtful-note', ['layers' => $a, 'unit' => 'مؤلف', 'what' => 'سال وفاتشان'])
+                </p>
+            </div>
+
+            <div x-show="by === 'works'" x-cloak>
+                <p class="text-xs text-muted mb-4">شمار آثار در هر سده‌ی هجری بر پایه‌ی تاریخ تألیف، آن‌جا که فهرست آن را آورده است.</p>
+                @include('insights.century-bars', ['rows' => $w['centuries'], 'unit' => 'اثر', 'label' => 'شمار آثار در هر سده',
+                    'href' => fn ($c) => route('search', ['type' => 'works', 'century' => $c])])
+                <p class="mt-5 text-xs text-muted leading-relaxed">
+                    بر پایه‌ی {{ Fa::num($w['counted']) }} اثر، یعنی تنها {{ $pct($w['coverage']) }} آثار، که تاریخ تألیفشان ثبت شده است.
+                    @include('insights.doubtful-note', ['layers' => $w, 'unit' => 'اثر', 'what' => 'تاریخ تألیفشان'])
+                    @if($w['open'] > 0){{ Fa::num($w['open']) }} اثر با بازه‌ی باز («پیش از …») جدا شمرده شده است.@endif
+                    جست‌وجوی هر سده، آثاری را هم که تاریخ تألیف ندارند به سده‌ی وفات مؤلفشان می‌آورد.
+                </p>
+            </div>
+            </div>
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 1c. Years from the author's death to the copy --}}
+    <x-ui.section title="فاصله‌ی کتابت تا وفات مؤلف" id="copy-gap">
+        <x-ui.card>
+            @php $maxBand = max(1, ...array_column($g['bands'], 'count')); @endphp
+            <p class="text-xs text-muted mb-4">
+                چند سال پس از وفات مؤلف از اثرش نسخه برداشته‌اند.
+                @if($lifetime && $g['placed'])
+                    {{ $pct(round($lifetime['count'] * 100 / $g['placed'], 1)) }} نسخه‌ها در زمان حیات مؤلف کتابت شده‌اند.
+                @endif
+            </p>
+            <ul class="space-y-2.5 text-sm">
+                @foreach($g['bands'] as $band)
+                    @php
+                        $name = match (true) {
+                            $band['above'] === null => 'بیش از ' . Fa::digits(-$band['upto']) . ' سال پیش از وفات',
+                            $band['upto'] === 0 => 'در زمان حیات مؤلف',
+                            $band['upto'] === null => 'بیش از ' . Fa::digits($band['above']) . ' سال پس از وفات',
+                            default => Fa::digits($band['above'] + 1) . ' تا ' . Fa::digits($band['upto']) . ' سال پس از وفات',
+                        };
+                        $odd = $band['above'] === null;
+                    @endphp
+                    <li @class(['text-muted' => $odd])>
+                        <span class="flex items-baseline gap-2">
+                            <span @class(['text-ink' => ! $odd])>{{ $name }}</span>
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums">{{ Fa::num($band['count']) }} · {{ $pct(round($band['count'] * 100 / max(1, $g['placed']), 1)) }}</span>
+                        </span>
+                        <span class="mt-1 flex h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                            <span class="block h-full {{ $odd ? 'bg-muted/60' : 'bg-cinnabar/75' }}" style="width: {{ round($band['certain'] * 100 / $maxBand, 2) }}%"></span>
+                            <span class="block h-full {{ $odd ? 'bg-muted/25' : 'bg-cinnabar/30' }}" style="width: {{ round($band['doubtful'] * 100 / $maxBand, 2) }}%"></span>
+                        </span>
+                    </li>
+                @endforeach
+            </ul>
+            <p class="mt-5 text-xs text-muted leading-relaxed">
+                بر پایه‌ی {{ Fa::num($g['placed']) }} نسخه که هم تاریخ کتابتشان و هم وفات مؤلفشان ثبت شده است.
+                سال معین به همان سال و سده به همه‌ی سال‌هایش گرفته شده است. {{ Fa::num($g['unplaced']) }} نسخه‌ی دیگر که فاصله‌شان با این حساب در یک ردیف نمی‌گنجد (مانند نسخه‌ی «قرن ۱۳» از مؤلفِ درگذشته‌ی ۱۲۵۰)، جدا شمرده شده‌اند.
+                {{ Fa::num($g['doubtful']) }} نسخه ({{ $pct($g['doubtful_share']) }}) تاریخ کتابت یا وفات مردد دارند و کم‌رنگ آمده‌اند.
+                ردیف نخست، کتابتِ بیش از {{ Fa::digits(-config('insights.copy_gap')[0]) }} سال پیش از وفات، نشان خطایی در تاریخ یا در نسبت اثر به مؤلف است.
+            </p>
         </x-ui.card>
     </x-ui.section>
 

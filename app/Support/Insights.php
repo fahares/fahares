@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\DB;
  */
 class Insights
 {
-    private const CACHE_KEY = 'insights.v1';
+    // v2: the timelines read the date ranges and their hedges (backlog item 104)
+    private const CACHE_KEY = 'insights.v2';
 
     // Map frame (degrees) and its SVG size, the same frame as resources/views/insights/map-base
     public const MAP = ['lon0' => 28.0, 'lon1' => 90.0, 'lat0' => 10.0, 'lat1' => 44.0, 'width' => 1000, 'height' => 633];
@@ -40,10 +41,15 @@ class Insights
             'works' => DB::table('works')->count(),
         ];
 
+        $copies = self::copyDates();
+
         return [
             'built_at' => now()->toIso8601String(),
             'totals' => $totals,
-            'timeline' => self::timeline($totals['manuscripts']),
+            'timeline' => self::timeline($totals['manuscripts'], $copies['ranges']),
+            'authors' => self::authors(),
+            'compositions' => self::compositions($totals['works']),
+            'copy_gap' => self::copyGap($copies['gaps']),
             'places' => self::places($totals['manuscripts']),
             'scripts' => self::scripts($totals['manuscripts']),
             'languages' => self::languages($totals['works']),
@@ -51,33 +57,202 @@ class Insights
         ];
     }
 
-    private static function timeline(int $total): array
+    /**
+     * The copy dates in one pass over the manuscripts table: the ranges ({f, t, d, n}: from, to, doubtful, count) for
+     * the timeline, and the gaps to the author's death ({lo, hi, d, n}) for copyGap. A join of the manuscripts to their
+     * authors in SQL reads the copies row by row through the work index and takes several times longer.
+     */
+    private static function copyDates(): array
     {
-        [$from, $to] = config('insights.centuries');
-        $rows = DB::table('manuscripts')
-            ->whereNotNull('copy_date_hijri_year')
-            ->selectRaw('FLOOR((copy_date_hijri_year - 1) / 10) AS decade, COUNT(*) AS n')
-            ->groupBy('decade')
-            ->pluck('n', 'decade');
+        $span = (int) config('insights.exact_span');
+        // A range is a known year (its middle) or the whole range: [earliest, latest]
+        $ends = fn (?int $f, ?int $t) => $t - $f <= $span ? [intdiv($f + $t, 2), intdiv($f + $t, 2)] : [$f, $t];
+        $deaths = DB::table('works')->join('people', 'people.id', '=', 'works.author_id')
+            ->whereNotNull('people.death_from')->whereNotNull('people.death_to')
+            ->select('works.id', 'people.death_from', 'people.death_to', 'people.death_certainty')
+            ->get()
+            ->mapWithKeys(fn ($r) => [$r->id => [...$ends((int) $r->death_from, (int) $r->death_to), $r->death_certainty !== null]])
+            ->all();
 
-        $centuries = [];
-        for ($c = $from; $c <= $to; $c++) {
-            $decades = [];
-            for ($d = 0; $d < 10; $d++) {
-                $decades[] = (int) ($rows[($c - 1) * 10 + $d] ?? 0);
+        $ranges = [];
+        $gaps = [];
+        $rows = DB::table('manuscripts')
+            ->where(fn ($q) => $q->whereNotNull('copy_date_from')->orWhereNotNull('copy_date_to'))
+            ->selectRaw('work_id AS w, copy_date_from AS f, copy_date_to AS t, copy_date_certainty IS NOT NULL AS d, COUNT(*) AS n')
+            ->groupBy('w', 'f', 't', 'd')
+            ->cursor();
+        foreach ($rows as $row) {
+            $n = (int) $row->n;
+            $key = "{$row->f}|{$row->t}|{$row->d}";
+            $ranges[$key] ??= (object) ['f' => $row->f, 't' => $row->t, 'd' => (bool) $row->d, 'n' => 0];
+            $ranges[$key]->n += $n;
+            if ($row->f === null || $row->t === null || ! isset($deaths[$row->w])) {
+                continue;
             }
-            $centuries[] = ['century' => $c, 'count' => array_sum($decades), 'decades' => $decades];
+            [$c0, $c1] = $ends((int) $row->f, (int) $row->t);
+            [$d0, $d1, $dd] = $deaths[$row->w];
+            $d = $row->d || $dd;
+            $key = ($c0 - $d1) . '|' . ($c1 - $d0) . '|' . (int) $d;
+            $gaps[$key] ??= (object) ['lo' => $c0 - $d1, 'hi' => $c1 - $d0, 'd' => $d, 'n' => 0];
+            $gaps[$key]->n += $n;
         }
 
-        $dated = (int) $rows->sum();
-        $shown = array_sum(array_column($centuries, 'count'));
+        return ['ranges' => array_values($ranges), 'gaps' => array_values($gaps)];
+    }
+
+    /** Copies per century, from the range of the copy date (copy_date_from/to, step 13.82). */
+    private static function timeline(int $total, array $rows): array
+    {
+        [$from, $to] = config('insights.centuries');
+        $layers = self::centuryLayers($rows, $from, $to);
+
+        return $layers + ['coverage' => self::share($layers['shown'], $total)];
+    }
+
+    /** Authors (people with a work) per century of death, from the death range (death_from/to, step 13.101). */
+    private static function authors(): array
+    {
+        [$from, $to] = config('insights.author_centuries');
+        $rows = DB::table('people')
+            ->where(fn ($q) => $q->whereNotNull('death_from')->orWhereNotNull('death_to'))
+            ->whereExists(fn ($q) => $q->from('works')->whereColumn('works.author_id', 'people.id'))
+            ->selectRaw('death_from AS f, death_to AS t, death_certainty IS NOT NULL AS d, COUNT(*) AS n')
+            ->groupBy('f', 't', 'd')
+            ->get();
+        $authors = DB::table('works')->whereNotNull('author_id')->distinct()->count('author_id');
+        $layers = self::centuryLayers($rows, $from, $to);
+
+        return $layers + ['total' => $authors, 'coverage' => self::share($layers['counted'], $authors)];
+    }
+
+    /** Works per century of composition (composition_date_from/to, step 13.91). */
+    private static function compositions(int $totalWorks): array
+    {
+        [$from, $to] = config('insights.author_centuries');
+        $rows = DB::table('works')
+            ->where(fn ($q) => $q->whereNotNull('composition_date_from')->orWhereNotNull('composition_date_to'))
+            ->selectRaw('composition_date_from AS f, composition_date_to AS t, composition_date_certainty IS NOT NULL AS d, COUNT(*) AS n')
+            ->groupBy('f', 't', 'd')
+            ->get();
+        $layers = self::centuryLayers($rows, $from, $to);
+
+        return $layers + ['coverage' => self::share($layers['counted'], $totalWorks)];
+    }
+
+    /**
+     * Ranges of Hijri years ({f, t, d, n}: from, to, doubtful, count) per century, in four layers: a known year (a
+     * range of up to `exact_span` years, put at its middle, also counted per decade) or only a century or a part of
+     * one, spread over the centuries it covers by their share of its years; each certain or doubtful. A range with
+     * one end open («پیش از 1100») is counted apart.
+     */
+    private static function centuryLayers(iterable $rows, int $first, int $last): array
+    {
+        $span = config('insights.exact_span');
+        $cells = [];
+        $open = 0;
+        $counted = 0;
+        $doubtful = 0;
+        $outside = 0.0;
+        foreach ($rows as $row) {
+            $n = (int) $row->n;
+            if ($row->f === null || $row->t === null) {
+                $open += $n;
+
+                continue;
+            }
+            $f = max(1, min((int) $row->f, (int) $row->t));
+            $t = max(1, (int) $row->f, (int) $row->t);
+            $d = (bool) $row->d;
+            $counted += $n;
+            $doubtful += $d ? $n : 0;
+            if ($t - $f <= $span) {
+                $year = intdiv($f + $t, 2);
+                $c = intdiv($year - 1, 100) + 1;
+                if ($c < $first || $c > $last) {
+                    $outside += $n;
+
+                    continue;
+                }
+                $cells[$c][$d ? 'exact_doubtful' : 'exact'] = ($cells[$c][$d ? 'exact_doubtful' : 'exact'] ?? 0) + $n;
+                $decade = intdiv(($year - 1) % 100, 10);
+                $cells[$c][$d ? 'dd' : 'dc'][$decade] = ($cells[$c][$d ? 'dd' : 'dc'][$decade] ?? 0) + $n;
+
+                continue;
+            }
+            for ($c = intdiv($f - 1, 100) + 1; $c <= intdiv($t - 1, 100) + 1; $c++) {
+                $part = $n * (min($t, $c * 100) - max($f, $c * 100 - 99) + 1) / ($t - $f + 1);
+                if ($c < $first || $c > $last) {
+                    $outside += $part;
+                } else {
+                    $cells[$c][$d ? 'range_doubtful' : 'range'] = ($cells[$c][$d ? 'range_doubtful' : 'range'] ?? 0) + $part;
+                }
+            }
+        }
+
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $row = ['century' => $c];
+            foreach (['exact', 'exact_doubtful', 'range', 'range_doubtful'] as $layer) {
+                $row[$layer] = (int) round($cells[$c][$layer] ?? 0);
+            }
+            $row['count'] = $row['exact'] + $row['exact_doubtful'] + $row['range'] + $row['range_doubtful'];
+            $row['decades'] = array_map(fn ($d) => (int) ($cells[$c]['dc'][$d] ?? 0), range(0, 9));
+            $row['decades_doubtful'] = array_map(fn ($d) => (int) ($cells[$c]['dd'][$d] ?? 0), range(0, 9));
+            $centuries[] = $row;
+        }
+        $sum = fn (string ...$layers) => array_sum(array_map(fn ($l) => array_sum(array_column($centuries, $l)), $layers));
 
         return [
             'centuries' => $centuries,
-            'dated' => $dated,
-            'shown' => $shown,
-            'outside' => $dated - $shown,
-            'coverage' => self::share($shown, $total),
+            'counted' => $counted,
+            'shown' => $sum('exact', 'exact_doubtful', 'range', 'range_doubtful'),
+            'exact' => $sum('exact', 'exact_doubtful'),
+            'range' => $sum('range', 'range_doubtful'),
+            'doubtful' => $doubtful,
+            'doubtful_share' => self::share($doubtful, $counted),
+            'outside' => (int) round($outside),
+            'open' => $open,
+        ];
+    }
+
+    /**
+     * The years between a copy and its author's death (copyDates): the copy's year less the death year, each the
+     * middle of its range when that is a known year (exact_span), else the whole range. A copy goes to the band of
+     * `copy_gap` its possible gaps all fall in, or is counted apart when they cross a band edge.
+     */
+    private static function copyGap(array $rows): array
+    {
+        $edges = config('insights.copy_gap');
+
+        // A gap's band: the number of edges below it, so a band runs from just above one edge up to the next
+        $band = fn (int $gap) => count(array_filter($edges, fn ($e) => $gap > $e));
+        $bands = array_fill(0, count($edges) + 1, ['certain' => 0, 'doubtful' => 0]);
+        $paired = 0;
+        $placed = 0;
+        $doubtful = 0;
+        foreach ($rows as $row) {
+            $n = (int) $row->n;
+            $paired += $n;
+            $b = $band((int) $row->lo);
+            if ($b !== $band((int) $row->hi)) {
+                continue;
+            }
+            $placed += $n;
+            $bands[$b][$row->d ? 'doubtful' : 'certain'] += $n;
+            $doubtful += $row->d ? $n : 0;
+        }
+        $list = [];
+        foreach ($bands as $i => $counts) {
+            $list[] = ['above' => $edges[$i - 1] ?? null, 'upto' => $edges[$i] ?? null, 'count' => $counts['certain'] + $counts['doubtful']] + $counts;
+        }
+
+        return [
+            'bands' => $list,
+            'paired' => $paired,
+            'placed' => $placed,
+            'unplaced' => $paired - $placed,
+            'doubtful' => $doubtful,
+            'doubtful_share' => self::share($doubtful, $placed),
         ];
     }
 

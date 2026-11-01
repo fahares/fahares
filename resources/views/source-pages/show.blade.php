@@ -30,9 +30,11 @@
     <nav class="flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="مسیر">
         <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
         <span aria-hidden="true">/</span>
-        <span>{{ $sourceName }}</span>
+        <a href="{{ route('sources.index') }}" class="hover:text-cinnabar">منابع</a>
         <span aria-hidden="true">/</span>
-        <span>{{ Fa::digits('ج ' . $volumeNumber) }}</span>
+        <a href="{{ route('sources.show', $source->code) }}" class="hover:text-cinnabar">{{ $sourceName }}</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('sources.show', $source->code) }}#v{{ $volumeNumber }}" class="hover:text-cinnabar">{{ Fa::digits('ج ' . $volumeNumber) }}</a>
         @if($printed->frontMatter)
             <span aria-hidden="true">/</span>
             <span>پیش‌گفتار</span>
@@ -89,9 +91,10 @@
                             // al-Dhari'a's volume 26 prints the number alone, «[ 972 ]», and the title on the next line
                             // in parentheses: the title is linked too, the rest of its line goes on after it
                             $title = null;
-                            // al-Dhari'a's heading, «( 5 : شارحة الصدور )», runs on with its paragraph: only the heading is the link
+                            // al-Dhari'a's heading, «( 5 : شارحة الصدور )» or an unnumbered «( ديوان محمد مذهب )», runs on with
+                            // its paragraph: only the heading is the link
                             $rest = '';
-                            if (preg_match('/^(\(\s*\d+\s*:[^)\n]*\))(.+)$/us', $lines[0], $split)) {
+                            if (preg_match('/^(\([^)\n]*\))(.+)$/us', $lines[0], $split)) {
                                 [$lines[0], $rest] = [$split[1], $split[2]];
                             }
                             if (preg_match('/^\[\s*\d+\s*\]$/u', trim($lines[0])) && preg_match('/^\s*(\([^)\n]+\))(.*)$/us', $lines[1] ?? '', $m)) {
@@ -111,9 +114,13 @@
                                 @endif
                                 @if(! empty($block['marks']))
                                     {{-- a catalogue's page: its works' headings and its copies' lines link their records --}}
-                                    <div class="whitespace-pre-line">{!! collect(\App\Support\PrintedPage::pieces($block))->map(fn ($p) => isset($p['url'])
-                                        ? '<a href="' . e($p['url']) . '" class="book-sheet__mark book-sheet__mark--' . $p['kind'] . '" title="' . e($p['title']) . '" data-record-link="' . $p['kind'] . '">' . e(Fa::digits($p['text'])) . '</a>'
-                                        : (string) \App\Support\PrintedPage::text($p['text']))->implode('') !!}</div>
+                                    <div class="whitespace-pre-line">{!! collect(\App\Support\PrintedPage::pieces($block))->map(fn ($p) => match (true) {
+                                        ($p['kind'] ?? null) === 'catalogue' => '<a href="' . e($p['url']) . '" class="book-sheet__cite" title="' . e($p['title']) . '" data-cite="catalogue"'
+                                            . ($p['viewer'] ? ' onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent(\'open-catalog-viewer\', { detail: ' . e(json_encode($p['viewer'], JSON_UNESCAPED_UNICODE)) . ' }))"' : '')
+                                            . '>' . e(Fa::digits($p['text'])) . '</a>',
+                                        isset($p['url']) => '<a href="' . e($p['url']) . '" class="book-sheet__mark book-sheet__mark--' . $p['kind'] . '" title="' . e($p['title']) . '" data-record-link="' . $p['kind'] . '">' . e(Fa::digits($p['text'])) . '</a>',
+                                        default => (string) \App\Support\PrintedPage::text($p['text']),
+                                    })->implode('') !!}</div>
                                 @else
                                     <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text($block['text']) }}</div>
                                 @endif

@@ -13,12 +13,16 @@
 {{-- One printed entry of a source (plan docs/plans/dharia-text.md): its text with the page turns marked, the page images,
      the works of the site tied to it (ⓘ until reviewed), and the entries around it. --}}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-    <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
+    <nav class="flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="مسیر">
         <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
         <span aria-hidden="true">/</span>
-        <span>{{ $sourceName }}</span>
+        <a href="{{ route('sources.index') }}" class="hover:text-cinnabar">منابع</a>
         <span aria-hidden="true">/</span>
-        <span class="text-ink font-semibold">{{ Fa::digits('ج ' . $item->volume_number) }}</span>
+        <a href="{{ route('sources.show', $item->source->code) }}" class="hover:text-cinnabar">{{ $sourceName }}</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ route('sources.show', $item->source->code) }}#v{{ $item->volume_number }}" class="hover:text-cinnabar">{{ Fa::digits('ج ' . $item->volume_number) }}</a>
+        <span aria-hidden="true">/</span>
+        <a href="{{ $item->pageUrl() }}" class="hover:text-cinnabar">{{ Fa::digits(($item->source->unit === 'ستون' ? 'ستون ' : 'ص ') . $item->page_start) }}</a>
     </nav>
 
     <header class="text-center grid justify-items-center gap-2 pb-6">
