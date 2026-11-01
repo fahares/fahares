@@ -374,6 +374,12 @@ body {
    under it dotted */
 .book-sheet__mark--entry,
 .book-sheet__mark--person-guess { color: var(--ink); border-bottom-style: dotted; }
+/* the mark a person's list of mentions leads to (step 13.136) */
+.book-sheet__mark:target {
+    background: color-mix(in srgb, var(--cinnabar) 14%, transparent);
+    border-radius: 2px;
+    scroll-margin-top: 40vh;
+}
 /* a citation of a source the site has, inside the text (backlog item 102) */
 .book-sheet__cite {
     color: var(--cinnabar);

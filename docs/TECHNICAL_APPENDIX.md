@@ -6007,3 +6007,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`.
 - **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون) و `BackfillWorkSubjectsTest::test_known_subjects_and_reviewed_phrases_are_linked_once`.
 
+### گام ۱۳.۱۳۶: «یادکرد در منابع» در صفحه‌ی شخص
+- **داده:** [SourceMentions.php](../app/Support/SourceMentions.php) `forPerson()` پیوندهای ردنشده‌ی `source_page_links` به شخص را می‌خواند (حداکثر ۲۰۰). ترتیب: رتبه‌ی منبع، جلد، صفحه، شماره‌ی نشانه. خروجی بر پایه‌ی منبع گروه‌بندی می‌شود.
+  - **تکه‌ی متن:** با `LinkDhariaTitlesCommand::marksOf()` به دست می‌آید: حدود ۶۰ حرف پیش و پس از نام، بریده در مرز واژه.
+  - **مدخل:** از میان مدخل‌هایی که صفحه را در بر می‌گیرند، آن مدخلی برگزیده می‌شود که متنش (بی فاصله و اعراب) خود نام و ۳۰ حرف پس از آن را دارد. اگر بیش از یک مدخل یا هیچ مدخلی چنین باشد، مدخلی نشان داده نمی‌شود.
+- **نمای صفحه:** بخش در [people/show.blade.php](../resources/views/people/show.blade.php) پس از «نقش‌های دیگر در نسخه‌ها» می‌آید.
+- **لنگر:** `PrintedPage::linked()` شماره‌ی نشانه را به پایان kind می‌افزاید (`…\0person-guess\0m4`) و `openTag()` آن را `id` می‌کند. نشانه‌ای که در سطر بعد دوباره باز می‌شود شناسه نمی‌گیرد. CSS `.book-sheet__mark:target` پس‌زمینه‌ی کم‌رنگ و `scroll-margin-top: 40vh` دارد.
+- **آزمون‌ها:** `LinkDhariaPeopleTest` صفحه‌ی شخص، پیوند `#m1`، تکه‌ی متن و نیامدن پیوند ردشده را می‌آزماید. انتظار HTML در دو آزمون الذریعة اکنون `id` را هم دارد.

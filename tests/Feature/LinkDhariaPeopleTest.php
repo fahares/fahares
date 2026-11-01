@@ -58,12 +58,22 @@ class LinkDhariaPeopleTest extends TestCase
             DB::table('source_page_links')->pluck('target_id')->all()));
 
         $html = $this->get('/sources/dharia/4/page/10')->assertOk()->getContent();
-        $this->assertStringContainsString('<a href="' . route('people.show', $majlisi) . '" class="book-sheet__mark book-sheet__mark--person-guess" title="مجلسی، محمد باقر بن محمد تقی (پیوند ماشینی)" data-noor="FB" data-record-link="person-guess">العلامة المجلسي</a>', $html);
+        $this->assertStringContainsString('<a href="' . route('people.show', $majlisi) . '" id="m4" class="book-sheet__mark book-sheet__mark--person-guess" title="مجلسی، محمد باقر بن محمد تقی (پیوند ماشینی)" data-noor="FB" data-record-link="person-guess">العلامة المجلسي</a>', $html);
         $this->assertStringContainsString('<span data-noor="FB">المولى عبد الله اليزدي</span>', $html);
         $this->assertSame($page, DB::table('source_page_links')->value('source_page_id'));
 
         // without --all only a name his death year after it confirms is saved
         $this->artisan('sources:link-dharia-people')->assertSuccessful();
         $this->assertSame([[1, $tunekabuni->id]], DB::table('source_page_links')->get()->map(fn ($l) => [$l->ordinal, $l->target_id])->all());
+
+        // his page lists where al-Dhari'a names him, linking the mark on the page (step 13.136); a rejected link is not listed
+        $html = $this->get(route('people.show', $tunekabuni))->assertOk()->getContent();
+        $this->assertStringContainsString('یادکرد در منابع', $html);
+        $this->assertStringContainsString('href="' . route('source-pages.show', ['dharia', 4, 10]) . '#m1"', $html);
+        $this->assertStringContainsString('الذریعة، ج ۴، ص ۱۰', $html);
+        $this->assertStringContainsString('<mark class="bg-transparent text-ink font-bold">المولى محمد بن عبد الفتاح التنكابني</mark> المتوفى ۱۱۲۴', $html);
+        $this->assertStringNotContainsString('یادکرد در منابع', $this->get(route('people.show', $majlisi))->getContent());
+        DB::table('source_page_links')->update(['rejected_at' => now()]);
+        $this->assertStringNotContainsString('یادکرد در منابع', $this->get(route('people.show', $tunekabuni))->getContent());
     }
 }

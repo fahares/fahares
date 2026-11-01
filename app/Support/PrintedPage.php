@@ -71,8 +71,8 @@ class PrintedPage
 
     /**
      * The page's text with the records its marks link (source_page_links: an al-Dhari'a title to its entry, step
-     * 13.129; a person to his page, step 13.133) written into those marks' kinds, «VB\0url\0title\0entry», for
-     * openTag().
+     * 13.129; a person to his page, step 13.133) written into those marks' kinds, «VB\0url\0title\0entry\0m4», for
+     * openTag(); the last part, the mark's ordinal, is its id, which a person's page links to (step 13.136).
      */
     private static function linked(string $text, int $pageId): string
     {
@@ -92,10 +92,10 @@ class PrintedPage
             $link = $links->get(++$n);
             $record = $link && $link->kind === $m[1] ? ($records[$link->target_type] ?? collect())->get($link->target_id) : null;
             if ($record instanceof SourceItem) {
-                return "\u{E020}{$m[1]}\0{$record->url()}\0الذریعة، {$record->placeLabel()}: {$record->title} (پیوند ماشینی)\0entry\u{E021}";
+                return "\u{E020}{$m[1]}\0{$record->url()}\0الذریعة، {$record->placeLabel()}: {$record->title} (پیوند ماشینی)\0entry\0m{$n}\u{E021}";
             }
             if ($record) {
-                return "\u{E020}{$m[1]}\0" . route('people.show', $record) . "\0{$record->name} (پیوند ماشینی)\0person-guess\u{E021}";
+                return "\u{E020}{$m[1]}\0" . route('people.show', $record) . "\0{$record->name} (پیوند ماشینی)\0person-guess\0m{$n}\u{E021}";
             }
 
             return $m[0];
@@ -230,7 +230,7 @@ class PrintedPage
      */
     private static function inline(string $line, array &$stack, ?array $author = null): string
     {
-        $html = implode('', array_map([self::class, 'openTag'], $stack));
+        $html = implode('', array_map(fn ($kind) => self::openTag($kind, false), $stack));
         $tokens = preg_split('/(\x{E020}[^\x{E021}]*\x{E021}|\x{E022})/u', $line, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
         foreach ($tokens as $i => $token) {
             if ($token === "\u{E022}") {
@@ -279,12 +279,13 @@ class PrintedPage
         return $html;
     }
 
-    private static function openTag(string $kind): string
+    /** A mark's opening element; $first false for a mark opened again on the next line, which takes no id. */
+    private static function openTag(string $kind, bool $first = true): string
     {
         if (str_contains($kind, "\0")) {
-            [$noor, $url, $title, $record] = explode("\0", $kind);
+            [$noor, $url, $title, $record, $id] = array_pad(explode("\0", $kind), 5, null);
 
-            return '<a href="' . e($url) . '" class="book-sheet__mark book-sheet__mark--' . $record . '" title="' . e($title) . '" data-noor="' . e($noor) . '" data-record-link="' . $record . '">';
+            return '<a href="' . e($url) . '"' . ($id && $first ? ' id="' . $id . '"' : '') . ' class="book-sheet__mark book-sheet__mark--' . $record . '" title="' . e($title) . '" data-noor="' . e($noor) . '" data-record-link="' . $record . '">';
         }
         if (str_starts_with($kind, 'ayah')) {
             $label = Quran::label(trim(substr($kind, 4)));

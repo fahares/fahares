@@ -62,7 +62,7 @@ class LinkDhariaTitlesTest extends TestCase
         $this->assertNotNull(DB::table('source_page_links')->where('source_page_id', $page4)->where('ordinal', 2)->value('rejected_at'));
 
         $html = $this->get('/sources/dharia/4/page/100')->assertOk()->getContent();
-        $this->assertStringContainsString('<a href="' . $salaf->url() . '" class="book-sheet__mark book-sheet__mark--entry" title="الذریعة، '
+        $this->assertStringContainsString('<a href="' . $salaf->url() . '" id="m1" class="book-sheet__mark book-sheet__mark--entry" title="الذریعة، '
             . $salaf->placeLabel() . ': تجارب السلف (پیوند ماشینی)" data-noor="VB" data-record-link="entry">تجارب السلف</a>', $html);
         $this->assertStringContainsString('href="' . $irshad14->url() . '"', $html);
         $this->assertStringNotContainsString('href="' . $irshad13->url() . '"', $html);
