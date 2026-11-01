@@ -5865,3 +5865,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - زیر `min_sample` (۱۰) خانه خالی می‌ماند.
 - **آزمون:** `test_scribes_libraries_sizes_languages_and_catalogues_of_a_scope` در [InsightsScopeTest](../tests/Feature/InsightsScopeTest.php).
 - **یادداشت:** `main` اکنون فیلتر «جلد فهرست» جست‌وجو را دارد (گام ۱۳.۱۱۶، `source_volume_id`). فیلتر `catalog` این صفحه `catalog_volume_id` است، پس هنوز به آن پیوند داده نشده است.
+
+### گام ۱۳.۱۲۶: `MemoryLimit::raiseTo`
+- **خطا:** `ErrorException: Failed to set memory limit to 201326592 bytes (Current memory usage is …)` در `SearchController::export`. اگر `memory_limit` کمتر از `memory_get_usage(true)` باشد، `ini_set` آن را نمی‌پذیرد و هشدار می‌دهد.
+- **[MemoryLimit](../app/Support/MemoryLimit.php):** سقف کنونی با `ini_parse_quantity(ini_get('memory_limit'))` خوانده می‌شود. اگر `-1` باشد، کاری نمی‌کند. هدف `max(ini_parse_quantity($limit), memory_get_usage(true) + 32M)` است. اگر هدف از سقف کنونی بیشتر نباشد، `false` برمی‌گرداند؛ وگرنه `ini_set` می‌کند.
+- **فراخوان‌ها:** `SearchController::export` با `192M` و `ExportSearchResults::handle` با `256M`. دستورهای کنسول (`1024M` و `-1`) دست نخوردند.
+- **آزمون:** [MemoryLimitTest](../tests/Unit/MemoryLimitTest.php) سه حالت را می‌آزماید: بالا بردن، نگه داشتن سقف بالاتر یا نامحدود، و هدفی کمتر از حافظه‌ی در حال مصرف. اجرای کامل با کپی `phpunit.xml` روی `fahares_lehmann_test` انجام شد: ۵۷۱ موفق.
