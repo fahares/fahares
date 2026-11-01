@@ -6065,7 +6065,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `پیغمبر اکرم` و `پیامبر اکرم` به املاهای پیامبر افزوده شدند.
 - **dry run (`fahares_prod` محلی، که گام ۱۳.۱۳۵ در آن اجرا نشده است):** `linked:known 128`، `linked:reviewed 42`، `linked:known:description 353`، `linked:reviewed:description 8`، `linked:known:title_inside 121`، `linked:reviewed:title_inside 1`.
   - پیش از دو قید: بی `within` ۶۳۱ پیوند از معرفی، و بی زنجیره‌ی «و» ۳۹۰.
-  - رکورد امام نهم با نام «محمد بن علی (ع)، امام نهم» در کپی محلی نیست، پس پیوندهای او ساخته نمی‌شوند. فرمان هشدار «No record» می‌دهد.
+  - رکورد امام نهم («محمد بن علی (ع)، امام نهم») نه در کپی محلی بود و نه در پروداکشن. سطر او در `LIST` کلید `death => 220` دارد. فرمان رکوردی را که نیست ولی `death` دارد با `createRecord()` می‌سازد (`records:created`)، همان‌طور که `backfill-work-dedications` رکورد فرمانروا را می‌سازد. در dry run رکورد ساخته نمی‌شود.
+  - بخش تازه‌ی `titles` در فایل تصمیم، عنوان کامل را به رکورد نگاشت می‌کند (`reviewed:title_listed`، با `label_raw = null`). تنها مدخلش «پیشوای بزرگوار امام نهم (ع)» است.
 - **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`. ۱۶۹ پیوند گام ۱۳.۱۳۵ `pieces:exists` گزارش می‌شوند.
 - **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون تازه) و `BackfillWorkSubjectsTest` (معرفی، و فصل دیرآمده).
 

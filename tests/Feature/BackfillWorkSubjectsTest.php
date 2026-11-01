@@ -44,6 +44,27 @@ class BackfillWorkSubjectsTest extends TestCase
             'slug' => 'test-subject-' . uniqid(), 'volume_number' => 99, 'page_start' => 1]);
     }
 
+    public function test_a_missing_record_of_the_fixed_list_is_made_once_and_a_listed_title_is_linked()
+    {
+        DB::table('people')->where('name', 'محمد بن علی (ع)، امام نهم')->delete();
+        $listed = $this->work('پیشوای بزرگوار آزمایشی امام نهم');
+        file_put_contents($this->file, json_encode(['phrases' => [], 'titles' => ['پیشوای بزرگوار آزمایشی امام نهم' => 'محمد بن علی (ع)، امام نهم']], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file])->assertSuccessful();
+        $this->assertFalse(DB::table('people')->where('name', 'محمد بن علی (ع)، امام نهم')->exists());
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file, '--apply' => true])->assertSuccessful();
+        $imam = DB::table('people')->where('name', 'محمد بن علی (ع)، امام نهم')->sole();
+        $this->people[] = $imam->id;
+        $this->assertSame([220, 3], [(int) $imam->death_year_hijri, (int) $imam->century_hijri]);
+        $row = DB::table('work_people')->where('work_id', $listed)->sole();
+        $this->assertSame(['subject', (int) $imam->id, null], [$row->role, (int) $row->person_id, $row->label_raw]);
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file, '--apply' => true])->assertSuccessful();
+        $this->assertSame(1, DB::table('people')->where('name', 'محمد بن علی (ع)، امام نهم')->count());
+        $this->assertSame(1, DB::table('work_people')->where('work_id', $listed)->count());
+    }
+
     public function test_known_subjects_and_reviewed_phrases_are_linked_once()
     {
         $husayn = $this->person('حسین بن علی (ع)، امام سوم');

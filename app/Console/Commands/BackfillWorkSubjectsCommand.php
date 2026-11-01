@@ -13,6 +13,7 @@ use App\Support\KnownSubjects;
 use App\Support\PersonNameMatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
@@ -46,19 +47,31 @@ class BackfillWorkSubjectsCommand extends Command
         $this->counts = [];
         $this->examples = [];
         $path = $this->option('decisions') ?: database_path('data/work_subjects_20261101.json');
+        $file = File::exists($path) ? json_decode(File::get($path), true) : [];
         $decided = [];
-        foreach (File::exists($path) ? (json_decode(File::get($path), true)['phrases'] ?? []) : [] as $phrase => $name) {
+        foreach ($file['phrases'] ?? [] as $phrase => $name) {
             if ($name) {
                 $decided[KnownRulers::compact($phrase)] = $name;
             }
         }
+        // «پیشوای بزرگوار امام نهم (ع)»: a whole title that names its subject without a subject word
+        $titles = [];
+        foreach ($file['titles'] ?? [] as $title => $name) {
+            $titles[KnownRulers::compact($title)] = $name;
+        }
         $matcher = new PersonNameMatcher;
         $people = [];
-        $person = function (string $name) use ($matcher, &$people): ?Person {
+        // A record of KnownSubjects with a death year that the people table lacks (the ninth Imam) is made; in a dry
+        // run it comes back as its name
+        $person = function (string $name) use ($matcher, &$people, $apply): Person|string|null {
             if (! array_key_exists($name, $people)) {
                 $ids = $matcher->ids(TextNormalizer::normalize($name));
                 $people[$name] = count($ids) === 1 ? Person::find($ids[0]) : null;
-                if (count($ids) !== 1) {
+                $known = KnownSubjects::named($name);
+                if (! $ids && isset($known['death'])) {
+                    $people[$name] = $apply ? $this->createRecord($name, $known['death'], $matcher) : $name;
+                    $this->count('records:created', $name);
+                } elseif (count($ids) !== 1) {
                     $this->warn((count($ids) ? 'Several records' : 'No record') . " for {$name}");
                 }
             }
@@ -68,10 +81,13 @@ class BackfillWorkSubjectsCommand extends Command
         $guard = ProtectedColumns::for(Work::class);
         $candidates = [];
 
-        Work::query()->select(['id', 'primary_title', 'description'])->orderBy('id')->chunkById(5000, function ($works) use ($apply, $relations, $guard, $person, $decided, &$candidates) {
+        Work::query()->select(['id', 'primary_title', 'description'])->orderBy('id')->chunkById(5000, function ($works) use ($apply, $relations, $guard, $person, $decided, $titles, &$candidates) {
             foreach ($works as $work) {
-                // [word, name, how] for each subject the work names, the first one for a person kept
+                // [word, how] by record name for each subject the work names, the first one for a person kept
                 $subjects = [];
+                if ($name = $titles[KnownRulers::compact((string) $work->primary_title)] ?? null) {
+                    $subjects[$name] = [null, 'reviewed:title_listed'];
+                }
                 if ($read = KnownSubjects::fromTitle($work->primary_title)) {
                     [$word, $pieces] = $read;
                     $this->count('works:titled');
@@ -109,7 +125,7 @@ class BackfillWorkSubjectsCommand extends Command
                         $this->count('pieces:protected', $label);
                         continue;
                     }
-                    if ($work->workPeople()->where('role', 'subject')->where('person_id', $subject->id)->exists()) {
+                    if ($subject instanceof Person && $work->workPeople()->where('role', 'subject')->where('person_id', $subject->id)->exists()) {
                         $this->count('pieces:exists');
                         continue;
                     }
@@ -120,7 +136,7 @@ class BackfillWorkSubjectsCommand extends Command
                     $entry = SourceEntry::where('citable_type', Work::class)->where('citable_id', $work->id)
                         ->where('origin', SourceEntry::ORIGIN_FANKHA)->orderByDesc('is_primary')->orderBy('id')->value('id');
                     try {
-                        $relations->addRole($work, 'subject', $subject, null, null, null, ['source_entry_id' => $entry, 'label_raw' => mb_substr($word, 0, 60)]);
+                        $relations->addRole($work, 'subject', $subject, null, null, null, ['source_entry_id' => $entry, 'label_raw' => $word === null ? null : mb_substr($word, 0, 60)]);
                     } catch (InvalidArgumentException $e) {
                         $this->count('pieces:refused', "{$label} ({$e->getMessage()})");
                     }
@@ -175,6 +191,22 @@ class BackfillWorkSubjectsCommand extends Command
         }
 
         return $out;
+    }
+
+    /** An authority record of KnownSubjects, with its death year, as fahares:backfill-work-dedications makes a ruler's. */
+    private function createRecord(string $name, int $death, PersonNameMatcher $matcher): Person
+    {
+        $person = Person::create([
+            'name' => $name,
+            'normalized_name' => mb_substr(TextNormalizer::normalize($name), 0, 600),
+            'slug' => 'person-' . Str::random(12),
+            'death_year_hijri' => $death,
+            'century_hijri' => PersonNameMatcher::century($death),
+        ]);
+        $person->update(['slug' => (Str::slug($name, '-', null) ?: 'person') . '-' . $person->id]);
+        $matcher->remember($person);
+
+        return $person;
     }
 
     private function count(string $kind, ?string $example = null): void
