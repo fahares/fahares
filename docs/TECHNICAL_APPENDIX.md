@@ -5693,7 +5693,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_al_dharias_author_mark_links_the_works_author_when_it_names_him`.
 - **کامیت:** `c6e1f12`.
 
-### گام ۱۳.۱۱۶: `sources:retie-stray-copies`
+### گام ۱۳.۱۱۷: `sources:retie-stray-copies`
 - **یافتن (فقط‌خواندنی، `fahares_prod` محلی):**
   - کتابخانه‌ی ۳۴۱ (`mshhd-danshkdh-alhyat-mshhd-341`): ۶۲ نسخه، همه روی #412 (الهیات تهران، کتابخانه‌ی ۴۰)، با ارجاع «ف: 1–3». شماره‌ی هیچ‌یک با نسخه‌ای از کتابخانه‌ی ۳۸ همان اثر نیست.
   - کتابخانه‌ی ۳۶۵ (`thran-danshgah-thran-365`): ۲۰ نسخه با ارجاع فهرست مرکزی و میکروفیلم‌ها. شماره‌های مشترک با کتابخانه‌ی ۳ اثرهای دیگرِ همان مجموعه‌اند، نه نسخه‌ی تکراری.
