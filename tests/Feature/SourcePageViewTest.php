@@ -260,19 +260,23 @@ class SourcePageViewTest extends TestCase
         $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 13, 'facsimile_code' => 'dharia-test']);
         $sb = fn (string $name) => "\u{E020}SB\u{E021}{$name}\u{E022}";
         $entries = [
-            ['5', 'شارحة الصدور', 'منظومة ' . $sb('للعلامة الشيخ حسين بن محمد بن أحمد آل عصفور البحراني') . ' ابن أخي ' . "\u{E020}FB\u{E021}صاحب الحدائق\u{E022}", 'آل عصفور، حسین بن محمد'],
+            ['5', 'شارحة الصدور', 'منظومة ' . $sb('للعلامة الشيخ حسين بن محمد بن أحمد آل عصفور البحراني') . ' ابن أخي ' . "\u{E020}FB\u{E021}صاحب الحدائق\u{E022}", 'آل عصفور، حسین بن محمد', null],
             // a commentary tied to the work it comments on: the mark names the commentator, not the work's author
-            ['6', 'شرح التجريد', 'شرح ' . $sb('لآية الله العلامة الحلي الشيخ أبي منصور الحسن بن يوسف'), 'نصیرالدین طوسی، محمد بن محمد'],
+            ['6', 'شرح التجريد', 'شرح ' . $sb('لآية الله العلامة الحلي الشيخ أبي منصور الحسن بن يوسف'), 'نصیرالدین طوسی، محمد بن محمد', null],
+            // «ل» on the name, and a name the site keeps among his other names
+            ['7', 'الحاوي', 'في الطب ' . $sb('لمحمد بن زكريا الرازي'), 'رازی، محمد بن زکریا', null],
+            ['8', 'الأسفار', 'في الحكمة ' . $sb('لصدر المتألهين المولى صدر الشيرازي'), 'صدرالدین شیرازی، محمد بن ابراهیم', ['ملاصدرا', 'صدر المتألهین شیرازی']],
         ];
         $people = [];
         $text = '';
-        foreach ($entries as $i => [$number, $title, $body, $author]) {
+        foreach ($entries as $i => [$number, $title, $body, $author, $aliases]) {
             $line = "( {$number} : {$title} ) {$body}";
             $text .= ($text === '' ? '' : "\n\n") . $line;
             $item = SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 13, 'item_key' => $number,
                 'position' => $i + 1, 'kind' => SourceItem::KIND_ENTRY, 'entry_number' => (int) $number, 'title' => $title, 'title_normalized' => $title,
                 'page_start' => 4, 'page_end' => 4, 'text' => \App\Support\PageMarks::strip($line)]);
-            $people[] = $person = \App\Models\Person::create(['name' => $author, 'normalized_name' => $author, 'slug' => 'p-' . uniqid(), 'is_author' => true]);
+            $people[] = $person = \App\Models\Person::create(['name' => $author, 'normalized_name' => $author, 'slug' => 'p-' . uniqid(), 'is_author' => true,
+                'aliases' => $aliases]);
             $work = Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1,
                 'author_id' => $person->id, 'author_name' => $author]);
             SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $work->id, 'source_id' => $source->id, 'source_volume_id' => $volume->id,
@@ -287,6 +291,8 @@ class SourcePageViewTest extends TestCase
         $this->assertStringContainsString('<span data-noor="SB">لآية الله العلامة الحلي', $html);
         // another person's mark stays a mark
         $this->assertStringContainsString('<span data-noor="FB">صاحب الحدائق</span>', $html);
+        $this->assertStringContainsString('title="رازی، محمد بن زکریا" data-noor="SB" data-record-link="person">لمحمد بن زكريا الرازي</a>', $html);
+        $this->assertStringContainsString('title="صدرالدین شیرازی، محمد بن ابراهیم" data-noor="SB" data-record-link="person">لصدر المتألهين المولى صدر الشيرازي</a>', $html);
     }
 
     public function test_noors_marks_set_a_verse_a_hadith_and_latin_and_run_over_lines()

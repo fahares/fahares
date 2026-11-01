@@ -71,7 +71,7 @@ class PrintedPage
     /**
      * The author of each entry the page starts, for al-Dhari'a's author mark (SB): the one author of the entry's work, when
      * the mark names him, its text holding his given name and father's («حسين بن عبد الحق» of «الهی اردبیلی، حسین بن
-     * عبدالحق»), or his given name and every word of his nisba. A work tied to an entry about another (a commentary on
+     * عبدالحق»), or his given name and every word of his nisba, or one of his other names (names()). A work tied to an entry about another (a commentary on
      * it, «شرح …») has another author, whose name the mark does not hold, so it is left unlinked.
      *
      * @param  Collection<int, Collection<int, SourceEntry>>  $works  the works tied to the page's entries, by entry id
@@ -87,7 +87,7 @@ class PrintedPage
                 continue;
             }
             $person = $people->first();
-            if (self::names($person->name, $m[1])) {
+            if (self::names($person, $m[1])) {
                 $authors[$block['item']->id] = ['name' => trim($m[1]), 'url' => route('people.show', $person), 'title' => $person->name];
             }
         }
@@ -95,23 +95,38 @@ class PrintedPage
         return $authors;
     }
 
-    /** Whether al-Dhari'a's Arabic name holds the site's «nisba، given بن father» (see authors()). */
-    private static function names(string $name, string $marked): bool
+    /**
+     * Whether al-Dhari'a's Arabic name names the person (see authors()): it holds his «given بن father» as the site writes
+     * it, or his given name and every word of his nisba, or one of his other names (aliases: «خواجه نصیرالدین طوسی»,
+     * «صدر المتألهین شیرازی») of two words or more, two of them not common ones like «محمد» or «سید». A word may carry
+     * the Arabic «ال», «ل» or «لل» («لمحمد بن زكريا الرازي»).
+     */
+    private static function names(\App\Models\Person $person, string $marked): bool
     {
-        $norm = fn (string $s) => trim(preg_replace('/\s+/u', ' ', preg_replace('/[^\p{L}\s]/u', ' ',
-            strtr($s, ['ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ة' => 'ه', "\u{200C}" => '', 'ـ' => '']))));
+        $norm = fn (string $s) => trim(preg_replace('/\s+/u', ' ', preg_replace('/[^\p{L}\s]/u', ' ', preg_replace('/\p{M}/u', '',
+            strtr($s, ['ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ة' => 'ه', "\u{200C}" => '', 'ـ' => ''])))));
         $text = ' ' . $norm($marked) . ' ';
-        [$nisba, $given] = array_pad(array_map('trim', explode('،', $name, 2)), 2, '');
-        if ($given === '') {
-            return $nisba !== '' && (str_contains($text, ' ' . $norm($nisba) . ' ') || str_contains($text, ' ال' . $norm($nisba) . ' '));
-        }
-        if (str_contains($text, ' ' . $norm($given) . ' ')) {
+        $has = fn (string $phrase) => $phrase !== '' && preg_match('/ ' . implode(' ', array_map(fn ($w) => '(?:ال|لل|ل)?' . preg_quote($w, '/'),
+            explode(' ', $phrase))) . ' /u', $text) === 1;
+
+        [$nisba, $given] = array_pad(array_map(fn ($p) => $norm($p), explode('،', $person->name, 2)), 2, '');
+        if ($given === '' ? mb_strlen(str_replace(' ', '', $nisba)) > 3 && $has($nisba) : $has($given)) {
             return true;
         }
-        $ism = $norm(preg_replace('/\s+بن\s.*$/u', '', $given));
-        $words = array_filter(explode(' ', $norm($nisba)), fn ($w) => mb_strlen($w) > 2);
+        $ism = trim(preg_replace('/\s+بن\s.*$/u', '', $given));
+        $words = array_filter(explode(' ', $nisba), fn ($w) => mb_strlen($w) > 2);
+        if ($ism !== '' && $words && $has($ism) && collect($words)->every($has)) {
+            return true;
+        }
 
-        return $ism !== '' && $words && str_contains($text, ' ' . $ism . ' ') && collect($words)->every(fn ($w) => str_contains($text, $w));
+        $common = ['بن', 'ابن', 'ابو', 'ابی', 'ابا', 'السید', 'سید', 'الشیخ', 'شیخ', 'المولی', 'ملا', 'میرزا', 'المیرزا', 'حاج', 'الحاج', 'محمد', 'علی', 'حسن', 'حسین', 'احمد'];
+
+        return collect($person->aliases ?? [])->contains(function ($alias) use ($norm, $has, $common) {
+            $words = explode(' ', $norm((string) $alias));
+            $strong = array_filter($words, fn ($w) => mb_strlen($w) > 2 && ! in_array($w, $common, true));
+
+            return count($words) >= 2 && count($strong) >= 2 && collect($words)->reject(fn ($w) => $w === 'بن')->every($has);
+        });
     }
 
     /** Whether the page is printed in two columns (config/catalogs.php: Fankha). */
