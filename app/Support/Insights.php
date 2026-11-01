@@ -37,6 +37,8 @@ class Insights
             if (($data = Cache::get($key)) !== null) {
                 return $data;
             }
+            // The largest scopes take some 20 s on the local copy of the data, near php-fpm's default limit
+            set_time_limit(120);
             $data = self::build($scope);
             $scope->isEmpty() ? Cache::forever($key, $data) : Cache::put($key, $data, (int) config('insights.scope_ttl'));
 
