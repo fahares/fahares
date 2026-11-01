@@ -68,6 +68,52 @@ class PrintedPage
             self::neighbour($source, $volume, $page, -1), self::neighbour($source, $volume, $page, 1), $records);
     }
 
+    /**
+     * The author of each entry the page starts, for al-Dhari'a's author mark (SB): the one author of the entry's work, when
+     * the mark names him, its text holding his given name and father's («حسين بن عبد الحق» of «الهی اردبیلی، حسین بن
+     * عبدالحق»), or his given name and every word of his nisba. A work tied to an entry about another (a commentary on
+     * it, «شرح …») has another author, whose name the mark does not hold, so it is left unlinked.
+     *
+     * @param  Collection<int, Collection<int, SourceEntry>>  $works  the works tied to the page's entries, by entry id
+     * @return array<int, array{name: string, url: string, title: string}>  by entry id
+     */
+    public function authors(Collection $works): array
+    {
+        $authors = [];
+        foreach ($this->blocks as $block) {
+            $work = $block['item'] ? $works->get($block['item']->id)?->first()?->citable : null;
+            $people = $work ? collect([$work->author, ...($work->authors ?? [])])->filter()->unique('id') : collect();
+            if ($people->count() !== 1 || ! preg_match('/\x{E020}SB\x{E021}([^\x{E020}-\x{E022}]*)\x{E022}/u', $block['text'], $m)) {
+                continue;
+            }
+            $person = $people->first();
+            if (self::names($person->name, $m[1])) {
+                $authors[$block['item']->id] = ['name' => trim($m[1]), 'url' => route('people.show', $person), 'title' => $person->name];
+            }
+        }
+
+        return $authors;
+    }
+
+    /** Whether al-Dhari'a's Arabic name holds the site's «nisba، given بن father» (see authors()). */
+    private static function names(string $name, string $marked): bool
+    {
+        $norm = fn (string $s) => trim(preg_replace('/\s+/u', ' ', preg_replace('/[^\p{L}\s]/u', ' ',
+            strtr($s, ['ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'أ' => 'ا', 'إ' => 'ا', 'آ' => 'ا', 'ة' => 'ه', "\u{200C}" => '', 'ـ' => '']))));
+        $text = ' ' . $norm($marked) . ' ';
+        [$nisba, $given] = array_pad(array_map('trim', explode('،', $name, 2)), 2, '');
+        if ($given === '') {
+            return $nisba !== '' && (str_contains($text, ' ' . $norm($nisba) . ' ') || str_contains($text, ' ال' . $norm($nisba) . ' '));
+        }
+        if (str_contains($text, ' ' . $norm($given) . ' ')) {
+            return true;
+        }
+        $ism = $norm(preg_replace('/\s+بن\s.*$/u', '', $given));
+        $words = array_filter(explode(' ', $norm($nisba)), fn ($w) => mb_strlen($w) > 2);
+
+        return $ism !== '' && $words && str_contains($text, ' ' . $ism . ' ') && collect($words)->every(fn ($w) => str_contains($text, $w));
+    }
+
     /** Whether the page is printed in two columns (config/catalogs.php: Fankha). */
     public function columns(): int
     {
@@ -77,13 +123,14 @@ class PrintedPage
     /**
      * A piece of the page's text as HTML: escaped, in Persian digits, and
      * - Noor's marks (App\Support\PageMarks) set: a Quran verse with its sura and verse on hover, a hadith, a passage in
-     *   Latin letters left to right with its own digits; al-Dhari'a's names kept as data-noor for later;
+     *   Latin letters left to right with its own digits; al-Dhari'a's names kept as data-noor, and the entry's author
+     *   («للعلامة الشيخ حسين بن محمد …», Noor's SB) linking the person when $author names him (authors() below);
      * - a line wholly in Latin letters (Fankha's transliteration, «erjā‘-ol-mote‘allemīn») left to right;
      * - the verses of a poem (lines whose hemistichs a tab parts, as the Noor readers write Noor's <poem>) set as a poem:
      *   centred, each hemistich as wide as the longest, the blank lines around it dropped.
      * A mark that runs over a line break or into a poem closes at the line's end and opens again on the next.
      */
-    public static function text(string $text): HtmlString
+    public static function text(string $text, ?array $author = null): HtmlString
     {
         $stack = [];
         $parts = [];
@@ -97,14 +144,14 @@ class PrintedPage
                     $parts[] = ['poem' => true, 'html' => ''];
                 }
                 foreach (explode("\t", $line) as $h) {
-                    $parts[array_key_last($parts)]['html'] .= '<span class="book-poem__h">' . self::inline(trim($h), $stack) . '</span>';
+                    $parts[array_key_last($parts)]['html'] .= '<span class="book-poem__h">' . self::inline(trim($h), $stack, $author) . '</span>';
                 }
                 continue;
             }
             $plain = PageMarks::strip($line);
             if (trim($plain) === '') {
                 // a blank line, or one with only a mark's opening or closing: its marks still count, its text is none
-                self::inline($line, $stack);
+                self::inline($line, $stack, $author);
                 if (! ($parts && end($parts)['poem'])) {
                     $parts[] = ['poem' => false, 'html' => ''];
                 }
@@ -112,7 +159,7 @@ class PrintedPage
             }
             $parts[] = ['poem' => false, 'html' => ! $stack && $plain === $line && preg_match('/\p{Latin}/u', $line) && ! preg_match('/\p{Arabic}/u', $line)
                 ? '<span dir="ltr" class="book-sheet__latin">' . e($line) . '</span>'
-                : self::inline($line, $stack)];
+                : self::inline($line, $stack, $author)];
         }
 
         // a poem is a block of its own: no line break before or after it
@@ -128,17 +175,25 @@ class PrintedPage
         return new HtmlString($html);
     }
 
-    /** One line (or hemistich) with its marks as elements; $stack holds the marks still open when it ends. */
-    private static function inline(string $line, array &$stack): string
+    /**
+     * One line (or hemistich) with its marks as elements; $stack holds the marks still open when it ends. The author's
+     * mark, when its text is the one $author names, is kept on the stack with the person's page («SB\0url\0title»).
+     */
+    private static function inline(string $line, array &$stack, ?array $author = null): string
     {
         $html = implode('', array_map([self::class, 'openTag'], $stack));
-        foreach (preg_split('/(\x{E020}[^\x{E021}]*\x{E021}|\x{E022})/u', $line, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $token) {
+        $tokens = preg_split('/(\x{E020}[^\x{E021}]*\x{E021}|\x{E022})/u', $line, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $i => $token) {
             if ($token === "\u{E022}") {
                 if ($stack) {
                     $html .= self::closeTag(array_pop($stack));
                 }
             } elseif (str_starts_with($token, "\u{E020}")) {
-                $stack[] = $kind = mb_substr($token, 1, -1);
+                $kind = mb_substr($token, 1, -1);
+                if ($kind === 'SB' && $author && trim($tokens[$i + 1] ?? '') === $author['name']) {
+                    $kind .= "\0{$author['url']}\0{$author['title']}";
+                }
+                $stack[] = $kind;
                 $html .= self::openTag($kind);
             } else {
                 $html .= in_array('latin', $stack, true) ? e($token) : self::prose($token);
@@ -177,6 +232,11 @@ class PrintedPage
 
     private static function openTag(string $kind): string
     {
+        if (str_contains($kind, "\0")) {
+            [$noor, $url, $title] = explode("\0", $kind);
+
+            return '<a href="' . e($url) . '" class="book-sheet__mark book-sheet__mark--person" title="' . e($title) . '" data-noor="' . e($noor) . '" data-record-link="person">';
+        }
         if (str_starts_with($kind, 'ayah')) {
             $label = Quran::label(trim(substr($kind, 4)));
 
@@ -192,7 +252,11 @@ class PrintedPage
 
     private static function closeTag(string $kind): string
     {
-        return $kind === 'latin' ? '</bdi>' : '</span>';
+        return match (true) {
+            $kind === 'latin' => '</bdi>',
+            str_contains($kind, "\0") => '</a>',
+            default => '</span>',
+        };
     }
 
     /**
