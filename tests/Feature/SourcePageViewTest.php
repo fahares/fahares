@@ -182,6 +182,49 @@ class SourcePageViewTest extends TestCase
         $this->assertSame(1, (int) config('catalogs.columns.monzavi', 1));
     }
 
+    public function test_a_copys_citation_of_its_librarys_catalogue_links_that_page()
+    {
+        $work = Work::create(['primary_title' => 'الاربعون حديثاً', 'clean_title' => 'الاربعون حديثاً', 'slug' => 'w-' . uniqid(), 'volume_number' => 2, 'page_start' => 926]);
+        $copies = collect(['7728', '13448', '962'])->map(fn ($n) => Manuscript::create(['work_id' => $work->id, 'shelfmark' => $n, 'volume_number' => 2, 'page_start' => 926]));
+        $source = Source::firstOrCreate(['code' => 'fankha'], ['kind' => Source::KIND_UNION_CATALOGUE, 'rank' => 90, 'title' => 'فهرستگان نسخه‌های خطی ایران (فنخا)']);
+        $volume = SourceVolume::firstOrCreate(['source_id' => $source->id, 'volume_number' => 2], ['facsimile_code' => 'fankha']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 926, 'text' => implode("\n", [
+            '1. تهران؛ مجلس؛ شماره نسخه: 7728', 'خط: نستعلیق، 189گ [ف: 26 - 218]', '',
+            '2. قم؛ مرعشی؛ شماره نسخه: 13448 [ف: 34 - 126]', '',
+            '3. قم؛ معصومیه؛ شماره نسخه: 962', 'خط: نسخ [ف: 1 - 118]',
+        ])]);
+        $this->entry($source, $volume, $copies[0], ['copy_text' => "1. تهران؛ مجلس؛ شماره نسخه: 7728\nخط: نستعلیق"]);
+        $this->entry($source, $volume, $copies[1], ['copy_text' => '2. قم؛ مرعشی؛ شماره نسخه: 13448 [ف: 34 - 126]']);
+        $this->entry($source, $volume, $copies[2], ['copy_text' => '3. قم؛ معصومیه؛ شماره نسخه: 962']);
+
+        // the first library's catalogue has the page's text, the second its image, the third neither
+        $catalogue = function (string $title, ?string $facsimile, int $number) {
+            $s = Source::create(['code' => 'catalogue-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => $title]);
+
+            return SourceVolume::create(['source_id' => $s->id, 'volume_number' => $number, 'facsimile_code' => $facsimile]);
+        };
+        $majlis = $catalogue('فهرست مجلس', null, 26);
+        DB::table('source_pages')->insert(['source_volume_id' => $majlis->id, 'page' => 218, 'text' => 'الاربعون حديثاً']);
+        $marashi = $catalogue('فهرست مرعشی', 'marashi', 34);
+        $masumiyya = $catalogue('فهرست معصومیه', null, 1);
+        foreach ([[$copies[0], $majlis, 218, '[ف: 26 - 218]'], [$copies[1], $marashi, 126, '[ف: 34 - 126]'], [$copies[2], $masumiyya, 118, '[ف: 1 - 118]']] as [$copy, $v, $page, $cite]) {
+            SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $copy->id, 'source_id' => $v->source_id, 'source_volume_id' => $v->id,
+                'volume_number' => $v->volume_number, 'page_start' => $page, 'role' => SourceEntry::ROLE_ENTRY, 'origin' => SourceEntry::ORIGIN_FANKHA_CITATION,
+                'status' => SourceEntry::STATUS_UNVERIFIED, 'citation_text' => $cite]);
+        }
+
+        $html = $this->get('/sources/fankha/2/page/926')->assertOk()->getContent();
+        $this->assertStringContainsString('[<a href="' . route('source-pages.show', [$majlis->source->code, 26, 218]) . '" class="book-sheet__cite"', $html);
+        $this->assertStringContainsString('data-cite="catalogue">ف: ۲۶ - ۲۱۸</a>]', $html);
+        // on the copy's own line the line's link ends before the citation, which opens the page in the viewer
+        $this->assertStringContainsString('data-record-link="manuscript">۲. قم؛ مرعشی؛ شماره نسخه: ۱۳۴۴۸</a>', $html);
+        $this->assertMatchesRegularExpression('/<a href="#" class="book-sheet__cite"[^>]*open-catalog-viewer[^>]*&quot;marashi&quot;[^>]*>ف: ۳۴ - ۱۲۶<\/a>/u', $html);
+        // a catalogue the site has no page of is left as it is printed
+        $this->assertStringContainsString('خط: نسخ [ف: ۱ - ۱۱۸]', $html);
+        $this->assertSame(2, substr_count($html, 'data-cite="catalogue"'));
+        $this->assertSame(3, substr_count($html, 'data-record-link="manuscript"'));
+    }
+
     public function test_a_heading_shared_by_a_catalogues_copies_links_their_work_once()
     {
         // Masjid-e A'zam: «1- القرآن الکریم» heads the copies «ش 714…» and «ش 1392…»
