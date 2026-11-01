@@ -475,7 +475,7 @@
             @else
                 @include('insights.small', ['n' => $sg['counted'], 'what' => 'نسخه‌ی موضوع‌دار و تاریخ‌دار'])
                 <p class="text-xs text-muted mb-4">
-                    سهم هر {{ $sg['children'] ? 'زیرموضوع' : 'موضوع اصلی' }} از نسخه‌های هر سده؛ برای نمونه، از نسخه‌های سده‌ی ۱۱ چند درصد فقه است. روی هر خانه بزنید تا نسخه‌های آن در جست‌وجو باز شود.
+                    نسخه‌های هر {{ $sg['children'] ? 'زیرموضوع' : 'موضوع اصلی' }} در هر سده: شمارشان، یا سهمشان از نسخه‌های آن سده (برای نمونه، از نسخه‌های سده‌ی ۱۱ چند درصد فقه است). روی هر خانه بزنید تا نسخه‌های آن در جست‌وجو باز شود.
                 </p>
                 @include('insights.century-grid', ['grid' => $sg, 'label' => 'سهم موضوع‌ها در نسخه‌های هر سده',
                     'href' => fn ($id, $c) => $search('manuscripts', ['subject_id' => $id, 'century' => $c])])
@@ -496,13 +496,196 @@
                 @include('insights.thin', ['n' => $fg['counted'], 'what' => 'نسخه‌ی تاریخ‌دار'])
             @else
                 @include('insights.small', ['n' => $fg['counted'], 'what' => 'نسخه‌ی تاریخ‌دار'])
-                <p class="text-xs text-muted mb-4">سهم نسخه‌های مذهّب، تصحیح‌شده، مقابله‌شده، حاشیه‌دار و به خط مؤلف از نسخه‌های هر سده.</p>
+                <p class="text-xs text-muted mb-4">نسخه‌های مذهّب، تصحیح‌شده، مقابله‌شده، حاشیه‌دار و به خط مؤلف در هر سده: شمارشان، یا سهمشان از نسخه‌های آن سده.</p>
                 @include('insights.century-grid', ['grid' => $fg, 'label' => 'سهم ویژگی‌های نسخه در هر سده',
                     'href' => fn ($flag, $c) => $search('manuscripts', ['flags' => [$flag], 'century' => $c])])
                 <p class="mt-4 text-xs text-muted leading-relaxed">
                     بر پایه‌ی {{ Fa::num($fg['counted']) }} نسخه که تاریخ کتابتشان در یک سده است.
                     این ویژگی‌ها همان‌اند که فهرست‌نگار یاد کرده است؛ یاد نشدن یک ویژگی همیشه به معنای نبودن آن نیست، و فهرست‌ها در یاد کردن آن یکسان نیستند.
                 </p>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 2e. Scribes and libraries --}}
+    @php
+        $sb = $data['scribes'];
+        $lb = $data['libraries'];
+        $years = fn ($from, $to) => $from === null ? '' : ($from === $to ? Fa::digits($from) : Fa::digits($from) . ' تا ' . Fa::digits($to));
+    @endphp
+    <div class="grid lg:grid-cols-2 gap-8">
+        @if(! $scope->get('scribe') && count($sb['items']) > 1)
+        <x-ui.section title="کاتبان پرکار" id="scribes">
+            <x-ui.card class="!p-0 overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-muted border-b border-line">
+                        <tr>
+                            <th scope="col" class="px-3 py-2.5 text-right font-semibold">کاتب</th>
+                            <th scope="col" class="px-3 py-2.5 text-right font-semibold">سال‌ها و شهر</th>
+                            <th scope="col" class="px-3 py-2.5 text-left font-semibold">نسخه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($sb['items'] as $row)
+                            <tr class="border-b border-line last:border-0 hover:bg-paper">
+                                <td class="px-3 py-2 align-top"><a href="{{ route('people.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a></td>
+                                <td class="px-3 py-2 align-top text-xs text-muted tabular-nums">{{ $years($row['from'], $row['to']) }}@if($row['from'] !== null && $row['city']) · @endif{{ $row['city'] }}</td>
+                                <td class="px-3 py-2 align-top text-left"><a href="{{ $search('manuscripts', ['scribe_id' => $row['id']]) }}" class="text-xs tabular-nums text-ink hover:text-cinnabar">{{ Fa::num($row['count']) }}</a></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </x-ui.card>
+            <p class="mt-3 text-xs text-muted leading-relaxed">
+                کاتب شناخته (پیوندشده به یک شخص) برای {{ Fa::num($sb['with_scribe']) }} نسخه از {{ Fa::num($sb['scribes']) }} کاتب ثبت است.
+                سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است و شهر، شهری که بیشترین نسخه‌ی جای‌دارش در آن کتابت شده است.
+            </p>
+        </x-ui.section>
+        @endif
+
+        @if(! $scope->get('library') && count($lb['largest']) > 1)
+        <x-ui.section title="کتابخانه‌ها" id="libraries">
+            <x-ui.card>
+                <div x-data="{ by: 'largest' }">
+                <div class="flex flex-wrap items-center gap-1.5 text-xs mb-3">
+                    @foreach(['largest' => 'بزرگ‌ترین گنجینه‌ها', 'oldest' => 'کهن‌ترین گنجینه‌ها'] as $key => $name)
+                        @if($key === 'largest' || $lb['oldest'])
+                            <button type="button" @click="by = '{{ $key }}'" :aria-pressed="(by === '{{ $key }}').toString()"
+                                    :class="by === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
+                                    class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
+                        @endif
+                    @endforeach
+                </div>
+                @foreach(['largest', 'oldest'] as $list)
+                    @php $maxLib = max([1, ...array_column($lb['largest'], 'count')]); @endphp
+                    <ol class="text-sm" x-show="by === '{{ $list }}'" @if($list === 'oldest') x-cloak @endif>
+                        @foreach($lb[$list] as $row)
+                            <li class="py-1.5 border-b border-line last:border-0">
+                                <span class="flex items-baseline gap-2">
+                                    <a href="{{ route('libraries.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a>
+                                    <span class="text-xs text-muted">{{ $row['city'] }}</span>
+                                    <span class="leader" aria-hidden="true"></span>
+                                    @if($list === 'oldest')
+                                        <span class="text-xs text-muted tabular-nums" title="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخه‌ی سال‌دار">میانگین {{ Fa::digits($row['mean']) }}ق</span>
+                                    @else
+                                        <a href="{{ $search('manuscripts', ['library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
+                                    @endif
+                                    <a href="{{ route('insights', ['library' => $row['id']] + $scope->query()) }}" class="text-[11px] text-cinnabar hover:underline" title="آمار نسخه‌های این کتابخانه{{ $scope->isEmpty() ? '' : ' در همین دامنه' }}">آمار</a>
+                                </span>
+                                @if($list === 'largest')
+                                    <span class="mt-1 block h-1 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                        <span class="block h-full bg-cinnabar/60 rounded-full" style="width: max(2px, {{ round($row['count'] * 100 / $maxLib, 2) }}%)"></span>
+                                    </span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ol>
+                @endforeach
+                <p class="mt-4 text-xs text-muted leading-relaxed">
+                    {{ Fa::num($lb['count']) }} کتابخانه در این آمار نسخه دارند.
+                    «کهن‌ترین» بر پایه‌ی میانگین سال کتابت نسخه‌های سال‌دار هر کتابخانه است و تنها کتابخانه‌هایی که دست‌کم {{ Fa::num($lb['min_dated']) }} نسخه‌ی سال‌دار دارند در آن آمده‌اند.
+                </p>
+                </div>
+            </x-ui.card>
+        </x-ui.section>
+        @endif
+    </div>
+
+    {{-- 2f. Size of the copies --}}
+    @php $sz = $data['sizes']; @endphp
+    <x-ui.section title="اندازه‌ی نسخه‌ها" id="sizes">
+        <x-ui.card>
+            @if($sz['with_folios'] < $min)
+                @include('insights.thin', ['n' => $sz['with_folios'], 'what' => 'نسخه با شمار برگ'])
+            @else
+                @include('insights.small', ['n' => $sz['with_folios'], 'what' => 'نسخه با شمار برگ'])
+                @php
+                    $maxBand = max([1, ...array_column($sz['bands'], 'count')]);
+                    $folioCols = array_filter($sz['centuries'], fn ($c) => $c['with_folios'] >= config('insights.min_sample'));
+                    $maxFolios = max([1, ...array_column($folioCols, 'folios')]);
+                @endphp
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-xs text-muted mb-3">شمار نسخه‌ها در هر اندازه، به برگ. میانه‌ی شمار برگ {{ Fa::num($sz['median']) }} برگ است.</p>
+                        <ul class="space-y-2.5 text-sm">
+                            @foreach($sz['bands'] as $band)
+                                <li>
+                                    <span class="flex items-baseline gap-2">
+                                        <span class="text-ink">{{ $band['upto'] === null ? 'بیش از ' . Fa::digits($band['above']) : Fa::digits($band['above'] + 1) . ' تا ' . Fa::digits($band['upto']) }} برگ</span>
+                                        <span class="leader" aria-hidden="true"></span>
+                                        <span class="text-xs text-muted tabular-nums">{{ Fa::num($band['count']) }} · {{ $pct(round($band['count'] * 100 / max(1, $sz['with_folios']), 1)) }}</span>
+                                    </span>
+                                    <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                                        <span class="block h-full bg-cinnabar/70 rounded-full" style="width: max(2px, {{ round($band['count'] * 100 / $maxBand, 2) }}%)"></span>
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-xs text-muted mb-3">میانگین شمار برگ نسخه‌های هر سده، و زیر آن میانگین سطرهای هر صفحه.</p>
+                        <div class="flex items-end gap-1 h-36 border-b border-line-strong" role="list" aria-label="میانگین شمار برگ در هر سده">
+                            @foreach($sz['centuries'] as $col)
+                                @php $shown = $col['with_folios'] >= config('insights.min_sample'); @endphp
+                                <div role="listitem" class="flex-1 h-full flex flex-col justify-end items-center gap-0.5 min-w-0"
+                                     title="سده‌ی {{ Fa::digits($col['century']) }}: {{ $shown ? 'میانگین ' . Fa::num($col['folios']) . ' برگ از ' . Fa::num($col['with_folios']) . ' نسخه' : 'نسخه‌ی بسنده نیست' }}">
+                                    @if($shown)
+                                        <span class="text-[10px] text-muted tabular-nums">{{ Fa::num($col['folios']) }}</span>
+                                        <span class="w-full max-w-8 rounded-t-[3px] bg-gold/70" style="height: {{ round($col['folios'] * 100 / $maxFolios, 2) }}%"></span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="flex gap-1 mt-1" aria-hidden="true">
+                            @foreach($sz['centuries'] as $col)
+                                <span class="flex-1 text-center text-[10px] text-ink tabular-nums">{{ Fa::digits($col['century']) }}</span>
+                            @endforeach
+                        </div>
+                        <div class="flex gap-1 mt-0.5" aria-label="میانگین سطرهای هر سده">
+                            @foreach($sz['centuries'] as $col)
+                                <span class="flex-1 text-center text-[10px] text-muted tabular-nums" title="میانگین سطر در سده‌ی {{ Fa::digits($col['century']) }}">{{ $col['with_lines'] >= config('insights.min_sample') ? Fa::digits(str_replace('.', '٫', (string) $col['lines'])) : '·' }}</span>
+                            @endforeach
+                        </div>
+                        <p class="text-center text-[11px] text-muted mt-0.5">سده‌ی هجری · سطر در صفحه</p>
+                    </div>
+                </div>
+                <p class="mt-5 text-xs text-muted leading-relaxed">
+                    بر پایه‌ی {{ Fa::num($sz['with_folios']) }} نسخه که شمار برگشان ثبت شده و {{ Fa::num($sz['with_lines']) }} نسخه که شمار سطرشان ثبت شده است.
+                    در مجموعه‌ها، شمار برگ گاه برگ‌های همان رساله است و گاه برگ‌های کل مجموعه، بسته به فهرست. سده‌هایی که کمتر از {{ Fa::digits(config('insights.min_sample')) }} نسخه دارند نیامده‌اند.
+                </p>
+            @endif
+        </x-ui.card>
+    </x-ui.section>
+
+    {{-- 2g. Languages and scripts across the centuries --}}
+    @php $ls = $data['language_scripts']; @endphp
+    <x-ui.section title="زبان‌ها و خطوط در گذر سده‌ها" id="language-scripts">
+        <x-ui.card>
+            @if($ls['languages']['counted'] < $min && $ls['scripts']['counted'] < $min)
+                @include('insights.thin', ['n' => max($ls['languages']['counted'], $ls['scripts']['counted']), 'what' => 'نسخه‌ی تاریخ‌دار با زبان یا خط'])
+            @else
+            <div x-data="{ by: '{{ $ls['languages']['counted'] >= $min && count($ls['languages']['rows']) > 1 ? 'languages' : 'scripts' }}' }">
+                <div class="flex flex-wrap items-center gap-1.5 text-xs mb-4">
+                    @foreach(['languages' => 'زبان', 'scripts' => 'خط اصلی'] as $key => $name)
+                        <button type="button" @click="by = '{{ $key }}'" :aria-pressed="(by === '{{ $key }}').toString()"
+                                :class="by === '{{ $key }}' ? 'bg-cinnabar text-on-cinnabar border-cinnabar' : 'bg-surface text-ink border-line hover:border-cinnabar'"
+                                class="px-2.5 py-0.5 rounded-full border transition cursor-pointer">{{ $name }}</button>
+                    @endforeach
+                </div>
+                <div x-show="by === 'languages'" @if(! ($ls['languages']['counted'] >= $min && count($ls['languages']['rows']) > 1)) x-cloak @endif>
+                    <p class="text-xs text-muted mb-3">نسخه‌های هر زبان در هر سده؛ زبان نسخه، زبان اثر آن است و اثر چندزبانه در هر زبانش شمرده شده است.</p>
+                    @include('insights.century-grid', ['grid' => $ls['languages'], 'label' => 'سهم زبان‌ها در نسخه‌های هر سده',
+                        'href' => fn ($id, $c) => $search('manuscripts', ['language_id' => $id, 'century' => $c])])
+                </div>
+                <div x-show="by === 'scripts'" @if($ls['languages']['counted'] >= $min && count($ls['languages']['rows']) > 1) x-cloak @endif>
+                    <p class="text-xs text-muted mb-3">نسخه‌های هر خط در هر سده، بر پایه‌ی خط اصلی هر نسخه.</p>
+                    @include('insights.century-grid', ['grid' => $ls['scripts'], 'label' => 'سهم خطوط در نسخه‌های هر سده',
+                        'href' => fn ($id, $c) => $search('manuscripts', ['script_id' => $id, 'century' => $c])])
+                </div>
+                <p class="mt-4 text-xs text-muted leading-relaxed">
+                    بر پایه‌ی نسخه‌هایی که تاریخ کتابتشان در یک سده است: {{ Fa::num($ls['languages']['counted']) }} نسخه با زبان و {{ Fa::num($ls['scripts']['counted']) }} نسخه با خط.
+                </p>
+            </div>
             @endif
         </x-ui.card>
     </x-ui.section>
@@ -657,6 +840,44 @@
             </x-ui.card>
         </x-ui.section>
     </div>
+
+    {{-- 5. The catalogues the figures rest on --}}
+    @php $src = $data['sources']; @endphp
+    @if(! $scope->get('catalog') && $src['items'])
+    <x-ui.section title="فهرست‌هایی که این آمار بر آن‌ها بنا شده" id="sources">
+        <x-ui.card>
+            @php $maxSrc = max([1, ...array_column($src['items'], 'count')]); @endphp
+            <p class="text-xs text-muted mb-3">هر نسخه از کدام فهرست کتابخانه به فهارس رسیده است. روی «آمار» بزنید تا آمار نسخه‌های همان فهرست را ببینید.</p>
+            <ul class="space-y-2.5 text-sm">
+                @foreach($src['items'] as $row)
+                    <li>
+                        <span class="flex items-baseline gap-2">
+                            {{-- The volume, unless the title already names it («جلد شانزدهم») --}}
+                            <span class="text-ink truncate min-w-0" title="{{ $row['title'] }}">{{ $row['title'] }}@if($row['volume'] && ! str_contains($row['title'], 'جلد')) <span class="text-muted">ج {{ Fa::digits($row['volume']) }}</span>@endif</span>
+                            <span class="leader" aria-hidden="true"></span>
+                            <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($row['count']) }} · {{ $pct(round($row['count'] * 100 / max(1, $data['totals']['manuscripts']), 1)) }}</span>
+                            <a href="{{ route('insights', ['catalog' => $row['id']] + $scope->query()) }}" class="text-[11px] text-cinnabar hover:underline">آمار</a>
+                        </span>
+                        <span class="mt-1 block h-1.5 bg-line rounded-full overflow-hidden" aria-hidden="true">
+                            <span class="block h-full bg-gold/70 rounded-full" style="width: max(2px, {{ round($row['count'] * 100 / $maxSrc, 2) }}%)"></span>
+                        </span>
+                    </li>
+                @endforeach
+                @if($src['other'] > 0)
+                    <li class="text-muted flex items-baseline gap-2">
+                        <span>سایر ({{ Fa::num($src['other_kinds']) }} جلد فهرست)</span>
+                        <span class="leader" aria-hidden="true"></span>
+                        <span class="text-xs tabular-nums">{{ Fa::num($src['other']) }} · {{ $pct(round($src['other'] * 100 / max(1, $data['totals']['manuscripts']), 1)) }}</span>
+                    </li>
+                @endif
+            </ul>
+            <p class="mt-4 text-xs text-muted leading-relaxed">
+                همه‌ی این نسخه‌ها از راه فنخا آمده‌اند؛ فنخا هر نسخه را از فهرست چاپی کتابخانه‌اش نقل کرده است.
+                {{ Fa::num($src['counted']) }} نسخه ({{ $pct($src['coverage']) }}) به یکی از {{ Fa::num($src['volumes']) }} جلد فهرست پیوند دارند@if($src['unknown'] > 0) و جلد فهرست {{ Fa::num($src['unknown']) }} نسخه‌ی دیگر هنوز شناخته نیست@endif.
+            </p>
+        </x-ui.card>
+    </x-ui.section>
+    @endif
 
     @endif
 

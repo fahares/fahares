@@ -5813,3 +5813,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **متن صفحه‌ی فنخا:** `scripts/sources/fankha_pages.py` برای همان ۲۰ جلد دوباره اجرا شد. ۸۱ صفحه تغییر کرد: ۸۰ کروشه، و ج ۲۳ ص ۴۹۸ که اصلاح پیشین پیکره (`c26c8d1`، دو شماره‌ی محلاتی) تا آن روز به صفحه‌ها نرسیده بود. فایل‌های پیشین در `fahares-sources/backups/step13/step13.124_fankha_pages_before/` هستند و `MD5SUMS` تازه شد. `sources:import-pages fankha` روی `fahares_prod` اجرا شد.
 - **پروداکشن (پس از push، با اجازه‌ی کاربر):** `php artisan fahares:apply-corpus-diff --file=database/data/corpus_fankha_ranges_bibliography.json --apply`، سپس برای هر یک از ۲۰ جلد `php artisan sources:import-pages fankha /tmp/…/NN.jsonl.gz --volume=N`.
 
+### گام ۱۳.۱۲۵: آمارهای ۵ تا ۹ `/insights` و دو حالت جدول سده
+- **ستون‌های جدول موقت نسخه‌ها:** `scribe_id`، `library_id`، `catalog_volume_id`، `folios` و `` `lines` `` افزوده شدند.
+- **جدول موقت تازه:** `insights_work_centuries` (اثر، سده، شمار) یک بار در `build()` ساخته و در `finally` انداخته می‌شود. جدول موضوع‌ها و جدول زبان‌ها هر دو از آن می‌خوانند، و به‌جای چهار گروه‌بندی جدا روی نسخه‌ها یک گروه‌بندی کافی است.
+- **تابع‌های تازه در [Insights](../app/Support/Insights.php):**
+  - `scribes`: `scribe_id` ستون نسخه، یعنی کاتب نخست. شهر هر کاتب از `copy_place` و `cityOf` به‌دست می‌آید.
+  - `libraries`: `AVG(copy_date_hijri_year)`، با آستانه‌ی `oldest_min_dated` برای فهرست کهن‌ترین‌ها.
+  - `sizes`: دسته‌های `folio_bands` با `CASE`. میانه با `OFFSET` روی ستون مرتب‌شده خوانده می‌شود، نه با بارگذاری در PHP. میانگین `folios` و `lines` برای هر سده، تنها از نسخه‌هایی که تاریخشان در یک سده است.
+  - `languageScriptCenturies`: زبان از `language_work` اثر و خط از `manuscript_script.is_primary`.
+  - `sources`: شمارش بر پایه‌ی `catalog_volume_id`، با عنوان، جلد و کتابخانه‌ی هر جلد فهرست.
+- **کلید cache:** `insights.v4`، چون شکل داده عوض شد.
+- **[century-grid](../resources/views/insights/century-grid.blade.php):**
+  - Alpine `mode` با دو مقدار `count` (آغازین) و `share`. هر دو رنگ در سرور حساب می‌شوند. ردیف دوم سرستون، شمار نسخه‌های هر سده است.
+  - در حالت `share`، سده‌ای که کمتر از `grid_min_copies` (۱۰۰) نسخه دارد رنگ نمی‌گیرد. بیشینه‌ی سهم هر ردیف هم تنها از سده‌های پرنسخه گرفته می‌شود.
+  - زیر `min_sample` (۱۰) خانه خالی می‌ماند.
+- **آزمون:** `test_scribes_libraries_sizes_languages_and_catalogues_of_a_scope` در [InsightsScopeTest](../tests/Feature/InsightsScopeTest.php).
+- **یادداشت:** `main` اکنون فیلتر «جلد فهرست» جست‌وجو را دارد (گام ۱۳.۱۱۶، `source_volume_id`). فیلتر `catalog` این صفحه `catalog_volume_id` است، پس هنوز به آن پیوند داده نشده است.

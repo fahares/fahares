@@ -143,7 +143,7 @@ class InsightsScope
         $this->close();
         $features = implode(', ', config('insights.features'));
         $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, {$features}"
+            "id, work_id, scribe_id, library_id, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, {$features}"
         ));
         DB::statement('CREATE TEMPORARY TABLE ' . self::COPIES . ' (PRIMARY KEY (id), KEY (work_id)) ' . $copies->toSql(), $copies->getBindings());
 

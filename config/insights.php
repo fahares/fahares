@@ -61,8 +61,25 @@ return [
     // Subjects (main ones, or those under the scope's subject) in the grid of subjects per century
     'subjects_shown' => 10,
 
+    // In the share reading of a grid per century, a century with fewer copies than this keeps its number but no shade:
+    // a share of a few copies looked like a peak
+    'grid_min_copies' => 100,
+
     // Features of the copies in the grid of features per century (columns of manuscripts, SearchFilters::FLAGS)
     'features' => ['is_illuminated', 'is_corrected', 'is_collated', 'has_marginal_notes', 'is_autograph'],
+
+    // Scribes and libraries listed; a library is among the oldest only with this many dated copies
+    'scribes_shown' => 15,
+    'libraries_shown' => 12,
+    'oldest_min_dated' => 100,
+
+    // Bands of folios: a band runs from just above one edge up to the next
+    'folio_bands' => [20, 50, 100, 200, 400],
+
+    // Languages and scripts in the grids per century; catalogue volumes listed as sources
+    'languages_grid' => 6,
+    'scripts_grid' => 8,
+    'sources_shown' => 12,
 
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],
