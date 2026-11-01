@@ -5540,6 +5540,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** گزارش «After» برای همه‌ی انواع صفر بود. صفر بودن dedications_missing در برابر ۱٬۵۳۰ ردیف پیوندی نشان می‌دهد که قاعده‌ی «دادن» برای فرمانروایان هم درست کار می‌کند.
 - **آزمون:** [DerivedDataTest](../tests/Feature/DerivedDataTest.php) (۴): هوک `rebuild-copies`، هوک `add-corpus-works`، هوک `sync-work-details`، و گزارش و `--apply` فرمان `refresh-derived` با ردیفی که مبدأ دیگر نمی‌دهد و حذف نمی‌شود. کل مجموعه ۵۲۶ آزمون موفق، روی `fahares_derived_test`. آزمون `--apply` فایل‌های تصمیم کوچک می‌گیرد: با فایل ۹٫۶ مگابایتی وفات‌ها، حافظه‌ی فرایند آزمون از ۱۹۲ مگابایت (`ini_set` در خروجی اکسل) بالاتر می‌ماند و سه آزمون خروجی شکست می‌خوردند.
 - **پروداکشن (پس از استقرار):** `php artisan fahares:refresh-derived` و سپس با `--apply`، در یک نشست `ssh fahares-app`. سپس بازنمایه‌ی ۱۴۸ اثر و ۳۷۳ نسخه‌ی گام ۱۳.۷۹ وارسی شود.
+- **انجام در پروداکشن (۱۰ آبان):**
+  - **dry run:** `copy_date_range` ۳ (#35162، #88297، #95649)، `dedications_missing` ۷ (مثلاً #71693 ناصرالدین شاه)، `excerpt_pointers` ۲۳ (انجام «برابر ۱/۲» نسخه‌های #334468 به بعد)، و بقیه صفر، از جمله `dedications_not_given`.
+  - **`--apply`:** با `memory_limit=3G` در ۲ دقیقه و ۱۲ ثانیه اجرا شد. گزارش After برای همه‌ی انواع صفر بود.
+  - **نمایه:** شناسه‌های `works_index` و `manuscripts_index` با `getDocuments(fields: id)` خوانده و با پایگاه داده مقایسه شد. ۱۴۰ اثر (از #71671) و ۱۱۶ نسخه (از #334341) نبودند. نسخه‌های منتقل‌شده‌ی ۱۳.۷۹ پیش‌تر نمایه داشتند. بازنمایه با `makeAllSearchableUsing(...)->get()->searchable()` در دسته‌های ۱۰۰تایی انجام شد. پس از پردازش ناهمگام Meilisearch: آثار ۷۱٬۶۶۴ = ۷۱٬۶۶۴ و نسخه‌ها ۳۲۴٬۵۵۴ = ۳۲۴٬۵۵۴.
 
 ### گام ۱۳.۱۰۶: نسخه‌های گم‌شده
 - **[fankha_v2_db_compare.py](../../fahares-corpus/scripts/fankha_v2_db_compare.py):** حالا `unmatched.jsonl` هم می‌نویسد، با سه نوع رکورد:
