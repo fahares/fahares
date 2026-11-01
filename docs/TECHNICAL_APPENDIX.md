@@ -6124,7 +6124,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `Would write 40070` (`explicit_tail` ۳۹٬۶۲۷، `explicit_script` ۴۴۳). ۷ رکورد `natural key differs` بودند. اجرای `--apply` ۲ دقیقه و ۱۷ ثانیه طول کشید. اجرای دوم `Would write 0` بود.
   - **پس از اجرا:** در هیچ رکوردی `explicit_text` «\n» ندارد. در ۴۰٬۰۶۹ رکورد متن انجام در `metadata.explicits` هست. استثنا #222552 است که فهرست `explicits` آن دنباله‌ی بلندتری از `explicit_text` داشت.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_explicit_becomes_typed_cataloguers_notes`.
+- **پروداکشن (۱۱ آبان ۱۴۰۵، پس از استقرار `f6d67e5`):** dry-run همان دو ادغام را نشان داد (۲۱۹ و ۳۸ نسخه). اجرا: ۴۰۸ ← ۴۰۶ کتابخانه؛ لاگ‌های `merge` با شناسه‌ی ۶۵۷۴۲ (۲۹۲) و ۶۵۷۴۳ (۶۴)؛ ۲۹۲ = ۲۳۵ و ۶۴ = ۲٬۳۸۸ نسخه. برگشت: `LibraryMerger::undoMerge` با `old_values` همین لاگ‌ها، به ترتیب وارونه.
 
 ### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
 - **داده:** [library_duplicates_step13_144.json](../database/data/library_duplicates_step13_144.json): `asfhan-aalamh-rodaty-ktabkhanh-283` ← `asfhan-rodaty-syd-mhmd-aaly-100`. اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_144.json`. هیچ منبع یا جلدی کتابخانه‌ی ۲۸۳ را نداشت.
 - **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۴۲):** ۴۰۶ ← ۴۰۵ کتابخانه؛ یک ردیف `merge` در `audit_logs`. `LibraryMerger::undoMerge` سنجه‌ی `crc32` جدول‌های گام ۱۳.۱۴۲ را دقیقاً برگرداند. سپس دستور دوباره اجرا شد و همان سنجه‌ی اجرای اول را داد.
+- **پروداکشن (۱۱ آبان ۱۴۰۵):** dry-run همان ادغام را نشان داد (۹۳ نسخه). اجرا: ۴۰۶ ← ۴۰۵ کتابخانه؛ لاگ `merge` با شناسه‌ی ۶۵۷۹۱ (۱۰۰)؛ ۱۰۰ = ۱۶۰ نسخه. در ۳۵، ۱۴۹ و ۲۸۳ هیچ نسخه‌ای نماند. این اجرا با دو `fahares:apply-corpus-categories --apply` از نشست‌های دیگر هم‌زمان شد (هر سه در ۲۳:۵۲ ساعت سرور). بررسی ۲۰ ثانیه پیش‌تر سرور را آزاد نشان داده بود.
