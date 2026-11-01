@@ -1,17 +1,20 @@
 @props(['manuscript'])
-{{-- The other treatises bound in the same volume, found from the shelfmark («6415/8»); see Manuscript::collectionKey --}}
+{{-- The other treatises bound in the same volume, found from the shelfmark («6415/8») and in the order of their leaves; see Manuscript::collectionKey and collectionSiblings --}}
 @php $siblings = $manuscript->collectionSiblings(); @endphp
 @if($siblings->count() > 1)
     @php
-        $key = \App\Models\Manuscript::collectionKey($manuscript->shelfmark);
         // In some libraries the part number is a volume of one multi-volume work («13/1» to «13/5»: وسائل الشیعة)
         $volumes = $siblings->pluck('work_id')->unique()->count() === 1;
-        $number = $key['base'] . ($key['collection'] ? '-' . $key['collection'] : '');
+        $number = $manuscript->collection_key ?? \App\Models\Manuscript::collectionKeyOf($manuscript->shelfmark);
     @endphp
     <x-ui.section x-data="{ all: false }" :title="$volumes ? 'مجلدهای این دوره' : 'رساله‌های این مجموعه'" :count="$siblings->count()">
         <div class="mb-2">
             <p class="text-xs text-muted">
-                {{ $volumes ? "مجلدهای همین اثر در همین کتابخانه که زیر شماره‌ی {$number} آمده‌اند." : "نسخه‌هایی از همین کتابخانه که زیر شماره‌ی {$number} آمده‌اند و در یک مجلد صحافی شده‌اند." }}
+                @if($volumes)
+                    مجلدهای همین اثر در همین کتابخانه که زیر شماره‌ی {{ $number }} آمده‌اند.
+                @else
+                    این نسخه در مجموعه‌ی شماره‌ی <span dir="ltr">{{ \App\Support\Fa::digits($number) }}</span>{{ $manuscript->rangeLabel() ? '، ' . $manuscript->rangeLabel() : '' }}، همراه با این رساله‌ها{{ $siblings->contains(fn ($m) => $m->range_from) ? ' (به ترتیب برگ)' : '' }} صحافی شده است.
+                @endif
             </p>
         </div>
         <ol class="divide-y divide-line text-sm border-y border-line">
