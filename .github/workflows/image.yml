@@ -8,9 +8,18 @@
 # migrations in its post-deployment command as before).
 name: image
 
+# A push that only changes docs or dev tooling builds and deploys nothing (step 13.130): the site never reads them,
+# and parallel sessions record each production run in a docs commit. A push with any other file still deploys, and
+# workflow_dispatch deploys on demand.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - 'scripts/**/*.md'
+      - '.gitattributes'
+      - 'scripts/dev/**'
   workflow_dispatch:
 
 concurrency:
