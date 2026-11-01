@@ -1,0 +1,15 @@
+{
+  "_comment": "Step 13.142, approved by the user: «روضاتی» is Sayyed Ahmad Rowzati's collection (Fankha's abbreviations, vol. 1 p. 8), its copies and those of «روضاتی، سید احمد» one run of shelfmarks and pages of Rahim Ghasemi's catalogue; Shiraz «طباطبائی» copies interleave with «علامه طباطبائی»'s in Noskhe-pazhuhi 3 (507/6, 507/7, 507/8). Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_142.json",
+  "libraries": [
+    {
+      "target": "asfhan-rodaty-syd-ahmd-292",
+      "target_name": "روضاتی، سید احمد (اصفهان)",
+      "sources": [{"slug": "asfhan-rodaty-35", "name": "روضاتی (اصفهان)"}]
+    },
+    {
+      "target": "shyraz-aalamh-tbatbayy-64",
+      "target_name": "علامه طباطبائی (شیراز)",
+      "sources": [{"slug": "shyraz-tbatbayy-149", "name": "طباطبائی (شیراز)"}]
+    }
+  ]
+}

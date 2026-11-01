@@ -28,7 +28,7 @@ class ApplyCorpusCategoriesCommand extends Command
     /** Tables and the fields a decision file may change */
     private const FIELDS = [
         'works' => ['print_info'],
-        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note', 'lines'],
+        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note', 'lines', 'explicit_text'],
     ];
 
     /** A commissioner's phrase before the name in the copy's raw text («حسب الامر», «به جهت», «برای»…) */
@@ -91,11 +91,20 @@ class ApplyCorpusCategoriesCommand extends Command
                             ? Manuscript::authorDeaths([DB::table('manuscripts')->where('id', $rec['id'])->value('work_id')]) : [];
                         $payload += ['copy_date_hijri_year' => \App\Support\HijriYear::parse($payload['copy_date_raw'])] + Manuscript::copyDateColumns($payload['copy_date_raw'], reset($death) ?: null);
                     }
+                    if (array_key_exists('notes', $rec)) {
+                        [$payload, $old] = $this->moveTail($rec, $payload, $old);
+                    }
                     if ($payload) {
                         DB::table($table)->where('id', $rec['id'])->update($payload + ['updated_at' => now()]);
                     }
                     if (isset($rec['commissioner'])) {
                         $payload += $this->addCommissioner($rec);
+                    }
+                    $logged = $payload;
+                    if (isset($logged['metadata'])) {
+                        // only the parts of the metadata the move touched, not the whole of it
+                        $meta = json_decode($logged['metadata'], true);
+                        $logged['metadata'] = array_intersect_key($meta, array_flip(['explicits', 'editorial_notes', 'editorial_note_types']));
                     }
                     AuditLog::create([
                         'user_id' => null,
@@ -103,7 +112,7 @@ class ApplyCorpusCategoriesCommand extends Command
                         'auditable_id' => $rec['id'],
                         'action' => 'corpus_update',
                         'old_values' => $old,
-                        'new_values' => $payload + ['corpus_fix' => $note, 'category' => $rec['category']],
+                        'new_values' => $logged + ['corpus_fix' => $note, 'category' => $rec['category']],
                     ]);
                 }
             });
@@ -118,6 +127,40 @@ class ApplyCorpusCategoriesCommand extends Command
         $this->info('Done; reindexed ' . $copies->count() . ' manuscripts.');
 
         return 0;
+    }
+
+    /**
+     * The line the site kept after a copy's explicit («جلد اول», a note on the contents) leaves the explicit, in the
+     * metadata's list of explicits too, and each of its parts becomes a cataloguer's note (step 13.139). v2's type of
+     * a note goes to `editorial_note_types`, by its text, for a later split into fields; the page shows the notes as
+     * before. A note already there is not added again, and a note listed twice is listed once.
+     *
+     * @return array{0: array, 1: array} the payload and the old values, with the metadata
+     */
+    private function moveTail(array $rec, array $payload, array $old): array
+    {
+        $raw = DB::table('manuscripts')->where('id', $rec['id'])->value('metadata');
+        $meta = json_decode($raw ?? 'null', true) ?: [];
+        $from = trim((string) $rec['changes']['explicit_text']['from']);
+        $to = $rec['changes']['explicit_text']['to'];
+        foreach ($meta['explicits'] ?? [] as $i => $item) {
+            if (is_array($item) && trim((string) ($item['text'] ?? '')) === $from) {
+                $meta['explicits'][$i]['text'] = $to;
+            }
+        }
+        $notes = array_values(array_unique(array_filter($meta['editorial_notes'] ?? [], 'is_string')));
+        foreach ($rec['notes'] as $n) {
+            if (! in_array($n['text'], $notes, true)) {
+                $notes[] = $n['text'];
+            }
+            if ($n['type'] !== null) {
+                $meta['editorial_note_types'][$n['text']] = $n['type'];
+            }
+        }
+        $meta['editorial_notes'] = $notes;
+        $old['metadata'] = array_intersect_key(json_decode($raw ?? 'null', true) ?: [], array_flip(['explicits', 'editorial_notes', 'editorial_note_types']));
+
+        return [$payload + ['metadata' => json_encode($meta, JSON_UNESCAPED_UNICODE)], $old];
     }
 
     /**
@@ -169,7 +212,7 @@ class ApplyCorpusCategoriesCommand extends Command
         $query = DB::table($table)->whereIn("{$table}.id", $ids);
         if ($table === 'manuscripts') {
             $query->leftJoin('works', 'works.id', '=', 'manuscripts.work_id')
-                ->select(['manuscripts.id', 'manuscripts.shelfmark', 'manuscripts.raw_text', 'works.slug as work_slug', DB::raw('NULL as bibliography'), ...array_map(fn ($f) => "manuscripts.{$f}", $fields)]);
+                ->select(['manuscripts.id', 'manuscripts.shelfmark', 'manuscripts.raw_text', 'manuscripts.metadata', 'works.slug as work_slug', DB::raw('NULL as bibliography'), ...array_map(fn ($f) => "manuscripts.{$f}", $fields)]);
         } else {
             $query->select(['id', 'slug as work_slug', 'bibliography', ...$fields]);
         }
@@ -211,6 +254,10 @@ class ApplyCorpusCategoriesCommand extends Command
         }
         if ($payload && array_diff_key($payload, $guard->strip($rec['id'], $payload))) {
             return ['protected by a reviewed correction', [], []];
+        }
+        // the explicit's tail goes into the notes, which a reviewer may have corrected (step 13.139)
+        if (array_key_exists('notes', $rec) && ! $guard->strip($rec['id'], ['metadata' => 1])) {
+            return ['notes protected by a reviewed correction', [], []];
         }
         // A commissioner (item 96) becomes a people row of role patron, unless reviewers changed the copy's people
         // or it is there already

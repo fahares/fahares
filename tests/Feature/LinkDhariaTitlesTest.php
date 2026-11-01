@@ -75,5 +75,12 @@ class LinkDhariaTitlesTest extends TestCase
         $this->artisan('sources:link-dharia-titles')->assertSuccessful();
         $this->assertSame([[$page4, 2, null], [$page9, 0, 'ref+part']], DB::table('source_page_links')->orderBy('source_page_id')->get()
             ->map(fn ($l) => [$l->source_page_id, $l->ordinal, $l->rejected_at ? null : $l->method])->all());
+
+        // the entry's page lists the entries that refer to it, linking the mark on the page text (step 13.140)
+        $html = $this->get($diwan->url())->assertOk()->getContent();
+        $this->assertStringContainsString('ارجاع مدخل‌های دیگر به این مدخل', $html);
+        $this->assertStringContainsString('href="' . route('source-pages.show', ['dharia', 9, 1003]) . '#m0"', $html);
+        $this->assertStringContainsString('<mark class="bg-transparent text-ink font-bold">قطب الدين</mark> في ص ۹۰۹', $html);
+        $this->assertStringNotContainsString('ارجاع مدخل‌های دیگر به این مدخل', $this->get($salaf->url())->getContent());
     }
 }

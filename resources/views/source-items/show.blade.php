@@ -61,6 +61,10 @@
                 </x-ui.section>
             @endif
 
+            {{-- the entries whose text refers to this one, the reverse of their links to it (step 13.140) --}}
+            <x-source.mentions :mentions="\App\Support\SourceMentions::of($item)" title="ارجاع مدخل‌های دیگر به این مدخل"
+                note="این ارجاع‌ها را ماشین از روی نام و صفحه‌ای که متن به آن ارجاع داده یافته است." />
+
             <nav class="flex justify-between gap-4 text-sm" aria-label="مدخل‌های پیش و پس">
                 @if($previous)
                     <a href="{{ $previous->url() }}" class="text-cinnabar hover:underline" rel="prev">→ {{ $previous->title ?: 'پیش‌گفتار' }}{{ $previous->entry_number ? Fa::digits(' (' . $previous->entry_number . ')') : '' }}</a>

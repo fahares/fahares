@@ -3,30 +3,31 @@
 namespace App\Support;
 
 use App\Console\Commands\LinkDhariaTitlesCommand;
-use App\Models\Person;
 use App\Models\SourceItem;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Where the site's sources name a record (step 13.136): the marks of their page texts linked to it (source_page_links,
- * steps 13.129 and 13.133), the reverse of the link on the page. For a person's page: the page, the entry whose text
- * holds the name and the words after it, and the words around his name.
+ * steps 13.129 and 13.133), the reverse of the link on the page: for a person's page where he is named (step 13.136),
+ * for an entry's page the entries that refer to it (13.140). Each with the page, the entry whose text holds the mark
+ * and the words after or before it, and the words around the mark.
  */
 class SourceMentions
 {
     /**
-     * The mentions of a person, by source, in the order of the volumes and pages.
+     * The mentions of a person or an entry, by source, in the order of the volumes and pages.
      *
      * @return Collection<string, Collection<int, array{place: string, url: string, entry: ?SourceItem, before: string, name: string, after: string}>>
      */
-    public static function forPerson(Person $person, int $limit = 200): Collection
+    public static function of(Model $record, int $limit = 200): Collection
     {
         $rows = DB::table('source_page_links as l')
             ->join('source_pages as p', 'p.id', '=', 'l.source_page_id')
             ->join('source_volumes as v', 'v.id', '=', 'p.source_volume_id')
             ->join('sources as s', 's.id', '=', 'v.source_id')
-            ->where('l.target_type', Person::class)->where('l.target_id', $person->id)->whereNull('l.rejected_at')
+            ->where('l.target_type', $record::class)->where('l.target_id', $record->getKey())->whereNull('l.rejected_at')
             ->orderBy('s.rank')->orderBy('v.volume_number')->orderBy('p.page')->orderBy('l.ordinal')->limit($limit)
             ->get(['l.ordinal', 'p.page', 'p.text', 'v.id as volume_id', 'v.volume_number', 's.id as source_id', 's.code', 's.title', 's.short_name', 's.unit']);
         if ($rows->isEmpty()) {
@@ -35,7 +36,7 @@ class SourceMentions
 
         // the entries the pages are part of, their texts without the marks
         $entries = SourceItem::with('source')->whereIn('source_volume_id', $rows->pluck('volume_id')->unique())
-            ->where('kind', SourceItem::KIND_ENTRY)
+            ->whereIn('kind', [SourceItem::KIND_ENTRY, SourceItem::KIND_SUB_ENTRY, SourceItem::KIND_ADDENDUM])
             ->where(function ($q) use ($rows) {
                 foreach ($rows as $row) {
                     $q->orWhere(fn ($q) => $q->where('source_volume_id', $row->volume_id)->where('page_start', '<=', $row->page)->where('page_end', '>=', $row->page));
@@ -46,9 +47,14 @@ class SourceMentions
         return $rows->map(function ($row) use ($entries, $bare) {
             $mark = collect(LinkDhariaTitlesCommand::marksOf($row->text))->firstWhere('ordinal', $row->ordinal);
             $on = $entries->filter(fn ($e) => $e->source_volume_id === $row->volume_id && $e->page_start <= $row->page && $e->page_end >= $row->page);
-            // of the page's entries, the one that holds the name with the words after it («… الطوسي المتوفى سنة 672»)
-            $needle = $bare(($mark['text'] ?? '') . mb_substr($mark['after'] ?? '', 0, 30));
-            $holding = $on->count() > 1 ? $on->filter(fn ($e) => str_contains($bare((string) $e->text), $needle)) : $on;
+            // of the page's entries, the one that holds the mark with the words after it («… الطوسي المتوفى سنة 672»), or
+            // before it, for a short entry that ends with the mark («( ديوان حسيني سادات ) مر بعنوان أمير حسيني في (ص 100).»)
+            $holding = $on;
+            foreach ([($mark['text'] ?? '') . mb_substr($mark['after'] ?? '', 0, 30), mb_substr($mark['before'] ?? '', -20) . ($mark['text'] ?? '')] as $needle) {
+                if ($holding->count() !== 1) {
+                    $holding = $on->filter(fn ($e) => str_contains($bare((string) $e->text), $bare($needle)));
+                }
+            }
 
             return [
                 'source' => $row->short_name ?: $row->title,
