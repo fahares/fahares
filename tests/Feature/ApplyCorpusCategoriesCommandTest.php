@@ -208,6 +208,32 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertSame('تیماج مشکی مجدول گرهی', DB::table('manuscripts')->where('id', $id)->value('binding'));
     }
 
+    public function test_what_follows_a_copy_date_becomes_a_note_or_the_dates_note()
+    {
+        $work = $this->work('-v99-8');
+        $sealed = $this->copy($work, '19/1-ف');
+        $doubted = $this->copy($work, '19/2-ف');
+        DB::table('manuscripts')->where('id', $sealed)->update(['copy_date_raw' => '1272ق، مهر: «عبده محمد هادی»', 'metadata' => json_encode([])]);
+        DB::table('manuscripts')->where('id', $doubted)->update(['copy_date_raw' => '1083ق، این تاریخ درست نیست']);
+        $this->plan([
+            ['table' => 'manuscripts', 'id' => $sealed, 'work_key' => '-v99-8', 'shelfmark' => '19/1-ف', 'category' => 'date_tail',
+                'changes' => ['copy_date_raw' => ['from' => '1272ق، مهر: «عبده محمد هادی»', 'to' => '1272ق']],
+                'notes' => [['text' => 'مهر: «عبده محمد هادی»', 'type' => 'seal']]],
+            ['table' => 'manuscripts', 'id' => $doubted, 'work_key' => '-v99-8', 'shelfmark' => '19/2-ف', 'category' => 'date_note',
+                'changes' => ['copy_date_raw' => ['from' => '1083ق، این تاریخ درست نیست', 'to' => '1083ق'], 'copy_date_note' => ['from' => null, 'to' => 'این تاریخ درست نیست']]],
+        ]);
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])
+            ->expectsOutputToContain('Writing 2 records.')
+            ->assertSuccessful();
+
+        $row = DB::table('manuscripts')->where('id', $sealed)->first();
+        $this->assertSame(['1272ق', 1272, 1272], [$row->copy_date_raw, (int) $row->copy_date_from, (int) $row->copy_date_to]);
+        $this->assertSame(['مهر: «عبده محمد هادی»'], json_decode($row->metadata, true)['editorial_notes']);
+        $row = DB::table('manuscripts')->where('id', $doubted)->first();
+        $this->assertSame(['1083ق', 'این تاریخ درست نیست'], [$row->copy_date_raw, $row->copy_date_note]);
+    }
+
     public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
     {
         $w = $this->work('-v99-7');

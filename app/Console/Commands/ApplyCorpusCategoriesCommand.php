@@ -104,7 +104,7 @@ class ApplyCorpusCategoriesCommand extends Command
                     if (isset($logged['metadata'])) {
                         // only the parts of the metadata the move touched, not the whole of it
                         $meta = json_decode($logged['metadata'], true);
-                        $logged['metadata'] = array_intersect_key($meta, array_flip([isset($rec['changes']['incipit_text']) ? 'incipits' : 'explicits', 'editorial_notes', 'editorial_note_types']));
+                        $logged['metadata'] = array_intersect_key($meta, array_flip(array_filter([self::tailList($rec)[1], 'editorial_notes', 'editorial_note_types'])));
                     }
                     AuditLog::create([
                         'user_id' => null,
@@ -141,12 +141,12 @@ class ApplyCorpusCategoriesCommand extends Command
     {
         $raw = DB::table('manuscripts')->where('id', $rec['id'])->value('metadata');
         $meta = json_decode($raw ?? 'null', true) ?: [];
-        // the explicit's tail, or the incipit's (step 13.164), and the metadata list it is shown from
-        $column = isset($rec['changes']['incipit_text']) ? 'incipit_text' : 'explicit_text';
-        $list = $column === 'incipit_text' ? 'incipits' : 'explicits';
+        // the explicit's tail, the incipit's (step 13.164) or the copy date's (14.2), and the metadata list the
+        // first two are shown from; a date has none
+        [$column, $list] = self::tailList($rec);
         $from = trim((string) $rec['changes'][$column]['from']);
         $to = $rec['changes'][$column]['to'];
-        foreach ($meta[$list] ?? [] as $i => $item) {
+        foreach ($list ? ($meta[$list] ?? []) : [] as $i => $item) {
             if (is_array($item) && trim((string) ($item['text'] ?? '')) === $from) {
                 $meta[$list][$i]['text'] = $to;
             }
@@ -161,9 +161,17 @@ class ApplyCorpusCategoriesCommand extends Command
             }
         }
         $meta['editorial_notes'] = $notes;
-        $old['metadata'] = array_intersect_key(json_decode($raw ?? 'null', true) ?: [], array_flip([$list, 'editorial_notes', 'editorial_note_types']));
+        $old['metadata'] = array_intersect_key(json_decode($raw ?? 'null', true) ?: [], array_flip(array_filter([$list, 'editorial_notes', 'editorial_note_types'])));
 
         return [$payload + ['metadata' => json_encode($meta, JSON_UNESCAPED_UNICODE)], $old];
+    }
+
+    /** @return array{0: string, 1: ?string} the column a record moves a tail out of, and its metadata list */
+    private static function tailList(array $rec): array
+    {
+        $column = collect(['incipit_text', 'explicit_text', 'copy_date_raw'])->first(fn ($c) => isset($rec['changes'][$c]));
+
+        return [$column, ['incipit_text' => 'incipits', 'explicit_text' => 'explicits', 'copy_date_raw' => null][$column]];
     }
 
     /**
