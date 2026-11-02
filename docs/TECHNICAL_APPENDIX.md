@@ -6800,5 +6800,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی پیش از کار:** ۱٬۳۴۴ + ۷۳ + ۱۰ + ۲ اثر «غیر همانند» ۱۵٬۷۶۷ نسخه دارند. فقط ۲ نسخه از آن‌ها `metadata.is_distinct_work = true` دارند.
 - **دسته‌ی دوم:** ۸۶۱ اثر شرحی دارند که «نام مؤلف⏎آوانویسی» است. همه `author_name` خالی دارند و هیچ‌کدام سطر `work_people` با نقش `author` ندارند. این دسته به کار «پدیدآوران پرشده» واگذار شد.
 - **تمرین (`fahares_prod`):** پس از migrate، خروجی `Would write 1802` بود: `heterogeneous` ۱٬۳۴۴، `probably_heterogeneous` ۶۷، `unidentified` ۳۸۸ و `similarity_unknown` ۳. پس از `--apply`، اجرای دوم `Would write 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_entry_status_prod_before_20261102.json`، شامل ۱٬۹۵۹ اثر با شرحی که با این نشانه‌ها آغاز می‌شود.
+  - **اجرا:** با `prod-run`. dry run، سپس `Writing 1802`، سپس `Would write 0`.
 - **آزمون:** `MoveEntryStatusCommandTest`.
 - **محیط آزمون worktree:** `scripts/dev/test-suite` در `fahares_app` از مسیر worktree اجرا می‌شود. پس worktree باید `vendor` خودش را داشته باشد. یک `vendor` پیوندی کلاس‌های `App` را از checkout اصلی بار می‌کند. پس `vendor` اصلی رونوشت شد، `composer dump-autoload -o` در همان worktree اجرا شد، و `.env` پیوندی به `../../../.env` است.
