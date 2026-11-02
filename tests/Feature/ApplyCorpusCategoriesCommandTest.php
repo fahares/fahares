@@ -167,6 +167,28 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_the_line_after_an_incipit_becomes_a_note_too()
+    {
+        $id = $this->copy($this->work('-v99-6'), '17/1-ف');
+        $from = "بسمله الحمد لله\nجلد اول";
+        DB::table('manuscripts')->where('id', $id)->update(['incipit_text' => $from, 'metadata' => json_encode([
+            'incipits' => [['label' => null, 'text' => $from]], 'explicits' => [['label' => null, 'text' => 'تمت']],
+        ], JSON_UNESCAPED_UNICODE)]);
+        $this->plan([['table' => 'manuscripts', 'id' => $id, 'work_key' => '-v99-6', 'shelfmark' => '17/1-ف',
+            'category' => 'incipit_tail', 'changes' => ['incipit_text' => ['from' => $from, 'to' => 'بسمله الحمد لله']],
+            'notes' => [['text' => 'جلد اول', 'type' => 'contents_scope']]]]);
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])
+            ->expectsOutputToContain('Writing 1 records.')
+            ->assertSuccessful();
+
+        $meta = json_decode(DB::table('manuscripts')->where('id', $id)->value('metadata'), true);
+        $this->assertSame('بسمله الحمد لله', DB::table('manuscripts')->where('id', $id)->value('incipit_text'));
+        $this->assertSame('بسمله الحمد لله', $meta['incipits'][0]['text']);
+        $this->assertSame('تمت', $meta['explicits'][0]['text']);
+        $this->assertSame(['جلد اول'], $meta['editorial_notes']);
+    }
+
     public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
     {
         $w = $this->work('-v99-7');

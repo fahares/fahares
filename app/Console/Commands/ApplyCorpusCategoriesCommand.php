@@ -28,7 +28,7 @@ class ApplyCorpusCategoriesCommand extends Command
     /** Tables and the fields a decision file may change */
     private const FIELDS = [
         'works' => ['print_info'],
-        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note', 'lines', 'explicit_text'],
+        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note', 'lines', 'explicit_text', 'incipit_text'],
     ];
 
     /** A commissioner's phrase before the name in the copy's raw text («حسب الامر», «به جهت», «برای»…) */
@@ -104,7 +104,7 @@ class ApplyCorpusCategoriesCommand extends Command
                     if (isset($logged['metadata'])) {
                         // only the parts of the metadata the move touched, not the whole of it
                         $meta = json_decode($logged['metadata'], true);
-                        $logged['metadata'] = array_intersect_key($meta, array_flip(['explicits', 'editorial_notes', 'editorial_note_types']));
+                        $logged['metadata'] = array_intersect_key($meta, array_flip([isset($rec['changes']['incipit_text']) ? 'incipits' : 'explicits', 'editorial_notes', 'editorial_note_types']));
                     }
                     AuditLog::create([
                         'user_id' => null,
@@ -141,11 +141,14 @@ class ApplyCorpusCategoriesCommand extends Command
     {
         $raw = DB::table('manuscripts')->where('id', $rec['id'])->value('metadata');
         $meta = json_decode($raw ?? 'null', true) ?: [];
-        $from = trim((string) $rec['changes']['explicit_text']['from']);
-        $to = $rec['changes']['explicit_text']['to'];
-        foreach ($meta['explicits'] ?? [] as $i => $item) {
+        // the explicit's tail, or the incipit's (step 13.164), and the metadata list it is shown from
+        $column = isset($rec['changes']['incipit_text']) ? 'incipit_text' : 'explicit_text';
+        $list = $column === 'incipit_text' ? 'incipits' : 'explicits';
+        $from = trim((string) $rec['changes'][$column]['from']);
+        $to = $rec['changes'][$column]['to'];
+        foreach ($meta[$list] ?? [] as $i => $item) {
             if (is_array($item) && trim((string) ($item['text'] ?? '')) === $from) {
-                $meta['explicits'][$i]['text'] = $to;
+                $meta[$list][$i]['text'] = $to;
             }
         }
         $notes = array_values(array_unique(array_filter($meta['editorial_notes'] ?? [], 'is_string')));
@@ -158,7 +161,7 @@ class ApplyCorpusCategoriesCommand extends Command
             }
         }
         $meta['editorial_notes'] = $notes;
-        $old['metadata'] = array_intersect_key(json_decode($raw ?? 'null', true) ?: [], array_flip(['explicits', 'editorial_notes', 'editorial_note_types']));
+        $old['metadata'] = array_intersect_key(json_decode($raw ?? 'null', true) ?: [], array_flip([$list, 'editorial_notes', 'editorial_note_types']));
 
         return [$payload + ['metadata' => json_encode($meta, JSON_UNESCAPED_UNICODE)], $old];
     }
