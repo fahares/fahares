@@ -782,17 +782,19 @@ class SeedFaharesDataCommand extends Command
             SET manuscripts_count = (SELECT COUNT(*) FROM manuscripts m WHERE m.library_id = lib.id)
         ');
 
-        // Every primary author and scribe is also a pivot row (position 0)
-        DB::statement('INSERT IGNORE INTO work_author (work_id, person_id, position)
-            SELECT id, author_id, 0 FROM works WHERE author_id IS NOT NULL');
-        DB::statement('INSERT IGNORE INTO manuscript_scribe (manuscript_id, person_id, position)
-            SELECT id, scribe_id, 0 FROM manuscripts WHERE scribe_id IS NOT NULL');
+        // Every primary author and scribe is also a row of the people tables (position 0)
+        DB::statement("INSERT INTO work_people (work_id, person_id, role, position)
+            SELECT id, author_id, 'author', 0 FROM works w WHERE author_id IS NOT NULL
+            AND NOT EXISTS (SELECT 1 FROM work_people wa WHERE wa.work_id = w.id AND wa.role = 'author' AND wa.person_id = w.author_id)");
+        DB::statement("INSERT INTO manuscript_people (manuscript_id, person_id, role, position)
+            SELECT id, scribe_id, 'scribe', 0 FROM manuscripts m WHERE scribe_id IS NOT NULL
+            AND NOT EXISTS (SELECT 1 FROM manuscript_people ms WHERE ms.manuscript_id = m.id AND ms.role = 'scribe' AND ms.person_id = m.scribe_id)");
 
-        DB::statement('
+        DB::statement("
             UPDATE people p
-            SET works_count = (SELECT COUNT(*) FROM work_author wa WHERE wa.person_id = p.id),
-                manuscripts_count = (SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.person_id = p.id)
-        ');
+            SET works_count = (SELECT COUNT(*) FROM work_people wa WHERE wa.person_id = p.id AND wa.role = 'author'),
+                manuscripts_count = (SELECT COUNT(*) FROM manuscript_people ms WHERE ms.person_id = p.id AND ms.role = 'scribe')
+        ");
     }
 
     protected function parseHijriYear(?string $raw): ?int

@@ -19,7 +19,7 @@ class ReindexWorkPeopleCommand extends Command
 
     public function handle(): int
     {
-        $ids = DB::table('work_people')->distinct()->orderBy('work_id')->pluck('work_id');
+        $ids = DB::table('work_people')->where('role', '!=', \App\Models\WorkPerson::AUTHOR)->distinct()->orderBy('work_id')->pluck('work_id');
         $done = 0;
         foreach ($ids->chunk(max(1, (int) $this->option('chunk'))) as $chunk) {
             // The same eager loading as scout:import

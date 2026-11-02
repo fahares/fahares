@@ -47,7 +47,7 @@ class Work extends Model
 
     protected static function primaryContributorPivot(): array
     {
-        return ['work_author', 'work_id', 'author_id'];
+        return ['work_people', 'work_id', 'author_id', WorkPerson::AUTHOR];
     }
 
     protected function casts(): array
@@ -351,7 +351,8 @@ class Work extends Model
      */
     public function authors(): BelongsToMany
     {
-        return $this->belongsToMany(Person::class, 'work_author')
+        return $this->belongsToMany(Person::class, 'work_people')
+            ->withPivotValue('role', WorkPerson::AUTHOR)
             ->withPivot(['position', 'note'])
             ->orderByPivot('position');
     }
@@ -367,13 +368,13 @@ class Work extends Model
      */
     public function authorEntries(): HasMany
     {
-        return $this->hasMany(WorkAuthor::class)->orderBy('position')->orderBy('id');
+        return $this->hasMany(WorkPerson::class)->where('role', WorkPerson::AUTHOR)->orderBy('position')->orderBy('id');
     }
 
     /** People other than the authors: translators, dedicatees, commissioners… in role order. */
     public function workPeople(): HasMany
     {
-        return $this->hasMany(WorkPerson::class)->orderBy('position')->orderBy('id');
+        return $this->hasMany(WorkPerson::class)->where('role', '!=', WorkPerson::AUTHOR)->orderBy('position')->orderBy('id');
     }
 
     /** Numbered and part incipits and explicits beyond the main ones (backlog item 98), in their order. */
