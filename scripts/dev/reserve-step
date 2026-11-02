@@ -2,7 +2,7 @@
 # Reserve the next step number («گام») for docs/PROCESS_DOCUMENTATION.md, so that parallel sessions never take the
 # same one. The registry lives outside git (shared by every worktree on this machine) and is locked with flock.
 #
-#   scripts/dev/reserve-step "short title" <session-name>   reserve and print the next number, e.g. 13.127
+#   scripts/dev/reserve-step "short title" <session-name>   reserve and print the next number, e.g. 14.3
 #   scripts/dev/reserve-step --list [N]                      show the last N reservations (default 15)
 #
 # The next number is one above the highest of the registry and of the steps already in origin/main's docs, so a step
@@ -10,7 +10,7 @@
 set -euo pipefail
 
 REGISTRY="${FAHARES_STEPS_FILE:-$HOME/.fahares/steps.tsv}"
-PHASE="${FAHARES_STEP_PHASE:-13}"
+PHASE="${FAHARES_STEP_PHASE:-14}"
 REPO="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
 
 mkdir -p "$(dirname "$REGISTRY")"

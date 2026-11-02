@@ -64,11 +64,13 @@ restic_enabled() { [ -n "$RESTIC_REPOSITORY" ]; }
 
 # Run a restic command (any command whose failure is worth retrying) up to RESTIC_ATTEMPTS times.
 retry_restic() {
-    local attempt
+    local attempt code
     for attempt in $(seq 1 "$RESTIC_ATTEMPTS"); do
-        "$@" && return 0
+        "$@" && return 0 || code=$?
+        # Exit 3: some source files could not be read (e.g. permissions); waiting will not fix that.
+        [ "$code" -ne 3 ] || return 3
         [ "$attempt" -lt "$RESTIC_ATTEMPTS" ] || break
-        log "restic failed (attempt ${attempt}/${RESTIC_ATTEMPTS}), retrying in ${RESTIC_RETRY_WAIT}s"
+        log "restic failed (exit ${code}, attempt ${attempt}/${RESTIC_ATTEMPTS}), retrying in ${RESTIC_RETRY_WAIT}s"
         sleep "$RESTIC_RETRY_WAIT"
     done
     return 1
@@ -79,7 +81,8 @@ tg_api() {
     local method="$1"; shift
     local attempt resp
     for attempt in 1 2 3 4; do
-        if resp="$(curl -sS --max-time 300 "${TG_API_BASE}/bot${TG_BOT_TOKEN}/${method}" "$@")" \
+        # The URL holds the bot token, so it goes to curl on stdin, not on the command line (visible in ps).
+        if resp="$(curl -sS --max-time 300 -K - "$@" <<<"url = \"${TG_API_BASE}/bot${TG_BOT_TOKEN}/${method}\"")" \
             && [ "$(jq -r '.ok' <<<"$resp")" = "true" ]; then
             printf '%s' "$resp"
             return 0
