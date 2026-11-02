@@ -638,10 +638,18 @@ class Manuscript extends Model
             $collection = $stuck;
         }
 
+        $base = trim($m[1]);
+        $part = isset($p[1]) ? $p[1] : trim($m[2]);
+        // «1/2591/104»: with a short first number and a long second one, the volume is the two («1/2591», as printed
+        // in that library), and the third number is the treatise; «2267/6/10» keeps its volume 2267 (step 13.154)
+        if (preg_match('/^\d{1,2}$/', $base) && preg_match('~^(\d{3,})\s*/\s*(\d+)~', trim($m[2]), $q)) {
+            [$base, $part] = ["{$base}/{$q[1]}", $q[2]];
+        }
+
         return [
-            'base' => trim($m[1]),
+            'base' => $base,
             'collection' => $collection,
-            'part' => isset($p[1]) ? $p[1] : trim($m[2]),
+            'part' => $part,
         ];
     }
 
