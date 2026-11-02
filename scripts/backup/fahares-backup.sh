@@ -79,7 +79,8 @@ tg_api() {
     local method="$1"; shift
     local attempt resp
     for attempt in 1 2 3 4; do
-        if resp="$(curl -sS --max-time 300 "${TG_API_BASE}/bot${TG_BOT_TOKEN}/${method}" "$@")" \
+        # The URL holds the bot token, so it goes to curl on stdin, not on the command line (visible in ps).
+        if resp="$(curl -sS --max-time 300 -K - "$@" <<<"url = \"${TG_API_BASE}/bot${TG_BOT_TOKEN}/${method}\"")" \
             && [ "$(jq -r '.ok' <<<"$resp")" = "true" ]; then
             printf '%s' "$resp"
             return 0

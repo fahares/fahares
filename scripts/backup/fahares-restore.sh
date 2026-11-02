@@ -82,9 +82,10 @@ case "$SRC_KIND" in
         jq -c '.chunks[]' "$SRC" | while read -r chunk; do
             file="$(jq -r '.file' <<<"$chunk")"
             log "downloading $file"
-            path="$(curl -sS --max-time 120 "$api/getFile" --data-urlencode "file_id=$(jq -r '.file_id' <<<"$chunk")" \
+            # URLs with the bot token go to curl on stdin, not on the command line (visible in ps).
+            path="$(curl -sS --max-time 120 -K - <<<"url = \"$api/getFile\"" --data-urlencode "file_id=$(jq -r '.file_id' <<<"$chunk")" \
                 | jq -er '.result.file_path')" || die "getFile failed for $file"
-            curl -sS --fail --max-time 600 -o "$WORK/$file" "$base/file/bot${TG_BOT_TOKEN}/${path}"
+            curl -sS --fail --max-time 600 -o "$WORK/$file" -K - <<<"url = \"$base/file/bot${TG_BOT_TOKEN}/${path}\""
             check_sha "$WORK/$file" "$(jq -r '.sha256' <<<"$chunk")"
             cat "$WORK/$file" >>"$enc"
             rm -f "$WORK/$file"

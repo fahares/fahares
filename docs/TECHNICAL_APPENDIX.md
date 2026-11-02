@@ -6388,7 +6388,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **علت:** در `~/.config/rclone/rclone.conf` بخش `[gdrive]` مقدار `client_id` ندارد، پس rclone 1.60.1 (بسته‌ی Debian) با client داخلی خودش کار می‌کند. این client پروژه‌ی ۲۰۲۲۶۴۸۱۵۶۴۴ است و میان همه‌ی کاربران rclone مشترک است. backoff rclone زیر 403 بیش از `rclone.timeout` پیش‌فرض restic (یک دقیقه) طول می‌کشد، و restic پیش از باز کردن مخزن قطع می‌کند. cron در ۰۳:۳۰ و ۰۴:۳۰ و ۰۵:۳۰ تهران (۰۰:۰۰، ۰۱:۰۰ و ۰۲:۰۰ UTC) اجرا می‌شود، یعنی سر ساعت UTC که cronهای rclone همه جا با هم اجرا می‌شوند. در ۱۲:۴۵ تهران، `restic snapshots` نزدیک ۵۳ ثانیه طول کشید که به یک دقیقه نزدیک است. `rclone lsf` زیر یک ثانیه بود و توکن OAuth در ۱۲ آبان ۰۳:۳۷ تازه شده بود، پس احراز هویت سالم است. قفل کهنه‌ای نبود (`restic list locks` تهی بود) و دیسک ۷۰٪ پر است.
 - **تلگرام:** manifest هر شب، از جمله `fahares-db-20261102-033002` (۱۲ تکه، ۲۲۵ مگابایت رمزنگاری‌شده)، ساخته و فرستاده شد. شکست فقط پس از مرحله‌ی `telegram-manifest`، در `restic-backup` رخ داد.
 - **Drive:** ۲۲ snapshot. آخرین db `8e6fadd2` در ۱۱ آبان است و تنها media `c4815834` در ۲۱ مهر.
-- **هشدار:** `on_exit` در هر شکست `notify` می‌فرستد. `tg_api` اگر شکست بخورد `Telegram … failed` در لاگ می‌نویسد، و چنین سطری در لاگ نیست. ربات `fahares_backup_bot` در کانال `administrator` است با `can_post_messages`. پس ارسال کار می‌کرد. خواندن syslog برای دیدن اجرای `watch` بی sudo ممکن نبود.
+- **هشدار:** `on_exit` در هر شکست `notify` می‌فرستد و کاربر پیام‌های ❌ را دریافت کرده بود. ربات `fahares_backup_bot` در کانال `administrator` است با `can_post_messages`.
 - **تغییرها:**
   - `RESTIC_OPTS=(-o rclone.timeout=$RCLONE_TIMEOUT)` (پیش‌فرض `10m`) در همه‌ی فراخوانی‌های restic.
   - `retry_restic` (پیش‌فرض‌ها `RESTIC_ATTEMPTS=3` و `RESTIC_RETRY_WAIT=600`) دور backup db، media و config، و دور forget و check. backup db در تابع `restic_db_backup` است تا هر تلاش dump را از نو از فایل بخواند. `nice_io` دستور را با `nice` اجرا می‌کند، پس گزینه‌ها آرایه‌اند، نه یک تابع `restic`.
@@ -6396,4 +6396,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `job_status`: پس از بررسی db، هر کاری را که `status != ok` باشد فهرست می‌کند و کد ۱ می‌دهد (`ALERT: last run failed: media (2026-10-30, …); verify (…)`).
   - `job_watch` سطر آخر `status` را در هر حال لاگ می‌کند.
 - **آزمون:** `status` و `watch` با `FAHARES_BACKUP_CONFIG` آزمایشی روی رونوشت `last.json`. `bash -n` پاس شد.
-- **نصب:** فایل `/usr/local/bin/fahares-backup.sh` مال `root:root` است (۳۱ مهر) و `sudo -n` ممکن نیست. نصب را کاربر انجام می‌دهد.
+- **توکن در `ps`:** `tg_api` در `fahares-backup.sh` و دو curl در `fahares-restore.sh` (`getFile` و دانلود فایل) نشانی دارای `bot${TG_BOT_TOKEN}` را در argv می‌گذاشتند. اکنون نشانی با `-K -` و here-string به‌صورت `url = "…"` از stdin داده می‌شود. در restore، here-string ورودی حلقه‌ی `while read` را نمی‌گیرد. آزمون: `tg-test` با `TG_API_BASE=http://127.0.0.1:8765` روی یک سرور HTTP محلی.
+- **cron (crontab کاربر `tabib`، با پشتیبان در `~/fahares-backups/crontab.bak-20261102`):** db `47 3 * * *`، media `52 4 * * 5`، verify `43 5 1 * *`. config (`15 4 * * 5`) و watch (`0 10 * * *`) دست نخوردند. `crontab.example` هم به‌روز شد.
+- **نصب و اجرا:** فایل `/usr/local/bin/fahares-backup.sh` مال `root:root` است و `sudo -n` ممکن نیست. کاربر آن را با `sudo install` نصب کرد و نسخه‌ی پیشین در `fahares-backup.sh.bak-20261102` ماند. اجرای دستی:
+  - `db: done: fahares-db-20261102-131207 (telegram=ok restic=ok)` در ۱۳:۱۷.
+  - `verify: done: be258d1b` در ۱۳:۴۱.
+  - اجرای هم‌زمان دوم به `flock` خورد. چون `die` پیش از `trap on_exit` است، وضعیتی ثبت نکرد و هشداری نفرستاد.
+- **client اختصاصی:** scope فعلی `drive.file` است. client تازه با این scope مخزنی را که client پیشین ساخته نمی‌بیند. پس client تازه با scope `drive` ساخته می‌شود (حساب Google فقط برای فهارس است)، با وضعیت انتشار In production، چون در حالت Testing توکن پس از ۷ روز باطل می‌شود.
