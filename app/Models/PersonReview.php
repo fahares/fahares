@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One item of the admin queue «بازبینی اشخاص»: a group of records that may be one person
- * (type duplicate) or a record that may hold several people (type mixed). See PersonReviewQueue.
+ * (type duplicate) or a record that may hold several people (type mixed). See PersonReviewQueue. Type author_link
+ * (step 14.17) is a work whose author is a name only and the one person it may be: person_ids holds that person and
+ * suggestion the work and the evidence (AuthorLinkQueue).
  */
 class PersonReview extends Model
 {
@@ -19,6 +21,8 @@ class PersonReview extends Model
         'split' => 'تفکیک شد',
         'dismissed' => 'یک نفر است',
         'gone' => 'دیگر وجود ندارد',
+        'linked' => 'پیوند خورد',
+        'not_linked' => 'شخص دیگری است',
     ];
 
     protected $guarded = ['id'];

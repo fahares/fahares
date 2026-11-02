@@ -1,0 +1,461 @@
+{
+ "source": "step 14.17: works given a text-only author in steps 14.8–14.11 whose name and transliteration match one person of the site",
+ "items": [
+  {
+   "work_slug": "itbat-ul-wajib-v1-1167",
+   "author_name": "محمد حسین",
+   "person_slug": "mohammad-hoseyn-53748",
+   "person_name": "محمد حسین",
+   "translit": "mohammad hoseyn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "ersad-ol-avam-v3-109",
+   "author_name": "عبدالواحد",
+   "person_slug": "abd-ol-vahed-30749",
+   "person_name": "عبدالواحد",
+   "translit": "‘abd-ol-vāhed",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "irsad-ul-gafilin-v3-110",
+   "author_name": "محمد حسین",
+   "person_slug": "mohammad-hoseyn-53748",
+   "person_name": "محمد حسین",
+   "translit": "mohammad hoseyn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "asar-gerdavari-v3-1539",
+   "author_name": "محمد رضا",
+   "person_slug": "mohammad-reza-35534",
+   "person_name": "محمد رضا",
+   "translit": "mohammad rezā",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "etfa-ol-qavael-v4-779",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "entesar-ol-haqq-v4-2274",
+   "author_name": "زین العابدین",
+   "person_slug": "zayn-ol-abedin-59816",
+   "person_name": "زین العابدین",
+   "translit": "zayn-ol-‘ābedīn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "bist-va-se-pand-v6-656",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "porses-e-buzarjomehr-az-ostad-as-v6-940",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "porses-va-pasox-e-anusiravan-adel-va-hakim-abuzarjomehr-v6-959",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "pand-name-v6-1062",
+   "author_name": "امان الله",
+   "person_slug": "aman-ol-lah-63076",
+   "person_name": "امان الله",
+   "translit": "amān-ol-lāh",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "pisgui-v6-1121",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tarix-e-fors-e-qadim-va-tarix-e-yazdgerdi-v6-1753",
+   "author_name": "منجم اصفهانی، اسدالله",
+   "person_slug": "monajjem-e-esfahani-asad-ol-lah-53150",
+   "person_name": "منجم اصفهانی، اسدالله",
+   "translit": "monajjem-e esfahānī, asad-ol-lāh",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tajvid-v7-31",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "at-tuaf-ul-isan-wa-anba-u-abna-iz-zaman-v7-308",
+   "author_name": "محمد بن یحیی",
+   "person_slug": "mohammad-ebn-e-yahya-16245",
+   "person_name": "محمد بن یحیی",
+   "translit": "mohammad ebn-e yahyā",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tohfe-ye-xani-v7-595",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tohfat-ol-avaref-v7-865",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tohfat-ol-moslemin-v7-1003",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "taxmis-v7-1347",
+   "author_name": "متطبب نجفی، مهدی",
+   "person_slug": "motatabbeb-e-najafi-mahdi-55008",
+   "person_name": "متطبب نجفی، مهدی",
+   "translit": "motatabbeb-e najafī, mahdī",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tabir-e-xab-v8-904",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tafsir-e-zawra-v8-1756",
+   "author_name": "آذر پژوه",
+   "person_slug": "azar-pazuh-70555",
+   "person_name": "آذر پژوه",
+   "translit": "āzar pažūh",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "samare-va-sajare-v9-1287",
+   "author_name": "ابوالبرکات",
+   "person_slug": "abo-l-barakat-1032",
+   "person_name": "ابوالبرکات",
+   "translit": "abo-l-barakāt",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "al-jami-li-l-asya-v9-1622",
+   "author_name": "بلیناس حکیم",
+   "person_slug": "balinas-e-hakim-22976",
+   "person_name": "بلیناس حکیم",
+   "translit": "balīnās-e hakīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "joqrafiya-ye-donya-v10-367",
+   "author_name": "ماطاوس ملکیانس",
+   "person_slug": "matavus-malekyanes-19912",
+   "person_name": "ماطاوس ملکیانس",
+   "translit": "mātāvūs malekyānes",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "jong-v10-894",
+   "author_name": "محمد رضا",
+   "person_slug": "mohammad-reza-35534",
+   "person_name": "محمد رضا",
+   "translit": "mohammad rezā",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "asiyat-us-safi-v12-160",
+   "author_name": "احمد بن مصطفی",
+   "person_slug": "ahmad-ebn-e-mostafa-8437",
+   "person_name": "احمد بن مصطفی",
+   "translit": "ahmad ebn-e mostafā",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "xaterat-v13-1342",
+   "author_name": "سپهری، منوچهر",
+   "person_slug": "sepehri-manucehr-59119",
+   "person_name": "سپهری، منوچهر",
+   "translit": "sepehrī, manūčehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "dar-rah-e-safar-v14-1184",
+   "author_name": "سپهری، منوچهر",
+   "person_slug": "sepehri-manucehr-59119",
+   "person_name": "سپهری، منوچهر",
+   "translit": "sepehrī, manūčehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "davazdah-emam-v14-2252",
+   "author_name": "ابوالبرکات",
+   "person_slug": "abo-l-barakat-1032",
+   "person_name": "ابوالبرکات",
+   "translit": "abo-l-barakāt",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "d-e-mohammad-jafar-v15-1619",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "d-e-mohammad-hoseyn-v15-1621",
+   "author_name": "محمد حسین",
+   "person_slug": "mohammad-hoseyn-53748",
+   "person_name": "محمد حسین",
+   "translit": "mohammad hoseyn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "rabiiye-v16-577",
+   "author_name": "محمد بن یحیی",
+   "person_slug": "mohammad-ebn-e-yahya-16245",
+   "person_name": "محمد بن یحیی",
+   "translit": "mohammad ebn-e yahyā",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "r-ye-bvzar-jomehr-v16-1137",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "rofaqa-ye-qesse-gu-v16-1911",
+   "author_name": "سپهری، منوچهر",
+   "person_slug": "sepehri-manucehr-59119",
+   "person_name": "سپهری، منوچهر",
+   "translit": "sepehrī, manūčehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "riyaz-v17-265",
+   "author_name": "زین العابدین",
+   "person_slug": "zayn-ol-abedin-59816",
+   "person_name": "زین العابدین",
+   "translit": "zayn-ol-‘ābedīn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "sajare-va-samare-v18-2132",
+   "author_name": "ابوالبرکات",
+   "person_slug": "abo-l-barakat-1032",
+   "person_name": "ابوالبرکات",
+   "translit": "abo-l-barakāt",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "s-e-abyati-az-masnavi-ye-manavi-v18-2316",
+   "author_name": "محمد حسین",
+   "person_slug": "mohammad-hoseyn-53748",
+   "person_name": "محمد حسین",
+   "translit": "mohammad hoseyn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "s-e-beyt-mah-e-talat-tora-be-tamami-qolam-sod-v19-364",
+   "author_name": "علی بن عبدالغفار",
+   "person_slug": "ali-ebn-e-abd-ol-qaffar-44408",
+   "person_name": "علی بن عبدالغفار",
+   "translit": "‘alī ebn-e ‘abd-ol-qaffār",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "s-e-dastur-e-moamma-ye-neysaburi-v19-1411",
+   "author_name": "نامی، خواجگی بلخی",
+   "person_slug": "nami-xajegi-ye-balxi-45993",
+   "person_name": "نامی، خواجگی بلخی",
+   "translit": "nāmī, xājegī-ye balxī",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "s-e-moqaletat-v20-1360",
+   "author_name": "ابراهیم",
+   "person_slug": "ebrahim-66158",
+   "person_name": "ابراهیم",
+   "translit": "ebrāhīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "s-e-yusof-va-zolayxa-v20-1852",
+   "author_name": "هانسوی، عبد الواسع",
+   "person_slug": "hansavi-abd-ol-vase-42909",
+   "person_name": "هانسوی، عبد الواسع",
+   "translit": "hānsavī, ‘abd-ol-vāse‘",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "savahed-ul-osul-soltani-v21-473",
+   "author_name": "محمد حسین",
+   "person_slug": "mohammad-hoseyn-53748",
+   "person_name": "محمد حسین",
+   "translit": "mohammad hoseyn",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "sarf-e-manzum-v21-1038",
+   "author_name": "عبدالرحیم",
+   "person_slug": "abd-or-rahim-453",
+   "person_name": "عبدالرحيم",
+   "translit": "‘abd-or-rahīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "iya-ul-qulub-v21-2122",
+   "author_name": "محمد هادی بن محمد مهدی",
+   "person_slug": "mohammad-hadi-ebn-e-mohammad-mahdi-13443",
+   "person_name": "محمد هادی بن محمد مهدی",
+   "translit": "mohammad hādī ebn-e mohammad mahdī",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tabaqat-e-sah-jahani-v22-181",
+   "author_name": "کشمـیری، محمـد صـادق",
+   "person_slug": "kesmiri-mohammad-sadeq-3977",
+   "person_name": "کشمیری، محمد صادق",
+   "translit": "kešmīrī, mohammad sādeq",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "tebb-e-manzum-v22-232",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "ayar-ol-erfan-v23-257",
+   "author_name": "مجرد، محب على",
+   "person_slug": "mojarrad-moheb-ali-50801",
+   "person_name": "مجرد، محب علی",
+   "translit": "mojarrad, moheb ‘alī",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "faras-name-v23-1561",
+   "author_name": "بزرگمهر",
+   "person_slug": "bozorgmehr-58247",
+   "person_name": "بزرگمهر",
+   "translit": "bozorgmehr",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "lamaat-on-najat-fi-raf-el-xatiat-v27-1064",
+   "author_name": "ابراهیم",
+   "person_slug": "ebrahim-66158",
+   "person_name": "ابراهیم",
+   "translit": "ebrāhīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "masariq-ul-anwar-v29-1024",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "al-mosamsa-r-v29-1250",
+   "author_name": "ابراهیم",
+   "person_slug": "ebrahim-66158",
+   "person_name": "ابراهیم",
+   "translit": "ebrāhīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "mesbah-or-raml-v29-1493",
+   "author_name": "ابوالبرکات",
+   "person_slug": "abo-l-barakat-1032",
+   "person_name": "ابوالبرکات",
+   "translit": "abo-l-barakāt",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "meraj-ol-momenin-v30-617",
+   "author_name": "محمد جعفر",
+   "person_slug": "mohammad-jafar-53733",
+   "person_name": "محمد جعفر",
+   "translit": "mohammad ja‘far",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "meraj-name-v30-632",
+   "author_name": "ابراهیم",
+   "person_slug": "ebrahim-66158",
+   "person_name": "ابراهیم",
+   "translit": "ebrāhīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "meftah-or-raml-v30-1681",
+   "author_name": "محمد حسین بن محمد علی بن محمد باقر",
+   "person_slug": "mohammad-hoseyn-ebn-e-mohammad-ali-ebn-e-mohammad-baqer-40498",
+   "person_name": "محمد حسین بن محمد علی بن محمد باقر",
+   "translit": "mohammad hoseyn ebn-e mohammad ‘alī ebn-e mohammad bāqer",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "meftah-ol-loqa-v30-1806",
+   "author_name": "ابراهیم",
+   "person_slug": "ebrahim-66158",
+   "person_name": "ابراهیم",
+   "translit": "ebrāhīm",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "name-ha-v32-1875",
+   "author_name": "میر صدرالدین محمد",
+   "person_slug": "mir-sadr-od-din-mohammad-70033",
+   "person_name": "میر صدرالدین محمد",
+   "translit": "mīr sadr-od-dīn mohammad",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  },
+  {
+   "work_slug": "velayat-name-v34-1401",
+   "author_name": "عبدالواحد",
+   "person_slug": "abd-ol-vahed-30749",
+   "person_name": "عبدالواحد",
+   "translit": "‘abd-ol-vāhed",
+   "evidence": "نام و آوانویسی سطر پدیدآور فنخا با رکورد شخص یکی است؛ تنها شخص با این نام"
+  }
+ ]
+}

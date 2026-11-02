@@ -30,6 +30,7 @@ class CollectiveReview
         'catalog' => CatalogMatchQueue::class,
         'namesake' => NamesakeQueue::class,
         'mixed' => MixedRecordQueue::class,
+        'author' => AuthorLinkQueue::class,
     ];
 
     /** Queues whose items are decided only in the panel's queue, never by approving an answer on the desk. */

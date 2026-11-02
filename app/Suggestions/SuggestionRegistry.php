@@ -126,6 +126,9 @@ class SuggestionRegistry
             'namesakes_apart' => ['label' => 'این اشخاص هم‌نام چند نفرند و جدا می‌مانند', 'target' => null, 'action' => 'جدا ماندن اشخاص هم‌نام', 'apply' => 'queue', 'queue_only' => true],
             'one_person' => ['label' => 'همه‌ی نسخه‌های این رکورد از یک نفرند', 'target' => null, 'action' => 'یک نفر بودن رکورد', 'apply' => 'queue', 'queue_only' => true],
         ],
+        'work' => [
+            'author_not' => ['label' => 'پدیدآور این اثر آن شخص نیست', 'target' => null, 'action' => 'رد پیوند پدیدآور', 'apply' => 'queue', 'queue_only' => true],
+        ],
     ];
 
     public static function relation(string $type, ?string $key): ?array

@@ -315,6 +315,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/person-reviews/{review}/split', [AdminPersonReviewController::class, 'split'])->name('person-reviews.split');
     Route::post('/person-reviews/{review}/status', [AdminPersonReviewController::class, 'status'])->name('person-reviews.status');
 
+    // A work's author named only by the catalogue, and the one person it may be (step 14.17)
+    Route::middleware('can:structure.link')->group(function () {
+        Route::get('/author-links', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'index'])->name('author-links.index');
+        Route::post('/author-links/{review}/link', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'link'])->name('author-links.link');
+        Route::post('/author-links/{review}/reject', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'reject'])->name('author-links.reject');
+    });
+
     // Catalogue references matched by machine (backlog item 51)
     Route::middleware('can:catalog_refs.review')->group(function () {
         Route::get('/catalog-references', [AdminCatalogReferenceController::class, 'index'])->name('catalog-references.index');

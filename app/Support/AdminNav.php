@@ -35,6 +35,8 @@ class AdminNav
                     'count' => fn () => \App\Models\PersonReview::where('type', 'duplicate')->where('status', 'open')->count()],
                 ['label' => 'رکوردهای قاطی‌شده', 'route' => ['admin.person-reviews.index', ['type' => 'mixed']], 'active' => fn () => request()->routeIs('admin.person-reviews.*') && request()->query('type') === 'mixed', 'can' => 'structure.split',
                     'count' => fn () => \App\Models\PersonReview::where('type', 'mixed')->where('status', 'open')->count()],
+                ['label' => 'پیوند پدیدآور', 'route' => 'admin.author-links.index', 'active' => 'admin.author-links.*', 'can' => 'structure.link',
+                    'count' => fn () => \App\Models\PersonReview::where('type', 'author_link')->where('status', 'open')->count()],
                 ['label' => 'فهرست‌نگاران', 'route' => 'admin.catalogers.index', 'active' => 'admin.catalogers.*', 'can' => 'catalogers.edit'],
                 ['label' => 'کتابخانه‌ها', 'route' => 'admin.libraries.index', 'active' => 'admin.libraries.*', 'can' => 'libraries.edit'],
                 ['label' => 'موضوعات', 'route' => 'admin.subjects.index', 'active' => ['admin.subjects.index', 'admin.subjects.create', 'admin.subjects.edit', 'admin.subjects.tree'], 'can' => 'subjects.edit'],

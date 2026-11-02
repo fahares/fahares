@@ -6934,3 +6934,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان:** `fahares-sources/backups/item87_text_fill_prod_before_20261102.json`، شامل ۱٬۹۰۴ نسخه.
   - **اجرا:** با `prod-run`. خروجی `Writing 2893` بود و اجرای بعدی `already 2893` داد.
   - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`. با تأیید کاربر، `fahares:refresh-derived --apply` از راه `prod-run` اجرا شد. در گزارش «After»، همه‌ی گونه‌ها از جمله `excerpt_pointers` صفر شدند.
+
+### گام ۱۴.۱۷: `AuthorLinkQueue` و `AuthorLinkController`
+- **یافتن نامزدها:** این کار در پروداکشن، فقط‌خواندنی و با PHP از راه `ssh fahares-app` انجام شد. آثار از `audit_logs` با سه `corpus_fix` گام‌های ۱۴.۸ تا ۱۴.۱۱ پیدا شدند (۲٬۲۲۸ اثر).
+  - **ابزار:** `PersonNameMatcher::ids(author_name)` نامزدها را داد.
+  - **شاهدها:**
+    - آوانویسی سطر چهارم متن مدخل با `people.transliteration`؛
+    - همان سطر مؤلف در اثرِ دیگرِ نامزد؛
+    - موضوع مشترک.
+  - **نتیجه:** صفر نامزد ۲٬۰۰۴، یک نامزد ۲۲۱، دو نامزد ۳. فقط آوانویسی شاهد داشت: ۵۷ اثر. هیچ نامزدی اثر مؤلفی نداشت.
+- **داده:**
+  - **`PersonReview`:** نوع `author_link`. `person_ids = [شخص]`، `key = author_link:work:{id}` و `suggestion = {work_id, translit}`. دو وضعیت تازه: `linked` و `not_linked`.
+  - **`QueueAuthorLinksCommand` (`fahares:queue-author-links [--file] [--apply]`):** اثر با `slug` پیدا می‌شود. شخص با `slug` پیدا می‌شود، وگرنه با تنها شخصی که دقیقاً همان نام را دارد. اثر نباید `author_id` داشته باشد و `author_name` آن باید همان باشد. هر اثر یک بار در صف می‌آید.
+- **فایل:** `database/data/author_link_candidates_20261103.json` با ۵۷ مورد، شامل `slug` اثر و شخص از پروداکشن.
+- **صف عمومی:** [AuthorLinkQueue](../app/Review/AuthorLinkQueue.php) با کلید `author` از `PersonQueue` ارث می‌برد و در `CollectiveReview::QUEUES` ثبت شده است.
+  - **«آری»:** `relation` `author_is` با `payload.target_id`. داور می‌تواند آن را از میز پیشنهادها هم اعمال کند (`contributor_set`).
+  - **«نه»:** `author_not` در `SuggestionRegistry::QUEUE_RELATIONS['work']`.
+  - **کارت:** [contribute/cards/author.blade.php](../resources/views/contribute/cards/author.blade.php).
+- **پیشخوان:** [AuthorLinkController](../app/Http/Controllers/Admin/AuthorLinkController.php)، با مسیرهای `admin.author-links.*` و مجوز `structure.link`، و پیوند «پیوند پدیدآور» در `AdminNav`.
+  - **پیوند:** `ContributorRelations::set(work, person)`، `AuditLog` و `CollectiveReview::settle('author', …)`.
+- **آزمون:** `AuthorLinkQueueTest` با ۲ آزمون.
+- **تمرین (`fahares_prod`):** `queued 57`، سپس `already queued 57`.
+- **صفحه‌ی بازبینی Claude (EZVnxjxDfQe37o16EJTvyD):** پیش از این ساخته شده بود. رأی‌هایش، اگر باشد، در پیشخوان اعمال می‌شود.
