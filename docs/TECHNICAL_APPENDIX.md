@@ -6201,12 +6201,41 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی با تصویر:** ج ۱ ص ۵۷ «۱۰۱۵-۶/۱۰۵» (گلپایگانی)، و ج ۶ ص ۳۴۳ «۲/۱۵۹۸۰» (مجلس، وارونه در خود چاپ).
 - **آزمون:** همان آزمون `DerivedDataTest` گسترش یافت: نشانه‌ها و استثناها، سنا، مرکز احیاء و برچسب حاشیه.
 
+### گام ۱۳.۱۴۸: `fahares:split-senate-library` و `fankha_shelfmark_fixes.py`
+- **[SenateLibrary](../app/Support/SenateLibrary.php):**
+  - ثابت‌ها: نام «مجلس سنا»، نام کامل «کتابخانه مجلس سنا»، نام‌های دیگر «سنا» و «کتابخانه سنا».
+  - `libraryFor($libraryId, $rawText)`: اگر نسخه از مجلس باشد و `Manuscript::citesOnlySenate` درست باشد، شناسه‌ی سنا را برمی‌گرداند. `AddCorpusWorksCommand` شناسه و نام کتابخانه‌ی نسخه‌ی تازه را از آن می‌گیرد.
+  - `citesOnlySenate` اکنون `[-–—]?` را میان «سنا» و «ف» می‌پذیرد: «سنا – ف:» و «سنا ف:». پس کلید مجلد این‌ها هم «…-سنا» می‌شود (دو نسخه در `fahares_prod`).
+- **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
+  - **چه چیزی منتقل می‌شود:** نسخه‌های مجلس که `citesOnlySenate` دارند، مگر `library_id` در `ProtectedColumns` باشد. جلدها و منابع مجلس که عنوانشان «سنا» دارد (۱۴۵، ۵۳۸ و ۶۵۰؛ منابع ۱۰۰۰۳۳ و ۱۰۰۱۰۱).
+  - **ساخت رکورد:** slug به شیوه‌ی `Str::slug(شهر نام)-id` ساخته می‌شود («thran-mgls-sna-1050»).
+  - **ثبت و برگشت:** لاگ `split` روی کتابخانه‌ی تازه همه‌ی شناسه‌ها را دارد. `--undo` لاگ `split_undo` می‌نویسد، و اگر چیزی در کتابخانه نمانده باشد، آن را حذف می‌کند.
+  - **پس از اجرا:** `ManuscriptLocation::recountLibraries` و بازنمایه‌ی نسخه‌های منتقل‌شده.
+  - **گزارش:** نسخه‌های جلدهای سنا را که منتقل نمی‌شوند، فهرست می‌کند.
+- **آزمون:** [SplitSenateLibraryTest](../tests/Feature/SplitSenateLibraryTest.php).
+- **پیکره:** `scripts/fankha_shelfmark_fixes.py` در `fahares-corpus`.
+  - **ورودی:** [fankha_shelfmark_fixes_20261102.json](../database/data/fankha_shelfmark_fixes_20261102.json)، با فیلدهای `id`، `volume`، `page`، `library`، `from`، `to` و `why`.
+  - **یافتن سطر:** سطر عنوان نسخه («؛ کتابخانه؛ شماره نسخه: FROM») در همان جلد، با نزدیک‌ترین نشانگر صفحه (حداکثر دو صفحه فاصله) پیدا می‌شود. دو سطر هم‌فاصله یعنی کنار گذاشتن.
+  - **حالت‌ها:** `--write` متن را اصلاح می‌کند. `--export --db` فایل [fankha_shelfmark_rebuild_20261102.json](../database/data/fankha_shelfmark_rebuild_20261102.json) را برای `fahares:rebuild-copies` می‌سازد، با تغییر `shelfmark` و `raw_text`، و پایگاه را با کاربر خود سایت می‌خواند.
+- **قاعده‌ها:**
+  - **گلپایگانی:** «a/b-c» → «c-a/b». اگر b چهاررقمی باشد: «b/a-c».
+  - **شکل دوعددی:** «a/b[پسوند]»، که a یک یا دو رقم و b سه رقم یا بیشتر دارد، → «b/a[پسوند]». پسوند «-ف»، «عکسی» یا شماره‌ی قدیم بی «/» است. «N/100» کنار ماند.
+  - **سه‌عددی:** دست نخورد.
+  - **خوانده از صفحه:** برای ۳۹ نمونه، مقدار چاپی جای قاعده را گرفت. نمونه‌ها: «19270/2»، «1997/16-عکسی»، «2126/2»، «N/10»، «19/2401/9» و «2/10/4».
+- **وارسی با تصویر:**
+  - زیرعامل ۷۰ نمونه را خواند: ۲۸ «to درست»، ۲۰ «from اصیل» (بیشترشان سه‌عددی یا N/100) و ۲۲ نامطمئن (همه سه‌عددی یا N/100).
+  - خودم این صفحه‌ها را دیدم: ج ۱ ص ۵۷، ج ۲۵ ص ۵۲۸ (گلپایگانی «۳۹۸۵-۲۰/۱۰۵»)، ج ۳۲ ص ۳۹۲ («۷۷۷/۲-طباطبائی»)، و ج ۶ ص ۱۰۶ و ۳۴۳.
+- **تمرین (`fahares_prod`):**
+  - `rebuild-copies`: write ۶۲۷، سپس already ۶۲۷.
+  - `syncCopies`: collections ۶۱۶، pointers_linked ۱۳.
+  - `fill-collection-keys` پس از آن ۲ تغییر داشت (همان دو نسخه‌ی «سنا –»).
+
+
 ### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
 - **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
 - **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
 - **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
-
 ### گام ۱۳.۱۵۰: `catalog_volume_parts` و `Cataloger::recount`
 - **migration:** [2026_11_03_100001_create_catalog_volume_parts_tables](../database/migrations/2026_11_03_100001_create_catalog_volume_parts_tables.php):
   - `catalog_volume_parts` (`catalog_volume_id` cascade، `library_id` nullOnDelete، `title`، `page_first`/`page_last`، `sort`، `manuscripts_count`، `metadata`)؛
