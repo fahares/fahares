@@ -26,8 +26,9 @@ class LinkAutographScribesCommand extends Command
               AND w.author_id IS NOT NULL
         ");
 
-        DB::statement('INSERT IGNORE INTO manuscript_scribe (manuscript_id, person_id, position)
-            SELECT id, scribe_id, 0 FROM manuscripts WHERE is_autograph = 1 AND scribe_id IS NOT NULL');
+        DB::statement("INSERT INTO manuscript_people (manuscript_id, person_id, role, position)
+            SELECT id, scribe_id, 'scribe', 0 FROM manuscripts m WHERE is_autograph = 1 AND scribe_id IS NOT NULL
+            AND NOT EXISTS (SELECT 1 FROM manuscript_people ms WHERE ms.manuscript_id = m.id AND ms.role = 'scribe' AND ms.person_id = m.scribe_id)");
 
         $this->info("Updated {$affected} autograph manuscripts with scribe_id.");
 
@@ -36,7 +37,8 @@ class LinkAutographScribesCommand extends Command
             UPDATE people p
             JOIN (
                 SELECT person_id, COUNT(*) as cnt
-                FROM manuscript_scribe
+                FROM manuscript_people
+                WHERE role = 'scribe'
                 GROUP BY person_id
             ) m_counts ON p.id = m_counts.person_id
             SET p.is_scribe = 1,
