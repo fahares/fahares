@@ -25,6 +25,12 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
 - A docs-only commit, such as the record of a production run, waits for the next release. A push of only `docs/`, root `*.md` or `scripts/dev/` builds and deploys nothing (`.github/workflows/image.yml`), so such a push is harmless but still waits for the release.
 - Production data commands still need the user's own approval in the session that runs them, a backup first,
   and one command at a time across sessions.
+- Run every command that writes production data through `scripts/dev/prod-run <session-name> -- '<command>'`, never
+  plain `ssh fahares-app`. It holds a lock shared by all sessions on this machine and refuses (exit 75) while another run
+  holds it or an artisan run is still going in production. `--wait` queues instead of refusing; `--status` shows the
+  holder, the production artisan runs and the last runs (`~/.fahares/prod-runs.log`). Read-only checks may use plain ssh.
+- Before a release push, the task-management session checks `scripts/dev/prod-run --status`: a deploy replaces the app
+  container and would cut off a running command.
 
 ## Merging the step logs
 
