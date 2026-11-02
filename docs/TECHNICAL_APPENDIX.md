@@ -6303,3 +6303,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ارجاع‌ها: معمولی، وارونه، با خط تیره‌ی بلند، «نسخه‌پژوهی 3:»، صفحه‌ی تنها، روضاتی، حکیم، کتابخانه‌ی بی‌بخش، صفحه‌ای که دو بخش دارند، و ارجاع نخستین از منبع دیگر؛
   - همچنین dry-run، دفترها و MTIF، ویراستار، بخش و فهرست‌نگار هر نسخه، شمارش‌ها، تکرار بی‌اثر و `--revert`.
   - `CatalogVolumePartsTest::test_the_pages_and_a_save_before_the_deploy_has_migrated` پرسشی به جدول‌های بخش را رد می‌کند وقتی `ready()` نادرست است.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `b7d7330`، از راه `scripts/dev/prod-run`):**
+  - dry-run همان ۲٬۵۵۸ نسخه و همان یک نسخه‌ی بی‌دفتر (دیانی) را نشان داد. اجرا با `--backup`؛ پشتیبان: `fahares-sources/backups/step13/step13.153_build_noskhe_pazhuhi_prod_before_20261103.json`، شامل ۲٬۶۳۵ نسخه و ۲٬۶۳۵ مدخل.
+  - دفترها: #491 / #696 / #697 با ۳۲۵ / ۱٬۳۱۱ / ۹۹۹ نسخه. ۹ بخش با ۲٬۶۳۲ نسخه.
+  - فهرست‌نگاران: برکت (۵۳) ۶ جلد و ۳٬۸۲۹ نسخه؛ حافظیان (۴) ۲۲ جلد، ۲۱٬۱۵۱ نسخه و ۲٬۶۳۵ نسخه «زیر نظر»؛ زاده‌هوش (۱۳۳، ساخته‌شده) ۱ جلد و ۹۳ نسخه. `source_entries` = ۷۸۸٬۵۰۰.
+  - ۲٬۶۳۵ نسخه با `makeAllSearchableUsing(...)->searchable()` بی‌صف دوباره ایندکس شدند. `prod-run` منتظر ماند تا `fahares:rebuild-copies` نشست دیگری تمام شود.
+  - `/sources/catalogue-a379aa82523c` روی fahares.net پاسخ ۲۰۰ داد، با ۹ سطر `data-volume-part`.
+
