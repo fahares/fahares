@@ -6679,6 +6679,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **«نشریه» دوباره:** ۳ نسخه‌ی بی‌جلد با «نشريه» به دفترهای ۳، ۷ و ۱۳ رفتند. پشتیبان: `…/step13.173_rerun_nashriyeh_local_before_20261103.json`. «اوراق عتیق»، «چهار کتابخانه مشهد» و «میراث» «Nothing to do» دادند.
 - **آزمون:** `ImportVolumePartsTest` با نسخه‌ای که «نشريه» دارد.
 - **پروداکشن (پس از انتشار، به ترتیب):** `catalogs:merge-duplicates --data=…step13_173.json`، `catalogs:import-volume-parts --data=…dalil_al_makhtutat.json`، و `catalogs:import-volume-parts --data=…nashriyeh.json`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `2cff77a`، از راه `prod-run`):**
+  - رونوشت فقط‌خواندنی ردیف‌های ادغام به `…/step13.173_merge_libraries_prod_before_20261103.json` رفت. ادغام نجومی: ۳۷۸ ← ۳۷۷ کتابخانه.
+  - «دلیل»: dry-run همان ۷۰۸ نسخه را نشان داد. پشتیبان (۷۱۰ نسخه، `made_source`) به `…/step13.173_import_volume_parts_dalil_prod_before_20261103.json` رفت. جلد #709 با ۷۰۸ نسخه ساخته شد.
+  - «نشریه» دوباره: ۳ نسخه (دفترهای ۳، ۷ و ۱۳). پشتیبان به `…/step13.173_rerun_nashriyeh_prod_before_20261103.json` رفت.
 
 ## فاز ۱۴: پیوند درونی منابع و پالایش داده با پارسر v2
 
@@ -6735,6 +6739,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. «نشریه»، «اوراق عتیق»، «چهار کتابخانه مشهد»، «میراث» و «دلیل» «Nothing to do» ماندند.
   - پشتیبان: `…/step14.3_import_volume_parts_se_ketabkhaneh_local_before_20261103.json`.
 - **پروداکشن (پس از انتشار):** `catalogs:merge-duplicates --data=…step14_3.json`، سپس `catalogs:import-volume-parts --data=…se_ketabkhaneh_isfahan.json`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از ۱۳.۱۷۳):**
+  - رونوشت ردیف‌های ادغام به `…/step14.3_merge_libraries_prod_before_20261103.json` رفت. ادغام ابوالبرکات: ۳۷۷ ← ۳۷۶ کتابخانه.
+  - «سه کتابخانه»: پشتیبان (۳۷۹ نسخه، `made_source`) به `…/step14.3_import_volume_parts_se_ketabkhaneh_prod_before_20261103.json` رفت. جلد #710 با ۳۷۹ نسخه ساخته شد.
+  - ۶ بخش دو منبع ۱٬۰۸۷ نسخه دارند و همه بی‌صف دوباره ایندکس شدند. `source_entries` = ۷۸۸٬۵۰۱.
+  - Meilisearch برای کتابخانه‌های ۱۱۸ و ۱۷۰ با پایگاه یکی است. صفحه‌ی هر دو منبع ۳ سطر `data-volume-part` دارد.
+
 
 ### گام ۱۴.۴: چهار کتاب با `catalogs:import-volume-parts`
 - **داده:**
