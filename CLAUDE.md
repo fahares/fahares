@@ -13,8 +13,8 @@ numbers and deploys from colliding.
 - `scripts/dev/reserve-step --list` shows the recent reservations and their sessions.
 - Steps are grouped in phases («فاز»). A new phase opens when the main subject of the work changes or a phase passes
   about 50 steps: the task-management session proposes it, and with the user's OK it adds the phase heading and
-  chronology row and changes the default phase in `reserve-step`. Phase 13 closed at 13.172; phase 14 opened on
-  12 Aban 1405.
+  chronology row and writes the new phase number to `~/.fahares/phase`, which `reserve-step` reads. Phase 14 opened on
+  12 Aban 1405; the 13.x numbers reserved before it (up to 13.174) keep their numbers and sit before its heading.
 
 ## Push and deploy
 
