@@ -6502,3 +6502,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject`
   - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
 
+
+### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
+- **داده:** [library_duplicates_step13_163.json](../database/data/library_duplicates_step13_163.json)، ۱۹ گروه. اجرا: `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`.
+- **`LibraryMerger`:** `sources.library_id` کتابخانه‌ی رفتنی (شناسه‌ها در `source_ids` لاگ) به کتابخانه‌ی ماندگار می‌رود و `undoMerge` آن را برمی‌گرداند. آزمون: `CatalogVolumePartsTest::test_a_library_merge_takes_its_parts_and_sources_along_and_its_undo_brings_them_back`.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۵۹):**
+  - ۴۰۶ ← ۳۸۴ کتابخانه، با ۲۲ ردیف `merge` در `audit_logs`. منبع ۱۰۰۱۸۰ (دهگان) ← کتابخانه‌ی ۵۹.
+  - `catalogs:assign-volume-parts`: `changed` ۳۱۰. «نشریه» با بخش ۱۲٬۸۳۴ ← ۱۳٬۱۴۴. همه‌ی جلدهای بخش‌دار: ۱۵٬۷۷۶ با کتابخانه، ۶۶ با صفحه‌ی تنها، ۶۶۰ بی‌بخش، و ۸۵۶ بیرون از بخش.
+  - `undoMerge` ۲۲ لاگ (وارونه) سنجه‌ی `fplib` را برگرداند. برگرداندن بخش نسخه‌ها جداست: پس از undo، `catalogs:assign-volume-parts` دوباره اجرا شود.
+- **دفتر ۱۳ «نشریه»:** صفحه‌های ارجاع «نشریه: 13»: مجلس ۴۰۵–۴۴۶ (۲۴۷ نسخه)، وزیری ۳۵–۴۰۱ (۵۴۷)، و نوربخش ۹–۲۷۲ (۴۸۰ روی جلد #499 منبع نوربخش). MTIF 11395 («نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی») ۱۲ جلد دارد؛ نسخه‌های چاپی ۲۲۵۸۱ (ج ۲) تا ۲۲۵۷۱ (ج ۱۲).
