@@ -6561,3 +6561,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
+
+### گام ۱۳.۱۶۹: `binding_fill`
+- **وارسی ۱۳.۱۶۷:** از ۲٬۴۴۱ رکورد `why = binding`، ۲٬۴۳۹ رکورد در `manuscripts.binding` یکی از `مجدول|مذهب|زر|طلا|جدول` را دارند. دو رکورد #23779 و #46874 `binding` خالی دارند، چون `<!-- page: N -->` پیش از «جلد:» آمده است.
+- **صدور (پیکره):** `fankha_v2_apply_export.py binding_fill`، از ردیف‌های `binding/filled` در review7 (۳۶۲ ردیف).
+  - **شرط:** `raw_text` سایت، بی برچسب صفحه و با فاصله‌های یکسان‌شده، الگوی `جلد\s*:?\s*<binding>` را دارد و `binding` رقم ندارد.
+  - **خروجی:** ۲۷۷ رکورد. ۸۱ رکورد کنار رفت.
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `binding` را هم دارد.
+- **فایل تصمیم:** `database/data/fankha_binding_fill_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 276`. یک رکورد `natural key differs` بود. پس از اجرا، اجرای بعدی `Would write 0` داد.
+- **آزمون:** ادامه‌ی `test_a_flag_the_binding_gave_is_turned_off`.
