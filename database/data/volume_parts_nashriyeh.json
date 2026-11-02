@@ -1,0 +1,2134 @@
+{
+ "_comment": "Step 13.159 (stage 3 of docs/plans/catalog-volume-parts.md), approved by the user (docs/plans/nashriyeh-parts.md): the parts of «نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» from Fankha's table of catalogues, each with the author its description names («زیر نظر X و Y، Z»). Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json",
+ "source": "catalogue-37ef5a7d7428",
+ "series": "نشریه",
+ "volume_title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر %d",
+ "folds": [
+  {
+   "code": "catalogue-499c8e7b07c6",
+   "volume": 7
+  },
+  {
+   "code": "catalogue-990207407262"
+  }
+ ],
+ "editors": [
+  {
+   "name": "ایرج افشار",
+   "mtif": 37239
+  },
+  {
+   "name": "محمدتقی دانش‌پژوه",
+   "mtif": 37279
+  }
+ ],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "thran-ozart-amor-khargh-168",
+   "title": "وزارت امور خارجه",
+   "pages": [
+    1,
+    7
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 219
+  },
+  {
+   "daftar": 1,
+   "library": "thran-byany-mhdy-dktr-179",
+   "title": "کتابخانه دکتر مهدی بیانی",
+   "pages": [
+    8,
+    17
+   ],
+   "catalogers": [
+    {
+     "name": "مهدی بیانی",
+     "mtif": 37296
+    }
+   ],
+   "fankha_row": 215
+  },
+  {
+   "daftar": 1,
+   "library": "thran-shhshhany-hsyn-117",
+   "title": "کتابخانه حسین شهشهانی",
+   "pages": [
+    231,
+    270
+   ],
+   "catalogers": [
+    {
+     "name": "غلامرضا فرزانه‌پور"
+    }
+   ],
+   "fankha_row": 218
+  },
+  {
+   "daftar": 2,
+   "library": "thran-byany-mhdy-dktr-179",
+   "title": "کتابخانه دکتر مهدی بیانی",
+   "pages": [
+    43,
+    49
+   ],
+   "catalogers": [
+    {
+     "name": "مهدی بیانی",
+     "mtif": 37296
+    }
+   ],
+   "fankha_row": 216
+  },
+  {
+   "daftar": 2,
+   "library": "thran-mhdoy-45",
+   "title": "کتابخانه دکتر اصغر مهدوی",
+   "pages": [
+    62,
+    136
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 224
+  },
+  {
+   "daftar": 2,
+   "library": "asfhan-sdr-hashmy-862",
+   "title": "کتابخانه صدر هاشمی",
+   "pages": [
+    182,
+    187
+   ],
+   "catalogers": [
+    {
+     "name": "محمد صدر هاشمی",
+     "mtif": 40510
+    }
+   ],
+   "fankha_row": 40
+  },
+  {
+   "daftar": 2,
+   "library": "thran-mozh-mly-47",
+   "title": "کتابخانه موزه ملی (ایران باستان)",
+   "pages": [
+    200,
+    218
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 222
+  },
+  {
+   "daftar": 2,
+   "library": "thran-ozart-amor-khargh-168",
+   "title": "وزارت امور خارجه",
+   "pages": [
+    259,
+    267
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 220
+  },
+  {
+   "daftar": 2,
+   "library": "thran-mly-11",
+   "title": "کتابخانه ملی ایران",
+   "pages": [
+    271,
+    281
+   ],
+   "catalogers": [
+    {
+     "name": "عبدالله انوار"
+    }
+   ],
+   "fankha_row": 178
+  },
+  {
+   "daftar": 3,
+   "library": "thran-mly-11",
+   "title": "کتابخانه ملی ایران",
+   "pages": [
+    100,
+    104
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 179
+  },
+  {
+   "daftar": 3,
+   "library": "thran-mozh-mly-47",
+   "title": "کتابخانه موزه ملی (ایران باستان)",
+   "pages": [
+    119,
+    125
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 223
+  },
+  {
+   "daftar": 3,
+   "library": "thran-mozh-hnrhay-tzyyny-260",
+   "title": "موزه هنرهای تزئینی",
+   "pages": [
+    128,
+    131
+   ],
+   "catalogers": [
+    {
+     "name": "یحیی ذکاء"
+    },
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 246
+  },
+  {
+   "daftar": 3,
+   "library": "thran-mozh-mrdm-shnasy-240",
+   "title": "موزه مردم شناسی",
+   "pages": [
+    132,
+    134
+   ],
+   "catalogers": [
+    {
+     "name": "یحیی ذکاء"
+    },
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 245
+  },
+  {
+   "daftar": 3,
+   "library": "thran-thkaaa-yhyy-42",
+   "title": "کتابخانه یحیی ذکاء",
+   "pages": [
+    135,
+    140
+   ],
+   "catalogers": [
+    {
+     "name": "یحیی ذکاء"
+    }
+   ],
+   "fankha_row": 226
+  },
+  {
+   "daftar": 3,
+   "library": "thran-frhad-maatmd-104",
+   "title": "کتابخانه محمود فرهاد معتمد",
+   "pages": [
+    141,
+    252
+   ],
+   "catalogers": [
+    {
+     "name": "غلامرضا فرزانه‌پور"
+    },
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 228
+  },
+  {
+   "daftar": 3,
+   "library": "thran-aalom-pzshky-24",
+   "title": "دانشکده علوم پزشکی",
+   "pages": [
+    299,
+    386
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 227
+  },
+  {
+   "daftar": 3,
+   "library": "thran-lght-namh-dhkhda-27",
+   "title": "لغت نامه دهخدا",
+   "pages": [
+    388,
+    426
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 229
+  },
+  {
+   "daftar": 3,
+   "library": "thran-mhdoy-45",
+   "title": "کتابخانه دکتر اصغر مهدوی",
+   "pages": [
+    481,
+    485
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 225
+  },
+  {
+   "daftar": 4,
+   "library": "tbryz-adbyat-369",
+   "title": "دانشکده ادبیات تبریز",
+   "pages": [
+    323,
+    323
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 67
+  },
+  {
+   "daftar": 4,
+   "library": "tbryz-mozh-athrbaygan-858",
+   "title": "کتابخانه موزه آذربایجان",
+   "pages": [
+    324,
+    324
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 69
+  },
+  {
+   "daftar": 4,
+   "library": "tbryz-thkh-alaslam-119",
+   "title": "کتابخانه ثقة الاسلام",
+   "pages": [
+    325,
+    328
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 65
+  },
+  {
+   "daftar": 4,
+   "library": "tbryz-mhkk-akay-239",
+   "title": "کتابخانه آقای محقق",
+   "pages": [
+    329,
+    337
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 68
+  },
+  {
+   "daftar": 4,
+   "library": "tbryz-oaaath-chrndaby-882",
+   "title": "کتابخانه واعظ چرندابی",
+   "pages": [
+    337,
+    337
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 71
+  },
+  {
+   "daftar": 4,
+   "library": "tbryz-nkhgoany-hsyn-250",
+   "title": "کتابخانه حسین نخجوانی",
+   "pages": [
+    338,
+    343
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 70
+  },
+  {
+   "daftar": 4,
+   "library": "kashan-amyrkbyr-54",
+   "title": "کتابخانه امیر کبیر",
+   "pages": [
+    354,
+    355
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 450
+  },
+  {
+   "daftar": 4,
+   "library": "kashan-mzar-afdl-aldyn-kashany-157",
+   "title": "کتابخانه مزار افضل الدین کاشانی",
+   "pages": [
+    354,
+    354
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 451
+  },
+  {
+   "daftar": 4,
+   "library": null,
+   "title": "کتابخانه آثار ملی کاشان",
+   "pages": [
+    355,
+    358
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 448
+  },
+  {
+   "daftar": 4,
+   "library": "kashan-aboalrda-syd-377",
+   "title": "کتابخانه سید ابوالرضا کاشان",
+   "pages": [
+    355,
+    355
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 449
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-gamaa-kbyr-34",
+   "title": "کتابخانه جامع کبیر یزد",
+   "pages": [
+    374,
+    416
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 591
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-yzdy-shrf-aldyn-aaly-986",
+   "title": "کتابخانه شرف الدین علی یزدی",
+   "pages": [
+    435,
+    435
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 598
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-aalomy-shykh-aaly-63",
+   "title": "کتابخانه شیخ علی علومی",
+   "pages": [
+    436,
+    450
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 599
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-mhmod-abady-myrza-hsn-208",
+   "title": "کتابخانه میرزا حسن محمود آبادی",
+   "pages": [
+    451,
+    458
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 600
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-saaydy-syd-aboalfdl-296",
+   "title": "کتابخانه سید ابوالفضل سعیدی یزد",
+   "pages": [
+    459,
+    462
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 601
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-frhmnd-mhmd-aaly-252",
+   "title": "کتابخانه محمد علی فرهمند",
+   "pages": [
+    463,
+    464
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 602
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-khgsth-aaly-asghr-896",
+   "title": "کتابخانه علی اصغرخجسته",
+   "pages": [
+    465,
+    466
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 603
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-aagmyn-mhmd-bakr-302",
+   "title": "کتابخانه محمد باقر عجمین",
+   "pages": [
+    467,
+    467
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 604
+  },
+  {
+   "daftar": 4,
+   "library": "yzd-mdrsy-yzdy-goad-311",
+   "title": "کتابخانه جواد مدرسی یزدی",
+   "pages": [
+    468,
+    468
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 605
+  },
+  {
+   "daftar": 4,
+   "library": "asfhan-shhrdary-asfhan-98",
+   "title": "کتابخانه شهرداری اصفهان",
+   "pages": [
+    470,
+    472
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 41
+  },
+  {
+   "daftar": 4,
+   "library": "asfhan-aamomy-asfhan-frhng-sabk-144",
+   "title": "کتابخانه عمومی اصفهان(فرهنگ)",
+   "pages": [
+    473,
+    474
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 45
+  },
+  {
+   "daftar": 4,
+   "library": "asfhan-adbyat-36",
+   "title": "کتابخانه دانشکده ادبیات اصفهان",
+   "pages": [
+    475,
+    480
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 43
+  },
+  {
+   "daftar": 5,
+   "library": "mshhd-moloy-357",
+   "title": "کتابخانه عبدالمجید مولوی",
+   "pages": [
+    8,
+    107
+   ],
+   "catalogers": [
+    {
+     "name": "مهدی والئی"
+    }
+   ],
+   "fankha_row": 532
+  },
+  {
+   "daftar": 5,
+   "library": "thran-thamny-akay-290",
+   "title": "کتابخانه آقای ثامنی",
+   "pages": [
+    111,
+    111
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 231
+  },
+  {
+   "daftar": 5,
+   "library": "arak-dhgan-59",
+   "title": "کتابخانه ابراهیم دهگان",
+   "pages": [
+    112,
+    112
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 4
+  },
+  {
+   "daftar": 5,
+   "library": "thran-bakrzadh-akay-876",
+   "title": "کتابخانه آقای باقرزاده",
+   "pages": [
+    112,
+    112
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 230
+  },
+  {
+   "daftar": 5,
+   "library": "thran-ghfary-hsn-aaly-978",
+   "title": "کتابخانه حسن علی غفاری (معاون الدوله)",
+   "pages": [
+    112,
+    112
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 234
+  },
+  {
+   "daftar": 5,
+   "library": "zahdan-kambozyan-krd-ghfranlo-amyr-tokl-234",
+   "title": "نسخههای امیر توکل کامبوزیان کرد غفرانلو",
+   "pages": [
+    112,
+    113
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 285
+  },
+  {
+   "daftar": 5,
+   "library": "thran-khan-mlk-sasany-299",
+   "title": "کتابخانه خان ملک ساسانی",
+   "pages": [
+    114,
+    115
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 232
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-rodaty-syd-mhmd-aaly-100",
+   "title": "کتابخانه سید محمد علی روضاتی",
+   "pages": [
+    132,
+    152
+   ],
+   "catalogers": [
+    {
+     "name": "سید محمدعلی روضاتی",
+     "mtif": 37309
+    }
+   ],
+   "fankha_row": 47
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-khday-khanh-msgd-gamaa-aatyk-881",
+   "title": "کتابخانه خدای خانه مسجد جامع عتیق شیراز",
+   "pages": [
+    207,
+    208
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 314
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-khankah-ahmdyh-78",
+   "title": "کتابخانه خانقاه احمدیه",
+   "pages": [
+    209,
+    229
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 312
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-adbyat-957",
+   "title": "کتابخانه دانشکده ادبیات شیراز",
+   "pages": [
+    230,
+    230
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 316
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-khlyly-myrza-mhmd-307",
+   "title": "نسخ آقای حاج محمد خلیلی",
+   "pages": [
+    266,
+    266
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 315
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-khaory-dktr-315",
+   "title": "کتابخانه دکتر خاوری",
+   "pages": [
+    267,
+    269
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 313
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-mhlaty-sdraldyn-61",
+   "title": "کتابخانه آقای صدرالدین محلاتی",
+   "pages": [
+    271,
+    274
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 322
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-aayny-dktr-293",
+   "title": "کتابخانه آقای دکتر عینی",
+   "pages": [
+    275,
+    276
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 318
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-frordyn-akay-863",
+   "title": "نسخههای آقای فروردین",
+   "pages": [
+    277,
+    278
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 319
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-myr-dktr-270",
+   "title": "کتابخانه دکتر میر",
+   "pages": [
+    282,
+    284
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 324
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-oagd-akay-985",
+   "title": "نسخههای آقای واجد",
+   "pages": [
+    285,
+    285
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 325
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-hashmy-noraldyn-khandan-49",
+   "title": "کتابخانه خاندان حاج سید نورالدین هاشمی حسینی",
+   "pages": [
+    286,
+    289
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 327
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-osal-dktr-126",
+   "title": "کتابخانه آقای دکتر وصال",
+   "pages": [
+    290,
+    294
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 326
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-syfy-875",
+   "title": "کتابخانه سیفی",
+   "pages": [
+    295,
+    295
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 317
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-kathmy-312",
+   "title": "کتابخانه کاظمی",
+   "pages": [
+    295,
+    295
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 320
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-kothr-syd-amyn-allh-979",
+   "title": "کتابخانه امین الله کوثر",
+   "pages": [
+    295,
+    295
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 321
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-mntthr-akay-372",
+   "title": "کتابخانه آقای منتظر",
+   "pages": [
+    295,
+    295
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 323
+  },
+  {
+   "daftar": 5,
+   "library": "shyraz-mzar-rozbhan-bkly-1039",
+   "title": "کتابخانه مزار روز بهان قلی",
+   "pages": [
+    295,
+    295
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 328
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-adbyat-36",
+   "title": "کتابخانه دانشکده ادبیات اصفهان",
+   "pages": [
+    298,
+    307
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 44
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-shhrdary-asfhan-98",
+   "title": "کتابخانه شهرداری اصفهان",
+   "pages": [
+    308,
+    310
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 42
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-aamomy-asfhan-frhng-sabk-144",
+   "title": "کتابخانه عمومی اصفهان(فرهنگ)",
+   "pages": [
+    315,
+    322
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 46
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-mozh-klysay-armnyan-dr-glfa-327",
+   "title": "موزه کلیسای ارمنیان در جلفا",
+   "pages": [
+    323,
+    324
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 50
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-ktaby-akay-373",
+   "title": "کتابخانه آقای کتابی",
+   "pages": [
+    325,
+    325
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 48
+  },
+  {
+   "daftar": 5,
+   "library": "asfhan-mynasyan-karol-dktr-988",
+   "title": "کتابخانه آقای دکتر کارو میناسیان",
+   "pages": [
+    325,
+    325
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 49
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-aramgah-boaaly-259",
+   "title": "آرامگاه بوعلی همدان",
+   "pages": [
+    327,
+    340
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 570
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-aaatmad-aldolh-236",
+   "title": "کتابخانه اعتماد الدوله",
+   "pages": [
+    342,
+    346
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 571
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-dbyrstan-amyr-kbyr-869",
+   "title": "کتابخانه دبیرستان امیر کبیر",
+   "pages": [
+    347,
+    348
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 572
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-aokaf-ktabkhanh-hmdan-914",
+   "title": "کتابخانه اوقاف",
+   "pages": [
+    349,
+    349
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 573
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-mdrsh-damghany-349",
+   "title": "کتابخانه مدرسه دامغانی",
+   "pages": [
+    349,
+    349
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 574
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-mdrsh-zngnh-294",
+   "title": "کتابخانه مدرسه زنگنه",
+   "pages": [
+    350,
+    351
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 575
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-ayzdy-hagy-158",
+   "title": "کتابخانه حاجی ایزدی",
+   "pages": [
+    366,
+    368
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 576
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-ayzdy-mhmod-166",
+   "title": "کتابخانه محمود ایزدی",
+   "pages": [
+    369,
+    369
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 577
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-bhralfdayl-355",
+   "title": "کتابخانه بحرالفضائل",
+   "pages": [
+    370,
+    370
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 559
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-brna-kasm-177",
+   "title": "کتابخانه قاسم برنا",
+   "pages": [
+    371,
+    380
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 578
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-bny-sdr-syd-nsrallh-981",
+   "title": "کتابخانه آقای حاج سید نصرالله بنی صدر",
+   "pages": [
+    380,
+    380
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 579
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-pnbhchy-hsn-358",
+   "title": "کتابخانه حسن پنبه چی",
+   "pages": [
+    381,
+    381
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 580
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-glaly-dktr-964",
+   "title": "کتابخانه دکتر جلالی",
+   "pages": [
+    382,
+    382
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 581
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-damghany-akay-286",
+   "title": "کتابخانه آقای دامغانی",
+   "pages": [
+    383,
+    384
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 582
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-ngfy-aarb-zadh-syd-mhmd-1031",
+   "title": "کتابخانه نجفی عرب زاده",
+   "pages": [
+    385,
+    385
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 583
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-kmaly-182",
+   "title": "کتابخانه آقای کمالی",
+   "pages": [
+    385,
+    387
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 584
+  },
+  {
+   "daftar": 5,
+   "library": "hmdan-yosfy-tky-329",
+   "title": "کتابخانه تقی یوسفی",
+   "pages": [
+    387,
+    387
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 585
+  },
+  {
+   "daftar": 5,
+   "library": "rsht-mly-212",
+   "title": "کتابخانه ملی رشت",
+   "pages": [
+    388,
+    392
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 280
+  },
+  {
+   "daftar": 5,
+   "library": "rsht-mdrsh-mhdoyh-351",
+   "title": "کتابخانه مدرسه مهدویه",
+   "pages": [
+    392,
+    393
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 279
+  },
+  {
+   "daftar": 5,
+   "library": "rsht-shad-kzoyny-255",
+   "title": "کتابخانه شاد قزوینی",
+   "pages": [
+    394,
+    396
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 278
+  },
+  {
+   "daftar": 5,
+   "library": "aml-pyshnmaz-myrza-aboalhsn-204",
+   "title": "کتابخانه میرزا ابوالحسن پیشنماز",
+   "pages": [
+    400,
+    403
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 3
+  },
+  {
+   "daftar": 5,
+   "library": "mshhd-mdyr-shanh-chy-176",
+   "title": "کتابخانه آقای کاظم مدیر شانه چی",
+   "pages": [
+    584,
+    611
+   ],
+   "catalogers": [
+    {
+     "name": "کاظم مدیر شانه‌چی",
+     "mtif": 37218
+    }
+   ],
+   "fankha_row": 531
+  },
+  {
+   "daftar": 5,
+   "library": "mshhd-asghrzadh-syd-aaly-asghr-278",
+   "title": "کتابخانه سید علی اصغر اصغرزاده",
+   "pages": [
+    613,
+    617
+   ],
+   "catalogers": [
+    {
+     "name": "اصغر اصغرزاده"
+    }
+   ],
+   "fankha_row": 529
+  },
+  {
+   "daftar": 5,
+   "library": "thran-danshsray-aaaly-ktabkhanh-myrza-aabdalaathym-khan-kryb-grkany-99",
+   "title": "کتابخانه عبدالعظیم قریب (دانشسرای عالی)",
+   "pages": [
+    618,
+    657
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 233
+  },
+  {
+   "daftar": 5,
+   "library": "thran-mgls-4",
+   "title": "کتابخانه مجلس شورا",
+   "pages": [
+    658,
+    671
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 134
+  },
+  {
+   "daftar": 5,
+   "library": "thran-mhtshmy-msaaod-262",
+   "title": "کتابخانه مسعود محتشمی",
+   "pages": [
+    672,
+    673
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 235
+  },
+  {
+   "daftar": 6,
+   "library": "arak-byat-aabdalhsyn-237",
+   "title": "کتابخانه عبدالحسین بیات",
+   "pages": [
+    63,
+    117
+   ],
+   "catalogers": [
+    {
+     "name": "احمد گلچین معانی"
+    }
+   ],
+   "fankha_row": 8
+  },
+  {
+   "daftar": 6,
+   "library": "kzoyn-myr-hsyna-kzoyny-187",
+   "title": "کتابخانه آقای میر حسینا قزوینی",
+   "pages": [
+    334,
+    353
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 344
+  },
+  {
+   "daftar": 6,
+   "library": "arak-dhgan-59",
+   "title": "کتابخانه ابراهیم دهگان",
+   "pages": [
+    589,
+    592
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 5
+  },
+  {
+   "daftar": 6,
+   "library": "asfhan-gabry-ansary-134",
+   "title": "کتابخانه جابری انصاری",
+   "pages": [
+    593,
+    599
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 51
+  },
+  {
+   "daftar": 6,
+   "library": "khrm-abad-ayzdpnah-969",
+   "title": "کتابخانه حمید ایزدپناه",
+   "pages": [
+    601,
+    601
+   ],
+   "catalogers": [
+    {
+     "name": "حمید ایزدپناه"
+    }
+   ],
+   "fankha_row": 261
+  },
+  {
+   "daftar": 6,
+   "library": "shhrda-shkor-aaly-akbr-1023",
+   "title": "کتابخانه علی اکبر شکور",
+   "pages": [
+    607,
+    607
+   ],
+   "catalogers": [
+    {
+     "name": "علی‌اکبر شکور"
+    }
+   ],
+   "fankha_row": 295
+  },
+  {
+   "daftar": 6,
+   "library": "sary-tahry-shhab-53",
+   "title": "کتابخانه شهاب طاهری",
+   "pages": [
+    612,
+    636
+   ],
+   "catalogers": [
+    {
+     "name": "شهاب طاهری"
+    }
+   ],
+   "fankha_row": 290
+  },
+  {
+   "daftar": 6,
+   "library": "thran-mynoy-143",
+   "title": "کتابخانه مجتبی مینوی",
+   "pages": [
+    637,
+    690
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 237
+  },
+  {
+   "daftar": 6,
+   "library": "thran-byany-mhdy-dktr-179",
+   "title": "کتابخانه دکتر مهدی بیانی",
+   "pages": [
+    691,
+    695
+   ],
+   "catalogers": [
+    {
+     "name": "مهدی بیانی",
+     "mtif": 37296
+    }
+   ],
+   "fankha_row": 217
+  },
+  {
+   "daftar": 6,
+   "library": "thran-sadat-nasry-hsn-164",
+   "title": "کتابخانه حسن سادات ناصری",
+   "pages": [
+    696,
+    698
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 236
+  },
+  {
+   "daftar": 7,
+   "library": "thran-angmn-athar-o-mfakhr-frhngy-155",
+   "title": "کتابخانه انجمن آثار ملی",
+   "pages": [
+    1,
+    6
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 212
+  },
+  {
+   "daftar": 7,
+   "library": "kashan-rdoy-197",
+   "title": "کتابخانه آیه الله رضوی",
+   "pages": [
+    29,
+    94
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 452
+  },
+  {
+   "daftar": 7,
+   "library": "thran-mftah-16",
+   "title": "کتابخانه محمد حسین مفتاح",
+   "pages": [
+    95,
+    345
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 244
+  },
+  {
+   "daftar": 7,
+   "library": "tbryz-kady-tbatbayy-127",
+   "title": "کتابخانه محمد علی قاضی طباطبائی",
+   "pages": [
+    511,
+    523
+   ],
+   "catalogers": [
+    {
+     "name": "سید عبدالعزیز طباطبائی",
+     "mtif": 37227
+    }
+   ],
+   "fankha_row": 72
+  },
+  {
+   "daftar": 7,
+   "library": "tbryz-thkh-alaslam-119",
+   "title": "کتابخانه ثقة الاسلام",
+   "pages": [
+    531,
+    543
+   ],
+   "catalogers": [
+    {
+     "name": "سید عبدالعزیز طباطبائی",
+     "mtif": 37227
+    }
+   ],
+   "fankha_row": 66
+  },
+  {
+   "daftar": 7,
+   "library": "thran-frmanfrmayyan-hafth-dktr-31",
+   "title": "کتابخانه حافظ فرمانفرمائیان",
+   "pages": [
+    544,
+    555
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 242
+  },
+  {
+   "daftar": 7,
+   "library": "mshhd-sht-rda-dktr-110",
+   "title": "کتابخانه دکتر رضا صحت",
+   "pages": [
+    556,
+    561
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 240
+  },
+  {
+   "daftar": 7,
+   "library": "thran-khakpor-asdallh-khandan-48",
+   "title": "کتابخانه اسدالله خاکپور",
+   "pages": [
+    566,
+    568
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 238
+  },
+  {
+   "daftar": 7,
+   "library": "thran-saayd-nfysy-62",
+   "title": "کتابخانه سعید نفیسی",
+   "pages": [
+    685,
+    689
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 239
+  },
+  {
+   "daftar": 7,
+   "library": "thran-fyad-188",
+   "title": "کتابخانه علی اکبر فیاض",
+   "pages": [
+    695,
+    701
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 243
+  },
+  {
+   "daftar": 7,
+   "library": null,
+   "title": "کتابخانه آقای آتشی",
+   "pages": [
+    703,
+    709
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی"
+    }
+   ],
+   "fankha_row": 606
+  },
+  {
+   "daftar": 7,
+   "library": "yzd-asf-por-313",
+   "title": "کتابخانه آقای آصف پور",
+   "pages": [
+    709,
+    711
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی"
+    }
+   ],
+   "fankha_row": 607
+  },
+  {
+   "daftar": 7,
+   "library": "yzd-aalomy-yzdy-mhmod-150",
+   "title": "کتابخانه محمود علومی",
+   "pages": [
+    711,
+    713
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی"
+    }
+   ],
+   "fankha_row": 608
+  },
+  {
+   "daftar": 7,
+   "library": "kashan-aaatfy-hsn-43",
+   "title": "کتابخانه حسن عاطفی",
+   "pages": [
+    721,
+    757
+   ],
+   "catalogers": [
+    {
+     "name": "حسن عاطفی",
+     "mtif": 41211
+    }
+   ],
+   "fankha_row": 453
+  },
+  {
+   "daftar": 7,
+   "library": "mshhd-fadl-mhmod-856",
+   "title": "نسخههای خطی محمود فاضل",
+   "pages": [
+    759,
+    771
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "fankha_row": 533
+  },
+  {
+   "daftar": 7,
+   "library": "mshhd-mdrsh-hag-hsn-191",
+   "title": "نسخههای خطی مدرسه حاج حسن",
+   "pages": [
+    763,
+    764
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "fankha_row": 535
+  },
+  {
+   "daftar": 7,
+   "library": "mshhd-mdrsh-aabaskly-khan-316",
+   "title": "نسخههای خطی مدرسه عباسقلی خان",
+   "pages": [
+    766,
+    768
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "fankha_row": 534
+  },
+  {
+   "daftar": 7,
+   "library": "mshhd-asghr-zadh-51",
+   "title": "کتابخانه سید علی اصغر اصغرزاده",
+   "pages": [
+    769,
+    771
+   ],
+   "catalogers": [
+    {
+     "name": "اصغر اصغرزاده"
+    }
+   ],
+   "fankha_row": 530
+  },
+  {
+   "daftar": 7,
+   "library": "ramsr-fryd-tnkabny-aabdalohab-153",
+   "title": "کتابخانه عبدالوهاب فرید تنکابنی",
+   "pages": [
+    779,
+    794
+   ],
+   "catalogers": [
+    {
+     "name": "محمد سمامی حائری",
+     "mtif": 38152
+    }
+   ],
+   "fankha_row": 276
+  },
+  {
+   "daftar": 7,
+   "library": "ahoaz-shoshtry-mhmd-156",
+   "title": "کتابخانه محمد شوشتری",
+   "pages": [
+    795,
+    796
+   ],
+   "catalogers": [
+    {
+     "name": "علینقی منزوی",
+     "mtif": 37281
+    }
+   ],
+   "fankha_row": 55
+  },
+  {
+   "daftar": 7,
+   "library": "thran-snaatyzadh-hmayon-370",
+   "title": "کتابخانه همایون صنعتی زاده",
+   "pages": [
+    799,
+    799
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 241
+  },
+  {
+   "daftar": 11,
+   "library": "asfhan-danshgah-30",
+   "title": "دانشگاه اصفهان",
+   "pages": [
+    881,
+    950
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 14
+  },
+  {
+   "daftar": 11,
+   "library": "kashan-aaatfy-hsn-43",
+   "title": "کتابخانه حسن عاطفی",
+   "pages": [
+    951,
+    955
+   ],
+   "catalogers": [
+    {
+     "name": "حسن عاطفی",
+     "mtif": 41211
+    }
+   ],
+   "fankha_row": 454
+  },
+  {
+   "daftar": 11,
+   "library": "thran-bnyad-frhng-ayran-371",
+   "title": "بنیاد فرهنگ ایران",
+   "pages": [
+    990,
+    1005
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "fankha_row": 77
+  },
+  {
+   "daftar": 13,
+   "library": "thran-mgls-4",
+   "title": "کتابخانه مجلس شورا",
+   "pages": [
+    405,
+    446
+   ],
+   "catalogers": [
+    {
+     "name": "سیمین صیدیه"
+    }
+   ],
+   "fankha_row": 135
+  }
+ ]
+}
