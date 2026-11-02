@@ -6448,3 +6448,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `job_watch` سطر آخر `status` را در هر حال لاگ می‌کند.
 - **آزمون:** `status` و `watch` با `FAHARES_BACKUP_CONFIG` آزمایشی روی رونوشت `last.json`. `bash -n` پاس شد.
 - **نصب:** فایل `/usr/local/bin/fahares-backup.sh` مال `root:root` است (۳۱ مهر) و `sudo -n` ممکن نیست. نصب را کاربر انجام می‌دهد.
+
+### گام ۱۳.۱۶۲: دور دوم «موضوع اثر» و `--prune`
+- **فایل تصمیم:**
+  - ۲۸ عبارت تازه در `phrases`. «شاه نعمت الله ولی» اکنون به «نعمة الله ولی، نعمة الله بن عبدالله» می‌رود.
+  - دو عنوان تازه در `titles`: «مدح شاه عباس و فتح بغداد (رساله در)» و «قصیده فرقانیه فی مدح خیرالبریة (امیرالمؤمنین علی)».
+  - عنوانی که در `titles` باشد جای خواندن عنوان و معرفی را می‌گیرد.
+- **کد:**
+  - `KnownSubjects::fromText()`: واژه‌ی موضوع می‌تواند با «و» به `آثار|حالات|ستایش|ترجمه|وصایا|منتخب اشعار|اشعار` بپیوندد. اگر ۱۵ نویسه‌ی پیش از واژه با «پس/پیش/بعد/قبل از» یا «هنگام/زمان» تمام شود، رد می‌شود. پنجره با `mb_substr` بریده می‌شود: نخست با `substr` بایتی بود و حرف را از وسط می‌برید، و preg_match روی UTF-8 نامعتبر بی‌صدا false می‌داد.
+  - `BackfillWorkSubjectsCommand`:
+    - تکه‌ای از آغاز عنوان که کامل جور نشود، پس از حذف «حضرت/جناب» با `resolve()` خوانده می‌شود (`pieces:read_at_head`).
+    - اگر باز جور نشد، تکه‌های `fromText(title)` افزوده می‌شوند (`:title_read`).
+    - `--prune`: سطرهای `subject` بی `suggestion_id` که شخصشان در نتیجه‌ی کنونی نیست، با `ContributorRelations::removeRole` و یک `AuditLog` (`corpus_update`، `corpus_fix = work subjects (item 35)`) حذف می‌شوند. آثار `protectsRows` دست نمی‌خورند.
+  - املاهای تازه: `امام مجتبی`، `امام عصر` و `خیر البریة` (سه گونه).
+- **ادغام در پروداکشن (۱۲ آبان ۱۴۰۵، از راه `prod-run`):**
+  - `PersonMerger::merge(35946 → 329)`، audit `106971`.
+  - پشتیبان: `fahares-sources/backups/step13/nimatullah_merge_35946_into_329_before.json` (دو رکورد، ۱۸۷ سطر `work_people`، ۱۸۳ سطر `work_author` و یک اثر).
+  - پس از ادغام #329 ۱۸۷ سطر `work_people` (۴ `subject`) و `works_count = 183` دارد.
+- **dry run (`fahares_prod` محلی):** `linked:known 139`، `:description 350`، `:title_inside 135`، `:title_read 1`، `linked:reviewed 65`، `:description 15`، `:title_inside 3`، `:title_listed 3`، `:title_read 6`. در پروداکشن `--prune` باید سه سطر گام ۱۳.۱۴۳ را حذف کند: آثار #11831، #55020 و #66215.
+- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **آزمون‌ها:**
+  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject`
+  - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
+

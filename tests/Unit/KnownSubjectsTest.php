@@ -50,4 +50,17 @@ class KnownSubjectsTest extends TestCase
         // A reviewed phrase
         $this->assertSame(['ابن سینا، حسین بن عبدالله', 'الشيخ الرئيس'], KnownSubjects::resolve('الشيخ الرئيس و آثار او', [\App\Support\KnownRulers::compact('الشيخ الرئيس') => 'ابن سینا، حسین بن عبدالله']));
     }
+
+    public function test_a_joined_word_is_read_and_a_time_is_not_a_subject()
+    {
+        // «شرح حال و آثار …», «مدح و ستایش …»
+        $this->assertSame([['شرح حال و منتخب اشعار', ['سید ذوالفقار شروانی']]], KnownSubjects::fromText('شرح حال و منتخب اشعار سید ذوالفقار شروانی'));
+        $this->assertSame([['مدح و ستایش', ['فتح علی شاه', 'عباس میرزا ولی عهد']]], KnownSubjects::fromText('مدح و ستایش فتح علی شاه و عباس میرزا ولی عهد'));
+        // «پس از وفات فتحعلی شاه»: when, not about whom
+        $this->assertSame([], KnownSubjects::fromText('بخشی از کتابی است که پس از وفات فتحعلی شاه نوشته شده'));
+        // «حضرت» and the honorifics go before the name is read
+        $this->assertSame(['علی بن ابی طالب (ع)، امام اول', 'علی بن ابیطالب'], KnownSubjects::resolve(KnownSubjects::fromText('مناقب حضرت علی بن ابیطالب (ع)')[0][1][0]));
+        $this->assertSame('حسن بن علی (ع)، امام دوم', KnownSubjects::find('امام مجتبی'));
+        $this->assertSame('محمد بن حسن (عج)، امام دوازدهم', KnownSubjects::find('امام عصر'));
+    }
 }

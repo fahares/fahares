@@ -65,6 +65,26 @@ class BackfillWorkSubjectsTest extends TestCase
         $this->assertSame(1, DB::table('work_people')->where('work_id', $listed)->count());
     }
 
+    public function test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept()
+    {
+        $husayn = $this->person('حسین بن علی (ع)، امام سوم');
+        $work = $this->work('وقایع آزمایشی پس از خاقان');
+        DB::table('works')->where('id', $work)->update(['description' => 'بخشی از کتابی است که پس از وفات امام حسین نوشته شده است']);
+        $stale = DB::table('work_people')->insertGetId(['work_id' => $work, 'person_id' => $husayn, 'role' => 'subject', 'position' => 0]);
+        $given = $this->work('مقتل الحسین');
+        $kept = DB::table('work_people')->insertGetId(['work_id' => $given, 'person_id' => $husayn, 'role' => 'subject', 'position' => 0]);
+        file_put_contents($this->file, json_encode(['phrases' => []]));
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file, '--prune' => true])->expectsOutputToContain('pruned')->assertSuccessful();
+        $this->assertTrue(DB::table('work_people')->where('id', $stale)->exists());
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file, '--prune' => true, '--apply' => true])->assertSuccessful();
+        $this->assertFalse(DB::table('work_people')->where('id', $stale)->exists());
+        $this->assertTrue(DB::table('work_people')->where('id', $kept)->exists());
+        $this->assertSame(1, \App\Models\AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work)->count());
+        \App\Models\AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work)->delete();
+    }
+
     public function test_known_subjects_and_reviewed_phrases_are_linked_once()
     {
         $husayn = $this->person('حسین بن علی (ع)، امام سوم');
