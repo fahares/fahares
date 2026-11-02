@@ -6904,3 +6904,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
 - **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
 - **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_text_fill_prod_before_20261102.json`، شامل ۱٬۹۰۴ نسخه.
+  - **اجرا:** با `prod-run`. خروجی `Writing 2893` بود و اجرای بعدی `already 2893` داد.
+  - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`.
