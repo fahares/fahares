@@ -6201,12 +6201,41 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی با تصویر:** ج ۱ ص ۵۷ «۱۰۱۵-۶/۱۰۵» (گلپایگانی)، و ج ۶ ص ۳۴۳ «۲/۱۵۹۸۰» (مجلس، وارونه در خود چاپ).
 - **آزمون:** همان آزمون `DerivedDataTest` گسترش یافت: نشانه‌ها و استثناها، سنا، مرکز احیاء و برچسب حاشیه.
 
+### گام ۱۳.۱۴۸: `fahares:split-senate-library` و `fankha_shelfmark_fixes.py`
+- **[SenateLibrary](../app/Support/SenateLibrary.php):**
+  - ثابت‌ها: نام «مجلس سنا»، نام کامل «کتابخانه مجلس سنا»، نام‌های دیگر «سنا» و «کتابخانه سنا».
+  - `libraryFor($libraryId, $rawText)`: اگر نسخه از مجلس باشد و `Manuscript::citesOnlySenate` درست باشد، شناسه‌ی سنا را برمی‌گرداند. `AddCorpusWorksCommand` شناسه و نام کتابخانه‌ی نسخه‌ی تازه را از آن می‌گیرد.
+  - `citesOnlySenate` اکنون `[-–—]?` را میان «سنا» و «ف» می‌پذیرد: «سنا – ف:» و «سنا ف:». پس کلید مجلد این‌ها هم «…-سنا» می‌شود (دو نسخه در `fahares_prod`).
+- **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
+  - **چه چیزی منتقل می‌شود:** نسخه‌های مجلس که `citesOnlySenate` دارند، مگر `library_id` در `ProtectedColumns` باشد. جلدها و منابع مجلس که عنوانشان «سنا» دارد (۱۴۵، ۵۳۸ و ۶۵۰؛ منابع ۱۰۰۰۳۳ و ۱۰۰۱۰۱).
+  - **ساخت رکورد:** slug به شیوه‌ی `Str::slug(شهر نام)-id` ساخته می‌شود («thran-mgls-sna-1050»).
+  - **ثبت و برگشت:** لاگ `split` روی کتابخانه‌ی تازه همه‌ی شناسه‌ها را دارد. `--undo` لاگ `split_undo` می‌نویسد، و اگر چیزی در کتابخانه نمانده باشد، آن را حذف می‌کند.
+  - **پس از اجرا:** `ManuscriptLocation::recountLibraries` و بازنمایه‌ی نسخه‌های منتقل‌شده.
+  - **گزارش:** نسخه‌های جلدهای سنا را که منتقل نمی‌شوند، فهرست می‌کند.
+- **آزمون:** [SplitSenateLibraryTest](../tests/Feature/SplitSenateLibraryTest.php).
+- **پیکره:** `scripts/fankha_shelfmark_fixes.py` در `fahares-corpus`.
+  - **ورودی:** [fankha_shelfmark_fixes_20261102.json](../database/data/fankha_shelfmark_fixes_20261102.json)، با فیلدهای `id`، `volume`، `page`، `library`، `from`، `to` و `why`.
+  - **یافتن سطر:** سطر عنوان نسخه («؛ کتابخانه؛ شماره نسخه: FROM») در همان جلد، با نزدیک‌ترین نشانگر صفحه (حداکثر دو صفحه فاصله) پیدا می‌شود. دو سطر هم‌فاصله یعنی کنار گذاشتن.
+  - **حالت‌ها:** `--write` متن را اصلاح می‌کند. `--export --db` فایل [fankha_shelfmark_rebuild_20261102.json](../database/data/fankha_shelfmark_rebuild_20261102.json) را برای `fahares:rebuild-copies` می‌سازد، با تغییر `shelfmark` و `raw_text`، و پایگاه را با کاربر خود سایت می‌خواند.
+- **قاعده‌ها:**
+  - **گلپایگانی:** «a/b-c» → «c-a/b». اگر b چهاررقمی باشد: «b/a-c».
+  - **شکل دوعددی:** «a/b[پسوند]»، که a یک یا دو رقم و b سه رقم یا بیشتر دارد، → «b/a[پسوند]». پسوند «-ف»، «عکسی» یا شماره‌ی قدیم بی «/» است. «N/100» کنار ماند.
+  - **سه‌عددی:** دست نخورد.
+  - **خوانده از صفحه:** برای ۳۹ نمونه، مقدار چاپی جای قاعده را گرفت. نمونه‌ها: «19270/2»، «1997/16-عکسی»، «2126/2»، «N/10»، «19/2401/9» و «2/10/4».
+- **وارسی با تصویر:**
+  - زیرعامل ۷۰ نمونه را خواند: ۲۸ «to درست»، ۲۰ «from اصیل» (بیشترشان سه‌عددی یا N/100) و ۲۲ نامطمئن (همه سه‌عددی یا N/100).
+  - خودم این صفحه‌ها را دیدم: ج ۱ ص ۵۷، ج ۲۵ ص ۵۲۸ (گلپایگانی «۳۹۸۵-۲۰/۱۰۵»)، ج ۳۲ ص ۳۹۲ («۷۷۷/۲-طباطبائی»)، و ج ۶ ص ۱۰۶ و ۳۴۳.
+- **تمرین (`fahares_prod`):**
+  - `rebuild-copies`: write ۶۲۷، سپس already ۶۲۷.
+  - `syncCopies`: collections ۶۱۶، pointers_linked ۱۳.
+  - `fill-collection-keys` پس از آن ۲ تغییر داشت (همان دو نسخه‌ی «سنا –»).
+
+
 ### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
 - **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
 - **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
 - **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
-
 ### گام ۱۳.۱۵۰: `catalog_volume_parts` و `Cataloger::recount`
 - **migration:** [2026_11_03_100001_create_catalog_volume_parts_tables](../database/migrations/2026_11_03_100001_create_catalog_volume_parts_tables.php):
   - `catalog_volume_parts` (`catalog_volume_id` cascade، `library_id` nullOnDelete، `title`، `page_first`/`page_last`، `sort`، `manuscripts_count`، `metadata`)؛
@@ -6237,6 +6266,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines_bayt`. ورودی ردیف‌های `lines/emptied` از `reports/fankha_v2_db_review6/diffs.jsonl` است. شرط: `raw_text` سایت، بی برچسب صفحه و با رقم لاتین، «سطر» ندارد و `{lines}\s*بیت` دارد. خروجی ۴۸۱ رکورد است و ۷۲۵ رکورد کنار گذاشته شد.
 - **فایل تصمیم:** `database/data/fankha_lines_bayt_20261102.json`، با تغییر `lines: {from: N, to: null}`. فرمان تغییری نخواست، چون `lines` از گام ۱۳.۱۳۲ در `FIELDS` است.
 - **تمرین (`fahares_prod`):** `Would write 481`، سپس `Writing 481`، سپس `Would write 0`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `6c96057`):** پشتیبان در `fahares-sources/backups/item87_lines_bayt_prod_before_20261102.json` گرفته شد (۴۸۱ ردیف). اجرا با `scripts/dev/prod-run` انجام شد. خروجی `Writing 481` بود و اجرای پس از آن `already 481` و `Would write 0` داد.
 - **آزمون:** ادامه‌ی `test_a_line_count_fills_only_a_copy_still_without_one`.
 
 ### گام ۱۳.۱۵۵: `sources:link-page-refs` و `App\Support\PageLinks`
@@ -6263,3 +6293,37 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - «مقدمه …» و «منتخب …».
 - **آزمون:** [LinkPageRefsTest](../tests/Feature/LinkPageRefsTest.php) با چهار آزمون: نسخه (`exact`، نشانه‌ی مجموعه، `part`، عنوان ناجور، رد ویراستار و صفحه‌ی نسخه)، ارجاع (عنوان، صفحه، بافت، ارجاع به کتاب دیگر، صفحه‌ی مدخل و متن تغییرکرده)، `Titles` و `place()`، و منبع بی پیکربندی.
 - **پروداکشن:** هنوز اجرا نشده است. پس از انتشار: `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs dharia'`. پشتیبان: خروجی `source_page_links`. برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
+### گام ۱۳.۱۵۳: `sources:build-noskhe-pazhuhi`
+- **MTIF:** کتاب ۳۹۴ («نسخه پژوهی»، به کوشش حافظیان بابلی، شخص ۱۸۴):
+  - چاپ ۱۱۰۸۷: سه جلد، ۱۳۸۳ تا ۱۳۸۵. نسخه‌های چاپی ۲۱۸۱۱ (ج ۱، «۶۴۴،۱۲» صفحه)، ۲۲۵۰۰ (ج ۲، ۷۱۶) و ۳۰۲۰۲ (ج ۳، ۷۳۹).
+  - چاپ ۲۰۲۶۰ (۱۳۸۵): ۳۶۴۱۲ (ج ۱، ۷۱۴) و ۳۶۰۲۶ (ج ۳، ۷۵۰).
+  - چاپ هر نسخه از رویداد «نسخه ای از چاپ» (`rabet` ۳۹۵، `record_id`) خوانده شد. پیوند ناشر (۴۳۴) به رکورد نامربوطی رفته است، پس ناشر از جدول فنخا آمد («خانه پژوهش»).
+- **#491 (منبع ۱۰۰۰۷۷، `catalogue-a379aa82523c`):** کتابخانه‌ی ۶۴، بی‌MTIF، ناشر «خانه پژوهش (نسخه‌پژوهی)»، ۲٬۳۴۶ نسخه، و برکت (۵۳) فهرست‌نگار. فهرست واقعیِ دانشکده‌ی پزشکی MTIF 1704/12440/22416 است (سید عبدالعزیز طباطبائی، فروست «میراث اسلامی ایران»، ۱۳۷۲، ص ۳۹۶–۴۴۴). این فهرست به مرحله‌ی ۴ طرح می‌رود.
+- **دستور:** [BuildNoskhePazhuhiCommand](../app/Console/Commands/BuildNoskhePazhuhiCommand.php):
+  - منبع با کد، کتابخانه‌ها با slug، و فهرست‌نگاران با MTIF پیدا می‌شوند: حافظیان ۵۶۹۶۵، برکت ۳۷۲۴۴، و زاده‌هوش ۶۲۵۸۳. زاده‌هوش اگر نباشد ساخته می‌شود، با `metadata.made_by`.
+  - **منبع:** عنوان «نسخه‌پژوهی»، `library_id` تهی، ناشر، پدیدآور، و `group` به شکل `catalogue||نسخه‌پژوهی`، مانند «نشریه».
+  - **جلدها:** جلد موجود دفتر ۱ می‌شود. دفترهای ۲ و ۳ ساخته می‌شوند با `citation_pattern` «نسخه‌پژوهی: D». `catalog_volume_cataloger` جلدها فقط حافظیان است، با نقش `supervisor`.
+  - **بخش‌ها:** `PARTS`، ۹ بخش با ردیف فنخا در `metadata.fankha_row` (۳۹ و ۳۰۴ تا ۳۱۱)، و فهرست‌نگار بخش با نقش `cataloger`.
+  - **نسخه‌ها:** نسخه‌های بی‌جلد یا روی منبع که سری نخستین ارجاعشان «نسخه پژوهی» یا «نسخه‌پژوهی» است (ZWNJ، فاصله و رقم کنار گذاشته می‌شوند). `numbers()` رقم پیش از دونقطه («نسخه‌پژوهی 3: -108») را هم می‌خواند. `daftar()` از جفت نخست آن عددی را برمی‌دارد که در ۱ تا ۳ است («218-2» دفتر ۲ است). عدد تنها اگر ۱ تا ۳ باشد خود دفتر است، وگرنه صفحه‌ای است که تنها یک بخشِ کتابخانه‌ی نسخه آن را دارد.
+  - پس از جابه‌جایی: `SourceEntrySync::syncCited`، سپس `CatalogVolumePart::assign` روی همه‌ی نسخه‌های سه دفتر (نسخه‌های دفتر ۱ از پیش روی جلد بودند)، و شمارش جلدها، بخش‌ها و `Cataloger::recount`.
+  - **پشتیبان:** ردیف کامل منبع، جلدها و `catalog_volume_cataloger`، شناسه‌ی بخش‌های پیشین، و ستون‌های `catalog_volume_id`، `catalog_volume_part_id` و `cataloger_id` نسخه‌ها. همچنین ستون‌های مدخل‌ها و شمارش فهرست‌نگاران (با `supervised_count`). `--revert` دفترها، بخش‌ها و فهرست‌نگار ساخته‌شده را برمی‌دارد.
+- **تمرین (`fahares_prod` محلی، پس از گام‌های ۱۳.۱۴۲ و ۱۳.۱۴۴):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.153_build_noskhe_pazhuhi_local_before_20261103.json`.
+  - ۲٬۵۵۸ نسخه جابه‌جا شد:
+    - دفتر ۱ ← بی‌جلد: ۹۳ روضاتی، ۵۱ منصوریه، ۴۶ حکیم، ۳۲ پارس، ۱۸ دستغیب، ۵ انصاری، ۲ علامه طباطبائی و ۱ «روضاتی، سید احمد».
+    - دفتر ۲ ← #491 ۱٬۲۹۱ و بی‌جلد ۲۰.
+    - دفتر ۳ ← #491 ۹۷۸ و بی‌جلد ۲۰.
+    - بی‌دفتر ماند: ۱ نسخه از دیانی.
+  - دفترها ۳۲۵ / ۱٬۳۱۱ / ۹۹۹ نسخه. بخش‌ها: علامه طباطبائی ۷۹ / ۱٬۳۱۰ / ۹۹۷، روضاتی ۹۳، منصوریه ۵۱، حکیم ۴۶، پارس ۳۲، دستغیب ۱۸ و انصاری ۵. سه نسخه بی‌بخش ماند.
+  - فهرست‌نگاران:
+    - برکت: ۴ ← ۶ جلد، و ۳٬۸۲۶ نسخه.
+    - حافظیان: ۲۲ جلد و ۲۱٬۱۴۶ نسخه، و ۲٬۶۳۵ نسخه «زیر نظر».
+    - زاده‌هوش: ۱ جلد و ۹۳ نسخه.
+  - `source_entries` = ۷۸۵٬۵۸۳ (بی‌تغییر).
+  - `catalogs:assign-volume-parts --dry-run` پس از اجرا: ۲٬۶۳۴ نسخه، `changed` صفر. `outside` ۲۵ است: ۲۱ ارجاع وارونه که `page_start` مدخلشان شماره‌ی دفتر است (مورد ۱۱۲ بک‌لاگ)، و چهار صفحه‌ی بیرون از بخش.
+  - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` جدول‌های `fp.sh` و جدول‌های بخش (بخش‌ها، فهرست‌نگارانشان، `catalog_volume_part_id` نسخه‌ها، `supervised_count` و شمار فهرست‌نگاران) را برگرداند.
+  - صفحه‌ها (کانتینر با کاربر `0:0`): منبع، سه فهرست‌نگار و ۴۷ نسخه‌ی تصادفی پاسخ ۲۰۰ دادند و `source_url` در هیچ‌کدام نبود. در مرورگر، دسکتاپ و موبایل ۳۷۵ پیکسل بی سرریز افقی بودند و کنسول خطایی نداشت.
+- **آزمون:** [BuildNoskhePazhuhiTest](../tests/Feature/BuildNoskhePazhuhiTest.php):
+  - ارجاع‌ها: معمولی، وارونه، با خط تیره‌ی بلند، «نسخه‌پژوهی 3:»، صفحه‌ی تنها، روضاتی، حکیم، کتابخانه‌ی بی‌بخش، صفحه‌ای که دو بخش دارند، و ارجاع نخستین از منبع دیگر؛
+  - همچنین dry-run، دفترها و MTIF، ویراستار، بخش و فهرست‌نگار هر نسخه، شمارش‌ها، تکرار بی‌اثر و `--revert`.
+  - `CatalogVolumePartsTest::test_the_pages_and_a_save_before_the_deploy_has_migrated` پرسشی به جدول‌های بخش را رد می‌کند وقتی `ready()` نادرست است.

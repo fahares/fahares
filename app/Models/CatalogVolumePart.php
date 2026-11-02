@@ -18,6 +18,18 @@ class CatalogVolumePart extends Model
 {
     protected $guarded = ['id'];
 
+    private static ?bool $ready = null;
+
+    /**
+     * Whether the tables exist: a deploy brings the code up about a minute before it migrates (docs/SOURCE_PROTOCOL.md
+     * section 9), and pages and saves must not fail meanwhile.
+     */
+    public static function ready(): bool
+    {
+        return self::$ready ??= \Illuminate\Support\Facades\Schema::hasTable('catalog_volume_parts')
+            && \Illuminate\Support\Facades\Schema::hasColumn('manuscripts', 'catalog_volume_part_id');
+    }
+
     protected function casts(): array
     {
         return [
@@ -71,8 +83,9 @@ class CatalogVolumePart extends Model
      * The part a copy is of, among its volume's parts, and how it was found:
      *  1. the one part of the copy's library;
      *  2. of several of its library, the one whose pages hold the page its citation gives;
-     *  3. its library has none, but the page falls in one part only (by_page);
-     *  else none.
+     *  else none. A copy whose library has no part but whose page falls in one part only is reported (by_page) and
+     *  left without one: a copy of one library is not of another's catalogue, and the record of its library may be
+     *  a duplicate to merge (step 13.150).
      *
      * @param  Collection<int, self>  $parts  the volume's parts
      * @return array{0: ?self, 1: string} the part and «library», «page», «by_page» or «none»
@@ -90,7 +103,7 @@ class CatalogVolumePart extends Model
         }
         $held = $parts->filter(fn ($p) => $p->holds($page))->values();
 
-        return $held->count() === 1 ? [$held->first(), 'by_page'] : [null, 'none'];
+        return [null, $held->count() === 1 ? 'by_page' : 'none'];
     }
 
     /**
@@ -106,6 +119,9 @@ class CatalogVolumePart extends Model
     public static function assign(iterable $ids): array
     {
         $stats = ['library' => 0, 'page' => 0, 'by_page' => 0, 'none' => 0, 'outside' => 0, 'changed' => 0];
+        if (! self::ready()) {
+            return $stats;
+        }
         $touched = [];
         foreach (collect($ids)->unique()->chunk(1000) as $chunk) {
             $rows = DB::table('manuscripts')->whereIn('id', $chunk->all())

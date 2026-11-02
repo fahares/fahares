@@ -211,7 +211,7 @@
                         $supervisors = $manuscript->catalogVolume?->catalogers->where('pivot.role', 'supervisor')->where('id', '!=', $manuscript->cataloger_id);
                         // ...or of a part of a volume of several libraries' catalogues: the part, its other catalogers, and
                         // the volume's people, all its editors (step 13.150)
-                        $part = $manuscript->catalogVolumePart;
+                        $part = $manuscript->relationLoaded('catalogVolumePart') ? $manuscript->catalogVolumePart : null;
                         if ($part) {
                             $supervisors = $manuscript->catalogVolume?->catalogers->where('id', '!=', $manuscript->cataloger_id);
                             $coauthors = $part->catalogers->where('id', '!=', $manuscript->cataloger_id);

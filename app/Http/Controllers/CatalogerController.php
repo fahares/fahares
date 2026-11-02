@@ -74,7 +74,7 @@ class CatalogerController extends Controller
             ->orderBy('volume_number')
             ->get();
         // the parts of volumes they wrote (step 13.150): their volumes join the catalogues, the parts are listed
-        $parts = $cataloger->catalogVolumeParts()->with(['volume', 'library'])->orderBy('catalog_volume_id')->orderBy('sort')->get();
+        $parts = \App\Models\CatalogVolumePart::ready() ? $cataloger->catalogVolumeParts()->with(['volume', 'library'])->orderBy('catalog_volume_id')->orderBy('sort')->get() : collect();
         $volumes = $volumes->concat(CatalogVolume::with('library')->whereIn('id', $parts->pluck('catalog_volume_id')->diff($volumes->pluck('id')))->get())->values();
 
         // the volumes by the printed catalogue they are of, each catalogue once with its cover and page (step 13.109).

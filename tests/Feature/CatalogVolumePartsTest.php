@@ -72,7 +72,7 @@ class CatalogVolumePartsTest extends TestCase
         $this->assertSame([3, 'page'], $found(20, 145));
         $this->assertSame([null, 'none'], $found(20, 200), 'of two parts of its library, neither holds the page');
         $this->assertSame([4, 'library'], $found(30, null));
-        $this->assertSame([2, 'by_page'], $found(99, 133), 'another library, but one part holds the page');
+        $this->assertSame([null, 'by_page'], $found(99, 133), 'another library: reported, not given the part that holds the page');
         $this->assertSame([null, 'none'], $found(99, 600));
         $this->assertSame([null, 'none'], $found(null, null));
     }
@@ -106,19 +106,19 @@ class CatalogVolumePartsTest extends TestCase
         $this->assertSame([$molaviPart->id, $valaei->id], [$byLibrary->fresh()->catalog_volume_part_id, $byLibrary->fresh()->cataloger_id]);
         $this->assertSame($molaviPart->id, $outside->fresh()->catalog_volume_part_id, 'its library\'s one part, though the page is outside it');
         $this->assertSame([$rowzatiPart->id, $rowzati->id], [$rowzatiCopy->fresh()->catalog_volume_part_id, $rowzatiCopy->fresh()->cataloger_id]);
-        $this->assertSame($rowzatiPart->id, $byPage->fresh()->catalog_volume_part_id);
+        $this->assertNull($byPage->fresh()->catalog_volume_part_id, 'another library\'s copy is not given a part by its page');
         $this->assertSame([null, $daneshPajouh->id], [$none->fresh()->catalog_volume_part_id, $none->fresh()->cataloger_id]);
         $this->assertNull($onPlain->fresh()->catalog_volume_part_id);
 
         $this->artisan('catalogs:assign-volume-parts')->assertSuccessful()->expectsOutput('5 copies read.')
             ->expectsOutputToContain('page outside their part: 1');
-        $this->assertSame([2, 2], [$molaviPart->fresh()->manuscripts_count, $rowzatiPart->fresh()->manuscripts_count]);
+        $this->assertSame([2, 1], [$molaviPart->fresh()->manuscripts_count, $rowzatiPart->fresh()->manuscripts_count]);
 
         // the counts: a part's catalogers its copies, the volume's people the rest as editors
         $counts = fn (Cataloger $c) => [$c->fresh()->volumes_count, $c->fresh()->manuscripts_count, $c->fresh()->supervised_count];
         $this->assertSame([1, 2, 0], $counts($valaei));
-        $this->assertSame([1, 2, 0], $counts($rowzati));
-        $this->assertSame([2, 4, 5], $counts($daneshPajouh), 'the plain volume\'s copy, the Rowzati part\'s two, and «none» that names him; editor of the five on the fifth');
+        $this->assertSame([1, 1, 0], $counts($rowzati));
+        $this->assertSame([2, 4, 5], $counts($daneshPajouh), 'the plain volume\'s copy, the Rowzati part\'s, and the two without a part that name him; editor of the five on the fifth');
         $this->assertSame([1, 0, 5], $counts($afshar));
         $this->assertSame(4, $daneshPajouh->catalogedCopies()->count());
 
@@ -163,5 +163,28 @@ class CatalogVolumePartsTest extends TestCase
         $this->assertSame($kept->id, $part->fresh()->library_id);
         $merger->undoMerge($kept->fresh(), $old);
         $this->assertSame($gone->id, $part->fresh()->library_id);
+    }
+
+    public function test_the_pages_and_a_save_before_the_deploy_has_migrated()
+    {
+        $source = Source::create(['code' => 'parts-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'نسخه‌پژوهی']);
+        $volume = $this->volume($source, 1);
+        $library = $this->library('مدرسه حکیم');
+        $cataloger = Cataloger::create(['name' => 'محمد برکت', 'slug' => 'barakat-' . uniqid()]);
+        $volume->catalogers()->attach($cataloger->id, ['role' => 'cataloger']);
+        $copy = $this->copy($library, '[نسخه پژوهی: 1 - 45]', $volume, $cataloger);
+
+        // as though the tables were not there yet: nothing reads them
+        $ready = new \ReflectionProperty(CatalogVolumePart::class, 'ready');
+        $ready->setValue(null, false);
+        try {
+            DB::listen(fn ($q) => $this->assertStringNotContainsString('catalog_volume_part', $q->sql));
+            $this->get(route('sources.show', $source->code))->assertOk();
+            $this->get(route('manuscripts.show', $copy))->assertOk();
+            $this->get(route('catalogers.show', $cataloger))->assertOk();
+            $copy->update(['catalog_volume_id' => null]);
+        } finally {
+            $ready->setValue(null, null);
+        }
     }
 }
