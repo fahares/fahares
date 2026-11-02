@@ -679,10 +679,10 @@ class Manuscript extends Model
         return in_array($mark, self::DESCRIPTIVE_MARKS[$m[1]] ?? [], true);
     }
 
-    /** Whether a copy's text cites the Senate library's catalogue («[سنا: …]», «[سنا - ف: …]») and not the Majlis one («[ف: …]»). */
+    /** Whether a copy's text cites the Senate library's catalogue («[سنا: …]», «[سنا - ف: …]», «[سنا – ف: …]», «[سنا ف: …]») and not the Majlis one («[ف: …]»). */
     public static function citesOnlySenate(?string $rawText): bool
     {
-        return $rawText !== null && preg_match('/\[\s*سنا\s*(?:-\s*ف\s*)?:/u', $rawText) && ! preg_match('/\[\s*ف\s*:/u', $rawText);
+        return $rawText !== null && preg_match('/\[\s*سنا\s*(?:[-–—]?\s*ف\s*)?:/u', $rawText) && ! preg_match('/\[\s*ف\s*:/u', $rawText);
     }
 
     /**
