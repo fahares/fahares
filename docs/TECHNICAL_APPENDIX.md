@@ -6805,3 +6805,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** با `prod-run`. dry run، سپس `Writing 1802`، سپس `Would write 0`.
 - **آزمون:** `MoveEntryStatusCommandTest`.
 - **محیط آزمون worktree:** `scripts/dev/test-suite` در `fahares_app` از مسیر worktree اجرا می‌شود. پس worktree باید `vendor` خودش را داشته باشد. یک `vendor` پیوندی کلاس‌های `App` را از checkout اصلی بار می‌کند. پس `vendor` اصلی رونوشت شد، `composer dump-autoload -o` در همان worktree اجرا شد، و `.env` پیوندی به `../../../.env` است.
+
+### گام ۱۴.۸: `fankha_v2_author_from_description_export.py`
+- **صدور (پیکره، اسکریپت تازه):** ورودی ردیف‌های `Work/description/emptied` از review7 است. `slug`، `description` و `author_name` هر اثر از `--db` خوانده می‌شود، و اثر v2 با پسوند `-v{vol}-{ordinal}`.
+  - **شرط‌ها:**
+    - `author_name` خالی باشد؛
+    - شرح یک یا دو سطر باشد و سطر دوم حرف لاتین داشته باشد؛
+    - سطر نخست، پس از `norm` و بی تاریخ پایانی، با `author.name` یا `author.name_raw` در v2 برابر باشد؛
+    - `hedge` نداشته باشد.
+  - **پیوند شخص:** `author` فقط با `death.century` فرستاده می‌شود.
+  - **خروجی:** ۴۳۲ `work_updates` با `author_name: null → name` و `description: <شرح> → <شرح v2 یا null>`. ۲٬۳۸۱ مورد کنار رفت. از این‌ها ۱٬۹۸۱ تا پیش‌تر به ۱۴.۷ رفته بودند یا شرح واقعی‌اند، ۳۲۷ تا v2 مؤلف دیگری خوانده، ۶۹ تا مؤلف دارند و ۴ تا با «؟» آمده‌اند.
+- **فرمان:** `fahares:add-corpus-works` (`updateWork`). `author_id` را `PersonNameMatcher` با سده می‌گذارد، و هوک `SyncsPrimaryContributor` سطر `work_people` را می‌سازد.
+- **فایل تصمیم:** `database/data/fankha_authors_from_description_20261102.json`.
+- **تمرین (`fahares_prod`):**
+  - **تمرین نخست:** بی شرط سده بود و ۱۸ `author_id` ساخت، همه با نام‌های بی‌تاریخ. این تمرین با `old_values` ممیزی برگردانده شد: `author_name`، `author_id` و `description` به حال پیش برگشتند، سطرهای `work_people` با نقش `author` آن ۱۸ اثر و ردیف‌های ممیزی پاک شدند.
+  - **تمرین دوم:** `update 432` اجرا شد. ۸ اثر سده داشتند، ولی هیچ‌کدام تطبیق مطمئن نداشت، پس `author_id` در همه تهی ماند. اجرای بعدی `update 0` داد.
