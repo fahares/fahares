@@ -6825,6 +6825,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):**
   - **تمرین نخست:** بی شرط سده بود و ۱۸ `author_id` ساخت، همه با نام‌های بی‌تاریخ. این تمرین با `old_values` ممیزی برگردانده شد: `author_name`، `author_id` و `description` به حال پیش برگشتند، سطرهای `work_people` با نقش `author` آن ۱۸ اثر و ردیف‌های ممیزی پاک شدند.
   - **تمرین دوم:** `update 432` اجرا شد. ۸ اثر سده داشتند، ولی هیچ‌کدام تطبیق مطمئن نداشت، پس `author_id` در همه تهی ماند. اجرای بعدی `update 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_from_description_prod_before_20261102.json` با ۴۳۲ اثر. پیش از اجرا هیچ‌کدام `author_name` نداشتند.
+  - **اجرا:** با `prod-run`. خروجی `update 432` و سپس `update 0` بود. `audit_logs` ۴۳۲ ردیف دارد و `author_id` در هیچ اثری پر نشد.
 
 ### گام ۱۴.۹: `catalogs:remove-catalogue`
 - **دستور:** [RemoveCatalogueCommand](../app/Console/Commands/RemoveCatalogueCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
@@ -6845,9 +6848,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۸۷۳، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #763 (بخش ۱۰۰۵، فهرست‌نگار ۲۴).
   - شمار بخش‌ها: ۸۷۳ = ۲۱۹ و ۱۰۰۵ = ۲۷۶. حضرتی (#۳۷): ۳ جلد و ۲۱۶ نسخه.
   - اثرانگشت جدول‌ها پس از `--revert` با پیش از اجرا یکی بود؛ پس از آن دوباره اجرا شد.
+
+### گام ۱۴.۱۰: `by_title_and_author`
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py` اکنون `primary_title` و `volume_number` سایت را هم می‌خواند.
+  - **جست‌وجو با عنوان:** اگر سطر نخست شرح با `author.name` یا `author.name_raw` اثرِ هم‌کلید v2 برابر نباشد، `by_title_and_author` در همان جلد اثری می‌جوید که `norm(title_line) == norm(primary_title)` و `norm(author.name) == norm(سطر نخست)` داشته باشد. فقط نتیجه‌ی یکتا پذیرفته می‌شود.
+  - **خروجی روی `fahares_prod` پس از ۱۴.۸:** ۳۹۹ `work_updates`. ریشه‌ی آن‌ها در خروجی پیشین: ۲۸۹ «v2 reads another author»، ۱۰۳ «more than a name» (اثر هم‌کلید مؤلف نداشت) و ۷ «hedged».
+  - **کنار رفته‌ها:** ۲۶ «v2 reads another author» و ۲۶ «hedged».
+- **فایل تصمیم:** `database/data/fankha_authors_from_description_by_title_20261102.json`.
+- **تمرین (`fahares_prod`):** `update 399` و سپس `update 0`. `author_id` در هیچ اثری پر نشد.
 - **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `8a17094`، از راه `prod-run`):**
   - dry-run و اجرا جدا از هم انجام شدند.
   - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۱۴۴، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #709 (بخش ۱۸۰، فهرست‌نگار ۲۴). شماره‌ی جلد و بخش در پروداکشن با نسخه‌ی محلی فرق دارد.
   - منبع ۱۰۰۰۸۰ و جلد #494 دیگر نیستند. حضرتی: ۳ جلد و ۲۱۶ نسخه. `source_entries` = ۷۸۸٬۵۰۱.
   - دو نسخه بی‌صف دوباره ایندکس شدند. صفحه‌ی `/sources/catalogue-b1c30639abab` حالا ۴۰۴ می‌دهد و «اوراق عتیق» ۲۰۰.
   - پشتیبان به `…/step14.9_remove_catalogue_prod_before_20261103.json` رفت.
+
+### گام ۱۴.۱۱: `--from-raw`
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py --from-raw`.
+  - **ورودی:** ردیف‌های `Work/author_name/filled` از review7 (۲٬۳۸۳ ردیف).
+  - **خواندن متن:** `raw_lines` متن هر اثر را از `--db` می‌خواند، برچسب‌های صفحه را برمی‌دارد و سطرهای ناخالی را جدا می‌کند.
+  - **نام:** سطر سوم است، به شرط آن‌که سطر نخست با «●» آغاز شود و سطر دوم حرف لاتین داشته باشد.
+  - **اثر v2:** ابتدا با کلید `-v{vol}-{ordinal}` جست‌وجو می‌شود و اگر نام نخواند، با `by_title_and_author`.
+  - **خروجی:** ۱٬۳۹۷ رکورد `work_updates` (`author_name: null → name`). ۹۸۶ رکورد کنار رفت: ۸۳۱ مؤلف دارند، ۱۰۸ «another»، ۳۸ «hedged» و ۹ «no author line».
+- **فایل تصمیم:** `database/data/fankha_authors_from_text_20261102.json`.
+- **تمرین (`fahares_prod`):** `update 1397` و سپس `update 0`. `author_id` در همه تهی ماند.
+
+### گام ۱۴.۱۴: `text_fill`
+- **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
+  - **شرط:** متن v2، با فاصله‌های یکسان‌شده، باید در `raw_text` سایت باشد، و `metadata.incipits` یا `metadata.explicits` نسخه خالی باشد.
+  - **خروجی:** ۲٬۸۹۳ رکورد (`incipit_text` ۱٬۶۷۷، `explicit_text` ۱٬۲۱۶). ۲۱۱ رکورد کنار رفت.
+- **کد:** تغییری لازم نبود، چون هر دو ستون در `ApplyCorpusCategoriesCommand::FIELDS` هستند.
+- **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
+- **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
+- **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
