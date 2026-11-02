@@ -6626,7 +6626,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `new_records`: هفت رکورد با سال وفات، یکی بی سال.
   - یک عنوان تازه در `titles`: «مدح عمر بن الخطاب لرسول الله (ص) (فصل فی)» → پیامبر.
 - **dry run (`fahares_prod` محلی):** `linked:known 154`، `:description 351`، `:title_inside 149`، `:title_read 1`، `linked:reviewed 80`، `:description 18`، `:title_inside 4`، `:title_listed 4`، `:title_read 7` و `records:created 8`. در کپی محلی هشت رکورد ساخته می‌شود، چون رکورد امام نهم در آن نیست. در پروداکشن باید هفت باشد.
-- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `71a68a1`، از راه `prod-run`):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.170_work_people_subject_before.json` (۷۳۵ سطر).
+  - dry run و `--prune --apply` هر دو این را گزارش دادند: `linked:known 1`، `:description 8`، `:title_inside 3`، `linked:reviewed 14`، `:description 3`، `:title_inside 1`، `:title_listed 1`، `:title_read 1`، `pieces:exists 735`، `records:created 7` و بی `pruned`.
+  - اجرای سوم `pieces:exists 767` بود.
+  - رکورد اسدآبادی #74728 است. `/people/74728` زبانه‌ی «آثار درباره‌ی او» دارد.
 - **آزمون‌ها:**
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (فهرست «،»دار، «مالک اشتر»، «المرتضى»، «صدیقه کبری»)
   - `BackfillWorkSubjectsTest::test_a_record_the_decision_file_lists_as_new_is_made_once_with_its_death_year`
