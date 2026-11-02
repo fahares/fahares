@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\AuditLog;
 use App\Models\Library;
 use App\Models\Manuscript;
+use App\Sources\SourceEntrySync;
 use App\Suggestions\ManuscriptLocation;
 use App\Suggestions\ProtectedColumns;
 use App\Support\SenateLibrary;
@@ -17,7 +18,8 @@ use Illuminate\Support\Str;
  * catalogue (Manuscript::citesOnlySenate), and the Senate's catalogues and their volumes (title «… سنا»), move from
  * the Majlis to «مجلس سنا». A copy whose library a reviewed correction set is left where it is. The move is logged
  * as a «split» on the new library with every id it moved, and --undo puts them back from that log and removes the
- * library when nothing is left in it. Safe to run again: copies already moved are not counted.
+ * library when nothing is left in it. Safe to run again: copies already moved are not counted. A copy on a Senate
+ * volume that cites the Majlis short catalogue («مختصر ف») moves to that catalogue's volume (step 13.158).
  */
 class SplitSenateLibraryCommand extends Command
 {
@@ -59,13 +61,21 @@ class SplitSenateLibraryCommand extends Command
         $volumes = DB::table('catalog_volumes')->where('library_id', $majlis->id)->where('title', 'like', '%سنا%')->pluck('title', 'id');
         $sources = DB::table('sources')->where('library_id', $majlis->id)->where('title', 'like', '%سنا%')->pluck('title', 'id');
         $inVolumes = collect($copies)->whereIn('catalog_volume_id', $volumes->keys())->count();
-        // Copies the Senate's volumes hold that cite another catalogue stay with the Majlis; they are listed to be checked
-        $strays = DB::table('manuscripts')->where('library_id', $majlis->id)->whereIn('catalog_volume_id', $volumes->keys())
-            ->whereNotIn('id', array_keys($copies))->get(['id', 'shelfmark', 'catalog_volume_id']);
+        // Copies the Senate's volumes hold that cite another catalogue stay with the Majlis (on a run after the split
+        // the volumes are the Senate's already). One citing the Majlis short catalogue («[مختصر ف: - 211]», which
+        // Fankha cites for the Majlis only) goes to that catalogue's volume; the rest are listed to be checked.
+        $senateVolumes = DB::table('catalog_volumes')->where('title', 'like', '%سنا%')
+            ->whereIn('library_id', array_filter([$majlis->id, SenateLibrary::find()?->id]))->pluck('id');
+        $strays = DB::table('manuscripts')->where('library_id', $majlis->id)->whereIn('catalog_volume_id', $senateVolumes)
+            ->whereNotIn('id', array_keys($copies))->get(['id', 'shelfmark', 'catalog_volume_id', 'metadata', 'raw_text']);
+        $short = DB::table('catalog_volumes')->where('library_id', $majlis->id)->where('title', 'like', 'فهرست مختصر%مجلس شورای اسلامی%')->orderBy('id')->first(['id', 'title']);
+        $retie = $short ? $strays->filter(fn ($s) => preg_match('/\[\s*مختصر\s*-?\s*ف\s*:/u', (string) $s->raw_text)) : collect();
+        $strays = $strays->whereNotIn('id', $retie->pluck('id'));
 
         $this->line(sprintf('  %-34s %8d', 'copies to move', count($copies)));
         $this->line(sprintf('  %-34s %8d', '  of which in the Senate volumes', $inVolumes));
         $this->line(sprintf('  %-34s %8d', 'kept:protected', count($kept)));
+        $this->line(sprintf('  %-34s %8d', 'to the Majlis short catalogue', $retie->count()) . ($short ? " (volume #{$short->id})" : ''));
         $this->line(sprintf('  %-34s %8d', 'Senate volumes copies left behind', $strays->count()));
         foreach ($volumes as $id => $title) {
             $this->line("  volume #{$id} {$title}");
@@ -79,6 +89,29 @@ class SplitSenateLibraryCommand extends Command
 
         if (! $this->option('apply')) {
             $this->info('Dry run: nothing written.');
+
+            return self::SUCCESS;
+        }
+
+        if ($retie->isNotEmpty()) {
+            // The cataloger the short catalogue's own copies carry
+            $cataloger = DB::table('manuscripts')->where('catalog_volume_id', $short->id)->whereNotNull('cataloger_id')
+                ->selectRaw('cataloger_id, count(*) n')->groupBy('cataloger_id')->orderByDesc('n')->value('cataloger_id');
+            DB::transaction(function () use ($retie, $short, $cataloger) {
+                foreach ($retie as $s) {
+                    DB::table('manuscripts')->where('id', $s->id)->update(['catalog_volume_id' => $short->id, 'cataloger_id' => $cataloger, 'updated_at' => now()]);
+                    AuditLog::create(['user_id' => null, 'auditable_type' => Manuscript::class, 'auditable_id' => $s->id, 'action' => 'corpus_update',
+                        'old_values' => ['catalog_volume_id' => $s->catalog_volume_id], 'new_values' => ['catalog_volume_id' => $short->id, 'cataloger_id' => $cataloger,
+                            'corpus_fix' => 'split-senate-library: the Majlis short catalogue (step 13.158)']]);
+                }
+                // the page Fankha cites goes with the volume (step 13.4)
+                SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $retie->pluck('id'))->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
+            });
+            LinkCatalogVolumesCommand::recountVolumesAndCatalogers();
+            $this->info("Moved {$retie->count()} copies to «{$short->title}».");
+        }
+        if (! $copies) {
+            $this->info('No copy left to move to the Senate library.');
 
             return self::SUCCESS;
         }

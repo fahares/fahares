@@ -6316,3 +6316,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ارجاع‌ها: معمولی، وارونه، با خط تیره‌ی بلند، «نسخه‌پژوهی 3:»، صفحه‌ی تنها، روضاتی، حکیم، کتابخانه‌ی بی‌بخش، صفحه‌ای که دو بخش دارند، و ارجاع نخستین از منبع دیگر؛
   - همچنین dry-run، دفترها و MTIF، ویراستار، بخش و فهرست‌نگار هر نسخه، شمارش‌ها، تکرار بی‌اثر و `--revert`.
   - `CatalogVolumePartsTest::test_the_pages_and_a_save_before_the_deploy_has_migrated` پرسشی به جدول‌های بخش را رد می‌کند وقتی `ready()` نادرست است.
+### گام ۱۳.۱۵۸: بازبستن نسخه‌های «مختصر ف» از جلد سنا
+- **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
+  - **کدام نسخه‌ها:** جلدهای سنا آن‌هایی‌اند که عنوانشان «سنا» دارد و کتابخانه‌شان مجلس یا سناست، پس پس از جدا کردن هم پیدا می‌شوند. نسخه‌ی مجلسی که در آن‌ها مانده و متنش `[\s*مختصر\s*-?\s*ف\s*:` دارد، جابه‌جا می‌شود.
+  - **مقصد:** جلد مجلس با عنوان `فهرست مختصر%مجلس شورای اسلامی%` (۴۴۱). `cataloger_id` نسخه همان فهرست‌نگاری می‌شود که بیشتر نسخه‌های آن جلد دارند.
+  - **ثبت و پس از آن:** برای هر نسخه یک لاگ `corpus_update` نوشته می‌شود. سپس `SourceEntrySync::syncCited` و `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` اجرا می‌شوند. اگر نسخه‌ای برای جدا کردن نمانده باشد، فرمان پس از این مرحله پایان می‌یابد.
+  - **پیشینه:** این پیوند نادرست را `RemediateCatalogsAndCatalogersCommand` ساخته بود. قاعده‌ی «مختصر» آن، الگوی «مختصر ف: سنا» را هم می‌گرفت. آن فرمان یک‌باره بوده و دوباره اجرا نمی‌شود.
+- **۷ شماره:** [fankha_shelfmark_fixes_20261102b.json](../database/data/fankha_shelfmark_fixes_20261102b.json) را همان `fankha_shelfmark_fixes.py` اعمال کرد (پیکره: ۶ جلد). تصویرهای وارسی‌شده: ج ۲ ص ۲۶۱، ج ۳ ص ۲۸۶ و ۵۵۸، ج ۹ ص ۷۹۰، ج ۱۸ ص ۸۰۵، ج ۱۹ ص ۴۴۷، ج ۳۰ ص ۲۲۸.
+- **آزمون:** [SplitSenateLibraryTest](../tests/Feature/SplitSenateLibraryTest.php) گسترش یافت.
+

@@ -1,0 +1,65 @@
+[
+ {
+  "id": 21287,
+  "volume": 2,
+  "page": 261,
+  "library": "مجلس",
+  "from": "8/100 خوئی",
+  "to": "8/10 خوئی",
+  "why": "an extra 0 («N/100» for the printed «N/10»), read from the page"
+ },
+ {
+  "id": 30963,
+  "volume": 3,
+  "page": 286,
+  "library": "میبدی",
+  "from": "15/100",
+  "to": "15/10",
+  "why": "an extra 0 («N/100» for the printed «N/10»), read from the page"
+ },
+ {
+  "id": 33434,
+  "volume": 3,
+  "page": 558,
+  "library": "مینوی",
+  "from": "4/100",
+  "to": "4/10",
+  "why": "an extra 0 («N/100» for the printed «N/10»), read from the page"
+ },
+ {
+  "id": 89785,
+  "volume": 9,
+  "page": 790,
+  "library": "حقوق",
+  "from": "70/100 - ج",
+  "to": "70/10 - ج",
+  "why": "an extra 0 («N/100» for the printed «N/10»), read from the page"
+ },
+ {
+  "id": 176078,
+  "volume": 18,
+  "page": 805,
+  "library": "رضوی",
+  "from": "85/100",
+  "to": "85/10",
+  "why": "an extra 0 («N/100» for the printed «N/10»), read from the page"
+ },
+ {
+  "id": 182308,
+  "volume": 19,
+  "page": 447,
+  "library": "ادبیات",
+  "from": "10/100 فرخ",
+  "to": "10/10 فرخ",
+  "why": "an extra 0 («N/100» for the printed «N/10»), read from the page"
+ },
+ {
+  "id": 289713,
+  "volume": 30,
+  "page": 228,
+  "library": "معصومیه",
+  "from": "3/100-6317",
+  "to": "100/3-6317",
+  "why": "two numbers swapped, read from the page"
+ }
+]

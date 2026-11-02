@@ -73,6 +73,12 @@ class SplitSenateLibraryTest extends TestCase
         $volume = $this->volumes[] = DB::table('catalog_volumes')->insertGetId(['title' => 'فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد آزمایشی',
             'volume_number' => 1, 'library_id' => $majlis->id]);
 
+        // A Majlis copy on the Senate's volume that cites the Majlis short catalogue goes to that catalogue
+        $short = $this->volumes[] = DB::table('catalog_volumes')->insertGetId(['title' => 'فهرست مختصر نسخه های خطی کتابخانه مجلس شورای اسلامی - آزمایشی',
+            'volume_number' => 1, 'library_id' => $majlis->id]);
+        $mislinked = $this->copy($majlis->id, '914546/4', '[مختصر ف: - 212]');
+        DB::table('manuscripts')->where('id', $mislinked)->update(['catalog_volume_id' => $volume]);
+
         $this->artisan('fahares:split-senate-library')->expectsOutputToContain('Dry run: nothing written.')->assertSuccessful();
         $this->assertNull(SenateLibrary::find());
 
@@ -89,6 +95,7 @@ class SplitSenateLibraryTest extends TestCase
         $this->assertSame($majlis->id, (int) $row($reviewed)->library_id);
         $this->assertSame($senate->id, (int) DB::table('catalog_volumes')->where('id', $volume)->value('library_id'));
         $this->assertSame(4, (int) $senate->fresh()->manuscripts_count);
+        $this->assertSame([$majlis->id, $short], [(int) $row($mislinked)->library_id, (int) $row($mislinked)->catalog_volume_id]);
         // The corpus commands put a new Senate copy under its library, and leave a Majlis one alone
         $this->assertSame($senate->id, SenateLibrary::libraryFor($majlis->id, 'تهران؛ مجلس؛ شماره نسخه: 1 [سنا: ف: 1-9]'));
         $this->assertSame($majlis->id, SenateLibrary::libraryFor($majlis->id, 'تهران؛ مجلس؛ شماره نسخه: 1 [ف: 1-9]'));
