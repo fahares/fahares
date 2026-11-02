@@ -6128,3 +6128,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
 - **داده:** [library_duplicates_step13_144.json](../database/data/library_duplicates_step13_144.json): `asfhan-aalamh-rodaty-ktabkhanh-283` ← `asfhan-rodaty-syd-mhmd-aaly-100`. اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_144.json`. هیچ منبع یا جلدی کتابخانه‌ی ۲۸۳ را نداشت.
 - **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۴۲):** ۴۰۶ ← ۴۰۵ کتابخانه؛ یک ردیف `merge` در `audit_logs`. `LibraryMerger::undoMerge` سنجه‌ی `crc32` جدول‌های گام ۱۳.۱۴۲ را دقیقاً برگرداند. سپس دستور دوباره اجرا شد و همان سنجه‌ی اجرای اول را داد.
+
+### گام ۱۳.۱۴۵: `sources:link-dharia-holdings` و `sources:link-dharia-subjects`
+- **دستورها:** `sources:link-dharia-holdings [--volume=N] [--sample=FILE --per-kind=50] [--dry-run]` ([LinkDhariaHoldingsCommand.php](../app/Console/Commands/LinkDhariaHoldingsCommand.php)) و `sources:link-dharia-subjects` با همین گزینه‌ها ([LinkDhariaSubjectsCommand.php](../app/Console/Commands/LinkDhariaSubjectsCommand.php)). دستور موضوع زیرکلاس دستور کتابخانه است و این‌ها را بازتعریف می‌کند: `KINDS`، `TARGET`، `targets()`، `label()` و `target()`.
+- **کلید (`key()`):** حروف یکسان می‌شوند (`LinkDhariaPeopleCommand::plain`). نشانه‌ها و شماره‌ها و «ال» آغاز هر واژه برداشته می‌شوند. واژه‌های `DROP` هم کنار می‌روند: مکتبه، کتابخانه، فی، و نام‌های شهر مانند طهران و بطهران و بخراسان. نمونه: «بطهران (إلهيات: 806/1 د)» کلید «هیات» می‌شود.
+  - نشانه‌ای پیوند می‌گیرد که کلیدش دقیقاً کلید یکی از شکل‌های فهرست باشد.
+- **فهرست‌ها:**
+  - `LIBRARIES` شکل را به (شهر، نام) کتابخانه می‌برد.
+  - `SUBJECTS` شکل را به نام موضوع می‌برد.
+  - شناسه‌ها هنگام اجرا از روی نام پیدا می‌شوند، چون شناسه‌های محلی با پروداکشن یکی نیستند.
+- **نمایش:** `PrintedPage::linked()` کلاس‌های `library` و `subject` را می‌شناسد. عنوان پیوند «کتابخانه‌ی مجلس، تهران (پیوند ماشینی)» یا «موضوع: اصول فقه (پیوند ماشینی)» است.
+- **برگشت:** `DELETE FROM source_page_links WHERE target_type IN ('App\\Models\\Library', 'App\\Models\\Subject')`.
+- **آزمون:** [LinkDhariaHoldingsTest](../tests/Feature/LinkDhariaHoldingsTest.php) با دو آزمون.
