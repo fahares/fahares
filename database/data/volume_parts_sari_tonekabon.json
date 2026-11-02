@@ -1,0 +1,53 @@
+{
+ "_comment": "Step 14.4 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 7): the parts of «نگاهی به نسخه های خطی کتابخانه های عمومی ساری و تنکابن» (Zein al-Abedin Dargahi and Mahmoud Fazel, Rasanesh, 1383). Parts from Fankha's table; the catalogue, of several libraries, is of none. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_sari_tonekabon.json",
+ "source": "catalogue-4a5961f3f025",
+ "series": "عمومی ساری و تنکابن",
+ "aliases": [
+  "عمومی ساری و تنکابن - ف"
+ ],
+ "volume_title": "نگاهی به نسخه های خطی کتابخانه های عمومی ساری و تنکابن - جلد %d",
+ "library": null,
+ "editors": [],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "sary-aamomy-6",
+   "title": "کتابخانه‌های عمومی ساری",
+   "pages": [
+    15,
+    140
+   ],
+   "catalogers": [
+    {
+     "name": "زین‌العابدین درگاهی",
+     "mtif": 37492
+    },
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "fankha_row": 289
+  },
+  {
+   "daftar": 1,
+   "library": "tnkabn-aamomy-379",
+   "title": "کتابخانه‌های عمومی تنکابن",
+   "pages": [
+    141,
+    184
+   ],
+   "catalogers": [
+    {
+     "name": "زین‌العابدین درگاهی",
+     "mtif": 37492
+    },
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "fankha_row": 76
+  }
+ ]
+}

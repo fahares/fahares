@@ -25,6 +25,7 @@ use Illuminate\Support\Str;
  *    132», or «132-5» as the print sets it right to left) goes to that volume.
  *  - «create»: the catalogue, when the registry has it not, is made with its volumes (source, catalog volume and
  *    source volume under one id), and its revert removes it.
+ *  - «library»: null makes the catalogue and its volumes of no library.
  *  - «editors» are the people of every volume (supervisor); «parts» are made with their library, pages and catalogers,
  *    a cataloger found by MTIF id or name, made when the registry has none. Each copy then takes its part
  *    (CatalogVolumePart::assign); counts are taken again.
@@ -90,7 +91,11 @@ class ImportVolumePartsCommand extends Command
         $numbers = array_merge(DB::table('source_volumes')->where('source_id', $sourceId)->pluck('volume_number')->all(), array_keys($folds['volumes']), array_keys($folds['virtual'] ?? []));
         $catalogers = $this->catalogers(false, $numbers);
         $editors = $this->editorsToSet($sourceId, $folds);
-        if (! $create && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
+        $unlibrary = $source && array_key_exists('library', $this->data) && $this->data['library'] === null && $source->library_id !== null;
+        if ($unlibrary) {
+            $this->line(sprintf('  «%s» of no library (was #%d)', $source->title, $source->library_id));
+        }
+        if (! $create && ! $unlibrary && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
             $this->info('Nothing to do.');
 
             return self::SUCCESS;
@@ -234,7 +239,8 @@ class ImportVolumePartsCommand extends Command
     private function moves(int $sourceId, array $folds, bool $report = true): array
     {
         $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->map(fn ($id) => (int) $id)->all() + $folds['volumes'] + ($folds['virtual'] ?? []);
-        $numbers = array_map('intval', array_keys($have));
+        // a volume without a number («فهرست نسخه های خطی کتابخانه مدرسه رضویه قم» beside «آشنایی …»'s volume 1) is no volume to cite
+        $numbers = array_values(array_filter(array_map('intval', array_keys($have)), fn ($n) => $n > 0));
         $on = array_merge(array_values($have), $folds['all']);
         $moves = [];
         $counts = [];
@@ -391,6 +397,12 @@ class ImportVolumePartsCommand extends Command
     /** @return array<int, int> volume number => volume id */
     private function writeVolumes(int $sourceId, array $folds): array
     {
+        // a catalogue of several libraries is of none of them
+        if (array_key_exists('library', $this->data) && $this->data['library'] === null) {
+            DB::table('sources')->where('id', $sourceId)->whereNotNull('library_id')->update(['library_id' => null,
+                'metadata' => json_encode(['group' => 'catalogue||' . DB::table('sources')->where('id', $sourceId)->value('title')], JSON_UNESCAPED_UNICODE), 'updated_at' => now()]);
+            DB::table('catalog_volumes')->whereIn('id', DB::table('source_volumes')->where('source_id', $sourceId)->select('id'))->update(['library_id' => null]);
+        }
         foreach ($folds['volumes'] as $number => $id) {
             $values = ['volume_number' => $number, 'title' => sprintf($this->data['volume_title'], $number), 'citation_pattern' => $this->series() . ': ' . $number];
             DB::table('source_volumes')->where('id', $id)->update($values + ['source_id' => $sourceId, 'updated_at' => now()]);

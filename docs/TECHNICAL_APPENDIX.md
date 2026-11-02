@@ -6711,3 +6711,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. «نشریه»، «اوراق عتیق»، «چهار کتابخانه مشهد»، «میراث» و «دلیل» «Nothing to do» ماندند.
   - پشتیبان: `…/step14.3_import_volume_parts_se_ketabkhaneh_local_before_20261103.json`.
 - **پروداکشن (پس از انتشار):** `catalogs:merge-duplicates --data=…step14_3.json`، سپس `catalogs:import-volume-parts --data=…se_ketabkhaneh_isfahan.json`.
+
+### گام ۱۴.۴: چهار کتاب با `catalogs:import-volume-parts`
+- **داده:**
+  - [library_duplicates_step14_4.json](../database/data/library_duplicates_step14_4.json): `kayn-frhng-o-arshad-aslamy-kayn-367` ← `kayn-frhng-o-arshad-920`.
+  - [volume_parts_ashnaei.json](../database/data/volume_parts_ashnaei.json): `catalogue-87e2efc29ff5`، سری «چند نسخه»، `keep` روی `catalogue-ae0847c98256`؛ ردیف‌های ۴۲۰، ۴۲۲، ۴۲۱، ۲۱۴ (چهل ستون، ۳۰۷–۳۸۸ از روی نسخه‌ها) و ۴۲۳.
+  - [volume_parts_qaen.json](../database/data/volume_parts_qaen.json): `catalogue-b8b04018f0ee`؛ ردیف‌های ۳۳۷، ۳۴۰ و ۳۴۱.
+  - [volume_parts_zahan.json](../database/data/volume_parts_zahan.json): `catalogue-0ebd9778cea8`؛ ردیف‌های ۳۳۹ و ۳۴۲.
+  - [volume_parts_sari_tonekabon.json](../database/data/volume_parts_sari_tonekabon.json): `catalogue-4a5961f3f025`؛ ردیف‌های ۲۸۹ و ۷۶.
+  - هر چهار `library: null` و `editors: []` دارند. فهرست‌نگارانی که پیش‌تر روی جلد بودند، فهرست‌نگار بخش‌ها شدند.
+- **تغییر دستور:**
+  - `library: null` در `writeVolumes`: `sources.library_id` و `catalog_volumes.library_id` تهی می‌شوند و `group` به «catalogue||عنوان» تغییر می‌کند. پشتیبان ردیف کامل منبع و جلدها را دارد.
+  - `moves()`: شماره‌ی جلدهای بی‌شماره (۰) در `$numbers` نیست، پس قاعده‌ی کتاب یک‌جلدی برای «آشنایی» هم کار می‌کند.
+- **تمرین (`fahares_prod` محلی، پس از ۱۴.۳):**
+  - ۳۷۶ ← ۳۷۵ کتابخانه.
+  - «آشنایی» ۴۰۰ نسخه (#539 ← ۳۹۹)، «قائن» ۷۷، «زهان» ۵۱ و «ساری و تنکابن» ۲۶.
+  - بخش‌ها: رضویه ۱۴۸، لاجوردی ۵۴، زنجانی ۲۳۱، چهل ستون ۳۹۶، روحانی ۲۰؛ جعفریه قائن ۲۸۱، امام ۶۱، فرهنگ و ارشاد ۱۴؛ جعفریه زهان ۱۸۲، قهستانی ۴۸؛ ساری ۲۵۰، تنکابن ۲۵.
+  - هر چهار: اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. داده‌های پیشین هم «Nothing to do» ماندند.
+  - پشتیبان‌ها: `fahares-sources/backups/step13/step14.4_import_volume_parts_{ashnaei,qaen,zahan,sari_tonekabon}_local_before_20261103.json`.

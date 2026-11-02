@@ -1,0 +1,45 @@
+{
+ "_comment": "Step 14.4 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 7): the parts of «فهرست نسخه های خطی کتابخانه مدرسه جعفریه (زهان)» (Sayyed Ja'far Hosseini Eshkevari, 1383), with Sayyed Ma'sum Qahestani's library (pp. 109-152), whose copies cite it by name. Parts from Fankha's table; the catalogue, of several libraries, is of none. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_zahan.json",
+ "source": "catalogue-0ebd9778cea8",
+ "series": "مدرسه جعفریه زهان",
+ "aliases": [
+  "مدرسه جعفریه زهان - ف"
+ ],
+ "volume_title": "فهرست نسخه های خطی کتابخانه مدرسه جعفریه (زهان) - جلد %d",
+ "library": null,
+ "editors": [],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "zhan-mdrsh-gaafryh-zhan-121",
+   "title": "مدرسه جعفریه زهان",
+   "pages": [
+    7,
+    109
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 339
+  },
+  {
+   "daftar": 1,
+   "library": "kayn-hsyny-khstany-198",
+   "title": "کتابخانه سید معصوم قهستانی",
+   "pages": [
+    109,
+    152
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 342
+  }
+ ]
+}

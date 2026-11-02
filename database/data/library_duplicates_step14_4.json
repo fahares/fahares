@@ -1,0 +1,13 @@
+{
+ "_comment": "Step 14.4: «فرهنگ و ارشاد اسلامی قائن» is «فرهنگ و ارشاد» of Qaen, both cited on pages 211-221 of «کتابخانه‌های قائن». Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step14_4.json",
+ "libraries": [
+  {
+   "target": "kayn-frhng-o-arshad-920",
+   "sources": [
+    {
+     "slug": "kayn-frhng-o-arshad-aslamy-kayn-367"
+    }
+   ]
+  }
+ ]
+}

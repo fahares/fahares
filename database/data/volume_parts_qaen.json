@@ -1,0 +1,61 @@
+{
+ "_comment": "Step 14.4 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 7): the parts of «فهرست نسخه های خطی کتابخانه های قائن» (Sayyed Ja'far Hosseini Eshkevari, Majma'-e Zakha'er-e Eslami, 1381). Parts from Fankha's table; the catalogue, of several libraries, is of none. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_qaen.json",
+ "source": "catalogue-b8b04018f0ee",
+ "series": "کتابخانه‌های قائن",
+ "aliases": [
+  "کتابخانه‌های قائن - ف"
+ ],
+ "volume_title": "فهرست نسخه های خطی کتابخانه های قائن - جلد %d",
+ "library": null,
+ "editors": [],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "kayn-mdrsh-gaafryh-101",
+   "title": "کتابخانه مدرسه جعفریه",
+   "pages": [
+    9,
+    173
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 337
+  },
+  {
+   "daftar": 1,
+   "library": "kayn-amam-syd-hsn-139",
+   "title": "کتابخانه سید حسن امام",
+   "pages": [
+    177,
+    207
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 340
+  },
+  {
+   "daftar": 1,
+   "library": "kayn-frhng-o-arshad-920",
+   "title": "کتابخانه اداره فرهنگ و ارشاد اسلامی (دکتر بهشتی)",
+   "pages": [
+    211,
+    221
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 341
+  }
+ ]
+}

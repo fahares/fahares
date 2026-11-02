@@ -1,0 +1,103 @@
+{
+ "_comment": "Step 14.4 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 7): the parts of «آشنایی با چند نسخه خطی» (Reza Ostadi and Sayyed Hossein Modarresi Tabataba'i, Qom, 1396 AH), cited «چند نسخه - ف: P». Its Chehel Sotun copies were on Tehran University's catalogue of microfilms. Chehel Sotun's pages (307-388) are those its copies cite. Parts from Fankha's table; the catalogue, of several libraries, is of none. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_ashnaei.json",
+ "source": "catalogue-87e2efc29ff5",
+ "series": "چند نسخه",
+ "aliases": [
+  "چند نسخه - ف"
+ ],
+ "volume_title": "آشنایی با چند نسخه خطی - دفتر %d",
+ "library": null,
+ "folds": [
+  {
+   "code": "catalogue-ae0847c98256",
+   "keep": true
+  }
+ ],
+ "editors": [],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "km-mdrsh-rdoyh-140",
+   "title": "کتابخانه مدرسه رضویه قم",
+   "pages": [
+    3,
+    61
+   ],
+   "catalogers": [
+    {
+     "name": "سید حسین مدرسی طباطبائی",
+     "mtif": 37240
+    }
+   ],
+   "fankha_row": 420
+  },
+  {
+   "daftar": 1,
+   "library": "km-lagordy-syd-mhdy-131",
+   "title": "کتابخانه شخصی سید مهدی لاجوردی",
+   "pages": [
+    105,
+    116
+   ],
+   "catalogers": [
+    {
+     "name": "سید حسین مدرسی طباطبائی",
+     "mtif": 37240
+    }
+   ],
+   "fankha_row": 422
+  },
+  {
+   "daftar": 1,
+   "library": "km-zngany-ayh-allh-95",
+   "title": "کتابخانه شخصی آیت الله زنجانی",
+   "pages": [
+    189,
+    249
+   ],
+   "catalogers": [
+    {
+     "name": "سید حسین مدرسی طباطبائی",
+     "mtif": 37240
+    }
+   ],
+   "fankha_row": 421
+  },
+  {
+   "daftar": 1,
+   "library": "thran-chhl-ston-79",
+   "title": "کتابخانه مدرسه چهل ستون",
+   "pages": [
+    307,
+    388
+   ],
+   "catalogers": [
+    {
+     "name": "رضا استادی",
+     "mtif": 37206
+    },
+    {
+     "name": "سید حسین مدرسی طباطبائی",
+     "mtif": 37240
+    }
+   ],
+   "fankha_row": 214
+  },
+  {
+   "daftar": 1,
+   "library": "km-rohany-mhdy-282",
+   "title": "کتابخانه شخصی مهدی روحانی",
+   "pages": [
+    445,
+    448
+   ],
+   "catalogers": [
+    {
+     "name": "سید حسین مدرسی طباطبائی",
+     "mtif": 37240
+    }
+   ],
+   "fankha_row": 423
+  }
+ ]
+}
