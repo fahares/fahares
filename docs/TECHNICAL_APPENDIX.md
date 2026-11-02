@@ -6380,6 +6380,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `lines_not_among_them` ۸۱
 
   اجرای دوم `changed 0` داد و `refresh-derived` نیز `line_counts 0`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `b5e5228` و migration در batch 59):** با `scripts/dev/prod-run`. خروجی همان `changed 199915` بود، با `one_count` ۱۸۹٬۳۹۸، `varying` ۶٬۸۹۱، `several_layouts` ۳٬۶۱۷، `wording_only` ۹ و `lines_not_among_them` ۸۱. اجرای دوم `changed` نداشت. صفحه‌ی `/m/10297` اکنون «۹ و ۱۰ سطر» را نشان می‌دهد.
 - **آزمون‌ها:** `Tests\Unit\CopyLinesTest` (۲ آزمون) و `FillLineCountsCommandTest`.
 ### گام ۱۳.۱۵۸: بازبستن نسخه‌های «مختصر ف» از جلد سنا
 - **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
