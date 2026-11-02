@@ -3780,8 +3780,9 @@ PHP 8.3 و Laravel 13، پایگاه داده‌ی MariaDB، موتور جستج
 - **پروداکشن:** پس از انتشار، با اجازه‌ی کاربر و از راه `prod-run`:
   1. `fahares:rebuild-copies --file=database/data/fankha_shelfmark_rebuild_20261102b.json --apply`
   2. `fahares:split-senate-library --apply`
-  3. `fahares:fill-collection-keys --apply`، برای گام‌های ۱۳.۱۵۴ و ۱۳.۱۵۸
-  4. `fahares:build-insights`
+  3. `fahares:build-insights`
+
+  `fill-collection-keys` جداگانه لازم نیست: `rebuild-copies` کلید نسخه‌هایی را که اصلاح می‌کند خودش می‌نویسد، و جابه‌جایی جلد کلید را تغییر نمی‌دهد.
 
 جزئیات فنی هر گام، مانند نام فایل‌ها، دستورها، آمار ریز و شناسه‌ی کامیت‌ها، در [پیوست فنی](TECHNICAL_APPENDIX.md) زیر همان شماره‌ی گام ثبت می‌شود.
 
