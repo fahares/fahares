@@ -141,7 +141,7 @@ class ApplyCorpusCategoriesCommand extends Command
     {
         $raw = DB::table('manuscripts')->where('id', $rec['id'])->value('metadata');
         $meta = json_decode($raw ?? 'null', true) ?: [];
-        // the explicit's tail, the incipit's (step 13.164) or the copy date's (13.174), and the metadata list the
+        // the explicit's tail, the incipit's (step 13.164) or the copy date's (14.2), and the metadata list the
         // first two are shown from; a date has none
         [$column, $list] = self::tailList($rec);
         $from = trim((string) $rec['changes'][$column]['from']);

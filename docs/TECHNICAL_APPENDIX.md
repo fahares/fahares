@@ -6680,7 +6680,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - توکن قدیمی اکنون 401 می‌گیرد. توکن تازه `getMe` را پاس کرد.
   - `getFile` روی تکه‌ی نخست و آخر `fahares-db-20261101-033001` با توکن تازه موفق بود و اندازه‌ها با manifest برابر بود. پس `file_id`های آرشیو با عوض شدن توکن معتبر ماندند.
 
-### گام ۱۳.۱۷۴: `date_tail` و `date_note`
+### گام ۱۴.۲: `date_tail` و `date_note`
 - **صدور (پیکره):** `fankha_v2_apply_export.py date_tail`. ورودی ردیف‌های `copy_date_raw/trimmed` از review7 است. دنباله، `db` منهای `v2` است، با `strip(' ،,')`.
   - **کنار می‌رود:**
     - دنباله‌ی کوتاه‌تر از ۴ حرف، یا فقط «؟».
