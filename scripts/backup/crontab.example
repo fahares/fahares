@@ -1,16 +1,17 @@
 # Install with: crontab -e   (as the backup user on the host)
 # Times are Asia/Tehran if the host TZ is set to it; check with `timedatectl`.
+# Keep restic jobs off :00/:30 local (the top of the UTC hour): Google Drive rate-limits rclone hardest then.
 SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin
 LOG=/var/backups/fahares/backup.log
 
 # Daily database backup -> Telegram + Google Drive
-30 3 * * *  /usr/local/bin/fahares-backup.sh db     >>$LOG 2>&1
+47 3 * * *  /usr/local/bin/fahares-backup.sh db     >>$LOG 2>&1
 # Weekly media (page images) + restic prune, Friday
-30 4 * * 5  /usr/local/bin/fahares-backup.sh media  >>$LOG 2>&1
+52 4 * * 5  /usr/local/bin/fahares-backup.sh media  >>$LOG 2>&1
 # Weekly configuration/secrets, Friday
 15 4 * * 5  /usr/local/bin/fahares-backup.sh config >>$LOG 2>&1
 # Daily check that the last DB backup is recent and OK; alerts on Telegram otherwise
 0 10 * * *  /usr/local/bin/fahares-backup.sh watch  >>$LOG 2>&1
 # Monthly integrity check of the Drive repository, 1st of the month
-30 5 1 * *  /usr/local/bin/fahares-backup.sh verify >>$LOG 2>&1
+43 5 1 * *  /usr/local/bin/fahares-backup.sh verify >>$LOG 2>&1
