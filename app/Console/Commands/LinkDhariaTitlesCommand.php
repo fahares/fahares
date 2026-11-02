@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\DB;
  * «لتجريد العقائد») is read without it when it names nothing as it is. Left unlinked: a title of one short word or a
  * common one («الرسالة», «الحاشية»), a source's sign («تش»), and an entry on the mark's own page (the entry itself).
  *
+ * A title with no reference after it is told by its author (step 13.157, «+author»): of the entries of that title, the
+ * one whose author (the SB mark after its heading) shares two words or more, not common ones, with the name the text
+ * gives the work: the name right after the title («غرة الكمال للأمير خسرو الدهلوي»), or for the author's other work
+ * (TB: «و له …», «مر للمؤلف …») the author of the entry it is in.
+ *
  * The links go to source_page_links (one row a mark), made again on every run but for those an editor rejected; only
  * the ENABLED kinds and methods are saved.
  */
@@ -28,10 +33,24 @@ class LinkDhariaTitlesCommand extends Command
 
     /**
      * The kinds and methods whose links are saved: those a hand check found right in 49 of 50 or more (step 13.129: VB
-     * by a page reference, 50 of 50). A title alone, one entry's though it is, names another work of that name in about
-     * one link in five (TB 44, EB 40, WB 38, CB 34 of 50), so those are counted and sampled (--all saves them) only.
+     * by a page reference, 50 of 50; step 13.157: a title told by its author, TB 50 of 50, WB 40 of 40, EB 49 of 50 and
+     * the one wrong a name of the next entry, which the name's rule now leaves out, CB 5 of 5). A
+     * title alone, one entry's though it is, names another work of that name in about one link in five (TB 44, EB 40,
+     * WB 38, CB 34 of 50), so those are counted and sampled (--all saves them) only.
      */
-    public const ENABLED = ['VB' => ['ref+part']];
+    public const ENABLED = ['VB' => ['ref+part'], ...self::BY_AUTHOR];
+
+    private const BY_AUTHOR = [
+        'TB' => ['title+author', 'title-prefix+author', 'several+author'], 'WB' => ['title+author', 'title-prefix+author', 'several+author'],
+        'EB' => ['title+author', 'title-prefix+author', 'several+author'], 'CB' => ['title+author', 'title-prefix+author', 'several+author'],
+        'HB' => ['title+author', 'title-prefix+author', 'several+author'],
+    ];
+
+    /** Words of a name too common to tell two authors apart (as LinkDhariaPeopleCommand::words() writes them). */
+    private const NAME_COMMON = ['بن', 'ابن', 'ابو', 'ابی', 'ابا', 'محمد', 'علی', 'حسن', 'حسین', 'احمد', 'عبد', 'دین', 'جعفر', 'ابراهیم', 'باقر',
+        'تقی', 'مهدی', 'قاسم', 'محمود', 'یوسف', 'عباس', 'رضا', 'صالح', 'هادی', 'موسی', 'کاظم', 'اسماعیل', 'متوفی', 'مولود', 'معاصر', 'مذکور',
+        'فاضل', 'عالم', 'جلیل', 'سید', 'شیخ', 'مولی', 'علامه', 'حاج', 'میرزا', 'فقیه', 'حکیم', 'نزیل', 'ساکن', 'مدرس', 'شاعر', 'ادیب', 'امیر',
+        'قاضی', 'له', 'هو', 'فی', 'سنه'];
 
     /** One-word titles too common to name one work. */
     private const COMMON = ['رساله', 'حاشیه', 'شرح', 'دیوان', 'تعلیقه', 'تعلیقات', 'کتاب', 'منتخب', 'مجموعه', 'فهرست', 'تفسیر', 'اجازه',
@@ -72,21 +91,36 @@ class LinkDhariaTitlesCommand extends Command
             }
         }
 
-        $pages = DB::table('source_pages')->join('source_volumes', 'source_volumes.id', '=', 'source_pages.source_volume_id')
+        $pages = fn (bool $all = false) => DB::table('source_pages')->join('source_volumes', 'source_volumes.id', '=', 'source_pages.source_volume_id')
             ->where('source_volumes.source_id', $source->id)
-            ->when($this->option('volume'), fn ($q, $v) => $q->where('source_volumes.volume_number', $v))
+            ->when(! $all && $this->option('volume'), fn ($q) => $q->where('source_volumes.volume_number', $this->option('volume')))
             ->orderBy('source_volumes.volume_number')->orderBy('source_pages.page')
             ->select('source_pages.id', 'source_pages.page', 'source_pages.text', 'source_volumes.volume_number');
 
+        // each entry's author, the SB mark after its heading, for telling the entries of one title apart
+        $authors = [];
+        if (array_diff($kinds, ['VB'])) {
+            $pages(true)->chunk(500, function ($chunk) use ($byPage, &$authors) {
+                foreach ($chunk as $page) {
+                    $authors += self::entryAuthors($page, $byPage);
+                }
+            });
+        }
+
         $links = [];
         $count = [];
-        $pages->chunk(500, function ($chunk) use ($kinds, $byTitle, $byPage, &$links, &$count) {
+        $pages()->chunk(500, function ($chunk) use ($kinds, $byTitle, $byPage, $authors, &$links, &$count) {
             foreach ($chunk as $page) {
-                foreach (self::marksOf($page->text) as $mark) {
+                $marks = self::marksOf($page->text);
+                foreach ($marks as $n => $mark) {
                     if (! in_array($mark['kind'], $kinds, true)) {
                         continue;
                     }
                     [$item, $method] = self::match($mark, $byTitle, $page, $byPage);
+                    if (in_array($method, ['title', 'title-prefix', 'several'], true) && $authors
+                        && ($byAuthor = self::byAuthor($mark, $marks, $n, self::candidates($mark, $byTitle, $page), $authors))) {
+                        [$item, $method] = [$byAuthor, $method . '+author'];
+                    }
                     $count[$mark['kind']][$method] = ($count[$mark['kind']][$method] ?? 0) + 1;
                     if ($item) {
                         $links[] = ['page' => $page, 'mark' => $mark, 'item' => $item, 'method' => $method];
@@ -216,6 +250,77 @@ class LinkDhariaTitlesCommand extends Command
         }
 
         return [$item, $method];
+    }
+
+    /** The entries a title mark may name, but those on the mark's own page (the entry itself), by id. */
+    public static function candidates(array $mark, array $byTitle, object $page): array
+    {
+        $title = preg_replace('/^[\s()\[\]«»"\'،,.:؛]+|[\s()\[\]«»"\'،,.:؛]+$/u', '', $mark['text']);
+        $found = self::named($title, $byTitle);
+        if (! $found && preg_match('/^[بلك]\x{200D}?\s*(\p{L}.{2,})$/u', $title, $m)) {
+            $found = self::named($m[1], $byTitle);
+        }
+
+        return array_filter($found, fn ($i) => ! ($i->volume_number === (int) $page->volume_number && $i->page_start <= $page->page && $i->page_end >= $page->page));
+    }
+
+    /**
+     * The authors of the entries that start on a page: the first SB mark after each entry's heading «( 1345 : title )»,
+     * by entry id.
+     *
+     * @return array<int, string>
+     */
+    public static function entryAuthors(object $page, array $byPage): array
+    {
+        $here = array_filter($byPage[$page->volume_number][$page->page] ?? [], fn ($i) => $i->page_start === (int) $page->page);
+        $authors = [];
+        foreach ($here ? self::marksOf($page->text) : [] as $m) {
+            if ($m['kind'] !== 'SB' || ! preg_match('/\(\s*(?:\d+\s*:\s*)?([^()]{2,120})\)[^()]{0,60}$/u', $m['before'], $h)) {
+                continue;
+            }
+            $keys = self::keys($h[1]);
+            foreach ($here as $id => $i) {
+                if (! isset($authors[$id]) && array_intersect($keys, self::keys($i->title))) {
+                    $authors[$id] = $m['text'];
+                }
+            }
+        }
+
+        return $authors;
+    }
+
+    /**
+     * Of a title's entries, the one its author names (see the class): the name right after the mark (the next mark, a
+     * person's, within 30 letters and no parenthesis or full stop between: «… للأمير خسرو الدهلوي»), or for TB the
+     * author of the entry the mark is in (the last
+     * SB before it on the page). Null when none or more than one shares two words or more with the name.
+     */
+    public static function byAuthor(array $mark, array $marks, int $n, array $candidates, array $authors): ?SourceItem
+    {
+        $name = null;
+        if ($mark['kind'] === 'TB') {
+            foreach (array_slice($marks, 0, $n) as $o) {
+                $name = $o['kind'] === 'SB' ? $o['text'] : $name;
+            }
+        } elseif (($next = $marks[$n + 1] ?? null) && in_array($next['kind'], ['SB', 'FB'], true)) {
+            // only words between, no other entry's heading «( 2022 : كتاب الأدعية )» and no sentence's end
+            $between = trim(\App\Support\PageMarks::strip(mb_scrub(explode("\u{E020}", $mark['after_raw'])[0])));
+            $name = mb_strlen($between) <= 30 && ! preg_match('/[().]/u', $between) ? $next['text'] : null;
+        }
+        if ($name === null || ! $candidates) {
+            return null;
+        }
+        $words = self::nameWords($name);
+        $hits = array_filter($candidates, fn ($i) => isset($authors[$i->id]) && count(array_intersect($words, self::nameWords($authors[$i->id]))) >= 2);
+
+        return count($hits) === 1 ? reset($hits) : null;
+    }
+
+    /** A name's words that tell one author from another: not common ones, nor numbers. */
+    private static function nameWords(string $name): array
+    {
+        return array_values(array_unique(array_filter(LinkDhariaPeopleCommand::words($name),
+            fn ($w) => mb_strlen($w) > 2 && ! in_array($w, self::NAME_COMMON, true) && ! preg_match('/^\d/u', $w))));
     }
 
     /** The entries whose title (a key of it) is the mark's, by id. */
