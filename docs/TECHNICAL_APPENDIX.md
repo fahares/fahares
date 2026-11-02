@@ -6137,3 +6137,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `php artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):` درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
 - **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
 - **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
+
+### گام ۱۳.۱۵۰: `catalog_volume_parts` و `Cataloger::recount`
+- **migration:** [2026_11_03_100001_create_catalog_volume_parts_tables](../database/migrations/2026_11_03_100001_create_catalog_volume_parts_tables.php):
+  - `catalog_volume_parts` (`catalog_volume_id` cascade، `library_id` nullOnDelete، `title`، `page_first`/`page_last`، `sort`، `manuscripts_count`، `metadata`)؛
+  - `catalog_volume_part_cataloger` (یکتا روی بخش، فهرست‌نگار و نقش)؛
+  - `manuscripts.catalog_volume_part_id` (nullOnDelete)؛ `catalogers.supervised_count`.
+  - روی `fahares_prod` محلی (۳۲۴٬۵۵۴ نسخه) ۳۶ ثانیه طول کشید، به خاطر ALTER جدول نسخه‌ها.
+- **مدل:** [CatalogVolumePart](../app/Models/CatalogVolumePart.php):
+  - `choose(parts, library, page)` بخش را با قاعده‌های بند ۳ طرح پیدا می‌کند: یک بخشِ کتابخانه؛ از چند بخش، آن که صفحه را دارد؛ وگرنه تنها بخشی که صفحه را دارد (`by_page`).
+  - `assign(ids)`: صفحه از `page_start` مدخل `fankha_citation` خوانده می‌شود. ستون‌های `catalog_volume_part_id` و `cataloger_id` (نخستین فهرست‌نگار بخش با نقش `cataloger`) با `DB::table` نوشته می‌شوند. نسخه‌ای که بخشش را از دست بدهد، فهرست‌نگار اصلی جلد تازه‌اش را می‌گیرد، به همان ترتیب `CatalogVolume::primaryCataloger`. در پایان `manuscripts_count` بخش‌ها دوباره شمرده می‌شود.
+  - `SourceEntrySync::syncCited` در پایان `assign` را صدا می‌زند. پس ذخیره‌ی نسخه (`HasSourceEntries`، با تغییر `catalog_volume_id` یا `metadata`) و همه‌ی دستورهای جابه‌جایی گام ۱۳ بخش را نگه می‌دارند.
+- **شمارش:** `Cataloger::catalogedCopies()` نسخه‌هایی را می‌دهد که `cataloger_id` او را دارند، یا روی جلدهای بی‌بخش اویند، یا در بخش‌های اویند. `supervisedCopies()` نسخه‌های جلدهای بخش‌دار اوست. `Cataloger::recount(ids)` هر سه ستون را می‌نویسد و `volumes_count` جلدهای بخش‌های او را هم می‌شمارد.
+  - `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` و شمارش‌های تکراری `FixMisnamedIsfahanCatalogues`، `SplitEhyaPhotographic`، `SplitMohaddesArmavi`، `TieOddEhyaCitations`، `FixRowzatiIsfahan` و `SyncCatalogEditions` اکنون `Cataloger::recount` را صدا می‌زنند.
+  - بی‌بخش، نتیجه همان فرمول پیشین است: روی `fahares_prod` محلی، سنجه‌ی `crc32` ستون‌های `volumes_count` و `manuscripts_count` پس از migration و `catalogs:assign-volume-parts` تغییری نکرد.
+  - پشتیبان دستورهای پیشین `supervised_count` را ندارد. جلدهای آن‌ها بخش ندارند، پس برگرداندنشان این ستون را تغییر نمی‌دهد.
+- **ادغام کتابخانه:** `LibraryMerger::merge` شناسه‌ی بخش‌های کتابخانه‌ی حذف‌شده را در `catalog_volume_part_ids` لاگ نگه می‌دارد و `library_id` آن‌ها را عوض می‌کند. `undoMerge` آن‌ها را برمی‌گرداند.
+- **نمایش:**
+  - `sources/show`: `volumes.parts.catalogers` و `volumes.parts.library`. جلد بخش‌دار «زیر نظر» همه‌ی افراد جلد را دارد و هر بخش یک سطر `data-volume-part`.
+  - `manuscripts/show`: `catalogVolumePart.catalogers`. سطر `data-cataloger-part` بخش و صفحه‌ها را نشان می‌دهد و ویراستاران همه‌ی افراد جلد جز فهرست‌نگار نسخه‌اند. `data-cataloger-coauthors` دیگر فهرست‌نگاران بخش است.
+  - `catalogers/show`: «بخش‌ها» (`data-cataloger-parts`). جلدهای بخش‌ها به «فهرست‌ها» می‌پیوندند و `data-cataloger-supervised` هم هست.
+- **دستور:** [AssignVolumePartsCommand](../app/Console/Commands/AssignVolumePartsCommand.php) (`catalogs:assign-volume-parts`، با `--dry-run` در تراکنشی که برگردانده می‌شود).
+- **آزمون:** [CatalogVolumePartsTest](../tests/Feature/CatalogVolumePartsTest.php):
+  - قاعده‌های `choose`؛
+  - نسخه‌های «نشریه» ۵ با دو بخش، به تفکیک کتابخانه، بیرون از صفحه، `by_page`، بی‌بخش و جلد بی‌بخش؛
+  - شمارش والئی، روضاتی، دانش‌پژوه و افشار، و بیرون رفتن نسخه از جلد؛
+  - سه صفحه، dry-run، و ادغام کتابخانه با برگرداندنش.

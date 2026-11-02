@@ -22,6 +22,7 @@ class ManuscriptController extends Controller
             'work.languages',
             'libraryRecord',
             'catalogVolume.catalogers',
+            'catalogVolumePart.catalogers',
             'scripts',
             ...RecordSources::RELATIONS,
             'fieldSuggestions' => fn($q) => $q->where('status', 'approved'),

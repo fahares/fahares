@@ -43,7 +43,7 @@
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
         <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
             <x-ui.card :framed="true">
-                <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="grid {{ $cataloger->supervised_count ? 'grid-cols-3' : 'grid-cols-2' }} gap-2 text-center">
                     <div>
                         <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->manuscripts_count) }}</div>
                         <div class="text-xs text-muted">نسخه‌ی فهرست‌شده</div>
@@ -52,6 +52,13 @@
                         <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->volumes_count) }}</div>
                         <div class="text-xs text-muted">مجلد فهرست</div>
                     </div>
+                    {{-- the copies of the volumes with parts they edited, apart from those they catalogued (step 13.150) --}}
+                    @if($cataloger->supervised_count)
+                        <div data-cataloger-supervised>
+                            <div class="font-naskh text-2xl font-bold text-cinnabar tabular-nums">{{ Fa::num($cataloger->supervised_count) }}</div>
+                            <div class="text-xs text-muted">نسخه زیر نظر</div>
+                        </div>
+                    @endif
                 </div>
                 @if(! empty($cataloger->metadata['birth_place']) || ! empty($cataloger->metadata['resting_place']) || ! empty($cataloger->metadata['death_place']))
                     <div class="mt-4 pt-3 border-t border-line">
@@ -143,6 +150,19 @@
                             </li>
                         @endforeach
                     </ul>
+                    {{-- the parts of volumes they wrote: one library's catalogue in a volume of several (step 13.150) --}}
+                    @if($parts->isNotEmpty())
+                        <x-ui.section title="بخش‌ها" :count="$parts->count()" class="mt-10">
+                            <ul class="divide-y divide-line border-y border-line" data-cataloger-parts>
+                                @foreach($parts as $part)
+                                    <li class="py-2.5 text-sm" data-cataloger-part>
+                                        <span class="font-bold text-ink">{{ Fa::digits($part->title) }}</span>
+                                        <span class="text-xs text-muted">· {{ Fa::digits($part->volume->title) }}@if($part->pages_text) · {{ Fa::digits($part->pages_text) }}@endif @if($part->manuscripts_count) · {{ Fa::num($part->manuscripts_count) }} نسخه @endif</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </x-ui.section>
+                    @endif
                 @endif
             </div>
 

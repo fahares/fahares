@@ -71,6 +71,12 @@ class CatalogVolume extends Model
         return $this->hasMany(Manuscript::class);
     }
 
+    /** The catalogues of the libraries this volume holds, each with its catalogers (step 13.150). */
+    public function parts(): HasMany
+    {
+        return $this->hasMany(CatalogVolumePart::class)->orderBy('sort')->orderBy('id');
+    }
+
     /** The volume Fankha cites, of which this row is another printing (backlog item 51). */
     public function editionOf(): BelongsTo
     {
