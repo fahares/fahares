@@ -25,7 +25,8 @@ use Illuminate\Support\Str;
  *    132», or «132-5» as the print sets it right to left) goes to that volume.
  *  - «create»: the catalogue, when the registry has it not, is made with its volumes (source, catalog volume and
  *    source volume under one id), and its revert removes it.
- *  - «library»: null makes the catalogue and its volumes of no library.
+ *  - «library»: null makes the catalogue and its volumes of no library; «volumes» gives a volume that has none its
+ *    MTIF record and pages.
  *  - «editors» are the people of every volume (supervisor); «parts» are made with their library, pages and catalogers,
  *    a cataloger found by MTIF id or name, made when the registry has none. Each copy then takes its part
  *    (CatalogVolumePart::assign); counts are taken again.
@@ -91,11 +92,16 @@ class ImportVolumePartsCommand extends Command
         $numbers = array_merge(DB::table('source_volumes')->where('source_id', $sourceId)->pluck('volume_number')->all(), array_keys($folds['volumes']), array_keys($folds['virtual'] ?? []));
         $catalogers = $this->catalogers(false, $numbers);
         $editors = $this->editorsToSet($sourceId, $folds);
+        $records = $source ? collect($this->data['volumes'] ?? [])->filter(fn ($v, $number) => DB::table('source_volumes')->where('source_id', $source->id)
+            ->where('volume_number', $number)->whereNull('mtif_entry_id')->exists())->count() : 0;
+        if ($records) {
+            $this->line(sprintf('  MTIF records to set: %d volumes', $records));
+        }
         $unlibrary = $source && array_key_exists('library', $this->data) && $this->data['library'] === null && $source->library_id !== null;
         if ($unlibrary) {
             $this->line(sprintf('  «%s» of no library (was #%d)', $source->title, $source->library_id));
         }
-        if (! $create && ! $unlibrary && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
+        if (! $create && ! $unlibrary && ! $records && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
             $this->info('Nothing to do.');
 
             return self::SUCCESS;
@@ -409,7 +415,18 @@ class ImportVolumePartsCommand extends Command
             DB::table('catalog_volumes')->where('id', $id)->update($values + ['library_id' => null, 'updated_at' => now()]);
         }
 
-        return DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->map(fn ($id) => (int) $id)->all();
+        $volumes = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->map(fn ($id) => (int) $id)->all();
+        // what a volume lacks that MTIF gives («volumes»: {number: {mtif, pages}}), never over what it has
+        foreach ($this->data['volumes'] ?? [] as $number => $values) {
+            if (isset($volumes[$number])) {
+                foreach (['source_volumes', 'catalog_volumes'] as $table) {
+                    DB::table($table)->where('id', $volumes[$number])->whereNull('mtif_entry_id')->update(['mtif_entry_id' => $values['mtif']]);
+                    DB::table($table)->where('id', $volumes[$number])->whereNull('pages_count')->update(['pages_count' => $values['pages'] ?? null]);
+                }
+            }
+        }
+
+        return $volumes;
     }
 
     /** The folded sources' volumes the catalogue did not take, emptied, go; so do the sources, their codes kept. */

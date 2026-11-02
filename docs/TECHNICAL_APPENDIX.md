@@ -6768,3 +6768,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مسیر در کانتینر:** کانتینر فقط مخزن اصلی را در `/var/www/html` دارد. مسیر checkout نسبت به ریشه‌ی مخزن اصلی (`git rev-parse --git-common-dir/..`) حساب می‌شود و `-w /var/www/html<مسیر>` می‌گیرد. checkout بیرون از مخزن اصلی با کد ۲ رد می‌شود.
 - **اجرای بی‌قفل:** پس از گرفتن قفل، تا وقتی `pgrep -f '[v]endor/phpunit/phpunit/phpunit|[v]endor/bin/phpunit'` چیزی بیابد، هر ۱۵ ثانیه صبر می‌کند. این الگو اجراهای کانتینرهای دیگر را هم که پایگاه جداگانه دارند می‌بیند و برایشان هم صبر می‌کند، که کندتر ولی بی‌خطر است.
 - **آزمون:** دو `--filter=KnownSubjectsTest` هم‌زمان: دومی «waiting for the test lock» نوشت و پس از اولی اجرا شد؛ هر دو ۵ آزمون موفق.
+
+### گام ۱۴.۶: «گلپایگان» و `volumes`
+- **داده:**
+  - [library_duplicates_step14_6.json](../database/data/library_duplicates_step14_6.json): `glpaygan-glpaygany-202` ← `glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72`.
+  - [volume_parts_golpayegan.json](../database/data/volume_parts_golpayegan.json): `catalogue-b6c5efe4811b`، با نام‌های دیگر «… - ف» و «کتابخانه‌های گلپایگانی»، `library: null`؛ ردیف‌های ۴۷۱ تا ۴۷۴ (حسینی اشکوری، MTIF ۳۷۲۶۷).
+  - `volume_parts_nashriyeh.json`: `volumes` برای دفترهای ۲ تا ۱۲ (MTIF ۲۲۵۸۱ تا ۲۲۵۷۱ و صفحه‌ها).
+- **تغییر دستور:** `writeVolumes` برای هر `volumes[n]`، `mtif_entry_id` و `pages_count` جلد را فقط وقتی تهی است می‌نویسد. dry-run «MTIF records to set» را گزارش می‌کند. پشتیبان ردیف کامل جلدها را دارد.
+- **تمرین (`fahares_prod` محلی، پس از ۱۴.۴):**
+  - ۳۷۵ ← ۳۷۴ کتابخانه.
+  - «گلپایگان»: ۱۹۴ نسخه‌ی بی‌جلد جابه‌جا شد. بخش‌ها: حجة الاسلام ۲۶۸، امام جمعه ۱۲۸، مسجد جامع ۴۰ و شهیدی ۵.
+  - «نشریه»: ۱۱ جلد رکورد MTIF گرفت.
+  - هر دو: «Nothing to do» و برگرداندن دقیق.
+  - پشتیبان‌ها: `…/step14.6_import_volume_parts_{golpayegan,nashriyeh}_local_before_20261103.json`.
+- **زنجان:** منبع ۱۰۰۰۸۰، جلد #494، دو نسخه (۸۰۷۵۰ «ف: 1 – 171» و ۲۵۰۷۳۴ «: 1-151»). فهرست‌نگارش صادق حضرتی آشتیانی است (MTIF ۳۸۳۳۸، با آثار ۱۳۶۸ آشتیان، ۸۲۹۳ و ۸۳۱۲). MTIF عنوانی برای امام جمعه‌ی زنجان ندارد.
+- **تراثنا:** فهرست‌نگار منبع‌های ۱۰۰۱۴۶ تا ۱۰۰۱۵۱ با ردیف‌های ۴۲۴، ۴۲۵، ۴۲۶، ۴۶۹، ۵۳۶ و ۵۳۷ یکی است.

@@ -1,5 +1,5 @@
 {
- "_comment": "Step 13.159 (stage 3 of docs/plans/catalog-volume-parts.md), approved by the user (docs/plans/nashriyeh-parts.md): the parts of «نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» from Fankha's table of catalogues, each with the author its description names («زیر نظر X و Y، Z»). Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json",
+ "_comment": "Step 13.159 (stage 3 of docs/plans/catalog-volume-parts.md), approved by the user (docs/plans/nashriyeh-parts.md): the parts of «نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» from Fankha's table of catalogues, each with the author its description names («زیر نظر X و Y، Z»). Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json Step 14.6: the daftars 2-12 take the MTIF records of the printing 11395 and their pages.",
  "source": "catalogue-37ef5a7d7428",
  "series": "نشریه",
  "volume_title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر %d",
@@ -22,6 +22,52 @@
    "mtif": 37279
   }
  ],
+ "volumes": {
+  "2": {
+   "mtif": 22581,
+   "pages": 283
+  },
+  "3": {
+   "mtif": 22580,
+   "pages": 485
+  },
+  "4": {
+   "mtif": 22579,
+   "pages": 694
+  },
+  "5": {
+   "mtif": 22578,
+   "pages": 767
+  },
+  "6": {
+   "mtif": 22577,
+   "pages": 698
+  },
+  "7": {
+   "mtif": 22576,
+   "pages": 811
+  },
+  "8": {
+   "mtif": 22575,
+   "pages": 310
+  },
+  "9": {
+   "mtif": 22574,
+   "pages": 450
+  },
+  "10": {
+   "mtif": 22573,
+   "pages": 407
+  },
+  "11": {
+   "mtif": 22572,
+   "pages": 771
+  },
+  "12": {
+   "mtif": 22571,
+   "pages": 1034
+  }
+ },
  "parts": [
   {
    "daftar": 1,

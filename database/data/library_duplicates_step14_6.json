@@ -1,0 +1,13 @@
+{
+ "_comment": "Step 14.6: «گلپایگانی» of Golpayegan is «کتابخانه حجة الاسلام گلپایگانی», its copies on pages 18-98 of that library's part of «کتابخانه‌های گلپایگان». Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step14_6.json",
+ "libraries": [
+  {
+   "target": "glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72",
+   "sources": [
+    {
+     "slug": "glpaygan-glpaygany-202"
+    }
+   ]
+  }
+ ]
+}

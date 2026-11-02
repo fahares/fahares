@@ -1,0 +1,78 @@
+{
+ "_comment": "Step 14.6 (stage 4 of docs/plans/catalog-volume-parts.md): the parts of «فهرست نسخه‌های خطی کتابخانه‌های گلپایگان» (Sayyed Ja'far Hosseini Eshkevari, Majma'-e Zakha'er-e Eslami, 1381), Fankha's rows 471-474; the catalogue, of four libraries, is of none. Run after library_duplicates_step14_6.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_golpayegan.json",
+ "source": "catalogue-b6c5efe4811b",
+ "series": "کتابخانه‌های گلپایگان",
+ "aliases": [
+  "کتابخانه‌های گلپایگان - ف",
+  "کتابخانه‌های گلپایگانی"
+ ],
+ "volume_title": "فهرست نسخه های خطی کتابخانه های گلپایگان - جلد %d",
+ "library": null,
+ "editors": [],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72",
+   "title": "کتابخانه حجة الاسلام گلپایگانی",
+   "pages": [
+    11,
+    114
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 471
+  },
+  {
+   "daftar": 1,
+   "library": "glpaygan-amam-gmaah-mhmd-hsn-122",
+   "title": "کتابخانه سید محمد حسن امام جمعه",
+   "pages": [
+    115,
+    181
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 472
+  },
+  {
+   "daftar": 1,
+   "library": "glpaygan-msgd-gamaa-glpaygan-269",
+   "title": "کتابخانه مسجد جامع گلپایگان",
+   "pages": [
+    183,
+    205
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 473
+  },
+  {
+   "daftar": 1,
+   "library": "glpaygan-shhydy-hag-akarda-231",
+   "title": "کتابخانه حاج آقا رضا شهیدی",
+   "pages": [
+    207,
+    212
+   ],
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 474
+  }
+ ]
+}
