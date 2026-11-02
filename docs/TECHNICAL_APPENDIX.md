@@ -6178,6 +6178,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** همان آزمون `DerivedDataTest` گسترش یافت: نشانه‌ها و استثناها، سنا، مرکز احیاء و برچسب حاشیه.
 
 
+### گام ۱۳.۱۴۵: `sources:link-dharia-holdings` و `sources:link-dharia-subjects`
+- **دستورها:** `sources:link-dharia-holdings [--volume=N] [--sample=FILE --per-kind=50] [--dry-run]` ([LinkDhariaHoldingsCommand.php](../app/Console/Commands/LinkDhariaHoldingsCommand.php)) و `sources:link-dharia-subjects` با همین گزینه‌ها ([LinkDhariaSubjectsCommand.php](../app/Console/Commands/LinkDhariaSubjectsCommand.php)). دستور موضوع زیرکلاس دستور کتابخانه است و این‌ها را بازتعریف می‌کند: `KINDS`، `TARGET`، `targets()`، `label()` و `target()`.
+- **کلید (`key()`):** حروف یکسان می‌شوند (`LinkDhariaPeopleCommand::plain`). نشانه‌ها و شماره‌ها و «ال» آغاز هر واژه برداشته می‌شوند. واژه‌های `DROP` هم کنار می‌روند: مکتبه، کتابخانه، فی، و نام‌های شهر مانند طهران و بطهران و بخراسان. نمونه: «بطهران (إلهيات: 806/1 د)» کلید «هیات» می‌شود.
+  - نشانه‌ای پیوند می‌گیرد که کلیدش دقیقاً کلید یکی از شکل‌های فهرست باشد.
+- **فهرست‌ها:**
+  - `LIBRARIES` شکل را به (شهر، نام) کتابخانه می‌برد.
+  - `SUBJECTS` شکل را به نام موضوع می‌برد.
+  - شناسه‌ها هنگام اجرا از روی نام پیدا می‌شوند، چون شناسه‌های محلی با پروداکشن یکی نیستند.
+- **نمایش:** `PrintedPage::linked()` کلاس‌های `library` و `subject` را می‌شناسد. عنوان پیوند «کتابخانه‌ی مجلس، تهران (پیوند ماشینی)» یا «موضوع: اصول فقه (پیوند ماشینی)» است.
+- **برگشت:** `DELETE FROM source_page_links WHERE target_type IN ('App\\Models\\Library', 'App\\Models\\Subject')`.
+- **آزمون:** [LinkDhariaHoldingsTest](../tests/Feature/LinkDhariaHoldingsTest.php) با دو آزمون.
 ### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
 - **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `php artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):` درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
