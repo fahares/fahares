@@ -71,13 +71,18 @@ class PrintedPage
 
     /**
      * The page's text with the records its marks link (source_page_links: an al-Dhari'a title to its entry, step
-     * 13.129; a person to his page, step 13.133; a library holding a copy and a subject, step 13.145) written into those marks' kinds, «VB\0url\0title\0entry\0m4», for
-     * openTag(); the last part, the mark's ordinal, is its id, which a person's page links to (step 13.136).
+     * 13.129; a person to his page, step 13.133; a library holding a copy and a subject, step 13.145; the copy itself,
+     * step 13.155) written into those marks' kinds, «VB\0url\0title\0entry\0m4», for openTag(); the last part, the mark's
+     * ordinal, is its id, which a person's page links to (step 13.136). A mark linking a library and a copy links the
+     * copy. Words that are no mark (a shelfmark after a library's mark, a reference to the source itself, step 13.155)
+     * are put in a mark of their own, «ref\0url\0title\0entry\0r812» (r and where they start), while the text there
+     * is still the words linked.
      */
     private static function linked(string $text, int $pageId): string
     {
+        $spans = SourceMentions::hasSpans();
         $links = DB::table('source_page_links')->where('source_page_id', $pageId)->whereNull('rejected_at')
-            ->get(['ordinal', 'kind', 'target_type', 'target_id'])->keyBy('ordinal');
+            ->get(['ordinal', 'kind', 'target_type', 'target_id', ...($spans ? ['offset', 'span'] : [])]);
         if ($links->isEmpty()) {
             return $text;
         }
@@ -87,26 +92,48 @@ class PrintedPage
             \App\Models\Person::class => \App\Models\Person::whereIn('id', $ids(\App\Models\Person::class))->get()->keyBy('id'),
             \App\Models\Library::class => \App\Models\Library::whereIn('id', $ids(\App\Models\Library::class))->get()->keyBy('id'),
             \App\Models\Subject::class => \App\Models\Subject::whereIn('id', $ids(\App\Models\Subject::class))->get()->keyBy('id'),
+            Manuscript::class => Manuscript::with(['work', 'libraryRecord'])->whereIn('id', $ids(Manuscript::class))->get()->keyBy('id'),
+            \App\Models\SourcePage::class => \App\Models\SourcePage::with('volume.source')->whereIn('id', $ids(\App\Models\SourcePage::class))->get()->keyBy('id'),
         ];
+        $record = fn ($link) => ($records[$link->target_type] ?? collect())->get($link->target_id);
+        $target = function ($record): ?array {
+            return match (true) {
+                $record instanceof SourceItem => [$record->url(), ($record->source?->short_name ?: $record->source?->title) . "، {$record->placeLabel()}: {$record->title}", 'entry'],
+                $record instanceof \App\Models\Subject => [route('subjects.show', $record), "موضوع: {$record->name}", 'subject'],
+                $record instanceof \App\Models\Library => [route('libraries.show', $record), "کتابخانه‌ی {$record->name}، {$record->city}", 'library'],
+                $record instanceof Manuscript => [route('manuscripts.show', $record->id), 'نسخه‌ی ' . Fa::digits($record->shelfmark) . ' ' . ($record->libraryRecord?->name ?? '') . ($record->work ? '، ' . $record->work->title : ''), 'copy'],
+                $record instanceof \App\Models\SourcePage => [$record->url(), Fa::digits(($record->volume->source->short_name ?: $record->volume->source->title) . '، ج ' . $record->volume->volume_number . '، ص ' . $record->page), 'page'],
+                $record !== null => [route('people.show', $record), $record->name, 'person-guess'],
+                default => null,
+            };
+        };
+
+        // the words of no mark first, from the last, so the places of those before stay right; marks put in here
+        // already hold their link, and are not counted below
+        $wrap = [];
+        foreach ($links->whereNotNull('span') as $link) {
+            if (($t = $target($record($link))) && mb_substr($text, $link->offset, mb_strlen($link->span)) === $link->span) {
+                $wrap[$link->offset] = [$link, $t];
+            }
+        }
+        krsort($wrap);
+        foreach ($wrap as $offset => [$link, [$url, $title, $kind]]) {
+            $text = mb_substr($text, 0, $offset) . "\u{E020}{$link->kind}\0{$url}\0{$title} (پیوند ماشینی)\0{$kind}\0" . ($link->ordinal === null ? "r{$offset}" : '')
+                . "\u{E021}{$link->span}\u{E022}" . mb_substr($text, $offset + mb_strlen($link->span));
+        }
+
+        // a mark's link: the copy's before the library's
+        $byOrdinal = $links->whereNotNull('ordinal')->sortBy(fn ($l) => $l->target_type === Manuscript::class ? 0 : 1)->unique('ordinal')->keyBy('ordinal');
         $n = -1;
 
-        return preg_replace_callback('/\x{E020}([^\x{E021}]*)\x{E021}/u', function ($m) use ($links, $records, &$n) {
-            $link = $links->get(++$n);
-            $record = $link && $link->kind === $m[1] ? ($records[$link->target_type] ?? collect())->get($link->target_id) : null;
-            if ($record instanceof SourceItem) {
-                return "\u{E020}{$m[1]}\0{$record->url()}\0الذریعة، {$record->placeLabel()}: {$record->title} (پیوند ماشینی)\0entry\0m{$n}\u{E021}";
+        return preg_replace_callback('/\x{E020}([^\x{E021}]*)\x{E021}/u', function ($m) use ($byOrdinal, $record, $target, &$n) {
+            if (str_contains($m[1], "\0")) {
+                return $m[0];
             }
-            if ($record instanceof \App\Models\Subject) {
-                return "\u{E020}{$m[1]}\0" . route('subjects.show', $record) . "\0موضوع: {$record->name} (پیوند ماشینی)\0subject\0m{$n}\u{E021}";
-            }
-            if ($record instanceof \App\Models\Library) {
-                return "\u{E020}{$m[1]}\0" . route('libraries.show', $record) . "\0کتابخانه‌ی {$record->name}، {$record->city} (پیوند ماشینی)\0library\0m{$n}\u{E021}";
-            }
-            if ($record) {
-                return "\u{E020}{$m[1]}\0" . route('people.show', $record) . "\0{$record->name} (پیوند ماشینی)\0person-guess\0m{$n}\u{E021}";
-            }
+            $link = $byOrdinal->get(++$n);
+            $t = $link && $link->kind === $m[1] ? $target($record($link)) : null;
 
-            return $m[0];
+            return $t ? "\u{E020}{$m[1]}\0{$t[0]}\0{$t[1]} (پیوند ماشینی)\0{$t[2]}\0m{$n}\u{E021}" : $m[0];
         }, $text);
     }
 
@@ -514,6 +541,30 @@ class PrintedPage
      */
     private static function cut(string $text, Collection $items, int $page): array
     {
+        $starts = self::entryStarts($text, $items, $page);
+
+        $blocks = [];
+        $head = trim(mb_substr($text, 0, $starts[0][0] ?? null));
+        if ($head !== '') {
+            $blocks[] = ['item' => $items->last(fn (SourceItem $i) => $i->page_start < $page), 'text' => $head, 'continued' => true];
+        }
+        foreach ($starts as $n => [$at, $item]) {
+            $end = $starts[$n + 1][0] ?? null;
+            $blocks[] = ['item' => $item, 'text' => trim(mb_substr($text, $at, $end === null ? null : $end - $at)), 'continued' => false];
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * Where in the page's text (in characters) each entry that starts on the page begins, in order: [at, item]. The
+     * entry holding a place of the page is the last that starts before it, or else the one running on from the page
+     * before (step 13.155, App\Support\PageLinks\PageEntries).
+     *
+     * @return list<array{0: int, 1: SourceItem}>
+     */
+    public static function entryStarts(string $text, Collection $items, int $page): array
+    {
         // the entries are looked for in the page's words, without Noor's marks (App\Support\PageMarks), and cut where
         // those words stand in the page
         [$plain, $at_in_text] = self::withoutMarks($text);
@@ -536,17 +587,7 @@ class PrintedPage
             }
         }
 
-        $blocks = [];
-        $head = trim(mb_substr($text, 0, $starts[0][0] ?? null));
-        if ($head !== '') {
-            $blocks[] = ['item' => $items->last(fn (SourceItem $i) => $i->page_start < $page), 'text' => $head, 'continued' => true];
-        }
-        foreach ($starts as $n => [$at, $item]) {
-            $end = $starts[$n + 1][0] ?? null;
-            $blocks[] = ['item' => $item, 'text' => trim(mb_substr($text, $at, $end === null ? null : $end - $at)), 'continued' => false];
-        }
-
-        return $blocks;
+        return $starts;
     }
 
     /**
@@ -554,7 +595,7 @@ class PrintedPage
      *
      * @return array{0: string, 1: list<int>}
      */
-    private static function withoutMarks(string $text): array
+    public static function withoutMarks(string $text): array
     {
         $plain = '';
         $at = [];
