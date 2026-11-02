@@ -1,0 +1,9163 @@
+{
+ "source": "fankha parser v2 against the site (reports/fankha_v2_db_review6/diffs.jsonl), 2026-11-02",
+ "categories": [
+  "lines_bayt"
+ ],
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 10150,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": null
+    }
+   },
+   "work_key": "-v1-8",
+   "shelfmark": "1489/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 10896,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": null
+    }
+   },
+   "work_key": "-v1-145",
+   "shelfmark": "1308/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 11694,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 59,
+     "to": null
+    }
+   },
+   "work_key": "-v1-380",
+   "shelfmark": "849/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 12775,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 92,
+     "to": null
+    }
+   },
+   "work_key": "-v1-827",
+   "shelfmark": "945"
+  },
+  {
+   "table": "manuscripts",
+   "id": 12776,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 77,
+     "to": null
+    }
+   },
+   "work_key": "-v1-827",
+   "shelfmark": "1003/23"
+  },
+  {
+   "table": "manuscripts",
+   "id": 19078,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 37,
+     "to": null
+    }
+   },
+   "work_key": "-v2-31",
+   "shelfmark": "1114/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 22096,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 170,
+     "to": null
+    }
+   },
+   "work_key": "-v2-969",
+   "shelfmark": "4719/32"
+  },
+  {
+   "table": "manuscripts",
+   "id": 23019,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 36,
+     "to": null
+    }
+   },
+   "work_key": "-v2-1075",
+   "shelfmark": "4719/42"
+  },
+  {
+   "table": "manuscripts",
+   "id": 23072,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": null
+    }
+   },
+   "work_key": "-v2-1078",
+   "shelfmark": "847/34"
+  },
+  {
+   "table": "manuscripts",
+   "id": 23449,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 232,
+     "to": null
+    }
+   },
+   "work_key": "-v2-1142",
+   "shelfmark": "703/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 23741,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 570,
+     "to": null
+    }
+   },
+   "work_key": "-v2-1197",
+   "shelfmark": "451/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 29641,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 42,
+     "to": null
+    }
+   },
+   "work_key": "-v3-175",
+   "shelfmark": "514/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 31989,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 462,
+     "to": null
+    }
+   },
+   "work_key": "-v3-847",
+   "shelfmark": "1926/3-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 32379,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33500,
+     "to": null
+    }
+   },
+   "work_key": "-v3-954",
+   "shelfmark": "270/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 32417,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v3-954",
+   "shelfmark": "4432"
+  },
+  {
+   "table": "manuscripts",
+   "id": 32906,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4009,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1090",
+   "shelfmark": "12815"
+  },
+  {
+   "table": "manuscripts",
+   "id": 32972,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 750,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1092",
+   "shelfmark": "3841/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 33588,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 37,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1342",
+   "shelfmark": "471/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34199,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 44,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1468",
+   "shelfmark": "12981/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34305,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "721/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34310,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 98,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "1074/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34314,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "879/27-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34374,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 450,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "1227/1-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34532,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 650,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "813/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34566,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "721/27"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34603,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "148/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34620,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1469",
+   "shelfmark": "15982/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34661,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "4487"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34784,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "3364/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 34858,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 520,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "3844/30"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35068,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "1162/11-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35101,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 72,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "1162/19-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35134,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 190,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "12635/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35143,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "1162/13-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35168,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "1162/12-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35220,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "157/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35296,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 47,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "12966/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35304,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 516,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "4831/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35356,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "96/2-فیروز"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35426,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 72,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "806/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35645,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 770,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2604"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35755,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 70,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "135/27"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35758,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 129,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "14025/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35774,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 153,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "136/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35775,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 25,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "317/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35830,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 163,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "5159/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 35883,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7000,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "بدون شماره/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36006,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "57/7-فیروز"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36019,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "57/24-فیروز"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36105,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "4378"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36108,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "4397"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36273,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2000,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2096/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36303,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "260"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36311,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 196,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "291/21-فیروز"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36378,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 21,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2127/511/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36379,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2127/511/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36388,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 210,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "1974/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36405,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 27,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2127/511/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36406,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 38,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2127/511/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36647,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "بدون شماره/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36830,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "2414/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36866,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 230,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "22620/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36926,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "1863"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36954,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36980,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 108,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "75/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 36995,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "248/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 37128,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 310,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "699/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 37148,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 74,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1470",
+   "shelfmark": "6963/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 37174,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 150,
+     "to": null
+    }
+   },
+   "work_key": "-v3-1472",
+   "shelfmark": "2701"
+  },
+  {
+   "table": "manuscripts",
+   "id": 37933,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 170,
+     "to": null
+    }
+   },
+   "work_key": "-v4-45",
+   "shelfmark": "148/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 40166,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 700,
+     "to": null
+    }
+   },
+   "work_key": "-v4-631",
+   "shelfmark": "286/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 40365,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v4-646",
+   "shelfmark": "629/2-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 40371,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 78,
+     "to": null
+    }
+   },
+   "work_key": "-v4-648",
+   "shelfmark": "1751/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 40372,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 78,
+     "to": null
+    }
+   },
+   "work_key": "-v4-648",
+   "shelfmark": "2038/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 45254,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": null
+    }
+   },
+   "work_key": "-v4-1842",
+   "shelfmark": "891"
+  },
+  {
+   "table": "manuscripts",
+   "id": 45277,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33500,
+     "to": null
+    }
+   },
+   "work_key": "-v4-1843",
+   "shelfmark": "270/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 45300,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": null
+    }
+   },
+   "work_key": "-v4-1843",
+   "shelfmark": "1156"
+  },
+  {
+   "table": "manuscripts",
+   "id": 46409,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 142,
+     "to": null
+    }
+   },
+   "work_key": "-v4-2211",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 49046,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 96,
+     "to": null
+    }
+   },
+   "work_key": "-v5-333",
+   "shelfmark": "1/2591/113"
+  },
+  {
+   "table": "manuscripts",
+   "id": 54234,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 9,
+     "to": null
+    }
+   },
+   "work_key": "-v5-1308",
+   "shelfmark": "13672/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 55762,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 9,
+     "to": null
+    }
+   },
+   "work_key": "-v5-1693",
+   "shelfmark": "6487/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 56667,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v6-196",
+   "shelfmark": "623/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 56761,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33,
+     "to": null
+    }
+   },
+   "work_key": "-v6-216",
+   "shelfmark": "304"
+  },
+  {
+   "table": "manuscripts",
+   "id": 57162,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 320,
+     "to": null
+    }
+   },
+   "work_key": "-v6-289",
+   "shelfmark": "134/18"
+  },
+  {
+   "table": "manuscripts",
+   "id": 57372,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 65,
+     "to": null
+    }
+   },
+   "work_key": "-v6-352",
+   "shelfmark": "358/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 59335,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 90,
+     "to": null
+    }
+   },
+   "work_key": "-v6-717",
+   "shelfmark": "2666/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 59353,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 95,
+     "to": null
+    }
+   },
+   "work_key": "-v6-717",
+   "shelfmark": "2675/18"
+  },
+  {
+   "table": "manuscripts",
+   "id": 60010,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5,
+     "to": null
+    }
+   },
+   "work_key": "-v6-1046",
+   "shelfmark": "1035/17"
+  },
+  {
+   "table": "manuscripts",
+   "id": 60206,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 11,
+     "to": null
+    }
+   },
+   "work_key": "-v6-1083",
+   "shelfmark": "8653/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 60321,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 183,
+     "to": null
+    }
+   },
+   "work_key": "-v6-1115",
+   "shelfmark": "2675/12"
+  },
+  {
+   "table": "manuscripts",
+   "id": 63776,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 49,
+     "to": null
+    }
+   },
+   "work_key": "-v6-2313",
+   "shelfmark": "1136"
+  },
+  {
+   "table": "manuscripts",
+   "id": 64941,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": null
+    }
+   },
+   "work_key": "-v7-136",
+   "shelfmark": "1484/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 67541,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1800,
+     "to": null
+    }
+   },
+   "work_key": "-v7-395",
+   "shelfmark": "2673/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 67773,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v7-502",
+   "shelfmark": "10831/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 71076,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 9,
+     "to": null
+    }
+   },
+   "work_key": "-v7-1309",
+   "shelfmark": "12966/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 74176,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 142,
+     "to": null
+    }
+   },
+   "work_key": "-v8-211",
+   "shelfmark": "312/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 76720,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 104,
+     "to": null
+    }
+   },
+   "work_key": "-v8-1034",
+   "shelfmark": "4671/16"
+  },
+  {
+   "table": "manuscripts",
+   "id": 76766,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 220,
+     "to": null
+    }
+   },
+   "work_key": "-v8-1057",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 76767,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 202,
+     "to": null
+    }
+   },
+   "work_key": "-v8-1057",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 77587,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 91,
+     "to": null
+    }
+   },
+   "work_key": "-v8-1372",
+   "shelfmark": "1719/2-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 81949,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": null
+    }
+   },
+   "work_key": "-v8-2449",
+   "shelfmark": "1612/17-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 92054,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1000,
+     "to": null
+    }
+   },
+   "work_key": "-v9-1698",
+   "shelfmark": "20103"
+  },
+  {
+   "table": "manuscripts",
+   "id": 92500,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 25,
+     "to": null
+    }
+   },
+   "work_key": "-v10-92",
+   "shelfmark": "1764/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 95335,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 380,
+     "to": null
+    }
+   },
+   "work_key": "-v10-800",
+   "shelfmark": "4935/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 96795,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 70,
+     "to": null
+    }
+   },
+   "work_key": "-v10-1280",
+   "shelfmark": "16951"
+  },
+  {
+   "table": "manuscripts",
+   "id": 97045,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 911,
+     "to": null
+    }
+   },
+   "work_key": "-v10-1281",
+   "shelfmark": "10285"
+  },
+  {
+   "table": "manuscripts",
+   "id": 97873,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 600,
+     "to": null
+    }
+   },
+   "work_key": "-v10-1281",
+   "shelfmark": "89"
+  },
+  {
+   "table": "manuscripts",
+   "id": 99087,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4278,
+     "to": null
+    }
+   },
+   "work_key": "-v10-1778",
+   "shelfmark": "161-بهار"
+  },
+  {
+   "table": "manuscripts",
+   "id": 99374,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v11-30",
+   "shelfmark": "1986/1-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 101646,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v11-365",
+   "shelfmark": "971/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 117063,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 48500,
+     "to": null
+    }
+   },
+   "work_key": "-v12-1204",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 118283,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v12-1477",
+   "shelfmark": "120"
+  },
+  {
+   "table": "manuscripts",
+   "id": 122462,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1760,
+     "to": null
+    }
+   },
+   "work_key": "-v13-666",
+   "shelfmark": "506/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 122892,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": null
+    }
+   },
+   "work_key": "-v13-687",
+   "shelfmark": "49"
+  },
+  {
+   "table": "manuscripts",
+   "id": 123107,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 35,
+     "to": null
+    }
+   },
+   "work_key": "-v13-750",
+   "shelfmark": "613"
+  },
+  {
+   "table": "manuscripts",
+   "id": 124766,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 48,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1064",
+   "shelfmark": "42 بخش دوم"
+  },
+  {
+   "table": "manuscripts",
+   "id": 125727,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 975,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1265",
+   "shelfmark": "1618/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126182,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 470,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1474",
+   "shelfmark": "971/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126428,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 119,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1516",
+   "shelfmark": "619/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126753,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7020,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1586",
+   "shelfmark": "1111/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126840,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1592",
+   "shelfmark": "فیلم"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126850,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 425,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1592",
+   "shelfmark": "1768/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126862,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 250,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1592",
+   "shelfmark": "4493/19"
+  },
+  {
+   "table": "manuscripts",
+   "id": 126874,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1596",
+   "shelfmark": "3844/29"
+  },
+  {
+   "table": "manuscripts",
+   "id": 127198,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1668",
+   "shelfmark": "111-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 127491,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 205,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1736",
+   "shelfmark": "238/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 128103,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1926",
+   "shelfmark": "629/2-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 128517,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 64,
+     "to": null
+    }
+   },
+   "work_key": "-v13-1984",
+   "shelfmark": "1632/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 129355,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1200,
+     "to": null
+    }
+   },
+   "work_key": "-v13-2044",
+   "shelfmark": "4671/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131195,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": null
+    }
+   },
+   "work_key": "-v14-116",
+   "shelfmark": "4550"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131198,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": null
+    }
+   },
+   "work_key": "-v14-116",
+   "shelfmark": "371"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131251,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": null
+    }
+   },
+   "work_key": "-v14-116",
+   "shelfmark": "197"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131394,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": null
+    }
+   },
+   "work_key": "-v14-144",
+   "shelfmark": "4341/28"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131403,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 92,
+     "to": null
+    }
+   },
+   "work_key": "-v14-148",
+   "shelfmark": "4441/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131404,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 328,
+     "to": null
+    }
+   },
+   "work_key": "-v14-148",
+   "shelfmark": "321/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131430,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 255,
+     "to": null
+    }
+   },
+   "work_key": "-v14-153",
+   "shelfmark": "4262/118"
+  },
+  {
+   "table": "manuscripts",
+   "id": 131637,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": null
+    }
+   },
+   "work_key": "-v14-225",
+   "shelfmark": "8536/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 132494,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 95,
+     "to": null
+    }
+   },
+   "work_key": "-v14-733",
+   "shelfmark": "806/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 134060,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": null
+    }
+   },
+   "work_key": "-v14-1162",
+   "shelfmark": "667/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 134232,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v14-1196",
+   "shelfmark": "1226/3-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 135237,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 148,
+     "to": null
+    }
+   },
+   "work_key": "-v14-1463",
+   "shelfmark": "441/27-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 135581,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 8,
+     "to": null
+    }
+   },
+   "work_key": "-v14-1597",
+   "shelfmark": "9082/73"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138396,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 165,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2582",
+   "shelfmark": "187/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138502,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 60,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2616",
+   "shelfmark": "9467/60"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138585,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2644",
+   "shelfmark": "539/2-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138778,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 41,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2672",
+   "shelfmark": "1073/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138792,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2675",
+   "shelfmark": "248/4 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138797,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 387,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2675",
+   "shelfmark": "167/1-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138834,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2600,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2675",
+   "shelfmark": "2678/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 138960,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 591,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2690",
+   "shelfmark": "167/14-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139033,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 67,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2713",
+   "shelfmark": "172/4-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139052,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 535,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2719",
+   "shelfmark": "167/8-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139122,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3300,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2724",
+   "shelfmark": "2264"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139139,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2731",
+   "shelfmark": "248/5 تا 251بخش 3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139140,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2731",
+   "shelfmark": "248/6 تا 251 بخش 3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139144,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 321,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2731",
+   "shelfmark": "167/11-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139150,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1850,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2731",
+   "shelfmark": "1058/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139385,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 545,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2792",
+   "shelfmark": "5625/23"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139425,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 62,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2803",
+   "shelfmark": "248/9 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139483,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 84,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2815",
+   "shelfmark": "1211/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139565,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 100,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2818",
+   "shelfmark": "134/14"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139769,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2558,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2828",
+   "shelfmark": "167/9-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139787,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v14-2828",
+   "shelfmark": "84"
+  },
+  {
+   "table": "manuscripts",
+   "id": 139919,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1200,
+     "to": null
+    }
+   },
+   "work_key": "-v15-6",
+   "shelfmark": "248/10 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140135,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-6",
+   "shelfmark": "126"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140159,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 9000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-6",
+   "shelfmark": "2671/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140283,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1900,
+     "to": null
+    }
+   },
+   "work_key": "-v15-15",
+   "shelfmark": "1019-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140300,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 115,
+     "to": null
+    }
+   },
+   "work_key": "-v15-24",
+   "shelfmark": "317/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140457,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 610,
+     "to": null
+    }
+   },
+   "work_key": "-v15-79",
+   "shelfmark": "2034/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140513,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7,
+     "to": null
+    }
+   },
+   "work_key": "-v15-101",
+   "shelfmark": "1834/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140592,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": null
+    }
+   },
+   "work_key": "-v15-141",
+   "shelfmark": "259"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140646,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1200,
+     "to": null
+    }
+   },
+   "work_key": "-v15-164",
+   "shelfmark": "1185/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140656,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33,
+     "to": null
+    }
+   },
+   "work_key": "-v15-169",
+   "shelfmark": "57/11-فیروز"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140787,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1600,
+     "to": null
+    }
+   },
+   "work_key": "-v15-190",
+   "shelfmark": "220"
+  },
+  {
+   "table": "manuscripts",
+   "id": 140990,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2400,
+     "to": null
+    }
+   },
+   "work_key": "-v15-199",
+   "shelfmark": "1812/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 141741,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 436,
+     "to": null
+    }
+   },
+   "work_key": "-v15-281",
+   "shelfmark": "2612/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 141784,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 572,
+     "to": null
+    }
+   },
+   "work_key": "-v15-299",
+   "shelfmark": "167/7-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 141815,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1108,
+     "to": null
+    }
+   },
+   "work_key": "-v15-302",
+   "shelfmark": "167/13-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 141819,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 260,
+     "to": null
+    }
+   },
+   "work_key": "-v15-302",
+   "shelfmark": "4493/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 141833,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": null
+    }
+   },
+   "work_key": "-v15-303",
+   "shelfmark": "1005/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 141884,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 90,
+     "to": null
+    }
+   },
+   "work_key": "-v15-338",
+   "shelfmark": "232"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142168,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": null
+    }
+   },
+   "work_key": "-v15-388",
+   "shelfmark": "1134/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142173,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5800,
+     "to": null
+    }
+   },
+   "work_key": "-v15-388",
+   "shelfmark": "2671/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142219,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 873,
+     "to": null
+    }
+   },
+   "work_key": "-v15-400",
+   "shelfmark": "11738"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142227,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 96,
+     "to": null
+    }
+   },
+   "work_key": "-v15-403",
+   "shelfmark": "1407/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142381,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-464",
+   "shelfmark": "465"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142471,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": null
+    }
+   },
+   "work_key": "-v15-506",
+   "shelfmark": "2764/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142499,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3200,
+     "to": null
+    }
+   },
+   "work_key": "-v15-521",
+   "shelfmark": "7610"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142631,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-586",
+   "shelfmark": "248/3 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142659,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v15-586",
+   "shelfmark": "2671/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142673,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2329,
+     "to": null
+    }
+   },
+   "work_key": "-v15-597",
+   "shelfmark": "224"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142674,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2367,
+     "to": null
+    }
+   },
+   "work_key": "-v15-597",
+   "shelfmark": "387"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142710,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 850,
+     "to": null
+    }
+   },
+   "work_key": "-v15-608",
+   "shelfmark": "248/8 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142715,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 235,
+     "to": null
+    }
+   },
+   "work_key": "-v15-609",
+   "shelfmark": "79"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142739,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 260,
+     "to": null
+    }
+   },
+   "work_key": "-v15-611",
+   "shelfmark": "1280/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142813,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-628",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 142865,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 270,
+     "to": null
+    }
+   },
+   "work_key": "-v15-649",
+   "shelfmark": "4493/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143066,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 600,
+     "to": null
+    }
+   },
+   "work_key": "-v15-719",
+   "shelfmark": "204"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143123,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 85,
+     "to": null
+    }
+   },
+   "work_key": "-v15-730",
+   "shelfmark": "4076/36"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143194,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": null
+    }
+   },
+   "work_key": "-v15-730",
+   "shelfmark": "1038/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143397,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 180,
+     "to": null
+    }
+   },
+   "work_key": "-v15-754",
+   "shelfmark": "1/2591/118"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143428,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-755",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143461,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2919,
+     "to": null
+    }
+   },
+   "work_key": "-v15-763",
+   "shelfmark": "167/15-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143621,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 485,
+     "to": null
+    }
+   },
+   "work_key": "-v15-792",
+   "shelfmark": "2526/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143649,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 51,
+     "to": null
+    }
+   },
+   "work_key": "-v15-795",
+   "shelfmark": "2473/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143715,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 750,
+     "to": null
+    }
+   },
+   "work_key": "-v15-818",
+   "shelfmark": "4493/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 143753,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 460,
+     "to": null
+    }
+   },
+   "work_key": "-v15-826",
+   "shelfmark": "459/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144042,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": null
+    }
+   },
+   "work_key": "-v15-879",
+   "shelfmark": "5138/70"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144057,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 534,
+     "to": null
+    }
+   },
+   "work_key": "-v15-889",
+   "shelfmark": "2526/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144071,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-892",
+   "shelfmark": "82"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144076,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v15-894",
+   "shelfmark": "3892"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144105,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 58,
+     "to": null
+    }
+   },
+   "work_key": "-v15-902",
+   "shelfmark": "4948/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144112,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1870,
+     "to": null
+    }
+   },
+   "work_key": "-v15-903",
+   "shelfmark": "1732/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144207,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": null
+    }
+   },
+   "work_key": "-v15-905",
+   "shelfmark": "317/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144322,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3250,
+     "to": null
+    }
+   },
+   "work_key": "-v15-923",
+   "shelfmark": "32"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144331,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 645,
+     "to": null
+    }
+   },
+   "work_key": "-v15-923",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144380,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": null
+    }
+   },
+   "work_key": "-v15-952",
+   "shelfmark": "5138/111"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144574,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-970",
+   "shelfmark": "53"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144596,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": null
+    }
+   },
+   "work_key": "-v15-974",
+   "shelfmark": "2343/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144853,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 115,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1034",
+   "shelfmark": "4932/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144854,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 70,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1034",
+   "shelfmark": "4/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144857,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 119,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1034",
+   "shelfmark": "1280"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144859,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 111,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1034",
+   "shelfmark": "806/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144860,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 115,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1034",
+   "shelfmark": "187/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144913,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 31,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1049",
+   "shelfmark": "2215/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144930,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 336,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1053",
+   "shelfmark": "1066/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 144975,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1070,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1070",
+   "shelfmark": "2325/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145009,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 56,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1074",
+   "shelfmark": "127/5121/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145010,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 62,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1074",
+   "shelfmark": "127/5121/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145011,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 35,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1074",
+   "shelfmark": "127/5121/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145015,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 31,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1077",
+   "shelfmark": "1202/99-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145070,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2400,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1100",
+   "shelfmark": "272/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145120,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2300,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1114",
+   "shelfmark": "128 سرود"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145300,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1128",
+   "shelfmark": "1197"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145301,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1128",
+   "shelfmark": "1197"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145323,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1128",
+   "shelfmark": "2678/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145365,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1600,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1128",
+   "shelfmark": "2681/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145578,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 581,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1183",
+   "shelfmark": "167/12-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145616,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 610,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1184",
+   "shelfmark": "4927/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145617,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 200,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1185",
+   "shelfmark": "751/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145763,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1203",
+   "shelfmark": "4493/20"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145791,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 840,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1203",
+   "shelfmark": "5403/36"
+  },
+  {
+   "table": "manuscripts",
+   "id": 145949,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1229",
+   "shelfmark": "270/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146191,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1265",
+   "shelfmark": "167/2-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146261,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1200,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1265",
+   "shelfmark": "2671/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146264,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1718,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1267",
+   "shelfmark": "13-عنقا"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146278,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2100,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1272",
+   "shelfmark": "2028"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146310,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 108,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1292",
+   "shelfmark": "2560/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146312,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 400,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1292",
+   "shelfmark": "2560/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146512,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1358",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146761,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 520,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1394",
+   "shelfmark": "1849/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146776,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1398",
+   "shelfmark": "21730/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146843,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1416",
+   "shelfmark": "2612/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146844,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 120,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1416",
+   "shelfmark": "2612/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146845,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 124,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1416",
+   "shelfmark": "2612/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146926,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 54,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1417",
+   "shelfmark": "14149/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146983,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 61,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1439",
+   "shelfmark": "1003/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 146984,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 225,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1439",
+   "shelfmark": "1003/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147030,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2500,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1457",
+   "shelfmark": "10/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147150,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 82,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1475",
+   "shelfmark": "905/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147151,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 18,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1475",
+   "shelfmark": "905/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147171,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1489",
+   "shelfmark": "1202/2-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147172,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 250,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1490",
+   "shelfmark": "2099/5-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147194,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1503",
+   "shelfmark": "127/5121/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147201,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 64,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "3844/23"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147202,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 45,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "3844/24"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147203,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 61,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "3844/25"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147221,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 68,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "2665/25"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147223,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 820,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "6456/12"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147238,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 340,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "5403/38"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147239,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 120,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "5403/39"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147255,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 64,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "303/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147269,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 147,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1505",
+   "shelfmark": "1003/16"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147296,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7900,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1508",
+   "shelfmark": "248/1 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147356,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1200,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1508",
+   "shelfmark": "4493/17"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147380,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 900,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1508",
+   "shelfmark": "2671/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147662,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1800,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1562",
+   "shelfmark": "11045"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147665,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 59,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1563",
+   "shelfmark": "5627/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147724,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1573",
+   "shelfmark": "1412/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 147942,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 99,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1592",
+   "shelfmark": "13499/37"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148037,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 363,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1635",
+   "shelfmark": "4493/15"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148051,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 31,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1642",
+   "shelfmark": "630/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148108,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1401,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1668",
+   "shelfmark": "167/5-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148109,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5650,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1668",
+   "shelfmark": "1058/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148262,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2598,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1719",
+   "shelfmark": "167/4-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148313,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 53,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1723",
+   "shelfmark": "471/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148314,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 65,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1723",
+   "shelfmark": "471/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148384,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1737",
+   "shelfmark": "7002"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148513,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1759",
+   "shelfmark": "2536"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148565,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 8700,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1782",
+   "shelfmark": "2027"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148569,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 123,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1784",
+   "shelfmark": "1201/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148634,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 555,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1808",
+   "shelfmark": "16910/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148701,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 207,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1845",
+   "shelfmark": "445/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148774,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1864",
+   "shelfmark": "2678/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148861,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 45,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1868",
+   "shelfmark": "57/10-فیروز"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148897,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 235,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1889",
+   "shelfmark": "4493/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 148911,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 445,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1895",
+   "shelfmark": "78/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149007,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 190,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1950",
+   "shelfmark": "5403/35"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149167,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1975",
+   "shelfmark": "8173/12"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149180,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5600,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1975",
+   "shelfmark": "2671/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149211,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3900,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1983",
+   "shelfmark": "34"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149232,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 76,
+     "to": null
+    }
+   },
+   "work_key": "-v15-1992",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149267,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 850,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2013",
+   "shelfmark": "248/7 تا 251 بخش3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149379,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 150,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2026",
+   "shelfmark": "93/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149438,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 226,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2038",
+   "shelfmark": "20624"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149455,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 216,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2041",
+   "shelfmark": "4709/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149514,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 143,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2059",
+   "shelfmark": "1134/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149568,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 121,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2060",
+   "shelfmark": "1759/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149581,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 88,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2060",
+   "shelfmark": "1280"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149702,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 147,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2086",
+   "shelfmark": "238/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149720,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2086",
+   "shelfmark": "1158/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149787,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4000,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2088",
+   "shelfmark": "1571"
+  },
+  {
+   "table": "manuscripts",
+   "id": 149971,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1650,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2144",
+   "shelfmark": "4493/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150102,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1100,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2173",
+   "shelfmark": "2034/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150119,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 132,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2179",
+   "shelfmark": "5138/73"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150138,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 88,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2182",
+   "shelfmark": "1851/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150145,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 65,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2182",
+   "shelfmark": "13499/33"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150146,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 53,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2182",
+   "shelfmark": "13499/35"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150217,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 104,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2190",
+   "shelfmark": "1280/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150218,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 208,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2190",
+   "shelfmark": "1280/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150220,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 160,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2190",
+   "shelfmark": "182/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150292,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2440,
+     "to": null
+    }
+   },
+   "work_key": "-v15-2203",
+   "shelfmark": "5530"
+  },
+  {
+   "table": "manuscripts",
+   "id": 150418,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 600,
+     "to": null
+    }
+   },
+   "work_key": "-v16-6",
+   "shelfmark": "1102"
+  },
+  {
+   "table": "manuscripts",
+   "id": 155608,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 47,
+     "to": null
+    }
+   },
+   "work_key": "-v16-1699",
+   "shelfmark": "12966/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 157004,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4,
+     "to": null
+    }
+   },
+   "work_key": "-v16-2037",
+   "shelfmark": "879/1-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 157150,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 94,
+     "to": null
+    }
+   },
+   "work_key": "-v16-2041",
+   "shelfmark": "2418/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 158285,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 425,
+     "to": null
+    }
+   },
+   "work_key": "-v16-2389",
+   "shelfmark": "1/10-عکس"
+  },
+  {
+   "table": "manuscripts",
+   "id": 165764,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 680,
+     "to": null
+    }
+   },
+   "work_key": "-v17-702",
+   "shelfmark": "1564/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 166404,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 200,
+     "to": null
+    }
+   },
+   "work_key": "-v17-951",
+   "shelfmark": "75"
+  },
+  {
+   "table": "manuscripts",
+   "id": 167977,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 420,
+     "to": null
+    }
+   },
+   "work_key": "-v17-1351",
+   "shelfmark": "2665/32"
+  },
+  {
+   "table": "manuscripts",
+   "id": 168407,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3000,
+     "to": null
+    }
+   },
+   "work_key": "-v17-1414",
+   "shelfmark": "2673/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 168991,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 116,
+     "to": null
+    }
+   },
+   "work_key": "-v17-1652",
+   "shelfmark": "2675/17"
+  },
+  {
+   "table": "manuscripts",
+   "id": 169174,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": null
+    }
+   },
+   "work_key": "-v17-1693",
+   "shelfmark": "198/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 169311,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 87,
+     "to": null
+    }
+   },
+   "work_key": "-v17-1723",
+   "shelfmark": "9657"
+  },
+  {
+   "table": "manuscripts",
+   "id": 170502,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4460,
+     "to": null
+    }
+   },
+   "work_key": "-v18-304",
+   "shelfmark": "35"
+  },
+  {
+   "table": "manuscripts",
+   "id": 170893,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 67,
+     "to": null
+    }
+   },
+   "work_key": "-v18-498",
+   "shelfmark": "774/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 173563,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 370,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1474",
+   "shelfmark": "4671/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 173611,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1474",
+   "shelfmark": "149/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 173625,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 148,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1475",
+   "shelfmark": "2675/16"
+  },
+  {
+   "table": "manuscripts",
+   "id": 173642,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 79,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1475",
+   "shelfmark": "791/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 173644,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 215,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1475",
+   "shelfmark": "187/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 174146,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1673",
+   "shelfmark": "5138/44"
+  },
+  {
+   "table": "manuscripts",
+   "id": 174778,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 203,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1867",
+   "shelfmark": "8167/16"
+  },
+  {
+   "table": "manuscripts",
+   "id": 175632,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 11182,
+     "to": null
+    }
+   },
+   "work_key": "-v18-1979",
+   "shelfmark": "6332"
+  },
+  {
+   "table": "manuscripts",
+   "id": 177546,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": null
+    }
+   },
+   "work_key": "-v18-2318",
+   "shelfmark": "1224/4-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 179730,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 66,
+     "to": null
+    }
+   },
+   "work_key": "-v19-280",
+   "shelfmark": "473/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 179798,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v19-326",
+   "shelfmark": "1088/22"
+  },
+  {
+   "table": "manuscripts",
+   "id": 182398,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 500,
+     "to": null
+    }
+   },
+   "work_key": "-v19-951",
+   "shelfmark": "11679"
+  },
+  {
+   "table": "manuscripts",
+   "id": 184680,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 150,
+     "to": null
+    }
+   },
+   "work_key": "-v19-1629",
+   "shelfmark": "5/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 187745,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 44,
+     "to": null
+    }
+   },
+   "work_key": "-v20-22",
+   "shelfmark": "14250"
+  },
+  {
+   "table": "manuscripts",
+   "id": 191322,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2,
+     "to": null
+    }
+   },
+   "work_key": "-v20-723",
+   "shelfmark": "1843/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 191434,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 53,
+     "to": null
+    }
+   },
+   "work_key": "-v20-768",
+   "shelfmark": "321/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 193073,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 47,
+     "to": null
+    }
+   },
+   "work_key": "-v20-972",
+   "shelfmark": "18693/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 193172,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 63,
+     "to": null
+    }
+   },
+   "work_key": "-v20-1017",
+   "shelfmark": "164"
+  },
+  {
+   "table": "manuscripts",
+   "id": 199857,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 480,
+     "to": null
+    }
+   },
+   "work_key": "-v21-639",
+   "shelfmark": "4932/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 200088,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 214,
+     "to": null
+    }
+   },
+   "work_key": "-v21-667",
+   "shelfmark": "1419"
+  },
+  {
+   "table": "manuscripts",
+   "id": 200096,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 46,
+     "to": null
+    }
+   },
+   "work_key": "-v21-671",
+   "shelfmark": "2675/11"
+  },
+  {
+   "table": "manuscripts",
+   "id": 204117,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 8,
+     "to": null
+    }
+   },
+   "work_key": "-v21-1040",
+   "shelfmark": "8/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 204118,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 192,
+     "to": null
+    }
+   },
+   "work_key": "-v21-1040",
+   "shelfmark": "2754/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 205538,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 19,
+     "to": null
+    }
+   },
+   "work_key": "-v21-1352",
+   "shelfmark": "2212/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 205751,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 150,
+     "to": null
+    }
+   },
+   "work_key": "-v21-1481",
+   "shelfmark": "688/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 207813,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": null
+    }
+   },
+   "work_key": "-v21-2142",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 208058,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 136,
+     "to": null
+    }
+   },
+   "work_key": "-v22-78",
+   "shelfmark": "4398"
+  },
+  {
+   "table": "manuscripts",
+   "id": 208540,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 125,
+     "to": null
+    }
+   },
+   "work_key": "-v22-238",
+   "shelfmark": "1607/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 209863,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v22-554",
+   "shelfmark": "172/37-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 210959,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 67,
+     "to": null
+    }
+   },
+   "work_key": "-v22-912",
+   "shelfmark": "187/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 213394,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 18,
+     "to": null
+    }
+   },
+   "work_key": "-v22-1474",
+   "shelfmark": "977/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 213936,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 186,
+     "to": null
+    }
+   },
+   "work_key": "-v22-1592",
+   "shelfmark": "6240/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 213948,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 540,
+     "to": null
+    }
+   },
+   "work_key": "-v22-1602",
+   "shelfmark": "1500/14"
+  },
+  {
+   "table": "manuscripts",
+   "id": 215591,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 245,
+     "to": null
+    }
+   },
+   "work_key": "-v22-2218",
+   "shelfmark": "446/11"
+  },
+  {
+   "table": "manuscripts",
+   "id": 216638,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 66,
+     "to": null
+    }
+   },
+   "work_key": "-v22-2621",
+   "shelfmark": "20938/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 218082,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": null
+    }
+   },
+   "work_key": "-v23-115",
+   "shelfmark": "627/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 222773,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 205,
+     "to": null
+    }
+   },
+   "work_key": "-v23-966",
+   "shelfmark": "212/15"
+  },
+  {
+   "table": "manuscripts",
+   "id": 225783,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 622,
+     "to": null
+    }
+   },
+   "work_key": "-v23-1775",
+   "shelfmark": "4671/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 225809,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 845,
+     "to": null
+    }
+   },
+   "work_key": "-v23-1775",
+   "shelfmark": "4932/18"
+  },
+  {
+   "table": "manuscripts",
+   "id": 225852,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 950,
+     "to": null
+    }
+   },
+   "work_key": "-v23-1775",
+   "shelfmark": "806/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 225892,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1066,
+     "to": null
+    }
+   },
+   "work_key": "-v23-1775",
+   "shelfmark": "1211/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 225923,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 750,
+     "to": null
+    }
+   },
+   "work_key": "-v23-1775",
+   "shelfmark": "4137/64"
+  },
+  {
+   "table": "manuscripts",
+   "id": 226928,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 420,
+     "to": null
+    }
+   },
+   "work_key": "-v23-2002",
+   "shelfmark": "1783/1-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 226930,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": null
+    }
+   },
+   "work_key": "-v23-2002",
+   "shelfmark": "1566/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 229150,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 176,
+     "to": null
+    }
+   },
+   "work_key": "-v24-563",
+   "shelfmark": "451/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 233186,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 300,
+     "to": null
+    }
+   },
+   "work_key": "-v24-1497",
+   "shelfmark": "2092/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 239462,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 70,
+     "to": null
+    }
+   },
+   "work_key": "-v25-256",
+   "shelfmark": "3165/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 239651,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": null
+    }
+   },
+   "work_key": "-v25-340",
+   "shelfmark": "1148"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240030,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 19,
+     "to": null
+    }
+   },
+   "work_key": "-v25-472",
+   "shelfmark": "1258/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240090,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 35,
+     "to": null
+    }
+   },
+   "work_key": "-v25-480",
+   "shelfmark": "165/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240094,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": null
+    }
+   },
+   "work_key": "-v25-482",
+   "shelfmark": "15120/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240131,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33,
+     "to": null
+    }
+   },
+   "work_key": "-v25-500",
+   "shelfmark": "1998/5-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240189,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": null
+    }
+   },
+   "work_key": "-v25-530",
+   "shelfmark": "15783/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240239,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 65,
+     "to": null
+    }
+   },
+   "work_key": "-v25-545",
+   "shelfmark": "528/9"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240240,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 65,
+     "to": null
+    }
+   },
+   "work_key": "-v25-545",
+   "shelfmark": "721/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240480,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 100,
+     "to": null
+    }
+   },
+   "work_key": "-v25-634",
+   "shelfmark": "721/17"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240508,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 246,
+     "to": null
+    }
+   },
+   "work_key": "-v25-648",
+   "shelfmark": "6225/4-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240530,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": null
+    }
+   },
+   "work_key": "-v25-650",
+   "shelfmark": "1130/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240620,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 91,
+     "to": null
+    }
+   },
+   "work_key": "-v25-674",
+   "shelfmark": "20/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240624,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 48,
+     "to": null
+    }
+   },
+   "work_key": "-v25-675",
+   "shelfmark": "721/26"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240956,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 242,
+     "to": null
+    }
+   },
+   "work_key": "-v25-761",
+   "shelfmark": "1419"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240969,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 235,
+     "to": null
+    }
+   },
+   "work_key": "-v25-761",
+   "shelfmark": "4932/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 240987,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 225,
+     "to": null
+    }
+   },
+   "work_key": "-v25-761",
+   "shelfmark": "2675/19"
+  },
+  {
+   "table": "manuscripts",
+   "id": 241089,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 275,
+     "to": null
+    }
+   },
+   "work_key": "-v25-782",
+   "shelfmark": "519/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 241118,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 290,
+     "to": null
+    }
+   },
+   "work_key": "-v25-792",
+   "shelfmark": "4709/11"
+  },
+  {
+   "table": "manuscripts",
+   "id": 241119,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 175,
+     "to": null
+    }
+   },
+   "work_key": "-v25-792",
+   "shelfmark": "2665/26"
+  },
+  {
+   "table": "manuscripts",
+   "id": 246732,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33,
+     "to": null
+    }
+   },
+   "work_key": "-v25-1542",
+   "shelfmark": "317"
+  },
+  {
+   "table": "manuscripts",
+   "id": 255101,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 610,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1207",
+   "shelfmark": "5690"
+  },
+  {
+   "table": "manuscripts",
+   "id": 255228,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 28700,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1271",
+   "shelfmark": "4770"
+  },
+  {
+   "table": "manuscripts",
+   "id": 255244,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 308,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1271",
+   "shelfmark": "241/23-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 257167,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 60,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1628",
+   "shelfmark": "13803/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 257243,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 156,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1628",
+   "shelfmark": "249"
+  },
+  {
+   "table": "manuscripts",
+   "id": 257750,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 600,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1831",
+   "shelfmark": "1988/17-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 258037,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 36,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1891",
+   "shelfmark": "505/3-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 258074,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 53,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1891",
+   "shelfmark": "385/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 258208,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 190,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1896",
+   "shelfmark": "547/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 258212,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1122,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1897",
+   "shelfmark": "1614/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 258223,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1897",
+   "shelfmark": "12515/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 258412,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 91,
+     "to": null
+    }
+   },
+   "work_key": "-v26-1926",
+   "shelfmark": "5706/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 260350,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 517,
+     "to": null
+    }
+   },
+   "work_key": "-v27-393",
+   "shelfmark": "2345"
+  },
+  {
+   "table": "manuscripts",
+   "id": 260647,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": null
+    }
+   },
+   "work_key": "-v27-474",
+   "shelfmark": "ف251/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 261578,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 14000,
+     "to": null
+    }
+   },
+   "work_key": "-v27-743",
+   "shelfmark": "1170"
+  },
+  {
+   "table": "manuscripts",
+   "id": 261988,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5,
+     "to": null
+    }
+   },
+   "work_key": "-v27-854",
+   "shelfmark": "2024/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 264473,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 8,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1229",
+   "shelfmark": "8841/59"
+  },
+  {
+   "table": "manuscripts",
+   "id": 264964,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 2000,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1305",
+   "shelfmark": "4671/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 265483,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 104,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1390",
+   "shelfmark": "276/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 265991,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1584",
+   "shelfmark": "12792/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 267010,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 63,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1777",
+   "shelfmark": "1114/10"
+  },
+  {
+   "table": "manuscripts",
+   "id": 267017,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1777",
+   "shelfmark": "8825/43"
+  },
+  {
+   "table": "manuscripts",
+   "id": 267124,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1778",
+   "shelfmark": "868/18"
+  },
+  {
+   "table": "manuscripts",
+   "id": 267193,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 135,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1778",
+   "shelfmark": "77/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 267241,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1778",
+   "shelfmark": "135/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 267327,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1778",
+   "shelfmark": "148/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 268316,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 100,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1880",
+   "shelfmark": "252/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 268356,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 410,
+     "to": null
+    }
+   },
+   "work_key": "-v27-1880",
+   "shelfmark": "بدون شماره/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 269410,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": null
+    }
+   },
+   "work_key": "-v28-242",
+   "shelfmark": "1190/33-ف و 2264/31-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 269603,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1377,
+     "to": null
+    }
+   },
+   "work_key": "-v28-298",
+   "shelfmark": "1768/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 273405,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 33500,
+     "to": null
+    }
+   },
+   "work_key": "-v28-1113",
+   "shelfmark": "270/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 277491,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 678,
+     "to": null
+    }
+   },
+   "work_key": "-v28-1726",
+   "shelfmark": "1419"
+  },
+  {
+   "table": "manuscripts",
+   "id": 278225,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 3,
+     "to": null
+    }
+   },
+   "work_key": "-v28-1891",
+   "shelfmark": "1202/23-طباطبائی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 280170,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 100,
+     "to": null
+    }
+   },
+   "work_key": "-v29-271",
+   "shelfmark": "2665/8"
+  },
+  {
+   "table": "manuscripts",
+   "id": 282129,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": null
+    }
+   },
+   "work_key": "-v29-823",
+   "shelfmark": "10247"
+  },
+  {
+   "table": "manuscripts",
+   "id": 288313,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 46,
+     "to": null
+    }
+   },
+   "work_key": "-v30-88",
+   "shelfmark": "2665/12"
+  },
+  {
+   "table": "manuscripts",
+   "id": 290958,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 250,
+     "to": null
+    }
+   },
+   "work_key": "-v30-589",
+   "shelfmark": "4932/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 290966,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 240,
+     "to": null
+    }
+   },
+   "work_key": "-v30-589",
+   "shelfmark": "2666/7"
+  },
+  {
+   "table": "manuscripts",
+   "id": 291180,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 135,
+     "to": null
+    }
+   },
+   "work_key": "-v30-625",
+   "shelfmark": "1419"
+  },
+  {
+   "table": "manuscripts",
+   "id": 292257,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 57,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1083",
+   "shelfmark": "172"
+  },
+  {
+   "table": "manuscripts",
+   "id": 292261,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 11,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1083",
+   "shelfmark": "514/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 292625,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 50,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1160",
+   "shelfmark": "813/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 292682,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 91,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1187",
+   "shelfmark": "5923/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 292782,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1253",
+   "shelfmark": "10834/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 293023,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 64,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1341",
+   "shelfmark": "841 و 1702 عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 295614,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 200,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1633",
+   "shelfmark": "955"
+  },
+  {
+   "table": "manuscripts",
+   "id": 297495,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 55,
+     "to": null
+    }
+   },
+   "work_key": "-v30-1908",
+   "shelfmark": "2138/2-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 298639,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 65,
+     "to": null
+    }
+   },
+   "work_key": "-v31-303",
+   "shelfmark": "5مجموعه بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 305217,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 19,
+     "to": null
+    }
+   },
+   "work_key": "-v31-2389",
+   "shelfmark": "229/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 305486,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 200,
+     "to": null
+    }
+   },
+   "work_key": "-v31-2464",
+   "shelfmark": "1820"
+  },
+  {
+   "table": "manuscripts",
+   "id": 306662,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 4270,
+     "to": null
+    }
+   },
+   "work_key": "-v32-141",
+   "shelfmark": "951/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 310579,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 18,
+     "to": null
+    }
+   },
+   "work_key": "-v32-903",
+   "shelfmark": "3847/4-ف"
+  },
+  {
+   "table": "manuscripts",
+   "id": 310938,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 180,
+     "to": null
+    }
+   },
+   "work_key": "-v32-1039",
+   "shelfmark": "1557/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 314848,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 533,
+     "to": null
+    }
+   },
+   "work_key": "-v33-3",
+   "shelfmark": "187/12"
+  },
+  {
+   "table": "manuscripts",
+   "id": 314881,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 408,
+     "to": null
+    }
+   },
+   "work_key": "-v33-4",
+   "shelfmark": "10055/35"
+  },
+  {
+   "table": "manuscripts",
+   "id": 316954,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 105,
+     "to": null
+    }
+   },
+   "work_key": "-v33-412",
+   "shelfmark": "8/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 318440,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 116,
+     "to": null
+    }
+   },
+   "work_key": "-v33-728",
+   "shelfmark": "303"
+  },
+  {
+   "table": "manuscripts",
+   "id": 318770,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 19,
+     "to": null
+    }
+   },
+   "work_key": "-v33-900",
+   "shelfmark": "7981/3"
+  },
+  {
+   "table": "manuscripts",
+   "id": 319067,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 262,
+     "to": null
+    }
+   },
+   "work_key": "-v33-924",
+   "shelfmark": "بدون شماره"
+  },
+  {
+   "table": "manuscripts",
+   "id": 319145,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 528,
+     "to": null
+    }
+   },
+   "work_key": "-v33-957",
+   "shelfmark": "503/4"
+  },
+  {
+   "table": "manuscripts",
+   "id": 319827,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 362,
+     "to": null
+    }
+   },
+   "work_key": "-v33-1225",
+   "shelfmark": "6569/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 320028,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 8,
+     "to": null
+    }
+   },
+   "work_key": "-v33-1277",
+   "shelfmark": "5730"
+  },
+  {
+   "table": "manuscripts",
+   "id": 321204,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 540,
+     "to": null
+    }
+   },
+   "work_key": "-v33-1516",
+   "shelfmark": "2666/5"
+  },
+  {
+   "table": "manuscripts",
+   "id": 321582,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 875,
+     "to": null
+    }
+   },
+   "work_key": "-v33-1562",
+   "shelfmark": "2665/29"
+  },
+  {
+   "table": "manuscripts",
+   "id": 322080,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 270,
+     "to": null
+    }
+   },
+   "work_key": "-v33-1728",
+   "shelfmark": "1280"
+  },
+  {
+   "table": "manuscripts",
+   "id": 328936,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 82,
+     "to": null
+    }
+   },
+   "work_key": "-v34-871",
+   "shelfmark": "315/3-عکسی"
+  },
+  {
+   "table": "manuscripts",
+   "id": 328947,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 210,
+     "to": null
+    }
+   },
+   "work_key": "-v34-879",
+   "shelfmark": "1732/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 328982,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 110,
+     "to": null
+    }
+   },
+   "work_key": "-v34-906",
+   "shelfmark": "6053/52"
+  },
+  {
+   "table": "manuscripts",
+   "id": 328983,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 42,
+     "to": null
+    }
+   },
+   "work_key": "-v34-906",
+   "shelfmark": "1003/13"
+  },
+  {
+   "table": "manuscripts",
+   "id": 329138,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 800,
+     "to": null
+    }
+   },
+   "work_key": "-v34-959",
+   "shelfmark": "953/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 329311,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 98,
+     "to": null
+    }
+   },
+   "work_key": "-v34-1009",
+   "shelfmark": "1/15-عکس"
+  },
+  {
+   "table": "manuscripts",
+   "id": 329874,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 8,
+     "to": null
+    }
+   },
+   "work_key": "-v34-1280",
+   "shelfmark": "8914/65"
+  },
+  {
+   "table": "manuscripts",
+   "id": 330051,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 7,
+     "to": null
+    }
+   },
+   "work_key": "-v34-1331",
+   "shelfmark": "444"
+  },
+  {
+   "table": "manuscripts",
+   "id": 330125,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": null
+    }
+   },
+   "work_key": "-v34-1353",
+   "shelfmark": "409/1"
+  },
+  {
+   "table": "manuscripts",
+   "id": 330243,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 1700,
+     "to": null
+    }
+   },
+   "work_key": "-v34-1398",
+   "shelfmark": "5690/2"
+  },
+  {
+   "table": "manuscripts",
+   "id": 330254,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 93,
+     "to": null
+    }
+   },
+   "work_key": "-v34-1402",
+   "shelfmark": "5445/47"
+  },
+  {
+   "table": "manuscripts",
+   "id": 333691,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 5200,
+     "to": null
+    }
+   },
+   "work_key": "-v34-2255",
+   "shelfmark": "2666/6"
+  },
+  {
+   "table": "manuscripts",
+   "id": 333765,
+   "category": "lines_bayt",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": null
+    }
+   },
+   "work_key": "-v34-2270",
+   "shelfmark": "274/3"
+  }
+ ],
+ "skipped": [
+  {
+   "id": 10116,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 10316,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 10413,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 11300,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 11413,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 11817,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12073,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12151,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12186,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12108,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12263,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12444,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 12872,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 13803,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14046,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14054,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14105,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14154,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14162,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14242,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14439,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14468,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14480,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14538,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14689,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14826,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14832,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14881,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 14932,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 15173,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 15293,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 15527,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 15675,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 15803,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 16345,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 17308,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 17313,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 18152,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 18263,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 18922,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 19231,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 19138,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 19665,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 19879,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 20221,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 21185,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 21690,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 22481,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 22631,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 22687,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 22927,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 23185,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 23228,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 23288,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 23697,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 23716,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24145,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24160,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24184,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24291,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24439,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24471,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 24723,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25004,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25054,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25061,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25202,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25387,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25751,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25764,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 25812,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 26048,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 26733,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 26957,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 27153,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 27282,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 27672,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 27977,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28100,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28106,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28334,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28420,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28658,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28670,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28719,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28796,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28940,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 28962,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29061,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29228,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29409,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29414,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29616,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29783,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29808,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 29810,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 30003,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 30319,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 30385,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 31085,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 31181,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 31425,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 31685,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 32002,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 32233,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 32393,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 32632,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 32825,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 33092,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 33194,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 33612,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 33694,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 33855,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34005,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34042,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34430,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34535,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34701,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34726,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34739,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 34992,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 35133,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 35164,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 35680,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 35709,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 35712,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36400,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36721,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36892,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36906,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36927,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36930,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36943,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36955,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36956,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37053,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 35789,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 36680,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37210,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37228,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37440,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37505,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37759,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37924,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 37927,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38215,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38485,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38488,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38524,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38573,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38576,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38578,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38579,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38584,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38585,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38586,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38591,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38619,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38623,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38625,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38626,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38682,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38737,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38738,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38740,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38817,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38819,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38821,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38823,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38824,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38825,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38827,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38871,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38903,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38904,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 38932,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39100,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39150,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39180,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39189,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39251,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39278,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 39637,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 40129,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 40159,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 40427,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 40457,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 40462,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 40501,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 41333,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 41438,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 41445,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 41795,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 41987,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 41998,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 42219,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 42601,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 42757,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 42773,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 43061,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 43642,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 43877,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 44033,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 44174,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 44645,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 44782,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45048,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45072,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45107,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45207,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45302,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45625,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 45838,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 46130,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 46198,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 46216,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 46420,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47240,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47332,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47381,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47516,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47709,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47749,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 47866,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48005,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48111,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48167,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48174,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48274,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48345,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 48456,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 49195,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 49267,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 49599,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 49894,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 50087,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 50352,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 50391,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 50491,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 50625,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 50967,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 51089,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 51300,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 51372,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 51418,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 51766,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 52219,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 52459,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 53069,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 53425,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 53481,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 54090,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 54246,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 54375,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 54890,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 57006,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 57160,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 57352,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 58444,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 58501,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 58568,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 59987,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 60912,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 62807,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 63528,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 66348,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 67030,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 67459,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 67503,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 68390,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 68696,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 69287,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 69739,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 69984,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 70763,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 70760,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 70884,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71170,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71178,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71288,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71372,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71397,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71646,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 71754,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 73062,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 73135,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 73282,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 75061,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 76702,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 77403,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 77675,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 77804,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 77691,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 78539,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 79029,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 79216,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 79445,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 80031,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 80406,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 80573,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 81119,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 81456,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 81753,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 81832,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 81847,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 81849,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 82031,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 82133,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 82270,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 82448,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 82653,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 82678,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 83062,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 83531,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 86255,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 87192,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 87531,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 87665,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 87885,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 88355,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 88671,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 88709,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 89092,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 89463,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 89728,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 89795,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 90443,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 91310,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 92158,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 92591,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 92963,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 93098,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 92912,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 93708,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 93944,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 94952,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 95364,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 95590,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 96236,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 96390,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 96704,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 97128,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 97136,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 97717,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 97898,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 98887,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 100856,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 101944,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 101945,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 102053,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 102057,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 102364,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 102910,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 102921,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 103714,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 104232,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 104620,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 105025,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 105121,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 105369,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 105376,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 106146,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 106149,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 106525,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 106874,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 108672,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 109377,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 109882,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 110475,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 110552,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 110919,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 111140,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 111325,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 112190,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 112877,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 114417,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 114496,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 115942,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 116146,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 116848,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 117934,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 118109,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 118196,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 118257,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 119425,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 120191,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 120203,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 120565,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 120640,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 121261,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 122464,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 123203,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 124528,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 124588,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 125265,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 126423,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 126694,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 126907,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 127160,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 127865,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 128398,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 129398,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 130967,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 131001,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 131127,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 131272,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 131298,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 132323,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 132713,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 133323,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 133400,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 133946,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 134717,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 135012,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 135014,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 135151,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 135756,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 135763,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 136132,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 137614,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 137910,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 137979,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 138670,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 139709,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 139985,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 140603,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 140795,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 140815,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 140817,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 141844,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 142157,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 142304,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 142365,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 142366,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 142500,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 142826,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 143510,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 145248,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 147059,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 147533,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 147690,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 147921,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 149151,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 149156,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 149183,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 149283,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 150183,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 150304,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 150783,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 150789,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 150913,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 150915,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 151751,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 151983,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 154116,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 154760,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 155137,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 156425,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 157981,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 159092,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 159771,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 160158,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 161196,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 161286,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 163496,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 163798,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 164852,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 167188,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 167449,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 167451,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 167453,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 167693,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 169643,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 169976,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 170406,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 170568,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 171279,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 171728,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 172392,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 172393,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 172591,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 172592,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 172778,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 173126,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 174069,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 175136,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 176130,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 176274,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 176302,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 176769,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 177344,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 179198,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 180214,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 181226,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 181747,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 182949,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 183043,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 183187,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 183978,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 184186,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 184506,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 185430,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 187073,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 187819,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 190881,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 191478,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 193659,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 194936,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 195013,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 195288,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 196511,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 196629,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 198038,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 198282,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 198844,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 200478,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 200200,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 200860,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 201981,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 201990,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 202133,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 202408,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 204810,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 205029,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 205781,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 205914,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 206280,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 207498,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 208423,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 208459,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 210459,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 211958,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 214361,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 214545,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 214755,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 215271,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 215649,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 219498,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 220699,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 221010,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 221021,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 221701,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 222122,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 222388,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 222723,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 222772,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 222814,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 222890,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 225557,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 226571,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 226804,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 227382,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 227944,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 229136,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 230523,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 230821,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 231916,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 232175,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 232369,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 233043,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 233962,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 233971,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 234096,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 235940,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 235974,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 236879,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 237290,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 237924,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 237939,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 237983,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 238029,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 238997,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 239019,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 239155,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 240875,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 241153,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 241176,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 241914,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 243337,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 243640,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 243771,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 244476,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 245119,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 245236,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 245892,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 245345,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 246618,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 247637,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 248078,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 249515,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 250193,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 250850,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 252699,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 252767,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 252771,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 254384,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 254674,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 254938,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 254959,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 254994,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 255004,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 255058,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 255754,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 255982,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 256114,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 256116,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 256158,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 257168,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 257763,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 258457,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 258943,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 258977,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 259260,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 259614,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 259757,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 260750,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 260800,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 260830,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 262329,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 262814,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 263055,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 263323,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 263797,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 264860,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 267197,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 267528,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 267532,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 269060,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 269521,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 270288,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 270291,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 270638,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 271849,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 271863,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 272593,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 273897,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 274205,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 275290,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 275548,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 276448,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 278943,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279362,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279492,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279539,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279545,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279596,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279608,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279744,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279751,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279787,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279820,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279847,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279892,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279897,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279898,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279899,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279914,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 279950,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 280584,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 282731,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 283168,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 284857,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 284881,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 288625,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 288909,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 288973,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 295847,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 297450,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 297503,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 300052,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 301460,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 301990,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 302468,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 302568,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 302875,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 303862,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 304528,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 305146,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 305866,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 306116,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 306428,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 306732,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 306734,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 307165,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 307443,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 308997,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 311304,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 312809,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 313482,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 314189,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 315255,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 315375,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 315435,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 317642,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 317804,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 319013,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 319112,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 319825,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 320135,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 320732,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 321226,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 322423,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 324193,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 325562,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 325823,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326116,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326452,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326465,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326548,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326591,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326724,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326738,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326749,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326754,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 326768,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 327497,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 328116,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 329230,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 329934,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 330376,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 330461,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 332126,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 332191,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 333072,
+   "why": "the copy text names lines, or not that number of verses"
+  },
+  {
+   "id": 333112,
+   "why": "the copy text names lines, or not that number of verses"
+  }
+ ]
+}

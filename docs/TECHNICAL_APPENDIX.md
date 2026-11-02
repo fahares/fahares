@@ -6225,3 +6225,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
 - **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
 - **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
+
+### گام ۱۳.۱۵۲: `lines_bayt`
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines_bayt`. ورودی ردیف‌های `lines/emptied` از `reports/fankha_v2_db_review6/diffs.jsonl` است. شرط: `raw_text` سایت، بی برچسب صفحه و با رقم لاتین، «سطر» ندارد و `{lines}\s*بیت` دارد. خروجی ۴۸۱ رکورد است و ۷۲۵ رکورد کنار گذاشته شد.
+- **فایل تصمیم:** `database/data/fankha_lines_bayt_20261102.json`، با تغییر `lines: {from: N, to: null}`. فرمان تغییری نخواست، چون `lines` از گام ۱۳.۱۳۲ در `FIELDS` است.
+- **تمرین (`fahares_prod`):** `Would write 481`، سپس `Writing 481`، سپس `Would write 0`.
+- **آزمون:** ادامه‌ی `test_a_line_count_fills_only_a_copy_still_without_one`.
