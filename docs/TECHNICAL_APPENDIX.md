@@ -6745,7 +6745,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۶ بخش دو منبع ۱٬۰۸۷ نسخه دارند و همه بی‌صف دوباره ایندکس شدند. `source_entries` = ۷۸۸٬۵۰۱.
   - Meilisearch برای کتابخانه‌های ۱۱۸ و ۱۷۰ با پایگاه یکی است. صفحه‌ی هر دو منبع ۳ سطر `data-volume-part` دارد.
 
-
 ### گام ۱۴.۴: چهار کتاب با `catalogs:import-volume-parts`
 - **داده:**
   - [library_duplicates_step14_4.json](../database/data/library_duplicates_step14_4.json): `kayn-frhng-o-arshad-aslamy-kayn-367` ← `kayn-frhng-o-arshad-920`.
@@ -6763,6 +6762,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - بخش‌ها: رضویه ۱۴۸، لاجوردی ۵۴، زنجانی ۲۳۱، چهل ستون ۳۹۶، روحانی ۲۰؛ جعفریه قائن ۲۸۱، امام ۶۱، فرهنگ و ارشاد ۱۴؛ جعفریه زهان ۱۸۲، قهستانی ۴۸؛ ساری ۲۵۰، تنکابن ۲۵.
   - هر چهار: اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. داده‌های پیشین هم «Nothing to do» ماندند.
   - پشتیبان‌ها: `fahares-sources/backups/step13/step14.4_import_volume_parts_{ashnaei,qaen,zahan,sari_tonekabon}_local_before_20261103.json`.
+
 ### گام ۱۴.۵: `scripts/dev/test-suite`
 - **فایل‌ها:** در `~/.fahares`: قفل `test.lock` (`flock`)، دارنده `test.holder` (checkout، زمان، گزینه‌ها) و `test-runs.log` (آغاز، پایان، مسیر نسبی checkout، کد خروج، گزینه‌ها).
 - **مسیر در کانتینر:** کانتینر فقط مخزن اصلی را در `/var/www/html` دارد. مسیر checkout نسبت به ریشه‌ی مخزن اصلی (`git rev-parse --git-common-dir/..`) حساب می‌شود و `-w /var/www/html<مسیر>` می‌گیرد. checkout بیرون از مخزن اصلی با کد ۲ رد می‌شود.
