@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Run a command in the production app container (`ssh fahares-app`) under one lock shared by every session on this
+# machine, so that two production data runs never overlap. The lock lives outside git, next to the step registry.
+#
+#   scripts/dev/prod-run <session-name> -- 'cd /app && php artisan some:command --apply'
+#                                          run it, or refuse at once if another run holds the lock
+#   scripts/dev/prod-run --wait <session-name> -- '…'
+#                                          the same, but wait for the lock instead of refusing
+#   scripts/dev/prod-run --status          who holds the lock now, artisan processes running in production, last runs
+#
+# Before taking the lock it also looks for artisan commands already running in production: a run started with plain ssh
+# or nohup, or one whose ssh connection dropped (PHP keeps running), holds no lock but is caught here.
+# Read-only checks may still use plain `ssh fahares-app`; anything that writes production data goes through this script.
+set -euo pipefail
+
+DIR="${FAHARES_STATE_DIR:-$HOME/.fahares}"
+LOCK="$DIR/prod.lock"
+HOLDER="$DIR/prod.holder"
+LOG="$DIR/prod-runs.log"
+HOST="${FAHARES_PROD_HOST:-fahares-app}"
+# artisan commands that count as a production run; the quick ones (tinker, about, migrate:status) do not
+BUSY_PATTERN='php artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):'
+
+mkdir -p "$DIR"
+touch "$LOG"
+
+remote_busy() {
+    ssh -o BatchMode=yes "$HOST" "pgrep -fa '$BUSY_PATTERN' | grep -v pgrep" 2>/dev/null || true
+}
+
+if [[ "${1:-}" == "--status" ]]; then
+    exec 9>>"$LOCK"
+    if flock -n 9; then
+        echo "lock: free"
+    else
+        echo "lock: held by $(cat "$HOLDER" 2>/dev/null || echo '?')"
+    fi
+    busy=$(remote_busy)
+    echo "production artisan runs: ${busy:-none}"
+    echo "last runs:"
+    tail -n 8 "$LOG"
+    exit 0
+fi
+
+wait=0
+if [[ "${1:-}" == "--wait" ]]; then
+    wait=1
+    shift
+fi
+session="${1:?usage: prod-run [--wait] <session-name> -- '<command>'}"
+[[ "${2:-}" == "--" ]] || { echo "usage: prod-run [--wait] <session-name> -- '<command>'" >&2; exit 2; }
+command="${3:?usage: prod-run [--wait] <session-name> -- '<command>'}"
+
+exec 9>>"$LOCK"
+if (( wait )); then
+    echo "waiting for the production lock (held by $(cat "$HOLDER" 2>/dev/null || echo '?'))…" >&2
+    flock 9
+elif ! flock -n 9; then
+    echo "production is busy: $(cat "$HOLDER" 2>/dev/null || echo 'another run')" >&2
+    exit 75
+fi
+
+busy=$(remote_busy)
+if [[ -n "$busy" ]]; then
+    echo "production is busy, an artisan run without the lock is still going:" >&2
+    echo "$busy" >&2
+    exit 75
+fi
+
+started="$(date '+%F %H:%M:%S')"
+printf '%s  %s  %s\n' "$session" "$started" "$command" > "$HOLDER"
+status=0
+ssh "$HOST" "$command" || status=$?
+printf '%s\t%s\t%s\texit %s\t%s\n' "$started" "$(date '+%H:%M:%S')" "$session" "$status" "${command//$'\t'/ }" >> "$LOG"
+: > "$HOLDER"
+exit "$status"
