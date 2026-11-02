@@ -278,6 +278,32 @@ class BibliographyLinks
     }
 
     /**
+     * The volume and page two numbers of a citation of the source name, «page:volume» as the source writes them or,
+     * when only that fits, «volume:page» (al-Dhari'a's «(7:182)»); null when neither is a page the source has (its
+     * viewer's or text's first and last pages, where the config gives them). $ordered: the first is the volume, as in
+     * «ج 7 ص 161». Shared by the links in a source's own page texts (step 13.155, App\Support\PageLinks\References).
+     *
+     * @return ?array{0: int, 1: int}  [volume, page]
+     */
+    public static function place(string $key, int $first, int $second, bool $ordered = false): ?array
+    {
+        $src = self::sources()[$key] ?? null;
+        if (! $src) {
+            return null;
+        }
+        $bounds = $src['viewer'] ?? $src['text'] ?? [];
+        $holds = fn (int $v, int $p) => $v >= 1 && $v <= $src['volumes'] && $p >= ($bounds['first_pages'][$v] ?? 1)
+            && (! isset($bounds['last_pages']) || $p <= ($bounds['last_pages'][$v] ?? 0));
+        foreach ($ordered ? [[$first, $second]] : [[$second, $first], [$first, $second]] as [$volume, $page]) {
+            if ($holds($volume, $page)) {
+                return [$volume, $page];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * The volume a cited volume number stands for: one of the source's own, or one of its series_volumes
      * (the Beirut reprint numbers the Istanbul set on, so Idah's volumes are 3-4 there and Hadiyya's 5-6).
      */

@@ -441,6 +441,10 @@
                 </x-ui.section>
             @endif
 
+            <!-- MENTIONS: where the sources' texts cite this copy by its shelfmark, the reverse of their links to it (step 13.155) -->
+            <x-source.mentions :mentions="\App\Support\SourceMentions::of($manuscript)" title="یادکرد در منابع"
+                note="این یادکردها را ماشین از روی کتابخانه، شماره‌ی نسخه و عنوان اثر یافته است، و ممکن است خطا داشته باشد." />
+
             <!-- READINGS: adopted, alternative and superseded readings from researchers -->
             <x-suggest.readings />
 

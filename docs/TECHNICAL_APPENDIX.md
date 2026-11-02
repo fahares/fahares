@@ -6238,3 +6238,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_lines_bayt_20261102.json`، با تغییر `lines: {from: N, to: null}`. فرمان تغییری نخواست، چون `lines` از گام ۱۳.۱۳۲ در `FIELDS` است.
 - **تمرین (`fahares_prod`):** `Would write 481`، سپس `Writing 481`، سپس `Would write 0`.
 - **آزمون:** ادامه‌ی `test_a_line_count_fills_only_a_copy_still_without_one`.
+
+### گام ۱۳.۱۵۵: `sources:link-page-refs` و `App\Support\PageLinks`
+- **پیکربندی:** [config/page_links.php](../config/page_links.php)، با کلید کد منبع. `copies.marks` برچسب‌هایی است که پیوند کتابخانه‌شان دنبال می‌شود (الذریعة: `OB`). `copies.skip_words` واژه‌هایی است که پس از شماره، از جمله‌اند و نشانه‌ی مجموعه نیستند («كتابته»، «و»). `references.forms` الگوهای ارجاع است، با گروه‌های `first`/`second` یا `volume`/`page`. `references.cues` نشانه‌ی ارجاع به خود کتاب است. `title_before` و `title_after` عنوان را می‌گیرند. `references.bibliography` کلید منبع در `config('bibliography.sources')` است.
+- **کلاس‌ها** ([app/Support/PageLinks](../app/Support/PageLinks)):
+  - `PageText`: برچسب‌های صفحه با جای نویسه‌ای‌شان، متن بی برچسب (`PrintedPage::withoutMarks`، اکنون public)، و مدخل دربرگیرنده‌ی هر جا (`holder()`). `PrintedPage::entryStarts()` از `cut()` جدا شد.
+  - `Shelfmarks::after()`: شماره و نشانه‌ی مجموعه، درون برچسب یا پس از آن، و جا و متن بازه.
+  - `CopyResolver::resolve()`: `DirectAnswer::byShelfmark`. نسخه‌ای که shelfmark آن خود شماره است و تنهاست، اگر یکی از عنوان‌های اثرش (`searchTitles()`، اصلی و فرعی) با مدخل جور باشد، با روش `exact` پیوند می‌گیرد. وگرنه، از نسخه‌های آن شماره (رساله‌های مجلد) آن یکی که جور است، با روش `part`. روش‌های ردشده: `title-differs`، `several`، `none` و `no-entry`.
+  - `References::in()`: الگوها روی متن بی برچسب اجرا می‌شوند. ارجاع پذیرفته می‌شود اگر جلد و صفحه با `BibliographyLinks::place()` جا بیفتند، و `cues` بر ۱۲۰ نویسه‌ی پیش از آن بنشیند، یا ارجاع درست پس از ارجاع پذیرفته‌ی دیگری بیاید (`و`/`،`، با «بعنوان …» میانشان). بازه‌ای که نشانه‌ی برچسب نور در خود دارد، کنار می‌رود.
+  - `EntryResolver::resolve()`: مدخل‌های آن صفحه. با عنوان: `Titles::agree` (روش `title`). بی عنوان: عنوان مدخل در جمله‌ی پیش از ارجاع (`Titles::in`) یا برابر عنوان مدخل دربرگیرنده (روش `context`). اگر دقیقاً یکی نبود، به `SourcePage` (روش `page` یا `page-titled`). ارجاع به همان صفحه پیوند نمی‌گیرد (`own-page`).
+  - `Titles`: حروف یکسان می‌شوند (`TextNormalizer` و `MatchCatalogEditionCommand::norm`) و واژه‌ی قالب آغاز عنوان برداشته می‌شود (`مثنوی`، `دیوان`، `رساله` و جز آن، با «فی/در» پس از آن). دو عنوان جورند اگر برابر باشند، یا یکی آغاز دیگری باشد (دست‌کم دو واژه)، یا شباهت ۰٫۹ داشته باشند (دست‌کم شش حرف). عنوانی که با `MADE_ON` آغاز شود (شرح، حاشیه، ترجمه، مقدمه و …)، اثر دیگری است.
+- **`BibliographyLinks::place($key, $first, $second, $ordered = false)`:** جلد و صفحه از روی `volumes` و `first_pages`/`last_pages` نمایشگر یا متن منبع. ترتیب «صفحه:جلد» آزموده می‌شود و اگر جا نیفتاد، وارونه‌اش.
+- **جدول (migration `2026_11_04_100001`):** ستون‌های `offset` (نویسه‌ای) و `span` اضافه شدند، و `ordinal` تهی‌پذیر شد. یکتایی از `(source_page_id, ordinal)` به `(source_page_id, ordinal, target_type)` تغییر کرد، و ایندکس جدای `source_page_id` برای کلید خارجی اضافه شد. migration روی رونوشت ۰٫۲۷ ثانیه طول کشید. `down` پیوندهای بی ordinal و پیوندهای نسخه را پاک می‌کند.
+  - **سطرها:** پیوند نسخه با ordinal و `kind` برچسب، و `target_type = App\Models\Manuscript`. ارجاع با `kind = ref` و بی ordinal، و `target_type` برابر `SourceItem` یا `App\Models\SourcePage` (مدل تازه).
+- **نمایش:** `PrintedPage::linked()` بازه‌ها را از آخر به اول درون علامت `\u{E020}kind\0url\0title\0record\0r{offset}\u{E021}…\u{E022}` می‌گذارد، به این شرط که `mb_substr` متن در آن جا هنوز برابر `span` باشد. سپس برچسب‌های نور را می‌شمارد و برچسب‌هایی را که `\0` دارند کنار می‌گذارد. برای هر ordinal، پیوند نسخه بر پیوند کتابخانه پیش است. کلاس‌های تازه `copy` و `page` هستند. `SourceMentions::hasSpans()` نبود ستون‌ها را پیش از migration در هر پردازش یک بار می‌سنجد. `SourceMentions::of()` پیوندهای بی ordinal را با `#r{offset}` و بافت پیرامون همان جا نشان می‌دهد.
+- **دستور:** `sources:link-page-refs {source} [--only=copies|references] [--volume=N] [--sample=PREFIX --per-kind=50] [--all] [--dry-run]`. نمونه در `PREFIX.copies.txt` و `PREFIX.references.txt` نوشته می‌شود. هر اجرا پیوندهای آن بخش را از نو می‌سازد، ولی ردشده‌ها می‌مانند (کلید: صفحه و ordinal برای نسخه، و صفحه و offset برای ارجاع). `ENABLED` = `exact` و `part` برای نسخه، و هر چهار روش برای ارجاع.
+- **سنجش (`fahares_prod`، دور سوم):**
+  - **نسخه:** `title-differs` ۱٬۵۴۴، `exact` ۸۳۳، `part` ۳۹۷، `none` ۲۱۶، `several` ۴۸ و `no-entry` ۴.
+  - **ارجاع:** `page` ۲٬۲۰۲، `context` ۹۱۶، `page-titled` ۴۲۹، `title` ۲۷۷ و `no-page` ۱.
+  - **زمان:** اجرای کامل ۵ دقیقه و ۵۲ ثانیه، و بخش نسخه به‌تنهایی حدود ۲ دقیقه.
+  - **خطاهای دو دور نخست، که سنجش عنوان را سخت‌تر کردند:**
+    - شباهت ۰٫۸ روی عنوان کوتاه: «لالی» با «جلالیه»، و «فرح نامه» با «فرخ نامه».
+    - عنوان درون عنوان: «ملاحظات حول ديوان ناصر خسرو»، «من کلام ثیاذوق فی حفظ الصحة»، و «نوربخش» درون «مکتوب سید محمد نوربخش».
+    - «مقدمه …» و «منتخب …».
+- **آزمون:** [LinkPageRefsTest](../tests/Feature/LinkPageRefsTest.php) با چهار آزمون: نسخه (`exact`، نشانه‌ی مجموعه، `part`، عنوان ناجور، رد ویراستار و صفحه‌ی نسخه)، ارجاع (عنوان، صفحه، بافت، ارجاع به کتاب دیگر، صفحه‌ی مدخل و متن تغییرکرده)، `Titles` و `place()`، و منبع بی پیکربندی.
+- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار: `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs dharia'`. پشتیبان: خروجی `source_page_links`. برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
