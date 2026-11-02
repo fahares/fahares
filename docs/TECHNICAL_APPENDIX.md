@@ -6856,3 +6856,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **کنار رفته‌ها:** ۲۶ «v2 reads another author» و ۲۶ «hedged».
 - **فایل تصمیم:** `database/data/fankha_authors_from_description_by_title_20261102.json`.
 - **تمرین (`fahares_prod`):** `update 399` و سپس `update 0`. `author_id` در هیچ اثری پر نشد.
+
+### گام ۱۴.۱۱: `--from-raw`
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py --from-raw`.
+  - **ورودی:** ردیف‌های `Work/author_name/filled` از review7 (۲٬۳۸۳ ردیف).
+  - **خواندن متن:** `raw_lines` متن هر اثر را از `--db` می‌خواند، برچسب‌های صفحه را برمی‌دارد و سطرهای ناخالی را جدا می‌کند.
+  - **نام:** سطر سوم است، به شرط آن‌که سطر نخست با «●» آغاز شود و سطر دوم حرف لاتین داشته باشد.
+  - **اثر v2:** ابتدا با کلید `-v{vol}-{ordinal}` جست‌وجو می‌شود و اگر نام نخواند، با `by_title_and_author`.
+  - **خروجی:** ۱٬۳۹۷ رکورد `work_updates` (`author_name: null → name`). ۹۸۶ رکورد کنار رفت: ۸۳۱ مؤلف دارند، ۱۰۸ «another»، ۳۸ «hedged» و ۹ «no author line».
+- **فایل تصمیم:** `database/data/fankha_authors_from_text_20261102.json`.
+- **تمرین (`fahares_prod`):** `update 1397` و سپس `update 0`. `author_id` در همه تهی ماند.
