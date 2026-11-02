@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Keeps what is made from a copy's or a work's source columns in step when a corpus command writes them with
  * DB::table, which runs no model hook (item 87). For a copy: its date range (Manuscript::copyDateColumns), its extent
- * (CopyExtent::columns), its bound volume (Manuscript::collectionKeyOf), its pointers at the work's excerpts (FillTextExcerptsCommand::linkCopy), its search document
+ * (CopyExtent::columns), its line layouts (CopyLines::columns), its bound volume (Manuscript::collectionKeyOf), its pointers at the work's excerpts (FillTextExcerptsCommand::linkCopy), its search document
  * and those of the works its incipit and explicit are indexed under. For a work: its date of composition's range
  * (Work::compositionDateColumns), its dedicatees and commissioners (fahares:backfill-work-dedications) and its search
  * document. The fillers and fahares:refresh-derived use the same functions, so there is one write path, and only what
@@ -25,7 +25,7 @@ class DerivedData
 {
     public const COPY_COLUMNS = ['id', 'work_id', 'raw_text', 'incipit_text', 'explicit_text', 'copy_date_raw', 'copy_date_from', 'copy_date_to',
         'copy_date_certainty', 'copy_date_hedge_raw', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number',
-        'shelfmark', 'collection_key'];
+        'shelfmark', 'collection_key', 'lines_raw', 'line_counts'];
 
     public const WORK_COLUMNS = ['id', 'composition_date_raw', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_date_hedge_raw'];
 
@@ -37,7 +37,7 @@ class DerivedData
      * (left alone when its text has no single count, as fill-extents does) and the volume its shelfmark names (left
      * alone where a reviewed correction set it).
      *
-     * @return array{date: ?array, extent: ?array, collection: ?array}
+     * @return array{date: ?array, extent: ?array, collection: ?array, lines: ?array}
      */
     public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null): array
     {
@@ -48,6 +48,7 @@ class DerivedData
             'date' => $date !== self::range($row, 'copy_date') ? $date : null,
             'extent' => $extent !== null && $extent !== CopyExtent::stored($row) ? $extent : null,
             'collection' => self::collectionChange($row, $guard),
+            'lines' => CopyLines::columns($row),
         ];
     }
 
@@ -86,18 +87,19 @@ class DerivedData
     {
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
         $guard = ProtectedColumns::for(Manuscript::class);
-        $counts = ['copies' => count($ids), 'dates' => 0, 'extents' => 0, 'collections' => 0, 'pointers_linked' => 0, 'pointers_removed' => 0];
+        $counts = ['copies' => count($ids), 'dates' => 0, 'extents' => 0, 'collections' => 0, 'lines' => 0, 'pointers_linked' => 0, 'pointers_removed' => 0];
         $workIds = [];
         foreach (array_chunk($ids, 500) as $chunk) {
             $rows = DB::table('manuscripts')->whereIn('id', $chunk)->get(self::COPY_COLUMNS);
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             DB::transaction(function () use ($rows, $guard, $deaths, &$counts) {
                 foreach ($rows as $row) {
-                    ['date' => $date, 'extent' => $extent, 'collection' => $collection] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
-                    if (! $date && ! $extent && ! $collection) {
+                    ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
+                    if (! $date && ! $extent && ! $collection && ! $lines) {
                         continue;
                     }
-                    DB::table('manuscripts')->where('id', $row->id)->update(($date ?? []) + ($extent ?? []) + ($collection ?? []));
+                    DB::table('manuscripts')->where('id', $row->id)->update(($date ?? []) + ($extent ?? []) + ($collection ?? []) + CopyLines::forUpdate($lines));
+                    $counts['lines'] += $lines ? 1 : 0;
                     $counts['dates'] += $date ? 1 : 0;
                     $counts['extents'] += $extent ? 1 : 0;
                     $counts['collections'] += $collection ? 1 : 0;
