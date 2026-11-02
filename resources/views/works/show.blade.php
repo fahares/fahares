@@ -452,8 +452,6 @@
                                         @if($ms->is_autograph)<span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 ms-1">(مؤلف)</span>@endif
                                     @elseif($ms->is_autograph)
                                         <span class="text-emerald-700 dark:text-emerald-400">{{ $work->author?->name ?? $work->author_name ?? '' }} <span class="text-xs font-semibold">(مؤلف)</span></span>
-                                    @elseif($ms->is_bika)
-                                        <span class="text-muted">بی‌کاتب</span>
                                     @else
                                         <span class="text-muted">نامشخص</span>
                                     @endif
@@ -461,10 +459,8 @@
                                 <td class="py-2.5 px-3">
                                     @if($ms->copy_date_raw)
                                         {{ Fa::digits($ms->copy_date_raw) }}
-                                    @elseif($ms->is_bita)
-                                        <span class="text-muted">بی‌تاریخ</span>
                                     @else
-                                        <span class="text-muted">—</span>
+                                        <span class="text-muted">نامشخص</span>
                                     @endif
                                 </td>
                                 <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>

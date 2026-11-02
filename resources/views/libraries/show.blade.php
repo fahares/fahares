@@ -105,13 +105,11 @@
                                             {{ $ms->scribe_name }}
                                         @elseif($ms->is_autograph)
                                             <span class="text-emerald-700 dark:text-emerald-300">مؤلف</span>
-                                        @elseif($ms->is_bika)
-                                            <span class="text-muted">بی‌کاتب</span>
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
                                     </td>
-                                    <td class="py-2.5 px-3">{{ $ms->copy_date_raw ? Fa::digits($ms->copy_date_raw) : ($ms->is_bita ? 'بی‌تاریخ' : '—') }}</td>
+                                    <td class="py-2.5 px-3">{{ $ms->copy_date_raw ? Fa::digits($ms->copy_date_raw) : '—' }}</td>
                                     <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>
                                 </tr>
                             @empty

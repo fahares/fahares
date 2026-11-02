@@ -264,8 +264,6 @@
                             <x-ui.life :person="$manuscript->scribe" />
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
-                        @elseif($manuscript->is_bika)
-                            <span class="text-muted">بی‌کاتب</span>
                         @else
                             <span class="text-muted">نامشخص</span>
                         @endif
@@ -276,8 +274,6 @@
                             @if($showParsedYear)<span class="text-muted">({{ Fa::digits($manuscript->copy_date_hijri_year) }} ق)</span>@endif
                             {{-- A note on the date the parser split off it («در حیات مؤلف»), backlog item 96 --}}
                             @if($manuscript->copy_date_note)<span class="block text-[12px] text-muted">{{ $manuscript->copy_date_note }}</span>@endif
-                        @elseif($manuscript->is_bita)
-                            <span class="text-muted">بی‌تاریخ</span>
                         @else
                             <span class="text-muted">نامشخص</span>
                         @endif

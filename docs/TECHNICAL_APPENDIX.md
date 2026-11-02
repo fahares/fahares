@@ -6845,3 +6845,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۸۷۳، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #763 (بخش ۱۰۰۵، فهرست‌نگار ۲۴).
   - شمار بخش‌ها: ۸۷۳ = ۲۱۹ و ۱۰۰۵ = ۲۷۶. حضرتی (#۳۷): ۳ جلد و ۲۱۶ نسخه.
   - اثرانگشت جدول‌ها پس از `--revert` با پیش از اجرا یکی بود؛ پس از آن دوباره اجرا شد.
+
+### گام ۱۴.۱۳: نمایش `is_bika` و `is_bita`
+- **نماها:** شاخه‌های `is_bika` و `is_bita` از [works/show](../resources/views/works/show.blade.php)، [manuscripts/show](../resources/views/manuscripts/show.blade.php)، [libraries/show](../resources/views/libraries/show.blade.php) و [search](../resources/views/search.blade.php) برداشته شد. هر نما حالت «نامعلوم» خودش را نشان می‌دهد: «نامشخص»، یا «—» در جدول کتابخانه، یا هیچ در نتیجه‌ی جستجو.
+- **`Manuscript::getScribeDisplayNameAttribute`:** دیگر «بی‌کاتب» برنمی‌گرداند.
+- **`SearchFilters::FLAGS`:** `is_bita` و `is_bika` برداشته شدند. نشانی کهنه‌ی `flags[]=is_bita` در `clean` کنار گذاشته می‌شود. `config('insights.features')` این دو را نداشت.
+- **ماندنی‌ها:** ستون‌ها، سند جستجو (`toSearchableArray`) و `bit_label` فرم پیشنهاد در `SuggestionRegistry`.

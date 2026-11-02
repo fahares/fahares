@@ -216,9 +216,6 @@ class Manuscript extends Model
         if ($this->is_autograph) {
             return 'مؤلف';
         }
-        if ($this->is_bika) {
-            return 'بی‌کاتب';
-        }
         return 'نامشخص';
     }
 
