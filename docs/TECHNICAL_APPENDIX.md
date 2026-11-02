@@ -6825,6 +6825,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):**
   - **تمرین نخست:** بی شرط سده بود و ۱۸ `author_id` ساخت، همه با نام‌های بی‌تاریخ. این تمرین با `old_values` ممیزی برگردانده شد: `author_name`، `author_id` و `description` به حال پیش برگشتند، سطرهای `work_people` با نقش `author` آن ۱۸ اثر و ردیف‌های ممیزی پاک شدند.
   - **تمرین دوم:** `update 432` اجرا شد. ۸ اثر سده داشتند، ولی هیچ‌کدام تطبیق مطمئن نداشت، پس `author_id` در همه تهی ماند. اجرای بعدی `update 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_from_description_prod_before_20261102.json` با ۴۳۲ اثر. پیش از اجرا هیچ‌کدام `author_name` نداشتند.
+  - **اجرا:** با `prod-run`. خروجی `update 432` و سپس `update 0` بود. `audit_logs` ۴۳۲ ردیف دارد و `author_id` در هیچ اثری پر نشد.
 
 ### گام ۱۴.۹: `catalogs:remove-catalogue`
 - **دستور:** [RemoveCatalogueCommand](../app/Console/Commands/RemoveCatalogueCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
