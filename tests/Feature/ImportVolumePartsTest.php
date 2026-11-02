@@ -60,8 +60,9 @@ class ImportVolumePartsTest extends TestCase
 
     public function test_the_volume_a_citation_names()
     {
-        $this->assertSame([[9, 74], [5, 600], null], [Import::numbers('[میراث اسلامی: دفتر نهم - 74]', 'میراث اسلامی'),
-            Import::numbers('[میراث اسلامی ایران: 5 - 600]', ['میراث اسلامی', 'میراث اسلامی ایران']), Import::numbers('[ف: 1 - 20]', 'میراث اسلامی')]);
+        $this->assertSame([[9, 74], [5, 600], null, [12], [105]], [Import::numbers('[میراث اسلامی: دفتر نهم - 74]', 'میراث اسلامی'),
+            Import::numbers('[میراث اسلامی ایران: 5 - 600]', ['میراث اسلامی', 'میراث اسلامی ایران']), Import::numbers('[ف: 1 - 20]', 'میراث اسلامی'), Import::numbers('[سه کتابخانه اصفهان؛ ف: 12]', 'سه کتابخانه اصفهان'),
+            Import::numbers('[سه کتابخانه اصفهان - ف: 105]', ['سه کتابخانه اصفهان', 'سه کتابخانه اصفهان - ف'])]);
         $this->assertSame([5, 5, 7, null, 2, 4, null], [Import::volume([5, 132], [4, 5, 7]), Import::volume([132, 5], [4, 5, 7]), Import::volume([7], [4, 5, 7]),
             Import::volume([200], [4, 5, 7]), Import::volume([2, 5], [2, 5]), Import::volume([4, 478, 11, 935], [4, 11]), Import::volume([], [4])]);
     }

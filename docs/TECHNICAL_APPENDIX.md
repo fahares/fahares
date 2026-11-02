@@ -6673,3 +6673,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **«نشریه» دوباره:** ۳ نسخه‌ی بی‌جلد با «نشريه» به دفترهای ۳، ۷ و ۱۳ رفتند. پشتیبان: `…/step13.173_rerun_nashriyeh_local_before_20261103.json`. «اوراق عتیق»، «چهار کتابخانه مشهد» و «میراث» «Nothing to do» دادند.
 - **آزمون:** `ImportVolumePartsTest` با نسخه‌ای که «نشريه» دارد.
 - **پروداکشن (پس از انتشار، به ترتیب):** `catalogs:merge-duplicates --data=…step13_173.json`، `catalogs:import-volume-parts --data=…dalil_al_makhtutat.json`، و `catalogs:import-volume-parts --data=…nashriyeh.json`.
+
+### گام ۱۳.۱۷۵: «سه کتابخانه اصفهان» با `create`
+- **داده:**
+  - [library_duplicates_step13_175.json](../database/data/library_duplicates_step13_175.json): `asfhan-aboalbrkat-rda-904` ← `asfhan-aboalbrkat-rda-118`.
+  - [volume_parts_se_ketabkhaneh_isfahan.json](../database/data/volume_parts_se_ketabkhaneh_isfahan.json): کد `catalogue-76caa4780724`، با نام دیگر «سه کتابخانه اصفهان - ف»، جلد ۱ (MTIF ۳۴۲۱۲، ۲۴۰ صفحه)، و بخش‌های ردیف ۳۳ تا ۳۵ (رحیم قاسمی، MTIF ۴۳۴۱۳).
+- **تغییر دستور:** `numbers()` پس از نام سری `(?:[\s\-–؛]*ف)?` را می‌پذیرد.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۷۳):**
+  - ۳۷۷ ← ۳۷۶ کتابخانه.
+  - ۳۷۹ نسخه‌ی بی‌جلد جابه‌جا شد. رحیم قاسمی ۲ جلد و ۶۰۷ نسخه دارد.
+  - اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. «نشریه»، «اوراق عتیق»، «چهار کتابخانه مشهد»، «میراث» و «دلیل» «Nothing to do» ماندند.
+  - پشتیبان: `…/step13.175_import_volume_parts_se_ketabkhaneh_local_before_20261103.json`.
+- **پروداکشن (پس از انتشار):** `catalogs:merge-duplicates --data=…step13_175.json`، سپس `catalogs:import-volume-parts --data=…se_ketabkhaneh_isfahan.json`.

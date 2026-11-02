@@ -189,7 +189,8 @@ class ImportVolumePartsCommand extends Command
         $name = implode('[\s\x{200C}]*', array_map(fn ($w) => preg_quote($w, '/'), preg_split('/[\s\x{200C}]+|(?=-)|(?<=-)/u', $series, -1, PREG_SPLIT_NO_EMPTY)));
         // «دفتر نهم - 74» is daftar 9
         $raw = preg_replace_callback('/(?:دفتر|جلد)\s*(' . implode('|', array_keys(self::ORDINALS)) . ')/u', fn ($o) => (string) self::ORDINALS[$o[1]], strtr($raw, ['ي' => 'ی', 'ك' => 'ک']));
-        preg_match('/' . $name . '\s*(\d*)\s*:([^\]]*)/u', $raw, $m);
+        // «سه کتابخانه اصفهان؛ ف: 12», «… - ف: 12»
+        preg_match('/' . $name . '(?:[\s\-–؛]*ف)?\s*(\d*)\s*:([^\]]*)/u', $raw, $m);
         preg_match_all('/\d+/', ($m[1] ?? '') . ' ' . ($m[2] ?? ''), $n);
 
         return array_map('intval', $n[0]);
