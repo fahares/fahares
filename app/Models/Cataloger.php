@@ -131,7 +131,7 @@ class Cataloger extends Model
     public function catalogedCopies(): Builder
     {
         [$volumes, $parted] = $this->volumeIds();
-        $parts = $this->catalogVolumeParts()->pluck('catalog_volume_parts.id');
+        $parts = CatalogVolumePart::ready() ? $this->catalogVolumeParts()->pluck('catalog_volume_parts.id') : collect();
 
         return Manuscript::where(fn ($q) => $q->where('cataloger_id', $this->id)
             ->orWhereIn('catalog_volume_id', $volumes->diff($parted)->values())
@@ -150,7 +150,7 @@ class Cataloger extends Model
     private function volumeIds(): array
     {
         $volumes = $this->catalogVolumes()->pluck('catalog_volumes.id')->map(fn ($id) => (int) $id);
-        $parted = $volumes->isEmpty() ? collect() : DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->distinct()->pluck('catalog_volume_id')->map(fn ($id) => (int) $id);
+        $parted = $volumes->isEmpty() || ! CatalogVolumePart::ready() ? collect() : DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->distinct()->pluck('catalog_volume_id')->map(fn ($id) => (int) $id);
 
         return [$volumes, $parted];
     }

@@ -458,7 +458,9 @@ class LinkCatalogVolumesCommand extends Command
         CatalogVolume::query()->each(fn ($v) => $v->update(['manuscripts_count' => (int) ($counts[$v->id] ?? 0)]));
 
         Cataloger::recount();
-        \App\Models\CatalogVolumePart::recount(DB::table('catalog_volume_parts')->pluck('id')->all());
+        if (\App\Models\CatalogVolumePart::ready()) {
+            \App\Models\CatalogVolumePart::recount(DB::table('catalog_volume_parts')->pluck('id')->all());
+        }
     }
 
     /** The catalogue citation: the parsed field, else the last bracket of the raw text. */
