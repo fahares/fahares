@@ -6497,8 +6497,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: `fahares-sources/backups/step13/nimatullah_merge_35946_into_329_before.json` (دو رکورد، ۱۸۷ سطر `work_people`، ۱۸۳ سطر `work_author` و یک اثر).
   - پس از ادغام #329 ۱۸۷ سطر `work_people` (۴ `subject`) و `works_count = 183` دارد.
 - **dry run (`fahares_prod` محلی):** `linked:known 139`، `:description 350`، `:title_inside 135`، `:title_read 1`، `linked:reviewed 65`، `:description 15`، `:title_inside 3`، `:title_listed 3`، `:title_read 6`. در پروداکشن `--prune` باید سه سطر گام ۱۳.۱۴۳ را حذف کند: آثار #11831، #55020 و #66215.
-- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **dry run در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `5555471`):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.162_work_people_before.json` (۶۵۴ سطر `subject`).
+  - گزارش: `pieces:exists 650` و `pruned 4` (آثار #11831، #27319، #55020 و #66215).
+  - #27319 را `WORDS` بی «مولد» از دست داده بود. پس «مولد» افزوده شد و `--apply` به انتشار بعدی موکول شد.
+- **اجرا در پروداکشن (پس از انتشار اصلاح):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
 - **آزمون‌ها:**
-  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject`
+  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (با «مولد»)
   - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
 
