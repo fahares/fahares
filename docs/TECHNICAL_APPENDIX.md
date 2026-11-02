@@ -6546,14 +6546,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** با `prod-run` انجام شد و `Writing 4769` داد. اجرای دوم `already` ۴٬۷۶۹ و `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_incipit_becomes_a_note_too`.
 
-### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
-- **داده:** [library_duplicates_step13_163.json](../database/data/library_duplicates_step13_163.json)، ۱۹ گروه. اجرا: `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`.
-- **`LibraryMerger`:** `sources.library_id` کتابخانه‌ی رفتنی (شناسه‌ها در `source_ids` لاگ) به کتابخانه‌ی ماندگار می‌رود و `undoMerge` آن را برمی‌گرداند. آزمون: `CatalogVolumePartsTest::test_a_library_merge_takes_its_parts_and_sources_along_and_its_undo_brings_them_back`.
-- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۵۹):**
-  - ۴۰۶ ← ۳۸۴ کتابخانه، با ۲۲ ردیف `merge` در `audit_logs`. منبع ۱۰۰۱۸۰ (دهگان) ← کتابخانه‌ی ۵۹.
-  - `catalogs:assign-volume-parts`: `changed` ۳۱۰. «نشریه» با بخش ۱۲٬۸۳۴ ← ۱۳٬۱۴۴. همه‌ی جلدهای بخش‌دار: ۱۵٬۷۷۶ با کتابخانه، ۶۶ با صفحه‌ی تنها، ۶۶۰ بی‌بخش، و ۸۵۶ بیرون از بخش.
-  - `undoMerge` ۲۲ لاگ (وارونه) سنجه‌ی `fplib` را برگرداند. برگرداندن بخش نسخه‌ها جداست: پس از undo، `catalogs:assign-volume-parts` دوباره اجرا شود.
-- **دفتر ۱۳ «نشریه»:** صفحه‌های ارجاع «نشریه: 13»: مجلس ۴۰۵–۴۴۶ (۲۴۷ نسخه)، وزیری ۳۵–۴۰۱ (۵۴۷)، و نوربخش ۹–۲۷۲ (۴۸۰ روی جلد #499 منبع نوربخش). MTIF 11395 («نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی») ۱۲ جلد دارد؛ نسخه‌های چاپی ۲۲۵۸۱ (ج ۲) تا ۲۲۵۷۱ (ج ۱۲).
 ### گام ۱۳.۱۶۵: «18884» مجلس
 - **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
 - **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
@@ -6569,6 +6561,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
-### گام ۱۳.۱۶۵: «18884» مجلس
-- **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
-- **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
