@@ -37,7 +37,7 @@ class DerivedDataTest extends TestCase
         TextExcerpt::where('owner_type', Manuscript::class)->whereIn('owner_id', $copies)->delete();
         TextExcerpt::where('owner_type', Work::class)->whereIn('owner_id', $works)->delete();
         DB::table('work_people')->whereIn('work_id', $works)->delete();
-        DB::table('manuscript_scribe')->whereIn('manuscript_id', $copies)->delete();
+        DB::table('manuscript_people')->where('role', 'scribe')->whereIn('manuscript_id', $copies)->delete();
         DB::table('manuscripts')->whereIn('id', $copies)->delete();
         DB::table('works')->whereIn('id', $works)->delete();
         @unlink($this->file);
@@ -208,6 +208,10 @@ class DerivedDataTest extends TestCase
         $this->assertSame(['262', '262', '3008', '1440'], [Manuscript::collectionKeyOf('262/1بخش3'), Manuscript::collectionKeyOf('262/2 بخش 2'),
             Manuscript::collectionKeyOf('3008/18 حاشیه'), Manuscript::collectionKeyOf('1440/1 و 1440/2')]);
         $this->assertSame('1', Manuscript::collectionKey('622/1ط')['part']);
+        // A three-part shelfmark with a short first number is bound by its first two numbers; a long first number keeps its volume
+        $this->assertSame(['1/2591', '1/534', '4/120', '2267'], [Manuscript::collectionKeyOf('1/2591/104'), Manuscript::collectionKeyOf('1/534/9'),
+            Manuscript::collectionKeyOf('4/120/1-5957'), Manuscript::collectionKeyOf('2267/6/10')]);
+        $this->assertSame('104', Manuscript::collectionKey('1/2591/104')['part']);
         // ...but in Ehya «عکسی» only says the treatise is a photocopy, one of its volume's
         $this->assertSame('1004', Manuscript::collectionKeyOf('1004/7 عکسی', "قم؛ مرکز احیاء؛ شماره نسخه: 1004/7 عکسی\nنسخه اصل: همان نسخه بالا"));
         $this->assertSame('1390-عکسی', Manuscript::collectionKeyOf('1390/1عکسی', '1. قم؛ مرعشی؛ شماره نسخه: 1390/1عکسی'));

@@ -28,6 +28,11 @@ class Person extends Model
                 $person->forceFill(self::deathColumns($person->life_dates_raw, $person->death_year_hijri));
             }
         });
+        // The author and scribe rows go with the person, as their old tables' cascade did; the other roles keep the name
+        static::deleting(function (Person $person) {
+            WorkPerson::where('person_id', $person->id)->where('role', WorkPerson::AUTHOR)->delete();
+            ManuscriptPerson::where('person_id', $person->id)->where('role', ManuscriptPerson::SCRIBE)->delete();
+        });
     }
 
     /**
@@ -162,7 +167,7 @@ class Person extends Model
      */
     public function authoredWorks(): BelongsToMany
     {
-        return $this->belongsToMany(Work::class, 'work_author')->withPivot(['position', 'note']);
+        return $this->belongsToMany(Work::class, 'work_people')->withPivotValue('role', WorkPerson::AUTHOR)->withPivot(['position', 'note']);
     }
 
     public function works(): BelongsToMany
@@ -175,7 +180,7 @@ class Person extends Model
      */
     public function scribedManuscripts(): BelongsToMany
     {
-        return $this->belongsToMany(Manuscript::class, 'manuscript_scribe')->withPivot(['position', 'note']);
+        return $this->belongsToMany(Manuscript::class, 'manuscript_people')->withPivotValue('role', ManuscriptPerson::SCRIBE)->withPivot(['position', 'note']);
     }
 
     /**
@@ -192,13 +197,13 @@ class Person extends Model
     /** Manuscripts this person is connected with in another role (owner, endower…). */
     public function manuscriptRoles(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ManuscriptPerson::class);
+        return $this->hasMany(ManuscriptPerson::class)->where('role', '!=', ManuscriptPerson::SCRIBE);
     }
 
     /** Works this person is connected with in a role other than author (translator, dedicatee…). */
     public function workRoles(): HasMany
     {
-        return $this->hasMany(WorkPerson::class);
+        return $this->hasMany(WorkPerson::class)->where('role', '!=', WorkPerson::AUTHOR);
     }
 
     public function recountContributions(): void

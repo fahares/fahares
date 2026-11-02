@@ -4,8 +4,10 @@ namespace App\Suggestions;
 
 use App\Models\AuditLog;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -18,10 +20,10 @@ use InvalidArgumentException;
  */
 class RecordRemover
 {
-    /** Pivot tables deleted with the record (cascade), by record type: table => key column */
+    /** Pivot tables deleted with the record (cascade), by record type: table => key column; the people tables hold the scribes and authors too */
     private const PIVOTS = [
-        Manuscript::class => ['manuscript_scribe' => 'manuscript_id', 'manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id'],
-        Work::class => ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id', 'work_people' => 'work_id'],
+        Manuscript::class => ['manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id'],
+        Work::class => ['subject_work' => 'work_id', 'language_work' => 'work_id', 'work_people' => 'work_id'],
         Person::class => [],
     ];
 
@@ -37,13 +39,15 @@ class RecordRemover
      */
     public function blockers(Model $record): array
     {
+        $authored = fn () => DB::table('work_people')->where('person_id', $record->id)->where('role', WorkPerson::AUTHOR);
+        $scribed = fn () => DB::table('manuscript_people')->where('person_id', $record->id)->where('role', ManuscriptPerson::SCRIBE);
         $counts = match ($record::class) {
             Work::class => ['نسخه' => Manuscript::where('work_id', $record->id)->count()],
             Person::class => [
-                'اثر' => DB::table('work_author')->where('person_id', $record->id)->count() + Work::where('author_id', $record->id)->whereNotIn('id', DB::table('work_author')->where('person_id', $record->id)->select('work_id'))->count(),
-                'نسخه (کاتب)' => DB::table('manuscript_scribe')->where('person_id', $record->id)->count() + Manuscript::where('scribe_id', $record->id)->whereNotIn('id', DB::table('manuscript_scribe')->where('person_id', $record->id)->select('manuscript_id'))->count(),
-                'نسخه (نقش‌های دیگر)' => DB::table('manuscript_people')->where('person_id', $record->id)->count(),
-                'اثر (نقش‌های دیگر)' => DB::table('work_people')->where('person_id', $record->id)->count(),
+                'اثر' => $authored()->count() + Work::where('author_id', $record->id)->whereNotIn('id', $authored()->select('work_id'))->count(),
+                'نسخه (کاتب)' => $scribed()->count() + Manuscript::where('scribe_id', $record->id)->whereNotIn('id', $scribed()->select('manuscript_id'))->count(),
+                'نسخه (نقش‌های دیگر)' => DB::table('manuscript_people')->where('person_id', $record->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->count(),
+                'اثر (نقش‌های دیگر)' => DB::table('work_people')->where('person_id', $record->id)->where('role', '!=', WorkPerson::AUTHOR)->count(),
                 'فهرست‌نگار' => DB::table('catalogers')->where('person_id', $record->id)->count(),
             ],
             default => [],
@@ -93,6 +97,10 @@ class RecordRemover
         }
         DB::table((new $class)->getTable())->insert(array_map(fn ($v) => is_array($v) ? json_encode($v, JSON_UNESCAPED_UNICODE) : $v, $attributes));
         foreach ($old['snapshot']['pivots'] ?? [] as $table => $rows) {
+            // A removal before step 13.151 kept the scribes and authors under their old tables
+            if (isset(ContributorRelations::LEGACY_TABLES[$table])) {
+                [$table, $rows] = [ContributorRelations::LEGACY_TABLES[$table][0], ContributorRelations::legacyRows($rows, $table)];
+            }
             DB::table($table)->insertOrIgnore($rows);
         }
         if ($relations = $old['relations'] ?? null) {
@@ -136,6 +144,14 @@ class RecordRemover
         return response()->view('records.removed', compact('label', 'title'), 410)->header('X-Robots-Tag', 'noindex');
     }
 
+    /** The scribes or authors of a snapshot's people rows, or of its old table's rows (a removal before step 13.151). */
+    private static function contributors(array $pivots, string $table, string $legacy, string $role): array
+    {
+        $rows = array_filter($pivots[$table] ?? [], fn ($row) => ($row['role'] ?? null) === $role);
+
+        return array_column(array_merge($rows, $pivots[$legacy] ?? []), 'person_id');
+    }
+
     private function recount(string $class, array $attributes, array $pivots): void
     {
         if ($class === Manuscript::class) {
@@ -149,7 +165,7 @@ class RecordRemover
             foreach (array_column($pivots['manuscript_script'] ?? [], 'script_id') as $id) {
                 DB::table('scripts')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscript_script')->where('script_id', $id)->count()]);
             }
-            $people = array_column($pivots['manuscript_scribe'] ?? [], 'person_id');
+            $people = self::contributors($pivots, 'manuscript_people', 'manuscript_scribe', ManuscriptPerson::SCRIBE);
         } elseif ($class === Work::class) {
             $subjects = array_column($pivots['subject_work'] ?? [], 'subject_id');
             foreach ($subjects as $id) {
@@ -163,7 +179,7 @@ class RecordRemover
             foreach (array_column($pivots['language_work'] ?? [], 'language_id') as $id) {
                 DB::table('languages')->where('id', $id)->update(['works_count' => DB::table('language_work')->where('language_id', $id)->count()]);
             }
-            $people = array_column($pivots['work_author'] ?? [], 'person_id');
+            $people = self::contributors($pivots, 'work_people', 'work_author', WorkPerson::AUTHOR);
         }
         foreach (Person::whereIn('id', array_filter($people ?? []))->get() as $person) {
             $person->recountContributions();

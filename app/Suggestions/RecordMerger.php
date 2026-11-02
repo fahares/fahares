@@ -5,9 +5,11 @@ namespace App\Suggestions;
 use App\Models\EntityRedirect;
 use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -45,28 +47,31 @@ class RecordMerger
         if ($source->is($target)) {
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
-        $snapshot = $this->snapshot($source, ['manuscript_scribe' => 'manuscript_id', 'manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id']);
+        // manuscript_people holds the scribes too (step 13.151)
+        $snapshot = $this->snapshot($source, ['manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id']);
 
         $compared = MergeComparison::apply($source, $target, $fields);
         $target->save();
         // Scribes the kept copy does not list yet
         $addedScribes = [];
-        $position = (int) DB::table('manuscript_scribe')->where('manuscript_id', $target->id)->max('position');
-        foreach (DB::table('manuscript_scribe')->where('manuscript_id', $source->id)->orderBy('position')->get() as $row) {
-            if ($row->person_id && DB::table('manuscript_scribe')->where(['manuscript_id' => $target->id, 'person_id' => $row->person_id])->exists()) {
+        $scribes = fn (int $id) => DB::table('manuscript_people')->where('manuscript_id', $id)->where('role', ManuscriptPerson::SCRIBE);
+        $position = (int) $scribes($target->id)->max('position');
+        foreach ($scribes($source->id)->orderBy('position')->get() as $row) {
+            if ($row->person_id && $scribes($target->id)->where('person_id', $row->person_id)->exists()) {
                 continue;
             }
             // An unlinked name keeps its text
-            $addedScribes[] = DB::table('manuscript_scribe')->insertGetId(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name ?? null, 'position' => ++$position, 'note' => $row->note]);
+            $addedScribes[] = DB::table('manuscript_people')->insertGetId(['manuscript_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name ?? null,
+                'role' => ManuscriptPerson::SCRIBE, 'position' => ++$position, 'note' => $row->note]);
         }
         // Owners, endowers, correctors… and relations with other copies move to the kept copy
-        DB::table('manuscript_people')->where('manuscript_id', $source->id)->update(['manuscript_id' => $target->id]);
+        DB::table('manuscript_people')->where('manuscript_id', $source->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->update(['manuscript_id' => $target->id]);
         $relations = RecordRelations::moveOnMerge($source, $target);
 
         $attachments = $this->moveAttachments($source, $target);
 
         $counters = $source->only(['work_id', 'library_id', 'catalog_volume_id', 'cataloger_id']);
-        $people = DB::table('manuscript_scribe')->where('manuscript_id', $source->id)->pluck('person_id')->all();
+        $people = $scribes($source->id)->pluck('person_id')->all();
         $scripts = DB::table('manuscript_script')->where('manuscript_id', $source->id)->pluck('script_id')->all();
 
         $redirects = $this->redirect('manuscripts', $source->id, $target->id);
@@ -74,7 +79,7 @@ class RecordMerger
 
         $this->recountWorks([$counters['work_id'], $target->work_id]);
         $this->recountManuscriptOwners($counters, $scripts);
-        $this->recountPeople(array_merge($people, DB::table('manuscript_scribe')->where('manuscript_id', $target->id)->pluck('person_id')->all()));
+        $this->recountPeople(array_merge($people, $scribes($target->id)->pluck('person_id')->all()));
         $target->searchable();
 
         return [
@@ -94,11 +99,15 @@ class RecordMerger
             throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل نسخه‌ی حذف‌شده در همین لاگ (source_snapshot) هست.');
         }
         $source = $this->restore(Manuscript::class, 'manuscripts', $snapshot['attributes']);
-        foreach (['manuscript_scribe', 'manuscript_script'] as $table) {
-            DB::table($table)->insertOrIgnore($snapshot['pivots'][$table] ?? []);
-        }
-        DB::table('manuscript_people')->whereIn('id', array_column($snapshot['pivots']['manuscript_people'] ?? [], 'id'))->update(['manuscript_id' => $source->id]);
-        DB::table('manuscript_scribe')->whereIn('id', $old['added_scribe_ids'])->delete();
+        DB::table('manuscript_script')->insertOrIgnore($snapshot['pivots']['manuscript_script'] ?? []);
+        // The scribes were deleted with the copy and come back; the other people were moved and go back
+        $people = $snapshot['pivots']['manuscript_people'] ?? [];
+        $legacy = ContributorRelations::legacyRows($snapshot['pivots']['manuscript_scribe'] ?? null, 'manuscript_scribe');
+        DB::table('manuscript_people')->insertOrIgnore($people);
+        DB::table('manuscript_people')->insertOrIgnore($legacy);
+        DB::table('manuscript_people')->whereIn('id', array_column(array_merge($people, $legacy), 'id'))->update(['manuscript_id' => $source->id]);
+        $offset = isset($snapshot['pivots']['manuscript_scribe']) ? ContributorRelations::LEGACY_ID_OFFSET : 0;
+        DB::table('manuscript_people')->whereIn('id', array_map(fn ($id) => $id + $offset, $old['added_scribe_ids']))->delete();
         // A merge of before backlog item 46 filled empty columns only
         $this->unfill($target, $old['filled'] ?? []);
         MergeComparison::undo($target, $old['fields'] ?? []);
@@ -110,7 +119,7 @@ class RecordMerger
         $this->recountWorks([$source->work_id, $target->work_id]);
         $scripts = array_column($snapshot['pivots']['manuscript_script'] ?? [], 'script_id');
         $this->recountManuscriptOwners($source->only(['library_id', 'catalog_volume_id', 'cataloger_id']), $scripts);
-        $this->recountPeople(DB::table('manuscript_scribe')->whereIn('manuscript_id', [$source->id, $target->id])->pluck('person_id')->all());
+        $this->recountPeople(DB::table('manuscript_people')->whereIn('manuscript_id', [$source->id, $target->id])->where('role', ManuscriptPerson::SCRIBE)->pluck('person_id')->all());
         $source->searchable();
         $target->searchable();
         // The work's index carries its copies' incipits and explicits
@@ -128,7 +137,8 @@ class RecordMerger
         if ($source->is($target)) {
             throw new InvalidArgumentException('رکورد مبدأ و مقصد یکی است.');
         }
-        $snapshot = $this->snapshot($source, ['work_author' => 'work_id', 'subject_work' => 'work_id', 'language_work' => 'work_id', 'work_people' => 'work_id']);
+        // work_people holds the authors too (step 13.151)
+        $snapshot = $this->snapshot($source, ['subject_work' => 'work_id', 'language_work' => 'work_id', 'work_people' => 'work_id']);
         $targetBefore = $target->only(['alternative_titles']);
         // Compared before the copies move, on the two works as the admin saw them
         $compared = MergeComparison::apply($source, $target, $fields);
@@ -160,7 +170,7 @@ class RecordMerger
         $target->forceFill(['alternative_titles' => $titles ?: null])->save();
 
         // Translators, dedicatees… move to the kept work, unless it lists the same person in the same role
-        $people = DB::table('work_people')->where('work_id', $source->id)->get();
+        $people = DB::table('work_people')->where('work_id', $source->id)->where('role', '!=', WorkPerson::AUTHOR)->get();
         $movedPeople = $people->reject(fn ($row) => DB::table('work_people')->where('work_id', $target->id)->where('role', $row->role)
             ->where(fn ($q) => $row->person_id ? $q->where('person_id', $row->person_id) : $q->whereNull('person_id')->where('name', $row->name))->exists())->pluck('id')->all();
         DB::table('work_people')->whereIn('id', $movedPeople)->update(['work_id' => $target->id]);
@@ -176,7 +186,7 @@ class RecordMerger
 
         $attachments = $this->moveAttachments($source, $target);
 
-        $people = DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all();
+        $people = DB::table('work_people')->whereIn('work_id', [$source->id, $target->id])->where('role', WorkPerson::AUTHOR)->pluck('person_id')->all();
         $subjectIds = DB::table('subject_work')->whereIn('work_id', [$source->id, $target->id])->pluck('subject_id')->all();
         $languageIds = DB::table('language_work')->whereIn('work_id', [$source->id, $target->id])->pluck('language_id')->all();
 
@@ -214,12 +224,13 @@ class RecordMerger
             throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل اثر حذف‌شده در همین لاگ (source_snapshot) هست.');
         }
         $source = $this->restore(Work::class, 'works', $snapshot['attributes']);
-        foreach (['work_author', 'subject_work', 'language_work'] as $table) {
+        foreach (['subject_work', 'language_work'] as $table) {
             DB::table($table)->insertOrIgnore($snapshot['pivots'][$table] ?? []);
         }
-        // Moved people rows come back; the ones the kept work already listed were deleted with the duplicate
+        // Moved people rows come back; the authors and the ones the kept work already listed were deleted with the duplicate
         DB::table('work_people')->whereIn('id', $old['moved_people_ids'] ?? [])->update(['work_id' => $source->id]);
         DB::table('work_people')->insertOrIgnore($snapshot['pivots']['work_people'] ?? []);
+        DB::table('work_people')->insertOrIgnore(ContributorRelations::legacyRows($snapshot['pivots']['work_author'] ?? null, 'work_author'));
 
         // Copies folded into one of the kept work's copies come back first (they belong to the restored work)
         foreach (array_reverse($old['folded_manuscripts'], true) as $data) {
@@ -247,7 +258,7 @@ class RecordMerger
         $this->undoRedirect('works', $source->id, $old['redirects'] ?? []);
 
         $this->recountWorks([$source->id, $target->id]);
-        $this->recountPeople(DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all());
+        $this->recountPeople(DB::table('work_people')->whereIn('work_id', [$source->id, $target->id])->where('role', WorkPerson::AUTHOR)->pluck('person_id')->all());
         $this->recountSubjects(DB::table('subject_work')->whereIn('work_id', [$source->id, $target->id])->pluck('subject_id')->all());
         $this->recountLanguages(DB::table('language_work')->whereIn('work_id', [$source->id, $target->id])->pluck('language_id')->all());
         Manuscript::where('work_id', $source->id)->searchable();

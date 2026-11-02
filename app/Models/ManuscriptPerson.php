@@ -6,14 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A person connected with a manuscript other than its scribes (owner, endower, corrector…),
- * linked to a person record or kept as a name only.
+ * A person connected with a manuscript (scribe, owner, endower, corrector…), linked to a person record or kept
+ * as a name only. The scribes (role «scribe», step 13.151) are the copy's scribe list; ROLES are the others.
  */
 class ManuscriptPerson extends Model
 {
     protected $table = 'manuscript_people';
 
     protected $guarded = ['id'];
+
+    /** The role of the copy's scribes; the primary one (manuscripts.scribe_id) is at position 0. */
+    public const SCRIBE = 'scribe';
 
     /** Roles in display order. */
     public const ROLES = [

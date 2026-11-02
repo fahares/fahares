@@ -6230,12 +6230,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `syncCopies`: collections ۶۱۶، pointers_linked ۱۳.
   - `fill-collection-keys` پس از آن ۲ تغییر داشت (همان دو نسخه‌ی «سنا –»).
 
-
 ### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
 - **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
 - **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
 - **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
+
 ### گام ۱۳.۱۵۰: `catalog_volume_parts` و `Cataloger::recount`
 - **migration:** [2026_11_03_100001_create_catalog_volume_parts_tables](../database/migrations/2026_11_03_100001_create_catalog_volume_parts_tables.php):
   - `catalog_volume_parts` (`catalog_volume_id` cascade، `library_id` nullOnDelete، `title`، `page_first`/`page_last`، `sort`، `manuscripts_count`، `metadata`)؛
@@ -6261,6 +6261,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌های «نشریه» ۵ با دو بخش، به تفکیک کتابخانه، بیرون از صفحه، `by_page`، بی‌بخش و جلد بی‌بخش؛
   - شمارش والئی، روضاتی، دانش‌پژوه و افشار، و بیرون رفتن نسخه از جلد؛
   - سه صفحه، dry-run، و ادغام کتابخانه با برگرداندنش.
+
+### گام ۱۳.۱۵۱: ادغام `work_author` و `manuscript_scribe` در جدول‌های نقش‌دار
+- **migration:** [2026_11_02_100001_fold_authors_and_scribes_into_people_roles.php](../database/migrations/2026_11_02_100001_fold_authors_and_scribes_into_people_roles.php). دو `INSERT … SELECT` به ترتیب `id`، با `id + 10000000` (`ContributorRelations::LEGACY_ID_OFFSET`)، نقش `author` یا `scribe` و همان `person_id`، `name`، `position` و `note`. ستون‌های `certainty`، `hedge_raw`، `source_entry_id`، `suggestion_id` و `label_raw` خالی‌اند، چون جدول‌های قدیم آن‌ها را نداشتند. `down()` جدول قدیم را از ردیف‌های نقش‌دار بازمی‌سازد (`INSERT IGNORE`) و آن ردیف‌ها را پاک می‌کند. جدول‌های قدیم پاک نمی‌شوند.
+- **بی‌کلید یکتا:** کلید یکتای `(record, person)` جدول‌های قدیم به `(record, role, person)` منتقل نشد. چنین کلیدی دو مالک یا دو اهداشده‌ی یکسان را هم رد می‌کرد، که ادغام دو نسخه یا دو شخص پدید می‌آورد. یکتایی مؤلف و کاتب در کدی است که ردیف را می‌نویسد. `INSERT IGNORE`های فرمان‌های `fahares:seed-data` و `link-autograph-scribes` و `insertOrIgnore` بازگردانی ادغام شخص به `NOT EXISTS` یا وارسی پیش از درج تبدیل شدند.
+- **مدل‌ها:** `WorkPerson::AUTHOR` و `ManuscriptPerson::SCRIBE`. `ROLES` همان نقش‌های دیگر است، پس `addRole` و فرم پیشنهاد نقش مؤلف یا کاتب نمی‌گیرند. مدل‌های `WorkAuthor` و `ManuscriptScribe` حذف شدند.
+  - `Work::authors()`، `Person::authoredWorks()`، `Manuscript::scribes()` و `Person::scribedManuscripts()` روی جدول نقش‌دار با `withPivotValue('role', …)` هستند. `withCount(['works', 'scribedManuscripts'])` همان شرط را می‌گیرد.
+  - `authorEntries()` و `scribeEntries()` ردیف‌های `WorkPerson` و `ManuscriptPerson` آن نقش‌اند. `workPeople()`، `otherPeople()`، `Person::workRoles()` و `manuscriptRoles()` آن نقش را کنار می‌گذارند.
+  - `Person::deleting` ردیف‌های مؤلف و کاتب شخص را پاک می‌کند. کلید خارجی جدول قدیم `cascade` بود و کلید جدول تازه `set null` است، که ردیفی بی‌شخص و بی‌نام می‌گذاشت. نقش‌های دیگر مثل پیش با `person_id` تهی می‌مانند.
+- **نوشتن:** `SyncsPrimaryContributor::primaryContributorPivot()` چهار مقدار برمی‌گرداند (جدول، کلید، ستون اصلی، نقش). همه‌ی پرسش‌های آن و `ContributorRelations::set/add` نقش را شرط می‌گیرند. `PersonMerger`، `RecordSplitter` و بازگردانی ادغام شخص در `AuditLogController` ردیف‌های مؤلف و کاتب را از «نقش‌های دیگر» (`transferred_role_ids`، `work_role_ids`) جدا نگه می‌دارند. `SplitCompoundPeopleCommand::relink` فقط ردیف‌های همان نقش را بازنویسی می‌کند. پیش از این تغییر، همه‌ی ردیف‌های رکورد را پاک می‌کرد.
+- **ادغام و حذف رکورد:** snapshot ادغام نسخه یا اثر و حذف رکورد فقط `manuscript_people` و `work_people` را دارد. ادغام نسخه کاتبان مبدأ را به مقصد می‌افزاید (`added_scribe_ids`) و نقش‌های دیگر را منتقل می‌کند. ادغام اثر نقش‌های دیگر را منتقل می‌کند. ردیف‌های مؤلف و کاتب مبدأ با رکورد پاک می‌شوند و بازگردانی آن‌ها را از snapshot برمی‌گرداند.
+- **لاگ‌های پیشین:** `ContributorRelations::LEGACY_TABLES` و `legacyRows()`. وقتی `added_contributor` یا `removed_name_row` نام جدول قدیم را دارد، یا snapshot ادغام و حذف کلید `manuscript_scribe` یا `work_author` دارد، شناسه با `LEGACY_ID_OFFSET` ترجمه و نقش افزوده می‌شود. روی `fahares_prod` محلی ۲۸ لاگ ادغام نسخه چنین‌اند.
+- **ناسازگاری پیشین (دست‌نخورده):** روی `fahares_prod` محلی پیش از انتقال، `people.works_count` در ۷۰ شخص و `manuscripts_count` در ۷۷ شخص با شمار ردیف‌ها نمی‌خواند. این انتقال آن ستون‌ها را دست نمی‌زند.
+- **ترتیب آثار صفحه‌ی شخص:** `PersonController` آثار را به ترتیب شمار نسخه می‌چیند. ترتیب آثار هم‌شمار پیش‌تر به نقشه‌ی پرسش بسته بود (filesort ناپایدار). اکنون `work_people.id` آن را تعیین می‌کند، که ترتیب ردیف‌های فهرست است.
+- **تمرین (رونوشت `fahares_prod` در پایگاه `fahares_fold_prod`؛ خود `fahares_prod` دست نخورد):**
+  - migration ۵ ثانیه و `down()` ۷ ثانیه طول کشید. پس از `down()` شمار ردیف‌ها همان پیشین بود.
+  - مقایسه‌ی ردیف به ردیف: هر ۴۴٬۹۷۹ ردیف `work_author` و ۱۰۴٬۸۹۳ ردیف `manuscript_scribe` با `id + 10000000`، همان شخص، نام، ترتیب و یادداشت در جدول نقش‌دار هستند. شمار ردیف‌های مؤلف و کاتب هیچ شخصی تغییر نکرد.
+  - نمونه: ۲۶۲ شخص (پراثرترین‌ها، پرنسخه‌ترین‌ها، دارندگان نقش‌های دیگر، شریکان در آثار چندمؤلفی و تصادفی)، ۱۸۴ اثر (چندمؤلفی، با نام بی‌پیوند، با اشخاص مرتبط و تصادفی) و ۲۸۰ نسخه (چندکاتبی، با یادداشت سهم، با اشخاص مرتبط و تصادفی). صفحه‌ها با کد پیش از تغییر روی داده‌ی پیش از migration و با کد تازه روی داده‌ی پس از آن ساخته شدند. توکن CSRF، فاصله‌ها و پارامتر `?v=` تصویرها کنار گذاشته شد.
+  - یکسان ماند: `withCount` آثار و نسخه‌ها، شمار نقش‌های دیگر، سند جستجوی شخص و اثر و نسخه، فهرست مؤلفان و کاتبان (شخص، نام، ترتیب، یادداشت)، فهرست «اشخاص مرتبط»، `StructurePreview::counts` و موانع حذف شخص.
+  - از ۹۸۸ صفحه همه یکسان بودند، جز صفحه‌ی دوم آثار دو شخص (#۱۴۱۴ و #۱۹۰)، که دو اثر هم‌شمار جابه‌جا شده بودند. پس از این، ترتیب `work_people.id` آن را ثابت می‌کند.
+- **آزمون:** [ContributorRolesTest](../tests/Feature/ContributorRolesTest.php) (جدایی نقش‌ها، حذف شخص، migration و بازگردانی لاگ پیشین، بازگردانی ادغام نسخه‌ی پیشین). آزمون‌هایی که جدول قدیم را می‌خواندند به جدول نقش‌دار رفتند.
 
 ### گام ۱۳.۱۵۲: `lines_bayt`
 - **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines_bayt`. ورودی ردیف‌های `lines/emptied` از `reports/fankha_v2_db_review6/diffs.jsonl` است. شرط: `raw_text` سایت، بی برچسب صفحه و با رقم لاتین، «سطر» ندارد و `{lines}\s*بیت` دارد. خروجی ۴۸۱ رکورد است و ۷۲۵ رکورد کنار گذاشته شد.
@@ -6318,3 +6338,61 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `job_watch` سطر آخر `status` را در هر حال لاگ می‌کند.
 - **آزمون:** `status` و `watch` با `FAHARES_BACKUP_CONFIG` آزمایشی روی رونوشت `last.json`. `bash -n` پاس شد.
 - **نصب:** فایل `/usr/local/bin/fahares-backup.sh` مال `root:root` است (۳۱ مهر) و `sudo -n` ممکن نیست. نصب را کاربر انجام می‌دهد.
+### گام ۱۳.۱۵۴: کلید سه‌عددی عدد کوچک‌اول
+- **قاعده:** `collectionKey`، پس از جدا کردن نشانه‌ی چسبیده: اگر `base` با `^\d{1,2}$` بخواند و بخش رساله با `^(\d{3,})\s*/\s*(\d+)`، آنگاه `base = "{base}/{q1}"` و `part = q2`. نمونه‌ها: «4/120/1-5957» → «4/120» (شماره‌ی قدیم پس از «-» نادیده گرفته می‌شود)؛ «2267/6/10» → «2267».
+- **راه پشتیبان:** راه `LIKE` در `collectionSiblings` با `base` تازه همچنان کار می‌کند («1/2591/%»).
+- **سنجش:**
+
+  | شکل | شمار نسخه | کلید = عدد نخست | کلید = دو عدد نخست |
+  |---|---|---|---|
+  | عدد کوچک‌اول | ۳۶۱ | ۴۶ مجلد (۶ هم‌پوشان) | ۸۵ مجلد (۴ هم‌پوشان) |
+  | عدد بزرگ‌اول | ۱۹۹ | ۳۲ مجلد (۰ هم‌پوشان) | ۳۰ مجلد (۰ هم‌پوشان) |
+
+  ۱۷۶ نسخه شکل دیگری دارند و دست نخوردند.
+- **آزمون:** چهار نمونه در `DerivedDataTest::test_a_copys_bound_volume_follows_its_shelfmark_and_its_treatises_are_listed_by_leaf`.
+
+### گام ۱۳.۱۵۵: `sources:link-page-refs` و `App\Support\PageLinks`
+- **پیکربندی:** [config/page_links.php](../config/page_links.php)، با کلید کد منبع. `copies.marks` برچسب‌هایی است که پیوند کتابخانه‌شان دنبال می‌شود (الذریعة: `OB`). `copies.skip_words` واژه‌هایی است که پس از شماره، از جمله‌اند و نشانه‌ی مجموعه نیستند («كتابته»، «و»). `references.forms` الگوهای ارجاع است، با گروه‌های `first`/`second` یا `volume`/`page`. `references.cues` نشانه‌ی ارجاع به خود کتاب است. `title_before` و `title_after` عنوان را می‌گیرند. `references.bibliography` کلید منبع در `config('bibliography.sources')` است.
+- **کلاس‌ها** ([app/Support/PageLinks](../app/Support/PageLinks)):
+  - `PageText`: برچسب‌های صفحه با جای نویسه‌ای‌شان، متن بی برچسب (`PrintedPage::withoutMarks`، اکنون public)، و مدخل دربرگیرنده‌ی هر جا (`holder()`). `PrintedPage::entryStarts()` از `cut()` جدا شد.
+  - `Shelfmarks::after()`: شماره و نشانه‌ی مجموعه، درون برچسب یا پس از آن، و جا و متن بازه.
+  - `CopyResolver::resolve()`: `DirectAnswer::byShelfmark`. نسخه‌ای که shelfmark آن خود شماره است و تنهاست، اگر یکی از عنوان‌های اثرش (`searchTitles()`، اصلی و فرعی) با مدخل جور باشد، با روش `exact` پیوند می‌گیرد. وگرنه، از نسخه‌های آن شماره (رساله‌های مجلد) آن یکی که جور است، با روش `part`. روش‌های ردشده: `title-differs`، `several`، `none` و `no-entry`.
+  - `References::in()`: الگوها روی متن بی برچسب اجرا می‌شوند. ارجاع پذیرفته می‌شود اگر جلد و صفحه با `BibliographyLinks::place()` جا بیفتند، و `cues` بر ۱۲۰ نویسه‌ی پیش از آن بنشیند، یا ارجاع درست پس از ارجاع پذیرفته‌ی دیگری بیاید (`و`/`،`، با «بعنوان …» میانشان). بازه‌ای که نشانه‌ی برچسب نور در خود دارد، کنار می‌رود.
+  - `EntryResolver::resolve()`: مدخل‌های آن صفحه. با عنوان: `Titles::agree` (روش `title`). بی عنوان: عنوان مدخل در جمله‌ی پیش از ارجاع (`Titles::in`) یا برابر عنوان مدخل دربرگیرنده (روش `context`). اگر دقیقاً یکی نبود، به `SourcePage` (روش `page` یا `page-titled`). ارجاع به همان صفحه پیوند نمی‌گیرد (`own-page`).
+  - `Titles`: حروف یکسان می‌شوند (`TextNormalizer` و `MatchCatalogEditionCommand::norm`) و واژه‌ی قالب آغاز عنوان برداشته می‌شود (`مثنوی`، `دیوان`، `رساله` و جز آن، با «فی/در» پس از آن). دو عنوان جورند اگر برابر باشند، یا یکی آغاز دیگری باشد (دست‌کم دو واژه)، یا شباهت ۰٫۹ داشته باشند (دست‌کم شش حرف). عنوانی که با `MADE_ON` آغاز شود (شرح، حاشیه، ترجمه، مقدمه و …)، اثر دیگری است.
+- **`BibliographyLinks::place($key, $first, $second, $ordered = false)`:** جلد و صفحه از روی `volumes` و `first_pages`/`last_pages` نمایشگر یا متن منبع. ترتیب «صفحه:جلد» آزموده می‌شود و اگر جا نیفتاد، وارونه‌اش.
+- **جدول (migration `2026_11_04_100001`):** ستون‌های `offset` (نویسه‌ای) و `span` اضافه شدند، و `ordinal` تهی‌پذیر شد. یکتایی از `(source_page_id, ordinal)` به `(source_page_id, ordinal, target_type)` تغییر کرد، و ایندکس جدای `source_page_id` برای کلید خارجی اضافه شد. migration روی رونوشت ۰٫۲۷ ثانیه طول کشید. `down` پیوندهای بی ordinal و پیوندهای نسخه را پاک می‌کند.
+  - **سطرها:** پیوند نسخه با ordinal و `kind` برچسب، و `target_type = App\Models\Manuscript`. ارجاع با `kind = ref` و بی ordinal، و `target_type` برابر `SourceItem` یا `App\Models\SourcePage` (مدل تازه).
+- **نمایش:** `PrintedPage::linked()` بازه‌ها را از آخر به اول درون علامت `\u{E020}kind\0url\0title\0record\0r{offset}\u{E021}…\u{E022}` می‌گذارد، به این شرط که `mb_substr` متن در آن جا هنوز برابر `span` باشد. سپس برچسب‌های نور را می‌شمارد و برچسب‌هایی را که `\0` دارند کنار می‌گذارد. برای هر ordinal، پیوند نسخه بر پیوند کتابخانه پیش است. کلاس‌های تازه `copy` و `page` هستند. `SourceMentions::hasSpans()` نبود ستون‌ها را پیش از migration در هر پردازش یک بار می‌سنجد. `SourceMentions::of()` پیوندهای بی ordinal را با `#r{offset}` و بافت پیرامون همان جا نشان می‌دهد. در یادکرد پیوند نسخه، شماره (`span`) پس از نام کتابخانه می‌آید («إلهيات: 799 د») و از بافت پس از آن برداشته می‌شود.
+- **دستور:** `sources:link-page-refs {source} [--only=copies|references] [--volume=N] [--sample=PREFIX --per-kind=50] [--all] [--dry-run]`. نمونه در `PREFIX.copies.txt` و `PREFIX.references.txt` نوشته می‌شود. هر اجرا پیوندهای آن بخش را از نو می‌سازد، ولی ردشده‌ها می‌مانند (کلید: صفحه و ordinal برای نسخه، و صفحه و offset برای ارجاع). `ENABLED` = `exact` و `part` برای نسخه، و هر چهار روش برای ارجاع.
+- **سنجش (`fahares_prod`، دور سوم):**
+  - **نسخه:** `title-differs` ۱٬۵۴۴، `exact` ۸۳۳، `part` ۳۹۷، `none` ۲۱۶، `several` ۴۸ و `no-entry` ۴.
+  - **ارجاع:** `page` ۲٬۲۰۲، `context` ۹۱۶، `page-titled` ۴۲۹، `title` ۲۷۷ و `no-page` ۱.
+  - **زمان:** اجرای کامل ۵ دقیقه و ۵۲ ثانیه، و بخش نسخه به‌تنهایی حدود ۲ دقیقه.
+  - **خطاهای دو دور نخست، که سنجش عنوان را سخت‌تر کردند:**
+    - شباهت ۰٫۸ روی عنوان کوتاه: «لالی» با «جلالیه»، و «فرح نامه» با «فرخ نامه».
+    - عنوان درون عنوان: «ملاحظات حول ديوان ناصر خسرو»، «من کلام ثیاذوق فی حفظ الصحة»، و «نوربخش» درون «مکتوب سید محمد نوربخش».
+    - «مقدمه …» و «منتخب …».
+- **آزمون:** [LinkPageRefsTest](../tests/Feature/LinkPageRefsTest.php) با چهار آزمون: نسخه (`exact`، نشانه‌ی مجموعه، `part`، عنوان ناجور، رد ویراستار و صفحه‌ی نسخه)، ارجاع (عنوان، صفحه، بافت، ارجاع به کتاب دیگر، صفحه‌ی مدخل و متن تغییرکرده)، `Titles` و `place()`، و منبع بی پیکربندی.
+- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار: `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs dharia'`. پشتیبان: خروجی `source_page_links`. برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
+
+### گام ۱۳.۱۵۶: `lines_raw` و `line_counts`
+- **migration** (`2026_11_03_200001_add_line_layouts_to_manuscripts`): `lines_raw` از نوع varchar(255) و `line_counts` از نوع json، هر دو nullable و پس از `lines`. در مدل `line_counts` با cast `array` خوانده می‌شود.
+- **[CopyLines](../app/Support/CopyLines.php):**
+  - `fromText` نخست برچسب صفحه را برمی‌دارد و رقم فارسی را به لاتین برمی‌گرداند. سپس `PHRASE` را می‌جوید: زنجیره‌ای از عددها که با «و»، «-»، «–»، «تا» یا «،» به هم پیوسته‌اند و پیش از «سطر» می‌آیند. «سطرها» شمرده نمی‌شود، و زنجیره‌ای که پیش از آن «×»، رقم یا «/» باشد هم شمرده نمی‌شود.
+  - `own` زنجیره را از پس از آخرین عدد بزرگ‌تر از ۹۹ می‌برد. «،» فقط در فهرستی با سه عدد یا بیشتر، یا همراه «و»، پیوند به شمار می‌آید.
+  - `layouts`: گروه‌ها با «و» یا «،» از هم جدا می‌شوند. گروه دوعددی با «-» یا «تا» بازه‌ی [min، max] است و گروه سه‌عددی یا بیشتر فهرست است.
+  - عبارت کسری عبارتش را نگه می‌دارد، بی شمار.
+  - `columns` و `forUpdate` برای نوشتن به کار می‌روند.
+- **هم‌گامی:** `DerivedData::copyChanges` کلید `lines` را برمی‌گرداند، و `COPY_COLUMNS` دو ستون تازه را دارد. `syncCopies` آن‌ها را می‌نویسد. `RefreshDerivedCommand` گونه‌ی `line_counts` را گزارش و ترمیم می‌کند.
+- **فرمان:** `fahares:fill-line-counts [--apply] [--show=8]` ([FillLineCountsCommand.php](../app/Console/Commands/FillLineCountsCommand.php)). ممیزی و بازنمایه ندارد، چون این ستون‌ها از `raw_text` ساخته می‌شوند و نمایه فقط `lines` را دارد.
+- **نمایش:** [show.blade.php](../resources/views/manuscripts/show.blade.php): «شمار سطر» اگر `lines_raw` باشد آن را نشان می‌دهد، وگرنه `lines`.
+- **تمرین (`fahares_prod`):** پس از migrate، اجرای `--apply` یک دقیقه و ۲۴ ثانیه طول کشید و `changed 199915` گزارش داد:
+  - `one_count` ۱۸۹٬۳۹۸
+  - `varying` ۶٬۸۹۱
+  - `several_layouts` ۳٬۶۱۷
+  - `wording_only` ۹
+  - `lines_not_among_them` ۸۱
+
+  اجرای دوم `changed 0` داد و `refresh-derived` نیز `line_counts 0`.
+- **آزمون‌ها:** `Tests\Unit\CopyLinesTest` (۲ آزمون) و `FillLineCountsCommandTest`.

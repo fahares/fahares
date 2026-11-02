@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  * Reports, and with --apply mends, the derived data that has drifted from the columns it is made from (item 87): the
  * corpus commands write source columns with DB::table, which runs no model hook. For each kind it counts the records
  * that differ from a fresh recomputation, with examples: copy date ranges, composition date ranges, death ranges,
- * extents, bound volumes (collection_key), works whose dedication gives people they have no work_people row for, excerpt pointers, and the
+ * extents, line layouts (line_counts), bound volumes (collection_key), works whose dedication gives people they have no work_people row for, excerpt pointers, and the
  * dedicatees and commissioners a backfill wrote (suggestion_id null) that the current dedication no longer gives.
  * The last are only reported, never deleted. With --apply the idempotent fillers run in order, what they leave is
  * written through DerivedData, and the report is made again. Run it after each corpus apply.
@@ -61,7 +61,7 @@ class RefreshDerivedCommand extends Command
 
         // What the fillers leave: a date cleared with its range kept, a pointer the copy's text no longer makes…
         $this->drift();
-        DerivedData::syncCopies(array_merge($this->report['copy_date_range']['ids'], $this->report['extent']['ids'], $this->report['collection_key']['ids'], $this->report['excerpt_pointers']['ids']), $this);
+        DerivedData::syncCopies(array_merge($this->report['copy_date_range']['ids'], $this->report['extent']['ids'], $this->report['collection_key']['ids'], $this->report['line_counts']['ids'], $this->report['excerpt_pointers']['ids']), $this);
         DerivedData::syncWorks($this->report['composition_date_range']['ids'], $this);
         DB::transaction(function () {
             foreach (array_chunk($this->report['death_range']['ids'], 1000) as $chunk) {
@@ -83,7 +83,7 @@ class RefreshDerivedCommand extends Command
     private function drift(): void
     {
         $this->report = [];
-        foreach (['copy_date_range', 'extent', 'collection_key', 'composition_date_range', 'death_range', 'dedications_missing', 'dedications_not_given', 'excerpt_pointers'] as $kind) {
+        foreach (['copy_date_range', 'extent', 'collection_key', 'line_counts', 'composition_date_range', 'death_range', 'dedications_missing', 'dedications_not_given', 'excerpt_pointers'] as $kind) {
             $this->report[$kind] = ['count' => 0, 'ids' => [], 'examples' => []];
         }
 
@@ -91,13 +91,16 @@ class RefreshDerivedCommand extends Command
         DB::table('manuscripts')->select(DerivedData::COPY_COLUMNS)->orderBy('id')->chunkById(2000, function ($rows) use ($guard) {
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             foreach ($rows as $row) {
-                ['date' => $date, 'extent' => $extent, 'collection' => $collection] = DerivedData::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
+                ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = DerivedData::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
                 if ($date) {
                     $this->add('copy_date_range', $row->id, "#{$row->id} «{$row->copy_date_raw}»: {$row->copy_date_from}–{$row->copy_date_to} → {$date['copy_date_from']}–{$date['copy_date_to']}");
                 }
                 if ($extent) {
                     $show = fn ($folios, $pages, $raw) => '«' . ($raw ?? '') . '» ' . ($folios ?? '—') . 'گ/' . ($pages ?? '—') . 'ص';
                     $this->add('extent', $row->id, "#{$row->id} " . $show($row->folios, $row->pages, $row->extent_raw) . ' → ' . $show($extent['folios'], $extent['pages'], $extent['extent_raw']));
+                }
+                if ($lines) {
+                    $this->add('line_counts', $row->id, "#{$row->id} «" . ($row->lines_raw ?? '—') . '» → «' . ($lines['lines_raw'] ?? '—') . '»');
                 }
                 if ($collection) {
                     $this->add('collection_key', $row->id, "#{$row->id} «{$row->shelfmark}»: " . ($row->collection_key ?? '—') . ' → ' . ($collection['collection_key'] ?? '—'));

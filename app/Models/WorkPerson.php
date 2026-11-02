@@ -6,14 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A person connected with a work other than its authors (translator, dedicatee, commissioner…),
- * linked to a person record or kept as a name only, with how sure the catalogue is.
+ * A person connected with a work (author, translator, dedicatee, commissioner…), linked to a person record or
+ * kept as a name only, with how sure the catalogue is. The authors (role «author», step 13.151) are the work's
+ * author list; ROLES are the others.
  */
 class WorkPerson extends Model
 {
     protected $table = 'work_people';
 
     protected $guarded = ['id'];
+
+    /** The role of the work's authors; the primary one (works.author_id) is at position 0. */
+    public const AUTHOR = 'author';
 
     /** Roles in display order. */
     public const ROLES = [

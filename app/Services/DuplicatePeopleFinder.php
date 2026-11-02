@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\TextNormalizer;
+use App\Models\ManuscriptPerson;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -153,7 +154,7 @@ class DuplicatePeopleFinder
      */
     public static function groups(): array
     {
-        $copyYears = DB::table('manuscript_scribe as s')
+        $copyYears = DB::table('manuscript_people as s')->where('s.role', ManuscriptPerson::SCRIBE)
             ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
             ->whereNotNull('s.person_id')->whereNotNull('m.copy_date_hijri_year')
             ->groupBy('s.person_id')
