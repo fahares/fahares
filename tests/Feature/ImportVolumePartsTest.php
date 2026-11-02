@@ -83,6 +83,9 @@ class ImportVolumePartsTest extends TestCase
         $seventh->catalogers()->attach([$tabatabaei->id => ['role' => 'cataloger']]);
         $fourthSource = Source::create(['code' => 'catalogue-fourth', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'ثقة الاسلام (نشریه ۴)', 'library_id' => $tabriz->id]);
         $heldFourth = $this->volume($fourthSource, 4, $tabriz->id);
+        $zanjan = Library::create(['name' => 'امام جمعه', 'city' => 'زنجان', 'slug' => 'zngan-amam-gmaah-66']);
+        $zanjanSource = Source::create(['code' => 'catalogue-zanjan', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست مدرسه امام جمعه زنجان', 'library_id' => $zanjan->id]);
+        $zanjanVolume = $this->volume($zanjanSource, 1, $zanjan->id);
 
         $copies = [
             'on the catalogue' => [$this->copy($molavi, '[نشریه: 5 - 40]', $fifth), 5, 'mshhd-moloy-357'],
@@ -91,25 +94,29 @@ class ImportVolumePartsTest extends TestCase
             'fourth held as seventh' => [$this->copy($tabriz, '[نشریه: 7 - 535]', $heldFourth), 7, 'tbryz-thkh-alaslam-119'],
             'no bracket' => [$this->copy($tabriz, null, $heldFourth, 'بی‌کا تا قرن 10 نشریه: 7 - 537]'), 7, 'tbryz-thkh-alaslam-119'],
             'on the held fourth' => [$this->copy($tabriz, '[نشریه: 4 - 326]', $heldFourth), 4, 'tbryz-thkh-alaslam-119'],
+            'on a kept source' => [$this->copy($zanjan, '[نشریه: 5 - 150]', $zanjanVolume), 5, 'zngan-amam-gmaah-66'],
+            'untied, no entry' => [$this->copy($molavi, null, null, 'بی‌کا نشریه: 5 - 60]'), 5, 'mshhd-moloy-357'],
         ];
+        $zanjanOwn = $this->copy($zanjan, '[ف: 1 - 20]', $zanjanVolume);
         $stray = $this->copy($isfahan, '[پیش‌تر در دو جای دیگر معرفی شده: نشریه: 4-478 و نشریه: 11-935]', $heldFourth);
         $noVolume = $this->copy($molavi, '[نشریه: 9 - 10]', null);
 
         $data = ['source' => $nashriyeh->code, 'series' => 'نشریه', 'volume_title' => 'نشریه - دفتر %d',
-            'folds' => [['code' => 'catalogue-seventh', 'volume' => 7], ['code' => 'catalogue-fourth']],
+            'folds' => [['code' => 'catalogue-seventh', 'volume' => 7], ['code' => 'catalogue-fourth'], ['code' => 'catalogue-zanjan', 'keep' => true]],
             'editors' => [['name' => 'ایرج افشار', 'mtif' => 37239], ['name' => 'محمدتقی دانش‌پژوه', 'mtif' => 37279]],
             'parts' => [
                 ['daftar' => 5, 'library' => 'mshhd-moloy-357', 'title' => 'کتابخانه عبدالمجید مولوی', 'pages' => [8, 107], 'catalogers' => [['name' => 'مهدی والئی']], 'fankha_row' => 532],
                 ['daftar' => 7, 'library' => 'thran-mftah-16', 'title' => 'کتابخانه محمد حسین مفتاح', 'pages' => [95, 345], 'catalogers' => [['name' => 'محمد تقی دانش پژوه', 'mtif' => 37279]], 'fankha_row' => 244],
                 ['daftar' => 7, 'library' => 'tbryz-thkh-alaslam-119', 'title' => 'کتابخانه ثقة الاسلام', 'pages' => [531, 543], 'catalogers' => [['name' => 'سید عبدالعزیز طباطبائی', 'mtif' => 37227]], 'fankha_row' => 66],
                 ['daftar' => 4, 'library' => 'tbryz-thkh-alaslam-119', 'title' => 'کتابخانه ثقة الاسلام', 'pages' => [325, 328], 'catalogers' => [['name' => 'محمد تقی دانش پژوه', 'mtif' => 37279]], 'fankha_row' => 65],
+                ['daftar' => 5, 'library' => 'zngan-amam-gmaah-66', 'title' => 'کتابخانه امام جمعه زنجان', 'pages' => [145, 200], 'catalogers' => [], 'key' => 'zanjan'],
                 ['daftar' => 13, 'library' => null, 'title' => 'کتابخانه مجلس شورا', 'pages' => [405, 446], 'catalogers' => [['name' => 'سیمین صیدیه']], 'fankha_row' => 135],
             ]];
         $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
         file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
 
         $before = $this->state();
-        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--dry-run' => true])->assertSuccessful()->expectsOutput('4 copies tied anew.');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--dry-run' => true])->assertSuccessful()->expectsOutput('6 copies tied anew.');
         $this->assertSame($before, $this->state(), 'a dry run saves nothing');
 
         $backup = storage_path('framework/testing/parts-backup-' . uniqid() . '.json');
@@ -134,9 +141,11 @@ class ImportVolumePartsTest extends TestCase
         }
         $this->assertNull($stray->fresh()->catalog_volume_id, 'another source\'s copy on a folded volume is untied');
         $this->assertNull($noVolume->fresh()->catalog_volume_id);
+        $this->assertSame([$zanjanVolume->id, 1], [$zanjanOwn->fresh()->catalog_volume_id, CatalogVolume::find($zanjanVolume->id)->manuscripts_count], 'a kept source keeps its own copies');
+        $this->assertNotNull(Source::where('code', 'catalogue-zanjan')->first());
         $valaei = Cataloger::where('name', 'مهدی والئی')->firstOrFail();
-        $this->assertSame([2, 0], [$valaei->manuscripts_count, $valaei->supervised_count]);
-        $this->assertSame([2, 6], [$tabatabaei->fresh()->manuscripts_count, $afshar->fresh()->supervised_count]);
+        $this->assertSame([3, 0], [$valaei->manuscripts_count, $valaei->supervised_count]);
+        $this->assertSame([2, 8], [$tabatabaei->fresh()->manuscripts_count, $afshar->fresh()->supervised_count]);
         $this->assertNull(Cataloger::where('name', 'سیمین صیدیه')->first(), 'a part of a volume the catalogue has not is not made, nor its cataloger');
 
         $after = $this->state();
