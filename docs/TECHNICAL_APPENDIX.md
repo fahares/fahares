@@ -6541,6 +6541,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `Would write 4769` بود: `incipit_tail` ۴٬۶۹۷ و `incipit_script` ۷۲. شش رکورد `natural key differs` بودند.
   - پس از `--apply`، اجرای بعدی `Would write 0` بود.
   - در ۴٬۷۶۹ رکورد، `incipit_text` «\n» ندارد و در `metadata.incipits` هست.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_incipit_tails_prod_before_20261102.jsonl` با ۴٬۷۷۵ ردیف از ستون‌های `id`، `incipit_text` و `metadata`.
+  - **اجرا:** با `prod-run` انجام شد و `Writing 4769` داد. اجرای دوم `already` ۴٬۷۶۹ و `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_incipit_becomes_a_note_too`.
 
 ### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
