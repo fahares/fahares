@@ -45,6 +45,17 @@ class Work extends Model
             'composition_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
     }
 
+    /**
+     * The catalogue's word on a work's entry as a whole (step 14.7), its label and its explanation: a description
+     * that is only one of these labels («غیر همانند:») moves here (fahares:move-entry-status).
+     */
+    public const ENTRY_STATUSES = [
+        'heterogeneous' => ['غیر همانند', 'نسخه‌های این مدخل متن‌هایی جدا با عنوانی یکسان‌اند'],
+        'probably_heterogeneous' => ['ظاهراً غیر همانند', 'نسخه‌های این مدخل ظاهراً متن‌هایی جدا با عنوانی یکسان‌اند'],
+        'unidentified' => ['ناشناخته', 'اثر در فهرست شناسایی نشده است'],
+        'similarity_unknown' => ['همانندی نامعلوم', 'معلوم نیست نسخه‌های این مدخل یک متن‌اند'],
+    ];
+
     protected static function primaryContributorPivot(): array
     {
         return ['work_people', 'work_id', 'author_id', WorkPerson::AUTHOR];

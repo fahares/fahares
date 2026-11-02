@@ -115,6 +115,7 @@
             @foreach($work->subjects ?? [] as $subj)
                 <x-ui.chip :href="route('subjects.show', $subj)">{{ $subj->title }}</x-ui.chip>
             @endforeach
+            @if($status = \App\Models\Work::ENTRY_STATUSES[$work->entry_status] ?? null)<x-ui.chip tone="accent" :title="$status[1]">{{ $status[0] }}</x-ui.chip>@endif
             @if($work->has_autograph)<x-ui.chip tone="good">نسخه‌ی اصل (دستخط مؤلف)</x-ui.chip>@endif
             @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این اثر در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
         </div>

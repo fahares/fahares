@@ -6788,3 +6788,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان‌ها: `…/step14.6_import_volume_parts_{golpayegan,nashriyeh}_local_before_20261103.json`.
 - **زنجان:** منبع ۱۰۰۰۸۰، جلد #494، دو نسخه (۸۰۷۵۰ «ف: 1 – 171» و ۲۵۰۷۳۴ «: 1-151»). فهرست‌نگارش صادق حضرتی آشتیانی است (MTIF ۳۸۳۳۸، با آثار ۱۳۶۸ آشتیان، ۸۲۹۳ و ۸۳۱۲). MTIF عنوانی برای امام جمعه‌ی زنجان ندارد.
 - **تراثنا:** فهرست‌نگار منبع‌های ۱۰۰۱۴۶ تا ۱۰۰۱۵۱ با ردیف‌های ۴۲۴، ۴۲۵، ۴۲۶، ۴۶۹، ۵۳۶ و ۵۳۷ یکی است.
+
+### گام ۱۴.۷: `works.entry_status` و `fahares:move-entry-status`
+- **migration** `2026_11_04_200001_add_entry_status_to_works`: ستون `entry_status` از نوع varchar(30)، nullable، پس از `description`.
+  - **مقدارها:** `Work::ENTRY_STATUSES` شامل `heterogeneous`، `probably_heterogeneous`، `unidentified` و `similarity_unknown`، هر کدام با برچسب و توضیح.
+- **نمایش:** در [works/show.blade.php](../resources/views/works/show.blade.php)، `x-ui.chip tone="accent"` با `title` توضیح در ردیف برچسب‌های زیر عنوان آمده است.
+- **فرمان:** `fahares:move-entry-status [--apply]` ([MoveEntryStatusCommand.php](../app/Console/Commands/MoveEntryStatusCommand.php)).
+  - **تطبیق:** `statusOf` نیم‌فاصله و فاصله‌ها را یکی می‌کند. سپس شرح باید تمامش با یکی از الگوهای `LABELS` برابر باشد.
+  - **کنار ماندن:** شرحی که `ProtectedColumns` نگهش می‌دارد کنار می‌رود.
+  - **نوشتن:** `description = null` و `entry_status` در دسته‌های ۵۰۰تایی نوشته می‌شوند. هر انتقال یک `AuditLog` `corpus_update` دارد. اثرها در دسته‌های ۱۰۰تایی دوباره نمایه می‌شوند، چون نمایه شرح را دارد.
+- **وارسی پیش از کار:** ۱٬۳۴۴ + ۷۳ + ۱۰ + ۲ اثر «غیر همانند» ۱۵٬۷۶۷ نسخه دارند. فقط ۲ نسخه از آن‌ها `metadata.is_distinct_work = true` دارند.
+- **دسته‌ی دوم:** ۸۶۱ اثر شرحی دارند که «نام مؤلف⏎آوانویسی» است. همه `author_name` خالی دارند و هیچ‌کدام سطر `work_people` با نقش `author` ندارند. این دسته به کار «پدیدآوران پرشده» واگذار شد.
+- **تمرین (`fahares_prod`):** پس از migrate، خروجی `Would write 1802` بود: `heterogeneous` ۱٬۳۴۴، `probably_heterogeneous` ۶۷، `unidentified` ۳۸۸ و `similarity_unknown` ۳. پس از `--apply`، اجرای دوم `Would write 0` داد.
+- **آزمون:** `MoveEntryStatusCommandTest`.
+- **محیط آزمون worktree:** `scripts/dev/test-suite` در `fahares_app` از مسیر worktree اجرا می‌شود. پس worktree باید `vendor` خودش را داشته باشد. یک `vendor` پیوندی کلاس‌های `App` را از checkout اصلی بار می‌کند. پس `vendor` اصلی رونوشت شد، `composer dump-autoload -o` در همان worktree اجرا شد، و `.env` پیوندی به `../../../.env` است.
