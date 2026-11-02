@@ -6825,6 +6825,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):**
   - **تمرین نخست:** بی شرط سده بود و ۱۸ `author_id` ساخت، همه با نام‌های بی‌تاریخ. این تمرین با `old_values` ممیزی برگردانده شد: `author_name`، `author_id` و `description` به حال پیش برگشتند، سطرهای `work_people` با نقش `author` آن ۱۸ اثر و ردیف‌های ممیزی پاک شدند.
   - **تمرین دوم:** `update 432` اجرا شد. ۸ اثر سده داشتند، ولی هیچ‌کدام تطبیق مطمئن نداشت، پس `author_id` در همه تهی ماند. اجرای بعدی `update 0` داد.
+
 ### گام ۱۴.۹: `catalogs:remove-catalogue`
 - **دستور:** [RemoveCatalogueCommand](../app/Console/Commands/RemoveCatalogueCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
   - منبع با `code` پیدا می‌شود؛ اگر نباشد، «nothing to do».
@@ -6844,4 +6845,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۸۷۳، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #763 (بخش ۱۰۰۵، فهرست‌نگار ۲۴).
   - شمار بخش‌ها: ۸۷۳ = ۲۱۹ و ۱۰۰۵ = ۲۷۶. حضرتی (#۳۷): ۳ جلد و ۲۱۶ نسخه.
   - اثرانگشت جدول‌ها پس از `--revert` با پیش از اجرا یکی بود؛ پس از آن دوباره اجرا شد.
-
