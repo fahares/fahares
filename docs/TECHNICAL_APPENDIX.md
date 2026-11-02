@@ -6856,3 +6856,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **کنار رفته‌ها:** ۲۶ «v2 reads another author» و ۲۶ «hedged».
 - **فایل تصمیم:** `database/data/fankha_authors_from_description_by_title_20261102.json`.
 - **تمرین (`fahares_prod`):** `update 399` و سپس `update 0`. `author_id` در هیچ اثری پر نشد.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `8a17094`، از راه `prod-run`):**
+  - dry-run و اجرا جدا از هم انجام شدند.
+  - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۱۴۴، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #709 (بخش ۱۸۰، فهرست‌نگار ۲۴). شماره‌ی جلد و بخش در پروداکشن با نسخه‌ی محلی فرق دارد.
+  - منبع ۱۰۰۰۸۰ و جلد #494 دیگر نیستند. حضرتی: ۳ جلد و ۲۱۶ نسخه. `source_entries` = ۷۸۸٬۵۰۱.
+  - دو نسخه بی‌صف دوباره ایندکس شدند. صفحه‌ی `/sources/catalogue-b1c30639abab` حالا ۴۰۴ می‌دهد و «اوراق عتیق» ۲۰۰.
+  - پشتیبان به `…/step14.9_remove_catalogue_prod_before_20261103.json` رفت.
