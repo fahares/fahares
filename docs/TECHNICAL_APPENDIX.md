@@ -6848,3 +6848,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۸۷۳، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #763 (بخش ۱۰۰۵، فهرست‌نگار ۲۴).
   - شمار بخش‌ها: ۸۷۳ = ۲۱۹ و ۱۰۰۵ = ۲۷۶. حضرتی (#۳۷): ۳ جلد و ۲۱۶ نسخه.
   - اثرانگشت جدول‌ها پس از `--revert` با پیش از اجرا یکی بود؛ پس از آن دوباره اجرا شد.
+
+### گام ۱۴.۱۰: `by_title_and_author`
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py` اکنون `primary_title` و `volume_number` سایت را هم می‌خواند.
+  - **جست‌وجو با عنوان:** اگر سطر نخست شرح با `author.name` یا `author.name_raw` اثرِ هم‌کلید v2 برابر نباشد، `by_title_and_author` در همان جلد اثری می‌جوید که `norm(title_line) == norm(primary_title)` و `norm(author.name) == norm(سطر نخست)` داشته باشد. فقط نتیجه‌ی یکتا پذیرفته می‌شود.
+  - **خروجی روی `fahares_prod` پس از ۱۴.۸:** ۳۹۹ `work_updates`. ریشه‌ی آن‌ها در خروجی پیشین: ۲۸۹ «v2 reads another author»، ۱۰۳ «more than a name» (اثر هم‌کلید مؤلف نداشت) و ۷ «hedged».
+  - **کنار رفته‌ها:** ۲۶ «v2 reads another author» و ۲۶ «hedged».
+- **فایل تصمیم:** `database/data/fankha_authors_from_description_by_title_20261102.json`.
+- **تمرین (`fahares_prod`):** `update 399` و سپس `update 0`. `author_id` در هیچ اثری پر نشد.
