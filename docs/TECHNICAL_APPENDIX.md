@@ -6509,6 +6509,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:**
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (با «مولد»)
   - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
+### گام ۱۳.۱۶۵: «18884» مجلس
+- **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
+- **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
 
 
 ### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
