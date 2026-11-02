@@ -64,11 +64,13 @@ restic_enabled() { [ -n "$RESTIC_REPOSITORY" ]; }
 
 # Run a restic command (any command whose failure is worth retrying) up to RESTIC_ATTEMPTS times.
 retry_restic() {
-    local attempt
+    local attempt code
     for attempt in $(seq 1 "$RESTIC_ATTEMPTS"); do
-        "$@" && return 0
+        "$@" && return 0 || code=$?
+        # Exit 3: some source files could not be read (e.g. permissions); waiting will not fix that.
+        [ "$code" -ne 3 ] || return 3
         [ "$attempt" -lt "$RESTIC_ATTEMPTS" ] || break
-        log "restic failed (attempt ${attempt}/${RESTIC_ATTEMPTS}), retrying in ${RESTIC_RETRY_WAIT}s"
+        log "restic failed (exit ${code}, attempt ${attempt}/${RESTIC_ATTEMPTS}), retrying in ${RESTIC_RETRY_WAIT}s"
         sleep "$RESTIC_RETRY_WAIT"
     done
     return 1
