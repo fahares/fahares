@@ -6561,3 +6561,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
+
+### گام ۱۳.۱۷۰: فهرست‌های «،»دار و `new_records`
+- **کد:**
+  - `KnownSubjects::fromText()` ادامه را بر `\s*،\s*|\s+و\s+` تکه می‌کند. `BARE` اکنون `زهرا`، `المرتضى`، `المرتضی`، `شافعی` و `مالک` را هم دارد.
+  - `BackfillWorkSubjectsCommand` رکوردی را که نیست می‌سازد، اگر `LIST` به آن `death` داده باشد یا در `new_records` فایل تصمیم آمده باشد. `createRecord()` اکنون `?int $death` می‌گیرد.
+- **فایل تصمیم:**
+  - ۱۷ عبارت تازه در `phrases`.
+  - `new_records`: هفت رکورد با سال وفات، یکی بی سال.
+  - یک عنوان تازه در `titles`: «مدح عمر بن الخطاب لرسول الله (ص) (فصل فی)» → پیامبر.
+- **dry run (`fahares_prod` محلی):** `linked:known 154`، `:description 351`، `:title_inside 149`، `:title_read 1`، `linked:reviewed 80`، `:description 18`، `:title_inside 4`، `:title_listed 4`، `:title_read 7` و `records:created 8`. در کپی محلی هشت رکورد ساخته می‌شود، چون رکورد امام نهم در آن نیست. در پروداکشن باید هفت باشد.
+- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **آزمون‌ها:**
+  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (فهرست «،»دار، «مالک اشتر»، «المرتضى»، «صدیقه کبری»)
+  - `BackfillWorkSubjectsTest::test_a_record_the_decision_file_lists_as_new_is_made_once_with_its_death_year`
+

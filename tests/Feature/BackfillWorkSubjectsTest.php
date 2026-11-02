@@ -85,6 +85,26 @@ class BackfillWorkSubjectsTest extends TestCase
         \App\Models\AuditLog::where('auditable_type', Work::class)->where('auditable_id', $work)->delete();
     }
 
+    public function test_a_record_the_decision_file_lists_as_new_is_made_once_with_its_death_year()
+    {
+        DB::table('people')->where('name', 'حجر آزمایشی بن عدی کندی')->delete();
+        $work = $this->work('شرح حال حجر آزمایشی بن عدی');
+        file_put_contents($this->file, json_encode(['phrases' => ['حجر آزمایشی بن عدی' => 'حجر آزمایشی بن عدی کندی'],
+            'new_records' => ['حجر آزمایشی بن عدی کندی' => 51]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file])->assertSuccessful();
+        $this->assertFalse(DB::table('people')->where('name', 'حجر آزمایشی بن عدی کندی')->exists());
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file, '--apply' => true])->assertSuccessful();
+        $hujr = DB::table('people')->where('name', 'حجر آزمایشی بن عدی کندی')->sole();
+        $this->people[] = $hujr->id;
+        $this->assertSame(51, (int) $hujr->death_year_hijri);
+        $this->assertSame((int) $hujr->id, (int) DB::table('work_people')->where('work_id', $work)->value('person_id'));
+
+        $this->artisan('fahares:backfill-work-subjects', ['--decisions' => $this->file, '--apply' => true])->assertSuccessful();
+        $this->assertSame(1, DB::table('people')->where('name', 'حجر آزمایشی بن عدی کندی')->count());
+    }
+
     public function test_known_subjects_and_reviewed_phrases_are_linked_once()
     {
         $husayn = $this->person('حسین بن علی (ع)، امام سوم');
