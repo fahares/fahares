@@ -6266,6 +6266,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines_bayt`. ورودی ردیف‌های `lines/emptied` از `reports/fankha_v2_db_review6/diffs.jsonl` است. شرط: `raw_text` سایت، بی برچسب صفحه و با رقم لاتین، «سطر» ندارد و `{lines}\s*بیت` دارد. خروجی ۴۸۱ رکورد است و ۷۲۵ رکورد کنار گذاشته شد.
 - **فایل تصمیم:** `database/data/fankha_lines_bayt_20261102.json`، با تغییر `lines: {from: N, to: null}`. فرمان تغییری نخواست، چون `lines` از گام ۱۳.۱۳۲ در `FIELDS` است.
 - **تمرین (`fahares_prod`):** `Would write 481`، سپس `Writing 481`، سپس `Would write 0`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `6c96057`):** پشتیبان در `fahares-sources/backups/item87_lines_bayt_prod_before_20261102.json` گرفته شد (۴۸۱ ردیف). اجرا با `scripts/dev/prod-run` انجام شد. خروجی `Writing 481` بود و اجرای پس از آن `already 481` و `Would write 0` داد.
 - **آزمون:** ادامه‌ی `test_a_line_count_fills_only_a_copy_still_without_one`.
 ### گام ۱۳.۱۵۴: کلید سه‌عددی عدد کوچک‌اول
 - **قاعده:** `collectionKey`، پس از جدا کردن نشانه‌ی چسبیده: اگر `base` با `^\d{1,2}$` بخواند و بخش رساله با `^(\d{3,})\s*/\s*(\d+)`، آنگاه `base = "{base}/{q1}"` و `part = q2`. نمونه‌ها: «4/120/1-5957» → «4/120» (شماره‌ی قدیم پس از «-» نادیده گرفته می‌شود)؛ «2267/6/10» → «2267».
