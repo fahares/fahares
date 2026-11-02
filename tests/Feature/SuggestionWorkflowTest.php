@@ -221,7 +221,7 @@ class SuggestionWorkflowTest extends TestCase
 
         $m->refresh();
         $this->assertSame($new->id, $m->scribe_id);
-        $this->assertSame([$new->id], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
+        $this->assertSame([$new->id], DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
         $this->assertSame(1, $new->fresh()->manuscripts_count);
         $this->assertSame(0, $old->fresh()->manuscripts_count);
 
@@ -318,7 +318,7 @@ class SuggestionWorkflowTest extends TestCase
 
         $work->refresh();
         $this->assertSame($author->id, $work->author_id);
-        $this->assertSame([$author->id], DB::table('work_author')->where('work_id', $work->id)->pluck('person_id')->all());
+        $this->assertSame([$author->id], DB::table('work_people')->where('role', 'author')->where('work_id', $work->id)->pluck('person_id')->all());
         $this->assertSame(1, $author->fresh()->works_count);
         $this->assertSame(895, $work->composition_year_hijri);
         $this->assertSame([
@@ -1195,7 +1195,7 @@ class SuggestionWorkflowTest extends TestCase
         $person = $this->person('عبدالله بن محمود');
         $m = $this->manuscript(['scribe_name' => 'عبدالله']);
         // The catalog's name, kept as text without a person record
-        DB::table('manuscript_scribe')->insert(['manuscript_id' => $m->id, 'person_id' => null, 'name' => 'عبدالله', 'position' => 0]);
+        DB::table('manuscript_people')->insert(['role' => 'scribe', 'manuscript_id' => $m->id, 'person_id' => null, 'name' => 'عبدالله', 'position' => 0]);
 
         $this->relate($m, 'scribe_is', $person)->assertOk();
         $s = $this->pendingFor($m);
@@ -1205,12 +1205,12 @@ class SuggestionWorkflowTest extends TestCase
         $m->refresh();
         $this->assertSame($person->id, $m->scribe_id);
         $this->assertSame('عبدالله', $m->scribe_name);
-        $this->assertSame([$person->id], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
+        $this->assertSame([$person->id], DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
         $this->assertSame(1, $person->fresh()->manuscripts_count);
 
         $this->rollbackLatest($m);
         $this->assertNull($m->fresh()->scribe_id);
-        $this->assertSame(['عبدالله'], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('name')->all());
+        $this->assertSame(['عبدالله'], DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $m->id)->pluck('name')->all());
         $this->assertSame(0, $person->fresh()->manuscripts_count);
     }
 
@@ -1224,7 +1224,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->relate($m, 'scribe_also', $second)->assertOk();
         $s = $this->pendingFor($m);
         $this->approve($s, ['contributor_note' => 'از برگ ۴۰ تا پایان'])->assertRedirect('/admin/suggestions');
-        $rows = DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->orderBy('position')->get();
+        $rows = DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $m->id)->orderBy('position')->get();
         $this->assertSame([$first->id, $second->id], $rows->pluck('person_id')->all());
         $this->assertSame('از برگ ۴۰ تا پایان', $rows[1]->note);
         $this->get(route('manuscripts.show', $m))->assertSee('کاتب دوم')->assertSee('از برگ ۴۰ تا پایان');
@@ -1233,7 +1233,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->relate($m, 'scribe_also', $second)->assertOk();
         $this->approve($this->pendingFor($m))->assertSessionHasErrors('applied_value');
         $this->rollbackLatest($m);
-        $this->assertSame([$first->id], DB::table('manuscript_scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
+        $this->assertSame([$first->id], DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $m->id)->pluck('person_id')->all());
         $this->assertSame(0, $second->fresh()->manuscripts_count);
 
         // A work's attribution moves to another person, and both counts follow
@@ -1621,8 +1621,8 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame(array_diff_key($before, ['updated_at' => 1]), array_diff_key($restored->getAttributes(), ['updated_at' => 1]));
         $kept->refresh();
         $this->assertSame([null, null, null], [$kept->copy_date_raw, $kept->copy_date_hijri_year, $kept->scribe_id]);
-        $this->assertSame(0, DB::table('manuscript_scribe')->where('manuscript_id', $kept->id)->count());
-        $this->assertSame([$dup->id], DB::table('manuscript_scribe')->where('person_id', $scribe->id)->pluck('manuscript_id')->all());
+        $this->assertSame(0, DB::table('manuscript_people')->where('role', 'scribe')->where('manuscript_id', $kept->id)->count());
+        $this->assertSame([$dup->id], DB::table('manuscript_people')->where('role', 'scribe')->where('person_id', $scribe->id)->pluck('manuscript_id')->all());
         $this->assertTrue(DB::table('manuscript_script')->where(['manuscript_id' => $dup->id, 'script_id' => $scriptId])->exists());
         $this->assertSame($dup->id, DB::table('manuscript_people')->where('id', $owner)->value('manuscript_id'));
         $this->assertSame($dup->id, DB::table('manuscript_relations')->where('id', $relation)->value('manuscript_id'));
@@ -1654,7 +1654,7 @@ class SuggestionWorkflowTest extends TestCase
         $kept->update(['manuscripts_count' => 1]);
         $dup->update(['manuscripts_count' => 2]);
         $author = $this->person('پدیدآور اثر تکراری');
-        DB::table('work_author')->insert(['work_id' => $dup->id, 'person_id' => $author->id, 'position' => 0]);
+        DB::table('work_people')->insert(['role' => 'author', 'work_id' => $dup->id, 'person_id' => $author->id, 'position' => 0]);
         $subject = \App\Models\Subject::create(['name' => "موضوع آزمون {$this->tag}", 'slug' => 'test-subj-' . uniqid()]);
         $dup->subjects()->attach($subject->id);
         $referral = DB::table('referrals')->insertGetId(['source_title' => 'الف', 'target_title' => 'ب', 'target_work_id' => $dup->id, 'volume_number' => 1, 'page' => 1]);
@@ -1679,7 +1679,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->assertSame([null, null, null], [$kept->alternative_titles, $kept->composition_date_raw, $kept->composition_year_hijri]);
         $this->assertFalse($kept->subjects()->whereKey($subject->id)->exists());
         $this->assertTrue($restored->subjects()->whereKey($subject->id)->exists());
-        $this->assertSame([$dup->id], DB::table('work_author')->where('person_id', $author->id)->pluck('work_id')->all());
+        $this->assertSame([$dup->id], DB::table('work_people')->where('role', 'author')->where('person_id', $author->id)->pluck('work_id')->all());
         $this->assertSame($dup->id, DB::table('referrals')->where('id', $referral)->value('target_work_id'));
         $this->assertNull(EntityRedirect::resolveTargetId('works', $dup->id));
         $this->assertNull(EntityRedirect::resolveTargetId('manuscripts', $copy->id));
@@ -1767,7 +1767,7 @@ class SuggestionWorkflowTest extends TestCase
         $this->rollbackRemoval($person);
         $this->rollbackRemoval($work);
         $this->assertSame($person->id, Work::findOrFail($work->id)->author_id);
-        $this->assertSame([$work->id], DB::table('work_author')->where('person_id', $person->id)->pluck('work_id')->all());
+        $this->assertSame([$work->id], DB::table('work_people')->where('role', 'author')->where('person_id', $person->id)->pluck('work_id')->all());
         $this->assertSame($work->id, DB::table('referrals')->where('id', $referral)->value('target_work_id'));
         $this->assertSame(1, Person::find($person->id)->works_count);
         $this->assertSame(['pending', 'pending'], [$ws->fresh()->status, $ps->fresh()->status]);
@@ -1840,8 +1840,8 @@ class SuggestionWorkflowTest extends TestCase
         $created = Person::where('name', 'هم‌نام ' . $this->tag)->sole();
         $this->assertSame([$person->id, $created->id], [$w1->fresh()->author_id, $w2->fresh()->author_id]);
         $this->assertSame([$person->id, $created->id], [$m1->fresh()->scribe_id, $m2->fresh()->scribe_id]);
-        $this->assertSame([$w2->id], DB::table('work_author')->where('person_id', $created->id)->pluck('work_id')->all());
-        $this->assertSame([$m2->id], DB::table('manuscript_scribe')->where('person_id', $created->id)->pluck('manuscript_id')->all());
+        $this->assertSame([$w2->id], DB::table('work_people')->where('role', 'author')->where('person_id', $created->id)->pluck('work_id')->all());
+        $this->assertSame([$m2->id], DB::table('manuscript_people')->where('role', 'scribe')->where('person_id', $created->id)->pluck('manuscript_id')->all());
         $this->assertSame($created->id, DB::table('manuscript_people')->where('id', $role)->value('person_id'));
         $this->assertSame([1, 1, 1100], [$created->works_count, $created->manuscripts_count, $created->death_year_hijri]);
         $this->assertSame([1, 1], [$person->fresh()->works_count, $person->fresh()->manuscripts_count]);

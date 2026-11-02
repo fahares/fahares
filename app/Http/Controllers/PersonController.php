@@ -38,6 +38,8 @@ class PersonController extends Controller
             ->with(['subjects', 'languages', 'catalog'])
             ->withCount('manuscripts')
             ->orderByDesc('manuscripts_count')
+            // Ties keep the catalogue's order of the rows, so the pages do not change with the query plan
+            ->orderBy('work_people.id')
             ->paginate(20, ['*'], 'works_page');
 
         $scribedManuscripts = $person->scribedManuscripts()

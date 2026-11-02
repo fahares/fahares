@@ -4,8 +4,10 @@ namespace App\Suggestions;
 
 use App\Helpers\TextNormalizer;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -75,10 +77,12 @@ class RecordSplitter
         if ($name === '') {
             throw new InvalidArgumentException('نام شخص تازه را بنویسید.');
         }
-        $works = DB::table('work_author')->where('person_id', $person->id)->whereIn('work_id', $picked['works'] ?? [])->pluck('work_id')->all();
-        $manuscripts = DB::table('manuscript_scribe')->where('person_id', $person->id)->whereIn('manuscript_id', $picked['manuscripts'] ?? [])->pluck('manuscript_id')->all();
-        $roles = DB::table('manuscript_people')->where('person_id', $person->id)->whereIn('id', $picked['roles'] ?? [])->pluck('id')->all();
-        $workRoles = DB::table('work_people')->where('person_id', $person->id)->whereIn('id', $picked['work_roles'] ?? [])->pluck('id')->all();
+        $authors = fn () => DB::table('work_people')->where('role', WorkPerson::AUTHOR);
+        $scribes = fn () => DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE);
+        $works = $authors()->where('person_id', $person->id)->whereIn('work_id', $picked['works'] ?? [])->pluck('work_id')->all();
+        $manuscripts = $scribes()->where('person_id', $person->id)->whereIn('manuscript_id', $picked['manuscripts'] ?? [])->pluck('manuscript_id')->all();
+        $roles = DB::table('manuscript_people')->where('person_id', $person->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->whereIn('id', $picked['roles'] ?? [])->pluck('id')->all();
+        $workRoles = DB::table('work_people')->where('person_id', $person->id)->where('role', '!=', WorkPerson::AUTHOR)->whereIn('id', $picked['work_roles'] ?? [])->pluck('id')->all();
         if (! $works && ! $manuscripts && ! $roles && ! $workRoles) {
             throw new InvalidArgumentException('دست‌کم یک اثر یا نسخه را برای انتقال به شخص تازه انتخاب کنید.');
         }
@@ -92,10 +96,10 @@ class RecordSplitter
         $created->update(['slug' => (Str::slug($name, '-', null) ?: 'person') . '-' . $created->id]);
 
         // Pivot rows and primary columns move together (bulk updates bypass SyncsPrimaryContributor)
-        DB::table('work_author')->where('person_id', $person->id)->whereIn('work_id', $works)->update(['person_id' => $created->id]);
+        $authors()->where('person_id', $person->id)->whereIn('work_id', $works)->update(['person_id' => $created->id]);
         $primaryWorks = Work::whereIn('id', $works)->where('author_id', $person->id)->pluck('id')->all();
         Work::whereIn('id', $primaryWorks)->update(['author_id' => $created->id]);
-        DB::table('manuscript_scribe')->where('person_id', $person->id)->whereIn('manuscript_id', $manuscripts)->update(['person_id' => $created->id]);
+        $scribes()->where('person_id', $person->id)->whereIn('manuscript_id', $manuscripts)->update(['person_id' => $created->id]);
         $primaryManuscripts = Manuscript::whereIn('id', $manuscripts)->where('scribe_id', $person->id)->pluck('id')->all();
         Manuscript::whereIn('id', $primaryManuscripts)->update(['scribe_id' => $created->id]);
         DB::table('manuscript_people')->whereIn('id', $roles)->update(['person_id' => $created->id]);
@@ -144,9 +148,9 @@ class RecordSplitter
             return;
         }
 
-        DB::table('work_author')->where('person_id', $createdId)->whereIn('work_id', $old['work_ids'])->update(['person_id' => $sourceId]);
+        DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $createdId)->whereIn('work_id', $old['work_ids'])->update(['person_id' => $sourceId]);
         Work::whereIn('id', $old['primary_work_ids'])->where('author_id', $createdId)->update(['author_id' => $sourceId]);
-        DB::table('manuscript_scribe')->where('person_id', $createdId)->whereIn('manuscript_id', $old['manuscript_ids'])->update(['person_id' => $sourceId]);
+        DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $createdId)->whereIn('manuscript_id', $old['manuscript_ids'])->update(['person_id' => $sourceId]);
         Manuscript::whereIn('id', $old['primary_manuscript_ids'])->where('scribe_id', $createdId)->update(['scribe_id' => $sourceId]);
         DB::table('manuscript_people')->whereIn('id', $old['role_ids'])->where('person_id', $createdId)->update(['person_id' => $sourceId]);
         DB::table('work_people')->whereIn('id', $old['work_role_ids'] ?? [])->where('person_id', $createdId)->update(['person_id' => $sourceId]);

@@ -8,10 +8,13 @@ use App\Models\AuditLog;
 use App\Models\EntityRedirect;
 use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\ScholarlyAnnotation;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Models\WorkPerson;
+use App\Suggestions\ContributorRelations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -132,12 +135,15 @@ class AuditLogController extends Controller
             $collapsedManuscriptIds = (array) ($old['collapsed_manuscript_ids'] ?? []);
 
             // Revert works
-            DB::table('work_author')->where('person_id', $target->id)
+            $authors = fn () => DB::table('work_people')->where('role', WorkPerson::AUTHOR);
+            $authors()->where('person_id', $target->id)
                 ->whereIn('work_id', array_diff($transferredWorkIds, $collapsedWorkIds))
                 ->update(['person_id' => $sourceId]);
             foreach ($collapsedWorkIds as $workId) {
-                $position = (int) DB::table('work_author')->where('work_id', $workId)->max('position') + 1;
-                DB::table('work_author')->insertOrIgnore(['work_id' => $workId, 'person_id' => $sourceId, 'position' => $position]);
+                if ($authors()->where('work_id', $workId)->where('person_id', $sourceId)->doesntExist()) {
+                    $position = (int) $authors()->where('work_id', $workId)->max('position') + 1;
+                    DB::table('work_people')->insert(['work_id' => $workId, 'person_id' => $sourceId, 'role' => WorkPerson::AUTHOR, 'position' => $position]);
+                }
             }
             if (! empty($primaryWorkIds)) {
                 Work::whereIn('id', $primaryWorkIds)->where('author_id', $target->id)->update(['author_id' => $sourceId]);
@@ -146,24 +152,27 @@ class AuditLogController extends Controller
             $restoreNames = empty($old['kept_printed_names']);
             if ($restoreNames) {
                 Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
-                    ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
+                    ->whereRaw("(SELECT COUNT(*) FROM work_people wa WHERE wa.work_id = works.id AND wa.role = 'author') = 1")
                     ->update(['author_name' => $sourceName]);
             }
 
             // Revert manuscripts
-            DB::table('manuscript_scribe')->where('person_id', $target->id)
+            $scribes = fn () => DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE);
+            $scribes()->where('person_id', $target->id)
                 ->whereIn('manuscript_id', array_diff($transferredManuscriptIds, $collapsedManuscriptIds))
                 ->update(['person_id' => $sourceId]);
             foreach ($collapsedManuscriptIds as $manuscriptId) {
-                $position = (int) DB::table('manuscript_scribe')->where('manuscript_id', $manuscriptId)->max('position') + 1;
-                DB::table('manuscript_scribe')->insertOrIgnore(['manuscript_id' => $manuscriptId, 'person_id' => $sourceId, 'position' => $position]);
+                if ($scribes()->where('manuscript_id', $manuscriptId)->where('person_id', $sourceId)->doesntExist()) {
+                    $position = (int) $scribes()->where('manuscript_id', $manuscriptId)->max('position') + 1;
+                    DB::table('manuscript_people')->insert(['manuscript_id' => $manuscriptId, 'person_id' => $sourceId, 'role' => ManuscriptPerson::SCRIBE, 'position' => $position]);
+                }
             }
             if (! empty($primaryManuscriptIds)) {
                 Manuscript::whereIn('id', $primaryManuscriptIds)->where('scribe_id', $target->id)->update(['scribe_id' => $sourceId]);
             }
             if ($restoreNames) {
                 Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
-                    ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
+                    ->whereRaw("(SELECT COUNT(*) FROM manuscript_people ms WHERE ms.manuscript_id = manuscripts.id AND ms.role = 'scribe') = 1")
                     ->update(['scribe_name' => $sourceName]);
             }
 
@@ -188,8 +197,8 @@ class AuditLogController extends Controller
             ]);
 
             // Recount works & manuscripts for restored source
-            $sourceWorks = DB::table('work_author')->where('person_id', $sourceId)->count();
-            $sourceManuscripts = DB::table('manuscript_scribe')->where('person_id', $sourceId)->count();
+            $sourceWorks = $authors()->where('person_id', $sourceId)->count();
+            $sourceManuscripts = $scribes()->where('person_id', $sourceId)->count();
             Person::where('id', $sourceId)->update([
                 'works_count' => $sourceWorks,
                 'manuscripts_count' => $sourceManuscripts,
@@ -436,7 +445,9 @@ class AuditLogController extends Controller
             ($target instanceof \App\Models\Work ? \App\Models\WorkPerson::class : \App\Models\ManuscriptPerson::class)::whereKey($roleId)->delete();
         }
         if ($added = $log->new_values['added_contributor'] ?? null) {
-            DB::table($added['table'])->where('id', $added['id'])->delete();
+            // A log from before step 13.151 names the old table; the row is in the people table now
+            $legacy = ContributorRelations::LEGACY_TABLES[$added['table']] ?? null;
+            DB::table($legacy[0] ?? $added['table'])->where('id', $added['id'] + ($legacy ? ContributorRelations::LEGACY_ID_OFFSET : 0))->delete();
             Person::find($added['person_id'])?->recountContributions();
         }
         $previousAuthor = $target->author_id ?? null;
@@ -507,6 +518,10 @@ class AuditLogController extends Controller
         if ($row = $log->new_values['removed_name_row'] ?? null) {
             $table = $row['table'];
             unset($row['table']);
+            if ($legacy = ContributorRelations::LEGACY_TABLES[$table] ?? null) {
+                $table = $legacy[0];
+                $row = ['id' => $row['id'] + ContributorRelations::LEGACY_ID_OFFSET, 'role' => $legacy[2]] + $row;
+            }
             DB::table($table)->insertOrIgnore($row);
         }
 
