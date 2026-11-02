@@ -6573,4 +6573,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `binding` را هم دارد.
 - **فایل تصمیم:** `database/data/fankha_binding_fill_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 276`. یک رکورد `natural key differs` بود. پس از اجرا، اجرای بعدی `Would write 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_binding_fill_prod_before_20261102.json`، شامل ۲۷۷ ردیف که همه‌شان جلد خالی دارند.
+  - **اجرا:** با `prod-run`. خروجی `Writing 276` بود و اجرای بعدی `already 276` و `Would write 0` داد.
+  - **وارسی:** #23779 و #46874 اکنون جلد دارند.
 - **آزمون:** ادامه‌ی `test_a_flag_the_binding_gave_is_turned_off`.
