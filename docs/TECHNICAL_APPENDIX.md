@@ -6807,3 +6807,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** پس از migrate، خروجی `Would write 1802` بود: `heterogeneous` ۱٬۳۴۴، `probably_heterogeneous` ۶۷، `unidentified` ۳۸۸ و `similarity_unknown` ۳. پس از `--apply`، اجرای دوم `Would write 0` داد.
 - **آزمون:** `MoveEntryStatusCommandTest`.
 - **محیط آزمون worktree:** `scripts/dev/test-suite` در `fahares_app` از مسیر worktree اجرا می‌شود. پس worktree باید `vendor` خودش را داشته باشد. یک `vendor` پیوندی کلاس‌های `App` را از checkout اصلی بار می‌کند. پس `vendor` اصلی رونوشت شد، `composer dump-autoload -o` در همان worktree اجرا شد، و `.env` پیوندی به `../../../.env` است.
+
+### گام ۱۴.۹: `catalogs:remove-catalogue`
+- **دستور:** [RemoveCatalogueCommand](../app/Console/Commands/RemoveCatalogueCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
+  - منبع با `code` پیدا می‌شود؛ اگر نباشد، «nothing to do».
+  - هر نسخه‌ی `copies` با slug کتابخانه، `shelfmark` و `page_start` ارجاع قدیم (`manuscript_catalog_references`) روی جلدهای منبع پیدا می‌شود و به جلد `volume` از منبع `to` می‌رود. ارجاع قدیمش هم با آن می‌رود. اگر نسخه‌ای بی‌نام بماند یا نسخه‌ی نام‌برده پیدا نشود، دستور با شکست برمی‌گردد.
+  - `SourceEntrySync::syncCited` مدخل و بخش نسخه‌ها را از نو می‌سازد. مدخل یا ارجاعی که هنوز به منبع اشاره کند تهی می‌شود.
+  - پس از آن ردیف‌های `catalog_volume_cataloger` و `catalog_volume_parts`، جلد (`source_volumes` و `catalog_volumes`) و منبع حذف می‌شوند.
+  - شمار جلدها و بخش‌های مقصد و فهرست‌نگاران با `CatalogVolumePart::recount` و `Cataloger::recount` از نو گرفته می‌شود.
+  - **پشتیبان:** ردیف کامل منبع، جلدها، ردیف‌های فهرست‌نگار و بخش‌ها؛ ستون‌های نسخه‌ها، مدخل‌ها، ارجاع‌ها و فهرست‌نگاران؛ و شمار جلدها و بخش‌های مقصد. `--revert` ردیف‌ها را upsert و ستون‌ها را بازنویسی می‌کند.
+- **داده:** [remove_catalogue_step14_9.json](../database/data/remove_catalogue_step14_9.json): `catalogue-b1c30639abab`.
+  - نسخه‌ی ۱۱۴ (ص ۱۷۱) به `catalogue-5c2b9b62d4d4` («اوراق عتیق») ج ۱ می‌رود.
+  - «12مجموعه بدون شماره» (ص ۱۵۱) به `catalogue-92b3d5e41c52` («دلیل المخطوطات») ج ۱ می‌رود.
+- **[RemediateCatalogsAndCatalogersCommand](../app/Console/Commands/RemediateCatalogsAndCatalogersCommand.php):** بند ۴ (`firstOrCreate` جلد و `update` همه‌ی نسخه‌های کتابخانه‌ی ۶۶) به یک یادداشت تبدیل شد.
+- **فایل‌های داده‌ی ۱۳.۱۶۶ و ۱۳.۱۷۳:** fold با `keep` منبع نبوده را نادیده می‌گیرد. dry-run هر دو پس از حذف «Nothing to do» گزارش می‌کند.
+- **آزمون:** [RemoveCatalogueTest](../tests/Feature/RemoveCatalogueTest.php) این موارد را می‌آزماید: نسخه‌ی بی‌نام، dry-run، جابه‌جایی به جلد و بخش و فهرست‌نگار، مدخل و ارجاع، شمارها، اجرای دوم و برگرداندن دقیق.
+- **تمرین (`fahares_prod` محلی):**
+  - منبع ۱۰۰۰۸۰ و جلد #494 حذف شد.
+  - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۸۷۳، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #763 (بخش ۱۰۰۵، فهرست‌نگار ۲۴).
+  - شمار بخش‌ها: ۸۷۳ = ۲۱۹ و ۱۰۰۵ = ۲۷۶. حضرتی (#۳۷): ۳ جلد و ۲۱۶ نسخه.
+  - اثرانگشت جدول‌ها پس از `--revert` با پیش از اجرا یکی بود؛ پس از آن دوباره اجرا شد.
+

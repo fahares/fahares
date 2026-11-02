@@ -491,30 +491,8 @@ class RemediateCatalogsAndCatalogersCommand extends Command
             }
         }
 
-        // 4. صادق حضرتی (زنجان: مدرسه امام جمعه)
-        $hazrati = $this->getOrCreateCataloger('صادق حضرتی', $catalogerMap, $dryRun);
-        if ($hazrati) {
-            $volHazrati = CatalogVolume::firstOrCreate(
-                ['title' => 'فهرست نسخه‌های خطی کتابخانه مدرسه امام جمعه زنجان'],
-                [
-                    'library_id' => 66,
-                    'catalog_id' => 1,
-                    'volume_number' => 1,
-                    'publisher' => 'مجمع ذخائر اسلامی',
-                    'publication_year' => 1384,
-                    'citation_pattern' => 'امام جمعه',
-                    'metadata' => ['series' => 'زنجان', 'city' => 'زنجان'],
-                ]
-            );
-            if (!$dryRun) {
-                $volHazrati->catalogers()->syncWithoutDetaching([$hazrati->id => ['role' => 'cataloger']]);
-                $c = DB::table('manuscripts')->where('library_id', 66)->update([
-                    'catalog_volume_id' => $volHazrati->id,
-                    'cataloger_id' => $hazrati->id,
-                ]);
-                $this->info("Linked {$c} manuscripts of Emam Jomeh Zanjan to Sadeq Hazrati.");
-            }
-        }
+        // 4. (removed in step 14.9) «فهرست نسخه‌های خطی کتابخانه مدرسه امام جمعه زنجان» was no book: the library's
+        //    copies are of «اوراق عتیق» and «دلیل المخطوطات» (steps 13.166 and 13.173).
 
         // 5. سید عبدالعزیز طباطبائی (تبریز: ثقة الاسلام و قاضی طباطبائی در نشریه دانشگاه تهران)
         $tabatabaei = $this->getOrCreateCataloger('سید عبدالعزیز طباطبائی', $catalogerMap, $dryRun);

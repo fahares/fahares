@@ -1,0 +1,10 @@
+{
+ "step": "14.9",
+ "code": "catalogue-b1c30639abab",
+ "title": "فهرست نسخه‌های خطی کتابخانه مدرسه امام جمعه زنجان",
+ "why": "No such book: made by step 6's remediation (RemediateCatalogsAndCatalogersCommand, 2026-10-05) with a guessed publisher and year; Fankha holds the library only as parts of «اوراق عتیق» (row 287) and «دلیل المخطوطات» (row 286), and MTIF has no such title.",
+ "copies": [
+  {"library": "zngan-amam-gmaah-66", "shelfmark": "114", "page": 171, "to": "catalogue-5c2b9b62d4d4", "volume": 1, "why": "between 113 and 115 of «اوراق عتیق» 1-171"},
+  {"library": "zngan-amam-gmaah-66", "shelfmark": "12مجموعه بدون شماره", "page": 151, "to": "catalogue-92b3d5e41c52", "volume": 1, "why": "between 11 and 13 «مجموعه بدون شماره» of «دلیل المخطوطات» 1-151"}
+ ]
+}
