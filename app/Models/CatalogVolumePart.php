@@ -161,7 +161,7 @@ class CatalogVolumePart extends Model
     }
 
     /** The cataloger (or else first person) of each volume, as CatalogVolume::primaryCataloger. */
-    private static function primaryCatalogers(array $volumeIds): array
+    public static function primaryCatalogers(array $volumeIds): array
     {
         if (! $volumeIds) {
             return [];

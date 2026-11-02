@@ -6825,6 +6825,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):**
   - **تمرین نخست:** بی شرط سده بود و ۱۸ `author_id` ساخت، همه با نام‌های بی‌تاریخ. این تمرین با `old_values` ممیزی برگردانده شد: `author_name`، `author_id` و `description` به حال پیش برگشتند، سطرهای `work_people` با نقش `author` آن ۱۸ اثر و ردیف‌های ممیزی پاک شدند.
   - **تمرین دوم:** `update 432` اجرا شد. ۸ اثر سده داشتند، ولی هیچ‌کدام تطبیق مطمئن نداشت، پس `author_id` در همه تهی ماند. اجرای بعدی `update 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_from_description_prod_before_20261102.json` با ۴۳۲ اثر. پیش از اجرا هیچ‌کدام `author_name` نداشتند.
+  - **اجرا:** با `prod-run`. خروجی `update 432` و سپس `update 0` بود. `audit_logs` ۴۳۲ ردیف دارد و `author_id` در هیچ اثری پر نشد.
 
 ### گام ۱۴.۹: `catalogs:remove-catalogue`
 - **دستور:** [RemoveCatalogueCommand](../app/Console/Commands/RemoveCatalogueCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
@@ -6867,3 +6870,88 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
 - **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
 - **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).
+### گام ۱۴.۱۰: `by_title_and_author`
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py` اکنون `primary_title` و `volume_number` سایت را هم می‌خواند.
+  - **جست‌وجو با عنوان:** اگر سطر نخست شرح با `author.name` یا `author.name_raw` اثرِ هم‌کلید v2 برابر نباشد، `by_title_and_author` در همان جلد اثری می‌جوید که `norm(title_line) == norm(primary_title)` و `norm(author.name) == norm(سطر نخست)` داشته باشد. فقط نتیجه‌ی یکتا پذیرفته می‌شود.
+  - **خروجی روی `fahares_prod` پس از ۱۴.۸:** ۳۹۹ `work_updates`. ریشه‌ی آن‌ها در خروجی پیشین: ۲۸۹ «v2 reads another author»، ۱۰۳ «more than a name» (اثر هم‌کلید مؤلف نداشت) و ۷ «hedged».
+  - **کنار رفته‌ها:** ۲۶ «v2 reads another author» و ۲۶ «hedged».
+- **فایل تصمیم:** `database/data/fankha_authors_from_description_by_title_20261102.json`.
+- **تمرین (`fahares_prod`):** `update 399` و سپس `update 0`. `author_id` در هیچ اثری پر نشد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `3a273af`):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_by_title_prod_before_20261102.json`، شامل ۳۹۹ اثر که همه بی مؤلف بودند.
+  - **اجرا:** با `prod-run --wait` انجام شد، پشت قفل استقرار. نتیجه `update 399` و سپس `update 0` بود.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `8a17094`، از راه `prod-run`):**
+  - dry-run و اجرا جدا از هم انجام شدند.
+  - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۱۴۴، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #709 (بخش ۱۸۰، فهرست‌نگار ۲۴). شماره‌ی جلد و بخش در پروداکشن با نسخه‌ی محلی فرق دارد.
+  - منبع ۱۰۰۰۸۰ و جلد #494 دیگر نیستند. حضرتی: ۳ جلد و ۲۱۶ نسخه. `source_entries` = ۷۸۸٬۵۰۱.
+  - دو نسخه بی‌صف دوباره ایندکس شدند. صفحه‌ی `/sources/catalogue-b1c30639abab` حالا ۴۰۴ می‌دهد و «اوراق عتیق» ۲۰۰.
+  - پشتیبان به `…/step14.9_remove_catalogue_prod_before_20261103.json` رفت.
+
+### گام ۱۴.۱۱: `--from-raw`
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py --from-raw`.
+  - **ورودی:** ردیف‌های `Work/author_name/filled` از review7 (۲٬۳۸۳ ردیف).
+  - **خواندن متن:** `raw_lines` متن هر اثر را از `--db` می‌خواند، برچسب‌های صفحه را برمی‌دارد و سطرهای ناخالی را جدا می‌کند.
+  - **نام:** سطر سوم است، به شرط آن‌که سطر نخست با «●» آغاز شود و سطر دوم حرف لاتین داشته باشد.
+  - **اثر v2:** ابتدا با کلید `-v{vol}-{ordinal}` جست‌وجو می‌شود و اگر نام نخواند، با `by_title_and_author`.
+  - **خروجی:** ۱٬۳۹۷ رکورد `work_updates` (`author_name: null → name`). ۹۸۶ رکورد کنار رفت: ۸۳۱ مؤلف دارند، ۱۰۸ «another»، ۳۸ «hedged» و ۹ «no author line».
+- **فایل تصمیم:** `database/data/fankha_authors_from_text_20261102.json`.
+- **تمرین (`fahares_prod`):** `update 1397` و سپس `update 0`. `author_id` در همه تهی ماند.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `3a273af`):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_from_text_prod_before_20261102.json`، شامل ۱٬۳۹۷ اثر که همه بی مؤلف بودند.
+  - **اجرا:** با `prod-run --wait` انجام شد، پشت قفل استقرار. نتیجه `update 1397` و سپس `update 0` بود.
+
+### گام ۱۴.۱۲: `fankha_reversed_copy_citations.py` و `fahares:fix-reversed-citations`
+- **پیکره** ([scripts/fankha_reversed_copy_citations.py](../../fahares-corpus/scripts/fankha_reversed_copy_citations.py)، کامیت `3ef5b04`):
+  - نامزدها از `--db` (نسخه‌ی پروداکشن) خوانده می‌شوند: مدخل `fankha_citation` با منبع، که `volume_number` آن جزو جلدهای منبع نیست و `page_start` آن هست. جلدهای منبع شامل `source_volumes` و جلدهایی است که دست‌کم ۵ بار و در ۱٪ ارجاع‌های منبع آمده‌اند.
+  - ارجاع در متن جلد با الگوی `citation_text` پیدا می‌شود، با پذیرش فاصله و برچسب صفحه میان تکه‌ها. باید زیر سطر «شماره نسخه:» ای باشد که `raw_text` سایت با آن آغاز می‌شود، و فقط یک بار. فقط جفت «a-b» همان مدخل جابه‌جا می‌شود.
+  - `--write` متن را اصلاح می‌کند (۲۱۳ ارجاع در ۲۰ جلد). `--export` فایل تصمیم [fankha_reversed_citations_step14_12.json](../database/data/fankha_reversed_citations_step14_12.json) را می‌نویسد: شناسه، شماره‌ی نسخه، و `catalog_citation` و `raw_text` پیش و پس.
+  - مدخل‌هایی که `volume_number` تهی دارند («[نشریه: [103-2]») کنار گذاشته شدند.
+- **دستور** [FixReversedCitationsCommand](../app/Console/Commands/FixReversedCitationsCommand.php)، با `--file`، `--apply`، `--backup` و `--revert`:
+  - **شرط نوشتن:** شماره‌ی نسخه همان باشد، هر دو فیلد مقدار پیشین را داشته باشند، و `ProtectedColumns` جلوی `raw_text` و `metadata` را نگیرد.
+  - **نوشتن:** `metadata.catalog_citation` و `raw_text`، و نیز ردیف `manuscript_catalog_references` با همان `raw_text` (همراه جلد و صفحه). برای هر نسخه یک `AuditLog` از نوع `corpus_update` (دسته‌ی `reversed_citation`) ثبت می‌شود.
+  - **جابه‌جایی (`move`):** اگر ارجاع یک جلد را نام ببرد، آن جلد با همان شماره یک بار در منبع نسخه باشد و نسخه روی جلد دیگری باشد، نسخه و ارجاع قدیمش به آن جلد می‌روند. فهرست‌نگار نسخه فهرست‌نگار آن جلد می‌شود (`CatalogVolumePart::primaryCatalogers`، که اکنون public است).
+  - **پس از آن:** `SourceEntrySync::syncCited` اجرا می‌شود، شمار جلدهای جابه‌جاشده، بخش‌ها و فهرست‌نگاران از نو گرفته می‌شود، و سند جست‌وجوی نسخه‌ها تازه می‌شود. نسخه‌ای که جلدش با ارجاع نمی‌خواند گزارش می‌شود.
+  - **پشتیبان:** ستون‌های نسخه‌ها، ارجاع‌ها و مدخل‌ها؛ شمار همه‌ی جلدها و بخش‌های منبع‌های این نسخه‌ها و فهرست‌نگارانشان؛ و شناسه‌ی ردیف‌های audit. `--revert` همه را بازمی‌نویسد و ردیف‌های audit را حذف می‌کند.
+- **آزمون:** [FixReversedCitationsTest](../tests/Feature/FixReversedCitationsTest.php) این موارد را می‌آزماید: نوشتن، جابه‌جایی به جلد ۲ با فهرست‌نگارش، نسخه‌ی ویرایش‌شده در سایت، بی‌`--apply`، اجرای دوم و برگرداندن دقیق.
+- **تمرین (`fahares_prod` محلی):**
+  - ۲۱۳ نسخه نوشته شد و ۳۵ نسخه جابه‌جا شد. ۲۸ نسخه روی جلد دیگری ماندند: عکسی مرعشی ۱۸، عکسی دائرةالمعارف ۵، «نشریه» ۱۳ روی نوربخش ۴، و آستان قدس ۱.
+  - اجرای دوم «already 213» گزارش کرد و اثرانگشت پس از `--revert` با پیش از اجرا یکی بود (همراه `raw_text`/`metadata` نسخه‌ها، ارجاع‌های fankha و شمار audit). پس از آن دوباره اجرا شد.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `c8618e0`، از راه `prod-run`):**
+  - **ارزیابی آزمایشی:** write ۲۱۲؛ برای #334267 «shelfmark differs»، چون شناسه‌ی محلی آن در پروداکشن نسخه‌ی دیگری است (مرعشی 10084).
+  - **`--apply`:** ۲۱۲ نسخه نوشته شد و ۳۵ نسخه جابه‌جا شد. ۲۸ نسخه روی جلد دیگری ماندند، همان‌ها که در تمرین ماندند.
+  - **نسخه‌ی جاافتاده:** شناسه‌ی پروداکشن آن با شماره‌ی نسخه و `raw_text` پیشین پیدا شد (#334413، محدث ارموی 2475، «214-1»، یکتا). سپس با فایل تصمیم یک‌سطری در `/tmp` کانتینر، جداگانه ارزیابی و اجرا شد. فایل در `…/step14.12_fix_reversed_citations_one_prod_decision.json` است.
+  - **پشتیبان‌ها:** `…/step14.12_fix_reversed_citations_prod_before_20261103.json` (۲۱۲ نسخه و ۲۱۲ ردیف audit) و `…/step14.12_fix_reversed_citations_one_prod_before_20261103.json`.
+  - **پس از اجرا:** ۲۱۳ نسخه بی‌صف دوباره ایندکس شدند. ارزیابی دوباره «already 212» گزارش کرد. `source_entries` = ۷۸۸٬۵۰۱ و ردیف‌های audit از دسته‌ی `reversed_citation` = ۲۱۳.
+
+### گام ۱۴.۱۴: `text_fill`
+- **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
+  - **شرط:** متن v2، با فاصله‌های یکسان‌شده، باید در `raw_text` سایت باشد، و `metadata.incipits` یا `metadata.explicits` نسخه خالی باشد.
+  - **خروجی:** ۲٬۸۹۳ رکورد (`incipit_text` ۱٬۶۷۷، `explicit_text` ۱٬۲۱۶). ۲۱۱ رکورد کنار رفت.
+- **کد:** تغییری لازم نبود، چون هر دو ستون در `ApplyCorpusCategoriesCommand::FIELDS` هستند.
+- **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
+- **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
+- **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
+
+### گام ۱۴.۱۵: `catalogs:set-volumes`
+- **دستور:** [SetCatalogueVolumesCommand](../app/Console/Commands/SetCatalogueVolumesCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
+  - **پیدا کردن جلد:** برای هر جلد فایل داده، اگر `match` داده شده باشد، جلدی که عنوانش `match` یا عنوان تازه است. اگر نه، تنها جلد با آن شماره. اگر جلدی نباشد ساخته می‌شود: `catalog_volumes` و `source_volumes` با یک شناسه، و کتابخانه و ناشر از جلد نخست منبع.
+  - **نوشتن جلد:** `volume_number`، `title`، `mtif_entry_id`، `pages_count`، `publication_year` و `citation_pattern` در هر دو جدول. ردیف‌های `catalog_volume_cataloger` همان‌هایی می‌شوند که فایل می‌گوید. فهرست‌نگار با MTIF یا نام پیدا می‌شود و اگر نباشد دستور می‌ایستد.
+  - **جابه‌جایی نسخه:** نسخه‌ای روی یکی از جلدهای منبع که `volume_number` مدخل fankha_citation آن یکی از جلدهای فایل است و روی آن جلد نیست، به آن جلد و فهرست‌نگار اصلی‌اش (`CatalogVolumePart::primaryCatalogers`) می‌رود. ارجاع قدیمش هم می‌رود و `SourceEntrySync::syncCited` اجرا می‌شود.
+  - **فهرست‌نگار نسخه‌های مانده:** نسخه‌ی بی‌بخش جلدی که فهرست‌نگارانش عوض شد، اگر `cataloger_id` آن از آن فهرست‌نگاران نیست، فهرست‌نگار اصلی جلد را می‌گیرد.
+  - **پس از آن:** `manuscripts_count` جلدها، `volumes_count` منبع، بخش‌ها و فهرست‌نگاران پیشین و تازه از نو شمرده می‌شوند.
+  - **پشتیبان:** ردیف کامل جلدها و ردیف‌های فهرست‌نگار، و ستون‌های نسخه‌ها، ارجاع‌ها، مدخل‌ها، بخش‌ها و فهرست‌نگاران. `--revert` جلدهای ساخته‌شده را حذف می‌کند و بقیه را بازمی‌نویسد.
+- **داده:** [catalogue_volumes_step14_15.json](../database/data/catalogue_volumes_step14_15.json):
+  - `catalogue-56242973f0ee`: جلدهای ۱ تا ۵ با MTIF ۲۱۳۵۷، ۲۱۳۵۸، ۳۴۸۸۳، ۳۵۸۱۰ و ۳۶۱۱۲ (چاپ ۱۰۷۹۳) و صفحه‌های ۴۵۷، ۴۹۷، ۷۱۳، ۶۰۱ و ۵۲۵. فهرست‌نگار جلدهای ۱ و ۲ حائری (MTIF ۳۷۱۹۱) و جلدهای ۳ تا ۵ حافظیان (۵۶۹۶۵)؛ ناظر همه مرعشی (۳۷۲۵۸). جلد ۱ همان #39 است که با عنوان «عکسی جلد 5» پیدا می‌شود.
+  - `catalogue-c225f7337b0a`: جلد اول MTIF ۲۱۴۷۵، ۴۱۱ صفحه، ۱۳۵۰؛ جلد دوم ۲۱۴۷۶، ۵۲۰ صفحه (جدول فنخا؛ MTIF ۱۶۱ می‌گوید)، ۱۳۵۹. هر دو با عنوانشان پیدا می‌شوند.
+  - `catalogue-27335f850012`: دفترهای اول و دوم، هر دو از صادق حضرتی (۳۸۳۳۸) در ۱۳۸۷، بی MTIF (MTIF رکوردی ندارد).
+- **آزمون:** [SetCatalogueVolumesTest](../tests/Feature/SetCatalogueVolumesTest.php) این موارد را می‌آزماید: dry-run، تغییر نام و شماره‌ی جلد با `match`، ساختن جلد، جابه‌جایی با فهرست‌نگار و ارجاع قدیم و مدخل، نسخه‌ی مانده با فهرست‌نگار تازه‌ی جلد، شمارها، اجرای دوم و برگرداندن دقیق.
+- **تمرین (`fahares_prod` محلی):**
+  - عکسی مرعشی: ۲٬۳۴۹ نسخه جابه‌جا شد (جلد ۲: ۴۵۳، جلد ۳: ۸۲۰، جلد ۴: ۷۲۵، جلد ۵: ۳۵۱) و ۴۲۰ نسخه روی جلد ۱ ماند.
+  - سنا: جلد ۲ با ۱٬۵۸۵ نسخه. دهگان: دفتر ۲ با ۲۵۳ نسخه.
+  - فهرست‌نگاران: استادی (#۲۱) ۸٬۸۵۹ ← ۸٬۲۰۷؛ حضرتی (#۳۷) ۲۱۶ ← ۸۶۸؛ حائری (#۵۸) ۸۷۲ ← ۸۷۴؛ حافظیان (#۴) ۲۱٬۱۴۶ ← ۲۰٬۲۷۳.
+  - اجرای دوم «Nothing to do» گزارش کرد و اثرانگشت پس از `--revert` با پیش از اجرا یکی بود.
+
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_text_fill_prod_before_20261102.json`، شامل ۱٬۹۰۴ نسخه.
+  - **اجرا:** با `prod-run`. خروجی `Writing 2893` بود و اجرای بعدی `already 2893` داد.
+  - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`. با تأیید کاربر، `fahares:refresh-derived --apply` از راه `prod-run` اجرا شد. در گزارش «After»، همه‌ی گونه‌ها از جمله `excerpt_pointers` صفر شدند.

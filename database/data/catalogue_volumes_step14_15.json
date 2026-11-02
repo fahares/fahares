@@ -1,0 +1,187 @@
+{
+ "step": "14.15",
+ "why": "Fankha's table (rows 154-158, 51-52; the complete table's Dehgan rows 6-7) and MTIF (printings 10793 and 10834) give each volume; the copies' Fankha entries name the volume they cite.",
+ "sources": [
+  {
+   "code": "catalogue-56242973f0ee",
+   "volumes": [
+    {
+     "number": 1,
+     "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 1",
+     "mtif": 21357,
+     "pages": 457,
+     "citation_pattern": "عکسی ف: 1",
+     "people": [
+      {
+       "name": "محمدعلی حائری",
+       "mtif": 37191,
+       "role": "cataloger"
+      },
+      {
+       "name": "سید محمود مرعشی",
+       "mtif": 37258,
+       "role": "supervisor"
+      }
+     ],
+     "match": "فهرست نسخه‌های عکسی کتابخانه مرعشی - عکسی جلد 5",
+     "year": "1369"
+    },
+    {
+     "number": 2,
+     "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 2",
+     "mtif": 21358,
+     "pages": 497,
+     "citation_pattern": "عکسی ف: 2",
+     "people": [
+      {
+       "name": "محمدعلی حائری",
+       "mtif": 37191,
+       "role": "cataloger"
+      },
+      {
+       "name": "سید محمود مرعشی",
+       "mtif": 37258,
+       "role": "supervisor"
+      }
+     ],
+     "year": "1370"
+    },
+    {
+     "number": 3,
+     "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 3",
+     "mtif": 34883,
+     "pages": 713,
+     "citation_pattern": "عکسی ف: 3",
+     "people": [
+      {
+       "name": "ابوالفضل حافظیان بابلی",
+       "mtif": 56965,
+       "role": "cataloger"
+      },
+      {
+       "name": "سید محمود مرعشی",
+       "mtif": 37258,
+       "role": "supervisor"
+      }
+     ]
+    },
+    {
+     "number": 4,
+     "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 4",
+     "mtif": 35810,
+     "pages": 601,
+     "citation_pattern": "عکسی ف: 4",
+     "people": [
+      {
+       "name": "ابوالفضل حافظیان بابلی",
+       "mtif": 56965,
+       "role": "cataloger"
+      },
+      {
+       "name": "سید محمود مرعشی",
+       "mtif": 37258,
+       "role": "supervisor"
+      }
+     ]
+    },
+    {
+     "number": 5,
+     "title": "فهرست نسخه‌های عکسی کتابخانه مرعشی - جلد 5",
+     "mtif": 36112,
+     "pages": 525,
+     "citation_pattern": "عکسی ف: 5",
+     "people": [
+      {
+       "name": "ابوالفضل حافظیان بابلی",
+       "mtif": 56965,
+       "role": "cataloger"
+      },
+      {
+       "name": "سید محمود مرعشی",
+       "mtif": 37258,
+       "role": "supervisor"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "catalogue-c225f7337b0a",
+   "volumes": [
+    {
+     "match": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد اول",
+     "number": 1,
+     "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد اول",
+     "mtif": 21475,
+     "pages": 411,
+     "year": "1350",
+     "citation_pattern": "سنا: ف: 1",
+     "people": [
+      {
+       "name": "محمدتقی دانش‌پژوه",
+       "mtif": 37279,
+       "role": "cataloger"
+      },
+      {
+       "name": "بهاءالدین علمی انواری",
+       "mtif": 37290,
+       "role": "cataloger"
+      }
+     ]
+    },
+    {
+     "match": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد دوم",
+     "number": 2,
+     "title": "فهرست کتابخانه مجلس شورای اسلامی - مجلس سنا - جلد دوم",
+     "mtif": 21476,
+     "pages": 520,
+     "year": "1359",
+     "citation_pattern": "سنا: ف: 2",
+     "people": [
+      {
+       "name": "محمدتقی دانش‌پژوه",
+       "mtif": 37279,
+       "role": "cataloger"
+      },
+      {
+       "name": "بهاءالدین علمی انواری",
+       "mtif": 37290,
+       "role": "cataloger"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "code": "catalogue-27335f850012",
+   "volumes": [
+    {
+     "number": 1,
+     "title": "فهرست نسخه‌های خطی کتابخانه ابراهیم دهگان اراک - دفتر اول",
+     "pages": 261,
+     "year": "1387",
+     "people": [
+      {
+       "name": "صادق حضرتی آشتیانی",
+       "mtif": 38338,
+       "role": "cataloger"
+      }
+     ]
+    },
+    {
+     "number": 2,
+     "title": "فهرست نسخه‌های خطی کتابخانه ابراهیم دهگان اراک - دفتر دوم",
+     "year": "1387",
+     "citation_pattern": "ف: 2",
+     "people": [
+      {
+       "name": "صادق حضرتی آشتیانی",
+       "mtif": 38338,
+       "role": "cataloger"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
