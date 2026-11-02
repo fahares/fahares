@@ -1,0 +1,6 @@
+{
+  "_comment": "Step 13.173: «نجومی» and «نجومی، سید مرتضی» of Kermanshah are one library (Sayyed Morteza Najumi's), their copies one run of pages of «دلیل المخطوطات» (214-295). Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_173.json",
+  "libraries": [
+    {"target": "krmanshah-ngomy-170", "sources": [{"slug": "krmanshah-ngomy-syd-mrtdy-84"}]}
+  ]
+}

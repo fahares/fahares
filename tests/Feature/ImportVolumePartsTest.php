@@ -98,6 +98,7 @@ class ImportVolumePartsTest extends TestCase
             'on the held fourth' => [$this->copy($tabriz, '[نشریه: 4 - 326]', $heldFourth), 4, 'tbryz-thkh-alaslam-119'],
             'on a kept source' => [$this->copy($zanjan, '[نشریه: 5 - 150]', $zanjanVolume), 5, 'zngan-amam-gmaah-66'],
             'untied, no entry' => [$this->copy($molavi, null, null, 'بی‌کا نشریه: 5 - 60]'), 5, 'mshhd-moloy-357'],
+            'Arabic letters' => [$this->copy($molavi, '[نشريه: 5 - 42]', null), 5, 'mshhd-moloy-357'],
         ];
         $zanjanOwn = $this->copy($zanjan, '[ف: 1 - 20]', $zanjanVolume);
         $stray = $this->copy($isfahan, '[پیش‌تر در دو جای دیگر معرفی شده: نشریه: 4-478 و نشریه: 11-935]', $heldFourth);
@@ -118,7 +119,7 @@ class ImportVolumePartsTest extends TestCase
         file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
 
         $before = $this->state();
-        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--dry-run' => true])->assertSuccessful()->expectsOutput('6 copies tied anew.');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--dry-run' => true])->assertSuccessful()->expectsOutput('7 copies tied anew.');
         $this->assertSame($before, $this->state(), 'a dry run saves nothing');
 
         $backup = storage_path('framework/testing/parts-backup-' . uniqid() . '.json');
@@ -146,8 +147,8 @@ class ImportVolumePartsTest extends TestCase
         $this->assertSame([$zanjanVolume->id, 1], [$zanjanOwn->fresh()->catalog_volume_id, CatalogVolume::find($zanjanVolume->id)->manuscripts_count], 'a kept source keeps its own copies');
         $this->assertNotNull(Source::where('code', 'catalogue-zanjan')->first());
         $valaei = Cataloger::where('name', 'مهدی والئی')->firstOrFail();
-        $this->assertSame([3, 0], [$valaei->manuscripts_count, $valaei->supervised_count]);
-        $this->assertSame([2, 8], [$tabatabaei->fresh()->manuscripts_count, $afshar->fresh()->supervised_count]);
+        $this->assertSame([4, 0], [$valaei->manuscripts_count, $valaei->supervised_count]);
+        $this->assertSame([2, 9], [$tabatabaei->fresh()->manuscripts_count, $afshar->fresh()->supervised_count]);
         $this->assertNull(Cataloger::where('name', 'سیمین صیدیه')->first(), 'a part of a volume the catalogue has not is not made, nor its cataloger');
 
         $after = $this->state();

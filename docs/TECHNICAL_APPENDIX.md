@@ -6655,3 +6655,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** اجرای دوم «editors to set on 10 volumes» داد، چون سنجش با MTIF بود. پس از اصلاح، تمرین دوباره «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.172_import_volume_parts_mirath_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest::test_the_volume_a_citation_names`، با «دفتر نهم» و نام دیگر سری.
+
+### گام ۱۳.۱۷۳: «دلیل المخطوطات» با `create`
+- **داده:**
+  - [library_duplicates_step13_173.json](../database/data/library_duplicates_step13_173.json): `krmanshah-ngomy-syd-mrtdy-84` ← `krmanshah-ngomy-170`.
+  - [volume_parts_dalil_al_makhtutat.json](../database/data/volume_parts_dalil_al_makhtutat.json):
+    - کد `catalogue-92b3d5e41c52`، با نام دیگر «دلیل المخطوطات کاشف الغطاء»؛
+    - `create` با جلد ۱ (MTIF ۲۱۲۱۸، ۳۳۸ صفحه)؛
+    - `folds`: زنجان با `keep`؛ بی ویراستار؛
+    - بخش‌ها: ردیف‌های ۳۸ (کشفی، ۴۴–۵۵ از روی نسخه‌ها)، ۲۸۶ (زنجان، ۸۸–۱۷۰) و ۴۷۰ (نجومی، ۲۱۴–۲۹۵)، همه از سید احمد حسینی اشکوری (MTIF ۳۷۲۲۸).
+- **تغییر دستور:** `moves()` نسخه‌ها را با نام سری و نیز با «ي/ك» عربی آن جست‌وجو می‌کند.
+- **فایل‌های داده:** slug کتابخانه‌های ادغام‌شده (۱۳.۱۶۳، ۱۳.۱۷۱، ۱۳.۱۷۳) در همه‌ی `volume_parts_*.json` به کتابخانه‌ی ماندگار برگشت. در «نشریه»: `mshhd-asghrzadh-syd-aaly-asghr-278` ← `mshhd-asghr-zadh-51`.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۷۲):**
+  - ادغام نجومی: ۳۷۸ ← ۳۷۷ کتابخانه.
+  - «دلیل»: ۷۰۸ نسخه (#494 ← ۲۷۳، و بی‌جلد ۴۳۵). اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند.
+  - پشتیبان: `…/step13.173_import_volume_parts_dalil_local_before_20261103.json`.
+  - **«نشریه» دوباره:** ۳ نسخه‌ی بی‌جلد با «نشريه» به دفترهای ۳، ۷ و ۱۳ رفتند. پشتیبان: `…/step13.173_rerun_nashriyeh_local_before_20261103.json`. «اوراق عتیق»، «چهار کتابخانه مشهد» و «میراث» «Nothing to do» دادند.
+- **آزمون:** `ImportVolumePartsTest` با نسخه‌ای که «نشريه» دارد.
+- **پروداکشن (پس از انتشار، به ترتیب):** `catalogs:merge-duplicates --data=…step13_173.json`، `catalogs:import-volume-parts --data=…dalil_al_makhtutat.json`، و `catalogs:import-volume-parts --data=…nashriyeh.json`.

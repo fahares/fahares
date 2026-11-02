@@ -238,10 +238,15 @@ class ImportVolumePartsCommand extends Command
         $moves = [];
         $counts = [];
         $left = [];
-        $like = '%' . $this->series() . '%';
+        // the series as written, and with the Arabic ي and ك («دليل المخطوطات»)
+        $likes = array_unique(['%' . $this->series() . '%', '%' . strtr($this->series(), ['ی' => 'ي', 'ک' => 'ك']) . '%']);
         DB::table('manuscripts')->select('id', 'metadata', 'raw_text', 'catalog_volume_id')
             ->where(fn ($q) => $q->whereNull('catalog_volume_id')->orWhereIn('catalog_volume_id', $on ?: [0]))
-            ->where(fn ($q) => $q->where('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like))
+            ->where(function ($q) use ($likes) {
+                foreach ($likes as $like) {
+                    $q->orWhere('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like);
+                }
+            })
             ->orderBy('id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, $have, $numbers, $folds) {
                 foreach ($rows as $m) {
                     $raw = References::rawCitation($m->metadata, $m->raw_text);
