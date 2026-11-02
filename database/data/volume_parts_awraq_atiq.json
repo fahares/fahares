@@ -1,0 +1,18 @@
+{
+ "_comment": "Step 13.166 (stage 4 of docs/plans/catalog-volume-parts.md, docs/plans/stage4-volume-parts.md section 3), approved by the user: the parts of «اوراق عتیق», compiled by Sayyed Mohammad Hossein Hakim. Daftar 1 from Fankha's table (rows 73, 271, 287, 330, 520) with the authors catalogs:fix-awraq-atiq gave the copies; the pages of a part the table gives none for are those its copies cite. Daftar 2's three parts are not in the table and their authors are unknown. The copies of Zanjan's Imam Jom'e school citing «اوراق عتیق» move to it from that school's catalogue, which stays. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_awraq_atiq.json",
+ "source": "catalogue-5c2b9b62d4d4",
+ "series": "اوراق عتیق",
+ "volume_title": "مجموعه مقالات و فهارس اوراق عتیق - دفتر %d",
+ "folds": [{"code": "catalogue-b1c30639abab", "keep": true}],
+ "editors": [{"name": "محمدحسین حکیم", "mtif": 37255}],
+ "parts": [
+  {"daftar": 1, "library": "tbryz-khadm-hsyny-85", "title": "کتابخانه شخصی حجت الاسلام و المسلمین خادم حسینی", "pages": [83, 121], "catalogers": [{"name": "علی صدرائی خوئی", "mtif": 37166}], "fankha_row": 73},
+  {"daftar": 1, "library": "khoy-mla-aaly-khoyy-shryf-171", "title": "کتابخانه ملا علی خویی (جواد شریف)", "pages": [122, 143], "catalogers": [{"name": "علی صدرائی خوئی", "mtif": 37166}], "fankha_row": 271},
+  {"daftar": 1, "library": "zngan-amam-gmaah-66", "title": "کتابخانه امام جمعه زنجان", "pages": [145, 200], "catalogers": [{"name": "سید جعفر حسینی اشکوری", "mtif": 37267}], "fankha_row": 287},
+  {"daftar": 1, "library": "mshhd-mdrsh-ayh-allh-khoyy-74", "title": "مدرسه آیة الله خوئی", "pages": [241, 266], "catalogers": [{"name": "عبدالله غفرانی"}], "fankha_row": 520},
+  {"daftar": 1, "library": "shyraz-thamny-mhmd-rda-172", "title": "فهرست نسخه‌های خطی مرحوم آیة الله حاج شیخ محمدرضا ثامنی", "pages": [265, 283], "catalogers": [{"name": "محمد برکت", "mtif": 37244}], "fankha_row": 330},
+  {"daftar": 2, "library": "asfhan-hady-ngfy-974", "title": "کتابخانه هادی نجفی", "pages": [315, 349], "catalogers": [], "key": "awraq-2-hadi-najafi"},
+  {"daftar": 2, "library": "sbzoar-sd-o-byst-o-png-nskhh-975", "title": "صد و بیست و پنج نسخه (سبزوار)", "pages": [364, 413], "catalogers": [], "key": "awraq-2-sabzevar"},
+  {"daftar": 2, "library": "saoh-ktabkhanh-hashmy-nzhad-982", "title": "کتابخانه هاشمی نژاد", "pages": [470, 501], "catalogers": [], "key": "awraq-2-hashemi-nejad"}
+ ]
+}
