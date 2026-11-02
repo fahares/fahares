@@ -6367,7 +6367,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - عنوان درون عنوان: «ملاحظات حول ديوان ناصر خسرو»، «من کلام ثیاذوق فی حفظ الصحة»، و «نوربخش» درون «مکتوب سید محمد نوربخش».
     - «مقدمه …» و «منتخب …».
 - **آزمون:** [LinkPageRefsTest](../tests/Feature/LinkPageRefsTest.php) با چهار آزمون: نسخه (`exact`، نشانه‌ی مجموعه، `part`، عنوان ناجور، رد ویراستار و صفحه‌ی نسخه)، ارجاع (عنوان، صفحه، بافت، ارجاع به کتاب دیگر، صفحه‌ی مدخل و متن تغییرکرده)، `Titles` و `place()`، و منبع بی پیکربندی.
-- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار: `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs dharia'`. پشتیبان: خروجی `source_page_links`. برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵):** پس از انتشار batch7 (migration در batch 60)، با `scripts/dev/prod-run --wait page-text-links-110` اجرا شد. پیش از دستور، ۹٬۳۳۱ ردیف `source_page_links` پشتیبان گرفته شد. پشتیبان در `fahares-sources/backups/step13/step13.155_source_page_links_prod_before_20261102.json` روی لپ‌تاپ است. رونوشت درون کانتینر با استقرار بعدی از میان رفت، چون `storage/app` پایدار نیست. شمارها همان تمرین بود: نسخه `exact` ۸۳۳ و `part` ۳۹۷ (۱٬۲۳۰ پیوند)، و ارجاع `page` ۲٬۲۰۲، `context` ۹۱۶، `page-titled` ۴۲۹ و `title` ۲۷۷ (۳٬۸۲۴ پیوند). برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
 
 ### گام ۱۳.۱۵۶: `lines_raw` و `line_counts`
 - **migration** (`2026_11_03_200001_add_line_layouts_to_manuscripts`): `lines_raw` از نوع varchar(255) و `line_counts` از نوع json، هر دو nullable و پس از `lines`. در مدل `line_counts` با cast `array` خوانده می‌شود.
