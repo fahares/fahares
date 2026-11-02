@@ -6881,3 +6881,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
 - **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
 - **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
+
+### گام ۱۴.۱۲: `fankha_reversed_copy_citations.py` و `fahares:fix-reversed-citations`
+- **پیکره** ([scripts/fankha_reversed_copy_citations.py](../../fahares-corpus/scripts/fankha_reversed_copy_citations.py)، کامیت `3ef5b04`):
+  - نامزدها از `--db` (نسخه‌ی پروداکشن) خوانده می‌شوند: مدخل `fankha_citation` با منبع، که `volume_number` آن جزو جلدهای منبع نیست و `page_start` آن هست. جلدهای منبع شامل `source_volumes` و جلدهایی است که دست‌کم ۵ بار و در ۱٪ ارجاع‌های منبع آمده‌اند.
+  - ارجاع در متن جلد با الگوی `citation_text` پیدا می‌شود، با پذیرش فاصله و برچسب صفحه میان تکه‌ها. باید زیر سطر «شماره نسخه:» ای باشد که `raw_text` سایت با آن آغاز می‌شود، و فقط یک بار. فقط جفت «a-b» همان مدخل جابه‌جا می‌شود.
+  - `--write` متن را اصلاح می‌کند (۲۱۳ ارجاع در ۲۰ جلد). `--export` فایل تصمیم [fankha_reversed_citations_step14_12.json](../database/data/fankha_reversed_citations_step14_12.json) را می‌نویسد: شناسه، شماره‌ی نسخه، و `catalog_citation` و `raw_text` پیش و پس.
+  - مدخل‌هایی که `volume_number` تهی دارند («[نشریه: [103-2]») کنار گذاشته شدند.
+- **دستور** [FixReversedCitationsCommand](../app/Console/Commands/FixReversedCitationsCommand.php)، با `--file`، `--apply`، `--backup` و `--revert`:
+  - **شرط نوشتن:** شماره‌ی نسخه همان باشد، هر دو فیلد مقدار پیشین را داشته باشند، و `ProtectedColumns` جلوی `raw_text` و `metadata` را نگیرد.
+  - **نوشتن:** `metadata.catalog_citation` و `raw_text`، و نیز ردیف `manuscript_catalog_references` با همان `raw_text` (همراه جلد و صفحه). برای هر نسخه یک `AuditLog` از نوع `corpus_update` (دسته‌ی `reversed_citation`) ثبت می‌شود.
+  - **جابه‌جایی (`move`):** اگر ارجاع یک جلد را نام ببرد، آن جلد با همان شماره یک بار در منبع نسخه باشد و نسخه روی جلد دیگری باشد، نسخه و ارجاع قدیمش به آن جلد می‌روند. فهرست‌نگار نسخه فهرست‌نگار آن جلد می‌شود (`CatalogVolumePart::primaryCatalogers`، که اکنون public است).
+  - **پس از آن:** `SourceEntrySync::syncCited` اجرا می‌شود، شمار جلدهای جابه‌جاشده، بخش‌ها و فهرست‌نگاران از نو گرفته می‌شود، و سند جست‌وجوی نسخه‌ها تازه می‌شود. نسخه‌ای که جلدش با ارجاع نمی‌خواند گزارش می‌شود.
+  - **پشتیبان:** ستون‌های نسخه‌ها، ارجاع‌ها و مدخل‌ها؛ شمار همه‌ی جلدها و بخش‌های منبع‌های این نسخه‌ها و فهرست‌نگارانشان؛ و شناسه‌ی ردیف‌های audit. `--revert` همه را بازمی‌نویسد و ردیف‌های audit را حذف می‌کند.
+- **آزمون:** [FixReversedCitationsTest](../tests/Feature/FixReversedCitationsTest.php) این موارد را می‌آزماید: نوشتن، جابه‌جایی به جلد ۲ با فهرست‌نگارش، نسخه‌ی ویرایش‌شده در سایت، بی‌`--apply`، اجرای دوم و برگرداندن دقیق.
+- **تمرین (`fahares_prod` محلی):**
+  - ۲۱۳ نسخه نوشته شد و ۳۵ نسخه جابه‌جا شد. ۲۸ نسخه روی جلد دیگری ماندند: عکسی مرعشی ۱۸، عکسی دائرةالمعارف ۵، «نشریه» ۱۳ روی نوربخش ۴، و آستان قدس ۱.
+  - اجرای دوم «already 213» گزارش کرد و اثرانگشت پس از `--revert` با پیش از اجرا یکی بود (همراه `raw_text`/`metadata` نسخه‌ها، ارجاع‌های fankha و شمار audit). پس از آن دوباره اجرا شد.
+
