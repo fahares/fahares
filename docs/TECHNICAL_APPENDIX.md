@@ -6879,15 +6879,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان:** `fahares-sources/backups/item87_authors_from_text_prod_before_20261102.json`، شامل ۱٬۳۹۷ اثر که همه بی مؤلف بودند.
   - **اجرا:** با `prod-run --wait` انجام شد، پشت قفل استقرار. نتیجه `update 1397` و سپس `update 0` بود.
 
-### گام ۱۴.۱۴: `text_fill`
-- **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
-  - **شرط:** متن v2، با فاصله‌های یکسان‌شده، باید در `raw_text` سایت باشد، و `metadata.incipits` یا `metadata.explicits` نسخه خالی باشد.
-  - **خروجی:** ۲٬۸۹۳ رکورد (`incipit_text` ۱٬۶۷۷، `explicit_text` ۱٬۲۱۶). ۲۱۱ رکورد کنار رفت.
-- **کد:** تغییری لازم نبود، چون هر دو ستون در `ApplyCorpusCategoriesCommand::FIELDS` هستند.
-- **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
-- **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
-- **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
-
 ### گام ۱۴.۱۲: `fankha_reversed_copy_citations.py` و `fahares:fix-reversed-citations`
 - **پیکره** ([scripts/fankha_reversed_copy_citations.py](../../fahares-corpus/scripts/fankha_reversed_copy_citations.py)، کامیت `3ef5b04`):
   - نامزدها از `--db` (نسخه‌ی پروداکشن) خوانده می‌شوند: مدخل `fankha_citation` با منبع، که `volume_number` آن جزو جلدهای منبع نیست و `page_start` آن هست. جلدهای منبع شامل `source_volumes` و جلدهایی است که دست‌کم ۵ بار و در ۱٪ ارجاع‌های منبع آمده‌اند.
@@ -6905,3 +6896,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲۱۳ نسخه نوشته شد و ۳۵ نسخه جابه‌جا شد. ۲۸ نسخه روی جلد دیگری ماندند: عکسی مرعشی ۱۸، عکسی دائرةالمعارف ۵، «نشریه» ۱۳ روی نوربخش ۴، و آستان قدس ۱.
   - اجرای دوم «already 213» گزارش کرد و اثرانگشت پس از `--revert` با پیش از اجرا یکی بود (همراه `raw_text`/`metadata` نسخه‌ها، ارجاع‌های fankha و شمار audit). پس از آن دوباره اجرا شد.
 
+### گام ۱۴.۱۴: `text_fill`
+- **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
+  - **شرط:** متن v2، با فاصله‌های یکسان‌شده، باید در `raw_text` سایت باشد، و `metadata.incipits` یا `metadata.explicits` نسخه خالی باشد.
+  - **خروجی:** ۲٬۸۹۳ رکورد (`incipit_text` ۱٬۶۷۷، `explicit_text` ۱٬۲۱۶). ۲۱۱ رکورد کنار رفت.
+- **کد:** تغییری لازم نبود، چون هر دو ستون در `ApplyCorpusCategoriesCommand::FIELDS` هستند.
+- **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
+- **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
+- **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
