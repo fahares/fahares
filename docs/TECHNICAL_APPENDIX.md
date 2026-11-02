@@ -6201,11 +6201,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی با تصویر:** ج ۱ ص ۵۷ «۱۰۱۵-۶/۱۰۵» (گلپایگانی)، و ج ۶ ص ۳۴۳ «۲/۱۵۹۸۰» (مجلس، وارونه در خود چاپ).
 - **آزمون:** همان آزمون `DerivedDataTest` گسترش یافت: نشانه‌ها و استثناها، سنا، مرکز احیاء و برچسب حاشیه.
 
-### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
-- **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
-- **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
-- **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
-- **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
 ### گام ۱۳.۱۴۸: `fahares:split-senate-library` و `fankha_shelfmark_fixes.py`
 - **[SenateLibrary](../app/Support/SenateLibrary.php):**
   - ثابت‌ها: نام «مجلس سنا»، نام کامل «کتابخانه مجلس سنا»، نام‌های دیگر «سنا» و «کتابخانه سنا».
@@ -6236,6 +6231,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `fill-collection-keys` پس از آن ۲ تغییر داشت (همان دو نسخه‌ی «سنا –»).
 
 
+### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
+- **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
+- **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
+- **محدودیت:** قفل فقط نشست‌های همین دستگاه را هماهنگ می‌کند و فقط وقتی که از اسکریپت بگذرند. وارسی `pgrep` این شکاف را برای اجراهای artisan می‌پوشاند، ولی دو فرمانی که در یک لحظه از وارسی بگذرند هر دو اجرا می‌شوند، مگر هر دو از اسکریپت بیایند.
+- **آزمون:** با `ssh` ساختگی در `PATH`: دو اجرای هم‌زمان (دومی رد شد با ۷۵)، `--wait` (پس از اولی اجرا شد)، `pgrep` ساختگی با اجرای artisan (رد شد)، فرمان با کد ۳ (کد ۳ برگشت و ثبت شد) و خالی شدن `prod.holder` پس از هر اجرا.
 ### گام ۱۳.۱۵۰: `catalog_volume_parts` و `Cataloger::recount`
 - **migration:** [2026_11_03_100001_create_catalog_volume_parts_tables](../database/migrations/2026_11_03_100001_create_catalog_volume_parts_tables.php):
   - `catalog_volume_parts` (`catalog_volume_id` cascade، `library_id` nullOnDelete، `title`، `page_first`/`page_last`، `sort`، `manuscripts_count`، `metadata`)؛
