@@ -85,7 +85,7 @@ class CatalogVolumePart extends Model
      *  2. of several of its library, the one whose pages hold the page its citation gives;
      *  else none. A copy whose library has no part but whose page falls in one part only is reported (by_page) and
      *  left without one: a copy of one library is not of another's catalogue, and the record of its library may be
-     *  a duplicate to merge (step 13.152).
+     *  a duplicate to merge (step 13.150).
      *
      * @param  Collection<int, self>  $parts  the volume's parts
      * @return array{0: ?self, 1: string} the part and «library», «page», «by_page» or «none»
