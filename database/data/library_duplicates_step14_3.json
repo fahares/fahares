@@ -1,0 +1,6 @@
+{
+  "_comment": "Step 14.3: «ابوالبرکات رضا» is «ابوالبرکات، رضا» of Isfahan (its one copy on page 37 of the Abolbarakat part of «سه کتابخانه اصفهان»). Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step14_3.json",
+  "libraries": [
+    {"target": "asfhan-aboalbrkat-rda-118", "sources": [{"slug": "asfhan-aboalbrkat-rda-904"}]}
+  ]
+}

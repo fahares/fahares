@@ -1,5 +1,5 @@
 {
- "_comment": "Step 13.175 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 6), approved by the user: «فهرست نسخه‌های خطی سه کتابخانه اصفهان (ابوالبرکات، سید ضیاء الدین علامه فانی، مسجد سید شفتی)» by Rahim Ghasemi (Majma'-e Zakha'er-e Eslami, Qom, 1428 AH; MTIF 34212, 240 pages), made a source with its three parts, Fankha's rows 33, 34, 35. Run after library_duplicates_step13_175.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_se_ketabkhaneh_isfahan.json",
+ "_comment": "Step 14.3 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 6), approved by the user: «فهرست نسخه‌های خطی سه کتابخانه اصفهان (ابوالبرکات، سید ضیاء الدین علامه فانی، مسجد سید شفتی)» by Rahim Ghasemi (Majma'-e Zakha'er-e Eslami, Qom, 1428 AH; MTIF 34212, 240 pages), made a source with its three parts, Fankha's rows 33, 34, 35. Run after library_duplicates_step14_3.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_se_ketabkhaneh_isfahan.json",
  "source": "catalogue-76caa4780724",
  "series": "سه کتابخانه اصفهان",
  "aliases": ["سه کتابخانه اصفهان - ف"],
