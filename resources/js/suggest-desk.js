@@ -158,6 +158,11 @@ export default (config) => ({
         this.toggleCredit();
         this.restoreDraft();
         // Opened from one of the record's people rows: its role, person or name, and the row itself (over any draft)
+        // Opened with the other record chosen, e.g. from «احتمالاً همان نسخه» (step 14.16)
+        if (this.relationKey && detail.target && !detail.roleRowId) {
+            this.target = detail.target;
+            if (detail.role) this.roleKey = detail.role;
+        }
         if (this.relationKey && detail.roleRowId) {
             this.roleKey = detail.role ?? '';
             this.roleName = detail.roleName ?? '';

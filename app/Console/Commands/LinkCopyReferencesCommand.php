@@ -71,6 +71,9 @@ class LinkCopyReferencesCommand extends Command
             return $this->revert($file);
         }
         $this->dry = (bool) $this->option('dry-run');
+        // The command object outlives a call (tests, Artisan::call): every run starts afresh
+        [$this->merged, $this->links, $this->report] = [[], [], []];
+        $this->backup = ['relations' => [], 'facsimile' => [], 'merges' => [], 'readings' => []];
         if ($this->dry) {
             $this->warn('Dry run: nothing is saved.');
         }
@@ -130,20 +133,25 @@ class LinkCopyReferencesCommand extends Command
         $photoCatalogue = (bool) preg_match(self::PHOTO_CATALOGUE, (string) $copy->catalog_citation);
         if ($statesPhoto || $photoCatalogue || $copy->is_facsimile) {
             $mother = $above->is_facsimile ? $this->motherOf($above) : $above;
-            $note = $statesPhoto ? null : ($photoCatalogue ? 'در فهرست «نسخه اصل» نیامده است؛ از مأخذ عکسی برداشت شد' : 'در فهرست «نسخه اصل» نیامده است');
+            // A copy cited from a catalogue of photographs is a photograph: no note needed for that
+            $note = null;
             // The photograph above has a mother outside the records: both are of it, and this one is linked to the
             // photograph above, which names it
             if (! $mother) {
                 $mother = $above;
                 $note = trim('نسخه‌ی بالا خود عکسی است و هر دو عکسِ یک نسخه‌اند. ' . $note);
             }
-            $this->relate($copy, $mother, 'facsimile_of', $hedged ? trim('احتمالی. ' . $note) : $note);
+            $this->relate($copy, $mother, 'facsimile_of', $hedged ? trim('احتمالی. ' . $note) : ($note ?: null));
             if (! $copy->is_facsimile) {
                 $this->backup['facsimile'][] = $copy->id;
                 $this->dry || DB::table('manuscripts')->where('id', $copy->id)->update(['is_facsimile' => true]);
             }
 
-            return $this->note($id, $mother->id, $statesPhoto ? 'facsimile' : 'facsimile_inferred', $note ?? '');
+            return $this->note($id, $mother->id, $statesPhoto ? 'facsimile' : 'facsimile_inferred', match (true) {
+                $statesPhoto => '',
+                $photoCatalogue => 'cited from a catalogue of photographs',
+                default => 'marked as a facsimile',
+            });
         }
 
         $root = $this->rootOf($above);
@@ -157,6 +165,12 @@ class LinkCopyReferencesCommand extends Command
             $readings = $this->merge($former, $present);
 
             return $this->note($id, $present->id, 'merged', sprintf('%s → %s; %d alternative readings', $former->library, $present->library, $readings));
+        }
+        // A reader or reviewer has said they are two copies
+        $distinct = DB::table('manuscript_relations')->where('type', 'distinct_from')->where(fn ($q) => $q->where(['manuscript_id' => $copy->id, 'related_manuscript_id' => $root->id])
+            ->orWhere(fn ($q) => $q->where(['manuscript_id' => $root->id, 'related_manuscript_id' => $copy->id])))->exists();
+        if ($distinct) {
+            return $this->note($id, $root->id, 'distinct', 'stated to be two copies');
         }
         $this->relate($copy, $root, 'possibly_same', $hedged ? 'فنخا: «احتمالاً همان نسخه بالا»' : 'فنخا: «همان نسخه بالا»');
 

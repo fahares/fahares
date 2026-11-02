@@ -6951,7 +6951,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **بقیه:** رابطه‌ی `possibly_same` به سرِ زنجیره‌ی «احتمالاً همان نسخه».
   - پشتیبان هنگام اجرا نوشته می‌شود. `--revert` ادغام‌ها را از آخر با `undoManuscriptMerge` برمی‌گرداند و متادیتای دو طرف را بازمی‌گذارد. سپس قول‌ها، رابطه‌های `source = fankha` و علامت‌های عکسی را برمی‌دارد.
 - **migration:** ستون `manuscript_relations.source` (`suggestion` یا `fankha`).
-- **`RecordRelations`:** نوع `possibly_same` بی‌جهت است، مانند `same_set` (`SYMMETRIC`).
+- **`RecordRelations`:** نوع‌های `possibly_same` و `distinct_from` بی‌جهت‌اند، مانند `same_set` (`SYMMETRIC`). تأیید `distinct_from` ردیف‌های `possibly_same` میان دو نسخه را حذف می‌کند و آن‌ها را در `old_values.removed_record_relations` نگه می‌دارد. `AuditLogController::rollbackVerify` همان‌ها را برمی‌گرداند. دستور برای جفتی که `distinct_from` دارد پیوند تازه نمی‌سازد (تصمیم `distinct`).
+- **کلیدهای پاسخ:** دکمه‌های بنر «احتمالاً همان نسخه» میز پیشنهاد را با `relation` (`duplicate`، یا `manuscript_relation` با `role: distinct_from`) و `target` از پیش پر باز می‌کنند (`suggest-desk.js`، `start`).
 - **`Manuscript`:** `facsimileOf()`، `facsimileChain()` (عکسی‌های میانه و مادرِ درون سامانه)، `possiblySame()` و `original_note` (متن «نسخه اصل:» تا «؛»، مگر «همان نسخه»).
 - **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
 - **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).

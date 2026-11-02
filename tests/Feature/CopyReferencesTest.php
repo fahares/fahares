@@ -76,7 +76,8 @@ class CopyReferencesTest extends TestCase
         $this->get(route('manuscripts.show', $film))->assertOk()
             ->assertSeeText('این نسخه عکسی یا میکروفیلمِ')
             ->assertSee('هرات</span> <span class="text-[11px] text-muted">از نسخه‌ی مادر</span>', false);
-        $this->get(route('manuscripts.show', $marashi))->assertOk()->assertSeeText('احتمالاً همان نسخه‌ی');
+        $this->get(route('manuscripts.show', $marashi))->assertOk()->assertSeeText('احتمالاً همان نسخه‌ی')
+            ->assertSee('data-same-answer', false)->assertSeeText('دو نسخه‌ی جدایند');
         $this->get(route('manuscripts.show', $outside))->assertOk()->assertSeeText('نسخه‌ی مادر: اسکوریال - مادرید ش ۱۳۲۴')->assertSeeText('این نسخه‌ی مادر را در سامانه یافته‌اید؟');
         $this->get(route('manuscripts.show', $mowlavi->id))->assertRedirect();
 
@@ -84,13 +85,21 @@ class CopyReferencesTest extends TestCase
         $this->artisan('fahares:link-copy-references', ['--work' => $this->work->id, '--dry-run' => true])
             ->expectsOutputToContain('skipped')->assertSuccessful();
 
+        // «Two copies, not one» takes the possibly_same link away, a rollback brings it back, and a later run respects it
+        $added = app(\App\Suggestions\RecordRelations::class)->add($marashi, $majlis, 'distinct_from', null, null);
+        $this->assertNull($this->relation($marashi, 'possibly_same'));
+        $this->assertSame('possibly_same', $added['old']['removed_record_relations']['rows'][0]['type']);
+        $this->artisan('fahares:link-copy-references', ['--work' => $this->work->id, '--dry-run' => true])
+            ->expectsOutputToContain('distinct')->assertSuccessful();
+
         $this->artisan('fahares:link-copy-references', ['--revert' => $backup])->assertSuccessful();
         @unlink($backup);
         $this->assertNotNull(Manuscript::find($mowlavi->id));
         $this->assertSame('همان نسخه بالا', Manuscript::find($mowlavi->id)->metadata['editorial_notes']);
         $this->assertArrayNotHasKey('former_locations', $ilahiyat->fresh()->metadata ?? []);
         $this->assertSame(0, FieldSuggestion::where('suggestable_id', $ilahiyat->id)->count());
-        $this->assertSame(0, DB::table('manuscript_relations')->whereIn('manuscript_id', [$film->id, $marashi->id, $photo->id])->count());
+        // The run's links go; the reader's «two copies» stays
+        $this->assertSame(['distinct_from'], DB::table('manuscript_relations')->whereIn('manuscript_id', [$film->id, $marashi->id, $photo->id])->pluck('type')->all());
         $this->assertFalse((bool) $photo->fresh()->is_facsimile);
         $this->assertTrue((bool) $film->fresh()->is_facsimile);
     }

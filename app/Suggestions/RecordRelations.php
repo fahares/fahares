@@ -34,10 +34,12 @@ class RecordRelations
         'facsimile_of' => ['نسخه‌ی عکسی یا میکروفیلمِ', 'نسخه‌های عکسی و میکروفیلم‌های این نسخه'],
         // Two descriptions that may be of one copy, kept apart until that is shown (step 14.16)
         'possibly_same' => ['احتمالاً همان نسخه‌ی', 'معرفی‌های دیگری که احتمالاً همین نسخه‌اند'],
+        // A reader's answer to «possibly the same»: two copies, not one; it takes the possibly_same link away
+        'distinct_from' => ['نسخه‌ی جدایی است، نه همانِ', 'نسخه‌های جدایی که با این نسخه یکی نیستند'],
     ];
 
     /** Types with no direction: one option, and a pair is the same either way round */
-    public const SYMMETRIC = ['same_set', 'possibly_same'];
+    public const SYMMETRIC = ['same_set', 'possibly_same', 'distinct_from'];
 
     /** @return array{0: string, 1: string, 2: string, 3: array} table, record key, related key, types */
     private static function shape(Model $record): array
@@ -61,6 +63,7 @@ class RecordRelations
             $options[$type] = match ($type) {
                 'same_set' => "این {$noun} و {$chosen} مجلدهای یک دوره‌اند",
                 'possibly_same' => "این {$noun} و {$chosen} احتمالاً یک نسخه‌اند",
+                'distinct_from' => "این {$noun} و {$chosen} دو نسخه‌ی جدایند، نه یک نسخه",
                 default => "این {$noun} {$forward} {$chosen}{$verb}",
             };
         }
@@ -96,6 +99,14 @@ class RecordRelations
             throw new InvalidArgumentException('این رابطه هم‌اکنون ثبت شده است.');
         }
 
+        // Two copies, not one: the link that said they may be one goes (and comes back on a rollback)
+        $removed = [];
+        if ($type === 'distinct_from') {
+            $pair = fn ($q) => $q->where([$key => $from->id, $relatedKey => $to->id])->orWhere(fn ($q) => $q->where([$key => $to->id, $relatedKey => $from->id]));
+            $removed = DB::table($table)->where('type', 'possibly_same')->where($pair)->get()->map(fn ($r) => (array) $r)->all();
+            DB::table($table)->whereIn('id', array_column($removed, 'id'))->delete();
+        }
+
         $id = DB::table($table)->insertGetId([
             $key => $from->id,
             $relatedKey => $to->id,
@@ -111,7 +122,8 @@ class RecordRelations
         }
 
         return [
-            'old' => ['relations' => DB::table($table)->where($key, $record->id)->orWhere($relatedKey, $record->id)->count() - 1],
+            'old' => ['relations' => DB::table($table)->where($key, $record->id)->orWhere($relatedKey, $record->id)->count() - 1]
+                + ($removed ? ['removed_record_relations' => ['table' => $table, 'rows' => $removed]] : []),
             'new' => ['added_record_relation' => ['table' => $table, 'id' => $id]],
             'resolution' => ['relation_id' => $id, 'type' => $type, 'from' => $from->id, 'to' => $to->id],
         ];

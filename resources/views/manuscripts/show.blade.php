@@ -152,6 +152,13 @@
             @endif
             @if($possiblySame)
                 <p>به گفته‌ی فنخا («همان نسخه بالا») این معرفی احتمالاً همان نسخه‌ی <a href="{{ route('manuscripts.show', $possiblySame) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($possiblySame->libraryRecord?->name ?? $possiblySame->library ?? '') . ' ' . ($possiblySame->shelfmark ?? ''))) }}</a> است. تا روشن شدن آن، دو رکورد جدا مانده‌اند.</p>
+                {{-- One step for a reader who knows: a suggestion with the other copy already chosen, for the reviewers --}}
+                @php $sameTarget = \App\Suggestions\SuggestionRegistry::describe($possiblySame) + ['id' => $possiblySame->id]; @endphp
+                <div class="flex flex-wrap items-center gap-2 text-[13px]" data-same-answer>
+                    <span class="text-muted">شما می‌دانید؟</span>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'duplicate', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">یک نسخه‌اند</button>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation', role: 'distinct_from', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">دو نسخه‌ی جدایند</button>
+                </div>
             @endif
         </div>
     @endif
