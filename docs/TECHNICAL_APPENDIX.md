@@ -6762,6 +6762,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - بخش‌ها: رضویه ۱۴۸، لاجوردی ۵۴، زنجانی ۲۳۱، چهل ستون ۳۹۶، روحانی ۲۰؛ جعفریه قائن ۲۸۱، امام ۶۱، فرهنگ و ارشاد ۱۴؛ جعفریه زهان ۱۸۲، قهستانی ۴۸؛ ساری ۲۵۰، تنکابن ۲۵.
   - هر چهار: اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. داده‌های پیشین هم «Nothing to do» ماندند.
   - پشتیبان‌ها: `fahares-sources/backups/step13/step14.4_import_volume_parts_{ashnaei,qaen,zahan,sari_tonekabon}_local_before_20261103.json`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `b117305`، از راه `prod-run`):**
+  - رونوشت ردیف‌های ادغام به `…/step14.4_merge_libraries_prod_before_20261103.json` رفت. ادغام: ۳۷۶ ← ۳۷۵ کتابخانه.
+  - چهار وارد کردن، هر کدام با dry-run برابر تمرین (۴۰۰، ۷۷، ۵۱ و ۲۶ نسخه). پشتیبان هر کدام به `…/step14.4_import_volume_parts_{ashnaei,qaen,zahan,sari_tonekabon}_prod_before_20261103.json` رفت.
+  - ۱۲ بخش ۱٬۷۱۰ نسخه دارند. جلدها: #498 ۸۵۳، #583 ۳۵۸، #584 ۲۷۵ و #593 ۲۳۰. ۱٬۷۱۶ نسخه‌ی چهار منبع بی‌صف دوباره ایندکس شدند.
+  - Meilisearch برای کتابخانه‌های ۹۲۰ و ۷۹ با پایگاه یکی است. صفحه‌ها: ۵، ۳، ۲ و ۲ سطر `data-volume-part`.
 
 ### گام ۱۴.۵: `scripts/dev/test-suite`
 - **فایل‌ها:** در `~/.fahares`: قفل `test.lock` (`flock`)، دارنده `test.holder` (checkout، زمان، گزینه‌ها) و `test-runs.log` (آغاز، پایان، مسیر نسبی checkout، کد خروج، گزینه‌ها).
