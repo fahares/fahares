@@ -12,6 +12,7 @@ use App\Suggestions\ContributorRelations;
 use App\Suggestions\ProtectedColumns;
 use App\Suggestions\RecordMerger;
 use App\Support\DerivedData;
+use App\Support\SenateLibrary;
 use App\Support\PersonNameMatcher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -291,6 +292,10 @@ class AddCorpusWorksCommand extends Command
             }
             $row = array_intersect_key($c['make'], array_flip([...self::COPY_COLUMNS, 'volume_number']));
             [$city, $library, $libraryId] = $this->libraries[$row['city'] . '|' . $row['library']] ?? [$row['city'], $row['library'], null];
+            // A Majlis copy described from the Senate's catalogue is the Senate library's (step 13.148)
+            if (($senate = SenateLibrary::libraryFor($libraryId, $row['raw_text'] ?? null)) !== $libraryId) {
+                [$libraryId, $library] = [$senate, SenateLibrary::NAME];
+            }
             $scribe = $row['scribe_name'] && ! $row['is_bika'] ? $this->person(['name' => $row['scribe_name']]) : null;
             $m = Manuscript::create(array_merge($row, [
                 'work_id' => $work->id,
