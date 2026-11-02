@@ -6872,3 +6872,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **خروجی:** ۱٬۳۹۷ رکورد `work_updates` (`author_name: null → name`). ۹۸۶ رکورد کنار رفت: ۸۳۱ مؤلف دارند، ۱۰۸ «another»، ۳۸ «hedged» و ۹ «no author line».
 - **فایل تصمیم:** `database/data/fankha_authors_from_text_20261102.json`.
 - **تمرین (`fahares_prod`):** `update 1397` و سپس `update 0`. `author_id` در همه تهی ماند.
+
+### گام ۱۴.۱۴: `text_fill`
+- **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
+  - **شرط:** متن v2، با فاصله‌های یکسان‌شده، باید در `raw_text` سایت باشد، و `metadata.incipits` یا `metadata.explicits` نسخه خالی باشد.
+  - **خروجی:** ۲٬۸۹۳ رکورد (`incipit_text` ۱٬۶۷۷، `explicit_text` ۱٬۲۱۶). ۲۱۱ رکورد کنار رفت.
+- **کد:** تغییری لازم نبود، چون هر دو ستون در `ApplyCorpusCategoriesCommand::FIELDS` هستند.
+- **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
+- **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
+- **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
