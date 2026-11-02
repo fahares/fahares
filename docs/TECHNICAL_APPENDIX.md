@@ -6569,3 +6569,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** پس از `--revert`، `source_entries` یک ردیف بیشتر داشت: مدخل ۹۴۳۳۳۳، نسخه‌ی ۳۲۳۵۴۲ با ارجاع بی‌کروشه‌ی آغاز. پس از اصلاح، محلی پاک شد و تمرین دوباره «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.166_import_volume_parts_awraq_atiq_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest`، با منبع `keep`، بخش `key` و نسخه‌ی بی‌جلدِ بی‌مدخل.
+
+### گام ۱۳.۱۶۸: «چهار کتابخانه مشهد» با `create`
+- **داده:** [volume_parts_chahar_ketabkhaneh_mashhad.json](../database/data/volume_parts_chahar_ketabkhaneh_mashhad.json):
+  - کد `catalogue-a22177a37451`، به روش `SourceEntrySync::groupCode` (sha1 «catalogue||عنوان»)؛
+  - `create`: عنوان، پدیدآور، ناشر و سال، و جلد ۱ با MTIF ۳۲۵۳۷ و ۴۳۵ صفحه؛
+  - `aliases`: «چهار کتابخانه مشهد - ف»؛
+  - `folds` با `keep` روی `catalogue-ae0847c98256` (میکروفیلم‌ها، #539) و `catalogue-1f3ad1a2f1e5` (گوهرشاد، #475)؛
+  - بخش‌ها: ردیف‌های ۵۲۴ (۱–۲۴)، ۵۲۵ (۲۶–۴۳)، ۵۴۰ (۴۵–۵۵، بی‌کتابخانه) و ۵۱۸ (۵۹–۴۳۵).
+- **تغییر دستور:**
+  - `create`: در dry-run جلدهای مجازی (`folds.virtual`) برای شمارش به کار می‌روند. در اجرا `makeSource` منبع را می‌سازد و جلدها را با `DB::table` در `catalog_volumes` و `source_volumes` با یک شناسه. پشتیبان `made_source` دارد و `--revert` بخش‌ها، فهرست‌نگاران جلد، جلدها و منبع را برمی‌دارد.
+  - `names()`/`aliases`: `numbers()` با هر نامی کار می‌کند که `bare` آن با سری نخستین ارجاع برابر است. خط تیره هم واژه‌ای از نام شمرده می‌شود.
+  - `volume()`: در کتاب یک‌جلدی، هر عدد صفحه‌ای از همان جلد است.
+  - منبع ساخته‌شده با ارجاع به بیرون تراکنش می‌رسد (`use (&$source …)`).
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۶۶):**
+  - ۴۰۶ نسخه جابه‌جا شد: #539 ← ۴۰۲، #475 ← ۳، و بی‌جلد ۱. یک نسخه‌ی بی‌عدد روی #539 ماند.
+  - منبع ۱۰۰۱۸۷، جلد #717 با ۴۰۶ نسخه. بخش‌ها: سلیمانیه ۱۴۶، میرزا جعفر ۱۰۸، فرهنگ ۰ و گوهرشاد ۱۵۱. #539 ۶٬۶۱۱ نسخه دارد و #475 ۱٬۲۳۵.
+  - **تمرین نخست:** پس از `--revert`، سنجه‌ی `catalogers` نمی‌خواند، چون پشتیبان فهرست‌نگاران جلدهای مجازی را نداشت. محلی با بازشماری آن دو فهرست‌نگار (MTIF ۳۷۲۱۸ و ۳۷۲۷۸) به حال پیش برگشت. تمرین دوم «Nothing to do» و برگرداندن دقیق داد.
+  - پشتیبان: `fahares-sources/backups/step13/step13.168_import_volume_parts_chahar_mashhad_local_before_20261103.json`.
+- **آزمون:** `ImportVolumePartsTest::test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it`.

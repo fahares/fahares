@@ -23,6 +23,8 @@ use Illuminate\Support\Str;
  *    the catalogue of Zanjan's Imam Jom'e school).
  *  - Each copy untied, on the catalogue or on a folded source, whose first citation is the catalogue's («نشریه: 5 -
  *    132», or «132-5» as the print sets it right to left) goes to that volume.
+ *  - «create»: the catalogue, when the registry has it not, is made with its volumes (source, catalog volume and
+ *    source volume under one id), and its revert removes it.
  *  - «editors» are the people of every volume (supervisor); «parts» are made with their library, pages and catalogers,
  *    a cataloger found by MTIF id or name, made when the registry has none. Each copy then takes its part
  *    (CatalogVolumePart::assign); counts are taken again.
@@ -64,20 +66,27 @@ class ImportVolumePartsCommand extends Command
         $source = FillEmptyCataloguesCommand::source($this->data['source']);
         $slugs = array_values(array_filter(array_unique(array_column($this->data['parts'], 'library'))));
         $libraries = DB::table('libraries')->whereIn('slug', $slugs)->pluck('id', 'slug')->all();
-        $missing = array_merge($source ? [] : [$this->data['source']], array_diff($slugs, array_keys($libraries)));
+        $create = $source ? null : ($this->data['create'] ?? null);
+        $missing = array_merge($source || $create ? [] : [$this->data['source']], array_diff($slugs, array_keys($libraries)));
         if ($missing) {
             $this->error('Missing: ' . implode(', ', $missing));
 
             return self::FAILURE;
         }
 
-        $folds = $this->folds($source->id);
-        $moves = $this->moves($source->id, $folds);
-        $parts = $this->partsToMake($source->id, $folds);
-        $numbers = array_merge(DB::table('source_volumes')->where('source_id', $source->id)->pluck('volume_number')->all(), array_keys($folds['volumes']));
+        $sourceId = $source?->id ?? 0;
+        $folds = $this->folds($sourceId);
+        if ($create) {
+            // the volumes it will have, to count what goes to them
+            $folds['virtual'] = array_fill_keys(array_column($create['volumes'], 'number'), 0);
+            $this->line(sprintf('  source to make: «%s» (%s), %d volumes', $create['title'], $this->data['source'], count($create['volumes'])));
+        }
+        $moves = $this->moves($sourceId, $folds);
+        $parts = $this->partsToMake($sourceId, $folds);
+        $numbers = array_merge(DB::table('source_volumes')->where('source_id', $sourceId)->pluck('volume_number')->all(), array_keys($folds['volumes']), array_keys($folds['virtual'] ?? []));
         $catalogers = $this->catalogers(false, $numbers);
-        $editors = $this->editorsToSet($source->id, $folds);
-        if (! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
+        $editors = $this->editorsToSet($sourceId, $folds);
+        if (! $create && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
             $this->info('Nothing to do.');
 
             return self::SUCCESS;
@@ -87,8 +96,10 @@ class ImportVolumePartsCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->info('Backup: ' . $this->backup($source->id, $folds, $moves));
-        DB::transaction(function () use ($source, $folds, $libraries) {
+        $this->info('Backup: ' . $this->backup($sourceId, $folds, $moves, $create !== null));
+        unset($folds['virtual']);
+        DB::transaction(function () use (&$source, $create, $folds, $libraries) {
+            $source ??= $this->makeSource($create);
             $volumes = $this->writeVolumes($source->id, $folds);
             $catalogers = $this->catalogers(true, array_keys($volumes));
             $moves = $this->moves($source->id, $this->folds($source->id), false);
@@ -117,6 +128,12 @@ class ImportVolumePartsCommand extends Command
     private function series(): string
     {
         return $this->data['series'];
+    }
+
+    /** The series and the other names its copies cite it by («چهار کتابخانه مشهد - ف»). */
+    private function names(): array
+    {
+        return array_merge([$this->series()], $this->data['aliases'] ?? []);
     }
 
     private static function bare(?string $text): string
@@ -158,12 +175,14 @@ class ImportVolumePartsCommand extends Command
     }
 
     /** The numbers a copy's citation of the catalogue gives, or null when its first citation is of another source. */
-    public static function numbers(string $raw, string $series): ?array
+    public static function numbers(string $raw, string|array $series): ?array
     {
-        if (self::bare(References::parse($raw)['series']) !== self::bare($series)) {
+        $cited = self::bare(References::parse($raw)['series']);
+        $series = collect((array) $series)->first(fn ($name) => self::bare($name) === $cited);
+        if ($series === null) {
             return null;
         }
-        $name = implode('[\s\x{200C}]*', array_map(fn ($w) => preg_quote($w, '/'), preg_split('/[\s\x{200C}]+/u', $series)));
+        $name = implode('[\s\x{200C}]*', array_map(fn ($w) => preg_quote($w, '/'), preg_split('/[\s\x{200C}]+|(?=-)|(?<=-)/u', $series, -1, PREG_SPLIT_NO_EMPTY)));
         preg_match('/' . $name . '\s*(\d*)\s*:([^\]]*)/u', strtr($raw, ['ي' => 'ی', 'ك' => 'ک']), $m);
         preg_match_all('/\d+/', ($m[1] ?? '') . ' ' . ($m[2] ?? ''), $n);
 
@@ -179,6 +198,10 @@ class ImportVolumePartsCommand extends Command
     public static function volume(array $numbers, array $volumes): ?int
     {
         $numbers = array_slice($numbers, 0, 2);
+        // a book of one volume: what the citation gives is a page of it
+        if (count($volumes) === 1 && $numbers) {
+            return $volumes[0];
+        }
         if (count($numbers) === 1) {
             return in_array($numbers[0], $volumes, true) ? $numbers[0] : null;
         }
@@ -203,7 +226,7 @@ class ImportVolumePartsCommand extends Command
      */
     private function moves(int $sourceId, array $folds, bool $report = true): array
     {
-        $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->map(fn ($id) => (int) $id)->all() + $folds['volumes'];
+        $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->map(fn ($id) => (int) $id)->all() + $folds['volumes'] + ($folds['virtual'] ?? []);
         $numbers = array_map('intval', array_keys($have));
         $on = array_merge(array_values($have), $folds['all']);
         $moves = [];
@@ -220,7 +243,7 @@ class ImportVolumePartsCommand extends Command
                     if ($raw === null && preg_match('/(' . preg_quote($this->series(), '/') . '\s*:[^\]]*)\]/u', (string) $m->raw_text, $b)) {
                         $raw = '[' . $b[1] . ']';
                     }
-                    $cited = $raw === null ? null : self::numbers($raw, $this->series());
+                    $cited = $raw === null ? null : self::numbers($raw, $this->names());
                     if ($cited === null) {
                         if ($m->catalog_volume_id && in_array((int) $m->catalog_volume_id, array_diff($folds['all'], $folds['kept']), true)) {
                             $left['another source, on a folded volume'] = ($left['another source, on a folded volume'] ?? 0) + 1;
@@ -236,7 +259,7 @@ class ImportVolumePartsCommand extends Command
 
                         continue;
                     }
-                    if ($have[$number] !== $current) {
+                    if ($have[$number] !== $current || $have[$number] === 0) {
                         $moves[] = [$m->id, $number, $current];
                         $label = sprintf('volume %d ← %s', $number, $current ? "#{$current}" : 'none');
                         $counts[$label] = ($counts[$label] ?? 0) + 1;
@@ -266,7 +289,7 @@ class ImportVolumePartsCommand extends Command
     /** The parts of the data file the catalogue lacks, reported. */
     private function partsToMake(int $sourceId, array $folds): array
     {
-        $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->all() + $folds['volumes'];
+        $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->all() + $folds['volumes'] + ($folds['virtual'] ?? []);
         $made = DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', array_values($have) ?: [0])->get(['catalog_volume_id', 'metadata'])
             ->map(fn ($p) => $p->catalog_volume_id . '|' . self::partKey(json_decode($p->metadata ?? '{}', true)))->all();
         $missing = array_filter($this->data['parts'], fn ($p) => isset($have[$p['daftar']]) && ! in_array($have[$p['daftar']] . '|' . self::partKey($p), $made, true));
@@ -275,6 +298,27 @@ class ImportVolumePartsCommand extends Command
             $none ? sprintf(' (%d of a volume the catalogue has not: %s)', count($none), implode(', ', array_unique(array_column($none, 'daftar')))) : ''));
 
         return $missing;
+    }
+
+    /** Makes the catalogue the data file describes, each volume a catalog volume and a source volume under one id. */
+    private function makeSource(array $create): \App\Models\Source
+    {
+        $id = DB::table('sources')->insertGetId(['code' => $this->data['source'], 'kind' => $create['kind'] ?? \App\Models\Source::KIND_LIBRARY_CATALOGUE,
+            'rank' => \App\Models\Source::KIND_RANKS[$create['kind'] ?? \App\Models\Source::KIND_LIBRARY_CATALOGUE] ?? 50, 'title' => $create['title'],
+            'compiler' => $create['compiler'] ?? null, 'publisher' => $create['publisher'] ?? null, 'publication_year' => $create['year'] ?? null,
+            'volumes_count' => count($create['volumes']), 'metadata' => json_encode(['group' => 'catalogue||' . $create['title']], JSON_UNESCAPED_UNICODE),
+            'created_at' => now(), 'updated_at' => now()]);
+        foreach ($create['volumes'] as $volume) {
+            $values = ['title' => sprintf($this->data['volume_title'], $volume['number']), 'volume_number' => $volume['number'], 'publisher' => $create['publisher'] ?? null,
+                'publication_year' => $volume['year'] ?? $create['year'] ?? null, 'pages_count' => $volume['pages'] ?? null, 'mtif_entry_id' => $volume['mtif'] ?? null,
+                'citation_pattern' => $this->series() . ': ' . $volume['number']];
+            $volumeId = DB::table('catalog_volumes')->insertGetId($values + ['library_id' => null, 'catalog_id' => 1, 'manuscripts_count' => 0,
+                'created_at' => now(), 'updated_at' => now()]);
+            DB::table('source_volumes')->insert($values + ['id' => $volumeId, 'source_id' => $id, 'created_at' => now(), 'updated_at' => now()]);
+        }
+        $this->line(sprintf('  made «%s» (%s)', $create['title'], $this->data['source']));
+
+        return \App\Models\Source::findOrFail($id);
     }
 
     /** The volumes whose people are not the editors alone. */
@@ -416,7 +460,7 @@ class ImportVolumePartsCommand extends Command
     }
 
     /** Writes every row the run may change to a JSON file and returns its path. */
-    private function backup(int $sourceId, array $folds, array $moves): string
+    private function backup(int $sourceId, array $folds, array $moves, bool $making = false): string
     {
         $sources = array_merge([$sourceId], array_keys($folds['sources']));
         // a kept source's volumes too: their counts are taken again
@@ -426,10 +470,12 @@ class ImportVolumePartsCommand extends Command
         $people = DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id')
             ->merge(DB::table('catalog_volume_part_cataloger')->whereIn('catalog_volume_part_id', DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->select('id'))->pluck('cataloger_id'))
             ->merge(array_filter($this->catalogers(false, DB::table('source_volumes')->where('source_id', $sourceId)->pluck('volume_number')
-                ->merge(array_keys($folds['volumes']))->all())))->unique()->values()->all();
+                ->merge(array_keys($folds['volumes']))->merge(array_keys($folds['virtual'] ?? []))->all())))->unique()->values()->all();
         $backup = [
             'command' => $this->getName(),
             'marker' => $this->marker(),
+            // the source the run makes, which its revert removes
+            'made_source' => $making ? $this->data['source'] : null,
             'written_at' => now()->toIso8601String(),
             'source_ids' => $sources,
             'sources' => DB::table('sources')->whereIn('id', $sources)->get(),
@@ -483,6 +529,14 @@ class ImportVolumePartsCommand extends Command
             DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->whereNotIn('id', $backup['part_ids'])->delete();
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();
             DB::table('catalog_volume_cataloger')->insert($backup['catalog_volume_cataloger']);
+            if ($made = DB::table('sources')->where('code', $backup['made_source'] ?? '')->first()) {
+                $ids = DB::table('source_volumes')->where('source_id', $made->id)->pluck('id')->all();
+                DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $ids)->delete();
+                DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $ids)->delete();
+                DB::table('source_volumes')->whereIn('id', $ids)->delete();
+                DB::table('catalog_volumes')->whereIn('id', $ids)->delete();
+                DB::table('sources')->where('id', $made->id)->delete();
+            }
             $kept = array_column($backup['catalogers'], 'id');
             DB::table('catalogers')->where('metadata->made_by', $backup['marker'])->whereNotIn('id', $kept)->delete();
             FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalogers', $backup['catalogers']);

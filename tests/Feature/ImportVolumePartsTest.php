@@ -157,4 +157,49 @@ class ImportVolumePartsTest extends TestCase
         @unlink($backup);
         @unlink($file);
     }
+
+    public function test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it()
+    {
+        $soleimaniyeh = Library::create(['name' => 'مدرسه سلیمانیه', 'city' => 'مشهد', 'slug' => 'mshhd-mdrsh-slymanyh-193']);
+        $tehran = Library::create(['name' => 'دانشگاه', 'city' => 'تهران', 'slug' => 'thran-danshgah-3']);
+        $microfilms = Source::create(['code' => 'catalogue-microfilms', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست میکروفیلم‌ها', 'library_id' => $tehran->id]);
+        $held = $this->volume($microfilms, 1, $tehran->id);
+        $onMicrofilms = $this->copy($soleimaniyeh, '[چهار کتابخانه مشهد-ف: 12]', $held);
+        $own = $this->copy($tehran, '[ف: 1 - 5]', $held);
+        $untied = $this->copy($soleimaniyeh, '[چهار کتابخانه مشهد: 3]', null);
+
+        $data = ['source' => 'catalogue-four-mashhad', 'series' => 'چهار کتابخانه مشهد', 'aliases' => ['چهار کتابخانه مشهد - ف'],
+            'volume_title' => 'فهرست نسخه‌های خطی چهار کتابخانه مشهد - جلد %d',
+            'create' => ['title' => 'فهرست نسخه‌های خطی چهار کتابخانه مشهد', 'publisher' => 'انتشارات فرهنگ ایران زمین', 'year' => '1351',
+                'volumes' => [['number' => 1, 'mtif' => 32537, 'pages' => 435]]],
+            'folds' => [['code' => 'catalogue-microfilms', 'keep' => true]],
+            'editors' => [['name' => 'محمدتقی دانش‌پژوه', 'mtif' => 37279]],
+            'parts' => [['daftar' => 1, 'library' => 'mshhd-mdrsh-slymanyh-193', 'title' => 'کتابخانه مدرسه سلیمانیه', 'pages' => [1, 24],
+                'catalogers' => [['name' => 'تقی بینش', 'mtif' => 37278]], 'fankha_row' => 524]]];
+        Cataloger::create(['name' => 'محمدتقی دانش‌پژوه', 'slug' => 'dp', 'mtif_entry_id' => 37279]);
+        $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
+        file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
+
+        $before = $this->state();
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--dry-run' => true])->assertSuccessful()->expectsOutput('2 copies tied anew.');
+        $this->assertSame($before, $this->state());
+        $backup = storage_path('framework/testing/parts-backup-' . uniqid() . '.json');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--backup' => $backup])->assertSuccessful();
+
+        $made = Source::where('code', 'catalogue-four-mashhad')->firstOrFail();
+        $volume = $made->volumes()->firstOrFail();
+        $this->assertSame([1, 32537, 'چهار کتابخانه مشهد: 1'], [$volume->volume_number, $volume->mtif_entry_id, $volume->citation_pattern]);
+        $this->assertSame($volume->id, CatalogVolume::findOrFail($volume->id)->id, 'a catalog volume under the same id');
+        foreach ([$onMicrofilms, $untied] as $copy) {
+            $this->assertSame([$volume->id, 'mshhd-mdrsh-slymanyh-193'], [$copy->fresh()->catalog_volume_id, $copy->fresh()->catalogVolumePart?->library?->slug]);
+        }
+        $this->assertSame($held->id, $own->fresh()->catalog_volume_id);
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');
+
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backup])->assertSuccessful();
+        $this->assertEquals($before, $this->state());
+        $this->assertNull(Source::where('code', 'catalogue-four-mashhad')->first());
+        @unlink($backup);
+        @unlink($file);
+    }
 }

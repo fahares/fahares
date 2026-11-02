@@ -1,0 +1,133 @@
+{
+ "_comment": "Step 13.168 (stage 4 of docs/plans/catalog-volume-parts.md, docs/plans/stage4-volume-parts.md section 5), approved by the user: «فهرست نسخه‌های خطی چهار کتابخانه مشهد» (Kazem Modir Shanechi, Abdollah Nourani and Taghi Binesh, under Mohammad Taqi Danesh-Pajouh; Farhang-e Iran Zamin, 1351; MTIF 32537), volume 1 of «مجموعه فهرست نسخه‌های خطی کتابخانه‌های شهرستان‌های ایران» but cited by its own name. The registry had no source of it; its copies were on Tehran University's catalogue of microfilms. Its four parts are Fankha's rows 524, 525, 540, 518; «کتابخانه فرهنگ» has no record the copies point to, so its part has no library. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_chahar_ketabkhaneh_mashhad.json",
+ "source": "catalogue-a22177a37451",
+ "series": "چهار کتابخانه مشهد",
+ "aliases": [
+  "چهار کتابخانه مشهد - ف"
+ ],
+ "volume_title": "فهرست نسخه‌های خطی چهار کتابخانه مشهد - جلد %d",
+ "create": {
+  "title": "فهرست نسخه‌های خطی چهار کتابخانه مشهد",
+  "compiler": "کاظم مدیر شانه‌چی، عبدالله نورانی، تقی بینش",
+  "publisher": "انتشارات فرهنگ ایران زمین",
+  "year": "1351",
+  "volumes": [
+   {
+    "number": 1,
+    "mtif": 32537,
+    "pages": 435,
+    "year": "1351"
+   }
+  ]
+ },
+ "folds": [
+  {
+   "code": "catalogue-ae0847c98256",
+   "keep": true
+  },
+  {
+   "code": "catalogue-1f3ad1a2f1e5",
+   "keep": true
+  }
+ ],
+ "editors": [
+  {
+   "name": "محمدتقی دانش‌پژوه",
+   "mtif": 37279
+  }
+ ],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "mshhd-mdrsh-slymanyh-193",
+   "title": "کتابخانه مدرسه سلیمانیه (سلیمان خان)",
+   "pages": [
+    1,
+    24
+   ],
+   "catalogers": [
+    {
+     "name": "کاظم مدیر شانه‌چی",
+     "mtif": 37218
+    },
+    {
+     "name": "عبدالله نورانی"
+    },
+    {
+     "name": "تقی بینش",
+     "mtif": 37278
+    }
+   ],
+   "fankha_row": 524
+  },
+  {
+   "daftar": 1,
+   "library": "mshhd-mdrsh-myrza-gaafr-192",
+   "title": "کتابخانه مدرسه میرزا جعفر",
+   "pages": [
+    26,
+    43
+   ],
+   "catalogers": [
+    {
+     "name": "کاظم مدیر شانه‌چی",
+     "mtif": 37218
+    },
+    {
+     "name": "عبدالله نورانی"
+    },
+    {
+     "name": "تقی بینش",
+     "mtif": 37278
+    }
+   ],
+   "fankha_row": 525
+  },
+  {
+   "daftar": 1,
+   "library": null,
+   "title": "کتابخانه فرهنگ",
+   "pages": [
+    45,
+    55
+   ],
+   "catalogers": [
+    {
+     "name": "کاظم مدیر شانه‌چی",
+     "mtif": 37218
+    },
+    {
+     "name": "عبدالله نورانی"
+    },
+    {
+     "name": "تقی بینش",
+     "mtif": 37278
+    }
+   ],
+   "fankha_row": 540
+  },
+  {
+   "daftar": 1,
+   "library": "mshhd-gohrshad-25",
+   "title": "کتابخانه جامع گوهرشاد",
+   "pages": [
+    59,
+    435
+   ],
+   "catalogers": [
+    {
+     "name": "کاظم مدیر شانه‌چی",
+     "mtif": 37218
+    },
+    {
+     "name": "عبدالله نورانی"
+    },
+    {
+     "name": "تقی بینش",
+     "mtif": 37278
+    }
+   ],
+   "fankha_row": 518
+  }
+ ]
+}
