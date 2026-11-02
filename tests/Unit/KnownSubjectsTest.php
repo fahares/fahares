@@ -61,6 +61,11 @@ class KnownSubjectsTest extends TestCase
         // «حضرت» and the honorifics go before the name is read
         $this->assertSame(['علی بن ابی طالب (ع)، امام اول', 'علی بن ابیطالب'], KnownSubjects::resolve(KnownSubjects::fromText('مناقب حضرت علی بن ابیطالب (ع)')[0][1][0]));
         $this->assertSame('حسن بن علی (ع)، امام دوم', KnownSubjects::find('امام مجتبی'));
+        // A list cut on «،»; «مالک» alone only when nothing of a name follows it
+        $this->assertSame([['شرح حال', ['ابوحنیفه', 'شافعی', 'مالک', 'احمد بن حنبل']]], KnownSubjects::fromText('شرح حال ابوحنیفه، شافعی، مالک، احمد بن حنبل'));
+        $this->assertNull(KnownSubjects::resolve('مالک اشتر نخعی', [\App\Support\KnownRulers::compact('مالک') => 'مالک بن انس']));
+        $this->assertSame('علی بن ابی طالب (ع)، امام اول', KnownSubjects::find('المرتضى'));
+        $this->assertSame('فاطمه زهرا (س)', KnownSubjects::find('صدیقه کبری'));
         // «مولد» as well as «مولود»
         $this->assertSame([['مولد', ['خير البرية']]], KnownSubjects::fromText('الدرة السنية في مولد خير البرية'));
         $this->assertSame('محمد بن حسن (عج)، امام دوازدهم', KnownSubjects::find('امام عصر'));

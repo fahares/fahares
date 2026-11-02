@@ -201,6 +201,11 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
             ->assertSuccessful();
         $row = DB::table('manuscripts')->where('id', $id)->first();
         $this->assertSame([0, 1], [(int) $row->is_ruled, (int) $row->is_illuminated]);
+        // the binding a page tag hid from v1 is filled, and one the site has stays (step 13.169)
+        $this->plan([['table' => 'manuscripts', 'id' => $id, 'work_key' => '-v99-7', 'shelfmark' => '18/1-ف',
+            'category' => 'binding_fill', 'changes' => ['binding' => ['from' => null, 'to' => 'تیماج مشکی مجدول گرهی']]]]);
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+        $this->assertSame('تیماج مشکی مجدول گرهی', DB::table('manuscripts')->where('id', $id)->value('binding'));
     }
 
     public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
