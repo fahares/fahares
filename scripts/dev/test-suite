@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Run the test suite of this checkout in the fahares_app container under one lock shared by every session on this
+# machine. Every checkout tests against the same database (fahares_test, phpunit.xml), and two runs at once deadlock on
+# its migrations (a metadata lock between one run's ALTER and the other's INSERT) until one is killed.
+#
+#   scripts/dev/test-suite [artisan test options]   wait for the lock, then run, e.g. --filter=ImportVolumePartsTest
+#   scripts/dev/test-suite --status                 who holds the lock now, and the last runs
+#
+# A run started without this script holds no lock, so after taking the lock it also waits for any phpunit still running.
+# A checkout outside the main repository (the only folder mounted in the container) cannot be tested this way.
+set -euo pipefail
+
+DIR="${FAHARES_STATE_DIR:-$HOME/.fahares}"
+LOCK="$DIR/test.lock"
+HOLDER="$DIR/test.holder"
+LOG="$DIR/test-runs.log"
+CONTAINER="${FAHARES_APP_CONTAINER:-fahares_app}"
+
+mkdir -p "$DIR"
+touch "$LOG"
+
+if [[ "${1:-}" == "--status" ]]; then
+    exec 9>>"$LOCK"
+    if flock -n 9; then echo "lock: free"; else echo "lock: held by $(cat "$HOLDER" 2>/dev/null || echo '?')"; fi
+    echo "last runs:"
+    tail -n 8 "$LOG"
+    exit 0
+fi
+
+top="$(git rev-parse --show-toplevel)"
+main="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)"
+case "$top/" in
+    "$main"/*) rel="${top#"$main"}" ;;
+    *) echo "this checkout ($top) is not under $main, which is the only folder the container sees" >&2; exit 2 ;;
+esac
+workdir="/var/www/html$rel"
+
+exec 9>>"$LOCK"
+if ! flock -n 9; then
+    echo "waiting for the test lock (held by $(cat "$HOLDER" 2>/dev/null || echo '?'))…" >&2
+    flock 9
+fi
+started="$(date '+%F %H:%M:%S')"
+printf '%s  %s  %s\n' "$top" "$started" "$*" > "$HOLDER"
+while pgrep -f '[v]endor/phpunit/phpunit/phpunit|[v]endor/bin/phpunit' >/dev/null; do
+    echo "a phpunit run without the lock is still going; waiting…" >&2
+    sleep 15
+done
+status=0
+docker exec -w "$workdir" "$CONTAINER" php artisan test "$@" || status=$?
+printf '%s\t%s\t%s\texit %s\t%s\n' "$started" "$(date '+%H:%M:%S')" "${rel:-/}" "$status" "$*" >> "$LOG"
+: > "$HOLDER"
+exit "$status"

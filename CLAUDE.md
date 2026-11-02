@@ -21,7 +21,11 @@ numbers and deploys from colliding.
 A push to `main` deploys to production (Coolify) and runs the migrations, so pushes are batched.
 
 - A working session does not push to `main`. It commits on its own branch, merges `origin/main` into it, runs the full
-  suite in the `fahares_app` container, and reports the branch and its last commit as ready for release.
+  suite with `scripts/dev/test-suite`, and reports the branch and its last commit as ready for release.
+- Run the suite only through `scripts/dev/test-suite [artisan test options]`, never `docker exec … php artisan test`
+  directly: every checkout tests against the same `fahares_test` database, and two runs at once deadlock on its
+  migrations. The script waits for a lock shared by all sessions (and for any phpunit started without it);
+  `--status` shows who holds it. A session that tests against its own database may keep doing so.
 - The task-management session releases: it merges the ready branches into `main`, runs the full suite once on the
   merged result, and pushes once, when the user asks for a release.
 - When a session needs its code on production soon (for example to run a data command), it says so in its
