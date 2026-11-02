@@ -6154,6 +6154,37 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **پروداکشن (۱۱ آبان ۱۴۰۵):** پس از استقرار `856e042`، `php artisan sources:fix-rowzati-isfahan --dry-run` همان ۳۷۶ نسخه را نشان داد (۲۱۲ به #504، ۶۹ به #508، ۹۵ به هیچ). اجرا با `--backup`؛ پشتیبان: `fahares-sources/backups/step13/step13.137_fix_rowzati_isfahan_prod_before_20261102.json`. پس از آن #497 = ۸۰ (کتابخانه‌ی ۱۰۵، MTIF ۲۱۵۳۰، ۴۰۸ صفحه)، #504 = ۲۲۸ و #508 = ۲٬۵۰۸ نسخه. رحیم قاسمی ۱/۱۶ ← ۱/۲۲۸، ایرج افشار ۳۱/۳۳٬۵۳۵ ← ۳۱/۳۳٬۶۰۴ و محمدتقی دانش‌پژوه ۶۶/۷۹٬۸۹۵ ← ۶۶/۷۹٬۹۶۴. `source_entries` = ۷۸۸٬۵۰۰. ۳۷۶ نسخه با `makeAllSearchableUsing(...)->searchable()` بی‌صف دوباره ایندکس شدند.
 
+### گام ۱۳.۱۴۲: ادغام کتابخانه‌های ۳۵ ← ۲۹۲ و ۱۴۹ ← ۶۴
+- **داده:** [library_duplicates_step13_142.json](../database/data/library_duplicates_step13_142.json). اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_142.json`، که کتابخانه را با slug پیدا می‌کند و `LibraryMerger::merge` را صدا می‌زند. هیچ `volume_fixes` یا `volume_merges` ندارد. در پایان `LinkCatalogVolumesCommand::recountVolumesAndCatalogers` همه‌ی شمارش‌ها را دوباره می‌گیرد.
+  - `asfhan-rodaty-35` ← `asfhan-rodaty-syd-ahmd-292`؛ `shyraz-tbatbayy-149` ← `shyraz-aalamh-tbatbayy-64`. هیچ منبع یا جلدی کتابخانه‌ی ۳۵ یا ۱۴۹ را نداشت.
+- **یافتن (`fahares_prod` محلی):**
+  - ۲۲۸ نسخه‌ی #504 (۲۱۲ از ۳۵ و ۱۶ از ۲۹۲) به ترتیب شماره‌ی نسخه: ۲ بار افت صفحه، بی شماره‌ی تکراری.
+  - ۶۴ و ۱۴۹ به تفکیک دفتر نسخه‌پژوهی: در دفتر ۳ با ۹۸۸ نسخه ۱۹ افت صفحه دارند (دفتر ۲ به ترتیب شماره چیده نشده است). در هیچ دفتری شماره‌ی مشترک میان دو کتابخانه نیست.
+  - کتابخانه‌های ۱۰۰ و ۲۸۳: ۳۹ از ۹۳ متن نسخه‌ی ۲۸۳ «نسخه نزد سید محمدعلی روضاتی بوده» دارند. شماره‌گذاری دو کتابخانه فرق دارد (۱/۱ تا ۴/۲۷ در برابر «بدون شماره» و ۱۰۱۴ به بالا).
+- **تمرین (`fahares_prod` محلی):**
+  - ۴۰۸ ← ۴۰۶ کتابخانه؛ دو ردیف `merge` در `audit_logs`؛ ۲ تغییرمسیر تازه.
+  - `LibraryMerger::undoMerge` با `old_values` دو لاگ (به ترتیب وارونه) سنجه‌ی `crc32` کتابخانه‌ها، نسخه‌ها (`library_id`، `library`، `city`، `catalog_volume_id`)، جلدها، منابع و تغییرمسیرها را دقیقاً برگرداند. سپس دستور دوباره اجرا شد. اجرای سوم همان سنجه را داد.
+- **آزمون:** ابزار ادغام همان [MergeCatalogDuplicatesTest](../tests/Feature/MergeCatalogDuplicatesTest.php) است و آزمون تازه‌ای لازم نبود.
+### گام ۱۳.۱۳۹: دنباله‌ی انجام به `editorial_notes`
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py explicit_tail explicit_script`، از `reports/fankha_v2_db_review6/diffs.jsonl` (`explicit_text/trimmed`).
+  - **`explicit_tail`:** دنباله با «\n» آغاز می‌شود و یک سطر است. `v2 + tail` (با فاصله‌ی یکسان‌شده) در `raw_text` سایت هست. هر بخش «؛» نوعش را از `v2_parts` می‌گیرد: `contents_scope`، `copy_description` و `notes[].type` همان نسخه در v2، با کلید متن انجام. اگر بخشی بی‌نوع باشد یا بیش از سه بخش باشد، کل سطر یک یادداشت بی‌نوع می‌شود. «؛ خط: …» پس از یادداشت بیرون می‌ماند، به شرط آن‌که سایت `script_names` و تاریخ را داشته باشد.
+  - **`explicit_script`:** دنباله با «خط:»، «بی‌کا» یا «کا:» آغاز می‌شود. شرط: `script_names` (وقتی «خط:» هست) و `copy_date_raw` یا `is_bita`.
+  - **خروجی:** ۴۰٬۰۷۷ رکورد، ۵۹۲ کنار رفته.
+- **کد:** `ApplyCorpusCategoriesCommand` اکنون `explicit_text` را هم می‌پذیرد. رکوردی که `notes` دارد از `moveTail` می‌گذرد:
+  - `metadata.explicits[].text` برابر `from` به `to` تبدیل می‌شود؛
+  - `editorial_notes` یکتا و افزوده می‌شود؛
+  - `editorial_note_types[text] = type` ثبت می‌شود.
+
+  ممیزی فقط `explicits`، `editorial_notes` و `editorial_note_types` را پیش و پس نگه می‌دارد. اگر `metadata` در `ProtectedColumns` باشد، رکورد کنار می‌رود.
+- **فایل تصمیم:** `database/data/fankha_explicit_tails_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 40070` (`explicit_tail` ۳۹٬۶۲۷، `explicit_script` ۴۴۳). ۷ رکورد `natural key differs` بودند. اجرای `--apply` ۲ دقیقه و ۱۷ ثانیه طول کشید. اجرای دوم `Would write 0` بود.
+  - **پس از اجرا:** در هیچ رکوردی `explicit_text` «\n» ندارد. در ۴۰٬۰۶۹ رکورد متن انجام در `metadata.explicits` هست. استثنا #222552 است که فهرست `explicits` آن دنباله‌ی بلندتری از `explicit_text` داشت.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `f6d67e5`):**
+  - **پشتیبان:** `fahares-sources/backups/item87_explicit_tails_prod_before_20261102.jsonl`، شامل ۴۰٬۰۷۷ ردیف از `id`، `explicit_text` و `metadata`.
+  - **اجرای نخست:** فرمان `fahares:apply-corpus-categories` گام ۱۳.۱۴۱ در همان دقیقه آغاز شد. اجرای من در dry run کشته شد. در `audit_logs` هیچ ردیفی ثبت نشد.
+  - **اجرای دوم:** پس از پایان اجراهای ۱۳.۱۴۱ و ۱۳.۱۴۴ و پیش از `prod-run` انجام شد. خروجی `Writing 40070` و `reindexed 40070` بود. اجرای وارسی پس از آن: `already` ۴۰٬۰۷۰، `natural key differs` ۷، `Would write 0`. شمار ردیف‌های `audit_logs` ۴۰٬۰۷۰ است.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_explicit_becomes_typed_cataloguers_notes`.
+
 ### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
 - **داده:** [library_duplicates_step13_144.json](../database/data/library_duplicates_step13_144.json): `asfhan-aalamh-rodaty-ktabkhanh-283` ← `asfhan-rodaty-syd-mhmd-aaly-100`. اجرا: `php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_144.json`. هیچ منبع یا جلدی کتابخانه‌ی ۲۸۳ را نداشت.
 - **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۴۲):** ۴۰۶ ← ۴۰۵ کتابخانه؛ یک ردیف `merge` در `audit_logs`. `LibraryMerger::undoMerge` سنجه‌ی `crc32` جدول‌های گام ۱۳.۱۴۲ را دقیقاً برگرداند. سپس دستور دوباره اجرا شد و همان سنجه‌ی اجرای اول را داد.
@@ -6274,3 +6305,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نسخه‌های «نشریه» ۵ با دو بخش، به تفکیک کتابخانه، بیرون از صفحه، `by_page`، بی‌بخش و جلد بی‌بخش؛
   - شمارش والئی، روضاتی، دانش‌پژوه و افشار، و بیرون رفتن نسخه از جلد؛
   - سه صفحه، dry-run، و ادغام کتابخانه با برگرداندنش.
+### گام ۱۳.۱۵۲: `lines_bayt`
+- **صدور (پیکره):** `scripts/fankha_v2_apply_export.py lines_bayt`. ورودی ردیف‌های `lines/emptied` از `reports/fankha_v2_db_review6/diffs.jsonl` است. شرط: `raw_text` سایت، بی برچسب صفحه و با رقم لاتین، «سطر» ندارد و `{lines}\s*بیت` دارد. خروجی ۴۸۱ رکورد است و ۷۲۵ رکورد کنار گذاشته شد.
+- **فایل تصمیم:** `database/data/fankha_lines_bayt_20261102.json`، با تغییر `lines: {from: N, to: null}`. فرمان تغییری نخواست، چون `lines` از گام ۱۳.۱۳۲ در `FIELDS` است.
+- **تمرین (`fahares_prod`):** `Would write 481`، سپس `Writing 481`، سپس `Would write 0`.
+- **آزمون:** ادامه‌ی `test_a_line_count_fills_only_a_copy_still_without_one`.
