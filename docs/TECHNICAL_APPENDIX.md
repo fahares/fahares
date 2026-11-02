@@ -6117,7 +6117,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پیش از دو قید: بی `within` ۶۳۱ پیوند از معرفی، و بی زنجیره‌ی «و» ۳۹۰.
   - رکورد امام نهم («محمد بن علی (ع)، امام نهم») نه در کپی محلی بود و نه در پروداکشن. سطر او در `LIST` کلید `death => 220` دارد. فرمان رکوردی را که نیست ولی `death` دارد با `createRecord()` می‌سازد (`records:created`)، همان‌طور که `backfill-work-dedications` رکورد فرمانروا را می‌سازد. در dry run رکورد ساخته نمی‌شود.
   - بخش تازه‌ی `titles` در فایل تصمیم، عنوان کامل را به رکورد نگاشت می‌کند (`reviewed:title_listed`، با `label_raw = null`). تنها مدخلش «پیشوای بزرگوار امام نهم (ع)» است.
-- **اجرا در پروداکشن (پس از انتشار):** `php artisan fahares:backfill-work-subjects` و سپس همان با `--apply`. ۱۶۹ پیوند گام ۱۳.۱۳۵ `pieces:exists` گزارش می‌شوند.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `17be02b`، از راه `scripts/dev/prod-run`):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.143_work_people_before.json` (۵٬۲۳۱ سطر، که ۱۶۹ تا `subject` بودند).
+  - dry run و `--apply` هر دو این را گزارش دادند: `linked:known 1`، `linked:known:description 353`، `linked:known:title_inside 121`، `linked:reviewed:description 8`، `linked:reviewed:title_inside 1`، `linked:reviewed:title_listed 1`، `pieces:exists 169` و `records:created 1`.
+  - اجرای سوم `pieces:exists 654` بود.
+  - رکورد امام نهم #74726 با `death_year_hijri = 220` ساخته شد. `/people/74726` زبانه‌ی «آثار درباره‌ی او» را با «پیشوای بزرگوار امام نهم (ع)» نشان می‌دهد.
 - **آزمون‌ها:** `KnownSubjectsTest` (دو آزمون تازه) و `BackfillWorkSubjectsTest` (معرفی، و فصل دیرآمده).
 
   | دسته | جفت |
