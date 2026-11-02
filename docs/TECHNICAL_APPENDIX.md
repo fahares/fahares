@@ -6731,3 +6731,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. «نشریه»، «اوراق عتیق»، «چهار کتابخانه مشهد»، «میراث» و «دلیل» «Nothing to do» ماندند.
   - پشتیبان: `…/step14.3_import_volume_parts_se_ketabkhaneh_local_before_20261103.json`.
 - **پروداکشن (پس از انتشار):** `catalogs:merge-duplicates --data=…step14_3.json`، سپس `catalogs:import-volume-parts --data=…se_ketabkhaneh_isfahan.json`.
+
+### گام ۱۴.۵: `scripts/dev/test-suite`
+- **فایل‌ها:** در `~/.fahares`: قفل `test.lock` (`flock`)، دارنده `test.holder` (checkout، زمان، گزینه‌ها) و `test-runs.log` (آغاز، پایان، مسیر نسبی checkout، کد خروج، گزینه‌ها).
+- **مسیر در کانتینر:** کانتینر فقط مخزن اصلی را در `/var/www/html` دارد. مسیر checkout نسبت به ریشه‌ی مخزن اصلی (`git rev-parse --git-common-dir/..`) حساب می‌شود و `-w /var/www/html<مسیر>` می‌گیرد. checkout بیرون از مخزن اصلی با کد ۲ رد می‌شود.
+- **اجرای بی‌قفل:** پس از گرفتن قفل، تا وقتی `pgrep -f '[v]endor/phpunit/phpunit/phpunit|[v]endor/bin/phpunit'` چیزی بیابد، هر ۱۵ ثانیه صبر می‌کند. این الگو اجراهای کانتینرهای دیگر را هم که پایگاه جداگانه دارند می‌بیند و برایشان هم صبر می‌کند، که کندتر ولی بی‌خطر است.
+- **آزمون:** دو `--filter=KnownSubjectsTest` هم‌زمان: دومی «waiting for the test lock» نوشت و پس از اولی اجرا شد؛ هر دو ۵ آزمون موفق.
