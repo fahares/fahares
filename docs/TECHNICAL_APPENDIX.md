@@ -6635,3 +6635,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:**
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (فهرست «،»دار، «مالک اشتر»، «المرتضى»، «صدیقه کبری»)
   - `BackfillWorkSubjectsTest::test_a_record_the_decision_file_lists_as_new_is_made_once_with_its_death_year`
+
+### گام ۱۳.۱۷۱: ادغام شش کتابخانه‌ی تکراری
+- **داده:** [library_duplicates_step13_171.json](../database/data/library_duplicates_step13_171.json)، چهار گروه: `ardstan-…-959` ← `-295` و `-1001`؛ `thran-bakr-rkt-trky-323` ← `thran-bakr-rft-trky-297` و `thran-bakr-alft-trky-995`؛ `asfrayn-ahmd-shahd-900` ← `askndryh-ahmd-shahd-253`؛ `thran-shhshhany-hsyn-117` ← `thran-shhshhany-1018`.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۶۸):** ۳۸۴ ← ۳۷۸ کتابخانه. `undoMerge` شش لاگ سنجه‌ی `fplib` را برگرداند. سپس دوباره اجرا شد.
+
+### گام ۱۳.۱۷۲: «میراث اسلامی ایران» با `create`
+- **داده:** [volume_parts_mirath_eslami_iran.json](../database/data/volume_parts_mirath_eslami_iran.json):
+  - کد `catalogue-6501cdd24802`؛ سری «میراث اسلامی» و نام دیگر «میراث اسلامی ایران»؛
+  - `create`: ۱۰ دفتر با MTIF (۲۴۷۳۱، ۲۴۷۳۲، ۳۰۱۶۴، ۳۴۳۲۱، ۳۴۳۲۰، ۳۴۳۲۳، ۳۴۳۲۲، ۳۴۳۲۴، ۳۴۳۲۶، ۳۴۳۲۷)، صفحه و سال؛
+  - `folds`: نمازی خوی (`catalogue-562da249ec42`) با `keep`؛ ویراستار: رسول جعفریان (ساخته‌شده)؛
+  - ۲۵ بخش: ۲۳ با ردیف فنخا، و شهشهانی (۵۹۶–۶۰۷) و مدرسی یزد (۴۳۳–۴۶۶) با `key` و از روی صفحه‌ی نسخه‌ها.
+- **تغییر دستور:**
+  - `ORDINALS`: «دفتر/جلد» با واژه‌ی ترتیبی پیش از خواندن عددها به رقم تبدیل می‌شود.
+  - `editorsToSet` شناسه‌ی فهرست‌نگاران را می‌سنجد.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۷۱):**
+  - ۱٬۰۳۶ نسخه جابه‌جا شد: دفتر ۵ ← بی‌جلد ۶۴۰؛ دفتر ۸ ← بی‌جلد ۱۲۰؛ دفتر ۹ ← #523 ۱۵۴ و بی‌جلد ۲؛ دفتر ۱۰ ← #523 ۸۷ و بی‌جلد ۳۳. یک نسخه‌ی بی‌عدد روی #523 ماند.
+  - بخش‌ها ۱٬۰۲۵ نسخه دارند؛ #523 ۱٬۱۷۰ نسخه. افشار ۲۰٬۷۱۶ نسخه دارد، جعفریان ۱٬۰۳۶ «زیر نظر»، و رجائی زفره‌ای ۲۹.
+  - **تمرین نخست:** اجرای دوم «editors to set on 10 volumes» داد، چون سنجش با MTIF بود. پس از اصلاح، تمرین دوباره «Nothing to do» و برگرداندن دقیق داد.
+  - پشتیبان: `fahares-sources/backups/step13/step13.172_import_volume_parts_mirath_local_before_20261103.json`.
+- **آزمون:** `ImportVolumePartsTest::test_the_volume_a_citation_names`، با «دفتر نهم» و نام دیگر سری.

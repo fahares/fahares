@@ -1,0 +1,479 @@
+{
+ "_comment": "Step 13.172 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/mirath-parts.md), approved by the user: «میراث اسلامی ایران», compiled by Rasul Jafarian (the library of Ayatollah Mar'ashi Najafi, Qom, 1373-1378; MTIF 1762, printing 12503), made a source with its ten daftars and 25 parts. The copies of Namazi Khoi citing its daftars 9 and 10 come from that library's catalogue, which stays. The parts of Shahshahani and Modarresi of Yazd are not in Fankha's table and have no known author. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_mirath_eslami_iran.json",
+ "source": "catalogue-6501cdd24802",
+ "series": "میراث اسلامی",
+ "aliases": [
+  "میراث اسلامی ایران"
+ ],
+ "volume_title": "میراث اسلامی ایران - دفتر %d",
+ "create": {
+  "title": "میراث اسلامی ایران",
+  "compiler": "رسول جعفریان",
+  "publisher": "کتابخانه آیت‌الله العظمی مرعشی نجفی",
+  "year": "1373-1378",
+  "volumes": [
+   {
+    "number": 1,
+    "mtif": 24731,
+    "pages": 676,
+    "year": "1373"
+   },
+   {
+    "number": 2,
+    "mtif": 24732,
+    "pages": 866,
+    "year": "1374"
+   },
+   {
+    "number": 3,
+    "mtif": 30164,
+    "pages": 866,
+    "year": "1375"
+   },
+   {
+    "number": 4,
+    "mtif": 34321,
+    "pages": 749,
+    "year": "1375"
+   },
+   {
+    "number": 5,
+    "mtif": 34320,
+    "pages": 654,
+    "year": "1376"
+   },
+   {
+    "number": 6,
+    "mtif": 34323,
+    "pages": 814,
+    "year": "1376"
+   },
+   {
+    "number": 7,
+    "mtif": 34322,
+    "pages": 880,
+    "year": "1377"
+   },
+   {
+    "number": 8,
+    "mtif": 34324,
+    "pages": 774,
+    "year": "1377"
+   },
+   {
+    "number": 9,
+    "mtif": 34326,
+    "pages": 683,
+    "year": "1378"
+   },
+   {
+    "number": 10,
+    "mtif": 34327,
+    "pages": 795,
+    "year": "1378"
+   }
+  ]
+ },
+ "folds": [
+  {
+   "code": "catalogue-562da249ec42",
+   "keep": true
+  }
+ ],
+ "editors": [
+  {
+   "name": "رسول جعفریان"
+  }
+ ],
+ "parts": [
+  {
+   "daftar": 5,
+   "library": "shyraz-bghayry-aabdalrzak-173",
+   "title": "نسخه‌های خطی عبدالرزاق بغایری",
+   "pages": [
+    566,
+    576
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 329
+  },
+  {
+   "daftar": 5,
+   "library": "ahoaz-danshgah-242",
+   "title": "دانشگاه اهواز",
+   "pages": [
+    588,
+    592
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 54
+  },
+  {
+   "daftar": 5,
+   "library": "thran-shhshhany-hsyn-117",
+   "title": "کتابخانه حسین شهشهانی",
+   "pages": [
+    596,
+    607
+   ],
+   "catalogers": [],
+   "key": "mirath-5-shahshahani"
+  },
+  {
+   "daftar": 5,
+   "library": "ghrm-krym-ashrak-146",
+   "title": "نسخه‌های خطی کریم اشراق",
+   "pages": [
+    609,
+    611
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 259
+  },
+  {
+   "daftar": 5,
+   "library": "ardstan-ardstany-ayh-allh-syd-aalyrda-959",
+   "title": "نسخه‌های خطی آیة الله سید علیرضا جدلی (اردستانی)",
+   "pages": [
+    611,
+    612
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 9
+  },
+  {
+   "daftar": 5,
+   "library": "asfrayn-ahmd-shahd-900",
+   "title": "نسخه‌های احمد شاهد",
+   "pages": [
+    612,
+    613
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 12
+  },
+  {
+   "daftar": 5,
+   "library": "kashan-bhnya-aabas-857",
+   "title": "عباس بهنیا",
+   "pages": [
+    613,
+    613
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 455
+  },
+  {
+   "daftar": 5,
+   "library": "zngan-akhoan-zngany-glyl-321",
+   "title": "اخوان زنجانی (جلیل)",
+   "pages": [
+    618,
+    620
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 288
+  },
+  {
+   "daftar": 5,
+   "library": "kashan-aalamh-fyd-864",
+   "title": "نسخه‌های خطی علامه فیض",
+   "pages": [
+    619,
+    620
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 456
+  },
+  {
+   "daftar": 5,
+   "library": "thran-hkymy-abrahym-1019",
+   "title": "نسخه‌های ابراهیم حکیمی",
+   "pages": [
+    620,
+    620
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 254
+  },
+  {
+   "daftar": 5,
+   "library": "thran-aaatmad-mkdm-saayd-873",
+   "title": "نسخه‌های خطی سعید اعتماد مقدم",
+   "pages": [
+    620,
+    621
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 250
+  },
+  {
+   "daftar": 5,
+   "library": "thran-othok-aaly-967",
+   "title": "نسخه‌های خطی علی وثوق",
+   "pages": [
+    621,
+    621
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 256
+  },
+  {
+   "daftar": 5,
+   "library": "krman-aslam-pnah-mhnds-mhmd-hsyn-921",
+   "title": "نسخه‌های مهندس محمد حسین اسلام پناه",
+   "pages": [
+    622,
+    622
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 463
+  },
+  {
+   "daftar": 5,
+   "library": "thran-bakr-rkt-trky-323",
+   "title": "نسخه‌های باقر رقت (ترقی)",
+   "pages": [
+    623,
+    625
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 252
+  },
+  {
+   "daftar": 5,
+   "library": "khor-hkmt-yghmayy-aabdalkrym-251",
+   "title": "نسخ خطی عبدالکریم حکمت یغمایی",
+   "pages": [
+    625,
+    625
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 265
+  },
+  {
+   "daftar": 5,
+   "library": "bgnord-shms-bhroz-879",
+   "title": "نسخ خطی بهروز شمس",
+   "pages": [
+    626,
+    626
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 57
+  },
+  {
+   "daftar": 5,
+   "library": "thran-khanm-lshkry-1029",
+   "title": "نسخه‌های خطی خانم لشکری (بدر)",
+   "pages": [
+    626,
+    626
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 255
+  },
+  {
+   "daftar": 5,
+   "library": "aaly-abad-ktol-maazzy-aaly-asghr-1027",
+   "title": "نسخه‌های خطی علی اصغر معززی",
+   "pages": [
+    626,
+    626
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 331
+  },
+  {
+   "daftar": 5,
+   "library": "rdoanshhr-aabdaly-aaly-907",
+   "title": "نسخه‌های علی عبدالی",
+   "pages": [
+    626,
+    627
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 281
+  },
+  {
+   "daftar": 5,
+   "library": "thran-ansary-nosh-afryn-968",
+   "title": "نسخه‌های نوش آفرین انصاری",
+   "pages": [
+    627,
+    627
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 251
+  },
+  {
+   "daftar": 5,
+   "library": "thran-banky-por-130",
+   "title": "نسخه‌هایی از بانکی پور",
+   "pages": [
+    627,
+    627
+   ],
+   "catalogers": [
+    {
+     "name": "ایرج افشار",
+     "mtif": 37239
+    }
+   ],
+   "fankha_row": 253
+  },
+  {
+   "daftar": 8,
+   "library": "yzd-mdrsy-189",
+   "title": "کتابخانه مدرسی یزد",
+   "pages": [
+    433,
+    466
+   ],
+   "catalogers": [],
+   "key": "mirath-8-modarresi"
+  },
+  {
+   "daftar": 9,
+   "library": "khoy-nmazy-19",
+   "title": "کتابخانه مدرسه نمازی خوی",
+   "pages": [
+    73,
+    106
+   ],
+   "catalogers": [
+    {
+     "name": "علی صدرائی خوئی",
+     "mtif": 37166
+    }
+   ],
+   "fankha_row": 267
+  },
+  {
+   "daftar": 10,
+   "library": "thran-rgayy-zfrhay-mhmd-hsn-264",
+   "title": "محمد حسن رجائی زفره‌ای",
+   "pages": [
+    745,
+    754
+   ],
+   "catalogers": [
+    {
+     "name": "محمد حسن رجائی زفره‌ای"
+    }
+   ],
+   "fankha_row": 257
+  },
+  {
+   "daftar": 10,
+   "library": "khoy-nmazy-19",
+   "title": "کتابخانه مدرسه نمازی خوی",
+   "pages": [
+    755,
+    781
+   ],
+   "catalogers": [
+    {
+     "name": "علی صدرائی خوئی",
+     "mtif": 37166
+    }
+   ],
+   "fankha_row": 268
+  }
+ ]
+}

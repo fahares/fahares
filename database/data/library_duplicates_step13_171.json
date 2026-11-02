@@ -1,0 +1,9 @@
+{
+  "_comment": "Step 13.171, approved by the user (docs/plans/mirath-parts.md, section 3.3): duplicate records of one library that the «میراث اسلامی ایران» parts brought out. Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_171.json",
+  "libraries": [
+    {"target": "ardstan-ardstany-ayh-allh-syd-aalyrda-959", "sources": [{"slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-295"}, {"slug": "ardstan-ardstany-ayh-allh-syd-aalyrda-1001"}]},
+    {"target": "thran-bakr-rkt-trky-323", "sources": [{"slug": "thran-bakr-rft-trky-297"}, {"slug": "thran-bakr-alft-trky-995"}]},
+    {"target": "asfrayn-ahmd-shahd-900", "sources": [{"slug": "askndryh-ahmd-shahd-253"}]},
+    {"target": "thran-shhshhany-hsyn-117", "sources": [{"slug": "thran-shhshhany-1018"}]}
+  ]
+}

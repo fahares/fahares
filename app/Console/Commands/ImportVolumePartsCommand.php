@@ -42,6 +42,10 @@ class ImportVolumePartsCommand extends Command
 
     protected $description = 'Give a catalogue of several libraries its parts and the copies of each, from a data file';
 
+    /** The ordinal of a daftar written out. */
+    private const ORDINALS = ['یازدهم' => 11, 'دوازدهم' => 12, 'سیزدهم' => 13, 'نخستین' => 1, 'اول' => 1, 'یکم' => 1, 'دوم' => 2, 'سوم' => 3,
+        'چهارم' => 4, 'پنجم' => 5, 'ششم' => 6, 'هفتم' => 7, 'هشتم' => 8, 'نهم' => 9, 'دهم' => 10];
+
     private bool $dry = false;
 
     private array $data = [];
@@ -183,7 +187,9 @@ class ImportVolumePartsCommand extends Command
             return null;
         }
         $name = implode('[\s\x{200C}]*', array_map(fn ($w) => preg_quote($w, '/'), preg_split('/[\s\x{200C}]+|(?=-)|(?<=-)/u', $series, -1, PREG_SPLIT_NO_EMPTY)));
-        preg_match('/' . $name . '\s*(\d*)\s*:([^\]]*)/u', strtr($raw, ['ي' => 'ی', 'ك' => 'ک']), $m);
+        // «دفتر نهم - 74» is daftar 9
+        $raw = preg_replace_callback('/(?:دفتر|جلد)\s*(' . implode('|', array_keys(self::ORDINALS)) . ')/u', fn ($o) => (string) self::ORDINALS[$o[1]], strtr($raw, ['ي' => 'ی', 'ك' => 'ک']));
+        preg_match('/' . $name . '\s*(\d*)\s*:([^\]]*)/u', $raw, $m);
         preg_match_all('/\d+/', ($m[1] ?? '') . ' ' . ($m[2] ?? ''), $n);
 
         return array_map('intval', $n[0]);
@@ -325,12 +331,12 @@ class ImportVolumePartsCommand extends Command
     private function editorsToSet(int $sourceId, array $folds): array
     {
         $ids = array_merge(DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id')->all(), array_values($folds['volumes']));
-        $mtif = array_column($this->data['editors'] ?? [], 'mtif');
+        // the editors' cataloger ids (one not made yet is none)
+        $editors = collect($this->catalogers(false, []))->only(array_column($this->data['editors'] ?? [], 'name'))->map(fn ($id) => (int) $id)->sort()->values()->all();
         $differ = [];
         foreach ($ids as $id) {
-            $people = DB::table('catalog_volume_cataloger')->join('catalogers', 'catalogers.id', '=', 'catalog_volume_cataloger.cataloger_id')
-                ->where('catalog_volume_id', $id)->get(['catalogers.mtif_entry_id', 'role']);
-            if ($people->pluck('mtif_entry_id')->map(fn ($m) => (int) $m)->sort()->values()->all() !== collect($mtif)->sort()->values()->all()
+            $people = DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $id)->get(['cataloger_id', 'role']);
+            if ($people->pluck('cataloger_id')->map(fn ($c) => (int) $c)->sort()->values()->all() !== $editors
                 || $people->contains(fn ($p) => $p->role !== 'supervisor')) {
                 $differ[] = $id;
             }
