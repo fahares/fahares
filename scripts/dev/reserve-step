@@ -10,7 +10,9 @@
 set -euo pipefail
 
 REGISTRY="${FAHARES_STEPS_FILE:-$HOME/.fahares/steps.tsv}"
-PHASE="${FAHARES_STEP_PHASE:-14}"
+# The current phase is kept next to the registry, so a later phase change reaches every worktree that has this version
+# of the script without a merge; the task-management session changes it when a phase opens (CLAUDE.md).
+PHASE="${FAHARES_STEP_PHASE:-$(cat "$(dirname "$REGISTRY")/phase" 2>/dev/null || echo 14)}"
 REPO="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
 
 mkdir -p "$(dirname "$REGISTRY")"
