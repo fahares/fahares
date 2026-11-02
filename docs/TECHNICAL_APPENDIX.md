@@ -6447,6 +6447,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ارجاع وارونه، بی‌کروشه، نسخه‌ی منبع دیگر روی جلد ادغامی، و بی‌دفتر؛
   - ویراستاران، بخش‌ها، فهرست‌نگار تازه، و بخش جلدی که منبع ندارد (ساخته نمی‌شود)؛
   - شمارش‌ها، تکرار بی‌اثر و `--revert`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `30e3096`، از راه `scripts/dev/prod-run`):**
+  - dry-run همان شمارهای تمرین را داد: ۱٬۱۷۶ نسخه، ۱۳۲ بخش و ۱۳ فهرست‌نگار تازه. اجرا با `--backup`؛ پشتیبان (۳ منبع، ۱۳٬۸۷۰ نسخه و مدخل، ۹ فهرست‌نگار) بی‌درنگ به `fahares-sources/backups/step13/step13.159_import_volume_parts_nashriyeh_prod_before_20261103.json` کپی شد.
+  - منبع‌های ۱۰۰۰۸۱ و ۱۰۰۰۸۲ حذف شدند. `merged_codes` «نشریه» دو کد دارد و `/sources/catalogue-499c8e7b07c6` و `/sources/catalogue-990207407262` با ۳۰۱ به `/sources/catalogue-37ef5a7d7428` می‌روند. «نشریه» ۱۳ جلد و ۱۳۲ بخش با ۱۲٬۸۳۴ نسخه دارد.
+  - فهرست‌نگاران:
+    - افشار ۳۰ جلد، ۲۰٬۳۱۵ نسخه و ۱۳٬۸۶۷ «زیر نظر»؛ دانش‌پژوه ۶۵ جلد، ۷۷٬۰۲۵ نسخه و ۱۳٬۸۶۷ «زیر نظر».
+    - سید عبدالعزیز طباطبائی ۱ جلد و ۴۳۸ نسخه؛ حسینی اشکوری ۷۲ جلد و ۴۲٬۰۶۵ نسخه؛ مهدی والئی ۵۶۱ نسخه.
+  - `source_entries` = ۷۸۸٬۵۰۰. ۱۳٬۸۷۰ نسخه بی‌صف دوباره ایندکس شدند. صفحه‌ی «نشریه» روی fahares.net ۱۳۲ سطر `data-volume-part` دارد.
 
 ### گام ۱۳.۱۶۰: رفع شکست restic در `fahares-backup.sh`
 - **خطا:** `Fatal: unable to open repository at rclone:gdrive:fahares-restic: error talking HTTP to rclone: Get "http://localhost/file-…": context deadline exceeded (Client.Timeout exceeded while awaiting headers)`. شکست‌ها: db در ۳ و ۱۲ آبان، media در ۲۴ مهر و ۱ و ۸ آبان، config در ۱ آبان، و verify در ۱۱ آبان. پیش از آن، چند شب پیاپی پر از خطای `googleapi: Error 403: Quota exceeded … consumer 'project_number:202264815644' … rateLimitExceeded` بود.
