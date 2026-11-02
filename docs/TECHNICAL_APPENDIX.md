@@ -6569,3 +6569,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
+### گام ۱۳.۱۶۵: «18884» مجلس
+- **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
+- **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
