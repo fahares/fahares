@@ -115,17 +115,17 @@ class StructurePreview
                 'نسخه' => $record->manuscripts()->count(),
                 'مدخل مأخذ' => $entries(),
                 'رابطه با اثر دیگر' => DB::table('work_relations')->where('work_id', $record->id)->orWhere('related_work_id', $record->id)->count(),
-                'شخص مرتبط' => WorkPerson::where('work_id', $record->id)->count(),
+                'شخص مرتبط' => WorkPerson::where('work_id', $record->id)->where('role', '!=', WorkPerson::AUTHOR)->count(),
             ],
             $record instanceof Manuscript => [
-                'کاتب' => DB::table('manuscript_scribe')->where('manuscript_id', $record->id)->count(),
-                'شخص مرتبط' => ManuscriptPerson::where('manuscript_id', $record->id)->count(),
+                'کاتب' => ManuscriptPerson::where('manuscript_id', $record->id)->where('role', ManuscriptPerson::SCRIBE)->count(),
+                'شخص مرتبط' => ManuscriptPerson::where('manuscript_id', $record->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->count(),
                 'مدخل مأخذ' => $entries(),
                 'رابطه با نسخه‌ی دیگر' => DB::table('manuscript_relations')->where('manuscript_id', $record->id)->orWhere('related_manuscript_id', $record->id)->count(),
             ],
             $record instanceof Person => app(RecordRemover::class)->blockers($record) + [
-                'نقش در نسخه' => ManuscriptPerson::where('person_id', $record->id)->count(),
-                'نقش در اثر' => WorkPerson::where('person_id', $record->id)->count(),
+                'نقش در نسخه' => ManuscriptPerson::where('person_id', $record->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->count(),
+                'نقش در اثر' => WorkPerson::where('person_id', $record->id)->where('role', '!=', WorkPerson::AUTHOR)->count(),
             ],
             $record instanceof Library => [
                 'نسخه' => $record->manuscripts()->count(),

@@ -5,10 +5,12 @@ namespace App\Support;
 use App\Models\CatalogVolume;
 use App\Models\Language;
 use App\Models\Library;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Script;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -214,7 +216,7 @@ class InsightsScope
             }
             match ($param) {
                 'author', 'work', 'subject', 'language' => $this->onWork($query, $copies ? 'manuscripts.work_id' : 'works.id', $param, $value),
-                'scribe' => $query->whereIn('manuscripts.id', DB::table('manuscript_scribe')->where('person_id', $value)->select('manuscript_id')),
+                'scribe' => $query->whereIn('manuscripts.id', DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $value)->select('manuscript_id')),
                 'library' => $query->where('manuscripts.library_id', $value),
                 'city' => $query->where('manuscripts.city', $value),
                 'copy_city' => $query->whereIn('manuscripts.copy_place', CopyPlaces::variants($value) ?: ['']),
@@ -232,7 +234,7 @@ class InsightsScope
     {
         match ($param) {
             'work' => $query->where($column, $value),
-            'author' => $query->whereIn($column, DB::table('work_author')->where('person_id', $value)->select('work_id')),
+            'author' => $query->whereIn($column, DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $value)->select('work_id')),
             'subject' => $query->whereIn($column, DB::table('subject_work')
                 ->whereIn('subject_id', collect([$value])->concat($this->records['subject']->children->pluck('id')))->select('work_id')),
             'language' => $query->whereIn($column, DB::table('language_work')->where('language_id', $value)->select('work_id')),

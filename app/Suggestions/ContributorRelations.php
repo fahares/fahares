@@ -4,6 +4,7 @@ namespace App\Suggestions;
 
 use App\Helpers\TextNormalizer;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Work;
 use App\Models\WorkPerson;
@@ -18,12 +19,31 @@ use InvalidArgumentException;
  */
 class ContributorRelations
 {
-    /** @return array{0: string, 1: string, 2: string} pivot table, record key, primary column */
+    /**
+     * The tables the authors and scribes had before step 13.151, as an audit log written then names them:
+     * old table => [people table, record key, role]. A row moved from there has its old id plus LEGACY_ID_OFFSET.
+     */
+    public const LEGACY_ID_OFFSET = 10_000_000;
+
+    public const LEGACY_TABLES = [
+        'work_author' => ['work_people', 'work_id', WorkPerson::AUTHOR],
+        'manuscript_scribe' => ['manuscript_people', 'manuscript_id', ManuscriptPerson::SCRIBE],
+    ];
+
+    /** @return array{0: string, 1: string, 2: string, 3: string} people table, record key, primary column, role */
     private static function columns(Model $record): array
     {
         return $record instanceof Manuscript
-            ? ['manuscript_scribe', 'manuscript_id', 'scribe_id']
-            : ['work_author', 'work_id', 'author_id'];
+            ? ['manuscript_people', 'manuscript_id', 'scribe_id', ManuscriptPerson::SCRIBE]
+            : ['work_people', 'work_id', 'author_id', WorkPerson::AUTHOR];
+    }
+
+    /** An audit snapshot's rows of work_author or manuscript_scribe as rows of the people table that holds them now. */
+    public static function legacyRows(?array $rows, string $table): array
+    {
+        $role = self::LEGACY_TABLES[$table][2];
+
+        return array_map(fn ($row) => ['id' => $row['id'] + self::LEGACY_ID_OFFSET, 'role' => $role] + $row, $rows ?? []);
     }
 
     /**
@@ -32,7 +52,7 @@ class ContributorRelations
      */
     public function set(Model $record, Person $person): array
     {
-        [$table, $key, $column] = self::columns($record);
+        [$table, $key, $column, $role] = self::columns($record);
         $nameColumn = $record instanceof Manuscript ? 'scribe_name' : 'author_name';
         $previous = $record->{$column};
         if ((int) $previous === $person->id) {
@@ -42,7 +62,7 @@ class ContributorRelations
         $removed = null;
         if (! $previous) {
             // The catalog's name for the primary contributor, kept as text until now; a rollback puts it back
-            $removed = DB::table($table)->where($key, $record->id)->whereNull('person_id')->where('position', 0)->first();
+            $removed = DB::table($table)->where($key, $record->id)->where('role', $role)->whereNull('person_id')->where('position', 0)->first();
             if ($removed) {
                 DB::table($table)->where('id', $removed->id)->delete();
             }
@@ -74,19 +94,21 @@ class ContributorRelations
     /** The person is added after the record's other scribes or authors, with an optional note on their share. */
     public function add(Model $record, Person $person, ?string $note): array
     {
-        [$table, $key, $column] = self::columns($record);
+        [$table, $key, $column, $role] = self::columns($record);
         if (! $record->{$column}) {
             return $this->set($record, $person);
         }
-        if (DB::table($table)->where($key, $record->id)->where('person_id', $person->id)->exists()) {
+        $rows = fn () => DB::table($table)->where($key, $record->id)->where('role', $role);
+        if ($rows()->where('person_id', $person->id)->exists()) {
             throw new InvalidArgumentException('این شخص هم‌اکنون در فهرست است.');
         }
 
-        $before = DB::table($table)->where($key, $record->id)->orderBy('position')->pluck('person_id')->all();
+        $before = $rows()->orderBy('position')->pluck('person_id')->all();
         $id = DB::table($table)->insertGetId([
             $key => $record->id,
             'person_id' => $person->id,
-            'position' => (int) DB::table($table)->where($key, $record->id)->max('position') + 1,
+            'role' => $role,
+            'position' => (int) $rows()->max('position') + 1,
             'note' => $note ? mb_substr($note, 0, 500) : null,
         ]);
 

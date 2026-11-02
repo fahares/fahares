@@ -5,8 +5,10 @@ namespace App\Console\Commands;
 use App\Helpers\TextNormalizer;
 use App\Models\EntityRedirect;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use App\Services\PersonMerger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -140,8 +142,8 @@ class SplitCompoundPeopleCommand extends Command
         $entry = [
             'person_id' => $person->id,
             'name' => $person->name,
-            'manuscript_ids' => DB::table('manuscript_scribe')->where('person_id', $person->id)->pluck('manuscript_id')->all(),
-            'work_ids' => DB::table('work_author')->where('person_id', $person->id)->pluck('work_id')->all(),
+            'manuscript_ids' => DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $person->id)->pluck('manuscript_id')->all(),
+            'work_ids' => DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $person->id)->pluck('work_id')->all(),
             'decision' => 'review',
             'reason' => null,
             'has_others' => false,
@@ -414,8 +416,8 @@ class SplitCompoundPeopleCommand extends Command
                 continue;
             }
 
-            $manuscriptIds = DB::table('manuscript_scribe')->where('person_id', $person->id)->pluck('manuscript_id')->all();
-            $workIds = DB::table('work_author')->where('person_id', $person->id)->pluck('work_id')->all();
+            $manuscriptIds = DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $person->id)->pluck('manuscript_id')->all();
+            $workIds = DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $person->id)->pluck('work_id')->all();
 
             if ($entry['decision'] === 'edit') {
                 $this->line(sprintf('#%d «%s» edit: %s', $person->id, $person->name,
@@ -526,7 +528,7 @@ class SplitCompoundPeopleCommand extends Command
         $primary = $linked[0]['person'] ?? null;
 
         foreach ($manuscriptIds as $manuscriptId) {
-            $this->relink('manuscript_scribe', 'manuscript_id', $manuscriptId, $compound->id, $parts);
+            $this->relink('manuscript_people', 'manuscript_id', ManuscriptPerson::SCRIBE, $manuscriptId, $compound->id, $parts);
             Manuscript::whereKey($manuscriptId)->update([
                 'scribe_id' => $primary?->id,
                 'has_other_scribes' => $entry['has_others'],
@@ -534,7 +536,7 @@ class SplitCompoundPeopleCommand extends Command
         }
 
         foreach ($workIds as $workId) {
-            $this->relink('work_author', 'work_id', $workId, $compound->id, $parts);
+            $this->relink('work_people', 'work_id', WorkPerson::AUTHOR, $workId, $compound->id, $parts);
             Work::whereKey($workId)->update([
                 'author_id' => $primary?->id,
                 'has_other_authors' => $entry['has_others'],
@@ -561,12 +563,12 @@ class SplitCompoundPeopleCommand extends Command
     }
 
     /**
-     * Replace the compound person in one record's rows with the individual people and names,
+     * Replace the compound person in one record's scribe or author rows with the individual people and names,
      * keeping the compound's position and any other rows already on the record.
      */
-    protected function relink(string $table, string $key, int $recordId, int $compoundId, array $parts): void
+    protected function relink(string $table, string $key, string $role, int $recordId, int $compoundId, array $parts): void
     {
-        $rows = DB::table($table)->where($key, $recordId)->orderBy('position')->orderBy('id')->get();
+        $rows = DB::table($table)->where($key, $recordId)->where('role', $role)->orderBy('position')->orderBy('id')->get();
         $ordered = [];
         $linked = [];
         foreach ($rows as $row) {
@@ -586,9 +588,9 @@ class SplitCompoundPeopleCommand extends Command
             }
         }
 
-        DB::table($table)->where($key, $recordId)->delete();
+        DB::table($table)->where($key, $recordId)->where('role', $role)->delete();
         foreach ($ordered as $position => $row) {
-            DB::table($table)->insert([$key => $recordId, 'position' => $position] + $row);
+            DB::table($table)->insert([$key => $recordId, 'role' => $role, 'position' => $position] + $row);
         }
     }
 
