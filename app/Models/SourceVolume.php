@@ -37,6 +37,12 @@ class SourceVolume extends Model
         return $this->belongsToMany(Cataloger::class, 'catalog_volume_cataloger', 'catalog_volume_id', 'cataloger_id')->withPivot('role');
     }
 
+    /** The catalogues of the libraries the volume holds, under its catalog volume's id (step 13.150). */
+    public function parts(): HasMany
+    {
+        return $this->hasMany(CatalogVolumePart::class, 'catalog_volume_id')->orderBy('sort')->orderBy('id');
+    }
+
     public function editionOf(): BelongsTo
     {
         return $this->belongsTo(self::class, 'edition_of_id');

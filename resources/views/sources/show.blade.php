@@ -15,6 +15,8 @@
 
         return new \Illuminate\Support\HtmlString(implode('؛ ', array_filter([$by, $over ? 'زیر نظر ' . $over : null])));
     };
+    // the people of a volume with parts, all its editors (step 13.150)
+    $editors = fn ($volume) => new \Illuminate\Support\HtmlString($volume->catalogers->map(fn ($c) => '<a href="' . e(route('catalogers.show', $c)) . '" class="text-ink hover:text-cinnabar">' . e($c->display_name ?? $c->name) . '</a>')->implode('، '));
 @endphp
 
 @section('title', $source->title . ' | منابع و مراجع فهارس')
@@ -100,12 +102,27 @@
                         @if($row['manuscripts'])<a href="{{ route('search', ['type' => 'manuscripts', 'source_volume_id' => $v->id]) }}" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar" data-volume-manuscripts>{{ Fa::num($row['manuscripts']) }} نسخه</a> · @endif
                         @if($row['pages']){{ Fa::num($row['pages']) }} صفحه‌ی متن @elseif($row['items']){{ Fa::num($row['items']) }} مدخل @endif
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
-                        @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif
+                        @if($v->parts->isNotEmpty())
+                            {{-- a volume of several libraries' catalogues: its own people are its editors, each part has its own (step 13.150) --}}
+                            @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>زیر نظر {{ $editors($v) }}</span>@endif
+                        @elseif($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif
                     </span>
                     <span class="flex flex-wrap gap-2">
                         @if($row['read'])<x-ui.btn size="sm" :href="$row['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
                         @if($row['viewer'])<x-ui.btn size="sm" x-data x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($row['viewer']) }})">دیدن برگه‌ها</x-ui.btn>@endif
                     </span>
+                    @if($v->parts->isNotEmpty())
+                        <ul class="basis-full grid gap-1 ps-16 text-xs text-muted" data-volume-parts>
+                            @foreach($v->parts as $part)
+                                <li data-volume-part>
+                                    <span class="text-ink">@if($part->library)<a href="{{ route('libraries.show', $part->library) }}" class="hover:text-cinnabar">{{ Fa::digits($part->title) }}</a>@else{{ Fa::digits($part->title) }}@endif</span>
+                                    @if($part->pages_text)· {{ Fa::digits($part->pages_text) }}@endif
+                                    @if($part->catalogers->isNotEmpty())· {{ $catalogers($part) }}@endif
+                                    @if($part->manuscripts_count)· {{ Fa::num($part->manuscripts_count) }} نسخه@endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                     @if($row['toc'])
                         <x-source.toc :toc="$row['toc']" class="basis-full" />
                     @endif

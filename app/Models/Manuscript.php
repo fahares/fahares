@@ -557,6 +557,12 @@ class Manuscript extends Model
         return $this->belongsTo(CatalogVolume::class);
     }
 
+    /** The part of its volume this copy is of (step 13.150). */
+    public function catalogVolumePart(): BelongsTo
+    {
+        return $this->belongsTo(CatalogVolumePart::class);
+    }
+
     /** Where the copy is described in library catalogues (backlog item 51); rejected matches are kept for the record only. */
     public function catalogReferences(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

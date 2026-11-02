@@ -34,6 +34,8 @@ class LibraryMerger
             $copies[($m->library ?? '') . '|' . ($m->city ?? '')][] = $m->id;
         }
         $volumes = $source->catalogVolumes()->pluck('id')->all();
+        // the parts of volumes that are this library's catalogue (step 13.150)
+        $parts = DB::table('catalog_volume_parts')->where('library_id', $source->id)->pluck('id')->all();
         $suggestions = FieldSuggestion::where('suggestable_type', Library::class)->where('suggestable_id', $source->id)
             ->where('status', 'pending')->pluck('id')->all();
         $pointers = $this->pendingPointersTo($source);
@@ -54,6 +56,7 @@ class LibraryMerger
 
         Manuscript::where('library_id', $source->id)->update(['library_id' => $target->id, 'library' => $target->name, 'city' => $target->city]);
         $source->catalogVolumes()->update(['library_id' => $target->id]);
+        DB::table('catalog_volume_parts')->whereIn('id', $parts)->update(['library_id' => $target->id]);
         FieldSuggestion::whereIn('id', $suggestions)->update(['suggestable_id' => $target->id]);
         $this->repoint($pointers, $target->id);
         $this->repointFormerLocations($formerLocations, $source->id, $target->id);
@@ -69,6 +72,7 @@ class LibraryMerger
             'source_snapshot' => $snapshot,
             'manuscripts' => $copies,
             'catalog_volume_ids' => $volumes,
+            'catalog_volume_part_ids' => $parts,
             'suggestion_ids' => $suggestions,
             'pointer_ids' => $pointers,
             'former_location_ids' => $formerLocations,
@@ -101,6 +105,7 @@ class LibraryMerger
             array_push($ids, ...$group);
         }
         DB::table('catalog_volumes')->whereIn('id', (array) ($old['catalog_volume_ids'] ?? []))->where('library_id', $target->id)->update(['library_id' => $sourceId]);
+        DB::table('catalog_volume_parts')->whereIn('id', (array) ($old['catalog_volume_part_ids'] ?? []))->where('library_id', $target->id)->update(['library_id' => $sourceId]);
         FieldSuggestion::whereIn('id', (array) ($old['suggestion_ids'] ?? []))->where('suggestable_id', $target->id)->update(['suggestable_id' => $sourceId]);
         $this->repoint((array) ($old['pointer_ids'] ?? []), $sourceId);
         $this->repointFormerLocations((array) ($old['former_location_ids'] ?? []), $target->id, $sourceId);
