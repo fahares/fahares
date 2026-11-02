@@ -1,0 +1,15 @@
+{
+ "_comment": "Step 14.3 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 6), approved by the user: «فهرست نسخه‌های خطی سه کتابخانه اصفهان (ابوالبرکات، سید ضیاء الدین علامه فانی، مسجد سید شفتی)» by Rahim Ghasemi (Majma'-e Zakha'er-e Eslami, Qom, 1428 AH; MTIF 34212, 240 pages), made a source with its three parts, Fankha's rows 33, 34, 35. Run after library_duplicates_step14_3.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_se_ketabkhaneh_isfahan.json",
+ "source": "catalogue-76caa4780724",
+ "series": "سه کتابخانه اصفهان",
+ "aliases": ["سه کتابخانه اصفهان - ف"],
+ "volume_title": "فهرست نسخه‌های خطی سه کتابخانه اصفهان - جلد %d",
+ "create": {"title": "فهرست نسخه‌های خطی سه کتابخانه اصفهان", "compiler": "رحیم قاسمی", "publisher": "مجمع ذخائر اسلامی", "year": "1428 ق",
+  "volumes": [{"number": 1, "mtif": 34212, "pages": 240, "year": "1428 ق"}]},
+ "editors": [],
+ "parts": [
+  {"daftar": 1, "library": "asfhan-aboalbrkat-rda-118", "title": "کتابخانه سید رضا ابوالبرکات", "pages": [1, 78], "catalogers": [{"name": "رحیم قاسمی", "mtif": 43413}], "fankha_row": 33},
+  {"daftar": 1, "library": "asfhan-aalamh-fany-dyaaa-aldyn-76", "title": "کتابخانه علامه فانی", "pages": [82, 155], "catalogers": [{"name": "رحیم قاسمی", "mtif": 43413}], "fankha_row": 34},
+  {"daftar": 1, "library": "asfhan-shfty-mhdy-136", "title": "کتابخانه سید مهدی شفتی (مسجد سید)", "pages": [159, 200], "catalogers": [{"name": "رحیم قاسمی", "mtif": 43413}], "fankha_row": 35}
+ ]
+}

@@ -6643,6 +6643,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۳.۱۷۱: ادغام شش کتابخانه‌ی تکراری
 - **داده:** [library_duplicates_step13_171.json](../database/data/library_duplicates_step13_171.json)، چهار گروه: `ardstan-…-959` ← `-295` و `-1001`؛ `thran-bakr-rkt-trky-323` ← `thran-bakr-rft-trky-297` و `thran-bakr-alft-trky-995`؛ `asfrayn-ahmd-shahd-900` ← `askndryh-ahmd-shahd-253`؛ `thran-shhshhany-hsyn-117` ← `thran-shhshhany-1018`.
 - **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۶۸):** ۳۸۴ ← ۳۷۸ کتابخانه. `undoMerge` شش لاگ سنجه‌ی `fplib` را برگرداند. سپس دوباره اجرا شد.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `6c63c56`):** رونوشت فقط‌خواندنی (۱۰ کتابخانه، ۱۸٬۴۱۱ نسخه، ۱۵۳ بخش و ۱۰۴ فهرست‌نگار) به `fahares-sources/backups/step13/step13.171_merge_libraries_prod_before_20261103.json` رفت. dry-run و اجرا: ۳۸۴ ← ۳۷۸ کتابخانه. Meilisearch برای نسخه‌های ۴ کتابخانه‌ی ماندگار (۳۳۸ نسخه) با پایگاه یکی است.
 
 ### گام ۱۳.۱۷۲: «میراث اسلامی ایران» با `create`
 - **داده:** [volume_parts_mirath_eslami_iran.json](../database/data/volume_parts_mirath_eslami_iran.json):
@@ -6659,6 +6660,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** اجرای دوم «editors to set on 10 volumes» داد، چون سنجش با MTIF بود. پس از اصلاح، تمرین دوباره «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.172_import_volume_parts_mirath_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest::test_the_volume_a_citation_names`، با «دفتر نهم» و نام دیگر سری.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از ۱۳.۱۷۱):** dry-run همان ۱٬۰۳۶ نسخه، ۲۵ بخش و ۲ فهرست‌نگار تازه را نشان داد. پشتیبان (۲٬۲۰۶ نسخه، `made_source`) به `…/step13.172_import_volume_parts_mirath_prod_before_20261103.json` رفت. دفترها #699 تا #708 ساخته شدند (دفتر ۵: ۶۴۰، ۸: ۱۲۰، ۹: ۱۵۶، ۱۰: ۱۲۰ نسخه). ۲۵ بخش ۱٬۰۲۵ نسخه دارند. `source_entries` = ۷۸۸٬۵۰۱. ۱٬۰۳۶ نسخه بی‌صف دوباره ایندکس شدند و `/sources/catalogue-6501cdd24802` ۲۵ سطر `data-volume-part` دارد.
+
+### گام ۱۳.۱۷۳: «دلیل المخطوطات» با `create`
+- **داده:**
+  - [library_duplicates_step13_173.json](../database/data/library_duplicates_step13_173.json): `krmanshah-ngomy-syd-mrtdy-84` ← `krmanshah-ngomy-170`.
+  - [volume_parts_dalil_al_makhtutat.json](../database/data/volume_parts_dalil_al_makhtutat.json):
+    - کد `catalogue-92b3d5e41c52`، با نام دیگر «دلیل المخطوطات کاشف الغطاء»؛
+    - `create` با جلد ۱ (MTIF ۲۱۲۱۸، ۳۳۸ صفحه)؛
+    - `folds`: زنجان با `keep`؛ بی ویراستار؛
+    - بخش‌ها: ردیف‌های ۳۸ (کشفی، ۴۴–۵۵ از روی نسخه‌ها)، ۲۸۶ (زنجان، ۸۸–۱۷۰) و ۴۷۰ (نجومی، ۲۱۴–۲۹۵)، همه از سید احمد حسینی اشکوری (MTIF ۳۷۲۲۸).
+- **تغییر دستور:** `moves()` نسخه‌ها را با نام سری و نیز با «ي/ك» عربی آن جست‌وجو می‌کند.
+- **فایل‌های داده:** slug کتابخانه‌های ادغام‌شده (۱۳.۱۶۳، ۱۳.۱۷۱، ۱۳.۱۷۳) در همه‌ی `volume_parts_*.json` به کتابخانه‌ی ماندگار برگشت. در «نشریه»: `mshhd-asghrzadh-syd-aaly-asghr-278` ← `mshhd-asghr-zadh-51`.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۷۲):**
+  - ادغام نجومی: ۳۷۸ ← ۳۷۷ کتابخانه.
+  - «دلیل»: ۷۰۸ نسخه (#494 ← ۲۷۳، و بی‌جلد ۴۳۵). اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند.
+  - پشتیبان: `…/step13.173_import_volume_parts_dalil_local_before_20261103.json`.
+  - **«نشریه» دوباره:** ۳ نسخه‌ی بی‌جلد با «نشريه» به دفترهای ۳، ۷ و ۱۳ رفتند. پشتیبان: `…/step13.173_rerun_nashriyeh_local_before_20261103.json`. «اوراق عتیق»، «چهار کتابخانه مشهد» و «میراث» «Nothing to do» دادند.
+- **آزمون:** `ImportVolumePartsTest` با نسخه‌ای که «نشريه» دارد.
+- **پروداکشن (پس از انتشار، به ترتیب):** `catalogs:merge-duplicates --data=…step13_173.json`، `catalogs:import-volume-parts --data=…dalil_al_makhtutat.json`، و `catalogs:import-volume-parts --data=…nashriyeh.json`.
 
 ## فاز ۱۴: پیوند درونی منابع و پالایش داده با پارسر v2
 
@@ -6699,3 +6719,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** ۱٬۸۴۱ رکورد نوشت. ۳۵ نسخه پس از آن عدد داشتند ولی بازه نداشتند، چون «، قرن 13» پس از روز و ماه رفته بود. این تمرین با `audit_logs.old_values` برگردانده شد و ردیف‌های ممیزی‌اش پاک شد. سپس `DerivedData::syncCopies` اجرا شد.
   - **تمرین دوم:** `Would write 1725` (`date_tail` ۱٬۶۲۲، `date_note` ۱۰۳). اجرای بعدی `Would write 0` بود. `copyDateColumns(old)` با `copyDateColumns(new)` در هر ۱٬۷۲۵ رکورد یکی است.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_what_follows_a_copy_date_becomes_a_note_or_the_dates_note`.
+### گام ۱۴.۳: «سه کتابخانه اصفهان» با `create`
+- **داده:**
+  - [library_duplicates_step14_3.json](../database/data/library_duplicates_step14_3.json): `asfhan-aboalbrkat-rda-904` ← `asfhan-aboalbrkat-rda-118`.
+  - [volume_parts_se_ketabkhaneh_isfahan.json](../database/data/volume_parts_se_ketabkhaneh_isfahan.json): کد `catalogue-76caa4780724`، با نام دیگر «سه کتابخانه اصفهان - ف»، جلد ۱ (MTIF ۳۴۲۱۲، ۲۴۰ صفحه)، و بخش‌های ردیف ۳۳ تا ۳۵ (رحیم قاسمی، MTIF ۴۳۴۱۳).
+- **تغییر دستور:** `numbers()` پس از نام سری `(?:[\s\-–؛]*ف)?` را می‌پذیرد.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۷۳):**
+  - ۳۷۷ ← ۳۷۶ کتابخانه.
+  - ۳۷۹ نسخه‌ی بی‌جلد جابه‌جا شد. رحیم قاسمی ۲ جلد و ۶۰۷ نسخه دارد.
+  - اجرای دوم «Nothing to do» داد و `--revert` سنجه را برگرداند. «نشریه»، «اوراق عتیق»، «چهار کتابخانه مشهد»، «میراث» و «دلیل» «Nothing to do» ماندند.
+  - پشتیبان: `…/step14.3_import_volume_parts_se_ketabkhaneh_local_before_20261103.json`.
+- **پروداکشن (پس از انتشار):** `catalogs:merge-duplicates --data=…step14_3.json`، سپس `catalogs:import-volume-parts --data=…se_ketabkhaneh_isfahan.json`.

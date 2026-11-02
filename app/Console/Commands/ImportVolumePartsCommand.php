@@ -189,7 +189,8 @@ class ImportVolumePartsCommand extends Command
         $name = implode('[\s\x{200C}]*', array_map(fn ($w) => preg_quote($w, '/'), preg_split('/[\s\x{200C}]+|(?=-)|(?<=-)/u', $series, -1, PREG_SPLIT_NO_EMPTY)));
         // «دفتر نهم - 74» is daftar 9
         $raw = preg_replace_callback('/(?:دفتر|جلد)\s*(' . implode('|', array_keys(self::ORDINALS)) . ')/u', fn ($o) => (string) self::ORDINALS[$o[1]], strtr($raw, ['ي' => 'ی', 'ك' => 'ک']));
-        preg_match('/' . $name . '\s*(\d*)\s*:([^\]]*)/u', $raw, $m);
+        // «سه کتابخانه اصفهان؛ ف: 12», «… - ف: 12»
+        preg_match('/' . $name . '(?:[\s\-–؛]*ف)?\s*(\d*)\s*:([^\]]*)/u', $raw, $m);
         preg_match_all('/\d+/', ($m[1] ?? '') . ' ' . ($m[2] ?? ''), $n);
 
         return array_map('intval', $n[0]);
@@ -238,10 +239,15 @@ class ImportVolumePartsCommand extends Command
         $moves = [];
         $counts = [];
         $left = [];
-        $like = '%' . $this->series() . '%';
+        // the series as written, and with the Arabic ي and ك («دليل المخطوطات»)
+        $likes = array_unique(['%' . $this->series() . '%', '%' . strtr($this->series(), ['ی' => 'ي', 'ک' => 'ك']) . '%']);
         DB::table('manuscripts')->select('id', 'metadata', 'raw_text', 'catalog_volume_id')
             ->where(fn ($q) => $q->whereNull('catalog_volume_id')->orWhereIn('catalog_volume_id', $on ?: [0]))
-            ->where(fn ($q) => $q->where('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like))
+            ->where(function ($q) use ($likes) {
+                foreach ($likes as $like) {
+                    $q->orWhere('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like);
+                }
+            })
             ->orderBy('id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, $have, $numbers, $folds) {
                 foreach ($rows as $m) {
                     $raw = References::rawCitation($m->metadata, $m->raw_text);

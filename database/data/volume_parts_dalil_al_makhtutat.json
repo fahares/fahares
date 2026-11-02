@@ -1,0 +1,80 @@
+{
+ "_comment": "Step 13.173 (stage 4 of docs/plans/catalog-volume-parts.md; docs/plans/stage4-volume-parts.md section 4), approved by the user: «دلیل المخطوطات», volume 1, by Sayyed Ahmad Hosseini (Eshkevari) (Qom, 1397 AH; MTIF 21218, 338 pages), made a source with its three parts. Fankha cites it also as «دلیل المخطوطات کاشف الغطاء», for the same libraries and pages. Zanjan's Imam Jom'e school is row 286 of Fankha's table (pp. 88-170); its copies come from that school's catalogue, which stays. Kashfi's pages are those of its copies too. Run after library_duplicates_step13_173.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_dalil_al_makhtutat.json",
+ "source": "catalogue-92b3d5e41c52",
+ "series": "دلیل المخطوطات",
+ "aliases": [
+  "دلیل المخطوطات کاشف الغطاء"
+ ],
+ "volume_title": "دلیل المخطوطات - جلد %d",
+ "create": {
+  "title": "دلیل المخطوطات",
+  "compiler": "سید احمد حسینی اشکوری",
+  "publisher": "چاپخانه علمی، قم",
+  "year": "1397 ق",
+  "volumes": [
+   {
+    "number": 1,
+    "mtif": 21218,
+    "pages": 338,
+    "year": "1397 ق"
+   }
+  ]
+ },
+ "folds": [
+  {
+   "code": "catalogue-b1c30639abab",
+   "keep": true
+  }
+ ],
+ "editors": [],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "asfhan-syd-kshfy-195",
+   "title": "کتابخانه شخصی سید کشفی",
+   "pages": [
+    44,
+    55
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "fankha_row": 38
+  },
+  {
+   "daftar": 1,
+   "library": "zngan-amam-gmaah-66",
+   "title": "کتابخانه مدرسه امام جمعه زنجان",
+   "pages": [
+    88,
+    170
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "fankha_row": 286
+  },
+  {
+   "daftar": 1,
+   "library": "krmanshah-ngomy-170",
+   "title": "کتابخانه سید مرتضی نجومی",
+   "pages": [
+    214,
+    295
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "fankha_row": 470
+  }
+ ]
+}
