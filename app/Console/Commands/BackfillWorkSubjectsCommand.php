@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Helpers\TextNormalizer;
+use App\Models\AuditLog;
 use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Work;
@@ -29,6 +30,7 @@ class BackfillWorkSubjectsCommand extends Command
     protected $signature = 'fahares:backfill-work-subjects
         {--decisions= : The reviewed phrases (database/data/work_subjects_20261101.json)}
         {--candidates= : Write the phrases not linked, with the person a name match suggests, to this JSON file for review}
+        {--prune : Also remove the subject rows this command wrote that the rules no longer give (not a reviewer row)}
         {--apply : Write; without it the command only counts}
         {--show=15 : How many examples to list per kind}';
 
@@ -85,14 +87,29 @@ class BackfillWorkSubjectsCommand extends Command
             foreach ($works as $work) {
                 // [word, how] by record name for each subject the work names, the first one for a person kept
                 $subjects = [];
-                if ($name = $titles[KnownRulers::compact((string) $work->primary_title)] ?? null) {
-                    $subjects[$name] = [null, 'reviewed:title_listed'];
-                }
-                if ($read = KnownSubjects::fromTitle($work->primary_title)) {
+                // A listed title takes the place of what its words, and its description's, would give
+                $listed = $titles[KnownRulers::compact((string) $work->primary_title)] ?? null;
+                if ($listed) {
+                    $subjects[$listed] = [null, 'reviewed:title_listed'];
+                } elseif ($read = KnownSubjects::fromTitle($work->primary_title)) {
                     [$word, $pieces] = $read;
                     $this->count('works:titled');
+                    // «شرح حال و آثار سید جمال الدین»، «مناقب حضرت علی بن ابیطالب»: a piece the whole-piece match misses
+                    // is read as a sentence, its name at the head
+                    $read = $this->fromText($work->primary_title, $decided);
                     foreach ($pieces as $piece) {
                         $name = KnownSubjects::find($piece) ?? $decided[KnownRulers::compact($piece)] ?? null;
+                        $phrase = $piece;
+                        if (! $name && ($found = KnownSubjects::resolve(preg_replace('/^(?:حضرت|جناب)\s+/u', '', $piece), $decided))) {
+                            [$name, $phrase] = $found;
+                            $this->count('pieces:read_at_head');
+                        }
+                        if (! $name && ($joined = array_diff_key($read, $subjects))) {
+                            foreach ($joined as $other => $found) {
+                                $subjects[$other] ??= [$found[0], $found[1] . ':title_read'];
+                            }
+                            continue;
+                        }
                         if (! $name) {
                             $this->count('pieces:not_linked');
                             $key = KnownRulers::compact($piece);
@@ -100,7 +117,7 @@ class BackfillWorkSubjectsCommand extends Command
                             $candidates[$key]['works'][] = "#{$work->id} {$work->primary_title}";
                             continue;
                         }
-                        $subjects[$name] ??= [$word, KnownSubjects::find($piece) ? 'known' : 'reviewed'];
+                        $subjects[$name] ??= [$word, KnownSubjects::find($phrase) ? 'known' : 'reviewed'];
                     }
                 } else {
                     // «رسالة فی مناقب علی»: the word inside the title
@@ -110,10 +127,13 @@ class BackfillWorkSubjectsCommand extends Command
                 }
                 // «قصیده‌ای است در مدح حضرت پیامبر (ص)»: the first sentence of the description
                 $first = preg_split('/(?<![0-9۰-۹])\.(?![0-9۰-۹])|\n/u', (string) $work->description)[0] ?? '';
-                foreach ($this->fromText($first, $decided, self::DESCRIPTION_WITHIN) as $name => $found) {
+                foreach ($listed ? [] : $this->fromText($first, $decided, self::DESCRIPTION_WITHIN) as $name => $found) {
                     $subjects[$name] ??= [$found[0], $found[1] . ':description'];
                 }
 
+                if ($this->option('prune')) {
+                    $this->prune($work, $subjects, $person, $guard, $relations, $apply);
+                }
                 foreach ($subjects as $name => [$word, $how]) {
                     $subject = $person($name);
                     $label = "#{$work->id} «{$work->primary_title}» → {$name}";
@@ -191,6 +211,34 @@ class BackfillWorkSubjectsCommand extends Command
         }
 
         return $out;
+    }
+
+    /**
+     * Removes the work's subject rows written by this command (no suggestion behind them) whose person the rules no
+     * longer name: «پس از وفات فتحعلی شاه» once read as about him. A work whose people a reviewer set is left alone;
+     * each removal is logged with the whole row, as ContributorRelations::removeRole gives it.
+     */
+    private function prune(Work $work, array $subjects, \Closure $person, ProtectedColumns $guard, ContributorRelations $relations, bool $apply): void
+    {
+        $keep = [];
+        foreach (array_keys($subjects) as $name) {
+            $record = $person($name);
+            if ($record instanceof Person) {
+                $keep[] = $record->id;
+            }
+        }
+        $stale = $work->workPeople()->where('role', 'subject')->whereNull('suggestion_id')->whereNotNull('person_id')->whereNotIn('person_id', $keep)->get();
+        if ($stale->isEmpty() || $guard->protectsRows($work->id, 'people')) {
+            return;
+        }
+        foreach ($stale as $row) {
+            $this->count('pruned', "#{$work->id} «{$work->primary_title}» ✕ " . (Person::whereKey($row->person_id)->value('name') ?? "#{$row->person_id}"));
+            if ($apply) {
+                $done = $relations->removeRole($work, $row->id);
+                AuditLog::create(['user_id' => null, 'auditable_type' => Work::class, 'auditable_id' => $work->id, 'action' => 'corpus_update',
+                    'old_values' => $done['old'], 'new_values' => $done['new'] + ['corpus_fix' => 'work subjects (item 35)']]);
+            }
+        }
     }
 
     /** An authority record of KnownSubjects, with its death year, as fahares:backfill-work-dedications makes a ruler's. */

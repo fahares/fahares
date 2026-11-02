@@ -6323,6 +6323,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ارجاع‌ها: معمولی، وارونه، با خط تیره‌ی بلند، «نسخه‌پژوهی 3:»، صفحه‌ی تنها، روضاتی، حکیم، کتابخانه‌ی بی‌بخش، صفحه‌ای که دو بخش دارند، و ارجاع نخستین از منبع دیگر؛
   - همچنین dry-run، دفترها و MTIF، ویراستار، بخش و فهرست‌نگار هر نسخه، شمارش‌ها، تکرار بی‌اثر و `--revert`.
   - `CatalogVolumePartsTest::test_the_pages_and_a_save_before_the_deploy_has_migrated` پرسشی به جدول‌های بخش را رد می‌کند وقتی `ready()` نادرست است.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `b7d7330`، از راه `scripts/dev/prod-run`):**
+  - dry-run همان ۲٬۵۵۸ نسخه و همان یک نسخه‌ی بی‌دفتر (دیانی) را نشان داد. اجرا با `--backup`؛ پشتیبان: `fahares-sources/backups/step13/step13.153_build_noskhe_pazhuhi_prod_before_20261103.json`، شامل ۲٬۶۳۵ نسخه و ۲٬۶۳۵ مدخل.
+  - دفترها: #491 / #696 / #697 با ۳۲۵ / ۱٬۳۱۱ / ۹۹۹ نسخه. ۹ بخش با ۲٬۶۳۲ نسخه.
+  - فهرست‌نگاران: برکت (۵۳) ۶ جلد و ۳٬۸۲۹ نسخه؛ حافظیان (۴) ۲۲ جلد، ۲۱٬۱۵۱ نسخه و ۲٬۶۳۵ نسخه «زیر نظر»؛ زاده‌هوش (۱۳۳، ساخته‌شده) ۱ جلد و ۹۳ نسخه. `source_entries` = ۷۸۸٬۵۰۰.
+  - ۲٬۶۳۵ نسخه با `makeAllSearchableUsing(...)->searchable()` بی‌صف دوباره ایندکس شدند. `prod-run` منتظر ماند تا `fahares:rebuild-copies` نشست دیگری تمام شود.
+  - `/sources/catalogue-a379aa82523c` روی fahares.net پاسخ ۲۰۰ داد، با ۹ سطر `data-volume-part`.
+
 ### گام ۱۳.۱۵۴: کلید سه‌عددی عدد کوچک‌اول
 - **قاعده:** `collectionKey`، پس از جدا کردن نشانه‌ی چسبیده: اگر `base` با `^\d{1,2}$` بخواند و بخش رساله با `^(\d{3,})\s*/\s*(\d+)`، آنگاه `base = "{base}/{q1}"` و `part = q2`. نمونه‌ها: «4/120/1-5957» → «4/120» (شماره‌ی قدیم پس از «-» نادیده گرفته می‌شود)؛ «2267/6/10» → «2267».
 - **راه پشتیبان:** راه `LIKE` در `collectionSiblings` با `base` تازه همچنان کار می‌کند («1/2591/%»).
@@ -6359,7 +6366,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - عنوان درون عنوان: «ملاحظات حول ديوان ناصر خسرو»، «من کلام ثیاذوق فی حفظ الصحة»، و «نوربخش» درون «مکتوب سید محمد نوربخش».
     - «مقدمه …» و «منتخب …».
 - **آزمون:** [LinkPageRefsTest](../tests/Feature/LinkPageRefsTest.php) با چهار آزمون: نسخه (`exact`، نشانه‌ی مجموعه، `part`، عنوان ناجور، رد ویراستار و صفحه‌ی نسخه)، ارجاع (عنوان، صفحه، بافت، ارجاع به کتاب دیگر، صفحه‌ی مدخل و متن تغییرکرده)، `Titles` و `place()`، و منبع بی پیکربندی.
-- **پروداکشن:** هنوز اجرا نشده است. پس از انتشار: `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs dharia'`. پشتیبان: خروجی `source_page_links`. برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵):** پس از انتشار batch7 (migration در batch 60)، با `scripts/dev/prod-run --wait page-text-links-110` اجرا شد. پیش از دستور، ۹٬۳۳۱ ردیف `source_page_links` پشتیبان گرفته شد. پشتیبان در `fahares-sources/backups/step13/step13.155_source_page_links_prod_before_20261102.json` روی لپ‌تاپ است. رونوشت درون کانتینر با استقرار بعدی از میان رفت، چون `storage/app` پایدار نیست. شمارها همان تمرین بود: نسخه `exact` ۸۳۳ و `part` ۳۹۷ (۱٬۲۳۰ پیوند)، و ارجاع `page` ۲٬۲۰۲، `context` ۹۱۶، `page-titled` ۴۲۹ و `title` ۲۷۷ (۳٬۸۲۴ پیوند). برگشت: `DELETE FROM source_page_links WHERE kind = 'ref' OR target_type = 'App\\Models\\Manuscript'`.
 
 ### گام ۱۳.۱۵۶: `lines_raw` و `line_counts`
 - **migration** (`2026_11_03_200001_add_line_layouts_to_manuscripts`): `lines_raw` از نوع varchar(255) و `line_counts` از نوع json، هر دو nullable و پس از `lines`. در مدل `line_counts` با cast `array` خوانده می‌شود.
@@ -6382,6 +6389,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   اجرای دوم `changed 0` داد و `refresh-derived` نیز `line_counts 0`.
 - **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `b5e5228` و migration در batch 59):** با `scripts/dev/prod-run`. خروجی همان `changed 199915` بود، با `one_count` ۱۸۹٬۳۹۸، `varying` ۶٬۸۹۱، `several_layouts` ۳٬۶۱۷، `wording_only` ۹ و `lines_not_among_them` ۸۱. اجرای دوم `changed` نداشت. صفحه‌ی `/m/10297` اکنون «۹ و ۱۰ سطر» را نشان می‌دهد.
 - **آزمون‌ها:** `Tests\Unit\CopyLinesTest` (۲ آزمون) و `FillLineCountsCommandTest`.
+
+### گام ۱۳.۱۵۷: لنگر مؤلف برای عنوان‌ها و لنگر اثر برای اشخاص
+- **`LinkDhariaTitlesCommand`:**
+  - **گذر نخست:** پیش از پیوند، یک گذر روی همه‌ی صفحه‌ها مؤلف هر مدخل را می‌سازد (`entryAuthors()`): نخستین برچسب SB پس از سرعنوان «( 1345 : عنوان )» در صفحه‌ای که مدخل از آن آغاز می‌شود. روی پایگاه محلی ۴۳٬۳۰۰ مدخل از ۶۲٬۷۱۱ مدخل مؤلف گرفتند.
+  - **`byAuthor()`:** برای روش‌های `title`، `title-prefix` و `several` نام را پیدا می‌کند. برای TB نام آخرین برچسب SB پیش از نشانه است. برای دیگر نوع‌ها نام برچسب FB یا SB بعدی است، به شرطی که فاصله‌اش تا عنوان حداکثر ۳۰ حرف باشد و میانشان پرانتز یا نقطه نباشد.
+  - **انتخاب مدخل:** واژه‌های نام (`nameWords()`: بی لقب و بی واژه‌های عام `NAME_COMMON`) با واژه‌های مؤلف هر نامزد (`candidates()`) سنجیده می‌شوند. اگر فقط یک نامزد دست‌کم دو واژه‌ی مشترک داشته باشد، روش `…+author` می‌شود.
+  - **`ENABLED`:** اکنون روش‌های `+author` برای TB، WB، EB، CB و HB را هم در بر می‌گیرد.
+- **`LinkDhariaPeopleCommand`:**
+  - **سال درگذشت:** `person()` آن را در همه‌ی متن `after` (۸۰ حرف) می‌جوید. سنجش «سال دیرتر» همچنان فقط ۴۰ حرف را می‌بیند.
+  - **`hisWork()`:** روش `name` و `alias` را `…+work` می‌کند وقتی یکی از سه برچسب بعدی (WB، TB، VB، EB) عنوان یکی از آثار همان شخص در سایت باشد. آثار با `works.author_id` و کلیدهای `keys()` سنجیده می‌شوند.
+- **سنجش:** دو اسکریپت سنجش بیرون از مخزن روی `fahares_db` اجرا شد. شمار نتیجه‌ها:
+  - عنوان: TB ۲٬۰۲۲، WB ۱۷۹، EB ۴۰، CB ۴.
+  - شخص: سال دورتر ۲۶، اثر ۷۰، سال دوران زندگی ۱۷۶. این آخری روشن نشد.
+- **آزمون‌ها:** `LinkDhariaTitlesTest::test_a_title_of_several_entries_is_told_by_its_author` و `LinkDhariaPeopleTest::test_a_name_is_confirmed_by_a_work_of_his_or_his_death_year_further_after_it`.
+- **برگشت پس از اجرای پروداکشن:** پیوندهای تازه‌ی عنوان و اثر با `DELETE FROM source_page_links WHERE method LIKE '%+author' OR method LIKE '%+work'` پاک می‌شوند. پیوندهای `+year` که فقط به خاطر پنجره‌ی پهن‌تر آمده‌اند از پیوندهای پیشین جدا نمی‌شوند، پس پیش از اجرا از ردیف‌های شخص (`target_type = 'App\\Models\\Person'`) پشتیبان گرفته می‌شود.
 ### گام ۱۳.۱۵۸: بازبستن نسخه‌های «مختصر ف» از جلد سنا
 - **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
   - **کدام نسخه‌ها:** جلدهای سنا آن‌هایی‌اند که عنوانشان «سنا» دارد و کتابخانه‌شان مجلس یا سناست، پس پس از جدا کردن هم پیدا می‌شوند. نسخه‌ی مجلسی که در آن‌ها مانده و متنش `[\s*مختصر\s*-?\s*ف\s*:` دارد، جابه‌جا می‌شود.
@@ -6391,7 +6413,47 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **۷ شماره:** [fankha_shelfmark_fixes_20261102b.json](../database/data/fankha_shelfmark_fixes_20261102b.json) را همان `fankha_shelfmark_fixes.py` اعمال کرد (پیکره: ۶ جلد). تصویرهای وارسی‌شده: ج ۲ ص ۲۶۱، ج ۳ ص ۲۸۶ و ۵۵۸، ج ۹ ص ۷۹۰، ج ۱۸ ص ۸۰۵، ج ۱۹ ص ۴۴۷، ج ۳۰ ص ۲۲۸.
 - **آزمون:** [SplitSenateLibraryTest](../tests/Feature/SplitSenateLibraryTest.php) گسترش یافت.
 
-
+### گام ۱۳.۱۵۹: `catalogs:import-volume-parts`
+- **داده:** [volume_parts_nashriyeh.json](../database/data/volume_parts_nashriyeh.json):
+  - `source` و `series` («نشریه») و `volume_title`؛
+  - `folds`: `catalogue-499c8e7b07c6` با `volume: 7`، و `catalogue-990207407262`؛
+  - `editors`: افشار با MTIF ۳۷۲۳۹ و دانش‌پژوه با ۳۷۲۷۹؛
+  - `parts`: ۱۳۲ بخش، هر کدام با `daftar`، slug کتابخانه یا تهی، عنوان، صفحه‌ها، فهرست‌نگاران (نام و MTIF) و `fankha_row`.
+  - **ساخت داده:** ردیف‌های جدول فهارس فنخا که توضیحشان «نشریه» و «دانشگاه تهران» دارد. دفتر از واژه یا رقم پس از «دفتر/جلد» خوانده شد. صفحه‌ها از «صفحات A-B» یا «صفحه .N» آمدند. نویسنده بخش پیش از «انتشارات» است.
+  - **تطبیق کتابخانه:** با نام (توکن‌ها، بی شهر، چون شهر رکوردها گاه دیگر است؛ مثلاً فرید تنکابنی در رامسر)، و میان نام‌ها با شمار نسخه‌های آن کتابخانه در دفتر که صفحه‌شان در بازه است. هفت ردیف دستی است.
+- **دستور:** [ImportVolumePartsCommand](../app/Console/Commands/ImportVolumePartsCommand.php):
+  - `numbers()` با سری نخستین ارجاع (رقم و فاصله کنار گذاشته می‌شوند) و عددهای پس از نام سری کار می‌کند. `volume()` عددی از جفت نخست را برمی‌دارد که شماره‌ی یکی از جلدهاست. ارجاعی که کروشه‌ی آغاز ندارد از `raw_text` خوانده می‌شود.
+  - **جلد ادغامی:** جلد منبع ادغامی که `volume` دارد به منبع می‌رود: `source_id`، شماره، عنوان و `citation_pattern`، و `library_id` تهی.
+  - **نسخه‌ها:** نسخه‌های بی‌جلد، روی منبع یا روی منبع ادغامی جابه‌جا می‌شوند. `manuscript_catalog_references` نسخه‌های جلدهای ادغامی هم با آن‌ها می‌رود.
+  - **جلد خالی:** نسخه‌ی مانده روی جلد ادغامیِ رفتنی بی‌جلد می‌شود. جلد و منبع ادغامی حذف می‌شوند و کدشان در `metadata.merged_codes` منبع می‌ماند.
+  - **ویراستاران و بخش‌ها:** `catalog_volume_cataloger` همه‌ی جلدها جای خود را به `editors` با نقش `supervisor` می‌دهد. بخش‌ها با `metadata.fankha_row` یکتا هستند.
+  - **فهرست‌نگاران:** با MTIF یا نام بی‌فاصله پیدا می‌شوند. نبودها ساخته می‌شوند، با `metadata.made_by` = «catalogs:import-volume-parts {source}»، و فقط برای بخش‌هایی که جلدشان هست.
+  - **پایان:** `CatalogVolumePart::assign` همه‌ی نسخه‌های جلدها، و شمارش جلدها، بخش‌ها و `Cataloger::recount`.
+  - **پشتیبان:** ردیف کامل منبع‌ها، جلدها و `catalog_volume_cataloger`؛ شناسه‌ی بخش‌های پیشین؛ ستون‌های نسخه‌ها، مدخل‌ها، `manuscript_catalog_references` و شمارش فهرست‌نگاران؛ و نشان فهرست‌نگاران ساخته‌شده.
+- **تمرین (`fahares_prod` محلی، پس از گام ۱۳.۱۵۳):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.159_import_volume_parts_nashriyeh_local_before_20261103.json`.
+  - ۱٬۱۷۶ نسخه جابه‌جا شد: دفتر ۴ ← #495 ۷۹۰، دفتر ۷ ← #495 ۲۱۸، و ۱۶۸ بی‌جلد به دفترهای گوناگون. ۱۳ نسخه بی‌دفتر ماند و ۱ نسخه از #495 بی‌جلد شد.
+  - جلد #496 دفتر ۷ شد. #495 و منبع‌های ۱۰۰۰۸۱ و ۱۰۰۰۸۲ حذف شدند و `merged_codes` = دو کد.
+  - دفترها (نسخه / با بخش): ۱: ۱۸۴/۱۸۲، ۲: ۱٬۸۴۳/۱٬۷۴۳، ۳: ۱٬۵۴۸/۱٬۵۴۵، ۴: ۸۱۹/۷۷۴، ۵: ۲٬۵۴۴/۲٬۴۹۰، ۶: ۷۸۳/۷۶۷، ۷: ۴٬۲۳۳/۴٬۰۳۴، ۱۱: ۱٬۱۰۰/۱٬۰۴۸، و ۱۳: ۸۱۳/۲۵۱.
+  - فهرست‌نگاران:
+    - افشار ۳۰ جلد، ۲۰٬۳۰۹ نسخه، و ۱۳٬۸۶۷ «زیر نظر»؛ دانش‌پژوه ۶۵ جلد، ۷۶٬۹۳۹ نسخه، و ۱۳٬۸۶۷ «زیر نظر».
+    - سید عبدالعزیز طباطبائی ۱ جلد و ۴۳۸ نسخه. پیش‌تر جلدهای #495 و #496 به نام او بود.
+  - `source_entries` = ۷۸۵٬۵۸۳.
+  - `catalogs:assign-volume-parts --dry-run` پس از اجرا، روی همه‌ی جلدهای بخش‌دار: ۱۶٬۵۰۲ نسخه، `changed` صفر. نتیجه: ۱۵٬۴۶۶ نسخه با کتابخانه، ۳۱۱ با صفحه‌ی تنها، ۷۲۵ بی‌بخش، و ۷۹۶ بیرون از بخش.
+  - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` را برگرداند.
+- **آزمون:** [ImportVolumePartsTest](../tests/Feature/ImportVolumePartsTest.php):
+  - `volume()`؛
+  - منبع با دو منبع ادغامی، یکی با جلد و یکی بی آن؛
+  - ارجاع وارونه، بی‌کروشه، نسخه‌ی منبع دیگر روی جلد ادغامی، و بی‌دفتر؛
+  - ویراستاران، بخش‌ها، فهرست‌نگار تازه، و بخش جلدی که منبع ندارد (ساخته نمی‌شود)؛
+  - شمارش‌ها، تکرار بی‌اثر و `--revert`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `30e3096`، از راه `scripts/dev/prod-run`):**
+  - dry-run همان شمارهای تمرین را داد: ۱٬۱۷۶ نسخه، ۱۳۲ بخش و ۱۳ فهرست‌نگار تازه. اجرا با `--backup`؛ پشتیبان (۳ منبع، ۱۳٬۸۷۰ نسخه و مدخل، ۹ فهرست‌نگار) بی‌درنگ به `fahares-sources/backups/step13/step13.159_import_volume_parts_nashriyeh_prod_before_20261103.json` کپی شد.
+  - منبع‌های ۱۰۰۰۸۱ و ۱۰۰۰۸۲ حذف شدند. `merged_codes` «نشریه» دو کد دارد و `/sources/catalogue-499c8e7b07c6` و `/sources/catalogue-990207407262` با ۳۰۱ به `/sources/catalogue-37ef5a7d7428` می‌روند. «نشریه» ۱۳ جلد و ۱۳۲ بخش با ۱۲٬۸۳۴ نسخه دارد.
+  - فهرست‌نگاران:
+    - افشار ۳۰ جلد، ۲۰٬۳۱۵ نسخه و ۱۳٬۸۶۷ «زیر نظر»؛ دانش‌پژوه ۶۵ جلد، ۷۷٬۰۲۵ نسخه و ۱۳٬۸۶۷ «زیر نظر».
+    - سید عبدالعزیز طباطبائی ۱ جلد و ۴۳۸ نسخه؛ حسینی اشکوری ۷۲ جلد و ۴۲٬۰۶۵ نسخه؛ مهدی والئی ۵۶۱ نسخه.
+  - `source_entries` = ۷۸۸٬۵۰۰. ۱۳٬۸۷۰ نسخه بی‌صف دوباره ایندکس شدند. صفحه‌ی «نشریه» روی fahares.net ۱۳۲ سطر `data-volume-part` دارد.
 
 ### گام ۱۳.۱۶۰: رفع شکست restic در `fahares-backup.sh`
 - **خطا:** `Fatal: unable to open repository at rclone:gdrive:fahares-restic: error talking HTTP to rclone: Get "http://localhost/file-…": context deadline exceeded (Client.Timeout exceeded while awaiting headers)`. شکست‌ها: db در ۳ و ۱۲ آبان، media در ۲۴ مهر و ۱ و ۸ آبان، config در ۱ آبان، و verify در ۱۱ آبان. پیش از آن، چند شب پیاپی پر از خطای `googleapi: Error 403: Quota exceeded … consumer 'project_number:202264815644' … rateLimitExceeded` بود.
@@ -6407,3 +6469,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `job_watch` سطر آخر `status` را در هر حال لاگ می‌کند.
 - **آزمون:** `status` و `watch` با `FAHARES_BACKUP_CONFIG` آزمایشی روی رونوشت `last.json`. `bash -n` پاس شد.
 - **نصب:** فایل `/usr/local/bin/fahares-backup.sh` مال `root:root` است (۳۱ مهر) و `sudo -n` ممکن نیست. نصب را کاربر انجام می‌دهد.
+
+### گام ۱۳.۱۶۱: `fankha_parser_v2.py`، گیومه‌ی باز و شمار سطر
+- **تغییرها (پیکره، کامیت `e16b115`):**
+  - `unclosed(s)` جای «(»، «[» و «« »هایی را برمی‌گرداند که هرگز بسته نمی‌شوند. `split_outside` آن‌ها را عمق به شمار نمی‌آورد.
+  - `LINES_GLUED` و `lines_apart` شمار سطری را که پس از برگ («Nگ/ص/برگ») یا «جلد» بی «،» آمده، تکه‌ای جدا می‌کنند. «جلد:» تنها، تکه نمی‌شود.
+  - الگوی سطر اکنون «+»، «تا» و «یا» را هم پیوند می‌شمارد و پیشوند «متن»، «جمعاً» یا «حدود» را می‌پذیرد.
+- **سنجش (۳۲۲٬۰۷۶ نسخه، پیش و پس):**
+  - **یافته‌شده‌ها:** `lines` ۳۷۷، `dimensions` ۱۸۶، `folios` ۱۷۱، `binding` ۱۴۳، `paper` ۹۳.
+  - **از دست رفته‌ها:** `binding` ۲. یکی از آن‌ها «25 سطر (11×21/5)» بود که جلد نیست.
+  - **سطرهای هنوز ناخوانده:** از ۶۳۸ به ۲۶۲ رسید.
+- **آزمون‌ها:** `tests/test_fankha_v2_gold.py::LineCountsTest` با ۲ آزمون. `GoldAccuracyTest` دو نمونه‌ی `v09w01538m1` و `v03w01625m1` را `missing` گزارش می‌کند. خط نخست این دو در `units.jsonl` شماره‌ی پیش از اصلاح‌های ۱۳.۱۴۸ و ۱۳.۱۵۸ را دارد، مانند «2/ 1927» به جای «19270/2».
+### گام ۱۳.۱۶۲: دور دوم «موضوع اثر» و `--prune`
+- **فایل تصمیم:**
+  - ۲۸ عبارت تازه در `phrases`. «شاه نعمت الله ولی» اکنون به «نعمة الله ولی، نعمة الله بن عبدالله» می‌رود.
+  - دو عنوان تازه در `titles`: «مدح شاه عباس و فتح بغداد (رساله در)» و «قصیده فرقانیه فی مدح خیرالبریة (امیرالمؤمنین علی)».
+  - عنوانی که در `titles` باشد جای خواندن عنوان و معرفی را می‌گیرد.
+- **کد:**
+  - `KnownSubjects::fromText()`: واژه‌ی موضوع می‌تواند با «و» به `آثار|حالات|ستایش|ترجمه|وصایا|منتخب اشعار|اشعار` بپیوندد. اگر ۱۵ نویسه‌ی پیش از واژه با «پس/پیش/بعد/قبل از» یا «هنگام/زمان» تمام شود، رد می‌شود. پنجره با `mb_substr` بریده می‌شود: نخست با `substr` بایتی بود و حرف را از وسط می‌برید، و preg_match روی UTF-8 نامعتبر بی‌صدا false می‌داد.
+  - `BackfillWorkSubjectsCommand`:
+    - تکه‌ای از آغاز عنوان که کامل جور نشود، پس از حذف «حضرت/جناب» با `resolve()` خوانده می‌شود (`pieces:read_at_head`).
+    - اگر باز جور نشد، تکه‌های `fromText(title)` افزوده می‌شوند (`:title_read`).
+    - `--prune`: سطرهای `subject` بی `suggestion_id` که شخصشان در نتیجه‌ی کنونی نیست، با `ContributorRelations::removeRole` و یک `AuditLog` (`corpus_update`، `corpus_fix = work subjects (item 35)`) حذف می‌شوند. آثار `protectsRows` دست نمی‌خورند.
+  - املاهای تازه: `امام مجتبی`، `امام عصر` و `خیر البریة` (سه گونه).
+- **ادغام در پروداکشن (۱۲ آبان ۱۴۰۵، از راه `prod-run`):**
+  - `PersonMerger::merge(35946 → 329)`، audit `106971`.
+  - پشتیبان: `fahares-sources/backups/step13/nimatullah_merge_35946_into_329_before.json` (دو رکورد، ۱۸۷ سطر `work_people`، ۱۸۳ سطر `work_author` و یک اثر).
+  - پس از ادغام #329 ۱۸۷ سطر `work_people` (۴ `subject`) و `works_count = 183` دارد.
+- **dry run (`fahares_prod` محلی):** `linked:known 139`، `:description 350`، `:title_inside 135`، `:title_read 1`، `linked:reviewed 65`، `:description 15`، `:title_inside 3`، `:title_listed 3`، `:title_read 6`. در پروداکشن `--prune` باید سه سطر گام ۱۳.۱۴۳ را حذف کند: آثار #11831، #55020 و #66215.
+- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **آزمون‌ها:**
+  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject`
+  - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
+

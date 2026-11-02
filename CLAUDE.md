@@ -29,6 +29,9 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
   plain `ssh fahares-app`. It holds a lock shared by all sessions on this machine and refuses (exit 75) while another run
   holds it or an artisan run is still going in production. `--wait` queues instead of refusing; `--status` shows the
   holder, the production artisan runs and the last runs (`~/.fahares/prod-runs.log`). Read-only checks may use plain ssh.
+- A backup taken before a production run must leave the container at once: copy it to
+  `../fahares-sources/backups/step13/` on this machine before reporting the run. `storage/app` and `/tmp` in the app
+  container are wiped by the next deploy, which may start the moment your run frees the lock.
 - Before a release push, the task-management session checks `scripts/dev/prod-run --status`: a deploy replaces the app
   container and would cut off a running command.
 
