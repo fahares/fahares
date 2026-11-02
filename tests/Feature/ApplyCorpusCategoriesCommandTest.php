@@ -125,6 +125,15 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertSame(21, (int) DB::table('manuscripts')->where('id', $empty)->value('lines'));
         // a count the site has, even another one, stays
         $this->assertSame(19, (int) DB::table('manuscripts')->where('id', $counted)->value('lines'));
+
+        // a verse count the site took for lines («حدود 540 بیت») leaves the column (step 13.152)
+        DB::table('manuscripts')->where('id', $counted)->update(['lines' => 540]);
+        $this->plan([['table' => 'manuscripts', 'id' => $counted, 'work_key' => '-v99-4', 'shelfmark' => '14/2-ف',
+            'category' => 'lines_bayt', 'changes' => ['lines' => ['from' => 540, 'to' => null]]]]);
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])
+            ->expectsOutputToContain('Writing 1 records.')
+            ->assertSuccessful();
+        $this->assertNull(DB::table('manuscripts')->where('id', $counted)->value('lines'));
     }
 
     public function test_the_line_after_an_explicit_becomes_typed_cataloguers_notes()

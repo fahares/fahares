@@ -73,6 +73,9 @@ class CatalogerController extends Controller
             ->orderBy('library_id')
             ->orderBy('volume_number')
             ->get();
+        // the parts of volumes they wrote (step 13.150): their volumes join the catalogues, the parts are listed
+        $parts = \App\Models\CatalogVolumePart::ready() ? $cataloger->catalogVolumeParts()->with(['volume', 'library'])->orderBy('catalog_volume_id')->orderBy('sort')->get() : collect();
+        $volumes = $volumes->concat(CatalogVolume::with('library')->whereIn('id', $parts->pluck('catalog_volume_id')->diff($volumes->pluck('id')))->get())->values();
 
         // the volumes by the printed catalogue they are of, each catalogue once with its cover and page (step 13.109).
         // A source volume shares its catalog volume's id; a catalogue the registry holds as several sources (a source
@@ -100,17 +103,13 @@ class CatalogerController extends Controller
             ];
         })->values();
 
-        // Get manuscripts cataloged by this person (either direct cataloger_id or via authored catalog volumes)
-        $volumeIds = $cataloger->catalogVolumes()->pluck('catalog_volumes.id');
-        $manuscripts = Manuscript::where(function ($q) use ($cataloger, $volumeIds) {
-            $q->where('cataloger_id', $cataloger->id)
-              ->orWhereIn('catalog_volume_id', $volumeIds);
-        })
+        // the copies they catalogued: named, of their volumes without parts, and of their parts (Cataloger::catalogedCopies)
+        $manuscripts = $cataloger->catalogedCopies()
             ->with(['work.author', 'libraryRecord', 'catalogVolume'])
             ->orderBy('volume_number')
             ->orderBy('page_start')
             ->paginate(24, ['*'], 'manuscripts_page');
 
-        return view('catalogers.show', compact('cataloger', 'volumes', 'catalogues', 'manuscripts'));
+        return view('catalogers.show', compact('cataloger', 'volumes', 'catalogues', 'parts', 'manuscripts'));
     }
 }

@@ -19,7 +19,7 @@ HOLDER="$DIR/prod.holder"
 LOG="$DIR/prod-runs.log"
 HOST="${FAHARES_PROD_HOST:-fahares-app}"
 # artisan commands that count as a production run; the quick ones (tinker, about, migrate:status) do not
-BUSY_PATTERN='php artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):'
+BUSY_PATTERN='artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):'
 
 mkdir -p "$DIR"
 touch "$LOG"

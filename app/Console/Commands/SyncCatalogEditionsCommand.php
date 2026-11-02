@@ -81,12 +81,8 @@ class SyncCatalogEditionsCommand extends Command
         if (! $dry) {
             $volume->save();
             $volume->catalogers()->detach($detach->all());
-            // the same counts as LinkCatalogVolumesCommand::recountVolumesAndCatalogers, for the detached only
-            Cataloger::whereIn('id', $detach)->each(function (Cataloger $cataloger) {
-                $volumeIds = $cataloger->catalogVolumes()->pluck('catalog_volumes.id');
-                $cataloger->update(['volumes_count' => $volumeIds->count(), 'manuscripts_count' => DB::table('manuscripts')
-                    ->where(fn ($q) => $q->where('cataloger_id', $cataloger->id)->orWhereIn('catalog_volume_id', $volumeIds))->count()]);
-            });
+            // the one count of every command, for the detached only
+            Cataloger::recount($detach);
         }
     }
 }

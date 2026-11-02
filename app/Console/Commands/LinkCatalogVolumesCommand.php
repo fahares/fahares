@@ -457,15 +457,10 @@ class LinkCatalogVolumesCommand extends Command
             ->groupBy('catalog_volume_id')->selectRaw('catalog_volume_id, count(*) as n')->pluck('n', 'catalog_volume_id');
         CatalogVolume::query()->each(fn ($v) => $v->update(['manuscripts_count' => (int) ($counts[$v->id] ?? 0)]));
 
-        Cataloger::query()->each(function (Cataloger $cataloger) {
-            $volumeIds = $cataloger->catalogVolumes()->pluck('catalog_volumes.id');
-            $cataloger->update([
-                'volumes_count' => $volumeIds->count(),
-                'manuscripts_count' => DB::table('manuscripts')
-                    ->where(fn ($q) => $q->where('cataloger_id', $cataloger->id)->orWhereIn('catalog_volume_id', $volumeIds))
-                    ->count(),
-            ]);
-        });
+        Cataloger::recount();
+        if (\App\Models\CatalogVolumePart::ready()) {
+            \App\Models\CatalogVolumePart::recount(DB::table('catalog_volume_parts')->pluck('id')->all());
+        }
     }
 
     /** The catalogue citation: the parsed field, else the last bracket of the raw text. */

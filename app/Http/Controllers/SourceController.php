@@ -36,7 +36,7 @@ class SourceController extends Controller
 
     public function show(Request $request, string $code)
     {
-        $source = Source::with(['library', 'volumes.catalogers', 'editionOf', 'editions'])->where('code', $code)->first();
+        $source = Source::with(['library', 'volumes.catalogers', 'editionOf', 'editions', ...(\App\Models\CatalogVolumePart::ready() ? ['volumes.parts.catalogers', 'volumes.parts.library'] : [])])->where('code', $code)->first();
         if (! $source) {
             // a source folded into another (sources:merge-split) is found at the other's address
             $merged = Source::mergedInto($code) ?? abort(404);

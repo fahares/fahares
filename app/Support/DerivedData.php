@@ -54,7 +54,7 @@ class DerivedData
     /** A copy's collection_key when its shelfmark names another volume and no reviewed correction set it, else null. */
     public static function collectionChange(object $row, ProtectedColumns $guard): ?array
     {
-        $key = Manuscript::collectionKeyOf($row->shelfmark);
+        $key = Manuscript::collectionKeyOf($row->shelfmark, $row->raw_text);
 
         return $key !== $row->collection_key && $guard->strip($row->id, ['collection_key' => 1]) !== [] ? ['collection_key' => $key] : null;
     }

@@ -209,6 +209,13 @@
                     @php
                         // A copy in a volume compiled under someone else (an article of «اوراق عتیق»): name the volume and its supervisor
                         $supervisors = $manuscript->catalogVolume?->catalogers->where('pivot.role', 'supervisor')->where('id', '!=', $manuscript->cataloger_id);
+                        // ...or of a part of a volume of several libraries' catalogues: the part, its other catalogers, and
+                        // the volume's people, all its editors (step 13.150)
+                        $part = $manuscript->relationLoaded('catalogVolumePart') ? $manuscript->catalogVolumePart : null;
+                        if ($part) {
+                            $supervisors = $manuscript->catalogVolume?->catalogers->where('id', '!=', $manuscript->cataloger_id);
+                            $coauthors = $part->catalogers->where('id', '!=', $manuscript->cataloger_id);
+                        }
                     @endphp
                     <a href="{{ route('catalogers.show', $manuscript->cataloger) }}" class="flex items-center gap-3 pt-3 border-t border-line group">
                         <span class="w-11 h-14 shrink-0 rounded-t-full overflow-hidden border border-gold bg-paper grid place-items-center">
@@ -224,7 +231,10 @@
                             @if($manuscript->cataloger->life_years_text)
                                 <span class="block text-[11px] text-muted">{{ Fa::digits($manuscript->cataloger->life_years_text) }}</span>
                             @endif
-                            @if($supervisors?->isNotEmpty())
+                            @if($part)
+                                @if($coauthors->isNotEmpty())<span class="block text-[11px] text-muted" data-cataloger-coauthors>با {{ $coauthors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') }}</span>@endif
+                                <span class="block text-[11px] text-muted" data-cataloger-part>در «{{ Fa::digits($manuscript->catalogVolume->title) }}»، بخش «{{ Fa::digits($part->title) }}»{{ $part->pages_text ? ' (' . Fa::digits($part->pages_text) . ')' : '' }}{{ $supervisors?->isNotEmpty() ? '، زیر نظر ' . $supervisors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') : '' }}</span>
+                            @elseif($supervisors?->isNotEmpty())
                                 <span class="block text-[11px] text-muted" data-cataloger-volume>در «{{ Fa::digits($manuscript->catalogVolume->title) }}»، زیر نظر {{ $supervisors->map(fn ($c) => $c->display_name ?? $c->name)->implode('، ') }}</span>
                             @endif
                         </span>

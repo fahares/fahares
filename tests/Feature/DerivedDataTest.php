@@ -198,6 +198,23 @@ class DerivedDataTest extends TestCase
         $this->assertSame('8740', Manuscript::collectionKeyOf('8740/7-58/190'));
         $this->assertSame('1068-طباطبائی', Manuscript::collectionKeyOf('1068/2-طباطبائی'));
         $this->assertNull(Manuscript::collectionKeyOf('4825'));
+        // A mark stuck to the part names a collection; a section, a second shelfmark or a margin note does not
+        $this->assertSame('622-ط', Manuscript::collectionKeyOf('622/1ط'));
+        $this->assertSame('1359-عکسی', Manuscript::collectionKeyOf('1359/9عکسی'));
+        $this->assertSame('149-معزی', Manuscript::collectionKeyOf('149/1 معزی'));
+        $this->assertSame('444-کر', Manuscript::collectionKeyOf('444/1؛ کر'));
+        $this->assertSame('3753-ف', Manuscript::collectionKeyOf('3753/2 ـ ف'));
+        $this->assertSame('1051-طباطبائی', Manuscript::collectionKeyOf('1051/2-ط'));
+        $this->assertSame(['262', '262', '3008', '1440'], [Manuscript::collectionKeyOf('262/1بخش3'), Manuscript::collectionKeyOf('262/2 بخش 2'),
+            Manuscript::collectionKeyOf('3008/18 حاشیه'), Manuscript::collectionKeyOf('1440/1 و 1440/2')]);
+        $this->assertSame('1', Manuscript::collectionKey('622/1ط')['part']);
+        // ...but in Ehya «عکسی» only says the treatise is a photocopy, one of its volume's
+        $this->assertSame('1004', Manuscript::collectionKeyOf('1004/7 عکسی', "قم؛ مرکز احیاء؛ شماره نسخه: 1004/7 عکسی\nنسخه اصل: همان نسخه بالا"));
+        $this->assertSame('1390-عکسی', Manuscript::collectionKeyOf('1390/1عکسی', '1. قم؛ مرعشی؛ شماره نسخه: 1390/1عکسی'));
+        // A Majlis copy described only from the Senate library's catalogue has the Senate's numbering
+        $this->assertSame('791-سنا', Manuscript::collectionKeyOf('791/1', "تهران؛ مجلس؛ شماره نسخه: 791/1\n38ص (1-38) [سنا: ف: 2-61]"));
+        $this->assertSame('149-سنا', Manuscript::collectionKeyOf('149/30', 'تهران؛ مجلس؛ شماره نسخه: 149/30 [سنا - ف: 1-75]'));
+        $this->assertSame('791', Manuscript::collectionKeyOf('791/1', 'تهران؛ مجلس؛ شماره نسخه: 791/1 [ف: 3-6]'));
 
         // Saved as a model: the hook keys it, and a corrected shelfmark moves it
         $work = $this->work();
@@ -217,6 +234,8 @@ class DerivedDataTest extends TestCase
         $three = $part('9101/3', ['55ر', '60پ', 55, 60]);
         $four = $part('9101/4', ['34پ', '43ر', 34, 43]);
         $other = $part('9101/5-طباطبائی', ['1', '9', 1, 9]);
+        $senate = $part('9101/6', ['70', '80', 70, 80], ['raw_text' => 'تهران؛ مجلس؛ شماره نسخه: 9101/6 [سنا: ف: 2-61]']);
+        DB::table('manuscripts')->where('id', $three)->update(['raw_text' => "تهران؛ مجلس؛ شماره نسخه: 9101/3\nنستعلیق، بی‌کا؛ در هامش؛ 6گ (55ر-60پ)"]);
 
         // Not keyed yet (the time between a deploy and the filler): the volume is found by the shelfmark's number
         $this->assertSame([$one, $two, $four, $three], Manuscript::find($four)->collectionSiblings()->pluck('id')->all());
@@ -224,12 +243,18 @@ class DerivedDataTest extends TestCase
         $this->assertNull(DB::table('manuscripts')->where('id', $four)->value('collection_key'));
         $this->artisan('fahares:fill-collection-keys', ['--apply' => true])->assertSuccessful();
         $this->assertSame('9101-طباطبائی', DB::table('manuscripts')->where('id', $other)->value('collection_key'));
+        $this->assertSame('9101-سنا', DB::table('manuscripts')->where('id', $senate)->value('collection_key'));
 
         $this->assertSame([$one, $two, $four, $three], Manuscript::find($four)->collectionSiblings()->pluck('id')->all());
         $this->get(route('manuscripts.show', Manuscript::find($four)))->assertOk()
             ->assertSee('برگ‌های ۳۴پ تا ۴۳ر، همراه با این رساله‌ها (به ترتیب برگ)', false)
             ->assertSeeInOrder(['رساله‌ی 9101/1', 'رساله‌ی 9101/2', 'رساله‌ی 9101/4', 'رساله‌ی 9101/3'])
-            ->assertDontSee('رساله‌ی 9101/5-طباطبائی');
+            ->assertSee('(در حاشیه)')
+            ->assertDontSee('رساله‌ی 9101/5-طباطبائی')
+            ->assertDontSee('رساله‌ی 9101/6');
+        $this->assertTrue(Manuscript::find($three)->inMargin());
+        $this->assertFalse(Manuscript::find($one)->inMargin());
+        $this->assertFalse((new Manuscript(['raw_text' => 'خط: نستعلیق؛ ابیاتی در هامش نوشته شده؛ 3گ']))->inMargin());
 
         // A shelfmark a corpus command rewrote: refresh-derived reports it and moves the key; one a reviewer set is kept
         DB::table('manuscripts')->where('id', $two)->update(['shelfmark' => '9103/2']);

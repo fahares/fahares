@@ -192,6 +192,8 @@ class SourceEntrySync
         }
         $rows && self::upsert($rows);
         $removed = $none ? DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $none)->delete() : 0;
+        // a copy on a volume with parts is of the one its library and page name (step 13.150)
+        \App\Models\CatalogVolumePart::assign($manuscripts->pluck('id'));
 
         return [count($rows), $removed];
     }
