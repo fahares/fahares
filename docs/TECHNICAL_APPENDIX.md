@@ -6404,6 +6404,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - شخص: سال دورتر ۲۶، اثر ۷۰، سال دوران زندگی ۱۷۶. این آخری روشن نشد.
 - **آزمون‌ها:** `LinkDhariaTitlesTest::test_a_title_of_several_entries_is_told_by_its_author` و `LinkDhariaPeopleTest::test_a_name_is_confirmed_by_a_work_of_his_or_his_death_year_further_after_it`.
 - **برگشت پس از اجرای پروداکشن:** پیوندهای تازه‌ی عنوان و اثر با `DELETE FROM source_page_links WHERE method LIKE '%+author' OR method LIKE '%+work'` پاک می‌شوند. پیوندهای `+year` که فقط به خاطر پنجره‌ی پهن‌تر آمده‌اند از پیوندهای پیشین جدا نمی‌شوند، پس پیش از اجرا از ردیف‌های شخص (`target_type = 'App\\Models\\Person'`) پشتیبان گرفته می‌شود.
+- **پروداکشن (۱۲ آبان ۱۴۰۵):** پیش از اجرا از ۱٬۸۳۶ ردیف شخص و مدخل پشتیبان گرفته شد. این ردیف‌ها پیوندهای `ref` گام ۱۳.۱۵۵ را هم دارند. پشتیبان در `storage/app/private/backups/step13.157_prod_before.json` است و کپی‌اش در `fahares-sources/backups/step13/`. سپس دو دستور با `prod-run` اجرا شدند:
+  - **عنوان:** ۲٬۵۰۱ پیوند، که ۲۵۶ پیوند پیشین را جایگزین کرد. ۱٬۱۹۳ پیوند `ref` دست‌نخورده ماند.
+  - **شخص:** ۴۹۴ پیوند (پیش از این ۳۸۷): ۲۴۷ `name+year`، ۱۷۸ `alias+year`، ۴۵ `name+work` و ۲۴ `alias+work`.
+  - صفحه‌ی زنده‌ی ج ۱ ص ۲ پیوند TB تازه («اللوائح الليلية») را نشان می‌دهد.
 ### گام ۱۳.۱۵۸: بازبستن نسخه‌های «مختصر ف» از جلد سنا
 - **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
   - **کدام نسخه‌ها:** جلدهای سنا آن‌هایی‌اند که عنوانشان «سنا» دارد و کتابخانه‌شان مجلس یا سناست، پس پس از جدا کردن هم پیدا می‌شوند. نسخه‌ی مجلسی که در آن‌ها مانده و متنش `[\s*مختصر\s*-?\s*ف\s*:` دارد، جابه‌جا می‌شود.
@@ -6509,3 +6513,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
 - **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
 
+
+### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
+- **داده:** [library_duplicates_step13_163.json](../database/data/library_duplicates_step13_163.json)، ۱۹ گروه. اجرا: `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`.
+- **`LibraryMerger`:** `sources.library_id` کتابخانه‌ی رفتنی (شناسه‌ها در `source_ids` لاگ) به کتابخانه‌ی ماندگار می‌رود و `undoMerge` آن را برمی‌گرداند. آزمون: `CatalogVolumePartsTest::test_a_library_merge_takes_its_parts_and_sources_along_and_its_undo_brings_them_back`.
+- **تمرین (`fahares_prod` محلی، پس از ۱۳.۱۵۹):**
+  - ۴۰۶ ← ۳۸۴ کتابخانه، با ۲۲ ردیف `merge` در `audit_logs`. منبع ۱۰۰۱۸۰ (دهگان) ← کتابخانه‌ی ۵۹.
+  - `catalogs:assign-volume-parts`: `changed` ۳۱۰. «نشریه» با بخش ۱۲٬۸۳۴ ← ۱۳٬۱۴۴. همه‌ی جلدهای بخش‌دار: ۱۵٬۷۷۶ با کتابخانه، ۶۶ با صفحه‌ی تنها، ۶۶۰ بی‌بخش، و ۸۵۶ بیرون از بخش.
+  - `undoMerge` ۲۲ لاگ (وارونه) سنجه‌ی `fplib` را برگرداند. برگرداندن بخش نسخه‌ها جداست: پس از undo، `catalogs:assign-volume-parts` دوباره اجرا شود.
+- **دفتر ۱۳ «نشریه»:** صفحه‌های ارجاع «نشریه: 13»: مجلس ۴۰۵–۴۴۶ (۲۴۷ نسخه)، وزیری ۳۵–۴۰۱ (۵۴۷)، و نوربخش ۹–۲۷۲ (۴۸۰ روی جلد #499 منبع نوربخش). MTIF 11395 («نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی») ۱۲ جلد دارد؛ نسخه‌های چاپی ۲۲۵۸۱ (ج ۲) تا ۲۲۵۷۱ (ج ۱۲).

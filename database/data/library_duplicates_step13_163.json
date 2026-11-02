@@ -1,0 +1,24 @@
+{
+  "_comment": "Step 13.163, approved by the user (docs/plans/nashriyeh-parts.md, section 2.3): duplicate records of one library that the «نشریه» parts brought out; «اداره اوقاف همدان» (deeds) and «اوقاف (کتابخانه) همدان» (books) are two and stay apart. Run: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step13_163.json, then catalogs:assign-volume-parts",
+  "libraries": [
+    {"target": "arak-dhgan-59", "sources": [{"slug": "arak-dhgan-abrahym-328"}]},
+    {"target": "asfhan-danshgah-30", "sources": [{"slug": "asfhan-asfhan-1046"}]},
+    {"target": "asfhan-shhrdary-asfhan-98", "sources": [{"slug": "asfhan-shhrdary-368"}]},
+    {"target": "asfhan-adbyat-36", "sources": [{"slug": "asfhan-danshkdh-adbyat-asfhan-343"}]},
+    {"target": "ahoaz-shoshtry-mhmd-156", "sources": [{"slug": "ahoaz-shoshtry-mhmd-213"}]},
+    {"target": "tbryz-adbyat-369", "sources": [{"slug": "tbryz-danshkdh-adbyat-tbryz-254"}]},
+    {"target": "tbryz-kady-tbatbayy-127", "sources": [{"slug": "tbryz-kady-tbatbayy-mhmd-aaly-330"}]},
+    {"target": "thran-angmn-athar-o-mfakhr-frhngy-155", "sources": [{"slug": "thran-angmn-athar-o-mfakhr-1013"}]},
+    {"target": "thran-byany-mhdy-dktr-179", "sources": [{"slug": "thran-byany-mhdy-1015"}]},
+    {"target": "thran-mozh-mly-47", "sources": [{"slug": "thran-mozh-mly-ayran-1014"}]},
+    {"target": "thran-mhdoy-45", "sources": [{"slug": "thran-mhdoy-asghr-dktr-868"}, {"slug": "thran-mhdoy-asghr-1026"}]},
+    {"target": "thran-mynoy-143", "sources": [{"slug": "thran-mynoy-mgtby-33"}]},
+    {"target": "thran-fyad-188", "sources": [{"slug": "thran-fyad-aaly-akbr-dktr-263"}]},
+    {"target": "thran-mftah-16", "sources": [{"slug": "thran-mftah-mhmd-hsyn-860"}]},
+    {"target": "mshhd-asghr-zadh-51", "sources": [{"slug": "mshhd-asghrzadh-syd-aaly-asghr-278"}, {"slug": "mshhd-asghr-zadh-mgmoaah-375"}]},
+    {"target": "mshhd-moloy-357", "sources": [{"slug": "mshhd-moloy-aabdalmgyd-874"}]},
+    {"target": "yzd-aalomy-shykh-aaly-63", "sources": [{"slug": "yzd-aalomy-871"}, {"slug": "yzd-aalom-shykh-aaly-1045"}]},
+    {"target": "yzd-mhmod-abady-myrza-hsn-208", "sources": [{"slug": "yzd-mhmod-abady-myrza-hsn-1037"}]},
+    {"target": "yzd-aalomy-yzdy-mhmod-150", "sources": [{"slug": "yzd-aalomy-yzdy-1017"}]}
+  ]
+}

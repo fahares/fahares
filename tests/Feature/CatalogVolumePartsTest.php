@@ -150,19 +150,20 @@ class CatalogVolumePartsTest extends TestCase
         $this->assertNotNull($copy->fresh()->catalog_volume_part_id);
     }
 
-    public function test_a_library_merge_takes_its_parts_along_and_its_undo_brings_them_back()
+    public function test_a_library_merge_takes_its_parts_and_sources_along_and_its_undo_brings_them_back()
     {
         $source = Source::create(['code' => 'parts-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'نسخه‌پژوهی']);
         $volume = $this->volume($source, 1);
         $kept = $this->library('علامه طباطبائی');
         $gone = $this->library('طباطبائی');
         $part = $this->part($volume, $gone, 'کتابخانه علامه طباطبائی', 18, 42, []);
+        $own = Source::create(['code' => 'own-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست طباطبائی', 'library_id' => $gone->id]);
 
         $merger = app(\App\Suggestions\LibraryMerger::class);
         $old = $merger->merge($gone, $kept);
-        $this->assertSame($kept->id, $part->fresh()->library_id);
+        $this->assertSame([$kept->id, $kept->id], [$part->fresh()->library_id, $own->fresh()->library_id]);
         $merger->undoMerge($kept->fresh(), $old);
-        $this->assertSame($gone->id, $part->fresh()->library_id);
+        $this->assertSame([$gone->id, $gone->id], [$part->fresh()->library_id, $own->fresh()->library_id]);
     }
 
     public function test_the_pages_and_a_save_before_the_deploy_has_migrated()
