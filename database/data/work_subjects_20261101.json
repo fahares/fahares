@@ -1,5 +1,5 @@
 {
-  "about": "Subjects a work's title names, beyond KnownSubjects::LIST: phrase as the title writes it => the authority record's name. Reviewed and approved by the user on 11 Aban 1405 (backlog item 35). Phrases are compared without spaces. Left out as ambiguous: «رضی الدین», «محمد بن اسماعیل». «titles»: whole titles that name their subject without a subject word, by the user's decision of 12 Aban 1405. Second review (12 Aban 1405): 28 more phrases approved by the user, «مدح شاه عباس و فتح بغداد (رساله در)» as a listed title (Baghdad, 1032; «شاه عباس» alone names two shahs); «شاه نعمت الله ولی» now names the main record, into which the duplicate «کرمانی، نعمت الله بن میر عبدالله ولی» was merged. A listed title takes the place of what its words would give: «… فی مدح خیرالبریة (امیرالمؤمنین علی)» is about Imam Ali.",
+  "about": "Subjects a work's title names, beyond KnownSubjects::LIST: phrase as the title writes it => the authority record's name. Reviewed and approved by the user on 11 Aban 1405 (backlog item 35). Phrases are compared without spaces. Left out as ambiguous: «رضی الدین», «محمد بن اسماعیل». «titles»: whole titles that name their subject without a subject word, by the user's decision of 12 Aban 1405. Second review (12 Aban 1405): 28 more phrases approved by the user, «مدح شاه عباس و فتح بغداد (رساله در)» as a listed title (Baghdad, 1032; «شاه عباس» alone names two shahs); «شاه نعمت الله ولی» now names the main record, into which the duplicate «کرمانی، نعمت الله بن میر عبدالله ولی» was merged. A listed title takes the place of what its words would give: «… فی مدح خیرالبریة (امیرالمؤمنین علی)» is about Imam Ali. Third review (12 Aban 1405): 17 more phrases, and «new_records», authority records the site lacked, made once by the command with these death years (null: not known), by the user's decision.",
   "phrases": {
     "الشيخ الرئيس": "ابن سینا، حسین بن عبدالله",
     "الفارابی": "فارابی، محمد بن محمد",
@@ -56,11 +56,38 @@
     "شیخ روزبهان": "روزبهان بقلی، روزبهان بن ابی نصر",
     "سید رضی": "شریف الرضی، محمد بن حسین",
     "محمود بن ابوالقاسم خوئی": "محمود بن میرزا ابوالقاسم خویی",
-    "شاه نعمة الله ولی": "نعمة الله ولی، نعمة الله بن عبدالله"
+    "شاه نعمة الله ولی": "نعمة الله ولی، نعمة الله بن عبدالله",
+    "شیخ شهاب الدین سهروردی شیخ اشراق": "سهروردی، یحیی بن حبش",
+    "شیخ شهاب الدین سهروردی": "سهروردی، یحیی بن حبش",
+    "ابن خفیف": "خفیف شیرازی، محمد بن خفیف",
+    "ابی الحسن الشاذلی": "شاذلی، علی بن عبدالله",
+    "محمد کریم خان کرمانی": "کرمانی، محمد کریم بن ابراهیم",
+    "عمر بن الخطاب": "عمر بن خطاب",
+    "شافعی": "شافعی، محمد بن ادریس",
+    "احمد بن حنبل": "ابن حنبل، احمد بن محمد",
+    "مالک": "مالک بن انس",
+    "سید جمال الدین اسدآبادی": "اسدآبادی، جمال الدین بن صفدر",
+    "شیخ جمال الدین افغانی": "اسدآبادی، جمال الدین بن صفدر",
+    "حجر بن عدی": "حجر بن عدی کندی",
+    "عثمان بن عفان": "عثمان بن عفان",
+    "فضل بن یحیی برمکی": "برمکی، فضل بن یحیی",
+    "فضل بن ربیع": "فضل بن ربیع",
+    "حارث بن کلده": "حارث بن کلده ثقفی",
+    "حاجی بکتاش ولی": "حاجی بکتاش ولی"
   },
   "titles": {
     "پیشوای بزرگوار امام نهم (ع)": "محمد بن علی (ع)، امام نهم",
     "مدح شاه عباس و فتح بغداد (رساله در)": "عباس صفوی، شاه ایران",
-    "قصیده فرقانیه فی مدح خیرالبریة (امیرالمؤمنین علی)": "علی بن ابی طالب (ع)، امام اول"
+    "قصیده فرقانیه فی مدح خیرالبریة (امیرالمؤمنین علی)": "علی بن ابی طالب (ع)، امام اول",
+    "مدح عمر بن الخطاب لرسول الله (ص) (فصل فی)": "محمد (ص)، پیامبر اسلام"
+  },
+  "new_records": {
+    "اسدآبادی، جمال الدین بن صفدر": 1314,
+    "حجر بن عدی کندی": 51,
+    "عثمان بن عفان": 35,
+    "برمکی، فضل بن یحیی": 193,
+    "فضل بن ربیع": 208,
+    "حارث بن کلده ثقفی": null,
+    "حاجی بکتاش ولی": 669
   }
 }

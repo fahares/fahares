@@ -63,15 +63,18 @@ class BackfillWorkSubjectsCommand extends Command
         }
         $matcher = new PersonNameMatcher;
         $people = [];
-        // A record of KnownSubjects with a death year that the people table lacks (the ninth Imam) is made; in a dry
-        // run it comes back as its name
-        $person = function (string $name) use ($matcher, &$people, $apply): Person|string|null {
+        // A record the people table lacks is made when KnownSubjects gives its death year (the ninth Imam) or the
+        // decision file lists it in «new_records» (its death year, or null); in a dry run it comes back as its name
+        $newRecords = $file['new_records'] ?? [];
+        $person = function (string $name) use ($matcher, &$people, $apply, $newRecords): Person|string|null {
             if (! array_key_exists($name, $people)) {
                 $ids = $matcher->ids(TextNormalizer::normalize($name));
                 $people[$name] = count($ids) === 1 ? Person::find($ids[0]) : null;
                 $known = KnownSubjects::named($name);
-                if (! $ids && isset($known['death'])) {
-                    $people[$name] = $apply ? $this->createRecord($name, $known['death'], $matcher) : $name;
+                $listed = array_key_exists($name, $newRecords);
+                if (! $ids && (isset($known['death']) || $listed)) {
+                    $death = $known['death'] ?? $newRecords[$name];
+                    $people[$name] = $apply ? $this->createRecord($name, $death === null ? null : (int) $death, $matcher) : $name;
                     $this->count('records:created', $name);
                 } elseif (count($ids) !== 1) {
                     $this->warn((count($ids) ? 'Several records' : 'No record') . " for {$name}");
@@ -242,7 +245,7 @@ class BackfillWorkSubjectsCommand extends Command
     }
 
     /** An authority record of KnownSubjects, with its death year, as fahares:backfill-work-dedications makes a ruler's. */
-    private function createRecord(string $name, int $death, PersonNameMatcher $matcher): Person
+    private function createRecord(string $name, ?int $death, PersonNameMatcher $matcher): Person
     {
         $person = Person::create([
             'name' => $name,
