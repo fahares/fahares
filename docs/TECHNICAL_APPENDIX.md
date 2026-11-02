@@ -6296,7 +6296,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - حافظیان: ۲۲ جلد و ۲۱٬۱۴۶ نسخه، و ۲٬۶۳۵ نسخه «زیر نظر».
     - زاده‌هوش: ۱ جلد و ۹۳ نسخه.
   - `source_entries` = ۷۸۵٬۵۸۳ (بی‌تغییر).
-  - `catalogs:assign-volume-parts --dry-run` پس از اجرا: ۲٬۶۳۴ نسخه، `changed` صفر. `outside` ۲۵ است: ۲۱ ارجاع وارونه که `page_start` مدخلشان شماره‌ی دفتر است (مورد ۱۱۱ بک‌لاگ)، و چهار صفحه‌ی بیرون از بخش.
+  - `catalogs:assign-volume-parts --dry-run` پس از اجرا: ۲٬۶۳۴ نسخه، `changed` صفر. `outside` ۲۵ است: ۲۱ ارجاع وارونه که `page_start` مدخلشان شماره‌ی دفتر است (مورد ۱۱۲ بک‌لاگ)، و چهار صفحه‌ی بیرون از بخش.
   - اجرای دوم «Nothing to do» داد. `--revert` سنجه‌ی `crc32` جدول‌های `fp.sh` و جدول‌های بخش (بخش‌ها، فهرست‌نگارانشان، `catalog_volume_part_id` نسخه‌ها، `supervised_count` و شمار فهرست‌نگاران) را برگرداند.
   - صفحه‌ها (کانتینر با کاربر `0:0`): منبع، سه فهرست‌نگار و ۴۷ نسخه‌ی تصادفی پاسخ ۲۰۰ دادند و `source_url` در هیچ‌کدام نبود. در مرورگر، دسکتاپ و موبایل ۳۷۵ پیکسل بی سرریز افقی بودند و کنسول خطایی نداشت.
 - **آزمون:** [BuildNoskhePazhuhiTest](../tests/Feature/BuildNoskhePazhuhiTest.php):
