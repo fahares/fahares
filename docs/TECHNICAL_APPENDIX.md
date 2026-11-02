@@ -6851,3 +6851,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`Manuscript::getScribeDisplayNameAttribute`:** دیگر «بی‌کاتب» برنمی‌گرداند.
 - **`SearchFilters::FLAGS`:** `is_bita` و `is_bika` برداشته شدند. نشانی کهنه‌ی `flags[]=is_bita` در `clean` کنار گذاشته می‌شود. `config('insights.features')` این دو را نداشت.
 - **ماندنی‌ها:** ستون‌ها، سند جستجو (`toSearchableArray`) و `bit_label` فرم پیشنهاد در `SuggestionRegistry`.
+
+### گام ۱۴.۱۶: `fahares:link-copy-references`
+- **دستور:** [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `--dry-run`، `--work`، `--report` (CSV هر تصمیم)، `--backup` و `--revert`.
+  - رکوردهایی که متنشان `همان نسخه (اصل)( نسخه) بالا` دارد، به ترتیب id. «نسخه‌ی بالا» بزرگ‌ترین id کوچک‌تر در همان اثر و همان `volume_number` است. اگر آن نسخه در همین اجرا ادغام شده باشد، نسخه‌ی ماندنی جایش می‌نشیند.
+  - **عکسی:** وقتی متن «نسخه اصل:» یا «اصل نسخه:» دارد، یا مأخذش با «عکسی» یا «فیلمها» آغاز می‌شود، یا خود رکورد `is_facsimile` است. رابطه‌ی `facsimile_of` به نسخه‌ی بالا ساخته می‌شود. اگر نسخه‌ی بالا خود عکسی باشد، رابطه به مادر آن است، و اگر آن مادر بیرون از سامانه باشد، به همان عکسی. `is_facsimile` روشن می‌شود و «احتمالاً» یا «ظاهراً» در `note` می‌آید.
+  - **ادغام:** فقط برای `TRANSFERS` (مولوی→الهیات، شیخ علی حیدر→رضوی، مجلس سنا→مجلس) و بی «احتمالاً». `metadata.former_locations` نسخه‌ی ماندنی، کتابخانه و شماره و مأخذ نسخه‌ی رفتنی را می‌گیرد. `catalog_citation` و یادداشت «همان نسخه بالا» از متادیتای رفتنی برداشته می‌شوند. سپس `RecordMerger::mergeManuscript` اجرا می‌شود و ردیف‌های `MergeComparison` که پیش‌فرضشان KEEP است چنین می‌شوند:
+    - متن: BOTH.
+    - مقدار تک: یک `FieldSuggestion` تأییدشده با `standing = alternative`، `credit_name` «فهرست …»، `rationale_citation` مأخذ و `resolution.origin = copy_merge`.
+  - **بقیه:** رابطه‌ی `possibly_same` به سرِ زنجیره‌ی «احتمالاً همان نسخه».
+  - پشتیبان هنگام اجرا نوشته می‌شود. `--revert` ادغام‌ها را از آخر با `undoManuscriptMerge` برمی‌گرداند و متادیتای دو طرف را بازمی‌گذارد. سپس قول‌ها، رابطه‌های `source = fankha` و علامت‌های عکسی را برمی‌دارد.
+- **migration:** ستون `manuscript_relations.source` (`suggestion` یا `fankha`).
+- **`RecordRelations`:** نوع `possibly_same` بی‌جهت است، مانند `same_set` (`SYMMETRIC`).
+- **`Manuscript`:** `facsimileOf()`، `facsimileChain()` (عکسی‌های میانه و مادرِ درون سامانه)، `possiblySame()` و `original_note` (متن «نسخه اصل:» تا «؛»، مگر «همان نسخه»).
+- **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
+- **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
+- **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).

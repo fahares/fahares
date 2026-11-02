@@ -32,7 +32,12 @@ class RecordRelations
         'collated_with' => ['مقابله‌شده با', 'نسخه‌هایی که با این نسخه مقابله شده‌اند'],
         'same_set' => ['مجلدهای دیگر از همان دوره', 'مجلدهای دیگر از همان دوره'],
         'facsimile_of' => ['نسخه‌ی عکسی یا میکروفیلمِ', 'نسخه‌های عکسی و میکروفیلم‌های این نسخه'],
+        // Two descriptions that may be of one copy, kept apart until that is shown (step 14.16)
+        'possibly_same' => ['احتمالاً همان نسخه‌ی', 'معرفی‌های دیگری که احتمالاً همین نسخه‌اند'],
     ];
+
+    /** Types with no direction: one option, and a pair is the same either way round */
+    public const SYMMETRIC = ['same_set', 'possibly_same'];
 
     /** @return array{0: string, 1: string, 2: string, 3: array} table, record key, related key, types */
     private static function shape(Model $record): array
@@ -53,10 +58,14 @@ class RecordRelations
         [$noun, $chosen, $verb] = SuggestionRegistry::typeKey($recordType) === 'manuscript' ? ['نسخه', 'نسخه‌ی انتخاب‌شده', ' است'] : ['اثر', 'اثر انتخاب‌شده', ''];
         $options = [];
         foreach ($types as $type => [$forward]) {
-            $options[$type] = $type === 'same_set' ? "این {$noun} و {$chosen} مجلدهای یک دوره‌اند" : "این {$noun} {$forward} {$chosen}{$verb}";
+            $options[$type] = match ($type) {
+                'same_set' => "این {$noun} و {$chosen} مجلدهای یک دوره‌اند",
+                'possibly_same' => "این {$noun} و {$chosen} احتمالاً یک نسخه‌اند",
+                default => "این {$noun} {$forward} {$chosen}{$verb}",
+            };
         }
         foreach ($types as $type => [$forward]) {
-            if ($type !== 'same_set') {
+            if (! in_array($type, self::SYMMETRIC, true)) {
                 $options['~' . $type] = "{$chosen} {$forward} این {$noun}{$verb}";
             }
         }
@@ -79,7 +88,7 @@ class RecordRelations
         $exists = DB::table($table)->where('type', $type)->where(function ($q) use ($key, $relatedKey, $from, $to, $type) {
             $q->where([$key => $from->id, $relatedKey => $to->id]);
             // «same set» has no direction
-            if ($type === 'same_set') {
+            if (in_array($type, self::SYMMETRIC, true)) {
                 $q->orWhere(fn ($q) => $q->where([$key => $to->id, $relatedKey => $from->id]));
             }
         })->exists();

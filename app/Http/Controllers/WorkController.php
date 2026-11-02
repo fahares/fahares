@@ -47,7 +47,9 @@ class WorkController extends Controller
         $sort = $request->input('sort', 'sequence');
         $direction = strtolower($request->input('direction', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-        $query = $work->manuscripts()->with(['catalog', 'libraryRecord', 'scripts', 'scribe']);
+        // Photographs and repeated descriptions of a copy stand under it, not in the list (step 14.16)
+        $copyLinks = new \App\Support\CopyLinks($work);
+        $query = $work->manuscripts()->with(['catalog', 'libraryRecord', 'scripts', 'scribe'])->whereNotIn('id', $copyLinks->linkedIds());
 
         switch ($sort) {
             case 'library':
@@ -90,7 +92,9 @@ class WorkController extends Controller
             ->fragment('manuscripts');
 
         $earliest = $work->earliestDatedManuscript();
+        $linkedCopies = $copyLinks->under($manuscripts->pluck('id')->all());
+        $copyCounts = $copyLinks->counts();
 
-        return view('works.show', compact('work', 'manuscripts', 'sort', 'direction', 'earliest'));
+        return view('works.show', compact('work', 'manuscripts', 'sort', 'direction', 'earliest', 'copyLinks', 'linkedCopies', 'copyCounts'));
     }
 }

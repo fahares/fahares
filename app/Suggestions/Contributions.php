@@ -265,7 +265,7 @@ class Contributions
         $forward = ($resolution['from'] ?? $s->suggestable_id) === $s->suggestable_id;
         $other = $forward ? ($resolution['to'] ?? null) : ($resolution['from'] ?? null);
         $type = $resolution['type'] ?? ltrim((string) ($s->payload['role'] ?? ''), '~');
-        $option = $type === '' ? null : (RecordRelations::options($s->suggestable_type)[($forward || $type === 'same_set' ? '' : '~') . $type] ?? null);
+        $option = $type === '' ? null : (RecordRelations::options($s->suggestable_type)[($forward || in_array($type, RecordRelations::SYMMETRIC, true) ? '' : '~') . $type] ?? null);
 
         return [
             'after' => self::recordLink($target, $other ?? $s->payload['target_id'] ?? null),

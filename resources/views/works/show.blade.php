@@ -392,6 +392,15 @@
             </x-slot:actions>
         @endif
 
+        {{-- The handwritten copies apart from the photographs and the descriptions possibly of a copy already listed (step 14.16) --}}
+        @if(($copyCounts['photos_linked'] ?? 0) + ($copyCounts['photos_other'] ?? 0) + ($copyCounts['possibly_same'] ?? 0) > 0)
+            <p class="mb-2 text-[13px] text-muted" data-copy-counts>
+                <span class="font-bold text-ink">{{ Fa::num($copyCounts['copies']) }}</span> نسخه‌ی خطی
+                @if($copyCounts['photos_linked']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['photos_linked']) }}</span> عکسی از همین نسخه‌ها@endif
+                @if($copyCounts['photos_other']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['photos_other']) }}</span> عکسیِ دیگر@endif
+                @if($copyCounts['possibly_same']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['possibly_same']) }}</span> معرفیِ احتمالاً تکراری@endif
+            </p>
+        @endif
         <div class="bg-surface border border-line">
             <div class="overflow-x-auto">
                 <table class="w-full text-right text-xs sm:text-[13px] min-w-[640px]">
@@ -434,7 +443,9 @@
                                 <td class="py-2.5 px-3 text-center text-muted">{{ Fa::num($manuscripts->firstItem() + $index) }}</td>
                                 <td class="py-2.5 px-3">
                                     <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" title="{{ $ms->libraryRecord?->display_name }}" onclick="event.stopPropagation()">{{ $ms->libraryRecord?->short_name ?? $ms->library ?? 'نامشخص' }}</a>
+                                    @if($ms->is_facsimile)<span class="ms-1 px-1.5 rounded-sm bg-paper border border-line text-[10px] font-semibold text-muted">عکسی</span>@endif
                                     @if($ms->city)<span class="block text-[11px] text-muted">{{ $ms->city }}</span>@endif
+                                    @if($ms->is_facsimile)<span class="block text-[11px] text-amber-800 dark:text-amber-300">مادر: {{ $ms->original_note ? Fa::digits($ms->original_note) : 'نامعلوم' }}</span>@endif
                                 </td>
                                 <td class="py-2.5 px-3 font-semibold">
                                     @if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif
@@ -466,6 +477,20 @@
                                 <td class="py-2.5 px-3">{{ $ms->script_names ?? '—' }}</td>
                                 <td class="py-2.5 px-3">{{ $ms->folios ? Fa::digits($ms->folios) : ($ms->pages ? Fa::digits($ms->pages) . ' ص' : '—') }}</td>
                             </tr>
+                            @foreach($linkedCopies->get($ms->id, collect()) as $child)
+                                @php $link = $copyLinks->links[$child->id]; $isPhoto = $child->is_facsimile || $link['type'] === 'facsimile_of'; @endphp
+                                <tr class="bg-paper/60 text-[12px] text-muted" data-linked-copy="{{ $child->id }}">
+                                    <td></td>
+                                    <td colspan="6" class="py-1.5 px-3">
+                                        <span aria-hidden="true">↲</span>
+                                        <span class="px-1.5 rounded-sm border border-line text-[10px] font-semibold">{{ $isPhoto ? 'عکسی' : 'احتمالاً همان نسخه' }}</span>
+                                        <a href="{{ route('manuscripts.show', $child) }}" class="font-semibold text-ink hover:text-cinnabar">{{ $child->libraryRecord?->short_name ?? $child->library ?? 'نامشخص' }}@if($child->city)، {{ $child->city }}@endif</a>
+                                        · شماره‌ی @if($child->shelfmark)<span dir="ltr">{{ Fa::digits($child->shelfmark) }}</span>@else — @endif
+                                        @if($child->catalog_citation) · {{ Fa::digits(trim($child->catalog_citation, '[] ')) }}@endif
+                                        @if($link['note'])<span class="block text-[11px]">{{ $link['note'] }}</span>@endif
+                                    </td>
+                                </tr>
+                            @endforeach
                         @empty
                             <tr>
                                 <td colspan="7" class="py-8 text-center text-muted">هیچ نسخه‌ای برای این اثر ثبت نشده است.</td>

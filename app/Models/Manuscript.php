@@ -561,6 +561,56 @@ class Manuscript extends Model
         return $this->belongsTo(CatalogVolumePart::class);
     }
 
+    /** The copy this one is a photograph or film of, when that is linked (facsimile_of, step 14.16) */
+    public function facsimileOf(): ?self
+    {
+        $id = \Illuminate\Support\Facades\DB::table('manuscript_relations')->where('manuscript_id', $this->id)->where('type', 'facsimile_of')->orderBy('id')->value('related_manuscript_id');
+
+        return $id ? self::find($id) : null;
+    }
+
+    /**
+     * The photographs between this one and its mother, and the mother itself when it is in the records: a photograph
+     * of a photograph whose mother is outside the records ends at that photograph, with no mother.
+     *
+     * @return array{chain: array<int, self>, mother: ?self}
+     */
+    public function facsimileChain(): array
+    {
+        $chain = [];
+        $copy = $this;
+        for ($i = 0; $i < 5 && ($next = $copy->facsimileOf()); $i++) {
+            if (! $next->is_facsimile) {
+                return ['chain' => $chain, 'mother' => $next];
+            }
+            $chain[] = $copy = $next;
+        }
+
+        return ['chain' => $chain, 'mother' => null];
+    }
+
+    /** What the catalogue says of a photograph's mother («نسخه اصل: …»), up to the first «؛»; not «همان نسخه بالا» */
+    public function getOriginalNoteAttribute(): ?string
+    {
+        if (! preg_match('/(?:نسخه\s+اصل|اصل\s+نسخه)\s*:\s*([^؛\[\n]+)/u', (string) $this->raw_text, $m)) {
+            return null;
+        }
+        $note = preg_replace('/^[\s.،]+|[\s.،]+$/u', '', $m[1]);
+        if ($note === '' || preg_match('/^((احتمالا|ظاهرا)\S*\s+)?همان\s+نسخه/u', $note)) {
+            return null;
+        }
+
+        return \Illuminate\Support\Str::limit($note, 160);
+    }
+
+    /** The copy a possibly_same relation of this one points at (step 14.16) */
+    public function possiblySame(): ?self
+    {
+        $id = \Illuminate\Support\Facades\DB::table('manuscript_relations')->where('manuscript_id', $this->id)->where('type', 'possibly_same')->orderBy('id')->value('related_manuscript_id');
+
+        return $id ? self::find($id) : null;
+    }
+
     /** Where the copy is described in library catalogues (backlog item 51); rejected matches are kept for the record only. */
     public function catalogReferences(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
