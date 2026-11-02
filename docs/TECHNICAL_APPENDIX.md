@@ -6546,6 +6546,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `Would write 4769` بود: `incipit_tail` ۴٬۶۹۷ و `incipit_script` ۷۲. شش رکورد `natural key differs` بودند.
   - پس از `--apply`، اجرای بعدی `Would write 0` بود.
   - در ۴٬۷۶۹ رکورد، `incipit_text` «\n» ندارد و در `metadata.incipits` هست.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_incipit_tails_prod_before_20261102.jsonl` با ۴٬۷۷۵ ردیف از ستون‌های `id`، `incipit_text` و `metadata`.
+  - **اجرا:** با `prod-run` انجام شد و `Writing 4769` داد. اجرای دوم `already` ۴٬۷۶۹ و `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_incipit_becomes_a_note_too`.
 
 ### گام ۱۳.۱۶۵: «18884» مجلس
@@ -6588,3 +6591,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** پس از `--revert`، سنجه‌ی `catalogers` نمی‌خواند، چون پشتیبان فهرست‌نگاران جلدهای مجازی را نداشت. محلی با بازشماری آن دو فهرست‌نگار (MTIF ۳۷۲۱۸ و ۳۷۲۷۸) به حال پیش برگشت. تمرین دوم «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.168_import_volume_parts_chahar_mashhad_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest::test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it`.
+### گام ۱۳.۱۶۷: `flags_off`
+- **صدور (پیکره):** `fankha_v2_apply_export.py flags_off`. ورودی ردیف‌های `is_ruled/flag_off` و `is_illuminated/flag_off` از review7 است.
+  - **`flag_without_ground`:** بخش جلد با `جلد\s*:[^؛\[]*` جدا می‌شود. بدنه، متن بی آغاز و انجام (`(?:آغاز|انجام)\s*:[^؛]*`) و بی جلد است.
+  - **مجدول:** واژه‌ی `مجدول|جدول` فقط در جلد آمده باشد.
+  - **مذهب:** واژه‌ی `مذهب|تذهیب|سرلوح|زر|طلا` فقط در جلد آمده باشد (`binding`)، یا فقط در آغاز و انجام (`text`)، یا هیچ‌جا (`nowhere`).
+  - **کنار ماندن:** واژه در بدنه بیاید یا «مجدول»ی بی هیچ نشانه باشد.
+  - **خروجی:** ۳٬۳۳۱ رکورد: `is_ruled_off` ۲٬۲۹۵، `is_illuminated_off` ۱٬۰۳۶ (`text` ۸۱۵، `binding` ۱۵۷، `nowhere` ۶۴)؛ ۲۸۰ رکورد کنار رفت.
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `is_ruled` و `is_illuminated` را هم دارد. هر دو فیلتر جستجوی نسخه‌اند و فرمان نسخه‌ها را دوباره نمایه می‌کند.
+- **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
