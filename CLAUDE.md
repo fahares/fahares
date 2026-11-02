@@ -11,6 +11,10 @@ numbers and deploys from colliding.
   another session's branch may already hold it.
 - One reservation per step. If the work is dropped, leave the number unused; never reuse it.
 - `scripts/dev/reserve-step --list` shows the recent reservations and their sessions.
+- Steps are grouped in phases («فاز»). A new phase opens when the main subject of the work changes or a phase passes
+  about 50 steps: the task-management session proposes it, and with the user's OK it adds the phase heading and
+  chronology row and changes the default phase in `reserve-step`. Phase 13 closed at 13.172; phase 14 opened on
+  12 Aban 1405.
 
 ## Push and deploy
 
