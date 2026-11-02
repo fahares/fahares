@@ -6519,3 +6519,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `catalogs:assign-volume-parts`: `changed` ۳۱۰. «نشریه» با بخش ۱۲٬۸۳۴ ← ۱۳٬۱۴۴. همه‌ی جلدهای بخش‌دار: ۱۵٬۷۷۶ با کتابخانه، ۶۶ با صفحه‌ی تنها، ۶۶۰ بی‌بخش، و ۸۵۶ بیرون از بخش.
   - `undoMerge` ۲۲ لاگ (وارونه) سنجه‌ی `fplib` را برگرداند. برگرداندن بخش نسخه‌ها جداست: پس از undo، `catalogs:assign-volume-parts` دوباره اجرا شود.
 - **دفتر ۱۳ «نشریه»:** صفحه‌های ارجاع «نشریه: 13»: مجلس ۴۰۵–۴۴۶ (۲۴۷ نسخه)، وزیری ۳۵–۴۰۱ (۵۴۷)، و نوربخش ۹–۲۷۲ (۴۸۰ روی جلد #499 منبع نوربخش). MTIF 11395 («نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی») ۱۲ جلد دارد؛ نسخه‌های چاپی ۲۲۵۸۱ (ج ۲) تا ۲۲۵۷۱ (ج ۱۲).
+### گام ۱۳.۱۶۴: دنباله‌ی آغاز به `editorial_notes`
+- **مقایسه‌ی تازه:** `reports/fankha_v2_db_review7`، با پارسر گام ۱۳.۱۶۱ و `fahares_prod` محلی (۱۲ آبان).
+  - **اختلاف‌ها:** از ۱۴۶٬۹۵۵ به ۱۰۸٬۳۸۶ رسید.
+  - **`copy_v2_unmatched`:** از ۵۷۰ به ۶۴ رسید.
+  - **`explicit_text/trimmed`:** از ۴۱٬۲۲۳ به ۱٬۱۵۳ رسید.
+  - **`lines/emptied`:** از ۱٬۲۱۶ به ۳۶۲ رسید.
+  - **`library`:** دسته‌های این ستون بزرگ‌تر شدند (`trimmed` از ۱۸ به ۳٬۳۹۴)، ولی `site_v1` در همه صفر است. این از یکدست‌سازی نام کتابخانه‌ها در جلسه‌های دیگر است.
+- **صدور (پیکره):**
+  - **حلقه‌ی مشترک:** `fankha_v2_apply_export.py incipit_tail incipit_script` همان حلقه‌ی `explicit_tail` را برای `('incipit', incipits)` اجرا می‌کند. `v2_parts(v2dir, kind)` کلید را از متن آغاز v2 می‌گیرد.
+  - **شرط تازه برای هر دو گونه:** یادداشتی که «××» دارد یا با «آغاز» یا «انجام» شروع می‌شود کنار می‌رود.
+  - **خروجی:** ۴٬۷۷۵ رکورد؛ ۶۴۵ رکورد کنار رفت. ۲۵۸ تا دنباله‌ی چندسطری داشتند و ۱۹۰ تا سطر پس از آغاز در متن نبودند.
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `incipit_text` را دارد. `moveTail` ستون (`incipit_text` یا `explicit_text`) و فهرست `metadata` (`incipits` یا `explicits`) را از `changes` رکورد برمی‌گزیند. ممیزی فقط همان فهرست را نگه می‌دارد.
+- **فایل تصمیم:** `database/data/fankha_incipit_tails_20261102.json`.
+- **تمرین (`fahares_prod`):**
+  - `Would write 4769` بود: `incipit_tail` ۴٬۶۹۷ و `incipit_script` ۷۲. شش رکورد `natural key differs` بودند.
+  - پس از `--apply`، اجرای بعدی `Would write 0` بود.
+  - در ۴٬۷۶۹ رکورد، `incipit_text` «\n» ندارد و در `metadata.incipits` هست.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_incipit_becomes_a_note_too`.
