@@ -6788,6 +6788,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان‌ها: `…/step14.6_import_volume_parts_{golpayegan,nashriyeh}_local_before_20261103.json`.
 - **زنجان:** منبع ۱۰۰۰۸۰، جلد #494، دو نسخه (۸۰۷۵۰ «ف: 1 – 171» و ۲۵۰۷۳۴ «: 1-151»). فهرست‌نگارش صادق حضرتی آشتیانی است (MTIF ۳۸۳۳۸، با آثار ۱۳۶۸ آشتیان، ۸۲۹۳ و ۸۳۱۲). MTIF عنوانی برای امام جمعه‌ی زنجان ندارد.
 - **تراثنا:** فهرست‌نگار منبع‌های ۱۰۰۱۴۶ تا ۱۰۰۱۵۱ با ردیف‌های ۴۲۴، ۴۲۵، ۴۲۶، ۴۶۹، ۵۳۶ و ۵۳۷ یکی است.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار ۱۴.۷، از راه `prod-run`):**
+  - رونوشت ردیف‌های ادغام به `…/step14.6_merge_libraries_prod_before_20261103.json` رفت. ادغام: ۳۷۵ ← ۳۷۴ کتابخانه.
+  - «گلپایگان» (۱۹۴ نسخه) و «نشریه» (۱۱ رکورد MTIF): پشتیبان‌ها به `…/step14.6_import_volume_parts_{golpayegan,nashriyeh}_prod_before_20261103.json` رفتند.
+  - #589 ۴۴۱ نسخه در ۴ بخش دارد. ۴۴۱ نسخه بی‌صف دوباره ایندکس شدند و صفحه‌ی منبع ۴ سطر `data-volume-part` دارد. `source_entries` = ۷۸۸٬۵۰۱.
+- **ریشه‌ی فهرست زنجان:** گام فاز ۲ بازسازی فهرست‌نگاران (`RemediateCatalogsAndCatalogersCommand`، بند ۴، کامیت `11afe64`، ۱۳ مهر ۱۴۰۵) جلد «فهرست نسخه‌های خطی کتابخانه مدرسه امام جمعه زنجان» را با `firstOrCreate` ساخت. ناشر «مجمع ذخائر اسلامی» و سال ۱۳۸۴ را حدسی نوشت، «صادق حضرتی» را فهرست‌نگارش کرد و همه‌ی نسخه‌های کتابخانه‌ی ۶۶ را به آن بست (۴۹۴ نسخه). هیچ مأخذی پشتوانه‌ی آن نیست.
 
 ### گام ۱۴.۷: `works.entry_status` و `fahares:move-entry-status`
 - **migration** `2026_11_04_200001_add_entry_status_to_works`: ستون `entry_status` از نوع varchar(30)، nullable، پس از `description`.
@@ -6820,3 +6825,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):**
   - **تمرین نخست:** بی شرط سده بود و ۱۸ `author_id` ساخت، همه با نام‌های بی‌تاریخ. این تمرین با `old_values` ممیزی برگردانده شد: `author_name`، `author_id` و `description` به حال پیش برگشتند، سطرهای `work_people` با نقش `author` آن ۱۸ اثر و ردیف‌های ممیزی پاک شدند.
   - **تمرین دوم:** `update 432` اجرا شد. ۸ اثر سده داشتند، ولی هیچ‌کدام تطبیق مطمئن نداشت، پس `author_id` در همه تهی ماند. اجرای بعدی `update 0` داد.
+### گام ۱۴.۹: `catalogs:remove-catalogue`
+- **دستور:** [RemoveCatalogueCommand](../app/Console/Commands/RemoveCatalogueCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
+  - منبع با `code` پیدا می‌شود؛ اگر نباشد، «nothing to do».
+  - هر نسخه‌ی `copies` با slug کتابخانه، `shelfmark` و `page_start` ارجاع قدیم (`manuscript_catalog_references`) روی جلدهای منبع پیدا می‌شود و به جلد `volume` از منبع `to` می‌رود. ارجاع قدیمش هم با آن می‌رود. اگر نسخه‌ای بی‌نام بماند یا نسخه‌ی نام‌برده پیدا نشود، دستور با شکست برمی‌گردد.
+  - `SourceEntrySync::syncCited` مدخل و بخش نسخه‌ها را از نو می‌سازد. مدخل یا ارجاعی که هنوز به منبع اشاره کند تهی می‌شود.
+  - پس از آن ردیف‌های `catalog_volume_cataloger` و `catalog_volume_parts`، جلد (`source_volumes` و `catalog_volumes`) و منبع حذف می‌شوند.
+  - شمار جلدها و بخش‌های مقصد و فهرست‌نگاران با `CatalogVolumePart::recount` و `Cataloger::recount` از نو گرفته می‌شود.
+  - **پشتیبان:** ردیف کامل منبع، جلدها، ردیف‌های فهرست‌نگار و بخش‌ها؛ ستون‌های نسخه‌ها، مدخل‌ها، ارجاع‌ها و فهرست‌نگاران؛ و شمار جلدها و بخش‌های مقصد. `--revert` ردیف‌ها را upsert و ستون‌ها را بازنویسی می‌کند.
+- **داده:** [remove_catalogue_step14_9.json](../database/data/remove_catalogue_step14_9.json): `catalogue-b1c30639abab`.
+  - نسخه‌ی ۱۱۴ (ص ۱۷۱) به `catalogue-5c2b9b62d4d4` («اوراق عتیق») ج ۱ می‌رود.
+  - «12مجموعه بدون شماره» (ص ۱۵۱) به `catalogue-92b3d5e41c52` («دلیل المخطوطات») ج ۱ می‌رود.
+- **[RemediateCatalogsAndCatalogersCommand](../app/Console/Commands/RemediateCatalogsAndCatalogersCommand.php):** بند ۴ (`firstOrCreate` جلد و `update` همه‌ی نسخه‌های کتابخانه‌ی ۶۶) به یک یادداشت تبدیل شد.
+- **فایل‌های داده‌ی ۱۳.۱۶۶ و ۱۳.۱۷۳:** fold با `keep` منبع نبوده را نادیده می‌گیرد. dry-run هر دو پس از حذف «Nothing to do» گزارش می‌کند.
+- **آزمون:** [RemoveCatalogueTest](../tests/Feature/RemoveCatalogueTest.php) این موارد را می‌آزماید: نسخه‌ی بی‌نام، dry-run، جابه‌جایی به جلد و بخش و فهرست‌نگار، مدخل و ارجاع، شمارها، اجرای دوم و برگرداندن دقیق.
+- **تمرین (`fahares_prod` محلی):**
+  - منبع ۱۰۰۰۸۰ و جلد #494 حذف شد.
+  - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۸۷۳، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #763 (بخش ۱۰۰۵، فهرست‌نگار ۲۴).
+  - شمار بخش‌ها: ۸۷۳ = ۲۱۹ و ۱۰۰۵ = ۲۷۶. حضرتی (#۳۷): ۳ جلد و ۲۱۶ نسخه.
+  - اثرانگشت جدول‌ها پس از `--revert` با پیش از اجرا یکی بود؛ پس از آن دوباره اجرا شد.
+
