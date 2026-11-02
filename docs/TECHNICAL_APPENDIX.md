@@ -6408,6 +6408,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **عنوان:** ۲٬۵۰۱ پیوند، که ۲۵۶ پیوند پیشین را جایگزین کرد. ۱٬۱۹۳ پیوند `ref` دست‌نخورده ماند.
   - **شخص:** ۴۹۴ پیوند (پیش از این ۳۸۷): ۲۴۷ `name+year`، ۱۷۸ `alias+year`، ۴۵ `name+work` و ۲۴ `alias+work`.
   - صفحه‌ی زنده‌ی ج ۱ ص ۲ پیوند TB تازه («اللوائح الليلية») را نشان می‌دهد.
+
 ### گام ۱۳.۱۵۸: بازبستن نسخه‌های «مختصر ف» از جلد سنا
 - **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
   - **کدام نسخه‌ها:** جلدهای سنا آن‌هایی‌اند که عنوانشان «سنا» دارد و کتابخانه‌شان مجلس یا سناست، پس پس از جدا کردن هم پیدا می‌شوند. نسخه‌ی مجلسی که در آن‌ها مانده و متنش `[\s*مختصر\s*-?\s*ف\s*:` دارد، جابه‌جا می‌شود.
@@ -6484,6 +6485,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **از دست رفته‌ها:** `binding` ۲. یکی از آن‌ها «25 سطر (11×21/5)» بود که جلد نیست.
   - **سطرهای هنوز ناخوانده:** از ۶۳۸ به ۲۶۲ رسید.
 - **آزمون‌ها:** `tests/test_fankha_v2_gold.py::LineCountsTest` با ۲ آزمون. `GoldAccuracyTest` دو نمونه‌ی `v09w01538m1` و `v03w01625m1` را `missing` گزارش می‌کند. خط نخست این دو در `units.jsonl` شماره‌ی پیش از اصلاح‌های ۱۳.۱۴۸ و ۱۳.۱۵۸ را دارد، مانند «2/ 1927» به جای «19270/2».
+
 ### گام ۱۳.۱۶۲: دور دوم «موضوع اثر» و `--prune`
 - **فایل تصمیم:**
   - ۲۸ عبارت تازه در `phrases`. «شاه نعمت الله ولی» اکنون به «نعمة الله ولی، نعمة الله بن عبدالله» می‌رود.
@@ -6512,10 +6514,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:**
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (با «مولد»)
   - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
-### گام ۱۳.۱۶۵: «18884» مجلس
-- **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
-- **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
-
 
 ### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
 - **داده:** [library_duplicates_step13_163.json](../database/data/library_duplicates_step13_163.json)، ۱۹ گروه. اجرا: `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`.
@@ -6525,6 +6523,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `catalogs:assign-volume-parts`: `changed` ۳۱۰. «نشریه» با بخش ۱۲٬۸۳۴ ← ۱۳٬۱۴۴. همه‌ی جلدهای بخش‌دار: ۱۵٬۷۷۶ با کتابخانه، ۶۶ با صفحه‌ی تنها، ۶۶۰ بی‌بخش، و ۸۵۶ بیرون از بخش.
   - `undoMerge` ۲۲ لاگ (وارونه) سنجه‌ی `fplib` را برگرداند. برگرداندن بخش نسخه‌ها جداست: پس از undo، `catalogs:assign-volume-parts` دوباره اجرا شود.
 - **دفتر ۱۳ «نشریه»:** صفحه‌های ارجاع «نشریه: 13»: مجلس ۴۰۵–۴۴۶ (۲۴۷ نسخه)، وزیری ۳۵–۴۰۱ (۵۴۷)، و نوربخش ۹–۲۷۲ (۴۸۰ روی جلد #499 منبع نوربخش). MTIF 11395 («نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی») ۱۲ جلد دارد؛ نسخه‌های چاپی ۲۲۵۸۱ (ج ۲) تا ۲۲۵۷۱ (ج ۱۲).
+
 ### گام ۱۳.۱۶۴: دنباله‌ی آغاز به `editorial_notes`
 - **مقایسه‌ی تازه:** `reports/fankha_v2_db_review7`، با پارسر گام ۱۳.۱۶۱ و `fahares_prod` محلی (۱۲ آبان).
   - **اختلاف‌ها:** از ۱۴۶٬۹۵۵ به ۱۰۸٬۳۸۶ رسید.
@@ -6543,3 +6542,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پس از `--apply`، اجرای بعدی `Would write 0` بود.
   - در ۴٬۷۶۹ رکورد، `incipit_text` «\n» ندارد و در `metadata.incipits` هست.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_incipit_becomes_a_note_too`.
+
+### گام ۱۳.۱۶۵: «18884» مجلس
+- **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
+- **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
