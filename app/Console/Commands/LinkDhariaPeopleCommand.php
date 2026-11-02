@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\DB;
  * (aliases) of two words or more, two of them not common ones. The words are compared without spaces, «ال» and
  * the Arabic letters' variants, so «فخر الدين بن أبي القاسم الگلپايگاني» holds «فخرالدین بن ابی القاسم گلپایگانی».
  * A name with no nisba or no father («یزدی، ملا احمد» holds both; «شیخ بهایی» neither) needs an alias.
- * Saved are only the links his death year printed right after the name confirms («المتوفى 1124»; ENABLED).
+ * Saved are only the links his death year printed after the name confirms («المتوفى 1124»; ENABLED), or one of his works
+ * on the site named in the marks right after it («الشيخ محمد بن يونس الشويهي في براهين العقول», «+work», step 13.157).
  */
 class LinkDhariaPeopleCommand extends LinkDhariaTitlesCommand
 {
@@ -24,12 +25,14 @@ class LinkDhariaPeopleCommand extends LinkDhariaTitlesCommand
 
     /**
      * The kinds and methods whose links are saved (see LinkDhariaTitlesCommand::ENABLED): a name with his death year
-     * after it, about 120 of which a hand check found all right. A name alone was right in 47 of 50 (FB), 43 of 50
-     * (DB), 44 of 50 (MB): namesakes of other centuries, a father or son of the one meant.
+     * after it, about 120 of which a hand check found all right, and 26 of 26 more when the year is further after it
+     * (step 13.157); a name with a work of his after it, 21 of 21. A name alone was right in 47 of 50 (FB), 43 of 50
+     * (DB), 44 of 50 (MB): namesakes of other centuries, a father or son of the one meant. A year near the name within
+     * his lifetime was right in 48 of 50 only (an alias «حجة الإسلام», a namesake), so it is not used.
      */
     public const ENABLED = ['FB' => self::DATED, 'MB' => self::DATED, 'AB' => self::DATED, 'ZB' => self::DATED, 'DB' => self::DATED];
 
-    private const DATED = ['name+year', 'alias+year'];
+    private const DATED = ['name+year', 'alias+year', 'name+work', 'alias+work'];
 
     /** Words too common to tell persons apart (as squash() writes them). */
     private const COMMON = ['بن', 'ابن', 'ابو', 'ابی', 'ابا', 'محمد', 'علی', 'حسن', 'حسین', 'احمد', 'خان', 'بیگ', 'عبد', 'دین', 'له',
@@ -80,13 +83,25 @@ class LinkDhariaPeopleCommand extends LinkDhariaTitlesCommand
 
         $links = [];
         $count = [];
-        $pages->chunk(500, function ($chunk) use ($kinds, $byKey, &$links, &$count) {
+        // each author's works on the site, by title key, for the name with a work of his after it
+        $works = [];
+        foreach (DB::table('works')->whereNotNull('author_id')->get(['author_id', 'primary_title']) as $work) {
+            foreach (self::keys((string) $work->primary_title) as $key) {
+                $works[$work->author_id][$key] = true;
+            }
+        }
+
+        $pages->chunk(500, function ($chunk) use ($kinds, $byKey, $works, &$links, &$count) {
             foreach ($chunk as $page) {
-                foreach (self::marksOf($page->text) as $mark) {
+                $marks = self::marksOf($page->text);
+                foreach ($marks as $n => $mark) {
                     if (! in_array($mark['kind'], $kinds, true)) {
                         continue;
                     }
                     [$person, $method] = self::person($mark['text'], $byKey, $mark['after']);
+                    if ($person && in_array($method, ['name', 'alias'], true) && self::hisWork($marks, $n, $works[$person->id] ?? [])) {
+                        $method .= '+work';
+                    }
                     $count[$mark['kind']][$method] = ($count[$mark['kind']][$method] ?? 0) + 1;
                     if ($person) {
                         $links[] = ['page' => $page, 'mark' => $mark, 'item' => $person, 'method' => $method];
@@ -190,10 +205,30 @@ class LinkDhariaPeopleCommand extends LinkDhariaTitlesCommand
         if ($death && collect($years)->contains(fn ($y) => $y > $death + 2 && $y < 1500)) {
             return [null, 'year-differs'];
         }
-        // his death year right after the name («المتوفى 935», «( 1272 - 1354 )»): a second anchor
-        $dated = $death && collect($years)->contains(fn ($y) => abs($y - $death) <= 1);
+        // his death year after the name («المتوفى 935», «( 1272 - 1354 )», «… و المتوفى سنة 1309»): a second anchor
+        preg_match_all('/(?<!\d)(\d{3,4})(?!\d)/', MatchCatalogEditionCommand::digits($after), $further);
+        $dated = $death && collect($further[1])->contains(fn ($y) => abs((int) $y - $death) <= 1);
 
         return [$form['person'], $form['method'] . ($dated ? '+year' : '')];
+    }
+
+    /** Whether a title in the next three marks is one of $works (title keys of his works). */
+    public static function hisWork(array $marks, int $n, array $works): bool
+    {
+        if (! $works) {
+            return false;
+        }
+        foreach (array_slice($marks, $n + 1, 3) as $other) {
+            if (in_array($other['kind'], ['WB', 'TB', 'VB', 'EB'], true)) {
+                $title = preg_replace('/^[\s()\[\]«»"\'،,.:؛]+|[\s()\[\]«»"\'،,.:؛]+$/u', '', $other['text']);
+                $keys = self::keys($title) ?: (preg_match('/^[بلك]\x{200D}?\s*(\p{L}.{2,})$/u', $title, $m) ? self::keys($m[1]) : []);
+                if (array_intersect_key($works, array_flip($keys))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

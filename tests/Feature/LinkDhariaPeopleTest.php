@@ -76,4 +76,28 @@ class LinkDhariaPeopleTest extends TestCase
         DB::table('source_page_links')->update(['rejected_at' => now()]);
         $this->assertStringNotContainsString('یادکرد در منابع', $this->get(route('people.show', $tunekabuni))->getContent());
     }
+
+    public function test_a_name_is_confirmed_by_a_work_of_his_or_his_death_year_further_after_it()
+    {
+        $source = Source::create(['code' => 'dharia', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 3, 'facsimile_code' => 'dharia-3']);
+        $person = fn (string $name, ?int $death = null) => Person::create(['name' => $name, 'normalized_name' => $name,
+            'slug' => 'p-' . uniqid(), 'is_author' => true, 'death_year_hijri' => $death]);
+        $shuwayhi = $person('شویهی، محمد بن یونس', 1250);
+        \App\Models\Work::create(['primary_title' => 'براهین العقول', 'clean_title' => 'براهین العقول', 'author_id' => $shuwayhi->id,
+            'slug' => 'w-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+        $borujerdi = $person('بروجردی، محمد رحیم بن محمد', 1309);
+        $other = $person('تبریزی، محمد رضا بن عبد المطلب', 1150);
+
+        $m = fn (string $kind, string $text) => "\u{E020}{$kind}\u{E021}{$text}\u{E022}";
+        $text = 'عده ' . $m('FB', 'الشيخ محمد بن يونس الشويهي') . ' في ' . $m('WB', 'براهين العقول') . ' و كان الواقف لها '
+            . $m('FB', 'الشيخ محمد رحيم بن الميرزا محمد البروجردي') . ' نزيل المشهد الرضوي و المتوفى به سنة 1309 و ذكره '
+            . $m('FB', 'محمد رضا بن عبد المطلب التبريزي') . ' في ' . $m('WB', 'براهين العقول') . '.';
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 7, 'text' => $text]);
+
+        $this->artisan('sources:link-dharia-people')->assertSuccessful();
+        $this->assertSame([[0, $shuwayhi->id, 'name+work'], [2, $borujerdi->id, 'name+year']],
+            DB::table('source_page_links')->orderBy('ordinal')->get()->map(fn ($l) => [$l->ordinal, $l->target_id, $l->method])->all());
+        $this->assertNotContains($other->id, DB::table('source_page_links')->pluck('target_id')->all());
+    }
 }
