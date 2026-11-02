@@ -6856,6 +6856,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **کنار رفته‌ها:** ۲۶ «v2 reads another author» و ۲۶ «hedged».
 - **فایل تصمیم:** `database/data/fankha_authors_from_description_by_title_20261102.json`.
 - **تمرین (`fahares_prod`):** `update 399` و سپس `update 0`. `author_id` در هیچ اثری پر نشد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `3a273af`):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_by_title_prod_before_20261102.json`، شامل ۳۹۹ اثر که همه بی مؤلف بودند.
+  - **اجرا:** با `prod-run --wait` انجام شد، پشت قفل استقرار. نتیجه `update 399` و سپس `update 0` بود.
 - **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `8a17094`، از راه `prod-run`):**
   - dry-run و اجرا جدا از هم انجام شدند.
   - نسخه‌ی ۸۰۷۵۰ به #534 رفت (بخش ۱۴۴، فهرست‌نگار ۲۵) و ۲۵۰۷۳۴ به #709 (بخش ۱۸۰، فهرست‌نگار ۲۴). شماره‌ی جلد و بخش در پروداکشن با نسخه‌ی محلی فرق دارد.
@@ -6872,6 +6875,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **خروجی:** ۱٬۳۹۷ رکورد `work_updates` (`author_name: null → name`). ۹۸۶ رکورد کنار رفت: ۸۳۱ مؤلف دارند، ۱۰۸ «another»، ۳۸ «hedged» و ۹ «no author line».
 - **فایل تصمیم:** `database/data/fankha_authors_from_text_20261102.json`.
 - **تمرین (`fahares_prod`):** `update 1397` و سپس `update 0`. `author_id` در همه تهی ماند.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `3a273af`):**
+  - **پشتیبان:** `fahares-sources/backups/item87_authors_from_text_prod_before_20261102.json`، شامل ۱٬۳۹۷ اثر که همه بی مؤلف بودند.
+  - **اجرا:** با `prod-run --wait` انجام شد، پشت قفل استقرار. نتیجه `update 1397` و سپس `update 0` بود.
 
 ### گام ۱۴.۱۴: `text_fill`
 - **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
