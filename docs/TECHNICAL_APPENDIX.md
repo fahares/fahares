@@ -6123,6 +6123,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_explicit_tails_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 40070` (`explicit_tail` ۳۹٬۶۲۷، `explicit_script` ۴۴۳). ۷ رکورد `natural key differs` بودند. اجرای `--apply` ۲ دقیقه و ۱۷ ثانیه طول کشید. اجرای دوم `Would write 0` بود.
   - **پس از اجرا:** در هیچ رکوردی `explicit_text` «\n» ندارد. در ۴۰٬۰۶۹ رکورد متن انجام در `metadata.explicits` هست. استثنا #222552 است که فهرست `explicits` آن دنباله‌ی بلندتری از `explicit_text` داشت.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `f6d67e5`):**
+  - **پشتیبان:** `fahares-sources/backups/item87_explicit_tails_prod_before_20261102.jsonl`، شامل ۴۰٬۰۷۷ ردیف از `id`، `explicit_text` و `metadata`.
+  - **اجرای نخست:** فرمان `fahares:apply-corpus-categories` گام ۱۳.۱۴۱ در همان دقیقه آغاز شد. اجرای من در dry run کشته شد. در `audit_logs` هیچ ردیفی ثبت نشد.
+  - **اجرای دوم:** پس از پایان اجراهای ۱۳.۱۴۱ و ۱۳.۱۴۴ و پیش از `prod-run` انجام شد. خروجی `Writing 40070` و `reindexed 40070` بود. اجرای وارسی پس از آن: `already` ۴۰٬۰۷۰، `natural key differs` ۷، `Would write 0`. شمار ردیف‌های `audit_logs` ۴۰٬۰۷۰ است.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_explicit_becomes_typed_cataloguers_notes`.
 
 ### گام ۱۳.۱۴۴: ادغام کتابخانه‌ی ۲۸۳ ← ۱۰۰
