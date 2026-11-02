@@ -156,6 +156,7 @@ class Manuscript extends Model
             'range_from_number' => 'integer',
             'range_to_number' => 'integer',
             'lines' => 'integer',
+            'line_counts' => 'array',
             'is_corrected' => 'boolean',
             'has_marginal_notes' => 'boolean',
             'is_ruled' => 'boolean',

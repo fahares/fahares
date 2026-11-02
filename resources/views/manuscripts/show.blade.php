@@ -312,7 +312,7 @@
                         @if($manuscript->extentLabel()){{ $manuscript->extentLabel() }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                     <x-ui.meta label="شمار سطر" field="lines">
-                        @if($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
+                        @if($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                     <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions">
                         @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif

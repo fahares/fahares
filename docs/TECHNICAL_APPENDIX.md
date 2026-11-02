@@ -6303,3 +6303,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ارجاع‌ها: معمولی، وارونه، با خط تیره‌ی بلند، «نسخه‌پژوهی 3:»، صفحه‌ی تنها، روضاتی، حکیم، کتابخانه‌ی بی‌بخش، صفحه‌ای که دو بخش دارند، و ارجاع نخستین از منبع دیگر؛
   - همچنین dry-run، دفترها و MTIF، ویراستار، بخش و فهرست‌نگار هر نسخه، شمارش‌ها، تکرار بی‌اثر و `--revert`.
   - `CatalogVolumePartsTest::test_the_pages_and_a_save_before_the_deploy_has_migrated` پرسشی به جدول‌های بخش را رد می‌کند وقتی `ready()` نادرست است.
+
+### گام ۱۳.۱۵۶: `lines_raw` و `line_counts`
+- **migration** (`2026_11_03_200001_add_line_layouts_to_manuscripts`): `lines_raw` از نوع varchar(255) و `line_counts` از نوع json، هر دو nullable و پس از `lines`. در مدل `line_counts` با cast `array` خوانده می‌شود.
+- **[CopyLines](../app/Support/CopyLines.php):**
+  - `fromText` نخست برچسب صفحه را برمی‌دارد و رقم فارسی را به لاتین برمی‌گرداند. سپس `PHRASE` را می‌جوید: زنجیره‌ای از عددها که با «و»، «-»، «–»، «تا» یا «،» به هم پیوسته‌اند و پیش از «سطر» می‌آیند. «سطرها» شمرده نمی‌شود، و زنجیره‌ای که پیش از آن «×»، رقم یا «/» باشد هم شمرده نمی‌شود.
+  - `own` زنجیره را از پس از آخرین عدد بزرگ‌تر از ۹۹ می‌برد. «،» فقط در فهرستی با سه عدد یا بیشتر، یا همراه «و»، پیوند به شمار می‌آید.
+  - `layouts`: گروه‌ها با «و» یا «،» از هم جدا می‌شوند. گروه دوعددی با «-» یا «تا» بازه‌ی [min، max] است و گروه سه‌عددی یا بیشتر فهرست است.
+  - عبارت کسری عبارتش را نگه می‌دارد، بی شمار.
+  - `columns` و `forUpdate` برای نوشتن به کار می‌روند.
+- **هم‌گامی:** `DerivedData::copyChanges` کلید `lines` را برمی‌گرداند، و `COPY_COLUMNS` دو ستون تازه را دارد. `syncCopies` آن‌ها را می‌نویسد. `RefreshDerivedCommand` گونه‌ی `line_counts` را گزارش و ترمیم می‌کند.
+- **فرمان:** `fahares:fill-line-counts [--apply] [--show=8]` ([FillLineCountsCommand.php](../app/Console/Commands/FillLineCountsCommand.php)). ممیزی و بازنمایه ندارد، چون این ستون‌ها از `raw_text` ساخته می‌شوند و نمایه فقط `lines` را دارد.
+- **نمایش:** [show.blade.php](../resources/views/manuscripts/show.blade.php): «شمار سطر» اگر `lines_raw` باشد آن را نشان می‌دهد، وگرنه `lines`.
+- **تمرین (`fahares_prod`):** پس از migrate، اجرای `--apply` یک دقیقه و ۲۴ ثانیه طول کشید و `changed 199915` گزارش داد:
+  - `one_count` ۱۸۹٬۳۹۸
+  - `varying` ۶٬۸۹۱
+  - `several_layouts` ۳٬۶۱۷
+  - `wording_only` ۹
+  - `lines_not_among_them` ۸۱
+
+  اجرای دوم `changed 0` داد و `refresh-derived` نیز `line_counts 0`.
+- **آزمون‌ها:** `Tests\Unit\CopyLinesTest` (۲ آزمون) و `FillLineCountsCommandTest`.
