@@ -6,7 +6,7 @@
 #   media   back up storage/app/public (catalog page images) to restic, then prune the repo
 #   config  back up app/DB container environments (secrets) to Telegram and restic
 #   verify  restic integrity check + stream the latest DB snapshot and confirm it is complete
-#   status  print the last result of each job; exits 1 if the last DB backup is stale or failed
+#   status  print the last result of each job; exits 1 if the last DB backup is stale or any job's last run failed
 #   watch   run status quietly and send a Telegram alert if it fails (daily cron; catches a backup that never ran)
 #   tg-chats  list chats the bot has seen (post something in the channel first) to find TG_CHAT_ID
 #   tg-test   send a test message to TG_CHAT_ID
@@ -37,12 +37,18 @@ KEEP_WEEKLY="${KEEP_WEEKLY:-8}"
 KEEP_MONTHLY="${KEEP_MONTHLY:-12}"
 MAX_AGE_HOURS="${MAX_AGE_HOURS:-30}"
 VERIFY_READ_SUBSET="${VERIFY_READ_SUBSET:-5%}"
+RCLONE_TIMEOUT="${RCLONE_TIMEOUT:-10m}"
+RESTIC_ATTEMPTS="${RESTIC_ATTEMPTS:-3}"
+RESTIC_RETRY_WAIT="${RESTIC_RETRY_WAIT:-600}"
 TG_BOT_TOKEN="${TG_BOT_TOKEN:-}"
 TG_CHAT_ID="${TG_CHAT_ID:-}"
 TG_API_BASE="${TG_API_BASE:-https://api.telegram.org}"
 AGE_RECIPIENT="${AGE_RECIPIENT:-}"
 RESTIC_REPOSITORY="${RESTIC_REPOSITORY:-}"
 export RESTIC_REPOSITORY RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-}"
+# restic waits only one minute for rclone to answer its first request; under Google Drive rate limits
+# (rclone's shared OAuth client, busiest around 00:00 UTC) rclone's backoff takes longer than that.
+RESTIC_OPTS=(-o "rclone.timeout=${RCLONE_TIMEOUT}")
 
 STATE_FILE="$STATE_DIR/last.json"
 HOST="$(hostname -s)"
@@ -55,6 +61,18 @@ nice_io() { nice -n 15 ionice -c3 "$@"; }
 
 tg_enabled() { [ -n "$TG_BOT_TOKEN" ] && [ -n "$TG_CHAT_ID" ]; }
 restic_enabled() { [ -n "$RESTIC_REPOSITORY" ]; }
+
+# Run a restic command (any command whose failure is worth retrying) up to RESTIC_ATTEMPTS times.
+retry_restic() {
+    local attempt
+    for attempt in $(seq 1 "$RESTIC_ATTEMPTS"); do
+        "$@" && return 0
+        [ "$attempt" -lt "$RESTIC_ATTEMPTS" ] || break
+        log "restic failed (attempt ${attempt}/${RESTIC_ATTEMPTS}), retrying in ${RESTIC_RETRY_WAIT}s"
+        sleep "$RESTIC_RETRY_WAIT"
+    done
+    return 1
+}
 
 # Telegram Bot API call with retries; prints the JSON response, fails unless "ok": true.
 tg_api() {
@@ -101,6 +119,7 @@ on_exit() {
     [ "$code" -eq 0 ] && return 0
     # Never leave half-written encrypted copies or chunks behind.
     rm -rf "$WORK_DIR"/*.age "$WORK_DIR"/*.chunks "$WORK_DIR"/fahares-config-*/ 2>/dev/null || true
+    log "FAILED: exit $code at step '$STEP'"
     record failed "exit $code at step '$STEP'" || true
     notify "❌ Fahares backup FAILED on ${HOST}
 job: ${JOB}
@@ -163,6 +182,11 @@ rotate_local() {
     local pattern="$1"
     # shellcheck disable=SC2012
     ls -1t "$WORK_DIR"/$pattern 2>/dev/null | tail -n +"$((LOCAL_KEEP + 1))" | xargs -r rm -f --
+}
+
+restic_db_backup() {
+    zstd -dc "$1" | nice_io restic "${RESTIC_OPTS[@]}" backup --quiet --stdin --stdin-filename fahares-db.sql \
+        --tag db --host "$HOST"
 }
 
 job_db() {
@@ -229,8 +253,7 @@ rows: $(jq -r '.row_counts | to_entries | map("\(.key)=\(.value)") | join(", ")'
     if restic_enabled; then
         STEP="restic-backup"
         # Uncompressed SQL deduplicates far better across days; restic compresses on its own.
-        zstd -dc "$dump" | nice_io restic backup --quiet --stdin --stdin-filename fahares-db.sql \
-            --tag db --host "$HOST"
+        retry_restic restic_db_backup "$dump"
         restic_status="ok"
     fi
 
@@ -249,11 +272,11 @@ job_media() {
     restic_enabled || die "RESTIC_REPOSITORY is not set"
     [ -d "$MEDIA_DIR" ] || die "media dir not found: $MEDIA_DIR"
     STEP="restic-backup"
-    nice_io restic backup --quiet --tag media --host "$HOST" "$MEDIA_DIR"
+    retry_restic nice_io restic "${RESTIC_OPTS[@]}" backup --quiet --tag media --host "$HOST" "$MEDIA_DIR"
     STEP="restic-forget"
-    nice_io restic forget --quiet --prune --host "$HOST" --group-by host,tags \
+    retry_restic nice_io restic "${RESTIC_OPTS[@]}" forget --quiet --prune --host "$HOST" --group-by host,tags \
         --keep-daily "$KEEP_DAILY" --keep-weekly "$KEEP_WEEKLY" --keep-monthly "$KEEP_MONTHLY"
-    record ok "$(restic snapshots --json --latest 1 --tag media | jq -r '.[0].short_id')"
+    record ok "$(restic "${RESTIC_OPTS[@]}" snapshots --json --latest 1 --tag media | jq -r '.[0].short_id')"
     log "done"
 }
 
@@ -288,7 +311,7 @@ job_config() {
     fi
     if restic_enabled; then
         STEP="restic-backup"
-        restic backup --quiet --tag config --host "$HOST" "$archive"
+        retry_restic restic "${RESTIC_OPTS[@]}" backup --quiet --tag config --host "$HOST" "$archive"
     fi
     rm -f "$archive"
     record ok "$name"
@@ -299,13 +322,13 @@ job_verify() {
     require_tools restic zstd
     restic_enabled || die "RESTIC_REPOSITORY is not set"
     STEP="restic-check"
-    nice_io restic check --read-data-subset="$VERIFY_READ_SUBSET"
+    retry_restic nice_io restic "${RESTIC_OPTS[@]}" check --read-data-subset="$VERIFY_READ_SUBSET"
     STEP="restic-dump"
     local snap
-    snap="$(restic snapshots --json --latest 1 --tag db --host "$HOST" | jq -r '.[0].short_id // empty')"
+    snap="$(restic "${RESTIC_OPTS[@]}" snapshots --json --latest 1 --tag db --host "$HOST" | jq -r '.[0].short_id // empty')"
     [ -n "$snap" ] || die "no db snapshot in the repository"
     # Read the whole latest dump back from the remote and confirm the trailer is intact.
-    nice_io restic dump "$snap" /fahares-db.sql | tail -n 1 | grep -q '^-- Dump completed' \
+    nice_io restic "${RESTIC_OPTS[@]}" dump "$snap" /fahares-db.sql | tail -n 1 | grep -q '^-- Dump completed' \
         || die "snapshot $snap does not contain a complete dump"
     record ok "snapshot $snap readable and complete" "$(jq -n --arg s "$snap" '{snapshot: $s}')"
     notify "🔎 Fahares backup verify OK on ${HOST}: snapshot ${snap} is readable and complete."
@@ -324,12 +347,23 @@ job_status() {
         echo "ALERT: last db backup status=$status, ${age_h}h ago (limit ${MAX_AGE_HOURS}h)"
         exit 1
     fi
+    # A weekly or monthly job that failed stays failed until its next run; keep reporting it.
+    local failed
+    failed="$(jq -r '[to_entries[] | select(.value.status != "ok") | "\(.key) (\(.value.finished_at[0:10]), \(.value.detail))"] | join("; ")' "$STATE_FILE")"
+    if [ -n "$failed" ]; then
+        echo "ALERT: last run failed: $failed"
+        exit 1
+    fi
     echo "OK: last db backup ${age_h}h ago"
 }
 
 job_watch() {
     local out
-    out="$(job_status 2>&1)" && return 0
+    if out="$(job_status 2>&1)"; then
+        log "$(tail -n 1 <<<"$out")"
+        return 0
+    fi
+    log "$(tail -n 1 <<<"$out")"
     notify "⚠️ Fahares backup is stale or failed on ${HOST}
 $(tail -n 1 <<<"$out")"
     exit 1
