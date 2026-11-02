@@ -214,12 +214,8 @@ class SplitMohaddesArmaviCatalogueCommand extends Command
         foreach ($volumes as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
         }
-        foreach (DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id')->unique() as $cataloger) {
-            $ids = DB::table('catalog_volume_cataloger')->where('cataloger_id', $cataloger)->pluck('catalog_volume_id')->unique();
-            // the same counts as LinkCatalogVolumesCommand::recountVolumesAndCatalogers
-            DB::table('catalogers')->where('id', $cataloger)->update(['volumes_count' => $ids->count(), 'manuscripts_count' => DB::table('manuscripts')
-                ->where(fn ($q) => $q->where('cataloger_id', $cataloger)->orWhereIn('catalog_volume_id', $ids))->count()]);
-        }
+        // the one count of every command (Cataloger::recount)
+        \App\Models\Cataloger::recount(DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->pluck('cataloger_id'));
     }
 
     /** Writes every row the run may change to a JSON file and returns its path. */
