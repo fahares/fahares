@@ -6679,3 +6679,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - توکن ربات را در BotFather با `/revoke` عوض کرد و مقدار تازه را با `read -s` و `awk` در `backup.env` گذاشت، بی آنکه روی صفحه یا در argv بیاید. نسخه‌ی پیشین فایل در `backup.env.bak-20261102` ماند.
   - توکن قدیمی اکنون 401 می‌گیرد. توکن تازه `getMe` را پاس کرد.
   - `getFile` روی تکه‌ی نخست و آخر `fahares-db-20261101-033001` با توکن تازه موفق بود و اندازه‌ها با manifest برابر بود. پس `file_id`های آرشیو با عوض شدن توکن معتبر ماندند.
+
+### گام ۱۳.۱۷۴: `date_tail` و `date_note`
+- **صدور (پیکره):** `fankha_v2_apply_export.py date_tail`. ورودی ردیف‌های `copy_date_raw/trimmed` از review7 است. دنباله، `db` منهای `v2` است، با `strip(' ،,')`.
+  - **کنار می‌رود:**
+    - دنباله‌ی کوتاه‌تر از ۴ حرف، یا فقط «؟».
+    - آنچه با «(» آغاز شود.
+    - آنچه رقم، «قرن» یا «سده» داشته باشد، مگر با برچسب «مهر:»، «تملک:» یا «واقف:».
+    - آنچه با «سلطنت»، «عهد»، «دوره»، «اوایل» و مانند آن، یا با «مطابق»، «برابر» یا «/» آغاز شود.
+    - عبارت کارفرما: «حسب»، «به خواهش»، «برای»، «استکتاب»، «بنا به».
+    - «جا:».
+    - `AUTHOR_TIME`، برابر `CopyDateRange::namesAuthorTime`.
+  - **`date_note`:** دنباله‌ای که «تاریخ»، «عصر»، «حیات» یا «زمان» دارد به `copy_date_note` می‌رود، با `from: null`.
+  - **`date_tail`:** دنباله‌های دیگر یادداشت می‌شوند. نوعشان از `date_parts` می‌آید: یادداشت‌های v2 با کلید متن تاریخ v2، و `date_note` برای `copy_date.note`.
+  - **خروجی:** ۱٬۷۲۵ رکورد؛ ۱٬۸۹۳ رکورد کنار رفت.
+- **کد:** `ApplyCorpusCategoriesCommand::tailList` ستون (`incipit_text`، `explicit_text` یا `copy_date_raw`) و فهرست `metadata` آن را برمی‌گرداند؛ تاریخ فهرستی ندارد. بلوک `copy_date_raw` موجود، بازه‌ها را دوباره می‌سازد.
+- **فایل تصمیم:** `database/data/fankha_date_tails_20261102.json`.
+- **تمرین (`fahares_prod`):**
+  - **تمرین نخست:** ۱٬۸۴۱ رکورد نوشت. ۳۵ نسخه پس از آن عدد داشتند ولی بازه نداشتند، چون «، قرن 13» پس از روز و ماه رفته بود. این تمرین با `audit_logs.old_values` برگردانده شد و ردیف‌های ممیزی‌اش پاک شد. سپس `DerivedData::syncCopies` اجرا شد.
+  - **تمرین دوم:** `Would write 1725` (`date_tail` ۱٬۶۲۲، `date_note` ۱۰۳). اجرای بعدی `Would write 0` بود. `copyDateColumns(old)` با `copyDateColumns(new)` در هر ۱٬۷۲۵ رکورد یکی است.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_what_follows_a_copy_date_becomes_a_note_or_the_dates_note`.
