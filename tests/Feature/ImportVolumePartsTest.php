@@ -194,6 +194,7 @@ class ImportVolumePartsTest extends TestCase
             $this->assertSame([$volume->id, 'mshhd-mdrsh-slymanyh-193'], [$copy->fresh()->catalog_volume_id, $copy->fresh()->catalogVolumePart?->library?->slug]);
         }
         $this->assertSame($held->id, $own->fresh()->catalog_volume_id);
+        $this->get(route('sources.show', $made->code))->assertOk()->assertSee('data-volume-part>', false)->assertSee('کتابخانه مدرسه سلیمانیه');
         $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');
 
         $this->artisan('catalogs:import-volume-parts', ['--revert' => $backup])->assertSuccessful();

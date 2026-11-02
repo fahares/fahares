@@ -6572,6 +6572,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** پس از `--revert`، `source_entries` یک ردیف بیشتر داشت: مدخل ۹۴۳۳۳۳، نسخه‌ی ۳۲۳۵۴۲ با ارجاع بی‌کروشه‌ی آغاز. پس از اصلاح، محلی پاک شد و تمرین دوباره «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.166_import_volume_parts_awraq_atiq_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest`، با منبع `keep`، بخش `key` و نسخه‌ی بی‌جلدِ بی‌مدخل.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `71a68a1`، از راه `prod-run`):** dry-run همان ۲۳۲ نسخه و ۸ بخش را نشان داد. پشتیبان (۱٬۵۰۵ نسخه و ۱٬۵۰۴ مدخل) به `fahares-sources/backups/step13/step13.166_import_volume_parts_awraq_atiq_prod_before_20261103.json` رفت. #534 ۸۹۱ نسخه دارد و #535 ۳۳۹.
 
 ### گام ۱۳.۱۶۷: `flags_off`
 - **صدور (پیکره):** `fankha_v2_apply_export.py flags_off`. ورودی ردیف‌های `is_ruled/flag_off` و `is_illuminated/flag_off` از review7 است.
@@ -6606,6 +6607,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** پس از `--revert`، سنجه‌ی `catalogers` نمی‌خواند، چون پشتیبان فهرست‌نگاران جلدهای مجازی را نداشت. محلی با بازشماری آن دو فهرست‌نگار (MTIF ۳۷۲۱۸ و ۳۷۲۷۸) به حال پیش برگشت. تمرین دوم «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.168_import_volume_parts_chahar_mashhad_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest::test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it`.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از ۱۳.۱۶۶):**
+  - dry-run همان ۴۰۶ نسخه را نشان داد. پشتیبان (۱۴٬۵۶۵ نسخه، `made_source` = `catalogue-a22177a37451`) به `…/step13.168_import_volume_parts_chahar_mashhad_prod_before_20261103.json` رفت.
+  - جلد #698 با ۴۰۶ نسخه ساخته شد. ۱۲ بخش دو منبع ۱٬۶۲۸ نسخه دارند و `source_entries` = ۷۸۸٬۵۰۱، یک مدخل تازه برای نسخه‌ی بی‌مدخل. ۱٬۶۳۶ نسخه‌ی دو منبع بی‌صف دوباره ایندکس شدند.
+- **اصلاح صفحه‌ی منبع یک‌جلدی:** `sources/show` برای `$single` بخش‌ها را در بخش «بخش‌ها» (`data-volume-parts`) نشان می‌دهد و افراد جلد را «زیر نظر». آزمون: `ImportVolumePartsTest::test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it`.
 
 ### گام ۱۳.۱۶۹: `binding_fill`
 - **وارسی ۱۳.۱۶۷:** از ۲٬۴۴۱ رکورد `why = binding`، ۲٬۴۳۹ رکورد در `manuscripts.binding` یکی از `مجدول|مذهب|زر|طلا|جدول` را دارند. دو رکورد #23779 و #46874 `binding` خالی دارند، چون `<!-- page: N -->` پیش از «جلد:» آمده است.

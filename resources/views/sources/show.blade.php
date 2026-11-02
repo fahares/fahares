@@ -53,7 +53,10 @@
                 @if($counts['items'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['items']) }}</span> مدخل چاپی</span>@endif
                 @if($counts['pages'])<span><span class="font-bold text-ink tabular-nums">{{ Fa::num($counts['pages']) }}</span> صفحه‌ی متن</span>@endif
             </div>
-            @if($single && $single['volume']->catalogers->isNotEmpty())
+            @php $singleParts = $single && $single['volume']->relationLoaded('parts') ? $single['volume']->parts : collect(); @endphp
+            @if($single && $singleParts->isNotEmpty() && $single['volume']->catalogers->isNotEmpty())
+                <p class="text-sm text-muted" data-volume-catalogers>زیر نظر {{ $editors($single['volume']) }}</p>
+            @elseif($single && $single['volume']->catalogers->isNotEmpty())
                 <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }}</p>
             @endif
             <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
@@ -79,6 +82,22 @@
             <ul class="space-y-1 text-sm">
                 @foreach($source->editions as $edition)
                     <li><a href="{{ route('sources.show', $edition->code) }}" class="text-cinnabar hover:underline">{{ $edition->title }}</a>@if($edition->edition_label)<span class="text-muted"> ({{ Fa::digits($edition->edition_label) }})</span>@endif</li>
+                @endforeach
+            </ul>
+        </x-ui.section>
+    @endif
+
+    {{-- a book in one volume of several libraries' catalogues: its parts (step 13.168) --}}
+    @if($singleParts->isNotEmpty())
+        <x-ui.section title="بخش‌ها" :count="$singleParts->count()">
+            <ul class="divide-y divide-line border-y border-line text-xs text-muted" data-volume-parts>
+                @foreach($singleParts as $part)
+                    <li class="py-2" data-volume-part>
+                        <span class="text-ink">@if($part->library)<a href="{{ route('libraries.show', $part->library) }}" class="hover:text-cinnabar">{{ Fa::digits($part->title) }}</a>@else{{ Fa::digits($part->title) }}@endif</span>
+                        @if($part->pages_text)· {{ Fa::digits($part->pages_text) }}@endif
+                        @if($part->catalogers->isNotEmpty())· {{ $catalogers($part) }}@endif
+                        @if($part->manuscripts_count)· {{ Fa::num($part->manuscripts_count) }} نسخه@endif
+                    </li>
                 @endforeach
             </ul>
         </x-ui.section>
