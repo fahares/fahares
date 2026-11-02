@@ -6907,4 +6907,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
   - **پشتیبان:** `fahares-sources/backups/item87_text_fill_prod_before_20261102.json`، شامل ۱٬۹۰۴ نسخه.
   - **اجرا:** با `prod-run`. خروجی `Writing 2893` بود و اجرای بعدی `already 2893` داد.
-  - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`.
+  - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`. با تأیید کاربر، `fahares:refresh-derived --apply` از راه `prod-run` اجرا شد. در گزارش «After»، همه‌ی گونه‌ها از جمله `excerpt_pointers` صفر شدند.
