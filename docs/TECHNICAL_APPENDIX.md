@@ -6404,6 +6404,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - شخص: سال دورتر ۲۶، اثر ۷۰، سال دوران زندگی ۱۷۶. این آخری روشن نشد.
 - **آزمون‌ها:** `LinkDhariaTitlesTest::test_a_title_of_several_entries_is_told_by_its_author` و `LinkDhariaPeopleTest::test_a_name_is_confirmed_by_a_work_of_his_or_his_death_year_further_after_it`.
 - **برگشت پس از اجرای پروداکشن:** پیوندهای تازه‌ی عنوان و اثر با `DELETE FROM source_page_links WHERE method LIKE '%+author' OR method LIKE '%+work'` پاک می‌شوند. پیوندهای `+year` که فقط به خاطر پنجره‌ی پهن‌تر آمده‌اند از پیوندهای پیشین جدا نمی‌شوند، پس پیش از اجرا از ردیف‌های شخص (`target_type = 'App\\Models\\Person'`) پشتیبان گرفته می‌شود.
+- **پروداکشن (۱۲ آبان ۱۴۰۵):** پیش از اجرا از ۱٬۸۳۶ ردیف شخص و مدخل پشتیبان گرفته شد. این ردیف‌ها پیوندهای `ref` گام ۱۳.۱۵۵ را هم دارند. پشتیبان در `storage/app/private/backups/step13.157_prod_before.json` است و کپی‌اش در `fahares-sources/backups/step13/`. سپس دو دستور با `prod-run` اجرا شدند:
+  - **عنوان:** ۲٬۵۰۱ پیوند، که ۲۵۶ پیوند پیشین را جایگزین کرد. ۱٬۱۹۳ پیوند `ref` دست‌نخورده ماند.
+  - **شخص:** ۴۹۴ پیوند (پیش از این ۳۸۷): ۲۴۷ `name+year`، ۱۷۸ `alias+year`، ۴۵ `name+work` و ۲۴ `alias+work`.
+  - صفحه‌ی زنده‌ی ج ۱ ص ۲ پیوند TB تازه («اللوائح الليلية») را نشان می‌دهد.
+
 ### گام ۱۳.۱۵۸: بازبستن نسخه‌های «مختصر ف» از جلد سنا
 - **[SplitSenateLibraryCommand](../app/Console/Commands/SplitSenateLibraryCommand.php):**
   - **کدام نسخه‌ها:** جلدهای سنا آن‌هایی‌اند که عنوانشان «سنا» دارد و کتابخانه‌شان مجلس یا سناست، پس پس از جدا کردن هم پیدا می‌شوند. نسخه‌ی مجلسی که در آن‌ها مانده و متنش `[\s*مختصر\s*-?\s*ف\s*:` دارد، جابه‌جا می‌شود.
@@ -6480,6 +6485,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **از دست رفته‌ها:** `binding` ۲. یکی از آن‌ها «25 سطر (11×21/5)» بود که جلد نیست.
   - **سطرهای هنوز ناخوانده:** از ۶۳۸ به ۲۶۲ رسید.
 - **آزمون‌ها:** `tests/test_fankha_v2_gold.py::LineCountsTest` با ۲ آزمون. `GoldAccuracyTest` دو نمونه‌ی `v09w01538m1` و `v03w01625m1` را `missing` گزارش می‌کند. خط نخست این دو در `units.jsonl` شماره‌ی پیش از اصلاح‌های ۱۳.۱۴۸ و ۱۳.۱۵۸ را دارد، مانند «2/ 1927» به جای «19270/2».
+
 ### گام ۱۳.۱۶۲: دور دوم «موضوع اثر» و `--prune`
 - **فایل تصمیم:**
   - ۲۸ عبارت تازه در `phrases`. «شاه نعمت الله ولی» اکنون به «نعمة الله ولی، نعمة الله بن عبدالله» می‌رود.
@@ -6497,11 +6503,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: `fahares-sources/backups/step13/nimatullah_merge_35946_into_329_before.json` (دو رکورد، ۱۸۷ سطر `work_people`، ۱۸۳ سطر `work_author` و یک اثر).
   - پس از ادغام #329 ۱۸۷ سطر `work_people` (۴ `subject`) و `works_count = 183` دارد.
 - **dry run (`fahares_prod` محلی):** `linked:known 139`، `:description 350`، `:title_inside 135`، `:title_read 1`، `linked:reviewed 65`، `:description 15`، `:title_inside 3`، `:title_listed 3`، `:title_read 6`. در پروداکشن `--prune` باید سه سطر گام ۱۳.۱۴۳ را حذف کند: آثار #11831، #55020 و #66215.
-- **اجرا در پروداکشن (پس از انتشار):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **dry run در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `5555471`):**
+  - پشتیبان: `fahares-sources/backups/step13/step13.162_work_people_before.json` (۶۵۴ سطر `subject`).
+  - گزارش: `pieces:exists 650` و `pruned 4` (آثار #11831، #27319، #55020 و #66215).
+  - #27319 را `WORDS` بی «مولد» از دست داده بود. پس «مولد» افزوده شد و `--apply` به انتشار بعدی موکول شد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `90e969f`، از راه `prod-run`):**
+  - dry run و `--prune --apply` هر دو این را گزارش دادند: `linked:known 18`، `:description 8`، `:title_inside 17`، `:title_read 1`، `linked:reviewed 23`، `:description 7`، `:title_inside 2`، `:title_listed 2`، `:title_read 6`، `pieces:exists 651` و `pruned 3` (آثار #11831، #55020 و #66215).
+  - اجرای سوم `pieces:exists 735` بود. شمار سطرهای `subject` ۷۳۵ است.
+  - `/people/516` زبانه‌ی «آثار درباره‌ی او» دارد.
 - **آزمون‌ها:**
-  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject`
+  - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (با «مولد»)
   - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
-
 
 ### گام ۱۳.۱۶۳: ادغام ۲۲ کتابخانه‌ی تکراری
 - **داده:** [library_duplicates_step13_163.json](../database/data/library_duplicates_step13_163.json)، ۱۹ گروه. اجرا: `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`.
@@ -6511,3 +6523,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `catalogs:assign-volume-parts`: `changed` ۳۱۰. «نشریه» با بخش ۱۲٬۸۳۴ ← ۱۳٬۱۴۴. همه‌ی جلدهای بخش‌دار: ۱۵٬۷۷۶ با کتابخانه، ۶۶ با صفحه‌ی تنها، ۶۶۰ بی‌بخش، و ۸۵۶ بیرون از بخش.
   - `undoMerge` ۲۲ لاگ (وارونه) سنجه‌ی `fplib` را برگرداند. برگرداندن بخش نسخه‌ها جداست: پس از undo، `catalogs:assign-volume-parts` دوباره اجرا شود.
 - **دفتر ۱۳ «نشریه»:** صفحه‌های ارجاع «نشریه: 13»: مجلس ۴۰۵–۴۴۶ (۲۴۷ نسخه)، وزیری ۳۵–۴۰۱ (۵۴۷)، و نوربخش ۹–۲۷۲ (۴۸۰ روی جلد #499 منبع نوربخش). MTIF 11395 («نشریه کتابخانه مرکزی دانشگاه تهران درباره نسخه های خطی») ۱۲ جلد دارد؛ نسخه‌های چاپی ۲۲۵۸۱ (ج ۲) تا ۲۲۵۷۱ (ج ۱۲).
+
+### گام ۱۳.۱۶۴: دنباله‌ی آغاز به `editorial_notes`
+- **مقایسه‌ی تازه:** `reports/fankha_v2_db_review7`، با پارسر گام ۱۳.۱۶۱ و `fahares_prod` محلی (۱۲ آبان).
+  - **اختلاف‌ها:** از ۱۴۶٬۹۵۵ به ۱۰۸٬۳۸۶ رسید.
+  - **`copy_v2_unmatched`:** از ۵۷۰ به ۶۴ رسید.
+  - **`explicit_text/trimmed`:** از ۴۱٬۲۲۳ به ۱٬۱۵۳ رسید.
+  - **`lines/emptied`:** از ۱٬۲۱۶ به ۳۶۲ رسید.
+  - **`library`:** دسته‌های این ستون بزرگ‌تر شدند (`trimmed` از ۱۸ به ۳٬۳۹۴)، ولی `site_v1` در همه صفر است. این از یکدست‌سازی نام کتابخانه‌ها در جلسه‌های دیگر است.
+- **صدور (پیکره):**
+  - **حلقه‌ی مشترک:** `fankha_v2_apply_export.py incipit_tail incipit_script` همان حلقه‌ی `explicit_tail` را برای `('incipit', incipits)` اجرا می‌کند. `v2_parts(v2dir, kind)` کلید را از متن آغاز v2 می‌گیرد.
+  - **شرط تازه برای هر دو گونه:** یادداشتی که «××» دارد یا با «آغاز» یا «انجام» شروع می‌شود کنار می‌رود.
+  - **خروجی:** ۴٬۷۷۵ رکورد؛ ۶۴۵ رکورد کنار رفت. ۲۵۸ تا دنباله‌ی چندسطری داشتند و ۱۹۰ تا سطر پس از آغاز در متن نبودند.
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `incipit_text` را دارد. `moveTail` ستون (`incipit_text` یا `explicit_text`) و فهرست `metadata` (`incipits` یا `explicits`) را از `changes` رکورد برمی‌گزیند. ممیزی فقط همان فهرست را نگه می‌دارد.
+- **فایل تصمیم:** `database/data/fankha_incipit_tails_20261102.json`.
+- **تمرین (`fahares_prod`):**
+  - `Would write 4769` بود: `incipit_tail` ۴٬۶۹۷ و `incipit_script` ۷۲. شش رکورد `natural key differs` بودند.
+  - پس از `--apply`، اجرای بعدی `Would write 0` بود.
+  - در ۴٬۷۶۹ رکورد، `incipit_text` «\n» ندارد و در `metadata.incipits` هست.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_the_line_after_an_incipit_becomes_a_note_too`.
+
+### گام ۱۳.۱۶۵: «18884» مجلس
+- **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
+- **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
