@@ -6557,3 +6557,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 ### گام ۱۳.۱۶۵: «18884» مجلس
 - **پیکره:** `text/fankha/fankha_vol_32.txt`، سطر ۱۸۶، به دو سطر شکسته شد: «7. تهران؛ مجلس؛ شماره نسخه: 18884» و «شامل: …». این اصلاح دستی است، چون اسکریپت `fankha_shelfmark_fixes.py` تنها شماره را در همان سطر جایگزین می‌کند.
 - **سایت:** یک رکورد `rebuild-copies` (شناسه‌ی ۳۰۵۸۹۹، در پروداکشن هم همین است). در `raw_text`، عبارت «شماره نسخه: 4/18884 شامل: » با «شماره نسخه: 18884\nشامل: » جایگزین شد.
+
+### گام ۱۳.۱۶۷: `flags_off`
+- **صدور (پیکره):** `fankha_v2_apply_export.py flags_off`. ورودی ردیف‌های `is_ruled/flag_off` و `is_illuminated/flag_off` از review7 است.
+  - **`flag_without_ground`:** بخش جلد با `جلد\s*:[^؛\[]*` جدا می‌شود. بدنه، متن بی آغاز و انجام (`(?:آغاز|انجام)\s*:[^؛]*`) و بی جلد است.
+  - **مجدول:** واژه‌ی `مجدول|جدول` فقط در جلد آمده باشد.
+  - **مذهب:** واژه‌ی `مذهب|تذهیب|سرلوح|زر|طلا` فقط در جلد آمده باشد (`binding`)، یا فقط در آغاز و انجام (`text`)، یا هیچ‌جا (`nowhere`).
+  - **کنار ماندن:** واژه در بدنه بیاید یا «مجدول»ی بی هیچ نشانه باشد.
+  - **خروجی:** ۳٬۳۳۱ رکورد: `is_ruled_off` ۲٬۲۹۵، `is_illuminated_off` ۱٬۰۳۶ (`text` ۸۱۵، `binding` ۱۵۷، `nowhere` ۶۴)؛ ۲۸۰ رکورد کنار رفت.
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `is_ruled` و `is_illuminated` را هم دارد. هر دو فیلتر جستجوی نسخه‌اند و فرمان نسخه‌ها را دوباره نمایه می‌کند.
+- **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.

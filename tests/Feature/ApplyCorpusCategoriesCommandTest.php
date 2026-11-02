@@ -189,6 +189,20 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertSame(['جلد اول'], $meta['editorial_notes']);
     }
 
+    public function test_a_flag_the_binding_gave_is_turned_off()
+    {
+        $id = $this->copy($this->work('-v99-7'), '18/1-ف');
+        DB::table('manuscripts')->where('id', $id)->update(['is_ruled' => 1, 'is_illuminated' => 1]);
+        $this->plan([['table' => 'manuscripts', 'id' => $id, 'work_key' => '-v99-7', 'shelfmark' => '18/1-ف',
+            'category' => 'is_ruled_off', 'changes' => ['is_ruled' => ['from' => 1, 'to' => 0]]]]);
+
+        $this->artisan('fahares:apply-corpus-categories', ['--file' => $this->file, '--apply' => true])
+            ->expectsOutputToContain('Writing 1 records.')
+            ->assertSuccessful();
+        $row = DB::table('manuscripts')->where('id', $id)->first();
+        $this->assertSame([0, 1], [(int) $row->is_ruled, (int) $row->is_illuminated]);
+    }
+
     public function test_commissioners_become_people_rows_with_the_catalogues_phrase()
     {
         $w = $this->work('-v99-7');

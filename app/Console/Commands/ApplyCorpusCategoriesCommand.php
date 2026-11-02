@@ -28,7 +28,7 @@ class ApplyCorpusCategoriesCommand extends Command
     /** Tables and the fields a decision file may change */
     private const FIELDS = [
         'works' => ['print_info'],
-        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note', 'lines', 'explicit_text', 'incipit_text'],
+        'manuscripts' => ['is_facsimile', 'copy_date_raw', 'copy_date_note', 'lines', 'explicit_text', 'incipit_text', 'is_ruled', 'is_illuminated'],
     ];
 
     /** A commissioner's phrase before the name in the copy's raw text («حسب الامر», «به جهت», «برای»…) */
