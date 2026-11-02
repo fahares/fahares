@@ -70,7 +70,7 @@ class FixAutographManuscriptsCommand extends Command
 
         if (count($revertScribeIds) > 0) {
             foreach (array_chunk($revertScribeIds, 500) as $chunk) {
-                DB::table('manuscript_scribe as ms')
+                DB::table('manuscript_people as ms')->where('ms.role', 'scribe')
                     ->join('manuscripts as m', fn($j) => $j->on('m.id', '=', 'ms.manuscript_id')->on('m.scribe_id', '=', 'ms.person_id'))
                     ->whereIn('m.id', $chunk)
                     ->delete();
@@ -88,7 +88,8 @@ class FixAutographManuscriptsCommand extends Command
             UPDATE people p
             JOIN (
                 SELECT person_id, COUNT(*) as cnt
-                FROM manuscript_scribe
+                FROM manuscript_people
+                WHERE role = 'scribe'
                 GROUP BY person_id
             ) m_counts ON p.id = m_counts.person_id
             SET p.is_scribe = 1,

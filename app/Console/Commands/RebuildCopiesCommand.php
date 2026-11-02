@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\AuditLog;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Sources\SourceEntrySync;
 use App\Suggestions\ProtectedColumns;
 use App\Support\DerivedData;
@@ -100,7 +101,7 @@ class RebuildCopiesCommand extends Command
                 }
                 if (array_key_exists('scribe_name', $new)) {
                     $extra['scribe_id'] = null;
-                    DB::table('manuscript_scribe')->where('manuscript_id', $rec['id'])->delete();
+                    DB::table('manuscript_people')->where('manuscript_id', $rec['id'])->where('role', ManuscriptPerson::SCRIBE)->delete();
                 }
                 // a misread shelfmark (the printed page has another digit) moves its sort key with it
                 if (array_key_exists('shelfmark', $new)) {

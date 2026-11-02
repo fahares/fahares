@@ -87,7 +87,7 @@ class MultipleContributorsTest extends TestCase
         $duplicate = $this->person("کاتب همکار تکراری {$this->tag}");
         $ms = $this->manuscriptBy($first);
         $ms->update(['scribe_name' => "{$first->name} و {$second->name}"]);
-        DB::table('manuscript_scribe')->insert(['manuscript_id' => $ms->id, 'person_id' => $second->id, 'position' => 1, 'note' => 'جلد دوم']);
+        DB::table('manuscript_people')->insert(['role' => 'scribe', 'manuscript_id' => $ms->id, 'person_id' => $second->id, 'position' => 1, 'note' => 'جلد دوم']);
 
         $this->actingAs($admin)->post('/admin/people/merge', ['source_id' => $second->id, 'target_id' => $duplicate->id])
             ->assertRedirect('/admin/people');
@@ -123,8 +123,8 @@ class MultipleContributorsTest extends TestCase
             'volume_number' => 1,
             'page_start' => 1,
         ]);
-        DB::table('work_author')->insert(['work_id' => $work->id, 'person_id' => $target->id, 'position' => 1]);
-        $positions = fn() => DB::table('work_author')->where('work_id', $work->id)->orderBy('position')->pluck('position', 'person_id')->all();
+        DB::table('work_people')->insert(['role' => 'author', 'work_id' => $work->id, 'person_id' => $target->id, 'position' => 1]);
+        $positions = fn() => DB::table('work_people')->where('role', 'author')->where('work_id', $work->id)->orderBy('position')->pluck('position', 'person_id')->all();
 
         $this->actingAs($admin)->post('/admin/people/merge', ['source_id' => $source->id, 'target_id' => $target->id])
             ->assertRedirect('/admin/people');

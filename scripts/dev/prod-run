@@ -25,7 +25,7 @@ mkdir -p "$DIR"
 touch "$LOG"
 
 remote_busy() {
-    ssh -o BatchMode=yes "$HOST" "pgrep -fa '$BUSY_PATTERN' | grep -v pgrep" 2>/dev/null || true
+    ssh -o BatchMode=yes -o ConnectTimeout=20 "$HOST" "pgrep -fa '$BUSY_PATTERN' | grep -v pgrep" 2>/dev/null || true
 }
 
 if [[ "${1:-}" == "--status" ]]; then

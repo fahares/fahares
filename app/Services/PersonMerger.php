@@ -6,8 +6,10 @@ use App\Helpers\TextNormalizer;
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
 use App\Models\Manuscript;
+use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use App\Suggestions\MergeComparison;
 use Illuminate\Support\Facades\DB;
 
@@ -45,39 +47,41 @@ class PersonMerger
             }
 
             // Identify exact works and manuscripts to transfer (every link, primary or not)
-            $transferredWorkIds = DB::table('work_author')->where('person_id', $source->id)->pluck('work_id')->all();
-            $transferredManuscriptIds = DB::table('manuscript_scribe')->where('person_id', $source->id)->pluck('manuscript_id')->all();
+            $authors = fn () => DB::table('work_people')->where('role', WorkPerson::AUTHOR);
+            $scribes = fn () => DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE);
+            $transferredWorkIds = $authors()->where('person_id', $source->id)->pluck('work_id')->all();
+            $transferredManuscriptIds = $scribes()->where('person_id', $source->id)->pluck('manuscript_id')->all();
             // Records already linked to the target too; their source row is dropped instead of moved
-            $collapsedWorkIds = DB::table('work_author')->where('person_id', $target->id)->whereIn('work_id', $transferredWorkIds)->pluck('work_id')->all();
-            $collapsedManuscriptIds = DB::table('manuscript_scribe')->where('person_id', $target->id)->whereIn('manuscript_id', $transferredManuscriptIds)->pluck('manuscript_id')->all();
+            $collapsedWorkIds = $authors()->where('person_id', $target->id)->whereIn('work_id', $transferredWorkIds)->pluck('work_id')->all();
+            $collapsedManuscriptIds = $scribes()->where('person_id', $target->id)->whereIn('manuscript_id', $transferredManuscriptIds)->pluck('manuscript_id')->all();
 
             $primaryWorkIds = Work::where('author_id', $source->id)->pluck('id')->all();
             $primaryManuscriptIds = Manuscript::where('scribe_id', $source->id)->pluck('id')->all();
 
             // 1. Transfer Works (as author); the printed name changes only on single-author works
-            DB::table('work_author')->where('person_id', $source->id)->whereIn('work_id', $collapsedWorkIds)->delete();
-            DB::table('work_author')->where('person_id', $source->id)->update(['person_id' => $target->id]);
+            $authors()->where('person_id', $source->id)->whereIn('work_id', $collapsedWorkIds)->delete();
+            $authors()->where('person_id', $source->id)->update(['person_id' => $target->id]);
             Work::where('author_id', $source->id)->update(['author_id' => $target->id]);
             if (! $keepPrintedNames) {
                 Work::whereIn('id', $transferredWorkIds)->where('has_other_authors', false)
-                    ->whereRaw('(SELECT COUNT(*) FROM work_author wa WHERE wa.work_id = works.id) = 1')
+                    ->whereRaw("(SELECT COUNT(*) FROM work_people wa WHERE wa.work_id = works.id AND wa.role = 'author') = 1")
                     ->update(['author_name' => $target->name]);
             }
 
             // 2. Transfer Manuscripts (as scribe); likewise for the scribe name
             // Other roles in manuscripts (owner, endower…) follow the person; a rollback moves them back
-            $transferredRoleIds = DB::table('manuscript_people')->where('person_id', $source->id)->pluck('id')->all();
+            $transferredRoleIds = DB::table('manuscript_people')->where('person_id', $source->id)->where('role', '!=', ManuscriptPerson::SCRIBE)->pluck('id')->all();
             DB::table('manuscript_people')->whereIn('id', $transferredRoleIds)->update(['person_id' => $target->id]);
             // ...and so do their roles in works (translator, dedicatee…)
-            $transferredWorkRoleIds = DB::table('work_people')->where('person_id', $source->id)->pluck('id')->all();
+            $transferredWorkRoleIds = DB::table('work_people')->where('person_id', $source->id)->where('role', '!=', WorkPerson::AUTHOR)->pluck('id')->all();
             DB::table('work_people')->whereIn('id', $transferredWorkRoleIds)->update(['person_id' => $target->id]);
 
-            DB::table('manuscript_scribe')->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
-            DB::table('manuscript_scribe')->where('person_id', $source->id)->update(['person_id' => $target->id]);
+            $scribes()->where('person_id', $source->id)->whereIn('manuscript_id', $collapsedManuscriptIds)->delete();
+            $scribes()->where('person_id', $source->id)->update(['person_id' => $target->id]);
             Manuscript::where('scribe_id', $source->id)->update(['scribe_id' => $target->id]);
             if (! $keepPrintedNames) {
                 Manuscript::whereIn('id', $transferredManuscriptIds)->where('has_other_scribes', false)
-                    ->whereRaw('(SELECT COUNT(*) FROM manuscript_scribe ms WHERE ms.manuscript_id = manuscripts.id) = 1')
+                    ->whereRaw("(SELECT COUNT(*) FROM manuscript_people ms WHERE ms.manuscript_id = manuscripts.id AND ms.role = 'scribe') = 1")
                     ->update(['scribe_name' => $target->name]);
             }
 

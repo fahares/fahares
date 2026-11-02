@@ -190,8 +190,8 @@
             } else {
                 $splitWorks = $target->authoredWorks()->orderBy('works.id')->limit(2000)->get();
                 $splitCopies = $target->scribedManuscripts()->with(['work', 'libraryRecord'])->orderBy('manuscripts.id')->limit(2000)->get();
-                $splitRoles = \App\Models\ManuscriptPerson::with('manuscript.work')->where('person_id', $target->id)->orderBy('id')->get();
-                $splitWorkRoles = \App\Models\WorkPerson::with('work')->where('person_id', $target->id)->orderBy('id')->get();
+                $splitRoles = $target->manuscriptRoles()->with('manuscript.work')->orderBy('id')->get();
+                $splitWorkRoles = $target->workRoles()->with('work')->orderBy('id')->get();
             }
         @endphp
         <form action="{{ $formAction }}" method="POST" class="space-y-4">
