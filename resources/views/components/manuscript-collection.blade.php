@@ -5,7 +5,7 @@
     @php
         // In some libraries the part number is a volume of one multi-volume work («13/1» to «13/5»: وسائل الشیعة)
         $volumes = $siblings->pluck('work_id')->unique()->count() === 1;
-        $number = $manuscript->collection_key ?? \App\Models\Manuscript::collectionKeyOf($manuscript->shelfmark);
+        $number = $manuscript->collection_key ?? \App\Models\Manuscript::collectionKeyOf($manuscript->shelfmark, $manuscript->raw_text);
     @endphp
     <x-ui.section x-data="{ all: false }" :title="$volumes ? 'مجلدهای این دوره' : 'رساله‌های این مجموعه'" :count="$siblings->count()">
         <div class="mb-2">
@@ -29,6 +29,7 @@
                         @else
                             <a href="{{ route('manuscripts.show', $m) }}" class="text-ink hover:text-cinnabar transition">{{ $m->work?->primary_title ?? 'نسخه' }}</a>
                         @endif
+                        @if($m->inMargin())<span class="text-[10px] text-cinnabar" title="به گفته‌ی فهرست، در هامش رساله‌ای دیگر نوشته شده است">(در حاشیه)</span>@endif
                         @if($m->work?->author_name)<span class="text-[11px] text-muted"> · {{ $m->work->author_name }}</span>@endif
                     </span>
                     @if($m->extentLabel())<span class="shrink-0 text-[11px] text-muted">{{ $m->extentLabel() }}</span>@endif

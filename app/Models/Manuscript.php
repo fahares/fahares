@@ -104,9 +104,9 @@ class Manuscript extends Model
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {
                 $manuscript->shelfmark_key = $manuscript->shelfmark === null ? null : mb_substr($manuscript->shelfmark, 0, 100);
             }
-            // ...and so is the bound volume it names (backlog item 97)
-            if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('collection_key')) {
-                $manuscript->collection_key = self::collectionKeyOf($manuscript->shelfmark);
+            // ...and so is the bound volume it names (backlog item 97), which the catalogue it cites can change
+            if ($manuscript->isDirty(['shelfmark', 'raw_text']) && ! $manuscript->isDirty('collection_key')) {
+                $manuscript->collection_key = self::collectionKeyOf($manuscript->shelfmark, $manuscript->raw_text);
             }
         });
 
@@ -610,11 +610,16 @@ class Manuscript extends Model
     /**
      * The bound volume a shelfmark like «6415/8» belongs to: the number before the slash, plus a
      * text suffix that names another collection of the library («513/8-طباطبائی», «1804/10-عکسی»).
-     * A numeric suffix («5722/2-29/62») is a second numbering and is ignored.
+     * A numeric suffix («5722/2-29/62») is a second numbering and is ignored. A mark stuck to the part
+     * («622/1ط», «1359/9عکسی», «149/1 معزی») names a collection too, except words that do not: «بخش3» (a
+     * section of the treatise), «و …» (a second shelfmark), «تا …», «مکرر», «حاشیه» (a treatise in the
+     * margin) and a parenthesis («462/33(آ)»). In the Majlis «-ط» is «-طباطبائی»; the stuck «ط» is kept
+     * apart, as its copies are described in another volume of the library's catalogue (step 13.146). Where the
+     * copy's text names a library whose stuck marks only describe the copy (DESCRIPTIVE_MARKS), the mark is ignored.
      *
      * @return array{base: string, collection: ?string, part: string}|null
      */
-    public static function collectionKey(?string $shelfmark): ?array
+    public static function collectionKey(?string $shelfmark, ?string $rawText = null): ?array
     {
         // Persian digits and the dash variants the catalog uses («111/20 – ب») read as one form
         $shelfmark = strtr(trim((string) $shelfmark), ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9', '–' => '-', '—' => '-', '‐' => '-', '‑' => '-']);
@@ -622,21 +627,81 @@ class Manuscript extends Model
         if (! preg_match('~^([^/-]*\d[^/-]*?)\s*/\s*([^-]*\d[^-]*?)\s*(?:-\s*(.+))?$~u', $shelfmark, $m)) {
             return null;
         }
-        $tail = trim($m[3] ?? '');
+        // «ـ ف», «: فیاض», «؛ کر»: the joiners before a mark are not part of it
+        $clean = fn (string $t) => preg_replace('/^[\s_:؛ـ\x{200C}-]+|[\s_:؛ـ\x{200C}-]+$/u', '', $t);
+        $tail = $clean($m[3] ?? '');
+        $collection = $tail !== '' && preg_match('/\p{L}/u', $tail) ? ($tail === 'ط' ? 'طباطبائی' : $tail) : null;
+        preg_match('/^(\d+)\s*(.*)$/su', trim($m[2]), $p);
+        $stuck = $clean($p[2] ?? '');
+        if ($collection === null && $stuck !== '' && preg_match('/\p{L}/u', $stuck) && ! preg_match('/^(?:بخش|تا\b|و(?:\s|\d|$)|مکرر|حاشیه|\(|\d)/u', $stuck)
+            && ! self::describesCopy($stuck, $rawText)) {
+            $collection = $stuck;
+        }
 
         return [
             'base' => trim($m[1]),
-            'collection' => $tail !== '' && preg_match('/\p{L}/u', $tail) ? $tail : null,
-            'part' => trim($m[2]),
+            'collection' => $collection,
+            'part' => isset($p[1]) ? $p[1] : trim($m[2]),
         ];
     }
 
-    /** The stored form of a shelfmark's volume (the collection_key column): «8740» for «8740/7-58/190», «1068-طباطبائی» for «1068/2-طباطبائی». */
-    public static function collectionKeyOf(?string $shelfmark): ?string
+    /**
+     * The stored form of a copy's volume (the collection_key column): «8740» for «8740/7-58/190», «1068-طباطبائی» for
+     * «1068/2-طباطبائی». A Majlis copy the Fankha text describes only from the Senate library's catalogue («[سنا: ف:
+     * 2-61]») has the Senate's own numbering, so «791/1» of the Senate is not the Majlis volume 791: its key is
+     * «791-سنا» (step 13.146).
+     */
+    public static function collectionKeyOf(?string $shelfmark, ?string $rawText = null): ?string
     {
-        $key = self::collectionKey($shelfmark);
+        $key = self::collectionKey($shelfmark, $rawText);
+        if (! $key) {
+            return null;
+        }
+        $collection = self::citesOnlySenate($rawText) ? 'سنا' . ($key['collection'] !== null ? '-' . $key['collection'] : '') : $key['collection'];
 
-        return $key ? mb_substr($key['base'] . ($key['collection'] !== null ? '-' . $key['collection'] : ''), 0, 100) : null;
+        return mb_substr($key['base'] . ($collection !== null ? '-' . $collection : ''), 0, 100);
+    }
+
+    /**
+     * Stuck marks that describe the copy in a library rather than name a collection of it, by the library as the
+     * Fankha text writes it: in Ehya «1004/7 عکسی» is one of volume 1004's photocopied treatises (1004/1 to 1004/10),
+     * while in Marashi «1390/1عکسی» is in the library's photocopy collection.
+     */
+    private const DESCRIPTIVE_MARKS = ['مرکز احیاء' => ['عکسی']];
+
+    private static function describesCopy(string $mark, ?string $rawText): bool
+    {
+        // «38. قم؛ مرکز احیاء؛ شماره نسخه: …»: the library is the second field of the first line
+        if ($rawText === null || ! preg_match('/^\s*(?:\d+\.\s*)?[^؛\n]+؛\s*([^؛\n]+?)\s*؛/u', $rawText, $m)) {
+            return false;
+        }
+
+        return in_array($mark, self::DESCRIPTIVE_MARKS[$m[1]] ?? [], true);
+    }
+
+    /** Whether a copy's text cites the Senate library's catalogue («[سنا: …]», «[سنا - ف: …]») and not the Majlis one («[ف: …]»). */
+    public static function citesOnlySenate(?string $rawText): bool
+    {
+        return $rawText !== null && preg_match('/\[\s*سنا\s*(?:-\s*ف\s*)?:/u', $rawText) && ! preg_match('/\[\s*ف\s*:/u', $rawText);
+    }
+
+    /**
+     * Whether the catalogue says the treatise is written in the margin of another: «در هامش» or «نوشته شده در حاشیه»
+     * as a clause of its own, or a shelfmark marked «حاشیه» («3008/18 حاشیه»). Glosses or verses in the margin
+     * («ابیاتی در هامش») are not counted.
+     */
+    public function inMargin(): bool
+    {
+        if (preg_match('~/\s*[\d۰-۹]+\s*حاشیه~u', (string) $this->shelfmark)) {
+            return true;
+        }
+        foreach (preg_split('/\s*[؛،\n]\s*/u', (string) $this->raw_text) as $clause) {
+            if (preg_match('/^(?:نوشته\s*شده\s+)?در\s+(?:هامش|حاشیه)(?:\s+(?:نوشته|نگاشته)\s*شده(?:\s+است)?)?\.?$/u', trim($clause))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -647,7 +712,7 @@ class Manuscript extends Model
      */
     public function collectionSiblings(): \Illuminate\Support\Collection
     {
-        $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark);
+        $key = $this->collection_key ?? self::collectionKeyOf($this->shelfmark, $this->raw_text);
         if ($key === null) {
             return collect();
         }
@@ -660,7 +725,7 @@ class Manuscript extends Model
             ->with(['work', 'scribe'])
             ->limit(400)
             ->get()
-            ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark)) === $key)
+            ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
             ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? 0), $m->id])
             ->values();
 

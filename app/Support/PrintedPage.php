@@ -71,7 +71,7 @@ class PrintedPage
 
     /**
      * The page's text with the records its marks link (source_page_links: an al-Dhari'a title to its entry, step
-     * 13.129; a person to his page, step 13.133) written into those marks' kinds, «VB\0url\0title\0entry\0m4», for
+     * 13.129; a person to his page, step 13.133; a library holding a copy and a subject, step 13.145) written into those marks' kinds, «VB\0url\0title\0entry\0m4», for
      * openTag(); the last part, the mark's ordinal, is its id, which a person's page links to (step 13.136).
      */
     private static function linked(string $text, int $pageId): string
@@ -85,6 +85,8 @@ class PrintedPage
         $records = [
             SourceItem::class => SourceItem::with('source')->whereIn('id', $ids(SourceItem::class))->get()->keyBy('id'),
             \App\Models\Person::class => \App\Models\Person::whereIn('id', $ids(\App\Models\Person::class))->get()->keyBy('id'),
+            \App\Models\Library::class => \App\Models\Library::whereIn('id', $ids(\App\Models\Library::class))->get()->keyBy('id'),
+            \App\Models\Subject::class => \App\Models\Subject::whereIn('id', $ids(\App\Models\Subject::class))->get()->keyBy('id'),
         ];
         $n = -1;
 
@@ -93,6 +95,12 @@ class PrintedPage
             $record = $link && $link->kind === $m[1] ? ($records[$link->target_type] ?? collect())->get($link->target_id) : null;
             if ($record instanceof SourceItem) {
                 return "\u{E020}{$m[1]}\0{$record->url()}\0الذریعة، {$record->placeLabel()}: {$record->title} (پیوند ماشینی)\0entry\0m{$n}\u{E021}";
+            }
+            if ($record instanceof \App\Models\Subject) {
+                return "\u{E020}{$m[1]}\0" . route('subjects.show', $record) . "\0موضوع: {$record->name} (پیوند ماشینی)\0subject\0m{$n}\u{E021}";
+            }
+            if ($record instanceof \App\Models\Library) {
+                return "\u{E020}{$m[1]}\0" . route('libraries.show', $record) . "\0کتابخانه‌ی {$record->name}، {$record->city} (پیوند ماشینی)\0library\0m{$n}\u{E021}";
             }
             if ($record) {
                 return "\u{E020}{$m[1]}\0" . route('people.show', $record) . "\0{$record->name} (پیوند ماشینی)\0person-guess\0m{$n}\u{E021}";

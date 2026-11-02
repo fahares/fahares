@@ -1,5 +1,5 @@
 {
-  "about": "Subjects a work's title names, beyond KnownSubjects::LIST: phrase as the title writes it => the authority record's name. Reviewed and approved by the user on 11 Aban 1405 (backlog item 35). Phrases are compared without spaces. Left out as ambiguous: «رضی الدین», «محمد بن اسماعیل».",
+  "about": "Subjects a work's title names, beyond KnownSubjects::LIST: phrase as the title writes it => the authority record's name. Reviewed and approved by the user on 11 Aban 1405 (backlog item 35). Phrases are compared without spaces. Left out as ambiguous: «رضی الدین», «محمد بن اسماعیل». «titles»: whole titles that name their subject without a subject word, by the user's decision of 12 Aban 1405.",
   "phrases": {
     "الشيخ الرئيس": "ابن سینا، حسین بن عبدالله",
     "الفارابی": "فارابی، محمد بن محمد",
@@ -30,5 +30,8 @@
     "عبدالقادر کوی طبیب": "کوی طبیب، عبدالقادر",
     "مصاحب نائینی": "مصاحب نائینی",
     "ابوالقاسم جعفر موسوی": "ابوالقاسم جعفر موسوی"
+  },
+  "titles": {
+    "پیشوای بزرگوار امام نهم (ع)": "محمد بن علی (ع)، امام نهم"
   }
 }
