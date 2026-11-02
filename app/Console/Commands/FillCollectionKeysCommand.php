@@ -31,12 +31,12 @@ class FillCollectionKeysCommand extends Command
         $examples = [];
         $volumes = [];
 
-        DB::table('manuscripts')->select(['id', 'library_id', 'library', 'shelfmark', 'collection_key'])->orderBy('id')
+        DB::table('manuscripts')->select(['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key'])->orderBy('id')
             ->chunkById(5000, function ($rows) use ($apply, $guard, &$counts, &$examples, &$volumes) {
                 $writes = [];
                 foreach ($rows as $row) {
                     $counts['copies']++;
-                    $key = Manuscript::collectionKeyOf($row->shelfmark);
+                    $key = Manuscript::collectionKeyOf($row->shelfmark, $row->raw_text);
                     if ($key !== null) {
                         $counts['with_key']++;
                         $volume = ($row->library_id ?? 'n:' . $row->library) . '|' . $key;
