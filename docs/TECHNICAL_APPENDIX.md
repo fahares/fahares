@@ -6230,7 +6230,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `syncCopies`: collections ۶۱۶، pointers_linked ۱۳.
   - `fill-collection-keys` پس از آن ۲ تغییر داشت (همان دو نسخه‌ی «سنا –»).
 
-
 ### گام ۱۳.۱۴۹: `scripts/dev/prod-run`
 - **فایل‌ها:** در `~/.fahares` (متغیر `FAHARES_STATE_DIR`): قفل `prod.lock` (`flock`)، دارنده‌ی کنونی `prod.holder` (نشست، زمان، فرمان)، و `prod-runs.log` با ستون‌های آغاز، پایان، نشست، کد خروج و فرمان. میزبان `fahares-app` است (متغیر `FAHARES_PROD_HOST`).
 - **رفتار:** `prod-run <session> -- '<command>'` قفل را با `flock -n` می‌گیرد و اگر نشد با کد ۷۵ و نام دارنده بیرون می‌آید. `--wait` با `flock` بی‌مهلت صبر می‌کند. سپس `pgrep -fa` روی الگوی `artisan (fahares|sources|catalogs|catalogers|people|import|admin|scout):`، تا `php -d … artisan` هم دیده شود، درون کانتینر اجرا می‌شود و اگر چیزی بیابد، باز با کد ۷۵ بیرون می‌آید. فرمان‌های کوتاه مانند `tinker` و `migrate:status` در الگو نیستند. کد خروج فرمان، کد خروج اسکریپت است.
@@ -6289,19 +6288,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `Would write 481`، سپس `Writing 481`، سپس `Would write 0`.
 - **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `6c96057`):** پشتیبان در `fahares-sources/backups/item87_lines_bayt_prod_before_20261102.json` گرفته شد (۴۸۱ ردیف). اجرا با `scripts/dev/prod-run` انجام شد. خروجی `Writing 481` بود و اجرای پس از آن `already 481` و `Would write 0` داد.
 - **آزمون:** ادامه‌ی `test_a_line_count_fills_only_a_copy_still_without_one`.
-### گام ۱۳.۱۵۴: کلید سه‌عددی عدد کوچک‌اول
-- **قاعده:** `collectionKey`، پس از جدا کردن نشانه‌ی چسبیده: اگر `base` با `^\d{1,2}$` بخواند و بخش رساله با `^(\d{3,})\s*/\s*(\d+)`، آنگاه `base = "{base}/{q1}"` و `part = q2`. نمونه‌ها: «4/120/1-5957» → «4/120» (شماره‌ی قدیم پس از «-» نادیده گرفته می‌شود)؛ «2267/6/10» → «2267».
-- **راه پشتیبان:** راه `LIKE` در `collectionSiblings` با `base` تازه همچنان کار می‌کند («1/2591/%»).
-- **سنجش:**
-
-  | شکل | شمار نسخه | کلید = عدد نخست | کلید = دو عدد نخست |
-  |---|---|---|---|
-  | عدد کوچک‌اول | ۳۶۱ | ۴۶ مجلد (۶ هم‌پوشان) | ۸۵ مجلد (۴ هم‌پوشان) |
-  | عدد بزرگ‌اول | ۱۹۹ | ۳۲ مجلد (۰ هم‌پوشان) | ۳۰ مجلد (۰ هم‌پوشان) |
-
-  ۱۷۶ نسخه شکل دیگری دارند و دست نخوردند.
-- **آزمون:** چهار نمونه در `DerivedDataTest::test_a_copys_bound_volume_follows_its_shelfmark_and_its_treatises_are_listed_by_leaf`.
-
 
 ### گام ۱۳.۱۵۳: `sources:build-noskhe-pazhuhi`
 - **MTIF:** کتاب ۳۹۴ («نسخه پژوهی»، به کوشش حافظیان بابلی، شخص ۱۸۴):
@@ -6337,6 +6323,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ارجاع‌ها: معمولی، وارونه، با خط تیره‌ی بلند، «نسخه‌پژوهی 3:»، صفحه‌ی تنها، روضاتی، حکیم، کتابخانه‌ی بی‌بخش، صفحه‌ای که دو بخش دارند، و ارجاع نخستین از منبع دیگر؛
   - همچنین dry-run، دفترها و MTIF، ویراستار، بخش و فهرست‌نگار هر نسخه، شمارش‌ها، تکرار بی‌اثر و `--revert`.
   - `CatalogVolumePartsTest::test_the_pages_and_a_save_before_the_deploy_has_migrated` پرسشی به جدول‌های بخش را رد می‌کند وقتی `ready()` نادرست است.
+
+### گام ۱۳.۱۵۴: کلید سه‌عددی عدد کوچک‌اول
+- **قاعده:** `collectionKey`، پس از جدا کردن نشانه‌ی چسبیده: اگر `base` با `^\d{1,2}$` بخواند و بخش رساله با `^(\d{3,})\s*/\s*(\d+)`، آنگاه `base = "{base}/{q1}"` و `part = q2`. نمونه‌ها: «4/120/1-5957» → «4/120» (شماره‌ی قدیم پس از «-» نادیده گرفته می‌شود)؛ «2267/6/10» → «2267».
+- **راه پشتیبان:** راه `LIKE` در `collectionSiblings` با `base` تازه همچنان کار می‌کند («1/2591/%»).
+- **سنجش:**
+
+  | شکل | شمار نسخه | کلید = عدد نخست | کلید = دو عدد نخست |
+  |---|---|---|---|
+  | عدد کوچک‌اول | ۳۶۱ | ۴۶ مجلد (۶ هم‌پوشان) | ۸۵ مجلد (۴ هم‌پوشان) |
+  | عدد بزرگ‌اول | ۱۹۹ | ۳۲ مجلد (۰ هم‌پوشان) | ۳۰ مجلد (۰ هم‌پوشان) |
+
+  ۱۷۶ نسخه شکل دیگری دارند و دست نخوردند.
+- **آزمون:** چهار نمونه در `DerivedDataTest::test_a_copys_bound_volume_follows_its_shelfmark_and_its_treatises_are_listed_by_leaf`.
 
 ### گام ۱۳.۱۵۶: `lines_raw` و `line_counts`
 - **migration** (`2026_11_03_200001_add_line_layouts_to_manuscripts`): `lines_raw` از نوع varchar(255) و `line_counts` از نوع json، هر دو nullable و پس از `lines`. در مدل `line_counts` با cast `array` خوانده می‌شود.
