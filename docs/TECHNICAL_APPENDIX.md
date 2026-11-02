@@ -6573,6 +6573,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: `fahares-sources/backups/step13/step13.166_import_volume_parts_awraq_atiq_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest`، با منبع `keep`، بخش `key` و نسخه‌ی بی‌جلدِ بی‌مدخل.
 
+### گام ۱۳.۱۶۷: `flags_off`
+- **صدور (پیکره):** `fankha_v2_apply_export.py flags_off`. ورودی ردیف‌های `is_ruled/flag_off` و `is_illuminated/flag_off` از review7 است.
+  - **`flag_without_ground`:** بخش جلد با `جلد\s*:[^؛\[]*` جدا می‌شود. بدنه، متن بی آغاز و انجام (`(?:آغاز|انجام)\s*:[^؛]*`) و بی جلد است.
+  - **مجدول:** واژه‌ی `مجدول|جدول` فقط در جلد آمده باشد.
+  - **مذهب:** واژه‌ی `مذهب|تذهیب|سرلوح|زر|طلا` فقط در جلد آمده باشد (`binding`)، یا فقط در آغاز و انجام (`text`)، یا هیچ‌جا (`nowhere`).
+  - **کنار ماندن:** واژه در بدنه بیاید یا «مجدول»ی بی هیچ نشانه باشد.
+  - **خروجی:** ۳٬۳۳۱ رکورد: `is_ruled_off` ۲٬۲۹۵، `is_illuminated_off` ۱٬۰۳۶ (`text` ۸۱۵، `binding` ۱۵۷، `nowhere` ۶۴)؛ ۲۸۰ رکورد کنار رفت.
+- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `is_ruled` و `is_illuminated` را هم دارد. هر دو فیلتر جستجوی نسخه‌اند و فرمان نسخه‌ها را دوباره نمایه می‌کند.
+- **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
+- **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `211ad46`):**
+  - پشتیبان: `fahares-sources/backups/item87_flags_off_prod_before_20261102.json`، ۳٬۳۱۰ نسخه با ستون‌های `is_ruled` و `is_illuminated`.
+  - اجرا با `prod-run`: `Writing 3330` و `reindexed 3330`. اجرای دوم `already` ۳٬۳۳۰ و `Would write 0` داد.
+- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
+
 ### گام ۱۳.۱۶۸: «چهار کتابخانه مشهد» با `create`
 - **داده:** [volume_parts_chahar_ketabkhaneh_mashhad.json](../database/data/volume_parts_chahar_ketabkhaneh_mashhad.json):
   - کد `catalogue-a22177a37451`، به روش `SourceEntrySync::groupCode` (sha1 «catalogue||عنوان»)؛
@@ -6591,20 +6606,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** پس از `--revert`، سنجه‌ی `catalogers` نمی‌خواند، چون پشتیبان فهرست‌نگاران جلدهای مجازی را نداشت. محلی با بازشماری آن دو فهرست‌نگار (MTIF ۳۷۲۱۸ و ۳۷۲۷۸) به حال پیش برگشت. تمرین دوم «Nothing to do» و برگرداندن دقیق داد.
   - پشتیبان: `fahares-sources/backups/step13/step13.168_import_volume_parts_chahar_mashhad_local_before_20261103.json`.
 - **آزمون:** `ImportVolumePartsTest::test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it`.
-### گام ۱۳.۱۶۷: `flags_off`
-- **صدور (پیکره):** `fankha_v2_apply_export.py flags_off`. ورودی ردیف‌های `is_ruled/flag_off` و `is_illuminated/flag_off` از review7 است.
-  - **`flag_without_ground`:** بخش جلد با `جلد\s*:[^؛\[]*` جدا می‌شود. بدنه، متن بی آغاز و انجام (`(?:آغاز|انجام)\s*:[^؛]*`) و بی جلد است.
-  - **مجدول:** واژه‌ی `مجدول|جدول` فقط در جلد آمده باشد.
-  - **مذهب:** واژه‌ی `مذهب|تذهیب|سرلوح|زر|طلا` فقط در جلد آمده باشد (`binding`)، یا فقط در آغاز و انجام (`text`)، یا هیچ‌جا (`nowhere`).
-  - **کنار ماندن:** واژه در بدنه بیاید یا «مجدول»ی بی هیچ نشانه باشد.
-  - **خروجی:** ۳٬۳۳۱ رکورد: `is_ruled_off` ۲٬۲۹۵، `is_illuminated_off` ۱٬۰۳۶ (`text` ۸۱۵، `binding` ۱۵۷، `nowhere` ۶۴)؛ ۲۸۰ رکورد کنار رفت.
-- **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `is_ruled` و `is_illuminated` را هم دارد. هر دو فیلتر جستجوی نسخه‌اند و فرمان نسخه‌ها را دوباره نمایه می‌کند.
-- **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
-- **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
-- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `211ad46`):**
-  - پشتیبان: `fahares-sources/backups/item87_flags_off_prod_before_20261102.json`، ۳٬۳۱۰ نسخه با ستون‌های `is_ruled` و `is_illuminated`.
-  - اجرا با `prod-run`: `Writing 3330` و `reindexed 3330`. اجرای دوم `already` ۳٬۳۳۰ و `Would write 0` داد.
-- **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
 
 ### گام ۱۳.۱۶۹: `binding_fill`
 - **وارسی ۱۳.۱۶۷:** از ۲٬۴۴۱ رکورد `why = binding`، ۲٬۴۳۹ رکورد در `manuscripts.binding` یکی از `مجدول|مذهب|زر|طلا|جدول` را دارند. دو رکورد #23779 و #46874 `binding` خالی دارند، چون `<!-- page: N -->` پیش از «جلد:» آمده است.
@@ -6615,6 +6616,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_binding_fill_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 276`. یک رکورد `natural key differs` بود. پس از اجرا، اجرای بعدی `Would write 0` داد.
 - **آزمون:** ادامه‌ی `test_a_flag_the_binding_gave_is_turned_off`.
+
 ### گام ۱۳.۱۷۰: فهرست‌های «،»دار و `new_records`
 - **کد:**
   - `KnownSubjects::fromText()` ادامه را بر `\s*،\s*|\s+و\s+` تکه می‌کند. `BARE` اکنون `زهرا`، `المرتضى`، `المرتضی`، `شافعی` و `مالک` را هم دارد.
@@ -6628,4 +6630,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:**
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (فهرست «،»دار، «مالک اشتر»، «المرتضى»، «صدیقه کبری»)
   - `BackfillWorkSubjectsTest::test_a_record_the_decision_file_lists_as_new_is_made_once_with_its_death_year`
-
