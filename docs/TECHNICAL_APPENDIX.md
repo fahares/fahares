@@ -6505,7 +6505,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: `fahares-sources/backups/step13/step13.162_work_people_before.json` (۶۵۴ سطر `subject`).
   - گزارش: `pieces:exists 650` و `pruned 4` (آثار #11831، #27319، #55020 و #66215).
   - #27319 را `WORDS` بی «مولد» از دست داده بود. پس «مولد» افزوده شد و `--apply` به انتشار بعدی موکول شد.
-- **اجرا در پروداکشن (پس از انتشار اصلاح):** `fahares:backfill-work-subjects --prune` و سپس همان با `--apply`.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، انتشار `90e969f`، از راه `prod-run`):**
+  - dry run و `--prune --apply` هر دو این را گزارش دادند: `linked:known 18`، `:description 8`، `:title_inside 17`، `:title_read 1`، `linked:reviewed 23`، `:description 7`، `:title_inside 2`، `:title_listed 2`، `:title_read 6`، `pieces:exists 651` و `pruned 3` (آثار #11831، #55020 و #66215).
+  - اجرای سوم `pieces:exists 735` بود. شمار سطرهای `subject` ۷۳۵ است.
+  - `/people/516` زبانه‌ی «آثار درباره‌ی او» دارد.
 - **آزمون‌ها:**
   - `KnownSubjectsTest::test_a_joined_word_is_read_and_a_time_is_not_a_subject` (با «مولد»)
   - `BackfillWorkSubjectsTest::test_a_row_the_rules_no_longer_give_is_pruned_but_one_they_give_is_kept`
