@@ -6719,6 +6719,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین نخست:** ۱٬۸۴۱ رکورد نوشت. ۳۵ نسخه پس از آن عدد داشتند ولی بازه نداشتند، چون «، قرن 13» پس از روز و ماه رفته بود. این تمرین با `audit_logs.old_values` برگردانده شد و ردیف‌های ممیزی‌اش پاک شد. سپس `DerivedData::syncCopies` اجرا شد.
   - **تمرین دوم:** `Would write 1725` (`date_tail` ۱٬۶۲۲، `date_note` ۱۰۳). اجرای بعدی `Would write 0` بود. `copyDateColumns(old)` با `copyDateColumns(new)` در هر ۱٬۷۲۵ رکورد یکی است.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_what_follows_a_copy_date_becomes_a_note_or_the_dates_note`.
+
 ### گام ۱۴.۳: «سه کتابخانه اصفهان» با `create`
 - **داده:**
   - [library_duplicates_step14_3.json](../database/data/library_duplicates_step14_3.json): `asfhan-aboalbrkat-rda-904` ← `asfhan-aboalbrkat-rda-118`.

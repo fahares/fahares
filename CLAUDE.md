@@ -14,7 +14,7 @@ numbers and deploys from colliding.
 - Steps are grouped in phases («فاز»). A new phase opens when the main subject of the work changes or a phase passes
   about 50 steps: the task-management session proposes it, and with the user's OK it adds the phase heading and
   chronology row and writes the new phase number to `~/.fahares/phase`, which `reserve-step` reads. Phase 14 opened on
-  12 Aban 1405; the 13.x numbers reserved before it (up to 13.174) keep their numbers and sit before its heading.
+  12 Aban 1405; phase 13 ends at 13.173 (13.174 and 13.175 were renumbered 14.2 and 14.3 and stay unused).
 
 ## Push and deploy
 
