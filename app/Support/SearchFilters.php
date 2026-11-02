@@ -5,10 +5,12 @@ namespace App\Support;
 use App\Helpers\TextNormalizer;
 use App\Models\Language;
 use App\Models\Library;
+use App\Models\ManuscriptPerson;
 use App\Models\Script;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\Subject;
+use App\Models\WorkPerson;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -247,8 +249,8 @@ class SearchFilters
                 // Subqueries on the link tables, not whereHas: the database runs them as one semi-join instead of
                 // a lookup per manuscript (10 s for a subject over 324 000 manuscripts)
                 'work_id' => $query->where('manuscripts.work_id', $value),
-                'scribe_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_scribe')->where('person_id', $value)->select('manuscript_id')),
-                'author_id' => $query->whereIn('works.id', DB::table('work_author')->where('person_id', $value)->select('work_id')),
+                'scribe_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $value)->select('manuscript_id')),
+                'author_id' => $query->whereIn('works.id', DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $value)->select('work_id')),
                 'subject_id' => $query->whereIn($this->workKey(), DB::table('subject_work')->whereIn('subject_id', $this->subjectFamily()->pluck('id'))->select('work_id')),
                 'language_id' => $query->whereIn($this->workKey(), DB::table('language_work')->where('language_id', $value)->select('work_id')),
                 'library_id' => $query->whereIn('manuscripts.library_id', $value),

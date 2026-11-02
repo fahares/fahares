@@ -135,7 +135,7 @@ class Manuscript extends Model
 
     protected static function primaryContributorPivot(): array
     {
-        return ['manuscript_scribe', 'manuscript_id', 'scribe_id'];
+        return ['manuscript_people', 'manuscript_id', 'scribe_id', ManuscriptPerson::SCRIBE];
     }
 
     protected function casts(): array
@@ -594,7 +594,8 @@ class Manuscript extends Model
      */
     public function scribes(): BelongsToMany
     {
-        return $this->belongsToMany(Person::class, 'manuscript_scribe')
+        return $this->belongsToMany(Person::class, 'manuscript_people')
+            ->withPivotValue('role', ManuscriptPerson::SCRIBE)
             ->withPivot(['position', 'note'])
             ->orderByPivot('position');
     }
@@ -604,7 +605,7 @@ class Manuscript extends Model
      */
     public function scribeEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ManuscriptScribe::class)->orderBy('position')->orderBy('id');
+        return $this->hasMany(ManuscriptPerson::class)->where('role', ManuscriptPerson::SCRIBE)->orderBy('position')->orderBy('id');
     }
 
     /**
@@ -754,7 +755,7 @@ class Manuscript extends Model
     /** People other than the scribes: owners, endowers, correctors… in role order. */
     public function otherPeople(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(ManuscriptPerson::class)->orderBy('position')->orderBy('id');
+        return $this->hasMany(ManuscriptPerson::class)->where('role', '!=', ManuscriptPerson::SCRIBE)->orderBy('position')->orderBy('id');
     }
 
     public function scripts(): BelongsToMany

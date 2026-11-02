@@ -37,7 +37,7 @@ class DerivedDataTest extends TestCase
         TextExcerpt::where('owner_type', Manuscript::class)->whereIn('owner_id', $copies)->delete();
         TextExcerpt::where('owner_type', Work::class)->whereIn('owner_id', $works)->delete();
         DB::table('work_people')->whereIn('work_id', $works)->delete();
-        DB::table('manuscript_scribe')->whereIn('manuscript_id', $copies)->delete();
+        DB::table('manuscript_people')->where('role', 'scribe')->whereIn('manuscript_id', $copies)->delete();
         DB::table('manuscripts')->whereIn('id', $copies)->delete();
         DB::table('works')->whereIn('id', $works)->delete();
         @unlink($this->file);

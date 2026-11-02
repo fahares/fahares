@@ -11,6 +11,7 @@ use App\Models\Person;
 use App\Models\SourceEntry;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use App\Sources\SourceEntrySync;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -171,10 +172,12 @@ class ReconcileAddendaCommand extends Command
                 'author_name' => $source->author_name,
                 'has_other_authors' => $source->has_other_authors,
             ]);
-            DB::table('work_author')->where('work_id', $target->id)->delete();
-            foreach (DB::table('work_author')->where('work_id', $source->id)->get() as $row) {
+            $authors = fn (int $id) => DB::table('work_people')->where('work_id', $id)->where('role', WorkPerson::AUTHOR);
+            $authors($target->id)->delete();
+            foreach ($authors($source->id)->get() as $row) {
                 $this->touchedPeople[] = $row->person_id;
-                DB::table('work_author')->insert(['work_id' => $target->id, 'person_id' => $row->person_id, 'position' => $row->position, 'note' => $row->note]);
+                DB::table('work_people')->insert(['work_id' => $target->id, 'person_id' => $row->person_id, 'name' => $row->name, 'role' => WorkPerson::AUTHOR,
+                    'position' => $row->position, 'note' => $row->note]);
             }
             Manuscript::where('work_id', $target->id)->searchable();
         }
@@ -206,7 +209,7 @@ class ReconcileAddendaCommand extends Command
 
     protected function removeWork(Work $source, Work $target): void
     {
-        array_push($this->touchedPeople, ...DB::table('work_author')->whereIn('work_id', [$source->id, $target->id])->pluck('person_id')->all());
+        array_push($this->touchedPeople, ...DB::table('work_people')->whereIn('work_id', [$source->id, $target->id])->where('role', WorkPerson::AUTHOR)->pluck('person_id')->all());
         array_push($this->touchedSubjects, ...$source->subjects()->pluck('subjects.id')->all());
         array_push($this->touchedLanguages, ...$source->languages()->pluck('languages.id')->all());
 
