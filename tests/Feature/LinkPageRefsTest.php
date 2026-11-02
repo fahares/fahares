@@ -97,7 +97,7 @@ class LinkPageRefsTest extends TestCase
         $this->assertStringContainsString('<a href="' . route('libraries.show', $majlis) . '" id="m0" class="book-sheet__mark book-sheet__mark--library"', $html);
 
         $this->followingRedirects()->get(route('manuscripts.show', $inIlahiyat->id))->assertOk()->assertSee('یادکرد در منابع')
-            ->assertSee('/sources/dharia/19/page/170#m1', false);
+            ->assertSee('/sources/dharia/19/page/170#m1', false)->assertSee('<mark class="bg-transparent text-ink font-bold">إلهيات: ۷۹۹ د</mark>', false);
     }
 
     public function test_a_reference_to_the_source_itself_links_its_entry_or_page()

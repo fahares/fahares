@@ -68,8 +68,10 @@ class SourceMentions
                 'url' => route('source-pages.show', [$row->code, $row->volume_number, $row->page]) . ($row->ordinal !== null ? '#m' . $row->ordinal : '#r' . $row->offset),
                 'entry' => $holding->count() === 1 ? $holding->first() : null,
                 'before' => self::words($mark['before'] ?? '', -60),
-                'name' => $mark['text'] ?? '',
-                'after' => self::words($mark['after'] ?? '', 60),
+                // a copy's link names the library and its shelfmark after it («المجلس: 1012»)
+                ...($row->ordinal !== null && ($row->span ?? null) !== null && preg_match('/^[\s:،\-]*' . preg_quote($row->span, '/') . '/u', $mark['after'] ?? '', $m)
+                    ? ['name' => ($mark['text'] ?? '') . ' ' . $row->span, 'after' => self::words(mb_substr($mark['after'], mb_strlen($m[0])), 60)]
+                    : ['name' => $mark['text'] ?? '', 'after' => self::words($mark['after'] ?? '', 60)]),
             ];
         })->groupBy('source');
     }
