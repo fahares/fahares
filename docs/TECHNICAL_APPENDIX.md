@@ -6560,6 +6560,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **کد:** `ApplyCorpusCategoriesCommand::FIELDS` اکنون `is_ruled` و `is_illuminated` را هم دارد. هر دو فیلتر جستجوی نسخه‌اند و فرمان نسخه‌ها را دوباره نمایه می‌کند.
 - **فایل تصمیم:** `database/data/fankha_flags_off_20261102.json`.
 - **تمرین (`fahares_prod`):** `Would write 3330` (`is_ruled_off` ۲٬۲۹۴ و `is_illuminated_off` ۱٬۰۳۶). یک رکورد `natural key differs` بود. اجرای دوم `Would write 0` داد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵، پس از انتشار `211ad46`):**
+  - پشتیبان: `fahares-sources/backups/item87_flags_off_prod_before_20261102.json`، ۳٬۳۱۰ نسخه با ستون‌های `is_ruled` و `is_illuminated`.
+  - اجرا با `prod-run`: `Writing 3330` و `reindexed 3330`. اجرای دوم `already` ۳٬۳۳۰ و `Would write 0` داد.
 - **آزمون:** `ApplyCorpusCategoriesCommandTest::test_a_flag_the_binding_gave_is_turned_off`.
 
 ### گام ۱۳.۱۶۹: `binding_fill`
