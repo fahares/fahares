@@ -6986,44 +6986,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `queued 57`، سپس `already queued 57`.
 - **صفحه‌ی بازبینی Claude (EZVnxjxDfQe37o16EJTvyD):** پیش از این ساخته شده بود. رأی‌هایش، اگر باشد، در پیشخوان اعمال می‌شود.
 
-### گام ۱۴.۲۱: سنجش چاپ ارجاع‌ها
-- **داده:** `fahares_prod` محلی، ۱۲ آبان ۱۴۰۵. خواندن فقط با پرس‌وجو، بی نوشتن.
-  - **ارجاع‌ها:** `source_entries` با `origin = bibliography` و `citable_type = Work`، ۴۵٬۳۱۳ ردیف، که ۲۵٬۶۶۲ ردیفش بی `source_id` است. پیوند به مدخل از `legacy_type = source_item_link` و `legacy_id` شناخته شد.
-  - **مدخل‌ها و متن:** `source_items` و `source_pages`.
-- **سنجش چاپ (روش «فاصله»):** عنوان اثر و عنوان‌های دیگرش با نرمال‌سازی‌ای مانند `MatchCatalogEditionCommand::norm` (ي/ی، ك/ک، ة/ه، همزه‌ها، اعراب، «ال») با `title_normalized` همان منبع سنجیده شد، و فاصله‌ی نزدیک‌ترین مدخل تا صفحه‌ی ارجاع شمرده شد. در الذریعه، فهرستواره، مشار و سرکیس هیچ فاصله‌ی ثابتی دیده نشد. جدول در بند ۱-ب طرح است.
-- **نمایه‌ی «نسخه‌ها» در فهرستواره:** الگوی `نسخه‌ها\s*(\(\d+\))?\s*P/V(\s*(و|،)\s*P/V)*` روی متن مدخل‌ها، ۹٬۱۱۲ مدخل و ۲٬۷۴۹ نشانی.
-- **روضات:**
-  - شماره‌گذاری پیوسته‌ی هشت جلد، و زنجیره‌ی یکنوای لنگرها (LIS)؛
-  - درون‌یابی خطی میان دو لنگر همسایه؛
-  - پنجره‌ی ±۸۰ صفحه؛
-  - خطای leave-one-out با میانه‌ی ۴۳ صفحه.
-- **وارسی دستی:** متن صفحه‌ی نامزد (`source_pages.text`) برای ۱۰ مورد مشار، ۱۰ نسخه‌ها، ۱۰ روضات، ۱۵ أعیان و ۸ الذریعه خوانده شد.
-- **اسکریپت‌ها:** بیرون از مخزن، در پوشه‌ی یادداشت‌های جلسه‌ها (`old-printing-citations/`).
-
-### گام ۱۴.۲۲: `sources:link-earlier-edition`
-- **فرمان:** [LinkEarlierEditionCommand](../app/Console/Commands/LinkEarlierEditionCommand.php)، با `{source} {edition} [--dry-run] [--report=]`.
-- **پیکربندی:** `config/bibliography.php`، `sources.{code}.earlier.{edition}`. کلیدها:
-  - `label`؛
-  - `like`: پیش‌گزینش SQL ارجاع‌ها؛
-  - `pattern`: نام کتاب پیشین در متن ارجاع؛
-  - `cited_as`: نامی که منبع سایت برای کتاب پیشین در متن مدخل‌هایش به کار می‌برد.
-  - هر دو الگو روی متنِ گذشته از `MatchCatalogEditionCommand::digits` اجرا می‌شوند.
-- **`addressIndex()`:** «نسخه‌ها (2) 1709/2 و 1711/2» را به صفحه‌های ۱۷۰۹ و ۱۷۱۱ برمی‌گرداند. کلید فقط صفحه است، چون صفحه‌شماری نسخه‌ها در شش جلد پیوسته است.
-- **`citedPages()`:** شکل‌های «P/V»، «P»، «P/V و P/V»، «P/V-P»، «V: P» (جلد ۶ یا کمتر) و «ص P» را می‌خواند.
-- **تصمیم:**
-  - **`edition_address`:** `ItemMatcher::match` روی مدخل‌هایی که صفحه را نام می‌برند، اگر نقش «مدخل» و روش سرعنوانی باشد (`title_author`، `title_exact`، `full_title`، `title_only`، `other_title`). اطمینان ۹۵، یا ۸۵ برای `title_only`.
-  - **`edition_title`:** در غیر این صورت، روی مدخل‌هایی که `title_normalized`شان یکی از شکل‌های عنوان اثر است (`LinkSourceItemsCommand::titleForms`). اطمینان ۷۰ با مؤلف (`title_author`، `full_title`، `other_title`)، وگرنه ۴۰.
-  - **`ambiguous`:** نتیجه‌ی مبهم این دو، با اطمینان ۳۰.
-  - **بی‌پیوند:** مدخلِ نام‌برنده‌ی صفحه با سرعنوان دیگر پیوند نمی‌سازد.
-- **کنار گذاشتن:** اثری که در منبع پیوند یا ارجاعی جز پیوندهای همین فرمان دارد، کنار می‌رود.
-- **ردیف:** `legacy_type = earlier_edition_link`، `legacy_id` = شناسه‌ی ارجاع، `legacy_index = 0`. اجرای دوباره پیوند داوری‌شده را دست نمی‌زند و متن ویرایش‌شده را نگه می‌دارد، همان قاعده‌ی `sources:link-items`.
-- **صف داوری:** برچسب دو روش تازه در `SourceLinkController::METHODS`.
-- **آزمون:** `LinkEarlierEditionTest` (۴ آزمون).
-- **تمرین (`fahares_prod`):** `created 426`، سپس `unchanged 426`:
-  - `edition_address`: ۱۴۴ با اطمینان ۹۵، ۱۴ با ۸۵؛
-  - `edition_title`: ۷۹ با ۷۰، ۷۲ با ۴۰؛
-  - `ambiguous`: ۱۱۷.
-
 ### گام ۱۴.۱۸: مشار و سرکیس از «کتب مرجع ۲» نور (مورد ۸۶)
 - **پایگاه:** `$NOOR_DB_DIR/KotobMarja2-DB/kotobmarja2.db`، فقط‌خواندنی. این پایگاه تصویر صفحه ندارد.
 
@@ -7111,3 +7073,42 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **وارسی صفحه‌ها:** `/works/5074` («یاد شده در روضات الجنات، ج ۴، ص ۳۹۹، ذیل …» با ش ۴۲۲)، `/sources/rawdat/4/page/400` و `/sources/ayan/9/page/408` پاسخ ۲۰۰ دادند.
 - **ترتیب فرمان‌ها:** همان گام ۱۴.۱۸، با کدهای `ayan` (جلد ۱ تا ۱۰) و `rawdat` (جلد ۱ تا ۸).
 - **آزمون:** `NoorReferenceBooksTest` (همان آزمون گام ۱۴.۱۸ با نام تازه) با دو آزمون تازه، و فیکسچر `rawdat-v04-p400`.
+
+### گام ۱۴.۲۱: سنجش چاپ ارجاع‌ها
+- **داده:** `fahares_prod` محلی، ۱۲ آبان ۱۴۰۵. خواندن فقط با پرس‌وجو، بی نوشتن.
+  - **ارجاع‌ها:** `source_entries` با `origin = bibliography` و `citable_type = Work`، ۴۵٬۳۱۳ ردیف، که ۲۵٬۶۶۲ ردیفش بی `source_id` است. پیوند به مدخل از `legacy_type = source_item_link` و `legacy_id` شناخته شد.
+  - **مدخل‌ها و متن:** `source_items` و `source_pages`.
+- **سنجش چاپ (روش «فاصله»):** عنوان اثر و عنوان‌های دیگرش با نرمال‌سازی‌ای مانند `MatchCatalogEditionCommand::norm` (ي/ی، ك/ک، ة/ه، همزه‌ها، اعراب، «ال») با `title_normalized` همان منبع سنجیده شد، و فاصله‌ی نزدیک‌ترین مدخل تا صفحه‌ی ارجاع شمرده شد. در الذریعه، فهرستواره، مشار و سرکیس هیچ فاصله‌ی ثابتی دیده نشد. جدول در بند ۱-ب طرح است.
+- **نمایه‌ی «نسخه‌ها» در فهرستواره:** الگوی `نسخه‌ها\s*(\(\d+\))?\s*P/V(\s*(و|،)\s*P/V)*` روی متن مدخل‌ها، ۹٬۱۱۲ مدخل و ۲٬۷۴۹ نشانی.
+- **روضات:**
+  - شماره‌گذاری پیوسته‌ی هشت جلد، و زنجیره‌ی یکنوای لنگرها (LIS)؛
+  - درون‌یابی خطی میان دو لنگر همسایه؛
+  - پنجره‌ی ±۸۰ صفحه؛
+  - خطای leave-one-out با میانه‌ی ۴۳ صفحه.
+- **وارسی دستی:** متن صفحه‌ی نامزد (`source_pages.text`) برای ۱۰ مورد مشار، ۱۰ نسخه‌ها، ۱۰ روضات، ۱۵ أعیان و ۸ الذریعه خوانده شد.
+- **اسکریپت‌ها:** بیرون از مخزن، در پوشه‌ی یادداشت‌های جلسه‌ها (`old-printing-citations/`).
+
+### گام ۱۴.۲۲: `sources:link-earlier-edition`
+- **فرمان:** [LinkEarlierEditionCommand](../app/Console/Commands/LinkEarlierEditionCommand.php)، با `{source} {edition} [--dry-run] [--report=]`.
+- **پیکربندی:** `config/bibliography.php`، `sources.{code}.earlier.{edition}`. کلیدها:
+  - `label`؛
+  - `like`: پیش‌گزینش SQL ارجاع‌ها؛
+  - `pattern`: نام کتاب پیشین در متن ارجاع؛
+  - `cited_as`: نامی که منبع سایت برای کتاب پیشین در متن مدخل‌هایش به کار می‌برد.
+  - هر دو الگو روی متنِ گذشته از `MatchCatalogEditionCommand::digits` اجرا می‌شوند.
+- **`addressIndex()`:** «نسخه‌ها (2) 1709/2 و 1711/2» را به صفحه‌های ۱۷۰۹ و ۱۷۱۱ برمی‌گرداند. کلید فقط صفحه است، چون صفحه‌شماری نسخه‌ها در شش جلد پیوسته است.
+- **`citedPages()`:** شکل‌های «P/V»، «P»، «P/V و P/V»، «P/V-P»، «V: P» (جلد ۶ یا کمتر) و «ص P» را می‌خواند.
+- **تصمیم:**
+  - **`edition_address`:** `ItemMatcher::match` روی مدخل‌هایی که صفحه را نام می‌برند، اگر نقش «مدخل» و روش سرعنوانی باشد (`title_author`، `title_exact`، `full_title`، `title_only`، `other_title`). اطمینان ۹۵، یا ۸۵ برای `title_only`.
+  - **`edition_title`:** در غیر این صورت، روی مدخل‌هایی که `title_normalized`شان یکی از شکل‌های عنوان اثر است (`LinkSourceItemsCommand::titleForms`). اطمینان ۷۰ با مؤلف (`title_author`، `full_title`، `other_title`)، وگرنه ۴۰.
+  - **`ambiguous`:** نتیجه‌ی مبهم این دو، با اطمینان ۳۰.
+  - **بی‌پیوند:** مدخلِ نام‌برنده‌ی صفحه با سرعنوان دیگر پیوند نمی‌سازد.
+- **کنار گذاشتن:** اثری که در منبع پیوند یا ارجاعی جز پیوندهای همین فرمان دارد، کنار می‌رود.
+- **ردیف:** `legacy_type = earlier_edition_link`، `legacy_id` = شناسه‌ی ارجاع، `legacy_index = 0`. اجرای دوباره پیوند داوری‌شده را دست نمی‌زند و متن ویرایش‌شده را نگه می‌دارد، همان قاعده‌ی `sources:link-items`.
+- **صف داوری:** برچسب دو روش تازه در `SourceLinkController::METHODS`.
+- **آزمون:** `LinkEarlierEditionTest` (۴ آزمون).
+- **تمرین (`fahares_prod`):** `created 426`، سپس `unchanged 426`:
+  - `edition_address`: ۱۴۴ با اطمینان ۹۵، ۱۴ با ۸۵؛
+  - `edition_title`: ۷۹ با ۷۰، ۷۲ با ۴۰؛
+  - `ambiguous`: ۱۱۷.
+
