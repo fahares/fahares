@@ -71,7 +71,8 @@ class BibliographyLinksTest extends TestCase
     {
         // «دنا» is not linked; Monzavi, a text source since step 13.69, opens its page text (step 13.73)
         $this->assertSame([['549/7', url('/sources/monzavi/7/page/549')]], $this->links('دنا 1177/2؛ فهرستواره منزوی 549/7'));
-        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، معجم المطبوعات 23/1'));
+        // Sarkis's «معجم المطبوعات» is a text source since step 14.18; the Najaf one is another book
+        $this->assertSame([['865/9', 'https://lib.eshia.ir/71602/9/865']], $this->links('الذریعة 865/9، معجم المطبوعات النجفیة 23/1'));
         $this->assertSame([], $this->links('الذریعة 287/27'));
     }
 

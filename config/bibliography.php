@@ -18,7 +18,8 @@ return [
      * - text (optional, instead of url and viewer): the site has the source's page texts and entries but no page
      *   images; catalog is the volumes' facsimile_code, first_pages and last_pages bound the pages a citation can
      *   name, and runs lists the volumes whose page numbers run on, so a citation naming the wrong one of them is
-     *   placed by its page. Its citations are not links; the work page shows the entry matched to them.
+     *   placed by its page. Its citations are not links; the work page shows the entry matched to them. bare false:
+     *   a column cited without its volume is not taken, since Fankha took those from another printing.
      * - kind, compiler, publisher, edition_label (optional): the source's registry row (sources:backfill --only=registry).
      */
     'sources' => [
@@ -157,6 +158,65 @@ return [
                 'first_pages' => [2 => 805, 3 => 1527, 4 => 2591, 5 => 3255, 8 => 816],
                 'last_pages' => [1 => 795, 2 => 1518, 3 => 2571, 4 => 3244, 5 => 4173, 6 => 910, 7 => 817, 8 => 1498, 9 => 765, 10 => 931],
                 'runs' => [[1, 2, 3, 4, 5], [7, 8]],
+            ],
+        ],
+        // Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at, as text from Noor (item 86, step
+        // 14.18, scripts/sources/noor_printed_books.py). The Persian catalogue's five volumes (Tehran 1350-55 Sh) number
+        // their columns on; Fankha writes «مشار فارسی 2558/2», «فهرست فارسی مشار 4954/4», «مشار 3098/2» or «مشار،
+        // فارسی 184/1». A column without its volume, «مشار 591», or with a volume that does not hold it, «مشار 724/2»,
+        // is of an earlier printing and does not match this one (bare, and no runs). The Arabic catalogue is one volume
+        // (1344 Sh): «مشار عربی 989», «فهرست عربی مشار», «مشار، عربی». «مؤلفین مشار» is another of his books.
+        'mushar-fa' => [
+            'label' => 'فهرست کتاب‌های چاپی فارسی',
+            'pattern' => '(?:فهرست )?(?:فارسی ?)?مشار(?: ?فارسی)?',
+            'volumes' => 5,
+            'pairs_after_name' => true,
+            'unit' => 'ستون',
+            'kind' => 'bibliography',
+            'compiler' => 'خانبابا مشار',
+            'edition_label' => 'تهران، ۱۳۵۰–۱۳۵۵ش',
+            'text' => [
+                'catalog' => 'mushar-fa',
+                'name' => 'مشار فارسی',
+                'first_pages' => [2 => 1473, 3 => 2861, 4 => 3977, 5 => 5101],
+                'last_pages' => [1 => 1464, 2 => 2858, 3 => 3976, 4 => 5100, 5 => 5614],
+                'bare' => false,
+            ],
+        ],
+        'mushar-ar' => [
+            'label' => 'فهرست کتاب‌های چاپی عربی',
+            'pattern' => '(?:فهرست )?(?:عربی ?مشار|مشار ?(?:چاپی )?عربی(?: صص)?|مشارع عربی)',
+            'volumes' => 1,
+            'unit' => 'ستون',
+            'kind' => 'bibliography',
+            'compiler' => 'خانبابا مشار',
+            'edition_label' => 'تهران، ۱۳۴۴ش',
+            'text' => [
+                'catalog' => 'mushar-ar',
+                'name' => 'مشار عربی',
+                'last_pages' => [1 => 1014],
+            ],
+        ],
+        // Sarkis's two volumes (Cairo 1928, the Marashi library's offset, Qom 1410 AH), their columns numbered on (volume
+        // 2 from 1145). Fankha writes «معجم المطبوعات 663/1», «معجم المطبوعات العربیة 128/1», «سرکیس 72/1», «معجم
+        // المطبوعات سرکیس ج2ص1897» and a bare column, «معجم المطبوعات 1611»; not «معجم المطبوعات العربیة فی ایران» or
+        // «… النجفیة», other books.
+        'sarkis' => [
+            'label' => 'معجم المطبوعات العربیة و المعربة',
+            'pattern' => '(?:معجم )?(?:(?:یوسف )?(?:الیان |الیاس )?سر ?کیس(?: معجم(?: المطبوعات(?: العربیه)?(?: و)?(?: المعربه)?)?)?'
+                . '|معجم المطبوعات(?: العربیه)?(?: و)?(?: المعربه)?(?: سر ?کیس)?)',
+            'volumes' => 2,
+            'pairs_after_name' => true,
+            'unit' => 'ستون',
+            'kind' => 'bibliography',
+            'compiler' => 'یوسف الیان سرکیس',
+            'edition_label' => 'افست قم، ۱۴۱۰ق',
+            'text' => [
+                'catalog' => 'sarkis',
+                'name' => 'معجم المطبوعات',
+                'first_pages' => [2 => 1145],
+                'last_pages' => [1 => 1144, 2 => 2024],
+                'runs' => [[1, 2]],
             ],
         ],
     ],
