@@ -118,6 +118,68 @@ class LinkEarlierEditionTest extends TestCase
         $this->assertSame(SourceEntry::STATUS_REJECTED, $this->tie($sham)->status);
     }
 
+    public function test_a_page_between_anchors_falls_on_the_line_through_them()
+    {
+        $anchors = [[0, 0], [100, 500], [200, 700]];
+        $this->assertSame(250.0, Link::between(50, $anchors));
+        $this->assertSame(600.0, Link::between(150, $anchors));
+        $this->assertSame(800.0, Link::between(250, $anchors));
+    }
+
+    public function test_a_lithograph_page_finds_the_life_around_its_place_and_a_part_its_part()
+    {
+        $source = Source::create(['code' => 'lives-earlier', 'kind' => Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'روضات الجنات']);
+        $life = function (int $volume, int $page, string $title, string $text) use ($source) {
+            $v = SourceVolume::firstOrCreate(['source_id' => $source->id, 'volume_number' => $volume], ['facsimile_code' => 'lives-earlier']);
+
+            return SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $v->id, 'volume_number' => $volume, 'item_key' => "$volume-$page",
+                'position' => $volume * 1000 + $page, 'kind' => 'entry', 'page_start' => $page, 'page_end' => $page + 3, 'title' => $title,
+                'title_normalized' => MatchCatalogEditionCommand::norm($title), 'text' => $text, 'text_status' => 'auto']);
+        };
+        $life(1, 1, 'ابراهيم بن محمد', 'من اوائل الكتاب.');
+        $life(1, 400, 'ابو الفتح محمد بن على الكراجكى', 'له كتاب «كنز الفوائد» و غيره.');
+        $near = $life(2, 100, 'الشيخ ابو الفتح محمد بن على الكراجكى', 'صاحب «الابانة عن المماثلة» و «كنز الفوائد».');
+        $life(2, 400, 'آخر الكتاب', 'خاتمة.');
+        config(['bibliography.sources.lives-earlier.earlier.lithograph' => ['like' => ['%روضات%'], 'pattern' => 'روضات(?: الجنات)?',
+            'places' => 'anchors', 'anchors' => [[1, 1, 1], [200, 2, 400]], 'window' => 50]]);
+        // the lithograph's page 125 falls about the 2nd volume's first pages (page 501 of 806 numbered on), not 1/400
+        $work = $this->work('الابانة عن المماثلة', 'کراجکی، محمد بن علی', 'روضات الجنات 125');
+        $new = $this->work('کنز الفوائد', 'کراجکی، محمد بن علی', 'روضات الجنات 106/7');
+
+        $this->artisan('sources:link-earlier-edition', ['source' => 'lives-earlier', 'edition' => 'lithograph'])->assertSuccessful();
+        $tie = $this->tie($work);
+        $this->assertSame([$near->id, Link::PLACE, 70, SourceEntry::ROLE_MENTION], [$tie->source_item_id, $tie->match_method, $tie->confidence, $tie->role]);
+        $this->assertNull($this->tie($new), 'a page with its volume is of the printing the site has');
+
+        // a part of the earlier printing: «200: 12» is part 12, which begins at 2/90
+        config(['bibliography.sources.lives-earlier.earlier.parts' => ['like' => ['%اعیان%'], 'pattern' => 'اعیان الشیعه',
+            'places' => 'parts', 'parts' => [11 => [1, 1], 12 => [2, 90], 13 => [2, 300]]]]);
+        $inPart = $this->work('کنز الفوائد', 'کراجکی، محمد بن علی', 'اعیان الشیعه 200: 12');
+        $inVolume = $this->work('کنز الفوائد', 'کراجکی، محمد بن علی', 'اعیان الشیعه 228/2');
+        $this->artisan('sources:link-earlier-edition', ['source' => 'lives-earlier', 'edition' => 'parts'])->assertSuccessful();
+        $this->assertSame([$near->id, Link::PLACE, 70], [$this->tie($inPart)->source_item_id, $this->tie($inPart)->match_method, $this->tie($inPart)->confidence]);
+        $this->assertNull($this->tie($inVolume), '«228/2» is of the ten volumes');
+    }
+
+    public function test_a_heading_that_sends_to_another_is_followed_to_it()
+    {
+        $mushar = Source::create(['code' => 'mushar-earlier', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 30, 'title' => 'فهرست کتاب‌های چاپی فارسی']);
+        $v = SourceVolume::create(['source_id' => $mushar->id, 'volume_number' => 1, 'facsimile_code' => 'mushar-earlier']);
+        $item = fn (int $page, string $title, string $text) => SourceItem::create(['source_id' => $mushar->id, 'source_volume_id' => $v->id,
+            'volume_number' => 1, 'item_key' => (string) $page, 'position' => $page, 'kind' => 'entry', 'page_start' => $page, 'page_end' => $page,
+            'title' => $title, 'title_normalized' => MatchCatalogEditionCommand::norm($title), 'text' => $text, 'text_status' => 'auto']);
+        $item(363, 'اصول تمدن', 'اصول تمدن: رجوع شود به «کلیات ملکم»');
+        $full = $item(1500, 'کلیات ملکم', 'کلیات ملکم: ناظم الدوله ملکم، طهران، 1325 ش، سربی.');
+        config(['bibliography.sources.mushar-earlier.earlier.old' => ['like' => ['%مشار%'], 'pattern' => 'مشار[^0-9]{0,15}\d',
+            'except' => 'عربی', 'places' => 'title', 'see' => 'رجوع شود(?: به)?\)?\s*:?\s*«([^»]+)»']]);
+        $work = $this->work('اصول تمدن', 'ملکم', 'فارسی مشار 1276');
+        $arabic = $this->work('اصول تمدن', 'ملکم', 'مشار عربی 89');
+
+        $this->artisan('sources:link-earlier-edition', ['source' => 'mushar-earlier', 'edition' => 'old'])->assertSuccessful();
+        $this->assertSame([$full->id, Link::TITLE], [$this->tie($work)->source_item_id, $this->tie($work)->match_method]);
+        $this->assertNull($this->tie($arabic));
+    }
+
     public function test_an_unknown_edition_fails()
     {
         $this->artisan('sources:link-earlier-edition', ['source' => 'monzavi', 'edition' => 'nothing'])->assertFailed();
