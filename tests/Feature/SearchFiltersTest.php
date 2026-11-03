@@ -32,12 +32,12 @@ class SearchFiltersTest extends TestCase
         $subject = Subject::create(['name' => 'فقه', 'slug' => 'f-fiqh-' . uniqid()]);
         Subject::create(['name' => 'اصول فقه', 'slug' => 'f-usul-' . uniqid(), 'parent_id' => $subject->id]);
         $request = Request::create('/search', 'GET', ['subject_id' => $subject->id, 'century' => '9', 'year_to' => '۸۵۰', 'facsimile' => '0',
-            'flags' => ['is_bita', 'bogus'], 'flag' => 'is_autograph', 'folios_from' => 'abc', 'city' => 'قم', 'library_id' => '999999']);
+            'flags' => ['is_collated', 'bogus'], 'flag' => 'is_autograph', 'folios_from' => 'abc', 'city' => 'قم', 'library_id' => '999999']);
         $filters = SearchFilters::fromRequest($request, 'manuscripts');
 
         $this->assertSame(['city', 'subject_id', 'century', 'year_to', 'facsimile', 'flags'], array_keys($filters->values), 'unknown library, bad number and flag dropped');
-        $this->assertSame(['is_bita', 'is_autograph'], $filters->get('flags'));
-        $this->assertSame('(city = "قم") AND (subjects IN ["فقه", "اصول فقه"]) AND (is_facsimile = false) AND (is_bita = true AND is_autograph = true) AND (copy_date_hijri_year >= 801 AND copy_date_hijri_year <= 850)',
+        $this->assertSame(['is_collated', 'is_autograph'], $filters->get('flags'));
+        $this->assertSame('(city = "قم") AND (subjects IN ["فقه", "اصول فقه"]) AND (is_facsimile = false) AND (is_collated = true AND is_autograph = true) AND (copy_date_hijri_year >= 801 AND copy_date_hijri_year <= 850)',
             $filters->engine());
 
         $people = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'scribe', 'century' => '11', 'subject_id' => $subject->id]), 'people');
@@ -53,7 +53,7 @@ class SearchFiltersTest extends TestCase
         $qom = Library::create(['name' => 'کتابخانه‌ی فیلتر', 'city' => 'قم', 'slug' => 'f-lib-' . uniqid(), 'manuscripts_count' => 2]);
         $this->manuscript($logic, 'F-1', ['library_id' => $qom->id, 'city' => 'قم', 'copy_date_hijri_year' => 820, 'folios' => 250]);
         $this->manuscript($logic, 'F-2', ['city' => 'تهران', 'copy_date_hijri_year' => 1100, 'is_facsimile' => true, 'folios' => 40]);
-        $this->manuscript($other, 'F-3', ['city' => 'قم', 'is_bita' => true]);
+        $this->manuscript($other, 'F-3', ['city' => 'قم', 'is_collated' => true]);
         $see = fn (array $params, array $yes, array $no) => tap($this->get(route('search', ['type' => 'manuscripts'] + $params))->assertOk(),
             fn ($r) => [array_map(fn ($s) => $r->assertSee($s), $yes), array_map(fn ($s) => $r->assertDontSee($s), $no)]);
 
@@ -62,7 +62,7 @@ class SearchFiltersTest extends TestCase
         $see(['year_from' => '800', 'year_to' => '۹۰۰'], ['F-1', 'سال: از ۸۰۰ تا ۹۰۰'], ['F-2', 'F-3']);
         $see(['facsimile' => '1'], ['F-2', 'فقط عکسی'], ['F-1', 'F-3']);
         $see(['folios_from' => '100'], ['F-1'], ['F-2', 'F-3']);
-        $see(['flags' => ['is_bita']], ['F-3', 'بی‌تاریخ'], ['F-1', 'F-2']);
+        $see(['flags' => ['is_collated']], ['F-3', 'مقابله‌شده'], ['F-1', 'F-2']);
     }
 
     public function test_works_are_filtered_by_era_autograph_and_bibliography_and_sorted_by_author(): void

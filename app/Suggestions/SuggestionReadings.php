@@ -45,6 +45,10 @@ class SuggestionReadings
                 }
                 // Without an adopted reading the record still shows the catalog's value, which is then the main one
                 $current = ! $adopted && $field ? SuggestionRegistry::currentValue($record, ['name' => $name] + $field) : null;
+                // The page does not tell «بی‌کاتب» / «بی‌تاریخ» from a value not given (step 14.13)
+                if (isset($field['bit_label'])) {
+                    [$current, $baseline] = array_map(fn ($v) => $v === $field['bit_label'] ? 'نامشخص' : $v, [$current, $baseline]);
+                }
                 if ($current !== null && self::same($current) === self::same((string) $baseline)) {
                     $baseline = null;
                 }

@@ -268,13 +268,9 @@
                                         <span>کاتب: @highlight($ms->scribe_name, $query) <x-ui.life :person="$ms->scribe" /></span>
                                     @elseif($ms->is_autograph)
                                         <span>کاتب: <span class="text-emerald-700 dark:text-emerald-300">مؤلف</span></span>
-                                    @elseif($ms->is_bika)
-                                        <span class="text-muted">بی‌کاتب</span>
                                     @endif
                                     @if($ms->copy_date_raw)
                                         <span>کتابت {{ Fa::digits($ms->copy_date_raw) }}</span>
-                                    @elseif($ms->is_bita)
-                                        <span class="text-muted">بی‌تاریخ</span>
                                     @endif
                                     @if($ms->commissioned_by)<span>به سفارش {{ $ms->commissioned_by }}</span>@endif
                                     @if($ms->catalog_citation)<span class="text-muted" title="شماره و ارجاع در فهرست اصلی کتابخانه">{{ $ms->catalog_citation }}</span>@endif

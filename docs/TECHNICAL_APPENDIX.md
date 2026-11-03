@@ -6902,6 +6902,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان‌ها:** `…/step14.12_fix_reversed_citations_prod_before_20261103.json` (۲۱۲ نسخه و ۲۱۲ ردیف audit) و `…/step14.12_fix_reversed_citations_one_prod_before_20261103.json`.
   - **پس از اجرا:** ۲۱۳ نسخه بی‌صف دوباره ایندکس شدند. ارزیابی دوباره «already 212» گزارش کرد. `source_entries` = ۷۸۸٬۵۰۱ و ردیف‌های audit از دسته‌ی `reversed_citation` = ۲۱۳.
 
+### گام ۱۴.۱۳: نمایش `is_bika` و `is_bita`
+- **نماها:** شاخه‌های `is_bika` و `is_bita` از [works/show](../resources/views/works/show.blade.php)، [manuscripts/show](../resources/views/manuscripts/show.blade.php)، [libraries/show](../resources/views/libraries/show.blade.php) و [search](../resources/views/search.blade.php) برداشته شد. هر نما حالت «نامعلوم» خودش را نشان می‌دهد: «نامشخص»، یا «—» در جدول کتابخانه، یا هیچ در نتیجه‌ی جستجو.
+- **`Manuscript::getScribeDisplayNameAttribute`:** دیگر «بی‌کاتب» برنمی‌گرداند.
+- **`SearchFilters::FLAGS`:** `is_bita` و `is_bika` برداشته شدند. نشانی کهنه‌ی `flags[]=is_bita` در `clean` کنار گذاشته می‌شود. `config('insights.features')` این دو را نداشت.
+- **ماندنی‌ها:** ستون‌ها، سند جستجو (`toSearchableArray`) و `bit_label` فرم پیشنهاد در `SuggestionRegistry`.
+
 ### گام ۱۴.۱۴: `text_fill`
 - **صدور (پیکره):** `fankha_v2_apply_export.py text_fill`. ورودی ردیف‌های `incipit_text/filled` و `explicit_text/filled` از review7 است.
   - **شرط:** متن v2، با فاصله‌های یکسان‌شده، باید در `raw_text` سایت باشد، و `metadata.incipits` یا `metadata.explicits` نسخه خالی باشد.
@@ -6963,3 +6969,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فهرست‌نگاران: حافظیان ۲۰٬۲۷۸، استادی ۸٬۲۰۸، حضرتی ۸۶۸ و حائری ۸۷۴.
   - ۶٬۶۹۵ نسخه‌ی این سه منبع بی‌صف دوباره ایندکس شدند. dry-run دوباره «Nothing to do» گزارش کرد و `source_entries` = ۷۸۸٬۵۰۱.
   - پشتیبان به `…/step14.15_set_volumes_prod_before_20261103.json` رفت.
+### گام ۱۴.۱۶: `fahares:link-copy-references`
+- **دستور:** [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `--dry-run`، `--work`، `--report` (CSV هر تصمیم)، `--backup` و `--revert`.
+  - رکوردهایی که متنشان `همان نسخه (اصل)( نسخه) بالا` دارد، به ترتیب id. «نسخه‌ی بالا» بزرگ‌ترین id کوچک‌تر در همان اثر و همان `volume_number` است. اگر آن نسخه در همین اجرا ادغام شده باشد، نسخه‌ی ماندنی جایش می‌نشیند.
+  - **عکسی:** وقتی متن «نسخه اصل:» یا «اصل نسخه:» دارد، یا مأخذش با «عکسی» یا «فیلمها» آغاز می‌شود، یا خود رکورد `is_facsimile` است. رابطه‌ی `facsimile_of` به نسخه‌ی بالا ساخته می‌شود. اگر نسخه‌ی بالا خود عکسی باشد، رابطه به مادر آن است، و اگر آن مادر بیرون از سامانه باشد، به همان عکسی. `is_facsimile` روشن می‌شود و «احتمالاً» یا «ظاهراً» در `note` می‌آید.
+  - **ادغام:** فقط برای `TRANSFERS` (مولوی→الهیات، شیخ علی حیدر→رضوی، مجلس سنا→مجلس) و بی «احتمالاً». `metadata.former_locations` نسخه‌ی ماندنی، کتابخانه و شماره و مأخذ نسخه‌ی رفتنی را می‌گیرد. `catalog_citation` و یادداشت «همان نسخه بالا» از متادیتای رفتنی برداشته می‌شوند. سپس `RecordMerger::mergeManuscript` اجرا می‌شود و ردیف‌های `MergeComparison` که پیش‌فرضشان KEEP است چنین می‌شوند:
+    - متن: BOTH.
+    - مقدار تک: یک `FieldSuggestion` تأییدشده با `standing = alternative`، `credit_name` «فهرست …»، `rationale_citation` مأخذ و `resolution.origin = copy_merge`.
+  - **بقیه:** رابطه‌ی `possibly_same` به سرِ زنجیره‌ی «احتمالاً همان نسخه».
+  - پشتیبان هنگام اجرا نوشته می‌شود. `--revert` ادغام‌ها را از آخر با `undoManuscriptMerge` برمی‌گرداند و متادیتای دو طرف را بازمی‌گذارد. سپس قول‌ها، رابطه‌های `source = fankha` و علامت‌های عکسی را برمی‌دارد.
+- **migration:** ستون `manuscript_relations.source` (`suggestion` یا `fankha`).
+- **`RecordRelations`:** نوع‌های `possibly_same` و `distinct_from` بی‌جهت‌اند، مانند `same_set` (`SYMMETRIC`). تأیید `distinct_from` ردیف‌های `possibly_same` میان دو نسخه را حذف می‌کند و آن‌ها را در `old_values.removed_record_relations` نگه می‌دارد. `AuditLogController::rollbackVerify` همان‌ها را برمی‌گرداند. دستور برای جفتی که `distinct_from` دارد پیوند تازه نمی‌سازد (تصمیم `distinct`).
+- **کلیدهای پاسخ:** دکمه‌های بنر «احتمالاً همان نسخه» میز پیشنهاد را با `relation` (`duplicate`، یا `manuscript_relation` با `role: distinct_from`) و `target` از پیش پر باز می‌کنند (`suggest-desk.js`، `start`).
+- **`Manuscript`:** `facsimileOf()`، `facsimileChain()` (عکسی‌های میانه و مادرِ درون سامانه)، `possiblySame()` و `original_note` (متن «نسخه اصل:» تا «؛»، مگر «همان نسخه»).
+- **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
+- **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
+- **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).

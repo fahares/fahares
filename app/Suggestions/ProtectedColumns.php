@@ -17,7 +17,7 @@ use Illuminate\Console\Command;
 class ProtectedColumns
 {
     /** Keys a verify log carries beside the changed columns. */
-    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role', 'removed_person_role', 'added_record_relation', 'corpus_fix'];
+    private const META_KEYS = ['suggestion_id', 'direct_edit', 'demoted', 'edited_reading', 'promoted', 'updated_at', 'added_contributor', 'removed_name_row', 'added_person_role', 'removed_person_role', 'added_record_relation', 'removed_record_relations', 'corpus_fix'];
 
     /**
      * Keys of a verify log that changed a record's child rows rather than a column, by the rows they protect.

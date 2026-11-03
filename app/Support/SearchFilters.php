@@ -55,8 +55,6 @@ class SearchFilters
         'has_marginal_notes' => 'دارای حواشی',
         'has_author_marginalia' => 'حواشی مؤلف',
         'is_collated' => 'مقابله‌شده',
-        'is_bita' => 'بی‌تاریخ',
-        'is_bika' => 'بی‌کاتب',
     ];
 
     public const ROLES = [

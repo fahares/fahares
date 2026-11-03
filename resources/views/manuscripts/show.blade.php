@@ -63,6 +63,14 @@
         $fankha = $sources->primary();
         $libraryName = $manuscript->libraryRecord?->display_name ?? $manuscript->library ?? 'کتابخانه‌ی نامشخص';
         $formerLocations = (array) ($manuscript->metadata['former_locations'] ?? []);
+        // A photograph's mother, and what the record does not say that the mother does (step 14.16)
+        ['chain' => $photoChain, 'mother' => $mother] = $manuscript->facsimileChain();
+        $motherNote = $manuscript->original_note ?? collect($photoChain)->map(fn ($p) => $p->original_note)->filter()->last();
+        $possiblySame = $manuscript->possiblySame();
+        $motherLabel = $mother ? trim(($mother->libraryRecord?->name ?? $mother->library ?? '') . ' ' . ($mother->shelfmark ?? '')) : null;
+        $fromMother = fn (?string $value) => $value !== null && $value !== ''
+            ? '<span class="border-b border-dotted border-line-strong">' . e(Fa::digits($value)) . '</span> <span class="text-[11px] text-muted">از نسخه‌ی مادر</span>'
+            : null;
         $imageNote = ($researchNotes ?? collect())->firstWhere('field_name', 'image');
         // The parsed year adds nothing when the catalog text already shows it in digits
         $showParsedYear = $manuscript->copy_date_raw && $manuscript->copy_date_hijri_year
@@ -121,8 +129,39 @@
             @if($manuscript->is_illustrated)<x-ui.chip tone="accent">مصوّر</x-ui.chip>@endif
             @if($manuscript->is_distinct_work)<x-ui.chip title="این نسخه ذیل مدخلی «غیر همانند» آمده است: متنی جدا با همان عنوان">اثر متمایز</x-ui.chip>@endif
             @if($fankha?->role === \App\Models\SourceEntry::ROLE_ADDENDUM)<x-ui.chip tone="accent" title="این نسخه در بخش استدراک مأخذ معرفی شده است">استدراک</x-ui.chip>@endif
+            @if($manuscript->is_facsimile)<x-ui.chip title="نسخه‌ی عکسی یا میکروفیلم">عکسی</x-ui.chip>@endif
         </div>
     </header>
+
+    {{-- A photograph and its mother, or a description possibly of another copy (step 14.16) --}}
+    @if($mother || $manuscript->is_facsimile || $possiblySame)
+        <div class="border border-line bg-paper px-4 py-3 text-sm leading-relaxed space-y-1.5" data-copy-link x-data>
+            @if($mother)
+                <p>این نسخه عکسی یا میکروفیلمِ <a href="{{ route('manuscripts.show', $mother) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits($motherLabel) }}</a>@if($mother->city)<span class="text-muted">، {{ $mother->city }}</span>@endif است.
+                    @if($photoChain)<span class="text-muted">(از راه عکسیِ <a href="{{ route('manuscripts.show', $photoChain[0]) }}" class="border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($photoChain[0]->library ?? '') . ' ' . ($photoChain[0]->shelfmark ?? ''))) }}</a>)</span>@endif
+                    آنچه این نسخه ندارد و با خط نقطه‌چین آمده، از آن نسخه است.</p>
+            @elseif($manuscript->is_facsimile)
+                <p>این نسخه عکسی یا میکروفیلم است. نسخه‌ی مادر: <span class="font-semibold">{{ $motherNote ? Fa::digits($motherNote) : 'نامعلوم' }}</span>
+                    @if($photoChain)<span class="text-muted">(همان مادرِ عکسیِ <a href="{{ route('manuscripts.show', $photoChain[0]) }}" class="border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($photoChain[0]->library ?? '') . ' ' . ($photoChain[0]->shelfmark ?? ''))) }}</a>)</span>@endif
+                </p>
+                @if($motherNote)
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation' })" class="text-[13px] font-bold text-cinnabar hover:underline cursor-pointer">این نسخه‌ی مادر را در سامانه یافته‌اید؟</button>
+                @else
+                    <button type="button" @click="$dispatch('suggest-field', { general: true })" class="text-[13px] font-bold text-cinnabar hover:underline cursor-pointer">نسخه‌ی مادرش را می‌شناسید؟</button>
+                @endif
+            @endif
+            @if($possiblySame)
+                <p>به گفته‌ی فنخا («همان نسخه بالا») این معرفی احتمالاً همان نسخه‌ی <a href="{{ route('manuscripts.show', $possiblySame) }}" class="font-semibold border-b border-line-strong hover:text-cinnabar">{{ Fa::digits(trim(($possiblySame->libraryRecord?->name ?? $possiblySame->library ?? '') . ' ' . ($possiblySame->shelfmark ?? ''))) }}</a> است. تا روشن شدن آن، دو رکورد جدا مانده‌اند.</p>
+                {{-- One step for a reader who knows: a suggestion with the other copy already chosen, for the reviewers --}}
+                @php $sameTarget = \App\Suggestions\SuggestionRegistry::describe($possiblySame) + ['id' => $possiblySame->id]; @endphp
+                <div class="flex flex-wrap items-center gap-2 text-[13px]" data-same-answer>
+                    <span class="text-muted">شما می‌دانید؟</span>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'duplicate', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">یک نسخه‌اند</button>
+                    <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'manuscript_relation', role: 'distinct_from', target: @js($sameTarget) })" class="px-2.5 py-1 rounded-sm border border-line-strong font-bold hover:text-cinnabar hover:border-cinnabar cursor-pointer">دو نسخه‌ی جدایند</button>
+                </div>
+            @endif
+        </div>
+    @endif
 
     <div class="jadval" aria-hidden="true"></div>
 
@@ -187,7 +226,7 @@
                     <!-- Where the copy was before it moved or was renumbered (older catalogs cite these) -->
                     <div class="pt-3 border-t border-line text-xs text-muted space-y-0.5">
                         @foreach($formerLocations as $former)
-                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span></div>
+                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span>@if(isset($former['catalog']))<span> (در {{ Fa::digits($former['catalog']) }})</span>@endif</div>
                         @endforeach
                     </div>
                 @endif
@@ -264,8 +303,8 @@
                             <x-ui.life :person="$manuscript->scribe" />
                         @elseif($manuscript->scribe_name)
                             {{ $manuscript->scribe_name }}
-                        @elseif($manuscript->is_bika)
-                            <span class="text-muted">بی‌کاتب</span>
+                        @elseif($inherited = $fromMother($mother?->scribe_name))
+                            {!! $inherited !!}
                         @else
                             <span class="text-muted">نامشخص</span>
                         @endif
@@ -276,14 +315,14 @@
                             @if($showParsedYear)<span class="text-muted">({{ Fa::digits($manuscript->copy_date_hijri_year) }} ق)</span>@endif
                             {{-- A note on the date the parser split off it («در حیات مؤلف»), backlog item 96 --}}
                             @if($manuscript->copy_date_note)<span class="block text-[12px] text-muted">{{ $manuscript->copy_date_note }}</span>@endif
-                        @elseif($manuscript->is_bita)
-                            <span class="text-muted">بی‌تاریخ</span>
+                        @elseif($inherited = $fromMother($mother?->copy_date_raw))
+                            {!! $inherited !!}
                         @else
                             <span class="text-muted">نامشخص</span>
                         @endif
                     </x-ui.meta>
                     <x-ui.meta label="محل کتابت" field="copy_place">
-                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@else<span class="text-muted">نامشخص</span>@endif
+                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">نامشخص</span>@endif
                     </x-ui.meta>
                     {{-- A commissioner listed among the people of the copy (role patron, backlog item 96) is not repeated here --}}
                     @unless($manuscript->commissioned_by && $manuscript->otherPeople()->where('role', 'patron')->whereNull('person_id')->where('name', $manuscript->commissioned_by)->exists())
@@ -295,7 +334,7 @@
             <x-ui.section title="ویژگی‌های ظاهری">
                 <x-ui.meta-list>
                     <x-ui.meta label="خط" field="script_names">
-                        @if($manuscript->script_names){{ $manuscript->script_names }}@else<span class="text-muted">نامشخص</span>@endif
+                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@else<span class="text-muted">نامشخص</span>@endif
                         @if($manuscript->script_style)<span class="text-muted">({{ $manuscript->script_style }})</span>@endif
                         {{-- «نوع خط» is the catalogue's wording; the script list links each script it stands for to the search filter --}}
                         @php $scriptLinks = $manuscript->scripts->sortByDesc('pivot.is_primary'); @endphp

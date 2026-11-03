@@ -1417,6 +1417,16 @@ class SuggestionWorkflowTest extends TestCase
         app(\App\Suggestions\RecordMerger::class)->mergeManuscript($c, $a);
         $this->removedManuscripts[] = $c->id;
         $this->assertSame(0, DB::table('manuscript_relations')->count());
+        // «Two copies, not one» (step 14.16) takes away the possibly_same link between them; a rollback brings it back
+        $d = $this->manuscript();
+        $e = $this->manuscript();
+        DB::table('manuscript_relations')->insert(['manuscript_id' => $d->id, 'related_manuscript_id' => $e->id, 'type' => 'possibly_same', 'source' => 'fankha', 'created_at' => now(), 'updated_at' => now()]);
+        $this->relate($e, 'manuscript_relation', $d, ['role' => 'distinct_from'])->assertOk();
+        $this->approve($this->pendingFor($e), ['role' => 'distinct_from']);
+        $this->assertSame(['distinct_from'], DB::table('manuscript_relations')->pluck('type')->all());
+        $this->get(route('manuscripts.show', $d))->assertSee('نسخه‌های جدایی که با این نسخه یکی نیستند');
+        $this->rollbackLatest($e);
+        $this->assertSame(['possibly_same'], DB::table('manuscript_relations')->pluck('type')->all());
     }
 
     public function test_treatises_bound_in_the_same_volume()
