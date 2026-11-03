@@ -7073,3 +7073,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **وارسی صفحه‌ها:** `/works/5074` («یاد شده در روضات الجنات، ج ۴، ص ۳۹۹، ذیل …» با ش ۴۲۲)، `/sources/rawdat/4/page/400` و `/sources/ayan/9/page/408` پاسخ ۲۰۰ دادند.
 - **ترتیب فرمان‌ها:** همان گام ۱۴.۱۸، با کدهای `ayan` (جلد ۱ تا ۱۰) و `rawdat` (جلد ۱ تا ۸).
 - **آزمون:** `NoorReferenceBooksTest` (همان آزمون گام ۱۴.۱۸ با نام تازه) با دو آزمون تازه، و فیکسچر `rawdat-v04-p400`.
+- **اجرای پروداکشن گام‌های ۱۴.۱۸ و ۱۴.۲۰ (۱۴ آبان ۱۴۰۵، با `prod-run noor-reference-books`):**
+  - **پشتیبان:** `~/backups/before_step14_18_20_noor_20261104_0204.sql.gz` روی میزبان (۲۹۲ مگابایت، «Dump completed»)، با `ssh fahares-server`. رونوشت محلی در `../fahares-sources/backups/step14/` در حال دانلود بود.
+  - **فایل‌ها:** ۵۲ فایل در `/tmp/noor-printed` کانتینر، MD5 درست.
+  - **نتیجه‌ها همانند تمرین محلی بود:**
+    - ثبت ۲۶ جلد؛
+    - ۱۹٬۶۵۰ ارجاع با منبع شناخته و ۲۲٬۷۴۷ جا؛
+    - مدخل‌ها جلد به جلد برابر تمرین؛
+    - ۱٬۲۰۶ پیوند؛
+    - `scout:import` کامل.
+  - **وارسی:** صفحه‌های `/sources/sarkis/1/page/615`، `/sources/ayan/9/page/408`، `/sources/rawdat/4/page/400` و `/works/48` روی fahares.net پاسخ ۲۰۰ دادند.
+  - **دام:** نخستین اجرای `link-items` با «production is busy» رد شد ولی `exit 0` داد، چون فرایند ورود هنوز بسته نشده بود. با `--wait` دوباره اجرا شد.
+  - **مانده:** داوری ۳۰۱ ارجاع بی‌تطبیق با مدل، در `../fahares-sources/noor-printed/llm/` (`cases_all.json`، `batchNN.json` → `outNN.json`، سپس `merge.py`). پس از آن `link-items … --near --decisions=…` برای هر جلد. اجرای دوباره‌ی `link-items` بی همان `--decisions` پیوندهای مدل را پاک می‌کند.
