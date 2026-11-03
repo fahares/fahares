@@ -122,4 +122,42 @@ class AddCorpusWorksCommandTest extends TestCase
             ->expectsOutputToContain('Would add 0 works, fill 0 works and update 0; copies: 0 moved, 0 made.')
             ->assertSuccessful();
     }
+
+    public function test_an_update_leaves_a_reviewed_column_that_already_holds_its_value_and_writes_the_rest()
+    {
+        // a head the OCR lost (step 14.19): a user's suggestion already gave the author and linked the person
+        $id = $this->work('اثر آزمایشی ج', 'test-jim-v99-9002', 'مؤلف آزمایشی');
+        DB::table('works')->where('id', $id)->update(['author_id' => null, 'raw_text' => "● اثر آزمایشی ج\nasar"]);
+        AuditLog::create(['auditable_type' => Work::class, 'auditable_id' => $id, 'action' => 'verify',
+            'old_values' => ['author_name' => null], 'new_values' => ['author_name' => 'مؤلف آزمایشی']]);
+        $update = ['v2' => 'v99-2', 'work_slug' => 'test-jim-v99-9002', 'author' => ['name' => 'مؤلف آزمایشی', 'century' => 9],
+            'changes' => [
+                'author_name' => ['from' => null, 'to' => 'مؤلف آزمایشی'],
+                'print_info' => ['from' => null, 'to' => 'لاهور، 1302ق'],
+                'raw_text' => ['from' => "● اثر آزمایشی ج\nasar", 'to' => "● اثر آزمایشی ج\nasar\n\nمؤلف آزمایشی\nچاپ: لاهور، 1302ق"],
+            ]];
+        file_put_contents($this->file, json_encode(['category' => 'lost_head', 'works' => [], 'work_updates' => [$update]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file])
+            ->expectsOutputToContain('Would add 0 works, fill 0 works and update 1; copies: 0 moved, 0 made.')
+            ->assertSuccessful();
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $work = Work::find($id);
+        $this->assertSame('لاهور، 1302ق', $work->print_info);
+        $this->assertStringEndsWith('چاپ: لاهور، 1302ق', $work->raw_text);
+        $log = AuditLog::where('auditable_id', $id)->where('action', 'corpus_update')->sole();
+        $this->assertSame('lost_head', $log->new_values['category']);
+        $this->assertArrayNotHasKey('author_name', $log->new_values);
+        $this->assertArrayNotHasKey('author_id', $log->new_values);
+
+        // a column the update would change is still guarded
+        AuditLog::create(['auditable_type' => Work::class, 'auditable_id' => $id, 'action' => 'verify',
+            'old_values' => ['description' => null], 'new_values' => ['description' => 'شرح بازبینی‌شده']]);
+        $update['changes'] = ['description' => ['from' => null, 'to' => 'شرح v2']];
+        file_put_contents($this->file, json_encode(['works' => [], 'work_updates' => [$update]], JSON_UNESCAPED_UNICODE));
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file])
+            ->expectsOutputToContain('test-jim-v99-9002: protected by a reviewed correction')
+            ->assertSuccessful();
+    }
 }

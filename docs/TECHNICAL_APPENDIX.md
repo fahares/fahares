@@ -6985,3 +6985,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `AuthorLinkQueueTest` با ۲ آزمون.
 - **تمرین (`fahares_prod`):** `queued 57`، سپس `already queued 57`.
 - **صفحه‌ی بازبینی Claude (EZVnxjxDfQe37o16EJTvyD):** پیش از این ساخته شده بود. رأی‌هایش، اگر باشد، در پیشخوان اعمال می‌شود.
+
+### گام ۱۴.۱۹: `fankha_lost_heads_export.py` و `work_updates` با `category`
+- **صدور (پیکره):** [scripts/fankha_lost_heads_export.py](../../fahares-corpus/scripts/fankha_lost_heads_export.py) (کامیت `9bec35b`)، با `--out`، `--report`، `--db` و `--volumes`. فقط می‌خواند.
+  - **سرِ مدخل:** سطرهای متن امروز از `provenance.line_start` اثر v2 تا پیش از `line_start` نخستین نسخه‌اش، با برچسب‌های صفحه، به همان شکلی که v1 در `raw_text` گذاشته بود. روی جلد ۸ این سر در ۲٬۳۹۶ اثر از ۲٬۴۶۶ با `raw_text` سایت یکی بود.
+  - **سطر افتاده:** سطری از سر، پس از عنوان و آوانویسی، با دست‌کم ۱۰ نویسه که شباهتش (`SequenceMatcher`، پس از `norm`) با هیچ سطر `raw_text` سایت از ۰٫۸ بیشتر نیست.
+  - **جفت سایت:** اثرِ هم‌عنوان در همان جلد (`primary_title`). در رشته‌ی هم‌عنوان، نزدیک‌ترین متن (۶۰۰ نویسه‌ی نخست) با شباهت دست‌کم ۰٫۶، وگرنه کنار می‌رود. برای عنوانی که در سایت نیست، `align` مقایسه‌ی v1 و v2.
+  - **کنار رفته:** سرعنوان سایت با شباهت کمتر از ۰٫۹، مؤلف دیگر در سایت، یا «شماره نسخه» در سطر افتاده.
+  - **ستون‌ها:**
+    - `raw_text` سر امروز را می‌گیرد، اگر سایت هنوز `raw_text` v1 را داشته باشد.
+    - `author_name`، `description`، `print_info`، `bibliography`، `incipit_text`، `explicit_text`، `composition_date_raw`، `dedication` و `related_work` مقدار v2 را می‌گیرند. شرط این است که سایت مقدار v1 را داشته باشد، و مقدارش خالی باشد یا مقدار v2 از سطر افتاده آمده باشد. `dedication` فقط وقتی سایت آن را ندارد پر می‌شود.
+    - اگر v2 مقداری نداشته باشد و هیچ سطر مقدار سایت در سر نباشد، ستون خالی می‌شود. نمونه: شرح «دیوان عبدالرزاق کاشی» سرعنوان «دیوان عبدالعلی شاه» بود ([#71619](https://fahares.net/works/71619)). شرح، چاپ، آغاز و انجام «سفرنامه آب گرم قفقاز» هم از «سفرنامه آذربایجان» سلیمان خان مهندس بودند ([#71646](https://fahares.net/works/71646)).
+    - ستونی با `verify` در `audit_logs` کنار می‌رود.
+- **خروجی روی `fahares_prod` (داده‌ی ۲ آبان):** ۳۲ اثر با سطر افتاده در ۲۰ جلد، و ۲۷ `work_updates`: `raw_text` ۲۶، `bibliography` ۱۷، `description` ۱۷، `incipit_text` ۸، `print_info` ۸، `explicit_text` ۷، `author_name` ۳ (#16319، #30270، #33265)، `dedication` ۱ و `composition_date_raw` ۱.
+  - **کنار رفته‌ها:** «شرح زبدة الاصول» ج ۱۹ (دو اثر v2 که سایت ندارد و رشته جابه‌جا جفت می‌شد)، «علم الاكتاف» ج ۲۲ (سطر نسخه)، «فارسی هیئت» ج ۲۳ و «کیمیا» ج ۲۶ (سرعنوان دیگر).
+  - **نتیجه‌ی کنار گذاشتن:** دو «ساقی نامه» ج ۱۷ (شانی تکلو و فرقتی جوشقانی، v17-1301 و v17-1302) و دو «شرح زبدة الاصول» ج ۱۹ (مدنی و کرمانشاهی) در سایت اثر ندارند.
+- **فایل تصمیم:** `database/data/fankha_lost_heads_step14_19.json`، با `category: lost_head`.
+- **[AddCorpusWorksCommand](../app/Console/Commands/AddCorpusWorksCommand.php):**
+  - `print_info`، `dedication` و `related_work` به `UPDATE_COLUMNS` افزوده شدند.
+  - ستونی که سایت از پیش مقدار `to` آن را دارد از به‌روزرسانی برداشته می‌شود. نگهبانی `ProtectedColumns` هم فقط روی ستون‌هایی است که واقعاً نوشته می‌شوند. پیش از این، مؤلفی که کاربر داده بود (#16319) کل به‌روزرسانی را می‌بست، و اگر نمی‌بست `author_id` را از نو می‌ساخت.
+  - `category` فایل در `audit_logs` می‌نشیند. پیش‌فرض آن `new_work` است.
+- **آزمون:** `AddCorpusWorksCommandTest::test_an_update_leaves_a_reviewed_column_that_already_holds_its_value_and_writes_the_rest`.
+- **تمرین (`fahares_prod`):**
+  - نخستین تمرین با فایل پیشین برگردانده شد. ستون‌ها از `old_values` بازنویسی شدند و پنج ردیف `work_people` که آن تمرین ساخته بود پاک شد.
+  - چهار ردیف از آن پنج ردیف از «اهدا»ی بلندترِ «سفرنامه آب گرم قفقاز» آمده بودند («1903»، «22 یون 1905»). از این رو `dedication` فقط پر می‌شود و هیچ‌وقت بلندتر نمی‌شود.
+  - با فایل نهایی نتیجه `update 27` و سپس `update 0` بود. تنها ردیف تازه‌ی `work_people` اهدای #54544 به شاه سلطان حسین صفوی است (`linked_ruler`).
+- **اجرا در پروداکشن (مانده):** پشتیبان این ۲۷ اثر (ستون‌های فایل، `author_id` و ردیف‌های `work_people`) گرفته شود. سپس اجرا با `prod-run`، و پس از آن `catalogs:link-volumes`، `fahares:rebuild-scripts`، `fahares:link-autograph-scribes` و `fahares:refresh-derived`.
