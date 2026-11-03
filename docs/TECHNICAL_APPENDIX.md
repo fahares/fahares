@@ -6916,6 +6916,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_text_fill_20261102.json`.
 - **تمرین (`fahares_prod`):** `Writing 2893` و سپس `Would write 0`.
 - **پس از اجرا در پروداکشن:** `fahares:refresh-derived` پیوند «برابر n» این نسخه‌ها به آغاز و انجام شماره‌دار اثر را می‌سازد.
+- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/item87_text_fill_prod_before_20261102.json`، شامل ۱٬۹۰۴ نسخه.
+  - **اجرا:** با `prod-run`. خروجی `Writing 2893` بود و اجرای بعدی `already 2893` داد.
+  - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`. با تأیید کاربر، `fahares:refresh-derived --apply` از راه `prod-run` اجرا شد. در گزارش «After»، همه‌ی گونه‌ها از جمله `excerpt_pointers` صفر شدند.
 
 ### گام ۱۴.۱۵: `catalogs:set-volumes`
 - **دستور:** [SetCatalogueVolumesCommand](../app/Console/Commands/SetCatalogueVolumesCommand.php)، با `--data`، `--dry-run`، `--backup` و `--revert`.
@@ -6935,11 +6939,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سنا: جلد ۲ با ۱٬۵۸۵ نسخه. دهگان: دفتر ۲ با ۲۵۳ نسخه.
   - فهرست‌نگاران: استادی (#۲۱) ۸٬۸۵۹ ← ۸٬۲۰۷؛ حضرتی (#۳۷) ۲۱۶ ← ۸۶۸؛ حائری (#۵۸) ۸۷۲ ← ۸۷۴؛ حافظیان (#۴) ۲۱٬۱۴۶ ← ۲۰٬۲۷۳.
   - اجرای دوم «Nothing to do» گزارش کرد و اثرانگشت پس از `--revert` با پیش از اجرا یکی بود.
+- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `5d92cd7`، از راه `prod-run`):**
+  - dry-run با تمرین یکی بود و جلدها با کد منبع و عنوان پیدا شدند، پس فرقی میان شناسه‌های محلی و پروداکشن پیش نیامد.
+  - جلدهای ساخته‌شده: عکسی مرعشی #711 تا #714 و دهگان #715.
+  - شمار نسخه‌ها: عکسی مرعشی ۴۲۰، ۴۵۳، ۸۲۰، ۷۲۵ و ۳۵۱؛ سنا ۱٬۶۸۷ و ۱٬۵۸۷؛ دهگان ۳۹۹ و ۲۵۳.
+  - فهرست‌نگاران: حافظیان ۲۰٬۲۷۸، استادی ۸٬۲۰۸، حضرتی ۸۶۸ و حائری ۸۷۴.
+  - ۶٬۶۹۵ نسخه‌ی این سه منبع بی‌صف دوباره ایندکس شدند. dry-run دوباره «Nothing to do» گزارش کرد و `source_entries` = ۷۸۸٬۵۰۱.
+  - پشتیبان به `…/step14.15_set_volumes_prod_before_20261103.json` رفت.
 
-- **اجرا در پروداکشن (۱۲ آبان ۱۴۰۵):**
-  - **پشتیبان:** `fahares-sources/backups/item87_text_fill_prod_before_20261102.json`، شامل ۱٬۹۰۴ نسخه.
-  - **اجرا:** با `prod-run`. خروجی `Writing 2893` بود و اجرای بعدی `already 2893` داد.
-  - **پس از اجرا:** `refresh-derived` بی `--apply` همه‌ی گونه‌ها را `0` گزارش داد، جز `excerpt_pointers 591`. با تأیید کاربر، `fahares:refresh-derived --apply` از راه `prod-run` اجرا شد. در گزارش «After»، همه‌ی گونه‌ها از جمله `excerpt_pointers` صفر شدند.
+### گام ۱۴.۱۶: `fahares:link-copy-references`
+- **دستور:** [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `--dry-run`، `--work`، `--report` (CSV هر تصمیم)، `--backup` و `--revert`.
+  - رکوردهایی که متنشان `همان نسخه (اصل)( نسخه) بالا` دارد، به ترتیب id. «نسخه‌ی بالا» بزرگ‌ترین id کوچک‌تر در همان اثر و همان `volume_number` است. اگر آن نسخه در همین اجرا ادغام شده باشد، نسخه‌ی ماندنی جایش می‌نشیند.
+  - **عکسی:** وقتی متن «نسخه اصل:» یا «اصل نسخه:» دارد، یا مأخذش با «عکسی» یا «فیلمها» آغاز می‌شود، یا خود رکورد `is_facsimile` است. رابطه‌ی `facsimile_of` به نسخه‌ی بالا ساخته می‌شود. اگر نسخه‌ی بالا خود عکسی باشد، رابطه به مادر آن است، و اگر آن مادر بیرون از سامانه باشد، به همان عکسی. `is_facsimile` روشن می‌شود و «احتمالاً» یا «ظاهراً» در `note` می‌آید.
+  - **ادغام:** فقط برای `TRANSFERS` (مولوی→الهیات، شیخ علی حیدر→رضوی، مجلس سنا→مجلس) و بی «احتمالاً». `metadata.former_locations` نسخه‌ی ماندنی، کتابخانه و شماره و مأخذ نسخه‌ی رفتنی را می‌گیرد. `catalog_citation` و یادداشت «همان نسخه بالا» از متادیتای رفتنی برداشته می‌شوند. سپس `RecordMerger::mergeManuscript` اجرا می‌شود و ردیف‌های `MergeComparison` که پیش‌فرضشان KEEP است چنین می‌شوند:
+    - متن: BOTH.
+    - مقدار تک: یک `FieldSuggestion` تأییدشده با `standing = alternative`، `credit_name` «فهرست …»، `rationale_citation` مأخذ و `resolution.origin = copy_merge`.
+  - **بقیه:** رابطه‌ی `possibly_same` به سرِ زنجیره‌ی «احتمالاً همان نسخه».
+  - پشتیبان هنگام اجرا نوشته می‌شود. `--revert` ادغام‌ها را از آخر با `undoManuscriptMerge` برمی‌گرداند و متادیتای دو طرف را بازمی‌گذارد. سپس قول‌ها، رابطه‌های `source = fankha` و علامت‌های عکسی را برمی‌دارد.
+- **migration:** ستون `manuscript_relations.source` (`suggestion` یا `fankha`).
+- **`RecordRelations`:** نوع‌های `possibly_same` و `distinct_from` بی‌جهت‌اند، مانند `same_set` (`SYMMETRIC`). تأیید `distinct_from` ردیف‌های `possibly_same` میان دو نسخه را حذف می‌کند و آن‌ها را در `old_values.removed_record_relations` نگه می‌دارد. `AuditLogController::rollbackVerify` همان‌ها را برمی‌گرداند. دستور برای جفتی که `distinct_from` دارد پیوند تازه نمی‌سازد (تصمیم `distinct`).
+- **کلیدهای پاسخ:** دکمه‌های بنر «احتمالاً همان نسخه» میز پیشنهاد را با `relation` (`duplicate`، یا `manuscript_relation` با `role: distinct_from`) و `target` از پیش پر باز می‌کنند (`suggest-desk.js`، `start`).
+- **`Manuscript`:** `facsimileOf()`، `facsimileChain()` (عکسی‌های میانه و مادرِ درون سامانه)، `possiblySame()` و `original_note` (متن «نسخه اصل:» تا «؛»، مگر «همان نسخه»).
+- **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
+- **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
+- **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).
 
 ### گام ۱۴.۱۷: `AuthorLinkQueue` و `AuthorLinkController`
 - **یافتن نامزدها:** این کار در پروداکشن، فقط‌خواندنی و با PHP از راه `ssh fahares-app` انجام شد. آثار از `audit_logs` با سه `corpus_fix` گام‌های ۱۴.۸ تا ۱۴.۱۱ پیدا شدند (۲٬۲۲۸ اثر).
@@ -6962,26 +6985,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `AuthorLinkQueueTest` با ۲ آزمون.
 - **تمرین (`fahares_prod`):** `queued 57`، سپس `already queued 57`.
 - **صفحه‌ی بازبینی Claude (EZVnxjxDfQe37o16EJTvyD):** پیش از این ساخته شده بود. رأی‌هایش، اگر باشد، در پیشخوان اعمال می‌شود.
-- **پروداکشن (۱۲ آبان ۱۴۰۵، پس از استقرار `5d92cd7`، از راه `prod-run`):**
-  - dry-run با تمرین یکی بود و جلدها با کد منبع و عنوان پیدا شدند، پس فرقی میان شناسه‌های محلی و پروداکشن پیش نیامد.
-  - جلدهای ساخته‌شده: عکسی مرعشی #711 تا #714 و دهگان #715.
-  - شمار نسخه‌ها: عکسی مرعشی ۴۲۰، ۴۵۳، ۸۲۰، ۷۲۵ و ۳۵۱؛ سنا ۱٬۶۸۷ و ۱٬۵۸۷؛ دهگان ۳۹۹ و ۲۵۳.
-  - فهرست‌نگاران: حافظیان ۲۰٬۲۷۸، استادی ۸٬۲۰۸، حضرتی ۸۶۸ و حائری ۸۷۴.
-  - ۶٬۶۹۵ نسخه‌ی این سه منبع بی‌صف دوباره ایندکس شدند. dry-run دوباره «Nothing to do» گزارش کرد و `source_entries` = ۷۸۸٬۵۰۱.
-  - پشتیبان به `…/step14.15_set_volumes_prod_before_20261103.json` رفت.
-### گام ۱۴.۱۶: `fahares:link-copy-references`
-- **دستور:** [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `--dry-run`، `--work`، `--report` (CSV هر تصمیم)، `--backup` و `--revert`.
-  - رکوردهایی که متنشان `همان نسخه (اصل)( نسخه) بالا` دارد، به ترتیب id. «نسخه‌ی بالا» بزرگ‌ترین id کوچک‌تر در همان اثر و همان `volume_number` است. اگر آن نسخه در همین اجرا ادغام شده باشد، نسخه‌ی ماندنی جایش می‌نشیند.
-  - **عکسی:** وقتی متن «نسخه اصل:» یا «اصل نسخه:» دارد، یا مأخذش با «عکسی» یا «فیلمها» آغاز می‌شود، یا خود رکورد `is_facsimile` است. رابطه‌ی `facsimile_of` به نسخه‌ی بالا ساخته می‌شود. اگر نسخه‌ی بالا خود عکسی باشد، رابطه به مادر آن است، و اگر آن مادر بیرون از سامانه باشد، به همان عکسی. `is_facsimile` روشن می‌شود و «احتمالاً» یا «ظاهراً» در `note` می‌آید.
-  - **ادغام:** فقط برای `TRANSFERS` (مولوی→الهیات، شیخ علی حیدر→رضوی، مجلس سنا→مجلس) و بی «احتمالاً». `metadata.former_locations` نسخه‌ی ماندنی، کتابخانه و شماره و مأخذ نسخه‌ی رفتنی را می‌گیرد. `catalog_citation` و یادداشت «همان نسخه بالا» از متادیتای رفتنی برداشته می‌شوند. سپس `RecordMerger::mergeManuscript` اجرا می‌شود و ردیف‌های `MergeComparison` که پیش‌فرضشان KEEP است چنین می‌شوند:
-    - متن: BOTH.
-    - مقدار تک: یک `FieldSuggestion` تأییدشده با `standing = alternative`، `credit_name` «فهرست …»، `rationale_citation` مأخذ و `resolution.origin = copy_merge`.
-  - **بقیه:** رابطه‌ی `possibly_same` به سرِ زنجیره‌ی «احتمالاً همان نسخه».
-  - پشتیبان هنگام اجرا نوشته می‌شود. `--revert` ادغام‌ها را از آخر با `undoManuscriptMerge` برمی‌گرداند و متادیتای دو طرف را بازمی‌گذارد. سپس قول‌ها، رابطه‌های `source = fankha` و علامت‌های عکسی را برمی‌دارد.
-- **migration:** ستون `manuscript_relations.source` (`suggestion` یا `fankha`).
-- **`RecordRelations`:** نوع‌های `possibly_same` و `distinct_from` بی‌جهت‌اند، مانند `same_set` (`SYMMETRIC`). تأیید `distinct_from` ردیف‌های `possibly_same` میان دو نسخه را حذف می‌کند و آن‌ها را در `old_values.removed_record_relations` نگه می‌دارد. `AuditLogController::rollbackVerify` همان‌ها را برمی‌گرداند. دستور برای جفتی که `distinct_from` دارد پیوند تازه نمی‌سازد (تصمیم `distinct`).
-- **کلیدهای پاسخ:** دکمه‌های بنر «احتمالاً همان نسخه» میز پیشنهاد را با `relation` (`duplicate`، یا `manuscript_relation` با `role: distinct_from`) و `target` از پیش پر باز می‌کنند (`suggest-desk.js`، `start`).
-- **`Manuscript`:** `facsimileOf()`، `facsimileChain()` (عکسی‌های میانه و مادرِ درون سامانه)، `possiblySame()` و `original_note` (متن «نسخه اصل:» تا «؛»، مگر «همان نسخه»).
-- **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
-- **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
-- **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).
