@@ -161,7 +161,7 @@ return [
             ],
         ],
         // Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at, as text from Noor (item 86, step
-        // 14.18, scripts/sources/noor_printed_books.py). The Persian catalogue's five volumes (Tehran 1350-55 Sh) number
+        // 14.18, scripts/sources/noor_reference_books.py). The Persian catalogue's five volumes (Tehran 1350-55 Sh) number
         // their columns on; Fankha writes «مشار فارسی 2558/2», «فهرست فارسی مشار 4954/4», «مشار 3098/2» or «مشار،
         // فارسی 184/1». A column without its volume, «مشار 591», or with a volume that does not hold it, «مشار 724/2»,
         // is of an earlier printing and does not match this one (bare, and no runs). The Arabic catalogue is one volume
@@ -217,6 +217,40 @@ return [
                 'first_pages' => [2 => 1145],
                 'last_pages' => [1 => 1144, 2 => 2024],
                 'runs' => [[1, 2]],
+            ],
+        ],
+        // Two books of lives, as text from Noor (item 86, step 14.20); an entry is a person, and Fankha cites the page of
+        // a work's author, so a work is tied to its author's life as a mention (ItemMatcher::matchLife). A'yan al-Shi'a in
+        // Dar al-Ta'aruf's ten volumes (Beirut 1403 AH): «اعیان الشیعة 408/9»; not «طبقات اعیان الشیعه» or «مستدرکات
+        // اعیان الشیعه», other books, nor «223/45», a part of the old printing in 56 parts, which has no volume here.
+        'ayan' => [
+            'label' => 'أعیان الشیعة',
+            'pattern' => 'اعیان الشیعه(?: چ(?:اپ)? (?:بیروت|جدید))?',
+            'volumes' => 10,
+            'kind' => 'biographical',
+            'compiler' => 'سید محسن امین',
+            'edition_label' => 'دار التعارف، بیروت، ۱۴۰۳ق',
+            'text' => [
+                'catalog' => 'ayan',
+                'name' => 'اعیان الشیعة',
+                'last_pages' => [1 => 677, 2 => 625, 3 => 671, 4 => 634, 5 => 498, 6 => 474, 7 => 471, 8 => 475, 9 => 450, 10 => 447],
+                'bare' => false,
+            ],
+        ],
+        // Rawdat al-Jannat in Isma'iliyan's eight volumes (Qom 1390 AH): «روضات الجنات 106/7», «روضات 88/4». A page without
+        // its volume, «روضات الجنات 409», is of the one-volume lithograph (bare).
+        'rawdat' => [
+            'label' => 'روضات الجنات فی احوال العلماء و السادات',
+            'pattern' => 'روضات(?: الجنات| الجناب)?',
+            'volumes' => 8,
+            'kind' => 'biographical',
+            'compiler' => 'محمدباقر موسوی خوانساری',
+            'edition_label' => 'اسماعیلیان، قم، ۱۳۹۰ق',
+            'text' => [
+                'catalog' => 'rawdat',
+                'name' => 'روضات الجنات',
+                'last_pages' => [1 => 440, 2 => 442, 3 => 456, 4 => 479, 5 => 466, 6 => 398, 7 => 404, 8 => 286],
+                'bare' => false,
             ],
         ],
     ],

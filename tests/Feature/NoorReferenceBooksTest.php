@@ -11,13 +11,14 @@ use App\Support\BibliographyLinks;
 use Tests\TestCase;
 
 /**
- * Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at (item 86, step 14.18): sources the site has as
- * text only, from Noor. The fixtures are Sarkis's columns 615-616 and the Arabic Mushar's column 30 as
- * scripts/sources/noor_printed_books.py writes them.
+ * Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at (step 14.18), and the books of lives A'yan
+ * al-Shi'a and Rawdat al-Jannat (step 14.20): sources the site has as text only, from Noor (item 86). The fixtures are
+ * Sarkis's columns 615-616, the Arabic Mushar's column 30 and Rawdat's volume 4 pp. 399-406 as
+ * scripts/sources/noor_reference_books.py writes them.
  */
-class NoorPrintedBooksTest extends TestCase
+class NoorReferenceBooksTest extends TestCase
 {
-    private const FIXTURES = __DIR__ . '/../fixtures/noor-printed/';
+    private const FIXTURES = __DIR__ . '/../fixtures/noor-reference/';
 
     public function test_citations_find_their_source_volume_and_column()
     {
@@ -100,9 +101,42 @@ class NoorPrintedBooksTest extends TestCase
         $this->assertSame(['30#4', SourceEntry::ROLE_ENTRY], [$tie->sourceItem->item_key, $tie->role]);
     }
 
-    private function volume(string $code, string $name, int $number): SourceVolume
+    public function test_lives_are_cited_with_their_volume_only()
     {
-        $source = Source::create(['code' => $code, 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => $name, 'short_name' => $name,
+        $cite = fn (string $s) => array_map(fn ($c) => [$c['source'], $c['volume'], $c['page']], BibliographyLinks::citations($s));
+
+        $this->assertSame([['ayan', 9, 408], ['ayan', 10, 48]], $cite('أعیان الشیعة: 408/9 و 48/10'));
+        // a part of the old printing in 56 parts, other books, and Rawdat's one-volume lithograph
+        $this->assertSame([], $cite('اعیان الشیعه 223/45'));
+        $this->assertSame([], $cite('مستدرکات اعیان الشیعه 12/3'));
+        $this->assertSame([['rawdat', 4, 88]], $cite('روضات 88/4'));
+        $this->assertSame([], $cite('روضات الجنات 409'));
+        $this->assertSame([], $cite('روضات الجنان 12/2'));
+    }
+
+    public function test_a_work_is_tied_to_its_authors_life_as_a_mention()
+    {
+        $volume = $this->volume('rawdat', 'روضات الجنات', 4, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'rawdat', 'pages' => self::FIXTURES . 'rawdat-v04-p400.jsonl', '--volume' => 4])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'rawdat', '--volume' => 4, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'rawdat-v04-p400.entries.jsonl'])->assertSuccessful();
+        $life = SourceItem::where('source_volume_id', $volume->id)->sole();
+        $this->assertSame([422, 399, 406], [$life->entry_number, $life->page_start, $life->page_end]);
+        $this->assertStringStartsWith('النور الجلى', $life->title);
+
+        // the life names the work; a work of another author on the page is not tied
+        $named = $this->work('rawdat', 'الاستظهار', 'طباطبائی کربلائی، علی بن محمد علی', 4, 400, 'روضات الجنات 400/4');
+        $other = $this->work('rawdat', 'المعجم الكبير', 'طبرانی، سلیمان بن احمد', 4, 400, 'روضات الجنات 400/4');
+        $this->artisan('sources:link-items', ['volume' => 'rawdat', '--volume' => 4, '--near' => true])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $named->id)->sole();
+        $this->assertSame([$life->id, SourceEntry::ROLE_MENTION, 'author_life_title', 90],
+            [$tie->source_item_id, $tie->role, $tie->match_method, $tie->confidence]);
+        $this->assertFalse(SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $other->id)->exists());
+    }
+
+    private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
+    {
+        $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,
             'unit' => 'ستون', 'metadata' => ['config' => $code, 'images' => false]]);
 
         return SourceVolume::create(['source_id' => $source->id, 'volume_number' => $number, 'facsimile_code' => $code, 'page_first' => 1, 'page_last' => 1144]);

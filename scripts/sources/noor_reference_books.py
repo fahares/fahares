@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
-"""Page (column) texts and entries of the catalogues of printed books in Noor's «کتب مرجع ۲» database (item 86): Mushar's
-«فهرست کتابهای چاپی فارسی» and «فهرست کتابهای چاپی عربی», and Sarkis's «معجم المطبوعات العربیة و المعربة», for
-sources:import-pages and sources:segment --entries.
+"""Page (column) texts and entries of reference books in Noor's «کتب مرجع ۲» database (item 86): Mushar's «فهرست
+کتابهای چاپی فارسی» and «فهرست کتابهای چاپی عربی», Sarkis's «معجم المطبوعات العربیة و المعربة» (step 14.18), and
+the books of lives «أعیان الشیعة» and «روضات الجنات» (step 14.20), for sources:import-pages and sources:segment --entries.
 
-    python3 -I scripts/sources/noor_printed_books.py KOTOBMARJA2_DB OUT_DIR [--sources mushar-fa,mushar-ar,sarkis]
+    python3 -I scripts/sources/noor_reference_books.py KOTOBMARJA2_DB OUT_DIR [--sources mushar-fa,mushar-ar,sarkis,ayan,rawdat]
 
-Writes OUT_DIR/{code}/{volume:02d}.jsonl.gz with {"page", "text"} per printed column and
+Writes OUT_DIR/{code}/{volume:02d}.jsonl.gz with {"page", "text"} per printed page or column and
 OUT_DIR/{code}/{volume:02d}.entries.jsonl.gz with the volume's entries. The database is opened read-only.
 
-Noor's editions are the ones Fankha cites (step 14.18): Mushar's Persian catalogue in five volumes whose columns run on
-(1-5614), his Arabic one in one volume, and Sarkis's two volumes, Cairo 1928 in the Marashi offset, whose columns also
-run on (1-2024). <page number="N"/> starts column N. A document also holds front matter or indexes numbered apart, so
-only the longest run of rising column numbers is read; the few columns a volume repeats from the one before it are its
-title pages and stay empty, and so are left out.
+Noor's editions are the ones Fankha cites: Mushar's Persian catalogue in five volumes whose columns run on (1-5614),
+his Arabic one in one volume, Sarkis's two volumes, Cairo 1928 in the Marashi offset, whose columns also run on
+(1-2024), A'yan al-Shi'a in Dar al-Ta'aruf's edition (Beirut 1403 AH; volumes 1-10, the 11th its indexes, the 12th its
+supplements) and Rawdat al-Jannat in Isma'iliyan's eight volumes. <page number="N"/> starts page N. A document also
+holds front matter or indexes numbered apart, so only the longest run of rising page numbers is read; the few pages a
+volume repeats from the one before it are its title pages and stay empty, and so are left out.
 
 Mushar heads each book (level 3 in the Persian catalogue, level 2 in the Arabic one) with its title and a colon,
 «آثار الاحزان (رياض البكاء): », and its letters one level up. Sarkis heads each author (level 3), «ابراهيم (بك) مرزوق
 (1233-1283)», with his life after it, and each of his books (level 4, a part of one level 5), «1 - الدر البهي
 المنسوق بديوان …», with its printings after it: the author is the entry and his books its sub-entries, titled
-without their number and the printing after « - ». Mushar's catalogues are Persian, so Noor's Arabic ي and ك become
-ی and ک; Sarkis is Arabic and keeps them.
+without their number and the printing after « - ». A'yan heads each person at level 4 or 5, among headings of the
+parts of a life («أقوال العلماء فيه», «مؤلفاته», «شعره») at levels 5-7, and letters at level 3: a heading is a person
+when it names one («بن», «أبو», «السيد», «الشيخ» …). Rawdat numbers each person (level 3), «154 * (الشيخ أبو بكر بن
+يحيى …) * * (المعروف بالخفاف) *», with its letters at level 4, «(ت)»; the number is the entry's. Mushar's
+catalogues are Persian, so Noor's Arabic ي and ك become ی and ک; the Arabic books keep them.
 
-Footnotes go at the end of their column as «( 1 ) …». An entry's key is its first column and its place among the
-entries that start there, «500#2».
+Footnotes go at the end of their page as «( 1 ) …». An entry's key is its first page and its place among the entries
+that start there, «500#2».
 """
 import argparse
 import gzip
@@ -36,11 +40,25 @@ PAGE = re.compile(r'<page number="([^"]*)"/>')
 HEADING = re.compile(r'<heading level="(\d)">(.*?)</heading>', re.S)
 PERSIAN = str.maketrans({'ي': 'ی', 'ى': 'ی', 'ك': 'ک'})
 
-# code: series, volumes, heading levels that are entries, levels that are sub-entries, whether the text is Persian
+# A person's heading in a book of lives: a kinship word anywhere («محمد بن …»), or a kunya or title leading it («أبو
+# اسحق المذاري», «السيد محمد الهمذاني»); «أقوال العلماء فيه» has none, «خبره مع أبي شهاب» has its kunya too late
+KIN = re.compile(r'(^|\s)(بن|ابن|بنت)(\s|$)')
+TITLE = re.compile(r'^(\S+\s)?(أبو|ابو|أبي|ابي|أم|السيد|الشيخ|المولى|المولي|الميرزا|ميرزا|المير|الملا|القاضي|الحاج|الأمير|الامير)(\s|$)')
+
+
+def is_person(heading):
+    return bool(KIN.search(heading) or TITLE.search(heading))
+
+
+# code: series, volumes, heading levels that are entries, levels that are sub-entries, levels whose other headings end
+# an entry (None: those above the entries), whether the text is Persian, whether an entry must name a person, whether
+# an entry heading starts with the entry's number
 SOURCES = {
-    'mushar-fa': ('03292', 5, {3}, set(), True),
-    'mushar-ar': ('03291', 1, {2}, set(), True),
-    'sarkis': ('03307', 2, {3, 4, 5}, {4, 5}, False),
+    'mushar-fa': ('03292', range(1, 6), {3}, set(), None, True, False, False),
+    'mushar-ar': ('03291', range(1, 2), {2}, set(), None, True, False, False),
+    'sarkis': ('03307', range(1, 3), {3, 4, 5}, {4, 5}, None, False, False, False),
+    'ayan': ('03265', range(1, 11), {3, 4, 5}, set(), {1, 2, 3}, False, True, False),
+    'rawdat': ('11453', range(1, 9), {3}, set(), {1, 2, 4}, False, False, True),
 }
 
 LINE = ''  # a line break the text keeps: before and after a verse that opens a line
@@ -107,11 +125,14 @@ def text_of(xml, keep=True):
     return '\n'.join(l for l in lines if l.strip())
 
 
-def title_of(heading, sub):
+def title_of(heading, sub, numbered=False):
     """Mushar's «آثار الاحزان (رياض البكاء): » → «آثار الاحزان (رياض البكاء)»; Sarkis's book «1 - خلاصة القول في تحليل
     البول - بولاق 1312 ص 6-26» → «خلاصة القول في تحليل البول», and his author «ابراهيم (بك) مرزوق (1233-1283) ( 1 )»
-    without the footnote mark."""
+    without the footnote mark; Rawdat's life «154 * (الشيخ أبو بكر بن يحيى) * * (المعروف بالخفاف) *» → «الشيخ أبو بكر بن
+    يحيى المعروف بالخفاف», its number the entry's."""
     heading = re.sub(r'\s*\( \d+ \)', '', heading).strip()
+    if numbered:
+        heading = ' '.join(re.sub(r'^\d+\s*|[*()]', ' ', heading).split())
     if sub:
         heading = re.sub(r'^\d+\s*-\s*', '', heading)
         heading = re.split(r'\s-\s', heading, maxsplit=1)[0]
@@ -155,7 +176,7 @@ def body_items(db, doc):
     return out, {int(p): t for p, t in notes.items() if p.isdigit()}
 
 
-def volume(db, series, number, entry_levels, sub_levels, persian):
+def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered):
     fix = (lambda s: s.translate(PERSIAN)) if persian else (lambda s: s)
     items, notes = body_items(db, f'{series}_{number:03d}')
     pages, order = {}, []
@@ -174,12 +195,12 @@ def volume(db, series, number, entry_levels, sub_levels, persian):
             heading = fix(text_of(head.group(2), keep=False)) if head else None
             # the entry's own text without Noor's marks, which only the page keeps
             plain = fix(text_of(chunk, keep=False))
-            if level in entry_levels:
+            if level in entry_levels and (not person or is_person(heading)):
                 entries.append({'level': level, 'heading': heading, 'page': label, 'lines': [plain], 'breaks': []})
                 pages[label].append('')  # a blank line before each entry
                 pages[label].append(t)
                 continue
-            if level is not None and level < min(entry_levels):
+            if level is not None and (level in end_levels if end_levels else level < min(entry_levels)):
                 entries.append(None)  # a letter's heading ends the entry before it
                 pages[label].append('')
             elif entries and entries[-1] is not None:
@@ -219,8 +240,10 @@ def volume(db, series, number, entry_levels, sub_levels, persian):
         sub = e['level'] in sub_levels and parent is not None
         if not sub:
             parent = key
+        number = re.match(r'(\d+)\s', e['heading']) if numbered else None
         out_entries.append({
-            'key': key, 'kind': 'sub_entry' if sub else 'entry', 'title': title_of(e['heading'], sub),
+            'key': key, 'kind': 'sub_entry' if sub else 'entry', 'title': title_of(e['heading'], sub, numbered),
+            'entry_number': int(number.group(1)) if number else None,
             'page_start': page, 'page_end': int(e['breaks'][-1][1]) if e['breaks'] else page, 'text': '\n'.join(e['lines']),
             'page_breaks': [[at, int(p)] for at, p in e['breaks']], 'parent_key': parent if sub else None,
         })
@@ -235,11 +258,11 @@ def main():
     args = ap.parse_args()
     db = sqlite3.connect(f'file:{args.db}?mode=ro', uri=True)
     for code in args.sources.split(','):
-        series, volumes, entry_levels, sub_levels, persian = SOURCES[code]
+        series, volumes, entry_levels, sub_levels, end_levels, persian, person, numbered = SOURCES[code]
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
-        for number in range(1, volumes + 1):
-            pages, entries = volume(db, series, number, entry_levels, sub_levels, persian)
+        for number in volumes:
+            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered)
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:
