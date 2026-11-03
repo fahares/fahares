@@ -180,6 +180,12 @@ class BibliographyLinks
                 $key = $named ?? ($joined && $volume ? $source : null);
                 $volume = $key && self::pairsAfterName($key) ? self::volume($key, self::int($m['da'][0])) : null;
                 $link = $volume ? self::pageLink($key, $volume, self::int($m['db'][0])) : null;
+                // «مشار عربی 624-625», «معجم المطبوعات 1536-1537»: a range of columns, which tell their volume
+                if (! $link && $named && self::int($m['da'][0]) < self::int($m['db'][0])
+                    && ($volume = self::volumeOfColumn($named, self::int($m['da'][0])))) {
+                    $key = $named;
+                    $link = self::pageLink($key, $volume, self::int($m['da'][0]));
+                }
                 $source = $link ? $key : $source;
             } elseif (isset($m['b'][0]) && $m['sep'][0] === ':') {
                 // «کشف الظنون 1: 127»: a colon joins volume and column only right after the name of a column book
@@ -228,12 +234,15 @@ class BibliographyLinks
      */
     private static function sourceAfter(string $gap, ?string $current): ?string
     {
-        $pieces = preg_split('/[0-9۰-۹؛;،,:.\/\-–]+/u', preg_replace('/\([^)]*\)/u', ' ', $gap));
-        $name = '';
-        foreach (array_reverse($pieces) as $piece) {
-            $piece = trim(preg_replace(['/[^\p{L}\p{M}\x{200C}\s]+/u', '/(^|\s)(?:و|ج|ص|ش|رقم)(?=\s|$)/u'], ' ', $piece));
-            if ($piece !== '') {
-                $name = $piece;
+        $pieces = preg_split('/([0-9۰-۹؛;،,:.\/\-–]+)/u', preg_replace('/\([^)]*\)/u', ' ', $gap), -1, PREG_SPLIT_DELIM_CAPTURE);
+        $clean = fn (string $piece) => trim(preg_replace(['/[^\p{L}\p{M}\x{200C}\s]+/u', '/(^|\s)(?:و|ج|ص|ش|رقم)(?=\s|$)/u'], ' ', $piece));
+        $name = $before = '';
+        for ($i = count($pieces) - 1; $i >= 0; $i -= 2) {
+            if (($name = $clean($pieces[$i])) !== '') {
+                // the name before it when only a comma parts them: «مشار، فارسی», «سرکیس، معجم»
+                if ($i >= 2 && preg_match('/^\s*[،,]\s*$/u', $pieces[$i - 1])) {
+                    $before = $clean($pieces[$i - 2]);
+                }
                 break;
             }
         }
@@ -241,12 +250,13 @@ class BibliographyLinks
             return $current;
         }
 
-        $name = self::normalize($name);
-        foreach (self::sources() as $key => $src) {
-            if (preg_match('/^' . $src['pattern'] . '$/u', $name)) {
-                // «کحاله (چاپ جدید) 286/1» cites another edition, whose pages do not match
-                return isset($src['other_edition']) && preg_match('/' . $src['other_edition'] . '[\s)]*$/u', self::normalize($gap))
-                    ? null : $key;
+        foreach (array_filter([self::normalize($name), $before === '' ? '' : self::normalize("$before $name")]) as $name) {
+            foreach (self::sources() as $key => $src) {
+                if (preg_match('/^' . $src['pattern'] . '$/u', $name)) {
+                    // «کحاله (چاپ جدید) 286/1» cites another edition, whose pages do not match
+                    return isset($src['other_edition']) && preg_match('/' . $src['other_edition'] . '[\s)]*$/u', self::normalize($gap))
+                        ? null : $key;
+                }
             }
         }
 
@@ -324,6 +334,10 @@ class BibliographyLinks
     private static function volumeOfColumn(string $key, int $column): ?int
     {
         if ($text = self::sources()[$key]['text'] ?? null) {
+            // «مشار 591»: a source whose bare columns Fankha took from another printing
+            if (($text['bare'] ?? true) === false) {
+                return null;
+            }
             $holding = array_keys(array_filter($text['last_pages'], fn ($last, $v) => $column >= ($text['first_pages'][$v] ?? 1) && $column <= $last, ARRAY_FILTER_USE_BOTH));
 
             return count($holding) === 1 ? $holding[0] : null;
@@ -345,7 +359,8 @@ class BibliographyLinks
     private static function namedRightBefore(string $gap): ?string
     {
         $gap = preg_replace(['/\(\s*چاپ استانبول\s*\)/u', '/[\s:،,]+$/u'], ['', ''], $gap);
-        $last = preg_split('/[0-9۰-۹؛;،,:.\/\-–()]+/u', $gap);
+        // a comma stays, for a name it parts («مشار، فارسی»); sourceAfter reads the last name
+        $last = preg_split('/[0-9۰-۹؛;:.\/\-–()]+/u', $gap);
 
         return preg_match('/\p{L}$/u', $gap) ? self::sourceAfter(end($last), null) : null;
     }
