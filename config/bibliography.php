@@ -158,6 +158,18 @@ return [
                 'last_pages' => [1 => 795, 2 => 1518, 3 => 2571, 4 => 3244, 5 => 4173, 6 => 910, 7 => 817, 8 => 1498, 9 => 765, 10 => 931],
                 'runs' => [[1, 2, 3, 4, 5], [7, 8]],
             ],
+            // Monzavi's earlier «فهرست نسخه‌های خطی فارسی» (six volumes, pages numbered on), which Fankha cites as
+            // «نسخه‌های منزوی 490/1» or «نسخه‌های منزوی 4369»; the فهرستواره names its pages as «نسخه‌ها 490/1»
+            // (sources:link-earlier-edition monzavi nuskhe, item 116). Patterns read text after
+            // MatchCatalogEditionCommand::digits.
+            'earlier' => [
+                'nuskhe' => [
+                    'label' => 'فهرست نسخه‌های خطی فارسی',
+                    'like' => ['%نسخه%منزوی%', '%نسخه%منزوي%'],
+                    'pattern' => 'نسخه(?:\x{200C}|\s)?های منزوی',
+                    'cited_as' => 'نسخه(?:\x{200C}|\s)?ها',
+                ],
+            ],
         ],
     ],
 ];

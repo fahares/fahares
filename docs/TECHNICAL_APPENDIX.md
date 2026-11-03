@@ -7000,3 +7000,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی دستی:** متن صفحه‌ی نامزد (`source_pages.text`) برای ۱۰ مورد مشار، ۱۰ نسخه‌ها، ۱۰ روضات، ۱۵ أعیان و ۸ الذریعه خوانده شد.
 - **اسکریپت‌ها:** بیرون از مخزن، در پوشه‌ی یادداشت‌های جلسه‌ها (`old-printing-citations/`).
 
+### گام ۱۴.۲۲: `sources:link-earlier-edition`
+- **فرمان:** [LinkEarlierEditionCommand](../app/Console/Commands/LinkEarlierEditionCommand.php)، با `{source} {edition} [--dry-run] [--report=]`.
+- **پیکربندی:** `config/bibliography.php`، `sources.{code}.earlier.{edition}`. کلیدها:
+  - `label`؛
+  - `like`: پیش‌گزینش SQL ارجاع‌ها؛
+  - `pattern`: نام کتاب پیشین در متن ارجاع؛
+  - `cited_as`: نامی که منبع سایت برای کتاب پیشین در متن مدخل‌هایش به کار می‌برد.
+  - هر دو الگو روی متنِ گذشته از `MatchCatalogEditionCommand::digits` اجرا می‌شوند.
+- **`addressIndex()`:** «نسخه‌ها (2) 1709/2 و 1711/2» را به صفحه‌های ۱۷۰۹ و ۱۷۱۱ برمی‌گرداند. کلید فقط صفحه است، چون صفحه‌شماری نسخه‌ها در شش جلد پیوسته است.
+- **`citedPages()`:** شکل‌های «P/V»، «P»، «P/V و P/V»، «P/V-P»، «V: P» (جلد ۶ یا کمتر) و «ص P» را می‌خواند.
+- **تصمیم:**
+  - **`edition_address`:** `ItemMatcher::match` روی مدخل‌هایی که صفحه را نام می‌برند، اگر نقش «مدخل» و روش سرعنوانی باشد (`title_author`، `title_exact`، `full_title`، `title_only`، `other_title`). اطمینان ۹۵، یا ۸۵ برای `title_only`.
+  - **`edition_title`:** در غیر این صورت، روی مدخل‌هایی که `title_normalized`شان یکی از شکل‌های عنوان اثر است (`LinkSourceItemsCommand::titleForms`). اطمینان ۷۰ با مؤلف (`title_author`، `full_title`، `other_title`)، وگرنه ۴۰.
+  - **`ambiguous`:** نتیجه‌ی مبهم این دو، با اطمینان ۳۰.
+  - **بی‌پیوند:** مدخلِ نام‌برنده‌ی صفحه با سرعنوان دیگر پیوند نمی‌سازد.
+- **کنار گذاشتن:** اثری که در منبع پیوند یا ارجاعی جز پیوندهای همین فرمان دارد، کنار می‌رود.
+- **ردیف:** `legacy_type = earlier_edition_link`، `legacy_id` = شناسه‌ی ارجاع، `legacy_index = 0`. اجرای دوباره پیوند داوری‌شده را دست نمی‌زند و متن ویرایش‌شده را نگه می‌دارد، همان قاعده‌ی `sources:link-items`.
+- **صف داوری:** برچسب دو روش تازه در `SourceLinkController::METHODS`.
+- **آزمون:** `LinkEarlierEditionTest` (۴ آزمون).
+- **تمرین (`fahares_prod`):** `created 426`، سپس `unchanged 426`:
+  - `edition_address`: ۱۴۴ با اطمینان ۹۵، ۱۴ با ۸۵؛
+  - `edition_title`: ۷۹ با ۷۰، ۷۲ با ۴۰؛
+  - `ambiguous`: ۱۱۷.
+
