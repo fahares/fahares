@@ -18,7 +18,8 @@ return [
      * - text (optional, instead of url and viewer): the site has the source's page texts and entries but no page
      *   images; catalog is the volumes' facsimile_code, first_pages and last_pages bound the pages a citation can
      *   name, and runs lists the volumes whose page numbers run on, so a citation naming the wrong one of them is
-     *   placed by its page. Its citations are not links; the work page shows the entry matched to them.
+     *   placed by its page. Its citations are not links; the work page shows the entry matched to them. bare false:
+     *   a column cited without its volume is not taken, since Fankha took those from another printing.
      * - kind, compiler, publisher, edition_label (optional): the source's registry row (sources:backfill --only=registry).
      */
     'sources' => [
@@ -169,6 +170,99 @@ return [
                     'pattern' => 'نسخه(?:\x{200C}|\s)?های منزوی',
                     'cited_as' => 'نسخه(?:\x{200C}|\s)?ها',
                 ],
+            ],
+        ],
+        // Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at, as text from Noor (item 86, step
+        // 14.18, scripts/sources/noor_reference_books.py). The Persian catalogue's five volumes (Tehran 1350-55 Sh) number
+        // their columns on; Fankha writes «مشار فارسی 2558/2», «فهرست فارسی مشار 4954/4», «مشار 3098/2» or «مشار،
+        // فارسی 184/1». A column without its volume, «مشار 591», or with a volume that does not hold it, «مشار 724/2»,
+        // is of an earlier printing and does not match this one (bare, and no runs). The Arabic catalogue is one volume
+        // (1344 Sh): «مشار عربی 989», «فهرست عربی مشار», «مشار، عربی». «مؤلفین مشار» is another of his books.
+        'mushar-fa' => [
+            'label' => 'فهرست کتاب‌های چاپی فارسی',
+            'pattern' => '(?:فهرست )?(?:فارسی ?)?مشار(?: ?فارسی)?',
+            'volumes' => 5,
+            'pairs_after_name' => true,
+            'unit' => 'ستون',
+            'kind' => 'bibliography',
+            'compiler' => 'خانبابا مشار',
+            'edition_label' => 'تهران، ۱۳۵۰–۱۳۵۵ش',
+            'text' => [
+                'catalog' => 'mushar-fa',
+                'name' => 'مشار فارسی',
+                'first_pages' => [2 => 1473, 3 => 2861, 4 => 3977, 5 => 5101],
+                'last_pages' => [1 => 1464, 2 => 2858, 3 => 3976, 4 => 5100, 5 => 5614],
+                'bare' => false,
+            ],
+        ],
+        'mushar-ar' => [
+            'label' => 'فهرست کتاب‌های چاپی عربی',
+            'pattern' => '(?:فهرست )?(?:عربی ?مشار|مشار ?(?:چاپی )?عربی(?: صص)?|مشارع عربی)',
+            'volumes' => 1,
+            'unit' => 'ستون',
+            'kind' => 'bibliography',
+            'compiler' => 'خانبابا مشار',
+            'edition_label' => 'تهران، ۱۳۴۴ش',
+            'text' => [
+                'catalog' => 'mushar-ar',
+                'name' => 'مشار عربی',
+                'last_pages' => [1 => 1014],
+            ],
+        ],
+        // Sarkis's two volumes (Cairo 1928, the Marashi library's offset, Qom 1410 AH), their columns numbered on (volume
+        // 2 from 1145). Fankha writes «معجم المطبوعات 663/1», «معجم المطبوعات العربیة 128/1», «سرکیس 72/1», «معجم
+        // المطبوعات سرکیس ج2ص1897» and a bare column, «معجم المطبوعات 1611»; not «معجم المطبوعات العربیة فی ایران» or
+        // «… النجفیة», other books.
+        'sarkis' => [
+            'label' => 'معجم المطبوعات العربیة و المعربة',
+            'pattern' => '(?:معجم )?(?:(?:یوسف )?(?:الیان |الیاس )?سر ?کیس(?: معجم(?: المطبوعات(?: العربیه)?(?: و)?(?: المعربه)?)?)?'
+                . '|معجم المطبوعات(?: العربیه)?(?: و)?(?: المعربه)?(?: سر ?کیس)?)',
+            'volumes' => 2,
+            'pairs_after_name' => true,
+            'unit' => 'ستون',
+            'kind' => 'bibliography',
+            'compiler' => 'یوسف الیان سرکیس',
+            'edition_label' => 'افست قم، ۱۴۱۰ق',
+            'text' => [
+                'catalog' => 'sarkis',
+                'name' => 'معجم المطبوعات',
+                'first_pages' => [2 => 1145],
+                'last_pages' => [1 => 1144, 2 => 2024],
+                'runs' => [[1, 2]],
+            ],
+        ],
+        // Two books of lives, as text from Noor (item 86, step 14.20); an entry is a person, and Fankha cites the page of
+        // a work's author, so a work is tied to its author's life as a mention (ItemMatcher::matchLife). A'yan al-Shi'a in
+        // Dar al-Ta'aruf's ten volumes (Beirut 1403 AH): «اعیان الشیعة 408/9»; not «طبقات اعیان الشیعه» or «مستدرکات
+        // اعیان الشیعه», other books, nor «223/45», a part of the old printing in 56 parts, which has no volume here.
+        'ayan' => [
+            'label' => 'أعیان الشیعة',
+            'pattern' => 'اعیان الشیعه(?: چ(?:اپ)? (?:بیروت|جدید))?',
+            'volumes' => 10,
+            'kind' => 'biographical',
+            'compiler' => 'سید محسن امین',
+            'edition_label' => 'دار التعارف، بیروت، ۱۴۰۳ق',
+            'text' => [
+                'catalog' => 'ayan',
+                'name' => 'اعیان الشیعة',
+                'last_pages' => [1 => 677, 2 => 625, 3 => 671, 4 => 634, 5 => 498, 6 => 474, 7 => 471, 8 => 475, 9 => 450, 10 => 447],
+                'bare' => false,
+            ],
+        ],
+        // Rawdat al-Jannat in Isma'iliyan's eight volumes (Qom 1390 AH): «روضات الجنات 106/7», «روضات 88/4». A page without
+        // its volume, «روضات الجنات 409», is of the one-volume lithograph (bare).
+        'rawdat' => [
+            'label' => 'روضات الجنات فی احوال العلماء و السادات',
+            'pattern' => 'روضات(?: الجنات| الجناب)?',
+            'volumes' => 8,
+            'kind' => 'biographical',
+            'compiler' => 'محمدباقر موسوی خوانساری',
+            'edition_label' => 'اسماعیلیان، قم، ۱۳۹۰ق',
+            'text' => [
+                'catalog' => 'rawdat',
+                'name' => 'روضات الجنات',
+                'last_pages' => [1 => 440, 2 => 442, 3 => 456, 4 => 479, 5 => 466, 6 => 398, 7 => 404, 8 => 286],
+                'bare' => false,
             ],
         ],
     ],

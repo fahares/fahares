@@ -127,6 +127,43 @@ class ItemMatcher
         return null;
     }
 
+    /**
+     * In a book of lives («اعیان الشیعة», «روضات الجنات») an entry is a person, and Fankha cites the page of the work's
+     * author: the work is named in his life. The entry whose heading names the author is that life, more surely when
+     * its text names the work too; without one, the work may still be named in another life on the page.
+     *
+     * @param  list<string>  $titles
+     * @param  list<array{id: int, entry_number: ?int, title: string, text: string}>  $items
+     * @return array{id: int, role: string, method: string, confidence: int, title_score: float, author: bool, death: bool}|null
+     */
+    public function matchLife(array $titles, ?string $author, ?int $death, array $items): ?array
+    {
+        $norms = array_values(array_filter(array_map(fn ($t) => self::norm((string) $t), $titles), fn ($t) => mb_strlen($t) >= 4));
+        $lives = [];
+        foreach ($items as $item) {
+            $hits = self::authorHits($author, $item['title']);
+            if ($hits === 0) {
+                continue;
+            }
+            $text = ' ' . self::norm($item['text']) . ' ';
+            $lives[] = ['item' => $item, 'rank' => [
+                (int) collect($norms)->contains(fn ($t) => str_contains($text, ' ' . $t . ' ')),
+                $hits,
+                (int) self::deathIn($death, $item['title'] . ' ' . mb_substr($item['text'], 0, self::AUTHOR_ZONE)),
+            ]];
+        }
+        usort($lives, fn ($a, $b) => $b['rank'] <=> $a['rank']);
+        if ($lives && (count($lives) === 1 || $lives[0]['rank'] > $lives[1]['rank'])) {
+            [$named, $hits, $died] = $lives[0]['rank'];
+
+            return $this->result($lives[0]['item'], 'mention', $named ? 'author_life_title' : 'author_life',
+                $named ? 90 : ($hits >= 2 || $died ? 75 : 55), 0.0, $author, $death);
+        }
+        $match = $this->match($titles, $author, $death, $items);
+
+        return $match && $match['role'] === 'mention' ? $match : null;
+    }
+
     private function result(array $item, string $role, string $method, int $confidence, float $score, ?string $author, ?int $death): array
     {
         $zone = mb_substr($item['text'], 0, self::AUTHOR_ZONE);
