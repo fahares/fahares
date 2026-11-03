@@ -160,4 +160,32 @@ class AddCorpusWorksCommandTest extends TestCase
             ->expectsOutputToContain('test-jim-v99-9002: protected by a reviewed correction')
             ->assertSuccessful();
     }
+
+    public function test_a_shelfmark_the_work_holds_twice_moves_by_its_sequence()
+    {
+        // vol 11: «رضوی 7141» twice under Deylamaj's work, the second one Kermanshahi's (step 14.23)
+        $a = $this->work('اثر آزمایشی د', 'test-dal-v99-9003', 'مؤلف دیگر');
+        $first = $this->copy($a, "4. مشهد؛ رضوی؛ شماره نسخه: 7141", 'مشهد', 'رضوی', '7141');
+        $second = $this->copy($a, "10. مشهد؛ رضوی؛ شماره نسخه: 7141", 'مشهد', 'رضوی', '7141');
+        DB::table('manuscripts')->where('id', $first)->update(['sequence_number' => 4]);
+        DB::table('manuscripts')->where('id', $second)->update(['sequence_number' => 10]);
+        $columns = ['primary_title' => 'اثر آزمایشی ه', 'clean_title' => 'اثر آزمایشی ه', 'alternative_titles' => null,
+            'transliteration' => 'asar', 'author_name' => 'مؤلف آزمایشی', 'composition_date_raw' => null,
+            'composition_place' => null, 'work_form' => null, 'subject_summary' => 'فقه', 'language_summary' => 'عربی',
+            'incipit_text' => null, 'explicit_text' => null, 'description' => null, 'bibliography' => null,
+            'print_info' => null, 'dedication' => null, 'related_work' => null, 'commentaries_and_glosses' => null,
+            'raw_text' => '● اثر آزمایشی ه / فقه / عربی', 'volume_number' => 99, 'page_start' => 10, 'page_end' => 10];
+        $move = ['id' => 0, 'from_slug' => 'test-dal-v99-9003', 'city' => 'مشهد', 'library' => 'رضوی', 'shelfmark' => '7141'];
+        file_put_contents($this->file, json_encode(['works' => [[
+            'v2' => 'v99-3', 'slug_suffix' => '-v99-9001', 'columns' => $columns, 'author' => null, 'roles' => [],
+            'subjects' => [], 'languages' => [],
+            'copies' => [['move' => $move + ['from_sequence' => 10], 'sequence_number' => 1]],
+        ]], 'work_updates' => []], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $work = Work::where('slug', 'like', '%-v99-9001')->sole();
+        $this->assertSame($work->id, DB::table('manuscripts')->where('id', $second)->value('work_id'));
+        $this->assertSame($a, DB::table('manuscripts')->where('id', $first)->value('work_id'));
+    }
 }

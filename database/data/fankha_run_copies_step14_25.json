@@ -1,0 +1,57 @@
+{
+ "source": "site copies rebuilt from fankha parser v2 (/tmp/claude-1000/-home-tabib-projects-apps-fahares/8352b49c-f525-46fd-b61b-91ca2ec15c94/scratchpad/rebuild2_ids.tsv), 2026-11-04",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 53355,
+   "shelfmark": "573",
+   "category": "rebuild",
+   "v2": "v5-1112#0",
+   "changes": {
+    "raw_text": {
+     "from": "تهران؛ مجلس؛ شماره نسخه: 573\nآغاز: الحمدلله الواحد الاحد\nجلد هفدهم بحار؛ خط: نسخ، بی‌کا، تا: 1307ق؛ 332\n<!-- page: 696 -->",
+     "to": "تهران؛ مجلس؛ شماره نسخه: 573\nآغاز: الحمدلله الواحد الاحد\nجلد هفدهم بحار؛ خط: نسخ، بی‌کا، تا: 1307ق؛ 332گ، 27 سطر، قطع: رحلی، اندازه: 23×36/5سم [ف: 2-336]"
+    },
+    "folios": {
+     "from": null,
+     "to": 332
+    },
+    "lines": {
+     "from": null,
+     "to": 27
+    },
+    "dimensions": {
+     "from": null,
+     "to": "23×36/5سم"
+    },
+    "incipit_text": {
+     "from": "الحمدلله الواحد الاحد\nجلد هفدهم بحار",
+     "to": "الحمدلله الواحد الاحد"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الحمدلله الواحد الاحد\nجلد هفدهم بحار"
+       }
+      ],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": null,
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 2-336]",
+      "residual_notes": null
+     }
+    }
+   }
+  }
+ ]
+}
