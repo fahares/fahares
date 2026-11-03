@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Person;
+use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceItem;
 use App\Models\SourceVolume;
@@ -31,6 +32,9 @@ class LinkSourceItemsCommand extends Command
 
     protected $description = 'Tie the works a bibliography is cited for to the printed entries on the cited pages';
 
+    /** Whether the volume is of a book of lives, whose entries are persons. */
+    private bool $lives = false;
+
     public function handle(ItemMatcher $matcher): int
     {
         $volumes = SourceVolume::where('facsimile_code', $this->argument('volume'))
@@ -41,6 +45,7 @@ class LinkSourceItemsCommand extends Command
             return self::FAILURE;
         }
         $volume = $volumes[0];
+        $this->lives = Source::whereKey($volume->source_id)->value('kind') === Source::KIND_BIOGRAPHICAL;
         $items = SourceItem::where('source_volume_id', $volume->id)->orderBy('position')
             ->get(['id', 'item_key', 'entry_number', 'title', 'text', 'page_start', 'page_end']);
         if ($items->isEmpty()) {
@@ -153,12 +158,17 @@ class LinkSourceItemsCommand extends Command
         // «الذریعة 424/1 ش 2175»: the entry number Fankha gives, when its citation has one place
         $number = preg_match('/(?:ش|رقم|شماره)\s*\.?\s*(\d+)/u', MatchCatalogEditionCommand::digits((string) $citation->citation_text), $m)
             && count($citation->locations ?? []) <= 1 ? (int) $m[1] : null;
-        $match = $work && $onPage ? $matcher->match($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $onPage, $number) : null;
+        // a book of lives: the work is named in its author's life (ItemMatcher::matchLife)
+        $lives = $this->lives;
+        $find = fn (array $on) => $lives
+            ? $matcher->matchLife($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on)
+            : $matcher->match($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on, $number);
+        $match = $work && $onPage ? $find($onPage) : null;
         // an entry the page before or after begins or ends on: Fankha's page is the entry's other one; a mention there
-        // is too far to tell
-        if ($work && $this->option('near') && (! $match || $match['role'] !== SourceEntry::ROLE_ENTRY)) {
-            $near = $matcher->match($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on($page - 1, $page + 1), $number);
-            if ($near && $near['role'] === SourceEntry::ROLE_ENTRY && $near['method'] !== 'ambiguous' && ! collect($onPage)->contains('id', $near['id'])) {
+        // is too far to tell, but a life is not
+        if ($work && $this->option('near') && (! $match || $match['role'] !== SourceEntry::ROLE_ENTRY) && ! ($lives && $match)) {
+            $near = $find($on($page - 1, $page + 1));
+            if ($near && ($lives || $near['role'] === SourceEntry::ROLE_ENTRY) && $near['method'] !== 'ambiguous' && ! collect($onPage)->contains('id', $near['id'])) {
                 $match = ['method' => 'near_' . $near['method'], 'confidence' => min($near['confidence'], 60)] + $near;
                 $onPage = $on($page - 1, $page + 1);
             }
