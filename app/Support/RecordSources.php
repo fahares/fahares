@@ -49,21 +49,50 @@ class RecordSources
     }
 
     /**
-     * Whether a line of the bibliography says nothing the cards do not: it is only source names and citations, and
-     * every place it cites is in the printed entry of a card the page shows (an entry, or a mention «یاد شده در …»).
-     * The page then leaves the line out but in suggestion mode; the entry stays as Fankha's words.
+     * Whether a line of the bibliography says nothing the cards do not: it is source names and citations, with at most
+     * a note (BibliographyLinks::note), and every place it cites is in the printed entry of a card the page shows (an
+     * entry, or a mention «یاد شده در …»). The page then leaves the line out but in suggestion mode, and shows its note
+     * under the card (notesFor); the entry stays as Fankha's words.
      */
     public function isCovered(SourceEntry $citation): bool
     {
-        $places = $citation->locations ?? ($citation->source_id ? [['source_id' => $citation->source_id, 'volume' => $citation->volume_number, 'page' => $citation->page_start]] : []);
-        if (! $places || ! BibliographyLinks::onlyCitations((string) $citation->citation_text)) {
+        $places = $this->places($citation);
+        if (! $places || BibliographyLinks::note((string) $citation->citation_text) === null) {
             return false;
         }
         $items = $this->cards()->filter(fn (SourceEntry $e) => $e->sourceItem);
 
-        return collect($places)->every(fn ($p) => $items->contains(fn (SourceEntry $e) => (int) $e->source_id === (int) $p['source_id']
-            && (int) $e->volumeNumber() === (int) $p['volume']
-            && $p['page'] >= $e->sourceItem->page_start && $p['page'] <= ($e->sourceItem->page_end ?? $e->sourceItem->page_start)));
+        return collect($places)->every(fn ($p) => $items->contains(fn (SourceEntry $e) => $this->holds($e, $p)));
+    }
+
+    /**
+     * The notes of the covered bibliography lines that cite a place in this card's entry: «با انتساب به قوام الدین یوسف
+     * فرزند حسن» of «فهرستواره منزوی 663/6 با انتساب به …» under the card of that entry.
+     *
+     * @return list<string>
+     */
+    public function notesFor(SourceEntry $card): array
+    {
+        if (! $card->sourceItem) {
+            return [];
+        }
+
+        return $this->bibliography()->filter(fn (SourceEntry $c) => $this->isCovered($c)
+            && collect($this->places($c))->contains(fn ($p) => $this->holds($card, $p)))
+            ->map(fn (SourceEntry $c) => BibliographyLinks::note((string) $c->citation_text))->filter()->unique()->values()->all();
+    }
+
+    /** @return list<array{source_id: int, volume: int, page: int}> */
+    private function places(SourceEntry $citation): array
+    {
+        return $citation->locations ?? ($citation->source_id ? [['source_id' => $citation->source_id, 'volume' => $citation->volume_number, 'page' => $citation->page_start]] : []);
+    }
+
+    /** Whether the card's printed entry holds the cited place. */
+    private function holds(SourceEntry $card, array $place): bool
+    {
+        return (int) $card->source_id === (int) $place['source_id'] && (int) $card->volumeNumber() === (int) $place['volume']
+            && $place['page'] >= $card->sourceItem->page_start && $place['page'] <= ($card->sourceItem->page_end ?? $card->sourceItem->page_start);
     }
 
     private function shown(): Collection

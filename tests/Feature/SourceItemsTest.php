@@ -125,11 +125,18 @@ class SourceItemsTest extends TestCase
         $half = $line('الذریعة 403/3 و 120/5', 2, [['source_id' => $this->volume->source_id, 'volume' => 3, 'page' => 403],
             ['source_id' => $this->volume->source_id, 'volume' => 5, 'page' => 120]]);
 
+        // a note of no number or printing goes under the card of the place it is about (step 14.28)
+        $attributed = $line('الذریعة 403/3 با انتساب به قوام الدین یوسف', 3);
+
         $sources = $work->fresh()->sources();
-        $this->assertSame([true, false, false], [$sources->isCovered($covered), $sources->isCovered($noted), $sources->isCovered($half)]);
+        $this->assertSame([true, false, false, true],
+            [$sources->isCovered($covered), $sources->isCovered($noted), $sources->isCovered($half), $sources->isCovered($attributed)]);
+        $this->assertSame(['با انتساب به قوام الدین یوسف'], $sources->notesFor($sources->cards()->first()));
         $this->get(route('works.show', $work))->assertOk()
             ->assertSee('data-covered-citation', false)
-            ->assertSee('یاد شده در', false);
+            ->assertSee('یاد شده در', false)
+            ->assertSee('data-citation-note', false)
+            ->assertSee('با انتساب به قوام الدین یوسف', false);
 
         // a rejected tie no longer covers the line
         SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->update(['status' => SourceEntry::STATUS_REJECTED]);
