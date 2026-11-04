@@ -7244,6 +7244,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **یک تصویر برای چند منبع:** دهگان (`catalogue-77a075f39d37`، `-27335f850012`، `-dc258caef1e6`)، نمازی خوی (`-562da249ec42`، `-5d60ff4223d8`)، الهیات دانشگاه تهران (`-7006195fe18b`، `-390be0eedcbf`)، مجلس سنا (`-c225f7337b0a`، `-a524cf28e464`) و شش مقاله‌ی تراثنا (جلد شماره‌ی ۲، ۱۴۰۶ق).
 - **کنار رفته:** ارگانی بهبهانی (جلد «فهرست کتب چاپی»)، کاشان ۱ (جلد «مدرسه سلطانی کاشان» بی «جعفری»)، فهرست مختصر مجلس سنا (فقط جلد فهرست کامل یافت شد)، نسخه‌های عکسی دائرةالمعارف (جلد فهرست خطی)، مدرسه نواب (چاپ ۱۳۴۴ جدا از «چهار کتابخانه مشهد» ۱۳۵۱)، آینه پژوهش ۲۲ (برگه‌ی فهرست مطالب).
 - **بی‌جلد مانده (۲۸):** `catalogue-` `b54dee88e953`، `ba694d043021`، `f72ec3ba3fbc`، `41322fd8f0f4`، `f8a984795e41`، `e1a7c9ee7712`، `b89f67efe34f`، `86df5c630b29`، `80e6ea93e62c`، `508df9df7cd6`، `0050f7e2e051`، `70aa95ae66df`، `b6b3ae39f183`، `01e73ebe281d`، `68db58132fa6`، `6b958fb55da0`، `5694f9428dd4`، `469dfc002104`، `358b876ba843`، `eed41d088487`، `bfa5469ecd6c`، `7da93f513bb5`، `b67f83c0af8b`، `7c24e45b2710`، `f84ee318004c`، `844bb8bee31a`، `9dc991b94e6e`، `43064d22d8a0`.
+
+### گام ۱۴.۲۷: بیت‌های `<poem>` نور با `<br/>`
+- **ریشه:** منزوی ج ۱۰ item 3718: `<poem>اين شنيدستى …<gap/>… پردلى<br/>آمد از چه …<gap/>… گفت </poem>`. `verse()` فقط روی `<gap/>` می‌شکست و `<br/>` به فاصله تبدیل می‌شد، پس سه «مصراع» ساخته می‌شد و `PrintedPage::text()` آن‌ها را در شبکه‌ی دوستونی جابه‌جا می‌چید. در `noor_aqabozorg.py`، `strip()` پس از `verse()` هر `<br/>` را به `\n` تبدیل می‌کرد، پس در الذریعة فقط شعرهای بی `<gap/>` آسیب داشتند.
+- **شمار `<poem>`های چندسطری در `kotobmarja2.db`** (همه‌ی سطرها با `<gap/>` / آمیخته / بی `<gap/>`): أعیان 12,742 / 335 / 13، روضات 1,236 / 9 / 11، الذریعة 856 / 18 / 6، منزوی 302 / 75 / 122، کشف 40 / 0 / 28، هدیة 5 / 1 / 0، ایضاح 0 / 0 / 1.
+- **`verse()` و `verses()`** در `noor_monzavi.py`، `noor_istanbul.py`، `noor_reference_books.py` و `noor_aqabozorg.py`:
+  - محتوای `<poem>` روی `<br\s*/?>` به سطر و هر سطر روی `<gap/>` به مصراع شکسته می‌شود. مصراع و سطر خالی حذف می‌شوند.
+  - اگر هر سطر دست‌کم دو مصراع دارد، هر سطر یک بیت است. وگرنه، اگر شمار همه‌ی مصراع‌ها زوج باشد، دوتادو جفت می‌شوند (منزوی آمیخته: «الهی از دل من بند برادر<br/>- مرا در بند…<gap/> - الهی ساز…<gap/> - نما راهی…»)، و اگر فرد باشد، هر سطر یک بیت می‌ماند (مصراع تنها با tab پایانی).
+  - شعری که درون جمله آمده، مثل پیش، با فاصله در جمله می‌ماند.
+- **خروجی:** هر چهار خواننده با پایگاه‌های نور (الذریعة با `--ablibrary`) پیش و پس از تغییر اجرا شدند. خروجی پیشین با فایل‌های `../fahares-sources` برابر بود. تفاوت صفحه‌ها و مدخل‌ها، جز `page_breaks` مدخل‌ها که با طول متن جابه‌جا می‌شوند، فقط در فاصله، tab، شکست سطر و « - » است. مشار، سرکیس و هدیة تغییری ندارند.
+  - صفحه‌های تغییرکرده: أعیان ۳٬۱۳۸ (۱۰ جلد)، روضات ۷۳۳ (۸)، منزوی ۳۳۴ (۱۰)، الذریعة ۳۸ (۱۴)، کشف ۴۰ (ج ۲)، ایضاح ۱ (ج ۱).
+  - ۴۴ فایل صفحه در `monzavi/noor`، `dharia/noor`، `noor-istanbul/{kashf,idah}` و `noor-printed/{ayan,rawdat}` جایگزین و `MD5SUMS` آن‌ها تازه شد. فایل‌های پیشین در `../fahares-sources/backups/noor-pages-before-verse-lines-2026-11-04/` هستند. فایل‌های مدخل (`*.entries.jsonl.gz`) دست نخوردند: مدخل‌های منزوی در پوشه از پیش از گام ۱۳.۹۵‌اند و ساختن دوباره‌شان جدا بررسی می‌شود.
+- **تمرین (`fahares_prod`):** `sources:import-pages {code} … --volume=N` برای ۴۴ جلد. `/sources/monzavi/10/page/151` اکنون چهار `span.book-poem__h` در دو بیت دارد.
+- **فرمان پروداکشن (با تأیید کاربر، با `scripts/dev/prod-run`):** رونوشت ۴۴ فایل به `/tmp/verse-lines/` کانتینر و برای هر جلد `php artisan sources:import-pages {code} /tmp/verse-lines/{code}-NN.jsonl.gz --volume=N`. کدها: `ayan`، `rawdat`، `monzavi`، `dharia`، `kashf` و `idah`. فقط `source_pages.text` بازنویسی می‌شود و پیش از آن پشتیبان همین ردیف‌ها لازم است.
+- **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، با تأیید کاربر):**
+  - **پشتیبان:** همه‌ی ردیف‌های `source_pages` این ۴۴ جلد (۲۵٬۴۳۸ صفحه، با `id`، `page`، `text` و `updated_at`) در `../fahares-sources/backups/step13/step14.27_source_pages_before.jsonl.gz` است (md5 `a024fd8b873e01d949828fe965be9171`). متن هر صفحه با فایل‌های `noor-pages-before-verse-lines-2026-11-04` برابر بود.
+  - **اجرا:** ۴۴ فایل به `/tmp/verse-lines/` رفت و md5 همه برابر بود. سپس با `scripts/dev/prod-run noor-verse-lines`، `sources:import-pages` برای هر جلد اجرا شد و هر ۴۴ جلد «pages saved» دادند. فایل‌های `/tmp` پس از کار پاک شدند.
+  - **وارسی:** `https://fahares.net/sources/monzavi/10/page/151` اکنون دو بیت «این شنیدستی…» را در دو سطر نشان می‌دهد.
+- **اجرای پروداکشن مدخل‌ها، بخش پایانی (۱۴ آبان ۱۴۰۵، به اجازه‌ی کاربر، از جلسه‌ی «مدیریت تسک‌ها»):**
+  - **پیش از آن:** جلسه‌ی «شکست خط میان ابیات شعر» `sources:segment` را برای منزوی ج ۱ تا ۱۰، کشف و ایضاح ج ۱ و ۲ و أعیان ج ۱ و ۲ اجرا کرده بود، با پشتیبان `../fahares-sources/backups/step13/step14.27_source_items_before.jsonl.gz` (۹۱٬۶۴۰ ردیف، md5 `801bb15b1fe101767cec3e85aa8deeb9`، که دوباره سنجیده شد). أعیان ج ۳ در کانتینر کهنه پایان یافته بود. پیام‌های «شکست دستور» تلگرام برای أعیان ج ۴ تا ۱۰ (۱۴ آبان ۲:۳۳) از همان حلقه بود، پس از پاک شدن `/tmp/verse-entries/`. این دستورها چیزی را تغییر نداده بودند.
+  - **اجرا:** ۱۸ فایل entries أعیان ۰۱ تا ۱۰ و روضات ۰۱ تا ۰۸ از `../fahares-sources/noor-printed/` به `/tmp/verse-entries/{code}/` رفت و md5 درست بود. سپس برای هر جلد، با `scripts/dev/prod-run --wait task-management`: `sources:segment {code} --volume=N --origin=noor --entries=…`. اتصال ssh أعیان ج ۴ و روضات ج ۲ قطع شد و این دو جلد دوباره اجرا شدند.
+  - **شمارها (`updated`، همه با `created 0`، `removed 0` و `kept_edited 0`):** أعیان ج ۳ تا ۱۰: ۰ (پیش‌تر انجام شده)، ۱۲۵، ۱۳۸، ۱۵۴، ۱۹۳، ۲۷۶، ۲۰۴، ۲۱۲. روضات ج ۱ تا ۸: ۴۱، ۳۸، ۵۱، ۲۶، ۶۸، ۲۱، ۳۳، ۳۷. همه برابر تمرین.
+
 ### گام ۱۴.۲۸: یادداشت سطر پوشیده‌ی مآخذ
 - **`BibliographyLinks::note($entry)`:** واژه‌هایی از سطر که نه نام منبع‌اند و نه ارجاع، با «، » به هم پیوسته.
   - **خروجی:** `''` برای سطری که فقط ارجاع است. `null` برای سطر بی ارجاع، یا سطری که یادداشتش عدد یا نام چاپ دارد (`چاپ`، `چ`، `ط`، `طبع`، `الطبعة`، `افست`).
@@ -7294,15 +7316,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
   - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
 
-### گام ۱۴.۳۲: شماره‌ی بخش در ارجاع‌های متن صفحه
-- **[BibliographyLinks::inProse](../app/Support/BibliographyLinks.php):** الگوی `$part` (`\(\s*[0-9۰-۹]{1,2}\s*\)\s*`، اختیاری) پس از نام منبع و پس از «همان‌جا» آمده است. `segments()` بی‌تغییر است: عدد کمانک لینک نمی‌شود و `sourceAfter()` کمانک را از فاصله‌ی پیش از «page/volume» برمی‌دارد.
-- **شمار در داده‌ی محلی:** «نام (n) page/volume» در ۱۲۰۱ صفحه (همه منزوی). ذریعه (n) …/9: بخش ۱ = ۱۳۳، ۲ = ۹۷، ۳ = ۱۲۰، ۴ = ۷۱، و «همان‌جا (n)» ۱۰۸ بار دیگر.
-- **آزمون:** `SourcePageViewTest::test_a_citation_inside_a_page_text_links_the_cited_page`، با «ذریعه (3) 791/9»، «ذریعه (2) 346/9» و «همان‌جا (4) 1270/9».
-
-### گام ۱۴.۳۳: حاشیه‌ی برگه و پاورقی در پای صفحه
-- **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
-- **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
-- **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.
 ### گام ۱۴.۳۱: معجم المؤلفین از «تراجم و کتاب‌شناسی ۳» نور (مورد ۸۶)
 - **پایگاه:** `$NOOR_DB_DIR/Tarajim3-DB/tarajim3.db`، فقط‌خواندنی، کتاب `271` (دار إحياء التراث، افست چاپ دمشق).
   - **جدول `pages`:** `page_no` شماره‌ی صفحه‌ی چاپی است، و `text_plain` و `footnotes_plain` متن رمزگشایی‌شده.
@@ -7345,19 +7358,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **نمونه‌ها:** «سیوطی» به «عبد الرحمن السّيوطي» و «زمخشری» به «محمود الزّمخشري» رسید. چون کحاله تاریخ‌ها را درست پس از نام می‌آورد، بیشتر پیوندها سال وفات را هم شاهد دارند (اطمینان ۷۵).
 - **پروداکشن:** همان فرمان‌ها، و سپس `scout:import "App\Models\SourceItem"`. منبع و جلدها پیش‌تر ساخته شده‌اند، پس `backfill` لازم نیست.
 - **آزمون:** `NoorReferenceBooksTest::test_kahhalas_lives_from_the_old_noor_text_tie_a_work_to_its_author`، با فیکسچر `kahhala-v06-p100`.
-### گام ۱۴.۲۷: بیت‌های `<poem>` نور با `<br/>`
-- **ریشه:** منزوی ج ۱۰ item 3718: `<poem>اين شنيدستى …<gap/>… پردلى<br/>آمد از چه …<gap/>… گفت </poem>`. `verse()` فقط روی `<gap/>` می‌شکست و `<br/>` به فاصله تبدیل می‌شد، پس سه «مصراع» ساخته می‌شد و `PrintedPage::text()` آن‌ها را در شبکه‌ی دوستونی جابه‌جا می‌چید. در `noor_aqabozorg.py`، `strip()` پس از `verse()` هر `<br/>` را به `\n` تبدیل می‌کرد، پس در الذریعة فقط شعرهای بی `<gap/>` آسیب داشتند.
-- **شمار `<poem>`های چندسطری در `kotobmarja2.db`** (همه‌ی سطرها با `<gap/>` / آمیخته / بی `<gap/>`): أعیان 12,742 / 335 / 13، روضات 1,236 / 9 / 11، الذریعة 856 / 18 / 6، منزوی 302 / 75 / 122، کشف 40 / 0 / 28، هدیة 5 / 1 / 0، ایضاح 0 / 0 / 1.
-- **`verse()` و `verses()`** در `noor_monzavi.py`، `noor_istanbul.py`، `noor_reference_books.py` و `noor_aqabozorg.py`:
-  - محتوای `<poem>` روی `<br\s*/?>` به سطر و هر سطر روی `<gap/>` به مصراع شکسته می‌شود. مصراع و سطر خالی حذف می‌شوند.
-  - اگر هر سطر دست‌کم دو مصراع دارد، هر سطر یک بیت است. وگرنه، اگر شمار همه‌ی مصراع‌ها زوج باشد، دوتادو جفت می‌شوند (منزوی آمیخته: «الهی از دل من بند برادر<br/>- مرا در بند…<gap/> - الهی ساز…<gap/> - نما راهی…»)، و اگر فرد باشد، هر سطر یک بیت می‌ماند (مصراع تنها با tab پایانی).
-  - شعری که درون جمله آمده، مثل پیش، با فاصله در جمله می‌ماند.
-- **خروجی:** هر چهار خواننده با پایگاه‌های نور (الذریعة با `--ablibrary`) پیش و پس از تغییر اجرا شدند. خروجی پیشین با فایل‌های `../fahares-sources` برابر بود. تفاوت صفحه‌ها و مدخل‌ها، جز `page_breaks` مدخل‌ها که با طول متن جابه‌جا می‌شوند، فقط در فاصله، tab، شکست سطر و « - » است. مشار، سرکیس و هدیة تغییری ندارند.
-  - صفحه‌های تغییرکرده: أعیان ۳٬۱۳۸ (۱۰ جلد)، روضات ۷۳۳ (۸)، منزوی ۳۳۴ (۱۰)، الذریعة ۳۸ (۱۴)، کشف ۴۰ (ج ۲)، ایضاح ۱ (ج ۱).
-  - ۴۴ فایل صفحه در `monzavi/noor`، `dharia/noor`، `noor-istanbul/{kashf,idah}` و `noor-printed/{ayan,rawdat}` جایگزین و `MD5SUMS` آن‌ها تازه شد. فایل‌های پیشین در `../fahares-sources/backups/noor-pages-before-verse-lines-2026-11-04/` هستند. فایل‌های مدخل (`*.entries.jsonl.gz`) دست نخوردند: مدخل‌های منزوی در پوشه از پیش از گام ۱۳.۹۵‌اند و ساختن دوباره‌شان جدا بررسی می‌شود.
-- **تمرین (`fahares_prod`):** `sources:import-pages {code} … --volume=N` برای ۴۴ جلد. `/sources/monzavi/10/page/151` اکنون چهار `span.book-poem__h` در دو بیت دارد.
-- **فرمان پروداکشن (با تأیید کاربر، با `scripts/dev/prod-run`):** رونوشت ۴۴ فایل به `/tmp/verse-lines/` کانتینر و برای هر جلد `php artisan sources:import-pages {code} /tmp/verse-lines/{code}-NN.jsonl.gz --volume=N`. کدها: `ayan`، `rawdat`، `monzavi`، `dharia`، `kashf` و `idah`. فقط `source_pages.text` بازنویسی می‌شود و پیش از آن پشتیبان همین ردیف‌ها لازم است.
-- **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، با تأیید کاربر):**
-  - **پشتیبان:** همه‌ی ردیف‌های `source_pages` این ۴۴ جلد (۲۵٬۴۳۸ صفحه، با `id`، `page`، `text` و `updated_at`) در `../fahares-sources/backups/step13/step14.27_source_pages_before.jsonl.gz` است (md5 `a024fd8b873e01d949828fe965be9171`). متن هر صفحه با فایل‌های `noor-pages-before-verse-lines-2026-11-04` برابر بود.
-  - **اجرا:** ۴۴ فایل به `/tmp/verse-lines/` رفت و md5 همه برابر بود. سپس با `scripts/dev/prod-run noor-verse-lines`، `sources:import-pages` برای هر جلد اجرا شد و هر ۴۴ جلد «pages saved» دادند. فایل‌های `/tmp` پس از کار پاک شدند.
-  - **وارسی:** `https://fahares.net/sources/monzavi/10/page/151` اکنون دو بیت «این شنیدستی…» را در دو سطر نشان می‌دهد.
+- **اجرای پروداکشن (۱۴ آبان ۱۴۰۵، به اجازه‌ی کاربر، از جلسه‌ی «مدیریت تسک‌ها»):**
+  - **پشتیبان:** dump کامل پایگاه داده با `ssh fahares-server`: `~/backups/before_step14_31_kahhala_20261105_0239.sql.gz` (۳۴۱ مگابایت، «Dump completed»، md5 `09dbfd4358e6c5d9fa9db24738e3534b`). رونوشتش به `../fahares-sources/backups/step13/` می‌رود.
+  - **فایل‌ها:** ۲۶ فایل `noor-tarajim3/kahhala` به `/tmp/noor-tarajim3/kahhala/` کانتینر رفت و `md5sum -c` درست بود.
+  - **فرمان‌ها:** برای هر جلد ۱ تا ۱۳، با `scripts/dev/prod-run --wait task-management`: `sources:import-pages`، `sources:segment --origin=noor --entries=…` و `sources:link-items --near --report=…`، سپس `scout:import "App\Models\SourceItem"`. همه با کد ۰ پایان یافتند.
+  - **شمارها، برابر تمرین:** ۱۵٬۷۲۰ مدخل (`created`، با `updated 0` و `removed 0`)، با شمار هر جلد درست برابر فهرست تمرین. ۶۹۱ پیوند تازه، همه `unverified`. گزارش‌های `link-items` در `../fahares-sources/backups/step13/step14.31_kahhala_link_reports_20261105.tgz` است.
+
+### گام ۱۴.۳۲: شماره‌ی بخش در ارجاع‌های متن صفحه
+- **[BibliographyLinks::inProse](../app/Support/BibliographyLinks.php):** الگوی `$part` (`\(\s*[0-9۰-۹]{1,2}\s*\)\s*`، اختیاری) پس از نام منبع و پس از «همان‌جا» آمده است. `segments()` بی‌تغییر است: عدد کمانک لینک نمی‌شود و `sourceAfter()` کمانک را از فاصله‌ی پیش از «page/volume» برمی‌دارد.
+- **شمار در داده‌ی محلی:** «نام (n) page/volume» در ۱۲۰۱ صفحه (همه منزوی). ذریعه (n) …/9: بخش ۱ = ۱۳۳، ۲ = ۹۷، ۳ = ۱۲۰، ۴ = ۷۱، و «همان‌جا (n)» ۱۰۸ بار دیگر.
+- **آزمون:** `SourcePageViewTest::test_a_citation_inside_a_page_text_links_the_cited_page`، با «ذریعه (3) 791/9»، «ذریعه (2) 346/9» و «همان‌جا (4) 1270/9».
+
+### گام ۱۴.۳۳: حاشیه‌ی برگه و پاورقی در پای صفحه
+- **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
+- **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
+- **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.
