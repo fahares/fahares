@@ -87,15 +87,30 @@ def marks(xml):
     return ''.join(out) + CLOSE * sum(1 for k in stack if k)
 
 
+def verses(lines):
+    """A poem's verses from Noor's lines (<br/>) of hemistichs (<gap/>). Noor parts a verse's hemistichs by <gap/> and
+    its verses by <br/>, but where a line has no <gap/>, its <br/> may part the hemistichs of one verse («بيا ساقى اى
+    ترك رعناى من <br/>دو چشمه تو در عين نعماى من»): then the hemistichs, if they are even in number, pair off into
+    verses; otherwise each line stays a verse (step 14.27)."""
+    if all(len(line) > 1 for line in lines):
+        return lines
+    hemistichs = [h for line in lines for h in line]
+    if len(hemistichs) % 2:
+        return lines
+    return [hemistichs[i:i + 2] for i in range(0, len(hemistichs), 2)]
+
+
 def verse(m):
-    """Noor's <poem>: a verse on a line of its own, its hemistichs apart by a tab (Noor's <gap/>, the « - » printed
-    between them dropped; one hemistich keeps the tab after it), when it opens a line; a verse quoted inside a sentence
-    stays in it."""
+    """Noor's <poem>: each verse on a line of its own (verses()), its hemistichs apart by a tab (Noor's <gap/>, the « - »
+    printed between them dropped; one hemistich keeps the tab after it), when it opens a line; a verse quoted inside a
+    sentence stays in it."""
     before = re.sub(r'(?:<(?!br|/?p\b|/poem)[^>]*>|\s)+$', '', m.string[:m.start()])
-    hemistichs = [' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', h)).split()).strip(' -–') for h in m.group(1).split('<gap/>')]
+    lines = [[' '.join(html.unescape(re.sub(r'<[^>]+>', ' ', h)).split()).strip(' -–') for h in line.split('<gap/>')]
+             for line in re.split(r'<br\s*/?>', m.group(1))]
+    lines = [line for line in ([h for h in line if h] for line in lines) if line]
     if before and not re.search(r'(<br/?>|<p[^>]*>|</poem>)$', before):
-        return ' ' + ' '.join(hemistichs) + ' '
-    return LINE + '\t'.join(hemistichs) + ('\t' if len(hemistichs) == 1 else '') + LINE
+        return ' ' + ' '.join(h for line in lines for h in line) + ' '
+    return LINE + LINE.join('\t'.join(v) + ('\t' if len(v) == 1 else '') for v in verses(lines)) + LINE
 
 
 def text_of(xml, keep=True):
