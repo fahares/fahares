@@ -333,6 +333,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
         // Works tied by machine to a printed entry of a bibliography (step 13.72): verify, reject or move to another entry
         Route::get('/source-links', [\App\Http\Controllers\Admin\SourceLinkController::class, 'index'])->name('source-links.index');
+        Route::post('/source-links/bulk-verify', [\App\Http\Controllers\Admin\SourceLinkController::class, 'bulkVerify'])->name('source-links.bulk-verify');
+        Route::post('/source-links/bulk/{batch}/revert', [\App\Http\Controllers\Admin\SourceLinkController::class, 'revertBulk'])->name('source-links.bulk-revert');
         Route::get('/source-links/{entry}', [\App\Http\Controllers\Admin\SourceLinkController::class, 'show'])->name('source-links.show');
         Route::post('/source-links/{entry}/review', [\App\Http\Controllers\Admin\SourceLinkController::class, 'review'])->name('source-links.review');
         Route::post('/source-links/{entry}/move', [\App\Http\Controllers\Admin\SourceLinkController::class, 'move'])->name('source-links.move');
