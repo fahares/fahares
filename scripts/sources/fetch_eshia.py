@@ -50,10 +50,13 @@ def get(url, tries=5):
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return None
+            # 429 or 403: the server is limiting requests; Retry-After, when it gives one, says for how long
+            why = f'HTTP {e.code} {e.reason}'
+            wait = max(30 * (attempt + 1), int(e.headers.get('Retry-After') or 0) if (e.headers.get('Retry-After') or '').isdigit() else 0)
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
+            why = f'{type(e).__name__}: {getattr(e, "reason", e)}'
             wait = 30 * (attempt + 1)
-        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
-            wait = 30 * (attempt + 1)
-        print(f'  {url}: failed, again in {wait}s', file=sys.stderr, flush=True)
+        print(f'  {url}: failed ({why}), again in {wait}s', file=sys.stderr, flush=True)
         time.sleep(wait)
     raise SystemExit(f'giving up on {url}; run again to resume')
 
