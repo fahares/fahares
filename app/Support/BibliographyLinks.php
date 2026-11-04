@@ -486,9 +486,11 @@ class BibliographyLinks
     {
         static $regex = null;
         $number = '[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?';
+        // Monzavi's «ذریعه (3) 791/9»: the part of a volume printed in parts, whose pages run on through them
+        $part = '(?:\(\s*[0-9۰-۹]{1,2}\s*\)\s*)?';
         $regex ??= '/(?<![\p{L}\p{M}])(?<name>' . implode('|', array_map(fn ($s) => '(?:' . $s['pattern'] . ')', self::sources()))
-            . ')(?![\p{L}\p{M}])[\s:،,]*(?:ج\s*)?' . $number
-            . '|(?<![\p{L}\p{M}])(?<ibid>همان ?جا)[\s:،,]*(?<at>' . $number . ')'
+            . ')(?![\p{L}\p{M}])[\s:،,]*' . $part . '(?:ج\s*)?' . $number
+            . '|(?<![\p{L}\p{M}])(?<ibid>همان ?جا)[\s:،,]*' . $part . '(?<at>' . $number . ')'
             . '|(?<other>[0-9۰-۹]+\s*\/\s*[0-9۰-۹]+)/u';
 
         // the text as the patterns read it, a character for a character, and where each stands in the text
