@@ -7183,3 +7183,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرای واقعی:** نسخه‌ها `created 426`، روضات `created 35`، أعیان `created 30` و مشار `created 78`. اجرای دوم نسخه‌ها، روضات و مشار «unchanged» داد.
   - **پس از اجرا:** `source_entries` ۷۹۰٬۵۴۹ ردیف شد (+۵۶۹).
   - **وارسی صفحه‌ها:** `/works/777`، `/works/1033` و `/works/59` پاسخ ۲۰۰ دادند و «روضات الجنات، ج ۶، ص ۲۰۹»، «اعیان الشیعة، ج ۶، ص ۳۵۷» و «فهرستواره منزوی، ج ۱، ص ۱۶۲» را نشان دادند.
+
+### گام ۱۴.۲۹: تأیید گروهی در `SourceLinkController`
+- **`BULK`:** فهرست `[source, method, min, sample]`. `bulkRule()` دسته‌ای را برمی‌گرداند که منبع و روش پالایه با آن یکی است. `bulkQuery()` پیوندهای داوری‌نشده‌ی پالایه است، با اطمینان `min` به بالا.
+- **مسیرها:** `POST admin/source-links/bulk-verify` (`source-links.bulk-verify`) و `POST admin/source-links/bulk/{batch}/revert` (`source-links.bulk-revert`)، زیر مجوز `catalog_refs.review`.
+  - شمار دیده‌شده (`expected`) باید هنوز درست باشد. پالایه‌ای که دسته‌ی مجاز ندارد پاسخ ۴۲۲ می‌گیرد.
+- **`SourceEntry::bulkVerify`:** بی تغییر، با `filters = {queue: source-links, min, …پالایه}`.
+- **`lastBulkVerify(?queue)`:** با `queue`، آخرین دسته‌ی آن صف را برمی‌گرداند. بی آن، دسته‌ای را برمی‌گرداند که `queue` ندارد، یعنی دسته‌ی صف ارجاع‌های فهرست. `bulkQueue()` صف یک دسته را می‌خواند.
+  - هر کنترلر فقط دسته‌ی صف خودش را برمی‌گرداند. فرمان `catalogs:revert-bulk-verify` بی‌آرگومان همان دسته‌ی صف ارجاع‌ها را برمی‌دارد.
+- **نما:** `admin/source_links/index`:
+  - اعلان سبز با دکمه، وقتی پالایه دسته‌ی مجاز دارد؛
+  - اعلان «پالایه‌ی پیشنهادی»، وقتی منبع دسته‌ی مجاز دارد ولی روش پالایه آن نیست؛
+  - اعلان آخرین دسته، با «برگرداندن این دسته».
+- **آزمون:** `SourceLinksReviewTest::test_a_category_let_in_is_verified_at_once_and_the_batch_reverted`.
+- **وارسی (`fahares_prod` محلی، کد همین شاخه):** پالایه‌ی `source=monzavi&method=edition_address` دکمه‌ی «تأیید همه‌ی ۱۴۴ پیوند این پالایه» را نشان داد، از ۱۵۸ پیوند پالایه. ۱۴ پیوند با اطمینان ۸۵ بیرون ماندند. پالایه‌ی `source=monzavi` «پالایه‌ی پیشنهادی» را نشان داد. در ۳۷۵ پیکسل سرریز افقی نبود.
+

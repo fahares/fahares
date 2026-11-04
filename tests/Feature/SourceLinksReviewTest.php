@@ -79,6 +79,38 @@ class SourceLinksReviewTest extends TestCase
         $this->actingAs($this->admin)->get(route('admin.catalog-references.index'))->assertOk()->assertDontSee('اثر مبهم');
     }
 
+    public function test_a_category_let_in_is_verified_at_once_and_the_batch_reverted()
+    {
+        $sure = [$this->tie($this->item('1', 10, 'تحفة الملوک', 'در اخلاق'), 'edition_address', 95, 'تحفة الملوک'),
+            $this->tie($this->item('2', 10, 'تحفه شاهی', 'در طب'), 'edition_address', 95, 'تحفه شاهی')];
+        $lower = $this->tie($this->item('3', 11, 'تحفة الابرار', 'در دعا'), 'edition_address', 85, 'تحفة الابرار');
+        $other = $this->tie($this->item('4', 11, 'تحفة الاخوان', 'در کلام'), 'title_author', 95, 'تحفة الاخوان');
+        $filters = ['source' => 'monzavi', 'method' => 'edition_address'];
+
+        // the button only where a rule lets the filters in, counting the ties at its confidence and above
+        $this->actingAs($this->admin)->get(route('admin.source-links.index', $filters))->assertOk()
+            ->assertSee('تأیید همه‌ی ۲ پیوند این پالایه', false);
+        $this->actingAs($this->admin)->get(route('admin.source-links.index', ['source' => 'monzavi', 'method' => 'title_author']))->assertOk()
+            ->assertDontSee('تأیید همه‌ی', false)->assertSee('پالایه‌ی پیشنهادی', false);
+
+        $this->actingAs($this->admin)->post(route('admin.source-links.bulk-verify'), ['source' => 'monzavi', 'method' => 'title_author', 'expected' => 1])->assertStatus(422);
+        $this->actingAs($this->admin)->post(route('admin.source-links.bulk-verify'), $filters + ['expected' => 3])->assertSessionHas('error');
+        $this->actingAs($this->admin)->post(route('admin.source-links.bulk-verify'), $filters + ['expected' => 2])->assertSessionHas('success');
+        $this->assertSame(['verified', 'verified', 'unverified', 'unverified'],
+            [$sure[0]->fresh()->status, $sure[1]->fresh()->status, $lower->fresh()->status, $other->fresh()->status]);
+
+        // the batch is this queue's, not the catalogue references'; reverting it spares a tie reviewed since
+        $batch = SourceEntry::lastBulkVerify(\App\Http\Controllers\Admin\SourceLinkController::BULK_QUEUE);
+        $this->assertSame(2, $batch->new_values['count']);
+        $this->assertNull(SourceEntry::lastBulkVerify());
+        $this->actingAs($this->admin)->post(route('admin.catalog-references.bulk-revert', $batch))->assertNotFound();
+        $sure[1]->fresh()->review($this->admin, SourceEntry::STATUS_REJECTED);
+        $this->actingAs($this->admin)->get(route('admin.source-links.index', $filters))->assertSee('برگرداندن این دسته', false);
+        $this->actingAs($this->admin)->post(route('admin.source-links.bulk-revert', $batch))->assertSessionHas('success');
+        $this->assertSame(['unverified', 'rejected'], [$sure[0]->fresh()->status, $sure[1]->fresh()->status]);
+        $this->assertNull(SourceEntry::lastBulkVerify(\App\Http\Controllers\Admin\SourceLinkController::BULK_QUEUE));
+    }
+
     public function test_the_tie_page_shows_the_entry_and_page_texts_and_the_neighbouring_entries()
     {
         $a = $this->item('1', 10, 'تحفة الملوک', 'در اخلاق');

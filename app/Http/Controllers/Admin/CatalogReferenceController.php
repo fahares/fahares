@@ -77,7 +77,7 @@ class CatalogReferenceController extends Controller
 
     public function revertBulk(Request $request, AuditLog $batch)
     {
-        abort_unless(Entry::isBulkVerify($batch), 404);
+        abort_unless(Entry::isBulkVerify($batch) && Entry::bulkQueue($batch) === null, 404);
         try {
             [$reverted, $kept] = Entry::revertBulkVerify($batch, $request->user(), $request->ip());
         } catch (\RuntimeException $e) {
