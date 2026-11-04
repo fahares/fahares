@@ -1,0 +1,34 @@
+{
+ "source": "a page tag between the copy's place line and its «شماره نسخه» line (vol 22 pp. 857-858), checked on the page image, 2026-11-04; fahares step 14.30",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 215604,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v22-2235#0",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "تهران"
+    },
+    "library": {
+     "from": null,
+     "to": "دانش‌سرای عالی-کتابخانه میرزا عبدالعظیم خان قریب گرکانی"
+    },
+    "library_id": {
+     "from": null,
+     "to": 99
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "90/4"
+    },
+    "raw_text": {
+     "from": "شماره نسخه: 90/4\nخط: نستعلیق، بی‌کا، تا: قرن 13؛ قطع: ربعی [نشریه: 5 - 640]",
+     "to": "تهران؛ دانش‌سرای عالی- کتابخانه میرزا عبدالعظیم خان قریب گرکانی؛\n<!-- page: 858 -->\nشماره نسخه: 90/4\nخط: نستعلیق، بی‌کا، تا: قرن 13؛ قطع: ربعی [نشریه: 5 - 640]"
+    }
+   }
+  }
+ ]
+}

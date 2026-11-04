@@ -7203,3 +7203,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - مؤلف ۱۳ اثر به شخص پیوند خورد، و جمالی به صورت متن ماند.
   - شمار نسخه‌های #21844 از ۲۵ به ۱۶ رسید.
 - **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، با پشتیبان گام ۱۴.۱۹):** `Adding 14 works, fill 1 … copies: 12 moved, 47 made` و `rebuild 1`. شناسه‌ی نسخه‌ی مجلس 573 در پروداکشن هم 53355 بود. «الغيبة»ٔ نعمانی اکنون #71838 است، با ۱۶ نسخه.
+
+### گام ۱۴.۳۰: نسخه‌ی بی‌جای «علم الاكتاف»
+- **بازبینی کنار رفته‌های ۱۴.۱۹:** `fankha_lost_heads_export.py --volumes 17 19 22 23 26` روی `fahares_prod` پس از ۱۴.۲۳ تنها سه اثر با سطر افتاده یافت، و هیچ‌کدام به‌روزرسانی نداشت:
+  - v22-2235 «علم الاكتاف» (#46391): «a copy line in the head».
+  - v23-931 «فارسی هیئت»: با #47841 («هیئت»ٔ قوشچی) جفت شده بود. اثر خودش #47840 «فارسی هیأت» است، با مجلس 8914/14.
+  - v26-1888 «کیمیا»ی ترکی: با #54844 جفت شده بود. اثر خودش #54841 «كيمياء» است، با هر ۸ نسخه.
+- **علت در «علم الاكتاف»:** خط ۴۷۸۳۴ ج ۲۲ («تهران؛ …؛» در پایان ص ۸۵۷) و «شماره نسخه: 90/4» در آغاز ص ۸۵۸. v1 و v2 هر دو سطر نخست را `description` خواندند. جست‌وجوی همین الگو (سطر پایان‌یافته با «؛»، برچسب صفحه، سپس «شماره نسخه») در ۳۴ جلد تنها همین را یافت.
+- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):** `COLUMNS` اکنون `city`، `library` و `library_id` را هم دارد. `libraries.manuscripts_count` برای `library_id` پیشین و تازه دوباره شمرده می‌شود. آزمون: `test_a_copy_that_lost_its_place_gets_its_city_library_and_shelfmark`.
+- **فایل‌ها:**
+  - `database/data/fankha_lost_place_copy_step14_30.json`: نسخه‌ی 215604، با `city`، `library` (نام کتابخانه‌ی #99)، `library_id` 99، `shelfmark` «90/4» و `raw_text` با سطر جای نسخه.
+  - `database/data/fankha_lost_place_work_step14_30.json`: `work_updates` برای `ilm-ul-aktaf-v22-2225`، با `description` تهی و `raw_text` تنها سرعنوان.
+  - شناسه‌ها روی پروداکشن هم همین‌اند (215604، 46391، کتابخانه‌ی 99 با ۳۴۴ نسخه)، خوانده‌شده با ssh فقط‌خواندنی.
+- **تمرین (`fahares_prod`):** `update 1` و `rebuild 1`، سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`. اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی #99 اکنون ۳۴۵ نسخه دارد.
+- **اجرا در پروداکشن:** پس از استقرار، با پشتیبان:
+  - `php artisan fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`
+  - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
+  - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
