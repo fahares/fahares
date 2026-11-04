@@ -159,6 +159,18 @@ return [
                 'last_pages' => [1 => 795, 2 => 1518, 3 => 2571, 4 => 3244, 5 => 4173, 6 => 910, 7 => 817, 8 => 1498, 9 => 765, 10 => 931],
                 'runs' => [[1, 2, 3, 4, 5], [7, 8]],
             ],
+            // Monzavi's earlier «فهرست نسخه‌های خطی فارسی» (six volumes, pages numbered on), which Fankha cites as
+            // «نسخه‌های منزوی 490/1» or «نسخه‌های منزوی 4369»; the فهرستواره names its pages as «نسخه‌ها 490/1»
+            // (sources:link-earlier-edition monzavi nuskhe, item 116). Patterns read text after
+            // MatchCatalogEditionCommand::digits.
+            'earlier' => [
+                'nuskhe' => [
+                    'label' => 'فهرست نسخه‌های خطی فارسی',
+                    'like' => ['%نسخه%منزوی%', '%نسخه%منزوي%'],
+                    'pattern' => 'نسخه(?:\x{200C}|\s)?های منزوی',
+                    'cited_as' => 'نسخه(?:\x{200C}|\s)?ها',
+                ],
+            ],
         ],
         // Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at, as text from Noor (item 86, step
         // 14.18, scripts/sources/noor_reference_books.py). The Persian catalogue's five volumes (Tehran 1350-55 Sh) number
@@ -181,6 +193,18 @@ return [
                 'first_pages' => [2 => 1473, 3 => 2861, 4 => 3977, 5 => 5101],
                 'last_pages' => [1 => 1464, 2 => 2858, 3 => 3976, 4 => 5100, 5 => 5614],
                 'bare' => false,
+            ],
+            // The earlier printing's columns, «مشار 591» or «مشار 724/2» (step 14.18), placed by the work's heading;
+            // a heading that only sends to another («طاقدیس: رجوع شود به «لسان الغیب …»») is followed to it (item 116).
+            'earlier' => [
+                'old' => [
+                    'label' => 'چاپ پیشین',
+                    'like' => ['%مشار%'],
+                    'pattern' => '(?:فهرست )?(?:فارسی ?)?مشار(?: ?فارسی)?[^0-9]{0,15}\\d',
+                    'except' => 'عربی|مؤلفین|مولفین',
+                    'places' => 'title',
+                    'see' => 'رجوع شود(?: به)?\\)?\\s*:?\\s*«([^»]+)»',
+                ],
             ],
         ],
         'mushar-ar' => [
@@ -236,6 +260,29 @@ return [
                 'last_pages' => [1 => 677, 2 => 625, 3 => 671, 4 => 634, 5 => 498, 6 => 474, 7 => 471, 8 => 475, 9 => 450, 10 => 447],
                 'bare' => false,
             ],
+            // The 56-part first printing, «اعیان الشیعة 223/45» or «اعیان الشیعه 30: 111» (item 116): where each part
+            // begins in the ten volumes, read from the index volume's table (Noor 03265_011, «بداية الجزء …»); parts
+            // 1 and 15 read by hand. The work is looked for in its author's life in that part.
+            'earlier' => [
+                'parts' => [
+                    'label' => 'چاپ ۵۶ جزئی',
+                    'like' => ['%عیان%', '%عيان%'],
+                    'pattern' => 'اعیان الشیعه',
+                    'except' => 'مستدرک|طبقات اعیان',
+                    'places' => 'parts',
+                    'parts' => [
+                    1 => [1, 1], 2 => [1, 218], 3 => [1, 323], 4 => [1, 563], 5 => [2, 85], 6 => [2, 251],
+                    7 => [2, 373], 8 => [2, 495], 9 => [3, 5], 10 => [3, 128], 11 => [3, 251], 12 => [3, 377],
+                    13 => [3, 482], 14 => [3, 569], 15 => [4, 5], 16 => [4, 118], 17 => [4, 225], 18 => [4, 300],
+                    19 => [4, 389], 20 => [4, 538], 21 => [5, 5], 22 => [5, 114], 23 => [5, 221], 24 => [5, 331],
+                    25 => [5, 409], 26 => [6, 5], 27 => [6, 110], 28 => [6, 207], 29 => [6, 263], 30 => [6, 326],
+                    31 => [6, 429], 32 => [7, 5], 33 => [7, 100], 34 => [7, 188], 35 => [7, 237], 36 => [7, 326],
+                    37 => [7, 405], 38 => [8, 5], 39 => [8, 60], 40 => [8, 144], 41 => [8, 294], 42 => [8, 442],
+                    43 => [9, 149], 44 => [9, 290], 45 => [9, 414], 46 => [10, 46], 47 => [10, 105], 48 => [10, 163],
+                    49 => [10, 219], 50 => [10, 248], 51 => [10, 280], 52 => [10, 323],
+                    ],
+                ],
+            ],
         ],
         // Rawdat al-Jannat in Isma'iliyan's eight volumes (Qom 1390 AH): «روضات الجنات 106/7», «روضات 88/4». A page without
         // its volume, «روضات الجنات 409», is of the one-volume lithograph (bare).
@@ -251,6 +298,21 @@ return [
                 'name' => 'روضات الجنات',
                 'last_pages' => [1 => 440, 2 => 442, 3 => 456, 4 => 479, 5 => 466, 6 => 398, 7 => 404, 8 => 286],
                 'bare' => false,
+            ],
+            // The one-volume lithograph, «روضات الجنات 552» (item 116): both printings keep one order, so its pages
+            // fall between these, read in the page texts ([lithograph page, volume, page]); the work is looked for in
+            // its author's life within «window» pages of the place.
+            'earlier' => [
+                'lithograph' => [
+                    'label' => 'چاپ سنگی',
+                    'like' => ['%روضات%'],
+                    'pattern' => 'روضات(?: الجنات| الجناب)?',
+                    'except' => 'روضاتی|روضات الجنان',
+                    'places' => 'anchors',
+                    'anchors' => [[1, 1, 1], [139, 2, 157], [145, 2, 175], [147, 2, 183], [171, 2, 273], [180, 2, 300], [301, 4, 8],
+                        [401, 4, 404], [552, 6, 209], [602, 6, 292]],
+                    'window' => 100,
+                ],
             ],
         ],
     ],
