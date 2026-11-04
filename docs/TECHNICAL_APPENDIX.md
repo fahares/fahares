@@ -7287,3 +7287,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `php artisan fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`
   - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
   - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
+
+### گام ۱۴.۳۲: شماره‌ی بخش در ارجاع‌های متن صفحه
+- **[BibliographyLinks::inProse](../app/Support/BibliographyLinks.php):** الگوی `$part` (`\(\s*[0-9۰-۹]{1,2}\s*\)\s*`، اختیاری) پس از نام منبع و پس از «همان‌جا» آمده است. `segments()` بی‌تغییر است: عدد کمانک لینک نمی‌شود و `sourceAfter()` کمانک را از فاصله‌ی پیش از «page/volume» برمی‌دارد.
+- **شمار در داده‌ی محلی:** «نام (n) page/volume» در ۱۲۰۱ صفحه (همه منزوی). ذریعه (n) …/9: بخش ۱ = ۱۳۳، ۲ = ۹۷، ۳ = ۱۲۰، ۴ = ۷۱، و «همان‌جا (n)» ۱۰۸ بار دیگر.
+- **آزمون:** `SourcePageViewTest::test_a_citation_inside_a_page_text_links_the_cited_page`، با «ذریعه (3) 791/9»، «ذریعه (2) 346/9» و «همان‌جا (4) 1270/9».

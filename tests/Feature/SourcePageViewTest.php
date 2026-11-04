@@ -348,6 +348,10 @@ class SourcePageViewTest extends TestCase
         $cites = array_values(array_filter(BibliographyLinks::inProse('ذریعه 280/9، همان‌جا 453/3 «تحفة...»، همان‌جا 138/19؛ مشترک 46/7، همان‌جا 53/10'), fn ($s) => isset($s['cite'])));
         $this->assertSame([['280/9', 9, 280], ['453/3', 3, 453], ['138/19', 19, 138]], array_map(fn ($s) => [$s['text'], $s['cite']['volume'], $s['cite']['page']], $cites));
 
+        // «ذریعه (3) 791/9»: the part of al-Dhari'a's volume 9 between the name and the citation, also after «همان‌جا»
+        $cites = array_values(array_filter(BibliographyLinks::inProse('ذریعه (3) 791/9 «دیوان غلام نبی هندی»؟؛ ذریعه (2) 346/9 «دیوان راز»، همان‌جا (4) 1270/9'), fn ($s) => isset($s['cite'])));
+        $this->assertSame([['791/9', 9, 791], ['346/9', 9, 346], ['1270/9', 9, 1270]], array_map(fn ($s) => [$s['text'], $s['cite']['volume'], $s['cite']['page']], $cites));
+
         // Monzavi's page 360 cites page 361 of its own volume: the page text links it
         $this->monzavi();
         $html = (string) \App\Support\PrintedPage::text('نسخه‌ها؛ فهرستواره 361/6 و ذریعه 9999/9');
