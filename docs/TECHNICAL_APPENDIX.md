@@ -7228,6 +7228,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - شمار نسخه‌های #21844 از ۲۵ به ۱۶ رسید.
 - **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، با پشتیبان گام ۱۴.۱۹):** `Adding 14 works, fill 1 … copies: 12 moved, 47 made` و `rebuild 1`. شناسه‌ی نسخه‌ی مجلس 573 در پروداکشن هم 53355 بود. «الغيبة»ٔ نعمانی اکنون #71838 است، با ۱۶ نسخه.
 
+### گام ۱۴.۲۸: یادداشت سطر پوشیده‌ی مآخذ
+- **`BibliographyLinks::note($entry)`:** واژه‌هایی از سطر که نه نام منبع‌اند و نه ارجاع، با «، » به هم پیوسته.
+  - **خروجی:** `''` برای سطری که فقط ارجاع است. `null` برای سطر بی ارجاع، یا سطری که یادداشتش عدد یا نام چاپ دارد (`چاپ`، `چ`، `ط`، `طبع`، `الطبعة`، `افست`).
+  - **روش:** بخش متنی هر سطر، اگر خودش نام منبع نباشد، با «،» و «؛» شکسته می‌شود و تکه‌هایی که نام منبع‌اند کنار می‌روند.
+  - **دام:** لبه‌ها با regex پیراسته می‌شوند. `trim()` بایت‌به‌بایت کار می‌کند و با «،» در فهرستش، بایت نخست «ب» را می‌بُرید.
+- **[RecordSources](../app/Support/RecordSources.php):**
+  - **`isCovered`:** شرط `onlyCitations` جای خود را به `note() !== null` داد.
+  - **`notesFor($card)`:** یادداشت‌های سطرهای پوشیده‌ای که جایی از مدخل این کارت را نشانی داده‌اند، بی تکرار.
+  - `places()` و `holds()` از `isCovered` بیرون آمدند.
+- **[works/show](../resources/views/works/show.blade.php):** زیر هر سطر مدخل و هر سطر «یاد شده در»، `<span data-citation-note>به نوشته‌ی فنخا: …</span>`.
+- **سنجش روی `fahares_prod` محلی:** در آثاری که پیوند خودکار دارند، ۱۰٬۴۴۹ سطر پوشیده‌ی بی یادداشت بود و ۴۲۳ سطر پوشیده با یادداشت. نمونه‌ها در گزارش جلسه بررسی شد.
+- **آزمون:** `BibliographyLinksTest::test_the_note_of_a_line_is_what_it_says_besides_its_citations`، و سطر تازه‌ی `$attributed` در `SourceItemsTest`.
+
 ### گام ۱۴.۳۰: نسخه‌ی بی‌جای «علم الاكتاف»
 - **بازبینی کنار رفته‌های ۱۴.۱۹:** `fankha_lost_heads_export.py --volumes 17 19 22 23 26` روی `fahares_prod` پس از ۱۴.۲۳ تنها سه اثر با سطر افتاده یافت، و هیچ‌کدام به‌روزرسانی نداشت:
   - v22-2235 «علم الاكتاف» (#46391): «a copy line in the head».
@@ -7244,15 +7257,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `php artisan fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`
   - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
   - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
-### گام ۱۴.۲۸: یادداشت سطر پوشیده‌ی مآخذ
-- **`BibliographyLinks::note($entry)`:** واژه‌هایی از سطر که نه نام منبع‌اند و نه ارجاع، با «، » به هم پیوسته.
-  - **خروجی:** `''` برای سطری که فقط ارجاع است. `null` برای سطر بی ارجاع، یا سطری که یادداشتش عدد یا نام چاپ دارد (`چاپ`، `چ`، `ط`، `طبع`، `الطبعة`، `افست`).
-  - **روش:** بخش متنی هر سطر، اگر خودش نام منبع نباشد، با «،» و «؛» شکسته می‌شود و تکه‌هایی که نام منبع‌اند کنار می‌روند.
-  - **دام:** لبه‌ها با regex پیراسته می‌شوند. `trim()` بایت‌به‌بایت کار می‌کند و با «،» در فهرستش، بایت نخست «ب» را می‌بُرید.
-- **[RecordSources](../app/Support/RecordSources.php):**
-  - **`isCovered`:** شرط `onlyCitations` جای خود را به `note() !== null` داد.
-  - **`notesFor($card)`:** یادداشت‌های سطرهای پوشیده‌ای که جایی از مدخل این کارت را نشانی داده‌اند، بی تکرار.
-  - `places()` و `holds()` از `isCovered` بیرون آمدند.
-- **[works/show](../resources/views/works/show.blade.php):** زیر هر سطر مدخل و هر سطر «یاد شده در»، `<span data-citation-note>به نوشته‌ی فنخا: …</span>`.
-- **سنجش روی `fahares_prod` محلی:** در آثاری که پیوند خودکار دارند، ۱۰٬۴۴۹ سطر پوشیده‌ی بی یادداشت بود و ۴۲۳ سطر پوشیده با یادداشت. نمونه‌ها در گزارش جلسه بررسی شد.
-- **آزمون:** `BibliographyLinksTest::test_the_note_of_a_line_is_what_it_says_besides_its_citations`، و سطر تازه‌ی `$attributed` در `SourceItemsTest`.
+
