@@ -7273,7 +7273,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `database/data/fankha_lost_place_work_step14_30.json`: `work_updates` برای `ilm-ul-aktaf-v22-2225`، با `description` تهی و `raw_text` تنها سرعنوان.
   - شناسه‌ها روی پروداکشن هم همین‌اند (215604، 46391، کتابخانه‌ی 99 با ۳۴۴ نسخه)، خوانده‌شده با ssh فقط‌خواندنی.
 - **تمرین (`fahares_prod`):** `update 1` و `rebuild 1`، سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`. اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی #99 اکنون ۳۴۵ نسخه دارد.
-- **اجرا در پروداکشن:** پس از استقرار، با پشتیبان:
-  - `php artisan fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`
-  - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
-  - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
+- **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، پس از استقرار `1b99daf`، از راه `prod-run`):**
+  - پشتیبان: `fahares-sources/backups/step13/step14.30_lost_place_prod_before_20261104.json` (نسخه، اثر، کتابخانه‌ی ۹۹، خط نسخه و سه ردیف `source_entries`).
+  - `fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`: `update 1`.
+  - `fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`: `rebuild 1`.
+  - `catalogs:link-volumes` و `fahares:rebuild-scripts`: «Nothing to change».
+  - اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی ۹۹ اکنون ۳۴۵ نسخه دارد. صفحه‌ی اثر نسخه را با «تهران ۹۰/۴» نشان می‌دهد.
