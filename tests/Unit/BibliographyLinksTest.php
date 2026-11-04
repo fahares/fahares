@@ -278,4 +278,15 @@ class BibliographyLinksTest extends TestCase
             BibliographyLinks::viewerPages(['الذریعة 402/3 و 98/9؛ ریحانة الادب 456/2', 'الذریعة 402/3، 10/5'])
         );
     }
+
+    public function test_the_note_of_a_line_is_what_it_says_besides_its_citations()
+    {
+        $this->assertSame('', BibliographyLinks::note('الذریعة 326/15 و 297/23'));
+        $this->assertSame('', BibliographyLinks::note('مشار، فارسی 299/1'));
+        $this->assertSame('با انتساب به قوام الدین یوسف فرزند حسن', BibliographyLinks::note('فهرستواره منزوی 663/6 با انتساب به قوام الدین یوسف فرزند حسن'));
+        // a number or a printing is not a note to move; nor is a line without a citation
+        $this->assertNull(BibliographyLinks::note('دنا 1102/1 (8 نسخه)، الذریعة 2/1'));
+        $this->assertNull(BibliographyLinks::note('الذریعة 403/3 (چاپ نجف)'));
+        $this->assertNull(BibliographyLinks::note('در دنا به جهت تفاوت بسیار در ثبت اثر'));
+    }
 }
