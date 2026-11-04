@@ -148,6 +148,41 @@ class BibliographyLinks
     }
 
     /**
+     * What a line of citations says besides them, a note for the places it cites: «فهرستواره منزوی 663/6 با انتساب به
+     * قوام الدین یوسف» says «با انتساب به قوام الدین یوسف»; a line of citations only says ''. Null when the line has no
+     * citation, or its other words are not such a note: a number (another place, «دنا 1102/1 (8 نسخه)»), or a printing
+     * («الذریعة 403/3 (چاپ نجف)»), which may not be the one the citation was read in.
+     */
+    public static function note(string $entry): ?string
+    {
+        $segments = self::segments($entry);
+        if (! collect($segments)->contains(fn ($seg) => isset($seg['cite']))) {
+            return null;
+        }
+        $clean = fn (string $s) => self::normalize(preg_replace(['/[؛;،,:.\/\-–()«»]+/u', '/(^|\s)(?:و|ج|ص|ستون)(?=\s|$)/u'], ' ', $s));
+        $isSource = fn (string $name) => collect(self::sources())->contains(fn ($src) => preg_match('/^' . $src['pattern'] . '$/u', $name));
+        $words = [];
+        foreach ($segments as $seg) {
+            if (isset($seg['cite']) || ($name = $clean($seg['text'])) === '' || $isSource($name)) {
+                continue;
+            }
+            // «… با انتساب به قوام الدین، فهرستواره منزوی»: the note, without the name of the next citation's source
+            foreach (preg_split('/[؛;،,]+/u', $seg['text']) as $piece) {
+                if (($name = $clean($piece)) !== '' && ! $isSource($name)) {
+                    // not trim(), which works on bytes and would cut the Arabic letters «،» shares one with
+                    $words[] = preg_replace('/^[\s:.\-–]+|[\s:.\-–]+$/u', '', $piece);
+                }
+            }
+        }
+        $note = implode('، ', $words);
+        if (preg_match('/[0-9۰-۹]|(^|[\s(])(چاپ|چ|ط|طبع|الطبعة|افست)(\s|$|\))/u', $note)) {
+            return null;
+        }
+
+        return $note;
+    }
+
+    /**
      * @return list<array{text: string, url?: string, title?: string, viewer?: array, internal?: bool, cite?: array}>
      */
     public static function segments(string $entry): array
