@@ -36,6 +36,9 @@ class SourceLinkController extends Controller
         'full_title' => 'عنوان کامل',
         'title_author' => 'عنوان و مؤلف',
         'cited_number' => 'شماره‌ی مدخل',
+        'edition_address' => 'نشانی چاپ پیشین و عنوان',
+        'edition_title' => 'عنوان، از ارجاع چاپ پیشین',
+        'edition_place' => 'جای تخمینی از چاپ پیشین',
     ];
 
     /** The uncertain ties first, in this order; the rest after them, the least sure first. */

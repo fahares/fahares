@@ -30,8 +30,10 @@ use InvalidArgumentException;
  *   work's slug, city, library and shelfmark, never by id), the rest are made with the library the site uses for
  *   the same catalogue name.
  * - fills: site works the moves leave empty get their own copies, moved or made the same way.
- * - work_updates: columns of a site work that came from a neighbouring entry, written only where the site still
- *   holds the exported value and no reviewed correction protects the column.
+ * - work_updates: columns of a site work that came from a neighbouring entry, or from a head the OCR lost (step
+ *   14.19, `fankha_lost_heads_export.py`), written only where the site still holds the exported value and no
+ *   reviewed correction protects the column. A column the site already holds at its new value is left as it is
+ *   (an author a user already gave keeps its person). The file's `category` names them in the audit log.
  *
  * A work is added whole or not at all: one copy that cannot be found leaves it out. Everything is logged in the
  * records' history (create, corpus_update). What is derived from the columns follows (DerivedData): the copies' extent
@@ -59,7 +61,8 @@ class AddCorpusWorksCommand extends Command
         'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia', 'metadata'];
 
     private const UPDATE_COLUMNS = ['primary_title', 'clean_title', 'author_name', 'raw_text', 'description', 'bibliography', 'transliteration',
-        'composition_date_raw', 'incipit_text', 'explicit_text', 'alternative_titles'];
+        'composition_date_raw', 'incipit_text', 'explicit_text', 'alternative_titles', 'print_info',
+        'dedication', 'related_work'];
 
     private PersonNameMatcher $matcher;
 
@@ -67,6 +70,9 @@ class AddCorpusWorksCommand extends Command
     private array $libraries = [];
 
     private array $problems = [];
+
+    /** The audit category of work_updates: the decision file's own, else new_work (step 13.79). */
+    private string $category = 'new_work';
 
     public function handle(RecordMerger $merger, ContributorRelations $relations): int
     {
@@ -79,6 +85,7 @@ class AddCorpusWorksCommand extends Command
         $apply = (bool) $this->option('apply');
         $this->matcher = new PersonNameMatcher;
         $note = basename($path);
+        $this->category = $plan['category'] ?? 'new_work';
 
         // resolve everything first: a work goes ahead only when all its copies are found
         $works = [];
@@ -111,6 +118,8 @@ class AddCorpusWorksCommand extends Command
         foreach ($plan['work_updates'] ?? [] as $u) {
             $outcome = $this->checkUpdate($u, $guard);
             if ($outcome instanceof Work) {
+                // a column the site already holds at its new value is left alone (an author already linked keeps its person)
+                $u['changes'] = array_filter($u['changes'], fn ($c, $field) => ! $this->same($outcome->{$field}, $c['to']), ARRAY_FILTER_USE_BOTH);
                 $updates[] = [$outcome, $u];
             } elseif ($outcome !== 'already') {
                 $this->problems[] = "{$u['work_slug']}: {$outcome}";
@@ -179,7 +188,9 @@ class AddCorpusWorksCommand extends Command
     private function findMove(array $m): ?Manuscript
     {
         $rows = Manuscript::whereHas('work', fn ($q) => $q->where('slug', $m['from_slug']))
-            ->where('city', $m['city'])->where('library', $m['library'])->where('shelfmark', $m['shelfmark'])->get();
+            ->where('city', $m['city'])->where('library', $m['library'])->where('shelfmark', $m['shelfmark'])
+            // a shelfmark the work holds twice (two volumes of one copy) is told by its sequence (step 14.23)
+            ->when(isset($m['from_sequence']), fn ($q) => $q->where('sequence_number', $m['from_sequence']))->get();
 
         return $rows->count() === 1 ? $rows->first() : null;
     }
@@ -317,7 +328,7 @@ class AddCorpusWorksCommand extends Command
         if (! $work) {
             return 'work not found';
         }
-        $already = true;
+        $fields = [];
         foreach ($u['changes'] as $field => $change) {
             if (! in_array($field, self::UPDATE_COLUMNS, true)) {
                 return "field {$field} not allowed";
@@ -326,15 +337,15 @@ class AddCorpusWorksCommand extends Command
             if ($this->same($current, $change['to'])) {
                 continue;
             }
-            $already = false;
+            $fields[$field] = true;
             if (! $this->same($current, $change['from'])) {
                 return "{$field} changed on the site since the export";
             }
         }
-        if ($already) {
+        if (! $fields) {
             return 'already';
         }
-        $fields = array_fill_keys(array_keys($u['changes']), true);
+        // only the columns this update writes: one the site already holds at its new value needs no guard
         if (array_diff_key($fields, $guard->strip($work->id, $fields))) {
             return 'protected by a reviewed correction';
         }
@@ -351,7 +362,7 @@ class AddCorpusWorksCommand extends Command
             $new['author_id'] = $this->person($u['author'] ?? null)?->id;
         }
         $work->update($new);
-        $this->log(Work::class, $work->id, 'corpus_update', $old, $new + ['corpus_fix' => $note, 'category' => 'new_work', 'v2' => $u['v2']]);
+        $this->log(Work::class, $work->id, 'corpus_update', $old, $new + ['corpus_fix' => $note, 'category' => $this->category, 'v2' => $u['v2']]);
     }
 
     /** The person a name confidently is (PersonNameMatcher), else null and the name stays text. */

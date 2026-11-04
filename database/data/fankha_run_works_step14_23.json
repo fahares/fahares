@@ -1,0 +1,625 @@
+{
+ "source": "works of a same-titled run the site lacks, checked on the page images, 2026-11-04; fahares step 14.23",
+ "works": [
+  {
+   "v2": "v17-1301",
+   "slug_suffix": "-v17-1755",
+   "columns": {
+    "primary_title": "ساقی نامه",
+    "clean_title": "ساقی نامه",
+    "alternative_titles": null,
+    "transliteration": "sāqī-nāme",
+    "author_name": "شانی تکلو، وجیه الدین",
+    "composition_date_raw": null,
+    "composition_place": null,
+    "work_form": null,
+    "subject_summary": "شعر",
+    "language_summary": "فارسی",
+    "incipit_text": "از صدای ناله ناقوس د رتصدیق او ×× عارفان را استماع لفظ اشهد می‌رود",
+    "explicit_text": null,
+    "description": null,
+    "bibliography": null,
+    "print_info": null,
+    "dedication": null,
+    "related_work": null,
+    "commentaries_and_glosses": null,
+    "raw_text": "● ساقی نامه / شعر / فارسی\nsāqī-nāme\n\nشانی تکلو، وجیه الدین، - 1023 قمری\nšānī takallū, vajīh-od-dīn (- 1614)\n\nآغاز: از صدای ناله ناقوس د رتصدیق او ×× عارفان را استماع لفظ اشهد می‌رود",
+    "volume_number": 17,
+    "page_start": 865,
+    "page_end": 865
+   },
+   "author": {
+    "name": "شانی تکلو، وجیه الدین",
+    "hedge": null,
+    "century": 11,
+    "death_year": 1023
+   },
+   "roles": [],
+   "subjects": [
+    "شعر"
+   ],
+   "languages": [
+    "فارسی"
+   ],
+   "copies": [
+    {
+     "make": {
+      "raw_text": "تهران؛ مجلس؛ شماره نسخه: 13678/4\nآغاز: برابر\nخط: نستعلیق، بی‌کا، بی‌تا؛ جلد: تیماج سرخ، 4گ (27ر-31پ)، اندازه: 11×20سم [ف: 37 - 204]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 1,
+      "is_bita": 1,
+      "is_autograph": 0,
+      "copy_date_raw": null,
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 4,
+      "lines": null,
+      "dimensions": "11×20سم",
+      "paper": null,
+      "binding": "تیماج سرخ",
+      "incipit_text": null,
+      "explicit_text": null,
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 37 - 204]",
+       "residual_notes": null
+      },
+      "sequence_number": 1,
+      "page_start": 865,
+      "page_end": 865,
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "13678/4"
+     }
+    }
+   ]
+  },
+  {
+   "v2": "v17-1302",
+   "slug_suffix": "-v17-1756",
+   "columns": {
+    "primary_title": "ساقی نامه",
+    "clean_title": "ساقی نامه",
+    "alternative_titles": null,
+    "transliteration": "sāqī-nāme",
+    "author_name": "فرقتی جوشقانی، ابوتراب بن علی",
+    "composition_date_raw": null,
+    "composition_place": null,
+    "work_form": null,
+    "subject_summary": "شعر",
+    "language_summary": "فارسی",
+    "incipit_text": "ساقی بده آن جام که ماه شب تار است ×× آن لاله که گلگونه رخسار بهار است",
+    "explicit_text": null,
+    "description": null,
+    "bibliography": null,
+    "print_info": null,
+    "dedication": null,
+    "related_work": null,
+    "commentaries_and_glosses": null,
+    "raw_text": "● ساقی نامه / شعر / فارسی\nsāqī-nāme\n\nفرقتی جوشقانی، ابوتراب بن علی، - 1025 قمری\nforqatī jošaqānī, abū-torābf ebn-e ‘alī (- 1616)\n\nآغاز: ساقی بده آن جام که ماه شب تار است ×× آن لاله که گلگونه رخسار بهار است",
+    "volume_number": 17,
+    "page_start": 865,
+    "page_end": 866
+   },
+   "author": {
+    "name": "فرقتی جوشقانی، ابوتراب بن علی",
+    "hedge": null,
+    "century": 11,
+    "death_year": 1025
+   },
+   "roles": [],
+   "subjects": [
+    "شعر"
+   ],
+   "languages": [
+    "فارسی"
+   ],
+   "copies": [
+    {
+     "make": {
+      "raw_text": "1. تهران؛ مجلس؛ شماره نسخه: 8982/32\nآغاز: ساقی بده آن باده خون دل کان است ×× آن می‌که چو خون در بدن شیشه روان است؛ انجام: ما خشک لبان تشنه دیدار شرابیم ×× چو کاسه ما گشت تهی خانه خرابیم\nخط: نستعلیق، بی‌کا، تا: قرن 11؛ سطور چلیپا؛ کاغذ: نخودی، جلد: تیماج، 5گ (12پ-16ر حاشیه)، اندازه: 13×22/2سم [ف: 29/1 - 552]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 1,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "قرن 11",
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 5,
+      "lines": null,
+      "dimensions": "13×22/2سم",
+      "paper": "نخودی",
+      "binding": "تیماج",
+      "incipit_text": "ساقی بده آن باده خون دل کان است ×× آن می‌که چو خون در بدن شیشه روان است",
+      "explicit_text": "ما خشک لبان تشنه دیدار شرابیم ×× چو کاسه ما گشت تهی خانه خرابیم",
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 29/1 - 552]",
+       "residual_notes": null
+      },
+      "sequence_number": 1,
+      "page_start": 865,
+      "page_end": 865,
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "8982/32"
+     }
+    },
+    {
+     "make": {
+      "raw_text": "2. مشهد؛ رضوی؛ شماره نسخه: 12981/7\nآغاز: برابر؛ انجام: ما خشک لبان تشنه دیدار شرابیم ×× چون کاسه ما گشت تهی خانه خرابیم\nخط: نستعلیق خوش، کا: خلیفه صادق، تا: جمادی الثانی 1058ق؛ مجدول؛ جلد: تیماج قهوه‌ای، 5ص (28-32)، اندازه: 13/8×21/7سم [ف: 17 - 403]",
+      "scribe_name": "خلیفه صادق",
+      "has_other_scribes": 0,
+      "is_bika": 0,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "جمادی الثانی 1058ق",
+      "copy_date_hijri_year": 1058,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": null,
+      "lines": null,
+      "dimensions": "13/8×21/7سم",
+      "paper": null,
+      "binding": "تیماج قهوه‌ای",
+      "incipit_text": null,
+      "explicit_text": "ما خشک لبان تشنه دیدار شرابیم ×× چون کاسه ما گشت تهی خانه خرابیم",
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 1,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 17 - 403]",
+       "residual_notes": null
+      },
+      "sequence_number": 2,
+      "page_start": 865,
+      "page_end": 865,
+      "city": "مشهد",
+      "library": "رضوی",
+      "shelfmark": "12981/7"
+     }
+    },
+    {
+     "make": {
+      "raw_text": "3. تهران؛ ملک؛ شماره نسخه: 4076/21\nآغاز: برابر؛ انجام: ما خشک لبان تشنه دیدار شرابیم ×× چون کاسه ما گشت تهی خانه خرابیم\nترجیع بند است. در حدود 130 بیت؛ خط: نستعلیق، بی‌کا، بی‌تا؛ کاغذ: ترمه، جلد: رویه میشن آلبالویی، 2گ (82پ-83ر)، 26 سطر، اندازه: 15×23/9سم [ف: 7 - 202]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 1,
+      "is_bita": 1,
+      "is_autograph": 0,
+      "copy_date_raw": null,
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 2,
+      "lines": 26,
+      "dimensions": "15×23/9سم",
+      "paper": "ترمه",
+      "binding": "رویه میشن آلبالویی",
+      "incipit_text": null,
+      "explicit_text": "ما خشک لبان تشنه دیدار شرابیم ×× چون کاسه ما گشت تهی خانه خرابیم",
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [
+        "ترجیع بند است. در حدود 130 بیت"
+       ],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 7 - 202]",
+       "residual_notes": null
+      },
+      "sequence_number": 3,
+      "page_start": 865,
+      "page_end": 866,
+      "city": "تهران",
+      "library": "ملک",
+      "shelfmark": "4076/21"
+     }
+    },
+    {
+     "move": {
+      "id": 167792,
+      "from_slug": "saqi-name-v17-1300",
+      "city": "تهران",
+      "library": "ملک",
+      "shelfmark": "3841/3"
+     },
+     "sequence_number": 4
+    },
+    {
+     "move": {
+      "id": 167793,
+      "from_slug": "saqi-name-v17-1300",
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "13678/2"
+     },
+     "sequence_number": 5
+    }
+   ]
+  },
+  {
+   "v2": "v19-1886",
+   "slug_suffix": "-v19-2128",
+   "columns": {
+    "primary_title": "شرح زبدة الاصول",
+    "clean_title": "شرح زبدة الاصول",
+    "alternative_titles": null,
+    "transliteration": "š.-u zubdat-il-uṣūl",
+    "author_name": "مدنی، علی خان بن احمد",
+    "composition_date_raw": null,
+    "composition_place": null,
+    "work_form": null,
+    "subject_summary": "اصول فقه",
+    "language_summary": "عربی",
+    "incipit_text": null,
+    "explicit_text": null,
+    "description": "شرح مزجی توضیحی بسیار مختصر است برای توضیحی عبارات متن و بیان مطالب مشکل، بدون آوردن بحث‌های مفصل و گفتگو در آنها.",
+    "bibliography": null,
+    "print_info": null,
+    "dedication": null,
+    "related_work": "زبدة الاصول؛ شیخ بهائی، محمد بن حسین (953-1030)",
+    "commentaries_and_glosses": null,
+    "raw_text": "● شرح زبدة الاصول / اصول فقه / عربی\nš.-u zubdat-il-uṣūl\n\nمدنی، علی خان بن احمد، 1052 - 1118 ؟ قمری\nmadanī, ‘alī xān ebn-e ahmad (1643 - 1707)\n\nوابسته به: زبدة الاصول؛ شیخ بهائی، محمد بن حسین (953-1030)\nشرح مزجی توضیحی بسیار مختصر است برای توضیحی عبارات متن و بیان مطالب مشکل، بدون آوردن بحث‌های مفصل و گفتگو در آنها.",
+    "volume_number": 19,
+    "page_start": 839,
+    "page_end": 839
+   },
+   "author": {
+    "name": "مدنی، علی خان بن احمد",
+    "hedge": null,
+    "century": 12,
+    "death_year": 1118
+   },
+   "roles": [],
+   "subjects": [
+    "اصول فقه"
+   ],
+   "languages": [
+    "عربی"
+   ],
+   "copies": [
+    {
+     "make": {
+      "raw_text": "قم؛ مرعشی؛ شماره نسخه: 7382/3\nآغاز: الحمدلله الواحد العدل و مفیض الخیر و الفضل ... و بعد فیقول فقیر رحمة ربه و أسیر صمة ذنبه؛ انجام: النفی الذی فیه استثناء النقیض لأن نقیض أحدهما مستلزم لعین الاخر.\nخط: نسخ، بی‌کا، تا: در عصر مؤلف؛ افتادگی: انجام؛ مصحح، محشی؛ تملک: علی بن احمد بن علی بن یوسف حوری بحرانی؛ جلد: تیماج قهوه‌ای، 48گ (65پ-112)، اندازه: 12×21سم [ف: 19 - 185]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 1,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "در عصر مؤلف",
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 48,
+      "lines": null,
+      "dimensions": "12×21سم",
+      "paper": null,
+      "binding": "تیماج قهوه‌ای",
+      "incipit_text": "الحمدلله الواحد العدل و مفیض الخیر و الفضل ... و بعد فیقول فقیر رحمة ربه و أسیر صمة ذنبه",
+      "explicit_text": "النفی الذی فیه استثناء النقیض لأن نقیض أحدهما مستلزم لعین الاخر.",
+      "is_corrected": 1,
+      "has_marginal_notes": 1,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [
+        "علی بن احمد بن علی بن یوسف حوری بحرانی"
+       ],
+       "catalog_citation": "[ف: 19 - 185]",
+       "residual_notes": null
+      },
+      "sequence_number": 1,
+      "page_start": 839,
+      "page_end": 839,
+      "city": "قم",
+      "library": "مرعشی",
+      "shelfmark": "7382/3"
+     }
+    }
+   ]
+  },
+  {
+   "v2": "v19-1887",
+   "slug_suffix": "-v19-2129",
+   "columns": {
+    "primary_title": "شرح زبدة الاصول",
+    "clean_title": "شرح زبدة الاصول",
+    "alternative_titles": null,
+    "transliteration": "š.-e zobdat-ol usūl",
+    "author_name": "کربلائی، محمد علی",
+    "composition_date_raw": null,
+    "composition_place": null,
+    "work_form": null,
+    "subject_summary": "اصول فقه",
+    "language_summary": "فارسی",
+    "incipit_text": "بسمله شکر و سپاس مرپروردگار را که گردانید این امت را امت زبده پیغمبران و سرور عالمیان وشفیع گناه کاران ...",
+    "explicit_text": "درقرآن خدای تعالی جل شانه گفته است وتزودوا فإن خیر الزاد التقوی والحمدلله علی نعمائه والصلاة علی سید انبیائه واشرف أولیائه",
+    "description": "شارح، شاگرد ابن خاتون است و مؤلف هادیه قطب شاهی و گویا شارح شافیه (آستان قدس 17/3 ش 58). صاحب الذریعه (301/13) می‌نویسد که این شرح در 8 محرم 1196 به انجام رسیده است. گویا او نسخه‌ای را دیده بود که در این تاریخ نوشته شده است. شرح مختصر و متقنی است با عنوان «قوله، قوله» بر کتاب «زبدة الاصول» شیخ بهاء الدین عاملی؛ این شرح بیشتر جنبه ترجمه و توضیح دارد و به استدلال کمتر می‌پردازد. تألیف این کتاب (به ضبط نسخه 5741 ملک تهران) مورخ 8 ذیحجه 1083ق و یا قبل از آن است.",
+    "bibliography": [
+     "الذریعة 301/13",
+     "دنا 752/6 (2 نسخه)"
+    ],
+    "print_info": null,
+    "dedication": null,
+    "related_work": "زبدة الاصول؛ شیخ بهائی، محمد بن حسین (953-1030)",
+    "commentaries_and_glosses": null,
+    "raw_text": "● شرح زبدة الاصول / اصول فقه / فارسی\nš.-e zobdat-ol usūl\n\nکربلائی، محمد علی، ق12 قمری\nkarbalā’ī, mohammad ‘alī (- 18c)\n\nوابسته به: زبدة الاصول؛ شیخ بهائی، محمد بن حسین (953-1030)\nشارح، شاگرد ابن خاتون است و مؤلف هادیه قطب شاهی و گویا شارح شافیه (آستان قدس 17/3 ش 58). صاحب الذریعه (301/13) می‌نویسد که این شرح در 8 محرم 1196 به انجام رسیده است. گویا او نسخه‌ای را دیده بود که در این تاریخ نوشته شده است. شرح مختصر و متقنی است با عنوان «قوله، قوله» بر کتاب «زبدة الاصول» شیخ بهاء الدین عاملی؛ این شرح بیشتر جنبه ترجمه و توضیح دارد و به استدلال کمتر می‌پردازد. تألیف این کتاب (به ضبط نسخه 5741 ملک تهران) مورخ 8 ذیحجه 1083ق و یا قبل از آن است.\nآغاز: بسمله شکر و سپاس مرپروردگار را که گردانید این امت را امت زبده پیغمبران و سرور عالمیان وشفیع گناه کاران ...\nانجام: درقرآن خدای تعالی جل شانه گفته است وتزودوا فإن خیر الزاد التقوی والحمدلله علی نعمائه والصلاة علی سید انبیائه واشرف أولیائه\n[الذریعة 301/13؛ دنا 752/6 (2 نسخه)]",
+    "volume_number": 19,
+    "page_start": 839,
+    "page_end": 839
+   },
+   "author": {
+    "name": "کربلائی، محمد علی",
+    "hedge": null,
+    "century": 12,
+    "death_year": 1150
+   },
+   "roles": [],
+   "subjects": [
+    "اصول فقه"
+   ],
+   "languages": [
+    "فارسی"
+   ],
+   "copies": [
+    {
+     "make": {
+      "raw_text": "1. تهران؛ ملک؛ شماره نسخه: 5741\nآغاز: برابر؛ انجام: پس عمل کن به آنچه مفید نجاست است و اگر چه خلاف اصل است زیرا که تقوی در اینست و خدای تعالی جل شأنه.\nخط: شکسته، نستعلیق، کا: ابراهیم بن رحمة الله حسینی، تا: 8 ذیحجه 1083ق؛ مجدول، با سرلوح زرین؛ کاغذ: ترمه، جلد: میشن سرخ، 160گ، 17 سطر، اندازه: 14/5×24سم [ف: 3 - 508]",
+      "scribe_name": "ابراهیم بن رحمة الله حسینی",
+      "has_other_scribes": 0,
+      "is_bika": 0,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "8 ذیحجه 1083ق",
+      "copy_date_hijri_year": 1083,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 160,
+      "lines": 17,
+      "dimensions": "14/5×24سم",
+      "paper": "ترمه",
+      "binding": "میشن سرخ",
+      "incipit_text": null,
+      "explicit_text": "پس عمل کن به آنچه مفید نجاست است و اگر چه خلاف اصل است زیرا که تقوی در اینست و خدای تعالی جل شأنه.",
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 1,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 1,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [
+        "با سرلوح زرین"
+       ],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 3 - 508]",
+       "residual_notes": null
+      },
+      "sequence_number": 1,
+      "page_start": 839,
+      "page_end": 839,
+      "city": "تهران",
+      "library": "ملک",
+      "shelfmark": "5741"
+     }
+    },
+    {
+     "make": {
+      "raw_text": "2. قم؛ گلپایگانی؛ شماره نسخه: 3610-18/130\nآغاز و انجام: برابر\nخط: نسخ، کا: باقر بن ملابراهیم نجف آبادی، تا: 1266ق؛ مصحح، محشی از مؤلف؛ جلد: تیماج مشکی، 165گ، 21 سطر، اندازه: 15×21سم [ف: 5 - 2590]",
+      "scribe_name": "باقر بن ملابراهیم نجف آبادی",
+      "has_other_scribes": 0,
+      "is_bika": 0,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "1266ق",
+      "copy_date_hijri_year": 1266,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 165,
+      "lines": 21,
+      "dimensions": "15×21سم",
+      "paper": null,
+      "binding": "تیماج مشکی",
+      "incipit_text": null,
+      "explicit_text": null,
+      "is_corrected": 1,
+      "has_marginal_notes": 1,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 1,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [
+        "محشی از مؤلف"
+       ],
+       "ownership_and_seals": [],
+       "catalog_citation": "[ف: 5 - 2590]",
+       "residual_notes": null
+      },
+      "sequence_number": 2,
+      "page_start": 839,
+      "page_end": 839,
+      "city": "قم",
+      "library": "گلپایگانی",
+      "shelfmark": "3610-18/130"
+     }
+    },
+    {
+     "make": {
+      "raw_text": "3. مشهد؛ رضوی؛ شماره نسخه: 34898\nآغاز: ... علم هذات العلم فی الاصل مرکب اضافی فالاصول ما یبتنی علیه بشیء. یعنی علم این علم در اصل لغت همان نفس اصول فقه است که مرکب اضافی است نه باعتبار مفهوم است ... قوله و الفقه العلم بالاحکام الشرعیة الفرعیة عن ادلتها التفصیلیة فعلا او قوة قریبة و مصنف رحمة الله بیان معنی جزو ثانی علم این علم کرده است و گفته است که: و الفقه العلم الخ یعنی فقه علم است؛ انجام: برابر\nخط: نسخ و نستعلیق، کا: حیدر علی، تا: از 5 جمادی الثانی تا جمعه 14 رمضان 1275ق، به درخواست منصف الدوله سید محمدباقر علیخان بهادر؛ افتادگی: آغاز (یک یا دو برگ)؛ اهدایی: رهبری، اردیبهشت 1386؛ کاغذ: نخودی هندی، جلد: تیماج مشکی مذهب، 289گ، 14 سطر، اندازه: 15×23سم [اهدائی رهبر: 11 - 302]",
+      "scribe_name": "حیدر علی",
+      "has_other_scribes": 0,
+      "is_bika": 0,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "از 5 جمادی الثانی تا جمعه 14 رمضان 1275ق",
+      "copy_date_hijri_year": 1275,
+      "copy_place": null,
+      "commissioned_by": "منصف الدوله سید محمدباقر علیخان بهادر",
+      "folios": 289,
+      "lines": 14,
+      "dimensions": "15×23سم",
+      "paper": "نخودی هندی",
+      "binding": "تیماج مشکی مذهب",
+      "incipit_text": "... علم هذات العلم فی الاصل مرکب اضافی فالاصول ما یبتنی علیه بشیء. یعنی علم این علم در اصل لغت همان نفس اصول فقه است که مرکب اضافی است نه باعتبار مفهوم است ... قوله و الفقه العلم بالاحکام الشرعیة الفرعیة عن ادلتها التفصیلیة فعلا او قوة قریبة و مصنف رحمة الله بیان معنی جزو ثانی علم این علم کرده است و گفته است که: و الفقه العلم الخ یعنی فقه علم است",
+      "explicit_text": null,
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 1,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [],
+       "catalog_citation": "[اهدائی رهبر: 11 - 302]",
+       "residual_notes": null
+      },
+      "sequence_number": 3,
+      "page_start": 839,
+      "page_end": 839,
+      "city": "مشهد",
+      "library": "رضوی",
+      "shelfmark": "34898"
+     }
+    }
+   ]
+  },
+  {
+   "v2": "v19-1888",
+   "slug_suffix": "-v19-2130",
+   "columns": {
+    "primary_title": "شرح زبدة الاصول",
+    "clean_title": "شرح زبدة الاصول",
+    "alternative_titles": null,
+    "transliteration": "š.-u zubdat-il uṣūl",
+    "author_name": "کرمانشاهی، محمد شریف بن محمد حسین",
+    "composition_date_raw": "18 جمادی الثانی 1124ق",
+    "composition_place": null,
+    "work_form": null,
+    "subject_summary": "اصول فقه",
+    "language_summary": "عربی",
+    "incipit_text": null,
+    "explicit_text": null,
+    "description": "شارح پس از شرح مبسوطی که بر زبده نوشته و دیده که این شرح بسیار دراز است، دوم بار این شرح کوتاه را ساخته است.",
+    "bibliography": null,
+    "print_info": null,
+    "dedication": null,
+    "related_work": "زبدة الاصول؛ شیخ بهائی، محمد بن حسین (953-1030)",
+    "commentaries_and_glosses": null,
+    "raw_text": "● شرح زبدة الاصول / اصول فقه / عربی\n\nš.-u zubdat-il uṣūl\n\nکرمانشاهی، محمد شریف بن محمد حسین، ق12 قمری\nkermānšāhī, mohammad šarīf ebn-e mohammad hoseyn (- 18c)\n\nوابسته به: زبدة الاصول؛ شیخ بهائی، محمد بن حسین (953-1030)\nتاریخ تألیف: 18 جمادی الثانی 1124ق\nشارح پس از شرح مبسوطی که بر زبده نوشته و دیده که این شرح بسیار دراز است، دوم بار این شرح کوتاه را ساخته است.",
+    "volume_number": 19,
+    "page_start": 839,
+    "page_end": 840
+   },
+   "author": {
+    "name": "کرمانشاهی، محمد شریف بن محمد حسین",
+    "hedge": null,
+    "century": 12,
+    "death_year": 1150
+   },
+   "roles": [],
+   "subjects": [
+    "اصول فقه"
+   ],
+   "languages": [
+    "عربی"
+   ],
+   "copies": [
+    {
+     "move": {
+      "id": 186028,
+      "from_slug": "s-u-zubdat-il-usul-v19-1885",
+      "city": "قم",
+      "library": "مرکز احیاء",
+      "shelfmark": "250"
+     },
+     "sequence_number": 1
+    },
+    {
+     "move": {
+      "id": 186029,
+      "from_slug": "s-u-zubdat-il-usul-v19-1885",
+      "city": "تهران",
+      "library": "الهیات",
+      "shelfmark": "145"
+     },
+     "sequence_number": 2
+    }
+   ]
+  }
+ ],
+ "fills": [],
+ "work_updates": []
+}
