@@ -132,6 +132,28 @@ class SourcePageViewTest extends TestCase
         $this->assertSame(2, substr_count($html, 'rounded-full text-sky-700'));
     }
 
+    public function test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page()
+    {
+        // al-Dhari'a's volume 1 p. 10: the paragraphs closing the page that open with a number marked in the text above
+        $source = Source::create(['code' => 'dharia-test', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => 'dharia-test']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 10,
+            'text' => "( 47 : كتاب الآداب ) للواقدي يكثر النقل عنه في فهرسه ( 1 )\n\n( 1 ) قال ابن النديم في فهرسه\n( 2 ) صوابه (الساقى)."]);
+        SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 1, 'item_key' => '47',
+            'position' => 1, 'kind' => SourceItem::KIND_ENTRY, 'entry_number' => 47, 'title' => 'كتاب الآداب', 'title_normalized' => 'كتاب الآداب',
+            'page_start' => 10, 'page_end' => 10, 'text' => '( 47 : كتاب الآداب ) للواقدي يكثر النقل عنه في فهرسه ( 1 )']);
+
+        $html = $this->get('/sources/dharia-test/1/page/10')->assertOk()->getContent();
+        [$body, $notes] = explode('data-footnotes', $html, 2);
+        $this->assertStringContainsString('يكثر النقل عنه في فهرسه ( ۱ )', $body);
+        $this->assertStringNotContainsString('قال ابن النديم', $body);
+        $this->assertStringContainsString("( ۱ ) قال ابن النديم في فهرسه\n( ۲ ) صوابه (الساقى).", $notes);
+
+        // a closing paragraph whose number is marked nowhere above (Monzavi's index heading «1 - نام نگارندگان») stays
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 11, 'text' => "سخن مؤلف\n\n1 - نام نگارندگان"]);
+        $this->get('/sources/dharia-test/1/page/11')->assertOk()->assertSee('نام نگارندگان', false)->assertDontSee('data-footnotes', false);
+    }
+
     public function test_a_catalogue_page_links_its_works_headings_and_copies_lines_in_two_columns()
     {
         // Fankha vol. 2 p. 926 in short: two works with the same heading line, and their copies. Saving a record

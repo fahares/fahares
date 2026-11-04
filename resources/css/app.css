@@ -305,6 +305,11 @@ body {
 @media (min-width: 640px) {
     .book-sheet { padding: 2.75rem 3.5rem 2rem; }
 }
+/* a book's margins round the text: about 100px on either side, a little less on a page of two columns */
+@media (min-width: 768px) {
+    .book-sheet { padding: 5rem 6.25rem 5.5rem; }
+    .book-sheet--columns { padding-inline: 4.5rem; }
+}
 .book-sheet__head {
     display: flex;
     align-items: baseline;
@@ -457,6 +462,22 @@ body {
     border-bottom: 1px dotted var(--line-strong);
 }
 .book-sheet__cont:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+/* the page's footnotes, smaller, under a short rule on the start side */
+.book-sheet__notes {
+    margin-top: 1.75rem;
+    font-family: var(--font-naskh);
+    font-size: 0.9375rem;
+    line-height: 1.9;
+    text-align: justify;
+}
+.book-sheet__notes::before {
+    content: '';
+    display: block;
+    width: 30%;
+    margin-bottom: 0.6rem;
+    border-top: 1px solid var(--line-strong);
+}
+.book-sheet__notes > * + * { margin-top: 0.35rem; }
 .book-sheet__foot {
     margin-top: 2rem;
     text-align: center;

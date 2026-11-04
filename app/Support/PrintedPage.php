@@ -27,6 +27,7 @@ class PrintedPage
      * @param  Collection<int, SourceItem>  $items  the entries on the page, in their order
      * @param  list<array{item: ?SourceItem, text: string, continued: bool, marks?: list<array{at: int, length: int, url: string, kind: string, title: string}>}>  $blocks
      * @param  list<array{url: string, title: string, kind: string}>  $records  the works and manuscripts marked on the page, in order
+     * @param  list<string>  $footnotes  the page's footnotes, a paragraph each, set at its foot
      */
     private function __construct(
         public readonly Source $source,
@@ -38,6 +39,7 @@ class PrintedPage
         public readonly ?array $previous,
         public readonly ?array $next,
         public readonly array $records = [],
+        public readonly array $footnotes = [],
     ) {
     }
 
@@ -52,6 +54,11 @@ class PrintedPage
             return null;
         }
         $text = $row ? self::linked($row->text, $row->id) : null;
+        // a bibliography's footnotes go to the foot of the page, not into the last entry on it
+        $footnotes = [];
+        if ($text !== null && $source->kind === Source::KIND_BIBLIOGRAPHY) {
+            [$text, $footnotes] = self::footnotes($text);
+        }
 
         $blocks = $paged ? self::cut($text, $items, $page) : $items->map(fn (SourceItem $item) => [
             'item' => $item,
@@ -66,7 +73,30 @@ class PrintedPage
         }
 
         return new self($source, $volume, $page, $items, $blocks, $firstEntry !== null && $page < $firstEntry,
-            self::neighbour($source, $volume, $page, -1), self::neighbour($source, $volume, $page, 1), $records);
+            self::neighbour($source, $volume, $page, -1), self::neighbour($source, $volume, $page, 1), $records, $footnotes);
+    }
+
+    /**
+     * The page's text without its footnotes, and the footnotes: the paragraphs closing the page that open with «( 1 )»
+     * or «1 -», never the page's first (as App\Sources\Bibliography\NumberedEntrySegmenter takes them), and only one
+     * whose number is marked in the text above it, so that Monzavi's index heading «1 - نام نگارندگان» stays.
+     *
+     * @return array{0: string, 1: list<string>}
+     */
+    private static function footnotes(string $text): array
+    {
+        $paragraphs = preg_split('/\n\s*\n/u', trim($text));
+        $at = count($paragraphs);
+        for ($i = count($paragraphs) - 1; $i > 0; $i--) {
+            $body = PageMarks::strip(implode("\n\n", array_slice($paragraphs, 0, $i)));
+            if (! preg_match('/^(?:\(\s*([1-9])\s*\)\s|([1-9])\s*-\s)/u', ltrim(PageMarks::strip($paragraphs[$i])), $m)
+                || ! preg_match('/\(\s*' . ($m[1] ?: $m[2]) . '\s*\)/u', $body)) {
+                break;
+            }
+            $at = $i;
+        }
+
+        return [implode("\n\n", array_slice($paragraphs, 0, $at)), array_map('trim', array_slice($paragraphs, $at))];
     }
 
     /**
