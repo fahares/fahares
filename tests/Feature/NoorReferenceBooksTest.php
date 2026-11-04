@@ -134,6 +134,26 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertFalse(SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $other->id)->exists());
     }
 
+    public function test_kahhalas_lives_from_the_old_noor_text_tie_a_work_to_its_author()
+    {
+        // step 14.31: the old program's text marks no heading; a name line before a line of dates opens a life, and a
+        // Latin passage it could not read is «[…]»
+        $volume = $this->volume('kahhala', 'معجم المؤلفین', 6, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'kahhala', 'pages' => self::FIXTURES . 'kahhala-v06-p100.jsonl', '--volume' => 6])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'kahhala', '--volume' => 6, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'kahhala-v06-p100.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $volume->id)->get()->keyBy('item_key');
+        $this->assertCount(6, $items);
+        $this->assertSame('عبد اللّه التازي', $items['100#3']->title);
+        $this->assertStringContainsString('ط […]', $items['100#3']->text);
+        $this->assertStringNotContainsString('ءء', $items['100#3']->text);
+
+        $work = $this->work('kahhala', 'المناظرة و المعارضة فی رد الرافضة', 'تازی، عبدالله بن فارس', 6, 100, 'معجم المؤلفین 100/6');
+        $this->artisan('sources:link-items', ['volume' => 'kahhala', '--volume' => 6])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['100#3', SourceEntry::ROLE_MENTION, 'author_life_title'], [$tie->sourceItem->item_key, $tie->role, $tie->match_method]);
+    }
+
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,
