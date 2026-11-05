@@ -7561,3 +7561,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
+### گام ۱۴.۴۵: جلد `kalam-turath`
+- منبع: `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول).
+- تبدیل با Pillow: `thumbnail((640, 960))`، `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`؛ خروجی `public/images/sources/covers/kalam-turath.webp` (۶۴۰×۹۲۳). `Source::coverUrl()` آن را با نام کد می‌یابد و کد دیگری لازم نبود.
+- رونوشت در `fahares-sources/web-covers/` و ردیف `kalam-turath` در `manifest.json` همان‌جا.
