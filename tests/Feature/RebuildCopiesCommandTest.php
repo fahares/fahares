@@ -11,6 +11,7 @@ class RebuildCopiesCommandTest extends TestCase
 {
     private array $works = [];
     private array $manuscripts = [];
+    private ?int $library = null;
     private string $file;
 
     protected function setUp(): void
@@ -27,11 +28,12 @@ class RebuildCopiesCommandTest extends TestCase
         DB::table('manuscript_people')->where('role', 'scribe')->whereIn('manuscript_id', $this->manuscripts)->delete();
         DB::table('manuscripts')->whereIn('id', $this->manuscripts)->delete();
         DB::table('works')->whereIn('id', $this->works)->delete();
+        DB::table('libraries')->where('id', $this->library)->delete();
         @unlink($this->file);
         parent::tearDown();
     }
 
-    private function copy(string $shelfmark, string $raw, ?string $date, array $metadata): int
+    private function copy(?string $shelfmark, string $raw, ?string $date, array $metadata): int
     {
         $work = $this->works[] = DB::table('works')->insertGetId([
             'primary_title' => 'اثر آزمایشی بازسازی', 'clean_title' => 'اثر آزمایشی بازسازی',
@@ -46,7 +48,7 @@ class RebuildCopiesCommandTest extends TestCase
         ]);
     }
 
-    private function record(int $id, string $shelfmark, array $changes): array
+    private function record(int $id, ?string $shelfmark, array $changes): array
     {
         return ['table' => 'manuscripts', 'id' => $id, 'shelfmark' => $shelfmark, 'category' => 'rebuild', 'v2' => 'v99-1#1', 'changes' => $changes];
     }
@@ -107,5 +109,28 @@ class RebuildCopiesCommandTest extends TestCase
         $this->artisan('fahares:rebuild-copies', ['--file' => $this->file])
             ->expectsOutputToContain('Would rebuild 0 copies.')
             ->assertSuccessful();
+    }
+
+    public function test_a_copy_that_lost_its_place_gets_its_city_library_and_shelfmark()
+    {
+        $meta = ['incipits' => [], 'explicits' => [], 'editorial_notes' => [], 'ownership_and_seals' => [], 'catalog_citation' => '[نشریه: 5 - 640]', 'residual_notes' => null];
+        $id = $this->copy(null, "شماره نسخه: 90/4\nبی‌کا", null, $meta);
+        DB::table('manuscripts')->where('id', $id)->update(['city' => null, 'library' => null, 'library_id' => null]);
+        $library = $this->library = DB::table('libraries')->insertGetId([
+            'city' => 'تهران', 'name' => 'کتابخانه‌ی آزمایشی ' . uniqid(), 'slug' => 'test-rebuild-library-' . uniqid(), 'manuscripts_count' => 0,
+        ]);
+        file_put_contents($this->file, json_encode(['records' => [$this->record($id, null, [
+            'city' => ['from' => null, 'to' => 'تهران'],
+            'library' => ['from' => null, 'to' => 'دانش‌سرای عالی'],
+            'library_id' => ['from' => null, 'to' => $library],
+            'shelfmark' => ['from' => null, 'to' => '90/4'],
+        ])]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:rebuild-copies', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $row = DB::table('manuscripts')->where('id', $id)->first();
+        $this->assertSame(['تهران', 'دانش‌سرای عالی', $library, '90/4', '90/4'],
+            [$row->city, $row->library, $row->library_id, $row->shelfmark, $row->shelfmark_key]);
+        $this->assertSame(1, (int) DB::table('libraries')->where('id', $library)->value('manuscripts_count'));
     }
 }

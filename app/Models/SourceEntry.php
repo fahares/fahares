@@ -283,12 +283,23 @@ class SourceEntry extends Model
         return $log->action === Ref::ACTION_BULK_VERIFY && in_array($log->auditable_type, [static::class, Ref::class], true);
     }
 
-    /** The latest bulk verification that has not been reverted, if any. */
-    public static function lastBulkVerify(): ?AuditLog
+    /**
+     * The latest bulk verification that has not been reverted, if any: of the queue its filters name («queue»), or,
+     * with none, of the catalogue references' queue, whose batches name none.
+     */
+    public static function lastBulkVerify(?string $queue = null): ?AuditLog
     {
         return AuditLog::whereIn('auditable_type', [static::class, Ref::class])->where('action', Ref::ACTION_BULK_VERIFY)
             ->whereNotIn('id', AuditLog::where('auditable_type', AuditLog::class)->where('action', Ref::ACTION_BULK_REVERT)->select('auditable_id'))
+            ->when($queue, fn ($q) => $q->where('new_values', 'like', '%"queue":"' . $queue . '"%'),
+                fn ($q) => $q->where('new_values', 'not like', '%"queue":%'))
             ->latest('id')->first();
+    }
+
+    /** The queue a bulk verification was made in («queue» of its filters), or null for the catalogue references'. */
+    public static function bulkQueue(AuditLog $batch): ?string
+    {
+        return $batch->new_values['filters']['queue'] ?? null;
     }
 
     /**

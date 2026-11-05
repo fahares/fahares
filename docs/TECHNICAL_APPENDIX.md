@@ -7204,12 +7204,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صف داوری:** برچسب تازه‌ی `edition_place`.
 - **آزمون:** `LinkEarlierEditionTest`، ۷ آزمون: درون‌یابی، چاپ سنگی، جزء، ارجاع از چاپ سایت، و دنبال کردن «رجوع شود به».
 - **تمرین (`fahares_prod`):** روضات `created 35`، أعیان `created 30` و مشار `created 77`. اجرای دوم «unchanged» داد و ۴۲۶ پیوند نسخه‌ها هم «unchanged» ماند.
+- **پروداکشن (۱۳ آبان ۱۴۰۵، پس از انتشار `2ff8c69`، از راه `prod-run`):**
+  - **پشتیبان:** با `tinker` گرفته شد. شامل ردیف‌های `earlier_edition_link` (صفر)، شمار `source_entries` (۷۸۹٬۹۸۰، بیشینه‌ی شناسه ۹۷۲٬۵۸۴) و شمار پیوندهای `match` هر منبع است. جای فایل: `fahares-sources/backups/step13/step14.22-24_earlier_edition_prod_before_20261104.json`. بازگرداندن یعنی حذف ردیف‌های `legacy_type = earlier_edition_link`.
+  - **اجرای آزمایشی:** همان شمارهای تمرین را داد. نسخه‌ها ۲٬۵۸۳ ارجاع داشت و ۱٬۳۱۴ کنار ماند. مشار یک پیوند بیشتر داد.
+  - **اجرای واقعی:** نسخه‌ها `created 426`، روضات `created 35`، أعیان `created 30` و مشار `created 78`. اجرای دوم نسخه‌ها، روضات و مشار «unchanged» داد.
+  - **پس از اجرا:** `source_entries` ۷۹۰٬۵۴۹ ردیف شد (+۵۶۹).
+  - **وارسی صفحه‌ها:** `/works/777`، `/works/1033` و `/works/59` پاسخ ۲۰۰ دادند و «روضات الجنات، ج ۶، ص ۲۰۹»، «اعیان الشیعة، ج ۶، ص ۳۵۷» و «فهرستواره منزوی، ج ۱، ص ۱۶۲» را نشان دادند.
 
 ### گام ۱۴.۲۵: نامزدهای دیگر `unmatched.jsonl` و `from_sequence`
 - **یافتن نامزد:** برای هر رشته‌ای که در `unmatched.jsonl` review7 ردیف `v2_work` داشت، آثار v2 با همان عنوان کنار آثار سایت با همان آغاز عنوان در همان جلد گذاشته شدند.
   - نامزد اثری است که `norm(author.name)` آن در `author_name` هیچ اثر رشته نیامده باشد.
   - نسخه‌های نامزد با همان کتابخانه و شماره در کل جلد جست‌وجو شدند.
-  - **کنار رفته به دلیل املای دیگر:** v16-1996 و v16-1997 (در سایت «علی بن ابی طالب (ع)، امام اول»)، v16-2024 (با «؟») و v21-1204 (در سایت «مجلسی، محمد تقی بن مقصود علی»).
+  - **کنار رفته به دلیل املای دیگر:** v16-1996 و v16-1997 (در سایت «علی بن ابی طالب (ع)، امام اول»)، v16-2024 (با «؟») و v21-1204 (در سایت «مجلسی، محمد تقی بن مقصود علی»). وارسی بعدی نشان داد هر چهار اثر با همان نسخه‌ها در سایت هست و اثر افتاده نیست: #33327 (گلپایگانی 1759/3)، #33328 (مرعشی 1109/1 و گلپایگانی 6159/1)، #33351 (مرعشی 15914/5) و #43214 (ملی 2356).
   - **رشته‌هایی که اثر نبوده ندارند:** آنچه از «ساقی نامه» v17-1348 و v17-1350، «شرح زبدة الاصول» v19-1897، «شرح نهج البلاغة» و «فائده» ماند، اثرهای بی‌مؤلف سایت است که جفتشان هم بی‌مؤلف است.
 - **[fankha_v2_run_works_export.py](../../fahares-corpus/scripts/fankha_v2_run_works_export.py) (کامیت `258035d`):**
   - **جست‌وجوی نسخه:** صفحه ±۲، چون صفحه‌ی v1 گاه یک صفحه جلوتر است (نواب 203 در سایت ص ۸۰۷ و در v2 ص ۸۰۹)، و چهار نویسه‌ی نخست کتابخانه.
@@ -7227,6 +7233,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - مؤلف ۱۳ اثر به شخص پیوند خورد، و جمالی به صورت متن ماند.
   - شمار نسخه‌های #21844 از ۲۵ به ۱۶ رسید.
 - **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، با پشتیبان گام ۱۴.۱۹):** `Adding 14 works, fill 1 … copies: 12 moved, 47 made` و `rebuild 1`. شناسه‌ی نسخه‌ی مجلس 573 در پروداکشن هم 53355 بود. «الغيبة»ٔ نعمانی اکنون #71838 است، با ۱۶ نسخه.
+
+### گام ۱۴.۲۶: جلد منابع از وب
+- **فهرست منابع بی‌جلد:** با tinker در پروداکشن (فقط خواندن)، منبع‌هایی که `coverUrl()` آن‌ها null است، همراه عنوان، ناشر، سال و فهرست‌نگار جلدها. ۹۱ منبع.
+- **MTIF:** واژه‌های `words()`ِ `mtif_covers.py` برای هر عنوان با همه‌ی کتاب‌های `../fahares-sources/mtif/books.json` سنجیده شد (دست‌کم ۶۰٪ واژه‌های منبع، و «عکسی» یکسان). صفحه‌ی `https://mtif.org/book/{id}` نامزدها با `printings()` خوانده شد، و کتاب و تصویر هر منبع با دست برگزیده شد.
+- **وب:** جستجوی متنی، و صفحه‌ها و `og:image` نورلیب، طاقچه، archive.org، Google Books، ترب، فانوس، ghbook و ketabnak با curl. gisoom، lib.ir و noormags از این دستگاه باز نمی‌شوند. جستجوی تصویر Bing برای عنوان فارسی نتیجه‌ی بی‌ربط داد.
+- **فایل‌ها:**
+  - `public/images/sources/covers/{code}.webp`: بیشینه‌ی ۶۴۰ در ۹۶۰، کیفیت ۸۲، بی بزرگ‌نمایی. کوچک‌ترین ۲۰۷ پیکسل پهنا دارد (محقق).
+  - `../fahares-sources/web-covers/`: همان WebPها، اصل تصویرها در `originals/` و `manifest.json` با `page`، `image`، `what` و `size` هر منبع. `same_as` می‌گوید تصویر از کد دیگری آمده است.
+- **یک تصویر برای چند منبع:** دهگان (`catalogue-77a075f39d37`، `-27335f850012`، `-dc258caef1e6`)، نمازی خوی (`-562da249ec42`، `-5d60ff4223d8`)، الهیات دانشگاه تهران (`-7006195fe18b`، `-390be0eedcbf`)، مجلس سنا (`-c225f7337b0a`، `-a524cf28e464`) و شش مقاله‌ی تراثنا (جلد شماره‌ی ۲، ۱۴۰۶ق).
+- **کنار رفته:** ارگانی بهبهانی (جلد «فهرست کتب چاپی»)، کاشان ۱ (جلد «مدرسه سلطانی کاشان» بی «جعفری»)، فهرست مختصر مجلس سنا (فقط جلد فهرست کامل یافت شد)، نسخه‌های عکسی دائرةالمعارف (جلد فهرست خطی)، مدرسه نواب (چاپ ۱۳۴۴ جدا از «چهار کتابخانه مشهد» ۱۳۵۱)، آینه پژوهش ۲۲ (برگه‌ی فهرست مطالب).
+- **بی‌جلد مانده (۲۸):** `catalogue-` `b54dee88e953`، `ba694d043021`، `f72ec3ba3fbc`، `41322fd8f0f4`، `f8a984795e41`، `e1a7c9ee7712`، `b89f67efe34f`، `86df5c630b29`، `80e6ea93e62c`، `508df9df7cd6`، `0050f7e2e051`، `70aa95ae66df`، `b6b3ae39f183`، `01e73ebe281d`، `68db58132fa6`، `6b958fb55da0`، `5694f9428dd4`، `469dfc002104`، `358b876ba843`، `eed41d088487`، `bfa5469ecd6c`، `7da93f513bb5`، `b67f83c0af8b`، `7c24e45b2710`، `f84ee318004c`، `844bb8bee31a`، `9dc991b94e6e`، `43064d22d8a0`.
 ### گام ۱۴.۲۸: یادداشت سطر پوشیده‌ی مآخذ
 - **`BibliographyLinks::note($entry)`:** واژه‌هایی از سطر که نه نام منبع‌اند و نه ارجاع، با «، » به هم پیوسته.
   - **خروجی:** `''` برای سطری که فقط ارجاع است. `null` برای سطر بی ارجاع، یا سطری که یادداشتش عدد یا نام چاپ دارد (`چاپ`، `چ`، `ط`، `طبع`، `الطبعة`، `افست`).
@@ -7332,3 +7349,49 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندهای فقها (۳۱ جا):** `author_opening*` ۲۵، `author_life*` ۴، یادکرد ۱ و بی‌تطبیق ۱.
 - **فایل‌ها:** `../fahares-sources/noor-printed/{kalam-turath,fuqaha}/`.
 - **آزمون:** دو آزمون تازه در `NoorReferenceBooksTest`، با فیکسچرهای `kalam-turath-v01-p126` (شش «اثبات الرجعة» در یک صفحه) و `fuqaha-v14-p861`.
+### گام ۱۴.۲۹: تأیید گروهی در `SourceLinkController`
+- **`BULK`:** فهرست `[source, method, min, sample]`. `bulkRule()` دسته‌ای را برمی‌گرداند که منبع و روش پالایه با آن یکی است. `bulkQuery()` پیوندهای داوری‌نشده‌ی پالایه است، با اطمینان `min` به بالا.
+- **مسیرها:** `POST admin/source-links/bulk-verify` (`source-links.bulk-verify`) و `POST admin/source-links/bulk/{batch}/revert` (`source-links.bulk-revert`)، زیر مجوز `catalog_refs.review`.
+  - شمار دیده‌شده (`expected`) باید هنوز درست باشد. پالایه‌ای که دسته‌ی مجاز ندارد پاسخ ۴۲۲ می‌گیرد.
+- **`SourceEntry::bulkVerify`:** بی تغییر، با `filters = {queue: source-links, min, …پالایه}`.
+- **`lastBulkVerify(?queue)`:** با `queue`، آخرین دسته‌ی آن صف را برمی‌گرداند. بی آن، دسته‌ای را برمی‌گرداند که `queue` ندارد، یعنی دسته‌ی صف ارجاع‌های فهرست. `bulkQueue()` صف یک دسته را می‌خواند.
+  - هر کنترلر فقط دسته‌ی صف خودش را برمی‌گرداند. فرمان `catalogs:revert-bulk-verify` بی‌آرگومان همان دسته‌ی صف ارجاع‌ها را برمی‌دارد.
+- **نما:** `admin/source_links/index`:
+  - اعلان سبز با دکمه، وقتی پالایه دسته‌ی مجاز دارد؛
+  - اعلان «پالایه‌ی پیشنهادی»، وقتی منبع دسته‌ی مجاز دارد ولی روش پالایه آن نیست؛
+  - اعلان آخرین دسته، با «برگرداندن این دسته».
+- **آزمون:** `SourceLinksReviewTest::test_a_category_let_in_is_verified_at_once_and_the_batch_reverted`.
+- **وارسی (`fahares_prod` محلی، کد همین شاخه):** پالایه‌ی `source=monzavi&method=edition_address` دکمه‌ی «تأیید همه‌ی ۱۴۴ پیوند این پالایه» را نشان داد، از ۱۵۸ پیوند پالایه. ۱۴ پیوند با اطمینان ۸۵ بیرون ماندند. پالایه‌ی `source=monzavi` «پالایه‌ی پیشنهادی» را نشان داد. در ۳۷۵ پیکسل سرریز افقی نبود.
+
+### گام ۱۴.۳۰: نسخه‌ی بی‌جای «علم الاكتاف»
+- **بازبینی کنار رفته‌های ۱۴.۱۹:** `fankha_lost_heads_export.py --volumes 17 19 22 23 26` روی `fahares_prod` پس از ۱۴.۲۳ تنها سه اثر با سطر افتاده یافت، و هیچ‌کدام به‌روزرسانی نداشت:
+  - v22-2235 «علم الاكتاف» (#46391): «a copy line in the head».
+  - v23-931 «فارسی هیئت»: با #47841 («هیئت»ٔ قوشچی) جفت شده بود. اثر خودش #47840 «فارسی هیأت» است، با مجلس 8914/14.
+  - v26-1888 «کیمیا»ی ترکی: با #54844 جفت شده بود. اثر خودش #54841 «كيمياء» است، با هر ۸ نسخه.
+- **علت در «علم الاكتاف»:** خط ۴۷۸۳۴ ج ۲۲ («تهران؛ …؛» در پایان ص ۸۵۷) و «شماره نسخه: 90/4» در آغاز ص ۸۵۸. v1 و v2 هر دو سطر نخست را `description` خواندند. جست‌وجوی همین الگو (سطر پایان‌یافته با «؛»، برچسب صفحه، سپس «شماره نسخه») در ۳۴ جلد تنها همین را یافت.
+- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):** `COLUMNS` اکنون `city`، `library` و `library_id` را هم دارد. `libraries.manuscripts_count` برای `library_id` پیشین و تازه دوباره شمرده می‌شود. آزمون: `test_a_copy_that_lost_its_place_gets_its_city_library_and_shelfmark`.
+- **فایل‌ها:**
+  - `database/data/fankha_lost_place_copy_step14_30.json`: نسخه‌ی 215604، با `city`، `library` (نام کتابخانه‌ی #99)، `library_id` 99، `shelfmark` «90/4» و `raw_text` با سطر جای نسخه.
+  - `database/data/fankha_lost_place_work_step14_30.json`: `work_updates` برای `ilm-ul-aktaf-v22-2225`، با `description` تهی و `raw_text` تنها سرعنوان.
+  - شناسه‌ها روی پروداکشن هم همین‌اند (215604، 46391، کتابخانه‌ی 99 با ۳۴۴ نسخه)، خوانده‌شده با ssh فقط‌خواندنی.
+- **تمرین (`fahares_prod`):** `update 1` و `rebuild 1`، سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`. اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی #99 اکنون ۳۴۵ نسخه دارد.
+- **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، پس از استقرار `1b99daf`، از راه `prod-run`):**
+  - پشتیبان: `fahares-sources/backups/step13/step14.30_lost_place_prod_before_20261104.json` (نسخه، اثر، کتابخانه‌ی ۹۹، خط نسخه و سه ردیف `source_entries`).
+  - `fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`: `update 1`.
+  - `fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`: `rebuild 1`.
+  - `catalogs:link-volumes` و `fahares:rebuild-scripts`: «Nothing to change».
+  - اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی ۹۹ اکنون ۳۴۵ نسخه دارد. صفحه‌ی اثر نسخه را با «تهران ۹۰/۴» نشان می‌دهد.
+- **اجرا در پروداکشن:** پس از استقرار، با پشتیبان:
+  - `php artisan fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`
+  - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
+  - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
+
+### گام ۱۴.۳۲: شماره‌ی بخش در ارجاع‌های متن صفحه
+- **[BibliographyLinks::inProse](../app/Support/BibliographyLinks.php):** الگوی `$part` (`\(\s*[0-9۰-۹]{1,2}\s*\)\s*`، اختیاری) پس از نام منبع و پس از «همان‌جا» آمده است. `segments()` بی‌تغییر است: عدد کمانک لینک نمی‌شود و `sourceAfter()` کمانک را از فاصله‌ی پیش از «page/volume» برمی‌دارد.
+- **شمار در داده‌ی محلی:** «نام (n) page/volume» در ۱۲۰۱ صفحه (همه منزوی). ذریعه (n) …/9: بخش ۱ = ۱۳۳، ۲ = ۹۷، ۳ = ۱۲۰، ۴ = ۷۱، و «همان‌جا (n)» ۱۰۸ بار دیگر.
+- **آزمون:** `SourcePageViewTest::test_a_citation_inside_a_page_text_links_the_cited_page`، با «ذریعه (3) 791/9»، «ذریعه (2) 346/9» و «همان‌جا (4) 1270/9».
+
+### گام ۱۴.۳۳: حاشیه‌ی برگه و پاورقی در پای صفحه
+- **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
+- **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
+- **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.

@@ -62,7 +62,7 @@
                     @if($viewer)
                         <x-ui.btn size="sm" x-on:click="$dispatch('open-catalog-viewer', {{ \Illuminate\Support\Js::from($viewer) }})">دیدن برگه</x-ui.btn>
                     @endif
-                    <x-ui.btn size="sm" x-on:click="navigator.clipboard.writeText($refs.sheet.innerText.trim()); copied = true; setTimeout(() => copied = false, 2500)">
+                    <x-ui.btn size="sm" x-on:click="navigator.clipboard.writeText([$refs.sheet, $refs.notes].filter(Boolean).map(e => e.innerText.trim()).join('\n\n')); copied = true; setTimeout(() => copied = false, 2500)">
                         <span x-show="!copied">رونوشت متن</span>
                         <span x-show="copied" x-cloak class="text-emerald-600">رونوشت شد</span>
                     </x-ui.btn>
@@ -150,6 +150,15 @@
                         <p class="text-center text-sm text-muted font-sans py-16">این صفحه در چاپ متنی ندارد.</p>
                     @endforelse
                 </div>
+
+                @if($printed->footnotes)
+                    {{-- the page's footnotes under a short rule, as the book prints them --}}
+                    <aside class="book-sheet__notes" x-ref="notes" data-footnotes>
+                        @foreach($printed->footnotes as $note)
+                            <div class="whitespace-pre-line">{{ \App\Support\PrintedPage::text($note) }}</div>
+                        @endforeach
+                    </aside>
+                @endif
 
                 <footer class="book-sheet__foot" aria-hidden="true">{{ Fa::digits($printed->page) }}</footer>
             </article>

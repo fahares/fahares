@@ -132,6 +132,28 @@ class SourcePageViewTest extends TestCase
         $this->assertSame(2, substr_count($html, 'rounded-full text-sky-700'));
     }
 
+    public function test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page()
+    {
+        // al-Dhari'a's volume 1 p. 10: the paragraphs closing the page that open with a number marked in the text above
+        $source = Source::create(['code' => 'dharia-test', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 20, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => 'dharia-test']);
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 10,
+            'text' => "( 47 : كتاب الآداب ) للواقدي يكثر النقل عنه في فهرسه ( 1 )\n\n( 1 ) قال ابن النديم في فهرسه\n( 2 ) صوابه (الساقى)."]);
+        SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 1, 'item_key' => '47',
+            'position' => 1, 'kind' => SourceItem::KIND_ENTRY, 'entry_number' => 47, 'title' => 'كتاب الآداب', 'title_normalized' => 'كتاب الآداب',
+            'page_start' => 10, 'page_end' => 10, 'text' => '( 47 : كتاب الآداب ) للواقدي يكثر النقل عنه في فهرسه ( 1 )']);
+
+        $html = $this->get('/sources/dharia-test/1/page/10')->assertOk()->getContent();
+        [$body, $notes] = explode('data-footnotes', $html, 2);
+        $this->assertStringContainsString('يكثر النقل عنه في فهرسه ( ۱ )', $body);
+        $this->assertStringNotContainsString('قال ابن النديم', $body);
+        $this->assertStringContainsString("( ۱ ) قال ابن النديم في فهرسه\n( ۲ ) صوابه (الساقى).", $notes);
+
+        // a closing paragraph whose number is marked nowhere above (Monzavi's index heading «1 - نام نگارندگان») stays
+        DB::table('source_pages')->insert(['source_volume_id' => $volume->id, 'page' => 11, 'text' => "سخن مؤلف\n\n1 - نام نگارندگان"]);
+        $this->get('/sources/dharia-test/1/page/11')->assertOk()->assertSee('نام نگارندگان', false)->assertDontSee('data-footnotes', false);
+    }
+
     public function test_a_catalogue_page_links_its_works_headings_and_copies_lines_in_two_columns()
     {
         // Fankha vol. 2 p. 926 in short: two works with the same heading line, and their copies. Saving a record
@@ -347,6 +369,10 @@ class SourcePageViewTest extends TestCase
         // Monzavi's «همان‌جا» cites the book cited right before it, while that is one of the site's
         $cites = array_values(array_filter(BibliographyLinks::inProse('ذریعه 280/9، همان‌جا 453/3 «تحفة...»، همان‌جا 138/19؛ مشترک 46/7، همان‌جا 53/10'), fn ($s) => isset($s['cite'])));
         $this->assertSame([['280/9', 9, 280], ['453/3', 3, 453], ['138/19', 19, 138]], array_map(fn ($s) => [$s['text'], $s['cite']['volume'], $s['cite']['page']], $cites));
+
+        // «ذریعه (3) 791/9»: the part of al-Dhari'a's volume 9 between the name and the citation, also after «همان‌جا»
+        $cites = array_values(array_filter(BibliographyLinks::inProse('ذریعه (3) 791/9 «دیوان غلام نبی هندی»؟؛ ذریعه (2) 346/9 «دیوان راز»، همان‌جا (4) 1270/9'), fn ($s) => isset($s['cite'])));
+        $this->assertSame([['791/9', 9, 791], ['346/9', 9, 346], ['1270/9', 9, 1270]], array_map(fn ($s) => [$s['text'], $s['cite']['volume'], $s['cite']['page']], $cites));
 
         // Monzavi's page 360 cites page 361 of its own volume: the page text links it
         $this->monzavi();

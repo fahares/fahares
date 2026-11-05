@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\File;
 /**
  * Rebuilds copies whose content on the site came from a neighbouring copy (item 87, step 13.70): the record's
  * identity (work, sequence, city, library, shelfmark, pages) is right, but its raw text, date, scribe, size and
- * citation are another copy's, or whose shelfmark was misread (step 13.87). The decision file, written by the corpus script `fankha_v2_rebuild_export.py`,
+ * citation are another copy's, or whose shelfmark was misread (step 13.87), or whose place and shelfmark were lost
+ * where a page tag split its heading («علم الاكتاف», vol 22, step 14.30). The decision file, written by the corpus script `fankha_v2_rebuild_export.py`,
  * gives every content column from parser v2 with the value the site had. A copy is rebuilt only when its shelfmark
  * is unchanged, every listed column still holds that value and no reviewed correction protects any of them; then
  * what was made from the old content follows: its Fankha entry and cited page, the legacy catalogue reference,
@@ -35,7 +36,7 @@ class RebuildCopiesCommand extends Command
         'copy_date_raw', 'copy_date_hijri_year', 'copy_place', 'commissioned_by', 'folios', 'lines', 'dimensions',
         'paper', 'binding', 'incipit_text', 'explicit_text', 'is_corrected', 'has_marginal_notes', 'is_ruled',
         'has_catchwords', 'is_facsimile', 'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia',
-        'metadata', 'shelfmark', 'sequence_number'];
+        'metadata', 'shelfmark', 'sequence_number', 'city', 'library', 'library_id'];
 
     public function handle(): int
     {
@@ -118,6 +119,12 @@ class RebuildCopiesCommand extends Command
                 ]);
             }
         });
+        // a copy given its library (step 14.30) counts there, and no longer where it was
+        $libraries = collect($writes)->filter(fn ($r) => isset($r['changes']['library_id']))
+            ->flatMap(fn ($r) => [$r['changes']['library_id']['from'], $r['changes']['library_id']['to']])->filter()->unique();
+        foreach ($libraries as $id) {
+            DB::table('libraries')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('library_id', $id)->count()]);
+        }
         $ids = array_column($writes, 'id');
         SourceEntrySync::syncIds(Manuscript::class, $ids);
         // DB::table runs no model hook: the date range, extent, excerpt pointers and search documents follow here

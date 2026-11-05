@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Console\Commands\LinkSourceItemsCommand;
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Source;
 use App\Models\SourceEntry as Entry;
 use App\Models\SourceItem;
@@ -41,6 +42,16 @@ class SourceLinkController extends Controller
         'edition_place' => 'جای تخمینی از چاپ پیشین',
     ];
 
+    /**
+     * The ties that may be verified all at once (item 116, step 14.29): a source, a method and the least confidence,
+     * each let in only after a hand-checked sample. Monzavi's «نسخه‌ها» page with the work's heading: 37 of 40 right.
+     */
+    public const BULK = [
+        ['source' => 'monzavi', 'method' => 'edition_address', 'min' => 95, 'sample' => 'نمونه‌ی ۴۰تایی: ۳۷ درست'],
+    ];
+
+    public const BULK_QUEUE = 'source-links';
+
     /** The uncertain ties first, in this order; the rest after them, the least sure first. */
     private const UNCERTAIN = ['ambiguous', 'author_death', 'near', 'title_only', 'title_in_text'];
 
@@ -62,7 +73,62 @@ class SourceLinkController extends Controller
         $links = $this->order($this->filtered($filters)->where('status', $status))
             ->with(['citable', 'source', 'sourceItem', 'reviewer'])->paginate(30)->withQueryString();
 
-        return view('admin.source_links.index', compact('links', 'sources', 'volumes', 'counts', 'methods', 'status', 'filters') + ['query' => $this->query($filters)]);
+        $bulk = $status === Entry::STATUS_UNVERIFIED ? self::bulkRule($filters) : null;
+        $bulkCount = $bulk ? $this->bulkQuery($filters, $bulk)->count() : 0;
+        $lastBulk = Entry::lastBulkVerify(self::BULK_QUEUE)?->load('user');
+
+        return view('admin.source_links.index', compact('links', 'sources', 'volumes', 'counts', 'methods', 'status', 'filters', 'bulk', 'bulkCount', 'lastBulk')
+            + ['query' => $this->query($filters)]);
+    }
+
+    /**
+     * Verifies at once the undecided ties of the queue's filters that one of BULK lets in. The count the reviewer
+     * saw is sent back and must still hold, so a queue changed meanwhile is not verified blind.
+     */
+    public function bulkVerify(Request $request)
+    {
+        $filters = $this->filters($request);
+        $rule = self::bulkRule($filters);
+        abort_unless($rule, 422, 'تأیید گروهی برای این پالایه نیست.');
+        $query = $this->bulkQuery($filters, $rule);
+        $count = (clone $query)->count();
+        if ($count === 0 || $count !== $request->integer('expected')) {
+            return back()->with('error', 'شمار پیوندهای این پالایه تغییر کرده است (' . Fa::num($count) . '). صفحه را دوباره ببینید و از نو تأیید کنید.');
+        }
+        $batch = Entry::bulkVerify($query, $request->user(), ['queue' => self::BULK_QUEUE, 'min' => $rule['min']] + $this->query($filters), $request->ip());
+
+        return back()->with('success', Fa::num($batch->new_values['count']) . ' پیوند یک‌جا تأیید شد (دسته‌ی #' . Fa::digits($batch->id) . ').');
+    }
+
+    public function revertBulk(Request $request, AuditLog $batch)
+    {
+        abort_unless(Entry::isBulkVerify($batch) && Entry::bulkQueue($batch) === self::BULK_QUEUE, 404);
+        try {
+            [$reverted, $kept] = Entry::revertBulkVerify($batch, $request->user(), $request->ip());
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', Fa::num($reverted) . ' پیوند به صف داوری برگشت'
+            . ($kept ? '؛ ' . Fa::num($kept) . ' پیوند که از آن پس جداگانه داوری شده بود دست نخورد.' : '.'));
+    }
+
+    /** The rule of BULK the filters' source and method make, if any. */
+    public static function bulkRule(array $filters): ?array
+    {
+        foreach (self::BULK as $rule) {
+            if (($filters['source'] ?? null)?->code === $rule['source'] && ($filters['method'] ?? null) === $rule['method']) {
+                return $rule;
+            }
+        }
+
+        return null;
+    }
+
+    /** The undecided ties of the filters that a rule lets in: its confidence and above. */
+    private function bulkQuery(array $filters, array $rule): Builder
+    {
+        return $this->filtered($filters)->where('status', Entry::STATUS_UNVERIFIED)->where('confidence', '>=', $rule['min']);
     }
 
     /** One tie with the entry's text, the text of its pages and the entries a reviewer may move it to. */

@@ -63,6 +63,47 @@
     </select>
 </x-admin.filters>
 
+<div class="space-y-3 mb-4 text-[13px]">
+    {{-- Bulk verification of the categories Queue::BULK lets in, and the revert of the last one --}}
+    @if($bulk && $bulkCount > 0)
+        <x-admin.notice tone="good" class="flex flex-wrap items-center gap-3">
+            <p class="flex-1 min-w-64 text-ink">
+                <b>تأیید گروهی:</b>
+                {{ Queue::methodLabel($bulk['method']) }}، اطمینان {{ Fa::digits($bulk['min']) }} به بالا ({{ $bulk['sample'] }}).
+                چند نمونه را با «بررسی» ببینید و سپس همه‌ی پیوندهای این پالایه را یک‌جا تأیید کنید. آخرین تأیید گروهی برگشت‌پذیر است.
+            </p>
+            @php $count = Fa::num($bulkCount); @endphp
+            <form method="POST" action="{{ route('admin.source-links.bulk-verify') }}" onsubmit="return confirm(@js($count . ' پیوند تأیید شود؟'))">
+                @csrf
+                @foreach($query as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endforeach
+                <input type="hidden" name="expected" value="{{ $bulkCount }}">
+                <button type="submit" class="px-4 py-2 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">تأیید همه‌ی {{ $count }} پیوند این پالایه</button>
+            </form>
+        </x-admin.notice>
+    @elseif($status === SourceEntry::STATUS_UNVERIFIED && $source && collect(Queue::BULK)->contains('source', $source->code))
+        @foreach(collect(Queue::BULK)->where('source', $source->code) as $rule)
+            <x-admin.notice class="flex flex-wrap items-center gap-3">
+                <p class="flex-1 min-w-64 text-muted">تأیید گروهی فقط برای دسته‌هایی است که نمونه‌شان دستی سنجیده شده است. دیگر پیوندها هر کدام جداگانه داوری می‌شوند.</p>
+                <x-ui.btn :href="route('admin.source-links.index', ['source' => $rule['source'], 'method' => $rule['method']])">پالایه‌ی پیشنهادی: {{ Queue::methodLabel($rule['method']) }}</x-ui.btn>
+            </x-admin.notice>
+        @endforeach
+    @endif
+    @if($lastBulk)
+        <x-admin.notice class="flex flex-wrap items-center gap-3">
+            <p class="flex-1 min-w-64">
+                آخرین تأیید گروهی (دسته‌ی #{{ Fa::digits($lastBulk->id) }}): {{ Fa::num($lastBulk->new_values['count'] ?? 0) }} پیوند،
+                به دست {{ $lastBulk->user?->name ?? '—' }}، {{ \App\Support\Jalali::format($lastBulk->created_at, 'datetime') }}.
+            </p>
+            <form method="POST" action="{{ route('admin.source-links.bulk-revert', $lastBulk) }}" onsubmit="return confirm('پیوندهای این دسته به صف داوری برگردند؟ آن‌هایی که از آن پس جداگانه داوری شده‌اند دست نمی‌خورند.')">
+                @csrf
+                <x-ui.btn type="submit">برگرداندن این دسته</x-ui.btn>
+            </form>
+        </x-admin.notice>
+    @endif
+</div>
+
 <x-admin.table :paginator="$links" :is-empty="$links->isEmpty()" empty="پیوندی با این پالایه نیست.">
     <x-slot:head>
         <x-admin.th>اثر</x-admin.th>
