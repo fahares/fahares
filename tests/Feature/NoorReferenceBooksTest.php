@@ -234,6 +234,25 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertSame(['37#2', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
     }
 
+    public function test_zirikli_lives_start_at_their_dates_after_the_references_to_other_lives()
+    {
+        // step 14.48: «السِّمْنَاني- محمد بن أحمد 444 … سَمْنُون بن حَمْزة ...- نحو 290 ه ...- نحو 903 م سمنون بن حمزة …»:
+        // the references to lives elsewhere stay out of the life, which is titled with the full name before the colon
+        $volume = $this->volume('zirikli', 'الأعلام', 3, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'zirikli', 'pages' => self::FIXTURES . 'zirikli-v03-p140.jsonl', '--volume' => 3])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'zirikli', '--volume' => 3, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'zirikli-v03-p140.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $volume->id)->get()->keyBy('item_key');
+        $this->assertCount(5, $items);
+        $this->assertSame('السموأل بن يحيى بن عباس المغربي', $items['140#3']->title);
+        $this->assertStringStartsWith('سَمْنُون بن حَمْزة', $items['140#1']->text);
+
+        $work = $this->work('zirikli', 'بذل المجهود فی افحام الیهود', 'مغربی، سموأل بن یحیی', 3, 140, 'الاعلام 140/3');
+        $this->artisan('sources:link-items', ['volume' => 'zirikli', '--volume' => 3])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['140#3', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
+    }
+
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,
