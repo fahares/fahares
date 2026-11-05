@@ -7562,22 +7562,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
-### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
-- **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
-  - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
-  - `km-fadl-889`، `km-fadl-kayny-916` و `km-fadl-kaym-1041` در `km-fadl-kayyny-73` ادغام می‌شوند.
-- **ترتیب اجرا:** `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`. اجرای دوباره‌ی `catalogs:import-volume-parts` برای «تراثنا» بخش نمی‌دهد («Nothing to do»)، چون نسخه‌ها پیش‌تر به جلد بسته شده‌اند و تنها کتابخانه‌شان عوض شده است.
-- **کد:** تغییری نکرد.
-- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
-  - `merge-duplicates`: ۳۷۳ ← ۳۶۹ کتابخانه.
-  - `assign-volume-parts --dry-run`: «changed: 34». اجرای اصلی همین را داد و اجرای دوم «changed: 0».
-  - بخش‌ها: #1077 (کتابخانه ۲۸۰) ۶۰ نسخه، و #1084، #1086 و #1087 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. شمارنده‌ها با شمار واقعی نسخه‌ها برابرند.
-- **پروداکشن (۱۵ آبان ۱۴۰۵، از راه `prod-run`؛ فایل داده پیش از انتشار به `/tmp` کانتینر رفت):**
-  - **پشتیبان:** `…/step14.43_merge_turathuna_libraries_prod_before_20261105.json`، شامل ردیف شش کتابخانه، و برای ۳۷۶ نسخه `library_id`، `catalog_volume_id`، `catalog_volume_part_id` و `cataloger_id`، و ۴ بخش.
-  - **`merge-duplicates`:** dry-run و اجرا: ۳۷۳ ← ۳۶۹ کتابخانه.
-  - **`assign-volume-parts`:** dry-run: «changed: 34». اجرا: «changed: 34».
-  - **پس از اجرا:** بخش #205 (کتابخانه ۲۸۰) ۶۰ نسخه دارد، و #212، #214 و #215 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. `manuscripts_count` با شمار واقعی برابر است. چهار کتابخانه حذف شدند و چهار ردیف `entity_redirects` گرفتند: `/libraries/889` و `/libraries/331` با ۳۰۱ به ۷۳ و ۲۸۰ می‌روند.
-  - **نمایه:** `LibraryMerger` نسخه‌های جابه‌جاشده را بی‌صف دوباره ایندکس کرد (`scout.queue = false`). بخش در `toSearchableArray` نیست، پس `assign-volume-parts` ایندکس تازه نمی‌خواهد.
 ### گام ۱۴.۴۲: `CatalogCitations` و `fankha_citation_more`
 - **جداکننده** [CatalogCitations](../app/Support/CatalogCitations.php):
   - **`brackets()`:** کروشه‌ی آخر `raw_text` و کروشه‌هایی که با «و»، «،» یا «؛» به آن پیوسته‌اند. کروشه‌ی بلندتر از ۱۵۰ نویسه کنار می‌رود.
@@ -7601,6 +7585,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **دستور** [SyncOtherCitationsCommand](../app/Console/Commands/SyncOtherCitationsCommand.php) (`fahares:sync-other-citations [--apply] [--show=]`): بی `--apply` فقط می‌شمارد. با آن، ردیف‌های نسخه‌هایی را که دیگر جای دیگری ندارند پاک می‌کند و بقیه را در یک تراکنش می‌نویسد. `sources:backfill` ردیف‌های یتیم را هم هرس می‌کند.
 - **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
 - **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
+
+### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
+- **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
+  - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
+  - `km-fadl-889`، `km-fadl-kayny-916` و `km-fadl-kaym-1041` در `km-fadl-kayyny-73` ادغام می‌شوند.
+- **ترتیب اجرا:** `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`. اجرای دوباره‌ی `catalogs:import-volume-parts` برای «تراثنا» بخش نمی‌دهد («Nothing to do»)، چون نسخه‌ها پیش‌تر به جلد بسته شده‌اند و تنها کتابخانه‌شان عوض شده است.
+- **کد:** تغییری نکرد.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - `merge-duplicates`: ۳۷۳ ← ۳۶۹ کتابخانه.
+  - `assign-volume-parts --dry-run`: «changed: 34». اجرای اصلی همین را داد و اجرای دوم «changed: 0».
+  - بخش‌ها: #1077 (کتابخانه ۲۸۰) ۶۰ نسخه، و #1084، #1086 و #1087 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. شمارنده‌ها با شمار واقعی نسخه‌ها برابرند.
+- **پروداکشن (۱۵ آبان ۱۴۰۵، از راه `prod-run`؛ فایل داده پیش از انتشار به `/tmp` کانتینر رفت):**
+  - **پشتیبان:** `…/step14.43_merge_turathuna_libraries_prod_before_20261105.json`، شامل ردیف شش کتابخانه، و برای ۳۷۶ نسخه `library_id`، `catalog_volume_id`، `catalog_volume_part_id` و `cataloger_id`، و ۴ بخش.
+  - **`merge-duplicates`:** dry-run و اجرا: ۳۷۳ ← ۳۶۹ کتابخانه.
+  - **`assign-volume-parts`:** dry-run: «changed: 34». اجرا: «changed: 34».
+  - **پس از اجرا:** بخش #205 (کتابخانه ۲۸۰) ۶۰ نسخه دارد، و #212، #214 و #215 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. `manuscripts_count` با شمار واقعی برابر است. چهار کتابخانه حذف شدند و چهار ردیف `entity_redirects` گرفتند: `/libraries/889` و `/libraries/331` با ۳۰۱ به ۷۳ و ۲۸۰ می‌روند.
+  - **نمایه:** `LibraryMerger` نسخه‌های جابه‌جاشده را بی‌صف دوباره ایندکس کرد (`scout.queue = false`). بخش در `toSearchableArray` نیست، پس `assign-volume-parts` ایندکس تازه نمی‌خواهد.
+
 ### گام ۱۴.۴۴: نشانی ادغام‌شده و `superseded_by` در `catalogs:link-volumes`
 - **`LinkCatalogVolumesCommand::resolveLinks`** دیگر با نخستین نشانی ناپیدا `null` برنمی‌گرداند. هر پیوند جدا سنجیده می‌شود:
   - `superseded_by`: پیوند کنار می‌رود، با یک سطر که فایل جانشین را نام می‌برد.
@@ -7614,6 +7616,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `sources:merge-split --only --group=catalogue-a524cf28e464,catalogue-c225f7337b0a --group=catalogue-27335f850012,catalogue-77a075f39d37` با `--dry-run`، سپس اجرای واقعی. کد رکورد جلددار سنا روی پروداکشن `catalogue-a524cf28e464` است و روی نسخه‌ی محلی `catalogue-5f84ccb88fc2`. این دستور پشتیبان و برگرداندن ندارد، پس پیش از اجرا ردیف‌های `sources`، `source_entries` و `field_evidence` این چهار منبع جدا پشتیبان گرفته شوند.
   3. `catalogs:link-volumes --dry-run`، سپس اجرای واقعی، بی `| tail` (یا با `set -o pipefail`).
 - **وارسی:** شمار مدخل‌هایی که `source_id`شان با منبع جلدشان (`source_volumes.source_id`) یکی نیست، باید صفر باشد. پیش از کار روی پروداکشن ۳٬۳۳۶ بود: سنا ۳٬۲۷۴ و دهگان ۶۲.
+
+### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
+- منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
+- تبدیل با Pillow: `thumbnail((640, 960))` و `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`. `thumbnail` بزرگ نمی‌کند، پس دو جلد نورلیب در اندازه‌ی خودشان ماندند. `kalam-turath.webp` ۶۴۰×۹۲۳ است.
+- «تراثنا»: `Source::coverUrl()` فایل `covers/{code}.webp` را می‌جوید. گام ۱۴.۴۰ کد `catalogue-cddd31891851` را ساخت و جلد شش کد پیشین (`catalogue-2caeb7e31918` و دیگران، فایل‌های یکسان با md5 `4bc6f36a…`) بی‌استفاده ماند. رونوشت همان فایل با کد تازه گذاشته شد. فایل‌های کد پیشین برای پیوندهای قدیم ماندند، چون آن کدها به منبع تازه می‌روند.
+- `catalogue-e1a7c9ee7712` از noorlib کتاب ۵۵۸۸۰ (webp ۴۲۴×۶۳۰، منزوی، جلد یکم). این شناسه را زیرعاملی از صفحه‌ی پدیدآور منزوی در noorlib یافت.
+- جست‌وجوی دیگر منبع‌ها: `api/search/generalSearchPhrase` در noorlib پیوسته ۵۰۳ می‌داد. صفحه‌ی نتیجه‌ی گوگل تصاویر (`udm=2`، عنوان + «noorlib») شناسه‌های `noorlib.ir/book/info/{id}` را در HTML خود دارد. عنوان هر شناسه از `<title>` صفحه‌اش خوانده شد. نامزدهای کنارگذاشته: ۱۳۲۸۳۸ (نواب، یزدی مطلق)، ۱۴۶۴۹۳ (عبدالعظیم، حافظیان) و ۵۲۸۹۱ («فهرست کتب خطی» روضاتی، نه مکتبة الزهراء). برای ۲۶ منبع دیگر هیچ عنوان هم‌خوانی نبود.
+- رونوشت هر پنج فایل در `fahares-sources/web-covers/` است و ردیفشان در `manifest.json` همان‌جا.
+
 ### گام ۱۴.۴۶: ریحانة الادب از lib.eshia.ir (مورد ۸۶)
 - **منشأ:** کتاب `10984` کتابخانه‌ی مدرسه‌ی فقاهت. نشانی صفحه `/10984/{جلد}/{صفحه}` است و شماره‌ی صفحه همان شماره‌ی چاپی چاپ خیام است. پیوندهای `url` منبع `rayhana` در `config/bibliography.php` هم به همین نشانی‌اند.
   - **robots.txt:** خزنده‌ی Claude (`ClaudeBot`) را بسته است. پس Claude خودش صفحه‌ها را نگرفت.
@@ -7648,10 +7659,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **بی‌تطبیق:** بیشترشان چند سرعنوان یکسان روی یک صفحه دارند، مانند «ابن طاوس- علی» سه بار.
 - **پروداکشن:** انتشار کد لازم نیست. فایل‌ها به کانتینر فرستاده می‌شوند و همان سه فرمان برای ۸ جلد اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
-### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
-- منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
-- تبدیل با Pillow: `thumbnail((640, 960))` و `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`. `thumbnail` بزرگ نمی‌کند، پس دو جلد نورلیب در اندازه‌ی خودشان ماندند. `kalam-turath.webp` ۶۴۰×۹۲۳ است.
-- «تراثنا»: `Source::coverUrl()` فایل `covers/{code}.webp` را می‌جوید. گام ۱۴.۴۰ کد `catalogue-cddd31891851` را ساخت و جلد شش کد پیشین (`catalogue-2caeb7e31918` و دیگران، فایل‌های یکسان با md5 `4bc6f36a…`) بی‌استفاده ماند. رونوشت همان فایل با کد تازه گذاشته شد. فایل‌های کد پیشین برای پیوندهای قدیم ماندند، چون آن کدها به منبع تازه می‌روند.
-- `catalogue-e1a7c9ee7712` از noorlib کتاب ۵۵۸۸۰ (webp ۴۲۴×۶۳۰، منزوی، جلد یکم). این شناسه را زیرعاملی از صفحه‌ی پدیدآور منزوی در noorlib یافت.
-- جست‌وجوی دیگر منبع‌ها: `api/search/generalSearchPhrase` در noorlib پیوسته ۵۰۳ می‌داد. صفحه‌ی نتیجه‌ی گوگل تصاویر (`udm=2`، عنوان + «noorlib») شناسه‌های `noorlib.ir/book/info/{id}` را در HTML خود دارد. عنوان هر شناسه از `<title>` صفحه‌اش خوانده شد. نامزدهای کنارگذاشته: ۱۳۲۸۳۸ (نواب، یزدی مطلق)، ۱۴۶۴۹۳ (عبدالعظیم، حافظیان) و ۵۲۸۹۱ («فهرست کتب خطی» روضاتی، نه مکتبة الزهراء). برای ۲۶ منبع دیگر هیچ عنوان هم‌خوانی نبود.
-- رونوشت هر پنج فایل در `fahares-sources/web-covers/` است و ردیفشان در `manifest.json` همان‌جا.
