@@ -13,7 +13,7 @@
     @if(! $rows)
         <p class="text-muted">{{ $removedLabel }} داده‌ای ندارد که در {{ $keptLabel }} نباشد یا با آن فرق کند.</p>
     @else
-        <p class="text-xs text-muted leading-6">پیش‌فرض‌ها انتخاب شده‌اند: جای خالی پر می‌شود، فهرست‌ها و «بله»ها یکی می‌شوند و در اختلاف، مقدار {{ $keptLabel }} می‌ماند. انتخاب‌ها در لاگ ممیزی ثبت و با بازگردانی ادغام برگردانده می‌شوند.</p>
+        <p class="text-xs text-muted leading-6">پیش‌فرض‌ها انتخاب شده‌اند و چیزی از دست نمی‌رود: جای خالی پر می‌شود، فهرست‌ها و «بله»ها یکی می‌شوند، دو یادداشت پشت هم می‌آیند، و در اختلاف، مقدار {{ $keptLabel }} می‌ماند و مقدار {{ $removedLabel }} «قول دیگر» آن می‌شود. انتخاب‌ها در لاگ ممیزی ثبت و با بازگردانی ادغام برگردانده می‌شوند.</p>
         <div class="divide-y divide-line border border-line bg-paper">
             @foreach($rows as $row)
                 <fieldset class="p-3 space-y-2" data-merge-field="{{ $row['key'] }}">

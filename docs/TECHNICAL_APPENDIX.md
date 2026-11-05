@@ -6963,6 +6963,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
 - **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
 - **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).
+- **اجرا در پروداکشن (۲۰۲۶-۱۱-۰۵):** `scripts/dev/prod-run unknown-scribe-display -- 'php artisan fahares:link-copy-references --backup=… --report=…'`. پیش از آن dry-run همین عددها را داده بود. پشتیبان (`relations` ۷٬۵۰۷، `facsimile` ۵۳، `merges` ۱٬۰۳۴، `readings` ۴۰) و گزارش CSV در `../fahares-sources/backups/step13/step14.16-link-copy-references-20261105_041431.json` و `step14.16-link-copy-references-report.csv` هستند (sha256 پشتیبان `2831c4e7ae3d4e3e…`). بازگردانی: همان فایل با `--revert`.
 
 ### گام ۱۴.۱۷: `AuthorLinkQueue` و `AuthorLinkController`
 - **یافتن نامزدها:** این کار در پروداکشن، فقط‌خواندنی و با PHP از راه `ssh fahares-app` انجام شد. آثار از `audit_logs` با سه `corpus_fix` گام‌های ۱۴.۸ تا ۱۴.۱۱ پیدا شدند (۲٬۲۲۸ اثر).
@@ -7472,3 +7473,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_hedged_authors_20261105.json`.
 - **تمرین (`fahares_prod`):** `marked 613` و `added 19`، سپس `marked 0` و `add_skipped 19`.
 - **آزمون:** `MarkHedgedAuthorsCommandTest`.
+### گام ۱۴.۳۹: `MergeComparison::READING`
+- **`rows`:** فیلدهای `value` و `contributor` که هر دو رکورد دارند و فرق می‌کنند، اگر فیلد ثبت‌شده در `SuggestionRegistry` باشد (یعنی صفحه قولش را نشان می‌دهد)، گزینه‌ی `READING` را به‌عنوان پیش‌فرض می‌گیرند. فیلدهای `text` پیش‌فرض `BOTH` دارند.
+- **`apply`:** برای هر `READING` یک `FieldSuggestion` تأییدشده روی رکورد ماندنی می‌سازد:
+  - `standing = alternative`
+  - `current_value` و `suggested_value` مقدار خام ستون؛ مقدار تهی «نامشخص» است.
+  - `credit_name`: «فهرست …» از `catalog_citation` نسخه، یا نام رکورد حذف‌شونده.
+  - `resolution.origin = merge` و `merged_id`.
+  - شناسه‌ها در `reading_ids` خروجی برمی‌گردند و در لاگ ادغام (`fields`) می‌مانند. `undo` آن‌ها را حذف می‌کند.
+- **مسیرها:** `RecordMerger` (نسخه و اثر)، `PersonMerger`، `LibraryMerger` و بازگردانی ادغام شخص در `AuditLogController` همه از `apply` و `undo` می‌گذرند.
+- **`StructurePreview::fieldsLine`:** مقدار ناسازگار را از ردیف‌هایی می‌شمارد که هر دو طرف مقدار دارند، نه از پیش‌فرض `KEEP`.
+- **`fahares:link-copy-references` (گام ۱۴.۱۶):** قول‌ها را خودش می‌سازد، چون قائل را فهرستِ نشانی پیشین می‌گیرد. برای همان فیلدها `KEEP` می‌فرستد تا قول دوباره ساخته نشود.
+- **آزمون:** [MergeComparisonTest](../tests/Feature/MergeComparisonTest.php) (`test_a_value_the_two_give_differently_becomes_an_alternative_reading_and_goes_with_the_undo`) و انتظارهای تازه در همین آزمون و [StructureToolsTest](../tests/Feature/StructureToolsTest.php).

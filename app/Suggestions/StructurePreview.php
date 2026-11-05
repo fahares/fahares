@@ -93,15 +93,16 @@ class StructurePreview
     /** The comparison of a merge in a few words; the table under the preview decides each field (backlog item 46). */
     private static function fieldsLine(array $rows): string
     {
-        $filled = count(array_filter($rows, fn ($r) => $r['default'] !== MergeComparison::KEEP));
-        $conflicts = count($rows) - $filled;
+        // A conflict: both give the field, differently (a list or flag is only combined)
+        $conflicts = count(array_filter($rows, fn ($r) => $r['target'] && in_array($r['kind'], ['value', 'text', 'contributor'], true)));
+        $filled = count($rows) - $conflicts;
         if (! $rows) {
             return 'رکورد حذف‌شونده داده‌ای ندارد که در رکورد ماندنی نباشد';
         }
 
         return implode('، ', array_filter([
             $filled ? Fa::num($filled) . ' فیلد پر یا یکی می‌شود' : null,
-            $conflicts ? Fa::num($conflicts) . ' مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند (پیش‌فرض: مقدار رکورد ماندنی)' : null,
+            $conflicts ? Fa::num($conflicts) . ' مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند (پیش‌فرض: مقدار رکورد ماندنی، و مقدار دیگر «قول دیگر» یا پشت آن)' : null,
         ]));
     }
 
