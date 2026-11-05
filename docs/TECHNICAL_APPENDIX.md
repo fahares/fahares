@@ -7648,3 +7648,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **بی‌تطبیق:** بیشترشان چند سرعنوان یکسان روی یک صفحه دارند، مانند «ابن طاوس- علی» سه بار.
 - **پروداکشن:** انتشار کد لازم نیست. فایل‌ها به کانتینر فرستاده می‌شوند و همان سه فرمان برای ۸ جلد اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
+### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
+- منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
+- تبدیل با Pillow: `thumbnail((640, 960))` و `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`. `thumbnail` بزرگ نمی‌کند، پس دو جلد نورلیب در اندازه‌ی خودشان ماندند. `kalam-turath.webp` ۶۴۰×۹۲۳ است.
+- «تراثنا»: `Source::coverUrl()` فایل `covers/{code}.webp` را می‌جوید. گام ۱۴.۴۰ کد `catalogue-cddd31891851` را ساخت و جلد شش کد پیشین (`catalogue-2caeb7e31918` و دیگران، فایل‌های یکسان با md5 `4bc6f36a…`) بی‌استفاده ماند. رونوشت همان فایل با کد تازه گذاشته شد. فایل‌های کد پیشین برای پیوندهای قدیم ماندند، چون آن کدها به منبع تازه می‌روند.
+- `catalogue-e1a7c9ee7712` از noorlib کتاب ۵۵۸۸۰ (webp ۴۲۴×۶۳۰، منزوی، جلد یکم). این شناسه را زیرعاملی از صفحه‌ی پدیدآور منزوی در noorlib یافت.
+- جست‌وجوی دیگر منبع‌ها: `api/search/generalSearchPhrase` در noorlib پیوسته ۵۰۳ می‌داد. صفحه‌ی نتیجه‌ی گوگل تصاویر (`udm=2`، عنوان + «noorlib») شناسه‌های `noorlib.ir/book/info/{id}` را در HTML خود دارد. عنوان هر شناسه از `<title>` صفحه‌اش خوانده شد. نامزدهای کنارگذاشته: ۱۳۲۸۳۸ (نواب، یزدی مطلق)، ۱۴۶۴۹۳ (عبدالعظیم، حافظیان) و ۵۲۸۹۱ («فهرست کتب خطی» روضاتی، نه مکتبة الزهراء). برای ۲۶ منبع دیگر هیچ عنوان هم‌خوانی نبود.
+- رونوشت هر پنج فایل در `fahares-sources/web-covers/` است و ردیفشان در `manifest.json` همان‌جا.
