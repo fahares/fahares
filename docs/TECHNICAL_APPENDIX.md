@@ -7601,3 +7601,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندها:** ۸۲، ۷۱، ۱۶۴، ۱۷۲، ۱۳۳، ۷۱، ۳۵، ۳۱ (جمع ۷۵۹، برابر تمرین). هیچ پیوندی به‌روز یا حذف نشد.
   - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
+
+### گام ۱۴.۴۷: «مؤلفین کتب چاپی فارسی و عربی» مشار (مورد ۸۶)
+- **منشأ:** کتب مرجع ۲ نور، سری `03299`، شش جلد (`03299_001` تا `03299_006`). هر جلد صفحه‌های خودش را از ۱ می‌شمارد. سرعنوان سطح ۳ مؤلف است و سطح‌های ۴ تا ۶ کتاب‌های چاپی او («1 - دختر جنگل:»، «(الف) اقبالنامه …»).
+- **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
+  - کد `mushar-authors`: سطح‌های ۳ تا ۶ مدخل، و ۴ تا ۶ زیرمدخل، فارسی.
+  - **`LETTERS`:** فقط در این منبع، سرعنوانی با یک حرف («خ» در سطح ۳ جلد ۳) مدخل نیست و مدخل پیش از خود را می‌بندد.
+  - **چرا فقط این منبع:** اگر این قاعده همه‌جا اجرا می‌شد، دو مدخل روی سایت عوض می‌شد. در سرکیس ج ۲ مدخلی با عنوان «ب» عنوان کاملش را می‌گرفت. در اعیان ج ۱، مدخل 299#1 در ص ۳۰۱ بریده می‌شد، چون سرعنوان «ص» میان متن آن است.
+  - **وارسی:** خروجی mushar-fa، mushar-ar، sarkis و ayan با خواننده‌ی HEAD یکی است. خروجی rawdat، kalam-turath و fuqaha با فایل‌های `../fahares-sources/noor-printed` یکی است.
+- **[config/bibliography.php](../config/bibliography.php):** منبع `mushar-authors`، از نوع `biographical`، با `bare` = false.
+  - **الگو:** «مؤلفین مشار 89/1»، «مشار مؤلفین 736/5»، «مشار، مؤلفین، 257/5» و «مؤلفین کتب چاپی مشار 849/3-850».
+  - **بیرون از الگو:**
+    - «مؤلفین» بی «مشار» و بی «کتب چاپی»؛
+    - «معجم المؤلفین»، که کحاله است؛
+    - «مؤلفین کتب چاپی فارسی و عربی: 636/6»، چون دونقطه پس از نام جلد و صفحه را جدا نمی‌کند (۱ ارجاع).
+  - **یک ارجاع وارونه:** «مشار، مولفین 5/726» همان ج ۵ ص ۷۲۶ خوانده می‌شود.
+- **داده:** `../fahares-sources/noor-printed/mushar-authors/{NN}.jsonl.gz` و `{NN}.entries.jsonl.gz`. سطرهای آن‌ها به MD5SUMS افزوده شد.
+- **تمرین روی `fahares_prod` محلی** (`sources:backfill --only=registry` و `--only=bibliography`، سپس برای هر جلد `import-pages`، `segment --origin=noor` و `link-items --near`):
+  - **صفحه‌ها، ج ۱ تا ۶:** ۹۲۸، ۹۸۶، ۱٬۰۱۲، ۹۳۶، ۹۰۸ و ۹۱۰.
+  - **مدخل‌ها:** ۳٬۸۸۹، ۵٬۶۷۲، ۵٬۶۶۵، ۵٬۳۹۶، ۴٬۷۹۸ و ۵٬۰۷۹ (جمع ۳۰٬۴۹۹).
+  - **پیوندها:** ۷، ۳، ۵، ۰، ۴ و ۱ (جمع ۲۰ از ۲۴).
+    - `author_life` ۱۸، `author_life_title` ۱ و `near_author_life` ۱. همه با چشم وارسی شد و همه درست بود.
+    - **بی‌تطبیق:** غزالی (۵/۷۲۶) و دو اثر خواجه نصیر (۵/۷۳۶).
+- **آزمون:** `NoorReferenceBooksTest::test_mushars_authors_tie_a_work_to_its_authors_entry_and_keep_his_books_under_it`، با فیکسچر `mushar-authors-v05-p37`. در `test_citations_find_their_source_volume_and_column`، «مشار، مؤلفین 5/726» حالا به این منبع می‌رود.
+- **پروداکشن:** انتشار کد لازم است، چون الگو و منبع در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند و همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.

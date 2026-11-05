@@ -222,6 +222,25 @@ return [
                 'last_pages' => [1 => 1014],
             ],
         ],
+        // Mushar's «مؤلفین کتب چاپی فارسی و عربی» (six volumes, Tehran 1340-44 Sh, each numbering its own pages), as
+        // text from Noor (step 14.47): an author and his printed books after him, so a work is tied to its author's
+        // entry as Fankha cites it, «مشار، مؤلفین 37/5: رشتی، کارهای چاپیش …». Fankha writes «مؤلفین مشار 89/1»,
+        // «مشار مؤلفین 736/5», «مشار، مؤلفین، 257/5», «مؤلفین کتب چاپی مشار 849/3-850» or «مؤلفین کتب چاپی فارسی و
+        // عربی: 636/6»; not a bare «مؤلفین», nor «معجم المؤلفین», Kahhala's.
+        'mushar-authors' => [
+            'label' => 'مؤلفین کتب چاپی فارسی و عربی',
+            'pattern' => '(?:مشار،? ?م[ؤو]لفین(?: کتب چاپی)?|م[ؤو]لفین(?: کتب چاپی(?: فارسی و عربی)?)? ?مشار|م[ؤو]لفین کتب چاپی(?: فارسی و عربی)?)',
+            'volumes' => 6,
+            'kind' => 'biographical',
+            'compiler' => 'خانبابا مشار',
+            'edition_label' => 'تهران، ۱۳۴۰–۱۳۴۴ش',
+            'text' => [
+                'catalog' => 'mushar-authors',
+                'name' => 'مؤلفین کتب چاپی',
+                'last_pages' => [1 => 932, 2 => 986, 3 => 1012, 4 => 936, 5 => 908, 6 => 910],
+                'bare' => false,
+            ],
+        ],
         // Sarkis's two volumes (Cairo 1928, the Marashi library's offset, Qom 1410 AH), their columns numbered on (volume
         // 2 from 1145). Fankha writes «معجم المطبوعات 663/1», «معجم المطبوعات العربیة 128/1», «سرکیس 72/1», «معجم
         // المطبوعات سرکیس ج2ص1897» and a bare column, «معجم المطبوعات 1611»; not «معجم المطبوعات العربیة فی ایران» or
