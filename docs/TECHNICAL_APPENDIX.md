@@ -7601,3 +7601,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **دستور** [SyncOtherCitationsCommand](../app/Console/Commands/SyncOtherCitationsCommand.php) (`fahares:sync-other-citations [--apply] [--show=]`): بی `--apply` فقط می‌شمارد. با آن، ردیف‌های نسخه‌هایی را که دیگر جای دیگری ندارند پاک می‌کند و بقیه را در یک تراکنش می‌نویسد. `sources:backfill` ردیف‌های یتیم را هم هرس می‌کند.
 - **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
 - **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
+### گام ۱۴.۴۴: نشانی ادغام‌شده و `superseded_by` در `catalogs:link-volumes`
+- **`LinkCatalogVolumesCommand::resolveLinks`** دیگر با نخستین نشانی ناپیدا `null` برنمی‌گرداند. هر پیوند جدا سنجیده می‌شود:
+  - `superseded_by`: پیوند کنار می‌رود، با یک سطر که فایل جانشین را نام می‌برد.
+  - `library()`: نشانی را می‌جوید. اگر نبود و به `-N` ختم شد، زنجیره‌ی `entity_redirects` (`entity_type = libraries`) را از N تا کتابخانه‌ی مانده دنبال می‌کند و هشدار «was merged into» می‌دهد.
+  - پیوندی که کتابخانه‌اش (یا `volume_library`) پیدا نشد، با «its link left out» گزارش می‌شود و بقیه اجرا می‌شوند. کد خروج ۰ است.
+- **`database/data/catalog_volume_links.json`:** پیوند دهگان → `arak-dhgan-59` با عنوان دو دفتر `catalogue-27335f850012`. `superseded_by` روی این‌ها: `volume_parts_qaen.json`، `volume_parts_sari_tonekabon.json`، `volume_parts_golpayegan.json`، `volume_parts_zahan.json`، `volume_parts_kashan.json` (۲)، `volume_parts_turathuna.json` (۸) و سنا (`split-senate-library` و `catalogue_volumes_step14_15.json`).
+- **`database/data/volume_parts_dehgan_step14_44.json`:** `catalogs:import-volume-parts`، با `parts: []`، `only_libraries` روی `arak-dhgan-59`، fold `catalogue-dc258caef1e6` در `catalogue-27335f850012` و editor «صادق حضرتی آشتیانی» با نقش `cataloger`. بی editor، دستور فهرست‌نگار جلدها را برمی‌داشت.
+- **آزمون:** `test_a_merged_library_is_followed_a_lost_one_left_out_and_a_superseded_link_skipped` در `LinkCatalogVolumesTest`.
+- **اجرای پروداکشن (به ترتیب):**
+  1. `catalogs:import-volume-parts --data=database/data/volume_parts_dehgan_step14_44.json` با `--dry-run`، سپس اجرای واقعی؛
+  2. `sources:merge-split --only --group=catalogue-a524cf28e464,catalogue-c225f7337b0a --group=catalogue-27335f850012,catalogue-77a075f39d37` با `--dry-run`، سپس اجرای واقعی. کد رکورد جلددار سنا روی پروداکشن `catalogue-a524cf28e464` است و روی نسخه‌ی محلی `catalogue-5f84ccb88fc2`. این دستور پشتیبان و برگرداندن ندارد، پس پیش از اجرا ردیف‌های `sources`، `source_entries` و `field_evidence` این چهار منبع جدا پشتیبان گرفته شوند.
+  3. `catalogs:link-volumes --dry-run`، سپس اجرای واقعی، بی `| tail` (یا با `set -o pipefail`).
+- **وارسی:** شمار مدخل‌هایی که `source_id`شان با منبع جلدشان (`source_volumes.source_id`) یکی نیست، باید صفر باشد. پیش از کار روی پروداکشن ۳٬۳۳۶ بود: سنا ۳٬۲۷۴ و دهگان ۶۲.
