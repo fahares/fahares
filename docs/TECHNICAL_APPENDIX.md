@@ -6963,6 +6963,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[CopyLinks](../app/Support/CopyLinks.php):** برای صفحه‌ی اثر. رابطه‌های `facsimile_of` و `possibly_same` میان نسخه‌های همان اثر، سرِ زنجیره‌ی هر کدام، نسخه‌هایی که از فهرست اصلی بیرون می‌روند (`WorkController` آن‌ها را در کوئری صفحه‌بندی نمی‌آورد)، و چهار شمار.
 - **`SuggestionReadings`:** ضبط فعلی و ضبط فهرستِ فیلدی که `bit_label` دارد «نامشخص» نمایش داده می‌شود، نه «بی‌کاتب» یا «بی‌تاریخ» (دنباله‌ی گام ۱۴.۱۳).
 - **آزمون:** [CopyReferencesTest](../tests/Feature/CopyReferencesTest.php).
+- **اجرا در پروداکشن (۲۰۲۶-۱۱-۰۵):** `scripts/dev/prod-run unknown-scribe-display -- 'php artisan fahares:link-copy-references --backup=… --report=…'`. پیش از آن dry-run همین عددها را داده بود. پشتیبان (`relations` ۷٬۵۰۷، `facsimile` ۵۳، `merges` ۱٬۰۳۴، `readings` ۴۰) و گزارش CSV در `../fahares-sources/backups/step13/step14.16-link-copy-references-20261105_041431.json` و `step14.16-link-copy-references-report.csv` هستند (sha256 پشتیبان `2831c4e7ae3d4e3e…`). بازگردانی: همان فایل با `--revert`.
 
 ### گام ۱۴.۱۷: `AuthorLinkQueue` و `AuthorLinkController`
 - **یافتن نامزدها:** این کار در پروداکشن، فقط‌خواندنی و با PHP از راه `ssh fahares-app` انجام شد. آثار از `audit_logs` با سه `corpus_fix` گام‌های ۱۴.۸ تا ۱۴.۱۱ پیدا شدند (۲٬۲۲۸ اثر).
