@@ -7561,3 +7561,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
+  - با تأیید جداگانه‌ی کاربر، ۱٬۲۵۲ نسخه‌ی پشتیبان با `searchable()` بی‌صف (`scout.queue = false`) و از راه `prod-run` دوباره ایندکس شدند («reindexed 1252 of 1252»).
