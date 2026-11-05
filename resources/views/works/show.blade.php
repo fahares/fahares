@@ -92,7 +92,7 @@
         </p>
 
         <p class="text-base text-ink mt-1">
-            @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
+            @if($work->authorEntries->count() > 1 || $work->authorEntries->contains(fn($e) => ! $e->person_id || $e->certainty) || ($work->has_other_authors && $work->authorEntries->isNotEmpty()))
                 <x-contributors :entries="$work->authorEntries" :others="$work->has_other_authors" :life="true"
                     link-class="font-bold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition" />
             @elseif($work->author)
