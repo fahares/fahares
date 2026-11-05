@@ -7552,3 +7552,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **`--apply`:** ۴ نسخه جابه‌جا و ۲۹ نسخه به جلد بسته شد. #250327 بسته نشد، چون سه جلد ۱ دارد.
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
+- **پروداکشن (۱۵ آبان ۱۴۰۵، پس از استقرار `da9fb9e`):**
+  - `scripts/dev/prod-run --wait pensive-gauss-ff7be7`. dry-run همان عددهای تمرین را داد: «1252 copies tied anew»، ۱۲ بخش، و «left, no volume: 1».
+  - اجرا با `--backup=storage/app/private/backups/step14.40_import_volume_parts_turathuna_prod_before_20261105.json`. پشتیبان (۶ منبع، ۶ جلد، ۱٬۲۵۲ نسخه، ۱٬۲۵۲ ردیف `source_entries`، `made_source`) بی‌درنگ به `fahares-sources/backups/step13/` همین نام رفت (sha256 `a58f9385a3789d27…`). بازگردانی: همان فایل با `--revert`.
+  - منبع #100203 با `library_id` تهی و ۱۱ جلد (#718 تا #728) ساخته شد. شمار نسخه‌ها: ۷: ۶۰، ۹: ۲۳۹، ۲۰: ۳۴، ۲۲: ۱۶۸، ۲۳: ۹۵، ۲۴: ۷۵، ۲۵: ۹۰، ۴۹: ۱۰۱، ۵۰: ۱۴۰، ۵۲: ۹۳، ۶۹: ۱۵۷.
+  - بخش‌ها ۱٬۲۱۶ نسخه دارند و ۳۶ نسخه بی‌بخش‌اند، همان کتابخانه‌های تکراری تمرین. هیچ‌یک از شش منبع کهنه نمانده است.
+  - اجرای دوم: «Nothing to do».
+  - `/sources/catalogue-cddd31891851` پاسخ ۲۰۰ و ۱۲ سطر `data-volume-part` می‌دهد. `/sources/catalogue-2caeb7e31918` با ۳۰۱ به آن می‌رود.
+  - نمایه‌ی Meilisearch این ۱٬۲۵۲ نسخه هنوز دوباره ساخته نشده است، چون اجازه‌اش جدا خواسته می‌شود.
