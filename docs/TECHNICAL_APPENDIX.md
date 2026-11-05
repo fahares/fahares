@@ -7614,3 +7614,37 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `sources:merge-split --only --group=catalogue-a524cf28e464,catalogue-c225f7337b0a --group=catalogue-27335f850012,catalogue-77a075f39d37` با `--dry-run`، سپس اجرای واقعی. کد رکورد جلددار سنا روی پروداکشن `catalogue-a524cf28e464` است و روی نسخه‌ی محلی `catalogue-5f84ccb88fc2`. این دستور پشتیبان و برگرداندن ندارد، پس پیش از اجرا ردیف‌های `sources`، `source_entries` و `field_evidence` این چهار منبع جدا پشتیبان گرفته شوند.
   3. `catalogs:link-volumes --dry-run`، سپس اجرای واقعی، بی `| tail` (یا با `set -o pipefail`).
 - **وارسی:** شمار مدخل‌هایی که `source_id`شان با منبع جلدشان (`source_volumes.source_id`) یکی نیست، باید صفر باشد. پیش از کار روی پروداکشن ۳٬۳۳۶ بود: سنا ۳٬۲۷۴ و دهگان ۶۲.
+### گام ۱۴.۴۶: ریحانة الادب از lib.eshia.ir (مورد ۸۶)
+- **منشأ:** کتاب `10984` کتابخانه‌ی مدرسه‌ی فقاهت. نشانی صفحه `/10984/{جلد}/{صفحه}` است و شماره‌ی صفحه همان شماره‌ی چاپی چاپ خیام است. پیوندهای `url` منبع `rayhana` در `config/bibliography.php` هم به همین نشانی‌اند.
+  - **robots.txt:** خزنده‌ی Claude (`ClaudeBot`) را بسته است. پس Claude خودش صفحه‌ها را نگرفت.
+  - **دریافت:** [fetch_eshia.py](../scripts/sources/fetch_eshia.py) نوشته شد و کاربر آن را روی سیستم خودش اجرا کرد. با نام `fahares-source-fetch/1.0`، سرور پس از ۱۵ صفحه پاسخ نداد (`TimeoutError`، `SSL: UNEXPECTED_EOF`). کاربر خودش نام برنامه را در نسخه‌ی محلی‌اش عوض کرد. آن تغییر در مخزن نیست.
+- **فایل‌ها:** `../fahares-sources/rayhana/eshia/raw/10984/{NN}/{page}.html.gz` (۳٬۷۷۵ صفحه، ۳۰ مگابایت)، و `../fahares-sources/rayhana/eshia/{NN}.jsonl.gz` و `{NN}.entries.jsonl.gz` از `fetch_eshia.py extract`.
+- **`extract`:**
+  - **متن:** از `<td id="book-page-content">` تا جدول ناوبری `BookAccessPanel`.
+  - **شعر:** جدول شعر هر ردیفش یک بیت است و مصراع‌ها با tab جدا می‌شوند.
+  - **سرعنوان مدخل:** `<span class="KalamateKhas">`، بی «-» و نیم‌فاصله‌ی پایانی.
+  - **نویسه‌ها:** «ي/ك» به «ی/ک».
+- **مدخل‌ها:**
+
+  | ج ۱ | ج ۲ | ج ۳ | ج ۴ | ج ۵ | ج ۶ | ج ۷ | ج ۸ |
+  |---|---|---|---|---|---|---|---|
+  | ۱٬۴۰۸ | ۱٬۳۷۷ | ۱٬۲۶۵ | ۱٬۴۴۷ | ۹۳۴ | ۸۱۲ | ۱٬۷۷۴ | ۱٬۲۰۹ |
+
+  روی هم ۱۰٬۲۲۶.
+- **تمرین روی `fahares_prod` محلی** (منبع موجود `rayhana`، با تصویر و نوع `biographical`):
+  - **فرمان‌ها:** برای هر جلد N، `sources:import-pages rayhana …/NN.jsonl.gz --volume=N`، `sources:segment rayhana --volume=N --origin=eshia --entries=…/NN.entries.jsonl.gz` و `sources:link-items rayhana --volume=N --near`.
+  - **پیوندها (۱٬۰۹۹ جا):**
+
+    | روش | شمار |
+    |---|---|
+    | `author_life` | ۳۹۵ |
+    | `author_life_title` | ۳۲۲ |
+    | `title_in_text` | ۲۵ |
+    | `near_*` | ۱۲ |
+    | `author_in_entry` | ۵ |
+    | بی‌تطبیق | ۳۴۰ |
+
+  - **نمونه‌ها:** «دوانی، محمد بن اسعد» به «دوانی محمد بن اسعد یا سعد…» رسید و «جابر بن حیان» به «کیمیاوی- جابر بن حیان».
+  - **بی‌تطبیق:** بیشترشان چند سرعنوان یکسان روی یک صفحه دارند، مانند «ابن طاوس- علی» سه بار.
+- **پروداکشن:** انتشار کد لازم نیست. فایل‌ها به کانتینر فرستاده می‌شوند و همان سه فرمان برای ۸ جلد اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+- **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
