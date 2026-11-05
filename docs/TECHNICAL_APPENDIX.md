@@ -7586,6 +7586,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
 - **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
 
+**اجرا روی پروداکشن (۱۵ آبان ۱۴۰۵):**
+- پشتیبان پیش از اجرا: `backups/step13/step14_42_fankha_citation_more_before.json` (`[]`).
+- دستور: `scripts/dev/prod-run jolly-tharp -- 'cd /app && php -d memory_limit=2G artisan fahares:sync-other-citations --apply --show=0'`.
+- خروجی: «Written: 2428 entries, 2080 at a volume, 0 stale removed».
+- وارسی: ۲٬۴۲۸ ردیف در ۲٬۳۵۷ نسخه، که ۲٬۰۸۰ ردیف `source_volume_id` دارند.
+
 ### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
 - **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
   - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
