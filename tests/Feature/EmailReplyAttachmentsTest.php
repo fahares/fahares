@@ -17,7 +17,8 @@ use Tests\TestCase;
 /** Pictures attached to an email reply are kept with the letter and shown to its thread only (step 14.36) */
 class EmailReplyAttachmentsTest extends TestCase
 {
-    private const SECRET = 'whsec_dGVzdC1zaWduaW5nLWtleS1vZi0zMi1ieXRlcyEhISE=';
+    /** The signing key of the test webhook; the whsec_ secret is built at run time, as in MessagingTest, so no secret-shaped literal sits in the code */
+    private const SIGNING_KEY = 'test-signing-key-of-32-bytes!!!!';
 
     private function user(string $role = 'user'): User
     {
@@ -36,7 +37,7 @@ class EmailReplyAttachmentsTest extends TestCase
     /** A thread asked about a suggestion of $submitter, and its reply-to address */
     private function thread(User $editor, User $submitter): MessageThread
     {
-        config(['notifications.inbound.reply_domain' => 'reply.fahares.test', 'notifications.inbound.webhook_secret' => self::SECRET, 'services.resend.key' => 're_test']);
+        config(['notifications.inbound.reply_domain' => 'reply.fahares.test', 'notifications.inbound.webhook_secret' => 'whsec_' . base64_encode(self::SIGNING_KEY), 'services.resend.key' => 're_test']);
         $work = Work::create(['primary_title' => 'اثر آزمون پیوست', 'clean_title' => 'اثر آزمون پیوست', 'slug' => 'att-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         $m = Manuscript::create(['work_id' => $work->id, 'shelfmark' => '۱', 'sequence_number' => 1, 'volume_number' => 1, 'page_start' => 1]);
         $s = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $m->id, 'kind' => 'field', 'field_name' => 'copy_place',
@@ -51,7 +52,7 @@ class EmailReplyAttachmentsTest extends TestCase
         $body = json_encode(['type' => 'email.received', 'data' => ['email_id' => 'em_1', 'from' => $from, 'to' => ["reply+{$thread->reply_token}@reply.fahares.test"]]]);
         $id = 'msg_' . uniqid();
         $ts = (string) time();
-        $signature = 'v1,' . base64_encode(hash_hmac('sha256', "{$id}.{$ts}.{$body}", base64_decode(substr(self::SECRET, 6)), true));
+        $signature = 'v1,' . base64_encode(hash_hmac('sha256', "{$id}.{$ts}.{$body}", self::SIGNING_KEY, true));
 
         return $this->call('POST', route('messages.inbound'), [], [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_SVIX_ID' => $id, 'HTTP_SVIX_TIMESTAMP' => $ts, 'HTTP_SVIX_SIGNATURE' => $signature], $body);
     }
