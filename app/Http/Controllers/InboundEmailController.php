@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Messaging\Conversations;
+use App\Messaging\EmailAttachments;
 use App\Messaging\ReplyText;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ use Illuminate\Support\Str;
  * A user's answer by email (backlog item 91). Resend receives the reply domain and posts email.received here,
  * signed the Svix way; the webhook carries no body, so the text is fetched from Resend's receiving API.
  * Filed only when the reply-to token names a thread and the sender is that thread's user; the quoted history
- * is cut off. Anything else is answered 200 and dropped, so Resend does not retry it.
+ * is cut off, and the pictures attached are kept with the letter (step 14.36). Anything else is answered 200 and dropped, so Resend does not retry it.
  */
 class InboundEmailController extends Controller
 {
@@ -47,11 +48,22 @@ class InboundEmailController extends Controller
             return response()->json(['ok' => false], 502);
         }
         $text = ReplyText::extract($email->json('text'), $email->json('html'));
-        if ($text === '') {
+        $pictures = [];
+        if ((array) $email->json('attachments', [])) {
+            $pictures = EmailAttachments::download((string) $data['email_id']);
+            if ($pictures === null) {
+                return response()->json(['ok' => false], 502);
+            }
+            if ($pictures) {
+                $text = EmailAttachments::withoutMarkers($text);
+            }
+        }
+        if ($text === '' && ! $pictures) {
             return response()->json(['ok' => true]);
         }
 
-        Conversations::userReply($thread, Str::limit($text, Message::MAX_LENGTH, ''), 'email');
+        $message = Conversations::userReply($thread, Str::limit($text, Message::MAX_LENGTH, ''), 'email');
+        EmailAttachments::keep($message, $pictures);
 
         return response()->json(['ok' => true]);
     }
