@@ -7413,3 +7413,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[MessageAttachmentController](../app/Http/Controllers/MessageAttachmentController.php):** مسیر `messages.attachment` در گروه `auth` است. کاربرِ رشته می‌بیند، و برای رشته‌ی پیشنهاد دارنده‌ی `suggestions.review` و برای پیام مستقیم دارنده‌ی `users.message`. پاسخ با `X-Content-Type-Options: nosniff` و `Cache-Control: private` است.
 - **[FetchReplyAttachmentsCommand](../app/Console/Commands/FetchReplyAttachmentsCommand.php):** `fahares:fetch-reply-attachments <message> [--email=] [--dry-run]`. ایمیل را از `GET /emails/receiving` با فرستنده‌ی برابر با کاربر رشته و فاصله‌ی زمانی کمتر از پنج دقیقه پیدا می‌کند. نامه‌ای که پیوست دارد دست نمی‌خورد. برای نامه‌ی ۹ پروداکشن، ایمیل Resend `ca93ee7b-63a8-45b3-a8e5-78136045bb09` است با شش PNG، روی هم حدود ۳ مگابایت.
 - **آزمون:** `EmailReplyAttachmentsTest` (۴ آزمون: نگهداری و دسترسی، پاسخ فقط‌تصویر، نشانه‌های جیمیل، فرمان).
+
+### گام ۱۴.۳۹: `MergeComparison::READING`
+- **`rows`:** فیلدهای `value` و `contributor` که هر دو رکورد دارند و فرق می‌کنند، اگر فیلد ثبت‌شده در `SuggestionRegistry` باشد (یعنی صفحه قولش را نشان می‌دهد)، گزینه‌ی `READING` را به‌عنوان پیش‌فرض می‌گیرند. فیلدهای `text` پیش‌فرض `BOTH` دارند.
+- **`apply`:** برای هر `READING` یک `FieldSuggestion` تأییدشده روی رکورد ماندنی می‌سازد:
+  - `standing = alternative`
+  - `current_value` و `suggested_value` مقدار خام ستون؛ مقدار تهی «نامشخص» است.
+  - `credit_name`: «فهرست …» از `catalog_citation` نسخه، یا نام رکورد حذف‌شونده.
+  - `resolution.origin = merge` و `merged_id`.
+  - شناسه‌ها در `reading_ids` خروجی برمی‌گردند و در لاگ ادغام (`fields`) می‌مانند. `undo` آن‌ها را حذف می‌کند.
+- **مسیرها:** `RecordMerger` (نسخه و اثر)، `PersonMerger`، `LibraryMerger` و بازگردانی ادغام شخص در `AuditLogController` همه از `apply` و `undo` می‌گذرند.
+- **`StructurePreview::fieldsLine`:** مقدار ناسازگار را از ردیف‌هایی می‌شمارد که هر دو طرف مقدار دارند، نه از پیش‌فرض `KEEP`.
+- **`fahares:link-copy-references` (گام ۱۴.۱۶):** قول‌ها را خودش می‌سازد، چون قائل را فهرستِ نشانی پیشین می‌گیرد. برای همان فیلدها `KEEP` می‌فرستد تا قول دوباره ساخته نشود.
+- **آزمون:** [MergeComparisonTest](../tests/Feature/MergeComparisonTest.php) (`test_a_value_the_two_give_differently_becomes_an_alternative_reading_and_goes_with_the_undo`) و انتظارهای تازه در همین آزمون و [StructureToolsTest](../tests/Feature/StructureToolsTest.php).

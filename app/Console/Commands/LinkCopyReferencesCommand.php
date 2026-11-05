@@ -251,11 +251,13 @@ class LinkCopyReferencesCommand extends Command
         $choices = [];
         $readings = [];
         foreach ($rows as $row) {
-            $conflict = $row['default'] === MergeComparison::KEEP;
-            if ($conflict && $row['kind'] === 'text') {
-                $choices[$row['key']] = MergeComparison::BOTH;
-            } elseif ($conflict) {
+            // The readings are made here, citing the other catalogue and the copy's former place (the merge's own
+            // reading would cite the removed record, whose citation goes to the former location first)
+            if ($row['default'] === MergeComparison::READING || ($row['default'] === MergeComparison::KEEP && $row['kind'] !== 'text')) {
                 $readings[] = $row;
+                $choices[$row['key']] = MergeComparison::KEEP;
+            } elseif ($row['kind'] === 'text' && isset($row['options'][MergeComparison::BOTH])) {
+                $choices[$row['key']] = MergeComparison::BOTH;
             }
         }
         if ($this->dry) {

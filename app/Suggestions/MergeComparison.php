@@ -11,13 +11,15 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * The comparison step of a merge (backlog items 46 and 90). It lists every field where the removed record holds
  * something the kept one lacks or holds differently, and what the admin may do with it: keep the kept record's value,
- * take the removed record's, or, for lists and notes, keep both. The defaults lose nothing that does not conflict, so
- * a quick merge stays one click: an empty field is filled, lists and «yes» flags are combined, and a conflicting value
- * stays as the kept record has it. For a person, the removed name becomes another name, a hidden misspelt form, or
- * the kept person's own name.
+ * take the removed record's, or, for lists and notes, keep both. The defaults lose nothing, so a quick merge stays one
+ * click: an empty field is filled, lists and «yes» flags are combined, two notes are kept one after the other, and
+ * where the two give a field differently the kept record's value stays and the removed record's becomes an alternative
+ * reading (قول دیگر) of the kept record, citing it (step 14.39). For a person, the removed name becomes another name, a
+ * hidden misspelt form, or the kept person's own name.
  *
- * apply() writes the choices onto the kept record (unsaved) and returns them with each changed column's value before
- * and after, for the audit log; undo() puts back the columns not edited since.
+ * apply() writes the choices onto the kept record (unsaved), records the alternative readings, and returns the choices
+ * with each changed column's value before and after and the readings made, for the audit log; undo() puts back the
+ * columns not edited since and removes those readings.
  *
  * Not compared, since the merge itself carries them: titles (they become other titles), the person's other names,
  * a library's name and city, the Fankha address, the shelfmark, and the source text (raw_text), whose entry moves
@@ -31,6 +33,8 @@ class MergeComparison
     // The removed person's name only
     public const ALIAS = 'alias';
     public const WRONG = 'wrong';
+    // A conflicting value: the kept one stays, the removed one becomes an alternative reading
+    public const READING = 'reading';
 
     // Registry fields the merge carries itself, or that name the record's place rather than describe it
     private const SKIP = ['primary_title', 'alternative_titles', 'language_summary', 'fankha_page', 'shelfmark', 'name', 'aliases'];
@@ -132,16 +136,21 @@ class MergeComparison
             if (self::same($s, $t)) {
                 continue;
             }
-            $options = [self::KEEP => 'مقدار رکورد ماندنی بماند', self::TAKE => 'مقدار رکورد حذف‌شونده جایگزین شود'];
+            // A field the record page shows readings of: the removed record's value can stay as one
+            $reading = isset(SuggestionRegistry::fields($source::class)[$key])
+                ? [self::READING => 'مقدار رکورد ماندنی بماند و مقدار رکورد حذف‌شونده «قول دیگر» شود'] : [];
+            $options = $reading + [self::KEEP => 'فقط مقدار رکورد ماندنی بماند (مقدار دیگر کنار می‌رود)', self::TAKE => 'مقدار رکورد حذف‌شونده جایگزین شود'];
+            $default = $reading ? self::READING : self::KEEP;
             if ($spec['kind'] === 'text') {
-                $options[self::BOTH] = 'هر دو، پشت هم';
+                $options = [self::BOTH => 'هر دو، پشت هم'] + $options;
+                $default = self::BOTH;
             }
             if ($spec['kind'] === 'contributor') {
                 // Contributors live in their own table too; a change goes through the contributor tools
-                $options = [self::KEEP => 'مقدار رکورد ماندنی بماند'];
+                $options = $reading + [self::KEEP => 'فقط مقدار رکورد ماندنی بماند (مقدار دیگر کنار می‌رود)'];
                 $row['note'] = 'برای عوض کردن ' . $spec['label'] . '، پس از ادغام از ابزار «' . $spec['label'] . '» استفاده کنید.';
             }
-            $rows[] = $row + ['options' => $options, 'default' => self::KEEP];
+            $rows[] = $row + ['options' => $options, 'default' => $default];
         }
 
         return $rows;
@@ -174,8 +183,13 @@ class MergeComparison
         $specs = self::specs($source::class);
         $before = [];
         $after = [];
+        $readings = [];
         foreach ($choices as $key => $choice) {
             $spec = $specs[$key] ?? null;
+            if ($spec && $choice === self::READING) {
+                $readings[] = self::reading($source, $target, $key, $spec)->id;
+                continue;
+            }
             if (! $spec || $choice === self::KEEP) {
                 continue;
             }
@@ -190,10 +204,39 @@ class MergeComparison
             }
         }
 
-        return ['choices' => $choices, 'before' => $before, 'after' => $after];
+        return ['choices' => $choices, 'before' => $before, 'after' => $after, 'reading_ids' => $readings];
     }
 
-    /** Puts back the columns apply() changed, unless they were edited since. Leaves $target unsaved. */
+    /**
+     * The removed record's value of a field the two give differently, as an approved alternative reading of the kept
+     * record. Its holder is the removed record: for a copy, the catalogue it cites.
+     */
+    private static function reading(Model $source, Model $target, string $key, array $spec): \App\Models\FieldSuggestion
+    {
+        // As a suggestion holds it; none (or «بی‌کاتب», «بی‌تاریخ») is «نامشخص», as the site shows it (step 14.13)
+        $stored = fn (Model $m) => trim((string) $m->{$spec['columns'][0]}) !== '' ? (string) $m->{$spec['columns'][0]} : 'نامشخص';
+        $citation = $source instanceof Manuscript ? trim((string) $source->catalog_citation, '[] ') : '';
+        $label = SuggestionRegistry::describe($source)['label'];
+
+        return \App\Models\FieldSuggestion::create([
+            'suggestable_type' => $target::class,
+            'suggestable_id' => $target->getKey(),
+            'kind' => 'field',
+            'field_name' => $key,
+            'current_value' => $stored($target),
+            'suggested_value' => $stored($source),
+            'rationale_citation' => $citation ?: null,
+            'credit_name' => mb_substr($citation ? 'فهرست ' . $citation : $label, 0, 120),
+            'status' => 'approved',
+            'standing' => 'alternative',
+            'public_note' => mb_substr(sprintf('قول رکوردی که در این رکورد ادغام شد («%s»%s).', $label, $citation ? '؛ ' . $citation : ''), 0, 2000),
+            'resolution' => ['applied' => false, 'origin' => 'merge', 'merged_id' => $source->getKey()],
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+    }
+
+    /** Puts back the columns apply() changed, unless they were edited since, and removes its readings. Leaves $target unsaved. */
     public static function undo(Model $target, array $applied): void
     {
         foreach ((array) ($applied['before'] ?? []) as $column => $value) {
@@ -201,6 +244,7 @@ class MergeComparison
                 $target->{$column} = $value;
             }
         }
+        \App\Models\FieldSuggestion::whereIn('id', (array) ($applied['reading_ids'] ?? []))->delete();
     }
 
     /** The columns' values, the first one standing for the field. */
