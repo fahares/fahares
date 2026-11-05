@@ -22,6 +22,10 @@ use Illuminate\Support\Str;
  * natural key (library slug, MTIF entry ids, volume title within its library, cataloger slug), never
  * by local id, so the same command runs on production. Safe to run again.
  *
+ * A link with «superseded_by» names the data file of the later step that rebuilt its catalogue (its parts, its
+ * issues, its volumes) and is left to that file's command; a library merged since is followed through
+ * entity_redirects, and a link whose library is gone is reported and left out (item 117).
+ *
  * It also:
  *  - moves the Malek catalogue volumes that carried the Razavi library id back to Malek, and relinks
  *    the Razavi copies wrongly attached to them to the Razavi volume their citation names;
@@ -63,9 +67,6 @@ class LinkCatalogVolumesCommand extends Command
         }
 
         $plan = $this->resolveLinks($data['links'] ?? []);
-        if ($plan === null) {
-            return self::FAILURE;
-        }
 
         $run = function () use ($plan, $data) {
             if (isset($data['malek'])) {
@@ -99,35 +100,64 @@ class LinkCatalogVolumesCommand extends Command
     }
 
     /**
-     * Checks every library exists before anything is written.
+     * Each link with its libraries, found before anything is written. A library merged into another since the file
+     * was written (its slug ends in its old id, which entity_redirects sends on) is the one it was merged into; a link
+     * whose library is not found at all is reported and left out, and the others still run (item 117).
      *
-     * @return array<int, array<string, mixed>>|null
+     * @return array<int, array<string, mixed>>
      */
-    protected function resolveLinks(array $links): ?array
+    protected function resolveLinks(array $links): array
     {
         $plan = [];
+        $missing = [];
         foreach ($links as $link) {
-            $library = Library::where('slug', $link['library'])->first();
-            if (! $library) {
-                $this->error("Library not found by slug: {$link['library']}");
+            // a catalogue a later step rebuilt (a catalogue of several libraries with its parts, a journal by its
+            // issues, volumes the site lacked) is that step's: its own command, safe to run again, ties its copies
+            if (! empty($link['superseded_by'])) {
+                $this->line("{$link['library']} [{$link['series']}]: left to {$link['superseded_by']}");
 
-                return null;
+                continue;
             }
+            $library = $this->library($link['library']);
             // a catalogue shared by two library records (one catalogue, or a duplicate library) keeps its
             // volumes under one of them
-            $volumeLibrary = $library;
-            if (! empty($link['volume_library'])) {
-                $volumeLibrary = Library::where('slug', $link['volume_library'])->first();
-                if (! $volumeLibrary) {
-                    $this->error("Library not found by slug: {$link['volume_library']}");
+            $volumeLibrary = empty($link['volume_library']) ? $library : $this->library($link['volume_library']);
+            if (! $library || ! $volumeLibrary) {
+                $missing[] = $library ? $link['volume_library'] : $link['library'];
 
-                    return null;
-                }
+                continue;
             }
             $plan[] = $link + ['library_model' => $library, 'volume_library_model' => $volumeLibrary];
         }
+        foreach ($missing as $slug) {
+            $this->error("Library not found by slug, its link left out: {$slug}");
+        }
 
         return $plan;
+    }
+
+    /** The library of a slug, or of the library its old id was merged into. */
+    protected function library(string $slug): ?Library
+    {
+        if ($library = Library::where('slug', $slug)->first()) {
+            return $library;
+        }
+        if (! preg_match('/-(\d+)$/', $slug, $m)) {
+            return null;
+        }
+        // a chain of merges ends at the library that is left (a loop in the chain ends nowhere)
+        $id = (int) $m[1];
+        $seen = [];
+        while (! isset($seen[$id]) && ($target = DB::table('entity_redirects')->where('entity_type', 'libraries')->where('source_id', $id)->value('target_id'))) {
+            $seen[$id] = true;
+            $id = (int) $target;
+        }
+        $library = $seen && ! isset($seen[$id]) ? Library::find($id) : null;
+        if ($library) {
+            $this->warn("Library {$slug} was merged into {$library->slug}: its link goes there");
+        }
+
+        return $library;
     }
 
     protected function applyLink(array $link): void

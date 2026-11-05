@@ -194,8 +194,126 @@ class SourceEntrySync
         $removed = $none ? DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $none)->delete() : 0;
         // a copy on a volume with parts is of the one its library and page name (step 13.150)
         \App\Models\CatalogVolumePart::assign($manuscripts->pluck('id'));
+        self::syncOtherCited($manuscripts);
 
         return [count($rows), $removed];
+    }
+
+    /**
+     * The places a copy cites besides its catalogue entry's (step 14.42): one entry for each place of each source,
+     * «[اهدائی رهبر: 3-673] و [ف: 21-1380]» two and «[فیلمها ف: 1 - 566 و 743]» two, under legacy_type
+     * fankha_citation_more in their order. Each is at the volume the library's other copies citing that series and
+     * volume are on (volumeOf); else it keeps its text without a volume.
+     */
+    public static function syncOtherCited(iterable $manuscripts): void
+    {
+        $others = [];
+        foreach ($manuscripts as $m) {
+            $others[$m->id] = \App\Support\CatalogCitations::others($m->metadata, $m->raw_text);
+        }
+        if (! $others) {
+            return;
+        }
+        $withPlaces = array_keys(array_filter($others));
+        $libraries = $withPlaces ? DB::table('manuscripts')->whereIn('id', $withPlaces)->pluck('library_id', 'id')->all() : [];
+        $volumes = self::seriesVolumes(array_values(array_unique(array_filter($libraries))));
+        $volumeIds = [];
+        foreach ($volumes as $keys) {
+            foreach ($keys as $byVolume) {
+                array_push($volumeIds, ...array_keys($byVolume));
+            }
+        }
+        $volumeSources = $volumeIds ? DB::table('source_volumes')->whereIn('id', array_unique($volumeIds))->pluck('source_id', 'id')->all() : [];
+
+        $rows = [];
+        foreach ($others as $id => $places) {
+            foreach ($places as $i => $place) {
+                $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
+                $volume = self::volumeOf($volumes[$libraries[$id] ?? 0][$key] ?? [], $place['page']);
+                $rows[] = self::row([
+                    'citable_type' => Manuscript::class,
+                    'citable_id' => $id,
+                    'source_id' => $volume ? $volumeSources[$volume] ?? null : null,
+                    'source_volume_id' => $volume && isset($volumeSources[$volume]) ? $volume : null,
+                    'volume_number' => $place['volume'],
+                    'page_start' => $place['page'],
+                    'citation_text' => $place['text'],
+                    'origin' => SourceEntry::ORIGIN_FANKHA_CITATION,
+                    'sort_order' => $i + 1,
+                    'legacy_type' => 'fankha_citation_more',
+                    'legacy_id' => $id,
+                    'legacy_index' => $i,
+                ]);
+            }
+        }
+        $rows && self::upsert($rows);
+        foreach (array_chunk(array_keys($others), 1000, true) as $part) {
+            DB::table('source_entries')->where('legacy_type', 'fankha_citation_more')
+                ->where(function ($q) use ($part, $others) {
+                    foreach ($part as $id) {
+                        $q->orWhere(fn ($w) => $w->where('legacy_id', $id)->where('legacy_index', '>=', count($others[$id])));
+                    }
+                })->delete();
+        }
+    }
+
+    /**
+     * [library_id]['series|volume'] => the volumes the library's copies citing that series and volume are on, from
+     * their catalogue entries: [source_volumes.id => [copies, first page, last page]], each holding at least one in
+     * twenty of them (fewer are copies linked by mistake).
+     *
+     * @return array<int, array<string, array<int, array{0: int, 1: ?int, 2: ?int}>>>
+     */
+    public static function seriesVolumes(array $libraryIds): array
+    {
+        $seen = [];
+        foreach (array_chunk($libraryIds, 50) as $part) {
+            DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
+                ->where('e.legacy_type', 'fankha_citation')->whereIn('m.library_id', $part)->whereNotNull('e.source_volume_id')
+                ->select(['e.id', 'm.library_id', 'e.citation_text', 'e.source_volume_id'])
+                ->chunkById(5000, function ($rows) use (&$seen) {
+                    foreach ($rows as $r) {
+                        $place = \App\Support\CatalogCitations::places((string) $r->citation_text)[0] ?? null;
+                        if (! $place || $place['series'] === null) {
+                            continue;
+                        }
+                        $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
+                        $v = &$seen[$r->library_id][$key][$r->source_volume_id];
+                        $v ??= [0, null, null];
+                        $v[0]++;
+                        if ($place['page'] !== null) {
+                            $v[1] = $v[1] === null ? $place['page'] : min($v[1], $place['page']);
+                            $v[2] = $v[2] === null ? $place['page'] : max($v[2], $place['page']);
+                        }
+                        unset($v);
+                    }
+                }, 'e.id', 'id');
+        }
+        foreach ($seen as $library => $keys) {
+            foreach ($keys as $key => $byVolume) {
+                $all = array_sum(array_column($byVolume, 0));
+                $seen[$library][$key] = array_filter($byVolume, fn ($v) => $v[0] * 20 >= $all);
+            }
+        }
+
+        return $seen;
+    }
+
+    /**
+     * The volume of a place among those seriesVolumes() gives for its series and volume: the only one, or of a
+     * volume in parts («جلد سوم: فقه، بخش ۱» and «بخش ۲») the one whose pages hold the page.
+     */
+    public static function volumeOf(array $candidates, ?int $page): ?int
+    {
+        if (count($candidates) === 1) {
+            return (int) array_key_first($candidates);
+        }
+        if ($page === null) {
+            return null;
+        }
+        $holding = array_keys(array_filter($candidates, fn ($v) => $v[1] !== null && $page >= $v[1] && $page <= $v[2]));
+
+        return count($holding) === 1 ? (int) $holding[0] : null;
     }
 
     public static function syncBibliography(Work $work): void

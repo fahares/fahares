@@ -1,0 +1,13 @@
+{
+ "_comment": "Step 14.43, approved by the user: four duplicate libraries of Qom, found by step 14.40 (their 36 Turathuna copies got no part). «علامة طباطبائی» (331) is «علامة طباطبائی قم (مکتبه)» (280): its 23 copies cite the pages of the part «فهرس مخطوطات مکتبة العلامة الطباطبائی (قم)», س2ش3 pp. 150-163. «فاضل» (889), «فاضل قائنی» (916) and «فاضل قائمى» (1040, a misprint) are «فاضل قائینی» (73): their 11 copies cite pages of the Turathuna parts «فهرس مخطوطات مکتبة علی فاضل قائنی». Run first: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step14_43.json, then again php artisan catalogs:import-volume-parts --data=database/data/volume_parts_turathuna.json",
+ "libraries": [
+  {
+   "target": "km-aalamh-tbatbayy-km-mktbh-280",
+   "sources": [{"slug": "km-aalamh-tbatbayy-331"}]
+  },
+  {
+   "target": "km-fadl-kayyny-73",
+   "sources": [{"slug": "km-fadl-889"}, {"slug": "km-fadl-kayny-916"}, {"slug": "km-fadl-kaym-1041"}]
+  }
+ ]
+}

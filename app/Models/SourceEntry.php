@@ -390,6 +390,21 @@ class SourceEntry extends Model
         return $this->volume_number ?? $this->sourceVolume?->volume_number;
     }
 
+    /** The heading of several places in one volume of a source: «فهرست …، ج ۱، ص ۵۶۶ و ۷۴۳». */
+    public static function groupLabel(iterable $entries): string
+    {
+        $entries = collect($entries);
+        $first = $entries->first();
+        $unit = $first->source?->unit === 'ستون' ? 'ستون' : 'ص';
+        $pages = $entries->pluck('page_start')->filter()->unique()->values();
+
+        return Fa::digits(implode('، ', array_filter([
+            $first->sourceLabel(),
+            $first->volumeNumber() ? 'ج ' . $first->volumeNumber() : null,
+            $pages->isNotEmpty() ? "{$unit} " . $pages->implode(' و ') : null,
+        ])));
+    }
+
     /** «ج 2، ص 414» (or «ستون» in the books numbered by column), with «–415» when the entry runs on. */
     public function placeLabel(bool $range = false): string
     {

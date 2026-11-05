@@ -9,6 +9,7 @@ use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Work;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class LinkCatalogVolumesTest extends TestCase
@@ -165,6 +166,41 @@ class LinkCatalogVolumesTest extends TestCase
         $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])->assertSuccessful();
         $this->assertSame(1, CatalogVolume::where('mtif_entry_id', 880001)->count());
         $this->assertSame(1, Cataloger::where('mtif_entry_id', 990002)->count());
+    }
+
+    public function test_a_merged_library_is_followed_a_lost_one_left_out_and_a_superseded_link_skipped()
+    {
+        $library = Library::create(['name' => 'کتابخانه ماندگار', 'city' => 'اراک', 'slug' => 'test-kept-' . uniqid()]);
+        $gone = Library::create(['name' => 'کتابخانه ادغام‌شده', 'city' => 'اراک', 'slug' => 'test-gone-' . uniqid()]);
+        $goneSlug = 'test-merged-' . $gone->id;
+        DB::table('entity_redirects')->insert(['entity_type' => 'libraries', 'source_id' => $gone->id, 'target_id' => $library->id]);
+        $gone->delete();
+        Cataloger::create(['name' => 'فهرست‌نگار آزمایشی', 'slug' => 'test-cat-' . uniqid(), 'mtif_entry_id' => 990011]);
+        $copy = $this->manuscript($library, '[ف: 1-10]');
+        $other = Library::create(['name' => 'کتابخانه دیگر', 'city' => 'قم', 'slug' => 'test-other-' . uniqid()]);
+        $otherCopy = $this->manuscript($other, '[ف: 1-12]');
+        $link = fn (string $slug, string $title) => [
+            'library' => $slug, 'series' => 'ف', 'source' => 'fankha:1', 'source_text' => 'آزمایشی',
+            'volumes' => [['number' => 1, 'title' => $title]],
+            'catalogers' => [['mtif_entry_id' => 990011, 'name' => 'فهرست‌نگار آزمایشی']],
+        ];
+
+        $this->writeData([
+            $link('no-such-library-' . uniqid(), 'فهرست گمشده - 1'),
+            $link($goneSlug, 'فهرست ماندگار - 1'),
+            $link($other->slug, 'فهرست دیگر - 1') + ['superseded_by' => 'database/data/volume_parts_test.json'],
+        ]);
+
+        $this->artisan('catalogs:link-volumes', ['--data' => $this->dataPath])
+            ->expectsOutputToContain("was merged into {$library->slug}")
+            ->expectsOutputToContain('its link left out')
+            ->assertSuccessful();
+        $volume = CatalogVolume::where('title', 'فهرست ماندگار - 1')->firstOrFail();
+        $this->assertSame($library->id, $volume->library_id);
+        $this->assertSame($volume->id, $copy->fresh()->catalog_volume_id);
+        $this->assertFalse(CatalogVolume::where('title', 'فهرست گمشده - 1')->exists());
+        $this->assertFalse(CatalogVolume::where('title', 'فهرست دیگر - 1')->exists());
+        $this->assertNull($otherCopy->fresh()->catalog_volume_id);
     }
 
     public function test_an_authoritative_link_moves_copies_to_the_volume_their_citation_names()
