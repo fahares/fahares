@@ -6984,6 +6984,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوند:** `ContributorRelations::set(work, person)`، `AuditLog` و `CollectiveReview::settle('author', …)`.
 - **آزمون:** `AuthorLinkQueueTest` با ۲ آزمون.
 - **تمرین (`fahares_prod`):** `queued 57`، سپس `already queued 57`.
+- **اجرا در پروداکشن (۱۵ آبان ۱۴۰۵، پس از انتشار `775be9b`):**
+  - پشتیبان لازم نبود: صف پیش از اجرا هیچ ردیف `author_link` نداشت و فرمان فقط ردیف می‌افزاید.
+  - اجرا با `prod-run --wait` انجام شد: `would queue 57`، سپس `queued 57`، سپس `already queued 57`.
+  - `/contribute/author/1463` با کد ۲۰۰ باز شد.
 - **صفحه‌ی بازبینی Claude (EZVnxjxDfQe37o16EJTvyD):** پیش از این ساخته شده بود. رأی‌هایش، اگر باشد، در پیشخوان اعمال می‌شود.
 
 ### گام ۱۴.۱۸: مشار و سرکیس از «کتب مرجع ۲» نور (مورد ۸۶)
