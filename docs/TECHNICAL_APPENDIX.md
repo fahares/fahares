@@ -6276,6 +6276,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نمونه: ۲۶۲ شخص (پراثرترین‌ها، پرنسخه‌ترین‌ها، دارندگان نقش‌های دیگر، شریکان در آثار چندمؤلفی و تصادفی)، ۱۸۴ اثر (چندمؤلفی، با نام بی‌پیوند، با اشخاص مرتبط و تصادفی) و ۲۸۰ نسخه (چندکاتبی، با یادداشت سهم، با اشخاص مرتبط و تصادفی). صفحه‌ها با کد پیش از تغییر روی داده‌ی پیش از migration و با کد تازه روی داده‌ی پس از آن ساخته شدند. توکن CSRF، فاصله‌ها و پارامتر `?v=` تصویرها کنار گذاشته شد.
   - یکسان ماند: `withCount` آثار و نسخه‌ها، شمار نقش‌های دیگر، سند جستجوی شخص و اثر و نسخه، فهرست مؤلفان و کاتبان (شخص، نام، ترتیب، یادداشت)، فهرست «اشخاص مرتبط»، `StructurePreview::counts` و موانع حذف شخص.
   - از ۹۸۸ صفحه همه یکسان بودند، جز صفحه‌ی دوم آثار دو شخص (#۱۴۱۴ و #۱۹۰)، که دو اثر هم‌شمار جابه‌جا شده بودند. پس از این، ترتیب `work_people.id` آن را ثابت می‌کند.
+- **پروداکشن (۱۱ آبان ۱۴۰۵):** نشست مدیریت تسک‌ها منتشر کرد (origin/main `4d024c0`، migration در batch 58). پیش از push از `work_people`، `work_author`، `manuscript_people` و `manuscript_scribe` پشتیبان گرفته شد: `fahares-sources/backups/step13/step13.151_people_tables_prod_before_20261102.sql.gz`.
+  - وارسی فقط‌خواندنی پایگاه داده (`tinker` با ssh): هیچ ردیف `work_author` یا `manuscript_scribe` بی‌همتای دقیق (`id + 10000000`، نقش، شخص، نام، ترتیب، یادداشت) نماند. شمارها ۴۴٬۹۷۹ = ۴۴٬۹۷۹ و ۱۰۴٬۸۹۳ = ۱۰۴٬۸۹۳ بود. شمار ردیف‌های مؤلف و کاتب هیچ شخصی تغییر نکرد. هیچ `author_id` یا `scribe_id` بی‌ردیف نماند. ناسازگاری پیشین ۷۰ `works_count` و ۷۷ `manuscripts_count` همان است.
+  - صفحه‌های زنده (از درون کانتینر، `127.0.0.1` با `Host: fahares.net`، چون اتصال لپ‌تاپ به سایت ناپایدار بود): ۲۶ صفحه پاسخ ۲۰۰ دادند. ۱۵ شخص پراثر، پرنسخه یا دارای نقش اهداشده بودند و شمار آثار و نسخه‌ها (`withCount`) در صفحه بود. ۶ اثر چندمؤلفی یا دارای اهداشده بودند و همه‌ی مؤلفانشان در صفحه بودند. ۵ نسخه‌ی چندکاتبی هم همه‌ی کاتبانشان را نشان دادند. در هیچ صفحه‌ای زبانه‌ی نقش `author` یا `scribe` نبود.
 - **آزمون:** [ContributorRolesTest](../tests/Feature/ContributorRolesTest.php) (جدایی نقش‌ها، حذف شخص، migration و بازگردانی لاگ پیشین، بازگردانی ادغام نسخه‌ی پیشین). آزمون‌هایی که جدول قدیم را می‌خواندند به جدول نقش‌دار رفتند.
 
 ### گام ۱۳.۱۵۲: `lines_bayt`
@@ -7434,6 +7437,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[EmailAttachments](../app/Messaging/EmailAttachments.php):** `download()` فهرست `GET /emails/receiving/{id}/attachments` را می‌گیرد. هر مورد یک `download_url` امضاشده دارد که حدود یک ساعت اعتبار دارد و بی توکن دانلود می‌شود. نوع با `getimagesizefromstring` سنجیده می‌شود، نه با `content_type` یا نام. سقف‌ها در `notifications.inbound.max_attachments` و `max_attachment_bytes` هستند. اگر فهرست در دسترس نباشد، `null` برمی‌گردد و [InboundEmailController](../app/Http/Controllers/InboundEmailController.php) پیش از ثبت نامه ۵۰۲ می‌دهد تا Resend دوباره بفرستد. `withoutMarkers()` الگوی «[image: …]» را، حتی اگر نامش به سطر بعد شکسته باشد، برمی‌دارد.
 - **[MessageAttachmentController](../app/Http/Controllers/MessageAttachmentController.php):** مسیر `messages.attachment` در گروه `auth` است. کاربرِ رشته می‌بیند، و برای رشته‌ی پیشنهاد دارنده‌ی `suggestions.review` و برای پیام مستقیم دارنده‌ی `users.message`. پاسخ با `X-Content-Type-Options: nosniff` و `Cache-Control: private` است.
 - **[FetchReplyAttachmentsCommand](../app/Console/Commands/FetchReplyAttachmentsCommand.php):** `fahares:fetch-reply-attachments <message> [--email=] [--dry-run]`. ایمیل را از `GET /emails/receiving` با فرستنده‌ی برابر با کاربر رشته و فاصله‌ی زمانی کمتر از پنج دقیقه پیدا می‌کند. نامه‌ای که پیوست دارد دست نمی‌خورد. برای نامه‌ی ۹ پروداکشن، ایمیل Resend `ca93ee7b-63a8-45b3-a8e5-78136045bb09` است با شش PNG، روی هم حدود ۳ مگابایت.
+- **اجرای پروداکشن (۱۵ آبان ۱۴۰۵):** پشتیبان پیش از اجرا `step14.36_fetch_reply_attachments_prod_before_20261105.json` (نامه‌ی ۹ و جدول خالی `message_attachments`). `prod-run email-attachments -- 'php artisan fahares:fetch-reply-attachments 9'` شش PNG (۲٬۹۹۶٬۳۶۳ بایت، شناسه‌های پیوست ۱ تا ۶) را نگه داشت. هر شش پرونده روی دیسک `public` هست، که در پروداکشن یک volume جداست و با استقرار پاک نمی‌شود. درخواست مهمان به `/messages/attachments/1` به `/login` می‌رود.
 - **آزمون:** `EmailReplyAttachmentsTest` (۴ آزمون: نگهداری و دسترسی، پاسخ فقط‌تصویر، نشانه‌های جیمیل، فرمان).
 
 ### گام ۱۴.۳۷: `only_libraries`، نقش کسان جلد، و کتابخانه‌ی کتاب ساخته‌شده در `catalogs:import-volume-parts`
@@ -7472,6 +7476,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صدور (پیکره):** `fankha_v2_author_from_description_export.py --from-raw --hedged`. سطر مؤلف با «؟» آغاز یا پایان می‌یابد و بی آن، با نام v2 برابر است. خروجی ۱۹ مورد بود، که در ۱۸ تا شرح هم پیراسته می‌شود.
 - **فایل:** `database/data/fankha_hedged_authors_20261105.json`.
 - **تمرین (`fahares_prod`):** `marked 613` و `added 19`، سپس `marked 0` و `add_skipped 19`.
+- **اجرا در پروداکشن (۱۵ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/step13/item87_hedged_authors_prod_before_20261105.json`. این فایل ۸۸۵ ردیف `work_people` با نقش `author` از آثاری را دارد که متنشان واژه‌ی تردید دارد، به‌اضافه‌ی ۱۹ اثر.
+  - **اجرا:** با `prod-run`. خروجی `marked 613` و `added 19` بود و اجرای بعدی `marked 0` و `add_skipped 19` داد.
+  - **وارسی:** `/works/92` نشانه‌ی «(؟)» را با `title` نشان می‌دهد.
 - **آزمون:** `MarkHedgedAuthorsCommandTest`.
 ### گام ۱۴.۳۹: `MergeComparison::READING`
 - **`rows`:** فیلدهای `value` و `contributor` که هر دو رکورد دارند و فرق می‌کنند، اگر فیلد ثبت‌شده در `SuggestionRegistry` باشد (یعنی صفحه قولش را نشان می‌دهد)، گزینه‌ی `READING` را به‌عنوان پیش‌فرض می‌گیرند. فیلدهای `text` پیش‌فرض `BOTH` دارند.
