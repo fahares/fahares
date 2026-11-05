@@ -241,8 +241,18 @@
             <!-- The copy's places in the sources (step 13.4), in the order of their rank: the library's catalogues first, Fankha, compiled from them, last -->
             <x-ui.card class="space-y-4">
                 <div class="text-xs text-muted">در مآخذ نسخه‌شناسی</div>
-                @foreach($sources->cards() as $entry)
-                    <x-source.page-card :entry="$entry" :record="$manuscript" />
+                @foreach($sources->cardGroups() as $group)
+                    @if($group['label'])
+                        {{-- several pages of one volume (step 14.42) --}}
+                        <div class="space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-group>
+                            <div class="text-sm font-bold text-ink leading-6">{{ $group['label'] }}</div>
+                            @foreach($group['entries'] as $entry)
+                                <x-source.page-card :entry="$entry" :record="$manuscript" grouped />
+                            @endforeach
+                        </div>
+                    @else
+                        <x-source.page-card :entry="$group['entries'][0]" :record="$manuscript" />
+                    @endif
                 @endforeach
                 @if($manuscript->cataloger)
                     @php
