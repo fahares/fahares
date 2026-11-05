@@ -7364,22 +7364,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **فرمان‌ها:** برای هر جلد ۱ تا ۱۳، با `scripts/dev/prod-run --wait task-management`: `sources:import-pages`، `sources:segment --origin=noor --entries=…` و `sources:link-items --near --report=…`، سپس `scout:import "App\Models\SourceItem"`. همه با کد ۰ پایان یافتند.
   - **شمارها، برابر تمرین:** ۱۵٬۷۲۰ مدخل (`created`، با `updated 0` و `removed 0`)، با شمار هر جلد درست برابر فهرست تمرین. ۶۹۱ پیوند تازه، همه `unverified`. گزارش‌های `link-items` در `../fahares-sources/backups/step13/step14.31_kahhala_link_reports_20261105.tgz` است.
 
-### گام ۱۴.۲۷: بیت‌های `<poem>` نور با `<br/>`
-- **ریشه:** منزوی ج ۱۰ item 3718: `<poem>اين شنيدستى …<gap/>… پردلى<br/>آمد از چه …<gap/>… گفت </poem>`. `verse()` فقط روی `<gap/>` می‌شکست و `<br/>` به فاصله تبدیل می‌شد، پس سه «مصراع» ساخته می‌شد و `PrintedPage::text()` آن‌ها را در شبکه‌ی دوستونی جابه‌جا می‌چید. در `noor_aqabozorg.py`، `strip()` پس از `verse()` هر `<br/>` را به `\n` تبدیل می‌کرد، پس در الذریعة فقط شعرهای بی `<gap/>` آسیب داشتند.
-- **شمار `<poem>`های چندسطری در `kotobmarja2.db`** (همه‌ی سطرها با `<gap/>` / آمیخته / بی `<gap/>`): أعیان 12,742 / 335 / 13، روضات 1,236 / 9 / 11، الذریعة 856 / 18 / 6، منزوی 302 / 75 / 122، کشف 40 / 0 / 28، هدیة 5 / 1 / 0، ایضاح 0 / 0 / 1.
-- **`verse()` و `verses()`** در `noor_monzavi.py`، `noor_istanbul.py`، `noor_reference_books.py` و `noor_aqabozorg.py`:
-  - محتوای `<poem>` روی `<br\s*/?>` به سطر و هر سطر روی `<gap/>` به مصراع شکسته می‌شود. مصراع و سطر خالی حذف می‌شوند.
-  - اگر هر سطر دست‌کم دو مصراع دارد، هر سطر یک بیت است. وگرنه، اگر شمار همه‌ی مصراع‌ها زوج باشد، دوتادو جفت می‌شوند (منزوی آمیخته: «الهی از دل من بند برادر<br/>- مرا در بند…<gap/> - الهی ساز…<gap/> - نما راهی…»)، و اگر فرد باشد، هر سطر یک بیت می‌ماند (مصراع تنها با tab پایانی).
-  - شعری که درون جمله آمده، مثل پیش، با فاصله در جمله می‌ماند.
-- **خروجی:** هر چهار خواننده با پایگاه‌های نور (الذریعة با `--ablibrary`) پیش و پس از تغییر اجرا شدند. خروجی پیشین با فایل‌های `../fahares-sources` برابر بود. تفاوت صفحه‌ها و مدخل‌ها، جز `page_breaks` مدخل‌ها که با طول متن جابه‌جا می‌شوند، فقط در فاصله، tab، شکست سطر و « - » است. مشار، سرکیس و هدیة تغییری ندارند.
-  - صفحه‌های تغییرکرده: أعیان ۳٬۱۳۸ (۱۰ جلد)، روضات ۷۳۳ (۸)، منزوی ۳۳۴ (۱۰)، الذریعة ۳۸ (۱۴)، کشف ۴۰ (ج ۲)، ایضاح ۱ (ج ۱).
-  - ۴۴ فایل صفحه در `monzavi/noor`، `dharia/noor`، `noor-istanbul/{kashf,idah}` و `noor-printed/{ayan,rawdat}` جایگزین و `MD5SUMS` آن‌ها تازه شد. فایل‌های پیشین در `../fahares-sources/backups/noor-pages-before-verse-lines-2026-11-04/` هستند. فایل‌های مدخل (`*.entries.jsonl.gz`) دست نخوردند: مدخل‌های منزوی در پوشه از پیش از گام ۱۳.۹۵‌اند و ساختن دوباره‌شان جدا بررسی می‌شود.
-- **تمرین (`fahares_prod`):** `sources:import-pages {code} … --volume=N` برای ۴۴ جلد. `/sources/monzavi/10/page/151` اکنون چهار `span.book-poem__h` در دو بیت دارد.
-- **فرمان پروداکشن (با تأیید کاربر، با `scripts/dev/prod-run`):** رونوشت ۴۴ فایل به `/tmp/verse-lines/` کانتینر و برای هر جلد `php artisan sources:import-pages {code} /tmp/verse-lines/{code}-NN.jsonl.gz --volume=N`. کدها: `ayan`، `rawdat`، `monzavi`، `dharia`، `kashf` و `idah`. فقط `source_pages.text` بازنویسی می‌شود و پیش از آن پشتیبان همین ردیف‌ها لازم است.
-- **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، با تأیید کاربر):**
-  - **پشتیبان:** همه‌ی ردیف‌های `source_pages` این ۴۴ جلد (۲۵٬۴۳۸ صفحه، با `id`، `page`، `text` و `updated_at`) در `../fahares-sources/backups/step13/step14.27_source_pages_before.jsonl.gz` است (md5 `a024fd8b873e01d949828fe965be9171`). متن هر صفحه با فایل‌های `noor-pages-before-verse-lines-2026-11-04` برابر بود.
-  - **اجرا:** ۴۴ فایل به `/tmp/verse-lines/` رفت و md5 همه برابر بود. سپس با `scripts/dev/prod-run noor-verse-lines`، `sources:import-pages` برای هر جلد اجرا شد و هر ۴۴ جلد «pages saved» دادند. فایل‌های `/tmp` پس از کار پاک شدند.
-  - **وارسی:** `https://fahares.net/sources/monzavi/10/page/151` اکنون دو بیت «این شنیدستی…» را در دو سطر نشان می‌دهد.
+### گام ۱۴.۳۲: شماره‌ی بخش در ارجاع‌های متن صفحه
+- **[BibliographyLinks::inProse](../app/Support/BibliographyLinks.php):** الگوی `$part` (`\(\s*[0-9۰-۹]{1,2}\s*\)\s*`، اختیاری) پس از نام منبع و پس از «همان‌جا» آمده است. `segments()` بی‌تغییر است: عدد کمانک لینک نمی‌شود و `sourceAfter()` کمانک را از فاصله‌ی پیش از «page/volume» برمی‌دارد.
+- **شمار در داده‌ی محلی:** «نام (n) page/volume» در ۱۲۰۱ صفحه (همه منزوی). ذریعه (n) …/9: بخش ۱ = ۱۳۳، ۲ = ۹۷، ۳ = ۱۲۰، ۴ = ۷۱، و «همان‌جا (n)» ۱۰۸ بار دیگر.
+- **آزمون:** `SourcePageViewTest::test_a_citation_inside_a_page_text_links_the_cited_page`، با «ذریعه (3) 791/9»، «ذریعه (2) 346/9» و «همان‌جا (4) 1270/9».
+
+### گام ۱۴.۳۳: حاشیه‌ی برگه و پاورقی در پای صفحه
+- **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
+- **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
+- **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.
 
 ### گام ۱۴.۳۵: معجم التراث الکلامی و موسوعة طبقات الفقهاء (مورد ۸۶)
 - **سنجش چهار منبع «کتب مرجع ۲»:** ۴۳۵ رشته‌ی مآخذ پروداکشن، فقط‌خواندنی، سنجیده شد. معیار این بود که بخشی از عنوان اثر یا نام مؤلف روی صفحه‌ی نشانی‌داده (±۱) باشد.
@@ -7413,49 +7406,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندهای فقها (۳۱ جا):** `author_opening*` ۲۵، `author_life*` ۴، یادکرد ۱ و بی‌تطبیق ۱.
 - **فایل‌ها:** `../fahares-sources/noor-printed/{kalam-turath,fuqaha}/`.
 - **آزمون:** دو آزمون تازه در `NoorReferenceBooksTest`، با فیکسچرهای `kalam-turath-v01-p126` (شش «اثبات الرجعة» در یک صفحه) و `fuqaha-v14-p861`.
-### گام ۱۴.۲۹: تأیید گروهی در `SourceLinkController`
-- **`BULK`:** فهرست `[source, method, min, sample]`. `bulkRule()` دسته‌ای را برمی‌گرداند که منبع و روش پالایه با آن یکی است. `bulkQuery()` پیوندهای داوری‌نشده‌ی پالایه است، با اطمینان `min` به بالا.
-- **مسیرها:** `POST admin/source-links/bulk-verify` (`source-links.bulk-verify`) و `POST admin/source-links/bulk/{batch}/revert` (`source-links.bulk-revert`)، زیر مجوز `catalog_refs.review`.
-  - شمار دیده‌شده (`expected`) باید هنوز درست باشد. پالایه‌ای که دسته‌ی مجاز ندارد پاسخ ۴۲۲ می‌گیرد.
-- **`SourceEntry::bulkVerify`:** بی تغییر، با `filters = {queue: source-links, min, …پالایه}`.
-- **`lastBulkVerify(?queue)`:** با `queue`، آخرین دسته‌ی آن صف را برمی‌گرداند. بی آن، دسته‌ای را برمی‌گرداند که `queue` ندارد، یعنی دسته‌ی صف ارجاع‌های فهرست. `bulkQueue()` صف یک دسته را می‌خواند.
-  - هر کنترلر فقط دسته‌ی صف خودش را برمی‌گرداند. فرمان `catalogs:revert-bulk-verify` بی‌آرگومان همان دسته‌ی صف ارجاع‌ها را برمی‌دارد.
-- **نما:** `admin/source_links/index`:
-  - اعلان سبز با دکمه، وقتی پالایه دسته‌ی مجاز دارد؛
-  - اعلان «پالایه‌ی پیشنهادی»، وقتی منبع دسته‌ی مجاز دارد ولی روش پالایه آن نیست؛
-  - اعلان آخرین دسته، با «برگرداندن این دسته».
-- **آزمون:** `SourceLinksReviewTest::test_a_category_let_in_is_verified_at_once_and_the_batch_reverted`.
-- **وارسی (`fahares_prod` محلی، کد همین شاخه):** پالایه‌ی `source=monzavi&method=edition_address` دکمه‌ی «تأیید همه‌ی ۱۴۴ پیوند این پالایه» را نشان داد، از ۱۵۸ پیوند پالایه. ۱۴ پیوند با اطمینان ۸۵ بیرون ماندند. پالایه‌ی `source=monzavi` «پالایه‌ی پیشنهادی» را نشان داد. در ۳۷۵ پیکسل سرریز افقی نبود.
 
-### گام ۱۴.۳۰: نسخه‌ی بی‌جای «علم الاكتاف»
-- **بازبینی کنار رفته‌های ۱۴.۱۹:** `fankha_lost_heads_export.py --volumes 17 19 22 23 26` روی `fahares_prod` پس از ۱۴.۲۳ تنها سه اثر با سطر افتاده یافت، و هیچ‌کدام به‌روزرسانی نداشت:
-  - v22-2235 «علم الاكتاف» (#46391): «a copy line in the head».
-  - v23-931 «فارسی هیئت»: با #47841 («هیئت»ٔ قوشچی) جفت شده بود. اثر خودش #47840 «فارسی هیأت» است، با مجلس 8914/14.
-  - v26-1888 «کیمیا»ی ترکی: با #54844 جفت شده بود. اثر خودش #54841 «كيمياء» است، با هر ۸ نسخه.
-- **علت در «علم الاكتاف»:** خط ۴۷۸۳۴ ج ۲۲ («تهران؛ …؛» در پایان ص ۸۵۷) و «شماره نسخه: 90/4» در آغاز ص ۸۵۸. v1 و v2 هر دو سطر نخست را `description` خواندند. جست‌وجوی همین الگو (سطر پایان‌یافته با «؛»، برچسب صفحه، سپس «شماره نسخه») در ۳۴ جلد تنها همین را یافت.
-- **[RebuildCopiesCommand](../app/Console/Commands/RebuildCopiesCommand.php):** `COLUMNS` اکنون `city`، `library` و `library_id` را هم دارد. `libraries.manuscripts_count` برای `library_id` پیشین و تازه دوباره شمرده می‌شود. آزمون: `test_a_copy_that_lost_its_place_gets_its_city_library_and_shelfmark`.
-- **فایل‌ها:**
-  - `database/data/fankha_lost_place_copy_step14_30.json`: نسخه‌ی 215604، با `city`، `library` (نام کتابخانه‌ی #99)، `library_id` 99، `shelfmark` «90/4» و `raw_text` با سطر جای نسخه.
-  - `database/data/fankha_lost_place_work_step14_30.json`: `work_updates` برای `ilm-ul-aktaf-v22-2225`، با `description` تهی و `raw_text` تنها سرعنوان.
-  - شناسه‌ها روی پروداکشن هم همین‌اند (215604، 46391، کتابخانه‌ی 99 با ۳۴۴ نسخه)، خوانده‌شده با ssh فقط‌خواندنی.
-- **تمرین (`fahares_prod`):** `update 1` و `rebuild 1`، سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`. اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی #99 اکنون ۳۴۵ نسخه دارد.
-- **اجرا در پروداکشن (۱۳ آبان ۱۴۰۵، پس از استقرار `1b99daf`، از راه `prod-run`):**
-  - پشتیبان: `fahares-sources/backups/step13/step14.30_lost_place_prod_before_20261104.json` (نسخه، اثر، کتابخانه‌ی ۹۹، خط نسخه و سه ردیف `source_entries`).
-  - `fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`: `update 1`.
-  - `fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`: `rebuild 1`.
-  - `catalogs:link-volumes` و `fahares:rebuild-scripts`: «Nothing to change».
-  - اجرای دوم `update 0` و `rebuild 0` بود. کتابخانه‌ی ۹۹ اکنون ۳۴۵ نسخه دارد. صفحه‌ی اثر نسخه را با «تهران ۹۰/۴» نشان می‌دهد.
-- **اجرا در پروداکشن:** پس از استقرار، با پشتیبان:
-  - `php artisan fahares:add-corpus-works --file=database/data/fankha_lost_place_work_step14_30.json --apply`
-  - `php artisan fahares:rebuild-copies --file=database/data/fankha_lost_place_copy_step14_30.json --apply`
-  - سپس `catalogs:link-volumes` و `fahares:rebuild-scripts`.
-
-### گام ۱۴.۳۲: شماره‌ی بخش در ارجاع‌های متن صفحه
-- **[BibliographyLinks::inProse](../app/Support/BibliographyLinks.php):** الگوی `$part` (`\(\s*[0-9۰-۹]{1,2}\s*\)\s*`، اختیاری) پس از نام منبع و پس از «همان‌جا» آمده است. `segments()` بی‌تغییر است: عدد کمانک لینک نمی‌شود و `sourceAfter()` کمانک را از فاصله‌ی پیش از «page/volume» برمی‌دارد.
-- **شمار در داده‌ی محلی:** «نام (n) page/volume» در ۱۲۰۱ صفحه (همه منزوی). ذریعه (n) …/9: بخش ۱ = ۱۳۳، ۲ = ۹۷، ۳ = ۱۲۰، ۴ = ۷۱، و «همان‌جا (n)» ۱۰۸ بار دیگر.
-- **آزمون:** `SourcePageViewTest::test_a_citation_inside_a_page_text_links_the_cited_page`، با «ذریعه (3) 791/9»، «ذریعه (2) 346/9» و «همان‌جا (4) 1270/9».
-
-### گام ۱۴.۳۳: حاشیه‌ی برگه و پاورقی در پای صفحه
-- **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
-- **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
-- **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.
