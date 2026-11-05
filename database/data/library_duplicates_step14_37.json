@@ -1,0 +1,13 @@
+{
+ "_comment": "Step 14.37: «قمر بنی هاشم (ع)» of Damghan is «قمر بنی هاشم», the library of Fankha's row 274 (its copies cite the same «ف مخ» and «ف» pages). Run first: php artisan catalogs:merge-duplicates --data=database/data/library_duplicates_step14_37.json",
+ "libraries": [
+  {
+   "target": "damghan-kmr-bny-hashm-93",
+   "sources": [
+    {
+     "slug": "damghan-kmr-bny-hashm-aa-225"
+    }
+   ]
+  }
+ ]
+}

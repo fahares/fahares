@@ -69,13 +69,37 @@ class MergeComparisonTest extends TestCase
 
         // Same value (folios) and «no» flags are not asked
         $this->assertSame(['paper', 'binding', 'is_illuminated', 'metadata'], array_keys($rows));
-        $this->assertSame([MergeComparison::KEEP, MergeComparison::TAKE, MergeComparison::TAKE, MergeComparison::BOTH], array_column($rows, 'default'));
+        // Two notes are kept one after the other (step 14.39)
+        $this->assertSame([MergeComparison::BOTH, MergeComparison::TAKE, MergeComparison::TAKE, MergeComparison::BOTH], array_column($rows, 'default'));
         $this->assertArrayHasKey(MergeComparison::BOTH, $rows['paper']['options'], 'a note may keep both');
         $this->assertSame(['فرنگی'], $rows['paper']['target']);
         $this->assertSame(['ترمه'], $rows['paper']['source']);
 
         // A submitted choice the row does not offer falls back to the default
-        $this->assertSame(MergeComparison::KEEP, MergeComparison::choices([$rows['paper']], ['paper' => 'wrong'])['paper']);
+        $this->assertSame(MergeComparison::BOTH, MergeComparison::choices([$rows['paper']], ['paper' => 'wrong'])['paper']);
+    }
+
+    public function test_a_value_the_two_give_differently_becomes_an_alternative_reading_and_goes_with_the_undo()
+    {
+        $work = $this->work();
+        $source = $this->manuscript(['work_id' => $work->id, 'folios' => 12, 'scribe_name' => 'کاتب دیگر', 'metadata' => ['catalog_citation' => '[نشریه: 5 - 31]']]);
+        $target = $this->manuscript(['work_id' => $work->id, 'folios' => 11]);
+        $rows = $this->rows($source, $target);
+        $this->assertSame(MergeComparison::READING, $rows['folios']['default']);
+        $this->assertArrayHasKey(MergeComparison::KEEP, $rows['folios']['options'], 'the value may still be left out');
+        // A scribe the kept copy lacks fills it; nothing to read twice
+        $this->assertSame(MergeComparison::TAKE, $rows['scribe_name']['default']);
+
+        $applied = MergeComparison::apply($source, $target);
+        $this->assertSame(11, (int) $target->folios);
+        $reading = \App\Models\FieldSuggestion::findOrFail($applied['reading_ids'][0]);
+        $this->assertSame(['folios', 'alternative', '12', '11', 'فهرست نشریه: 5 - 31'],
+            [$reading->field_name, $reading->standing, $reading->suggested_value, $reading->current_value, $reading->credit_name]);
+        // The kept copy's page shows it as a reading of its own
+        $this->assertSame('12', \App\Suggestions\SuggestionReadings::for($target)['folios']['alternatives'][0]->display_value);
+
+        MergeComparison::undo($target, $applied);
+        $this->assertNull(\App\Models\FieldSuggestion::find($reading->id));
     }
 
     public function test_a_manuscript_merge_approved_from_a_suggestion_follows_the_choices_and_its_undo_restores_both()
@@ -218,7 +242,8 @@ class MergeComparisonTest extends TestCase
             'source_id' => $c->id, 'target_id' => $b->id, 'compared' => "{$a->id}-{$b->id}", 'fields' => ['name' => 'wrong', 'bio_notes' => 'source'],
         ])->assertSessionHasNoErrors();
         $b->refresh();
-        $this->assertSame(['ابن فهد', ['ابن فهد الحلی'], 'یادداشت', null], [$b->name, $b->aliases, $b->bio_notes, $b->wrong_names]);
+        // Two notes: both kept, the removed person's after the other (step 14.39)
+        $this->assertSame(['ابن فهد', ['ابن فهد الحلی'], "یادداشت\n\nیادداشت دیگر", null], [$b->name, $b->aliases, $b->bio_notes, $b->wrong_names]);
     }
 
     public function test_the_admin_moves_a_name_between_other_names_and_misspelt_forms()

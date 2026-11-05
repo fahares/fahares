@@ -63,8 +63,11 @@ class ImportVolumePartsTest extends TestCase
         $this->assertSame([[9, 74], [5, 600], null, [12], [105]], [Import::numbers('[میراث اسلامی: دفتر نهم - 74]', 'میراث اسلامی'),
             Import::numbers('[میراث اسلامی ایران: 5 - 600]', ['میراث اسلامی', 'میراث اسلامی ایران']), Import::numbers('[ف: 1 - 20]', 'میراث اسلامی'), Import::numbers('[سه کتابخانه اصفهان؛ ف: 12]', 'سه کتابخانه اصفهان'),
             Import::numbers('[سه کتابخانه اصفهان - ف: 105]', ['سه کتابخانه اصفهان', 'سه کتابخانه اصفهان - ف'])]);
-        $this->assertSame([5, 5, 7, null, 2, 4, null], [Import::volume([5, 132], [4, 5, 7]), Import::volume([132, 5], [4, 5, 7]), Import::volume([7], [4, 5, 7]),
+        $this->assertSame([5, 5, 7, null, 2, 4, 4], [Import::volume([5, 132], [4, 5, 7]), Import::volume([132, 5], [4, 5, 7]), Import::volume([7], [4, 5, 7]),
             Import::volume([200], [4, 5, 7]), Import::volume([2, 5], [2, 5]), Import::volume([4, 478, 11, 935], [4, 11]), Import::volume([], [4])]);
+        // «ف مخ - 108» has no colon; «[ف مخ]» is the book alone, of its one volume (step 14.37)
+        $this->assertSame([[108], [], null], [Import::numbers('[ف مخ - 108]', ['ف مخ']), Import::numbers('[ف مخ]', ['ف مخ']), Import::numbers('[ف: 15]', ['ف مخ'])]);
+        $this->assertSame([null, 1], [Import::volume([], [1, 2]), Import::volume([], [1])]);
     }
 
     public function test_the_catalogue_takes_its_volumes_copies_and_parts_and_revert()
@@ -204,6 +207,128 @@ class ImportVolumePartsTest extends TestCase
         $this->artisan('catalogs:import-volume-parts', ['--revert' => $backup])->assertSuccessful();
         $this->assertEquals($before, $this->state());
         $this->assertNull(Source::where('code', 'catalogue-four-mashhad')->first());
+        @unlink($backup);
+        @unlink($file);
+    }
+
+    public function test_a_shared_series_moves_only_the_books_libraries_and_a_catalogue_of_one_library_is_its()
+    {
+        $sadeqiyeh = Library::create(['name' => 'صادقیه', 'city' => 'دامغان', 'slug' => 'damghan-sadkyh-116']);
+        $qamar = Library::create(['name' => 'قمر بنی هاشم', 'city' => 'دامغان', 'slug' => 'damghan-kmr-bny-hashm-93']);
+        $other = Library::create(['name' => 'دیگر', 'city' => 'مشهد', 'slug' => 'mshhd-dygr-1']);
+        $ashkevari = Cataloger::create(['name' => 'سید جعفر حسینی اشکوری', 'slug' => 'ivp-ashkevari', 'mtif_entry_id' => 37267]);
+        $derayati = Cataloger::create(['name' => 'مصطفی درایتی', 'slug' => 'ivp-derayati']);
+
+        $dash = $this->copy($sadeqiyeh, '[ف مخ - 108]', null);
+        $bare = $this->copy($qamar, '[ف مخ]', null);
+        $stranger = $this->copy($other, '[ف مخ: 20]', null);
+        $printed = $this->copy($sadeqiyeh, '[ف: 29]', null);
+
+        $handwritten = ['source' => 'catalogue-dm', 'series' => 'ف مخ', 'volume_title' => 'فهرست نسخ خطی دامغان - جلد %d', 'only_libraries' => true,
+            'create' => ['title' => 'فهرست نسخ خطی دامغان', 'volumes' => [['number' => 1, 'pages' => 421]]], 'library' => null,
+            'editors' => [['name' => 'مصطفی درایتی', 'role' => 'supervisor']],
+            'parts' => [
+                ['daftar' => 1, 'library' => 'damghan-sadkyh-116', 'title' => 'صادقیه', 'pages' => null, 'catalogers' => [['name' => 'سید جعفر حسینی اشکوری', 'mtif' => 37267]], 'fankha_row' => 273],
+                ['daftar' => 1, 'library' => 'damghan-kmr-bny-hashm-93', 'title' => 'قمر بنی هاشم', 'pages' => null, 'catalogers' => [['name' => 'سید جعفر حسینی اشکوری', 'mtif' => 37267]], 'fankha_row' => 274],
+            ]];
+        $own = ['source' => 'catalogue-fb', 'series' => 'ف', 'volume_title' => 'فهرست فتحعلی بیگ - جلد %d', 'only_libraries' => true, 'libraries' => ['damghan-sadkyh-116'],
+            'create' => ['title' => 'فهرست فتحعلی بیگ', 'library' => 'damghan-sadkyh-116', 'volumes' => [['number' => 1, 'mtif' => 34208, 'pages' => 246]]],
+            'editors' => [['name' => 'سید جعفر حسینی اشکوری', 'mtif' => 37267, 'role' => 'cataloger']], 'parts' => []];
+        [$first, $second] = array_map(function ($data) {
+            $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
+            file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
+
+            return $file;
+        }, [$handwritten, $own]);
+
+        $before = $this->state();
+        $backups = [storage_path('framework/testing/parts-backup-' . uniqid() . '.json'), storage_path('framework/testing/parts-backup-' . uniqid() . '.json')];
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $first, '--backup' => $backups[0]])->assertSuccessful()->expectsOutput('2 copies tied anew.');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $second, '--backup' => $backups[1]])->assertSuccessful()->expectsOutput('1 copies tied anew.');
+
+        $dm = Source::where('code', 'catalogue-dm')->firstOrFail()->volumes()->first();
+        $fb = Source::where('code', 'catalogue-fb')->firstOrFail();
+        $this->assertSame([$dm->id, $ashkevari->id], [(int) $dash->fresh()->catalog_volume_id, (int) $dash->fresh()->cataloger_id], '«ف مخ - 108» is page 108 of the one volume');
+        $this->assertSame($dm->id, (int) $bare->fresh()->catalog_volume_id, '«[ف مخ]» names the book alone');
+        $this->assertNull($stranger->fresh()->catalog_volume_id, 'another library\'s «ف مخ» is another book');
+        $this->assertSame([[$derayati->id, 'supervisor']], $dm->catalogers()->get()->map(fn ($c) => [$c->id, $c->pivot->role])->all());
+        $this->assertSame($sadeqiyeh->id, (int) $fb->library_id);
+        $volume = $fb->volumes()->first();
+        $this->assertSame([$sadeqiyeh->id, 34208], [(int) CatalogVolume::find($volume->id)->library_id, (int) $volume->mtif_entry_id]);
+        $this->assertSame([[$ashkevari->id, 'cataloger']], $volume->catalogers()->get()->map(fn ($c) => [$c->id, $c->pivot->role])->all());
+        $this->assertSame([$volume->id, $ashkevari->id], [(int) $printed->fresh()->catalog_volume_id, (int) $printed->fresh()->cataloger_id],
+            'a copy moved to a volume without parts takes its cataloger');
+
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $second])->assertSuccessful()->expectsOutput('Nothing to do.');
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backups[1]])->assertSuccessful();
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backups[0]])->assertSuccessful();
+        $this->assertSame($before, $this->state(), 'the reverts put back every row');
+    }
+
+    public function test_a_journal_cited_by_year_and_issue_takes_one_volume_an_issue_and_revert()
+    {
+        $this->assertSame([[6, 2, 95], [13, 2, 321], [4, 4, 51], [null, null, 108], [null, null, 81], [18, 1, null], null],
+            [Import::issue('[تراثنا: س6ش2 - 95]', 'تراثنا'), Import::issue('[تراثنا: س 13ش 2 و 3-321]', 'تراثنا'), Import::issue('[تراثنا س4ش4: 51]', 'تراثنا'),
+                Import::issue('[تراثنا: - 108]', 'تراثنا'), Import::issue('[تراثنا: 81]', 'تراثنا'), Import::issue('[تراثنا: س18ش1و2]', 'تراثنا'), Import::issue('[ف: 1 - 20]', 'تراثنا')]);
+
+        $baqer = Library::create(['name' => 'باقریه', 'city' => 'مشهد', 'slug' => 'mshhd-mdrsh-bakryh-87']);
+        $qaeni = Library::create(['name' => 'فاضل قائینی', 'city' => 'قم', 'slug' => 'km-fadl-kayyny-73']);
+        $fazel = Cataloger::create(['name' => 'محمود فاضل', 'slug' => 'ivp-fazel', 'mtif_entry_id' => 37263]);
+        $fazeli = Cataloger::create(['name' => 'علی فاضلی', 'slug' => 'ivp-fazeli', 'mtif_entry_id' => 45266]);
+        $baqerSource = Source::create(['code' => 'catalogue-baqer', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'مجله تراثنا: فهرست مخطوطات مدرسة الباقریة', 'library_id' => $baqer->id]);
+        $baqerVolume = $this->volume($baqerSource, 1, $baqer->id);
+        $qaeniSource = Source::create(['code' => 'catalogue-qaeni', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'مجله تراثنا: فهرست مخطوطات مکتبة علی فاضل قائنی', 'library_id' => $qaeni->id]);
+        $qaeniVolume = $this->volume($qaeniSource, 1, $qaeni->id);
+
+        $first = $this->copy($baqer, '[تراثنا: س6ش1 - 80]', $baqerVolume);
+        $second = $this->copy($baqer, '[تراثنا: س 6ش 2-95]', $baqerVolume);
+        $bare = $this->copy($baqer, '[تراثنا: 81]', $baqerVolume);
+        $misprint = $this->copy($qaeni, '[تراثنا س12ش4: 51]', $qaeniVolume);
+        $double = $this->copy($qaeni, '[تراثنا: س13ش2و3 - 321]', $qaeniVolume);
+        $single = $this->copy($qaeni, '[تراثنا: س13ش2 - 321]', null);
+        $stray = $this->copy($qaeni, '[ف: 1 - 20]', $qaeniVolume);
+        $unknown = $this->copy($baqer, '[تراثنا: 26-145]', null);
+
+        $data = ['source' => 'catalogue-turathuna', 'series' => 'تراثنا', 'volume_title' => 'تراثنا - %d', 'library' => null,
+            'create' => ['title' => 'تراثنا', 'publisher' => 'مؤسسة آل البیت', 'description' => 'MTIF 50160', 'volumes' => [
+                ['number' => 22, 'title' => 'تراثنا - السنة 6، العدد 1 (22)', 'citation' => 'تراثنا: س6ش1', 'mtif' => 50694, 'pages' => 230],
+                ['number' => 23, 'title' => 'تراثنا - السنة 6، العدد 2 (23)', 'citation' => 'تراثنا: س6ش2', 'mtif' => 50695, 'pages' => 238],
+                ['number' => 50, 'title' => 'تراثنا - السنة 13، العدد 2 و 3 (50 و 51)', 'citation' => 'تراثنا: س13ش2و3'],
+                ['number' => 52, 'title' => 'تراثنا - السنة 13، العدد 4 (52)', 'citation' => 'تراثنا: س13ش4']]],
+            'folds' => [['code' => 'catalogue-baqer'], ['code' => 'catalogue-qaeni']],
+            'editors' => [],
+            'issues' => ['6/1' => 22, '6/2' => 23, '13/2' => 50, '13/3' => 50, '13/4' => 52, '12/4' => 52],
+            'copies' => [['library' => 'mshhd-mdrsh-bakryh-87', 'shelfmark' => $bare->shelfmark, 'page' => 81, 'volume' => 22]],
+            'parts' => [
+                ['daftar' => 22, 'library' => 'mshhd-mdrsh-bakryh-87', 'title' => 'الباقریة', 'pages' => [68, 127], 'catalogers' => [['name' => 'محمود فاضل', 'mtif' => 37263]], 'key' => 't-22'],
+                ['daftar' => 23, 'library' => 'mshhd-mdrsh-bakryh-87', 'title' => 'الباقریة', 'pages' => [88, 124], 'catalogers' => [['name' => 'محمود فاضل', 'mtif' => 37263]], 'key' => 't-23'],
+                ['daftar' => 50, 'library' => 'km-fadl-kayyny-73', 'title' => 'قائنی', 'pages' => [314, 376], 'catalogers' => [['name' => 'علی فاضلی', 'mtif' => 45266]], 'key' => 't-50'],
+                ['daftar' => 52, 'library' => 'km-fadl-kayyny-73', 'title' => 'قائنی', 'pages' => [105, 143], 'catalogers' => [['name' => 'علی فاضلی', 'mtif' => 45266]], 'key' => 't-52'],
+            ]];
+        $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
+        file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
+        $backup = storage_path('framework/testing/parts-backup-' . uniqid() . '.json');
+
+        $before = $this->state();
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--backup' => $backup])->assertSuccessful()->expectsOutput('6 copies tied anew.');
+
+        $made = Source::where('code', 'catalogue-turathuna')->firstOrFail();
+        $volumes = $made->volumes()->pluck('id', 'volume_number')->all();
+        $this->assertSame([null, ['catalogue-baqer', 'catalogue-qaeni'], 4], [$made->library_id, $made->metadata['merged_codes'], (int) $made->volumes_count]);
+        $this->assertSame(['تراثنا - السنة 6، العدد 2 (23)', 'تراثنا: س6ش2', 50695], array_values(SourceVolume::find($volumes[23])->only(['title', 'citation_pattern', 'mtif_entry_id'])));
+        foreach ([[$first, 22, $fazel], [$second, 23, $fazel], [$bare, 22, $fazel], [$misprint, 52, $fazeli], [$double, 50, $fazeli], [$single, 50, $fazeli]] as [$copy, $number, $cataloger]) {
+            $fresh = $copy->fresh();
+            $this->assertSame([$volumes[$number], $cataloger->id], [(int) $fresh->catalog_volume_id, (int) $fresh->cataloger_id], $copy->metadata['catalog_citation']);
+            $this->assertNotNull($fresh->catalog_volume_part_id);
+        }
+        $this->assertNull($stray->fresh()->catalog_volume_id, 'another source\'s copy on a folded volume is untied');
+        $this->assertNull($unknown->fresh()->catalog_volume_id, 'an issue the data file has not is left');
+        $this->assertNull(Source::where('code', 'catalogue-baqer')->first());
+        $this->get(route('sources.show', $made->code))->assertOk()->assertSee('data-volume="22"', false)->assertSee('data-volume-part>', false);
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');
+
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backup])->assertSuccessful();
+        $this->assertEquals($before, $this->state());
         @unlink($backup);
         @unlink($file);
     }

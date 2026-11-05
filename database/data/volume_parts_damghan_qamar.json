@@ -1,0 +1,18 @@
+{
+ "_comment": "Step 14.37: the Qamar Bani Hashem copies Fankha cites «ف» go to that library's printed catalogue (catalogue-f4c7fcede840, MTIF 34219, by Sayyed Jafar Hosseini Ashkevari). Run after volume_parts_damghan.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_damghan_qamar.json",
+ "source": "catalogue-f4c7fcede840",
+ "series": "ف",
+ "volume_title": "فهرست نسخه های خطی کتابخانه قمر بنی هاشم علیه السلام (دامغان ـ ایران) - جلد %d",
+ "only_libraries": true,
+ "libraries": [
+  "damghan-kmr-bny-hashm-93"
+ ],
+ "editors": [
+  {
+   "name": "سید جعفر حسینی اشکوری",
+   "mtif": 37267,
+   "role": "cataloger"
+  }
+ ],
+ "parts": []
+}

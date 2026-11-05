@@ -1,0 +1,363 @@
+{
+ "_comment": "Step 14.40 (docs/plans/turathuna-issues.md), approved by the user: the six sources «مجله تراثنا: فهرست مخطوطات …» become one source «تراثنا», the quarterly of Mu'assasat Aal al-Bayt (Qom; MTIF magazine 50160, not 50202), of no library. Each issue its copies cite is a volume numbered by its serial number (a double issue by its first); each library's catalogue in an issue is a part. «issues» maps the «سNشM» of a citation to the volume: «س4ش4» is a misprint of «س2ش4» (11 Feyz Mahdavi copies); «copies» places the four copies their citation misnames. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_turathuna.json",
+ "source": "catalogue-cddd31891851",
+ "series": "تراثنا",
+ "volume_title": "تراثنا - %d",
+ "create": {
+  "title": "تراثنا",
+  "publisher": "مؤسسة آل البیت علیهم السلام لإحیاء التراث، قم",
+  "year": "1407-1423 ق",
+  "description": "فصلنامه‌ی مؤسسه‌ی آل البیت علیهم السلام لإحیاء التراث، قم (MTIF نشریه‌ی 50160).",
+  "volumes": [
+   {
+    "number": 7,
+    "title": "تراثنا - السنة 2، العدد 2 و 3 (7 و 8)",
+    "citation": "تراثنا: س2ش2و3",
+    "year": "1407 ق",
+    "mtif": 50680,
+    "pages": 400
+   },
+   {
+    "number": 9,
+    "title": "تراثنا - السنة 2، العدد 4 (9)",
+    "citation": "تراثنا: س2ش4",
+    "year": "1407 ق",
+    "mtif": 50689,
+    "pages": 239
+   },
+   {
+    "number": 20,
+    "title": "تراثنا - السنة 5، العدد 3 (20)",
+    "citation": "تراثنا: س5ش3",
+    "year": "1410 ق",
+    "mtif": 50692,
+    "pages": 238
+   },
+   {
+    "number": 22,
+    "title": "تراثنا - السنة 6، العدد 1 (22)",
+    "citation": "تراثنا: س6ش1",
+    "year": "1411 ق",
+    "mtif": 50694,
+    "pages": 230
+   },
+   {
+    "number": 23,
+    "title": "تراثنا - السنة 6، العدد 2 (23)",
+    "citation": "تراثنا: س6ش2",
+    "year": "1411 ق",
+    "mtif": 50695,
+    "pages": 238
+   },
+   {
+    "number": 24,
+    "title": "تراثنا - السنة 6، العدد 3 (24)",
+    "citation": "تراثنا: س6ش3",
+    "year": "1411 ق",
+    "mtif": 67491,
+    "pages": 254
+   },
+   {
+    "number": 25,
+    "title": "تراثنا - السنة 6، العدد 4 (25)",
+    "citation": "تراثنا: س6ش4",
+    "year": "1411 ق"
+   },
+   {
+    "number": 49,
+    "title": "تراثنا - السنة 13، العدد 1 (49)",
+    "citation": "تراثنا: س13ش1",
+    "year": "1418 ق",
+    "mtif": 52752,
+    "pages": 246
+   },
+   {
+    "number": 50,
+    "title": "تراثنا - السنة 13، العدد 2 و 3 (50 و 51)",
+    "citation": "تراثنا: س13ش2و3",
+    "year": "1418 ق",
+    "mtif": 50704,
+    "pages": 478
+   },
+   {
+    "number": 52,
+    "title": "تراثنا - السنة 13، العدد 4 (52)",
+    "citation": "تراثنا: س13ش4",
+    "year": "1418 ق",
+    "mtif": 52758,
+    "pages": 262
+   },
+   {
+    "number": 69,
+    "title": "تراثنا - السنة 18، العدد 1 و 2 (69 و 70)",
+    "citation": "تراثنا: س18ش1و2",
+    "year": "1423 ق",
+    "mtif": 67495,
+    "pages": 422
+   }
+  ]
+ },
+ "library": null,
+ "folds": [
+  {
+   "code": "catalogue-ba87c46846fb"
+  },
+  {
+   "code": "catalogue-81c306e7f762"
+  },
+  {
+   "code": "catalogue-cdefb60eaca1"
+  },
+  {
+   "code": "catalogue-2caeb7e31918"
+  },
+  {
+   "code": "catalogue-a7c1bc1c4215"
+  },
+  {
+   "code": "catalogue-604abaece16d"
+  }
+ ],
+ "editors": [],
+ "issues": {
+  "2/2": 7,
+  "2/3": 7,
+  "2/4": 9,
+  "4/4": 9,
+  "5/3": 20,
+  "6/1": 22,
+  "6/2": 23,
+  "6/3": 24,
+  "6/4": 25,
+  "13/1": 49,
+  "13/2": 50,
+  "13/3": 50,
+  "13/4": 52,
+  "18/1": 69,
+  "18/2": 69
+ },
+ "copies": [
+  {
+   "library": "mshhd-mdrsh-bakryh-87",
+   "shelfmark": "39",
+   "page": 81,
+   "volume": 22,
+   "_why": "«[تراثنا: 81]»: page 81 is only in س6ش1"
+  },
+  {
+   "library": "mshhd-mdrsh-bakryh-87",
+   "shelfmark": "303/2",
+   "page": 87,
+   "volume": 25,
+   "_why": "«[تراثنا: ش6ش4 - 87]»"
+  },
+  {
+   "library": "mshhd-mdrsh-bakryh-87",
+   "shelfmark": "115",
+   "page": 108,
+   "volume": 22,
+   "_why": "«[تراثنا: - 108]»: shelfmarks 114 and 116 cite س6ش1 - 108"
+  },
+  {
+   "library": "km-mhdoy-ktabkhanh-206",
+   "shelfmark": "بدون شماره",
+   "page": 209,
+   "volume": 69,
+   "_why": "«[تراثنا: س13ش1و2 - 209]»: Mahdavi is only in س18ش1و2"
+  }
+ ],
+ "parts": [
+  {
+   "daftar": 7,
+   "library": "km-aalamh-tbatbayy-km-mktbh-280",
+   "title": "فهرس مخطوطات مکتبة العلامة الطباطبائی (قم)",
+   "pages": [
+    150,
+    163
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "key": "turathuna-7-allameh"
+  },
+  {
+   "daftar": 9,
+   "library": "krmanshah-fyd-mhdoy-ktabkhanh-186",
+   "title": "فهرس مخطوطات مکتبة فیض مهدوی (کرمانشاه)",
+   "pages": [
+    23,
+    69
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "key": "turathuna-9-feyz"
+  },
+  {
+   "daftar": 20,
+   "library": "mshhd-rgayy-mghzy-ktabkhanh-132",
+   "title": "فهرس مخطوطات مکتبة رجائی معزی (مشهد)",
+   "pages": [
+    98,
+    105
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "key": "turathuna-20-rajaei"
+  },
+  {
+   "daftar": 22,
+   "library": "mshhd-mdrsh-bakryh-87",
+   "title": "فهرس مخطوطات مدرسة الباقریة (مشهد)",
+   "pages": [
+    68,
+    127
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "key": "turathuna-22-baqer"
+  },
+  {
+   "daftar": 23,
+   "library": "mshhd-mdrsh-bakryh-87",
+   "title": "فهرس مخطوطات مدرسة الباقریة (مشهد)",
+   "pages": [
+    88,
+    124
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "key": "turathuna-23-baqer"
+  },
+  {
+   "daftar": 24,
+   "library": "mshhd-mdrsh-bakryh-87",
+   "title": "فهرس مخطوطات مدرسة الباقریة (مشهد)",
+   "pages": [
+    106,
+    126
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "key": "turathuna-24-baqer"
+  },
+  {
+   "daftar": 25,
+   "library": "mshhd-mdrsh-bakryh-87",
+   "title": "فهرس مخطوطات مدرسة الباقریة (مشهد)",
+   "pages": [
+    87,
+    102
+   ],
+   "catalogers": [
+    {
+     "name": "محمود فاضل",
+     "mtif": 37263
+    }
+   ],
+   "key": "turathuna-25-baqer"
+  },
+  {
+   "daftar": 49,
+   "library": "km-fadl-kayyny-73",
+   "title": "فهرس مخطوطات مکتبة علی فاضل قائنی",
+   "pages": [
+    123,
+    166
+   ],
+   "catalogers": [
+    {
+     "name": "علی فاضلی",
+     "mtif": 45266
+    }
+   ],
+   "key": "turathuna-49-qaeni"
+  },
+  {
+   "daftar": 49,
+   "library": "mshhd-rgayy-mghzy-ktabkhanh-132",
+   "title": "فهرس مخطوطات مکتبة رجائی معزی (مشهد)",
+   "pages": [
+    124,
+    131
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "key": "turathuna-49-rajaei"
+  },
+  {
+   "daftar": 50,
+   "library": "km-fadl-kayyny-73",
+   "title": "فهرس مخطوطات مکتبة علی فاضل قائنی",
+   "pages": [
+    314,
+    376
+   ],
+   "catalogers": [
+    {
+     "name": "علی فاضلی",
+     "mtif": 45266
+    }
+   ],
+   "key": "turathuna-50-qaeni"
+  },
+  {
+   "daftar": 52,
+   "library": "km-fadl-kayyny-73",
+   "title": "فهرس مخطوطات مکتبة علی فاضل قائنی",
+   "pages": [
+    105,
+    143
+   ],
+   "catalogers": [
+    {
+     "name": "علی فاضلی",
+     "mtif": 45266
+    }
+   ],
+   "key": "turathuna-52-qaeni"
+  },
+  {
+   "daftar": 69,
+   "library": "km-mhdoy-ktabkhanh-206",
+   "title": "فهرس مخطوطات مکتبة المهدوی (قم)",
+   "pages": [
+    204,
+    245
+   ],
+   "catalogers": [
+    {
+     "name": "سید احمد حسینی اشکوری",
+     "mtif": 37228
+    }
+   ],
+   "key": "turathuna-69-mahdavi"
+  }
+ ]
+}

@@ -162,7 +162,7 @@ class StructureToolsTest extends TestCase
 
         $this->preview($dup, ['relation' => 'duplicate', 'target' => (string) $kept->id])->assertOk()
             ->assertSee('۱ نسخه منتقل و ۱ نسخه‌ی هم‌نشانی ادغام می‌شود')
-            ->assertSee('۱ مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند')->assertSee('مقایسه‌ی فیلدها');
+            ->assertSee('۱ مقدار ناسازگار به تصمیم شما در جدول مقایسه می‌ماند (پیش‌فرض: مقدار رکورد ماندنی، و مقدار دیگر «قول دیگر» یا پشت آن)')->assertSee('مقایسه‌ی فیلدها');
         $this->apply($dup, ['relation' => 'duplicate', 'target' => (string) $kept->id, 'keep' => 'target'])->assertSessionHasNoErrors();
 
         $this->assertNull(Work::find($dup->id));

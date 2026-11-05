@@ -17,6 +17,10 @@ return [
      *   - title_before / title_after: regexes whose group title is the entry's title, the words before the reference
      *     ending with the first, those after it starting with the second («مر بعنوان الدرة النظمية (175:19)»).
      *   - bibliography: the source's key in config('bibliography.sources'), which gives its volumes and pages.
+     * - holdings: a line naming a copy in a library by its catalogue's page and volume or by its number («دانشگاه
+     *   2705/12 ش (1) 3701», step 14.34, App\Support\PageLinks\Holdings) links the copy of the entry's work that has them.
+     *   - libraries: the forms the source prints => the site's libraries they may be (city, name); a form of two
+     *     («الهیات» of Tehran or of Mashhad) is told apart by the copies of the work.
      */
     'dharia' => [
         'copies' => [
@@ -40,6 +44,40 @@ return [
                 . '|(?<!\p{L})راجع\s*:?\s*(?:ذ\s+)?[^().\d\n؛]{0,60}?)\s*(?:في)?\s*:?\s*\(?\s*$',
             'title_before' => '(?:بعنوان|راجع\s*:?)\s+(?<title>[^().\d؛\n]{2,60}?)\s*(?:في)?\s*$',
             'title_after' => '^\s*\)?\s*،?\s*(?:و\s*)?بعنوان\s+(?<title>[^().\d؛،\n]{2,60}?)\s*(?:[.،؛(]|\sو\s*(?:في|\()|\sكما|\sيأتي|\sمر|$)',
+        ],
+    ],
+    'monzavi' => [
+        'holdings' => [
+            // the forms Monzavi's holding lines print most of the libraries the site has; a city alone
+            // («تهران»، «یزد») is a union catalogue of it, and the film catalogues («فیلم‌ها») are no library's copies
+            'libraries' => [
+                'دانشگاه' => [['تهران', 'دانشگاه']],
+                'آستان قدس' => [['مشهد', 'رضوی']],
+                'ملک' => [['تهران', 'ملک']],
+                'مجلس' => [['تهران', 'مجلس']],
+                'سنا' => [['تهران', 'مجلس سنا']],
+                'مرعشی' => [['قم', 'مرعشی']], 'اشکوری' => [['قم', 'مرعشی']],
+                'مرعشی - اشکوری' => [['قم', 'مرعشی']], 'اشکوری - مرعشی' => [['قم', 'مرعشی']],
+                'ملی' => [['تهران', 'ملی']], 'ملّی' => [['تهران', 'ملی']],
+                'سپهسالار' => [['تهران', 'سپهسالار']],
+                'الهیات' => [['تهران', 'الهیات'], ['مشهد', 'الهیات']],
+                'الهیات تهران' => [['تهران', 'الهیات']], 'الهیات مشهد' => [['مشهد', 'الهیات']],
+                'ادبیات' => [['تهران', 'ادبیات'], ['مشهد', 'ادبیات']], 'ادبیات تهران' => [['تهران', 'ادبیات']],
+                'دایرة‌المعارف' => [['تهران', 'دائرة المعارف']], 'دایرة المعارف' => [['تهران', 'دائرة المعارف']],
+                'گلپایگانی' => [['قم', 'گلپایگانی']],
+                'گوهرشاد' => [['مشهد', 'گوهرشاد']],
+                'فیضیه' => [['قم', 'فیضیه']],
+                'سلطنتی' => [['تهران', 'سلطنتی']],
+                'نوربخش' => [['تهران', 'نوربخش']],
+                'فاضل' => [['خوانسار', 'فاضل']],
+                'شاهچراغ' => [['شیراز', 'شاهچراغ']],
+                'مینوی' => [['تهران', 'مینوی']],
+                'مفتاح' => [['تهران', 'مفتاح']],
+                'وزیری' => [['یزد', 'وزیری']],
+                'نمازی' => [['خوی', 'نمازی']],
+                'مروی' => [['تهران', 'مروی']],
+                'حقوق' => [['تهران', 'حقوق']],
+            ],
         ],
     ],
 ];

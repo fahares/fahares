@@ -16,7 +16,17 @@
                     @jdate($m->created_at, 'long_time')
                 </span>
             </div>
-            <div class="whitespace-pre-line break-words text-ink">{{ $m->body }}</div>
+            @if($m->body !== '')<div class="whitespace-pre-line break-words text-ink">{{ $m->body }}</div>@endif
+            @if($m->attachments->isNotEmpty())
+                {{-- Pictures attached to an email reply (step 14.36) --}}
+                <div class="mt-2 flex flex-wrap gap-2">
+                    @foreach($m->attachments as $a)
+                        <a href="{{ route('messages.attachment', $a) }}" target="_blank" rel="noopener" class="block border border-line rounded-sm bg-paper hover:border-cinnabar" title="{{ $a->filename }}">
+                            <img src="{{ route('messages.attachment', $a) }}" alt="{{ $a->filename }}" loading="lazy" class="h-32 w-auto max-w-[14rem] object-contain">
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </li>
     @endforeach
 </ol>
