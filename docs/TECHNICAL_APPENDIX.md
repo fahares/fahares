@@ -7665,3 +7665,38 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندها:** ۸۲، ۷۱، ۱۶۴، ۱۷۲، ۱۳۳، ۷۱، ۳۵، ۳۱ (جمع ۷۵۹، برابر تمرین). هیچ پیوندی به‌روز یا حذف نشد.
   - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
+
+### گام ۱۴.۴۹: فهرست‌نگار و چاپ `catalogue-b89f67efe34f` (عبدالعظیم) و `catalogue-41322fd8f0f4` (نواب)
+- **فرمان:** [FixAbdolazimNavabCataloguesCommand](../app/Console/Commands/FixAbdolazimNavabCataloguesCommand.php) با نام `catalogs:fix-abdolazim-navab` و گزینه‌ی `--dry-run`.
+  - منبع‌ها را با کد پیدا می‌کند و فهرست‌نگاران را با شناسه‌ی MTIF (حافظیان ۵۶۹۶۵، صدرائی ۳۷۱۶۶، فاضل ۳۷۲۶۳، بینش ۳۷۲۷۸).
+  - اگر جلدی جز فهرست‌نگار نادرست یا درست فهرست‌نگار دیگری داشته باشد، اجرا نمی‌شود.
+- **مأخذ:** `fahares-corpus/catalogs/fankha_complete_catalogs_table.md`، ردیف‌های ۲۸۲، ۲۸۳ و ۵۲۷. ردیف ۵۲۶ («دو کتابخانه مشهد»، ص ۴۳۹–۵۶۲) نسخه‌ی دیگری است و یک نسخه آن را جدا با «دو کتابخانه مشهد: ف» ارجاع داده است.
+- **ارجاع‌های نسخه‌ها:**
+  - **عبدالعظیم:** ۷۲۵ ارجاع به جلد ۱، که بیشترین صفحه‌شان ۴۴۳ است. ۳۰۹ ارجاع به جلد ۲، که ۳۰۸ تایشان در ص ۴۴۹–۶۷۷ اند.
+  - **نواب:** ۹۸۱ ارجاع تک‌جلدی، ص ۹–۵۴۶.
+- **تغییرها:**
+  - **`catalog_volumes` و `source_volumes`:**
+
+    | جلد | ناشر و سال | صفحه‌ها |
+    |---|---|---|
+    | 524 | دار الحدیث ۱۳۸۲ | `pages_count` ۴۴۳ |
+    | 525 | دار الحدیث ۱۳۸۲ | `page_first` ۴۴۹، `page_last` ۶۷۸ |
+    | 493 | عروج اندیشه ۱۳۸۸ | `pages_count` ۶۳۹؛ عنوان «فهرست نسخه‌های خطی مدرسه علمیه عالی نواب» |
+
+  - **`sources`:** ناشر و سال هر دو منبع، و عنوان منبع نواب.
+  - **`metadata.group` منبع نواب:** کلید گروهِ عنوان تازه است (`SourceEntrySync::groupKey`)، تا `sources:backfill` همان منبع را با همان کد، که نام فایل جلدش است، دوباره پیدا کند.
+  - **`catalog_volume_cataloger`:** هر جلد فقط فهرست‌نگار درست را با نقش `cataloger` دارد.
+  - **`manuscripts.cataloger_id`:** نسخه‌های هر جلد از فهرست‌نگار نادرست به فهرست‌نگار درست رفتند.
+  - **شمارش:** `Cataloger::recount` برای این چهار نفر.
+- **تمرین روی `fahares_prod` محلی (کپی ۱۲ آبان):**
+
+  | فهرست‌نگار | جلدها | نسخه‌ها |
+  |---|---|---|
+  | حافظیان | ۲۶ | ۲۱٬۳۳۶ |
+  | صدرائی | ۲۴ | ۲۴٬۶۲۸ |
+  | فاضل | ۱۸ | ۱۰٬۹۶۶ |
+  | بینش | ۲ | ۵۶۹ |
+
+  اجرای دوم همین شمارها را داد.
+- **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
+- **آزمون:** `FixAbdolazimNavabCataloguesTest`.
