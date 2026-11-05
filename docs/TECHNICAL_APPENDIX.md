@@ -7417,3 +7417,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[MessageAttachmentController](../app/Http/Controllers/MessageAttachmentController.php):** مسیر `messages.attachment` در گروه `auth` است. کاربرِ رشته می‌بیند، و برای رشته‌ی پیشنهاد دارنده‌ی `suggestions.review` و برای پیام مستقیم دارنده‌ی `users.message`. پاسخ با `X-Content-Type-Options: nosniff` و `Cache-Control: private` است.
 - **[FetchReplyAttachmentsCommand](../app/Console/Commands/FetchReplyAttachmentsCommand.php):** `fahares:fetch-reply-attachments <message> [--email=] [--dry-run]`. ایمیل را از `GET /emails/receiving` با فرستنده‌ی برابر با کاربر رشته و فاصله‌ی زمانی کمتر از پنج دقیقه پیدا می‌کند. نامه‌ای که پیوست دارد دست نمی‌خورد. برای نامه‌ی ۹ پروداکشن، ایمیل Resend `ca93ee7b-63a8-45b3-a8e5-78136045bb09` است با شش PNG، روی هم حدود ۳ مگابایت.
 - **آزمون:** `EmailReplyAttachmentsTest` (۴ آزمون: نگهداری و دسترسی، پاسخ فقط‌تصویر، نشانه‌های جیمیل، فرمان).
+
+### گام ۱۴.۳۸: `fahares:mark-hedged-authors`
+- **نمایش:**
+  - [contributors.blade.php](../resources/views/components/contributors.blade.php): برای `entry.certainty`، «(hedge_raw یا ؟ یا محتملاً)» نوشته می‌شود، با `title`.
+  - [works/show.blade.php](../resources/views/works/show.blade.php): اگر یکی از `authorEntries` مقدار `certainty` داشته باشد، صفحه از همان کامپوننت استفاده می‌کند.
+- **فرمان:** [MarkHedgedAuthorsCommand](../app/Console/Commands/MarkHedgedAuthorsCommand.php) با گزینه‌های `[--file] [--apply] [--show]`.
+  - **مؤلفان پیوندخورده:** در ردیف `work_people` با نقش `author` که `person_id = works.author_id` و `certainty` تهی دارد، اگر `hedgeOf(raw_text)` یکی از `PersonNameMatcher::HEDGES` را بیابد، `certainty` و `hedge_raw` نوشته می‌شوند. `hedgeOf` آغاز سطر سوم متن را، بی برچسب صفحه، می‌خواند. ردیفی که `suggestion_id` دارد کنار می‌رود.
+  - **`--file`:** اثری که `author_id`، `author_name` و ردیف مؤلف ندارد، `author_name` می‌گیرد و یک ردیف نام‌تنها با `certainty` به آن افزوده می‌شود. اگر `description` هنوز همان `description_from` باشد، `description_to` جای آن را می‌گیرد.
+  - **ممیزی:** همه‌ی تغییرها با `corpus_update` ثبت می‌شوند.
+- **صدور (پیکره):** `fankha_v2_author_from_description_export.py --from-raw --hedged`. سطر مؤلف با «؟» آغاز یا پایان می‌یابد و بی آن، با نام v2 برابر است. خروجی ۱۹ مورد بود، که در ۱۸ تا شرح هم پیراسته می‌شود.
+- **فایل:** `database/data/fankha_hedged_authors_20261105.json`.
+- **تمرین (`fahares_prod`):** `marked 613` و `added 19`، سپس `marked 0` و `add_skipped 19`.
+- **آزمون:** `MarkHedgedAuthorsCommandTest`.
