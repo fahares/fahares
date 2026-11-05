@@ -177,6 +177,7 @@ Route::middleware('auth')->group(function () {
     // Letters with the site's staff (backlog item 91)
     Route::get('/my/messages', [\App\Http\Controllers\MessagesController::class, 'index'])->name('my.messages');
     Route::get('/my/messages/{thread}', [\App\Http\Controllers\MessagesController::class, 'show'])->name('my.messages.show');
+    Route::get('/messages/attachments/{attachment}', [\App\Http\Controllers\MessageAttachmentController::class, 'show'])->name('messages.attachment');
     Route::post('/my/messages/{thread}', [\App\Http\Controllers\MessagesController::class, 'reply'])->middleware('throttle:20,60')->name('my.messages.reply');
     Route::post('/my/messages/{thread}/report', [\App\Http\Controllers\MessagesController::class, 'report'])->middleware('throttle:10,60')->name('my.messages.report');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

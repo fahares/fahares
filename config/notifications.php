@@ -168,6 +168,9 @@ return [
         'reply_domain' => env('MESSAGES_REPLY_DOMAIN'),
         // The signing secret (whsec_…) of the Resend webhook
         'webhook_secret' => env('RESEND_INBOUND_WEBHOOK_SECRET'),
+        // Pictures attached to a reply are kept (step 14.36): at most this many, each at most this size
+        'max_attachments' => 12,
+        'max_attachment_bytes' => 10 * 1024 * 1024,
     ],
 
     // Both bots' values are set in the server environment, never in code
