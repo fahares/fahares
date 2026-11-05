@@ -133,11 +133,26 @@ class ImportVolumePartsCommand extends Command
             $this->writeEditors(array_values($volumes), $catalogers);
             $this->writeParts($volumes, $libraries, $catalogers);
             CatalogVolumePart::assign(DB::table('manuscripts')->whereIn('catalog_volume_id', array_values($volumes))->pluck('id'));
+            // a copy moved to a volume without parts is of the volume's cataloger
+            $plain = array_values(array_diff(array_values($volumes), DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', array_values($volumes))->pluck('catalog_volume_id')->all()));
+            foreach (CatalogVolumePart::primaryCatalogers($plain) as $volume => $cataloger) {
+                foreach (array_chunk(array_column($moves, 0), 1000) as $ids) {
+                    DB::table('manuscripts')->whereIn('id', $ids)->where('catalog_volume_id', $volume)->update(['cataloger_id' => $cataloger]);
+                }
+            }
             $this->recount($source->id, array_values($volumes), $folds['kept']);
         });
         self::forget($source->id);
 
         return self::SUCCESS;
+    }
+
+    /** The libraries of the parts and of «libraries» (a book of one library with no parts). */
+    private function ownLibraries(): array
+    {
+        $slugs = array_merge(array_filter(array_column($this->data['parts'], 'library')), $this->data['libraries'] ?? []);
+
+        return DB::table('libraries')->whereIn('slug', $slugs ?: [''])->pluck('id')->map(fn ($id) => (int) $id)->all();
     }
 
     private function series(): string
@@ -201,7 +216,9 @@ class ImportVolumePartsCommand extends Command
         // «دفتر نهم - 74» is daftar 9
         $raw = preg_replace_callback('/(?:دفتر|جلد)\s*(' . implode('|', array_keys(self::ORDINALS)) . ')/u', fn ($o) => (string) self::ORDINALS[$o[1]], strtr($raw, ['ي' => 'ی', 'ك' => 'ک']));
         // «سه کتابخانه اصفهان؛ ف: 12», «… - ف: 12»
-        preg_match('/' . $name . '(?:[\s\-–؛]*ف)?\s*(\d*)\s*:([^\]]*)/u', $raw, $m);
+        preg_match('/' . $name . '(?:[\s\-–؛]*ف)?\s*(\d*)\s*:([^\]]*)/u', $raw, $m)
+            // «ف مخ - 108»: the page after a dash, without a colon
+            || preg_match('/' . $name . '()\s*[\-–]\s*([^\]]*)/u', $raw, $m);
         preg_match_all('/\d+/', ($m[1] ?? '') . ' ' . ($m[2] ?? ''), $n);
 
         return array_map('intval', $n[0]);
@@ -216,8 +233,8 @@ class ImportVolumePartsCommand extends Command
     public static function volume(array $numbers, array $volumes): ?int
     {
         $numbers = array_slice($numbers, 0, 2);
-        // a book of one volume: what the citation gives is a page of it
-        if (count($volumes) === 1 && $numbers) {
+        // a book of one volume: what the citation gives is a page of it, and a citation of the book alone («[ف مخ]») is of it
+        if (count($volumes) === 1) {
             return $volumes[0];
         }
         if (count($numbers) === 1) {
@@ -255,6 +272,8 @@ class ImportVolumePartsCommand extends Command
         $likes = array_unique(['%' . $this->series() . '%', '%' . strtr($this->series(), ['ی' => 'ي', 'ک' => 'ك']) . '%']);
         DB::table('manuscripts')->select('id', 'metadata', 'raw_text', 'catalog_volume_id')
             ->where(fn ($q) => $q->whereNull('catalog_volume_id')->orWhereIn('catalog_volume_id', $on ?: [0]))
+            // a series many catalogues share («ف مخ», «ف»): only the copies of the book's own libraries
+            ->when($this->data['only_libraries'] ?? false, fn ($q) => $q->whereIn('library_id', $this->ownLibraries() ?: [0]))
             ->where(function ($q) use ($likes) {
                 foreach ($likes as $like) {
                     $q->orWhere('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like);
@@ -327,16 +346,19 @@ class ImportVolumePartsCommand extends Command
     /** Makes the catalogue the data file describes, each volume a catalog volume and a source volume under one id. */
     private function makeSource(array $create): \App\Models\Source
     {
+        // a catalogue of one library («library»: its slug) is that library's
+        $library = isset($create['library']) ? DB::table('libraries')->where('slug', $create['library'])->value('id') : null;
         $id = DB::table('sources')->insertGetId(['code' => $this->data['source'], 'kind' => $create['kind'] ?? \App\Models\Source::KIND_LIBRARY_CATALOGUE,
+            'library_id' => $library,
             'rank' => \App\Models\Source::KIND_RANKS[$create['kind'] ?? \App\Models\Source::KIND_LIBRARY_CATALOGUE] ?? 50, 'title' => $create['title'],
             'compiler' => $create['compiler'] ?? null, 'publisher' => $create['publisher'] ?? null, 'publication_year' => $create['year'] ?? null,
-            'volumes_count' => count($create['volumes']), 'metadata' => json_encode(['group' => 'catalogue||' . $create['title']], JSON_UNESCAPED_UNICODE),
+            'volumes_count' => count($create['volumes']), 'metadata' => json_encode(['group' => "catalogue|{$library}|" . $create['title']], JSON_UNESCAPED_UNICODE),
             'created_at' => now(), 'updated_at' => now()]);
         foreach ($create['volumes'] as $volume) {
             $values = ['title' => sprintf($this->data['volume_title'], $volume['number']), 'volume_number' => $volume['number'], 'publisher' => $create['publisher'] ?? null,
                 'publication_year' => $volume['year'] ?? $create['year'] ?? null, 'pages_count' => $volume['pages'] ?? null, 'mtif_entry_id' => $volume['mtif'] ?? null,
                 'citation_pattern' => $this->series() . ': ' . $volume['number']];
-            $volumeId = DB::table('catalog_volumes')->insertGetId($values + ['library_id' => null, 'catalog_id' => 1, 'manuscripts_count' => 0,
+            $volumeId = DB::table('catalog_volumes')->insertGetId($values + ['library_id' => $library, 'catalog_id' => 1, 'manuscripts_count' => 0,
                 'created_at' => now(), 'updated_at' => now()]);
             DB::table('source_volumes')->insert($values + ['id' => $volumeId, 'source_id' => $id, 'created_at' => now(), 'updated_at' => now()]);
         }
@@ -350,12 +372,14 @@ class ImportVolumePartsCommand extends Command
     {
         $ids = array_merge(DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id')->all(), array_values($folds['volumes']));
         // the editors' cataloger ids (one not made yet is none)
-        $editors = collect($this->catalogers(false, []))->only(array_column($this->data['editors'] ?? [], 'name'))->map(fn ($id) => (int) $id)->sort()->values()->all();
+        // each with its role: «supervisor» unless the file says «cataloger» (a book of one library has no parts)
+        $found = $this->catalogers(false, []);
+        $editors = collect($this->data['editors'] ?? [])->map(fn ($e) => ($found[$e['name']] ?? 0) . '|' . ($e['role'] ?? 'supervisor'))->sort()->values()->all();
         $differ = [];
         foreach ($ids as $id) {
-            $people = DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $id)->get(['cataloger_id', 'role']);
-            if ($people->pluck('cataloger_id')->map(fn ($c) => (int) $c)->sort()->values()->all() !== $editors
-                || $people->contains(fn ($p) => $p->role !== 'supervisor')) {
+            $people = DB::table('catalog_volume_cataloger')->where('catalog_volume_id', $id)->get(['cataloger_id', 'role'])
+                ->map(fn ($p) => $p->cataloger_id . '|' . $p->role)->sort()->values()->all();
+            if ($people !== $editors) {
                 $differ[] = $id;
             }
         }
@@ -467,7 +491,7 @@ class ImportVolumePartsCommand extends Command
         foreach ($volumes as $id) {
             foreach ($this->data['editors'] ?? [] as $editor) {
                 DB::table('catalog_volume_cataloger')->insert(['catalog_volume_id' => $id, 'cataloger_id' => $catalogers[$editor['name']],
-                    'role' => 'supervisor', 'created_at' => now(), 'updated_at' => now()]);
+                    'role' => $editor['role'] ?? 'supervisor', 'created_at' => now(), 'updated_at' => now()]);
             }
         }
     }
@@ -482,8 +506,8 @@ class ImportVolumePartsCommand extends Command
             $key = isset($part['fankha_row']) ? ['fankha_row' => $part['fankha_row']] : ['key' => $part['key']];
             $row = DB::table('catalog_volume_parts')->where('catalog_volume_id', $volume)->where('metadata->' . array_key_first($key), reset($key))->first();
             $model = $row ? CatalogVolumePart::find($row->id) : CatalogVolumePart::create(['catalog_volume_id' => $volume,
-                'library_id' => $part['library'] ? $libraries[$part['library']] : null, 'title' => $part['title'], 'page_first' => $part['pages'][0],
-                'page_last' => $part['pages'][1], 'sort' => $sort, 'metadata' => $key]);
+                'library_id' => $part['library'] ? $libraries[$part['library']] : null, 'title' => $part['title'], 'page_first' => $part['pages'][0] ?? null,
+                'page_last' => $part['pages'][1] ?? null, 'sort' => $sort, 'metadata' => $key]);
             $model->catalogers()->syncWithoutDetaching(collect($part['catalogers'])->mapWithKeys(fn ($c) => [$catalogers[$c['name']] => ['role' => 'cataloger']])->all());
         }
     }

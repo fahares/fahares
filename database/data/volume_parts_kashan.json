@@ -1,0 +1,42 @@
+{
+ "_comment": "Step 14.37: «فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)», the Al-Javad institute's handwritten catalogue (510 pages) by Mahmoud Tayyar Maraghei, edited by Mostafa Derayati, which Fankha cites «ف مخ»: of no library, with its two parts, Fankha's rows 459 (Soltani) and 460 (Jafari). Only the two libraries' copies. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_kashan.json",
+ "source": "catalogue-68db58132fa6",
+ "series": "ف مخ",
+ "volume_title": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری) - جلد %d",
+ "only_libraries": true,
+ "library": null,
+ "editors": [
+  {
+   "name": "مصطفی درایتی",
+   "role": "supervisor"
+  }
+ ],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "kashan-mdrsh-sltany-67",
+   "title": "مدرسه سلطانی کاشان",
+   "pages": null,
+   "catalogers": [
+    {
+     "name": "محمود طیار مراغی",
+     "mtif": 37297
+    }
+   ],
+   "fankha_row": 459
+  },
+  {
+   "daftar": 1,
+   "library": "kashan-gaafry-169",
+   "title": "مدرسه جعفری کاشان",
+   "pages": null,
+   "catalogers": [
+    {
+     "name": "محمود طیار مراغی",
+     "mtif": 37297
+    }
+   ],
+   "fankha_row": 460
+  }
+ ]
+}
