@@ -7561,7 +7561,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
-### گام ۱۴.۴۵: جلد `kalam-turath`
-- منبع: `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول).
-- تبدیل با Pillow: `thumbnail((640, 960))`، `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`؛ خروجی `public/images/sources/covers/kalam-turath.webp` (۶۴۰×۹۲۳). `Source::coverUrl()` آن را با نام کد می‌یابد و کد دیگری لازم نبود.
-- رونوشت در `fahares-sources/web-covers/` و ردیف `kalam-turath` در `manifest.json` همان‌جا.
+### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
+- منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
+- تبدیل با Pillow: `thumbnail((640, 960))` و `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`. `thumbnail` بزرگ نمی‌کند، پس دو جلد نورلیب در اندازه‌ی خودشان ماندند. `kalam-turath.webp` ۶۴۰×۹۲۳ است.
+- «تراثنا»: `Source::coverUrl()` فایل `covers/{code}.webp` را می‌جوید. گام ۱۴.۴۰ کد `catalogue-cddd31891851` را ساخت و جلد شش کد پیشین (`catalogue-2caeb7e31918` و دیگران، فایل‌های یکسان با md5 `4bc6f36a…`) بی‌استفاده ماند. رونوشت همان فایل با کد تازه گذاشته شد. فایل‌های کد پیشین برای پیوندهای قدیم ماندند، چون آن کدها به منبع تازه می‌روند.
+- رونوشت هر چهار فایل در `fahares-sources/web-covers/` است و ردیفشان در `manifest.json` همان‌جا.
