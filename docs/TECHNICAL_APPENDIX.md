@@ -7475,6 +7475,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صدور (پیکره):** `fankha_v2_author_from_description_export.py --from-raw --hedged`. سطر مؤلف با «؟» آغاز یا پایان می‌یابد و بی آن، با نام v2 برابر است. خروجی ۱۹ مورد بود، که در ۱۸ تا شرح هم پیراسته می‌شود.
 - **فایل:** `database/data/fankha_hedged_authors_20261105.json`.
 - **تمرین (`fahares_prod`):** `marked 613` و `added 19`، سپس `marked 0` و `add_skipped 19`.
+- **اجرا در پروداکشن (۱۵ آبان ۱۴۰۵):**
+  - **پشتیبان:** `fahares-sources/backups/step13/item87_hedged_authors_prod_before_20261105.json`. این فایل ۸۸۵ ردیف `work_people` با نقش `author` از آثاری را دارد که متنشان واژه‌ی تردید دارد، به‌اضافه‌ی ۱۹ اثر.
+  - **اجرا:** با `prod-run`. خروجی `marked 613` و `added 19` بود و اجرای بعدی `marked 0` و `add_skipped 19` داد.
+  - **وارسی:** `/works/92` نشانه‌ی «(؟)» را با `title` نشان می‌دهد.
 - **آزمون:** `MarkHedgedAuthorsCommandTest`.
 ### گام ۱۴.۳۹: `MergeComparison::READING`
 - **`rows`:** فیلدهای `value` و `contributor` که هر دو رکورد دارند و فرق می‌کنند، اگر فیلد ثبت‌شده در `SuggestionRegistry` باشد (یعنی صفحه قولش را نشان می‌دهد)، گزینه‌ی `READING` را به‌عنوان پیش‌فرض می‌گیرند. فیلدهای `text` پیش‌فرض `BOTH` دارند.
