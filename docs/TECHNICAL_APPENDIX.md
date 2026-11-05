@@ -7561,3 +7561,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
+### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
+- **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
+  - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
+  - `km-fadl-889`، `km-fadl-kayny-916` و `km-fadl-kaym-1041` در `km-fadl-kayyny-73` ادغام می‌شوند.
+- **ترتیب اجرا:** `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`. اجرای دوباره‌ی `catalogs:import-volume-parts` برای «تراثنا» بخش نمی‌دهد («Nothing to do»)، چون نسخه‌ها پیش‌تر به جلد بسته شده‌اند و تنها کتابخانه‌شان عوض شده است.
+- **کد:** تغییری نکرد.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - `merge-duplicates`: ۳۷۳ ← ۳۶۹ کتابخانه.
+  - `assign-volume-parts --dry-run`: «changed: 34». اجرای اصلی همین را داد و اجرای دوم «changed: 0».
+  - بخش‌ها: #1077 (کتابخانه ۲۸۰) ۶۰ نسخه، و #1084، #1086 و #1087 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. شمارنده‌ها با شمار واقعی نسخه‌ها برابرند.
+- **پروداکشن (۱۵ آبان ۱۴۰۵، از راه `prod-run`؛ فایل داده پیش از انتشار به `/tmp` کانتینر رفت):**
+  - **پشتیبان:** `…/step14.43_merge_turathuna_libraries_prod_before_20261105.json`، شامل ردیف شش کتابخانه، و برای ۳۷۶ نسخه `library_id`، `catalog_volume_id`، `catalog_volume_part_id` و `cataloger_id`، و ۴ بخش.
+  - **`merge-duplicates`:** dry-run و اجرا: ۳۷۳ ← ۳۶۹ کتابخانه.
+  - **`assign-volume-parts`:** dry-run: «changed: 34». اجرا: «changed: 34».
+  - **پس از اجرا:** بخش #205 (کتابخانه ۲۸۰) ۶۰ نسخه دارد، و #212، #214 و #215 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. `manuscripts_count` با شمار واقعی برابر است. چهار کتابخانه حذف شدند و چهار ردیف `entity_redirects` گرفتند: `/libraries/889` و `/libraries/331` با ۳۰۱ به ۷۳ و ۲۸۰ می‌روند.
+  - **نمایه:** `LibraryMerger` نسخه‌های جابه‌جاشده را بی‌صف دوباره ایندکس کرد (`scout.queue = false`). بخش در `toSearchableArray` نیست، پس `assign-volume-parts` ایندکس تازه نمی‌خواهد.
