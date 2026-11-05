@@ -7535,7 +7535,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - بخش‌ها ۱٬۲۱۶ نسخه دارند و ۳۶ نسخه بی‌بخش‌اند، همان کتابخانه‌های تکراری تمرین. هیچ‌یک از شش منبع کهنه نمانده است.
   - اجرای دوم: «Nothing to do».
   - `/sources/catalogue-cddd31891851` پاسخ ۲۰۰ و ۱۲ سطر `data-volume-part` می‌دهد. `/sources/catalogue-2caeb7e31918` با ۳۰۱ به آن می‌رود.
-  - نمایه‌ی Meilisearch این ۱٬۲۵۲ نسخه هنوز دوباره ساخته نشده است، چون اجازه‌اش جدا خواسته می‌شود.
+  - با تأیید جداگانه‌ی کاربر، ۱٬۲۵۲ نسخه‌ی پشتیبان با `searchable()` بی‌صف (`scout.queue = false`) و از راه `prod-run` دوباره ایندکس شدند («reindexed 1252 of 1252»).
 
 ### گام ۱۴.۴۱: `fankha_stray_bracket_citations.py` و `tie` در `fahares:fix-reversed-citations`
 - **پیکره** ([scripts/fankha_stray_bracket_citations.py](../../fahares-corpus/scripts/fankha_stray_bracket_citations.py)، کامیت `6f646bb`):
@@ -7561,4 +7561,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
-  - با تأیید جداگانه‌ی کاربر، ۱٬۲۵۲ نسخه‌ی پشتیبان با `searchable()` بی‌صف (`scout.queue = false`) و از راه `prod-run` دوباره ایندکس شدند («reindexed 1252 of 1252»).
