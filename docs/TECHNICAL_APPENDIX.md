@@ -7561,11 +7561,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
-### گام ۱۴.۳۳: حاشیه‌ی برگه و پاورقی در پای صفحه
-- **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
-- **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
-- **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.
-
 ### گام ۱۴.۴۶: ریحانة الادب از lib.eshia.ir (مورد ۸۶)
 - **منشأ:** کتاب `10984` کتابخانه‌ی مدرسه‌ی فقاهت. نشانی صفحه `/10984/{جلد}/{صفحه}` است و شماره‌ی صفحه همان شماره‌ی چاپی چاپ خیام است. پیوندهای `url` منبع `rayhana` در `config/bibliography.php` هم به همین نشانی‌اند.
   - **robots.txt:** خزنده‌ی Claude (`ClaudeBot`) را بسته است. پس Claude خودش صفحه‌ها را نگرفت.
