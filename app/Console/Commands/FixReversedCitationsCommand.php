@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\File;
  * both fields still hold the old value and no reviewed correction protects them. Then its legacy reference and
  * Fankha entry take the volume and page. A copy on another volume of its catalogue than the one its citation now
  * names goes to that volume and its cataloger, when the catalogue has it; its part follows the page
- * (SourceEntrySync::syncCited). A copy whose catalogue lacks that volume is reported, not moved.
+ * (SourceEntrySync::syncCited). A copy whose catalogue lacks that volume is reported, not moved. A copy on no volume
+ * goes to the one the file's «tie» names ({source code, volume number}; step 14.41). The file's «category» is the
+ * audit rows' (default reversed_citation).
  *
  * Without --apply it only reports. A backup of every row it changes is written first; --revert restores it.
  */
@@ -67,11 +69,21 @@ class FixReversedCitationsCommand extends Command
         }
 
         $ids = array_column($writes, 'id');
-        $backup = $this->backup($ids);
+        // a copy on no volume the file ties to one: {source code, volume number}
+        $ties = [];
+        foreach ($writes as $rec) {
+            if (isset($rec['tie'])) {
+                $volume = DB::table('source_volumes')->where('source_id', DB::table('sources')->where('code', $rec['tie']['source'])->value('id'))
+                    ->where('volume_number', $rec['tie']['volume'])->pluck('id');
+                $volume->count() === 1 ? $ties[$rec['id']] = (int) $volume->first() : $this->warn("#{$rec['id']}: no one volume {$rec['tie']['volume']} of {$rec['tie']['source']}");
+            }
+        }
+        $backup = $this->backup($ids, array_values($ties));
         $this->info("Backup: {$backup}");
         $note = basename($path);
         $logs = [];
-        DB::transaction(function () use ($writes, $rows, $note, $ids, &$logs) {
+        $category = $plan['category'] ?? 'reversed_citation';
+        DB::transaction(function () use ($writes, $rows, $note, $ids, $ties, $category, &$logs) {
             $before = $this->people($ids);
             foreach ($writes as $rec) {
                 $row = $rows[$rec['id']];
@@ -91,10 +103,10 @@ class FixReversedCitationsCommand extends Command
                     'auditable_id' => $rec['id'],
                     'action' => 'corpus_update',
                     'old_values' => ['raw_text' => $row->raw_text, 'catalog_citation' => $rec['changes']['catalog_citation']['from']],
-                    'new_values' => ['raw_text' => $new['raw_text'], 'catalog_citation' => $meta['catalog_citation'], 'corpus_fix' => $note, 'category' => 'reversed_citation'],
+                    'new_values' => ['raw_text' => $new['raw_text'], 'catalog_citation' => $meta['catalog_citation'], 'corpus_fix' => $note, 'category' => $category],
                 ])->id;
             }
-            $moved = $this->move($ids);
+            $moved = array_merge($this->move($ids), $this->tie($ties));
             SourceEntrySync::syncCited(DB::table('manuscripts')->whereIn('id', $ids)->get(['id', 'metadata', 'raw_text', 'catalog_volume_id']));
             foreach ($moved as $id) {
                 DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
@@ -147,6 +159,22 @@ class FixReversedCitationsCommand extends Command
         return array_values(array_unique(array_merge(...array_values($moves) ?: [[]])));
     }
 
+    /** The copies on no volume go to the volume the file names for them, with its cataloger. Returns the volumes. */
+    private function tie(array $ties): array
+    {
+        $catalogers = CatalogVolumePart::primaryCatalogers(array_values(array_unique($ties)));
+        $done = [];
+        foreach ($ties as $id => $volume) {
+            if (DB::table('manuscripts')->where('id', $id)->whereNull('catalog_volume_id')->update(['catalog_volume_id' => $volume, 'cataloger_id' => $catalogers[$volume] ?? null])) {
+                DB::table('manuscript_catalog_references')->where('manuscript_id', $id)->where('source', 'fankha')->whereNull('catalog_volume_id')->update(['catalog_volume_id' => $volume]);
+                $done[] = $volume;
+            }
+        }
+        $this->info(sprintf('%d copies on no volume tied to the one their citation names.', count($done)));
+
+        return array_values(array_unique($done));
+    }
+
     private function check(array $rec, ?object $row, ProtectedColumns $guard): string
     {
         if (! $row) {
@@ -183,12 +211,13 @@ class FixReversedCitationsCommand extends Command
     }
 
     /** Writes every row the run may change to a JSON file and returns its path. */
-    private function backup(array $ids): string
+    private function backup(array $ids, array $ties = []): string
     {
         $people = $this->people($ids);
-        // every volume of the copies' catalogues: a copy may move to another
+        // every volume of the copies' catalogues, and of those the file ties copies to: a copy may move to another
         $volumes = DB::table('source_volumes')->whereIn('source_id', DB::table('source_volumes')
-            ->whereIn('id', DB::table('manuscripts')->whereIn('id', $ids)->whereNotNull('catalog_volume_id')->select('catalog_volume_id'))->select('source_id'))->pluck('id')->all();
+            ->whereIn('id', DB::table('manuscripts')->whereIn('id', $ids)->whereNotNull('catalog_volume_id')->select('catalog_volume_id'))->select('source_id'))
+            ->orWhereIn('source_id', DB::table('source_volumes')->whereIn('id', $ties ?: [0])->select('source_id'))->pluck('id')->all();
         $backup = [
             'command' => $this->getName(),
             'written_at' => now()->toIso8601String(),
@@ -197,10 +226,8 @@ class FixReversedCitationsCommand extends Command
                 ->get(['id', 'raw_text', 'volume_number', 'page_start', 'catalog_volume_id']),
             'source_entries' => DB::table('source_entries')->where('legacy_type', 'fankha_citation')->whereIn('legacy_id', $ids)
                 ->get(['id', 'citation_text', 'volume_number', 'page_start', 'source_id', 'source_volume_id']),
-            // a copy moves within its catalogue
-            'catalog_volumes' => DB::table('catalog_volumes')->whereIn('id', DB::table('source_volumes')->whereIn('source_id',
-                DB::table('source_volumes')->whereIn('id', DB::table('manuscripts')->whereIn('id', $ids)->whereNotNull('catalog_volume_id')->select('catalog_volume_id'))->select('source_id'))->select('id'))
-                ->get(['id', 'manuscripts_count']),
+            // a copy moves within its catalogue, or to the one the file ties it to
+            'catalog_volumes' => DB::table('catalog_volumes')->whereIn('id', $volumes ?: [0])->get(['id', 'manuscripts_count']),
             // the parts a copy may move to are of its own volume
             'catalog_volume_parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(['id', 'manuscripts_count']),
             'catalogers' => DB::table('catalogers')->whereIn('id', DB::table('catalog_volume_part_cataloger')->whereIn('catalog_volume_part_id',

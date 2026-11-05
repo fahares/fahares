@@ -120,4 +120,34 @@ class FixReversedCitationsTest extends TestCase
         $this->artisan('fahares:fix-reversed-citations', ['--revert' => $backup])->assertSuccessful();
         $this->assertSame($before, $this->state(), 'the revert puts back every row');
     }
+
+    public function test_a_copy_on_no_volume_is_tied_to_the_one_the_file_names()
+    {
+        $library = Library::create(['name' => 'مجلس', 'city' => 'تهران', 'slug' => 'thran-mgls-4']);
+        $cataloger = Cataloger::create(['name' => 'عبدالحسین حائری', 'slug' => 'frc-haeri']);
+        $source = Source::create(['code' => 'catalogue-frc-majlis', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'فهرست مجلس', 'library_id' => $library->id]);
+        $this->volume($source, 1);
+        $tenth = $this->volume($source, 10);
+        $tenth->catalogers()->attach([$cataloger->id => ['role' => 'cataloger']]);
+        $copy = $this->copy($library, '1851', '[ف: [1851 - 10]', null);
+
+        $record = $this->record($copy, '[ف: [1851 - 10]', '[ف: 10 - 1851]') + ['tie' => ['source' => 'catalogue-frc-majlis', 'volume' => 10]];
+        $file = storage_path('framework/testing/stray-' . uniqid() . '.json');
+        file_put_contents($file, json_encode(['category' => 'stray_bracket', 'records' => [$record]], JSON_UNESCAPED_UNICODE));
+
+        $before = $this->state();
+        $backup = storage_path('framework/testing/stray-backup-' . uniqid() . '.json');
+        $this->artisan('fahares:fix-reversed-citations', ['--file' => $file, '--apply' => true, '--backup' => $backup])->assertSuccessful()
+            ->expectsOutput('1 copies on no volume tied to the one their citation names.');
+
+        $this->assertSame([$tenth->id, $cataloger->id], [(int) $copy->fresh()->catalog_volume_id, (int) $copy->fresh()->cataloger_id]);
+        $this->assertSame($tenth->id, (int) DB::table('manuscript_catalog_references')->where('manuscript_id', $copy->id)->value('catalog_volume_id'));
+        $this->assertEquals([$source->id, $tenth->id, 10, 1851], array_values((array) DB::table('source_entries')->where('legacy_type', 'fankha_citation')
+            ->where('legacy_id', $copy->id)->first(['source_id', 'source_volume_id', 'volume_number', 'page_start'])));
+        $this->assertSame(1, (int) DB::table('catalog_volumes')->where('id', $tenth->id)->value('manuscripts_count'));
+        $this->assertSame('stray_bracket', json_decode(DB::table('audit_logs')->where('auditable_id', $copy->id)->latest('id')->value('new_values'), true)['category']);
+
+        $this->artisan('fahares:fix-reversed-citations', ['--revert' => $backup])->assertSuccessful();
+        $this->assertSame($before, $this->state(), 'the revert puts back every row');
+    }
 }

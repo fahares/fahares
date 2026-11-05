@@ -7528,3 +7528,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: `fahares-sources/backups/step13/step14.40_import_volume_parts_turathuna_local_before_20261105.json`.
   - در تمرین نخست، `updated_at` ۱٬۲۵۲ ردیف `source_entries` در `fahares_prod` محلی از دست رفت. پشتیبان آن را نداشت و این ستون در پایگاه محلی بازگرداندنی نیست.
 - **آزمون:** `ImportVolumePartsTest::test_a_journal_cited_by_year_and_issue_takes_one_volume_an_issue_and_revert`.
+
+### گام ۱۴.۴۱: `fankha_stray_bracket_citations.py` و `tie` در `fahares:fix-reversed-citations`
+- **پیکره** ([scripts/fankha_stray_bracket_citations.py](../../fahares-corpus/scripts/fankha_stray_bracket_citations.py)، کامیت `6f646bb`):
+  - **نامزدها:** نسخه‌هایی که `catalog_citation` آن‌ها با `^\[[^]\[]{1,40}: *[-0-9 –]*\[[-–0-9 /]+\]$` می‌خواند.
+  - **فهرست:** فهرست مدخل نسخه. برای نسخه‌ی بی‌جلدی که سری‌اش «ف» است، فهرستی که ۹۰٪ نسخه‌های «ف» همان کتابخانه روی آن‌اند.
+  - **جلدهای فهرست:** همان قاعده‌ی گام ۱۴.۱۲.
+  - **اصلاح:** نخستین «[» پس از دونقطه برداشته می‌شود و برچسب صفحه می‌ماند. عددها بی برچسب صفحه خوانده می‌شوند. «a-b» وارونه می‌شود، مگر «/» در عددها باشد.
+  - **`tie`:** {فهرست، جلد} برای نسخه‌ی بی‌جلد، فقط وقتی عدد نخست جلد است و عدد دوم جلد نیست.
+  - **جای ارجاع:** متن پیکره با `locate` گام ۱۴.۱۲ پیدا می‌شود، و `raw_text` سایت با `pattern` همان ارجاع.
+  - **خروجی:** [fankha_stray_bracket_citations_step14_41.json](../database/data/fankha_stray_bracket_citations_step14_41.json) با `category: stray_bracket`، ۶۳ نسخه و ۳۰ `tie`.
+- **دستور** [FixReversedCitationsCommand](../app/Console/Commands/FixReversedCitationsCommand.php):
+  - `category` فایل به ردیف‌های audit می‌رود (پیش‌فرض `reversed_citation`).
+  - `tie` جلد را با کد منبع و شماره‌ی جلد پیدا می‌کند، فقط اگر یکتا باشد. سپس نسخه‌ی بی‌جلد با فهرست‌نگار اصلی جلد و ارجاع قدیم بی‌جلدش به آن می‌رود.
+  - پشتیبان شمار جلدهای منبع‌های `tie` را هم دارد.
+- **آزمون:** `test_a_copy_on_no_volume_is_tied_to_the_one_the_file_names` در [FixReversedCitationsTest](../tests/Feature/FixReversedCitationsTest.php).
+- **تمرین (`fahares_prod` محلی):**
+  - write ۶۳؛ ۴ نسخه جابه‌جا و ۲۹ نسخه تازه به جلد بسته شد.
+  - #250327 بسته نشد: `catalogue-86c8a806d584` سه جلد با شماره‌ی ۱ دارد.
+  - اجرای دوم «already 63» گزارش کرد. اثرانگشت ۶۳ نسخه، مدخل‌ها و ارجاع‌های قدیمشان پس از `--revert` با پیش از اجرا یکی بود. پس از آن دوباره اجرا شد.
+
