@@ -136,7 +136,7 @@ class ItemMatcher
      * @param  list<array{id: int, entry_number: ?int, title: string, text: string}>  $items
      * @return array{id: int, role: string, method: string, confidence: int, title_score: float, author: bool, death: bool}|null
      */
-    public function matchLife(array $titles, ?string $author, ?int $death, array $items): ?array
+    public function matchLife(array $titles, ?string $author, ?int $death, array $items, bool $openings = false): ?array
     {
         $norms = array_values(array_filter(array_map(fn ($t) => self::norm((string) $t), $titles), fn ($t) => mb_strlen($t) >= 4));
         $lives = [];
@@ -158,6 +158,28 @@ class ItemMatcher
 
             return $this->result($lives[0]['item'], 'mention', $named ? 'author_life_title' : 'author_life',
                 $named ? 90 : ($hits >= 2 || $died ? 75 : 55), 0.0, $author, $death);
+        }
+        // in a book whose lives are headed by their subject's nisba or title, «الكلانتري 1236 - 1304 ه», a life names
+        // him in full at its opening, «موسى بن فضل الله الحسيني …» (Fuqaha, step 14.35; $openings, the source's
+        // text.openings): two parts of the author's name there, when no heading names him. Where headings name their
+        // subjects, an opening's names are too often another's.
+        if (! $lives && $openings) {
+            $openings = [];
+            foreach ($items as $item) {
+                $zone = mb_substr($item['text'], 0, self::AUTHOR_ZONE);
+                if (($hits = self::authorHits($author, $zone)) >= 2) {
+                    $text = ' ' . self::norm($item['text']) . ' ';
+                    $openings[] = ['item' => $item, 'rank' => [(int) collect($norms)->contains(fn ($t) => str_contains($text, ' ' . $t . ' ')),
+                        $hits, (int) self::deathIn($death, $zone)]];
+                }
+            }
+            usort($openings, fn ($a, $b) => $b['rank'] <=> $a['rank']);
+            if ($openings && (count($openings) === 1 || $openings[0]['rank'] > $openings[1]['rank'])) {
+                [$named, , $died] = $openings[0]['rank'];
+
+                return $this->result($openings[0]['item'], 'mention', $named ? 'author_opening_title' : 'author_opening',
+                    $named ? 85 : ($died ? 70 : 60), 0.0, $author, $death);
+            }
         }
         $match = $this->match($titles, $author, $death, $items);
 

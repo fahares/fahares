@@ -153,10 +153,9 @@ def title_of(heading, sub, numbered=False):
     يحيى المعروف بالخفاف», its number the entry's."""
     heading = re.sub(r'\s*\( \d+ \)', '', heading).strip()
     if numbered:
-        # «1260. اصول دين», «[150. عبد المجيد …]», «4685 القمّي (1283 - 1371 ه)»; Rawdat's stars and the brackets in them go
+        # «1260. اصول دين», «[150. عبد المجيد …]», «4685 القمّي (1283 - 1371 ه)»; Rawdat's stars and the brackets go
         heading = re.sub(r'^\[?\s*\d+\s*[.\-]?\s*', '', heading).rstrip(' ]')
-        if '*' in heading:
-            heading = ' '.join(re.sub(r'[*()]', ' ', heading).split())
+        heading = ' '.join(re.sub(r'[*()]', ' ', heading).split())
     if sub:
         heading = re.sub(r'^\d+\s*-\s*', '', heading)
         heading = re.split(r'\s-\s', heading, maxsplit=1)[0]

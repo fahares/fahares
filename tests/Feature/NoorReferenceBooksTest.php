@@ -13,7 +13,8 @@ use Tests\TestCase;
 /**
  * Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at (step 14.18), and the books of lives A'yan
  * al-Shi'a and Rawdat al-Jannat (step 14.20): sources the site has as text only, from Noor (item 86). The fixtures are
- * Sarkis's columns 615-616, the Arabic Mushar's column 30 and Rawdat's volume 4 pp. 399-406 as
+ * Sarkis's columns 615-616, the Arabic Mushar's column 30, Rawdat's volume 4 pp. 399-406, Kalam's volume 1 pp. 125-127 and
+ * Fuqaha's volume 14 pp. 861-862 as
  * scripts/sources/noor_reference_books.py writes them.
  */
 class NoorReferenceBooksTest extends TestCase
@@ -152,6 +153,49 @@ class NoorReferenceBooksTest extends TestCase
         $this->artisan('sources:link-items', ['volume' => 'kahhala', '--volume' => 6])->assertSuccessful();
         $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
         $this->assertSame(['100#3', SourceEntry::ROLE_MENTION, 'author_life_title'], [$tie->sourceItem->item_key, $tie->role, $tie->match_method]);
+    }
+
+    public function test_kalam_turaths_numbered_works_are_told_apart_by_their_author()
+    {
+        // step 14.35: a work is a numbered heading, «303. اثبات الرجعة»; six works of that title are on the page
+        $this->assertSame([['kalam-turath', 1, 126]], array_map(fn ($c) => [$c['source'], $c['volume'], $c['page']],
+            BibliographyLinks::citations('معجم التراث الکلامی 126/1')));
+        $this->assertSame([['kalam-turath', 1, 79]], array_map(fn ($c) => [$c['source'], $c['volume'], $c['page']],
+            BibliographyLinks::citations('معجم التراث الکلامی 1/79')));
+        $volume = $this->volume('kalam-turath', 'معجم التراث الکلامی', 1);
+        $this->artisan('sources:import-pages', ['volume' => 'kalam-turath', 'pages' => self::FIXTURES . 'kalam-turath-v01-p126.jsonl', '--volume' => 1])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'kalam-turath', '--volume' => 1, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'kalam-turath-v01-p126.entries.jsonl'])->assertSuccessful();
+        $this->assertSame(303, SourceItem::where('source_volume_id', $volume->id)->where('item_key', '126#1')->value('entry_number'));
+
+        $work = $this->work('kalam-turath', 'اثبات الرجعة', 'ابن شاذان، فضل بن شاذان نیشابوری', 1, 126, 'معجم التراث الکلامی 126/1');
+        $this->artisan('sources:link-items', ['volume' => 'kalam-turath', '--volume' => 1])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['126#1', SourceEntry::ROLE_ENTRY, 'title_author'], [$tie->sourceItem->item_key, $tie->role, $tie->match_method]);
+    }
+
+    public function test_a_fuqaha_life_headed_by_a_nisba_is_found_by_the_name_at_its_opening()
+    {
+        // step 14.35: «الكلانتري 1236 - 1304 ه» opens «موسى بن فضل اللّه …»; only a source with text.openings reads it
+        $this->assertSame([], BibliographyLinks::citations('طبقات الفقهاء 92'));
+        $volume = $this->volume('fuqaha', 'موسوعة طبقات الفقهاء', 14, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'fuqaha', 'pages' => self::FIXTURES . 'fuqaha-v14-p861.jsonl', '--volume' => 14])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'fuqaha', '--volume' => 14, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'fuqaha-v14-p861.entries.jsonl'])->assertSuccessful();
+        $life = SourceItem::where('source_volume_id', $volume->id)->sole();
+        $this->assertSame(4942, $life->entry_number);
+
+        $work = $this->work('fuqaha', 'تقریرات', 'حسینی، موسی بن فضل الله', 14, 861, 'موسوعة طبقات الفقهاء 861/14');
+        $this->artisan('sources:link-items', ['volume' => 'fuqaha', '--volume' => 14])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame([$life->id, SourceEntry::ROLE_MENTION], [$tie->source_item_id, $tie->role]);
+        $this->assertStringStartsWith('author_opening', $tie->match_method);
+
+        // without the option the same life is not found: its heading does not name him
+        config(['bibliography.sources.fuqaha.text.openings' => false]);
+        SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->delete();
+        $this->artisan('sources:link-items', ['volume' => 'fuqaha', '--volume' => 14])->assertSuccessful();
+        $this->assertFalse(SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->exists());
     }
 
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume

@@ -35,6 +35,9 @@ class LinkSourceItemsCommand extends Command
     /** Whether the volume is of a book of lives, whose entries are persons. */
     private bool $lives = false;
 
+    /** Whether its lives are headed by a nisba or title, and so are found by the name at their opening (matchLife). */
+    private bool $openings = false;
+
     public function handle(ItemMatcher $matcher): int
     {
         $volumes = SourceVolume::where('facsimile_code', $this->argument('volume'))
@@ -45,7 +48,9 @@ class LinkSourceItemsCommand extends Command
             return self::FAILURE;
         }
         $volume = $volumes[0];
-        $this->lives = Source::whereKey($volume->source_id)->value('kind') === Source::KIND_BIOGRAPHICAL;
+        $source = Source::find($volume->source_id);
+        $this->lives = $source?->kind === Source::KIND_BIOGRAPHICAL;
+        $this->openings = (bool) config('bibliography.sources.' . ($source?->metadata['config'] ?? $source?->code) . '.text.openings');
         $items = SourceItem::where('source_volume_id', $volume->id)->orderBy('position')
             ->get(['id', 'item_key', 'entry_number', 'title', 'text', 'page_start', 'page_end']);
         if ($items->isEmpty()) {
@@ -161,7 +166,7 @@ class LinkSourceItemsCommand extends Command
         // a book of lives: the work is named in its author's life (ItemMatcher::matchLife)
         $lives = $this->lives;
         $find = fn (array $on) => $lives
-            ? $matcher->matchLife($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on)
+            ? $matcher->matchLife($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on, $this->openings)
             : $matcher->match($titles, $work->author_name ?: $person?->name, $person?->death_year_hijri, $on, $number);
         $match = $work && $onPage ? $find($onPage) : null;
         // an entry the page before or after begins or ends on: Fankha's page is the entry's other one; a mention there
