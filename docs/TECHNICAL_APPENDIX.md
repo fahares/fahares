@@ -7359,7 +7359,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروداکشن:** همان فرمان‌ها، و سپس `scout:import "App\Models\SourceItem"`. منبع و جلدها پیش‌تر ساخته شده‌اند، پس `backfill` لازم نیست.
 - **آزمون:** `NoorReferenceBooksTest::test_kahhalas_lives_from_the_old_noor_text_tie_a_work_to_its_author`، با فیکسچر `kahhala-v06-p100`.
 - **اجرای پروداکشن (۱۴ آبان ۱۴۰۵، به اجازه‌ی کاربر، از جلسه‌ی «مدیریت تسک‌ها»):**
-  - **پشتیبان:** dump کامل پایگاه داده با `ssh fahares-server`: `~/backups/before_step14_31_kahhala_20261105_0239.sql.gz` (۳۴۱ مگابایت، «Dump completed»، md5 `09dbfd4358e6c5d9fa9db24738e3534b`). رونوشتش به `../fahares-sources/backups/step13/` می‌رود.
+  - **پشتیبان:** dump کامل پایگاه داده با `ssh fahares-server`: `~/backups/before_step14_31_kahhala_20261105_0239.sql.gz` (۳۴۱ مگابایت، «Dump completed»، md5 `09dbfd4358e6c5d9fa9db24738e3534b`). به خواست کاربر، فقط روی میزبان نگه داشته می‌شود.
   - **فایل‌ها:** ۲۶ فایل `noor-tarajim3/kahhala` به `/tmp/noor-tarajim3/kahhala/` کانتینر رفت و `md5sum -c` درست بود.
   - **فرمان‌ها:** برای هر جلد ۱ تا ۱۳، با `scripts/dev/prod-run --wait task-management`: `sources:import-pages`، `sources:segment --origin=noor --entries=…` و `sources:link-items --near --report=…`، سپس `scout:import "App\Models\SourceItem"`. همه با کد ۰ پایان یافتند.
   - **شمارها، برابر تمرین:** ۱۵٬۷۲۰ مدخل (`created`، با `updated 0` و `removed 0`)، با شمار هر جلد درست برابر فهرست تمرین. ۶۹۱ پیوند تازه، همه `unverified`. گزارش‌های `link-items` در `../fahares-sources/backups/step13/step14.31_kahhala_link_reports_20261105.tgz` است.
