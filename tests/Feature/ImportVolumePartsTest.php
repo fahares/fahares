@@ -63,8 +63,11 @@ class ImportVolumePartsTest extends TestCase
         $this->assertSame([[9, 74], [5, 600], null, [12], [105]], [Import::numbers('[میراث اسلامی: دفتر نهم - 74]', 'میراث اسلامی'),
             Import::numbers('[میراث اسلامی ایران: 5 - 600]', ['میراث اسلامی', 'میراث اسلامی ایران']), Import::numbers('[ف: 1 - 20]', 'میراث اسلامی'), Import::numbers('[سه کتابخانه اصفهان؛ ف: 12]', 'سه کتابخانه اصفهان'),
             Import::numbers('[سه کتابخانه اصفهان - ف: 105]', ['سه کتابخانه اصفهان', 'سه کتابخانه اصفهان - ف'])]);
-        $this->assertSame([5, 5, 7, null, 2, 4, null], [Import::volume([5, 132], [4, 5, 7]), Import::volume([132, 5], [4, 5, 7]), Import::volume([7], [4, 5, 7]),
+        $this->assertSame([5, 5, 7, null, 2, 4, 4], [Import::volume([5, 132], [4, 5, 7]), Import::volume([132, 5], [4, 5, 7]), Import::volume([7], [4, 5, 7]),
             Import::volume([200], [4, 5, 7]), Import::volume([2, 5], [2, 5]), Import::volume([4, 478, 11, 935], [4, 11]), Import::volume([], [4])]);
+        // «ف مخ - 108» has no colon; «[ف مخ]» is the book alone, of its one volume (step 14.37)
+        $this->assertSame([[108], [], null], [Import::numbers('[ف مخ - 108]', ['ف مخ']), Import::numbers('[ف مخ]', ['ف مخ']), Import::numbers('[ف: 15]', ['ف مخ'])]);
+        $this->assertSame([null, 1], [Import::volume([], [1, 2]), Import::volume([], [1])]);
     }
 
     public function test_the_catalogue_takes_its_volumes_copies_and_parts_and_revert()
@@ -206,5 +209,59 @@ class ImportVolumePartsTest extends TestCase
         $this->assertNull(Source::where('code', 'catalogue-four-mashhad')->first());
         @unlink($backup);
         @unlink($file);
+    }
+
+    public function test_a_shared_series_moves_only_the_books_libraries_and_a_catalogue_of_one_library_is_its()
+    {
+        $sadeqiyeh = Library::create(['name' => 'صادقیه', 'city' => 'دامغان', 'slug' => 'damghan-sadkyh-116']);
+        $qamar = Library::create(['name' => 'قمر بنی هاشم', 'city' => 'دامغان', 'slug' => 'damghan-kmr-bny-hashm-93']);
+        $other = Library::create(['name' => 'دیگر', 'city' => 'مشهد', 'slug' => 'mshhd-dygr-1']);
+        $ashkevari = Cataloger::create(['name' => 'سید جعفر حسینی اشکوری', 'slug' => 'ivp-ashkevari', 'mtif_entry_id' => 37267]);
+        $derayati = Cataloger::create(['name' => 'مصطفی درایتی', 'slug' => 'ivp-derayati']);
+
+        $dash = $this->copy($sadeqiyeh, '[ف مخ - 108]', null);
+        $bare = $this->copy($qamar, '[ف مخ]', null);
+        $stranger = $this->copy($other, '[ف مخ: 20]', null);
+        $printed = $this->copy($sadeqiyeh, '[ف: 29]', null);
+
+        $handwritten = ['source' => 'catalogue-dm', 'series' => 'ف مخ', 'volume_title' => 'فهرست نسخ خطی دامغان - جلد %d', 'only_libraries' => true,
+            'create' => ['title' => 'فهرست نسخ خطی دامغان', 'volumes' => [['number' => 1, 'pages' => 421]]], 'library' => null,
+            'editors' => [['name' => 'مصطفی درایتی', 'role' => 'supervisor']],
+            'parts' => [
+                ['daftar' => 1, 'library' => 'damghan-sadkyh-116', 'title' => 'صادقیه', 'pages' => null, 'catalogers' => [['name' => 'سید جعفر حسینی اشکوری', 'mtif' => 37267]], 'fankha_row' => 273],
+                ['daftar' => 1, 'library' => 'damghan-kmr-bny-hashm-93', 'title' => 'قمر بنی هاشم', 'pages' => null, 'catalogers' => [['name' => 'سید جعفر حسینی اشکوری', 'mtif' => 37267]], 'fankha_row' => 274],
+            ]];
+        $own = ['source' => 'catalogue-fb', 'series' => 'ف', 'volume_title' => 'فهرست فتحعلی بیگ - جلد %d', 'only_libraries' => true, 'libraries' => ['damghan-sadkyh-116'],
+            'create' => ['title' => 'فهرست فتحعلی بیگ', 'library' => 'damghan-sadkyh-116', 'volumes' => [['number' => 1, 'mtif' => 34208, 'pages' => 246]]],
+            'editors' => [['name' => 'سید جعفر حسینی اشکوری', 'mtif' => 37267, 'role' => 'cataloger']], 'parts' => []];
+        [$first, $second] = array_map(function ($data) {
+            $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
+            file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
+
+            return $file;
+        }, [$handwritten, $own]);
+
+        $before = $this->state();
+        $backups = [storage_path('framework/testing/parts-backup-' . uniqid() . '.json'), storage_path('framework/testing/parts-backup-' . uniqid() . '.json')];
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $first, '--backup' => $backups[0]])->assertSuccessful()->expectsOutput('2 copies tied anew.');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $second, '--backup' => $backups[1]])->assertSuccessful()->expectsOutput('1 copies tied anew.');
+
+        $dm = Source::where('code', 'catalogue-dm')->firstOrFail()->volumes()->first();
+        $fb = Source::where('code', 'catalogue-fb')->firstOrFail();
+        $this->assertSame([$dm->id, $ashkevari->id], [(int) $dash->fresh()->catalog_volume_id, (int) $dash->fresh()->cataloger_id], '«ف مخ - 108» is page 108 of the one volume');
+        $this->assertSame($dm->id, (int) $bare->fresh()->catalog_volume_id, '«[ف مخ]» names the book alone');
+        $this->assertNull($stranger->fresh()->catalog_volume_id, 'another library\'s «ف مخ» is another book');
+        $this->assertSame([[$derayati->id, 'supervisor']], $dm->catalogers()->get()->map(fn ($c) => [$c->id, $c->pivot->role])->all());
+        $this->assertSame($sadeqiyeh->id, (int) $fb->library_id);
+        $volume = $fb->volumes()->first();
+        $this->assertSame([$sadeqiyeh->id, 34208], [(int) CatalogVolume::find($volume->id)->library_id, (int) $volume->mtif_entry_id]);
+        $this->assertSame([[$ashkevari->id, 'cataloger']], $volume->catalogers()->get()->map(fn ($c) => [$c->id, $c->pivot->role])->all());
+        $this->assertSame([$volume->id, $ashkevari->id], [(int) $printed->fresh()->catalog_volume_id, (int) $printed->fresh()->cataloger_id],
+            'a copy moved to a volume without parts takes its cataloger');
+
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $second])->assertSuccessful()->expectsOutput('Nothing to do.');
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backups[1]])->assertSuccessful();
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backups[0]])->assertSuccessful();
+        $this->assertSame($before, $this->state(), 'the reverts put back every row');
     }
 }

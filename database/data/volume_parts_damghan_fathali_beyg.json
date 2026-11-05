@@ -1,0 +1,31 @@
+{
+ "_comment": "Step 14.37: «فهرست نسخه های خطی کتابخانه مدرسه علمیه فتحعلی بیگ (دامغان ـ ایران)» by Sayyed Jafar Hosseini Ashkevari (MTIF 34208, 246 pages), the printed catalogue Fankha cites «ف» for the Sadeqiyeh copies. Run after volume_parts_damghan.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_damghan_fathali_beyg.json",
+ "source": "catalogue-7880c9f9031c",
+ "series": "ف",
+ "volume_title": "فهرست نسخه های خطی کتابخانه مدرسه علمیه فتحعلی بیگ (دامغان ـ ایران) - جلد %d",
+ "only_libraries": true,
+ "libraries": [
+  "damghan-sadkyh-116"
+ ],
+ "create": {
+  "title": "فهرست نسخه های خطی کتابخانه مدرسه علمیه فتحعلی بیگ (دامغان ـ ایران)",
+  "compiler": "سید جعفر حسینی اشکوری",
+  "publisher": "مجمع ذخائر اسلامی",
+  "volumes": [
+   {
+    "number": 1,
+    "mtif": 34208,
+    "pages": 246
+   }
+  ],
+  "library": "damghan-sadkyh-116"
+ },
+ "editors": [
+  {
+   "name": "سید جعفر حسینی اشکوری",
+   "mtif": 37267,
+   "role": "cataloger"
+  }
+ ],
+ "parts": []
+}

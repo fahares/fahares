@@ -1,0 +1,62 @@
+{
+ "_comment": "Step 14.37: «فهرست نسخ خطی دامغان», the handwritten catalogue of the Al-Javad institute (Mashhad, 421 pages) by Sayyed Jafar Hosseini Ashkevari, edited by Mostafa Derayati, which Fankha cites «ف مخ»: one volume, two parts, Fankha's rows 273 (Fathali Beyg / Sadeqiyeh) and 274 (Qamar Bani Hashem). Its copies of Qamar Bani Hashem were on that library's printed catalogue (catalogue-f4c7fcede840, MTIF 34219, 186 pages), which keeps its own («ف»). Only the two libraries' copies: «ف مخ» is every handwritten catalogue's. Run after library_duplicates_step14_37.json: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_damghan.json",
+ "source": "catalogue-8ebe2ad8f35a",
+ "series": "ف مخ",
+ "aliases": [
+  "ف مح"
+ ],
+ "volume_title": "فهرست نسخ خطی دامغان - جلد %d",
+ "only_libraries": true,
+ "create": {
+  "title": "فهرست نسخ خطی دامغان",
+  "compiler": "سید جعفر حسینی اشکوری",
+  "publisher": "مؤسسه فرهنگی ـ پژوهشی الجواد (مخطوط)",
+  "volumes": [
+   {
+    "number": 1,
+    "pages": 421
+   }
+  ]
+ },
+ "library": null,
+ "folds": [
+  {
+   "code": "catalogue-f4c7fcede840",
+   "keep": true
+  }
+ ],
+ "editors": [
+  {
+   "name": "مصطفی درایتی",
+   "role": "supervisor"
+  }
+ ],
+ "parts": [
+  {
+   "daftar": 1,
+   "library": "damghan-sadkyh-116",
+   "title": "مدرسه فتحعلی بیگ (صادقیه)",
+   "pages": null,
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 273
+  },
+  {
+   "daftar": 1,
+   "library": "damghan-kmr-bny-hashm-93",
+   "title": "مدرسه قمر بنی هاشم",
+   "pages": null,
+   "catalogers": [
+    {
+     "name": "سید جعفر حسینی اشکوری",
+     "mtif": 37267
+    }
+   ],
+   "fankha_row": 274
+  }
+ ]
+}

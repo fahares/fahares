@@ -7413,3 +7413,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[MessageAttachmentController](../app/Http/Controllers/MessageAttachmentController.php):** مسیر `messages.attachment` در گروه `auth` است. کاربرِ رشته می‌بیند، و برای رشته‌ی پیشنهاد دارنده‌ی `suggestions.review` و برای پیام مستقیم دارنده‌ی `users.message`. پاسخ با `X-Content-Type-Options: nosniff` و `Cache-Control: private` است.
 - **[FetchReplyAttachmentsCommand](../app/Console/Commands/FetchReplyAttachmentsCommand.php):** `fahares:fetch-reply-attachments <message> [--email=] [--dry-run]`. ایمیل را از `GET /emails/receiving` با فرستنده‌ی برابر با کاربر رشته و فاصله‌ی زمانی کمتر از پنج دقیقه پیدا می‌کند. نامه‌ای که پیوست دارد دست نمی‌خورد. برای نامه‌ی ۹ پروداکشن، ایمیل Resend `ca93ee7b-63a8-45b3-a8e5-78136045bb09` است با شش PNG، روی هم حدود ۳ مگابایت.
 - **آزمون:** `EmailReplyAttachmentsTest` (۴ آزمون: نگهداری و دسترسی، پاسخ فقط‌تصویر، نشانه‌های جیمیل، فرمان).
+
+### گام ۱۴.۳۷: `only_libraries`، نقش کسان جلد، و کتابخانه‌ی کتاب ساخته‌شده در `catalogs:import-volume-parts`
+- **تغییر دستور** ([ImportVolumePartsCommand](../app/Console/Commands/ImportVolumePartsCommand.php)):
+  - **`only_libraries: true`:** `moves` فقط نسخه‌های کتابخانه‌های `parts` و `libraries` (slug) را می‌خواند (`ownLibraries`).
+  - **نقش کسان جلد:** هر عضو `editors` نقش `role` می‌گیرد، که پیش‌فرض آن `supervisor` است. `editorsToSet` جفت «شناسه|نقش» را می‌سنجد. کتاب تک‌کتابخانه‌ای بی‌بخش، فهرست‌نگارش را با `role: cataloger` می‌گیرد.
+  - **`create.library`:** با slug کتابخانه، منبع و جلدها `library_id` می‌گیرند و `metadata.group` به شکل `catalogue|{id}|عنوان` نوشته می‌شود.
+  - **فهرست‌نگار نسخه‌ی جابه‌جاشده:** نسخه‌ای که به جلد بی‌بخش رفته، فهرست‌نگار اصلی آن جلد را می‌گیرد (`CatalogVolumePart::primaryCatalogers`).
+  - **بخش بی‌صفحه:** `pages: null` یعنی `page_first` و `page_last` تهی. بخش تنهای یک کتابخانه با قاعده‌ی کتابخانه داده می‌شود.
+  - **`numbers`:** «سری - صفحه» بی دونقطه را هم می‌خواند.
+  - **`volume`:** در کتاب یک‌جلدی، ارجاع بی‌عدد («[ف مخ]») هم مال همان جلد است.
+- **داده:**
+  - [library_duplicates_step14_37.json](../database/data/library_duplicates_step14_37.json): `damghan-kmr-bny-hashm-aa-225` در `damghan-kmr-bny-hashm-93` ادغام می‌شود.
+  - [volume_parts_damghan.json](../database/data/volume_parts_damghan.json): `catalogue-8ebe2ad8f35a`، سری «ف مخ» (و «ف مح»)، با fold `catalogue-f4c7fcede840` و `keep`، و ردیف‌های ۲۷۳ و ۲۷۴.
+  - [volume_parts_damghan_fathali_beyg.json](../database/data/volume_parts_damghan_fathali_beyg.json): `catalogue-7880c9f9031c`، MTIF ۳۴۲۰۸، ۲۴۶ صفحه، کتابخانه‌ی `damghan-sadkyh-116`.
+  - [volume_parts_damghan_qamar.json](../database/data/volume_parts_damghan_qamar.json): `catalogue-f4c7fcede840` با سری «ف».
+  - [volume_parts_kashan.json](../database/data/volume_parts_kashan.json): `catalogue-68db58132fa6`، `library: null`، ردیف‌های ۴۵۹ و ۴۶۰.
+  - **ترتیب اجرا:** ادغام، damghan، damghan_fathali_beyg، damghan_qamar، kashan.
+- **آزمون:** در [ImportVolumePartsTest](../tests/Feature/ImportVolumePartsTest.php)، `test_a_shared_series_moves_only_the_books_libraries_and_a_catalogue_of_one_library_is_its` این موارد را می‌آزماید: نسخه‌ی کتابخانه‌ی دیگر با همان «ف مخ» جابه‌جا نمی‌شود؛ «[ف مخ - 108]» و «[ف مخ]» خوانده می‌شوند؛ نقش supervisor و cataloger؛ کتابخانه‌ی کتاب ساخته‌شده؛ فهرست‌نگار نسخه‌ی جلد بی‌بخش؛ و برگرداندن. خوانش‌های تازه‌ی `numbers` و `volume` هم آزموده می‌شوند.
+- **تمرین (`fahares_prod` محلی):**
+  - ادغام: ۳۷۴ ← ۳۷۳ کتابخانه.
+  - دامغان: ۵۷۸ نسخه جابه‌جا شد، ۲۴۳ از #586 و ۳۳۵ بی‌جلد. بخش‌ها: صادقیه ۳۲۶ و قمر ۲۵۲.
+  - فتحعلی بیگ: ۸۴. قمر چاپی: ۴۶. کاشان: ۲ نسخه‌ی بی‌جلد، و بخش‌های سلطانی ۴۷۲ و جعفری ۱۱۵.
+  - اجرای دوم هر چهار «Nothing to do» گزارش کرد.
+  - **برگرداندن:** `--revert` چهار فایل، به ترتیب وارونه، نسخه‌های پنج کتابخانه (با جلد، بخش و فهرست‌نگارشان)، جلدهای #586 و #617 و کسانشان، و فهرست‌نگاران ۲۵، ۶۴ و ۹۲ را به وضع پیش از اجرا برگرداند.
+  - اثرانگشت کل پایگاه این بار سنجیدنی نبود، چون نشست دیگری ساعت ۰۰:۴۶ ده‌ها جلد را در همان پایگاه محلی نوشت. پس از برگرداندن، همه دوباره اجرا شد.
+
