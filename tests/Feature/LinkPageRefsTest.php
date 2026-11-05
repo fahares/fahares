@@ -162,7 +162,7 @@ class LinkPageRefsTest extends TestCase
 
     public function test_a_source_without_forms_is_refused()
     {
-        Source::create(['code' => 'monzavi', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 30, 'title' => 'منزوی']);
-        $this->artisan('sources:link-page-refs', ['source' => 'monzavi'])->assertFailed();
+        Source::create(['code' => 'kashf', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 30, 'title' => 'کشف الظنون']);
+        $this->artisan('sources:link-page-refs', ['source' => 'kashf'])->assertFailed();
     }
 }

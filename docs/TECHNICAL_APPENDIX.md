@@ -7373,3 +7373,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[app.css](../resources/css/app.css):** `.book-sheet` از ۷۶۸ پیکسل `padding: 5rem 6.25rem 5.5rem`، و `.book-sheet--columns` با `padding-inline: 4.5rem`. `.book-sheet__notes` با خط کوتاه `::before` (۳۰٪ پهنا) و قلم `0.9375rem`.
 - **[PrintedPage::footnotes](../app/Support/PrintedPage.php):** برای منبع `KIND_BIBLIOGRAPHY` با متن صفحه، از پاراگراف آخر به عقب، تا جایی که پاراگراف (بی نشانه‌های نور) با `( n )` یا `n -` آغاز شود و `( n )` در متن پیش از آن باشد. پاراگراف نخست صفحه هرگز پاورقی نیست. خروجی در `$footnotes` می‌رود و [show.blade.php](../resources/views/source-pages/show.blade.php) آن را با `data-footnotes` و `x-ref="notes"` پس از `book-sheet__body` می‌گذارد.
 - **آزمون:** `SourcePageViewTest::test_a_bibliographys_footnotes_are_set_at_the_foot_of_its_page`.
+
+### گام ۱۴.۳۴: سطرهای نسخه‌ی منزوی
+- **[Holdings::in](../app/Support/PageLinks/Holdings.php):** یک الگوی `/mu` در آغاز سطر یا پس از «؛»: نام کتابخانه (بلندترین نام نخست، و نه پیش از حرف دیگر)، سپس `page/volume` اختیاری، سپس `،? ش (n)? number(/part)?` اختیاری. دست‌کم یکی از این دو لازم است. نامی که پس از آن «،» و واژه‌ای آمده («آستان قدس، الفبایی 34») خوانده نمی‌شود. `offset` به نویسه در متن صفحه است و `span` همان واژه‌هاست.
+- **[HoldingResolver](../app/Support/PageLinks/HoldingResolver.php):**
+  - نامزدها نسخه‌های کتابخانه‌اند که اثرشان یکی از آثار مدخل است (`source_entries` با `source_item_id`، روش `work`). اگر مدخل اثری نداشته باشد، نامزدها از `DirectAnswer::byShelfmark` و صفحه‌ی فهرست می‌آیند و با `Titles::agree` پالایش می‌شوند (روش `title`).
+  - شماره با عدد آغازین سنجیده می‌شود (`629` = `629/1`). اگر بخش هم برابر باشد، فقط همان می‌ماند.
+  - صفحه از `source_entries` با `origin = fankha_citation` سنجیده می‌شود: `volume_number` برابر و `page_start ≤ p ≤ COALESCE(page_end, page_start)`. این ارجاع‌ها یک بار برای همه‌ی کتابخانه‌ها با دو پرس‌وجوی ساده بار می‌شوند (`loadCited`)، چون join آن‌ها برای هر کتابخانه ۵ تا ۱۳ ثانیه طول می‌کشید.
+  - نام‌های روش: `both`، `page`، `shelfmark`، `page-not-number` (صفحه پیدا شد ولی شماره‌ی داده‌شده با هیچ نامزدی جور نیست)، `conflict`، `several` و `none`.
+- **[LinkPageRefsCommand](../app/Console/Commands/LinkPageRefsCommand.php):** بخش `holdings` با `kind = holding`، بی `ordinal`، و `offset`/`span` مانند ارجاع‌ها ساخته شد. ذخیره، نگه داشتن ردشده‌ها، نمونه و نمایش (`PrintedPage::linked`، `SourceMentions`) همان راه گام ۱۳.۱۵۵ است. `ENABLED['holdings']` هر هشت روشی است که یک نسخه می‌دهد.
+- **شمار اجرای آزمایشی (`fahares_prod`):** `work+page` ۳٬۷۴۰، `title+page` ۱٬۶۲۱، `work+both` ۹۴۷، `work+shelfmark` ۴۴۷، `title+both` ۲۴۹، `title+shelfmark` ۱۳۷، `work+page-not-number` ۱۰۳، `title+page-not-number` ۲۷. بی‌پیوند: `title:none` ۳٬۱۳۹، `work:none` ۱٬۹۸۳، `work:several` ۲۴۳، `title:several` ۱۷۹، `conflict` ۱۳، `no-entry` ۳.
+- **برگشت:** `DELETE FROM source_page_links WHERE kind = 'holding'`.
+- **آزمون:** `LinkMonzaviHoldingsTest` (خواندن سطرها؛ پیوند با اثر، با صفحه، با شماره و با عنوان؛ ناسازگاری؛ رد ویراستار؛ یادکرد در صفحه‌ی نسخه). `LinkPageRefsTest::test_a_source_without_forms_is_refused` اکنون کشف الظنون را به کار می‌برد.
+
