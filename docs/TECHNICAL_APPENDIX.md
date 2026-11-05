@@ -7422,6 +7422,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندهای فقها (۳۱ جا):** `author_opening*` ۲۵، `author_life*` ۴، یادکرد ۱ و بی‌تطبیق ۱.
 - **فایل‌ها:** `../fahares-sources/noor-printed/{kalam-turath,fuqaha}/`.
 - **آزمون:** دو آزمون تازه در `NoorReferenceBooksTest`، با فیکسچرهای `kalam-turath-v01-p126` (شش «اثبات الرجعة» در یک صفحه) و `fuqaha-v14-p861`.
+- **پروداکشن (۱۴ آبان ۱۴۰۵):** پشتیبان کامل `~/backups/before_step14_35_kalam_fuqaha_20261105_0406.sql.gz` روی میزبان (۳۴۶ مگابایت، «Dump completed»). ۳۸ فایل در `/tmp/noor-printed` با MD5 سنجیده شدند. `sources:backfill --only=registry` (۱۹ جلد ساخته شد) و `--only=bibliography`، سپس برای هر جلد `import-pages`، `segment` و `link-items --near` از راه `prod-run --wait`.
+  - **کلامی:** ج ۱ تا ۵: ۲٬۵۲۴، ۲٬۲۳۲، ۲٬۷۸۵، ۲٬۶۷۸ و ۲٬۶۳۷ مدخل (۱۲٬۸۵۶)؛ پیوندها ۱۴، ۲۰، ۱۵، ۱۱ و ۹ (۶۹).
+  - **فقها:** ۶٬۵۱۷ مدخل و ۳۰ پیوند.
+  - **جلد ۲ کلامی:** نخست با کد ۷۵ رد شد، چون `pgrep` در کانتینر `artisan fahares:flush-page-views` (کار زمان‌بندی‌شده) را دید. پس از دیگر جلدها جداگانه اجرا شد و `scout:import "App\Models\SourceItem"` دوباره اجرا شد.
+- **`scripts/dev/prod-run`:** با `--wait`، اگر اجرای artisan بی‌قفل در کانتینر باشد، تا ۳۰ دقیقه هر ۱۵ ثانیه دوباره می‌سنجد و سپس اجرا می‌کند. بی `--wait` مثل پیش با کد ۷۵ رد می‌کند. آزمون با `ssh` ساختگی: دو بار «مشغول» و سپس اجرا؛ بی `--wait` رد.
 
 ### گام ۱۴.۳۶: تصویرهای پیوست پاسخ ایمیلی
 - **جدول `message_attachments`:** `message_id` (حذف آبشاری با نامه)، `path` روی دیسک `public` (`message-attachments/<thread>/<message>-<۲۴ نویسه‌ی تصادفی>.<ext>`)، `filename`، `content_type`، `size`. `MessageThread::messages()` پیوست‌ها را با نامه‌ها بار می‌کند.

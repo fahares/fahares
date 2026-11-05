@@ -5,7 +5,8 @@
 #   scripts/dev/prod-run <session-name> -- 'cd /app && php artisan some:command --apply'
 #                                          run it, or refuse at once if another run holds the lock
 #   scripts/dev/prod-run --wait <session-name> -- '…'
-#                                          the same, but wait for the lock instead of refusing
+#                                          the same, but wait for the lock (and for an artisan run without it)
+#                                          instead of refusing
 #   scripts/dev/prod-run --status          who holds the lock now, artisan processes running in production, last runs
 #
 # Before taking the lock it also looks for artisan commands already running in production: a run started with plain ssh
@@ -61,6 +62,13 @@ elif ! flock -n 9; then
 fi
 
 busy=$(remote_busy)
+# With --wait, an artisan run without the lock (often the site's own scheduler, e.g. flush-page-views) is waited out
+# too, up to 30 minutes; without --wait it is refused as before.
+for (( tries = 0; wait && tries < 120 && ${#busy}; tries++ )); do
+    (( tries )) || { echo "production is busy, waiting for an artisan run without the lock:" >&2; echo "$busy" >&2; }
+    sleep 15
+    busy=$(remote_busy)
+done
 if [[ -n "$busy" ]]; then
     echo "production is busy, an artisan run without the lock is still going:" >&2
     echo "$busy" >&2
