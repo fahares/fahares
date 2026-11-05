@@ -7485,3 +7485,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`StructurePreview::fieldsLine`:** مقدار ناسازگار را از ردیف‌هایی می‌شمارد که هر دو طرف مقدار دارند، نه از پیش‌فرض `KEEP`.
 - **`fahares:link-copy-references` (گام ۱۴.۱۶):** قول‌ها را خودش می‌سازد، چون قائل را فهرستِ نشانی پیشین می‌گیرد. برای همان فیلدها `KEEP` می‌فرستد تا قول دوباره ساخته نشود.
 - **آزمون:** [MergeComparisonTest](../tests/Feature/MergeComparisonTest.php) (`test_a_value_the_two_give_differently_becomes_an_alternative_reading_and_goes_with_the_undo`) و انتظارهای تازه در همین آزمون و [StructureToolsTest](../tests/Feature/StructureToolsTest.php).
+
+### گام ۱۴.۴۰: `issues` و `copies` در `catalogs:import-volume-parts` («تراثنا»)
+- **تغییر دستور** ([ImportVolumePartsCommand](../app/Console/Commands/ImportVolumePartsCommand.php)):
+  - **`issues`:** نگاشت «سال/شماره» به شماره‌ی جلد («6/2»: 23). در این حالت `moves` به‌جای `numbers` و `volume` از `issue($raw, $names)` استفاده می‌کند. `issue` سه مقدار برمی‌گرداند: سال، شماره و صفحه.
+    - «س13ش2و3 - 321» [13, 2, 321] است (شماره‌ی نخستِ شماره‌ی دوتایی).
+    - «[تراثنا س4ش4: 51]» بی دونقطه پس از نام هم خوانده می‌شود.
+    - «[تراثنا: 81]» [null, null, 81] است.
+    - اگر ارجاع نخست از منبع دیگری باشد، null برمی‌گرداند.
+  - **`copies`:** فهرست `{library, shelfmark, page, volume}`. نسخه با شناسه‌ی کتابخانه، شماره‌ی نسخه و آخرین عدد ارجاعش پیدا می‌شود و بر `issues` مقدم است. هر مورد پیدانشده هشدار می‌دهد.
+  - **`create.volumes[]`:** می‌تواند `title` و `citation` (برای `citation_pattern`) خودش را داشته باشد. `create.description` هم در `sources.description` نوشته می‌شود.
+  - **پشتیبان:** `updated_at` ردیف‌های `source_entries` هم نگه داشته می‌شود. بدون آن، `syncCited` پس از `--revert` اثرانگشت `source_entries` را عوض می‌کرد. نخستین تمرین همین را نشان داد.
+- **داده:** [volume_parts_turathuna.json](../database/data/volume_parts_turathuna.json):
+  - کد `catalogue-cddd31891851`، یعنی `sha1('catalogue||تراثنا')` به روش `SourceEntrySync::groupCode`؛ سری «تراثنا»، `library: null`، `editors: []`؛
+  - `create`: ۱۱ جلد با عنوانی مانند «تراثنا - السنة 6، العدد 2 (23)» و MTIF (۵۰۶۸۰، ۵۰۶۸۹، ۵۰۶۹۲، ۵۰۶۹۴، ۵۰۶۹۵، ۶۷۴۹۱، بی‌رکورد برای ۲۵، ۵۲۷۵۲، ۵۰۷۰۴، ۵۲۷۵۸، ۶۷۴۹۵)؛
+  - `folds`: شش کد کهنه؛ `issues`: ۱۵ کلید، از جمله «4/4» → ۹؛ `copies`: چهار نسخه (باقریه ۳۹، ۳۰۳/۲، ۱۱۵؛ مهدوی «بدون شماره» ص ۲۰۹)؛
+  - ۱۲ بخش با `key`، با فهرست‌نگاران ۳۷۲۲۸ (اشکوری)، ۳۷۲۶۳ (محمود فاضل) و ۴۵۲۶۶ (علی فاضلی).
+- **تمرین (`fahares_prod` محلی، `DB_DATABASE=fahares_prod SCOUT_DRIVER=null`):**
+  - dry-run و اجرا: «1252 copies tied anew»، و ۱۲ بخش ساخته شد.
+    - جابه‌جایی‌ها: ۷ ← #627 ۶۰؛ ۹ ← #624 ۲۳۹؛ ۲۰ ← #626 ۳۴؛ ۲۲ ← #622 ۱۶۸؛ ۲۳ ← ۹۵؛ ۲۴ ← ۷۵؛ ۲۵ ← ۹۰؛ ۴۹ ← #623 ۸۰، #626 ۱۷ و بی‌جلد ۴؛ ۵۰ ← #623 ۱۴۰؛ ۵۲ ← #623 ۹۰ و بی‌جلد ۳؛ ۶۹ ← #625 ۱۵۵ و بی‌جلد ۲.
+    - `left, no volume: 1`: نسخه‌ی باقریه با «[تراثنا: 26-145]».
+  - **بی‌بخش (۳۶):** `km-aalamh-tbatbayy-331` ۲۳، `km-fadl-889` ۵، `km-fadl-kayny-916` ۵، `km-fadl-kaym-1041` ۱، `thran-mftah-16` ۱، `shyraz-bghayry-aabdalrzak-173` ۱. چهار کتابخانه‌ی نخست تکرار #۲۸۰ و #۷۳ هستند.
+  - اجرای دوم: «Nothing to do».
+  - **برگرداندن:** پس از `--revert`، `CHECKSUM TABLE` ده جدول برابر بود: sources، source_volumes، catalog_volumes، catalog_volume_parts، catalog_volume_part_cataloger، catalog_volume_cataloger، manuscripts، source_entries، manuscript_catalog_references و catalogers. سپس دوباره اجرا شد.
+  - پشتیبان: `fahares-sources/backups/step13/step14.40_import_volume_parts_turathuna_local_before_20261105.json`.
+  - در تمرین نخست، `updated_at` ۱٬۲۵۲ ردیف `source_entries` در `fahares_prod` محلی از دست رفت. پشتیبان آن را نداشت و این ستون در پایگاه محلی بازگرداندنی نیست.
+- **آزمون:** `ImportVolumePartsTest::test_a_journal_cited_by_year_and_issue_takes_one_volume_an_issue_and_revert`.

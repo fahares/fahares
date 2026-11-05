@@ -27,6 +27,10 @@ use Illuminate\Support\Str;
  *    source volume under one id), and its revert removes it.
  *  - «library»: null makes the catalogue and its volumes of no library; «volumes» gives a volume that has none its
  *    MTIF record and pages.
+ *  - «issues»: a journal whose copies cite a year and an issue («تراثنا: س6ش2 - 95») maps «year/issue» to the volume
+ *    («6/2»: 23, the issue's serial number); «copies» places a copy its citation misnames, found by its library's
+ *    slug, its shelfmark and the last number its citation gives («[تراثنا: 81]»). A volume of «create» may have its
+ *    own «title» and «citation» (step 14.40).
  *  - «editors» are the people of every volume (supervisor); «parts» are made with their library, pages and catalogers,
  *    a cataloger found by MTIF id or name, made when the registry has none. Each copy then takes its part
  *    (CatalogVolumePart::assign); counts are taken again.
@@ -225,6 +229,37 @@ class ImportVolumePartsCommand extends Command
     }
 
     /**
+     * The year, issue and page a citation of a journal gives: «[تراثنا: س13ش2و3 - 321]» is [13, 2, 321] (the first of
+     * a double issue), «[تراثنا س4ش4: 51]» [4, 4, 51], «[تراثنا: - 108]» [null, null, 108]; null when its first
+     * citation is of another source.
+     *
+     * @return array{0: ?int, 1: ?int, 2: ?int}|null
+     */
+    public static function issue(string $raw, string|array $series): ?array
+    {
+        $raw = strtr($raw, ['ي' => 'ی', 'ك' => 'ک']);
+        $names = implode('|', array_map(fn ($n) => preg_quote(strtr($n, ['ي' => 'ی', 'ك' => 'ک']), '/'), (array) $series));
+        if (! preg_match('/^\[?\s*(?:' . $names . ')(?![\p{L}\x{200C}])([^\[\]؛]*)/u', trim($raw), $m)) {
+            return null;
+        }
+        $rest = $m[1];
+        $year = $issue = null;
+        if (preg_match('/س\s*(\d+)\s*ش\s*(\d+)(?:\s*و\s*\d+)?/u', $rest, $i)) {
+            [$year, $issue] = [(int) $i[1], (int) $i[2]];
+            $rest = str_replace($i[0], ' ', $rest);
+        }
+        preg_match_all('/\d+/', $rest, $n);
+
+        return [$year, $issue, $n[0] ? (int) end($n[0]) : null];
+    }
+
+    /** The last number a citation gives, which with the library and shelfmark finds a copy of «copies». */
+    private static function lastNumber(string $raw): ?int
+    {
+        return preg_match_all('/\d+/', $raw, $n) ? (int) end($n[0]) : null;
+    }
+
+    /**
      * The volume of a copy's numbers: «V - P» or «P - V» with V one of the volumes, or «V» alone.
      *
      * @param  int[]  $numbers
@@ -270,7 +305,11 @@ class ImportVolumePartsCommand extends Command
         $left = [];
         // the series as written, and with the Arabic ي and ك («دليل المخطوطات»)
         $likes = array_unique(['%' . $this->series() . '%', '%' . strtr($this->series(), ['ی' => 'ي', 'ک' => 'ك']) . '%']);
-        DB::table('manuscripts')->select('id', 'metadata', 'raw_text', 'catalog_volume_id')
+        // «copies»: [library id|shelfmark|number => volume number]
+        $slugs = DB::table('libraries')->whereIn('slug', array_column($this->data['copies'] ?? [], 'library') ?: [''])->pluck('id', 'slug');
+        $named = collect($this->data['copies'] ?? [])->mapWithKeys(fn ($c) => [($slugs[$c['library']] ?? 0) . '|' . $c['shelfmark'] . '|' . $c['page'] => (int) $c['volume']])->all();
+        $found = [];
+        DB::table('manuscripts')->select('id', 'metadata', 'raw_text', 'catalog_volume_id', 'library_id', 'shelfmark')
             ->where(fn ($q) => $q->whereNull('catalog_volume_id')->orWhereIn('catalog_volume_id', $on ?: [0]))
             // a series many catalogues share («ف مخ», «ف»): only the copies of the book's own libraries
             ->when($this->data['only_libraries'] ?? false, fn ($q) => $q->whereIn('library_id', $this->ownLibraries() ?: [0]))
@@ -279,14 +318,15 @@ class ImportVolumePartsCommand extends Command
                     $q->orWhere('metadata->catalog_citation', 'like', $like)->orWhere('raw_text', 'like', $like);
                 }
             })
-            ->orderBy('id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, $have, $numbers, $folds) {
+            ->orderBy('id')->chunk(5000, function ($rows) use (&$moves, &$counts, &$left, &$found, $have, $numbers, $folds, $named) {
                 foreach ($rows as $m) {
                     $raw = References::rawCitation($m->metadata, $m->raw_text);
                     // a citation that lost its opening bracket («بی‌کا تا قرن 10 نشریه: 7 - 537]»)
                     if ($raw === null && preg_match('/(' . preg_quote($this->series(), '/') . '\s*:[^\]]*)\]/u', (string) $m->raw_text, $b)) {
                         $raw = '[' . $b[1] . ']';
                     }
-                    $cited = $raw === null ? null : self::numbers($raw, $this->names());
+                    $issues = $this->data['issues'] ?? null;
+                    $cited = $raw === null ? null : ($issues === null ? self::numbers($raw, $this->names()) : self::issue($raw, $this->names()));
                     if ($cited === null) {
                         if ($m->catalog_volume_id && in_array((int) $m->catalog_volume_id, array_diff($folds['all'], $folds['kept']), true)) {
                             $left['another source, on a folded volume'] = ($left['another source, on a folded volume'] ?? 0) + 1;
@@ -294,7 +334,14 @@ class ImportVolumePartsCommand extends Command
 
                         continue;
                     }
-                    $number = self::volume($cited, $numbers);
+                    if ($issues === null) {
+                        $number = self::volume($cited, $numbers);
+                    } else {
+                        $key = $m->library_id . '|' . $m->shelfmark . '|' . self::lastNumber($raw);
+                        $number = $named[$key] ?? ($cited[0] === null ? null : ($issues[$cited[0] . '/' . $cited[1]] ?? null));
+                        isset($named[$key]) && $found[$key] = true;
+                        $number = in_array($number, $numbers, true) ? $number : null;
+                    }
                     $current = $m->catalog_volume_id ? (int) $m->catalog_volume_id : null;
                     if ($number === null) {
                         $key = $current && in_array($current, $folds['all'], true) ? 'no volume, on a folded volume' : 'no volume';
@@ -310,6 +357,9 @@ class ImportVolumePartsCommand extends Command
                 }
             });
         if ($report) {
+            foreach (array_diff_key($named, $found) as $key => $number) {
+                $this->warn(sprintf('  a copy of «copies» not found: %s (volume %d)', $key, $number));
+            }
             ksort($counts, SORT_NATURAL);
             foreach ($counts as $label => $n) {
                 $this->line(sprintf('  %s: %d copies', $label, $n));
@@ -351,13 +401,13 @@ class ImportVolumePartsCommand extends Command
         $id = DB::table('sources')->insertGetId(['code' => $this->data['source'], 'kind' => $create['kind'] ?? \App\Models\Source::KIND_LIBRARY_CATALOGUE,
             'library_id' => $library,
             'rank' => \App\Models\Source::KIND_RANKS[$create['kind'] ?? \App\Models\Source::KIND_LIBRARY_CATALOGUE] ?? 50, 'title' => $create['title'],
-            'compiler' => $create['compiler'] ?? null, 'publisher' => $create['publisher'] ?? null, 'publication_year' => $create['year'] ?? null,
+            'compiler' => $create['compiler'] ?? null, 'description' => $create['description'] ?? null, 'publisher' => $create['publisher'] ?? null, 'publication_year' => $create['year'] ?? null,
             'volumes_count' => count($create['volumes']), 'metadata' => json_encode(['group' => "catalogue|{$library}|" . $create['title']], JSON_UNESCAPED_UNICODE),
             'created_at' => now(), 'updated_at' => now()]);
         foreach ($create['volumes'] as $volume) {
-            $values = ['title' => sprintf($this->data['volume_title'], $volume['number']), 'volume_number' => $volume['number'], 'publisher' => $create['publisher'] ?? null,
+            $values = ['title' => $volume['title'] ?? sprintf($this->data['volume_title'], $volume['number']), 'volume_number' => $volume['number'], 'publisher' => $create['publisher'] ?? null,
                 'publication_year' => $volume['year'] ?? $create['year'] ?? null, 'pages_count' => $volume['pages'] ?? null, 'mtif_entry_id' => $volume['mtif'] ?? null,
-                'citation_pattern' => $this->series() . ': ' . $volume['number']];
+                'citation_pattern' => $volume['citation'] ?? $this->series() . ': ' . $volume['number']];
             $volumeId = DB::table('catalog_volumes')->insertGetId($values + ['library_id' => $library, 'catalog_id' => 1, 'manuscripts_count' => 0,
                 'created_at' => now(), 'updated_at' => now()]);
             DB::table('source_volumes')->insert($values + ['id' => $volumeId, 'source_id' => $id, 'created_at' => now(), 'updated_at' => now()]);
@@ -549,7 +599,7 @@ class ImportVolumePartsCommand extends Command
             'catalog_volume_cataloger' => DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->get(),
             'part_ids' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->pluck('id'),
             'manuscripts' => $chunked('manuscripts', 'id', $copies, ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
-            'source_entries' => $chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'legacy_id', 'source_id', 'source_volume_id', 'volume_number', 'page_start']),
+            'source_entries' => $chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'legacy_id', 'source_id', 'source_volume_id', 'volume_number', 'page_start', 'updated_at']),
             'manuscript_catalog_references' => $chunked('manuscript_catalog_references', 'catalog_volume_id', $volumes, ['id', 'catalog_volume_id']),
             'catalogers' => DB::table('catalogers')->whereIn('id', $people)->get(['id', 'volumes_count', 'manuscripts_count', 'supervised_count']),
         ];
