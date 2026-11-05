@@ -7578,3 +7578,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **`assign-volume-parts`:** dry-run: «changed: 34». اجرا: «changed: 34».
   - **پس از اجرا:** بخش #205 (کتابخانه ۲۸۰) ۶۰ نسخه دارد، و #212، #214 و #215 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. `manuscripts_count` با شمار واقعی برابر است. چهار کتابخانه حذف شدند و چهار ردیف `entity_redirects` گرفتند: `/libraries/889` و `/libraries/331` با ۳۰۱ به ۷۳ و ۲۸۰ می‌روند.
   - **نمایه:** `LibraryMerger` نسخه‌های جابه‌جاشده را بی‌صف دوباره ایندکس کرد (`scout.queue = false`). بخش در `toSearchableArray` نیست، پس `assign-volume-parts` ایندکس تازه نمی‌خواهد.
+### گام ۱۴.۴۲: `CatalogCitations` و `fankha_citation_more`
+- **جداکننده** [CatalogCitations](../app/Support/CatalogCitations.php):
+  - **`brackets()`:** کروشه‌ی آخر `raw_text` و کروشه‌هایی که با «و»، «،» یا «؛» به آن پیوسته‌اند. کروشه‌ی بلندتر از ۱۵۰ نویسه کنار می‌رود.
+  - **`places()`:** هر جای هر منبع.
+    - «؛» همیشه جدا می‌کند.
+    - « و » میان عدد و عدد، یا عدد و سری تازه، جدا می‌کند. «و»ی پس از شماره‌ی مجله (`[شس]\s*\d+`) دوباره می‌چسبد.
+    - «،» فقط پیش از سری تازه با «:» جدا می‌کند.
+    - تکه‌ی عددی سری و جلد را از تکه‌ی پیش می‌گیرد. «ف: 137 و 155» دو صفحه است.
+  - **`others()`:** همه‌ی جاها جز نخستین جای `rawCitation()`. این‌که آن جا را پیوند اصلی دارد با `str_ends_with` سنجیده می‌شود، چون `catalog_citation` ممکن است رشته‌ای بلندتر با کروشه‌ای باز باشد.
+- **همگام‌سازی** [SourceEntrySync::syncOtherCited](../app/Sources/SourceEntrySync.php):
+  - **فراخوانی:** در پایان `syncCited` (پس از ذخیره‌ی نسخه، `catalogs:link-volumes` و `sources:backfill`).
+  - **ردیف‌ها:** `legacy_type = fankha_citation_more`، `legacy_index` به ترتیب، `origin = fankha_citation`، `citation_text` جای کامل.
+  - **پاک‌سازی:** ردیف‌های بیش از شمار تازه پاک می‌شوند. `fankha_citation` و همه‌ی فرمان‌هایی که فرض می‌کنند هر نسخه یک ردیف دارد دست نخوردند.
+  - **جلد:**
+    - `seriesVolumes()` برای هر کتابخانه، کلید `seriesKey|volume` و جلدهای مدخل اصلی نسخه‌ها را برمی‌گرداند، با شمار نسخه و بازه‌ی صفحه. جلدی که کمتر از یک‌بیستم نسخه‌های آن کلید را دارد کنار می‌رود.
+    - `volumeOf()` جلد یکتا را برمی‌گرداند، یا در جلد چندبخشی بخشی را که بازه‌ی صفحه‌اش صفحه را دارد.
+- **نمایش:**
+  - `RecordSources::cardGroups()` کارت‌ها را با کلید {منبع، `sourceLabel`، جلد} گروه می‌کند.
+  - `SourceEntry::groupLabel()` عنوان گروه را می‌سازد، مثل «…، ج ۲۱، ص ۵۶۶ و ۷۴۳».
+  - `page-card` با `grouped` فقط `placeLabel` را نشان می‌دهد ([manuscripts/show](../resources/views/manuscripts/show.blade.php)).
+- **دستور** [SyncOtherCitationsCommand](../app/Console/Commands/SyncOtherCitationsCommand.php) (`fahares:sync-other-citations [--apply] [--show=]`): بی `--apply` فقط می‌شمارد. با آن، ردیف‌های نسخه‌هایی را که دیگر جای دیگری ندارند پاک می‌کند و بقیه را در یک تراکنش می‌نویسد. `sources:backfill` ردیف‌های یتیم را هم هرس می‌کند.
+- **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
+- **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
