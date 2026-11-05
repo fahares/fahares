@@ -19,7 +19,8 @@ return [
      *   images; catalog is the volumes' facsimile_code, first_pages and last_pages bound the pages a citation can
      *   name, and runs lists the volumes whose page numbers run on, so a citation naming the wrong one of them is
      *   placed by its page. Its citations are not links; the work page shows the entry matched to them. bare false:
-     *   a column cited without its volume is not taken, since Fankha took those from another printing.
+     *   a column cited without its volume is not taken, since Fankha took those from another printing. openings true:
+     *   a book of lives headed by their subjects' nisbas, whose names come at their openings (ItemMatcher::matchLife).
      * - kind, compiler, publisher, edition_label (optional): the source's registry row (sources:backfill --only=registry).
      */
     'sources' => [
@@ -313,6 +314,41 @@ return [
                         [401, 4, 404], [552, 6, 209], [602, 6, 292]],
                     'window' => 100,
                 ],
+            ],
+        ],
+        // Mu'jam al-Turath al-Kalami (Qom 1423 AH, five volumes) and Mawsu'at Tabaqat al-Fuqaha (Qom 1418 AH, fourteen
+        // volumes and an introduction), as text from Noor (item 86, step 14.35); both number their entries, a work in
+        // the first and a jurist in the second. Fankha writes «معجم التراث الکلامی 126/1» and «… 1/79»; and «موسوعة
+        // طبقات الفقهاء 861/14», never «طبقات الفقهاء» alone, which is al-Shirazi's or another's book.
+        'kalam-turath' => [
+            'label' => 'معجم التراث الکلامی',
+            'pattern' => 'معجم التراث ال?کلامی',
+            'volumes' => 5,
+            'kind' => 'bibliography',
+            'compiler' => 'مؤسسه امام صادق (ع)',
+            'edition_label' => 'قم، ۱۴۲۳ق',
+            'text' => [
+                'catalog' => 'kalam-turath',
+                'name' => 'معجم التراث الکلامی',
+                'last_pages' => [1 => 568, 2 => 493, 3 => 570, 4 => 576, 5 => 540],
+                'bare' => false,
+            ],
+        ],
+        'fuqaha' => [
+            'label' => 'موسوعة طبقات الفقهاء',
+            'pattern' => 'موسوعه طبقات الفقهاء',
+            'volumes' => 14,
+            'kind' => 'biographical',
+            'compiler' => 'مؤسسه امام صادق (ع)',
+            'edition_label' => 'قم، ۱۴۱۸ق',
+            'text' => [
+                'catalog' => 'fuqaha',
+                'name' => 'موسوعة طبقات الفقهاء',
+                // a life is headed by its subject's nisba or title; his name comes at its opening
+                'openings' => true,
+                'last_pages' => [1 => 556, 2 => 654, 3 => 639, 4 => 508, 5 => 380, 6 => 372, 7 => 356, 8 => 271, 9 => 328, 10 => 357,
+                    11 => 461, 12 => 502, 13 => 762, 14 => 1111],
+                'bare' => false,
             ],
         ],
     ],

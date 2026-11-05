@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Page (column) texts and entries of reference books in Noor's «کتب مرجع ۲» database (item 86): Mushar's «فهرست
 کتابهای چاپی فارسی» and «فهرست کتابهای چاپی عربی», Sarkis's «معجم المطبوعات العربیة و المعربة» (step 14.18), and
-the books of lives «أعیان الشیعة» and «روضات الجنات» (step 14.20), for sources:import-pages and sources:segment --entries.
+the books of lives «أعیان الشیعة» and «روضات الجنات» (step 14.20), and «معجم التراث الکلامی» and «موسوعة طبقات الفقهاء»
+(step 14.35), for sources:import-pages and sources:segment --entries.
 
     python3 -I scripts/sources/noor_reference_books.py KOTOBMARJA2_DB OUT_DIR [--sources mushar-fa,mushar-ar,sarkis,ayan,rawdat]
 
@@ -46,19 +47,25 @@ KIN = re.compile(r'(^|\s)(بن|ابن|بنت)(\s|$)')
 TITLE = re.compile(r'^(\S+\s)?(أبو|ابو|أبي|ابي|أم|السيد|الشيخ|المولى|المولي|الميرزا|ميرزا|المير|الملا|القاضي|الحاج|الأمير|الامير)(\s|$)')
 
 
+NUMBERED = re.compile(r'^\[?\s*(\d+)')
+
+
 def is_person(heading):
     return bool(KIN.search(heading) or TITLE.search(heading))
 
 
 # code: series, volumes, heading levels that are entries, levels that are sub-entries, levels whose other headings end
 # an entry (None: those above the entries), whether the text is Persian, whether an entry must name a person, whether
-# an entry heading starts with the entry's number
+# an entry heading starts with the entry's number, and whether only such a heading is an entry (Fuqaha's «الطبقة
+# الأولى» is none; Rawdat's few unnumbered lives stay entries)
 SOURCES = {
-    'mushar-fa': ('03292', range(1, 6), {3}, set(), None, True, False, False),
-    'mushar-ar': ('03291', range(1, 2), {2}, set(), None, True, False, False),
-    'sarkis': ('03307', range(1, 3), {3, 4, 5}, {4, 5}, None, False, False, False),
-    'ayan': ('03265', range(1, 11), {3, 4, 5}, set(), {1, 2, 3}, False, True, False),
-    'rawdat': ('11453', range(1, 9), {3}, set(), {1, 2, 4}, False, False, True),
+    'mushar-fa': ('03292', range(1, 6), {3}, set(), None, True, False, False, False),
+    'mushar-ar': ('03291', range(1, 2), {2}, set(), None, True, False, False, False),
+    'sarkis': ('03307', range(1, 3), {3, 4, 5}, {4, 5}, None, False, False, False, False),
+    'ayan': ('03265', range(1, 11), {3, 4, 5}, set(), {1, 2, 3}, False, True, False, False),
+    'rawdat': ('11453', range(1, 9), {3}, set(), {1, 2, 4}, False, False, True, False),
+    'kalam-turath': ('23986', range(1, 6), {3}, set(), {1, 2}, False, False, True, True),
+    'fuqaha': ('03267', range(1, 15), {3, 4, 5, 6}, set(), {1, 2}, False, False, True, True),
 }
 
 LINE = ''  # a line break the text keeps: before and after a verse that opens a line
@@ -146,7 +153,9 @@ def title_of(heading, sub, numbered=False):
     يحيى المعروف بالخفاف», its number the entry's."""
     heading = re.sub(r'\s*\( \d+ \)', '', heading).strip()
     if numbered:
-        heading = ' '.join(re.sub(r'^\d+\s*|[*()]', ' ', heading).split())
+        # «1260. اصول دين», «[150. عبد المجيد …]», «4685 القمّي (1283 - 1371 ه)»; Rawdat's stars and the brackets go
+        heading = re.sub(r'^\[?\s*\d+\s*[.\-]?\s*', '', heading).rstrip(' ]')
+        heading = ' '.join(re.sub(r'[*()]', ' ', heading).split())
     if sub:
         heading = re.sub(r'^\d+\s*-\s*', '', heading)
         heading = re.split(r'\s-\s', heading, maxsplit=1)[0]
@@ -190,7 +199,7 @@ def body_items(db, doc):
     return out, {int(p): t for p, t in notes.items() if p.isdigit()}
 
 
-def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered):
+def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False):
     fix = (lambda s: s.translate(PERSIAN)) if persian else (lambda s: s)
     items, notes = body_items(db, f'{series}_{number:03d}')
     pages, order = {}, []
@@ -209,7 +218,7 @@ def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, pe
             heading = fix(text_of(head.group(2), keep=False)) if head else None
             # the entry's own text without Noor's marks, which only the page keeps
             plain = fix(text_of(chunk, keep=False))
-            if level in entry_levels and (not person or is_person(heading)):
+            if level in entry_levels and (not person or is_person(heading)) and (not only_numbered or NUMBERED.match(heading)):
                 entries.append({'level': level, 'heading': heading, 'page': label, 'lines': [plain], 'breaks': []})
                 pages[label].append('')  # a blank line before each entry
                 pages[label].append(t)
@@ -254,7 +263,7 @@ def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, pe
         sub = e['level'] in sub_levels and parent is not None
         if not sub:
             parent = key
-        number = re.match(r'(\d+)\s', e['heading']) if numbered else None
+        number = NUMBERED.match(e['heading']) if numbered else None
         out_entries.append({
             'key': key, 'kind': 'sub_entry' if sub else 'entry', 'title': title_of(e['heading'], sub, numbered),
             'entry_number': int(number.group(1)) if number else None,
@@ -272,11 +281,11 @@ def main():
     args = ap.parse_args()
     db = sqlite3.connect(f'file:{args.db}?mode=ro', uri=True)
     for code in args.sources.split(','):
-        series, volumes, entry_levels, sub_levels, end_levels, persian, person, numbered = SOURCES[code]
+        series, volumes, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered = SOURCES[code]
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
         for number in volumes:
-            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered)
+            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered)
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:

@@ -7359,7 +7359,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروداکشن:** همان فرمان‌ها، و سپس `scout:import "App\Models\SourceItem"`. منبع و جلدها پیش‌تر ساخته شده‌اند، پس `backfill` لازم نیست.
 - **آزمون:** `NoorReferenceBooksTest::test_kahhalas_lives_from_the_old_noor_text_tie_a_work_to_its_author`، با فیکسچر `kahhala-v06-p100`.
 - **اجرای پروداکشن (۱۴ آبان ۱۴۰۵، به اجازه‌ی کاربر، از جلسه‌ی «مدیریت تسک‌ها»):**
-  - **پشتیبان:** dump کامل پایگاه داده با `ssh fahares-server`: `~/backups/before_step14_31_kahhala_20261105_0239.sql.gz` (۳۴۱ مگابایت، «Dump completed»، md5 `09dbfd4358e6c5d9fa9db24738e3534b`). رونوشتش به `../fahares-sources/backups/step13/` می‌رود.
+  - **پشتیبان:** dump کامل پایگاه داده با `ssh fahares-server`: `~/backups/before_step14_31_kahhala_20261105_0239.sql.gz` (۳۴۱ مگابایت، «Dump completed»، md5 `09dbfd4358e6c5d9fa9db24738e3534b`). به خواست کاربر، فقط روی میزبان نگه داشته می‌شود.
   - **فایل‌ها:** ۲۶ فایل `noor-tarajim3/kahhala` به `/tmp/noor-tarajim3/kahhala/` کانتینر رفت و `md5sum -c` درست بود.
   - **فرمان‌ها:** برای هر جلد ۱ تا ۱۳، با `scripts/dev/prod-run --wait task-management`: `sources:import-pages`، `sources:segment --origin=noor --entries=…` و `sources:link-items --near --report=…`، سپس `scout:import "App\Models\SourceItem"`. همه با کد ۰ پایان یافتند.
   - **شمارها، برابر تمرین:** ۱۵٬۷۲۰ مدخل (`created`، با `updated 0` و `removed 0`)، با شمار هر جلد درست برابر فهرست تمرین. ۶۹۱ پیوند تازه، همه `unverified`. گزارش‌های `link-items` در `../fahares-sources/backups/step13/step14.31_kahhala_link_reports_20261105.tgz` است.
@@ -7386,3 +7386,42 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **برگشت:** `DELETE FROM source_page_links WHERE kind = 'holding'`.
 - **آزمون:** `LinkMonzaviHoldingsTest` (خواندن سطرها؛ پیوند با اثر، با صفحه، با شماره و با عنوان؛ ناسازگاری؛ رد ویراستار؛ یادکرد در صفحه‌ی نسخه). `LinkPageRefsTest::test_a_source_without_forms_is_refused` اکنون کشف الظنون را به کار می‌برد.
 
+### گام ۱۴.۳۵: معجم التراث الکلامی و موسوعة طبقات الفقهاء (مورد ۸۶)
+- **سنجش چهار منبع «کتب مرجع ۲»:** ۴۳۵ رشته‌ی مآخذ پروداکشن، فقط‌خواندنی، سنجیده شد. معیار این بود که بخشی از عنوان اثر یا نام مؤلف روی صفحه‌ی نشانی‌داده (±۱) باشد.
+
+  | منبع | مجموعه‌ی نور | چاپ | نتیجه |
+  |---|---|---|---|
+  | معجم التراث الکلامی | `23986` | قم ۱۴۲۳ق، ۵ جلد | ۷۲ از ۸۱ |
+  | موسوعة طبقات الفقهاء | `03267` | قم ۱۴۱۸ق، ج ۰ مقدمه و ج ۱ تا ۱۴ | ۳۰ از ۳۲ |
+  | دانشنامه‌ی ادب فارسی | `11580` | تهران ۱۳۸۰ش، ۵ سند | ۲۳ از ۸۱. جلدهای سری فنخا، مانند «آسیای مرکزی» ۱، «افغانستان» ۳ و «شبه قاره» ۴، با سندهای نور نمی‌خواند. |
+  | تاریخ نگارش‌های عربی (سزگین، فارسی) | `11605` | تهران ۱۳۸۰ش، ۴ جلد | «سزگین X/Y»: ۱ از ۱۵۰، با جلدهایی تا ۱۰. «تاریخ نگارش‌های عربی»: ۱۸ از ۳۸ با جلد ۴ یا کمتر. ترجمه‌ی عربی تراجم ۳ (`308`) هم ۱۴ از ۲۰۵ بود. |
+
+- **خواننده ([noor_reference_books.py](../scripts/sources/noor_reference_books.py)):**
+  - **ستون تازه‌ی `only_numbered`:** فقط سرعنوانی که با شماره آغاز می‌شود (`NUMBERED`: «1260.»، «[150.»، «4685») مدخل است.
+  - **`kalam-turath`:** سطح ۳ و پایان‌دهنده‌های ۱ و ۲. سطح ۴ ج ۱ فهرست مآخذ است و مدخل نیست.
+  - **`fuqaha`:** سطح ۳ تا ۶ و پایان‌دهنده‌های ۱ و ۲. سطح سرعنوان فقیه در هر جلد فرق دارد: ج ۵ سطح ۴، ج ۱۴ سطح ۳ و ۵.
+  - **`title_of` برای منبع شماره‌دار:** شماره را با «.» یا «-» پس از آن و «[» پیش از آن برمی‌دارد. پرانتز و ستاره مثل پیش برداشته می‌شود.
+  - **سازگاری:** خروجی روضات پس از این تغییر بایت‌به‌بایت برابر خروجی گام ۱۴.۲۷ است (فایل‌های بازشده سنجیده شدند). MD5 فایل‌های gzip به‌خاطر زمانِ درون آن‌ها برابر نیست.
+- **ادغام `claude/noor-verse-lines` (گام ۱۴.۲۷، کامیت `824a408`)** با تأیید کاربر. آن گام همین خواننده را تغییر داده و در پروداکشن اجرا شده بود، ولی هنوز در `main` نبود.
+- **`ItemMatcher::matchLife(…, $openings)`:** اگر هیچ سرعنوانی نام مؤلف را نداشت و `$openings` روشن بود، در ۳۰۰ نویسه‌ی آغاز هر مدخل دست‌کم دو بخش از نام جسته می‌شود.
+  - **رتبه:** همان رتبه‌ی `matchLife`.
+  - **روش و اطمینان:** `author_opening_title` (۸۵) یا `author_opening` (۷۰ با سال وفات، ۶۰ بی آن).
+  - **روشن کردن:** `text.openings` در `config/bibliography.php`، که فقط برای `fuqaha` روشن است. `sources:link-items` آن را از پیکربندی منبع می‌خواند.
+  - **چرا فقط موسوعه:** اجرای آزمایشی روی کحاله ۱۸ پیوند تازه می‌داد، و شماری آشکارا نادرست بود، مانند «صالحی، بوری بن ایوب» به «بوركهاردت» و «طاش كبرى زاده» به «احمد البولاني». اعیان ۲ پیوند تازه می‌داد و روضات هیچ.
+- **پیکربندی:** `kalam-turath` (`bibliography`، ۵ جلد) و `fuqaha` (`biographical`، ۱۴ جلد)، هر دو `text` و `bare = false`.
+  - **الگوی نام:** «معجم التراث (ال)کلامی» و «موسوعه طبقات الفقهاء». «طبقات الفقهاء» تنها پذیرفته نمی‌شود.
+- **تمرین روی `fahares_prod` محلی:**
+  - `sources:backfill --only=registry` (۱۹ جلد ساخته شد) و `--only=bibliography` (۱۹٬۷۷۹ رشته با منبع شناخته، ۲۲٬۸۷۸ جا).
+  - سپس `import-pages`، `segment` و `link-items --near` برای هر جلد.
+  - **مدخل‌ها:** ۱۲٬۸۵۶ و ۶٬۵۱۷.
+  - **پیوندهای کلامی (۸۲ جا):** `title_author` ۴۱، `author_death` ۱۳، `ambiguous` ۶، `title_only` ۵، `cited_number` ۲، دیگر ۲، و بی‌تطبیق ۱۳.
+  - **پیوندهای فقها (۳۱ جا):** `author_opening*` ۲۵، `author_life*` ۴، یادکرد ۱ و بی‌تطبیق ۱.
+- **فایل‌ها:** `../fahares-sources/noor-printed/{kalam-turath,fuqaha}/`.
+- **آزمون:** دو آزمون تازه در `NoorReferenceBooksTest`، با فیکسچرهای `kalam-turath-v01-p126` (شش «اثبات الرجعة» در یک صفحه) و `fuqaha-v14-p861`.
+
+### گام ۱۴.۳۶: تصویرهای پیوست پاسخ ایمیلی
+- **جدول `message_attachments`:** `message_id` (حذف آبشاری با نامه)، `path` روی دیسک `public` (`message-attachments/<thread>/<message>-<۲۴ نویسه‌ی تصادفی>.<ext>`)، `filename`، `content_type`، `size`. `MessageThread::messages()` پیوست‌ها را با نامه‌ها بار می‌کند.
+- **[EmailAttachments](../app/Messaging/EmailAttachments.php):** `download()` فهرست `GET /emails/receiving/{id}/attachments` را می‌گیرد. هر مورد یک `download_url` امضاشده دارد که حدود یک ساعت اعتبار دارد و بی توکن دانلود می‌شود. نوع با `getimagesizefromstring` سنجیده می‌شود، نه با `content_type` یا نام. سقف‌ها در `notifications.inbound.max_attachments` و `max_attachment_bytes` هستند. اگر فهرست در دسترس نباشد، `null` برمی‌گردد و [InboundEmailController](../app/Http/Controllers/InboundEmailController.php) پیش از ثبت نامه ۵۰۲ می‌دهد تا Resend دوباره بفرستد. `withoutMarkers()` الگوی «[image: …]» را، حتی اگر نامش به سطر بعد شکسته باشد، برمی‌دارد.
+- **[MessageAttachmentController](../app/Http/Controllers/MessageAttachmentController.php):** مسیر `messages.attachment` در گروه `auth` است. کاربرِ رشته می‌بیند، و برای رشته‌ی پیشنهاد دارنده‌ی `suggestions.review` و برای پیام مستقیم دارنده‌ی `users.message`. پاسخ با `X-Content-Type-Options: nosniff` و `Cache-Control: private` است.
+- **[FetchReplyAttachmentsCommand](../app/Console/Commands/FetchReplyAttachmentsCommand.php):** `fahares:fetch-reply-attachments <message> [--email=] [--dry-run]`. ایمیل را از `GET /emails/receiving` با فرستنده‌ی برابر با کاربر رشته و فاصله‌ی زمانی کمتر از پنج دقیقه پیدا می‌کند. نامه‌ای که پیوست دارد دست نمی‌خورد. برای نامه‌ی ۹ پروداکشن، ایمیل Resend `ca93ee7b-63a8-45b3-a8e5-78136045bb09` است با شش PNG، روی هم حدود ۳ مگابایت.
+- **آزمون:** `EmailReplyAttachmentsTest` (۴ آزمون: نگهداری و دسترسی، پاسخ فقط‌تصویر، نشانه‌های جیمیل، فرمان).

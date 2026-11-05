@@ -48,7 +48,7 @@ class MessageThread extends Model
 
     public function messages(): HasMany
     {
-        return $this->hasMany(Message::class)->orderBy('id');
+        return $this->hasMany(Message::class)->with('attachments')->orderBy('id');
     }
 
     public function latestMessage()

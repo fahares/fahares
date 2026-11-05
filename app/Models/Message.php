@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** One letter of a MessageThread (backlog item 91); "via" is site or email (a reply to the notification email). */
 class Message extends Model
@@ -20,5 +21,11 @@ class Message extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /** Pictures attached to an email reply (step 14.36) */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(MessageAttachment::class)->orderBy('id');
     }
 }
