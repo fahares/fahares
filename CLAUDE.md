@@ -22,12 +22,21 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
 
 - A working session does not push to `main`. It commits on its own branch, merges `origin/main` into it, runs the full
   suite with `scripts/dev/test-suite`, and reports the branch and its last commit as ready for release.
+- The ready report goes into the shared release queue: `scripts/dev/release-queue add <branch> <session-name> "what it
+  is; the data command needed after the deploy, or none"`. Sessions run under more than one Claude account, and a
+  session cannot message the other account's sessions, so the queue (`~/.fahares/release-queue.tsv`, outside git) is
+  the one place every releasing session sees. A message to the task-management session may still be sent as well.
+- Work in your own worktree (`.claude/worktrees/…`), never by switching branches in the main checkout: the releasing
+  session merges there, and a switched checkout puts its commits on the wrong branch.
 - Run the suite only through `scripts/dev/test-suite [artisan test options]`, never `docker exec … php artisan test`
   directly: every checkout tests against the same `fahares_test` database, and two runs at once deadlock on its
   migrations. The script waits for a lock shared by all sessions (and for any phpunit started without it);
   `--status` shows who holds it. A session that tests against its own database may keep doing so.
-- The task-management session releases: it merges the ready branches into `main`, runs the full suite once on the
-  merged result, and pushes once, when the user asks for a release.
+- The task-management session releases: it first reads `scripts/dev/release-queue --list`, merges the ready branches
+  into `main`, runs the full suite once on the merged result, and pushes once, when the user asks for a release. After
+  the push it marks each one `scripts/dev/release-queue done <branch> <release-commit>` (or `drop <branch> "why"`).
+  Only one session releases at a time: if a task-management session of another account is active, agree with the user
+  which one releases.
 - When a session needs its code on production soon (for example to run a data command), it says so in its
   ready report, so a release can be made then.
 - A docs-only commit, such as the record of a production run, waits for the next release. A push of only `docs/`, root `*.md` or `scripts/dev/` builds and deploys nothing (`.github/workflows/image.yml`), so such a push is harmless but still waits for the release.
