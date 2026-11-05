@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# The release queue: branches that are ready for release, shared by every session on this machine, whichever Claude
+# account runs it. A working session adds its ready report here; the session that releases reads the queue first,
+# merges what is ready, and marks each entry released. The queue lives outside git, next to the step registry.
+#
+#   scripts/dev/release-queue add <branch> <session-name> "what it is; data command after deploy, or none"
+#                                         queue the branch at its current commit (re-adding a branch replaces it)
+#   scripts/dev/release-queue --list      show what is waiting (default)
+#   scripts/dev/release-queue --all [N]   show the last N entries, released ones included (default 20)
+#   scripts/dev/release-queue done <branch> <release-commit>
+#                                         mark the branch released by the given commit on main
+#   scripts/dev/release-queue drop <branch> "why"
+#                                         take a branch off the queue without releasing it
+#
+# Columns (tab-separated): status, branch, commit, session, added, note, released-by.
+# status is ready, released or dropped. One line per branch: a later add replaces the earlier entry.
+set -euo pipefail
+
+QUEUE="${FAHARES_RELEASE_QUEUE:-$HOME/.fahares/release-queue.tsv}"
+REPO="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
+
+mkdir -p "$(dirname "$QUEUE")"
+touch "$QUEUE"
+
+show() { # filter: ready | all
+    local rows
+    if [[ "$1" == ready ]]; then rows=$(awk -F'\t' '$1 == "ready"' "$QUEUE"); else rows=$(tail -n "${2:-20}" "$QUEUE"); fi
+    if [[ -z "$rows" ]]; then echo "(nothing ${1/all/queued})"; else printf '%s\n' "$rows" | column -t -s $'\t'; fi
+}
+
+cmd="${1:---list}"
+case "$cmd" in
+    --list) show ready; exit 0 ;;
+    --all) show all "${2:-20}"; exit 0 ;;
+esac
+
+exec 9>>"$QUEUE.lock"
+flock -w 30 9
+
+# Rewrite the queue without the given branch's line
+without() { awk -F'\t' -v b="$1" '$2 != b' "$QUEUE" > "$QUEUE.tmp" && mv "$QUEUE.tmp" "$QUEUE"; }
+clean() { printf '%s' "${1//$'\t'/ }" | tr '\n' ' '; }
+
+case "$cmd" in
+    add)
+        branch="${2:?usage: release-queue add <branch> <session-name> \"note\"}"
+        session="${3:?usage: release-queue add <branch> <session-name> \"note\"}"
+        note="${4:?usage: release-queue add <branch> <session-name> \"note\"}"
+        commit=$(git -C "$REPO" rev-parse --short "refs/heads/$branch" 2>/dev/null) \
+            || { echo "no local branch $branch" >&2; exit 2; }
+        without "$branch"
+        printf 'ready\t%s\t%s\t%s\t%s\t%s\t-\n' "$branch" "$commit" "$(clean "$session")" "$(date '+%F %H:%M')" "$(clean "$note")" >> "$QUEUE"
+        echo "queued $branch at $commit"
+        ;;
+    done|drop)
+        branch="${2:?usage: release-queue $cmd <branch> <release-commit or reason>}"
+        by="${3:?usage: release-queue $cmd <branch> <release-commit or reason>}"
+        line=$(awk -F'\t' -v b="$branch" '$2 == b' "$QUEUE" | tail -1)
+        [[ -n "$line" ]] || { echo "$branch is not in the queue" >&2; exit 2; }
+        status=released; [[ "$cmd" == drop ]] && status=dropped
+        without "$branch"
+        printf '%s\n' "$line" | awk -F'\t' -v OFS='\t' -v s="$status" -v by="$(clean "$by")" '{ $1 = s; $7 = by; print }' >> "$QUEUE"
+        echo "$branch $status"
+        ;;
+    *) echo "unknown command: $cmd (add, done, drop, --list, --all)" >&2; exit 2 ;;
+esac
