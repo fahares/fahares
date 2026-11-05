@@ -260,6 +260,7 @@
     {
       "library": "kayn-mdrsh-gaafryh-101",
       "series": "کتابخانه‌های قائن",
+      "superseded_by": "database/data/volume_parts_qaen.json",
       "source": "mtif.org/book/8291",
       "source_text": "نگارش جعفر حسینی اشکوری",
       "volumes": [
@@ -281,6 +282,7 @@
     {
       "library": "sary-aamomy-6",
       "series": "عمومی ساری و تنکابن",
+      "superseded_by": "database/data/volume_parts_sari_tonekabon.json",
       "source": "mtif.org/book/389",
       "source_text": "به اهتمام محمود یزدی مطلق؛با همکاری زین العابدین درگاهی",
       "volumes": [
@@ -392,6 +394,7 @@
     {
       "library": "glpaygan-ktabkhanh-hgh-alaslam-glpaygany-72",
       "series": "کتابخانه‌های گلپایگان",
+      "superseded_by": "database/data/volume_parts_golpayegan.json",
       "source": "mtif.org/book/167",
       "source_text": "نگارش جعفر حسینی اشکوری",
       "volumes": [
@@ -476,6 +479,7 @@
     {
       "library": "zhan-mdrsh-gaafryh-zhan-121",
       "series": "ف",
+      "superseded_by": "database/data/volume_parts_zahan.json",
       "source": "mtif.org/book/169",
       "source_text": "نگارش جعفر حسینی اشکوری",
       "volumes": [
@@ -803,6 +807,7 @@
     {
       "library": "kashan-mdrsh-sltany-67",
       "series": "ف مخ",
+      "superseded_by": "database/data/volume_parts_kashan.json",
       "source": "fankha:459-460",
       "source_text": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)، طیار مراغه‌ای، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
       "volumes": [
@@ -822,6 +827,7 @@
     {
       "library": "kashan-gaafry-169",
       "series": "ف مخ",
+      "superseded_by": "database/data/volume_parts_kashan.json",
       "source": "fankha:459-460",
       "source_text": "فهرست نسخ خطی کاشان ۱ (مدرسه سلطانی و مدرسه جعفری)، طیار مراغه‌ای، به کوشش و ویرایش مصطفی درایتی، مؤسسه‌ی الجواد، مخطوط",
       "volumes": [
@@ -918,6 +924,7 @@
     {
       "library": "mshhd-mdrsh-bakryh-87",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:536",
       "source_text": "مدرسه باقریه، مجله تراثنا، محمود فاضل",
       "volumes": [
@@ -936,6 +943,7 @@
     {
       "library": "km-fadl-kayyny-73",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:425",
       "source_text": "مکتبة علی فاضل قائنی، مجله تراثنا، علی فاضلی",
       "volumes": [
@@ -955,6 +963,7 @@
     {
       "library": "km-fadl-kayny-916",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:425",
       "source_text": "مکتبة علی فاضل قائنی، مجله تراثنا، علی فاضلی",
       "volumes": [
@@ -975,6 +984,7 @@
     {
       "library": "krmanshah-fyd-mhdoy-ktabkhanh-186",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:469",
       "source_text": "کتابخانه فیض مهدوی، مجله تراثنا، سید احمد حسینی اشکوری",
       "volumes": [
@@ -993,6 +1003,7 @@
     {
       "library": "km-mhdoy-ktabkhanh-206",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:426",
       "source_text": "کتابخانه مهدوی، مجله تراثنا، سید احمد حسینی",
       "volumes": [
@@ -1011,6 +1022,7 @@
     {
       "library": "mshhd-rgayy-mghzy-ktabkhanh-132",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:537",
       "source_text": "کتابخانه رجائی معزی، مجله تراثنا، سید احمد حسینی",
       "volumes": [
@@ -1029,6 +1041,7 @@
     {
       "library": "km-aalamh-tbatbayy-km-mktbh-280",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:424",
       "source_text": "مکتبة العلامة الطباطبائی، مجله تراثنا، سید احمد حسینی اشکوری",
       "volumes": [
@@ -1047,6 +1060,7 @@
     {
       "library": "km-aalamh-tbatbayy-331",
       "series": "تراثنا",
+      "superseded_by": "database/data/volume_parts_turathuna.json",
       "source": "fankha:424",
       "source_text": "مکتبة العلامة الطباطبائی، مجله تراثنا، سید احمد حسینی اشکوری",
       "volumes": [
@@ -1650,6 +1664,7 @@
     {
       "library": "thran-mgls-4",
       "series": "سنا",
+      "superseded_by": "fahares:split-senate-library (step 13.148) and database/data/catalogue_volumes_step14_15.json",
       "authoritative": true,
       "source": "fankha:78-79",
       "source_text": "کتابخانه مجلس شورای اسلامی، فهرست کتب خطی کتابخانه مجلس شورای اسلامی (سنای سابق)، جلد اول و دوم، محمدتقی دانش‌پژوه و بهاءالدین علمی انواری",
@@ -2207,20 +2222,20 @@
       ]
     },
     {
-      "library": "arak-dhgan-abrahym-328",
+      "library": "arak-dhgan-59",
       "series": "ف",
       "source": "fankha:6-7",
       "source_text": "کتابخانه استاد ابراهیم دهگان، فهرست نسخه‌های خطی، دفتر اول و دوم، صادق حضرتی، مجمع ذخائر اسلامی، قم ۱۳۸۷",
       "volumes": [
         {
           "number": 1,
-          "title": "فهرست نسخه‌های خطی کتابخانه استاد ابراهیم دهگان - دفتر اول",
+          "title": "فهرست نسخه‌های خطی کتابخانه ابراهیم دهگان اراک - دفتر اول",
           "publication_year": "1387",
           "pages_count": 261
         },
         {
           "number": 2,
-          "title": "فهرست نسخه‌های خطی کتابخانه استاد ابراهیم دهگان - دفتر دوم",
+          "title": "فهرست نسخه‌های خطی کتابخانه ابراهیم دهگان اراک - دفتر دوم",
           "publication_year": "1387",
           "pages_count": 256
         }

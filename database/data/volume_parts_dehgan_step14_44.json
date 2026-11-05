@@ -1,0 +1,22 @@
+{
+ "_comment": "Step 14.44 (item 117): the Dehgan library of Arak (arak-dhgan-59) holds its catalogue twice since its duplicate record arak-dhgan-abrahym-328 was merged into it (step 14.6): «فهرست نسخه‌های خطی کتابخانه ابراهیم دهگان اراک» (catalogue-27335f850012, two daftars, step 14.15) and «فهرست نسخه‌های خطی کتابخانه استاد ابراهیم دهگان» (catalogue-dc258caef1e6, made for library 328 by catalogs:link-volumes, item 56 batch 5). Both are Sadeq Hazrati's two daftars (Qom 1387). The second is folded into the first; its copies go to the daftar their «ف» names. Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_dehgan_step14_44.json",
+ "source": "catalogue-27335f850012",
+ "series": "ف",
+ "only_libraries": true,
+ "libraries": [
+  "arak-dhgan-59"
+ ],
+ "folds": [
+  {
+   "code": "catalogue-dc258caef1e6"
+  }
+ ],
+ "parts": [],
+ "editors": [
+  {
+   "name": "صادق حضرتی آشتیانی",
+   "mtif": 38338,
+   "role": "cataloger"
+  }
+ ]
+}
