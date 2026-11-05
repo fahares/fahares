@@ -198,6 +198,22 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertFalse(SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->exists());
     }
 
+    public function test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life()
+    {
+        // step 14.46: eshia's own headings («<span class="KalamateKhas">») are the entries, on the Khayyam print's pages
+        $volume = $this->volume('rayhana', 'ریحانة الادب', 1, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'rayhana', 'pages' => self::FIXTURES . 'rayhana-v01-p100.jsonl', '--volume' => 1])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'rayhana', '--volume' => 1, '--origin' => 'eshia',
+            '--entries' => self::FIXTURES . 'rayhana-v01-p100.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $volume->id)->get()->keyBy('item_key');
+        $this->assertSame(['ادیب مصری علی بن نصر', 'ادیبی احمد بن ابراهیم خوارزمی'], [$items['100#1']->title, $items['100#2']->title]);
+
+        $work = $this->work('rayhana', 'دیوان', 'خوارزمی، احمد بن ابراهیم', 1, 100, 'ریحانة الادب 100/1');
+        $this->artisan('sources:link-items', ['volume' => 'rayhana', '--volume' => 1])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['100#2', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
+    }
+
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,

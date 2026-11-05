@@ -7391,6 +7391,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نام‌های روش: `both`، `page`، `shelfmark`، `page-not-number` (صفحه پیدا شد ولی شماره‌ی داده‌شده با هیچ نامزدی جور نیست)، `conflict`، `several` و `none`.
 - **[LinkPageRefsCommand](../app/Console/Commands/LinkPageRefsCommand.php):** بخش `holdings` با `kind = holding`، بی `ordinal`، و `offset`/`span` مانند ارجاع‌ها ساخته شد. ذخیره، نگه داشتن ردشده‌ها، نمونه و نمایش (`PrintedPage::linked`، `SourceMentions`) همان راه گام ۱۳.۱۵۵ است. `ENABLED['holdings']` هر هشت روشی است که یک نسخه می‌دهد.
 - **شمار اجرای آزمایشی (`fahares_prod`):** `work+page` ۳٬۷۴۰، `title+page` ۱٬۶۲۱، `work+both` ۹۴۷، `work+shelfmark` ۴۴۷، `title+both` ۲۴۹، `title+shelfmark` ۱۳۷، `work+page-not-number` ۱۰۳، `title+page-not-number` ۲۷. بی‌پیوند: `title:none` ۳٬۱۳۹، `work:none` ۱٬۹۸۳، `work:several` ۲۴۳، `title:several` ۱۷۹، `conflict` ۱۳، `no-entry` ۳.
+- **پروداکشن (۱۴ آبان ۱۴۰۵):** با `scripts/dev/prod-run --wait monzavi-copies` اجرا شد: ۷٬۲۷۱ پیوند (`removed 0, kept 0 rejected`)، با همان شمار هر روش. پشتیبان پیش از اجرا (۱۶٬۷۳۷ ردیف `source_page_links`) در `fahares-sources/backups/step13/step14.34_source_page_links_prod_before_20261105.json` روی لپ‌تاپ است.
 - **برگشت:** `DELETE FROM source_page_links WHERE kind = 'holding'`.
 - **آزمون:** `LinkMonzaviHoldingsTest` (خواندن سطرها؛ پیوند با اثر، با صفحه، با شماره و با عنوان؛ ناسازگاری؛ رد ویراستار؛ یادکرد در صفحه‌ی نسخه). `LinkPageRefsTest::test_a_source_without_forms_is_refused` اکنون کشف الظنون را به کار می‌برد.
 
@@ -7535,7 +7536,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - بخش‌ها ۱٬۲۱۶ نسخه دارند و ۳۶ نسخه بی‌بخش‌اند، همان کتابخانه‌های تکراری تمرین. هیچ‌یک از شش منبع کهنه نمانده است.
   - اجرای دوم: «Nothing to do».
   - `/sources/catalogue-cddd31891851` پاسخ ۲۰۰ و ۱۲ سطر `data-volume-part` می‌دهد. `/sources/catalogue-2caeb7e31918` با ۳۰۱ به آن می‌رود.
-  - نمایه‌ی Meilisearch این ۱٬۲۵۲ نسخه هنوز دوباره ساخته نشده است، چون اجازه‌اش جدا خواسته می‌شود.
+  - با تأیید جداگانه‌ی کاربر، ۱٬۲۵۲ نسخه‌ی پشتیبان با `searchable()` بی‌صف (`scout.queue = false`) و از راه `prod-run` دوباره ایندکس شدند («reindexed 1252 of 1252»).
 
 ### گام ۱۴.۴۱: `fankha_stray_bracket_citations.py` و `tie` در `fahares:fix-reversed-citations`
 - **پیکره** ([scripts/fankha_stray_bracket_citations.py](../../fahares-corpus/scripts/fankha_stray_bracket_citations.py)، کامیت `6f646bb`):
@@ -7561,6 +7562,47 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پس از اجرا:** ۶۳ نسخه بی‌صف دوباره ایندکس شدند و ۵۱ تا از آن‌ها جلد دارند. dry-run دوباره «already 63» گزارش کرد و `source_entries` = ۷۹۱٬۳۳۹.
   - **پشتیبان:** `…/step14.41_stray_brackets_prod_before_20261105.json` (۶۳ نسخه و ۶۳ ردیف audit).
 
+### گام ۱۴.۴۲: `CatalogCitations` و `fankha_citation_more`
+- **جداکننده** [CatalogCitations](../app/Support/CatalogCitations.php):
+  - **`brackets()`:** کروشه‌ی آخر `raw_text` و کروشه‌هایی که با «و»، «،» یا «؛» به آن پیوسته‌اند. کروشه‌ی بلندتر از ۱۵۰ نویسه کنار می‌رود.
+  - **`places()`:** هر جای هر منبع.
+    - «؛» همیشه جدا می‌کند.
+    - « و » میان عدد و عدد، یا عدد و سری تازه، جدا می‌کند. «و»ی پس از شماره‌ی مجله (`[شس]\s*\d+`) دوباره می‌چسبد.
+    - «،» فقط پیش از سری تازه با «:» جدا می‌کند.
+    - تکه‌ی عددی سری و جلد را از تکه‌ی پیش می‌گیرد. «ف: 137 و 155» دو صفحه است.
+  - **`others()`:** همه‌ی جاها جز نخستین جای `rawCitation()`. این‌که آن جا را پیوند اصلی دارد با `str_ends_with` سنجیده می‌شود، چون `catalog_citation` ممکن است رشته‌ای بلندتر با کروشه‌ای باز باشد.
+- **همگام‌سازی** [SourceEntrySync::syncOtherCited](../app/Sources/SourceEntrySync.php):
+  - **فراخوانی:** در پایان `syncCited` (پس از ذخیره‌ی نسخه، `catalogs:link-volumes` و `sources:backfill`).
+  - **ردیف‌ها:** `legacy_type = fankha_citation_more`، `legacy_index` به ترتیب، `origin = fankha_citation`، `citation_text` جای کامل.
+  - **پاک‌سازی:** ردیف‌های بیش از شمار تازه پاک می‌شوند. `fankha_citation` و همه‌ی فرمان‌هایی که فرض می‌کنند هر نسخه یک ردیف دارد دست نخوردند.
+  - **جلد:**
+    - `seriesVolumes()` برای هر کتابخانه، کلید `seriesKey|volume` و جلدهای مدخل اصلی نسخه‌ها را برمی‌گرداند، با شمار نسخه و بازه‌ی صفحه. جلدی که کمتر از یک‌بیستم نسخه‌های آن کلید را دارد کنار می‌رود.
+    - `volumeOf()` جلد یکتا را برمی‌گرداند، یا در جلد چندبخشی بخشی را که بازه‌ی صفحه‌اش صفحه را دارد.
+- **نمایش:**
+  - `RecordSources::cardGroups()` کارت‌ها را با کلید {منبع، `sourceLabel`، جلد} گروه می‌کند.
+  - `SourceEntry::groupLabel()` عنوان گروه را می‌سازد، مثل «…، ج ۲۱، ص ۵۶۶ و ۷۴۳».
+  - `page-card` با `grouped` فقط `placeLabel` را نشان می‌دهد ([manuscripts/show](../resources/views/manuscripts/show.blade.php)).
+- **دستور** [SyncOtherCitationsCommand](../app/Console/Commands/SyncOtherCitationsCommand.php) (`fahares:sync-other-citations [--apply] [--show=]`): بی `--apply` فقط می‌شمارد. با آن، ردیف‌های نسخه‌هایی را که دیگر جای دیگری ندارند پاک می‌کند و بقیه را در یک تراکنش می‌نویسد. `sources:backfill` ردیف‌های یتیم را هم هرس می‌کند.
+- **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
+- **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
+
+### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
+- **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
+  - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
+  - `km-fadl-889`، `km-fadl-kayny-916` و `km-fadl-kaym-1041` در `km-fadl-kayyny-73` ادغام می‌شوند.
+- **ترتیب اجرا:** `catalogs:merge-duplicates --data=…`، سپس `catalogs:assign-volume-parts`. اجرای دوباره‌ی `catalogs:import-volume-parts` برای «تراثنا» بخش نمی‌دهد («Nothing to do»)، چون نسخه‌ها پیش‌تر به جلد بسته شده‌اند و تنها کتابخانه‌شان عوض شده است.
+- **کد:** تغییری نکرد.
+- **تمرین (`fahares_prod` محلی، `SCOUT_DRIVER=null`):**
+  - `merge-duplicates`: ۳۷۳ ← ۳۶۹ کتابخانه.
+  - `assign-volume-parts --dry-run`: «changed: 34». اجرای اصلی همین را داد و اجرای دوم «changed: 0».
+  - بخش‌ها: #1077 (کتابخانه ۲۸۰) ۶۰ نسخه، و #1084، #1086 و #1087 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. شمارنده‌ها با شمار واقعی نسخه‌ها برابرند.
+- **پروداکشن (۱۵ آبان ۱۴۰۵، از راه `prod-run`؛ فایل داده پیش از انتشار به `/tmp` کانتینر رفت):**
+  - **پشتیبان:** `…/step14.43_merge_turathuna_libraries_prod_before_20261105.json`، شامل ردیف شش کتابخانه، و برای ۳۷۶ نسخه `library_id`، `catalog_volume_id`، `catalog_volume_part_id` و `cataloger_id`، و ۴ بخش.
+  - **`merge-duplicates`:** dry-run و اجرا: ۳۷۳ ← ۳۶۹ کتابخانه.
+  - **`assign-volume-parts`:** dry-run: «changed: 34». اجرا: «changed: 34».
+  - **پس از اجرا:** بخش #205 (کتابخانه ۲۸۰) ۶۰ نسخه دارد، و #212، #214 و #215 (کتابخانه ۷۳) ۸۴، ۱۴۰ و ۹۲. `manuscripts_count` با شمار واقعی برابر است. چهار کتابخانه حذف شدند و چهار ردیف `entity_redirects` گرفتند: `/libraries/889` و `/libraries/331` با ۳۰۱ به ۷۳ و ۲۸۰ می‌روند.
+  - **نمایه:** `LibraryMerger` نسخه‌های جابه‌جاشده را بی‌صف دوباره ایندکس کرد (`scout.queue = false`). بخش در `toSearchableArray` نیست، پس `assign-volume-parts` ایندکس تازه نمی‌خواهد.
+
 ### گام ۱۴.۴۴: نشانی ادغام‌شده و `superseded_by` در `catalogs:link-volumes`
 - **`LinkCatalogVolumesCommand::resolveLinks`** دیگر با نخستین نشانی ناپیدا `null` برنمی‌گرداند. هر پیوند جدا سنجیده می‌شود:
   - `superseded_by`: پیوند کنار می‌رود، با یک سطر که فایل جانشین را نام می‌برد.
@@ -7579,3 +7621,52 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. **`merge-split`:** پشتیبان دستی در `step14.44_merge_split_prod_before_20261105.json` است (۴ ردیف `sources`، ۳٬۹۸۹ ردیف `source_entries` و ۴ ردیف `source_volumes`). نتیجه: منبع ۱۰۰۱۹۵ (سنا) ۳٬۲۷۴ مدخل دارد و `merged_codes = [catalogue-c225f7337b0a]`. منبع ۱۰۰۱۰۴ (دهگان) ۷۱۵ مدخل دارد و `merged_codes = [catalogue-dc258caef1e6, catalogue-77a075f39d37]`. شمار ناهمخوانی صفر است.
   3. **`link-volumes`:** پشتیبان در `step14.44_link_volumes_prod_before_20261105.json` است: ۳۲٬۴۳۹ نسخه‌ی بی‌فهرست‌نگار، ۳۲٬۳۴۱ مدخل `fankha_citation` آن‌ها و ۵۹۱ ردیف `catalog_volume_cataloger`. خروجی: «Before: 32439 without cataloger, 28193 without volume» و «After: 32398 without cataloger, 28152 without volume». ۱۵ پیوند «left to» گزارش شدند و هیچ نشانی ناپیدا نبود. شمار `catalog_volumes` ۴۳۸ ماند و جلد تازه‌ای ساخته نشد.
 - **انتقال پشتیبان:** `scp` به کانتینر برنامه کار نمی‌کند («Connection closed»). فایل با `ssh fahares-app "cat file" > local` بیرون آورده شد.
+
+### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
+- منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
+- تبدیل با Pillow: `thumbnail((640, 960))` و `WEBP quality=82`، همان پارامترهای `scripts/sources/mtif_covers.py`. `thumbnail` بزرگ نمی‌کند، پس دو جلد نورلیب در اندازه‌ی خودشان ماندند. `kalam-turath.webp` ۶۴۰×۹۲۳ است.
+- «تراثنا»: `Source::coverUrl()` فایل `covers/{code}.webp` را می‌جوید. گام ۱۴.۴۰ کد `catalogue-cddd31891851` را ساخت و جلد شش کد پیشین (`catalogue-2caeb7e31918` و دیگران، فایل‌های یکسان با md5 `4bc6f36a…`) بی‌استفاده ماند. رونوشت همان فایل با کد تازه گذاشته شد. فایل‌های کد پیشین برای پیوندهای قدیم ماندند، چون آن کدها به منبع تازه می‌روند.
+- `catalogue-e1a7c9ee7712` از noorlib کتاب ۵۵۸۸۰ (webp ۴۲۴×۶۳۰، منزوی، جلد یکم). این شناسه را زیرعاملی از صفحه‌ی پدیدآور منزوی در noorlib یافت.
+- جست‌وجوی دیگر منبع‌ها: `api/search/generalSearchPhrase` در noorlib پیوسته ۵۰۳ می‌داد. صفحه‌ی نتیجه‌ی گوگل تصاویر (`udm=2`، عنوان + «noorlib») شناسه‌های `noorlib.ir/book/info/{id}` را در HTML خود دارد. عنوان هر شناسه از `<title>` صفحه‌اش خوانده شد. نامزدهای کنارگذاشته: ۱۳۲۸۳۸ (نواب، یزدی مطلق)، ۱۴۶۴۹۳ (عبدالعظیم، حافظیان) و ۵۲۸۹۱ («فهرست کتب خطی» روضاتی، نه مکتبة الزهراء). برای ۲۶ منبع دیگر هیچ عنوان هم‌خوانی نبود.
+- رونوشت هر پنج فایل در `fahares-sources/web-covers/` است و ردیفشان در `manifest.json` همان‌جا.
+
+### گام ۱۴.۴۶: ریحانة الادب از lib.eshia.ir (مورد ۸۶)
+- **منشأ:** کتاب `10984` کتابخانه‌ی مدرسه‌ی فقاهت. نشانی صفحه `/10984/{جلد}/{صفحه}` است و شماره‌ی صفحه همان شماره‌ی چاپی چاپ خیام است. پیوندهای `url` منبع `rayhana` در `config/bibliography.php` هم به همین نشانی‌اند.
+  - **robots.txt:** خزنده‌ی Claude (`ClaudeBot`) را بسته است. پس Claude خودش صفحه‌ها را نگرفت.
+  - **دریافت:** [fetch_eshia.py](../scripts/sources/fetch_eshia.py) نوشته شد و کاربر آن را روی سیستم خودش اجرا کرد. با نام `fahares-source-fetch/1.0`، سرور پس از ۱۵ صفحه پاسخ نداد (`TimeoutError`، `SSL: UNEXPECTED_EOF`). کاربر خودش نام برنامه را در نسخه‌ی محلی‌اش عوض کرد. آن تغییر در مخزن نیست.
+- **فایل‌ها:** `../fahares-sources/rayhana/eshia/raw/10984/{NN}/{page}.html.gz` (۳٬۷۷۵ صفحه، ۳۰ مگابایت)، و `../fahares-sources/rayhana/eshia/{NN}.jsonl.gz` و `{NN}.entries.jsonl.gz` از `fetch_eshia.py extract`.
+- **`extract`:**
+  - **متن:** از `<td id="book-page-content">` تا جدول ناوبری `BookAccessPanel`.
+  - **شعر:** جدول شعر هر ردیفش یک بیت است و مصراع‌ها با tab جدا می‌شوند.
+  - **سرعنوان مدخل:** `<span class="KalamateKhas">`، بی «-» و نیم‌فاصله‌ی پایانی.
+  - **نویسه‌ها:** «ي/ك» به «ی/ک».
+- **مدخل‌ها:**
+
+  | ج ۱ | ج ۲ | ج ۳ | ج ۴ | ج ۵ | ج ۶ | ج ۷ | ج ۸ |
+  |---|---|---|---|---|---|---|---|
+  | ۱٬۴۰۸ | ۱٬۳۷۷ | ۱٬۲۶۵ | ۱٬۴۴۷ | ۹۳۴ | ۸۱۲ | ۱٬۷۷۴ | ۱٬۲۰۹ |
+
+  روی هم ۱۰٬۲۲۶.
+- **تمرین روی `fahares_prod` محلی** (منبع موجود `rayhana`، با تصویر و نوع `biographical`):
+  - **فرمان‌ها:** برای هر جلد N، `sources:import-pages rayhana …/NN.jsonl.gz --volume=N`، `sources:segment rayhana --volume=N --origin=eshia --entries=…/NN.entries.jsonl.gz` و `sources:link-items rayhana --volume=N --near`.
+  - **پیوندها (۱٬۰۹۹ جا):**
+
+    | روش | شمار |
+    |---|---|
+    | `author_life` | ۳۹۵ |
+    | `author_life_title` | ۳۲۲ |
+    | `title_in_text` | ۲۵ |
+    | `near_*` | ۱۲ |
+    | `author_in_entry` | ۵ |
+    | بی‌تطبیق | ۳۴۰ |
+
+  - **نمونه‌ها:** «دوانی، محمد بن اسعد» به «دوانی محمد بن اسعد یا سعد…» رسید و «جابر بن حیان» به «کیمیاوی- جابر بن حیان».
+  - **بی‌تطبیق:** بیشترشان چند سرعنوان یکسان روی یک صفحه دارند، مانند «ابن طاوس- علی» سه بار.
+- **پروداکشن (۱۵ آبان ۱۴۰۵):** بی انتشار کد. کاربر فرمان‌ها را از ترمینال خودش با نام `task-management` و از راه `prod-run` اجرا کرد، و همه با کد خروج ۰ پایان یافتند.
+  - **پشتیبان:** dump کامل روی میزبان، `fahares-server ~/backups/before_step14_46_rayhana_20261105_1149.sql.gz` (۳۵۷ مگابایت، md5 `6088785cdc2259fe68bfd5f918882831`). طبق قاعده روی سرور ماند.
+  - **ورودی:** ۱۶ فایل در `/tmp/rayhana` کانتینر، همه درست طبق MD5SUMS.
+  - **صفحه‌ها، ج ۱ تا ۸:** ۴۴۴، ۴۵۷، ۴۸۱، ۵۰۲، ۳۹۹، ۴۰۵، ۵۹۱، ۴۸۶ (جمع ۳٬۷۶۵).
+  - **مدخل‌ها:** ۱۴۰۸، ۱۳۷۷، ۱۲۶۵، ۱۴۴۷، ۹۳۴، ۸۱۲، ۱۷۷۴، ۱۲۰۹ (جمع ۱۰٬۲۲۶، برابر تمرین؛ شمار `source_items` منبع `rayhana` در پروداکشن دوباره سنجیده شد).
+  - **پیوندها:** ۸۲، ۷۱، ۱۶۴، ۱۷۲، ۱۳۳، ۷۱، ۳۵، ۳۱ (جمع ۷۵۹، برابر تمرین). هیچ پیوندی به‌روز یا حذف نشد.
+  - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
+- **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.

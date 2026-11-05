@@ -259,6 +259,7 @@ class BackfillSourcesCommand extends Command
         $this->dry || DB::table('source_entries')->where('legacy_type', 'catalog_reference')
             ->whereIn('legacy_id', DB::table('manuscript_catalog_references')->where('source', Ref::SOURCE_FANKHA)->select('id'))->delete();
         $this->prune('fankha_citation', 'manuscripts');
+        $this->prune('fankha_citation_more', 'manuscripts');
 
         DB::table('manuscript_catalog_references')->where('source', '!=', Ref::SOURCE_FANKHA)->chunkById(self::CHUNK, function ($refs) use ($origins, &$stats) {
             $rows = [];

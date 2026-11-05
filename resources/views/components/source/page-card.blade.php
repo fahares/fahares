@@ -1,4 +1,4 @@
-@props(['entry', 'record'])
+@props(['entry', 'record', 'grouped' => false])
 
 {{-- One place of the record in a source on its side card (step 13.4): the source and address, the page image when the
      volume has one, and the address field. Every source alike; their order is their rank. --}}
@@ -11,7 +11,8 @@
 <div class="suggest-row space-y-2 pb-4 border-b border-line last:border-b-0 last:pb-0" data-source-card data-machine-item="{{ $entry->reviewKey() }}">
     <div class="flex items-start gap-1">
         <div class="min-w-0">
-            <div class="text-sm font-bold text-ink leading-6">{{ $label }}</div>
+            {{-- in a group of pages of one volume the group's heading names the source; each card its page --}}
+            <div class="text-sm font-bold text-ink leading-6">{{ $grouped ? $entry->placeLabel() : $label }}</div>
             @if($entry->sourceItem)
                 {{-- the printed entry on the site: its heading, and «یاد شده» when the work is only named in it --}}
                 <a href="{{ $entry->sourceItem->url() }}" class="text-xs font-semibold text-cinnabar hover:underline">

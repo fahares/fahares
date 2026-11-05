@@ -36,6 +36,19 @@ class RecordSources
         return $this->ranked($this->shown()->filter(fn (SourceEntry $e) => $e->source_id));
     }
 
+    /**
+     * The cards with the places of one source and volume together (step 14.42): two pages of a volume a copy is
+     * cited at, «ف: 1 - 566 و 743», are one heading, «…، ج ۱، ص ۵۶۶ و ۷۴۳», each page with its own image.
+     *
+     * @return Collection<int, array{label: ?string, entries: Collection<int, SourceEntry>}>
+     */
+    public function cardGroups(): Collection
+    {
+        return $this->cards()->groupBy(fn (SourceEntry $e) => $e->source_id . '|' . $e->sourceLabel() . '|' . $e->volumeNumber(), true)
+            ->map(fn (Collection $entries) => ['label' => $entries->count() > 1 ? SourceEntry::groupLabel($entries) : null, 'entries' => $entries->values()])
+            ->values();
+    }
+
     /** The texts printed at those places, in the same order. */
     public function texts(): Collection
     {
