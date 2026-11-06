@@ -41,4 +41,32 @@ class MarkHedgedAuthorsCommandTest extends TestCase
         $this->artisan('fahares:mark-hedged-authors', ['--file' => $file])->expectsOutputToContain('marked                0')->assertSuccessful();
         @unlink($file);
     }
+
+    /** Step 14.65: «؟علی بن موسی» puts the question mark on the name; a word that only begins like a hedge is none. */
+    public function test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not()
+    {
+        $raw = fn (string $line) => "● الجفر / جفر / عربی\nal-jafr\n\n{$line}\n‘alī ebn-e mūsā";
+        $this->assertSame('؟', \App\Console\Commands\MarkHedgedAuthorsCommand::hedgeOf($raw('؟علی بن موسی (ع)، امام هشتم، 153 - 203 قمری')));
+        $this->assertSame('؟', \App\Console\Commands\MarkHedgedAuthorsCommand::hedgeOf($raw('؟ منسوب به علی بن ابی طالب (ع)')));
+        $this->assertSame('شاید', \App\Console\Commands\MarkHedgedAuthorsCommand::hedgeOf($raw('شاید مجلسی، محمد باقر')));
+        $this->assertNull(\App\Console\Commands\MarkHedgedAuthorsCommand::hedgeOf($raw('شایسته، علی')));
+        $this->assertNull(\App\Console\Commands\MarkHedgedAuthorsCommand::hedgeOf($raw('علی بن موسی (ع)، امام هشتم')));
+    }
+
+    /** Step 14.65: a description that was only the hedged author line and its transliteration is emptied. */
+    public function test_a_description_that_was_only_the_author_line_is_emptied()
+    {
+        config(['scout.driver' => 'collection']);
+        $work = Work::create(['primary_title' => 'احوال قلب', 'clean_title' => 'احوال قلب', 'slug' => 'qalb-' . uniqid(), 'volume_number' => 99, 'page_start' => 4,
+            'description' => "؟ طالب اسیری\ntāleb-e asīrī"]);
+        $file = tempnam(sys_get_temp_dir(), 'hedged');
+        file_put_contents($file, json_encode(['items' => [['work_slug' => $work->slug, 'name' => 'طالب اسیری', 'hedge' => '؟',
+            'description_from' => $work->description, 'description_to' => null]]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:mark-hedged-authors', ['--file' => $file, '--apply' => true])->assertSuccessful();
+
+        $this->assertSame('طالب اسیری', $work->fresh()->author_name);
+        $this->assertNull($work->fresh()->description);
+        @unlink($file);
+    }
 }

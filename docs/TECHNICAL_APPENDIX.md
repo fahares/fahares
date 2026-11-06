@@ -8055,6 +8055,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `catalogs:link-volumes`
   4. `fahares:rebuild-scripts`
   5. `fahares:link-autograph-scribes`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`.
+  - شناسه‌ی نسخه‌ها در تولید با نسخه‌ی محلی یکی بود. پیش از اجرا با پرس‌وجوی فقط‌خواندنی سنجیده شد.
+  - خروجی‌ها: «Applying 1 moves and 0 folds. and 6 twin folds.» و «Adding 1 works … copies: 14 moved, 0 made».
+  - `rebuild-scripts` «0 copies» در گام ۱ داد و `link-autograph-scribes` «Updated 0».
+  - اثر تازه در تولید شناسه‌ی 71839 دارد؛ در نسخه‌ی محلی 71720 بود.
 
 ### گام ۱۴.۶۴: کشف الحجب و الأستار و مؤلفات الزیدیة (مورد ۸۶)
 - **منشأ:** `tarajim3.db`.
@@ -8136,3 +8141,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `sources:backfill --only=bibliography`؛
   4. فرستادن فایل‌ها، و برای هر جلد `import-pages`، `segment` و `link-items --near`؛
   5. `scout:import "App\Models\SourceItem"`.
+### گام ۱۴.۶۵: «؟» چسبیده در `MarkHedgedAuthorsCommand::hedgeOf` و `--hedged` در صدور
+- **`hedgeOf`:** برای «؟» شرط `(?=\s|$)` برداشته شد. برای واژه‌های دیگر `HEDGES` همچنان هست، تا «شایسته» تردید شمرده نشود.
+- **`--file`:** اگر `description_to` در فایل باشد، حتی `null`، شرح همان می‌شود (`array_key_exists`). پیش از این `?? $work->description` شرح را نگه می‌داشت.
+- **صدور (پیکره):** `fankha_v2_leading_author_export.py --hedged` (کامیت در fahares-corpus). همان قاعده‌ی گام ۱۴.۶۱ است، با این تفاوت که `HEDGE` («؟» یا واژه‌ی تردید، با فاصله یا بی فاصله) پیش از `bare()` از سر سطر برداشته می‌شود. خروجی `items` برای `mark-hedged-authors --file` است. «؟» در میان نام (تاریخ یا نسبت) `skipped` است.
+- **فایل تصمیم:** `database/data/fankha_hedged_authors_step14_65.json` با ۱۶ `items`.
+- **تمرین روی fahares_prod:** «marked 44, added 16». اجرای دوم «marked 0, add_skipped 16» بود.
+  - تمرین نخست با فرمان پیشین، شرح ۶ اثر را نگه داشته بود. آن ۱۶ اثر در نسخه‌ی محلی بازگردانده شدند و فرمان اصلاح‌شده دوباره اجرا شد.
+- **آزمون‌ها:**
+  - `MarkHedgedAuthorsCommandTest::test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not`
+  - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
+- **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
+  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
