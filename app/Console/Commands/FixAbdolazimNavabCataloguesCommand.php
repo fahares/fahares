@@ -40,6 +40,9 @@ class FixAbdolazimNavabCataloguesCommand extends Command
 
     public const BINESH = 37278;
 
+    /** MTIF id => the attributes of a right cataloger the site has no record of yet, made by the run */
+    public const NEW_CATALOGERS = [];
+
     /** source code => [wrong cataloger, right cataloger, source values, [volume number => volume values]] */
     public const FIXES = [
         'catalogue-b89f67efe34f' => [
@@ -65,9 +68,15 @@ class FixAbdolazimNavabCataloguesCommand extends Command
     {
         $dry = (bool) $this->option('dry-run');
 
-        $ids = [self::HAFEZIAN, self::SADRAEI, self::FAZEL, self::BINESH];
+        $ids = collect(static::FIXES)->flatMap(fn ($fix) => [$fix['from'], $fix['to']])->unique()->values()->all();
         // toBase(): Eloquent's only() would filter by primary key, not by MTIF id
         $catalogers = Cataloger::whereIn('mtif_entry_id', $ids)->get()->keyBy('mtif_entry_id')->toBase();
+        foreach (static::NEW_CATALOGERS as $mtif => $attributes) {
+            if (! $catalogers->has($mtif)) {
+                $catalogers->put($mtif, new Cataloger($attributes + ['mtif_entry_id' => $mtif]));
+                $this->line("«{$attributes['name']}» (MTIF {$mtif}) has no record: one is made");
+            }
+        }
         if ($missing = array_diff($ids, $catalogers->keys()->all())) {
             $this->error('Catalogers not found by MTIF id: ' . implode(', ', $missing));
 
@@ -75,7 +84,8 @@ class FixAbdolazimNavabCataloguesCommand extends Command
         }
 
         $plan = [];
-        foreach (self::FIXES as $code => $fix) {
+        // static: FixJaliliCatalogueCommand runs the same fix on its own catalogue
+        foreach (static::FIXES as $code => $fix) {
             $source = Source::where('code', $code)->first();
             $volumes = $source ? CatalogVolume::whereIn('id', $source->volumes()->pluck('id'))->orderBy('volume_number')->get()->keyBy(fn ($v) => (int) $v->volume_number) : collect();
             if (! $source || $volumes->keys()->all() !== array_keys($fix['volumes'])) {
@@ -108,6 +118,7 @@ class FixAbdolazimNavabCataloguesCommand extends Command
         $touched = collect();
         DB::transaction(function () use ($plan, &$touched) {
             foreach ($plan as [$source, $volumes, $fix, $from, $to]) {
+                $to->exists || $to->save();
                 foreach ($fix['volumes'] as $number => $values) {
                     $volume = $volumes[$number];
                     // a source volume shares its id with its catalog volume
