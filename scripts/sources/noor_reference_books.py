@@ -67,11 +67,23 @@ SOURCES = {
     'rawdat': ('11453', range(1, 9), {3}, set(), {1, 2, 4}, False, False, True, False),
     'kalam-turath': ('23986', range(1, 6), {3}, set(), {1, 2}, False, False, True, True),
     'fuqaha': ('03267', range(1, 15), {3, 4, 5, 6}, set(), {1, 2}, False, False, True, True),
+    # step 14.68: Golchin-Ma'ani's «تاریخ تذکره‌های فارسی» (Noor's History database, history_book_corpus.db), a tazkira
+    # at level 4 among its parts' headings (5-7); Aqa Bozorg's «مصفى المقال» (aqabozorg.db), an author at level 2
+    'tazkira': ('11595', range(1, 3), {4}, set(), {1, 2, 3}, True, False, False, False),
+    'mosaffa': ('11980', range(1, 2), {2}, set(), {1, 3}, False, False, False, False),
 }
 
 # sources whose letters' headings may stand at an entry's level; elsewhere a one-letter heading may be an entry's
 # («ب», Sarkis's) or a word cut from one («ص», A'yan's), and those already on the site keep their entries
 LETTERS = {'mushar-authors'}
+
+# a title without what follows the book's name: «آتشكده تأليف حاجى لطف‌على بيگ آذر … در 1174-1193 ق» → «آتشكده»,
+# «آثار الحسان از حاج ميرزا حسن …» → «آثار الحسان»; and without an author's dates, «عبد الله ثقة الاسلام: (1285)
+# (0000)», «يحيى المستوفى الاصفهانى: (م 1326) (ق)», «… (1305 او 1306)», «… (ق: 2) (ق: 3)», «…: ()»
+CLEAN = {
+    'tazkira': re.compile(r'\s+(?:تأليف|تألیف|از|اثر)\s.*$'),
+    'mosaffa': re.compile(r'[\s:]*(?:\([\d\s\-مق:أاو]*\)\s*)+$'),
+}
 
 LINE = ''  # a line break the text keeps: before and after a verse that opens a line
 
@@ -170,7 +182,11 @@ def title_of(heading, sub, numbered=False):
 def body_items(db, doc):
     """The main-text paragraphs of the longest run of rising column numbers, each with its column, and the footnotes
     of those columns."""
-    rows = db.execute('SELECT story_id, text_xml FROM book_texts WHERE document_id = ? ORDER BY item_id', (doc,)).fetchall()
+    # Noor's History database keeps the paragraphs in book_doc_items, the others in book_texts
+    if db.execute("SELECT 1 FROM sqlite_master WHERE name = 'book_texts'").fetchone():
+        rows = db.execute('SELECT story_id, text_xml FROM book_texts WHERE document_id = ? ORDER BY item_id', (doc,)).fetchall()
+    else:
+        rows = db.execute('SELECT story_id, xml_text FROM book_doc_items WHERE document_id = ? ORDER BY item_no', (doc,)).fetchall()
     runs, run, previous = [], [], None
     notes, note_page = {}, None
     for story, xml in rows:
@@ -204,7 +220,7 @@ def body_items(db, doc):
     return out, {int(p): t for p, t in notes.items() if p.isdigit()}
 
 
-def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False, letters=False):
+def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False, letters=False, clean=None):
     fix = (lambda s: s.translate(PERSIAN)) if persian else (lambda s: s)
     items, notes = body_items(db, f'{series}_{number:03d}')
     pages, order = {}, []
@@ -272,7 +288,8 @@ def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, pe
             parent = key
         number = NUMBERED.match(e['heading']) if numbered else None
         out_entries.append({
-            'key': key, 'kind': 'sub_entry' if sub else 'entry', 'title': title_of(e['heading'], sub, numbered),
+            'key': key, 'kind': 'sub_entry' if sub else 'entry',
+            'title': (lambda t: (clean.sub('', t).strip(' .:،-') or t) if clean else t)(title_of(e['heading'], sub, numbered)),
             'entry_number': int(number.group(1)) if number else None,
             'page_start': page, 'page_end': int(e['breaks'][-1][1]) if e['breaks'] else page, 'text': '\n'.join(e['lines']),
             'page_breaks': [[at, int(p)] for at, p in e['breaks']], 'parent_key': parent if sub else None,
@@ -292,7 +309,7 @@ def main():
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
         for number in volumes:
-            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered, code in LETTERS)
+            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered, code in LETTERS, CLEAN.get(code))
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:
