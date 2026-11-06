@@ -18,12 +18,14 @@ class VolumeEditor
 {
     /**
      * @param  Closure(): void  $change  writes the change to the volume, its people or its parts
-     * @return array{changed: int, moved: int, joined: int, left: int, cataloger: int, outside: int, by_page: int, none: int, parts: array<int, int>}
+     * @return array{changed: int, moved: int, joined: int, left: int, cataloger: int, outside: int, outside_before: int, by_page: int, none: int, parts: array<int, int>}
      */
     public function run(CatalogVolume $volume, Closure $change, bool $dry = false): array
     {
         $result = null;
         $work = function () use ($volume, $change, &$result) {
+            // the copies' parts as the rules give them now, so the comparison is of this change only
+            $was = CatalogVolumePart::assign(DB::table('manuscripts')->where('catalog_volume_id', $volume->id)->pluck('id'));
             $before = $this->state($volume->id);
             $people = $this->people($volume->id);
             $primary = CatalogVolumePart::primaryCatalogers([$volume->id])[$volume->id] ?? null;
@@ -45,7 +47,7 @@ class VolumeEditor
             DB::table('catalog_volumes')->where('id', $volume->id)->update(['manuscripts_count' => count($before)]);
             Cataloger::recount(array_unique(array_merge($people, $this->people($volume->id))));
 
-            $result = $this->compare($before, $this->state($volume->id), $stats);
+            $result = $this->compare($before, $this->state($volume->id), $stats) + ['outside_before' => $was['outside']];
         };
 
         if (! $dry) {

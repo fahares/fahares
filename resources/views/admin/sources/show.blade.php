@@ -20,8 +20,9 @@
 @endphp
 
 @section('content')
-<div class="grid gap-5 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] items-start text-[13px]">
-    <x-ui.card class="space-y-5">
+<div class="space-y-6 text-[13px]">
+<div class="grid gap-5 lg:grid-cols-2 items-start">
+    <x-ui.card>
         <dl class="grid grid-cols-[max-content_minmax(0,1fr)] gap-x-4 gap-y-1.5 text-xs">
             <dt class="text-muted">کد</dt><dd dir="ltr" class="text-right">{{ $source->code }}</dd>
             @if($merged)
@@ -45,7 +46,9 @@
                 <dt class="text-muted">چاپ دیگر</dt><dd><a href="{{ route('admin.sources.show', $edition) }}" class="hover:text-cinnabar">{{ $edition->title }}</a>@if($edition->edition_label) <span class="text-muted">({{ $edition->edition_label }})</span>@endif</dd>
             @endforeach
         </dl>
+    </x-ui.card>
 
+    <x-ui.card>
         <form action="{{ route('admin.sources.update', $source) }}" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
@@ -82,8 +85,9 @@
             <x-admin.form-actions :cancel="route('admin.sources.index')" />
         </form>
     </x-ui.card>
+</div>
 
-    <div class="space-y-5 min-w-0">
+    <div class="space-y-6 min-w-0">
         <x-ui.section title="جلدها" :count="$volumes->count()">
             <x-admin.table :is-empty="$volumes->isEmpty()" empty="این منبع جلدی ندارد.">
                 <x-slot:head>
@@ -96,14 +100,15 @@
                     <x-admin.th><span class="sr-only">کنش‌ها</span></x-admin.th>
                 </x-slot:head>
                 @foreach($volumes as $volume)
-                    @php($cv = $catalogVolumes[$volume->id] ?? null)
+                    @php $cv = $catalogVolumes[$volume->id] ?? null; @endphp
                     <x-admin.row>
-                        <x-admin.cell main class="md:max-w-xs">
+                        <x-admin.cell main class="md:min-w-56 md:max-w-sm">
                             <a href="{{ route('admin.sources.volume', [$source, $volume->id]) }}" class="font-bold text-ink hover:text-cinnabar">
                                 {{ $volume->volume_number ? 'جلد ' . $fa($volume->volume_number) : 'بی‌شماره' }}
                             </a>
                             <span class="text-xs text-muted tabular-nums">#{{ \App\Support\Fa::digits($volume->id) }}</span>
-                            <span class="block text-xs text-muted">{{ $volume->title }}</span>
+                            {{-- the volume's own words, without the source's title it repeats --}}
+                            <span class="block text-xs text-muted">{{ \App\Support\Fa::digits(trim(\Illuminate\Support\Str::startsWith($volume->title, $source->title) ? preg_replace('/^[\s\-–:،]+/u', '', \Illuminate\Support\Str::after($volume->title, $source->title)) : $volume->title) ?: $volume->title) }}</span>
                         </x-admin.cell>
                         <x-admin.cell label="کتابخانه" class="text-xs">
                             {{ $cv?->library ? $cv->library->name . '، ' . $cv->library->city : '—' }}

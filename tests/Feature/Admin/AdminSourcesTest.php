@@ -187,7 +187,7 @@ class AdminSourcesTest extends TestCase
 
         // a preview of a new part: both copies of «الف» would take it, nothing is made
         $this->actingAs($this->admin)->post("{$url}/parts", $part + ['preview' => 1])->assertRedirect("{$url}#new")
-            ->assertSessionHas('preview', fn ($p) => $p['form'] === 'new' && $p['effect']['joined'] === 2 && $p['effect']['outside'] === 1);
+            ->assertSessionHas('preview', fn ($p) => $p['form'] === 'new' && $p['effect']['joined'] === 2 && $p['effect']['outside'] === 1 && $p['effect']['outside_before'] === 0);
         $this->assertSame(0, CatalogVolumePart::count());
         $this->assertNull($early->fresh()->catalog_volume_part_id);
 

@@ -27,7 +27,7 @@
 @section('content')
 <div class="space-y-6 text-[13px]">
     <x-ui.card class="space-y-1">
-        <p class="font-bold text-ink">{{ $sourceVolume->title }}</p>
+        <p class="font-bold text-ink">{{ \App\Support\Fa::digits($sourceVolume->title) }}</p>
         <p class="text-xs text-muted">
             {{ $fa($catalogVolume->manuscripts_count) }} نسخه
             @if($parted) · {{ $fa($catalogVolume->parts->count()) }} بخش · {{ $fa($partless) }} نسخه‌ی بی‌بخش @endif
@@ -52,12 +52,7 @@
                 @endif
                 <x-admin.field label="کتابخانه‌ی جلد" for="library_id" error="library_id" class="max-w-xl"
                                hint="جلدی که فهرست چند کتابخانه است کتابخانه ندارد و کتابخانه‌ی هر بخش را بخش می‌گوید.">
-                    <select name="library_id" id="library_id" class="admin-field w-full">
-                        <option value="">بی‌کتابخانه</option>
-                        @foreach($libraries as $lib)
-                            <option value="{{ $lib->id }}" @selected((int) $val('volume', 'library_id', $catalogVolume->library_id) === $lib->id)>{{ $lib->name }} ({{ $lib->city }})</option>
-                        @endforeach
-                    </select>
+                    @include('admin.sources.partials.lazy-select', ['name' => 'library_id', 'id' => 'library_id', 'list' => 'libraries', 'value' => $val('volume', 'library_id', $catalogVolume->library_id), 'empty' => 'بی‌کتابخانه'])
                 </x-admin.field>
 
                 @php
@@ -76,12 +71,7 @@
                     </p>
                     @foreach($people as $i => $person)
                         <div class="flex flex-wrap gap-2">
-                            <select name="people[{{ $i }}][cataloger_id]" aria-label="فهرست‌نگار {{ $fa($i + 1) }}" class="admin-field flex-1 basis-56">
-                                <option value="">—</option>
-                                @foreach($catalogers as $c)
-                                    <option value="{{ $c->id }}" @selected((int) $person['cataloger_id'] === $c->id)>{{ $c->name }}</option>
-                                @endforeach
-                            </select>
+                            @include('admin.sources.partials.lazy-select', ['name' => "people[{$i}][cataloger_id]", 'label' => 'فهرست‌نگار ' . $fa($i + 1), 'list' => 'catalogers', 'value' => $person['cataloger_id'], 'empty' => '—', 'class' => 'flex-1 basis-56'])
                             <select name="people[{{ $i }}][role]" aria-label="نقش {{ $fa($i + 1) }}" class="admin-field">
                                 @foreach($roles as $key => $name)
                                     <option value="{{ $key }}" @selected(($person['role'] ?? 'cataloger') === $key)>{{ $name }}</option>
@@ -179,7 +169,7 @@
                     @if($parted)<x-admin.th>بی‌بخش</x-admin.th>@endif
                 </x-slot:head>
                 @foreach($copyLibraries as $row)
-                    @php($lib = $copyLibraryNames[$row->library_id] ?? null)
+                    @php $lib = $copyLibraryNames[$row->library_id] ?? null; @endphp
                     <x-admin.row>
                         <x-admin.cell main>{{ $lib ? $lib->name . '، ' . $lib->city : '#' . \App\Support\Fa::digits($row->library_id) }}</x-admin.cell>
                         <x-admin.cell label="نسخه" class="tabular-nums">{{ $fa($row->c) }}</x-admin.cell>
@@ -194,4 +184,26 @@
 
     @include('admin.sources.partials.history', ['history' => $history])
 </div>
+
+{{-- The libraries and catalogers once for the whole page; each select takes them when its form is opened or focused --}}
+@php
+    $lists = ['libraries' => $libraries->map(fn ($l) => [$l->id, $l->name . ' (' . $l->city . ')'])->values(), 'catalogers' => $catalogers->map(fn ($c) => [$c->id, $c->name])->values()];
+@endphp
+<script>
+(() => {
+    const lists = {!! json_encode($lists, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!};
+    const fill = (root) => root.querySelectorAll('select[data-fill]:not([data-filled])').forEach((select) => {
+        const current = select.value;
+        const options = document.createDocumentFragment();
+        for (const [id, label] of lists[select.dataset.fill] || []) {
+            if (String(id) !== current) options.appendChild(new Option(label, id));
+        }
+        select.appendChild(options);
+        select.dataset.filled = '1';
+    });
+    document.querySelectorAll('details').forEach((d) => d.addEventListener('toggle', () => d.open && fill(d)));
+    document.addEventListener('focusin', (e) => e.target.matches?.('select[data-fill]') && fill(e.target.parentElement));
+    document.querySelectorAll('form:not(details form), details[open]').forEach(fill);
+})();
+</script>
 @endsection

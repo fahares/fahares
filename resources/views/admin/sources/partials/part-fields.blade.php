@@ -1,5 +1,5 @@
 {{-- The fields of a volume part, for its edit and for a new one; «bag» names the form's error bag --}}
-@php($err = $errors->getBag($bag))
+@php $err = $errors->getBag($bag); @endphp
 <div class="grid gap-4 md:grid-cols-2">
     <div class="space-y-1 md:col-span-2">
         <label for="{{ $bag }}-title" class="block font-bold text-ink">عنوان بخش</label>
@@ -8,12 +8,7 @@
     </div>
     <div class="space-y-1">
         <label for="{{ $bag }}-library" class="block font-bold text-ink">کتابخانه</label>
-        <select name="library_id" id="{{ $bag }}-library" class="admin-field w-full">
-            <option value="">بی‌کتابخانه</option>
-            @foreach($libraries as $lib)
-                <option value="{{ $lib->id }}" @selected((int) $values['library_id'] === $lib->id)>{{ $lib->name }} ({{ $lib->city }})</option>
-            @endforeach
-        </select>
+        @include('admin.sources.partials.lazy-select', ['name' => 'library_id', 'id' => $bag . '-library', 'list' => 'libraries', 'value' => $values['library_id'], 'empty' => 'بی‌کتابخانه'])
         @if($err->has('library_id'))<p class="text-xs font-bold text-cinnabar">{{ $err->first('library_id') }}</p>@endif
     </div>
     <div class="grid grid-cols-3 gap-2">
@@ -38,12 +33,7 @@
         <p class="text-xs text-muted">نخستین فهرست‌نگار، فهرست‌نگار نسخه‌های بخش می‌شود.</p>
         <div class="grid gap-2 sm:grid-cols-2">
             @foreach($values['catalogers'] as $i => $id)
-                <select name="catalogers[]" aria-label="فهرست‌نگار {{ \App\Support\Fa::num($i + 1) }}" class="admin-field w-full">
-                    <option value="">—</option>
-                    @foreach($catalogers as $c)
-                        <option value="{{ $c->id }}" @selected((int) $id === $c->id)>{{ $c->name }}</option>
-                    @endforeach
-                </select>
+                @include('admin.sources.partials.lazy-select', ['name' => 'catalogers[]', 'label' => 'فهرست‌نگار ' . \App\Support\Fa::num($i + 1), 'list' => 'catalogers', 'value' => $id, 'empty' => '—'])
             @endforeach
         </div>
     </div>

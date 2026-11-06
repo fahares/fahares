@@ -8,7 +8,10 @@
         $effect['cataloger'] ? 'فهرست‌نگار ' . $fa($effect['cataloger']) . ' نسخه عوض می‌شود' : null,
     ]);
     $after = array_filter([
-        $effect['outside'] ? $fa($effect['outside']) . ' نسخه بیرون از بازه‌ی بخش کتابخانه‌شان' : null,
+        $effect['outside'] || ($effect['outside_before'] ?? 0)
+            ? $fa($effect['outside']) . ' نسخه بیرون از بازه‌ی صفحه‌های بخش کتابخانه‌شان'
+                . (isset($effect['outside_before']) && $effect['outside_before'] !== $effect['outside'] ? ' (پیش از این ' . $fa($effect['outside_before']) . ')' : '')
+            : null,
         $effect['by_page'] ? $fa($effect['by_page']) . ' نسخه‌ی بی‌بخش که صفحه‌شان در بازه‌ی تنها یک بخش است (کتابخانه‌شان در بخش‌ها نیست)' : null,
         $effect['none'] ? $fa($effect['none']) . ' نسخه‌ی بی‌بخش در جلد' : null,
     ]);
@@ -17,6 +20,6 @@
     <p class="font-bold">{{ $done ? 'ذخیره شد.' : 'پیش‌نمایش: هنوز چیزی ذخیره نشده است.' }}
         {{ $lines ? implode('، ', $lines) . '.' : ($done ? 'بخش و فهرست‌نگار هیچ نسخه‌ای عوض نشد.' : 'بخش و فهرست‌نگار هیچ نسخه‌ای عوض نمی‌شود.') }}</p>
     @if($after)
-        <p>پس از این تغییر: {{ implode('؛ ', $after) }}.</p>
+        <p>در کل جلد، پس از این تغییر: {{ implode('؛ ', $after) }}.</p>
     @endif
 </x-admin.notice>

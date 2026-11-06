@@ -10,7 +10,7 @@
 
 @php
     $fa = fn ($n) => \App\Support\Fa::num($n);
-    $option = fn ($s) => $s->title . ' — ' . \App\Support\Fa::digits($s->code) . ' (' . $fa($s->volumes_count) . ' جلد)';
+    $option = fn ($s) => $s->title . ' — ' . "\u{2066}" . $s->code . "\u{2069}" . ' (' . $fa($s->volumes_count) . ' جلد)';
 @endphp
 
 @section('content')
@@ -82,7 +82,7 @@
                             {{ $v->new !== null ? $fa($v->new) : '—' }}
                             @if($v->old !== $v->new)<span class="text-xs font-normal text-amber-700 dark:text-amber-300">(پیش‌تر {{ $v->old !== null ? $fa($v->old) : 'بی‌شماره' }})</span>@endif
                         </x-admin.cell>
-                        <x-admin.cell label="جلد">{{ $v->volume->title }} <span class="text-xs text-muted tabular-nums">#{{ \App\Support\Fa::digits($v->volume->id) }}</span></x-admin.cell>
+                        <x-admin.cell label="جلد">{{ \App\Support\Fa::digits($v->volume->title) }} <span class="text-xs text-muted tabular-nums">#{{ \App\Support\Fa::digits($v->volume->id) }}</span></x-admin.cell>
                         <x-admin.cell label="از منبع" class="text-xs">{{ $v->source->id === $plan['kept']->id ? 'ماندنی' : 'ادغام‌شونده' }}</x-admin.cell>
                         <x-admin.cell label="مدخل" class="tabular-nums">{{ $fa($v->entries) }}</x-admin.cell>
                     </x-admin.row>
@@ -95,8 +95,8 @@
                 <ul class="bg-surface border border-line divide-y divide-line text-xs">
                     @foreach($plan['drops'] as [$d, $k])
                         <li class="px-4 py-2.5">
-                            جلد {{ $fa($d->new) }}: «{{ $d->volume->title }}» <span class="text-muted tabular-nums">#{{ \App\Support\Fa::digits($d->volume->id) }}</span>
-                            ← «{{ $k->volume->title }}» <span class="text-muted tabular-nums">#{{ \App\Support\Fa::digits($k->volume->id) }}</span>
+                            جلد {{ $fa($d->new) }}: «{{ \App\Support\Fa::digits($d->volume->title) }}» <span class="text-muted tabular-nums">#{{ \App\Support\Fa::digits($d->volume->id) }}</span>
+                            ← «{{ \App\Support\Fa::digits($k->volume->title) }}» <span class="text-muted tabular-nums">#{{ \App\Support\Fa::digits($k->volume->id) }}</span>
                             <span class="text-muted">· {{ $fa($d->entries) }} مدخل جابه‌جا می‌شود</span>
                         </li>
                     @endforeach
