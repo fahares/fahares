@@ -29,9 +29,10 @@
             </ul>
         @endif
     @else
-        <form action="{{ route('admin.messages.store') }}" method="POST" class="space-y-5"
+        <form action="{{ route('admin.messages.store') }}" method="POST" class="space-y-5" data-send-once
               x-data="{ filled: @js($filled), subject: @js(old('subject', '')), body: @js(old('body', '')), pick(key) { if (this.filled[key]) { this.subject = this.filled[key].subject; this.body = this.filled[key].body } } }">
             @csrf
+            <x-send-token />
             <input type="hidden" name="user_id" value="{{ $recipient->id }}">
             <p class="flex items-center gap-2">گیرنده: <x-ui.avatar :user="$recipient" size="sm" /> <b>{{ $recipient->name }}</b>
                 <a href="{{ route('admin.messages.create') }}" class="text-xs text-cinnabar hover:underline">تغییر</a></p>

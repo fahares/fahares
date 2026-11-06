@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Messaging\Conversations;
+use App\Models\Message;
 use App\Models\MessageThread;
 use App\Models\User;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,12 +11,30 @@ use Illuminate\Notifications\Messages\MailMessage;
 /**
  * A letter of a staff–user thread (backlog item 91), to the user or to the staff. The email to the user carries
  * the thread's own reply-to address, so answering the email files the answer in the same thread.
+ *
+ * A notice about one letter (forMessage) leaves letter_delay_seconds late and is not sent if the letter has been
+ * deleted by then (backlog item 115): a duplicate the admin removes at once is never emailed.
  */
 class ThreadNotice extends Notice
 {
+    public ?int $messageId = null;
+
     public function __construct(public MessageThread $thread, string $noticeType, string $heading, array $lines, string $link, string $action = 'مشاهده و پاسخ')
     {
         parent::__construct($noticeType, $heading, $lines, $link, $action);
+    }
+
+    public function forMessage(Message $message): static
+    {
+        $this->messageId = $message->id;
+        $this->delay(now()->addSeconds((int) config('notifications.letter_delay_seconds')));
+
+        return $this;
+    }
+
+    public function shouldSend(object $notifiable, string $channel): bool
+    {
+        return $this->messageId === null || Message::whereKey($this->messageId)->exists();
     }
 
     public function toMail(object $notifiable): MailMessage

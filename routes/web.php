@@ -440,6 +440,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{thread}', 'reply')->whereNumber('thread')->name('reply');
         Route::post('/{thread}/toggle', 'toggle')->whereNumber('thread')->name('toggle');
     });
+    // A letter that came twice is removed (backlog item 115); the controller checks the thread's own permission
+    Route::delete('/letters/{message}', [\App\Http\Controllers\Admin\MessageController::class, 'destroyMessage'])->whereNumber('message')->name('letters.destroy');
 
     // The access matrix
     Route::middleware('can:roles.manage')->group(function () {

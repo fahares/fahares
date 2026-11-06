@@ -161,6 +161,12 @@ return [
     'question_reminder_days' => 7,
     'question_deadline_days' => 14,
 
+    // Duplicate letters (backlog item 115): a letter's notice leaves this many seconds after it is written (and is
+    // dropped if the letter was deleted meanwhile); an email reply with the same text as one the same user filed in
+    // the thread within the window is not filed again.
+    'letter_delay_seconds' => (int) env('MESSAGES_LETTER_DELAY', 30),
+    'duplicate_reply_minutes' => 10,
+
     // Replies by email (backlog item 91): each email of a thread is sent with the reply-to
     // reply+<token>@<reply_domain>; Resend receives that domain and posts email.received to /messages/inbound.
     // Without the domain the emails carry no reply-to and users answer on the site.

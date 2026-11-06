@@ -8,6 +8,7 @@ import machineReview from './machine-review';
 import referenceReview from './reference-queue';
 import webPush from './web-push';
 import catalogViewer from './catalog-viewer';
+import sendOnce from './send-once';
 import insightsCombo from './insights-filter';
 
 window.Alpine = Alpine;
@@ -48,4 +49,5 @@ Alpine.data('webPush', webPush);
 Alpine.data('catalogViewer', catalogViewer);
 Alpine.data('insightsCombo', insightsCombo);
 
+sendOnce();
 Alpine.start();

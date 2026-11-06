@@ -58,7 +58,7 @@ class MessageThread extends Model
 
     public function scopeUnreadByUser(Builder $query): Builder
     {
-        return $query->whereExists(fn ($q) => $q->from('messages')->whereColumn('messages.message_thread_id', 'message_threads.id')
+        return $query->whereExists(fn ($q) => $q->from('messages')->whereColumn('messages.message_thread_id', 'message_threads.id')->whereNull('messages.deleted_at')
             ->where('messages.is_staff', true)
             ->where(fn ($w) => $w->whereNull('message_threads.user_read_at')->orWhereColumn('messages.created_at', '>', 'message_threads.user_read_at')));
     }
@@ -66,7 +66,7 @@ class MessageThread extends Model
     /** Threads with an answer of the user that the staff have not opened since */
     public function scopeUnreadByStaff(Builder $query): Builder
     {
-        return $query->whereExists(fn ($q) => $q->from('messages')->whereColumn('messages.message_thread_id', 'message_threads.id')
+        return $query->whereExists(fn ($q) => $q->from('messages')->whereColumn('messages.message_thread_id', 'message_threads.id')->whereNull('messages.deleted_at')
             ->where('messages.is_staff', false)
             ->where(fn ($w) => $w->whereNull('message_threads.staff_read_at')->orWhereColumn('messages.created_at', '>', 'message_threads.staff_read_at')));
     }

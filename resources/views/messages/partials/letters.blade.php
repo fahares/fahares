@@ -1,4 +1,5 @@
-{{-- The letters of a thread (backlog item 91). $staffView shows the staff member's own name; the user sees only the site's. --}}
+{{-- The letters of a thread (backlog item 91). $staffView shows the staff member's own name, and a delete button for a
+     letter that came twice (item 115); the user sees only the site's name. A deleted letter is not listed. --}}
 @php $staffView = $staffView ?? false; @endphp
 <ol class="space-y-3">
     @foreach($thread->messages as $m)
@@ -11,9 +12,20 @@
                         {{ $staffView ? $thread->user?->name : 'شما' }}
                     @endif
                 </span>
-                <span>
-                    @if($m->via === 'email')<span>از راه ایمیل ·</span>@endif
-                    @jdate($m->created_at, 'long_time')
+                <span class="inline-flex flex-wrap items-baseline gap-2">
+                    <span>
+                        @if($m->via === 'email')<span>از راه ایمیل ·</span>@endif
+                        @jdate($m->created_at, 'long_time')
+                    </span>
+                    @if($staffView && auth()->user()?->can($thread->staffPermission()))
+                        {{-- A letter that came twice (backlog item 115): hidden from the user and from the unread counts --}}
+                        <form action="{{ route('admin.letters.destroy', $m) }}" method="POST" class="inline"
+                              onsubmit="return confirm('این پیام از گفت‌وگو حذف شود؟ کاربر دیگر آن را نمی‌بیند؛ ایمیلی که پیش‌تر رفته پس گرفته نمی‌شود.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-cinnabar hover:underline cursor-pointer" title="حذف پیام تکراری">حذف</button>
+                        </form>
+                    @endif
                 </span>
             </div>
             @if($m->body !== '')<div class="whitespace-pre-line break-words text-ink">{{ $m->body }}</div>@endif

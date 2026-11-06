@@ -1168,11 +1168,11 @@ class SuggestionController extends Controller
     public function ask(Request $request, FieldSuggestion $suggestion)
     {
         abort_unless((bool) $suggestion->user_id, 422, 'پیشنهاد مهمان پیشنهاددهنده‌ای برای پرسش ندارد.');
-        $validated = $request->validate(['body' => 'required|string|max:' . \App\Models\Message::MAX_LENGTH]);
+        $validated = $request->validate(['body' => 'required|string|max:' . \App\Models\Message::MAX_LENGTH, 'client_token' => 'nullable|string|max:80']);
         $pending = $suggestion->status === 'pending';
 
         // A question on a pending suggestion, a plain letter on a decided one
-        \App\Messaging\Conversations::toSubmitter($suggestion, $request->user(), $validated['body']);
+        \App\Messaging\Conversations::toSubmitter($suggestion, $request->user(), $validated['body'], $validated['client_token'] ?? null);
 
         return redirect()->route('admin.suggestions.show', $suggestion)->withFragment('conversation')
             ->with('success', $pending
