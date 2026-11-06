@@ -7992,6 +7992,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_59.json --apply`
   2. `catalogs:link-volumes`
   3. `fahares:rebuild-scripts`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** هر سه فرمان با `prod-run --wait jolly-tharp` اجرا شدند.
+  - `Rebuilding 30 copies`، `dates=11, extents=13, lines=17` و `27 copies relinked`.
+  - `rebuild-scripts`: ۱۱ نسخه در گام ۱، «Scripts now: 19».
+  - وارسی با tinker: raw_text برابر v2 در ۳۰ از ۳۰ نسخه، ۳۰ ردیف audit، و جلد برای ۲۸ از ۳۰ نسخه.
 
 ### گام ۱۴.۶۰: پیشنهاد خالی‌کردن فیلد و `person_action` = `clear`
 - **مقدار کنونی:** `SuggestionRegistry::currentValue` برای `input` = `person`، اگر ستون نام خالی باشد نام `Person` از `id_column` را می‌گیرد. `scribe_name` کلید `autograph_column` = `is_autograph` گرفت؛ با آن مقدار «دستخط مؤلف (نام)» است.
