@@ -38,6 +38,8 @@ class AdminNav
                 ['label' => 'پیوند پدیدآور', 'route' => 'admin.author-links.index', 'active' => 'admin.author-links.*', 'can' => 'structure.link',
                     'count' => fn () => \App\Models\PersonReview::where('type', 'author_link')->where('status', 'open')->count()],
                 ['label' => 'فهرست‌نگاران', 'route' => 'admin.catalogers.index', 'active' => 'admin.catalogers.*', 'can' => 'catalogers.edit'],
+                ['label' => 'منابع', 'route' => 'admin.sources.index', 'active' => ['admin.sources.index', 'admin.sources.show', 'admin.sources.volume'], 'can' => 'sources.edit'],
+                ['label' => 'ادغام منابع', 'route' => 'admin.sources.merge', 'active' => 'admin.sources.merge', 'can' => 'sources.merge'],
                 ['label' => 'کتابخانه‌ها', 'route' => 'admin.libraries.index', 'active' => 'admin.libraries.*', 'can' => 'libraries.edit'],
                 ['label' => 'موضوعات', 'route' => 'admin.subjects.index', 'active' => ['admin.subjects.index', 'admin.subjects.create', 'admin.subjects.edit', 'admin.subjects.tree'], 'can' => 'subjects.edit'],
                 ['label' => 'ادغام موضوعات', 'route' => 'admin.subjects.merge', 'active' => 'admin.subjects.merge', 'can' => 'subjects.merge'],

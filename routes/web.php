@@ -377,6 +377,23 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
     });
 
+    // The sources registry: sources, their volumes' library and people, and the parts of a volume (step 14.50, backlog items 70 and 111)
+    Route::middleware('can:sources.merge')->group(function () {
+        Route::get('/sources/merge', [\App\Http\Controllers\Admin\SourceMergeController::class, 'show'])->name('sources.merge');
+        Route::post('/sources/merge', [\App\Http\Controllers\Admin\SourceMergeController::class, 'store'])->name('sources.merge.store');
+        Route::post('/sources/merges/{log}/undo', [\App\Http\Controllers\Admin\SourceMergeController::class, 'undo'])->name('sources.merge.undo');
+    });
+    Route::middleware('can:sources.edit')->prefix('sources')->name('sources.')->controller(\App\Http\Controllers\Admin\SourceController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{source}', 'show')->whereNumber('source')->name('show');
+        Route::put('/{source}', 'update')->whereNumber('source')->name('update');
+        Route::get('/{source}/volumes/{volume}', 'volume')->whereNumber(['source', 'volume'])->name('volume');
+        Route::put('/{source}/volumes/{volume}', 'updateVolume')->whereNumber(['source', 'volume'])->name('volume.update');
+        Route::post('/{source}/volumes/{volume}/parts', 'storePart')->whereNumber(['source', 'volume'])->name('parts.store');
+        Route::put('/{source}/volumes/{volume}/parts/{part}', 'updatePart')->whereNumber(['source', 'volume', 'part'])->name('parts.update');
+        Route::delete('/{source}/volumes/{volume}/parts/{part}', 'destroyPart')->whereNumber(['source', 'volume', 'part'])->name('parts.destroy');
+    });
+
     // Libraries & Archives
     Route::resource('libraries', AdminLibraryController::class)->only(['index', 'edit', 'update'])->middleware('can:libraries.edit');
 
