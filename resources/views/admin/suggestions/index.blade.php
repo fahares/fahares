@@ -55,9 +55,9 @@
         @php [$statusLabel, $statusTone] = $statusChip($sug); @endphp
         <x-admin.row>
             <x-admin.cell main>
-                <a href="{{ route('admin.suggestions.show', $sug) }}" class="font-bold text-ink hover:text-cinnabar">{{ $fa(\Illuminate\Support\Str::limit($sug->place_label, 60)) }}</a>
+                <a href="{{ route('admin.suggestions.show', $sug) }}" class="font-naskh text-[15px] font-bold text-ink hover:text-cinnabar" data-record-title>{{ $fa(\Illuminate\Support\Str::limit($sug->record_title, 70)) }}</a>
                 <span class="block text-xs text-muted">
-                    <span class="tabular-nums">#{{ $fa($sug->id) }}</span> · @jago($sug->created_at)
+                    {{ $sug->kind === 'feedback' ? 'بازخورد سایت' : \App\Suggestions\SuggestionRegistry::typeLabel($sug->suggestable_type) }} · <span class="tabular-nums">#{{ $fa($sug->id) }}</span> · @jago($sug->created_at)
                     @if($sug->place_url)
                         · <a href="{{ $sug->place_url }}" target="_blank" class="hover:text-cinnabar">صفحه در سایت ↗</a>
                     @endif
@@ -76,7 +76,25 @@
                         </span>
                     @endif
                 @else
-                    <span class="text-ink" title="{{ $sug->suggested_label }}">{{ \Illuminate\Support\Str::limit($sug->suggested_label, 70) ?: '—' }}</span>
+                    {{-- from ← to, short (step 14.72) --}}
+                    @php
+                        $from = $sug->kind === 'field' && empty($sug->payload['clear']) ? trim((string) $sug->current_value) : '';
+                        // two long texts: only the changed words, with a few around them
+                        $changed = $from !== '' && (mb_strlen($from) > 40 || mb_strlen((string) $sug->suggested_value) > 60)
+                            ? \App\Support\WordDiff::compact(\App\Support\WordDiff::ops($from, (string) $sug->suggested_value), 3, 0) : null;
+                        if ($changed && count($changed) > 7) {
+                            $changed = [...array_slice($changed, 0, 7), ['…', '…']];
+                        }
+                    @endphp
+                    @if($changed)
+                        <span class="text-ink" data-change><x-admin.word-diff :ops="$changed" /></span>
+                    @else
+                        @if($from !== '')
+                            <span class="text-muted" title="{{ $from }}" data-from>{{ \Illuminate\Support\Str::limit($from, 40) }}</span>
+                            <span class="text-muted" aria-label="به">←</span>
+                        @endif
+                        <span class="text-ink" title="{{ $sug->suggested_label }}" data-to>{{ \Illuminate\Support\Str::limit($sug->suggested_label, 60) ?: '—' }}</span>
+                    @endif
                 @endif
             </x-admin.cell>
             <x-admin.cell label="از">

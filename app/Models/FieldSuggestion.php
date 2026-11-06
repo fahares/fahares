@@ -115,6 +115,14 @@ class FieldSuggestion extends Model
         return SuggestionRegistry::typeLabel($this->suggestable_type) . ' #' . \App\Support\Fa::digits($this->suggestable_id);
     }
 
+    /** The record's real title for the review desk's lists (step 14.72): a work's title, not only «اثر #id»; for feedback «صفحه: …». */
+    public function getRecordTitleAttribute(): string
+    {
+        $record = $this->kind === 'feedback' ? null : $this->suggestable;
+
+        return $record ? (string) SuggestionRegistry::describe($record)['label'] : $this->place_label;
+    }
+
     public function getPlaceUrlAttribute(): ?string
     {
         if ($this->kind === 'feedback') {
