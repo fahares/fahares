@@ -8055,3 +8055,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `catalogs:link-volumes`
   4. `fahares:rebuild-scripts`
   5. `fahares:link-autograph-scribes`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`.
+  - شناسه‌ی نسخه‌ها در تولید با نسخه‌ی محلی یکی بود. پیش از اجرا با پرس‌وجوی فقط‌خواندنی سنجیده شد.
+  - خروجی‌ها: «Applying 1 moves and 0 folds. and 6 twin folds.» و «Adding 1 works … copies: 14 moved, 0 made».
+  - `rebuild-scripts` «0 copies» در گام ۱ داد و `link-autograph-scribes` «Updated 0».
+  - اثر تازه در تولید شناسه‌ی 71839 دارد؛ در نسخه‌ی محلی 71720 بود.
