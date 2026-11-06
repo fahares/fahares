@@ -7765,6 +7765,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   اجرای دوم همین شمارها را داد.
 - **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
 - **آزمون:** `FixAbdolazimNavabCataloguesTest`.
+
 ### گام ۱۴.۵۰: پنل منابع، `SourceMerger` و `VolumeEditor`
 - **کلاس‌ها:**
   - `App\Sources\SourceMerger`: منطق `sources:merge-split` از دستور به این کلاس رفت. `plan()` جلدها را جفت می‌کند، `counts()` پیش‌نمایش را می‌دهد و `apply()` ادغام می‌کند. دستور و پنل هر دو از آن استفاده می‌کنند. تابع‌های ایستای دستور (`foldVolume`، `baseTitle`، `volumeNumber`…) برای فراخواننده‌های دیگر به همین کلاس ارجاع می‌دهند.
