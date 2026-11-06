@@ -8012,3 +8012,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `FieldSuggestion::suggested_label` برای `payload.clear` برچسب `SuggestionRegistry::CLEAR_LABEL` است و در فهرست پنل، «پیشنهادهای من» و صفحه‌ی گفت‌وگو به کار می‌رود.
 - **تأیید:** `SuggestionApplier::PERSON_ACTIONS` گزینه‌ی `clear` گرفت: نام و `id_column` تهی و `autograph_column` نادرست می‌شوند. ردیف `manuscript_people` با `SyncsPrimaryContributor` می‌رود. `applied_value` تهی و `resolution.cleared` ثبت می‌شود. پیش‌گزیده‌ی `person_pick` برای `payload.clear` همین `clear` است.
 - **آزمون:** `ConvertSuggestionTest`: تبدیل و تأیید خالی‌کردن کاتب نسخه‌ی دستخط مؤلف و بازگرداندن آن، رد خالی‌کردن فیلد بله/خیر و فیلد خالی، و مقدار کنونی زنده برای پیشنهاد بی‌مقدار ذخیره‌شده.
+
+### گام ۱۴.۶۱: `fankha_v2_leading_author_export.py`
+- **اسکریپت تازه در fahares-corpus** (کامیت `a76b048`): `scripts/fankha_v2_leading_author_export.py --diffs reports/fankha_v2_db_review8/diffs.jsonl --out FILE`.
+  - **ورودی:** ردیف‌های `Work / author_name / filled` که حفاظت‌شده نیستند (۱۵۳ ردیف).
+  - **شرط:** سطر نخستِ غیرخالی `description`، پس از `bare()`، باید با `author.name` یا `author.name_raw` اثر v2 یکی باشد. `bare()` تاریخ («، 282 - 370 قمری»، «(-1216ق)»)، سده («، ق 12 قمری»، «قرن 13 قمری») و آوانگاری در همان سطر را برمی‌دارد. مقایسه بی‌فاصله است. اگر شماره‌ی اثر به اثر دیگری اشاره کند، `by_title_and_author` گام ۱۴.۸ به کار می‌رود.
+  - **خروجی:** `author_name` و `description` بی آن سطر. سطر بعدی هم برداشته می‌شود اگر حرف لاتین دارد و حرف فارسی ندارد. («،» حرف شمرده نمی‌شود: «ozbake'ī ،ab-ol-hasan».) `author` با سده‌ی v2 همراه است و بی سده `null` است.
+  - **بیرون مانده:** «؟»دار ۲۴، دارای مؤلف در سایت ۱۹، بی‌شرح یا بی‌مؤلف در v2 ۸، و شرحی که با نام v2 آغاز نمی‌شود ۶ (16825، 16826، 22983، 26562، 54971، 65462).
+- **فایل تصمیم:** `database/data/fankha_leading_author_step14_61.json` با ۹۶ `work_updates` و `category: leading_author`.
+- **دسته‌بندی ۲۳۵ ردیف مؤلف** (`different`، `filled` و `emptied` بی `fate`): ۵۳ `run_shift`. از روی شماره‌ی نسخه‌ها سنجیده شد: اثر سایت دست‌کم نیمی از نسخه‌های اثرِ کناری v2 با همان مؤلف را دارد. از بقیه، ۲۹ مورد اکنون یکی‌اند و ۱۳۴ مورد `site_empty`.
+- **تمرین روی fahares_prod:** «update 96»، «Derived data of works: works=96, with_dedication=6». پیوند شخص برای ۲ اثر ساخته شد. اجرای دوم «update 0» بود. `fahares:link-autograph-scribes` هم ۱۷ نسخه را به‌روز کرد.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_leading_author_step14_61.json --apply`
+  2. `fahares:link-autograph-scribes`
