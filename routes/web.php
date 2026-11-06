@@ -346,7 +346,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Catalogers & Bibliographers
-    Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update'])->middleware('can:catalogers.edit');
+    Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'create', 'store', 'edit', 'update'])->middleware('can:catalogers.edit');
 
     // Home page content: texts, banner slides, featured images, home catalogers; and the emails' shared frame
     Route::middleware('can:home.manage')->group(function () {

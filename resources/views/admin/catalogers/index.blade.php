@@ -2,10 +2,13 @@
 
 @section('title', 'فهرست‌نگاران')
 @section('page_title', 'فهرست‌نگاران')
+@section('page_actions')
+    <x-ui.btn :href="route('admin.catalogers.create')" variant="primary" size="sm">افزودن فهرست‌نگار</x-ui.btn>
+@endsection
 
 @section('content')
 <p class="text-[13px] text-muted mb-4 max-w-3xl leading-7">
-    استادان و پژوهشگرانی که نسخه‌ها را در فهرست‌های چاپی شناسانده‌اند. تصویر و شناسنامه‌ی هر کدام از اینجا ویرایش می‌شود.
+    استادان و پژوهشگرانی که نسخه‌ها را در فهرست‌های چاپی شناسانده‌اند. فهرست‌نگار تازه از دکمه‌ی «افزودن» ساخته می‌شود، و تصویر و شناسنامه‌ی هر کدام از اینجا ویرایش می‌شود.
     <b class="text-ink tabular-nums">{{ \App\Support\Fa::num($catalogers->count()) }}</b> فهرست‌نگار.
 </p>
 
