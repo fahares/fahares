@@ -112,7 +112,7 @@ class FieldSuggestion extends Model
             return 'صفحه: ' . ($this->payload['title'] ?? $this->payload['url'] ?? 'نامشخص');
         }
 
-        return SuggestionRegistry::typeLabel($this->suggestable_type) . ' #' . $this->suggestable_id;
+        return SuggestionRegistry::typeLabel($this->suggestable_type) . ' #' . \App\Support\Fa::digits($this->suggestable_id);
     }
 
     public function getPlaceUrlAttribute(): ?string

@@ -17,10 +17,11 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ \App\Support\VersionedAsset::url('favicon.ico') }}">
     
-    <!-- Google Fonts: Vazirmatn -->
+    <!-- Google Fonts: Vazirmatn for text, Noto Naskh Arabic for record titles and headings (font-naskh, .rubric), as on the
+         public site; without it those fell back to a system font whose digits had another shape (backlog item 89) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')

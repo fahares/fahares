@@ -329,15 +329,15 @@ class SuggestionRegistry
             ],
             'work' => [
                 'label' => $record->primary_title,
-                'sub' => implode(' · ', array_filter([$record->author_name, $record->composition_date_raw, $record->manuscripts_count . ' نسخه'])),
+                'sub' => implode(' · ', array_filter([$record->author_name, $record->composition_date_raw, \App\Support\Fa::num($record->manuscripts_count) . ' نسخه'])),
                 'url' => route('works.show', $record),
             ],
             'person' => [
                 'label' => $record->name,
                 'sub' => implode(' · ', array_filter([
                     \App\Http\Controllers\SuggestionController::lifeYears($record),
-                    $record->works_count ? $record->works_count . ' اثر' : null,
-                    $record->manuscripts_count ? $record->manuscripts_count . ' نسخه' : null,
+                    $record->works_count ? \App\Support\Fa::num($record->works_count) . ' اثر' : null,
+                    $record->manuscripts_count ? \App\Support\Fa::num($record->manuscripts_count) . ' نسخه' : null,
                 ])),
                 'url' => route('people.show', $record),
             ],

@@ -73,6 +73,6 @@
         <p class="text-muted">موردی نیست.</p>
     @endforelse
 
-    {{ $reviews->links() }}
+    {{ $reviews->links('admin.partials.pagination') }}
 </div>
 @endsection
