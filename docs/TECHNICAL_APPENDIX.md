@@ -7783,3 +7783,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۷۵ نسخه نوشته شد و ۴۳ نسخه دوباره جلد گرفتند. خروجی داده‌های مشتق: dates=37، extents=51، lines=54.
   - `rebuild-scripts` خط ۱۹ نسخه را عوض کرد.
 - **آزمون:** `OtherCitationsTest::test_a_rebuilt_copy_whose_citation_changed_goes_to_the_volume_its_library_cites`
+### گام ۱۴.۵۳: بخش دوم دهخدا و ترتیب بخش‌ها در `catalogs:import-volume-parts`
+- **داده:** در `database/data/volume_parts_nashriyeh.json`، بخش `{"daftar": 3, "library": "thran-lght-namh-dhkhda-27", "pages": [1, 59], "key": "fankha-229-pages-1-59"}` در جای ۹ نشست، پیش از «ملی» (ردیف ۱۷۹). کلید این بخش `key` است نه `fankha_row`، چون `partKey` ردیف فنخا را مقدم می‌گیرد و دو بخش با یک ردیف یکی شمرده می‌شدند.
+- **`ImportVolumePartsCommand`:**
+  - `partsToReorder()`: بخش‌های ساخته‌شده‌ای را می‌شمارد که `sort`شان با جایشان در فایل یکی نیست، و «parts to put in the file's order: N» گزارش می‌کند. این شمار در شرط «Nothing to do» هم آمده است.
+  - `writeParts()`: `sort` بخش موجود را به جایش در فایل برمی‌گرداند.
+  - پشتیبان کلید تازه‌ی `parts` (`id` و `sort`) را دارد و `revert` آن را با `restoreColumns` برمی‌گرداند. پشتیبان‌های پیش از این گام این کلید را ندارند.
+- **سنجش پیش از کار (نسخه‌ی محلی):** ۵۳۲ نسخه‌ی دهخدا همه روی بخش ۷۳۱ (ص ۳۸۸–۴۲۶) بودند. `page_start` ارجاع ۳۳۹ تای آن‌ها ۳ تا ۵۹ و ۱۹۳ تای دیگر ۳۸۸ تا ۴۲۶ بود.
+- **اجرای پروداکشن:**
+  1. `catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json --dry-run`. انتظار: «parts to make: 1 of 133» و «parts to put in the file's order: 123».
+  2. همان دستور بی `--dry-run`. دستور خودش پشتیبان می‌گیرد.
+- **وارسی:** کتابخانه‌ی `thran-lght-namh-dhkhda-27` باید دو بخش در دفتر ۳ داشته باشد: ص ۱–۵۹ با ۳۳۹ نسخه و ص ۳۸۸–۴۲۶ با ۱۹۳ نسخه.
+- **آزمون:** `test_a_library_of_two_parts_in_one_volume_and_a_part_put_in_between_keep_the_files_order`.
