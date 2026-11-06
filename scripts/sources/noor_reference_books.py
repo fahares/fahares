@@ -61,12 +61,17 @@ def is_person(heading):
 SOURCES = {
     'mushar-fa': ('03292', range(1, 6), {3}, set(), None, True, False, False, False),
     'mushar-ar': ('03291', range(1, 2), {2}, set(), None, True, False, False, False),
+    'mushar-authors': ('03299', range(1, 7), {3, 4, 5, 6}, {4, 5, 6}, None, True, False, False, False),
     'sarkis': ('03307', range(1, 3), {3, 4, 5}, {4, 5}, None, False, False, False, False),
     'ayan': ('03265', range(1, 11), {3, 4, 5}, set(), {1, 2, 3}, False, True, False, False),
     'rawdat': ('11453', range(1, 9), {3}, set(), {1, 2, 4}, False, False, True, False),
     'kalam-turath': ('23986', range(1, 6), {3}, set(), {1, 2}, False, False, True, True),
     'fuqaha': ('03267', range(1, 15), {3, 4, 5, 6}, set(), {1, 2}, False, False, True, True),
 }
+
+# sources whose letters' headings may stand at an entry's level; elsewhere a one-letter heading may be an entry's
+# («ب», Sarkis's) or a word cut from one («ص», A'yan's), and those already on the site keep their entries
+LETTERS = {'mushar-authors'}
 
 LINE = ''  # a line break the text keeps: before and after a verse that opens a line
 
@@ -199,7 +204,7 @@ def body_items(db, doc):
     return out, {int(p): t for p, t in notes.items() if p.isdigit()}
 
 
-def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False):
+def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False, letters=False):
     fix = (lambda s: s.translate(PERSIAN)) if persian else (lambda s: s)
     items, notes = body_items(db, f'{series}_{number:03d}')
     pages, order = {}, []
@@ -218,12 +223,14 @@ def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, pe
             heading = fix(text_of(head.group(2), keep=False)) if head else None
             # the entry's own text without Noor's marks, which only the page keeps
             plain = fix(text_of(chunk, keep=False))
-            if level in entry_levels and (not person or is_person(heading)) and (not only_numbered or NUMBERED.match(heading)):
+            # a letter's heading among the entries' («خ» at level 3 in Mushar's authors) ends the entry before it
+            letter = letters and heading is not None and len(heading.replace(' ', '')) <= 1
+            if level in entry_levels and not letter and (not person or is_person(heading)) and (not only_numbered or NUMBERED.match(heading)):
                 entries.append({'level': level, 'heading': heading, 'page': label, 'lines': [plain], 'breaks': []})
                 pages[label].append('')  # a blank line before each entry
                 pages[label].append(t)
                 continue
-            if level is not None and (level in end_levels if end_levels else level < min(entry_levels)):
+            if level is not None and (letter or (level in end_levels if end_levels else level < min(entry_levels))):
                 entries.append(None)  # a letter's heading ends the entry before it
                 pages[label].append('')
             elif entries and entries[-1] is not None:
@@ -285,7 +292,7 @@ def main():
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
         for number in volumes:
-            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered)
+            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered, code in LETTERS)
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Page texts and entries of Kahhala's «معجم المؤلفین» from Noor's old «تراجم و کتاب‌شناسی ۳» (item 86, step 14.31), for
+"""Page texts and entries of Kahhala's «معجم المؤلفین» (item 86, step 14.31) and Zirikli's «الأعلام» (step 14.48) from
+Noor's old «تراجم و کتاب‌شناسی ۳», for
 sources:import-pages and sources:segment --entries.
 
-    python3 -I scripts/sources/noor_tarajim3.py TARAJIM3_DB OUT_DIR [--sources kahhala]
+    python3 -I scripts/sources/noor_tarajim3.py TARAJIM3_DB OUT_DIR [--sources kahhala,zirikli]
 
 Writes OUT_DIR/{code}/{volume:02d}.jsonl.gz with {"page", "text"} per printed page and OUT_DIR/{code}/{volume:02d}.entries.jsonl.gz
 with the volume's entries. The database is opened read-only.
@@ -27,6 +28,7 @@ from pathlib import Path
 # code: Noor book id, {the site's volume: Noor's volume}
 SOURCES = {
     'kahhala': (271, {n: n + 1 for n in range(1, 14)}),
+    'zirikli': (257, {n: n for n in range(1, 9)}),
 }
 
 # the line after a name: a life's dates
@@ -132,6 +134,69 @@ def volume(db, book, number):
     return pages, out_entries
 
 
+# Zirikli (step 14.48): a life opens with its subject's short name and his dates, Hijri then Common Era, and his full
+# name to a colon: «الغَرْناطي 495- 579 ه 1102- 1183 م إبراهيم بن أحمد بن عبد الرحمن …، أبو إسحاق: قاض أندلسي»,
+# «الإيجي ...- نحو 700 ه ...- نحو 1300 م …», «السَّمَوْأَل ...- نحو 65 ق ه ...- نحو 560 م …», and ends with the mark of
+# its footnote, the list of its sources, on a line of its own and a full stop after it. Between two lives, on the
+# line of the next one, come references to lives elsewhere, a name and a year each, «السِّمْنَاني- محمد بن أحمد 444»:
+# the short name starts after the last of them. Noor's volume N is the print's (Dar al-'Ilm li-l-Malayin).
+YEAR = r'(?:\.\.\.|(?:نحو|بعد|قبل|حوالي)?\s*\d{1,4})'
+PAIR = re.compile(rf'{YEAR}\s*-\s*{YEAR}\s*(?:ق\s*)?ه\s+{YEAR}\s*-\s*{YEAR}\s*(?:ق\s*)?م(?=\s|$)'
+                  rf'|كان حيا\s*(?:نحو\s*)?\d{{1,4}}\s*(?:ق\s*)?ه\s+كان حيا\s*(?:نحو\s*)?\d{{1,4}}\s*م(?=\s|$)')
+SHORT = re.compile(r'(?:^|\d\s)\s*([^\d\n]{2,80}?)\s*$')
+MARK = re.compile(r'^\((\d+)\)$')
+
+
+def zirikli_volume(db, book, number):
+    rows = db.execute('SELECT page_no, group_concat(text_plain, "\n"), group_concat(footnotes_plain, "\n") '
+                      'FROM (SELECT * FROM pages WHERE book_id = ? AND volume = ? ORDER BY page_no, seq) '
+                      'GROUP BY page_no ORDER BY page_no', (book, number)).fetchall()
+    pages, entries, open_ = [], [], False
+    for page, text, notes in rows:
+        raw = [' '.join(l.split()) for l in unreadable(text or '').split('\n')]
+        # «… الشواهق\n(2)\n.» → «… الشواهق ( 2 ).»: the life's footnote mark, and its end
+        lines, i = [], 0
+        while i < len(raw):
+            m = MARK.match(raw[i])
+            if m and lines and i + 1 < len(raw) and raw[i + 1] == '.':
+                lines[-1] += f' ( {m.group(1)} ).'
+                lines.append(None)  # the life ends here
+                i += 2
+                continue
+            lines.append(raw[i])
+            i += 1
+        notes = re.sub(r'^\((\d+)\)\n', r'( \1 ) ', unreadable(notes or '').strip(), flags=re.M)
+        pages.append({'page': page, 'text': '\n'.join(l for l in lines if l is not None).strip() + ('\n\n' + notes if notes else '')})
+        for line in lines:
+            if line is None:
+                open_ = False
+                continue
+            m = PAIR.search(line)
+            short = SHORT.search(line[:m.start()]) if m else None
+            if m and short:
+                after = line[m.end():].strip()
+                full = after.split(':', 1)[0].strip() if ':' in after[:250] else after.split('،', 1)[0].strip()
+                title = (full if 3 <= len(full) <= 150 else short.group(1)).strip(' .،')
+                entries.append({'heading': title, 'page': page, 'lines': [line[short.start(1):]], 'breaks': []})
+                open_ = True
+            elif open_ and line:
+                e = entries[-1]
+                if page != (e['breaks'][-1][1] if e['breaks'] else e['page']):
+                    e['breaks'].append((len('\n'.join(e['lines'])) + 1, page))
+                e['lines'].append(line)
+
+    out, per_page = [], {}
+    for e in entries:
+        page = e['page']
+        per_page[page] = per_page.get(page, 0) + 1
+        out.append({
+            'key': f'{page}#{per_page[page]}', 'kind': 'entry', 'title': e['heading'],
+            'page_start': page, 'page_end': e['breaks'][-1][1] if e['breaks'] else page, 'text': '\n'.join(e['lines']),
+            'page_breaks': [[at, p] for at, p in e['breaks']], 'parent_key': None,
+        })
+    return pages, out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('db')
@@ -144,7 +209,7 @@ def main():
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
         for number, noor in volumes.items():
-            pages, entries = volume(db, book, noor)
+            pages, entries = (zirikli_volume if code == 'zirikli' else volume)(db, book, noor)
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:

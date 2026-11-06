@@ -33,7 +33,7 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertSame([], $cite('مشار فارسی 724/2'));
         $this->assertSame([['mushar-ar', 1, 259]], $cite('مشار، عربی، 259 «جوامع الکلم» در 2 مجلد'));
         $this->assertSame([['mushar-ar', 1, 624]], $cite('مشار عربی 624-625'));
-        $this->assertSame([], $cite('مشار، مؤلفین 5/726'));
+        $this->assertSame([['mushar-authors', 5, 726]], $cite('مشار، مؤلفین 5/726')); // his other book (step 14.47)
 
         $this->assertSame([['sarkis', 1, 615]], $cite('معجم المطبوعات العربية 615/1'));
         $this->assertSame([['sarkis', 1, 1001]], $cite('سرکیس، معجم 1001/1'));
@@ -212,6 +212,45 @@ class NoorReferenceBooksTest extends TestCase
         $this->artisan('sources:link-items', ['volume' => 'rayhana', '--volume' => 1])->assertSuccessful();
         $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
         $this->assertSame(['100#2', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
+    }
+
+    public function test_mushars_authors_tie_a_work_to_its_authors_entry_and_keep_his_books_under_it()
+    {
+        // step 14.47: Fankha cites the author's page, «مشار، مؤلفین 37/5», where his printed books follow his life
+        $this->assertSame([['source' => 'mushar-authors', 'volume' => 5, 'page' => 37]], BibliographyLinks::citations('مشار، مؤلفین 37/5'));
+        $this->assertSame([['source' => 'kahhala', 'volume' => 12, 'page' => 298]], BibliographyLinks::citations('معجم المؤلفین 298/12'));
+
+        $volume = $this->volume('mushar-authors', 'مؤلفین کتب چاپی', 5, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'mushar-authors', 'pages' => self::FIXTURES . 'mushar-authors-v05-p37.jsonl', '--volume' => 5])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'mushar-authors', '--volume' => 5, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'mushar-authors-v05-p37.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $volume->id)->get()->keyBy('item_key');
+        $this->assertSame(SourceItem::KIND_SUB_ENTRY, $items['37#3']->kind);
+        $this->assertSame($items['37#2']->id, $items['37#3']->parent_id);
+
+        $work = $this->work('mushar-authors', 'المسائل البغدادیة', 'رشتی، کاظم بن قاسم', 5, 37, 'مشار، مؤلفین 37/5');
+        $this->artisan('sources:link-items', ['volume' => 'mushar-authors', '--volume' => 5])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['37#2', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
+    }
+
+    public function test_zirikli_lives_start_at_their_dates_after_the_references_to_other_lives()
+    {
+        // step 14.48: «السِّمْنَاني- محمد بن أحمد 444 … سَمْنُون بن حَمْزة ...- نحو 290 ه ...- نحو 903 م سمنون بن حمزة …»:
+        // the references to lives elsewhere stay out of the life, which is titled with the full name before the colon
+        $volume = $this->volume('zirikli', 'الأعلام', 3, Source::KIND_BIOGRAPHICAL);
+        $this->artisan('sources:import-pages', ['volume' => 'zirikli', 'pages' => self::FIXTURES . 'zirikli-v03-p140.jsonl', '--volume' => 3])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'zirikli', '--volume' => 3, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'zirikli-v03-p140.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $volume->id)->get()->keyBy('item_key');
+        $this->assertCount(5, $items);
+        $this->assertSame('السموأل بن يحيى بن عباس المغربي', $items['140#3']->title);
+        $this->assertStringStartsWith('سَمْنُون بن حَمْزة', $items['140#1']->text);
+
+        $work = $this->work('zirikli', 'بذل المجهود فی افحام الیهود', 'مغربی، سموأل بن یحیی', 3, 140, 'الاعلام 140/3');
+        $this->artisan('sources:link-items', ['volume' => 'zirikli', '--volume' => 3])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['140#3', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
     }
 
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume

@@ -7586,6 +7586,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
 - **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
 
+**اجرا روی پروداکشن (۱۵ آبان ۱۴۰۵):**
+- پشتیبان پیش از اجرا: `backups/step13/step14_42_fankha_citation_more_before.json` (`[]`).
+- دستور: `scripts/dev/prod-run jolly-tharp -- 'cd /app && php -d memory_limit=2G artisan fahares:sync-other-citations --apply --show=0'`.
+- خروجی: «Written: 2428 entries, 2080 at a volume, 0 stale removed».
+- وارسی: ۲٬۴۲۸ ردیف در ۲٬۳۵۷ نسخه، که ۲٬۰۸۰ ردیف `source_volume_id` دارند.
+
 ### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
 - **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
   - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
@@ -7616,6 +7622,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `sources:merge-split --only --group=catalogue-a524cf28e464,catalogue-c225f7337b0a --group=catalogue-27335f850012,catalogue-77a075f39d37` با `--dry-run`، سپس اجرای واقعی. کد رکورد جلددار سنا روی پروداکشن `catalogue-a524cf28e464` است و روی نسخه‌ی محلی `catalogue-5f84ccb88fc2`. این دستور پشتیبان و برگرداندن ندارد، پس پیش از اجرا ردیف‌های `sources`، `source_entries` و `field_evidence` این چهار منبع جدا پشتیبان گرفته شوند.
   3. `catalogs:link-volumes --dry-run`، سپس اجرای واقعی، بی `| tail` (یا با `set -o pipefail`).
 - **وارسی:** شمار مدخل‌هایی که `source_id`شان با منبع جلدشان (`source_volumes.source_id`) یکی نیست، باید صفر باشد. پیش از کار روی پروداکشن ۳٬۳۳۶ بود: سنا ۳٬۲۷۴ و دهگان ۶۲.
+- **اجرای پروداکشن (۱۵ آبان ۱۴۰۵، `prod-run` با نام جلسه‌ی `sort-out-the-two-sources`):**
+  1. **ادغام دهگان:** پشتیبان خود دستور در `../fahares-sources/backups/step13/step14.44_dehgan_fold_prod_before_20261105.json` است. ۶۳ نسخه منتقل شدند: دفتر اول ۴۳۰ و دفتر دوم ۲۸۵ نسخه.
+  2. **`merge-split`:** پشتیبان دستی در `step14.44_merge_split_prod_before_20261105.json` است (۴ ردیف `sources`، ۳٬۹۸۹ ردیف `source_entries` و ۴ ردیف `source_volumes`). نتیجه: منبع ۱۰۰۱۹۵ (سنا) ۳٬۲۷۴ مدخل دارد و `merged_codes = [catalogue-c225f7337b0a]`. منبع ۱۰۰۱۰۴ (دهگان) ۷۱۵ مدخل دارد و `merged_codes = [catalogue-dc258caef1e6, catalogue-77a075f39d37]`. شمار ناهمخوانی صفر است.
+  3. **`link-volumes`:** پشتیبان در `step14.44_link_volumes_prod_before_20261105.json` است: ۳۲٬۴۳۹ نسخه‌ی بی‌فهرست‌نگار، ۳۲٬۳۴۱ مدخل `fankha_citation` آن‌ها و ۵۹۱ ردیف `catalog_volume_cataloger`. خروجی: «Before: 32439 without cataloger, 28193 without volume» و «After: 32398 without cataloger, 28152 without volume». ۱۵ پیوند «left to» گزارش شدند و هیچ نشانی ناپیدا نبود. شمار `catalog_volumes` ۴۳۸ ماند و جلد تازه‌ای ساخته نشد.
+- **انتقال پشتیبان:** `scp` به کانتینر برنامه کار نمی‌کند («Connection closed»). فایل با `ssh fahares-app "cat file" > local` بیرون آورده شد.
 
 ### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
 - منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
@@ -7682,3 +7693,91 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صفحه‌ی جلد:** فهرست ۳۶۹ کتابخانه و ۱۰۶ فهرست‌نگار یک بار به‌صورت JSON می‌آید. هر select وقتی فرمش باز یا فوکوس می‌شود پر می‌شود. پیش از این تغییر، جلد ۵ «نشریه» با ۵۷ بخش ۳٫۸ مگابایت HTML داشت و پس از آن ۴۰۰ کیلوبایت دارد.
 - **آزمون:** `tests/Feature/Admin/AdminSourcesTest.php`، با ۷ آزمون، برای دسترسی، فهرست و فیلترها، ویرایش و برگرداندن، جلد، بخش‌ها و ادغام و برگرداندن آن.
 
+### گام ۱۴.۴۷: «مؤلفین کتب چاپی فارسی و عربی» مشار (مورد ۸۶)
+- **منشأ:** کتب مرجع ۲ نور، سری `03299`، شش جلد (`03299_001` تا `03299_006`). هر جلد صفحه‌های خودش را از ۱ می‌شمارد. سرعنوان سطح ۳ مؤلف است و سطح‌های ۴ تا ۶ کتاب‌های چاپی او («1 - دختر جنگل:»، «(الف) اقبالنامه …»).
+- **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
+  - کد `mushar-authors`: سطح‌های ۳ تا ۶ مدخل، و ۴ تا ۶ زیرمدخل، فارسی.
+  - **`LETTERS`:** فقط در این منبع، سرعنوانی با یک حرف («خ» در سطح ۳ جلد ۳) مدخل نیست و مدخل پیش از خود را می‌بندد.
+  - **چرا فقط این منبع:** اگر این قاعده همه‌جا اجرا می‌شد، دو مدخل روی سایت عوض می‌شد. در سرکیس ج ۲ مدخلی با عنوان «ب» عنوان کاملش را می‌گرفت. در اعیان ج ۱، مدخل 299#1 در ص ۳۰۱ بریده می‌شد، چون سرعنوان «ص» میان متن آن است.
+  - **وارسی:** خروجی mushar-fa، mushar-ar، sarkis و ayan با خواننده‌ی HEAD یکی است. خروجی rawdat، kalam-turath و fuqaha با فایل‌های `../fahares-sources/noor-printed` یکی است.
+- **[config/bibliography.php](../config/bibliography.php):** منبع `mushar-authors`، از نوع `biographical`، با `bare` = false.
+  - **الگو:** «مؤلفین مشار 89/1»، «مشار مؤلفین 736/5»، «مشار، مؤلفین، 257/5» و «مؤلفین کتب چاپی مشار 849/3-850».
+  - **بیرون از الگو:**
+    - «مؤلفین» بی «مشار» و بی «کتب چاپی»؛
+    - «معجم المؤلفین»، که کحاله است؛
+    - «مؤلفین کتب چاپی فارسی و عربی: 636/6»، چون دونقطه پس از نام جلد و صفحه را جدا نمی‌کند (۱ ارجاع).
+  - **یک ارجاع وارونه:** «مشار، مولفین 5/726» همان ج ۵ ص ۷۲۶ خوانده می‌شود.
+- **داده:** `../fahares-sources/noor-printed/mushar-authors/{NN}.jsonl.gz` و `{NN}.entries.jsonl.gz`. سطرهای آن‌ها به MD5SUMS افزوده شد.
+- **تمرین روی `fahares_prod` محلی** (`sources:backfill --only=registry` و `--only=bibliography`، سپس برای هر جلد `import-pages`، `segment --origin=noor` و `link-items --near`):
+  - **صفحه‌ها، ج ۱ تا ۶:** ۹۲۸، ۹۸۶، ۱٬۰۱۲، ۹۳۶، ۹۰۸ و ۹۱۰.
+  - **مدخل‌ها:** ۳٬۸۸۹، ۵٬۶۷۲، ۵٬۶۶۵، ۵٬۳۹۶، ۴٬۷۹۸ و ۵٬۰۷۹ (جمع ۳۰٬۴۹۹).
+  - **پیوندها:** ۷، ۳، ۵، ۰، ۴ و ۱ (جمع ۲۰ از ۲۴).
+    - `author_life` ۱۸، `author_life_title` ۱ و `near_author_life` ۱. همه با چشم وارسی شد و همه درست بود.
+    - **بی‌تطبیق:** غزالی (۵/۷۲۶) و دو اثر خواجه نصیر (۵/۷۳۶).
+- **آزمون:** `NoorReferenceBooksTest::test_mushars_authors_tie_a_work_to_its_authors_entry_and_keep_his_books_under_it`، با فیکسچر `mushar-authors-v05-p37`. در `test_citations_find_their_source_volume_and_column`، «مشار، مؤلفین 5/726» حالا به این منبع می‌رود.
+- **پروداکشن:** انتشار کد لازم است، چون الگو و منبع در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند و همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+
+### گام ۱۴.۴۸: الأعلام زرکلی از تراجم ۳ نور (مورد ۸۶)
+- **منشأ:** `tarajim3.db`، کتاب `257`. هشت جلد چاپ دار العلم للملایین، که جلد N نور همان جلد N سایت است.
+  - **صفحه‌ها:** ج ۱ تا ۸: ۵–۳۳۶، ۵–۳۴۱، ۵–۳۵۵، ۵–۳۳۴، ۵–۳۳۶، ۵–۳۳۵، ۵–۳۵۲ و ۵–۲۷۰.
+  - **مقایسه با سایت:** آخرین صفحه‌ی ج ۱ تا ۷ با `viewer.last_pages` سایت یکی است. ج ۸ سایت تا ۳۷۳ است.
+  - **سنجش:** در ۳۴۰ از ۳۸۰ ارجاع فنخا، نام مؤلف در صفحه‌ی ارجاع‌شده‌ی نور هست.
+- **[noor_tarajim3.py](../scripts/sources/noor_tarajim3.py):** `zirikli_volume()`.
+  - **آغاز زندگی‌نامه:** `PAIR`، یعنی تاریخ هجری و میلادی: «495- 579 ه 1102- 1183 م»، «...- نحو 700 ه ...- نحو 1300 م»، «… ق ه» و «كان حيا … ه كان حيا … م».
+  - **نام کوتاه:** پیش از تاریخ‌ها، پس از آخرین ارجاعِ «نام- نام سال» (`SHORT`).
+  - **عنوان:** نام کامل پس از تاریخ‌ها تا «:»، یا اگر «:» نیامد تا نخستین «،». اگر این نام کمتر از ۳ یا بیشتر از ۱۵۰ نویسه بود، نام کوتاه عنوان می‌شود.
+  - **پایان زندگی‌نامه:** نشانه‌ی پانوشت روی سطر خودش، «(N)»، با «.» در سطر بعد. این دو به «( N ).» در پایان سطر پیش تبدیل می‌شوند.
+    - سطرهای پس از آن تا زندگی‌نامه‌ی بعد ارجاع به جاهای دیگرند و در هیچ زندگی‌نامه‌ای نمی‌آیند.
+    - پانوشت‌ها «( N ) …» در پایان صفحه می‌آیند.
+  - **حروف لاتین:** متن لاتینی که خوانده نشده، مانند گام ۱۴.۳۱، با `unreadable()` به «[…]» تبدیل می‌شود.
+  - **وارسی:** خروجی kahhala بایت‌به‌بایت با `../fahares-sources/noor-tarajim3/kahhala` یکی است.
+- **داده:** `../fahares-sources/noor-tarajim3/zirikli/{NN}.jsonl.gz` و `{NN}.entries.jsonl.gz`. سطرهای آن‌ها به MD5SUMS افزوده شد.
+- **مدخل‌ها، ج ۱ تا ۸:** ۱٬۶۵۳، ۱٬۵۹۱، ۱٬۶۰۶، ۱٬۸۰۸، ۱٬۴۸۲، ۱٬۷۴۹، ۱٬۵۴۴ و ۱٬۰۵۶ (جمع ۱۲٬۴۸۹).
+  - **عنوان‌ها:** ۷۴۰ عنوان «بن» ندارند. این‌ها نام‌های تازه‌اند، مانند «إبراهيم رمزي»، یا نام کوتاه.
+- **تمرین روی `fahares_prod` محلی:** برای هر جلد `import-pages zirikli`، `segment zirikli --origin=noor` و `link-items zirikli`.
+  - **پیوندها:** ۲۸۸ از ۳۷۹ ارجاع جادار: `author_life` ۱۶۰، `author_life_title` ۱۱۷ و `title_in_text` ۱۱.
+  - **بی `--near`:** با `--near` ۸ پیوند به صفحه‌ی همسایه هم ساخته می‌شد (۷ `near_author_life` و ۱ `near_title_in_text`). در ۵ تا از ۷ `near_author_life`، زندگی‌نامه‌ی شخص دیگری بود، مانند «قاری هروی» ← «فيصل بن سلطان الدويش». پس برای زرکلی `--near` به کار نمی‌رود.
+  - **یک اجرای دوم بی `--near`:** ۸ پیوند همسایه را برداشت.
+- **آزمون:** `NoorReferenceBooksTest::test_zirikli_lives_start_at_their_dates_after_the_references_to_other_lives`، با فیکسچر `zirikli-v03-p140` (۵ زندگی‌نامه).
+- **پروداکشن (۱۵ آبان ۱۴۰۵):** بی انتشار کد. فرمان‌ها را جلسه‌ی مدیریت تسک‌ها با نام `task-management` و از راه `prod-run` اجرا کرد، و همه با کد خروج ۰ پایان یافتند.
+  - **پشتیبان:** dump کامل روی میزبان، `fahares-server ~/backups/before_step14_48_zirikli_20261105_1438.sql.gz` (۳۶۳ مگابایت، md5 `30d1cbef1d0f6da171f1529aa846d64b`). روی سرور ماند.
+  - **ورودی:** ۱۶ فایل در `/tmp/zirikli` کانتینر، همه درست طبق MD5SUMS.
+  - **صفحه‌ها، ج ۱ تا ۸:** ۳۲۹، ۳۳۷، ۳۵۰، ۳۳۰، ۳۳۲، ۳۳۱، ۳۴۸ و ۲۶۵ (جمع ۲٬۶۲۲).
+  - **زندگی‌نامه‌ها:** ۱٬۶۵۳، ۱٬۵۹۱، ۱٬۶۰۶، ۱٬۸۰۸، ۱٬۴۸۲، ۱٬۷۴۹، ۱٬۵۴۴ و ۱٬۰۵۶ (جمع ۱۲٬۴۸۹، برابر تمرین، و شمارش دوباره در پروداکشن هم همین بود).
+  - **پیوندها، بی `--near`:** ۴۰، ۳۹، ۲۲ و ۱ به‌روزشده، ۳۶، ۳۱، ۴۷، ۴۶ و ۲۶. جمع ۲۸۷ ساخته و ۱ به‌روز شد، یعنی ۲۸۸ برابر تمرین. در ج ۳ یک یادکرد از پیش بود و به‌روز شد.
+  - **`scout:import "App\Models\SourceItem"`:** انجام شد.
+
+### گام ۱۴.۴۹: فهرست‌نگار و چاپ `catalogue-b89f67efe34f` (عبدالعظیم) و `catalogue-41322fd8f0f4` (نواب)
+- **فرمان:** [FixAbdolazimNavabCataloguesCommand](../app/Console/Commands/FixAbdolazimNavabCataloguesCommand.php) با نام `catalogs:fix-abdolazim-navab` و گزینه‌ی `--dry-run`.
+  - منبع‌ها را با کد پیدا می‌کند و فهرست‌نگاران را با شناسه‌ی MTIF (حافظیان ۵۶۹۶۵، صدرائی ۳۷۱۶۶، فاضل ۳۷۲۶۳، بینش ۳۷۲۷۸).
+  - اگر جلدی جز فهرست‌نگار نادرست یا درست فهرست‌نگار دیگری داشته باشد، اجرا نمی‌شود.
+- **مأخذ:** `fahares-corpus/catalogs/fankha_complete_catalogs_table.md`، ردیف‌های ۲۸۲، ۲۸۳ و ۵۲۷. ردیف ۵۲۶ («دو کتابخانه مشهد»، ص ۴۳۹–۵۶۲) نسخه‌ی دیگری است و یک نسخه آن را جدا با «دو کتابخانه مشهد: ف» ارجاع داده است.
+- **ارجاع‌های نسخه‌ها:**
+  - **عبدالعظیم:** ۷۲۵ ارجاع به جلد ۱، که بیشترین صفحه‌شان ۴۴۳ است. ۳۰۹ ارجاع به جلد ۲، که ۳۰۸ تایشان در ص ۴۴۹–۶۷۷ اند.
+  - **نواب:** ۹۸۱ ارجاع تک‌جلدی، ص ۹–۵۴۶.
+- **تغییرها:**
+  - **`catalog_volumes` و `source_volumes`:**
+
+    | جلد | ناشر و سال | صفحه‌ها |
+    |---|---|---|
+    | 524 | دار الحدیث ۱۳۸۲ | `pages_count` ۴۴۳ |
+    | 525 | دار الحدیث ۱۳۸۲ | `page_first` ۴۴۹، `page_last` ۶۷۸ |
+    | 493 | عروج اندیشه ۱۳۸۸ | `pages_count` ۶۳۹؛ عنوان «فهرست نسخه‌های خطی مدرسه علمیه عالی نواب» |
+
+  - **`sources`:** ناشر و سال هر دو منبع، و عنوان منبع نواب.
+  - **`metadata.group` منبع نواب:** کلید گروهِ عنوان تازه است (`SourceEntrySync::groupKey`)، تا `sources:backfill` همان منبع را با همان کد، که نام فایل جلدش است، دوباره پیدا کند.
+  - **`catalog_volume_cataloger`:** هر جلد فقط فهرست‌نگار درست را با نقش `cataloger` دارد.
+  - **`manuscripts.cataloger_id`:** نسخه‌های هر جلد از فهرست‌نگار نادرست به فهرست‌نگار درست رفتند.
+  - **شمارش:** `Cataloger::recount` برای این چهار نفر.
+- **تمرین روی `fahares_prod` محلی (کپی ۱۲ آبان):**
+
+  | فهرست‌نگار | جلدها | نسخه‌ها |
+  |---|---|---|
+  | حافظیان | ۲۶ | ۲۱٬۳۳۶ |
+  | صدرائی | ۲۴ | ۲۴٬۶۲۸ |
+  | فاضل | ۱۸ | ۱۰٬۹۶۶ |
+  | بینش | ۲ | ۵۶۹ |
+
+  اجرای دوم همین شمارها را داد.
+- **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
+- **آزمون:** `FixAbdolazimNavabCataloguesTest`.
