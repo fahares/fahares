@@ -41,6 +41,7 @@ class ManuscriptLocation
         $manuscript->metadata = $meta;
 
         $previousLibrary = $manuscript->library_id;
+        $previousShelfmark = $manuscript->shelfmark;
         if ($libraryChanged) {
             $manuscript->forceFill(['library_id' => $library->id, 'library' => $library->name, 'city' => $library->city]);
         }
@@ -58,7 +59,13 @@ class ManuscriptLocation
         return [
             'old' => $old,
             'new' => $new,
-            'resolution' => array_filter(['library_id' => $libraryChanged ? $library->id : null, 'shelfmark' => $shelfmarkChanged ? $shelfmark : null]),
+            // the earlier place too, so the page of the library it left finds it (backlog item 39)
+            'resolution' => array_filter([
+                'library_id' => $libraryChanged ? $library->id : null,
+                'from_library_id' => $libraryChanged ? $previousLibrary : null,
+                'shelfmark' => $shelfmarkChanged ? $shelfmark : null,
+                'from_shelfmark' => $shelfmarkChanged ? $previousShelfmark : null,
+            ], fn ($v) => $v !== null && $v !== ''),
         ];
     }
 

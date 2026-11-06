@@ -25,6 +25,7 @@
                                 <a href="{{ $info['url'] }}" class="font-semibold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $info['label'] }}</a>
                                 @if($info['sub'])<span class="text-[11px] text-muted"> · {{ $info['sub'] }}</span>@endif
                                 @if($item['note'])<span class="text-[11px] text-muted"> ({{ $item['note'] }})</span>@endif
+                                @if($item['credit'] ?? null)<span class="block text-[10px] text-muted">به پیشنهاد {{ $item['credit'] }}</span>@endif
                             </div>
                         @endforeach
                     </dd>

@@ -159,7 +159,7 @@ class Contributions
                 'before' => self::recordLink('work', $resolution['from_work_id'] ?? $old['work_id'] ?? null),
                 'after' => self::recordLink('work', $resolution['work_id'] ?? null),
             ],
-            'merge', 'merge_library' => [
+            'merge', 'merge_library', 'merge_people' => [
                 'record' => self::recordLink(SuggestionRegistry::typeKey($s->suggestable_type), $resolution['kept_id'] ?? null) ?? self::link($s->suggestable),
                 'text' => 'رکورد تکراری «' . self::snapshotLabel($old['source_snapshot'] ?? null, $resolution['removed_id'] ?? null) . '» در این رکورد ادغام شد.',
             ],
@@ -200,6 +200,121 @@ class Contributions
             ],
             default => [],
         };
+    }
+
+    /**
+     * The correction history of one record page (backlog item 39): its own approved corrections and those
+     * made elsewhere that changed it, a copy moved to or from this work, a duplicate merged into it, a relation
+     * from the other side, a person or library given a work or a copy. Newest first, one entry per correction.
+     *
+     * @return Collection<int, array> summaries with 'line', the sentence read from this record's side
+     */
+    public static function forRecord(Model $record, int $limit = 200): Collection
+    {
+        $type = $record::class;
+        $id = (int) $record->getKey();
+        $json = fn ($q, string $path) => $q->orWhereRaw("JSON_VALUE(resolution, '$.{$path}') = ?", [$id]);
+        $names = fn (string $on, array $applies) => array_keys(array_filter(
+            SuggestionRegistry::RELATIONS[$on] ?? [], fn ($r) => in_array($r['apply'] ?? null, $applies, true)));
+
+        $query = self::publicQuery()->where(function ($q) use ($type, $id, $json, $names, $record) {
+            $q->where(fn ($own) => $own->where('suggestable_type', $type)->where('suggestable_id', $id));
+            $key = SuggestionRegistry::typeKey($type);
+            // a duplicate merged into this record, a record split off from it, a relation from the other side
+            $q->orWhere(fn ($same) => $same->where('suggestable_type', $type)->where('kind', 'relation')->where(function ($r) use ($json, $names, $key) {
+                $json($json($r, 'kept_id'), 'created_id');
+                $r->orWhere(fn ($rel) => $rel->whereIn('field_name', $names($key, ['record_relation']) ?: ['-'])
+                    ->where(fn ($ends) => $json($json($ends, 'from'), 'to')));
+            }));
+            if ($record instanceof \App\Models\Work) {
+                $q->orWhere(fn ($moved) => $moved->where('suggestable_type', \App\Models\Manuscript::class)
+                    ->whereIn('field_name', $names('manuscript', ['move']))
+                    ->where(fn ($ends) => $json($json($ends, 'work_id'), 'from_work_id')));
+            }
+            if ($record instanceof \App\Models\Library) {
+                $q->orWhere(fn ($moved) => $moved->where('suggestable_type', \App\Models\Manuscript::class)
+                    ->whereIn('field_name', $names('manuscript', ['relocate']))
+                    ->where(fn ($ends) => $json($json($ends, 'library_id'), 'from_library_id')));
+            }
+            if ($record instanceof \App\Models\Person) {
+                foreach (['work', 'manuscript'] as $on) {
+                    $q->orWhere(fn ($linked) => $linked->where('suggestable_type', SuggestionRegistry::modelClass($on))
+                        ->whereIn('field_name', $names($on, ['contributor_set', 'contributor_add', 'person_role']))
+                        ->where(fn ($ends) => $json($json($ends, 'person_id'), 'previous_id')));
+                }
+            }
+        });
+
+        $suggestions = $query->with(['user', 'suggestable'])
+            ->orderByDesc('reviewed_at')->orderByDesc('id')->limit($limit)->get();
+
+        return self::summarize($suggestions)->map(fn (array $item) => $item + ['line' => self::line($item, $record)]);
+    }
+
+    /**
+     * One correction as a sentence on a record's page, after «به پیشنهاد …،»: a list of parts, each a string
+     * or a link (label, url). The record itself reads «این اثر», «این نسخه»…
+     *
+     * @return array<int, string|array{label: string, url: ?string}>
+     */
+    public static function line(array $item, Model $record): array
+    {
+        $s = $item['suggestion'];
+        $self = 'این ' . SuggestionRegistry::typeLabel($record::class);
+        $own = $s->suggestable_type === $record::class && (int) $s->suggestable_id === (int) $record->getKey();
+        $resolution = $s->resolution ?? [];
+        $quote = fn (?array $part) => $part ? ['label' => $part['label'], 'url' => $part['url']] : 'نامشخص';
+        $apply = $s->relationDefinition()['apply'] ?? null;
+        $workRef = function ($id, ?array $link) use ($record) {
+            return $record instanceof \App\Models\Work && (int) $id === (int) $record->getKey() ? 'این اثر' : ['اثر ', $link ? ['label' => '«' . $link['label'] . '»', 'url' => $link['url']] : 'نامشخص'];
+        };
+        // the record the correction was made on, when it is not this one
+        $where = $own || ! $item['record'] ? [] : [SuggestionRegistry::typeLabel($s->suggestable_type) . ' ', ['label' => '«' . $item['record']['label'] . '»', 'url' => $item['record']['url']], '، '];
+        $flat = fn (array $parts) => array_values(array_filter(\Illuminate\Support\Arr::flatten(array_map(fn ($p) => is_array($p) && isset($p['label']) ? [$p] : $p, $parts), 1), fn ($p) => $p !== '' && $p !== null));
+
+        if ($apply === 'move') {
+            $from = $resolution['from_work_id'] ?? null;
+            $to = $resolution['work_id'] ?? null;
+            $subject = $own ? [$self] : ['نسخه‌ی ', ['label' => '«' . ($item['record']['label'] ?? 'نامشخص') . '»', 'url' => $item['record']['url'] ?? null]];
+
+            return $flat([$subject, ' از ', $workRef($from, $item['before']), ' به ', $workRef($to, $item['after']), ' منتقل شد.']);
+        }
+        if ($apply === 'relocate') {
+            $subject = $own ? [$self] : ['نسخه‌ی ', ['label' => '«' . ($item['record']['label'] ?? 'نامشخص') . '»', 'url' => $item['record']['url'] ?? null]];
+
+            return $flat([$subject, $item['before'] ? [' از «', $item['before']['label'], '»'] : '', ' به ', $item['after'] ? ['«', $quote($item['after']), '»'] : 'جای تازه', ' منتقل شد.']);
+        }
+        if (in_array($apply, ['merge', 'merge_library', 'merge_people'], true)) {
+            return [$item['text']];
+        }
+        if ($apply === 'split' && ! $own) {
+            return $flat([$self . ' از تفکیک ', $where[1] ?? 'رکورد دیگری', ' ساخته شد.']);
+        }
+        if ($apply === 'record_relation') {
+            $relation = self::recordRelation($s, $resolution, $s->relationDefinition()['target'] ?? null, (int) $record->getKey());
+
+            return $flat(['رابطه ثبت شد: ', $relation['text'] ?? '', $relation['after'] ? [' «', $quote($relation['after']), '»'] : '']);
+        }
+        if ($s->kind === 'note' || $s->kind === 'general' || $s->review_queue) {
+            return $flat([$where, $s->kind === 'note' ? $item['action'] . ': ' : '', $item['text'] ?? '']);
+        }
+        if ($s->kind === 'field') {
+            $field = '«' . $item['action'] . '»';
+            if ($s->standing && $s->standing !== 'adopted' && $s->standing !== 'edit') {
+                return $flat([$where, 'برای ', $field, ' ' . ($item['standing'] ?? 'قول دیگر') . ' ثبت شد: «', $item['after']['label'] ?? '', '»']);
+            }
+            if (! $item['before']) {
+                return $flat([$where, $field, ' با «', $item['after']['label'] ?? '', '» تکمیل شد.']);
+            }
+
+            return $flat([$where, $field, ' از «', $item['before']['label'], '» به «', $item['after']['label'] ?? 'خالی', '» اصلاح شد.']);
+        }
+
+        // contributors, roles, aliases, renames, the relation on its own page
+        $after = $item['after'] ? $quote($item['after']) : null;
+
+        return $flat([$where, $item['action'], $after || $item['before'] || $item['text'] ? ': ' : '.', $item['text'] ? $item['text'] . ($after ? ' ' : '') : '',
+            $after ? ['«', $after, '»'] : '', $item['before'] ? [' (پیشین: «', $quote($item['before']), '»)'] : '']);
     }
 
     /** @return array<int, AuditLog> by suggestion id */
@@ -265,9 +380,10 @@ class Contributions
     }
 
     /** «این اثر شرحی است بر اثر انتخاب‌شده» read from the record's side: the resolution keeps from/to, not the option picked. */
-    private static function recordRelation(FieldSuggestion $s, array $resolution, ?string $target): array
+    private static function recordRelation(FieldSuggestion $s, array $resolution, ?string $target, ?int $viewer = null): array
     {
-        $forward = ($resolution['from'] ?? $s->suggestable_id) === $s->suggestable_id;
+        $viewer ??= (int) $s->suggestable_id;
+        $forward = (int) ($resolution['from'] ?? $s->suggestable_id) === $viewer;
         $other = $forward ? ($resolution['to'] ?? null) : ($resolution['from'] ?? null);
         $type = $resolution['type'] ?? ltrim((string) ($s->payload['role'] ?? ''), '~');
         $option = $type === '' ? null : (RecordRelations::options($s->suggestable_type)[($forward || in_array($type, RecordRelations::SYMMETRIC, true) ? '' : '~') . $type] ?? null);

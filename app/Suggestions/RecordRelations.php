@@ -132,7 +132,7 @@ class RecordRelations
     /**
      * The record's relations in both directions, grouped by the label shown on its page.
      *
-     * @return Collection<string, Collection<int, array{record: Model, note: ?string}>>
+     * @return Collection<string, Collection<int, array{record: Model, note: ?string, credit: ?string}>>
      */
     public static function for(Model $record): Collection
     {
@@ -141,6 +141,9 @@ class RecordRelations
         $rows = DB::table($table)->where($key, $record->id)->orWhere($relatedKey, $record->id)->orderBy('id')->get();
         $ids = $rows->flatMap(fn ($r) => [$r->{$key}, $r->{$relatedKey}])->reject(fn ($id) => $id == $record->id)->unique();
         $records = $class::whereIn('id', $ids)->get()->keyBy('id');
+        // «به پیشنهاد …» beside a relation, only where the submitter allowed the name (backlog item 39)
+        $credits = \App\Models\FieldSuggestion::whereIn('id', $rows->pluck('suggestion_id')->filter()->unique())
+            ->where('status', 'approved')->pluck('credit_name', 'id');
 
         $groups = collect();
         foreach ($rows as $row) {
@@ -150,7 +153,8 @@ class RecordRelations
                 continue;
             }
             $label = $types[$row->type][$outgoing ? 0 : 1];
-            $groups->put($label, ($groups->get($label) ?? collect())->push(['record' => $other, 'note' => $row->note]));
+            $groups->put($label, ($groups->get($label) ?? collect())->push(['record' => $other, 'note' => $row->note,
+                'credit' => trim((string) ($row->suggestion_id ? $credits->get($row->suggestion_id) : '')) ?: null]));
         }
 
         return $groups;

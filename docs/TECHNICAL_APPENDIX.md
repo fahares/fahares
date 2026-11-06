@@ -8096,3 +8096,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - همه در انتظار داوری‌اند.
 - **آزمون:** `NoorReferenceBooksTest::test_kashf_al_hujub_and_mu_allafat_al_zaydiyya_entries_are_numbered_and_found_by_title_and_author`، با فیکسچرهای `kashf-hujub-v01-p263` (شش «رسالة في الرجعة» که مؤلف از هم جدایشان می‌کند) و `zaydiyya-v01-p245`.
 - **پروداکشن:** انتشار کد لازم است، چون دو منبع تازه در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند، همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+
+### گام ۱۴.۶۶: `Contributions::forRecord` و `<x-record-history>` (مورد ۳۹)
+- **[Contributions.php](../app/Suggestions/Contributions.php):**
+  - **`forRecord(Model $record)`:** روی `publicQuery()`. شرط‌ها با `OR`:
+    - `suggestable` همین رکورد.
+    - هم‌نوع با `kind` = `relation` و `resolution.kept_id` یا `created_id` برابر شناسه، یا رابطه‌ی `record_relation` با `from` یا `to` برابر شناسه.
+    - اثر: پیشنهاد نسخه با `apply` = `move` و `work_id` یا `from_work_id`.
+    - کتابخانه: پیشنهاد نسخه با `apply` = `relocate` و `library_id` یا `from_library_id`.
+    - شخص: پیشنهاد اثر یا نسخه با `apply` در `contributor_set`، `contributor_add` و `person_role`، و `person_id` یا `previous_id`.
+    - همه با `JSON_VALUE(resolution, '$.…')`. نام فیلدها از `SuggestionRegistry::RELATIONS` بر اساس `apply` خوانده می‌شود. ترتیب `reviewed_at` نزولی، حد ۲۰۰.
+  - **`line($item, $record)`:** جمله‌ی پس از «به پیشنهاد …،» به صورت فهرستی از رشته و پیوند (`label`, `url`). جمله‌های جدا برای `move`، `relocate`، ادغام‌ها، `split` از سوی رکورد ساخته‌شده، `record_relation` (با `recordRelation(..., $viewer)` از دید صفحه)، `field` (اصلاح، تکمیل، قول دیگر)، `note`، `general` و صف تصحیح جمعی. بقیه: «{action}: «after» (پیشین: «before»)».
+  - `relationSummary`: `merge_people` به `merge` و `merge_library` افزوده شد. پیش‌تر ادغام اشخاص متنی نداشت.
+- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** ۱۰ ردیف و «نمایش همه» با Alpine. جمله در PHP با `e()` سر هم می‌شود تا میان بخش‌ها فاصله‌ی زائد نیفتد. پس از `<x-suggest.notes>` در هر چهار صفحه.
+- **[RecordRelations::for](../app/Suggestions/RecordRelations.php):** کلید تازه‌ی `credit`، یعنی `credit_name` پیشنهاد تأییدشده‌ی `suggestion_id` ردیف. `record-relations.blade.php` آن را زیر رابطه نشان می‌دهد.
+- **[ManuscriptLocation](../app/Suggestions/ManuscriptLocation.php):** `resolution` افزون بر `library_id` و `shelfmark`، `from_library_id` و `from_shelfmark` را هم دارد، هر کدام فقط وقتی همان جزء تغییر کرده باشد.
+- **[fahares:backfill-suggestion-resolution](../app/Console/Commands/BackfillSuggestionResolutionCommand.php):** پیشنهادهای تأییدشده‌ی نسخه با `apply` = `move` یا `relocate` که کلید مبدأ ندارند. مقدار از `old_values` نخستین لاگ ممیزی با `new_values.suggestion_id` خوانده می‌شود. پیش‌فرض فقط گزارش است و `--apply` می‌نویسد (`saveQuietly`).
+  - **تمرین روی `fahares_prod`:** «Written: 2 of 2»، یعنی #۱۲ (لاگ ۵۵) و #۱۳ (لاگ ۹۸)، هر دو `from_work_id` = 51727. اجرای دوم «0 of 0».
+- **آزمون:** `RecordHistoryTest`، ۶ آزمون: انتقال در سه صفحه، بی‌نام و پنهان ماندن پیشنهاد در انتظار، ادغام کتابخانه به دست ویراستار و نبودن بخش بی‌اصلاح، تغییر کتابخانه در هر دو کتابخانه، رابطه از دو سو با نام و پدیدآور در صفحه‌ی شخص، و دستور پرکردن.
+- **پروداکشن، پس از استقرار:** پشتیبان از `field_suggestions`، سپس `php artisan fahares:backfill-suggestion-resolution` (گزارش) و `--apply`. شناسه‌های #۱۲ و #۱۳ در تولید و محلی یکی‌اند (رونوشت).
