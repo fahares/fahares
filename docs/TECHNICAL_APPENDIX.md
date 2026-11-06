@@ -7987,3 +7987,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_59.json --apply`
   2. `catalogs:link-volumes`
   3. `fahares:rebuild-scripts`
+
+### گام ۱۴.۶۰: پیشنهاد خالی‌کردن فیلد و `person_action` = `clear`
+- **مقدار کنونی:** `SuggestionRegistry::currentValue` برای `input` = `person`، اگر ستون نام خالی باشد نام `Person` از `id_column` را می‌گیرد. `scribe_name` کلید `autograph_column` = `is_autograph` گرفت؛ با آن مقدار «دستخط مؤلف (نام)» است.
+  - `Admin\SuggestionController::show` اگر `current_value` ذخیره‌شده خالی باشد و پیشنهاد `pending` باشد، `currentValue` امروز را با برچسب «اکنون در پایگاه داده» نشان می‌دهد (`$currentValue`، `$currentIsLive`).
+- **تبدیل:** `convert` ورودی `clear` را می‌گیرد. پیشنهاد تازه `suggested_value` = `''` و `payload.clear` = `true` دارد. `SuggestionRegistry::clearable($field)` فیلد `boolean`، `required` و `can_be_absent` را رد می‌کند؛ فیلدی که `currentValue` آن `null` است هم رد می‌شود. `fieldChoices` کلید `clearable` را به `convert-desk.js` می‌دهد (`clearing`).
+  - `FieldSuggestion::suggested_label` برای `payload.clear` برچسب `SuggestionRegistry::CLEAR_LABEL` است و در فهرست پنل، «پیشنهادهای من» و صفحه‌ی گفت‌وگو به کار می‌رود.
+- **تأیید:** `SuggestionApplier::PERSON_ACTIONS` گزینه‌ی `clear` گرفت: نام و `id_column` تهی و `autograph_column` نادرست می‌شوند. ردیف `manuscript_people` با `SyncsPrimaryContributor` می‌رود. `applied_value` تهی و `resolution.cleared` ثبت می‌شود. پیش‌گزیده‌ی `person_pick` برای `payload.clear` همین `clear` است.
+- **آزمون:** `ConvertSuggestionTest`: تبدیل و تأیید خالی‌کردن کاتب نسخه‌ی دستخط مؤلف و بازگرداندن آن، رد خالی‌کردن فیلد بله/خیر و فیلد خالی، و مقدار کنونی زنده برای پیشنهاد بی‌مقدار ذخیره‌شده.

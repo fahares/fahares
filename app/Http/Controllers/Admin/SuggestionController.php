@@ -94,6 +94,14 @@ class SuggestionController extends Controller
                 ->reject(fn (Person $p) => in_array($p->id, [$people['suggested']?->id, $people['current']?->id], true));
         }
 
+        // A suggestion saved without the value then on the record (one converted before step 14.60) shows the value now
+        $currentValue = $suggestion->current_value;
+        $currentIsLive = false;
+        if (($currentValue === null || $currentValue === '') && $field && $target && $suggestion->status === 'pending') {
+            $currentValue = SuggestionRegistry::currentValue($target, $field);
+            $currentIsLive = $currentValue !== null;
+        }
+
         $parsedYear = $field && $field['input'] === 'hijri_date' ? HijriYear::parse($suggestion->applied_value ?? $suggestion->suggested_value) : null;
 
         // The adopted reading an approval here would replace
@@ -108,7 +116,7 @@ class SuggestionController extends Controller
         $wasPromoted = $suggestion->standing === 'adopted'
             && ! empty(AuditLog::activeForSuggestion($suggestion->id)?->new_values['promoted']);
 
-        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted'));
+        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'currentValue', 'currentIsLive', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted'));
     }
 
     /** Reviewer outcomes for a field suggestion and the standing each gives it. */
@@ -189,7 +197,7 @@ class SuggestionController extends Controller
                 $result = ['old' => [], 'new' => [], 'resolution' => ['applied' => false]];
                 // A rollback returns a promoted alternative to its old standing, not to the queue
                 $logExtra = $promoting ? ['promoted' => true] : [];
-                $appliedValue = $field ? (trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['applied_value'] ?? ''))) ?: null) : null;
+                $appliedValue = $field && ($validated['person_action'] ?? null) !== 'clear' ? (trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['applied_value'] ?? ''))) ?: null) : null;
 
                 // General reports and retired fields are handled by hand; approving only records the decision.
                 // An alternative reading is kept with its evidence and leaves the record as it is.
@@ -930,6 +938,7 @@ class SuggestionController extends Controller
             'suggested_value' => 'nullable|string|max:20000',
             'rationale_citation' => 'nullable|string|max:5000',
             'note' => 'nullable|array',
+            'clear' => 'nullable|boolean',
             'close_original' => 'nullable|boolean',
         ]);
 
@@ -964,12 +973,20 @@ class SuggestionController extends Controller
                     if (! $field) {
                         return back()->withInput()->withErrors(['field_name' => 'فیلد مقصد را انتخاب کنید.']);
                     }
-                    if ($value === '') {
-                        return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید.']);
+                    // «این فیلد خالی شود»: e.g. the copy is not in the author's hand and its scribe is unknown
+                    $clear = $request->boolean('clear');
+                    if ($clear && ! SuggestionRegistry::clearable($field)) {
+                        return back()->withInput()->withErrors(['suggested_value' => 'این فیلد را نمی‌توان خالی کرد.']);
                     }
-                    $personId = $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null;
-                    $attributes = ['field_name' => $field['name'], 'suggested_value' => SuggestionRegistry::submittedValue($field, $value), 'current_value' => SuggestionRegistry::currentValue($record, $field),
-                        'payload' => array_filter(['person_id' => $personId]) + $attributes['payload']];
+                    if ($clear && SuggestionRegistry::currentValue($record, $field) === null) {
+                        return back()->withInput()->withErrors(['suggested_value' => 'این فیلد هم‌اکنون خالی است.']);
+                    }
+                    if (! $clear && $value === '') {
+                        return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید، یا «این فیلد خالی شود» را بزنید.']);
+                    }
+                    $personId = $field['input'] === 'person' && ! $clear ? ($validated['person_id'] ?? null) : null;
+                    $attributes = ['field_name' => $field['name'], 'suggested_value' => $clear ? '' : SuggestionRegistry::submittedValue($field, $value), 'current_value' => SuggestionRegistry::currentValue($record, $field),
+                        'payload' => array_filter(['person_id' => $personId, 'clear' => $clear]) + $attributes['payload']];
                     break;
                 case 'note':
                     if (! NoteTypes::allowed($type, $validated['field_name'] ?? null)) {
