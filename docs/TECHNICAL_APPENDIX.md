@@ -8115,3 +8115,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین روی `fahares_prod`:** «Written: 2 of 2»، یعنی #۱۲ (لاگ ۵۵) و #۱۳ (لاگ ۹۸)، هر دو `from_work_id` = 51727. اجرای دوم «0 of 0».
 - **آزمون:** `RecordHistoryTest`، ۶ آزمون: انتقال در سه صفحه، بی‌نام و پنهان ماندن پیشنهاد در انتظار، ادغام کتابخانه به دست ویراستار و نبودن بخش بی‌اصلاح، تغییر کتابخانه در هر دو کتابخانه، رابطه از دو سو با نام و پدیدآور در صفحه‌ی شخص، و دستور پرکردن.
 - **پروداکشن، پس از استقرار:** پشتیبان از `field_suggestions`، سپس `php artisan fahares:backfill-suggestion-resolution` (گزارش) و `--apply`. شناسه‌های #۱۲ و #۱۳ در تولید و محلی یکی‌اند (رونوشت).
+### گام ۱۴.۶۵: «؟» چسبیده در `MarkHedgedAuthorsCommand::hedgeOf` و `--hedged` در صدور
+- **`hedgeOf`:** برای «؟» شرط `(?=\s|$)` برداشته شد. برای واژه‌های دیگر `HEDGES` همچنان هست، تا «شایسته» تردید شمرده نشود.
+- **`--file`:** اگر `description_to` در فایل باشد، حتی `null`، شرح همان می‌شود (`array_key_exists`). پیش از این `?? $work->description` شرح را نگه می‌داشت.
+- **صدور (پیکره):** `fankha_v2_leading_author_export.py --hedged` (کامیت در fahares-corpus). همان قاعده‌ی گام ۱۴.۶۱ است، با این تفاوت که `HEDGE` («؟» یا واژه‌ی تردید، با فاصله یا بی فاصله) پیش از `bare()` از سر سطر برداشته می‌شود. خروجی `items` برای `mark-hedged-authors --file` است. «؟» در میان نام (تاریخ یا نسبت) `skipped` است.
+- **فایل تصمیم:** `database/data/fankha_hedged_authors_step14_65.json` با ۱۶ `items`.
+- **تمرین روی fahares_prod:** «marked 44, added 16». اجرای دوم «marked 0, add_skipped 16» بود.
+  - تمرین نخست با فرمان پیشین، شرح ۶ اثر را نگه داشته بود. آن ۱۶ اثر در نسخه‌ی محلی بازگردانده شدند و فرمان اصلاح‌شده دوباره اجرا شد.
+- **آزمون‌ها:**
+  - `MarkHedgedAuthorsCommandTest::test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not`
+  - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
+- **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
+  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
