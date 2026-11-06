@@ -8108,6 +8108,89 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `MarkHedgedAuthorsCommandTest::test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not`
   - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
 - **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
+  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
+
+### گام ۱۴.۶۶: `Contributions::forRecord` و `<x-record-history>` (مورد ۳۹)
+- **[Contributions.php](../app/Suggestions/Contributions.php):**
+  - **`forRecord(Model $record)`:** روی `publicQuery()`. شرط‌ها با `OR`:
+    - `suggestable` همین رکورد.
+    - هم‌نوع با `kind` = `relation` و `resolution.kept_id` یا `created_id` برابر شناسه، یا رابطه‌ی `record_relation` با `from` یا `to` برابر شناسه.
+    - اثر: پیشنهاد نسخه با `apply` = `move` و `work_id` یا `from_work_id`.
+    - کتابخانه: پیشنهاد نسخه با `apply` = `relocate` و `library_id` یا `from_library_id`.
+    - شخص: پیشنهاد اثر یا نسخه با `apply` در `contributor_set`، `contributor_add` و `person_role`، و `person_id` یا `previous_id`.
+    - همه با `JSON_VALUE(resolution, '$.…')`. نام فیلدها از `SuggestionRegistry::RELATIONS` بر اساس `apply` خوانده می‌شود. ترتیب `reviewed_at` نزولی، حد ۲۰۰.
+  - **`line($item, $record)`:** جمله‌ی پس از «به پیشنهاد …،» به صورت فهرستی از رشته و پیوند (`label`, `url`). جمله‌های جدا برای `move`، `relocate`، ادغام‌ها، `split` از سوی رکورد ساخته‌شده، `record_relation` (با `recordRelation(..., $viewer)` از دید صفحه)، `field` (اصلاح، تکمیل، قول دیگر)، `note`، `general` و صف تصحیح جمعی. بقیه: «{action}: «after» (پیشین: «before»)».
+  - `relationSummary`: `merge_people` به `merge` و `merge_library` افزوده شد. پیش‌تر ادغام اشخاص متنی نداشت.
+- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** ۱۰ ردیف و «نمایش همه» با Alpine. جمله در PHP با `e()` سر هم می‌شود تا میان بخش‌ها فاصله‌ی زائد نیفتد. پس از `<x-suggest.notes>` در هر چهار صفحه.
+- **[RecordRelations::for](../app/Suggestions/RecordRelations.php):** کلید تازه‌ی `credit`، یعنی `credit_name` پیشنهاد تأییدشده‌ی `suggestion_id` ردیف. `record-relations.blade.php` آن را زیر رابطه نشان می‌دهد.
+- **[ManuscriptLocation](../app/Suggestions/ManuscriptLocation.php):** `resolution` افزون بر `library_id` و `shelfmark`، `from_library_id` و `from_shelfmark` را هم دارد، هر کدام فقط وقتی همان جزء تغییر کرده باشد.
+- **[fahares:backfill-suggestion-resolution](../app/Console/Commands/BackfillSuggestionResolutionCommand.php):** پیشنهادهای تأییدشده‌ی نسخه با `apply` = `move` یا `relocate` که کلید مبدأ ندارند. مقدار از `old_values` نخستین لاگ ممیزی با `new_values.suggestion_id` خوانده می‌شود. پیش‌فرض فقط گزارش است و `--apply` می‌نویسد (`saveQuietly`).
+  - **تمرین روی `fahares_prod`:** «Written: 2 of 2»، یعنی #۱۲ (لاگ ۵۵) و #۱۳ (لاگ ۹۸)، هر دو `from_work_id` = 51727. اجرای دوم «0 of 0».
+- **آزمون:** `RecordHistoryTest`، ۶ آزمون: انتقال در سه صفحه، بی‌نام و پنهان ماندن پیشنهاد در انتظار، ادغام کتابخانه به دست ویراستار و نبودن بخش بی‌اصلاح، تغییر کتابخانه در هر دو کتابخانه، رابطه از دو سو با نام و پدیدآور در صفحه‌ی شخص، و دستور پرکردن.
+- **پروداکشن، پس از استقرار:** پشتیبان از `field_suggestions`، سپس `php artisan fahares:backfill-suggestion-resolution` (گزارش) و `--apply`. شناسه‌های #۱۲ و #۱۳ در تولید و محلی یکی‌اند (رونوشت).
+
+### گام ۱۴.۶۷: `fankha_v2_fill_incipits_export.py`
+- **دسته‌بندی `different` (review8):** ۲۸۳ ردیف `incipit_text` و `explicit_text`. پس از برداشتن برچسب‌ها («آغاز …:»، «انجام:»، «(دیباچه):») و سنجش حرف‌ها:
+  - **نسخه‌ها:** ۱۴۹ مورد بریده یا افزوده، و ۵۱ مورد پیوستن بخش‌ها.
+  - **آثار:** ۴۰ مورد. مقدار سایت در هر ۴۰ در `raw_text` خود اثر است. مقدار v2 در ۲۶ مورد هست و در ۱۴ مورد (رشته‌های «ساقی نامه» و «الغیبة») نیست.
+- **اسکریپت تازه در fahares-corpus:** `scripts/fankha_v2_fill_incipits_export.py --diffs … --works FILE --copies FILE`.
+  - **ورودی:** ردیف‌های `filled` که حفاظت‌شده نیستند.
+  - **شرط:** ستون سایت خالی است، و `letters(v2)` (بی فاصله، نشانه و عدد) زیررشته‌ی `letters(raw_text)` همان رکورد است.
+  - **خروجی:** `work_updates` برای `add-corpus-works`، با `v2` برابر کلید طبیعی slug، و `records` برای `rebuild-copies`.
+  - اسکریپت باید پیش از هر اجرا روی همان پایگاه صادر شود: پس از اجرا، ستون پر است و رکورد بیرون می‌ماند. فایل نسخه‌ها پس از تمرین از audit همان اجرا بازساخته شد (۱۹۰ رکورد و ۳۷۳ مقدار، همه با `from` خالی).
+- **فایل‌ها:** `database/data/fankha_incipits_works_step14_67.json` (۴۳۲ اثر، ۶۸۹ مقدار) و `database/data/fankha_incipits_copies_step14_67.json` (۱۹۰ نسخه، ۳۷۳ مقدار).
+- **تمرین روی fahares_prod:**
+  - `add-corpus-works`: «update 432»، «Derived data of works: works=432, with_dedication=42». بار نخست کلید `v2` نبود و تراکنش برگشت.
+  - `rebuild-copies`: «Rebuilding 190 copies»، `pointers_linked=260`، و «2 copies relinked».
+  - اجرای دوم: «update 0» و `already 190`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_incipits_works_step14_67.json --apply`
+  2. `fahares:rebuild-copies --file=database/data/fankha_incipits_copies_step14_67.json --apply`
+
+### گام ۱۴.۶۸: تاریخ تذکره‌های فارسی و مصفی المقال (مورد ۸۶)
+- **منشأ:**
+  - **تاریخ تذکره‌ها:** پایگاه تاریخ و سیره‌ی نور (`History-DB/history_book_corpus.db`، جدول `book_doc_items`، ستون‌های `story_id` و `xml_text` به ترتیب `item_no`). سری `11595`، چاپ دوم، تهران ۱۳۶۳ش، دو جلد.
+    - تذکره‌ها در سطح ۴ و بخش‌هایشان («نسخه:»، «ترجمۀ مؤلف») در سطح‌های ۵ تا ۷ آمده‌اند. حرف‌ها و بخش‌های کتاب در سطح‌های ۱ تا ۳ مدخل را می‌بندند.
+  - **مصفی المقال:** `aqabozorg.db`، سند `11980_001` (تهران ۱۳۳۷ش). مؤلف در سطح ۲ آمده و حرف‌ها در سطح‌های ۱ و ۳.
+- **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
+  - **`body_items`:** اگر جدول `book_texts` نباشد، از `book_doc_items` می‌خواند.
+  - **`CLEAN`:** عنوان را پس از `title_of` کوتاه می‌کند.
+    - تذکره: «\s+(تألیف|از|اثر)\s…» برداشته می‌شود.
+    - مصفی: پرانتزهای تاریخ پایان سرعنوان برداشته می‌شوند: «(1114) (1173)»، «(م 1326) (ق)»، «(1305 او 1306)»، «(ق: 2)»، «()».
+    - ۱۱ عنوان مصفی تاریخی در میان نام دارند، مانند «احمد بن محمد ابراهيم (1295) النصيرآبادى»، یا «زنده …» دارند.
+  - **وارسی:** خروجی mushar-fa، mushar-ar، sarkis و ayan با خواننده‌ی HEAD یکی است. خروجی mushar-authors، rawdat، kalam-turath و fuqaha با فایل‌های `noor-printed` یکی است.
+- **[config/bibliography.php](../config/bibliography.php):**
+  - **`tazkira`:** دو جلد، `bare` = false. «تاریخ تذکره‌های فارسی 136/1» و «… 12/1-14». «تاریخ تذکره‌های فارسی 136» بی جلد پیوند ندارد (۶ ارجاع).
+  - **`mosaffa`:** یک جلد، از نوع `biographical`. «مصفی المقال 245»، «… ص 245» و «…: 33».
+- **سنجش چاپ‌ها:** در هر سنجش دیده شد که عنوان اثر، یا نام مؤلفش، در صفحه‌ی ارجاع‌شده یا یک صفحه پیش و پس از آن هست یا نه.
+  - **تذکره:** ۴۳ از ۶۰.
+  - **مصفی:** ۴۸ از ۵۹.
+  - **کنار گذاشته:**
+    - **استوری:** «ادبیات فارسی بر مبنای تألیف استوری»، سری `11699` پایگاه تاریخ. ۷ از ۱۶۱، و ۷۳ صفحه در آن نیست.
+    - **ریاض العلماء:**
+      - تراجم ۳ `191`: ۴ از ۷۵، و ۳۱ از ۷۵ با جلد +۱.
+      - کتب مرجع ۲ `36533` (بیروت ۲۰۱۰): ۳۳ از ۷۵.
+      - `20985` (مشهد ۱۳۸۹): ۴ از ۷۵.
+- **داده:** `../fahares-sources/noor-printed/{tazkira,mosaffa}/`. سطرهای آن‌ها به MD5SUMS افزوده شد.
+- **ترتیب فرمان‌ها از گام ۱۴.۵۷:** `CitationForms::sources()` منبعی را که کدش در `sources` ثبت شده، فقط از جدول `source_citation_forms` می‌خواند.
+  - **نشانه:** پس از `sources:backfill --only=registry`، شمار ارجاع‌های kashf-hujub، zaydiyya، tazkira و mosaffa در `fahares_prod` صفر شد.
+  - **ترتیب درست:** `sources:backfill --only=registry`، سپس `sources:import-citation-forms` (۴ الگو ساخت؛ منبعی که الگو دارد دست نمی‌خورد)، سپس `sources:backfill --only=bibliography` (ارجاع‌های منبع شناخته از ۱۹٬۸۰۲ به ۲۰٬۲۷۸).
+  - **وارسی:** `link-items` دوباره روی mushar-authors، kashf-hujub و zaydiyya همان پیوندها را نگه داشت (unchanged).
+- **تمرین روی `fahares_prod` محلی:** برای هر جلد `import-pages`، `segment --origin=noor` و `link-items --near`.
+  - **تذکره:**
+    - **صفحه‌ها و مدخل‌ها:** ج ۱: ۷۶۴ صفحه (۲–۷۶۵) و ۲۳۹ مدخل؛ ج ۲: ۸۶۰ صفحه (۳–۸۶۷) و ۳۱۵ مدخل.
+    - **پیوندها:** ۰ و ۴۲. همه‌ی ارجاع‌های جادار در ج ۲‌اند، تا ص ۷۷۴. `title_author` ۲۹، `title_in_text` ۱۰، `near_title_author` ۲ و `derivative_of_heading` ۱.
+    - **وارسی نمونه:** `title_in_text` (۶۰) یادکرد اثر در مدخل تذکره‌ی دیگری است، با نقش یادکرد.
+  - **مصفی:**
+    - ۶۱۹ صفحه و ۸۸۱ مدخل.
+    - ۴۲ پیوند برای ۴۱ از ۵۷ ارجاع: `author_life` ۱۸، `author_life_title` ۱۵، `title_in_text` ۸ و `near_author_life_title` ۱.
+- **آزمون:** `NoorReferenceBooksTest::test_tazkira_and_mosaffa_titles_leave_out_what_follows_the_name`، با فیکسچرهای `tazkira-v01-p3` و `mosaffa-v01-p246`.
+- **پروداکشن:** انتشار کد لازم است. پس از استقرار این ترتیب اجرا می‌شود:
+  1. `sources:backfill --only=registry`؛
+  2. `sources:import-citation-forms`؛
+  3. `sources:backfill --only=bibliography`؛
+  4. فرستادن فایل‌ها، و برای هر جلد `import-pages`، `segment` و `link-items --near`؛
+  5. `scout:import "App\Models\SourceItem"`.
 
 ### گام ۱۴.۶۹: ساخت فهرست‌نگار در پنل (مورد ۴۰)
 - **مسیرها:** `Route::resource('catalogers')` اکنون `create` و `store` را هم دارد، پشت همان `can:catalogers.edit`.
@@ -8157,84 +8240,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`reorder()`:** رابطه‌ی `messages()` با `orderBy('id')` تعریف شده است. پس `latest('id')` در `notifyStaff`، در یادآوری `expire()` و در `recentSameReply` به `reorder()->latest('id')` تبدیل شد.
 - **آزمون:** `Tests\Feature\DuplicateMessagesTest` (۶ آزمون).
 - **پروداکشن:** انتشار کد و migration، که خودکار اجرا می‌شود. دستور داده ندارد.
-  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
-
-### گام ۱۴.۶۷: `fankha_v2_fill_incipits_export.py`
-- **دسته‌بندی `different` (review8):** ۲۸۳ ردیف `incipit_text` و `explicit_text`. پس از برداشتن برچسب‌ها («آغاز …:»، «انجام:»، «(دیباچه):») و سنجش حرف‌ها:
-  - **نسخه‌ها:** ۱۴۹ مورد بریده یا افزوده، و ۵۱ مورد پیوستن بخش‌ها.
-  - **آثار:** ۴۰ مورد. مقدار سایت در هر ۴۰ در `raw_text` خود اثر است. مقدار v2 در ۲۶ مورد هست و در ۱۴ مورد (رشته‌های «ساقی نامه» و «الغیبة») نیست.
-- **اسکریپت تازه در fahares-corpus:** `scripts/fankha_v2_fill_incipits_export.py --diffs … --works FILE --copies FILE`.
-  - **ورودی:** ردیف‌های `filled` که حفاظت‌شده نیستند.
-  - **شرط:** ستون سایت خالی است، و `letters(v2)` (بی فاصله، نشانه و عدد) زیررشته‌ی `letters(raw_text)` همان رکورد است.
-  - **خروجی:** `work_updates` برای `add-corpus-works`، با `v2` برابر کلید طبیعی slug، و `records` برای `rebuild-copies`.
-  - اسکریپت باید پیش از هر اجرا روی همان پایگاه صادر شود: پس از اجرا، ستون پر است و رکورد بیرون می‌ماند. فایل نسخه‌ها پس از تمرین از audit همان اجرا بازساخته شد (۱۹۰ رکورد و ۳۷۳ مقدار، همه با `from` خالی).
-- **فایل‌ها:** `database/data/fankha_incipits_works_step14_67.json` (۴۳۲ اثر، ۶۸۹ مقدار) و `database/data/fankha_incipits_copies_step14_67.json` (۱۹۰ نسخه، ۳۷۳ مقدار).
-- **تمرین روی fahares_prod:**
-  - `add-corpus-works`: «update 432»، «Derived data of works: works=432, with_dedication=42». بار نخست کلید `v2` نبود و تراکنش برگشت.
-  - `rebuild-copies`: «Rebuilding 190 copies»، `pointers_linked=260`، و «2 copies relinked».
-  - اجرای دوم: «update 0» و `already 190`.
-- **ترتیب اجرا در تولید:**
-  1. `fahares:add-corpus-works --file=database/data/fankha_incipits_works_step14_67.json --apply`
-  2. `fahares:rebuild-copies --file=database/data/fankha_incipits_copies_step14_67.json --apply`
-### گام ۱۴.۶۶: `Contributions::forRecord` و `<x-record-history>` (مورد ۳۹)
-- **[Contributions.php](../app/Suggestions/Contributions.php):**
-  - **`forRecord(Model $record)`:** روی `publicQuery()`. شرط‌ها با `OR`:
-    - `suggestable` همین رکورد.
-    - هم‌نوع با `kind` = `relation` و `resolution.kept_id` یا `created_id` برابر شناسه، یا رابطه‌ی `record_relation` با `from` یا `to` برابر شناسه.
-    - اثر: پیشنهاد نسخه با `apply` = `move` و `work_id` یا `from_work_id`.
-    - کتابخانه: پیشنهاد نسخه با `apply` = `relocate` و `library_id` یا `from_library_id`.
-    - شخص: پیشنهاد اثر یا نسخه با `apply` در `contributor_set`، `contributor_add` و `person_role`، و `person_id` یا `previous_id`.
-    - همه با `JSON_VALUE(resolution, '$.…')`. نام فیلدها از `SuggestionRegistry::RELATIONS` بر اساس `apply` خوانده می‌شود. ترتیب `reviewed_at` نزولی، حد ۲۰۰.
-  - **`line($item, $record)`:** جمله‌ی پس از «به پیشنهاد …،» به صورت فهرستی از رشته و پیوند (`label`, `url`). جمله‌های جدا برای `move`، `relocate`، ادغام‌ها، `split` از سوی رکورد ساخته‌شده، `record_relation` (با `recordRelation(..., $viewer)` از دید صفحه)، `field` (اصلاح، تکمیل، قول دیگر)، `note`، `general` و صف تصحیح جمعی. بقیه: «{action}: «after» (پیشین: «before»)».
-  - `relationSummary`: `merge_people` به `merge` و `merge_library` افزوده شد. پیش‌تر ادغام اشخاص متنی نداشت.
-- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** ۱۰ ردیف و «نمایش همه» با Alpine. جمله در PHP با `e()` سر هم می‌شود تا میان بخش‌ها فاصله‌ی زائد نیفتد. پس از `<x-suggest.notes>` در هر چهار صفحه.
-- **[RecordRelations::for](../app/Suggestions/RecordRelations.php):** کلید تازه‌ی `credit`، یعنی `credit_name` پیشنهاد تأییدشده‌ی `suggestion_id` ردیف. `record-relations.blade.php` آن را زیر رابطه نشان می‌دهد.
-- **[ManuscriptLocation](../app/Suggestions/ManuscriptLocation.php):** `resolution` افزون بر `library_id` و `shelfmark`، `from_library_id` و `from_shelfmark` را هم دارد، هر کدام فقط وقتی همان جزء تغییر کرده باشد.
-- **[fahares:backfill-suggestion-resolution](../app/Console/Commands/BackfillSuggestionResolutionCommand.php):** پیشنهادهای تأییدشده‌ی نسخه با `apply` = `move` یا `relocate` که کلید مبدأ ندارند. مقدار از `old_values` نخستین لاگ ممیزی با `new_values.suggestion_id` خوانده می‌شود. پیش‌فرض فقط گزارش است و `--apply` می‌نویسد (`saveQuietly`).
-  - **تمرین روی `fahares_prod`:** «Written: 2 of 2»، یعنی #۱۲ (لاگ ۵۵) و #۱۳ (لاگ ۹۸)، هر دو `from_work_id` = 51727. اجرای دوم «0 of 0».
-- **آزمون:** `RecordHistoryTest`، ۶ آزمون: انتقال در سه صفحه، بی‌نام و پنهان ماندن پیشنهاد در انتظار، ادغام کتابخانه به دست ویراستار و نبودن بخش بی‌اصلاح، تغییر کتابخانه در هر دو کتابخانه، رابطه از دو سو با نام و پدیدآور در صفحه‌ی شخص، و دستور پرکردن.
-- **پروداکشن، پس از استقرار:** پشتیبان از `field_suggestions`، سپس `php artisan fahares:backfill-suggestion-resolution` (گزارش) و `--apply`. شناسه‌های #۱۲ و #۱۳ در تولید و محلی یکی‌اند (رونوشت).
-### گام ۱۴.۶۸: تاریخ تذکره‌های فارسی و مصفی المقال (مورد ۸۶)
-- **منشأ:**
-  - **تاریخ تذکره‌ها:** پایگاه تاریخ و سیره‌ی نور (`History-DB/history_book_corpus.db`، جدول `book_doc_items`، ستون‌های `story_id` و `xml_text` به ترتیب `item_no`). سری `11595`، چاپ دوم، تهران ۱۳۶۳ش، دو جلد.
-    - تذکره‌ها در سطح ۴ و بخش‌هایشان («نسخه:»، «ترجمۀ مؤلف») در سطح‌های ۵ تا ۷ آمده‌اند. حرف‌ها و بخش‌های کتاب در سطح‌های ۱ تا ۳ مدخل را می‌بندند.
-  - **مصفی المقال:** `aqabozorg.db`، سند `11980_001` (تهران ۱۳۳۷ش). مؤلف در سطح ۲ آمده و حرف‌ها در سطح‌های ۱ و ۳.
-- **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
-  - **`body_items`:** اگر جدول `book_texts` نباشد، از `book_doc_items` می‌خواند.
-  - **`CLEAN`:** عنوان را پس از `title_of` کوتاه می‌کند.
-    - تذکره: «\s+(تألیف|از|اثر)\s…» برداشته می‌شود.
-    - مصفی: پرانتزهای تاریخ پایان سرعنوان برداشته می‌شوند: «(1114) (1173)»، «(م 1326) (ق)»، «(1305 او 1306)»، «(ق: 2)»، «()».
-    - ۱۱ عنوان مصفی تاریخی در میان نام دارند، مانند «احمد بن محمد ابراهيم (1295) النصيرآبادى»، یا «زنده …» دارند.
-  - **وارسی:** خروجی mushar-fa، mushar-ar، sarkis و ayan با خواننده‌ی HEAD یکی است. خروجی mushar-authors، rawdat، kalam-turath و fuqaha با فایل‌های `noor-printed` یکی است.
-- **[config/bibliography.php](../config/bibliography.php):**
-  - **`tazkira`:** دو جلد، `bare` = false. «تاریخ تذکره‌های فارسی 136/1» و «… 12/1-14». «تاریخ تذکره‌های فارسی 136» بی جلد پیوند ندارد (۶ ارجاع).
-  - **`mosaffa`:** یک جلد، از نوع `biographical`. «مصفی المقال 245»، «… ص 245» و «…: 33».
-- **سنجش چاپ‌ها:** در هر سنجش دیده شد که عنوان اثر، یا نام مؤلفش، در صفحه‌ی ارجاع‌شده یا یک صفحه پیش و پس از آن هست یا نه.
-  - **تذکره:** ۴۳ از ۶۰.
-  - **مصفی:** ۴۸ از ۵۹.
-  - **کنار گذاشته:**
-    - **استوری:** «ادبیات فارسی بر مبنای تألیف استوری»، سری `11699` پایگاه تاریخ. ۷ از ۱۶۱، و ۷۳ صفحه در آن نیست.
-    - **ریاض العلماء:**
-      - تراجم ۳ `191`: ۴ از ۷۵، و ۳۱ از ۷۵ با جلد +۱.
-      - کتب مرجع ۲ `36533` (بیروت ۲۰۱۰): ۳۳ از ۷۵.
-      - `20985` (مشهد ۱۳۸۹): ۴ از ۷۵.
-- **داده:** `../fahares-sources/noor-printed/{tazkira,mosaffa}/`. سطرهای آن‌ها به MD5SUMS افزوده شد.
-- **ترتیب فرمان‌ها از گام ۱۴.۵۷:** `CitationForms::sources()` منبعی را که کدش در `sources` ثبت شده، فقط از جدول `source_citation_forms` می‌خواند.
-  - **نشانه:** پس از `sources:backfill --only=registry`، شمار ارجاع‌های kashf-hujub، zaydiyya، tazkira و mosaffa در `fahares_prod` صفر شد.
-  - **ترتیب درست:** `sources:backfill --only=registry`، سپس `sources:import-citation-forms` (۴ الگو ساخت؛ منبعی که الگو دارد دست نمی‌خورد)، سپس `sources:backfill --only=bibliography` (ارجاع‌های منبع شناخته از ۱۹٬۸۰۲ به ۲۰٬۲۷۸).
-  - **وارسی:** `link-items` دوباره روی mushar-authors، kashf-hujub و zaydiyya همان پیوندها را نگه داشت (unchanged).
-- **تمرین روی `fahares_prod` محلی:** برای هر جلد `import-pages`، `segment --origin=noor` و `link-items --near`.
-  - **تذکره:**
-    - **صفحه‌ها و مدخل‌ها:** ج ۱: ۷۶۴ صفحه (۲–۷۶۵) و ۲۳۹ مدخل؛ ج ۲: ۸۶۰ صفحه (۳–۸۶۷) و ۳۱۵ مدخل.
-    - **پیوندها:** ۰ و ۴۲. همه‌ی ارجاع‌های جادار در ج ۲‌اند، تا ص ۷۷۴. `title_author` ۲۹، `title_in_text` ۱۰، `near_title_author` ۲ و `derivative_of_heading` ۱.
-    - **وارسی نمونه:** `title_in_text` (۶۰) یادکرد اثر در مدخل تذکره‌ی دیگری است، با نقش یادکرد.
-  - **مصفی:**
-    - ۶۱۹ صفحه و ۸۸۱ مدخل.
-    - ۴۲ پیوند برای ۴۱ از ۵۷ ارجاع: `author_life` ۱۸، `author_life_title` ۱۵، `title_in_text` ۸ و `near_author_life_title` ۱.
-- **آزمون:** `NoorReferenceBooksTest::test_tazkira_and_mosaffa_titles_leave_out_what_follows_the_name`، با فیکسچرهای `tazkira-v01-p3` و `mosaffa-v01-p246`.
-- **پروداکشن:** انتشار کد لازم است. پس از استقرار این ترتیب اجرا می‌شود:
-  1. `sources:backfill --only=registry`؛
-  2. `sources:import-citation-forms`؛
-  3. `sources:backfill --only=bibliography`؛
-  4. فرستادن فایل‌ها، و برای هر جلد `import-pages`، `segment` و `link-items --near`؛
-  5. `scout:import "App\Models\SourceItem"`.
