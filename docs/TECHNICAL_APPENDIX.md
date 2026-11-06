@@ -7972,3 +7972,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `FieldSuggestion::suggested_label` برای `payload.clear` برچسب `SuggestionRegistry::CLEAR_LABEL` است و در فهرست پنل، «پیشنهادهای من» و صفحه‌ی گفت‌وگو به کار می‌رود.
 - **تأیید:** `SuggestionApplier::PERSON_ACTIONS` گزینه‌ی `clear` گرفت: نام و `id_column` تهی و `autograph_column` نادرست می‌شوند. ردیف `manuscript_people` با `SyncsPrimaryContributor` می‌رود. `applied_value` تهی و `resolution.cleared` ثبت می‌شود. پیش‌گزیده‌ی `person_pick` برای `payload.clear` همین `clear` است.
 - **آزمون:** `ConvertSuggestionTest`: تبدیل و تأیید خالی‌کردن کاتب نسخه‌ی دستخط مؤلف و بازگرداندن آن، رد خالی‌کردن فیلد بله/خیر و فیلد خالی، و مقدار کنونی زنده برای پیشنهاد بی‌مقدار ذخیره‌شده.
+### گام ۱۴.۵۹: داوری ۳۰ نسخه‌ی `needs_page_check` و بازسازی آن‌ها
+- **داوری:** هر نسخه با متن سایت، متن v2، نسخه‌های کناری v2 و تصویر صفحه‌ها (`storage/app/public/catalogs/fankha/vNN/pNNNN.webp`، صفحه‌ی نسخه و صفحه‌ی بعد) در سه دسته‌ی ده‌تایی به زیرعامل‌ها سپرده شد.
+  - فایل‌ها: `fahares-corpus/reports/fankha_v2_db_review8/page_check_step14_59/` (`INSTRUCTIONS.md`، `batchN.json`، `resultN.json`، `ids14_59.tsv`). این پوشه در git پیکره نیست.
+  - حکم‌ها: `v2` ۳۰، `site` ۰، `neither` ۰. نسخه‌های ۲۱۴۸۴ و ۱۸۶۴۳۸ دستی هم وارسی شدند.
+  - پایان متن نسخه‌های کناری (۱۶ مورد) در سایت دیده شد، مانند «[ف: 1-43]» در 334260 و «[ف: 10 - 2025]» در 334449.
+- **فایل تصمیم:** `database/data/fankha_rebuild_copies_step14_59.json` با ۳۰ رکورد، ساخته‌ی `fankha_v2_rebuild_export.py --ids ids14_59.tsv`.
+- **تمرین روی fahares_prod:**
+  - `rebuild-copies`: «Rebuilding 30 copies» و «27 copies relinked».
+  - `catalogs:link-volumes`: ۲۸ نسخه از ۳۰ جلد دارند.
+  - `fahares:rebuild-scripts`: ۱۱ نسخه در گام ۱.
+  - اجرای دوم: `already 30`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_59.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
