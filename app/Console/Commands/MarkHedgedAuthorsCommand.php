@@ -67,7 +67,8 @@ class MarkHedgedAuthorsCommand extends Command
                 if ($apply) {
                     DB::transaction(function () use ($work, $c) {
                         // the description v1 filled with the author line and its transliteration loses them, if it is unchanged
-                        $description = ($c['description_from'] ?? null) === $work->description ? ($c['description_to'] ?? $work->description) : $work->description;
+                        // a description that was the author line and nothing more is emptied («description_to»: null, step 14.65)
+                        $description = ($c['description_from'] ?? null) === $work->description && array_key_exists('description_to', $c) ? $c['description_to'] : $work->description;
                         DB::table('works')->where('id', $work->id)->update(['author_name' => $c['name'], 'description' => $description, 'updated_at' => now()]);
                         DB::table('work_people')->insert(['work_id' => $work->id, 'person_id' => null, 'name' => $c['name'], 'role' => WorkPerson::AUTHOR,
                             'position' => 0, 'certainty' => PersonNameMatcher::certainty($c['hedge']), 'hedge_raw' => $c['hedge'], 'created_at' => now(), 'updated_at' => now()]);
@@ -91,13 +92,14 @@ class MarkHedgedAuthorsCommand extends Command
         return self::SUCCESS;
     }
 
-    /** The hedge word that opens the author line (the third line) of a work's Fankha text, or null. */
+    /** The hedge word that opens the author line (the third line) of a work's Fankha text, or null (step 14.65: a «؟» touching the name too). */
     public static function hedgeOf(?string $raw): ?string
     {
         $lines = array_values(array_filter(array_map('trim', explode("\n", preg_replace('/<!--\s*page:\s*\d+\s*-->/u', ' ', (string) $raw)))));
         $line = $lines[2] ?? '';
         foreach (array_keys(PersonNameMatcher::HEDGES) as $hedge) {
-            if (preg_match('/^' . preg_quote($hedge, '/') . '(?=\s|$)/u', $line)) {
+            // «؟علی بن موسی»: the question mark may touch the name; a word needs its space («شایدی» is no hedge)
+            if (preg_match('/^' . preg_quote($hedge, '/') . ($hedge === '؟' ? '' : '(?=\s|$)') . '/u', $line)) {
                 return $hedge;
             }
         }
