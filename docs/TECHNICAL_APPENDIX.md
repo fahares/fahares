@@ -7671,3 +7671,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندها:** ۸۲، ۷۱، ۱۶۴، ۱۷۲، ۱۳۳، ۷۱، ۳۵، ۳۱ (جمع ۷۵۹، برابر تمرین). هیچ پیوندی به‌روز یا حذف نشد.
   - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
+
+### گام ۱۴.۵۱: `fankha_v2_boundaries.py` و بازسازی ۷۵ نسخه
+- **اسکریپت تازه در fahares-corpus:** `scripts/fankha_v2_boundaries.py --out FILE --ids FILE`.
+  - جفت‌ها را مانند `fankha_v2_db_compare.py` می‌سازد. جفتی را که با شماره‌ی نسخه یا پیشوند متن جفت شده، روی متن بی‌فاصله می‌سنجد: پیشوند و پسوند مشترک را کنار می‌گذارد و به آنچه می‌ماند نگاه می‌کند.
+  - اختلاف تا ۱۲ نویسه ناچیز شمرده می‌شود.
+  - حکم هر جفت از جای تکه‌ی متفاوت می‌آید: اگر تکه‌ی اضافه‌ی سایت از آنِ نسخه‌ی دیگری در v2 است، `site_glued_v2_right`. اگر تکه‌ی اضافه‌ی v2 در نسخه‌ی دیگری از سایت هست، `v2_glued_site_right`. اگر v2 پایانی دارد که در هیچ جای سایت نیست، `site_lost_end_v2_has`. حکم‌های دیگر: `gemini` و `needs_page_check`.
+  - شمارها: ۵۳، ۸، ۲۰، ۲ و ۳۰.
+- **تغییر `fankha_v2_rebuild_export.py`:** `contents_scope` و `copy_description` به `editorial_notes` می‌روند و نوعشان در `editorial_note_types` ثبت می‌شود. `extra_incipits` فهرست `incipits` را می‌سازد. پیش از این، توصیف نسخه حذف می‌شد.
+- **فایل تصمیم:** `database/data/fankha_rebuild_copies_step14_51.json` با ۷۵ رکورد.
+- **تغییر `fahares:rebuild-copies`:** متد تازه‌ی `relinkVolumes()` نسخه‌ای را که ارجاعش عوض شده و جلدش خالی شده، با `SourceEntrySync::seriesVolumes()` و `volumeOf()` گام ۱۴.۴۲ به جلد می‌برد. `cataloger_id` بیشترینِ نسخه‌های همان جلد است. این کار پیش از `SourceEntrySync::syncIds` انجام می‌شود تا مدخل منبع هم جلد بگیرد.
+- **ترتیب اجرا:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_51.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
+- **تمرین روی fahares_prod:**
+  - ۷۵ نسخه نوشته شد و ۴۳ نسخه دوباره جلد گرفتند. خروجی داده‌های مشتق: dates=37، extents=51، lines=54.
+  - `rebuild-scripts` خط ۱۹ نسخه را عوض کرد.
+- **آزمون:** `OtherCitationsTest::test_a_rebuilt_copy_whose_citation_changed_goes_to_the_volume_its_library_cites`
+
