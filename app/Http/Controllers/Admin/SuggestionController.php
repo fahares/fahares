@@ -994,10 +994,20 @@ class SuggestionController extends Controller
         ]);
     }
 
-    /** A record id from a pasted fahares link (/m/12, /works/12-…) or a bare id, Persian digits included. */
+    /** A record id from a pasted fahares link (/m/12, /works/12-…, /sources/{code}) or a bare id, Persian digits included. */
     public static function recordId(string $type, string $ref): ?int
     {
         $ref = strtr($ref, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        if ($type === 'source') {
+            // a source's page is addressed by its code (/sources/dharia); a bare code or id will do
+            $code = preg_match('~/sources/([^/?#\s]+)~u', $ref, $m) ? urldecode($m[1]) : trim($ref);
+            $id = $code === '' ? null : \App\Models\Source::where('code', $code)->value('id');
+            if (! $id && preg_match('~/sources/~u', $ref) && ($merged = \App\Models\Source::mergedInto($code))) {
+                $id = $merged->id;
+            }
+
+            return $id ?? (preg_match('/^\s*#?(\d+)\s*$/u', $ref, $m) ? (int) $m[1] : null);
+        }
         $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people', 'library' => 'l|libraries'][$type];
         if (preg_match('~/(?:' . $prefix . ')/(\d+)~u', $ref, $m) || preg_match('/^\s*#?(\d+)\s*$/u', $ref, $m)) {
             return (int) $m[1];

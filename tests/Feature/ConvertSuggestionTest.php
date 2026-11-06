@@ -59,7 +59,8 @@ class ConvertSuggestionTest extends TestCase
         $this->entry = SourceEntry::create(['citable_type' => Manuscript::class, 'citable_id' => $manuscript->id, 'source_id' => $source->id, 'source_volume_id' => $edition->id,
             'volume_number' => 2, 'page_start' => 5, 'origin' => SourceEntry::ORIGIN_MATCH, 'legacy_type' => 'catalog_reference', 'legacy_id' => 987654]);
 
-        $this->records = ['manuscript' => $manuscript, 'work' => $work, 'person' => $person, 'library' => $library];
+        // A source's own page takes field suggestions and notes, with no relations (step 14.52)
+        $this->records = ['manuscript' => $manuscript, 'work' => $work, 'person' => $person, 'library' => $library, 'source' => $source];
         $this->others = ['manuscript' => $otherManuscript, 'work' => $otherWork, 'person' => $otherPerson, 'library' => $otherLibrary];
     }
 
@@ -108,7 +109,7 @@ class ConvertSuggestionTest extends TestCase
             foreach (array_keys(SuggestionRegistry::fieldChoices($type, $record)) as $name) {
                 $page->assertSee($name, false);
             }
-            foreach (array_keys(SuggestionRegistry::RELATIONS[$type]) as $key) {
+            foreach (array_keys(SuggestionRegistry::RELATIONS[$type] ?? []) as $key) {
                 $page->assertSee($key, false);
             }
             foreach (array_keys(NoteTypes::forRecord($type)) as $key) {

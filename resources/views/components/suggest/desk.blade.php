@@ -51,7 +51,7 @@
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
         // ...and run a structural tool at once, after its preview in the panel (backlog item 45)
-        'structureUrl' => auth()->user()?->can('structure.direct') ? route('admin.structure.show', [$type, $record->id]) : null,
+        'structureUrl' => auth()->user()?->can('structure.direct') && ! empty(SuggestionRegistry::RELATIONS[$type]) ? route('admin.structure.show', [$type, $record->id]) : null,
         // Research notes (see NoteTypes)
         'noteTypes' => \App\Suggestions\NoteTypes::forRecord($type),
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
