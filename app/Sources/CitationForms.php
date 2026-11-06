@@ -75,6 +75,13 @@ class CitationForms
             }
             $sources[$code] = $entry;
         }
+        // a source of config/bibliography.php not in the registry has no form to read it with: it is read from config
+        // as it is, in its place (sources:import-citation-forms leaves it there)
+        $registered = DB::table('sources')->whereIn('code', array_keys($config))->pluck('code')->all();
+        foreach (array_diff(array_keys($config), $registered) as $code) {
+            $sources[$code] = $config[$code];
+        }
+        uksort($sources, fn ($a, $b) => [$order[$a] ?? PHP_INT_MAX, $a] <=> [$order[$b] ?? PHP_INT_MAX, $b]);
 
         return self::$memo[$key] = $sources;
     }

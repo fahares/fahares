@@ -7935,6 +7935,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `metadata.images = false`.
 - **`SourceMerger`:** الگوهای منبع ادغام‌شده، چه ارجاع‌شده و چه ارجاع‌دهنده، به منبع ماندنی می‌روند. الگوی منبع به خودش پاک می‌شود. همه در snapshot ادغام هست و با برگرداندن برمی‌گردد.
 - **آزمون:** `tests/Feature/Admin/CitationFormsTest.php`، با ۵ آزمون. یک بند هم به آزمون ادغام در `AdminSourcesTest` افزوده شد.
+- **اجرای نخست روی پروداکشن و اصلاح (۱۵ آبان ۱۴۰۵):**
+  - پشتیبان: `../fahares-sources/backups/step13/step14.57_citation_forms_prod_before_20261106_1604.json` (جدول خالی بود، md5 `64dfabebb3236501f61cef84d2304f57`).
+  - `sources:import-citation-forms` ۱۵ الگو ساخت. `mushar-authors` در `sources` پروداکشن نیست و در config ماند.
+  - `--check`: «45357 strings read; 23 differ». هر ۲۳ رشته ارجاع به `mushar-authors` بودند.
+  - `--revert` هر ۱۵ الگو را پاک کرد (`Removed 15 forms`). `CitationForms::sources()` دوباره ۱۶ منبع config را داد.
+  - اصلاح در `CitationForms::sources()`: هر منبع config که کدش در `sources` نیست، همان‌گونه که هست و به ترتیب کلیدهای config افزوده می‌شود.
+  - آزمون نخست `CitationFormsTest` رشته‌ی «مؤلفین مشار 89/1» را دارد. آزمون اکنون برابری همه‌ی منابع config را با خروجی `sources()` می‌سنجد.
 
 ### گام ۱۴.۵۸: رابطه‌ی `volume_cataloger` برای `source`
 - **ثبت:** `RELATIONS['source']`: `cataloger_is` (`replace`) و `cataloger_also`. هر دو `target` = `cataloger`، `target_optional` و `apply` = `volume_cataloger` دارند. گزینه‌های نقش `VolumeCatalogers::ROLES` است، همان `ROLES` فرم جلد پنل.
