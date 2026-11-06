@@ -306,6 +306,13 @@ class AuditLogController extends Controller
             return;
         }
 
+        // A merge of two sources in the panel (step 14.50), undone from the snapshot it logged
+        if ($log->auditable_type === \App\Models\Source::class) {
+            SourceMergeController::undoLog($log, $request);
+
+            return;
+        }
+
         // 3. Library merge approved from a suggestion (see LibraryMerger)
         if ($log->auditable_type === \App\Models\Library::class) {
             $target = \App\Models\Library::find($log->auditable_id)

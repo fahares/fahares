@@ -59,14 +59,24 @@
             </x-ui.section>
         </div>
 
-        @if($catalogues->isNotEmpty())
-            <x-ui.section title="فهرست‌های چاپی" :count="$catalogues->count()">
+        @if($catalogues->isNotEmpty() || $parts->isNotEmpty())
+            <x-ui.section title="فهرست‌های چاپی" :count="$catalogues->count() + $parts->count()">
                 <ul class="space-y-1 text-sm" data-library-catalogues>
                     @foreach($catalogues as $catalogue)
                         <li class="flex gap-2.5 leading-relaxed">
                             <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
                             <span><a href="{{ route('sources.show', $catalogue->code) }}" class="text-cinnabar hover:underline">{{ $catalogue->title }}</a>
                                 @foreach($catalogue->editions as $edition)<span class="text-muted">، </span><a href="{{ route('sources.show', $edition->code) }}" class="text-cinnabar hover:underline">{{ Fa::digits($edition->edition_label ?: $edition->title) }}</a>@endforeach
+                            </span>
+                        </li>
+                    @endforeach
+                    {{-- a part of a volume that holds several libraries' catalogues (step 14.50) --}}
+                    @foreach($parts as $part)
+                        @php($volume = $part->sourceVolume)
+                        <li class="flex gap-2.5 leading-relaxed" data-library-part>
+                            <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
+                            <span><a href="{{ route('sources.show', $volume->source->code) }}" class="text-cinnabar hover:underline">{{ $volume->source->title }}</a>@if($volume->volume_number)<span class="text-muted">، جلد {{ Fa::num($volume->volume_number) }}</span>@endif
+                                <span class="text-muted">— بخش «{{ $part->title }}»@if($part->page_first)، {{ Fa::digits($part->pages_text) }}@endif @if($part->catalogers->isNotEmpty())، {{ $part->catalogers->pluck('name')->implode('، ') }}@endif @if($part->manuscripts_count)، {{ Fa::num($part->manuscripts_count) }} نسخه@endif</span>
                             </span>
                         </li>
                     @endforeach
