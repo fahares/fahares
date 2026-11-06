@@ -7942,6 +7942,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `--revert` هر ۱۵ الگو را پاک کرد (`Removed 15 forms`). `CitationForms::sources()` دوباره ۱۶ منبع config را داد.
   - اصلاح در `CitationForms::sources()`: هر منبع config که کدش در `sources` نیست، همان‌گونه که هست و به ترتیب کلیدهای config افزوده می‌شود.
   - آزمون نخست `CitationFormsTest` رشته‌ی «مؤلفین مشار 89/1» را دارد. آزمون اکنون برابری همه‌ی منابع config را با خروجی `sources()` می‌سنجد.
+- **اجرای دوم (انتشار `93ce92b`):**
+  - پشتیبان: `step14.57_citation_forms_prod_before_20261106_1618.json` (جدول خالی بود، md5 `64dfabebb3236501f61cef84d2304f57`).
+  - `Made 15 forms.`
+  - `--check`: «45357 strings read; 0 differ».
+  - `sources()` ۱۶ منبع می‌دهد و `awaitingImport()` خالی است.
 
 ### گام ۱۴.۵۸: رابطه‌ی `volume_cataloger` برای `source`
 - **ثبت:** `RELATIONS['source']`: `cataloger_is` (`replace`) و `cataloger_also`. هر دو `target` = `cataloger`، `target_optional` و `apply` = `volume_cataloger` دارند. گزینه‌های نقش `VolumeCatalogers::ROLES` است، همان `ROLES` فرم جلد پنل.
