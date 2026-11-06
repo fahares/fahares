@@ -8017,6 +8017,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ترتیب اجرا در تولید:**
   1. `fahares:add-corpus-works --file=database/data/fankha_leading_author_step14_61.json --apply`
   2. `fahares:link-autograph-scribes`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. خروجی‌ها: «Adding 0 works, fill 0 works and update 96» و «Derived data of works: works=96, with_dedication=6». `link-autograph-scribes`: «Updated 4 autograph manuscripts». وارسی با tinker: `author_name` و `description` برابر فایل در ۹۶ از ۹۶ اثر، ۹۶ ردیف audit با `leading_author`، و `author_id` برای ۲ اثر.
 
 ### گام ۱۴.۶۲: `catalogs:fix-copy-catalogers`
 - **فرمان:** [FixCopyCatalogersCommand](../app/Console/Commands/FixCopyCatalogersCommand.php). منبع را با کد و فهرست‌نگار را با شناسه‌ی MTIF می‌یابد.
