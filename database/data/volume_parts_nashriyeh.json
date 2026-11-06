@@ -1,5 +1,5 @@
 {
- "_comment": "Step 13.159 (stage 3 of docs/plans/catalog-volume-parts.md), approved by the user (docs/plans/nashriyeh-parts.md): the parts of «نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» from Fankha's table of catalogues, each with the author its description names («زیر نظر X و Y، Z»). Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json Step 14.6: the daftars 2-12 take the MTIF records of the printing 11395 and their pages.",
+ "_comment": "Step 13.159 (stage 3 of docs/plans/catalog-volume-parts.md), approved by the user (docs/plans/nashriyeh-parts.md): the parts of «نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» from Fankha's table of catalogues, each with the author its description names («زیر نظر X و Y، Z»). Run: php artisan catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json Step 14.6: the daftars 2-12 take the MTIF records of the printing 11395 and their pages. Step 14.53: Fankha's row 229 gives Dehkhoda two runs of pages in daftar 3 («صفحات 1-59 و 388-426»); the first was missing and is the part of key fankha-229-pages-1-59.",
  "source": "catalogue-37ef5a7d7428",
  "series": "نشریه",
  "volume_title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر %d",
@@ -210,6 +210,22 @@
     }
    ],
    "fankha_row": 178
+  },
+  {
+   "daftar": 3,
+   "library": "thran-lght-namh-dhkhda-27",
+   "title": "لغت نامه دهخدا",
+   "pages": [
+    1,
+    59
+   ],
+   "catalogers": [
+    {
+     "name": "محمدتقی دانش‌پژوه",
+     "mtif": 37279
+    }
+   ],
+   "key": "fankha-229-pages-1-59"
   },
   {
    "daftar": 3,

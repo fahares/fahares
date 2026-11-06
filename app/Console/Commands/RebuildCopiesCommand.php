@@ -126,12 +126,46 @@ class RebuildCopiesCommand extends Command
             DB::table('libraries')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('library_id', $id)->count()]);
         }
         $ids = array_column($writes, 'id');
+        $relinked = $this->relinkVolumes($ids);
         SourceEntrySync::syncIds(Manuscript::class, $ids);
         // DB::table runs no model hook: the date range, extent, excerpt pointers and search documents follow here
         DerivedData::syncCopies($ids, $this);
-        $this->info('Done. Now run catalogs:link-volumes and fahares:rebuild-scripts.');
+        $this->info("Done ({$relinked} copies relinked to a catalogue volume). Now run catalogs:link-volumes and fahares:rebuild-scripts.");
 
         return 0;
+    }
+
+    /**
+     * A copy whose citation changed lost its catalogue volume and cataloger; catalogs:link-volumes relinks only the
+     * libraries of its links file, not the large ones (Marashi, Tehran University). So each such copy goes to the
+     * volume the library's other copies citing that series and volume are on, and the cataloger most of that
+     * volume's copies have (SourceEntrySync::volumeOf, step 14.51). A copy whose volume no other copy shows stays
+     * without one.
+     */
+    private function relinkVolumes(array $ids): int
+    {
+        $rows = DB::table('manuscripts')->whereIn('id', $ids)->whereNull('catalog_volume_id')
+            ->get(['id', 'library_id', 'metadata']);
+        $volumes = SourceEntrySync::seriesVolumes($rows->pluck('library_id')->filter()->unique()->values()->all());
+        $done = 0;
+        foreach ($rows as $row) {
+            $citation = json_decode($row->metadata ?? 'null', true)['catalog_citation'] ?? null;
+            $place = $citation ? (\App\Support\CatalogCitations::places($citation)[0] ?? null) : null;
+            if (! $place || $place['series'] === null) {
+                continue;
+            }
+            $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
+            $volume = SourceEntrySync::volumeOf($volumes[$row->library_id][$key] ?? [], $place['page']);
+            if (! $volume) {
+                continue;
+            }
+            $cataloger = DB::table('manuscripts')->where('catalog_volume_id', $volume)->whereNotNull('cataloger_id')
+                ->groupBy('cataloger_id')->orderByRaw('count(*) desc')->value('cataloger_id');
+            DB::table('manuscripts')->where('id', $row->id)->update(['catalog_volume_id' => $volume, 'cataloger_id' => $cataloger]);
+            $done++;
+        }
+
+        return $done;
     }
 
     private function check(array $rec, ?object $row, ProtectedColumns $guard): string

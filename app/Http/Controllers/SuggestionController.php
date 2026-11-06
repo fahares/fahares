@@ -180,6 +180,14 @@ class SuggestionController extends Controller
             return response()->json([]);
         }
 
+        if ($type === 'source') {
+            // Sources are addressed by code; a few thousand rows, matched by title, short name or code
+            $id = \App\Http\Controllers\Admin\SuggestionController::recordId('source', $q);
+            $records = $id ? $class::whereKey($id)->get() : (mb_strlen($q) < 2 ? collect() : $class::where(fn ($w) => $w->where('title', 'like', "%{$q}%")
+                ->orWhere('short_name', 'like', "%{$q}%")->orWhere('code', $q))->orderBy('rank')->limit(10)->get());
+
+            return response()->json($records->map(fn ($r) => SuggestionRegistry::describe($r))->values());
+        }
         $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people', 'library' => 'libraries'][$type];
         if (preg_match('~/(?:' . $prefix . ')/(\d+)~u', $q, $m) || preg_match('/^\s*#?(\d+)\s*$/u', strtr($q, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']), $m)) {
             $records = $class::whereKey((int) $m[1])->get();

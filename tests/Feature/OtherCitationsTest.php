@@ -84,4 +84,26 @@ class OtherCitationsTest extends TestCase
         $this->get(route('manuscripts.show', $copy))->assertOk()
             ->assertSee('فهرست کتب خطی کتابخانه آستان قدس - جلد بیست و یکم، ج ۲۱، ص ۵۶۶ و ۷۴۳');
     }
+    public function test_a_rebuilt_copy_whose_citation_changed_goes_to_the_volume_its_library_cites()
+    {
+        $this->copy('[ف: 21-1000]', $this->own);
+        $wrong = $this->copy('[اهدائی رهبر: 3-650]', $this->gift);
+        $meta = $wrong->fresh()->metadata ?? [];
+        $file = tempnam(sys_get_temp_dir(), 'rebuild');
+        file_put_contents($file, json_encode(['records' => [[
+            'table' => 'manuscripts', 'id' => $wrong->id, 'shelfmark' => $wrong->shelfmark, 'category' => 'rebuild', 'v2' => 'v1-1#0',
+            'changes' => [
+                'raw_text' => ['from' => $wrong->raw_text, 'to' => 'نسخه، 9گ [ف: 21-1200]'],
+                'metadata' => ['from' => $meta ?: null, 'to' => ['catalog_citation' => '[ف: 21-1200]']],
+            ],
+        ]]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:rebuild-copies', ['--file' => $file, '--apply' => true])
+            ->expectsOutputToContain('1 copies relinked')
+            ->assertSuccessful();
+        @unlink($file);
+
+        $this->assertSame($this->own->id, (int) $wrong->fresh()->catalog_volume_id);
+        $this->assertSame($this->own->id, SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $wrong->id)->value('source_volume_id'));
+    }
 }

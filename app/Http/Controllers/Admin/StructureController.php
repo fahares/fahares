@@ -35,7 +35,8 @@ class StructureController extends Controller
     {
         $type = SuggestionRegistry::typeKey((string) $request->query('type', ''));
         $ref = trim((string) $request->query('ref', ''));
-        if ($type && $ref !== '') {
+        // a source has fields to correct but no structural tools
+        if ($type && $ref !== '' && isset(SuggestionRegistry::RELATIONS[$type])) {
             $id = SuggestionController::recordId($type, $ref);
             if ($id && SuggestionRegistry::modelClass($type)::find($id)) {
                 return redirect()->route('admin.structure.show', [$type, $id]);

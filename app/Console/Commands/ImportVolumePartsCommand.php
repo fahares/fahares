@@ -33,7 +33,9 @@ use Illuminate\Support\Str;
  *    own «title» and «citation» (step 14.40).
  *  - «editors» are the people of every volume (supervisor); «parts» are made with their library, pages and catalogers,
  *    a cataloger found by MTIF id or name, made when the registry has none. Each copy then takes its part
- *    (CatalogVolumePart::assign); counts are taken again.
+ *    (CatalogVolumePart::assign); counts are taken again. A library may have two parts in one volume (Dehkhoda in
+ *    daftar 3 of «نشریه», pp. 1-59 and 388-426, step 14.53): each copy goes to the one its page is in. The parts
+ *    keep the file's order: a part put in between moves the «sort» of those after it.
  *
  * Found by source code, library slug, MTIF id and Fankha's row, never by local id. A backup of every row it changes is
  * written first; --revert restores it, removing what it made. Safe to run again.
@@ -93,6 +95,7 @@ class ImportVolumePartsCommand extends Command
         }
         $moves = $this->moves($sourceId, $folds);
         $parts = $this->partsToMake($sourceId, $folds);
+        $order = $this->partsToReorder($sourceId, $folds);
         $numbers = array_merge(DB::table('source_volumes')->where('source_id', $sourceId)->pluck('volume_number')->all(), array_keys($folds['volumes']), array_keys($folds['virtual'] ?? []));
         $catalogers = $this->catalogers(false, $numbers);
         $editors = $this->editorsToSet($sourceId, $folds);
@@ -105,7 +108,7 @@ class ImportVolumePartsCommand extends Command
         if ($unlibrary) {
             $this->line(sprintf('  «%s» of no library (was #%d)', $source->title, $source->library_id));
         }
-        if (! $create && ! $unlibrary && ! $records && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $editors) {
+        if (! $create && ! $unlibrary && ! $records && ! $folds['volumes'] && ! $folds['sources'] && ! $moves && ! $parts && ! $order && ! $editors) {
             $this->info('Nothing to do.');
 
             return self::SUCCESS;
@@ -393,6 +396,24 @@ class ImportVolumePartsCommand extends Command
         return $missing;
     }
 
+    /** The parts made whose place («sort») is not their place in the data file, reported. */
+    private function partsToReorder(int $sourceId, array $folds): int
+    {
+        $have = DB::table('source_volumes')->where('source_id', $sourceId)->pluck('id', 'volume_number')->all() + $folds['volumes'];
+        $sorts = DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', array_values($have) ?: [0])->get(['catalog_volume_id', 'sort', 'metadata'])
+            ->mapWithKeys(fn ($p) => [$p->catalog_volume_id . '|' . self::partKey(json_decode($p->metadata ?? '{}', true)) => (int) $p->sort])->all();
+        $moved = 0;
+        foreach ($this->data['parts'] as $sort => $part) {
+            $key = isset($have[$part['daftar']]) ? $have[$part['daftar']] . '|' . self::partKey($part) : null;
+            $moved += $key !== null && isset($sorts[$key]) && $sorts[$key] !== $sort ? 1 : 0;
+        }
+        if ($moved) {
+            $this->line(sprintf('  parts to put in the file\'s order: %d', $moved));
+        }
+
+        return $moved;
+    }
+
     /** Makes the catalogue the data file describes, each volume a catalog volume and a source volume under one id. */
     private function makeSource(array $create): \App\Models\Source
     {
@@ -555,6 +576,9 @@ class ImportVolumePartsCommand extends Command
             $volume = $volumes[$part['daftar']];
             $key = isset($part['fankha_row']) ? ['fankha_row' => $part['fankha_row']] : ['key' => $part['key']];
             $row = DB::table('catalog_volume_parts')->where('catalog_volume_id', $volume)->where('metadata->' . array_key_first($key), reset($key))->first();
+            if ($row && (int) $row->sort !== $sort) {
+                DB::table('catalog_volume_parts')->where('id', $row->id)->update(['sort' => $sort, 'updated_at' => now()]);
+            }
             $model = $row ? CatalogVolumePart::find($row->id) : CatalogVolumePart::create(['catalog_volume_id' => $volume,
                 'library_id' => $part['library'] ? $libraries[$part['library']] : null, 'title' => $part['title'], 'page_first' => $part['pages'][0] ?? null,
                 'page_last' => $part['pages'][1] ?? null, 'sort' => $sort, 'metadata' => $key]);
@@ -598,6 +622,8 @@ class ImportVolumePartsCommand extends Command
             'source_volumes' => DB::table('source_volumes')->whereIn('id', $volumes)->get(),
             'catalog_volume_cataloger' => DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->get(),
             'part_ids' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->pluck('id'),
+            // their place, which a part put in between moves (step 14.53)
+            'parts' => DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->get(['id', 'sort']),
             'manuscripts' => $chunked('manuscripts', 'id', $copies, ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
             'source_entries' => $chunked('source_entries', 'legacy_id', $copies, ['id', 'legacy_type', 'legacy_id', 'source_id', 'source_volume_id', 'volume_number', 'page_start', 'updated_at']),
             'manuscript_catalog_references' => $chunked('manuscript_catalog_references', 'catalog_volume_id', $volumes, ['id', 'catalog_volume_id']),
@@ -642,6 +668,7 @@ class ImportVolumePartsCommand extends Command
             }
             FixMisnamedIsfahanCataloguesCommand::restoreColumns('manuscript_catalog_references', $backup['manuscript_catalog_references']);
             DB::table('catalog_volume_parts')->whereIn('catalog_volume_id', $volumes)->whereNotIn('id', $backup['part_ids'])->delete();
+            FixMisnamedIsfahanCataloguesCommand::restoreColumns('catalog_volume_parts', $backup['parts'] ?? []);
             DB::table('catalog_volume_cataloger')->whereIn('catalog_volume_id', $volumes)->delete();
             DB::table('catalog_volume_cataloger')->insert($backup['catalog_volume_cataloger']);
             if ($made = DB::table('sources')->where('code', $backup['made_source'] ?? '')->first()) {

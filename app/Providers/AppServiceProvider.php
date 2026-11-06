@@ -58,7 +58,7 @@ class AppServiceProvider extends ServiceProvider
             ->salutation(\App\Models\SiteSetting::get('mail.salutation')));
 
         // Record pages share the readings of their fields so the per-field badges and the readings list can show them
-        $records = ['manuscripts.show' => 'manuscript', 'works.show' => 'work', 'people.show' => 'person', 'libraries.show' => 'library'];
+        $records = ['manuscripts.show' => 'manuscript', 'works.show' => 'work', 'people.show' => 'person', 'libraries.show' => 'library', 'sources.show' => 'source'];
         View::composer(array_keys($records), function ($view) use ($records) {
             $record = $view->getData()[$records[$view->name()]] ?? null;
             View::share('suggestionReadings', $record ? SuggestionReadings::for($record) : collect());
