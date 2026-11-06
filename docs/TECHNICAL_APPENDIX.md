@@ -8096,3 +8096,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - همه در انتظار داوری‌اند.
 - **آزمون:** `NoorReferenceBooksTest::test_kashf_al_hujub_and_mu_allafat_al_zaydiyya_entries_are_numbered_and_found_by_title_and_author`، با فیکسچرهای `kashf-hujub-v01-p263` (شش «رسالة في الرجعة» که مؤلف از هم جدایشان می‌کند) و `zaydiyya-v01-p245`.
 - **پروداکشن:** انتشار کد لازم است، چون دو منبع تازه در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند، همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+
+### گام ۱۴.۶۵: «؟» چسبیده در `MarkHedgedAuthorsCommand::hedgeOf` و `--hedged` در صدور
+- **`hedgeOf`:** برای «؟» شرط `(?=\s|$)` برداشته شد. برای واژه‌های دیگر `HEDGES` همچنان هست، تا «شایسته» تردید شمرده نشود.
+- **`--file`:** اگر `description_to` در فایل باشد، حتی `null`، شرح همان می‌شود (`array_key_exists`). پیش از این `?? $work->description` شرح را نگه می‌داشت.
+- **صدور (پیکره):** `fankha_v2_leading_author_export.py --hedged` (کامیت در fahares-corpus). همان قاعده‌ی گام ۱۴.۶۱ است، با این تفاوت که `HEDGE` («؟» یا واژه‌ی تردید، با فاصله یا بی فاصله) پیش از `bare()` از سر سطر برداشته می‌شود. خروجی `items` برای `mark-hedged-authors --file` است. «؟» در میان نام (تاریخ یا نسبت) `skipped` است.
+- **فایل تصمیم:** `database/data/fankha_hedged_authors_step14_65.json` با ۱۶ `items`.
+- **تمرین روی fahares_prod:** «marked 44, added 16». اجرای دوم «marked 0, add_skipped 16» بود.
+  - تمرین نخست با فرمان پیشین، شرح ۶ اثر را نگه داشته بود. آن ۱۶ اثر در نسخه‌ی محلی بازگردانده شدند و فرمان اصلاح‌شده دوباره اجرا شد.
+- **آزمون‌ها:**
+  - `MarkHedgedAuthorsCommandTest::test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not`
+  - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
+- **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
