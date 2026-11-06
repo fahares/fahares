@@ -7896,35 +7896,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۱۶۴ نسخه جابه‌جا شد.
   - پس از اجرا بینش ۱ جلد و ۴۰۵ نسخه دارد و شاکری ۱ جلد و ۱۶۴ نسخه.
 - **آزمون:** `FixFarhangHonarCatalogueTest`.
+- **اجرای پروداکشن (۱۶ آبان ۱۴۰۵، پس از `51b9ac9`، با پشتیبان گام ۱۴.۵۵):**
+  - **پیش از اجرا:** بینش ۲ جلد و ۵۶۹ نسخه. شاکری رکورد نداشت.
+  - **پس از اجرا:** شاکری با شناسه‌ی ۱۵۰ ساخته شد. بینش ۱ جلد و ۴۰۵ نسخه دارد و شاکری ۱ جلد و ۱۶۴ نسخه. هر ۱۶۴ نسخه‌ی جلد ۴۹۲ و پیوند جلد با فهرست‌نگار ۱۵۰ است.
+  - **صفحه:** `/catalogers/150-رمضانعلی-شاکری` درون کانتینر ۲۰۰ داد و فهرست فرهنگ و هنر را نشان می‌دهد.
 
-### گام ۱۴.۵۸: رابطه‌ی `volume_cataloger` برای `source`
-- **ثبت:** `RELATIONS['source']`: `cataloger_is` (`replace`) و `cataloger_also`. هر دو `target` = `cataloger`، `target_optional` و `apply` = `volume_cataloger` دارند. گزینه‌های نقش `VolumeCatalogers::ROLES` است، همان `ROLES` فرم جلد پنل.
-  - `SuggestionRegistry::TARGETS` و `targetClass()` هدف رابطه را به `Cataloger` می‌رسانند. `modelClass()` فقط نوع‌های رکورد را می‌شناسد. `FieldSuggestion::relationTarget`، `RelationInput`، `StructureController` و `Contributions::recordLink` اکنون `targetClass()` را به کار می‌برند.
-- **payload:**
-  - **`target_id`:** شناسه‌ی فهرست‌نگار.
-  - **`role`:** نقش شخص در جلد.
-  - **`name`:** نام شخص، برای وقتی که هدفی انتخاب نشده.
-  - **`volume_id`:** شناسه‌ی `source_volumes`، که با `catalog_volumes` یکی است. نبودِ آن یعنی همه‌ی جلدها.
-  - **وارسی:** `RelationInput` نقش را می‌خواهد، و هدف یا نام را. جلد باید از همان منبع باشد (`VolumeCatalogers::hasVolume`).
-- **تأیید:** `Admin\SuggestionController::approveVolumeCataloger` این ورودی‌ها را می‌گیرد: `volume_ids[]`، `cataloger_choice` (`target|manual|new`)، `cataloger_id`، `cataloger_name`، `role` و `mode` (`replace|add`).
-  - `VolumeCatalogers::apply` برای هر جلد ردیف‌های `catalog_volume_cataloger` را درون `VolumeEditor::run` بازنویسی می‌کند. پس `cataloger_id` نسخه‌ها، بخش‌ها و `Cataloger::recount` مانند فرم جلد گام ۱۴.۵۰ دنبال می‌شوند.
-  - یک `AuditLog` با `action` = `volume_people` روی `Source` ثبت می‌شود: `old_values.volumes` و `new_values.volumes` برای هر جلد، با `suggestion_id` و اگر فهرست‌نگار تازه ساخته شده باشد، `created_cataloger_id`.
-  - فهرست‌نگار تازه با `slug` یکتا و `metadata.sources` = «پیشنهاد #N» ساخته می‌شود. مجوز `FOR_APPLY['volume_cataloger']` = `sources.edit` است.
-- **بازگرداندن:** `volume_people` در `AuditLog::UNDOABLE` است. `AuditLogController::undo` آن را به `VolumeCatalogers::undo` می‌سپارد.
-  - اگر فهرست‌نگاران جلد پس از تأیید دوباره تغییر کرده باشند، بازگرداندن نمی‌شود.
-  - رخداد `rollback_volume_people` با `rolled_back_log_id` ثبت می‌شود، و پیشنهاد به `pending` برمی‌گردد.
-- **صفحه و فرم:**
-  - `x-suggest.cataloger` (`data-suggest-cataloger`) کنار فهرست‌نگار هر جلد این را می‌فرستد: `{general, relation: 'cataloger_is', volume}`.
-  - `config.volumes` میز پیشنهاد جلدها را با فهرست‌نگاران کنونی می‌دهد. `suggest-desk.js` `volume_id` و `role_name` را می‌فرستد.
-  - `lookup?type=cataloger` با نام، شهرت، پیوند `/catalogers/{id}` یا شناسه می‌جوید. `recordId('cataloger', …)` هم پیوند `/catalogers/{id}` را می‌خواند.
-- **ابزار ساختاری:** `SuggestionRegistry::STRUCTURE_TYPES` (نسخه، اثر، شخص، کتابخانه) جای کلیدهای `RELATIONS` را در مسیرهای `admin.structure.*`، فهرست نوع‌ها و `structureUrl` گرفت، چون منبع اکنون رابطه دارد ولی ابزار مستقیم ندارد.
-- **آزمون:** `tests/Feature/SourceCatalogerSuggestionTest.php` این‌ها را می‌آزماید:
-  - صفحه و جست‌وجوی فهرست‌نگار
-  - وارسی ورودی
-  - جایگزینی در یک جلد، همراه با نسخه‌ی آن جلد و بازگرداندن
-  - فهرست‌نگار تازه با نام در همه‌ی جلدها
-  - تبدیل پیشنهادی از کتابخانه
-  - `ConvertSuggestionTest` و `StructureToolsTest` برای منبع و `STRUCTURE_TYPES` به‌روز شدند.
 ### گام ۱۴.۵۷: `source_citation_forms`، `CitationForms` و `CitationFormEditor`
 - **جدول:** `source_citation_forms` با ستون‌های `cited_source_id`، `citing_source_id` (تهی‌پذیر)، `context` (`bibliography` یا `page_text`)، `names`، `regex`، `options` (`volumes`، `unit`، `pairs_after_name`، `series_volumes`، `other_edition`)، `notes` و `examples`. migration: `2026_11_06_100001_create_source_citation_forms_table`.
 - **`App\Sources\CitationForms::sources($citing = 'fankha', $context = 'bibliography')`:**
@@ -7959,7 +7935,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `metadata.images = false`.
 - **`SourceMerger`:** الگوهای منبع ادغام‌شده، چه ارجاع‌شده و چه ارجاع‌دهنده، به منبع ماندنی می‌روند. الگوی منبع به خودش پاک می‌شود. همه در snapshot ادغام هست و با برگرداندن برمی‌گردد.
 - **آزمون:** `tests/Feature/Admin/CitationFormsTest.php`، با ۵ آزمون. یک بند هم به آزمون ادغام در `AdminSourcesTest` افزوده شد.
-- **اجرای پروداکشن (۱۶ آبان ۱۴۰۵، پس از `51b9ac9`، با پشتیبان گام ۱۴.۵۵):**
-  - **پیش از اجرا:** بینش ۲ جلد و ۵۶۹ نسخه. شاکری رکورد نداشت.
-  - **پس از اجرا:** شاکری با شناسه‌ی ۱۵۰ ساخته شد. بینش ۱ جلد و ۴۰۵ نسخه دارد و شاکری ۱ جلد و ۱۶۴ نسخه. هر ۱۶۴ نسخه‌ی جلد ۴۹۲ و پیوند جلد با فهرست‌نگار ۱۵۰ است.
-  - **صفحه:** `/catalogers/150-رمضانعلی-شاکری` درون کانتینر ۲۰۰ داد و فهرست فرهنگ و هنر را نشان می‌دهد.
+
+### گام ۱۴.۵۸: رابطه‌ی `volume_cataloger` برای `source`
+- **ثبت:** `RELATIONS['source']`: `cataloger_is` (`replace`) و `cataloger_also`. هر دو `target` = `cataloger`، `target_optional` و `apply` = `volume_cataloger` دارند. گزینه‌های نقش `VolumeCatalogers::ROLES` است، همان `ROLES` فرم جلد پنل.
+  - `SuggestionRegistry::TARGETS` و `targetClass()` هدف رابطه را به `Cataloger` می‌رسانند. `modelClass()` فقط نوع‌های رکورد را می‌شناسد. `FieldSuggestion::relationTarget`، `RelationInput`، `StructureController` و `Contributions::recordLink` اکنون `targetClass()` را به کار می‌برند.
+- **payload:**
+  - **`target_id`:** شناسه‌ی فهرست‌نگار.
+  - **`role`:** نقش شخص در جلد.
+  - **`name`:** نام شخص، برای وقتی که هدفی انتخاب نشده.
+  - **`volume_id`:** شناسه‌ی `source_volumes`، که با `catalog_volumes` یکی است. نبودِ آن یعنی همه‌ی جلدها.
+  - **وارسی:** `RelationInput` نقش را می‌خواهد، و هدف یا نام را. جلد باید از همان منبع باشد (`VolumeCatalogers::hasVolume`).
+- **تأیید:** `Admin\SuggestionController::approveVolumeCataloger` این ورودی‌ها را می‌گیرد: `volume_ids[]`، `cataloger_choice` (`target|manual|new`)، `cataloger_id`، `cataloger_name`، `role` و `mode` (`replace|add`).
+  - `VolumeCatalogers::apply` برای هر جلد ردیف‌های `catalog_volume_cataloger` را درون `VolumeEditor::run` بازنویسی می‌کند. پس `cataloger_id` نسخه‌ها، بخش‌ها و `Cataloger::recount` مانند فرم جلد گام ۱۴.۵۰ دنبال می‌شوند.
+  - یک `AuditLog` با `action` = `volume_people` روی `Source` ثبت می‌شود: `old_values.volumes` و `new_values.volumes` برای هر جلد، با `suggestion_id` و اگر فهرست‌نگار تازه ساخته شده باشد، `created_cataloger_id`.
+  - فهرست‌نگار تازه با `slug` یکتا و `metadata.sources` = «پیشنهاد #N» ساخته می‌شود. مجوز `FOR_APPLY['volume_cataloger']` = `sources.edit` است.
+- **بازگرداندن:** `volume_people` در `AuditLog::UNDOABLE` است. `AuditLogController::undo` آن را به `VolumeCatalogers::undo` می‌سپارد.
+  - اگر فهرست‌نگاران جلد پس از تأیید دوباره تغییر کرده باشند، بازگرداندن نمی‌شود.
+  - رخداد `rollback_volume_people` با `rolled_back_log_id` ثبت می‌شود، و پیشنهاد به `pending` برمی‌گردد.
+- **صفحه و فرم:**
+  - `x-suggest.cataloger` (`data-suggest-cataloger`) کنار فهرست‌نگار هر جلد این را می‌فرستد: `{general, relation: 'cataloger_is', volume}`.
+  - `config.volumes` میز پیشنهاد جلدها را با فهرست‌نگاران کنونی می‌دهد. `suggest-desk.js` `volume_id` و `role_name` را می‌فرستد.
+  - `lookup?type=cataloger` با نام، شهرت، پیوند `/catalogers/{id}` یا شناسه می‌جوید. `recordId('cataloger', …)` هم پیوند `/catalogers/{id}` را می‌خواند.
+- **ابزار ساختاری:** `SuggestionRegistry::STRUCTURE_TYPES` (نسخه، اثر، شخص، کتابخانه) جای کلیدهای `RELATIONS` را در مسیرهای `admin.structure.*`، فهرست نوع‌ها و `structureUrl` گرفت، چون منبع اکنون رابطه دارد ولی ابزار مستقیم ندارد.
+- **آزمون:** `tests/Feature/SourceCatalogerSuggestionTest.php` این‌ها را می‌آزماید:
+  - صفحه و جست‌وجوی فهرست‌نگار
+  - وارسی ورودی
+  - جایگزینی در یک جلد، همراه با نسخه‌ی آن جلد و بازگرداندن
+  - فهرست‌نگار تازه با نام در همه‌ی جلدها
+  - تبدیل پیشنهادی از کتابخانه
+  - `ConvertSuggestionTest` و `StructureToolsTest` برای منبع و `STRUCTURE_TYPES` به‌روز شدند.
