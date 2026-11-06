@@ -7765,3 +7765,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   اجرای دوم همین شمارها را داد.
 - **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
 - **آزمون:** `FixAbdolazimNavabCataloguesTest`.
+- **اجرای پروداکشن (۱۶ آبان):** پس از انتشار `ddf8ef5`، با نام `cover-kalam-turath` و از راه `prod-run`.
+  - **پشتیبان:** [`step14.49_abdolazim_navab_prod_before_20261106_0536.json`](../../fahares-sources/backups/step13/step14.49_abdolazim_navab_prod_before_20261106_0536.json) (۱۲۲ کیلوبایت، md5 `554462d2e8dd1048df8d04ca38d1e608`). همان‌جا با `tinker` گرفته شد و مستقیم به این سیستم آمد. ردیف‌های دو منبع، سه جلد (هر دو جدول)، پیوند فهرست‌نگارانشان، `id, catalog_volume_id, cataloger_id` ۲٬۰۸۱ نسخه، و شمارهای چهار فهرست‌نگار را دارد.
+  - **dry-run:** خط‌به‌خط برابر تمرین بود (۷۴۷ + ۳۱۴ و ۱٬۰۲۰ نسخه).
+  - **شمارها پیش و پس از اجرا:**
+
+    | فهرست‌نگار | جلدها | نسخه‌ها |
+    |---|---|---|
+    | حافظیان | ۲۴ → ۲۶ | ۲۰٬۲۸۱ → ۲۱٬۳۴۲ |
+    | صدرائی | ۲۶ → ۲۴ | ۲۵٬۷۰۸ → ۲۴٬۶۴۷ |
+    | فاضل | ۱۷ → ۱۸ | ۹٬۹۴۶ → ۱۰٬۹۶۶ |
+    | بینش | ۳ → ۲ | ۱٬۵۸۹ → ۵۶۹ |
+
+  - **پس از اجرا:** هر سه جلد فقط یک فهرست‌نگار دارند. عنوان، ناشر و سال منبع‌ها درست شد. `/images/sources/covers/catalogue-41322fd8f0f4.webp` با کد ۲۰۰ پاسخ می‌دهد.
