@@ -383,6 +383,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/sources/merge', [\App\Http\Controllers\Admin\SourceMergeController::class, 'store'])->name('sources.merge.store');
         Route::post('/sources/merges/{log}/undo', [\App\Http\Controllers\Admin\SourceMergeController::class, 'undo'])->name('sources.merge.undo');
     });
+    // A new source, and how each source is cited in the others (step 14.57)
+    Route::middleware('can:sources.patterns')->prefix('sources')->name('sources.')->group(function () {
+        Route::get('/new', [\App\Http\Controllers\Admin\SourceController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\SourceController::class, 'store'])->name('store');
+        Route::controller(\App\Http\Controllers\Admin\CitationFormController::class)->name('citations.')->group(function () {
+            Route::get('/{source}/citations/new', 'create')->whereNumber('source')->name('create');
+            Route::post('/{source}/citations', 'store')->whereNumber('source')->name('store');
+            Route::get('/{source}/citations/{form}', 'edit')->whereNumber(['source', 'form'])->name('edit');
+            Route::put('/{source}/citations/{form}', 'update')->whereNumber(['source', 'form'])->name('update');
+            Route::delete('/{source}/citations/{form}', 'destroy')->whereNumber(['source', 'form'])->name('destroy');
+            Route::post('/citation-changes/{log}/undo', 'undo')->whereNumber('log')->name('undo');
+        });
+    });
     Route::middleware('can:sources.edit')->prefix('sources')->name('sources.')->controller(\App\Http\Controllers\Admin\SourceController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{source}', 'show')->whereNumber('source')->name('show');

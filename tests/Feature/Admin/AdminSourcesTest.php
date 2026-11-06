@@ -237,6 +237,7 @@ class AdminSourcesTest extends TestCase
         CatalogVolume::find($f2->id)->catalogers()->attach($cataloger->id, ['role' => 'cataloger']);
         $partOfDuplicate = CatalogVolumePart::create(['catalog_volume_id' => $f2->id, 'library_id' => $library->id, 'title' => 'بخش جلد تکراری', 'sort' => 1]);
         $partOfDuplicate->catalogers()->attach($cataloger->id, ['role' => 'cataloger']);
+        $citedAsFolded = \App\Models\SourceCitationForm::create(['cited_source_id' => $folded->id, 'context' => 'bibliography', 'names' => ['مرعشی']]);
         $onDuplicate = $this->copy($library, $f2, 40);
         $onFive = $this->copy($library, $f5, 9);
         CatalogVolumePart::assign([$onDuplicate->id]);
@@ -264,6 +265,7 @@ class AdminSourcesTest extends TestCase
         $this->assertSame($k2->id, $partOfDuplicate->fresh()->catalog_volume_id, 'the duplicate volume\'s part moves with its copies');
         $this->assertSame($partOfDuplicate->id, $onDuplicate->fresh()->catalog_volume_part_id);
         $this->assertSame($kept->id, SourceVolume::find($f5->id)->source_id);
+        $this->assertSame($kept->id, $citedAsFolded->fresh()->cited_source_id, 'how the folded source is cited is the kept one\'s');
         $this->get('/sources/merge-fold')->assertMovedPermanently()->assertRedirect(route('sources.show', 'merge-keep'));
         $log = AuditLog::where('auditable_type', Source::class)->where('action', 'merge')->sole();
         $this->actingAs($this->admin)->get("/admin/sources/{$kept->id}")->assertSee('برگرداندن ادغام')->assertSee('در این منبع ادغام شد');
@@ -278,6 +280,7 @@ class AdminSourcesTest extends TestCase
         $this->assertSame([$f2->id, $partOfDuplicate->id], [$partOfDuplicate->fresh()->catalog_volume_id, $onDuplicate->fresh()->catalog_volume_part_id]);
         $this->assertSame([$cataloger->id], CatalogVolume::find($f2->id)->catalogers()->pluck('catalogers.id')->all());
         $this->assertSame($folded->id, SourceVolume::find($f5->id)->source_id);
+        $this->assertSame($folded->id, $citedAsFolded->fresh()->cited_source_id);
         $this->get('/sources/merge-fold')->assertOk();
 
         // once only, and the same from the audit log

@@ -128,6 +128,11 @@
             </x-admin.table>
         </x-ui.section>
 
+        @if(session('citation_effect'))
+            @include('admin.sources.partials.citation-effect', ['effect' => session('citation_effect'), 'done' => true])
+        @endif
+        @include('admin.sources.partials.citation-forms')
+
         @include('admin.sources.partials.history', ['history' => $history])
     </div>
 </div>
