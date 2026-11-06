@@ -236,6 +236,9 @@
 
             <!-- RESEARCH NOTES: published notes and the invitation to add one -->
             <x-suggest.notes type="person" />
+
+            <!-- CORRECTION HISTORY: approved suggestions that changed this record (backlog item 39) -->
+            <x-record-history :record="$person" />
         </div>
     </div>
 

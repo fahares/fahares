@@ -499,6 +499,9 @@
 
             <!-- RESEARCH NOTES: published notes and the invitation to add one -->
             <x-suggest.notes type="manuscript" />
+
+            <!-- CORRECTION HISTORY: approved suggestions that changed this record (backlog item 39) -->
+            <x-record-history :record="$manuscript" />
         </div>
     </div>
 

@@ -140,6 +140,9 @@
 
         <!-- RESEARCH NOTES: published notes and the invitation to add one -->
         <x-suggest.notes type="library" />
+
+        <!-- CORRECTION HISTORY: approved suggestions that changed this record (backlog item 39) -->
+        <x-record-history :record="$library" />
     </div>
 
     <!-- SUGGESTION DESK: per-field and general correction suggestions -->

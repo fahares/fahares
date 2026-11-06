@@ -1,0 +1,194 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Auth\Permissions;
+use App\Models\AuditLog;
+use App\Models\FieldSuggestion;
+use App\Models\Library;
+use App\Models\Manuscript;
+use App\Models\Person;
+use App\Models\User;
+use App\Models\Work;
+use App\Suggestions\Contributions;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
+
+/** The correction history on each record page and the credit beside relations (backlog item 39). */
+class RecordHistoryTest extends TestCase
+{
+    protected User $admin;
+
+    protected User $researcher;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Notification::fake();
+        Permissions::flush();
+        $this->admin = User::create(['name' => 'مدیر کل', 'email' => uniqid('rh-admin-') . '@example.test', 'password' => 'password123', 'role' => 'admin']);
+        $this->researcher = User::create(['name' => 'نام حساب پژوهشگر', 'email' => uniqid('rh-user-') . '@example.test', 'password' => 'password123', 'role' => 'user']);
+    }
+
+    protected function library(string $name): Library
+    {
+        return Library::create(['name' => $name, 'city' => 'قم', 'slug' => 'rh-lib-' . uniqid()]);
+    }
+
+    protected function work(string $title): Work
+    {
+        return Work::create(['primary_title' => $title, 'clean_title' => $title, 'slug' => 'rh-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
+    }
+
+    protected function manuscript(Work $work, array $attributes = []): Manuscript
+    {
+        return Manuscript::create($attributes + ['work_id' => $work->id, 'volume_number' => 1, 'page_start' => 1, 'sequence_number' => 1]);
+    }
+
+    protected function person(string $name): Person
+    {
+        return Person::create(['name' => $name, 'normalized_name' => $name, 'slug' => 'rh-p-' . uniqid()]);
+    }
+
+    protected function apply($record, array $data)
+    {
+        $type = \App\Suggestions\SuggestionRegistry::typeKey($record::class);
+
+        return $this->actingAs($this->admin)->post(route('admin.structure.apply', [$type, $record->id]), $data)->assertSessionHasNoErrors();
+    }
+
+    /** The structural tool applied it as the editors' work; credit it to a researcher, as an approved suggestion of theirs. */
+    protected function credit(?string $name = 'احمد پژوهشگر'): FieldSuggestion
+    {
+        $s = FieldSuggestion::where('kind', 'relation')->latest('id')->firstOrFail();
+        $s->update(['user_id' => $this->researcher->id, 'credit_name' => $name]);
+
+        return $s;
+    }
+
+    protected function page($record)
+    {
+        auth()->logout();
+        $route = match (true) {
+            $record instanceof Work => 'works.show',
+            $record instanceof Manuscript => 'manuscripts.show',
+            $record instanceof Person => 'people.show',
+            $record instanceof Library => 'libraries.show',
+        };
+
+        return $this->followingRedirects()->get(route($route, $record))->assertOk();
+    }
+
+    protected function text($response): string
+    {
+        return preg_replace('/\s+/u', ' ', strip_tags($response->getContent()));
+    }
+
+    public function test_a_moved_copy_reads_on_its_own_page_and_on_both_works()
+    {
+        $from = $this->work('اثر نخستین');
+        $to = $this->work('خلق الاعمال');
+        $ms = $this->manuscript($from, ['shelfmark' => '23961']);
+
+        $this->apply($ms, ['relation' => 'move_to_work', 'target' => (string) $to->id]);
+        $s = $this->credit();
+        $this->assertSame($from->id, $s->resolution['from_work_id']);
+
+        $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر، این نسخه از اثر «اثر نخستین» به اثر «خلق الاعمال» منتقل شد.', $this->text($this->page($ms)));
+        $target = $this->text($this->page($to));
+        $this->assertStringContainsString('تاریخچه‌ی اصلاحات', $target);
+        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از اثر «اثر نخستین» به این اثر منتقل شد\./u', $target);
+        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از این اثر به اثر «خلق الاعمال» منتقل شد\./u', $this->text($this->page($from)));
+        $this->page($to)->assertSee(route('contributors.show', $this->researcher), false)->assertDontSee('نام حساب پژوهشگر');
+    }
+
+    public function test_without_a_permitted_name_the_line_stays_anonymous_and_unapproved_ones_are_not_shown()
+    {
+        $work = $this->work('اثر بی‌نام');
+        $ms = $this->manuscript($this->work('اثر پیشین'));
+        $this->apply($ms, ['relation' => 'move_to_work', 'target' => (string) $work->id]);
+        $this->credit(null);
+        FieldSuggestion::create(['suggestable_type' => Work::class, 'suggestable_id' => $work->id, 'kind' => 'field', 'field_name' => 'description',
+            'suggested_value' => 'متن در انتظار داوری', 'status' => 'pending', 'user_id' => $this->researcher->id, 'credit_name' => 'نام در انتظار']);
+
+        $text = $this->text($this->page($work));
+        $this->assertStringContainsString('به پیشنهاد ' . Contributions::ANONYMOUS_LABEL . '، نسخه‌ی', $text);
+        $this->assertStringNotContainsString('نام حساب پژوهشگر', $text);
+        $this->assertStringNotContainsString('نام در انتظار', $text);
+        $this->assertStringNotContainsString('متن در انتظار داوری', $text);
+    }
+
+    public function test_the_editors_own_change_reads_as_theirs_and_a_record_without_corrections_has_no_section()
+    {
+        $kept = $this->library('کتابخانه‌ی ماندنی');
+        $duplicate = $this->library('کتابخانه‌ی تکراری');
+        $this->apply($duplicate, ['relation' => 'duplicate', 'target' => (string) $kept->id, 'keep' => 'target']);
+
+        $text = $this->text($this->page($kept->fresh()));
+        $this->assertStringContainsString('به دست ' . Contributions::STAFF_LABEL . '، رکورد تکراری «کتابخانه‌ی تکراری» در این رکورد ادغام شد.', $text);
+        $this->page($this->library('کتابخانه‌ی بی‌اصلاح'))->assertDontSee('تاریخچه‌ی اصلاحات');
+    }
+
+    public function test_a_relocated_copy_keeps_its_earlier_place_and_shows_on_both_libraries()
+    {
+        $old = $this->library('کتابخانه‌ی پیشین');
+        $new = $this->library('کتابخانه‌ی تازه');
+        $ms = $this->manuscript($this->work('اثر جابه‌جا'), ['library_id' => $old->id, 'library' => $old->name, 'shelfmark' => '12']);
+
+        $this->apply($ms, ['relation' => 'relocated', 'target' => (string) $new->id, 'shelfmark' => '99', 'library_choice' => 'target']);
+        $s = $this->credit();
+        $this->assertSame([$old->id, '12', $new->id, '99'], [$s->resolution['from_library_id'], $s->resolution['from_shelfmark'], $s->resolution['library_id'], $s->resolution['shelfmark']]);
+
+        foreach ([$old, $new] as $library) {
+            $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از «کتابخانه‌ی پیشین، ش 12» به «کتابخانه‌ی تازه، ش 99» منتقل شد\./u', $this->text($this->page($library)));
+        }
+        $this->assertStringContainsString('این نسخه از «کتابخانه‌ی پیشین، ش 12»', $this->text($this->page($ms)));
+    }
+
+    public function test_a_relation_reads_from_both_sides_with_its_credit_and_a_person_shows_the_work_given_to_them()
+    {
+        $part = $this->work('جلد دوم');
+        $whole = $this->work('کتاب کامل');
+        $this->apply($part, ['relation' => 'work_relation', 'target' => (string) $whole->id, 'role' => 'part']);
+        $s = $this->credit();
+        $this->assertSame($s->id, DB::table('work_relations')->value('suggestion_id'));
+
+        foreach ([$part, $whole] as $work) {
+            $page = $this->page($work);
+            $text = $this->text($page);
+            $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر، رابطه ثبت شد:', $text);
+            // the relation itself carries the name too
+            $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر', strip_tags(explode('تاریخچه‌ی اصلاحات', $page->getContent())[0]));
+        }
+
+        $author = $this->person('مؤلف درست');
+        $this->apply($part, ['relation' => 'author_is', 'target' => (string) $author->id]);
+        $this->credit();
+        $text = $this->text($this->page($author));
+        $this->assertStringContainsString('به پیشنهاد احمد پژوهشگر، اثر «جلد دوم»، تعیین پدیدآور: «مؤلف درست»', $text);
+    }
+
+    public function test_the_backfill_reads_the_earlier_work_from_the_audit_log_once()
+    {
+        $from = $this->work('اثر مبدأ قدیمی');
+        $to = $this->work('اثر مقصد قدیمی');
+        $ms = $this->manuscript($to);
+        // applied before the source work was kept in the resolution (production suggestions 12 and 13)
+        $s = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $ms->id, 'kind' => 'relation', 'field_name' => 'move_to_work', 'suggested_value' => '',
+            'payload' => ['target_id' => $to->id], 'status' => 'approved', 'reviewed_at' => now(), 'user_id' => $this->researcher->id,
+            'credit_name' => 'احمد پژوهشگر', 'resolution' => ['applied' => true, 'work_id' => $to->id]]);
+        AuditLog::create(['action' => 'verify', 'auditable_type' => Manuscript::class, 'auditable_id' => $ms->id,
+            'old_values' => ['work_id' => $from->id], 'new_values' => ['work_id' => $to->id, 'suggestion_id' => $s->id]]);
+
+        $this->page($from)->assertDontSee('تاریخچه‌ی اصلاحات');
+        $this->artisan('fahares:backfill-suggestion-resolution')->expectsOutputToContain('Would write: 1 of 1')->assertSuccessful();
+        $this->assertArrayNotHasKey('from_work_id', $s->fresh()->resolution);
+
+        $this->artisan('fahares:backfill-suggestion-resolution', ['--apply' => true])->expectsOutputToContain('Written: 1 of 1')->assertSuccessful();
+        $this->assertSame($from->id, $s->fresh()->resolution['from_work_id']);
+        $this->artisan('fahares:backfill-suggestion-resolution')->expectsOutputToContain('Would write: 0 of 0')->assertSuccessful();
+
+        $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از این اثر به اثر «اثر مقصد قدیمی» منتقل شد\./u', $this->text($this->page($from)));
+    }
+}
