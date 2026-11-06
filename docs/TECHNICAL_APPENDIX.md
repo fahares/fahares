@@ -8036,3 +8036,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیش از اجرا:** فاضل ۱۸ جلد و ۱۰٬۹۶۶ نسخه، حجتی ۱۱ و ۱۸٬۵۳۹، روضاتی ۲ و ۳۶۳، قاسمی ۲ و ۶۰۷.
   - **پس از اجرا:** فاضل ۱۷ و ۸٬۱۳۰، روضاتی ۲ و ۱۵۱. شمارش حجتی و قاسمی تغییر نکرد، چون `recount` نسخه‌های جلدهای پیونددار را می‌شمارد.
   - **جلدها:** جلد ۴۱۲ پیوند حجتی (فهرست‌نگار) و دانش‌پژوه (ناظر) را دارد و هر ۲٬۸۳۶ نسخه‌اش از حجتی است. جلد ۵۰۴ پیوند قاسمی را دارد و هر ۲۲۸ نسخه‌اش از اوست.
+
+### گام ۱۴.۶۳: `twins` در `fahares:apply-corpus-structure`، و اثر ‎-v20-1875
+- **دسته‌بندی `other_work.jsonl` (review8، ۲۳۴ ردیف):** نسخه‌ها با `fahares_prod` پیوند خوردند و مؤلف اثرِ سایت با `author.name` اثرِ v2 سنجیده شد (بی‌فاصله و بی‌عدد). نتیجه: `same_author` ۲۱۲ و `author_differs` ۲۲.
+  - داوری ۲۲ ردیف (۹ مورد) روی تصویر صفحه در `scratchpad` انجام شد: هر ۹ مورد `v2_work`.
+- **`twins`:** قالب `[{from, to, copies: [[from_seq, to_seq, shelfmark]]}]`. نسخه زیر `from` با `sequence_number` و `shelfmark` یافته می‌شود، و همزاد زیر `to` با همان دو. اگر هر دو یکتا باشند، `RecordMerger::mergeManuscript($source, $kept, $keep)` اجرا می‌شود.
+  - `$keep` همه‌ی کلیدهای `MergeComparison::rows` را `KEEP` می‌کند. پیش‌فرض ادغام (`TAKE` برای نشان‌های بله/خیر و فیلدهای خالی، `BOTH` برای متن) مقدار دورگه را به همزاد می‌برد.
+  - audit با `action` = `merge` و `category` = `twin` ثبت می‌شود. «already folded» یعنی نسخه رفته و همزاد هست.
+  - کتابخانه و گاهی شهرِ نسخه‌ی دورگه با همزادش فرق دارد، پس جفت‌شدن با شماره و `shelfmark` است، نه با `city` و `library`.
+- **فایل‌ها:**
+  - `database/data/fankha_twins_step14_63.json`: ۱ `moves` (‎-v7-196 → ‎-v8-601) و ۶ `twins` (‎-v25-784، ‎-v18-836، ‎-v24-1769، ‎-v27-1691، ‎-v30-1500 و ‎-v32-500).
+  - `database/data/fankha_nahj_work_step14_63.json`: ساخته‌ی `fankha_v2_run_works_export.py --next 20:1875 v20-1731`. بیشینه‌ی شماره‌ی slug ج ۲۰ در پروداکشن و محلی ۱۸۷۴ بود. ۱۴ نسخه `move` است.
+- **تمرین روی fahares_prod:** «Applying 1 moves and 0 folds. and 6 twin folds.» و «Adding 1 works … copies: 14 moved, 0 made». اجرای دوم هر دو تهی بود.
+- **آزمون:** `ApplyCorpusStructureCommandTest::test_a_hybrid_copy_folds_into_its_twin_under_the_other_work_keeping_the_twins_values`
+- **ترتیب اجرا در تولید:**
+  1. `fahares:apply-corpus-structure --file=database/data/fankha_twins_step14_63.json --apply`
+  2. `fahares:add-corpus-works --file=database/data/fankha_nahj_work_step14_63.json --apply`
+  3. `catalogs:link-volumes`
+  4. `fahares:rebuild-scripts`
+  5. `fahares:link-autograph-scribes`

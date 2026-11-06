@@ -79,4 +79,37 @@ class ApplyCorpusStructureCommandTest extends TestCase
             ->expectsOutputToContain('Would apply 0 moves and 0 folds.')
             ->assertSuccessful();
     }
+
+    public function test_a_hybrid_copy_folds_into_its_twin_under_the_other_work_keeping_the_twins_values()
+    {
+        $wrong = $this->work('-v99-11');
+        $right = $this->work('-v99-12');
+        $hybrid = $this->copy($wrong, 3, 'بدون شماره', 'علامه فیض');
+        DB::table('manuscripts')->where('id', $hybrid)->update(['is_illuminated' => 1, 'folios' => 9]);
+        $twin = $this->copy($right, 69, 'بدون شماره', 'مدرسه علوی');
+        $own = $this->copy($wrong, 1, '13602/4');
+        file_put_contents($this->file, json_encode([
+            'twins' => [['from' => '-v99-11', 'to' => '-v99-12', 'copies' => [[3, 69, 'بدون شماره'], [5, 70, '0/0']]]],
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:apply-corpus-structure', ['--file' => $this->file])
+            ->expectsOutputToContain('Would apply 0 moves and 0 folds. and 1 twin folds.')
+            ->expectsOutputToContain('5. 0/0: 0 copies')
+            ->assertSuccessful();
+        $this->assertTrue(DB::table('manuscripts')->where('id', $hybrid)->exists());
+
+        $this->artisan('fahares:apply-corpus-structure', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+        $this->assertFalse(DB::table('manuscripts')->where('id', $hybrid)->exists());
+        $kept = DB::table('manuscripts')->where('id', $twin)->first();
+        $this->assertSame('مدرسه علوی', $kept->library);
+        $this->assertSame(0, (int) $kept->is_illuminated);
+        $this->assertNull($kept->folios);
+        $this->assertSame($right, $kept->work_id);
+        $this->assertTrue(DB::table('manuscripts')->where('id', $own)->exists());
+        $this->assertTrue(AuditLog::where('auditable_id', $twin)->where('action', 'merge')->where('new_values', 'like', '%twin%')->exists());
+
+        $this->artisan('fahares:apply-corpus-structure', ['--file' => $this->file])
+            ->expectsOutputToContain('already folded: 3. بدون شماره')
+            ->assertSuccessful();
+    }
 }
