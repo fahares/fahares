@@ -416,7 +416,7 @@ class SourceEntrySync
     /** config('bibliography.sources') key => sources.id, for the reference works the registry has. */
     public static function configSources(): array
     {
-        return DB::table('sources')->whereIn('code', array_keys(config('bibliography.sources')))->pluck('id', 'code')->all();
+        return DB::table('sources')->whereIn('code', array_keys(CitationForms::sources()))->pluck('id', 'code')->all();
     }
 
     /** One source per library and title, and one per later printing (the Masjid-e A'zam catalogue of 1388). */

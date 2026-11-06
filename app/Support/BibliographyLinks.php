@@ -11,6 +11,12 @@ use Illuminate\Support\HtmlString;
  */
 class BibliographyLinks
 {
+    /** inProse()'s regex of every source's name, per citing source, until a citation form changes. */
+    private static array $proseRegex = [];
+
+    /** The source whose text is read and where in it: Fankha's bibliography strings, or a source's page text in inProse(). */
+    private static array $citing = ['fankha', 'bibliography'];
+
     /**
      * The entry as escaped HTML with Persian digits and the linked citations as anchors. A citation whose
      * page image is on the site opens the page viewer; the anchor keeps the online edition as its href. A source the
@@ -377,6 +383,15 @@ class BibliographyLinks
 
             return count($holding) === 1 ? $holding[0] : null;
         }
+        // a source the site shows nothing of: one volume holds every page, or one volume's pages hold it
+        if ($plain = self::sources()[$key]['plain'] ?? null) {
+            if (self::sources()[$key]['volumes'] === 1) {
+                return $column <= ($plain['last_pages'][1] ?? PHP_INT_MAX) ? 1 : null;
+            }
+            $holding = array_keys(array_filter($plain['last_pages'], fn ($last, $v) => $column >= ($plain['first_pages'][$v] ?? 1) && $column <= $last, ARRAY_FILTER_USE_BOTH));
+
+            return ! empty($plain['first_pages']) && count($holding) === 1 ? $holding[0] : null;
+        }
         $viewer = self::sources()[$key]['viewer'] ?? [];
         if (empty($viewer['first_pages'])) {
             return null;
@@ -431,6 +446,12 @@ class BibliographyLinks
             ];
         }
 
+        // a source the site shows nothing of (step 14.57): the citation is read, within the pages its volume holds, and not linked
+        if (! $link && isset($src['plain']) && $page >= ($src['plain']['first_pages'][$volume] ?? 1)
+            && (! isset($src['plain']['last_pages'][$volume]) || $page <= $src['plain']['last_pages'][$volume])) {
+            $link = ['title' => "{$src['label']}، ج {$volume}، {$unit} {$page}"];
+        }
+
         return $link !== null ? $link + ['volume' => $volume, 'cite' => ['source' => $key, 'volume' => $volume, 'page' => $page]] : null;
     }
 
@@ -482,13 +503,24 @@ class BibliographyLinks
      *
      * @return list<array{text: string, url?: string, title?: string, viewer?: array, internal?: bool, cite?: array}>
      */
-    public static function inProse(string $text): array
+    public static function inProse(string $text, ?string $citing = null): array
     {
-        static $regex = null;
+        // as the source of the page cites the others, the forms of any source included
+        $was = self::$citing;
+        self::$citing = [$citing ?? 'fankha', 'page_text'];
+        try {
+            return self::readProse($text);
+        } finally {
+            self::$citing = $was;
+        }
+    }
+
+    private static function readProse(string $text): array
+    {
         $number = '[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?';
         // Monzavi's «ذریعه (3) 791/9»: the part of a volume printed in parts, whose pages run on through them
         $part = '(?:\(\s*[0-9۰-۹]{1,2}\s*\)\s*)?';
-        $regex ??= '/(?<![\p{L}\p{M}])(?<name>' . implode('|', array_map(fn ($s) => '(?:' . $s['pattern'] . ')', self::sources()))
+        $regex = self::$proseRegex[implode('|', self::$citing)] ??= '/(?<![\p{L}\p{M}])(?<name>' . implode('|', array_map(fn ($s) => '(?:' . $s['pattern'] . ')', self::sources()))
             . ')(?![\p{L}\p{M}])[\s:،,]*' . $part . '(?:ج\s*)?' . $number
             . '|(?<![\p{L}\p{M}])(?<ibid>همان ?جا)[\s:،,]*' . $part . '(?<at>' . $number . ')'
             . '|(?<other>[0-9۰-۹]+\s*\/\s*[0-9۰-۹]+)/u';
@@ -561,8 +593,15 @@ class BibliographyLinks
         return trim(preg_replace('/\s+/u', ' ', $s));
     }
 
+    /** The sources and how Fankha cites them: source_citation_forms, with config/bibliography.php's display details (step 14.57). */
     private static function sources(): array
     {
-        return config('bibliography.sources', []);
+        return \App\Sources\CitationForms::sources(...self::$citing);
+    }
+
+    /** Drops what was built from the citation forms, after one of them changed. */
+    public static function forget(): void
+    {
+        self::$proseRegex = [];
     }
 }
