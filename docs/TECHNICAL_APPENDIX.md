@@ -8240,7 +8240,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`reorder()`:** رابطه‌ی `messages()` با `orderBy('id')` تعریف شده است. پس `latest('id')` در `notifyStaff`، در یادآوری `expire()` و در `recentSameReply` به `reorder()->latest('id')` تبدیل شد.
 - **آزمون:** `Tests\Feature\DuplicateMessagesTest` (۶ آزمون).
 - **پروداکشن:** انتشار کد و migration، که خودکار اجرا می‌شود. دستور داده ندارد.
-  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
 
 ### گام ۱۴.۷۲: میز داوری تازه (`WordDiff`، پنل تصمیم، عنوان رکورد)
 - **`App\Support\WordDiff`:**
