@@ -7964,3 +7964,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فهرست‌نگار تازه با نام در همه‌ی جلدها
   - تبدیل پیشنهادی از کتابخانه
   - `ConvertSuggestionTest` و `StructureToolsTest` برای منبع و `STRUCTURE_TYPES` به‌روز شدند.
+
+### گام ۱۴.۵۹: داوری ۳۰ نسخه‌ی `needs_page_check` و بازسازی آن‌ها
+- **داوری:** هر نسخه با متن سایت، متن v2، نسخه‌های کناری v2 و تصویر صفحه‌ها (`storage/app/public/catalogs/fankha/vNN/pNNNN.webp`، صفحه‌ی نسخه و صفحه‌ی بعد) در سه دسته‌ی ده‌تایی به زیرعامل‌ها سپرده شد.
+  - فایل‌ها: `fahares-corpus/reports/fankha_v2_db_review8/page_check_step14_59/` (`INSTRUCTIONS.md`، `batchN.json`، `resultN.json`، `ids14_59.tsv`). این پوشه در git پیکره نیست.
+  - حکم‌ها: `v2` ۳۰، `site` ۰، `neither` ۰. نسخه‌های ۲۱۴۸۴ و ۱۸۶۴۳۸ دستی هم وارسی شدند.
+  - پایان متن نسخه‌های کناری (۱۶ مورد) در سایت دیده شد، مانند «[ف: 1-43]» در 334260 و «[ف: 10 - 2025]» در 334449.
+- **فایل تصمیم:** `database/data/fankha_rebuild_copies_step14_59.json` با ۳۰ رکورد، ساخته‌ی `fankha_v2_rebuild_export.py --ids ids14_59.tsv`.
+- **تمرین روی fahares_prod:**
+  - `rebuild-copies`: «Rebuilding 30 copies» و «27 copies relinked».
+  - `catalogs:link-volumes`: ۲۸ نسخه از ۳۰ جلد دارند.
+  - `fahares:rebuild-scripts`: ۱۱ نسخه در گام ۱.
+  - اجرای دوم: `already 30`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_59.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
