@@ -8240,3 +8240,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`reorder()`:** رابطه‌ی `messages()` با `orderBy('id')` تعریف شده است. پس `latest('id')` در `notifyStaff`، در یادآوری `expire()` و در `recentSameReply` به `reorder()->latest('id')` تبدیل شد.
 - **آزمون:** `Tests\Feature\DuplicateMessagesTest` (۶ آزمون).
 - **پروداکشن:** انتشار کد و migration، که خودکار اجرا می‌شود. دستور داده ندارد.
+  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
+
+### گام ۱۴.۷۲: میز داوری تازه (`WordDiff`، پنل تصمیم، عنوان رکورد)
+- **`App\Support\WordDiff`:**
+  - `ops($old, $new)`: توکن‌ها کلمه‌ها و فاصله‌های میانشان‌اند (`preg_split('/(\s+)/u')`). پیشوند و پسوند مشترک جدا می‌شوند، و میانه با LCS مقایسه می‌شود. اگر حاصل‌ضرب طول دو میانه از ۴۰۰٬۰۰۰ بیشتر باشد، میانه یکجا «حذف و افزوده» شمرده می‌شود.
+  - تغییری که فقط فاصله است علامت نمی‌گیرد. فاصله‌ها و tabهای لبه‌ی هر علامت به متن مشترک می‌روند، ولی شکست سطر نه، تا دو بار نمایش داده نشود.
+  - `side($ops, 'old'|'new')` عملیات یک طرف را می‌دهد. `compact($ops, 6, 40)` بخش‌های بی‌تغییر بلند را به شش کلمه در هر سوی تغییر کوتاه می‌کند و جای بقیه `…` می‌گذارد. متن تا ۴۰ کلمه دست نمی‌خورد. میز داوری `compact` را روی عملیات ترکیبی اجرا و سپس دو طرف را جدا می‌کند، تا هر دو سطر یک بازه را نشان دهند.
+- **`components/admin/word-diff`:** `<ins data-diff="ins">`، `<del data-diff="del">` و `<span data-diff="gap">`. HTML در یک رشته با `e()` ساخته می‌شود، چون فاصله‌ی میان دستورهای Blade وسط کلمه‌ها فاصله می‌گذاشت.
+- **`components/admin/decision`:** پنل سه‌گزینه‌ای با Alpine (`choice`) و دو slot (`approve` و `reject`). گزینه‌ی سوم `partials/ask-form` است. اگر خطای `body` باشد، پنل با «پرسش» باز می‌شود.
+  - رنگ دکمه‌ی انتخاب‌شده از `aria-pressed:` در Tailwind می‌آید و Alpine فقط `:aria-pressed` را عوض می‌کند. کلاس ثابتی که سرور می‌نوشت با `:class` پاک نمی‌شد.
+  - ریشه‌ی پنل `<div>` است، نه `<x-ui.card>`: Blade دستور `@js` را درون ویژگی‌های تگ component کامپایل نمی‌کند و `x-data` خام می‌ماند.
+- **`SuggestionController::show`:** چهار متغیر تازه به نما می‌دهد:
+  - `recordInfo`: `SuggestionRegistry::describe($target)`.
+  - `printedPage`: از نخستین پنج `SourceEntry` رکورد (نسخه یا اثر، با `source_volume_id` و ردنشده)، نخستین که `viewer()` یا `textPageUrl()` دارد. اگر فیلد `entry_id` داشته باشد، همان مدخل اول می‌آید.
+  - `submitterStats`: شمار `approved`، `rejected` و `pending` با `user_id`، یا برای مهمان بی‌حساب با `guest_email`. خود همین پیشنهاد هم شمرده می‌شود.
+  - `fieldHistory`: ده پیشنهاد دیگر همان رکورد و همان فیلد.
+- **`SuggestionController::index`:** `loadMorph('suggestable', [Manuscript::class => ['work', 'libraryRecord']])` برای عنوان هر سطر.
+- **`FieldSuggestion::getRecordTitleAttribute`:** برچسب `describe`؛ برای بازخورد، یا اگر رکورد نمانده باشد، `place_label` («صفحه: …» یا «اثر #…»). فهرست و پیشخوان آن را با `Fa::digits` نشان می‌دهند. «از ← به» از `current_value` ذخیره‌شده می‌آید و برای پیشنهادهای کهن‌تر از گام ۱۴.۶۰ فقط «به» نمایش داده می‌شود. اگر «از» بیش از ۴۰ یا «به» بیش از ۶۰ نویسه باشد، سطر به‌جای آن `compact(ops, 3, 0)` را نشان می‌دهد، تا هفت قطعه و سپس `…`.
+- **جمله‌ی پیشنهاد:** اگر یکی از دو مقدار بیش از ۸۰ نویسه باشد، جمله دو مقدار را نقل نمی‌کند و به مقایسه‌ی زیرش ارجاع می‌دهد.
+- **partialها:**
+  - `field-approve` (فرم تأیید، که از `show` جدا شد). نتیجه‌ها در `<details data-outcome>` آمدند و `data-approve-summary` سطر «با تأیید» است.
+  - `outcome` (نتیجه‌ی داوری و بازگشت به صف).
+  - `ask-form` (از `conversation` جدا شد). گفت‌وگو فرم را فقط پس از تصمیم دارد. پیش از آن، فرم در پنل است.
+  - `note-review` و `feedback-review` با `$part` (`main` یا `panel`). فیلدهای یادداشت در ستون اصلی‌اند و با `form="note-form"` به فرم پنل می‌پیوندند (`partials/note-form`).
+- **نام فیلدها:** نام همه‌ی فیلدهای فرم و مسیرها همان است. کلید فنی فیلد همچنان فقط برای مدیر کل است (`title="کلید فنی فیلد"`).
+- **آزمون:** `Tests\Feature\Admin\ReviewDeskTest` (۶ آزمون).
+- **پروداکشن:** فقط انتشار کد. کلاس‌های تازه‌ی Tailwind با ساخت تصویر Docker کامپایل می‌شوند.

@@ -39,9 +39,9 @@
                         <a href="{{ route('admin.suggestions.show', $sug) }}" class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 py-2.5 group">
                             <x-ui.chip :tone="$sug->kind === 'relation' ? 'accent' : ($sug->kind === 'note' ? 'good' : 'default')">{{ $sug->field_label }}</x-ui.chip>
                             <span class="min-w-0">
-                                <span class="block text-[13px] font-semibold text-ink group-hover:text-cinnabar truncate">{{ $sug->place_label }}</span>
+                                <span class="block font-naskh text-[14px] font-bold text-ink group-hover:text-cinnabar truncate" data-record-title>{{ \App\Support\Fa::digits($sug->record_title) }}</span>
                                 <span class="block text-xs text-muted truncate">
-                                    از {{ $sug->user?->name ?: ($sug->guest_name ?: 'مهمان') }}@if($sug->kind === 'field' && $sug->suggested_value !== '') · {{ \Illuminate\Support\Str::limit($sug->suggested_value, 60) }}@endif
+                                    {{ $sug->kind === 'feedback' ? 'بازخورد سایت' : \App\Suggestions\SuggestionRegistry::typeLabel($sug->suggestable_type) }} · از {{ $sug->user?->name ?: ($sug->guest_name ?: 'مهمان') }}@if($sug->kind === 'field' && $sug->suggested_value !== '') · @if(trim((string) $sug->current_value) !== ''){{ \Illuminate\Support\Str::limit($sug->current_value, 25) }} ← @endif{{ \Illuminate\Support\Str::limit($sug->suggested_label, 45) }}@endif
                                 </span>
                             </span>
                             <span class="text-xs text-muted whitespace-nowrap">@jago($sug->created_at)</span>

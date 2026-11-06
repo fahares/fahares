@@ -8,6 +8,7 @@ use App\Models\AuditLog;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Models\Manuscript;
+use App\Models\SourceEntry;
 use App\Notifications\SuggestionNotifier;
 use App\Review\CollectiveReview;
 use App\Suggestions\RecordMerger;
@@ -16,6 +17,7 @@ use App\Suggestions\RelationInput;
 use App\Suggestions\SuggestionApplier;
 use App\Suggestions\SuggestionRegistry;
 use App\Support\HijriYear;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -66,6 +68,8 @@ class SuggestionController extends Controller
                 ->orderByRaw('field_suggestions.review_queue IS NULL, field_suggestions.review_queue, field_suggestions.review_item_id');
         }
         $suggestions = $query->latest('field_suggestions.id')->paginate(20)->withQueryString();
+        // Each row names its record (step 14.72)
+        $suggestions->getCollection()->loadMorph('suggestable', [Manuscript::class => ['work', 'libraryRecord']]);
         $opinions = CollectiveReview::opinionsFor($suggestions->getCollection());
 
         $stats = [
@@ -116,7 +120,68 @@ class SuggestionController extends Controller
         $wasPromoted = $suggestion->standing === 'adopted'
             && ! empty(AuditLog::activeForSuggestion($suggestion->id)?->new_values['promoted']);
 
-        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'currentValue', 'currentIsLive', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted'));
+        // The review desk's context and the submitter's record (step 14.72)
+        $recordInfo = $target ? SuggestionRegistry::describe($target) : null;
+        $printedPage = $target ? $this->printedPage($target, $field) : null;
+        $submitterStats = $this->submitterStats($suggestion);
+        $fieldHistory = $suggestion->kind === 'field' && $suggestion->suggestable_id
+            ? FieldSuggestion::where('suggestable_type', $suggestion->suggestable_type)->where('suggestable_id', $suggestion->suggestable_id)
+                ->where('kind', 'field')->where('field_name', $suggestion->field_name)->whereKeyNot($suggestion->id)
+                ->latest('id')->take(10)->get()
+            : collect();
+
+        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'currentValue', 'currentIsLive', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted',
+            'recordInfo', 'printedPage', 'submitterStats', 'fieldHistory'));
+    }
+
+    /**
+     * How many of the submitter's suggestions were approved, rejected or wait (this one included): by account, else by
+     * the guest's email. Null for a guest who left no email.
+     *
+     * @return array{approved: int, rejected: int, pending: int}|null
+     */
+    private function submitterStats(FieldSuggestion $suggestion): ?array
+    {
+        $query = match (true) {
+            (bool) $suggestion->user_id => FieldSuggestion::where('user_id', $suggestion->user_id),
+            (bool) $suggestion->guest_email => FieldSuggestion::whereNull('user_id')->where('guest_email', $suggestion->guest_email),
+            default => null,
+        };
+        if (! $query) {
+            return null;
+        }
+        $counts = $query->whereIn('status', ['approved', 'rejected', 'pending'])
+            ->selectRaw('status, COUNT(*) AS n')->groupBy('status')->pluck('n', 'status');
+
+        return ['approved' => (int) ($counts['approved'] ?? 0), 'rejected' => (int) ($counts['rejected'] ?? 0), 'pending' => (int) ($counts['pending'] ?? 0)];
+    }
+
+    /**
+     * The printed catalogue page of the record, for the desk's context strip: the entry the field is about if it has
+     * one, else the first entry with a page image or a page text.
+     *
+     * @return array{label: string, viewer?: array, url?: string}|null
+     */
+    private function printedPage(Model $target, ?array $field): ?array
+    {
+        if (! in_array(class_basename($target), ['Manuscript', 'Work'], true)) {
+            return null;
+        }
+        $entries = SourceEntry::with(['source', 'sourceVolume'])
+            ->where('citable_type', $target->getMorphClass())->where('citable_id', $target->getKey())
+            ->whereNotNull('source_volume_id')->where('status', '!=', SourceEntry::STATUS_REJECTED)
+            ->when($field['entry_id'] ?? null, fn ($q, $id) => $q->orderByRaw('id = ? DESC', [$id]))
+            ->orderBy('id')->take(5)->get();
+        foreach ($entries as $entry) {
+            if ($viewer = $entry->viewer()) {
+                return ['label' => $entry->sourceName(), 'viewer' => $viewer];
+            }
+            if ($url = $entry->textPageUrl()) {
+                return ['label' => $entry->sourceName(), 'url' => $url];
+            }
+        }
+
+        return null;
     }
 
     /** Reviewer outcomes for a field suggestion and the standing each gives it. */

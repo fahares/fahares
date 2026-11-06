@@ -1,16 +1,12 @@
-{{-- Review of site feedback: the page it came from, the message, screenshots; resolve with an answer, reject, or convert (see partials/convert) --}}
+{{-- Review of site feedback: the page it came from, the message, screenshots; resolve with an answer, reject, or convert
+     (see partials/convert). $part 'main' is the message in the desk's main column, 'panel' the decision (step 14.72). --}}
 @php
     $payload = $suggestion->payload ?? [];
     $input = 'admin-field w-full';
 @endphp
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="lg:col-span-2 p-4 sm:p-5 bg-surface border border-line space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-            <h3 class="rubric text-base">بازخورد سایت: {{ $suggestion->field_label }}</h3>
-            @if($suggestion->place_url)
-                <a href="{{ $suggestion->place_url }}" target="_blank" class="font-bold text-cinnabar hover:underline">صفحه‌ی گزارش‌شده ↗</a>
-            @endif
-        </div>
+@if($part === 'main')
+    <x-ui.card class="space-y-4">
+        <h3 class="rubric text-base">بازخورد سایت: {{ $suggestion->field_label }}</h3>
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted">
             <div><dt class="inline font-bold">صفحه:</dt> <dd class="inline">{{ $payload['title'] ?? '—' }}</dd></div>
             <div><dt class="inline font-bold">نشانی:</dt> <dd class="inline font-mono" dir="ltr">{{ $payload['url'] ?? '—' }}</dd></div>
@@ -31,33 +27,32 @@
                 @endforeach
             </div>
         @endif
-    </div>
-
-    <div class="space-y-6">
-        @if($suggestion->status === 'pending')
-            <div class="p-4 sm:p-5 bg-surface border border-emerald-600/40 space-y-3">
-                <h3 class="rubric text-base !text-emerald-800 dark:!text-emerald-300">رسیدگی شد</h3>
-                <form action="{{ route('admin.suggestions.resolve', $suggestion) }}" method="POST" class="space-y-3">
-                    @csrf
-                    <textarea name="public_note" rows="3" placeholder="پاسخ به فرستنده (برای او فرستاده می‌شود؛ اختیاری)" class="{{ $input }}"></textarea>
-                    <input type="text" name="admin_notes" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $input }}">
-                    <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">ثبت «رسیدگی شد»</button>
-                </form>
-            </div>
-            <div class="p-4 sm:p-5 bg-surface border border-cinnabar/40 space-y-3">
-                <h3 class="rubric text-base">رد</h3>
-                <form action="{{ route('admin.suggestions.reject', $suggestion) }}" method="POST" class="space-y-3">
-                    @csrf
-                    <textarea name="public_note" rows="2" placeholder="توضیح برای فرستنده (اختیاری)" class="{{ $input }}"></textarea>
-                    <input type="text" name="admin_notes" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $input }}">
-                    <button type="submit" onclick="return confirm('این بازخورد رد شود؟')" class="w-full py-2.5 px-4 rounded-sm border border-cinnabar text-cinnabar hover:bg-cinnabar/5 font-bold transition cursor-pointer">رد بازخورد</button>
-                </form>
-            </div>
-        @else
-            <div class="p-4 sm:p-5 bg-paper border border-line-strong text-xs space-y-2">
-                <p><span class="font-bold">پاسخ به فرستنده:</span> <span class="whitespace-pre-line">{{ $suggestion->public_note ?: '—' }}</span></p>
-                <p><span class="font-bold">یادداشت داخلی:</span> {{ $suggestion->admin_notes ?: '—' }}</p>
-            </div>
-        @endif
-    </div>
-</div>
+    </x-ui.card>
+@elseif($suggestion->status === 'pending')
+    <x-admin.decision :suggestion="$suggestion" approve-label="رسیدگی شد">
+        <x-slot:approve>
+            <form action="{{ route('admin.suggestions.resolve', $suggestion) }}" method="POST" class="space-y-3">
+                @csrf
+                <textarea name="public_note" rows="3" placeholder="پاسخ به فرستنده (برای او فرستاده می‌شود؛ اختیاری)" aria-label="پاسخ به فرستنده" class="{{ $input }}"></textarea>
+                <input type="text" name="admin_notes" placeholder="یادداشت داخلی (فقط داوران)" aria-label="یادداشت داخلی" class="{{ $input }}">
+                <p class="px-3 py-2 bg-paper border border-line text-xs text-ink leading-6" data-approve-summary><b>با این کار:</b> بازخورد «رسیدگی‌شده» ثبت می‌شود و پاسخ، اگر نوشته شود، برای فرستنده می‌رود.</p>
+                <button type="submit" class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">ثبت «رسیدگی شد»</button>
+            </form>
+        </x-slot:approve>
+        <x-slot:reject>
+            <form action="{{ route('admin.suggestions.reject', $suggestion) }}" method="POST" class="space-y-3">
+                @csrf
+                <textarea name="public_note" rows="2" placeholder="توضیح برای فرستنده (اختیاری)" aria-label="توضیح برای فرستنده" class="{{ $input }}"></textarea>
+                <input type="text" name="admin_notes" placeholder="یادداشت داخلی (فقط داوران)" aria-label="یادداشت داخلی" class="{{ $input }}">
+                <button type="submit" onclick="return confirm('این بازخورد رد شود؟')" class="w-full py-2.5 px-4 rounded-sm border border-cinnabar text-cinnabar hover:bg-cinnabar/5 font-bold transition cursor-pointer">رد بازخورد</button>
+            </form>
+        </x-slot:reject>
+    </x-admin.decision>
+@else
+    <x-ui.card class="space-y-2 !border-line-strong text-xs">
+        <h3 class="font-naskh text-lg font-bold text-ink">نتیجه‌ی داوری</h3>
+        <p><span class="font-bold">پاسخ به فرستنده:</span> <span class="whitespace-pre-line">{{ $suggestion->public_note ?: '—' }}</span></p>
+        <p><span class="font-bold">یادداشت داخلی:</span> {{ $suggestion->admin_notes ?: '—' }}</p>
+        <p class="text-muted">داوری به دست {{ $suggestion->reviewer?->name ?: 'سامانه' }}، @jdate($suggestion->reviewed_at, 'datetime')</p>
+    </x-ui.card>
+@endif
