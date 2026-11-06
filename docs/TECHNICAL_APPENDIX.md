@@ -7677,22 +7677,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
 
-### گام ۱۴.۵۰: پنل منابع، `SourceMerger` و `VolumeEditor`
-- **کلاس‌ها:**
-  - `App\Sources\SourceMerger`: منطق `sources:merge-split` از دستور به این کلاس رفت. `plan()` جلدها را جفت می‌کند، `counts()` پیش‌نمایش را می‌دهد و `apply()` ادغام می‌کند. دستور و پنل هر دو از آن استفاده می‌کنند. تابع‌های ایستای دستور (`foldVolume`، `baseTitle`، `volumeNumber`…) برای فراخواننده‌های دیگر به همین کلاس ارجاع می‌دهند.
-  - `snapshot()` پیش از `apply()` هر ردیفی را که ممکن است عوض یا حذف شود نگه می‌دارد. ردیف‌های حذف‌شدنی یا شماره‌گرفتنی کامل نگه داشته می‌شوند، و از ردیف‌های پرشمار فقط ستون‌هایی که نوشته می‌شوند. این ردیف‌ها از این جدول‌هایند: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `catalog_volume_parts` و فهرست‌نگارانشان، `source_entries`، `source_items` (و مدخل چاپی حذف‌شده با `source_item_refs` آن)، `source_pages` جلد تکراری، `field_evidence`، `manuscripts` و `manuscript_catalog_references`.
-  - `undo()` همه را برمی‌گرداند و شمارهای جلد، بخش و فهرست‌نگار را دوباره می‌گیرد.
-  - **ذخیره‌ی snapshot:** در `old_values.snapshot` لاگ `merge` با `auditable_type = Source`، فشرده با gzip و base64. فایل نیست، چون `storage` با هر استقرار پاک می‌شود. صفحه‌ی لاگ ممیزی این کلید را نشان نمی‌دهد. در ادغام «عکسی مرعشی» حجمش ۳۴ کیلوبایت شد.
-  - **سقف:** پنل ادغامی را که بیش از ۵۰٬۰۰۰ مدخل جابه‌جا کند نمی‌پذیرد (`SourceMerger::PANEL_LIMIT`). چنین ادغامی با دستور انجام می‌شود.
-  - `App\Sources\VolumeEditor::run()` تغییر جلد یا بخش را اجرا می‌کند و سپس همان کارهای `catalogs:import-volume-parts` را: `CatalogVolumePart::assign` روی نسخه‌های جلد، `CatalogVolumePart::recount` و `Cataloger::recount`. اگر جلد بخش نداشته باشد و نخستین فهرست‌نگارش عوض شود، `cataloger_id` نسخه‌هایی که فهرست‌نگار پیشین را داشتند هم عوض می‌شود. با `dry` همین کار درون یک تراکنش انجام و برگردانده می‌شود؛ پیش‌نمایش همین است.
-- **`foldVolume`:** بخش‌های جلد تکراری، پس از بخش‌های جلد ماندنی، به جلد ماندنی می‌روند. پیش‌تر با حذف جلد cascade پاک می‌شدند. پس از ادغام، `assign` بخش نسخه‌های جلد ماندنی را دوباره می‌گیرد.
-- **مسیرها:**
-  - `can:sources.edit`: `admin/sources`، `admin/sources/{source}` (GET و PUT)، `admin/sources/{source}/volumes/{volume}` (GET و PUT)، و `…/parts` (POST، PUT و DELETE).
-  - `can:sources.merge`: `admin/sources/merge` (GET و POST) و `admin/sources/merges/{log}/undo`. برگرداندن از `admin/audit-logs/{log}/rollback` به `SourceMergeController::undoLog` می‌رسد.
-- **لاگ ممیزی:** ویرایش منبع با `update` و فیلدهای تغییرکرده ثبت می‌شود. جلد با `CatalogVolume`، و بخش با `CatalogVolumePart` (`create`، `update`، `remove`) و اثرش بر نسخه‌ها (`new_values.effect`).
-- **صفحه‌ی جلد:** فهرست ۳۶۹ کتابخانه و ۱۰۶ فهرست‌نگار یک بار به‌صورت JSON می‌آید. هر select وقتی فرمش باز یا فوکوس می‌شود پر می‌شود. پیش از این تغییر، جلد ۵ «نشریه» با ۵۷ بخش ۳٫۸ مگابایت HTML داشت و پس از آن ۴۰۰ کیلوبایت دارد.
-- **آزمون:** `tests/Feature/Admin/AdminSourcesTest.php`، با ۷ آزمون، برای دسترسی، فهرست و فیلترها، ویرایش و برگرداندن، جلد، بخش‌ها و ادغام و برگرداندن آن.
-
 ### گام ۱۴.۴۷: «مؤلفین کتب چاپی فارسی و عربی» مشار (مورد ۸۶)
 - **منشأ:** کتب مرجع ۲ نور، سری `03299`، شش جلد (`03299_001` تا `03299_006`). هر جلد صفحه‌های خودش را از ۱ می‌شمارد. سرعنوان سطح ۳ مؤلف است و سطح‌های ۴ تا ۶ کتاب‌های چاپی او («1 - دختر جنگل:»، «(الف) اقبالنامه …»).
 - **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
@@ -7781,3 +7765,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   اجرای دوم همین شمارها را داد.
 - **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
 - **آزمون:** `FixAbdolazimNavabCataloguesTest`.
+### گام ۱۴.۵۰: پنل منابع، `SourceMerger` و `VolumeEditor`
+- **کلاس‌ها:**
+  - `App\Sources\SourceMerger`: منطق `sources:merge-split` از دستور به این کلاس رفت. `plan()` جلدها را جفت می‌کند، `counts()` پیش‌نمایش را می‌دهد و `apply()` ادغام می‌کند. دستور و پنل هر دو از آن استفاده می‌کنند. تابع‌های ایستای دستور (`foldVolume`، `baseTitle`، `volumeNumber`…) برای فراخواننده‌های دیگر به همین کلاس ارجاع می‌دهند.
+  - `snapshot()` پیش از `apply()` هر ردیفی را که ممکن است عوض یا حذف شود نگه می‌دارد. ردیف‌های حذف‌شدنی یا شماره‌گرفتنی کامل نگه داشته می‌شوند، و از ردیف‌های پرشمار فقط ستون‌هایی که نوشته می‌شوند. این ردیف‌ها از این جدول‌هایند: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `catalog_volume_parts` و فهرست‌نگارانشان، `source_entries`، `source_items` (و مدخل چاپی حذف‌شده با `source_item_refs` آن)، `source_pages` جلد تکراری، `field_evidence`، `manuscripts` و `manuscript_catalog_references`.
+  - `undo()` همه را برمی‌گرداند و شمارهای جلد، بخش و فهرست‌نگار را دوباره می‌گیرد.
+  - **ذخیره‌ی snapshot:** در `old_values.snapshot` لاگ `merge` با `auditable_type = Source`، فشرده با gzip و base64. فایل نیست، چون `storage` با هر استقرار پاک می‌شود. صفحه‌ی لاگ ممیزی این کلید را نشان نمی‌دهد. در ادغام «عکسی مرعشی» حجمش ۳۴ کیلوبایت شد.
+  - **سقف:** پنل ادغامی را که بیش از ۵۰٬۰۰۰ مدخل جابه‌جا کند نمی‌پذیرد (`SourceMerger::PANEL_LIMIT`). چنین ادغامی با دستور انجام می‌شود.
+  - `App\Sources\VolumeEditor::run()` تغییر جلد یا بخش را اجرا می‌کند و سپس همان کارهای `catalogs:import-volume-parts` را: `CatalogVolumePart::assign` روی نسخه‌های جلد، `CatalogVolumePart::recount` و `Cataloger::recount`. اگر جلد بخش نداشته باشد و نخستین فهرست‌نگارش عوض شود، `cataloger_id` نسخه‌هایی که فهرست‌نگار پیشین را داشتند هم عوض می‌شود. با `dry` همین کار درون یک تراکنش انجام و برگردانده می‌شود؛ پیش‌نمایش همین است.
+- **`foldVolume`:** بخش‌های جلد تکراری، پس از بخش‌های جلد ماندنی، به جلد ماندنی می‌روند. پیش‌تر با حذف جلد cascade پاک می‌شدند. پس از ادغام، `assign` بخش نسخه‌های جلد ماندنی را دوباره می‌گیرد.
+- **مسیرها:**
+  - `can:sources.edit`: `admin/sources`، `admin/sources/{source}` (GET و PUT)، `admin/sources/{source}/volumes/{volume}` (GET و PUT)، و `…/parts` (POST، PUT و DELETE).
+  - `can:sources.merge`: `admin/sources/merge` (GET و POST) و `admin/sources/merges/{log}/undo`. برگرداندن از `admin/audit-logs/{log}/rollback` به `SourceMergeController::undoLog` می‌رسد.
+- **لاگ ممیزی:** ویرایش منبع با `update` و فیلدهای تغییرکرده ثبت می‌شود. جلد با `CatalogVolume`، و بخش با `CatalogVolumePart` (`create`، `update`، `remove`) و اثرش بر نسخه‌ها (`new_values.effect`).
+- **صفحه‌ی جلد:** فهرست ۳۶۹ کتابخانه و ۱۰۶ فهرست‌نگار یک بار به‌صورت JSON می‌آید. هر select وقتی فرمش باز یا فوکوس می‌شود پر می‌شود. پیش از این تغییر، جلد ۵ «نشریه» با ۵۷ بخش ۳٫۸ مگابایت HTML داشت و پس از آن ۴۰۰ کیلوبایت دارد.
+- **آزمون:** `tests/Feature/Admin/AdminSourcesTest.php`، با ۷ آزمون، برای دسترسی، فهرست و فیلترها، ویرایش و برگرداندن، جلد، بخش‌ها و ادغام و برگرداندن آن.
+
