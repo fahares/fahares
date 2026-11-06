@@ -53,6 +53,7 @@ class AuditLog extends Model
         \App\Models\Source::class => 'منبع',
         \App\Models\CatalogVolume::class => 'جلد فهرست',
         \App\Models\CatalogVolumePart::class => 'بخش جلد',
+        \App\Models\SourceCitationForm::class => 'الگوی ارجاع',
         ManuscriptCatalogReference::class => 'نشانی فهرست',
         FieldSuggestion::class => 'پیشنهاد',
         Page::class => 'صفحه',

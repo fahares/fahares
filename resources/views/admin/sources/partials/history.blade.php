@@ -16,7 +16,9 @@
                     $new = (array) ($log->new_values ?? []);
                     $changed = array_keys(array_intersect_key($fields, $old + $new));
                     $isMerge = $log->action === 'merge' && ($old['kind'] ?? null) === 'source_merge';
-                    $undone = in_array($log->action, ['merge', 'update'], true) && $log->isRolledBack();
+                    $isForm = $log->auditable_type === \App\Models\SourceCitationForm::class;
+                    $formEffect = $isForm ? (array) ($new['effect'] ?? []) : [];
+                    $undone = (in_array($log->action, ['merge', 'update'], true) || ($isForm && in_array($log->action, ['create', 'remove'], true))) && $log->isRolledBack();
                 @endphp
                 <li class="px-4 py-2.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <x-ui.chip :tone="str_starts_with($log->action, 'rollback') || $log->action === 'remove' ? 'accent' : 'default'">{{ $log->actionLabel() }}</x-ui.chip>
@@ -24,6 +26,11 @@
                     @if($isMerge)
                         <span>«{{ $old['folded_title'] ?? '' }}» (<span dir="ltr">{{ $old['folded_code'] ?? '' }}</span>) در این منبع ادغام شد:
                             {{ $fa($new['entries'] ?? 0) }} مدخل، {{ $fa($new['copies'] ?? 0) }} نسخه، {{ $fa($new['volumes'] ?? 0) }} جلد</span>
+                    @elseif($isForm)
+                        <span>{{ implode('، ', (array) ($new['names'] ?? $old['names'] ?? [])) ?: 'عبارت باقاعده' }}</span>
+                        @if($formEffect)
+                            <span class="text-muted">· {{ collect(['gained' => 'رشته‌ی تازه‌وصل', 'lost' => 'رشته‌ی جداشده', 'moved' => 'جای تازه'])->filter(fn ($l, $k) => ! empty($formEffect[$k]))->map(fn ($l, $k) => $fa($formEffect[$k]) . ' ' . $l)->implode('، ') ?: 'بی اثر بر مآخذ' }}@if(! empty($formEffect['queued'])) (در صف)@endif</span>
+                        @endif
                     @elseif($changed)
                         <span class="text-muted">{{ collect($changed)->map(fn ($k) => $fields[$k])->implode('، ') }}</span>
                     @endif
@@ -32,6 +39,15 @@
                     @endif
                     @if($undone)<x-ui.chip>برگردانده شد</x-ui.chip>@endif
                     <span class="ms-auto text-muted whitespace-nowrap">{{ $log->user?->name ?: 'سامانه' }} · @jdate($log->created_at, 'datetime')</span>
+                    @if($isForm && ! $undone && in_array($log->action, ['create', 'update', 'remove'], true))
+                        @can('sources.patterns')
+                            <form action="{{ route('admin.sources.citations.undo', $log) }}" method="POST"
+                                  onsubmit="return confirm('این تغییر الگو برگردانده شود؟ مآخذی که با آن جابه‌جا شدند هم برمی‌گردند.')">
+                                @csrf
+                                <x-ui.btn type="submit" size="sm" variant="ghost">برگرداندن</x-ui.btn>
+                            </form>
+                        @endcan
+                    @endif
                     @if($isMerge && ! $undone)
                         @can('sources.merge')
                             <form action="{{ route('admin.sources.merge.undo', $log) }}" method="POST"

@@ -3,6 +3,9 @@
 @section('title', 'منابع')
 @section('page_title', 'منابع')
 @section('page_actions')
+    @can('sources.patterns')
+        <x-ui.btn :href="route('admin.sources.create')" size="sm" variant="primary">ثبت منبع تازه</x-ui.btn>
+    @endcan
     @can('sources.merge')
         <x-ui.btn :href="route('admin.sources.merge')" size="sm" title="دو منبعی که یک کتاب‌اند، با پیش‌نمایش و برگشت‌پذیر">ادغام دو منبع</x-ui.btn>
     @endcan

@@ -84,6 +84,98 @@ class SourceController extends Controller
         return view('admin.sources.index', compact('sources', 'filters', 'sort', 'ranks', 'libraries'));
     }
 
+    /** A new source (step 14.57, step 2 of docs/SOURCE_PROTOCOL.md): the source and its volumes; pages and texts stay commands. */
+    public function create(Request $request)
+    {
+        $libraries = Library::orderBy('name')->get(['id', 'name', 'city']);
+        $sources = Source::orderBy('title')->get(['id', 'code', 'title']);
+        $similar = session('similar') ? Source::whereIn('id', session('similar'))->get(['id', 'code', 'title', 'volumes_count']) : collect();
+
+        return view('admin.sources.create', compact('libraries', 'sources', 'similar'));
+    }
+
+    public function store(Request $request)
+    {
+        $v = $request->validate([
+            'code' => ['required', 'string', 'max:60', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'unique:sources,code'],
+            'kind' => ['required', Rule::in(array_keys(Source::KIND_LABELS))],
+            'rank' => 'nullable|integer|min:0|max:999',
+            'title' => 'required|string|max:500',
+            'short_name' => 'nullable|string|max:255',
+            'compiler' => 'nullable|string|max:255',
+            'publisher' => 'nullable|string|max:255',
+            'publication_year' => 'nullable|string|max:50',
+            'edition_label' => 'nullable|string|max:100',
+            'edition_of_id' => 'nullable|integer|exists:sources,id',
+            'library_id' => 'nullable|integer|exists:libraries,id',
+            'unit' => ['required', Rule::in(['صفحه', 'ستون'])],
+            'volumes' => 'required|integer|min:1|max:200',
+            'last_pages' => 'nullable|string|max:3000',
+            'runs_on' => 'boolean',
+            'despite_similar' => 'boolean',
+        ], [
+            'code.regex' => 'کد فقط حرف کوچک لاتین، رقم و خط تیره دارد، مانند «dena».',
+            'code.unique' => 'این کد پیش‌تر به منبع دیگری داده شده است.',
+        ]);
+        $v['title'] = trim(preg_replace('/\s+/u', ' ', $v['title']));
+        if (Source::mergedInto($v['code'])) {
+            return back()->withInput()->withErrors(['code' => 'این کد، کد منبعی ادغام‌شده است و به منبع دیگری می‌رسد.']);
+        }
+        // the registry's look for the source first (step 2 of the protocol): titles one once spelling is evened out
+        $similar = $this->similar($v['title']);
+        if ($similar && ! $request->boolean('despite_similar')) {
+            return back()->withInput()->with('similar', $similar)
+                ->with('warning', 'منبعی با عنوان نزدیک هست. اگر همان منبع نیست، «با وجود منبع مشابه بساز» را بزنید.');
+        }
+        $digits = array_combine(['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'], range(0, 9));
+        $last = array_values(array_filter(array_map(fn ($l) => (int) strtr(trim($l), $digits), preg_split('/\R|[،,]/u', (string) ($v['last_pages'] ?? '')))));
+        if ($last && count($last) !== (int) $v['volumes']) {
+            return back()->withInput()->withErrors(['last_pages' => 'برای هر جلد یک صفحه‌ی آخر لازم است، یا هیچ.']);
+        }
+
+        $source = DB::transaction(function () use ($v, $last, $request) {
+            $source = Source::create([
+                'code' => $v['code'], 'kind' => $v['kind'], 'rank' => $v['rank'] ?? Source::KIND_RANKS[$v['kind']], 'title' => $v['title'],
+                'short_name' => $v['short_name'] ?? null, 'compiler' => $v['compiler'] ?? null, 'publisher' => $v['publisher'] ?? null,
+                'publication_year' => $v['publication_year'] ?? null, 'edition_label' => $v['edition_label'] ?? null,
+                'edition_of_id' => $v['edition_of_id'] ?? null, 'library_id' => $v['library_id'] ?? null, 'unit' => $v['unit'],
+                'volumes_count' => (int) $v['volumes'], 'metadata' => ['made_by' => 'admin', 'images' => false],
+            ]);
+            $first = 1;
+            for ($n = 1; $n <= (int) $v['volumes']; $n++) {
+                $pages = isset($last[$n - 1]) ? ['page_first' => $first, 'page_last' => $last[$n - 1]] : [];
+                $row = ['volume_number' => $n, 'title' => $v['title'] . ((int) $v['volumes'] > 1 ? ' - جلد ' . $n : ''), 'created_at' => now(), 'updated_at' => now()] + $pages;
+                // a library's catalogue is a catalog volume too, under the same id, which copies are tied to
+                $id = $v['kind'] === Source::KIND_LIBRARY_CATALOGUE
+                    ? DB::table('catalog_volumes')->insertGetId($row + ['library_id' => $v['library_id'] ?? null, 'pages_count' => isset($pages['page_last']) ? $pages['page_last'] - $first + 1 : null])
+                    : null;
+                DB::table('source_volumes')->insert(($id ? ['id' => $id] : []) + $row + ['source_id' => $source->id]);
+                $first = $request->boolean('runs_on') && isset($last[$n - 1]) ? $last[$n - 1] + 1 : 1;
+            }
+            AuditLog::create(['user_id' => auth()->id(), 'auditable_type' => Source::class, 'auditable_id' => $source->id, 'action' => 'create',
+                'old_values' => null, 'new_values' => $source->only(['code', 'kind', 'rank', 'title', 'volumes_count']) + ['last_pages' => $last], 'ip_address' => $request->ip()]);
+
+            return $source;
+        });
+        SourceMerger::forget([$source->id]);
+
+        return redirect()->route('admin.sources.citations.create', $source)
+            ->with('success', "منبع «{$source->title}» با {$source->volumes_count} جلد ساخته شد. اکنون بگویید در مآخذ چگونه ارجاع داده می‌شود.");
+    }
+
+    /** @return list<int> the sources whose title is the same once spelling is evened out, or holds it */
+    private function similar(string $title): array
+    {
+        $plain = fn (string $t) => str_replace(' ', '', SourceMerger::normalize(\App\Sources\CitationForms::normalize(SourceMerger::baseTitle($t))));
+        $mine = $plain($title);
+
+        return Source::get(['id', 'title'])->filter(function ($s) use ($plain, $mine) {
+            $theirs = $plain($s->title);
+
+            return $theirs === $mine || (mb_strlen($mine) >= 6 && (str_contains($theirs, $mine) || str_contains($mine, $theirs) && mb_strlen($theirs) >= 6));
+        })->pluck('id')->all();
+    }
+
     public function show(Source $source)
     {
         $source->load(['library', 'editionOf:id,code,title', 'editions:id,code,title,edition_of_id,edition_label']);
@@ -95,11 +187,17 @@ class SourceController extends Controller
         $pages = DB::table('source_pages')->whereIn('source_volume_id', $volumes->pluck('id'))->groupBy('source_volume_id')
             ->selectRaw('source_volume_id, count(*) c')->pluck('c', 'source_volume_id');
         $unplaced = DB::table('source_entries')->where('source_id', $source->id)->whereNull('source_volume_id')->count();
-        $history = AuditLog::with('user:id,name')->where('auditable_type', Source::class)->where('auditable_id', $source->id)
+        $history = AuditLog::with('user:id,name')->where(fn ($q) => $q->where(fn ($q) => $q->where('auditable_type', Source::class)->where('auditable_id', $source->id))
+            ->orWhere(fn ($q) => $q->where('auditable_type', \App\Models\SourceCitationForm::class)
+                ->where(fn ($q) => $q->where('new_values->cited_source_id', $source->id)->orWhere('old_values->cited_source_id', $source->id))))
             ->latest('id')->limit(20)->get();
         $libraries = Library::orderBy('name')->get(['id', 'name', 'city']);
+        // how it is cited in the others, and how it cites them (step 14.57)
+        $cited = \App\Models\SourceCitationForm::with('citing:id,code,title,short_name')->where('cited_source_id', $source->id)->orderBy('citing_source_id')->orderBy('id')->get();
+        $citing = \App\Models\SourceCitationForm::with('cited:id,code,title,short_name')->where('citing_source_id', $source->id)->orderBy('id')->get();
+        $bibliography = DB::table('source_entries')->where('legacy_type', 'work_bibliography')->where('source_id', $source->id)->count();
 
-        return view('admin.sources.show', compact('source', 'volumes', 'catalogVolumes', 'entries', 'pages', 'unplaced', 'history', 'libraries'));
+        return view('admin.sources.show', compact('source', 'volumes', 'catalogVolumes', 'entries', 'pages', 'unplaced', 'history', 'libraries', 'cited', 'citing', 'bibliography'));
     }
 
     public function update(Request $request, Source $source)

@@ -64,6 +64,12 @@ class AuditLogController extends Controller
      */
     public function undo(AuditLog $log, Request $request): void
     {
+        // a citation form's change (step 14.57) carries its own undo, with the entries it made again
+        if ($log->auditable_type === \App\Models\SourceCitationForm::class) {
+            CitationFormController::undoLog($log, $request);
+
+            return;
+        }
         if (empty($log->old_values)) {
             throw new \Exception('اطلاعات وضعیت پیشین برای این رخداد موجود نیست و امکان بازگردانی وجود ندارد.');
         }

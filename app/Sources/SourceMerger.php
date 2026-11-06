@@ -123,6 +123,13 @@ class SourceMerger
             }
         }
         DB::table('sources')->whereIn('edition_of_id', $folded->pluck('id'))->update(['edition_of_id' => $kept->id]);
+        // how the folded sources are cited, and how they cite, is the kept source's (step 14.57)
+        if (CitationForms::ready()) {
+            foreach (['cited_source_id', 'citing_source_id'] as $column) {
+                DB::table('source_citation_forms')->whereIn($column, $folded->pluck('id'))->update([$column => $kept->id]);
+            }
+            DB::table('source_citation_forms')->where('cited_source_id', $kept->id)->where('citing_source_id', $kept->id)->delete();
+        }
         DB::table('sources')->whereIn('id', $folded->pluck('id'))->delete();
         DB::table('sources')->where('id', $kept->id)->update($fill + [
             'title' => filled($title) ? trim($title) : $plan['title'],
@@ -302,6 +309,8 @@ class SourceMerger
             'field_evidence' => $cols(DB::table('field_evidence')->whereIn('source_id', $ids), ['id', 'source_id', 'volume_number']),
             'manuscripts' => $cols(DB::table('manuscripts')->whereIn('catalog_volume_id', $volumes), ['id', 'catalog_volume_id', 'catalog_volume_part_id', 'cataloger_id']),
             'manuscript_catalog_references' => $cols(DB::table('manuscript_catalog_references')->whereIn('catalog_volume_id', $drops), ['id', 'catalog_volume_id']),
+            'source_citation_forms' => CitationForms::ready() ? DB::table('source_citation_forms')->where(fn ($q) => $q->whereIn('cited_source_id', $ids)
+                ->orWhereIn('citing_source_id', $ids))->orderBy('id')->get()->map(fn ($r) => (array) $r)->all() : [],
         ];
     }
 
@@ -338,6 +347,7 @@ class SourceMerger
         self::restoreColumns('field_evidence', $snapshot['field_evidence']);
         self::restoreColumns('manuscripts', $snapshot['manuscripts']);
         self::restoreColumns('manuscript_catalog_references', $snapshot['manuscript_catalog_references']);
+        $insert('source_citation_forms', $snapshot['source_citation_forms'] ?? []);
 
         foreach ($snapshot['volume_ids'] as $id) {
             DB::table('catalog_volumes')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('catalog_volume_id', $id)->count()]);
@@ -377,6 +387,8 @@ class SourceMerger
 
     public static function forget(array $sourceIds): void
     {
+        // a source's title, codes and volumes are what its citations are read with
+        CitationForms::forget();
         Cache::forget('sources:shelf');
         foreach (array_filter($sourceIds) as $id) {
             Cache::forget("sources:copies:{$id}");
