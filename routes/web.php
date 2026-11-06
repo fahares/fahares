@@ -291,8 +291,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Structural tools run directly, with a preview and confirmation, through the same code as an approved suggestion (backlog item 45)
     Route::middleware('can:structure.direct')->group(function () {
         Route::get('/structure', [AdminStructureController::class, 'index'])->name('structure.index');
-        Route::get('/structure/{type}/{id}', [AdminStructureController::class, 'show'])->whereIn('type', array_keys(\App\Suggestions\SuggestionRegistry::RELATIONS))->whereNumber('id')->name('structure.show');
-        Route::post('/structure/{type}/{id}', [AdminStructureController::class, 'apply'])->whereIn('type', array_keys(\App\Suggestions\SuggestionRegistry::RELATIONS))->whereNumber('id')->name('structure.apply');
+        Route::get('/structure/{type}/{id}', [AdminStructureController::class, 'show'])->whereIn('type', \App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES)->whereNumber('id')->name('structure.show');
+        Route::post('/structure/{type}/{id}', [AdminStructureController::class, 'apply'])->whereIn('type', \App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES)->whereNumber('id')->name('structure.apply');
     });
 
     // Taxonomy & Knowledge Tree

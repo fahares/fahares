@@ -35,6 +35,9 @@ class ConvertSuggestionTest extends TestCase
 
     protected SourceEntry $entry;
 
+    /** The target of a source's cataloger relations (step 14.58) */
+    protected \App\Models\Cataloger $cataloger;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -61,6 +64,7 @@ class ConvertSuggestionTest extends TestCase
 
         // A source's own page takes field suggestions and notes, with no relations (step 14.52)
         $this->records = ['manuscript' => $manuscript, 'work' => $work, 'person' => $person, 'library' => $library, 'source' => $source];
+        $this->cataloger = \App\Models\Cataloger::create(['name' => 'فهرست‌نگار تبدیل', 'slug' => 'cv-cat-' . uniqid()]);
         $this->others = ['manuscript' => $otherManuscript, 'work' => $otherWork, 'person' => $otherPerson, 'library' => $otherLibrary];
     }
 
@@ -165,7 +169,8 @@ class ConvertSuggestionTest extends TestCase
                 $choice = $choices[$key];
                 $data = ['target_type' => $type, 'kind' => 'relation', 'field_name' => $key];
                 if ($relation['target']) {
-                    $data['relation_target'] = (string) ($relation['target'] === $type ? $this->others[$type] : $this->records[$relation['target']])->id;
+                    $data['relation_target'] = (string) ($relation['target'] === 'cataloger' ? $this->cataloger
+                        : ($relation['target'] === $type ? $this->others[$type] : $this->records[$relation['target']]))->id;
                     if ($key === 'relocated') {
                         $data['relation_target'] = (string) $this->others['library']->id;
                     }

@@ -80,6 +80,8 @@ class AuditLogController extends Controller
             'split' => $this->rollbackSplit($log, $request),
             'remove' => $this->rollbackRemove($log, $request),
             'update' => $this->rollbackUpdate($log, $request),
+            // the people of a source's volumes, set by an approved suggestion (step 14.58)
+            'volume_people' => app(\App\Suggestions\VolumeCatalogers::class)->undo($log),
             default => throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد."),
         };
 

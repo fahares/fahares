@@ -77,6 +77,7 @@ final class Permissions
         'split' => 'structure.split',
         'remove' => 'structure.remove',
         'merge_people' => 'people.merge',
+        'volume_cataloger' => 'sources.edit',
     ];
 
     public static function exists(string $key): bool

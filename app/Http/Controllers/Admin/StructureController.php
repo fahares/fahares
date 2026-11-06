@@ -36,7 +36,7 @@ class StructureController extends Controller
         $type = SuggestionRegistry::typeKey((string) $request->query('type', ''));
         $ref = trim((string) $request->query('ref', ''));
         // a source has fields to correct but no structural tools
-        if ($type && $ref !== '' && isset(SuggestionRegistry::RELATIONS[$type])) {
+        if ($type && $ref !== '' && in_array($type, SuggestionRegistry::STRUCTURE_TYPES, true)) {
             $id = SuggestionController::recordId($type, $ref);
             if ($id && SuggestionRegistry::modelClass($type)::find($id)) {
                 return redirect()->route('admin.structure.show', [$type, $id]);
@@ -161,7 +161,7 @@ class StructureController extends Controller
             'status' => 'pending',
         ]);
         $suggestion->setRelation('user', $user);
-        $other = $relation['target'] && ! empty($payload['target_id']) ? SuggestionRegistry::modelClass($relation['target'])::find($payload['target_id']) : null;
+        $other = $relation['target'] && ! empty($payload['target_id']) ? SuggestionRegistry::targetClass($relation['target'])::find($payload['target_id']) : null;
 
         return ['suggestion' => $suggestion, 'relation' => $relation, 'other' => $other];
     }

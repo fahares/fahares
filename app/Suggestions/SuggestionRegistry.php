@@ -2,6 +2,7 @@
 
 namespace App\Suggestions;
 
+use App\Models\Cataloger;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\SourceEntry;
@@ -112,6 +113,12 @@ class SuggestionRegistry
             'merged_into' => ['label' => 'این کتابخانه با کتابخانه‌ی دیگری ادغام شده و نسخه‌هایش اکنون آنجاست', 'target' => 'library', 'action' => 'ادغام در کتابخانه‌ی دیگر', 'apply' => 'merge_library'],
             'renamed' => ['label' => 'نام این کتابخانه تغییر کرده است', 'target' => null, 'action' => 'تغییر نام کتابخانه', 'apply' => 'rename_library', 'needs_text' => true],
         ],
+        // The people of the source's volumes (step 14.58): a cataloger from the list, or only a name; the volume is
+        // optional (all volumes), in payload.volume_id. See VolumeCatalogers.
+        'source' => [
+            'cataloger_is' => ['label' => 'فهرست‌نگار این فهرست (یا یکی از جلدهایش) شخص دیگری است', 'target' => 'cataloger', 'target_optional' => true, 'action' => 'تعیین فهرست‌نگار جلد', 'apply' => 'volume_cataloger', 'replace' => true],
+            'cataloger_also' => ['label' => 'این فهرست (یا یکی از جلدهایش) فهرست‌نگار، همکار یا ناظر دیگری هم دارد', 'target' => 'cataloger', 'target_optional' => true, 'action' => 'افزودن فهرست‌نگار جلد', 'apply' => 'volume_cataloger'],
+        ],
         'person' => [
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],
             'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias', 'needs_text' => true],
@@ -164,6 +171,7 @@ class SuggestionRegistry
         return match ($relation['apply'] ?? null) {
             'person_role' => self::personRoles($type),
             'record_relation' => RecordRelations::options($type),
+            'volume_cataloger' => VolumeCatalogers::ROLES,
             default => null,
         };
     }
@@ -290,9 +298,28 @@ class SuggestionRegistry
         return $key ? self::TYPES[$key] : null;
     }
 
+    /**
+     * The record types with structural tools (backlog item 45): a source has relations of its own (its volumes'
+     * catalogers), applied only through a reviewed suggestion.
+     */
+    public const STRUCTURE_TYPES = ['manuscript', 'work', 'person', 'library'];
+
+    /** What a relation may point at: a record type, or a cataloger (step 14.58), which takes no suggestions itself. */
+    public const TARGETS = ['cataloger' => Cataloger::class];
+
+    public static function targetClass(?string $target): ?string
+    {
+        return $target === null ? null : (self::TARGETS[$target] ?? self::modelClass($target));
+    }
+
     /** Short identification of a record for pickers and the reviewer desk. */
     public static function describe(Model $record): array
     {
+        if ($record instanceof Cataloger) {
+            return ['label' => $record->name, 'sub' => implode(' · ', array_filter([$record->life_years_text,
+                $record->volumes_count ? \App\Support\Fa::num($record->volumes_count) . ' جلد فهرست' : null])), 'url' => route('catalogers.show', $record->getRouteKey()), 'id' => $record->id];
+        }
+
         return match (self::typeKey($record::class)) {
             'manuscript' => [
                 'label' => trim(($record->work?->primary_title ?? 'نسخه') . ' — ' . ($record->libraryRecord?->name ?? $record->library ?? '') . ' ' . ($record->shelfmark ?? '')),
@@ -325,11 +352,12 @@ class SuggestionRegistry
             return 'بازخورد سایت';
         }
 
-        return match (self::typeKey($type)) {
+        return match (self::typeKey($type) ?? $type) {
             'manuscript' => 'نسخه',
             'work' => 'اثر',
             'person' => 'شخص',
             'library' => 'کتابخانه',
+            'cataloger' => 'فهرست‌نگار',
             'source' => 'منبع',
             default => class_basename($type),
         };

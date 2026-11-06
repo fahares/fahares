@@ -101,7 +101,7 @@
         <template x-if="relation && relation.target">
             <div class="space-y-1 relative">
                 <span class="block font-bold text-ink"
-                    x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:'})[relation.target])"></span>
+                    x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر عوض شده است):' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : ({work: 'اثر مقصد:', person: 'شخص مقصد:', library: 'کتابخانه‌ی مقصد:', manuscript: 'نسخه‌ی مقصد:', cataloger: 'فهرست‌نگار (پیوند یا شناسه؛ اختیاری):'})[relation.target])"></span>
                 <input type="text" name="relation_target" x-model="relationTarget" @input="searchTargets()" autocomplete="off" placeholder="پیوند یا شناسه‌ی فهارس، یا جست‌وجوی عنوان و نام" class="{{ $input }}">
                 <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-sm border border-line-strong bg-surface shadow-lg">
                     <template x-for="r in targetResults" :key="r.id">
@@ -121,9 +121,9 @@
                 </template>
             </div>
         </template>
-        <template x-if="relation && relation.apply === 'person_role'">
+        <template x-if="relation && ['person_role', 'volume_cataloger'].includes(relation.apply)">
             <label class="block space-y-1">
-                <span class="block font-bold text-ink">یا نام شخص، همان‌گونه که در نسخه آمده:</span>
+                <span class="block font-bold text-ink" x-text="relation.apply === 'volume_cataloger' ? 'یا نام فهرست‌نگار (جلد را هنگام تأیید انتخاب می‌کنید):' : 'یا نام شخص، همان‌گونه که در نسخه آمده:'"></span>
                 <input type="text" name="role_name" value="{{ old('role_name') }}" class="{{ $input }}">
             </label>
         </template>

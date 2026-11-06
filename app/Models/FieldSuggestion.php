@@ -148,7 +148,7 @@ class FieldSuggestion extends Model
         $relation = $this->relationDefinition();
         $id = $this->payload['target_id'] ?? null;
 
-        return $relation && $id ? SuggestionRegistry::modelClass($relation['target'])::find($id) : null;
+        return $relation && $id ? SuggestionRegistry::targetClass($relation['target'])::find($id) : null;
     }
 
     public function getFieldLabelAttribute(): string

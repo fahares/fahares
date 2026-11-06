@@ -130,7 +130,7 @@
     @if($suggestion->kind === 'relation')
         {{-- The two records the suggestion connects --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            @foreach(array_filter([['این رکورد', $target], $relation && (! $relation['target'] || (! empty($relation['target_optional']) && ! $relationTarget)) ? null : [$relation && $relation['key'] === 'move_to_work' ? 'اثر پیشنهادی' : ($relation && $relation['target'] === 'person' ? 'شخص' : ($relation && $relation['target'] === 'library' ? (($relation['apply'] ?? null) === 'relocate' ? 'کتابخانه‌ی پیشنهادی' : 'کتابخانه‌ی مقصد') : 'رکورد مقصد')), $relationTarget]]) as [$caption, $record])
+            @foreach(array_filter([['این رکورد', $target], $relation && (! $relation['target'] || (! empty($relation['target_optional']) && ! $relationTarget)) ? null : [$relation && $relation['key'] === 'move_to_work' ? 'اثر پیشنهادی' : ($relation && $relation['target'] === 'person' ? 'شخص' : ($relation && $relation['target'] === 'cataloger' ? 'فهرست‌نگار پیشنهادی' : ($relation && $relation['target'] === 'library' ? (($relation['apply'] ?? null) === 'relocate' ? 'کتابخانه‌ی پیشنهادی' : 'کتابخانه‌ی مقصد') : 'رکورد مقصد'))), $relationTarget]]) as [$caption, $record])
                 <x-ui.card class="space-y-1">
                     <h3 class="rubric text-base">{{ $caption }}</h3>
                     @if($record)
@@ -162,6 +162,12 @@
             <div class="whitespace-pre-line leading-7 font-semibold text-ink min-h-16">{{ $suggestion->suggested_value }}</div>
             @if(! empty($suggestion->payload['shelfmark']))
                 <p>شماره‌ی تازه‌ی پیشنهادی: <b>{{ $suggestion->payload['shelfmark'] }}</b></p>
+            @endif
+            @if(($relation['apply'] ?? null) === 'volume_cataloger')
+                {{-- what the submitter chose for a source's cataloger (step 14.58) --}}
+                @php $vcVolume = collect($target ? \App\Suggestions\VolumeCatalogers::volumes($target) : [])->firstWhere('id', $suggestion->payload['volume_id'] ?? null); @endphp
+                <p>جلد: <b>{{ $vcVolume['label'] ?? 'همه‌ی جلدها' }}</b> · نقش: <b>{{ \App\Suggestions\VolumeCatalogers::ROLES[$suggestion->payload['role'] ?? ''] ?? '—' }}</b>
+                    @if(! empty($suggestion->payload['name'])) · نام: <b>{{ $suggestion->payload['name'] }}</b>@endif</p>
             @endif
         </x-ui.card>
         @endif

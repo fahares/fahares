@@ -14,7 +14,7 @@ class AuditLog extends Model
     protected $guarded = ['id'];
 
     /** Changes the audit log can undo; each has a rollback_* counterpart. */
-    public const UNDOABLE = ['merge', 'verify', 'update', 'remove', 'split'];
+    public const UNDOABLE = ['merge', 'verify', 'update', 'remove', 'split', 'volume_people'];
 
     /** Persian names of the actions, for the audit log page and the dashboard; unknown ones show their key */
     public const ACTION_LABELS = [
@@ -26,6 +26,7 @@ class AuditLog extends Model
         'reopen' => 'بازگشایی',
         'merge' => 'ادغام',
         'split' => 'تفکیک',
+        'volume_people' => 'فهرست‌نگاران جلد',
         'remove' => 'حذف',
         'delete' => 'حذف',
         'permissions' => 'تغییر دسترسی',

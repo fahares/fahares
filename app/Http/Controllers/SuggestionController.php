@@ -45,6 +45,7 @@ class SuggestionController extends Controller
             'role_name' => 'nullable|string|max:600',
             'role_row_id' => 'nullable|integer',
             'shelfmark' => 'nullable|string|max:255',
+            'volume_id' => 'nullable|integer',
             'note' => 'nullable|array',
             'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,
             'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -173,6 +174,16 @@ class SuggestionController extends Controller
      */
     public function lookup(Request $request)
     {
+        // The catalogers of a source's volumes (step 14.58): by a pasted /catalogers/ link, an id or a name
+        if ($request->query('type') === 'cataloger') {
+            $q = trim((string) $request->query('q', ''));
+            $id = \App\Http\Controllers\Admin\SuggestionController::recordId('cataloger', $q);
+            $records = $id ? \App\Models\Cataloger::whereKey($id)->get() : (mb_strlen($q) < 2 ? collect()
+                : \App\Models\Cataloger::where(fn ($w) => $w->where('name', 'like', "%{$q}%")->orWhere('nickname', 'like', "%{$q}%"))
+                    ->orderByDesc('volumes_count')->limit(10)->get());
+
+            return response()->json($records->map(fn ($r) => SuggestionRegistry::describe($r))->values());
+        }
         $type = SuggestionRegistry::typeKey((string) $request->query('type', ''));
         $class = $type ? SuggestionRegistry::modelClass($type) : null;
         $q = trim((string) $request->query('q', ''));

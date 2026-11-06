@@ -67,9 +67,12 @@
             </div>
             @php $singleParts = $single && $single['volume']->relationLoaded('parts') ? $single['volume']->parts : collect(); @endphp
             @if($single && $singleParts->isNotEmpty() && $single['volume']->catalogers->isNotEmpty())
-                <p class="text-sm text-muted" data-volume-catalogers>زیر نظر {{ $editors($single['volume']) }}</p>
+                <p class="text-sm text-muted" data-volume-catalogers>زیر نظر {{ $editors($single['volume']) }} <x-suggest.cataloger :volume="$single['volume']->id" class="ms-1" /></p>
             @elseif($single && $single['volume']->catalogers->isNotEmpty())
-                <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }}</p>
+                <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }} <x-suggest.cataloger :volume="$single['volume']->id" class="ms-1" /></p>
+            @elseif($single)
+                {{-- no cataloger recorded: the suggestion is offered in suggestion mode (step 14.58) --}}
+                <p class="text-sm text-muted" x-show="$store.suggest.on" x-cloak>فهرست‌نگار: ثبت نشده <x-suggest.cataloger :volume="$single['volume']->id" class="ms-1" /></p>
             @endif
             <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
                 @if($single && $single['read'])<x-ui.btn size="sm" variant="primary" :href="$single['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
@@ -146,8 +149,9 @@
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
                         @if($parts->isNotEmpty())
                             {{-- a volume of several libraries' catalogues: its own people are its editors, each part has its own (step 13.150) --}}
-                            @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>زیر نظر {{ $editors($v) }}</span>@endif
-                        @elseif($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif
+                            @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>زیر نظر {{ $editors($v) }} <x-suggest.cataloger :volume="$v->id" class="ms-1" /></span>@endif
+                        @elseif($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }} <x-suggest.cataloger :volume="$v->id" class="ms-1" /></span>
+                        @else<span class="block mt-0.5" x-show="$store.suggest.on" x-cloak>فهرست‌نگار: ثبت نشده <x-suggest.cataloger :volume="$v->id" class="ms-1" /></span>@endif
                     </span>
                     <span class="flex flex-wrap gap-2">
                         @if($row['read'])<x-ui.btn size="sm" :href="$row['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
