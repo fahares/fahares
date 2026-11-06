@@ -8108,3 +8108,52 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `MarkHedgedAuthorsCommandTest::test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not`
   - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
 - **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
+
+### گام ۱۴.۶۹: ساخت فهرست‌نگار در پنل (مورد ۴۰)
+- **مسیرها:** `Route::resource('catalogers')` اکنون `create` و `store` را هم دارد، پشت همان `can:catalogers.edit`.
+- **`Admin\CatalogerController`:**
+  - `validated()` و `fill()` میان ساخت و ویرایش مشترک‌اند.
+  - ستون‌ها: `title_prefix`، `nickname`، چهار سال (`integer`، ۱ تا ۲۱۰۰)، `bio` و `person_id` (`exists:people,id`). رشته‌ی خالی `null` می‌شود.
+  - `metadata`: کلیدهای `TEXT_META` (`specialty`، `birth_place`، `death_place`، `resting_place`)، `LIST_META` (`institutions`، `major_catalogs`، هر سطر یک مورد) و `sources` از فرم بازنویسی می‌شوند. هر کلید خالی برداشته می‌شود و کلیدهای دیگر (`external_links`، `made_by`) می‌مانند.
+  - `parseSource()`: «عنوان | https://…» به `{title, url}` تبدیل می‌شود و نشانی تنها به `{title: url, url}`. سطر بی‌نشانی همان رشته می‌ماند، به همان شکلی که صفحه‌ی عمومی نشانش می‌دهد. `sourcesText()` راه برگشت آن است.
+  - لاگ ممیزی: `create` با `old_values` = `null`، و `update` مانند قبل.
+- **`Cataloger::uniqueSlug()`:** قاعده‌ی slug یکتای `EnrichCatalogersProfilesCommand` («-۲»، «-۳» …) به مدل رفت و هر دو از آن استفاده می‌کنند. MariaDB نیم‌فاصله را در مقایسه‌ی slug نادیده می‌گیرد.
+- **فرم:** `admin/catalogers/edit.blade.php` برای ساخت و ویرایش است. پیوند به شخص با Alpine و `route('suggestions.people')` جست‌وجو می‌شود، یا شناسه نوشته می‌شود.
+- **آزمون:** `Tests\Feature\Admin\AdminCatalogersTest` (۳ آزمون).
+- **پروداکشن:** فقط انتشار کد. migration و دستور داده ندارد.
+
+### گام ۱۴.۷۰: ارقام فارسی و قلم نسخ در پنل (مورد ۸۹)
+- **`layouts/admin.blade.php`:** Google Fonts اکنون `Noto+Naskh+Arabic:wght@500;700` را هم بارگذاری می‌کند. پیش از این `--font-naskh` (`'Noto Naskh Arabic', 'Amiri', serif`) در پنل به قلم سیستم می‌رسید.
+- **`Fa::digits`:** نقشه‌ی `strtr` ارقام U+0660 تا U+0669 را هم دارد. همه‌ی کاربردهای آن برای نمایش‌اند و هیچ‌کدام در `value` فرم نیست.
+- **منبع ارقام لاتین:**
+  - `FieldSuggestion::getPlaceLabelAttribute`: `Fa::digits($this->suggestable_id)`. این ویژگی در پیشخوان، «پیشنهادهای من» و اعلان‌ها هم به کار می‌رود.
+  - `SuggestionRegistry::describe`: `Fa::num` برای شمار نسخه‌ها و آثار در `sub`.
+  - `author-links/index`: `links('admin.partials.pagination')`.
+  - `person-reviews/index`: `Fa::num(MIXED_SPAN)`.
+- **کلید فیلد:** در `suggestions/show.blade.php`، `<code>` کلید فقط با `auth()->user()->isAdmin()` چاپ می‌شود (`title="کلید فنی فیلد"`، `text-muted/70`). در پیام «فیلد … در فهرست فیلدهای قابل اصلاح نیست» هم برچسب فارسی آمد.
+- **آزمون:** `Tests\Feature\Admin\AdminDigitsTest`:
+  - هر نشانی `AdminNav::groups()` که زیر `/admin` است، به‌علاوه‌ی میز داوری، فرم ساخت فهرست‌نگار و ویرایش شخص، بارگذاری می‌شود.
+  - متن گره‌های `body` با `DOMDocument` برای `[0-9\x{0660}-\x{0669}]` گشته می‌شود.
+  - بیرون از بررسی: `script`، `style`، `code`، `pre`، `kbd`، ورودی‌ها، `template`، `svg` و `[dir=ltr]`.
+  - libxml ویژگی‌های `@click` و `:class` Alpine را خراب می‌خواند و بخشی از آن‌ها را متن می‌گیرد. پس این ویژگی‌ها پیش از تجزیه به `data-alpine-*` تبدیل می‌شوند. خود اسکنر هم یک آزمون دارد.
+- **پروداکشن:** فقط انتشار کد.
+
+### گام ۱۴.۷۱: `client_token`، تأخیر اعلان و حذف نرم پیام (مورد ۱۱۵)
+- **migration** `2026_11_06_300001_add_client_token_and_soft_delete_to_messages`: `client_token` (`string(80)`، nullable، unique) و `deleted_at`. فقط ساختار است و داده‌ای را تغییر نمی‌دهد.
+- **`Message`:** `SoftDeletes`. `MessageThread::scopeUnreadByUser` و `scopeUnreadByStaff` با `whereExists` خام روی `messages` کار می‌کنند. پس `whereNull('messages.deleted_at')` گرفتند.
+- **`Conversations`:**
+  - `ask`، `toSubmitter`، `sendDirect`، `staffWrite` و `userReply` آرگومان آخر `?string $token` را گرفتند و آن را به `write()` می‌دهند.
+  - `once($token, $send, $existing)`:
+    - اگر `sent($token)` (با `withTrashed`) پیامی بیابد، آنچه همان پیام ساخته بود را برمی‌گرداند و اعلانی نمی‌فرستد.
+    - اگر دو درخواست هم‌زمان برسند، `UniqueConstraintViolationException` تراکنش دومی را برمی‌گرداند (گفت‌وگو، پیام، وضعیت پیشنهاد و لاگ). سپس پیام نخست یافته و برگردانده می‌شود.
+  - اعلان بیرون از تراکنش فرستاده می‌شود. پس درخواست تکراری هرگز به آن نمی‌رسد.
+  - `userReply(..., 'email')`: `recentSameReply()` پاسخ کاربر با همان متن (پس از `trim`) را در `duplicate_reply_minutes` (۱۰) دقیقه‌ی گذشته می‌جوید و اگر بیابد، همان را برمی‌گرداند.
+  - `deleteMessage()`: حذف نرم، `last_message_at` از پیام‌های باقی‌مانده، و `AuditLog` (`MessageThread`، `delete_message`، `{message_id, author_id, is_staff}`).
+  - `newToken()`: `Str::uuid()`.
+- **`InboundEmailController`:** کلید `'email:' . email_id` است. پیوست‌ها فقط وقتی نگه داشته می‌شوند که پیام تازه باشد (`wasRecentlyCreated`).
+- **`ThreadNotice::forMessage()`:** `messageId` و `delay(letter_delay_seconds)` (پیش‌فرض ۳۰، `MESSAGES_LETTER_DELAY`). `shouldSend()` برای همه‌ی کانال‌ها بررسی می‌کند که پیام هنوز هست. با `queue:work` دقیقه‌ای، اعلان ۳۰ تا ۹۰ ثانیه پس از پیام می‌رود. در آزمون‌ها صف `sync` است و تأخیر نادیده گرفته می‌شود.
+- **مرورگر:** `<x-send-token />` (ورودی پنهان) و `data-send-once` روی چهار فرم. `resources/js/send-once.js`: ارسال دوم رها می‌شود، دکمه‌ها در tick بعد غیرفعال می‌شوند، و صفحه‌ای که از bfcache برگردد دکمه‌هایش را پس می‌گیرد. توکن آن صفحه همان توکن قبلی است، پس ارسال دوباره‌اش همان ارسال شمرده می‌شود.
+- **حذف:** `DELETE admin/letters/{message}` (`admin.letters.destroy`). `MessageController::destroyMessage` دسترسی `staffPermission()` همان گفت‌وگو را بررسی می‌کند: `users.message` برای پیام مستقیم و `suggestions.review` برای پیشنهاد. دکمه در `messages/partials/letters.blade.php` با `$staffView` است.
+- **`reorder()`:** رابطه‌ی `messages()` با `orderBy('id')` تعریف شده است. پس `latest('id')` در `notifyStaff`، در یادآوری `expire()` و در `recentSameReply` به `reorder()->latest('id')` تبدیل شد.
+- **آزمون:** `Tests\Feature\DuplicateMessagesTest` (۶ آزمون).
+- **پروداکشن:** انتشار کد و migration، که خودکار اجرا می‌شود. دستور داده ندارد.
