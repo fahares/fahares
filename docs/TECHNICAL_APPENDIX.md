@@ -8108,3 +8108,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `MarkHedgedAuthorsCommandTest::test_a_question_mark_touching_the_name_is_a_hedge_but_a_longer_word_is_not`
   - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
 - **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
+  - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
