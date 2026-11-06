@@ -65,7 +65,7 @@ class FixAbdolazimNavabCataloguesCommand extends Command
     {
         $dry = (bool) $this->option('dry-run');
 
-        $ids = [self::HAFEZIAN, self::SADRAEI, self::FAZEL, self::BINESH];
+        $ids = collect(static::FIXES)->flatMap(fn ($fix) => [$fix['from'], $fix['to']])->unique()->values()->all();
         // toBase(): Eloquent's only() would filter by primary key, not by MTIF id
         $catalogers = Cataloger::whereIn('mtif_entry_id', $ids)->get()->keyBy('mtif_entry_id')->toBase();
         if ($missing = array_diff($ids, $catalogers->keys()->all())) {
@@ -75,7 +75,8 @@ class FixAbdolazimNavabCataloguesCommand extends Command
         }
 
         $plan = [];
-        foreach (self::FIXES as $code => $fix) {
+        // static: FixJaliliCatalogueCommand runs the same fix on its own catalogue
+        foreach (static::FIXES as $code => $fix) {
             $source = Source::where('code', $code)->first();
             $volumes = $source ? CatalogVolume::whereIn('id', $source->volumes()->pluck('id'))->orderBy('volume_number')->get()->keyBy(fn ($v) => (int) $v->volume_number) : collect();
             if (! $source || $volumes->keys()->all() !== array_keys($fix['volumes'])) {
