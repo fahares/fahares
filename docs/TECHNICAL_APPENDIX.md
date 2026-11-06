@@ -8091,3 +8091,48 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - همه در انتظار داوری‌اند.
 - **آزمون:** `NoorReferenceBooksTest::test_kashf_al_hujub_and_mu_allafat_al_zaydiyya_entries_are_numbered_and_found_by_title_and_author`، با فیکسچرهای `kashf-hujub-v01-p263` (شش «رسالة في الرجعة» که مؤلف از هم جدایشان می‌کند) و `zaydiyya-v01-p245`.
 - **پروداکشن:** انتشار کد لازم است، چون دو منبع تازه در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند، همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+
+### گام ۱۴.۶۸: تاریخ تذکره‌های فارسی و مصفی المقال (مورد ۸۶)
+- **منشأ:**
+  - **تاریخ تذکره‌ها:** پایگاه تاریخ و سیره‌ی نور (`History-DB/history_book_corpus.db`، جدول `book_doc_items`، ستون‌های `story_id` و `xml_text` به ترتیب `item_no`). سری `11595`، چاپ دوم، تهران ۱۳۶۳ش، دو جلد.
+    - تذکره‌ها در سطح ۴ و بخش‌هایشان («نسخه:»، «ترجمۀ مؤلف») در سطح‌های ۵ تا ۷ آمده‌اند. حرف‌ها و بخش‌های کتاب در سطح‌های ۱ تا ۳ مدخل را می‌بندند.
+  - **مصفی المقال:** `aqabozorg.db`، سند `11980_001` (تهران ۱۳۳۷ش). مؤلف در سطح ۲ آمده و حرف‌ها در سطح‌های ۱ و ۳.
+- **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
+  - **`body_items`:** اگر جدول `book_texts` نباشد، از `book_doc_items` می‌خواند.
+  - **`CLEAN`:** عنوان را پس از `title_of` کوتاه می‌کند.
+    - تذکره: «\s+(تألیف|از|اثر)\s…» برداشته می‌شود.
+    - مصفی: پرانتزهای تاریخ پایان سرعنوان برداشته می‌شوند: «(1114) (1173)»، «(م 1326) (ق)»، «(1305 او 1306)»، «(ق: 2)»، «()».
+    - ۱۱ عنوان مصفی تاریخی در میان نام دارند، مانند «احمد بن محمد ابراهيم (1295) النصيرآبادى»، یا «زنده …» دارند.
+  - **وارسی:** خروجی mushar-fa، mushar-ar، sarkis و ayan با خواننده‌ی HEAD یکی است. خروجی mushar-authors، rawdat، kalam-turath و fuqaha با فایل‌های `noor-printed` یکی است.
+- **[config/bibliography.php](../config/bibliography.php):**
+  - **`tazkira`:** دو جلد، `bare` = false. «تاریخ تذکره‌های فارسی 136/1» و «… 12/1-14». «تاریخ تذکره‌های فارسی 136» بی جلد پیوند ندارد (۶ ارجاع).
+  - **`mosaffa`:** یک جلد، از نوع `biographical`. «مصفی المقال 245»، «… ص 245» و «…: 33».
+- **سنجش چاپ‌ها:** در هر سنجش دیده شد که عنوان اثر، یا نام مؤلفش، در صفحه‌ی ارجاع‌شده یا یک صفحه پیش و پس از آن هست یا نه.
+  - **تذکره:** ۴۳ از ۶۰.
+  - **مصفی:** ۴۸ از ۵۹.
+  - **کنار گذاشته:**
+    - **استوری:** «ادبیات فارسی بر مبنای تألیف استوری»، سری `11699` پایگاه تاریخ. ۷ از ۱۶۱، و ۷۳ صفحه در آن نیست.
+    - **ریاض العلماء:**
+      - تراجم ۳ `191`: ۴ از ۷۵، و ۳۱ از ۷۵ با جلد +۱.
+      - کتب مرجع ۲ `36533` (بیروت ۲۰۱۰): ۳۳ از ۷۵.
+      - `20985` (مشهد ۱۳۸۹): ۴ از ۷۵.
+- **داده:** `../fahares-sources/noor-printed/{tazkira,mosaffa}/`. سطرهای آن‌ها به MD5SUMS افزوده شد.
+- **ترتیب فرمان‌ها از گام ۱۴.۵۷:** `CitationForms::sources()` منبعی را که کدش در `sources` ثبت شده، فقط از جدول `source_citation_forms` می‌خواند.
+  - **نشانه:** پس از `sources:backfill --only=registry`، شمار ارجاع‌های kashf-hujub، zaydiyya، tazkira و mosaffa در `fahares_prod` صفر شد.
+  - **ترتیب درست:** `sources:backfill --only=registry`، سپس `sources:import-citation-forms` (۴ الگو ساخت؛ منبعی که الگو دارد دست نمی‌خورد)، سپس `sources:backfill --only=bibliography` (ارجاع‌های منبع شناخته از ۱۹٬۸۰۲ به ۲۰٬۲۷۸).
+  - **وارسی:** `link-items` دوباره روی mushar-authors، kashf-hujub و zaydiyya همان پیوندها را نگه داشت (unchanged).
+- **تمرین روی `fahares_prod` محلی:** برای هر جلد `import-pages`، `segment --origin=noor` و `link-items --near`.
+  - **تذکره:**
+    - **صفحه‌ها و مدخل‌ها:** ج ۱: ۷۶۴ صفحه (۲–۷۶۵) و ۲۳۹ مدخل؛ ج ۲: ۸۶۰ صفحه (۳–۸۶۷) و ۳۱۵ مدخل.
+    - **پیوندها:** ۰ و ۴۲. همه‌ی ارجاع‌های جادار در ج ۲‌اند، تا ص ۷۷۴. `title_author` ۲۹، `title_in_text` ۱۰، `near_title_author` ۲ و `derivative_of_heading` ۱.
+    - **وارسی نمونه:** `title_in_text` (۶۰) یادکرد اثر در مدخل تذکره‌ی دیگری است، با نقش یادکرد.
+  - **مصفی:**
+    - ۶۱۹ صفحه و ۸۸۱ مدخل.
+    - ۴۲ پیوند برای ۴۱ از ۵۷ ارجاع: `author_life` ۱۸، `author_life_title` ۱۵، `title_in_text` ۸ و `near_author_life_title` ۱.
+- **آزمون:** `NoorReferenceBooksTest::test_tazkira_and_mosaffa_titles_leave_out_what_follows_the_name`، با فیکسچرهای `tazkira-v01-p3` و `mosaffa-v01-p246`.
+- **پروداکشن:** انتشار کد لازم است. پس از استقرار این ترتیب اجرا می‌شود:
+  1. `sources:backfill --only=registry`؛
+  2. `sources:import-citation-forms`؛
+  3. `sources:backfill --only=bibliography`؛
+  4. فرستادن فایل‌ها، و برای هر جلد `import-pages`، `segment` و `link-items --near`؛
+  5. `scout:import "App\Models\SourceItem"`.

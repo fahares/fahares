@@ -284,6 +284,28 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertSame('245#3', SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole()->sourceItem->item_key);
     }
 
+    public function test_tazkira_and_mosaffa_titles_leave_out_what_follows_the_name()
+    {
+        // step 14.68: «آتشکده تألیف حاجی لطف‌علی بیگ آذر … در 1174-1193 ق» is «آتشکده»; Mosaffa's author «عبد اللّه
+        // الجزائرى التسترى: (1114) (1173)» is without his dates, and his rijal book in his entry ties a work to it
+        $this->assertSame([['source' => 'tazkira', 'volume' => 1, 'page' => 3]], BibliographyLinks::citations('تاریخ تذکره‌های فارسی 3/1'));
+        $this->assertSame([['source' => 'mosaffa', 'volume' => 1, 'page' => 246]], BibliographyLinks::citations('مصفی المقال ص 246'));
+
+        foreach (['tazkira' => ['تاریخ تذکره‌های فارسی', 3, Source::KIND_BIBLIOGRAPHY], 'mosaffa' => ['مصفی المقال', 246, Source::KIND_BIOGRAPHICAL]] as $code => [$name, $page, $kind]) {
+            $volume = $this->volume($code, $name, 1, $kind);
+            $this->artisan('sources:import-pages', ['volume' => $code, 'pages' => self::FIXTURES . "{$code}-v01-p{$page}.jsonl", '--volume' => 1])->assertSuccessful();
+            $this->artisan('sources:segment', ['volume' => $code, '--volume' => 1, '--origin' => 'noor',
+                '--entries' => self::FIXTURES . "{$code}-v01-p{$page}.entries.jsonl"])->assertSuccessful();
+        }
+        $this->assertSame('آتشکده', SourceItem::where('item_key', '3#1')->sole()->title);
+        $this->assertSame('عبد اللّه الجزائرى التسترى', SourceItem::where('item_key', '246#1')->sole()->title);
+
+        $work = $this->work('mosaffa', 'معترك المقال فی احوال الرجال', 'جزائری، عبدالله بن نورالدین', 1, 246, 'مصفی المقال 246');
+        $this->artisan('sources:link-items', ['volume' => 'mosaffa', '--volume' => 1])->assertSuccessful();
+        $tie = SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole();
+        $this->assertSame(['246#1', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
+    }
+
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,

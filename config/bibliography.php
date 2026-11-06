@@ -295,6 +295,36 @@ return [
                 'bare' => false,
             ],
         ],
+        // Golchin-Ma'ani's Tarikh-e tazkereh-ha-ye farsi (two volumes) from Noor's History database, and Aqa Bozorg's
+        // Mosaffa al-maqal (one volume, his authors of rijal books) from its Aqa Bozorg database (step 14.68,
+        // scripts/sources/noor_reference_books.py): «تاریخ تذکره‌های فارسی 136/1», «مصفی المقال 245», «مصفی المقال ص 245».
+        'tazkira' => [
+            'label' => 'تاریخ تذکره‌های فارسی',
+            'pattern' => 'تاریخ تذکره(?:\x{200C}|\s)?های فارسی',
+            'volumes' => 2,
+            'kind' => 'bibliography',
+            'compiler' => 'احمد گلچین معانی',
+            'edition_label' => 'چاپ دوم، تهران، ۱۳۶۳ش',
+            'text' => [
+                'catalog' => 'tazkira',
+                'name' => 'تاریخ تذکره‌های فارسی',
+                'last_pages' => [1 => 765, 2 => 867],
+                'bare' => false,
+            ],
+        ],
+        'mosaffa' => [
+            'label' => 'مصفی المقال فی مصنفی علم الرجال',
+            'pattern' => 'مصفی المقال(?: فی مصنفی علم الرجال)?',
+            'volumes' => 1,
+            'kind' => 'biographical',
+            'compiler' => 'آقابزرگ تهرانی',
+            'edition_label' => 'تهران، ۱۳۳۷ش',
+            'text' => [
+                'catalog' => 'mosaffa',
+                'name' => 'مصفی المقال',
+                'last_pages' => [1 => 619],
+            ],
+        ],
         // Two books of lives, as text from Noor (item 86, step 14.20); an entry is a person, and Fankha cites the page of
         // a work's author, so a work is tied to its author's life as a mention (ItemMatcher::matchLife). A'yan al-Shi'a in
         // Dar al-Ta'aruf's ten volumes (Beirut 1403 AH): «اعیان الشیعة 408/9»; not «طبقات اعیان الشیعه» or «مستدرکات
