@@ -253,6 +253,37 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertSame(['140#3', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
     }
 
+    public function test_kashf_al_hujub_and_mu_allafat_al_zaydiyya_entries_are_numbered_and_found_by_title_and_author()
+    {
+        // step 14.64: «1397 رسالة في الرجعة» and «(672) تتمة شفاء الأوام فقه», the subject left out of the title
+        $cite = fn (string $s) => array_map(fn ($c) => [$c['source'], $c['volume'], $c['page']], BibliographyLinks::citations($s));
+        $this->assertSame([['kashf-hujub', 1, 263]], $cite('کشف الحجب ص 263'));
+        $this->assertSame([['kashf-hujub', 1, 508]], $cite('کشف الحجب و الاستار 508'));
+        $this->assertSame([['kashf', 1, 166]], $cite('کشف الظنون 166/1'));
+        $this->assertSame([['zaydiyya', 1, 245]], $cite('مؤلفات الزيدية 245/1'));
+
+        $kashf = $this->volume('kashf-hujub', 'کشف الحجب', 1);
+        $this->artisan('sources:import-pages', ['volume' => 'kashf-hujub', 'pages' => self::FIXTURES . 'kashf-hujub-v01-p263.jsonl', '--volume' => 1])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'kashf-hujub', '--volume' => 1, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'kashf-hujub-v01-p263.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $kashf->id)->get()->keyBy('item_key');
+        $this->assertSame([7, 1397], [$items->count(), $items['263#6']->entry_number]);
+        // six «رسالة في الرجعة» on the page: the author tells them apart
+        $work = $this->work('kashf-hujub', 'رسالة فی الرجعة', 'مجلسی، محمد باقر بن محمد تقی', 1, 263, 'کشف الحجب 263');
+        $this->artisan('sources:link-items', ['volume' => 'kashf-hujub', '--volume' => 1])->assertSuccessful();
+        $this->assertSame('263#6', SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole()->sourceItem->item_key);
+
+        $zaydiyya = $this->volume('zaydiyya', 'مؤلفات الزیدیة', 1);
+        $this->artisan('sources:import-pages', ['volume' => 'zaydiyya', 'pages' => self::FIXTURES . 'zaydiyya-v01-p245.jsonl', '--volume' => 1])->assertSuccessful();
+        $this->artisan('sources:segment', ['volume' => 'zaydiyya', '--volume' => 1, '--origin' => 'noor',
+            '--entries' => self::FIXTURES . 'zaydiyya-v01-p245.entries.jsonl'])->assertSuccessful();
+        $items = SourceItem::where('source_volume_id', $zaydiyya->id)->get()->keyBy('item_key');
+        $this->assertSame(['تتمة شفاء الأوام', 'تتمة طيب أهل الكسا'], [$items['245#2']->title, $items['245#3']->title]);
+        $work = $this->work('zaydiyya', 'تتمة طیب اهل الکسا', 'حنش صنعانی، علی بن قاسم', 1, 245, 'مؤلفات الزيدية 245/1');
+        $this->artisan('sources:link-items', ['volume' => 'zaydiyya', '--volume' => 1])->assertSuccessful();
+        $this->assertSame('245#3', SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $work->id)->sole()->sourceItem->item_key);
+    }
+
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,

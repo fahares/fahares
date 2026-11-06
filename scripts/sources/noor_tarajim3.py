@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Page texts and entries of Kahhala's «معجم المؤلفین» (item 86, step 14.31) and Zirikli's «الأعلام» (step 14.48) from
-Noor's old «تراجم و کتاب‌شناسی ۳», for
-sources:import-pages and sources:segment --entries.
+"""Page texts and entries of Kahhala's «معجم المؤلفین» (item 86, step 14.31), Zirikli's «الأعلام» (step 14.48),
+Kantouri's «كشف الحجب و الأستار» and Husayni Ashkevari's «مؤلفات الزيدية» (step 14.64) from Noor's old «تراجم و
+کتاب‌شناسی ۳», for sources:import-pages and sources:segment --entries.
 
-    python3 -I scripts/sources/noor_tarajim3.py TARAJIM3_DB OUT_DIR [--sources kahhala,zirikli]
+    python3 -I scripts/sources/noor_tarajim3.py TARAJIM3_DB OUT_DIR [--sources kahhala,zirikli,kashf-hujub,zaydiyya]
 
 Writes OUT_DIR/{code}/{volume:02d}.jsonl.gz with {"page", "text"} per printed page and OUT_DIR/{code}/{volume:02d}.entries.jsonl.gz
 with the volume's entries. The database is opened read-only.
@@ -29,6 +29,8 @@ from pathlib import Path
 SOURCES = {
     'kahhala': (271, {n: n + 1 for n in range(1, 14)}),
     'zirikli': (257, {n: n for n in range(1, 9)}),
+    'kashf-hujub': (213, {1: 3}),
+    'zaydiyya': (294, {n: n for n in range(1, 4)}),
 }
 
 # the line after a name: a life's dates
@@ -197,6 +199,51 @@ def zirikli_volume(db, book, number):
     return pages, out
 
 
+# Two bibliographies whose entries are numbered (step 14.64), each a paragraph of its own: Kantouri's «كشف الحجب و
+# الأستار» (the Marashi library's offset, Qom 1409 AH, one volume; Noor's third «volume», between front matter and
+# indexes), «1393 رسالة في الرجعة», and Husayni Ashkevari's «مؤلفات الزيدية» (Qom 1413 AH, three volumes), «(671) تتمة
+# شفاء الأوام حديث», its subject last; «تأليف: …» on the next line. An entry's number only rises, so the indexes at a
+# volume's end, numbered again, are left out of the entries.
+NUMBERED_ENTRY = {
+    'kashf-hujub': re.compile(r'^(\d{1,4})-? (\S.{0,300})$'),
+    'zaydiyya': re.compile(r'^\((\d{1,4})\) (\S.{0,200})$'),
+}
+SUBJECTS = re.compile(r'\s+(?:(?:أصول|اصول) الفقه|علوم الحديث|سيرة نبوية|(?:فقه|علوم|غريب) القرآن|فقه|عقائد|تاريخ|حديث|شعر|'
+                      r'كلام|تفسير|أجوبة|تراجم|نحو|أدب|أخلاق|اخلاق|فرائض|رجال|بلاغة|منطق|تصوف|اجازة|قراءة|دعاء|متفرقة|لغة|'
+                      r'تصريف|فلسفة|جغرافيا|فلك|حساب|نجوم|أنساب|رحلة)$')
+
+
+def numbered_volume(code):
+    def read(db, book, number):
+        pages, entries, last = [], [], 0
+        for page, lines, notes in page_lines(db, book, number):
+            pages.append({'page': page, 'text': '\n'.join(lines).strip() + ('\n\n' + notes if notes else '')})
+            for i, line in enumerate(lines):
+                m = NUMBERED_ENTRY[code].match(line) if i == 0 or lines[i - 1] == '' else None
+                if m and int(m.group(1)) > last:
+                    last = int(m.group(1))
+                    title = m.group(2).strip(' .:')
+                    if code == 'zaydiyya':
+                        title = SUBJECTS.sub('', title) or title
+                    entries.append({'heading': title, 'number': last, 'page': page, 'lines': [line], 'breaks': []})
+                elif entries and line:
+                    e = entries[-1]
+                    if page != (e['breaks'][-1][1] if e['breaks'] else e['page']):
+                        e['breaks'].append((len('\n'.join(e['lines'])) + 1, page))
+                    e['lines'].append(line)
+        out, per_page = [], {}
+        for e in entries:
+            page = e['page']
+            per_page[page] = per_page.get(page, 0) + 1
+            out.append({
+                'key': f'{page}#{per_page[page]}', 'kind': 'entry', 'title': e['heading'], 'entry_number': e['number'],
+                'page_start': page, 'page_end': e['breaks'][-1][1] if e['breaks'] else page, 'text': '\n'.join(e['lines']),
+                'page_breaks': [[at, p] for at, p in e['breaks']], 'parent_key': None,
+            })
+        return pages, out
+    return read
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('db')
@@ -209,7 +256,8 @@ def main():
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
         for number, noor in volumes.items():
-            pages, entries = (zirikli_volume if code == 'zirikli' else volume)(db, book, noor)
+            reader = zirikli_volume if code == 'zirikli' else numbered_volume(code) if code in NUMBERED_ENTRY else volume
+            pages, entries = reader(db, book, noor)
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:

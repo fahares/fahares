@@ -263,6 +263,38 @@ return [
                 'runs' => [[1, 2]],
             ],
         ],
+        // Two bibliographies with numbered entries, as text from Noor's Tarajim3 (step 14.64, scripts/sources/
+        // noor_tarajim3.py). Kantouri's Kashf al-Hujub (the Marashi offset, Qom 1409 AH, one volume of 607 pages): «کشف
+        // الحجب 263», «کشف الحجب ص 263», «کشف الحجب: 263», «کشف الحجب و الاستار 508»; not «کشف الظنون».
+        'kashf-hujub' => [
+            'label' => 'کشف الحجب و الأستار',
+            'pattern' => 'کشف الحجب(?:\s*و?\s*الاستار)?(?: عن اسماء الکتب\s*و?\s*الاسفار)?',
+            'volumes' => 1,
+            'kind' => 'bibliography',
+            'compiler' => 'اعجاز حسین کنتوری',
+            'edition_label' => 'افست قم، ۱۴۰۹ق',
+            'text' => [
+                'catalog' => 'kashf-hujub',
+                'name' => 'کشف الحجب',
+                'last_pages' => [1 => 607],
+            ],
+        ],
+        // Husayni Ashkevari's Mu'allafat al-Zaydiyya (Qom 1413 AH, three volumes, its only edition): «مؤلفات الزیدیة
+        // 245/1», «مؤلفات الزيدية: 108/2».
+        'zaydiyya' => [
+            'label' => 'مؤلفات الزیدیة',
+            'pattern' => 'م[ؤو]لفات الزیدیه',
+            'volumes' => 3,
+            'kind' => 'bibliography',
+            'compiler' => 'سید احمد حسینی اشکوری',
+            'edition_label' => 'قم، ۱۴۱۳ق',
+            'text' => [
+                'catalog' => 'zaydiyya',
+                'name' => 'مؤلفات الزیدیة',
+                'last_pages' => [1 => 504, 2 => 463, 3 => 358],
+                'bare' => false,
+            ],
+        ],
         // Two books of lives, as text from Noor (item 86, step 14.20); an entry is a person, and Fankha cites the page of
         // a work's author, so a work is tied to its author's life as a mention (ItemMatcher::matchLife). A'yan al-Shi'a in
         // Dar al-Ta'aruf's ten volumes (Beirut 1403 AH): «اعیان الشیعة 408/9»; not «طبقات اعیان الشیعه» or «مستدرکات
