@@ -45,6 +45,9 @@ final class Permissions
         'subjects.edit' => ['data', 'موضوعات', 'فهرست، ساخت و ویرایش موضوعات، درخت موضوعات و بازشماری.', []],
         'subjects.merge' => ['data', 'ادغام موضوعات', 'ادغام دو موضوع.', []],
         'catalogers.edit' => ['data', 'فهرست‌نگاران', 'فهرست و ویرایش مشخصات فهرست‌نگاران.', ['editor']],
+        'sources.edit' => ['data', 'منابع', 'فهرست منابع، ویرایش نام، نوع و رتبه، کتابخانه و فهرست‌نگاران جلدها، و بخش‌های جلد.', ['editor']],
+        'sources.patterns' => ['data', 'ثبت منبع و الگوی ارجاع', 'ساختن منبع تازه، و تعیین اینکه هر منبع در منابع دیگر با چه نامی و چگونه ارجاع داده می‌شود؛ یک الگو هزاران مأخذ را جابه‌جا می‌کند.', []],
+        'sources.merge' => ['data', 'ادغام منابع', 'ادغام دو منبع، با جلدها و مدخل‌هایشان، و برگرداندن ادغام.', []],
         'libraries.edit' => ['data', 'کتابخانه‌ها', 'فهرست و ویرایش مشخصات کتابخانه‌ها.', ['editor']],
         'home.manage' => ['content', 'صفحه‌ی خانه', 'تنظیمات و بخش‌های صفحه‌ی خانه.', []],
         'pages.manage' => ['content', 'صفحه‌ها', 'متن صفحه‌های ثابت مانند «درباره ما».', []],
@@ -75,6 +78,7 @@ final class Permissions
         'split' => 'structure.split',
         'remove' => 'structure.remove',
         'merge_people' => 'people.merge',
+        'volume_cataloger' => 'sources.edit',
     ];
 
     public static function exists(string $key): bool

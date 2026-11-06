@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\AuditLog;
 use App\Models\Manuscript;
 use App\Models\Work;
+use App\Suggestions\MergeComparison;
 use App\Suggestions\RecordMerger;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,10 @@ use Illuminate\Support\Facades\File;
  * their slug (`-v4-220`), copies by city, library and shelfmark, never by id. Each change goes through the reviewers'
  * own path (RecordMerger) and is logged like an approved suggestion, so it shows in the record's history and can be
  * undone. Without --apply it only reports.
+ *
+ * twins (step 14.63): a copy the old parser gave a work its text does not belong to, made of another work's copy (its
+ * shelfmark and text) and a library from elsewhere, folds into that copy, its twin: the copy is found under its work
+ * by sequence and shelfmark, the twin under the other work the same way, and every column keeps the twin's value.
  */
 class ApplyCorpusStructureCommand extends Command
 {
@@ -58,6 +63,27 @@ class ApplyCorpusStructureCommand extends Command
             }
         }
 
+        $twins = [];
+        foreach ($plan['twins'] ?? [] as $group) {
+            [$from, $to] = [$this->work($group['from']), $this->work($group['to'])];
+            if (! $from || ! $to) {
+                $problems[] = "{$group['from']} → {$group['to']}: work not found or not unique";
+                continue;
+            }
+            foreach ($group['copies'] as [$fromSeq, $toSeq, $shelfmark]) {
+                $rows = Manuscript::where('work_id', $from->id)->where('sequence_number', $fromSeq)->where('shelfmark', $shelfmark)->get();
+                $kept = Manuscript::where('work_id', $to->id)->where('sequence_number', $toSeq)->where('shelfmark', $shelfmark)->get();
+                if ($rows->count() === 1 && $kept->count() === 1) {
+                    $twins[] = [$rows->first(), $kept->first()];
+                    $this->line("fold #{$rows->first()->id} {$fromSeq}. {$shelfmark} «{$from->clean_title}» into its twin #{$kept->first()->id} {$toSeq}. «{$to->clean_title}»");
+                } elseif (! $rows->count() && $kept->count() === 1) {
+                    $this->line("already folded: {$fromSeq}. {$shelfmark} «{$from->clean_title}»");
+                } else {
+                    $problems[] = "{$fromSeq}. {$shelfmark}: {$rows->count()} copies under «{$from->clean_title}», {$kept->count()} twins under «{$to->clean_title}»";
+                }
+            }
+        }
+
         foreach ($plan['duplicates'] ?? [] as $group) {
             $work = $this->work($group['work']);
             if (! $work) {
@@ -78,16 +104,17 @@ class ApplyCorpusStructureCommand extends Command
             }
         }
 
-        $this->info(($apply ? 'Applying ' : 'Would apply ') . count($moves) . ' moves and ' . count($merges) . ' folds.');
+        $this->info(($apply ? 'Applying ' : 'Would apply ') . count($moves) . ' moves and ' . count($merges) . ' folds.'
+            . ($twins ? ' and ' . count($twins) . ' twin folds.' : ''));
         foreach ($problems as $line) {
             $this->warn($line);
         }
-        if (! $apply || (! $moves && ! $merges)) {
+        if (! $apply || (! $moves && ! $merges && ! $twins)) {
             return 0;
         }
 
         $note = basename($path);
-        DB::transaction(function () use ($moves, $merges, $merger, $note) {
+        DB::transaction(function () use ($moves, $merges, $twins, $merger, $note) {
             foreach ($moves as [$manuscript, $target]) {
                 $result = $merger->moveManuscript($manuscript, $target);
                 $this->log(Manuscript::class, $manuscript->id, 'verify', $result['old'], $result['new'] + ['corpus_fix' => $note]);
@@ -95,6 +122,12 @@ class ApplyCorpusStructureCommand extends Command
             foreach ($merges as [$source, $kept]) {
                 $result = $merger->mergeManuscript($source, $kept);
                 $this->log(Manuscript::class, $kept->id, 'merge', ['source_id' => $source->id] + $result, ['target_id' => $kept->id, 'corpus_fix' => $note]);
+            }
+            foreach ($twins as [$source, $kept]) {
+                // the twin is the printed copy: nothing of the hybrid reaches it
+                $keep = collect(MergeComparison::rows($source, $kept))->mapWithKeys(fn ($r) => [$r['key'] => MergeComparison::KEEP])->all();
+                $result = $merger->mergeManuscript($source, $kept, $keep);
+                $this->log(Manuscript::class, $kept->id, 'merge', ['source_id' => $source->id] + $result, ['target_id' => $kept->id, 'corpus_fix' => $note, 'category' => 'twin']);
             }
         });
         $this->info('Done.');

@@ -291,8 +291,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Structural tools run directly, with a preview and confirmation, through the same code as an approved suggestion (backlog item 45)
     Route::middleware('can:structure.direct')->group(function () {
         Route::get('/structure', [AdminStructureController::class, 'index'])->name('structure.index');
-        Route::get('/structure/{type}/{id}', [AdminStructureController::class, 'show'])->whereIn('type', array_keys(\App\Suggestions\SuggestionRegistry::TYPES))->whereNumber('id')->name('structure.show');
-        Route::post('/structure/{type}/{id}', [AdminStructureController::class, 'apply'])->whereIn('type', array_keys(\App\Suggestions\SuggestionRegistry::TYPES))->whereNumber('id')->name('structure.apply');
+        Route::get('/structure/{type}/{id}', [AdminStructureController::class, 'show'])->whereIn('type', \App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES)->whereNumber('id')->name('structure.show');
+        Route::post('/structure/{type}/{id}', [AdminStructureController::class, 'apply'])->whereIn('type', \App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES)->whereNumber('id')->name('structure.apply');
     });
 
     // Taxonomy & Knowledge Tree
@@ -375,6 +375,36 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::middleware('can:pages.manage')->group(function () {
         Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');
         Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
+    });
+
+    // The sources registry: sources, their volumes' library and people, and the parts of a volume (step 14.50, backlog items 70 and 111)
+    Route::middleware('can:sources.merge')->group(function () {
+        Route::get('/sources/merge', [\App\Http\Controllers\Admin\SourceMergeController::class, 'show'])->name('sources.merge');
+        Route::post('/sources/merge', [\App\Http\Controllers\Admin\SourceMergeController::class, 'store'])->name('sources.merge.store');
+        Route::post('/sources/merges/{log}/undo', [\App\Http\Controllers\Admin\SourceMergeController::class, 'undo'])->name('sources.merge.undo');
+    });
+    // A new source, and how each source is cited in the others (step 14.57)
+    Route::middleware('can:sources.patterns')->prefix('sources')->name('sources.')->group(function () {
+        Route::get('/new', [\App\Http\Controllers\Admin\SourceController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\SourceController::class, 'store'])->name('store');
+        Route::controller(\App\Http\Controllers\Admin\CitationFormController::class)->name('citations.')->group(function () {
+            Route::get('/{source}/citations/new', 'create')->whereNumber('source')->name('create');
+            Route::post('/{source}/citations', 'store')->whereNumber('source')->name('store');
+            Route::get('/{source}/citations/{form}', 'edit')->whereNumber(['source', 'form'])->name('edit');
+            Route::put('/{source}/citations/{form}', 'update')->whereNumber(['source', 'form'])->name('update');
+            Route::delete('/{source}/citations/{form}', 'destroy')->whereNumber(['source', 'form'])->name('destroy');
+            Route::post('/citation-changes/{log}/undo', 'undo')->whereNumber('log')->name('undo');
+        });
+    });
+    Route::middleware('can:sources.edit')->prefix('sources')->name('sources.')->controller(\App\Http\Controllers\Admin\SourceController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{source}', 'show')->whereNumber('source')->name('show');
+        Route::put('/{source}', 'update')->whereNumber('source')->name('update');
+        Route::get('/{source}/volumes/{volume}', 'volume')->whereNumber(['source', 'volume'])->name('volume');
+        Route::put('/{source}/volumes/{volume}', 'updateVolume')->whereNumber(['source', 'volume'])->name('volume.update');
+        Route::post('/{source}/volumes/{volume}/parts', 'storePart')->whereNumber(['source', 'volume'])->name('parts.store');
+        Route::put('/{source}/volumes/{volume}/parts/{part}', 'updatePart')->whereNumber(['source', 'volume', 'part'])->name('parts.update');
+        Route::delete('/{source}/volumes/{volume}/parts/{part}', 'destroyPart')->whereNumber(['source', 'volume', 'part'])->name('parts.destroy');
     });
 
     // Libraries & Archives

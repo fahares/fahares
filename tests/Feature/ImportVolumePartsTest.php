@@ -165,6 +165,52 @@ class ImportVolumePartsTest extends TestCase
         @unlink($file);
     }
 
+    public function test_a_library_of_two_parts_in_one_volume_and_a_part_put_in_between_keep_the_files_order()
+    {
+        $dehkhoda = Library::create(['name' => 'لغت نامه دهخدا', 'city' => 'تهران', 'slug' => 'thran-lght-namh-dhkhda-27']);
+        $melli = Library::create(['name' => 'ملی', 'city' => 'تهران', 'slug' => 'thran-mly-11']);
+        Cataloger::create(['name' => 'محمدتقی دانش‌پژوه', 'slug' => 'dp', 'mtif_entry_id' => 37279]);
+        $nashriyeh = Source::create(['code' => 'catalogue-nashriyeh', 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'title' => 'نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران']);
+        $third = $this->volume($nashriyeh, 3);
+        $early = $this->copy($dehkhoda, '[نشریه: 3 - 45]', $third);
+        $late = $this->copy($dehkhoda, '[نشریه: 3-401]', $third);
+        $own = $this->copy($melli, '[نشریه: 3 - 102]', $third);
+
+        $dp = [['name' => 'محمدتقی دانش‌پژوه', 'mtif' => 37279]];
+        $melliPart = ['daftar' => 3, 'library' => 'thran-mly-11', 'title' => 'کتابخانه ملی', 'pages' => [100, 104], 'catalogers' => $dp, 'fankha_row' => 179];
+        $latePart = ['daftar' => 3, 'library' => 'thran-lght-namh-dhkhda-27', 'title' => 'لغت نامه دهخدا', 'pages' => [388, 426], 'catalogers' => $dp, 'fankha_row' => 229];
+        $data = ['source' => $nashriyeh->code, 'series' => 'نشریه', 'volume_title' => 'نشریه - دفتر %d', 'editors' => [], 'parts' => [$melliPart, $latePart]];
+        $file = storage_path('framework/testing/parts-' . uniqid() . '.json');
+        file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful();
+        $this->assertSame(['ص 388–426', 'ص 388–426'], [$early->fresh()->catalogVolumePart?->pages_text, $late->fresh()->catalogVolumePart?->pages_text],
+            'a copy outside the pages of its library\'s one part is of that part');
+
+        // Fankha's row gives the library a second run of pages, the part put before the others
+        $data['parts'] = [['daftar' => 3, 'library' => 'thran-lght-namh-dhkhda-27', 'title' => 'لغت نامه دهخدا', 'pages' => [1, 59], 'catalogers' => $dp, 'key' => 'fankha-229-pages-1-59'],
+            $melliPart, $latePart];
+        file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE));
+        $before = $this->state();
+        $sorts = fn () => DB::table('catalog_volume_parts')->where('catalog_volume_id', $third->id)->orderBy('sort')->orderBy('id')->get()->map(fn ($p) => [$p->page_first, $p->sort])->all();
+        $sortsBefore = $sorts();
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--dry-run' => true])->assertSuccessful()
+            ->expectsOutput('  parts to make: 1 of 3')->expectsOutput("  parts to put in the file's order: 2");
+        $this->assertSame($before, $this->state(), 'a dry run saves nothing');
+
+        $backup = storage_path('framework/testing/parts-backup-' . uniqid() . '.json');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file, '--backup' => $backup])->assertSuccessful();
+        $this->assertSame([[1, 0], [100, 1], [388, 2]], $sorts());
+        $this->assertSame(['ص 1–59', 'ص 388–426', 'ص 100–104'], [$early->fresh()->catalogVolumePart?->pages_text, $late->fresh()->catalogVolumePart?->pages_text,
+            $own->fresh()->catalogVolumePart?->pages_text], 'each copy goes to the part its page is in');
+        $this->artisan('catalogs:import-volume-parts', ['--data' => $file])->assertSuccessful()->expectsOutput('Nothing to do.');
+
+        $this->artisan('catalogs:import-volume-parts', ['--revert' => $backup])->assertSuccessful();
+        $this->assertEquals($before, $this->state());
+        $this->assertSame($sortsBefore, $sorts(), 'the parts take their place back');
+        @unlink($backup);
+        @unlink($file);
+    }
+
     public function test_a_catalogue_the_registry_has_not_is_made_and_its_revert_removes_it()
     {
         $soleimaniyeh = Library::create(['name' => 'مدرسه سلیمانیه', 'city' => 'مشهد', 'slug' => 'mshhd-mdrsh-slymanyh-193']);

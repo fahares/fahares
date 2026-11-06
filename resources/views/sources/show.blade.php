@@ -25,7 +25,7 @@
 @section('content')
 {{-- One source (step 13.80): what it is, what the site has of it, and each volume with where to start reading its text
      and turning its page images. --}}
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div x-data class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     <nav class="flex flex-wrap items-center gap-2 text-xs text-muted" aria-label="مسیر">
         <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
         <span aria-hidden="true">/</span>
@@ -39,8 +39,20 @@
         <x-source.cover :source="$source" size="large" class="w-44 sm:w-52 md:w-full mx-auto" />
         <div class="grid gap-2 justify-items-center md:justify-items-start text-center md:text-start md:pt-4">
             <p class="text-xs font-bold text-cinnabar">{{ $kind }}</p>
-            <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">{{ $source->title }}</h1>
-            @if($about)<p class="text-sm text-muted">{{ Fa::digits(implode('، ', $about)) }}</p>@endif
+            <h1 class="font-naskh text-[26px] sm:text-[36px] font-bold leading-[1.6] text-ink text-balance">{{ $source->title }} <x-suggest.field name="title" class="ms-1 align-middle" /></h1>
+            {{-- the compiler, publisher and year, each correctable (step 14.52); an empty one shows only in suggestion mode --}}
+            @php
+                $makers = ['compiler' => ['پدیدآورنده', $source->compiler], 'publisher' => ['ناشر', $source->publisher], 'publication_year' => ['سال نشر', $source->publication_year]];
+            @endphp
+            <p class="flex flex-wrap justify-center md:justify-start items-center gap-x-3 gap-y-1 text-sm text-muted" @unless($about || $source->publication_year) x-show="$store.suggest.on" x-cloak @endunless data-source-makers>
+                @foreach($makers as $field => [$label, $value])
+                    <span class="inline-flex items-center gap-1" @unless($value) x-show="$store.suggest.on" x-cloak @endunless>
+                        @if($value){{ Fa::digits($value) }}@else<span class="text-muted/70">{{ $label }}: ثبت نشده</span>@endif
+                        <x-suggest.field :name="$field" />
+                    </span>
+                @endforeach
+                @if($source->edition_label)<span>{{ Fa::digits($source->edition_label) }}</span>@endif
+            </p>
             @if($source->library)
                 <p class="text-sm"><a href="{{ route('libraries.show', $source->library) }}" class="text-cinnabar hover:underline">{{ $source->library->display_name }}</a></p>
             @endif
@@ -55,9 +67,12 @@
             </div>
             @php $singleParts = $single && $single['volume']->relationLoaded('parts') ? $single['volume']->parts : collect(); @endphp
             @if($single && $singleParts->isNotEmpty() && $single['volume']->catalogers->isNotEmpty())
-                <p class="text-sm text-muted" data-volume-catalogers>زیر نظر {{ $editors($single['volume']) }}</p>
+                <p class="text-sm text-muted" data-volume-catalogers>زیر نظر {{ $editors($single['volume']) }} <x-suggest.cataloger :volume="$single['volume']->id" class="ms-1" /></p>
             @elseif($single && $single['volume']->catalogers->isNotEmpty())
-                <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }}</p>
+                <p class="text-sm text-muted" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($single['volume']) }} <x-suggest.cataloger :volume="$single['volume']->id" class="ms-1" /></p>
+            @elseif($single)
+                {{-- no cataloger recorded: the suggestion is offered in suggestion mode (step 14.58) --}}
+                <p class="text-sm text-muted" x-show="$store.suggest.on" x-cloak>فهرست‌نگار: ثبت نشده <x-suggest.cataloger :volume="$single['volume']->id" class="ms-1" /></p>
             @endif
             <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
                 @if($single && $single['read'])<x-ui.btn size="sm" variant="primary" :href="$single['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
@@ -70,12 +85,19 @@
                 @endif
             </div>
             @if($source->description)
-                <p class="max-w-3xl mt-3 text-sm text-ink leading-loose text-justify">{{ Fa::digits($source->description) }}</p>
+                <p class="max-w-3xl mt-3 text-sm text-ink leading-loose text-justify">{{ Fa::digits($source->description) }} <x-suggest.field name="description" class="ms-1" /></p>
+            @else
+                <p class="mt-3 text-sm text-muted" x-show="$store.suggest.on" x-cloak>معرفی‌ای ثبت نشده است. <x-suggest.field name="description" class="ms-1" /></p>
             @endif
         </div>
     </header>
 
     <div class="jadval" aria-hidden="true"></div>
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <x-suggest.toggle />
+        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $source->id }}</span></span>
+    </div>
 
     @if($source->editions->isNotEmpty())
         <x-ui.section title="چاپ‌های دیگر">
@@ -127,8 +149,9 @@
                         @if($v->publication_year)· {{ Fa::digits($v->publication_year) }}@endif
                         @if($parts->isNotEmpty())
                             {{-- a volume of several libraries' catalogues: its own people are its editors, each part has its own (step 13.150) --}}
-                            @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>زیر نظر {{ $editors($v) }}</span>@endif
-                        @elseif($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }}</span>@endif
+                            @if($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>زیر نظر {{ $editors($v) }} <x-suggest.cataloger :volume="$v->id" class="ms-1" /></span>@endif
+                        @elseif($v->catalogers->isNotEmpty())<span class="block mt-0.5" data-volume-catalogers>فهرست‌نگار: {{ $catalogers($v) }} <x-suggest.cataloger :volume="$v->id" class="ms-1" /></span>
+                        @else<span class="block mt-0.5" x-show="$store.suggest.on" x-cloak>فهرست‌نگار: ثبت نشده <x-suggest.cataloger :volume="$v->id" class="ms-1" /></span>@endif
                     </span>
                     <span class="flex flex-wrap gap-2">
                         @if($row['read'])<x-ui.btn size="sm" :href="$row['read']" data-read-volume>خواندن متن</x-ui.btn>@endif
@@ -230,5 +253,10 @@
             @if($linked['rows']->hasPages())<div class="pt-4">{{ $linked['rows']->links() }}</div>@endif
         </x-ui.section>
     @endif
+
+    <!-- READINGS and RESEARCH NOTES of the source, and the suggestion desk (step 14.52) -->
+    <x-suggest.readings />
+    <x-suggest.notes type="source" />
+    <x-suggest.desk type="source" :record="$source" />
 </div>
 @endsection

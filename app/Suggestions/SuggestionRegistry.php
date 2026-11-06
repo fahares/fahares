@@ -2,10 +2,12 @@
 
 namespace App\Suggestions;
 
+use App\Models\Cataloger;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\SourceEntry;
 use App\Models\Person;
+use App\Models\Source;
 use App\Models\Work;
 use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +41,8 @@ class SuggestionRegistry
         'work' => Work::class,
         'person' => Person::class,
         'library' => Library::class,
+        // a printed source's own page (/sources/{code}): its title, compiler, publisher… (step 14.52)
+        'source' => Source::class,
     ];
 
     // note: a research note added to the record, see NoteTypes; feedback: about the site, no record
@@ -109,6 +113,12 @@ class SuggestionRegistry
             'merged_into' => ['label' => 'این کتابخانه با کتابخانه‌ی دیگری ادغام شده و نسخه‌هایش اکنون آنجاست', 'target' => 'library', 'action' => 'ادغام در کتابخانه‌ی دیگر', 'apply' => 'merge_library'],
             'renamed' => ['label' => 'نام این کتابخانه تغییر کرده است', 'target' => null, 'action' => 'تغییر نام کتابخانه', 'apply' => 'rename_library', 'needs_text' => true],
         ],
+        // The people of the source's volumes (step 14.58): a cataloger from the list, or only a name; the volume is
+        // optional (all volumes), in payload.volume_id. See VolumeCatalogers.
+        'source' => [
+            'cataloger_is' => ['label' => 'فهرست‌نگار این فهرست (یا یکی از جلدهایش) شخص دیگری است', 'target' => 'cataloger', 'target_optional' => true, 'action' => 'تعیین فهرست‌نگار جلد', 'apply' => 'volume_cataloger', 'replace' => true],
+            'cataloger_also' => ['label' => 'این فهرست (یا یکی از جلدهایش) فهرست‌نگار، همکار یا ناظر دیگری هم دارد', 'target' => 'cataloger', 'target_optional' => true, 'action' => 'افزودن فهرست‌نگار جلد', 'apply' => 'volume_cataloger'],
+        ],
         'person' => [
             'duplicate' => ['label' => 'این شخص همان شخص دیگری است', 'target' => 'person', 'action' => 'ادغام اشخاص', 'apply' => 'merge_people'],
             'alias' => ['label' => 'نام یا شهرت دیگری از همین شخص', 'target' => null, 'action' => 'افزودن نام دیگر', 'apply' => 'alias', 'needs_text' => true],
@@ -161,6 +171,7 @@ class SuggestionRegistry
         return match ($relation['apply'] ?? null) {
             'person_role' => self::personRoles($type),
             'record_relation' => RecordRelations::options($type),
+            'volume_cataloger' => VolumeCatalogers::ROLES,
             default => null,
         };
     }
@@ -188,6 +199,7 @@ class SuggestionRegistry
                 'withRow' => ! empty($def['with_row']),
                 'canBeAbsent' => ! empty($def['can_be_absent']),
                 'unit' => $def['unit'] ?? 'ص',
+                'clearable' => self::clearable($def),
             ];
         }
 
@@ -214,6 +226,7 @@ class SuggestionRegistry
             'work' => self::workFields(),
             'person' => self::personFields(),
             'library' => self::libraryFields(),
+            'source' => self::sourceFields(),
             default => [],
         };
     }
@@ -286,9 +299,28 @@ class SuggestionRegistry
         return $key ? self::TYPES[$key] : null;
     }
 
+    /**
+     * The record types with structural tools (backlog item 45): a source has relations of its own (its volumes'
+     * catalogers), applied only through a reviewed suggestion.
+     */
+    public const STRUCTURE_TYPES = ['manuscript', 'work', 'person', 'library'];
+
+    /** What a relation may point at: a record type, or a cataloger (step 14.58), which takes no suggestions itself. */
+    public const TARGETS = ['cataloger' => Cataloger::class];
+
+    public static function targetClass(?string $target): ?string
+    {
+        return $target === null ? null : (self::TARGETS[$target] ?? self::modelClass($target));
+    }
+
     /** Short identification of a record for pickers and the reviewer desk. */
     public static function describe(Model $record): array
     {
+        if ($record instanceof Cataloger) {
+            return ['label' => $record->name, 'sub' => implode(' · ', array_filter([$record->life_years_text,
+                $record->volumes_count ? \App\Support\Fa::num($record->volumes_count) . ' جلد فهرست' : null])), 'url' => route('catalogers.show', $record->getRouteKey()), 'id' => $record->id];
+        }
+
         return match (self::typeKey($record::class)) {
             'manuscript' => [
                 'label' => trim(($record->work?->primary_title ?? 'نسخه') . ' — ' . ($record->libraryRecord?->name ?? $record->library ?? '') . ' ' . ($record->shelfmark ?? '')),
@@ -310,6 +342,7 @@ class SuggestionRegistry
                 'url' => route('people.show', $record),
             ],
             'library' => ['label' => $record->name, 'sub' => $record->city, 'url' => route('libraries.show', $record)],
+            'source' => ['label' => $record->title, 'sub' => implode(' · ', array_filter([Source::KIND_LABELS[$record->kind] ?? null, $record->compiler])), 'url' => $record->code ? route('sources.show', $record->code) : route('sources.index')],
             default => ['label' => '#' . $record->getKey(), 'sub' => null, 'url' => null],
         } + ['id' => $record->getKey()];
     }
@@ -320,11 +353,13 @@ class SuggestionRegistry
             return 'بازخورد سایت';
         }
 
-        return match (self::typeKey($type)) {
+        return match (self::typeKey($type) ?? $type) {
             'manuscript' => 'نسخه',
             'work' => 'اثر',
             'person' => 'شخص',
             'library' => 'کتابخانه',
+            'cataloger' => 'فهرست‌نگار',
+            'source' => 'منبع',
             default => class_basename($type),
         };
     }
@@ -334,6 +369,18 @@ class SuggestionRegistry
 
     /** The name that field had before step 13.3, by the manuscript_catalog_references row. */
     public const CATALOG_REFERENCE_PREFIX = 'catalog_reference_';
+
+    /**
+     * Whether a suggestion may ask for the field to be emptied: a yes/no flag has no empty state, a required field
+     * may not be empty, and a copy missing from another source is said with «نیست» instead.
+     */
+    public static function clearable(array $field): bool
+    {
+        return $field['input'] !== 'boolean' && empty($field['required']) && empty($field['can_be_absent']);
+    }
+
+    /** Shown for a suggestion that asks for the field to be emptied (payload clear). */
+    public const CLEAR_LABEL = '— این فیلد خالی شود —';
 
     /** Value of a catalog_page field that says the record is not in that source at all. */
     public const ABSENT = 'نیست';
@@ -449,8 +496,15 @@ class SuggestionRegistry
                 isset($field['bibliography']) => self::formatCatalogPage($field['bibliography']['volume'], $field['bibliography']['page'], null, $field['unit']),
                 default => self::formatCatalogPage($record->{$field['columns'][0]}, $record->{$field['columns'][1]}, isset($field['columns'][2]) ? $record->{$field['columns'][2]} : null),
             },
+            // a copy whose scribe is only linked has no name text of its own: the linked person's name stands
+            'person' => $record->{$name} ?: Person::find($record->{$field['id_column']})?->name,
             default => $record->{$name},
         };
+
+        // An autograph copy: its scribe is the author, as the record page says
+        if ($field['input'] === 'person' && ! empty($field['autograph_column']) && $record->{$field['autograph_column']}) {
+            return 'دستخط مؤلف' . ($value ? " ({$value})" : '');
+        }
 
         // «بی‌کاتب» / «بی‌تاریخ»: the catalog states the copy has none
         if (($value === null || $value === '') && ! empty($field['bit_column']) && $record->{$field['bit_column']}) {
@@ -481,7 +535,7 @@ class SuggestionRegistry
     private static function manuscriptFields(): array
     {
         $fields = [
-            'scribe_name' => ['label' => 'کاتب', 'input' => 'person', 'id_column' => 'scribe_id', 'role' => 'scribe', 'bit_column' => 'is_bika', 'bit_label' => 'بی‌کاتب'],
+            'scribe_name' => ['label' => 'کاتب', 'input' => 'person', 'id_column' => 'scribe_id', 'role' => 'scribe', 'bit_column' => 'is_bika', 'bit_label' => 'بی‌کاتب', 'autograph_column' => 'is_autograph'],
             'copy_date_raw' => ['label' => 'تاریخ کتابت', 'input' => 'hijri_date', 'year_column' => 'copy_date_hijri_year', 'bit_column' => 'is_bita', 'bit_label' => 'بی‌تاریخ'],
             'copy_place' => ['label' => 'محل کتابت', 'input' => 'text'],
             'commissioned_by' => ['label' => 'سفارش‌دهنده‌ی کتابت', 'input' => 'text'],
@@ -554,6 +608,18 @@ class SuggestionRegistry
             'full_name' => ['label' => 'نام کامل', 'input' => 'text'],
             'country' => ['label' => 'کشور', 'input' => 'text'],
             'description' => ['label' => 'معرفی کتابخانه', 'input' => 'textarea'],
+        ];
+    }
+
+    /** A source's own columns (step 14.52); the catalogers of each volume are linked records, suggested in general. */
+    private static function sourceFields(): array
+    {
+        return [
+            'title' => ['label' => 'عنوان منبع', 'input' => 'text', 'required' => true],
+            'compiler' => ['label' => 'پدیدآورنده (مؤلف یا فهرست‌نگار)', 'input' => 'text'],
+            'publisher' => ['label' => 'ناشر', 'input' => 'text'],
+            'publication_year' => ['label' => 'سال نشر', 'input' => 'text'],
+            'description' => ['label' => 'معرفی منبع', 'input' => 'textarea'],
         ];
     }
 }

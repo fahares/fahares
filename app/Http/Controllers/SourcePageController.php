@@ -38,6 +38,9 @@ class SourcePageController extends Controller
 
         $ties->load(['citable.author', 'citable.authors']);
 
+        // the citations in its text are read as this source writes them (step 14.57)
+        PrintedPage::citing($source->code);
+
         return view('source-pages.show', ['printed' => $printed, 'links' => $links, 'works' => $works, 'authors' => $printed->authors($works)]);
     }
 }

@@ -68,6 +68,16 @@ class LibraryController extends Controller
         // the library's printed catalogues, each a source with its own page (step 13.80)
         $catalogues = \App\Models\Source::where('library_id', $library->id)->whereNull('edition_of_id')->with('editions')->orderBy('title')->get();
 
-        return view('libraries.show', compact('library', 'manuscripts', 'catalogues'));
+        // its catalogues printed as parts of a volume that holds several libraries' («نشریه» 5, pp. 8–107), step 14.50
+        $parts = collect();
+        if (\App\Models\CatalogVolumePart::ready()) {
+            $parts = \App\Models\CatalogVolumePart::with('catalogers:id,name')->where('library_id', $library->id)->get();
+            $volumes = \App\Models\SourceVolume::with('source:id,code,title')->whereIn('id', $parts->pluck('catalog_volume_id'))->get()->keyBy('id');
+            $parts = $parts->filter(fn ($p) => $volumes[$p->catalog_volume_id]?->source)
+                ->each(fn ($p) => $p->setRelation('sourceVolume', $volumes[$p->catalog_volume_id]))
+                ->sortBy(fn ($p) => [$p->sourceVolume->source->title, $p->sourceVolume->volume_number ?? 0, $p->sort])->values();
+        }
+
+        return view('libraries.show', compact('library', 'manuscripts', 'catalogues', 'parts'));
     }
 }

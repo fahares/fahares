@@ -40,7 +40,8 @@
         @php
             $old = (array) ($log->old_values ?? []);
             $new = (array) ($log->new_values ?? []);
-            $keys = array_values(array_unique([...array_keys($old), ...array_keys($new)]));
+            // a source merge's snapshot (step 14.50) is for its undo, not to read
+            $keys = array_values(array_diff(array_unique([...array_keys($old), ...array_keys($new)]), ['snapshot']));
         @endphp
         <tbody x-data="{ open: false }" class="block md:table-row-group border-b border-line last:border-0">
         <x-admin.row>

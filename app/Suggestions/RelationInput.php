@@ -37,7 +37,19 @@ class RelationInput
                 throw ValidationException::withMessages(['suggested_value' => 'نام تازه همان نام کنونی کتابخانه است.']);
             }
         }
-        $target = $relation['target'] ? SuggestionRegistry::modelClass($relation['target'])::find($input['target_id'] ?? 0) : null;
+        $target = $relation['target'] ? SuggestionRegistry::targetClass($relation['target'])::find($input['target_id'] ?? 0) : null;
+        // A cataloger of the source's volumes (step 14.58): a role, a cataloger from the list or only a name, and one volume or all
+        if ($apply === 'volume_cataloger') {
+            if (! array_key_exists($input['role'] ?? '', VolumeCatalogers::ROLES)) {
+                throw ValidationException::withMessages(['role' => 'نقش این شخص را انتخاب کنید.']);
+            }
+            if (! $target && trim($input['role_name'] ?? '') === '') {
+                throw ValidationException::withMessages(['role_name' => 'فهرست‌نگار را از فهرست انتخاب کنید یا نامش را بنویسید.']);
+            }
+            if (! empty($input['volume_id']) && ! VolumeCatalogers::hasVolume($record, (int) $input['volume_id'])) {
+                throw ValidationException::withMessages(['volume_id' => 'این جلد از همین منبع نیست.']);
+            }
+        }
         // A person connected with the copy: a role, and a person from the list or only a name
         if ($apply === 'record_relation' && ! array_key_exists($input['role'] ?? '', RecordRelations::options($type))) {
             throw ValidationException::withMessages(['role' => 'نوع رابطه را انتخاب کنید.']);
@@ -69,8 +81,9 @@ class RelationInput
 
         return ['relation' => $relation, 'payload' => array_filter([
             'target_id' => $target?->id,
-            'role' => in_array($apply, ['person_role', 'record_relation'], true) ? $input['role'] : null,
-            'name' => $apply === 'person_role' ? (trim($input['role_name'] ?? '') ?: null) : null,
+            'role' => in_array($apply, ['person_role', 'record_relation', 'volume_cataloger'], true) ? $input['role'] : null,
+            'name' => in_array($apply, ['person_role', 'volume_cataloger'], true) ? (trim($input['role_name'] ?? '') ?: null) : null,
+            'volume_id' => $apply === 'volume_cataloger' && ! empty($input['volume_id']) ? (int) $input['volume_id'] : null,
             // The row a removal points at, when it was sent from that row's own button
             'row_id' => ! empty($relation['remove']) && method_exists($record, 'workPeople') && $record->workPeople()->whereKey((int) ($input['role_row_id'] ?? 0))->exists() ? (int) $input['role_row_id'] : null,
             'shelfmark' => $apply === 'relocate' ? (trim($input['shelfmark'] ?? '') ?: null) : null,

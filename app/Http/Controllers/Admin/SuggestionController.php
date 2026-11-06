@@ -94,6 +94,14 @@ class SuggestionController extends Controller
                 ->reject(fn (Person $p) => in_array($p->id, [$people['suggested']?->id, $people['current']?->id], true));
         }
 
+        // A suggestion saved without the value then on the record (one converted before step 14.60) shows the value now
+        $currentValue = $suggestion->current_value;
+        $currentIsLive = false;
+        if (($currentValue === null || $currentValue === '') && $field && $target && $suggestion->status === 'pending') {
+            $currentValue = SuggestionRegistry::currentValue($target, $field);
+            $currentIsLive = $currentValue !== null;
+        }
+
         $parsedYear = $field && $field['input'] === 'hijri_date' ? HijriYear::parse($suggestion->applied_value ?? $suggestion->suggested_value) : null;
 
         // The adopted reading an approval here would replace
@@ -108,7 +116,7 @@ class SuggestionController extends Controller
         $wasPromoted = $suggestion->standing === 'adopted'
             && ! empty(AuditLog::activeForSuggestion($suggestion->id)?->new_values['promoted']);
 
-        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted'));
+        return view('admin.suggestions.show', compact('suggestion', 'target', 'field', 'people', 'currentValue', 'currentIsLive', 'parsedYear', 'relation', 'relationTarget', 'previousAdopted', 'wasPromoted'));
     }
 
     /** Reviewer outcomes for a field suggestion and the standing each gives it. */
@@ -189,7 +197,7 @@ class SuggestionController extends Controller
                 $result = ['old' => [], 'new' => [], 'resolution' => ['applied' => false]];
                 // A rollback returns a promoted alternative to its old standing, not to the queue
                 $logExtra = $promoting ? ['promoted' => true] : [];
-                $appliedValue = $field ? (trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['applied_value'] ?? ''))) ?: null) : null;
+                $appliedValue = $field && ($validated['person_action'] ?? null) !== 'clear' ? (trim(str_replace(["\r\n", "\r"], "\n", (string) ($validated['applied_value'] ?? ''))) ?: null) : null;
 
                 // General reports and retired fields are handled by hand; approving only records the decision.
                 // An alternative reading is kept with its evidence and leaves the record as it is.
@@ -292,6 +300,9 @@ class SuggestionController extends Controller
         }
         if ($relation && ($relation['apply'] ?? null) === 'relocate') {
             return $this->approveRelocation($request, $suggestion, $relation, $record);
+        }
+        if ($relation && ($relation['apply'] ?? null) === 'volume_cataloger') {
+            return $this->approveVolumeCataloger($request, $suggestion, $relation, $record);
         }
         if ($relation && in_array($relation['apply'] ?? null, ['merge_library', 'rename_library'], true)) {
             return $this->approveLibrary($request, $suggestion, $relation, $record);
@@ -616,6 +627,59 @@ class SuggestionController extends Controller
      * library: the suggested one, the current one, another by id, or a new one fahares does not list yet.
      * Logged as "verify" so the audit log can undo it.
      */
+    /**
+     * A cataloger of the source's volumes (step 14.58): the reviewer picks the volumes (the submitter's, or all), the
+     * person (the suggested cataloger, another by id, or a new one by name), the role, and whether the person replaces
+     * the volume's people in that role or joins them. See VolumeCatalogers.
+     */
+    private function approveVolumeCataloger(Request $request, FieldSuggestion $suggestion, array $relation, $record)
+    {
+        $validated = $request->validate([
+            'volume_ids' => 'required|array|min:1',
+            'volume_ids.*' => 'integer',
+            'cataloger_choice' => 'required|in:target,manual,new',
+            'cataloger_id' => 'nullable|integer',
+            'cataloger_name' => 'nullable|string|max:255',
+            'role' => ['required', Rule::in(array_keys(\App\Suggestions\VolumeCatalogers::ROLES))],
+            'mode' => 'required|in:replace,add',
+            'public_note' => 'nullable|string|max:2000',
+            'admin_notes' => 'nullable|string|max:1000',
+        ], ['volume_ids.required' => 'دست‌کم یک جلد را انتخاب کنید.']);
+        if (! $record instanceof \App\Models\Source) {
+            return back()->withErrors(['applied_value' => 'این منبع دیگر وجود ندارد.']);
+        }
+
+        try {
+            DB::transaction(function () use ($suggestion, $record, $validated) {
+                $created = null;
+                $cataloger = match ($validated['cataloger_choice']) {
+                    'target' => $suggestion->relationTarget() ?? throw new InvalidArgumentException('فهرست‌نگار پیشنهادی در فهارس ثبت نشده است؛ شناسه‌ی او را بنویسید یا فهرست‌نگار تازه بسازید.'),
+                    'manual' => \App\Models\Cataloger::find($validated['cataloger_id'] ?? 0) ?? throw new InvalidArgumentException('فهرست‌نگاری با این شناسه پیدا نشد.'),
+                    default => $created = \App\Suggestions\VolumeCatalogers::createCataloger((string) ($validated['cataloger_name'] ?? ''), $suggestion->id),
+                };
+                $result = app(\App\Suggestions\VolumeCatalogers::class)->apply($record, $validated['volume_ids'], $cataloger, $validated['role'],
+                    $validated['mode'] === 'replace', $suggestion->id, $created ? ['created_cataloger_id' => $created->id] : []);
+
+                $suggestion->update([
+                    'status' => 'approved',
+                    'admin_notes' => $validated['admin_notes'] ?? null,
+                    'public_note' => trim($validated['public_note'] ?? '') ?: null,
+                    'resolution' => ['applied' => true, 'cataloger_id' => $cataloger->id, 'role' => $validated['role'], 'mode' => $validated['mode'],
+                        'volume_ids' => array_keys($result['new'])] + ($created ? ['created_cataloger' => true] : []),
+                    'reviewed_by' => auth()->id(),
+                    'reviewed_at' => now(),
+                ]);
+            });
+        } catch (InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['applied_value' => $e->getMessage()]);
+        }
+
+        SuggestionNotifier::reviewed($suggestion->fresh());
+
+        return redirect()->route('admin.suggestions.index')
+            ->with('success', "پیشنهاد #{$suggestion->id} ({$relation['action']}) تأیید و اعمال شد.");
+    }
+
     private function approveRelocation(Request $request, FieldSuggestion $suggestion, array $relation, $record)
     {
         $validated = $request->validate([
@@ -870,9 +934,11 @@ class SuggestionController extends Controller
             'role_name' => 'nullable|string|max:600',
             'role_row_id' => 'nullable|integer',
             'shelfmark' => 'nullable|string|max:255',
+            'volume_id' => 'nullable|integer',
             'suggested_value' => 'nullable|string|max:20000',
             'rationale_citation' => 'nullable|string|max:5000',
             'note' => 'nullable|array',
+            'clear' => 'nullable|boolean',
             'close_original' => 'nullable|boolean',
         ]);
 
@@ -907,12 +973,20 @@ class SuggestionController extends Controller
                     if (! $field) {
                         return back()->withInput()->withErrors(['field_name' => 'فیلد مقصد را انتخاب کنید.']);
                     }
-                    if ($value === '') {
-                        return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید.']);
+                    // «این فیلد خالی شود»: e.g. the copy is not in the author's hand and its scribe is unknown
+                    $clear = $request->boolean('clear');
+                    if ($clear && ! SuggestionRegistry::clearable($field)) {
+                        return back()->withInput()->withErrors(['suggested_value' => 'این فیلد را نمی‌توان خالی کرد.']);
                     }
-                    $personId = $field['input'] === 'person' ? ($validated['person_id'] ?? null) : null;
-                    $attributes = ['field_name' => $field['name'], 'suggested_value' => SuggestionRegistry::submittedValue($field, $value), 'current_value' => SuggestionRegistry::currentValue($record, $field),
-                        'payload' => array_filter(['person_id' => $personId]) + $attributes['payload']];
+                    if ($clear && SuggestionRegistry::currentValue($record, $field) === null) {
+                        return back()->withInput()->withErrors(['suggested_value' => 'این فیلد هم‌اکنون خالی است.']);
+                    }
+                    if (! $clear && $value === '') {
+                        return back()->withInput()->withErrors(['suggested_value' => 'مقدار پیشنهادی را بنویسید، یا «این فیلد خالی شود» را بزنید.']);
+                    }
+                    $personId = $field['input'] === 'person' && ! $clear ? ($validated['person_id'] ?? null) : null;
+                    $attributes = ['field_name' => $field['name'], 'suggested_value' => $clear ? '' : SuggestionRegistry::submittedValue($field, $value), 'current_value' => SuggestionRegistry::currentValue($record, $field),
+                        'payload' => array_filter(['person_id' => $personId, 'clear' => $clear]) + $attributes['payload']];
                     break;
                 case 'note':
                     if (! NoteTypes::allowed($type, $validated['field_name'] ?? null)) {
@@ -994,10 +1068,23 @@ class SuggestionController extends Controller
         ]);
     }
 
-    /** A record id from a pasted fahares link (/m/12, /works/12-…) or a bare id, Persian digits included. */
+    /** A record id from a pasted fahares link (/m/12, /works/12-…, /sources/{code}) or a bare id, Persian digits included. */
     public static function recordId(string $type, string $ref): ?int
     {
         $ref = strtr($ref, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        if ($type === 'cataloger') {
+            return preg_match('~/catalogers/(\d+)~u', $ref, $m) || preg_match('/^\s*#?(\d+)\s*$/u', $ref, $m) ? (int) $m[1] : null;
+        }
+        if ($type === 'source') {
+            // a source's page is addressed by its code (/sources/dharia); a bare code or id will do
+            $code = preg_match('~/sources/([^/?#\s]+)~u', $ref, $m) ? urldecode($m[1]) : trim($ref);
+            $id = $code === '' ? null : \App\Models\Source::where('code', $code)->value('id');
+            if (! $id && preg_match('~/sources/~u', $ref) && ($merged = \App\Models\Source::mergedInto($code))) {
+                $id = $merged->id;
+            }
+
+            return $id ?? (preg_match('/^\s*#?(\d+)\s*$/u', $ref, $m) ? (int) $m[1] : null);
+        }
         $prefix = ['manuscript' => 'm|manuscripts', 'work' => 'w|works', 'person' => 'p|people', 'library' => 'l|libraries'][$type];
         if (preg_match('~/(?:' . $prefix . ')/(\d+)~u', $ref, $m) || preg_match('/^\s*#?(\d+)\s*$/u', $ref, $m)) {
             return (int) $m[1];

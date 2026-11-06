@@ -64,6 +64,12 @@ class AuditLogController extends Controller
      */
     public function undo(AuditLog $log, Request $request): void
     {
+        // a citation form's change (step 14.57) carries its own undo, with the entries it made again
+        if ($log->auditable_type === \App\Models\SourceCitationForm::class) {
+            CitationFormController::undoLog($log, $request);
+
+            return;
+        }
         if (empty($log->old_values)) {
             throw new \Exception('اطلاعات وضعیت پیشین برای این رخداد موجود نیست و امکان بازگردانی وجود ندارد.');
         }
@@ -80,6 +86,8 @@ class AuditLogController extends Controller
             'split' => $this->rollbackSplit($log, $request),
             'remove' => $this->rollbackRemove($log, $request),
             'update' => $this->rollbackUpdate($log, $request),
+            // the people of a source's volumes, set by an approved suggestion (step 14.58)
+            'volume_people' => app(\App\Suggestions\VolumeCatalogers::class)->undo($log),
             default => throw new \Exception("عملیات [{$log->action}] قابلیت بازگردانی خودکار ندارد."),
         };
 
@@ -302,6 +310,13 @@ class AuditLogController extends Controller
                 'new_values' => ['restored_subject_id' => $sourceId, 'restored_subject_name' => $sourceSnapshot['name'] ?? ''],
                 'ip_address' => $request->ip(),
             ]);
+
+            return;
+        }
+
+        // A merge of two sources in the panel (step 14.50), undone from the snapshot it logged
+        if ($log->auditable_type === \App\Models\Source::class) {
+            SourceMergeController::undoLog($log, $request);
 
             return;
         }

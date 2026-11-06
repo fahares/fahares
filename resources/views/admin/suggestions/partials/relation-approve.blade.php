@@ -179,6 +179,62 @@
             <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
                 class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
         </form>
+    @elseif($apply === 'volume_cataloger' && $target)
+        @php
+            // the volumes and their people now; the submitter's volume, or all, ticked (step 14.58)
+            $vcInput = 'admin-field w-full';
+            $vcVolumes = \App\Suggestions\VolumeCatalogers::volumes($target);
+            $vcAsked = $suggestion->payload['volume_id'] ?? null;
+            $vcPicked = array_map('intval', (array) old('volume_ids', $vcAsked ? [$vcAsked] : array_column($vcVolumes, 'id')));
+            $vcChoice = old('cataloger_choice', $relationTarget ? 'target' : 'new');
+            $vcRole = old('role', $suggestion->payload['role'] ?? 'cataloger');
+            $vcMode = old('mode', ! empty($relation['replace']) ? 'replace' : 'add');
+        @endphp
+        <form action="{{ $formAction }}" method="POST" class="space-y-4">
+            @csrf
+            @foreach($directFields as $directName => $directValue)<input type="hidden" name="{{ $directName }}" value="{{ $directValue }}">@endforeach
+            <p class="leading-relaxed text-ink">
+                فهرست‌نگاران جلدهای انتخاب‌شده از راه همان ویرایشگر جلد (پنل منابع) تغییر می‌کنند، و فهرست‌نگار نسخه‌های آن جلدها و شمارها به‌روز می‌شود.
+                با «بازگرداندن» این تأیید، فهرست‌نگاران پیشین برمی‌گردند.
+            </p>
+            @if(! $vcVolumes)
+                <p class="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 text-red-700 dark:text-red-300">این منبع جلدی با فهرست‌نگار (جلد فهرست) ندارد؛ این پیشنهاد را با ابزار پنل منابع یا دستی رسیدگی کنید.</p>
+            @endif
+            <div class="space-y-1.5 p-3 bg-paper border border-line">
+                <span class="block font-bold text-ink">جلدها:</span>
+                @foreach($vcVolumes as $v)
+                    <label class="flex items-center gap-2"><input type="checkbox" name="volume_ids[]" value="{{ $v['id'] }}" @checked(in_array($v['id'], $vcPicked, true)) class="accent-cinnabar">
+                        <span>{{ $v['label'] }}@if($v['id'] === $vcAsked) <span class="text-cinnabar">(جلد مورد نظر پیشنهاددهنده)</span>@endif — <span class="text-muted">{{ $v['people'] ?: 'فهرست‌نگار ثبت نشده' }}</span>
+                        <a href="{{ route('admin.sources.volume', [$target->id, $v['id']]) }}" target="_blank" class="text-cinnabar hover:underline">ویرایشگر جلد ↗</a></span></label>
+                @endforeach
+            </div>
+            <div class="space-y-1.5 p-3 bg-paper border border-line">
+                <span class="block font-bold text-ink">فهرست‌نگار:</span>
+                @if($relationTarget)
+                    <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="target" @checked($vcChoice === 'target') class="accent-cinnabar"> «<a href="{{ route('catalogers.show', $relationTarget->getRouteKey()) }}" target="_blank" class="text-cinnabar hover:underline">{{ $relationTarget->name }}</a>» (انتخاب پیشنهاددهنده)</label>
+                @endif
+                <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="manual" @checked($vcChoice === 'manual') class="accent-cinnabar"> فهرست‌نگار با شناسه‌ی <input type="number" name="cataloger_id" value="{{ old('cataloger_id') }}" class="admin-field w-28 tabular-nums"></label>
+                <label class="flex items-center gap-2"><input type="radio" name="cataloger_choice" value="new" @checked($vcChoice === 'new') class="accent-cinnabar"> فهرست‌نگار تازه (در فهارس نیست):</label>
+                <input type="text" name="cataloger_name" value="{{ old('cataloger_name', $suggestion->payload['name'] ?? '') }}" placeholder="نام فهرست‌نگار" class="{{ $vcInput }}">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="block space-y-1">
+                    <span class="block font-bold text-ink">نقش:</span>
+                    <select name="role" class="{{ $vcInput }}">
+                        @foreach(\App\Suggestions\VolumeCatalogers::ROLES as $key => $label)<option value="{{ $key }}" @selected($vcRole === $key)>{{ $label }}</option>@endforeach
+                    </select>
+                </label>
+                <div class="space-y-1">
+                    <span class="block font-bold text-ink">با فهرست‌نگاران کنونی:</span>
+                    <label class="flex items-center gap-2"><input type="radio" name="mode" value="replace" @checked($vcMode === 'replace') class="accent-cinnabar"> جای همان نقش را بگیرد</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="mode" value="add" @checked($vcMode === 'add') class="accent-cinnabar"> کنار آن‌ها بیاید</label>
+                </div>
+            </div>
+            <input type="text" name="public_note" value="{{ old('public_note') }}" placeholder="یادداشت عمومی (پیشنهاددهنده می‌بیند؛ اختیاری)" class="{{ $vcInput }}">
+            <input type="text" name="admin_notes" value="{{ old('admin_notes') }}" placeholder="یادداشت داخلی (فقط داوران)" class="{{ $vcInput }}">
+            <button type="submit" onclick="return confirm('{{ $relation['action'] }} انجام شود؟')"
+                class="w-full py-2.5 px-4 rounded-sm bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition cursor-pointer">{{ $relation['action'] }}</button>
+        </form>
     @elseif($apply === 'split' && $target)
         @php
             $splitInput = 'admin-field w-full';

@@ -7586,6 +7586,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** [OtherCitationsTest](../tests/Feature/OtherCitationsTest.php).
 - **تمرین (`fahares_prod` محلی):** ۲٬۳۵۷ نسخه و ۲٬۴۲۸ ردیف. ۲٬۰۸۰ ردیف `source_volume_id` دارد. اجرای دوم همان شمار را نوشت.
 
+**اجرا روی پروداکشن (۱۵ آبان ۱۴۰۵):**
+- پشتیبان پیش از اجرا: `backups/step13/step14_42_fankha_citation_more_before.json` (`[]`).
+- دستور: `scripts/dev/prod-run jolly-tharp -- 'cd /app && php -d memory_limit=2G artisan fahares:sync-other-citations --apply --show=0'`.
+- خروجی: «Written: 2428 entries, 2080 at a volume, 0 stale removed».
+- وارسی: ۲٬۴۲۸ ردیف در ۲٬۳۵۷ نسخه، که ۲٬۰۸۰ ردیف `source_volume_id` دارند.
+
 ### گام ۱۴.۴۳: `library_duplicates_step14_43.json`
 - **داده:** [library_duplicates_step14_43.json](../database/data/library_duplicates_step14_43.json):
   - `km-aalamh-tbatbayy-331` در `km-aalamh-tbatbayy-km-mktbh-280` ادغام می‌شود.
@@ -7616,6 +7622,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `sources:merge-split --only --group=catalogue-a524cf28e464,catalogue-c225f7337b0a --group=catalogue-27335f850012,catalogue-77a075f39d37` با `--dry-run`، سپس اجرای واقعی. کد رکورد جلددار سنا روی پروداکشن `catalogue-a524cf28e464` است و روی نسخه‌ی محلی `catalogue-5f84ccb88fc2`. این دستور پشتیبان و برگرداندن ندارد، پس پیش از اجرا ردیف‌های `sources`، `source_entries` و `field_evidence` این چهار منبع جدا پشتیبان گرفته شوند.
   3. `catalogs:link-volumes --dry-run`، سپس اجرای واقعی، بی `| tail` (یا با `set -o pipefail`).
 - **وارسی:** شمار مدخل‌هایی که `source_id`شان با منبع جلدشان (`source_volumes.source_id`) یکی نیست، باید صفر باشد. پیش از کار روی پروداکشن ۳٬۳۳۶ بود: سنا ۳٬۲۷۴ و دهگان ۶۲.
+- **اجرای پروداکشن (۱۵ آبان ۱۴۰۵، `prod-run` با نام جلسه‌ی `sort-out-the-two-sources`):**
+  1. **ادغام دهگان:** پشتیبان خود دستور در `../fahares-sources/backups/step13/step14.44_dehgan_fold_prod_before_20261105.json` است. ۶۳ نسخه منتقل شدند: دفتر اول ۴۳۰ و دفتر دوم ۲۸۵ نسخه.
+  2. **`merge-split`:** پشتیبان دستی در `step14.44_merge_split_prod_before_20261105.json` است (۴ ردیف `sources`، ۳٬۹۸۹ ردیف `source_entries` و ۴ ردیف `source_volumes`). نتیجه: منبع ۱۰۰۱۹۵ (سنا) ۳٬۲۷۴ مدخل دارد و `merged_codes = [catalogue-c225f7337b0a]`. منبع ۱۰۰۱۰۴ (دهگان) ۷۱۵ مدخل دارد و `merged_codes = [catalogue-dc258caef1e6, catalogue-77a075f39d37]`. شمار ناهمخوانی صفر است.
+  3. **`link-volumes`:** پشتیبان در `step14.44_link_volumes_prod_before_20261105.json` است: ۳۲٬۴۳۹ نسخه‌ی بی‌فهرست‌نگار، ۳۲٬۳۴۱ مدخل `fankha_citation` آن‌ها و ۵۹۱ ردیف `catalog_volume_cataloger`. خروجی: «Before: 32439 without cataloger, 28193 without volume» و «After: 32398 without cataloger, 28152 without volume». ۱۵ پیوند «left to» گزارش شدند و هیچ نشانی ناپیدا نبود. شمار `catalog_volumes` ۴۳۸ ماند و جلد تازه‌ای ساخته نشد.
+- **انتقال پشتیبان:** `scp` به کانتینر برنامه کار نمی‌کند («Connection closed»). فایل با `ssh fahares-app "cat file" > local` بیرون آورده شد.
 
 ### گام ۱۴.۴۵: جلد `kalam-turath`، `fuqaha`، `catalogue-9dc991b94e6e` و `catalogue-cddd31891851`
 - منبع‌ها: `kalam-turath` از `https://fa.wikinoor.ir/w/images/NUR23986J1.jpg` (JPEG ۶۹۹×۱۰۰۸، جزء اول). `fuqaha` از `https://noorlib.ir/file/book/cover/NrGxzMsAMr2HLLhovbr4rTNaAcuaxPelGDAtnDLeAkE` (webp ۴۱۸×۶۳۰). `catalogue-9dc991b94e6e` از `https://noorlib.ir/file/book/cover/G4vmpcB9L19zIWl_DxuUL_cvX7YGaY6ZeJg_etKGEUs` (webp ۴۰۷×۶۳۰).
@@ -7755,3 +7766,327 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - همه در انتظار داوری‌اند.
 - **آزمون:** `NoorReferenceBooksTest::test_kashf_al_hujub_and_mu_allafat_al_zaydiyya_entries_are_numbered_and_found_by_title_and_author`، با فیکسچرهای `kashf-hujub-v01-p263` (شش «رسالة في الرجعة» که مؤلف از هم جدایشان می‌کند) و `zaydiyya-v01-p245`.
 - **پروداکشن:** انتشار کد لازم است، چون دو منبع تازه در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند، همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+### گام ۱۴.۴۹: فهرست‌نگار و چاپ `catalogue-b89f67efe34f` (عبدالعظیم) و `catalogue-41322fd8f0f4` (نواب)
+- **فرمان:** [FixAbdolazimNavabCataloguesCommand](../app/Console/Commands/FixAbdolazimNavabCataloguesCommand.php) با نام `catalogs:fix-abdolazim-navab` و گزینه‌ی `--dry-run`.
+  - منبع‌ها را با کد پیدا می‌کند و فهرست‌نگاران را با شناسه‌ی MTIF (حافظیان ۵۶۹۶۵، صدرائی ۳۷۱۶۶، فاضل ۳۷۲۶۳، بینش ۳۷۲۷۸).
+  - اگر جلدی جز فهرست‌نگار نادرست یا درست فهرست‌نگار دیگری داشته باشد، اجرا نمی‌شود.
+- **مأخذ:** `fahares-corpus/catalogs/fankha_complete_catalogs_table.md`، ردیف‌های ۲۸۲، ۲۸۳ و ۵۲۷. ردیف ۵۲۶ («دو کتابخانه مشهد»، ص ۴۳۹–۵۶۲) نسخه‌ی دیگری است و یک نسخه آن را جدا با «دو کتابخانه مشهد: ف» ارجاع داده است.
+- **ارجاع‌های نسخه‌ها:**
+  - **عبدالعظیم:** ۷۲۵ ارجاع به جلد ۱، که بیشترین صفحه‌شان ۴۴۳ است. ۳۰۹ ارجاع به جلد ۲، که ۳۰۸ تایشان در ص ۴۴۹–۶۷۷ اند.
+  - **نواب:** ۹۸۱ ارجاع تک‌جلدی، ص ۹–۵۴۶.
+- **تغییرها:**
+  - **`catalog_volumes` و `source_volumes`:**
+
+    | جلد | ناشر و سال | صفحه‌ها |
+    |---|---|---|
+    | 524 | دار الحدیث ۱۳۸۲ | `pages_count` ۴۴۳ |
+    | 525 | دار الحدیث ۱۳۸۲ | `page_first` ۴۴۹، `page_last` ۶۷۸ |
+    | 493 | عروج اندیشه ۱۳۸۸ | `pages_count` ۶۳۹؛ عنوان «فهرست نسخه‌های خطی مدرسه علمیه عالی نواب» |
+
+  - **`sources`:** ناشر و سال هر دو منبع، و عنوان منبع نواب.
+  - **`metadata.group` منبع نواب:** کلید گروهِ عنوان تازه است (`SourceEntrySync::groupKey`)، تا `sources:backfill` همان منبع را با همان کد، که نام فایل جلدش است، دوباره پیدا کند.
+  - **`catalog_volume_cataloger`:** هر جلد فقط فهرست‌نگار درست را با نقش `cataloger` دارد.
+  - **`manuscripts.cataloger_id`:** نسخه‌های هر جلد از فهرست‌نگار نادرست به فهرست‌نگار درست رفتند.
+  - **شمارش:** `Cataloger::recount` برای این چهار نفر.
+- **تمرین روی `fahares_prod` محلی (کپی ۱۲ آبان):**
+
+  | فهرست‌نگار | جلدها | نسخه‌ها |
+  |---|---|---|
+  | حافظیان | ۲۶ | ۲۱٬۳۳۶ |
+  | صدرائی | ۲۴ | ۲۴٬۶۲۸ |
+  | فاضل | ۱۸ | ۱۰٬۹۶۶ |
+  | بینش | ۲ | ۵۶۹ |
+
+  اجرای دوم همین شمارها را داد.
+- **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
+- **آزمون:** `FixAbdolazimNavabCataloguesTest`.
+- **اجرای پروداکشن (۱۶ آبان):** پس از انتشار `ddf8ef5`، با نام `cover-kalam-turath` و از راه `prod-run`.
+  - **پشتیبان:** [`step14.49_abdolazim_navab_prod_before_20261106_0536.json`](../../fahares-sources/backups/step13/step14.49_abdolazim_navab_prod_before_20261106_0536.json) (۱۲۲ کیلوبایت، md5 `554462d2e8dd1048df8d04ca38d1e608`). همان‌جا با `tinker` گرفته شد و مستقیم به این سیستم آمد. ردیف‌های دو منبع، سه جلد (هر دو جدول)، پیوند فهرست‌نگارانشان، `id, catalog_volume_id, cataloger_id` ۲٬۰۸۱ نسخه، و شمارهای چهار فهرست‌نگار را دارد.
+  - **dry-run:** خط‌به‌خط برابر تمرین بود (۷۴۷ + ۳۱۴ و ۱٬۰۲۰ نسخه).
+  - **شمارها پیش و پس از اجرا:**
+
+    | فهرست‌نگار | جلدها | نسخه‌ها |
+    |---|---|---|
+    | حافظیان | ۲۴ → ۲۶ | ۲۰٬۲۸۱ → ۲۱٬۳۴۲ |
+    | صدرائی | ۲۶ → ۲۴ | ۲۵٬۷۰۸ → ۲۴٬۶۴۷ |
+    | فاضل | ۱۷ → ۱۸ | ۹٬۹۴۶ → ۱۰٬۹۶۶ |
+    | بینش | ۳ → ۲ | ۱٬۵۸۹ → ۵۶۹ |
+
+  - **پس از اجرا:** هر سه جلد فقط یک فهرست‌نگار دارند. عنوان، ناشر و سال منبع‌ها درست شد. `/images/sources/covers/catalogue-41322fd8f0f4.webp` با کد ۲۰۰ پاسخ می‌دهد.
+
+### گام ۱۴.۵۰: پنل منابع، `SourceMerger` و `VolumeEditor`
+- **کلاس‌ها:**
+  - `App\Sources\SourceMerger`: منطق `sources:merge-split` از دستور به این کلاس رفت. `plan()` جلدها را جفت می‌کند، `counts()` پیش‌نمایش را می‌دهد و `apply()` ادغام می‌کند. دستور و پنل هر دو از آن استفاده می‌کنند. تابع‌های ایستای دستور (`foldVolume`، `baseTitle`، `volumeNumber`…) برای فراخواننده‌های دیگر به همین کلاس ارجاع می‌دهند.
+  - `snapshot()` پیش از `apply()` هر ردیفی را که ممکن است عوض یا حذف شود نگه می‌دارد. ردیف‌های حذف‌شدنی یا شماره‌گرفتنی کامل نگه داشته می‌شوند، و از ردیف‌های پرشمار فقط ستون‌هایی که نوشته می‌شوند. این ردیف‌ها از این جدول‌هایند: `sources`، `source_volumes`، `catalog_volumes`، `catalog_volume_cataloger`، `catalog_volume_parts` و فهرست‌نگارانشان، `source_entries`، `source_items` (و مدخل چاپی حذف‌شده با `source_item_refs` آن)، `source_pages` جلد تکراری، `field_evidence`، `manuscripts` و `manuscript_catalog_references`.
+  - `undo()` همه را برمی‌گرداند و شمارهای جلد، بخش و فهرست‌نگار را دوباره می‌گیرد.
+  - **ذخیره‌ی snapshot:** در `old_values.snapshot` لاگ `merge` با `auditable_type = Source`، فشرده با gzip و base64. فایل نیست، چون `storage` با هر استقرار پاک می‌شود. صفحه‌ی لاگ ممیزی این کلید را نشان نمی‌دهد. در ادغام «عکسی مرعشی» حجمش ۳۴ کیلوبایت شد.
+  - **سقف:** پنل ادغامی را که بیش از ۵۰٬۰۰۰ مدخل جابه‌جا کند نمی‌پذیرد (`SourceMerger::PANEL_LIMIT`). چنین ادغامی با دستور انجام می‌شود.
+  - `App\Sources\VolumeEditor::run()` تغییر جلد یا بخش را اجرا می‌کند و سپس همان کارهای `catalogs:import-volume-parts` را: `CatalogVolumePart::assign` روی نسخه‌های جلد، `CatalogVolumePart::recount` و `Cataloger::recount`. اگر جلد بخش نداشته باشد و نخستین فهرست‌نگارش عوض شود، `cataloger_id` نسخه‌هایی که فهرست‌نگار پیشین را داشتند هم عوض می‌شود. با `dry` همین کار درون یک تراکنش انجام و برگردانده می‌شود؛ پیش‌نمایش همین است.
+- **`foldVolume`:** بخش‌های جلد تکراری، پس از بخش‌های جلد ماندنی، به جلد ماندنی می‌روند. پیش‌تر با حذف جلد cascade پاک می‌شدند. پس از ادغام، `assign` بخش نسخه‌های جلد ماندنی را دوباره می‌گیرد.
+- **مسیرها:**
+  - `can:sources.edit`: `admin/sources`، `admin/sources/{source}` (GET و PUT)، `admin/sources/{source}/volumes/{volume}` (GET و PUT)، و `…/parts` (POST، PUT و DELETE).
+  - `can:sources.merge`: `admin/sources/merge` (GET و POST) و `admin/sources/merges/{log}/undo`. برگرداندن از `admin/audit-logs/{log}/rollback` به `SourceMergeController::undoLog` می‌رسد.
+- **لاگ ممیزی:** ویرایش منبع با `update` و فیلدهای تغییرکرده ثبت می‌شود. جلد با `CatalogVolume`، و بخش با `CatalogVolumePart` (`create`، `update`، `remove`) و اثرش بر نسخه‌ها (`new_values.effect`).
+- **صفحه‌ی جلد:** فهرست ۳۶۹ کتابخانه و ۱۰۶ فهرست‌نگار یک بار به‌صورت JSON می‌آید. هر select وقتی فرمش باز یا فوکوس می‌شود پر می‌شود. پیش از این تغییر، جلد ۵ «نشریه» با ۵۷ بخش ۳٫۸ مگابایت HTML داشت و پس از آن ۴۰۰ کیلوبایت دارد.
+- **آزمون:** `tests/Feature/Admin/AdminSourcesTest.php`، با ۷ آزمون، برای دسترسی، فهرست و فیلترها، ویرایش و برگرداندن، جلد، بخش‌ها و ادغام و برگرداندن آن.
+
+### گام ۱۴.۵۱: `fankha_v2_boundaries.py` و بازسازی ۷۵ نسخه
+- **اسکریپت تازه در fahares-corpus:** `scripts/fankha_v2_boundaries.py --out FILE --ids FILE`.
+  - جفت‌ها را مانند `fankha_v2_db_compare.py` می‌سازد. جفتی را که با شماره‌ی نسخه یا پیشوند متن جفت شده، روی متن بی‌فاصله می‌سنجد: پیشوند و پسوند مشترک را کنار می‌گذارد و به آنچه می‌ماند نگاه می‌کند.
+  - اختلاف تا ۱۲ نویسه ناچیز شمرده می‌شود.
+  - حکم هر جفت از جای تکه‌ی متفاوت می‌آید: اگر تکه‌ی اضافه‌ی سایت از آنِ نسخه‌ی دیگری در v2 است، `site_glued_v2_right`. اگر تکه‌ی اضافه‌ی v2 در نسخه‌ی دیگری از سایت هست، `v2_glued_site_right`. اگر v2 پایانی دارد که در هیچ جای سایت نیست، `site_lost_end_v2_has`. حکم‌های دیگر: `gemini` و `needs_page_check`.
+  - شمارها: ۵۳، ۸، ۲۰، ۲ و ۳۰.
+- **تغییر `fankha_v2_rebuild_export.py`:** `contents_scope` و `copy_description` به `editorial_notes` می‌روند و نوعشان در `editorial_note_types` ثبت می‌شود. `extra_incipits` فهرست `incipits` را می‌سازد. پیش از این، توصیف نسخه حذف می‌شد.
+- **فایل تصمیم:** `database/data/fankha_rebuild_copies_step14_51.json` با ۷۵ رکورد.
+- **تغییر `fahares:rebuild-copies`:** متد تازه‌ی `relinkVolumes()` نسخه‌ای را که ارجاعش عوض شده و جلدش خالی شده، با `SourceEntrySync::seriesVolumes()` و `volumeOf()` گام ۱۴.۴۲ به جلد می‌برد. `cataloger_id` بیشترینِ نسخه‌های همان جلد است. این کار پیش از `SourceEntrySync::syncIds` انجام می‌شود تا مدخل منبع هم جلد بگیرد.
+- **ترتیب اجرا:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_51.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
+- **تمرین روی fahares_prod:**
+  - ۷۵ نسخه نوشته شد و ۴۳ نسخه دوباره جلد گرفتند. خروجی داده‌های مشتق: dates=37، extents=51، lines=54.
+  - `rebuild-scripts` خط ۱۹ نسخه را عوض کرد.
+- **آزمون:** `OtherCitationsTest::test_a_rebuilt_copy_whose_citation_changed_goes_to_the_volume_its_library_cites`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** هر سه فرمان با `scripts/dev/prod-run --wait jolly-tharp` اجرا شدند.
+  - اجرای نخست `rebuild-copies` از ۰۶:۱۳ تا ۰۸:۲۷ ماند و ssh با exit 255 قطع شد. تراکنش چیزی ننوشته بود.
+  - اجرای دوم (۰۸:۲۹:۰۶ تا ۰۸:۲۹:۳۲): `Rebuilding 75 copies`، `dates=37, extents=51, lines=54, pointers_linked=2` و `63 copies relinked`.
+  - `catalogs:link-volumes`: پس از اجرا ۲۸٬۱۱۸ نسخه بی‌جلد و ۳۲٬۳۶۱ نسخه بی‌فهرست‌نگار ماندند.
+  - `fahares:rebuild-scripts`: ۲۹ نسخه در گام ۱. «Scripts now: 19».
+  - وارسی با tinker: raw_text برابر v2 در ۷۵ از ۷۵ نسخه، ۷۵ ردیف audit، و جلد برای ۶۷ از ۷۵ نسخه.
+
+### گام ۱۴.۵۲: نوع `source` در `SuggestionRegistry`
+- **ثبت:** `TYPES['source'] = Source::class` و `sourceFields()`: `title` (`required`)، `compiler`، `publisher`، `publication_year` (همه `text`) و `description` (`textarea`). همه ستون ساده‌ی `sources`اند و `SuggestionApplier` آن‌ها را مستقیم می‌نویسد. فهرست‌نگاران هر جلد (`cataloger_volume`) رکورد پیوسته‌اند و فیلد پیشنهاد نیستند.
+- **پیرامون:** `describe()` با نشانی `sources.show` (بی کد: `sources.index`)، `typeLabel()` «منبع»، `NoteTypes::BY_RECORD['source']` = `link`، `observation`، `study`. `RELATIONS` برای منبع کلیدی ندارد.
+- **صفحه:** `sources/show.blade.php` اکنون `x-suggest.toggle`، `x-suggest.field` برای پنج فیلد، `x-suggest.readings`، `x-suggest.notes` و `x-suggest.desk` دارد. `AppServiceProvider` قرائت‌ها و یادداشت‌های `sources.show` را هم به نما می‌دهد.
+- **تبدیل:** `Admin\SuggestionController::recordId('source', $ref)` کد را از `/sources/{code}` می‌خواند (کد ادغام‌شده با `Source::mergedInto`)، یا کد یا شناسه‌ی خالی را می‌پذیرد. `SuggestionController::lookup` منبع را با عنوان، نام کوتاه یا کد می‌جوید.
+- **ابزار ساختاری:** مسیرهای `admin.structure.*` و فهرست نوع‌های `admin/structure` اکنون از کلیدهای `RELATIONS` می‌آیند، نه `TYPES`. `structureUrl` میز پیشنهاد برای نوعی که رابطه ندارد خالی است.
+- **آزمون:** `tests/Feature/SourceSuggestionTest.php` (صفحه، ثبت و تأیید `compiler`، یادداشت، تبدیل پیشنهادی از کتابخانه با پیوند منبع). `ConvertSuggestionTest` منبع را هم در هر نوع رکورد می‌آزماید.
+
+### گام ۱۴.۵۳: بخش دوم دهخدا و ترتیب بخش‌ها در `catalogs:import-volume-parts`
+- **داده:** در `database/data/volume_parts_nashriyeh.json`، بخش `{"daftar": 3, "library": "thran-lght-namh-dhkhda-27", "pages": [1, 59], "key": "fankha-229-pages-1-59"}` در جای ۹ نشست، پیش از «ملی» (ردیف ۱۷۹). کلید این بخش `key` است نه `fankha_row`، چون `partKey` ردیف فنخا را مقدم می‌گیرد و دو بخش با یک ردیف یکی شمرده می‌شدند.
+- **`ImportVolumePartsCommand`:**
+  - `partsToReorder()`: بخش‌های ساخته‌شده‌ای را می‌شمارد که `sort`شان با جایشان در فایل یکی نیست، و «parts to put in the file's order: N» گزارش می‌کند. این شمار در شرط «Nothing to do» هم آمده است.
+  - `writeParts()`: `sort` بخش موجود را به جایش در فایل برمی‌گرداند.
+  - پشتیبان کلید تازه‌ی `parts` (`id` و `sort`) را دارد و `revert` آن را با `restoreColumns` برمی‌گرداند. پشتیبان‌های پیش از این گام این کلید را ندارند.
+- **سنجش پیش از کار (نسخه‌ی محلی):** ۵۳۲ نسخه‌ی دهخدا همه روی بخش ۷۳۱ (ص ۳۸۸–۴۲۶) بودند. `page_start` ارجاع ۳۳۹ تای آن‌ها ۳ تا ۵۹ و ۱۹۳ تای دیگر ۳۸۸ تا ۴۲۶ بود.
+- **اجرای پروداکشن:**
+  1. `catalogs:import-volume-parts --data=database/data/volume_parts_nashriyeh.json --dry-run`. انتظار: «parts to make: 1 of 133» و «parts to put in the file's order: 123».
+  2. همان دستور بی `--dry-run`. دستور خودش پشتیبان می‌گیرد.
+- **وارسی:** کتابخانه‌ی `thran-lght-namh-dhkhda-27` باید دو بخش در دفتر ۳ داشته باشد: ص ۱–۵۹ با ۳۳۹ نسخه و ص ۳۸۸–۴۲۶ با ۱۹۳ نسخه.
+- **آزمون:** `test_a_library_of_two_parts_in_one_volume_and_a_part_put_in_between_keep_the_files_order`.
+- **اجرای انجام‌شده (۱۶ آبان ۱۴۰۵):**
+  - **نخستین اجرای واقعی (۰۶:۱۱):** با SSH exit 255 قطع شد. هیچ چیز نوشته نشده بود: نه پشتیبانی ساخته شده بود و نه بخشی با کلید `fankha-229-pages-1-59`.
+  - **اجرای دوباره:** exit 0 بود و خروجی‌اش «parts to make: 1 of 133»، «parts to put in the file's order: 123» و «0 copies tied anew» بود.
+  - **پشتیبان:**
+    - در کانتینر: `catalogs-import-volume-parts-20261106_045828.json`.
+    - رونوشت: `../fahares-sources/backups/step13/step14.53_dehkhoda_parts_prod_before_20261106.json` (۳٫۶ MB، ۱۳۲ ردیف `parts`).
+  - **وارسی:** جلد ۵۰۷، کتابخانه‌ی ۲۷:
+    - بخش ۲۱۷ (`sort` ۹، ص ۱–۵۹) ۳۳۹ نسخه دارد.
+    - بخش ۲۶ (`sort` ۱۷، ص ۳۸۸–۴۲۶) ۱۹۳ نسخه دارد.
+    - dry-run دوم «Nothing to do» داد.
+
+### گام ۱۴.۵۴: جلد `catalogue-508df9df7cd6` (جلیلی) و `catalogue-b67f83c0af8b` (مراغه)
+- **مراغه:** از نورلیب، `file/book/cover/AYgeaiY4MFLaRIpyosyOWY3hEoBEMiz2bUeVvZJO47c` (۴۳۱×۶۳۰).
+- **جلیلی:** از mtif، `thumbnail.php?table=pic&full_size=1&id=4349` (۳۵۲×۵۰۰)، تصویر کتاب `mtif.org/book/737`.
+- **ساخت فایل‌ها:** همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌شان در `../fahares-sources/web-covers/manifest.json` ثبت شد (۷۱ مورد).
+- **فهرست‌نگار جلیلی:**
+  - **در سایت:** جلد ۵۴۰ به «سید محمدعلی روضاتی» (MTIF ۳۷۳۰۹) پیوند دارد و ۶۴۹ نسخه‌اش هم به او.
+  - **در مأخذها:** mtif و فنخا (ردیف ۴۶۴) نگارنده را «محمد وفادار مرادی» (MTIF ۳۷۴۹۰) می‌دانند.
+  - **ارجاع‌ها:** شماره‌ی صفحه‌ی `[ف: N]` در ۳۶۸ نسخه آمده است و بیشینه‌اش ۳۶۵ است، که با کتاب ۳۷۲ صفحه‌ای جور است.
+  - **وضعیت:** در این گام اصلاح نشد.
+
+### گام ۱۴.۵۵: `catalogs:fix-jalili` و جلد `catalogue-f72ec3ba3fbc`
+- **فرمان:** [FixJaliliCatalogueCommand](../app/Console/Commands/FixJaliliCatalogueCommand.php) زیرکلاس `FixAbdolazimNavabCataloguesCommand` است و فقط `FIXES` خودش را دارد. فرمان پایه حالا فهرست‌نگاران را از `static::FIXES` می‌گیرد.
+  - **از:** روضاتی (MTIF ۳۷۳۰۹).
+  - **به:** وفادار مرادی (MTIF ۳۷۴۹۰).
+  - **جلد ۵۴۰:** عنوان، ناشر، سال ۱۳۸۳ و `pages_count` ۳۷۲.
+- **تمرین روی `fahares_prod` محلی:** ۶۴۹ نسخه جابه‌جا شد. پس از اجرا روضاتی ۲ جلد و ۳۶۳ نسخه دارد و وفادار مرادی ۵ جلد و ۶٬۴۳۳ نسخه.
+- **جلد فرهنگ و هنر:**
+  - **منشأ:** عکس ۸۰۰×۸۰۰ از `static.esam.ir/sell/itemImages/2221693/34728592_1786379141_860.jpg`.
+  - **برش:** تبدیل `PERSPECTIVE` از گوشه‌های (۲۱۹،۸۷)، (۶۹۳،۸۳)، (۶۷۹،۷۱۳) و (۲۴۴،۷۰۹) به ۴۶۰×۶۳۰، سپس WEBP با کیفیت ۸۲.
+  - **سابقه:** در manifest ثبت شد (۷۲ مورد).
+- **فهرست‌نگار فرهنگ و هنر:**
+  - **در سایت:** جلد ۴۹۲ با ۱۶۴ نسخه به «تقی بینش» داده شده است.
+  - **ارجاع‌ها:** ۹۳ ارجاع `[ف: N]` دارد، در بازه‌ی ص ۶–۱۰۹.
+  - **در فنخا:** ردیف ۵۲۲ کتاب شاکری است (۱۳۴۸، ۱۲۷ ص). ردیف ۵۴۰ سهم «کتابخانه فرهنگ» در «چهار کتابخانه مشهد» است (۱۳۵۱، ص ۴۵–۵۵).
+  - **وضعیت:** اصلاح نشد.
+- **آزمون:** `FixJaliliCatalogueTest`.
+- **اجرای پروداکشن (۱۶ آبان ۱۴۰۵، پس از `51b9ac9`):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14.55-56_jalili_farhang_prod_before_20261106_0828.json`، md5 `550e4bf6790803fe17487fd266b1bec9`. این پشتیبان منبع و جلد هر دو فهرست، پیوند فهرست‌نگارشان، ۸۱۳ نسخه (`id`، `catalog_volume_id`، `cataloger_id`) و شمارش‌های بینش، روضاتی و وفادار مرادی را دارد. پشتیبان ساعت ۰۶:۱۴ کنار آن ماند، چون در فاصله‌ی دو پشتیبان `fahares:rebuild-copies` نشست دیگری اجرا شد. شمارش‌ها در هر دو یکی است.
+  - **پیش از اجرا:** روضاتی ۳ جلد و ۱٬۰۱۲ نسخه، وفادار مرادی ۴ جلد و ۵٬۷۸۴ نسخه.
+  - **پس از اجرا:** روضاتی ۲ جلد و ۳۶۳ نسخه، وفادار مرادی ۵ جلد و ۶٬۴۳۳ نسخه. هر ۶۴۹ نسخه‌ی جلد ۵۴۰ و پیوند جلد با فهرست‌نگار ۶۰ (وفادار مرادی) است. `metadata.group` منبع کلید عنوان تازه است.
+
+### گام ۱۴.۵۶: `catalogs:fix-farhang-honar`
+- **فرمان:** [FixFarhangHonarCatalogueCommand](../app/Console/Commands/FixFarhangHonarCatalogueCommand.php) زیرکلاس `FixAbdolazimNavabCataloguesCommand` است.
+  - **ثابت تازه‌ی فرمان پایه:** `NEW_CATALOGERS`، از شناسه‌ی MTIF به ویژگی‌های فهرست‌نگار. اگر فهرست‌نگار درست رکورد نداشته باشد، dry-run آن را «ساخته می‌شود» گزارش می‌کند و اجرای اصلی آن را درون همان تراکنش می‌سازد.
+- **شاکری در mtif:** رکورد شخص ۳۷۲۴۸ در `../fahares-sources/mtif/mtif_db.sql.gz` با «عنوان: رمضانعلی شاکری».
+- **رکورد تازه:**
+  - نام «رمضانعلی شاکری»، slug `رمضانعلی-شاکری`.
+  - شرح کوتاهی از همین فهرست، و `metadata.major_catalogs`.
+- **جلد ۴۹۲:**
+  - عنوان «فهرست کتب خطی کتابخانه عمومی فرهنگ و هنر مشهد».
+  - ناشر «فرهنگ و هنر خراسان»، سال ۱۳۴۸، `pages_count` ۱۲۷. این‌ها از ردیف ۵۲۲ فنخا و روی جلد گرفته شده‌اند.
+  - `metadata.group` منبع به کلید عنوان تازه تغییر کرد.
+- **تمرین روی `fahares_prod` محلی:**
+  - ۱۶۴ نسخه جابه‌جا شد.
+  - پس از اجرا بینش ۱ جلد و ۴۰۵ نسخه دارد و شاکری ۱ جلد و ۱۶۴ نسخه.
+- **آزمون:** `FixFarhangHonarCatalogueTest`.
+- **اجرای پروداکشن (۱۶ آبان ۱۴۰۵، پس از `51b9ac9`، با پشتیبان گام ۱۴.۵۵):**
+  - **پیش از اجرا:** بینش ۲ جلد و ۵۶۹ نسخه. شاکری رکورد نداشت.
+  - **پس از اجرا:** شاکری با شناسه‌ی ۱۵۰ ساخته شد. بینش ۱ جلد و ۴۰۵ نسخه دارد و شاکری ۱ جلد و ۱۶۴ نسخه. هر ۱۶۴ نسخه‌ی جلد ۴۹۲ و پیوند جلد با فهرست‌نگار ۱۵۰ است.
+  - **صفحه:** `/catalogers/150-رمضانعلی-شاکری` درون کانتینر ۲۰۰ داد و فهرست فرهنگ و هنر را نشان می‌دهد.
+
+### گام ۱۴.۵۷: `source_citation_forms`، `CitationForms` و `CitationFormEditor`
+- **جدول:** `source_citation_forms` با ستون‌های `cited_source_id`، `citing_source_id` (تهی‌پذیر)، `context` (`bibliography` یا `page_text`)، `names`، `regex`، `options` (`volumes`، `unit`، `pairs_after_name`، `series_volumes`، `other_edition`)، `notes` و `examples`. migration: `2026_11_06_100001_create_source_citation_forms_table`.
+- **`App\Sources\CitationForms::sources($citing = 'fankha', $context = 'bibliography')`:**
+  - همان شکل `config('bibliography.sources')` را می‌سازد: کد منبع، `pattern`، `label`، `volumes` و جزئیات نمایش config.
+  - **ترتیب برتری:** «هر منبع» در مآخذ، «هر منبع» در همان context، منبع ارجاع‌دهنده در مآخذ، و منبع ارجاع‌دهنده در همان context.
+  - ترتیب منابع همان ترتیب کلیدهای config است، چون در `sourceAfter` نخستین الگوی جور برنده است.
+  - **منبعی که در config نمایش ندارد** کلید `plain` می‌گیرد، یعنی کرانه‌ی صفحه‌ی جلدها از `source_volumes`. `pageLink` برای آن ارجاع بی‌پیوند با `cite` می‌سازد، و `volumeOfColumn` جلد صفحه‌ی تنها را از کرانه‌ها پیدا می‌کند.
+  - **کش:** `citation-forms:v1`، که با ذخیره‌ی هر الگو و با `SourceMerger::forget` پاک می‌شود.
+  - **جدول خالی:** config همان‌گونه خوانده می‌شود. این برای فاصله‌ی استقرار تا migration است، و برای آزمون‌هایی که config را تغییر می‌دهند.
+  - **ساختن الگو از نام‌ها:** نام‌ها با همان یکسان‌سازی `BibliographyLinks::normalize` یکسان می‌شوند. نام بلندتر پیش از کوتاه‌تر می‌آید، و فاصله `\s?` می‌شود.
+- **`BibliographyLinks`:**
+  - `sources()` از `CitationForms` می‌خواند.
+  - `inProse($text, $citing)` منبع ارجاع‌دهنده را در `self::$citing` نگه می‌دارد، تا `segments` درون آن الگوی همان منبع را بخواند.
+  - regex نام‌ها در `inProse` به ازای هر منبع ارجاع‌دهنده کش می‌شود و `forget()` آن را پاک می‌کند.
+  - `PrintedPage::citing($code)` را `SourcePageController` پیش از نمایش صفحه صدا می‌زند.
+- **`sources:import-citation-forms`:**
+  - برای هر کلید config که منبعش در ثبت منابع هست، یک الگوی «هر منبع» در مآخذ می‌سازد. `pattern` در `regex` می‌رود و قاعده‌ها در `options`.
+  - `--check` منابع و همه‌ی رشته‌های مأخذ را با جدول و (درون تراکنشی برگردانده) بی جدول می‌خواند و مقایسه می‌کند.
+  - `--revert` الگوهایی را که خودش ساخته (`notes` نشان‌دار) پاک می‌کند.
+- **`App\Sources\CitationFormEditor::run()`:**
+  - فقط رشته‌هایی خوانده می‌شوند که الگوی پیشین یا تازه آن‌ها را می‌یابد (`lazyById`). این رشته‌ها پیش و پس از تغییر خوانده می‌شوند. در پیش‌نمایش تغییر درون تراکنش انجام و برگردانده می‌شود.
+  - دسته‌ها: `gained`، `taken` (به تفکیک منبع)، `lost`، `moved`، `other`، `unread`، و ۱۲ نمونه برای هر دسته.
+  - `sync()` مآخذ آثار تغییرکرده را با `App\Jobs\SyncWorkBibliographies` دوباره می‌سازد. فهرست منابع و جلدها یک بار خوانده می‌شود. اگر بیش از ۱٬۵۰۰ اثر باشد، کار در صف و پس از commit انجام می‌شود.
+- **`CitationFormController`:**
+  - ممیزی با `auditable_type = SourceCitationForm`، و `create`، `update` و `remove`.
+  - `old_values` الگوی پیشین است، به‌علاوه‌ی `snapshot`، یعنی ستون‌های مآخذ آن آثار، فشرده با `SourceMerger::pack`.
+  - برگرداندن با `undoLog`، از صفحه‌ی منبع یا از لاگ ممیزی (`AuditLogController::undo`). تا تغییر بعدیِ همان الگو برگردانده نشده، برگرداندن انجام نمی‌شود.
+  - تا `CitationForms::awaitingImport()` خالی نشود، ذخیره‌ی الگو پذیرفته نمی‌شود.
+- **ثبت منبع تازه (`SourceController::store`):**
+  - جلدهای منبع غیرکتابخانه‌ای فقط در `source_volumes` ساخته می‌شوند. شناسه‌های این جدول از یک میلیون آغاز می‌شود و با `catalog_volumes` برخورد نمی‌کند.
+  - جلدهای فهرست کتابخانه در هر دو جدول با یک شناسه ساخته می‌شوند. این کار با `DB::table` انجام می‌شود، تا قلاب `CatalogVolume::saved` منبعی جدا برایشان نسازد.
+  - `metadata.images = false`.
+- **`SourceMerger`:** الگوهای منبع ادغام‌شده، چه ارجاع‌شده و چه ارجاع‌دهنده، به منبع ماندنی می‌روند. الگوی منبع به خودش پاک می‌شود. همه در snapshot ادغام هست و با برگرداندن برمی‌گردد.
+- **آزمون:** `tests/Feature/Admin/CitationFormsTest.php`، با ۵ آزمون. یک بند هم به آزمون ادغام در `AdminSourcesTest` افزوده شد.
+- **اجرای نخست روی پروداکشن و اصلاح (۱۵ آبان ۱۴۰۵):**
+  - پشتیبان: `../fahares-sources/backups/step13/step14.57_citation_forms_prod_before_20261106_1604.json` (جدول خالی بود، md5 `64dfabebb3236501f61cef84d2304f57`).
+  - `sources:import-citation-forms` ۱۵ الگو ساخت. `mushar-authors` در `sources` پروداکشن نیست و در config ماند.
+  - `--check`: «45357 strings read; 23 differ». هر ۲۳ رشته ارجاع به `mushar-authors` بودند.
+  - `--revert` هر ۱۵ الگو را پاک کرد (`Removed 15 forms`). `CitationForms::sources()` دوباره ۱۶ منبع config را داد.
+  - اصلاح در `CitationForms::sources()`: هر منبع config که کدش در `sources` نیست، همان‌گونه که هست و به ترتیب کلیدهای config افزوده می‌شود.
+  - آزمون نخست `CitationFormsTest` رشته‌ی «مؤلفین مشار 89/1» را دارد. آزمون اکنون برابری همه‌ی منابع config را با خروجی `sources()` می‌سنجد.
+- **اجرای دوم (انتشار `93ce92b`):**
+  - پشتیبان: `step14.57_citation_forms_prod_before_20261106_1618.json` (جدول خالی بود، md5 `64dfabebb3236501f61cef84d2304f57`).
+  - `Made 15 forms.`
+  - `--check`: «45357 strings read; 0 differ».
+  - `sources()` ۱۶ منبع می‌دهد و `awaitingImport()` خالی است.
+
+### گام ۱۴.۵۸: رابطه‌ی `volume_cataloger` برای `source`
+- **ثبت:** `RELATIONS['source']`: `cataloger_is` (`replace`) و `cataloger_also`. هر دو `target` = `cataloger`، `target_optional` و `apply` = `volume_cataloger` دارند. گزینه‌های نقش `VolumeCatalogers::ROLES` است، همان `ROLES` فرم جلد پنل.
+  - `SuggestionRegistry::TARGETS` و `targetClass()` هدف رابطه را به `Cataloger` می‌رسانند. `modelClass()` فقط نوع‌های رکورد را می‌شناسد. `FieldSuggestion::relationTarget`، `RelationInput`، `StructureController` و `Contributions::recordLink` اکنون `targetClass()` را به کار می‌برند.
+- **payload:**
+  - **`target_id`:** شناسه‌ی فهرست‌نگار.
+  - **`role`:** نقش شخص در جلد.
+  - **`name`:** نام شخص، برای وقتی که هدفی انتخاب نشده.
+  - **`volume_id`:** شناسه‌ی `source_volumes`، که با `catalog_volumes` یکی است. نبودِ آن یعنی همه‌ی جلدها.
+  - **وارسی:** `RelationInput` نقش را می‌خواهد، و هدف یا نام را. جلد باید از همان منبع باشد (`VolumeCatalogers::hasVolume`).
+- **تأیید:** `Admin\SuggestionController::approveVolumeCataloger` این ورودی‌ها را می‌گیرد: `volume_ids[]`، `cataloger_choice` (`target|manual|new`)، `cataloger_id`، `cataloger_name`، `role` و `mode` (`replace|add`).
+  - `VolumeCatalogers::apply` برای هر جلد ردیف‌های `catalog_volume_cataloger` را درون `VolumeEditor::run` بازنویسی می‌کند. پس `cataloger_id` نسخه‌ها، بخش‌ها و `Cataloger::recount` مانند فرم جلد گام ۱۴.۵۰ دنبال می‌شوند.
+  - یک `AuditLog` با `action` = `volume_people` روی `Source` ثبت می‌شود: `old_values.volumes` و `new_values.volumes` برای هر جلد، با `suggestion_id` و اگر فهرست‌نگار تازه ساخته شده باشد، `created_cataloger_id`.
+  - فهرست‌نگار تازه با `slug` یکتا و `metadata.sources` = «پیشنهاد #N» ساخته می‌شود. مجوز `FOR_APPLY['volume_cataloger']` = `sources.edit` است.
+- **بازگرداندن:** `volume_people` در `AuditLog::UNDOABLE` است. `AuditLogController::undo` آن را به `VolumeCatalogers::undo` می‌سپارد.
+  - اگر فهرست‌نگاران جلد پس از تأیید دوباره تغییر کرده باشند، بازگرداندن نمی‌شود.
+  - رخداد `rollback_volume_people` با `rolled_back_log_id` ثبت می‌شود، و پیشنهاد به `pending` برمی‌گردد.
+- **صفحه و فرم:**
+  - `x-suggest.cataloger` (`data-suggest-cataloger`) کنار فهرست‌نگار هر جلد این را می‌فرستد: `{general, relation: 'cataloger_is', volume}`.
+  - `config.volumes` میز پیشنهاد جلدها را با فهرست‌نگاران کنونی می‌دهد. `suggest-desk.js` `volume_id` و `role_name` را می‌فرستد.
+  - `lookup?type=cataloger` با نام، شهرت، پیوند `/catalogers/{id}` یا شناسه می‌جوید. `recordId('cataloger', …)` هم پیوند `/catalogers/{id}` را می‌خواند.
+- **ابزار ساختاری:** `SuggestionRegistry::STRUCTURE_TYPES` (نسخه، اثر، شخص، کتابخانه) جای کلیدهای `RELATIONS` را در مسیرهای `admin.structure.*`، فهرست نوع‌ها و `structureUrl` گرفت، چون منبع اکنون رابطه دارد ولی ابزار مستقیم ندارد.
+- **آزمون:** `tests/Feature/SourceCatalogerSuggestionTest.php` این‌ها را می‌آزماید:
+  - صفحه و جست‌وجوی فهرست‌نگار
+  - وارسی ورودی
+  - جایگزینی در یک جلد، همراه با نسخه‌ی آن جلد و بازگرداندن
+  - فهرست‌نگار تازه با نام در همه‌ی جلدها
+  - تبدیل پیشنهادی از کتابخانه
+  - `ConvertSuggestionTest` و `StructureToolsTest` برای منبع و `STRUCTURE_TYPES` به‌روز شدند.
+
+### گام ۱۴.۵۹: داوری ۳۰ نسخه‌ی `needs_page_check` و بازسازی آن‌ها
+- **داوری:** هر نسخه با متن سایت، متن v2، نسخه‌های کناری v2 و تصویر صفحه‌ها (`storage/app/public/catalogs/fankha/vNN/pNNNN.webp`، صفحه‌ی نسخه و صفحه‌ی بعد) در سه دسته‌ی ده‌تایی به زیرعامل‌ها سپرده شد.
+  - فایل‌ها: `fahares-corpus/reports/fankha_v2_db_review8/page_check_step14_59/` (`INSTRUCTIONS.md`، `batchN.json`، `resultN.json`، `ids14_59.tsv`). این پوشه در git پیکره نیست.
+  - حکم‌ها: `v2` ۳۰، `site` ۰، `neither` ۰. نسخه‌های ۲۱۴۸۴ و ۱۸۶۴۳۸ دستی هم وارسی شدند.
+  - پایان متن نسخه‌های کناری (۱۶ مورد) در سایت دیده شد، مانند «[ف: 1-43]» در 334260 و «[ف: 10 - 2025]» در 334449.
+- **فایل تصمیم:** `database/data/fankha_rebuild_copies_step14_59.json` با ۳۰ رکورد، ساخته‌ی `fankha_v2_rebuild_export.py --ids ids14_59.tsv`.
+- **تمرین روی fahares_prod:**
+  - `rebuild-copies`: «Rebuilding 30 copies» و «27 copies relinked».
+  - `catalogs:link-volumes`: ۲۸ نسخه از ۳۰ جلد دارند.
+  - `fahares:rebuild-scripts`: ۱۱ نسخه در گام ۱.
+  - اجرای دوم: `already 30`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_rebuild_copies_step14_59.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** هر سه فرمان با `prod-run --wait jolly-tharp` اجرا شدند.
+  - `Rebuilding 30 copies`، `dates=11, extents=13, lines=17` و `27 copies relinked`.
+  - `rebuild-scripts`: ۱۱ نسخه در گام ۱، «Scripts now: 19».
+  - وارسی با tinker: raw_text برابر v2 در ۳۰ از ۳۰ نسخه، ۳۰ ردیف audit، و جلد برای ۲۸ از ۳۰ نسخه.
+
+### گام ۱۴.۶۰: پیشنهاد خالی‌کردن فیلد و `person_action` = `clear`
+- **مقدار کنونی:** `SuggestionRegistry::currentValue` برای `input` = `person`، اگر ستون نام خالی باشد نام `Person` از `id_column` را می‌گیرد. `scribe_name` کلید `autograph_column` = `is_autograph` گرفت؛ با آن مقدار «دستخط مؤلف (نام)» است.
+  - `Admin\SuggestionController::show` اگر `current_value` ذخیره‌شده خالی باشد و پیشنهاد `pending` باشد، `currentValue` امروز را با برچسب «اکنون در پایگاه داده» نشان می‌دهد (`$currentValue`، `$currentIsLive`).
+- **تبدیل:** `convert` ورودی `clear` را می‌گیرد. پیشنهاد تازه `suggested_value` = `''` و `payload.clear` = `true` دارد. `SuggestionRegistry::clearable($field)` فیلد `boolean`، `required` و `can_be_absent` را رد می‌کند؛ فیلدی که `currentValue` آن `null` است هم رد می‌شود. `fieldChoices` کلید `clearable` را به `convert-desk.js` می‌دهد (`clearing`).
+  - `FieldSuggestion::suggested_label` برای `payload.clear` برچسب `SuggestionRegistry::CLEAR_LABEL` است و در فهرست پنل، «پیشنهادهای من» و صفحه‌ی گفت‌وگو به کار می‌رود.
+- **تأیید:** `SuggestionApplier::PERSON_ACTIONS` گزینه‌ی `clear` گرفت: نام و `id_column` تهی و `autograph_column` نادرست می‌شوند. ردیف `manuscript_people` با `SyncsPrimaryContributor` می‌رود. `applied_value` تهی و `resolution.cleared` ثبت می‌شود. پیش‌گزیده‌ی `person_pick` برای `payload.clear` همین `clear` است.
+- **آزمون:** `ConvertSuggestionTest`: تبدیل و تأیید خالی‌کردن کاتب نسخه‌ی دستخط مؤلف و بازگرداندن آن، رد خالی‌کردن فیلد بله/خیر و فیلد خالی، و مقدار کنونی زنده برای پیشنهاد بی‌مقدار ذخیره‌شده.
+
+### گام ۱۴.۶۱: `fankha_v2_leading_author_export.py`
+- **اسکریپت تازه در fahares-corpus** (کامیت `a76b048`): `scripts/fankha_v2_leading_author_export.py --diffs reports/fankha_v2_db_review8/diffs.jsonl --out FILE`.
+  - **ورودی:** ردیف‌های `Work / author_name / filled` که حفاظت‌شده نیستند (۱۵۳ ردیف).
+  - **شرط:** سطر نخستِ غیرخالی `description`، پس از `bare()`، باید با `author.name` یا `author.name_raw` اثر v2 یکی باشد. `bare()` تاریخ («، 282 - 370 قمری»، «(-1216ق)»)، سده («، ق 12 قمری»، «قرن 13 قمری») و آوانگاری در همان سطر را برمی‌دارد. مقایسه بی‌فاصله است. اگر شماره‌ی اثر به اثر دیگری اشاره کند، `by_title_and_author` گام ۱۴.۸ به کار می‌رود.
+  - **خروجی:** `author_name` و `description` بی آن سطر. سطر بعدی هم برداشته می‌شود اگر حرف لاتین دارد و حرف فارسی ندارد. («،» حرف شمرده نمی‌شود: «ozbake'ī ،ab-ol-hasan».) `author` با سده‌ی v2 همراه است و بی سده `null` است.
+  - **بیرون مانده:** «؟»دار ۲۴، دارای مؤلف در سایت ۱۹، بی‌شرح یا بی‌مؤلف در v2 ۸، و شرحی که با نام v2 آغاز نمی‌شود ۶ (16825، 16826، 22983، 26562، 54971، 65462).
+- **فایل تصمیم:** `database/data/fankha_leading_author_step14_61.json` با ۹۶ `work_updates` و `category: leading_author`.
+- **دسته‌بندی ۲۳۵ ردیف مؤلف** (`different`، `filled` و `emptied` بی `fate`): ۵۳ `run_shift`. از روی شماره‌ی نسخه‌ها سنجیده شد: اثر سایت دست‌کم نیمی از نسخه‌های اثرِ کناری v2 با همان مؤلف را دارد. از بقیه، ۲۹ مورد اکنون یکی‌اند و ۱۳۴ مورد `site_empty`.
+- **تمرین روی fahares_prod:** «update 96»، «Derived data of works: works=96, with_dedication=6». پیوند شخص برای ۲ اثر ساخته شد. اجرای دوم «update 0» بود. `fahares:link-autograph-scribes` هم ۱۷ نسخه را به‌روز کرد.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_leading_author_step14_61.json --apply`
+  2. `fahares:link-autograph-scribes`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. خروجی‌ها: «Adding 0 works, fill 0 works and update 96» و «Derived data of works: works=96, with_dedication=6». `link-autograph-scribes`: «Updated 4 autograph manuscripts». وارسی با tinker: `author_name` و `description` برابر فایل در ۹۶ از ۹۶ اثر، ۹۶ ردیف audit با `leading_author`، و `author_id` برای ۲ اثر.
+
+### گام ۱۴.۶۲: `catalogs:fix-copy-catalogers`
+- **فرمان:** [FixCopyCatalogersCommand](../app/Console/Commands/FixCopyCatalogersCommand.php). منبع را با کد و فهرست‌نگار را با شناسه‌ی MTIF می‌یابد.
+  - **`catalogue-7006195fe18b` جلد ۱ (۴۱۲):** فاضل (MTIF ۳۷۲۶۳) ← حجتی (MTIF ۳۷۲۸۲).
+  - **`catalogue-54ef008d33d5` جلد ۱ (۵۰۴):** روضاتی (MTIF ۳۷۳۰۹) ← قاسمی (MTIF ۴۳۴۱۳).
+  - اگر فهرست‌نگار درست به جلد پیوند نداشته باشد، فرمان کاری نمی‌کند. پس از جابه‌جایی، `Cataloger::recount` شمارش‌ها را تازه می‌کند.
+- **روش بررسی:**
+  - برای هر جلد، ردیف‌های فنخا با همان شهر و بیشترین هم‌پوشانی واژه‌های نام کتابخانه و عنوان جسته شد. سپس دیده شد که نام خانوادگی هر فهرست‌نگار جلد در این ردیف‌ها هست یا نه.
+  - ۸ جلد هیچ فهرست‌نگار جورشده‌ای نداشت. همه درست یا تصمیم ثبت‌شده بودند (مثلاً «اوکتایی» آستان قدس، از mtif.org/book/147).
+  - ۶۱ جلد نسخه‌هایی داشتند که به کسی بیرون از جلد داده شده بود. بیشترشان مجموعه‌های چندنویسنده‌اند، مانند «نشریه نسخه‌های خطی»، «تراثنا» و «میراث اسلامی ایران»، که نسخه به نویسنده‌ی مقاله می‌رسد.
+  - دو مورد بالا با ارجاع `[ف: N]` نسخه‌ها و ردیف فنخا تأیید شد.
+- **تمرین روی `fahares_prod` محلی:** پس از اجرا قاسمی ۲ جلد و ۶۰۷ نسخه دارد، روضاتی ۲ و ۱۵۱، حجتی ۱۱ و ۱۸٬۵۳۹، و فاضل ۱۷ و ۸٬۱۳۰.
+- **آزمون:** `FixCopyCatalogersTest` (۲ آزمون).
+- **اجرای پروداکشن (۱۶ آبان ۱۴۰۵، پس از `67d7d0d`):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14.62_elahiyat_rowzati_prod_before_20261106_1626.json`، md5 `d14589dfb705d992693f0c96bfd2fe86`. این پشتیبان پیوند فهرست‌نگاران دو جلد، ۳٬۰۶۴ نسخه (`id`، `catalog_volume_id`، `cataloger_id`) و شمارش‌های چهار فهرست‌نگار را دارد.
+  - **پیش از اجرا:** فاضل ۱۸ جلد و ۱۰٬۹۶۶ نسخه، حجتی ۱۱ و ۱۸٬۵۳۹، روضاتی ۲ و ۳۶۳، قاسمی ۲ و ۶۰۷.
+  - **پس از اجرا:** فاضل ۱۷ و ۸٬۱۳۰، روضاتی ۲ و ۱۵۱. شمارش حجتی و قاسمی تغییر نکرد، چون `recount` نسخه‌های جلدهای پیونددار را می‌شمارد.
+  - **جلدها:** جلد ۴۱۲ پیوند حجتی (فهرست‌نگار) و دانش‌پژوه (ناظر) را دارد و هر ۲٬۸۳۶ نسخه‌اش از حجتی است. جلد ۵۰۴ پیوند قاسمی را دارد و هر ۲۲۸ نسخه‌اش از اوست.
+
+### گام ۱۴.۶۳: `twins` در `fahares:apply-corpus-structure`، و اثر ‎-v20-1875
+- **دسته‌بندی `other_work.jsonl` (review8، ۲۳۴ ردیف):** نسخه‌ها با `fahares_prod` پیوند خوردند و مؤلف اثرِ سایت با `author.name` اثرِ v2 سنجیده شد (بی‌فاصله و بی‌عدد). نتیجه: `same_author` ۲۱۲ و `author_differs` ۲۲.
+  - داوری ۲۲ ردیف (۹ مورد) روی تصویر صفحه در `scratchpad` انجام شد: هر ۹ مورد `v2_work`.
+- **`twins`:** قالب `[{from, to, copies: [[from_seq, to_seq, shelfmark]]}]`. نسخه زیر `from` با `sequence_number` و `shelfmark` یافته می‌شود، و همزاد زیر `to` با همان دو. اگر هر دو یکتا باشند، `RecordMerger::mergeManuscript($source, $kept, $keep)` اجرا می‌شود.
+  - `$keep` همه‌ی کلیدهای `MergeComparison::rows` را `KEEP` می‌کند. پیش‌فرض ادغام (`TAKE` برای نشان‌های بله/خیر و فیلدهای خالی، `BOTH` برای متن) مقدار دورگه را به همزاد می‌برد.
+  - audit با `action` = `merge` و `category` = `twin` ثبت می‌شود. «already folded» یعنی نسخه رفته و همزاد هست.
+  - کتابخانه و گاهی شهرِ نسخه‌ی دورگه با همزادش فرق دارد، پس جفت‌شدن با شماره و `shelfmark` است، نه با `city` و `library`.
+- **فایل‌ها:**
+  - `database/data/fankha_twins_step14_63.json`: ۱ `moves` (‎-v7-196 → ‎-v8-601) و ۶ `twins` (‎-v25-784، ‎-v18-836، ‎-v24-1769، ‎-v27-1691، ‎-v30-1500 و ‎-v32-500).
+  - `database/data/fankha_nahj_work_step14_63.json`: ساخته‌ی `fankha_v2_run_works_export.py --next 20:1875 v20-1731`. بیشینه‌ی شماره‌ی slug ج ۲۰ در پروداکشن و محلی ۱۸۷۴ بود. ۱۴ نسخه `move` است.
+- **تمرین روی fahares_prod:** «Applying 1 moves and 0 folds. and 6 twin folds.» و «Adding 1 works … copies: 14 moved, 0 made». اجرای دوم هر دو تهی بود.
+- **آزمون:** `ApplyCorpusStructureCommandTest::test_a_hybrid_copy_folds_into_its_twin_under_the_other_work_keeping_the_twins_values`
+- **ترتیب اجرا در تولید:**
+  1. `fahares:apply-corpus-structure --file=database/data/fankha_twins_step14_63.json --apply`
+  2. `fahares:add-corpus-works --file=database/data/fankha_nahj_work_step14_63.json --apply`
+  3. `catalogs:link-volumes`
+  4. `fahares:rebuild-scripts`
+  5. `fahares:link-autograph-scribes`

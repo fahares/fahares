@@ -30,6 +30,8 @@ export default (config) => ({
     roleRowId: null,
     // The copy moved or was renumbered (relation relocate)
     newShelfmark: '',
+    // The volume of a source a cataloger suggestion is about, '' for all (relation volume_cataloger, step 14.58)
+    volumeId: '',
     // Research notes
     noteType: '',
     note: {},
@@ -96,7 +98,7 @@ export default (config) => ({
         if (!this.formKey || this.formKey === 'mode') return;
         const draft = {
             value: this.value, rationale: this.rationale, personId: this.personId, relationKey: this.relationKey,
-            roleKey: this.roleKey, roleName: this.roleName, newShelfmark: this.newShelfmark,
+            roleKey: this.roleKey, roleName: this.roleName, newShelfmark: this.newShelfmark, volumeId: this.volumeId,
             noteType: this.noteType, note: this.note, creditOn: this.creditOn, creditName: this.creditName,
         };
         try { sessionStorage.setItem(this.draftKey(), JSON.stringify(draft)); } catch (e) { /* storage blocked */ }
@@ -136,6 +138,7 @@ export default (config) => ({
         this.roleName = '';
         this.roleRowId = null;
         this.newShelfmark = '';
+        this.volumeId = '';
         if (detail.note) {
             this.mode = 'note';
             this.field = BLANK_FIELD;
@@ -163,6 +166,12 @@ export default (config) => ({
             this.target = detail.target;
             if (detail.role) this.roleKey = detail.role;
         }
+        // Opened from one volume's catalogers on a source page
+        if (this.relationKey && detail.volume) {
+            this.volumeId = String(detail.volume);
+            if (detail.role) this.roleKey = detail.role;
+        }
+        if (this.relation?.apply === 'volume_cataloger' && !this.roleKey) this.roleKey = 'cataloger';
         if (this.relationKey && detail.roleRowId) {
             this.roleKey = detail.role ?? '';
             this.roleName = detail.roleName ?? '';
@@ -260,6 +269,8 @@ export default (config) => ({
     },
 
     chooseRelation() {
+        // a volume's cataloger is most often the one asked about
+        if (this.relation?.apply === 'volume_cataloger' && !this.roleKey) this.roleKey = 'cataloger';
         this.target = null;
         this.targetQuery = '';
         this.targetResults = [];
@@ -373,7 +384,8 @@ export default (config) => ({
             body.append('field_name', this.relationKey);
             body.append('target_id', this.target?.id ?? '');
             if (this.relation?.options) body.append('role', this.roleKey);
-            if (this.relation?.apply === 'person_role') body.append('role_name', this.roleName);
+            if (['person_role', 'volume_cataloger'].includes(this.relation?.apply)) body.append('role_name', this.roleName);
+            if (this.relation?.apply === 'volume_cataloger') body.append('volume_id', this.volumeId);
             if (this.relation?.remove && this.roleRowId) body.append('role_row_id', this.roleRowId);
             if (this.relation?.apply === 'relocate') body.append('shelfmark', this.newShelfmark);
         }

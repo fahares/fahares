@@ -181,6 +181,11 @@ class Contributions
                 'after' => self::plain(self::location($log?->new_values['library'] ?? null, $log?->new_values['shelfmark'] ?? null))
                     ?? self::recordLink('library', $resolution['library_id'] ?? null),
             ],
+            // a source's volumes got a cataloger (step 14.58)
+            'volume_cataloger' => [
+                'after' => self::recordLink('cataloger', $resolution['cataloger_id'] ?? null) ?? self::plain($s->payload['name'] ?? null),
+                'text' => ($role = $resolution['role'] ?? $s->payload['role'] ?? null) ? 'نقش در جلد: ' . (\App\Suggestions\VolumeCatalogers::ROLES[$role] ?? $role) : null,
+            ],
             'rename_library' => [
                 'before' => self::plain($old['name'] ?? null),
                 'after' => self::plain($resolution['name'] ?? $s->suggested_value),
@@ -224,7 +229,7 @@ class Contributions
 
     private static function recordLink(?string $type, $id): ?array
     {
-        $class = $type ? SuggestionRegistry::modelClass($type) : null;
+        $class = $type ? SuggestionRegistry::targetClass($type) : null;
         if (! $class || ! $id) {
             return null;
         }

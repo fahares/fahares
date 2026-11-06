@@ -17,7 +17,8 @@ use InvalidArgumentException;
  */
 class SuggestionApplier
 {
-    public const PERSON_ACTIONS = ['link', 'create', 'text'];
+    /** clear: no one is named any more, the name, its link and (for a scribe) the autograph mark go */
+    public const PERSON_ACTIONS = ['link', 'create', 'text', 'clear'];
 
     /**
      * @param  array  $input  applied_value, plus hijri_year (hijri_date) or person_action/person_id (person)
@@ -116,6 +117,9 @@ class SuggestionApplier
 
             case 'person':
                 $previousPersonId = $record->{$field['id_column']};
+                if (($input['person_action'] ?? null) === 'clear') {
+                    $value = null;
+                }
                 $resolution = $this->resolvePerson($record, $field, $value, $input);
                 $record->{$name} = $value;
                 if ($value !== null && ! empty($field['bit_column'])) {
@@ -219,6 +223,16 @@ class SuggestionApplier
             $record->{$field['id_column']} = $person->id;
 
             return ['person_action' => 'create', 'person_id' => $person->id];
+        }
+
+        if ($action === 'clear') {
+            $record->{$field['id_column']} = null;
+            // the author's own hand would name the author as scribe
+            if (! empty($field['autograph_column'])) {
+                $record->{$field['autograph_column']} = false;
+            }
+
+            return ['person_action' => 'clear'];
         }
 
         return ['person_action' => 'text'];

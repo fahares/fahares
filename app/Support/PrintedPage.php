@@ -321,13 +321,21 @@ class PrintedPage
      * Running text in Persian digits, with the citations of the site's sources in it linked (backlog item 102): to the
      * cited page's text when the site has it, else to the page in the viewer.
      */
+    /** The source whose page is shown, whose way of citing the others its citations are read by (step 14.57). */
+    private static ?string $citing = null;
+
+    public static function citing(?string $code): void
+    {
+        self::$citing = $code;
+    }
+
     private static function prose(string $text): string
     {
         if (! preg_match('/[0-9۰-۹]/u', $text)) {
             return e(Fa::digits($text));
         }
         $html = '';
-        foreach (BibliographyLinks::inProse($text) as $seg) {
+        foreach (BibliographyLinks::inProse($text, self::$citing) as $seg) {
             $label = e(Fa::digits($seg['text']));
             $cite = $seg['cite'] ?? null;
             $volume = $cite ? SourceVolume::whereHas('source', fn ($q) => $q->where('code', $cite['source']))->where('volume_number', $cite['volume'])->first() : null;

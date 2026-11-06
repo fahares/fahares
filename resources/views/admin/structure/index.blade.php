@@ -14,7 +14,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <x-admin.field label="نوع رکورد" for="type">
                 <select name="type" id="type" class="admin-field w-full">
-                    @foreach(array_keys(\App\Suggestions\SuggestionRegistry::TYPES) as $t)
+                    @foreach(\App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES as $t)
                         <option value="{{ $t }}" @selected(old('type', request('type')) === $t)>{{ \App\Suggestions\SuggestionRegistry::typeLabel($t) }}</option>
                     @endforeach
                 </select>

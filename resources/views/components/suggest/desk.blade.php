@@ -51,13 +51,15 @@
         // Reviewers may fix a typo at once, without a suggestion or a reading
         'directUrl' => auth()->user()?->can('suggestions.direct_edit') ? route('admin.suggestions.direct-edit') : null,
         // ...and run a structural tool at once, after its preview in the panel (backlog item 45)
-        'structureUrl' => auth()->user()?->can('structure.direct') ? route('admin.structure.show', [$type, $record->id]) : null,
+        'structureUrl' => auth()->user()?->can('structure.direct') && in_array($type, SuggestionRegistry::STRUCTURE_TYPES, true) ? route('admin.structure.show', [$type, $record->id]) : null,
         // Research notes (see NoteTypes)
         'noteTypes' => \App\Suggestions\NoteTypes::forRecord($type),
         'noteFields' => \App\Suggestions\NoteTypes::FIELDS,
         'maxFiles' => \App\Suggestions\NoteTypes::MAX_FILES,
         // The current number, shown beside the «moved or renumbered» suggestion
         'shelfmark' => $type === 'manuscript' ? $record->shelfmark : null,
+        // A source's volumes with their catalogers, for «the cataloger is someone else» (step 14.58)
+        'volumes' => $type === 'source' ? \App\Suggestions\VolumeCatalogers::volumes($record) : [],
     ];
     $inputClass = 'w-full p-2.5 rounded-xl border border-line-strong bg-paper text-ink focus:border-gold';
 @endphp
@@ -124,7 +126,7 @@
                             <!-- A person connected with the copy: role, then a person from the list or a name -->
                             <template x-if="relation && relation.options">
                                 <div class="space-y-1">
-                                    <label class="block font-semibold text-ink" x-text="relation.apply === 'person_role' ? 'نقش:' : 'نوع رابطه:'"></label>
+                                    <label class="block font-semibold text-ink" x-text="['person_role', 'volume_cataloger'].includes(relation.apply) ? 'نقش:' : 'نوع رابطه:'"></label>
                                     <select x-model="roleKey" class="{{ $inputClass }}">
                                         <option value="">انتخاب کنید…</option>
                                         <template x-for="(label, key) in relation.options" :key="key"><option :value="key" x-text="label"></option></template>
@@ -137,9 +139,9 @@
                             <template x-if="relation && relation.target">
                                 <div class="space-y-1 relative">
                                     <label class="block font-semibold text-ink"
-                                        x-text="relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر کتابخانه عوض شده است):' : relation.target === 'library' ? 'کتابخانه‌ی مقصد:' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')))"></label>
+                                        x-text="relation.target === 'cataloger' ? 'فهرست‌نگار (اگر در فهارس ثبت شده است):' : relation.apply === 'relocate' ? 'کتابخانه‌ی تازه (اگر کتابخانه عوض شده است):' : relation.target === 'library' ? 'کتابخانه‌ی مقصد:' : (relation.target_optional ? 'شخص (اگر در فهارس ثبت شده است):' : (relation.target === 'work' ? 'اثر مقصد:' : (relation.target === 'person' ? 'شخص مقصد:' : 'نسخه‌ی مقصد:')))"></label>
                                     <input type="text" x-model="targetQuery" @input="searchTargets()" autocomplete="off" class="{{ $inputClass }}"
-                                        :placeholder="relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : (relation.target === 'library' ? 'نام کتابخانه یا شهر را بنویسید' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید')">
+                                        :placeholder="relation.target === 'cataloger' ? 'نام فهرست‌نگار را بنویسید یا پیوند صفحه‌اش در فهارس را بچسبانید' : relation.target === 'manuscript' ? 'پیوند یا شناسه‌ی نسخه در فهارس، مثلاً fahares.net/m/1234' : (relation.target === 'library' ? 'نام کتابخانه یا شهر را بنویسید' : 'عنوان یا نام را بنویسید، یا پیوند فهارس را بچسبانید')">
                                     <ul x-show="targetResults.length" class="absolute z-10 inset-x-0 mt-1 max-h-56 overflow-y-auto rounded-xl border border-line-strong bg-white dark:bg-paper shadow-xl">
                                         <template x-for="r in targetResults" :key="r.id">
                                             <li>
@@ -157,13 +159,28 @@
                                         </div>
                                     </template>
                                     <p x-show="errors.target_id" x-text="errors.target_id" class="text-red-600 dark:text-red-400 font-bold"></p>
-                                    <template x-if="relation.apply === 'person_role' && !target">
+                                    <template x-if="['person_role', 'volume_cataloger'].includes(relation.apply) && !target">
                                         <div class="space-y-1 pt-1">
-                                            <label class="block font-semibold text-ink" x-text="config.type === 'work' ? 'یا نام او، همان‌گونه که در فهرست یا دیباچه آمده:' : 'یا نام او، همان‌گونه که در نسخه آمده:'"></label>
+                                            <label class="block font-semibold text-ink" x-text="relation.apply === 'volume_cataloger' ? 'یا نام او، همان‌گونه که در صفحه‌ی عنوان یا دیباچه‌ی فهرست آمده:' : config.type === 'work' ? 'یا نام او، همان‌گونه که در فهرست یا دیباچه آمده:' : 'یا نام او، همان‌گونه که در نسخه آمده:'"></label>
                                             <input type="text" x-model="roleName" class="{{ $inputClass }}" placeholder="مثلاً محمدحسین بن علی تبریزی">
                                             <p x-show="errors.role_name" x-text="errors.role_name" class="text-red-600 dark:text-red-400 font-bold"></p>
                                         </div>
                                     </template>
+                                </div>
+                            </template>
+
+                            <!-- A cataloger of the source: one volume or all, with the people each has now (step 14.58) -->
+                            <template x-if="relation && relation.apply === 'volume_cataloger'">
+                                <div class="space-y-1">
+                                    <label class="block font-semibold text-ink">کدام جلد:</label>
+                                    <select x-model="volumeId" class="{{ $inputClass }}">
+                                        <option value="">همه‌ی جلدها</option>
+                                        <template x-for="v in config.volumes" :key="v.id">
+                                            <option :value="String(v.id)" x-text="v.label + (v.people ? ' — اکنون: ' + v.people : ' — فهرست‌نگار ثبت نشده')"></option>
+                                        </template>
+                                    </select>
+                                    <p class="text-stone-400 leading-relaxed" x-text="relation.replace ? 'شخص انتخاب‌شده جای فهرست‌نگار کنونیِ همان نقش را در جلد می‌گیرد.' : 'شخص انتخاب‌شده کنار فهرست‌نگاران کنونی جلد می‌آید.'"></p>
+                                    <p x-show="errors.volume_id" x-text="errors.volume_id" class="text-red-600 dark:text-red-400 font-bold"></p>
                                 </div>
                             </template>
 

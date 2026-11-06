@@ -282,7 +282,8 @@ class StructureToolsTest extends TestCase
             ->assertSessionHasErrors('ref');
 
         $records = ['manuscript' => $this->manuscript(), 'work' => $work, 'person' => $this->person('شخص'), 'library' => $this->library('کتابخانه')];
-        foreach (\App\Suggestions\SuggestionRegistry::RELATIONS as $type => $relations) {
+        // a source's relations (its volumes' catalogers, step 14.58) are applied only through a reviewed suggestion
+        foreach (array_intersect_key(\App\Suggestions\SuggestionRegistry::RELATIONS, array_flip(\App\Suggestions\SuggestionRegistry::STRUCTURE_TYPES)) as $type => $relations) {
             $page = $this->actingAs($this->admin)->get(route('admin.structure.show', [$type, $records[$type]->id]))->assertOk();
             foreach ($relations as $relation) {
                 $page->assertSee($relation['action']);
