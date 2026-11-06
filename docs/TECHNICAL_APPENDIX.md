@@ -7833,6 +7833,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. همان دستور بی `--dry-run`. دستور خودش پشتیبان می‌گیرد.
 - **وارسی:** کتابخانه‌ی `thran-lght-namh-dhkhda-27` باید دو بخش در دفتر ۳ داشته باشد: ص ۱–۵۹ با ۳۳۹ نسخه و ص ۳۸۸–۴۲۶ با ۱۹۳ نسخه.
 - **آزمون:** `test_a_library_of_two_parts_in_one_volume_and_a_part_put_in_between_keep_the_files_order`.
+- **اجرای انجام‌شده (۱۶ آبان ۱۴۰۵):**
+  - **نخستین اجرای واقعی (۰۶:۱۱):** با SSH exit 255 قطع شد. هیچ چیز نوشته نشده بود: نه پشتیبانی ساخته شده بود و نه بخشی با کلید `fankha-229-pages-1-59`.
+  - **اجرای دوباره:** exit 0 بود و خروجی‌اش «parts to make: 1 of 133»، «parts to put in the file's order: 123» و «0 copies tied anew» بود.
+  - **پشتیبان:**
+    - در کانتینر: `catalogs-import-volume-parts-20261106_045828.json`.
+    - رونوشت: `../fahares-sources/backups/step13/step14.53_dehkhoda_parts_prod_before_20261106.json` (۳٫۶ MB، ۱۳۲ ردیف `parts`).
+  - **وارسی:** جلد ۵۰۷، کتابخانه‌ی ۲۷:
+    - بخش ۲۱۷ (`sort` ۹، ص ۱–۵۹) ۳۳۹ نسخه دارد.
+    - بخش ۲۶ (`sort` ۱۷، ص ۳۸۸–۴۲۶) ۱۹۳ نسخه دارد.
+    - dry-run دوم «Nothing to do» داد.
 
 ### گام ۱۴.۵۴: جلد `catalogue-508df9df7cd6` (جلیلی) و `catalogue-b67f83c0af8b` (مراغه)
 - **مراغه:** از نورلیب، `file/book/cover/AYgeaiY4MFLaRIpyosyOWY3hEoBEMiz2bUeVvZJO47c` (۴۳۱×۶۳۰).
