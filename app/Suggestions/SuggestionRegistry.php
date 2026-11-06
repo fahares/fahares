@@ -6,6 +6,7 @@ use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\SourceEntry;
 use App\Models\Person;
+use App\Models\Source;
 use App\Models\Work;
 use App\Support\HijriYear;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,8 @@ class SuggestionRegistry
         'work' => Work::class,
         'person' => Person::class,
         'library' => Library::class,
+        // a printed source's own page (/sources/{code}): its title, compiler, publisher… (step 14.52)
+        'source' => Source::class,
     ];
 
     // note: a research note added to the record, see NoteTypes; feedback: about the site, no record
@@ -214,6 +217,7 @@ class SuggestionRegistry
             'work' => self::workFields(),
             'person' => self::personFields(),
             'library' => self::libraryFields(),
+            'source' => self::sourceFields(),
             default => [],
         };
     }
@@ -310,6 +314,7 @@ class SuggestionRegistry
                 'url' => route('people.show', $record),
             ],
             'library' => ['label' => $record->name, 'sub' => $record->city, 'url' => route('libraries.show', $record)],
+            'source' => ['label' => $record->title, 'sub' => implode(' · ', array_filter([Source::KIND_LABELS[$record->kind] ?? null, $record->compiler])), 'url' => $record->code ? route('sources.show', $record->code) : route('sources.index')],
             default => ['label' => '#' . $record->getKey(), 'sub' => null, 'url' => null],
         } + ['id' => $record->getKey()];
     }
@@ -325,6 +330,7 @@ class SuggestionRegistry
             'work' => 'اثر',
             'person' => 'شخص',
             'library' => 'کتابخانه',
+            'source' => 'منبع',
             default => class_basename($type),
         };
     }
@@ -554,6 +560,18 @@ class SuggestionRegistry
             'full_name' => ['label' => 'نام کامل', 'input' => 'text'],
             'country' => ['label' => 'کشور', 'input' => 'text'],
             'description' => ['label' => 'معرفی کتابخانه', 'input' => 'textarea'],
+        ];
+    }
+
+    /** A source's own columns (step 14.52); the catalogers of each volume are linked records, suggested in general. */
+    private static function sourceFields(): array
+    {
+        return [
+            'title' => ['label' => 'عنوان منبع', 'input' => 'text', 'required' => true],
+            'compiler' => ['label' => 'پدیدآورنده (مؤلف یا فهرست‌نگار)', 'input' => 'text'],
+            'publisher' => ['label' => 'ناشر', 'input' => 'text'],
+            'publication_year' => ['label' => 'سال نشر', 'input' => 'text'],
+            'description' => ['label' => 'معرفی منبع', 'input' => 'textarea'],
         ];
     }
 }

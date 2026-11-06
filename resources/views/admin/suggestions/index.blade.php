@@ -14,7 +14,7 @@
             'active' => $status === $key, 'count' => $stats[$key === 'all' ? 'total' : $key]];
     }
     $typeTabs = [];
-    foreach (['' => 'همه‌ی رکوردها', 'Manuscript' => 'نسخه‌ها', 'Work' => 'آثار', 'Person' => 'اشخاص', 'feedback' => 'بازخورد سایت'] as $key => $label) {
+    foreach (['' => 'همه‌ی رکوردها', 'Manuscript' => 'نسخه‌ها', 'Work' => 'آثار', 'Person' => 'اشخاص', 'Library' => 'کتابخانه‌ها', 'Source' => 'منابع', 'feedback' => 'بازخورد سایت'] as $key => $label) {
         $typeTabs[] = ['label' => $label, 'url' => route('admin.suggestions.index', array_filter(['status' => $status, 'type' => $key, 'kind' => $kind])), 'active' => (string) $type === $key];
     }
     $statusChip = function ($sug) {

@@ -7665,3 +7665,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندها:** ۸۲، ۷۱، ۱۶۴، ۱۷۲، ۱۳۳، ۷۱، ۳۵، ۳۱ (جمع ۷۵۹، برابر تمرین). هیچ پیوندی به‌روز یا حذف نشد.
   - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
+
+### گام ۱۴.۵۲: نوع `source` در `SuggestionRegistry`
+- **ثبت:** `TYPES['source'] = Source::class` و `sourceFields()`: `title` (`required`)، `compiler`، `publisher`، `publication_year` (همه `text`) و `description` (`textarea`). همه ستون ساده‌ی `sources`اند و `SuggestionApplier` آن‌ها را مستقیم می‌نویسد. فهرست‌نگاران هر جلد (`cataloger_volume`) رکورد پیوسته‌اند و فیلد پیشنهاد نیستند.
+- **پیرامون:** `describe()` با نشانی `sources.show` (بی کد: `sources.index`)، `typeLabel()` «منبع»، `NoteTypes::BY_RECORD['source']` = `link`، `observation`، `study`. `RELATIONS` برای منبع کلیدی ندارد.
+- **صفحه:** `sources/show.blade.php` اکنون `x-suggest.toggle`، `x-suggest.field` برای پنج فیلد، `x-suggest.readings`، `x-suggest.notes` و `x-suggest.desk` دارد. `AppServiceProvider` قرائت‌ها و یادداشت‌های `sources.show` را هم به نما می‌دهد.
+- **تبدیل:** `Admin\SuggestionController::recordId('source', $ref)` کد را از `/sources/{code}` می‌خواند (کد ادغام‌شده با `Source::mergedInto`)، یا کد یا شناسه‌ی خالی را می‌پذیرد. `SuggestionController::lookup` منبع را با عنوان، نام کوتاه یا کد می‌جوید.
+- **ابزار ساختاری:** مسیرهای `admin.structure.*` و فهرست نوع‌های `admin/structure` اکنون از کلیدهای `RELATIONS` می‌آیند، نه `TYPES`. `structureUrl` میز پیشنهاد برای نوعی که رابطه ندارد خالی است.
+- **آزمون:** `tests/Feature/SourceSuggestionTest.php` (صفحه، ثبت و تأیید `compiler`، یادداشت، تبدیل پیشنهادی از کتابخانه با پیوند منبع). `ConvertSuggestionTest` منبع را هم در هر نوع رکورد می‌آزماید.

@@ -74,6 +74,7 @@ class NoteTypes
         'work' => ['observation', 'catalog', 'edition', 'study'],
         'person' => ['observation', 'image', 'study'],
         'library' => ['link', 'observation', 'study'],
+        'source' => ['link', 'observation', 'study'],
     ];
 
     public const MAX_FILES = 4;

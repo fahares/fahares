@@ -19,6 +19,7 @@
         'Work' => route('works.show', $target),
         'Person' => route('people.show', $target),
         'Library' => route('libraries.show', $target),
+        'Source' => $target->code ? route('sources.show', $target->code) : null,
         default => null,
     } : null;
 @endphp
