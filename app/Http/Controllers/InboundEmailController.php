@@ -62,8 +62,11 @@ class InboundEmailController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        $message = Conversations::userReply($thread, Str::limit($text, Message::MAX_LENGTH, ''), 'email');
-        EmailAttachments::keep($message, $pictures);
+        // Resend's id of the email is its token: a webhook delivered twice files the letter once (backlog item 115)
+        $message = Conversations::userReply($thread, Str::limit($text, Message::MAX_LENGTH, ''), 'email', 'email:' . ($data['email_id'] ?? Str::uuid()));
+        if ($message->wasRecentlyCreated) {
+            EmailAttachments::keep($message, $pictures);
+        }
 
         return response()->json(['ok' => true]);
     }

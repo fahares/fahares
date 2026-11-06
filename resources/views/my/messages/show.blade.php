@@ -26,8 +26,9 @@
         @include('messages.partials.letters', ['thread' => $thread])
 
         @if($thread->acceptsReplies())
-            <form action="{{ route('my.messages.reply', $thread) }}" method="POST" class="space-y-2 pt-3 border-t border-line">
+            <form action="{{ route('my.messages.reply', $thread) }}" method="POST" class="space-y-2 pt-3 border-t border-line" data-send-once>
                 @csrf
+                <x-send-token />
                 <label for="reply-body" class="block text-xs text-muted">پاسخ شما</label>
                 <textarea id="reply-body" name="body" rows="4" required maxlength="{{ \App\Models\Message::MAX_LENGTH }}" class="w-full p-3 rounded-lg border border-line-strong bg-paper text-ink">{{ old('body') }}</textarea>
                 @error('body')<p class="text-xs text-cinnabar">{{ $message }}</p>@enderror

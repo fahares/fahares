@@ -3,11 +3,13 @@
 namespace App\Support;
 
 /**
- * Persian number display: «۱۲٬۳۴۵» instead of «12,345».
+ * Persian number display: «۱۲٬۳۴۵» instead of «12,345». Arabic-Indic digits (٣٤٥, often in the data) become Persian too,
+ * so a line never mixes the two shapes (backlog item 89).
  */
 class Fa
 {
-    private const DIGITS = ['0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴', '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹'];
+    private const DIGITS = ['0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴', '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹',
+        '٠' => '۰', '١' => '۱', '٢' => '۲', '٣' => '۳', '٤' => '۴', '٥' => '۵', '٦' => '۶', '٧' => '۷', '٨' => '۸', '٩' => '۹'];
 
     public static function digits(string|int|null $text): string
     {

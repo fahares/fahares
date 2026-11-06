@@ -25,8 +25,9 @@
     @include('messages.partials.letters', ['thread' => $thread, 'staffView' => true])
 
     @if(! $thread->closed)
-        <form action="{{ route('admin.messages.reply', $thread) }}" method="POST" class="space-y-2 pt-3 border-t border-line">
+        <form action="{{ route('admin.messages.reply', $thread) }}" method="POST" class="space-y-2 pt-3 border-t border-line" data-send-once>
             @csrf
+            <x-send-token />
             <label for="body" class="block font-bold text-ink">پیام تازه در همین گفت‌وگو</label>
             <textarea id="body" name="body" rows="4" required maxlength="{{ \App\Models\Message::MAX_LENGTH }}" class="admin-field w-full">{{ old('body') }}</textarea>
             @error('body')<p class="text-xs text-cinnabar">{{ $message }}</p>@enderror

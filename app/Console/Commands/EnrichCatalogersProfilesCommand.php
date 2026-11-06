@@ -6,7 +6,6 @@ use App\Models\Cataloger;
 use App\Models\Person;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class EnrichCatalogersProfilesCommand extends Command
 {
@@ -87,13 +86,7 @@ class EnrichCatalogersProfilesCommand extends Command
                 }
 
                 if (!$cataloger && $createMissing) {
-                    // The slug must be unique; the public route uses id + name, so a suffix is harmless.
-                    $slug = Str::slug($name, '-', null) ?: 'cataloger';
-                    $base = $slug;
-                    for ($i = 2; Cataloger::where('slug', $slug)->exists(); $i++) {
-                        $slug = "{$base}-{$i}";
-                    }
-                    $cataloger = new Cataloger(['name' => $name, 'slug' => $slug]);
+                    $cataloger = new Cataloger(['name' => $name, 'slug' => Cataloger::uniqueSlug($name)]);
                     if (!$dryRun) {
                         $cataloger->save();
                     }

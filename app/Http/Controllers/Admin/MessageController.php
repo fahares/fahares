@@ -59,8 +59,9 @@ class MessageController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'subject' => 'required|string|max:200',
             'body' => 'required|string|max:' . Message::MAX_LENGTH,
+            'client_token' => 'nullable|string|max:80',
         ]);
-        $thread = Conversations::sendDirect(User::findOrFail($validated['user_id']), $request->user(), $validated['subject'], $validated['body']);
+        $thread = Conversations::sendDirect(User::findOrFail($validated['user_id']), $request->user(), $validated['subject'], $validated['body'], null, $validated['client_token'] ?? null);
 
         return redirect()->route('admin.messages.show', $thread)->with('success', 'پیام فرستاده شد.');
     }
@@ -68,10 +69,24 @@ class MessageController extends Controller
     public function reply(Request $request, MessageThread $thread)
     {
         abort_unless($thread->kind === MessageThread::KIND_DIRECT && ! $thread->closed, 404);
-        $validated = $request->validate(['body' => 'required|string|max:' . Message::MAX_LENGTH]);
-        Conversations::staffWrite($thread, $request->user(), $validated['body']);
+        $validated = $request->validate(['body' => 'required|string|max:' . Message::MAX_LENGTH, 'client_token' => 'nullable|string|max:80']);
+        Conversations::staffWrite($thread, $request->user(), $validated['body'], $validated['client_token'] ?? null);
 
         return redirect()->route('admin.messages.show', $thread)->with('success', 'پیام فرستاده شد.');
+    }
+
+    /** A letter that reached the user twice: soft-deleted by staff who hold the thread's permission (backlog item 115) */
+    public function destroyMessage(Request $request, Message $message)
+    {
+        $thread = $message->thread;
+        abort_unless($thread && $request->user()->can($thread->staffPermission()), 403);
+        Conversations::deleteMessage($message, $request->user());
+
+        $back = $thread->kind === MessageThread::KIND_SUGGESTION
+            ? redirect()->route('admin.suggestions.show', $thread->field_suggestion_id)->withFragment('conversation')
+            : redirect()->route('admin.messages.show', $thread);
+
+        return $back->with('success', 'پیام حذف شد. کاربر دیگر آن را نمی‌بیند؛ ایمیلی که پیش‌تر رفته بود پس گرفته نمی‌شود.');
     }
 
     /** Closed, the user can read it but not answer; opened again the same way */

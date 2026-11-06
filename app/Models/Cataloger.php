@@ -29,6 +29,18 @@ class Cataloger extends Model
         ];
     }
 
+    /** A slug no other cataloger has: the public route uses id + name, so a numeric suffix is harmless */
+    public static function uniqueSlug(string $name, ?int $exceptId = null): string
+    {
+        $base = Str::slug($name, '-', null) ?: 'cataloger';
+        $slug = $base;
+        for ($i = 2; static::where('slug', $slug)->when($exceptId, fn ($q) => $q->whereKeyNot($exceptId))->exists(); $i++) {
+            $slug = "{$base}-{$i}";
+        }
+
+        return $slug;
+    }
+
     public function getPersianSlugAttribute(): string
     {
         $slug = Str::slug($this->name, '-', null);

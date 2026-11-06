@@ -346,7 +346,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Catalogers & Bibliographers
-    Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'edit', 'update'])->middleware('can:catalogers.edit');
+    Route::resource('catalogers', AdminCatalogerController::class)->only(['index', 'create', 'store', 'edit', 'update'])->middleware('can:catalogers.edit');
 
     // Home page content: texts, banner slides, featured images, home catalogers; and the emails' shared frame
     Route::middleware('can:home.manage')->group(function () {
@@ -440,6 +440,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{thread}', 'reply')->whereNumber('thread')->name('reply');
         Route::post('/{thread}/toggle', 'toggle')->whereNumber('thread')->name('toggle');
     });
+    // A letter that came twice is removed (backlog item 115); the controller checks the thread's own permission
+    Route::delete('/letters/{message}', [\App\Http\Controllers\Admin\MessageController::class, 'destroyMessage'])->whereNumber('message')->name('letters.destroy');
 
     // The access matrix
     Route::middleware('can:roles.manage')->group(function () {

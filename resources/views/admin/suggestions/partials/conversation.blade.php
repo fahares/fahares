@@ -19,8 +19,9 @@
     @endif
 
     @if($suggestion->user_id)
-        <form action="{{ route('admin.suggestions.ask', $suggestion) }}" method="POST" class="space-y-2">
+        <form action="{{ route('admin.suggestions.ask', $suggestion) }}" method="POST" class="space-y-2" data-send-once>
             @csrf
+            <x-send-token />
             <label for="ask-body" class="block text-xs text-muted">
                 @if($pending)
                     پرسش از پیشنهاددهنده. پیشنهاد تا پاسخ او در تب «منتظر پاسخ» می‌ماند.

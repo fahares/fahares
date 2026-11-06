@@ -35,9 +35,9 @@ class MessagesController extends Controller
     {
         $this->own($request, $thread);
         abort_unless($thread->acceptsReplies(), 409, 'این گفت‌وگو بسته شده است.');
-        $validated = $request->validate(['body' => 'required|string|max:' . Message::MAX_LENGTH]);
+        $validated = $request->validate(['body' => 'required|string|max:' . Message::MAX_LENGTH, 'client_token' => 'nullable|string|max:80']);
 
-        Conversations::userReply($thread, $validated['body']);
+        Conversations::userReply($thread, $validated['body'], 'site', $validated['client_token'] ?? null);
 
         return redirect()->route('my.messages.show', $thread)->with('success', $thread->suggestion?->status === 'pending'
             ? 'پاسخ شما فرستاده شد و پیشنهاد به صف داوری برگشت.'

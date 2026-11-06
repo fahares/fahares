@@ -53,7 +53,10 @@
                     پیشنهاد ساختاری: <b class="text-cinnabar">{{ $relation['label'] ?? $suggestion->field_name }}</b>
                 @else
                     فیلد: <b class="text-cinnabar">{{ $suggestion->field_label }}</b>
-                    <code class="text-xs" dir="ltr">{{ $suggestion->field_name }}</code>
+                    {{-- the technical key helps only the site's admin, and stays apart from the Persian label (backlog item 89) --}}
+                    @if(auth()->user()->isAdmin())
+                        <code class="ms-2 text-[11px] text-muted/70 font-normal" dir="ltr" title="کلید فنی فیلد">{{ $suggestion->field_name }}</code>
+                    @endif
                 @endif
             </p>
         </div>
@@ -221,7 +224,7 @@
                             @if($suggestion->kind === 'general')
                                 این پیشنهاد کلی است و خودکار اعمال نمی‌شود. تغییرات لازم را دستی انجام دهید. با تأیید، پیشنهاد «رسیدگی‌شده» ثبت می‌شود.
                             @else
-                                فیلد <code dir="ltr">{{ $suggestion->field_name }}</code> در فهرست فیلدهای قابل اصلاح نیست و خودکار اعمال نمی‌شود. تغییر را دستی انجام دهید. با تأیید، پیشنهاد «رسیدگی‌شده» ثبت می‌شود.
+                                فیلد «{{ $suggestion->field_label }}»@if(auth()->user()->isAdmin()) <code class="text-[11px] text-muted" dir="ltr">{{ $suggestion->field_name }}</code>@endif در فهرست فیلدهای قابل اصلاح نیست و خودکار اعمال نمی‌شود. تغییر را دستی انجام دهید. با تأیید، پیشنهاد «رسیدگی‌شده» ثبت می‌شود.
                             @endif
                         </x-admin.notice>
                     @elseif($field['input'] === 'boolean')
