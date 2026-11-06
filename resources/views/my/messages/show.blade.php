@@ -16,7 +16,7 @@
                 <p class="text-[11px] text-muted">
                     @if($record)<a href="{{ $record['url'] }}" class="font-bold text-ink hover:text-cinnabar">{{ $record['label'] }}</a> · @endif{{ $suggestion->field_label }} · <a href="{{ route('my.suggestions') }}" class="text-cinnabar hover:underline">پیشنهادهای من</a>
                 </p>
-                <p class="text-ink whitespace-pre-line break-words">{{ \Illuminate\Support\Str::limit($suggestion->suggested_value, 600) }}</p>
+                <p class="text-ink whitespace-pre-line break-words">{{ \Illuminate\Support\Str::limit($suggestion->suggested_label, 600) }}</p>
                 @if($suggestion->rationale_citation)
                     <p class="text-[11px] text-muted whitespace-pre-line">مستند: {{ \Illuminate\Support\Str::limit($suggestion->rationale_citation, 400) }}</p>
                 @endif

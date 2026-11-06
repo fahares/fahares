@@ -88,6 +88,12 @@ class FieldSuggestion extends Model
         return self::STANDINGS[$this->standing] ?? null;
     }
 
+    /** The suggested value as listed: a suggestion to empty the field says so (step 14.60). */
+    public function getSuggestedLabelAttribute(): string
+    {
+        return ! empty($this->payload['clear']) ? \App\Suggestions\SuggestionRegistry::CLEAR_LABEL : (string) $this->suggested_value;
+    }
+
     /** The reading as a reader sees it: the reviewer's clean value, with yes/no for flags. */
     public function getDisplayValueAttribute(): string
     {

@@ -236,4 +236,71 @@ class ConvertSuggestionTest extends TestCase
             ->assertOk()->assertJsonPath('record', null);
         $this->actingAs($this->researcher)->getJson("/admin/suggestions/{$s->id}/convert-fields?type=manuscript&ref=1")->assertForbidden();
     }
+
+    /**
+     * Step 14.60: a note that an «autograph» copy is not in the author's hand converts into a suggestion to empty the
+     * scribe. Its current value names the autograph and the linked person, and approving it with «خالی کردن فیلد»
+     * takes the name, the link and the autograph mark away.
+     */
+    public function test_a_suggestion_to_empty_the_scribe_of_an_autograph_copy_converts_and_applies()
+    {
+        $ms = $this->records['manuscript'];
+        $author = $this->records['person'];
+        $ms->update(['scribe_id' => $author->id, 'scribe_name' => null, 'is_autograph' => true]);
+        $s = $this->original();
+
+        // an empty value without the mark is still refused
+        $this->convert($s, ['kind' => 'field', 'target_type' => 'manuscript', 'field_name' => 'scribe_name', 'suggested_value' => ''])
+            ->assertSessionHasErrors('suggested_value');
+
+        $this->convert($s, ['kind' => 'field', 'target_type' => 'manuscript', 'field_name' => 'scribe_name', 'suggested_value' => '', 'clear' => '1'])
+            ->assertSessionHasNoErrors();
+        $derived = $this->derived($s);
+        $this->assertSame('دستخط مؤلف (شخص تبدیل)', $derived->current_value);
+        $this->assertSame('', $derived->suggested_value);
+        $this->assertTrue($derived->payload['clear']);
+
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$derived->id}")->assertOk()
+            ->assertSee('دستخط مؤلف (شخص تبدیل)')->assertSee(SuggestionRegistry::CLEAR_LABEL)
+            ->assertSee('value="clear" checked', false);
+
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$derived->id}/approve", ['person_pick' => 'clear', 'applied_value' => 'ignored', 'outcome' => 'adopt'])
+            ->assertSessionHasNoErrors();
+        $ms->refresh();
+        $this->assertNull($ms->scribe_name);
+        $this->assertNull($ms->scribe_id);
+        $this->assertFalse($ms->is_autograph);
+        $this->assertSame(0, $ms->scribeEntries()->count());
+        $this->assertNull($derived->fresh()->applied_value);
+        $this->assertTrue($derived->fresh()->resolution['cleared']);
+
+        // taking the decision back restores the scribe, its link and the mark
+        $this->actingAs($this->admin)->post("/admin/suggestions/{$derived->id}/reopen")->assertSessionHas('success');
+        $ms->refresh();
+        $this->assertSame($author->id, $ms->scribe_id);
+        $this->assertTrue($ms->is_autograph);
+        $this->assertSame(1, $ms->scribeEntries()->count());
+    }
+
+    /** A yes/no flag, or a field that is already empty, cannot be suggested empty */
+    public function test_a_flag_or_an_empty_field_cannot_be_suggested_empty()
+    {
+        $s = $this->original();
+        $this->convert($s, ['kind' => 'field', 'target_type' => 'manuscript', 'field_name' => 'is_autograph', 'clear' => '1'])
+            ->assertSessionHasErrors('suggested_value');
+        $this->convert($s, ['kind' => 'field', 'target_type' => 'manuscript', 'field_name' => 'copy_place', 'clear' => '1'])
+            ->assertSessionHasErrors('suggested_value');
+        $this->assertNull($s->fresh()->resolution);
+    }
+
+    /** A suggestion saved before step 14.60 without the value then on the record shows the value now */
+    public function test_a_field_suggestion_without_a_stored_current_value_shows_the_live_one()
+    {
+        $ms = $this->records['manuscript'];
+        $ms->update(['scribe_id' => $this->records['person']->id, 'scribe_name' => null, 'is_autograph' => true]);
+        $s = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $ms->id, 'kind' => 'field', 'field_name' => 'scribe_name',
+            'suggested_value' => '--', 'current_value' => null, 'user_id' => $this->researcher->id, 'status' => 'pending']);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()
+            ->assertSee('دستخط مؤلف (شخص تبدیل)')->assertDontSee('— فیلد خالی است —');
+    }
 }

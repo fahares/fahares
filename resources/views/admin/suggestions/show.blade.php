@@ -150,8 +150,8 @@
         @if($suggestion->kind === 'field')
             <x-ui.card class="space-y-2">
                 <h3 class="rubric text-base">مقدار کنونی</h3>
-                <p class="text-xs text-muted">در پایگاه داده، یا متن مأخذ چاپی</p>
-                <div class="whitespace-pre-line leading-7 text-ink min-h-16">{{ $suggestion->current_value ?: '— فیلد خالی است —' }}</div>
+                <p class="text-xs text-muted">{{ $currentIsLive ? 'اکنون در پایگاه داده (هنگام ثبت پیشنهاد ذخیره نشده بود)' : 'در پایگاه داده، یا متن مأخذ چاپی' }}</p>
+                <div class="whitespace-pre-line leading-7 text-ink min-h-16">{{ $currentValue ?: '— فیلد خالی است —' }}</div>
             </x-ui.card>
         @endif
 
@@ -159,7 +159,11 @@
         @if($suggestion->kind !== 'relation' || trim((string) $suggestion->suggested_value) !== '' || ! empty($suggestion->payload['shelfmark']))
         <x-ui.card framed class="space-y-2">
             <h3 class="rubric text-base">مقدار پیشنهادی پژوهشگر</h3>
-            <div class="whitespace-pre-line leading-7 font-semibold text-ink min-h-16">{{ $suggestion->suggested_value }}</div>
+            @if(! empty($suggestion->payload['clear']))
+                <div class="leading-7 font-semibold text-cinnabar min-h-16">{{ \App\Suggestions\SuggestionRegistry::CLEAR_LABEL }}</div>
+            @else
+                <div class="whitespace-pre-line leading-7 font-semibold text-ink min-h-16">{{ $suggestion->suggested_value }}</div>
+            @endif
             @if(! empty($suggestion->payload['shelfmark']))
                 <p>شماره‌ی تازه‌ی پیشنهادی: <b>{{ $suggestion->payload['shelfmark'] }}</b></p>
             @endif
@@ -271,7 +275,7 @@
 
                         @if($field['input'] === 'person')
                             @php
-                                $defaultPick = old('person_pick', $people['suggested'] ? 'p:' . $people['suggested']->id : ($people['current'] ? 'text' : ($people['candidates']->isNotEmpty() ? 'p:' . $people['candidates']->first()->id : 'create')));
+                                $defaultPick = old('person_pick', ! empty($suggestion->payload['clear']) ? 'clear' : ($people['suggested'] ? 'p:' . $people['suggested']->id : ($people['current'] ? 'text' : ($people['candidates']->isNotEmpty() ? 'p:' . $people['candidates']->first()->id : 'create'))));
                             @endphp
                             <fieldset class="space-y-1 p-4 bg-paper border border-line">
                                 <legend class="px-1 font-bold text-ink">پیوند به جدول اشخاص</legend>
@@ -296,6 +300,10 @@
                                 <label class="flex items-center gap-2 py-1">
                                     <input type="radio" name="person_pick" value="text" @checked($defaultPick === 'text') class="accent-cinnabar">
                                     <span>فقط ذخیره‌ی متن نام{{ $people['current'] ? ' (پیوند فعلی دست نمی‌خورد)' : ' (بدون پیوند)' }}</span>
+                                </label>
+                                <label class="flex items-center gap-2 py-1">
+                                    <input type="radio" name="person_pick" value="clear" @checked($defaultPick === 'clear') class="accent-cinnabar">
+                                    <span>خالی کردن فیلد: نام{{ $people['current'] ? ' و پیوند' : '' }} برداشته می‌شود{{ ! empty($field['autograph_column']) && $target?->{$field['autograph_column']} ? ' و نسخه دیگر «دستخط مؤلف» نیست' : '' }} (متن بالا نادیده گرفته می‌شود)</span>
                                 </label>
                             </fieldset>
                         @endif

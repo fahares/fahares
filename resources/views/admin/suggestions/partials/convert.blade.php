@@ -32,6 +32,7 @@
         'role' => old('role', ''),
         'value' => old('suggested_value', $prefill ?? ''),
         'personId' => old('person_id', ''),
+        'clear' => (bool) old('clear'),
         'fieldsUrl' => route('admin.suggestions.convert-fields', $suggestion),
         'lookupUrl' => route('suggestions.lookup'),
         'peopleUrl' => route('suggestions.people'),
@@ -137,7 +138,13 @@
         {{-- The value, in the input the public form gives this field --}}
         <template x-if="kind !== 'note'">
             <div class="space-y-3">
-                <div class="space-y-1">
+                <template x-if="field && field.clearable">
+                    <label class="flex items-center gap-2 font-bold text-ink">
+                        <input type="checkbox" name="clear" value="1" x-model="clear" class="accent-cinnabar">
+                        این فیلد خالی شود (مقدار کنونی نادرست است و مقدار درستی جای آن نمی‌نشیند؛ مثلاً کاتب نسخه مؤلف نیست و نامش معلوم نیست)
+                    </label>
+                </template>
+                <div class="space-y-1" x-show="!clearing">
                     <span class="block font-bold text-ink" x-text="valueLabel"></span>
                     <template x-if="field && field.input === 'catalog_page'">
                         <div class="space-y-1.5" x-data="{ vol: '', pg: '', row: '', absent: false,

@@ -76,7 +76,7 @@
                         </span>
                     @endif
                 @else
-                    <span class="text-ink" title="{{ $sug->suggested_value }}">{{ \Illuminate\Support\Str::limit($sug->suggested_value, 70) ?: '—' }}</span>
+                    <span class="text-ink" title="{{ $sug->suggested_label }}">{{ \Illuminate\Support\Str::limit($sug->suggested_label, 70) ?: '—' }}</span>
                 @endif
             </x-admin.cell>
             <x-admin.cell label="از">
