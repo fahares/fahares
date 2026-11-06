@@ -7813,6 +7813,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۷۵ نسخه نوشته شد و ۴۳ نسخه دوباره جلد گرفتند. خروجی داده‌های مشتق: dates=37، extents=51، lines=54.
   - `rebuild-scripts` خط ۱۹ نسخه را عوض کرد.
 - **آزمون:** `OtherCitationsTest::test_a_rebuilt_copy_whose_citation_changed_goes_to_the_volume_its_library_cites`
+- **اجرا در تولید (۱۵ آبان ۱۴۰۵):** هر سه فرمان با `scripts/dev/prod-run --wait jolly-tharp` اجرا شدند.
+  - اجرای نخست `rebuild-copies` از ۰۶:۱۳ تا ۰۸:۲۷ ماند و ssh با exit 255 قطع شد. تراکنش چیزی ننوشته بود.
+  - اجرای دوم (۰۸:۲۹:۰۶ تا ۰۸:۲۹:۳۲): `Rebuilding 75 copies`، `dates=37, extents=51, lines=54, pointers_linked=2` و `63 copies relinked`.
+  - `catalogs:link-volumes`: پس از اجرا ۲۸٬۱۱۸ نسخه بی‌جلد و ۳۲٬۳۶۱ نسخه بی‌فهرست‌نگار ماندند.
+  - `fahares:rebuild-scripts`: ۲۹ نسخه در گام ۱. «Scripts now: 19».
+  - وارسی با tinker: raw_text برابر v2 در ۷۵ از ۷۵ نسخه، ۷۵ ردیف audit، و جلد برای ۶۷ از ۷۵ نسخه.
 
 ### گام ۱۴.۵۲: نوع `source` در `SuggestionRegistry`
 - **ثبت:** `TYPES['source'] = Source::class` و `sourceFields()`: `title` (`required`)، `compiler`، `publisher`، `publication_year` (همه `text`) و `description` (`textarea`). همه ستون ساده‌ی `sources`اند و `SuggestionApplier` آن‌ها را مستقیم می‌نویسد. فهرست‌نگاران هر جلد (`cataloger_volume`) رکورد پیوسته‌اند و فیلد پیشنهاد نیستند.
