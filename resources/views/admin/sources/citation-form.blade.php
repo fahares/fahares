@@ -31,6 +31,13 @@
         هر تغییر را پیش از ذخیره با «پیش‌نمایش اثر» ببینید.
     </x-admin.notice>
 
+    @if($waiting = \App\Sources\CitationForms::awaitingImport())
+        <x-admin.notice tone="warn" class="text-xs">
+            الگوهای پیشین هنوز از <span dir="ltr">config/bibliography.php</span> به جدول نیامده‌اند (<span dir="ltr">{{ implode('، ', $waiting) }}</span>).
+            تا دستور <span dir="ltr">sources:import-citation-forms</span> اجرا نشود، الگو ذخیره نمی‌شود.
+        </x-admin.notice>
+    @endif
+
     @if($preview)
         @include('admin.sources.partials.citation-effect', ['effect' => $preview, 'done' => false])
     @endif

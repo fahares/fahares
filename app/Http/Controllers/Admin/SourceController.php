@@ -160,7 +160,7 @@ class SourceController extends Controller
         SourceMerger::forget([$source->id]);
 
         return redirect()->route('admin.sources.citations.create', $source)
-            ->with('success', "منبع «{$source->title}» با {$source->volumes_count} جلد ساخته شد. اکنون بگویید در مآخذ چگونه ارجاع داده می‌شود.");
+            ->with('success', "منبع «{$source->title}» با " . \App\Support\Fa::num($source->volumes_count) . " جلد ساخته شد. اکنون بگویید در مآخذ چگونه ارجاع داده می‌شود.");
     }
 
     /** @return list<int> the sources whose title is the same once spelling is evened out, or holds it */

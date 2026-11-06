@@ -94,13 +94,12 @@ class CitationFormEditor
             ? DB::table('source_pages')->whereIn('source_volume_id', DB::table('source_volumes')->whereIn('source_id',
                 DB::table('sources')->where('code', $citing ?? '')->select('id'))->select('id'))->select('id', 'text as body')
             : DB::table('source_entries')->where('legacy_type', 'work_bibliography')->select('id', 'citation_text as body');
-        $query->orderBy('id')->chunk(5000, function ($rows) use (&$out, $regex) {
-            foreach ($rows as $r) {
-                if (@preg_match($regex, CitationForms::normalize((string) $r->body))) {
-                    $out[$r->id] = (string) $r->body;
-                }
+        // by id, not by offset: an offset over source_entries reads every row before it again
+        foreach ($query->lazyById(5000) as $r) {
+            if (@preg_match($regex, CitationForms::normalize((string) $r->body))) {
+                $out[$r->id] = (string) $r->body;
             }
-        });
+        }
 
         return $out;
     }

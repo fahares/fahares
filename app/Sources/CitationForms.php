@@ -100,6 +100,24 @@ class CitationForms
         return trim(preg_replace('/\s+/u', ' ', $s));
     }
 
+    /**
+     * The sources of config/bibliography.php in the registry that have no form yet: while there is one, a form saved in
+     * the panel would leave it unread, so the panel waits for sources:import-citation-forms.
+     *
+     * @return list<string>
+     */
+    public static function awaitingImport(): array
+    {
+        if (! self::ready()) {
+            return array_keys(config('bibliography.sources', []));
+        }
+        $codes = DB::table('sources')->whereIn('code', array_keys(config('bibliography.sources', [])))->pluck('id', 'code');
+        $formed = DB::table('source_citation_forms')->whereIn('cited_source_id', $codes->values())->whereNull('citing_source_id')
+            ->where('context', 'bibliography')->pluck('cited_source_id')->all();
+
+        return $codes->reject(fn ($id) => in_array($id, $formed))->keys()->all();
+    }
+
     public static function forget(): void
     {
         Cache::forget(self::CACHE_KEY);

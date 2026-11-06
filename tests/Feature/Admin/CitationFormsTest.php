@@ -141,6 +141,17 @@ class CitationFormsTest extends TestCase
         $this->assertSame([], CitationForms::sources() === config('bibliography.sources') ? [] : ['the config is read again']);
     }
 
+    public function test_no_form_is_saved_before_the_config_patterns_are_imported()
+    {
+        $dharia = $this->source('dharia', 'الذریعة الی تصانیف الشیعة', 26);
+        $dena = $this->source('dena-test', 'فهرستواره دستنوشته‌های ایران', 2);
+        $this->actingAs($this->admin)->get(route('admin.sources.citations.create', $dena))->assertSee('sources:import-citation-forms');
+        $this->actingAs($this->admin)->post(route('admin.sources.citations.store', $dena), ['context' => 'bibliography', 'names' => 'دنا'])
+            ->assertSessionHas('error');
+        $this->assertSame(0, SourceCitationForm::count());
+        $this->assertArrayHasKey('dharia', CitationForms::sources());
+    }
+
     public function test_a_citing_sources_own_form_is_read_in_its_page_texts_only()
     {
         $dharia = $this->source('dharia', 'الذریعة الی تصانیف الشیعة', 26);

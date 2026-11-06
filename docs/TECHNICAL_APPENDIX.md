@@ -7782,3 +7782,38 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **صفحه‌ی جلد:** فهرست ۳۶۹ کتابخانه و ۱۰۶ فهرست‌نگار یک بار به‌صورت JSON می‌آید. هر select وقتی فرمش باز یا فوکوس می‌شود پر می‌شود. پیش از این تغییر، جلد ۵ «نشریه» با ۵۷ بخش ۳٫۸ مگابایت HTML داشت و پس از آن ۴۰۰ کیلوبایت دارد.
 - **آزمون:** `tests/Feature/Admin/AdminSourcesTest.php`، با ۷ آزمون، برای دسترسی، فهرست و فیلترها، ویرایش و برگرداندن، جلد، بخش‌ها و ادغام و برگرداندن آن.
 
+### گام ۱۴.۵۷: `source_citation_forms`، `CitationForms` و `CitationFormEditor`
+- **جدول:** `source_citation_forms` با ستون‌های `cited_source_id`، `citing_source_id` (تهی‌پذیر)، `context` (`bibliography` یا `page_text`)، `names`، `regex`، `options` (`volumes`، `unit`، `pairs_after_name`، `series_volumes`، `other_edition`)، `notes` و `examples`. migration: `2026_11_06_100001_create_source_citation_forms_table`.
+- **`App\Sources\CitationForms::sources($citing = 'fankha', $context = 'bibliography')`:**
+  - همان شکل `config('bibliography.sources')` را می‌سازد: کد منبع، `pattern`، `label`، `volumes` و جزئیات نمایش config.
+  - **ترتیب برتری:** «هر منبع» در مآخذ، «هر منبع» در همان context، منبع ارجاع‌دهنده در مآخذ، و منبع ارجاع‌دهنده در همان context.
+  - ترتیب منابع همان ترتیب کلیدهای config است، چون در `sourceAfter` نخستین الگوی جور برنده است.
+  - **منبعی که در config نمایش ندارد** کلید `plain` می‌گیرد، یعنی کرانه‌ی صفحه‌ی جلدها از `source_volumes`. `pageLink` برای آن ارجاع بی‌پیوند با `cite` می‌سازد، و `volumeOfColumn` جلد صفحه‌ی تنها را از کرانه‌ها پیدا می‌کند.
+  - **کش:** `citation-forms:v1`، که با ذخیره‌ی هر الگو و با `SourceMerger::forget` پاک می‌شود.
+  - **جدول خالی:** config همان‌گونه خوانده می‌شود. این برای فاصله‌ی استقرار تا migration است، و برای آزمون‌هایی که config را تغییر می‌دهند.
+  - **ساختن الگو از نام‌ها:** نام‌ها با همان یکسان‌سازی `BibliographyLinks::normalize` یکسان می‌شوند. نام بلندتر پیش از کوتاه‌تر می‌آید، و فاصله `\s?` می‌شود.
+- **`BibliographyLinks`:**
+  - `sources()` از `CitationForms` می‌خواند.
+  - `inProse($text, $citing)` منبع ارجاع‌دهنده را در `self::$citing` نگه می‌دارد، تا `segments` درون آن الگوی همان منبع را بخواند.
+  - regex نام‌ها در `inProse` به ازای هر منبع ارجاع‌دهنده کش می‌شود و `forget()` آن را پاک می‌کند.
+  - `PrintedPage::citing($code)` را `SourcePageController` پیش از نمایش صفحه صدا می‌زند.
+- **`sources:import-citation-forms`:**
+  - برای هر کلید config که منبعش در ثبت منابع هست، یک الگوی «هر منبع» در مآخذ می‌سازد. `pattern` در `regex` می‌رود و قاعده‌ها در `options`.
+  - `--check` منابع و همه‌ی رشته‌های مأخذ را با جدول و (درون تراکنشی برگردانده) بی جدول می‌خواند و مقایسه می‌کند.
+  - `--revert` الگوهایی را که خودش ساخته (`notes` نشان‌دار) پاک می‌کند.
+- **`App\Sources\CitationFormEditor::run()`:**
+  - فقط رشته‌هایی خوانده می‌شوند که الگوی پیشین یا تازه آن‌ها را می‌یابد (`lazyById`). این رشته‌ها پیش و پس از تغییر خوانده می‌شوند. در پیش‌نمایش تغییر درون تراکنش انجام و برگردانده می‌شود.
+  - دسته‌ها: `gained`، `taken` (به تفکیک منبع)، `lost`، `moved`، `other`، `unread`، و ۱۲ نمونه برای هر دسته.
+  - `sync()` مآخذ آثار تغییرکرده را با `App\Jobs\SyncWorkBibliographies` دوباره می‌سازد. فهرست منابع و جلدها یک بار خوانده می‌شود. اگر بیش از ۱٬۵۰۰ اثر باشد، کار در صف و پس از commit انجام می‌شود.
+- **`CitationFormController`:**
+  - ممیزی با `auditable_type = SourceCitationForm`، و `create`، `update` و `remove`.
+  - `old_values` الگوی پیشین است، به‌علاوه‌ی `snapshot`، یعنی ستون‌های مآخذ آن آثار، فشرده با `SourceMerger::pack`.
+  - برگرداندن با `undoLog`، از صفحه‌ی منبع یا از لاگ ممیزی (`AuditLogController::undo`). تا تغییر بعدیِ همان الگو برگردانده نشده، برگرداندن انجام نمی‌شود.
+  - تا `CitationForms::awaitingImport()` خالی نشود، ذخیره‌ی الگو پذیرفته نمی‌شود.
+- **ثبت منبع تازه (`SourceController::store`):**
+  - جلدهای منبع غیرکتابخانه‌ای فقط در `source_volumes` ساخته می‌شوند. شناسه‌های این جدول از یک میلیون آغاز می‌شود و با `catalog_volumes` برخورد نمی‌کند.
+  - جلدهای فهرست کتابخانه در هر دو جدول با یک شناسه ساخته می‌شوند. این کار با `DB::table` انجام می‌شود، تا قلاب `CatalogVolume::saved` منبعی جدا برایشان نسازد.
+  - `metadata.images = false`.
+- **`SourceMerger`:** الگوهای منبع ادغام‌شده، چه ارجاع‌شده و چه ارجاع‌دهنده، به منبع ماندنی می‌روند. الگوی منبع به خودش پاک می‌شود. همه در snapshot ادغام هست و با برگرداندن برمی‌گردد.
+- **آزمون:** `tests/Feature/Admin/CitationFormsTest.php`، با ۵ آزمون. یک بند هم به آزمون ادغام در `AdminSourcesTest` افزوده شد.
+

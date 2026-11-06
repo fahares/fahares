@@ -113,7 +113,7 @@ class CitationFormController extends Controller
             'auditable_id' => $log->auditable_id,
             'action' => 'rollback_' . $log->action,
             'old_values' => ['rolled_back_log_id' => $log->id, 'cited_source_id' => $log->new_values['cited_source_id'] ?? $before['cited_source_id'] ?? null],
-            'new_values' => $before ?: ['removed' => true],
+            'new_values' => $before ?: ['removed' => true, 'names' => $log->new_values['names'] ?? null, 'cited_source_id' => $log->new_values['cited_source_id'] ?? null],
             'ip_address' => $request->ip(),
         ]);
     }
@@ -130,6 +130,10 @@ class CitationFormController extends Controller
             ?? ($context === 'bibliography' ? 'fankha' : null);
         $patterns = [$form?->pattern(), $values ? CitationForms::pattern($values['regex'] ?? null, $values['names'] ?? []) : null];
         $back = $form?->exists ? route('admin.sources.citations.edit', [$source, $form]) : route('admin.sources.citations.create', [$source, 'citing' => $values['citing_source_id'] ?? null]);
+        if ($waiting = CitationForms::awaitingImport()) {
+            return redirect($back)->withInput()->with('error', 'نخست باید الگوهای config/bibliography.php با sources:import-citation-forms به جدول بیایند ('
+                . implode('، ', $waiting) . ')؛ تا آن وقت الگوی تازه آن‌ها را از خواندن می‌اندازد.');
+        }
 
         if ($request->boolean('preview')) {
             $effect = $editor->run($source, $change, $patterns, $context, $citing, dry: true);

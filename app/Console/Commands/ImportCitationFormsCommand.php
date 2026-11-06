@@ -68,12 +68,9 @@ class ImportCitationFormsCommand extends Command
     {
         $read = function () {
             $out = [];
-            DB::table('source_entries')->where('legacy_type', 'work_bibliography')->orderBy('id')->select('id', 'citation_text')
-                ->chunk(5000, function ($rows) use (&$out) {
-                    foreach ($rows as $r) {
-                        $out[$r->id] = md5(json_encode(\App\Support\BibliographyLinks::segments((string) $r->citation_text)));
-                    }
-                });
+            foreach (DB::table('source_entries')->where('legacy_type', 'work_bibliography')->select('id', 'citation_text')->lazyById(5000) as $r) {
+                $out[$r->id] = md5(json_encode(\App\Support\BibliographyLinks::segments((string) $r->citation_text)));
+            }
 
             return $out;
         };
