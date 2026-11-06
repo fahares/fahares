@@ -8109,3 +8109,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `MarkHedgedAuthorsCommandTest::test_a_description_that_was_only_the_author_line_is_emptied`
 - **اجرا در تولید:** `fahares:mark-hedged-authors --file=database/data/fankha_hedged_authors_step14_65.json --apply`
   - **اجرا (۱۵ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. پشتیبان همان گزینش فرمان را دارد: ۱۶ اثر فایل و ۴۴ اثری که `hedgeOf` تازه می‌یابد. خروجی «Written. marked 44, added 16». audit: ۴۴ ردیف «step 14.38» و ۱۶ ردیف `step14_65`.
+
+### گام ۱۴.۶۷: `fankha_v2_fill_incipits_export.py`
+- **دسته‌بندی `different` (review8):** ۲۸۳ ردیف `incipit_text` و `explicit_text`. پس از برداشتن برچسب‌ها («آغاز …:»، «انجام:»، «(دیباچه):») و سنجش حرف‌ها:
+  - **نسخه‌ها:** ۱۴۹ مورد بریده یا افزوده، و ۵۱ مورد پیوستن بخش‌ها.
+  - **آثار:** ۴۰ مورد. مقدار سایت در هر ۴۰ در `raw_text` خود اثر است. مقدار v2 در ۲۶ مورد هست و در ۱۴ مورد (رشته‌های «ساقی نامه» و «الغیبة») نیست.
+- **اسکریپت تازه در fahares-corpus:** `scripts/fankha_v2_fill_incipits_export.py --diffs … --works FILE --copies FILE`.
+  - **ورودی:** ردیف‌های `filled` که حفاظت‌شده نیستند.
+  - **شرط:** ستون سایت خالی است، و `letters(v2)` (بی فاصله، نشانه و عدد) زیررشته‌ی `letters(raw_text)` همان رکورد است.
+  - **خروجی:** `work_updates` برای `add-corpus-works`، با `v2` برابر کلید طبیعی slug، و `records` برای `rebuild-copies`.
+  - اسکریپت باید پیش از هر اجرا روی همان پایگاه صادر شود: پس از اجرا، ستون پر است و رکورد بیرون می‌ماند. فایل نسخه‌ها پس از تمرین از audit همان اجرا بازساخته شد (۱۹۰ رکورد و ۳۷۳ مقدار، همه با `from` خالی).
+- **فایل‌ها:** `database/data/fankha_incipits_works_step14_67.json` (۴۳۲ اثر، ۶۸۹ مقدار) و `database/data/fankha_incipits_copies_step14_67.json` (۱۹۰ نسخه، ۳۷۳ مقدار).
+- **تمرین روی fahares_prod:**
+  - `add-corpus-works`: «update 432»، «Derived data of works: works=432, with_dedication=42». بار نخست کلید `v2` نبود و تراکنش برگشت.
+  - `rebuild-copies`: «Rebuilding 190 copies»، `pointers_linked=260`، و «2 copies relinked».
+  - اجرای دوم: «update 0» و `already 190`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_incipits_works_step14_67.json --apply`
+  2. `fahares:rebuild-copies --file=database/data/fankha_incipits_copies_step14_67.json --apply`

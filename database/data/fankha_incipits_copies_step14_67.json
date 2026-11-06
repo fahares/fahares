@@ -1,0 +1,3207 @@
+{
+ "source": "incipits and explicits of the record's own text (reports/fankha_v2_db_review8/diffs.jsonl), 2026-11-06; fahares step 14.67",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 17375,
+   "shelfmark": "103 حکمت",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17376,
+   "shelfmark": "5888/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22418,
+   "shelfmark": "5996/76",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": "",
+     "to": "[فی الاسد] تیغ ترکان خطائی اندر و خوب و نکو ×× لیک نو پوشیدن و جایی سفر کردن مجو. في السنبله چون مه از برج اسد آید به برج سنبله ×× در ره و هامون همی باید شدن با قافله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23760,
+   "shelfmark": "10608",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23762,
+   "shelfmark": "1727",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23830,
+   "shelfmark": "4218/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23831,
+   "shelfmark": "197",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23832,
+   "shelfmark": "199",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23849,
+   "shelfmark": "10565",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23852,
+   "shelfmark": "198",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23853,
+   "shelfmark": "10224/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23854,
+   "shelfmark": "1340ط",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23859,
+   "shelfmark": "541",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23861,
+   "shelfmark": "1096",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23862,
+   "shelfmark": "2959",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23863,
+   "shelfmark": "5725-29/65",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23884,
+   "shelfmark": "2266",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23905,
+   "shelfmark": "1232",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23912,
+   "shelfmark": "3505",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23932,
+   "shelfmark": "495",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23933,
+   "shelfmark": "240",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23935,
+   "shelfmark": "392",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30257,
+   "shelfmark": "1149/5",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30258,
+   "shelfmark": "78-ح/595/5",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38032,
+   "shelfmark": "1670/2-9/220",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38078,
+   "shelfmark": "14704/4",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38086,
+   "shelfmark": "2396",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38087,
+   "shelfmark": "6506",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38088,
+   "shelfmark": "4027/12",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40522,
+   "shelfmark": "1015/6",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40523,
+   "shelfmark": "612",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40525,
+   "shelfmark": "10128/6",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49937,
+   "shelfmark": "90/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49940,
+   "shelfmark": "7724/5",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49941,
+   "shelfmark": "2200/6",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64060,
+   "shelfmark": "3190",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر4"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر4"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64063,
+   "shelfmark": "132",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر4"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر4"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71526,
+   "shelfmark": "2113",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80430,
+   "shelfmark": "50/23",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80431,
+   "shelfmark": "10768/5",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80432,
+   "shelfmark": "562/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80439,
+   "shelfmark": "3067/42",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80440,
+   "shelfmark": "1372/8ط",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80443,
+   "shelfmark": "18/7",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89470,
+   "shelfmark": "13741/23",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105928,
+   "shelfmark": "2261/17",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105929,
+   "shelfmark": "2261/19",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105930,
+   "shelfmark": "2824/5",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105932,
+   "shelfmark": "12145/14",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105933,
+   "shelfmark": "18404",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105934,
+   "shelfmark": "1062/4",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106757,
+   "shelfmark": "112/1 - ب",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106758,
+   "shelfmark": "4003/4",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106760,
+   "shelfmark": "1224/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106761,
+   "shelfmark": "5513/1-27/183",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106762,
+   "shelfmark": "5513/2-27/183",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106764,
+   "shelfmark": "1539/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106765,
+   "shelfmark": "10269",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106766,
+   "shelfmark": "229",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106767,
+   "shelfmark": "1009",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106768,
+   "shelfmark": "1010",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106769,
+   "shelfmark": "22789/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106780,
+   "shelfmark": "1638",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106837,
+   "shelfmark": "851/8",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107989,
+   "shelfmark": "2207/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ فرغ من نقله الى البیاض اقل العباد عملا و اکثرهم رجاء و املا، محمد المشتهر ببهاء الدین العاملی عامله الله بلطفه الخفى و الجلی فی ثانی عشر اول شهور السنة الثامنة من العشر الثانی بعد الالف ..."
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ فرغ من نقله الى البیاض اقل العباد عملا و اکثرهم رجاء و املا، محمد المشتهر ببهاء الدین العاملی عامله الله بلطفه الخفى و الجلی فی ثانی عشر اول شهور السنة الثامنة من العشر الثانی بعد الالف ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111051,
+   "shelfmark": "22481/4",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124956,
+   "shelfmark": "4216/17",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124957,
+   "shelfmark": "1682/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124959,
+   "shelfmark": "2920/25",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124962,
+   "shelfmark": "1015/34",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124968,
+   "shelfmark": "2814/8",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124975,
+   "shelfmark": "3067/26",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124977,
+   "shelfmark": "59/13",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125250,
+   "shelfmark": "11976",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125260,
+   "shelfmark": "2114",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125279,
+   "shelfmark": "10408",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125280,
+   "shelfmark": "14044",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125302,
+   "shelfmark": "37303",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125304,
+   "shelfmark": "6645-34/15",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125309,
+   "shelfmark": "29004",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125370,
+   "shelfmark": "24215",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125374,
+   "shelfmark": "4485",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125383,
+   "shelfmark": "178",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125386,
+   "shelfmark": "1663-عکسی",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125389,
+   "shelfmark": "10536",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125417,
+   "shelfmark": "2400-13/80",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125420,
+   "shelfmark": "16453",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125421,
+   "shelfmark": "10",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125422,
+   "shelfmark": "148",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125424,
+   "shelfmark": "2466",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125430,
+   "shelfmark": "13313",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125452,
+   "shelfmark": "4354",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125456,
+   "shelfmark": "6269",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125464,
+   "shelfmark": "2006",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125495,
+   "shelfmark": "1221",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125503,
+   "shelfmark": "159",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125507,
+   "shelfmark": "1648",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136950,
+   "shelfmark": "27728",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": "",
+     "to": "[فضائل الصلوة على النبى (ص)] قال من صلى على تعضیماً لحقى خلق الله عز و جل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 151562,
+   "shelfmark": "5863/4",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154489,
+   "shelfmark": "ض 26971",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": "",
+     "to": "[فی الرسالة المذهبة المعروف بالذهبية وجدت بخط الشيخ الاجل الافضل العلامة الكامل ... علی بن عبدالعالی الکرکی ...] الرسالة الذهبية فی الطب التی بعث بها الامام علی بن موسی الرضا علیه السلام"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157711,
+   "shelfmark": "1030/17",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157723,
+   "shelfmark": "3619/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157732,
+   "shelfmark": "21257",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157733,
+   "shelfmark": "1909",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157735,
+   "shelfmark": "10031/8",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161088,
+   "shelfmark": "285",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172019,
+   "shelfmark": "4243/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172020,
+   "shelfmark": "4243/10",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173994,
+   "shelfmark": "3628",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174004,
+   "shelfmark": "10690",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174006,
+   "shelfmark": "612",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174010,
+   "shelfmark": "1541/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 184868,
+   "shelfmark": "515",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 194071,
+   "shelfmark": "15285",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": "",
+     "to": "[فصل] ... جابر، نعم [الادام] الخل فقال رسول الله صلى الله عليه ... الادم فقالوا ما عندنا الاخل فدعا به فجعل ... و يقول نعم الادام"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 197974,
+   "shelfmark": "546/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 197975,
+   "shelfmark": "3065/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202239,
+   "shelfmark": "2392",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202271,
+   "shelfmark": "927",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202285,
+   "shelfmark": "11566",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202286,
+   "shelfmark": "12897",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202287,
+   "shelfmark": "14702/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202298,
+   "shelfmark": "19613",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202299,
+   "shelfmark": "19961",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202440,
+   "shelfmark": "79",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202451,
+   "shelfmark": "5",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202466,
+   "shelfmark": "14 بخش دوم",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202477,
+   "shelfmark": "741 ط",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202499,
+   "shelfmark": "15551",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202501,
+   "shelfmark": "11093",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202502,
+   "shelfmark": "38276",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202578,
+   "shelfmark": "4916-25/6",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202589,
+   "shelfmark": "19488",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202592,
+   "shelfmark": "8502",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202594,
+   "shelfmark": "7612-38/232",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202599,
+   "shelfmark": "28297",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202602,
+   "shelfmark": "7188-36/188",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202723,
+   "shelfmark": "2397",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202725,
+   "shelfmark": "1717",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202727,
+   "shelfmark": "1679",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202821,
+   "shelfmark": "2786/1-15/26",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202872,
+   "shelfmark": "27055",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202910,
+   "shelfmark": "5314-26/194",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202937,
+   "shelfmark": "20069",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202939,
+   "shelfmark": "8478",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202956,
+   "shelfmark": "315",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202957,
+   "shelfmark": "7201-36/201",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202990,
+   "shelfmark": "11075",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202991,
+   "shelfmark": "20",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202994,
+   "shelfmark": "13228/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202996,
+   "shelfmark": "14825/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 202998,
+   "shelfmark": "15625",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203003,
+   "shelfmark": "27855",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203004,
+   "shelfmark": "38120",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203005,
+   "shelfmark": "19940",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203272,
+   "shelfmark": "293",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203307,
+   "shelfmark": "295",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203441,
+   "shelfmark": "1888-عکسی",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207861,
+   "shelfmark": "3456/15",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222166,
+   "shelfmark": "1740/5-عکسی",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر؛ وقع الفراغ من تسويدها ليلة التاسعة و العشرين من جمادی الاولى من السنة العاشرة بعد المائتين و الالف. بقلم مؤلفها حامداً مستغفراً."
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر؛ وقع الفراغ من تسويدها ليلة التاسعة و العشرين من جمادی الاولى من السنة العاشرة بعد المائتين و الالف. بقلم مؤلفها حامداً مستغفراً."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232144,
+   "shelfmark": "389/7-طباطبائی",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232146,
+   "shelfmark": "659",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232147,
+   "shelfmark": "5710/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232149,
+   "shelfmark": "14797/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232150,
+   "shelfmark": "3460/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232151,
+   "shelfmark": "7004/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235282,
+   "shelfmark": "85/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235283,
+   "shelfmark": "566/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235284,
+   "shelfmark": "255/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235289,
+   "shelfmark": "4196/13",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 246758,
+   "shelfmark": "6049/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": "",
+     "to": "[فصل] هم بود لفظ مرکب بر دو حال ×× تام و غیر تام ای نیکو مقال"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 253913,
+   "shelfmark": "6284",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "explicit_text": {
+     "from": "",
+     "to": "[قمع: و من الجهلة] من زعم ... و تحمل من الناس الاسوة فهو مرائى متصنع كائنا من كان ..."
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287410,
+   "shelfmark": "12853/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287411,
+   "shelfmark": "8208/1",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291417,
+   "shelfmark": "405/19",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294780,
+   "shelfmark": "4806-24/106",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295840,
+   "shelfmark": "3224",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295842,
+   "shelfmark": "7067-36/67",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295992,
+   "shelfmark": "4066",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 295996,
+   "shelfmark": "1142 ط",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296006,
+   "shelfmark": "12384",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296008,
+   "shelfmark": "111",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296012,
+   "shelfmark": "1913",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر3"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319736,
+   "shelfmark": "285",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319737,
+   "shelfmark": "3008/28 حاشیه",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319738,
+   "shelfmark": "12059/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320953,
+   "shelfmark": "1255/13",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320956,
+   "shelfmark": "7419/4-38/39",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320957,
+   "shelfmark": "628/2",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320965,
+   "shelfmark": "4931/3",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر1"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332617,
+   "shelfmark": "1639",
+   "category": "incipits",
+   "v2": "filled",
+   "changes": {
+    "incipit_text": {
+     "from": null,
+     "to": "برابر2"
+    },
+    "explicit_text": {
+     "from": null,
+     "to": "برابر2"
+    }
+   }
+  }
+ ]
+}
