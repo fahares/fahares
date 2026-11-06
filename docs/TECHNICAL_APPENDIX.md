@@ -7677,13 +7677,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۲۷۱۴۹۲.
 - **آزمون:** `NoorReferenceBooksTest::test_rayhanas_text_from_eshia_ties_a_work_to_its_authors_life`، با فیکسچر `rayhana-v01-p100`.
 
-### گام ۱۴.۵۲: نوع `source` در `SuggestionRegistry`
-- **ثبت:** `TYPES['source'] = Source::class` و `sourceFields()`: `title` (`required`)، `compiler`، `publisher`، `publication_year` (همه `text`) و `description` (`textarea`). همه ستون ساده‌ی `sources`اند و `SuggestionApplier` آن‌ها را مستقیم می‌نویسد. فهرست‌نگاران هر جلد (`cataloger_volume`) رکورد پیوسته‌اند و فیلد پیشنهاد نیستند.
-- **پیرامون:** `describe()` با نشانی `sources.show` (بی کد: `sources.index`)، `typeLabel()` «منبع»، `NoteTypes::BY_RECORD['source']` = `link`، `observation`، `study`. `RELATIONS` برای منبع کلیدی ندارد.
-- **صفحه:** `sources/show.blade.php` اکنون `x-suggest.toggle`، `x-suggest.field` برای پنج فیلد، `x-suggest.readings`، `x-suggest.notes` و `x-suggest.desk` دارد. `AppServiceProvider` قرائت‌ها و یادداشت‌های `sources.show` را هم به نما می‌دهد.
-- **تبدیل:** `Admin\SuggestionController::recordId('source', $ref)` کد را از `/sources/{code}` می‌خواند (کد ادغام‌شده با `Source::mergedInto`)، یا کد یا شناسه‌ی خالی را می‌پذیرد. `SuggestionController::lookup` منبع را با عنوان، نام کوتاه یا کد می‌جوید.
-- **ابزار ساختاری:** مسیرهای `admin.structure.*` و فهرست نوع‌های `admin/structure` اکنون از کلیدهای `RELATIONS` می‌آیند، نه `TYPES`. `structureUrl` میز پیشنهاد برای نوعی که رابطه ندارد خالی است.
-- **آزمون:** `tests/Feature/SourceSuggestionTest.php` (صفحه، ثبت و تأیید `compiler`، یادداشت، تبدیل پیشنهادی از کتابخانه با پیوند منبع). `ConvertSuggestionTest` منبع را هم در هر نوع رکورد می‌آزماید.
 ### گام ۱۴.۴۷: «مؤلفین کتب چاپی فارسی و عربی» مشار (مورد ۸۶)
 - **منشأ:** کتب مرجع ۲ نور، سری `03299`، شش جلد (`03299_001` تا `03299_006`). هر جلد صفحه‌های خودش را از ۱ می‌شمارد. سرعنوان سطح ۳ مؤلف است و سطح‌های ۴ تا ۶ کتاب‌های چاپی او («1 - دختر جنگل:»، «(الف) اقبالنامه …»).
 - **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):**
@@ -7772,3 +7765,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   اجرای دوم همین شمارها را داد.
 - **جلد:** `public/images/sources/covers/catalogue-41322fd8f0f4.webp` (۴۳۱×۶۳۰) از نورلیب، کتاب ۱۳۲۸۳۸ (`file/book/cover/pP4qFzeazOxXxiHSePpLjABvgA_L8uUcqxvyl_V6O3c`). همان پارامترهای Pillow گام ۱۴.۴۵ به کار رفت. سابقه‌اش در `../fahares-sources/web-covers/manifest.json` ثبت شد (۶۹ مورد).
 - **آزمون:** `FixAbdolazimNavabCataloguesTest`.
+
+### گام ۱۴.۵۲: نوع `source` در `SuggestionRegistry`
+- **ثبت:** `TYPES['source'] = Source::class` و `sourceFields()`: `title` (`required`)، `compiler`، `publisher`، `publication_year` (همه `text`) و `description` (`textarea`). همه ستون ساده‌ی `sources`اند و `SuggestionApplier` آن‌ها را مستقیم می‌نویسد. فهرست‌نگاران هر جلد (`cataloger_volume`) رکورد پیوسته‌اند و فیلد پیشنهاد نیستند.
+- **پیرامون:** `describe()` با نشانی `sources.show` (بی کد: `sources.index`)، `typeLabel()` «منبع»، `NoteTypes::BY_RECORD['source']` = `link`، `observation`، `study`. `RELATIONS` برای منبع کلیدی ندارد.
+- **صفحه:** `sources/show.blade.php` اکنون `x-suggest.toggle`، `x-suggest.field` برای پنج فیلد، `x-suggest.readings`، `x-suggest.notes` و `x-suggest.desk` دارد. `AppServiceProvider` قرائت‌ها و یادداشت‌های `sources.show` را هم به نما می‌دهد.
+- **تبدیل:** `Admin\SuggestionController::recordId('source', $ref)` کد را از `/sources/{code}` می‌خواند (کد ادغام‌شده با `Source::mergedInto`)، یا کد یا شناسه‌ی خالی را می‌پذیرد. `SuggestionController::lookup` منبع را با عنوان، نام کوتاه یا کد می‌جوید.
+- **ابزار ساختاری:** مسیرهای `admin.structure.*` و فهرست نوع‌های `admin/structure` اکنون از کلیدهای `RELATIONS` می‌آیند، نه `TYPES`. `structureUrl` میز پیشنهاد برای نوعی که رابطه ندارد خالی است.
+- **آزمون:** `tests/Feature/SourceSuggestionTest.php` (صفحه، ثبت و تأیید `compiler`، یادداشت، تبدیل پیشنهادی از کتابخانه با پیوند منبع). `ConvertSuggestionTest` منبع را هم در هر نوع رکورد می‌آزماید.
