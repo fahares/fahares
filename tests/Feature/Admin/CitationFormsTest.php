@@ -68,7 +68,8 @@ class CitationFormsTest extends TestCase
     {
         $this->source('dharia', 'الذریعة الی تصانیف الشیعة', 26);
         $this->source('kashf', 'کشف الظنون', 2);
-        $work = $this->work(['الذریعة 90/25 و 107/8', 'کشف الظنون 1266', 'دنا 2/207']);
+        // «مؤلفین مشار» is not in this registry, as it was not in production's: it has no form and is read from config
+        $work = $this->work(['الذریعة 90/25 و 107/8', 'کشف الظنون 1266', 'دنا 2/207', 'مؤلفین مشار 89/1']);
         $before = array_map(fn ($e) => BibliographyLinks::segments($e), $work->bibliography);
         $config = config('bibliography.sources');
         $this->assertSame($config, CitationForms::sources(), 'with no form, config is read as it is');
@@ -80,9 +81,11 @@ class CitationFormsTest extends TestCase
         $this->assertNull(SourceCitationForm::first()->citing_source_id, 'read in any source');
 
         $read = CitationForms::sources();
-        $this->assertSame(['dharia', 'kashf'], array_keys($read));
-        $this->assertEquals($config['dharia'], $read['dharia']);
-        $this->assertEquals($config['kashf'], $read['kashf']);
+        $this->assertSame(array_keys($config), array_keys($read), 'a source with no registry row stays, in its place');
+        foreach ($config as $code => $entry) {
+            $this->assertEquals($entry, $read[$code], $code);
+        }
+        $this->assertSame('mushar-authors', collect(BibliographyLinks::segments('مؤلفین مشار 89/1'))->pluck('cite.source')->filter()->first());
         $this->assertSame($before, array_map(fn ($e) => BibliographyLinks::segments($e), $work->bibliography));
         $this->artisan('sources:import-citation-forms', ['--check' => true])->assertSuccessful()->expectsOutputToContain('0 differ');
 

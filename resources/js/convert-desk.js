@@ -31,6 +31,11 @@ export default (setup) => ({
         return this.fields.find((f) => f.name === this.fieldName) ?? null;
     },
 
+    // «این فیلد خالی شود» sends no value (step 14.60)
+    get clearing() {
+        return !!(this.clear && this.field && this.field.clearable);
+    },
+
     get note() {
         if (this.kind !== 'note') return null;
         return this.types[this.targetType]?.notes.find((n) => n.key === this.fieldName) ?? null;

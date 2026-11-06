@@ -69,7 +69,7 @@
                 <span class="{{ $pill }} {{ $statusClass }} shrink-0">{{ $statusLabel }}</span>
             </div>
 
-            <div class="p-3 rounded-sm bg-paper text-ink whitespace-pre-line break-words">{{ \Illuminate\Support\Str::limit($s->suggested_value, 600) }}</div>
+            <div class="p-3 rounded-sm bg-paper text-ink whitespace-pre-line break-words">{{ \Illuminate\Support\Str::limit($s->suggested_label, 600) }}</div>
 
             @if($s->applied_value !== null && trim($s->applied_value) !== trim($s->suggested_value))
                 <p class="text-ink/80"><span class="font-bold text-muted">مقدار ثبت‌شده:</span> {{ $s->display_value }}</p>
