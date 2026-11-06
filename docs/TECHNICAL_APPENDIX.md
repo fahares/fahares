@@ -7805,3 +7805,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **در فنخا:** ردیف ۵۲۲ کتاب شاکری است (۱۳۴۸، ۱۲۷ ص). ردیف ۵۴۰ سهم «کتابخانه فرهنگ» در «چهار کتابخانه مشهد» است (۱۳۵۱، ص ۴۵–۵۵).
   - **وضعیت:** اصلاح نشد.
 - **آزمون:** `FixJaliliCatalogueTest`.
+
+### گام ۱۴.۵۶: `catalogs:fix-farhang-honar`
+- **فرمان:** [FixFarhangHonarCatalogueCommand](../app/Console/Commands/FixFarhangHonarCatalogueCommand.php) زیرکلاس `FixAbdolazimNavabCataloguesCommand` است.
+  - **ثابت تازه‌ی فرمان پایه:** `NEW_CATALOGERS`، از شناسه‌ی MTIF به ویژگی‌های فهرست‌نگار. اگر فهرست‌نگار درست رکورد نداشته باشد، dry-run آن را «ساخته می‌شود» گزارش می‌کند و اجرای اصلی آن را درون همان تراکنش می‌سازد.
+- **شاکری در mtif:** رکورد شخص ۳۷۲۴۸ در `../fahares-sources/mtif/mtif_db.sql.gz` با «عنوان: رمضانعلی شاکری».
+- **رکورد تازه:**
+  - نام «رمضانعلی شاکری»، slug `رمضانعلی-شاکری`.
+  - شرح کوتاهی از همین فهرست، و `metadata.major_catalogs`.
+- **جلد ۴۹۲:**
+  - عنوان «فهرست کتب خطی کتابخانه عمومی فرهنگ و هنر مشهد».
+  - ناشر «فرهنگ و هنر خراسان»، سال ۱۳۴۸، `pages_count` ۱۲۷. این‌ها از ردیف ۵۲۲ فنخا و روی جلد گرفته شده‌اند.
+  - `metadata.group` منبع به کلید عنوان تازه تغییر کرد.
+- **تمرین روی `fahares_prod` محلی:**
+  - ۱۶۴ نسخه جابه‌جا شد.
+  - پس از اجرا بینش ۱ جلد و ۴۰۵ نسخه دارد و شاکری ۱ جلد و ۱۶۴ نسخه.
+- **آزمون:** `FixFarhangHonarCatalogueTest`.
