@@ -8511,6 +8511,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پیوند ۳۰ بی‌اثر.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار و پس از اجرای پیوند طبقات (گام ۱۴.۸۱)، `php artisan sources:tie-lives-to-people` اجرا می‌شود. این فرمان را باید پس از هر بار اجرای `link-items` یا `link-earlier-edition` منبع تراجم دوباره اجرا کرد.
 
+### گام ۱۴.۸۴: `missing_copies_held.json` و اثر ‎-v5-1792
+- **سنجش ۵۶ نسخه در پروداکشن (فقط‌خواندنی):** در همان جلد، صفحه ±۲، شماره‌ی نسخه‌ی بی‌فاصله، و سه حرف نخست کتابخانه.
+  - نتیجه: `found` ۵۳ و `missing` ۳.
+  - از آن سه، دو نسخه با شماره‌ی نسخه‌ی تنها پیدا شدند: 334850 «مجلس 12563/6» و 334891 «مسجد اعظم 3772/4».
+- **v5-1114 (۱۵ نسخه):** `fankha_v2_run_works_export.py --next 5:1792 v5-1114`. بیشینه‌ی شماره‌ی slug ج ۵ در پروداکشن ۱۷۹۱ بود. خروجی: «14 moved, 1 made». جابه‌جایی‌ها از `…-v5-1108` است.
+- **فایل:** `database/data/fankha_bihar_translation_step14_84.json`.
+- **بی‌نوشتن:** در نسخه‌ی محلی و در پروداکشن، هر دو «Would add 1 works … 14 moved, 1 made».
+- **تمرین روی fahares_prod:** «Adding 1 works … 14 moved, 1 made». پس از آن `link-volumes` و `rebuild-scripts`. اجرای دوم: «Would add 0 works».
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_bihar_translation_step14_84.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
+
 ### گام ۱۴.۸۶: اسکن‌های archive.org برای طبقات، طبقات الفقهاء و الزیدیة
 - **منشأ:**
   - **طبقات أعلام الشیعة:** `{N}_2022090x`، «طبقات أعلام الشيعة ـ الجز N»، ۱۷ مورد، تاریخ ۲۰۰۹.
@@ -8572,15 +8585,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تراجم ۳:** طرازی، و فهرست‌های پزشکی ظاهریه و ترکیه.
   - **شامله:** حدود ۴۵ فهرست عربی.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
-### گام ۱۴.۸۴: `missing_copies_held.json` و اثر ‎-v5-1792
-- **سنجش ۵۶ نسخه در پروداکشن (فقط‌خواندنی):** در همان جلد، صفحه ±۲، شماره‌ی نسخه‌ی بی‌فاصله، و سه حرف نخست کتابخانه.
-  - نتیجه: `found` ۵۳ و `missing` ۳.
-  - از آن سه، دو نسخه با شماره‌ی نسخه‌ی تنها پیدا شدند: 334850 «مجلس 12563/6» و 334891 «مسجد اعظم 3772/4».
-- **v5-1114 (۱۵ نسخه):** `fankha_v2_run_works_export.py --next 5:1792 v5-1114`. بیشینه‌ی شماره‌ی slug ج ۵ در پروداکشن ۱۷۹۱ بود. خروجی: «14 moved, 1 made». جابه‌جایی‌ها از `…-v5-1108` است.
-- **فایل:** `database/data/fankha_bihar_translation_step14_84.json`.
-- **بی‌نوشتن:** در نسخه‌ی محلی و در پروداکشن، هر دو «Would add 1 works … 14 moved, 1 made».
-- **تمرین روی fahares_prod:** «Adding 1 works … 14 moved, 1 made». پس از آن `link-volumes` و `rebuild-scripts`. اجرای دوم: «Would add 0 works».
-- **ترتیب اجرا در تولید:**
-  1. `fahares:add-corpus-works --file=database/data/fankha_bihar_translation_step14_84.json --apply`
-  2. `catalogs:link-volumes`
-  3. `fahares:rebuild-scripts`
