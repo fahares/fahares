@@ -8314,6 +8314,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_75.json` با ۶۷۴ رکورد (`changes.has_marginal_notes`، ۴۰۲ روشن و ۲۷۲ خاموش)، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 674 copies» و `pointers_linked=5`. اجرای دوم `already 674`.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_75.json --apply`
+  - **اجرا (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. «Rebuilding 674 copies»؛ اجرای دوم `already 674`. پشتیبان مشترک دو گام: `step14_75_77_before.json`.
 
 ### گام ۱۴.۷۶: `fahares:link-copy-references --revert=… --only=…`
 - **`revertOnly()`** در [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php):
@@ -8344,6 +8345,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_77.json` با ۹۷۹ رکورد، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 979 copies». اجرای دوم `already 979` بود.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_77.json --apply`
+  - **اجرا (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. «Rebuilding 979 copies»؛ اجرای دوم `already 979`. پشتیبان مشترک دو گام: `step14_75_77_before.json`.
 
 ### گام ۱۴.۷۸: `Contributions::withCopyMerges`
 - **`forRecord()`** برای نسخه: پس از `summarize`، هر `metadata.former_locations` بی `suggestion_id` که `note` آن «همان نسخه» دارد، یک ردیف ساختگی می‌شود. این ردیف `suggestion` = null دارد، و `key` (برای `data-history`)، `contributor.kind` = `machine`، `line` و `children` دارد.
