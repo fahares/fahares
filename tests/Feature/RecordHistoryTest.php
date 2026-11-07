@@ -132,7 +132,8 @@ class RecordHistoryTest extends TestCase
 
     public function test_a_relocated_copy_keeps_its_earlier_place_and_shows_on_both_libraries()
     {
-        $old = $this->library('کتابخانه‌ی پیشین');
+        // a name starting with «د», whose first byte is that of «،» (production suggestion 46, «دیانی»)
+        $old = $this->library('دیانی پیشین');
         $new = $this->library('کتابخانه‌ی تازه');
         $ms = $this->manuscript($this->work('اثر جابه‌جا'), ['library_id' => $old->id, 'library' => $old->name, 'shelfmark' => '12']);
 
@@ -141,9 +142,9 @@ class RecordHistoryTest extends TestCase
         $this->assertSame([$old->id, '12', $new->id, '99'], [$s->resolution['from_library_id'], $s->resolution['from_shelfmark'], $s->resolution['library_id'], $s->resolution['shelfmark']]);
 
         foreach ([$old, $new] as $library) {
-            $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از «کتابخانه‌ی پیشین، ش 12» به «کتابخانه‌ی تازه، ش 99» منتقل شد\./u', $this->text($this->page($library)));
+            $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از «دیانی پیشین، ش 12» به «کتابخانه‌ی تازه، ش 99» منتقل شد\./u', $this->text($this->page($library)));
         }
-        $this->assertStringContainsString('این نسخه از «کتابخانه‌ی پیشین، ش 12»', $this->text($this->page($ms)));
+        $this->assertStringContainsString('این نسخه از «دیانی پیشین، ش 12»', $this->text($this->page($ms)));
     }
 
     public function test_a_relation_reads_from_both_sides_with_its_credit_and_a_person_shows_the_work_given_to_them()

@@ -8128,6 +8128,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین روی `fahares_prod`:** «Written: 2 of 2»، یعنی #۱۲ (لاگ ۵۵) و #۱۳ (لاگ ۹۸)، هر دو `from_work_id` = 51727. اجرای دوم «0 of 0».
 - **آزمون:** `RecordHistoryTest`، ۶ آزمون: انتقال در سه صفحه، بی‌نام و پنهان ماندن پیشنهاد در انتظار، ادغام کتابخانه به دست ویراستار و نبودن بخش بی‌اصلاح، تغییر کتابخانه در هر دو کتابخانه، رابطه از دو سو با نام و پدیدآور در صفحه‌ی شخص، و دستور پرکردن.
 - **پروداکشن، پس از استقرار:** پشتیبان از `field_suggestions`، سپس `php artisan fahares:backfill-suggestion-resolution` (گزارش) و `--apply`. شناسه‌های #۱۲ و #۱۳ در تولید و محلی یکی‌اند (رونوشت).
+- **اجرا در تولید (۱۶ آبان ۱۴۰۵):** با `prod-run approved-suggestions`. پشتیبان: `step14_66_field_suggestions_before.json` (۱۱۰ ردیف).
+  - «Written: 3 of 3». سه پیشنهاد: #۱۲ (لاگ ۵۵) و #۱۳ (لاگ ۹۸)، هر دو `from_work_id` = 51727؛ و #۴۶ (لاگ 13452)، `from_library_id` = 86 و `from_shelfmark` = 130. اجرای دوم «0 of 0».
+  - **اصلاح `Contributions::location`:** `trim($text, '، ')` فهرست بایت می‌گیرد، نه نویسه. بایت نخست «،» (`d8`) بایت نخست «د»، «ا» و حروف دیگر هم هست. پس «دیانی» UTF-8 نامعتبر می‌شد، `preg_replace` در `short()` تهی برمی‌گرداند، و `before` تهی می‌ماند. اکنون `preg_replace('/^[،\s]+|[،\s]+$/u', …)` است. آزمون `test_a_relocated_copy_…` اکنون نام «دیانی پیشین» را به کار می‌برد.
 
 ### گام ۱۴.۶۷: `fankha_v2_fill_incipits_export.py`
 - **دسته‌بندی `different` (review8):** ۲۸۳ ردیف `incipit_text` و `explicit_text`. پس از برداشتن برچسب‌ها («آغاز …:»، «انجام:»، «(دیباچه):») و سنجش حرف‌ها:

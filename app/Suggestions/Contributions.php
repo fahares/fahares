@@ -374,7 +374,8 @@ class Contributions
 
     private static function location(?string $library, ?string $shelfmark): ?string
     {
-        $text = trim(($library ?? '') . ($shelfmark ? '، ش ' . $shelfmark : ''), '، ');
+        // not trim($text, '، '): trim cuts bytes, and the first byte of «،» is also that of «د», «ا»… (step 14.66)
+        $text = preg_replace('/^[،\s]+|[،\s]+$/u', '', ($library ?? '') . ($shelfmark ? '، ش ' . $shelfmark : ''));
 
         return $text === '' ? null : $text;
     }
