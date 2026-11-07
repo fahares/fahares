@@ -100,7 +100,7 @@
             <x-admin.cell label="از">
                 <span class="inline-flex items-center gap-1.5 align-middle">
                     <x-ui.avatar :user="$sug->user" :name="$sug->guest_name" size="sm" />
-                    <span>{{ $sug->user?->name ?: ($sug->guest_name ?: 'مهمان') }}</span>
+                    <span @class(['text-muted' => $sug->machine_label])>{{ $sug->user?->name ?: ($sug->guest_name ?: ($sug->machine_label ?? 'مهمان')) }}</span>
                 </span>
             </x-admin.cell>
             <x-admin.cell label="وضعیت" class="whitespace-nowrap"><x-ui.chip :tone="$statusTone">{{ $statusLabel }}</x-ui.chip></x-admin.cell>

@@ -32,13 +32,26 @@ class Contributions
         'relation' => 'رابطه و اصلاح ساختاری',
     ];
 
+    /** The researchers' corrections: approved and public, without the readings a merge kept on its own (step 14.74). */
     public static function publicQuery(): Builder
+    {
+        return self::recordQuery()->whereNot(fn ($q) => self::machineReadings($q));
+    }
+
+    /** What a record page lists: the public corrections and the readings a merge kept («قول دیگر» with no submitter). */
+    private static function recordQuery(): Builder
     {
         return FieldSuggestion::query()
             ->where('status', 'approved')
             ->whereNotNull('suggestable_type')
             ->where(fn ($q) => $q->whereIn('kind', array_keys(self::KINDS))
                 ->orWhere(fn ($g) => $g->where('kind', 'general')->whereNotNull('public_note')->where('public_note', '!=', '')));
+    }
+
+    /** COALESCE: under whereNot a NULL would drop every guest's correction without a resolution too. */
+    private static function machineReadings($q)
+    {
+        return $q->whereNull('user_id')->whereIn(\Illuminate\Support\Facades\DB::raw("COALESCE(JSON_VALUE(resolution, '$.origin'), '')"), array_keys(FieldSuggestion::MACHINE_ORIGINS));
     }
 
     /** Suggestions credited to one user under their name; anonymous ones stay unlinked from them. */
@@ -55,6 +68,10 @@ class Contributions
     public static function contributor(FieldSuggestion $s): array
     {
         $name = trim((string) $s->credit_name);
+        if ($s->machineOrigin()) {
+            // no one sent it: the other catalogue or record whose value a merge kept
+            return ['kind' => 'machine', 'name' => $name !== '' ? $name : $s->machine_label, 'user' => null, 'url' => null];
+        }
         if ($name !== '' && $s->user) {
             return ['kind' => 'credited', 'name' => $name, 'user' => $s->user, 'url' => route('contributors.show', $s->user)];
         }
@@ -217,7 +234,7 @@ class Contributions
         $names = fn (string $on, array $applies) => array_keys(array_filter(
             SuggestionRegistry::RELATIONS[$on] ?? [], fn ($r) => in_array($r['apply'] ?? null, $applies, true)));
 
-        $query = self::publicQuery()->where(function ($q) use ($type, $id, $json, $names, $record) {
+        $query = self::recordQuery()->where(function ($q) use ($type, $id, $json, $names, $record) {
             $q->where(fn ($own) => $own->where('suggestable_type', $type)->where('suggestable_id', $id));
             $key = SuggestionRegistry::typeKey($type);
             // a duplicate merged into this record, a record split off from it, a relation from the other side
@@ -297,6 +314,13 @@ class Contributions
         }
         if ($s->kind === 'note' || $s->kind === 'general' || $s->review_queue) {
             return $flat([$where, $s->kind === 'note' ? $item['action'] . ': ' : '', $item['text'] ?? '']);
+        }
+        if ($origin = $s->machineOrigin()) {
+            $kept = ['قول ' . $item['contributor']['name'] . ' برای «' . $item['action'] . '» نگه داشته شد: «', $item['after']['label'] ?? '', '»'];
+
+            return $flat($origin === 'copy_merge'
+                ? [$where, 'در یکی شدن دو معرفی ' . ($own ? $self : 'آن') . '، ', $kept]
+                : [$where, 'در ادغام رکورد تکراری در ' . ($own ? $self : 'آن') . '، ', $kept]);
         }
         if ($s->kind === 'field') {
             $field = '«' . $item['action'] . '»';

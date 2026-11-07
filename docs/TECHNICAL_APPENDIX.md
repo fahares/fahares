@@ -8304,3 +8304,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان `step14.16-link-copy-references-20261105_041431.json` از لپ‌تاپ به `/tmp` کانتینر فرستاده می‌شود.
   2. دستور با `--revert=/tmp/… --only=316801,282247 --dry-run` اجرا می‌شود.
   3. سپس همان دستور بی `--dry-run` اجرا می‌شود.
+- **اجرا در تولید (۱۶ آبان ۱۴۰۵):**
+  - بی‌نوشتن: `changed 1099` و `--works` `changed 4`. پشتیبان ردیف‌ها با همان مقایسه‌ی فرمان در tinker گرفته شد.
+  - سپس هر دو فرمان با `prod-run --wait jolly-tharp` و `--apply` اجرا شدند.
+  - اجرای دوم هر دو `changed 0` بود.
+
+### گام ۱۴.۷۴: `FieldSuggestion::MACHINE_ORIGINS`
+- **منشأ:** `resolution.origin` = `copy_merge` ([LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `merged_manuscript_id`) یا `merge` ([MergeComparison](../app/Suggestions/MergeComparison.php)، با `merged_id`). هر دو `user_id` = null، `standing` = `alternative` و `credit_name` = «فهرست …» یا نام رکورد ادغام‌شده دارند. در پروداکشن: #۸۰ تا #۹۹ (`copy_merge`، ۵ نوامبر ۰۰:۴۹ تا ۰۰:۵۳ UTC) و #۱۰۰ و #۱۰۲ تا #۱۰۵ (`merge`).
+- **[FieldSuggestion](../app/Models/FieldSuggestion.php):** `MACHINE_ORIGINS` (origin => برچسب پنل)، `machineOrigin()` (فقط با `user_id` = null) و `machine_label`.
+- **[Contributions](../app/Suggestions/Contributions.php):**
+  - `publicQuery()` = `recordQuery()` بی `machineReadings()`: `user_id IS NULL AND COALESCE(JSON_VALUE(resolution, '$.origin'), '') IN (…)`. بی COALESCE، `whereNot` هر پیشنهاد مهمانِ بی `resolution` را هم می‌انداخت (NOT NULL).
+  - `forRecord()` روی `recordQuery()`، پس این قول‌ها در تاریخچه‌ی رکورد می‌مانند.
+  - `contributor()`: `kind` = `machine`، نام = `credit_name`. `line()`: «در یکی شدن دو معرفی {این نسخه}، قول {نام} برای «{فیلد}» نگه داشته شد: «…»»، یا «در ادغام رکورد تکراری در …».
+- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** برای `machine` نه «به پیشنهاد» می‌آید، نه حرف نخست نام در آواتار.
+- **پنل:** `admin/suggestions/index` و `show` (`$submitterName`، و `data-machine-reading` به‌جای «مهمانی بی ایمیل»).
+- **آزمون:** `RecordHistoryTest::test_a_reading_a_merge_kept_names_the_catalogue_not_a_submitter_and_is_not_a_researchers_correction`، با پیشنهاد مهمانِ بی `resolution` که باید در `/contributions` بماند.
+- **پروداکشن:** دستور داده ندارد.
+
+### گام ۱۴.۷۵: `fankha_marginal_notes_rule.py` و نشان `has_marginal_notes`
+- **ورودی:** ردیف‌های `has_marginal_notes` در `reports/fankha_v2_db_review8/diffs.jsonl`: `flag_off` ۳٬۶۲۵ و `flag_on` ۵۳۱.
+- **قاعده (پیکره، کامیت‌های `db0d38b` و `78c82ff`):** `scripts/fankha_marginal_notes_rule.py`، تابع `judge(raw_text)`.
+  - **`NOTE`:** «محشی»، «تعلیقات»، «حاشیه‌نویسی»، «دارای … حواشی» (نه پیش از واژه‌ی تزیین)، «حواشی با نشان/امضای»، «حواشی از / به خط»، «حواشی دارد/بسیار/…»، «ترجمه/توضیح … در حاشیه»، و «در حاشیه … تصحیح/نوشته/آمده/قید/ثبت/…».
+  - **`NOT`:** این‌ها از متن برداشته می‌شوند: پرانتزِ برگ و «حاشیه»، «سطر … در حاشیه»، «جلد/ترنج/سرلوح/کتیبه» تا «حاشیه» در همان بند، «حاشیه مذهب/زرین/…»، و «در حاشیه … تذهیب/دایره/ترنج». اگر چیزی از واژه نماند، `not_notes` است.
+- **نتیجه‌ی قاعده:** `flag_off`: ۲۷۰ `not_notes`، ۸ `none`، ۱٬۵۸۷ `notes` و ۱٬۷۶۰ `unclear`. `flag_on`: ۴۱۱ `notes`، ۲۸ `not_notes` و ۸۲ `unclear`.
+- **خوانش:** سه زیرعامل Sonnet هر ۶۸۹ نامزد تغییر را خواندند. فایل‌ها در `reports/fankha_v2_db_review8/marginal_notes_step14_75/` است. ۱۵ نامزد ناهمخوان یا نامطمئن کنار گذاشته شدند. یک پاسداری دیگر هم بود: «دارای حواشی» با واژه‌ی تزیین در همان بند. این پاسداری موردی نیفزود.
+- **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_75.json` با ۶۷۴ رکورد (`changes.has_marginal_notes`، ۴۰۲ روشن و ۲۷۲ خاموش)، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 674 copies» و `pointers_linked=5`. اجرای دوم `already 674`.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_75.json --apply`

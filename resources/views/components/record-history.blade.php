@@ -11,14 +11,16 @@
             @php $c = $item['contributor']; @endphp
             <li class="flex items-start gap-2.5" data-history="{{ $item['suggestion']->id }}"
                 @if($i >= $shown) x-show="all" style="display: none" @endif>
-                <x-ui.avatar :user="$c['user']" :name="$c['name']" :kind="$c['kind']" size="sm" />
+                @php $machine = $c['kind'] === 'machine'; @endphp
+                <x-ui.avatar :user="$c['user']" :name="$machine ? null : $c['name']" :kind="$machine ? null : $c['kind']" size="sm" />
                 @php
                     // one sentence without stray spaces between its parts: the name, then the change read from this record's side
                     $link = fn (string $label, ?string $url, string $class) => $url
                         ? '<a href="' . e($url) . '" class="' . $class . '">' . e($label) . '</a>'
                         : '<span class="' . $class . '">' . e($label) . '</span>';
-                    $sentence = e($c['kind'] === 'staff' ? 'به دست ' : 'به پیشنهاد ')
-                        . $link($c['name'], $c['url'], $c['url'] ? 'font-bold text-ink hover:text-cinnabar' : ($c['kind'] === 'credited' ? 'font-bold text-ink' : 'font-bold text-muted')) . '، '
+                    // a reading a merge kept has no submitter: the sentence names the catalogue itself (step 14.74)
+                    $sentence = ($machine ? '' : e($c['kind'] === 'staff' ? 'به دست ' : 'به پیشنهاد ')
+                        . $link($c['name'], $c['url'], $c['url'] ? 'font-bold text-ink hover:text-cinnabar' : ($c['kind'] === 'credited' ? 'font-bold text-ink' : 'font-bold text-muted')) . '، ')
                         . collect($item['line'])->map(fn ($part) => is_array($part)
                             ? $link($part['label'], $part['url'], $part['url'] ? 'font-semibold text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition' : 'font-semibold')
                             : e($part))->implode('');

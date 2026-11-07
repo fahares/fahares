@@ -192,4 +192,37 @@ class RecordHistoryTest extends TestCase
 
         $this->assertMatchesRegularExpression('/به پیشنهاد احمد پژوهشگر، نسخه‌ی «[^»]+» از این اثر به اثر «اثر مقصد قدیمی» منتقل شد\./u', $this->text($this->page($from)));
     }
+
+    public function test_a_reading_a_merge_kept_names_the_catalogue_not_a_submitter_and_is_not_a_researchers_correction()
+    {
+        $ms = $this->manuscript($this->work('اثر دو معرفی'), ['folios' => '37']);
+        $library = $this->library('کتابخانه‌ی قمر');
+        $reading = fn ($record, string $field, string $value, array $resolution, string $credit) => FieldSuggestion::create([
+            'suggestable_type' => $record::class, 'suggestable_id' => $record->id, 'kind' => 'field', 'field_name' => $field,
+            'current_value' => 'مقدار ماندنی', 'suggested_value' => $value, 'credit_name' => $credit, 'status' => 'approved',
+            'standing' => 'alternative', 'public_note' => 'قول فهرست دیگرِ همین نسخه.', 'resolution' => ['applied' => false] + $resolution, 'reviewed_at' => now()]);
+        // as fahares:link-copy-references and MergeComparison write them (production suggestions 80–105)
+        $copy = $reading($ms, 'folios', '34', ['origin' => 'copy_merge', 'merged_manuscript_id' => 999999], 'فهرست مؤید: 1-375');
+        $merge = $reading($library, 'full_name', 'کتابخانه قمر بنی هاشم (ع)', ['origin' => 'merge', 'merged_id' => 999998], 'قمر بنی هاشم (ع)');
+        // a guest's correction without a resolution stays a researcher's
+        $guest = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $ms->id, 'kind' => 'field', 'field_name' => 'copy_place',
+            'current_value' => 'اصفهان', 'suggested_value' => 'هرات', 'status' => 'approved', 'standing' => 'adopted', 'reviewed_at' => now()]);
+
+        $text = $this->text($this->page($ms));
+        $this->assertStringContainsString('در یکی شدن دو معرفی این نسخه، قول فهرست مؤید: 1-375 برای «تعداد برگ» نگه داشته شد: «34»', $text);
+        $this->assertStringNotContainsString('به پیشنهاد فهرست مؤید', $text);
+        $this->assertStringContainsString('در ادغام رکورد تکراری در این کتابخانه، قول قمر بنی هاشم (ع) برای', $this->text($this->page($library)));
+
+        $contributions = $this->get('/contributions')->assertOk();
+        foreach ([$copy, $merge] as $s) {
+            $contributions->assertDontSee('data-contribution="' . $s->id . '"', false);
+        }
+        $contributions->assertSee('data-contribution="' . $guest->id . '"', false);
+
+        $panel = $this->actingAs($this->admin)->get('/admin/suggestions?status=approved')->assertOk();
+        $panel->assertSee(FieldSuggestion::MACHINE_ORIGINS['copy_merge'])->assertSee(FieldSuggestion::MACHINE_ORIGINS['merge']);
+        $this->actingAs($this->admin)->get("/admin/suggestions/{$copy->id}")->assertOk()
+            ->assertSee(FieldSuggestion::MACHINE_ORIGINS['copy_merge'])->assertSee('data-machine-reading', false)->assertDontSee('پژوهشگر مهمان');
+        $this->assertNull($guest->machineOrigin());
+    }
 }

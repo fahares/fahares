@@ -83,6 +83,28 @@ class FieldSuggestion extends Model
             ->where('kind', 'field')->where('field_name', $field)->where('standing', 'adopted');
     }
 
+    /**
+     * Readings no one sent: a merge kept the other record's differing value as «قول دیگر» (step 14.74). origin =>
+     * who the panel names in place of a submitter.
+     */
+    public const MACHINE_ORIGINS = [
+        'copy_merge' => 'سامانه: یکی شدن دو معرفی نسخه',
+        'merge' => 'سامانه: ادغام رکورد تکراری',
+    ];
+
+    /** 'copy_merge' (fahares:link-copy-references) or 'merge' (MergeComparison) for a reading a merge made, else null. */
+    public function machineOrigin(): ?string
+    {
+        $origin = is_array($this->resolution) ? ($this->resolution['origin'] ?? null) : null;
+
+        return $this->user_id === null && isset(self::MACHINE_ORIGINS[$origin]) ? $origin : null;
+    }
+
+    public function getMachineLabelAttribute(): ?string
+    {
+        return ($origin = $this->machineOrigin()) ? self::MACHINE_ORIGINS[$origin] : null;
+    }
+
     public function getStandingLabelAttribute(): ?string
     {
         return self::STANDINGS[$this->standing] ?? null;
