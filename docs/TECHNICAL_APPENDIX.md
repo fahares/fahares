@@ -8287,3 +8287,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:fill-copy-date-ranges` (بی‌نوشتن؛ انتظار: حدود ۱٬۰۹۹ تغییر)
   2. `fahares:fill-copy-date-ranges --apply`
   3. `fahares:fill-copy-date-ranges --works --apply`
+- **اجرا در تولید (۱۶ آبان ۱۴۰۵):**
+  - بی‌نوشتن: `changed 1099` و `--works` `changed 4`. پشتیبان ردیف‌ها با همان مقایسه‌ی فرمان در tinker گرفته شد.
+  - سپس هر دو فرمان با `prod-run --wait jolly-tharp` و `--apply` اجرا شدند.
+  - اجرای دوم هر دو `changed 0` بود.
