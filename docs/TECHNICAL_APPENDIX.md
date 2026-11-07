@@ -8287,6 +8287,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:fill-copy-date-ranges` (بی‌نوشتن؛ انتظار: حدود ۱٬۰۹۹ تغییر)
   2. `fahares:fill-copy-date-ranges --apply`
   3. `fahares:fill-copy-date-ranges --works --apply`
+- **اجرا در تولید (۱۶ آبان ۱۴۰۵):**
+  - بی‌نوشتن: `changed 1099` و `--works` `changed 4`. پشتیبان ردیف‌ها با همان مقایسه‌ی فرمان در tinker گرفته شد.
+  - سپس هر دو فرمان با `prod-run --wait jolly-tharp` و `--apply` اجرا شدند.
+  - اجرای دوم هر دو `changed 0` بود.
 
 ### گام ۱۴.۷۴: `FieldSuggestion::MACHINE_ORIGINS`
 - **منشأ:** `resolution.origin` = `copy_merge` ([LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `merged_manuscript_id`) یا `merge` ([MergeComparison](../app/Suggestions/MergeComparison.php)، با `merged_id`). هر دو `user_id` = null، `standing` = `alternative` و `credit_name` = «فهرست …» یا نام رکورد ادغام‌شده دارند. در پروداکشن: #۸۰ تا #۹۹ (`copy_merge`، ۵ نوامبر ۰۰:۴۹ تا ۰۰:۵۳ UTC) و #۱۰۰ و #۱۰۲ تا #۱۰۵ (`merge`).
@@ -8299,10 +8303,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پنل:** `admin/suggestions/index` و `show` (`$submitterName`، و `data-machine-reading` به‌جای «مهمانی بی ایمیل»).
 - **آزمون:** `RecordHistoryTest::test_a_reading_a_merge_kept_names_the_catalogue_not_a_submitter_and_is_not_a_researchers_correction`، با پیشنهاد مهمانِ بی `resolution` که باید در `/contributions` بماند.
 - **پروداکشن:** دستور داده ندارد.
-- **اجرا در تولید (۱۶ آبان ۱۴۰۵):**
-  - بی‌نوشتن: `changed 1099` و `--works` `changed 4`. پشتیبان ردیف‌ها با همان مقایسه‌ی فرمان در tinker گرفته شد.
-  - سپس هر دو فرمان با `prod-run --wait jolly-tharp` و `--apply` اجرا شدند.
-  - اجرای دوم هر دو `changed 0` بود.
 
 ### گام ۱۴.۷۵: `fankha_marginal_notes_rule.py` و نشان `has_marginal_notes`
 - **ورودی:** ردیف‌های `has_marginal_notes` در `reports/fankha_v2_db_review8/diffs.jsonl`: `flag_off` ۳٬۶۲۵ و `flag_on` ۵۳۱.
