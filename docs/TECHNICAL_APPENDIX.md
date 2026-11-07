@@ -8331,6 +8331,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان `step14.16-link-copy-references-20261105_041431.json` از لپ‌تاپ به `/tmp` کانتینر فرستاده می‌شود.
   2. دستور با `--revert=/tmp/… --only=316801,282247 --dry-run` اجرا می‌شود.
   3. سپس همان دستور بی `--dry-run` اجرا می‌شود.
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** پشتیبان پیش از اجرا: `step14_76_split_before.json` (`manuscripts` ۲، `manuscript_people` ۱، `entity_redirects` ۲). پشتیبان گام ۱۴.۱۶ با md5 `6b0301ec…` به `/tmp` کانتینر رفت. نخستین تلاش در اجرای انتشار ۵۲ رد شد و پس از استقرار دوباره فرستاده شد.
+  - «Split 282248 from 282247: 0 readings removed» و «Split 316802 from 316801: 0 readings removed». اجرای دوم «already split» گزارش کرد. سپس فایل `/tmp` پاک شد.
+  - **وارسی:** هر دو نسخه `possibly_same` به نسخه‌ی رضوی دارند. `entity_redirects` صفر است و `former_locations` رضوی تهی.
 
 ### گام ۱۴.۷۸: `Contributions::withCopyMerges`
 - **`forRecord()`** برای نسخه: پس از `summarize`، هر `metadata.former_locations` بی `suggestion_id` که `note` آن «همان نسخه» دارد، یک ردیف ساختگی می‌شود. این ردیف `suggestion` = null دارد، و `key` (برای `data-history`)، `contributor.kind` = `machine`، `line` و `children` دارد.
