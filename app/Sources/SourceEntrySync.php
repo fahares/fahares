@@ -228,8 +228,19 @@ class SourceEntrySync
         $rows = [];
         foreach ($others as $id => $places) {
             foreach ($places as $i => $place) {
-                $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
-                $volume = self::volumeOf($volumes[$libraries[$id] ?? 0][$key] ?? [], $place['page']);
+                $series = \App\Support\CatalogCitations::seriesKey($place['series']);
+                $byKey = $volumes[$libraries[$id] ?? 0] ?? [];
+                $volume = self::volumeOf($byKey[$series . '|' . $place['volume']] ?? [], $place['page']);
+                // «اهدائی رهبر: 158-8», «ف: 2617-7»: page and volume written the other way round (step 14.88). Taken only
+                // when the library has no such volume at all and the swapped page lies in the pages seen in that volume.
+                if ($volume === null && $place['volume'] !== null && $place['page'] !== null && ! isset($byKey[$series . '|' . $place['volume']])) {
+                    $swapped = $byKey[$series . '|' . $place['page']] ?? [];
+                    $fits = array_filter($swapped, fn ($v) => $v[1] !== null && $place['volume'] >= $v[1] && $place['volume'] <= $v[2]);
+                    if (count($fits) === 1) {
+                        $volume = (int) array_key_first($fits);
+                        $place = ['volume' => $place['page'], 'page' => $place['volume']] + $place;
+                    }
+                }
                 $rows[] = self::row([
                     'citable_type' => Manuscript::class,
                     'citable_id' => $id,
