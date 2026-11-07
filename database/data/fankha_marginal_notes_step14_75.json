@@ -1,0 +1,8767 @@
+{
+ "source": "has_marginal_notes judged from the copy's own text: a two-sided rule (fahares-corpus scripts/fankha_marginal_notes_rule.py) and a reading of every changed copy, 2026-11-07; fahares step 14.75",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 10184,
+   "shelfmark": "6954",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10586,
+   "shelfmark": "12113/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10603,
+   "shelfmark": "3405/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10694,
+   "shelfmark": "12962/12",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10716,
+   "shelfmark": "2673/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10743,
+   "shelfmark": "11820/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10769,
+   "shelfmark": "2719/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10776,
+   "shelfmark": "2824/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10789,
+   "shelfmark": "15066/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10792,
+   "shelfmark": "154/5-1/154",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10794,
+   "shelfmark": "669/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10801,
+   "shelfmark": "883/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10840,
+   "shelfmark": "441/1-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10847,
+   "shelfmark": "2580/8",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10860,
+   "shelfmark": "ض 9859",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 10871,
+   "shelfmark": "3759/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11167,
+   "shelfmark": "1318",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11205,
+   "shelfmark": "6720-34/90",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11225,
+   "shelfmark": "1854/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11264,
+   "shelfmark": "4016",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11321,
+   "shelfmark": "13841",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11432,
+   "shelfmark": "154/4-1/154",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 11911,
+   "shelfmark": "12677/27",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12094,
+   "shelfmark": "1205/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12095,
+   "shelfmark": "1206/19",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12255,
+   "shelfmark": "214",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12388,
+   "shelfmark": "8562",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12400,
+   "shelfmark": "21071",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12401,
+   "shelfmark": "56",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12402,
+   "shelfmark": "13",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12447,
+   "shelfmark": "24",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12470,
+   "shelfmark": "3765/2-19/95",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12693,
+   "shelfmark": "6544-33/94",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12739,
+   "shelfmark": "371",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12889,
+   "shelfmark": "494/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 12919,
+   "shelfmark": "38/2 ـ د",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 13739,
+   "shelfmark": "6700",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14217,
+   "shelfmark": "5094/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14241,
+   "shelfmark": "305",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14242,
+   "shelfmark": "732/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14247,
+   "shelfmark": "184/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14251,
+   "shelfmark": "6430/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14258,
+   "shelfmark": "2592/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14282,
+   "shelfmark": "1637/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14318,
+   "shelfmark": "3112/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14323,
+   "shelfmark": "2235",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14333,
+   "shelfmark": "6430/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14346,
+   "shelfmark": "303/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14351,
+   "shelfmark": "1364/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14352,
+   "shelfmark": "5478/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14353,
+   "shelfmark": "1185/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14357,
+   "shelfmark": "1257/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14363,
+   "shelfmark": "2278/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14364,
+   "shelfmark": "2089/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14370,
+   "shelfmark": "6710/76",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14372,
+   "shelfmark": "1637/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14384,
+   "shelfmark": "25390",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14390,
+   "shelfmark": "15266/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14392,
+   "shelfmark": "957/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14407,
+   "shelfmark": "664/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14504,
+   "shelfmark": "252/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14507,
+   "shelfmark": "11784/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14510,
+   "shelfmark": "5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14514,
+   "shelfmark": "86/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14515,
+   "shelfmark": "5632",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14516,
+   "shelfmark": "4942/37",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14522,
+   "shelfmark": "697/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14551,
+   "shelfmark": "1711/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14665,
+   "shelfmark": "630/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14688,
+   "shelfmark": "6015/1-30/85",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14782,
+   "shelfmark": "86",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14819,
+   "shelfmark": "1836",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14823,
+   "shelfmark": "7547",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14825,
+   "shelfmark": "20523",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14883,
+   "shelfmark": "8694/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14902,
+   "shelfmark": "148/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14905,
+   "shelfmark": "2685",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14937,
+   "shelfmark": "3718/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 14970,
+   "shelfmark": "3738/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15014,
+   "shelfmark": "1283",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15114,
+   "shelfmark": "2682",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15125,
+   "shelfmark": "590/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15154,
+   "shelfmark": "12210",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15158,
+   "shelfmark": "2659/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15169,
+   "shelfmark": "11577/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15178,
+   "shelfmark": "1182/14",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15189,
+   "shelfmark": "221/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15190,
+   "shelfmark": "13334/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15194,
+   "shelfmark": "652/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15214,
+   "shelfmark": "3290/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15228,
+   "shelfmark": "184/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15237,
+   "shelfmark": "5/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15239,
+   "shelfmark": "711/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15258,
+   "shelfmark": "698/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15260,
+   "shelfmark": "1283",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15281,
+   "shelfmark": "3596/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15288,
+   "shelfmark": "711/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15314,
+   "shelfmark": "1363/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15343,
+   "shelfmark": "652/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15346,
+   "shelfmark": "635/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15359,
+   "shelfmark": "6714/4-34/84",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15380,
+   "shelfmark": "89/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15410,
+   "shelfmark": "2670/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15429,
+   "shelfmark": "1231/7-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15475,
+   "shelfmark": "1250",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15647,
+   "shelfmark": "62عکسی و 63عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15725,
+   "shelfmark": "5604",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15736,
+   "shelfmark": "13930/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15768,
+   "shelfmark": "8975/42",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15810,
+   "shelfmark": "982/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15867,
+   "shelfmark": "532/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16041,
+   "shelfmark": "15821/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16086,
+   "shelfmark": "6062/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16092,
+   "shelfmark": "119",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16383,
+   "shelfmark": "986",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16616,
+   "shelfmark": "277/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16735,
+   "shelfmark": "6193/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16788,
+   "shelfmark": "638",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16811,
+   "shelfmark": "3315/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16894,
+   "shelfmark": "277/9",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16972,
+   "shelfmark": "1997/5-عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17114,
+   "shelfmark": "872/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17235,
+   "shelfmark": "194/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17293,
+   "shelfmark": "10662/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17295,
+   "shelfmark": "7017/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17581,
+   "shelfmark": "ض21509",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17816,
+   "shelfmark": "8150/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17940,
+   "shelfmark": "ض21509",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 17957,
+   "shelfmark": "ض21509",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18091,
+   "shelfmark": "1855/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18210,
+   "shelfmark": "847/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18217,
+   "shelfmark": "11070/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18503,
+   "shelfmark": "1992/7-عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19007,
+   "shelfmark": "847/35",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19098,
+   "shelfmark": "7505-38/125",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19142,
+   "shelfmark": "4600/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19212,
+   "shelfmark": "394",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19255,
+   "shelfmark": "770/40-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19267,
+   "shelfmark": "9048/14",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19343,
+   "shelfmark": "770/26-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19534,
+   "shelfmark": "13482/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19814,
+   "shelfmark": "12678/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19862,
+   "shelfmark": "1772/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19934,
+   "shelfmark": "65/24",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19952,
+   "shelfmark": "12997/14",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19991,
+   "shelfmark": "668عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20002,
+   "shelfmark": "2714",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20060,
+   "shelfmark": "590",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20068,
+   "shelfmark": "400",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20069,
+   "shelfmark": "108",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20086,
+   "shelfmark": "12854",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20099,
+   "shelfmark": "36",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20116,
+   "shelfmark": "20372",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20185,
+   "shelfmark": "1401/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20227,
+   "shelfmark": "4320",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20388,
+   "shelfmark": "1758/1-10/68",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20394,
+   "shelfmark": "156",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20397,
+   "shelfmark": "1331",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20405,
+   "shelfmark": "39",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20406,
+   "shelfmark": "225",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20408,
+   "shelfmark": "1304-8/14",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20409,
+   "shelfmark": "7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20411,
+   "shelfmark": "21669",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20413,
+   "shelfmark": "1361",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20421,
+   "shelfmark": "166",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20430,
+   "shelfmark": "9186",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20437,
+   "shelfmark": "22",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20498,
+   "shelfmark": "12521",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20510,
+   "shelfmark": "13871/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20570,
+   "shelfmark": "19296/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20589,
+   "shelfmark": "ض21509",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20826,
+   "shelfmark": "12997/15",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20827,
+   "shelfmark": "233/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20828,
+   "shelfmark": "1102/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20920,
+   "shelfmark": "6467",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 20925,
+   "shelfmark": "7667/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21100,
+   "shelfmark": "1383/2عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21160,
+   "shelfmark": "15050/9",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21265,
+   "shelfmark": "15571",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21348,
+   "shelfmark": "792/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21427,
+   "shelfmark": "8922/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21637,
+   "shelfmark": "22164",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21687,
+   "shelfmark": "139",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21698,
+   "shelfmark": "4403",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21843,
+   "shelfmark": "26751",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21844,
+   "shelfmark": "26755",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21845,
+   "shelfmark": "26750",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21855,
+   "shelfmark": "14956",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21863,
+   "shelfmark": "8897/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 21930,
+   "shelfmark": "9725",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22039,
+   "shelfmark": "10196/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22159,
+   "shelfmark": "2519/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22161,
+   "shelfmark": "7211",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22172,
+   "shelfmark": "9121/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22769,
+   "shelfmark": "6377",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22852,
+   "shelfmark": "104",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 22957,
+   "shelfmark": "12432/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23039,
+   "shelfmark": "770/36-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23072,
+   "shelfmark": "847/34",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23086,
+   "shelfmark": "770/37-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23107,
+   "shelfmark": "14776",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23114,
+   "shelfmark": "3589",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23127,
+   "shelfmark": "6995 و 2437-ف",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23135,
+   "shelfmark": "5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23139,
+   "shelfmark": "3878/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23241,
+   "shelfmark": "12738/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23268,
+   "shelfmark": "13517/8",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23274,
+   "shelfmark": "3765/5-19/95",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23278,
+   "shelfmark": "12617/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23447,
+   "shelfmark": "12026/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23485,
+   "shelfmark": "2606",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 23715,
+   "shelfmark": "301",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 24777,
+   "shelfmark": "54",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25243,
+   "shelfmark": "3663-18/183",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 25428,
+   "shelfmark": "6078",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26566,
+   "shelfmark": "3296",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26743,
+   "shelfmark": "3630/5-18/150",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26774,
+   "shelfmark": "82",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26792,
+   "shelfmark": "37659",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26816,
+   "shelfmark": "6465",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26884,
+   "shelfmark": "190/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26898,
+   "shelfmark": "2553/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26975,
+   "shelfmark": "3879",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 26976,
+   "shelfmark": "7110",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27012,
+   "shelfmark": "15/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27074,
+   "shelfmark": "3823/2-19/153",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27095,
+   "shelfmark": "874",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27103,
+   "shelfmark": "12993",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27111,
+   "shelfmark": "15727",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27112,
+   "shelfmark": "26234",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27123,
+   "shelfmark": "663",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27154,
+   "shelfmark": "735",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27168,
+   "shelfmark": "11",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27169,
+   "shelfmark": "15148",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27175,
+   "shelfmark": "5484",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27183,
+   "shelfmark": "65",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27189,
+   "shelfmark": "بدون شماره",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27195,
+   "shelfmark": "11745",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27198,
+   "shelfmark": "480",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27201,
+   "shelfmark": "416/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27203,
+   "shelfmark": "13214",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27207,
+   "shelfmark": "218-2/38",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27209,
+   "shelfmark": "204/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27210,
+   "shelfmark": "1883",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27211,
+   "shelfmark": "25324",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27218,
+   "shelfmark": "22652",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27232,
+   "shelfmark": "13115",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27236,
+   "shelfmark": "4514/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27237,
+   "shelfmark": "185",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27241,
+   "shelfmark": "90",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27243,
+   "shelfmark": "980",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27262,
+   "shelfmark": "15",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27263,
+   "shelfmark": "3659",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27270,
+   "shelfmark": "1799",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27273,
+   "shelfmark": "1618",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27274,
+   "shelfmark": "2829",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27280,
+   "shelfmark": "27619",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27282,
+   "shelfmark": "784",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27285,
+   "shelfmark": "19569",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27286,
+   "shelfmark": "بدون شماره",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27299,
+   "shelfmark": "58",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27301,
+   "shelfmark": "3239",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27305,
+   "shelfmark": "1700-عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27310,
+   "shelfmark": "673-4/143",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27334,
+   "shelfmark": "1701-عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27347,
+   "shelfmark": "14035",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27350,
+   "shelfmark": "210/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27358,
+   "shelfmark": "18592",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27375,
+   "shelfmark": "1611",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27377,
+   "shelfmark": "661/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27383,
+   "shelfmark": "370",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27424,
+   "shelfmark": "36816",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27426,
+   "shelfmark": "7278-37/68",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27427,
+   "shelfmark": "3743/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27437,
+   "shelfmark": "651",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27439,
+   "shelfmark": "6187-31/67",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27466,
+   "shelfmark": "243",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27492,
+   "shelfmark": "736",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27523,
+   "shelfmark": "14973/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27546,
+   "shelfmark": "27658",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27583,
+   "shelfmark": "2715",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27613,
+   "shelfmark": "1268عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27967,
+   "shelfmark": "1508",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27988,
+   "shelfmark": "689",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28147,
+   "shelfmark": "7316/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28199,
+   "shelfmark": "7439",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28300,
+   "shelfmark": "4298/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28413,
+   "shelfmark": "2003",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28420,
+   "shelfmark": "12878",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28422,
+   "shelfmark": "16917",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28433,
+   "shelfmark": "722",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28445,
+   "shelfmark": "2295",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28447,
+   "shelfmark": "301",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28449,
+   "shelfmark": "47",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28493,
+   "shelfmark": "6955-35/135",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28494,
+   "shelfmark": "10",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28508,
+   "shelfmark": "345 - ج",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28510,
+   "shelfmark": "179",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28543,
+   "shelfmark": "2216",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28547,
+   "shelfmark": "2213",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28548,
+   "shelfmark": "14136",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28550,
+   "shelfmark": "7424",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28559,
+   "shelfmark": "108",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28566,
+   "shelfmark": "282",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28600,
+   "shelfmark": "7426",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28611,
+   "shelfmark": "11311",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28612,
+   "shelfmark": "2224",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28646,
+   "shelfmark": "162",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28650,
+   "shelfmark": "318-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28745,
+   "shelfmark": "2215",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28793,
+   "shelfmark": "6340/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28805,
+   "shelfmark": "21168",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28903,
+   "shelfmark": "272",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28921,
+   "shelfmark": "2228",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28965,
+   "shelfmark": "11594",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28970,
+   "shelfmark": "4823",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 28990,
+   "shelfmark": "14313",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29064,
+   "shelfmark": "164",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29118,
+   "shelfmark": "766/10-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29315,
+   "shelfmark": "7220",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29332,
+   "shelfmark": "14227",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30278,
+   "shelfmark": "13878",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30367,
+   "shelfmark": "26",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 31054,
+   "shelfmark": "7009",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 31285,
+   "shelfmark": "277/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32388,
+   "shelfmark": "1205/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32393,
+   "shelfmark": "2656/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 32520,
+   "shelfmark": "6314/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33585,
+   "shelfmark": "893/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34137,
+   "shelfmark": "2199/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34396,
+   "shelfmark": "473/12",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34553,
+   "shelfmark": "770/32-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34893,
+   "shelfmark": "534",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35027,
+   "shelfmark": "847/44",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35028,
+   "shelfmark": "847/33",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35032,
+   "shelfmark": "847/47",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35033,
+   "shelfmark": "847/49",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35034,
+   "shelfmark": "847/36",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35035,
+   "shelfmark": "847/39",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 36311,
+   "shelfmark": "291/21-فیروز",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 37257,
+   "shelfmark": "1838",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 37494,
+   "shelfmark": "8635",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38569,
+   "shelfmark": "273/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38607,
+   "shelfmark": "8461/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38673,
+   "shelfmark": "8461/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38697,
+   "shelfmark": "8461/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38779,
+   "shelfmark": "8461/11",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38801,
+   "shelfmark": "8461/7",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38845,
+   "shelfmark": "8461/13",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 38894,
+   "shelfmark": "8461/8",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39549,
+   "shelfmark": "212",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39955,
+   "shelfmark": "400/2-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40079,
+   "shelfmark": "174",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40087,
+   "shelfmark": "10682",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40158,
+   "shelfmark": "260",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 41039,
+   "shelfmark": "2200/10",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 41733,
+   "shelfmark": "6503/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 41795,
+   "shelfmark": "58",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 41997,
+   "shelfmark": "10196/30",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43011,
+   "shelfmark": "8239",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44464,
+   "shelfmark": "ض17252",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44554,
+   "shelfmark": "756/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 44961,
+   "shelfmark": "847/45",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 45093,
+   "shelfmark": "13760/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 45285,
+   "shelfmark": "1205/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 45388,
+   "shelfmark": "22803",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 45883,
+   "shelfmark": "847/32",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46332,
+   "shelfmark": "13276",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46500,
+   "shelfmark": "7662/15",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 47676,
+   "shelfmark": "35",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 47708,
+   "shelfmark": "8123",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 47728,
+   "shelfmark": "454",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48098,
+   "shelfmark": "45",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48852,
+   "shelfmark": "1141/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49354,
+   "shelfmark": "16982",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49540,
+   "shelfmark": "143/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 50469,
+   "shelfmark": "2555/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51475,
+   "shelfmark": "8056",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52459,
+   "shelfmark": "527",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54685,
+   "shelfmark": "24",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54955,
+   "shelfmark": "462/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55988,
+   "shelfmark": "2200/11",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56162,
+   "shelfmark": "40",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 56944,
+   "shelfmark": "1206/26",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 57163,
+   "shelfmark": "134/23",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59184,
+   "shelfmark": "766/11-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59319,
+   "shelfmark": "403/3-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60202,
+   "shelfmark": "10945",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61076,
+   "shelfmark": "82 فرخ",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63687,
+   "shelfmark": "13921",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64358,
+   "shelfmark": "3977ض",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64488,
+   "shelfmark": "10866/16",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64935,
+   "shelfmark": "1304/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 66122,
+   "shelfmark": "914/2-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67741,
+   "shelfmark": "1750/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 67836,
+   "shelfmark": "766/8-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 72976,
+   "shelfmark": "244",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73001,
+   "shelfmark": "245",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 73071,
+   "shelfmark": "658/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 74442,
+   "shelfmark": "10-ب/629/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 75095,
+   "shelfmark": "838/2-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 75312,
+   "shelfmark": "890/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77692,
+   "shelfmark": "15498",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 78954,
+   "shelfmark": "7189",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79239,
+   "shelfmark": "847/48",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80907,
+   "shelfmark": "18450",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81339,
+   "shelfmark": "671عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81869,
+   "shelfmark": "10",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 81894,
+   "shelfmark": "410",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 84051,
+   "shelfmark": "14215/14",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 85971,
+   "shelfmark": "2703",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 86095,
+   "shelfmark": "219",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 88745,
+   "shelfmark": "2911/25",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 88927,
+   "shelfmark": "11/5 خوئی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89414,
+   "shelfmark": "712/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 89613,
+   "shelfmark": "1206/31",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 91921,
+   "shelfmark": "1006عکسی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95569,
+   "shelfmark": "بدون شماره",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96431,
+   "shelfmark": "208 - ج",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96620,
+   "shelfmark": "847/51",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97135,
+   "shelfmark": "847/50",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 99736,
+   "shelfmark": "494",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 100484,
+   "shelfmark": "2344",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 101125,
+   "shelfmark": "بدون شماره",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105169,
+   "shelfmark": "14232/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 105281,
+   "shelfmark": "110",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106878,
+   "shelfmark": "103",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 107861,
+   "shelfmark": "109/10",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 108362,
+   "shelfmark": "7316",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 109153,
+   "shelfmark": "1771",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 109302,
+   "shelfmark": "1614/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110504,
+   "shelfmark": "6949",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110865,
+   "shelfmark": "7358",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111129,
+   "shelfmark": "30/92-6022",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 112239,
+   "shelfmark": "5108/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 115808,
+   "shelfmark": "2911/30",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116206,
+   "shelfmark": "1039/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 120106,
+   "shelfmark": "770/29-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 120344,
+   "shelfmark": "14215/69",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121826,
+   "shelfmark": "1275/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121952,
+   "shelfmark": "2911/22",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 123322,
+   "shelfmark": "1916/13",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124857,
+   "shelfmark": "16344/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124938,
+   "shelfmark": "4069/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125032,
+   "shelfmark": "847/38",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 126960,
+   "shelfmark": "24650",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127267,
+   "shelfmark": "770/43-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 127277,
+   "shelfmark": "770/30-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128490,
+   "shelfmark": "11/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128651,
+   "shelfmark": "712/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131070,
+   "shelfmark": "907/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131298,
+   "shelfmark": "907/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131993,
+   "shelfmark": "14215/40",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132708,
+   "shelfmark": "270/38-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133248,
+   "shelfmark": "914/1-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 137755,
+   "shelfmark": "9048/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 137838,
+   "shelfmark": "2324/9",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 139898,
+   "shelfmark": "8177/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140857,
+   "shelfmark": "847/42",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 141604,
+   "shelfmark": "7420/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143324,
+   "shelfmark": "172/2-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145960,
+   "shelfmark": "17/43-فیروز",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 146850,
+   "shelfmark": "17/40-فیروز",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152578,
+   "shelfmark": "766/7-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 153507,
+   "shelfmark": "605",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157626,
+   "shelfmark": "847/31",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 159459,
+   "shelfmark": "3572/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160228,
+   "shelfmark": "373",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160321,
+   "shelfmark": "847/41",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160953,
+   "shelfmark": "606",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160960,
+   "shelfmark": "2300",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 163227,
+   "shelfmark": "1206/29",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 170083,
+   "shelfmark": "15721",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172306,
+   "shelfmark": "1206/21",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 172527,
+   "shelfmark": "838/3-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173237,
+   "shelfmark": "1185",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173610,
+   "shelfmark": "2324/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 174796,
+   "shelfmark": "13759/10",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 180515,
+   "shelfmark": "163",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181095,
+   "shelfmark": "1695/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 182254,
+   "shelfmark": "الف-30/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 185919,
+   "shelfmark": "42/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 188624,
+   "shelfmark": "592/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189446,
+   "shelfmark": "1614/12",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 193387,
+   "shelfmark": "4052/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 194166,
+   "shelfmark": "224/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 195108,
+   "shelfmark": "172/25-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 195506,
+   "shelfmark": "13760/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196138,
+   "shelfmark": "15382",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196191,
+   "shelfmark": "16945/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 199474,
+   "shelfmark": "84/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 204742,
+   "shelfmark": "766/6-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205526,
+   "shelfmark": "10866/13",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 205527,
+   "shelfmark": "10866/15",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207109,
+   "shelfmark": "12075/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207209,
+   "shelfmark": "5325/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207289,
+   "shelfmark": "1231/68-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207717,
+   "shelfmark": "1159/12-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 212159,
+   "shelfmark": "8880/19",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 214552,
+   "shelfmark": "5553/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 216425,
+   "shelfmark": "8914/63",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 217866,
+   "shelfmark": "40/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 218037,
+   "shelfmark": "8862/2-59/82",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 219067,
+   "shelfmark": "1160/2-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 219147,
+   "shelfmark": "8914/54",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 221139,
+   "shelfmark": "239/10-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223174,
+   "shelfmark": "14215/47",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 224715,
+   "shelfmark": "1206/28",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 229086,
+   "shelfmark": "255",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 229605,
+   "shelfmark": "880/44",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230041,
+   "shelfmark": "8914/62",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235365,
+   "shelfmark": "4245",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235366,
+   "shelfmark": "4243",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235432,
+   "shelfmark": "1976",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235472,
+   "shelfmark": "1978",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235473,
+   "shelfmark": "1977",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235474,
+   "shelfmark": "1979",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235516,
+   "shelfmark": "1962",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235527,
+   "shelfmark": "1975",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235585,
+   "shelfmark": "4558",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235975,
+   "shelfmark": "11991",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235988,
+   "shelfmark": "98",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236019,
+   "shelfmark": "743",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236021,
+   "shelfmark": "12167",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236145,
+   "shelfmark": "44",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236248,
+   "shelfmark": "3446",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236256,
+   "shelfmark": "15611",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236291,
+   "shelfmark": "5579",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236313,
+   "shelfmark": "62",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236370,
+   "shelfmark": "3690",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236416,
+   "shelfmark": "1340",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236443,
+   "shelfmark": "61",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236446,
+   "shelfmark": "12171",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236449,
+   "shelfmark": "43",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236496,
+   "shelfmark": "12 بخش یکم",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236694,
+   "shelfmark": "1341",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 236712,
+   "shelfmark": "321",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237148,
+   "shelfmark": "3691",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237170,
+   "shelfmark": "5553",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237248,
+   "shelfmark": "20",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237319,
+   "shelfmark": "1717",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237320,
+   "shelfmark": "1718",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237321,
+   "shelfmark": "1719",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237322,
+   "shelfmark": "1721",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237323,
+   "shelfmark": "1722",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237324,
+   "shelfmark": "1723",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237326,
+   "shelfmark": "1726",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237327,
+   "shelfmark": "1727",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237328,
+   "shelfmark": "1728",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237329,
+   "shelfmark": "1729",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237330,
+   "shelfmark": "1730",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237331,
+   "shelfmark": "1731",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237332,
+   "shelfmark": "1732-1753",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237338,
+   "shelfmark": "1763",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237347,
+   "shelfmark": "1205",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237431,
+   "shelfmark": "2023",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237726,
+   "shelfmark": "1754",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237727,
+   "shelfmark": "1765",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237728,
+   "shelfmark": "1766",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237729,
+   "shelfmark": "1980",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237730,
+   "shelfmark": "1983",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237731,
+   "shelfmark": "1945",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237733,
+   "shelfmark": "1947",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237734,
+   "shelfmark": "1948",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237735,
+   "shelfmark": "2038",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237831,
+   "shelfmark": "12138",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237837,
+   "shelfmark": "1957",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237840,
+   "shelfmark": "1959",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237869,
+   "shelfmark": "1953",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237872,
+   "shelfmark": "1955",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 237948,
+   "shelfmark": "2002",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238089,
+   "shelfmark": "253",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238097,
+   "shelfmark": "44",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238162,
+   "shelfmark": "312",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238225,
+   "shelfmark": "1204",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238240,
+   "shelfmark": "498",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238241,
+   "shelfmark": "499",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238242,
+   "shelfmark": "500",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238325,
+   "shelfmark": "1716",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238346,
+   "shelfmark": "1981",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238347,
+   "shelfmark": "1982",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238410,
+   "shelfmark": "8914/64",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239432,
+   "shelfmark": "770/25-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239970,
+   "shelfmark": "10866/12",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 240676,
+   "shelfmark": "150/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 243602,
+   "shelfmark": "673",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 245568,
+   "shelfmark": "1125",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250382,
+   "shelfmark": "1023",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 253845,
+   "shelfmark": "172/19-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254033,
+   "shelfmark": "770/21-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255175,
+   "shelfmark": "11067/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255263,
+   "shelfmark": "172/18-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255903,
+   "shelfmark": "1206/22",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 256094,
+   "shelfmark": "18522",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258765,
+   "shelfmark": "14215/40",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262462,
+   "shelfmark": "696/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262585,
+   "shelfmark": "106/14",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 262673,
+   "shelfmark": "1206/24",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 263087,
+   "shelfmark": "408",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264259,
+   "shelfmark": "847/46",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265060,
+   "shelfmark": "2633",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265647,
+   "shelfmark": "847/40",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267403,
+   "shelfmark": "8914/42",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268030,
+   "shelfmark": "442",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268179,
+   "shelfmark": "2652",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 272725,
+   "shelfmark": "378/23-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273063,
+   "shelfmark": "8834/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273618,
+   "shelfmark": "766/9-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280290,
+   "shelfmark": "765/2-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280319,
+   "shelfmark": "1394",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 283732,
+   "shelfmark": "88/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286368,
+   "shelfmark": "1205/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288110,
+   "shelfmark": "22",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288534,
+   "shelfmark": "1275/8",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290956,
+   "shelfmark": "8904/60",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292555,
+   "shelfmark": "8914/53",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292649,
+   "shelfmark": "14190/115",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292695,
+   "shelfmark": "8914/50",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 297653,
+   "shelfmark": "518-ف",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298593,
+   "shelfmark": "1206/20",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301032,
+   "shelfmark": "1206/27",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301457,
+   "shelfmark": "5444/5",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301735,
+   "shelfmark": "1871/13",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301859,
+   "shelfmark": "14215/64",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301966,
+   "shelfmark": "513/9-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302426,
+   "shelfmark": "40/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 305353,
+   "shelfmark": "14215/63",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 305418,
+   "shelfmark": "14215/43",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 305427,
+   "shelfmark": "14215/46",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306004,
+   "shelfmark": "8880/27",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306005,
+   "shelfmark": "8852/11",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306006,
+   "shelfmark": "8852/13",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306095,
+   "shelfmark": "34/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306654,
+   "shelfmark": "1205/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306746,
+   "shelfmark": "2679/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306879,
+   "shelfmark": "2555/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 308000,
+   "shelfmark": "نامعلوم",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309404,
+   "shelfmark": "1871/16",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309505,
+   "shelfmark": "12079/4",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 310950,
+   "shelfmark": "2693",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311637,
+   "shelfmark": "3929/10",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 313717,
+   "shelfmark": "8904/61",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 314023,
+   "shelfmark": "14215/35",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 314439,
+   "shelfmark": "770/31-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 314862,
+   "shelfmark": "847/43",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 315813,
+   "shelfmark": "513/8-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 316230,
+   "shelfmark": "6390",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 317528,
+   "shelfmark": "1205/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 317929,
+   "shelfmark": "8852/34",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319050,
+   "shelfmark": "14432/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319086,
+   "shelfmark": "18434/2",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319967,
+   "shelfmark": "770/33-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320403,
+   "shelfmark": "48",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322473,
+   "shelfmark": "505",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322827,
+   "shelfmark": "14215/39",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323461,
+   "shelfmark": "1275/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 326878,
+   "shelfmark": "7051/11",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 327401,
+   "shelfmark": "3026",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328146,
+   "shelfmark": "847/6",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328760,
+   "shelfmark": "1206/30",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328856,
+   "shelfmark": "770/8-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328876,
+   "shelfmark": "172/23-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328957,
+   "shelfmark": "14215/61",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329430,
+   "shelfmark": "298/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329674,
+   "shelfmark": "8914/46",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329736,
+   "shelfmark": "14215/19",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329874,
+   "shelfmark": "8914/65",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329894,
+   "shelfmark": "770/35-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329896,
+   "shelfmark": "3059/3",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 329955,
+   "shelfmark": "770/41-طباطبائی",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332328,
+   "shelfmark": "1077",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332608,
+   "shelfmark": "4816/1",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333906,
+   "shelfmark": "8914/57",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 1,
+     "to": 0
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333955,
+   "shelfmark": "2764",
+   "category": "marginal_notes",
+   "v2": "judged",
+   "changes": {
+    "has_marginal_notes": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  }
+ ]
+}
