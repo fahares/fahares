@@ -8352,3 +8352,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[record-history.blade.php](../resources/views/components/record-history.blade.php):** `data-history` = `suggestion?->id ?? key`. `children` در `<ul data-history-readings>` می‌آید، و `<time>` فقط با تاریخ.
 - **آزمون:** `RecordHistoryTest::test_a_copy_merge_reads_as_one_line_with_the_readings_it_kept_under_it`.
 - **پروداکشن:** دستور داده ندارد.
+
+### گام ۱۴.۷۹: `fahares:link-plain-volumes`
+- **[LinkPlainVolumesCommand.php](../app/Console/Commands/LinkPlainVolumesCommand.php):** همه‌ی نسخه‌ها را یک بار می‌خواند. نسخه‌ای که `collectionKeyOf` برایش کلید دارد، فقط در بررسی هم‌پوشانی برگ‌ها شرکت می‌کند.
+  - **هم‌شماره:** گروه بر پایه‌ی `library_id` (یا `n:{library}`) و `Manuscript::plainVolumeKeyOf` ساخته می‌شود. نسخه‌های «n/m» با همان کلید هم به گروه افزوده می‌شوند. `sharedVolume()` یکی از این‌ها را برمی‌گرداند: `overlap` (اگر بازه‌ها مرتب شده باشند و `from < to` بازه‌ی پیشین باشد؛ برگ مشترک «27 / 27پ» مجاز است)، `repeated-work`، `linked` (دست‌کم دو بازه، یا یک بازه با `from > 2`) یا `no-evidence`.
+  - **رشته:** نسخه‌هایی که کلید ساده‌شان در کتابخانه تنهاست و `plainNumber` و اندازه («اندازه: a×b») دارند. هر عضو بعدی، در پنجره‌ی `RUN_GAP` = ۵ شماره، هم‌اندازه‌ای است که برگ‌هایش نزدیک‌ترین آغاز پس از `to` عضو پیشین را دارد. هم‌اندازه‌های بی بازه در میان رشته به آن می‌پیوندند. اگر هم‌اندازه‌ی بازه‌داری در میان رشته کنار گذاشته شود، یا در پنجره‌ی پیرامونش برگ‌هایش میان `from` نخست و `to` آخر شروع شود، رشته `unsure` است و پیوند نمی‌گیرد. کلید رشته «first–last» است (با خط تیره‌ی –).
+  - هر اجرا همه‌ی این کلیدها را از نو حساب می‌کند. کلیدی که دیگر نمی‌گذرد پاک می‌شود و کلیدی که بازبین ثبت کرده (`ProtectedColumns`) می‌ماند. چیزی بازنمایه نمی‌شود.
+- **[Manuscript.php](../app/Models/Manuscript.php):**
+  - `plainVolumeKeyOf()`: یک رشته‌ی رقم بی اسلش. فاصله و خط تیره میان حرف و رقم یک فاصله می‌شود، و «-سنا» برای `citesOnlySenate` افزوده می‌شود.
+  - `plainNumber()`، `isRunKey()`.
+  - `keepsLinkedKey()` و `resolvedCollectionKey()`: کلید پیوندی تا وقتی نگه داشته می‌شود که با شماره بخواند. این را قلاب `saving`، `DerivedData::collectionChange`، `fill-collection-keys` و `sync-fixed-shelfmarks` به کار می‌برند.
+  - `collectionSiblings()` رشته را به ترتیب شماره می‌چیند و نسخه‌های بی بازه را پس از بازه‌دارهای همان بخش.
+- **[manuscript-collection.blade.php](../resources/views/components/manuscript-collection.blade.php):** جمله‌ای درباره‌ی شیوه‌ی پیوند برای کلید رشته و کلید ساده.
+- **آزمون:** `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume`.
+- **پروداکشن:** `php artisan fahares:link-plain-volumes --apply`. پیش از آن پشتیبان `id, collection_key` گرفته شود.

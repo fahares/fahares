@@ -51,6 +51,7 @@ class RefreshDerivedCommand extends Command
         $this->call('fahares:fill-copy-date-ranges', ['--works' => true, '--apply' => true, '--show' => 3]);
         $this->call('fahares:fill-extents', ['--apply' => true, '--show' => 3]);
         $this->call('fahares:fill-collection-keys', ['--apply' => true, '--show' => 3]);
+        $this->call('fahares:link-plain-volumes', ['--apply' => true, '--show' => 3]);
         $this->call('fahares:backfill-work-dedications', ['--show' => 3]);
         foreach (['fahares:fill-text-excerpts' => ['excerpts', 'fankha_v2_excerpts_20261031.json'], 'fahares:fill-death-ranges' => ['deaths', 'fankha_v2_deaths_20261031.json']] as $filler => [$option, $file]) {
             $path = $this->option($option) ?: database_path("data/{$file}");

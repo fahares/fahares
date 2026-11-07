@@ -113,8 +113,8 @@ class SyncFixedShelfmarksCommand extends Command
             $updatePayload = $guard->strip($dbMs->id, $updatePayload);
             // the bound volume follows the shelfmark and the catalogue the text cites (backlog item 97)
             if (array_key_exists('shelfmark', $updatePayload) || array_key_exists('raw_text', $updatePayload)) {
-                $updatePayload['collection_key'] = Manuscript::collectionKeyOf($updatePayload['shelfmark'] ?? $dbMs->shelfmark,
-                    array_key_exists('raw_text', $updatePayload) ? $updatePayload['raw_text'] : $dbMs->raw_text);
+                $updatePayload['collection_key'] = Manuscript::resolvedCollectionKey($updatePayload['shelfmark'] ?? $dbMs->shelfmark,
+                    array_key_exists('raw_text', $updatePayload) ? $updatePayload['raw_text'] : $dbMs->raw_text, $dbMs->collection_key ?? null);
             }
             DB::table('manuscripts')->where('id', $dbMs->id)->update($updatePayload);
             $updatedIds[] = $dbMs->id;

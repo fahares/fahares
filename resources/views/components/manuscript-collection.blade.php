@@ -14,6 +14,11 @@
                     مجلدهای همین اثر در همین کتابخانه که زیر شماره‌ی {{ $number }} آمده‌اند.
                 @else
                     این نسخه در مجموعه‌ی شماره‌ی <span dir="ltr">{{ \App\Support\Fa::digits($number) }}</span>{{ $manuscript->rangeLabel() ? '، ' . $manuscript->rangeLabel() : '' }}، همراه با این رساله‌ها{{ $siblings->contains(fn ($m) => $m->range_from) ? ' (به ترتیب برگ)' : '' }} صحافی شده است.
+                    @if(\App\Models\Manuscript::isRunKey($number))
+                        کتابخانه به هر رساله‌ی این مجلد شماره‌ای جداگانه داده است؛ پیوستگی برگ‌ها و اندازه‌ی یکسانشان نشان می‌دهد که با هم صحافی شده‌اند.
+                    @elseif(! \App\Models\Manuscript::collectionKey($manuscript->shelfmark))
+                        فهرست شماره‌ی بخش رساله‌ها را نیاورده است؛ پیوستگی برگ‌هایشان نشان می‌دهد که در یک مجلدند.
+                    @endif
                 @endif
             </p>
         </div>
