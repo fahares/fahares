@@ -8464,3 +8464,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سده از سال وفات؛
   - زندگی‌نامه‌ای که فقط به نام می‌خواند، که پیوند نمی‌گیرد.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+### گام ۱۴.۸۲: دو سطر «همان نسخه بالا»ی بی‌پیوند
+- **۱۴۵۵۳۴:**
+  - `fahares:apply-corpus-structure --file=/tmp/move145534.json --apply`. فایل یک `moves` دارد: ‎-v15-1172 → ‎-v15-2247، با نسخه‌ی «مشهد، مولوی، 194».
+  - سپس `fahares:link-copy-references --work=71738 --backup=… --report=…`، که خروجی `merged 1` داد. جابه‌جایی، نسخه‌ی بالا (بزرگ‌ترین id کوچک‌تر در اثر) را الهیات 194 (۱۴۵۵۳۳) کرد. `TRANSFERS` («مولوی → الهیات») ادغام را برگزید.
+  - نتیجه: ۱۴۵۵۳۴ حذف شد و نشانی برگشت به ۱۴۵۵۳۳ دارد. `metadata.former_locations` ۱۴۵۵۳۳ «مولوی 194، نشریه: 5 - 28» را دارد. `manuscripts_count` اثر ۷۱۷۳۸ برابر ۲ و اثر ۳۰۲۷۰ برابر ۸ است.
+- **۱۹۷۷۶۶:**
+  - `link-copy-references --work=71784` گزارش `no_copy_above` داد، چون id نسخه‌ی اصل (۳۳۴۲۷۴) بزرگ‌تر است.
+  - رابطه‌ی ۷۵۱۰ مانند `relate()` دستور ساخته شد: `type = facsimile_of` و `source = fankha`. یک ردیف `corpus_update` هم در audit ثبت شد. `is_facsimile` از پیش روشن بود.
+- **نکته:** استقرار، `/tmp` کانتینر را پاک می‌کند. فایل جابه‌جایی پس از استقرار انتشار ۵۴ دوباره فرستاده شد. اجرای نخست «Decision file missing» داده بود و چیزی ننوشته بود.
+
+### گام ۱۴.۸۴: `missing_copies_held.json` و اثر ‎-v5-1792
+- **سنجش ۵۶ نسخه در پروداکشن (فقط‌خواندنی):** در همان جلد، صفحه ±۲، شماره‌ی نسخه‌ی بی‌فاصله، و سه حرف نخست کتابخانه.
+  - نتیجه: `found` ۵۳ و `missing` ۳.
+  - از آن سه، دو نسخه با شماره‌ی نسخه‌ی تنها پیدا شدند: 334850 «مجلس 12563/6» و 334891 «مسجد اعظم 3772/4».
+- **v5-1114 (۱۵ نسخه):** `fankha_v2_run_works_export.py --next 5:1792 v5-1114`. بیشینه‌ی شماره‌ی slug ج ۵ در پروداکشن ۱۷۹۱ بود. خروجی: «14 moved, 1 made». جابه‌جایی‌ها از `…-v5-1108` است.
+- **فایل:** `database/data/fankha_bihar_translation_step14_84.json`.
+- **بی‌نوشتن:** در نسخه‌ی محلی و در پروداکشن، هر دو «Would add 1 works … 14 moved, 1 made».
+- **تمرین روی fahares_prod:** «Adding 1 works … 14 moved, 1 made». پس از آن `link-volumes` و `rebuild-scripts`. اجرای دوم: «Would add 0 works».
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_bihar_translation_step14_84.json --apply`
+  2. `catalogs:link-volumes`
+  3. `fahares:rebuild-scripts`
