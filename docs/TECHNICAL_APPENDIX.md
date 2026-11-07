@@ -8418,3 +8418,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
   2. `php artisan fahares:fold-copy-merge-extents /tmp/… ` اجرا می‌شود (گزارش؛ انتظار: ۶۱ نشانی و ۳۴ قول).
   3. همان دستور با `--apply --backup=…` اجرا می‌شود. پشتیبان آن به لپ‌تاپ می‌رود.
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** پشتیبان گام ۱۴.۱۶ (md5 `6b0301ec…`) به `/tmp` رفت.
+  - گزارش و `--apply --backup=/tmp/step14_80_fold_backup.json` هر دو «61 … 34» بودند. پشتیبان (۶۱ نسخه و ۳۴ قول) به لپ‌تاپ رفت و هر دو فایل `/tmp` پاک شدند. اجرای دوم «0» بود.
+  - **پس از اجرا:** ۶ قول با `origin` = `copy_merge` مانده است.
