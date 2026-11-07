@@ -8366,3 +8366,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[manuscript-collection.blade.php](../resources/views/components/manuscript-collection.blade.php):** جمله‌ای درباره‌ی شیوه‌ی پیوند برای کلید رشته و کلید ساده.
 - **آزمون:** `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume`.
 - **پروداکشن:** `php artisan fahares:link-plain-volumes --apply`. پیش از آن پشتیبان `id, collection_key` گرفته شود.
+### گام ۱۴.۸۰: `fahares:fold-copy-merge-extents`
+- **[FoldCopyMergeExtentsCommand](../app/Console/Commands/FoldCopyMergeExtentsCommand.php):** ورودی پشتیبان `fahares:link-copy-references` است.
+  - برای هر `merges` که نسخه‌ی ماندنی‌اش هست و نسخه‌ی حذف‌شده برنگشته (گام ۱۴.۷۶)، نشانی پیشین بی `suggestion_id` با همان `library` و `shelfmark` یافته می‌شود.
+  - به آن `folios`، `range_from` و `range_to` از `source_snapshot.attributes` افزوده می‌شود، فقط کلیدهایی که هنوز ندارد.
+  - قول‌های `folios` با `origin` = `copy_merge` و `merged_manuscript_id` همان ادغام حذف می‌شوند.
+  - پیش‌فرض فقط گزارش است. با `--apply`، نخست `--backup` (نشانی‌ها و ردیف‌های قول) نوشته می‌شود و سپس تغییر. اجرای دوم «0» گزارش می‌کند.
+- **[FormerLocation::extent](../app/Support/FormerLocation.php):** «برگ {از} تا {تا} ({n} برگ)» یا فقط «{n} برگ». در `manuscripts/show` (نشانی پیشین) و `Contributions::withCopyMerges` (خط ادغام) به کار رفته است.
+- **سنجش (بیرون از مخزن، روی `text/fankha` و ۴۰ قول پروداکشن):**
+  - در همه‌ی ۳۴ قول برگ‌شمار، عدد شیخ علی حیدر برابر طول گستره‌ی خودش است.
+  - عدد رضوی در ۲۷ قول ±۱ طول گستره است. در ۳ قول برابر برگ آغازی یا پایانی است (۱۷۷۷۲۹، ۳۱۶۲۶۲ و ۲۰۴۴۱۵). در ۴ قول توضیحی پیدا نشد (۱۵۶۱۵۰، ۱۶۹۲۸۴، ۲۶۸۸۵۶ و ۳۲۱۰۷۶).
+- **آزمون:** `RecordHistoryTest::test_the_former_leaves_of_a_merged_copy_go_to_its_former_location_and_the_leaf_reading_goes`.
+- **پروداکشن، پس از استقرار:**
+  1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
+  2. `php artisan fahares:fold-copy-merge-extents /tmp/… ` اجرا می‌شود (گزارش؛ انتظار: ۶۱ نشانی و ۳۴ قول).
+  3. همان دستور با `--apply --backup=…` اجرا می‌شود. پشتیبان آن به لپ‌تاپ می‌رود.
