@@ -249,4 +249,41 @@ class RecordHistoryTest extends TestCase
         $this->assertStringNotContainsString('نگه داشته شد: «34»', $text);
         $this->assertStringContainsString('معرفی «مولوی، ش 653» (نشریه: 5-103) در این رکورد ادغام شد.', $this->text($this->page($quiet)));
     }
+
+    public function test_the_former_leaves_of_a_merged_copy_go_to_its_former_location_and_the_leaf_reading_goes()
+    {
+        $ms = $this->manuscript($this->work('مصباح الشريعة'), ['library' => 'رضوی', 'shelfmark' => '36188', 'folios' => '37', 'metadata' => ['former_locations' => [
+            ['library_id' => 205, 'library' => 'شیخ علی حیدر', 'city' => 'مشهد', 'shelfmark' => '465/4', 'catalog' => 'مؤید: 1-375', 'note' => 'فنخا: «همان نسخه بالا»'],
+        ]]]);
+        $removedId = 999990;
+        $reading = fn (string $field, string $value) => FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $ms->id, 'kind' => 'field',
+            'field_name' => $field, 'current_value' => 'رضوی', 'suggested_value' => $value, 'credit_name' => 'فهرست مؤید: 1-375', 'status' => 'approved',
+            'standing' => 'alternative', 'resolution' => ['applied' => false, 'origin' => 'copy_merge', 'merged_manuscript_id' => $removedId], 'reviewed_at' => now()]);
+        $folios = $reading('folios', '34');
+        $script = $reading('script_names', 'نسخ');
+        // the run's backup, as fahares:link-copy-references wrote it: the removed record's leaves
+        $run = storage_path('app/test-fold-' . uniqid() . '.json');
+        file_put_contents($run, json_encode(['command' => 'fahares:link-copy-references', 'relations' => [], 'facsimile' => [], 'readings' => [], 'merges' => [[
+            'source_id' => $removedId, 'target_id' => $ms->id, 'result' => ['source_snapshot' => ['attributes' => [
+                'library' => 'شیخ علی حیدر', 'shelfmark' => '465/4', 'folios' => 34, 'range_from' => '213پ', 'range_to' => '246پ']]],
+        ]]], JSON_UNESCAPED_UNICODE));
+        $backup = storage_path('app/test-fold-backup-' . uniqid() . '.json');
+
+        $this->artisan('fahares:fold-copy-merge-extents', ['run' => $run])->expectsOutputToContain('Would write: 1 former locations get their leaves, 1 leaf-count readings removed')->assertSuccessful();
+        $this->assertNotNull($folios->fresh());
+        $this->artisan('fahares:fold-copy-merge-extents', ['run' => $run, '--apply' => true, '--backup' => $backup])->expectsOutputToContain('Written: 1')->assertSuccessful();
+        $this->artisan('fahares:fold-copy-merge-extents', ['run' => $run])->expectsOutputToContain('Would write: 0 former locations get their leaves, 0')->assertSuccessful();
+
+        $former = $ms->fresh()->metadata['former_locations'][0];
+        $this->assertSame([34, '213پ', '246پ'], [$former['folios'], $former['range_from'], $former['range_to']]);
+        $this->assertNull($folios->fresh());
+        $this->assertNotNull($script->fresh(), 'a reading of another field stays');
+        $this->assertSame($folios->id, json_decode(file_get_contents($backup), true)['copies'][0]['readings'][0]['id']);
+
+        $text = $this->text($this->page($ms));
+        $this->assertStringContainsString('نشانی پیشین: شیخ علی حیدر، مشهد، شماره‌ی ۴۶۵/۴، برگ ۲۱۳پ تا ۲۴۶پ (۳۴ برگ) (در مؤید: ۱-۳۷۵)', $text);
+        $this->assertStringContainsString('معرفی «شیخ علی حیدر، ش 465/4»، برگ ۲۱۳پ تا ۲۴۶پ (۳۴ برگ) (مؤید: 1-375) در این رکورد ادغام شد.', $text);
+        @unlink($run);
+        @unlink($backup);
+    }
 }

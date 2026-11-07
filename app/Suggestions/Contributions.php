@@ -296,7 +296,9 @@ class Contributions
                 'key' => 'copy-merge-' . md5(json_encode($f)),
                 'date' => $own->min('date'),
                 'contributor' => ['kind' => 'machine', 'name' => FieldSuggestion::MACHINE_ORIGINS['copy_merge'], 'user' => null, 'url' => null],
-                'line' => ['در یکی شدن دو معرفی این نسخه، معرفی «' . ($place ?: 'نامشخص') . '»' . ($catalog !== '' ? ' (' . $catalog . ')' : '')
+                // with the leaves it had in the former volume, when it was one treatise of a collection (step 14.80)
+                'line' => ['در یکی شدن دو معرفی این نسخه، معرفی «' . ($place ?: 'نامشخص') . '»'
+                    . (($extent = \App\Support\FormerLocation::extent($f)) ? '، ' . $extent : '') . ($catalog !== '' ? ' (' . $catalog . ')' : '')
                     . ' در این رکورد ادغام شد. فنخا درباره‌ی آن نوشته است: «همان نسخه بالا».'],
                 'children' => $own->map(fn ($r) => ['قول ' . $r['contributor']['name'] . ' برای «' . $r['action'] . '»: «', $r['after']['label'] ?? '', '»'])->values()->all(),
                 'claimed' => $own->keys()->all(),

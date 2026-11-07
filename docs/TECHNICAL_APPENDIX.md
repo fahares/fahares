@@ -8352,3 +8352,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[record-history.blade.php](../resources/views/components/record-history.blade.php):** `data-history` = `suggestion?->id ?? key`. `children` در `<ul data-history-readings>` می‌آید، و `<time>` فقط با تاریخ.
 - **آزمون:** `RecordHistoryTest::test_a_copy_merge_reads_as_one_line_with_the_readings_it_kept_under_it`.
 - **پروداکشن:** دستور داده ندارد.
+
+### گام ۱۴.۸۰: `fahares:fold-copy-merge-extents`
+- **[FoldCopyMergeExtentsCommand](../app/Console/Commands/FoldCopyMergeExtentsCommand.php):** ورودی پشتیبان `fahares:link-copy-references` است.
+  - برای هر `merges` که نسخه‌ی ماندنی‌اش هست و نسخه‌ی حذف‌شده برنگشته (گام ۱۴.۷۶)، نشانی پیشین بی `suggestion_id` با همان `library` و `shelfmark` یافته می‌شود.
+  - به آن `folios`، `range_from` و `range_to` از `source_snapshot.attributes` افزوده می‌شود، فقط کلیدهایی که هنوز ندارد.
+  - قول‌های `folios` با `origin` = `copy_merge` و `merged_manuscript_id` همان ادغام حذف می‌شوند.
+  - پیش‌فرض فقط گزارش است. با `--apply`، نخست `--backup` (نشانی‌ها و ردیف‌های قول) نوشته می‌شود و سپس تغییر. اجرای دوم «0» گزارش می‌کند.
+- **[FormerLocation::extent](../app/Support/FormerLocation.php):** «برگ {از} تا {تا} ({n} برگ)» یا فقط «{n} برگ». در `manuscripts/show` (نشانی پیشین) و `Contributions::withCopyMerges` (خط ادغام) به کار رفته است.
+- **سنجش (بیرون از مخزن، روی `text/fankha` و ۴۰ قول پروداکشن):**
+  - در همه‌ی ۳۴ قول برگ‌شمار، عدد شیخ علی حیدر برابر طول گستره‌ی خودش است.
+  - عدد رضوی در ۲۷ قول ±۱ طول گستره است. در ۳ قول برابر برگ آغازی یا پایانی است (۱۷۷۷۲۹، ۳۱۶۲۶۲ و ۲۰۴۴۱۵). در ۴ قول توضیحی پیدا نشد (۱۵۶۱۵۰، ۱۶۹۲۸۴، ۲۶۸۸۵۶ و ۳۲۱۰۷۶).
+- **آزمون:** `RecordHistoryTest::test_the_former_leaves_of_a_merged_copy_go_to_its_former_location_and_the_leaf_reading_goes`.
+- **پروداکشن، پس از استقرار:**
+  1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
+  2. `php artisan fahares:fold-copy-merge-extents /tmp/… ` اجرا می‌شود (گزارش؛ انتظار: ۶۱ نشانی و ۳۴ قول).
+  3. همان دستور با `--apply --backup=…` اجرا می‌شود. پشتیبان آن به لپ‌تاپ می‌رود.
