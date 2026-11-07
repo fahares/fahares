@@ -25,7 +25,7 @@
     $kind = $suggestion->kind;
     $payload = $suggestion->payload ?? [];
     $typeLabel = SuggestionRegistry::typeLabel($suggestion->suggestable_type);
-    $submitterName = $suggestion->guest_name ?: ($suggestion->user?->name ?: 'پژوهشگر مهمان');
+    $submitterName = $suggestion->guest_name ?: ($suggestion->user?->name ?: ($suggestion->machine_label ?? 'پژوهشگر مهمان'));
     $isAdmin = auth()->user()->isAdmin();
     $promoting = $suggestion->status === 'approved' && $suggestion->standing === 'alternative';
 
@@ -246,6 +246,8 @@
                         <x-ui.chip>{{ \App\Support\Fa::num($submitterStats['rejected']) }} ردشده</x-ui.chip>
                         <x-ui.chip tone="accent">{{ \App\Support\Fa::num($submitterStats['pending']) }} در انتظار</x-ui.chip>
                     </div>
+                @elseif($suggestion->machine_label)
+                    <p class="text-xs text-muted" data-machine-reading>کسی این را نفرستاده است: سامانه در ادغام، مقدار متفاوت رکورد دیگر را «قول دیگر» نگه داشت.@if($suggestion->public_note) {{ $suggestion->public_note }}@endif</p>
                 @else
                     <p class="text-xs text-muted">مهمانی بی ایمیل؛ سابقه‌ای برای او نمی‌توان شمرد.</p>
                 @endif

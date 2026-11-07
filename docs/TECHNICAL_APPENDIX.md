@@ -8287,3 +8287,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:fill-copy-date-ranges` (بی‌نوشتن؛ انتظار: حدود ۱٬۰۹۹ تغییر)
   2. `fahares:fill-copy-date-ranges --apply`
   3. `fahares:fill-copy-date-ranges --works --apply`
+
+### گام ۱۴.۷۴: `FieldSuggestion::MACHINE_ORIGINS`
+- **منشأ:** `resolution.origin` = `copy_merge` ([LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php)، با `merged_manuscript_id`) یا `merge` ([MergeComparison](../app/Suggestions/MergeComparison.php)، با `merged_id`). هر دو `user_id` = null، `standing` = `alternative` و `credit_name` = «فهرست …» یا نام رکورد ادغام‌شده دارند. در پروداکشن: #۸۰ تا #۹۹ (`copy_merge`، ۵ نوامبر ۰۰:۴۹ تا ۰۰:۵۳ UTC) و #۱۰۰ و #۱۰۲ تا #۱۰۵ (`merge`).
+- **[FieldSuggestion](../app/Models/FieldSuggestion.php):** `MACHINE_ORIGINS` (origin => برچسب پنل)، `machineOrigin()` (فقط با `user_id` = null) و `machine_label`.
+- **[Contributions](../app/Suggestions/Contributions.php):**
+  - `publicQuery()` = `recordQuery()` بی `machineReadings()`: `user_id IS NULL AND COALESCE(JSON_VALUE(resolution, '$.origin'), '') IN (…)`. بی COALESCE، `whereNot` هر پیشنهاد مهمانِ بی `resolution` را هم می‌انداخت (NOT NULL).
+  - `forRecord()` روی `recordQuery()`، پس این قول‌ها در تاریخچه‌ی رکورد می‌مانند.
+  - `contributor()`: `kind` = `machine`، نام = `credit_name`. `line()`: «در یکی شدن دو معرفی {این نسخه}، قول {نام} برای «{فیلد}» نگه داشته شد: «…»»، یا «در ادغام رکورد تکراری در …».
+- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** برای `machine` نه «به پیشنهاد» می‌آید، نه حرف نخست نام در آواتار.
+- **پنل:** `admin/suggestions/index` و `show` (`$submitterName`، و `data-machine-reading` به‌جای «مهمانی بی ایمیل»).
+- **آزمون:** `RecordHistoryTest::test_a_reading_a_merge_kept_names_the_catalogue_not_a_submitter_and_is_not_a_researchers_correction`، با پیشنهاد مهمانِ بی `resolution` که باید در `/contributions` بماند.
+- **پروداکشن:** دستور داده ندارد.
