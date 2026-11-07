@@ -8287,23 +8287,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:fill-copy-date-ranges` (بی‌نوشتن؛ انتظار: حدود ۱٬۰۹۹ تغییر)
   2. `fahares:fill-copy-date-ranges --apply`
   3. `fahares:fill-copy-date-ranges --works --apply`
-
-### گام ۱۴.۷۶: `fahares:link-copy-references --revert=… --only=…`
-- **`revertOnly()`** در [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php):
-  - از پشتیبان گام ۱۴.۱۶ فقط `merges` با `target_id` در `--only` خوانده می‌شود.
-  - برای هر کدام: `RecordMerger::undoManuscriptMerge` و بازگرداندن `source_metadata` و `target_metadata`. قول‌های همان ادغام (`readings` با `suggestable_id` = نسخه‌ی ماندنی و `resolution.merged_manuscript_id` = نسخه‌ی حذف‌شده) حذف می‌شوند. سپس `relate($source, $target, 'possibly_same', …)` با `source` = `fankha`.
-  - **محافظ:** اگر نسخه‌ی حذف‌شده برگشته باشد، «already split» گزارش می‌شود. اگر `updated_at` نسخه‌ی ماندنی بیش از ۳۰ دقیقه پس از آخرین قول همان اجرا باشد، دست نمی‌خورد، چون `target_metadata` پشتیبان ویرایش تازه را پاک می‌کرد.
-  - `--dry-run` فقط گزارش می‌دهد.
-- **بررسی جفت‌ها:** با اسکریپت بیرون از مخزن روی `text/fankha/fankha_vol_*.txt` انجام شد. ۵۳۲ جفت رضوی و ۱ جفت وزیری پیدا شد، که جفت وزیری ادغام نشده بود. نتیجه:
-  - ۵۲۰ شماره‌ی رضوی در بازه‌ی ۳۵۰۰۰ تا ۳۹۰۰۰ است، و ۵۱۴ مدخل به «اهدائی رهبر» ارجاع می‌دهند.
-  - از ۵۴ مجلد چندرساله، رساله‌های ۴۶ مجلد در گستره‌ای کمتر از ۵۰ شماره ثبت شده‌اند.
-  - هم‌بستگی رتبه‌ای شماره‌ها ۰٫۰۴ است، یعنی ترتیب کلی شماره‌ها حفظ نشده است.
-  - برگ‌شمار هر دو طرف فقط در ۵۴ جفت آمده است: ۱۹ برابر، ۲۷ با فرق ۱ تا ۳ برگ، و ۸ با فرق بیشتر.
-- **آزمون:** `CopyReferencesTest::test_one_merge_of_a_run_is_split_back_into_two_copies_said_to_be_possibly_the_same`.
-- **پروداکشن، پس از استقرار:**
-  1. پشتیبان `step14.16-link-copy-references-20261105_041431.json` از لپ‌تاپ به `/tmp` کانتینر فرستاده می‌شود.
-  2. دستور با `--revert=/tmp/… --only=316801,282247 --dry-run` اجرا می‌شود.
-  3. سپس همان دستور بی `--dry-run` اجرا می‌شود.
 - **اجرا در تولید (۱۶ آبان ۱۴۰۵):**
   - بی‌نوشتن: `changed 1099` و `--works` `changed 4`. پشتیبان ردیف‌ها با همان مقایسه‌ی فرمان در tinker گرفته شد.
   - سپس هر دو فرمان با `prod-run --wait jolly-tharp` و `--apply` اجرا شدند.
@@ -8331,3 +8314,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_75.json` با ۶۷۴ رکورد (`changes.has_marginal_notes`، ۴۰۲ روشن و ۲۷۲ خاموش)، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 674 copies» و `pointers_linked=5`. اجرای دوم `already 674`.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_75.json --apply`
+
+### گام ۱۴.۷۶: `fahares:link-copy-references --revert=… --only=…`
+- **`revertOnly()`** در [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php):
+  - از پشتیبان گام ۱۴.۱۶ فقط `merges` با `target_id` در `--only` خوانده می‌شود.
+  - برای هر کدام: `RecordMerger::undoManuscriptMerge` و بازگرداندن `source_metadata` و `target_metadata`. قول‌های همان ادغام (`readings` با `suggestable_id` = نسخه‌ی ماندنی و `resolution.merged_manuscript_id` = نسخه‌ی حذف‌شده) حذف می‌شوند. سپس `relate($source, $target, 'possibly_same', …)` با `source` = `fankha`.
+  - **محافظ:** اگر نسخه‌ی حذف‌شده برگشته باشد، «already split» گزارش می‌شود. اگر `updated_at` نسخه‌ی ماندنی بیش از ۳۰ دقیقه پس از آخرین قول همان اجرا باشد، دست نمی‌خورد، چون `target_metadata` پشتیبان ویرایش تازه را پاک می‌کرد.
+  - `--dry-run` فقط گزارش می‌دهد.
+- **بررسی جفت‌ها:** با اسکریپت بیرون از مخزن روی `text/fankha/fankha_vol_*.txt` انجام شد. ۵۳۲ جفت رضوی و ۱ جفت وزیری پیدا شد، که جفت وزیری ادغام نشده بود. نتیجه:
+  - ۵۲۰ شماره‌ی رضوی در بازه‌ی ۳۵۰۰۰ تا ۳۹۰۰۰ است، و ۵۱۴ مدخل به «اهدائی رهبر» ارجاع می‌دهند.
+  - از ۵۴ مجلد چندرساله، رساله‌های ۴۶ مجلد در گستره‌ای کمتر از ۵۰ شماره ثبت شده‌اند.
+  - هم‌بستگی رتبه‌ای شماره‌ها ۰٫۰۴ است، یعنی ترتیب کلی شماره‌ها حفظ نشده است.
+  - برگ‌شمار هر دو طرف فقط در ۵۴ جفت آمده است: ۱۹ برابر، ۲۷ با فرق ۱ تا ۳ برگ، و ۸ با فرق بیشتر.
+- **آزمون:** `CopyReferencesTest::test_one_merge_of_a_run_is_split_back_into_two_copies_said_to_be_possibly_the_same`.
+- **پروداکشن، پس از استقرار:**
+  1. پشتیبان `step14.16-link-copy-references-20261105_041431.json` از لپ‌تاپ به `/tmp` کانتینر فرستاده می‌شود.
+  2. دستور با `--revert=/tmp/… --only=316801,282247 --dry-run` اجرا می‌شود.
+  3. سپس همان دستور بی `--dry-run` اجرا می‌شود.
