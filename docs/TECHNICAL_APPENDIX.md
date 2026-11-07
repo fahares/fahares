@@ -8523,3 +8523,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:add-corpus-works --file=database/data/fankha_bihar_translation_step14_84.json --apply`
   2. `catalogs:link-volumes`
   3. `fahares:rebuild-scripts`
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود و slug ‎-v5-1792 آزاد بود. خروجی: «Adding 1 works … 14 moved, 1 made». `rebuild-scripts` یک نسخه در گام ۱ داشت. اثر تازه در تولید شناسه‌ی 71840 دارد (در نسخه‌ی محلی 71721).
