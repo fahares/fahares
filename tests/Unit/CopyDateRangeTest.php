@@ -75,4 +75,29 @@ class CopyDateRangeTest extends TestCase
         $this->assertNull(CopyDateRange::relative('دوره صفوی', 1050));
         $this->assertNull(CopyDateRange::relative('نزدیک عصر مؤلف', null));
     }
+
+    /** Step 14.73: «ق 10», two bare centuries, and a later century first. */
+    public function test_a_century_written_short_bare_or_backwards()
+    {
+        $this->assertSame([901, 1100], $this->range('احتمالا ق 10 و 11'));
+        $this->assertSame([1201, 1300], $this->range('ق. 13'));
+        $this->assertSame([901, 1100], $this->range('10 و 11'));
+        $this->assertSame([1201, 1400], $this->range('احتمالاً 13-14'));
+        $this->assertSame([1267, 1333], $this->range('ظاهراً در اواخر 13 یا اوایل 14'));
+        $this->assertSame([1001, 1200], $this->range('قرن 12-11'));
+        $this->assertSame([601, 800], $this->range('ق 7 یا قرن 8'));
+        $this->assertSame([901, 1100], $this->range('ق 10 یا11'));
+        $this->assertSame([901, 1100], $this->range('احتمالاً ق 10 یا قرن 11'));
+        $this->assertSame([1101, 1233], $this->range('ق 12 یا اوائل قرن 13'));
+        $this->assertSame([1167, 1233], $this->range('اواخر قرن 12 تا اوایل قرن 13'));
+        $this->assertSame([1251, 1333], $this->range('نیمه دوم قرن 13 یا اوایل قرن 14 ق'));
+        $this->assertSame([901, 1100], $this->range('قرن 10 یا 11'));
+        $this->assertSame('probable', CopyDateRange::parse('احتمالاً 13-14')['certainty']);
+        // not centuries: a year, two days of a month, one bare number, numbers too far apart or too large
+        $this->assertSame([1268, 1268], $this->range('1268ق'));
+        $this->assertSame([null, null], $this->range('رمضان 10 و 11'));
+        $this->assertSame([null, null], $this->range('13'));
+        $this->assertSame([null, null], $this->range('10 و 14'));
+        $this->assertSame([null, null], $this->range('15 و 16'));
+    }
 }

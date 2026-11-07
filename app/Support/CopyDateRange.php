@@ -7,7 +7,9 @@ namespace App\Support;
  * The date is the first clause (split on «،» and «؛») with a year or a century in it, so «1122، … در 616» is 1122
  * and «18 ربیع الثانی، 1268» is 1268. In it:
  *   - a century «قرن 13» is 1201-1300, and «قرن 12 و 13» 1101-1300; «اوایل», «اواسط» and «اواخر» take its first,
- *     middle and last third, «نیمه اول» and «نیمه دوم» its halves;
+ *     middle and last third, «نیمه اول» and «نیمه دوم» its halves; «ق 10» is «قرن 10», «قرن 12-11» is «قرن 11-12»,
+ *     and a date that is only two centuries' numbers («10 و 11», «13-14», «اواخر 13 یا اوایل 14»), each 15 or less,
+ *     is those centuries (step 14.73): no Hijri year is two digits, and no copy is dated by a bare year;
  *   - years are the Hijri ones HijriYear reads (not «1820م», «1350ش», folio counts): one year is itself, two or more
  *     («1082 و 1083ق», «1034 تا 1052») the span between the first and the last; «حدود 1086» is 1081-1091;
  *   - «پیش از 1100» has no start, «پس از 1100» no end.
@@ -20,6 +22,9 @@ namespace App\Support;
 class CopyDateRange
 {
     private const HEDGES = 'محتملاً|محتملا|احتمالاً|احتمالا|ظاهراً|ظاهرا|گویا|شاید';
+
+    /** «قرن 13», «سده 13», and «ق 13» where the «ق» stands alone («1268ق» is a year). */
+    private const CENTURY = '(?:قرن|سده|(?<![\p{L}\d])ق\.?(?=\s*\d))';
 
     private const DIGITS = ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
         '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9'];
@@ -36,7 +41,7 @@ class CopyDateRange
         }
         $clause = null;
         foreach (preg_split('/\s*[،؛]\s*/u', $text) as $part) {
-            if (preg_match('/(?:قرن|سده)\s*\d{1,2}(?!\d)/u', $part) || HijriYear::parse($part) !== null) {
+            if (preg_match('/' . self::CENTURY . '\s*\d{1,2}(?!\d)/u', $part) || self::bareCenturies($part) !== null || HijriYear::parse($part) !== null) {
                 $clause = $part;
                 break;
             }
@@ -50,7 +55,7 @@ class CopyDateRange
         } elseif (str_contains($clause, '؟')) {
             $hedge = '؟';
         }
-        [$from, $to] = self::centuries($clause) ?? self::years($clause) ?? [null, null];
+        [$from, $to] = self::centuries($clause) ?? self::bareCenturies($clause) ?? self::years($clause) ?? [null, null];
         if ($from === null && $to === null) {
             return $none;
         }
@@ -105,16 +110,25 @@ class CopyDateRange
     /** @return array{0: int, 1: int}|null */
     private static function centuries(string $clause): ?array
     {
-        if (! preg_match('/(اوایل|اوائل|اوان|اواسط|میانه|اواخر|پایان|نیمه\s*(?:اول|نخست|دوم))?\s*(?:قرن|سده)\s*(\d{1,2})(?!\d)(?:\s*(?:و|-|–|تا)\s*(?:قرن\s*)?(\d{1,2})(?!\d))?/u', $clause, $m)) {
+        if (! preg_match('/(اوایل|اوائل|اوان|اواسط|میانه|اواخر|پایان|نیمه\s*(?:اول|نخست|دوم))?\s*' . self::CENTURY . '\s*(\d{1,2})(?!\d)(?:\s*(?:و|-|–|تا|یا)\s*(اوایل|اوائل|اواسط|اواخر)?\s*(?:قرن|سده|ق\.?)?\s*(\d{1,2})(?!\d))?/u', $clause, $m)) {
             return null;
         }
         $first = (int) $m[2];
-        $last = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : $first;
+        $last = isset($m[4]) && $m[4] !== '' ? (int) $m[4] : $first;
+        // «قرن 12-11»: the later century first
+        if ($last < $first && $last >= $first - 1) {
+            [$first, $last] = [$last, $first];
+        }
         if ($first < 1 || $last > 15 || $last < $first) {
             return null;
         }
         $from = ($first - 1) * 100 + 1;
         $to = $last * 100;
+        // a span: «اواخر قرن 12 تا اوایل 13», «ق 12 یا اوائل قرن 13» keep the part each end names (step 14.73)
+        if ($first !== $last) {
+            $from += ['اواسط' => 33, 'میانه' => 33, 'اواخر' => 66, 'پایان' => 66, 'نیمه دوم' => 50][preg_replace('/\s+/u', ' ', $m[1] ?? '')] ?? 0;
+            $to -= ['اوایل' => 67, 'اوائل' => 67, 'اواسط' => 34, 'اواخر' => 0][$m[3] ?? ''] ?? 0;
+        }
         if ($first === $last) {
             switch (preg_replace('/\s+/u', ' ', $m[1] ?? '')) {
                 case 'اوایل': case 'اوائل': case 'اوان': $to = $from + 32; break;
@@ -124,6 +138,31 @@ class CopyDateRange
                 case 'نیمه دوم': $from += 50; break;
             }
         }
+
+        return [$from, $to];
+    }
+
+    /**
+     * «10 و 11», «13-14», «اواخر 13 یا اوایل 14»: a date that is only two centuries' numbers, in order and next to each
+     * other or one apart, each 15 or less (step 14.73). A part word on either keeps that part of its century.
+     *
+     * @return array{0: int, 1: int}|null
+     */
+    private static function bareCenturies(string $clause): ?array
+    {
+        $part = '(اوایل|اوائل|اواسط|اواخر)?\s*';
+        // only a hedge word or «در» may come before them: «رمضان 10 و 11» is two days
+        if (! preg_match('/^\(?\s*(?:(?:' . self::HEDGES . '|در|حدود|حدوداً)\s*)*' . $part . '(\d{1,2})\s*(?:و|-|–|تا|یا)\s*' . $part . '(\d{1,2})\s*(?:ق|قمری|هجری)?\s*\)?$/u', trim($clause), $m)) {
+            return null;
+        }
+        [$first, $last] = [(int) $m[2], (int) $m[4]];
+        if ($first < 1 || $last > 15 || $last <= $first || $last - $first > 2) {
+            return null;
+        }
+        $from = ($first - 1) * 100 + 1;
+        $to = $last * 100;
+        $from += ['اوایل' => 0, 'اوائل' => 0, 'اواسط' => 33, 'اواخر' => 66][$m[1]] ?? 0;
+        $to -= ['اوایل' => 67, 'اوائل' => 67, 'اواسط' => 34, 'اواخر' => 0][$m[3]] ?? 0;
 
         return [$from, $to];
     }
