@@ -8299,3 +8299,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پنل:** `admin/suggestions/index` و `show` (`$submitterName`، و `data-machine-reading` به‌جای «مهمانی بی ایمیل»).
 - **آزمون:** `RecordHistoryTest::test_a_reading_a_merge_kept_names_the_catalogue_not_a_submitter_and_is_not_a_researchers_correction`، با پیشنهاد مهمانِ بی `resolution` که باید در `/contributions` بماند.
 - **پروداکشن:** دستور داده ندارد.
+- **اجرا در تولید (۱۶ آبان ۱۴۰۵):**
+  - بی‌نوشتن: `changed 1099` و `--works` `changed 4`. پشتیبان ردیف‌ها با همان مقایسه‌ی فرمان در tinker گرفته شد.
+  - سپس هر دو فرمان با `prod-run --wait jolly-tharp` و `--apply` اجرا شدند.
+  - اجرای دوم هر دو `changed 0` بود.
+
+### گام ۱۴.۷۵: `fankha_marginal_notes_rule.py` و نشان `has_marginal_notes`
+- **ورودی:** ردیف‌های `has_marginal_notes` در `reports/fankha_v2_db_review8/diffs.jsonl`: `flag_off` ۳٬۶۲۵ و `flag_on` ۵۳۱.
+- **قاعده (پیکره، کامیت‌های `db0d38b` و `78c82ff`):** `scripts/fankha_marginal_notes_rule.py`، تابع `judge(raw_text)`.
+  - **`NOTE`:** «محشی»، «تعلیقات»، «حاشیه‌نویسی»، «دارای … حواشی» (نه پیش از واژه‌ی تزیین)، «حواشی با نشان/امضای»، «حواشی از / به خط»، «حواشی دارد/بسیار/…»، «ترجمه/توضیح … در حاشیه»، و «در حاشیه … تصحیح/نوشته/آمده/قید/ثبت/…».
+  - **`NOT`:** این‌ها از متن برداشته می‌شوند: پرانتزِ برگ و «حاشیه»، «سطر … در حاشیه»، «جلد/ترنج/سرلوح/کتیبه» تا «حاشیه» در همان بند، «حاشیه مذهب/زرین/…»، و «در حاشیه … تذهیب/دایره/ترنج». اگر چیزی از واژه نماند، `not_notes` است.
+- **نتیجه‌ی قاعده:** `flag_off`: ۲۷۰ `not_notes`، ۸ `none`، ۱٬۵۸۷ `notes` و ۱٬۷۶۰ `unclear`. `flag_on`: ۴۱۱ `notes`، ۲۸ `not_notes` و ۸۲ `unclear`.
+- **خوانش:** سه زیرعامل Sonnet هر ۶۸۹ نامزد تغییر را خواندند. فایل‌ها در `reports/fankha_v2_db_review8/marginal_notes_step14_75/` است. ۱۵ نامزد ناهمخوان یا نامطمئن کنار گذاشته شدند. یک پاسداری دیگر هم بود: «دارای حواشی» با واژه‌ی تزیین در همان بند. این پاسداری موردی نیفزود.
+- **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_75.json` با ۶۷۴ رکورد (`changes.has_marginal_notes`، ۴۰۲ روشن و ۲۷۲ خاموش)، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 674 copies» و `pointers_linked=5`. اجرای دوم `already 674`.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_75.json --apply`
