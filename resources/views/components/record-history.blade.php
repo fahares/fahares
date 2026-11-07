@@ -9,7 +9,7 @@
     <ol class="space-y-2.5 text-sm leading-7">
         @foreach($history as $i => $item)
             @php $c = $item['contributor']; @endphp
-            <li class="flex items-start gap-2.5" data-history="{{ $item['suggestion']->id }}"
+            <li class="flex items-start gap-2.5" data-history="{{ $item['suggestion']?->id ?? $item['key'] }}"
                 @if($i >= $shown) x-show="all" style="display: none" @endif>
                 @php $machine = $c['kind'] === 'machine'; @endphp
                 <x-ui.avatar :user="$c['user']" :name="$machine ? null : $c['name']" :kind="$machine ? null : $c['kind']" size="sm" />
@@ -27,7 +27,15 @@
                 @endphp
                 <div class="min-w-0 break-words">
                     <p class="m-0">{!! $sentence !!}</p>
-                    <time datetime="{{ $item['date']?->toIso8601String() }}" class="block text-[11px] text-muted">{{ \App\Support\Jalali::format($item['date'], 'long') }}</time>
+                    @if($item['children'] ?? [])
+                        {{-- the readings that merge kept, under it (step 14.78) --}}
+                        <ul class="m-0 mt-1 ps-4 list-disc text-[13px] text-ink/85 space-y-0.5" data-history-readings>
+                            @foreach($item['children'] as $child)
+                                <li>{{ implode('', array_map(fn ($p) => is_array($p) ? $p['label'] : $p, $child)) }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    @if($item['date'])<time datetime="{{ $item['date']->toIso8601String() }}" class="block text-[11px] text-muted">{{ \App\Support\Jalali::format($item['date'], 'long') }}</time>@endif
                 </div>
             </li>
         @endforeach

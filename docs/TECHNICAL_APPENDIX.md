@@ -8341,3 +8341,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_77.json` با ۹۷۹ رکورد، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 979 copies». اجرای دوم `already 979` بود.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_77.json --apply`
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** پشتیبان پیش از اجرا: `step14_76_split_before.json` (`manuscripts` ۲، `manuscript_people` ۱، `entity_redirects` ۲). پشتیبان گام ۱۴.۱۶ با md5 `6b0301ec…` به `/tmp` کانتینر رفت. نخستین تلاش در اجرای انتشار ۵۲ رد شد و پس از استقرار دوباره فرستاده شد.
+  - «Split 282248 from 282247: 0 readings removed» و «Split 316802 from 316801: 0 readings removed». اجرای دوم «already split» گزارش کرد. سپس فایل `/tmp` پاک شد.
+  - **وارسی:** هر دو نسخه `possibly_same` به نسخه‌ی رضوی دارند. `entity_redirects` صفر است و `former_locations` رضوی تهی.
+
+### گام ۱۴.۷۸: `Contributions::withCopyMerges`
+- **`forRecord()`** برای نسخه: پس از `summarize`، هر `metadata.former_locations` بی `suggestion_id` که `note` آن «همان نسخه» دارد، یک ردیف ساختگی می‌شود. این ردیف `suggestion` = null دارد، و `key` (برای `data-history`)، `contributor.kind` = `machine`، `line` و `children` دارد.
+- **قول‌های زیر ردیف:** ردیف‌هایی با `machineOrigin()` = `copy_merge`، که `credit_name` آن‌ها «فهرست {catalog}» همان نشانی است. اگر نسخه یک ادغام داشته باشد، همه‌ی قول‌ها زیر آن می‌روند. این قول‌ها از فهرست اصلی برداشته و به `children` برده می‌شوند.
+- **تاریخ و ترتیب:** `date` = کمینه‌ی `date` قول‌ها، یا null. فهرست با `date` نزولی مرتب می‌شود و تاریخ تهی در پایان می‌آید.
+- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** `data-history` = `suggestion?->id ?? key`. `children` در `<ul data-history-readings>` می‌آید، و `<time>` فقط با تاریخ.
+- **آزمون:** `RecordHistoryTest::test_a_copy_merge_reads_as_one_line_with_the_readings_it_kept_under_it`.
+- **پروداکشن:** دستور داده ندارد.

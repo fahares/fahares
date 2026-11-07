@@ -225,4 +225,28 @@ class RecordHistoryTest extends TestCase
             ->assertSee(FieldSuggestion::MACHINE_ORIGINS['copy_merge'])->assertSee('data-machine-reading', false)->assertDontSee('پژوهشگر مهمان');
         $this->assertNull($guest->machineOrigin());
     }
+
+    public function test_a_copy_merge_reads_as_one_line_with_the_readings_it_kept_under_it()
+    {
+        // as fahares:link-copy-references leaves it (step 14.16): a former location, and the other catalogue's readings
+        $ms = $this->manuscript($this->work('مصباح الشريعة'), ['library' => 'رضوی', 'shelfmark' => '36188', 'folios' => '37', 'metadata' => ['former_locations' => [
+            ['library_id' => 205, 'library' => 'شیخ علی حیدر', 'city' => 'مشهد', 'shelfmark' => '465/4', 'catalog' => 'مؤید: 1-375', 'note' => 'فنخا: «همان نسخه بالا»'],
+        ]]]);
+        $reading = FieldSuggestion::create(['suggestable_type' => Manuscript::class, 'suggestable_id' => $ms->id, 'kind' => 'field', 'field_name' => 'folios',
+            'current_value' => '37', 'suggested_value' => '34', 'credit_name' => 'فهرست مؤید: 1-375', 'status' => 'approved', 'standing' => 'alternative',
+            'resolution' => ['applied' => false, 'origin' => 'copy_merge', 'merged_manuscript_id' => 999999], 'reviewed_at' => now()]);
+        // a copy merged with no reading still shows its merge
+        $quiet = $this->manuscript($this->work('اثر بی‌قول'), ['metadata' => ['former_locations' => [
+            ['library' => 'مولوی', 'city' => 'مشهد', 'shelfmark' => '653', 'catalog' => 'نشریه: 5-103', 'note' => 'فنخا: «همان نسخه بالا»'],
+        ]]]);
+
+        $page = $this->page($ms);
+        $text = $this->text($page);
+        $this->assertStringContainsString('در یکی شدن دو معرفی این نسخه، معرفی «شیخ علی حیدر، ش 465/4» (مؤید: 1-375) در این رکورد ادغام شد.', $text);
+        $this->assertStringContainsString('قول فهرست مؤید: 1-375 برای «تعداد برگ»: «34»', $text);
+        // the reading is under the merge, not a line of its own
+        $page->assertDontSee('data-history="' . $reading->id . '"', false)->assertSee('data-history-readings', false);
+        $this->assertStringNotContainsString('نگه داشته شد: «34»', $text);
+        $this->assertStringContainsString('معرفی «مولوی، ش 653» (نشریه: 5-103) در این رکورد ادغام شد.', $this->text($this->page($quiet)));
+    }
 }
