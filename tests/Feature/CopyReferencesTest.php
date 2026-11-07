@@ -104,6 +104,42 @@ class CopyReferencesTest extends TestCase
         $this->assertTrue((bool) $film->fresh()->is_facsimile);
     }
 
+    public function test_one_merge_of_a_run_is_split_back_into_two_copies_said_to_be_possibly_the_same()
+    {
+        $this->work = Work::create(['primary_title' => 'اثر آزمون جداسازی', 'clean_title' => 'اثر آزمون جداسازی', 'slug' => 'split-copy-' . uniqid(), 'volume_number' => 31, 'page_start' => 12]);
+        $razavi = $this->copy('رضوی', '3967/1', 'مشهد؛ رضوی؛ شماره نسخه: 3967/1 واقف: نائینی، مرداد 1311؛ 14گ [ف: 12-361]',
+            ['folios' => 14, 'metadata' => ['catalog_citation' => '[ف: 12-361]']]);
+        $sah = $this->copy('شیخ علی حیدر', '1039/7', 'مشهد؛ شیخ علی حیدر؛ شماره نسخه: 1039/7 همان نسخه بالا، 9گ [مؤید: 3-50]',
+            ['folios' => 9, 'metadata' => ['catalog_citation' => '[مؤید: 3-50]', 'editorial_notes' => 'همان نسخه بالا']]);
+        $ilahiyat = $this->copy('الهیات', '217', 'مشهد؛ الهیات؛ شماره نسخه: 217 [ف: 1- 128]', ['folios' => 11]);
+        $mowlavi = $this->copy('مولوی', '217', 'مشهد؛ مولوی؛ شماره نسخه: 217 همان نسخه بالا، 12گ [نشریه: 5 - 31]',
+            ['folios' => 12, 'metadata' => ['catalog_citation' => '[نشریه: 5 - 31]', 'editorial_notes' => 'همان نسخه بالا']]);
+        $backup = storage_path('app/test-link-copy-references-' . uniqid() . '.json');
+        $this->artisan('fahares:link-copy-references', ['--work' => $this->work->id, '--backup' => $backup])->assertSuccessful();
+        $this->assertNull(Manuscript::find($sah->id));
+        $this->assertNull(Manuscript::find($mowlavi->id));
+
+        $this->artisan('fahares:link-copy-references', ['--revert' => $backup, '--only' => (string) $razavi->id, '--dry-run' => true])
+            ->expectsOutputToContain("Would split {$sah->id} from {$razavi->id}: 1 readings removed")->assertSuccessful();
+        $this->assertNull(Manuscript::find($sah->id));
+
+        $this->artisan('fahares:link-copy-references', ['--revert' => $backup, '--only' => (string) $razavi->id])
+            ->expectsOutputToContain("Split {$sah->id} from {$razavi->id}")->assertSuccessful();
+        // The two are records again, with their own catalogue and no reading, linked for a reviewer
+        $this->assertSame('شیخ علی حیدر', Manuscript::find($sah->id)->library);
+        $this->assertArrayNotHasKey('former_locations', $razavi->fresh()->metadata ?? []);
+        $this->assertSame(0, FieldSuggestion::where('suggestable_id', $razavi->id)->count());
+        $this->assertSame($razavi->id, $this->relation(Manuscript::find($sah->id), 'possibly_same'));
+        // The other merge of the run stays
+        $this->assertNull(Manuscript::find($mowlavi->id));
+        $this->assertSame(1, FieldSuggestion::where('suggestable_id', $ilahiyat->id)->count());
+
+        // A second split finds nothing to do
+        $this->artisan('fahares:link-copy-references', ['--revert' => $backup, '--only' => (string) $razavi->id])
+            ->expectsOutputToContain('already split')->assertSuccessful();
+        @unlink($backup);
+    }
+
     public function test_the_catalogue_note_on_a_photographs_mother()
     {
         $this->assertSame('اسکوریال - مادرید ش 1324', (new Manuscript(['raw_text' => 'نسخه اصل: اسکوریال - مادرید ش 1324؛ خط: نسخ']))->original_note);

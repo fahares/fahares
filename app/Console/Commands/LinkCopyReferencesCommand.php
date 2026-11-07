@@ -36,7 +36,8 @@ class LinkCopyReferencesCommand extends Command
         {--work= : Only the copies of this work (by id)}
         {--report= : Write every decision to this CSV file}
         {--backup= : Where to write the backup (default storage/app/private/backups/)}
-        {--revert= : Undo the changes of a backup this command wrote}';
+        {--revert= : Undo the changes of a backup this command wrote}
+        {--only= : With --revert: only the merges into these kept copies (comma-separated ids), which become «possibly the same» again}';
 
     protected $description = 'Link Fankha entries that say «همان نسخه بالا» to the copy above: photograph, merge, or possibly the same';
 
@@ -68,7 +69,7 @@ class LinkCopyReferencesCommand extends Command
     public function handle(): int
     {
         if ($file = $this->option('revert')) {
-            return $this->revert($file);
+            return $this->option('only') ? $this->revertOnly($file, $this->option('only')) : $this->revert($file);
         }
         $this->dry = (bool) $this->option('dry-run');
         // The command object outlives a call (tests, Artisan::call): every run starts afresh
@@ -375,6 +376,61 @@ class LinkCopyReferencesCommand extends Command
     private function writeBackup(string $path): void
     {
         file_put_contents($path, json_encode(['command' => $this->getName()] + $this->backup, JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Splits some merges of a run apart again (step 14.76): a merge whose kept copy the evidence does not bear out goes
+     * back to two records, without the readings it made, and the two are linked as «possibly the same» for a reviewer,
+     * as any other «همان نسخه بالا». Refuses a kept copy changed since the run, whose metadata the backup would undo.
+     * With --dry-run, only reports.
+     */
+    private function revertOnly(string $file, string $only): int
+    {
+        $backup = is_file($file) ? json_decode(file_get_contents($file), true) : null;
+        if (($backup['command'] ?? null) !== $this->getName()) {
+            $this->error("{$file}: not a backup of {$this->getName()}.");
+
+            return self::FAILURE;
+        }
+        $ids = array_values(array_filter(array_map('intval', explode(',', $only))));
+        $merges = collect($backup['merges'])->keyBy('target_id')->only($ids);
+        if ($missing = array_diff($ids, $merges->keys()->all())) {
+            $this->error('No merge into ' . implode(', ', $missing) . ' in this backup.');
+
+            return self::FAILURE;
+        }
+        // the run's time, from its readings: a kept copy saved after it was edited since
+        $ranAt = FieldSuggestion::whereIn('id', $backup['readings'])->max('created_at');
+        $dry = (bool) $this->option('dry-run');
+        $merger = app(RecordMerger::class);
+        foreach ($merges as $targetId => $merge) {
+            $target = Manuscript::find($targetId);
+            $readings = FieldSuggestion::whereIn('id', $backup['readings'])->where('suggestable_id', $targetId)
+                ->whereRaw("JSON_VALUE(resolution, '$.merged_manuscript_id') = ?", [$merge['source_id']])->pluck('id');
+            if (! $target || Manuscript::whereKey($merge['source_id'])->exists()) {
+                $this->warn("{$targetId}: already split (or the copy is gone).");
+
+                continue;
+            }
+            if ($ranAt && $target->updated_at && $target->updated_at->gt(\Illuminate\Support\Carbon::parse($ranAt)->addMinutes(30))) {
+                $this->error("{$targetId}: changed on {$target->updated_at} after the run; left merged.");
+
+                continue;
+            }
+            $this->line(sprintf('%s %d from %d: %d readings removed, «possibly the same» added.', $dry ? 'Would split' : 'Split', $merge['source_id'], $targetId, $readings->count()));
+            if ($dry) {
+                continue;
+            }
+            DB::transaction(function () use ($merge, $merger, $target, $readings) {
+                $source = $merger->undoManuscriptMerge($target, $merge['result']);
+                $source->forceFill(['metadata' => $merge['source_metadata']])->saveQuietly();
+                $target->refresh()->forceFill(['metadata' => $merge['target_metadata']])->save();
+                FieldSuggestion::whereIn('id', $readings)->delete();
+                $this->relate($source, $target, 'possibly_same', 'فنخا: «همان نسخه بالا»؛ ادغام برگردانده شد تا داوری شود');
+            });
+        }
+
+        return self::SUCCESS;
     }
 
     /** Undoes a run: merges last first, then the readings, relations and facsimile marks it made. */
