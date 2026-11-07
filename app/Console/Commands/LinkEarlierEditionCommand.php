@@ -22,6 +22,10 @@ use Illuminate\Support\Facades\DB;
  *   place any other page between them, and the work is looked for in the pages around it.
  * - parts: a table of where each part of the earlier printing begins in this one (al-A'yan's 56 parts in the
  *   ten volumes); the work is looked for in its part.
+ * - centuries: a book of lives in a volume or more a century (Tabaqat A'lam al-Shi'a), whose pages this printing keeps;
+ *   the citation names the century, by its part's name («نقباء البشر 245/1») or as «قرن 13», or else the author's
+ *   death year tells it. The work is looked for in its author's life on the cited page of the century's volumes, and
+ *   then anywhere in them.
  * - title: nothing places the page; the work is looked for by its heading.
  * Then, wherever it was not found, by its heading (a bibliography) or its author's life naming it (a book of lives)
  * anywhere in the source. Each tie is a source_entries row (origin match, unverified) beside Fankha's citation,
@@ -38,6 +42,8 @@ class LinkEarlierEditionCommand extends Command
     public const TITLE = 'edition_title';
 
     public const PLACE = 'edition_place';
+
+    public const CENTURY = 'edition_century';
 
     /** ItemMatcher's methods that name the work by its heading: with the cited page they make a sure tie. */
     private const HEADING_METHODS = ['title_author', 'title_exact', 'full_title', 'title_only', 'other_title'];
@@ -62,6 +68,9 @@ class LinkEarlierEditionCommand extends Command
     /** @var array<int, int> volume => the pages of the volumes before it */
     private array $offsets = [];
 
+    /** @var array<int, array{0: int, 1: int}> volume => its first and last page */
+    private array $ranges = [];
+
     public function handle(ItemMatcher $matcher): int
     {
         $source = Source::where('code', $this->argument('source'))->first();
@@ -77,10 +86,11 @@ class LinkEarlierEditionCommand extends Command
         $index = isset($config['cited_as']) ? self::addressIndex($items, $config['cited_as']) : [];
         $byTitle = $items->groupBy('title_normalized');
         // the source's pages numbered on across its volumes, for a place between two anchors
-        $this->offsets = [];
+        $this->offsets = $this->ranges = [];
         $total = 0;
         foreach ($items->groupBy('volume_number')->sortKeys() as $volume => $of) {
             $this->offsets[$volume] = $total;
+            $this->ranges[$volume] = [(int) $of->min('page_start'), (int) $of->max('page_end')];
             $total += $of->max('page_end');
         }
         $this->line(sprintf('%d entries; %d pages of the earlier book named in them', $items->count(), count($index)));
@@ -222,7 +232,7 @@ class LinkEarlierEditionCommand extends Command
      *
      * @return array{pages: list<int>, window: ?array{0: int, 1: int}, earlier: string}|null
      */
-    public function place(string $citation, array $config): ?array
+    public function place(string $citation, array $config, ?int $death = null): ?array
     {
         $text = MatchCatalogEditionCommand::digits($citation);
         $after = '(?:' . $config['pattern'] . ')[^0-9\/]{0,12}?';
@@ -252,11 +262,57 @@ class LinkEarlierEditionCommand extends Command
 
                 return ['pages' => [$part === $a ? $b : $a], 'window' => [$from, $next ? $this->global(...$next) + 1 : PHP_INT_MAX],
                     'earlier' => ($part === $a ? $b : $a) . '/' . $part];
+            case 'centuries':
+                return $this->century($text, $config, $death);
             case 'title':
                 return ['pages' => [], 'window' => null, 'earlier' => ''];
             default:
                 return ['pages' => self::citedPages($citation, $config['pattern']), 'window' => null, 'earlier' => ''];
         }
+    }
+
+    /**
+     * The century a citation of a book of lives by centuries names (see «centuries» in the class), and the cited page
+     * in each of its volumes that has it: windows of two pages either side, and the century's volumes whole.
+     *
+     * @return array{pages: list<int>, window: ?array{0: int, 1: int}, windows: list<array{0: int, 1: int}>, century: ?array{0: int, 1: int}, earlier: string}|null
+     */
+    private function century(string $text, array $config, ?int $death): ?array
+    {
+        if (! preg_match('/(?:' . $config['pattern'] . ')(.{0,60})/u', $text, $m)) {
+            return null;
+        }
+        $century = null;
+        foreach ($config['names'] as $name => $of) {
+            if (preg_match('/' . $name . '/u', $text)) {
+                $century = $of;
+                break;
+            }
+        }
+        $after = $m[1];
+        if (preg_match('/(?:قرن|سده|ق)\s*(\d{1,2})(?!\d)/u', $after, $c)) {
+            $century ??= (int) $c[1];
+            $after = str_replace($c[0], ' ', $after);
+        }
+        $century ??= $death ? intdiv($death - 1, 100) + 1 : null;
+        $volumes = $config['centuries'][$century] ?? [];
+        // the numbers after the name, up to the next source's name: each may be the page («245/1» is page and part)
+        preg_match_all('/\d+/u', preg_split('/[؛;،,]\s*\D{3,}/u', $after)[0], $numbers);
+        $pages = array_values(array_unique(array_map('intval', $numbers[0])));
+        $windows = [];
+        foreach ($pages as $page) {
+            foreach ($volumes as $volume) {
+                [$first, $last] = $this->ranges[$volume] ?? [0, -1];
+                if ($page >= $first && $page <= $last) {
+                    $windows[] = [$this->global($volume, $page) - 2, $this->global($volume, $page) + 2];
+                }
+            }
+        }
+        $whole = $volumes && isset($this->ranges[$volumes[0]], $this->ranges[end($volumes)])
+            ? [$this->global($volumes[0], $this->ranges[$volumes[0]][0]), $this->global(end($volumes), $this->ranges[end($volumes)][1])] : null;
+
+        return ['pages' => $pages, 'window' => $windows[0] ?? null, 'windows' => $windows, 'century' => $whole,
+            'earlier' => ($century ? "قرن {$century}" : '') . ($pages ? ' ' . implode('، ', $pages) : '')];
     }
 
     /** A page of the source numbered on across its volumes. */
@@ -291,7 +347,7 @@ class LinkEarlierEditionCommand extends Command
         $death = $person?->death_year_hijri;
         $titles = LinkSourceItemsCommand::titleForms(array_merge([$work?->primary_title], array_column($work?->alternative_titles ?? [], 'title')),
             (string) $citation->citation_text);
-        $place = $this->place((string) $citation->citation_text, $config);
+        $place = $this->place((string) $citation->citation_text, $config, $death);
         $pages = $place['pages'] ?? [];
         $shape = fn ($ids) => collect($ids)->map(fn ($id) => $items[$id])
             ->map(fn ($i) => ['id' => $i->id, 'entry_number' => $i->entry_number, 'title' => $i->title, 'text' => $i->text])->values()->all();
@@ -317,10 +373,10 @@ class LinkEarlierEditionCommand extends Command
             return $tie($found, self::ADDRESS_TITLE, $found['method'] === 'title_only' ? 85 : 95);
         }
         // the entries of the pages the earlier one falls in
-        if ($window = $place['window']) {
-            $around = $items->filter(fn ($i) => $this->global($i->volume_number, $i->page_end) >= $window[0]
-                && $this->global($i->volume_number, $i->page_start) <= $window[1])->keys()->all();
-            $placed = $find($around);
+        $within = fn (array $window) => $items->filter(fn ($i) => $this->global($i->volume_number, $i->page_end) >= $window[0]
+            && $this->global($i->volume_number, $i->page_start) <= $window[1])->keys()->all();
+        foreach ($place['windows'] ?? array_filter([$place['window']]) as $window) {
+            $placed = $find($within($window));
             if ($placed && $placed['method'] !== 'ambiguous' && ($this->lives || $placed['role'] === SourceEntry::ROLE_ENTRY)) {
                 // the author's life naming the work, or the heading with its author: likely; a life by more than one
                 // part of the name, or by the death year, less so; by one part alone, often another man of the name
@@ -328,6 +384,11 @@ class LinkEarlierEditionCommand extends Command
 
                 return $tie($placed, self::PLACE, $sure ? 70 : ($placed['confidence'] >= 75 ? 45 : 30));
             }
+        }
+        // a book of lives by centuries: anywhere in the century's volumes, only the author's life naming the work; a life
+        // by the name alone is there most often another man of the family (Tabaqat, step 14.81)
+        if ($this->lives && ($whole = $place['century'] ?? null) && ($placed = $find($within($whole))) && $placed['method'] === 'author_life_title') {
+            return $tie($placed, self::CENTURY, 55);
         }
         // the entries headed by the work's title, or the lives naming it with its author, anywhere in the source
         $headed = $this->lives ? $items->keys()->all() : collect($titles)->map(fn ($t) => MatchCatalogEditionCommand::norm((string) $t))->filter()->unique()
@@ -345,7 +406,7 @@ class LinkEarlierEditionCommand extends Command
             return $tie($ambiguous, 'ambiguous', 30);
         }
 
-        return $base + ['reason' => $place['window'] ? 'not_in_window' : (! $index ? 'no_title' : (! $pages ? 'no_page'
+        return $base + ['reason' => ($place['window'] || ! empty($place['century'])) ? 'not_in_window' : (! $index ? 'no_title' : (! $pages ? 'no_page'
             : ($named ? 'no_title_among_' . count($named) : 'page_not_named')))];
     }
 

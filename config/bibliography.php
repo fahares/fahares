@@ -325,6 +325,46 @@ return [
                 'last_pages' => [1 => 619],
             ],
         ],
+        // Aqa Bozorg's Tabaqat A'lam al-Shi'a in Dar Ihya' al-Turath's seventeen volumes (Beirut 1430 AH), as text from
+        // Noor (step 14.81): a century a volume, the 13th (الکرام البررة) in volumes 10-12 and the 14th (نقباء البشر) in
+        // 13-17, keeping the old printing's pages. Fankha cites the old printing only, by its parts' names and pages
+        // («نقباء البشر 245/1», «الکرام البررة: 310/2») or the century («طبقات اعلام الشیعه قرن 13: 245»), so no citation
+        // reads as a page of this one (the pattern matches nothing) and sources:link-earlier-edition tabaqat old ties
+        // a work to its author's life: on the cited page of the century's volumes, else anywhere in them; a citation
+        // without its century takes the author's death year's.
+        'tabaqat' => [
+            'label' => 'طبقات أعلام الشیعة',
+            'pattern' => '(?!)',
+            'volumes' => 17,
+            'kind' => 'biographical',
+            'compiler' => 'آقابزرگ تهرانی',
+            'edition_label' => 'دار إحیاء التراث العربی، بیروت، ۱۴۳۰ق',
+            'text' => [
+                'catalog' => 'tabaqat',
+                'name' => 'طبقات أعلام الشیعة',
+                'last_pages' => [1 => 334, 2 => 207, 3 => 342, 4 => 209, 5 => 242, 6 => 225, 7 => 278, 8 => 648, 9 => 838,
+                    10 => 461, 11 => 834, 12 => 650, 13 => 465, 14 => 901, 15 => 1278, 16 => 1661, 17 => 608],
+                'bare' => false,
+            ],
+            'earlier' => [
+                'old' => [
+                    'label' => 'چاپ کهنه (جزءها و سده‌ها)',
+                    'like' => ['%طبقات%علام%', '%نقباء البشر%', '%البررة%', '%البرره%', '%المنتشرة%', '%النضرة%', '%الداثر%',
+                        '%اللامع%', '%الراهنة%', '%الساطعة%', '%الثقات العيون%', '%الثقات العیون%', '%النابس%', '%نوابغ الروا%'],
+                    'pattern' => 'طبقات [اأ]علام الش[یي]ع[هة]|نقباء البشر|[کك]رام البرر[هة]|ال[کك]وا[کك]ب المنتشر[هة]|الروض[هة] النضر[هة]'
+                        . '|[اإ]ح[یي]اء الداثر|الض[یي]اء اللامع|الحقائق الراهن[هة]|الانوار الساطع[هة]|الأنوار الساطع[هة]|الثقات الع[یي]ون'
+                        . '|النابس|نوابغ الروا[ةه]',
+                    'places' => 'centuries',
+                    'names' => [
+                        'نقباء البشر' => 14, '[کك]رام البرر[هة]' => 13, 'ال[کك]وا[کك]ب المنتشر[هة]' => 12, 'الروض[هة] النضر[هة]' => 11,
+                        '[اإ]ح[یي]اء الداثر' => 10, 'الض[یي]اء اللامع' => 9, 'الحقائق الراهن[هة]' => 8, 'ال[اأ]نوار الساطع[هة]' => 7,
+                        'الثقات الع[یي]ون' => 6, 'النابس' => 5, 'نوابغ الروا[ةه]' => 4,
+                    ],
+                    'centuries' => [4 => [1], 5 => [2], 6 => [3], 7 => [4], 8 => [5], 9 => [6], 10 => [7], 11 => [8], 12 => [9],
+                        13 => [10, 11, 12], 14 => [13, 14, 15, 16, 17]],
+                ],
+            ],
+        ],
         // Two books of lives, as text from Noor (item 86, step 14.20); an entry is a person, and Fankha cites the page of
         // a work's author, so a work is tied to its author's life as a mention (ItemMatcher::matchLife). A'yan al-Shi'a in
         // Dar al-Ta'aruf's ten volumes (Beirut 1403 AH): «اعیان الشیعة 408/9»; not «طبقات اعیان الشیعه» or «مستدرکات
