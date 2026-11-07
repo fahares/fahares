@@ -265,7 +265,47 @@ class Contributions
         $suggestions = $query->with(['user', 'suggestable'])
             ->orderByDesc('reviewed_at')->orderByDesc('id')->limit($limit)->get();
 
-        return self::summarize($suggestions)->map(fn (array $item) => $item + ['line' => self::line($item, $record)]);
+        $items = self::summarize($suggestions)->map(fn (array $item) => $item + ['line' => self::line($item, $record), 'children' => []]);
+
+        return $record instanceof \App\Models\Manuscript ? self::withCopyMerges($items, $record) : $items;
+    }
+
+    /**
+     * A copy two catalogues describe was made one record by fahares:link-copy-references (step 14.16), with no
+     * suggestion of its own: its former location (note «همان نسخه بالا») reads as one line, and the readings that merge
+     * kept go under it instead of standing as lines of their own (step 14.78).
+     */
+    private static function withCopyMerges(Collection $items, \App\Models\Manuscript $copy): Collection
+    {
+        $merges = collect((array) ($copy->metadata['former_locations'] ?? []))
+            ->filter(fn ($f) => is_array($f) && empty($f['suggestion_id']) && str_contains((string) ($f['note'] ?? ''), 'همان نسخه'))
+            ->values();
+        if ($merges->isEmpty()) {
+            return $items;
+        }
+        $isReading = fn (array $item) => $item['suggestion']?->machineOrigin() === 'copy_merge';
+        $readings = $items->filter($isReading);
+        $events = $merges->map(function (array $f) use ($readings, $merges) {
+            $catalog = trim((string) ($f['catalog'] ?? ''));
+            // the readings cite «فهرست {catalog}»; with one merge on the copy they are all its own
+            $own = $readings->filter(fn ($r) => $merges->count() === 1 || trim((string) $r['suggestion']->credit_name) === 'فهرست ' . $catalog);
+            $place = trim(implode('، ', array_filter([$f['library'] ?? null, isset($f['shelfmark']) ? 'ش ' . $f['shelfmark'] : null])));
+
+            return [
+                'suggestion' => null,
+                'key' => 'copy-merge-' . md5(json_encode($f)),
+                'date' => $own->min('date'),
+                'contributor' => ['kind' => 'machine', 'name' => FieldSuggestion::MACHINE_ORIGINS['copy_merge'], 'user' => null, 'url' => null],
+                'line' => ['در یکی شدن دو معرفی این نسخه، معرفی «' . ($place ?: 'نامشخص') . '»' . ($catalog !== '' ? ' (' . $catalog . ')' : '')
+                    . ' در این رکورد ادغام شد. فنخا درباره‌ی آن نوشته است: «همان نسخه بالا».'],
+                'children' => $own->map(fn ($r) => ['قول ' . $r['contributor']['name'] . ' برای «' . $r['action'] . '»: «', $r['after']['label'] ?? '', '»'])->values()->all(),
+                'claimed' => $own->keys()->all(),
+            ];
+        });
+        $claimed = $events->pluck('claimed')->flatten()->all();
+
+        return $items->except($claimed)->concat($events->map(fn ($e) => \Illuminate\Support\Arr::except($e, 'claimed')))
+            ->sortByDesc(fn ($i) => $i['date']?->timestamp ?? 0)->values();
     }
 
     /**

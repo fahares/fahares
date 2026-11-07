@@ -8331,3 +8331,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان `step14.16-link-copy-references-20261105_041431.json` از لپ‌تاپ به `/tmp` کانتینر فرستاده می‌شود.
   2. دستور با `--revert=/tmp/… --only=316801,282247 --dry-run` اجرا می‌شود.
   3. سپس همان دستور بی `--dry-run` اجرا می‌شود.
+
+### گام ۱۴.۷۸: `Contributions::withCopyMerges`
+- **`forRecord()`** برای نسخه: پس از `summarize`، هر `metadata.former_locations` بی `suggestion_id` که `note` آن «همان نسخه» دارد، یک ردیف ساختگی می‌شود. این ردیف `suggestion` = null دارد، و `key` (برای `data-history`)، `contributor.kind` = `machine`، `line` و `children` دارد.
+- **قول‌های زیر ردیف:** ردیف‌هایی با `machineOrigin()` = `copy_merge`، که `credit_name` آن‌ها «فهرست {catalog}» همان نشانی است. اگر نسخه یک ادغام داشته باشد، همه‌ی قول‌ها زیر آن می‌روند. این قول‌ها از فهرست اصلی برداشته و به `children` برده می‌شوند.
+- **تاریخ و ترتیب:** `date` = کمینه‌ی `date` قول‌ها، یا null. فهرست با `date` نزولی مرتب می‌شود و تاریخ تهی در پایان می‌آید.
+- **[record-history.blade.php](../resources/views/components/record-history.blade.php):** `data-history` = `suggestion?->id ?? key`. `children` در `<ul data-history-readings>` می‌آید، و `<time>` فقط با تاریخ.
+- **آزمون:** `RecordHistoryTest::test_a_copy_merge_reads_as_one_line_with_the_readings_it_kept_under_it`.
+- **پروداکشن:** دستور داده ندارد.
