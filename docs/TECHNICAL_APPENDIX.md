@@ -8149,6 +8149,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ترتیب اجرا در تولید:**
   1. `fahares:add-corpus-works --file=database/data/fankha_incipits_works_step14_67.json --apply`
   2. `fahares:rebuild-copies --file=database/data/fankha_incipits_copies_step14_67.json --apply`
+- **اجرا در تولید (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 هر دو فایل در کانتینر با main برابر بود. خروجی‌ها: «update 432»، «Derived data of works: works=432, with_dedication=42»، «Rebuilding 190 copies»، `pointers_linked=260` و «2 copies relinked». وارسی با tinker: ۶۸۹ از ۶۸۹ و ۳۷۳ از ۳۷۳ مقدار.
 
 ### گام ۱۴.۶۸: تاریخ تذکره‌های فارسی و مصفی المقال (مورد ۸۶)
 - **منشأ:**
