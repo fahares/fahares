@@ -8365,4 +8365,5 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `collectionSiblings()` رشته را به ترتیب شماره می‌چیند و نسخه‌های بی بازه را پس از بازه‌دارهای همان بخش.
 - **[manuscript-collection.blade.php](../resources/views/components/manuscript-collection.blade.php):** جمله‌ای درباره‌ی شیوه‌ی پیوند برای کلید رشته و کلید ساده.
 - **آزمون:** `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume`.
-- **پروداکشن:** `php artisan fahares:link-plain-volumes --apply`. پیش از آن پشتیبان `id, collection_key` گرفته شود.
+- **پروداکشن (۱۶ آبان ۱۴۰۵):** `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply` با `prod-run`، در حدود ۲۰ ثانیه. شمارش‌ها: `set` ۴٬۲۴۶، `shared:volumes` ۲٬۸۷۳، `run:volumes` ۵۹، `run:unsure` ۶. پشتیبان: `step14_79_collection_keys_before.tsv`.
+- **اصلاح پس از اجرا:** کلید گروه در `foreach ($byKey as $key => …)` به `(string)` تبدیل می‌شود، چون PHP کلید عددی آرایه را int می‌کند و `===` با مقدار ذخیره‌شده ناکام می‌ماند. پیش از این اصلاح، هر اجرا کلیدهای عددی را «moved» می‌شمرد و بی‌تغییر از نو می‌نوشت. آزمون: اجرای دوم هیچ `update` روی نسخه‌های آزمون نمی‌زند.

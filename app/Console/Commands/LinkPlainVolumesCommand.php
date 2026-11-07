@@ -84,6 +84,8 @@ class LinkPlainVolumesCommand extends Command
         $alone = [];
         foreach ($groups as $lib => $byKey) {
             foreach ($byKey as $key => $ids) {
+                // PHP makes a numeric array key («6982») an int; the stored key is a string
+                $key = (string) $key;
                 $members = array_map(fn ($id) => $plain[$id], $ids);
                 $others = $keyed[$lib][$key] ?? [];
                 if (count($members) + count($others) < 2) {

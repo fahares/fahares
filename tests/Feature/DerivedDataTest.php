@@ -321,6 +321,13 @@ class DerivedDataTest extends TestCase
         $this->assertSame(['7201–7207', '7201–7207', '7201–7207', null, '7201–7207'], array_map($key, [$r1, $r2, $r3, $r4, $r5]));
         $this->assertSame([null, null, null], array_map($key, [$u1, $u2, $u3]));
         $this->assertSame(['7401–7402', '7401–7402', null], array_map($key, [$v1, $v2, $v3]));
+        // A second run finds nothing to change (a numeric key is compared as the string it is stored as)
+        $ours = [$a1, $a2, $a3, $a4, $a5, $r1, $r2, $r3, $r5, $v1, $v2];
+        DB::enableQueryLog();
+        $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
+        $rewritten = collect(DB::getQueryLog())->filter(fn ($q) => str_starts_with($q['query'], 'update `manuscripts`') && array_intersect($q['bindings'], $ours));
+        DB::disableQueryLog();
+        $this->assertCount(0, $rewritten);
 
         // Listed in leaf order (the copy with no range last) and in number order, with a word on how they were found
         $this->assertSame([$a2, $a1, $a3], Manuscript::find($a1)->collectionSiblings()->pluck('id')->all());
