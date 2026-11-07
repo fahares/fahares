@@ -269,4 +269,87 @@ class DerivedDataTest extends TestCase
         $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500, '--excerpts' => $this->file, '--deaths' => $this->file])->assertSuccessful();
         $this->assertSame(['9103', '9101-دستی'], [DB::table('manuscripts')->where('id', $two)->value('collection_key'), DB::table('manuscripts')->where('id', $three)->value('collection_key')]);
     }
+
+    public function test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume()
+    {
+        $this->assertSame(['ض 21509', 'ض 21509', '163 طباطبائی', '163 طباطبائی', '4824', '791-سنا'], [Manuscript::plainVolumeKeyOf('ض 21509'), Manuscript::plainVolumeKeyOf('ض21509'),
+            Manuscript::plainVolumeKeyOf('163-طباطبائی'), Manuscript::plainVolumeKeyOf('163 طباطبائی'), Manuscript::plainVolumeKeyOf('۴۸۲۴'),
+            Manuscript::plainVolumeKeyOf('791', 'تهران؛ مجلس؛ شماره نسخه: 791 [سنا: ف: 2-61]')]);
+        $this->assertSame([null, null, null], [Manuscript::plainVolumeKeyOf('4824/3'), Manuscript::plainVolumeKeyOf('بدون شماره'), Manuscript::plainVolumeKeyOf('39و40د')]);
+
+        $lib = 'کتابخانه‌ی آزمایشی شماره‌ی ساده ' . uniqid();
+        $copy = fn (string $shelfmark, ?array $range = null, string $size = '13×20', ?int $work = null) => $this->copy($work ?? $this->work(['primary_title' => "رساله‌ی {$shelfmark} " . uniqid()]), [
+            'library' => $lib, 'shelfmark' => $shelfmark, 'shelfmark_key' => $shelfmark, 'raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: {$shelfmark}\nخط: نستعلیق، اندازه: {$size}سم",
+            'range_from' => isset($range) ? "{$range[0]}پ" : null, 'range_to' => isset($range) ? "{$range[1]}ر" : null,
+            'range_from_number' => $range[0] ?? null, 'range_to_number' => $range[1] ?? null]);
+        $key = fn (int $id) => DB::table('manuscripts')->where('id', $id)->value('collection_key');
+
+        // One number shared: ranges that go on make one volume, with its copy that has no range; spacing does not split it
+        $a1 = $copy('7101', [11, 20]);
+        $a2 = $copy('7101', [1, 10]);
+        $a3 = $copy('7101');
+        $a4 = $copy('ض7101', [30, 40]);
+        $a5 = $copy('ض 7101', [41, 50]);
+        // ...but not overlapping leaves, a work twice without ranges of its own, or nothing that shows a volume
+        $b1 = $copy('7102', [1, 50]);
+        $b2 = $copy('7102', [10, 20]);
+        $twice = $this->work();
+        $c1 = $copy('7103', [5, 9], work: $twice);
+        $c2 = $copy('7103', work: $twice);
+        $d1 = $copy('7104');
+        $d2 = $copy('7104');
+        // A run of numbers of one size whose leaves go on; a copy of that size with no range inside it joins, one of another size does not
+        $r1 = $copy('7201', [19, 22], '10×21');
+        $r2 = $copy('7202', null, '10×21');
+        $r3 = $copy('7204', [94, 115], '10×21');
+        $r4 = $copy('7203', null, '17×22');
+        $r5 = $copy('7207', [173, 244], '10×21');
+        // Two volumes' numbers interleaved: unsure, so not linked
+        $u1 = $copy('7301', [1, 34], '12×18');
+        $u2 = $copy('7302', [35, 46], '12×18');
+        $u3 = $copy('7303', [33, 60], '12×18');
+        // ...while the next volume, starting again at its first leaf, leaves the run before it alone
+        $v1 = $copy('7401', [1, 10], '14×21');
+        $v2 = $copy('7402', [11, 20], '14×21');
+        $v3 = $copy('7404', [1, 30], '14×21');
+
+        $this->artisan('fahares:link-plain-volumes')->expectsOutputToContain('Dry run: nothing written.')->assertSuccessful();
+        $this->assertNull($key($a1));
+        $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
+        $this->assertSame(['7101', '7101', '7101', 'ض 7101', 'ض 7101'], array_map($key, [$a1, $a2, $a3, $a4, $a5]));
+        $this->assertSame([null, null, null, null, null, null], array_map($key, [$b1, $b2, $c1, $c2, $d1, $d2]));
+        $this->assertSame(['7201–7207', '7201–7207', '7201–7207', null, '7201–7207'], array_map($key, [$r1, $r2, $r3, $r4, $r5]));
+        $this->assertSame([null, null, null], array_map($key, [$u1, $u2, $u3]));
+        $this->assertSame(['7401–7402', '7401–7402', null], array_map($key, [$v1, $v2, $v3]));
+        // A second run finds nothing to change (a numeric key is compared as the string it is stored as)
+        $ours = [$a1, $a2, $a3, $a4, $a5, $r1, $r2, $r3, $r5, $v1, $v2];
+        DB::enableQueryLog();
+        $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
+        $rewritten = collect(DB::getQueryLog())->filter(fn ($q) => str_starts_with($q['query'], 'update `manuscripts`') && array_intersect($q['bindings'], $ours));
+        DB::disableQueryLog();
+        $this->assertCount(0, $rewritten);
+
+        // Listed in leaf order (the copy with no range last) and in number order, with a word on how they were found
+        $this->assertSame([$a2, $a1, $a3], Manuscript::find($a1)->collectionSiblings()->pluck('id')->all());
+        $this->assertSame([$r1, $r2, $r3, $r5], Manuscript::find($r5)->collectionSiblings()->pluck('id')->all());
+        $this->get(route('manuscripts.show', Manuscript::find($r5)))->assertOk()
+            ->assertSee('مجموعه‌ی شماره‌ی <span dir="ltr">۷۲۰۱–۷۲۰۷</span>', false)
+            ->assertSee('کتابخانه به هر رساله‌ی این مجلد شماره‌ای جداگانه داده است');
+        $this->get(route('manuscripts.show', Manuscript::find($a1)))->assertOk()->assertSee('فهرست شماره‌ی بخش رساله‌ها را نیاورده است');
+
+        // The fillers and the save hook keep a linked key while it fits the shelfmark, and drop it when it no longer does
+        $this->artisan('fahares:fill-collection-keys', ['--apply' => true])->assertSuccessful();
+        $this->assertSame(['7101', '7201–7207'], [$key($a1), $key($r3)]);
+        Manuscript::find($r3)->update(['raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: 7204\nخط: نسخ، اندازه: 10×21سم"]);
+        $this->assertSame('7201–7207', $key($r3));
+        Manuscript::find($a3)->update(['shelfmark' => '7105']);
+        $this->assertNull($key($a3));
+        Manuscript::find($r2)->update(['shelfmark' => '7208']);
+        $this->assertNull($key($r2));
+
+        // A run whose volume no longer passes loses its keys on the next run
+        DB::table('manuscripts')->where('id', $r3)->update(['raw_text' => "تهران؛ آزمایشی؛ شماره نسخه: 7204\nخط: نسخ، اندازه: 17×22سم"]);
+        $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
+        $this->assertSame([null, null, null], [$key($r1), $key($r3), $key($r5)]);
+    }
 }

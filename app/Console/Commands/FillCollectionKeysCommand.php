@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Fills each copy's bound volume (collection_key; backlog item 97) from its shelfmark: «3852/4» is the fourth
  * treatise of volume 3852 of its library, «1068/2-طباطبائی» of volume 1068 of the Tabatabai collection
- * (Manuscript::collectionKey). A plain number («4825») names no volume: copies sharing one are seldom bound together.
+ * (Manuscript::collectionKey). A plain number («4825») names no volume by itself: fahares:link-plain-volumes links
+ * the copies whose leaves show them bound together, and this command keeps their keys (step 14.79).
  * The decision is DerivedData::collectionChange, so the corpus commands and fahares:refresh-derived write the same, and a
  * key a reviewed correction set is kept. Nothing searchable changes, so nothing is reindexed. Safe to run again.
  */
@@ -36,7 +37,7 @@ class FillCollectionKeysCommand extends Command
                 $writes = [];
                 foreach ($rows as $row) {
                     $counts['copies']++;
-                    $key = Manuscript::collectionKeyOf($row->shelfmark, $row->raw_text);
+                    $key = Manuscript::resolvedCollectionKey($row->shelfmark, $row->raw_text, $row->collection_key);
                     if ($key !== null) {
                         $counts['with_key']++;
                         $volume = ($row->library_id ?? 'n:' . $row->library) . '|' . $key;

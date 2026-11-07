@@ -8347,6 +8347,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_75.json` با ۶۷۴ رکورد (`changes.has_marginal_notes`، ۴۰۲ روشن و ۲۷۲ خاموش)، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 674 copies» و `pointers_linked=5`. اجرای دوم `already 674`.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_75.json --apply`
+  - **اجرا (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. «Rebuilding 674 copies»؛ اجرای دوم `already 674`. پشتیبان مشترک دو گام: `step14_75_77_before.json`.
 
 ### گام ۱۴.۷۶: `fahares:link-copy-references --revert=… --only=…`
 - **`revertOnly()`** در [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php):
@@ -8377,6 +8378,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_77.json` با ۹۷۹ رکورد، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 979 copies». اجرای دوم `already 979` بود.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_77.json --apply`
+  - **اجرا (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. «Rebuilding 979 copies»؛ اجرای دوم `already 979`. پشتیبان مشترک دو گام: `step14_75_77_before.json`.
 
 ### گام ۱۴.۷۸: `Contributions::withCopyMerges`
 - **`forRecord()`** برای نسخه: پس از `summarize`، هر `metadata.former_locations` بی `suggestion_id` که `note` آن «همان نسخه» دارد، یک ردیف ساختگی می‌شود. این ردیف `suggestion` = null دارد، و `key` (برای `data-history`)، `contributor.kind` = `machine`، `line` و `children` دارد.
@@ -8428,3 +8430,36 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سده از سال وفات؛
   - زندگی‌نامه‌ای که فقط به نام می‌خواند، که پیوند نمی‌گیرد.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+### گام ۱۴.۷۹: `fahares:link-plain-volumes`
+- **[LinkPlainVolumesCommand.php](../app/Console/Commands/LinkPlainVolumesCommand.php):** همه‌ی نسخه‌ها را یک بار می‌خواند. نسخه‌ای که `collectionKeyOf` برایش کلید دارد، فقط در بررسی هم‌پوشانی برگ‌ها شرکت می‌کند.
+  - **هم‌شماره:** گروه بر پایه‌ی `library_id` (یا `n:{library}`) و `Manuscript::plainVolumeKeyOf` ساخته می‌شود. نسخه‌های «n/m» با همان کلید هم به گروه افزوده می‌شوند. `sharedVolume()` یکی از این‌ها را برمی‌گرداند: `overlap` (اگر بازه‌ها مرتب شده باشند و `from < to` بازه‌ی پیشین باشد؛ برگ مشترک «27 / 27پ» مجاز است)، `repeated-work`، `linked` (دست‌کم دو بازه، یا یک بازه با `from > 2`) یا `no-evidence`.
+  - **رشته:** نسخه‌هایی که کلید ساده‌شان در کتابخانه تنهاست و `plainNumber` و اندازه («اندازه: a×b») دارند. هر عضو بعدی، در پنجره‌ی `RUN_GAP` = ۵ شماره، هم‌اندازه‌ای است که برگ‌هایش نزدیک‌ترین آغاز پس از `to` عضو پیشین را دارد. هم‌اندازه‌های بی بازه در میان رشته به آن می‌پیوندند. اگر هم‌اندازه‌ی بازه‌داری در میان رشته کنار گذاشته شود، یا در پنجره‌ی پیرامونش برگ‌هایش میان `from` نخست و `to` آخر شروع شود، رشته `unsure` است و پیوند نمی‌گیرد. کلید رشته «first–last» است (با خط تیره‌ی –).
+  - هر اجرا همه‌ی این کلیدها را از نو حساب می‌کند. کلیدی که دیگر نمی‌گذرد پاک می‌شود و کلیدی که بازبین ثبت کرده (`ProtectedColumns`) می‌ماند. چیزی بازنمایه نمی‌شود.
+- **[Manuscript.php](../app/Models/Manuscript.php):**
+  - `plainVolumeKeyOf()`: یک رشته‌ی رقم بی اسلش. فاصله و خط تیره میان حرف و رقم یک فاصله می‌شود، و «-سنا» برای `citesOnlySenate` افزوده می‌شود.
+  - `plainNumber()`، `isRunKey()`.
+  - `keepsLinkedKey()` و `resolvedCollectionKey()`: کلید پیوندی تا وقتی نگه داشته می‌شود که با شماره بخواند. این را قلاب `saving`، `DerivedData::collectionChange`، `fill-collection-keys` و `sync-fixed-shelfmarks` به کار می‌برند.
+  - `collectionSiblings()` رشته را به ترتیب شماره می‌چیند و نسخه‌های بی بازه را پس از بازه‌دارهای همان بخش.
+- **[manuscript-collection.blade.php](../resources/views/components/manuscript-collection.blade.php):** جمله‌ای درباره‌ی شیوه‌ی پیوند برای کلید رشته و کلید ساده.
+- **آزمون:** `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume`.
+- **پروداکشن (۱۶ آبان ۱۴۰۵):** `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply` با `prod-run`، در حدود ۲۰ ثانیه. شمارش‌ها: `set` ۴٬۲۴۶، `shared:volumes` ۲٬۸۷۳، `run:volumes` ۵۹، `run:unsure` ۶. پشتیبان: `step14_79_collection_keys_before.tsv`.
+- **اصلاح پس از اجرا:** کلید گروه در `foreach ($byKey as $key => …)` به `(string)` تبدیل می‌شود، چون PHP کلید عددی آرایه را int می‌کند و `===` با مقدار ذخیره‌شده ناکام می‌ماند. پیش از این اصلاح، هر اجرا کلیدهای عددی را «moved» می‌شمرد و بی‌تغییر از نو می‌نوشت. آزمون: اجرای دوم هیچ `update` روی نسخه‌های آزمون نمی‌زند.
+- **پروداکشن:** `php artisan fahares:link-plain-volumes --apply`. پیش از آن پشتیبان `id, collection_key` گرفته شود.
+### گام ۱۴.۸۰: `fahares:fold-copy-merge-extents`
+- **[FoldCopyMergeExtentsCommand](../app/Console/Commands/FoldCopyMergeExtentsCommand.php):** ورودی پشتیبان `fahares:link-copy-references` است.
+  - برای هر `merges` که نسخه‌ی ماندنی‌اش هست و نسخه‌ی حذف‌شده برنگشته (گام ۱۴.۷۶)، نشانی پیشین بی `suggestion_id` با همان `library` و `shelfmark` یافته می‌شود.
+  - به آن `folios`، `range_from` و `range_to` از `source_snapshot.attributes` افزوده می‌شود، فقط کلیدهایی که هنوز ندارد.
+  - قول‌های `folios` با `origin` = `copy_merge` و `merged_manuscript_id` همان ادغام حذف می‌شوند.
+  - پیش‌فرض فقط گزارش است. با `--apply`، نخست `--backup` (نشانی‌ها و ردیف‌های قول) نوشته می‌شود و سپس تغییر. اجرای دوم «0» گزارش می‌کند.
+- **[FormerLocation::extent](../app/Support/FormerLocation.php):** «برگ {از} تا {تا} ({n} برگ)» یا فقط «{n} برگ». در `manuscripts/show` (نشانی پیشین) و `Contributions::withCopyMerges` (خط ادغام) به کار رفته است.
+- **سنجش (بیرون از مخزن، روی `text/fankha` و ۴۰ قول پروداکشن):**
+  - در همه‌ی ۳۴ قول برگ‌شمار، عدد شیخ علی حیدر برابر طول گستره‌ی خودش است.
+  - عدد رضوی در ۲۷ قول ±۱ طول گستره است. در ۳ قول برابر برگ آغازی یا پایانی است (۱۷۷۷۲۹، ۳۱۶۲۶۲ و ۲۰۴۴۱۵). در ۴ قول توضیحی پیدا نشد (۱۵۶۱۵۰، ۱۶۹۲۸۴، ۲۶۸۸۵۶ و ۳۲۱۰۷۶).
+- **آزمون:** `RecordHistoryTest::test_the_former_leaves_of_a_merged_copy_go_to_its_former_location_and_the_leaf_reading_goes`.
+- **پروداکشن، پس از استقرار:**
+  1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
+  2. `php artisan fahares:fold-copy-merge-extents /tmp/… ` اجرا می‌شود (گزارش؛ انتظار: ۶۱ نشانی و ۳۴ قول).
+  3. همان دستور با `--apply --backup=…` اجرا می‌شود. پشتیبان آن به لپ‌تاپ می‌رود.
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** پشتیبان گام ۱۴.۱۶ (md5 `6b0301ec…`) به `/tmp` رفت.
+  - گزارش و `--apply --backup=/tmp/step14_80_fold_backup.json` هر دو «61 … 34» بودند. پشتیبان (۶۱ نسخه و ۳۴ قول) به لپ‌تاپ رفت و هر دو فایل `/tmp` پاک شدند. اجرای دوم «0» بود.
+  - **پس از اجرا:** ۶ قول با `origin` = `copy_merge` مانده است.

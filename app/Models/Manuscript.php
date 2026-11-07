@@ -106,7 +106,7 @@ class Manuscript extends Model
             }
             // ...and so is the bound volume it names (backlog item 97), which the catalogue it cites can change
             if ($manuscript->isDirty(['shelfmark', 'raw_text']) && ! $manuscript->isDirty('collection_key')) {
-                $manuscript->collection_key = self::collectionKeyOf($manuscript->shelfmark, $manuscript->raw_text);
+                $manuscript->collection_key = self::resolvedCollectionKey($manuscript->shelfmark, $manuscript->raw_text, $manuscript->getOriginal('collection_key'));
             }
         });
 
@@ -720,6 +720,63 @@ class Manuscript extends Model
     }
 
     /**
+     * The volume key of a copy whose shelfmark has no part number: the shelfmark itself, as one number with an optional
+     * mark («4824», «ض 20728», «163-طباطبائی»), with «-سنا» for a Majlis copy described only from the Senate catalogue.
+     * Null for a shelfmark with a part (collectionKey), with no number («بدون شماره») or with two («39و40د»). Such a key
+     * is stored only where fahares:link-plain-volumes finds the copies sharing it bound together (step 14.79).
+     */
+    public static function plainVolumeKeyOf(?string $shelfmark, ?string $rawText = null): ?string
+    {
+        // «ض 21509» and «ض21509», «163 طباطبائی» and «163-طباطبائی» are one shelfmark
+        $mark = preg_replace('/[\s\x{200C}_ـ–—‐‑-]+/u', '-', trim(strtr((string) $shelfmark, self::DIGITS)));
+        $mark = preg_replace('/(?<=\p{L})-?(?=\d)|(?<=\d)-?(?=\p{L})/u', ' ', trim($mark, '-'));
+        if ($mark === '' || str_contains($mark, '/') || preg_match_all('/\d+/', $mark) !== 1) {
+            return null;
+        }
+
+        return mb_substr($mark . (self::citesOnlySenate($rawText) ? '-سنا' : ''), 0, 100);
+    }
+
+    /** The number of a shelfmark that is only a number («38137», «۳۸۱۳۷»), else null. */
+    public static function plainNumber(?string $shelfmark): ?int
+    {
+        $mark = trim(strtr((string) $shelfmark, self::DIGITS));
+
+        return preg_match('/^\d{1,9}$/', $mark) ? (int) $mark : null;
+    }
+
+    /**
+     * Whether a stored key was set by fahares:link-plain-volumes and still fits the shelfmark: the copy's own plain
+     * key, or a run of the library's consecutive numbers («38131–38137») its number falls in (step 14.79).
+     */
+    public static function keepsLinkedKey(?string $stored, ?string $shelfmark, ?string $rawText = null): bool
+    {
+        if ($stored === null || self::collectionKeyOf($shelfmark, $rawText) !== null) {
+            return false;
+        }
+        if ($stored === self::plainVolumeKeyOf($shelfmark, $rawText)) {
+            return true;
+        }
+        $n = self::plainNumber($shelfmark);
+
+        return $n !== null && preg_match('/^(\d+)–(\d+)$/u', $stored, $m) && $n >= (int) $m[1] && $n <= (int) $m[2] && ! self::citesOnlySenate($rawText);
+    }
+
+    /** The collection_key a copy should hold: the volume its shelfmark names, else the linked key it has if that still fits, else null. */
+    public static function resolvedCollectionKey(?string $shelfmark, ?string $rawText, ?string $stored): ?string
+    {
+        return self::collectionKeyOf($shelfmark, $rawText) ?? (self::keepsLinkedKey($stored, $shelfmark, $rawText) ? $stored : null);
+    }
+
+    /** Whether a key names a run of separately numbered treatises bound together («38131–38137»). */
+    public static function isRunKey(?string $key): bool
+    {
+        return $key !== null && (bool) preg_match('/^\d+–\d+$/u', $key);
+    }
+
+    private const DIGITS = ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9'];
+
+    /**
      * Stuck marks that describe the copy in a library rather than name a collection of it, by the library as the
      * Fankha text writes it: in Ehya «1004/7 عکسی» is one of volume 1004's photocopied treatises (1004/1 to 1004/10),
      * while in Marashi «1390/1عکسی» is in the library's photocopy collection.
@@ -783,7 +840,10 @@ class Manuscript extends Model
             ->limit(400)
             ->get()
             ->filter(fn (self $m) => ($m->collection_key ?? self::collectionKeyOf($m->shelfmark, $m->raw_text)) === $key)
-            ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? 0), $m->id])
+            // a run of separately numbered treatises («38131–38137») is in the order of its numbers; in a volume
+            // whose copies share one plain number, the copies with no range follow the ranged ones
+            ->sortBy(fn (self $m) => [(int) (self::collectionKey($m->shelfmark)['part'] ?? (self::isRunKey($key) ? self::plainNumber($m->shelfmark) : 0)),
+                $m->range_from_number === null ? 1 : 0, $m->id])
             ->values();
 
         return self::inLeafOrder($byPart);
