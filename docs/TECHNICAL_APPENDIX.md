@@ -8331,3 +8331,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان `step14.16-link-copy-references-20261105_041431.json` از لپ‌تاپ به `/tmp` کانتینر فرستاده می‌شود.
   2. دستور با `--revert=/tmp/… --only=316801,282247 --dry-run` اجرا می‌شود.
   3. سپس همان دستور بی `--dry-run` اجرا می‌شود.
+
+### گام ۱۴.۷۷: خوانش ۱٬۸۳۸ نسخه‌ی `unclear` گام ۱۴.۷۵
+- **ورودی:** `flag_off|1|unclear` (۱٬۷۵۶) و `flag_on|0|unclear` (۸۲) از دسته‌بندی گام ۱۴.۷۵.
+- **خوانش:** هشت زیرعامل Sonnet، هر یک حدود ۲۳۰ متن، با `U_INSTRUCTIONS.md`. پاسخ‌ها `yes`، `no` یا `unsure` بود. فایل‌ها (`u_batchN.json`، `u_resultN.json` و `u_final.json`) در `reports/fankha_v2_db_review8/marginal_notes_step14_75/` است.
+  - فیلد `why` در همه‌ی دسته‌ها یکنواخت بود و از کیفیت خوانش چیزی نمی‌گفت. پس ۴۸ نمونه‌ی تصادفی (۶ از هر دسته) را خودم داوری کردم: ۴۷ درست بود. ۲۰ نمونه از «خاموش» و ۸ از «روشن» هم همه درست بود.
+  - **پاسداری:** `yes` کنار گذاشته شد اگر همه‌ی بندهای «حاشیه/حواشی» واژه‌ی تزیین داشتند و هیچ‌کدام واژه‌ی یادداشت نداشت. ۸ نسخه کنار رفت.
+- **نتیجه:** ۹۳۰ خاموش، ۴۹ روشن، ۷۴۴ برابر سایت و ۱۰۷ `unsure`.
+- **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_77.json` با ۹۷۹ رکورد، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 979 copies». اجرای دوم `already 979` بود.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_77.json --apply`
