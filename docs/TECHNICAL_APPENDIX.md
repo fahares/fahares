@@ -8421,3 +8421,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید (۱۷ آبان ۱۴۰۵):** پشتیبان گام ۱۴.۱۶ (md5 `6b0301ec…`) به `/tmp` رفت.
   - گزارش و `--apply --backup=/tmp/step14_80_fold_backup.json` هر دو «61 … 34» بودند. پشتیبان (۶۱ نسخه و ۳۴ قول) به لپ‌تاپ رفت و هر دو فایل `/tmp` پاک شدند. اجرای دوم «0» بود.
   - **پس از اجرا:** ۶ قول با `origin` = `copy_merge` مانده است.
+
+### گام ۱۴.۸۲: دو سطر «همان نسخه بالا»ی بی‌پیوند
+- **۱۴۵۵۳۴:**
+  - `fahares:apply-corpus-structure --file=/tmp/move145534.json --apply`. فایل یک `moves` دارد: ‎-v15-1172 → ‎-v15-2247، با نسخه‌ی «مشهد، مولوی، 194».
+  - سپس `fahares:link-copy-references --work=71738 --backup=… --report=…`، که خروجی `merged 1` داد. جابه‌جایی، نسخه‌ی بالا (بزرگ‌ترین id کوچک‌تر در اثر) را الهیات 194 (۱۴۵۵۳۳) کرد. `TRANSFERS` («مولوی → الهیات») ادغام را برگزید.
+  - نتیجه: ۱۴۵۵۳۴ حذف شد و نشانی برگشت به ۱۴۵۵۳۳ دارد. `metadata.former_locations` ۱۴۵۵۳۳ «مولوی 194، نشریه: 5 - 28» را دارد. `manuscripts_count` اثر ۷۱۷۳۸ برابر ۲ و اثر ۳۰۲۷۰ برابر ۸ است.
+- **۱۹۷۷۶۶:**
+  - `link-copy-references --work=71784` گزارش `no_copy_above` داد، چون id نسخه‌ی اصل (۳۳۴۲۷۴) بزرگ‌تر است.
+  - رابطه‌ی ۷۵۱۰ مانند `relate()` دستور ساخته شد: `type = facsimile_of` و `source = fankha`. یک ردیف `corpus_update` هم در audit ثبت شد. `is_facsimile` از پیش روشن بود.
+- **نکته:** استقرار، `/tmp` کانتینر را پاک می‌کند. فایل جابه‌جایی پس از استقرار انتشار ۵۴ دوباره فرستاده شد. اجرای نخست «Decision file missing» داده بود و چیزی ننوشته بود.
