@@ -226,7 +226,7 @@
                     <!-- Where the copy was before it moved or was renumbered (older catalogs cite these) -->
                     <div class="pt-3 border-t border-line text-xs text-muted space-y-0.5">
                         @foreach($formerLocations as $former)
-                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span>@if(isset($former['catalog']))<span> (در {{ Fa::digits($former['catalog']) }})</span>@endif</div>
+                            <div>نشانی پیشین: <span class="text-ink font-semibold">{{ implode('، ', array_filter([$former['library'] ?? null, $former['city'] ?? null])) ?: '—' }}، شماره‌ی @if(isset($former['shelfmark']))<span dir="ltr">{{ Fa::digits($former['shelfmark']) }}</span>@else بی‌شماره @endif</span>@if($extent = \App\Support\FormerLocation::extent($former))<span>، {{ $extent }}</span>@endif @if(isset($former['catalog']))<span> (در {{ Fa::digits($former['catalog']) }})</span>@endif</div>
                         @endforeach
                     </div>
                 @endif

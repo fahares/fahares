@@ -7700,6 +7700,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - **بی‌تطبیق:** غزالی (۵/۷۲۶) و دو اثر خواجه نصیر (۵/۷۳۶).
 - **آزمون:** `NoorReferenceBooksTest::test_mushars_authors_tie_a_work_to_its_authors_entry_and_keep_his_books_under_it`، با فیکسچر `mushar-authors-v05-p37`. در `test_citations_find_their_source_volume_and_column`، «مشار، مؤلفین 5/726» حالا به این منبع می‌رود.
 - **پروداکشن:** انتشار کد لازم است، چون الگو و منبع در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند و همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+- **اجرای پروداکشن (۱۶ آبان ۱۴۰۵):** فرمان‌ها را جلسه‌ی مدیریت تسک‌ها با نام `task-management` و از راه `prod-run` اجرا کرد.
+  - **پشتیبان:** `fahares-server ~/backups/before_step14_47_mushar_20261106_1328.sql.gz` (md5 `67c03875d03c0e26791f095906a3af93`). روی سرور ماند.
+  - **صفحه‌ها، ج ۱ تا ۶:** ۹۲۸، ۹۸۶، ۱٬۰۱۲، ۹۳۶، ۹۰۸ و ۹۱۰.
+  - **مدخل‌ها:** ۳٬۸۸۹، ۵٬۶۷۲، ۵٬۶۶۵، ۵٬۳۹۶، ۴٬۷۹۸ و ۵٬۰۷۹. جمع ۳۰٬۴۹۹، یعنی ۸٬۵۸۱ مدخل و ۲۱٬۹۱۸ زیرمدخل.
+  - **پیوند نخست:** صفر. منبع پس از `backfill --only=registry` در `sources` بود، ولی الگویی در `source_citation_forms` نداشت (گام ۱۴.۵۷). پس ارجاعی هم برایش ساخته نشد.
+  - **رفع:**
+    - `sources:import-citation-forms` («Made 3 forms»، با kashf-hujub و zaydiyya).
+    - `backfill --only=bibliography` (۴۵٬۳۵۷ ارجاع، ۲۰٬۱۷۱ از منبع شناخته).
+    - `link-items --near` دوباره: ۷، ۳، ۵، ۰، ۴ و ۱، یعنی ۲۰ پیوند برابر تمرین.
+  - **سگمنت ج ۶:** یک بار با قطع ssh بریده شد، ولی داده کامل بود.
 
 ### گام ۱۴.۴۸: الأعلام زرکلی از تراجم ۳ نور (مورد ۸۶)
 - **منشأ:** `tarajim3.db`، کتاب `257`. هشت جلد چاپ دار العلم للملایین، که جلد N نور همان جلد N سایت است.
@@ -8096,6 +8106,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - همه در انتظار داوری‌اند.
 - **آزمون:** `NoorReferenceBooksTest::test_kashf_al_hujub_and_mu_allafat_al_zaydiyya_entries_are_numbered_and_found_by_title_and_author`، با فیکسچرهای `kashf-hujub-v01-p263` (شش «رسالة في الرجعة» که مؤلف از هم جدایشان می‌کند) و `zaydiyya-v01-p245`.
 - **پروداکشن:** انتشار کد لازم است، چون دو منبع تازه در `config/bibliography.php` تعریف شده‌اند. پس از استقرار، فایل‌ها به کانتینر فرستاده می‌شوند، همان فرمان‌های تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+- **اجرای پروداکشن (۱۶ و ۱۷ آبان ۱۴۰۵):** فرمان‌ها را جلسه‌ی مدیریت تسک‌ها با نام `task-management` و از راه `prod-run` اجرا کرد.
+  - **پشتیبان:** `before_step14_64_forms_kashf_zaydiyya_20261106_2320.sql.gz` (md5 `a96e7c1e0922c1a4b11c262028357fae`). روی سرور ماند.
+  - **ترتیب:** الگوها و مآخذ همان‌گونه که در گام ۱۴.۴۷ آمد ساخته شدند.
+  - **کشف:** ۶۰۷ صفحه و ۳٬۳۹۴ مدخل. پیوندها: ۲۰۲ ساخته و ۴ به‌روز شد، یعنی ۲۰۶ برابر تمرین.
+    - **بازاجرا:** نخستین `import-pages` کشف با «No page texts found» پایان یافت، چون استقرار اکانت دیگر در ساعت ۰۲:۴۴ پوشه‌ی `/tmp` را پاک کرد. فایل‌ها دوباره فرستاده شدند و md5 هر ۱۴ فایل درست بود.
+  - **الزیدیة:**
+    - صفحه‌ها ۴۸۲، ۴۳۸ و ۳۴۳.
+    - مدخل‌ها ۱٬۴۸۸، ۱٬۳۵۸ و ۴۷۰، جمع ۳٬۳۱۶.
+    - پیوندها ۵۸، ۴۴ و ۲۹، جمع ۱۳۱.
+    - هر دو برابر تمرین.
 
 ### گام ۱۴.۶۵: «؟» چسبیده در `MarkHedgedAuthorsCommand::hedgeOf` و `--hedged` در صدور
 - **`hedgeOf`:** برای «؟» شرط `(?=\s|$)` برداشته شد. برای واژه‌های دیگر `HEDGES` همچنان هست، تا «شایسته» تردید شمرده نشود.
@@ -8183,7 +8203,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod` محلی:** برای هر جلد `import-pages`، `segment --origin=noor` و `link-items --near`.
   - **تذکره:**
     - **صفحه‌ها و مدخل‌ها:** ج ۱: ۷۶۴ صفحه (۲–۷۶۵) و ۲۳۹ مدخل؛ ج ۲: ۸۶۰ صفحه (۳–۸۶۷) و ۳۱۵ مدخل.
-    - **پیوندها:** ۰ و ۴۲. همه‌ی ارجاع‌های جادار در ج ۲‌اند، تا ص ۷۷۴. `title_author` ۲۹، `title_in_text` ۱۰، `near_title_author` ۲ و `derivative_of_heading` ۱.
+    - **پیوندها:** ۱۴ و ۲۸ (در اجرای دوم، پس از ساختن الگوها؛ اجرای نخست بی الگو صفر بود). `title_author` ۲۹، `title_in_text` ۱۰، `near_title_author` ۲ و `derivative_of_heading` ۱.
     - **وارسی نمونه:** `title_in_text` (۶۰) یادکرد اثر در مدخل تذکره‌ی دیگری است، با نقش یادکرد.
   - **مصفی:**
     - ۶۱۹ صفحه و ۸۸۱ مدخل.
@@ -8195,6 +8215,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `sources:backfill --only=bibliography`؛
   4. فرستادن فایل‌ها، و برای هر جلد `import-pages`، `segment` و `link-items --near`؛
   5. `scout:import "App\Models\SourceItem"`.
+- **اجرای پروداکشن (۱۷ آبان ۱۴۰۵):** فرمان‌ها را جلسه‌ی مدیریت تسک‌ها با نام `task-management` و از راه `prod-run` اجرا کرد.
+  - **پشتیبان:** `before_step14_64_68_rest_20261107_0247.sql.gz` (md5 `7331d60e28d758a8ba377e5ad838c1be`). روی سرور ماند.
+  - **ترتیب:**
+    - `backfill --only=registry` («volumes made 3»)؛
+    - `import-citation-forms` («Made 2 forms»)؛
+    - `backfill --only=bibliography` (۲۰٬۲۷۸ ارجاع از منبع شناخته).
+  - **تذکره:**
+    - صفحه‌ها ۷۶۴ و ۸۶۰.
+    - مدخل‌ها ۲۳۹ و ۳۱۵، جمع ۵۵۴.
+    - پیوندها ۱۴ و ۲۸، جمع ۴۲. این همان تقسیم اجرای دوم تمرین است.
+  - **مصفی:** ۶۱۹ صفحه، ۸۸۱ مدخل و ۴۲ پیوند.
+  - **`scout:import "App\Models\SourceItem"`:** تا شناسه‌ی ۳۲۲۶۲۵.
+  - **شمارش دوباره در پروداکشن:** ۳۰٬۴۹۹، ۳٬۳۹۴، ۳٬۳۱۶، ۵۵۴ و ۸۸۱.
 
 ### گام ۱۴.۶۹: ساخت فهرست‌نگار در پنل (مورد ۴۰)
 - **مسیرها:** `Route::resource('catalogers')` اکنون `create` و `store` را هم دارد، پشت همان `can:catalogers.edit`.
@@ -8314,6 +8347,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_75.json` با ۶۷۴ رکورد (`changes.has_marginal_notes`، ۴۰۲ روشن و ۲۷۲ خاموش)، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 674 copies» و `pointers_linked=5`. اجرای دوم `already 674`.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_75.json --apply`
+  - **اجرا (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. «Rebuilding 674 copies»؛ اجرای دوم `already 674`. پشتیبان مشترک دو گام: `step14_75_77_before.json`.
 
 ### گام ۱۴.۷۶: `fahares:link-copy-references --revert=… --only=…`
 - **`revertOnly()`** در [LinkCopyReferencesCommand](../app/Console/Commands/LinkCopyReferencesCommand.php):
@@ -8344,6 +8378,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل تصمیم:** `database/data/fankha_marginal_notes_step14_77.json` با ۹۷۹ رکورد، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 979 copies». اجرای دوم `already 979` بود.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_marginal_notes_step14_77.json --apply`
+  - **اجرا (۱۶ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. «Rebuilding 979 copies»؛ اجرای دوم `already 979`. پشتیبان مشترک دو گام: `step14_75_77_before.json`.
 
 ### گام ۱۴.۷۸: `Contributions::withCopyMerges`
 - **`forRecord()`** برای نسخه: پس از `summarize`، هر `metadata.former_locations` بی `suggestion_id` که `note` آن «همان نسخه» دارد، یک ردیف ساختگی می‌شود. این ردیف `suggestion` = null دارد، و `key` (برای `data-history`)، `contributor.kind` = `machine`، `line` و `children` دارد.
@@ -8367,3 +8402,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume`.
 - **پروداکشن (۱۶ آبان ۱۴۰۵):** `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply` با `prod-run`، در حدود ۲۰ ثانیه. شمارش‌ها: `set` ۴٬۲۴۶، `shared:volumes` ۲٬۸۷۳، `run:volumes` ۵۹، `run:unsure` ۶. پشتیبان: `step14_79_collection_keys_before.tsv`.
 - **اصلاح پس از اجرا:** کلید گروه در `foreach ($byKey as $key => …)` به `(string)` تبدیل می‌شود، چون PHP کلید عددی آرایه را int می‌کند و `===` با مقدار ذخیره‌شده ناکام می‌ماند. پیش از این اصلاح، هر اجرا کلیدهای عددی را «moved» می‌شمرد و بی‌تغییر از نو می‌نوشت. آزمون: اجرای دوم هیچ `update` روی نسخه‌های آزمون نمی‌زند.
+- **پروداکشن:** `php artisan fahares:link-plain-volumes --apply`. پیش از آن پشتیبان `id, collection_key` گرفته شود.
+### گام ۱۴.۸۰: `fahares:fold-copy-merge-extents`
+- **[FoldCopyMergeExtentsCommand](../app/Console/Commands/FoldCopyMergeExtentsCommand.php):** ورودی پشتیبان `fahares:link-copy-references` است.
+  - برای هر `merges` که نسخه‌ی ماندنی‌اش هست و نسخه‌ی حذف‌شده برنگشته (گام ۱۴.۷۶)، نشانی پیشین بی `suggestion_id` با همان `library` و `shelfmark` یافته می‌شود.
+  - به آن `folios`، `range_from` و `range_to` از `source_snapshot.attributes` افزوده می‌شود، فقط کلیدهایی که هنوز ندارد.
+  - قول‌های `folios` با `origin` = `copy_merge` و `merged_manuscript_id` همان ادغام حذف می‌شوند.
+  - پیش‌فرض فقط گزارش است. با `--apply`، نخست `--backup` (نشانی‌ها و ردیف‌های قول) نوشته می‌شود و سپس تغییر. اجرای دوم «0» گزارش می‌کند.
+- **[FormerLocation::extent](../app/Support/FormerLocation.php):** «برگ {از} تا {تا} ({n} برگ)» یا فقط «{n} برگ». در `manuscripts/show` (نشانی پیشین) و `Contributions::withCopyMerges` (خط ادغام) به کار رفته است.
+- **سنجش (بیرون از مخزن، روی `text/fankha` و ۴۰ قول پروداکشن):**
+  - در همه‌ی ۳۴ قول برگ‌شمار، عدد شیخ علی حیدر برابر طول گستره‌ی خودش است.
+  - عدد رضوی در ۲۷ قول ±۱ طول گستره است. در ۳ قول برابر برگ آغازی یا پایانی است (۱۷۷۷۲۹، ۳۱۶۲۶۲ و ۲۰۴۴۱۵). در ۴ قول توضیحی پیدا نشد (۱۵۶۱۵۰، ۱۶۹۲۸۴، ۲۶۸۸۵۶ و ۳۲۱۰۷۶).
+- **آزمون:** `RecordHistoryTest::test_the_former_leaves_of_a_merged_copy_go_to_its_former_location_and_the_leaf_reading_goes`.
+- **پروداکشن، پس از استقرار:**
+  1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
+  2. `php artisan fahares:fold-copy-merge-extents /tmp/… ` اجرا می‌شود (گزارش؛ انتظار: ۶۱ نشانی و ۳۴ قول).
+  3. همان دستور با `--apply --backup=…` اجرا می‌شود. پشتیبان آن به لپ‌تاپ می‌رود.
