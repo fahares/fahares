@@ -9004,8 +9004,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`layouts/app.blade.php`:** `<link rel="canonical">` با `@yield('canonical', Indexing::canonical())`، مگر بخش `robots` شامل `noindex` باشد.
 - **`search.blade.php`:** `@section('robots', 'noindex, follow')` وقتی `request()->query()` تهی نیست.
 - **`SitemapController`:** slug شخص از `name` (مانند `Person::getPersianSlugAttribute`)، نه `normalized_name`. نام کتابخانه‌ی نسخه با `??` (مانند `Manuscript`). نوع تازه‌ی `catalogers` با `route('catalogers.show', $c)`. `catalogers.index` در تکه‌ی static.
+- **نوع `entries` نقشه‌ی سایت:** `entryQuery()`: `CHAR_LENGTH(COALESCE(text, '')) >= ENTRY_MIN_TEXT` (۱۰۰) یا `EXISTS` یک `source_entries` با `citable_type` اثر و وضع جز `rejected`. نشانی با `route('source-items.show', [code, volume_number, urlKey()])`، همانند `SourceItem::url()`. روی fahares_db: ۱۰۴٬۴۳۰ نشانی؛ از نمونه‌ی ۲٬۰۰۰ مدخل تصادفی، ۱٬۴۱۰ نشانی‌شان عیناً در نقشه بود (نسبتی برابر ۱۰۴٬۴۳۰ از ۱۴۹٬۱۶۸).
 - **routes:** `throttle:120,1` روی `search.api` (سربرگ با debounce ۲۰۰ میلی‌ثانیه می‌پرسد). الگوی `type` نقشه‌ی سایت `catalogers` را می‌پذیرد.
-- **آزمون‌ها:** `IndexingTest` (۷ آزمون): robots.txt، `canonical` صفحه‌ی اثر و نسخه بی پارامتر، ۳۰۱ رکورد ادغام‌شده و slug کهنه به نشانی‌ای که `canonical` همان است، `noindex` جستجو، سرآیند صفحه‌های خصوصی، برابری نشانی هر نوع نقشه‌ی سایت با `route()` رکورد، و محدودیت نرخ.
+- **آزمون‌ها:** `IndexingTest` (۸ آزمون): robots.txt، `canonical` صفحه‌ی اثر و نسخه بی پارامتر، ۳۰۱ رکورد ادغام‌شده و slug کهنه به نشانی‌ای که `canonical` همان است، `noindex` جستجو، سرآیند صفحه‌های خصوصی، برابری نشانی هر نوع نقشه‌ی سایت با `route()` رکورد، مدخل‌های منبع (بلند و وصل‌شده می‌آیند؛ کوتاه و پیوند ردشده نه)، و محدودیت نرخ.
 - **سنجش کامل روی fahares_db:** works ۷۱٬۵۱۶، people ۷۴٬۴۰۲، libraries ۴۱۲، catalogers ۸۸ و manuscripts ۳۲۳٬۸۸۰ نشانی؛ هیچ‌کدام با `route()` رکورد فرق ندارد.
 - **اجرا در تولید:** هیچ. نقشه‌ی سایت دو ساعت cache دارد (`sitemap_*`) و خودش تازه می‌شود.
 - **اجرای تولید (۱۹ آبان ۱۴۰۵):**
