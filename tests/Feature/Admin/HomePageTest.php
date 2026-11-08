@@ -80,8 +80,11 @@ class HomePageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk()
-            ->assertSeeInOrder(['سرلوح آزمایشی سربرگ', 'منبع آزمایشی سربرگ', 'عنوان آزمایشی خانه', 'نگاره‌ی آزمایشی بنر', 'فهرست‌نگار آزمایشی خانه', 'گنجینه‌ی آزمایشی'])
+            ->assertSeeInOrder(['سرلوح آزمایشی سربرگ', 'منبع آزمایشی سربرگ', 'عنوان آزمایشی خانه', 'فهرست‌نگار آزمایشی خانه', 'نگاره‌ی آزمایشی بنر', 'گنجینه‌ی آزمایشی'])
             ->assertDontSee('اسلاید پنهان')
+            ->assertSee('راهنمای جست‌وجو')
+            ->assertSee('مجلس ۱۱۸۹')
+            ->assertSee('مرعشی ج ۳۳ ص ۲۹۴', false)
             ->assertSee($cataloger->name)
             ->assertSee('عنوان آزمایشی خانه')
             ->assertSee(Fa::num(SiteStats::all()['works']))

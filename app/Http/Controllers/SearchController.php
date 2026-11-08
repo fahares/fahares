@@ -41,7 +41,7 @@ class SearchController extends Controller
     protected function search(Request $request, ?int $exportLimit = null, bool $idsOnly = false): array|\Illuminate\Http\RedirectResponse
     {
         $rawQuery = trim((string) $request->input('q', ''));
-        $searchQuery = TextNormalizer::normalize($rawQuery);
+        $searchQuery = self::phraseQuotes(TextNormalizer::normalize($rawQuery));
         // «کافی | شافی»: any of the parts (phase 8); one part left is a plain search
         $alternatives = self::alternatives($searchQuery);
         if (count($alternatives) === 1) {
@@ -330,6 +330,12 @@ class SearchController extends Controller
 
     /** The most results a search with «|» and a chosen order is sorted among: the engine cannot sort a union */
     public const ANY_OF_SORT_LIMIT = 10000;
+
+    /** «شرح لمعه» and “شرح لمعه”, as a Persian keyboard types them, are the engine's exact phrase "شرح لمعه" */
+    public static function phraseQuotes(string $searchQuery): string
+    {
+        return str_replace(['«', '»', '“', '”'], '"', $searchQuery);
+    }
 
     /** The parts of «الف | ب | ج», at most five; an empty part is dropped */
     public static function alternatives(string $searchQuery): array

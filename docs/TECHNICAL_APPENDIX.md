@@ -8997,3 +8997,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `catalogs:link-volumes`
   2. `fahares:sync-other-citations --apply --show=0` (گام ۱۴.۱۰۵). ارجاع‌های دومِ این جلدها هم پس از ساخته شدنشان جلد می‌گیرند.
 - **مانده:** سال، صفحه و فهرست‌نگارِ ج ۵ تا ۱۱ اهدایی.
+
+### گام ۱۴.۱۰۸: اسلایدر زیر فهرست‌نگاران، نمونه‌های عملگری و راهنمای جست‌وجو
+- **`resources/views/home.blade.php`:** بخش اسلایدها (`$slides`) پس از بخش فهرست‌نگاران (`$homeCatalogers`) و پیش از «از گنجینه‌ها». نمونه‌ها با `data-home-examples`، متن هر نمونه همان عبارتِ تایپ‌شدنی و توضیحش در `title`.
+- **`HomeController::getSuggestedSearchesPool()`:** شش گروه (`phrase`، `exclude`، `either`، `combined`، `shelfmark`، `catalogue`). `index()` از هر گروه یکی را تصادفی برمی‌دارد. شمار نتایج روی fahares.net (دامنه‌ی پیش‌فرض): `"شرح لمعه"` ۱۲۹، `"شرح لمعه" -حاشیه` ۷۳، `دیوان -حافظ` ۲٬۷۸۸، `گلستان | بوستان` ۱۵۳؛ `مجلس ۱۱۸۹` به نسخه می‌رود، `مرعشی ج ۳۳ ص ۲۹۴` و `ذریعه ج ۳ ص ۴۰۲` پاسخ مستقیم (`DirectAnswer`) دارند.
+- **`components/search-help.blade.php`:** راهنمای پیشین `search.blade.php`، با `popover` (پیش‌فرض true: پنجره‌ی شناور صفحه‌ی نتایج؛ false: پنلِ دوستونیِ زیر نمونه‌های خانه). مورد «با هم» افزوده شد.
+- **`SearchController::phraseQuotes()`:** پس از `TextNormalizer::normalize` روی عبارت جست‌وجو، `«`، `»`، `“` و `”` را `"` می‌کند. پیش از این `«شرح لمعه»` ۱۳۶ نتیجه داشت، برابر بی‌گیومه. متن نمایه‌شده دست نمی‌خورد و `DirectAnswer` همچنان عبارت خام را می‌گیرد.
+- **آزمون‌ها:** `HomePageTest` (ترتیب تازه، راهنما و نمونه‌های ثابت)، `SearchSortTest::test_persian_quotes_are_an_exact_phrase`.

@@ -25,7 +25,8 @@ class HomeController extends Controller
         $treasures = HomeItem::section('treasures')->active()->get();
         $homeCatalogers = Cataloger::whereNotNull('home_order')->orderBy('home_order')->get();
 
-        $suggestedSearches = collect($this->getSuggestedSearchesPool())->random(7)->values()->all();
+        // One example of each way of searching, drawn afresh on each visit
+        $suggestedSearches = collect($this->getSuggestedSearchesPool())->map(fn ($group) => collect($group)->random())->values()->all();
 
         $contributions = $this->contributions();
 
@@ -53,58 +54,40 @@ class HomeController extends Controller
     }
 
     /**
-     * Curated, diverse search suggestions covering classic works,
-     * smart compound queries (work + author), major thinkers, scribes, and codicological flags.
+     * The examples under the home search box (backlog item 83): each group teaches one thing the box understands, an
+     * exact phrase, a word left out, either of two, a shelfmark, a catalogue page, and one of each group is shown.
+     * Each was checked on the live site to find records.
      */
     private function getSuggestedSearchesPool(): array
     {
+        $ex = fn (string $q, string $type, string $hint) => ['label' => $q, 'hint' => $hint, 'url' => route('search', ['q' => $q, 'type' => $type], false)];
+
         return [
-            // ۱. شاهکارهای تک‌عنوان (ادبیات، حکمت، طب، ریاضیات، ادعیه، حدیث، فقه)
-            ['label' => 'شاهنامه', 'url' => route('search', ['q' => 'شاهنامه', 'type' => 'works'], false)],
-            ['label' => 'دیوان حافظ', 'url' => route('search', ['q' => 'دیوان حافظ', 'type' => 'works'], false)],
-            ['label' => 'نهج‌البلاغه', 'url' => route('search', ['q' => 'نهج‌البلاغه', 'type' => 'works'], false)],
-            ['label' => 'صحیفه سجادیه', 'url' => route('search', ['q' => 'صحیفه سجادیه', 'type' => 'works'], false)],
-            ['label' => 'ذخیره خوارزمشاهی', 'url' => route('search', ['q' => 'ذخیره خوارزمشاهی', 'type' => 'works'], false)],
-            ['label' => 'القانون فی الطب', 'url' => route('search', ['q' => 'القانون فی الطب', 'type' => 'works'], false)],
-            ['label' => 'کیمیای سعادت', 'url' => route('search', ['q' => 'کیمیای سعادت', 'type' => 'works'], false)],
-            ['label' => 'التفهیم', 'url' => route('search', ['q' => 'التفهیم', 'type' => 'works'], false)],
-            ['label' => 'تحریر اقلیدس', 'url' => route('search', ['q' => 'تحریر اقلیدس', 'type' => 'works'], false)],
-            ['label' => 'مثنوی معنوی', 'url' => route('search', ['q' => 'مثنوی معنوی', 'type' => 'works'], false)],
-            ['label' => 'گلستان', 'url' => route('search', ['q' => 'گلستان', 'type' => 'works'], false)],
-            ['label' => 'الکافی', 'url' => route('search', ['q' => 'الکافی', 'type' => 'works'], false)],
-            ['label' => 'زاد المعاد', 'url' => route('search', ['q' => 'زاد المعاد', 'type' => 'works'], false)],
-            ['label' => 'جامع التواریخ', 'url' => route('search', ['q' => 'جامع التواریخ', 'type' => 'works'], false)],
-            ['label' => 'کلیله و دمنه', 'url' => route('search', ['q' => 'کلیله و دمنه', 'type' => 'works'], false)],
-
-            // ۲. جست‌وجوهای ترکیبی هوشمند (اثر + پدیدآورنده)
-            ['label' => 'قانون ابن سینا', 'url' => route('search', ['q' => 'قانون ابن سینا', 'type' => 'works'], false)],
-            ['label' => 'شرح کافیه رضی', 'url' => route('search', ['q' => 'شرح کافیه رضی', 'type' => 'works'], false)],
-            ['label' => 'شرح نهج‌البلاغه ابن ابی‌الحدید', 'url' => route('search', ['q' => 'شرح نهج البلاغه ابن ابی الحدید', 'type' => 'works'], false)],
-            ['label' => 'اسفار ملاصدرا', 'url' => route('search', ['q' => 'اسفار ملاصدرا', 'type' => 'works'], false)],
-            ['label' => 'جامع عباسی شیخ بهایی', 'url' => route('search', ['q' => 'جامع عباسی شیخ بهایی', 'type' => 'works'], false)],
-            ['label' => 'شرح لمعه شهید ثانی', 'url' => route('search', ['q' => 'شرح لمعه شهید ثانی', 'type' => 'works'], false)],
-            ['label' => 'تجرید الاعتقاد خواجه نصیر', 'url' => route('search', ['q' => 'تجرید الاعتقاد خواجه نصیر', 'type' => 'works'], false)],
-            ['label' => 'من لایحضره الفقیه صدوق', 'url' => route('search', ['q' => 'من لایحضره الفقیه صدوق', 'type' => 'works'], false)],
-            ['label' => 'زیج الغ بیگ', 'url' => route('search', ['q' => 'زیج الغ بیگ', 'type' => 'works'], false)],
-
-            // ۳. پدیدآورندگان و اندیشمندان شاخص
-            ['label' => 'علامه حلی', 'url' => route('search', ['q' => 'علامه حلی', 'type' => 'people'], false)],
-            ['label' => 'خواجه نصیر طوسی', 'url' => route('search', ['q' => 'خواجه نصیر طوسی', 'type' => 'people'], false)],
-            ['label' => 'شیخ بهایی', 'url' => route('search', ['q' => 'شیخ بهایی', 'type' => 'people'], false)],
-            ['label' => 'ابن سینا', 'url' => route('search', ['q' => 'ابن سینا', 'type' => 'people'], false)],
-            ['label' => 'میرداماد', 'url' => route('search', ['q' => 'میرداماد', 'type' => 'people'], false)],
-            ['label' => 'ملاصدرا', 'url' => route('search', ['q' => 'ملاصدرا', 'type' => 'people'], false)],
-            ['label' => 'سهروردی', 'url' => route('search', ['q' => 'سهروردی', 'type' => 'people'], false)],
-
-            // ۴. کاتبان و خوشنویسان شهیر
-            ['label' => 'یاقوت مستعصمی', 'url' => route('search', ['q' => 'یاقوت مستعصمی', 'type' => 'manuscripts'], false)],
-            ['label' => 'میرعماد حسنی', 'url' => route('search', ['q' => 'میرعماد', 'type' => 'manuscripts'], false)],
-            ['label' => 'احمد نیریزی', 'url' => route('search', ['q' => 'احمد نیریزی', 'type' => 'manuscripts'], false)],
-
-            // ۵. ویژگی‌های کالبدی و نسخه‌شناسی
-            ['label' => 'دستخط مؤلف', 'url' => route('search', ['type' => 'manuscripts', 'flag' => 'is_autograph'], false)],
-            ['label' => 'نسخه‌های تذهیب‌دار', 'url' => route('search', ['type' => 'manuscripts', 'flag' => 'is_illuminated'], false)],
-            ['label' => 'نسخه‌های مصور', 'url' => route('search', ['type' => 'manuscripts', 'flag' => 'is_illustrated'], false)],
+            'phrase' => [
+                $ex('"شرح لمعه"', 'works', 'عبارت دقیق: واژه‌ها کنار هم و به همین ترتیب'),
+                $ex('"نهج البلاغه"', 'works', 'عبارت دقیق: واژه‌ها کنار هم و به همین ترتیب'),
+                $ex('"کشف الغمه"', 'works', 'عبارت دقیق: واژه‌ها کنار هم و به همین ترتیب'),
+            ],
+            'exclude' => [
+                $ex('دیوان -حافظ', 'works', 'بی این واژه: دیوان‌ها جز دیوان حافظ'),
+                $ex('اربعین -حدیث', 'works', 'بی این واژه: «-» پیش از واژه‌ای که نباید باشد'),
+                $ex('رساله -فقه', 'works', 'بی این واژه: «-» پیش از واژه‌ای که نباید باشد'),
+            ],
+            'either' => [
+                $ex('کافی | شافی', 'works', 'این یا آن: هر کدام از دو عبارت'),
+                $ex('گلستان | بوستان', 'works', 'این یا آن: هر کدام از دو عبارت'),
+                $ex('"شیخ بهایی" | میرداماد', 'people', 'این یا آن: هر کدام از دو نام'),
+            ],
+            'combined' => [
+                $ex('"شرح لمعه" -حاشیه', 'works', 'عبارت دقیق و بی واژه‌ی «حاشیه»، با هم'),
+            ],
+            'shelfmark' => [
+                $ex('مجلس ۱۱۸۹', 'manuscripts', 'شماره‌ی نسخه: نام کتابخانه و شماره'),
+            ],
+            'catalogue' => [
+                $ex('مرعشی ج ۳۳ ص ۲۹۴', 'manuscripts', 'صفحه‌ی فهرست: نسخه‌ای که فهرست مرعشی در این صفحه معرفی کرده'),
+                $ex('ذریعه ج ۳ ص ۴۰۲', 'works', 'صفحه‌ی الذریعه: مدخل‌های این صفحه'),
+            ],
         ];
     }
 }
