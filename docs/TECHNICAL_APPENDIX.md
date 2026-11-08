@@ -8601,3 +8601,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تراجم ۳:** طرازی، و فهرست‌های پزشکی ظاهریه و ترکیه.
   - **شامله:** حدود ۴۵ فهرست عربی.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+
+### گام ۱۴.۸۹: جلد `tabaqat`، `mosaffa`، `hadith-mss`، `tazkira`، `mushar-authors`، `kashf-hujub` و `zaydiyya`
+- **ویکی‌نور:** `https://fa.wikinoor.ir/w/images/NUR{سری}J1.jpg`، با شماره‌ی سری نور. پنج جلد از این راه آمد:
+  - `tabaqat`: ۱۴۹۲۳، دار إحیاء التراث العربی؛
+  - `mosaffa`: ۱۱۹۸۰؛
+  - `hadith-mss`: ۳۶۲۴۲، جلد اول؛
+  - `tazkira`: ۱۱۵۹۵؛
+  - `mushar-authors`: ۰۳۲۹۹، جلد اول.
+  - **اندازه:** همه JPEG با بلندی ۱۰۲۴ پیکسل.
+- **archive.org:**
+  - **`kashf-hujub`:** `20250404_20250404_1347/page/n0_w1000.jpg`. این برگ اول اسکن است و جلد چاپ مرعشی را دارد («مع مقدمة … المرعشي النجفي»).
+  - **`zaydiyya`:** برگ ۱ PDF نخست `muellefatuz-zeydiyye`. همان جلدی است که گوگل از ziydia.com نشان می‌داد.
+    - ziydia.com پاسخ «Just a moment» Cloudflare داد. از آزمون ربات گذر نشد.
+- **تبدیل:** با `save_cover.py` جلسه، همان کار `mtif_covers.py`: `thumbnail((640, 960))` و `WEBP quality=82`. نتیجه در `public/images/sources/covers/{code}.webp`.
+  - **رونوشت:** رونوشت فایل‌ها در `fahares-sources/web-covers/` است و منشأ هر کدام در `manifest.json` همان‌جا ثبت شد.
+- **۲۵ فهرست نسخه‌ی بی‌جلد (روی `fahares_prod`):**
+  - **ناشر «مؤسسه الجواد»:** محدث ارموی و دامغان فهرست دست‌نویس فنخا («ف مخ») یا ناشرشان الجواد است.
+  - **جستجو:** جستجوی تصاویر گوگل برای ۲۲ عنوان شناسه‌های noorlib داد. عنوان هیچ‌کدام با این فهرست‌ها یکی نبود. مجلس سنا در داکی‌باکس فقط تصویر جایگزین خالی (`empty-cover4.png`) داشت.
+- **وارسی:** هر هفت جلد با چشم سنجیده شد.
