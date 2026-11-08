@@ -8848,3 +8848,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_description_extras_step14_98.json` با ۴۱۱ `work_updates`. ستون‌های همراه: `bibliography` ۲۰، `incipit_text` ۱۵، `composition_place` ۹، `explicit_text` ۸.
 - **تمرین روی fahares_prod:** «update 411» و «Derived data of works: works=411, with_dedication=37». اجرای دوم «update 0». `bibliography` تازه با cast آرایه‌ای Eloquent نوشته می‌شود (`\uXXXX`). در سایت ۵۸ ارجاع از پیش چنین بودند.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۶ (main 44a87147). md5 فایل در کانتینر با شاخه برابر بود و `description` هر ۴۱۱ اثر با `from` فایل برابر بود. خروجی: «Derived data of works: works=411, with_dedication=37». ۴۱۱ ردیف audit با `description_extras`. اجرای دوم «update 0». فایل‌های موقت `/tmp` کانتینر پاک شدند.
