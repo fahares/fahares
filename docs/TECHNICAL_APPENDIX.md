@@ -8997,17 +8997,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `catalogs:link-volumes`
   2. `fahares:sync-other-citations --apply --show=0` (گام ۱۴.۱۰۵). ارجاع‌های دومِ این جلدها هم پس از ساخته شدنشان جلد می‌گیرند.
 - **مانده:** سال، صفحه و فهرست‌نگارِ ج ۵ تا ۱۱ اهدایی.
-
-### گام ۱۴.۱۰۷: `Indexing`، `RobotsHeader` و `canonical`
-- **`App\Support\Indexing`:** `PRIVATE_PATHS` (الگوهای `Request::is`) و `canonical()`: `config('app.url')` و مسیر درخواست، هر بخش با `rawurlencode(rawurldecode(...))`، بی query string.
-- **`App\Http\Middleware\RobotsHeader`:** middleware سراسری (`$middleware->append`)، نه گروه `web`، تا ریدایرکت `auth` هم سرآیند بگیرد. سرآیندی را که پاسخ خودش دارد (صفحه‌ی ۴۱۰ رکورد حذف‌شده) دست نمی‌زند.
-- **`layouts/app.blade.php`:** `<link rel="canonical">` با `@yield('canonical', Indexing::canonical())`، مگر بخش `robots` شامل `noindex` باشد.
-- **`search.blade.php`:** `@section('robots', 'noindex, follow')` وقتی `request()->query()` تهی نیست.
-- **`SitemapController`:** slug شخص از `name` (مانند `Person::getPersianSlugAttribute`)، نه `normalized_name`. نام کتابخانه‌ی نسخه با `??` (مانند `Manuscript`). نوع تازه‌ی `catalogers` با `route('catalogers.show', $c)`. `catalogers.index` در تکه‌ی static.
-- **routes:** `throttle:120,1` روی `search.api` (سربرگ با debounce ۲۰۰ میلی‌ثانیه می‌پرسد). الگوی `type` نقشه‌ی سایت `catalogers` را می‌پذیرد.
-- **آزمون‌ها:** `IndexingTest` (۷ آزمون): robots.txt، `canonical` صفحه‌ی اثر و نسخه بی پارامتر، ۳۰۱ رکورد ادغام‌شده و slug کهنه به نشانی‌ای که `canonical` همان است، `noindex` جستجو، سرآیند صفحه‌های خصوصی، برابری نشانی هر نوع نقشه‌ی سایت با `route()` رکورد، و محدودیت نرخ.
-- **سنجش کامل روی fahares_db:** works ۷۱٬۵۱۶، people ۷۴٬۴۰۲، libraries ۴۱۲، catalogers ۸۸ و manuscripts ۳۲۳٬۸۸۰ نشانی؛ هیچ‌کدام با `route()` رکورد فرق ندارد.
-- **اجرا در تولید:** هیچ. نقشه‌ی سایت دو ساعت cache دارد (`sitemap_*`) و خودش تازه می‌شود.
 - **اجرای تولید (۱۹ آبان ۱۴۰۵):**
   - **پشتیبان:** `../fahares-sources/backups/step13/step14_106_before.json.gz` (۳٫۷ مگابایت). در آن هست:
     - `catalog_volume_id` و `cataloger_id` همه‌ی ۳۲۳٬۲۴۵ نسخه؛
@@ -9020,12 +9009,58 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - **پیوند به جلدِ کتابخانه‌ای جز کتابخانه‌ی خود نسخه:** تنها یکی، 87183 «صد و شصت نسخه: - 11» به «یکصد و شصت نسخه از یک کتابخانه شخصی».
   - **کش:** `link-volumes` کش `sources:shelf` و `sources:copies:{id}` (یک روزه) را پاک نمی‌کند. صفحه‌ی منبع جلدهای تازه را بی شمار نسخه نشان می‌داد. این کش برای دو منبع با `Cache::forget` پاک شد.
 
+### گام ۱۴.۱۰۷: `Indexing`، `RobotsHeader` و `canonical`
+- **`App\Support\Indexing`:** `PRIVATE_PATHS` (الگوهای `Request::is`) و `canonical()`: `config('app.url')` و مسیر درخواست، هر بخش با `rawurlencode(rawurldecode(...))`، بی query string.
+- **`App\Http\Middleware\RobotsHeader`:** middleware سراسری (`$middleware->append`)، نه گروه `web`، تا ریدایرکت `auth` هم سرآیند بگیرد. سرآیندی را که پاسخ خودش دارد (صفحه‌ی ۴۱۰ رکورد حذف‌شده) دست نمی‌زند.
+- **`layouts/app.blade.php`:** `<link rel="canonical">` با `@yield('canonical', Indexing::canonical())`، مگر بخش `robots` شامل `noindex` باشد.
+- **`search.blade.php`:** `@section('robots', 'noindex, follow')` وقتی `request()->query()` تهی نیست.
+- **`SitemapController`:** slug شخص از `name` (مانند `Person::getPersianSlugAttribute`)، نه `normalized_name`. نام کتابخانه‌ی نسخه با `??` (مانند `Manuscript`). نوع تازه‌ی `catalogers` با `route('catalogers.show', $c)`. `catalogers.index` در تکه‌ی static.
+- **نوع `entries` نقشه‌ی سایت:** `entryQuery()`: `CHAR_LENGTH(COALESCE(text, '')) >= ENTRY_MIN_TEXT` (۱۰۰) یا `EXISTS` یک `source_entries` با `citable_type` اثر و وضع جز `rejected`. نشانی با `route('source-items.show', [code, volume_number, urlKey()])`، همانند `SourceItem::url()`. روی fahares_db: ۱۰۴٬۴۳۰ نشانی؛ از نمونه‌ی ۲٬۰۰۰ مدخل تصادفی، ۱٬۴۱۰ نشانی‌شان عیناً در نقشه بود (نسبتی برابر ۱۰۴٬۴۳۰ از ۱۴۹٬۱۶۸).
+- **routes:** `throttle:120,1` روی `search.api` (سربرگ با debounce ۲۰۰ میلی‌ثانیه می‌پرسد). الگوی `type` نقشه‌ی سایت `catalogers` را می‌پذیرد.
+- **آزمون‌ها:** `IndexingTest` (۸ آزمون): robots.txt، `canonical` صفحه‌ی اثر و نسخه بی پارامتر، ۳۰۱ رکورد ادغام‌شده و slug کهنه به نشانی‌ای که `canonical` همان است، `noindex` جستجو، سرآیند صفحه‌های خصوصی، برابری نشانی هر نوع نقشه‌ی سایت با `route()` رکورد، مدخل‌های منبع (بلند و وصل‌شده می‌آیند؛ کوتاه و پیوند ردشده نه)، و محدودیت نرخ.
+- **سنجش کامل روی fahares_db:** works ۷۱٬۵۱۶، people ۷۴٬۴۰۲، libraries ۴۱۲، catalogers ۸۸ و manuscripts ۳۲۳٬۸۸۰ نشانی؛ هیچ‌کدام با `route()` رکورد فرق ندارد.
+- **اجرا در تولید:** هیچ. نقشه‌ی سایت دو ساعت cache دارد (`sitemap_*`) و خودش تازه می‌شود.
+
 ### گام ۱۴.۱۰۸: اسلایدر زیر فهرست‌نگاران، نمونه‌های عملگری و راهنمای جست‌وجو
 - **`resources/views/home.blade.php`:** بخش اسلایدها (`$slides`) پس از بخش فهرست‌نگاران (`$homeCatalogers`) و پیش از «از گنجینه‌ها». نمونه‌ها با `data-home-examples`، متن هر نمونه همان عبارتِ تایپ‌شدنی و توضیحش در `title`.
 - **`HomeController::getSuggestedSearchesPool()`:** شش گروه (`phrase`، `exclude`، `either`، `combined`، `shelfmark`، `catalogue`). `index()` از هر گروه یکی را تصادفی برمی‌دارد. شمار نتایج روی fahares.net (دامنه‌ی پیش‌فرض): `"شرح لمعه"` ۱۲۹، `"شرح لمعه" -حاشیه` ۷۳، `دیوان -حافظ` ۲٬۷۸۸، `گلستان | بوستان` ۱۵۳؛ `مجلس ۱۱۸۹` به نسخه می‌رود، `مرعشی ج ۳۳ ص ۲۹۴` و `ذریعه ج ۳ ص ۴۰۲` پاسخ مستقیم (`DirectAnswer`) دارند.
 - **`components/search-help.blade.php`:** راهنمای پیشین `search.blade.php`، با `popover` (پیش‌فرض true: پنجره‌ی شناور صفحه‌ی نتایج؛ false: پنلِ دوستونیِ زیر نمونه‌های خانه). مورد «با هم» افزوده شد.
 - **`SearchController::phraseQuotes()`:** پس از `TextNormalizer::normalize` روی عبارت جست‌وجو، `«`، `»`، `“` و `”` را `"` می‌کند. پیش از این `«شرح لمعه»` ۱۳۶ نتیجه داشت، برابر بی‌گیومه. متن نمایه‌شده دست نمی‌خورد و `DirectAnswer` همچنان عبارت خام را می‌گیرد.
 - **آزمون‌ها:** `HomePageTest` (ترتیب تازه، راهنما و نمونه‌های ثابت)، `SearchSortTest::test_persian_quotes_are_an_exact_phrase`.
+### گام ۱۴.۱۰۹: داوری مدل برای منزوی، و تصمیم مدل برای «مبهم» در `sources:link-items` (مورد ۸۶)
+- **کد:** تصمیم `--decisions` تا امروز فقط به جای بی‌تطبیق می‌رسید. اکنون به جای `ambiguous` هم می‌رسد، یعنی وقتی چند مدخل هم‌عنوان روی صفحه است و `ItemMatcher` فقط حدس زده است. اگر شاهد در مدخل نباشد یا مدل «نیست» بگوید، همان حدس `ambiguous` (اطمینان ۳۰) برای داور می‌ماند. آزمون: `IstanbulSourcesTest::test_a_model_decision_chooses_among_entries_of_one_title`.
+- **وضع پیش از کار (پروداکشن، `link-items --near --dry-run`):** ۷٬۰۸۸ جای ارجاع. ۳۷۰ جا بی‌تطبیق بود، ۴۷۱ مبهم و ۲۹ بی‌مدخل روی صفحه. شمارهای ۳۷۵ و ۵۳۴ گام ۱۳.۶۹ پس از تغییر رشته‌های کتاب‌شناسی کهنه شده بود.
+  - **اثر اجرای دوباره بدون مدل:** در برابر ۶٬۶۶۱ پیوند موجود (`source_item_link`)، ۶٬۵۲۳ همان می‌ماند، ۱۳۸ تغییر می‌کرد و ۲۸ تازه بود. هیچ پیوندی حذف نمی‌شد و هیچ پیوندی داوری‌شده نبود.
+  - **تغییرها:** همه بهتر شدن روش است: `title_exact`←`title_author` ۵۶، `ambiguous`←`title_author` ۶۵ (۳۶ با مدخل دیگر)، و `title_only`←`title_author` ۱۵. علتش این است که مؤلف اثرها از آن پس شناخته شده است.
+  - ۴۲۶ پیوند `earlier_edition_link` همین منبع کار فرمان دیگری است و `link-items` به آن‌ها دست نمی‌زند.
+- **ورودی مدل:** مورد‌ها با `build_cases.php` روی خود پروداکشن ساخته شدند، پس شناسه‌ی ارجاع‌ها شناسه‌ی پروداکشن است.
+  - **هر مورد:** اثر (عنوان‌ها، مؤلف، سال وفات، موضوع، زبان، توضیح، «آغاز» و چند نسخه)، متن ارجاع، و مدخل‌های منزوی، هر کدام تا ۱٬۵۰۰ نویسه.
+  - **مدخل‌ها:** برای بی‌تطبیق، مدخل‌های صفحه و دو صفحه‌ی کناری. برای مبهم، فقط مدخل‌های صفحه، به‌علاوه‌ی حدس ماشین.
+  - **دستورالعمل:** `MINSTRUCTIONS.md`، ویژه‌ی منزوی: سرعنوان «*»، «آغاز:»، و نقش «آغاز» و مؤلف برای جدا کردن هم‌عنوان‌ها.
+- **آزمون ۵۰ نمونه‌ای (۲۷ مبهم، ۲۳ بی‌تطبیق):** ۴۳ پیوند و ۷ «نیست». در وارسی دستی حدود ۳۹ پیوند قطعاً درست بود و ۱ نادرست: «خلاصة النجوم» با اطمینان ۸۵، که آغازش با مدخل فرق دارد. ۳ پیوند مشکوک بود: «توحید نامه» ۸۰، «التفاحیة» ۷۰ و «الابدال» ۶۸.
+- **آستانه‌ی ۷۰ (تصمیم کاربر):** خطاها در همه‌ی بازه‌های اطمینان پراکنده بودند و آستانه‌ی بالاتر فقط پیوند درست را کم می‌کرد.
+- **اجرای کامل:** ۵۳ دسته‌ی ۱۵تایی Sonnet، روی هم ۸۴۱ مورد با آزمون.
+
+  | پاسخ | مبهم | بی‌تطبیق |
+  |---|---|---|
+  | مدخل | ۳۹۹ | ۲۴۲ |
+  | یادکرد | ۱ | ۸ |
+  | «نیست» | ۴۴ | ۱۰۶ |
+  | اطمینان زیر ۷۰ (کنار گذاشته) | ۲۷ | ۱۴ |
+
+  - هیچ کلیدی بیرون از مورد و هیچ شاهد ناموجودی نبود. ۶۵۰ تصمیم ماند.
+  - از ۲۰ نمونه‌ی تصادفی اجرای کامل، هر ۲۰ درست بود. دو تایش با یقین کمتر بود: «تاریخ انقلاب مشروطیت ایران» ← «تاریخ مشروطیت» محیط مافی، و «الهدیة الناصریة» ← «هدایت الناصریه».
+- **فایل‌ها:** `../fahares-sources/monzavi-llm/`، با `MD5SUMS`:
+  - `MINSTRUCTIONS.md`، `build_cases.php`، `mcases_all.json`؛
+  - پاسخ‌ها: `mans{0-4}.json` (آزمون) و `mout{00-52}.json`؛
+  - `mmerge.py 70`، که `mdecisions_monzavi_N.json` را می‌سازد. هر تصمیم `slug` اثر و `citation_text` را هم دارد.
+  - `mremap.php`، که شناسه‌ی ارجاع را با همین دو، در پایگاه اجرا، دوباره پیدا می‌کند و `mremapped_monzavi_N.json` می‌نویسد.
+- **تمرین روی `fahares_prod`:** remap ۶۴۸ تصمیم را با همان شناسه یافت. ۲ تصمیم یکتا نبودند، چون رشته‌ی ارجاع تکراری داشتند و کنار ماندند.
+  - **`link-items monzavi --volume=N --near --decisions=…` برای ۱۰ جلد:** ۲۷۸ پیوند تازه، ۹۸۹ به‌روز و هیچ حذفی. اجرای دوم همه را «unchanged» گزارش کرد.
+  - **پیوندهای منزوی پس از آن:** ۶٬۹۳۹، از جمله `llm` ۶۴۸ (مدخل ۶۳۹، یادکرد ۹). ۷۳ `ambiguous` ماند و ۱۲۰ جا بی‌تطبیق.
+- **دام:** هر اجرای بعدی `link-items` روی جلدهای منزوی باید با همین `--decisions` باشد، وگرنه پیوندهای `llm` پاک می‌شوند و مبهم‌ها به حدس ماشین برمی‌گردند.
+- **پروداکشن (پس از استقرار این کد):** پشتیبان، فایل‌ها به `/tmp/monzavi-llm` کانتینر، `mremap.php`، سپس برای هر جلد N، `sources:link-items monzavi --volume=N --near --decisions=/tmp/monzavi-llm/mremapped_monzavi_N.json` از راه `prod-run`. پس از آن، نمایه‌ی مدخل‌ها لازم نیست، چون `source_items` تغییر نمی‌کند.
+
 ### گام ۱۴.۱۱۰: دو نسخه‌ی «همان نسخه بالا» با ستون‌های نسخه‌ی دیگر
 - **۲۵۹۹۳۶ (اثر 55202، ج ۲۷ ص ۱۵۲، v2 `v27-321`):**
   - v2 «همان نسخه بالا» را در نسخه‌ی بالایی تا می‌کند و برایش نسخه‌ای ندارد. پس `fankha_v2_rebuild_export.py` به کار نیامد.
@@ -9051,6 +9086,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `fahares:link-copy-references --work=36358 --backup=…` و `--work=55202`: هر کدام یک `possibly_same` به نسخه‌ی بالایی (171691 و 259935). اجرای دوم: «skipped».
   - `catalogs:link-volumes` و `fahares:rebuild-scripts` چیزی برای این دو نسخه نیافتند.
 - **اجرا در تولید (به ترتیب):** همان سه فرمان. پشتیبانِ `link-copy-references` باید نام فایل باشد، نه پوشه.
+### گام ۱۴.۱۱۱: `fahares:unlink-single-name-authors`
+- **نامزدها:** شخص‌هایی که `name` فاصله و «،» ندارد و بیش از یک اثر با `works.author_id` دارند: ۵۴ شخص و ۴۲۰ اثر در `fahares_prod`. برای هر اثر `raw_text` (تا ۱٬۵۰۰ نویسه)، تاریخ تألیف، تاریخ نسخه‌ها، موضوع و زبان به مدل داده شد.
+- **داوری:** ۷ دسته‌ی Sonnet (دسته‌ها تا ۶۰ اثر). اطمینان زیر ۷۰ یعنی `unsure`. «مشکوک» برای بازبینی: `unsure`، یا هر تصمیم با اطمینان زیر ۷۵ برای شخصی با ۸ اثر یا کمتر (۵۷ اثر). داوری Claude و یادداشت دلیل هر اثر در پایگاه داده‌ی صفحه‌ی داوری (`verdicts`) است.
+- **فایل:** `database/data/single_name_authors_step14_111.json`، هر سطر `work_slug`، `person_name`، `author_name`، `judged_by` (`sonnet` یا `claude`) و `reason`. شناسه در فایل نیست، چون شناسه‌های محلی و پروداکشن فرق دارند.
+- **دستور:** [UnlinkSingleNameAuthorsCommand](../app/Console/Commands/UnlinkSingleNameAuthorsCommand.php)، `--file` و `--apply`. برای هر سطر: اثر با `slug` پیدا می‌شود. اگر `author_id` تهی است، `already`. اگر نام شخص پیوسته با `person_name` (نرمال‌شده) نمی‌خواند، `other_author`. اگر `ProtectedColumns` ستون `author_id` یا سطرهای `people` را حفظ کرده، `protected`. وگرنه سطر `work_people` (نقش author) حذف و `author_id` تهی می‌شود، `author_name` می‌ماند، و لاگ `corpus_update` با `old_values.author_id` و سطر pivot ثبت می‌شود. سپس `recountContributions` و نمایه‌ی شخص‌ها و آثار. شخص بی‌اثر فقط گزارش می‌شود، چون ریدایرکت مقصد می‌خواهد (در این فایل هیچ شخصی بی‌اثر نمی‌ماند).
+- **تمرین (`fahares_prod`):** `unlinked 33`، «۲۲ شخص، ۰ بی‌اثر». اجرای دوم: `already 33`.
+- **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
+- **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
 
 ### گام ۱۴.۱۱۴: `author_ids`، `copy_from`/`copy_to`/`copy_century` و فیلتر `catalog` بر پایه‌ی `source_entries`
 - **نمایه‌ی `manuscripts_index`:**

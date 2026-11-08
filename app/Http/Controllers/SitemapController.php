@@ -22,6 +22,12 @@ class SitemapController extends Controller
     public const CACHE_TTL = 7200;
 
     /**
+     * Characters of text below which an entry of a source is too thin to list (a bare title, a «see …» line), unless
+     * a work is tied to it (step 14.107).
+     */
+    public const ENTRY_MIN_TEXT = 100;
+
+    /**
      * Sitemap Index listing all chunks.
      */
     public function index(): Response
@@ -34,6 +40,7 @@ class SitemapController extends Controller
                 'people' => max(1, (int) ceil(DB::table('people')->count() / self::CHUNK_SIZE)),
                 'libraries' => max(1, (int) ceil(DB::table('libraries')->count() / self::CHUNK_SIZE)),
                 'catalogers' => max(1, (int) ceil(DB::table('catalogers')->count() / self::CHUNK_SIZE)),
+                'entries' => max(1, (int) ceil($this->entryQuery()->count() / self::CHUNK_SIZE)),
             ];
 
             $now = now()->toIso8601String();
@@ -118,6 +125,13 @@ class SitemapController extends Controller
 
             case 'people':
                 $urls = $this->getPeopleUrls($page, $defaultDate);
+                if (empty($urls) && $page > 1) {
+                    return null;
+                }
+                break;
+
+            case 'entries':
+                $urls = $this->getEntryUrls($page, $defaultDate);
                 if (empty($urls) && $page > 1) {
                     return null;
                 }
@@ -443,5 +457,40 @@ class SitemapController extends Controller
                 'changefreq' => 'monthly',
                 'priority' => '0.5',
             ])->all();
+    }
+
+    /**
+     * The entries of the sources worth a search engine's visit (step 14.107): those with some text of their own, or
+     * tied to a work. A printed page of a source stays out (noindex), since its text is these entries' text.
+     */
+    protected function entryQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('source_items')
+            ->where(fn ($q) => $q->whereRaw('CHAR_LENGTH(COALESCE(source_items.text, \'\')) >= ?', [self::ENTRY_MIN_TEXT])
+                ->orWhereExists(fn ($e) => $e->select(DB::raw(1))->from('source_entries')
+                    ->whereColumn('source_entries.source_item_id', 'source_items.id')
+                    ->where('source_entries.citable_type', \App\Models\Work::class)
+                    ->where('source_entries.status', '!=', \App\Models\SourceEntry::STATUS_REJECTED)));
+    }
+
+    /**
+     * Source entries chunk URLs: /sources/dharia/3/1442, built as SourceItem::url builds them.
+     */
+    protected function getEntryUrls(int $page, string $defaultDate): array
+    {
+        $rows = $this->entryQuery()
+            ->join('sources', 'sources.id', '=', 'source_items.source_id')
+            ->select('source_items.id', 'source_items.volume_number', 'source_items.item_key', 'source_items.updated_at', 'sources.code')
+            ->orderBy('source_items.id')
+            ->skip(($page - 1) * self::CHUNK_SIZE)
+            ->take(self::CHUNK_SIZE)
+            ->get();
+
+        return $rows->map(fn ($row) => [
+            'loc' => route('source-items.show', [$row->code, $row->volume_number, (new \App\Models\SourceItem(['item_key' => $row->item_key]))->urlKey()]),
+            'lastmod' => $row->updated_at ? Carbon::parse($row->updated_at)->toIso8601String() : $defaultDate,
+            'changefreq' => 'monthly',
+            'priority' => '0.5',
+        ])->all();
     }
 }
