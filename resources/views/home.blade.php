@@ -62,12 +62,15 @@
                     </div>
                 </form>
 
-                <div class="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
+                {{-- Examples that teach what the box understands: «"…"», «-», «|», a shelfmark, a catalogue page --}}
+                <div class="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-muted" data-home-examples>
                     <span>نمونه:</span>
                     @foreach($suggestedSearches as $pill)
-                        <a href="{{ $pill['url'] }}" class="text-ink border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $pill['label'] }}</a>
+                        <a href="{{ $pill['url'] }}" title="{{ $pill['hint'] }}" dir="rtl"
+                           class="px-1.5 py-0.5 bg-paper text-ink border border-line rounded-sm hover:text-cinnabar hover:border-cinnabar transition whitespace-nowrap">{{ $pill['label'] }}</a>
                     @endforeach
                 </div>
+                <x-search-help :popover="false" class="mt-2 text-center text-xs" />
             </div>
 
             <ul class="flex flex-wrap justify-center gap-y-2 pt-3 text-xs sm:text-sm text-muted tabular-nums" aria-label="آمار پایگاه">
@@ -108,7 +111,36 @@
         </div>
     </section>
 
-    {{-- Slides below the search box (admin → صفحه‌ی خانه → اسلایدها) --}}
+    {{-- Catalogers chosen in admin --}}
+    @if($homeCatalogers->isNotEmpty())
+        <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14">
+            <div class="flex items-baseline justify-between gap-3 mb-6">
+                <h2 class="rubric text-xl">{{ SiteSetting::get('home.catalogers_title') }}</h2>
+                <a href="{{ route('catalogers.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی فهرست‌نگاران</a>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
+                @foreach($homeCatalogers as $c)
+                    <a href="{{ route('catalogers.show', $c) }}" class="group grid justify-items-center gap-1.5 text-center content-start">
+                        <div class="w-full aspect-[4/5] rounded-t-full rounded-b-sm border border-gold p-1 bg-surface">
+                            <div class="w-full h-full rounded-t-full rounded-b-[2px] overflow-hidden bg-paper">
+                                @if($c->avatar_url)
+                                    <img src="{{ $c->avatar_url }}" alt="" loading="lazy" class="w-full h-full object-cover sepia-[.85] contrast-[1.05] group-hover:sepia-0 transition duration-500 motion-reduce:transition-none">
+                                @else
+                                    <span class="w-full h-full grid place-items-center font-naskh text-3xl text-muted">{{ mb_substr($c->name, 0, 1) }}</span>
+                                @endif
+                            </div>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-ink leading-snug group-hover:text-cinnabar transition">{{ $c->name }}</span>
+                        @if($c->life_years_text)
+                            <span class="text-[11px] text-muted leading-tight">{{ Fa::digits($c->life_years_text) }}</span>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- Slides (the journal's posts) below the catalogers (admin → صفحه‌ی خانه → اسلایدها) --}}
     @if($slides->isNotEmpty())
         <section class="max-w-5xl mx-auto px-4 sm:px-6 pt-14"
                  x-data="{
@@ -162,35 +194,6 @@
                         </div>
                     @endif
                 </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- Catalogers chosen in admin --}}
-    @if($homeCatalogers->isNotEmpty())
-        <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-14">
-            <div class="flex items-baseline justify-between gap-3 mb-6">
-                <h2 class="rubric text-xl">{{ SiteSetting::get('home.catalogers_title') }}</h2>
-                <a href="{{ route('catalogers.index') }}" class="text-xs sm:text-sm font-semibold text-cinnabar hover:underline whitespace-nowrap">همه‌ی فهرست‌نگاران</a>
-            </div>
-            <div class="grid grid-cols-3 sm:grid-cols-6 gap-4 sm:gap-6">
-                @foreach($homeCatalogers as $c)
-                    <a href="{{ route('catalogers.show', $c) }}" class="group grid justify-items-center gap-1.5 text-center content-start">
-                        <div class="w-full aspect-[4/5] rounded-t-full rounded-b-sm border border-gold p-1 bg-surface">
-                            <div class="w-full h-full rounded-t-full rounded-b-[2px] overflow-hidden bg-paper">
-                                @if($c->avatar_url)
-                                    <img src="{{ $c->avatar_url }}" alt="" loading="lazy" class="w-full h-full object-cover sepia-[.85] contrast-[1.05] group-hover:sepia-0 transition duration-500 motion-reduce:transition-none">
-                                @else
-                                    <span class="w-full h-full grid place-items-center font-naskh text-3xl text-muted">{{ mb_substr($c->name, 0, 1) }}</span>
-                                @endif
-                            </div>
-                        </div>
-                        <span class="text-xs sm:text-sm font-bold text-ink leading-snug group-hover:text-cinnabar transition">{{ $c->name }}</span>
-                        @if($c->life_years_text)
-                            <span class="text-[11px] text-muted leading-tight">{{ Fa::digits($c->life_years_text) }}</span>
-                        @endif
-                    </a>
-                @endforeach
             </div>
         </section>
     @endif

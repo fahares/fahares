@@ -46,4 +46,12 @@ class SearchSortTest extends TestCase
         $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works']))->assertOk()->assertSee('جست‌وجو موقتاً در دسترس نیست');
         $this->get(route('search', ['q' => 'کافی | شافی', 'type' => 'works', 'sort' => 'manuscripts']))->assertOk()->assertSee('جست‌وجو موقتاً در دسترس نیست');
     }
+
+    public function test_persian_quotes_are_an_exact_phrase(): void
+    {
+        $quotes = \App\Http\Controllers\SearchController::phraseQuotes(...);
+        $this->assertSame('"شرح لمعه" -حاشیه', $quotes('«شرح لمعه» -حاشیه'));
+        $this->assertSame('"شرح لمعه"', $quotes('“شرح لمعه”'));
+        $this->assertSame('شرح لمعه', $quotes('شرح لمعه'));
+    }
 }
