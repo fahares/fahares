@@ -288,6 +288,15 @@ return [
             'kind' => 'bibliography',
             'compiler' => 'سید احمد حسینی اشکوری',
             'edition_label' => 'قم، ۱۴۱۳ق',
+            // page images (step 14.86): the three volumes' scans on archive.org (scripts/facsimile/zaydiyya_page_mapping.json)
+            'viewer' => [
+                'catalog' => 'zaydiyya',
+                'name' => 'مؤلفات الزیدیة',
+                'first_pages' => [3 => 2],
+                'last_pages' => [
+                    1 => 504, 2 => 463, 3 => 358,
+                ],
+            ],
             'text' => [
                 'catalog' => 'zaydiyya',
                 'name' => 'مؤلفات الزیدیة',
@@ -339,6 +348,16 @@ return [
             'kind' => 'biographical',
             'compiler' => 'آقابزرگ تهرانی',
             'edition_label' => 'دار إحیاء التراث العربی، بیروت، ۱۴۳۰ق',
+            // page images (step 14.86): the seventeen volumes' scans on archive.org (scripts/facsimile/tabaqat_page_mapping.json)
+            'viewer' => [
+                'catalog' => 'tabaqat',
+                'name' => 'طبقات أعلام الشیعة',
+                'first_pages' => [11 => 488, 14 => 488, 15 => 928, 16 => 1290],
+                'last_pages' => [
+                    1 => 334, 2 => 207, 3 => 342, 4 => 209, 5 => 242, 6 => 225, 7 => 278, 8 => 648, 9 => 838, 10 => 461,
+                    11 => 834, 12 => 650, 13 => 465, 14 => 901, 15 => 1278, 16 => 1661, 17 => 608,
+                ],
+            ],
             'text' => [
                 'catalog' => 'tabaqat',
                 'name' => 'طبقات أعلام الشیعة',
@@ -363,6 +382,25 @@ return [
                     'centuries' => [4 => [1], 5 => [2], 6 => [3], 7 => [4], 8 => [5], 9 => [6], 10 => [7], 11 => [8], 12 => [9],
                         13 => [10, 11, 12], 14 => [13, 14, 15, 16, 17]],
                 ],
+            ],
+        ],
+        // Dar al-Hadith's union catalogue of the manuscripts of hadith and its sciences (twelve volumes, Qom 1382 Sh), as text
+        // from Noor (step 14.87): a work a numbered entry with its copies. Fankha writes «فهرستگان حدیث 461/1-462»,
+        // «فهرستگان نسخه‌های خطی حدیث 245/3», «فهرستگان نسخه‌های خطی حدیث و علوم حدیث شیعه 12/2» or «… ج 2، ص 12».
+        'hadith-mss' => [
+            'label' => 'فهرستگان نسخه‌های خطی حدیث و علوم حدیث شیعه',
+            'pattern' => 'فهرستگان(?: نسخه(?:\x{200C}|\s)?های)?(?: خطی)? حدیث(?:\s*و?\s*علوم حدیث شیعه)?',
+            'volumes' => 12,
+            'kind' => 'bibliography',
+            'compiler' => 'علی صدرایی خویی',
+            'publisher' => 'دار الحدیث',
+            'edition_label' => 'قم، ۱۳۸۲ش',
+            'text' => [
+                'catalog' => 'hadith-mss',
+                'name' => 'فهرستگان حدیث',
+                'last_pages' => [1 => 492, 2 => 468, 3 => 488, 4 => 536, 5 => 543, 6 => 576, 7 => 172, 8 => 657, 9 => 659, 10 => 410,
+                    11 => 597, 12 => 134],
+                'bare' => false,
             ],
         ],
         // Two books of lives, as text from Noor (item 86, step 14.20); an entry is a person, and Fankha cites the page of
@@ -462,6 +500,15 @@ return [
             'kind' => 'biographical',
             'compiler' => 'مؤسسه امام صادق (ع)',
             'edition_label' => 'قم، ۱۴۱۸ق',
+            // page images (step 14.86): the fourteen volumes' scans on archive.org (scripts/facsimile/fuqaha_page_mapping.json)
+            'viewer' => [
+                'catalog' => 'fuqaha',
+                'name' => 'موسوعة طبقات الفقهاء',
+                'last_pages' => [
+                    1 => 556, 2 => 654, 3 => 639, 4 => 508, 5 => 380, 6 => 372, 7 => 356, 8 => 271, 9 => 328, 10 => 357,
+                    11 => 461, 12 => 502, 13 => 762, 14 => 1111,
+                ],
+            ],
             'text' => [
                 'catalog' => 'fuqaha',
                 'name' => 'موسوعة طبقات الفقهاء',
