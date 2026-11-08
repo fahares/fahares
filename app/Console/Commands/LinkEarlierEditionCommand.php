@@ -104,7 +104,11 @@ class LinkEarlierEditionCommand extends Command
             ->where(fn ($q) => $q->whereNull('locations')->orWhere('locations', 'not like', '%"source_id":' . $source->id . ',%'))->orderBy('id')->get();
 
         $decisions = [];
-        foreach ($citations as $citation) {
+        foreach ($citations as $n => $citation) {
+            // a line every 50 citations: the server closes an ssh session silent for ten minutes (step 14.81's production run)
+            if ($n && $n % 50 === 0) {
+                $this->line(sprintf('  %d of %d citations read', $n, $citations->count()));
+            }
             $text = MatchCatalogEditionCommand::digits((string) $citation->citation_text);
             if (! preg_match('/' . $config['pattern'] . '/u', $text) || (isset($config['except']) && preg_match('/' . $config['except'] . '/u', $text))) {
                 continue;
