@@ -8896,3 +8896,33 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs tabaqat'`، که فقط ردیف تازه در `source_page_links` می‌سازد و ارجاعی از طبقات پیش‌تر در آن نیست.
   2. `scripts/dev/prod-run <session> -- 'php artisan tinker database/data/citation_forms_step14_103.php'`.
 
+### گام ۱۴.۱۰۴: `works:link-related` و نوع `related`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - **نمایه:** `key()` = `MatchCatalogEditionCommand::norm(TextNormalizer::normalize())`، بی برچسب پرانتزیِ پایانی. `authorKey()` = نام نرمال‌شده بی فاصله و «،». نمایه‌ی عنوان ← اثر ← پدیدآور از `clean_title`، `primary_title` و `alternative_titles` همه‌ی آثار ساخته می‌شود.
+  - **`match()`:** نامزدها اثرهای هم‌عنوان‌اند، جز خود اثر. فقط یک نامزد با `authorKey` برابر پذیرفته است.
+  - **کنار ماندن:** اگر عنوان اثر فرعی با یکی از عنوان‌های اثر اصلی برابر باشد (و اثر ترجمه نباشد)، جفت کنار می‌ماند. عنوان‌های اثر اصلی، در سوی `related`، عنوان‌های مدخل را هم دارند.
+  - **نوع:**
+    - `work_form = translation` → `translation`؛
+    - `parseTitle(child)` که `Titles::agree(base, عنوانی از اصلی)` → همان نوع؛
+    - مدخل `children` بی واژه‌ی آغازین ولی با برچسب پرانتزی → نوع برچسب؛
+    - بقیه → `related`.
+  - **`pairs()`:** هر جفت یک بار ثبت می‌شود، و نوع روشن بر `related` پیشی دارد. جفتی که به هر دو جهت آمده (۲ جفت) کنار می‌رود.
+  - **`linkedEntries()` و `html()`:** برای صفحه‌ی اثر. مدخلی پیوند می‌گیرد که یکی از کلیدهای عنوانش در کلیدهای یکی از اثرهای `work_relations` آن اثر، در همان جهت، باشد. نخستین عنوان مدخل با `mb_strpos` در متن خام لینک می‌شود.
+- **[LinkRelatedWorksCommand](../app/Console/Commands/LinkRelatedWorksCommand.php):**
+  - گزینه‌ها: `--dry-run`، `--sample`، `--per-kind`، `--no-index` و `--unmatched=file.tsv`.
+  - ردیف‌های `source = auto` با کلید `child>parent>type` همگام می‌شوند: آنچه نیست افزوده و آنچه دیگر داده نمی‌شود حذف می‌شود.
+  - جفتی که ردیفی با `source` دیگر (به هر جهت و هر نوع) دارد، کنار می‌ماند.
+  - اثرهای فرعیِ تغییرکرده با `searchable()` دسته‌های ۵۰۰تایی دوباره نمایه می‌شوند.
+- **[RecordRelations::WORK_TYPES](../app/Suggestions/RecordRelations.php):** `related` با برچسب‌های «وابسته است به» و «آثار وابسته».
+- **[Work::baseTitles](../app/Models/Work.php):** عنوان‌های `baseWorks` (اگر باشند)، سپس `parseTitle` عنوان‌ها و مدخل‌های `related_work`، با حذف تکرار نرمال‌شده. آزمون `test_a_relation_in_work_relations_comes_before_the_text_which_stays` در `WorkBaseTitlesTest` به این ترتیب تغییر کرد.
+- **[works/show](../resources/views/works/show.blade.php):** `$textLinks` در `@php` بالای صفحه ساخته می‌شود، و `WorkRelationLinker::html()` جای `{{ $work->related_work }}` و `Fa::digits($comm)` را می‌گیرد.
+- **تمرین روی fahares_prod:**
+  - dry run: «9570 relations: 9570 to add»، با related ۵٬۲۷۲، commentary ۲٬۰۰۹، gloss ۱٬۲۰۱، translation ۸۲۶، abridgment ۱۴۰، supplement ۷۴، versification ۳۰ و refutation ۱۸.
+  - اجرا: «Saved: 9570 added» و «Indexed 8245 works again» (۱۰ ثانیه، `SCOUT_DRIVER=null`). اجرای دوم: «0 to add, 0 to remove, 9570 kept».
+  - صفحه‌ی #40024 «شرح شجرة الامانی» پیوند «وابسته به» دارد، و #55964 «اللمعة» ۵۴ پیوند در فهرست شروح.
+- **فهرست پیوندنخورده‌ها:** `--unmatched` ۸٬۱۹۲ مدخل داد، در یادداشت‌های مشترک جلسه (`item6-unmatched-step14_104.tsv`).
+- **آزمون:** [LinkRelatedWorksTest](../tests/Feature/LinkRelatedWorksTest.php).
+- **اجرا در تولید، پس از استقرار:**
+  1. پشتیبان `work_relations` (جدول کوچک).
+  2. `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`، که حدود ۹٬۶۰۰ ردیف می‌افزاید و حدود ۸٬۲۰۰ اثر را دوباره نمایه می‌کند.
+

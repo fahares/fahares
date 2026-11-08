@@ -25,6 +25,9 @@ class RecordRelations
         'supplement' => ['تکمله یا ذیلی است بر', 'تکمله‌ها و ذیل‌ها'],
         'refutation' => ['ردیه یا نقدی است بر', 'ردیه‌ها و نقدها'],
         'part' => ['بخش یا جلدی است از', 'بخش‌ها و مجلدها'],
+        // Fankha's «وابسته به» of a kind not told (step 14.104, backlog item 6): a commentary on a commentary of the work, or
+        // a title that names no kind
+        'related' => ['وابسته است به', 'آثار وابسته'],
     ];
 
     public const MANUSCRIPT_TYPES = [

@@ -57,6 +57,8 @@
 
     @php
         use App\Support\Fa;
+        // the related works recorded as text that work_relations links (step 14.104)
+        $textLinks = \App\Support\WorkRelationLinker::linkedEntries($work);
         // the record's sources (steps 13.2 and 13.4), all alike in the order of their rank; its Fankha entry gives the
         // addendum chip and the Fankha citation format
         $sources = $work->sources();
@@ -228,7 +230,8 @@
                     </x-ui.meta>
                     <x-ui.meta label="اهدا / به درخواست" field="dedication" :empty="empty($work->dedication)">{{ $work->dedication }}</x-ui.meta>
                     <x-ui.meta label="محل تألیف" field="composition_place" :empty="empty($work->composition_place)">{{ $work->composition_place }}</x-ui.meta>
-                    <x-ui.meta label="وابسته به" field="related_work" :empty="empty($work->related_work)">{{ $work->related_work }}</x-ui.meta>
+                    {{-- an entry linked to its work by work_relations is a link to it, Fankha's words kept (step 14.104) --}}
+                    <x-ui.meta label="وابسته به" field="related_work" :empty="empty($work->related_work)">{{ \App\Support\WorkRelationLinker::html((string) $work->related_work, $textLinks['related']) }}</x-ui.meta>
                 </x-ui.meta-list>
             </x-ui.section>
 
@@ -297,7 +300,7 @@
                         @foreach($work->commentaries_and_glosses as $comm)
                             <li class="flex gap-2.5 leading-relaxed" @if($loop->index >= 12) x-show="all" x-cloak @endif>
                                 <span class="mt-2.5 w-1.5 h-1.5 shrink-0 rotate-45 bg-gold" aria-hidden="true"></span>
-                                <span class="text-ink">{{ Fa::digits($comm) }}</span>
+                                <span class="text-ink">{{ \App\Support\WorkRelationLinker::html((string) $comm, $textLinks['children'][$loop->index] ?? []) }}</span>
                             </li>
                         @endforeach
                         @if(count($work->commentaries_and_glosses) > 12)
