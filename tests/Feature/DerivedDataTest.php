@@ -290,12 +290,33 @@ class DerivedDataTest extends TestCase
         $a3 = $copy('7101');
         $a4 = $copy('ض7101', [30, 40]);
         $a5 = $copy('ض 7101', [41, 50]);
-        // ...but not overlapping leaves, a work twice without ranges of its own, or nothing that shows a volume
+        // ...but not leaves that show two volumes (pages of another size, two spans that both begin the volume and cross),
+        // one copy described twice, or nothing that shows a volume
         $b1 = $copy('7102', [1, 50]);
-        $b2 = $copy('7102', [10, 20]);
+        $b2 = $copy('7102', [10, 20], '17×25');
+        $b3 = $copy('7106', [1, 30]);
+        $b4 = $copy('7106', [2, 40]);
         $twice = $this->work();
         $c1 = $copy('7103', [5, 9], work: $twice);
         $c2 = $copy('7103', work: $twice);
+        // Overlapping leaves of one size are one volume: a text inside another's span (step 14.90)
+        $e1 = $copy('7107', [1, 50]);
+        $e2 = $copy('7107', [10, 20]);
+        // One work twice: two copies merge-catalogue-twins keeps apart, or the volume's own entry beside its part
+        $apart = $this->work();
+        $f1 = $copy('7108', [5, 9], work: $apart);
+        $f2 = $copy('7108', work: $apart);
+        DB::table('manuscripts')->where('id', $f1)->update(['folios' => 5]);
+        DB::table('manuscripts')->where('id', $f2)->update(['folios' => 40]);
+        $whole = $this->work();
+        $copy('7109/1', [3, 9], work: $whole);
+        $f3 = $copy('7109', work: $whole);
+        // ...but a copy of another century beside a part of its work is another book under that number
+        $other = $this->work();
+        $part = $copy('7110/1', [3, 9], work: $other);
+        $g1 = $copy('7110', work: $other);
+        DB::table('manuscripts')->where('id', $part)->update(['copy_date_from' => 1229, 'copy_date_to' => 1229]);
+        DB::table('manuscripts')->where('id', $g1)->update(['copy_date_from' => 1001, 'copy_date_to' => 1100]);
         $d1 = $copy('7104');
         $d2 = $copy('7104');
         // A run of numbers of one size whose leaves go on; a copy of that size with no range inside it joins, one of another size does not
@@ -313,7 +334,7 @@ class DerivedDataTest extends TestCase
         $v2 = $copy('7402', [11, 20], '14×21');
         $v3 = $copy('7404', [1, 30], '14×21');
         // Two «n/m» parts are one volume already: their own overlap (a margin text) or one work in two parts does not
-        // keep the plain copy out (step 14.85); the plain copy's own overlap with a part still does
+        // keep the plain copy out (step 14.85), nor does its own overlap with a part on pages of one size (step 14.90)
         $copy('7501/1', [1, 30]);
         $copy('7501/2', [10, 20]);
         $k1 = $copy('7501', [31, 40]);
@@ -328,11 +349,12 @@ class DerivedDataTest extends TestCase
         $this->assertNull($key($a1));
         $this->artisan('fahares:link-plain-volumes', ['--apply' => true])->assertSuccessful();
         $this->assertSame(['7101', '7101', '7101', 'ض 7101', 'ض 7101'], array_map($key, [$a1, $a2, $a3, $a4, $a5]));
-        $this->assertSame([null, null, null, null, null, null], array_map($key, [$b1, $b2, $c1, $c2, $d1, $d2]));
+        $this->assertSame([null, null, null, null, null, null, null, null], array_map($key, [$b1, $b2, $b3, $b4, $c1, $c2, $d1, $d2]));
+        $this->assertSame(['7107', '7107', '7108', '7108', '7109', null], array_map($key, [$e1, $e2, $f1, $f2, $f3, $g1]));
         $this->assertSame(['7201–7207', '7201–7207', '7201–7207', null, '7201–7207'], array_map($key, [$r1, $r2, $r3, $r4, $r5]));
         $this->assertSame([null, null, null], array_map($key, [$u1, $u2, $u3]));
         $this->assertSame(['7401–7402', '7401–7402', null], array_map($key, [$v1, $v2, $v3]));
-        $this->assertSame(['7501', '7502', null], array_map($key, [$k1, $k2, $k3]));
+        $this->assertSame(['7501', '7502', '7503'], array_map($key, [$k1, $k2, $k3]));
         // A second run finds nothing to change (a numeric key is compared as the string it is stored as)
         $ours = [$a1, $a2, $a3, $a4, $a5, $r1, $r2, $r3, $r5, $v1, $v2];
         DB::enableQueryLog();

@@ -35,6 +35,9 @@ class LinkPlainVolumesCommand extends Command
 
     protected $description = 'Link the treatises of a bound volume whose shelfmarks have no part number';
 
+    /** What fahares:merge-catalogue-twins's apart() finds that shows two books under one number */
+    private const TWO_BOOKS = ['other-date', 'other-size', 'other-format', 'other-scribe', 'facsimile'];
+
     /** The most numbers apart two treatises of one run may be. */
     private const RUN_GAP = 5;
 
@@ -49,7 +52,7 @@ class LinkPlainVolumesCommand extends Command
         // every copy with a plain shelfmark, and the ranges of the copies already keyed by a «n/m» shelfmark
         $plain = [];
         $keyed = [];
-        DB::table('manuscripts')->select(['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key', 'work_id', 'range_from_number', 'range_to_number'])
+        DB::table('manuscripts')->select(['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'collection_key', 'work_id', 'range_from_number', 'range_to_number', 'dimensions'])
             ->orderBy('id')->chunkById(5000, function ($rows) use (&$plain, &$keyed) {
                 foreach ($rows as $row) {
                     $lib = $row->library_id ?? (trim((string) $row->library) !== '' ? 'n:' . trim($row->library) : null);
@@ -57,9 +60,10 @@ class LinkPlainVolumesCommand extends Command
                         continue;
                     }
                     $range = $row->range_from_number !== null ? [(int) $row->range_from_number, (int) ($row->range_to_number ?? $row->range_from_number)] : null;
+                    $sides = $range ? MergeCatalogueTwinsCommand::size($row->dimensions ?: $row->raw_text) : null;
                     $derived = Manuscript::collectionKeyOf($row->shelfmark, $row->raw_text);
                     if ($derived !== null) {
-                        $keyed[$lib][$derived][] = ['id' => $row->id, 'work' => $row->work_id, 'range' => $range, 'keyed' => true];
+                        $keyed[$lib][$derived][] = ['id' => $row->id, 'work' => $row->work_id, 'range' => $range, 'sides' => $sides, 'keyed' => true];
 
                         continue;
                     }
@@ -67,7 +71,7 @@ class LinkPlainVolumesCommand extends Command
                     if ($key === null && $row->collection_key === null) {
                         continue;
                     }
-                    $plain[$row->id] = ['id' => $row->id, 'lib' => $lib, 'key' => $key, 'work' => $row->work_id, 'range' => $range, 'keyed' => false,
+                    $plain[$row->id] = ['id' => $row->id, 'lib' => $lib, 'key' => $key, 'work' => $row->work_id, 'range' => $range, 'sides' => $sides, 'keyed' => false,
                         'number' => Manuscript::citesOnlySenate($row->raw_text) ? null : Manuscript::plainNumber($row->shelfmark),
                         'size' => self::size($row->raw_text), 'shelfmark' => $row->shelfmark, 'stored' => $row->collection_key];
                 }
@@ -80,6 +84,22 @@ class LinkPlainVolumesCommand extends Command
                 $groups[$copy['lib']][$copy['key']][] = $copy['id'];
             }
         }
+
+        // whether two copies of one work keep their number from being one volume, by fahares:merge-catalogue-twins's
+        // test, read only for the few such pairs
+        $features = [];
+        $blocks = function (array $a, array $b) use (&$features): bool {
+            if ($need = array_diff([$a['id'], $b['id']], array_keys($features))) {
+                foreach (DB::table('manuscripts')->whereIn('id', $need)->get(MergeCatalogueTwinsCommand::COLUMNS) as $row) {
+                    $features[$row->id] = MergeCatalogueTwinsCommand::features($row);
+                }
+            }
+
+            $why = MergeCatalogueTwinsCommand::apart($features[$a['id']], $features[$b['id']]);
+
+            // a plain copy no different from a part is that part again, or the volume's own entry: in the volume either way
+            return $why === null ? ! $a['keyed'] && ! $b['keyed'] : in_array($why, self::TWO_BOOKS, true);
+        };
 
         // one number shared
         $alone = [];
@@ -94,7 +114,7 @@ class LinkPlainVolumesCommand extends Command
 
                     continue;
                 }
-                $verdict = self::sharedVolume(array_merge($members, $others));
+                $verdict = self::sharedVolume(array_merge($members, $others), $blocks);
                 $this->count("shared:{$verdict}", count($members));
                 if ($verdict === 'linked') {
                     $this->counts['shared:volumes'] = ($this->counts['shared:volumes'] ?? 0) + 1;
@@ -172,12 +192,20 @@ class LinkPlainVolumesCommand extends Command
 
     /**
      * Whether copies sharing a plain number are one bound volume: 'linked', or why not ('overlap': two ranges share
-     * leaves, so the copies are two volumes or one copy described twice; 'repeated-work': a work comes twice without
-     * its own ranges; 'no-evidence': nothing shows a bound volume). Two copies keyed by their «n/m» shelfmarks are one
-     * volume already, so what lies between those two (one work in two parts, a text in the other's margin) does not
-     * count (step 14.85).
+     * leaves in a way that shows two volumes; 'repeated-work': one copy described twice; 'no-evidence': nothing shows a
+     * bound volume). Two copies keyed by their «n/m» shelfmarks are one volume already, so what lies between those two
+     * (one work in two parts, a text in the other's margin) does not count (step 14.85).
+     *
+     * Leaves that overlap within one number are mostly one volume (step 14.90): a short text inside a جنگ's span, a
+     * text in the margin, the leaf two texts share, the whole volume beside its first part («924» 1–214 and «924/1»
+     * 1–76), one text under two titles. Two volumes show it otherwise: pages of other sizes («ض 1» 1–7 at 10×15 and
+     * 1–181 at 17×25), or two spans that both begin the volume and cross. A work twice ($blocks, by
+     * fahares:merge-catalogue-twins's test) counts where two plain copies are one copy described twice, or two copies are two books: of
+     * another date, size, format or scribe («14239» of the 11th century beside «14239/1» of 1229). Other leaves, another
+     * leaf count or another text do not count: the volume's own entry beside its part («8344» beside 8344/1–6, «14515»
+     * of 94 leaves beside its parts to leaf 95), or two treatises of one title, are one volume.
      */
-    private static function sharedVolume(array $copies): string
+    private static function sharedVolume(array $copies, ?callable $blocks = null): string
     {
         $copies = array_values($copies);
         $pairs = [];
@@ -192,13 +220,19 @@ class LinkPlainVolumesCommand extends Command
             if ($a['range'] && $b['range']) {
                 [$first, $second] = $a['range'] <= $b['range'] ? [$a['range'], $b['range']] : [$b['range'], $a['range']];
                 // «1پ–27» and «27پ–93» share leaf 27, a leaf each half of
-                if ($second[0] < $first[1]) {
+                if ($second[0] >= $first[1]) {
+                    continue;
+                }
+                $otherSize = $a['sides'] && $b['sides'] && (abs($a['sides'][0] - $b['sides'][0]) > MergeCatalogueTwinsCommand::MAX_SIZE_GAP
+                    || abs($a['sides'][1] - $b['sides'][1]) > MergeCatalogueTwinsCommand::MAX_SIZE_GAP);
+                $within = $second[1] <= $first[1] || ($first[0] === $second[0]);
+                if ($otherSize || ($first[0] <= 2 && $second[0] <= 2 && ! $within)) {
                     return 'overlap';
                 }
             }
         }
         foreach ($pairs as [$a, $b]) {
-            if ($a['work'] === $b['work'] && (! $a['range'] || ! $b['range'])) {
+            if ($a['work'] === $b['work'] && (! $a['range'] || ! $b['range']) && ($blocks === null || $blocks($a, $b))) {
                 return 'repeated-work';
             }
         }

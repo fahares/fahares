@@ -8685,3 +8685,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **ناشر «مؤسسه الجواد»:** محدث ارموی و دامغان فهرست دست‌نویس فنخا («ف مخ») یا ناشرشان الجواد است.
   - **جستجو:** جستجوی تصاویر گوگل برای ۲۲ عنوان شناسه‌های noorlib داد. عنوان هیچ‌کدام با این فهرست‌ها یکی نبود. مجلس سنا در داکی‌باکس فقط تصویر جایگزین خالی (`empty-cover4.png`) داشت.
 - **وارسی:** هر هفت جلد با چشم سنجیده شد.
+
+### گام ۱۴.۹۰: `link-plain-volumes`، برگ‌های روی هم و اثر تکراری
+- **[LinkPlainVolumesCommand.php](../app/Console/Commands/LinkPlainVolumesCommand.php):**
+  - هر نسخه‌ی بازه‌دار `sides` دارد: `MergeCatalogueTwinsCommand::size(dimensions ?: raw_text)`. ستون `dimensions` به select افزوده شد.
+  - **`overlap`:** جفتی (نه هر دو «n/m») که برگ‌هایش روی هم می‌افتد، فقط وقتی مانع است که یکی از این دو باشد:
+    - اختلاف یکی از دو ضلع بیش از `MAX_SIZE_GAP` (۱٫۵)
+    - هر دو `from` ≤ ۲ و هیچ‌کدام دیگری را در بر نگیرد (`second.to <= first.to` یا `from` یکسان)
+  - **`repeated-work`:** جفتِ هم‌اثر که یکی بی‌بازه است، از راه `$blocks` داوری می‌شود. این تابع ستون‌های `MergeCatalogueTwinsCommand::COLUMNS` را فقط برای همین جفت‌ها می‌خواند و `apart()` را صدا می‌زند:
+    - `null`: مانع است اگر هر دو ساده باشند.
+    - یکی از `TWO_BOOKS` (`other-date`، `other-size`، `other-format`، `other-scribe`، `facsimile`): مانع است.
+    - باقی (`other-folios`، `other-leaves`، `other-text`، `other-lines`): مانع نیست.
+  - `sharedVolume(array $copies, ?callable $blocks)`: بدون `$blocks` همان رفتار پیشین را دارد.
+- **[MergeCatalogueTwinsCommand.php](../app/Console/Commands/MergeCatalogueTwinsCommand.php):** `features(object $row)` و `COLUMNS` از `handle()` بیرون آمدند و عمومی شدند.
+- **سنجش روی `fahares_prod`:** نخست `merge-catalogue-twins --apply` اجرا شد (۳۲۶ ادغام) تا با پروداکشن هم‌سو شود. سپس اجرای آزمایشی `link-plain-volumes` این‌ها را داد: `shared:overlap` ۴۳۶ → ۳۰، `shared:repeated-work` ۵۵۰ → ۳۰۰، `shared:linked` ۴٬۵۵۲ → ۴٬۹۵۵ و `shared:no-evidence` ۲۰٬۱۶۷ → ۲۰٬۴۲۰.
+  - ۱۲۴ گروهِ از پیش بسته پیوند گرفتند: ۶۵ «روی هم» و ۵۹ «اثر تکراری».
+  - عددهای پیش از این گام از اجرای پروداکشن گام ۱۴.۸۵ هستند.
+  - گروه‌ها از دامپ فقط‌خواندنی پروداکشن (`rw2.json`، بیرون از مخزن) خوانده شدند.
+- **آزمون:** `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume`:
+  - **مانع:** 7102 (اندازه‌ی دیگر)، 7106 (دو آغاز متقاطع)، 7103 (یک نسخه، دو بار)، 7110 (سده‌ی دیگر)
+  - **پیوند:** 7107 (تودرتو)، 7108 (شمار برگ دیگر)، 7109 (کل و جزء)، 7503 (روی هم با جزء، یک اندازه)
+- **پروداکشن، پس از انتشار:** پشتیبان `id, collection_key`، سپس `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply --show=0`. انتظار: حدود ۴۰۰ `set`.

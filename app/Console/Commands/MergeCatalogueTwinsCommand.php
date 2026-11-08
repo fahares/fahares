@@ -44,6 +44,10 @@ class MergeCatalogueTwinsCommand extends Command
 
     protected $description = 'Merge the two descriptions of one copy that Fankha gives from two catalogues of its library';
 
+    /** The columns features() reads */
+    public const COLUMNS = ['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'work_id', 'range_from_number', 'range_to_number', 'folios', 'lines', 'dimensions',
+        'scribe_name', 'copy_date_from', 'copy_date_to', 'explicit_text', 'is_facsimile', 'metadata'];
+
     /** The most leaves two descriptions of one copy may differ by */
     public const MAX_FOLIO_GAP = 2;
 
@@ -83,8 +87,7 @@ class MergeCatalogueTwinsCommand extends Command
         $library = $this->option('library');
         DB::table('manuscripts')->whereNotNull('work_id')->whereNotNull('shelfmark')
             ->when($library !== null, fn ($q) => ctype_digit((string) $library) ? $q->where('library_id', (int) $library) : $q->where('library', $library))
-            ->select(['id', 'library_id', 'library', 'shelfmark', 'raw_text', 'work_id', 'range_from_number', 'range_to_number', 'folios', 'lines', 'dimensions', 'scribe_name',
-                'copy_date_from', 'copy_date_to', 'explicit_text', 'is_facsimile', 'metadata'])
+            ->select(self::COLUMNS)
             ->orderBy('id')->chunkById(5000, function ($rows) use (&$groups) {
                 foreach ($rows as $row) {
                     $lib = $row->library_id ?? (trim((string) $row->library) !== '' ? 'n:' . trim($row->library) : null);
@@ -94,20 +97,7 @@ class MergeCatalogueTwinsCommand extends Command
                     if ($key === null || str_contains($row->shelfmark, 'بدون شماره') || preg_match('/همان\s+نسخه/u', (string) $row->raw_text)) {
                         continue;
                     }
-                    $citation = (string) (json_decode((string) $row->metadata, true)['catalog_citation'] ?? '');
-                    $groups["{$lib}|{$key}|{$row->work_id}"][] = [
-                        'id' => (int) $row->id, 'shelfmark' => $row->shelfmark, 'citation' => $citation,
-                        'range' => $row->range_from_number !== null ? [(int) $row->range_from_number, (int) ($row->range_to_number ?? $row->range_from_number)] : null,
-                        'folios' => $row->folios !== null ? (int) $row->folios : null,
-                        'lines' => $row->lines !== null ? (int) $row->lines : null,
-                        'years' => $row->copy_date_from !== null ? [(int) $row->copy_date_from, (int) ($row->copy_date_to ?? $row->copy_date_from)] : null,
-                        'explicit' => self::words($row->explicit_text),
-                        'size' => self::size($row->dimensions ?: $row->raw_text),
-                        'format' => self::format($row->raw_text),
-                        'scribe' => self::names($row->scribe_name),
-                        'facsimile' => (bool) $row->is_facsimile,
-                        'length' => mb_strlen((string) $row->raw_text),
-                    ];
+                    $groups["{$lib}|{$key}|{$row->work_id}"][] = self::features($row);
                 }
             });
         $groups = array_filter($groups, fn ($g) => count($g) > 1);
@@ -179,6 +169,25 @@ class MergeCatalogueTwinsCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /** What apart() compares, from a manuscripts row with COLUMNS */
+    public static function features(object $row): array
+    {
+        return [
+            'id' => (int) $row->id, 'shelfmark' => $row->shelfmark,
+            'citation' => (string) (json_decode((string) $row->metadata, true)['catalog_citation'] ?? ''),
+            'range' => $row->range_from_number !== null ? [(int) $row->range_from_number, (int) ($row->range_to_number ?? $row->range_from_number)] : null,
+            'folios' => $row->folios !== null ? (int) $row->folios : null,
+            'lines' => $row->lines !== null ? (int) $row->lines : null,
+            'years' => $row->copy_date_from !== null ? [(int) $row->copy_date_from, (int) ($row->copy_date_to ?? $row->copy_date_from)] : null,
+            'explicit' => self::words($row->explicit_text),
+            'size' => self::size($row->dimensions ?: $row->raw_text),
+            'format' => self::format($row->raw_text),
+            'scribe' => self::names($row->scribe_name),
+            'facsimile' => (bool) $row->is_facsimile,
+            'length' => mb_strlen((string) $row->raw_text),
+        ];
     }
 
     /** Why two descriptions are two copies, or null when nothing shows it */
