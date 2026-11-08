@@ -306,6 +306,19 @@ class NoorReferenceBooksTest extends TestCase
         $this->assertSame(['246#1', SourceEntry::ROLE_MENTION], [$tie->sourceItem->item_key, $tie->role]);
     }
 
+    public function test_the_sources_with_scans_open_the_page_viewer_and_keep_their_text()
+    {
+        // step 14.86: archive.org's scans of Tabaqat al-Fuqaha, Mu'allafat al-Zaydiyya and Tabaqat A'lam al-Shi'a
+        $link = fn (string $s) => collect(BibliographyLinks::segments($s))->first(fn ($seg) => isset($seg['cite']));
+        $this->assertSame(['catalog' => 'zaydiyya', 'catalogName' => 'مؤلفات الزیدیة', 'volume' => 1, 'page' => 245], $link('مؤلفات الزيدية 245/1')['viewer']);
+        $this->assertSame(['catalog' => 'fuqaha', 'catalogName' => 'موسوعة طبقات الفقهاء', 'volume' => 14, 'page' => 700], $link('موسوعة طبقات الفقهاء 700/14')['viewer']);
+        // past the volume's last page, nothing: the scans hold every page that has a text
+        $this->assertNull($link('مؤلفات الزيدية 380/3'));
+        foreach (['tabaqat', 'fuqaha', 'zaydiyya'] as $code) {
+            $this->assertArrayHasKey('text', config("bibliography.sources.{$code}"), "{$code} keeps its page texts");
+        }
+    }
+
     private function volume(string $code, string $name, int $number, string $kind = Source::KIND_BIBLIOGRAPHY): SourceVolume
     {
         $source = Source::create(['code' => $code, 'kind' => $kind, 'rank' => Source::KIND_RANKS[$kind], 'title' => $name, 'short_name' => $name,

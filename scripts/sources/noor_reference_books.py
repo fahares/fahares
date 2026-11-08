@@ -74,6 +74,10 @@ SOURCES = {
     # step 14.81: Aqa Bozorg's «طبقات أعلام الشيعة» (aqabozorg.db, Beirut 1430 AH, seventeen volumes, a century each
     # but the 13th in three and the 14th in five), which keeps the old printing's pages; a life by ENTRY_RULE
     'tabaqat': ('14923', range(1, 18), {3, 4}, set(), {1, 2, 3}, False, False, True, False),
+    # step 14.87: Dar al-Hadith's «فهرستگان نسخه‌های خطی حدیث و علوم حدیث شیعه» (darolhadith.db, Qom 1382 Sh, twelve
+    # volumes), a work a numbered heading at level 3 or 4, «95. الوجيزة في علم دراية الحديث (منظومه)», its copies under it;
+    # a letter, «[چ]», unnumbered at level 3, ends the entry before it
+    'hadith-mss': ('36242', range(1, 13), {3, 4}, set(), {1, 2, 3}, True, False, True, True),
 }
 
 # sources whose letters' headings may stand at an entry's level; elsewhere a one-letter heading may be an entry's

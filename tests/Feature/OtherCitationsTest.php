@@ -106,4 +106,19 @@ class OtherCitationsTest extends TestCase
         $this->assertSame($this->own->id, (int) $wrong->fresh()->catalog_volume_id);
         $this->assertSame($this->own->id, SourceEntry::where('legacy_type', 'fankha_citation')->where('legacy_id', $wrong->id)->value('source_volume_id'));
     }
+
+    /** Step 14.88: «اهدائی رهبر: 660-3» is page 660 of volume 3, taken only where that page lies in the volume's pages. */
+    public function test_a_place_written_page_first_goes_to_its_volume_when_the_page_fits()
+    {
+        $this->copy('[اهدائی رهبر: 3-650]', $this->gift);
+        $this->copy('[اهدائی رهبر: 3-690]', $this->gift);
+        $this->copy('[ف: 21-1000]', $this->own);
+        $reversed = $this->copy('[اهدائی رهبر: 660-3] و [ف: 21-1380]', $this->own);
+        $outside = $this->copy('[اهدائی رهبر: 900-3] و [ف: 21-1381]', $this->own);
+
+        $entry = $this->others($reversed)[0];
+        $this->assertSame($this->gift->id, $entry->source_volume_id);
+        $this->assertSame([3, 660], [$entry->volume_number, $entry->page_start]);
+        $this->assertNull($this->others($outside)[0]->source_volume_id);
+    }
 }
