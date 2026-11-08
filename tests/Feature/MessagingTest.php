@@ -157,6 +157,32 @@ class MessagingTest extends TestCase
         $this->assertTrue($thread->fresh()->acceptsReplies());
     }
 
+    public function test_the_answer_form_is_under_the_letters_of_a_pending_suggestion(): void
+    {
+        Notification::fake();
+        $editor = $this->user('editor');
+        $submitter = $this->user();
+        $s = $this->suggestion($submitter);
+
+        // No letters yet: the question is asked only from the decision panel
+        $this->actingAs($editor)->get(route('admin.suggestions.show', $s))->assertOk()
+            ->assertDontSee('id="reply-body"', false)->assertSee('id="ask-body"', false);
+
+        $this->ask($editor, $s);
+        $thread = MessageThread::sole();
+        $this->actingAs($submitter)->post(route('my.messages.reply', $thread), ['body' => 'نسخه‌ی دیگری هم دارم.']);
+
+        // Once the submitter answers, the reviewer writes back right under the letters (step 14.96)
+        $this->travel(1)->minutes();
+        $this->actingAs($editor)->get(route('admin.suggestions.show', $s))->assertOk()
+            ->assertSeeInOrder(['نسخه‌ی دیگری هم دارم.', 'id="reply-body"', 'فرستادن پاسخ'], false);
+        $this->actingAs($editor)->post(route('admin.suggestions.ask', $s), ['body' => 'لطفاً شماره‌ی نسخه را بفرستید.'])
+            ->assertRedirect(route('admin.suggestions.show', $s) . '#conversation');
+        $this->assertSame(1, MessageThread::count());
+        $this->assertSame(2, $thread->messages()->where('is_staff', true)->count());
+        $this->assertNotNull($s->fresh()->awaiting_reply_since);
+    }
+
     public function test_the_conversation_card_shows_for_notes_and_feedback_too(): void
     {
         Notification::fake();
@@ -328,6 +354,11 @@ class MessagingTest extends TestCase
         $this->assertSame("یک\nدو", ReplyText::extract("یک\n> نقل\nدو"));
         // Gmail's header line in a right-to-left reply, wrapped in direction marks
         $this->assertSame("سلام.\nپاسخ تستی ارسال شد.\nموفق باشید.", ReplyText::extract("سلام.\nپاسخ تستی ارسال شد.\nموفق باشید.\n\n\u{202A}On Wed, Oct 28, 2026 at 9:51 PM \u{202B}فهارس\u{202C}\u{200E} <noreply@fahares.net> wrote:\u{202C}\n"));
+        // Gmail breaks a long header line before the address (step 14.96)
+        $this->assertSame("نسخه‌ی دوم را هم دیده‌ام.", ReplyText::extract("نسخه‌ی دوم را هم دیده‌ام.\n\nOn Sat, Nov 7, 2026 at 11:54 AM Fattemeh Hajizadeh <\nfattemeh.hajizadeh@gmail.com> wrote:\n\n> درخواست\n"));
+        $this->assertSame("یک", ReplyText::extract("یک\n\u{202A}در تاریخ شنبه ۱۷ آبان ۱۴۰۵، فهارس\n<noreply@fahares.net> نوشت:\n"));
+        // A line that only starts like a header is kept when no «wrote:» follows
+        $this->assertSame("On page 5 the date is clear.\nThanks.", ReplyText::extract("On page 5 the date is clear.\nThanks."));
     }
 
     public function test_the_persian_name_request_is_a_direct_message_from_its_template(): void

@@ -20,8 +20,11 @@
         <p class="text-xs text-muted">هنوز پیامی رد و بدل نشده است. پرسش از پیشنهاددهنده در پنل تصمیم است.</p>
     @endif
 
-    {{-- While the suggestion waits, the question is asked from the decision panel (step 14.72) --}}
-    @unless($pending)
-        @include('admin.suggestions.partials.ask-form')
-    @endunless
+    {{-- The first question is asked from the decision panel (step 14.72); once letters are here, the answer is
+         written right under them (step 14.96), and after the decision a letter --}}
+    @if($thread || ! $pending)
+        <div @class(['pt-3 border-t border-line' => $thread])>
+            @include('admin.suggestions.partials.ask-form', ['reply' => (bool) $thread])
+        </div>
+    @endif
 </x-ui.card>
