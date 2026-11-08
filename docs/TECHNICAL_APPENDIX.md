@@ -8541,18 +8541,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `fahares:rebuild-scripts`
 - **اجرا در تولید (۱۷ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود و slug ‎-v5-1792 آزاد بود. خروجی: «Adding 1 works … 14 moved, 1 made». `rebuild-scripts` یک نسخه در گام ۱ داشت. اثر تازه در تولید شناسه‌ی 71840 دارد (در نسخه‌ی محلی 71721).
 
-### گام ۱۴.۸۸: ارجاع وارونه در `SourceEntrySync::syncOtherCited`
-- **شرط:**
-  - `volumeOf()` برای «سری|جلد» چیزی نیافت.
-  - کتابخانه اصلاً کلید «سری|جلد» ندارد.
-  - برای کلید «سری|صفحه»، دقیقاً یک جلد هست که «جلد»ِ ارجاع در بازه‌ی صفحه‌های دیده‌شده‌ی آن (`[min, max]` صفحه‌ی ارجاع‌های اصلی) می‌افتد. این شرط برای یک نامزدِ تنها هم برقرار است.
-  - اگر شرط برقرار باشد، `volume_number` و `page_start` جابه‌جا نوشته می‌شوند.
-- **آزمون:** `OtherCitationsTest::test_a_place_written_page_first_goes_to_its_volume_when_the_page_fits`. آزمون این را هم می‌سنجد که «900-3»، بیرون از بازه، بی‌جلد می‌ماند. ارجاع اصلی کروشه‌ی **آخر** است.
-- **مجلس «ف|24»:** سه جلد 643، 644 و 428 (بخش‌های ۱/۲۴، ۲/۲۴ و ۳/۲۴) با بازه‌های هم‌پوشان ۳–۵۶۷، ۹–۸۷۰ و ۳–۱۲۸. `volumeOf` درست بی‌جلد می‌گذارد.
-- **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply`: «Written: 2412 entries, 2094 at a volume» (پیش از این 2079).
-  - اجرای نخست به «Lock wait timeout» بر `source_entries` خورد، از فرایند دیگری روی پایگاه محلی. اجرای دوم گذشت.
-- **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
-
 ### گام ۱۴.۸۵: `fahares:merge-catalogue-twins` و جزءهای «n/m» در `link-plain-volumes`
 - **[LinkPlainVolumesCommand.php](../app/Console/Commands/LinkPlainVolumesCommand.php):** هر نسخه نشان `keyed` دارد: true برای نسخه‌ای که `collectionKeyOf` دارد، false برای نسخه‌ی شماره‌ساده. `sharedVolume()` جفت‌ها را دوبه‌دو می‌سنجد و جفتی را که هر دو `keyed` باشند کنار می‌گذارد، هم در `overlap` و هم در `repeated-work`. شرط `linked` (دو بازه، یا یک بازه با `from > 2`) همان است.
 - **[MergeCatalogueTwinsCommand.php](../app/Console/Commands/MergeCatalogueTwinsCommand.php):**
@@ -8643,6 +8631,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تراجم ۳:** طرازی، و فهرست‌های پزشکی ظاهریه و ترکیه.
   - **شامله:** حدود ۴۵ فهرست عربی.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+
+### گام ۱۴.۸۸: ارجاع وارونه در `SourceEntrySync::syncOtherCited`
+- **شرط:**
+  - `volumeOf()` برای «سری|جلد» چیزی نیافت.
+  - کتابخانه اصلاً کلید «سری|جلد» ندارد.
+  - برای کلید «سری|صفحه»، دقیقاً یک جلد هست که «جلد»ِ ارجاع در بازه‌ی صفحه‌های دیده‌شده‌ی آن (`[min, max]` صفحه‌ی ارجاع‌های اصلی) می‌افتد. این شرط برای یک نامزدِ تنها هم برقرار است.
+  - اگر شرط برقرار باشد، `volume_number` و `page_start` جابه‌جا نوشته می‌شوند.
+- **آزمون:** `OtherCitationsTest::test_a_place_written_page_first_goes_to_its_volume_when_the_page_fits`. آزمون این را هم می‌سنجد که «900-3»، بیرون از بازه، بی‌جلد می‌ماند. ارجاع اصلی کروشه‌ی **آخر** است.
+- **مجلس «ف|24»:** سه جلد 643، 644 و 428 (بخش‌های ۱/۲۴، ۲/۲۴ و ۳/۲۴) با بازه‌های هم‌پوشان ۳–۵۶۷، ۹–۸۷۰ و ۳–۱۲۸. `volumeOf` درست بی‌جلد می‌گذارد.
+- **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply`: «Written: 2412 entries, 2094 at a volume» (پیش از این 2079).
+  - اجرای نخست به «Lock wait timeout» بر `source_entries` خورد، از فرایند دیگری روی پایگاه محلی. اجرای دوم گذشت.
+- **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
 
 ### گام ۱۴.۸۹: جلد `tabaqat`، `mosaffa`، `hadith-mss`، `tazkira`، `mushar-authors`، `kashf-hujub` و `zaydiyya`
 - **ویکی‌نور:** `https://fa.wikinoor.ir/w/images/NUR{سری}J1.jpg`، با شماره‌ی سری نور. پنج جلد از این راه آمد:
