@@ -1,0 +1,237 @@
+{
+ "step": "14.111",
+ "note": "Works whose single-word author name was linked to a person of the same name only; the link is removed and the name stays as text (backlog item 87, decision 1). Keyed by work slug and person name, since local and production ids differ.",
+ "unlinks": [
+  {
+   "work_slug": "adiye-v2-1344",
+   "person_name": "رضا",
+   "author_name": "رضا",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فنخا جامع را «رضا از مردمان قرن ۱۴ق» می‌خواند؛ رکورد ق۱۳."
+  },
+  {
+   "work_slug": "akkasi-v22-2018",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 80): اهدا به ناصرالدین شاه؛ عکاسی؛ «چاکر خانه‌زاد ... احمد»"
+  },
+  {
+   "work_slug": "asiyat-u-asiyat-i-lawami-il-asrar-fi-s-i-matali-il-anwar-v11-1104",
+   "person_name": "فیاض",
+   "author_name": "فیاض",
+   "judged_by": "claude",
+   "reason": "داوری Claude: حاشیه‌ی فیاض بر حاشیه‌ی لوامع، نسخه ق۱۲؛ شاید فیاض لاهیجی (ق۱۱). چیزی آن را به فیاض استرآبادی ق۹ نمی‌پیوندد."
+  },
+  {
+   "work_slug": "d-e-abd-ol-vahhab-v15-1184",
+   "person_name": "عبدالوهاب",
+   "author_name": "عبدالوهاب",
+   "judged_by": "claude",
+   "reason": "داوری Claude: دیوان بی‌متن با نسخه‌ی ق۱۴؛ پیوندی با منشی ق۱۱ نیست."
+  },
+  {
+   "work_slug": "d-e-ahmad-v14-2696",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فنخا «احمد، ق۱۳»؛ رکورد ق۱۴."
+  },
+  {
+   "work_slug": "d-e-lotfi-v15-1552",
+   "person_name": "لطفی",
+   "author_name": "لطفی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: دیوان بی‌متن؛ لطفی شاعر مشهور (چغتایی، ق۹) دیگری است و این می‌تواند از او باشد."
+  },
+  {
+   "work_slug": "d-e-vaez-v15-2120",
+   "person_name": "واعظ",
+   "author_name": "واعظ",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 75): نسخه «قرن 11 و 12» پیش از قرن ۱۳"
+  },
+  {
+   "work_slug": "d-e-vafai-v15-2164",
+   "person_name": "وفائی",
+   "author_name": "وفائی",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 78): نسخه دیوان «قرن 9 و 10» پیش از قرن ۱۳"
+  },
+  {
+   "work_slug": "dibace-ye-s-e-qaside-ye-farsiye-v14-2514",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فنخا «احمد، ق۱۳»؛ رکورد ق۱۴."
+  },
+  {
+   "work_slug": "divan-e-azad-v14-2589",
+   "person_name": "آزاد",
+   "author_name": "آزاد",
+   "judged_by": "claude",
+   "reason": "داوری Claude: چاپ «اشعار آزاد» دهلی ۱۹۵۷؛ احتمالاً آزاد هندی، نه سراینده‌ی مشرب عشاق ۱۲۳۵."
+  },
+  {
+   "work_slug": "hadis-e-tareq-v12-1380",
+   "person_name": "بخارایی",
+   "author_name": "بخارایی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: حدیث بی‌متن؛ پیوندی با منجم بخارایی ۷۴۷ نیست."
+  },
+  {
+   "work_slug": "ittihad-ul-ilm-wa-l-malum-v1-954",
+   "person_name": "عبدالباقی",
+   "author_name": "عبدالباقی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: نسخه‌ی ۱۱۸۵ق پیش از سده‌ی ۱۳ رکورد است؛ منطق عربی بی پیوند."
+  },
+  {
+   "work_slug": "jong-v10-1193",
+   "person_name": "ذوالفقار",
+   "author_name": "ذوالفقار",
+   "judged_by": "claude",
+   "reason": "داوری Claude: ذوالفقار در جنگ ۱۳۳۲ «حرره» یعنی نویسنده‌ی یادداشت است، در محفل فاضل بهبهانی؛ پیوندی با مأمور اردوی روس نیست."
+  },
+  {
+   "work_slug": "k-e-aqq-morr-v25-1937",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فنخا «احمد، ق۱۳»؛ رکورد ق۱۴."
+  },
+  {
+   "work_slug": "madayeh-e-atabak-e-azam-v28-1488",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "claude",
+   "reason": "داوری Claude: قصیده‌سرای مدح اتابک؛ چیزی آن را به نویسنده‌ی اکمل المراسلات نمی‌پیوندد."
+  },
+  {
+   "work_slug": "makatib-e-vale-v31-855",
+   "person_name": "واله",
+   "author_name": "واله",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 80): «ادیبان روزگار فتحعلی شاه (1212-1250ق)»؛ ق13"
+  },
+  {
+   "work_slug": "manzume-v32-173",
+   "person_name": "عبدالعلی",
+   "author_name": "عبدالعلی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: منظومه‌ی بی‌متن؛ هیچ پیوندی با مترجم ادعیه‌ی اصفهانی ندارد."
+  },
+  {
+   "work_slug": "marefa-tul-awalim-v30-938",
+   "person_name": "اصفهانی",
+   "author_name": "اصفهانی",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 95): «اصفهانی، میرزا مهدی 1303-1365ق»؛ سدهٔ 14"
+  },
+  {
+   "work_slug": "meskat-e-xas-va-am-v29-1187",
+   "person_name": "عبدالباری",
+   "author_name": "عبدالباری",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 78): تألیف 1260ق، دو قرن بعد"
+  },
+  {
+   "work_slug": "name-ha-v32-1562",
+   "person_name": "پناهی",
+   "author_name": "پناهی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: نامه‌های نثر، نسخه ق۱۱؛ الذریعه دو پناهی دیگر در ق۱۰ می‌شناسد."
+  },
+  {
+   "work_slug": "nasiat-v33-1070",
+   "person_name": "سلیمان",
+   "author_name": "سلیمان",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فقط نام و عنوان؛ شاهدی نیست."
+  },
+  {
+   "work_slug": "nasihat-name-v33-1110",
+   "person_name": "باقر",
+   "author_name": "باقر",
+   "judged_by": "claude",
+   "reason": "داوری Claude: وصیت‌نامه‌ی نثر؛ چیزی آن را به شاعر «مجموعة الادیان» (تخلص باقر، ۱۱۲۱) نمی‌پیوندد."
+  },
+  {
+   "work_slug": "natijat-ol-fatava-v33-133",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 95): زبان ترکی، اهدا به سلطان سلیم عثمانی؛ فقه حنفی"
+  },
+  {
+   "work_slug": "pasox-be-pasox-e-aqa-ye-jahandar-ozv-e-hezb-e-tude-ye-iran-v6-771",
+   "person_name": "آزاد",
+   "author_name": "آزاد",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 95): پاسخ به آقای جهاندار عضو حزب توده؛ سدهٔ 20"
+  },
+  {
+   "work_slug": "qazaya-ye-manzum-v25-802",
+   "person_name": "يحیی",
+   "author_name": "یحیی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: ناظم شاگرد «برهان الدین» است؛ ربطی به مترجم دارالفنون ندارد."
+  },
+  {
+   "work_slug": "s-e-dastur-e-moamma-ye-neysaburi-v19-1412",
+   "person_name": "نعیمی",
+   "author_name": "نعیمی",
+   "judged_by": "sonnet",
+   "reason": "داوری مدل (اطمینان 78): «نعیمی، ق 11»؛ شرح دستور معمای حسینی نیشابوری (د. 904)"
+  },
+  {
+   "work_slug": "s-e-maxzan-ol-asrar-v20-1246",
+   "person_name": "واله",
+   "author_name": "واله",
+   "judged_by": "claude",
+   "reason": "داوری Claude: شرح مخزن الاسرار، دوره نامعلوم؛ پیوندی با سراینده‌ی اساس الایمان نیست."
+  },
+  {
+   "work_slug": "s-u-muqaddamat-il-qamus-v20-1454",
+   "person_name": "سلیمان",
+   "author_name": "سلیمان",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فقط نام؛ لغت عربی، بی پیوند با تفسیر ۱۱۰۷."
+  },
+  {
+   "work_slug": "s-ur-r-il-wujudiyya-v19-1843",
+   "person_name": "اسدالله",
+   "author_name": "اسدالله",
+   "judged_by": "claude",
+   "reason": "داوری Claude: خود فنخا می‌گوید «اسدالله» احتمالاً نام شارح نیست و صفت «الوصی» است."
+  },
+  {
+   "work_slug": "taliqat-un-ala-l-bahjat-ul-mariyya-v8-1205",
+   "person_name": "يحیی",
+   "author_name": "يحیی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: تعلیقه‌ی نحوی عربی؛ ربطی به یحیی‌خان مترجم دارالفنون ندارد."
+  },
+  {
+   "work_slug": "tanbih-ul-gafilin-v9-613",
+   "person_name": "احمد",
+   "author_name": "احمد",
+   "judged_by": "claude",
+   "reason": "داوری Claude: فنخا «احمد، ق۱۳» آورده، رکورد ق۱۴ است."
+  },
+  {
+   "work_slug": "taqrirat-ul-fiqh-wa-l-usul-v8-2411",
+   "person_name": "علیرضا",
+   "author_name": "علیرضا",
+   "judged_by": "claude",
+   "reason": "داوری Claude: تقریرات اصول متأخر (علم اجمالی، توصلی و تعبدی) با نسخه‌ی ق۱۴؛ با رکورد ق۱۲ نمی‌خواند."
+  },
+  {
+   "work_slug": "tohfat-os-sohada-v7-766",
+   "person_name": "اصفهانی",
+   "author_name": "اصفهانی",
+   "judged_by": "claude",
+   "reason": "داوری Claude: «اصفهانی» فقط نسبت است؛ هیچ پیوندی با رساله‌ی ۱۲۳۱ جز هم‌دوره بودن نیست."
+  }
+ ]
+}

@@ -9008,3 +9008,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - **ارجاع‌های دوم در جلدهای تازه:** ۷۲۹: ۲، ۷۳۱: ۲، ۷۳۲: ۱، ۷۳۴: ۴.
     - **پیوند به جلدِ کتابخانه‌ای جز کتابخانه‌ی خود نسخه:** تنها یکی، 87183 «صد و شصت نسخه: - 11» به «یکصد و شصت نسخه از یک کتابخانه شخصی».
   - **کش:** `link-volumes` کش `sources:shelf` و `sources:copies:{id}` (یک روزه) را پاک نمی‌کند. صفحه‌ی منبع جلدهای تازه را بی شمار نسخه نشان می‌داد. این کش برای دو منبع با `Cache::forget` پاک شد.
+
+### گام ۱۴.۱۱۱: `fahares:unlink-single-name-authors`
+- **نامزدها:** شخص‌هایی که `name` فاصله و «،» ندارد و بیش از یک اثر با `works.author_id` دارند: ۵۴ شخص و ۴۲۰ اثر در `fahares_prod`. برای هر اثر `raw_text` (تا ۱٬۵۰۰ نویسه)، تاریخ تألیف، تاریخ نسخه‌ها، موضوع و زبان به مدل داده شد.
+- **داوری:** ۷ دسته‌ی Sonnet (دسته‌ها تا ۶۰ اثر). اطمینان زیر ۷۰ یعنی `unsure`. «مشکوک» برای بازبینی: `unsure`، یا هر تصمیم با اطمینان زیر ۷۵ برای شخصی با ۸ اثر یا کمتر (۵۷ اثر). داوری Claude و یادداشت دلیل هر اثر در پایگاه داده‌ی صفحه‌ی داوری (`verdicts`) است.
+- **فایل:** `database/data/single_name_authors_step14_111.json`، هر سطر `work_slug`، `person_name`، `author_name`، `judged_by` (`sonnet` یا `claude`) و `reason`. شناسه در فایل نیست، چون شناسه‌های محلی و پروداکشن فرق دارند.
+- **دستور:** [UnlinkSingleNameAuthorsCommand](../app/Console/Commands/UnlinkSingleNameAuthorsCommand.php)، `--file` و `--apply`. برای هر سطر: اثر با `slug` پیدا می‌شود. اگر `author_id` تهی است، `already`. اگر نام شخص پیوسته با `person_name` (نرمال‌شده) نمی‌خواند، `other_author`. اگر `ProtectedColumns` ستون `author_id` یا سطرهای `people` را حفظ کرده، `protected`. وگرنه سطر `work_people` (نقش author) حذف و `author_id` تهی می‌شود، `author_name` می‌ماند، و لاگ `corpus_update` با `old_values.author_id` و سطر pivot ثبت می‌شود. سپس `recountContributions` و نمایه‌ی شخص‌ها و آثار. شخص بی‌اثر فقط گزارش می‌شود، چون ریدایرکت مقصد می‌خواهد (در این فایل هیچ شخصی بی‌اثر نمی‌ماند).
+- **تمرین (`fahares_prod`):** `unlinked 33`، «۲۲ شخص، ۰ بی‌اثر». اجرای دوم: `already 33`.
+- **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
+- **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
+
