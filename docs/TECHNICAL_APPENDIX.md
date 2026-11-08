@@ -8892,3 +8892,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خلاصه‌ی هفتگی:** [`notifications:unreviewed-data`](../app/Console/Commands/SendUnreviewedDataReminderCommand.php) با `--days=7`. دو صف بر پایه‌ی `SourceEntry::awaitingReview()`: `citable_type = Manuscript` (`admin.catalog-references.index`) و `citable_type = Work` با `source_item_id` (`admin.source-links.index`). صف خالی کنار می‌رود و اگر هر دو خالی باشند، چیزی فرستاده نمی‌شود. زمان‌بندی در `routes/console.php`: شنبه ۸:۱۵ تهران.
 - **پیکربندی:** دو نوع در `config/notifications.php`. `suggestion.record_merged` با `roles: ['*']`، و `review.unreviewed_data` با `permission: catalog_refs.review`. پیش‌فرض هر دو `database` و `mail`.
 - **آزمون:** `tests/Feature/Notifications/MergeAndUnreviewedNoticesTest.php` (ادغام اثر، ادغام شخص، خلاصه‌ی هفتگی).
+
+### گام ۱۴.۹۹: فیلتر نسخه‌های صفحه‌ی اثر
+- **`App\Support\WorkCopyFilters`:** پارامترهای `library` (شناسه)، `city`، `century` (۱ تا ۱۵)، `script` (شناسه)، `autograph=1`، `dated`، `scribe` و `facsimile` (`0` یا `1`). مقدار نادرست کنار گذاشته می‌شود.
+- **دامنه:** نسخه‌های اثر، منهای نسخه‌هایی که زیر نسخه‌ی دیگر نشان داده می‌شوند (`CopyLinks::linkedIds()`، گام ۱۴.۱۶).
+- **شرط‌ها:**
+  - `century`: سده‌ی `COALESCE(copy_date_from, copy_date_hijri_year)`، وقتی `copy_date_to` در همان سده باشد. بازه‌ی دوسده‌ای در هیچ سده نمی‌آید، مثل `Insights`.
+  - `dated`: `copy_date_raw` خالی نباشد، همان چیزی که جدول «نامشخص» نشانش نمی‌دهد.
+  - `scribe`: `scribe_name` خالی نباشد یا `is_autograph`.
+  - `script`: نیم‌پیوند روی `manuscript_script`.
+- **`options()`:** برای هر فیلتر، شمارش گروهی زیر همه‌ی فیلترهای دیگر جز خودش (شمارش «فاصله‌دار»). مقدار انتخاب‌شده‌ای که زیر فیلترهای دیگر صفر شود، با شمار ۰ می‌ماند. برای هر پرچم دو شمارش ساده است. در کل نزدیک ده پرس‌وجوی کوچک روی `work_id`.
+- **`WorkController::show`:** فیلترها پیش از مرتب‌سازی روی `$work->manuscripts()` اعمال می‌شوند. جعبه وقتی نمایش داده می‌شود که نسخه‌های فهرست بیش از `MIN_COPIES` (۱۰) باشند یا فیلتری انتخاب شده باشد. `withQueryString()` فیلترها را در صفحه‌بندی نگه می‌دارد. «بازنشانی ترتیب» اکنون فیلترها را نگه می‌دارد.
+- **نما:** `works/partials/copy-filters.blade.php`، یک `<details>` با فرم GET. هر `select` با تغییر فرم را می‌فرستد. پیش از فرستادن، `select` خالی غیرفعال می‌شود تا در نشانی نیاید، و `pageshow` دوباره فعالش می‌کند. Alpine در عرض ۶۴۰ پیکسل و بیشتر آن را باز می‌کند.
+- **آزمون‌ها:** `tests/Feature/WorkCopyFiltersTest.php` (۶ آزمون): گزینه‌ها و شمارها، فیلتر کتابخانه و شمارهای دیگر، ترکیب با هم و با مرتب‌سازی، نتیجه‌ی خالی و مقدار نادرست، صفحه‌بندی، اثر کم‌نسخه و عکسی پیوندخورده.
+- **پایگاه داده‌ی محلی:** `fahares_db` محلی هیچ `copy_date_from` پری ندارد، پس در پیش‌نمایش محلی نسخه‌های «قرن N» در سده نیامدند. در پروداکشن این ستون در ۲۴۲٬۸۴۱ نسخه پر است (۱۸ آبان، گام ۱۳.۸۲). آزمون، بازه را از قلاب `saving` مدل می‌گیرد.
