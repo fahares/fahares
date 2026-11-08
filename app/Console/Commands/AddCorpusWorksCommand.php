@@ -62,7 +62,7 @@ class AddCorpusWorksCommand extends Command
 
     private const UPDATE_COLUMNS = ['primary_title', 'clean_title', 'author_name', 'raw_text', 'description', 'bibliography', 'transliteration',
         'composition_date_raw', 'composition_place', 'incipit_text', 'explicit_text', 'alternative_titles', 'print_info',
-        'dedication', 'related_work'];
+        'dedication', 'related_work', 'subject_summary', 'language_summary'];
 
     private PersonNameMatcher $matcher;
 
@@ -273,19 +273,24 @@ class AddCorpusWorksCommand extends Command
                 $this->warn("{$w['v2']}: {$r['role']} {$r['name']}: {$e->getMessage()}");
             }
         }
+        $this->attachTerms($work, $w);
+
+        return $work;
+    }
+
+    /** The subjects and languages a decision names, linked by name; a name the site lacks stays in the summary only. */
+    private function attachTerms(Work $work, array $w): void
+    {
         foreach (['subjects' => ['subjects', 'subject_work', 'subject_id'], 'languages' => ['languages', 'language_work', 'language_id']] as $field => [$table, $pivot, $column]) {
             foreach ($w[$field] ?? [] as $name) {
                 $id = DB::table($table)->where('name', $name)->value('id');
-                if ($id) {
-                    DB::table($pivot)->insertOrIgnore([$column => $id, 'work_id' => $work->id]);
-                    DB::table($table)->where('id', $id)->increment('works_count');
-                } else {
+                if (! $id) {
                     $this->warn("{$w['v2']}: {$field} «{$name}» not on the site; kept in the summary only");
+                } elseif (DB::table($pivot)->insertOrIgnore([$column => $id, 'work_id' => $work->id])) {
+                    DB::table($table)->where('id', $id)->increment('works_count');
                 }
             }
         }
-
-        return $work;
     }
 
     /** @return int[] the copies placed */
@@ -364,7 +369,10 @@ class AddCorpusWorksCommand extends Command
             $new['author_id'] = $this->person($u['author'] ?? null)?->id;
         }
         $work->update($new);
-        $this->log(Work::class, $work->id, 'corpus_update', $old, $new + ['corpus_fix' => $note, 'category' => $this->category, 'v2' => $u['v2']]);
+        // a head a page tag split (step 14.112) gives the subjects and languages its summary names
+        $this->attachTerms($work, $u);
+        $terms = array_filter(['subjects' => $u['subjects'] ?? null, 'languages' => $u['languages'] ?? null]);
+        $this->log(Work::class, $work->id, 'corpus_update', $old, $new + $terms + ['corpus_fix' => $note, 'category' => $this->category, 'v2' => $u['v2']]);
     }
 
     /** The person a name confidently is (PersonNameMatcher), else null and the name stays text. */
