@@ -60,6 +60,7 @@
                         <p><b>این یا آن</b> با خط عمودی: <code dir="rtl">کافی | شافی</code></p>
                         <p><b>شماره‌ی نسخه:</b> <code dir="rtl">مجلس ۱۱۸۹</code>؛ <b>صفحه‌ی فهرست:</b> <code dir="rtl">مرعشی ج ۳۳ ص ۲۹۴</code>، <code dir="rtl">ذریعه ج ۳ ص ۴۰۲</code></p>
                         <p><b>فقط یک فیلد</b> (کاتب، پدیدآور، آغاز و انجام…): از «جست‌وجوی عبارت در».</p>
+                        <p><b>چند فیلد با هم</b> (کاتب «محمد» و محل کتابت «اصفهان»): از «جست‌وجو در چند فیلد با هم».</p>
                         <p class="text-muted">ارقام فارسی و لاتین، «ي/ی» و «ك/ک»، و «ال» یکسان شمرده می‌شوند.</p>
                     </div>
                 </details>
@@ -92,6 +93,30 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Words searched each in its own field, all together with the words above (backlog item 83, step 14.100) --}}
+            @if($fieldScopes = \App\Http\Controllers\SearchController::FIELD_SCOPES[$type] ?? [])
+                @php $fieldTerms = $filters->get('fields') ?? []; @endphp
+                <details class="text-xs" @if($fieldTerms) open @endif>
+                    <summary class="cursor-pointer text-cinnabar hover:underline w-fit">جست‌وجو در چند فیلد با هم</summary>
+                    <div class="mt-3 space-y-3">
+                        <p class="text-muted">هر عبارت فقط در فیلد خودش جست‌وجو می‌شود و نتیجه‌ها باید همه را داشته باشند، با عبارت جعبه‌ی بالا (اگر باشد).</p>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            @foreach($fieldScopes as $fieldKey => [$fieldLabel])
+                                <label class="flex flex-col gap-1">
+                                    <span class="font-bold text-muted">{{ $fieldLabel }}</span>
+                                    <input type="text" name="f[{{ $fieldKey }}]" value="{{ $fieldTerms[$fieldKey] ?? '' }}" maxlength="100"
+                                        class="py-1.5 px-2 rounded-sm border border-line-strong bg-paper text-ink text-sm focus:border-cinnabar">
+                                </label>
+                            @endforeach
+                        </div>
+                        <button type="submit" class="px-4 py-1.5 bg-cinnabar hover:opacity-90 text-on-cinnabar font-semibold rounded-sm">جست‌وجو</button>
+                    </div>
+                </details>
+                @foreach($filters->broadFields() as $broadLabel)
+                    <p class="text-xs text-amber-700 dark:text-amber-300">عبارت «{{ $broadLabel }}» بیش از {{ Fa::num(\App\Support\FieldTerms::CAP) }} نتیجه دارد و فقط {{ Fa::num(\App\Support\FieldTerms::CAP) }} نتیجه‌ی نخستش به کار رفت؛ عبارت دقیق‌تری بنویسید.</p>
+                @endforeach
+            @endif
 
             <!-- Active filters, each with a way to remove it (App\Support\SearchFilters::active) -->
             @if($chips = $filters->active())

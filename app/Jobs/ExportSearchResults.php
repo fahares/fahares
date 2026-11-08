@@ -46,6 +46,8 @@ class ExportSearchResults implements ShouldQueue
             return;
         }
         MemoryLimit::raiseTo('256M');
+        // A worker runs many exports: the ids of the field words are looked up afresh for each
+        \App\Support\FieldTerms::flush();
 
         $request = Request::create('/search', 'GET', $this->params);
         $request->setUserResolver(fn () => $user);
