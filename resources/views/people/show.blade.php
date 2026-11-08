@@ -227,6 +227,9 @@
                 </x-ui.section>
             @endif
 
+            <!-- LIVES: his own life in the books of lives, tied from his works (step 14.83) -->
+            <x-source.lives :person="$person" />
+
             <!-- MENTIONS: where the sources' texts name this person, the reverse of their links to him (step 13.136) -->
             <x-source.mentions :mentions="\App\Support\SourceMentions::of($person)" title="یادکرد در منابع"
                 note="این یادکردها را ماشین از روی نام و سال درگذشت یافته است، و ممکن است خطا داشته باشد." />

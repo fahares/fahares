@@ -71,17 +71,30 @@ SOURCES = {
     # at level 4 among its parts' headings (5-7); Aqa Bozorg's «مصفى المقال» (aqabozorg.db), an author at level 2
     'tazkira': ('11595', range(1, 3), {4}, set(), {1, 2, 3}, True, False, False, False),
     'mosaffa': ('11980', range(1, 2), {2}, set(), {1, 3}, False, False, False, False),
+    # step 14.81: Aqa Bozorg's «طبقات أعلام الشيعة» (aqabozorg.db, Beirut 1430 AH, seventeen volumes, a century each
+    # but the 13th in three and the 14th in five), which keeps the old printing's pages; a life by ENTRY_RULE
+    'tabaqat': ('14923', range(1, 18), {3, 4}, set(), {1, 2, 3}, False, False, True, False),
 }
 
 # sources whose letters' headings may stand at an entry's level; elsewhere a one-letter heading may be an entry's
 # («ب», Sarkis's) or a word cut from one («ص», A'yan's), and those already on the site keep their entries
 LETTERS = {'mushar-authors'}
 
+# A source whose lives stand at another level in some volumes: Tabaqat's first two volumes head a life at level 4 (level 3
+# is their introduction's sections and letters); the others at level 3, or at level 4 when it is numbered («4 السيد
+# ابراهيم الدامغاني ... - 1291»), level 4 otherwise being a part of a life («وفاته», «مؤلفاته»)
+ENTRY_RULE = {
+    'tabaqat': lambda volume, level, heading: level == 4 if volume <= 2 else (level == 3 or bool(re.match(r'^\d+\s', heading or ''))),
+}
+
 # a title without what follows the book's name: «آتشكده تأليف حاجى لطف‌على بيگ آذر … در 1174-1193 ق» → «آتشكده»,
 # «آثار الحسان از حاج ميرزا حسن …» → «آثار الحسان»; and without an author's dates, «عبد الله ثقة الاسلام: (1285)
 # (0000)», «يحيى المستوفى الاصفهانى: (م 1326) (ق)», «… (1305 او 1306)», «… (ق: 2) (ق: 3)», «…: ()»
 CLEAN = {
     'tazkira': re.compile(r'\s+(?:تأليف|تألیف|از|اثر)\s.*$'),
+    # «السيد ابراهيم الدامغاني ... - 1291», «السيد ابراهيم الطباطبائى 1248-1319», «… ... -...», «… ... - بعد 1274»,
+    # «ابراهيم الجنوبي،»
+    'tabaqat': re.compile(r'[\s،,:.]*(?:(?:\.\.\.|(?:حدود|بعد|قبل|نحو)?\s*\d{1,4})?\s*-\s*(?:\.\.\.|(?:حدود|بعد|قبل|نحو)?\s*\d{1,4})?)?[\s،,:.]*$'),
     'mosaffa': re.compile(r'[\s:]*(?:\([\d\s\-مق:أاو]*\)\s*)+$'),
 }
 
@@ -220,7 +233,7 @@ def body_items(db, doc):
     return out, {int(p): t for p, t in notes.items() if p.isdigit()}
 
 
-def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False, letters=False, clean=None):
+def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered=False, letters=False, clean=None, rule=None):
     fix = (lambda s: s.translate(PERSIAN)) if persian else (lambda s: s)
     items, notes = body_items(db, f'{series}_{number:03d}')
     pages, order = {}, []
@@ -241,7 +254,8 @@ def volume(db, series, number, entry_levels, sub_levels, end_levels, persian, pe
             plain = fix(text_of(chunk, keep=False))
             # a letter's heading among the entries' («خ» at level 3 in Mushar's authors) ends the entry before it
             letter = letters and heading is not None and len(heading.replace(' ', '')) <= 1
-            if level in entry_levels and not letter and (not person or is_person(heading)) and (not only_numbered or NUMBERED.match(heading)):
+            entry_level = rule(number, level, heading) if rule and level is not None else level in entry_levels
+            if entry_level and not letter and (not person or is_person(heading)) and (not only_numbered or NUMBERED.match(heading)):
                 entries.append({'level': level, 'heading': heading, 'page': label, 'lines': [plain], 'breaks': []})
                 pages[label].append('')  # a blank line before each entry
                 pages[label].append(t)
@@ -309,7 +323,7 @@ def main():
         out = Path(args.out) / code
         out.mkdir(parents=True, exist_ok=True)
         for number in volumes:
-            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered, code in LETTERS, CLEAN.get(code))
+            pages, entries = volume(db, series, number, entry_levels, sub_levels, end_levels, persian, person, numbered, only_numbered, code in LETTERS, CLEAN.get(code), ENTRY_RULE.get(code))
             for name, rows in ((f'{number:02d}.jsonl.gz', pages), (f'{number:02d}.entries.jsonl.gz', entries)):
                 with gzip.open(out / name, 'wt', encoding='utf-8') as f:
                     for r in rows:

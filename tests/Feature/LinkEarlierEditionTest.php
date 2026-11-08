@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Console\Commands\LinkEarlierEditionCommand as Link;
 use App\Console\Commands\MatchCatalogEditionCommand;
+use App\Models\Person;
 use App\Models\Source;
 use App\Models\SourceEntry;
 use App\Models\SourceItem;
@@ -159,6 +160,43 @@ class LinkEarlierEditionTest extends TestCase
         $this->artisan('sources:link-earlier-edition', ['source' => 'lives-earlier', 'edition' => 'parts'])->assertSuccessful();
         $this->assertSame([$near->id, Link::PLACE, 70], [$this->tie($inPart)->source_item_id, $this->tie($inPart)->match_method, $this->tie($inPart)->confidence]);
         $this->assertNull($this->tie($inVolume), '«228/2» is of the ten volumes');
+    }
+
+    public function test_a_book_of_lives_by_centuries_finds_the_life_on_the_cited_page_of_the_century_or_one_naming_the_work()
+    {
+        // step 14.81: Tabaqat's 13th century in volumes 10-11 (11 going on from page 489), its 14th in 13
+        $source = Source::create(['code' => 'tabaqat-earlier', 'kind' => Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'طبقات أعلام الشیعة']);
+        $life = function (int $volume, int $page, string $title, string $text) use ($source) {
+            $v = SourceVolume::firstOrCreate(['source_id' => $source->id, 'volume_number' => $volume], ['facsimile_code' => 'tabaqat-earlier']);
+
+            return SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $v->id, 'volume_number' => $volume, 'item_key' => "$volume-$page",
+                'position' => $volume * 10000 + $page, 'kind' => 'entry', 'page_start' => $page, 'page_end' => $page, 'title' => $title,
+                'title_normalized' => MatchCatalogEditionCommand::norm($title), 'text' => $text, 'text_status' => 'auto']);
+        };
+        $life(10, 1, 'السيد ابراهيم الاعرجي', 'اوله.');
+        $life(10, 485, 'الشيخ محمد الاصفهاني', 'آخره.');
+        $tuysirkani = $life(10, 300, 'الشيخ المولى حسينعلي التويسركاني', 'له «الاجتهاد و التقليد».');
+        $kashani = $life(11, 600, 'الشيخ محمد الكاشاني', 'صاحب «الحقائق».');
+        $life(11, 834, 'الشيخ آخر', 'آخره.');
+        $turbati = $life(13, 239, 'الشيخ محمد تقي التربتي', 'من العلماء.');
+        $life(13, 1, 'السيد الاول', 'اوله.');
+        $life(13, 465, 'الشيخ محمد علي الزنوزي', 'من العلماء.');
+        config(['bibliography.sources.tabaqat-earlier.earlier.old' => ['like' => ['%طبقات%', '%نقباء%'],
+            'pattern' => 'طبقات [اأ]علام الش[یي]ع[هة]|نقباء البشر', 'places' => 'centuries', 'names' => ['نقباء البشر' => 14],
+            'centuries' => [13 => [10, 11], 14 => [13]]]]);
+
+        $part = $this->work('رسالة', 'تربتی، محمد تقی بن علی نقی', 'نقباء البشر 239/1');
+        $century = $this->work('الحقائق', 'کاشانی، محمد', 'طبقات اعلام الشیعه قرن 13: 600');
+        $byDeath = $this->work('الاجتهاد و التقليد', 'تویسرکانی، حسینعلی', 'طبقات اعلام الشیعه');
+        Person::query()->whereKey($byDeath->author_id)->exists() ?: $byDeath->update(['author_id' => Person::create(['name' => 'تویسرکانی، حسینعلی', 'normalized_name' => 'تویسرکانی حسینعلی',
+            'slug' => 'p-' . uniqid(), 'death_year_hijri' => 1286])->id]);
+        $nameOnly = $this->work('ایمان', 'زنوزی، علی بن محمد حسن', 'طبقات اعلام الشیعه (قرن 14)');
+
+        $this->artisan('sources:link-earlier-edition', ['source' => 'tabaqat-earlier', 'edition' => 'old'])->assertSuccessful();
+        $this->assertSame([$turbati->id, Link::PLACE], [$this->tie($part)->source_item_id, $this->tie($part)->match_method]);
+        $this->assertSame([$kashani->id, Link::PLACE], [$this->tie($century)->source_item_id, $this->tie($century)->match_method], 'volume 11 goes on from 489');
+        $this->assertSame([$tuysirkani->id, Link::CENTURY, 55], [$this->tie($byDeath)->source_item_id, $this->tie($byDeath)->match_method, $this->tie($byDeath)->confidence]);
+        $this->assertNull($this->tie($nameOnly), 'anywhere in the century, a life by the name alone is often another man of the family');
     }
 
     public function test_a_heading_that_sends_to_another_is_followed_to_it()

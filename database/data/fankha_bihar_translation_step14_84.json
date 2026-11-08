@@ -1,0 +1,234 @@
+{
+ "source": "the anonymous translation of «بحار الانوار» (vol 5 pp 695-697, «غیر همانند»), whose 14 copies the site held under خوانساری، محمد مهدی, checked on the page images, 2026-11-07; fahares step 14.84",
+ "works": [
+  {
+   "v2": "v5-1114",
+   "slug_suffix": "-v5-1792",
+   "columns": {
+    "primary_title": "بحار الانوار الجامعة لدرر الاخبار الائمة الاطهار (ترجمه)",
+    "clean_title": "بحار الانوار الجامعة لدرر الاخبار الائمة الاطهار",
+    "alternative_titles": null,
+    "transliteration": "biḥār-ul anwār-il jāmiʻa li-durar-il axbār-il a’immat-il aṯhār (t.)",
+    "author_name": null,
+    "composition_date_raw": null,
+    "composition_place": null,
+    "work_form": "translation",
+    "subject_summary": "حدیث",
+    "language_summary": "فارسی",
+    "incipit_text": null,
+    "explicit_text": null,
+    "description": null,
+    "bibliography": null,
+    "print_info": null,
+    "dedication": null,
+    "related_work": null,
+    "commentaries_and_glosses": null,
+    "raw_text": "● بحار الانوار الجامعة لدرر الاخبار الائمة الاطهار (ترجمه) / حدیث / فارسی\nbiḥār-ul anwār-il jāmiʻa li-durar-il axbār-il a’immat-il aṯhār (t.)\n\nغیر همانند",
+    "volume_number": 5,
+    "page_start": 695,
+    "page_end": 697
+   },
+   "author": null,
+   "roles": [],
+   "subjects": [
+    "حدیث"
+   ],
+   "languages": [
+    "فارسی"
+   ],
+   "copies": [
+    {
+     "make": {
+      "raw_text": "1. قم؛ مرکز احیاء؛ شماره نسخه: 3867\nآغاز: الحمدلله رب العالمین ... در اثبات امامت حضرت خاتم الاوصیاء ... و این مقصد اقصی و مطلب عظمی نیز به ابواب اثنی عشر به طریق مقاصد مقسوم و مرتب است؛ انجام: و اما اولاد اناث آن حضرت علیه السلام که عقب از ایشان نماند و سقط گشتند.\nترجمه روانی است از جلد نهم بحار الانوار در احوالات امیر مؤمنان علی (ع)، در منابع ترجمه‌ای از همین جلد از آقا نجفی اصفهانی آمده ولی این ترجمه قدیمی‌تر از آن به نظر می‌رسد؛ خط: نسخ، کاتب = مؤلف، تا: قرن 12؛ جلد: تیماج قرمز، 446گ، 24 سطر، اندازه: 18×25سم [محدث ارموی مخ: 1-359]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 0,
+      "is_bita": 0,
+      "is_autograph": 1,
+      "copy_date_raw": "قرن 12",
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 446,
+      "lines": 24,
+      "dimensions": "18×25سم",
+      "paper": null,
+      "binding": "تیماج قرمز",
+      "incipit_text": "الحمدلله رب العالمین ... در اثبات امامت حضرت خاتم الاوصیاء ... و این مقصد اقصی و مطلب عظمی نیز به ابواب اثنی عشر به طریق مقاصد مقسوم و مرتب است",
+      "explicit_text": "و اما اولاد اناث آن حضرت علیه السلام که عقب از ایشان نماند و سقط گشتند.",
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [
+        "ترجمه روانی است از جلد نهم بحار الانوار در احوالات امیر مؤمنان علی (ع)، در منابع ترجمه‌ای از همین جلد از آقا نجفی اصفهانی آمده ولی این ترجمه قدیمی‌تر از آن به نظر می‌رسد"
+       ],
+       "ownership_and_seals": [],
+       "catalog_citation": "[محدث ارموی مخ: 1-359]",
+       "residual_notes": null,
+       "editorial_note_types": {
+        "ترجمه روانی است از جلد نهم بحار الانوار در احوالات امیر مؤمنان علی (ع)، در منابع ترجمه‌ای از همین جلد از آقا نجفی اصفهانی آمده ولی این ترجمه قدیمی‌تر از آن به نظر می‌رسد": "copy_description"
+       }
+      },
+      "sequence_number": 1,
+      "page_start": 695,
+      "page_end": 696,
+      "city": "قم",
+      "library": "مرکز احیاء",
+      "shelfmark": "3867"
+     }
+    },
+    {
+     "move": {
+      "id": 53356,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "17348"
+     },
+     "sequence_number": 2
+    },
+    {
+     "move": {
+      "id": 53357,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "5984"
+     },
+     "sequence_number": 3
+    },
+    {
+     "move": {
+      "id": 53358,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "تهران",
+      "library": "دائرة المعارف",
+      "shelfmark": "810"
+     },
+     "sequence_number": 4
+    },
+    {
+     "move": {
+      "id": 53359,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "مشهد",
+      "library": "رضوی",
+      "shelfmark": "21677"
+     },
+     "sequence_number": 5
+    },
+    {
+     "move": {
+      "id": 53360,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "مشهد",
+      "library": "رضوی",
+      "shelfmark": "37890"
+     },
+     "sequence_number": 6
+    },
+    {
+     "move": {
+      "id": 53361,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "اصفهان",
+      "library": "ابوالبرکات، رضا",
+      "shelfmark": "18"
+     },
+     "sequence_number": 7
+    },
+    {
+     "move": {
+      "id": 53362,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "مشهد",
+      "library": "رضوی",
+      "shelfmark": "32938"
+     },
+     "sequence_number": 8
+    },
+    {
+     "move": {
+      "id": 53363,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "تهران",
+      "library": "مجلس",
+      "shelfmark": "13464"
+     },
+     "sequence_number": 9
+    },
+    {
+     "move": {
+      "id": 53364,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "مشهد",
+      "library": "رضوی",
+      "shelfmark": "21797"
+     },
+     "sequence_number": 10
+    },
+    {
+     "move": {
+      "id": 53365,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "قم",
+      "library": "مرعشی",
+      "shelfmark": "6549"
+     },
+     "sequence_number": 11
+    },
+    {
+     "move": {
+      "id": 53366,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "مشهد",
+      "library": "شیخ علی حیدر",
+      "shelfmark": "1132"
+     },
+     "sequence_number": 12
+    },
+    {
+     "move": {
+      "id": 53367,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "همدان",
+      "library": "دانشگاه بوعلی",
+      "shelfmark": "81"
+     },
+     "sequence_number": 13
+    },
+    {
+     "move": {
+      "id": 53368,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "قم",
+      "library": "گلپایگانی",
+      "shelfmark": "5938-30/8"
+     },
+     "sequence_number": 14
+    },
+    {
+     "move": {
+      "id": 53369,
+      "from_slug": "biar-ul-anwar-il-jamia-li-durar-il-axbar-il-aimmat-il-ahar-t-v5-1108",
+      "city": "تهران",
+      "library": "دائرة المعارف",
+      "shelfmark": "845/2"
+     },
+     "sequence_number": 15
+    }
+   ]
+  }
+ ],
+ "fills": [],
+ "work_updates": []
+}
