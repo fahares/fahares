@@ -8983,3 +8983,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - رونوشت محلی هنوز اجرای ۱۴.۸۸ را نداشت. تولید پیش از این گام «2094 at a volume» داشت.
 - **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
 - **جلدهای ناموجود (ارجاع اصلی بی‌جلد در رضوی، تولید):** `اهدائیرهبر|6` ۴۴۹، `|9` ۴۳۶، `ف|27` ۴۲۷، `|11` ۴۰۵، `|10` ۳۸۲، `|5` ۲۹۳. همه `catalog_volume_id` تهی دارند، پس `catalogs:set-volumes` آن‌ها را جابه‌جا نمی‌کند. راهِ درست افزودن جلد به ردیف «اهدائی رهبر» (`fankha:543-554`) و ردیف «ف» رضوی در `catalog_volume_links.json` و اجرای `catalogs:link-volumes` است. جدول فنخا تنها ج ۲۷ رضوی را دارد (ردیف ۵۰۹، «اجازات، رجال، درایه الحدیث»، براتعلی غلامی مقدم). MTIF (`mtif_db.sql.gz`) تنها «هزار و پانصد نسخه» (کتاب ۱۴۵) را دارد.
+
+### گام ۱۴.۱۰۶: شش جلد در `catalog_volume_links.json`
+- **ردیف تازه‌ی «اهدائی رهبر» (`parts: true`):** جلدهای ۵، ۶، ۹، ۱۰ و ۱۱، بی فهرست‌نگار، سال و صفحه. `source`: «fankha copies' citations (step 14.105); qudsonline.ir/news/1154212». این ردیف از ردیف `fankha:543-554` جداست، تا منبعِ ثبت‌شده‌ی آن جلدها به این‌ها نسبت داده نشود. هر ردیف تنها جلدهای خودش را می‌گیرد و بقیه را «unlisted» می‌شمارد.
+- **ردیف تازه‌ی «ف» رضوی (`fankha:509`):** ج ۲۷ با فهرست‌نگار MTIF ۴۵۰۴۹ (براتعلی غلامی مقدم)، و ج ۲۶ با `match_title` و `existing_catalogers`.
+  - **چرا ج ۲۶:** ردیفِ تک‌جلدی `single` دارد و `pickVolume` ارجاعِ بی‌شماره‌ی جلد («ف: 87»، ۱۵ نسخه) را به همان یک جلد می‌برد.
+- **تمرین روی fahares_prod:**
+  - `catalogs:link-volumes --dry-run`: تنها همین دو ردیف نسخه پیوند می‌زنند: «[اهدائی رهبر] 1966 linked, 45 with an unlisted volume» و «[ف] 427 linked, 1057 with an unlisted volume».
+  - `catalogs:link-volumes`: جلدهای 729 تا 733 در منبع `catalogue-613355b5cd4a` و 734 در `catalogue-86c8a806d584` (از راه `syncVolume`، با `stem` عنوان). شمار نسخه‌ها: 293، 450، 436، 382، 405 و 427.
+  - اجرای دوم: «0 linked».
+  - «Malek volumes moved: 6» در هر اجرا چاپ می‌شود و تنها `library_id` همان جلدهای ملک را دوباره می‌نویسد.
+- **اجرا در تولید (به ترتیب):**
+  1. `catalogs:link-volumes`
+  2. `fahares:sync-other-citations --apply --show=0` (گام ۱۴.۱۰۵). ارجاع‌های دومِ این جلدها هم پس از ساخته شدنشان جلد می‌گیرند.
+- **مانده:** سال، صفحه و فهرست‌نگارِ ج ۵ تا ۱۱ اهدایی.
