@@ -9052,3 +9052,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `catalogs:link-volumes` و `fahares:rebuild-scripts` چیزی برای این دو نسخه نیافتند.
 - **اجرا در تولید (به ترتیب):** همان سه فرمان. پشتیبانِ `link-copy-references` باید نام فایل باشد، نه پوشه.
 
+### گام ۱۴.۱۱۴: `author_ids`، `copy_from`/`copy_to`/`copy_century` و فیلتر `catalog` بر پایه‌ی `source_entries`
+- **نمایه‌ی `manuscripts_index`:**
+  - `author_ids` همه‌ی مؤلفان اثر را دارد (`work.authors`، که به `makeAllSearchableUsing` افزوده شد).
+  - `copy_from`، `copy_to` و `copy_century` از `Manuscript::copyBounds()` می‌آیند. `copy_century` تنها وقتی پر است که کل بازه در یک سده باشد.
+  - هر چهار ویژگی `filterableAttributes` شدند.
+- **تعریف سده و سال کتابت (`Manuscript::whereCopiedWithin`):** `copy_date_from >= X` و `copy_date_to <= Y`، و در موتور جست‌وجو `copy_from >= X AND copy_to <= Y`.
+  - سال تنها (`copy_date_hijri_year`) خوانده نمی‌شود. ۱۰۲ نسخه سال دارند و بازه ندارند، و بیشترشان تاریخ شمسی‌اند که سالش در ستون قمری نشسته است، مانند «1317ش».
+  - شاخه‌ی جایگزین برای این‌ها، `OR` را در پرس‌وجو آورد. MariaDB آن‌گاه کل جدول را می‌خواند: ۱٫۵ ثانیه برای سده‌ی ۱۳، به جای ۰٫۱ ثانیه با نمایه‌ی `(copy_date_from, copy_date_to)`.
+  - `InsightsScope` با `century` هم همین را فرا می‌خواند. پیش از این همان شرط را جداگانه داشت.
+- **شمار سده‌ها در کناره:** `SearchController::facets` به جای `copy_date_hijri_year`، `copy_century` را می‌شمارد. پس شمار کنار هر سده برابر نتیجه‌ی همان فیلتر است.
+- **`catalog` در `InsightsScope`:** `manuscripts.id IN (source_entries … source_volume_id = ? AND status != rejected)`. شناسه‌ها برابرند (`source_volumes.id = catalog_volumes.id`).
+  - روی `fahares_prod`، ۲۹۷٬۷۰۲ نسخه `catalog_volume_id` دارند و همه ورودیِ همان جلد را هم دارند.
+  - ۹٬۱۳۰ ورودی فهرست کتابخانه به جلدی جز جلد خود نسخه است. این‌ها اکنون در آمار آن جلد هم می‌آیند.
+- **`searchParams('manuscripts')`:** `author` → `author_id` و `catalog` → `source_volume_id`. `unsearchable()` و یادداشت آن برداشته شد.
+- **`SearchFilters`:** `author_id` به زبانه‌ی نسخه‌ها رسید، با `workKey()` و برچسب «نسخه‌های آثار …». رکورد مؤلف (`$author`) از رکورد کاتب (`$person`) جدا شد تا هر دو با هم کار کنند.
+- **فرم کناره (`search/filters.blade.php`):** `work_id`، `scribe_id` و `author_id` فیلد پنهان شدند.
+- **برچسب فهرست:** اگر عنوان جلد با «فهرست» آغاز شود، «فهرست» دوباره پیش از آن نمی‌آید.
+- **وارسی:**
+  - صفحه با `php -S` از این worktree و `DB_DATABASE=fahares_prod` اجرا شد. `artisan serve` متغیر `DB_DATABASE` را به فرایند فرزند نمی‌دهد.
+  - مسیر موتور جست‌وجو در یک نمایه‌ی موقت (`t107_manuscripts`) با ۹۶۷ سند نسخه‌های علم الهدی وارسی و سپس پاک شد. برای سده‌ی ۱۱، موتور، پایگاه و شمار کناره هر سه ۲۵۴ بودند. برای سده‌ی ۵، هر سه ۳ بودند.
+  - ستون سده‌ی ۱۱ در خط زمانی ۲۶۰ است، زیرا بازه‌های دوسده‌ای را به نسبت سال‌هایشان پخش می‌کند. پیوند ستون تنها ۲۵۴ نسخه‌ای را نشان می‌دهد که کل بازه‌شان در آن سده است.
+- **آزمون‌ها:**
+  - `SearchFiltersTest::test_copies_are_found_by_their_whole_date_and_by_the_author_of_their_work`
+  - `InsightsScopeTest::test_a_catalogue_scope_takes_the_copies_the_volume_describes_and_its_links_keep_it`
+  - `InsightsScopeTest::test_a_century_scope_takes_a_copy_dated_by_its_century_alone`
+- **پس از استقرار در تولید:** `php artisan scout:sync-index-settings`، سپس `php artisan scout:import "App\Models\Manuscript"` (حدود ۳۲۳ هزار سند؛ روی ماشین محلی حدود ۱۰ دقیقه).

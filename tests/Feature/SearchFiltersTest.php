@@ -37,7 +37,7 @@ class SearchFiltersTest extends TestCase
 
         $this->assertSame(['city', 'subject_id', 'century', 'year_to', 'facsimile', 'flags'], array_keys($filters->values), 'unknown library, bad number and flag dropped');
         $this->assertSame(['is_collated', 'is_autograph'], $filters->get('flags'));
-        $this->assertSame('(city = "قم") AND (subjects IN ["فقه", "اصول فقه"]) AND (is_facsimile = false) AND (is_collated = true AND is_autograph = true) AND (copy_date_hijri_year >= 801 AND copy_date_hijri_year <= 850)',
+        $this->assertSame('(city = "قم") AND (subjects IN ["فقه", "اصول فقه"]) AND (is_facsimile = false) AND (is_collated = true AND is_autograph = true) AND (copy_from >= 801 AND copy_to <= 850)',
             $filters->engine());
 
         $people = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'scribe', 'century' => '11', 'subject_id' => $subject->id]), 'people');
@@ -51,8 +51,8 @@ class SearchFiltersTest extends TestCase
         $logic->subjects()->attach($subject);
         $other = $this->work();
         $qom = Library::create(['name' => 'کتابخانه‌ی فیلتر', 'city' => 'قم', 'slug' => 'f-lib-' . uniqid(), 'manuscripts_count' => 2]);
-        $this->manuscript($logic, 'F-1', ['library_id' => $qom->id, 'city' => 'قم', 'copy_date_hijri_year' => 820, 'folios' => 250]);
-        $this->manuscript($logic, 'F-2', ['city' => 'تهران', 'copy_date_hijri_year' => 1100, 'is_facsimile' => true, 'folios' => 40]);
+        $this->manuscript($logic, 'F-1', ['library_id' => $qom->id, 'city' => 'قم', 'copy_date_raw' => '820ق', 'folios' => 250]);
+        $this->manuscript($logic, 'F-2', ['city' => 'تهران', 'copy_date_raw' => '1100ق', 'is_facsimile' => true, 'folios' => 40]);
         $this->manuscript($other, 'F-3', ['city' => 'قم', 'is_collated' => true]);
         $see = fn (array $params, array $yes, array $no) => tap($this->get(route('search', ['type' => 'manuscripts'] + $params))->assertOk(),
             fn ($r) => [array_map(fn ($s) => $r->assertSee($s), $yes), array_map(fn ($s) => $r->assertDontSee($s), $no)]);
@@ -63,6 +63,35 @@ class SearchFiltersTest extends TestCase
         $see(['facsimile' => '1'], ['F-2', 'فقط عکسی'], ['F-1', 'F-3']);
         $see(['folios_from' => '100'], ['F-1'], ['F-2', 'F-3']);
         $see(['flags' => ['is_collated']], ['F-3', 'مقابله‌شده'], ['F-1', 'F-2']);
+    }
+
+    public function test_copies_are_found_by_their_whole_date_and_by_the_author_of_their_work(): void
+    {
+        $author = Person::create(['name' => 'مؤلف فیلتر نسخه', 'normalized_name' => 'مؤلف فیلتر نسخه', 'slug' => 'f-author-' . uniqid(), 'is_author' => true]);
+        $his = $this->work(['author_id' => $author->id]);
+        $other = $this->work();
+        $year = $this->manuscript($his, 'D-YEAR', ['copy_date_raw' => '820ق']);
+        $century = $this->manuscript($his, 'D-CENT', ['copy_date_raw' => 'قرن 9']);
+        $across = $this->manuscript($other, 'D-ACROSS', ['copy_date_raw' => 'قرن 9 و 10']);
+        $see = fn (array $params, array $yes, array $no) => tap($this->get(route('search', ['type' => 'manuscripts'] + $params))->assertOk(),
+            fn ($r) => [array_map(fn ($s) => $r->assertSee($s), $yes), array_map(fn ($s) => $r->assertDontSee($s), $no)]);
+
+        $this->assertSame(['copy_from' => 820, 'copy_to' => 820, 'copy_century' => 9], $year->fresh()->copyBounds());
+        $this->assertSame(['copy_from' => 801, 'copy_to' => 900, 'copy_century' => 9], $century->fresh()->copyBounds());
+        $this->assertNull($across->fresh()->copyBounds()['copy_century'], 'a range across two centuries is of neither');
+        $this->assertSame([$author->id], $century->fresh()->load('work.authors')->toSearchableArray()['author_ids']);
+
+        // A copy dated only by its century is of that century, not of a year within it
+        $see(['century' => '9'], ['D-YEAR', 'D-CENT'], ['D-ACROSS']);
+        $see(['year_from' => '801', 'year_to' => '1000'], ['D-YEAR', 'D-CENT', 'D-ACROSS'], []);
+        $see(['year_from' => '810', 'year_to' => '830'], ['D-YEAR'], ['D-CENT', 'D-ACROSS']);
+        $see(['author_id' => $author->id], ['D-YEAR', 'D-CENT', 'نسخه‌های آثار مؤلف فیلتر نسخه'], ['D-ACROSS']);
+        $this->assertSame("(author_ids = {$author->id}) AND (copy_from >= 801 AND copy_to <= 900)",
+            SearchFilters::fromRequest(Request::create('/search', 'GET', ['author_id' => $author->id, 'century' => '9']), 'manuscripts')->engine());
+
+        // The sidebar keeps the list it narrows when another filter is applied
+        $this->get(route('search', ['type' => 'manuscripts', 'author_id' => $author->id]))
+            ->assertSee('<input type="hidden" name="author_id" value="' . $author->id . '">', false);
     }
 
     public function test_works_are_filtered_by_era_autograph_and_bibliography_and_sorted_by_author(): void

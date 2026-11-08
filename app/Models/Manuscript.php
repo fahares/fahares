@@ -462,7 +462,7 @@ class Manuscript extends Model
 
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name',
+        return $query->with(['work:id,primary_title,clean_title,author_name,manuscripts_count', 'work.subjects:id,name', 'work.languages:id,name', 'work.authors:people.id', 'scripts:id,name', 'scribes:people.id', 'libraryRecord:id,full_name',
             'catalogueEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_volume_id')]);
     }
 
@@ -500,6 +500,9 @@ class Manuscript extends Model
             'is_autograph' => (bool) $this->is_autograph,
             'copy_date_raw' => \App\Helpers\TextNormalizer::normalize($this->copy_date_raw),
             'copy_date_hijri_year' => $this->copy_date_hijri_year ? (int) $this->copy_date_hijri_year : null,
+            // The bounds of the copying date and the century it lies in, as the filters of the search read them
+            // (whereCopiedWithin, step 14.114)
+            ...$this->copyBounds(),
             'copy_place' => \App\Helpers\TextNormalizer::normalize($this->copy_place),
             'commissioned_by' => \App\Helpers\TextNormalizer::normalize($this->commissioned_by),
             'script_names' => $this->script_names,
@@ -528,10 +531,38 @@ class Manuscript extends Model
             'languages' => $this->work?->languages->pluck('name')->all() ?? [],
             // Every scribe, not only the first: «the manuscripts this person copied» (backlog item 83, phase 6)
             'scribe_ids' => $this->scribes->pluck('id')->map(fn ($id) => (int) $id)->all(),
+            // Every author of the work, so the copies of an author's works can be listed (step 14.114)
+            'author_ids' => $this->work?->authors->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [],
             // The printed catalogue volumes that describe the copy, so a source page's count of a volume's copies
             // links to them (step 13.116)
             'source_volume_ids' => $this->catalogueEntries->pluck('source_volume_id')->map(fn ($id) => (int) $id)->unique()->values()->all(),
         ];
+    }
+
+    /**
+     * The first and last year the copy can have been made in (copy_date_from, copy_date_to), and the century the
+     * whole range lies in, when it lies in one. The year alone is not read: a copy with a year but no range has a
+     * solar date held as a hijri year (102 copies, step 14.114).
+     *
+     * @return array{copy_from: ?int, copy_to: ?int, copy_century: ?int}
+     */
+    public function copyBounds(): array
+    {
+        $from = $this->copy_date_from !== null ? (int) $this->copy_date_from : null;
+        $to = $this->copy_date_to !== null ? (int) $this->copy_date_to : null;
+        $century = $from !== null && $to !== null && $from >= 1 && intdiv($from - 1, 100) === intdiv($to - 1, 100) ? intdiv($from - 1, 100) + 1 : null;
+
+        return ['copy_from' => $from, 'copy_to' => $to, 'copy_century' => $century];
+    }
+
+    /**
+     * Copies whose whole copying date lies within the years, as copyBounds takes it. The search and the insights
+     * page both filter by it, so a copy dated only «قرن ۱۳» is a copy of the 13th century in both (step 14.114).
+     */
+    public static function whereCopiedWithin($query, ?int $from, ?int $to, string $table = 'manuscripts')
+    {
+        return $query->when($from !== null, fn ($q) => $q->where("{$table}.copy_date_from", '>=', $from))
+            ->when($to !== null, fn ($q) => $q->where("{$table}.copy_date_to", '<=', $to));
     }
 
     public function catalog(): BelongsTo

@@ -78,9 +78,6 @@
                     </li>
                 @endforeach
             </ul>
-            @if($scope->unsearchable())
-                <p class="text-[11px] text-muted max-w-2xl">پیوند نمودارها به جست‌وجوی نسخه‌ها فیلتر {{ implode(' و ', array_map(fn ($p) => ['author' => 'مؤلف', 'catalog' => 'فهرست'][$p], $scope->unsearchable())) }} را با خود نمی‌برد، چون جست‌وجوی نسخه‌ها آن را ندارد.</p>
-            @endif
         @endif
     </header>
 
