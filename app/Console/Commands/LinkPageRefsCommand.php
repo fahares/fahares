@@ -24,7 +24,8 @@ use Illuminate\Support\Facades\DB;
  *   and the number both. The library's link stays: the page shows the copy's, and the library's when an editor
  *   rejects that.
  * - references: a reference to a volume and page of the source itself («مر في (161:7) بعنوان خسرو و گل») links the
- *   entry it names there, or the page (References, EntryResolver).
+ *   entry it names there, or the page (References, EntryResolver); or of another source, by its entry number too
+ *   (Tabaqat's «ذ 4 رقم 483» of al-Dhari'a, step 14.103).
  * - holdings: a line of a source without marks naming a library's copy by its catalogue page or number («دانشگاه
  *   2705/12 ش (1) 3701», Monzavi, step 14.34) links the copy (Holdings, HoldingResolver).
  *
@@ -41,7 +42,7 @@ class LinkPageRefsCommand extends Command
     /** The methods whose links are saved: those a hand check found right in 49 of 50 or more (steps 13.155, 14.34). */
     public const ENABLED = [
         'copies' => ['exact', 'part'],
-        'references' => ['title', 'context', 'page', 'page-titled'],
+        'references' => ['title', 'context', 'page', 'page-titled', 'number'],
         // step 14.34: all that link one copy; of about 160 read by hand all but two looked right, «page-not-number» mostly a
         // misprinted number (Monzavi's 10177 for 10172) or an old one on the same catalogue page
         'holdings' => ['work+both', 'work+page', 'work+shelfmark', 'work+page-not-number', 'title+both', 'title+page', 'title+shelfmark', 'title+page-not-number'],
@@ -146,13 +147,15 @@ class LinkPageRefsCommand extends Command
 
     private function references(Source $source, array $config): array
     {
-        $resolver = new EntryResolver($source->id);
+        // another source the page refers to (step 14.103: Tabaqat's «ذ» is al-Dhari'a), or the source itself
+        $target = isset($config['source']) ? Source::where('code', $config['source'])->firstOrFail()->id : $source->id;
+        $resolver = new EntryResolver($target);
         $links = [];
         $count = [];
-        $this->pages($source, function (PageText $text) use ($resolver, $config, &$links, &$count) {
+        $this->pages($source, function (PageText $text) use ($resolver, $config, $source, &$links, &$count) {
             foreach (References::in($text, $config) as $ref) {
                 $holder = $text->holder($ref['offset']);
-                [$type, $id, $method] = $resolver->resolve($ref, $text->page, $holder);
+                [$type, $id, $method] = $resolver->resolve($ref, $text->page, $holder, $source->id);
                 $count[$method] = ($count[$method] ?? 0) + 1;
                 if ($type) {
                     $links[] = ['page' => $text->page, 'ordinal' => null, 'kind' => self::KIND_REFERENCE, 'text' => $ref['span'],

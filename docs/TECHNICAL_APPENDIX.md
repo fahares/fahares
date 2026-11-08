@@ -8864,3 +8864,35 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:backfill --only=bibliography'`، برای رشته‌های «صص» مشار که کد تازه را می‌خواهند و هیچ ذخیره‌ی الگویی آن‌ها را از نو نمی‌سازد.
 
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۱۰۳: `inProse`، ارجاع به منبع دیگر در `References`، و الگوهای تراث الکلام
+- **[BibliographyLinks::readProse](../app/Support/BibliographyLinks.php):**
+  - `$number` اکنون `ج N [،]? (صص|ص|ستون) N` است، با تکرار `[و،,] ج N ص N`، یا ریخت پیشین `(ج)? N([/:]N)?`.
+  - پس از نام `\)?` پذیرفته است: «(الذريعة) ج 7 ص 284».
+  - در `segments()`، عدد تنها پس از نام اگر درست پس از «ج» بیاید (`(?:^|[\s،,(])ج\s*$`)، ستون خوانده نمی‌شود.
+- **[References](../app/Support/PageLinks/References.php):**
+  - پیکربندی تازه: `source` (منبع مقصد)، `order: fit`، `chain_forms`، و `cues`، `title_before` و `title_after` اختیاری.
+  - گروه `number` شماره‌ی مدخل است. گروه `bare` در `chain_forms` اگر ارجاع پیشین شماره داشت شماره‌ی دیگری از همان جلد است، وگرنه صفحه‌ای از همان جلد.
+  - هر ارجاع اکنون `number` و `places` دارد، یعنی هر دو ترتیبِ جورِ جفتِ دوپهلو.
+- **[EntryResolver](../app/Support/PageLinks/EntryResolver.php):** با `number`، مدخلی از `source_items.entry_number` در جلد هر یک از `places` که صفحه‌اش (با یک صفحه پس و پیش) شامل صفحه‌ی ارجاع باشد. تنها یک مدخل یافته شود → `number`. چند مدخل → `number-twice`، هیچ → `no-number`، و اگر صفحه‌ای هم داده شده، روال پیشین. `own-page` فقط وقتی سنجیده می‌شود که منبع مقصد خود منبع صفحه باشد.
+- **[LinkPageRefsCommand](../app/Console/Commands/LinkPageRefsCommand.php):** `EntryResolver` منبع `references.source` را می‌گیرد. `number` به `ENABLED` افزوده شد.
+- **[config/page_links.php](../config/page_links.php) `tabaqat`:**
+  - دو ریخت: `ذ P:V(-P)?( ر?قم N)?` و `ذ V ر?قم N`.
+  - دو `chain_forms`: جفت، و عدد تنها با «رقم» اختیاری.
+  - `cues => null`.
+- **سنجش طبقات (`--dry-run --all`، fahares_prod):** number ۷٬۳۲۹، page ۱٬۹۰۹، context ۴۴۵، no-number ۱۰۷، number-twice ۳۳ و no-page ۴. در ۱٬۷۵۱ پیوند شماره در ۱٬۵۰۰ صفحه‌ی تصادفی، `Titles::in` عنوان مدخل را در ۷۱۲ مورد در ۱۲۰ نویسه‌ی پیش از ارجاع یافت. بیشتر نیافته‌ها ریخت دیگر عنوان‌اند («الحج» و «مناسك الحج»). نمونه‌ی ۵۰تایی دستی هم سنجیده شد.
+- **[database/data/citation_forms_step14_103.php](../database/data/citation_forms_step14_103.php):** چهار `source_citation_forms` با `citing = kalam-turath` و `context = page_text`، با `updateOrCreate`:
+  - `dharia`: «الذريعة» با volumes 26؛
+  - `mushar-fa`: «مشار الفارسي» با volumes 5 و ستون؛
+  - `mushar-authors`: «مؤلفين مشار» با volumes 6؛
+  - `zaydiyya`: «مؤلفات الزيدية» با volumes 3.
+  - همه `pairs_after_name` دارند. از ۴٬۸۲۰ ارجاع الذریعة در تراث الکلام، ۴٬۸۱۹ تا جلدنخست بودند.
+- **سنجش متن صفحه‌ها (همه‌ی صفحه‌ها، `inProse` به ازای منبع ارجاع‌دهنده):** پیش ۷۰٬۲۴۰، با کد ۷۱٬۶۴۱، و با الگوها ۷۳٬۴۱۲.
+  - **افزایش‌ها:** مشار مؤلفین +۵۲۷، طبقات +۳۷۸، فنخا +۴۷۴ (مشار فارسی +۲۸۵ از «ج N ص N»)، و تراث الکلام +۱٬۷۷۱.
+  - **کاهش‌ها:** ۴ ارجاع، همه «ج 1» یا «ج 2» که ستون خوانده شده بود.
+  - این شمارها با `pairs_by_fit` الذریعة (گام ۱۴.۱۰۱) گرفته شده‌اند، که در متن صفحه‌ها هم خوانده می‌شود.
+- **آزمون‌ها:** `test_a_volume_and_page_after_a_name_in_a_page_text` در `BibliographyLinksTest`، و `test_tabaqats_dh_links_the_dharia_entry_of_its_number_or_the_page` در `LinkPageRefsTest`.
+- **اجرا در تولید، پس از استقرار:**
+  1. `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs tabaqat'`، که فقط ردیف تازه در `source_page_links` می‌سازد و ارجاعی از طبقات پیش‌تر در آن نیست.
+  2. `scripts/dev/prod-run <session> -- 'php artisan tinker database/data/citation_forms_step14_103.php'`.
+

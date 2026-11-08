@@ -255,8 +255,9 @@ class BibliographyLinks
                     && ! (isset(self::sources()[$source]['unit']) && $page <= self::sources()[$source]['volumes'])
                     ? self::pageLink($source, $volume, $page) : null;
             } else {
-                // «کشف الظنون 1266»: a column counted across the volumes tells its volume by itself
-                $volume = $named ? self::volumeOfColumn($named, self::int($whole)) : null;
+                // «کشف الظنون 1266»: a column counted across the volumes tells its volume by itself; not «کشف الظنون ج 1»,
+                // a volume with no page (step 14.103)
+                $volume = $named && ! preg_match('/(?:^|[\s،,(])ج\s*$/u', $gap) ? self::volumeOfColumn($named, self::int($whole)) : null;
                 $link = $volume ? self::pageLink($named, $volume, self::int($whole)) : null;
                 $source = $link ? $named : $source;
             }
@@ -543,11 +544,14 @@ class BibliographyLinks
 
     private static function readProse(string $text): array
     {
-        $number = '[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?';
+        // «ج 4 ص 424» and «… و ج 4 ص 52» after it (step 14.103), or «791/9», «1:28», «ج 9»
+        $volumePage = 'ج\s*[0-9۰-۹]+\s*[،,]?\s*(?:صص|ص|ستون)\s*[0-9۰-۹]+';
+        $number = '(?:' . $volumePage . '(?:\s*[و،,]\s*' . $volumePage . ')*|(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?)';
         // Monzavi's «ذریعه (3) 791/9»: the part of a volume printed in parts, whose pages run on through them
         $part = '(?:\(\s*[0-9۰-۹]{1,2}\s*\)\s*)?';
+        // Tabaqat's «ذكرناه في (الذريعة) ج 7 ص 284»: the name in parentheses
         $regex = self::$proseRegex[implode('|', self::$citing)] ??= '/(?<![\p{L}\p{M}])(?<name>' . implode('|', array_map(fn ($s) => '(?:' . $s['pattern'] . ')', self::sources()))
-            . ')(?![\p{L}\p{M}])[\s:،,]*' . $part . '(?:ج\s*)?' . $number
+            . ')(?![\p{L}\p{M}])\)?[\s:،,]*' . $part . $number
             . '|(?<![\p{L}\p{M}])(?<ibid>همان ?جا)[\s:،,]*' . $part . '(?<at>' . $number . ')'
             . '|(?<other>[0-9۰-۹]+\s*\/\s*[0-9۰-۹]+)/u';
 

@@ -336,4 +336,20 @@ class BibliographyLinksTest extends TestCase
         $this->assertSame([['mushar-fa', 1, 1235]], $cites('مشار فارسی ج1، صص 1235'));
         $this->assertSame([['mushar-fa', 2, 1513]], $cites('مشار فارسی، ج 2، صص 1513-1514'));
     }
+
+    public function test_a_volume_and_page_after_a_name_in_a_page_text()
+    {
+        $cites = fn (string $text, string $citing) => array_map(fn ($s) => [$s['text'], $s['cite']['source'], $s['cite']['volume'], $s['cite']['page']],
+            array_values(array_filter(BibliographyLinks::inProse($text, $citing), fn ($s) => isset($s['cite']))));
+
+        // step 14.103: «ج N ص N» after the name, and another after «و»; the name in parentheses
+        $this->assertSame([['ج 1 ص 286', 'rayhana', 1, 286], ['ج 3 ص 467', 'dharia', 3, 467], ['ج 4 ص 52', 'dharia', 4, 52]],
+            $cites('(ریحانة الادب ج 1 ص 286، اعیان الشیعة ج 2، الذریعة ج 3 ص 467 و ج 4 ص 52)', 'mushar-authors'));
+        $this->assertSame([['ج 9 ص 258', 'dharia', 9, 258]], $cites('ذكرناه في (الذريعة) ج 9 ص 258.', 'tabaqat'));
+        $this->assertSame([['ج 1، صص 592', 'mushar-ar', 1, 592]], $cites('مشار عربی ج 1، صص 592', 'fankha'));
+        // as before: «791/9», ibid, and «ج» with no page is no citation
+        $this->assertSame([['791/9', 'dharia', 9, 791], ['453/3', 'dharia', 3, 453]], $cites('ذریعه (3) 791/9 و همان‌جا 453/3', 'monzavi'));
+        $this->assertSame([], $cites('کشف الظنون ج 1', 'ayan'));
+    }
 }
+
