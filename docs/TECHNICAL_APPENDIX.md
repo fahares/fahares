@@ -9031,6 +9031,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندهای منزوی پس از آن:** ۶٬۹۳۹، از جمله `llm` ۶۴۸ (مدخل ۶۳۹، یادکرد ۹). ۷۳ `ambiguous` ماند و ۱۲۰ جا بی‌تطبیق.
 - **دام:** هر اجرای بعدی `link-items` روی جلدهای منزوی باید با همین `--decisions` باشد، وگرنه پیوندهای `llm` پاک می‌شوند و مبهم‌ها به حدس ماشین برمی‌گردند.
 - **پروداکشن (پس از استقرار این کد):** پشتیبان، فایل‌ها به `/tmp/monzavi-llm` کانتینر، `mremap.php`، سپس برای هر جلد N، `sources:link-items monzavi --volume=N --near --decisions=/tmp/monzavi-llm/mremapped_monzavi_N.json` از راه `prod-run`. پس از آن، نمایه‌ی مدخل‌ها لازم نیست، چون `source_items` تغییر نمی‌کند.
+- **اجرا در تولید (۱۹ آبان ۱۴۰۵، با اجازه‌ی کاربر، پس از استقرار انتشار c011575e):**
+  - **پشتیبان:** همه‌ی ۶٬۶۶۱ ردیف `source_item_link` منزوی، همه `unverified`، در `../fahares-sources/backups/step13/step14_109_monzavi_links_before.json.gz` (md5 `6030182b9576c2a85d1605258fa0d2ea`). مستقیم روی لپ‌تاپ نوشته شد.
+  - **`mremap.php`:** ۶۴۸ تصمیم همان شناسه را داشت و ۲ تصمیم یکتا نبود. چون مورد‌ها روی خود پروداکشن ساخته شده بودند، فایل‌های `mdecisions_monzavi_N.json` مستقیم به کار رفتند تا آن ۲ تصمیم هم بمانند.
+  - **dry run:** ۶۵۰ `llm`، ۷۱ `ambiguous` و ۱۲۰ بی‌تطبیق.
+  - **اجرا با `prod-run`:** ۲۷۸ پیوند تازه، ۹۹۱ به‌روز، هیچ حذف. اجرای دوم همه را «unchanged» گزارش کرد.
+  - **پیوندهای منزوی پس از اجرا:** ۶٬۹۳۹، از جمله `llm` ۶۵۰ (مدخل ۶۴۱، یادکرد ۹).
+  - **وارسی:** `/works/33599` پاسخ ۲۰۰ داد، با «فهرستواره منزوی، ج ۱، ص ۸۰» و یادداشت ⓘ مدل. فایل‌های `/tmp/monzavi-llm` کانتینر پاک شد.
+  - **اجرای بعدی:** `--decisions=…/mdecisions_monzavi_N.json` روی پروداکشن، یا `mremapped_…` روی پایگاهی که شناسه‌هایش فرق دارد.
 - **اجرای تولید (۱۹ آبان ۱۴۰۵):**
   - **پشتیبان:** `../fahares-sources/backups/step13/step14_106_before.json.gz` (۳٫۷ مگابایت). در آن هست:
     - `catalog_volume_id` و `cataloger_id` همه‌ی ۳۲۳٬۲۴۵ نسخه؛
