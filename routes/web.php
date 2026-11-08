@@ -50,7 +50,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Search Engine
 Route::get('/search', [SearchController::class, 'index'])->name('search');
-Route::get('/api/search', [SearchController::class, 'api'])->name('search.api');
+Route::get('/api/search', [SearchController::class, 'api'])->middleware('throttle:120,1')->name('search.api');
 // The result opened from a search page, for the admin's search stats (backlog item 83)
 // The results as a file (backlog item 83); limited, as a bulk download is the costliest request of the site
 Route::get('/search/export', [SearchController::class, 'export'])->middleware('throttle:10,1')->name('search.export');
@@ -228,7 +228,7 @@ Route::get('/s/{id}', function ($id) {
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemap-{type}-{page}.xml', [SitemapController::class, 'chunk'])
     ->where([
-        'type' => 'static|works|manuscripts|people|libraries',
+        'type' => 'static|works|manuscripts|people|libraries|catalogers',
         'page' => '[1-9][0-9]*',
     ])
     ->name('sitemap.chunk');

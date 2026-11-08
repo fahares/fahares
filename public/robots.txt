@@ -1,12 +1,34 @@
+# Search engines and AI crawlers are welcome on the record pages (backlog item 72, step 14.107).
+# This file only guides crawlers; access to private pages is checked by the app itself.
+
 # Meta's AI crawler fetched every sort/page variant of the work pages and took the site down
 # (25 Oct 2026); docker/nginx.conf also answers it with 403
 User-agent: meta-externalagent
 Disallow: /
 
-# Sorted and paged copies of the same lists are not worth crawling
 User-agent: *
+# Sorted and paged copies of the same lists are not worth crawling (each page names its canonical address)
 Disallow: /*?*sort=
 Disallow: /*?*direction=
 Disallow: /*?*page=
 # Search results as Excel or CSV files
 Disallow: /search/export
+# Admin, account and sign-in pages, forms, internal JSON and attached files (app/Support/Indexing.php)
+Disallow: /admin
+Disallow: /my/
+Disallow: /settings/
+Disallow: /account/
+Disallow: /notifications
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /email/
+Disallow: /auth/
+Disallow: /contribute/
+Disallow: /notes/
+Disallow: /messages/
+Disallow: /api/
+Disallow: /insights/lookup
+
+Sitemap: https://fahares.net/sitemap.xml

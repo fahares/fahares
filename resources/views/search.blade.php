@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('title', 'کاوش و جست‌وجوی پیشرفته | فهارس')
+{{-- Every mix of query and filters is its own address, without end: the results are not indexed, their records are (item 72) --}}
+@if(request()->query())
+    @section('robots', 'noindex, follow')
+@endif
 
 @section('content')
 @php use App\Support\Fa; @endphp

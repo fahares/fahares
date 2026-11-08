@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: ['telegram/webhook', 'search/click', 'messages/inbound']);
         // Visit stats (backlog item 103), noted after the response is sent
         $middleware->web(append: [\App\Http\Middleware\RecordPageView::class]);
+        // Private and form pages say noindex (backlog item 72); global, so a sign-in redirect says it too
+        $middleware->append(\App\Http\Middleware\RobotsHeader::class);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);

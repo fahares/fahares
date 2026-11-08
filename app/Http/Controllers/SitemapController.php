@@ -33,6 +33,7 @@ class SitemapController extends Controller
                 'manuscripts' => max(1, (int) ceil(DB::table('manuscripts')->count() / self::CHUNK_SIZE)),
                 'people' => max(1, (int) ceil(DB::table('people')->count() / self::CHUNK_SIZE)),
                 'libraries' => max(1, (int) ceil(DB::table('libraries')->count() / self::CHUNK_SIZE)),
+                'catalogers' => max(1, (int) ceil(DB::table('catalogers')->count() / self::CHUNK_SIZE)),
             ];
 
             $now = now()->toIso8601String();
@@ -122,6 +123,13 @@ class SitemapController extends Controller
                 }
                 break;
 
+            case 'catalogers':
+                $urls = $this->getCatalogerUrls($page, $defaultDate);
+                if (empty($urls) && $page > 1) {
+                    return null;
+                }
+                break;
+
             case 'libraries':
                 $urls = $this->getLibraryUrls($page, $defaultDate);
                 if (empty($urls) && $page > 1) {
@@ -177,6 +185,12 @@ class SitemapController extends Controller
                 'lastmod' => $defaultDate,
                 'changefreq' => 'weekly',
                 'priority' => '0.8',
+            ],
+            [
+                'loc' => route('catalogers.index'),
+                'lastmod' => $defaultDate,
+                'changefreq' => 'weekly',
+                'priority' => '0.6',
             ],
             [
                 'loc' => route('sources.index'),
@@ -310,7 +324,7 @@ class SitemapController extends Controller
         $urls = [];
         foreach ($rows as $row) {
             $workTitle = $row->work_clean_title ?: $row->work_primary_title;
-            $libName = $row->library_name ?: $row->library;
+            $libName = $row->library_name ?? $row->library; // as Manuscript::getPersianSlugAttribute
             $shelfmark = $row->shelfmark;
 
             $parts = array_filter([$workTitle, $libName, $shelfmark]);
@@ -345,7 +359,7 @@ class SitemapController extends Controller
         $offset = ($page - 1) * self::CHUNK_SIZE;
 
         $rows = DB::table('people')
-            ->select('id', 'name', 'normalized_name', 'updated_at')
+            ->select('id', 'name', 'updated_at')
             ->orderBy('id')
             ->skip($offset)
             ->take(self::CHUNK_SIZE)
@@ -353,8 +367,8 @@ class SitemapController extends Controller
 
         $urls = [];
         foreach ($rows as $row) {
-            $name = $row->normalized_name ?: $row->name;
-            $slug = Str::slug($name, '-', null);
+            // the route key is built from the name alone (Person::getPersianSlugAttribute), so the address is not a 301
+            $slug = Str::slug($row->name, '-', null);
             if (mb_strlen($slug) > 75) {
                 $slug = mb_substr($slug, 0, 75);
                 $lastHyphen = mb_strrpos($slug, '-');
@@ -413,5 +427,21 @@ class SitemapController extends Controller
         }
 
         return $urls;
+    }
+
+    /**
+     * Catalogers chunk URLs (backlog item 72): their pages are public records too. Built by the model, which has few
+     * rows, so the address is its route key.
+     */
+    protected function getCatalogerUrls(int $page, string $defaultDate): array
+    {
+        return \App\Models\Cataloger::orderBy('id')->skip(($page - 1) * self::CHUNK_SIZE)->take(self::CHUNK_SIZE)
+            ->get(['id', 'name', 'updated_at'])
+            ->map(fn ($c) => [
+                'loc' => route('catalogers.show', $c),
+                'lastmod' => $c->updated_at?->toIso8601String() ?? $defaultDate,
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ])->all();
     }
 }
