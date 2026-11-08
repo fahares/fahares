@@ -8751,3 +8751,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ترتیب اجرا در تولید:**
   1. `fahares:rebuild-copies --file=database/data/fankha_flags_step14_92.json --apply`
   2. `fahares:link-autograph-scribes`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی‌ها: «Rebuilding 2868 copies» (۴۱ نسخه دوباره جلد گرفتند) و «Updated 107 autograph manuscripts with scribe_id». اجرای دوم `already 2868` بود و ردیف‌های audit ثبت شد. فایل‌های موقت `/tmp` کانتینر پاک شدند.
