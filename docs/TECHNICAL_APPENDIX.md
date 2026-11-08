@@ -8779,3 +8779,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** «Rebuilding 3 copies» و «2 copies relinked» (69923 → 571 و 169973 → 284). اجرای دوم `already 3`.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_citations_step14_94.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 3 copies» و «2 copies relinked». اجرای دوم `already 3`. نتیجه: 69923 → 571، 169973 → 284، و 111779 بی‌جلد («[رایانه]»). فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۵: سر شرح اثر
+- **ورودی:** `Work/description` `trimmed_inner` و `trimmed` در review9 (۱٬۹۷۱ ردیف).
+- **قاعده:** سطرهای نخستِ ناتهیِ `description`، به تکرار، برداشته می‌شوند اگر:
+  - **سطر مؤلف:** `bare(سطر)`، یعنی سطر بی تاریخ و سده و آوانگاری (همان `bare()` گام ۱۴.۶۱)، بی فاصله و «،» برابر `author_name` باشد. سطرِ لاتینیِ بی حرف فارسیِ پس از آن (آوانگاری) هم با آن برداشته می‌شود.
+  - **سطر تاریخ:** «تاریخ تالیف: X» که X بی فاصله برابر `composition_date_raw` باشد.
+  - **پذیرش:** باید `letters(باقی)` برابر `letters(description v2)` باشد.
+- **شمارها:** `ok` ۱٬۴۴۴، `no_leading_line` ۵۲۱ و `rest_differs_from_v2` ۶.
+- **فایل:** `database/data/fankha_description_heads_step14_95.json` با ۱٬۴۴۴ `work_updates`، برای `fahares:add-corpus-works`.
+- **تمرین روی fahares_prod:** «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0».
+- **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_heads_step14_95.json --apply`
