@@ -8665,6 +8665,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply`: «Written: 2412 entries, 2094 at a volume» (پیش از این 2079).
   - اجرای نخست به «Lock wait timeout» بر `source_entries` خورد، از فرایند دیگری روی پایگاه محلی. اجرای دوم گذشت.
 - **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. خروجی: «Written: 2412 entries, 2094 at a volume, 0 stale removed». نمونه‌ها: 46773 «اهدائی رهبر: 158-8» → جلد 641 (ج ۸، ص ۱۵۸)، 15668 → 694، 249771 → 39، 283972 → 109. فایل‌های موقت `/tmp` کانتینر پس از برداشتن پشتیبان پاک شدند.
 
 ### گام ۱۴.۸۹: جلد `tabaqat`، `mosaffa`، `hadith-mss`، `tazkira`، `mushar-authors`، `kashf-hujub` و `zaydiyya`
 - **ویکی‌نور:** `https://fa.wikinoor.ir/w/images/NUR{سری}J1.jpg`، با شماره‌ی سری نور. پنج جلد از این راه آمد:
@@ -8684,4 +8685,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **ناشر «مؤسسه الجواد»:** محدث ارموی و دامغان فهرست دست‌نویس فنخا («ف مخ») یا ناشرشان الجواد است.
   - **جستجو:** جستجوی تصاویر گوگل برای ۲۲ عنوان شناسه‌های noorlib داد. عنوان هیچ‌کدام با این فهرست‌ها یکی نبود. مجلس سنا در داکی‌باکس فقط تصویر جایگزین خالی (`empty-cover4.png`) داشت.
 - **وارسی:** هر هفت جلد با چشم سنجیده شد.
-- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. خروجی: «Written: 2412 entries, 2094 at a volume, 0 stale removed». نمونه‌ها: 46773 «اهدائی رهبر: 158-8» → جلد 641 (ج ۸، ص ۱۵۸)، 15668 → 694، 249771 → 39، 283972 → 109. فایل‌های موقت `/tmp` کانتینر پس از برداشتن پشتیبان پاک شدند.
