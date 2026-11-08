@@ -9026,3 +9026,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`components/search-help.blade.php`:** راهنمای پیشین `search.blade.php`، با `popover` (پیش‌فرض true: پنجره‌ی شناور صفحه‌ی نتایج؛ false: پنلِ دوستونیِ زیر نمونه‌های خانه). مورد «با هم» افزوده شد.
 - **`SearchController::phraseQuotes()`:** پس از `TextNormalizer::normalize` روی عبارت جست‌وجو، `«`، `»`، `“` و `”` را `"` می‌کند. پیش از این `«شرح لمعه»` ۱۳۶ نتیجه داشت، برابر بی‌گیومه. متن نمایه‌شده دست نمی‌خورد و `DirectAnswer` همچنان عبارت خام را می‌گیرد.
 - **آزمون‌ها:** `HomePageTest` (ترتیب تازه، راهنما و نمونه‌های ثابت)، `SearchSortTest::test_persian_quotes_are_an_exact_phrase`.
+### گام ۱۴.۱۱۰: دو نسخه‌ی «همان نسخه بالا» با ستون‌های نسخه‌ی دیگر
+- **۲۵۹۹۳۶ (اثر 55202، ج ۲۷ ص ۱۵۲، v2 `v27-321`):**
+  - v2 «همان نسخه بالا» را در نسخه‌ی بالایی تا می‌کند و برایش نسخه‌ای ندارد. پس `fankha_v2_rebuild_export.py` به کار نیامد.
+  - فایل `database/data/fankha_same_as_above_rebuild_step14_110.json` دستی و از مقدارهای `fahares_prod` ساخته شد. قالب ستون‌ها همان نسخه‌های «همان نسخه بالا»ی دیگر است، مانند 19791: همه‌ی ستون‌ها تهی و پرچم‌ها ۰.
+  - **ستون‌های تغییرکرده:** `raw_text`، `scribe_name`، `copy_date_raw`، `copy_date_hijri_year`، `folios`، `explicit_text`، `is_facsimile` (۱ → ۰) و `metadata` (ارجاع «[عکسی ف: 2-231]» → «[نشریه: 7-214]»).
+  - همزادِ ستون‌ها نسخه‌ی 259940 (اثر 55203، «267/7-عکسی») است.
+- **نسخه‌ی کاشانِ «سلالة المعیار» (اثر 36358، ج ۱۸ ص ۳۱۱، `v18-836`):**
+  - رکورد پیشینش 171692 بود. در گام ۱۴.۶۳ (`fankha_twins_step14_63.json`) در 169786 ادغام شد، نسخه‌ی ۶۹ «السرائر» (اثر 35578). ردیف `audit_logs` شماره‌ی 125358 است.
+  - فایل `database/data/fankha_same_as_above_fill_step14_110.json` یک ردیف `fills` با `make` دارد: شماره‌ی ۳، کتابخانه‌ی 864.
+  - نشانی برگشت 171692 → 169786 دست نخورد.
+- **`RebuildCopiesCommand`:**
+  - اگر `CopyExtent::fromText` متن تازه برگ‌شمار نیابد، `pages`، `extent_raw` و `range_*` تهی می‌شوند.
+  - علت: `CopyExtent::columns` برای متنِ بی‌برگ‌شمار `null` می‌دهد و `DerivedData::syncCopies` ستون‌ها را دست نمی‌زند.
+  - مقدارهای پیشین در `old_values` ردیف `audit_logs` می‌مانند.
+- **`SourceEntrySync::relinkVolumes($ids)`:**
+  - از `RebuildCopiesCommand` به `SourceEntrySync` آمد و `public static` شد.
+  - `AddCorpusWorksCommand` آن را برای نسخه‌هایی که ساخته یا جابه‌جا کرده فرا می‌خواند. تنها نسخه‌های بی‌جلد را می‌گیرد.
+  - **نمونه:** کتابخانه‌ی 864 در `catalog_volume_links.json` نیست. ۳۳ نسخه‌ی دیگرش در جلد 703 با فهرست‌نگار ۷ هستند.
+- **آزمون:** `RebuildCopiesCommandTest::test_a_same_as_above_copy_keeps_no_extent_of_the_other_copy`
+- **تمرین روی fahares_prod:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_same_as_above_rebuild_step14_110.json --apply`: «Rebuilding 1 copies»، «1 copies relinked» (جلد 496، «نشریه … دفتر 7»).
+  2. `fahares:add-corpus-works --file=database/data/fankha_same_as_above_fill_step14_110.json --apply`: «1 made»، «1 copies linked to a catalogue volume» (703). اجرای دوم: «already filled».
+  3. `fahares:link-copy-references --work=36358 --backup=…` و `--work=55202`: هر کدام یک `possibly_same` به نسخه‌ی بالایی (171691 و 259935). اجرای دوم: «skipped».
+  - `catalogs:link-volumes` و `fahares:rebuild-scripts` چیزی برای این دو نسخه نیافتند.
+- **اجرا در تولید (به ترتیب):** همان سه فرمان. پشتیبانِ `link-copy-references` باید نام فایل باشد، نه پوشه.
+
