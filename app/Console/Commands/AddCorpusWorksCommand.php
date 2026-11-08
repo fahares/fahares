@@ -61,7 +61,7 @@ class AddCorpusWorksCommand extends Command
         'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia', 'metadata'];
 
     private const UPDATE_COLUMNS = ['primary_title', 'clean_title', 'author_name', 'raw_text', 'description', 'bibliography', 'transliteration',
-        'composition_date_raw', 'incipit_text', 'explicit_text', 'alternative_titles', 'print_info',
+        'composition_date_raw', 'composition_place', 'incipit_text', 'explicit_text', 'alternative_titles', 'print_info',
         'dedication', 'related_work'];
 
     private PersonNameMatcher $matcher;
