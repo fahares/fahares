@@ -8652,6 +8652,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تراجم ۳:** طرازی، و فهرست‌های پزشکی ظاهریه و ترکیه.
   - **شامله:** حدود ۴۵ فهرست عربی.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+- **اجرای پروداکشن (۱۸ آبان ۱۴۰۵، به دست همین جلسه با اجازه‌ی کاربر، از راه `prod-run` با نام `noor-reference-books`):**
+  - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`: `~/backups/before_step14_87_hadith_mss_20261108_2200.sql.gz` (۳۶۸ مگابایت، md5 `7f3a65de22bb7e290d4c70c267671332`، با خط پایانی «Dump completed»). روی سرور ماند.
+  - **ثبت منبع‌ها:** `sources:backfill --only=registry` («volumes made 12»). همین اجرا `images: false` را از tabaqat، fuqaha و zaydiyya برداشت (گام ۱۴.۸۶).
+  - **الگو و مآخذ:** `import-citation-forms` («Made 1 forms»)، سپس `backfill --only=bibliography`. ارجاع‌های منبع شناخته ۲۰٬۳۷۰ شد.
+  - **ورودی:** ۲۴ فایل در `/tmp/hm/hadith-mss` کانتینر، همه درست طبق MD5SUMS. پس از اجرا پاک شدند.
+  - **مدخل‌ها، ج ۱ تا ۱۲:** ۴۷۵، ۳۷۱، ۵۴۲، ۶۲۱، ۴۵۹، ۶۰۵، ۲۱۳، ۵۶۳، ۶۷۸، ۴۹۲، ۱٬۰۸۹ و ۱۷۶. جمع ۶٬۲۸۴، برابر تمرین.
+  - **پیوندها:** ۲۲، ۱۰، ۱۱، ۱۸، ۱۸، ۳، ۱، ۰، ۱ و صفر برای سه جلد پایانی. جمع ۸۴ پیوند برای ۹۲ ارجاع.
+  - **نمایه:** `scout:import SourceItem` تا شناسه‌ی ۳۵۱۰۱۸.
+  - **وارسی روی fahares.net:** ارجاع اثر ۹۶۴ «دیدن برگه‌ی مؤلفات الزیدیة، ج ۱، ص ۳» است.
+
 
 ### گام ۱۴.۸۸: ارجاع وارونه در `SourceEntrySync::syncOtherCited`
 - **شرط:**
