@@ -180,4 +180,27 @@ class EntityRedirectTest extends TestCase
         $followResponse->assertStatus(200);
         $followResponse->assertSee($source->name);
     }
+
+    /** Step 14.113: the removed person's open suggestions follow the kept one, and an undo takes them back */
+    public function test_a_person_merge_carries_open_suggestions_and_its_undo_takes_them_back()
+    {
+        $make = fn (string $n) => Person::create(['name' => $n . ' ' . uniqid(), 'normalized_name' => $n, 'slug' => 'sg-' . uniqid(), 'works_count' => 0, 'manuscripts_count' => 0]);
+        $source = $make('شخص مبدأ پیشنهاد');
+        $target = $make('شخص مقصد پیشنهاد');
+        $suggest = fn (string $status) => \App\Models\FieldSuggestion::create(['suggestable_type' => Person::class, 'suggestable_id' => $source->id,
+            'kind' => 'field', 'field_name' => 'bio_notes', 'suggested_value' => 'یادداشت', 'status' => $status]);
+        $open = $suggest('pending');
+        $closed = $suggest('rejected');
+
+        $this->actingAs($this->admin)->post('/admin/people/merge', ['source_id' => $source->id, 'target_id' => $target->id]);
+        $this->assertSame($target->id, $open->fresh()->suggestable_id);
+        $this->assertSame($source->id, $closed->fresh()->suggestable_id);
+
+        $log = AuditLog::where('auditable_type', Person::class)->where('auditable_id', $target->id)->where('action', 'merge')->latest('id')->first();
+        $this->assertSame([$open->id], $log->old_values['suggestion_ids']);
+
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback");
+        $this->assertNotNull(Person::find($source->id));
+        $this->assertSame($source->id, $open->fresh()->suggestable_id);
+    }
 }
