@@ -8607,6 +8607,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. انتشار کد.
   2. با تأیید کاربر، فرستادن تصویرها به سرور: هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/{code} --no-same-owner -xf -"`، همانند ریحانه و زرکلی.
   3. `sources:backfill --only=registry`.
+- **انتقال به سرور (۱۸ آبان ۱۴۰۵، به تأیید کاربر):** هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/{code} --no-same-owner -xf -"` فرستاده شد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 777` اجرا شد، مانند ریحانه.
+  - **zaydiyya:** ۱٬۳۲۴ فایل و ۷۱ مگابایت. هر جلد ۲۰ تا ۲۷ ثانیه طول کشید.
+  - **fuqaha:** ۷٬۲۵۷ فایل.
+  - **tabaqat:** ۶٬۹۹۱ فایل.
+  - **وارسی:** فهرست نام و اندازه‌ی فایل‌ها در دو سو یکسان بود.
+  - **پاسخ سایت:** این نشانی‌ها از `https://fahares.net/storage/catalogs/` پاسخ ۲۰۰ و `image/webp` دادند:
+    - `zaydiyya/v01/p0245`، `v03/p0002` و `v03/p0358`؛
+    - `fuqaha/v14/p0700` و `v01/p0001`؛
+    - `tabaqat/v11/p0600`، `v16/p1661` و `v17/p0608`.
+  - **پیش از انتقال:** ۳۲ گیگابایت جای خالی روی `/app/storage/app/public` بود.
+
 
 ### گام ۱۴.۸۷: فهرستگان نسخه‌های خطی حدیث (`hadith-mss`)
 - **منشأ:** `Darolhadith-DB/darolhadith.db`، سری `36242`. دار الحدیث، قم ۱۳۸۲ش، ۱۲ جلد. گردآورنده علی صدرایی خویی.
