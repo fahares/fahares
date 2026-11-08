@@ -8766,3 +8766,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** «Rebuilding 214 copies». اجرای دوم `already 214`. نمونه: 97081 حالا `lines` = 18 و `lines_raw` = «18 سطر؛ 34 سطر» دارد.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_text_lines_step14_93.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی «Rebuilding 214 copies» بود و اجرای دوم `already 214`. نمونه‌ها: 97081 → 18، 139500 → 19، 34743 → 15. فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۴: ارجاع‌های review9
+- **`catalog_citation/different` (۱٬۷۱۲):** ۱٬۶۴۸ مورد بی فاصله برابرند. ۶۴ مورد واقعی‌اند:
+  - ۵۰ مورد v2 بی سری است؛
+  - ۷ مورد کروشه‌ی متن خود نسخه است؛
+  - ۳ مورد پیوستن کروشه‌هاست؛
+  - ۱ مورد مرز متن است؛
+  - ۳ مورد خطاست.
+- **`catalog_citation/extended_inner` (۱٬۵۷۷):** همه ردیف `fankha_citation_more` دارند.
+- **فایل:** `database/data/fankha_citations_step14_94.json` با ۳ رکورد. `changes.metadata` با `catalog_citation` تازه است، و برای 169973 `raw_text` هم دارد. `rebuild-copies` ارجاع فنخا را هم به‌روز می‌کند (`manuscript_catalog_references`) و جلد را دوباره می‌یابد (`relinkVolumes`).
+- **تمرین روی fahares_prod:** «Rebuilding 3 copies» و «2 copies relinked» (69923 → 571 و 169973 → 284). اجرای دوم `already 3`.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_citations_step14_94.json --apply`
