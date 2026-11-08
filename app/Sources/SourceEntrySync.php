@@ -208,8 +208,10 @@ class SourceEntrySync
     public static function syncOtherCited(iterable $manuscripts): void
     {
         $others = [];
+        $texts = [];
         foreach ($manuscripts as $m) {
             $others[$m->id] = \App\Support\CatalogCitations::others($m->metadata, $m->raw_text);
+            $texts[$m->id] = (string) $m->raw_text;
         }
         if (! $others) {
             return;
@@ -226,11 +228,17 @@ class SourceEntrySync
         $volumeSources = $volumeIds ? DB::table('source_volumes')->whereIn('id', array_unique($volumeIds))->pluck('source_id', 'id')->all() : [];
 
         $rows = [];
+        $elsewhere = null;
         foreach ($others as $id => $places) {
             foreach ($places as $i => $place) {
                 $series = \App\Support\CatalogCitations::seriesKey($place['series']);
                 $byKey = $volumes[$libraries[$id] ?? 0] ?? [];
-                $volume = self::volumeOf($byKey[$series . '|' . $place['volume']] ?? [], $place['page']);
+                $key = $series . '|' . $place['volume'];
+                // «اهدائی رهبر: 2 اخبار 2 - 492»: the part a volume in parts names, before its pages (step 14.105)
+                $part = self::partOf($place['text']);
+                $volume = $part !== null && isset($byKey[$key . '|' . $part])
+                    ? self::volumeOf($byKey[$key . '|' . $part], $place['page'])
+                    : self::volumeOf($byKey[$key] ?? [], $place['page']);
                 // «اهدائی رهبر: 158-8», «ف: 2617-7»: page and volume written the other way round (step 14.88). Taken only
                 // when the library has no such volume at all and the swapped page lies in the pages seen in that volume.
                 if ($volume === null && $place['volume'] !== null && $place['page'] !== null && ! isset($byKey[$series . '|' . $place['volume']])) {
@@ -239,6 +247,18 @@ class SourceEntrySync
                     if (count($fits) === 1) {
                         $volume = (int) array_key_first($fits);
                         $place = ['volume' => $place['page'], 'page' => $place['volume']] + $place;
+                    }
+                }
+                // «[صد و شصت نسخه: - 11]» in a copy of Marashi once Ostadi's («تملک: رضا استادی»): a catalogue the copy's
+                // own library does not cite, whose name the copies of one library alone cite, and that library's name
+                // in the copy's own text (step 14.105)
+                if ($volume === null && $place['series'] !== null && ! isset($byKey[$key])) {
+                    $elsewhere ??= self::seriesElsewhere(array_merge(...array_values($others)));
+                    [$library, $candidates] = $elsewhere[$key] ?? [null, []];
+                    $volume = $library !== null && self::namesLibrary($texts[$id] ?? '', $library)
+                        ? self::volumeOf($candidates, $place['page']) : null;
+                    if ($volume !== null && ! isset($volumeSources[$volume])) {
+                        $volumeSources[$volume] = DB::table('source_volumes')->where('id', $volume)->value('source_id');
                     }
                 }
                 $rows[] = self::row([
@@ -289,14 +309,17 @@ class SourceEntrySync
                             continue;
                         }
                         $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
-                        $v = &$seen[$r->library_id][$key][$r->source_volume_id];
-                        $v ??= [0, null, null];
-                        $v[0]++;
-                        if ($place['page'] !== null) {
-                            $v[1] = $v[1] === null ? $place['page'] : min($v[1], $place['page']);
-                            $v[2] = $v[2] === null ? $place['page'] : max($v[2], $place['page']);
+                        $part = self::partOf($place['text']);
+                        foreach ($part === null ? [$key] : [$key, $key . '|' . $part] as $k) {
+                            $v = &$seen[$r->library_id][$k][$r->source_volume_id];
+                            $v ??= [0, null, null];
+                            $v[0]++;
+                            if ($place['page'] !== null) {
+                                $v[1] = $v[1] === null ? $place['page'] : min($v[1], $place['page']);
+                                $v[2] = $v[2] === null ? $place['page'] : max($v[2], $place['page']);
+                            }
+                            unset($v);
                         }
-                        unset($v);
                     }
                 }, 'e.id', 'id');
         }
@@ -308,6 +331,64 @@ class SourceEntrySync
         }
 
         return $seen;
+    }
+
+    /** The part of a volume in parts a citation names between its volume and page: «2 اخبار 2 - 492», «1علوم قرآن-15». */
+    public static function partOf(string $text): ?int
+    {
+        return preg_match('/:\s*\d+\s*[^\d\s:\-–][^\d:\-–]*?\s*(\d+)\s*[\-–]\s*\d/u', $text, $m) ? (int) $m[1] : null;
+    }
+
+    /**
+     * ['series|volume'] => [library_id, volumes as seriesVolumes() gives them], for the series of these places that
+     * the catalogue entries of a single library's copies cite. A series name more than one library cites («ف»,
+     * «ف مخ») is no one catalogue's.
+     *
+     * @param  list<array{text: string, series: ?string, volume: ?int, page: ?int}>  $places
+     */
+    private static function seriesElsewhere(array $places): array
+    {
+        $names = [];
+        foreach ($places as $place) {
+            if ($place['series'] !== null) {
+                $names[\App\Support\CatalogCitations::seriesKey($place['series'])] = $place['series'];
+            }
+        }
+        $found = [];
+        foreach ($names as $series => $name) {
+            if (mb_strlen($series) < 4) {
+                continue;
+            }
+            $libraries = DB::table('source_entries as e')->join('manuscripts as m', 'm.id', '=', 'e.legacy_id')
+                ->where('e.legacy_type', 'fankha_citation')->whereNotNull('e.source_volume_id')
+                ->where('e.citation_text', 'like', '%' . $name . '%')->distinct()->pluck('m.library_id')->all();
+            $byLibrary = [];
+            foreach (self::seriesVolumes($libraries) as $library => $keys) {
+                foreach ($keys as $key => $byVolume) {
+                    if (str_starts_with($key, $series . '|')) {
+                        $byLibrary[$library][$key] = $byVolume;
+                    }
+                }
+            }
+            if (count($byLibrary) === 1) {
+                foreach (reset($byLibrary) as $key => $byVolume) {
+                    $found[$key] = [array_key_first($byLibrary), $byVolume];
+                }
+            }
+        }
+
+        return $found;
+    }
+
+    /** Whether a copy's text names a library: «استادی» of «استادی، رضا» in «تملک: رضا استادی». */
+    private static function namesLibrary(string $text, int $libraryId): bool
+    {
+        static $names = [];
+        $name = $names[$libraryId] ??= (string) DB::table('libraries')->where('id', $libraryId)->value('name');
+        $head = trim(preg_split('/[،,(]/u', $name)[0]);
+
+        return mb_strlen($head) >= 3 && str_contains(\App\Console\Commands\LinkCatalogVolumesCommand::normalize($text),
+            \App\Console\Commands\LinkCatalogVolumesCommand::normalize($head));
     }
 
     /**

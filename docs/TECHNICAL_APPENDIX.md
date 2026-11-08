@@ -8849,3 +8849,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** «update 411» و «Derived data of works: works=411, with_dedication=37». اجرای دوم «update 0». `bibliography` تازه با cast آرایه‌ای Eloquent نوشته می‌شود (`\uXXXX`). در سایت ۵۸ ارجاع از پیش چنین بودند.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۶ (main 44a87147). md5 فایل در کانتینر با شاخه برابر بود و `description` هر ۴۱۱ اثر با `from` فایل برابر بود. خروجی: «Derived data of works: works=411, with_dedication=37». ۴۱۱ ردیف audit با `description_extras`. اجرای دوم «update 0». فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۱۰۵: `SourceEntrySync::partOf` و `seriesElsewhere`
+- **`partOf($text)`:** شماره‌ی پس از واژه‌ای میان جلد و صفحه: «2 اخبار 2 - 492» → ۲. «1علوم قرآن-15» بخش ندارد. `seriesVolumes()` برای هر ارجاع اصلیِ بخش‌دار کلید `series|volume|part` را هم می‌سازد. در `syncOtherCited`، اگر ارجاع بخش داشته باشد و آن کلید باشد، نامزدها از آن کلید می‌آیند.
+  - **علت:** `اهدائیرهبر|2` نامزدهای 637 `[683, 18, 532]` و 638 `[531, 488, 815]` داشت. صفحه‌ی ۴۹۲ در هر دو بازه می‌افتاد.
+- **`seriesElsewhere($places)`:** شرط‌ها:
+  - کتابخانه‌ی خود نسخه کلید را ندارد؛
+  - نام سری دست‌کم ۴ نویسه است (بی «ف» و «ف مخ»)؛
+  - ارجاع اصلیِ نسخه‌های تنها یک کتابخانه با `LIKE %name%` آن را دارد؛
+  - `namesLibrary()`: بخش نخست نام آن کتابخانه (پیش از «،»، مانند «استادی» از «استادی، رضا»)، پس از `normalize`، در `raw_text` نسخه باشد.
+  - `source_id` جلدِ تازه از `source_volumes` خوانده می‌شود.
+  - **بی شرط نام:** شش پیوند نادرست ساخته می‌شد: «رایانه ای مجلس ص 784» و چهار مانند آن به جلد رضوی، و «الفبائی: 52»ِ مفتاح (38144) به الفبایی رضوی.
+- **آزمون‌ها:**
+  - `OtherCitationsTest::test_a_volume_in_parts_is_told_by_the_part_its_citation_names`
+  - `OtherCitationsTest::test_a_catalogue_only_another_library_cites_is_found_there`: بی نام کتابخانه در متن، ارجاع بی‌جلد می‌ماند. «ف: 99» هم بی‌جلد می‌ماند.
+- **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply --show=0`: «Written: 2408 entries, 2114 at a volume». ۲۰ ارجاع «2 اخبار 2» به 638 رفتند و «صد و شصت نسخه: - 11» (87183) به 588. اجرای دوم همان را نوشت.
+  - «صد و شصت نسخه: -7» (51011) نام استادی را در متن ندارد و بی‌جلد ماند.
+  - رونوشت محلی هنوز اجرای ۱۴.۸۸ را نداشت. تولید پیش از این گام «2094 at a volume» داشت.
+- **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
+- **جلدهای ناموجود (ارجاع اصلی بی‌جلد در رضوی، تولید):** `اهدائیرهبر|6` ۴۴۹، `|9` ۴۳۶، `ف|27` ۴۲۷، `|11` ۴۰۵، `|10` ۳۸۲، `|5` ۲۹۳. همه `catalog_volume_id` تهی دارند، پس `catalogs:set-volumes` آن‌ها را جابه‌جا نمی‌کند. راهِ درست افزودن جلد به ردیف «اهدائی رهبر» (`fankha:543-554`) و ردیف «ف» رضوی در `catalog_volume_links.json` و اجرای `catalogs:link-volumes` است. جدول فنخا تنها ج ۲۷ رضوی را دارد (ردیف ۵۰۹، «اجازات، رجال، درایه الحدیث»، براتعلی غلامی مقدم). MTIF (`mtif_db.sql.gz`) تنها «هزار و پانصد نسخه» (کتاب ۱۴۵) را دارد.

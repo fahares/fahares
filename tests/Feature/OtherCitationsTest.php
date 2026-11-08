@@ -121,4 +121,41 @@ class OtherCitationsTest extends TestCase
         $this->assertSame([3, 660], [$entry->volume_number, $entry->page_start]);
         $this->assertNull($this->others($outside)[0]->source_volume_id);
     }
+
+    public function test_a_volume_in_parts_is_told_by_the_part_its_citation_names()
+    {
+        // step 14.105: «جلد دوم: اخبار» in two parts; one copy of part 1 cited at a page of part 2 spoils the page ranges
+        $first = CatalogVolume::create(['title' => 'فهرست نسخه‌های اهدایی - جلد دوم: اخبار ۱', 'volume_number' => 2, 'library_id' => $this->library->id]);
+        $second = CatalogVolume::create(['title' => 'فهرست نسخه‌های اهدایی - جلد دوم: اخبار ۲', 'volume_number' => 2, 'library_id' => $this->library->id]);
+        foreach ([18, 200, 532] as $page) {
+            $this->copy("[اهدائی رهبر: 2 اخبار 1 - {$page}]", $first);
+        }
+        foreach ([488, 815] as $page) {
+            $this->copy("[اهدائی رهبر: 2 اخبار2-{$page}]", $second);
+        }
+        $this->copy('[ف: 21-1000]', $this->own);
+        $copy = $this->copy('[اهدائی رهبر: 2 اخبار 2 - 492] و [ف: 21-1380]', $this->own);
+
+        $this->assertSame(2, \App\Sources\SourceEntrySync::partOf('اهدائی رهبر: 2 اخبار 2 - 492'));
+        $this->assertNull(\App\Sources\SourceEntrySync::partOf('اهدائی رهبر: 1علوم قرآن-15'));
+        $this->assertSame($second->id, $this->others($copy)[0]->source_volume_id);
+    }
+
+    public function test_a_catalogue_only_another_library_cites_is_found_there()
+    {
+        // step 14.105: a copy of Marashi once in Ostadi's library cites the catalogue of that library
+        $ostadi = Library::create(['name' => 'استادی، رضا', 'city' => 'قم', 'slug' => 'ostadi-' . uniqid()]);
+        $catalogue = CatalogVolume::create(['title' => 'یکصد و شصت نسخه از یک کتابخانه شخصی', 'volume_number' => 1, 'library_id' => $ostadi->id]);
+        $own = $this->copy('[صد و شصت نسخه: 60]', $catalogue);
+        $own->update(['library_id' => $ostadi->id]);
+        $this->copy('[ف: 21-1000]', $this->own);
+        $copy = $this->copy('تملک: رضا استادی [صد و شصت نسخه: - 11] و [ف: 21-1380]', $this->own);
+        $unnamed = $this->copy('[صد و شصت نسخه: - 12] و [ف: 21-1382]', $this->own);
+        $generic = $this->copy('[ف: 99-5] و [ف: 21-1381]', $this->own);
+
+        $this->assertSame($catalogue->id, $this->others($copy)[0]->source_volume_id);
+        // without the library's name in its text the copy keeps the place without a volume
+        $this->assertNull($this->others($unnamed)[0]->source_volume_id);
+        $this->assertNull($this->others($generic)[0]->source_volume_id);
+    }
 }
