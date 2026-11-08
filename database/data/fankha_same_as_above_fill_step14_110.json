@@ -1,0 +1,58 @@
+{
+    "source": "the Kashan copy of Salalat al-Mi'yar (fankha vol 18 p 311, «همان نسخه بالا [میراث اسلامی: 5 - 619]»), merged in step 14.63 into a copy of al-Sara'ir whose columns it carried; fahares step 14.110",
+    "category": "same_as_above",
+    "works": [],
+    "fills": [
+        {
+            "v2": "v18-836",
+            "work_slug": "solalat-ol-meyar-fi-asar-el-asar-v18-836",
+            "copies": [
+                {
+                    "make": {
+                        "raw_text": "کاشان؛ علامه فیض؛ شماره نسخه: بدون شماره\nهمان نسخه بالا [میراث اسلامی: 5 - 619]",
+                        "scribe_name": null,
+                        "has_other_scribes": 0,
+                        "is_bika": 0,
+                        "is_bita": 0,
+                        "is_autograph": 0,
+                        "copy_date_raw": null,
+                        "copy_date_hijri_year": null,
+                        "copy_place": null,
+                        "commissioned_by": null,
+                        "folios": null,
+                        "lines": null,
+                        "dimensions": null,
+                        "paper": null,
+                        "binding": null,
+                        "incipit_text": null,
+                        "explicit_text": null,
+                        "is_corrected": 0,
+                        "has_marginal_notes": 0,
+                        "is_ruled": 0,
+                        "has_catchwords": 0,
+                        "is_facsimile": 0,
+                        "is_collated": 0,
+                        "is_illuminated": 0,
+                        "is_illustrated": 0,
+                        "has_author_marginalia": 0,
+                        "metadata": {
+                            "incipits": [],
+                            "explicits": [],
+                            "editorial_notes": [],
+                            "ownership_and_seals": [],
+                            "catalog_citation": "[میراث اسلامی: 5 - 619]",
+                            "residual_notes": null
+                        },
+                        "sequence_number": 3,
+                        "page_start": 311,
+                        "page_end": 311,
+                        "city": "کاشان",
+                        "library": "علامه فیض",
+                        "shelfmark": "بدون شماره"
+                    }
+                }
+            ]
+        }
+    ],
+    "work_updates": []
+}

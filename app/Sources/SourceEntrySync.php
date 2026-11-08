@@ -605,4 +605,37 @@ class SourceEntrySync
 
         return false;
     }
+
+    /**
+     * Copies without a catalogue volume: one whose citation changed in fahares:rebuild-copies, or one
+     * fahares:add-corpus-works made (step 14.110). catalogs:link-volumes relinks only the libraries of its links file,
+     * not the large ones (Marashi, Tehran University). So each goes to the volume the library's other copies citing
+     * that series and volume are on, and the cataloger most of that volume's copies have (volumeOf, step 14.51). A copy
+     * whose volume no other copy shows stays without one.
+     */
+    public static function relinkVolumes(array $ids): int
+    {
+        $rows = DB::table('manuscripts')->whereIn('id', $ids)->whereNull('catalog_volume_id')
+            ->get(['id', 'library_id', 'metadata']);
+        $volumes = self::seriesVolumes($rows->pluck('library_id')->filter()->unique()->values()->all());
+        $done = 0;
+        foreach ($rows as $row) {
+            $citation = json_decode($row->metadata ?? 'null', true)['catalog_citation'] ?? null;
+            $place = $citation ? (\App\Support\CatalogCitations::places($citation)[0] ?? null) : null;
+            if (! $place || $place['series'] === null) {
+                continue;
+            }
+            $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
+            $volume = self::volumeOf($volumes[$row->library_id][$key] ?? [], $place['page']);
+            if (! $volume) {
+                continue;
+            }
+            $cataloger = DB::table('manuscripts')->where('catalog_volume_id', $volume)->whereNotNull('cataloger_id')
+                ->groupBy('cataloger_id')->orderByRaw('count(*) desc')->value('cataloger_id');
+            DB::table('manuscripts')->where('id', $row->id)->update(['catalog_volume_id' => $volume, 'cataloger_id' => $cataloger]);
+            $done++;
+        }
+
+        return $done;
+    }
 }

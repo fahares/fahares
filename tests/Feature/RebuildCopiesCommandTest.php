@@ -92,6 +92,28 @@ class RebuildCopiesCommandTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_a_same_as_above_copy_keeps_no_extent_of_the_other_copy()
+    {
+        // step 14.110: «همان نسخه بالا» has no extent, so the neighbour's «13گ (84-96)» goes with its folios
+        $meta = ['incipits' => [], 'explicits' => [], 'editorial_notes' => [], 'ownership_and_seals' => [], 'catalog_citation' => '[عکسی ف: 2-231]', 'residual_notes' => null];
+        $raw = "4. تهران؛ دائرة المعارف؛ شماره نسخه: 267/7-عکسی\nخط: نستعلیق تحریری، کا: محمد امین، تا: 1280ق؛ 13گ (84-96) [عکسی ف: 2-231]";
+        $id = $this->copy('735', $raw, '1280ق', $meta);
+        DB::table('manuscripts')->where('id', $id)->update(['folios' => 13, 'extent_raw' => '13گ (84-96)', 'range_from' => '84', 'range_to' => '96', 'range_from_number' => 84, 'range_to_number' => 96]);
+        file_put_contents($this->file, json_encode(['records' => [$this->record($id, '735', [
+            'raw_text' => ['from' => $raw, 'to' => "تهران؛ مفتاح؛ شماره نسخه: 735\nهمان نسخه بالا [نشریه: 7-214]"],
+            'folios' => ['from' => 13, 'to' => null],
+            'metadata' => ['from' => $meta, 'to' => ['catalog_citation' => '[نشریه: 7-214]'] + $meta],
+        ])]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:rebuild-copies', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $row = DB::table('manuscripts')->where('id', $id)->first();
+        $this->assertSame([null, null, null, null, null, null],
+            [$row->folios, $row->extent_raw, $row->range_from, $row->range_to, $row->range_from_number, $row->range_to_number]);
+        $old = AuditLog::where('auditable_id', $id)->where('auditable_type', Manuscript::class)->sole()->old_values;
+        $this->assertSame('13گ (84-96)', $old['extent_raw']);
+    }
+
     public function test_a_misread_shelfmark_is_corrected_with_its_sort_key()
     {
         $meta = ['incipits' => [], 'explicits' => [], 'editorial_notes' => [], 'ownership_and_seals' => [], 'catalog_citation' => '[ف: 44 - 112]', 'residual_notes' => null];

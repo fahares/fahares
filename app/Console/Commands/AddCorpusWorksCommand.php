@@ -170,11 +170,13 @@ class AddCorpusWorksCommand extends Command
         });
 
         SourceEntrySync::syncIds(Work::class, $touchedWorks);
+        // a copy made in a library outside catalogs:link-volumes' links file goes to the volume its library's other copies citing the same place are on
+        $relinked = SourceEntrySync::relinkVolumes($touchedCopies);
         SourceEntrySync::syncIds(Manuscript::class, $touchedCopies);
         // Their extent, excerpt pointers, dedicatees and commissioners, and search documents (the saves ran without search)
         DerivedData::syncCopies($touchedCopies, $this);
         DerivedData::syncWorks($touchedWorks, $this);
-        $this->info('Done. Now run catalogs:link-volumes, fahares:rebuild-scripts and fahares:link-autograph-scribes.');
+        $this->info("Done ({$relinked} copies linked to a catalogue volume). Now run catalogs:link-volumes, fahares:rebuild-scripts and fahares:link-autograph-scribes.");
 
         return 0;
     }

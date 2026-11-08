@@ -1,0 +1,65 @@
+{
+    "source": "the Meftah copy of Ashiq Pasha's Ganj-nameh (fankha vol 27 p 152, «همان نسخه بالا [نشریه: 7-214]») carried copy 4 of Khwajagi Kasani's Ganj-nameh (259940); fahares step 14.110",
+    "records": [
+        {
+            "table": "manuscripts",
+            "id": 259936,
+            "shelfmark": "735",
+            "category": "rebuild",
+            "v2": "v27-321#same-as-above",
+            "changes": {
+                "raw_text": {
+                    "from": "4. تهران؛ دائرة المعارف؛ شماره نسخه: 267\/7-عکسی\nآغاز: برابر؛ انجام: مگر صاحبدلی از روی رحمت ×× کند در حق درویشان دعایی، تمت ...\nنسخه اصل: گنج بخش، ش 1401 (گنج 665\/2، 771)؛ خط: نستعلیق تحریری، کا: محمد امین، تا: 1280ق؛ 13گ (84-96) [عکسی ف: 2-231]",
+                    "to": "تهران؛ مفتاح؛ شماره نسخه: 735\nهمان نسخه بالا [نشریه: 7-214]"
+                },
+                "scribe_name": {
+                    "from": "محمد امین",
+                    "to": null
+                },
+                "copy_date_raw": {
+                    "from": "1280ق",
+                    "to": null
+                },
+                "copy_date_hijri_year": {
+                    "from": 1280,
+                    "to": null
+                },
+                "folios": {
+                    "from": 13,
+                    "to": null
+                },
+                "explicit_text": {
+                    "from": "مگر صاحبدلی از روی رحمت ×× کند در حق درویشان دعایی، تمت ..",
+                    "to": null
+                },
+                "is_facsimile": {
+                    "from": 1,
+                    "to": 0
+                },
+                "metadata": {
+                    "from": {
+                        "incipits": [],
+                        "explicits": [
+                            {
+                                "label": null,
+                                "text": "مگر صاحبدلی از روی رحمت ×× کند در حق درویشان دعایی، تمت .."
+                            }
+                        ],
+                        "editorial_notes": [],
+                        "ownership_and_seals": [],
+                        "catalog_citation": "[عکسی ف: 2-231]",
+                        "residual_notes": null
+                    },
+                    "to": {
+                        "incipits": [],
+                        "explicits": [],
+                        "editorial_notes": [],
+                        "ownership_and_seals": [],
+                        "catalog_citation": "[نشریه: 7-214]",
+                        "residual_notes": null
+                    }
+                }
+            }
+        }
+    ]
+}

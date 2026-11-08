@@ -38,6 +38,9 @@ class RebuildCopiesCommand extends Command
         'has_catchwords', 'is_facsimile', 'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia',
         'metadata', 'shelfmark', 'sequence_number', 'city', 'library', 'library_id'];
 
+    /** The extent columns besides folios, which CopyExtent leaves alone when a copy's text has no extent. */
+    private const EXTENT = ['pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number'];
+
     public function handle(): int
     {
         $path = $this->option('file') ?: database_path('data/fankha_rebuild_copies_20261030.json');
@@ -49,7 +52,7 @@ class RebuildCopiesCommand extends Command
         $apply = (bool) $this->option('apply');
         $guard = ProtectedColumns::for(Manuscript::class);
         $rows = DB::table('manuscripts')->whereIn('id', array_column($plan['records'], 'id'))
-            ->get(['id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::COLUMNS])->keyBy('id');
+            ->get(['id', 'shelfmark_key', 'catalog_volume_id', 'cataloger_id', 'scribe_id', 'script_names', 'script_style', ...self::EXTENT, ...self::COLUMNS])->keyBy('id');
         $counts = [];
         $problems = [];
         $writes = [];
@@ -100,6 +103,11 @@ class RebuildCopiesCommand extends Command
                     $extra += ['script_names' => null, 'script_style' => null];
                     DB::table('manuscript_script')->where('manuscript_id', $rec['id'])->delete();
                 }
+                // a text with no extent (such as «همان نسخه بالا», step 14.110) keeps none of the other copy's: DerivedData
+                // leaves the extent alone where the text gives none
+                if (isset($new['raw_text']) && \App\Support\CopyExtent::fromText((string) $new['raw_text'])['raw'] === null) {
+                    $extra += array_fill_keys(self::EXTENT, null);
+                }
                 if (array_key_exists('scribe_name', $new)) {
                     $extra['scribe_id'] = null;
                     DB::table('manuscript_people')->where('manuscript_id', $rec['id'])->where('role', ManuscriptPerson::SCRIBE)->delete();
@@ -126,46 +134,13 @@ class RebuildCopiesCommand extends Command
             DB::table('libraries')->where('id', $id)->update(['manuscripts_count' => DB::table('manuscripts')->where('library_id', $id)->count()]);
         }
         $ids = array_column($writes, 'id');
-        $relinked = $this->relinkVolumes($ids);
+        $relinked = SourceEntrySync::relinkVolumes($ids);
         SourceEntrySync::syncIds(Manuscript::class, $ids);
         // DB::table runs no model hook: the date range, extent, excerpt pointers and search documents follow here
         DerivedData::syncCopies($ids, $this);
         $this->info("Done ({$relinked} copies relinked to a catalogue volume). Now run catalogs:link-volumes and fahares:rebuild-scripts.");
 
         return 0;
-    }
-
-    /**
-     * A copy whose citation changed lost its catalogue volume and cataloger; catalogs:link-volumes relinks only the
-     * libraries of its links file, not the large ones (Marashi, Tehran University). So each such copy goes to the
-     * volume the library's other copies citing that series and volume are on, and the cataloger most of that
-     * volume's copies have (SourceEntrySync::volumeOf, step 14.51). A copy whose volume no other copy shows stays
-     * without one.
-     */
-    private function relinkVolumes(array $ids): int
-    {
-        $rows = DB::table('manuscripts')->whereIn('id', $ids)->whereNull('catalog_volume_id')
-            ->get(['id', 'library_id', 'metadata']);
-        $volumes = SourceEntrySync::seriesVolumes($rows->pluck('library_id')->filter()->unique()->values()->all());
-        $done = 0;
-        foreach ($rows as $row) {
-            $citation = json_decode($row->metadata ?? 'null', true)['catalog_citation'] ?? null;
-            $place = $citation ? (\App\Support\CatalogCitations::places($citation)[0] ?? null) : null;
-            if (! $place || $place['series'] === null) {
-                continue;
-            }
-            $key = \App\Support\CatalogCitations::seriesKey($place['series']) . '|' . $place['volume'];
-            $volume = SourceEntrySync::volumeOf($volumes[$row->library_id][$key] ?? [], $place['page']);
-            if (! $volume) {
-                continue;
-            }
-            $cataloger = DB::table('manuscripts')->where('catalog_volume_id', $volume)->whereNotNull('cataloger_id')
-                ->groupBy('cataloger_id')->orderByRaw('count(*) desc')->value('cataloger_id');
-            DB::table('manuscripts')->where('id', $row->id)->update(['catalog_volume_id' => $volume, 'cataloger_id' => $cataloger]);
-            $done++;
-        }
-
-        return $done;
     }
 
     private function check(array $rec, ?object $row, ProtectedColumns $guard): string
