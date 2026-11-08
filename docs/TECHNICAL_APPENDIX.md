@@ -8536,3 +8536,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply`: «Written: 2412 entries, 2094 at a volume» (پیش از این 2079).
   - اجرای نخست به «Lock wait timeout» بر `source_entries` خورد، از فرایند دیگری روی پایگاه محلی. اجرای دوم گذشت.
 - **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. خروجی: «Written: 2412 entries, 2094 at a volume, 0 stale removed». نمونه‌ها: 46773 «اهدائی رهبر: 158-8» → جلد 641 (ج ۸، ص ۱۵۸)، 15668 → 694، 249771 → 39، 283972 → 109. فایل‌های موقت `/tmp` کانتینر پس از برداشتن پشتیبان پاک شدند.
