@@ -8791,3 +8791,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0».
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_heads_step14_95.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی: «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0» بود. فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۷: `scribe_name` از review10
+- **ورودی:** `scribe_name/filled` (۲۸۲ ردیف).
+- **بیرون مانده:**
+  - مقدارِ دارای «مؤلف/مصنف/ناظم» (۸۹)؛
+  - «بی‌کا» (۲۶)؛
+  - نسخه‌ی `is_bika` (۲۰)؛
+  - تردیددار (۲)؛
+  - نامی که پس از برچسب کاتب نیامده است (۱).
+- **شرط:**
+  - نام بی فاصله در متن خود نسخه باشد؛
+  - واژه‌ی نخستش پس از `کا:` یا `کاتب:` (تا ۱۵ نویسه)، یا پس از «به خط / بخط / کتبه» بیاید.
+- **فایل:** `database/data/fankha_scribes_step14_97.json` با ۱۴۴ رکورد (`changes.scribe_name`، با «ي/ك/ى» → «ی/ک/ی»)، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`.
+- **دسته‌های بی‌کار:**
+  - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
+  - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
