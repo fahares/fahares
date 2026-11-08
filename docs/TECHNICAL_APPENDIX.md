@@ -8806,6 +8806,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نمونه‌ی Gmail:** `On Sat, Nov 7, 2026 at 11:54 AM Fattemeh Hajizadeh <` و `fattemeh.hajizadeh@gmail.com> wrote:`.
 - **`admin/suggestions/partials/conversation`:** فرم `ask-form` اکنون با `$thread || ! $pending` نشان داده می‌شود، با `reply => (bool) $thread`. فرم پاسخ `id="reply-body"` دارد تا با `ask-body` پنل تصمیم یکی نشود، و همان مسیر `admin.suggestions.ask` را می‌فرستد. پس پاسخ روی پیشنهادِ در انتظار، مثل پرسش، `awaiting_reply_since` را می‌گذارد.
 - **آزمون‌ها:** سه حالت تازه در `test_the_quoted_history_is_cut_from_an_email_reply` و `test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+- **سطر Gmail:** پیش از `AM` نویسه‌ی U+202F است، نه فاصله‌ی معمولی. نمونه‌ی آزمون هم همین نویسه را دارد.
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** `messages.id = 12` (رشته‌ی ۵، پیشنهاد ۱۱۰). پشتیبان ردیف در `../fahares-sources/backups/step13/step14_96_message12.json` است. با `prod-run reply-under-thread`، `body` با `DB::table` تا پیش از `\n\nOn Sat, Nov 7, 2026 at 11:54` بریده شد، به این شرط که به `wrote:` ختم شود. `updated_at` دست نخورد. خروجی: «1 updated». در `/tmp` کانتینر فایلی ساخته نشد.
 
 ### گام ۱۴.۹۷: `scribe_name` از review10
 - **ورودی:** `scribe_name/filled` (۲۸۲ ردیف).
@@ -8838,3 +8840,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آمار:** `fields` در `SearchStatsController::FILTER_LABELS` («چند فیلد با هم»).
 - **زمان (نمایه‌ی محلی، گرم):** «کاتب: محمد» + «محل کتابت: اصفهان» → ۱٬۴۶۱ شناسه در ۰٫۷۵ تا ۰٫۹۸ ثانیه. نخستین پرسش با کش سرد ۷٫۵ ثانیه بود. یک فیلد کلی تنها («کاتب: محمد»، ۱۰٬۰۰۰ شناسه) ۰٫۷۳ ثانیه.
 - **آزمون:** `tests/Feature/SearchFieldTermsTest.php` (۷ آزمون)، با Mockery برای ترتیب زنجیره و `filter` آن.
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۸: سطرهای ستون‌های دیگر در `description`
+- **ورودی:** `Work/description` `trimmed` و `trimmed_inner` در review10 (۵۲۷ ردیف).
+- **صدور (پیکره، `ff896d0`):** `scripts/fankha_v2_description_extras_export.py --report reports/fankha_v2_db_review10`.
+- **قاعده:** سطرها از پایان و سپس از آغاز `description` برداشته می‌شوند تا `letters(باقی) == letters(description v2)`. هر سطر باید یکی از این‌ها باشد:
+  - **پایان یا آغاز:**
+    - `آغاز (کتاب|N)?:` که `letters` آن در `incipit_text` باشد؛
+    - `انجام (کتاب|N)?:` که `letters` آن در `explicit_text` باشد؛
+    - `غیر ?همانند:?` تنها؛
+    - `[…]` که در `bibliography` باشد؛
+    - سطر تهی.
+  - **تنها آغاز:**
+    - سطر لاتینِ بی حرف فارسی (آوانگاری)؛
+    - سطر مؤلف (`bare()` گام ۱۴.۶۱ برابر `author_name`)؛
+    - `تاریخ تالیف: X(؛ محل تالیف: Y)?` با `tight(X) == tight(composition_date_raw)`.
+  - **ستون خالی:** اگر ستونِ سطر در سایت خالی باشد و v2 آن را پر کند (`filled` در review10)، سطر تنها وقتی برداشته می‌شود که در مقدار v2 باشد. ستون هم مقدار v2 را می‌گیرد.
+- **شمارها:** `ok` ۴۱۱، `kept` ۱۱۶. نوع سطرها: incipit ۳۰۱، explicit ۲۲۴، transliteration ۴۰، empty_label ۳۲، citation_moved ۲۰، incipit_moved ۱۵، date_moved ۹، explicit_moved ۸، blank ۵، author ۳، date ۲.
+- **کد:** `composition_place` به `AddCorpusWorksCommand::UPDATE_COLUMNS` افزوده شد. آزمون: `AddCorpusWorksCommandTest::test_a_place_of_composition_left_in_the_description_moves_to_its_column`.
+- **فایل:** `database/data/fankha_description_extras_step14_98.json` با ۴۱۱ `work_updates`. ستون‌های همراه: `bibliography` ۲۰، `incipit_text` ۱۵، `composition_place` ۹، `explicit_text` ۸.
+- **تمرین روی fahares_prod:** «update 411» و «Derived data of works: works=411, with_dedication=37». اجرای دوم «update 0». `bibliography` تازه با cast آرایه‌ای Eloquent نوشته می‌شود (`\uXXXX`). در سایت ۵۸ ارجاع از پیش چنین بودند.
+- **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`
