@@ -8778,3 +8778,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_citations_step14_94.json` با ۳ رکورد. `changes.metadata` با `catalog_citation` تازه است، و برای 169973 `raw_text` هم دارد. `rebuild-copies` ارجاع فنخا را هم به‌روز می‌کند (`manuscript_catalog_references`) و جلد را دوباره می‌یابد (`relinkVolumes`).
 - **تمرین روی fahares_prod:** «Rebuilding 3 copies» و «2 copies relinked» (69923 → 571 و 169973 → 284). اجرای دوم `already 3`.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_citations_step14_94.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 3 copies» و «2 copies relinked». اجرای دوم `already 3`. نتیجه: 69923 → 571، 169973 → 284، و 111779 بی‌جلد («[رایانه]»). فایل‌های موقت `/tmp` کانتینر پاک شدند.
