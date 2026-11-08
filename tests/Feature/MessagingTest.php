@@ -355,7 +355,7 @@ class MessagingTest extends TestCase
         // Gmail's header line in a right-to-left reply, wrapped in direction marks
         $this->assertSame("سلام.\nپاسخ تستی ارسال شد.\nموفق باشید.", ReplyText::extract("سلام.\nپاسخ تستی ارسال شد.\nموفق باشید.\n\n\u{202A}On Wed, Oct 28, 2026 at 9:51 PM \u{202B}فهارس\u{202C}\u{200E} <noreply@fahares.net> wrote:\u{202C}\n"));
         // Gmail breaks a long header line before the address (step 14.96)
-        $this->assertSame("نسخه‌ی دوم را هم دیده‌ام.", ReplyText::extract("نسخه‌ی دوم را هم دیده‌ام.\n\nOn Sat, Nov 7, 2026 at 11:54 AM Fattemeh Hajizadeh <\nfattemeh.hajizadeh@gmail.com> wrote:\n\n> درخواست\n"));
+        $this->assertSame("نسخه‌ی دوم را هم دیده‌ام.", ReplyText::extract("نسخه‌ی دوم را هم دیده‌ام.\n\nOn Sat, Nov 7, 2026 at 11:54\u{202F}AM Fattemeh Hajizadeh <\nfattemeh.hajizadeh@gmail.com> wrote:\n\n> درخواست\n"));
         $this->assertSame("یک", ReplyText::extract("یک\n\u{202A}در تاریخ شنبه ۱۷ آبان ۱۴۰۵، فهارس\n<noreply@fahares.net> نوشت:\n"));
         // A line that only starts like a header is kept when no «wrote:» follows
         $this->assertSame("On page 5 the date is clear.\nThanks.", ReplyText::extract("On page 5 the date is clear.\nThanks."));
