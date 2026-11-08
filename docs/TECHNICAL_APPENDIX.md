@@ -8685,3 +8685,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **ناشر «مؤسسه الجواد»:** محدث ارموی و دامغان فهرست دست‌نویس فنخا («ف مخ») یا ناشرشان الجواد است.
   - **جستجو:** جستجوی تصاویر گوگل برای ۲۲ عنوان شناسه‌های noorlib داد. عنوان هیچ‌کدام با این فهرست‌ها یکی نبود. مجلس سنا در داکی‌باکس فقط تصویر جایگزین خالی (`empty-cover4.png`) داشت.
 - **وارسی:** هر هفت جلد با چشم سنجیده شد.
+
+### گام ۱۴.۹۱: رونوشت ۱۸ آبان، review9 و `fankha_v2_fill_columns_export.py`
+- **رونوشت:**
+  - **دریافت:** `rsync --partial --append-verify --bwlimit=2000 fahares-server:~/fahares-backups/work/fahares-db-20261108-034701.{manifest.json,sql.zst}` به `fahares-sources/backups/prodcopy/` (۳۰۴ مگابایت). sha256 با manifest برابر بود و پایان dump «Dump completed».
+  - **بارگذاری:** سطرهای `CREATE DATABASE` و `` USE `default` `` از ۴۰ سطر نخست با `sed` حذف و فایل در `fahares_prod_new` بار شد. شمارها برابر manifest بود: ۳۲۳٬۵۷۱ نسخه، ۷۱٬۶۸۵ اثر، ۷۰٬۴۴۵ شخص و ۵٬۴۶۴ نشانی برگشت.
+  - **جابه‌جایی:** هیچ اتصالی به `fahares_prod` نبود. یک `RENAME TABLE` با ۱۳۲ بخش اجرا شد: ۶۶ جدول پیشین به `fahares_prod_20261029` و ۶۶ جدول تازه به `fahares_prod`. جدول `source_pages_dharia_bak_13133` فقط در پیشین بود و `message_attachments` فقط در تازه.
+- **review9:** `fankha_v2_db_compare.py --out reports/fankha_v2_db_review9`. ردیف‌ها از ۹۰٬۷۸۸ به ۸۷٬۰۹۷ رسید. نمونه‌ها:
+  - `has_marginal_notes/flag_off` از ۳٬۶۲۵ به ۲٬۴۱۹؛
+  - `incipit_text/filled` و `explicit_text/filled` نزدیک صفر.
+- **صدور (پیکره):** `scripts/fankha_v2_fill_columns_export.py --diffs reports/fankha_v2_db_review9/diffs.jsonl --works … --copies …`.
+  - **ستون‌ها:** `paper`، `dimensions`، `lines`، `folios`، `copy_place` و `commissioned_by`، و `composition_date_raw` اثر.
+  - **`shown()`:**
+    - **ستون‌های متنی:** حرف‌ها باید در متن باشند، و برچسب (`LABELS`، با «ك/ی» یکسان) تا ۴۰ نویسه پیش از واژه‌ی نخست بیاید.
+    - **`dimensions` و تاریخ:** متن بی‌فاصله با «×» یکسان.
+    - **شمارها:** `N\s*سطر` و `N\s*(گ|برگ)`.
+  - **کاغذ:** مقدار پیش از `[:،,]?\s*(جلد|\d|اندازه)` بریده می‌شود. بیش از ۶ واژه، یا آغاز با «و» یا «این»، کنار می‌رود.
+  - **`lines`:** واژه‌ی کلیدی SQL است و در پرس‌وجو در backtick می‌آید.
+- **فایل‌ها:** `database/data/fankha_columns_works_step14_91.json` (۱۰۷ اثر) و `database/data/fankha_columns_copies_step14_91.json` (۱٬۵۵۸ نسخه).
+  - `folios` سه نسخه (11398، 136406 و 253151) برداشته شد، چون `DerivedData` آن را از `extent_raw` بازمی‌نویسد («179 ص»).
+- **تمرین روی fahares_prod:**
+  - «update 107»، «Rebuilding 1561 copies»، `pointers_linked=13` و «23 copies relinked».
+  - اجرای دوم «update 0» و `already 1558`.
+  - `fill-copy-date-ranges --works`: `changed 0`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_columns_works_step14_91.json --apply`
+  2. `fahares:rebuild-copies --file=database/data/fankha_columns_copies_step14_91.json --apply`
