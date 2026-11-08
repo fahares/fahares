@@ -8711,3 +8711,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **ترتیب اجرا در تولید:**
   1. `fahares:add-corpus-works --file=database/data/fankha_columns_works_step14_91.json --apply`
   2. `fahares:rebuild-copies --file=database/data/fankha_columns_copies_step14_91.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 دو فایل در کانتینر با main برابر بود. خروجی‌ها: «update 107» و «Rebuilding 1558 copies» (۲۳ نسخه دوباره جلد گرفتند). اجرای دوم «update 0» و `already 1558` بود و `fill-copy-date-ranges --works` `changed 0` داد. ۱٬۶۶۵ ردیف audit ثبت شد. فایل‌های موقت `/tmp` کانتینر پاک شدند.
