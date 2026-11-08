@@ -8824,3 +8824,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
   - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
+
+### گام ۱۴.۱۰۱: `pairs_by_fit` و «صص»
+- **[BibliographyLinks](../app/Support/BibliographyLinks.php):**
+  - گزینه‌ی خواندن تازه‌ی `pairs_by_fit` در `CitationForms::READING`. جفت «:» (شاخه‌ی `a`/`b`) یا «-» (شاخه‌ی `da`/`db`) پس از نام منبع با `fittingLink()` خوانده می‌شود: هر دو ترتیب با `place(…, ordered: true)` سنجیده می‌شوند (جلد در `volumes` و صفحه در `first_pages`/`last_pages` نمایشگر یا متن)، و فقط اگر یکی جور باشد پیوند ساخته می‌شود. جفت یکسان («16: 16») هم پذیرفته است.
+  - `$chained`: در منبع `pairs_by_fit`، جفتی که با فاصله‌ی `^\s*[و،,]\s*$` پس از ارجاع پیوندخورده آمده، از همان منبع است.
+  - `pairsAfterName()` برای `pairs_by_fit` هم true است.
+  - ریخت `ج N … ص` اکنون `(?:صص|ص|ستون|-)` است.
+- **پنل:** کادر `pairs_by_fit` در [citation-form](../resources/views/admin/sources/citation-form.blade.php)، اعتبارسنجی و نگه‌داری گزینه در `CitationFormController::values()`، و توصیف در `partials/citation-forms`. ذخیره از همان `CitationFormEditor` می‌گذرد، پس پیش‌نمایش، همگام‌سازی مدخل‌های مآخذ و برگشت را دارد.
+- **چرا نه در `config/bibliography.php`:** `CitationForms::sources()` کلیدهای پیکربندی را زیر گزینه‌های الگو نگه می‌دارد. کلیدی که در config باشد، با برداشتن تیک پنل خاموش نمی‌شود. پس گزینه فقط در `source_citation_forms.options` است، و آزمون‌ها آن را با `config()` می‌گذارند.
+- **سنجش:** `BibliographyLinks::citations()` روی ۸٬۰۱۱ رشته‌ی `work_bibliography` دارای «ذریعه» یا «مشار»، با و بی گزینه (درون تراکنش برگشتی). نتیجه: ۳۸۶ ارجاع افزوده و ۰ کاسته. درستی با یافتن دست‌کم دو واژه از سه واژه‌ی نخست `clean_title` در صفحه‌ی ارجاع یا صفحه‌ی بعد سنجیده شد: ۲۶۶ از ۳۸۶، در برابر ۳۲۳ از ۳۹۹ در نمونه‌ی تصادفی ارجاع‌های پیشین.
+- **تمرین روی fahares_prod:** `options` الگوی ۱۶ (الذریعة) برابر `{"volumes":26,"pairs_by_fit":true}` شد. `sources:backfill --only=bibliography`: «of a known source» از ۲۰٬۲۸۴ (dry run بی گزینه، با ۶ رشته‌ی «صص») به ۲۰٬۵۶۸، و «places» از ۲۳٬۵۱۶ به ۲۳٬۹۰۳. ردیف‌های الذریعة از ۶٬۸۱۰ به ۷٬۰۹۵ و مشار فارسی از ۳۹۲ به ۳۹۸ رسید.
+- **آزمون‌ها:** `test_a_pairs_by_fit_source_reads_a_pair_after_its_name_in_the_one_order_that_fits` و `test_a_volume_before_sad_sad_is_read` در `BibliographyLinksTest`، و `test_pairs_in_either_order_are_turned_on_in_the_panel_and_the_entries_made_again` در `CitationFormsTest`.
+- **اجرا در تولید، پس از استقرار:**
+  1. `/admin/sources` → الذریعة → الگوی «هر منبع / مآخذ» → تیک «جفت … به ترتیبی که با جلدها جور است»، پیش‌نمایش، ذخیره.
+  2. `scripts/dev/prod-run <session> -- 'php artisan sources:backfill --only=bibliography'`، برای رشته‌های «صص» مشار که کد تازه را می‌خواهند و هیچ ذخیره‌ی الگویی آن‌ها را از نو نمی‌سازد.
+

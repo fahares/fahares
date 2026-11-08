@@ -289,4 +289,51 @@ class BibliographyLinksTest extends TestCase
         $this->assertNull(BibliographyLinks::note('الذریعة 403/3 (چاپ نجف)'));
         $this->assertNull(BibliographyLinks::note('در دنا به جهت تفاوت بسیار در ثبت اثر'));
     }
+
+    public function test_a_pairs_by_fit_source_reads_a_pair_after_its_name_in_the_one_order_that_fits()
+    {
+        $cites = fn (string $entry) => array_map(fn ($c) => [$c['volume'], $c['page']],
+            array_values(array_filter(BibliographyLinks::citations($entry), fn ($c) => $c['source'] === 'dharia')));
+
+        // without the rule, a colon after al-Dhari'a's name is not read (step 14.101)
+        $this->assertSame([], $cites('الذریعه 15: 276'));
+
+        config(['bibliography.sources.dharia.pairs_by_fit' => true]);
+        \App\Sources\CitationForms::forget();
+        try {
+            // volume first, or page first: the one order whose volume al-Dhari'a has, within its pages
+            $this->assertSame([[15, 276]], $cites('الذریعه 15: 276'));
+            $this->assertSame([[4, 387]], $cites('الذریعه 387: 4'));
+            $this->assertSame([[3, 300]], $cites('الذریعة ج 300: 3'), '«ج» tells no order: Fankha writes «ج 24: 7» for volume 7');
+            $this->assertSame([], $cites('الذریعه ج 24: 7'));
+            $this->assertSame([[21, 352]], $cites('الذریعة 352-21'));
+            $this->assertSame([[5, 300]], $cites('الذریعه: 300: 5'));
+            // both orders fit, or neither: not read
+            $this->assertSame([], $cites('الذریعه 11: 9'));
+            $this->assertSame([], $cites('الذریعة 13-15'));
+            $this->assertSame([], $cites('الذریعه 2: 600'), 'volume 2 has 519 pages');
+            $this->assertSame([[16, 16]], $cites('الذریعه 16: 16'));
+            // a pair right after a linked one, joined by «و» or «،», is the same book's
+            $this->assertSame([[18, 311], [6, 60]], $cites('الذریعه 18: 311 و 6: 60'));
+            $this->assertSame([[3, 432], [13, 368], [2, 57]], $cites('الذریعة 3-432، 13-368، 2-57'));
+            $this->assertSame([[3, 432]], $cites('الذریعة 3-432، 10-368، 2-57'), 'volume 10 has 261 pages, and what follows it is unread');
+            $this->assertSame([[24, 437], [24, 337]], $cites('الذریعه 437/24 و 337: 24، کشف الظنون 1994/2'));
+            // Fankha's «page/volume» is read as before
+            $this->assertSame([[25, 90], [8, 107]], $cites('الذریعة 90/25 و 107/8'));
+            // another source after it does not take the pair
+            $this->assertSame([], $cites('ریحانة الادب 1: 210'));
+        } finally {
+            config(['bibliography.sources.dharia.pairs_by_fit' => null]);
+            \App\Sources\CitationForms::forget();
+        }
+    }
+
+    public function test_a_volume_before_sad_sad_is_read()
+    {
+        $cites = fn (string $entry) => array_map(fn ($c) => [$c['source'], $c['volume'], $c['page']], BibliographyLinks::citations($entry));
+
+        // «صص» (pages) after «ج» as «ص» is (step 14.101)
+        $this->assertSame([['mushar-fa', 1, 1235]], $cites('مشار فارسی ج1، صص 1235'));
+        $this->assertSame([['mushar-fa', 2, 1513]], $cites('مشار فارسی، ج 2، صص 1513-1514'));
+    }
 }

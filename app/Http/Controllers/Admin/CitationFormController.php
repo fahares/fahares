@@ -193,6 +193,7 @@ class CitationFormController extends Controller
             'volumes' => 'nullable|integer|min:1|max:1000',
             'column' => 'boolean',
             'pairs_after_name' => 'boolean',
+            'pairs_by_fit' => 'boolean',
             'series_volumes' => 'nullable|string|max:500',
             'notes' => 'nullable|string|max:5000',
             'examples' => 'nullable|string|max:5000',
@@ -224,7 +225,7 @@ class CitationFormController extends Controller
         if ($errors) {
             throw \Illuminate\Validation\ValidationException::withMessages($errors);
         }
-        $options = collect($form?->options ?? [])->except(['volumes', 'unit', 'pairs_after_name', 'series_volumes'])->all();
+        $options = collect($form?->options ?? [])->except(['volumes', 'unit', 'pairs_after_name', 'pairs_by_fit', 'series_volumes'])->all();
         if (! empty($v['volumes'])) {
             $options['volumes'] = (int) $v['volumes'];
         }
@@ -233,6 +234,9 @@ class CitationFormController extends Controller
         }
         if ($request->boolean('pairs_after_name')) {
             $options['pairs_after_name'] = true;
+        }
+        if ($request->boolean('pairs_by_fit')) {
+            $options['pairs_by_fit'] = true;
         }
         if ($series) {
             $options['series_volumes'] = $series;

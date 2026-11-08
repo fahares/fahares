@@ -8,6 +8,7 @@
             isset($o['volumes']) ? \App\Support\Fa::num($o['volumes']) . ' جلد' : null,
             ($o['unit'] ?? null) === 'ستون' ? 'ستونی' : null,
             ! empty($o['pairs_after_name']) ? 'جلد پیش از صفحه، با «:» یا «-»' : null,
+            ! empty($o['pairs_by_fit']) ? 'جفت «:» یا «-» به ترتیبی که با جلدها جور است' : null,
             ! empty($o['series_volumes']) ? 'شماره‌ی سری: ' . collect($o['series_volumes'])->map(fn ($to, $from) => \App\Support\Fa::digits("{$from}→{$to}"))->implode('، ') : null,
             ! empty($o['other_edition']) ? 'چاپ دیگر را کنار می‌گذارد' : null,
         ])->filter()->implode(' · ');
