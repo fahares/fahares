@@ -8826,20 +8826,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
   - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
-
-### گام ۱۴.۹۹: فیلتر نسخه‌های صفحه‌ی اثر
-- **`App\Support\WorkCopyFilters`:** پارامترهای `library` (شناسه)، `city`، `century` (۱ تا ۱۵)، `script` (شناسه)، `autograph=1`، `dated`، `scribe` و `facsimile` (`0` یا `1`). مقدار نادرست کنار گذاشته می‌شود.
-- **دامنه:** نسخه‌های اثر، منهای نسخه‌هایی که زیر نسخه‌ی دیگر نشان داده می‌شوند (`CopyLinks::linkedIds()`، گام ۱۴.۱۶).
-- **شرط‌ها:**
-  - `century`: سده‌ی `COALESCE(copy_date_from, copy_date_hijri_year)`، وقتی `copy_date_to` در همان سده باشد. بازه‌ی دوسده‌ای در هیچ سده نمی‌آید، مثل `Insights`.
-  - `dated`: `copy_date_raw` خالی نباشد، همان چیزی که جدول «نامشخص» نشانش نمی‌دهد.
-  - `scribe`: `scribe_name` خالی نباشد یا `is_autograph`.
-  - `script`: نیم‌پیوند روی `manuscript_script`.
-- **`options()`:** برای هر فیلتر، شمارش گروهی زیر همه‌ی فیلترهای دیگر جز خودش (شمارش «فاصله‌دار»). مقدار انتخاب‌شده‌ای که زیر فیلترهای دیگر صفر شود، با شمار ۰ می‌ماند. برای هر پرچم دو شمارش ساده است. در کل نزدیک ده پرس‌وجوی کوچک روی `work_id`.
-- **`WorkController::show`:** فیلترها پیش از مرتب‌سازی روی `$work->manuscripts()` اعمال می‌شوند. جعبه وقتی نمایش داده می‌شود که نسخه‌های فهرست بیش از `MIN_COPIES` (۱۰) باشند یا فیلتری انتخاب شده باشد. `withQueryString()` فیلترها را در صفحه‌بندی نگه می‌دارد. «بازنشانی ترتیب» اکنون فیلترها را نگه می‌دارد.
-- **نما:** `works/partials/copy-filters.blade.php`، یک `<details>` با فرم GET. هر `select` با تغییر فرم را می‌فرستد. پیش از فرستادن، `select` خالی غیرفعال می‌شود تا در نشانی نیاید، و `pageshow` دوباره فعالش می‌کند. Alpine در عرض ۶۴۰ پیکسل و بیشتر آن را باز می‌کند.
-- **آزمون‌ها:** `tests/Feature/WorkCopyFiltersTest.php` (۶ آزمون): گزینه‌ها و شمارها، فیلتر کتابخانه و شمارهای دیگر، ترکیب با هم و با مرتب‌سازی، نتیجه‌ی خالی و مقدار نادرست، صفحه‌بندی، اثر کم‌نسخه و عکسی پیوندخورده.
-- **پایگاه داده‌ی محلی:** `fahares_db` محلی هیچ `copy_date_from` پری ندارد، پس در پیش‌نمایش محلی نسخه‌های «قرن N» در سده نیامدند. در پروداکشن این ستون پر است (گام ۱۳.۸۲). آزمون، بازه را از قلاب `saving` مدل می‌گیرد.
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
 
 ### گام ۱۴.۹۸: سطرهای ستون‌های دیگر در `description`
@@ -8862,3 +8848,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_description_extras_step14_98.json` با ۴۱۱ `work_updates`. ستون‌های همراه: `bibliography` ۲۰، `incipit_text` ۱۵، `composition_place` ۹، `explicit_text` ۸.
 - **تمرین روی fahares_prod:** «update 411» و «Derived data of works: works=411, with_dedication=37». اجرای دوم «update 0». `bibliography` تازه با cast آرایه‌ای Eloquent نوشته می‌شود (`\uXXXX`). در سایت ۵۸ ارجاع از پیش چنین بودند.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`
+
+### گام ۱۴.۹۹: فیلتر نسخه‌های صفحه‌ی اثر
+- **`App\Support\WorkCopyFilters`:** پارامترهای `library` (شناسه)، `city`، `century` (۱ تا ۱۵)، `script` (شناسه)، `autograph=1`، `dated`، `scribe` و `facsimile` (`0` یا `1`). مقدار نادرست کنار گذاشته می‌شود.
+- **دامنه:** نسخه‌های اثر، منهای نسخه‌هایی که زیر نسخه‌ی دیگر نشان داده می‌شوند (`CopyLinks::linkedIds()`، گام ۱۴.۱۶).
+- **شرط‌ها:**
+  - `century`: سده‌ی `COALESCE(copy_date_from, copy_date_hijri_year)`، وقتی `copy_date_to` در همان سده باشد. بازه‌ی دوسده‌ای در هیچ سده نمی‌آید، مثل `Insights`.
+  - `dated`: `copy_date_raw` خالی نباشد، همان چیزی که جدول «نامشخص» نشانش نمی‌دهد.
+  - `scribe`: `scribe_name` خالی نباشد یا `is_autograph`.
+  - `script`: نیم‌پیوند روی `manuscript_script`.
+- **`options()`:** برای هر فیلتر، شمارش گروهی زیر همه‌ی فیلترهای دیگر جز خودش (شمارش «فاصله‌دار»). مقدار انتخاب‌شده‌ای که زیر فیلترهای دیگر صفر شود، با شمار ۰ می‌ماند. برای هر پرچم دو شمارش ساده است. در کل نزدیک ده پرس‌وجوی کوچک روی `work_id`.
+- **`WorkController::show`:** فیلترها پیش از مرتب‌سازی روی `$work->manuscripts()` اعمال می‌شوند. جعبه وقتی نمایش داده می‌شود که نسخه‌های فهرست بیش از `MIN_COPIES` (۱۰) باشند یا فیلتری انتخاب شده باشد. `withQueryString()` فیلترها را در صفحه‌بندی نگه می‌دارد. «بازنشانی ترتیب» اکنون فیلترها را نگه می‌دارد.
+- **نما:** `works/partials/copy-filters.blade.php`، یک `<details>` با فرم GET. هر `select` با تغییر فرم را می‌فرستد. پیش از فرستادن، `select` خالی غیرفعال می‌شود تا در نشانی نیاید، و `pageshow` دوباره فعالش می‌کند. Alpine در عرض ۶۴۰ پیکسل و بیشتر آن را باز می‌کند.
+- **آزمون‌ها:** `tests/Feature/WorkCopyFiltersTest.php` (۶ آزمون): گزینه‌ها و شمارها، فیلتر کتابخانه و شمارهای دیگر، ترکیب با هم و با مرتب‌سازی، نتیجه‌ی خالی و مقدار نادرست، صفحه‌بندی، اثر کم‌نسخه و عکسی پیوندخورده.
+- **پایگاه داده‌ی محلی:** `fahares_db` محلی هیچ `copy_date_from` پری ندارد، پس در پیش‌نمایش محلی نسخه‌های «قرن N» در سده نیامدند. در پروداکشن این ستون در ۲۴۲٬۸۴۱ نسخه پر است (۱۸ آبان، گام ۱۳.۸۲). آزمون، بازه را از قلاب `saving` مدل می‌گیرد.
