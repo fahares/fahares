@@ -1,0 +1,1292 @@
+{
+ "source": "columns of the record's own text (reports/fankha_v2_db_review9/diffs.jsonl), 2026-11-08; fahares step 14.91",
+ "category": "columns",
+ "works": [],
+ "fills": [],
+ "work_updates": [
+  {
+   "work_slug": "adab-os-soluk-v1-272",
+   "v2": "v1-272",
+   "id": 272,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "دوشنبه 26 صفر 752 (؟)"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "adab-e-namaz-v1-433",
+   "v2": "v1-433",
+   "id": 433,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "994ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "adab-e-namaz-e-sab-v1-447",
+   "v2": "v1-447",
+   "id": 447,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1289ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-adab-wa-s-sunan-v1-506",
+   "v2": "v1-506",
+   "id": 506,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "یک‌شنبه 22 ربیع الاول 1378"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "alat-e-mazhar-ol-anvar-v1-626",
+   "v2": "v1-626",
+   "id": 626,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "ربیع الثانی 1085ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ayat-ul-akam-v1-674",
+   "v2": "v1-674",
+   "id": 674,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "(ابتدای نگارش) دوشنبه 19 رمضان 1261ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ayat-e-karim-v1-713",
+   "v2": "v1-713",
+   "id": 713,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1345 ش"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ayat-u-kun-fa-yakun-v1-724",
+   "v2": "v1-724",
+   "id": 724,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1331ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ayine-ye-ayin-e-mazdayasni-v1-740",
+   "v2": "v1-740",
+   "id": 740,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1276ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ayine-ye-haq-nama-v1-750",
+   "v2": "v1-750",
+   "id": 750,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1596م/ 1004ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ayine-ye-giti-nama-v1-762",
+   "v2": "v1-762",
+   "id": 762,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "هفته سوم دهه سوم ماه دهم سال 1243"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ibsar-ul-afkar-li-intisar-il-abrar-v1-840",
+   "v2": "v1-840",
+   "id": 840,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 24 ربیع الثانی 1251ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "abwab-ul-jinan-fi-uquq-il-ixwan-v1-902",
+   "v2": "v1-902",
+   "id": 902,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "عصر یک‌شنبه 8 ربیع الاول 1261ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "abwab-ul-jinan-wa-basayir-ur-riwan-v1-903",
+   "v2": "v1-903",
+   "id": 903,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "26 شعبان 1242ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "abwab-ur-rawat-v1-908",
+   "v2": "v1-908",
+   "id": 908,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "23 رمضان 1324ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ijtima-ul-amr-wa-n-nahy-v1-1876",
+   "v2": "v1-1876",
+   "id": 1876,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "جمعه 17 جمادی الاول 1212ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-ahadis-un-nabaviyya-v2-96",
+   "v2": "v2-96",
+   "id": 2545,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1006ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asele-ye-tavale-v3-395",
+   "v2": "v3-395",
+   "id": 4771,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1235 تا 1237"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "estejabat-e-doa-v3-489",
+   "v2": "v3-489",
+   "id": 4865,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "جمعه 10 رمضان 1115ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "estexare-v3-509",
+   "v2": "v3-509",
+   "id": 4885,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1246ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istixara-v3-511",
+   "v2": "v3-511",
+   "id": 4887,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1110ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istixara-v3-514",
+   "v2": "v3-514",
+   "id": 4890,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 24 ذی‌حجه 1287ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "estexraj-e-zamir-v3-601",
+   "v2": "v3-601",
+   "id": 4977,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "قرن 3 ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istisab-v3-676",
+   "v2": "v3-676",
+   "id": 5052,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "سه‌شنبه 9 شعبان 1272ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istisab-v3-678",
+   "v2": "v3-678",
+   "id": 5054,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1241ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istisab-v3-681",
+   "v2": "v3-681",
+   "id": 5057,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "جمعه 29 رمضان 1282ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istisab-v3-682",
+   "v2": "v3-682",
+   "id": 5058,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "2 صفر 1263ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istisab-v3-687",
+   "v2": "v3-687",
+   "id": 5063,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "30 رجب 1296ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istisab-v3-693",
+   "v2": "v3-693",
+   "id": 5069,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "اواخر ذیقعده 1284ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istizhar-v3-699",
+   "v2": "v3-699",
+   "id": 5075,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1186ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "estefsar-v3-740",
+   "v2": "v3-740",
+   "id": 5116,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1252ق؛ محل ترجمه: کابل"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "istiqsa-ul-itibar-fi-s-il-istibsar-v3-752",
+   "v2": "v3-752",
+   "id": 5128,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "آخر صفر 1007ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "istiqsa-un-nazar-v3-754",
+   "v2": "v3-754",
+   "id": 5130,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "19 شعبان 1157ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-istinja-bi-l-azm-wa-r-raw-v3-764",
+   "v2": "v3-764",
+   "id": 5140,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "رمضان 1015ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "esteva-name-v3-766",
+   "v2": "v3-766",
+   "id": 5142,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "11 رمضان 826ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "eshaqiye-v3-778",
+   "v2": "v3-778",
+   "id": 5154,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "13 ذیقعده 1295ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-e-ebtela-ol-owliya-v3-789",
+   "v2": "v3-789",
+   "id": 5165,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1208ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ol-hekam-v3-835",
+   "v2": "v3-835",
+   "id": 5211,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "10 جمادی الثانی 1009ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-asrar-ur-raawiyya-fi-bayan-i-gawami-i-masail-il-ikmat-il-ilahiyya-v3-851",
+   "v2": "v3-851",
+   "id": 5227,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1287ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-e-serr-v3-857",
+   "v2": "v3-857",
+   "id": 5233,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1270ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-us-sahada-v3-864",
+   "v2": "v3-864",
+   "id": 5240,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 24 جمادی الاول 1238ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-us-sahada-v3-867",
+   "v2": "v3-867",
+   "id": 5243,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "جمعه نیمه ذیقعده 1272ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-os-sahada-v3-868",
+   "v2": "v3-868",
+   "id": 5244,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1274ق؛ مراثی فارسی در اسرار رویدادهای کربلا. چاپ: ایران، سنگی، 1279ق.، خشتی (متن و هامش)"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-us-salat-v3-876",
+   "v2": "v3-876",
+   "id": 5252,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 21 جمادی الثانی 820ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-us-salat-v3-880",
+   "v2": "v3-880",
+   "id": 5256,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1279ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-e-qasemi-v3-928",
+   "v2": "v3-928",
+   "id": 5304,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "در چهارمین سال پادشاهی اسماعیل 907ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ul-quran-v3-929",
+   "v2": "v3-929",
+   "id": 5305,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1198 تا 1205ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ol-qolub-fi-ovsaf-el-mahbub-v3-934",
+   "v2": "v3-934",
+   "id": 5310,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1263ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ul-masaib-wa-nukat-un-nawaib-v3-939",
+   "v2": "v3-939",
+   "id": 5315,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "آغاز غره صفر 1323ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ul-makarim-v3-947",
+   "v2": "v3-947",
+   "id": 5323,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "رمضان 1261ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ul-malakut-v3-949",
+   "v2": "v3-949",
+   "id": 5325,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1262ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-on-nesa-v3-965",
+   "v2": "v3-965",
+   "id": 5341,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "961ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-un-nuqat-v3-966",
+   "v2": "v3-966",
+   "id": 5342,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "14 ذیحجه 1264ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ol-vojud-v3-977",
+   "v2": "v3-977",
+   "id": 5353,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1291ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ol-velaya-v3-983",
+   "v2": "v3-983",
+   "id": 5359,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1260ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "asrar-ol-yaqin-e-mohammad-sahi-v3-989",
+   "v2": "v3-989",
+   "id": 5365,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1263ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "astor-e-qeybiye-v3-997",
+   "v2": "v3-997",
+   "id": 5373,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "ذیقعده 875ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "osul-e-farsi-v4-521",
+   "v2": "v4-521",
+   "id": 6554,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1111ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "emruz-care-cist-v4-2124",
+   "v2": "v4-2124",
+   "id": 8157,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1324."
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "anajil-e-arbae-t-v4-2171",
+   "v2": "v4-2171",
+   "id": 8204,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "20 شوال 1108ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "anajil-e-arbae-t-v4-2172",
+   "v2": "v4-2172",
+   "id": 8205,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1224ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "inarat-ul-alik-fi-qiraat-i-malik-wa-malik-v4-2177",
+   "v2": "v4-2177",
+   "id": 8210,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "پنج‌شنبه 10 صفر 1324ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "inarat-ut-turus-fi-ibarat-id-durus-v4-2178",
+   "v2": "v4-2178",
+   "id": 8211,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "26 جمادی الثانی 1114ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-inafa-fi-ma-jaa-fi-s-sadaqa-wa-iyafa-v4-2183",
+   "v2": "v4-2183",
+   "id": 8216,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "950ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "inna-al-aimma-ilal-un-arba-run-fi-v4-2184",
+   "v2": "v4-2184",
+   "id": 8217,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1291ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "tarix-e-jahangir-sahi-v6-1467",
+   "v2": "v6-1467",
+   "id": 11640,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1013ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "tarix-e-jahangiri-v6-1468",
+   "v2": "v6-1468",
+   "id": 11641,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "آغاز: رجب 1034ق، پایان: جمادی الثانی 1036ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "tarix-e-qayasere-v6-1788",
+   "v2": "v6-1788",
+   "id": 11961,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1296ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "at-tawid-v9-854",
+   "v2": "v9-854",
+   "id": 17912,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "9 شعبان 948ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "jabr-ul-inkisar-v10-21",
+   "v2": "v10-21",
+   "id": 18783,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1201ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "al-jinniya-v10-1379",
+   "v2": "v10-1379",
+   "id": 20141,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "چهارشنبه 21 رجب 1257ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "all-e-jam-e-jahan-nama-v13-833",
+   "v2": "v13-833",
+   "id": 24872,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "850ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "hamle-ye-heydari-v13-1063",
+   "v2": "v13-1063",
+   "id": 25102,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "حدود 1077 تا 1105ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "xatimat-ol-hayat-v13-1309",
+   "v2": "v13-1309",
+   "id": 25348,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "19 محرم 1288ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-rasail-u-r-rijaliya-mx-v16-971",
+   "v2": "v16-971",
+   "id": 32309,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1313ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "rasail-ul-ulum-v16-978",
+   "v2": "v16-978",
+   "id": 32316,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1229ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-rasail-ul-fiqhiyya-v16-982",
+   "v2": "v16-982",
+   "id": 32320,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1236ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "rasael-va-masael-v16-995",
+   "v2": "v16-995",
+   "id": 32333,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "یوم جمعه 28 ذیحجه 1230ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-itibariya-v16-1051",
+   "v2": "v16-1051",
+   "id": 32389,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1232ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-itiqadiya-fi-l-umur-il-maadiya-v16-1053",
+   "v2": "v16-1053",
+   "id": 32391,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "جمادی الثانی 857ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ol-amal-v16-1054",
+   "v2": "v16-1054",
+   "id": 32392,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1288ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-un-ila-ibn-in-naqib-v16-1059",
+   "v2": "v16-1059",
+   "id": 32397,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "653ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-i-dar-teb-v16-1119",
+   "v2": "v16-1119",
+   "id": 32457,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "20 محرم 1231ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-bahiyya-v16-1141",
+   "v2": "v16-1141",
+   "id": 32479,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "21 صفر 1291ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-airiyya-fi-bayan-il-ibadat-is-sariyya-ala-sariat-i-asraf-il-bariyyat-il-muntaxaba-min-fiqh-il-imamiya-v16-1179",
+   "v2": "v16-1179",
+   "id": 32517,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "ربیع الثانی 885ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ul-xaqaniya-v16-1203",
+   "v2": "v16-1203",
+   "id": 32541,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "12 ربیع الاول 1057ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ud-dimasqiya-fi-tarjiz-il-ajurrumiyya-r-ul-irab-v16-1253",
+   "v2": "v16-1253",
+   "id": 32591,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "شنبه 8 صفر 961ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-us-sulaymaniya-fi-bayan-il-ayat-wa-r-rusum-il-quraniya-v16-1289",
+   "v2": "v16-1289",
+   "id": 32627,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1088ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-us-sayfiyya-fi-usul-il-akam-is-sariyya-ala-mahab-is-sadat-il-anafiyya-v16-1298",
+   "v2": "v16-1298",
+   "id": 32636,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "712ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ye-sodaiya-v16-1323",
+   "v2": "v16-1323",
+   "id": 32661,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1270ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ol-adadiya-v16-1347",
+   "v2": "v16-1347",
+   "id": 32685,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "صفر 719ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ul-arab-v16-1350",
+   "v2": "v16-1350",
+   "id": 32688,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "رجب 422ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-asiriya-v16-1357",
+   "v2": "v16-1357",
+   "id": 32695,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "7 رجب 1282ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ol-oqudiya-v16-1359",
+   "v2": "v16-1359",
+   "id": 32697,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "ذیحجه 1062ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ye-elmiye-dar-kasf-e-oqubat-e-oxraviye-v16-1366",
+   "v2": "v16-1366",
+   "id": 32704,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1239ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ol-elliye-fe-l-ahadis-en-nabaviye-v16-1367",
+   "v2": "v16-1367",
+   "id": 32705,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "875ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ye-amaliyya-v16-1417",
+   "v2": "v16-1417",
+   "id": 32755,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "ذیقعده 1276ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ye-amaliyya-v16-1420",
+   "v2": "v16-1420",
+   "id": 32758,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1262 ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-ye-amaliyya-v16-1427",
+   "v2": "v16-1427",
+   "id": 32765,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "شوال 1271ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-garawiyya-v16-1450",
+   "v2": "v16-1450",
+   "id": 32788,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "11 جمادی الثانی 1253ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-fatimiyya-v16-1455",
+   "v2": "v16-1455",
+   "id": 32793,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "ربیع الثانی 1283ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ar-r-ul-faila-v16-1460",
+   "v2": "v16-1460",
+   "id": 32798,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "شنبه 7 ربیع الاول 951ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "r-un-fi-masalat-in-hayawi-v16-1509",
+   "v2": "v16-1509",
+   "id": 32847,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "رمضان 1105ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "ravayeh-ol-mostafa-men-azhar-el-mortaza-v16-2147",
+   "v2": "v16-2147",
+   "id": 33485,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "آغاز 1302ق و انجام 1303ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "serr-e-alef-v18-47",
+   "v2": "v18-47",
+   "id": 35569,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "دهه آخر صفر 970ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "zalamat-ol-monafeqin-v22-883",
+   "v2": "v22-883",
+   "id": 45049,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1234ق"
+    }
+   },
+   "author": null
+  },
+  {
+   "work_slug": "merat-ol-mazaheb-v28-1844",
+   "v2": "v28-1844",
+   "id": 58618,
+   "changes": {
+    "composition_date_raw": {
+     "from": null,
+     "to": "1302ق"
+    }
+   },
+   "author": null
+  }
+ ]
+}

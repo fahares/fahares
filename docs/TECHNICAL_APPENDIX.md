@@ -8629,7 +8629,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - `tabaqat/v11/p0600`، `v16/p1661` و `v17/p0608`.
   - **پیش از انتقال:** ۳۲ گیگابایت جای خالی روی `/app/storage/app/public` بود.
 
-
 ### گام ۱۴.۸۷: فهرستگان نسخه‌های خطی حدیث (`hadith-mss`)
 - **منشأ:** `Darolhadith-DB/darolhadith.db`، سری `36242`. دار الحدیث، قم ۱۳۸۲ش، ۱۲ جلد. گردآورنده علی صدرایی خویی.
 - **[noor_reference_books.py](../scripts/sources/noor_reference_books.py):** کد `hadith-mss`، با این قاعده‌ها:
@@ -8710,3 +8709,49 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای آزمایشی و `--apply` هر دو این‌ها را دادند: `set` ۴۰۳، `shared:linked` ۴٬۹۵۵، `shared:volumes` ۳٬۳۵۵، `shared:overlap` ۳۰، `shared:repeated-work` ۳۰۰ و `shared:no-evidence` ۲۰٬۴۲۰. اجرای دوم هیچ `set` نداشت.
   - پشتیبان: `step14_90_collection_keys_before.tsv`، با ۳۲۳٬۲۴۵ ردیف و md5 `70010913…`. فایل `/tmp` کانتینر پاک شد.
   - کلیدها: ۸۱۳۹۰ → `14515`، ۱۷۵۴۰۶ → `1111`، ۶۰۲۰۲ → `10945`. ۳۵۷۵۱ («8344») بی‌کلید ماند: جزءهایش گستره ندارند، پس شاهدی برای پیوند نیست.
+
+### گام ۱۴.۹۱: رونوشت ۱۸ آبان، review9 و `fankha_v2_fill_columns_export.py`
+- **رونوشت:**
+  - **دریافت:** `rsync --partial --append-verify --bwlimit=2000 fahares-server:~/fahares-backups/work/fahares-db-20261108-034701.{manifest.json,sql.zst}` به `fahares-sources/backups/prodcopy/` (۳۰۴ مگابایت). sha256 با manifest برابر بود و پایان dump «Dump completed».
+  - **بارگذاری:** سطرهای `CREATE DATABASE` و `` USE `default` `` از ۴۰ سطر نخست با `sed` حذف و فایل در `fahares_prod_new` بار شد. شمارها برابر manifest بود: ۳۲۳٬۵۷۱ نسخه، ۷۱٬۶۸۵ اثر، ۷۰٬۴۴۵ شخص و ۵٬۴۶۴ نشانی برگشت.
+  - **جابه‌جایی:** هیچ اتصالی به `fahares_prod` نبود. یک `RENAME TABLE` با ۱۳۲ بخش اجرا شد: ۶۶ جدول پیشین به `fahares_prod_20261029` و ۶۶ جدول تازه به `fahares_prod`. جدول `source_pages_dharia_bak_13133` فقط در پیشین بود و `message_attachments` فقط در تازه.
+- **review9:** `fankha_v2_db_compare.py --out reports/fankha_v2_db_review9`. ردیف‌ها از ۹۰٬۷۸۸ به ۸۷٬۰۹۷ رسید. نمونه‌ها:
+  - `has_marginal_notes/flag_off` از ۳٬۶۲۵ به ۲٬۴۱۹؛
+  - `incipit_text/filled` و `explicit_text/filled` نزدیک صفر.
+- **صدور (پیکره):** `scripts/fankha_v2_fill_columns_export.py --diffs reports/fankha_v2_db_review9/diffs.jsonl --works … --copies …`.
+  - **ستون‌ها:** `paper`، `dimensions`، `lines`، `folios`، `copy_place` و `commissioned_by`، و `composition_date_raw` اثر.
+  - **`shown()`:**
+    - **ستون‌های متنی:** حرف‌ها باید در متن باشند، و برچسب (`LABELS`، با «ك/ی» یکسان) تا ۴۰ نویسه پیش از واژه‌ی نخست بیاید.
+    - **`dimensions` و تاریخ:** متن بی‌فاصله با «×» یکسان.
+    - **شمارها:** `N\s*سطر` و `N\s*(گ|برگ)`.
+  - **کاغذ:** مقدار پیش از `[:،,]?\s*(جلد|\d|اندازه)` بریده می‌شود. بیش از ۶ واژه، یا آغاز با «و» یا «این»، کنار می‌رود.
+  - **`lines`:** واژه‌ی کلیدی SQL است و در پرس‌وجو در backtick می‌آید.
+- **فایل‌ها:** `database/data/fankha_columns_works_step14_91.json` (۱۰۷ اثر) و `database/data/fankha_columns_copies_step14_91.json` (۱٬۵۵۸ نسخه).
+  - `folios` سه نسخه (11398، 136406 و 253151) برداشته شد، چون `DerivedData` آن را از `extent_raw` بازمی‌نویسد («179 ص»).
+- **تمرین روی fahares_prod:**
+  - «update 107»، «Rebuilding 1561 copies»، `pointers_linked=13` و «23 copies relinked».
+  - اجرای دوم «update 0» و `already 1558`.
+  - `fill-copy-date-ranges --works`: `changed 0`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:add-corpus-works --file=database/data/fankha_columns_works_step14_91.json --apply`
+  2. `fahares:rebuild-copies --file=database/data/fankha_columns_copies_step14_91.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 دو فایل در کانتینر با main برابر بود. خروجی‌ها: «update 107» و «Rebuilding 1558 copies» (۲۳ نسخه دوباره جلد گرفتند). اجرای دوم «update 0» و `already 1558` بود و `fill-copy-date-ranges --works` `changed 0` داد. ۱٬۶۶۵ ردیف audit ثبت شد. فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۲: نشان‌های نسخه
+- **ورودی:** ردیف‌های `flag_on` و `flag_off` یازده نشان در review9، بی ستون حفاظت‌شده (حدود ۶٬۰۰۰ ردیف).
+- **واژه‌ها:** `TOK` در `reports/fankha_v2_db_review9/flags_step14.92/tok.py`، روی متن نسخه پس از سطر شماره‌ی نسخه، با «ك/ي/ى» یکسان.
+  - `is_autograph` این‌ها را هم می‌شناسد: «کاتب: مؤلف»، «کا: = مؤلف»، «بخط مؤلف» و «خط: = مؤلف».
+- **پاسداری:**
+  - واژه‌ای که ۳۰ نویسه پیش از آن «گویا / ظاهراً / احتمالاً / شاید / منسوب / محتملاً» آمده، کنار می‌رود.
+  - «تصحیح نشده» کنار می‌رود.
+  - «بخط مؤلف دانسته» کنار می‌رود.
+- **گروه‌ها:**
+  - **A. روشن:** `flag_on` با واژه‌ی بی‌تردید، ۲٬۱۵۲ مورد.
+  - **B. خاموش:** `flag_off` بی هیچ واژه‌ی نزدیک. برای `is_ruled` «جدول»، برای `is_collated` «مقابل» و برای `is_illustrated` «تصویر/مصور/نقاش/نگار/مجلس» سنجیده شد. `is_bika` بی «بی‌کا» است. شش `is_autograph` هم با چشم دیده شدند.
+  - **C. خوانش:** چهار زیرعامل Sonnet ۸۴۱ متن را با `C_INSTRUCTIONS.md` خواندند (`has_author_marginalia` و `is_illuminated`). پاسخ «no» نشان را برمی‌دارد؛ «yes» و «unsure» بی‌تغییرند.
+    - `why` در «no» یکنواخت بود، پس ۴۰ نمونه دستی سنجیده شد.
+- **فایل:** `database/data/fankha_flags_step14_92.json` با ۲٬۸۶۸ رکورد و ۲٬۹۲۲ تغییر، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 2868 copies» و «41 copies relinked». اجرای دوم `already 2868`.
+- **ترتیب اجرا در تولید:**
+  1. `fahares:rebuild-copies --file=database/data/fankha_flags_step14_92.json --apply`
+  2. `fahares:link-autograph-scribes`
