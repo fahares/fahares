@@ -8825,3 +8825,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۸: سطرهای ستون‌های دیگر در `description`
+- **ورودی:** `Work/description` `trimmed` و `trimmed_inner` در review10 (۵۲۷ ردیف).
+- **صدور (پیکره، `ff896d0`):** `scripts/fankha_v2_description_extras_export.py --report reports/fankha_v2_db_review10`.
+- **قاعده:** سطرها از پایان و سپس از آغاز `description` برداشته می‌شوند تا `letters(باقی) == letters(description v2)`. هر سطر باید یکی از این‌ها باشد:
+  - **پایان یا آغاز:**
+    - `آغاز (کتاب|N)?:` که `letters` آن در `incipit_text` باشد؛
+    - `انجام (کتاب|N)?:` که `letters` آن در `explicit_text` باشد؛
+    - `غیر ?همانند:?` تنها؛
+    - `[…]` که در `bibliography` باشد؛
+    - سطر تهی.
+  - **تنها آغاز:**
+    - سطر لاتینِ بی حرف فارسی (آوانگاری)؛
+    - سطر مؤلف (`bare()` گام ۱۴.۶۱ برابر `author_name`)؛
+    - `تاریخ تالیف: X(؛ محل تالیف: Y)?` با `tight(X) == tight(composition_date_raw)`.
+  - **ستون خالی:** اگر ستونِ سطر در سایت خالی باشد و v2 آن را پر کند (`filled` در review10)، سطر تنها وقتی برداشته می‌شود که در مقدار v2 باشد. ستون هم مقدار v2 را می‌گیرد.
+- **شمارها:** `ok` ۴۱۱، `kept` ۱۱۶. نوع سطرها: incipit ۳۰۱، explicit ۲۲۴، transliteration ۴۰، empty_label ۳۲، citation_moved ۲۰، incipit_moved ۱۵، date_moved ۹، explicit_moved ۸، blank ۵، author ۳، date ۲.
+- **کد:** `composition_place` به `AddCorpusWorksCommand::UPDATE_COLUMNS` افزوده شد. آزمون: `AddCorpusWorksCommandTest::test_a_place_of_composition_left_in_the_description_moves_to_its_column`.
+- **فایل:** `database/data/fankha_description_extras_step14_98.json` با ۴۱۱ `work_updates`. ستون‌های همراه: `bibliography` ۲۰، `incipit_text` ۱۵، `composition_place` ۹، `explicit_text` ۸.
+- **تمرین روی fahares_prod:** «update 411» و «Derived data of works: works=411, with_dedication=37». اجرای دوم «update 0». `bibliography` تازه با cast آرایه‌ای Eloquent نوشته می‌شود (`\uXXXX`). در سایت ۵۸ ارجاع از پیش چنین بودند.
+- **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`

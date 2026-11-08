@@ -161,6 +161,25 @@ class AddCorpusWorksCommandTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function test_a_place_of_composition_left_in_the_description_moves_to_its_column()
+    {
+        // step 14.98: «تاریخ تالیف: …؛ محل تالیف: …» at the head of the description, the date already in its column
+        $id = $this->work('اثر آزمایشی ه', 'test-he-v99-9004');
+        DB::table('works')->where('id', $id)->update(['composition_date_raw' => '1261ق',
+            'description' => "تاریخ تالیف: 1261ق؛ محل تالیف: اصفهان\nشرح اثر"]);
+        $update = ['v2' => 'v99-4', 'work_slug' => 'test-he-v99-9004', 'author' => null, 'changes' => [
+            'description' => ['from' => "تاریخ تالیف: 1261ق؛ محل تالیف: اصفهان\nشرح اثر", 'to' => 'شرح اثر'],
+            'composition_place' => ['from' => null, 'to' => 'اصفهان'],
+        ]];
+        file_put_contents($this->file, json_encode(['category' => 'description_extras', 'works' => [], 'work_updates' => [$update]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $work = Work::find($id);
+        $this->assertSame('شرح اثر', $work->description);
+        $this->assertSame('اصفهان', $work->composition_place);
+    }
+
     public function test_a_shelfmark_the_work_holds_twice_moves_by_its_sequence()
     {
         // vol 11: «رضوی 7141» twice under Deylamaj's work, the second one Kermanshahi's (step 14.23)
