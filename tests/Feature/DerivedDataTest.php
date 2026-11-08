@@ -312,6 +312,17 @@ class DerivedDataTest extends TestCase
         $v1 = $copy('7401', [1, 10], '14×21');
         $v2 = $copy('7402', [11, 20], '14×21');
         $v3 = $copy('7404', [1, 30], '14×21');
+        // Two «n/m» parts are one volume already: their own overlap (a margin text) or one work in two parts does not
+        // keep the plain copy out (step 14.85); the plain copy's own overlap with a part still does
+        $copy('7501/1', [1, 30]);
+        $copy('7501/2', [10, 20]);
+        $k1 = $copy('7501', [31, 40]);
+        $parts = $this->work();
+        $copy('7502/1', work: $parts);
+        $copy('7502/2', work: $parts);
+        $k2 = $copy('7502', [5, 9]);
+        $copy('7503/1', [1, 30]);
+        $k3 = $copy('7503', [20, 40]);
 
         $this->artisan('fahares:link-plain-volumes')->expectsOutputToContain('Dry run: nothing written.')->assertSuccessful();
         $this->assertNull($key($a1));
@@ -321,6 +332,7 @@ class DerivedDataTest extends TestCase
         $this->assertSame(['7201–7207', '7201–7207', '7201–7207', null, '7201–7207'], array_map($key, [$r1, $r2, $r3, $r4, $r5]));
         $this->assertSame([null, null, null], array_map($key, [$u1, $u2, $u3]));
         $this->assertSame(['7401–7402', '7401–7402', null], array_map($key, [$v1, $v2, $v3]));
+        $this->assertSame(['7501', '7502', null], array_map($key, [$k1, $k2, $k3]));
         // A second run finds nothing to change (a numeric key is compared as the string it is stored as)
         $ours = [$a1, $a2, $a3, $a4, $a5, $r1, $r2, $r3, $r5, $v1, $v2];
         DB::enableQueryLog();
