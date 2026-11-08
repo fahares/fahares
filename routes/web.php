@@ -228,7 +228,7 @@ Route::get('/s/{id}', function ($id) {
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('/sitemap-{type}-{page}.xml', [SitemapController::class, 'chunk'])
     ->where([
-        'type' => 'static|works|manuscripts|people|libraries|catalogers',
+        'type' => 'static|works|manuscripts|people|libraries|catalogers|entries',
         'page' => '[1-9][0-9]*',
     ])
     ->name('sitemap.chunk');
