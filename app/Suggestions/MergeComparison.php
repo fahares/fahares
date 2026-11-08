@@ -39,6 +39,9 @@ class MergeComparison
     // Registry fields the merge carries itself, or that name the record's place rather than describe it
     private const SKIP = ['primary_title', 'alternative_titles', 'language_summary', 'fankha_page', 'shelfmark', 'name', 'aliases'];
 
+    // Keys of a map whose value is one thing, never two joined
+    private const ONE_VALUE_KEYS = ['catalog_citation'];
+
     // Columns no suggestion field covers
     private const EXTRA = [
         Manuscript::class => [
@@ -320,6 +323,11 @@ class MergeComparison
             return $target;
         }
         foreach ($source as $k => $v) {
+            // a copy's catalogue reference names one entry: the kept copy's stays, and the other one's entry moves to
+            // it with the merge (step 14.85)
+            if (in_array($k, self::ONE_VALUE_KEYS, true) && ! self::blank($target[$k] ?? null)) {
+                continue;
+            }
             $target[$k] = array_key_exists($k, $target) ? self::combine($target[$k], $v) : $v;
         }
 

@@ -8421,3 +8421,32 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید (۱۷ آبان ۱۴۰۵):** پشتیبان گام ۱۴.۱۶ (md5 `6b0301ec…`) به `/tmp` رفت.
   - گزارش و `--apply --backup=/tmp/step14_80_fold_backup.json` هر دو «61 … 34» بودند. پشتیبان (۶۱ نسخه و ۳۴ قول) به لپ‌تاپ رفت و هر دو فایل `/tmp` پاک شدند. اجرای دوم «0» بود.
   - **پس از اجرا:** ۶ قول با `origin` = `copy_merge` مانده است.
+
+### گام ۱۴.۸۵: `fahares:merge-catalogue-twins` و جزءهای «n/m» در `link-plain-volumes`
+- **[LinkPlainVolumesCommand.php](../app/Console/Commands/LinkPlainVolumesCommand.php):** هر نسخه نشان `keyed` دارد: true برای نسخه‌ای که `collectionKeyOf` دارد، false برای نسخه‌ی شماره‌ساده. `sharedVolume()` جفت‌ها را دوبه‌دو می‌سنجد و جفتی را که هر دو `keyed` باشند کنار می‌گذارد، هم در `overlap` و هم در `repeated-work`. شرط `linked` (دو بازه، یا یک بازه با `from > 2`) همان است.
+- **[MergeCatalogueTwinsCommand.php](../app/Console/Commands/MergeCatalogueTwinsCommand.php):**
+  - **گروه:** `library_id` (یا `n:{library}`)، `plainVolumeKeyOf` و `work_id`. کنار گذاشته می‌شوند: نسخه‌ی «n/m»، شماره‌ی «بدون شماره»، و متنی با «همان نسخه» (کارِ `link-copy-references`).
+  - **نسخه‌ی ماندنی:** `rank()` = [بازه دارد، ارجاعش با «[رایانه» یا «[الفبائی» شروع نمی‌شود، طول `raw_text`]. هر عضو دیگر با نسخه‌ی ماندنی سنجیده می‌شود.
+  - **`apart()`:** این‌ها جفت را جدا نگه می‌دارند:
+    - `facsimile`: یکی عکسی است و دیگری نه
+    - `other-leaves`: دو بازه‌ی نابرابر
+    - `other-folios`: اختلاف `folios` بیش از ۲
+    - `other-size`: اختلاف یکی از دو ضلعِ `dimensions` (یا «اندازه:» در متن) بیش از ۱٫۵. ضلع زیر ۳ سانتی‌متر خطای چاپ شمرده می‌شود و کنار می‌رود
+    - `other-format`: واژه‌ی نخستِ «قطع:» نابرابر
+    - `other-lines`: اختلاف `lines` بیش از ۲
+    - `other-scribe`: نام مشترکی در `scribe_name` نیست، پس از کنار گذاشتن «ال» و نام‌های رایج (محمد، علی، بن…)
+    - `other-date`: فاصله‌ی بازه‌های `copy_date_from/to` بیش از ۱۰ سال
+    - `other-text`: هر دو `explicit_text` دست‌کم ۳ واژه دارند و کمتر از ۳۰٪ واژه‌ها مشترک است. «برابر» و «موجود» شمرده نمی‌شوند
+    - `distinct`: رابطه‌ی `distinct_from`
+  - **ادغام:** `RecordMerger::mergeManuscript($source, $kept)` با انتخاب‌های پیش‌فرض. هر ادغام تراکنش خودش را دارد. `AuditLog` «merge» به شکل ادغام مدیر نوشته می‌شود (`old_values` = `source_id` + نتیجه، `corpus_fix` = «step 14.85 merge-catalogue-twins»)، پس از صفحه‌ی لاگ برمی‌گردد. پشتیبان هر ۱۰۰ ادغام نوشته می‌شود.
+  - **`--revert`:** `undoManuscriptMerge` از آخر به اول اجرا می‌شود، با `AuditLog` «rollback_merge» (`rolled_back_log_id`). گزینه‌های دیگر: `--library=` (شناسه یا نام)، `--report=`، `--show=`.
+- **[MergeComparison.php](../app/Suggestions/MergeComparison.php):** `ONE_VALUE_KEYS` = `catalog_citation`. در یکی شدن metadata، اگر نسخه‌ی ماندنی این کلید را دارد، کلید نسخه‌ی حذف‌شده به آن چسبانده نمی‌شود. پیش از این «[ف: 15-2]\n\n[رایانه]» می‌شد که در جست‌وجو و صفحه‌ی اثر خراب نمایش داده می‌شد. ارجاع دیگر در مدخلِ منتقل‌شده و در `credit_name` قول‌ها می‌ماند.
+- **سنجش روی `fahares_prod` (تراکنش برگردانده):** `merge` ۳۲۶. جدا ماندند: `other-leaves` ۵۹، `other-folios` ۴۶، `other-text` ۲۳، `other-date` ۲۱، `other-size` ۱۱، `other-scribe` ۱۰، `other-format` ۸، `other-lines` ۵، `facsimile` ۲. ۳۰۸ قول ساخته شد. پس از ادغام، `link-plain-volumes` این‌ها را داد: `shared:repeated-work` ۱٬۲۴۵ → ۵۵۰، `shared:overlap` ۴۵۶ → ۴۳۶، `set` ۴٬۷۳۱. خود اصلاح قاعده پیش از ادغام `overlap` را از ۸۳۹ به ۴۵۶ و `repeated-work` را از ۱٬۴۷۳ به ۱٬۲۴۵ رسانده بود.
+  - درون یک تراکنش بزرگ، ادغام ۳۲۶ نسخه حدود ۹ دقیقه طول کشید. یک ادغام تنها ۰٫۲۳ ثانیه است.
+  - بازگردانی ۳۴ ادغام مجلس (`--library=4`) شمار `manuscripts`، `field_suggestions`، `entity_redirects` و `source_entries` نسخه‌ها را دقیقاً برگرداند.
+  - نمونه‌خوانی ۲۰ ادغام، پیش از شرط قطع: ۱۸ درست. ۲ جفت با قطع «رحلی» و «خشتی» دو نسخه بودند و اکنون جدا می‌مانند.
+- **آزمون:** `CatalogueTwinsTest` (دو آزمون) و `DerivedDataTest::test_treatises_with_plain_shelfmarks_are_linked_where_their_leaves_show_one_volume` (نسخه‌های 7501، 7502 و 7503).
+- **پروداکشن، پس از انتشار:** پشتیبان پیش از اجرا و به تأیید کاربر.
+  1. `php -d memory_limit=2G artisan fahares:merge-catalogue-twins --report=/tmp/step14_85_twins.csv` (گزارش)
+  2. `… --apply --backup=/tmp/step14_85_twins_backup.json`. پشتیبان و گزارش به `../fahares-sources/backups/step13/` می‌روند.
+  3. `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply`

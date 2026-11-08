@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\DB;
  *  - one number shared (the National Library prints «4824» for each of the thirty treatises of its volume 4824): the
  *    copies of a library with one plain shelfmark (Manuscript::plainVolumeKeyOf), and any copy keyed «4824» from a
  *    shelfmark «4824/n», are one volume when their leaf ranges do not overlap, two ranges or one range past the first
- *    leaves show a bound volume, and no work comes twice unless every copy of it has its own range. The key is the
- *    shared shelfmark.
+ *    leaves show a bound volume, and no work comes twice unless every copy of it has its own range. Two copies keyed
+ *    «4824/n» are one volume already, so their own overlap or repeated work does not count. The key is the shared
+ *    shelfmark.
  *  - a run of numbers (Razavi numbers each treatise of a volume: 38131 at 19ر–22پ, 38134 at 94ر–115ر, 38137 at
  *    173ر–244ر): copies with a plain number of their own, within five numbers of each other, of one size («اندازه»),
  *    whose leaf ranges go on in the order of their numbers, each next one the nearest after the last. A copy of that
@@ -58,7 +59,7 @@ class LinkPlainVolumesCommand extends Command
                     $range = $row->range_from_number !== null ? [(int) $row->range_from_number, (int) ($row->range_to_number ?? $row->range_from_number)] : null;
                     $derived = Manuscript::collectionKeyOf($row->shelfmark, $row->raw_text);
                     if ($derived !== null) {
-                        $keyed[$lib][$derived][] = ['id' => $row->id, 'work' => $row->work_id, 'range' => $range];
+                        $keyed[$lib][$derived][] = ['id' => $row->id, 'work' => $row->work_id, 'range' => $range, 'keyed' => true];
 
                         continue;
                     }
@@ -66,7 +67,7 @@ class LinkPlainVolumesCommand extends Command
                     if ($key === null && $row->collection_key === null) {
                         continue;
                     }
-                    $plain[$row->id] = ['id' => $row->id, 'lib' => $lib, 'key' => $key, 'work' => $row->work_id, 'range' => $range,
+                    $plain[$row->id] = ['id' => $row->id, 'lib' => $lib, 'key' => $key, 'work' => $row->work_id, 'range' => $range, 'keyed' => false,
                         'number' => Manuscript::citesOnlySenate($row->raw_text) ? null : Manuscript::plainNumber($row->shelfmark),
                         'size' => self::size($row->raw_text), 'shelfmark' => $row->shelfmark, 'stored' => $row->collection_key];
                 }
@@ -172,27 +173,37 @@ class LinkPlainVolumesCommand extends Command
     /**
      * Whether copies sharing a plain number are one bound volume: 'linked', or why not ('overlap': two ranges share
      * leaves, so the copies are two volumes or one copy described twice; 'repeated-work': a work comes twice without
-     * its own ranges; 'no-evidence': nothing shows a bound volume).
+     * its own ranges; 'no-evidence': nothing shows a bound volume). Two copies keyed by their «n/m» shelfmarks are one
+     * volume already, so what lies between those two (one work in two parts, a text in the other's margin) does not
+     * count (step 14.85).
      */
     private static function sharedVolume(array $copies): string
     {
-        $ranges = array_values(array_filter(array_map(fn ($c) => $c['range'], $copies)));
-        usort($ranges, fn ($a, $b) => $a <=> $b);
-        for ($i = 1; $i < count($ranges); $i++) {
-            // «1پ–27» and «27پ–93» share leaf 27, a leaf each half of
-            if ($ranges[$i][0] < $ranges[$i - 1][1]) {
-                return 'overlap';
+        $copies = array_values($copies);
+        $pairs = [];
+        for ($i = 0; $i < count($copies); $i++) {
+            for ($j = $i + 1; $j < count($copies); $j++) {
+                if (! ($copies[$i]['keyed'] ?? false) || ! ($copies[$j]['keyed'] ?? false)) {
+                    $pairs[] = [$copies[$i], $copies[$j]];
+                }
             }
         }
-        $byWork = [];
-        foreach ($copies as $c) {
-            $byWork[$c['work']][] = $c['range'] !== null;
+        foreach ($pairs as [$a, $b]) {
+            if ($a['range'] && $b['range']) {
+                [$first, $second] = $a['range'] <= $b['range'] ? [$a['range'], $b['range']] : [$b['range'], $a['range']];
+                // «1پ–27» and «27پ–93» share leaf 27, a leaf each half of
+                if ($second[0] < $first[1]) {
+                    return 'overlap';
+                }
+            }
         }
-        foreach ($byWork as $ranged) {
-            if (count($ranged) > 1 && in_array(false, $ranged, true)) {
+        foreach ($pairs as [$a, $b]) {
+            if ($a['work'] === $b['work'] && (! $a['range'] || ! $b['range'])) {
                 return 'repeated-work';
             }
         }
+        $ranges = array_values(array_filter(array_map(fn ($c) => $c['range'], $copies)));
+        usort($ranges, fn ($a, $b) => $a <=> $b);
         if (count($ranges) >= 2 || ($ranges && $ranges[0][0] > 2)) {
             return 'linked';
         }
