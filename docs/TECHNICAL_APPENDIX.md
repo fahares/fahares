@@ -8826,20 +8826,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
   - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
-
-### گام ۱۴.۱۰۰: `f[field]` و `App\Support\FieldTerms`
-- **پارامتر:** `f[<key>]=<عبارت>`، با کلیدهای `SearchController::FIELD_SCOPES[type]` (فقط `works` و `manuscripts`). `FieldTerms::clean` کلید ناشناخته، مقدار غیررشته و تهی را می‌اندازد، و عبارت را تا ۱۰۰ نویسه و با `TextNormalizer::normalize` نگه می‌دارد. در `SearchFilters::$values['fields']` می‌نشیند و در `CONTEXT` هم هست، تا شمار فیلترهای کناری درون آن گرفته شود.
-- **`FieldTerms::resolve`:**
-  - یک `multiSearch` با `limit 0` شمار هر فیلد را جداگانه می‌دهد (`attributesToSearchOn` همان فیلد، `matchingStrategy all`).
-  - فیلدها به ترتیب صعودی شمار جست‌وجو می‌شوند، هر کدام با `limit CAP` (۱۰٬۰۰۰) و `attributesToRetrieve [id]`، و از دومی به بعد با `filter id IN [شناسه‌های پیشین]`.
-  - `broad` فقط فیلد نخست است، وقتی شمارش از CAP بیشتر باشد.
-  - نتیجه در یک آرایه‌ی ایستا نگه داشته می‌شود، تا `engine()`، `contextEngine()` و `apply()` یک بار بپرسند. `ExportSearchResults` پیش از هر کار `flush()` می‌کند.
-  - خطای موتور به `failed` می‌انجامد، و کنترلر آن را `engineDown` می‌کند.
-  - با درایور `collection` (آزمون‌ها)، رکوردها با `toSearchableArray()` و `str_contains` هر واژه سنجیده می‌شوند.
-- **`SearchFilters`:** `engine()` → `id IN [...]` یا `id = 0`؛ `apply()` → `whereIn(<table>.id, ids)`؛ `active()` یک نشان برای هر فیلد با `['f' => باقی]`؛ `broadFields()` برچسب فیلدهای بریده.
-- **آمار:** `fields` در `SearchStatsController::FILTER_LABELS` («چند فیلد با هم»).
-- **زمان (نمایه‌ی محلی، گرم):** «کاتب: محمد» + «محل کتابت: اصفهان» → ۱٬۴۶۱ شناسه در ۰٫۷۵ تا ۰٫۹۸ ثانیه. نخستین پرسش با کش سرد ۷٫۵ ثانیه بود. یک فیلد کلی تنها («کاتب: محمد»، ۱۰٬۰۰۰ شناسه) ۰٫۷۳ ثانیه.
-- **آزمون:** `tests/Feature/SearchFieldTermsTest.php` (۷ آزمون)، با Mockery برای ترتیب زنجیره و `filter` آن.
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
 
 ### گام ۱۴.۹۸: سطرهای ستون‌های دیگر در `description`
@@ -8864,35 +8850,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۶ (main 44a87147). md5 فایل در کانتینر با شاخه برابر بود و `description` هر ۴۱۱ اثر با `from` فایل برابر بود. خروجی: «Derived data of works: works=411, with_dedication=37». ۴۱۱ ردیف audit با `description_extras`. اجرای دوم «update 0». فایل‌های موقت `/tmp` کانتینر پاک شدند.
 
-### گام ۱۴.۱۰۵: `SourceEntrySync::partOf` و `seriesElsewhere`
-- **`partOf($text)`:** شماره‌ی پس از واژه‌ای میان جلد و صفحه: «2 اخبار 2 - 492» → ۲. «1علوم قرآن-15» بخش ندارد. `seriesVolumes()` برای هر ارجاع اصلیِ بخش‌دار کلید `series|volume|part` را هم می‌سازد. در `syncOtherCited`، اگر ارجاع بخش داشته باشد و آن کلید باشد، نامزدها از آن کلید می‌آیند.
-  - **علت:** `اهدائیرهبر|2` نامزدهای 637 `[683, 18, 532]` و 638 `[531, 488, 815]` داشت. صفحه‌ی ۴۹۲ در هر دو بازه می‌افتاد.
-- **`seriesElsewhere($places)`:** شرط‌ها:
-  - کتابخانه‌ی خود نسخه کلید را ندارد؛
-  - نام سری دست‌کم ۴ نویسه است (بی «ف» و «ف مخ»)؛
-  - ارجاع اصلیِ نسخه‌های تنها یک کتابخانه با `LIKE %name%` آن را دارد؛
-  - `namesLibrary()`: بخش نخست نام آن کتابخانه (پیش از «،»، مانند «استادی» از «استادی، رضا»)، پس از `normalize`، در `raw_text` نسخه باشد.
-  - `source_id` جلدِ تازه از `source_volumes` خوانده می‌شود.
-  - **بی شرط نام:** شش پیوند نادرست ساخته می‌شد: «رایانه ای مجلس ص 784» و چهار مانند آن به جلد رضوی، و «الفبائی: 52»ِ مفتاح (38144) به الفبایی رضوی.
-- **آزمون‌ها:**
-  - `OtherCitationsTest::test_a_volume_in_parts_is_told_by_the_part_its_citation_names`
-  - `OtherCitationsTest::test_a_catalogue_only_another_library_cites_is_found_there`: بی نام کتابخانه در متن، ارجاع بی‌جلد می‌ماند. «ف: 99» هم بی‌جلد می‌ماند.
-- **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply --show=0`: «Written: 2408 entries, 2114 at a volume». ۲۰ ارجاع «2 اخبار 2» به 638 رفتند و «صد و شصت نسخه: - 11» (87183) به 588. اجرای دوم همان را نوشت.
-  - «صد و شصت نسخه: -7» (51011) نام استادی را در متن ندارد و بی‌جلد ماند.
-  - رونوشت محلی هنوز اجرای ۱۴.۸۸ را نداشت. تولید پیش از این گام «2094 at a volume» داشت.
-- **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
-- **جلدهای ناموجود (ارجاع اصلی بی‌جلد در رضوی، تولید):** `اهدائیرهبر|6` ۴۴۹، `|9` ۴۳۶، `ف|27` ۴۲۷، `|11` ۴۰۵، `|10` ۳۸۲، `|5` ۲۹۳. همه `catalog_volume_id` تهی دارند، پس `catalogs:set-volumes` آن‌ها را جابه‌جا نمی‌کند. راهِ درست افزودن جلد به ردیف «اهدائی رهبر» (`fankha:543-554`) و ردیف «ف» رضوی در `catalog_volume_links.json` و اجرای `catalogs:link-volumes` است. جدول فنخا تنها ج ۲۷ رضوی را دارد (ردیف ۵۰۹، «اجازات، رجال، درایه الحدیث»، براتعلی غلامی مقدم). MTIF (`mtif_db.sql.gz`) تنها «هزار و پانصد نسخه» (کتاب ۱۴۵) را دارد.
-
-### گام ۱۴.۱۰۲: اعلان‌های `suggestion.record_merged` و `review.unreviewed_data` (مورد ۸۲)
-- **ادغام:** observer تازه‌ی [`AuditLogMergeNotices`](../app/Observers/AuditLogMergeNotices.php)، کنار `AuditLogConflicts` روی `AuditLog`. روی هر لاگ `merge` از نوع نسخه، اثر، کتابخانه یا شخص که `old_values.source_id` دارد، پس از commit اجرا می‌شود.
-  - نسخه، اثر و کتابخانه پیشنهادهای باز را با `suggestion_ids` در لاگ به رکورد ماندگار می‌برند (`RecordMerger::moveAttachments`، `LibraryMerger::merge`). در این حالت همین شناسه‌ها خوانده می‌شوند.
-  - `PersonMerger` پیشنهادها را جابه‌جا نمی‌کند، پس پیشنهادهای `suggestable_id = source_id` شخص خوانده می‌شوند.
-  - فقط `status = pending` با `user_id`، جز کاربر لاگ و `new_values.suggestion_id`. یک `Notice` برای هر کاربر در هر ادغام. نام رکورد حذف‌شده از `source_name` یا `source_snapshot` (در `RecordMerger` زیر `attributes`).
-  - ادغام‌های خط فرمان (مانند `fahares:split-compound-people`) هم اعلان می‌فرستند، چون لاگ `merge` می‌سازند.
-- **خلاصه‌ی هفتگی:** [`notifications:unreviewed-data`](../app/Console/Commands/SendUnreviewedDataReminderCommand.php) با `--days=7`. دو صف بر پایه‌ی `SourceEntry::awaitingReview()`: `citable_type = Manuscript` (`admin.catalog-references.index`) و `citable_type = Work` با `source_item_id` (`admin.source-links.index`). صف خالی کنار می‌رود و اگر هر دو خالی باشند، چیزی فرستاده نمی‌شود. زمان‌بندی در `routes/console.php`: شنبه ۸:۱۵ تهران.
-- **پیکربندی:** دو نوع در `config/notifications.php`. `suggestion.record_merged` با `roles: ['*']`، و `review.unreviewed_data` با `permission: catalog_refs.review`. پیش‌فرض هر دو `database` و `mail`.
-- **آزمون:** `tests/Feature/Notifications/MergeAndUnreviewedNoticesTest.php` (ادغام اثر، ادغام شخص، خلاصه‌ی هفتگی).
-
 ### گام ۱۴.۹۹: فیلتر نسخه‌های صفحه‌ی اثر
 - **`App\Support\WorkCopyFilters`:** پارامترهای `library` (شناسه)، `city`، `century` (۱ تا ۱۵)، `script` (شناسه)، `autograph=1`، `dated`، `scribe` و `facsimile` (`0` یا `1`). مقدار نادرست کنار گذاشته می‌شود.
 - **دامنه:** نسخه‌های اثر، منهای نسخه‌هایی که زیر نسخه‌ی دیگر نشان داده می‌شوند (`CopyLinks::linkedIds()`، گام ۱۴.۱۶).
@@ -8906,6 +8863,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `works/partials/copy-filters.blade.php`، یک `<details>` با فرم GET. هر `select` با تغییر فرم را می‌فرستد. پیش از فرستادن، `select` خالی غیرفعال می‌شود تا در نشانی نیاید، و `pageshow` دوباره فعالش می‌کند. Alpine در عرض ۶۴۰ پیکسل و بیشتر آن را باز می‌کند.
 - **آزمون‌ها:** `tests/Feature/WorkCopyFiltersTest.php` (۶ آزمون): گزینه‌ها و شمارها، فیلتر کتابخانه و شمارهای دیگر، ترکیب با هم و با مرتب‌سازی، نتیجه‌ی خالی و مقدار نادرست، صفحه‌بندی، اثر کم‌نسخه و عکسی پیوندخورده.
 - **پایگاه داده‌ی محلی:** `fahares_db` محلی هیچ `copy_date_from` پری ندارد، پس در پیش‌نمایش محلی نسخه‌های «قرن N» در سده نیامدند. در پروداکشن این ستون در ۲۴۲٬۸۴۱ نسخه پر است (۱۸ آبان، گام ۱۳.۸۲). آزمون، بازه را از قلاب `saving` مدل می‌گیرد.
+
+### گام ۱۴.۱۰۰: `f[field]` و `App\Support\FieldTerms`
+- **پارامتر:** `f[<key>]=<عبارت>`، با کلیدهای `SearchController::FIELD_SCOPES[type]` (فقط `works` و `manuscripts`). `FieldTerms::clean` کلید ناشناخته، مقدار غیررشته و تهی را می‌اندازد، و عبارت را تا ۱۰۰ نویسه و با `TextNormalizer::normalize` نگه می‌دارد. در `SearchFilters::$values['fields']` می‌نشیند و در `CONTEXT` هم هست، تا شمار فیلترهای کناری درون آن گرفته شود.
+- **`FieldTerms::resolve`:**
+  - یک `multiSearch` با `limit 0` شمار هر فیلد را جداگانه می‌دهد (`attributesToSearchOn` همان فیلد، `matchingStrategy all`).
+  - فیلدها به ترتیب صعودی شمار جست‌وجو می‌شوند، هر کدام با `limit CAP` (۱۰٬۰۰۰) و `attributesToRetrieve [id]`، و از دومی به بعد با `filter id IN [شناسه‌های پیشین]`.
+  - `broad` فقط فیلد نخست است، وقتی شمارش از CAP بیشتر باشد.
+  - نتیجه در یک آرایه‌ی ایستا نگه داشته می‌شود، تا `engine()`، `contextEngine()` و `apply()` یک بار بپرسند. `ExportSearchResults` پیش از هر کار `flush()` می‌کند.
+  - خطای موتور به `failed` می‌انجامد، و کنترلر آن را `engineDown` می‌کند.
+  - با درایور `collection` (آزمون‌ها)، رکوردها با `toSearchableArray()` و `str_contains` هر واژه سنجیده می‌شوند.
+- **`SearchFilters`:** `engine()` → `id IN [...]` یا `id = 0`؛ `apply()` → `whereIn(<table>.id, ids)`؛ `active()` یک نشان برای هر فیلد با `['f' => باقی]`؛ `broadFields()` برچسب فیلدهای بریده.
+- **آمار:** `fields` در `SearchStatsController::FILTER_LABELS` («چند فیلد با هم»).
+- **زمان (نمایه‌ی محلی، گرم):** «کاتب: محمد» + «محل کتابت: اصفهان» → ۱٬۴۶۱ شناسه در ۰٫۷۵ تا ۰٫۹۸ ثانیه. نخستین پرسش با کش سرد ۷٫۵ ثانیه بود. یک فیلد کلی تنها («کاتب: محمد»، ۱۰٬۰۰۰ شناسه) ۰٫۷۳ ثانیه.
+- **آزمون:** `tests/Feature/SearchFieldTermsTest.php` (۷ آزمون)، با Mockery برای ترتیب زنجیره و `filter` آن.
 
 ### گام ۱۴.۱۰۱: `pairs_by_fit` و «صص»
 - **[BibliographyLinks](../app/Support/BibliographyLinks.php):**
@@ -8922,7 +8893,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `/admin/sources` → الذریعة → الگوی «هر منبع / مآخذ» → تیک «جفت … به ترتیبی که با جلدها جور است»، پیش‌نمایش، ذخیره.
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:backfill --only=bibliography'`، برای رشته‌های «صص» مشار که کد تازه را می‌خواهند و هیچ ذخیره‌ی الگویی آن‌ها را از نو نمی‌سازد.
 
-- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۱۰۲: اعلان‌های `suggestion.record_merged` و `review.unreviewed_data` (مورد ۸۲)
+- **ادغام:** observer تازه‌ی [`AuditLogMergeNotices`](../app/Observers/AuditLogMergeNotices.php)، کنار `AuditLogConflicts` روی `AuditLog`. روی هر لاگ `merge` از نوع نسخه، اثر، کتابخانه یا شخص که `old_values.source_id` دارد، پس از commit اجرا می‌شود.
+  - نسخه، اثر و کتابخانه پیشنهادهای باز را با `suggestion_ids` در لاگ به رکورد ماندگار می‌برند (`RecordMerger::moveAttachments`، `LibraryMerger::merge`). در این حالت همین شناسه‌ها خوانده می‌شوند.
+  - `PersonMerger` پیشنهادها را جابه‌جا نمی‌کند، پس پیشنهادهای `suggestable_id = source_id` شخص خوانده می‌شوند.
+  - فقط `status = pending` با `user_id`، جز کاربر لاگ و `new_values.suggestion_id`. یک `Notice` برای هر کاربر در هر ادغام. نام رکورد حذف‌شده از `source_name` یا `source_snapshot` (در `RecordMerger` زیر `attributes`).
+  - ادغام‌های خط فرمان (مانند `fahares:split-compound-people`) هم اعلان می‌فرستند، چون لاگ `merge` می‌سازند.
+- **خلاصه‌ی هفتگی:** [`notifications:unreviewed-data`](../app/Console/Commands/SendUnreviewedDataReminderCommand.php) با `--days=7`. دو صف بر پایه‌ی `SourceEntry::awaitingReview()`: `citable_type = Manuscript` (`admin.catalog-references.index`) و `citable_type = Work` با `source_item_id` (`admin.source-links.index`). صف خالی کنار می‌رود و اگر هر دو خالی باشند، چیزی فرستاده نمی‌شود. زمان‌بندی در `routes/console.php`: شنبه ۸:۱۵ تهران.
+- **پیکربندی:** دو نوع در `config/notifications.php`. `suggestion.record_merged` با `roles: ['*']`، و `review.unreviewed_data` با `permission: catalog_refs.review`. پیش‌فرض هر دو `database` و `mail`.
+- **آزمون:** `tests/Feature/Notifications/MergeAndUnreviewedNoticesTest.php` (ادغام اثر، ادغام شخص، خلاصه‌ی هفتگی).
 
 ### گام ۱۴.۱۰۳: `inProse`، ارجاع به منبع دیگر در `References`، و الگوهای تراث الکلام
 - **[BibliographyLinks::readProse](../app/Support/BibliographyLinks.php):**
@@ -8985,3 +8965,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان `work_relations` (جدول کوچک).
   2. `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`، که حدود ۹٬۶۰۰ ردیف می‌افزاید و حدود ۸٬۲۰۰ اثر را دوباره نمایه می‌کند.
 
+### گام ۱۴.۱۰۵: `SourceEntrySync::partOf` و `seriesElsewhere`
+- **`partOf($text)`:** شماره‌ی پس از واژه‌ای میان جلد و صفحه: «2 اخبار 2 - 492» → ۲. «1علوم قرآن-15» بخش ندارد. `seriesVolumes()` برای هر ارجاع اصلیِ بخش‌دار کلید `series|volume|part` را هم می‌سازد. در `syncOtherCited`، اگر ارجاع بخش داشته باشد و آن کلید باشد، نامزدها از آن کلید می‌آیند.
+  - **علت:** `اهدائیرهبر|2` نامزدهای 637 `[683, 18, 532]` و 638 `[531, 488, 815]` داشت. صفحه‌ی ۴۹۲ در هر دو بازه می‌افتاد.
+- **`seriesElsewhere($places)`:** شرط‌ها:
+  - کتابخانه‌ی خود نسخه کلید را ندارد؛
+  - نام سری دست‌کم ۴ نویسه است (بی «ف» و «ف مخ»)؛
+  - ارجاع اصلیِ نسخه‌های تنها یک کتابخانه با `LIKE %name%` آن را دارد؛
+  - `namesLibrary()`: بخش نخست نام آن کتابخانه (پیش از «،»، مانند «استادی» از «استادی، رضا»)، پس از `normalize`، در `raw_text` نسخه باشد.
+  - `source_id` جلدِ تازه از `source_volumes` خوانده می‌شود.
+  - **بی شرط نام:** شش پیوند نادرست ساخته می‌شد: «رایانه ای مجلس ص 784» و چهار مانند آن به جلد رضوی، و «الفبائی: 52»ِ مفتاح (38144) به الفبایی رضوی.
+- **آزمون‌ها:**
+  - `OtherCitationsTest::test_a_volume_in_parts_is_told_by_the_part_its_citation_names`
+  - `OtherCitationsTest::test_a_catalogue_only_another_library_cites_is_found_there`: بی نام کتابخانه در متن، ارجاع بی‌جلد می‌ماند. «ف: 99» هم بی‌جلد می‌ماند.
+- **تمرین روی fahares_prod:** `fahares:sync-other-citations --apply --show=0`: «Written: 2408 entries, 2114 at a volume». ۲۰ ارجاع «2 اخبار 2» به 638 رفتند و «صد و شصت نسخه: - 11» (87183) به 588. اجرای دوم همان را نوشت.
+  - «صد و شصت نسخه: -7» (51011) نام استادی را در متن ندارد و بی‌جلد ماند.
+  - رونوشت محلی هنوز اجرای ۱۴.۸۸ را نداشت. تولید پیش از این گام «2094 at a volume» داشت.
+- **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
+- **جلدهای ناموجود (ارجاع اصلی بی‌جلد در رضوی، تولید):** `اهدائیرهبر|6` ۴۴۹، `|9` ۴۳۶، `ف|27` ۴۲۷، `|11` ۴۰۵، `|10` ۳۸۲، `|5` ۲۹۳. همه `catalog_volume_id` تهی دارند، پس `catalogs:set-volumes` آن‌ها را جابه‌جا نمی‌کند. راهِ درست افزودن جلد به ردیف «اهدائی رهبر» (`fankha:543-554`) و ردیف «ف» رضوی در `catalog_volume_links.json` و اجرای `catalogs:link-volumes` است. جدول فنخا تنها ج ۲۷ رضوی را دارد (ردیف ۵۰۹، «اجازات، رجال، درایه الحدیث»، براتعلی غلامی مقدم). MTIF (`mtif_db.sql.gz`) تنها «هزار و پانصد نسخه» (کتاب ۱۴۵) را دارد.
