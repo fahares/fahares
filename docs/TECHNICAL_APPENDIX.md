@@ -9008,3 +9008,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:** `IndexingTest` (۷ آزمون): robots.txt، `canonical` صفحه‌ی اثر و نسخه بی پارامتر، ۳۰۱ رکورد ادغام‌شده و slug کهنه به نشانی‌ای که `canonical` همان است، `noindex` جستجو، سرآیند صفحه‌های خصوصی، برابری نشانی هر نوع نقشه‌ی سایت با `route()` رکورد، و محدودیت نرخ.
 - **سنجش کامل روی fahares_db:** works ۷۱٬۵۱۶، people ۷۴٬۴۰۲، libraries ۴۱۲، catalogers ۸۸ و manuscripts ۳۲۳٬۸۸۰ نشانی؛ هیچ‌کدام با `route()` رکورد فرق ندارد.
 - **اجرا در تولید:** هیچ. نقشه‌ی سایت دو ساعت cache دارد (`sitemap_*`) و خودش تازه می‌شود.
+- **اجرای تولید (۱۹ آبان ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_106_before.json.gz` (۳٫۷ مگابایت). در آن هست:
+    - `catalog_volume_id` و `cataloger_id` همه‌ی ۳۲۳٬۲۴۵ نسخه؛
+    - `source_id` و `source_volume_id` همه‌ی ۳۲۳٬۱۷۱ ارجاع اصلی؛
+    - ۲٬۴۰۸ ردیفِ کاملِ `fankha_citation_more`؛
+    - بیشینه‌ی شناسه‌ها: `catalog_volumes` 728 و `source_volumes` 1000191.
+  - **`catalogs:link-volumes` (01:28–01:30):** «[اهدائی رهبر] 1966 linked, 45 with an unlisted volume» و «[ف] 427 linked, 1057 with an unlisted volume». جلدهای 729 تا 734 با ۲۹۳، ۴۵۰، ۴۳۶، ۳۸۲، ۴۰۵ و ۴۲۷ نسخه ساخته شدند. `--dry-run` پس از آن: «0 linked».
+  - **`fahares:sync-other-citations --apply --show=0` (01:31–01:36):** «Written: 2408 entries, 2123 at a volume, 0 stale removed». پیش از آن ۲٬۰۹۳ ارجاع جلد داشتند. اجرای بی‌`--apply` پس از آن چیزی ننوشت.
+    - **ارجاع‌های دوم در جلدهای تازه:** ۷۲۹: ۲، ۷۳۱: ۲، ۷۳۲: ۱، ۷۳۴: ۴.
+    - **پیوند به جلدِ کتابخانه‌ای جز کتابخانه‌ی خود نسخه:** تنها یکی، 87183 «صد و شصت نسخه: - 11» به «یکصد و شصت نسخه از یک کتابخانه شخصی».
+  - **کش:** `link-volumes` کش `sources:shelf` و `sources:copies:{id}` (یک روزه) را پاک نمی‌کند. صفحه‌ی منبع جلدهای تازه را بی شمار نسخه نشان می‌داد. این کش برای دو منبع با `Cache::forget` پاک شد.
