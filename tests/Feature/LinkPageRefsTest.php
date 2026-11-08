@@ -140,6 +140,50 @@ class LinkPageRefsTest extends TestCase
         $this->assertStringNotContainsString('book-sheet__mark--page', $html);
     }
 
+    public function test_tabaqats_dh_links_the_dharia_entry_of_its_number_or_the_page()
+    {
+        // step 14.103: Tabaqat's «ذ» is al-Dhari'a, by page and volume or by volume and entry number
+        $numbered = function (int $volume, int $page, int $number, string $title) {
+            $item = $this->entry($volume, $page, $title);
+            $item->update(['entry_number' => $number]);
+
+            return $item;
+        };
+        $afyun = $numbered(4, 104, 483, 'ترجمة رسالة الأفيون');
+        $numbered(4, 105, 484, 'ترجمة الأفيون الآخر');
+        $tahqiqat = $numbered(3, 485, 1805, 'التحقيقات في أحوال الموجودات');
+        $salat = $numbered(15, 60, 382, 'رسالة في الصلاة');
+        $tahara = $numbered(15, 193, 1275, 'رسالة في الطهارة و الصلاة');
+        $this->page(2, 56);
+        $other = $this->page(11, 221);
+        $this->page(16, 12);
+        $this->page(12, 16);
+
+        $tabaqat = Source::create(['code' => 'tabaqat', 'kind' => Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'طبقات أعلام الشيعة', 'short_name' => 'طبقات']);
+        $v = SourceVolume::create(['source_id' => $tabaqat->id, 'volume_number' => 9, 'facsimile_code' => 'tabaqat-9']);
+        $text = 'له «ترجمة الافيون» (ذ 4 رقم 483) و «التحقيقات» (ذ 3 قم 1805) و «الصلاة» (ذ 15 رقم 382 و 1275) '
+            . 'و «الرسالة القدسية» (ذ 56:2 و 221:11) و «لعله» (ذ 12:16) و «الشرح» (ذ 4 رقم 999) و (ذ 104:4 رقم 483) و في لباب الألباب 282:2.';
+        $page = DB::table('source_pages')->insertGetId(['source_volume_id' => $v->id, 'page' => 24, 'text' => $text]);
+
+        $this->artisan('sources:link-page-refs', ['source' => 'tabaqat'])->assertSuccessful();
+        $links = DB::table('source_page_links')->where('source_page_id', $page)->orderBy('offset')->get();
+        $this->assertSame([
+            ['ذ 4 رقم 483', SourceItem::class, $afyun->id, 'number'],
+            ['ذ 3 قم 1805', SourceItem::class, $tahqiqat->id, 'number'],
+            ['ذ 15 رقم 382', SourceItem::class, $salat->id, 'number'],
+            ['1275', SourceItem::class, $tahara->id, 'number'],
+            ['ذ 56:2', SourcePage::class, DB::table('source_pages')->where('page', 56)->value('id'), 'page'],
+            ['221:11', SourcePage::class, $other, 'page'],
+            // «ذ 12:16» is page 12 of volume 16 or page 16 of volume 12; «رقم 999» is no entry; the other book stays
+            ['ذ 104:4 رقم 483', SourceItem::class, $afyun->id, 'number'],
+        ], $links->map(fn ($l) => [$l->span, $l->target_type, $l->target_id, $l->method])->all());
+
+        $html = $this->get('/sources/tabaqat/9/page/24')->assertOk()->getContent();
+        $this->assertStringContainsString('<a href="' . $afyun->url() . '" id="r' . $links[0]->offset . '" class="book-sheet__mark book-sheet__mark--entry"', $html);
+        // the entry of al-Dhari'a lists the mention in Tabaqat
+        $this->get($afyun->url())->assertOk()->assertSee('/sources/tabaqat/9/page/24#r' . $links[0]->offset, false);
+    }
+
     public function test_titles_agree_and_a_citation_is_placed_by_the_sources_volumes()
     {
         $this->assertTrue(Titles::agree('مثنوي خلاصة الأحكام', 'خلاصة الاحکام'));

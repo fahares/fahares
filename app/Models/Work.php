@@ -161,24 +161,21 @@ class Work extends Model
     }
 
     /**
-     * Titles of the works this one is made on (backlog item 95): from the relations in work_relations when there
-     * are any, else read from its own titles («شرح X» is made on X) and its related work recorded as text.
+     * Titles of the works this one is made on (backlog item 95): from the relations in work_relations, and read from
+     * its own titles («شرح X» is made on X) and its related work recorded as text. Both since step 14.104: a work
+     * related to the base text of its base («حاشية الروضة البهية» to «اللمعة») keeps «الروضة البهية» of its title.
      *
      * @return list<string> as written
      */
     public function baseTitles(): array
     {
         $bases = $this->relationLoaded('baseWorks') ? $this->baseWorks : $this->baseWorks()->get(['works.id', 'primary_title', 'clean_title']);
-        if ($bases->isNotEmpty()) {
-            $titles = $bases->flatMap(fn (Work $w) => [$w->primary_title, $w->clean_title])->all();
-        } else {
-            $titles = [];
-            foreach ($this->searchTitles()[1] as $title) {
-                $titles[] = \App\Support\WorkRelationParser::parseTitle($title)['base'] ?? null;
-            }
-            foreach (\App\Support\WorkRelationParser::parseEntries($this->related_work) as $entry) {
-                array_push($titles, ...$entry['titles']);
-            }
+        $titles = $bases->flatMap(fn (Work $w) => [$w->primary_title, $w->clean_title])->all();
+        foreach ($this->searchTitles()[1] as $title) {
+            $titles[] = \App\Support\WorkRelationParser::parseTitle($title)['base'] ?? null;
+        }
+        foreach (\App\Support\WorkRelationParser::parseEntries($this->related_work) as $entry) {
+            array_push($titles, ...$entry['titles']);
         }
 
         // One of each, compared normalized

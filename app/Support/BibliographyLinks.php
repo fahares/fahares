@@ -198,9 +198,9 @@ class BibliographyLinks
         $cursor = 0;
         $volume = null; // the volume of the citation just linked, while a bare «و page» may still continue it
 
-        // «ج 1، ص 185» / «ج 2 ستون 1511»; «1-93» (volume-column); «page/volume» or «volume: column»; a bare number
+        // «ج 1، ص 185» / «ج 2 ستون 1511» / «ج1، صص 1235»; «1-93» (volume-column); «page/volume» or «volume: column»; a bare number
         preg_match_all(
-            '/ج\s*(?<jv>[0-9۰-۹]+)\s*[،,:]?\s*(?:ص|ستون|-)\s*(?:ستون\s*)?(?<jp>[0-9۰-۹]+)'
+            '/ج\s*(?<jv>[0-9۰-۹]+)\s*[،,:]?\s*(?:صص|ص|ستون|-)\s*(?:ستون\s*)?(?<jp>[0-9۰-۹]+)'
             . '|(?<da>[0-9۰-۹]+)\s*-\s*(?<db>[0-9۰-۹]+)(?!\s*[\/:0-9۰-۹])'
             . '|(?<a>[0-9۰-۹]+)(?:\s*(?<sep>[\/:])\s*(?<b>[0-9۰-۹]+))?/u',
             $entry, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE | PREG_UNMATCHED_AS_NULL
@@ -211,6 +211,8 @@ class BibliographyLinks
             $gap = substr($entry, $cursor, $offset - $cursor);
             $named = self::namedRightBefore($gap); // the source whose name the number directly follows
             $joined = $source && preg_match('/^\s*و\s*$/u', $gap); // «و» right after a linked citation
+            // «الذریعه 18: 311 و 6: 60»، «… 3-432، 10-368»: a pair right after a linked one of a pairs_by_fit source
+            $chained = $volume && $source && ! empty(self::sources()[$source]['pairs_by_fit']) && preg_match('/^\s*[و،,]\s*$/u', $gap);
             if (isset($m['jp'][0])) {
                 $source = self::sourceAfter($gap, $source);
                 $volume = $source ? self::volume($source, self::int($m['jv'][0])) : null;
@@ -218,9 +220,13 @@ class BibliographyLinks
             } elseif (isset($m['db'][0])) {
                 // «کشف الظنون 1-93»: in the two-volume column books (and pairs_after_name ones) a dash after the name
                 // joins volume and column
-                $key = $named ?? ($joined && $volume ? $source : null);
-                $volume = $key && self::pairsAfterName($key) ? self::volume($key, self::int($m['da'][0])) : null;
-                $link = $volume ? self::pageLink($key, $volume, self::int($m['db'][0])) : null;
+                $key = $named ?? (($joined || $chained) && $volume ? $source : null);
+                if ($key && ! empty(self::sources()[$key]['pairs_by_fit'])) {
+                    $link = self::fittingLink($key, self::int($m['da'][0]), self::int($m['db'][0]));
+                } else {
+                    $volume = $key && self::pairsAfterName($key) ? self::volume($key, self::int($m['da'][0])) : null;
+                    $link = $volume ? self::pageLink($key, $volume, self::int($m['db'][0])) : null;
+                }
                 // «مشار عربی 624-625», «معجم المطبوعات 1536-1537»: a range of columns, which tell their volume
                 if (! $link && $named && self::int($m['da'][0]) < self::int($m['db'][0])
                     && ($volume = self::volumeOfColumn($named, self::int($m['da'][0])))) {
@@ -231,8 +237,13 @@ class BibliographyLinks
             } elseif (isset($m['b'][0]) && $m['sep'][0] === ':') {
                 // «کشف الظنون 1: 127»: a colon joins volume and column only right after the name of a column book
                 // (or of a pairs_after_name one)
-                $link = $named && self::pairsAfterName($named) ? self::link($named, self::int($m['a'][0]), self::int($m['b'][0])) : null;
-                $source = $link ? $named : $source;
+                $key = $named ?? ($chained ? $source : null);
+                $link = match (true) {
+                    ! $key || ! self::pairsAfterName($key) => null,
+                    ! empty(self::sources()[$key]['pairs_by_fit']) => self::fittingLink($key, self::int($m['a'][0]), self::int($m['b'][0])),
+                    default => self::link($key, self::int($m['a'][0]), self::int($m['b'][0])),
+                };
+                $source = $link ? $key : $source;
             } elseif (isset($m['b'][0])) {
                 $source = self::sourceAfter($gap, $source);
                 $link = $source ? self::link($source, self::int($m['a'][0]), self::int($m['b'][0])) : null;
@@ -244,8 +255,9 @@ class BibliographyLinks
                     && ! (isset(self::sources()[$source]['unit']) && $page <= self::sources()[$source]['volumes'])
                     ? self::pageLink($source, $volume, $page) : null;
             } else {
-                // «کشف الظنون 1266»: a column counted across the volumes tells its volume by itself
-                $volume = $named ? self::volumeOfColumn($named, self::int($whole)) : null;
+                // «کشف الظنون 1266»: a column counted across the volumes tells its volume by itself; not «کشف الظنون ج 1»,
+                // a volume with no page (step 14.103)
+                $volume = $named && ! preg_match('/(?:^|[\s،,(])ج\s*$/u', $gap) ? self::volumeOfColumn($named, self::int($whole)) : null;
                 $link = $volume ? self::pageLink($named, $volume, self::int($whole)) : null;
                 $source = $link ? $named : $source;
             }
@@ -309,7 +321,22 @@ class BibliographyLinks
     {
         $src = self::sources()[$key];
 
-        return isset($src['unit']) || ! empty($src['pairs_after_name']);
+        return isset($src['unit']) || ! empty($src['pairs_after_name']) || ! empty($src['pairs_by_fit']);
+    }
+
+    /**
+     * A pair after the name of a source cited in either order («الذریعه 15: 276» volume first, «الذریعه 387: 4» page
+     * first; step 14.101): the one order whose volume and page the source has, or none when both orders fit («11: 9»).
+     */
+    private static function fittingLink(string $key, int $first, int $second): ?array
+    {
+        $fits = array_filter([[$first, $second], [$second, $first]], fn ($vp) => self::place($key, $vp[0], $vp[1], true) !== null);
+        if (count($fits) !== 1 && ! ($first === $second && $fits)) {
+            return null;
+        }
+        [$volume, $page] = reset($fits);
+
+        return self::pageLink($key, $volume, $page);
     }
 
     /** Fankha writes «page/volume»; the reverse order is accepted only when it is the one that fits. */
@@ -517,11 +544,14 @@ class BibliographyLinks
 
     private static function readProse(string $text): array
     {
-        $number = '[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?';
+        // «ج 4 ص 424» and «… و ج 4 ص 52» after it (step 14.103), or «791/9», «1:28», «ج 9»
+        $volumePage = 'ج\s*[0-9۰-۹]+\s*[،,]?\s*(?:صص|ص|ستون)\s*[0-9۰-۹]+';
+        $number = '(?:' . $volumePage . '(?:\s*[و،,]\s*' . $volumePage . ')*|(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?)';
         // Monzavi's «ذریعه (3) 791/9»: the part of a volume printed in parts, whose pages run on through them
         $part = '(?:\(\s*[0-9۰-۹]{1,2}\s*\)\s*)?';
+        // Tabaqat's «ذكرناه في (الذريعة) ج 7 ص 284»: the name in parentheses
         $regex = self::$proseRegex[implode('|', self::$citing)] ??= '/(?<![\p{L}\p{M}])(?<name>' . implode('|', array_map(fn ($s) => '(?:' . $s['pattern'] . ')', self::sources()))
-            . ')(?![\p{L}\p{M}])[\s:،,]*' . $part . '(?:ج\s*)?' . $number
+            . ')(?![\p{L}\p{M}])\)?[\s:،,]*' . $part . $number
             . '|(?<![\p{L}\p{M}])(?<ibid>همان ?جا)[\s:،,]*' . $part . '(?<at>' . $number . ')'
             . '|(?<other>[0-9۰-۹]+\s*\/\s*[0-9۰-۹]+)/u';
 

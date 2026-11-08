@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Schema;
 class CitationForms
 {
     /** The reading rules a form may hold; the rest of a config entry is how a citation is shown. */
-    public const READING = ['volumes', 'series_volumes', 'pairs_after_name', 'other_edition', 'unit'];
+    public const READING = ['volumes', 'series_volumes', 'pairs_after_name', 'pairs_by_fit', 'other_edition', 'unit'];
 
     private const CACHE_KEY = 'citation-forms:v1';
 

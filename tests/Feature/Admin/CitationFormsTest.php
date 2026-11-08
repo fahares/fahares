@@ -144,6 +144,26 @@ class CitationFormsTest extends TestCase
         $this->assertSame([], CitationForms::sources() === config('bibliography.sources') ? [] : ['the config is read again']);
     }
 
+    public function test_pairs_in_either_order_are_turned_on_in_the_panel_and_the_entries_made_again()
+    {
+        $dharia = $this->source('dharia', 'الذریعة الی تصانیف الشیعة', 26);
+        $this->artisan('sources:import-citation-forms')->assertSuccessful();
+        $work = $this->work(['الذریعه 15: 276 و 387: 4', 'الذریعه 11: 9']);
+        $this->assertNull($this->entry($work)->source_id);
+        $form = SourceCitationForm::sole();
+        $values = ['context' => 'bibliography', 'citing_source_id' => '', 'names' => '', 'regex' => $form->regex, 'volumes' => 26, 'pairs_by_fit' => 1];
+
+        // step 14.101: the rule is kept with the form's others, and the strings it reads now are linked
+        $this->actingAs($this->admin)->put(route('admin.sources.citations.update', [$dharia, $form]), $values)->assertRedirect(route('admin.sources.show', $dharia));
+        $this->assertSame(['volumes' => 26, 'pairs_by_fit' => true], $form->fresh()->options);
+        $entry = $this->entry($work);
+        $this->assertSame([$dharia->id, 15, 276], [(int) $entry->source_id, (int) $entry->volume_number, (int) $entry->page_start]);
+        $this->assertSame([15, 4], array_column(json_decode($entry->locations, true), 'volume'));
+        $this->assertNull($this->entry($work, 1)->source_id, 'both orders fit «11: 9»');
+        $this->actingAs($this->admin)->get(route('admin.sources.show', $dharia))->assertOk()->assertSee('جفت «:» یا «-» به ترتیبی که با جلدها جور است');
+        $this->actingAs($this->admin)->get(route('admin.sources.citations.edit', [$dharia, $form]))->assertOk()->assertSee('name="pairs_by_fit" value="1" class="accent-cinnabar" checked', false);
+    }
+
     public function test_no_form_is_saved_before_the_config_patterns_are_imported()
     {
         $dharia = $this->source('dharia', 'الذریعة الی تصانیف الشیعة', 26);

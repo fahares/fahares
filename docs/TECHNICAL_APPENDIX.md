@@ -8906,3 +8906,82 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نما:** `works/partials/copy-filters.blade.php`، یک `<details>` با فرم GET. هر `select` با تغییر فرم را می‌فرستد. پیش از فرستادن، `select` خالی غیرفعال می‌شود تا در نشانی نیاید، و `pageshow` دوباره فعالش می‌کند. Alpine در عرض ۶۴۰ پیکسل و بیشتر آن را باز می‌کند.
 - **آزمون‌ها:** `tests/Feature/WorkCopyFiltersTest.php` (۶ آزمون): گزینه‌ها و شمارها، فیلتر کتابخانه و شمارهای دیگر، ترکیب با هم و با مرتب‌سازی، نتیجه‌ی خالی و مقدار نادرست، صفحه‌بندی، اثر کم‌نسخه و عکسی پیوندخورده.
 - **پایگاه داده‌ی محلی:** `fahares_db` محلی هیچ `copy_date_from` پری ندارد، پس در پیش‌نمایش محلی نسخه‌های «قرن N» در سده نیامدند. در پروداکشن این ستون در ۲۴۲٬۸۴۱ نسخه پر است (۱۸ آبان، گام ۱۳.۸۲). آزمون، بازه را از قلاب `saving` مدل می‌گیرد.
+
+### گام ۱۴.۱۰۱: `pairs_by_fit` و «صص»
+- **[BibliographyLinks](../app/Support/BibliographyLinks.php):**
+  - گزینه‌ی خواندن تازه‌ی `pairs_by_fit` در `CitationForms::READING`. جفت «:» (شاخه‌ی `a`/`b`) یا «-» (شاخه‌ی `da`/`db`) پس از نام منبع با `fittingLink()` خوانده می‌شود: هر دو ترتیب با `place(…, ordered: true)` سنجیده می‌شوند (جلد در `volumes` و صفحه در `first_pages`/`last_pages` نمایشگر یا متن)، و فقط اگر یکی جور باشد پیوند ساخته می‌شود. جفت یکسان («16: 16») هم پذیرفته است.
+  - `$chained`: در منبع `pairs_by_fit`، جفتی که با فاصله‌ی `^\s*[و،,]\s*$` پس از ارجاع پیوندخورده آمده، از همان منبع است.
+  - `pairsAfterName()` برای `pairs_by_fit` هم true است.
+  - ریخت `ج N … ص` اکنون `(?:صص|ص|ستون|-)` است.
+- **پنل:** کادر `pairs_by_fit` در [citation-form](../resources/views/admin/sources/citation-form.blade.php)، اعتبارسنجی و نگه‌داری گزینه در `CitationFormController::values()`، و توصیف در `partials/citation-forms`. ذخیره از همان `CitationFormEditor` می‌گذرد، پس پیش‌نمایش، همگام‌سازی مدخل‌های مآخذ و برگشت را دارد.
+- **چرا نه در `config/bibliography.php`:** `CitationForms::sources()` کلیدهای پیکربندی را زیر گزینه‌های الگو نگه می‌دارد. کلیدی که در config باشد، با برداشتن تیک پنل خاموش نمی‌شود. پس گزینه فقط در `source_citation_forms.options` است، و آزمون‌ها آن را با `config()` می‌گذارند.
+- **سنجش:** `BibliographyLinks::citations()` روی ۸٬۰۱۱ رشته‌ی `work_bibliography` دارای «ذریعه» یا «مشار»، با و بی گزینه (درون تراکنش برگشتی). نتیجه: ۳۸۶ ارجاع افزوده و ۰ کاسته. درستی با یافتن دست‌کم دو واژه از سه واژه‌ی نخست `clean_title` در صفحه‌ی ارجاع یا صفحه‌ی بعد سنجیده شد: ۲۶۶ از ۳۸۶، در برابر ۳۲۳ از ۳۹۹ در نمونه‌ی تصادفی ارجاع‌های پیشین.
+- **تمرین روی fahares_prod:** `options` الگوی ۱۶ (الذریعة) برابر `{"volumes":26,"pairs_by_fit":true}` شد. `sources:backfill --only=bibliography`: «of a known source» از ۲۰٬۲۸۴ (dry run بی گزینه، با ۶ رشته‌ی «صص») به ۲۰٬۵۶۸، و «places» از ۲۳٬۵۱۶ به ۲۳٬۹۰۳. ردیف‌های الذریعة از ۶٬۸۱۰ به ۷٬۰۹۵ و مشار فارسی از ۳۹۲ به ۳۹۸ رسید.
+- **آزمون‌ها:** `test_a_pairs_by_fit_source_reads_a_pair_after_its_name_in_the_one_order_that_fits` و `test_a_volume_before_sad_sad_is_read` در `BibliographyLinksTest`، و `test_pairs_in_either_order_are_turned_on_in_the_panel_and_the_entries_made_again` در `CitationFormsTest`.
+- **اجرا در تولید، پس از استقرار:**
+  1. `/admin/sources` → الذریعة → الگوی «هر منبع / مآخذ» → تیک «جفت … به ترتیبی که با جلدها جور است»، پیش‌نمایش، ذخیره.
+  2. `scripts/dev/prod-run <session> -- 'php artisan sources:backfill --only=bibliography'`، برای رشته‌های «صص» مشار که کد تازه را می‌خواهند و هیچ ذخیره‌ی الگویی آن‌ها را از نو نمی‌سازد.
+
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`، در انتشار ۶۵ (main 10b5f445). md5 فایل در کانتینر با main برابر بود. خروجی: «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`. نمونه: 13026 → «میرزا آقاخان کرمانی»، 333946 → «عبدالرحیم بیاری خوانخوی». فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۱۰۳: `inProse`، ارجاع به منبع دیگر در `References`، و الگوهای تراث الکلام
+- **[BibliographyLinks::readProse](../app/Support/BibliographyLinks.php):**
+  - `$number` اکنون `ج N [،]? (صص|ص|ستون) N` است، با تکرار `[و،,] ج N ص N`، یا ریخت پیشین `(ج)? N([/:]N)?`.
+  - پس از نام `\)?` پذیرفته است: «(الذريعة) ج 7 ص 284».
+  - در `segments()`، عدد تنها پس از نام اگر درست پس از «ج» بیاید (`(?:^|[\s،,(])ج\s*$`)، ستون خوانده نمی‌شود.
+- **[References](../app/Support/PageLinks/References.php):**
+  - پیکربندی تازه: `source` (منبع مقصد)، `order: fit`، `chain_forms`، و `cues`، `title_before` و `title_after` اختیاری.
+  - گروه `number` شماره‌ی مدخل است. گروه `bare` در `chain_forms` اگر ارجاع پیشین شماره داشت شماره‌ی دیگری از همان جلد است، وگرنه صفحه‌ای از همان جلد.
+  - هر ارجاع اکنون `number` و `places` دارد، یعنی هر دو ترتیبِ جورِ جفتِ دوپهلو.
+- **[EntryResolver](../app/Support/PageLinks/EntryResolver.php):** با `number`، مدخلی از `source_items.entry_number` در جلد هر یک از `places` که صفحه‌اش (با یک صفحه پس و پیش) شامل صفحه‌ی ارجاع باشد. تنها یک مدخل یافته شود → `number`. چند مدخل → `number-twice`، هیچ → `no-number`، و اگر صفحه‌ای هم داده شده، روال پیشین. `own-page` فقط وقتی سنجیده می‌شود که منبع مقصد خود منبع صفحه باشد.
+- **[LinkPageRefsCommand](../app/Console/Commands/LinkPageRefsCommand.php):** `EntryResolver` منبع `references.source` را می‌گیرد. `number` به `ENABLED` افزوده شد.
+- **[config/page_links.php](../config/page_links.php) `tabaqat`:**
+  - دو ریخت: `ذ P:V(-P)?( ر?قم N)?` و `ذ V ر?قم N`.
+  - دو `chain_forms`: جفت، و عدد تنها با «رقم» اختیاری.
+  - `cues => null`.
+- **سنجش طبقات (`--dry-run --all`، fahares_prod):** number ۷٬۳۲۹، page ۱٬۹۰۹، context ۴۴۵، no-number ۱۰۷، number-twice ۳۳ و no-page ۴. در ۱٬۷۵۱ پیوند شماره در ۱٬۵۰۰ صفحه‌ی تصادفی، `Titles::in` عنوان مدخل را در ۷۱۲ مورد در ۱۲۰ نویسه‌ی پیش از ارجاع یافت. بیشتر نیافته‌ها ریخت دیگر عنوان‌اند («الحج» و «مناسك الحج»). نمونه‌ی ۵۰تایی دستی هم سنجیده شد.
+- **[database/data/citation_forms_step14_103.php](../database/data/citation_forms_step14_103.php):** چهار `source_citation_forms` با `citing = kalam-turath` و `context = page_text`، با `updateOrCreate`:
+  - `dharia`: «الذريعة» با volumes 26؛
+  - `mushar-fa`: «مشار الفارسي» با volumes 5 و ستون؛
+  - `mushar-authors`: «مؤلفين مشار» با volumes 6؛
+  - `zaydiyya`: «مؤلفات الزيدية» با volumes 3.
+  - همه `pairs_after_name` دارند. از ۴٬۸۲۰ ارجاع الذریعة در تراث الکلام، ۴٬۸۱۹ تا جلدنخست بودند.
+- **سنجش متن صفحه‌ها (همه‌ی صفحه‌ها، `inProse` به ازای منبع ارجاع‌دهنده):** پیش ۷۰٬۲۴۰، با کد ۷۱٬۶۴۱، و با الگوها ۷۳٬۴۱۲.
+  - **افزایش‌ها:** مشار مؤلفین +۵۲۷، طبقات +۳۷۸، فنخا +۴۷۴ (مشار فارسی +۲۸۵ از «ج N ص N»)، و تراث الکلام +۱٬۷۷۱.
+  - **کاهش‌ها:** ۴ ارجاع، همه «ج 1» یا «ج 2» که ستون خوانده شده بود.
+  - این شمارها با `pairs_by_fit` الذریعة (گام ۱۴.۱۰۱) گرفته شده‌اند، که در متن صفحه‌ها هم خوانده می‌شود.
+- **آزمون‌ها:** `test_a_volume_and_page_after_a_name_in_a_page_text` در `BibliographyLinksTest`، و `test_tabaqats_dh_links_the_dharia_entry_of_its_number_or_the_page` در `LinkPageRefsTest`.
+- **اجرا در تولید، پس از استقرار:**
+  1. `scripts/dev/prod-run <session> -- 'php artisan sources:link-page-refs tabaqat'`، که فقط ردیف تازه در `source_page_links` می‌سازد و ارجاعی از طبقات پیش‌تر در آن نیست.
+  2. `scripts/dev/prod-run <session> -- 'php artisan tinker database/data/citation_forms_step14_103.php'`.
+
+### گام ۱۴.۱۰۴: `works:link-related` و نوع `related`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - **نمایه:** `key()` = `MatchCatalogEditionCommand::norm(TextNormalizer::normalize())`، بی برچسب پرانتزیِ پایانی. `authorKey()` = نام نرمال‌شده بی فاصله و «،». نمایه‌ی عنوان ← اثر ← پدیدآور از `clean_title`، `primary_title` و `alternative_titles` همه‌ی آثار ساخته می‌شود.
+  - **`match()`:** نامزدها اثرهای هم‌عنوان‌اند، جز خود اثر. فقط یک نامزد با `authorKey` برابر پذیرفته است.
+  - **کنار ماندن:** اگر عنوان اثر فرعی با یکی از عنوان‌های اثر اصلی برابر باشد (و اثر ترجمه نباشد)، جفت کنار می‌ماند. عنوان‌های اثر اصلی، در سوی `related`، عنوان‌های مدخل را هم دارند.
+  - **نوع:**
+    - `work_form = translation` → `translation`؛
+    - `parseTitle(child)` که `Titles::agree(base, عنوانی از اصلی)` → همان نوع؛
+    - مدخل `children` بی واژه‌ی آغازین ولی با برچسب پرانتزی → نوع برچسب؛
+    - بقیه → `related`.
+  - **`pairs()`:** هر جفت یک بار ثبت می‌شود، و نوع روشن بر `related` پیشی دارد. جفتی که به هر دو جهت آمده (۲ جفت) کنار می‌رود.
+  - **`linkedEntries()` و `html()`:** برای صفحه‌ی اثر. مدخلی پیوند می‌گیرد که یکی از کلیدهای عنوانش در کلیدهای یکی از اثرهای `work_relations` آن اثر، در همان جهت، باشد. نخستین عنوان مدخل با `mb_strpos` در متن خام لینک می‌شود.
+- **[LinkRelatedWorksCommand](../app/Console/Commands/LinkRelatedWorksCommand.php):**
+  - گزینه‌ها: `--dry-run`، `--sample`، `--per-kind`، `--no-index` و `--unmatched=file.tsv`.
+  - ردیف‌های `source = auto` با کلید `child>parent>type` همگام می‌شوند: آنچه نیست افزوده و آنچه دیگر داده نمی‌شود حذف می‌شود.
+  - جفتی که ردیفی با `source` دیگر (به هر جهت و هر نوع) دارد، کنار می‌ماند.
+  - اثرهای فرعیِ تغییرکرده با `searchable()` دسته‌های ۵۰۰تایی دوباره نمایه می‌شوند.
+- **[RecordRelations::WORK_TYPES](../app/Suggestions/RecordRelations.php):** `related` با برچسب‌های «وابسته است به» و «آثار وابسته».
+- **[Work::baseTitles](../app/Models/Work.php):** عنوان‌های `baseWorks` (اگر باشند)، سپس `parseTitle` عنوان‌ها و مدخل‌های `related_work`، با حذف تکرار نرمال‌شده. آزمون `test_a_relation_in_work_relations_comes_before_the_text_which_stays` در `WorkBaseTitlesTest` به این ترتیب تغییر کرد.
+- **[works/show](../resources/views/works/show.blade.php):** `$textLinks` در `@php` بالای صفحه ساخته می‌شود، و `WorkRelationLinker::html()` جای `{{ $work->related_work }}` و `Fa::digits($comm)` را می‌گیرد.
+- **تمرین روی fahares_prod:**
+  - dry run: «9570 relations: 9570 to add»، با related ۵٬۲۷۲، commentary ۲٬۰۰۹، gloss ۱٬۲۰۱، translation ۸۲۶، abridgment ۱۴۰، supplement ۷۴، versification ۳۰ و refutation ۱۸.
+  - اجرا: «Saved: 9570 added» و «Indexed 8245 works again» (۱۰ ثانیه، `SCOUT_DRIVER=null`). اجرای دوم: «0 to add, 0 to remove, 9570 kept».
+  - صفحه‌ی #40024 «شرح شجرة الامانی» پیوند «وابسته به» دارد، و #55964 «اللمعة» ۵۴ پیوند در فهرست شروح.
+- **فهرست پیوندنخورده‌ها:** `--unmatched` ۸٬۱۹۲ مدخل داد، در یادداشت‌های مشترک جلسه (`item6-unmatched-step14_104.tsv`).
+- **آزمون:** [LinkRelatedWorksTest](../tests/Feature/LinkRelatedWorksTest.php).
+- **اجرا در تولید، پس از استقرار:**
+  1. پشتیبان `work_relations` (جدول کوچک).
+  2. `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`، که حدود ۹٬۶۰۰ ردیف می‌افزاید و حدود ۸٬۲۰۰ اثر را دوباره نمایه می‌کند.
+

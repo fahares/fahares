@@ -59,14 +59,15 @@ class WorkBaseTitlesTest extends TestCase
         $this->assertSame([[], ['نهج البلاغة (ترجمه)']], $work->searchTitles());
     }
 
-    public function test_a_relation_in_work_relations_comes_before_the_text()
+    public function test_a_relation_in_work_relations_comes_before_the_text_which_stays()
     {
         $base = $this->work(['primary_title' => 'تجرید الاعتقاد', 'clean_title' => 'تجرید الاعتقاد']);
         $work = $this->work(['primary_title' => 'شرح التجرید', 'clean_title' => 'شرح التجرید', 'related_work' => 'تجرید الکلام']);
         $this->assertSame(['التجرید', 'تجرید الکلام'], $work->baseTitles());
 
         DB::table('work_relations')->insert(['work_id' => $work->id, 'related_work_id' => $base->id, 'type' => 'commentary', 'created_at' => now(), 'updated_at' => now()]);
-        $this->assertSame(['تجرید الاعتقاد'], $work->fresh()->baseTitles());
+        // step 14.104: the text's titles stay, after the relation's
+        $this->assertSame(['تجرید الاعتقاد', 'التجرید', 'تجرید الکلام'], $work->fresh()->baseTitles());
     }
 
     public function test_an_epithet_naming_the_author_by_a_work_is_not_among_the_names()

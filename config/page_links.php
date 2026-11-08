@@ -17,6 +17,11 @@ return [
      *   - title_before / title_after: regexes whose group title is the entry's title, the words before the reference
      *     ending with the first, those after it starting with the second («مر بعنوان الدرة النظمية (175:19)»).
      *   - bibliography: the source's key in config('bibliography.sources'), which gives its volumes and pages.
+     *   - source: the code of the source referred to, when it is not the page's own (step 14.103); a form may then have
+     *     the group number, the entry's number in the volume («ذ 4 رقم 483»), and the cues and titles may be left out.
+     *   - order: «fit» reads first and second in the one order that is a page of the source, both orders only with a number.
+     *   - chain_forms: forms read only right after another reference, joined by «و» or «،»; the group bare is another
+     *     entry number of that reference's volume when it had one, else a page of it.
      * - holdings: a line naming a copy in a library by its catalogue's page and volume or by its number («دانشگاه
      *   2705/12 ش (1) 3701», step 14.34, App\Support\PageLinks\Holdings) links the copy of the entry's work that has them.
      *   - libraries: the forms the source prints => the site's libraries they may be (city, name); a form of two
@@ -78,6 +83,25 @@ return [
                 'مروی' => [['تهران', 'مروی']],
                 'حقوق' => [['تهران', 'حقوق']],
             ],
+        ],
+    ],
+    // Tabaqat's «ذ», al-Dhari'a by the same author (step 14.103): «(ذ 243:16)» page and volume (some volume first, read in
+    // the order that fits), «(ذ 4 رقم 483)» or «(ذ 150:1 رقم 720)» the entry's number in its volume, which «قم» misprints
+    'tabaqat' => [
+        'references' => [
+            'source' => 'dharia',
+            'bibliography' => 'dharia',
+            'order' => 'fit',
+            'forms' => [
+                '(?<![\p{L}\p{M}])ذ\s*(?<first>\d{1,4})\s*:\s*(?<second>\d{1,4})(?:\s*-\s*\d{1,4})?(?:\s*،?\s*ر?قم\s*(?<number>\d{1,5}))?(?![\d:\/])',
+                '(?<![\p{L}\p{M}])ذ\s*(?<volume>\d{1,2})\s*،?\s*ر?قم\s*(?<number>\d{1,5})(?!\d)',
+            ],
+            // right after one of those: «و 221:11», «و 1275», «و 495»
+            'chain_forms' => [
+                '(?<![\d:\/])(?<first>\d{1,4})\s*:\s*(?<second>\d{1,4})(?:\s*-\s*\d{1,4})?(?:\s*،?\s*ر?قم\s*(?<number>\d{1,5}))?(?![\d:\/])',
+                '(?<![\d:\/])(?<bare>\d{1,5})(?:\s*،?\s*ر?قم\s*(?<number>\d{1,5}))?(?![\d:\/])',
+            ],
+            'cues' => null,
         ],
     ],
 ];

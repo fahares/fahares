@@ -96,6 +96,11 @@
                         <input type="checkbox" name="pairs_after_name" value="1" class="accent-cinnabar" @checked($val('pairs_after_name', ! empty($o['pairs_after_name'])))>
                         پس از نام، جلد پیش از صفحه می‌آید: «۱: ۲۵۴»، «۳-۲۴۵»
                     </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="hidden" name="pairs_by_fit" value="0">
+                        <input type="checkbox" name="pairs_by_fit" value="1" class="accent-cinnabar" @checked($val('pairs_by_fit', ! empty($o['pairs_by_fit'])))>
+                        پس از نام، جفت «:» یا «-» به هر دو ترتیب می‌آید و به ترتیبی خوانده می‌شود که با جلدها جور است: «۱۵: ۲۷۶»، «۳۸۷: ۴»
+                    </label>
                 </div>
             </div>
             <p class="text-xs text-muted leading-6 -mt-2">
