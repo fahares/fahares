@@ -7,6 +7,10 @@ use App\Models\EntityRedirect;
 use App\Models\Library;
 use App\Models\Manuscript;
 use App\Models\Person;
+use App\Models\Source;
+use App\Models\SourceEntry;
+use App\Models\SourceItem;
+use App\Models\SourceVolume;
 use App\Models\Work;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -136,5 +140,32 @@ class IndexingTest extends TestCase
     public function test_the_quick_search_api_is_rate_limited(): void
     {
         $this->getJson('/api/search?q=' . urlencode('دیوان'))->assertHeader('X-RateLimit-Limit', '120');
+    }
+
+    public function test_the_sitemap_lists_source_entries_with_text_or_a_work_but_not_thin_ones(): void
+    {
+        $source = Source::create(['code' => 'idx-dharia', 'kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 30, 'title' => 'الذریعة']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 9]);
+        $item = fn (string $key, string $text) => SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id,
+            'volume_number' => 9, 'item_key' => $key, 'position' => (int) $key, 'kind' => 'entry', 'page_start' => 1, 'page_end' => 1,
+            'title' => 'دیوان', 'title_normalized' => 'دیوان', 'text' => $text, 'text_status' => 'auto']);
+        $long = $item('11', str_repeat('دیوان شعر فارسی به خط نستعلیق. ', 5));
+        $thin = $item('12', 'دیوان، مر في (295:19).');
+        $tied = $item('13', 'دیوان قدسی.');
+        $rejected = $item('14', 'دیوان دیگر.');
+        foreach ([[$tied, SourceEntry::STATUS_VERIFIED], [$rejected, SourceEntry::STATUS_REJECTED]] as [$entry, $status]) {
+            SourceEntry::create(['citable_type' => Work::class, 'citable_id' => $this->work->id, 'source_id' => $source->id,
+                'source_item_id' => $entry->id, 'origin' => SourceEntry::ORIGIN_MANUAL, 'status' => $status]);
+        }
+
+        $this->assertStringContainsString(route('sitemap.chunk', ['type' => 'entries', 'page' => 1]), $this->get('/sitemap.xml')->getContent());
+        $xml = $this->get('/sitemap-entries-1.xml')->assertOk()->getContent();
+        foreach ([$long, $tied] as $listed) {
+            $this->assertStringContainsString('<loc>' . $listed->load('source')->url() . '</loc>', $xml);
+            $this->get($listed->url())->assertOk()->assertHeaderMissing('X-Robots-Tag');
+        }
+        foreach ([$thin, $rejected] as $left) {
+            $this->assertStringNotContainsString('<loc>' . $left->load('source')->url() . '</loc>', $xml);
+        }
     }
 }

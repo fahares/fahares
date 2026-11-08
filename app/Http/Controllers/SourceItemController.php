@@ -9,7 +9,7 @@ use App\Models\Work;
 
 /**
  * The page of one printed entry of a source (plan docs/plans/dharia-text.md): /sources/dharia/3/1442. Every entry has
- * one, linked to a record or not; the sitemap lists only those tied to a record.
+ * one, linked to a record or not; the sitemap lists those with some text of their own or tied to a work (step 14.107).
  */
 class SourceItemController extends Controller
 {
