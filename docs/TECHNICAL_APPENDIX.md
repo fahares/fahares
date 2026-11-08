@@ -8806,6 +8806,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نمونه‌ی Gmail:** `On Sat, Nov 7, 2026 at 11:54 AM Fattemeh Hajizadeh <` و `fattemeh.hajizadeh@gmail.com> wrote:`.
 - **`admin/suggestions/partials/conversation`:** فرم `ask-form` اکنون با `$thread || ! $pending` نشان داده می‌شود، با `reply => (bool) $thread`. فرم پاسخ `id="reply-body"` دارد تا با `ask-body` پنل تصمیم یکی نشود، و همان مسیر `admin.suggestions.ask` را می‌فرستد. پس پاسخ روی پیشنهادِ در انتظار، مثل پرسش، `awaiting_reply_since` را می‌گذارد.
 - **آزمون‌ها:** سه حالت تازه در `test_the_quoted_history_is_cut_from_an_email_reply` و `test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+- **سطر Gmail:** پیش از `AM` نویسه‌ی U+202F است، نه فاصله‌ی معمولی. نمونه‌ی آزمون هم همین نویسه را دارد.
+- **اجرا در تولید (۱۷ آبان ۱۴۰۵):** `messages.id = 12` (رشته‌ی ۵، پیشنهاد ۱۱۰). پشتیبان ردیف در `../fahares-sources/backups/step13/step14_96_message12.json` است. با `prod-run reply-under-thread`، `body` با `DB::table` تا پیش از `\n\nOn Sat, Nov 7, 2026 at 11:54` بریده شد، به این شرط که به `wrote:` ختم شود. `updated_at` دست نخورد. خروجی: «1 updated». در `/tmp` کانتینر فایلی ساخته نشد.
 
 ### گام ۱۴.۹۷: `scribe_name` از review10
 - **ورودی:** `scribe_name/filled` (۲۸۲ ردیف).
