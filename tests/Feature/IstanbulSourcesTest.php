@@ -75,6 +75,31 @@ class IstanbulSourcesTest extends TestCase
         unlink($file);
     }
 
+    public function test_a_model_decision_chooses_among_entries_of_one_title()
+    {
+        // Monzavi's page with two «آبستنی» (step 14.109): the matcher can only guess; the model's choice replaces the
+        // guess, and without one, or with evidence the entry lacks, the guess stays for a reviewer
+        $volume = $this->volume('monzavi', 'فهرستواره منزوی', 5, 3255, 4173);
+        foreach ([['3257#1', 'آبستنی', "*آبستنی.\nدر داروهای زنان و زایمان."], ['3257#2', 'آبستنی', "*آبستنی.\nدر علامات بار گرفتن و تدبیر پسر آوردن."]] as $i => [$key, $title, $text]) {
+            SourceItem::create(['source_id' => $volume->source_id, 'source_volume_id' => $volume->id, 'volume_number' => 5, 'item_key' => $key,
+                'position' => $i + 1, 'page_start' => 3257, 'page_end' => 3257, 'title' => $title, 'title_normalized' => $title, 'text' => $text]);
+        }
+        $chosen = $this->work('monzavi', 'آبستنی', 'مجهول', 900, 5, 3257, 'فهرستواره منزوی 3257/5');
+        $kept = $this->work('monzavi', 'آبستنی', 'مجهول', 900, 5, 3257, 'فهرستواره منزوی 3257/5');
+        $citation = fn (Work $w) => SourceEntry::where('citable_id', $w->id)->where('origin', SourceEntry::ORIGIN_BIBLIOGRAPHY)->value('id');
+        $file = tempnam(sys_get_temp_dir(), 'llm');
+        file_put_contents($file, json_encode([
+            ['citation_id' => $citation($chosen), 'index' => 0, 'role' => 'entry', 'key' => '3257#2', 'evidence' => 'در علامات بار گرفتن', 'confidence' => 80],
+            ['citation_id' => $citation($kept), 'index' => 0, 'role' => 'entry', 'key' => '3257#2', 'evidence' => 'در داروهای زنان', 'confidence' => 80],
+        ], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('sources:link-items', ['volume' => 'monzavi', '--volume' => 5, '--decisions' => $file])->assertSuccessful();
+        $tie = fn (Work $w) => SourceEntry::where('origin', SourceEntry::ORIGIN_MATCH)->where('citable_id', $w->id)->sole();
+        $this->assertSame(['3257#2', 'llm', 70], [$tie($chosen)->sourceItem->item_key, $tie($chosen)->match_method, $tie($chosen)->confidence]);
+        $this->assertSame(['ambiguous', 30], [$tie($kept)->match_method, $tie($kept)->confidence]);
+        unlink($file);
+    }
+
     public function test_a_hadiyya_entry_is_an_author_and_his_works_are_named_in_it()
     {
         $volume = $this->volume('hadiyya', 'هدیة العارفین', 1, 1, 842);

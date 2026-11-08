@@ -75,7 +75,8 @@ class LinkSourceItemsCommand extends Command
                     continue;
                 }
                 $decision = $this->decide($matcher, $citation, $index, (int) $place['page'], $items);
-                if (! $decision['match'] && isset($llm[$citation->id . ':' . $index])) {
+                // a model may also choose among the entries of one title the matcher could not tell apart (step 14.109)
+                if ((! $decision['match'] || $decision['match']['method'] === 'ambiguous') && isset($llm[$citation->id . ':' . $index])) {
                     $decision = $this->llmDecision($decision, $llm[$citation->id . ':' . $index], $items);
                 }
                 $decisions[] = $decision;
@@ -192,7 +193,8 @@ class LinkSourceItemsCommand extends Command
     /**
      * A model's decision for a citation the matcher left without one (item 86): {citation_id, index, role ("entry",
      * "mention" or "none"), key (the entry's item_key), evidence (words it copied from the entry), confidence}. It
-     * stands only when the evidence is in the entry's title or text, and never above 70.
+     * stands only when the evidence is in the entry's title or text, and never above 70. Otherwise the matcher's own
+     * decision stays, an ambiguous guess included.
      */
     private function llmDecision(array $decision, array $llm, $items): array
     {
