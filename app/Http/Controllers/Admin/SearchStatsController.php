@@ -33,6 +33,7 @@ class SearchStatsController extends Controller
         'folios_to' => 'برگ تا',
         'flags' => 'ویژگی‌های نسخه',
         'role' => 'نقش شخص',
+        'fields' => 'چند فیلد با هم',
         'manuscripts_range' => 'فراوانی نسخ (پیشین)',
     ];
 

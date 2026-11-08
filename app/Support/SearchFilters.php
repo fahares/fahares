@@ -81,8 +81,11 @@ class SearchFilters
     /** The printed catalogue volume whose copies are listed (step 13.116) */
     public ?\App\Models\SourceVolume $sourceVolume = null;
 
-    /** The parameters that narrow a tab to one record's list; the counts of the other filters are taken within it */
-    public const CONTEXT = ['work_id', 'scribe_id', 'author_id'];
+    /**
+     * The parameters that narrow a tab to one record's list; the counts of the other filters are taken within it.
+     * The words of each field (`f[…]`, FieldTerms) are words of the search, so the counts are taken within them too.
+     */
+    public const CONTEXT = ['work_id', 'scribe_id', 'author_id', 'fields'];
 
     /** @param array<string, mixed> $values the valid values, by parameter */
     public function __construct(public string $type, public array $values = [])
@@ -120,6 +123,10 @@ class SearchFilters
             if ($value !== null) {
                 $values[$param] = $value;
             }
+        }
+        // Words searched each in its own field, all together (step 14.100)
+        if ($fields = FieldTerms::clean($request->input('f'), $type)) {
+            $values['fields'] = $fields;
         }
 
         return new self($type, $values);
@@ -161,6 +168,24 @@ class SearchFilters
     public function isEmpty(): bool
     {
         return ! $this->values;
+    }
+
+    /** The ids every field's words match, the fields too broad to be taken whole, and whether the engine failed */
+    public function fieldMatches(): ?array
+    {
+        return isset($this->values['fields']) ? FieldTerms::resolve($this->type, $this->values['fields']) : null;
+    }
+
+    /** The labels of the fields whose matches were cut at FieldTerms::CAP */
+    public function broadFields(): array
+    {
+        return array_map(fn ($f) => \App\Http\Controllers\SearchController::FIELD_SCOPES[$this->type][$f][0], $this->fieldMatches()['broad'] ?? []);
+    }
+
+    /** The table column of the tab's own id */
+    private function idKey(): string
+    {
+        return ['works' => 'works.id', 'manuscripts' => 'manuscripts.id', 'people' => 'people.id', 'sources' => 'source_items.id'][$this->type];
     }
 
     /** The subject and its children, by name for the index and by id for the database */
@@ -218,6 +243,7 @@ class SearchFilters
                 'source_volume_id' => "source_volume_ids = {$value}",
                 'role' => "is_{$value} = true",
                 'century' => $this->type === 'people' ? "century_hijri = {$value}" : null,
+                'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
         }
@@ -269,6 +295,7 @@ class SearchFilters
                     ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', \App\Models\Manuscript::class)->select('citable_id')),
                 'role' => $query->where("is_{$value}", true),
                 'century' => $this->type === 'people' ? $query->where('century_hijri', $value) : null,
+                'fields' => $query->whereIn($this->idKey(), $this->fieldMatches()['ids']),
                 default => null,
             };
         }
@@ -329,6 +356,12 @@ class SearchFilters
             if ($param === 'library_id') {
                 foreach ($this->libraries as $lib) {
                     $chips[] = ['کتابخانه: ' . $lib->short_name . ($lib->city ? '، ' . $lib->city : ''), ['library_id' => array_values(array_diff($value, [$lib->id]))]];
+                }
+            }
+            if ($param === 'fields') {
+                // «کاتب: محمد», each removed alone
+                foreach ($value as $field => $term) {
+                    $chips[] = [\App\Http\Controllers\SearchController::FIELD_SCOPES[$this->type][$field][0] . ': ' . $term, ['f' => array_diff_key($value, [$field => 1])]];
                 }
             }
             if ($param === 'flags') {

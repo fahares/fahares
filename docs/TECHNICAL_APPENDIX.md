@@ -8824,3 +8824,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
   - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
+
+### گام ۱۴.۱۰۰: `f[field]` و `App\Support\FieldTerms`
+- **پارامتر:** `f[<key>]=<عبارت>`، با کلیدهای `SearchController::FIELD_SCOPES[type]` (فقط `works` و `manuscripts`). `FieldTerms::clean` کلید ناشناخته، مقدار غیررشته و تهی را می‌اندازد، و عبارت را تا ۱۰۰ نویسه و با `TextNormalizer::normalize` نگه می‌دارد. در `SearchFilters::$values['fields']` می‌نشیند و در `CONTEXT` هم هست، تا شمار فیلترهای کناری درون آن گرفته شود.
+- **`FieldTerms::resolve`:**
+  - یک `multiSearch` با `limit 0` شمار هر فیلد را جداگانه می‌دهد (`attributesToSearchOn` همان فیلد، `matchingStrategy all`).
+  - فیلدها به ترتیب صعودی شمار جست‌وجو می‌شوند، هر کدام با `limit CAP` (۱۰٬۰۰۰) و `attributesToRetrieve [id]`، و از دومی به بعد با `filter id IN [شناسه‌های پیشین]`.
+  - `broad` فقط فیلد نخست است، وقتی شمارش از CAP بیشتر باشد.
+  - نتیجه در یک آرایه‌ی ایستا نگه داشته می‌شود، تا `engine()`، `contextEngine()` و `apply()` یک بار بپرسند. `ExportSearchResults` پیش از هر کار `flush()` می‌کند.
+  - خطای موتور به `failed` می‌انجامد، و کنترلر آن را `engineDown` می‌کند.
+  - با درایور `collection` (آزمون‌ها)، رکوردها با `toSearchableArray()` و `str_contains` هر واژه سنجیده می‌شوند.
+- **`SearchFilters`:** `engine()` → `id IN [...]` یا `id = 0`؛ `apply()` → `whereIn(<table>.id, ids)`؛ `active()` یک نشان برای هر فیلد با `['f' => باقی]`؛ `broadFields()` برچسب فیلدهای بریده.
+- **آمار:** `fields` در `SearchStatsController::FILTER_LABELS` («چند فیلد با هم»).
+- **زمان (نمایه‌ی محلی، گرم):** «کاتب: محمد» + «محل کتابت: اصفهان» → ۱٬۴۶۱ شناسه در ۰٫۷۵ تا ۰٫۹۸ ثانیه. نخستین پرسش با کش سرد ۷٫۵ ثانیه بود. یک فیلد کلی تنها («کاتب: محمد»، ۱۰٬۰۰۰ شناسه) ۰٫۷۳ ثانیه.
+- **آزمون:** `tests/Feature/SearchFieldTermsTest.php` (۷ آزمون)، با Mockery برای ترتیب زنجیره و `filter` آن.

@@ -183,6 +183,11 @@ class SearchController extends Controller
             }
         }
 
+        // The words of each field are looked up by the engine first; when it failed, nothing was found (step 14.100)
+        if ($filters->fieldMatches()['failed'] ?? false) {
+            $engineDown = true;
+        }
+
         if ($type === 'works' && ! $exportLimit) {
             foreach ($results as $work) {
                 $work->match_reason = self::workMatchReason($matchedFields[$work->id] ?? []);
