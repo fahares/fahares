@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Observers\AuditLogConflicts;
+use App\Observers\AuditLogMergeNotices;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[ObservedBy(AuditLogConflicts::class)]
+#[ObservedBy([AuditLogConflicts::class, AuditLogMergeNotices::class])]
 class AuditLog extends Model
 {
     public $timestamps = false;

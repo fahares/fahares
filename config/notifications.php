@@ -46,10 +46,22 @@ return [
             'permission' => 'suggestions.review',
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
+        // The weekly count of machine matches nobody has reviewed yet (backlog item 82)
+        'review.unreviewed_data' => [
+            'label' => 'خلاصه‌ی هفتگی داده‌های خودکار بازبینی‌نشده (تطبیق فهرست‌های چاپی، پیوند آثار به منابع)',
+            'permission' => 'catalog_refs.review',
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
+        ],
         'review.conflict' => [
             'label' => 'ویرایش یا ادغام رکوردی که پیشنهاد در انتظار داوری دارد، به دست دیگری',
             'permission' => 'suggestions.review',
             'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false],
+        ],
+        // A researcher's pending suggestion whose record was merged into another (backlog item 82)
+        'suggestion.record_merged' => [
+            'label' => 'ادغام رکوردی که پیشنهاد در انتظار من درباره‌ی آن است',
+            'roles' => ['*'],
+            'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
         'suggestion.reviewed' => [
             'label' => 'نتیجه‌ی داوری پیشنهادهای من، و تغییر وضعیت قول‌هایم',

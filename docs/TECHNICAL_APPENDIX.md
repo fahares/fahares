@@ -8868,3 +8868,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - رونوشت محلی هنوز اجرای ۱۴.۸۸ را نداشت. تولید پیش از این گام «2094 at a volume» داشت.
 - **اجرا در تولید:** `fahares:sync-other-citations --apply --show=0`
 - **جلدهای ناموجود (ارجاع اصلی بی‌جلد در رضوی، تولید):** `اهدائیرهبر|6` ۴۴۹، `|9` ۴۳۶، `ف|27` ۴۲۷، `|11` ۴۰۵، `|10` ۳۸۲، `|5` ۲۹۳. همه `catalog_volume_id` تهی دارند، پس `catalogs:set-volumes` آن‌ها را جابه‌جا نمی‌کند. راهِ درست افزودن جلد به ردیف «اهدائی رهبر» (`fankha:543-554`) و ردیف «ف» رضوی در `catalog_volume_links.json` و اجرای `catalogs:link-volumes` است. جدول فنخا تنها ج ۲۷ رضوی را دارد (ردیف ۵۰۹، «اجازات، رجال، درایه الحدیث»، براتعلی غلامی مقدم). MTIF (`mtif_db.sql.gz`) تنها «هزار و پانصد نسخه» (کتاب ۱۴۵) را دارد.
+
+### گام ۱۴.۱۰۲: اعلان‌های `suggestion.record_merged` و `review.unreviewed_data` (مورد ۸۲)
+- **ادغام:** observer تازه‌ی [`AuditLogMergeNotices`](../app/Observers/AuditLogMergeNotices.php)، کنار `AuditLogConflicts` روی `AuditLog`. روی هر لاگ `merge` از نوع نسخه، اثر، کتابخانه یا شخص که `old_values.source_id` دارد، پس از commit اجرا می‌شود.
+  - نسخه، اثر و کتابخانه پیشنهادهای باز را با `suggestion_ids` در لاگ به رکورد ماندگار می‌برند (`RecordMerger::moveAttachments`، `LibraryMerger::merge`). در این حالت همین شناسه‌ها خوانده می‌شوند.
+  - `PersonMerger` پیشنهادها را جابه‌جا نمی‌کند، پس پیشنهادهای `suggestable_id = source_id` شخص خوانده می‌شوند.
+  - فقط `status = pending` با `user_id`، جز کاربر لاگ و `new_values.suggestion_id`. یک `Notice` برای هر کاربر در هر ادغام. نام رکورد حذف‌شده از `source_name` یا `source_snapshot` (در `RecordMerger` زیر `attributes`).
+  - ادغام‌های خط فرمان (مانند `fahares:split-compound-people`) هم اعلان می‌فرستند، چون لاگ `merge` می‌سازند.
+- **خلاصه‌ی هفتگی:** [`notifications:unreviewed-data`](../app/Console/Commands/SendUnreviewedDataReminderCommand.php) با `--days=7`. دو صف بر پایه‌ی `SourceEntry::awaitingReview()`: `citable_type = Manuscript` (`admin.catalog-references.index`) و `citable_type = Work` با `source_item_id` (`admin.source-links.index`). صف خالی کنار می‌رود و اگر هر دو خالی باشند، چیزی فرستاده نمی‌شود. زمان‌بندی در `routes/console.php`: شنبه ۸:۱۵ تهران.
+- **پیکربندی:** دو نوع در `config/notifications.php`. `suggestion.record_merged` با `roles: ['*']`، و `review.unreviewed_data` با `permission: catalog_refs.review`. پیش‌فرض هر دو `database` و `mail`.
+- **آزمون:** `tests/Feature/Notifications/MergeAndUnreviewedNoticesTest.php` (ادغام اثر، ادغام شخص، خلاصه‌ی هفتگی).
