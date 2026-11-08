@@ -8765,3 +8765,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_text_lines_step14_93.json` با ۲۱۴ رکورد (`changes.lines`)، برای `fahares:rebuild-copies`.
 - **تمرین روی fahares_prod:** «Rebuilding 214 copies». اجرای دوم `already 214`. نمونه: 97081 حالا `lines` = 18 و `lines_raw` = «18 سطر؛ 34 سطر» دارد.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_text_lines_step14_93.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی «Rebuilding 214 copies» بود و اجرای دوم `already 214`. نمونه‌ها: 97081 → 18، 139500 → 19، 34743 → 15. فایل‌های موقت `/tmp` کانتینر پاک شدند.
