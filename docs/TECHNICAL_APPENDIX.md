@@ -8662,7 +8662,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **نمایه:** `scout:import SourceItem` تا شناسه‌ی ۳۵۱۰۱۸.
   - **وارسی روی fahares.net:** ارجاع اثر ۹۶۴ «دیدن برگه‌ی مؤلفات الزیدیة، ج ۱، ص ۳» است.
 
-
 ### گام ۱۴.۸۸: ارجاع وارونه در `SourceEntrySync::syncOtherCited`
 - **شرط:**
   - `volumeOf()` برای «سری|جلد» چیزی نیافت.
@@ -8802,6 +8801,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_heads_step14_95.json --apply`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی: «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0» بود. فایل‌های موقت `/tmp` کانتینر پاک شدند.
 
+### گام ۱۴.۹۶: سرآغاز نقل‌قولِ دوتکه و فرم پاسخ زیر پیام‌ها
+- **`App\Messaging\ReplyText::extract`:** نشانه‌های `\p{Cf}` از همه‌ی سطرها پیش‌تر برداشته می‌شوند. سطری که با `On`، `در تاریخ` یا `في` آغاز شود، با ۱ تا ۳ سطر (پیوسته با فاصله) با `QUOTE_HEADERS` سنجیده می‌شود. سطرهای دیگر مثل پیش تنها سنجیده می‌شوند، تا سطری که به «نوشت:» ختم می‌شود سطر پیش از خود را نبُرد.
+- **نمونه‌ی Gmail:** `On Sat, Nov 7, 2026 at 11:54 AM Fattemeh Hajizadeh <` و `fattemeh.hajizadeh@gmail.com> wrote:`.
+- **`admin/suggestions/partials/conversation`:** فرم `ask-form` اکنون با `$thread || ! $pending` نشان داده می‌شود، با `reply => (bool) $thread`. فرم پاسخ `id="reply-body"` دارد تا با `ask-body` پنل تصمیم یکی نشود، و همان مسیر `admin.suggestions.ask` را می‌فرستد. پس پاسخ روی پیشنهادِ در انتظار، مثل پرسش، `awaiting_reply_since` را می‌گذارد.
+- **آزمون‌ها:** سه حالت تازه در `test_the_quoted_history_is_cut_from_an_email_reply` و `test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
+
 ### گام ۱۴.۹۷: `scribe_name` از review10
 - **ورودی:** `scribe_name/filled` (۲۸۲ ردیف).
 - **بیرون مانده:**
@@ -8819,9 +8824,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
   - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`
-
-### گام ۱۴.۹۶: سرآغاز نقل‌قولِ دوتکه و فرم پاسخ زیر پیام‌ها
-- **`App\Messaging\ReplyText::extract`:** نشانه‌های `\p{Cf}` از همه‌ی سطرها پیش‌تر برداشته می‌شوند. سطری که با `On`، `در تاریخ` یا `في` آغاز شود، با ۱ تا ۳ سطر (پیوسته با فاصله) با `QUOTE_HEADERS` سنجیده می‌شود. سطرهای دیگر مثل پیش تنها سنجیده می‌شوند، تا سطری که به «نوشت:» ختم می‌شود سطر پیش از خود را نبُرد.
-- **نمونه‌ی Gmail:** `On Sat, Nov 7, 2026 at 11:54 AM Fattemeh Hajizadeh <` و `fattemeh.hajizadeh@gmail.com> wrote:`.
-- **`admin/suggestions/partials/conversation`:** فرم `ask-form` اکنون با `$thread || ! $pending` نشان داده می‌شود، با `reply => (bool) $thread`. فرم پاسخ `id="reply-body"` دارد تا با `ask-body` پنل تصمیم یکی نشود، و همان مسیر `admin.suggestions.ask` را می‌فرستد. پس پاسخ روی پیشنهادِ در انتظار، مثل پرسش، `awaiting_reply_since` را می‌گذارد.
-- **آزمون‌ها:** سه حالت تازه در `test_the_quoted_history_is_cut_from_an_email_reply` و `test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
