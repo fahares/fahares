@@ -8705,6 +8705,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **مانع:** 7102 (اندازه‌ی دیگر)، 7106 (دو آغاز متقاطع)، 7103 (یک نسخه، دو بار)، 7110 (سده‌ی دیگر)
   - **پیوند:** 7107 (تودرتو)، 7108 (شمار برگ دیگر)، 7109 (کل و جزء)، 7503 (روی هم با جزء، یک اندازه)
 - **پروداکشن، پس از انتشار:** پشتیبان `id, collection_key`، سپس `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply --show=0`. انتظار: حدود ۴۰۰ `set`.
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵، انتشار ۶۱):**
+  - اجرای آزمایشی و `--apply` هر دو این‌ها را دادند: `set` ۴۰۳، `shared:linked` ۴٬۹۵۵، `shared:volumes` ۳٬۳۵۵، `shared:overlap` ۳۰، `shared:repeated-work` ۳۰۰ و `shared:no-evidence` ۲۰٬۴۲۰. اجرای دوم هیچ `set` نداشت.
+  - پشتیبان: `step14_90_collection_keys_before.tsv`، با ۳۲۳٬۲۴۵ ردیف و md5 `70010913…`. فایل `/tmp` کانتینر پاک شد.
+  - کلیدها: ۸۱۳۹۰ → `14515`، ۱۷۵۴۰۶ → `1111`، ۶۰۲۰۲ → `10945`. ۳۵۷۵۱ («8344») بی‌کلید ماند: جزءهایش گستره ندارند، پس شاهدی برای پیوند نیست.
 
 ### گام ۱۴.۹۱: رونوشت ۱۸ آبان، review9 و `fankha_v2_fill_columns_export.py`
 - **رونوشت:**
