@@ -8790,3 +8790,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_description_heads_step14_95.json` با ۱٬۴۴۴ `work_updates`، برای `fahares:add-corpus-works`.
 - **تمرین روی fahares_prod:** «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0».
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_heads_step14_95.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی: «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0» بود. فایل‌های موقت `/tmp` کانتینر پاک شدند.
