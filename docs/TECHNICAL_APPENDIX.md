@@ -8848,3 +8848,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_description_extras_step14_98.json` با ۴۱۱ `work_updates`. ستون‌های همراه: `bibliography` ۲۰، `incipit_text` ۱۵، `composition_place` ۹، `explicit_text` ۸.
 - **تمرین روی fahares_prod:** «update 411» و «Derived data of works: works=411, with_dedication=37». اجرای دوم «update 0». `bibliography` تازه با cast آرایه‌ای Eloquent نوشته می‌شود (`\uXXXX`). در سایت ۵۸ ارجاع از پیش چنین بودند.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_98.json --apply`
+
+### گام ۱۴.۱۰۲: اعلان‌های `suggestion.record_merged` و `review.unreviewed_data` (مورد ۸۲)
+- **ادغام:** observer تازه‌ی [`AuditLogMergeNotices`](../app/Observers/AuditLogMergeNotices.php)، کنار `AuditLogConflicts` روی `AuditLog`. روی هر لاگ `merge` از نوع نسخه، اثر، کتابخانه یا شخص که `old_values.source_id` دارد، پس از commit اجرا می‌شود.
+  - نسخه، اثر و کتابخانه پیشنهادهای باز را با `suggestion_ids` در لاگ به رکورد ماندگار می‌برند (`RecordMerger::moveAttachments`، `LibraryMerger::merge`). در این حالت همین شناسه‌ها خوانده می‌شوند.
+  - `PersonMerger` پیشنهادها را جابه‌جا نمی‌کند، پس پیشنهادهای `suggestable_id = source_id` شخص خوانده می‌شوند.
+  - فقط `status = pending` با `user_id`، جز کاربر لاگ و `new_values.suggestion_id`. یک `Notice` برای هر کاربر در هر ادغام. نام رکورد حذف‌شده از `source_name` یا `source_snapshot` (در `RecordMerger` زیر `attributes`).
+  - ادغام‌های خط فرمان (مانند `fahares:split-compound-people`) هم اعلان می‌فرستند، چون لاگ `merge` می‌سازند.
+- **خلاصه‌ی هفتگی:** [`notifications:unreviewed-data`](../app/Console/Commands/SendUnreviewedDataReminderCommand.php) با `--days=7`. دو صف بر پایه‌ی `SourceEntry::awaitingReview()`: `citable_type = Manuscript` (`admin.catalog-references.index`) و `citable_type = Work` با `source_item_id` (`admin.source-links.index`). صف خالی کنار می‌رود و اگر هر دو خالی باشند، چیزی فرستاده نمی‌شود. زمان‌بندی در `routes/console.php`: شنبه ۸:۱۵ تهران.
+- **پیکربندی:** دو نوع در `config/notifications.php`. `suggestion.record_merged` با `roles: ['*']`، و `review.unreviewed_data` با `permission: catalog_refs.review`. پیش‌فرض هر دو `database` و `mail`.
+- **آزمون:** `tests/Feature/Notifications/MergeAndUnreviewedNoticesTest.php` (ادغام اثر، ادغام شخص، خلاصه‌ی هفتگی).
