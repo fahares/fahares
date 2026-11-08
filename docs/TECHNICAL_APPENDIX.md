@@ -8752,3 +8752,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:rebuild-copies --file=database/data/fankha_flags_step14_92.json --apply`
   2. `fahares:link-autograph-scribes`
 - **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی‌ها: «Rebuilding 2868 copies» (۴۱ نسخه دوباره جلد گرفتند) و «Updated 107 autograph manuscripts with scribe_id». اجرای دوم `already 2868` بود و ردیف‌های audit ثبت شد. فایل‌های موقت `/tmp` کانتینر پاک شدند.
+
+### گام ۱۴.۹۳: `lines` از «N سطر در متن»
+- **review9 `lines/different` (۳٬۲۵۶ ردیف):**
+  - ۲٬۹۲۰ ردیف چند شمار دارند («و»، «-»، «تا»، «یا»، «+»)، و ۳۳۰ ردیف یک عبارت، که بیشترشان «… در متن و … در حاشیه» است.
+  - `CopyLines` (گام ۱۳.۱۵۶) فقط `lines_raw` و `line_counts` را می‌نویسد و `lines` را دست نمی‌زند.
+- **گزینش:** نسخه‌هایی که متنشان با `(?<![\d/×])(\d{1,2})\s*سطر\s*در\s*متن` یک عدد یکتا می‌دهد. ۳۰۹ نسخه بود، که ۹۵ تا درست بودند و ۲۱۴ تا دیگر.
+- **فایل:** `database/data/fankha_text_lines_step14_93.json` با ۲۱۴ رکورد (`changes.lines`)، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 214 copies». اجرای دوم `already 214`. نمونه: 97081 حالا `lines` = 18 و `lines_raw` = «18 سطر؛ 34 سطر» دارد.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_text_lines_step14_93.json --apply`

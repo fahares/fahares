@@ -1,0 +1,2787 @@
+{
+ "source": "a copy's line count is its text's («N سطر در متن»), not its margin's («M سطر در حاشیه»), 2026-11-08; fahares step 14.93",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 34743,
+   "shelfmark": "573",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34769,
+   "shelfmark": "545",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 34893,
+   "shelfmark": "534",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 35756,
+   "shelfmark": "1953",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 1,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96236,
+   "shelfmark": "8173",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97081,
+   "shelfmark": "1166",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124259,
+   "shelfmark": "8231",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131184,
+   "shelfmark": "355",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 19,
+     "to": 34
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 138698,
+   "shelfmark": "353",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 139500,
+   "shelfmark": "392",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 139806,
+   "shelfmark": "321",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140073,
+   "shelfmark": "15907",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140099,
+   "shelfmark": "2381",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140106,
+   "shelfmark": "208",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 8,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140160,
+   "shelfmark": "492",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140262,
+   "shelfmark": "442/4",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140270,
+   "shelfmark": "2162/3",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140751,
+   "shelfmark": "665",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140997,
+   "shelfmark": "458",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 141156,
+   "shelfmark": "965",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 11,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 142231,
+   "shelfmark": "546",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 142338,
+   "shelfmark": "335",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 142354,
+   "shelfmark": "8 معیری",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 142418,
+   "shelfmark": "349",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 27,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143320,
+   "shelfmark": "364",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143867,
+   "shelfmark": "19/5معیری",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143887,
+   "shelfmark": "676",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144488,
+   "shelfmark": "12 معیری",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144735,
+   "shelfmark": "16505",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 6
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144752,
+   "shelfmark": "2454",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144991,
+   "shelfmark": "13 معیری",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145118,
+   "shelfmark": "19/3معیری",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145124,
+   "shelfmark": "2743",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145173,
+   "shelfmark": "4700",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145415,
+   "shelfmark": "756",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145424,
+   "shelfmark": "2465",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145460,
+   "shelfmark": "4710",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145775,
+   "shelfmark": "4500",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145849,
+   "shelfmark": "478",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 146157,
+   "shelfmark": "181",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 9,
+     "to": 12
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 146454,
+   "shelfmark": "2471",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 146697,
+   "shelfmark": "166",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 146719,
+   "shelfmark": "2363",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 25,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149229,
+   "shelfmark": "3594",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154127,
+   "shelfmark": "2943",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 27,
+     "to": 57
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 157476,
+   "shelfmark": "3541",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 54,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 158826,
+   "shelfmark": "335/1",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160942,
+   "shelfmark": "944",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 68,
+     "to": 39
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 160953,
+   "shelfmark": "606",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 74,
+     "to": 39
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 161857,
+   "shelfmark": "810",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 61,
+     "to": 34
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164791,
+   "shelfmark": "442/9",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 164793,
+   "shelfmark": "2162/6",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 167752,
+   "shelfmark": "2162/9",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168382,
+   "shelfmark": "2553",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168682,
+   "shelfmark": "2153",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168848,
+   "shelfmark": "2162/1",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 169481,
+   "shelfmark": "335/9",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 170286,
+   "shelfmark": "2546",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171713,
+   "shelfmark": "5024/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171834,
+   "shelfmark": "5024/1",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 171948,
+   "shelfmark": "2677/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 185008,
+   "shelfmark": "328",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 38,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196191,
+   "shelfmark": "16945/1",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198681,
+   "shelfmark": "442/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198685,
+   "shelfmark": "2162/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198694,
+   "shelfmark": "335/6",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200068,
+   "shelfmark": "2166/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 220771,
+   "shelfmark": "170",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222571,
+   "shelfmark": "2819",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 224741,
+   "shelfmark": "392/12",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226070,
+   "shelfmark": "133/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 59,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 226782,
+   "shelfmark": "472",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 231385,
+   "shelfmark": "1350",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232095,
+   "shelfmark": "2162/8",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 238983,
+   "shelfmark": "392/10",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239501,
+   "shelfmark": "442/12",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239502,
+   "shelfmark": "442/13",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239513,
+   "shelfmark": "2162/16",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239514,
+   "shelfmark": "2162/17",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 239515,
+   "shelfmark": "2162/18",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 240300,
+   "shelfmark": "4897",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 240504,
+   "shelfmark": "2588/4",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 246830,
+   "shelfmark": "739/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 12
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 253477,
+   "shelfmark": "24126",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254405,
+   "shelfmark": "2564",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254514,
+   "shelfmark": "15957",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254518,
+   "shelfmark": "2561",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254523,
+   "shelfmark": "2574",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254554,
+   "shelfmark": "16355",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254568,
+   "shelfmark": "15924",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254571,
+   "shelfmark": "235",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 12
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254584,
+   "shelfmark": "7040",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254602,
+   "shelfmark": "2577",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254603,
+   "shelfmark": "690",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 12
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254607,
+   "shelfmark": "7282",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 29,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254613,
+   "shelfmark": "16244",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254614,
+   "shelfmark": "1714",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254616,
+   "shelfmark": "384",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254618,
+   "shelfmark": "241",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254620,
+   "shelfmark": "2280",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 38,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254640,
+   "shelfmark": "238",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254644,
+   "shelfmark": "2581",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254645,
+   "shelfmark": "2585",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254647,
+   "shelfmark": "234",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254648,
+   "shelfmark": "237",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254656,
+   "shelfmark": "2578",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 41,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254662,
+   "shelfmark": "2670/1",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254665,
+   "shelfmark": "16296",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254666,
+   "shelfmark": "12544",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 36,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254669,
+   "shelfmark": "204",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 17,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254674,
+   "shelfmark": "15923",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 12
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254677,
+   "shelfmark": "2579",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254678,
+   "shelfmark": "2580",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254681,
+   "shelfmark": "170",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 33,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254684,
+   "shelfmark": "1725",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254694,
+   "shelfmark": "1988",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254698,
+   "shelfmark": "18معیری",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254701,
+   "shelfmark": "232",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254722,
+   "shelfmark": "2582",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254741,
+   "shelfmark": "12672",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254746,
+   "shelfmark": "2583",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254751,
+   "shelfmark": "3050",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 27
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254759,
+   "shelfmark": "1862",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254762,
+   "shelfmark": "1735",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254763,
+   "shelfmark": "16368",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 23
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254768,
+   "shelfmark": "386",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254774,
+   "shelfmark": "2584",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 25,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254793,
+   "shelfmark": "233",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254818,
+   "shelfmark": "2357",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254819,
+   "shelfmark": "2172",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254822,
+   "shelfmark": "1895",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254823,
+   "shelfmark": "1869",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254854,
+   "shelfmark": "100",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254855,
+   "shelfmark": "4910",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254858,
+   "shelfmark": "401",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254859,
+   "shelfmark": "107",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254868,
+   "shelfmark": "336",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254890,
+   "shelfmark": "2588",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254891,
+   "shelfmark": "2589",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254967,
+   "shelfmark": "102",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254968,
+   "shelfmark": "2544",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 58,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254972,
+   "shelfmark": "2550",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 254983,
+   "shelfmark": "147",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255000,
+   "shelfmark": "438",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 9
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255003,
+   "shelfmark": "440",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255004,
+   "shelfmark": "443",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255005,
+   "shelfmark": "442",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255008,
+   "shelfmark": "439",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255010,
+   "shelfmark": "2162",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 2,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255143,
+   "shelfmark": "2609",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255144,
+   "shelfmark": "2610",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255150,
+   "shelfmark": "2559",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255166,
+   "shelfmark": "6318",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255249,
+   "shelfmark": "257",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255287,
+   "shelfmark": "2444",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255307,
+   "shelfmark": "2445",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 255522,
+   "shelfmark": "335/4",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259091,
+   "shelfmark": "10438",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259267,
+   "shelfmark": "369",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 24,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259268,
+   "shelfmark": "1908",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 10
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259275,
+   "shelfmark": "393",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259815,
+   "shelfmark": "335/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259900,
+   "shelfmark": "442/8",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 260329,
+   "shelfmark": "335/5",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 43,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 263175,
+   "shelfmark": "2629",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 30
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264858,
+   "shelfmark": "2166/3",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264859,
+   "shelfmark": "392/5",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 264897,
+   "shelfmark": "5024/6",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265019,
+   "shelfmark": "8401",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 6,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265054,
+   "shelfmark": "433",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 9
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 265060,
+   "shelfmark": "2633",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 18,
+     "to": 9
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267959,
+   "shelfmark": "256",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 267960,
+   "shelfmark": "2640",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268012,
+   "shelfmark": "4936",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 44,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268030,
+   "shelfmark": "442",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268031,
+   "shelfmark": "18022",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268055,
+   "shelfmark": "6963",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268059,
+   "shelfmark": "4933",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 38,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268060,
+   "shelfmark": "4935",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268095,
+   "shelfmark": "255",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 36,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268119,
+   "shelfmark": "258",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268177,
+   "shelfmark": "1179 ط",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 16,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268179,
+   "shelfmark": "2652",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 38,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268235,
+   "shelfmark": "253",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268237,
+   "shelfmark": "259",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 32,
+     "to": 17
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268251,
+   "shelfmark": "16964",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 26,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268280,
+   "shelfmark": "2741",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 58,
+     "to": 54
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268340,
+   "shelfmark": "2670/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 58,
+     "to": 33
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268341,
+   "shelfmark": "2692",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268345,
+   "shelfmark": "1826",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 38,
+     "to": 20
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268349,
+   "shelfmark": "2661",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 36,
+     "to": 30
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268405,
+   "shelfmark": "16929",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 40,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 271845,
+   "shelfmark": "4990",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 20,
+     "to": 14
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 275365,
+   "shelfmark": "15421",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 11
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279795,
+   "shelfmark": "2207",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 7,
+     "to": 5
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 290667,
+   "shelfmark": "415",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 30,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291692,
+   "shelfmark": "3385/5",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 28,
+     "to": 36
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292258,
+   "shelfmark": "8231",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292305,
+   "shelfmark": "8231",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292522,
+   "shelfmark": "8231",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 13,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 302068,
+   "shelfmark": "39672",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 22,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306746,
+   "shelfmark": "2679/1",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 307245,
+   "shelfmark": "72",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 18,
+     "to": 21
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 310950,
+   "shelfmark": "2693",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 310952,
+   "shelfmark": "5007",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 16
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 315115,
+   "shelfmark": "2679/2",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 34,
+     "to": 25
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319112,
+   "shelfmark": "4802",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 23,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319432,
+   "shelfmark": "39850",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319474,
+   "shelfmark": "21870",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332105,
+   "shelfmark": "5024",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 10,
+     "to": 15
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332133,
+   "shelfmark": "403",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 14,
+     "to": 18
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333046,
+   "shelfmark": "21865",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 19
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333282,
+   "shelfmark": "21864",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 15,
+     "to": 13
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333621,
+   "shelfmark": "8416",
+   "category": "lines",
+   "v2": "text",
+   "changes": {
+    "lines": {
+     "from": 12,
+     "to": 14
+    }
+   }
+  }
+ ]
+}
