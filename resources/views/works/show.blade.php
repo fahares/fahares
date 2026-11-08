@@ -393,7 +393,7 @@
                     @endswitch
                     ({{ $direction === 'asc' ? 'صعودی' : 'نزولی' }})
                 </span>
-                <a href="{{ route('works.show', $work) }}#manuscripts" class="text-muted hover:text-cinnabar underline">بازنشانی ترتیب</a>
+                <a href="{{ route('works.show', array_merge(request()->except(['sort', 'direction', 'page']), ['id' => $work->getRouteKey()])) }}#manuscripts" class="text-muted hover:text-cinnabar underline">بازنشانی ترتیب</a>
             </x-slot:actions>
         @endif
 
@@ -405,6 +405,9 @@
                 @if($copyCounts['photos_other']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['photos_other']) }}</span> عکسیِ دیگر@endif
                 @if($copyCounts['possibly_same']) · <span class="font-bold text-ink">{{ Fa::num($copyCounts['possibly_same']) }}</span> معرفیِ احتمالاً تکراری@endif
             </p>
+        @endif
+        @if($showCopyFilters ?? false)
+            @include('works.partials.copy-filters')
         @endif
         <div class="bg-surface border border-line">
             <div class="overflow-x-auto">
@@ -498,7 +501,7 @@
                             @endforeach
                         @empty
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-muted">هیچ نسخه‌ای برای این اثر ثبت نشده است.</td>
+                                <td colspan="7" class="py-8 text-center text-muted">{{ ($copyFilters ?? null)?->isEmpty() === false ? 'هیچ نسخه‌ای با این فیلترها نیست.' : 'هیچ نسخه‌ای برای این اثر ثبت نشده است.' }}</td>
                             </tr>
                         @endforelse
                     </tbody>

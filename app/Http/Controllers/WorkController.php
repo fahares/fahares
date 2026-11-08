@@ -51,6 +51,13 @@ class WorkController extends Controller
         $copyLinks = new \App\Support\CopyLinks($work);
         $query = $work->manuscripts()->with(['catalog', 'libraryRecord', 'scripts', 'scribe'])->whereNotIn('id', $copyLinks->linkedIds());
 
+        // Filters of the list, from the address (backlog item 79, step 14.99)
+        $copyFilters = \App\Support\WorkCopyFilters::fromRequest($request, $work->id, $copyLinks->linkedIds());
+        $copyFilters->apply($query);
+        $copyTotal = $copyFilters->total();
+        $showCopyFilters = $copyTotal > \App\Support\WorkCopyFilters::MIN_COPIES || ! $copyFilters->isEmpty();
+        $copyFilterOptions = $showCopyFilters ? $copyFilters->options() : [];
+
         switch ($sort) {
             case 'library':
                 $query->orderByRaw("ISNULL(library) ASC, library {$direction}")
@@ -95,6 +102,7 @@ class WorkController extends Controller
         $linkedCopies = $copyLinks->under($manuscripts->pluck('id')->all());
         $copyCounts = $copyLinks->counts();
 
-        return view('works.show', compact('work', 'manuscripts', 'sort', 'direction', 'earliest', 'copyLinks', 'linkedCopies', 'copyCounts'));
+        return view('works.show', compact('work', 'manuscripts', 'sort', 'direction', 'earliest', 'copyLinks', 'linkedCopies', 'copyCounts',
+            'copyFilters', 'copyTotal', 'showCopyFilters', 'copyFilterOptions'));
     }
 }
