@@ -5,7 +5,8 @@ namespace App\Messaging;
 /**
  * The new text of an email reply (backlog item 91): the plain text (or the HTML made plain), cut at the first line
  * that opens the quoted history (invisible direction marks aside) — «On … wrote:», its Persian and Arabic forms, a forwarded-header block, or the
- * «>» quote lines — and at a signature delimiter.
+ * «>» quote lines — and at a signature delimiter. A header the mail program wrapped over two or three lines (Gmail
+ * breaks «On …, Name <\n address> wrote:» at about 76 characters) is matched with the lines after it (step 14.96).
  */
 class ReplyText
 {
@@ -25,16 +26,22 @@ class ReplyText
             $text = html_entity_decode(strip_tags(preg_replace(['~<br\s*/?>~i', '~</(p|div|li|tr|h\d)>~i', '~<blockquote.*?</blockquote>~is'], ["\n", "\n", ''], $html)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
         $lines = preg_split("~\r\n|\r|\n~", (string) $text);
+        // Gmail wraps the «On … wrote:» line in invisible direction marks (U+202A, U+202B, U+200E …)
+        $plain = array_map(fn ($line) => trim(preg_replace('~\p{Cf}+~u', '', $line)), $lines);
         $kept = [];
-        foreach ($lines as $line) {
-            // Gmail wraps the «On … wrote:» line in invisible direction marks (U+202A, U+202B, U+200E …)
-            $trimmed = trim(preg_replace('~\p{Cf}+~u', '', $line));
+        foreach ($lines as $i => $line) {
+            $trimmed = $plain[$i];
             if ($trimmed === '--' || $trimmed === '-- ') {
                 break;
             }
-            foreach (self::QUOTE_HEADERS as $pattern) {
-                if (preg_match($pattern, $trimmed)) {
-                    break 2;
+            // Only a line that opens a dated header («On», «در تاریخ», «في») is read with the lines after it
+            $spans = preg_match('~^(On|در تاریخ|في)\s~iu', $trimmed) ? 3 : 1;
+            for ($span = 1; $span <= $spans && $i + $span <= count($lines); $span++) {
+                $header = implode(' ', array_slice($plain, $i, $span));
+                foreach (self::QUOTE_HEADERS as $pattern) {
+                    if (preg_match($pattern, $header)) {
+                        break 3;
+                    }
                 }
             }
             if (str_starts_with($trimmed, '>')) {
