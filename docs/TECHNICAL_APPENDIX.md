@@ -8997,3 +8997,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `catalogs:link-volumes`
   2. `fahares:sync-other-citations --apply --show=0` (گام ۱۴.۱۰۵). ارجاع‌های دومِ این جلدها هم پس از ساخته شدنشان جلد می‌گیرند.
 - **مانده:** سال، صفحه و فهرست‌نگارِ ج ۵ تا ۱۱ اهدایی.
+
+### گام ۱۴.۱۰۷: `Indexing`، `RobotsHeader` و `canonical`
+- **`App\Support\Indexing`:** `PRIVATE_PATHS` (الگوهای `Request::is`) و `canonical()`: `config('app.url')` و مسیر درخواست، هر بخش با `rawurlencode(rawurldecode(...))`، بی query string.
+- **`App\Http\Middleware\RobotsHeader`:** middleware سراسری (`$middleware->append`)، نه گروه `web`، تا ریدایرکت `auth` هم سرآیند بگیرد. سرآیندی را که پاسخ خودش دارد (صفحه‌ی ۴۱۰ رکورد حذف‌شده) دست نمی‌زند.
+- **`layouts/app.blade.php`:** `<link rel="canonical">` با `@yield('canonical', Indexing::canonical())`، مگر بخش `robots` شامل `noindex` باشد.
+- **`search.blade.php`:** `@section('robots', 'noindex, follow')` وقتی `request()->query()` تهی نیست.
+- **`SitemapController`:** slug شخص از `name` (مانند `Person::getPersianSlugAttribute`)، نه `normalized_name`. نام کتابخانه‌ی نسخه با `??` (مانند `Manuscript`). نوع تازه‌ی `catalogers` با `route('catalogers.show', $c)`. `catalogers.index` در تکه‌ی static.
+- **routes:** `throttle:120,1` روی `search.api` (سربرگ با debounce ۲۰۰ میلی‌ثانیه می‌پرسد). الگوی `type` نقشه‌ی سایت `catalogers` را می‌پذیرد.
+- **آزمون‌ها:** `IndexingTest` (۷ آزمون): robots.txt، `canonical` صفحه‌ی اثر و نسخه بی پارامتر، ۳۰۱ رکورد ادغام‌شده و slug کهنه به نشانی‌ای که `canonical` همان است، `noindex` جستجو، سرآیند صفحه‌های خصوصی، برابری نشانی هر نوع نقشه‌ی سایت با `route()` رکورد، و محدودیت نرخ.
+- **سنجش کامل روی fahares_db:** works ۷۱٬۵۱۶، people ۷۴٬۴۰۲، libraries ۴۱۲، catalogers ۸۸ و manuscripts ۳۲۳٬۸۸۰ نشانی؛ هیچ‌کدام با `route()` رکورد فرق ندارد.
+- **اجرا در تولید:** هیچ. نقشه‌ی سایت دو ساعت cache دارد (`sitemap_*`) و خودش تازه می‌شود.

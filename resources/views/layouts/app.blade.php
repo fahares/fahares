@@ -6,6 +6,8 @@
     <title>@yield('title', 'فهارس | پایگاه جامع کتاب‌شناسی و نسخه‌شناسی مکتوب')</title>
     <meta name="description" content="@yield('meta_description', 'سامانه و موتور جست‌وجوی جامع نسخه‌های خطی و کتاب‌شناسی مکتوب بر پایه مراجع و فهرستگان‌های معتبر')">
     @hasSection('robots')<meta name="robots" content="@yield('robots')">@endif
+    {{-- One address per page for search engines (backlog item 72): none on a page that is not indexed --}}
+    @unless(str_contains($__env->yieldContent('robots'), 'noindex'))<link rel="canonical" href="@yield('canonical', \App\Support\Indexing::canonical())">@endunless
 
     <!-- Open Graph / Facebook -->
     <meta property="og:site_name" content="فهارس | پایگاه جامع نسخه‌های خطی">
