@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\AuditLog;
 use App\Models\Manuscript;
 use App\Suggestions\RecordMerger;
+use App\Support\MemoryLimit;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -74,6 +75,8 @@ class MergeCatalogueTwinsCommand extends Command
         }
         [$this->counts, $this->examples, $this->report] = [[], [], []];
         $apply = (bool) $this->option('apply');
+        // bootstrap/app.php sets 512M, over any -d; the reading takes ~360 MB and each merge keeps ~1.5 MB (step 14.85's run)
+        MemoryLimit::raiseTo('2G');
 
         // copies with a plain shelfmark, by library, shelfmark and work
         $groups = [];
@@ -127,13 +130,14 @@ class MergeCatalogueTwinsCommand extends Command
                 $merges[] = [$copy['id'], $kept['id']];
             }
         }
+        unset($groups, $decisions, $distinct);
 
         if ($apply && $merges) {
             $path = $this->option('backup') ?: storage_path('app/private/backups/merge-catalogue-twins-' . now()->format('Ymd_His') . '.json');
             @mkdir(dirname($path), 0775, true);
             $backup = ['command' => $this->getName(), 'merges' => []];
             $merger = app(RecordMerger::class);
-            foreach ($merges as $i => [$sourceId, $targetId]) {
+            foreach ($merges as [$sourceId, $targetId]) {
                 DB::transaction(function () use ($sourceId, $targetId, $merger, &$backup) {
                     $source = Manuscript::find($sourceId);
                     $target = Manuscript::find($targetId);
@@ -146,10 +150,8 @@ class MergeCatalogueTwinsCommand extends Command
                         'old_values' => ['source_id' => $source->id] + $result, 'new_values' => ['target_id' => $target->id, 'corpus_fix' => 'step 14.85 merge-catalogue-twins']]);
                     $backup['merges'][] = ['source_id' => $source->id, 'target_id' => $target->id, 'log_id' => $log->id, 'result' => $result];
                 });
-                // written as it goes, so an interrupted run can still be reverted
-                if ($i % 100 === 0 || $i === count($merges) - 1) {
-                    file_put_contents($path, json_encode($backup, JSON_UNESCAPED_UNICODE));
-                }
+                // written after each merge, so an interrupted run can still be reverted in full
+                file_put_contents($path, json_encode($backup, JSON_UNESCAPED_UNICODE));
             }
             $this->info(sprintf('Merged %d copies. Backup: %s', count($backup['merges']), $path));
         } else {

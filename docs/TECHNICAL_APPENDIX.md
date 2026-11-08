@@ -8569,6 +8569,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `php -d memory_limit=2G artisan fahares:merge-catalogue-twins --report=/tmp/step14_85_twins.csv` (گزارش)
   2. `… --apply --backup=/tmp/step14_85_twins_backup.json`. پشتیبان و گزارش به `../fahares-sources/backups/step13/` می‌روند.
   3. `php -d memory_limit=2G artisan fahares:link-plain-volumes --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵، انتشار ۵۸):**
+  - گزارش: `merge` ۳۲۶. شمارش‌ها همان `fahares_prod` بود. پشتیبان پیشین: `step14_85_before.json` (md5 `6d75069c…`)، `step14_85_collection_keys_before.tsv` (`04a43993…`) و `step14_85_twins.csv` (`e315ebfe…`).
+  - **اجرای نخست:** `prod-run` بار اول به سبب اجرای `fahares:flush-page-views` رد کرد. با `--wait`، پس از ۱۰۵ ادغام با «Allowed memory size of 536870912 bytes exhausted» در `Connection.php:442` ایستاد (exit 255).
+    - `bootstrap/app.php` در خط ۳ `ini_set('memory_limit', '512M')` دارد و `-d` را بی‌اثر می‌کند.
+    - خواندن نسخه‌ها حدود ۳۶۰ مگابایت می‌گیرد و هر ادغام نزدیک ۱٫۵ مگابایت می‌ماند.
+    - پشتیبان (هر ۱۰۰ ادغام) ۱۰۱ ادغام دارد: `step14_85_twins_backup_run1.json` (md5 `f33c0639…`). لاگ‌های ۱۲۷۸۳۴ تا ۱۲۷۸۳۷ در پشتیبان نیستند: ۱۲۰۵۳۷←۱۲۰۵۳۵، ۱۲۰۹۷۱←۱۲۰۹۷۲، ۱۲۱۰۶۹←۱۲۱۰۶۸ و ۱۲۲۶۰۰←۱۲۲۵۴۰.
+  - **ادامه:** `/tmp/run1485.php` فرمان منتشرشده را با `Kernel::call` اجرا کرد، پس از `ini_set('memory_limit', '3G')`. اجرای آزمایشی `merge` ۲۲۱ داد و `--apply` آن را با اوج ۵۷۷ مگابایت انجام داد: `step14_85_twins_backup_run2.json` (md5 `1d7eb865…`). اجرای سوم هیچ `merge` نداشت.
+  - **پس از اجرا:** ۳۲۶ لاگ `merge` با `corpus_fix` این گام ثبت شد. `manuscripts` از ۳۲۳٬۵۷۱ به ۳۲۳٬۲۴۵ رسید و ۳۰۸ قول با `origin` = `merge` ساخته شد.
+  - `link-plain-volumes --apply --show=0`: `set` ۴۷۷، `shared:repeated-work` ۵۵۰، `shared:overlap` ۴۳۶، `shared:volumes` ۳٬۲۳۱، `run:volumes` ۵۹. اجرای دوم هیچ `set` نداشت.
+  - فایل‌های `/tmp` کانتینر پاک شدند.
+- **اصلاح پس از اجرا:** فرمان در آغاز `MemoryLimit::raiseTo('2G')` را صدا می‌زند و پیش از ادغام‌ها `$groups` و `$decisions` را آزاد می‌کند. پشتیبان پس از هر ادغام نوشته می‌شود.
 
 ### گام ۱۴.۸۶: اسکن‌های archive.org برای طبقات، طبقات الفقهاء و الزیدیة
 - **منشأ:**
