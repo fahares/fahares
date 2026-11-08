@@ -8652,6 +8652,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تراجم ۳:** طرازی، و فهرست‌های پزشکی ظاهریه و ترکیه.
   - **شامله:** حدود ۴۵ فهرست عربی.
 - **پروداکشن:** انتشار کد لازم است. پس از استقرار، همان ترتیب تمرین اجرا می‌شود، سپس `scout:import "App\Models\SourceItem"`.
+- **اجرای پروداکشن (۱۸ آبان ۱۴۰۵، به دست همین جلسه با اجازه‌ی کاربر، از راه `prod-run` با نام `noor-reference-books`):**
+  - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`: `~/backups/before_step14_87_hadith_mss_20261108_2200.sql.gz` (۳۶۸ مگابایت، md5 `7f3a65de22bb7e290d4c70c267671332`، با خط پایانی «Dump completed»). روی سرور ماند.
+  - **ثبت منبع‌ها:** `sources:backfill --only=registry` («volumes made 12»). همین اجرا `images: false` را از tabaqat، fuqaha و zaydiyya برداشت (گام ۱۴.۸۶).
+  - **الگو و مآخذ:** `import-citation-forms` («Made 1 forms»)، سپس `backfill --only=bibliography`. ارجاع‌های منبع شناخته ۲۰٬۳۷۰ شد.
+  - **ورودی:** ۲۴ فایل در `/tmp/hm/hadith-mss` کانتینر، همه درست طبق MD5SUMS. پس از اجرا پاک شدند.
+  - **مدخل‌ها، ج ۱ تا ۱۲:** ۴۷۵، ۳۷۱، ۵۴۲، ۶۲۱، ۴۵۹، ۶۰۵، ۲۱۳، ۵۶۳، ۶۷۸، ۴۹۲، ۱٬۰۸۹ و ۱۷۶. جمع ۶٬۲۸۴، برابر تمرین.
+  - **پیوندها:** ۲۲، ۱۰، ۱۱، ۱۸، ۱۸، ۳، ۱، ۰، ۱ و صفر برای سه جلد پایانی. جمع ۸۴ پیوند برای ۹۲ ارجاع.
+  - **نمایه:** `scout:import SourceItem` تا شناسه‌ی ۳۵۱۰۱۸.
+  - **وارسی روی fahares.net:** ارجاع اثر ۹۶۴ «دیدن برگه‌ی مؤلفات الزیدیة، ج ۱، ص ۳» است.
 
 ### گام ۱۴.۸۸: ارجاع وارونه در `SourceEntrySync::syncOtherCited`
 - **شرط:**
@@ -8790,6 +8799,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/fankha_description_heads_step14_95.json` با ۱٬۴۴۴ `work_updates`، برای `fahares:add-corpus-works`.
 - **تمرین روی fahares_prod:** «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0».
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_heads_step14_95.json --apply`
+- **اجرا در تولید (۱۸ آبان ۱۴۰۵):** با `prod-run --wait jolly-tharp`. md5 فایل در کانتینر با main برابر بود. خروجی: «update 1444» و «Derived data of works: works=1444, with_dedication=112». اجرای دوم «update 0» بود. فایل‌های موقت `/tmp` کانتینر پاک شدند.
 
 ### گام ۱۴.۹۶: سرآغاز نقل‌قولِ دوتکه و فرم پاسخ زیر پیام‌ها
 - **`App\Messaging\ReplyText::extract`:** نشانه‌های `\p{Cf}` از همه‌ی سطرها پیش‌تر برداشته می‌شوند. سطری که با `On`، `در تاریخ` یا `في` آغاز شود، با ۱ تا ۳ سطر (پیوسته با فاصله) با `QUOTE_HEADERS` سنجیده می‌شود. سطرهای دیگر مثل پیش تنها سنجیده می‌شوند، تا سطری که به «نوشت:» ختم می‌شود سطر پیش از خود را نبُرد.
@@ -8798,3 +8808,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:** سه حالت تازه در `test_the_quoted_history_is_cut_from_an_email_reply` و `test_the_answer_form_is_under_the_letters_of_a_pending_suggestion`.
 - **سطر Gmail:** پیش از `AM` نویسه‌ی U+202F است، نه فاصله‌ی معمولی. نمونه‌ی آزمون هم همین نویسه را دارد.
 - **اجرا در تولید (۱۷ آبان ۱۴۰۵):** `messages.id = 12` (رشته‌ی ۵، پیشنهاد ۱۱۰). پشتیبان ردیف در `../fahares-sources/backups/step13/step14_96_message12.json` است. با `prod-run reply-under-thread`، `body` با `DB::table` تا پیش از `\n\nOn Sat, Nov 7, 2026 at 11:54` بریده شد، به این شرط که به `wrote:` ختم شود. `updated_at` دست نخورد. خروجی: «1 updated». در `/tmp` کانتینر فایلی ساخته نشد.
+
+### گام ۱۴.۹۷: `scribe_name` از review10
+- **ورودی:** `scribe_name/filled` (۲۸۲ ردیف).
+- **بیرون مانده:**
+  - مقدارِ دارای «مؤلف/مصنف/ناظم» (۸۹)؛
+  - «بی‌کا» (۲۶)؛
+  - نسخه‌ی `is_bika` (۲۰)؛
+  - تردیددار (۲)؛
+  - نامی که پس از برچسب کاتب نیامده است (۱).
+- **شرط:**
+  - نام بی فاصله در متن خود نسخه باشد؛
+  - واژه‌ی نخستش پس از `کا:` یا `کاتب:` (تا ۱۵ نویسه)، یا پس از «به خط / بخط / کتبه» بیاید.
+- **فایل:** `database/data/fankha_scribes_step14_97.json` با ۱۴۴ رکورد (`changes.scribe_name`، با «ي/ك/ى» → «ی/ک/ی»)، برای `fahares:rebuild-copies`.
+- **تمرین روی fahares_prod:** «Rebuilding 144 copies» و «8 copies relinked». اجرای دوم `already 144`.
+- **دسته‌های بی‌کار:**
+  - `pages/filled` (۲۹۸): v2 همان برگ‌شمار است.
+  - `Work/work_form/emptied` (۳۷۷): سایت «translation» دارد و متن مدخل آن را تأیید می‌کند.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/fankha_scribes_step14_97.json --apply`

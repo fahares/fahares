@@ -1,0 +1,1877 @@
+{
+ "source": "scribe names the copy's own text gives after «کا:» or «کاتب:», «به خط» or «کتبه», where the site has none (not «= مؤلف», «بی‌کا» or a hedged one), from parser v2 (reports/fankha_v2_db_review10), 2026-11-08; fahares step 14.97",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 13026,
+   "shelfmark": "4429",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "میرزا آقاخان کرمانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15903,
+   "shelfmark": "8975/72",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن زین العابدین موسوی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 15905,
+   "shelfmark": "8975/12",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابراهیم بن محمد حرفوشی کرکی عاملی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 16461,
+   "shelfmark": "8975/50",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابراهیم بن محمد حرفوشی کرکی عاملی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 18920,
+   "shelfmark": "636/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن پاینده احمد ساوه ای"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 19204,
+   "shelfmark": "87/3",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "قطب الدین لاهیجی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 27912,
+   "shelfmark": "500/5 کر",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "سید نافع"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 36020,
+   "shelfmark": "57/22-فیروز",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "میر سید علی تفرشی لشکر نویس ملقب به موثق لشکر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39131,
+   "shelfmark": "14",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "فضل الله بن علی طبیب ابزری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 39449,
+   "shelfmark": "2931",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد حسین حسنی حسینی نسابه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 40827,
+   "shelfmark": "12/1",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی (بن محمد علی) حسینی یزدی میبدی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48628,
+   "shelfmark": "3/1",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حسین بن علی اصغر حمصی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 48757,
+   "shelfmark": "2996/1-16/6",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "مرتضی قلی عطار بن محمد بن شاه قلی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49113,
+   "shelfmark": "17992",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبد علی بن احمد بن علی بن حسین بحرانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49115,
+   "shelfmark": "1630",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدعلی بن احمد بن علی بن حسین بن ناصر الجد علی بحرانی اوالی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49681,
+   "shelfmark": "379",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد حسین بن علینقی بزاز کاشانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 50135,
+   "shelfmark": "بدون شماره",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن محمد صادق حسینی قزوینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 50772,
+   "shelfmark": "4353/34",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد مهدی بن علینقی حسینی قمی مشهور به توحید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 51024,
+   "shelfmark": "1247/4",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن علی بن محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 53681,
+   "shelfmark": "بدون شماره",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حسن بن غلام علی بن رضا علی بن علی رضا بن نظر علی خدابنده لو"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 62915,
+   "shelfmark": "1490/6",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "سید احمد صفائی خوانساری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 63883,
+   "shelfmark": "78-ح/595/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد تقی فارسی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65396,
+   "shelfmark": "12721/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[ابومنصور] محمد هادی [بن ابی الفضائل بن ابی البقاء بن افضل الدین محمد الترکه]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77122,
+   "shelfmark": "21423",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد رفیع موسوی شاندیزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77123,
+   "shelfmark": "3978",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "شیخ محمد طالب بن عبدالله بن شیخ علی جیلی لاهجی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77125,
+   "shelfmark": "2668",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد صالح بن محمد سالم بن زکی جزایری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77127,
+   "shelfmark": "3207/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "جلال الدین محمد بن عماد الدین محمود لاهیجی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77600,
+   "shelfmark": "1035/22",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ناصرالدین حسین بن نورالدین محمد کرمانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 77631,
+   "shelfmark": "3830",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "باقر بن حیدر بن قاسم جلس"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80992,
+   "shelfmark": "2131",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "شاهرخ بن اسکندر گشتاسب منجم فارسی کرمانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 83758,
+   "shelfmark": "3624/7-ف",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "نصرالله تفرشی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 92501,
+   "shelfmark": "3930/4",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمود بن محمد فخر آبادی ملقب به رکن الائمه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 93495,
+   "shelfmark": "3567/14",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "داود بن محمد شفیع یزدی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 100497,
+   "shelfmark": "2556-14/6",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالکریم بن عبدالنبی شیرازی بوشهری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 100498,
+   "shelfmark": "6136-31/16",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمدحسن نصرآبادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 109522,
+   "shelfmark": "723/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن حمید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110566,
+   "shelfmark": "3217",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد جعفر بن محمد علی شیرازی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 110569,
+   "shelfmark": "1784",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد صفی بهبهانی پسر سلیمان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111035,
+   "shelfmark": "834/4",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد کاظم بن حسین طوسی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 111703,
+   "shelfmark": "1745/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "زین العابدین عبدالله موغاری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 112064,
+   "shelfmark": "15412/7",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابن حیان سراب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 114813,
+   "shelfmark": "862",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالرحیم بن مطهر جیلی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 124043,
+   "shelfmark": "2مجموعه بدون شماره",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد طاهر بن محمد صالح"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128787,
+   "shelfmark": "16057/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[ملا] نقد علی بن محمد [آقایی] زوراقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132633,
+   "shelfmark": "5056",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "بدل ابن رجب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132797,
+   "shelfmark": "3130/1",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حاج سید علی محمد علاقبند یزدی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132979,
+   "shelfmark": "13961",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "فرید الکاتب"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133399,
+   "shelfmark": "ض13451",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "احمد بن برقع طریحی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133401,
+   "shelfmark": "243/4",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی نقی بن محمد حسین بن سید محمد بن حسین تبریزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 138956,
+   "shelfmark": "14017/13",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "منصور بن کمال الدین حسینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140908,
+   "shelfmark": "133",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "میرزا عبید پسر حاجی میرزا عبدالقادر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 141800,
+   "shelfmark": "2422",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی میزانی طباخ"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 144915,
+   "shelfmark": "401",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد رفیع بن محمد صادق شیرازی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145213,
+   "shelfmark": "6015",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد صادق بن محمد علی بن اسماعیل"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152265,
+   "shelfmark": "9061/8",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "مهدی بن محمد شیرازی متخلص به صابر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152802,
+   "shelfmark": "7936/15",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "نور الدین محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 153796,
+   "shelfmark": "14157",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمدحسین بن احمد تستری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154785,
+   "shelfmark": "55/3",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "مهرگان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 154818,
+   "shelfmark": "1303",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالعظیم بن مشهدی رحیم ساوجی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 158457,
+   "shelfmark": "141",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[محمد] بن محمد حسن"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168602,
+   "shelfmark": "2736",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[محمد] عزالدین بن محمد جواد بن علی بن کاظم بن جعفر بن حسین بن محمد بن احمد بن اسماعیل بن عبدالنبی بن سعدالدین نجفی مشهور به جزائری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 170566,
+   "shelfmark": "254/4",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[فرهاد گرجی] و عبدالله گرجی غلام خاصه شریفه"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178245,
+   "shelfmark": "4641/11",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عمر بن عمر بن ابی بکر کریدی حاینوی معروف به سعید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 179862,
+   "shelfmark": "2144/24",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "چلبی سلمانی فارسی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 189400,
+   "shelfmark": "14584/5",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی بن احمد بن علی اکبر بن حاجی عسکر بن صاروخان خوئی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 191570,
+   "shelfmark": "96/3 معزی",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ملا محمد بن شیخ احمد بن شیخ شهاب الدین"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 192749,
+   "shelfmark": "171",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمود بن هبة الله بن ... اسماعیل بن محمد بن حسن بن عبدالله بن اسماعیل قصری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196143,
+   "shelfmark": "2081/9",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی نقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 197106,
+   "shelfmark": "252/7",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حسین بن حاج عبدالحامد فیجانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198410,
+   "shelfmark": "12523",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالله بن محمد غرقاوی فیومی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198411,
+   "shelfmark": "575",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالله بن محمد غرقاوی فیومی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198413,
+   "shelfmark": "3607",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالله بن محمد غرقاوی فیومی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198414,
+   "shelfmark": "3608",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالله بن محمد غرقاوی فیومی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201034,
+   "shelfmark": "2041",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمود"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201288,
+   "shelfmark": "12159",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن یوسف"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201289,
+   "shelfmark": "9813",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن صدقه بن رجب بن الحسن المقری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 201384,
+   "shelfmark": "31749",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبیدالله بن پیر حاجی بن پیر حبیب بن پیر حاجی بن اخی شیران"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 204290,
+   "shelfmark": "16146",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابوالحسن خویی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207248,
+   "shelfmark": "2125/6",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "آقا بابا بن ملا محمد مهدی شهمیرزادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 217134,
+   "shelfmark": "11619/13",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد نصیر فرزند ملا حسن، بالانکابی جیلانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222179,
+   "shelfmark": "5445/16",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن علی گنجوی تبریزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223048,
+   "shelfmark": "27694",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علیم الله"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230937,
+   "shelfmark": "1003/1",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "لطف الله بن محمد تقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233133,
+   "shelfmark": "6341/7",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد تقی بن حاجی محمدحسین نیشابوری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233733,
+   "shelfmark": "1948/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "اسدالله بن صدر الدین حسینی تنکابنی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 240544,
+   "shelfmark": "9027/3",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابوبکر بن حمزة"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241837,
+   "shelfmark": "238",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالمهدی بن الحسین بن ابی الحسن علی بن ابی العز محمد بن علی بن محمد بن علی بن ... لقوتقی تغلبی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241838,
+   "shelfmark": "34",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن بنی نصر در دوشنبه 14 محرم 717ق (جلد اول) و محمد بن محمد بن مهدی بن مخلص در چهارشنبه 11 ربیع الثانی 717ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241839,
+   "shelfmark": "4273",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن محمد بن مهدی بن مخلص قمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241840,
+   "shelfmark": "23792",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حسن بن محمد بن یحیی بن ابی القمر آوی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241842,
+   "shelfmark": "7215",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن محمد بن مطهر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241843,
+   "shelfmark": "1407",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابراهیم بن علی بن حسن طریحی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241845,
+   "shelfmark": "2516",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "احمد بن محمد بن حداد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241846,
+   "shelfmark": "5643/1",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حسین بن ابی الحسن کاشانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 241847,
+   "shelfmark": "175",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی بن حسین بن علی بن ابی المجلد خوارزمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 243825,
+   "shelfmark": "14590/193",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ابوالمجد تبریزی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 246519,
+   "shelfmark": "15771",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[محمد المحرر ... بن ولی بیک بن امیرجان بن دهخدا]"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 247632,
+   "shelfmark": "4353/26",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد مهدی بن علینقی حسینی قمی مشهور به توحید"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250355,
+   "shelfmark": "1357",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالله بن محمود"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250356,
+   "shelfmark": "10914",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "اسمعیل بن عباس بن احمد اصفهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250359,
+   "shelfmark": "418",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی بن حنفی علوانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250360,
+   "shelfmark": "1307",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حسن بن علی بن شریف الدین دمشقی مصری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250786,
+   "shelfmark": "6835",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "موسی بن عمران جزائری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 251588,
+   "shelfmark": "1686",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد حسن بن مولوی محمد صادق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 252387,
+   "shelfmark": "4190/6",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن غیاث الدین نوربخشی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 256224,
+   "shelfmark": "3988",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "قاضی حسن بن مقصود علی دماوندی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258632,
+   "shelfmark": "1035/24",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "ناصرالدین حسین بن نورالدین محمد کرمانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258633,
+   "shelfmark": "339/14",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "نصیرالدین حسین حر حسینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 272087,
+   "shelfmark": "4216/5",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علیشاه بن محمود بن حسن شیویکی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 276572,
+   "shelfmark": "7601-51/61",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[از بین رفته است] بن مرسل موسوی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279191,
+   "shelfmark": "18148",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن حسین بن محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 279473,
+   "shelfmark": "2141",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "یاقوت مستعصمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280511,
+   "shelfmark": "14885/7",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "حاجی محمد بن اسدالله بروجردی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 285945,
+   "shelfmark": "2156",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[حسن بن] محمد بن یحیی بن علی بن ابی الجود بن بدر بن درباس"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 287404,
+   "shelfmark": "516عکسی",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "الحاج یحیی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 288820,
+   "shelfmark": "9049",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "علی بن احمد نباطی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291053,
+   "shelfmark": "1276",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "موسوی، محمد بن ابوالقاسم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291054,
+   "shelfmark": "1238",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد رضا نجف آبادی اصفهانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291055,
+   "shelfmark": "5034",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد مهدی بن محمد هادی خونساری"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291056,
+   "shelfmark": "955",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "شریف، ابوالقاسم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 291057,
+   "shelfmark": "2021-36/21",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "شریف، ابوالقاسم"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 292769,
+   "shelfmark": "2مجموعه بدون شماره",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "مرتضی بن جواد نجومی کرمانشاهی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 293444,
+   "shelfmark": "6348",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "[محمد] بن شریف بن شمس الدین طبیب کاشانی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294294,
+   "shelfmark": "7856-53/66",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد تقی بن قاسم علی مشهدی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294295,
+   "shelfmark": "137",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد کاظم بن محمد زمان شهمیرزادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294297,
+   "shelfmark": "6266-31/146",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمدمهدی بن علی نقی حسینی خطیب قمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294300,
+   "shelfmark": "18329",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد تقی میرزا جانی قمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 294305,
+   "shelfmark": "2605",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "قربان علی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 296052,
+   "shelfmark": "13797/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "سعدالله بن علی حسینی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301501,
+   "shelfmark": "16148/3",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد کاظم بن محمد جعفر"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303589,
+   "shelfmark": "15182/1",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "احمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303914,
+   "shelfmark": "6659",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن ابوالقاسم مشهدی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 308761,
+   "shelfmark": "1788",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عباسی، محمد رضا بن علی رضا"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 312536,
+   "shelfmark": "119/3",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد تقی بن حیدر حسین قائنی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319899,
+   "shelfmark": "8262/29",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "وقار شیرازی، احمد بن محمد شفیع"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 321047,
+   "shelfmark": "285/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد بن محمد حسین امام جمعه اردکان"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 323132,
+   "shelfmark": "501/2",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "شهاب الدین حسین بن ناصر الدین حسن حسنی حسینی موسوی جعفری دیباجی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325556,
+   "shelfmark": "1310",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "هادی بن مؤمن بن تقی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325957,
+   "shelfmark": "4557",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "محمد علی بن محمد صادق قمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325958,
+   "shelfmark": "25018",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "مهدی قلی حکیمی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 325959,
+   "shelfmark": "695",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "هادی بن حاجی ابراهیم خاتون آبادی"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328777,
+   "shelfmark": "23955",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "میرزا آقای سلماسی (برای پرویز خان)"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 328778,
+   "shelfmark": "2188/31",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "قاری نیریزی، معزالدین محمد بن محمد"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 333946,
+   "shelfmark": "18479",
+   "category": "scribe",
+   "v2": "filled",
+   "changes": {
+    "scribe_name": {
+     "from": null,
+     "to": "عبدالرحیم بیاری خوانخوی"
+    }
+   }
+  }
+ ]
+}
