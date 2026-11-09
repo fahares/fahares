@@ -9060,6 +9060,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پیوندهای منزوی پس از آن:** ۶٬۹۳۹، از جمله `llm` ۶۴۸ (مدخل ۶۳۹، یادکرد ۹). ۷۳ `ambiguous` ماند و ۱۲۰ جا بی‌تطبیق.
 - **دام:** هر اجرای بعدی `link-items` روی جلدهای منزوی باید با همین `--decisions` باشد، وگرنه پیوندهای `llm` پاک می‌شوند و مبهم‌ها به حدس ماشین برمی‌گردند.
 - **پروداکشن (پس از استقرار این کد):** پشتیبان، فایل‌ها به `/tmp/monzavi-llm` کانتینر، `mremap.php`، سپس برای هر جلد N، `sources:link-items monzavi --volume=N --near --decisions=/tmp/monzavi-llm/mremapped_monzavi_N.json` از راه `prod-run`. پس از آن، نمایه‌ی مدخل‌ها لازم نیست، چون `source_items` تغییر نمی‌کند.
+- **اجرا در تولید (۱۹ آبان ۱۴۰۵، با اجازه‌ی کاربر، پس از استقرار انتشار c011575e):**
+  - **پشتیبان:** همه‌ی ۶٬۶۶۱ ردیف `source_item_link` منزوی، همه `unverified`، در `../fahares-sources/backups/step13/step14_109_monzavi_links_before.json.gz` (md5 `6030182b9576c2a85d1605258fa0d2ea`). مستقیم روی لپ‌تاپ نوشته شد.
+  - **`mremap.php`:** ۶۴۸ تصمیم همان شناسه را داشت و ۲ تصمیم یکتا نبود. چون مورد‌ها روی خود پروداکشن ساخته شده بودند، فایل‌های `mdecisions_monzavi_N.json` مستقیم به کار رفتند تا آن ۲ تصمیم هم بمانند.
+  - **dry run:** ۶۵۰ `llm`، ۷۱ `ambiguous` و ۱۲۰ بی‌تطبیق.
+  - **اجرا با `prod-run`:** ۲۷۸ پیوند تازه، ۹۹۱ به‌روز، هیچ حذف. اجرای دوم همه را «unchanged» گزارش کرد.
+  - **پیوندهای منزوی پس از اجرا:** ۶٬۹۳۹، از جمله `llm` ۶۵۰ (مدخل ۶۴۱، یادکرد ۹).
+  - **وارسی:** `/works/33599` پاسخ ۲۰۰ داد، با «فهرستواره منزوی، ج ۱، ص ۸۰» و یادداشت ⓘ مدل. فایل‌های `/tmp/monzavi-llm` کانتینر پاک شد.
+  - **اجرای بعدی:** `--decisions=…/mdecisions_monzavi_N.json` روی پروداکشن، یا `mremapped_…` روی پایگاهی که شناسه‌هایش فرق دارد.
 
 ### گام ۱۴.۱۱۰: دو نسخه‌ی «همان نسخه بالا» با ستون‌های نسخه‌ی دیگر
 - **۲۵۹۹۳۶ (اثر 55202، ج ۲۷ ص ۱۵۲، v2 `v27-321`):**
@@ -9086,6 +9094,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. `fahares:link-copy-references --work=36358 --backup=…` و `--work=55202`: هر کدام یک `possibly_same` به نسخه‌ی بالایی (171691 و 259935). اجرای دوم: «skipped».
   - `catalogs:link-volumes` و `fahares:rebuild-scripts` چیزی برای این دو نسخه نیافتند.
 - **اجرا در تولید (به ترتیب):** همان سه فرمان. پشتیبانِ `link-copy-references` باید نام فایل باشد، نه پوشه.
+- **اجرای تولید (۱۹ آبان ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_110_before.json`. در آن هست:
+    - ۶ نسخه: 259935، 259936، 171690، 171691، 259940 و 169786؛
+    - ۱۴ پیوند منبع، `manuscript_people`، `manuscript_script`، `manuscript_catalog_references`، `manuscript_relations` (۰ ردیف)، `manuscripts_count` دو اثر و دو کتابخانه؛
+    - بیشینه‌ی شناسه‌ی نسخه: 334893.
+  - **پشتیبان‌های `link-copy-references`:** `step14_110_links_36358.json` و `step14_110_links_55202.json`.
+  - **فرمان‌ها:**
+    1. `rebuild-copies`: «Rebuilding 1 copies»، «1 copies relinked» (جلد 496، فهرست‌نگار 61).
+    2. `add-corpus-works`: «1 made»، «1 copies linked to a catalogue volume». نسخه‌ی تازه 334894 است، در جلد 703 با فهرست‌نگار ۷.
+    3. و ۴. `link-copy-references --work=36358` و `--work=55202`: هر کدام «possibly_same 1»، یعنی 334894 → 171691 و 259936 → 259935.
+  - **وارسی:** اجرای دوم «Would rebuild 0 copies»، «fill 0» و «skipped 1» داد. `/tmp` کانتینر پاک است.
+
 ### گام ۱۴.۱۱۱: `fahares:unlink-single-name-authors`
 - **نامزدها:** شخص‌هایی که `name` فاصله و «،» ندارد و بیش از یک اثر با `works.author_id` دارند: ۵۴ شخص و ۴۲۰ اثر در `fahares_prod`. برای هر اثر `raw_text` (تا ۱٬۵۰۰ نویسه)، تاریخ تألیف، تاریخ نسخه‌ها، موضوع و زبان به مدل داده شد.
 - **داوری:** ۷ دسته‌ی Sonnet (دسته‌ها تا ۶۰ اثر). اطمینان زیر ۷۰ یعنی `unsure`. «مشکوک» برای بازبینی: `unsure`، یا هر تصمیم با اطمینان زیر ۷۵ برای شخصی با ۸ اثر یا کمتر (۵۷ اثر). داوری Claude و یادداشت دلیل هر اثر در پایگاه داده‌ی صفحه‌ی داوری (`verdicts`) است.
@@ -9143,3 +9163,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نقشه: `mapped` = ۱۸٬۳۳۹، `by_century` = ۱۷٬۵۸۳ و `century_only` = ۱٬۰۷۶. در لایه‌ی تألیف `by_century` = ۱٬۵۴۵.
   - نمونه‌ی کهن‌ترین کتابخانه: موزه‌ی ملی، میانگین ۹۵۵ از ۲۶۷ نسخه. ۱۵۵ نسخه از آن‌ها تنها سده دارند.
 - **آزمون:** `InsightsScopeTest::test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date`. آزمون `scribes … of a scope` کلید `centuries` را هم می‌سنجد.
+### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
+- **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
+- **فایل:** `database/data/fankha_leading_author_step14_112.json` (`category: leading_author`، ۶ `work_updates`)، ساخته از `fahares_prod`.
+  - **نام:** از سطر سرِ `description`.
+  - **سطرهایی که از سر شرح برداشته شدند:** سطر خالی، سطری که با نام آغاز می‌شود، و سطرِ بی‌حرف عربی، که اگر `transliteration` خالی باشد به آن می‌رود. سطر «X / عربی|فارسی|ترکی» هم برداشته می‌شود، اگر `subject_summary` خالی باشد.
+  - **`author.century`:** ۱۴، ۱۴، ۱۱، تهی، تهی و ۷.
+  - **سنجش با شرح v2 در review10:** پنج اثر برابرند. 65462 برابر نیست، چون v2 سطرهای نام را در شرح نگه داشته است.
+- **`AddCorpusWorksCommand`:**
+  - `subject_summary` و `language_summary` به `UPDATE_COLUMNS` افزوده شدند.
+  - `work_updates` می‌تواند `subjects` و `languages` بیاورد. `attachTerms()` همان حلقه‌ی اثرِ تازه است و `works_count` را تنها برای ردیفِ تازه‌ی `subject_work` یا `language_work` بالا می‌برد. این دو در `new_values` ردیف `audit_logs` هم می‌آیند.
+  - برای 22983: `subject_work` (65، «رجال») و `language_work` (2، «عربی»).
+- **آزمون:** `AddCorpusWorksCommandTest::test_a_head_split_by_a_page_tag_gives_the_work_its_subject_and_language`
+- **تمرین روی fahares_prod:**
+  - `fahares:add-corpus-works --file=database/data/fankha_leading_author_step14_112.json --apply`: «update 6»، «Derived data of works: works=6». اجرای دوم: «update 0».
+  - `author_id` تنها برای 22983 (2398، کاظمی، ۱۰۸۸) پر شد. برای پنج نام دیگر رکورد شخصی در سایت نیست.
+  - `fahares:link-autograph-scribes` پس از آن.
+- **اجرا در تولید:** همان دو فرمان، پس از پشتیبان از ستون‌های این شش اثر و ردیف‌های `subject_work` و `language_work` اثر 22983.
+
+### گام ۱۴.۱۱۳: پیشنهادهای باز در ادغام شخص
+- **[PersonMerger](../app/Services/PersonMerger.php):** پس از جابه‌جایی نقش‌ها، `FieldSuggestion` با `suggestable_type = Person`، `suggestable_id = source` و `status = pending` به `target` می‌رود. `old_values.suggestion_ids` در لاگ `merge`، هم‌شکل `RecordMerger` و `LibraryMerger`. با این، اعلان `suggestion.record_merged` (گام ۱۴.۱۰۲) برای ادغام شخص هم «اکنون به رکورد ماندگار پیوسته است» می‌گوید.
+- **بازگردانی ([AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php)، `rollback`):** پیشنهادهای `suggestion_ids` که هنوز روی `target` هستند به `source_id` برمی‌گردند. لاگ‌های پیش از این گام `suggestion_ids` ندارند و چیزی جابه‌جا نمی‌شود.
+- **وارسی پروداکشن (۱۹ آبان ۱۴۰۵، فقط‌خواندنی):** پیشنهاد `pending` بی رکورد: people ۰، works ۰، manuscripts ۰، libraries ۰؛ کل پیشنهادهای باز ۴.
+- **آزمون:** `EntityRedirectTest::test_a_person_merge_carries_open_suggestions_and_its_undo_takes_them_back`.

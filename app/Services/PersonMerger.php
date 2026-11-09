@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Helpers\TextNormalizer;
 use App\Models\AuditLog;
 use App\Models\EntityRedirect;
+use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
 use App\Models\ManuscriptPerson;
 use App\Models\Person;
@@ -88,6 +89,11 @@ class PersonMerger
             Work::normalizeContributorPositions($transferredWorkIds);
             Manuscript::normalizeContributorPositions($transferredManuscriptIds);
 
+            // The removed person's open suggestions follow the kept one, as in the other mergers (step 14.113)
+            $suggestionIds = FieldSuggestion::where('suggestable_type', Person::class)->where('suggestable_id', $source->id)
+                ->where('status', 'pending')->pluck('id')->all();
+            FieldSuggestion::whereIn('id', $suggestionIds)->update(['suggestable_id' => $target->id]);
+
             // 3. Recount works and manuscripts for target
             $newWorksCount = $target->authoredWorks()->count();
             $newManuscriptsCount = $target->scribedManuscripts()->count();
@@ -136,6 +142,7 @@ class PersonMerger
                     'works_transferred' => count($transferredWorkIds),
                     'manuscripts_transferred' => count($transferredManuscriptIds),
                     'fields' => $compared,
+                    'suggestion_ids' => $suggestionIds,
                 ],
                 'new_values' => [
                     'target_id' => $target->id,
