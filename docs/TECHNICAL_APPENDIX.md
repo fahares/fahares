@@ -9409,3 +9409,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_order_step14_126.json --dry-run`
   2. همان فرمان بی `--dry-run`
   3. `fahares:queue-judged-people --file=database/data/duplicate_people_unsure_order_step14_126.json`
+- **اجرای پروداکشن (پس از انتشار ۸۴، `0c0a668d`):**
+  - **پشتیبان:** `~/backups/before_step14_126_people_20261109_2213.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `3de2eefb1f641a1bba69a3b8bd8553cb`.
+  - **اجرای آزمایشی:** «[dry run] Merged 599 records into 447 people; 0 groups skipped» و «[dry run] Queued 405 groups; 4 already in the queue». فرمان صف پیش از ادغام سنجیده شد.
+  - **اجرای واقعی (یک `prod-run`):** «Merged 599 records into 447 people; 0 groups skipped»، سپس «Queued 386 groups; 23 already in the queue; 0 settled since».
+  - **وارسی:** شمار اشخاص ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند. ۹۵۱ ردیف باز `duplicate` هست. `/people/2063` و `/people/11631` با ۳۰۱ به `/people/6386` می‌روند. `/tmp` پاک است.
