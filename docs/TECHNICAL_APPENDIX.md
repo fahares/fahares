@@ -9293,3 +9293,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `LinkCopyPatronsTest::test_a_title_holder_with_a_death_year_gets_a_record_when_there_is_none`
   - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`، که اکنون پیوند شخص را هم می‌سنجد.
 - **اجرا پس از استقرار:** نخست `fahares:link-copy-patrons --dry-run`، سپس `fahares:link-copy-patrons` و در پایان `fahares:build-insights`. پیش از اجرا از `manuscript_people` (ردیف‌های `patron`) پشتیبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۷۸، `a790950b`)، هر سه از راه `scripts/dev/prod-run insights-107`:**
+  - **پشتیبان:** ۳٬۵۶۷ ردیف، همه بی `person_id`، به صورت JSON در `../fahares-sources/backups/step13/patrons_step14_120.json`. فایل از `/tmp` کانتینر پاک شد.
+  - **`link-copy-patrons --dry-run`:** همان شمارهای رونوشت (`linked:title` ۹۹، `linked:ruler` ۲۵، `linked:name` ۱، `created` ۲).
+  - **`link-copy-patrons`:** `Written`. ۱۲۵ ردیف پیوند دارند و دو رکورد تازه ساخته شد: #74734 «طباطبائی بروجردی، حسین بن علی» و #74735 «عزالدوله، عبدالصمد بن محمد».
+  - **`fahares:build-insights`:** در ۲۰٫۸ ثانیه، با کلید `insights.v8`.
+  - **برگرداندن:** صفر کردن `person_id` ردیف‌های `patron` بر پایه‌ی شناسه‌های پشتیبان، و حذف دو رکورد تازه.
