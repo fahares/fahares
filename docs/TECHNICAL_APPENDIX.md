@@ -9132,6 +9132,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `author_id` تنها برای 22983 (2398، کاظمی، ۱۰۸۸) پر شد. برای پنج نام دیگر رکورد شخصی در سایت نیست.
   - `fahares:link-autograph-scribes` پس از آن.
 - **اجرا در تولید:** همان دو فرمان، پس از پشتیبان از ستون‌های این شش اثر و ردیف‌های `subject_work` و `language_work` اثر 22983.
+- **اجرای تولید (۱۹ آبان ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_112_before.json`. ردیف کامل شش اثر، `work_people`، `subject_work`، `language_work`، و `works_count` موضوع 65 (548) و زبان 2 (35094).
+  - **`add-corpus-works --apply`:** «update 6»، «works=6».
+  - **`link-autograph-scribes`:** اجرا شد.
+  - **وارسی:** اجرای دوم «update 0» داد. `author_id` تنها 22983 → 2398. `subject_work` 65 و `language_work` 2 برای 22983 ثبت شد و شمارها به 549 و 35095 رسیدند. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۱۳: پیشنهادهای باز در ادغام شخص
 - **[PersonMerger](../app/Services/PersonMerger.php):** پس از جابه‌جایی نقش‌ها، `FieldSuggestion` با `suggestable_type = Person`، `suggestable_id = source` و `status = pending` به `target` می‌رود. `old_values.suggestion_ids` در لاگ `merge`، هم‌شکل `RecordMerger` و `LibraryMerger`. با این، اعلان `suggestion.record_merged` (گام ۱۴.۱۰۲) برای ادغام شخص هم «اکنون به رکورد ماندگار پیوسته است» می‌گوید.
