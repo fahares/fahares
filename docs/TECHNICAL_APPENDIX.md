@@ -9343,3 +9343,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پس از بازبینی، تصمیم‌های `merge` به همان ساختار گزارش `loose` تبدیل و ادغام می‌شوند.
 - **تمرین:** «Merged 2527 records into 2395 people; 0 groups skipped» در ۳ دقیقه و ۵۵ ثانیه (`SCOUT_DRIVER=null`). شمار اشخاص ۶۹٬۸۷۵ → ۶۷٬۳۴۸ و هیچ پیوند یتیمی نماند.
 - **اجرا پس از استقرار:** پشتیبان کامل روی میزبان، سپس `php -d memory_limit=1G artisan fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_step14_123.json --limit=600`، چند بار تا «Merged 0». هر بار در فرایندی تازه اجرا شود، چون اجرای بلند گام ۱۰.۳ با کد ۱۳۷ کشته شد.
+- **اجرای پروداکشن (پس از انتشار ۸۰، `c4a4c31a`):**
+  - **پشتیبان:** `~/backups/before_step14_123_people_20261109_2024.sql.gz` روی میزبان، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `777cc12447a7880bfa5d92be17d5dfaa`.
+  - **اجرای آزمایشی:** «[dry run] Merged 2527 records into 2395 people; 0 groups skipped».
+  - **اجرای واقعی:** شش اجرای `--limit=600` در یک `prod-run`: ۶۰۰ + ۶۰۰ + ۶۰۰ + ۶۰۰ + ۱۲۷، و اجرای ششم «Merged 0».
+  - **وارسی:** شمار اشخاص ۶۹٬۸۷۵ → ۶۷٬۳۴۸. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. در دو ساعت، ۳٬۰۹۹ ردیف `merge` در `audit_logs` ثبت شد (۵۷۲ + ۲٬۵۲۷). `/people/4149` با ۳۰۱ به `/people/74734` می‌رود. `/tmp` پاک است.
+- **داوری دوم (Opus، ۴ دسته‌ی ۱۸۲تایی):**
+  - ورودی همان پرونده‌ها بود، همراه با داوری نخست در سطر `[note]`.
+  - خروجی: ۲۲۱ `merge` (یکی نامعتبر)، ۳۲ `skip`، ۴۷۳ `unsure`.
+  - **پس‌پالایش:** پراکندگی سال‌های کتابت ≤ ۶۰ و دست‌کم یک واژه‌ی شناسا در نام همه‌ی اعضا (فهرست `COMMON` یابنده)، و زنجیره‌ی ≤ ۴ رکورد. نتیجه: ۱۷۹ ادغام، و ۴۱ مورد به بازبینی.
+  - **خروجی:** `database/data/duplicate_people_judged_opus_step14_123.json`، با همان ساختار `loose`.
+  - **صفحه‌ی بازبینی (نسخه‌ی ۲):** ۵۱۵ گروه، با یادداشت هر دو داوری.
+  - ۴۰ رکورد از گروه‌های نامطمئن در ادغام‌های پیشین هم بودند. سنجش نام در `merge-duplicate-people` این‌ها را رد می‌کند، چون رکوردی که ادغام شده نام خودش را ندارد.
