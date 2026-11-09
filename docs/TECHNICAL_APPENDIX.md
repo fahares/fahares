@@ -9266,3 +9266,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `LinkCopyPatronsTest::test_a_title_holder_with_a_death_year_gets_a_record_when_there_is_none`
   - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`، که اکنون پیوند شخص را هم می‌سنجد.
 - **اجرا پس از استقرار:** نخست `fahares:link-copy-patrons --dry-run`، سپس `fahares:link-copy-patrons` و در پایان `fahares:build-insights`. پیش از اجرا از `manuscript_people` (ردیف‌های `patron`) پشتیبان گرفته شود.
+### گام ۱۴.۱۱۸: مانده‌ی شرح‌های گام ۱۴.۹۸
+- **نسخه‌ی 38144 (`v4-86`، «تهران؛ مفتاح؛ 641/1»):** تصویر `catalogs/fankha/v04/p0058.webp` همان دو سطر متن را دارد. `catalog_citation` «[نشریه: 7-250]» و پیوند `fankha_citation_more` «الفبائی: 52» بی‌جلد درست‌اند. v2 کروشه‌ی پایانی را گرفته است. بی تغییر.
+- **ورودی:** همان ردیف‌های `Work/description` `trimmed` و `trimmed_inner` در review10. ۴۱۵ ردیف را گام ۱۴.۹۸ تغییر داده بود و ۱۱۲ ردیف ماند.
+- **صدور (پیکره، `f3e1ee9`):** `scripts/fankha_v2_description_extras2_export.py --report reports/fankha_v2_db_review10`.
+- **قاعده:** هر سطرِ `description` که `letters` آن در شرح v2 نیست، یکی از این‌ها باشد. در پایان، `letters(باقی) == letters(description v2)`.
+  - **آغاز و انجام شماره‌دار:** سطری که با `آغاز|انجام|جلد|N:` آغاز می‌شود. متنش، پس از برچسب‌ها، باید در `incipit_text`، `explicit_text` یا `text_excerpts` همان اثر باشد.
+  - **تاریخ:** `تاریخ ت[اأ]لیف: X(؛ محل ت[اأ]لیف: Y)?` با `tight(X) == tight(composition_date_raw)`. Y باید در `composition_place` باشد، یا ستون خالی باشد و v2 آن را `filled` کند.
+  - **پدیدآور:** `bare(سطر)` برابر `author.name` یا `name_raw` v2 باشد، وقتی `author_name` سایت خالی است. شرط دیگر: v2 `hedge` ندارد و «؟» در `bare(سطر)` نیست، یعنی «؟» تنها در تاریخ است. ستون `name_raw` را می‌گیرد، یعنی نام با «، X». `author.century` از `death.century` v2 می‌آید.
+  - **وابسته و تقدیم:** `وابسته به:` به `related_work`. `به دستور|به نام|به درخواست|اهداء به|تقدیم به:` به `dedication`. هر دو تنها وقتی که ستون همان را دارد، یا ستون خالی است و v2 آن را `filled` می‌کند.
+  - **ارجاع پایان سطر:** `… [X]`، وقتی X در `bibliography` است یا v2 آن را `filled` می‌کند. تنها کروشه برداشته می‌شود.
+  - **دیگر:** برچسب تهی (`(ظاهرا|ظاهراً)? غیر همانند:`، `ناشناس:`، `ناشناخته:`، `شرح و حواشی:`)، سطر لاتین و سطر خالی.
+- **شمارها:** `ok` ۸۴، `kept` ۲۸. نوع سطرها: excerpt ۴۵، blank ۱۸، place_moved ۱۳، author_moved ۱۳، transliteration ۱۳، empty_label ۵، citation_moved ۴، date ۳، related_moved ۱، dedication_moved ۱.
+- **دستی، 61653 («معما»، `v30-1113`):** متن و تصویر ج ۳۰ ص ۵۱۳ دو سطر «تاریخ تألیف» دارند: «عالیجاه میرزا محمد باقر حکیم باشی» و «1105ق». `composition_date_raw` اولی را داشت. اکنون `composition_date_raw` «1105ق» است و سطر اول جای سطر دوم در سر `description` است. این ردیف `note` دارد.
+- **فایل:** `database/data/fankha_description_extras_step14_118.json` (`category: description_extras`، ۸۵ `work_updates`). ستون‌های همراه: `composition_place` ۱۳، `author_name` ۱۳، `bibliography` ۴، `related_work` ۱، `dedication` ۱، `composition_date_raw` ۱.
+- **کد:** بی تغییر. همه‌ی این ستون‌ها در `AddCorpusWorksCommand::UPDATE_COLUMNS` هستند.
+- **تمرین روی fahares_prod:**
+  - «update 84»، «Derived data of works: works=84, with_dedication=14». سپس 61653: «works=1». اجرای دوم «update 0».
+  - `author_id` هیچ‌یک پر نشد. «دربندی، آقا بن عابد» (۷ اثر) و «درویش شیرازی، محمد هاشم بن اسماعیل» (۴ اثر) رکورد شخص ندارند.
+  - 61653 → `composition_year_hijri` 1105.
+- **مانده‌ی ۲۷:**
+  - **دو کس، یک ستون** (`dedication`): 23123، 34974، 39290، 53627، 56214، 65533، 65849.
+  - **پدیدآور مشکوک:** 33833 («؟ابن خباز»).
+  - **«همانندی نامعلوم»:** 14955 و 16281.
+  - **v2 درست نیست:** 65462. v2 سطر نام را در شرح نگه داشته است.
+  - **بقیه:** متنِ میانِ شرح است که v2 کوتاه‌تر یا جور دیگر خوانده است.
+- **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_118.json --apply`، پس از پشتیبان از ستون‌های این ۸۵ اثر.
