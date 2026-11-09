@@ -9321,3 +9321,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan fahares:merge-duplicate-people --report=/tmp/loose_people.json
   ```
   پس از آن `/tmp/loose_people.json` پاک شود. پیش از اجرا پشتیبان کامل پایگاه روی میزبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
+  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
+  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
+  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
+  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
