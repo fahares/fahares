@@ -9231,3 +9231,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها:**
   - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`
   - `InsightsScopeTest::test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope`
+
+### گام ۱۴.۱۱۹: `Insights::dedications` و `?tab=` صفحه‌ی شخص
+- **`dedications`:**
+  - `work_people` با `role IN (dedicatee, commissioner)`، پیوسته به جدول موقت آثار دامنه (`worksTable()`) و `people`. گروه‌بندی بر پایه‌ی اثر و شخص است، پس هر اثر برای هر کس یک بار شمرده می‌شود، چه تقدیم شده باشد چه به درخواست او نوشته شده باشد. `asked` شمار آثاری است که نقش `commissioner` دارند.
+  - کلید گروه `person_id` است، یا اگر نام پیوند نخورده، `TextNormalizer::normalize(name)`. نام بی‌پیوند با صورتی نشان داده می‌شود که بیشتر نوشته شده است.
+  - سده‌ها `oneCentury` بر `composition_date_from/to` است. تنها نام‌های دست‌کم دواثری می‌آیند، به شمار `config('insights.dedications_shown')`، برابر ۲۰. برای نام پیوندخورده `Person::getRouteKey()` («۸۰۱-نام») در داده می‌ماند.
+  - سهم هر سده: آثاری که کل بازه‌ی تألیفشان در یک سده است، و از آن‌ها آن‌هایی که در زیرپرسش `work_people` هستند.
+  - خروجی: `items`، `works`، `coverage`، `names`، `linked` (نام‌های پیوندخورده)، `linked_works` (آثاری که دست‌کم یک نام پیوندخورده دارند)، `centuries`.
+- **پیوندها:** نام پیوندخورده به `people.show` با `?tab=role-dedicatee` یا `role-commissioner` (هر کدام بیشتر باشد). نام بی‌پیوند به `search?type=works&f[people]=…`، که `related_people` نمایه را می‌گردد. جست‌وجو صورت‌های نزدیک را هم می‌آورد («محمد ولی میرزا»: ۴۰ نتیجه در سایت، در برابر ۲۴ اثر آمار).
+- **`people/show`:** اگر `request('tab')` یکی از زبانه‌های همان شخص باشد، زبانه‌ی پیش‌فرض می‌شود.
+- **cache:** `CACHE_KEY` از `insights.v6` به `insights.v7` رسید. پس از استقرار `fahares:build-insights` اجرا شود.
+- **آزمون:** `InsightsScopeTest::test_dedicatees_are_counted_by_person_with_the_works_written_at_their_request`

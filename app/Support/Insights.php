@@ -20,7 +20,7 @@ class Insights
     // v4: scribes, libraries, sizes, languages and scripts per century, sources (backlog item 107, charts 5-9)
     // v5: the map, the scribes and the libraries read the range of the copy date (step 14.115)
     // v6: patrons and facsimile copies (step 14.117)
-    private const CACHE_KEY = 'insights.v6';
+    private const CACHE_KEY = 'insights.v7';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -118,6 +118,7 @@ class Insights
             'languages' => self::languages($scope, $totals['works']),
             'top_works' => self::topWorks($scope),
             'sources' => self::sources($scope, $totals['manuscripts']),
+            'dedications' => self::dedications($scope, $totals['works']),
             'patrons' => self::patrons($scope, $totals['manuscripts']),
             'facsimiles' => self::facsimiles($scope, $totals['manuscripts']),
         ];
@@ -530,6 +531,93 @@ class Insights
             'coverage' => self::share($withPatron, $total),
             'names' => count($names),
             'kin' => $kin,
+            'centuries' => $centuries,
+        ];
+    }
+
+    /**
+     * The people works were dedicated to or written at the request of (work_people dedicatee and commissioner, from
+     * the Fankha «اهدا / به درخواست» field): grouped by their person record, or by the normalized name when the
+     * name is not linked, shown as it is written most; each with its works, those written at its request among
+     * them, and the centuries of their composition. And the share of works with a dedication per century (step
+     * 14.119). A work is counted once per person, whether dedicated to or commissioned by them.
+     */
+    private static function dedications(InsightsScope $scope, int $totalWorks): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $roles = ['dedicatee', 'commissioner'];
+        $century = self::oneCentury('works.composition_date_from', 'works.composition_date_to');
+        $rows = DB::table('work_people as wp')->join($scope->worksTable(), 'works.id', '=', 'wp.work_id')
+            ->leftJoin('people', 'people.id', '=', 'wp.person_id')
+            ->whereIn('wp.role', $roles)
+            ->selectRaw("wp.person_id AS pid, people.name AS pname, COALESCE(people.name, wp.name) AS name, wp.work_id AS w,
+                MAX(wp.role = ?) AS asked, MAX({$century}) AS c", ['commissioner'])
+            ->groupBy('wp.work_id', 'wp.person_id', 'pname', 'name')->get();
+
+        $people = [];
+        $forms = [];
+        $works = [];
+        $linkedWorks = [];
+        foreach ($rows as $row) {
+            $works[$row->w] = true;
+            if ($row->pid) {
+                $linkedWorks[$row->w] = true;
+            }
+            $key = $row->pid ? 'p' . $row->pid : 'n' . trim(TextNormalizer::normalize((string) $row->name));
+            if ($key === 'n') {
+                continue;
+            }
+            $people[$key] ??= ['name' => (string) $row->name, 'person' => $row->pid ? (int) $row->pid : null,
+                'count' => 0, 'asked' => 0, 'centuries' => null, 'works' => []];
+            if (isset($people[$key]['works'][$row->w])) {
+                continue;
+            }
+            $people[$key]['works'][$row->w] = true;
+            $people[$key]['count']++;
+            $people[$key]['asked'] += (int) $row->asked;
+            if (! $row->pid) {
+                $forms[$key][trim((string) $row->name)] = ($forms[$key][trim((string) $row->name)] ?? 0) + 1;
+            }
+            if ($row->c !== null) {
+                $c = $people[$key]['centuries'];
+                $people[$key]['centuries'] = [min($c[0] ?? PHP_INT_MAX, (int) $row->c), max($c[1] ?? 0, (int) $row->c)];
+            }
+        }
+        foreach ($forms as $key => $written) {
+            arsort($written);
+            $people[$key]['name'] = (string) array_key_first($written);
+        }
+        $linked = count(array_filter($people, fn ($p) => $p['person'] !== null));
+        $top = collect($people)->filter(fn ($p) => $p['count'] >= 2)
+            ->sortBy([['count', 'desc'], ['name', 'asc']])->take(config('insights.dedications_shown'))
+            ->map(fn ($p) => array_diff_key($p, ['works' => true]))->values()->all();
+        // The person page's address, «12-نام»
+        $keys = \App\Models\Person::whereIn('id', array_filter(array_column($top, 'person')))->get()->mapWithKeys(fn ($p) => [$p->id => $p->getRouteKey()]);
+        foreach ($top as &$item) {
+            $item['person'] = $item['person'] ? ($keys[$item['person']] ?? (string) $item['person']) : null;
+        }
+        unset($item);
+
+        $withDedication = DB::table('work_people')->whereIn('role', $roles)->select('work_id');
+        $byCentury = $scope->works()
+            ->whereNotNull('works.composition_date_from')->whereNotNull('works.composition_date_to')
+            ->whereRaw('FLOOR((works.composition_date_from - 1) / 100) = FLOOR((works.composition_date_to - 1) / 100)')
+            ->whereRaw('FLOOR((works.composition_date_from - 1) / 100) + 1 BETWEEN ? AND ?', [$first, $last])
+            ->selectRaw('FLOOR((works.composition_date_from - 1) / 100) + 1 AS c, COUNT(*) AS n, SUM(works.id IN (' . $withDedication->toSql() . ')) AS d', $withDedication->getBindings())
+            ->groupBy('c')->get()->keyBy(fn ($r) => (int) $r->c);
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $r = $byCentury[$c] ?? null;
+            $centuries[] = ['century' => $c, 'works' => (int) ($r->n ?? 0), 'count' => (int) ($r->d ?? 0), 'share' => self::share((int) ($r->d ?? 0), (int) ($r->n ?? 0))];
+        }
+
+        return [
+            'items' => $top,
+            'works' => count($works),
+            'coverage' => self::share(count($works), $totalWorks),
+            'names' => count($people),
+            'linked' => $linked,
+            'linked_works' => count($linkedWorks),
             'centuries' => $centuries,
         ];
     }

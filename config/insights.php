@@ -84,6 +84,8 @@ return [
     // Patrons and facsimile copies (step 14.117): the names shown, the libraries shown
     'patrons_shown' => 15,
     'facsimile_libraries' => 10,
+    // The people works were dedicated to or written for (step 14.119): the names shown
+    'dedications_shown' => 20,
 
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],

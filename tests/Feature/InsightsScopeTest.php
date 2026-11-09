@@ -7,6 +7,7 @@ use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Subject;
 use App\Models\Work;
+use App\Models\WorkPerson;
 use App\Support\CopyPlaces;
 use App\Support\Insights;
 use App\Support\InsightsScope;
@@ -288,6 +289,37 @@ class InsightsScopeTest extends TestCase
         $this->assertFalse(Insights::isKin('داریوش میرزا'));
     }
 
+    public function test_dedicatees_are_counted_by_person_with_the_works_written_at_their_request()
+    {
+        $author = $this->person();
+        $king = $this->person('donor');
+        $works = collect(range(1, 4))->map(fn ($i) => $this->work(['author_id' => $author->id, 'composition_date_raw' => (1250 + $i) . 'ق']));
+        // Dedicated under two spellings, linked to one person: counted together, under the person's name
+        foreach ($works->take(3) as $i => $work) {
+            WorkPerson::create(['work_id' => $work->id, 'person_id' => $king->id, 'role' => 'dedicatee', 'name' => $i ? 'ناصرالدین شاه' : 'ناصرالدین شاه قاجار']);
+        }
+        // Dedicated to and written at the request of the same person: one work
+        WorkPerson::create(['work_id' => $works[0]->id, 'person_id' => $king->id, 'role' => 'commissioner', 'name' => 'ناصرالدین شاه']);
+        // A name with no person, in two written forms
+        WorkPerson::create(['work_id' => $works[1]->id, 'role' => 'commissioner', 'name' => 'ظل السلطان']);
+        WorkPerson::create(['work_id' => $works[3]->id, 'role' => 'dedicatee', 'name' => 'ظل‌السلطان']);
+        WorkPerson::create(['work_id' => $works[3]->id, 'role' => 'dedicatee', 'name' => 'میرزا آقاسی']);
+        $other = $this->work(['author_id' => $author->id]);
+
+        $dd = Insights::build(InsightsScope::fromArray(['author' => $author->id]))['dedications'];
+
+        $this->assertSame([
+            ['name' => $king->name, 'person' => $king->getRouteKey(), 'count' => 3, 'asked' => 1, 'centuries' => [13, 13]],
+            ['name' => 'ظل السلطان', 'person' => null, 'count' => 2, 'asked' => 1, 'centuries' => [13, 13]],
+        ], $dd['items'], 'a name of one work is not listed');
+        $this->assertSame([4, 80.0, 3, 1, 3], [$dd['works'], $dd['coverage'], $dd['names'], $dd['linked'], $dd['linked_works']]);
+        $thirteenth = collect($dd['centuries'])->firstWhere('century', 13);
+        $this->assertSame([4, 4], [$thirteenth['works'], $thirteenth['count']]);
+
+        $this->get(route('people.show', $king) . '?tab=role-dedicatee')->assertOk()->assertSee("activeTab: 'role-dedicatee'", false);
+        $this->get(route('people.show', $king) . '?tab=nothing')->assertOk()->assertDontSee("activeTab: 'nothing'", false);
+    }
+
     public function test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope()
     {
         $author = $this->person();
@@ -358,7 +390,7 @@ class InsightsScopeTest extends TestCase
         $this->copy($this->work(), ['library_id' => $library->id]);
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
-        Cache::forever('insights.v6', Insights::build());
+        Cache::forever('insights.v7', Insights::build());
         $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');
