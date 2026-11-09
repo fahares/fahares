@@ -9356,3 +9356,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **تمرین روی `fahares_prod`:** «Merged 177 records into 177 people; 2 groups skipped». هدف آن دو گروه در ادغام پیشین به رکورد دیگری رفته بود. شمار اشخاص ۶۷٬۳۴۸ → ۶۷٬۱۷۱ و هیچ پیوند یتیمی نماند.
   - **صفحه‌ی بازبینی (نسخه‌ی ۲):** ۵۱۵ گروه، با یادداشت هر دو داوری.
   - ۴۰ رکورد از گروه‌های نامطمئن در ادغام‌های پیشین هم بودند. سنجش نام در `merge-duplicate-people` این‌ها را رد می‌کند، چون رکوردی که ادغام شده نام خودش را ندارد.
+
+### گام ۱۴.۱۲۴: `fahares:queue-judged-people` و گروه‌های `judged:` در `PersonReviewQueue`
+- **ورودی:** `database/data/duplicate_people_unsure_step14_124.json`، با ۵۱۵ گروه `{ids, names, note}`. `note` داوری نخست (Sonnet) و دوم (Opus) را دارد، تا ۴۸۰ نویسه.
+- **فرمان:**
+  - هر شناسه به رکورد کنونی‌اش می‌رود: خودش، یا مقصد `EntityRedirect`. شناسه‌های تکراری حذف و مرتب می‌شوند. اگر کمتر از دو رکورد بماند، گروه `settled` است.
+  - کلید گروه `PersonReviewQueue::JUDGED . ids` است (`judged:12,34`). اگر ردیف `duplicate`ی با همین کلید یا همین `person_ids` باشد، گروه `already` است. چنین ردیفی، اگر باز باشد و پیشنهادی نداشته باشد، یادداشت‌ها را می‌گیرد.
+  - ردیف تازه: `tier = review`، `status = open`، `suggestion = {decision: unsure, comment: note, source: "model review, step 14.123"}`.
+  - `--dry-run` چیزی نمی‌نویسد.
+- **`PersonReviewQueue::refresh`:**
+  - بستن «gone» برای ردیف‌هایی که یابنده نیافته، کلیدهای `judged:%` را کنار می‌گذارد.
+  - برای هر ردیف باز `judged:`، `person_ids` به رکوردهایی که هنوز هستند کاسته می‌شود. اگر کمتر از دو رکورد بماند، ردیف `gone` می‌شود.
+- **تصحیح جمعی:** `NamesakeQueue` همه‌ی ردیف‌های باز `duplicate` را نشان می‌دهد، پس این گروه‌ها بی تغییر دیگری در «اشخاص هم‌نام» می‌آیند. صفحه‌ی بازبینی Artifact گام ۱۴.۱۲۳ دیگر لازم نیست.
+- **اجرای ادغام‌های Opus (پس از انتشار ۸۱، `938e00be`):**
+  - **پشتیبان:** `~/backups/before_step14_123_opus_20261109_2053.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `7a60b1f8ad616953652e7fa5e9192fe5`.
+  - **اجرای آزمایشی و واقعی:** «Merged 177 records into 177 people; 2 groups skipped».
+  - **وارسی:** شمار اشخاص ۶۷٬۳۴۸ → ۶۷٬۱۷۱. هیچ پیوند یتیمی نماند و `/tmp` پاک است.
+- **تمرین (`fahares_prod`):**
+  - اجرای نخست: «Queued 464 groups; 51 already in the queue; 0 settled since».
+  - `refresh-person-reviews`: «Created 2, updated 3, reopened 0, closed 21 as gone». آن ۲۱ گروه یابنده بودند که ادغام‌های ۱۴.۱۲۳ تمامشان کرده بود.
+  - شمار ردیف‌های باز `duplicate` ۵۴۴ شد. `/contribute/namesake/1520` کارت را با «۵۴۴ مورد مانده» نشان داد.
+- **آزمون:** `PersonReviewTest::test_unsure_groups_of_a_model_review_are_queued_for_the_researchers_and_stay_through_the_refresh`
+- **اجرا پس از استقرار:** `php artisan fahares:queue-judged-people --dry-run`، سپس بی `--dry-run`. پیش از اجرا از جدول `person_reviews` پشتیبان گرفته شود.
