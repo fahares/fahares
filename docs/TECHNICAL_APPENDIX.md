@@ -9378,3 +9378,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - شمار ردیف‌های باز `duplicate` ۵۴۴ شد. `/contribute/namesake/1520` کارت را با «۵۴۴ مورد مانده» نشان داد.
 - **آزمون:** `PersonReviewTest::test_unsure_groups_of_a_model_review_are_queued_for_the_researchers_and_stay_through_the_refresh`
 - **اجرا پس از استقرار:** `php artisan fahares:queue-judged-people --dry-run`، سپس بی `--dry-run`. پیش از اجرا از جدول `person_reviews` پشتیبان گرفته شود.
+
+### گام ۱۴.۱۲۵: زنجیره‌ی جفت‌ها در `BibliographyLinks::readProse`
+- **علت:** در regex متن صفحه‌ها، `$number` فقط `$volumePage` («ج N ص N») را با `[و،,]` زنجیر می‌کرد. شکل `N/N` یا `N:N` تنها بود، پس تطبیق «الذریعة 105/19 و 183/17 و 967/9» در `105/19` تمام می‌شد. دو جفت بعدی در شاخه‌ی `other` (کتابی که سایت ندارد) می‌افتادند.
+- **تغییر:** پس از نخستین عدد، هر شمار از `\s*[و،,]\s*(?:$volumePage|$pair)` پذیرفته می‌شود (`$pair` = `N\s*[\/:]\s*N`). عدد تنها در زنجیره نیست، تا «و 3 نسخه» صفحه خوانده نشود. بُرش تطبیق‌شده به `segments()` می‌رود که فاصله‌ی «و» یا «،» را با `sourceAfter` همان منبع نگه می‌دارد. اگر جفتی پیوند نگیرد، متن ساده می‌ماند.
+- **آزمون:** `BibliographyLinksTest::test_a_volume_and_page_after_a_name_in_a_page_text`، با همان تکه‌ی صفحه‌ی ۹۴، «(ذریعه 90/25، 107/8)» و «الذریعة 69/13 و مشترک 46/7».
