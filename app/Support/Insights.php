@@ -19,7 +19,8 @@ class Insights
     // v3: places of composition, movement of copies, subjects and features per century (backlog item 107)
     // v4: scribes, libraries, sizes, languages and scripts per century, sources (backlog item 107, charts 5-9)
     // v5: the map, the scribes and the libraries read the range of the copy date (step 14.115)
-    private const CACHE_KEY = 'insights.v5';
+    // v6: patrons and facsimile copies (step 14.117)
+    private const CACHE_KEY = 'insights.v6';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -117,6 +118,8 @@ class Insights
             'languages' => self::languages($scope, $totals['works']),
             'top_works' => self::topWorks($scope),
             'sources' => self::sources($scope, $totals['manuscripts']),
+            'patrons' => self::patrons($scope, $totals['manuscripts']),
+            'facsimiles' => self::facsimiles($scope, $totals['manuscripts']),
         ];
     }
 
@@ -468,6 +471,109 @@ class Insights
      * The copies of one century: those whose date falls within one century, a year or the century itself; a range
      * across two centuries («قرن 12 و 13») has no one century and is left out of the charts per century below.
      */
+    /**
+     * The patrons of the copies (commissioned_by, backlog item 104 and 107): the names written most, each with the
+     * centuries of its copies, and the share of copies with a patron in each century. The names are not linked to
+     * people, so two forms of one name count apart; «مؤلف», «خودش» or «پدرش …» name the author, the scribe or his
+     * kin rather than a patron of his own and are counted apart (step 14.117).
+     */
+    private static function patrons(InsightsScope $scope, int $total): array
+    {
+        [$first, $last] = config('insights.centuries');
+        $century = self::oneCentury('manuscripts.copy_date_from', 'manuscripts.copy_date_to');
+        $rows = $scope->manuscripts()->whereNotNull('commissioned_by')->where('commissioned_by', '!=', '')
+            ->selectRaw("commissioned_by AS name, COUNT(*) AS n, MIN({$century}) AS c0, MAX({$century}) AS c1")
+            ->groupBy('name')->get();
+
+        $names = [];
+        $forms = [];
+        $kin = 0;
+        foreach ($rows as $row) {
+            $name = trim(TextNormalizer::normalize((string) $row->name));
+            if ($name === '') {
+                continue;
+            }
+            if (self::isKin($name)) {
+                $kin += $row->n;
+
+                continue;
+            }
+            // Grouped by the normalized form, shown as it is written most
+            $names[$name] ??= ['name' => $name, 'count' => 0, 'centuries' => null];
+            $names[$name]['count'] += (int) $row->n;
+            $forms[$name][trim((string) $row->name)] = ($forms[$name][trim((string) $row->name)] ?? 0) + (int) $row->n;
+            if ($row->c0 !== null) {
+                $c = $names[$name]['centuries'];
+                $names[$name]['centuries'] = [min($c[0] ?? PHP_INT_MAX, (int) $row->c0), max($c[1] ?? 0, (int) $row->c1)];
+            }
+        }
+        foreach ($forms as $name => $written) {
+            arsort($written);
+            $names[$name]['name'] = (string) array_key_first($written);
+        }
+        $withPatron = (int) $rows->sum('n');
+        $top = collect($names)->filter(fn ($p) => $p['count'] >= 2)
+            ->sortBy([['count', 'desc'], ['name', 'asc']])->take(config('insights.patrons_shown'))->values()->all();
+
+        $byCentury = self::inOneCentury($scope)->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last])
+            ->selectRaw(self::CENTURY . " AS c, COUNT(*) AS n, SUM(commissioned_by IS NOT NULL AND commissioned_by != '') AS p")
+            ->groupBy('c')->get()->keyBy(fn ($r) => (int) $r->c);
+        $centuries = [];
+        for ($c = $first; $c <= $last; $c++) {
+            $r = $byCentury[$c] ?? null;
+            $centuries[] = ['century' => $c, 'copies' => (int) ($r->n ?? 0), 'count' => (int) ($r->p ?? 0), 'share' => self::share((int) ($r->p ?? 0), (int) ($r->n ?? 0))];
+        }
+
+        return [
+            'items' => $top,
+            'with_patron' => $withPatron,
+            'coverage' => self::share($withPatron, $total),
+            'names' => count($names),
+            'kin' => $kin,
+            'centuries' => $centuries,
+        ];
+    }
+
+    /** A patron written as the author, the scribe himself or one of his kin: «مؤلف», «خودش», «پدرش ملا محمد» */
+    public static function isKin(string $name): bool
+    {
+        $words = preg_split('/\s+/u', $name);
+        if (in_array($words[0], ['مؤلف', 'مولف', 'مصنف', 'خود', 'خودش', 'کاتب'], true)) {
+            return true;
+        }
+        foreach (array_slice($words, 0, 2) as $word) {
+            if (preg_match('/^(پدر|مادر|برادر|خواهر|فرزند|پسر|دختر|همسر|استاد|عم|عمو|عموی|دایی|والد|نواده|نوه)(ش|یش)$/u', $word)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The facsimile copies (is_facsimile): photographs of a copy kept elsewhere, so the charts above count that copy
+     * twice, with the date and place of the original. Their share, and the libraries that hold most of them, each
+     * with the share of its holdings (step 14.117).
+     */
+    private static function facsimiles(InsightsScope $scope, int $total): array
+    {
+        $rows = $scope->manuscripts()->whereNotNull('library_id')
+            ->selectRaw('library_id, COUNT(*) AS n, SUM(is_facsimile) AS f')
+            ->groupBy('library_id')->havingRaw('SUM(is_facsimile) > 0')
+            ->orderByDesc('f')->limit(config('insights.facsimile_libraries'))->get();
+        $libraries = \App\Models\Library::whereIn('id', $rows->pluck('library_id'))->get(['id', 'name', 'city', 'slug'])->keyBy('id');
+        $count = $scope->manuscripts()->where('is_facsimile', true)->count();
+
+        return [
+            'count' => $count,
+            'share' => self::share($count, $total),
+            'libraries' => $rows->filter(fn ($r) => isset($libraries[$r->library_id]))->map(fn ($r) => [
+                'id' => (int) $r->library_id, 'key' => $libraries[$r->library_id]->getRouteKey(), 'name' => $libraries[$r->library_id]->name,
+                'city' => $libraries[$r->library_id]->city, 'count' => (int) $r->f, 'holdings' => (int) $r->n, 'share' => self::share((int) $r->f, (int) $r->n),
+            ])->values()->all(),
+        ];
+    }
+
     /** The century a range lies in, as SQL: null when either end is open or the range crosses a century */
     private static function oneCentury(string $from, string $to): string
     {

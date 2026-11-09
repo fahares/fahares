@@ -595,6 +595,92 @@
         @endif
     </div>
 
+    {{-- 2e2. Patrons and facsimile copies (step 14.117) --}}
+    @php
+        $pt = $data['patrons'];
+        $fx = $data['facsimiles'];
+        $centuriesOf = fn (?array $c) => $c === null ? '' : ($c[0] === $c[1] ? 'سده‌ی ' . Fa::digits($c[0]) : 'سده‌های ' . Fa::digits($c[0]) . ' تا ' . Fa::digits($c[1]));
+        $ptCols = array_values(array_filter($pt['centuries'], fn ($c) => $c['copies'] >= config('insights.min_sample') * 10));
+        $ptMax = max([0.1, ...array_column($ptCols, 'share')]);
+        $showFacsimiles = $scope->get('facsimile') === null && $fx['count'] >= max(1, $min);
+    @endphp
+    <div class="grid lg:grid-cols-2 gap-8">
+        @if($pt['with_patron'] >= max(1, $min))
+        <x-ui.section title="سفارش‌دهندگان" id="patrons">
+            <x-ui.card>
+                @if(count($pt['items']))
+                    <ol class="text-sm">
+                        @foreach($pt['items'] as $row)
+                            <li class="py-1.5 border-b border-line last:border-0 flex items-baseline gap-2">
+                                <span class="text-ink">{{ $row['name'] }}</span>
+                                @if($row['centuries'])<span class="text-[11px] text-muted whitespace-nowrap">{{ $centuriesOf($row['centuries']) }}</span>@endif
+                                <span class="leader" aria-hidden="true"></span>
+                                <a href="{{ $search('manuscripts', ['f' => ['commissioned' => $row['name']]]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar"
+                                   title="جست‌وجوی این نام در سفارش‌دهنده‌ی نسخه‌ها">{{ Fa::num($row['count']) }}</a>
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
+                @if(count($ptCols) > 2)
+                    <p class="mt-5 mb-2 text-xs font-semibold text-ink">سهم نسخه‌های دارای سفارش‌دهنده در هر سده</p>
+                    <div class="flex items-end gap-1 sm:gap-2 h-28 border-b border-line-strong" role="list" aria-label="سهم نسخه‌های دارای سفارش‌دهنده در هر سده">
+                        @foreach($ptCols as $col)
+                            @php $tip = 'سده‌ی ' . Fa::digits($col['century']) . ': ' . Fa::num($col['count']) . ' از ' . Fa::num($col['copies']) . ' نسخه (' . $pct($col['share']) . ')'; @endphp
+                            <span role="listitem" class="flex-1 h-full flex flex-col justify-end items-center gap-1 min-w-0" title="{{ $tip }}" aria-label="{{ $tip }}">
+                                <span class="text-[10px] text-muted tabular-nums whitespace-nowrap">{{ $pct($col['share']) }}</span>
+                                <span class="w-full max-w-10 bg-gold/70 rounded-t-[4px]" style="height: max({{ $col['count'] ? 2 : 0 }}px, {{ round($col['share'] * 100 / $ptMax, 2) }}%)"></span>
+                            </span>
+                        @endforeach
+                    </div>
+                    <div class="flex gap-1 sm:gap-2 mt-1.5" aria-hidden="true">
+                        @foreach($ptCols as $col)
+                            <span class="flex-1 text-center text-[10px] text-ink tabular-nums">{{ Fa::digits($col['century']) }}</span>
+                        @endforeach
+                    </div>
+                @endif
+            </x-ui.card>
+            <p class="mt-3 text-xs text-muted leading-relaxed">
+                سفارش‌دهنده برای {{ Fa::num($pt['with_patron']) }} نسخه ({{ $pct($pt['coverage']) }}) ثبت است، با {{ Fa::num($pt['names']) }} نام گوناگون.
+                نام‌ها به رکورد شخص پیوند نخورده‌اند، پس گونه‌های یک نام («آیة الله بروجردی» و «آیة الله حاج آقا حسین طباطبائی بروجردی») جدا شمرده می‌شوند و جست‌وجوی یک نام نسخه‌های هم‌نام را هم می‌آورد.
+                @if($pt['kin']) {{ Fa::num($pt['kin']) }} نسخه که سفارش‌دهنده‌شان «مؤلف»، «خودش» یا یکی از خویشان کاتب («پدرش …») است، در فهرست نام‌ها نیامده‌اند. @endif
+                سده‌ها، سده‌ی نسخه‌هایی است که کل بازه‌ی تاریخشان در یک سده است؛ سده‌هایی که کمتر از {{ Fa::num(config('insights.min_sample') * 10) }} نسخه دارند، در نمودار نیامده‌اند.
+            </p>
+        </x-ui.section>
+        @endif
+
+        @if($showFacsimiles)
+        <x-ui.section title="نسخه‌های عکسی" id="facsimiles">
+            <x-ui.card>
+                <p class="text-sm text-ink">
+                    <a href="{{ $search('manuscripts', ['facsimile' => '1']) }}" class="font-semibold tabular-nums hover:text-cinnabar">{{ Fa::num($fx['count']) }}</a>
+                    نسخه، یعنی {{ $pct($fx['share']) }} نسخه‌های این آمار، عکسی‌اند.
+                </p>
+                @if(count($fx['libraries']) > 1)
+                    <ol class="mt-3 text-sm">
+                        @foreach($fx['libraries'] as $row)
+                            <li class="py-1.5 border-b border-line last:border-0 flex items-baseline gap-2">
+                                <a href="{{ route('libraries.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a>
+                                <span class="text-xs text-muted">{{ $row['city'] }}</span>
+                                <span class="leader" aria-hidden="true"></span>
+                                <span class="text-[11px] text-muted tabular-nums" title="سهم عکسی‌ها در نسخه‌های این کتابخانه">{{ $pct($row['share']) }}</span>
+                                <a href="{{ $search('manuscripts', ['facsimile' => '1', 'library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
+                <p class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <a href="{{ route('insights', $scope->query() + ['facsimile' => '0']) }}" class="text-cinnabar hover:underline">آمار بی نسخه‌های عکسی</a>
+                    <a href="{{ route('insights', $scope->query() + ['facsimile' => '1']) }}" class="text-cinnabar hover:underline">آمار تنها نسخه‌های عکسی</a>
+                </p>
+            </x-ui.card>
+            <p class="mt-3 text-xs text-muted leading-relaxed">
+                نسخه‌ی عکسی، عکس نسخه‌ای است که در کتابخانه‌ی دیگری نگه داشته می‌شود، و تاریخ و جای کتابتش همان نسخه‌ی اصل است.
+                پس نمودارهای این صفحه آن نسخه را، اگر اصلش هم در فهارس باشد، دو بار می‌شمارند. «آمار بی نسخه‌های عکسی» این دوباره‌شماری را کنار می‌گذارد.
+            </p>
+        </x-ui.section>
+        @endif
+    </div>
+
     {{-- 2f. Size of the copies --}}
     @php $sz = $data['sizes']; @endphp
     <x-ui.section title="اندازه‌ی نسخه‌ها" id="sizes">
