@@ -544,9 +544,11 @@ class BibliographyLinks
 
     private static function readProse(string $text): array
     {
-        // «ج 4 ص 424» and «… و ج 4 ص 52» after it (step 14.103), or «791/9», «1:28», «ج 9»
+        // «ج 4 ص 424» and «… و ج 4 ص 52» after it (step 14.103), or «791/9», «1:28», «ج 9»; and the volume-and-page
+        // citations joined to it by «و» or «،» («الذریعة 105/19 و 183/17 و 967/9»), which segments() reads as the same book's
         $volumePage = 'ج\s*[0-9۰-۹]+\s*[،,]?\s*(?:صص|ص|ستون)\s*[0-9۰-۹]+';
-        $number = '(?:' . $volumePage . '(?:\s*[و،,]\s*' . $volumePage . ')*|(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?)';
+        $pair = '[0-9۰-۹]+\s*[\/:]\s*[0-9۰-۹]+';
+        $number = '(?:(?:' . $volumePage . '|(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?)(?:\s*[و،,]\s*(?:' . $volumePage . '|' . $pair . '))*)';
         // Monzavi's «ذریعه (3) 791/9»: the part of a volume printed in parts, whose pages run on through them
         $part = '(?:\(\s*[0-9۰-۹]{1,2}\s*\)\s*)?';
         // Tabaqat's «ذكرناه في (الذريعة) ج 7 ص 284»: the name in parentheses
