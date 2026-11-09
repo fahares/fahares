@@ -183,7 +183,7 @@ class InsightsScopeTest extends TestCase
 
         $data = Insights::build(InsightsScope::fromArray(['author' => $author->id]));
 
-        $this->assertSame([['id' => $scribe->id, 'key' => $scribe->getRouteKey(), 'name' => $scribe->name, 'count' => 3, 'from' => 1050, 'to' => 1250, 'city' => 'هرات']], $data['scribes']['items']);
+        $this->assertSame([['id' => $scribe->id, 'key' => $scribe->getRouteKey(), 'name' => $scribe->name, 'count' => 3, 'from' => 1050, 'to' => 1250, 'centuries' => [11, 13], 'city' => 'هرات']], $data['scribes']['items']);
         $this->assertSame([$old->id, $new->id], array_column($data['libraries']['largest'], 'id'));
         $this->assertSame(1065, $data['libraries']['largest'][0]['mean']);
         $this->assertSame([], $data['libraries']['oldest']); // fewer dated copies than oldest_min_dated
@@ -233,6 +233,33 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(3, Insights::build(InsightsScope::fromArray(['author' => $author->id, 'century' => '9-10']))['totals']['manuscripts']);
     }
 
+    public function test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date()
+    {
+        $author = $this->person();
+        $scribe = $this->person('scribe');
+        $library = $this->library();
+        $work = $this->work(['author_id' => $author->id]);
+        $copy = fn (string $date) => $this->copy($work, ['scribe_id' => $scribe->id, 'library_id' => $library->id, 'copy_date_raw' => $date, 'copy_place' => 'هرات']);
+        $copy('قرن 11');
+        $copy('اواخر قرن 11');
+        $copy('قرن 11 و 12');
+        // A solar date held as a hijri year, with no range: no century, no year
+        $copy('1317ش')->forceFill(['copy_date_hijri_year' => 1317, 'copy_date_from' => null, 'copy_date_to' => null])->saveQuietly();
+
+        $data = Insights::build(InsightsScope::fromArray(['author' => $author->id]));
+        $herat = collect($data['places']['cities'])->firstWhere('name', 'هرات');
+
+        $this->assertSame(4, $herat['count']);
+        $this->assertSame([11 => 2], $herat['centuries'], 'the two copies within the 11th century; the one across two centuries and the undated one in the total only');
+        $this->assertSame(2, $data['places']['by_century']);
+        $this->assertSame(2, $data['places']['century_only']);
+        $item = $data['scribes']['items'][0];
+        $this->assertSame([null, null, [11, 11]], [$item['from'], $item['to'], $item['centuries']], 'no known year: the century of the copies');
+        $lib = $data['libraries']['largest'][0];
+        $this->assertSame([2, 2], [$lib['dated'], $lib['century_only']]);
+        $this->assertSame(1067, $lib['mean'], 'the middles of 1001-1100 and 1067-1100');
+    }
+
     public function test_the_scoped_page_names_its_scope_and_carries_it_into_search_links()
     {
         $library = $this->library('شیراز');
@@ -277,7 +304,7 @@ class InsightsScopeTest extends TestCase
         $this->copy($this->work(), ['library_id' => $library->id]);
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
-        Cache::forever('insights.v4', Insights::build());
+        Cache::forever('insights.v5', Insights::build());
         $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');

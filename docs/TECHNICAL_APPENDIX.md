@@ -9121,3 +9121,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `InsightsScopeTest::test_a_catalogue_scope_takes_the_copies_the_volume_describes_and_its_links_keep_it`
   - `InsightsScopeTest::test_a_century_scope_takes_a_copy_dated_by_its_century_alone`
 - **پس از استقرار در تولید:** `php artisan scout:sync-index-settings`، سپس `php artisan scout:import "App\Models\Manuscript"` (حدود ۳۲۳ هزار سند؛ روی ماشین محلی حدود ۱۰ دقیقه).
+
+### گام ۱۴.۱۱۵: `Insights::oneCentury` در `places`، `scribes` و `libraries`
+- **`oneCentury($from, $to)`:** عبارت SQL است که سده‌ی بازه را برمی‌گرداند، اگر بازه در یک سده باشد. اگر یک سر بازه باز باشد یا بازه از دو سده بگذرد، `NULL` است. این همان `copy_century` نمایه است (گام ۱۴.۱۱۴).
+- **`places`:**
+  - نسخه‌ها با `oneCentury(copy_date_from, copy_date_to)` شمرده می‌شوند و آثار با `oneCentury(composition_date_from, composition_date_to)`. پیش‌تر `FLOOR((copy_date_hijri_year - 1) / 100) + 1` و `composition_year_hijri` بود.
+  - گروه‌بندی `wide` هم دارد: دامنه‌ی بیش از `exact_span`.
+  - کلیدهای تازه: `places.by_century`، `places.century_only`، `places.composition.by_century` و `places.composition.century_only`.
+- **`scribes`:**
+  - `from` و `to` کمینه و بیشینه‌ی `FLOOR((from + to) / 2)` تاریخ‌هایی هستند که دامنه‌شان تا `exact_span` است.
+  - کلید تازه‌ی `centuries` برابر `[MIN, MAX]` از `oneCentury` است، یا `null`.
+  - نما اگر `from` نباشد، `centuries` را نشان می‌دهد.
+- **`libraries`:**
+  - `dated` = `SUM(copy_date_to - copy_date_from <= 100)` و `mean` = `AVG((from + to) / 2)` روی همین نسخه‌ها.
+  - کلید تازه‌ی `century_only` شمار نسخه‌هایی است که دامنه‌شان بیش از `exact_span` است. در `title` نما می‌آید.
+- **cache:** `CACHE_KEY` از `insights.v4` به `insights.v5` رسید.
+  - تا ساخت شبانه‌ی ساعت ۰۳:۳۰، نخستین بازدید صفحه‌ی کل آمار را هنگام درخواست می‌سازد، حدود ۳۰ ثانیه.
+  - برای پرهیز از این، پس از استقرار `php artisan fahares:build-insights` اجرا شود.
+- **شمار روی `fahares_prod`:**
+  - ۱۵۳٬۲۵۹ نسخه `copy_date_hijri_year` دارند و ۲۳۷٬۰۵۲ نسخه بازه‌ای تا ۱۰۰ سال.
+  - نقشه: `mapped` = ۱۸٬۳۳۹، `by_century` = ۱۷٬۵۸۳ و `century_only` = ۱٬۰۷۶. در لایه‌ی تألیف `by_century` = ۱٬۵۴۵.
+  - نمونه‌ی کهن‌ترین کتابخانه: موزه‌ی ملی، میانگین ۹۵۵ از ۲۶۷ نسخه. ۱۵۵ نسخه از آن‌ها تنها سده دارند.
+- **آزمون:** `InsightsScopeTest::test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date`. آزمون `scribes … of a scope` کلید `centuries` را هم می‌سنجد.
