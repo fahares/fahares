@@ -9192,6 +9192,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نقشه: `mapped` = ۱۸٬۳۳۹، `by_century` = ۱۷٬۵۸۳ و `century_only` = ۱٬۰۷۶. در لایه‌ی تألیف `by_century` = ۱٬۵۴۵.
   - نمونه‌ی کهن‌ترین کتابخانه: موزه‌ی ملی، میانگین ۹۵۵ از ۲۶۷ نسخه. ۱۵۵ نسخه از آن‌ها تنها سده دارند.
 - **آزمون:** `InsightsScopeTest::test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date`. آزمون `scribes … of a scope` کلید `centuries` را هم می‌سنجد.
+- **اجرا در تولید (گام‌های ۱۴.۱۱۴ و ۱۴.۱۱۵، ۱۹ آبان، انتشار ۷۵ `4f1c00a9`، با `prod-run insights-107`):**
+  1. `php artisan scout:sync-index-settings`: exit 0، ۳ ثانیه.
+  2. `php -d memory_limit=1G artisan scout:import "App\Models\Manuscript"`:
+     - اتصال ssh در ۱۰ دقیقه بسته شد («Connection … closed by remote host»، exit 255 در `prod-runs.log`). قفل آزاد شد، ولی فرایند در کانتینر ادامه داد و ساعت ۰۷:۰۶ پایان یافت.
+     - در این مدت، `prod-run --status` آن را «production artisan run» نشان می‌داد و `prod-run` اجرای دیگری را نمی‌پذیرفت.
+     - صف Meilisearch ساعت ۰۷:۱۳ خالی شد و نمایه ۳۲۳٬۲۴۶ سند داشت.
+     - بار سرور در این زمان به ۹ رسید. نخستین بازدیدهای `/insights` پس از آن ۲۲ و سپس ۸٫۷ ثانیه طول کشیدند، با این‌که از cache خوانده می‌شدند. بازدید سوم ۱٫۹ ثانیه بود.
+  3. `php artisan fahares:build-insights`: ۱۹٫۴ ثانیه، با «242583 dated copies (75%, 90849 by century only)».
+- **وارسی پس از اجرا:** `author_ids = 1110 AND copy_from >= 1001 AND copy_to <= 1100` در موتور ۲۵۴ بود. `copy_century` کناره و `SearchFilters::apply` روی پایگاه هم ۲۵۴ بودند. `/search?type=manuscripts&author_id=1110&century=11` در سایت ۲۵۴ نسخه نشان می‌دهد. `/tmp` کانتینر فایلی از این اجرا ندارد.
+- **برای جلسه‌های بعد:** برای import بلند، فرمان را در کانتینر با `nohup … &` اجرا کنید و پایانش را با `ps` بپایید، چون اتصال ssh پس از حدود ۱۰ دقیقه بسته می‌شود.
 
 ### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
 - **`patrons`:**
