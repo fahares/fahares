@@ -9210,7 +9210,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
      - بار سرور در این زمان به ۹ رسید. نخستین بازدیدهای `/insights` پس از آن ۲۲ و سپس ۸٫۷ ثانیه طول کشیدند، با این‌که از cache خوانده می‌شدند. بازدید سوم ۱٫۹ ثانیه بود.
   3. `php artisan fahares:build-insights`: ۱۹٫۴ ثانیه، با «242583 dated copies (75%, 90849 by century only)».
 - **وارسی پس از اجرا:** `author_ids = 1110 AND copy_from >= 1001 AND copy_to <= 1100` در موتور ۲۵۴ بود. `copy_century` کناره و `SearchFilters::apply` روی پایگاه هم ۲۵۴ بودند. `/search?type=manuscripts&author_id=1110&century=11` در سایت ۲۵۴ نسخه نشان می‌دهد. `/tmp` کانتینر فایلی از این اجرا ندارد.
-- **برای جلسه‌های بعد:** برای import بلند، فرمان را در کانتینر با `nohup … &` اجرا کنید و پایانش را با `ps` بپایید، چون اتصال ssh پس از حدود ۱۰ دقیقه بسته می‌شود.
+- **برای جلسه‌های بعد:** برای import بلند، فرمان را در کانتینر با `nohup … &` اجرا کنید و پایانش را با `ps` بپایید، چون اتصال ssh در این اجرا پس از ۱۰ دقیقه بسته شد.
 
 ### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
 - **`patrons`:**
