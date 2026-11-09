@@ -81,6 +81,10 @@ return [
     'scripts_grid' => 8,
     'sources_shown' => 12,
 
+    // Patrons and facsimile copies (step 14.117): the names shown, the libraries shown
+    'patrons_shown' => 15,
+    'facsimile_libraries' => 10,
+
     'copy_places' => [
         'اصفهان' => ['lat' => 32.65, 'lon' => 51.67, 'aliases' => ['سپاهان', 'صفاهان', 'اصبهان']],
         'تهران' => ['lat' => 35.69, 'lon' => 51.39, 'aliases' => ['طهران']],

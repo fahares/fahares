@@ -260,6 +260,60 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(1067, $lib['mean'], 'the middles of 1001-1100 and 1067-1100');
     }
 
+    public function test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart()
+    {
+        $author = $this->person();
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copies($work, 3, ['commissioned_by' => 'ظل السلطان', 'copy_date_raw' => 'قرن 13']);
+        $this->copy($work, ['commissioned_by' => 'ظل السلطان', 'copy_date_raw' => '1310ق']);
+        $this->copies($work, 2, ['commissioned_by' => 'فرهاد میرزا']);
+        $this->copy($work, ['commissioned_by' => 'میرزا محمد']);
+        $this->copy($work, ['commissioned_by' => 'پدرش ملا محمد ابراهیم']);
+        $this->copy($work, ['commissioned_by' => 'مؤلف']);
+        $this->copies($work, 3, ['copy_date_raw' => '1250ق']);
+        // Two forms of one name: counted together, shown as written most
+        $this->copies($work, 2, ['commissioned_by' => 'آیة الله بروجردی']);
+        $this->copy($work, ['commissioned_by' => 'ایه الله بروجردی']);
+
+        $pt = Insights::build(InsightsScope::fromArray(['author' => $author->id]))['patrons'];
+
+        $this->assertSame([['name' => 'ظل السلطان', 'count' => 4, 'centuries' => [13, 14]], ['name' => 'آیة الله بروجردی', 'count' => 3, 'centuries' => null],
+            ['name' => 'فرهاد میرزا', 'count' => 2, 'centuries' => null]], $pt['items'], 'a name of one copy is not listed');
+        $this->assertSame([12, 4, 2], [$pt['with_patron'], $pt['names'], $pt['kin']]);
+        $thirteenth = collect($pt['centuries'])->firstWhere('century', 13);
+        $this->assertSame([6, 3], [$thirteenth['copies'], $thirteenth['count']]);
+        $this->assertTrue(Insights::isKin('برادرش محمد ظاهر'));
+        $this->assertTrue(Insights::isKin('پسر عمش شیخ احمد'));
+        $this->assertFalse(Insights::isKin('استاد هادی ارفع کرمانشاهی'));
+        $this->assertFalse(Insights::isKin('داریوش میرزا'));
+    }
+
+    public function test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope()
+    {
+        $author = $this->person();
+        $library = $this->library();
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copies($work, 12, ['library_id' => $library->id, 'is_facsimile' => true]);
+        $this->copies($work, 4, ['library_id' => $library->id]);
+
+        $fx = Insights::build(InsightsScope::fromArray(['author' => $author->id]))['facsimiles'];
+        $this->assertSame([12, 75.0], [$fx['count'], $fx['share']]);
+        $this->assertSame([['id' => $library->id, 'key' => $library->getRouteKey(), 'name' => $library->name, 'city' => 'تهران', 'count' => 12, 'holdings' => 16, 'share' => 75.0]], $fx['libraries']);
+
+        $originals = InsightsScope::fromArray(['author' => $author->id, 'facsimile' => '0']);
+        $this->assertSame(4, Insights::build($originals)['totals']['manuscripts']);
+        $this->assertSame(['author_id' => $author->id, 'facsimile' => '0'], $originals->searchParams('manuscripts'));
+        $this->assertSame(['آثار ' . $author->name, 'اصل (بی نسخه‌های عکسی)'], array_column($originals->labels(), 1));
+        $this->assertTrue(InsightsScope::fromArray(['facsimile' => '2'])->isEmpty());
+
+        $this->get(route('insights', ['author' => $author->id]))->assertOk()
+            ->assertSee('نسخه‌های عکسی')
+            ->assertSee(e(route('insights', ['author' => $author->id, 'facsimile' => '0'])), false)
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'facsimile' => '1', 'author_id' => $author->id])), false);
+        $this->get(route('insights', ['author' => $author->id, 'facsimile' => '1']))->assertOk()
+            ->assertDontSee('آمار بی نسخه‌های عکسی');
+    }
+
     public function test_the_scoped_page_names_its_scope_and_carries_it_into_search_links()
     {
         $library = $this->library('شیراز');
@@ -304,7 +358,7 @@ class InsightsScopeTest extends TestCase
         $this->copy($this->work(), ['library_id' => $library->id]);
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
-        Cache::forever('insights.v5', Insights::build());
+        Cache::forever('insights.v6', Insights::build());
         $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');
