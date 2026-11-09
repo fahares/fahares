@@ -18,7 +18,8 @@ class Insights
     // v2: the timelines read the date ranges and their hedges (backlog item 104)
     // v3: places of composition, movement of copies, subjects and features per century (backlog item 107)
     // v4: scribes, libraries, sizes, languages and scripts per century, sources (backlog item 107, charts 5-9)
-    private const CACHE_KEY = 'insights.v4';
+    // v5: the map, the scribes and the libraries read the range of the copy date (step 14.115)
+    private const CACHE_KEY = 'insights.v5';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -320,46 +321,54 @@ class Insights
 
     /**
      * The cities of copying (copy_place) and of composition (works.composition_place, backlog item 107), each with
-     * its count per century: of the copy's year, and of the work's composition year.
+     * its count per century: the century the whole range of the copy's date, or of the work's composition date,
+     * lies in (step 14.115), as the century filter of the search takes it. A range across two centuries counts in
+     * the city's total only; a copy dated by its century alone («قرن 11») counts in that century.
      */
     private static function places(InsightsScope $scope, int $total, int $totalWorks): array
     {
         [$from, $to] = config('insights.centuries');
+        $span = (int) config('insights.exact_span');
         $copies = $scope->manuscripts()
             ->whereNotNull('copy_place')->where('copy_place', '!=', '')
-            ->selectRaw('copy_place AS place, FLOOR((copy_date_hijri_year - 1) / 100) + 1 AS century, COUNT(*) AS n')
-            ->groupBy('place', 'century')
+            ->selectRaw('copy_place AS place, ' . self::oneCentury('manuscripts.copy_date_from', 'manuscripts.copy_date_to') . ' AS century, '
+                . "manuscripts.copy_date_to - manuscripts.copy_date_from > {$span} AS wide, COUNT(*) AS n")
+            ->groupBy('place', 'century', 'wide')
             ->get();
         $works = $scope->works()
             ->whereNotNull('composition_place')->where('composition_place', '!=', '')
-            ->selectRaw('composition_place AS place, FLOOR((composition_year_hijri - 1) / 100) + 1 AS century, COUNT(*) AS n')
-            ->groupBy('place', 'century')
+            ->selectRaw('composition_place AS place, ' . self::oneCentury('works.composition_date_from', 'works.composition_date_to') . ' AS century, '
+                . "works.composition_date_to - works.composition_date_from > {$span} AS wide, COUNT(*) AS n")
+            ->groupBy('place', 'century', 'wide')
             ->get();
 
         $cities = [];
         $cityOf = [];
         $layer = function (iterable $rows, string $count, string $centuries) use (&$cities, &$cityOf, $from, $to) {
-            $withPlace = 0;
-            $mapped = 0;
+            $sums = ['with_place' => 0, 'mapped' => 0, 'by_century' => 0, 'century_only' => 0];
             foreach ($rows as $row) {
-                $withPlace += $row->n;
+                $sums['with_place'] += $row->n;
                 $city = $cityOf[$row->place] ??= (CopyPlaces::cityOf($row->place) ?? '');
                 if ($city === '') {
                     continue;
                 }
-                $mapped += $row->n;
+                $sums['mapped'] += $row->n;
                 $cities[$city] ??= ['count' => 0, 'centuries' => [], 'works' => 0, 'work_centuries' => []];
                 $cities[$city][$count] += $row->n;
                 $c = (int) $row->century;
                 if ($row->century !== null && $c >= $from && $c <= $to) {
                     $cities[$city][$centuries][$c] = ($cities[$city][$centuries][$c] ?? 0) + $row->n;
+                    $sums['by_century'] += $row->n;
+                    $sums['century_only'] += $row->wide ? $row->n : 0;
                 }
             }
 
-            return [$withPlace, $mapped];
+            return $sums;
         };
-        [$withPlace, $mapped] = $layer($copies, 'count', 'centuries');
-        [$worksWithPlace, $worksMapped] = $layer($works, 'works', 'work_centuries');
+        $copySums = $layer($copies, 'count', 'centuries');
+        $workSums = $layer($works, 'works', 'work_centuries');
+        [$withPlace, $mapped] = [$copySums['with_place'], $copySums['mapped']];
+        [$worksWithPlace, $worksMapped] = [$workSums['with_place'], $workSums['mapped']];
 
         $config = CopyPlaces::cities();
         $list = [];
@@ -376,6 +385,8 @@ class Insights
             'coverage' => self::share($mapped, $total),
             'place_coverage' => self::share($withPlace, $total),
             'mapped_share' => self::share($mapped, $withPlace),
+            'by_century' => $copySums['by_century'],
+            'century_only' => $copySums['century_only'],
             'composition' => [
                 'cities' => count(array_filter($list, fn ($c) => $c['works'] > 0)),
                 'with_place' => $worksWithPlace,
@@ -383,6 +394,8 @@ class Insights
                 'coverage' => self::share($worksMapped, $totalWorks),
                 'place_coverage' => self::share($worksWithPlace, $totalWorks),
                 'mapped_share' => self::share($worksMapped, $worksWithPlace),
+                'by_century' => $workSums['by_century'],
+                'century_only' => $workSums['century_only'],
             ],
         ];
     }
@@ -455,6 +468,12 @@ class Insights
      * The copies of one century: those whose date falls within one century, a year or the century itself; a range
      * across two centuries («قرن 12 و 13») has no one century and is left out of the charts per century below.
      */
+    /** The century a range lies in, as SQL: null when either end is open or the range crosses a century */
+    private static function oneCentury(string $from, string $to): string
+    {
+        return "CASE WHEN {$from} >= 1 AND {$to} IS NOT NULL AND FLOOR(({$from} - 1) / 100) = FLOOR(({$to} - 1) / 100) THEN FLOOR(({$from} - 1) / 100) + 1 END";
+    }
+
     private static function inOneCentury(InsightsScope $scope): \Illuminate\Database\Query\Builder
     {
         return $scope->manuscripts()
@@ -538,13 +557,17 @@ class Insights
     }
 
     /**
-     * The scribes with the most copies (backlog item 107, chart 5): each with the span of the years of his dated
-     * copies and the city he copied in most.
+     * The scribes with the most copies (backlog item 107, chart 5): each with the span of the known years of his
+     * copies (a date of up to `exact_span` years, at its middle), the centuries of his copies dated to one century
+     * (step 14.115), and the city he copied in most.
      */
     private static function scribes(InsightsScope $scope): array
     {
+        $span = (int) config('insights.exact_span');
+        $year = "CASE WHEN manuscripts.copy_date_to - manuscripts.copy_date_from <= {$span} THEN FLOOR((manuscripts.copy_date_from + manuscripts.copy_date_to) / 2) END";
+        $century = self::oneCentury('manuscripts.copy_date_from', 'manuscripts.copy_date_to');
         $top = $scope->manuscripts()->whereNotNull('scribe_id')
-            ->selectRaw('scribe_id, COUNT(*) AS n, MIN(copy_date_hijri_year) AS y0, MAX(copy_date_hijri_year) AS y1')
+            ->selectRaw("scribe_id, COUNT(*) AS n, MIN({$year}) AS y0, MAX({$year}) AS y1, MIN({$century}) AS c0, MAX({$century}) AS c1")
             ->groupBy('scribe_id')->orderByDesc('n')->limit(config('insights.scribes_shown'))
             ->get()->keyBy('scribe_id');
         $places = $scope->manuscripts()->whereIn('scribe_id', $top->keys())
@@ -569,7 +592,8 @@ class Insights
                 $city = array_key_first($cities[$id]);
             }
             $items[] = ['id' => (int) $id, 'key' => $people[$id]->getRouteKey(), 'name' => $people[$id]->name, 'count' => (int) $row->n,
-                'from' => $row->y0 === null ? null : (int) $row->y0, 'to' => $row->y1 === null ? null : (int) $row->y1, 'city' => $city];
+                'from' => $row->y0 === null ? null : (int) $row->y0, 'to' => $row->y1 === null ? null : (int) $row->y1,
+                'centuries' => $row->c0 === null ? null : [(int) $row->c0, (int) $row->c1], 'city' => $city];
         }
 
         return [
@@ -581,12 +605,16 @@ class Insights
 
     /**
      * The libraries of the scope (chart 6): the largest, and the oldest by the mean year of their dated copies,
-     * among those with enough dated copies for a mean to say something.
+     * among those with enough dated copies for a mean to say something. A copy is dated when its date is within
+     * one century at most, and counts at the middle of its range: «قرن 11» at 1050 (step 14.115).
      */
     private static function libraries(InsightsScope $scope): array
     {
+        $span = (int) config('insights.exact_span');
+        $dated = 'manuscripts.copy_date_to - manuscripts.copy_date_from <= 100';
         $rows = $scope->manuscripts()->whereNotNull('library_id')
-            ->selectRaw('library_id, COUNT(*) AS n, COUNT(copy_date_hijri_year) AS dated, AVG(copy_date_hijri_year) AS mean')
+            ->selectRaw("library_id, COUNT(*) AS n, SUM({$dated}) AS dated, SUM({$dated} AND manuscripts.copy_date_to - manuscripts.copy_date_from > {$span}) AS wide, "
+                . "AVG(CASE WHEN {$dated} THEN (manuscripts.copy_date_from + manuscripts.copy_date_to) / 2 END) AS mean")
             ->groupBy('library_id')->get();
         $min = config('insights.oldest_min_dated');
         $largest = $rows->sortByDesc('n')->take(config('insights.libraries_shown'));
@@ -595,7 +623,7 @@ class Insights
             ->get(['id', 'name', 'city', 'slug'])->keyBy('id');
         $row = fn ($r) => isset($libraries[$r->library_id]) ? [
             'id' => (int) $r->library_id, 'key' => $libraries[$r->library_id]->getRouteKey(), 'name' => $libraries[$r->library_id]->name,
-            'city' => $libraries[$r->library_id]->city, 'count' => (int) $r->n, 'dated' => (int) $r->dated,
+            'city' => $libraries[$r->library_id]->city, 'count' => (int) $r->n, 'dated' => (int) $r->dated, 'century_only' => (int) $r->wide,
             'mean' => $r->mean === null ? null : (int) round($r->mean),
         ] : null;
 

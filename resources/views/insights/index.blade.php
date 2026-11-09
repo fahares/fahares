@@ -378,11 +378,13 @@
                 جای کتابت: بر پایه‌ی {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
                 جای کتابت برای {{ Fa::num($p['with_place']) }} نسخه ({{ $pct($p['place_coverage']) }}) ثبت شده و {{ $pct($p['mapped_share']) }} آن‌ها به یکی از {{ Fa::num(count(config('insights.copy_places'))) }} شهر شناخته‌شده رسید؛
                 نام‌های کهن و گونه‌گون یک شهر (طهران، سپاهان، توس، قسطنطنیه …) یکی شمرده شده‌اند و جاهایی چون «ایران» یا «هندوستان» که شهر نیستند، روی نقشه نیامده‌اند.
+                سده‌ی هر نسخه، سده‌ای است که کل بازه‌ی تاریخش در آن است. از نسخه‌های روی نقشه، سده‌ی {{ Fa::num($p['by_century']) }} نسخه روشن است و {{ Fa::num($p['century_only']) }} نسخه از آن‌ها تنها سده یا بخشی از سده دارند («قرن ۱۱»، «اواخر قرن ۱۲»).
+                نسخه‌ای که بازه‌اش از دو سده می‌گذرد یا تاریخ ندارد، تنها در «همه» شمرده می‌شود.
                 <span x-show="c !== 'all' && layer === 'copy'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخه‌ی جای‌دار و تاریخ‌دار هست.</span>
             </p>
             <p x-show="layer !== 'copy'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
                 جای تألیف: تنها {{ Fa::num($cp['with_place']) }} اثر، یعنی {{ $pct($cp['place_coverage']) }} آثار، جای تألیف دارند و {{ Fa::num($cp['mapped']) }} اثر از آن‌ها ({{ $pct($cp['mapped_share']) }}) به یکی از همین شهرها رسید.
-                پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند و سده‌ی هر اثر، سده‌ی سال تألیف آن است.
+                پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند. سده‌ی هر اثر، سده‌ای است که کل بازه‌ی تاریخ تألیفش در آن است؛ از آثار روی نقشه، سده‌ی {{ Fa::num($cp['by_century']) }} اثر روشن است.
                 جست‌وجو فیلتر جای تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
             </p>
             </div>
@@ -508,7 +510,10 @@
     @php
         $sb = $data['scribes'];
         $lb = $data['libraries'];
-        $years = fn ($from, $to) => $from === null ? '' : ($from === $to ? Fa::digits($from) : Fa::digits($from) . ' تا ' . Fa::digits($to));
+        // Known years, or else the centuries of the copies dated by their century alone
+        $years = fn (array $row) => $row['from'] !== null
+            ? ($row['from'] === $row['to'] ? Fa::digits($row['from']) : Fa::digits($row['from']) . ' تا ' . Fa::digits($row['to']))
+            : ($row['centuries'] ? ($row['centuries'][0] === $row['centuries'][1] ? 'سده‌ی ' . Fa::digits($row['centuries'][0]) : 'سده‌های ' . Fa::digits($row['centuries'][0]) . ' تا ' . Fa::digits($row['centuries'][1])) : '');
     @endphp
     <div class="grid lg:grid-cols-2 gap-8">
         @if(! $scope->get('scribe') && count($sb['items']) > 1)
@@ -526,7 +531,7 @@
                         @foreach($sb['items'] as $row)
                             <tr class="border-b border-line last:border-0 hover:bg-paper">
                                 <td class="px-3 py-2 align-top"><a href="{{ route('people.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a></td>
-                                <td class="px-3 py-2 align-top text-xs text-muted tabular-nums">{{ $years($row['from'], $row['to']) }}@if($row['from'] !== null && $row['city']) · @endif{{ $row['city'] }}</td>
+                                <td class="px-3 py-2 align-top text-xs text-muted tabular-nums">{{ $years($row) }}@if($years($row) !== '' && $row['city']) · @endif{{ $row['city'] }}</td>
                                 <td class="px-3 py-2 align-top text-left"><a href="{{ $search('manuscripts', ['scribe_id' => $row['id']]) }}" class="text-xs tabular-nums text-ink hover:text-cinnabar">{{ Fa::num($row['count']) }}</a></td>
                             </tr>
                         @endforeach
@@ -535,7 +540,8 @@
             </x-ui.card>
             <p class="mt-3 text-xs text-muted leading-relaxed">
                 کاتب شناخته (پیوندشده به یک شخص) برای {{ Fa::num($sb['with_scribe']) }} نسخه از {{ Fa::num($sb['scribes']) }} کاتب ثبت است.
-                سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است و شهر، شهری که بیشترین نسخه‌ی جای‌دارش در آن کتابت شده است.
+                سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است (تاریخی که تا {{ Fa::num(config('insights.exact_span')) }} سال دامنه دارد، با میانه‌اش). کاتبی که نسخه‌ی سال‌دار ندارد، سده‌ی نسخه‌هایی را دارد که تنها سده‌شان آمده است.
+                شهر، شهری است که بیشترین نسخه‌ی جای‌دارش در آن کتابت شده است.
             </p>
         </x-ui.section>
         @endif
@@ -563,7 +569,7 @@
                                     <span class="text-xs text-muted">{{ $row['city'] }}</span>
                                     <span class="leader" aria-hidden="true"></span>
                                     @if($list === 'oldest')
-                                        <span class="text-xs text-muted tabular-nums" title="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخه‌ی سال‌دار">میانگین {{ Fa::digits($row['mean']) }}ق</span>
+                                        <span class="text-xs text-muted tabular-nums" title="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخه‌ی تاریخ‌دار{{ $row['century_only'] ? '، از جمله ' . Fa::num($row['century_only']) . ' نسخه که تنها سده یا بخشی از سده دارند' : '' }}">میانگین {{ Fa::digits($row['mean']) }}ق</span>
                                     @else
                                         <a href="{{ $search('manuscripts', ['library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
                                     @endif
@@ -580,7 +586,8 @@
                 @endforeach
                 <p class="mt-4 text-xs text-muted leading-relaxed">
                     {{ Fa::num($lb['count']) }} کتابخانه در این آمار نسخه دارند.
-                    «کهن‌ترین» بر پایه‌ی میانگین سال کتابت نسخه‌های سال‌دار هر کتابخانه است و تنها کتابخانه‌هایی که دست‌کم {{ Fa::num($lb['min_dated']) }} نسخه‌ی سال‌دار دارند در آن آمده‌اند.
+                    «کهن‌ترین» بر پایه‌ی میانگین سال کتابت نسخه‌های تاریخ‌دار هر کتابخانه است و تنها کتابخانه‌هایی که دست‌کم {{ Fa::num($lb['min_dated']) }} نسخه‌ی تاریخ‌دار دارند در آن آمده‌اند.
+                    نسخه‌ای که تاریخش تا یک سده دامنه دارد («قرن ۱۱») با میانه‌ی بازه‌اش (۱۰۵۰) شمرده می‌شود. بازه‌های بازتر و تاریخ‌های باز («پیش از ۱۱۰۰») کنار می‌مانند.
                 </p>
                 </div>
             </x-ui.card>
