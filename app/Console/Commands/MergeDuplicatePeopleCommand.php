@@ -32,7 +32,11 @@ class MergeDuplicatePeopleCommand extends Command
             $this->error("Report not found: {$reportPath}");
             return self::FAILURE;
         }
-        $groups = json_decode(file_get_contents($reportPath), true)['groups'] ?? [];
+        $file = json_decode(file_get_contents($reportPath), true);
+        $groups = $file['groups'] ?? [];
+        // A loose report (step 14.121) has its own tier, and its groups are checked by the members' names
+        $this->loose = (bool) ($file['loose'] ?? false);
+        $tier = $this->loose ? 'clear' : $this->option('tier');
 
         $decisionsPath = $this->option('decisions') ?: database_path('data/duplicate_people_decisions.json');
         $decisions = is_file($decisionsPath)
@@ -46,7 +50,7 @@ class MergeDuplicatePeopleCommand extends Command
 
         foreach ($groups as $group) {
             $decision = $decisions[$group['key']] ?? null;
-            if ($group['tier'] === $this->option('tier')) {
+            if ($group['tier'] === $tier) {
                 $ids = array_column($group['members'], 'id');
                 $targetId = $group['target_id'];
             } elseif (($decision['decision'] ?? null) === 'merge') {
@@ -56,7 +60,8 @@ class MergeDuplicatePeopleCommand extends Command
                 continue;
             }
 
-            $target = $this->current($targetId, $group['key']);
+            $names = array_column($group['members'], 'name', 'id');
+            $target = $this->current($targetId, $group['key'], $names);
             if (! $target) {
                 $this->warn("group «{$group['key']}»: record #{$targetId} missing or renamed; skipped.");
                 $stats['skipped']++;
@@ -68,7 +73,7 @@ class MergeDuplicatePeopleCommand extends Command
                 if ($limit && $stats['merges'] + $merged >= $limit) {
                     break;
                 }
-                $source = $this->current($sourceId, $group['key']);
+                $source = $this->current($sourceId, $group['key'], $names);
                 if (! $source || $source->id === $target->id) {
                     continue;
                 }
@@ -100,10 +105,19 @@ class MergeDuplicatePeopleCommand extends Command
     /**
      * The record as it is now, following merge redirects, and only if its name still belongs to the group.
      */
-    protected function current(int $id, string $key): ?Person
+    protected function current(int $id, string $key, array $names = []): ?Person
     {
         $person = Person::find($id) ?? Person::find(EntityRedirect::resolveTargetId('people', $id));
+        if (! $person) {
+            return null;
+        }
+        // A loose group: the record (or the one it was merged into) still has a name of the group
+        if ($this->loose) {
+            return in_array($person->name, $names, true) ? $person : null;
+        }
 
-        return $person && FindDuplicatePeopleCommand::key($person->name) === $key ? $person : null;
+        return FindDuplicatePeopleCommand::key($person->name) === $key ? $person : null;
     }
+
+    private bool $loose = false;
 }

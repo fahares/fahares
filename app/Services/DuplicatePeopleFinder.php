@@ -154,30 +154,15 @@ class DuplicatePeopleFinder
      */
     public static function groups(): array
     {
-        $copyYears = DB::table('manuscript_people as s')->where('s.role', ManuscriptPerson::SCRIBE)
-            ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
-            ->whereNotNull('s.person_id')->whereNotNull('m.copy_date_hijri_year')
-            ->groupBy('s.person_id')
-            ->selectRaw('s.person_id, MIN(m.copy_date_hijri_year) lo, MAX(m.copy_date_hijri_year) hi')
-            ->get()->keyBy('person_id');
+        $copyYears = self::copyYears();
 
         $groups = [];
-        $people = DB::table('people')->select('id', 'name', 'aliases', 'death_year_hijri', 'century_hijri', 'works_count', 'manuscripts_count')->cursor();
-        foreach ($people as $p) {
-            $k = self::key($p->name);
+        foreach (self::people($copyYears) as $member) {
+            $k = self::key($member['name']);
             if (mb_strlen($k) < 4) {
                 continue;
             }
-            $years = $copyYears[$p->id] ?? null;
-            $groups[$k][] = [
-                'id' => (int) $p->id,
-                'name' => $p->name,
-                'death' => $p->death_year_hijri ? (int) $p->death_year_hijri : null,
-                'century' => $p->century_hijri ? (int) $p->century_hijri : null,
-                'copies' => $years ? [(int) $years->lo, (int) $years->hi] : null,
-                'works' => (int) $p->works_count,
-                'manuscripts' => (int) $p->manuscripts_count,
-            ];
+            $groups[$k][] = $member;
         }
 
         $report = [];
@@ -200,5 +185,164 @@ class DuplicatePeopleFinder
         usort($report, fn($a, $b) => [$a['tier'], -count($a['members'])] <=> [$b['tier'], -count($b['members'])]);
 
         return ['stats' => $stats, 'groups' => $report];
+    }
+
+    /** The span of copy years of each scribe record */
+    protected static function copyYears(): \Illuminate\Support\Collection
+    {
+        return DB::table('manuscript_people as s')->where('s.role', ManuscriptPerson::SCRIBE)
+            ->join('manuscripts as m', 'm.id', '=', 's.manuscript_id')
+            ->whereNotNull('s.person_id')->whereNotNull('m.copy_date_hijri_year')
+            ->groupBy('s.person_id')
+            ->selectRaw('s.person_id, MIN(m.copy_date_hijri_year) lo, MAX(m.copy_date_hijri_year) hi')
+            ->get()->keyBy('person_id');
+    }
+
+    /** Every person record as a group member, with its other names */
+    protected static function people($copyYears): \Generator
+    {
+        $people = DB::table('people')->select('id', 'name', 'aliases', 'death_year_hijri', 'century_hijri', 'works_count', 'manuscripts_count')->cursor();
+        foreach ($people as $p) {
+            $years = $copyYears[$p->id] ?? null;
+            yield [
+                'id' => (int) $p->id,
+                'name' => $p->name,
+                'death' => $p->death_year_hijri ? (int) $p->death_year_hijri : null,
+                'century' => $p->century_hijri ? (int) $p->century_hijri : null,
+                'copies' => $years ? [(int) $years->lo, (int) $years->hi] : null,
+                'works' => (int) $p->works_count,
+                'manuscripts' => (int) $p->manuscripts_count,
+                'aliases' => array_values(array_filter((array) json_decode((string) $p->aliases, true), 'is_string')),
+            ];
+        }
+    }
+
+    /** Words of address and rank a catalogue writes before a name or before the father's name («حاج», «ملا»). */
+    public const TITLES = ['ایه الله', 'ایت الله', 'ایه الله العظمی', 'ایت الله العظمی', 'علامه', 'حاج', 'حاجی', 'اقا', 'میرزا', 'شیخ', 'ملا', 'اخوند',
+        'مولی', 'مولانا', 'جناب', 'سرکار', 'مرحوم', 'استاد', 'حضرت'];
+
+    /**
+     * The key without the words of address (step 14.121): «حاج علی بن ملا محمد قاسم خوانساری» and «خوانساری، علی بن
+     * محمد قاسم» share it. «سید» and «میر» stay, as they tell a sayyid apart.
+     */
+    public static function looseKey(string $name): string
+    {
+        $n = TextNormalizer::normalize($name);
+        $n = preg_replace('/\([^)]*\)|«[^»]*»/u', ' ', $n);
+        if (preg_match('/^([^،,]+)[،,]\s*(.+)$/u', $n, $m)) {
+            $n = $m[2] . ' ' . $m[1];
+        }
+        $n = ' ' . preg_replace('/[،,.:؛\-–؟?!\[\]]/u', ' ', $n) . ' ';
+        foreach (array_map(fn ($t) => TextNormalizer::normalize($t), self::TITLES) as $title) {
+            $n = str_replace(" {$title} ", ' ', preg_replace('/\s+/u', ' ', $n));
+            $n = str_replace(" {$title} ", ' ', $n);
+        }
+
+        return implode('', self::tokens(trim($n)));
+    }
+
+    /**
+     * Groups the exact key leaves apart that are clearly one person (step 14.121): records whose names are the same
+     * but for the words of address, or a record named as another record's other name. Only groups of the «likely»
+     * tier whose names are not generic (two distinctive words, or a «X بن Y» name with one) and whose copies lie
+     * within 40 years; a record in two such groups is left out of both.
+     *
+     * @return array{stats: array<string, int>, groups: array<int, array>}
+     */
+    public static function looseGroups(): array
+    {
+        $members = [];
+        $byKey = [];
+        $byAlias = [];
+        foreach (self::people(self::copyYears()) as $member) {
+            $members[$member['id']] = $member;
+            $k = self::looseKey($member['name']);
+            if (mb_strlen($k) >= 6) {
+                $byKey[$k][] = $member['id'];
+            }
+            foreach ($member['aliases'] as $alias) {
+                $ak = self::looseKey($alias);
+                if (mb_strlen($ak) >= 6) {
+                    $byAlias[$ak][$member['id']] = $alias;
+                }
+            }
+        }
+
+        $candidates = [];
+        foreach ($byKey as $k => $ids) {
+            if (count($ids) > 1) {
+                $candidates[] = [$k, $ids, 'same name but for titles', []];
+            }
+        }
+        foreach ($byAlias as $k => $owners) {
+            // The other name of one record only, written as the name of others
+            $others = array_diff($byKey[$k] ?? [], array_keys($owners));
+            if (count($owners) === 1 && $others) {
+                $candidates[] = [$k, array_merge(array_keys($owners), $others), 'another record\'s other name', $owners];
+            }
+        }
+
+        $stats = ['clear' => 0, 'unclear' => 0, 'overlap' => 0];
+        $groups = [];
+        foreach ($candidates as [$k, $ids, $how, $named]) {
+            sort($ids);
+            $set = implode(',', $ids);
+            $group = array_map(fn ($id) => array_diff_key($members[$id], ['aliases' => true]), $ids);
+            // The exact key already reports it
+            if (count(array_unique(array_map(fn ($m) => self::key($m['name']), $group))) < 2 || isset($groups[$set])) {
+                continue;
+            }
+            [$tier, $reason] = self::tier($group);
+            // A record found by its other name is judged by that name
+            $asNamed = array_map(fn ($m) => isset($named[$m['id']]) ? ['name' => $named[$m['id']]] + $m : $m, $group);
+            if ($tier !== 'likely' || ! self::clear($asNamed)) {
+                $stats['unclear']++;
+
+                continue;
+            }
+            $groups[$set] = ['key' => $k, 'tier' => 'clear', 'reason' => "{$how}; {$reason}", 'target_id' => self::target($group), 'members' => $group];
+        }
+
+        $in = [];
+        foreach ($groups as $set => $group) {
+            foreach ($group['members'] as $m) {
+                $in[$m['id']][] = $set;
+            }
+        }
+        foreach (array_filter($in, fn ($sets) => count($sets) > 1) as $sets) {
+            foreach ($sets as $set) {
+                if (isset($groups[$set])) {
+                    unset($groups[$set]);
+                    $stats['overlap']++;
+                }
+            }
+        }
+        $stats['clear'] = count($groups);
+
+        return ['stats' => $stats, 'groups' => array_values($groups)];
+    }
+
+    /** Not a generic name, and copies within 40 years */
+    protected static function clear(array $group): bool
+    {
+        $distinct = min(array_map(fn ($m) => self::distinctive($m['name']), $group));
+        $withFather = min(array_map(fn ($m) => preg_match('/(^|\s)(بن|ابن)\s/u', TextNormalizer::normalize($m['name'])) ? 1 : 0, $group));
+        $words = min(array_map(fn ($m) => count(array_filter(preg_split('/[\s،]+/u', self::looseWords($m['name'])), fn ($w) => $w !== '' && $w !== 'بن')), $group));
+        $spans = array_values(array_filter(array_column($group, 'copies')));
+        $spread = $spans ? max(array_column($spans, 1)) - min(array_column($spans, 0)) : 0;
+
+        return ($distinct >= 2 || ($withFather && $distinct >= 1 && $words >= 4)) && $spread <= 40;
+    }
+
+    /** The name's words without the words of address, separated */
+    protected static function looseWords(string $name): string
+    {
+        $n = ' ' . preg_replace(['/\([^)]*\)|«[^»]*»/u', '/[،,.:؛\-–؟?!\[\]]/u'], ' ', TextNormalizer::normalize($name)) . ' ';
+        foreach (array_map(fn ($t) => TextNormalizer::normalize($t), self::TITLES) as $title) {
+            $n = str_replace(" {$title} ", ' ', preg_replace('/\s+/u', ' ', $n));
+            $n = str_replace(" {$title} ", ' ', $n);
+        }
+
+        return trim(preg_replace(['/(^|\s)ابن(\s|$)/u', '/\s+/u'], [' بن ', ' '], $n));
     }
 }
