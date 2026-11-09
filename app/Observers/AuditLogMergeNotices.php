@@ -16,8 +16,9 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * When a record is merged into another, each user whose suggestion on the removed record still waits for review
- * hears of it (backlog item 82, step 14.102). Manuscripts, works and libraries carry their open suggestions to the
- * kept record (`suggestion_ids` in the log); a person's stay on the removed record, which now redirects. Checked after
+ * hears of it (backlog item 82, step 14.102). Every merger carries the open suggestions to the kept record
+ * (`suggestion_ids` in the log; people since step 14.113); a person merge logged before that left them on the removed
+ * record, which now redirects, and they are found by its id. Checked after
  * the commit, so the suggestion the merge applied is no longer pending; the one who merged is not told.
  */
 class AuditLogMergeNotices
