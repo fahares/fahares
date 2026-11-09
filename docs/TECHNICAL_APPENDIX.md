@@ -9227,6 +9227,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - برچسب‌ها «اصل (بی نسخه‌های عکسی)» و «عکسی» هستند. `searchParams('manuscripts')` آن را `facsimile` می‌برد.
   - در فرم، با `x-model` و یک فیلد پنهان فرستاده می‌شود. «همه‌ی نسخه‌ها» پارامتری نمی‌فرستد.
 - **cache:** `CACHE_KEY` از `insights.v5` به `insights.v6` رسید. پس از استقرار `fahares:build-insights` اجرا شود.
+- **اجرای پروداکشن (پس از انتشار ۷۶، `4d25f0a8`):** `scripts/dev/prod-run insights-107 -- 'cd /app && php artisan fahares:build-insights'`، exit 0 در ۲۱٫۱ ثانیه: ۲۴۲٬۵۸۳ نسخه‌ی تاریخ‌دار (۹۰٬۸۴۹ تنها با سده). کلیدهای `patrons` و `facsimiles` در cache هستند و `/insights` و `/insights?facsimile=1` پاسخ ۲۰۰ می‌دهند.
 - **آزمون‌ها:**
   - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`
   - `InsightsScopeTest::test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope`
