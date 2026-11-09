@@ -9115,6 +9115,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
 - **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
 
+### گام ۱۴.۱۱۶: `sources:find-person-lives` و `sources:tie-person-lives`
+- **نامزدها ([FindPersonLivesCommand](../app/Console/Commands/FindPersonLivesCommand.php)):** شخص با `death_year_hijri` و `death_from = death_to`. برای هر منبع `kind = biographical`، نمایه‌ی بخش‌های متمایز نام از عنوان مدخل‌ها (بی `بن`، `محمد`، `علی` و دیگر بخش‌های رایج `ItemMatcher`). نامزد: `ItemMatcher::authorHits(نام یا نام دیگر، عنوان) >= 1` و `ItemMatcher::deathIn(وفات، عنوان + ۳۰۰ نویسه‌ی آغاز)`. شخصی که در آن منبع پیوند دارد، خوانده نمی‌شود. خروجی `--report` (JSON). روی `fahares_prod` حدود ۶ دقیقه.
+- **داوری:** جفت‌هایی با دقیقاً یک نامزدِ `hits >= 2` (۳٬۵۶۹) و جفت‌هایی با چند نامزدِ دوبخشی (۴۳۷)، در دسته‌های ۷۵تایی Sonnet با دستورالعمل `match | none | unsure` و اطمینان. نمونه‌ی ۱۲۰تایی پیش از داوری کامل: ۱۰۸ درست، ۱۰ نادرست، ۲ نامطمئن. نتیجه‌ی کل: ۳٬۳۳۱ تطبیق (همه با اطمینان ۷۰ به بالا)، ۵۶۶ «نه» و ۱۰۹ نامطمئن. Claude ۱۰۹ نامطمئن را داوری کرد: ۷۳ تطبیق با اطمینان ۷۲. جفت‌های تک‌بخشی (۱۱٬۵۹۴) داوری نشدند.
+- **فایل:** `database/data/person_lives_step14_116.json`، هر سطر `person_slug`، `source`، `item_key`، `volume`، `method` (`name_death_llm`)، `confidence`، `judged_by` و `evidence`.
+- **ساخت ([TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php)):** برای هر سطر، شخص با `slug` و مدخل با `source_id`، `item_key` و `volume_number`. کلید `legacy_type = person_life_by_name`، `legacy_id = person_id * 1000000 + source_id`. اگر شخص در آن منبع هر پیوندی دارد، `has_life`. سطر `source_entries` با `role entry`، `origin match` و `status unverified`. بخش «زندگی‌نامه در منابع» صفحه‌ی شخص هر پیوند شخص با `source_item_id` را نشان می‌دهد، پس تغییری در نما لازم نشد.
+- **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
+- **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
+- **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
+
 ### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
 - **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
 - **فایل:** `database/data/fankha_leading_author_step14_112.json` (`category: leading_author`، ۶ `work_updates`)، ساخته از `fahares_prod`.
