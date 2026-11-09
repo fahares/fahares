@@ -63,7 +63,7 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(InsightsScope::fromArray(['author' => $author->id, 'century' => '5-8'])->key(), $scope->key());
         $this->assertSame(['century' => '5-8'], $scope->without('author'));
         $this->assertSame(['آثار ' . $author->name, 'سده‌های ۵ تا ۸'], array_column($scope->labels(), 1));
-        $this->assertSame(['author'], $scope->unsearchable());
+        $this->assertSame(['author_id' => $author->id, 'year_from' => 401, 'year_to' => 800], $scope->searchParams('manuscripts'));
         $this->assertTrue(InsightsScope::fromArray(['century' => '16'])->isEmpty());
         $this->assertSame([7, 7], InsightsScope::fromArray(['century' => '7'])->get('century'));
     }
@@ -183,7 +183,7 @@ class InsightsScopeTest extends TestCase
 
         $data = Insights::build(InsightsScope::fromArray(['author' => $author->id]));
 
-        $this->assertSame([['id' => $scribe->id, 'key' => $scribe->getRouteKey(), 'name' => $scribe->name, 'count' => 3, 'from' => 1050, 'to' => 1250, 'city' => 'هرات']], $data['scribes']['items']);
+        $this->assertSame([['id' => $scribe->id, 'key' => $scribe->getRouteKey(), 'name' => $scribe->name, 'count' => 3, 'from' => 1050, 'to' => 1250, 'centuries' => [11, 13], 'city' => 'هرات']], $data['scribes']['items']);
         $this->assertSame([$old->id, $new->id], array_column($data['libraries']['largest'], 'id'));
         $this->assertSame(1065, $data['libraries']['largest'][0]['mean']);
         $this->assertSame([], $data['libraries']['oldest']); // fewer dated copies than oldest_min_dated
@@ -195,6 +195,123 @@ class InsightsScopeTest extends TestCase
         $this->assertSame($persian->id, $data['language_scripts']['languages']['rows'][0]['key']);
         $this->assertSame([['id' => $volume->id, 'title' => $volume->title, 'volume' => 2, 'library' => $old->name, 'count' => 2]], $data['sources']['items']);
         $this->assertSame(1, $data['sources']['unknown']);
+    }
+
+    public function test_a_catalogue_scope_takes_the_copies_the_volume_describes_and_its_links_keep_it()
+    {
+        $library = $this->library();
+        $volume = \App\Models\CatalogVolume::create(['title' => 'فهرست آزمایشی وصف ' . uniqid(), 'volume_number' => 1, 'library_id' => $library->id]);
+        $work = $this->work();
+        // Its own copies, and copies it describes that another catalogue holds as theirs
+        $copies = [$this->copy($work, ['library_id' => $library->id, 'catalog_volume_id' => $volume->id, 'copy_place' => 'هرات'])];
+        for ($i = 0; $i < 11; $i++) {
+            $copies[] = $this->copy($work, ['library_id' => $library->id, 'copy_place' => 'هرات']);
+        }
+        $this->copy($work, ['library_id' => $library->id, 'catalog_volume_id' => null]);
+        foreach ($copies as $m) {
+            \App\Models\SourceEntry::create(['source_id' => \App\Models\SourceVolume::find($volume->id)->source_id, 'source_volume_id' => $volume->id,
+                'citable_type' => Manuscript::class, 'citable_id' => $m->id, 'volume_number' => 1, 'page_start' => 1, 'origin' => \App\Models\SourceEntry::ORIGIN_MATCH]);
+        }
+        $scope = InsightsScope::fromArray(['catalog' => $volume->id, 'century' => '9-10']);
+
+        $this->assertSame(['source_volume_id' => $volume->id, 'year_from' => 801, 'year_to' => 1000], $scope->searchParams('manuscripts'));
+        $this->assertSame(12, Insights::build(InsightsScope::fromArray(['catalog' => $volume->id]))['totals']['manuscripts']);
+        $this->get(route('insights', ['catalog' => $volume->id]))->assertOk()
+            ->assertDontSee('را با خود نمی‌برد')
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات', 'source_volume_id' => $volume->id])), false);
+    }
+
+    public function test_a_century_scope_takes_a_copy_dated_by_its_century_alone()
+    {
+        $author = $this->person();
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copy($work, ['copy_date_raw' => 'قرن 9']);
+        $this->copy($work, ['copy_date_raw' => '850ق']);
+        $this->copy($work, ['copy_date_raw' => 'قرن 9 و 10']);
+
+        $this->assertSame(2, Insights::build(InsightsScope::fromArray(['author' => $author->id, 'century' => '9']))['totals']['manuscripts']);
+        $this->assertSame(3, Insights::build(InsightsScope::fromArray(['author' => $author->id, 'century' => '9-10']))['totals']['manuscripts']);
+    }
+
+    public function test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date()
+    {
+        $author = $this->person();
+        $scribe = $this->person('scribe');
+        $library = $this->library();
+        $work = $this->work(['author_id' => $author->id]);
+        $copy = fn (string $date) => $this->copy($work, ['scribe_id' => $scribe->id, 'library_id' => $library->id, 'copy_date_raw' => $date, 'copy_place' => 'هرات']);
+        $copy('قرن 11');
+        $copy('اواخر قرن 11');
+        $copy('قرن 11 و 12');
+        // A solar date held as a hijri year, with no range: no century, no year
+        $copy('1317ش')->forceFill(['copy_date_hijri_year' => 1317, 'copy_date_from' => null, 'copy_date_to' => null])->saveQuietly();
+
+        $data = Insights::build(InsightsScope::fromArray(['author' => $author->id]));
+        $herat = collect($data['places']['cities'])->firstWhere('name', 'هرات');
+
+        $this->assertSame(4, $herat['count']);
+        $this->assertSame([11 => 2], $herat['centuries'], 'the two copies within the 11th century; the one across two centuries and the undated one in the total only');
+        $this->assertSame(2, $data['places']['by_century']);
+        $this->assertSame(2, $data['places']['century_only']);
+        $item = $data['scribes']['items'][0];
+        $this->assertSame([null, null, [11, 11]], [$item['from'], $item['to'], $item['centuries']], 'no known year: the century of the copies');
+        $lib = $data['libraries']['largest'][0];
+        $this->assertSame([2, 2], [$lib['dated'], $lib['century_only']]);
+        $this->assertSame(1067, $lib['mean'], 'the middles of 1001-1100 and 1067-1100');
+    }
+
+    public function test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart()
+    {
+        $author = $this->person();
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copies($work, 3, ['commissioned_by' => 'ظل السلطان', 'copy_date_raw' => 'قرن 13']);
+        $this->copy($work, ['commissioned_by' => 'ظل السلطان', 'copy_date_raw' => '1310ق']);
+        $this->copies($work, 2, ['commissioned_by' => 'فرهاد میرزا']);
+        $this->copy($work, ['commissioned_by' => 'میرزا محمد']);
+        $this->copy($work, ['commissioned_by' => 'پدرش ملا محمد ابراهیم']);
+        $this->copy($work, ['commissioned_by' => 'مؤلف']);
+        $this->copies($work, 3, ['copy_date_raw' => '1250ق']);
+        // Two forms of one name: counted together, shown as written most
+        $this->copies($work, 2, ['commissioned_by' => 'آیة الله بروجردی']);
+        $this->copy($work, ['commissioned_by' => 'ایه الله بروجردی']);
+
+        $pt = Insights::build(InsightsScope::fromArray(['author' => $author->id]))['patrons'];
+
+        $this->assertSame([['name' => 'ظل السلطان', 'count' => 4, 'centuries' => [13, 14]], ['name' => 'آیة الله بروجردی', 'count' => 3, 'centuries' => null],
+            ['name' => 'فرهاد میرزا', 'count' => 2, 'centuries' => null]], $pt['items'], 'a name of one copy is not listed');
+        $this->assertSame([12, 4, 2], [$pt['with_patron'], $pt['names'], $pt['kin']]);
+        $thirteenth = collect($pt['centuries'])->firstWhere('century', 13);
+        $this->assertSame([6, 3], [$thirteenth['copies'], $thirteenth['count']]);
+        $this->assertTrue(Insights::isKin('برادرش محمد ظاهر'));
+        $this->assertTrue(Insights::isKin('پسر عمش شیخ احمد'));
+        $this->assertFalse(Insights::isKin('استاد هادی ارفع کرمانشاهی'));
+        $this->assertFalse(Insights::isKin('داریوش میرزا'));
+    }
+
+    public function test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope()
+    {
+        $author = $this->person();
+        $library = $this->library();
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copies($work, 12, ['library_id' => $library->id, 'is_facsimile' => true]);
+        $this->copies($work, 4, ['library_id' => $library->id]);
+
+        $fx = Insights::build(InsightsScope::fromArray(['author' => $author->id]))['facsimiles'];
+        $this->assertSame([12, 75.0], [$fx['count'], $fx['share']]);
+        $this->assertSame([['id' => $library->id, 'key' => $library->getRouteKey(), 'name' => $library->name, 'city' => 'تهران', 'count' => 12, 'holdings' => 16, 'share' => 75.0]], $fx['libraries']);
+
+        $originals = InsightsScope::fromArray(['author' => $author->id, 'facsimile' => '0']);
+        $this->assertSame(4, Insights::build($originals)['totals']['manuscripts']);
+        $this->assertSame(['author_id' => $author->id, 'facsimile' => '0'], $originals->searchParams('manuscripts'));
+        $this->assertSame(['آثار ' . $author->name, 'اصل (بی نسخه‌های عکسی)'], array_column($originals->labels(), 1));
+        $this->assertTrue(InsightsScope::fromArray(['facsimile' => '2'])->isEmpty());
+
+        $this->get(route('insights', ['author' => $author->id]))->assertOk()
+            ->assertSee('نسخه‌های عکسی')
+            ->assertSee(e(route('insights', ['author' => $author->id, 'facsimile' => '0'])), false)
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'facsimile' => '1', 'author_id' => $author->id])), false);
+        $this->get(route('insights', ['author' => $author->id, 'facsimile' => '1']))->assertOk()
+            ->assertDontSee('آمار بی نسخه‌های عکسی');
     }
 
     public function test_the_scoped_page_names_its_scope_and_carries_it_into_search_links()
@@ -226,7 +343,7 @@ class InsightsScopeTest extends TestCase
         $this->get(route('insights', ['author' => $author->id]))->assertOk()
             ->assertSee('آمار نسخه‌های آثار ' . $author->name)
             ->assertSee('در این دامنه تنها ۱ نسخه‌ی تاریخ‌دار هست که برای این نمودار بسنده نیست.')
-            ->assertSee('پیوند نمودارها به جست‌وجوی نسخه‌ها فیلتر مؤلف را با خود نمی‌برد');
+            ->assertDontSee('را با خود نمی‌برد');
     }
 
     public function test_a_scope_is_cached_by_its_filters_and_unknown_filters_show_the_whole_page()
@@ -241,7 +358,7 @@ class InsightsScopeTest extends TestCase
         $this->copy($this->work(), ['library_id' => $library->id]);
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
-        Cache::forever('insights.v4', Insights::build());
+        Cache::forever('insights.v6', Insights::build());
         $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');

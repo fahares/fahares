@@ -78,9 +78,6 @@
                     </li>
                 @endforeach
             </ul>
-            @if($scope->unsearchable())
-                <p class="text-[11px] text-muted max-w-2xl">پیوند نمودارها به جست‌وجوی نسخه‌ها فیلتر {{ implode(' و ', array_map(fn ($p) => ['author' => 'مؤلف', 'catalog' => 'فهرست'][$p], $scope->unsearchable())) }} را با خود نمی‌برد، چون جست‌وجوی نسخه‌ها آن را ندارد.</p>
-            @endif
         @endif
     </header>
 
@@ -381,11 +378,13 @@
                 جای کتابت: بر پایه‌ی {{ Fa::num($p['mapped']) }} نسخه، یعنی تنها {{ $pct($p['coverage']) }} نسخه‌ها.
                 جای کتابت برای {{ Fa::num($p['with_place']) }} نسخه ({{ $pct($p['place_coverage']) }}) ثبت شده و {{ $pct($p['mapped_share']) }} آن‌ها به یکی از {{ Fa::num(count(config('insights.copy_places'))) }} شهر شناخته‌شده رسید؛
                 نام‌های کهن و گونه‌گون یک شهر (طهران، سپاهان، توس، قسطنطنیه …) یکی شمرده شده‌اند و جاهایی چون «ایران» یا «هندوستان» که شهر نیستند، روی نقشه نیامده‌اند.
+                سده‌ی هر نسخه، سده‌ای است که کل بازه‌ی تاریخش در آن است. از نسخه‌های روی نقشه، سده‌ی {{ Fa::num($p['by_century']) }} نسخه روشن است و {{ Fa::num($p['century_only']) }} نسخه از آن‌ها تنها سده یا بخشی از سده دارند («قرن ۱۱»، «اواخر قرن ۱۲»).
+                نسخه‌ای که بازه‌اش از دو سده می‌گذرد یا تاریخ ندارد، تنها در «همه» شمرده می‌شود.
                 <span x-show="c !== 'all' && layer === 'copy'" x-cloak>در این سده <span x-text="total.toLocaleString('fa-IR')"></span> نسخه‌ی جای‌دار و تاریخ‌دار هست.</span>
             </p>
             <p x-show="layer !== 'copy'" x-cloak class="mt-3 text-xs text-muted leading-relaxed">
                 جای تألیف: تنها {{ Fa::num($cp['with_place']) }} اثر، یعنی {{ $pct($cp['place_coverage']) }} آثار، جای تألیف دارند و {{ Fa::num($cp['mapped']) }} اثر از آن‌ها ({{ $pct($cp['mapped_share']) }}) به یکی از همین شهرها رسید.
-                پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند و سده‌ی هر اثر، سده‌ی سال تألیف آن است.
+                پس این لایه بر بخش بسیار کوچکی از آثار تکیه دارد. گونه‌های نام یک شهر («مشهد رضوی»، «مشهد مقدس») یکی شمرده شده‌اند. سده‌ی هر اثر، سده‌ای است که کل بازه‌ی تاریخ تألیفش در آن است؛ از آثار روی نقشه، سده‌ی {{ Fa::num($cp['by_century']) }} اثر روشن است.
                 جست‌وجو فیلتر جای تألیف ندارد، پس شهرهای این لایه پیوند ندارند.
             </p>
             </div>
@@ -511,7 +510,10 @@
     @php
         $sb = $data['scribes'];
         $lb = $data['libraries'];
-        $years = fn ($from, $to) => $from === null ? '' : ($from === $to ? Fa::digits($from) : Fa::digits($from) . ' تا ' . Fa::digits($to));
+        // Known years, or else the centuries of the copies dated by their century alone
+        $years = fn (array $row) => $row['from'] !== null
+            ? ($row['from'] === $row['to'] ? Fa::digits($row['from']) : Fa::digits($row['from']) . ' تا ' . Fa::digits($row['to']))
+            : ($row['centuries'] ? ($row['centuries'][0] === $row['centuries'][1] ? 'سده‌ی ' . Fa::digits($row['centuries'][0]) : 'سده‌های ' . Fa::digits($row['centuries'][0]) . ' تا ' . Fa::digits($row['centuries'][1])) : '');
     @endphp
     <div class="grid lg:grid-cols-2 gap-8">
         @if(! $scope->get('scribe') && count($sb['items']) > 1)
@@ -529,7 +531,7 @@
                         @foreach($sb['items'] as $row)
                             <tr class="border-b border-line last:border-0 hover:bg-paper">
                                 <td class="px-3 py-2 align-top"><a href="{{ route('people.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a></td>
-                                <td class="px-3 py-2 align-top text-xs text-muted tabular-nums">{{ $years($row['from'], $row['to']) }}@if($row['from'] !== null && $row['city']) · @endif{{ $row['city'] }}</td>
+                                <td class="px-3 py-2 align-top text-xs text-muted tabular-nums">{{ $years($row) }}@if($years($row) !== '' && $row['city']) · @endif{{ $row['city'] }}</td>
                                 <td class="px-3 py-2 align-top text-left"><a href="{{ $search('manuscripts', ['scribe_id' => $row['id']]) }}" class="text-xs tabular-nums text-ink hover:text-cinnabar">{{ Fa::num($row['count']) }}</a></td>
                             </tr>
                         @endforeach
@@ -538,7 +540,8 @@
             </x-ui.card>
             <p class="mt-3 text-xs text-muted leading-relaxed">
                 کاتب شناخته (پیوندشده به یک شخص) برای {{ Fa::num($sb['with_scribe']) }} نسخه از {{ Fa::num($sb['scribes']) }} کاتب ثبت است.
-                سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است و شهر، شهری که بیشترین نسخه‌ی جای‌دارش در آن کتابت شده است.
+                سال‌ها، نخستین و واپسین سال نسخه‌های سال‌دار هر کاتب است (تاریخی که تا {{ Fa::num(config('insights.exact_span')) }} سال دامنه دارد، با میانه‌اش). کاتبی که نسخه‌ی سال‌دار ندارد، سده‌ی نسخه‌هایی را دارد که تنها سده‌شان آمده است.
+                شهر، شهری است که بیشترین نسخه‌ی جای‌دارش در آن کتابت شده است.
             </p>
         </x-ui.section>
         @endif
@@ -566,7 +569,7 @@
                                     <span class="text-xs text-muted">{{ $row['city'] }}</span>
                                     <span class="leader" aria-hidden="true"></span>
                                     @if($list === 'oldest')
-                                        <span class="text-xs text-muted tabular-nums" title="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخه‌ی سال‌دار">میانگین {{ Fa::digits($row['mean']) }}ق</span>
+                                        <span class="text-xs text-muted tabular-nums" title="میانگین سال کتابت {{ Fa::num($row['dated']) }} نسخه‌ی تاریخ‌دار{{ $row['century_only'] ? '، از جمله ' . Fa::num($row['century_only']) . ' نسخه که تنها سده یا بخشی از سده دارند' : '' }}">میانگین {{ Fa::digits($row['mean']) }}ق</span>
                                     @else
                                         <a href="{{ $search('manuscripts', ['library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
                                     @endif
@@ -583,10 +586,97 @@
                 @endforeach
                 <p class="mt-4 text-xs text-muted leading-relaxed">
                     {{ Fa::num($lb['count']) }} کتابخانه در این آمار نسخه دارند.
-                    «کهن‌ترین» بر پایه‌ی میانگین سال کتابت نسخه‌های سال‌دار هر کتابخانه است و تنها کتابخانه‌هایی که دست‌کم {{ Fa::num($lb['min_dated']) }} نسخه‌ی سال‌دار دارند در آن آمده‌اند.
+                    «کهن‌ترین» بر پایه‌ی میانگین سال کتابت نسخه‌های تاریخ‌دار هر کتابخانه است و تنها کتابخانه‌هایی که دست‌کم {{ Fa::num($lb['min_dated']) }} نسخه‌ی تاریخ‌دار دارند در آن آمده‌اند.
+                    نسخه‌ای که تاریخش تا یک سده دامنه دارد («قرن ۱۱») با میانه‌ی بازه‌اش (۱۰۵۰) شمرده می‌شود. بازه‌های بازتر و تاریخ‌های باز («پیش از ۱۱۰۰») کنار می‌مانند.
                 </p>
                 </div>
             </x-ui.card>
+        </x-ui.section>
+        @endif
+    </div>
+
+    {{-- 2e2. Patrons and facsimile copies (step 14.117) --}}
+    @php
+        $pt = $data['patrons'];
+        $fx = $data['facsimiles'];
+        $centuriesOf = fn (?array $c) => $c === null ? '' : ($c[0] === $c[1] ? 'سده‌ی ' . Fa::digits($c[0]) : 'سده‌های ' . Fa::digits($c[0]) . ' تا ' . Fa::digits($c[1]));
+        $ptCols = array_values(array_filter($pt['centuries'], fn ($c) => $c['copies'] >= config('insights.min_sample') * 10));
+        $ptMax = max([0.1, ...array_column($ptCols, 'share')]);
+        $showFacsimiles = $scope->get('facsimile') === null && $fx['count'] >= max(1, $min);
+    @endphp
+    <div class="grid lg:grid-cols-2 gap-8">
+        @if($pt['with_patron'] >= max(1, $min))
+        <x-ui.section title="سفارش‌دهندگان" id="patrons">
+            <x-ui.card>
+                @if(count($pt['items']))
+                    <ol class="text-sm">
+                        @foreach($pt['items'] as $row)
+                            <li class="py-1.5 border-b border-line last:border-0 flex items-baseline gap-2">
+                                <span class="text-ink">{{ $row['name'] }}</span>
+                                @if($row['centuries'])<span class="text-[11px] text-muted whitespace-nowrap">{{ $centuriesOf($row['centuries']) }}</span>@endif
+                                <span class="leader" aria-hidden="true"></span>
+                                <a href="{{ $search('manuscripts', ['f' => ['commissioned' => $row['name']]]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar"
+                                   title="جست‌وجوی این نام در سفارش‌دهنده‌ی نسخه‌ها">{{ Fa::num($row['count']) }}</a>
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
+                @if(count($ptCols) > 2)
+                    <p class="mt-5 mb-2 text-xs font-semibold text-ink">سهم نسخه‌های دارای سفارش‌دهنده در هر سده</p>
+                    <div class="flex items-end gap-1 sm:gap-2 h-28 border-b border-line-strong" role="list" aria-label="سهم نسخه‌های دارای سفارش‌دهنده در هر سده">
+                        @foreach($ptCols as $col)
+                            @php $tip = 'سده‌ی ' . Fa::digits($col['century']) . ': ' . Fa::num($col['count']) . ' از ' . Fa::num($col['copies']) . ' نسخه (' . $pct($col['share']) . ')'; @endphp
+                            <span role="listitem" class="flex-1 h-full flex flex-col justify-end items-center gap-1 min-w-0" title="{{ $tip }}" aria-label="{{ $tip }}">
+                                <span class="text-[10px] text-muted tabular-nums whitespace-nowrap">{{ $pct($col['share']) }}</span>
+                                <span class="w-full max-w-10 bg-gold/70 rounded-t-[4px]" style="height: max({{ $col['count'] ? 2 : 0 }}px, {{ round($col['share'] * 100 / $ptMax, 2) }}%)"></span>
+                            </span>
+                        @endforeach
+                    </div>
+                    <div class="flex gap-1 sm:gap-2 mt-1.5" aria-hidden="true">
+                        @foreach($ptCols as $col)
+                            <span class="flex-1 text-center text-[10px] text-ink tabular-nums">{{ Fa::digits($col['century']) }}</span>
+                        @endforeach
+                    </div>
+                @endif
+            </x-ui.card>
+            <p class="mt-3 text-xs text-muted leading-relaxed">
+                سفارش‌دهنده برای {{ Fa::num($pt['with_patron']) }} نسخه ({{ $pct($pt['coverage']) }}) ثبت است، با {{ Fa::num($pt['names']) }} نام گوناگون.
+                نام‌ها به رکورد شخص پیوند نخورده‌اند، پس گونه‌های یک نام («آیة الله بروجردی» و «آیة الله حاج آقا حسین طباطبائی بروجردی») جدا شمرده می‌شوند و جست‌وجوی یک نام نسخه‌های هم‌نام را هم می‌آورد.
+                @if($pt['kin']) {{ Fa::num($pt['kin']) }} نسخه که سفارش‌دهنده‌شان «مؤلف»، «خودش» یا یکی از خویشان کاتب («پدرش …») است، در فهرست نام‌ها نیامده‌اند. @endif
+                سده‌ها، سده‌ی نسخه‌هایی است که کل بازه‌ی تاریخشان در یک سده است؛ سده‌هایی که کمتر از {{ Fa::num(config('insights.min_sample') * 10) }} نسخه دارند، در نمودار نیامده‌اند.
+            </p>
+        </x-ui.section>
+        @endif
+
+        @if($showFacsimiles)
+        <x-ui.section title="نسخه‌های عکسی" id="facsimiles">
+            <x-ui.card>
+                <p class="text-sm text-ink">
+                    <a href="{{ $search('manuscripts', ['facsimile' => '1']) }}" class="font-semibold tabular-nums hover:text-cinnabar">{{ Fa::num($fx['count']) }}</a>
+                    نسخه، یعنی {{ $pct($fx['share']) }} نسخه‌های این آمار، عکسی‌اند.
+                </p>
+                @if(count($fx['libraries']) > 1)
+                    <ol class="mt-3 text-sm">
+                        @foreach($fx['libraries'] as $row)
+                            <li class="py-1.5 border-b border-line last:border-0 flex items-baseline gap-2">
+                                <a href="{{ route('libraries.show', $row['key']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a>
+                                <span class="text-xs text-muted">{{ $row['city'] }}</span>
+                                <span class="leader" aria-hidden="true"></span>
+                                <span class="text-[11px] text-muted tabular-nums" title="سهم عکسی‌ها در نسخه‌های این کتابخانه">{{ $pct($row['share']) }}</span>
+                                <a href="{{ $search('manuscripts', ['facsimile' => '1', 'library_id' => $row['id']]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar">{{ Fa::num($row['count']) }}</a>
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
+                <p class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                    <a href="{{ route('insights', $scope->query() + ['facsimile' => '0']) }}" class="text-cinnabar hover:underline">آمار بی نسخه‌های عکسی</a>
+                    <a href="{{ route('insights', $scope->query() + ['facsimile' => '1']) }}" class="text-cinnabar hover:underline">آمار تنها نسخه‌های عکسی</a>
+                </p>
+            </x-ui.card>
+            <p class="mt-3 text-xs text-muted leading-relaxed">
+                نسخه‌ی عکسی، عکس نسخه‌ای است که در کتابخانه‌ی دیگری نگه داشته می‌شود، و تاریخ و جای کتابتش همان نسخه‌ی اصل است.
+                پس نمودارهای این صفحه آن نسخه را، اگر اصلش هم در فهارس باشد، دو بار می‌شمارند. «آمار بی نسخه‌های عکسی» این دوباره‌شماری را کنار می‌گذارد.
+            </p>
         </x-ui.section>
         @endif
     </div>

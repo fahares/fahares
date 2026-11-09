@@ -28,7 +28,7 @@ class SearchFilters
      */
     public const PARAMS = [
         'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph'],
-        'manuscripts' => ['work_id', 'scribe_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
+        'manuscripts' => ['work_id', 'scribe_id', 'author_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'source_volume_id'],
         'people' => ['role', 'century'],
         // The printed entries of the sources (phase 7): which source, which volume
@@ -78,6 +78,9 @@ class SearchFilters
     public ?\App\Models\Work $work = null;
     public ?\App\Models\Person $person = null;
 
+    /** The author whose works, or the copies of whose works, are listed (the copies: step 14.114) */
+    public ?\App\Models\Person $author = null;
+
     /** The printed catalogue volume whose copies are listed (step 13.116) */
     public ?\App\Models\SourceVolume $sourceVolume = null;
 
@@ -104,11 +107,12 @@ class SearchFilters
         $this->language = isset($values['language_id']) ? Language::find($values['language_id']) : null;
         $this->source = isset($values['source_id']) ? Source::whereIn('kind', self::SOURCE_KINDS)->find($values['source_id']) : null;
         $this->work = isset($values['work_id']) ? \App\Models\Work::find($values['work_id']) : null;
-        $this->person = ($id = $values['scribe_id'] ?? $values['author_id'] ?? null) ? \App\Models\Person::find($id) : null;
+        $this->person = isset($values['scribe_id']) ? \App\Models\Person::find($values['scribe_id']) : null;
+        $this->author = isset($values['author_id']) ? \App\Models\Person::find($values['author_id']) : null;
         $this->sourceVolume = isset($values['source_volume_id']) ? \App\Models\SourceVolume::with('source')->find($values['source_volume_id']) : null;
         // A filter whose record is gone is no filter
         foreach (['subject_id' => 'subject', 'script_id' => 'script', 'language_id' => 'language', 'source_id' => 'source',
-            'work_id' => 'work', 'scribe_id' => 'person', 'author_id' => 'person', 'source_volume_id' => 'sourceVolume'] as $param => $record) {
+            'work_id' => 'work', 'scribe_id' => 'person', 'author_id' => 'author', 'source_volume_id' => 'sourceVolume'] as $param => $record) {
             if (isset($this->values[$param]) && ! $this->$record) {
                 unset($this->values[$param]);
             }
@@ -218,7 +222,6 @@ class SearchFilters
     {
         $quote = fn ($v) => '"' . addslashes((string) $v) . '"';
         $parts = [];
-        $yearField = $this->type === 'works' ? 'era_year' : 'copy_date_hijri_year';
 
         foreach ($this->values as $param => $value) {
             $parts[] = match ($param) {
@@ -249,7 +252,9 @@ class SearchFilters
         }
         if ($this->type !== 'people' && ($range = $this->yearRange())) {
             [$from, $to] = $range;
-            $parts[] = implode(' AND ', array_filter([$from !== null ? "{$yearField} >= {$from}" : null, $to !== null ? "{$yearField} <= {$to}" : null]));
+            // A copy's whole date within the years (Manuscript::copyBounds); a work's «era»
+            [$start, $end] = $this->type === 'works' ? ['era_year', 'era_year'] : ['copy_from', 'copy_to'];
+            $parts[] = implode(' AND ', array_filter([$from !== null ? "{$start} >= {$from}" : null, $to !== null ? "{$end} <= {$to}" : null]));
         }
 
         $parts = array_filter($parts);
@@ -274,7 +279,7 @@ class SearchFilters
                 // a lookup per manuscript (10 s for a subject over 324 000 manuscripts)
                 'work_id' => $query->where('manuscripts.work_id', $value),
                 'scribe_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)->where('person_id', $value)->select('manuscript_id')),
-                'author_id' => $query->whereIn('works.id', DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $value)->select('work_id')),
+                'author_id' => $query->whereIn($this->workKey(), DB::table('work_people')->where('role', WorkPerson::AUTHOR)->where('person_id', $value)->select('work_id')),
                 'subject_id' => $query->whereIn($this->workKey(), DB::table('subject_work')->whereIn('subject_id', $this->subjectFamily()->pluck('id'))->select('work_id')),
                 'language_id' => $query->whereIn($this->workKey(), DB::table('language_work')->where('language_id', $value)->select('work_id')),
                 'library_id' => $query->whereIn('manuscripts.library_id', $value),
@@ -310,8 +315,7 @@ class SearchFilters
                     ->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
                         ->whereIn('works.author_id', $between(DB::table('people')->whereNotNull('death_year_hijri'), 'death_year_hijri')->select('id'))));
             } else {
-                $from !== null && $query->where('copy_date_hijri_year', '>=', $from);
-                $to !== null && $query->where('copy_date_hijri_year', '<=', $to);
+                \App\Models\Manuscript::whereCopiedWithin($query, $from, $to);
             }
         }
 
@@ -331,7 +335,7 @@ class SearchFilters
             $label = match ($param) {
                 'work_id' => 'نسخه‌های اثر: ' . $this->work->primary_title,
                 'scribe_id' => 'کتابت ' . $this->person->name,
-                'author_id' => 'آثار ' . $this->person->name,
+                'author_id' => ($this->type === 'manuscripts' ? 'نسخه‌های آثار ' : 'آثار ') . $this->author->name,
                 'subject_id' => 'موضوع: ' . ($this->subject->title ?: $this->subject->name) . ($this->subject->children->isNotEmpty() ? ' (با زیرموضوع‌ها)' : ''),
                 'language_id' => 'زبان: ' . $this->language->name,
                 'library_id' => null,

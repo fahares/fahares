@@ -5,9 +5,11 @@ namespace App\Support;
 use App\Models\CatalogVolume;
 use App\Models\Language;
 use App\Models\Library;
+use App\Models\Manuscript;
 use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Script;
+use App\Models\SourceEntry;
 use App\Models\Subject;
 use App\Models\Work;
 use App\Models\WorkPerson;
@@ -24,7 +26,7 @@ use Illuminate\Support\Facades\DB;
 class InsightsScope
 {
     /** The query parameters, in the order the heading names them */
-    public const PARAMS = ['author', 'work', 'subject', 'language', 'scribe', 'library', 'city', 'copy_city', 'script', 'catalog', 'century'];
+    public const PARAMS = ['author', 'work', 'subject', 'language', 'scribe', 'library', 'city', 'copy_city', 'script', 'catalog', 'century', 'facsimile'];
 
     private const WORK_PARAMS = ['author', 'work', 'subject', 'language'];
 
@@ -66,6 +68,8 @@ class InsightsScope
                 'city' => mb_strlen($value) <= 60 && DB::table('manuscripts')->where('city', $value)->exists() ? $value : null,
                 'copy_city' => CopyPlaces::isCity($value) ? $value : null,
                 'century' => self::centuryRange($value),
+                // The originals only, or the facsimiles only (step 14.117)
+                'facsimile' => in_array($value, ['0', '1'], true) ? $value : null,
             };
             if ($record === null) {
                 continue;
@@ -145,7 +149,7 @@ class InsightsScope
         $this->close();
         $features = implode(', ', config('insights.features'));
         $copies = $this->conditions(DB::table('manuscripts'))->select(DB::raw(
-            "id, work_id, scribe_id, library_id, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, {$features}"
+            "id, work_id, scribe_id, library_id, catalog_volume_id, city, copy_place, copy_date_from, copy_date_to, copy_date_hijri_year, copy_date_certainty, folios, `lines`, commissioned_by, is_facsimile, {$features}"
         ));
         DB::statement('CREATE TEMPORARY TABLE ' . self::COPIES . ' (PRIMARY KEY (id), KEY (work_id)) ' . $copies->toSql(), $copies->getBindings());
 
@@ -221,9 +225,13 @@ class InsightsScope
                 'city' => $query->where('manuscripts.city', $value),
                 'copy_city' => $query->whereIn('manuscripts.copy_place', CopyPlaces::variants($value) ?: ['']),
                 'script' => $query->whereIn('manuscripts.id', DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id')),
-                'catalog' => $query->where('manuscripts.catalog_volume_id', $value),
-                // Copies dated within the centuries, the whole range of the date
-                'century' => $query->where('manuscripts.copy_date_from', '>=', ($value[0] - 1) * 100 + 1)->where('manuscripts.copy_date_to', '<=', $value[1] * 100),
+                // The copies the volume describes, as the search's catalogue filter and the source pages take them
+                // (step 14.114): its own copies, and those it describes after another catalogue
+                'catalog' => $query->whereIn('manuscripts.id', DB::table('source_entries')->where('source_volume_id', $value)
+                    ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', Manuscript::class)->select('citable_id')),
+                // Copies dated within the centuries, the whole range of the date, as the search takes them
+                'century' => Manuscript::whereCopiedWithin($query, ($value[0] - 1) * 100 + 1, $value[1] * 100),
+                'facsimile' => $query->where('manuscripts.is_facsimile', $value === '1'),
             };
         }
 
@@ -243,13 +251,13 @@ class InsightsScope
 
     /**
      * The scope's filters that a search tab has too, as its parameters, so a link from a chart to the search keeps
-     * them. The manuscripts tab has no author or catalogue filter, the works tab none on the copies.
+     * them: all of them on the manuscripts tab (step 14.114), the work filters on the works tab.
      */
     public function searchParams(string $type): array
     {
         $map = match ($type) {
             'manuscripts' => ['work' => 'work_id', 'scribe' => 'scribe_id', 'library' => 'library_id', 'city' => 'city', 'subject' => 'subject_id',
-                'language' => 'language_id', 'script' => 'script_id', 'copy_city' => 'copy_city'],
+                'language' => 'language_id', 'script' => 'script_id', 'copy_city' => 'copy_city', 'author' => 'author_id', 'catalog' => 'source_volume_id', 'facsimile' => 'facsimile'],
             'works' => $this->hasCopyFilter() ? [] : ['author' => 'author_id', 'subject' => 'subject_id', 'language' => 'language_id'],
             default => [],
         };
@@ -265,12 +273,6 @@ class InsightsScope
         }
 
         return $params;
-    }
-
-    /** The filters a link to the copies in the search cannot carry, for a note under the heading */
-    public function unsearchable(): array
-    {
-        return array_values(array_intersect(['author', 'catalog'], array_keys($this->values)));
     }
 
     /**
@@ -293,7 +295,8 @@ class InsightsScope
                 'city' => [$param, 'کتابخانه‌های ' . $value, null],
                 'copy_city' => [$param, 'کتابت‌شده در ' . $value, null],
                 'script' => [$param, 'به خط ' . $r->name, null],
-                'catalog' => [$param, 'فهرست ' . $r->title . ($r->volume_number ? ' ج ' . Fa::digits($r->volume_number) : ''), null],
+                'catalog' => [$param, (str_starts_with($r->title, 'فهرست') ? '' : 'فهرست ') . $r->title . ($r->volume_number ? ' ج ' . Fa::digits($r->volume_number) : ''), null],
+                'facsimile' => [$param, $value === '1' ? 'عکسی' : 'اصل (بی نسخه‌های عکسی)', null],
                 'century' => [$param, $value[0] === $value[1] ? 'سده‌ی ' . Fa::digits($value[0]) : 'سده‌های ' . Fa::digits($value[0]) . ' تا ' . Fa::digits($value[1]), null],
             };
         }

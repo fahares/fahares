@@ -212,7 +212,7 @@ class SearchController extends Controller
     {
         $names = [
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
-            'manuscripts' => ['library_id', 'city', 'scripts', 'copy_date_hijri_year', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
+            'manuscripts' => ['library_id', 'city', 'scripts', 'copy_century', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
             'people' => ['century_hijri', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
             'sources' => ['source_id', 'volume_number'],
         ][$type];
@@ -320,7 +320,9 @@ class SearchController extends Controller
             ->each(fn ($s) => $s->matching_count = $counted ? (int) ($facets['scripts'][$s->name] ?? 0) : $s->manuscripts_count)
             ->filter(fn ($s) => ! $counted || $s->matching_count > 0 || $s->id === $filters->script?->id)
             ->sortByDesc('matching_count')->values();
-        $options['centuries'] = $centuries('copy_date_hijri_year');
+        // The copies whose whole date lies in each century, as the century filter takes them (step 14.114)
+        $options['centuries'] = $counted ? collect($facets['copy_century'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])
+            ->filter(fn ($n, $c) => $c >= 1 && $c <= 15)->sortKeys()->all() : array_fill_keys(range(3, 14), null);
         $options['flags'] = collect(SearchFilters::FLAGS)->map(fn ($label, $flag) => [$label, $count($flag, 'true')])->all();
         $options['facsimile'] = ['0' => $count('is_facsimile', 'false'), '1' => $count('is_facsimile', 'true')];
         $options['copyCities'] = array_keys(CopyPlaces::cities());

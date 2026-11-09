@@ -9170,3 +9170,89 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **v2 درست نیست:** 65462. v2 سطر نام را در شرح نگه داشته است.
   - **بقیه:** متنِ میانِ شرح است که v2 کوتاه‌تر یا جور دیگر خوانده است.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_118.json --apply`، پس از پشتیبان از ستون‌های این ۸۵ اثر.
+### گام ۱۴.۱۱۴: `author_ids`، `copy_from`/`copy_to`/`copy_century` و فیلتر `catalog` بر پایه‌ی `source_entries`
+- **نمایه‌ی `manuscripts_index`:**
+  - `author_ids` همه‌ی مؤلفان اثر را دارد (`work.authors`، که به `makeAllSearchableUsing` افزوده شد).
+  - `copy_from`، `copy_to` و `copy_century` از `Manuscript::copyBounds()` می‌آیند. `copy_century` تنها وقتی پر است که کل بازه در یک سده باشد.
+  - هر چهار ویژگی `filterableAttributes` شدند.
+- **تعریف سده و سال کتابت (`Manuscript::whereCopiedWithin`):** `copy_date_from >= X` و `copy_date_to <= Y`، و در موتور جست‌وجو `copy_from >= X AND copy_to <= Y`.
+  - سال تنها (`copy_date_hijri_year`) خوانده نمی‌شود. ۱۰۲ نسخه سال دارند و بازه ندارند، و بیشترشان تاریخ شمسی‌اند که سالش در ستون قمری نشسته است، مانند «1317ش».
+  - شاخه‌ی جایگزین برای این‌ها، `OR` را در پرس‌وجو آورد. MariaDB آن‌گاه کل جدول را می‌خواند: ۱٫۵ ثانیه برای سده‌ی ۱۳، به جای ۰٫۱ ثانیه با نمایه‌ی `(copy_date_from, copy_date_to)`.
+  - `InsightsScope` با `century` هم همین را فرا می‌خواند. پیش از این همان شرط را جداگانه داشت.
+- **شمار سده‌ها در کناره:** `SearchController::facets` به جای `copy_date_hijri_year`، `copy_century` را می‌شمارد. پس شمار کنار هر سده برابر نتیجه‌ی همان فیلتر است.
+- **`catalog` در `InsightsScope`:** `manuscripts.id IN (source_entries … source_volume_id = ? AND status != rejected)`. شناسه‌ها برابرند (`source_volumes.id = catalog_volumes.id`).
+  - روی `fahares_prod`، ۲۹۷٬۷۰۲ نسخه `catalog_volume_id` دارند و همه ورودیِ همان جلد را هم دارند.
+  - ۹٬۱۳۰ ورودی فهرست کتابخانه به جلدی جز جلد خود نسخه است. این‌ها اکنون در آمار آن جلد هم می‌آیند.
+- **`searchParams('manuscripts')`:** `author` → `author_id` و `catalog` → `source_volume_id`. `unsearchable()` و یادداشت آن برداشته شد.
+- **`SearchFilters`:** `author_id` به زبانه‌ی نسخه‌ها رسید، با `workKey()` و برچسب «نسخه‌های آثار …». رکورد مؤلف (`$author`) از رکورد کاتب (`$person`) جدا شد تا هر دو با هم کار کنند.
+- **فرم کناره (`search/filters.blade.php`):** `work_id`، `scribe_id` و `author_id` فیلد پنهان شدند.
+- **برچسب فهرست:** اگر عنوان جلد با «فهرست» آغاز شود، «فهرست» دوباره پیش از آن نمی‌آید.
+- **وارسی:**
+  - صفحه با `php -S` از این worktree و `DB_DATABASE=fahares_prod` اجرا شد. `artisan serve` متغیر `DB_DATABASE` را به فرایند فرزند نمی‌دهد.
+  - مسیر موتور جست‌وجو در یک نمایه‌ی موقت (`t107_manuscripts`) با ۹۶۷ سند نسخه‌های علم الهدی وارسی و سپس پاک شد. برای سده‌ی ۱۱، موتور، پایگاه و شمار کناره هر سه ۲۵۴ بودند. برای سده‌ی ۵، هر سه ۳ بودند.
+  - ستون سده‌ی ۱۱ در خط زمانی ۲۶۰ است، زیرا بازه‌های دوسده‌ای را به نسبت سال‌هایشان پخش می‌کند. پیوند ستون تنها ۲۵۴ نسخه‌ای را نشان می‌دهد که کل بازه‌شان در آن سده است.
+- **آزمون‌ها:**
+  - `SearchFiltersTest::test_copies_are_found_by_their_whole_date_and_by_the_author_of_their_work`
+  - `InsightsScopeTest::test_a_catalogue_scope_takes_the_copies_the_volume_describes_and_its_links_keep_it`
+  - `InsightsScopeTest::test_a_century_scope_takes_a_copy_dated_by_its_century_alone`
+- **پس از استقرار در تولید:** `php artisan scout:sync-index-settings`، سپس `php artisan scout:import "App\Models\Manuscript"` (حدود ۳۲۳ هزار سند؛ روی ماشین محلی حدود ۱۰ دقیقه).
+
+### گام ۱۴.۱۱۵: `Insights::oneCentury` در `places`، `scribes` و `libraries`
+- **`oneCentury($from, $to)`:** عبارت SQL است که سده‌ی بازه را برمی‌گرداند، اگر بازه در یک سده باشد. اگر یک سر بازه باز باشد یا بازه از دو سده بگذرد، `NULL` است. این همان `copy_century` نمایه است (گام ۱۴.۱۱۴).
+- **`places`:**
+  - نسخه‌ها با `oneCentury(copy_date_from, copy_date_to)` شمرده می‌شوند و آثار با `oneCentury(composition_date_from, composition_date_to)`. پیش‌تر `FLOOR((copy_date_hijri_year - 1) / 100) + 1` و `composition_year_hijri` بود.
+  - گروه‌بندی `wide` هم دارد: دامنه‌ی بیش از `exact_span`.
+  - کلیدهای تازه: `places.by_century`، `places.century_only`، `places.composition.by_century` و `places.composition.century_only`.
+- **`scribes`:**
+  - `from` و `to` کمینه و بیشینه‌ی `FLOOR((from + to) / 2)` تاریخ‌هایی هستند که دامنه‌شان تا `exact_span` است.
+  - کلید تازه‌ی `centuries` برابر `[MIN, MAX]` از `oneCentury` است، یا `null`.
+  - نما اگر `from` نباشد، `centuries` را نشان می‌دهد.
+- **`libraries`:**
+  - `dated` = `SUM(copy_date_to - copy_date_from <= 100)` و `mean` = `AVG((from + to) / 2)` روی همین نسخه‌ها.
+  - کلید تازه‌ی `century_only` شمار نسخه‌هایی است که دامنه‌شان بیش از `exact_span` است. در `title` نما می‌آید.
+- **cache:** `CACHE_KEY` از `insights.v4` به `insights.v5` رسید.
+  - تا ساخت شبانه‌ی ساعت ۰۳:۳۰، نخستین بازدید صفحه‌ی کل آمار را هنگام درخواست می‌سازد، حدود ۳۰ ثانیه.
+  - برای پرهیز از این، پس از استقرار `php artisan fahares:build-insights` اجرا شود.
+- **شمار روی `fahares_prod`:**
+  - ۱۵۳٬۲۵۹ نسخه `copy_date_hijri_year` دارند و ۲۳۷٬۰۵۲ نسخه بازه‌ای تا ۱۰۰ سال.
+  - نقشه: `mapped` = ۱۸٬۳۳۹، `by_century` = ۱۷٬۵۸۳ و `century_only` = ۱٬۰۷۶. در لایه‌ی تألیف `by_century` = ۱٬۵۴۵.
+  - نمونه‌ی کهن‌ترین کتابخانه: موزه‌ی ملی، میانگین ۹۵۵ از ۲۶۷ نسخه. ۱۵۵ نسخه از آن‌ها تنها سده دارند.
+- **آزمون:** `InsightsScopeTest::test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date`. آزمون `scribes … of a scope` کلید `centuries` را هم می‌سنجد.
+- **اجرا در تولید (گام‌های ۱۴.۱۱۴ و ۱۴.۱۱۵، ۱۹ آبان، انتشار ۷۵ `4f1c00a9`، با `prod-run insights-107`):**
+  1. `php artisan scout:sync-index-settings`: exit 0، ۳ ثانیه.
+  2. `php -d memory_limit=1G artisan scout:import "App\Models\Manuscript"`:
+     - اتصال ssh در ۱۰ دقیقه بسته شد («Connection … closed by remote host»، exit 255 در `prod-runs.log`). قفل آزاد شد، ولی فرایند در کانتینر ادامه داد و ساعت ۰۷:۰۶ پایان یافت.
+     - در این مدت، `prod-run --status` آن را «production artisan run» نشان می‌داد و `prod-run` اجرای دیگری را نمی‌پذیرفت.
+     - صف Meilisearch ساعت ۰۷:۱۳ خالی شد و نمایه ۳۲۳٬۲۴۶ سند داشت.
+     - بار سرور در این زمان به ۹ رسید. نخستین بازدیدهای `/insights` پس از آن ۲۲ و سپس ۸٫۷ ثانیه طول کشیدند، با این‌که از cache خوانده می‌شدند. بازدید سوم ۱٫۹ ثانیه بود.
+  3. `php artisan fahares:build-insights`: ۱۹٫۴ ثانیه، با «242583 dated copies (75%, 90849 by century only)».
+- **وارسی پس از اجرا:** `author_ids = 1110 AND copy_from >= 1001 AND copy_to <= 1100` در موتور ۲۵۴ بود. `copy_century` کناره و `SearchFilters::apply` روی پایگاه هم ۲۵۴ بودند. `/search?type=manuscripts&author_id=1110&century=11` در سایت ۲۵۴ نسخه نشان می‌دهد. `/tmp` کانتینر فایلی از این اجرا ندارد.
+- **برای جلسه‌های بعد:** برای import بلند، فرمان را در کانتینر با `nohup … &` اجرا کنید و پایانش را با `ps` بپایید، چون اتصال ssh در این اجرا پس از ۱۰ دقیقه بسته شد.
+
+### گام ۱۴.۱۱۶: `sources:find-person-lives` و `sources:tie-person-lives`
+- **نامزدها ([FindPersonLivesCommand](../app/Console/Commands/FindPersonLivesCommand.php)):** شخص با `death_year_hijri` و `death_from = death_to`. برای هر منبع `kind = biographical`، نمایه‌ی بخش‌های متمایز نام از عنوان مدخل‌ها (بی `بن`، `محمد`، `علی` و دیگر بخش‌های رایج `ItemMatcher`). نامزد: `ItemMatcher::authorHits(نام یا نام دیگر، عنوان) >= 1` و `ItemMatcher::deathIn(وفات، عنوان + ۳۰۰ نویسه‌ی آغاز)`. شخصی که در آن منبع پیوند دارد، خوانده نمی‌شود. خروجی `--report` (JSON). روی `fahares_prod` حدود ۶ دقیقه.
+- **داوری:** جفت‌هایی با دقیقاً یک نامزدِ `hits >= 2` (۳٬۵۶۹) و جفت‌هایی با چند نامزدِ دوبخشی (۴۳۷)، در دسته‌های ۷۵تایی Sonnet با دستورالعمل `match | none | unsure` و اطمینان. نمونه‌ی ۱۲۰تایی پیش از داوری کامل: ۱۰۸ درست، ۱۰ نادرست، ۲ نامطمئن. نتیجه‌ی کل: ۳٬۳۳۱ تطبیق (همه با اطمینان ۷۰ به بالا)، ۵۶۶ «نه» و ۱۰۹ نامطمئن. Claude ۱۰۹ نامطمئن را داوری کرد: ۷۳ تطبیق با اطمینان ۷۲. جفت‌های تک‌بخشی (۱۱٬۵۹۴) داوری نشدند.
+- **فایل:** `database/data/person_lives_step14_116.json`، هر سطر `person_slug`، `source`، `item_key`، `volume`، `method` (`name_death_llm`)، `confidence`، `judged_by` و `evidence`.
+- **ساخت ([TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php)):** برای هر سطر، شخص با `slug` و مدخل با `source_id`، `item_key` و `volume_number`. کلید `legacy_type = person_life_by_name`، `legacy_id = person_id * 1000000 + source_id`. اگر شخص در آن منبع هر پیوندی دارد، `has_life`. سطر `source_entries` با `role entry`، `origin match` و `status unverified`. بخش «زندگی‌نامه در منابع» صفحه‌ی شخص هر پیوند شخص با `source_item_id` را نشان می‌دهد، پس تغییری در نما لازم نشد.
+- **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
+- **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
+- **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
+
+### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
+- **`patrons`:**
+  - روی `commissioned_by` گروه‌بندی می‌شود و برای هر نام، `MIN`/`MAX` از `oneCentury` می‌آید.
+  - نام‌ها در PHP با `TextNormalizer::normalize` یکی می‌شوند. هر نام با صورتی نشان داده می‌شود که بیشتر نوشته شده است: «آیة الله بروجردی»، نه «ایه الله بروجردی».
+  - تنها نام‌های دست‌کم دونسخه‌ای می‌آیند. شمار نام‌ها از `config('insights.patrons_shown')` است، برابر ۱۵.
+  - **`Insights::isKin`:** واژه‌ی نخست یکی از این‌هاست: `مؤلف|مولف|مصنف|خود|خودش|کاتب`. یا یکی از دو واژه‌ی نخست نسبت خویشی با ضمیر است (`(پدر|برادر|فرزند|پسر|عم|استاد…)(ش|یش)`). «استاد هادی ارفع» خویش شمرده نمی‌شود، ولی «استادش آقا محسن» می‌شود.
+  - هیچ‌یک از ۳٬۵۶۷ ردیف `manuscript_people` با `role = patron` به شخص پیوند ندارد (`person_id` تهی است). پس آمار بر پایه‌ی نام است.
+  - سهم هر سده از `inOneCentury` می‌آید. نما سده‌هایی را که کمتر از `min_sample × 10` نسخه دارند نشان نمی‌دهد.
+- **`facsimiles`:** `SUM(is_facsimile)` برای هر کتابخانه، با `HAVING > 0`. شمار کتابخانه‌ها از `config('insights.facsimile_libraries')` است، برابر ۱۰. سهم هر یک نسبت به `COUNT(*)` همان کتابخانه است.
+- **جدول موقت دامنه:** `commissioned_by` و `is_facsimile` به `insights_scope_copies` افزوده شدند.
+- **`facsimile` در `InsightsScope`:**
+  - مقدار `'0'` یا `'1'` است و فیلتر نسخه است (در `WORK_PARAMS` نیست). شرطش `manuscripts.is_facsimile = ?` است.
+  - برچسب‌ها «اصل (بی نسخه‌های عکسی)» و «عکسی» هستند. `searchParams('manuscripts')` آن را `facsimile` می‌برد.
+  - در فرم، با `x-model` و یک فیلد پنهان فرستاده می‌شود. «همه‌ی نسخه‌ها» پارامتری نمی‌فرستد.
+- **cache:** `CACHE_KEY` از `insights.v5` به `insights.v6` رسید. پس از استقرار `fahares:build-insights` اجرا شود.
+- **آزمون‌ها:**
+  - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`
+  - `InsightsScopeTest::test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope`

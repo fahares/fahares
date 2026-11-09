@@ -84,6 +84,16 @@
                     @endforeach
                 </div>
             </div>
+
+            <div x-data="{ v: @js((string) $scope->get('facsimile')) }">
+                <label for="insights-facsimile" class="block text-xs text-muted mb-1">اصل یا عکسی</label>
+                <input type="hidden" name="facsimile" :value="v" :disabled="v === ''" value="{{ $scope->get('facsimile') }}" @disabled($scope->get('facsimile') === null)>
+                <select id="insights-facsimile" x-model="v" class="w-full bg-paper border border-line-strong px-2 py-1.5 text-sm text-ink focus:outline-none focus:border-cinnabar">
+                    <option value="" @selected($scope->get('facsimile') === null)>همه‌ی نسخه‌ها</option>
+                    <option value="0" @selected($scope->get('facsimile') === '0')>تنها نسخه‌های اصل</option>
+                    <option value="1" @selected($scope->get('facsimile') === '1')>تنها نسخه‌های عکسی</option>
+                </select>
+            </div>
         </div>
         <div class="mt-4 flex flex-wrap items-center gap-3">
             <button type="submit" class="bg-cinnabar text-on-cinnabar px-4 py-1.5 text-sm font-semibold hover:brightness-110 transition cursor-pointer">نمایش آمار</button>
