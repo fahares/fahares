@@ -9115,6 +9115,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
 - **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
 
+### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
+- **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
+- **فایل:** `database/data/fankha_leading_author_step14_112.json` (`category: leading_author`، ۶ `work_updates`)، ساخته از `fahares_prod`.
+  - **نام:** از سطر سرِ `description`.
+  - **سطرهایی که از سر شرح برداشته شدند:** سطر خالی، سطری که با نام آغاز می‌شود، و سطرِ بی‌حرف عربی، که اگر `transliteration` خالی باشد به آن می‌رود. سطر «X / عربی|فارسی|ترکی» هم برداشته می‌شود، اگر `subject_summary` خالی باشد.
+  - **`author.century`:** ۱۴، ۱۴، ۱۱، تهی، تهی و ۷.
+  - **سنجش با شرح v2 در review10:** پنج اثر برابرند. 65462 برابر نیست، چون v2 سطرهای نام را در شرح نگه داشته است.
+- **`AddCorpusWorksCommand`:**
+  - `subject_summary` و `language_summary` به `UPDATE_COLUMNS` افزوده شدند.
+  - `work_updates` می‌تواند `subjects` و `languages` بیاورد. `attachTerms()` همان حلقه‌ی اثرِ تازه است و `works_count` را تنها برای ردیفِ تازه‌ی `subject_work` یا `language_work` بالا می‌برد. این دو در `new_values` ردیف `audit_logs` هم می‌آیند.
+  - برای 22983: `subject_work` (65، «رجال») و `language_work` (2، «عربی»).
+- **آزمون:** `AddCorpusWorksCommandTest::test_a_head_split_by_a_page_tag_gives_the_work_its_subject_and_language`
+- **تمرین روی fahares_prod:**
+  - `fahares:add-corpus-works --file=database/data/fankha_leading_author_step14_112.json --apply`: «update 6»، «Derived data of works: works=6». اجرای دوم: «update 0».
+  - `author_id` تنها برای 22983 (2398، کاظمی، ۱۰۸۸) پر شد. برای پنج نام دیگر رکورد شخصی در سایت نیست.
+  - `fahares:link-autograph-scribes` پس از آن.
+- **اجرا در تولید:** همان دو فرمان، پس از پشتیبان از ستون‌های این شش اثر و ردیف‌های `subject_work` و `language_work` اثر 22983.
+
+### گام ۱۴.۱۱۳: پیشنهادهای باز در ادغام شخص
+- **[PersonMerger](../app/Services/PersonMerger.php):** پس از جابه‌جایی نقش‌ها، `FieldSuggestion` با `suggestable_type = Person`، `suggestable_id = source` و `status = pending` به `target` می‌رود. `old_values.suggestion_ids` در لاگ `merge`، هم‌شکل `RecordMerger` و `LibraryMerger`. با این، اعلان `suggestion.record_merged` (گام ۱۴.۱۰۲) برای ادغام شخص هم «اکنون به رکورد ماندگار پیوسته است» می‌گوید.
+- **بازگردانی ([AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php)، `rollback`):** پیشنهادهای `suggestion_ids` که هنوز روی `target` هستند به `source_id` برمی‌گردند. لاگ‌های پیش از این گام `suggestion_ids` ندارند و چیزی جابه‌جا نمی‌شود.
+- **وارسی پروداکشن (۱۹ آبان ۱۴۰۵، فقط‌خواندنی):** پیشنهاد `pending` بی رکورد: people ۰، works ۰، manuscripts ۰، libraries ۰؛ کل پیشنهادهای باز ۴.
+- **آزمون:** `EntityRedirectTest::test_a_person_merge_carries_open_suggestions_and_its_undo_takes_them_back`.
+
 ### گام ۱۴.۱۱۴: `author_ids`، `copy_from`/`copy_to`/`copy_century` و فیلتر `catalog` بر پایه‌ی `source_entries`
 - **نمایه‌ی `manuscripts_index`:**
   - `author_ids` همه‌ی مؤلفان اثر را دارد (`work.authors`، که به `makeAllSearchableUsing` افزوده شد).
@@ -9163,26 +9187,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - نقشه: `mapped` = ۱۸٬۳۳۹، `by_century` = ۱۷٬۵۸۳ و `century_only` = ۱٬۰۷۶. در لایه‌ی تألیف `by_century` = ۱٬۵۴۵.
   - نمونه‌ی کهن‌ترین کتابخانه: موزه‌ی ملی، میانگین ۹۵۵ از ۲۶۷ نسخه. ۱۵۵ نسخه از آن‌ها تنها سده دارند.
 - **آزمون:** `InsightsScopeTest::test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date`. آزمون `scribes … of a scope` کلید `centuries` را هم می‌سنجد.
-### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
-- **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
-- **فایل:** `database/data/fankha_leading_author_step14_112.json` (`category: leading_author`، ۶ `work_updates`)، ساخته از `fahares_prod`.
-  - **نام:** از سطر سرِ `description`.
-  - **سطرهایی که از سر شرح برداشته شدند:** سطر خالی، سطری که با نام آغاز می‌شود، و سطرِ بی‌حرف عربی، که اگر `transliteration` خالی باشد به آن می‌رود. سطر «X / عربی|فارسی|ترکی» هم برداشته می‌شود، اگر `subject_summary` خالی باشد.
-  - **`author.century`:** ۱۴، ۱۴، ۱۱، تهی، تهی و ۷.
-  - **سنجش با شرح v2 در review10:** پنج اثر برابرند. 65462 برابر نیست، چون v2 سطرهای نام را در شرح نگه داشته است.
-- **`AddCorpusWorksCommand`:**
-  - `subject_summary` و `language_summary` به `UPDATE_COLUMNS` افزوده شدند.
-  - `work_updates` می‌تواند `subjects` و `languages` بیاورد. `attachTerms()` همان حلقه‌ی اثرِ تازه است و `works_count` را تنها برای ردیفِ تازه‌ی `subject_work` یا `language_work` بالا می‌برد. این دو در `new_values` ردیف `audit_logs` هم می‌آیند.
-  - برای 22983: `subject_work` (65، «رجال») و `language_work` (2، «عربی»).
-- **آزمون:** `AddCorpusWorksCommandTest::test_a_head_split_by_a_page_tag_gives_the_work_its_subject_and_language`
-- **تمرین روی fahares_prod:**
-  - `fahares:add-corpus-works --file=database/data/fankha_leading_author_step14_112.json --apply`: «update 6»، «Derived data of works: works=6». اجرای دوم: «update 0».
-  - `author_id` تنها برای 22983 (2398، کاظمی، ۱۰۸۸) پر شد. برای پنج نام دیگر رکورد شخصی در سایت نیست.
-  - `fahares:link-autograph-scribes` پس از آن.
-- **اجرا در تولید:** همان دو فرمان، پس از پشتیبان از ستون‌های این شش اثر و ردیف‌های `subject_work` و `language_work` اثر 22983.
-
-### گام ۱۴.۱۱۳: پیشنهادهای باز در ادغام شخص
-- **[PersonMerger](../app/Services/PersonMerger.php):** پس از جابه‌جایی نقش‌ها، `FieldSuggestion` با `suggestable_type = Person`، `suggestable_id = source` و `status = pending` به `target` می‌رود. `old_values.suggestion_ids` در لاگ `merge`، هم‌شکل `RecordMerger` و `LibraryMerger`. با این، اعلان `suggestion.record_merged` (گام ۱۴.۱۰۲) برای ادغام شخص هم «اکنون به رکورد ماندگار پیوسته است» می‌گوید.
-- **بازگردانی ([AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php)، `rollback`):** پیشنهادهای `suggestion_ids` که هنوز روی `target` هستند به `source_id` برمی‌گردند. لاگ‌های پیش از این گام `suggestion_ids` ندارند و چیزی جابه‌جا نمی‌شود.
-- **وارسی پروداکشن (۱۹ آبان ۱۴۰۵، فقط‌خواندنی):** پیشنهاد `pending` بی رکورد: people ۰، works ۰، manuscripts ۰، libraries ۰؛ کل پیشنهادهای باز ۴.
-- **آزمون:** `EntityRedirectTest::test_a_person_merge_carries_open_suggestions_and_its_undo_takes_them_back`.
