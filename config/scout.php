@@ -251,6 +251,10 @@ return [
                     'has_author_marginalia',
                     'scribe_ids',
                     'source_volume_ids',
+                    'author_ids',
+                    'copy_from',
+                    'copy_to',
+                    'copy_century',
                 ],
                 'sortableAttributes' => [
                     'copy_date_hijri_year',
