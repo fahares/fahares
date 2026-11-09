@@ -80,6 +80,7 @@ class MergeAndUnreviewedNoticesTest extends TestCase
         $sent = $this->mergeNotices($researcher);
         $this->assertCount(1, $sent);
         $this->assertStringContainsString('شخص «شخص تکراری» در «شخص ماندگار» ادغام شد', $sent->first()->lines[0]);
+        $this->assertStringContainsString('به رکورد ماندگار پیوسته است', $sent->first()->lines[1]);
     }
 
     public function test_the_weekly_count_of_unreviewed_machine_matches(): void

@@ -180,6 +180,34 @@ class AddCorpusWorksCommandTest extends TestCase
         $this->assertSame('اصفهان', $work->composition_place);
     }
 
+    public function test_a_head_split_by_a_page_tag_gives_the_work_its_subject_and_language()
+    {
+        // step 14.112: «● title / رجال / عربی», then a page tag, so «رجال / عربی» opened the description
+        $id = $this->work('اثر آزمایشی و', 'test-vav-v99-9005');
+        $raw = "رجال / عربی\n\nhāšīya\n\nمؤلف آزمایشی، - 1088 قمری\nmo'allef\nشرح اثر";
+        DB::table('works')->where('id', $id)->update(['description' => $raw]);
+        $subject = DB::table('subjects')->insertGetId(['name' => 'موضوع آزمایشی ' . uniqid(), 'slug' => 'test-subject-' . uniqid(), 'works_count' => 0]);
+        $name = DB::table('subjects')->where('id', $subject)->value('name');
+        $update = ['v2' => 'v99-5', 'work_slug' => 'test-vav-v99-9005', 'author' => ['name' => 'مؤلف آزمایشی', 'century' => 11],
+            'subjects' => [$name], 'languages' => [], 'changes' => [
+                'author_name' => ['from' => null, 'to' => 'مؤلف آزمایشی'],
+                'description' => ['from' => $raw, 'to' => 'شرح اثر'],
+                'subject_summary' => ['from' => null, 'to' => $name],
+                'transliteration' => ['from' => null, 'to' => 'hāšīya'],
+            ]];
+        file_put_contents($this->file, json_encode(['category' => 'leading_author', 'works' => [], 'work_updates' => [$update]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $work = Work::find($id);
+        $this->assertSame(['مؤلف آزمایشی', 'شرح اثر', $name, 'hāšīya'], [$work->author_name, $work->description, $work->subject_summary, $work->transliteration]);
+        $this->assertSame(1, DB::table('subject_work')->where('work_id', $id)->where('subject_id', $subject)->count());
+        $this->assertSame(1, (int) DB::table('subjects')->where('id', $subject)->value('works_count'));
+        DB::table('subject_work')->where('subject_id', $subject)->delete();
+        DB::table('subjects')->where('id', $subject)->delete();
+    }
+
     public function test_a_shelfmark_the_work_holds_twice_moves_by_its_sequence()
     {
         // vol 11: «رضوی 7141» twice under Deylamaj's work, the second one Kermanshahi's (step 14.23)

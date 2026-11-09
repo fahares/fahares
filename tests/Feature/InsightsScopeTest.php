@@ -63,7 +63,7 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(InsightsScope::fromArray(['author' => $author->id, 'century' => '5-8'])->key(), $scope->key());
         $this->assertSame(['century' => '5-8'], $scope->without('author'));
         $this->assertSame(['آثار ' . $author->name, 'سده‌های ۵ تا ۸'], array_column($scope->labels(), 1));
-        $this->assertSame(['author'], $scope->unsearchable());
+        $this->assertSame(['author_id' => $author->id, 'year_from' => 401, 'year_to' => 800], $scope->searchParams('manuscripts'));
         $this->assertTrue(InsightsScope::fromArray(['century' => '16'])->isEmpty());
         $this->assertSame([7, 7], InsightsScope::fromArray(['century' => '7'])->get('century'));
     }
@@ -197,6 +197,42 @@ class InsightsScopeTest extends TestCase
         $this->assertSame(1, $data['sources']['unknown']);
     }
 
+    public function test_a_catalogue_scope_takes_the_copies_the_volume_describes_and_its_links_keep_it()
+    {
+        $library = $this->library();
+        $volume = \App\Models\CatalogVolume::create(['title' => 'فهرست آزمایشی وصف ' . uniqid(), 'volume_number' => 1, 'library_id' => $library->id]);
+        $work = $this->work();
+        // Its own copies, and copies it describes that another catalogue holds as theirs
+        $copies = [$this->copy($work, ['library_id' => $library->id, 'catalog_volume_id' => $volume->id, 'copy_place' => 'هرات'])];
+        for ($i = 0; $i < 11; $i++) {
+            $copies[] = $this->copy($work, ['library_id' => $library->id, 'copy_place' => 'هرات']);
+        }
+        $this->copy($work, ['library_id' => $library->id, 'catalog_volume_id' => null]);
+        foreach ($copies as $m) {
+            \App\Models\SourceEntry::create(['source_id' => \App\Models\SourceVolume::find($volume->id)->source_id, 'source_volume_id' => $volume->id,
+                'citable_type' => Manuscript::class, 'citable_id' => $m->id, 'volume_number' => 1, 'page_start' => 1, 'origin' => \App\Models\SourceEntry::ORIGIN_MATCH]);
+        }
+        $scope = InsightsScope::fromArray(['catalog' => $volume->id, 'century' => '9-10']);
+
+        $this->assertSame(['source_volume_id' => $volume->id, 'year_from' => 801, 'year_to' => 1000], $scope->searchParams('manuscripts'));
+        $this->assertSame(12, Insights::build(InsightsScope::fromArray(['catalog' => $volume->id]))['totals']['manuscripts']);
+        $this->get(route('insights', ['catalog' => $volume->id]))->assertOk()
+            ->assertDontSee('را با خود نمی‌برد')
+            ->assertSee(e(route('search', ['type' => 'manuscripts', 'copy_city' => 'هرات', 'source_volume_id' => $volume->id])), false);
+    }
+
+    public function test_a_century_scope_takes_a_copy_dated_by_its_century_alone()
+    {
+        $author = $this->person();
+        $work = $this->work(['author_id' => $author->id]);
+        $this->copy($work, ['copy_date_raw' => 'قرن 9']);
+        $this->copy($work, ['copy_date_raw' => '850ق']);
+        $this->copy($work, ['copy_date_raw' => 'قرن 9 و 10']);
+
+        $this->assertSame(2, Insights::build(InsightsScope::fromArray(['author' => $author->id, 'century' => '9']))['totals']['manuscripts']);
+        $this->assertSame(3, Insights::build(InsightsScope::fromArray(['author' => $author->id, 'century' => '9-10']))['totals']['manuscripts']);
+    }
+
     public function test_the_scoped_page_names_its_scope_and_carries_it_into_search_links()
     {
         $library = $this->library('شیراز');
@@ -226,7 +262,7 @@ class InsightsScopeTest extends TestCase
         $this->get(route('insights', ['author' => $author->id]))->assertOk()
             ->assertSee('آمار نسخه‌های آثار ' . $author->name)
             ->assertSee('در این دامنه تنها ۱ نسخه‌ی تاریخ‌دار هست که برای این نمودار بسنده نیست.')
-            ->assertSee('پیوند نمودارها به جست‌وجوی نسخه‌ها فیلتر مؤلف را با خود نمی‌برد');
+            ->assertDontSee('را با خود نمی‌برد');
     }
 
     public function test_a_scope_is_cached_by_its_filters_and_unknown_filters_show_the_whole_page()

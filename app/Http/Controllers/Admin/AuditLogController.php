@@ -135,6 +135,9 @@ class AuditLogController extends Controller
             $transferredManuscriptIds = (array) ($old['transferred_manuscript_ids'] ?? []);
             DB::table('manuscript_people')->whereIn('id', (array) ($old['transferred_role_ids'] ?? []))->update(['person_id' => $sourceId]);
             DB::table('work_people')->whereIn('id', (array) ($old['transferred_work_role_ids'] ?? []))->update(['person_id' => $sourceId]);
+            // ...and its open suggestions, which the merge moved to the kept person (step 14.113)
+            FieldSuggestion::where('suggestable_type', Person::class)->where('suggestable_id', $target->id)
+                ->whereIn('id', (array) ($old['suggestion_ids'] ?? []))->update(['suggestable_id' => $sourceId]);
 
             // Logs written before the pivots existed list only primary links
             $primaryWorkIds = (array) ($old['primary_work_ids'] ?? $transferredWorkIds);

@@ -5,9 +5,11 @@ namespace App\Support;
 use App\Models\CatalogVolume;
 use App\Models\Language;
 use App\Models\Library;
+use App\Models\Manuscript;
 use App\Models\ManuscriptPerson;
 use App\Models\Person;
 use App\Models\Script;
+use App\Models\SourceEntry;
 use App\Models\Subject;
 use App\Models\Work;
 use App\Models\WorkPerson;
@@ -221,9 +223,12 @@ class InsightsScope
                 'city' => $query->where('manuscripts.city', $value),
                 'copy_city' => $query->whereIn('manuscripts.copy_place', CopyPlaces::variants($value) ?: ['']),
                 'script' => $query->whereIn('manuscripts.id', DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id')),
-                'catalog' => $query->where('manuscripts.catalog_volume_id', $value),
-                // Copies dated within the centuries, the whole range of the date
-                'century' => $query->where('manuscripts.copy_date_from', '>=', ($value[0] - 1) * 100 + 1)->where('manuscripts.copy_date_to', '<=', $value[1] * 100),
+                // The copies the volume describes, as the search's catalogue filter and the source pages take them
+                // (step 14.114): its own copies, and those it describes after another catalogue
+                'catalog' => $query->whereIn('manuscripts.id', DB::table('source_entries')->where('source_volume_id', $value)
+                    ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', Manuscript::class)->select('citable_id')),
+                // Copies dated within the centuries, the whole range of the date, as the search takes them
+                'century' => Manuscript::whereCopiedWithin($query, ($value[0] - 1) * 100 + 1, $value[1] * 100),
             };
         }
 
@@ -243,13 +248,13 @@ class InsightsScope
 
     /**
      * The scope's filters that a search tab has too, as its parameters, so a link from a chart to the search keeps
-     * them. The manuscripts tab has no author or catalogue filter, the works tab none on the copies.
+     * them: all of them on the manuscripts tab (step 14.114), the work filters on the works tab.
      */
     public function searchParams(string $type): array
     {
         $map = match ($type) {
             'manuscripts' => ['work' => 'work_id', 'scribe' => 'scribe_id', 'library' => 'library_id', 'city' => 'city', 'subject' => 'subject_id',
-                'language' => 'language_id', 'script' => 'script_id', 'copy_city' => 'copy_city'],
+                'language' => 'language_id', 'script' => 'script_id', 'copy_city' => 'copy_city', 'author' => 'author_id', 'catalog' => 'source_volume_id'],
             'works' => $this->hasCopyFilter() ? [] : ['author' => 'author_id', 'subject' => 'subject_id', 'language' => 'language_id'],
             default => [],
         };
@@ -265,12 +270,6 @@ class InsightsScope
         }
 
         return $params;
-    }
-
-    /** The filters a link to the copies in the search cannot carry, for a note under the heading */
-    public function unsearchable(): array
-    {
-        return array_values(array_intersect(['author', 'catalog'], array_keys($this->values)));
     }
 
     /**
@@ -293,7 +292,7 @@ class InsightsScope
                 'city' => [$param, 'کتابخانه‌های ' . $value, null],
                 'copy_city' => [$param, 'کتابت‌شده در ' . $value, null],
                 'script' => [$param, 'به خط ' . $r->name, null],
-                'catalog' => [$param, 'فهرست ' . $r->title . ($r->volume_number ? ' ج ' . Fa::digits($r->volume_number) : ''), null],
+                'catalog' => [$param, (str_starts_with($r->title, 'فهرست') ? '' : 'فهرست ') . $r->title . ($r->volume_number ? ' ج ' . Fa::digits($r->volume_number) : ''), null],
                 'century' => [$param, $value[0] === $value[1] ? 'سده‌ی ' . Fa::digits($value[0]) : 'سده‌های ' . Fa::digits($value[0]) . ' تا ' . Fa::digits($value[1]), null],
             };
         }
