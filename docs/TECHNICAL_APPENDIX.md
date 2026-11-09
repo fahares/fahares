@@ -9378,3 +9378,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - شمار ردیف‌های باز `duplicate` ۵۴۴ شد. `/contribute/namesake/1520` کارت را با «۵۴۴ مورد مانده» نشان داد.
 - **آزمون:** `PersonReviewTest::test_unsure_groups_of_a_model_review_are_queued_for_the_researchers_and_stay_through_the_refresh`
 - **اجرا پس از استقرار:** `php artisan fahares:queue-judged-people --dry-run`، سپس بی `--dry-run`. پیش از اجرا از جدول `person_reviews` پشتیبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۸۲، `5c10ef78`):**
+  - **پشتیبان:** ۱٬۵۲۰ ردیف `person_reviews` به صورت JSON در `../fahares-sources/backups/step13/person_reviews_step14_124.json`. فایل از `/tmp` کانتینر پاک شد.
+  - **اجرای آزمایشی:** «[dry run] Queued 465 groups; 50 already in the queue». اجرای آزمایشی چیزی نمی‌سازد، پس دو گروهی که در فایل به یک مجموعه‌ی رکورد می‌رسند، هر دو «تازه» شمرده می‌شوند.
+  - **اجرای واقعی:** «Queued 464 groups; 51 already in the queue; 0 settled since». ردیف‌های تازه از شناسه‌ی ۱۵۲۱ آغاز می‌شوند.
+  - **وارسی:** ۵۶۵ ردیف باز `duplicate` هست. `https://fahares.net/contribute/namesake/1521` کارت را با «۵۶۵ مورد مانده» نشان می‌دهد. `/tmp` پاک است.
