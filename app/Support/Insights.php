@@ -20,7 +20,7 @@ class Insights
     // v4: scribes, libraries, sizes, languages and scripts per century, sources (backlog item 107, charts 5-9)
     // v5: the map, the scribes and the libraries read the range of the copy date (step 14.115)
     // v6: patrons and facsimile copies (step 14.117)
-    private const CACHE_KEY = 'insights.v7';
+    private const CACHE_KEY = 'insights.v8';
 
     // The copies of one century per work and century (build)
     private const WORK_CENTURIES = 'insights_work_centuries';
@@ -482,9 +482,12 @@ class Insights
     {
         [$first, $last] = config('insights.centuries');
         $century = self::oneCentury('manuscripts.copy_date_from', 'manuscripts.copy_date_to');
-        $rows = $scope->manuscripts()->whereNotNull('commissioned_by')->where('commissioned_by', '!=', '')
-            ->selectRaw("commissioned_by AS name, COUNT(*) AS n, MIN({$century}) AS c0, MAX({$century}) AS c1")
-            ->groupBy('name')->get();
+        // The patron rows of the scope's copies: a linked one by its person (step 14.120), with every spelling of
+        // the name, else by the name as written
+        $rows = DB::table('manuscript_people as mp')->join($scope->manuscriptsTable(), 'manuscripts.id', '=', 'mp.manuscript_id')
+            ->leftJoin('people', 'people.id', '=', 'mp.person_id')->where('mp.role', 'patron')
+            ->selectRaw("mp.person_id AS pid, COALESCE(people.name, mp.name) AS name, COUNT(DISTINCT mp.manuscript_id) AS n, MIN({$century}) AS c0, MAX({$century}) AS c1")
+            ->groupBy('pid', 'name')->get();
 
         $names = [];
         $forms = [];
@@ -494,27 +497,33 @@ class Insights
             if ($name === '') {
                 continue;
             }
-            if (self::isKin($name)) {
+            if (! $row->pid && self::isKin($name)) {
                 $kin += $row->n;
 
                 continue;
             }
-            // Grouped by the normalized form, shown as it is written most
-            $names[$name] ??= ['name' => $name, 'count' => 0, 'centuries' => null];
-            $names[$name]['count'] += (int) $row->n;
-            $forms[$name][trim((string) $row->name)] = ($forms[$name][trim((string) $row->name)] ?? 0) + (int) $row->n;
+            // Grouped by the person, or by the normalized form, shown as it is written most
+            $key = $row->pid ? 'p' . $row->pid : 'n' . $name;
+            $names[$key] ??= ['name' => trim((string) $row->name), 'person' => $row->pid ? (int) $row->pid : null, 'count' => 0, 'centuries' => null];
+            $names[$key]['count'] += (int) $row->n;
+            if (! $row->pid) {
+                $forms[$key][trim((string) $row->name)] = ($forms[$key][trim((string) $row->name)] ?? 0) + (int) $row->n;
+            }
             if ($row->c0 !== null) {
-                $c = $names[$name]['centuries'];
-                $names[$name]['centuries'] = [min($c[0] ?? PHP_INT_MAX, (int) $row->c0), max($c[1] ?? 0, (int) $row->c1)];
+                $c = $names[$key]['centuries'];
+                $names[$key]['centuries'] = [min($c[0] ?? PHP_INT_MAX, (int) $row->c0), max($c[1] ?? 0, (int) $row->c1)];
             }
         }
-        foreach ($forms as $name => $written) {
+        foreach ($forms as $key => $written) {
             arsort($written);
-            $names[$name]['name'] = (string) array_key_first($written);
+            $names[$key]['name'] = (string) array_key_first($written);
         }
-        $withPatron = (int) $rows->sum('n');
+        $withPatron = $scope->manuscripts()->whereNotNull('commissioned_by')->where('commissioned_by', '!=', '')->count();
+        $linked = DB::table('manuscript_people as mp')->join($scope->manuscriptsTable(), 'manuscripts.id', '=', 'mp.manuscript_id')
+            ->where('mp.role', 'patron')->whereNotNull('mp.person_id')->distinct()->count('mp.manuscript_id');
         $top = collect($names)->filter(fn ($p) => $p['count'] >= 2)
             ->sortBy([['count', 'desc'], ['name', 'asc']])->take(config('insights.patrons_shown'))->values()->all();
+        $top = self::routeKeys($top);
 
         $byCentury = self::inOneCentury($scope)->whereRaw(self::CENTURY . ' BETWEEN ? AND ?', [$first, $last])
             ->selectRaw(self::CENTURY . " AS c, COUNT(*) AS n, SUM(commissioned_by IS NOT NULL AND commissioned_by != '') AS p")
@@ -529,6 +538,7 @@ class Insights
             'items' => $top,
             'with_patron' => $withPatron,
             'coverage' => self::share($withPatron, $total),
+            'linked' => $linked,
             'names' => count($names),
             'kin' => $kin,
             'centuries' => $centuries,
@@ -591,12 +601,7 @@ class Insights
         $top = collect($people)->filter(fn ($p) => $p['count'] >= 2)
             ->sortBy([['count', 'desc'], ['name', 'asc']])->take(config('insights.dedications_shown'))
             ->map(fn ($p) => array_diff_key($p, ['works' => true]))->values()->all();
-        // The person page's address, «12-نام»
-        $keys = \App\Models\Person::whereIn('id', array_filter(array_column($top, 'person')))->get()->mapWithKeys(fn ($p) => [$p->id => $p->getRouteKey()]);
-        foreach ($top as &$item) {
-            $item['person'] = $item['person'] ? ($keys[$item['person']] ?? (string) $item['person']) : null;
-        }
-        unset($item);
+        $top = self::routeKeys($top);
 
         $withDedication = DB::table('work_people')->whereIn('role', $roles)->select('work_id');
         $byCentury = $scope->works()
@@ -620,6 +625,17 @@ class Insights
             'linked_works' => count($linkedWorks),
             'centuries' => $centuries,
         ];
+    }
+
+    /** The person ids of a list's items as the address of their page, «12-نام» */
+    private static function routeKeys(array $items): array
+    {
+        $keys = \App\Models\Person::whereIn('id', array_filter(array_column($items, 'person')))->get()->mapWithKeys(fn ($p) => [$p->id => $p->getRouteKey()]);
+        foreach ($items as &$item) {
+            $item['person'] = $item['person'] ? ($keys[$item['person']] ?? (string) $item['person']) : null;
+        }
+
+        return $items;
     }
 
     /** A patron written as the author, the scribe himself or one of his kin: «مؤلف», «خودش», «پدرش ملا محمد» */

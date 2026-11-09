@@ -9243,3 +9243,26 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`people/show`:** اگر `request('tab')` یکی از زبانه‌های همان شخص باشد، زبانه‌ی پیش‌فرض می‌شود.
 - **cache:** `CACHE_KEY` از `insights.v6` به `insights.v7` رسید. پس از استقرار `fahares:build-insights` اجرا شود.
 - **آزمون:** `InsightsScopeTest::test_dedicatees_are_counted_by_person_with_the_works_written_at_their_request`
+
+### گام ۱۴.۱۲۰: `fahares:link-copy-patrons`، `App\Support\KnownPatrons` و `Insights::patrons` بر پایه‌ی شخص
+- **ورودی:** `manuscript_people` با `role = patron`، `person_id IS NULL` و `suggestion_id IS NULL`. سال نسخه میانه‌ی `copy_date_from/to` است، به شرط آن‌که بازه ۳۰ سال یا کمتر باشد. پرانتزهای نام کنار گذاشته می‌شوند.
+- **ترتیب داوری:**
+  1. `Insights::isKin` → `text:kin`.
+  2. `KnownPatrons::find(name, year)`: صورت‌ها مانند `KnownRulers::compact` بی فاصله سنجیده می‌شوند، پس از `core()` که «کتابخانه»، «تقدیم به»، «پیشکش به»، «برای»، «حضرت»، «سرکار»، «جناب»، «نواب» و «به نام» را از آغاز نام برمی‌دارد. اگر صورت در فهرست باشد ولی سال در بازه‌ی دارنده‌ی فهرست‌شده نباشد، نتیجه `text:title_other_holder` است. نسخه‌ی بی‌سال تنها وقتی پیوند می‌خورد که لقب یک دارنده داشته باشد و `shared` نباشد. `shared` یعنی دیگرانی بیرون از فهرست هم آن لقب را داشته‌اند: ظل السلطان، رکن الدوله، بهاء الدوله، محمد ولی میرزا، عزالدوله، احتشام الدوله.
+  3. `KnownRulers::find(core(name), year)`، بی `certainty` (یعنی صورت‌های «معمولاً» که سال تعیینشان نکرده کنار می‌مانند). اگر `year > death + 1` باشد، نتیجه `text:after_ruler_death` است.
+  4. «و»، «برای» و «به نام» میان نام، یا دو «،» یا بیشتر → `text:several`.
+  5. شمار کلمه‌ها بی `TITLES` (میرزا، اقا، ملا، مولی، مولانا، سید، میر، حاج، حاجی، شیخ، اخوند، خان، بیک، بیگ، سرکار، جناب، مشهدی، کربلایی، امیر، شاهزاده، استاد، خواجه، بن، ابن). کمتر از سه → `text:one_word` یا `text:two_words`.
+  6. `PersonNameMatcher::ids` باید یکتا باشد. شخص باید سال مرگ داشته باشد، با `copy_year ≤ death + 1` و `death − copy_year ≤ 90` (`MAX_AFTER`).
+- **رکورد دارنده:** `Person` با همان `name` یا `normalized_name`، به شرط یکتا بودن. اگر نباشد و دارنده `death` داشته باشد، رکورد ساخته می‌شود (`created`)، مانند `BackfillWorkDedicationsCommand::ruler`. در اجرای آزمایشی رکورد ذخیره نمی‌شود.
+- **نوشتن:** تنها `person_id` (و `updated_at`) در یک تراکنش. `name` دست نمی‌خورد. `commissioned_by` و نمایه‌ی جست‌وجو تغییر نمی‌کنند، پس بازسازی نمایه لازم نیست. `--report=<tsv>` همه‌ی ردیف‌ها را با نوع داوری و شخص می‌نویسد.
+- **`Insights::patrons`:**
+  - از `manuscript_people` (`role = patron`) پیوسته به جدول موقت نسخه‌های دامنه می‌خواند. گروه‌بندی بر پایه‌ی `person_id` است، یا اگر پیوند نخورده، `normalize(name)`. شمارش `COUNT(DISTINCT manuscript_id)` است.
+  - `isKin` تنها برای نام‌های بی‌پیوند به کار می‌رود.
+  - `with_patron` همچنان شمار نسخه‌های دارای `commissioned_by` است. ۱۸ نسخه ردیف `patron` ندارند و در فهرست نام‌ها نمی‌آیند. `linked` شمار نسخه‌های دارای سفارش‌دهنده‌ی پیوندخورده است.
+  - `routeKeys()` میان `patrons` و `dedications` مشترک است.
+- **cache:** `CACHE_KEY` از `insights.v7` به `insights.v8` رسید.
+- **آزمون‌ها:**
+  - `LinkCopyPatronsTest::test_rulers_titles_and_full_names_link_by_the_year_of_the_copy`
+  - `LinkCopyPatronsTest::test_a_title_holder_with_a_death_year_gets_a_record_when_there_is_none`
+  - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`، که اکنون پیوند شخص را هم می‌سنجد.
+- **اجرا پس از استقرار:** نخست `fahares:link-copy-patrons --dry-run`، سپس `fahares:link-copy-patrons` و در پایان `fahares:build-insights`. پیش از اجرا از `manuscript_people` (ردیف‌های `patron`) پشتیبان گرفته شود.

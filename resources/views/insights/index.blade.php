@@ -672,11 +672,19 @@
                     <ol class="text-sm">
                         @foreach($pt['items'] as $row)
                             <li class="py-1.5 border-b border-line last:border-0 flex items-baseline gap-2">
-                                <span class="text-ink">{{ $row['name'] }}</span>
+                                @if($row['person'] ?? null)
+                                    <a href="{{ route('people.show', $row['person']) }}" class="text-ink hover:text-cinnabar">{{ $row['name'] }}</a>
+                                @else
+                                    <span class="text-ink">{{ $row['name'] }}</span>
+                                @endif
                                 @if($row['centuries'])<span class="text-[11px] text-muted whitespace-nowrap">{{ $centuriesOf($row['centuries']) }}</span>@endif
                                 <span class="leader" aria-hidden="true"></span>
-                                <a href="{{ $search('manuscripts', ['f' => ['commissioned' => $row['name']]]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar"
-                                   title="جست‌وجوی این نام در سفارش‌دهنده‌ی نسخه‌ها">{{ Fa::num($row['count']) }}</a>
+                                @if($row['person'] ?? null)
+                                    <span class="text-xs text-muted tabular-nums">{{ Fa::num($row['count']) }}</span>
+                                @else
+                                    <a href="{{ $search('manuscripts', ['f' => ['commissioned' => $row['name']]]) }}" class="text-xs text-muted tabular-nums hover:text-cinnabar"
+                                       title="جست‌وجوی این نام در سفارش‌دهنده‌ی نسخه‌ها">{{ Fa::num($row['count']) }}</a>
+                                @endif
                             </li>
                         @endforeach
                     </ol>
@@ -701,7 +709,7 @@
             </x-ui.card>
             <p class="mt-3 text-xs text-muted leading-relaxed">
                 سفارش‌دهنده برای {{ Fa::num($pt['with_patron']) }} نسخه ({{ $pct($pt['coverage']) }}) ثبت است، با {{ Fa::num($pt['names']) }} نام گوناگون.
-                نام‌ها به رکورد شخص پیوند نخورده‌اند، پس گونه‌های یک نام («آیة الله بروجردی» و «آیة الله حاج آقا حسین طباطبائی بروجردی») جدا شمرده می‌شوند و جست‌وجوی یک نام نسخه‌های هم‌نام را هم می‌آورد.
+                سفارش‌دهنده‌ی {{ Fa::num($pt['linked'] ?? 0) }} نسخه به رکورد شخص پیوند خورده است: پادشاهان و صاحبان لقب‌هایی که سال نسخه نشان می‌دهد کیست («ظل السلطان»، «آیة الله بروجردی»). این نام‌ها با همه‌ی صورت‌هایشان یک‌جا شمرده می‌شوند و به صفحه‌ی شخص می‌روند. نام‌های دیگر با صورت نوشتاری‌شان شمرده می‌شوند و جست‌وجوی هر یک نسخه‌های هم‌نام را هم می‌آورد.
                 @if($pt['kin']) {{ Fa::num($pt['kin']) }} نسخه که سفارش‌دهنده‌شان «مؤلف»، «خودش» یا یکی از خویشان کاتب («پدرش …») است، در فهرست نام‌ها نیامده‌اند. @endif
                 سده‌ها، سده‌ی نسخه‌هایی است که کل بازه‌ی تاریخشان در یک سده است؛ سده‌هایی که کمتر از {{ Fa::num(config('insights.min_sample') * 10) }} نسخه دارند، در نمودار نیامده‌اند.
             </p>

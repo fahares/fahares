@@ -13,6 +13,7 @@ use App\Support\Insights;
 use App\Support\InsightsScope;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 /** The insights page narrowed to an author, a library, a subject and so on (backlog item 107) */
@@ -275,12 +276,20 @@ class InsightsScopeTest extends TestCase
         // Two forms of one name: counted together, shown as written most
         $this->copies($work, 2, ['commissioned_by' => 'آیة الله بروجردی']);
         $this->copy($work, ['commissioned_by' => 'ایه الله بروجردی']);
+        // Two spellings linked to one person: counted together, under the person's name
+        $king = $this->person('donor');
+        $this->copy($work, ['commissioned_by' => 'ناصرالدین شاه']);
+        $this->copy($work, ['commissioned_by' => 'ناصر الدین شاه قاجار']);
+        DB::table('manuscript_people')->insertUsing(['manuscript_id', 'name', 'role', 'position'],
+            Manuscript::where('work_id', $work->id)->whereNotNull('commissioned_by')->selectRaw("id, commissioned_by, 'patron', 0"));
+        DB::table('manuscript_people')->where('role', 'patron')->whereIn('name', ['ناصرالدین شاه', 'ناصر الدین شاه قاجار'])->update(['person_id' => $king->id]);
 
         $pt = Insights::build(InsightsScope::fromArray(['author' => $author->id]))['patrons'];
 
-        $this->assertSame([['name' => 'ظل السلطان', 'count' => 4, 'centuries' => [13, 14]], ['name' => 'آیة الله بروجردی', 'count' => 3, 'centuries' => null],
-            ['name' => 'فرهاد میرزا', 'count' => 2, 'centuries' => null]], $pt['items'], 'a name of one copy is not listed');
-        $this->assertSame([12, 4, 2], [$pt['with_patron'], $pt['names'], $pt['kin']]);
+        $this->assertSame([['name' => 'ظل السلطان', 'person' => null, 'count' => 4, 'centuries' => [13, 14]], ['name' => 'آیة الله بروجردی', 'person' => null, 'count' => 3, 'centuries' => null],
+            ['name' => $king->name, 'person' => $king->getRouteKey(), 'count' => 2, 'centuries' => null],
+            ['name' => 'فرهاد میرزا', 'person' => null, 'count' => 2, 'centuries' => null]], $pt['items'], 'a name of one copy is not listed');
+        $this->assertSame([14, 5, 2, 2], [$pt['with_patron'], $pt['names'], $pt['kin'], $pt['linked']]);
         $thirteenth = collect($pt['centuries'])->firstWhere('century', 13);
         $this->assertSame([6, 3], [$thirteenth['copies'], $thirteenth['count']]);
         $this->assertTrue(Insights::isKin('برادرش محمد ظاهر'));
@@ -390,7 +399,7 @@ class InsightsScopeTest extends TestCase
         $this->copy($this->work(), ['library_id' => $library->id]);
         $this->assertSame(1, Insights::get(InsightsScope::fromArray(['library' => (string) $library->id]))['totals']['manuscripts']);
 
-        Cache::forever('insights.v7', Insights::build());
+        Cache::forever('insights.v8', Insights::build());
         $this->get(route('insights', ['library' => 'x', 'subject' => '0']))->assertOk()
             ->assertSee('نسخه‌ها در گذر سده‌ها')
             ->assertDontSee('noindex');
