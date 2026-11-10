@@ -9114,6 +9114,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `unlinked 33`، «۲۲ شخص، ۰ بی‌اثر». اجرای دوم: `already 33`.
 - **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
 - **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_111_single_name_authors_before_20261110.json` (۳۳ اثر، ۳۷ سطر `work_people`). `unlinked 33`، هیچ شخصی بی‌اثر نماند؛ اجرای دوم `already 33`.
 
 ### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
 - **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
@@ -9211,6 +9212,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
 - **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
 - **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵):** `created 3067`، `has_life 315`، `missing_person 21`، `missing_life 1`. اجرای دوم: `exists 3067`.
 
 ### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
 - **`patrons`:**
@@ -9551,6 +9553,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `scripts/dev/prod-run copy-merge-gaps -- 'cd /app && php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json …'`: «Written: 11 incipits and 7 explicits «برابر», 1 copies get their script links, 1 readings removed.» اجرای دوم: «0 … 0 … 0 … 0».
   - پشتیبان: `step14_131_fill_copy_merge_gaps_backup.json` (۱۲ نسخه، sha256 `ddb86abe6e26943c…`). بازگردانی: همان دستور با `--revert=` این فایل.
   - پس از اجرا: `manuscript_script` برای 75533 یک ردیف دارد و قول #65 دیگر نیست.
+### گام ۱۴.۱۳۲: `<x-suggest.contribute>` و `<x-suggest.contribute-item>`
+- `components/suggest/contribute-item.blade.php` ردیف یک بخش خالی را با `@push('contribute')` به پشته می‌فرستد. ورودی‌هایش `title`، `hint`، `label` و `payload` است. `payload` همان جزئیات رویداد `suggest-field` است که دکمه‌ی بخش پر می‌فرستد.
+- `components/suggest/contribute.blade.php` پشته را با `$__env->yieldPushContent('contribute')` می‌خواند و اگر خالی نبود، جعبه‌ی `#contribute` را می‌سازد. پشته هنگام رسیدن به این کامپوننت خوانده می‌شود، پس جعبه باید پس از همه‌ی بخش‌ها بیاید: پس از `<x-suggest.notes>` در `works`، `manuscripts`، `people`، `libraries` و `sources/show`.
+- `record-relations`، `work-people`، `manuscript-people` و `suggest/notes` وقتی خالی‌اند، به جای `<x-ui.section>` یک `contribute-item` می‌گذارند. جمله‌ی «پس از بررسی، با نام شما…» از هر دعوت به سرِ جعبه رفت.
+- این چهار کامپوننت جای دیگری به کار نرفته‌اند، پس پشته‌ی بی‌جعبه پیش نمی‌آید.
+- آزمون: `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts` با `assertSeeInOrder` می‌سنجد که پیش از رابطه، عنوان بخش پس از `id="contribute"` است و پس از آن، پیش از جعبه.
 ### گام ۱۴.۱۳۳: `fahares:link-named-mothers`
 - **نامزدها (fahares_prod):**
   - عکسی‌هایی که هیچ رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy` ندارند: ۱۵٬۱۰۸.
@@ -9586,3 +9594,85 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سه ارجاع (ص ۹۷۵، ۹۸۳ و ۹۸۶، هر سه «متفرقات») روی نمایه‌ی نام‌ها افتادند. نمایه دست‌کم از ص ۹۵۵ آغاز می‌شود. ۱۰۹ ارجاع نسخه به ص ۹۷۰ تا ۹۸۹ است (۹۱ «متفرقات»، ۱۶ «یادداشت‌ها»، ۲ دیگر). هیچ ارجاعی به ص ۹۳۰ تا ۹۶۹ نیست.
   - سرصفحه‌های این بخش (برگ ۵۰۲ ص ۹۶۰ و برگ ۵۳۵ ص ۱۰۲۶) با نگاشت یکی‌اند. پس برگه همان صفحه‌ی چاپی‌ای است که فنخا نوشته، و چرایی این ارجاع‌ها در بک‌لاگ مانده است.
 - **پیش از استقرار:** پوشه‌ی `majlis-mokhtasar/v01` به `/app/storage/app/public/catalogs/` فرستاده شود (با تأیید کاربر، مانند گام ۱۴.۱۲۲). **پس از استقرار:** `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط جلد #۴۴۱ را به‌روز می‌کند).
+### گام ۱۴.۱۳۴: پیروی `sources:tie-person-lives` از ادغام اشخاص
+- **[TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php):** اگر `Person` با `person_slug` نباشد، `mergedInto()` تازه‌ترین `AuditLog` با `auditable_type = Person`، `action = merge` و `old_values->source_snapshot->slug` برابر آن نشانی را می‌گیرد. `auditable_id` آن شخص ماندگار است، و `EntityRedirect::resolveTargetId('people', …)` ادغام‌های بعدی او را دنبال می‌کند. ستون تازه‌ی `merged` در جدول گزارش.
+- **آزمون:** `TiePersonLivesTest::test_a_tie_of_a_person_merged_away_goes_to_the_person_he_was_merged_into`.
+- **اجرا در تولید پس از استقرار:** `php artisan sources:tie-person-lives --apply`. انتظار: `merged 21` و حداکثر ۲۱ `created`.
+
+### گام ۱۴.۱۳۵: `monzavi-nuskhe`، فهرست نسخه‌های خطی فارسی منزوی
+- **کتاب:** احمد منزوی، «فهرست نسخه‌های خطی فارسی»، مؤسسه‌ی فرهنگی منطقه‌ای (RCD)، تهران ۱۳۴۸–۱۳۵۳ش، شش جلد (ج ۲ در دو بخش). صفحه‌ها در همه‌ی جلدها پیوسته‌اند.
+- **اسکن‌ها (`_tiers.tsv`، ردیف «الف۳ … منزوی»، دیسک بیرونی):**
+  - **دسته‌ی Acrobat:** ۳۰۰dpi، دوسطحی. kha:5478–5483 با CCITT، و kha:5514–5520 همان برگ‌ها با JBIG2. فقط دسته‌ی دوم ج ۴ را دارد (kha:5518). kha:5483 (ج ۶) ۶۰۰dpi است. kha:1220 همان ج ۶ با JBIG2 است.
+  - **دسته‌ی KONICA:** kha:1921–1927، رنگی و حدود ۱۰۰dpi (۶۶۱ پیکسل). kha:5849 همین هفت فایل یکجاست (۴٬۸۳۸ برگ).
+  - **انتخاب:** دسته‌ی Acrobat با CCITT، چون فشرده‌سازی‌اش بی‌اتلاف است (JBIG2 گاه نویسه‌های همانند را جابه‌جا می‌کند). ج ۴ ناچار از kha:5518 است.
+  - **چاپ:** صفحه‌ی عنوان و شناسنامه‌ی ج ۱ در هر دو دسته یکی است: «تهران مهر ۱۳۴۸»، نشریه‌ی شماره‌ی ۱۴ مؤسسه.
+- **دریافت:** هشت PDF در `../fahares-sources/monzavi-nuskhe/scans/` (۴۹۵ مگابایت)، با `MD5SUMS`.
+- **نگاشت ([monzavi_nuskhe_page_mapping.json](../scripts/facsimile/monzavi_nuskhe_page_mapping.json)):** برای هر جلد، دنباله‌هایی از صفحه‌ها با فاصله‌ی ثابت برگ تا صفحه. ابزار OCR در دستگاه نبود، پس نوار بالای برگ‌ها در جدول‌هایی کنار هم بریده و شماره‌ها با چشم خوانده شدند: آغاز و پایان هر جلد، و هر ۵۰ تا ۱۵۰ برگ. جای هر تغییر فاصله برگ‌به‌برگ پیدا شد.
+
+  | جلد | صفحه‌ها | PDF | برگ = صفحه + |
+  |---|---|---|---|
+  | ۱ | ۱–۷۱۷ | 5478 | ۱۲ |
+  | ۲ | ۷۲۱–۱۴۸۹ | 5479 | −۷۱۴ |
+  | ۲ | ۱۴۹۰–۱۸۴۱ | 5480 | −۱۴۸۴ |
+  | ۳ | ۱۸۴۵–۲۶۰۹ | 5481 | −۱۸۳۶ |
+  | ۳ | ۲۶۱۰–۲۶۱۱ | 1924 (KONICA) | −۱۸۳۳ |
+  | ۳ | ۲۶۱۲–۲۶۱۵ | 5481 | −۱۸۳۸ |
+  | ۴ | ۲۶۱۷–۳۲۰۵ | 5518 | −۲۶۰۸ |
+  | ۴ | ۳۲۰۶–۳۴۳۹ | 5518 | −۲۶۰۶ |
+  | ۵ | ۳۴۴۱–۳۹۲۹ | 5482 | −۳۴۳۲ |
+  | ۶ | ۳۹۳۰–۳۹۶۱ | 5483 | −۳۹۲۰ |
+  | ۶ | ۳۹۶۲–۴۷۲۶ | 5483 | −۳۹۱۸ |
+
+  - **شکاف‌ها:** kha:5481 برگ ۲۶۱۰ و ۲۶۱۱ را ندارد (برگ ۷۷۳ ص ۲۶۰۹ است و ۷۷۴ ص ۲۶۱۲). kha:5518 در برگ‌های ۵۹۸–۵۹۹ ص ۳۲۰۴–۳۲۰۵ را دوباره دارد، و kha:5483 در برگ‌های ۴۲–۴۳ ص ۳۹۶۰–۳۹۶۱ را.
+  - **مرز جلدها:** ص ۷۱۸–۷۲۰ پیش‌گفتار و فهرست ج ۲ است و «بخش دهم» از ۷۲۱ آغاز می‌شود (فهرست همان جلد). ص ۱۸۴۲–۱۸۴۴، ۲۶۱۶ و ۳۴۴۰ در اسکن‌ها نیستند یا سفیدند. آغاز هر جلد صفحه‌ی عنوان بخش است: ۱۸۴۵ بخش ۱۷، ۲۶۱۷ بخش ۲۶، ۳۴۴۱ بخش ۲۷.
+  - **دو بار ۳۹۲۹:** آخرین صفحه‌ی ج ۵ (فهرست مؤلفان بخش موسیقی) شماره‌ی ۳۹۲۹ دارد. فهرست ج ۶ هم بخش ۳۱ را از ۳۹۲۹ می‌آورد، که صفحه‌ی عنوان بی‌شماره‌ی آن بخش است (برگ ۹). سایت ۳۹۲۹ را از ج ۵ نشان می‌دهد و ج ۶ از ۳۹۳۰ آغاز می‌شود.
+- **تصویرها:** `extract_edition_pages.py` با `--offset/--first/--last` برای هر دنباله، با عرض ۱۲۴۰ پیکسل (۶۵۴ برای دو برگ KONICA، بی بزرگ‌نمایی)، در `storage/app/public/catalogs/monzavi-nuskhe/vNN/` checkout اصلی. شمار: ۷۱۷، ۱٬۱۲۱، ۷۷۱، ۸۲۳، ۴۸۹ و ۷۹۷؛ جمع ۴٬۷۱۸ و ۷۰۴ مگابایت. هر صفحه‌ی مرز و شکاف (۲۴ صفحه) با شماره‌ی چاپی‌اش وارسی شد.
+- **[config/bibliography.php](../config/bibliography.php):** `monzavi-nuskhe`، `kind` فهرستگان، `viewer` با `first_pages` و `last_pages` بالا، و `runs` [[۱..۶]].
+  - **الگو:** `(?:فهرست )?نسخه(?: ?ها ?ی?)?(?: خطی)?(?: فارسی)? ?منزوی`. این نام‌ها را می‌گیرد: «نسخه‌های منزوی» (۲٬۵۳۰)، «نسخه‌های فارسی منزوی» (۱۹)، «نسخه‌های خطی فارسی، منزوی»، «نسخه‌ها منزوی»، «نسخه‌هایمنزوی»، «فهرست نسخه‌های فارسی منزوی» و «نسخه‌های منزوی ص/ج».
+  - **بیرون مانده:** «منزوی» تنها (۱۱۰)، «فهرست منزوی» (۱۰) و «گنج بخش منزوی» (حدود ۳۰، فهرست گنج‌بخش او). همچنین «نسخه‌های منزوی موزه ملی پاکستان»، «… سالار جنگ» و «… مؤسسه خاورشناسی»، که نام کتاب دیگری پس از نام می‌آید و الگو آن را نمی‌خواند.
+  - **`pairs_after_name`:** «نسخه‌های منزوی 2: 1191» جلد-صفحه است.
+- **[BibliographyLinks::pageLink](../app/Support/BibliographyLinks.php):** `viewer.runs` تازه است. صفحه‌ای که در جلدِ نام‌برده نیست، در جلدی از همان دنباله که آن را دارد نشان داده می‌شود، همان `textVolume` منبع‌های متنی. صفحه‌ی بی‌جلد پیش‌تر با `volumeOfColumn` از `first_pages` خوانده می‌شد.
+  - **در متن صفحه‌ها** («[… نسخه‌های فارسی منزوی 1902/3؛ …]» در فنخا ج ۱ ص ۹۴) همان `inProse` است.
+  - **صفحه‌ی بی‌جلد پس از «و» در متن صفحه‌ها:** گام ۱۴.۱۲۵ فقط جفت «صفحه/جلد» پس از «و» را به ارجاع پیشین می‌پیوست. اکنون `readProse` عدد تنها را هم می‌پیوندد، اگر ارجاع با آن پایان یابد: پس از آن «؛»، «]»، «)»، «،»، «.»، پایان متن یا «و» بیاید. `segments()` آن را در جلد ارجاع پیشین می‌گذارد، چنان‌که در سطر مآخذ. «4090/6 و 4215» هر دو را پیوند می‌دهد. «و 5 نسخه» و «و 1350 ق» پیوند نمی‌گیرند.
+  - **اثر روی `fahares_prod`:** ۱٬۲۱۲ پیوند تازه در متن همه‌ی منبع‌ها: فنخا ← الذریعة ۴۳۵، فنخا ← نسخه‌های منزوی ۱۷۸، کلام ← الذریعة ۱۷۶، فنخا ← کشف ۵۶، زرکلی ← کشف ۵۲ و فنخا ← فهرستواره ۵۰. ۲۵ نمونه‌ی تصادفی درست بودند، مانند «208/3 و 209» (ج ۳ ص ۲۰۹) و «1928/3 و 1929».
+- **آزمون:** `BibliographyLinksTest::test_monzavi_nuskhe_opens_the_page_viewer_by_the_page_whatever_volume_fankha_names` و `test_monzavi_nuskhe_in_fankhas_page_text`، که صفحه‌ی بی‌جلد پس از «و» و دو عددِ نپیوستنی را هم می‌سنجد.
+- **تمرین روی `fahares_prod`:**
+  - `sources:backfill --only=registry`: منبع ۱۰۰۲۱۰ با ۶ جلد. این رونوشت جلدهای `hadith-mss` (گام ۱۴.۸۷) را هم نداشت و همین اجرا ۱۲ جلد آن را ساخت، پس رونوشت از آن گام کهنه‌تر است.
+  - `sources:import-citation-forms`: «Made 2 forms» (این منبع و `hadith-mss`).
+  - `sources:backfill --only=bibliography`: ارجاع‌های منبع شناخته ۲۳٬۲۷۰.
+  - **شمار:** از ۲٬۶۳۱ مأخذ اثر که «نسخه … منزوی» دارند، ۲٬۶۱۷ این منبع را گرفتند: `source_id` برای سطرِ تک‌منبعی، `locations` برای سطر چندمنبعی. ۱۴ مانده: کتاب‌های دیگر منزوی، صفحه‌های بیرون از کتاب («6201/1»، «12011/2»، «5874»)، و جلدِ ناموجود («501/7»).
+  - **اجرای دوم** «volumes made 0» و «Made 0 forms» داد. `ensureVolumes` جلد موجود را به‌روز نمی‌کند، پس `page_first` جلد ۲ (۷۱۸ پیش از اصلاح) در رونوشت دستی ۷۲۱ شد. روی پروداکشن جلد تازه ساخته می‌شود.
+  - `sources:link-earlier-edition monzavi nuskhe --dry-run` همان ۲٬۶۳۵ ارجاع را خواند. این فرمان ارجاع‌هایی را می‌خواند که `source_id` آن‌ها فهرستواره نیست، پس منبع تازه کارش را تغییر نمی‌دهد.
+  - **پیش‌نمایش** با `docker run` از `fahares-app` روی worktree، با `.env` رونوشت (`fahares_prod`) و تصویرهای checkout اصلی. `/sources/fankha/1/page/94`: «۱۹۰۲/۳» نمایشگر را با `catalogs/monzavi-nuskhe/v03/p1902.webp` باز کرد. ۵۰ صفحه‌ی اثر تصادفی پاسخ ۲۰۰ دادند و همه پیوند نمایشگر این منبع را داشتند. `/api/page-images/monzavi-nuskhe/2` پاسخ `{"first":721,"last":1841}` داد.
+- **انتقال تصویرها به سرور (۱۹ آبان ۱۴۰۵، به خواست کاربر، پیش از انتشار کد):**
+  - **پیش از انتقال:** قفل `prod-run` آزاد بود و جلسه‌ی دیگری در حال انتقال نبود. پوشه هنوز روی سرور نبود. `/app/storage/app/public` پارتیشن ماندگار `/dev/sda4` است و ۲۵ گیگابایت جای خالی داشت.
+  - **روش:** هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/monzavi-nuskhe --no-same-owner -xf -"`، در ۱۳ تا ۳۴ ثانیه. سپس `chown -R ubuntu:ubuntu` و `chmod -R 777` اجرا شد، مانند گام ۱۴.۸۶.
+  - **وارسی:** ۴٬۷۱۸ فایل و ۷۰۴ مگابایت. md5 فهرست نام و اندازه‌ی فایل‌ها در دو سو یکی بود (`2b93fc9e…`).
+  - **پاسخ سایت:** `https://fahares.net/storage/catalogs/monzavi-nuskhe/` برای `v01/p0001`، `v02/p0721`، `v03/p1902`، `v03/p2610`، `v04/p3206` و `v06/p4726` پاسخ ۲۰۰ و `image/webp` داد.
+- **پروداکشن (مانده):**
+  1. انتشار کد.
+  2. `sources:backfill --only=registry`، `sources:import-citation-forms` و `sources:backfill --only=bibliography`، از راه `prod-run` و پس از پشتیبان.
+### گام ۱۴.۱۳۷: `author_fix` و شمارش دوباره‌ی اشخاص در `add-corpus-works`
+- **3082 (`v2-633`) و 6009 (`v3-1634`):**
+  - `author_name` «حسینی بخاری، محمد بن برهان» و `author_id` 9003 بود.
+  - `raw_text`، پارسر v1 (`json/fankha/fankha_vol_02.json` و `_03`) و v2 هر سه «بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد» دارند.
+  - هیچ `audit_logs` یا `field_suggestions` ندارند. review10 آن‌ها را `site: edited` نشان می‌داد.
+  - شخص درست 3687 است (د. 785).
+- **سنجش:**
+  - برای همه‌ی آثار، بخش پیش از «،» در `author_name` (با `letters`) در هشت سطر نخست `raw_text` جستجو شد: ۱۹ اثر یافت نشد.
+  - ۷ تا از این‌ها خطای سنجش بودند، چون برچسب صفحه سطر مؤلف را از هشت سطر بیرون برده بود.
+  - 37317 را پیشنهاد 41 تغییر داده بود، که `approved` است، پس می‌ماند.
+  - **review10، `author_name` با `site: edited`:** ۲۷ مورد. جز این سه، همه یکسان‌سازی نام یک شخص یا ردیف‌های جابه‌جای v2 (35099 تا 35113) هستند.
+- **71533 (`v34-2342`):**
+  - `audit_logs` 124356 (`lost_head`، `fankha_lost_heads_step14_19.json`) `raw_text` را با متن `v34-2343` جایگزین کرد و `description` آن را افزود. فایل آن گام `v2: v34-2343` داشت.
+  - نسخه‌ی اثر 333943 (مجلس 18429/1، «کاتب = مؤلف») از `v34-2342` است.
+  - از ۲۷ `raw_text` آن گام، تنها در این یکی بخش نخست `author_name` در متن پیشین بود و در متن تازه نبود.
+- **فایل:** `database/data/author_fix_step14_137.json` (`category: author_fix`، ۳ `work_updates`). دو تای اول `author_name` و `author: {name, century: 8}` دارند. سومی `raw_text`، به متن پیشینِ 124356، و `description`، به null.
+- **`AddCorpusWorksCommand::updateWork`:** وقتی `author_id` عوض شود، `Person::recountContributions()` و `searchable()` برای شخص پیشین و تازه اجرا می‌شود. آزمون: `AddCorpusWorksCommandTest::test_a_corrected_author_moves_the_work_between_the_two_people_and_both_count_again`.
+- **تمرین روی fahares_prod:**
+  - «update 3». `author_id` 3687 شد و `work_people` همان را دارد.
+  - برای آزمودن کد تازه، دو اثر دوباره به 9003 برگردانده و فرمان باز اجرا شد. `works_count` شخص 3687 از 3 به 5 رسید و 9003 از 30 به 28.
+  - اجرای دوم «update 0».
+- **مانده:** 333944 (مجلس 17216/1، `v34-2343`) زیر 21870 (`v11-1287`، بی‌مؤلف) است.
+- **اجرا در تولید:** پس از پشتیبان از این سه اثر و `work_people` آن‌ها، `fahares:add-corpus-works --file=database/data/author_fix_step14_137.json --apply`.
+

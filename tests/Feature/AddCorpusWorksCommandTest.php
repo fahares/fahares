@@ -208,6 +208,26 @@ class AddCorpusWorksCommandTest extends TestCase
         DB::table('subjects')->where('id', $subject)->delete();
     }
 
+    public function test_a_corrected_author_moves_the_work_between_the_two_people_and_both_count_again()
+    {
+        // step 14.137: «الاحمدیة» is بخارائی اوچی's, as Fankha says; the site had حسینی بخاری
+        $wrong = \App\Models\Person::create(['name' => 'مؤلف نادرست آزمایشی', 'normalized_name' => 'مؤلف نادرست آزمایشی', 'slug' => 'wrong-' . uniqid(), 'is_author' => true, 'death_year_hijri' => 850, 'century_hijri' => 9]);
+        $right = \App\Models\Person::create(['name' => 'اوچی آزمایشی، جلال الدین', 'normalized_name' => 'اوچی آزمایشی، جلال الدین', 'slug' => 'right-' . uniqid(), 'is_author' => true, 'death_year_hijri' => 785, 'century_hijri' => 8]);
+        $id = $this->work('اثر آزمایشی ز', 'test-ze-v99-9006', 'مؤلف نادرست آزمایشی');
+        Work::find($id)->update(['author_id' => $wrong->id]);
+        $wrong->recountContributions();
+        $this->assertSame(1, $wrong->fresh()->works_count);
+
+        $update = ['v2' => 'v99-6', 'work_slug' => 'test-ze-v99-9006', 'author' => ['name' => 'اوچی آزمایشی، جلال الدین', 'century' => 8],
+            'changes' => ['author_name' => ['from' => 'مؤلف نادرست آزمایشی', 'to' => 'اوچی آزمایشی، جلال الدین']]];
+        file_put_contents($this->file, json_encode(['category' => 'author_fix', 'works' => [], 'work_updates' => [$update]], JSON_UNESCAPED_UNICODE));
+        $this->artisan('fahares:add-corpus-works', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $this->assertSame($right->id, (int) Work::find($id)->author_id);
+        $this->assertSame([$right->id], DB::table('work_people')->where('work_id', $id)->where('role', 'author')->pluck('person_id')->map(fn ($p) => (int) $p)->all());
+        $this->assertSame([0, 1], [$wrong->fresh()->works_count, $right->fresh()->works_count]);
+    }
+
     public function test_a_shelfmark_the_work_holds_twice_moves_by_its_sequence()
     {
         // vol 11: «رضوی 7141» twice under Deylamaj's work, the second one Kermanshahi's (step 14.23)

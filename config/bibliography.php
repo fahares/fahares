@@ -173,6 +173,29 @@ return [
                 ],
             ],
         ],
+        // Monzavi's earlier «فهرست نسخه‌های خطی فارسی» itself (RCD, Tehran 1348-53 Sh), as page images (step 14.135,
+        // scripts/facsimile/monzavi_nuskhe_page_mapping.json). Its six volumes number their pages on, and Fankha's volume
+        // is often wrong («نسخه‌های منزوی 3298/2» is in volume 4), so the page tells the volume (runs), and a bare page
+        // («نسخه‌های منزوی 4369») is linked. Fankha writes «نسخه‌های منزوی 1902/3», «نسخه‌های فارسی منزوی 1287/2»,
+        // «نسخه‌های خطی فارسی، منزوی 461/1», «نسخه‌ها منزوی», «نسخه‌های منزوی ص 1697» or «… ج 4305/6»; not «منزوی»
+        // alone, «فهرست منزوی» or «گنج بخش منزوی» (his Ganjbakhsh catalogue), nor «نسخه‌های منزوی موزه ملی پاکستان».
+        'monzavi-nuskhe' => [
+            'label' => 'فهرست نسخه‌های خطی فارسی',
+            'pattern' => '(?:فهرست )?نسخه(?: ?ها ?ی?)?(?: خطی)?(?: فارسی)? ?منزوی',
+            'volumes' => 6,
+            'pairs_after_name' => true,
+            'kind' => 'union_catalogue',
+            'compiler' => 'احمد منزوی',
+            'publisher' => 'مؤسسه‌ی فرهنگی منطقه‌ای',
+            'edition_label' => 'تهران، ۱۳۴۸–۱۳۵۳ش',
+            'viewer' => [
+                'catalog' => 'monzavi-nuskhe',
+                'name' => 'نسخه‌های منزوی',
+                'first_pages' => [2 => 721, 3 => 1845, 4 => 2617, 5 => 3441, 6 => 3930],
+                'last_pages' => [1 => 717, 2 => 1841, 3 => 2615, 4 => 3439, 5 => 3929, 6 => 4726],
+                'runs' => [[1, 2, 3, 4, 5, 6]],
+            ],
+        ],
         // Mushar's catalogues of printed books and Sarkis's Mu'jam al-Matbu'at, as text from Noor (item 86, step
         // 14.18, scripts/sources/noor_reference_books.py). The Persian catalogue's five volumes (Tehran 1350-55 Sh) number
         // their columns on; Fankha writes «مشار فارسی 2558/2», «فهرست فارسی مشار 4954/4», «مشار 3098/2» or «مشار،
