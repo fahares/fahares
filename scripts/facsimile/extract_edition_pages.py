@@ -16,7 +16,8 @@ A scan whose leaves are out of order, or miss pages, or change offset at plates 
     python3 extract_edition_pages.py PDF --code majlis --volume 2 --map v02.map.json [--width 1100]
 
 A scan of open spreads, two printed pages per leaf (Majlis short catalogue, step 14.136), names the half in the map:
-"LEAF:r" for the right page, "LEAF:l" for the left one (a plain number is still the whole leaf). The leaf is rendered
+"LEAF:r" for the right page, "LEAF:l" for the left one (a plain number is still the whole leaf). "LEAF:u" is a whole
+leaf scanned upside down (step 14.143), turned before anything else. The leaf is rendered
 at twice --width and cut at its gutter, the column of least ink near the middle; the black scanner bed at the outer
 edge and at the foot of each half is trimmed.
 """
@@ -79,19 +80,22 @@ def bottom_trim(half):
 
 
 def edge_band(profile):
-    """How many lines to drop at one edge (profile runs from the edge inward): a dark band (mean below 120) that
-    starts within the outer tenth, after a white margin, and is at least 1% of the length thick without a break, plus
-    the grey lines (235 or less) that follow it. A thin rule, such as the line under a running header, is no band."""
+    """How many lines to drop at one edge (profile runs from the edge inward): a near-black band (mean below 60, the
+    scanner bed) that starts within the outer tenth, after a white margin, and is at least 1% of the length thick
+    without a break, plus at most 1.5% of grey lines (235 or less) after it. A thin rule (the line under a running
+    header) is no band, and neither is a photograph of a manuscript, which is never that dark across a whole line;
+    the grey lines are capped so that text close to the band is never taken with it (step 14.143)."""
     n = len(profile)
     i = 0
     while i < n // 10 and profile[i] > 200:
         i += 1
     j = i
-    while j < n // 5 and profile[j] < 120:
+    while j < n // 5 and profile[j] < 60:
         j += 1
     if j - i < max(8, n // 100):
         return 0
-    while j < n // 5 and profile[j] <= 235:
+    stop = j + int(n * 0.015)
+    while j < stop and profile[j] <= 235:
         j += 1
     return j
 
@@ -112,8 +116,11 @@ def render(job):
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with tempfile.TemporaryDirectory(dir=os.path.dirname(target)) as tmp:
         base = os.path.join(tmp, 'page')
-        subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width * (2 if side else 1)),
+        subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width * (2 if side in ('r', 'l') else 1)),
                         '-scale-to-y', '-1', '-gray', '-singlefile', pdf, base], check=True)
+        if side == 'u':
+            Image.open(base + '.pgm').rotate(180).save(base + '.pgm')
+            side = None
         if edges and not side:
             page = trim_edges(np.asarray(Image.open(base + '.pgm').convert('L')))
             Image.fromarray(np.ascontiguousarray(page)).save(base + '.pgm')
