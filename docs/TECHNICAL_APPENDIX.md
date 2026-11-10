@@ -9677,6 +9677,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - اجرای دوم «update 0».
 - **مانده:** 333944 (مجلس 17216/1، `v34-2343`) زیر 21870 (`v11-1287`، بی‌مؤلف) است.
 - **اجرا در تولید:** پس از پشتیبان از این سه اثر و `work_people` آن‌ها، `fahares:add-corpus-works --file=database/data/author_fix_step14_137.json --apply`.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۹۳، d5be8d92):**
+  - md5 فایل در `/app` با شاخه برابر بود (`a8f900cc…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_137_before.json`، با `works` (۳ ردیف کامل)، `work_people` (۳) و `people` 3687، 9003 و 598. `from` هر ۴ ستون برابر بود.
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «works=3».
+  - **وارسی:** اجرای دوم «update 0» داد. `author_id` و `work_people` 3082 و 6009 → 3687. 71533 → `description` null. `works_count` شخص 3687 برابر 5 و 9003 برابر 28. `/tmp` کانتینر پاک است.
 
 - **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از انتشار جلسه‌ی مدیریت کارها، به اجازه‌ی کاربر):**
   - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`، به همان روش `scripts/backup/fahares-backup.sh`: `~/backups/before_step14_135_monzavi_nuskhe_20261110_1336.sql.gz`. حجم ۳۹۵ مگابایت، با خط پایانی «Dump completed» و md5 برابر `da56106034d2b2a4d544d8805d666373`. پشتیبان روی میزبان ماند.
