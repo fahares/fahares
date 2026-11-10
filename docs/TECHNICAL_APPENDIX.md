@@ -9258,6 +9258,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **v2 درست نیست:** 65462. v2 سطر نام را در شرح نگه داشته است.
   - **بقیه:** متنِ میانِ شرح است که v2 کوتاه‌تر یا جور دیگر خوانده است.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_118.json --apply`، پس از پشتیبان از ستون‌های این ۸۵ اثر.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۷۷، main 000ba29b):**
+  - md5 فایل در `/app` با شاخه برابر بود (`876d53ef…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_118_before.json`. ردیف کامل ۸۵ اثر. هیچ ستونی با `from` فایل فرق نداشت.
+  - **اجرا:** با `prod-run --wait jolly-tharp`. خروجی «Derived data of works: works=85, with_dedication=14». ۸۵ ردیف `corpus_update` در `audit_logs`.
+  - **وارسی:** اجرای دوم «update 0». 61653 → `composition_date_raw` 1105ق و `composition_year_hijri` 1105. 5054 → `composition_place` «کربلا مدرسه سردار». `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۱۹: `Insights::dedications` و `?tab=` صفحه‌ی شخص
 - **`dedications`:**
@@ -9341,3 +9346,96 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پس از استقرار:**
   1. انتقال پوشه‌ها به حجم پایدار storage پروداکشن، به روش زرکلی: `majlis/v01 v02 v04 v10 v11 v12 v20 v28 v29 v30 v31 v32 v34 v39 v41 v44` و `majlis-p2/v24 v47`، هر کدام با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/<code> --no-same-owner -xf -"`، سپس `chown`، `chmod` و وارسی شمار پرونده‌ها و HTTP 200. (`majlis-p1` و `majlis-p3` و `majlis-p2/v33`، `v40` فرستاده نمی‌شوند.)
   2. `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط ستون‌های ۱۸ جلد را می‌نویسد و دو جلد می‌سازد).
+- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
+  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
+  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
+  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
+  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
+
+### گام ۱۴.۱۲۳: داوری مدل بر گروه‌های هم‌نام
+- **نامزدها (اسکریپت یک‌باره روی `fahares_prod` پس از ادغام‌های ۱۴.۱۲۱):**
+  - **دنباله‌ی واژه‌ها:** نام بی پرانتز، با برگرداندن «X، Y»، بی نشانه‌ها و `TITLES`. «ابن» به «بن» تبدیل می‌شود، «ال» آغاز واژه حذف می‌شود و «عبد X» به «عبدX» می‌پیوندد.
+  - **جفت:** دنباله‌ی رکورد کوتاه‌تر زیردنباله‌ی مرتب دنباله‌ی تنها یک رکورد بلندتر است و واژه‌ی نخست هر دو یکی است. رکورد کوتاه‌تر دست‌کم دو واژه بجز «بن» و یک واژه‌ی شناسا دارد، و کمیاب‌ترین واژه‌اش در بیش از ۳۰۰ رکورد نیست. اگر `tier()` بگوید `conflict`، جفت کنار می‌رود.
+  - **گروه‌های دیگر:** گروه‌های `review` کلید دقیق که در `duplicate_people_decisions.json` نیستند.
+- **داوری:**
+  - ۱۲ دسته‌ی ۳۰۰تایی به Sonnet داده شد. خروجی هر دسته یک فایل TSV است: `G<n>`، تصمیم، `target`، شناسه‌های ادغام و دلیل.
+  - هر ۳٬۵۹۶ گروه یک خط گرفتند. همه‌ی شناسه‌ها از اعضای گروه خودشان بودند.
+  - **پس‌پالایش:** پراکندگی سال‌های کتابت ادغام ≤ ۶۰. پیوند زنجیره‌ها با union-find. اگر زنجیره بیش از ۴ رکورد داشته باشد یا جفت `skip` در آن باشد، به `unsure` می‌رود (۳۳ گروه). `target` زنجیره هدف یکتای گروه‌هایش است، وگرنه رکورد سال‌دار، سپس پرپیوندتر، سپس قدیمی‌تر.
+- **خروجی:** `database/data/duplicate_people_judged_step14_123.json` با `loose: true`. ۲٬۳۹۵ گروه دسته‌ی `clear` دارند (۲٬۲۷۲ دوتایی، ۱۱۴ سه‌تایی، ۹ چهارتایی). `members` نام هر رکورد را هنگام داوری نگه می‌دارد و `merge-duplicate-people` در حالت `loose` تنها رکوردی را ادغام می‌کند که هنوز همان نام را دارد.
+- **صفحه‌ی بازبینی:**
+  - Artifact `MnptDesxW9vMHEmDgiBEsD` با قابلیت `db`. داده‌ی ۷۲۶ گروه در خود صفحه است.
+  - تصمیم‌ها در مجموعه‌ی `decisions` ذخیره می‌شوند، هر گروه یک سند `g<n>`: `{g, d: merge|skip|unsure, target, ids, names}`.
+  - پس از بازبینی، تصمیم‌های `merge` به همان ساختار گزارش `loose` تبدیل و ادغام می‌شوند.
+- **تمرین:** «Merged 2527 records into 2395 people; 0 groups skipped» در ۳ دقیقه و ۵۵ ثانیه (`SCOUT_DRIVER=null`). شمار اشخاص ۶۹٬۸۷۵ → ۶۷٬۳۴۸ و هیچ پیوند یتیمی نماند.
+- **اجرا پس از استقرار:** پشتیبان کامل روی میزبان، سپس `php -d memory_limit=1G artisan fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_step14_123.json --limit=600`، چند بار تا «Merged 0». هر بار در فرایندی تازه اجرا شود، چون اجرای بلند گام ۱۰.۳ با کد ۱۳۷ کشته شد.
+- **اجرای پروداکشن (پس از انتشار ۸۰، `c4a4c31a`):**
+  - **پشتیبان:** `~/backups/before_step14_123_people_20261109_2024.sql.gz` روی میزبان، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `777cc12447a7880bfa5d92be17d5dfaa`.
+  - **اجرای آزمایشی:** «[dry run] Merged 2527 records into 2395 people; 0 groups skipped».
+  - **اجرای واقعی:** شش اجرای `--limit=600` در یک `prod-run`: ۶۰۰ + ۶۰۰ + ۶۰۰ + ۶۰۰ + ۱۲۷، و اجرای ششم «Merged 0».
+  - **وارسی:** شمار اشخاص ۶۹٬۸۷۵ → ۶۷٬۳۴۸. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. در دو ساعت، ۳٬۰۹۹ ردیف `merge` در `audit_logs` ثبت شد (۵۷۲ + ۲٬۵۲۷). `/people/4149` با ۳۰۱ به `/people/74734` می‌رود. `/tmp` پاک است.
+- **داوری دوم (Opus، ۴ دسته‌ی ۱۸۲تایی):**
+  - ورودی همان پرونده‌ها بود، همراه با داوری نخست در سطر `[note]`.
+  - خروجی: ۲۲۱ `merge` (یکی نامعتبر)، ۳۲ `skip`، ۴۷۳ `unsure`.
+  - **پس‌پالایش:** پراکندگی سال‌های کتابت ≤ ۶۰ و دست‌کم یک واژه‌ی شناسا در نام همه‌ی اعضا (فهرست `COMMON` یابنده)، و زنجیره‌ی ≤ ۴ رکورد. نتیجه: ۱۷۹ ادغام، و ۴۱ مورد به بازبینی.
+  - **خروجی:** `database/data/duplicate_people_judged_opus_step14_123.json`، با همان ساختار `loose`.
+  - **تمرین روی `fahares_prod`:** «Merged 177 records into 177 people; 2 groups skipped». هدف آن دو گروه در ادغام پیشین به رکورد دیگری رفته بود. شمار اشخاص ۶۷٬۳۴۸ → ۶۷٬۱۷۱ و هیچ پیوند یتیمی نماند.
+  - **صفحه‌ی بازبینی (نسخه‌ی ۲):** ۵۱۵ گروه، با یادداشت هر دو داوری.
+  - ۴۰ رکورد از گروه‌های نامطمئن در ادغام‌های پیشین هم بودند. سنجش نام در `merge-duplicate-people` این‌ها را رد می‌کند، چون رکوردی که ادغام شده نام خودش را ندارد.
+
+### گام ۱۴.۱۲۴: `fahares:queue-judged-people` و گروه‌های `judged:` در `PersonReviewQueue`
+- **ورودی:** `database/data/duplicate_people_unsure_step14_124.json`، با ۵۱۵ گروه `{ids, names, note}`. `note` داوری نخست (Sonnet) و دوم (Opus) را دارد، تا ۴۸۰ نویسه.
+- **فرمان:**
+  - هر شناسه به رکورد کنونی‌اش می‌رود: خودش، یا مقصد `EntityRedirect`. شناسه‌های تکراری حذف و مرتب می‌شوند. اگر کمتر از دو رکورد بماند، گروه `settled` است.
+  - کلید گروه `PersonReviewQueue::JUDGED . ids` است (`judged:12,34`). اگر ردیف `duplicate`ی با همین کلید یا همین `person_ids` باشد، گروه `already` است. چنین ردیفی، اگر باز باشد و پیشنهادی نداشته باشد، یادداشت‌ها را می‌گیرد.
+  - ردیف تازه: `tier = review`، `status = open`، `suggestion = {decision: unsure, comment: note, source: "model review, step 14.123"}`.
+  - `--dry-run` چیزی نمی‌نویسد.
+- **`PersonReviewQueue::refresh`:**
+  - بستن «gone» برای ردیف‌هایی که یابنده نیافته، کلیدهای `judged:%` را کنار می‌گذارد.
+  - برای هر ردیف باز `judged:`، `person_ids` به رکوردهایی که هنوز هستند کاسته می‌شود. اگر کمتر از دو رکورد بماند، ردیف `gone` می‌شود.
+- **تصحیح جمعی:** `NamesakeQueue` همه‌ی ردیف‌های باز `duplicate` را نشان می‌دهد، پس این گروه‌ها بی تغییر دیگری در «اشخاص هم‌نام» می‌آیند. صفحه‌ی بازبینی Artifact گام ۱۴.۱۲۳ دیگر لازم نیست.
+- **اجرای ادغام‌های Opus (پس از انتشار ۸۱، `938e00be`):**
+  - **پشتیبان:** `~/backups/before_step14_123_opus_20261109_2053.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `7a60b1f8ad616953652e7fa5e9192fe5`.
+  - **اجرای آزمایشی و واقعی:** «Merged 177 records into 177 people; 2 groups skipped».
+  - **وارسی:** شمار اشخاص ۶۷٬۳۴۸ → ۶۷٬۱۷۱. هیچ پیوند یتیمی نماند و `/tmp` پاک است.
+- **تمرین (`fahares_prod`):**
+  - اجرای نخست: «Queued 464 groups; 51 already in the queue; 0 settled since».
+  - `refresh-person-reviews`: «Created 2, updated 3, reopened 0, closed 21 as gone». آن ۲۱ گروه یابنده بودند که ادغام‌های ۱۴.۱۲۳ تمامشان کرده بود.
+  - شمار ردیف‌های باز `duplicate` ۵۴۴ شد. `/contribute/namesake/1520` کارت را با «۵۴۴ مورد مانده» نشان داد.
+- **آزمون:** `PersonReviewTest::test_unsure_groups_of_a_model_review_are_queued_for_the_researchers_and_stay_through_the_refresh`
+- **اجرا پس از استقرار:** `php artisan fahares:queue-judged-people --dry-run`، سپس بی `--dry-run`. پیش از اجرا از جدول `person_reviews` پشتیبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۸۲، `5c10ef78`):**
+  - **پشتیبان:** ۱٬۵۲۰ ردیف `person_reviews` به صورت JSON در `../fahares-sources/backups/step13/person_reviews_step14_124.json`. فایل از `/tmp` کانتینر پاک شد.
+  - **اجرای آزمایشی:** «[dry run] Queued 465 groups; 50 already in the queue». اجرای آزمایشی چیزی نمی‌سازد، پس دو گروهی که در فایل به یک مجموعه‌ی رکورد می‌رسند، هر دو «تازه» شمرده می‌شوند.
+  - **اجرای واقعی:** «Queued 464 groups; 51 already in the queue; 0 settled since». ردیف‌های تازه از شناسه‌ی ۱۵۲۱ آغاز می‌شوند.
+  - **وارسی:** ۵۶۵ ردیف باز `duplicate` هست. `https://fahares.net/contribute/namesake/1521` کارت را با «۵۶۵ مورد مانده» نشان می‌دهد. `/tmp` پاک است.
+
+### گام ۱۴.۱۲۵: زنجیره‌ی جفت‌ها در `BibliographyLinks::readProse`
+- **علت:** در regex متن صفحه‌ها، `$number` فقط `$volumePage` («ج N ص N») را با `[و،,]` زنجیر می‌کرد. شکل `N/N` یا `N:N` تنها بود، پس تطبیق «الذریعة 105/19 و 183/17 و 967/9» در `105/19` تمام می‌شد. دو جفت بعدی در شاخه‌ی `other` (کتابی که سایت ندارد) می‌افتادند.
+- **تغییر:** پس از نخستین عدد، هر شمار از `\s*[و،,]\s*(?:$volumePage|$pair)` پذیرفته می‌شود (`$pair` = `N\s*[\/:]\s*N`). عدد تنها در زنجیره نیست، تا «و 3 نسخه» صفحه خوانده نشود. بُرش تطبیق‌شده به `segments()` می‌رود که فاصله‌ی «و» یا «،» را با `sourceAfter` همان منبع نگه می‌دارد. اگر جفتی پیوند نگیرد، متن ساده می‌ماند.
+- **آزمون:** `BibliographyLinksTest::test_a_volume_and_page_after_a_name_in_a_page_text`، با همان تکه‌ی صفحه‌ی ۹۴، «(ذریعه 90/25، 107/8)» و «الذریعة 69/13 و مشترک 46/7».
+### گام ۱۴.۱۲۶: نامزدهای «ترتیب دیگر» و داوری Opus
+- **نامزدها (اسکریپت یک‌باره روی `fahares_prod` پس از ادغام‌های ۱۴.۱۲۳):**
+  - **پاک‌سازی نام:** نرمال‌سازی و حذف پرانتز. «X، Y» برگردانده می‌شود. `TITLES` و «سید» و «میر» حذف می‌شوند و «ابن» به «بن» تبدیل می‌شود.
+  - **پیوستن واژه‌ها:** «عبد X» به «عبدX» می‌پیوندد، و هر واژه‌ی «الX» به واژه‌ی پیش از خود («صدر الاسلام» → «صدرالاسلام»).
+  - **دو بخش نام:** `own` واژه‌های پیش از نخستین «بن» است و `rest` واژه‌های پس از آن.
+  - **جفت:** کیسه‌ی واژه‌های رکورد کوتاه‌تر زیرمجموعه‌ی کیسه‌ی رکورد بلندتر است. `own` کوتاه‌تر درون `own ∪ rest` بلندتر است. اگر `own` کوتاه‌تر با `rest` بلندتر هم‌پوشانی داشته باشد ولی با `own` آن نه، جفت کنار می‌رود (پدر). اگر هر دو `rest` دارند، `own` کوتاه‌تر باید درون `own` بلندتر باشد.
+  - **کنار رفته‌ها:** جفت‌هایی که دنباله‌ی مرتبشان زیردنباله است، چون گام ۱۴.۱۲۳ داوری‌شان کرده بود؛ جفت‌هایی که `tier()` برایشان `conflict` می‌دهد؛ و رکورد کوتاه‌تری که کمتر از دو واژه‌ی شناسا دارد یا کمیاب‌ترین واژه‌اش در بیش از ۳۰۰ رکورد است.
+- **داوری:** ۹ دسته‌ی ۱۸۴تایی به Opus، با یادداشتی درباره‌ی دام پدر و پسر. هر ۱٬۶۴۹ گروه یک خط گرفتند: ۸۰۱ `merge`، ۵۷۹ `skip`، ۲۶۹ `unsure`.
+- **پس‌پالایش:**
+  - پراکندگی سال‌های کتابت ≤ ۶۰ و دست‌کم یک واژه‌ی شناسا در همه‌ی نام‌ها.
+  - union-find. زنجیره‌ای که جفت `skip`ی را در خود دارد کنار می‌رود.
+  - زنجیره‌ی ۵ تا ۸ رکوردی تنها اگر شمار یال‌های `merge` دست‌کم برابر شمار رکوردها باشد. زنجیره‌ی بیش از ۸ رکورد کنار می‌رود.
+  - سه زنجیره‌ی بزرگ با `target` 68880، 18566 و 8096 را Claude به بازبینی فرستاد.
+  - نتیجه: ۴۴۷ ادغام (۵۹۹ رکورد) و ۴۰۹ گروه برای صف.
+- **تمرین (`fahares_prod`، `SCOUT_DRIVER=null`):**
+  - ادغام: «Merged 599 records into 447 people; 0 groups skipped». شمار اشخاص ۶۷٬۱۷۱ → ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند.
+  - صف: «Queued 386 groups; 23 already in the queue; 0 settled since».
+- **اجرا پس از استقرار:** پشتیبان کامل روی میزبان، سپس به ترتیب:
+  1. `fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_order_step14_126.json --dry-run`
+  2. همان فرمان بی `--dry-run`
+  3. `fahares:queue-judged-people --file=database/data/duplicate_people_unsure_order_step14_126.json`
+- **اجرای پروداکشن (پس از انتشار ۸۴، `0c0a668d`):**
+  - **پشتیبان:** `~/backups/before_step14_126_people_20261109_2213.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `3de2eefb1f641a1bba69a3b8bd8553cb`.
+  - **اجرای آزمایشی:** «[dry run] Merged 599 records into 447 people; 0 groups skipped» و «[dry run] Queued 405 groups; 4 already in the queue». فرمان صف پیش از ادغام سنجیده شد.
+  - **اجرای واقعی (یک `prod-run`):** «Merged 599 records into 447 people; 0 groups skipped»، سپس «Queued 386 groups; 23 already in the queue; 0 settled since».
+  - **وارسی:** شمار اشخاص ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند. ۹۵۱ ردیف باز `duplicate` هست. `/people/2063` و `/people/11631` با ۳۰۱ به `/people/6386` می‌روند. `/tmp` پاک است.

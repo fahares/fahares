@@ -12,12 +12,17 @@ use Illuminate\Support\Facades\DB;
  * Builds the admin queue «بازبینی اشخاص» (backlog item 78) from the data:
  *   duplicate — groups DuplicatePeopleFinder puts in the likely or review tier (conflicts are left out);
  *   mixed     — people whose copies span more than a lifetime, likely several namesakes in one record.
+ * Namesake groups queued from a model review (key «judged:…», step 14.124) are kept until fewer than two of their
+ * records are left.
  * Decisions stay with the key: a group judged «چند نفرند» is reopened only when a record it did not
  * have joins it; items whose records are gone are closed as «gone».
  */
 class PersonReviewQueue
 {
     public const MIXED_SPAN = 70;
+
+    /** Key prefix of namesake groups queued from a model review (fahares:queue-judged-people, step 14.124), not by the finder. */
+    public const JUDGED = 'judged:';
 
     /** @return array<string, int> counts of what changed */
     public function refresh(array $seed = []): array
@@ -51,8 +56,20 @@ class PersonReviewQueue
 
         foreach ($seen as $type => $keys) {
             $stats['gone'] += PersonReview::where('type', $type)->whereIn('status', ['open', 'deferred'])
-                ->whereNotIn('key', $keys ?: ['-'])->update(['status' => 'gone']);
+                ->whereNotIn('key', $keys ?: ['-'])->where('key', 'not like', self::JUDGED . '%')->update(['status' => 'gone']);
         }
+        // A group queued from a model review stays until fewer than two of its records are left
+        PersonReview::where('type', 'duplicate')->whereIn('status', ['open', 'deferred'])->where('key', 'like', self::JUDGED . '%')
+            ->each(function (PersonReview $review) use (&$stats) {
+                $left = Person::whereIn('id', (array) $review->person_ids)->pluck('id')->map(fn ($id) => (int) $id)->sort()->values()->all();
+                if (count($left) < 2) {
+                    $review->update(['status' => 'gone']);
+                    $stats['gone']++;
+                } elseif ($left !== array_values((array) $review->person_ids)) {
+                    $review->update(['person_ids' => $left]);
+                    $stats['updated']++;
+                }
+            });
 
         return $stats;
     }

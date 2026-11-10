@@ -1,0 +1,2870 @@
+{
+ "loose": true,
+ "note": "Duplicate-person groups the first review left unsure and a second review (Opus) judged one person (step 14.123, second pass): merged by fahares:merge-duplicate-people --report=<this file>; each record is merged only while it still has the name it had when judged.",
+ "groups": [
+  {
+   "key": "judged-opus:285",
+   "tier": "clear",
+   "reason": "second model review (Opus): سلطان محمود طبسی، غلام‌علی کوتاه‌شده به علی، ۸ سال فاصله",
+   "target_id": 285,
+   "members": [
+    {
+     "id": 285,
+     "name": "سلطان محمود بن علی طبسی"
+    },
+    {
+     "id": 53942,
+     "name": "سلطان محمود بن غلام علی طبسی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:356",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نام و نسب آل عبدالجبار؛ وفات ۱۲۵۰ تخمینی سده است",
+   "target_id": 356,
+   "members": [
+    {
+     "id": 356,
+     "name": "آل عبدالجبار، اسماعیل بن حسن"
+    },
+    {
+     "id": 41185,
+     "name": "اسماعیل بن حسن بن محمد علی آل عبدالجبار"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:1069",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه دهگان ش۱۳۵؛ علی کوتاه‌شده نادعلی",
+   "target_id": 1069,
+   "members": [
+    {
+     "id": 711,
+     "name": "سلطان علی ابن علی گواری"
+    },
+    {
+     "id": 1069,
+     "name": "سلطان علی ابن کربلایی ناد علی گواری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:854",
+   "tier": "clear",
+   "reason": "second model review (Opus): هادی ارفع کرمانشاهی، هر دو در کتابخانه میبدی با دیوان شاعران کرمانشاه",
+   "target_id": 854,
+   "members": [
+    {
+     "id": 854,
+     "name": "ارفع، هادی"
+    },
+    {
+     "id": 34245,
+     "name": "هادی ارفع کرمانشاهی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:38081",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نام تا جد و نسبت افینی، همان مدرسه جعفریه قاین",
+   "target_id": 38081,
+   "members": [
+    {
+     "id": 1055,
+     "name": "رمضان بن حسین بن علی افینی"
+    },
+    {
+     "id": 38081,
+     "name": "رمضان بن حسین بن علی قائنی افینی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:23878",
+   "tier": "clear",
+   "reason": "second model review (Opus): مرشدالدین بن علی شیفکی، نسبت کمیاب، ۳۱ سال فاصله",
+   "target_id": 23878,
+   "members": [
+    {
+     "id": 1623,
+     "name": "مرشد بن علی شیفکی"
+    },
+    {
+     "id": 23878,
+     "name": "مرشد الدین عبد الله بن علی شیفکی شیرازی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:3791",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان علامه حائری مازندرانی؛ وفات ۱۳۵۰ تخمینی است",
+   "target_id": 3791,
+   "members": [
+    {
+     "id": 1799,
+     "name": "حائری مازندرانی، محمد صالح"
+    },
+    {
+     "id": 3791,
+     "name": "علامه حائری مازندرانی، محمد صالح بن فضل الله"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:2179",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه ملک ۶۰۴، نام پدر افتاده",
+   "target_id": 2179,
+   "members": [
+    {
+     "id": 2167,
+     "name": "شمس الدین محمد بن حسن جباعی"
+    },
+    {
+     "id": 2179,
+     "name": "شمس الدین محمد بن علی بن حسن جباعی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:2197",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام کامل کمیاب یکسان، وفات ۱۰۵۰ تخمینی",
+   "target_id": 2197,
+   "members": [
+    {
+     "id": 2197,
+     "name": "حسنی بیزئی، حیدر بن علاء الدین علی"
+    },
+    {
+     "id": 51000,
+     "name": "حیدر بن علاء الدین علی بن حسن حسنی بیزئی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:2771",
+   "tier": "clear",
+   "reason": "second model review (Opus): خلف بن سید علی حسینی، ۸ سال فاصله، آثار شیخی هم‌موضوع",
+   "target_id": 2771,
+   "members": [
+    {
+     "id": 2771,
+     "name": "خلف بن علی حسینی"
+    },
+    {
+     "id": 44137,
+     "name": "خلف بن سید علی حسینی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:60851",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام پدر کمیاب ملانوروزعلی، ۴۳ سال در عمر کاری",
+   "target_id": 60851,
+   "members": [
+    {
+     "id": 3113,
+     "name": "عبدالکریم بن ملانوروز علی"
+    },
+    {
+     "id": 60851,
+     "name": "عبدالکریم بن ملانوروز علی خوئی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:70537",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه مجلس ش۱۸۳۲۶",
+   "target_id": 70537,
+   "members": [
+    {
+     "id": 3207,
+     "name": "ابراهیم بن سلطان سلیم"
+    },
+    {
+     "id": 70537,
+     "name": "تویسرکانی، ابراهیم بن سلطان سلیم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:47539",
+   "tier": "clear",
+   "reason": "second model review (Opus): پدر کمیاب لاجین، محمد کوتاه‌شده محمدابراهیم، ۱۵ سال",
+   "target_id": 47539,
+   "members": [
+    {
+     "id": 3282,
+     "name": "محمد بن لاجین"
+    },
+    {
+     "id": 47539,
+     "name": "محمد ابراهیم بن لاجین قزوینی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:49668",
+   "tier": "clear",
+   "reason": "second model review (Opus): شجاع‌الدین محمد بن محمدمسعود، ۱۹ سال فاصله",
+   "target_id": 49668,
+   "members": [
+    {
+     "id": 3318,
+     "name": "شجاع بن محمد مسعود"
+    },
+    {
+     "id": 49668,
+     "name": "شجاع الدین محمد بن محمد مسعود"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:3577",
+   "tier": "clear",
+   "reason": "second model review (Opus): هاشم منجم‌باشی مشهدی، تاریخ‌ها نزدیک؛ وفات ۱۲۵۰ تخمینی",
+   "target_id": 3577,
+   "members": [
+    {
+     "id": 3577,
+     "name": "منجم مشهدی، هاشم"
+    },
+    {
+     "id": 32348,
+     "name": "هاشم بن اسماعیل سروقدی منجم باشی و معلم ریاضی مشهدی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:3672",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نام و پدر و نسبت، ۴۳ سال در عمر کاری",
+   "target_id": 3672,
+   "members": [
+    {
+     "id": 3672,
+     "name": "حسینی یزدی، ابوتراب بن جعفر"
+    },
+    {
+     "id": 31662,
+     "name": "ابوتراب بن جعفر حسینی واعظ یزدی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:3971",
+   "tier": "clear",
+   "reason": "second model review (Opus): ناسخ اختیارات الایام در قمصر خود مؤلف است؛ وفات تخمینی",
+   "target_id": 3971,
+   "members": [
+    {
+     "id": 2876,
+     "name": "حسین بن محمد حسینی قمصری مشهور به آفتاب"
+    },
+    {
+     "id": 3971,
+     "name": "قمصری، حسین بن محمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:60705",
+   "tier": "clear",
+   "reason": "second model review (Opus): اسکندر بن ملک مسعود، ۷ سال فاصله",
+   "target_id": 60705,
+   "members": [
+    {
+     "id": 4329,
+     "name": "اسکندر بن مسعود"
+    },
+    {
+     "id": 60705,
+     "name": "اسکندر بن ملک مسعود اتابک"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:15688",
+   "tier": "clear",
+   "reason": "second model review (Opus): فتح‌الله بن علی‌اصغر مشهور به قاری، ۳۷ سال",
+   "target_id": 15688,
+   "members": [
+    {
+     "id": 4823,
+     "name": "فتح الله بن علی اصغر قاری"
+    },
+    {
+     "id": 15688,
+     "name": "فتح الله بن علی اصغر بن محمد باقر دهدشتی مشهور به قاری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:69092",
+   "tier": "clear",
+   "reason": "second model review (Opus): علی [بن] محمد نوری یوشی، ۲۵ سال",
+   "target_id": 69092,
+   "members": [
+    {
+     "id": 5007,
+     "name": "علی محمد نوری یوشی"
+    },
+    {
+     "id": 69092,
+     "name": "علی بن حاجی ملا میرزا محمد نوری یوشی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:5056",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه مجلس ش۴۲۱۳",
+   "target_id": 5056,
+   "members": [
+    {
+     "id": 5056,
+     "name": "عمادالدین حسن حسینی"
+    },
+    {
+     "id": 40565,
+     "name": "عمادالدین بن الحسن الحسینی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:13465",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسن بن حسین شیعی سبزواری، سده هشتم",
+   "target_id": 13465,
+   "members": [
+    {
+     "id": 5583,
+     "name": "حسن شیعی سبزواری"
+    },
+    {
+     "id": 13465,
+     "name": "شیعی سبزواری، حسن بن حسین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:1475",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان پدر و سال ۱۲۴۲ در بارفروش؛ محمد همان محمدخان",
+   "target_id": 1475,
+   "members": [
+    {
+     "id": 1475,
+     "name": "محمد خان بن ملا محمد حسین عزیزکی بارفروشی"
+    },
+    {
+     "id": 6036,
+     "name": "محمد بن ملا محمد حسین عزیزکی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:44027",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه مرعشی ۱۱۱۱۰ در ۱۲۷۴",
+   "target_id": 44027,
+   "members": [
+    {
+     "id": 6307,
+     "name": "محمد بن عبد الکریم، تفرشی"
+    },
+    {
+     "id": 44027,
+     "name": "محمد علی بن عبد الکریم، تفرشی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:71816",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسب به جد منصور، ۶ سال، نجفی",
+   "target_id": 71816,
+   "members": [
+    {
+     "id": 6494,
+     "name": "محمد حسین بن منصور نجفی"
+    },
+    {
+     "id": 71816,
+     "name": "محمد حسین بن احمد بن منصور نجفی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:6650",
+   "tier": "clear",
+   "reason": "second model review (Opus): منجم‌باشی مشهد، هر دو در مشهد و نجوم",
+   "target_id": 6650,
+   "members": [
+    {
+     "id": 5008,
+     "name": "محمد مهدی بن حاج ملا غلام حسین منجم باشی"
+    },
+    {
+     "id": 6650,
+     "name": "منجم باشی، محمد مهدی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:55446",
+   "tier": "clear",
+   "reason": "second model review (Opus): پدر کمیاب علی‌مدد؛ وفات تخمینی",
+   "target_id": 55446,
+   "members": [
+    {
+     "id": 6711,
+     "name": "معصوم بن علی مدد"
+    },
+    {
+     "id": 55446,
+     "name": "خراسانی، معصوم بن علی مدد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:6761",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالله بن محمدکاظم اشرفی مازندرانی، ۲۳ سال",
+   "target_id": 6761,
+   "members": [
+    {
+     "id": 6761,
+     "name": "اشرفی، عبدالله بن محمد"
+    },
+    {
+     "id": 39363,
+     "name": "عبدالله بن محمد کاظم اشرفی مازندرانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:6881",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمود موسوی تونی مشهد، شماره‌های نزدیک رضوی",
+   "target_id": 6881,
+   "members": [
+    {
+     "id": 6881,
+     "name": "محمود موسوی تونی"
+    },
+    {
+     "id": 29395,
+     "name": "میرزا محمود موسوی امام جمعه خلف میرزا سید محمد تونی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:12688",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نام کمیاب محسنی کبیر",
+   "target_id": 12688,
+   "members": [
+    {
+     "id": 7210,
+     "name": "محسنی کبیر، ذبیح الله"
+    },
+    {
+     "id": 12688,
+     "name": "محسنی کبیر، ذبیح الله بن رحیم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:45051",
+   "tier": "clear",
+   "reason": "second model review (Opus): فیض‌الله دربندی، نام کمیاب",
+   "target_id": 45051,
+   "members": [
+    {
+     "id": 7497,
+     "name": "فیض الله دربندی"
+    },
+    {
+     "id": 45051,
+     "name": "فیض الله بن استاد میرزا دربندی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:47420",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالعلی بن حاجی میرزا محمدحسین نائینی‌الاصل، ۱۲ سال",
+   "target_id": 47420,
+   "members": [
+    {
+     "id": 7641,
+     "name": "عبدالعلی بن مرحوم حاجی میرزا حسین نائینی الاصل"
+    },
+    {
+     "id": 47420,
+     "name": "عبدالعلی بن حاجی میرزا محمد حسین نائینی الاصل اصفهانی المسکن"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:13547",
+   "tier": "clear",
+   "reason": "second model review (Opus): حیدرعلی بن سبزعلی، ۱۵ سال",
+   "target_id": 13547,
+   "members": [
+    {
+     "id": 8299,
+     "name": "حیدر بن سبز علی"
+    },
+    {
+     "id": 13547,
+     "name": "حیدر علی بن ملا سبز علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:8412",
+   "tier": "clear",
+   "reason": "second model review (Opus): باقر بن محمدعلی ترشیزی، ۱۳ سال",
+   "target_id": 8412,
+   "members": [
+    {
+     "id": 8412,
+     "name": "باقر بن محمد ترشیزی"
+    },
+    {
+     "id": 68845,
+     "name": "باقر بن مرحوم میرزا محمد علی ترشیزی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:33406",
+   "tier": "clear",
+   "reason": "second model review (Opus): مجیرالدوله کاشانی، مجلس",
+   "target_id": 33406,
+   "members": [
+    {
+     "id": 8732,
+     "name": "مجیر الدوله کاشانی، میرزا محمد خان"
+    },
+    {
+     "id": 33406,
+     "name": "محمد علی خان مجیر الدوله کاشانی منشی مخصوص وزارت تألیفات"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:33111",
+   "tier": "clear",
+   "reason": "second model review (Opus): عباس بن جبرئیل، نام کمیاب؛ وفات تخمینی",
+   "target_id": 33111,
+   "members": [
+    {
+     "id": 10408,
+     "name": "عباس بن جبرئیل"
+    },
+    {
+     "id": 33111,
+     "name": "حسینی برغانی، عباس بن جبرئیل"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:13580",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد بن میرذوالفقار کرمی، تاریخ نزدیک",
+   "target_id": 13580,
+   "members": [
+    {
+     "id": 10776,
+     "name": "محمد بن میر کرمی"
+    },
+    {
+     "id": 13580,
+     "name": "محمد بن میر ذوالفقار کرمی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:58867",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالوهاب بن علی‌اشرف شیرازی؛ وفات تخمینی",
+   "target_id": 58867,
+   "members": [
+    {
+     "id": 12446,
+     "name": "عبدالوهاب بن علی اشرف"
+    },
+    {
+     "id": 58867,
+     "name": "شیرازی، عبدالوهاب بن علی اشرف"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:34308",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد بن امام‌الدین کردستانی؛ وفات تخمینی",
+   "target_id": 34308,
+   "members": [
+    {
+     "id": 12471,
+     "name": "محمد بن امام الدین کردستانی"
+    },
+    {
+     "id": 34308,
+     "name": "حیران کردستانی، محمد بن امام الدین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:18059",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمدرضا خلخالی، ۶ سال",
+   "target_id": 18059,
+   "members": [
+    {
+     "id": 12898,
+     "name": "محمد رضا خلخالی"
+    },
+    {
+     "id": 18059,
+     "name": "محمد رضا بن محمود خلخالی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:24962",
+   "tier": "clear",
+   "reason": "second model review (Opus): شاه محمود خوشنویس نیشابوری",
+   "target_id": 24962,
+   "members": [
+    {
+     "id": 13319,
+     "name": "شاه محمود خوشنویس"
+    },
+    {
+     "id": 24962,
+     "name": "شاه محمود خوشنویس معروف"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:31720",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد مؤمن گنابادی؛ وفات تخمینی",
+   "target_id": 31720,
+   "members": [
+    {
+     "id": 13471,
+     "name": "محمد مؤمن گنابادی"
+    },
+    {
+     "id": 31720,
+     "name": "گنابادی، محمد مؤمن بن ابی المحسن"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:12319",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام بسیار خاص توپچی افشار بن شهریارخان",
+   "target_id": 12319,
+   "members": [
+    {
+     "id": 12319,
+     "name": "محمد حسین توپچی افشار بن حاجی شهریار خان اعزاز الدوله"
+    },
+    {
+     "id": 13714,
+     "name": "محمد حسین توپچی افشار بن شهریار خان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:14288",
+   "tier": "clear",
+   "reason": "second model review (Opus): سعید نفیسی از خاندان کرمانی",
+   "target_id": 14288,
+   "members": [
+    {
+     "id": 14288,
+     "name": "نفیسی، سعید"
+    },
+    {
+     "id": 59780,
+     "name": "سعید نفیسی کرمانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:15205",
+   "tier": "clear",
+   "reason": "second model review (Opus): نظام‌الدین محمد ساوجی متمم جامع عباسی",
+   "target_id": 15205,
+   "members": [
+    {
+     "id": 15205,
+     "name": "قرشی ساوجی، محمد بن حسین"
+    },
+    {
+     "id": 53692,
+     "name": "محمد نظام بن حسین قرشی ساوجی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:41050",
+   "tier": "clear",
+   "reason": "second model review (Opus): علی‌محمد بن محمدابراهیم تجریشی",
+   "target_id": 41050,
+   "members": [
+    {
+     "id": 15214,
+     "name": "علی محمد بن ابراهیم تجریشی"
+    },
+    {
+     "id": 41050,
+     "name": "تجریشی، علی محمد بن محمد ابراهیم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:16598",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد بن حیدر کرمانی گنجوی، ترکیب خاص",
+   "target_id": 16598,
+   "members": [
+    {
+     "id": 15299,
+     "name": "محمد بن حاج حیدر کرمانی گنجوی"
+    },
+    {
+     "id": 16598,
+     "name": "محمد بن حیدر بن محمد کرمانی گنجوی تبریزی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:71238",
+   "tier": "clear",
+   "reason": "second model review (Opus): عین‌علی تبریزی، نام کمیاب",
+   "target_id": 71238,
+   "members": [
+    {
+     "id": 15310,
+     "name": "عین علی تبریزی"
+    },
+    {
+     "id": 71238,
+     "name": "تبریزی، عین علی بن علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:15982",
+   "tier": "clear",
+   "reason": "second model review (Opus): بدرالدین بن قاضی سلیمان، هر دو ریاضی",
+   "target_id": 15982,
+   "members": [
+    {
+     "id": 15650,
+     "name": "بدرالدین بن سلیمان"
+    },
+    {
+     "id": 15982,
+     "name": "بدرالدین بن قاضی سلیمان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:13542",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمدنبی بن مشهدی ربیع اشتهاردی، فیضیه",
+   "target_id": 13542,
+   "members": [
+    {
+     "id": 13542,
+     "name": "محمد نبی بن مشهدی ربیع اشتهاردی"
+    },
+    {
+     "id": 15897,
+     "name": "محمد بن مشهدی ربیع اشتهاردی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:67202",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسن خراسانی طبسی، ۳ سال",
+   "target_id": 67202,
+   "members": [
+    {
+     "id": 16375,
+     "name": "حسن خراسانی طبسی"
+    },
+    {
+     "id": 67202,
+     "name": "حسن بن میرزا بیک خراسانی طبسی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:16410",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان تخلص صبوح اصفهانی، ۶ سال",
+   "target_id": 16410,
+   "members": [
+    {
+     "id": 16410,
+     "name": "محمد علی بن محمد شفیع اصفهانی متخلص به صبوح"
+    },
+    {
+     "id": 63140,
+     "name": "محمد بن علی بن محمد شفیع اصفهانی متخلص به صبوح"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:12531",
+   "tier": "clear",
+   "reason": "second model review (Opus): امین‌الدین بلیانی",
+   "target_id": 12531,
+   "members": [
+    {
+     "id": 12531,
+     "name": "امین بلیانی، محمد بن علی"
+    },
+    {
+     "id": 16757,
+     "name": "بلیانی، محمد بن علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:14471",
+   "tier": "clear",
+   "reason": "second model review (Opus): میرزا مهدی حسینی فراهانی ملک‌الکتاب، سلطنتی",
+   "target_id": 14471,
+   "members": [
+    {
+     "id": 14471,
+     "name": "میرزا مهدی حسینی فراهانی ملک الکتاب"
+    },
+    {
+     "id": 16804,
+     "name": "مهدی حسینی فراهانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:17034",
+   "tier": "clear",
+   "reason": "second model review (Opus): میرزا عباس شریف دارابی",
+   "target_id": 17034,
+   "members": [
+    {
+     "id": 17034,
+     "name": "شریف دارابی، عباس"
+    },
+    {
+     "id": 19225,
+     "name": "میرزا عباس شریف دارابی فرزند حاج محمد تقی مشهور به میرزا بابا"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:45884",
+   "tier": "clear",
+   "reason": "second model review (Opus): خالد بن یزید اموی، آثار کیمیا",
+   "target_id": 45884,
+   "members": [
+    {
+     "id": 17370,
+     "name": "خالد بن یزید"
+    },
+    {
+     "id": 45884,
+     "name": "دمشقی، خالد بن یزید"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:33740",
+   "tier": "clear",
+   "reason": "second model review (Opus): افسر اصفهانی، کاتب تذکره شعرای اصفهان",
+   "target_id": 33740,
+   "members": [
+    {
+     "id": 17620,
+     "name": "میرزا عبدالرحیم افسر"
+    },
+    {
+     "id": 33740,
+     "name": "افسر اصفهانی، عبدالرحیم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:21129",
+   "tier": "clear",
+   "reason": "second model review (Opus): پدر کمیاب عبدالمحمد، تاریخ نزدیک",
+   "target_id": 21129,
+   "members": [
+    {
+     "id": 17870,
+     "name": "محمد صادق بن ملا عبدالمحمد"
+    },
+    {
+     "id": 21129,
+     "name": "محمد صادق بن عبدالمحمد نوری ناحیه‌ای"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:18238",
+   "tier": "clear",
+   "reason": "second model review (Opus): عزیز حسینی جزایری، نام کمیاب",
+   "target_id": 18238,
+   "members": [
+    {
+     "id": 18238,
+     "name": "حسینی جزائری، عزیز"
+    },
+    {
+     "id": 54889,
+     "name": "عزیز بن مطلب بن علاء الدین بن احمد موسوی حسینی جزایری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:11560",
+   "tier": "clear",
+   "reason": "second model review (Opus): رضی‌الدین موسوی خلخالی، ۴ سال",
+   "target_id": 11560,
+   "members": [
+    {
+     "id": 11560,
+     "name": "رضی الدین موسوی خلخالی"
+    },
+    {
+     "id": 18261,
+     "name": "رضی موسوی خلخالی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:22191",
+   "tier": "clear",
+   "reason": "second model review (Opus): شهاب‌الدین علی علوی دوره نادری",
+   "target_id": 22191,
+   "members": [
+    {
+     "id": 18393,
+     "name": "شهاب الدین علی علوی"
+    },
+    {
+     "id": 22191,
+     "name": "علوی حسینی، شهاب الدین علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:18586",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان محمد مردوخ کردستانی سنندجی",
+   "target_id": 18586,
+   "members": [
+    {
+     "id": 18586,
+     "name": "مردوخ، محمد"
+    },
+    {
+     "id": 60581,
+     "name": "مردوخ سنندجی، محمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:19239",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر و نسبت رودباری یکی",
+   "target_id": 19239,
+   "members": [
+    {
+     "id": 3778,
+     "name": "فخرالدین بن احمد رودباری ارمائی"
+    },
+    {
+     "id": 19239,
+     "name": "رودباری، فخرالدین بن احمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:46721",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر کوبنانی، همان شخص",
+   "target_id": 46721,
+   "members": [
+    {
+     "id": 19342,
+     "name": "کوبنانی، مظفر حسین"
+    },
+    {
+     "id": 46721,
+     "name": "مظفر حسین بن شهاب الدین کوبنانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:913",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر و نسبت خوئی یکی",
+   "target_id": 913,
+   "members": [
+    {
+     "id": 913,
+     "name": "حسینی خوئی، حسین بن عبدالله"
+    },
+    {
+     "id": 19793,
+     "name": "خوئی، حسین بن عبدالله"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:46165",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسن کوتاه‌شده محمد حسن، همان کتابخانه و دوره",
+   "target_id": 46165,
+   "members": [
+    {
+     "id": 19993,
+     "name": "عبدالله بن حسن خوراسکانی اصفهانی"
+    },
+    {
+     "id": 46165,
+     "name": "خوراسکانی اصفهانی، عبدالله بن محمد حسن"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:26111",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نام کامل، هر دو مجلس، فاصله ۳۷ سال",
+   "target_id": 26111,
+   "members": [
+    {
+     "id": 20477,
+     "name": "تاج الدین علی بن محسن حسینی"
+    },
+    {
+     "id": 26111,
+     "name": "تاج الدین علی بن محسن حسینی کاشانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:20677",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام تا جد یکی و همان اثر زیدی",
+   "target_id": 20677,
+   "members": [
+    {
+     "id": 20676,
+     "name": "سید علی بن قاسم بن هاشم مویدی"
+    },
+    {
+     "id": 20677,
+     "name": "سید علی بن قاسم بن هاشم مویدی عنسی زیدی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:72496",
+   "tier": "clear",
+   "reason": "second model review (Opus): پدر نادر عبادالله و نسبت ساوجی، فاصله ۳۴ سال",
+   "target_id": 72496,
+   "members": [
+    {
+     "id": 21211,
+     "name": "احمد بن عبادالله ساوجی"
+    },
+    {
+     "id": 72496,
+     "name": "ساوجی نجفی، احمد بن عبادالله"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:56156",
+   "tier": "clear",
+   "reason": "second model review (Opus): بابو بن خان گجراتی، نام نادر",
+   "target_id": 56156,
+   "members": [
+    {
+     "id": 22053,
+     "name": "ملا بابو بن خان"
+    },
+    {
+     "id": 56156,
+     "name": "بابو ابن خان محمد کجراتی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:3055",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسین بن نظام الدین قرشی ساوجی، نام نادر",
+   "target_id": 3055,
+   "members": [
+    {
+     "id": 3055,
+     "name": "حسین بن نظام الدین قرشی ساوجی"
+    },
+    {
+     "id": 22690,
+     "name": "حسین نظام قرشی ساوجی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:54547",
+   "tier": "clear",
+   "reason": "second model review (Opus): احمد زنجانی نجفی، تاریخ‌ها سازگار",
+   "target_id": 54547,
+   "members": [
+    {
+     "id": 23384,
+     "name": "احمد بن محمد حسین زنجانی"
+    },
+    {
+     "id": 54547,
+     "name": "احمد بن محمد حسین نجفی زنجانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:41851",
+   "tier": "clear",
+   "reason": "second model review (Opus): احمد بدیعی خوانساری، نسبت نادر",
+   "target_id": 41851,
+   "members": [
+    {
+     "id": 23757,
+     "name": "میرزا احمد بدیعی خوانساری"
+    },
+    {
+     "id": 41851,
+     "name": "احمد بن محمد حسین بدیعی خوانساری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:24337",
+   "tier": "clear",
+   "reason": "second model review (Opus): نقی همان علی نقی، قاری",
+   "target_id": 24337,
+   "members": [
+    {
+     "id": 24337,
+     "name": "قاری، محمد بن نقی"
+    },
+    {
+     "id": 39766,
+     "name": "محمد بن علی نقی قاری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:48808",
+   "tier": "clear",
+   "reason": "second model review (Opus): گوگدی گلپایگانی، ۱۲۵۹ سازگار",
+   "target_id": 48808,
+   "members": [
+    {
+     "id": 24451,
+     "name": "حسین بن علی اصغر گلپایگانی"
+    },
+    {
+     "id": 48808,
+     "name": "حسین بن آقا علی اصغر گوگدی گلپایگانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:37359",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالحسین شراره عاملی، فاصله ۲۴ سال",
+   "target_id": 37359,
+   "members": [
+    {
+     "id": 24500,
+     "name": "عبد الحسین شراره"
+    },
+    {
+     "id": 37359,
+     "name": "عبد الحسین بن شیخ محمد امینی شراره عاملی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:25402",
+   "tier": "clear",
+   "reason": "second model review (Opus): نوه محزون استرآبادی، نسبت نادر",
+   "target_id": 25402,
+   "members": [
+    {
+     "id": 24562,
+     "name": "علی اکبر بن محزون استرآبادی"
+    },
+    {
+     "id": 25402,
+     "name": "علی اکبر بن محمد کاظم بن میرزا محزون شاعر استرآبادی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:62406",
+   "tier": "clear",
+   "reason": "second model review (Opus): کوکدی جربادقانی، نسبت نادر",
+   "target_id": 62406,
+   "members": [
+    {
+     "id": 24745,
+     "name": "محمد بن محمد حسین کوکدی"
+    },
+    {
+     "id": 62406,
+     "name": "محمد بن محمد حسین کوکدی جربادقانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:25114",
+   "tier": "clear",
+   "reason": "second model review (Opus): ابوالفضل قرشی کازرونی محشی بیضاوی",
+   "target_id": 25114,
+   "members": [
+    {
+     "id": 25114,
+     "name": "كازرونی، ابوالفضل"
+    },
+    {
+     "id": 37144,
+     "name": "قریشی کازرونی، ابوالفضل"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:25859",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالجواد دارانی، نسبت نادر",
+   "target_id": 25859,
+   "members": [
+    {
+     "id": 16550,
+     "name": "عبدالجواد بن عبدالرحیم واعظ دارانی"
+    },
+    {
+     "id": 25859,
+     "name": "عبدالجواد بن ملا عبدالرحیم دارانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:30500",
+   "tier": "clear",
+   "reason": "second model review (Opus): اسدالله بن عبدالرحیم شیروانی، فاصله کم",
+   "target_id": 30500,
+   "members": [
+    {
+     "id": 25936,
+     "name": "اسدالله بن عبدالرحیم شیروانی"
+    },
+    {
+     "id": 30500,
+     "name": "اسدالله بن میرزا عبدالرحیم حزین حسینی شیروانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:5229",
+   "tier": "clear",
+   "reason": "second model review (Opus): معین الدین عقیلی، فاصله ۳۳ سال",
+   "target_id": 5229,
+   "members": [
+    {
+     "id": 5229,
+     "name": "معین الدین بن محمد یوسف عقیلی"
+    },
+    {
+     "id": 26661,
+     "name": "معین بن محمد یوسف عقیلی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:24956",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد بن جابر بن عباس نجفی، قرن ۱۱",
+   "target_id": 24956,
+   "members": [
+    {
+     "id": 24956,
+     "name": "محمد بن جابر بن عباس نجفی"
+    },
+    {
+     "id": 28361,
+     "name": "محمد بن جابر نجفی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:28997",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسین خلخالی، تحصیل در شیراز",
+   "target_id": 28997,
+   "members": [
+    {
+     "id": 27180,
+     "name": "حسین بن سید محمد خلخالی"
+    },
+    {
+     "id": 28997,
+     "name": "خلخالی، حسین بن محمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:29135",
+   "tier": "clear",
+   "reason": "second model review (Opus): مرتضی حسین بلگرامی همان شیخ اله یار",
+   "target_id": 29135,
+   "members": [
+    {
+     "id": 23225,
+     "name": "مرتضی حسین معروف به شیخ اله یار بن شیخ اله یار بلگرامی"
+    },
+    {
+     "id": 29135,
+     "name": "بلگرامی، مرتضی حسین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:30352",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان اثر حل الموجز",
+   "target_id": 30352,
+   "members": [
+    {
+     "id": 30352,
+     "name": "صدرالدین محمد هروی"
+    },
+    {
+     "id": 30358,
+     "name": "صدرالدین بن محمد هروی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:30558",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسین بن عبدالمجید قزوینی، فاصله ۳۰ سال",
+   "target_id": 30558,
+   "members": [
+    {
+     "id": 30558,
+     "name": "حسین بن عبدالمجید قزوینی"
+    },
+    {
+     "id": 67495,
+     "name": "حسین بن عبدالمجید کوچک قزوینی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:31568",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالعظیم بیدگلی، تاریخ‌ها سازگار",
+   "target_id": 31568,
+   "members": [
+    {
+     "id": 28221,
+     "name": "عبدالعظیم بن محمد حسین بیدگلی کاشانی"
+    },
+    {
+     "id": 31568,
+     "name": "بیدگلی کاشانی، عبدالعظیم بن حسین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:47519",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد قلی بن علیخان، فاصله ۲۱ سال",
+   "target_id": 47519,
+   "members": [
+    {
+     "id": 31777,
+     "name": "محمد قلی بن علیخان"
+    },
+    {
+     "id": 47519,
+     "name": "محمد قلی حافظ ابن علیخان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:41331",
+   "tier": "clear",
+   "reason": "second model review (Opus): الویری نسبت نادر",
+   "target_id": 41331,
+   "members": [
+    {
+     "id": 32066,
+     "name": "محمد رضا الویری"
+    },
+    {
+     "id": 41331,
+     "name": "محمد رضا بن ملامحمود الویری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:30642",
+   "tier": "clear",
+   "reason": "second model review (Opus): دیلمقانی نسبت نادر",
+   "target_id": 30642,
+   "members": [
+    {
+     "id": 30642,
+     "name": "محمد طاهر بن علی اکبر بن کربلائی ابوطالب دیلمقانی"
+    },
+    {
+     "id": 32336,
+     "name": "محمد طاهر دیلمقانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:31295",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمود واعظ طبسی",
+   "target_id": 31295,
+   "members": [
+    {
+     "id": 31295,
+     "name": "محمود واعظ پسر محمدرضا طبسی"
+    },
+    {
+     "id": 33064,
+     "name": "محمود واعظ طبسی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:40966",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مدیر الدوله",
+   "target_id": 40966,
+   "members": [
+    {
+     "id": 33082,
+     "name": "محمود مدیر الدوله"
+    },
+    {
+     "id": 40966,
+     "name": "مدیر الدوله، محمود خان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:57339",
+   "tier": "clear",
+   "reason": "second model review (Opus): آقا طالب همان محمد طالب، فاصله ۸ سال",
+   "target_id": 57339,
+   "members": [
+    {
+     "id": 33085,
+     "name": "محمد مؤمن بن آقا طالب اصفهانی"
+    },
+    {
+     "id": 57339,
+     "name": "محمد مومن بن محمد طالب اصفهانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:376",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسن بن محمد مدنی، تاریخ‌ها سازگار",
+   "target_id": 376,
+   "members": [
+    {
+     "id": 376,
+     "name": "حسن بن محمد حسینی مدنی احسائی خراسانی تونی جنابذی"
+    },
+    {
+     "id": 33257,
+     "name": "مدنی، حسن بن محمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:29166",
+   "tier": "clear",
+   "reason": "second model review (Opus): قطب الدین کاتب، فاصله ۲۴ سال",
+   "target_id": 29166,
+   "members": [
+    {
+     "id": 29166,
+     "name": "قطب الدین بن حسن کاتب"
+    },
+    {
+     "id": 33385,
+     "name": "قطب الدین کاتب"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:33434",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد تقی دولت آبادی، معاصر شفائی",
+   "target_id": 33434,
+   "members": [
+    {
+     "id": 33434,
+     "name": "دولت آبادی، محمد تقی"
+    },
+    {
+     "id": 63597,
+     "name": "محمد تقی دولت آبادی مستوفی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:29644",
+   "tier": "clear",
+   "reason": "second model review (Opus): قطب الدین حسن تونی، فاصله ۳۰ سال",
+   "target_id": 29644,
+   "members": [
+    {
+     "id": 29644,
+     "name": "قطب الدین بن حسن تونی"
+    },
+    {
+     "id": 34334,
+     "name": "قطب الدین حسن تونی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:34373",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد باقر میرزا خسروی قاجار",
+   "target_id": 34373,
+   "members": [
+    {
+     "id": 34373,
+     "name": "خسروی، محمد باقر میرزا"
+    },
+    {
+     "id": 59779,
+     "name": "محمد باقر قاجار متخلص به خسروی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:14883",
+   "tier": "clear",
+   "reason": "second model review (Opus): عاشوری قزوینی، ۱۲۹۹ تا ۱۳۰۴",
+   "target_id": 14883,
+   "members": [
+    {
+     "id": 14883,
+     "name": "محمد بن حاجی محمد قلی قزوینی معروف به عاشوری"
+    },
+    {
+     "id": 34644,
+     "name": "محمد قلی قزوینی عاشوری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:10357",
+   "tier": "clear",
+   "reason": "second model review (Opus): مدیر الممالک، شماره‌های پیاپی رضوی",
+   "target_id": 10357,
+   "members": [
+    {
+     "id": 10357,
+     "name": "مصطفی خان مدیر الممالک"
+    },
+    {
+     "id": 34655,
+     "name": "میرزا مصطفی مدیر الممالک (نوه ناظم)"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:34959",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد زمان خان طرزی",
+   "target_id": 34959,
+   "members": [
+    {
+     "id": 34796,
+     "name": "محمد زمان خان طرزی پسر سردار غلام محمد خان افغان"
+    },
+    {
+     "id": 34959,
+     "name": "طرزی، محمد زمان خان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:3905",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه ملی ۲۸۸۸",
+   "target_id": 3905,
+   "members": [
+    {
+     "id": 3905,
+     "name": "عبدالحسین بن محمد حسن مستوفی اردبیلی"
+    },
+    {
+     "id": 35292,
+     "name": "عبدالحسین ابن میرزا حسن مستوفی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:36957",
+   "tier": "clear",
+   "reason": "second model review (Opus): مجد الدین محمد ساوجی",
+   "target_id": 36957,
+   "members": [
+    {
+     "id": 35586,
+     "name": "مجد الدین محمد بن فضل الله ساوجی"
+    },
+    {
+     "id": 36957,
+     "name": "مجد الدین محمد ابوالفضل بن فضل الله ساوجی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:5471",
+   "tier": "clear",
+   "reason": "second model review (Opus): منجم، همان سال و کتابخانه",
+   "target_id": 5471,
+   "members": [
+    {
+     "id": 5471,
+     "name": "سید محمد باقر بن محمد حسین الحسینی منجم"
+    },
+    {
+     "id": 35842,
+     "name": "سید محمد بن میرزا محمد حسین منجم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:35896",
+   "tier": "clear",
+   "reason": "second model review (Opus): حسین باستانی راد",
+   "target_id": 35896,
+   "members": [
+    {
+     "id": 35896,
+     "name": "حسین باستانی راد"
+    },
+    {
+     "id": 69046,
+     "name": "باستانی راد، حسین علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:36155",
+   "tier": "clear",
+   "reason": "second model review (Opus): ابن دلیر مهلبی، همان اثر",
+   "target_id": 36155,
+   "members": [
+    {
+     "id": 36154,
+     "name": "ابن دلیر مهلبی"
+    },
+    {
+     "id": 36155,
+     "name": "ابن دلیر مهلبی از خاندان مهلب بن ابی صفره"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:32613",
+   "tier": "clear",
+   "reason": "second model review (Opus): یحیی بن احمد عریف، فاصله ۲۹ سال",
+   "target_id": 32613,
+   "members": [
+    {
+     "id": 32613,
+     "name": "یحیی بن احمد بن محمد العریف"
+    },
+    {
+     "id": 36973,
+     "name": "یحیی بن احمد عریف"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:38697",
+   "tier": "clear",
+   "reason": "second model review (Opus): علی اکبر گلستانه، تاریخ‌ها سازگار",
+   "target_id": 38697,
+   "members": [
+    {
+     "id": 12350,
+     "name": "علی اکبر بن میرزا محمد مهدی گلستانه"
+    },
+    {
+     "id": 38697,
+     "name": "گلستانه، علی اکبر"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:46607",
+   "tier": "clear",
+   "reason": "second model review (Opus): سید علی خان مدنی شارح صحیفه",
+   "target_id": 46607,
+   "members": [
+    {
+     "id": 38839,
+     "name": "علی صدر الدین حسینی"
+    },
+    {
+     "id": 46607,
+     "name": "علی صدر الدین بن احمد نظام الدین حسینی حسنی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:40516",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان اثر، همان کتابخانه، یک سال فاصله",
+   "target_id": 40516,
+   "members": [
+    {
+     "id": 40515,
+     "name": "علی بن جعفر اسکویی"
+    },
+    {
+     "id": 40516,
+     "name": "علی محمد بن جعفر اسکویی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:44491",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر کاکل، شش سال فاصله",
+   "target_id": 44491,
+   "members": [
+    {
+     "id": 42203,
+     "name": "محمد علی بن کربلائی کاکل"
+    },
+    {
+     "id": 44491,
+     "name": "محمد علی بن کربلایی محمد بن کربلایی کاکل بدلالی خان علیان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:42341",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام بسیار خاص و همان اثر",
+   "target_id": 42341,
+   "members": [
+    {
+     "id": 42340,
+     "name": "محمد بن محمود بن حاجی ملقب به حمید مخلصی"
+    },
+    {
+     "id": 42341,
+     "name": "محمد بن محمود بن الحاجی ملقب به حمید مخلصی بخاری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:12417",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر کردوی و همان اثر و شرحش",
+   "target_id": 12417,
+   "members": [
+    {
+     "id": 12417,
+     "name": "علی بن ولی کردوی"
+    },
+    {
+     "id": 42896,
+     "name": "علی بن کردوی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:43626",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد قاسم خلخالی همان فاضل خلخالی، آثار هم‌موضوع",
+   "target_id": 43626,
+   "members": [
+    {
+     "id": 9436,
+     "name": "محمد قاسم فاضل خلخالی"
+    },
+    {
+     "id": 43626,
+     "name": "خلخالی، محمد قاسم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:46912",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه خاتم الانبیاء ش279",
+   "target_id": 46912,
+   "members": [
+    {
+     "id": 43730,
+     "name": "محسن بن حبیب بن آقا جان المشيری"
+    },
+    {
+     "id": 46912,
+     "name": "محسن بن حبیب الله بن آقا جان المشيری الاصل البارفروشی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:45259",
+   "tier": "clear",
+   "reason": "second model review (Opus): لاچین قزوینی نادر، سال‌ها نزدیک",
+   "target_id": 45259,
+   "members": [
+    {
+     "id": 45259,
+     "name": "محمد ابراهیم بن حاجی لاچین قزوینی"
+    },
+    {
+     "id": 47771,
+     "name": "محمد ابراهیم بن محمد لاچین قزوینی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:34988",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام خاص امرالله بن شمس الدین محمد قمی",
+   "target_id": 34988,
+   "members": [
+    {
+     "id": 34988,
+     "name": "امرالله بن شمس الدین محمد آشتیانی قمی"
+    },
+    {
+     "id": 46891,
+     "name": "امرالله بن شمس الدین محمد قمی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:48653",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر پازواری، همان نام و پدر",
+   "target_id": 48653,
+   "members": [
+    {
+     "id": 48653,
+     "name": "پازواری، محمد تقی بن اسماعیل"
+    },
+    {
+     "id": 56217,
+     "name": "محمد تقی بن اسماعیل مازندرانی پازواری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:68653",
+   "tier": "clear",
+   "reason": "second model review (Opus): مشهور به ابن رحمه حویزی، یک سال",
+   "target_id": 68653,
+   "members": [
+    {
+     "id": 50041,
+     "name": "ناصر بن رحمة حویزی"
+    },
+    {
+     "id": 68653,
+     "name": "ناصر بن سعید بن ناصر مشهور به ابن رحمه حویزی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:67531",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسب کامل بنی زهره، چهار سال",
+   "target_id": 67531,
+   "members": [
+    {
+     "id": 52149,
+     "name": "تاج الدین بن محمد بن حمزة بن زهرة حسینی حاجی"
+    },
+    {
+     "id": 67531,
+     "name": "تاج الدین بن محمد بن حمزة بن زهرة حسینی فوعی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:63068",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه مرعشی ش14037 کرمان",
+   "target_id": 63068,
+   "members": [
+    {
+     "id": 52287,
+     "name": "محمد میرزا شکرالله حسینی تفرشی طرخورانی"
+    },
+    {
+     "id": 63068,
+     "name": "محمد باقر بن شکرالله حسینی تفرشی طرخورانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:52657",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر و پدر رضاقلی، قرن سازگار",
+   "target_id": 52657,
+   "members": [
+    {
+     "id": 49537,
+     "name": "ملا شکرالله بن ملا رضا قلی مازندرانی شاگرد اشرفی"
+    },
+    {
+     "id": 52657,
+     "name": "شکرالله بن رضا قلی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:9129",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام بسیار نادر برهان پوری",
+   "target_id": 9129,
+   "members": [
+    {
+     "id": 9129,
+     "name": "سلام حسین بن ملامحمد علی برهان پوری"
+    },
+    {
+     "id": 53717,
+     "name": "سلام حسین برهان پوری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:53891",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر اعوان انصاری، یک سال",
+   "target_id": 53891,
+   "members": [
+    {
+     "id": 53891,
+     "name": "اعوان انصاری، محمد بن احمد"
+    },
+    {
+     "id": 64322,
+     "name": "محمد جعفر بن حاج ملا احمد اعوان انصاری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:55539",
+   "tier": "clear",
+   "reason": "second model review (Opus): شولستانی نادر، یک سال",
+   "target_id": 55539,
+   "members": [
+    {
+     "id": 55339,
+     "name": "محمد بن حسین بن جمال الدین شولستانی"
+    },
+    {
+     "id": 55539,
+     "name": "محمد حسین بن حاجی جمال الدین شولستانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:65933",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر الموتی، همان کتابخانه",
+   "target_id": 65933,
+   "members": [
+    {
+     "id": 55595,
+     "name": "حبیب الله بن احمد الموتی"
+    },
+    {
+     "id": 65933,
+     "name": "حبیب الله بن کربلائی احمد الموتی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:37762",
+   "tier": "clear",
+   "reason": "second model review (Opus): محمد کوتاه محمد علی، یک سال",
+   "target_id": 37762,
+   "members": [
+    {
+     "id": 37762,
+     "name": "محمد علی بن زین العابدین النجف آبادی"
+    },
+    {
+     "id": 55668,
+     "name": "محمد بن زین العابدین نجف آبادی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:49590",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه و همان سال",
+   "target_id": 49590,
+   "members": [
+    {
+     "id": 49590,
+     "name": "علینقی بن محمد علی حسینی موسوی شیرازی"
+    },
+    {
+     "id": 55858,
+     "name": "علینقی بن علی حسینی موسوی شیرازی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:55876",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان سال ۱۱۸۷ و نسبت",
+   "target_id": 55876,
+   "members": [
+    {
+     "id": 55876,
+     "name": "بارفروشی، علی محمد بن حسین"
+    },
+    {
+     "id": 67467,
+     "name": "علی بن محمد بن حسین بن طالب مازندرانی بارفروشی ملقب به امیر"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:56109",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام کامل یکسان، سال در بازه",
+   "target_id": 56109,
+   "members": [
+    {
+     "id": 48358,
+     "name": "عبدالرشید بن عبدالواحد شوشتری استاد قاضی نورالله شوشتری"
+    },
+    {
+     "id": 56109,
+     "name": "عبدالرشید بن عبدالواحد شوشتری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:21371",
+   "tier": "clear",
+   "reason": "second model review (Opus): رارانی نادر، سه سال",
+   "target_id": 21371,
+   "members": [
+    {
+     "id": 21371,
+     "name": "رمضان علی بن محمد علی رارانی اصفهانی"
+    },
+    {
+     "id": 57098,
+     "name": "رمضان بن محمد علی رارانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:57479",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نسب و همان اثر",
+   "target_id": 57479,
+   "members": [
+    {
+     "id": 57478,
+     "name": "محمد بن محمود بن میمون"
+    },
+    {
+     "id": 57479,
+     "name": "محمد بن محمود بن میمون بن خان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:42997",
+   "tier": "clear",
+   "reason": "second model review (Opus): هندی در شیراز، نام خاص",
+   "target_id": 42997,
+   "members": [
+    {
+     "id": 42997,
+     "name": "مبارک بن عبدالله هندی شیرازی"
+    },
+    {
+     "id": 57642,
+     "name": "مبارک بن عبدالله هندی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:26509",
+   "tier": "clear",
+   "reason": "second model review (Opus): یوشی نوری نادر، چهار سال",
+   "target_id": 26509,
+   "members": [
+    {
+     "id": 26509,
+     "name": "محمد نبی بن ملا مرتضی یوشی نوری"
+    },
+    {
+     "id": 57658,
+     "name": "محمد بن مرتضی یوشی نوری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:20423",
+   "tier": "clear",
+   "reason": "second model review (Opus): ساروی، سال‌ها نزدیک",
+   "target_id": 20423,
+   "members": [
+    {
+     "id": 20423,
+     "name": "محمد حسین بن محمد علی بن محمد حسین ساروی"
+    },
+    {
+     "id": 57986,
+     "name": "محمد حسین بن علی ساروی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:19425",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر کلب حسین",
+   "target_id": 19425,
+   "members": [
+    {
+     "id": 19425,
+     "name": "محمد نصیر بن کلب حسین بروجردی"
+    },
+    {
+     "id": 58711,
+     "name": "محمد نصیر بن حاج کلب حسین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:64853",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر سلمان حسینی تبریزی",
+   "target_id": 64853,
+   "members": [
+    {
+     "id": 59121,
+     "name": "سلمان حسینی تبریزی"
+    },
+    {
+     "id": 64853,
+     "name": "حسینی تبریزی، سلمان بن محسن"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:59671",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان اسحاقی منوفی",
+   "target_id": 59671,
+   "members": [
+    {
+     "id": 51915,
+     "name": "محمد بن عبدالمعطی بن ابی الفتح بن احمد بن عبدالغنی بن علی اسحاقی منوفی شافعی"
+    },
+    {
+     "id": 59671,
+     "name": "اسحاقی، محمد بن عبدالمعطى"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:10680",
+   "tier": "clear",
+   "reason": "second model review (Opus): سرکانی نادر",
+   "target_id": 10680,
+   "members": [
+    {
+     "id": 10680,
+     "name": "شاه محمد بن مولانا نظر علی سرکانی"
+    },
+    {
+     "id": 60012,
+     "name": "شاه محمد سرکانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:60082",
+   "tier": "clear",
+   "reason": "second model review (Opus): دارانی نادر",
+   "target_id": 60082,
+   "members": [
+    {
+     "id": 60082,
+     "name": "اسماعیل دارانی (ازمحال دزمار ازتوابع قراچه‌داغ)"
+    },
+    {
+     "id": 70950,
+     "name": "اسماعیل دارانی برای خلیل نصیری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:4291",
+   "tier": "clear",
+   "reason": "second model review (Opus): معبر کرمانی نادر",
+   "target_id": 4291,
+   "members": [
+    {
+     "id": 4291,
+     "name": "محمد شفیع معبر کرمانی"
+    },
+    {
+     "id": 60219,
+     "name": "محمد معبر کرمانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:61239",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر، مجمع البیان رضوی با شماره‌های مجاور",
+   "target_id": 61239,
+   "members": [
+    {
+     "id": 61239,
+     "name": "محمد امین بن شیخ محمد شهمرزادی"
+    },
+    {
+     "id": 61279,
+     "name": "شهمرزادی، محمد امین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:62028",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر، کاتب همان اثر مؤلف",
+   "target_id": 62028,
+   "members": [
+    {
+     "id": 62028,
+     "name": "جنابدی، تراب بن علی"
+    },
+    {
+     "id": 62029,
+     "name": "جنابدی، تراب بن علی بن علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:62659",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان اثر، یک سال فاصله، نسبت نادر",
+   "target_id": 62659,
+   "members": [
+    {
+     "id": 62659,
+     "name": "محمد بن عبدالواسع المشرف الحائری"
+    },
+    {
+     "id": 62666,
+     "name": "محمد بن المشرف حائری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:53976",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر و نسبت حمیری یکی",
+   "target_id": 53976,
+   "members": [
+    {
+     "id": 53976,
+     "name": "اسمعیل بن موسی نجفی حمیری"
+    },
+    {
+     "id": 62869,
+     "name": "اسمعیل بن موسی حمیری"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:63213",
+   "tier": "clear",
+   "reason": "second model review (Opus): شاه عارف، نسخه‌های صوفیانه رضوی با شماره نزدیک",
+   "target_id": 63213,
+   "members": [
+    {
+     "id": 63213,
+     "name": "شاه عارف (عارف شاه)"
+    },
+    {
+     "id": 68569,
+     "name": "شاه عارف درویش"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:45105",
+   "tier": "clear",
+   "reason": "second model review (Opus): ابوسهل نیلی طبیب، هر دو اثر از اوست",
+   "target_id": 45105,
+   "members": [
+    {
+     "id": 45105,
+     "name": "ابوسهل نیلی، سعید بن عبدالعزیز"
+    },
+    {
+     "id": 63810,
+     "name": "نیلی، سعید بن عبدالعزیز"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:64126",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر مطر، وفات تقریبی قرن",
+   "target_id": 64126,
+   "members": [
+    {
+     "id": 6449,
+     "name": "حسین بن مطر بن علی جزائری"
+    },
+    {
+     "id": 64126,
+     "name": "جزایری، حسین بن مطر"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:5150",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه ملی ۷۹، همان سال",
+   "target_id": 5150,
+   "members": [
+    {
+     "id": 5150,
+     "name": "محمد علی شوشتری ابن فتح الدین"
+    },
+    {
+     "id": 64422,
+     "name": "محمد شوشتری ابن فتح الدین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:64627",
+   "tier": "clear",
+   "reason": "second model review (Opus): عبدالله بن احمد بن ابراهیم شرفی زیدی، تاریخ سازگار",
+   "target_id": 64627,
+   "members": [
+    {
+     "id": 12938,
+     "name": "عبدالله بن احمد بن ابراهیم شرفی"
+    },
+    {
+     "id": 64627,
+     "name": "شرفی، عبدالله بن احمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:52430",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر سهیل بن علی، هفت سال",
+   "target_id": 52430,
+   "members": [
+    {
+     "id": 52430,
+     "name": "سهیل ابن علی شهاب سنجابی"
+    },
+    {
+     "id": 64699,
+     "name": "سهیل بن علی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:2720",
+   "tier": "clear",
+   "reason": "second model review (Opus): ابوالمعالی کلباسی، ابراهیم=محمد ابراهیم",
+   "target_id": 2720,
+   "members": [
+    {
+     "id": 2720,
+     "name": "کلباسی، محمد بن محمد ابراهیم"
+    },
+    {
+     "id": 64930,
+     "name": "محمد بن ابراهیم کلباسی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:5114",
+   "tier": "clear",
+   "reason": "second model review (Opus): پدر نادر ایوب، دوره کار ممکن",
+   "target_id": 5114,
+   "members": [
+    {
+     "id": 5114,
+     "name": "محمد حسین بن ایوب طالقانی"
+    },
+    {
+     "id": 65185,
+     "name": "محمد حسین بن ایوب"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:65311",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان اثر و همان سال، نام پدر افتاده",
+   "target_id": 65311,
+   "members": [
+    {
+     "id": 65311,
+     "name": "حمود بن محمد بن علی بن احمد"
+    },
+    {
+     "id": 65312,
+     "name": "حمود بن علی بن احمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:65639",
+   "tier": "clear",
+   "reason": "second model review (Opus): عرب عجم نادر، تاریخ سازگار؛ رکورد دیگر نام آشفته",
+   "target_id": 65639,
+   "members": [
+    {
+     "id": 59161,
+     "name": "عبدالحسین بن محمدابراهیم بن احمدبن عبدالعلی عرب عجم تا 11 جمادی الثانی 1369ق"
+    },
+    {
+     "id": 65639,
+     "name": "عبدالحسین عرب عجم"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:20399",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر وشتانی، نام و پدر یکی",
+   "target_id": 20399,
+   "members": [
+    {
+     "id": 20399,
+     "name": "ابراهیم بن عبدالکریم موسوی وشتانی فیروز کوهی مازندرانی"
+    },
+    {
+     "id": 65958,
+     "name": "ابراهیم بن عبدالکریم موسوی وشتانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:70926",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نادر اومینی، ۲۷ سال",
+   "target_id": 70926,
+   "members": [
+    {
+     "id": 66043,
+     "name": "محمد صادق اومینی"
+    },
+    {
+     "id": 70926,
+     "name": "محمد صادق بن عبدالله اومینی از توابع تربت حیدریه"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:74406",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر یکی، پنج سال، رضوی",
+   "target_id": 74406,
+   "members": [
+    {
+     "id": 66058,
+     "name": "یوسفعلی بن حسین"
+    },
+    {
+     "id": 74406,
+     "name": "ذهبی سلماسی، یوسفعلی بن حسین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:73706",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر و نسبت لاری یکی",
+   "target_id": 73706,
+   "members": [
+    {
+     "id": 66859,
+     "name": "لاری، نصرالله بن علی"
+    },
+    {
+     "id": 73706,
+     "name": "نصرالله بن علی بن فاضل لاری نیریزی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:68987",
+   "tier": "clear",
+   "reason": "second model review (Opus): نسبت نوری طهرانی، شماره‌های مجاور دانشگاه",
+   "target_id": 68987,
+   "members": [
+    {
+     "id": 66980,
+     "name": "ملا محمد طاهر نوری طهرانی"
+    },
+    {
+     "id": 68987,
+     "name": "محمد طاهر بن ابوالقاسم نوری رازی طهرانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:19426",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر، شیراز و سروستان، ۲۳ سال",
+   "target_id": 19426,
+   "members": [
+    {
+     "id": 19426,
+     "name": "شیخ علم الهدی بن شیخ صفی سروستانی"
+    },
+    {
+     "id": 67899,
+     "name": "علم الهدى بن صفی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:68414",
+   "tier": "clear",
+   "reason": "second model review (Opus): دارابی شیرازی و پدر یکی",
+   "target_id": 68414,
+   "members": [
+    {
+     "id": 17628,
+     "name": "احمد بن ملا محمد تقی دارابی الاصل شهره به شیرازی"
+    },
+    {
+     "id": 68414,
+     "name": "دارابی شیرازی، احمد بن محمد تقی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:61147",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر یکی، هر دو مجلس",
+   "target_id": 61147,
+   "members": [
+    {
+     "id": 61147,
+     "name": "علیمحمد ملقب به آقاجان ابن حاجی غلامعلی تبریزی کاشانی"
+    },
+    {
+     "id": 68605,
+     "name": "علیمحمد بن حاج غلامعلی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:68884",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام بسیار خاص بهره، هر دو دانشگاه",
+   "target_id": 68884,
+   "members": [
+    {
+     "id": 68884,
+     "name": "طاهر بن حمد میان صاحب عبدعلی"
+    },
+    {
+     "id": 69271,
+     "name": "طاهر بن الحمد المقدس میان صاحب عبدعلی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:52120",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر خمیس بن زید",
+   "target_id": 52120,
+   "members": [
+    {
+     "id": 52120,
+     "name": "خمیس بن زید بن خلیفه"
+    },
+    {
+     "id": 68953,
+     "name": "خمیس بن زید"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:69134",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان نسخه مجلس ۹۶۹۸",
+   "target_id": 69134,
+   "members": [
+    {
+     "id": 69134,
+     "name": "شاه محمد معین قلندر حسین علی تجلی چشتی بن شاه نورالدین قلندر علی"
+    },
+    {
+     "id": 69135,
+     "name": "شاه محمد معین قلندر تجلی چشتی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:51733",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر اکمل الدین بن نورالدین",
+   "target_id": 51733,
+   "members": [
+    {
+     "id": 51733,
+     "name": "اکمل الدین محمد بن نورالدین محمد طهرانی"
+    },
+    {
+     "id": 69359,
+     "name": "اکمل الدین بن نورالدین"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:5730",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر و نسبت یکی، ۳۷ سال",
+   "target_id": 5730,
+   "members": [
+    {
+     "id": 5730,
+     "name": "محمد زکی بن جلال الدین رضوی دلیجانی"
+    },
+    {
+     "id": 69728,
+     "name": "محمد زکی بن جلال الدین رضوی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:47077",
+   "tier": "clear",
+   "reason": "second model review (Opus): سید جلال الدین تهرانی، مجموعه او در رضوی",
+   "target_id": 47077,
+   "members": [
+    {
+     "id": 47077,
+     "name": "سید جلال الدین تهرانی"
+    },
+    {
+     "id": 70029,
+     "name": "سید جلال تهرانی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:6619",
+   "tier": "clear",
+   "reason": "second model review (Opus): همان مجموعه وزیری ۳۱۳۰",
+   "target_id": 6619,
+   "members": [
+    {
+     "id": 6619,
+     "name": "حاج سید علی محمد علاقبند یزدی"
+    },
+    {
+     "id": 70105,
+     "name": "حاج سید محمد علاقبند یزدی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:17385",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر، ۲۲ سال",
+   "target_id": 17385,
+   "members": [
+    {
+     "id": 17385,
+     "name": "سید حفیظ الله بن مولوی مرادالله"
+    },
+    {
+     "id": 70310,
+     "name": "سید حفیظ الله"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:70761",
+   "tier": "clear",
+   "reason": "second model review (Opus): کاتب همان اثر مؤلف، نسبت نادر",
+   "target_id": 70761,
+   "members": [
+    {
+     "id": 18161,
+     "name": "عبدالقادر بن محمد ابوالنور کیالی"
+    },
+    {
+     "id": 70761,
+     "name": "کیالی، عبدالقادر بن محمد"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:19150",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام نادر، دوره ممکن",
+   "target_id": 19150,
+   "members": [
+    {
+     "id": 19150,
+     "name": "گیلانی، سلیم بن سلیمان"
+    },
+    {
+     "id": 70808,
+     "name": "سلیم بن سلیمان"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:15647",
+   "tier": "clear",
+   "reason": "second model review (Opus): نام و پدر یکی، ۳۴ سال",
+   "target_id": 15647,
+   "members": [
+    {
+     "id": 15647,
+     "name": "عنایة الله بن بدرالدین گلجاهی"
+    },
+    {
+     "id": 71418,
+     "name": "عناية الله بن بدرالدين"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:11019",
+   "tier": "clear",
+   "reason": "second model review (Opus): پدر نادر محراب، ۳۳ سال",
+   "target_id": 11019,
+   "members": [
+    {
+     "id": 11019,
+     "name": "محمد جعفر بن محراب هروی"
+    },
+    {
+     "id": 72666,
+     "name": "محمد جعفر بن محراب"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:73766",
+   "tier": "clear",
+   "reason": "second model review (Opus): شیخ خلف آل عصفور، وفات ۱۲۰۸",
+   "target_id": 73766,
+   "members": [
+    {
+     "id": 2703,
+     "name": "آل عصفور بحرانی، خلف بن عبدالعلی"
+    },
+    {
+     "id": 73766,
+     "name": "آل عصفور، شیخ خلف بن عبدالعلی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:18195",
+   "tier": "clear",
+   "reason": "second model review (Opus): درویش عبدالله منشی، ۳۵ سال",
+   "target_id": 18195,
+   "members": [
+    {
+     "id": 18195,
+     "name": "درویش عبدالله منشی سلطانی بلخی"
+    },
+    {
+     "id": 74597,
+     "name": "درویش عبدالله منشی"
+    }
+   ]
+  },
+  {
+   "key": "judged-opus:16838",
+   "tier": "clear",
+   "reason": "second model review (Opus): عماد الکتاب قزوینی، لقب یگانه",
+   "target_id": 16838,
+   "members": [
+    {
+     "id": 16838,
+     "name": "عماد الکتاب سیفی ابن محمد حسین قزوینی"
+    },
+    {
+     "id": 74627,
+     "name": "عماد الکتاب (محمد حسین)"
+    }
+   ]
+  }
+ ]
+}

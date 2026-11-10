@@ -146,4 +146,55 @@ class PersonReviewTest extends TestCase
 
         $this->actingAs($user)->get(route('admin.person-reviews.index'))->assertForbidden();
     }
+
+    public function test_unsure_groups_of_a_model_review_are_queued_for_the_researchers_and_stay_through_the_refresh()
+    {
+        $a = $this->person('حسن بن رضا آزمونکصف ساوجی');
+        $b = $this->person('حسن آزمونکصف ساوجی');
+        $c = $this->person('محمد آزمونکصف کاشی');
+        $d = $this->person('محمد بن علی آزمونکصف کاشی');
+        $gone = $this->person('علی آزمونکصف یزدی');
+        $into = $this->person('علی بن حسین آزمونکصف یزدی');
+        $lone = $this->person('جعفر آزمونکصف قمی');
+        // $gone was merged into $into since the review: its group is settled
+        EntityRedirect::create(['entity_type' => 'people', 'source_id' => $gone->id + 1000000, 'target_id' => $into->id]);
+        $file = tempnam(sys_get_temp_dir(), 'unsure') . '.json';
+        file_put_contents($file, json_encode(['groups' => [
+            ['ids' => [$a->id, $b->id], 'note' => 'داوری نخست: نامطمئن | داوری دوم: نامطمئن — پدر در یکی نیامده'],
+            ['ids' => [$c->id, $d->id], 'note' => 'داوری دوم: نامطمئن'],
+            ['ids' => [$into->id, $gone->id + 1000000], 'note' => 'همان شخص پس از ادغام'],
+            ['ids' => [$lone->id, 999999999], 'note' => 'رکورد دوم دیگر نیست'],
+        ]], JSON_UNESCAPED_UNICODE));
+        $this->peopleIds[] = $gone->id;
+        try {
+            $this->artisan('fahares:queue-judged-people', ['--file' => $file, '--dry-run' => true])
+                ->expectsOutputToContain('[dry run] Queued 2 groups; 0 already in the queue; 2 settled since.')->assertSuccessful();
+            $this->assertSame(0, PersonReview::where('key', 'like', PersonReviewQueue::JUDGED . '%')->whereJsonContains('person_ids', $a->id)->count());
+
+            $this->artisan('fahares:queue-judged-people', ['--file' => $file])->expectsOutputToContain('Queued 2 groups')->assertSuccessful();
+            $item = PersonReview::where('key', PersonReviewQueue::JUDGED . $a->id . ',' . $b->id)->firstOrFail();
+            $this->assertSame(['duplicate', 'open', [$a->id, $b->id], 'unsure'], [$item->type, $item->status, $item->person_ids, $item->suggestion['decision']]);
+            $this->assertStringContainsString('پدر در یکی نیامده', $item->suggestion['comment']);
+            $this->artisan('fahares:queue-judged-people', ['--file' => $file])->expectsOutputToContain('Queued 0 groups; 2 already in the queue')->assertSuccessful();
+
+            // The nightly refresh keeps them, and closes one when a record of it is gone
+            app(PersonReviewQueue::class)->refresh();
+            $this->assertSame('open', $item->fresh()->status);
+            $other = PersonReview::where('key', PersonReviewQueue::JUDGED . $c->id . ',' . $d->id)->firstOrFail();
+            $d->delete();
+            app(PersonReviewQueue::class)->refresh();
+            $this->assertSame('gone', $other->fresh()->status);
+            $this->assertSame('open', $item->fresh()->status);
+
+            // Researchers see the group among the namesakes
+            $researcher = User::factory()->create();
+            $this->actingAs($researcher)->get(route('contribute.show', ['namesake', $item->id]))->assertOk()
+                ->assertSee($a->name)->assertSee($b->name);
+        } finally {
+            @unlink($file);
+            EntityRedirect::where('entity_type', 'people')->where('source_id', $gone->id + 1000000)->delete();
+            PersonReview::where('key', 'like', PersonReviewQueue::JUDGED . '%')->whereIn('id', PersonReview::where('key', 'like', PersonReviewQueue::JUDGED . '%')->get()
+                ->filter(fn ($r) => array_intersect((array) $r->person_ids, $this->peopleIds))->pluck('id'))->delete();
+        }
+    }
 }
