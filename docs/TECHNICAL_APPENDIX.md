@@ -9510,4 +9510,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پس از استقرار:**
   1. `php artisan scout:sync-index-settings`، تا سه فیلتر تازه در Meilisearch باشند.
   2. با تأیید کاربر و پس از پشتیبان: `fahares:rebuild-copies --file=database/data/author_copy_flags_step14_130.json --apply`. این فرمان ۱٬۴۱۷ نسخه را خودش در نمایه به‌روز می‌کند. نسخه‌های دیگر این سه فیلد را در نمایه ندارند و با `= true` هم نمی‌آیند، و این درست است.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۸۹، a61c0bd3):**
+  - md5 فایل در `/app` با شاخه برابر بود (`18af884c…`). migration با batch 66 اجرا شده بود.
+  - **`scout:sync-index-settings`:** با `prod-run`. هر چهار نمایه «synced successfully».
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_130_before.json`، با `id`، `shelfmark`، `catalog_volume_id`، سه ستون و `updated_at`. پیش از اجرا: `shelfmark_differs=0`، `flagged=0`، و `no_volume=52`.
+  - **اجرا:** با `prod-run --wait jolly-tharp`. خروجی «Rebuilding 1417 copies»، `pointers_linked=11`، «4 copies relinked».
+  - **وارسی:**
+    - اجرای دوم «already 1417» داد. جمع ستون‌ها 623، 484 و 442 است.
+    - `/search?type=manuscripts&flags[]=corrected_by_author` شمار ۴۴۲ و ۲۰ نتیجه داد، با `q=شرح` و بی آن.
+    - `/tmp` کانتینر پاک است.
 
