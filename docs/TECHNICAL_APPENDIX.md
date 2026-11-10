@@ -9720,3 +9720,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** با `prod-run --wait jolly-tharp`: «Rebuilding 1 copies».
   - **وارسی:** اجرای دوم «Would rebuild 0». `/m/333944` جمله را دارد. `/tmp` کانتینر پاک است.
 
+### گام ۱۴.۱۴۱: پارسر v2.1.0
+- **پیکره `9af818c`:** `scripts/fankha_parser_v2.py` و `scripts/fankha_v2_db_compare.py`. `PARSER_VERSION = '2.1.0'`. `json/fankha_v2` دوباره ساخته شد.
+- **`ORIG_IN`:**
+  - **پیش از برچسب:** `(?:^|(?<=[\s.؛،])|(?<=است))`.
+  - **ردشده‌ها (lookbehind):** «متن »، «آغاز »، «انجام »، «با »، «پایان »، «موجود »، «آغاز: » و «انجام: ».
+  - **مقدار:** تا «؛»، «[» یا پایان سطر.
+  - **کاربرد:** در `parse_copy`، تنها وقتی که `original_copy` تهی مانده است. نخستین سطری که بیابد `set_original` را می‌خواند، و این نشان `facsimile` را هم می‌گذارد.
+- **`SHELF_MORE`:** وقتی شماره‌ی نسخه به « و» پایان یابد و سطر بعد «X نسخه اصل:» باشد، X به `shelfmark` افزوده و از سطر برداشته می‌شود.
+- **`EPITHET_TAIL`:** `امام + (اول…دوازدهم)`، `پیامبر + یک یا دو واژه`، `خلیفه + (اموی|عباسی|فاطمی|عثمانی|اول…دوازدهم)`. لقب‌هایی که پیش از این بیرون می‌آمدند و اکنون نمی‌آیند: «امام الدین» (۳)، «امام الدین یوسف»، «امام ویردی بیگ» و «خلیفه شاه محمد».
+- **`parse_work_header`:** سطرهای پیاپی پس از سطر نخست آوانگاری به آن می‌پیوندند، اگر `is_latin_line` باشند، هیچ حرف فارسی نداشته باشند، و به `(… سال یا سده …)` پایان نیابند.
+- **`parse_work`:** `first_copy` نخستین سطری است که `COPY_HEAD.match` آن را بپذیرد.
+- **`align()`:** `SequenceMatcher` روی `norm(title)|norm(author)` بی فاصله. سپس میان هر دو بلوک، `SequenceMatcher` روی عنوان تنها. ج ۱۷: v2 1303 تا 1312 → سایت 1301 تا 1310. v2 1301 و 1302 جفتی نگرفتند.
+- **وارسی:** `parse_volume` پیشین (`git show HEAD:…`) و تازه روی ۳۴ جلد. اختلاف نهایی:
+  - نسخه‌ها: `original_copy` ۱۱۷، `flags` ۷۵، `shelfmark` ۱۱، `notes` ۱۰؛
+  - آثار: `author` ۳۰، `description` ۲۸، `transliteration` ۲۰، `bibliography` ۱.
+  - **مثبت کاذبی که در وارسی پیدا و رفع شد:** «با نسخه اصل: «حرره…»» (ج ۸)، «پایان نسخه اصل:» (ج ۱۸)، «آغاز: اصل نسخه:» (ج ۲۳) و «آغاز موجود اصل نسخه:» (ج ۲۵).
+- **review11 (`reports/fankha_v2_db_review11`، `--db fahares_prod`):**
+  - ۸۰٬۳۹۸ ردیف.
+  - کمترین‌ها در برابر review10: `Work/description` −۴۶۰، `scribe_name` −۹۹، `catalog_citation` −۶۰، `is_facsimile` −۴۷، `Work/author_name` −۴۵، `bibliography` −۴۵، `dimensions` −۴۴، `Work/incipit_text` −۴۰.
+  - `unmatched`: `v2_work` ۲۵ → ۱۵، `v2_copy` ۴۹۲ → ۴۶۳.
+  - رونوشت محلی تغییرات این روزهای نشست‌های دیگر در تولید را ندارد.
+
