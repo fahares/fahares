@@ -1,0 +1,395 @@
+{
+ "source": "copies whose Fankha text names their original («نسخه اصل: X»), which a film or photograph catalogue cites (or whose shelfmark or text says it is a photograph), and which the site has not flagged as a facsimile (fahares item 71, solution 2), 2026-11-10; fahares step 14.129",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 11674,
+   "shelfmark": "5478/1-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "adab-ol-moridin-t-v1-372",
+   "original": "کتابخانه توبینگن Ma VI 90",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30067,
+   "shelfmark": "3743/39-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "asami-ye-dah-qesm-cini-alat-ba-vasaf-e-anha-v3-332",
+   "original": "نسخه آقای دکتر حافظ فرمان فرمائیان",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46779,
+   "shelfmark": "272-ف و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "al-ansab-v5-1",
+   "original": "ایاصوفیا ش 2980. ج 5",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52039,
+   "shelfmark": "331/4-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "bab-ud-daawat-wa-abwab-un-uxra-v5-991",
+   "original": "یوسف آغا ش 4862",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 54761,
+   "shelfmark": "3499-ع و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "badaye-os-sanaye-v5-1405",
+   "original": "کتابخانه موزه آسیایی آکادمی علوم شوروی لنینگراد ش CCCXIX",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61047,
+   "shelfmark": "3677 و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "tarix-e-bayazid-xandegar-e-rum-v6-1343",
+   "original": "موزه آسیایی آکادمی علوم شوروی CCC. II",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70651,
+   "shelfmark": "1338/45-ف و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "tohfat-ol-vozara-v7-1130",
+   "original": "بادلیان 69 .Add اوزلی (ش 1241)",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 95056,
+   "shelfmark": "3591-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "jam-va-xarj-va-dastur-ol-amal-e-maliyati-ye-yazd-v10-739",
+   "original": "مجلس",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 128643,
+   "shelfmark": "4335-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "xolasat-ot-tavarix-v13-2007",
+   "original": "گوتا 2202 .Or",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 137720,
+   "shelfmark": "775/19-ف و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "ad-dawair-ul-xamsa-fi-istixraj-il-uruf-il-mufradat-mumarat-v14-2304",
+   "original": "پاریس 169 .P (بلوشه 722)",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145920,
+   "shelfmark": "6225/7-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "d-e-esmat-e-boxari-v15-1222",
+   "original": "آکادمی بخارست رومانی 178 M. با دیباچه ای به نام بای سنغر، شامل مقدمه منثور و غزل",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 178839,
+   "shelfmark": "579-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "s-ul-amtal-v19-204",
+   "original": "لاله لی ش 1795",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 223360,
+   "shelfmark": "3238-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "fotovvat-name-ye-soltani-v23-1226",
+   "original": "موزه بریتانیا Add.22765",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225144,
+   "shelfmark": "2270-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "al-firaq-ul-muftariqa-bayn-a-ahl-iz-zayg-wa-z-zandiqa-v23-1690",
+   "original": "عاطف افندی ش 1373",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225145,
+   "shelfmark": "979-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "al-firaq-ul-muftariqa-bayn-a-ahl-iz-zayg-wa-z-zandiqa-v23-1690",
+   "original": "اوقاف بغداد ش 6819",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 227492,
+   "shelfmark": "535/4-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "al-fusul-fi-l-maalim-il-ilahiyya-v24-124",
+   "original": "اسعد افندی 1933",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250784,
+   "shelfmark": "2007/2",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "kasf-ul-asrar-il-ilmiyya-dar-iarb-misriyya-v26-379",
+   "original": "كتابخانه دانشگاه كراچى - پاكستان 19991",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250920,
+   "shelfmark": "2361-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "kasf-ol-asrar-va-eddat-ol-abrar-v26-399",
+   "original": "اونیورسیته ش 625 فارسی. از سوره آل عمران تا انفال",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 269157,
+   "shelfmark": "25 حکمت",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "majales-on-nafaes-t-v28-158",
+   "original": "ش 3877 کتابخانه اسعد افندی",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 269740,
+   "shelfmark": "1878-ف و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "majma-ol-ansab-fe-t-tavarix-v28-338",
+   "original": "دیوان هند ش 238 ته 21",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 271350,
+   "shelfmark": "6187/1-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "majmue-v28-604",
+   "original": "کتابخانه گنج بخش (فهرست تسبیحی)، ش 393 (2: 459 تا 478)",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 285847,
+   "shelfmark": "269/1-ف و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "al-misba-fi-marifat-i-mana-kalimaty-is-sahada-v29-1558",
+   "original": "اياصوفيا ش 1816",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298327,
+   "shelfmark": "3752/3-عکس و",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "maqamat-e-ahmad-e-jam-v31-266",
+   "original": "توبینگن 3784 Or .Oct ... این نسخه تنها سی و سه حکایت اخیر نسخه نافذ پاشا با چهار",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 298694,
+   "shelfmark": "2268/1ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "maqamat-un-yubtana-alayha-ibat-u-ann-al-wujud-al-mustarak-al-lai-huw-a-muqabil-ul-adam-min-lawazim-il-awwal-il-aq-li-at-i-hi-taala-v31-330",
+   "original": "ایاصوفیا ش 3722",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 303292,
+   "shelfmark": "3086/2-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "manaqeb-v31-1766",
+   "original": "ملی تبریز ش 3626",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332859,
+   "shelfmark": "3525/7-ف",
+   "category": "facsimile_flag",
+   "v2": null,
+   "work": "yaddast-ha-v34-2100",
+   "original": "نسخه آقای بنی آدم",
+   "changes": {
+    "is_facsimile": {
+     "from": 0,
+     "to": 1
+    }
+   }
+  }
+ ]
+}

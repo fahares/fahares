@@ -9419,3 +9419,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرای آزمایشی:** «[dry run] Merged 599 records into 447 people; 0 groups skipped» و «[dry run] Queued 405 groups; 4 already in the queue». فرمان صف پیش از ادغام سنجیده شد.
   - **اجرای واقعی (یک `prod-run`):** «Merged 599 records into 447 people; 0 groups skipped»، سپس «Queued 386 groups; 23 already in the queue; 0 settled since».
   - **وارسی:** شمار اشخاص ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند. ۹۵۱ ردیف باز `duplicate` هست. `/people/2063` و `/people/11631` با ۳۰۱ به `/people/6386` می‌روند. `/tmp` پاک است.
+
+### گام ۱۴.۱۲۹: `is_facsimile` برای ۲۶ فیلم و عکس
+- **دامنه (fahares_prod):** `raw_text` با «نسخه اصل» یا «اصل نسخه» و `is_facsimile = 0`: ۱٬۴۵۲ نسخه. `is_facsimile = 1`: ۱۷٬۷۷۹ نسخه.
+- **گزینش:**
+  - نخستین `(?:نسخه\s+اصل|اصل\s+نسخه)\s*:\s*([^؛\[\n]+)` که پس از «متن»، «آغاز» یا «انجام» نیامده باشد و با «همان نسخه» آغاز نشود. همان الگوی `Manuscript::getOriginalNoteAttribute`.
+  - **یکی از این‌ها:** کروشه‌ای با «فیلم» یا «عکس»؛ `shelfmark` که به «-ف»، «ف»، «عکس» یا «ع» ختم شود؛ یا «جلد عکس» در متن. تنها 269157 («چهار جلد عکس») از راه متن آمد.
+  - **کنار ماندند:** 78276، 170774، 223927 و 237952. برچسب این‌ها در آغاز است یا در جمله.
+- **فایل:** `database/data/facsimile_flag_step14_129.json` (`records`، ۲۶ ردیف `changes.is_facsimile` 0 → 1، با `original` و `work` برای خواندن).
+- **پیوند:** هیچ‌یک `manuscript_relations` ندارد. زیر همان اثر هم نسخه‌ای با نام و شماره‌ی نسخه‌ی مادر نیست؛ برای 303292 («ملی تبریز ش 3626») و 95056 («مجلس») هم سنجیده شد.
+- **پارسر v2:** `set_original()` تنها برای بخشی فراخوانده می‌شود که با «نسخه اصل:» آغاز شود. `original_copy` برای 5478/1-ف، 3591-ف، 579-ف، 3086/2-ف و «25 حکمت» تهی است.
+- **تمرین روی fahares_prod:** `fahares:rebuild-copies --file=database/data/facsimile_flag_step14_129.json --apply`: «Rebuilding 26 copies». اجرای دوم: «already 26».
+- **نامزدهای راهکار ۳ (نه در این گام):** ۱۵٬۱۰۸ عکسیِ بی رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy`. ۱۱٬۷۳۱ تا یادداشت «نسخه اصل» دارند. ۳۱ تا تنها یک نسخه زیر همان اثر دارند که نام کتابخانه‌اش در یادداشت است و شماره‌ی پیش از «/» آن در یادداشت آمده است.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/facsimile_flag_step14_129.json --apply`
+
