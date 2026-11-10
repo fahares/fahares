@@ -1,0 +1,56 @@
+{
+ "source": "the description of the anonymous vol 34 appendix entry «حاشیة الروضة البهیة» (v34-2343, work 71534, merged into 21870 as a distinct work on 12 Oct 1405), which describes this copy («در این نسخه»), back on the copy as an editorial note: the merge dropped it and step 14.19 put it on 71533; fahares step 14.139",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 333944,
+   "shelfmark": "17216/1",
+   "category": "rebuild",
+   "v2": "v34-2343",
+   "changes": {
+    "metadata": {
+     "from": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الفصل الثانی فی الغسل قوله و مس المیت النجس هذا هو المشهور و الاقوی و ذهب السيد المرتضی ره الى استحباب غسل المس"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "قوله و قبل التطهير و لو كان كافرا الخ"
+       }
+      ],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 47/2 - 74]",
+      "residual_notes": ". ، ؛ ؛ در آغاز نسخه آمده: «از میر سید محمد است کتبه حسن علی»",
+      "is_distinct_work": true
+     },
+     "to": {
+      "incipits": [
+       {
+        "label": null,
+        "text": "الفصل الثانی فی الغسل قوله و مس المیت النجس هذا هو المشهور و الاقوی و ذهب السيد المرتضی ره الى استحباب غسل المس"
+       }
+      ],
+      "explicits": [
+       {
+        "label": null,
+        "text": "قوله و قبل التطهير و لو كان كافرا الخ"
+       }
+      ],
+      "editorial_notes": [
+       "حاشیه‌ای است بر کتاب مذکور با عناوین «قوله» که در این نسخه از «الفصل الثانی فی الغسل» آغاز می‌شود."
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 47/2 - 74]",
+      "residual_notes": ". ، ؛ ؛ در آغاز نسخه آمده: «از میر سید محمد است کتبه حسن علی»",
+      "is_distinct_work": true
+     }
+    }
+   }
+  }
+ ]
+}

@@ -9706,3 +9706,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان:** `../fahares-sources/backups/step13/step14_137_before.json`، با `works` (۳ ردیف کامل)، `work_people` (۳) و `people` 3687، 9003 و 598. `from` هر ۴ ستون برابر بود.
   - **اجرا:** با `prod-run --wait jolly-tharp`: «works=3».
   - **وارسی:** اجرای دوم «update 0» داد. `author_id` و `work_people` 3082 و 6009 → 3687. 71533 → `description` null. `works_count` شخص 3687 برابر 5 و 9003 برابر 28. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۱۳۹: `editorial_notes` نسخه‌ی 333944
+- **تصمیم استدراک:** `reconciliations/fankha_vol34_addenda.json` در پیکره و `merges` آن: 71534 → 21870 با `distinct_work: true`.
+  - `entity_redirects` 23 (works، 71534 → 21870، ۱۲ مهر).
+  - نسخه‌ی 333944 (مجلس 17216/1) `metadata.is_distinct_work = true` دارد.
+- **فایل:** `database/data/copy_note_step14_139.json`، یک ردیف `rebuild-copies`. `changes.metadata`: همان `metadata`، با جمله‌ی شرح `v34-2343` در `editorial_notes` (پیش از این تهی بود).
+- **تمرین روی fahares_prod:** «Rebuilding 1». اجرای دوم «already 1». `is_distinct_work` همان true ماند.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/copy_note_step14_139.json --apply`
+
