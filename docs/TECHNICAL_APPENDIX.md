@@ -9678,3 +9678,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مانده:** 333944 (مجلس 17216/1، `v34-2343`) زیر 21870 (`v11-1287`، بی‌مؤلف) است.
 - **اجرا در تولید:** پس از پشتیبان از این سه اثر و `work_people` آن‌ها، `fahares:add-corpus-works --file=database/data/author_fix_step14_137.json --apply`.
 
+- **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از انتشار جلسه‌ی مدیریت کارها، به اجازه‌ی کاربر):**
+  - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`، به همان روش `scripts/backup/fahares-backup.sh`: `~/backups/before_step14_135_monzavi_nuskhe_20261110_1336.sql.gz`. حجم ۳۹۵ مگابایت، با خط پایانی «Dump completed» و md5 برابر `da56106034d2b2a4d544d8805d666373`. پشتیبان روی میزبان ماند.
+  - **اجرا (سه `prod-run` با نام `keen-einstein-629a0f`):**
+    - `sources:backfill --only=registry`: «volumes made 6»، منبع ۱۰۰۲۱۱.
+    - `sources:import-citation-forms`: «Made 1 forms».
+    - `sources:backfill --only=bibliography`: ۲۳٬۲۷۰ ارجاع منبع شناخته، برابر تمرین.
+  - **وارسی:**
+    - ۲٬۶۱۸ مأخذ اثر `source_id` این منبع را دارند، برابر تمرین. مرز جلدها همان `config` است (ج ۲ از ۷۲۱).
+    - `https://fahares.net/sources/fankha/1/page/94` نمایشگر ج ۳ ص ۱۹۰۲ را دارد، و `/api/page-images/monzavi-nuskhe/3` پاسخ ۲۰۰ داد.
+    - ۲۰ صفحه‌ی اثر تصادفی پاسخ ۲۰۰ دادند و همه پیوند نمایشگر داشتند.
+    - `/tmp` کانتینر فایلی از این گام ندارد.
