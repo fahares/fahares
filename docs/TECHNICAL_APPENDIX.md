@@ -9611,7 +9611,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرای دوم** «volumes made 0» و «Made 0 forms» داد. `ensureVolumes` جلد موجود را به‌روز نمی‌کند، پس `page_first` جلد ۲ (۷۱۸ پیش از اصلاح) در رونوشت دستی ۷۲۱ شد. روی پروداکشن جلد تازه ساخته می‌شود.
   - `sources:link-earlier-edition monzavi nuskhe --dry-run` همان ۲٬۶۳۵ ارجاع را خواند. این فرمان ارجاع‌هایی را می‌خواند که `source_id` آن‌ها فهرستواره نیست، پس منبع تازه کارش را تغییر نمی‌دهد.
   - **پیش‌نمایش** با `docker run` از `fahares-app` روی worktree، با `.env` رونوشت (`fahares_prod`) و تصویرهای checkout اصلی. `/sources/fankha/1/page/94`: «۱۹۰۲/۳» نمایشگر را با `catalogs/monzavi-nuskhe/v03/p1902.webp` باز کرد. ۵۰ صفحه‌ی اثر تصادفی پاسخ ۲۰۰ دادند و همه پیوند نمایشگر این منبع را داشتند. `/api/page-images/monzavi-nuskhe/2` پاسخ `{"first":721,"last":1841}` داد.
+- **انتقال تصویرها به سرور (۱۹ آبان ۱۴۰۵، به خواست کاربر، پیش از انتشار کد):**
+  - **پیش از انتقال:** قفل `prod-run` آزاد بود و جلسه‌ی دیگری در حال انتقال نبود. پوشه هنوز روی سرور نبود. `/app/storage/app/public` پارتیشن ماندگار `/dev/sda4` است و ۲۵ گیگابایت جای خالی داشت.
+  - **روش:** هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/monzavi-nuskhe --no-same-owner -xf -"`، در ۱۳ تا ۳۴ ثانیه. سپس `chown -R ubuntu:ubuntu` و `chmod -R 777` اجرا شد، مانند گام ۱۴.۸۶.
+  - **وارسی:** ۴٬۷۱۸ فایل و ۷۰۴ مگابایت. md5 فهرست نام و اندازه‌ی فایل‌ها در دو سو یکی بود (`2b93fc9e…`).
+  - **پاسخ سایت:** `https://fahares.net/storage/catalogs/monzavi-nuskhe/` برای `v01/p0001`، `v02/p0721`، `v03/p1902`، `v03/p2610`، `v04/p3206` و `v06/p4726` پاسخ ۲۰۰ و `image/webp` داد.
 - **پروداکشن (مانده):**
   1. انتشار کد.
-  2. با تأیید کاربر، فرستادن تصویرها: هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/monzavi-nuskhe --no-same-owner -xf -"`، سپس `chown` و `chmod` مانند گام ۱۴.۸۶.
-  3. `sources:backfill --only=registry`، `sources:import-citation-forms` و `sources:backfill --only=bibliography`، از راه `prod-run` و پس از پشتیبان.
+  2. `sources:backfill --only=registry`، `sources:import-citation-forms` و `sources:backfill --only=bibliography`، از راه `prod-run` و پس از پشتیبان.
