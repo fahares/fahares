@@ -9541,6 +9541,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
   2. `php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json`
   3. پشتیبان به `../fahares-sources/backups/step13/` می‌آید و فایل‌های `/tmp` پاک می‌شوند.
+- **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از استقرار ۸۶379f0a):** sha256 پشتیبان گام ۱۴.۱۶ در کانتینر `2831c4e7ae3d4e3e…` بود، برابر نسخه‌ی لپ‌تاپ. migration معلقی نبود.
+  - `scripts/dev/prod-run copy-merge-gaps -- 'cd /app && php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json …'`: «Written: 11 incipits and 7 explicits «برابر», 1 copies get their script links, 1 readings removed.» اجرای دوم: «0 … 0 … 0 … 0».
+  - پشتیبان: `step14_131_fill_copy_merge_gaps_backup.json` (۱۲ نسخه، sha256 `ddb86abe6e26943c…`). بازگردانی: همان دستور با `--revert=` این فایل.
+  - پس از اجرا: `manuscript_script` برای 75533 یک ردیف دارد و قول #65 دیگر نیست.
 ### گام ۱۴.۱۳۳: `fahares:link-named-mothers`
 - **نامزدها (fahares_prod):**
   - عکسی‌هایی که هیچ رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy` ندارند: ۱۵٬۱۰۸.
