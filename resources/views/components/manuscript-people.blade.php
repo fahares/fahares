@@ -4,14 +4,16 @@
     $people = $manuscript->otherPeople()->with(['person', 'suggestion'])->get();
     $roles = \App\Models\ManuscriptPerson::ROLES;
 @endphp
+{{-- Empty: a row of the contribution box instead of an empty heading (step 14.132) --}}
+@if($people->isEmpty())
+    <x-suggest.contribute-item title="اشخاص مرتبط با نسخه" label="افزودن مالک، واقف، مصحح…" :payload="['general' => true, 'relation' => 'person_role']"
+        hint="مالکان، واقفان، مصححان، محشیان و دیگر اشخاصی که در این نسخه نشانی از خود گذاشته‌اند؛ اگر مهر، یادداشت تملک یا وقف‌نامه‌ای در نسخه دیده‌اید." />
+@else
 <x-ui.section x-data title="اشخاص مرتبط با نسخه">
     <x-slot:actions>
         <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'person_role' })"
             class="font-bold text-cinnabar hover:underline cursor-pointer">+ افزودن مالک، واقف، مصحح…</button>
     </x-slot:actions>
-    @if($people->isEmpty())
-        <p class="text-sm text-muted leading-relaxed max-w-[72ch]">مالکان، واقفان، مصححان، محشیان و دیگر اشخاصی که در این نسخه نشانی از خود گذاشته‌اند هنوز ثبت نشده‌اند. اگر مهر، یادداشت تملک یا وقف‌نامه‌ای در نسخه دیده‌اید، آن را بیفزایید.</p>
-    @else
         <dl class="grid grid-cols-1 sm:grid-cols-[max-content_minmax(0,1fr)] gap-x-8 gap-y-1 sm:gap-y-3 text-sm m-0">
             @foreach($people->sortBy(fn ($p) => array_search($p->role, array_keys($roles), true))->groupBy('role') as $role => $group)
                 <div class="contents">
@@ -35,5 +37,5 @@
                 </div>
             @endforeach
         </dl>
-    @endif
 </x-ui.section>
+@endif

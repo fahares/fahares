@@ -257,6 +257,7 @@
     <!-- READINGS and RESEARCH NOTES of the source, and the suggestion desk (step 14.52) -->
     <x-suggest.readings />
     <x-suggest.notes type="source" />
+    <x-suggest.contribute type="source" />
     <x-suggest.desk type="source" :record="$source" />
 </div>
 @endsection

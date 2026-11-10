@@ -141,6 +141,9 @@
         <!-- RESEARCH NOTES: published notes and the invitation to add one -->
         <x-suggest.notes type="library" />
 
+        <!-- CONTRIBUTE: the empty sections above, as invitations in one box (step 14.132) -->
+        <x-suggest.contribute type="library" />
+
         <!-- CORRECTION HISTORY: approved suggestions that changed this record (backlog item 39) -->
         <x-record-history :record="$library" />
     </div>

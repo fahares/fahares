@@ -1380,7 +1380,9 @@ class SuggestionWorkflowTest extends TestCase
         \Illuminate\Support\Facades\Notification::fake();
         $matn = $this->work(['primary_title' => 'تهذیب المنطق ' . uniqid()]);
         $sharh = $this->work(['primary_title' => 'الحاشیة علی التهذیب ' . uniqid()]);
-        $this->get(route('works.show', $matn))->assertOk()->assertSee('رابطه با آثار دیگر');
+        // Without relations the section is only a row of the contribution box, not a heading of the record (step 14.132)
+        $this->get(route('works.show', $matn))->assertOk()->assertSee('شما هم می‌توانید بیفزایید')
+            ->assertSeeInOrder(['id="contribute"', 'رابطه با آثار دیگر', 'افزودن رابطه'], false);
 
         // From the mother text's page: "the chosen work is a gloss on this work"
         $this->relate($matn, 'work_relation', $sharh, ['role' => 'nonsense'])->assertStatus(422)->assertJsonValidationErrors('role');
@@ -1391,7 +1393,8 @@ class SuggestionWorkflowTest extends TestCase
 
         $row = DB::table('work_relations')->sole();
         $this->assertSame([$sharh->id, $matn->id, 'gloss'], [$row->work_id, $row->related_work_id, $row->type]);
-        $this->get(route('works.show', $matn))->assertSee('حواشی:')->assertSee($sharh->primary_title)->assertSee('بر بخش منطق');
+        $this->get(route('works.show', $matn))->assertSee('حواشی:')->assertSee($sharh->primary_title)->assertSee('بر بخش منطق')
+            ->assertSeeInOrder(['رابطه با آثار دیگر', 'حواشی:', 'id="contribute"'], false);
         $this->get(route('works.show', $sharh))->assertSee('حاشیه‌ای است بر:')->assertSee($matn->primary_title);
 
         // The same relation twice is refused; a rollback removes it
