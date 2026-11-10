@@ -11,6 +11,7 @@ const STEP = 1.25;           // a zoom button or key press
 const TAP_MOVE = 10;         // px: more than this is a drag
 const DOUBLE_TAP_MS = 300;
 const SWIPE_MIN = 60;        // px of horizontal travel that turns the page
+const LONG_GAP = 3;          // pages: a shorter gap (a page left blank in the book) is stepped over but not listed
 const PAN_KEY = 75;
 const FA_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 
@@ -94,9 +95,22 @@ export default (config) => ({
         return this.step(this.page, 1) !== null;
     },
 
-    // The pages the volume has, for the jump box: «۲–۵۵۵، ۱۰۸۱–۱۶۷۵، …»; null when it has every page in its range
-    get segmentsLabel() {
-        return this.segments ? this.segments.map(([a, b]) => (a === b ? fa(a) : `${fa(a)}–${fa(b)}`)).join('، ') : null;
+    // The runs of pages the volume lacks between the ones it has: [[556, 1080], [1676, 1676]]
+    get gaps() {
+        if (!this.segments) return [];
+        return this.segments.slice(1).map(([a], i) => [this.segments[i][1] + 1, a - 1]);
+    },
+
+    // The long gaps, for the jump box and the notice: «۵۵۶–۱۰۸۰»; null when there are none, so a volume with only
+    // blank pages here and there gets no extra line
+    get gapsLabel() {
+        const long = this.gaps.filter(([a, b]) => b - a + 1 >= LONG_GAP);
+        return long.length ? long.map(([a, b]) => `${fa(a)}–${fa(b)}`).join('، ') : null;
+    },
+
+    // The page on screen is in a short gap: most likely a page left blank in the book
+    get inShortGap() {
+        return this.gaps.some(([a, b]) => b - a + 1 < LONG_GAP && this.page >= a && this.page <= b);
     },
 
     // The page is not among the volume's images (it falls in a gap, or outside the range)
