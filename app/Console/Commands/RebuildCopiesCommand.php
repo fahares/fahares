@@ -36,7 +36,7 @@ class RebuildCopiesCommand extends Command
         'copy_date_raw', 'copy_date_hijri_year', 'copy_place', 'commissioned_by', 'folios', 'lines', 'dimensions',
         'paper', 'binding', 'incipit_text', 'explicit_text', 'is_corrected', 'has_marginal_notes', 'is_ruled',
         'has_catchwords', 'is_facsimile', 'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia',
-        'metadata', 'shelfmark', 'sequence_number', 'city', 'library', 'library_id'];
+        'copied_from_author_copy', 'collated_with_author_copy', 'corrected_by_author', 'metadata', 'shelfmark', 'sequence_number', 'city', 'library', 'library_id'];
 
     /** The extent columns besides folios, which CopyExtent leaves alone when a copy's text has no extent. */
     private const EXTENT = ['pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number'];

@@ -21,12 +21,13 @@ class WorkCopyFilters
     /** yes/no flags: param => [label, «yes» label, «no» label] */
     public const FLAGS = [
         'autograph' => ['دستخط مؤلف', 'فقط دستخط مؤلف', null],
+        'author_copy' => ['نسخه‌ی مؤلف', 'از روی نسخه‌ی مؤلف یا مقابله با آن', null],
         'dated' => ['تاریخ کتابت', 'تاریخ‌دار', 'بی‌تاریخ'],
         'scribe' => ['کاتب', 'کاتب‌دار', 'بی‌کاتب'],
         'facsimile' => ['اصل یا عکسی', 'عکسی یا میکروفیلم', 'اصل'],
     ];
 
-    public const PARAMS = ['library', 'city', 'century', 'script', 'autograph', 'dated', 'scribe', 'facsimile'];
+    public const PARAMS = ['library', 'city', 'century', 'script', 'autograph', 'author_copy', 'dated', 'scribe', 'facsimile'];
 
     /** The copy's century from its copy-date range, when the range lies within one century */
     private const CENTURY = 'CASE WHEN COALESCE(manuscripts.copy_date_from, manuscripts.copy_date_hijri_year) > 0
@@ -55,7 +56,7 @@ class WorkCopyFilters
                 'library', 'script' => ctype_digit($value) && (int) $value > 0 ? (int) $value : null,
                 'century' => ctype_digit($value) && $value >= 1 && $value <= 15 ? (int) $value : null,
                 'city' => mb_substr($value, 0, 255),
-                'autograph' => $value === '1' ? '1' : null,
+                'autograph', 'author_copy' => $value === '1' ? '1' : null,
                 default => in_array($value, ['0', '1'], true) ? $value : null,
             };
             if ($clean !== null) {
@@ -84,6 +85,8 @@ class WorkCopyFilters
                 'century' => $query->whereRaw('(' . self::CENTURY . ') = ?', [$value]),
                 'script' => $query->whereIn('manuscripts.id', DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id')),
                 'autograph' => $query->where('manuscripts.is_autograph', true),
+                'author_copy' => $query->where(fn ($q) => $q->where('manuscripts.copied_from_author_copy', true)
+                    ->orWhere('manuscripts.collated_with_author_copy', true)->orWhere('manuscripts.corrected_by_author', true)),
                 'dated' => $value === '1' ? $query->where(fn ($q) => $this->dated($q)) : $query->whereNot(fn ($q) => $this->dated($q)),
                 'scribe' => $value === '1' ? $query->where(fn ($q) => $this->scribed($q)) : $query->whereNot(fn ($q) => $this->scribed($q)),
                 'facsimile' => $query->where('manuscripts.is_facsimile', $value === '1'),

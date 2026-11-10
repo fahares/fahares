@@ -9479,3 +9479,35 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** با `prod-run --wait jolly-tharp`: «Rebuilding 26 copies».
   - **وارسی:** اجرای دوم «already 26» داد. `/tmp` کانتینر پاک است.
 
+### گام ۱۴.۱۳۰: `copied_from_author_copy`، `collated_with_author_copy` و `corrected_by_author`
+- **Migration:** `2026_11_10_100001_add_author_copy_flags_to_manuscripts`. سه ستون boolean با پیش‌فرض false، پس از `has_author_marginalia`.
+- **کد:**
+  - `Manuscript`: cast و `toSearchableArray`.
+  - `config/scout.php`: هر سه در `filterableAttributes`.
+  - `SearchFilters::FLAGS`؛ `SuggestionRegistry::FLAG_LABELS`؛ `$flags` در `manuscripts/show`؛ برچسب در `search.blade.php`.
+  - `WorkCopyFilters`: پارامتر `author_copy=1`، که یکی از سه را می‌خواهد.
+  - `RebuildCopiesCommand::COLUMNS`: هر سه.
+  - **نکته:** در فایل، `from`/`to` باید 0 و 1 باشند، چون `DB::table` ستون boolean را 0/1 برمی‌گرداند و `same()` سخت‌گیر است.
+- **نامزدها (fahares_prod، `is_autograph = 0`):**
+  - `raw_text` با «مؤلف|مولف|مصنف|ماتن|شارح|المؤلف|المصنف».
+  - سطر اول (سرنسخه)، سطرهای «آغاز» و «انجام» و کروشه‌ها کنار رفتند. باقی به `؛` و سطر بخش شد.
+  - بندی ماند که در یکی از جزءهای «،» یا «. » آن هم واژه‌ی مؤلف باشد و هم یکی از «مقابل|قوبل|قابل|تصحیح|صحح|مصحح|از روی|منقول|نقل|استنساخ|نسخت|كتبت|قرائت|قرأ|بلاغ|بلغ|عرض|سماع|اصل».
+  - شمار: ۲٬۹۵۱.
+- **داوری:**
+  - هفت agent Sonnet، هر یک ۴۱۹ یا ۴۲۲ نسخه، با سه برچسب مستقل و `hedged`، `confidence` و `quote`. در هر هفت خروجی، شناسه‌ها و ترتیبشان با ورودی یکی بود.
+  - در دسته‌ی ۱، ۲۲ `quote` با «…» کوتاه شده بود و عین متن نبود. برچسب‌هایشان خوانده شد و درست بود.
+  - **شمار خروجی:** yes/high ۱٬۲۶۵؛ yes/high/hedged ۲۷؛ yes/low ۲۰۳؛ yes/low/hedged ۶۸؛ no ۱٬۳۸۸.
+- **بازداوری Claude (۲۰۳ yes/low):** ۵۱ رد و ۹ تغییر برچسب.
+  - **الگوهای رد:** مقابله با «نسخه‌ای که به خط مؤلف تصحیح شده بود» یا «نسخه‌ای که بر مؤلف خوانده شده»؛ کتابت از روی «نسخه‌ای که خط مؤلف بر آن بود»؛ صورت اجازه‌ی مؤلف که تنها رونویسی شده؛ و مؤلفی که مؤلف اثر سایت نیست (74582، 74590).
+  - تصمیم‌ها با شماره‌ی ردیف در `low_ids`، در scratchpad این جلسه.
+- **فایل:** `database/data/author_copy_flags_step14_130.json` (`records`، ۱٬۴۱۷ ردیف، با `judged_by` «model» یا «claude» و `quote`).
+  - `copied_from_author_copy` ۶۲۳، `collated_with_author_copy` ۴۸۴، `corrected_by_author` ۴۴۲.
+- **آزمون:** `AuthorCopyFlagsTest`، با نوشتن از راه `rebuild-copies`، دو صفحه‌ی نسخه، فیلتر صفحه‌ی اثر، سند جستجو و `SearchFilters::FLAGS`. همه‌ی ۷۹۶ آزمون موفق‌اند.
+- **تمرین روی fahares_prod:**
+  - `migrate`؛ سپس `fahares:rebuild-copies --file=database/data/author_copy_flags_step14_130.json --apply`: «Rebuilding 1417 copies».
+  - `DerivedData::syncCopies` در همان اجرا `pointers_linked=11` داد و ۴ نسخه جلد فهرست گرفتند (`relinkVolumes`، گام ۱۴.۱۱۰). این‌ها از بازسازی داده‌های مشتق همین نسخه‌ها می‌آیند.
+  - اجرای دوم: «already 1417».
+- **پس از استقرار:**
+  1. `php artisan scout:sync-index-settings`، تا سه فیلتر تازه در Meilisearch باشند.
+  2. با تأیید کاربر و پس از پشتیبان: `fahares:rebuild-copies --file=database/data/author_copy_flags_step14_130.json --apply`. این فرمان ۱٬۴۱۷ نسخه را خودش در نمایه به‌روز می‌کند. نسخه‌های دیگر این سه فیلد را در نمایه ندارند و با `= true` هم نمی‌آیند، و این درست است.
+
