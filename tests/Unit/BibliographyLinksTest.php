@@ -397,8 +397,12 @@ class BibliographyLinksTest extends TestCase
         // Fankha vol. 1 p. 94: the books the site lacks around it stay plain
         $this->assertSame([['1902/3', 'monzavi-nuskhe', 3, 1902]],
             $cites('[فهرست مشترک پاکستان 39/5 و 14/14؛ نسخه‌های فارسی منزوی 1902/3؛ فرهنگ سخنوران 513]'));
-        // in a page text only pairs are joined by «و» (step 14.125), not a bare page
-        $this->assertSame([['4090/6', 'monzavi-nuskhe', 6, 4090]], $cites('(نسخه‌های منزوی 4090/6 و 4215)'));
+        // a bare page after «و» that ends the citation is in the volume before it, as in a bibliography line; a count is not
+        $this->assertSame([['4090/6', 'monzavi-nuskhe', 6, 4090], ['4215', 'monzavi-nuskhe', 6, 4215]], $cites('(نسخه‌های منزوی 4090/6 و 4215)'));
+        $this->assertSame([['105/19', 'dharia', 19, 105], ['183', 'dharia', 19, 183], ['967/9', 'dharia', 9, 967]],
+            $cites('[الذریعة 105/19 و 183 و 967/9؛ فرهنگ سخنوران 513]'));
+        $this->assertSame([['69/13', 'dharia', 13, 69]], $cites('الذریعة 69/13 و 5 نسخه دیگر'));
+        $this->assertSame([['69/13', 'dharia', 13, 69]], $cites('الذریعة 69/13 و 1350 ق'));
         $this->assertSame([['4369', 'monzavi-nuskhe', 6, 4369]], $cites('[نسخه‌های منزوی 4369]'));
     }
 }

@@ -552,7 +552,10 @@ class BibliographyLinks
         // citations joined to it by «و» or «،» («الذریعة 105/19 و 183/17 و 967/9»), which segments() reads as the same book's
         $volumePage = 'ج\s*[0-9۰-۹]+\s*[،,]?\s*(?:صص|ص|ستون)\s*[0-9۰-۹]+';
         $pair = '[0-9۰-۹]+\s*[\/:]\s*[0-9۰-۹]+';
-        $number = '(?:(?:' . $volumePage . '|(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?)(?:\s*[و،,]\s*(?:' . $volumePage . '|' . $pair . '))*)';
+        // and a bare page after «و» that ends the citation («نسخه‌های منزوی 4090/6 و 4215]»), which segments() puts in the
+        // volume before it; not «و 5 نسخه», a count
+        $bare = '[0-9۰-۹]+(?![0-9۰-۹])(?=\s*(?:[؛;\]\)،,.]|$|و\s))';
+        $number = '(?:(?:' . $volumePage . '|(?:ج\s*)?[0-9۰-۹]+(?:\s*[\/:]\s*[0-9۰-۹]+)?)(?:\s*[و،,]\s*(?:' . $volumePage . '|' . $pair . ')|\s*و\s*' . $bare . ')*)';
         // Monzavi's «ذریعه (3) 791/9»: the part of a volume printed in parts, whose pages run on through them
         $part = '(?:\(\s*[0-9۰-۹]{1,2}\s*\)\s*)?';
         // Tabaqat's «ذكرناه في (الذريعة) ج 7 ص 284»: the name in parentheses
