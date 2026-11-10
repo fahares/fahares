@@ -74,15 +74,17 @@
     "facsimile": {
      "files": [
       "majlis/v10-1.pdf",
+      "majlis/v10-2.pdf",
       "majlis/v10-3.pdf",
       "majlis/v10-4.pdf"
      ],
      "leaf_maps": [
       "majlis/v10-1.map.json",
+      "majlis/v10-2.map.json",
       "majlis/v10-3.map.json",
       "majlis/v10-4.map.json"
      ],
-     "note": "سه بخش با صفحه‌شماری پیوسته: بخش ۱ (ص ۲–۵۵۵)، بخش ۳ (۱۰۸۱–۱۶۷۵)، بخش ۴ (۱۶۷۷–۲۲۳۰)؛ بخش ۲ (ص ۵۵۶–۱۰۸۰) نیست",
+     "note": "چهار بخش با صفحه‌شماری پیوسته: بخش ۱ (ص ۲–۵۵۵)، بخش ۲ (۵۵۶–۱۰۷۷، docibox 1265682؛ گام ۱۴.۱۳۸)، بخش ۳ (۱۰۸۱–۱۶۷۵)، بخش ۴ (۱۶۷۷–۲۲۳۰)",
      "step": "14.122"
     }
    }
@@ -144,6 +146,26 @@
      ],
      "note": "PDF دیجیتال (بایگانی 1400 خزانه‌ها)",
      "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 24,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۲۴: اهدایی طباطبائی",
+   "facsimile_code": "majlis-p1",
+   "page_first": 8,
+   "page_last": 502,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v24-1.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v24-1.map.json"
+     ],
+     "note": "اسکن docibox 1193165 (۱۳۸۱، کتاب‌های اهدایی طباطبایی)",
+     "step": "14.138"
     }
    }
   },
