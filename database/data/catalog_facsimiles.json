@@ -372,6 +372,26 @@
      "step": "14.122"
     }
    }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 1,
+   "title": "فهرست مختصر نسخه های خطی کتابخانه مجلس شورای اسلامی - 1",
+   "facsimile_code": "majlis-mokhtasar",
+   "page_first": 2,
+   "page_last": 1305,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/telegram-extra/1407 - فهرس مخطوطات مجلس الشورى.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/mokhtasar.map.json"
+     ],
+     "note": "اسکن (خزانه‌ها 1407)؛ هر برگ دو صفحه‌ی چاپی (راست، سپس چپ)؛ ۲۶ برگ تکراری کنار رفت",
+     "step": "14.136"
+    }
+   }
   }
  ]
 }
