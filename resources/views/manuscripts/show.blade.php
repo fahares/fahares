@@ -78,6 +78,9 @@
         $flags = [
             'is_autograph' => 'اصل نسخه (دستخط مؤلف)',
             'has_author_marginalia' => 'حواشی به خط مؤلف',
+            'corrected_by_author' => 'مقابله یا تصحیح به دست مؤلف',
+            'collated_with_author_copy' => 'مقابله با نسخه‌ی مؤلف',
+            'copied_from_author_copy' => 'کتابت از روی نسخه‌ی مؤلف',
             'is_illuminated' => 'تذهیب و سرلوح',
             'is_illustrated' => 'نگاره و نقاشی',
             'is_corrected' => 'تصحیح‌شده',

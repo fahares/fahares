@@ -55,6 +55,9 @@ class SearchFilters
         'has_marginal_notes' => 'دارای حواشی',
         'has_author_marginalia' => 'حواشی مؤلف',
         'is_collated' => 'مقابله‌شده',
+        'copied_from_author_copy' => 'کتابت از روی نسخه‌ی مؤلف',
+        'collated_with_author_copy' => 'مقابله با نسخه‌ی مؤلف',
+        'corrected_by_author' => 'مقابله یا تصحیح به دست مؤلف',
     ];
 
     public const ROLES = [

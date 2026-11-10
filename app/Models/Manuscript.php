@@ -166,6 +166,9 @@ class Manuscript extends Model
             'is_illuminated' => 'boolean',
             'is_illustrated' => 'boolean',
             'has_author_marginalia' => 'boolean',
+            'copied_from_author_copy' => 'boolean',
+            'collated_with_author_copy' => 'boolean',
+            'corrected_by_author' => 'boolean',
             'has_other_scribes' => 'boolean',
             'metadata' => 'array',
         ];
@@ -525,6 +528,10 @@ class Manuscript extends Model
             'is_illuminated' => (bool) $this->is_illuminated,
             'is_illustrated' => (bool) $this->is_illustrated,
             'has_author_marginalia' => (bool) $this->has_author_marginalia,
+            // how near the copy stands to the author's own (step 14.130)
+            'copied_from_author_copy' => (bool) $this->copied_from_author_copy,
+            'collated_with_author_copy' => (bool) $this->collated_with_author_copy,
+            'corrected_by_author' => (bool) $this->corrected_by_author,
             'scripts' => $this->relationLoaded('scripts') ? $this->scripts->pluck('name')->all() : [],
             // The work's subjects and languages, as filters of the manuscripts tab (backlog item 83, phase 5)
             'subjects' => $this->work?->subjects->pluck('name')->all() ?? [],
