@@ -4,16 +4,20 @@
     $groups = \App\Suggestions\RecordRelations::for($record);
     $isManuscript = $record instanceof \App\Models\Manuscript;
 @endphp
-<x-ui.section x-data :title="$isManuscript ? 'رابطه با نسخه‌های دیگر' : 'رابطه با آثار دیگر'">
+@php
+    $title = $isManuscript ? 'رابطه با نسخه‌های دیگر' : 'رابطه با آثار دیگر';
+    $payload = ['general' => true, 'relation' => $isManuscript ? 'manuscript_relation' : 'work_relation'];
+@endphp
+{{-- Empty: a row of the contribution box instead of an empty heading (step 14.132) --}}
+@if($groups->isEmpty())
+    <x-suggest.contribute-item :title="$title" label="افزودن رابطه" :payload="$payload"
+        :hint="$isManuscript ? 'اگر این نسخه از روی نسخه‌ی دیگری استنساخ شده، با نسخه‌ای مقابله شده، مجلد دیگری از همان دوره است یا نسخه‌ی عکسی یا میکروفیلمی از آن هست.' : 'اگر این اثر شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله یا ردیه‌ی اثر دیگری است، یا اثر دیگری بر آن نوشته شده.'" />
+@else
+<x-ui.section x-data :title="$title">
     <x-slot:actions>
-        <button type="button" @click="$dispatch('suggest-field', { general: true, relation: @js($isManuscript ? 'manuscript_relation' : 'work_relation') })"
+        <button type="button" @click="$dispatch('suggest-field', @js($payload))"
             class="font-bold text-cinnabar hover:underline cursor-pointer">+ افزودن رابطه</button>
     </x-slot:actions>
-    @if($groups->isEmpty())
-        <p class="text-sm text-muted leading-relaxed max-w-[72ch]">
-            {{ $isManuscript ? 'اگر می‌دانید این نسخه از روی نسخه‌ی دیگری استنساخ شده، با نسخه‌ای مقابله شده، مجلد دیگری از همان دوره است یا نسخه‌ی عکسی یا میکروفیلمی از آن هست، آن را بیفزایید.' : 'اگر این اثر شرح، حاشیه، ترجمه، تلخیص، نظم، تکمله یا ردیه‌ی اثر دیگری است، یا اثر دیگری بر آن نوشته شده، آن را بیفزایید.' }}
-        </p>
-    @else
         <dl class="space-y-3 text-sm">
             @foreach($groups as $label => $items)
                 <div class="space-y-1">
@@ -32,5 +36,5 @@
                 </div>
             @endforeach
         </dl>
-    @endif
 </x-ui.section>
+@endif

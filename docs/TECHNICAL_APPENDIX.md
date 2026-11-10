@@ -9545,6 +9545,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `scripts/dev/prod-run copy-merge-gaps -- 'cd /app && php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json …'`: «Written: 11 incipits and 7 explicits «برابر», 1 copies get their script links, 1 readings removed.» اجرای دوم: «0 … 0 … 0 … 0».
   - پشتیبان: `step14_131_fill_copy_merge_gaps_backup.json` (۱۲ نسخه، sha256 `ddb86abe6e26943c…`). بازگردانی: همان دستور با `--revert=` این فایل.
   - پس از اجرا: `manuscript_script` برای 75533 یک ردیف دارد و قول #65 دیگر نیست.
+### گام ۱۴.۱۳۲: `<x-suggest.contribute>` و `<x-suggest.contribute-item>`
+- `components/suggest/contribute-item.blade.php` ردیف یک بخش خالی را با `@push('contribute')` به پشته می‌فرستد. ورودی‌هایش `title`، `hint`، `label` و `payload` است. `payload` همان جزئیات رویداد `suggest-field` است که دکمه‌ی بخش پر می‌فرستد.
+- `components/suggest/contribute.blade.php` پشته را با `$__env->yieldPushContent('contribute')` می‌خواند و اگر خالی نبود، جعبه‌ی `#contribute` را می‌سازد. پشته هنگام رسیدن به این کامپوننت خوانده می‌شود، پس جعبه باید پس از همه‌ی بخش‌ها بیاید: پس از `<x-suggest.notes>` در `works`، `manuscripts`، `people`، `libraries` و `sources/show`.
+- `record-relations`، `work-people`، `manuscript-people` و `suggest/notes` وقتی خالی‌اند، به جای `<x-ui.section>` یک `contribute-item` می‌گذارند. جمله‌ی «پس از بررسی، با نام شما…» از هر دعوت به سرِ جعبه رفت.
+- این چهار کامپوننت جای دیگری به کار نرفته‌اند، پس پشته‌ی بی‌جعبه پیش نمی‌آید.
+- آزمون: `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts` با `assertSeeInOrder` می‌سنجد که پیش از رابطه، عنوان بخش پس از `id="contribute"` است و پس از آن، پیش از جعبه.
 ### گام ۱۴.۱۳۳: `fahares:link-named-mothers`
 - **نامزدها (fahares_prod):**
   - عکسی‌هایی که هیچ رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy` ندارند: ۱۵٬۱۰۸.

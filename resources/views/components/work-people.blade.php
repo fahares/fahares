@@ -4,14 +4,16 @@
     $people = $work->workPeople()->with(['person', 'suggestion'])->get();
     $roles = \App\Models\WorkPerson::ROLES;
 @endphp
+{{-- Empty: a row of the contribution box instead of an empty heading (step 14.132) --}}
+@if($people->isEmpty())
+    <x-suggest.contribute-item title="اشخاص مرتبط با اثر" label="افزودن مترجم، تقدیم‌شده به، سفارش‌دهنده…" :payload="['general' => true, 'relation' => 'person_role']"
+        hint="مترجم، کسی که اثر به او تقدیم شده یا به سفارش او نوشته شده، و دیگر اشخاصی که با این اثر پیوند دارند؛ اگر در دیباچه یا در فهرستی نام آنان را دیده‌اید." />
+@else
 <x-ui.section x-data title="اشخاص مرتبط با اثر">
     <x-slot:actions>
         <button type="button" @click="$dispatch('suggest-field', { general: true, relation: 'person_role' })"
             class="font-bold text-cinnabar hover:underline cursor-pointer">+ افزودن مترجم، تقدیم‌شده به، سفارش‌دهنده…</button>
     </x-slot:actions>
-    @if($people->isEmpty())
-        <p class="text-sm text-muted leading-relaxed max-w-[72ch]">مترجم، کسی که اثر به او تقدیم شده یا به سفارش او نوشته شده، و دیگر اشخاصی که با این اثر پیوند دارند هنوز ثبت نشده‌اند. اگر در دیباچه یا در فهرستی نام آنان را دیده‌اید، بیفزایید.</p>
-    @else
         <dl class="grid grid-cols-1 sm:grid-cols-[max-content_minmax(0,1fr)] gap-x-8 gap-y-1 sm:gap-y-3 text-sm m-0">
             @foreach($people->sortBy(fn ($p) => array_search($p->role, array_keys($roles), true))->groupBy('role') as $role => $group)
                 <div class="contents">
@@ -39,5 +41,5 @@
                 </div>
             @endforeach
         </dl>
-    @endif
 </x-ui.section>
+@endif

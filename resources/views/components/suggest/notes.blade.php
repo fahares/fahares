@@ -5,28 +5,25 @@
     $types = \App\Suggestions\NoteTypes::forRecord($type);
     // What to invite, matched to the note types each record offers (NoteTypes::BY_RECORD)
     $invitation = match ($type) {
-        'work' => 'اگر درباره‌ی این اثر نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش یا نسخه دیگری از آن سراغ دارید، آن را بیفزایید.',
-        'manuscript' => 'اگر درباره‌ی این نسخه نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش، فهرست دیگر یا تصویری از آن سراغ دارید، آن را بیفزایید.',
-        'person' => 'اگر درباره‌ی این شخص نکته‌ای می‌دانید که در شناسنامه نیامده، یا پژوهش، منبع یا تصویری درباره‌ی او سراغ دارید، آن را بیفزایید.',
-        'library' => 'اگر درباره‌ی این کتابخانه نکته‌ای می‌دانید، یا پیوند مخزن دیجیتال، فهرست برخط یا پژوهشی درباره‌ی آن سراغ دارید، آن را بیفزایید.',
-        'source' => 'اگر درباره‌ی این منبع نکته‌ای می‌دانید، یا نسخه‌ی برخط، چاپ دیگر یا پژوهشی درباره‌ی آن سراغ دارید، آن را بیفزایید.',
-        default => 'اگر درباره‌ی این ' . \App\Suggestions\SuggestionRegistry::typeLabel($type) . ' نکته‌ای می‌دانید که در شناسنامه نیامده، آن را بیفزایید.',
+        'work' => 'اگر درباره‌ی این اثر نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش یا نسخه دیگری از آن سراغ دارید.',
+        'manuscript' => 'اگر درباره‌ی این نسخه نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش، فهرست دیگر یا تصویری از آن سراغ دارید.',
+        'person' => 'اگر درباره‌ی این شخص نکته‌ای می‌دانید که در شناسنامه نیامده، یا پژوهش، منبع یا تصویری درباره‌ی او سراغ دارید.',
+        'library' => 'اگر درباره‌ی این کتابخانه نکته‌ای می‌دانید، یا پیوند مخزن دیجیتال، فهرست برخط یا پژوهشی درباره‌ی آن سراغ دارید.',
+        'source' => 'اگر درباره‌ی این منبع نکته‌ای می‌دانید، یا نسخه‌ی برخط، چاپ دیگر یا پژوهشی درباره‌ی آن سراغ دارید.',
+        default => 'اگر درباره‌ی این ' . \App\Suggestions\SuggestionRegistry::typeLabel($type) . ' نکته‌ای می‌دانید که در شناسنامه نیامده.',
     };
     $link = fn (?string $url, string $label = 'پیوند') => $url ? '<a href="' . e($url) . '" target="_blank" rel="nofollow noopener" class="text-cinnabar hover:underline font-bold">' . e($label) . ' ↗</a>' : '';
 @endphp
-@if($types)
+{{-- Empty: a row of the contribution box instead of an empty heading (step 14.132) --}}
+@if($types && $notes->isEmpty())
+    <x-suggest.contribute-item title="یادداشت‌ها و منابع پژوهشی" label="افزودن یادداشت یا منبع" :payload="['note' => true]" :hint="$invitation" />
+@elseif($types)
 <x-ui.section id="research-notes" x-data title="یادداشت‌ها و منابع پژوهشی">
     <x-slot:actions>
         <button type="button" @click="$dispatch('suggest-field', { note: true })"
             class="font-bold text-cinnabar hover:underline cursor-pointer">+ افزودن یادداشت یا منبع</button>
     </x-slot:actions>
     <div class="space-y-5">
-
-    @if($notes->isEmpty())
-        <p class="text-sm text-muted leading-relaxed max-w-[72ch]">
-            {{ $invitation }} پس از بررسی، با نام شما (اگر بخواهید) در اینجا منتشر می‌شود.
-        </p>
-    @endif
 
     @foreach($types as $key => $definition)
         @php $group = $notes->where('field_name', $key); @endphp

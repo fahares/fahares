@@ -242,6 +242,9 @@
             <!-- RESEARCH NOTES: published notes and the invitation to add one -->
             <x-suggest.notes type="person" />
 
+            <!-- CONTRIBUTE: the empty sections above, as invitations in one box (step 14.132) -->
+            <x-suggest.contribute type="person" />
+
             <!-- CORRECTION HISTORY: approved suggestions that changed this record (backlog item 39) -->
             <x-record-history :record="$person" />
         </div>
