@@ -9555,4 +9555,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `LinkNamedMothersCommandTest`، با گزارش، نوشتن، اثر دیگر، اجرای دوم، audit و صفحه‌ی مادر.
 - **تمرین روی fahares_prod:** «Would link 29»؛ سپس `--apply` «Linked 29»؛ اجرای دوم «already 29».
 - **اجرا در تولید:** پس از پشتیبان (شناسه‌ی این ۵۸ نسخه و رابطه‌های کنونی‌شان)، `fahares:link-named-mothers --file=database/data/named_mothers_step14_133.json --apply`.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۹۱، 86379f0a):**
+  - md5 فایل در `/app` با شاخه برابر بود (`0f05d229…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_133_before.json`، با `manuscripts` (۵۸) و `manuscript_relations` (۵ ردیف؛ هیچ‌یک با `manuscript_id` عکسی‌ها).
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «Linked 29».
+  - **وارسی:** اجرای دوم «Would link 0» داد. `/m/99075` و `/m/99077` درست‌اند. `/tmp` کانتینر پاک است.
 
