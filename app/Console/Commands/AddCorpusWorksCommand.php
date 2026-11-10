@@ -369,6 +369,13 @@ class AddCorpusWorksCommand extends Command
             $new['author_id'] = $this->person($u['author'] ?? null)?->id;
         }
         $work->update($new);
+        // the person the work leaves and the one it goes to count their works again (step 14.137)
+        if (array_key_exists('author_id', $new) && $old['author_id'] !== $new['author_id']) {
+            foreach (Person::whereIn('id', array_filter([$old['author_id'], $new['author_id']]))->get() as $person) {
+                $person->recountContributions();
+                $person->searchable();
+            }
+        }
         // a head a page tag split (step 14.112) gives the subjects and languages its summary names
         $this->attachTerms($work, $u);
         $terms = array_filter(['subjects' => $u['subjects'] ?? null, 'languages' => $u['languages'] ?? null]);

@@ -9114,6 +9114,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `unlinked 33`، «۲۲ شخص، ۰ بی‌اثر». اجرای دوم: `already 33`.
 - **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
 - **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_111_single_name_authors_before_20261110.json` (۳۳ اثر، ۳۷ سطر `work_people`). `unlinked 33`، هیچ شخصی بی‌اثر نماند؛ اجرای دوم `already 33`.
 
 ### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
 - **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
@@ -9211,6 +9212,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
 - **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
 - **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵):** `created 3067`، `has_life 315`، `missing_person 21`، `missing_life 1`. اجرای دوم: `exists 3067`.
 
 ### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
 - **`patrons`:**
@@ -9326,6 +9328,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan fahares:merge-duplicate-people --report=/tmp/loose_people.json
   ```
   پس از آن `/tmp/loose_people.json` پاک شود. پیش از اجرا پشتیبان کامل پایگاه روی میزبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
+  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
+  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
+  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
+  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
 
 ### گام ۱۴.۱۲۲: تصویر برگه‌های فهرست مجلس، `catalogs:set-facsimiles` و `extract_edition_pages.py --map`
 - **منشأ فایل‌ها:** کانال تلگرام «خزانه‌ها» (پیام‌های 251، 1384–1389، 3368–3369، 7640–7641، 7724) و بایگانی پیام 1400 همان کانال (۲۲ جلد). نسخه‌ها در `../fahares-sources/majlis/` با نام `vNN.pdf` یا `vNN-B.pdf` (B = بخش) و `MD5SUMS`. نگاشت برگ به صفحه‌ی هر فایل `vNN.map.json` است (`{"صفحه‌ی چاپی": برگ PDF}`)، و خواندن‌های برگ‌به‌برگ و نمونه‌های سنجش در `majlis/work/`.
@@ -9346,11 +9353,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **انتقال تصویرها (۱۹ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):** ۱۸ پوشه‌ی `majlis/v01 v02 v04 v10 v11 v12 v20 v28 v29 v30 v31 v32 v34 v39 v41 v44` و `majlis-p2/v24 v47`، هر کدام با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/<code> --no-same-owner -xf -"`، در حدود ۷ دقیقه. فهرست نام و اندازه‌ی ۷٬۹۰۱ پرونده دو سو یکسان بود. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775`، و شش برگه‌ی نمونه از `https://fahares.net/storage/catalogs/…` پاسخ ۲۰۰ دادند. `majlis-p1`، `majlis-p3` و `majlis-p2/v33`، `v40` فرستاده نشدند.
 - **پس از استقرار:**
   `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط ستون‌های ۱۸ جلد را می‌نویسد و دو جلد می‌سازد).
-- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
-  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
-  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
-  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
-  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
+- **اجرای پروداکشن (پس از انتشار ۸۹، `a61c0bd3`؛ ۲۰ آبان ۱۴۰۵، به تأیید کاربر):**
+  - فرمان و `catalog_facsimiles.json` در کانتینر با شاخه یکی بودند (md5 `05fc0cff…` و `a4edc4cd…`).
+  - **اجرای آزمایشی (`--dry-run`):** «2 created, 16 updated, 0 unchanged (dry run)».
+  - **پشتیبان:** ردیف‌های کتابخانه‌ی مجلس (`library_id` ۴): ۵۴ ردیف `catalog_volumes`، ۵۴ ردیف `source_volumes` همان شناسه‌ها و ۴ ردیف `sources`، به JSON با tinker. در `../fahares-sources/backups/step13/step14_122_majlis_volumes_before_20261110.json` (md5 `f3f3fc4350a0a6703d69ba48a462ab11`، دو سو یکسان) و از `/tmp` کانتینر پاک شد.
+  - **اجرا (`prod-run`):** «2 created, 16 updated, 0 unchanged»، و اجرای دوم «0 created, 0 updated, 18 unchanged». نخستین تلاش در `prod-run` با قطع اتصال ssh (exit 255) بی تغییر داده پایان یافت؛ اجرای آزمایشی پس از آن همان «16 updated» را نشان داد.
+  - **وارسی:** ۱۸ جلد مجلس `facsimile_code` دارند و هر ۱۸ در `source_volumes` هستند؛ دو جلد ساخته‌شده شناسه‌ی ۷۳۵ (ج ۱) و ۷۳۶ (ج ۲/۴۷) گرفتند. ۱۶٬۰۷۴ ردیف `source_entries` با `page_start` به این جلدها می‌رسند، برابر تمرین. در سایت «دیدن برگه در فهرست کتابخانه مجلس» در `/manuscripts/30704` (۴۰۳۳، ج ۱۱ ص ۳۸) برگه‌ی همان نسخه را باز کرد، و `/manuscripts/76875` (ج ۲ ص ۳۶۵) و `/manuscripts/35238` (ج ۲۹ ص ۱۴۸) دکمه و نشانی برگه را دارند؛ برگه‌های نمونه پاسخ ۲۰۰ دادند. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۲۳: داوری مدل بر گروه‌های هم‌نام
 - **نامزدها (اسکریپت یک‌باره روی `fahares_prod` پس از ادغام‌های ۱۴.۱۲۱):**
@@ -9545,6 +9553,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `scripts/dev/prod-run copy-merge-gaps -- 'cd /app && php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json …'`: «Written: 11 incipits and 7 explicits «برابر», 1 copies get their script links, 1 readings removed.» اجرای دوم: «0 … 0 … 0 … 0».
   - پشتیبان: `step14_131_fill_copy_merge_gaps_backup.json` (۱۲ نسخه، sha256 `ddb86abe6e26943c…`). بازگردانی: همان دستور با `--revert=` این فایل.
   - پس از اجرا: `manuscript_script` برای 75533 یک ردیف دارد و قول #65 دیگر نیست.
+### گام ۱۴.۱۳۲: `<x-suggest.contribute>` و `<x-suggest.contribute-item>`
+- `components/suggest/contribute-item.blade.php` ردیف یک بخش خالی را با `@push('contribute')` به پشته می‌فرستد. ورودی‌هایش `title`، `hint`، `label` و `payload` است. `payload` همان جزئیات رویداد `suggest-field` است که دکمه‌ی بخش پر می‌فرستد.
+- `components/suggest/contribute.blade.php` پشته را با `$__env->yieldPushContent('contribute')` می‌خواند و اگر خالی نبود، جعبه‌ی `#contribute` را می‌سازد. پشته هنگام رسیدن به این کامپوننت خوانده می‌شود، پس جعبه باید پس از همه‌ی بخش‌ها بیاید: پس از `<x-suggest.notes>` در `works`، `manuscripts`، `people`، `libraries` و `sources/show`.
+- `record-relations`، `work-people`، `manuscript-people` و `suggest/notes` وقتی خالی‌اند، به جای `<x-ui.section>` یک `contribute-item` می‌گذارند. جمله‌ی «پس از بررسی، با نام شما…» از هر دعوت به سرِ جعبه رفت.
+- این چهار کامپوننت جای دیگری به کار نرفته‌اند، پس پشته‌ی بی‌جعبه پیش نمی‌آید.
+- آزمون: `SuggestionWorkflowTest::test_relations_between_works_and_between_manuscripts` با `assertSeeInOrder` می‌سنجد که پیش از رابطه، عنوان بخش پس از `id="contribute"` است و پس از آن، پیش از جعبه.
 ### گام ۱۴.۱۳۳: `fahares:link-named-mothers`
 - **نامزدها (fahares_prod):**
   - عکسی‌هایی که هیچ رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy` ندارند: ۱۵٬۱۰۸.
@@ -9565,6 +9579,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** با `prod-run --wait jolly-tharp`: «Linked 29».
   - **وارسی:** اجرای دوم «Would link 0» داد. `/m/99075` و `/m/99077` درست‌اند. `/tmp` کانتینر پاک است.
 
+### گام ۱۴.۱۳۴: پیروی `sources:tie-person-lives` از ادغام اشخاص
+- **[TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php):** اگر `Person` با `person_slug` نباشد، `mergedInto()` تازه‌ترین `AuditLog` با `auditable_type = Person`، `action = merge` و `old_values->source_snapshot->slug` برابر آن نشانی را می‌گیرد. `auditable_id` آن شخص ماندگار است، و `EntityRedirect::resolveTargetId('people', …)` ادغام‌های بعدی او را دنبال می‌کند. ستون تازه‌ی `merged` در جدول گزارش.
+- **آزمون:** `TiePersonLivesTest::test_a_tie_of_a_person_merged_away_goes_to_the_person_he_was_merged_into`.
+- **اجرا در تولید پس از استقرار:** `php artisan sources:tie-person-lives --apply`. انتظار: `merged 21` و حداکثر ۲۱ `created`.
 
 ### گام ۱۴.۱۳۵: `monzavi-nuskhe`، فهرست نسخه‌های خطی فارسی منزوی
 - **کتاب:** احمد منزوی، «فهرست نسخه‌های خطی فارسی»، مؤسسه‌ی فرهنگی منطقه‌ای (RCD)، تهران ۱۳۴۸–۱۳۵۳ش، شش جلد (ج ۲ در دو بخش). صفحه‌ها در همه‌ی جلدها پیوسته‌اند.
@@ -9616,6 +9634,55 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **روش:** هر جلد با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/monzavi-nuskhe --no-same-owner -xf -"`، در ۱۳ تا ۳۴ ثانیه. سپس `chown -R ubuntu:ubuntu` و `chmod -R 777` اجرا شد، مانند گام ۱۴.۸۶.
   - **وارسی:** ۴٬۷۱۸ فایل و ۷۰۴ مگابایت. md5 فهرست نام و اندازه‌ی فایل‌ها در دو سو یکی بود (`2b93fc9e…`).
   - **پاسخ سایت:** `https://fahares.net/storage/catalogs/monzavi-nuskhe/` برای `v01/p0001`، `v02/p0721`، `v03/p1902`، `v03/p2610`، `v04/p3206` و `v06/p4726` پاسخ ۲۰۰ و `image/webp` داد.
+- **پروداکشن (مانده):**
+  1. انتشار کد.
+  2. `sources:backfill --only=registry`، `sources:import-citation-forms` و `sources:backfill --only=bibliography`، از راه `prod-run` و پس از پشتیبان.
+
+### گام ۱۴.۱۳۶: نیمه‌ی برگ در `extract_edition_pages.py` و نگاشت «فهرست مختصر» مجلس
+- **منبع:** `../fahares-sources/majlis/telegram-extra/1407 - فهرس مخطوطات مجلس الشورى.pdf` (۶۸۲ برگ CCITT در ۳۰۰ dpi، هر برگ ۴۲۸۸×۳۰۰۸، md5 `a3907f7d6a3164635ecff4c44a487093` در `MD5SUMS`). جلد فنخا: «فهرست مختصر نسخه های خطی کتابخانه مجلس شورای اسلامی - 1» (#۴۴۱ در پروداکشن، منبع 100050).
+- **خواندن شماره‌ها:** نوار سرصفحه‌ی دو گوشه‌ی هر برگ (۱۰۰ dpi، ۲۰ برگ در هر تصویر) برگ‌به‌برگ خوانده شد. پرونده‌ها در `majlis/work/mokhtasar/` هستند: `pages-1-340.tsv`، `pages-341-682.tsv` و `build_map.py`.
+  - **برگ‌های تکراری (۲۶):** 10، 112، 114، 135، 168، 171، 179، 200، 203، 281، 283، 288، 298، 303، 335، 363، 457، 468، 482، 501، 536، 569، 601، 614، 658 و 676. نسخه‌ی دوم کنار می‌رود. از جفت 168/169، برگ 169 می‌ماند، چون سرصفحه‌ی چپ 168 بریده است. شمار برگ‌ها می‌خواند: برگ ۷ تا ۶۸۰ می‌شود ۶۷۴ برگ، منهای ۲۶ تکراری، برابر ۶۴۸ برگ برای ص ۱۰ تا ۱۳۰۵.
+  - **برگ‌های «بی‌سرصفحه»** (مانند 52، 62، 138، 355، 610): سفید نیستند. صفحه‌ی راست پشت سفید پایان یک حرف است و صفحه‌ی چپ آغاز حرف بعد، بی سرصفحه. برگ 610 آغاز «نمایه محل کتابت» است. این صفحه‌ها از شمار نیمه‌برگ‌ها پر شدند: شکاف فقط وقتی پر می‌شود که شمار نیمه‌ها با شمار صفحه‌ها یکی باشد. ص ۲ تا ۷ (شناسنامه، عنوان، پیش‌گفتار؛ برگ ۳ تا ۵) از ص ۸ به عقب پر شدند.
+  - دو غلط تایپی در خواندن (468 و 614 به‌جای ۸۹۶ و ۱۱۷۶) در `build_map.py` درست شد.
+  - **سنجش:** سرصفحه‌ی ۵۳ برگ دو سوی هر تکراری، و برگ‌های ۷، ۳۰۰، ۵۰۰ و ۶۸۰، با چشم با نگاشت یکی بود. بیست برگ از تکراری‌ها با همانندی تصویر برگ پیشین هم تأیید شدند؛ شش برگ دیگر (135، 168، 298، 482، 501، 676) را لبه‌ی بخش‌ها تأیید کرد.
+- **`extract_edition_pages.py`:** مقدار نگاشت می‌تواند `"LEAF:r"` یا `"LEAF:l"` باشد. برگ در دو برابر `--width` کشیده می‌شود و در شیار بریده می‌شود: شیار وسط پهن‌ترین رشته‌ی ستون‌های بی‌جوهر (پیکسل زیر ۹۰) در پنجم میانی برگ است. سپس لبه‌ی تیره‌ی بیرونی هر نیمه کنار می‌رود: از درونی‌ترین ستون تیره (میانگین زیر ۱۲۰) در پنجم بیرونی. پهنای برگه‌ها ۸۸۳ تا ۱۱۵۲ پیکسل است، با میانه‌ی ۱۰۰۸.
+- **داده:** ردیف تازه‌ی `catalog_facsimiles.json` جلد را با `title` می‌یابد، چون ج ۱ ساخته‌شده‌ی چاپ ۱۳۰۵ هم `volume_number` ۱ دارد. مقادیر: `facsimile_code` `majlis-mokhtasar`، ص ۲ تا ۱۳۰۵. پوشه‌ی برگه‌ها `catalogs/majlis-mokhtasar/v01/` است (۱٬۳۰۴ پرونده، ۱۴۵ مگابایت).
+- **تمرین (`fahares_prod`):** «0 created, 1 updated, 18 unchanged»، و اجرای دوم «19 unchanged». ۱٬۷۸۷ ارجاع با `page_start` میان ۲ و ۱۳۰۵ هست. ۸۰۱ ارجاع دیگر صفحه ندارند. صفحه‌ی نسخه‌های 267393، 41611 و 43238 دکمه‌ی «دیدن برگه در فهرست مختصر» را دارند، با برگه‌ی ص ۹۸۳، ۵۳۱ و ۷۷.
+- **سنجش ارجاع‌ها:** ۱۴ ارجاع تصادفی از `fahares_prod` و دو شماره‌ی فریب (شماره‌ی درست، صفحه‌ی نادرست: ص ۳۰۰ و ۷۰۰)، بی‌آن‌که بررسی‌کننده بداند کدام فریب است، روی برگه‌ها جست‌وجو شد.
+  - ۱۱ شماره روی برگه‌ی خود بود: ص ۶۸، ۷۷، ۴۹۱، ۵۳۱، ۵۵۶، ۵۶۱، ۶۰۷، ۷۰۷، ۸۵۲، ۸۹۲ و ۸۹۸. هر دو فریب «نیست» گزارش شدند.
+  - سه ارجاع (ص ۹۷۵، ۹۸۳ و ۹۸۶، هر سه «متفرقات») روی نمایه‌ی نام‌ها افتادند. نمایه دست‌کم از ص ۹۵۵ آغاز می‌شود. ۱۰۹ ارجاع نسخه به ص ۹۷۰ تا ۹۸۹ است (۹۱ «متفرقات»، ۱۶ «یادداشت‌ها»، ۲ دیگر). هیچ ارجاعی به ص ۹۳۰ تا ۹۶۹ نیست.
+  - سرصفحه‌های این بخش (برگ ۵۰۲ ص ۹۶۰ و برگ ۵۳۵ ص ۱۰۲۶) با نگاشت یکی‌اند. پس برگه همان صفحه‌ی چاپی‌ای است که فنخا نوشته، و چرایی این ارجاع‌ها در بک‌لاگ مانده است.
+- **پیش از استقرار:** پوشه‌ی `majlis-mokhtasar/v01` به `/app/storage/app/public/catalogs/` فرستاده شود (با تأیید کاربر، مانند گام ۱۴.۱۲۲). **پس از استقرار:** `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط جلد #۴۴۱ را به‌روز می‌کند).
+
+### گام ۱۴.۱۳۷: `author_fix` و شمارش دوباره‌ی اشخاص در `add-corpus-works`
+- **3082 (`v2-633`) و 6009 (`v3-1634`):**
+  - `author_name` «حسینی بخاری، محمد بن برهان» و `author_id` 9003 بود.
+  - `raw_text`، پارسر v1 (`json/fankha/fankha_vol_02.json` و `_03`) و v2 هر سه «بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد» دارند.
+  - هیچ `audit_logs` یا `field_suggestions` ندارند. review10 آن‌ها را `site: edited` نشان می‌داد.
+  - شخص درست 3687 است (د. 785).
+- **سنجش:**
+  - برای همه‌ی آثار، بخش پیش از «،» در `author_name` (با `letters`) در هشت سطر نخست `raw_text` جستجو شد: ۱۹ اثر یافت نشد.
+  - ۷ تا از این‌ها خطای سنجش بودند، چون برچسب صفحه سطر مؤلف را از هشت سطر بیرون برده بود.
+  - 37317 را پیشنهاد 41 تغییر داده بود، که `approved` است، پس می‌ماند.
+  - **review10، `author_name` با `site: edited`:** ۲۷ مورد. جز این سه، همه یکسان‌سازی نام یک شخص یا ردیف‌های جابه‌جای v2 (35099 تا 35113) هستند.
+- **71533 (`v34-2342`):**
+  - `audit_logs` 124356 (`lost_head`، `fankha_lost_heads_step14_19.json`) `raw_text` را با متن `v34-2343` جایگزین کرد و `description` آن را افزود. فایل آن گام `v2: v34-2343` داشت.
+  - نسخه‌ی اثر 333943 (مجلس 18429/1، «کاتب = مؤلف») از `v34-2342` است.
+  - از ۲۷ `raw_text` آن گام، تنها در این یکی بخش نخست `author_name` در متن پیشین بود و در متن تازه نبود.
+- **فایل:** `database/data/author_fix_step14_137.json` (`category: author_fix`، ۳ `work_updates`). دو تای اول `author_name` و `author: {name, century: 8}` دارند. سومی `raw_text`، به متن پیشینِ 124356، و `description`، به null.
+- **`AddCorpusWorksCommand::updateWork`:** وقتی `author_id` عوض شود، `Person::recountContributions()` و `searchable()` برای شخص پیشین و تازه اجرا می‌شود. آزمون: `AddCorpusWorksCommandTest::test_a_corrected_author_moves_the_work_between_the_two_people_and_both_count_again`.
+- **تمرین روی fahares_prod:**
+  - «update 3». `author_id` 3687 شد و `work_people` همان را دارد.
+  - برای آزمودن کد تازه، دو اثر دوباره به 9003 برگردانده و فرمان باز اجرا شد. `works_count` شخص 3687 از 3 به 5 رسید و 9003 از 30 به 28.
+  - اجرای دوم «update 0».
+- **مانده:** 333944 (مجلس 17216/1، `v34-2343`) زیر 21870 (`v11-1287`، بی‌مؤلف) است.
+- **اجرا در تولید:** پس از پشتیبان از این سه اثر و `work_people` آن‌ها، `fahares:add-corpus-works --file=database/data/author_fix_step14_137.json --apply`.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۹۳، d5be8d92):**
+  - md5 فایل در `/app` با شاخه برابر بود (`a8f900cc…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_137_before.json`، با `works` (۳ ردیف کامل)، `work_people` (۳) و `people` 3687، 9003 و 598. `from` هر ۴ ستون برابر بود.
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «works=3».
+  - **وارسی:** اجرای دوم «update 0» داد. `author_id` و `work_people` 3082 و 6009 → 3687. 71533 → `description` null. `works_count` شخص 3687 برابر 5 و 9003 برابر 28. `/tmp` کانتینر پاک است.
+
 - **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از انتشار جلسه‌ی مدیریت کارها، به اجازه‌ی کاربر):**
   - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`، به همان روش `scripts/backup/fahares-backup.sh`: `~/backups/before_step14_135_monzavi_nuskhe_20261110_1336.sql.gz`. حجم ۳۹۵ مگابایت، با خط پایانی «Dump completed» و md5 برابر `da56106034d2b2a4d544d8805d666373`. پشتیبان روی میزبان ماند.
   - **اجرا (سه `prod-run` با نام `keen-einstein-629a0f`):**

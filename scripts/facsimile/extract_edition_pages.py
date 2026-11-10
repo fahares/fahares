@@ -14,27 +14,70 @@ A scan whose leaves are out of order, or miss pages, or change offset at plates 
 --map instead of --offset/--first/--last: a JSON object of printed page -> PDF leaf, read leaf by leaf.
 
     python3 extract_edition_pages.py PDF --code majlis --volume 2 --map v02.map.json [--width 1100]
+
+A scan of open spreads, two printed pages per leaf (Majlis short catalogue, step 14.136), names the half in the map:
+"LEAF:r" for the right page, "LEAF:l" for the left one (a plain number is still the whole leaf). The leaf is rendered
+at twice --width and cut at its gutter, the column of least ink near the middle; the black scanner bed at the outer
+edge of each half is trimmed.
 """
 import argparse
 import json
 import os
 import subprocess
 import tempfile
+
+import numpy as np
+from PIL import Image
 from concurrent.futures import ProcessPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 
 
+def gutter(page):
+    """The column to cut a two-page spread at: the middle of the widest run of inkless columns in the central fifth."""
+    w = page.shape[1]
+    lo, hi = int(w * 0.4), int(w * 0.6)
+    body = page[int(page.shape[0] * 0.1):int(page.shape[0] * 0.9), lo:hi]
+    ink = (body < 90).sum(axis=0)
+    quiet = ink <= max(2, int(np.percentile(ink, 10)))
+    best, start = (0, w // 2 - lo), None
+    for x, q in enumerate(list(quiet) + [False]):
+        if q and start is None:
+            start = x
+        elif not q and start is not None:
+            best = max(best, (x - start, (start + x) // 2))
+            start = None
+    return lo + best[1]
+
+
+def outer_trim(half, side):
+    """Drop the dark scanner bed at the outer edge of a half page (the scan has a white margin outside it): cut after
+    the innermost dark column (mean below 120) of the outer fifth. Text on paper never darkens a column that far."""
+    w = half.shape[1]
+    mean = half.mean(axis=0)
+    band = range(w // 5) if side == 'l' else range(w - 1, w - 1 - w // 5, -1)
+    dark = [x for x in band if mean[x] < 120]
+    if not dark:
+        return half
+    return half[:, max(dark) + 1:] if side == 'l' else half[:, :min(dark)]
+
+
 def render(job):
     pdf, leaf, width, target = job
     if os.path.exists(target):
         return 'skip'
+    leaf, side = (int(leaf), None) if ':' not in str(leaf) else (int(str(leaf).split(':')[0]), str(leaf).split(':')[1])
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with tempfile.TemporaryDirectory(dir=os.path.dirname(target)) as tmp:
         base = os.path.join(tmp, 'page')
-        subprocess.run(['pdftoppm', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width), '-scale-to-y', '-1', '-gray',
-                        '-singlefile', pdf, base], check=True)
+        subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width * (2 if side else 1)),
+                        '-scale-to-y', '-1', '-gray', '-singlefile', pdf, base], check=True)
+        if side:
+            spread = np.asarray(Image.open(base + '.pgm').convert('L'))
+            x = gutter(spread)
+            half = outer_trim(spread[:, :x] if side == 'l' else spread[:, x:], side)
+            Image.fromarray(half).save(base + '.pgm')
         subprocess.run(['cwebp', '-quiet', '-q', '75', base + '.pgm', '-o', target + '.tmp'], check=True)
     os.replace(target + '.tmp', target)
     return 'done'
@@ -48,7 +91,7 @@ def main():
     parser.add_argument('--offset', type=int, help='PDF leaf minus printed page')
     parser.add_argument('--first', type=int)
     parser.add_argument('--last', type=int)
-    parser.add_argument('--map', help='JSON object of printed page -> PDF leaf, in place of --offset/--first/--last')
+    parser.add_argument('--map', help='JSON object of printed page -> PDF leaf (or "LEAF:r"/"LEAF:l", a half of a two-page leaf), in place of --offset/--first/--last')
     parser.add_argument('--width', type=int, default=899, help="the scan's own width in px (pdfimages -list)")
     parser.add_argument('--workers', type=int, default=6)
     parser.add_argument('--out', default=os.path.join(REPO, 'storage', 'app', 'public', 'catalogs'))
@@ -57,7 +100,7 @@ def main():
     folder = os.path.join(args.out, args.code, f'v{args.volume:02d}')
     if args.map:
         with open(args.map) as f:
-            leaves = {int(page): int(leaf) for page, leaf in json.load(f).items()}
+            leaves = {int(page): leaf for page, leaf in json.load(f).items()}
     elif None in (args.offset, args.first, args.last):
         parser.error('give --map, or --offset, --first and --last')
     else:
