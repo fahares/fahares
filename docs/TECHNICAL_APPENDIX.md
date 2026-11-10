@@ -9714,4 +9714,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فایل:** `database/data/copy_note_step14_139.json`، یک ردیف `rebuild-copies`. `changes.metadata`: همان `metadata`، با جمله‌ی شرح `v34-2343` در `editorial_notes` (پیش از این تهی بود).
 - **تمرین روی fahares_prod:** «Rebuilding 1». اجرای دوم «already 1». `is_distinct_work` همان true ماند.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/copy_note_step14_139.json --apply`
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۹۷، 2d993105):**
+  - md5 فایل در `/app` برابر بود (`bdefcdb1…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_139_before.json` (ردیف 333944 با `metadata`؛ `editorial_notes` تهی).
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «Rebuilding 1 copies».
+  - **وارسی:** اجرای دوم «Would rebuild 0». `/m/333944` جمله را دارد. `/tmp` کانتینر پاک است.
 
