@@ -9432,4 +9432,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی fahares_prod:** `fahares:rebuild-copies --file=database/data/facsimile_flag_step14_129.json --apply`: «Rebuilding 26 copies». اجرای دوم: «already 26».
 - **نامزدهای راهکار ۳ (نه در این گام):** ۱۵٬۱۰۸ عکسیِ بی رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy`. ۱۱٬۷۲۱ تا یادداشت «نسخه اصل» با نسخه‌ای جز «همان نسخه بالا» دارند. ۳۱ تا تنها یک نسخه زیر همان اثر دارند که نام کتابخانه‌اش در یادداشت است و شماره‌ی پیش از «/» آن در یادداشت آمده است.
 - **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/facsimile_flag_step14_129.json --apply`
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۸۶، 53a6d527):**
+  - md5 فایل در `/app` با شاخه برابر بود (`c5cbfbf6…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_129_before.json` (`id`، `shelfmark`، `is_facsimile`، `updated_at`). پیش از اجرا: `flagged=0` و `relations=0`.
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «Rebuilding 26 copies».
+  - **وارسی:** اجرای دوم «already 26» داد. `/tmp` کانتینر پاک است.
 
