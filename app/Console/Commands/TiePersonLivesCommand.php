@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\AuditLog;
+use App\Models\EntityRedirect;
 use App\Models\Person;
 use App\Models\Source;
 use App\Models\SourceEntry;
@@ -14,7 +16,9 @@ use Illuminate\Console\Command;
  * item key, since local and production ids differ. A person who already has a life in that source (from his works,
  * sources:tie-lives-to-people, or by hand) keeps it and gets none here. Each tie is an unverified source_entries row of
  * the person (role entry, origin match) under its own legacy type, so a later run of tie-lives-to-people never
- * removes it; running this again changes nothing. Without --apply it only reports.
+ * removes it; running this again changes nothing. A person merged away since the list was judged is followed to the
+ * person he was merged into (by the merge's audit log and the redirects), so his tie is not lost (step 14.134). Without
+ * --apply it only reports.
  */
 class TiePersonLivesCommand extends Command
 {
@@ -36,10 +40,13 @@ class TiePersonLivesCommand extends Command
             return self::FAILURE;
         }
         $sources = Source::where('kind', Source::KIND_BIOGRAPHICAL)->get()->keyBy('code');
-        $counts = ['created' => 0, 'exists' => 0, 'has_life' => 0, 'missing_person' => 0, 'missing_life' => 0];
+        $counts = ['created' => 0, 'exists' => 0, 'has_life' => 0, 'merged' => 0, 'missing_person' => 0, 'missing_life' => 0];
 
         foreach ($doc['ties'] as $t) {
             $person = Person::where('slug', $t['person_slug'])->first(['id', 'name']);
+            if (! $person && ($person = self::mergedInto($t['person_slug']))) {
+                $counts['merged']++;
+            }
             $source = $sources[$t['source']] ?? null;
             if (! $person || ! $source) {
                 $counts['missing_person']++;
@@ -83,5 +90,18 @@ class TiePersonLivesCommand extends Command
         $this->info($this->option('apply') ? 'Saved.' : 'Dry run; pass --apply to save.');
 
         return self::SUCCESS;
+    }
+
+    /** The person a removed person's slug was merged into, following later merges of that person too. */
+    private static function mergedInto(string $slug): ?Person
+    {
+        $log = AuditLog::where('auditable_type', Person::class)->where('action', 'merge')
+            ->where('old_values->source_snapshot->slug', $slug)->latest('id')->first(['id', 'auditable_id']);
+        if (! $log) {
+            return null;
+        }
+        $id = EntityRedirect::resolveTargetId('people', (int) $log->auditable_id) ?? (int) $log->auditable_id;
+
+        return Person::find($id, ['id', 'name']);
     }
 }
