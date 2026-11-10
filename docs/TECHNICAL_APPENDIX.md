@@ -9666,6 +9666,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - سرصفحه‌های این بخش (برگ ۵۰۲ ص ۹۶۰ و برگ ۵۳۵ ص ۱۰۲۶) با نگاشت یکی‌اند. پس برگه همان صفحه‌ی چاپی‌ای است که فنخا نوشته، و چرایی این ارجاع‌ها در بک‌لاگ مانده است.
 - **انتقال تصویرها (۲۰ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):** `tar -cf - v01 | ssh fahares-app "tar -C /app/storage/app/public/catalogs/majlis-mokhtasar --no-same-owner -xf -"` در ۲۴ ثانیه. فهرست نام و اندازه‌ی ۱٬۳۰۴ پرونده دو سو یکسان بود. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775`. پنج برگه‌ی نمونه (ص ۲، ۹۹، ۵۳۱، ۹۸۳ و ۱۳۰۵) از `https://fahares.net/storage/catalogs/majlis-mokhtasar/v01/` پاسخ ۲۰۰ دادند.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط جلد #۴۴۱ را به‌روز می‌کند).
+- **اجرای پروداکشن (پس از انتشار ۹۵؛ ۲۰ آبان ۱۴۰۵، به تأیید کاربر):**
+  - داده‌ی کانتینر با شاخه یکی بود (md5 `00fd85c4…`). اجرای آزمایشی: «0 created, 1 updated, 18 unchanged (dry run)».
+  - **اجرا:** یک `prod-run --wait`، که پس از قفل استقرار اجرا شد. نخست پشتیبان ردیف ۴۴۱ از `catalog_volumes` و `source_volumes` گرفته شد، سپس فرمان: «0 created, 1 updated, 18 unchanged»، و اجرای دوم «19 unchanged».
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_136_mokhtasar_volume_before_20261110.json` (md5 `c642551f76f24d6045d4c19c2feb8025`، دو سو یکسان؛ `facsimile_code` پیشین خالی). از `/tmp` کانتینر پاک شد.
+  - **وارسی:** `source_volumes` #۴۴۱ کد `majlis-mokhtasar` و ص ۲ تا ۱۳۰۵ دارد. ۱٬۷۸۷ ارجاع صفحه‌دار است.
+  - در fahares.net دکمه‌ی «دیدن برگه در فهرست مختصر» در `/manuscripts/41611` (15195/1، ص ۵۳۱)، `/manuscripts/186313` (8247/3، ص ۴۹۱) و `/manuscripts/267438` (10182/6، ص ۶۸) برگه‌ی همان صفحه را دارد. برگه‌ی ص ۵۳۱ در نمایشگر باز شد. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۳۷: `author_fix` و شمارش دوباره‌ی اشخاص در `add-corpus-works`
 - **3082 (`v2-633`) و 6009 (`v3-1634`):**
