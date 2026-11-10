@@ -1,0 +1,377 @@
+{
+ "volumes": [
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 1,
+   "create": {
+    "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد اول",
+    "edition_label": "۱۳۰۵ (مطبعهٔ مجلس)"
+   },
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 364,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v01.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v01.map.json"
+     ],
+     "note": "اسکن (بایگانی 1400 و خزانه‌ها 7640)؛ برگ ص ۲۴۲ در پایان کتاب صحافی شده؛ ص ۱۷۲–۱۷۳ نیست",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد دوم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 539,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v02.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v02.map.json"
+     ],
+     "note": "telegram khazaneha 7641; اسکن چاپ ۱۳۱۱؛ برگ‌های ۸۴ تا ۸۶ جابه‌جا",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 4,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد چهارم",
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 479,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v04-old.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v04-old.map.json"
+     ],
+     "note": "اسکن چاپ ۱۳۳۵ (بایگانی 1400)؛ برگ‌های تکراری ص ۸۷، ۱۸۵ و ۱۸۷",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 10,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد دهم - بخش چهارم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 2230,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v10-1.pdf",
+      "majlis/v10-3.pdf",
+      "majlis/v10-4.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v10-1.map.json",
+      "majlis/v10-3.map.json",
+      "majlis/v10-4.map.json"
+     ],
+     "note": "سه بخش با صفحه‌شماری پیوسته: بخش ۱ (ص ۲–۵۵۵)، بخش ۳ (۱۰۸۱–۱۶۷۵)، بخش ۴ (۱۶۷۷–۲۲۳۰)؛ بخش ۲ (ص ۵۵۶–۱۰۸۰) نیست",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 11,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد یازدهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 461,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v11.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v11.map.json"
+     ],
+     "note": "telegram khazaneha 1384؛ اسکن",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 12,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد دوازدهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 439,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v12.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v12.map.json"
+     ],
+     "note": "telegram khazaneha 1385؛ اسکن",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 20,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد بیستم",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 410,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v20.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v20.map.json"
+     ],
+     "note": "PDF دیجیتال (بایگانی 1400 خزانه‌ها)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 24,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۲۴: اهدایی طباطبائی",
+   "facsimile_code": "majlis-p2",
+   "page_first": 10,
+   "page_last": 221,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v24-2.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v24-2.map.json"
+     ],
+     "note": "PDF دیجیتال (بایگانی 1400)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 28,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد بیست و هشتم",
+   "facsimile_code": "majlis",
+   "page_first": 10,
+   "page_last": 278,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v28.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v28.map.json"
+     ],
+     "note": "PDF دیجیتال (بایگانی 1400)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 29,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۲۹",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 1042,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v29-1.pdf",
+      "majlis/v29.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v29-1.map.json",
+      "majlis/v29.map.json"
+     ],
+     "note": "دو بخش با صفحه‌شماری پیوسته: بخش ۱ (ص ۶–۵۸۵، بایگانی 1400) و بخش ۲ (ص ۵۸۷–۱۰۴۲، خزانه‌ها 3369)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 30,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی‌ام",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 245,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v30.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v30.map.json"
+     ],
+     "note": "PDF دیجیتال (بایگانی 1400)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 31,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و یکم",
+   "facsimile_code": "majlis",
+   "page_first": 10,
+   "page_last": 230,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v31.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v31.map.json"
+     ],
+     "note": "telegram khazaneha 1386",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 32,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و دوم",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 363,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v32.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v32.map.json"
+     ],
+     "note": "telegram khazaneha 7724؛ ناقص، تا ص ۳۶۳",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 34,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و چهارم",
+   "facsimile_code": "majlis",
+   "page_first": 10,
+   "page_last": 202,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v34.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v34.map.json"
+     ],
+     "note": "PDF دیجیتال (بایگانی 1400)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 39,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سی و نهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 267,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v39.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v39.map.json"
+     ],
+     "note": "telegram khazaneha 1387",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 41,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد چهل و یکم",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 283,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v41.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v41.map.json"
+     ],
+     "note": "PDF دیجیتال (بایگانی 1400)",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 44,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد چهل و چهارم",
+   "facsimile_code": "majlis",
+   "page_first": 6,
+   "page_last": 324,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v44.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v44.map.json"
+     ],
+     "note": "telegram khazaneha 1388",
+     "step": "14.122"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 47,
+   "create": {
+    "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۴۷",
+    "publication_year": "۱۳۹۱",
+    "publisher": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی"
+   },
+   "facsimile_code": "majlis-p2",
+   "page_first": 6,
+   "page_last": 163,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v47-2.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v47-2.map.json"
+     ],
+     "note": "اسکن (خزانه‌ها 1389)؛ نسخه‌های ۱۷۱۰۱ تا ۱۷۳۰۰، نگارش محمود نظری",
+     "step": "14.122"
+    }
+   }
+  }
+ ]
+}

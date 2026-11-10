@@ -9,8 +9,14 @@ site serves).
 
     python3 extract_edition_pages.py PDF --code masjid-azam-ostadi --volume 2 --offset 2 --first 1 --last 827 \
         [--width 899] [--workers 6] [--out DIR]
+
+A scan whose leaves are out of order, or miss pages, or change offset at plates (Majlis, step 14.122) takes
+--map instead of --offset/--first/--last: a JSON object of printed page -> PDF leaf, read leaf by leaf.
+
+    python3 extract_edition_pages.py PDF --code majlis --volume 2 --map v02.map.json [--width 1100]
 """
 import argparse
+import json
 import os
 import subprocess
 import tempfile
@@ -39,17 +45,24 @@ def main():
     parser.add_argument('pdf')
     parser.add_argument('--code', required=True, help='facsimile_code of the catalog_volumes row')
     parser.add_argument('--volume', type=int, required=True)
-    parser.add_argument('--offset', type=int, required=True, help='PDF leaf minus printed page')
-    parser.add_argument('--first', type=int, required=True)
-    parser.add_argument('--last', type=int, required=True)
+    parser.add_argument('--offset', type=int, help='PDF leaf minus printed page')
+    parser.add_argument('--first', type=int)
+    parser.add_argument('--last', type=int)
+    parser.add_argument('--map', help='JSON object of printed page -> PDF leaf, in place of --offset/--first/--last')
     parser.add_argument('--width', type=int, default=899, help="the scan's own width in px (pdfimages -list)")
     parser.add_argument('--workers', type=int, default=6)
     parser.add_argument('--out', default=os.path.join(REPO, 'storage', 'app', 'public', 'catalogs'))
     args = parser.parse_args()
 
     folder = os.path.join(args.out, args.code, f'v{args.volume:02d}')
-    jobs = [(args.pdf, page + args.offset, args.width, os.path.join(folder, f'p{page:04d}.webp'))
-            for page in range(args.first, args.last + 1)]
+    if args.map:
+        with open(args.map) as f:
+            leaves = {int(page): int(leaf) for page, leaf in json.load(f).items()}
+    elif None in (args.offset, args.first, args.last):
+        parser.error('give --map, or --offset, --first and --last')
+    else:
+        leaves = {page: page + args.offset for page in range(args.first, args.last + 1)}
+    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp')) for page, leaf in sorted(leaves.items())]
     with ProcessPoolExecutor(args.workers) as pool:
         results = list(pool.map(render, jobs, chunksize=8))
     print(f"{len(jobs)} pages: {results.count('done')} rendered, {results.count('skip')} already there, in {folder}")
