@@ -18,7 +18,7 @@ A scan whose leaves are out of order, or miss pages, or change offset at plates 
 A scan of open spreads, two printed pages per leaf (Majlis short catalogue, step 14.136), names the half in the map:
 "LEAF:r" for the right page, "LEAF:l" for the left one (a plain number is still the whole leaf). The leaf is rendered
 at twice --width and cut at its gutter, the column of least ink near the middle; the black scanner bed at the outer
-edge of each half is trimmed.
+edge and at the foot of each half is trimmed.
 """
 import argparse
 import json
@@ -63,6 +63,21 @@ def outer_trim(half, side):
     return half[:, max(dark) + 1:] if side == 'l' else half[:, :min(dark)]
 
 
+def bottom_trim(half):
+    """Drop the dark scanner bed under a half page (step 14.136: about 9% of the height on every page of the Majlis
+    short catalogue): cut at the first row of the bottom fifth whose mean is below 120, moved up past the grey rows of
+    the edge (mean 235 or less). Text lines never darken a whole row that far."""
+    h = half.shape[0]
+    mean = half.mean(axis=1)
+    band = [y for y in range(h - h // 5, h) if mean[y] < 120]
+    if not band:
+        return half
+    cut = band[0]
+    while cut > h - h // 5 and mean[cut - 1] <= 235:
+        cut -= 1
+    return half[:cut]
+
+
 def render(job):
     pdf, leaf, width, target = job
     if os.path.exists(target):
@@ -76,7 +91,7 @@ def render(job):
         if side:
             spread = np.asarray(Image.open(base + '.pgm').convert('L'))
             x = gutter(spread)
-            half = outer_trim(spread[:, :x] if side == 'l' else spread[:, x:], side)
+            half = bottom_trim(outer_trim(spread[:, :x] if side == 'l' else spread[:, x:], side))
             Image.fromarray(half).save(base + '.pgm')
         subprocess.run(['cwebp', '-quiet', '-q', '75', base + '.pgm', '-o', target + '.tmp'], check=True)
     os.replace(target + '.tmp', target)
