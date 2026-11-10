@@ -9637,6 +9637,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروداکشن (مانده):**
   1. انتشار کد.
   2. `sources:backfill --only=registry`، `sources:import-citation-forms` و `sources:backfill --only=bibliography`، از راه `prod-run` و پس از پشتیبان.
+- **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از انتشار جلسه‌ی مدیریت کارها، به اجازه‌ی کاربر):**
+  - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`، به همان روش `scripts/backup/fahares-backup.sh`: `~/backups/before_step14_135_monzavi_nuskhe_20261110_1336.sql.gz`. حجم ۳۹۵ مگابایت، با خط پایانی «Dump completed» و md5 برابر `da56106034d2b2a4d544d8805d666373`. پشتیبان روی میزبان ماند.
+  - **اجرا (سه `prod-run` با نام `keen-einstein-629a0f`):**
+    - `sources:backfill --only=registry`: «volumes made 6»، منبع ۱۰۰۲۱۱.
+    - `sources:import-citation-forms`: «Made 1 forms».
+    - `sources:backfill --only=bibliography`: ۲۳٬۲۷۰ ارجاع منبع شناخته، برابر تمرین.
+  - **وارسی:**
+    - ۲٬۶۱۸ مأخذ اثر `source_id` این منبع را دارند، برابر تمرین. مرز جلدها همان `config` است (ج ۲ از ۷۲۱).
+    - `https://fahares.net/sources/fankha/1/page/94` نمایشگر ج ۳ ص ۱۹۰۲ را دارد، و `/api/page-images/monzavi-nuskhe/3` پاسخ ۲۰۰ داد.
+    - ۲۰ صفحه‌ی اثر تصادفی پاسخ ۲۰۰ دادند و همه پیوند نمایشگر داشتند.
+    - `/tmp` کانتینر فایلی از این گام ندارد.
+  - **«منابع» آن را نشان نداد:** `/sources/monzavi-nuskhe` پاسخ ۲۰۰ داد، ولی `/sources` منبع را نشان نمی‌داد. `SourceShelf::counts()` شمار مأخذ هر منبع را یک روز در کش `sources:shelf` نگه می‌دارد، و منبعی که در آن شماری ندارد کنار می‌رود. `sources:backfill` این کش را پاک نمی‌کرد. اکنون هر اجرای غیرآزمایشی آن را پاک می‌کند (`BackfillSourcesTest::test_a_run_forgets_the_shelf_so_a_new_source_shows_in_the_sources_page_at_once`).
 
 ### گام ۱۴.۱۳۶: نیمه‌ی برگ در `extract_edition_pages.py` و نگاشت «فهرست مختصر» مجلس
 - **منبع:** `../fahares-sources/majlis/telegram-extra/1407 - فهرس مخطوطات مجلس الشورى.pdf` (۶۸۲ برگ CCITT در ۳۰۰ dpi، هر برگ ۴۲۸۸×۳۰۰۸، md5 `a3907f7d6a3164635ecff4c44a487093` در `MD5SUMS`). جلد فنخا: «فهرست مختصر نسخه های خطی کتابخانه مجلس شورای اسلامی - 1» (#۴۴۱ در پروداکشن، منبع 100050).
@@ -9683,16 +9695,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان:** `../fahares-sources/backups/step13/step14_137_before.json`، با `works` (۳ ردیف کامل)، `work_people` (۳) و `people` 3687، 9003 و 598. `from` هر ۴ ستون برابر بود.
   - **اجرا:** با `prod-run --wait jolly-tharp`: «works=3».
   - **وارسی:** اجرای دوم «update 0» داد. `author_id` و `work_people` 3082 و 6009 → 3687. 71533 → `description` null. `works_count` شخص 3687 برابر 5 و 9003 برابر 28. `/tmp` کانتینر پاک است.
-
-- **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از انتشار جلسه‌ی مدیریت کارها، به اجازه‌ی کاربر):**
-  - **پشتیبان:** dump کامل روی میزبان با `ssh fahares-server`، به همان روش `scripts/backup/fahares-backup.sh`: `~/backups/before_step14_135_monzavi_nuskhe_20261110_1336.sql.gz`. حجم ۳۹۵ مگابایت، با خط پایانی «Dump completed» و md5 برابر `da56106034d2b2a4d544d8805d666373`. پشتیبان روی میزبان ماند.
-  - **اجرا (سه `prod-run` با نام `keen-einstein-629a0f`):**
-    - `sources:backfill --only=registry`: «volumes made 6»، منبع ۱۰۰۲۱۱.
-    - `sources:import-citation-forms`: «Made 1 forms».
-    - `sources:backfill --only=bibliography`: ۲۳٬۲۷۰ ارجاع منبع شناخته، برابر تمرین.
-  - **وارسی:**
-    - ۲٬۶۱۸ مأخذ اثر `source_id` این منبع را دارند، برابر تمرین. مرز جلدها همان `config` است (ج ۲ از ۷۲۱).
-    - `https://fahares.net/sources/fankha/1/page/94` نمایشگر ج ۳ ص ۱۹۰۲ را دارد، و `/api/page-images/monzavi-nuskhe/3` پاسخ ۲۰۰ داد.
-    - ۲۰ صفحه‌ی اثر تصادفی پاسخ ۲۰۰ دادند و همه پیوند نمایشگر داشتند.
-    - `/tmp` کانتینر فایلی از این گام ندارد.
-  - **«منابع» آن را نشان نداد:** `/sources/monzavi-nuskhe` پاسخ ۲۰۰ داد، ولی `/sources` منبع را نشان نمی‌داد. `SourceShelf::counts()` شمار مأخذ هر منبع را یک روز در کش `sources:shelf` نگه می‌دارد، و منبعی که در آن شماری ندارد کنار می‌رود. `sources:backfill` این کش را پاک نمی‌کرد. اکنون هر اجرای غیرآزمایشی آن را پاک می‌کند (`BackfillSourcesTest::test_a_run_forgets_the_shelf_so_a_new_source_shows_in_the_sources_page_at_once`).
