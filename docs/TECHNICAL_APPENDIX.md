@@ -9541,3 +9541,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
   2. `php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json`
   3. پشتیبان به `../fahares-sources/backups/step13/` می‌آید و فایل‌های `/tmp` پاک می‌شوند.
+### گام ۱۴.۱۳۳: `fahares:link-named-mothers`
+- **نامزدها (fahares_prod):**
+  - عکسی‌هایی که هیچ رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy` ندارند: ۱۵٬۱۰۸.
+  - از این‌ها، ۱۱٬۷۲۱ یادداشت «نسخه اصل» با نسخه‌ای جز «همان نسخه بالا» دارند.
+  - ۵۱ تا نسخه‌ای زیر همان اثر دارند که شماره‌اش در یادداشت است.
+  - ۳۱ تا تنها یک نسخه دارند که هم نام کتابخانه‌اش (یا واژه‌ی نخست آن) در یادداشت باشد و هم عدد پیش از «/» شماره‌اش.
+- **داوری دستی:** 27802 کنار رفت، چون یادداشتش «تکرار رساله دوم همین مجموعه» است و مادرِ نامزدش خود عکسی است. 305702 هم کنار رفت، چون دو نسخه‌ی اصل دارد. 225581 («4-9189، از دانشگاه») با 225542 (دانشگاه 9189) ماند.
+- **فایل:** `database/data/named_mothers_step14_133.json`. هر یک از ۲۹ ردیف `facsimile`، `facsimile_shelfmark`، `mother`، `mother_shelfmark`، `mother_library` و `note` دارد.
+- **فرمان:**
+  - **بیرون‌ماندن:** «shelfmark differs»، «not the same work»، «the photograph is not marked as one, or the original is» و «has another link». جفتی که پیوندش هست «already» است.
+  - **نوشتن:** `manuscript_relations` با `type = facsimile_of`، `source = fankha` و `note` همان یادداشت. یک ردیف `audit_logs` با `corpus_update` و `new_values.manuscript_relation` می‌آید، تا هر پیوند پیدا و برداشتنی باشد.
+- **آزمون:** `LinkNamedMothersCommandTest`، با گزارش، نوشتن، اثر دیگر، اجرای دوم، audit و صفحه‌ی مادر.
+- **تمرین روی fahares_prod:** «Would link 29»؛ سپس `--apply` «Linked 29»؛ اجرای دوم «already 29».
+- **اجرا در تولید:** پس از پشتیبان (شناسه‌ی این ۵۸ نسخه و رابطه‌های کنونی‌شان)، `fahares:link-named-mothers --file=database/data/named_mothers_step14_133.json --apply`.
+
