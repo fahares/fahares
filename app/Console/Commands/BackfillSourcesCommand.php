@@ -83,6 +83,8 @@ class BackfillSourcesCommand extends Command
             $this->info($part);
             $this->table(['', 'count'], collect($stats)->map(fn ($n, $k) => [$k, number_format($n)])->values()->all());
         }
+        // «منابع» counts what each source is cited for and keeps it a day: a source made or tied here shows at once
+        $this->dry || \Illuminate\Support\Facades\Cache::forget('sources:shelf');
         $this->dry && $this->warn('Dry run: nothing is saved.');
 
         return self::SUCCESS;

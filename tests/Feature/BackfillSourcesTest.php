@@ -58,6 +58,16 @@ class BackfillSourcesTest extends TestCase
         $this->artisan('sources:backfill', $options)->assertSuccessful();
     }
 
+    public function test_a_run_forgets_the_shelf_so_a_new_source_shows_in_the_sources_page_at_once()
+    {
+        \Illuminate\Support\Facades\Cache::put('sources:shelf', ['stale' => true], now()->addDay());
+        $this->backfill(['--only' => ['registry'], '--dry-run' => true]);
+        $this->assertSame(['stale' => true], \Illuminate\Support\Facades\Cache::get('sources:shelf'), 'a dry run changes nothing');
+
+        $this->backfill(['--only' => ['registry']]);
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get('sources:shelf'));
+    }
+
     public function test_catalogs_and_their_volumes_keep_their_ids()
     {
         $this->backfill(['--only' => ['registry']]);

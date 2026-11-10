@@ -9627,3 +9627,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - `https://fahares.net/sources/fankha/1/page/94` نمایشگر ج ۳ ص ۱۹۰۲ را دارد، و `/api/page-images/monzavi-nuskhe/3` پاسخ ۲۰۰ داد.
     - ۲۰ صفحه‌ی اثر تصادفی پاسخ ۲۰۰ دادند و همه پیوند نمایشگر داشتند.
     - `/tmp` کانتینر فایلی از این گام ندارد.
+  - **«منابع» آن را نشان نداد:** `/sources/monzavi-nuskhe` پاسخ ۲۰۰ داد، ولی `/sources` منبع را نشان نمی‌داد. `SourceShelf::counts()` شمار مأخذ هر منبع را یک روز در کش `sources:shelf` نگه می‌دارد، و منبعی که در آن شماری ندارد کنار می‌رود. `sources:backfill` این کش را پاک نمی‌کرد. اکنون هر اجرای غیرآزمایشی آن را پاک می‌کند (`BackfillSourcesTest::test_a_run_forgets_the_shelf_so_a_new_source_shows_in_the_sources_page_at_once`).
