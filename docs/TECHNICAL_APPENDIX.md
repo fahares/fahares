@@ -9328,6 +9328,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan fahares:merge-duplicate-people --report=/tmp/loose_people.json
   ```
   پس از آن `/tmp/loose_people.json` پاک شود. پیش از اجرا پشتیبان کامل پایگاه روی میزبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
+  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
+  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
+  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
+  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
 
 ### گام ۱۴.۱۲۲: تصویر برگه‌های فهرست مجلس، `catalogs:set-facsimiles` و `extract_edition_pages.py --map`
 - **منشأ فایل‌ها:** کانال تلگرام «خزانه‌ها» (پیام‌های 251، 1384–1389، 3368–3369، 7640–7641، 7724) و بایگانی پیام 1400 همان کانال (۲۲ جلد). نسخه‌ها در `../fahares-sources/majlis/` با نام `vNN.pdf` یا `vNN-B.pdf` (B = بخش) و `MD5SUMS`. نگاشت برگ به صفحه‌ی هر فایل `vNN.map.json` است (`{"صفحه‌ی چاپی": برگ PDF}`)، و خواندن‌های برگ‌به‌برگ و نمونه‌های سنجش در `majlis/work/`.
@@ -9348,11 +9353,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **انتقال تصویرها (۱۹ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):** ۱۸ پوشه‌ی `majlis/v01 v02 v04 v10 v11 v12 v20 v28 v29 v30 v31 v32 v34 v39 v41 v44` و `majlis-p2/v24 v47`، هر کدام با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/<code> --no-same-owner -xf -"`، در حدود ۷ دقیقه. فهرست نام و اندازه‌ی ۷٬۹۰۱ پرونده دو سو یکسان بود. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775`، و شش برگه‌ی نمونه از `https://fahares.net/storage/catalogs/…` پاسخ ۲۰۰ دادند. `majlis-p1`، `majlis-p3` و `majlis-p2/v33`، `v40` فرستاده نشدند.
 - **پس از استقرار:**
   `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط ستون‌های ۱۸ جلد را می‌نویسد و دو جلد می‌سازد).
-- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
-  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
-  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
-  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
-  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
+- **اجرای پروداکشن (پس از انتشار ۸۹، `a61c0bd3`؛ ۲۰ آبان ۱۴۰۵، به تأیید کاربر):**
+  - فرمان و `catalog_facsimiles.json` در کانتینر با شاخه یکی بودند (md5 `05fc0cff…` و `a4edc4cd…`).
+  - **اجرای آزمایشی (`--dry-run`):** «2 created, 16 updated, 0 unchanged (dry run)».
+  - **پشتیبان:** ردیف‌های کتابخانه‌ی مجلس (`library_id` ۴): ۵۴ ردیف `catalog_volumes`، ۵۴ ردیف `source_volumes` همان شناسه‌ها و ۴ ردیف `sources`، به JSON با tinker. در `../fahares-sources/backups/step13/step14_122_majlis_volumes_before_20261110.json` (md5 `f3f3fc4350a0a6703d69ba48a462ab11`، دو سو یکسان) و از `/tmp` کانتینر پاک شد.
+  - **اجرا (`prod-run`):** «2 created, 16 updated, 0 unchanged»، و اجرای دوم «0 created, 0 updated, 18 unchanged». نخستین تلاش در `prod-run` با قطع اتصال ssh (exit 255) بی تغییر داده پایان یافت؛ اجرای آزمایشی پس از آن همان «16 updated» را نشان داد.
+  - **وارسی:** ۱۸ جلد مجلس `facsimile_code` دارند و هر ۱۸ در `source_volumes` هستند؛ دو جلد ساخته‌شده شناسه‌ی ۷۳۵ (ج ۱) و ۷۳۶ (ج ۲/۴۷) گرفتند. ۱۶٬۰۷۴ ردیف `source_entries` با `page_start` به این جلدها می‌رسند، برابر تمرین. در سایت «دیدن برگه در فهرست کتابخانه مجلس» در `/manuscripts/30704` (۴۰۳۳، ج ۱۱ ص ۳۸) برگه‌ی همان نسخه را باز کرد، و `/manuscripts/76875` (ج ۲ ص ۳۶۵) و `/manuscripts/35238` (ج ۲۹ ص ۱۴۸) دکمه و نشانی برگه را دارند؛ برگه‌های نمونه پاسخ ۲۰۰ دادند. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۲۳: داوری مدل بر گروه‌های هم‌نام
 - **نامزدها (اسکریپت یک‌باره روی `fahares_prod` پس از ادغام‌های ۱۴.۱۲۱):**
