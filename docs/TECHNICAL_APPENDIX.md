@@ -9343,9 +9343,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **شمار:** ۱۸ جلد، ۷٬۹۰۱ برگه، ۵۵۵ مگابایت؛ ۱۶٬۰۷۴ ارجاع (`source_entries` با `page_start`) در `fahares_prod` برگه دارند. ارجاع بی‌تصویر: ج ۱۰ بخش ۲ (۷۷۷) و چند شماره‌ی پرت فنخا.
 - **تمرین (`fahares_prod`):** «2 created, 16 updated, 0 unchanged»، اجرای دوم «0 created, 0 updated, 18 unchanged». نسخه‌ی ۱۲۴۹ (۴۰۰۱/۱۰، ج ۱۱ ص ۵) در سایت محلی برگه‌ی درست را باز کرد و کنسول خطا نداشت.
 - **آزمون:** `SetCatalogFacsimilesTest` (جلد ارجاع‌شده و نمایشگر ارجاع، بخش‌ها با عنوان و ساخت بخش نبوده در همان منبع، توقف پیش از تغییر در داده‌ی مبهم).
+- **انتقال تصویرها (۱۹ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):** ۱۸ پوشه‌ی `majlis/v01 v02 v04 v10 v11 v12 v20 v28 v29 v30 v31 v32 v34 v39 v41 v44` و `majlis-p2/v24 v47`، هر کدام با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/<code> --no-same-owner -xf -"`، در حدود ۷ دقیقه. فهرست نام و اندازه‌ی ۷٬۹۰۱ پرونده دو سو یکسان بود. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775`، و شش برگه‌ی نمونه از `https://fahares.net/storage/catalogs/…` پاسخ ۲۰۰ دادند. `majlis-p1`، `majlis-p3` و `majlis-p2/v33`، `v40` فرستاده نشدند.
 - **پس از استقرار:**
-  1. انتقال پوشه‌ها به حجم پایدار storage پروداکشن، به روش زرکلی: `majlis/v01 v02 v04 v10 v11 v12 v20 v28 v29 v30 v31 v32 v34 v39 v41 v44` و `majlis-p2/v24 v47`، هر کدام با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/<code> --no-same-owner -xf -"`، سپس `chown`، `chmod` و وارسی شمار پرونده‌ها و HTTP 200. (`majlis-p1` و `majlis-p3` و `majlis-p2/v33`، `v40` فرستاده نمی‌شوند.)
-  2. `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط ستون‌های ۱۸ جلد را می‌نویسد و دو جلد می‌سازد).
+  `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط ستون‌های ۱۸ جلد را می‌نویسد و دو جلد می‌سازد).
 - **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
   - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
   - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
