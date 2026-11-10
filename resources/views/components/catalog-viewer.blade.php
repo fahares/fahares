@@ -40,7 +40,8 @@
             <span class="px-2 py-0.5 rounded bg-surface/80 text-xs text-stone-600 dark:text-amber-200/80 font-medium">در حال بارگذاری برگه…</span>
         </div>
 
-        <div :class="hasError && !loading ? 'flex' : 'hidden'" class="absolute inset-0 hidden flex-col items-center justify-center gap-3 z-[5] p-6 text-center">
+        {{-- No fixed «hidden» beside the bound «flex»: Tailwind puts .hidden after .flex, so the notice never showed --}}
+        <div :class="hasError && !loading ? 'flex' : 'hidden'" class="absolute inset-0 flex-col items-center justify-center gap-3 z-[5] p-6 text-center">
             <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800/60 flex items-center justify-center text-2xl shadow-lg">📖</div>
             <div class="space-y-1">
                 <h3 class="text-sm font-bold text-ink">تصویر این صفحه در دسترس نیست</h3>

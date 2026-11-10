@@ -61,6 +61,13 @@ class PageImagesTest extends TestCase
         $this->get('/api/page-images/Bad_Code/1')->assertNotFound();
     }
 
+    public function test_the_viewer_error_notice_is_not_hidden_for_good(): void
+    {
+        // A fixed «hidden» beside the bound «flex» wins in Tailwind's CSS, and the notice never shows (step 14.144)
+        $this->get('/about')->assertOk()
+            ->assertSee(":class=\"hasError && !loading ? 'flex' : 'hidden'\" class=\"absolute inset-0 flex-col", false);
+    }
+
     public function test_the_viewer_is_wired_to_the_endpoint(): void
     {
         $this->get('/about')->assertOk()->assertSee('catalogViewer(', false)->assertSee('api\/page-images', false);

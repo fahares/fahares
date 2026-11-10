@@ -9778,3 +9778,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - کمترین‌ها در برابر review10: `Work/description` −۴۶۰، `scribe_name` −۹۹، `catalog_citation` −۶۰، `is_facsimile` −۴۷، `Work/author_name` −۴۵، `bibliography` −۴۵، `dimensions` −۴۴، `Work/incipit_text` −۴۰.
   - `unmatched`: `v2_work` ۲۵ → ۱۵، `v2_copy` ۴۹۲ → ۴۶۳.
   - رونوشت محلی تغییرات این روزهای نشست‌های دیگر در تولید را ندارد.
+
+### گام ۱۴.۱۴۴: `hidden` ثابت کادر خطای `catalog-viewer.blade.php`
+- **ریشه:** `<div :class="hasError && !loading ? 'flex' : 'hidden'" class="absolute inset-0 hidden flex-col …">`. هر دو کلاس `display` را تعیین می‌کنند و ویژگی یکسان دارند. در خروجی Tailwind v4 `.hidden` پس از `.flex` است، پس `display: none` همیشه می‌ماند. در production حالت درست بود (`absent`، `hasError` و `inShortGap` همه true بودند) و تنها `display` کادر none بود.
+- **اصلاح:** `hidden` از `class` ثابت برداشته شد. کادر «در حال بارگذاری» هم همین‌گونه است. ریشه‌ی نمایشگر `x-cloak` و `display: none` دارد.
+- **آزمون:** `PageImagesTest::test_the_viewer_error_notice_is_not_hidden_for_good`.
+- **پس از استقرار:** فرمان داده‌ای لازم نیست.
