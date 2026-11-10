@@ -9511,3 +9511,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `php artisan scout:sync-index-settings`، تا سه فیلتر تازه در Meilisearch باشند.
   2. با تأیید کاربر و پس از پشتیبان: `fahares:rebuild-copies --file=database/data/author_copy_flags_step14_130.json --apply`. این فرمان ۱٬۴۱۷ نسخه را خودش در نمایه به‌روز می‌کند. نسخه‌های دیگر این سه فیلد را در نمایه ندارند و با `= true` هم نمی‌آیند، و این درست است.
 
+### گام ۱۴.۱۳۱: `fahares:fill-copy-merge-gaps` و `RecordMerger::carryMatchesWork` / `carryScripts`
+- **علت:** `Manuscript::getIncipitMatchesWorkAttribute` و `getExplicitMatchesWorkAttribute` نخست `metadata.incipit_matches_work` / `explicit_matches_work` را می‌خوانند، بعد `incipit_text` / `explicit_text` = «برابر»، و بعد `raw_text`. در ادغام، `raw_text` نسخه‌ی حذف‌شده با آن می‌رود و `MergeComparison` آن را منتقل نمی‌کند. ستون `script_names` منتقل می‌شد، ولی ردیف‌های `manuscript_script` نه.
+- **`RecordMerger::mergeManuscript`:**
+  - پس از `MergeComparison::apply`، `carryMatchesWork($source, $target)` پرچم را در `metadata` می‌گذارد، به این شرط که مبدأ «برابر» باشد، مقصد نباشد، مقصد کلید پرچم را نداشته باشد و متن آغاز یا انجام خودش را نداشته باشد.
+  - `carryScripts` ردیف‌های `manuscript_script` مبدأ را به مقصد می‌دهد، به این شرط که `script_names` مقصد برابر مبدأ باشد و مقصد هیچ ردیفی نداشته باشد.
+  - خروجی ادغام `matches_work` و `added_script_ids` را دارد. `undoManuscriptMerge` آن‌ها را برمی‌دارد و شمار خط‌ها را دوباره می‌شمارد.
+- **دستور:** `fahares:fill-copy-merge-gaps {run} [--apply] [--backup=] [--revert=]`.
+  - `run` پشتیبان `fahares:link-copy-references` است. رکورد حذف‌شده از `result.source_snapshot` با `setRawAttributes` ساخته می‌شود و همان دو تابع روی آن اجرا می‌شوند.
+  - ادغامی که دوباره جدا شده (گام ۱۴.۷۶) کنار می‌رود.
+  - قول `script_names` با `origin = copy_merge` حذف می‌شود، به این شرط که `raw_text` مبدأ «خط: همان نسخه بالا» داشته باشد.
+  - پشتیبان: برای هر نسخه `flags`، `scripts` و ردیف کامل قول‌های حذف‌شده. `--revert` پرچم‌ها و پیوندها را برمی‌دارد و قول‌ها را با همان شناسه برمی‌گرداند.
+- **سنجش (سایت اصلی، فقط خواندن):** وضع کنونی ۱٬۰۳۲ نسخه‌ی ماندنی با ۱٬۰۳۴ ادغام پشتیبان `step14.16-link-copy-references-20261105_041431.json` سنجیده شد. یک نسخه‌ی ماندنی (41256) دیگر نیست و ۲ ادغام جدا شده‌اند.
+  - incipit: 27422، 34159، 75533، 78695، 124434، 134869، 155594، 156150، 167223، 175038، 290110.
+  - explicit: همان‌ها، بی 134869، 155594، 167223 و 290110.
+  - خط: 75533 (نستعلیق). قول نادرست: #65 روی 94144.
+- **آزمون:** `CopyMergeGapsTest`: ادغام و بازگردانی، نگه داشتن آغاز و خطِ خود نسخه‌ی ماندنی، و دستور با گزارش، نوشتن، اجرای دوم و بازگردانی.
+- **تمرین روی fahares_prod (کپی ۱۹ آبان):** dry-run همان ۱۲ نسخه را داد. `--apply` و سپس اجرای دوم «0» داد. `--revert` «12 copies put back» داد و وضع پیشین برگشت.
+- **پس از استقرار:** با تأیید کاربر و پس از پشتیبان، با `prod-run`:
+  1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
+  2. `php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json`
+  3. پشتیبان به `../fahares-sources/backups/step13/` می‌آید و فایل‌های `/tmp` پاک می‌شوند.

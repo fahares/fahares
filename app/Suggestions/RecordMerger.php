@@ -51,7 +51,10 @@ class RecordMerger
         $snapshot = $this->snapshot($source, ['manuscript_script' => 'manuscript_id', 'manuscript_people' => 'manuscript_id']);
 
         $compared = MergeComparison::apply($source, $target, $fields);
+        // A «برابر» lives in the removed copy's raw text, which goes with it (step 14.131)
+        $matches = self::carryMatchesWork($source, $target);
         $target->save();
+        $addedScripts = self::carryScripts($source, $target);
         // Scribes the kept copy does not list yet
         $addedScribes = [];
         $scribes = fn (int $id) => DB::table('manuscript_people')->where('manuscript_id', $id)->where('role', ManuscriptPerson::SCRIBE);
@@ -86,9 +89,49 @@ class RecordMerger
             'source_snapshot' => $snapshot,
             'fields' => $compared,
             'added_scribe_ids' => $addedScribes,
+            'matches_work' => $matches,
+            'added_script_ids' => $addedScripts,
             'relations' => $relations,
             'redirects' => $redirects,
         ] + $attachments;
+    }
+
+    /**
+     * Fankha's «آغاز: برابر» (the copy opens as the work does) is read from the copy's raw text, which goes with the
+     * removed copy: the kept one gets it as a metadata flag when it has no incipit (or explicit) of its own and does
+     * not already say. Returns the flags set; leaves the record unsaved.
+     */
+    public static function carryMatchesWork(Manuscript $source, Manuscript $target): array
+    {
+        $set = [];
+        foreach (['incipit' => 'incipit_text', 'explicit' => 'explicit_text'] as $part => $column) {
+            $flag = $part . '_matches_work';
+            $meta = $target->metadata ?? [];
+            if ($source->{$part . '_matches_work'} && ! $target->{$part . '_matches_work'} && ! isset($meta[$flag])
+                && trim((string) $target->{$column}) === '') {
+                $target->metadata = $meta + [$flag => true];
+                $set[] = $flag;
+            }
+        }
+
+        return $set;
+    }
+
+    /**
+     * The script links of the removed copy, when the kept one took its script names and has no link of its own (the
+     * merge copies the column, not the manuscript_script rows the filters and counts read). Returns the scripts added.
+     */
+    public static function carryScripts(Manuscript $source, Manuscript $target): array
+    {
+        $names = trim((string) $target->script_names);
+        if ($names === '' || $names !== trim((string) $source->script_names)
+            || DB::table('manuscript_script')->where('manuscript_id', $target->id)->exists()) {
+            return [];
+        }
+        $rows = DB::table('manuscript_script')->where('manuscript_id', $source->id)->get();
+        DB::table('manuscript_script')->insertOrIgnore($rows->map(fn ($row) => ['manuscript_id' => $target->id] + array_diff_key((array) $row, ['id' => 0, 'manuscript_id' => 0]))->all());
+
+        return $rows->pluck('script_id')->map(fn ($id) => (int) $id)->all();
     }
 
     /** Puts back a manuscript mergeManuscript() removed, from the values it returned. */
@@ -111,13 +154,17 @@ class RecordMerger
         // A merge of before backlog item 46 filled empty columns only
         $this->unfill($target, $old['filled'] ?? []);
         MergeComparison::undo($target, $old['fields'] ?? []);
+        if ($matches = $old['matches_work'] ?? []) {
+            $target->metadata = array_diff_key($target->metadata ?? [], array_flip($matches)) ?: null;
+        }
         $target->save();
+        DB::table('manuscript_script')->where('manuscript_id', $target->id)->whereIn('script_id', $old['added_script_ids'] ?? [])->delete();
         RecordRelations::undoMove($old['relations'] ?? [], $source->id);
         $this->undoAttachments($source, $target, $old);
         $this->undoRedirect('manuscripts', $source->id, $old['redirects'] ?? []);
 
         $this->recountWorks([$source->work_id, $target->work_id]);
-        $scripts = array_column($snapshot['pivots']['manuscript_script'] ?? [], 'script_id');
+        $scripts = array_merge(array_column($snapshot['pivots']['manuscript_script'] ?? [], 'script_id'), $old['added_script_ids'] ?? []);
         $this->recountManuscriptOwners($source->only(['library_id', 'catalog_volume_id', 'cataloger_id']), $scripts);
         $this->recountPeople(DB::table('manuscript_people')->whereIn('manuscript_id', [$source->id, $target->id])->where('role', ManuscriptPerson::SCRIBE)->pluck('person_id')->all());
         $source->searchable();
@@ -249,7 +296,11 @@ class RecordMerger
             }
         }
         MergeComparison::undo($target, $old['fields'] ?? []);
+        if ($matches = $old['matches_work'] ?? []) {
+            $target->metadata = array_diff_key($target->metadata ?? [], array_flip($matches)) ?: null;
+        }
         $target->save();
+        DB::table('manuscript_script')->where('manuscript_id', $target->id)->whereIn('script_id', $old['added_script_ids'] ?? [])->delete();
         $target->subjects()->detach($old['added_subject_ids'] ?? []);
         $target->languages()->detach($old['added_language_ids'] ?? []);
         DB::table('referrals')->whereIn('id', $old['referral_ids'] ?? [])->where('target_work_id', $target->id)->update(['target_work_id' => $source->id]);
