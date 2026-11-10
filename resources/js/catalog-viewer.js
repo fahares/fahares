@@ -28,6 +28,8 @@ export default (config) => ({
     // The volume's page range, from the page-images endpoint; null until known (next is then not capped)
     first: 1,
     last: null,
+    // The runs of pages the volume has, [[first, last], …], when its images skip pages; null when they do not
+    segments: null,
     // The address of the volume's page text without the page, when the site has its text
     textBase: null,
     // The image on screen and its size; it changes only once the next page has loaded, so the old page stays meanwhile
@@ -85,11 +87,39 @@ export default (config) => ({
     },
 
     get canPrev() {
-        return this.page > this.first;
+        return this.step(this.page, -1) !== null;
     },
 
     get canNext() {
-        return this.last === null || this.page < this.last;
+        return this.step(this.page, 1) !== null;
+    },
+
+    // The pages the volume has, for the jump box: «۲–۵۵۵، ۱۰۸۱–۱۶۷۵، …»; null when it has every page in its range
+    get segmentsLabel() {
+        return this.segments ? this.segments.map(([a, b]) => (a === b ? fa(a) : `${fa(a)}–${fa(b)}`)).join('، ') : null;
+    },
+
+    // The page is not among the volume's images (it falls in a gap, or outside the range)
+    get absent() {
+        return this.last !== null && !this.has(this.page);
+    },
+
+    has(page) {
+        if (this.last === null) return page >= this.first;
+        if (!this.segments) return page >= this.first && page <= this.last;
+        return this.segments.some(([a, b]) => page >= a && page <= b);
+    },
+
+    // The page the viewer turns to from `page` (dir +1 next, -1 previous), over any gap; null at either end
+    step(page, dir) {
+        let next = page + dir;
+        if (next < this.first || (this.last !== null && next > this.last)) return null;
+        if (this.segments && !this.has(next)) {
+            const run = dir > 0 ? this.segments.find(([a]) => a > page) : [...this.segments].reverse().find(([, b]) => b < page);
+            if (!run) return null;
+            next = dir > 0 ? run[0] : run[1];
+        }
+        return next;
     },
 
     get atMax() {
@@ -128,6 +158,7 @@ export default (config) => ({
         if (!sameVolume) {
             this.first = 1;
             this.last = null;
+            this.segments = null;
             this.textBase = null;
         }
         this.mode = phone() ? 'width' : 'fit';
@@ -168,7 +199,13 @@ export default (config) => ({
         if (range && key === `${this.catalog}/${this.volume}`) {
             this.first = range.first;
             this.last = range.last;
+            this.segments = Array.isArray(range.segments) && range.segments.length > 1 ? range.segments : null;
             this.textBase = range.text || null;
+            // A page the volume lacks: show the notice rather than wait for the image to fail
+            if (this.absent) {
+                this.loading = false;
+                this.hasError = true;
+            }
         }
     },
 
@@ -193,6 +230,12 @@ export default (config) => ({
         page = Math.max(this.first, this.last ? Math.min(this.last, page) : page);
         if (!fresh && page === this.page && !this.hasError) return;
         this.page = page;
+        // A page in a gap of a volume whose range is known: no request, just the notice
+        if (this.absent) {
+            this.loading = false;
+            this.hasError = true;
+            return;
+        }
         this.loading = true;
         this.hasError = false;
         const wanted = `${this.catalog}/${this.volume}/${page}`;
@@ -204,8 +247,10 @@ export default (config) => ({
             this.loading = false;
             this.resetView(false);
             // The adjacent pages, for an instant turn
-            if (page > this.first) this.load(page - 1);
-            if (this.last === null || page < this.last) this.load(page + 1);
+            for (const dir of [-1, 1]) {
+                const near = this.step(page, dir);
+                if (near !== null) this.load(near);
+            }
         }).catch(() => {
             if (wanted !== `${this.catalog}/${this.volume}/${this.page}`) return;
             this.loading = false;
@@ -218,11 +263,13 @@ export default (config) => ({
     },
 
     prevPage() {
-        if (this.canPrev) this.goTo(this.page - 1);
+        const page = this.step(this.page, -1);
+        if (page !== null) this.goTo(page);
     },
 
     nextPage() {
-        if (this.canNext) this.goTo(this.page + 1);
+        const page = this.step(this.page, 1);
+        if (page !== null) this.goTo(page);
     },
 
     toggleJump() {

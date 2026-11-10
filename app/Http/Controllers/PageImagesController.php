@@ -18,11 +18,22 @@ class PageImagesController extends Controller
 {
     public function show(string $code, int $volume): JsonResponse
     {
-        $range = Cache::remember("page-images:{$code}:{$volume}", now()->addDay(), function () use ($code, $volume) {
+        // «v2»: the shape with segments, so a day-old cached range without them is not served
+        $range = Cache::remember("page-images:v2:{$code}:{$volume}", now()->addDay(), function () use ($code, $volume) {
             $dir = storage_path('app/public/catalogs/' . $code . '/v' . str_pad($volume, 2, '0', STR_PAD_LEFT));
-            $pages = collect(glob($dir . '/p*.webp') ?: [])->map(fn ($f) => (int) substr(basename($f), 1, -5))->filter();
+            $pages = collect(glob($dir . '/p*.webp') ?: [])->map(fn ($f) => (int) substr(basename($f), 1, -5))->filter()
+                ->unique()->sort()->values();
+            if ($pages->isEmpty()) {
+                return null;
+            }
 
-            return $pages->isEmpty() ? null : ['first' => $pages->min(), 'last' => $pages->max()];
+            $range = ['first' => $pages->first(), 'last' => $pages->last()];
+            $segments = self::segments($pages->all());
+            if (count($segments) > 1) {
+                $range['segments'] = $segments;
+            }
+
+            return $range;
         });
 
         if ($range && ($text = $this->textBase($code, $volume))) {
@@ -32,6 +43,27 @@ class PageImagesController extends Controller
         return $range
             ? response()->json($range)->header('Cache-Control', 'public, max-age=86400')
             : response()->json(['message' => 'No page images'], 404);
+    }
+
+    /**
+     * The runs of consecutive pages: [2, 3, 4, 9, 10] → [[2, 4], [9, 10]].
+     *
+     * @param  list<int>  $pages  sorted, without repeats
+     * @return list<array{int, int}>
+     */
+    public static function segments(array $pages): array
+    {
+        $segments = [];
+        foreach ($pages as $page) {
+            $end = count($segments) - 1;
+            if ($end >= 0 && $segments[$end][1] === $page - 1) {
+                $segments[$end][1] = $page;
+            } else {
+                $segments[] = [$page, $page];
+            }
+        }
+
+        return $segments;
     }
 
     /** /sources/fankha/2/page/ for a volume whose page texts or entries the site has (plan docs/plans/source-page-text.md). */

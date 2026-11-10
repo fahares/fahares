@@ -44,11 +44,16 @@
             <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800/60 flex items-center justify-center text-2xl shadow-lg">📖</div>
             <div class="space-y-1">
                 <h3 class="text-sm font-bold text-ink">تصویر این صفحه در دسترس نیست</h3>
-                <p class="text-xs text-muted max-w-sm">
+                <p x-show="!absent" class="text-xs text-muted max-w-sm">
                     تصویر صفحه‌ی <span x-text="fa(page)" class="font-bold text-cinnabar"></span> از جلد <span x-text="fa(volume)" class="font-bold text-cinnabar"></span> <span x-text="catalogName" class="font-bold"></span> یافت نشد.
                 </p>
+                {{-- A page the volume's images do not have (e.g. Majlis vol. 10 part 2): retrying will not help --}}
+                <p x-show="absent" class="text-xs text-muted max-w-sm">
+                    برگه‌های صفحه‌ی <span x-text="fa(page)" class="font-bold text-cinnabar"></span> از جلد <span x-text="fa(volume)" class="font-bold text-cinnabar"></span> <span x-text="catalogName" class="font-bold"></span> در سایت نیست.
+                    <span x-show="segmentsLabel">صفحه‌های موجود: <span x-text="segmentsLabel" class="font-bold"></span></span>
+                </p>
             </div>
-            <button type="button" @pointerdown.stop @click="retry()" class="px-4 py-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-xs font-semibold text-ink border border-stone-300 dark:border-stone-600 transition shadow-xs cursor-pointer">تلاش دوباره</button>
+            <button type="button" x-show="!absent" @pointerdown.stop @click="retry()" class="px-4 py-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-xs font-semibold text-ink border border-stone-300 dark:border-stone-600 transition shadow-xs cursor-pointer">تلاش دوباره</button>
         </div>
     </main>
 
@@ -77,12 +82,16 @@
                     <svg class="w-3 h-3 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 <form x-show="jumpOpen" @submit.prevent="submitJump()" @click.outside="jumpOpen = false"
-                    class="absolute top-full mt-2 start-0 sm:start-auto sm:end-0 z-20 flex items-center gap-2 p-2 rounded-xl bg-surface border border-line-strong shadow-xl" style="display: none;">
+                    class="absolute top-full mt-2 start-0 sm:start-auto sm:end-0 z-20 flex flex-wrap items-center gap-2 p-2 rounded-xl bg-surface border border-line-strong shadow-xl" style="display: none;">
                     <label class="text-xs text-muted whitespace-nowrap" for="catalog-viewer-jump">صفحه‌ی</label>
                     <input id="catalog-viewer-jump" x-ref="jumpInput" x-model="jumpValue" type="text" inputmode="numeric" autocomplete="off" dir="ltr"
                         :placeholder="last ? fa(first) + '–' + fa(last) : ''"
                         class="w-24 px-2 py-1.5 rounded-lg border border-line-strong bg-paper text-base sm:text-sm text-ink text-center focus:outline-none focus:border-cinnabar">
                     <button type="submit" class="px-3 py-1.5 rounded-lg bg-cinnabar text-white text-xs font-bold cursor-pointer">برو</button>
+                    {{-- A volume whose images skip pages: the runs it has --}}
+                    <p x-show="segmentsLabel" class="basis-full w-0 min-w-full text-[11px] leading-5 text-muted">
+                        موجود: <span x-text="segmentsLabel" class="font-semibold text-ink"></span>
+                    </p>
                 </form>
             </div>
 
