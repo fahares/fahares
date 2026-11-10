@@ -9583,6 +9583,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **[TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php):** اگر `Person` با `person_slug` نباشد، `mergedInto()` تازه‌ترین `AuditLog` با `auditable_type = Person`، `action = merge` و `old_values->source_snapshot->slug` برابر آن نشانی را می‌گیرد. `auditable_id` آن شخص ماندگار است، و `EntityRedirect::resolveTargetId('people', …)` ادغام‌های بعدی او را دنبال می‌کند. ستون تازه‌ی `merged` در جدول گزارش.
 - **آزمون:** `TiePersonLivesTest::test_a_tie_of_a_person_merged_away_goes_to_the_person_he_was_merged_into`.
 - **اجرا در تولید پس از استقرار:** `php artisan sources:tie-person-lives --apply`. انتظار: `merged 21` و حداکثر ۲۱ `created`.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، پس از انتشار ۹۹، `9a4b9ee5`):**
+  - **پیش از اجرا:** اجرای آزمایشی «created 3، exists 3085، has_life 315، merged 21، missing_life 1»، با آنکه `--apply` ساعت ۱۲:۵۰ (notices-82) با exit 0 ثبت شده بود.
+  - **پشتیبان:** کار فقط ردیف تازه می‌سازد. بیشینه‌ی `source_entries.id` پیش از اجرا 1290284 بود. شناسه‌های ساخته‌شده در `../fahares-sources/backups/step13/step14_134_tie_lives_created_20261110.json` ثبت شدند. برای بازگردانی، همین سه ردیف پاک شوند.
+  - **اجرا (`prod-run task-management`):** «created 3»، «Saved.». ردیف‌های 1335672 و 1335673 (شخص 45105، منبع‌های 100005 و 100006) و 1335674 (شخص 3791، منبع 100204)، با `legacy_type` `person_life_by_name`.
+  - **وارسی:** اجرای دوم «created 0، exists 3088». `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۳۵: `monzavi-nuskhe`، فهرست نسخه‌های خطی فارسی منزوی
 - **کتاب:** احمد منزوی، «فهرست نسخه‌های خطی فارسی»، مؤسسه‌ی فرهنگی منطقه‌ای (RCD)، تهران ۱۳۴۸–۱۳۵۳ش، شش جلد (ج ۲ در دو بخش). صفحه‌ها در همه‌ی جلدها پیوسته‌اند.
@@ -9773,4 +9778,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - کمترین‌ها در برابر review10: `Work/description` −۴۶۰، `scribe_name` −۹۹، `catalog_citation` −۶۰، `is_facsimile` −۴۷، `Work/author_name` −۴۵، `bibliography` −۴۵، `dimensions` −۴۴، `Work/incipit_text` −۴۰.
   - `unmatched`: `v2_work` ۲۵ → ۱۵، `v2_copy` ۴۹۲ → ۴۶۳.
   - رونوشت محلی تغییرات این روزهای نشست‌های دیگر در تولید را ندارد.
-
