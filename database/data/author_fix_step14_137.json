@@ -1,0 +1,57 @@
+{
+ "source": "authors two works lost after the import (al-Ahmadiyya #3082 and al-Ashqariyya #6009: Fankha and parser v1 read بخارائی اوچی, the site had حسینی بخاری with no change logged), and the text step 14.19 gave work 71533 from the next entry; fahares item 87, step 14.137",
+ "category": "author_fix",
+ "works": [],
+ "fills": [],
+ "work_updates": [
+  {
+   "work_slug": "al-amadiyya-v2-633",
+   "v2": "v2-633",
+   "id": 3082,
+   "changes": {
+    "author_name": {
+     "from": "حسینی بخاری، محمد بن برهان",
+     "to": "بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد"
+    }
+   },
+   "author": {
+    "name": "بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد",
+    "century": 8
+   },
+   "note": "Fankha and parser v1 name بخارائی اوچی (707-785); the site had another person"
+  },
+  {
+   "work_slug": "al-asqariyya-v3-1633",
+   "v2": "v3-1634",
+   "id": 6009,
+   "changes": {
+    "author_name": {
+     "from": "حسینی بخاری، محمد بن برهان",
+     "to": "بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد"
+    }
+   },
+   "author": {
+    "name": "بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد",
+    "century": 8
+   },
+   "note": "Fankha and parser v1 name بخارائی اوچی (707-785); the site had another person"
+  },
+  {
+   "work_slug": "asiyat-ur-rawat-ul-bahiya-fi-s-il-lumat-id-dimasqiya-v34-2342",
+   "v2": "v34-2342",
+   "id": 71533,
+   "changes": {
+    "raw_text": {
+     "from": "● حاشیة الروضة البهیة فی شرح اللمعة الدمشقیة / فقه / عربی\nḥāšīyat-ur rawḍat-ul bahīya fī š.-il lu‘mat-id dimašqīya\n\nوابسته به: الروضة البهیة فی شرح اللمعة الدمشقیة؛ شهید ثانی، زین الدین بن علی (911-965)\nحاشیه‌ای است بر کتاب مذکور با عناوین «قوله» که در این نسخه از «الفصل الثانی فی الغسل» آغاز می‌شود.",
+     "to": "● حاشیة الروضة البهیة فی شرح اللمعة الدمشقیة / فقه / عربی\nḥāšīyat-ur rawḍat-ul bahīya fī š.-il lu‘mat-id dimašqīya\n\nخراسانی، محمد جعفر بن محمد طاهر، 1080 - 1175 ؟ قمری\nxorāsānī, mohammad ja‘far ebn-e mohammad tāher (1670 - 1762)\n\nوابسته به: الروضة البهیة فی شرح اللمعة الدمشقیة؛ شهید ثانی، زین الدین بن علی (911-965ق)"
+    },
+    "description": {
+     "from": "حاشیه‌ای است بر کتاب مذکور با عناوین «قوله» که در این نسخه از «الفصل الثانی فی الغسل» آغاز می‌شود.",
+     "to": null
+    }
+   },
+   "author": null,
+   "note": "step 14.19 (lost_head) gave this work the text of the next, anonymous entry v34-2343; its copy 333943 (Majlis 18429/1, autograph) and its author are those of v34-2342"
+  }
+ ]
+}
