@@ -149,4 +149,45 @@ class DuplicatePeopleTest extends TestCase
         $this->assertNull(Person::find($b->id));
         $this->assertNotNull(Person::find($c->id), 'a record left out of the decision stays');
     }
+
+    public function test_loose_groups_merge_names_that_differ_only_by_titles_or_another_records_other_name()
+    {
+        $tag = $this->tag;
+        // Titles before the name and before the father's name, and the inverted form
+        $a = $this->person("حاج علی بن ملا محمد قاسم {$tag}");
+        $b = $this->person("{$tag}، علی بن محمد قاسم");
+        $this->copyBy($a, 1240);
+        $this->copyBy($b, 1250);
+        // Same name but for the title, copies 60 years apart: left apart
+        $c = $this->person("آقا حسن بن رضا {$tag}");
+        $d = $this->person("حسن بن رضا {$tag}");
+        $this->copyBy($c, 1200);
+        $this->copyBy($d, 1260);
+        // A name that is another record's other name
+        $e = $this->person("{$tag}، جعفر بن صادق", ['death_year_hijri' => 1290, 'aliases' => ["شیخ جعفر {$tag} نجفی"]]);
+        $f = $this->person("شیخ جعفر {$tag} نجفی");
+        $this->copyBy($f, 1270);
+
+        $this->assertSame(\App\Services\DuplicatePeopleFinder::looseKey($a->name), \App\Services\DuplicatePeopleFinder::looseKey($b->name));
+        $this->artisan('fahares:find-duplicate-people', ['--out' => $this->report, '--loose' => true])->assertSuccessful();
+        $all = json_decode(file_get_contents($this->report), true);
+        $mine = array_values(array_filter($all['groups'], fn ($g) => array_intersect(array_column($g['members'], 'id'), $this->peopleIds)));
+        file_put_contents($this->report, json_encode(['loose' => true, 'groups' => $mine], JSON_UNESCAPED_UNICODE));
+        $sets = array_map(fn ($g) => collect($g['members'])->pluck('id')->sort()->values()->all(), $mine);
+        $this->assertEqualsCanonicalizing([[$a->id, $b->id], [$e->id, $f->id]], $sets, 'the copies 60 years apart are not a group');
+        $this->assertSame($e->id, collect($mine)->firstWhere('members.0.id', $e->id)['target_id'] ?? $e->id);
+
+        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions, '--dry-run' => true])
+            ->expectsOutputToContain('[dry run] Merged 2 records into 2 people')->assertSuccessful();
+        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions])
+            ->expectsOutputToContain('Merged 2 records into 2 people')->assertSuccessful();
+        $this->assertSame(1, Person::whereIn('id', [$a->id, $b->id])->count());
+        $this->assertNotNull(Person::find($e->id), 'the record with a death year is kept');
+        $this->assertNull(Person::find($f->id));
+        $this->assertSame(2, Person::whereIn('id', [$c->id, $d->id])->count());
+
+        // Run again: the merged records are gone, nothing more is merged
+        $this->artisan('fahares:merge-duplicate-people', ['--report' => $this->report, '--decisions' => $this->decisions])
+            ->expectsOutputToContain('Merged 0 records')->assertSuccessful();
+    }
 }

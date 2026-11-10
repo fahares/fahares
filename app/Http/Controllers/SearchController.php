@@ -14,6 +14,7 @@ use App\Helpers\TextNormalizer;
 use App\Models\Subject;
 use App\Models\Work;
 use App\Support\CopyPlaces;
+use App\Support\AuthorInQuery;
 use App\Support\DirectAnswer;
 use App\Support\MemoryLimit;
 use App\Support\SearchExport;
@@ -97,9 +98,17 @@ class SearchController extends Controller
         $matchedFields = [];
         $snippets = [];
         $engineDown = false;
-        if ($alternatives) {
+        // «قانون ابن سینا»: the title words once more among the named author's works, ranked up (step 14.128)
+        $byAuthor = $type === 'works' && ! $alternatives && ! $sort && $searchQuery !== '' && in_array($scope, ['titles_names', 'all'], true)
+            ? AuthorInQuery::split($searchQuery) : null;
+        if ($alternatives || $byAuthor) {
+            $index = self::INDEXES[$type];
+            $engineFilter = $filters->engine();
+            $queries = $alternatives
+                ? fn (callable $tune) => self::partQueries($index, $alternatives, $searchAttrs, $engineFilter, $tune)
+                : fn (callable $tune) => AuthorInQuery::queries($index, $searchQuery, $byAuthor, $searchAttrs, $engineFilter, $tune);
             try {
-                $results = $this->anyOf($request, $type, $alternatives, $searchAttrs, $filters->engine(), $sort, $dbSort, $prepare, $perPage, $exportLimit, $idsOnly, $snippets, $matchedFields);
+                $results = $this->anyOf($request, $type, $queries, $searchAttrs, $sort, $dbSort, $prepare, $perPage, $exportLimit, $idsOnly, $snippets, $matchedFields);
             } catch (\Meilisearch\Exceptions\ApiException|\Meilisearch\Exceptions\CommunicationException|\Meilisearch\Exceptions\TimeOutException $e) {
                 report($e);
                 $engineDown = true;
@@ -363,10 +372,10 @@ class SearchController extends Controller
 
     /**
      * A search for any of several parts (phase 8), as one federated search of the engine: the matches of all parts,
-     * each once, ranked together. The engine ranks a union by relevance only, so a chosen order is applied by the
+     * each once, ranked together. A title with its author's name is searched the same way (step 14.128). The engine ranks a union by relevance only, so a chosen order is applied by the
      * database to the first ANY_OF_SORT_LIMIT matches.
      */
-    protected function anyOf(Request $request, string $type, array $alternatives, ?array $searchAttrs, ?string $filter, ?array $sort, callable $dbSort,
+    protected function anyOf(Request $request, string $type, callable $queries, ?array $searchAttrs, ?array $sort, callable $dbSort,
         callable $prepare, int $perPage, ?int $exportLimit, bool $idsOnly, array &$snippets, array &$matchedFields): array|\Illuminate\Pagination\LengthAwarePaginator
     {
         $index = self::INDEXES[$type];
@@ -384,7 +393,7 @@ class SearchController extends Controller
 
             return $q->setAttributesToRetrieve(['id']);
         };
-        $federated = fn (int $limit, int $offset) => app(MeiliClient::class)->multiSearch(self::partQueries($index, $alternatives, $searchAttrs, $filter, $tune),
+        $federated = fn (int $limit, int $offset) => app(MeiliClient::class)->multiSearch($queries($tune),
             (new MultiSearchFederation)->setLimit($limit)->setOffset($offset));
 
         if ($sort) {

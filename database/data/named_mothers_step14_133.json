@@ -1,0 +1,237 @@
+{
+ "source": "photographs and films whose Fankha text names an original («نسخه اصل: …») that is on the site under the same work, with that library's name and the number before «/» of its shelfmark in the note, judged by hand: two left out (27802, whose note is unclear, and 305702, which names two originals); 2026-11-10; fahares item 71, solution 3, step 14.133",
+ "records": [
+  {
+   "facsimile": 23564,
+   "facsimile_shelfmark": "3031-ف",
+   "mother": 23699,
+   "mother_shelfmark": "173",
+   "mother_library": "سلطنتی",
+   "note": "سلطنتی ش 173"
+  },
+  {
+   "facsimile": 27136,
+   "facsimile_shelfmark": "2662/1",
+   "mother": 27453,
+   "mother_shelfmark": "22/1",
+   "mother_library": "مدرسه معمارباشی",
+   "note": "کتابخانه مدرسه معمارباشی، تهران 22"
+  },
+  {
+   "facsimile": 56558,
+   "facsimile_shelfmark": "1780/9",
+   "mother": 56564,
+   "mother_shelfmark": "119/6",
+   "mother_library": "مدرسه آیة الله بروجردی",
+   "note": "کتابخانه مدرسه بروجردی-کرمانشاه 119"
+  },
+  {
+   "facsimile": 61026,
+   "facsimile_shelfmark": "1548-ف",
+   "mother": 61008,
+   "mother_shelfmark": "352",
+   "mother_library": "مهدوی",
+   "note": "کتابخانه دکتر اصغر مهدوی ش 352. تاریخ ایران = مجمل"
+  },
+  {
+   "facsimile": 61433,
+   "facsimile_shelfmark": "4025/1-ف",
+   "mother": 61434,
+   "mother_shelfmark": "77/1",
+   "mother_library": "مینوی",
+   "note": "کتابخانه مجتبی مینوی 77"
+  },
+  {
+   "facsimile": 64491,
+   "facsimile_shelfmark": "1448/3",
+   "mother": 64615,
+   "mother_shelfmark": "2412/3",
+   "mother_library": "وزیری",
+   "note": "کتابخانه وزیری-یزد 2412. مشتمل بر چند فصل در خواص حروف و مخا"
+  },
+  {
+   "facsimile": 70545,
+   "facsimile_shelfmark": "24/1-عکسی",
+   "mother": 70542,
+   "mother_shelfmark": "2097/1",
+   "mother_library": "ملک",
+   "note": "ملک، ش 2097"
+  },
+  {
+   "facsimile": 82829,
+   "facsimile_shelfmark": "242-عکسی",
+   "mother": 82827,
+   "mother_shelfmark": "8401",
+   "mother_library": "مجلس",
+   "note": "مجلس ش 8401 در 3 مجلد"
+  },
+  {
+   "facsimile": 99075,
+   "facsimile_shelfmark": "3458-ف",
+   "mother": 99077,
+   "mother_shelfmark": "144",
+   "mother_library": "مینوی",
+   "note": "مینوی ش 144"
+  },
+  {
+   "facsimile": 123473,
+   "facsimile_shelfmark": "2337/30",
+   "mother": 123471,
+   "mother_shelfmark": "1805/38",
+   "mother_library": "مجلس",
+   "note": "مجلس شورا 1805"
+  },
+  {
+   "facsimile": 161103,
+   "facsimile_shelfmark": "2779",
+   "mother": 161104,
+   "mother_shelfmark": "52",
+   "mother_library": "مینوی",
+   "note": "کتابخانه مینوی - تهران 52"
+  },
+  {
+   "facsimile": 189534,
+   "facsimile_shelfmark": "1356/37",
+   "mother": 189525,
+   "mother_shelfmark": "6710/45",
+   "mother_library": "دانشگاه",
+   "note": "کتابخانه دانشگاه مرکزی - تهران 6710"
+  },
+  {
+   "facsimile": 218066,
+   "facsimile_shelfmark": "2296/9-ف",
+   "mother": 218065,
+   "mother_shelfmark": "3936/13",
+   "mother_library": "مجلس",
+   "note": "مجلس تنکابنی 25907 قفسه 3997 (ش 3936). به فارسی از روی عوامل"
+  },
+  {
+   "facsimile": 223849,
+   "facsimile_shelfmark": "856",
+   "mother": 223879,
+   "mother_shelfmark": "560",
+   "mother_library": "نمازی",
+   "note": "کتابخانه مدرسه نمازی - خوی 560"
+  },
+  {
+   "facsimile": 225581,
+   "facsimile_shelfmark": "4946/4-ف",
+   "mother": 225542,
+   "mother_shelfmark": "9189",
+   "mother_library": "دانشگاه",
+   "note": "4-9189، از دانشگاه. ابوالفتح حسن علی بن جهان شاه قراقویونلو"
+  },
+  {
+   "facsimile": 243237,
+   "facsimile_shelfmark": "2318",
+   "mother": 243387,
+   "mother_shelfmark": "119",
+   "mother_library": "میبدی (خاندان)",
+   "note": "کتابخانه میبدی - کرمانشاه 119"
+  },
+  {
+   "facsimile": 252342,
+   "facsimile_shelfmark": "25",
+   "mother": 252337,
+   "mother_shelfmark": "80",
+   "mother_library": "فاضل",
+   "note": "کتابخانه فاضل خوانساری-خوانسار 80 از اواخر سوره صافات تا اوا"
+  },
+  {
+   "facsimile": 262244,
+   "facsimile_shelfmark": "918عکسی",
+   "mother": 262240,
+   "mother_shelfmark": "1032",
+   "mother_library": "دانشگاه",
+   "note": "کتابخانه مرکزی دانشگاه - تهران، ش1032. کتابچه‌ای است در لغت،"
+  },
+  {
+   "facsimile": 267243,
+   "facsimile_shelfmark": "873/4",
+   "mother": 267312,
+   "mother_shelfmark": "618/3",
+   "mother_library": "نمازی",
+   "note": "کتابخانه مدرسه نمازی - خوی 618. مشتمل بر روایاتی در باب فضیل"
+  },
+  {
+   "facsimile": 267247,
+   "facsimile_shelfmark": "947/8",
+   "mother": 267329,
+   "mother_shelfmark": "433/5",
+   "mother_library": "نمازی",
+   "note": "کتابخانه مدرسه نمازی - خوی 433. تعریف فقه و ادله آن، تعریف خ"
+  },
+  {
+   "facsimile": 267932,
+   "facsimile_shelfmark": "2672",
+   "mother": 267910,
+   "mother_shelfmark": "154",
+   "mother_library": "مینوی",
+   "note": "کتابخانه مینوی - تهران 154"
+  },
+  {
+   "facsimile": 297575,
+   "facsimile_shelfmark": "1997-ف",
+   "mother": 297655,
+   "mother_shelfmark": "449",
+   "mother_library": "مهدوی",
+   "note": "کتابخانه دکتر اصغر مهدوی ش 449"
+  },
+  {
+   "facsimile": 298778,
+   "facsimile_shelfmark": "1934-ف",
+   "mother": 298745,
+   "mother_shelfmark": "114",
+   "mother_library": "ملی",
+   "note": "کتابخانه ملی ش 114"
+  },
+  {
+   "facsimile": 299731,
+   "facsimile_shelfmark": "1405",
+   "mother": 299733,
+   "mother_shelfmark": "15798",
+   "mother_library": "رضوی",
+   "note": "کتابخانه آستان قدس رضوی - مشهد 15798"
+  },
+  {
+   "facsimile": 310755,
+   "facsimile_shelfmark": "1165/3عکسی",
+   "mother": 310752,
+   "mother_shelfmark": "6963/1",
+   "mother_library": "دانشگاه",
+   "note": "کتابخانه مرکزی دانشگاه تهران، شماره 6963"
+  },
+  {
+   "facsimile": 310925,
+   "facsimile_shelfmark": "2337/57",
+   "mother": 310917,
+   "mother_shelfmark": "1805/67",
+   "mother_library": "مجلس",
+   "note": "کتابخانه مجلس شورای اسلامی - تهران 1805. رساله مختصری است در"
+  },
+  {
+   "facsimile": 313644,
+   "facsimile_shelfmark": "34/17-عکسی",
+   "mother": 313638,
+   "mother_shelfmark": "4341/22",
+   "mother_library": "ملک",
+   "note": "ملک، ش 4341/22 (ملک 361/7). نامه به فرمانروای دار السلام بغد"
+  },
+  {
+   "facsimile": 332077,
+   "facsimile_shelfmark": "3108/2-ف",
+   "mother": 332087,
+   "mother_shelfmark": "3296/2",
+   "mother_library": "ملی",
+   "note": "ملی تبریز ش3296"
+  },
+  {
+   "facsimile": 333947,
+   "facsimile_shelfmark": "2296/14-ف",
+   "mother": 112308,
+   "mother_shelfmark": "3936/18",
+   "mother_library": "مجلس",
+   "note": "مجلس تنکابنی 25907 قفسه 3997 (ش 3936). در پاکی و نماز"
+  }
+ ]
+}

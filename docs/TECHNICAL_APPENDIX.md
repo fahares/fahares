@@ -9115,15 +9115,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
 - **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
 
-### گام ۱۴.۱۱۶: `sources:find-person-lives` و `sources:tie-person-lives`
-- **نامزدها ([FindPersonLivesCommand](../app/Console/Commands/FindPersonLivesCommand.php)):** شخص با `death_year_hijri` و `death_from = death_to`. برای هر منبع `kind = biographical`، نمایه‌ی بخش‌های متمایز نام از عنوان مدخل‌ها (بی `بن`، `محمد`، `علی` و دیگر بخش‌های رایج `ItemMatcher`). نامزد: `ItemMatcher::authorHits(نام یا نام دیگر، عنوان) >= 1` و `ItemMatcher::deathIn(وفات، عنوان + ۳۰۰ نویسه‌ی آغاز)`. شخصی که در آن منبع پیوند دارد، خوانده نمی‌شود. خروجی `--report` (JSON). روی `fahares_prod` حدود ۶ دقیقه.
-- **داوری:** جفت‌هایی با دقیقاً یک نامزدِ `hits >= 2` (۳٬۵۶۹) و جفت‌هایی با چند نامزدِ دوبخشی (۴۳۷)، در دسته‌های ۷۵تایی Sonnet با دستورالعمل `match | none | unsure` و اطمینان. نمونه‌ی ۱۲۰تایی پیش از داوری کامل: ۱۰۸ درست، ۱۰ نادرست، ۲ نامطمئن. نتیجه‌ی کل: ۳٬۳۳۱ تطبیق (همه با اطمینان ۷۰ به بالا)، ۵۶۶ «نه» و ۱۰۹ نامطمئن. Claude ۱۰۹ نامطمئن را داوری کرد: ۷۳ تطبیق با اطمینان ۷۲. جفت‌های تک‌بخشی (۱۱٬۵۹۴) داوری نشدند.
-- **فایل:** `database/data/person_lives_step14_116.json`، هر سطر `person_slug`، `source`، `item_key`، `volume`، `method` (`name_death_llm`)، `confidence`، `judged_by` و `evidence`.
-- **ساخت ([TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php)):** برای هر سطر، شخص با `slug` و مدخل با `source_id`، `item_key` و `volume_number`. کلید `legacy_type = person_life_by_name`، `legacy_id = person_id * 1000000 + source_id`. اگر شخص در آن منبع هر پیوندی دارد، `has_life`. سطر `source_entries` با `role entry`، `origin match` و `status unverified`. بخش «زندگی‌نامه در منابع» صفحه‌ی شخص هر پیوند شخص با `source_item_id` را نشان می‌دهد، پس تغییری در نما لازم نشد.
-- **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
-- **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
-- **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
-
 ### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
 - **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
 - **فایل:** `database/data/fankha_leading_author_step14_112.json` (`category: leading_author`، ۶ `work_updates`)، ساخته از `fahares_prod`.
@@ -9141,12 +9132,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `author_id` تنها برای 22983 (2398، کاظمی، ۱۰۸۸) پر شد. برای پنج نام دیگر رکورد شخصی در سایت نیست.
   - `fahares:link-autograph-scribes` پس از آن.
 - **اجرا در تولید:** همان دو فرمان، پس از پشتیبان از ستون‌های این شش اثر و ردیف‌های `subject_work` و `language_work` اثر 22983.
+- **اجرای تولید (۱۹ آبان ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_112_before.json`. ردیف کامل شش اثر، `work_people`، `subject_work`، `language_work`، و `works_count` موضوع 65 (548) و زبان 2 (35094).
+  - **`add-corpus-works --apply`:** «update 6»، «works=6».
+  - **`link-autograph-scribes`:** اجرا شد.
+  - **وارسی:** اجرای دوم «update 0» داد. `author_id` تنها 22983 → 2398. `subject_work` 65 و `language_work` 2 برای 22983 ثبت شد و شمارها به 549 و 35095 رسیدند. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۱۳: پیشنهادهای باز در ادغام شخص
 - **[PersonMerger](../app/Services/PersonMerger.php):** پس از جابه‌جایی نقش‌ها، `FieldSuggestion` با `suggestable_type = Person`، `suggestable_id = source` و `status = pending` به `target` می‌رود. `old_values.suggestion_ids` در لاگ `merge`، هم‌شکل `RecordMerger` و `LibraryMerger`. با این، اعلان `suggestion.record_merged` (گام ۱۴.۱۰۲) برای ادغام شخص هم «اکنون به رکورد ماندگار پیوسته است» می‌گوید.
 - **بازگردانی ([AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php)، `rollback`):** پیشنهادهای `suggestion_ids` که هنوز روی `target` هستند به `source_id` برمی‌گردند. لاگ‌های پیش از این گام `suggestion_ids` ندارند و چیزی جابه‌جا نمی‌شود.
 - **وارسی پروداکشن (۱۹ آبان ۱۴۰۵، فقط‌خواندنی):** پیشنهاد `pending` بی رکورد: people ۰، works ۰، manuscripts ۰، libraries ۰؛ کل پیشنهادهای باز ۴.
 - **آزمون:** `EntityRedirectTest::test_a_person_merge_carries_open_suggestions_and_its_undo_takes_them_back`.
+
 ### گام ۱۴.۱۱۴: `author_ids`، `copy_from`/`copy_to`/`copy_century` و فیلتر `catalog` بر پایه‌ی `source_entries`
 - **نمایه‌ی `manuscripts_index`:**
   - `author_ids` همه‌ی مؤلفان اثر را دارد (`work.authors`، که به `makeAllSearchableUsing` افزوده شد).
@@ -9173,3 +9170,398 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `InsightsScopeTest::test_a_catalogue_scope_takes_the_copies_the_volume_describes_and_its_links_keep_it`
   - `InsightsScopeTest::test_a_century_scope_takes_a_copy_dated_by_its_century_alone`
 - **پس از استقرار در تولید:** `php artisan scout:sync-index-settings`، سپس `php artisan scout:import "App\Models\Manuscript"` (حدود ۳۲۳ هزار سند؛ روی ماشین محلی حدود ۱۰ دقیقه).
+
+### گام ۱۴.۱۱۵: `Insights::oneCentury` در `places`، `scribes` و `libraries`
+- **`oneCentury($from, $to)`:** عبارت SQL است که سده‌ی بازه را برمی‌گرداند، اگر بازه در یک سده باشد. اگر یک سر بازه باز باشد یا بازه از دو سده بگذرد، `NULL` است. این همان `copy_century` نمایه است (گام ۱۴.۱۱۴).
+- **`places`:**
+  - نسخه‌ها با `oneCentury(copy_date_from, copy_date_to)` شمرده می‌شوند و آثار با `oneCentury(composition_date_from, composition_date_to)`. پیش‌تر `FLOOR((copy_date_hijri_year - 1) / 100) + 1` و `composition_year_hijri` بود.
+  - گروه‌بندی `wide` هم دارد: دامنه‌ی بیش از `exact_span`.
+  - کلیدهای تازه: `places.by_century`، `places.century_only`، `places.composition.by_century` و `places.composition.century_only`.
+- **`scribes`:**
+  - `from` و `to` کمینه و بیشینه‌ی `FLOOR((from + to) / 2)` تاریخ‌هایی هستند که دامنه‌شان تا `exact_span` است.
+  - کلید تازه‌ی `centuries` برابر `[MIN, MAX]` از `oneCentury` است، یا `null`.
+  - نما اگر `from` نباشد، `centuries` را نشان می‌دهد.
+- **`libraries`:**
+  - `dated` = `SUM(copy_date_to - copy_date_from <= 100)` و `mean` = `AVG((from + to) / 2)` روی همین نسخه‌ها.
+  - کلید تازه‌ی `century_only` شمار نسخه‌هایی است که دامنه‌شان بیش از `exact_span` است. در `title` نما می‌آید.
+- **cache:** `CACHE_KEY` از `insights.v4` به `insights.v5` رسید.
+  - تا ساخت شبانه‌ی ساعت ۰۳:۳۰، نخستین بازدید صفحه‌ی کل آمار را هنگام درخواست می‌سازد، حدود ۳۰ ثانیه.
+  - برای پرهیز از این، پس از استقرار `php artisan fahares:build-insights` اجرا شود.
+- **شمار روی `fahares_prod`:**
+  - ۱۵۳٬۲۵۹ نسخه `copy_date_hijri_year` دارند و ۲۳۷٬۰۵۲ نسخه بازه‌ای تا ۱۰۰ سال.
+  - نقشه: `mapped` = ۱۸٬۳۳۹، `by_century` = ۱۷٬۵۸۳ و `century_only` = ۱٬۰۷۶. در لایه‌ی تألیف `by_century` = ۱٬۵۴۵.
+  - نمونه‌ی کهن‌ترین کتابخانه: موزه‌ی ملی، میانگین ۹۵۵ از ۲۶۷ نسخه. ۱۵۵ نسخه از آن‌ها تنها سده دارند.
+- **آزمون:** `InsightsScopeTest::test_the_map_the_scribes_and_the_libraries_read_the_range_of_the_copy_date`. آزمون `scribes … of a scope` کلید `centuries` را هم می‌سنجد.
+- **اجرا در تولید (گام‌های ۱۴.۱۱۴ و ۱۴.۱۱۵، ۱۹ آبان، انتشار ۷۵ `4f1c00a9`، با `prod-run insights-107`):**
+  1. `php artisan scout:sync-index-settings`: exit 0، ۳ ثانیه.
+  2. `php -d memory_limit=1G artisan scout:import "App\Models\Manuscript"`:
+     - اتصال ssh در ۱۰ دقیقه بسته شد («Connection … closed by remote host»، exit 255 در `prod-runs.log`). قفل آزاد شد، ولی فرایند در کانتینر ادامه داد و ساعت ۰۷:۰۶ پایان یافت.
+     - در این مدت، `prod-run --status` آن را «production artisan run» نشان می‌داد و `prod-run` اجرای دیگری را نمی‌پذیرفت.
+     - صف Meilisearch ساعت ۰۷:۱۳ خالی شد و نمایه ۳۲۳٬۲۴۶ سند داشت.
+     - بار سرور در این زمان به ۹ رسید. نخستین بازدیدهای `/insights` پس از آن ۲۲ و سپس ۸٫۷ ثانیه طول کشیدند، با این‌که از cache خوانده می‌شدند. بازدید سوم ۱٫۹ ثانیه بود.
+  3. `php artisan fahares:build-insights`: ۱۹٫۴ ثانیه، با «242583 dated copies (75%, 90849 by century only)».
+- **وارسی پس از اجرا:** `author_ids = 1110 AND copy_from >= 1001 AND copy_to <= 1100` در موتور ۲۵۴ بود. `copy_century` کناره و `SearchFilters::apply` روی پایگاه هم ۲۵۴ بودند. `/search?type=manuscripts&author_id=1110&century=11` در سایت ۲۵۴ نسخه نشان می‌دهد. `/tmp` کانتینر فایلی از این اجرا ندارد.
+- **برای جلسه‌های بعد:** برای import بلند، فرمان را در کانتینر با `nohup … &` اجرا کنید و پایانش را با `ps` بپایید، چون اتصال ssh در این اجرا پس از ۱۰ دقیقه بسته شد.
+
+### گام ۱۴.۱۱۶: `sources:find-person-lives` و `sources:tie-person-lives`
+- **نامزدها ([FindPersonLivesCommand](../app/Console/Commands/FindPersonLivesCommand.php)):** شخص با `death_year_hijri` و `death_from = death_to`. برای هر منبع `kind = biographical`، نمایه‌ی بخش‌های متمایز نام از عنوان مدخل‌ها (بی `بن`، `محمد`، `علی` و دیگر بخش‌های رایج `ItemMatcher`). نامزد: `ItemMatcher::authorHits(نام یا نام دیگر، عنوان) >= 1` و `ItemMatcher::deathIn(وفات، عنوان + ۳۰۰ نویسه‌ی آغاز)`. شخصی که در آن منبع پیوند دارد، خوانده نمی‌شود. خروجی `--report` (JSON). روی `fahares_prod` حدود ۶ دقیقه.
+- **داوری:** جفت‌هایی با دقیقاً یک نامزدِ `hits >= 2` (۳٬۵۶۹) و جفت‌هایی با چند نامزدِ دوبخشی (۴۳۷)، در دسته‌های ۷۵تایی Sonnet با دستورالعمل `match | none | unsure` و اطمینان. نمونه‌ی ۱۲۰تایی پیش از داوری کامل: ۱۰۸ درست، ۱۰ نادرست، ۲ نامطمئن. نتیجه‌ی کل: ۳٬۳۳۱ تطبیق (همه با اطمینان ۷۰ به بالا)، ۵۶۶ «نه» و ۱۰۹ نامطمئن. Claude ۱۰۹ نامطمئن را داوری کرد: ۷۳ تطبیق با اطمینان ۷۲. جفت‌های تک‌بخشی (۱۱٬۵۹۴) داوری نشدند.
+- **فایل:** `database/data/person_lives_step14_116.json`، هر سطر `person_slug`، `source`، `item_key`، `volume`، `method` (`name_death_llm`)، `confidence`، `judged_by` و `evidence`.
+- **ساخت ([TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php)):** برای هر سطر، شخص با `slug` و مدخل با `source_id`، `item_key` و `volume_number`. کلید `legacy_type = person_life_by_name`، `legacy_id = person_id * 1000000 + source_id`. اگر شخص در آن منبع هر پیوندی دارد، `has_life`. سطر `source_entries` با `role entry`، `origin match` و `status unverified`. بخش «زندگی‌نامه در منابع» صفحه‌ی شخص هر پیوند شخص با `source_item_id` را نشان می‌دهد، پس تغییری در نما لازم نشد.
+- **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
+- **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
+- **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
+
+### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
+- **`patrons`:**
+  - روی `commissioned_by` گروه‌بندی می‌شود و برای هر نام، `MIN`/`MAX` از `oneCentury` می‌آید.
+  - نام‌ها در PHP با `TextNormalizer::normalize` یکی می‌شوند. هر نام با صورتی نشان داده می‌شود که بیشتر نوشته شده است: «آیة الله بروجردی»، نه «ایه الله بروجردی».
+  - تنها نام‌های دست‌کم دونسخه‌ای می‌آیند. شمار نام‌ها از `config('insights.patrons_shown')` است، برابر ۱۵.
+  - **`Insights::isKin`:** واژه‌ی نخست یکی از این‌هاست: `مؤلف|مولف|مصنف|خود|خودش|کاتب`. یا یکی از دو واژه‌ی نخست نسبت خویشی با ضمیر است (`(پدر|برادر|فرزند|پسر|عم|استاد…)(ش|یش)`). «استاد هادی ارفع» خویش شمرده نمی‌شود، ولی «استادش آقا محسن» می‌شود.
+  - هیچ‌یک از ۳٬۵۶۷ ردیف `manuscript_people` با `role = patron` به شخص پیوند ندارد (`person_id` تهی است). پس آمار بر پایه‌ی نام است.
+  - سهم هر سده از `inOneCentury` می‌آید. نما سده‌هایی را که کمتر از `min_sample × 10` نسخه دارند نشان نمی‌دهد.
+- **`facsimiles`:** `SUM(is_facsimile)` برای هر کتابخانه، با `HAVING > 0`. شمار کتابخانه‌ها از `config('insights.facsimile_libraries')` است، برابر ۱۰. سهم هر یک نسبت به `COUNT(*)` همان کتابخانه است.
+- **جدول موقت دامنه:** `commissioned_by` و `is_facsimile` به `insights_scope_copies` افزوده شدند.
+- **`facsimile` در `InsightsScope`:**
+  - مقدار `'0'` یا `'1'` است و فیلتر نسخه است (در `WORK_PARAMS` نیست). شرطش `manuscripts.is_facsimile = ?` است.
+  - برچسب‌ها «اصل (بی نسخه‌های عکسی)» و «عکسی» هستند. `searchParams('manuscripts')` آن را `facsimile` می‌برد.
+  - در فرم، با `x-model` و یک فیلد پنهان فرستاده می‌شود. «همه‌ی نسخه‌ها» پارامتری نمی‌فرستد.
+- **cache:** `CACHE_KEY` از `insights.v5` به `insights.v6` رسید. پس از استقرار `fahares:build-insights` اجرا شود.
+- **اجرای پروداکشن (پس از انتشار ۷۶، `4d25f0a8`):** `scripts/dev/prod-run insights-107 -- 'cd /app && php artisan fahares:build-insights'`، exit 0 در ۲۱٫۱ ثانیه: ۲۴۲٬۵۸۳ نسخه‌ی تاریخ‌دار (۹۰٬۸۴۹ تنها با سده). کلیدهای `patrons` و `facsimiles` در cache هستند و `/insights` و `/insights?facsimile=1` پاسخ ۲۰۰ می‌دهند.
+- **آزمون‌ها:**
+  - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`
+  - `InsightsScopeTest::test_facsimile_copies_are_counted_and_can_be_left_out_of_a_scope`
+
+### گام ۱۴.۱۱۸: مانده‌ی شرح‌های گام ۱۴.۹۸
+- **نسخه‌ی 38144 (`v4-86`، «تهران؛ مفتاح؛ 641/1»):** تصویر `catalogs/fankha/v04/p0058.webp` همان دو سطر متن را دارد. `catalog_citation` «[نشریه: 7-250]» و پیوند `fankha_citation_more` «الفبائی: 52» بی‌جلد درست‌اند. v2 کروشه‌ی پایانی را گرفته است. بی تغییر.
+- **ورودی:** همان ردیف‌های `Work/description` `trimmed` و `trimmed_inner` در review10. ۴۱۵ ردیف را گام ۱۴.۹۸ تغییر داده بود و ۱۱۲ ردیف ماند.
+- **صدور (پیکره، `f3e1ee9`):** `scripts/fankha_v2_description_extras2_export.py --report reports/fankha_v2_db_review10`.
+- **قاعده:** هر سطرِ `description` که `letters` آن در شرح v2 نیست، یکی از این‌ها باشد. در پایان، `letters(باقی) == letters(description v2)`.
+  - **آغاز و انجام شماره‌دار:** سطری که با `آغاز|انجام|جلد|N:` آغاز می‌شود. متنش، پس از برچسب‌ها، باید در `incipit_text`، `explicit_text` یا `text_excerpts` همان اثر باشد.
+  - **تاریخ:** `تاریخ ت[اأ]لیف: X(؛ محل ت[اأ]لیف: Y)?` با `tight(X) == tight(composition_date_raw)`. Y باید در `composition_place` باشد، یا ستون خالی باشد و v2 آن را `filled` کند.
+  - **پدیدآور:** `bare(سطر)` برابر `author.name` یا `name_raw` v2 باشد، وقتی `author_name` سایت خالی است. شرط دیگر: v2 `hedge` ندارد و «؟» در `bare(سطر)` نیست، یعنی «؟» تنها در تاریخ است. ستون `name_raw` را می‌گیرد، یعنی نام با «، X». `author.century` از `death.century` v2 می‌آید.
+  - **وابسته و تقدیم:** `وابسته به:` به `related_work`. `به دستور|به نام|به درخواست|اهداء به|تقدیم به:` به `dedication`. هر دو تنها وقتی که ستون همان را دارد، یا ستون خالی است و v2 آن را `filled` می‌کند.
+  - **ارجاع پایان سطر:** `… [X]`، وقتی X در `bibliography` است یا v2 آن را `filled` می‌کند. تنها کروشه برداشته می‌شود.
+  - **دیگر:** برچسب تهی (`(ظاهرا|ظاهراً)? غیر همانند:`، `ناشناس:`، `ناشناخته:`، `شرح و حواشی:`)، سطر لاتین و سطر خالی.
+- **شمارها:** `ok` ۸۴، `kept` ۲۸. نوع سطرها: excerpt ۴۵، blank ۱۸، place_moved ۱۳، author_moved ۱۳، transliteration ۱۳، empty_label ۵، citation_moved ۴، date ۳، related_moved ۱، dedication_moved ۱.
+- **دستی، 61653 («معما»، `v30-1113`):** متن و تصویر ج ۳۰ ص ۵۱۳ دو سطر «تاریخ تألیف» دارند: «عالیجاه میرزا محمد باقر حکیم باشی» و «1105ق». `composition_date_raw` اولی را داشت. اکنون `composition_date_raw` «1105ق» است و سطر اول جای سطر دوم در سر `description` است. این ردیف `note` دارد.
+- **فایل:** `database/data/fankha_description_extras_step14_118.json` (`category: description_extras`، ۸۵ `work_updates`). ستون‌های همراه: `composition_place` ۱۳، `author_name` ۱۳، `bibliography` ۴، `related_work` ۱، `dedication` ۱، `composition_date_raw` ۱.
+- **کد:** بی تغییر. همه‌ی این ستون‌ها در `AddCorpusWorksCommand::UPDATE_COLUMNS` هستند.
+- **تمرین روی fahares_prod:**
+  - «update 84»، «Derived data of works: works=84, with_dedication=14». سپس 61653: «works=1». اجرای دوم «update 0».
+  - `author_id` هیچ‌یک پر نشد. «دربندی، آقا بن عابد» (۷ اثر) و «درویش شیرازی، محمد هاشم بن اسماعیل» (۴ اثر) رکورد شخص ندارند.
+  - 61653 → `composition_year_hijri` 1105.
+- **مانده‌ی ۲۷:**
+  - **دو کس، یک ستون** (`dedication`): 23123، 34974، 39290، 53627، 56214، 65533، 65849.
+  - **پدیدآور مشکوک:** 33833 («؟ابن خباز»).
+  - **«همانندی نامعلوم»:** 14955 و 16281.
+  - **v2 درست نیست:** 65462. v2 سطر نام را در شرح نگه داشته است.
+  - **بقیه:** متنِ میانِ شرح است که v2 کوتاه‌تر یا جور دیگر خوانده است.
+- **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_118.json --apply`، پس از پشتیبان از ستون‌های این ۸۵ اثر.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۷۷، main 000ba29b):**
+  - md5 فایل در `/app` با شاخه برابر بود (`876d53ef…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_118_before.json`. ردیف کامل ۸۵ اثر. هیچ ستونی با `from` فایل فرق نداشت.
+  - **اجرا:** با `prod-run --wait jolly-tharp`. خروجی «Derived data of works: works=85, with_dedication=14». ۸۵ ردیف `corpus_update` در `audit_logs`.
+  - **وارسی:** اجرای دوم «update 0». 61653 → `composition_date_raw` 1105ق و `composition_year_hijri` 1105. 5054 → `composition_place` «کربلا مدرسه سردار». `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۱۱۹: `Insights::dedications` و `?tab=` صفحه‌ی شخص
+- **`dedications`:**
+  - `work_people` با `role IN (dedicatee, commissioner)`، پیوسته به جدول موقت آثار دامنه (`worksTable()`) و `people`. گروه‌بندی بر پایه‌ی اثر و شخص است، پس هر اثر برای هر کس یک بار شمرده می‌شود، چه تقدیم شده باشد چه به درخواست او نوشته شده باشد. `asked` شمار آثاری است که نقش `commissioner` دارند.
+  - کلید گروه `person_id` است، یا اگر نام پیوند نخورده، `TextNormalizer::normalize(name)`. نام بی‌پیوند با صورتی نشان داده می‌شود که بیشتر نوشته شده است.
+  - سده‌ها `oneCentury` بر `composition_date_from/to` است. تنها نام‌های دست‌کم دواثری می‌آیند، به شمار `config('insights.dedications_shown')`، برابر ۲۰. برای نام پیوندخورده `Person::getRouteKey()` («۸۰۱-نام») در داده می‌ماند.
+  - سهم هر سده: آثاری که کل بازه‌ی تألیفشان در یک سده است، و از آن‌ها آن‌هایی که در زیرپرسش `work_people` هستند.
+  - خروجی: `items`، `works`، `coverage`، `names`، `linked` (نام‌های پیوندخورده)، `linked_works` (آثاری که دست‌کم یک نام پیوندخورده دارند)، `centuries`.
+- **پیوندها:** نام پیوندخورده به `people.show` با `?tab=role-dedicatee` یا `role-commissioner` (هر کدام بیشتر باشد). نام بی‌پیوند به `search?type=works&f[people]=…`، که `related_people` نمایه را می‌گردد. جست‌وجو صورت‌های نزدیک را هم می‌آورد («محمد ولی میرزا»: ۴۰ نتیجه در سایت، در برابر ۲۴ اثر آمار).
+- **`people/show`:** اگر `request('tab')` یکی از زبانه‌های همان شخص باشد، زبانه‌ی پیش‌فرض می‌شود.
+- **cache:** `CACHE_KEY` از `insights.v6` به `insights.v7` رسید. پس از استقرار `fahares:build-insights` اجرا شود.
+- **آزمون:** `InsightsScopeTest::test_dedicatees_are_counted_by_person_with_the_works_written_at_their_request`
+
+### گام ۱۴.۱۲۰: `fahares:link-copy-patrons`، `App\Support\KnownPatrons` و `Insights::patrons` بر پایه‌ی شخص
+- **ورودی:** `manuscript_people` با `role = patron`، `person_id IS NULL` و `suggestion_id IS NULL`. سال نسخه میانه‌ی `copy_date_from/to` است، به شرط آن‌که بازه ۳۰ سال یا کمتر باشد. پرانتزهای نام کنار گذاشته می‌شوند.
+- **ترتیب داوری:**
+  1. `Insights::isKin` → `text:kin`.
+  2. `KnownPatrons::find(name, year)`: صورت‌ها مانند `KnownRulers::compact` بی فاصله سنجیده می‌شوند، پس از `core()` که «کتابخانه»، «تقدیم به»، «پیشکش به»، «برای»، «حضرت»، «سرکار»، «جناب»، «نواب» و «به نام» را از آغاز نام برمی‌دارد. اگر صورت در فهرست باشد ولی سال در بازه‌ی دارنده‌ی فهرست‌شده نباشد، نتیجه `text:title_other_holder` است. نسخه‌ی بی‌سال تنها وقتی پیوند می‌خورد که لقب یک دارنده داشته باشد و `shared` نباشد. `shared` یعنی دیگرانی بیرون از فهرست هم آن لقب را داشته‌اند: ظل السلطان، رکن الدوله، بهاء الدوله، محمد ولی میرزا، عزالدوله، احتشام الدوله.
+  3. `KnownRulers::find(core(name), year)`، بی `certainty` (یعنی صورت‌های «معمولاً» که سال تعیینشان نکرده کنار می‌مانند). اگر `year > death + 1` باشد، نتیجه `text:after_ruler_death` است.
+  4. «و»، «برای» و «به نام» میان نام، یا دو «،» یا بیشتر → `text:several`.
+  5. شمار کلمه‌ها بی `TITLES` (میرزا، اقا، ملا، مولی، مولانا، سید، میر، حاج، حاجی، شیخ، اخوند، خان، بیک، بیگ، سرکار، جناب، مشهدی، کربلایی، امیر، شاهزاده، استاد، خواجه، بن، ابن). کمتر از سه → `text:one_word` یا `text:two_words`.
+  6. `PersonNameMatcher::ids` باید یکتا باشد. شخص باید سال مرگ داشته باشد، با `copy_year ≤ death + 1` و `death − copy_year ≤ 90` (`MAX_AFTER`).
+- **رکورد دارنده:** `Person` با همان `name` یا `normalized_name`، به شرط یکتا بودن. اگر نباشد و دارنده `death` داشته باشد، رکورد ساخته می‌شود (`created`)، مانند `BackfillWorkDedicationsCommand::ruler`. در اجرای آزمایشی رکورد ذخیره نمی‌شود.
+- **نوشتن:** تنها `person_id` (و `updated_at`) در یک تراکنش. `name` دست نمی‌خورد. `commissioned_by` و نمایه‌ی جست‌وجو تغییر نمی‌کنند، پس بازسازی نمایه لازم نیست. `--report=<tsv>` همه‌ی ردیف‌ها را با نوع داوری و شخص می‌نویسد.
+- **`Insights::patrons`:**
+  - از `manuscript_people` (`role = patron`) پیوسته به جدول موقت نسخه‌های دامنه می‌خواند. گروه‌بندی بر پایه‌ی `person_id` است، یا اگر پیوند نخورده، `normalize(name)`. شمارش `COUNT(DISTINCT manuscript_id)` است.
+  - `isKin` تنها برای نام‌های بی‌پیوند به کار می‌رود.
+  - `with_patron` همچنان شمار نسخه‌های دارای `commissioned_by` است. ۱۸ نسخه ردیف `patron` ندارند و در فهرست نام‌ها نمی‌آیند. `linked` شمار نسخه‌های دارای سفارش‌دهنده‌ی پیوندخورده است.
+  - `routeKeys()` میان `patrons` و `dedications` مشترک است.
+- **cache:** `CACHE_KEY` از `insights.v7` به `insights.v8` رسید.
+- **آزمون‌ها:**
+  - `LinkCopyPatronsTest::test_rulers_titles_and_full_names_link_by_the_year_of_the_copy`
+  - `LinkCopyPatronsTest::test_a_title_holder_with_a_death_year_gets_a_record_when_there_is_none`
+  - `InsightsScopeTest::test_patrons_are_counted_by_name_with_the_kin_of_the_scribe_apart`، که اکنون پیوند شخص را هم می‌سنجد.
+- **اجرا پس از استقرار:** نخست `fahares:link-copy-patrons --dry-run`، سپس `fahares:link-copy-patrons` و در پایان `fahares:build-insights`. پیش از اجرا از `manuscript_people` (ردیف‌های `patron`) پشتیبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۷۸، `a790950b`)، هر سه از راه `scripts/dev/prod-run insights-107`:**
+  - **پشتیبان:** ۳٬۵۶۷ ردیف، همه بی `person_id`، به صورت JSON در `../fahares-sources/backups/step13/patrons_step14_120.json`. فایل از `/tmp` کانتینر پاک شد.
+  - **`link-copy-patrons --dry-run`:** همان شمارهای رونوشت (`linked:title` ۹۹، `linked:ruler` ۲۵، `linked:name` ۱، `created` ۲).
+  - **`link-copy-patrons`:** `Written`. ۱۲۵ ردیف پیوند دارند و دو رکورد تازه ساخته شد: #74734 «طباطبائی بروجردی، حسین بن علی» و #74735 «عزالدوله، عبدالصمد بن محمد».
+  - **`fahares:build-insights`:** در ۲۰٫۸ ثانیه، با کلید `insights.v8`.
+  - **برگرداندن:** صفر کردن `person_id` ردیف‌های `patron` بر پایه‌ی شناسه‌های پشتیبان، و حذف دو رکورد تازه.
+
+### گام ۱۴.۱۲۱: `DuplicatePeopleFinder::looseGroups` و `--loose`
+- **`looseKey(name)`:** مانند `key()` است (نرمال‌سازی، حذف پرانتز و گیومه، برگرداندن صورت وارونه، «ابن» به «بن»، حذف «ال» آغاز واژه)، به‌اضافه‌ی حذف واژه‌های `TITLES` در هر جای نام: ایه الله، ایت الله، ایه الله العظمی، ایت الله العظمی، علامه، حاج، حاجی، اقا، میرزا، شیخ، ملا، اخوند، مولی، مولانا، جناب، سرکار، مرحوم، استاد، حضرت.
+- **نامزدها:**
+  - رکوردهای هم‌کلید (`looseKey` با دست‌کم ۶ حرف).
+  - رکوردی که یکی از `aliases`اش کلید رکوردهای دیگر است، به شرط آن‌که تنها یک رکورد آن نام دیگر را داشته باشد. چنین رکوردی با همان نام دیگر داوری می‌شود.
+  - گروهی که همه‌ی اعضایش یک کلید دقیق دارند کنار گذاشته می‌شود، چون گزارش دقیق آن را می‌آورد.
+- **پالایش:**
+  - `tier()` گام ۱۰.۳ باید `likely` بدهد.
+  - `clear()`: یا کمینه‌ی واژه‌های شناسا (`distinctive`) ۲ است، یا همه‌ی نام‌ها «بن» دارند، دست‌کم یک واژه‌ی شناسا و چهار واژه بی عنوان و «بن». پراکندگی سال‌های کتابت گروه هم ≤ ۴۰ است.
+  - رکوردی که در دو گروه آمده، هر دو گروه را بیرون می‌برد (`overlap`).
+  - دسته‌ی گروه‌ها `clear` است. `target_id` همان `target()` است: رکورد سال‌دار، سپس پرپیوندتر، سپس قدیمی‌تر.
+- **`merge-duplicate-people`:** اگر گزارش `loose: true` داشته باشد، دسته‌ی `clear` را ادغام می‌کند. `current()` در این حالت تنها می‌سنجد که رکورد (یا رکوردی که به آن ادغام شده) هنوز نامی از اعضای گروه دارد، چون کلید دقیق اعضا یکی نیست. اجرای دوباره چیزی را دوباره ادغام نمی‌کند.
+- **`PersonMerger`:** نقش‌های دیگر (`manuscript_people` و `work_people` بجز کاتب و مؤلف) را هم جابه‌جا می‌کند. در تمرین هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. هیچ رکورد ادغام‌شونده‌ای در پروداکشن در `catalogers` نیست (کلید خارجی آن `SET NULL` است).
+- **تمرین (`fahares_prod`، `SCOUT_DRIVER=null`):** گزارش `clear` ۵۳۳ (۵۲۶ هم‌نام بی لقب، ۷ نام دیگر)، `unclear` ۱٬۱۳۷، `overlap` ۶. ادغام: «Merged 572 records into 533 people» در ۲۱ ثانیه، و شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵.
+- **آزمون:** `DuplicatePeopleTest::test_loose_groups_merge_names_that_differ_only_by_titles_or_another_records_other_name`
+- **اجرا پس از استقرار (هر دو در یک فرمان `prod-run`، چون `storage/app` با استقرار پاک می‌شود):**
+  ```
+  php -d memory_limit=3G artisan fahares:find-duplicate-people --loose --out=/tmp/loose_people.json
+  php artisan fahares:merge-duplicate-people --report=/tmp/loose_people.json
+  ```
+  پس از آن `/tmp/loose_people.json` پاک شود. پیش از اجرا پشتیبان کامل پایگاه روی میزبان گرفته شود.
+
+### گام ۱۴.۱۲۲: تصویر برگه‌های فهرست مجلس، `catalogs:set-facsimiles` و `extract_edition_pages.py --map`
+- **منشأ فایل‌ها:** کانال تلگرام «خزانه‌ها» (پیام‌های 251، 1384–1389، 3368–3369، 7640–7641، 7724) و بایگانی پیام 1400 همان کانال (۲۲ جلد). نسخه‌ها در `../fahares-sources/majlis/` با نام `vNN.pdf` یا `vNN-B.pdf` (B = بخش) و `MD5SUMS`. نگاشت برگ به صفحه‌ی هر فایل `vNN.map.json` است (`{"صفحه‌ی چاپی": برگ PDF}`)، و خواندن‌های برگ‌به‌برگ و نمونه‌های سنجش در `majlis/work/`.
+- **نگاشت برگ به صفحه:**
+  - اسکن‌ها (ج ۱، ۲، ۴، ۱۰، ۱۱، ۱۲، ۳۱، ۳۹، ۴۷/۲): نوار بالا و پایین هر برگ کنار هم بریده و شماره‌ی چاپی چشمی خوانده شد. نمونه‌ها: ج ۲ برگ‌های ۸۴ تا ۸۶ وارونه صحافی شده‌اند (ص ۸۲، ۸۱، ۸۰)؛ ج ۱ برگ ص ۲۴۲ در پایان کتاب است و ص ۱۷۲–۱۷۳ نیست؛ ج ۴ برگ‌های تکراری ص ۸۷، ۱۸۵ و ۱۸۷ دارد؛ در ج ۱۱ و ۱۲ فاصله در نمایه و تصویر نسخه‌ها عوض می‌شود؛ ج ۱۰ ص ۲۴۹ با غلط چاپی «۱۴۹».
+  - PDFهای دیجیتال (ج ۲۰، ۲۴/۲، ۲۸، ۲۹، ۳۰، ۳۲، ۳۴، ۴۱، ۴۴): شماره از دو سطر نخست و پایانی لایه‌ی متن، با فاصله‌ای که در پنجره‌ی ۲۵ برگی پرتکرار است. لایه‌ی متن با قلم‌های قدیمی فارسی کدگذاری شده و جز رقم‌ها خواندنی نیست.
+  - شکاف میان دو صفحه‌ی خوانده‌شده فقط وقتی پر می‌شود که فاصله‌ی دو سو یکی باشد. صفحه‌ی بی‌شماره‌ی پیش‌گفتار (حروف ابجد) وارد نمی‌شود.
+- **پوشه‌ها:** `catalogs/majlis/vNN` برای جلد کامل یا جلدی که بخش‌هایش صفحه‌شماری پیوسته دارند: ج ۲۹ (بخش ۱ ص ۶–۵۸۵ از بایگانی، بخش ۲ ص ۵۸۷–۱۰۴۲) و ج ۱۰ (بخش ۱ ص ۲–۵۵۵، بخش ۳ ص ۱۰۸۱–۱۶۷۵، بخش ۴ ص ۱۶۷۷–۲۲۳۰؛ بخش ۲ نیست). بخشی که صفحه‌شماری جدا دارد پوشه‌ی `majlis-pB` می‌گیرد (`majlis-p2/v24`، `majlis-p2/v47`)، چون نمایشگر پوشه را با کد و شماره‌ی جلد می‌یابد.
+- **`catalogs:set-facsimiles`:** هر ردیف `catalog_facsimiles.json` جلد را با `library_slug`، `volume_number` و برای جلد چندبخشی با `title` دقیق می‌یابد (نه شناسه‌ی محلی) و `facsimile_code`، `page_first`، `page_last` و `metadata.facsimile` (فایل‌ها، نگاشت‌ها، یادداشت) را می‌نویسد. ردیف با `create` جلد نبوده را می‌سازد؛ قلاب ذخیره‌ی `CatalogVolume` آن را به منبع مجلس (`source_volumes`، منبع 100030 محلی) می‌برد. اجرای دوباره جلد ساخته‌شده را با پوشه‌اش می‌یابد. دو ردیف با یک پوشه، یا جلدی که بی `title` چند ردیف دارد، پیش از هر تغییری خطا می‌دهد. فرق با `catalogs:sync-editions`: آنجا اسکن چاپ دیگری است و ردیف چاپ جدا ساخته می‌شود؛ اینجا اسکن همان چاپی است که فنخا ارجاع داده.
+- **سنجش ارجاع‌ها:**
+  - ۱۲۲ ارجاع تصادفی (۶ تا ۱۰ از هر جلد) روی تصویر دیده شد: شماره‌ی صفحه‌ی تصویر در همه برابر نام پرونده بود.
+  - برای جلدهای دیجیتال شماره‌ی نسخه‌ی هر ارجاع در متن صفحه‌ی ارجاع و صفحه‌های پیشین جست‌وجو شد. در مجموعه‌های بلند (ج ۲۹) شماره فقط سر مجموعه می‌آید، پس فاصله‌ی منفی چندصفحه‌ای درست است.
+  - کنار ماندند: **ج ۲۴/۳** (۳۲۷ ارجاع یک صفحه پس از جای فنخا، ۱۰۶ در همان صفحه: چاپ دیگر)، **ج ۳۳** (ارجاع‌های «۲/۳۳» فنخا در هر دو بخش‌اند و صفحه‌شماری بخش‌ها جداست: ۴۹۴ در بخش ۱، ۳۷۶ در بخش ۲)، **ج ۴۰/۲** (فایل صفحه‌بندی دیگری دارد: ص ۳۴۶ فنخا ≈ ص ۴۲۸ فایل) و **ج ۳۶ تا ۳۸** بایگانی (نسخه‌ی تایپی با صفحه‌بندی دیگر). تصویر ج ۲۴/۳، ۳۳ و ۴۰/۲ ساخته شده ولی منتشر نمی‌شود.
+  - ج ۳۲: ارجاع‌های فنخا گاه یکی دو صفحه با جای نسخه فاصله دارند (۵۷۰ همان صفحه، ۳۸۹ صفحه‌ی پیش، ۱۹۵ صفحه‌ی بعد). برگه نزدیک نسخه است و جلد ماند.
+- **شمار:** ۱۸ جلد، ۷٬۹۰۱ برگه، ۵۵۵ مگابایت؛ ۱۶٬۰۷۴ ارجاع (`source_entries` با `page_start`) در `fahares_prod` برگه دارند. ارجاع بی‌تصویر: ج ۱۰ بخش ۲ (۷۷۷) و چند شماره‌ی پرت فنخا.
+- **تمرین (`fahares_prod`):** «2 created, 16 updated, 0 unchanged»، اجرای دوم «0 created, 0 updated, 18 unchanged». نسخه‌ی ۱۲۴۹ (۴۰۰۱/۱۰، ج ۱۱ ص ۵) در سایت محلی برگه‌ی درست را باز کرد و کنسول خطا نداشت.
+- **آزمون:** `SetCatalogFacsimilesTest` (جلد ارجاع‌شده و نمایشگر ارجاع، بخش‌ها با عنوان و ساخت بخش نبوده در همان منبع، توقف پیش از تغییر در داده‌ی مبهم).
+- **انتقال تصویرها (۱۹ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):** ۱۸ پوشه‌ی `majlis/v01 v02 v04 v10 v11 v12 v20 v28 v29 v30 v31 v32 v34 v39 v41 v44` و `majlis-p2/v24 v47`، هر کدام با `tar -cf - vNN | ssh fahares-app "tar -C /app/storage/app/public/catalogs/<code> --no-same-owner -xf -"`، در حدود ۷ دقیقه. فهرست نام و اندازه‌ی ۷٬۹۰۱ پرونده دو سو یکسان بود. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775`، و شش برگه‌ی نمونه از `https://fahares.net/storage/catalogs/…` پاسخ ۲۰۰ دادند. `majlis-p1`، `majlis-p3` و `majlis-p2/v33`، `v40` فرستاده نشدند.
+- **پس از استقرار:**
+  `php artisan catalogs:set-facsimiles` (با `prod-run`؛ فقط ستون‌های ۱۸ جلد را می‌نویسد و دو جلد می‌سازد).
+- **اجرای پروداکشن (پس از انتشار ۷۹، `578e15ea`):**
+  - **پشتیبان:** `mariadb-dump --single-transaction --quick` از کانتینر `ywghcqimp5628ge4tygusi8q`، بی داده‌ی `cache`، `sessions` و `jobs`، در `~/backups/before_step14_121_people_20261109_1951.sql.gz` روی میزبان. حجم ۳۹۳ مگابایت، با خط پایانی «Dump completed» و md5 برابر `d1a59467d6c60b0ae95e4c0c60c935a5`. پشتیبان روی میزبان می‌ماند.
+  - **اجرای آزمایشی (`--dry-run`):** «[dry run] Merged 572 records into 533 people».
+  - **اجرای واقعی (یک `prod-run`):** گزارش `clear` ۵۳۳، `unclear` ۱٬۱۳۷ و `overlap` ۶، و «Merged 572 records into 533 people; 0 groups skipped».
+  - **وارسی:** شمار اشخاص ۷۰٬۴۴۷ → ۶۹٬۸۷۵. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. ۵۷۲ ردیف `merge` در `audit_logs` ثبت شد. ۱۲۵ سفارش‌دهنده‌ی پیوندخورده سر جایشان ماندند. `/people/63659` با ۳۰۱ به `/people/801` می‌رود. `/tmp` پاک است.
+
+### گام ۱۴.۱۲۳: داوری مدل بر گروه‌های هم‌نام
+- **نامزدها (اسکریپت یک‌باره روی `fahares_prod` پس از ادغام‌های ۱۴.۱۲۱):**
+  - **دنباله‌ی واژه‌ها:** نام بی پرانتز، با برگرداندن «X، Y»، بی نشانه‌ها و `TITLES`. «ابن» به «بن» تبدیل می‌شود، «ال» آغاز واژه حذف می‌شود و «عبد X» به «عبدX» می‌پیوندد.
+  - **جفت:** دنباله‌ی رکورد کوتاه‌تر زیردنباله‌ی مرتب دنباله‌ی تنها یک رکورد بلندتر است و واژه‌ی نخست هر دو یکی است. رکورد کوتاه‌تر دست‌کم دو واژه بجز «بن» و یک واژه‌ی شناسا دارد، و کمیاب‌ترین واژه‌اش در بیش از ۳۰۰ رکورد نیست. اگر `tier()` بگوید `conflict`، جفت کنار می‌رود.
+  - **گروه‌های دیگر:** گروه‌های `review` کلید دقیق که در `duplicate_people_decisions.json` نیستند.
+- **داوری:**
+  - ۱۲ دسته‌ی ۳۰۰تایی به Sonnet داده شد. خروجی هر دسته یک فایل TSV است: `G<n>`، تصمیم، `target`، شناسه‌های ادغام و دلیل.
+  - هر ۳٬۵۹۶ گروه یک خط گرفتند. همه‌ی شناسه‌ها از اعضای گروه خودشان بودند.
+  - **پس‌پالایش:** پراکندگی سال‌های کتابت ادغام ≤ ۶۰. پیوند زنجیره‌ها با union-find. اگر زنجیره بیش از ۴ رکورد داشته باشد یا جفت `skip` در آن باشد، به `unsure` می‌رود (۳۳ گروه). `target` زنجیره هدف یکتای گروه‌هایش است، وگرنه رکورد سال‌دار، سپس پرپیوندتر، سپس قدیمی‌تر.
+- **خروجی:** `database/data/duplicate_people_judged_step14_123.json` با `loose: true`. ۲٬۳۹۵ گروه دسته‌ی `clear` دارند (۲٬۲۷۲ دوتایی، ۱۱۴ سه‌تایی، ۹ چهارتایی). `members` نام هر رکورد را هنگام داوری نگه می‌دارد و `merge-duplicate-people` در حالت `loose` تنها رکوردی را ادغام می‌کند که هنوز همان نام را دارد.
+- **صفحه‌ی بازبینی:**
+  - Artifact `MnptDesxW9vMHEmDgiBEsD` با قابلیت `db`. داده‌ی ۷۲۶ گروه در خود صفحه است.
+  - تصمیم‌ها در مجموعه‌ی `decisions` ذخیره می‌شوند، هر گروه یک سند `g<n>`: `{g, d: merge|skip|unsure, target, ids, names}`.
+  - پس از بازبینی، تصمیم‌های `merge` به همان ساختار گزارش `loose` تبدیل و ادغام می‌شوند.
+- **تمرین:** «Merged 2527 records into 2395 people; 0 groups skipped» در ۳ دقیقه و ۵۵ ثانیه (`SCOUT_DRIVER=null`). شمار اشخاص ۶۹٬۸۷۵ → ۶۷٬۳۴۸ و هیچ پیوند یتیمی نماند.
+- **اجرا پس از استقرار:** پشتیبان کامل روی میزبان، سپس `php -d memory_limit=1G artisan fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_step14_123.json --limit=600`، چند بار تا «Merged 0». هر بار در فرایندی تازه اجرا شود، چون اجرای بلند گام ۱۰.۳ با کد ۱۳۷ کشته شد.
+- **اجرای پروداکشن (پس از انتشار ۸۰، `c4a4c31a`):**
+  - **پشتیبان:** `~/backups/before_step14_123_people_20261109_2024.sql.gz` روی میزبان، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `777cc12447a7880bfa5d92be17d5dfaa`.
+  - **اجرای آزمایشی:** «[dry run] Merged 2527 records into 2395 people; 0 groups skipped».
+  - **اجرای واقعی:** شش اجرای `--limit=600` در یک `prod-run`: ۶۰۰ + ۶۰۰ + ۶۰۰ + ۶۰۰ + ۱۲۷، و اجرای ششم «Merged 0».
+  - **وارسی:** شمار اشخاص ۶۹٬۸۷۵ → ۶۷٬۳۴۸. هیچ ردیف `manuscript_people`، `work_people`، `scribe_id` یا `author_id` یتیم نماند. در دو ساعت، ۳٬۰۹۹ ردیف `merge` در `audit_logs` ثبت شد (۵۷۲ + ۲٬۵۲۷). `/people/4149` با ۳۰۱ به `/people/74734` می‌رود. `/tmp` پاک است.
+- **داوری دوم (Opus، ۴ دسته‌ی ۱۸۲تایی):**
+  - ورودی همان پرونده‌ها بود، همراه با داوری نخست در سطر `[note]`.
+  - خروجی: ۲۲۱ `merge` (یکی نامعتبر)، ۳۲ `skip`، ۴۷۳ `unsure`.
+  - **پس‌پالایش:** پراکندگی سال‌های کتابت ≤ ۶۰ و دست‌کم یک واژه‌ی شناسا در نام همه‌ی اعضا (فهرست `COMMON` یابنده)، و زنجیره‌ی ≤ ۴ رکورد. نتیجه: ۱۷۹ ادغام، و ۴۱ مورد به بازبینی.
+  - **خروجی:** `database/data/duplicate_people_judged_opus_step14_123.json`، با همان ساختار `loose`.
+  - **تمرین روی `fahares_prod`:** «Merged 177 records into 177 people; 2 groups skipped». هدف آن دو گروه در ادغام پیشین به رکورد دیگری رفته بود. شمار اشخاص ۶۷٬۳۴۸ → ۶۷٬۱۷۱ و هیچ پیوند یتیمی نماند.
+  - **صفحه‌ی بازبینی (نسخه‌ی ۲):** ۵۱۵ گروه، با یادداشت هر دو داوری.
+  - ۴۰ رکورد از گروه‌های نامطمئن در ادغام‌های پیشین هم بودند. سنجش نام در `merge-duplicate-people` این‌ها را رد می‌کند، چون رکوردی که ادغام شده نام خودش را ندارد.
+
+### گام ۱۴.۱۲۴: `fahares:queue-judged-people` و گروه‌های `judged:` در `PersonReviewQueue`
+- **ورودی:** `database/data/duplicate_people_unsure_step14_124.json`، با ۵۱۵ گروه `{ids, names, note}`. `note` داوری نخست (Sonnet) و دوم (Opus) را دارد، تا ۴۸۰ نویسه.
+- **فرمان:**
+  - هر شناسه به رکورد کنونی‌اش می‌رود: خودش، یا مقصد `EntityRedirect`. شناسه‌های تکراری حذف و مرتب می‌شوند. اگر کمتر از دو رکورد بماند، گروه `settled` است.
+  - کلید گروه `PersonReviewQueue::JUDGED . ids` است (`judged:12,34`). اگر ردیف `duplicate`ی با همین کلید یا همین `person_ids` باشد، گروه `already` است. چنین ردیفی، اگر باز باشد و پیشنهادی نداشته باشد، یادداشت‌ها را می‌گیرد.
+  - ردیف تازه: `tier = review`، `status = open`، `suggestion = {decision: unsure, comment: note, source: "model review, step 14.123"}`.
+  - `--dry-run` چیزی نمی‌نویسد.
+- **`PersonReviewQueue::refresh`:**
+  - بستن «gone» برای ردیف‌هایی که یابنده نیافته، کلیدهای `judged:%` را کنار می‌گذارد.
+  - برای هر ردیف باز `judged:`، `person_ids` به رکوردهایی که هنوز هستند کاسته می‌شود. اگر کمتر از دو رکورد بماند، ردیف `gone` می‌شود.
+- **تصحیح جمعی:** `NamesakeQueue` همه‌ی ردیف‌های باز `duplicate` را نشان می‌دهد، پس این گروه‌ها بی تغییر دیگری در «اشخاص هم‌نام» می‌آیند. صفحه‌ی بازبینی Artifact گام ۱۴.۱۲۳ دیگر لازم نیست.
+- **اجرای ادغام‌های Opus (پس از انتشار ۸۱، `938e00be`):**
+  - **پشتیبان:** `~/backups/before_step14_123_opus_20261109_2053.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `7a60b1f8ad616953652e7fa5e9192fe5`.
+  - **اجرای آزمایشی و واقعی:** «Merged 177 records into 177 people; 2 groups skipped».
+  - **وارسی:** شمار اشخاص ۶۷٬۳۴۸ → ۶۷٬۱۷۱. هیچ پیوند یتیمی نماند و `/tmp` پاک است.
+- **تمرین (`fahares_prod`):**
+  - اجرای نخست: «Queued 464 groups; 51 already in the queue; 0 settled since».
+  - `refresh-person-reviews`: «Created 2, updated 3, reopened 0, closed 21 as gone». آن ۲۱ گروه یابنده بودند که ادغام‌های ۱۴.۱۲۳ تمامشان کرده بود.
+  - شمار ردیف‌های باز `duplicate` ۵۴۴ شد. `/contribute/namesake/1520` کارت را با «۵۴۴ مورد مانده» نشان داد.
+- **آزمون:** `PersonReviewTest::test_unsure_groups_of_a_model_review_are_queued_for_the_researchers_and_stay_through_the_refresh`
+- **اجرا پس از استقرار:** `php artisan fahares:queue-judged-people --dry-run`، سپس بی `--dry-run`. پیش از اجرا از جدول `person_reviews` پشتیبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۸۲، `5c10ef78`):**
+  - **پشتیبان:** ۱٬۵۲۰ ردیف `person_reviews` به صورت JSON در `../fahares-sources/backups/step13/person_reviews_step14_124.json`. فایل از `/tmp` کانتینر پاک شد.
+  - **اجرای آزمایشی:** «[dry run] Queued 465 groups; 50 already in the queue». اجرای آزمایشی چیزی نمی‌سازد، پس دو گروهی که در فایل به یک مجموعه‌ی رکورد می‌رسند، هر دو «تازه» شمرده می‌شوند.
+  - **اجرای واقعی:** «Queued 464 groups; 51 already in the queue; 0 settled since». ردیف‌های تازه از شناسه‌ی ۱۵۲۱ آغاز می‌شوند.
+  - **وارسی:** ۵۶۵ ردیف باز `duplicate` هست. `https://fahares.net/contribute/namesake/1521` کارت را با «۵۶۵ مورد مانده» نشان می‌دهد. `/tmp` پاک است.
+
+### گام ۱۴.۱۲۵: زنجیره‌ی جفت‌ها در `BibliographyLinks::readProse`
+- **علت:** در regex متن صفحه‌ها، `$number` فقط `$volumePage` («ج N ص N») را با `[و،,]` زنجیر می‌کرد. شکل `N/N` یا `N:N` تنها بود، پس تطبیق «الذریعة 105/19 و 183/17 و 967/9» در `105/19` تمام می‌شد. دو جفت بعدی در شاخه‌ی `other` (کتابی که سایت ندارد) می‌افتادند.
+- **تغییر:** پس از نخستین عدد، هر شمار از `\s*[و،,]\s*(?:$volumePage|$pair)` پذیرفته می‌شود (`$pair` = `N\s*[\/:]\s*N`). عدد تنها در زنجیره نیست، تا «و 3 نسخه» صفحه خوانده نشود. بُرش تطبیق‌شده به `segments()` می‌رود که فاصله‌ی «و» یا «،» را با `sourceAfter` همان منبع نگه می‌دارد. اگر جفتی پیوند نگیرد، متن ساده می‌ماند.
+- **آزمون:** `BibliographyLinksTest::test_a_volume_and_page_after_a_name_in_a_page_text`، با همان تکه‌ی صفحه‌ی ۹۴، «(ذریعه 90/25، 107/8)» و «الذریعة 69/13 و مشترک 46/7».
+### گام ۱۴.۱۲۶: نامزدهای «ترتیب دیگر» و داوری Opus
+- **نامزدها (اسکریپت یک‌باره روی `fahares_prod` پس از ادغام‌های ۱۴.۱۲۳):**
+  - **پاک‌سازی نام:** نرمال‌سازی و حذف پرانتز. «X، Y» برگردانده می‌شود. `TITLES` و «سید» و «میر» حذف می‌شوند و «ابن» به «بن» تبدیل می‌شود.
+  - **پیوستن واژه‌ها:** «عبد X» به «عبدX» می‌پیوندد، و هر واژه‌ی «الX» به واژه‌ی پیش از خود («صدر الاسلام» → «صدرالاسلام»).
+  - **دو بخش نام:** `own` واژه‌های پیش از نخستین «بن» است و `rest` واژه‌های پس از آن.
+  - **جفت:** کیسه‌ی واژه‌های رکورد کوتاه‌تر زیرمجموعه‌ی کیسه‌ی رکورد بلندتر است. `own` کوتاه‌تر درون `own ∪ rest` بلندتر است. اگر `own` کوتاه‌تر با `rest` بلندتر هم‌پوشانی داشته باشد ولی با `own` آن نه، جفت کنار می‌رود (پدر). اگر هر دو `rest` دارند، `own` کوتاه‌تر باید درون `own` بلندتر باشد.
+  - **کنار رفته‌ها:** جفت‌هایی که دنباله‌ی مرتبشان زیردنباله است، چون گام ۱۴.۱۲۳ داوری‌شان کرده بود؛ جفت‌هایی که `tier()` برایشان `conflict` می‌دهد؛ و رکورد کوتاه‌تری که کمتر از دو واژه‌ی شناسا دارد یا کمیاب‌ترین واژه‌اش در بیش از ۳۰۰ رکورد است.
+- **داوری:** ۹ دسته‌ی ۱۸۴تایی به Opus، با یادداشتی درباره‌ی دام پدر و پسر. هر ۱٬۶۴۹ گروه یک خط گرفتند: ۸۰۱ `merge`، ۵۷۹ `skip`، ۲۶۹ `unsure`.
+- **پس‌پالایش:**
+  - پراکندگی سال‌های کتابت ≤ ۶۰ و دست‌کم یک واژه‌ی شناسا در همه‌ی نام‌ها.
+  - union-find. زنجیره‌ای که جفت `skip`ی را در خود دارد کنار می‌رود.
+  - زنجیره‌ی ۵ تا ۸ رکوردی تنها اگر شمار یال‌های `merge` دست‌کم برابر شمار رکوردها باشد. زنجیره‌ی بیش از ۸ رکورد کنار می‌رود.
+  - سه زنجیره‌ی بزرگ با `target` 68880، 18566 و 8096 را Claude به بازبینی فرستاد.
+  - نتیجه: ۴۴۷ ادغام (۵۹۹ رکورد) و ۴۰۹ گروه برای صف.
+- **تمرین (`fahares_prod`، `SCOUT_DRIVER=null`):**
+  - ادغام: «Merged 599 records into 447 people; 0 groups skipped». شمار اشخاص ۶۷٬۱۷۱ → ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند.
+  - صف: «Queued 386 groups; 23 already in the queue; 0 settled since».
+- **اجرا پس از استقرار:** پشتیبان کامل روی میزبان، سپس به ترتیب:
+  1. `fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_order_step14_126.json --dry-run`
+  2. همان فرمان بی `--dry-run`
+  3. `fahares:queue-judged-people --file=database/data/duplicate_people_unsure_order_step14_126.json`
+
+### گام ۱۴.۱۲۷: نشانه‌های جهت در `TextNormalizer::normalize`
+- **شاهد (`search_logs` پروداکشن، ۲۷ اکتبر تا ۱۰ نوامبر ۲۰۲۶):** ۳٬۱۳۲ جست‌وجو (`kind = search`)، ۵۸۴ بی‌نتیجه، ۷۷۹ با نتیجه‌ی بازشده (۴۱۰ رتبه‌ی ۱)، ۱۶۴ خروجی. ۱۳ جست‌وجو دارای نویسه‌ای از U+200E/F، U+202A–202E، U+2066–2069 یا U+FEFF بود و هر ۱۳ تا `results_count = 0` داشت («‫دیوان» ۴ بار، «‫‫‫قره العیون» ۳ بار).
+- **تغییر:** گام ۰ تازه در `app/Helpers/TextNormalizer.php` نویسه‌های `[\x{061C}\x{200B}\x{200E}\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}]` را حذف می‌کند. ZWNJ و ZWJ مانند پیش در گام ۱ هستند. آزمون: `tests/Unit/TextNormalizerTest.php`.
+- **نمایه:** نیازی به ساخت دوباره نیست، چون این نویسه‌ها در داده‌ی نمایه‌شده نبودند. جست‌وجو از همین تغییر سود می‌برد.
+- **گیومه:** ۱۰۸ جست‌وجوی گیومه‌دار، ۴۵ بی‌نتیجه. با tinker روی Meilisearch پروداکشن (بی ثبت در `search_logs`) هر کدام با و بی گیومه سنجیده شد. نمونه‌هایی که در داده هستند (`works.raw_text` یا `manuscripts.raw_text`) در فیلدهای `searchableAttributes` نیستند. برای نمونه، «فاطمیات» در `raw_text` اثر ۲۴۴۱۱ آمده ولی در `description` نیست. بیشتر نتیجه‌های بی‌گیومه تطبیق با غلط تایپی‌اند («الصاغه» در «صاغها»ی `explicit_text`). موتور درست کار می‌کند.
+
+### گام ۱۴.۱۲۸: `App\Support\AuthorInQuery`
+- **شاهد:** در `works_index` پروداکشن برای «قانون ابن سینا» در دامنه‌ی `titles_names`، `_rankingScoreDetails` اثر ۵۰۷۴۵ (القانون فی الطب، ۲۵۲ نسخه) proximity ۰٫۵۷ داشت و چهار اثر یک‌نسخه‌ای proximity ۱. Proximity پیش از `attributeRank` و `manuscripts_count:desc` می‌آید. مقدارهای آرایه‌ی `titles_names` در Meilisearch با فاصله‌ی بیشینه از هم شمرده می‌شوند.
+- **آزمون رد شده:** رونوشت `works_index` محلی با `proximityPrecision: byAttribute`. چهار مورد عنوان+نویسنده درست شدند، ولی «اجوبة مسائل سئل عنها ابن سینا» به رتبه‌ی ۲ افتاد. جست‌وجوی عبارتی هم شل شد: `"شرح الاشارات"` ۴۳→۱۴۵، `"فتح الله"` ۲۱۳→۶۵۵، `"رساله فی"` ۱٬۲۱۹→۵٬۳۶۰. نمایه‌ی آزمایشی پاک شد.
+- **راه انتخاب‌شده:**
+  - `AuthorInQuery::split()` تا ۳ واژه‌ی پایان و سپس آغاز عبارت را (بلندترین نخست) در یک `multiSearch` روی `people_index` می‌جوید، با فیلتر `is_author = true AND works_count >= 5`.
+  - نامزد تنها وقتی پذیرفته می‌شود که شکل یکسان‌شده‌ی آن برابر نام کامل، بخش پیش از «،» یا یکی از `aliases`/`wrong_names` باشد.
+  - عبارت دارای `"`، `|` یا واژه‌ی `-…` و عبارت تک‌واژه بررسی نمی‌شوند. خطای موتور هم یعنی null.
+- **جست‌وجو:**
+  - `AuthorInQuery::queries()` دو `SearchQuery` می‌سازد: کل عبارت با وزن ۱، و واژه‌های عنوان با فیلتر `author_id IN [...]` و وزن `WEIGHT = 1.2`. فیلتر برگه در هر دو هست.
+  - `SearchController::anyOf()` اکنون یک سازنده‌ی پرسش‌ها (`callable $queries`) می‌گیرد و برای «یا» و برای این حالت به کار می‌رود.
+  - این راه تنها برای برگه‌ی آثار، دامنه‌ی `titles_names` یا `all`، بی ترتیب انتخابی و بی «یا» به کار می‌رود. `fahares:search-benchmark` همان پرسش‌ها را می‌فرستد.
+- **بنچمارک (`config/search_benchmark.php`، محلی):** ۹ مورد تازه. پیش از تغییر «قانون ابن سینا» (`titles_names`: رتبه‌ی ۵، `all`: بیرون از ۲۰)، «شفا ابن سینا» (۶) و «بحار الانوار مجلسی» (۲) شکست می‌خوردند. پس از تغییر ۵۶ از ۵۶ موفق است. «اخلاق ناصری»، «نهج البلاغه»، «شرح نهج البلاغه» و «کافی در ترسیم» نویسنده‌ای نمی‌یابند (null).
+- **آزمون:** `tests/Feature/AuthorInQueryTest.php` (Meilisearch ساختگی). زمان صفحه‌ی محلی برای «قانون ابن سینا» حدود ۱۰۰ تا ۲۰۰ میلی‌ثانیه است.
+
+- **اجرای پروداکشن (پس از انتشار ۸۴، `0c0a668d`):**
+  - **پشتیبان:** `~/backups/before_step14_126_people_20261109_2213.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `3de2eefb1f641a1bba69a3b8bd8553cb`.
+  - **اجرای آزمایشی:** «[dry run] Merged 599 records into 447 people; 0 groups skipped» و «[dry run] Queued 405 groups; 4 already in the queue». فرمان صف پیش از ادغام سنجیده شد.
+  - **اجرای واقعی (یک `prod-run`):** «Merged 599 records into 447 people; 0 groups skipped»، سپس «Queued 386 groups; 23 already in the queue; 0 settled since».
+  - **وارسی:** شمار اشخاص ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند. ۹۵۱ ردیف باز `duplicate` هست. `/people/2063` و `/people/11631` با ۳۰۱ به `/people/6386` می‌روند. `/tmp` پاک است.
+
+### گام ۱۴.۱۲۹: `is_facsimile` برای ۲۶ فیلم و عکس
+- **دامنه (fahares_prod):** `raw_text` با «نسخه اصل» یا «اصل نسخه» و `is_facsimile = 0`: ۱٬۴۵۲ نسخه. `is_facsimile = 1`: ۱۷٬۷۷۹ نسخه.
+- **گزینش:**
+  - نخستین `(?:نسخه\s+اصل|اصل\s+نسخه)\s*:\s*([^؛\[\n]+)` که پس از «متن»، «آغاز» یا «انجام» نیامده باشد و با «همان نسخه» آغاز نشود. همان الگوی `Manuscript::getOriginalNoteAttribute`.
+  - **یکی از این‌ها:** کروشه‌ای با «فیلم» یا «عکس»؛ `shelfmark` که به «-ف»، «ف»، «عکس» یا «ع» ختم شود؛ یا «جلد عکس» در متن. تنها 269157 («چهار جلد عکس») از راه متن آمد.
+  - **کنار ماندند:** 78276، 170774، 223927 و 237952. برچسب این‌ها در آغاز است یا در جمله.
+- **فایل:** `database/data/facsimile_flag_step14_129.json` (`records`، ۲۶ ردیف `changes.is_facsimile` 0 → 1، با `original` و `work` برای خواندن).
+- **پیوند:** هیچ‌یک `manuscript_relations` ندارد. زیر همان اثر هم نسخه‌ای با نام و شماره‌ی نسخه‌ی مادر نیست؛ برای 303292 («ملی تبریز ش 3626») و 95056 («مجلس») هم سنجیده شد.
+- **پارسر v2:** `set_original()` تنها برای بخشی فراخوانده می‌شود که با «نسخه اصل:» آغاز شود. `original_copy` برای 5478/1-ف، 3591-ف، 579-ف، 3086/2-ف و «25 حکمت» تهی است.
+- **تمرین روی fahares_prod:** `fahares:rebuild-copies --file=database/data/facsimile_flag_step14_129.json --apply`: «Rebuilding 26 copies». اجرای دوم: «already 26».
+- **نامزدهای راهکار ۳ (نه در این گام):** ۱۵٬۱۰۸ عکسیِ بی رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy`. ۱۱٬۷۲۱ تا یادداشت «نسخه اصل» با نسخه‌ای جز «همان نسخه بالا» دارند. ۳۱ تا تنها یک نسخه زیر همان اثر دارند که نام کتابخانه‌اش در یادداشت است و شماره‌ی پیش از «/» آن در یادداشت آمده است.
+- **اجرا در تولید:** `fahares:rebuild-copies --file=database/data/facsimile_flag_step14_129.json --apply`
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۸۶، 53a6d527):**
+  - md5 فایل در `/app` با شاخه برابر بود (`c5cbfbf6…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_129_before.json` (`id`، `shelfmark`، `is_facsimile`، `updated_at`). پیش از اجرا: `flagged=0` و `relations=0`.
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «Rebuilding 26 copies».
+  - **وارسی:** اجرای دوم «already 26» داد. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۱۳۰: `copied_from_author_copy`، `collated_with_author_copy` و `corrected_by_author`
+- **Migration:** `2026_11_10_100001_add_author_copy_flags_to_manuscripts`. سه ستون boolean با پیش‌فرض false، پس از `has_author_marginalia`.
+- **کد:**
+  - `Manuscript`: cast و `toSearchableArray`.
+  - `config/scout.php`: هر سه در `filterableAttributes`.
+  - `SearchFilters::FLAGS`؛ `SuggestionRegistry::FLAG_LABELS`؛ `$flags` در `manuscripts/show`؛ برچسب در `search.blade.php`.
+  - `WorkCopyFilters`: پارامتر `author_copy=1`، که یکی از سه را می‌خواهد.
+  - `RebuildCopiesCommand::COLUMNS`: هر سه.
+  - **نکته:** در فایل، `from`/`to` باید 0 و 1 باشند، چون `DB::table` ستون boolean را 0/1 برمی‌گرداند و `same()` سخت‌گیر است.
+- **نامزدها (fahares_prod، `is_autograph = 0`):**
+  - `raw_text` با «مؤلف|مولف|مصنف|ماتن|شارح|المؤلف|المصنف».
+  - سطر اول (سرنسخه)، سطرهای «آغاز» و «انجام» و کروشه‌ها کنار رفتند. باقی به `؛` و سطر بخش شد.
+  - بندی ماند که در یکی از جزءهای «،» یا «. » آن هم واژه‌ی مؤلف باشد و هم یکی از «مقابل|قوبل|قابل|تصحیح|صحح|مصحح|از روی|منقول|نقل|استنساخ|نسخت|كتبت|قرائت|قرأ|بلاغ|بلغ|عرض|سماع|اصل».
+  - شمار: ۲٬۹۵۱.
+- **داوری:**
+  - هفت agent Sonnet، هر یک ۴۱۹ یا ۴۲۲ نسخه، با سه برچسب مستقل و `hedged`، `confidence` و `quote`. در هر هفت خروجی، شناسه‌ها و ترتیبشان با ورودی یکی بود.
+  - در دسته‌ی ۱، ۲۲ `quote` با «…» کوتاه شده بود و عین متن نبود. برچسب‌هایشان خوانده شد و درست بود.
+  - **شمار خروجی:** yes/high ۱٬۲۶۵؛ yes/high/hedged ۲۷؛ yes/low ۲۰۳؛ yes/low/hedged ۶۸؛ no ۱٬۳۸۸.
+- **بازداوری Claude (۲۰۳ yes/low):** ۵۱ رد و ۹ تغییر برچسب.
+  - **الگوهای رد:** مقابله با «نسخه‌ای که به خط مؤلف تصحیح شده بود» یا «نسخه‌ای که بر مؤلف خوانده شده»؛ کتابت از روی «نسخه‌ای که خط مؤلف بر آن بود»؛ صورت اجازه‌ی مؤلف که تنها رونویسی شده؛ و مؤلفی که مؤلف اثر سایت نیست (74582، 74590).
+  - تصمیم‌ها با شماره‌ی ردیف در `low_ids`، در scratchpad این جلسه.
+- **فایل:** `database/data/author_copy_flags_step14_130.json` (`records`، ۱٬۴۱۷ ردیف، با `judged_by` «model» یا «claude» و `quote`).
+  - `copied_from_author_copy` ۶۲۳، `collated_with_author_copy` ۴۸۴، `corrected_by_author` ۴۴۲.
+- **آزمون:** `AuthorCopyFlagsTest`، با نوشتن از راه `rebuild-copies`، دو صفحه‌ی نسخه، فیلتر صفحه‌ی اثر، سند جستجو و `SearchFilters::FLAGS`. همه‌ی ۷۹۶ آزمون موفق‌اند.
+- **تمرین روی fahares_prod:**
+  - `migrate`؛ سپس `fahares:rebuild-copies --file=database/data/author_copy_flags_step14_130.json --apply`: «Rebuilding 1417 copies».
+  - `DerivedData::syncCopies` در همان اجرا `pointers_linked=11` داد و ۴ نسخه جلد فهرست گرفتند (`relinkVolumes`، گام ۱۴.۱۱۰). این‌ها از بازسازی داده‌های مشتق همین نسخه‌ها می‌آیند.
+  - اجرای دوم: «already 1417».
+- **پس از استقرار:**
+  1. `php artisan scout:sync-index-settings`، تا سه فیلتر تازه در Meilisearch باشند.
+  2. با تأیید کاربر و پس از پشتیبان: `fahares:rebuild-copies --file=database/data/author_copy_flags_step14_130.json --apply`. این فرمان ۱٬۴۱۷ نسخه را خودش در نمایه به‌روز می‌کند. نسخه‌های دیگر این سه فیلد را در نمایه ندارند و با `= true` هم نمی‌آیند، و این درست است.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۸۹، a61c0bd3):**
+  - md5 فایل در `/app` با شاخه برابر بود (`18af884c…`). migration با batch 66 اجرا شده بود.
+  - **`scout:sync-index-settings`:** با `prod-run`. هر چهار نمایه «synced successfully».
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_130_before.json`، با `id`، `shelfmark`، `catalog_volume_id`، سه ستون و `updated_at`. پیش از اجرا: `shelfmark_differs=0`، `flagged=0`، و `no_volume=52`.
+  - **اجرا:** با `prod-run --wait jolly-tharp`. خروجی «Rebuilding 1417 copies»، `pointers_linked=11`، «4 copies relinked».
+  - **وارسی:**
+    - اجرای دوم «already 1417» داد. جمع ستون‌ها 623، 484 و 442 است.
+    - `/search?type=manuscripts&flags[]=corrected_by_author` شمار ۴۴۲ و ۲۰ نتیجه داد، با `q=شرح` و بی آن.
+    - `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۱۳۱: `fahares:fill-copy-merge-gaps` و `RecordMerger::carryMatchesWork` / `carryScripts`
+- **علت:** `Manuscript::getIncipitMatchesWorkAttribute` و `getExplicitMatchesWorkAttribute` نخست `metadata.incipit_matches_work` / `explicit_matches_work` را می‌خوانند، بعد `incipit_text` / `explicit_text` = «برابر»، و بعد `raw_text`. در ادغام، `raw_text` نسخه‌ی حذف‌شده با آن می‌رود و `MergeComparison` آن را منتقل نمی‌کند. ستون `script_names` منتقل می‌شد، ولی ردیف‌های `manuscript_script` نه.
+- **`RecordMerger::mergeManuscript`:**
+  - پس از `MergeComparison::apply`، `carryMatchesWork($source, $target)` پرچم را در `metadata` می‌گذارد، به این شرط که مبدأ «برابر» باشد، مقصد نباشد، مقصد کلید پرچم را نداشته باشد و متن آغاز یا انجام خودش را نداشته باشد.
+  - `carryScripts` ردیف‌های `manuscript_script` مبدأ را به مقصد می‌دهد، به این شرط که `script_names` مقصد برابر مبدأ باشد و مقصد هیچ ردیفی نداشته باشد.
+  - خروجی ادغام `matches_work` و `added_script_ids` را دارد. `undoManuscriptMerge` آن‌ها را برمی‌دارد و شمار خط‌ها را دوباره می‌شمارد.
+- **دستور:** `fahares:fill-copy-merge-gaps {run} [--apply] [--backup=] [--revert=]`.
+  - `run` پشتیبان `fahares:link-copy-references` است. رکورد حذف‌شده از `result.source_snapshot` با `setRawAttributes` ساخته می‌شود و همان دو تابع روی آن اجرا می‌شوند.
+  - ادغامی که دوباره جدا شده (گام ۱۴.۷۶) کنار می‌رود.
+  - قول `script_names` با `origin = copy_merge` حذف می‌شود، به این شرط که `raw_text` مبدأ «خط: همان نسخه بالا» داشته باشد.
+  - پشتیبان: برای هر نسخه `flags`، `scripts` و ردیف کامل قول‌های حذف‌شده. `--revert` پرچم‌ها و پیوندها را برمی‌دارد و قول‌ها را با همان شناسه برمی‌گرداند.
+- **سنجش (سایت اصلی، فقط خواندن):** وضع کنونی ۱٬۰۳۲ نسخه‌ی ماندنی با ۱٬۰۳۴ ادغام پشتیبان `step14.16-link-copy-references-20261105_041431.json` سنجیده شد. یک نسخه‌ی ماندنی (41256) دیگر نیست و ۲ ادغام جدا شده‌اند.
+  - incipit: 27422، 34159، 75533، 78695، 124434، 134869، 155594، 156150، 167223، 175038، 290110.
+  - explicit: همان‌ها، بی 134869، 155594، 167223 و 290110.
+  - خط: 75533 (نستعلیق). قول نادرست: #65 روی 94144.
+- **آزمون:** `CopyMergeGapsTest`: ادغام و بازگردانی، نگه داشتن آغاز و خطِ خود نسخه‌ی ماندنی، و دستور با گزارش، نوشتن، اجرای دوم و بازگردانی.
+- **تمرین روی fahares_prod (کپی ۱۹ آبان):** dry-run همان ۱۲ نسخه را داد. `--apply` و سپس اجرای دوم «0» داد. `--revert` «12 copies put back» داد و وضع پیشین برگشت.
+- **پس از استقرار:** با تأیید کاربر و پس از پشتیبان، با `prod-run`:
+  1. پشتیبان گام ۱۴.۱۶ به `/tmp` کانتینر فرستاده می‌شود.
+  2. `php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json`
+  3. پشتیبان به `../fahares-sources/backups/step13/` می‌آید و فایل‌های `/tmp` پاک می‌شوند.
+- **اجرای پروداکشن (۱۹ آبان ۱۴۰۵، پس از استقرار ۸۶379f0a):** sha256 پشتیبان گام ۱۴.۱۶ در کانتینر `2831c4e7ae3d4e3e…` بود، برابر نسخه‌ی لپ‌تاپ. migration معلقی نبود.
+  - `scripts/dev/prod-run copy-merge-gaps -- 'cd /app && php artisan fahares:fill-copy-merge-gaps /tmp/step14.16-link-copy-references-20261105_041431.json --apply --backup=/tmp/step14_131_backup.json …'`: «Written: 11 incipits and 7 explicits «برابر», 1 copies get their script links, 1 readings removed.» اجرای دوم: «0 … 0 … 0 … 0».
+  - پشتیبان: `step14_131_fill_copy_merge_gaps_backup.json` (۱۲ نسخه، sha256 `ddb86abe6e26943c…`). بازگردانی: همان دستور با `--revert=` این فایل.
+  - پس از اجرا: `manuscript_script` برای 75533 یک ردیف دارد و قول #65 دیگر نیست.
+### گام ۱۴.۱۳۳: `fahares:link-named-mothers`
+- **نامزدها (fahares_prod):**
+  - عکسی‌هایی که هیچ رابطه‌ی `facsimile_of`، `possibly_same` یا `same_copy` ندارند: ۱۵٬۱۰۸.
+  - از این‌ها، ۱۱٬۷۲۱ یادداشت «نسخه اصل» با نسخه‌ای جز «همان نسخه بالا» دارند.
+  - ۵۱ تا نسخه‌ای زیر همان اثر دارند که شماره‌اش در یادداشت است.
+  - ۳۱ تا تنها یک نسخه دارند که هم نام کتابخانه‌اش (یا واژه‌ی نخست آن) در یادداشت باشد و هم عدد پیش از «/» شماره‌اش.
+- **داوری دستی:** 27802 کنار رفت، چون یادداشتش «تکرار رساله دوم همین مجموعه» است و مادرِ نامزدش خود عکسی است. 305702 هم کنار رفت، چون دو نسخه‌ی اصل دارد. 225581 («4-9189، از دانشگاه») با 225542 (دانشگاه 9189) ماند.
+- **فایل:** `database/data/named_mothers_step14_133.json`. هر یک از ۲۹ ردیف `facsimile`، `facsimile_shelfmark`، `mother`، `mother_shelfmark`، `mother_library` و `note` دارد.
+- **فرمان:**
+  - **بیرون‌ماندن:** «shelfmark differs»، «not the same work»، «the photograph is not marked as one, or the original is» و «has another link». جفتی که پیوندش هست «already» است.
+  - **نوشتن:** `manuscript_relations` با `type = facsimile_of`، `source = fankha` و `note` همان یادداشت. یک ردیف `audit_logs` با `corpus_update` و `new_values.manuscript_relation` می‌آید، تا هر پیوند پیدا و برداشتنی باشد.
+- **آزمون:** `LinkNamedMothersCommandTest`، با گزارش، نوشتن، اثر دیگر، اجرای دوم، audit و صفحه‌ی مادر.
+- **تمرین روی fahares_prod:** «Would link 29»؛ سپس `--apply` «Linked 29»؛ اجرای دوم «already 29».
+- **اجرا در تولید:** پس از پشتیبان (شناسه‌ی این ۵۸ نسخه و رابطه‌های کنونی‌شان)، `fahares:link-named-mothers --file=database/data/named_mothers_step14_133.json --apply`.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۹۱، 86379f0a):**
+  - md5 فایل در `/app` با شاخه برابر بود (`0f05d229…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_133_before.json`، با `manuscripts` (۵۸) و `manuscript_relations` (۵ ردیف؛ هیچ‌یک با `manuscript_id` عکسی‌ها).
+  - **اجرا:** با `prod-run --wait jolly-tharp`: «Linked 29».
+  - **وارسی:** اجرای دوم «Would link 0» داد. `/m/99075` و `/m/99077` درست‌اند. `/tmp` کانتینر پاک است.
+

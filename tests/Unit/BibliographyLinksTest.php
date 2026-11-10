@@ -350,6 +350,12 @@ class BibliographyLinksTest extends TestCase
         // as before: «791/9», ibid, and «ج» with no page is no citation
         $this->assertSame([['791/9', 'dharia', 9, 791], ['453/3', 'dharia', 3, 453]], $cites('ذریعه (3) 791/9 و همان‌جا 453/3', 'monzavi'));
         $this->assertSame([], $cites('کشف الظنون ج 1', 'ayan'));
+        // step 14.125: the pairs joined to a linked one by «و» or «،» are the same book's, as in a bibliography line
+        $this->assertSame([['105/19', 'dharia', 19, 105], ['183/17', 'dharia', 17, 183], ['967/9', 'dharia', 9, 967]],
+            array_values(array_filter($cites('[فهرست مشترک پاکستان 39/5 و 14/14؛ الذریعة 105/19 و 183/17 و 967/9؛ فرهنگ سخنوران 513]', 'fankha'), fn ($c) => $c[1] === 'dharia')));
+        $this->assertSame([['90/25', 'dharia', 25, 90], ['107/8', 'dharia', 8, 107]], $cites('(ذریعه 90/25، 107/8)', 'monzavi'));
+        // a name after «و» is no pair of the book before it
+        $this->assertSame([['69/13', 'dharia', 13, 69]], $cites('الذریعة 69/13 و مشترک 46/7', 'monzavi'));
     }
 }
 

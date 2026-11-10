@@ -18,6 +18,8 @@
         'scribed' => $hasScribed ? 'نسخه‌های کتابت‌شده' : null,
     ]) + $workRoleGroups->mapWithKeys(fn ($rows, $role) => ['role-' . $role => \App\Models\WorkPerson::PERSON_TABS[$role] ?? $role])->all();
     $defaultTab = $hasScribed && (! $hasAuthored || request()->has('manuscripts_page')) ? 'scribed' : ($hasAuthored ? 'authored' : (array_key_first($tabs) ?? 'authored'));
+    // A link may name the tab to open on («?tab=role-dedicatee», from the insights page, step 14.119)
+    $defaultTab = isset($tabs[request('tab')]) ? request('tab') : $defaultTab;
 @endphp
 @php
     use App\Support\Fa;
