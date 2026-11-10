@@ -55,4 +55,28 @@ class TiePersonLivesTest extends TestCase
         @unlink($report);
         @unlink(base_path($file));
     }
+
+    public function test_a_tie_of_a_person_merged_away_goes_to_the_person_he_was_merged_into(): void
+    {
+        $code = 'lives-merged-' . uniqid();
+        $source = Source::create(['code' => $code, 'kind' => Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'الأعلام', 'short_name' => 'الأعلام']);
+        $volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 1, 'facsimile_code' => $code]);
+        $item = SourceItem::create(['source_id' => $source->id, 'source_volume_id' => $volume->id, 'volume_number' => 1, 'item_key' => '5#1',
+            'position' => 1, 'kind' => 'entry', 'page_start' => 5, 'page_end' => 5, 'title' => 'یوسف', 'title_normalized' => 'یوسف',
+            'text' => 'یوسف', 'text_status' => 'auto']);
+        $kept = Person::create(['name' => 'دمشقی، یوسف بن یحیی', 'normalized_name' => 'دمشقی یوسف بن یحیی', 'slug' => 'kept-' . uniqid()]);
+        $gone = Person::create(['name' => 'یوسف بن یحیی دمشقی', 'normalized_name' => 'یوسف بن یحیی دمشقی', 'slug' => 'gone-' . uniqid()]);
+        $goneSlug = $gone->slug;
+        app(\App\Services\PersonMerger::class)->merge($gone, $kept);
+        $this->assertNull(Person::where('slug', $goneSlug)->first());
+
+        $file = 'storage/framework/testing-lives-merged.json';
+        file_put_contents(base_path($file), json_encode(['ties' => [
+            ['person_slug' => $goneSlug, 'source' => $code, 'item_key' => '5#1', 'volume' => 1, 'method' => 'name_death_llm', 'confidence' => 90],
+        ]]));
+        $this->artisan('sources:tie-person-lives', ['--file' => $file, '--apply' => true])->assertSuccessful();
+        $tie = SourceEntry::where('legacy_type', TiePersonLivesCommand::LEGACY_TYPE)->where('source_id', $source->id)->sole();
+        $this->assertSame([$kept->id, $item->id], [$tie->citable_id, $tie->source_item_id]);
+        @unlink(base_path($file));
+    }
 }
