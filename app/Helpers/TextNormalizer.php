@@ -16,6 +16,10 @@ class TextNormalizer
             return '';
         }
 
+        // 0. Invisible direction marks (LRM, RLM, ALM, embeddings, overrides, isolates) and the BOM: a text pasted
+        // from a right-to-left editor often starts with one, and the engine then finds nothing («‫دیوان»)
+        $text = preg_replace('/[\x{061C}\x{200B}\x{200E}\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}]/u', '', $text);
+
         // 1. Unified character replacements
         $text = str_replace(
             [

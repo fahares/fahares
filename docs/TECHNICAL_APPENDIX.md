@@ -9414,6 +9414,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:merge-duplicate-people --report=database/data/duplicate_people_judged_order_step14_126.json --dry-run`
   2. همان فرمان بی `--dry-run`
   3. `fahares:queue-judged-people --file=database/data/duplicate_people_unsure_order_step14_126.json`
+
+### گام ۱۴.۱۲۷: نشانه‌های جهت در `TextNormalizer::normalize`
+- **شاهد (`search_logs` پروداکشن، ۲۷ اکتبر تا ۱۰ نوامبر ۲۰۲۶):** ۳٬۱۳۲ جست‌وجو (`kind = search`)، ۵۸۴ بی‌نتیجه، ۷۷۹ با نتیجه‌ی بازشده (۴۱۰ رتبه‌ی ۱)، ۱۶۴ خروجی. ۱۳ جست‌وجو دارای نویسه‌ای از U+200E/F، U+202A–202E، U+2066–2069 یا U+FEFF بود و هر ۱۳ تا `results_count = 0` داشت («‫دیوان» ۴ بار، «‫‫‫قره العیون» ۳ بار).
+- **تغییر:** گام ۰ تازه در `app/Helpers/TextNormalizer.php` نویسه‌های `[\x{061C}\x{200B}\x{200E}\x{200F}\x{202A}-\x{202E}\x{2066}-\x{2069}\x{FEFF}]` را حذف می‌کند. ZWNJ و ZWJ مانند پیش در گام ۱ هستند. آزمون: `tests/Unit/TextNormalizerTest.php`.
+- **نمایه:** نیازی به ساخت دوباره نیست، چون این نویسه‌ها در داده‌ی نمایه‌شده نبودند. جست‌وجو از همین تغییر سود می‌برد.
+- **گیومه:** ۱۰۸ جست‌وجوی گیومه‌دار، ۴۵ بی‌نتیجه. با tinker روی Meilisearch پروداکشن (بی ثبت در `search_logs`) هر کدام با و بی گیومه سنجیده شد. نمونه‌هایی که در داده هستند (`works.raw_text` یا `manuscripts.raw_text`) در فیلدهای `searchableAttributes` نیستند. برای نمونه، «فاطمیات» در `raw_text` اثر ۲۴۴۱۱ آمده ولی در `description` نیست. بیشتر نتیجه‌های بی‌گیومه تطبیق با غلط تایپی‌اند («الصاغه» در «صاغها»ی `explicit_text`). موتور درست کار می‌کند.
+
+### گام ۱۴.۱۲۸: `App\Support\AuthorInQuery`
+- **شاهد:** در `works_index` پروداکشن برای «قانون ابن سینا» در دامنه‌ی `titles_names`، `_rankingScoreDetails` اثر ۵۰۷۴۵ (القانون فی الطب، ۲۵۲ نسخه) proximity ۰٫۵۷ داشت و چهار اثر یک‌نسخه‌ای proximity ۱. Proximity پیش از `attributeRank` و `manuscripts_count:desc` می‌آید. مقدارهای آرایه‌ی `titles_names` در Meilisearch با فاصله‌ی بیشینه از هم شمرده می‌شوند.
+- **آزمون رد شده:** رونوشت `works_index` محلی با `proximityPrecision: byAttribute`. چهار مورد عنوان+نویسنده درست شدند، ولی «اجوبة مسائل سئل عنها ابن سینا» به رتبه‌ی ۲ افتاد. جست‌وجوی عبارتی هم شل شد: `"شرح الاشارات"` ۴۳→۱۴۵، `"فتح الله"` ۲۱۳→۶۵۵، `"رساله فی"` ۱٬۲۱۹→۵٬۳۶۰. نمایه‌ی آزمایشی پاک شد.
+- **راه انتخاب‌شده:**
+  - `AuthorInQuery::split()` تا ۳ واژه‌ی پایان و سپس آغاز عبارت را (بلندترین نخست) در یک `multiSearch` روی `people_index` می‌جوید، با فیلتر `is_author = true AND works_count >= 5`.
+  - نامزد تنها وقتی پذیرفته می‌شود که شکل یکسان‌شده‌ی آن برابر نام کامل، بخش پیش از «،» یا یکی از `aliases`/`wrong_names` باشد.
+  - عبارت دارای `"`، `|` یا واژه‌ی `-…` و عبارت تک‌واژه بررسی نمی‌شوند. خطای موتور هم یعنی null.
+- **جست‌وجو:**
+  - `AuthorInQuery::queries()` دو `SearchQuery` می‌سازد: کل عبارت با وزن ۱، و واژه‌های عنوان با فیلتر `author_id IN [...]` و وزن `WEIGHT = 1.2`. فیلتر برگه در هر دو هست.
+  - `SearchController::anyOf()` اکنون یک سازنده‌ی پرسش‌ها (`callable $queries`) می‌گیرد و برای «یا» و برای این حالت به کار می‌رود.
+  - این راه تنها برای برگه‌ی آثار، دامنه‌ی `titles_names` یا `all`، بی ترتیب انتخابی و بی «یا» به کار می‌رود. `fahares:search-benchmark` همان پرسش‌ها را می‌فرستد.
+- **بنچمارک (`config/search_benchmark.php`، محلی):** ۹ مورد تازه. پیش از تغییر «قانون ابن سینا» (`titles_names`: رتبه‌ی ۵، `all`: بیرون از ۲۰)، «شفا ابن سینا» (۶) و «بحار الانوار مجلسی» (۲) شکست می‌خوردند. پس از تغییر ۵۶ از ۵۶ موفق است. «اخلاق ناصری»، «نهج البلاغه»، «شرح نهج البلاغه» و «کافی در ترسیم» نویسنده‌ای نمی‌یابند (null).
+- **آزمون:** `tests/Feature/AuthorInQueryTest.php` (Meilisearch ساختگی). زمان صفحه‌ی محلی برای «قانون ابن سینا» حدود ۱۰۰ تا ۲۰۰ میلی‌ثانیه است.
+
 - **اجرای پروداکشن (پس از انتشار ۸۴، `0c0a668d`):**
   - **پشتیبان:** `~/backups/before_step14_126_people_20261109_2213.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `3de2eefb1f641a1bba69a3b8bd8553cb`.
   - **اجرای آزمایشی:** «[dry run] Merged 599 records into 447 people; 0 groups skipped» و «[dry run] Queued 405 groups; 4 already in the queue». فرمان صف پیش از ادغام سنجیده شد.
