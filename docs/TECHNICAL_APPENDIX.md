@@ -9114,6 +9114,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `unlinked 33`، «۲۲ شخص، ۰ بی‌اثر». اجرای دوم: `already 33`.
 - **آزمون:** `tests/Feature/UnlinkSingleNameAuthorsTest.php`.
 - **اجرا در تولید:** `php artisan fahares:unlink-single-name-authors`، اول بی `--apply` و بعد با آن.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵):** پشتیبان `../fahares-sources/backups/step13/step14_111_single_name_authors_before_20261110.json` (۳۳ اثر، ۳۷ سطر `work_people`). `unlinked 33`، هیچ شخصی بی‌اثر نماند؛ اجرای دوم `already 33`.
 
 ### گام ۱۴.۱۱۲: پدیدآورِ شش اثرِ بیرون‌مانده از گام ۱۴.۶۱
 - **آثار:** 16825 و 16826 («التقريرات»، `v8-2243` و `v8-2244`)، 22983 (`v12-810`)، 26562 (`v14-311`)، 54971 (`v27-90`) و 65462 (`v32-391`). در فایل گام ۱۴.۶۱ همه زیر «شرحی که با نام v2 آغاز نمی‌شود» بودند.
@@ -9211,6 +9212,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 3403`، `missing_life 1` (فقها `914#2`). اجرای دوم: `exists 3403`.
 - **آزمون:** `tests/Feature/TiePersonLivesTest.php`.
 - **اجرا در تولید:** `php artisan sources:tie-person-lives`، اول بی `--apply` و بعد با آن. شمار `has_life` در تولید بیشتر از تمرین است، چون ۱٬۳۶۴ پیوند گام ۱۴.۸۳ در کپی محلی نیست.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵):** `created 3067`، `has_life 315`، `missing_person 21`، `missing_life 1`. اجرای دوم: `exists 3067`.
 
 ### گام ۱۴.۱۱۷: `Insights::patrons`، `Insights::facsimiles` و فیلتر `facsimile` در `InsightsScope`
 - **`patrons`:**
@@ -9565,3 +9567,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **اجرا:** با `prod-run --wait jolly-tharp`: «Linked 29».
   - **وارسی:** اجرای دوم «Would link 0» داد. `/m/99075` و `/m/99077` درست‌اند. `/tmp` کانتینر پاک است.
 
+### گام ۱۴.۱۳۴: پیروی `sources:tie-person-lives` از ادغام اشخاص
+- **[TiePersonLivesCommand](../app/Console/Commands/TiePersonLivesCommand.php):** اگر `Person` با `person_slug` نباشد، `mergedInto()` تازه‌ترین `AuditLog` با `auditable_type = Person`، `action = merge` و `old_values->source_snapshot->slug` برابر آن نشانی را می‌گیرد. `auditable_id` آن شخص ماندگار است، و `EntityRedirect::resolveTargetId('people', …)` ادغام‌های بعدی او را دنبال می‌کند. ستون تازه‌ی `merged` در جدول گزارش.
+- **آزمون:** `TiePersonLivesTest::test_a_tie_of_a_person_merged_away_goes_to_the_person_he_was_merged_into`.
+- **اجرا در تولید پس از استقرار:** `php artisan sources:tie-person-lives --apply`. انتظار: `merged 21` و حداکثر ۲۱ `created`.
