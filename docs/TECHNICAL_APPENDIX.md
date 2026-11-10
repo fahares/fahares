@@ -9258,6 +9258,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **v2 درست نیست:** 65462. v2 سطر نام را در شرح نگه داشته است.
   - **بقیه:** متنِ میانِ شرح است که v2 کوتاه‌تر یا جور دیگر خوانده است.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_118.json --apply`، پس از پشتیبان از ستون‌های این ۸۵ اثر.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۷۷، main 000ba29b):**
+  - md5 فایل در `/app` با شاخه برابر بود (`876d53ef…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_118_before.json`. ردیف کامل ۸۵ اثر. هیچ ستونی با `from` فایل فرق نداشت.
+  - **اجرا:** با `prod-run --wait jolly-tharp`. خروجی «Derived data of works: works=85, with_dedication=14». ۸۵ ردیف `corpus_update` در `audit_logs`.
+  - **وارسی:** اجرای دوم «update 0». 61653 → `composition_date_raw` 1105ق و `composition_year_hijri` 1105. 5054 → `composition_place` «کربلا مدرسه سردار». `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۱۹: `Insights::dedications` و `?tab=` صفحه‌ی شخص
 - **`dedications`:**
@@ -9430,3 +9435,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **بنچمارک (`config/search_benchmark.php`، محلی):** ۹ مورد تازه. پیش از تغییر «قانون ابن سینا» (`titles_names`: رتبه‌ی ۵، `all`: بیرون از ۲۰)، «شفا ابن سینا» (۶) و «بحار الانوار مجلسی» (۲) شکست می‌خوردند. پس از تغییر ۵۶ از ۵۶ موفق است. «اخلاق ناصری»، «نهج البلاغه»، «شرح نهج البلاغه» و «کافی در ترسیم» نویسنده‌ای نمی‌یابند (null).
 - **آزمون:** `tests/Feature/AuthorInQueryTest.php` (Meilisearch ساختگی). زمان صفحه‌ی محلی برای «قانون ابن سینا» حدود ۱۰۰ تا ۲۰۰ میلی‌ثانیه است.
 
+- **اجرای پروداکشن (پس از انتشار ۸۴، `0c0a668d`):**
+  - **پشتیبان:** `~/backups/before_step14_126_people_20261109_2213.sql.gz`، ۳۹۳ مگابایت، «Dump completed»، md5 برابر `3de2eefb1f641a1bba69a3b8bd8553cb`.
+  - **اجرای آزمایشی:** «[dry run] Merged 599 records into 447 people; 0 groups skipped» و «[dry run] Queued 405 groups; 4 already in the queue». فرمان صف پیش از ادغام سنجیده شد.
+  - **اجرای واقعی (یک `prod-run`):** «Merged 599 records into 447 people; 0 groups skipped»، سپس «Queued 386 groups; 23 already in the queue; 0 settled since».
+  - **وارسی:** شمار اشخاص ۶۶٬۵۷۲ و هیچ پیوند یتیمی نماند. ۹۵۱ ردیف باز `duplicate` هست. `/people/2063` و `/people/11631` با ۳۰۱ به `/people/6386` می‌روند. `/tmp` پاک است.
