@@ -9258,6 +9258,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **v2 درست نیست:** 65462. v2 سطر نام را در شرح نگه داشته است.
   - **بقیه:** متنِ میانِ شرح است که v2 کوتاه‌تر یا جور دیگر خوانده است.
 - **اجرا در تولید:** `fahares:add-corpus-works --file=database/data/fankha_description_extras_step14_118.json --apply`، پس از پشتیبان از ستون‌های این ۸۵ اثر.
+- **اجرای تولید (۲۰ آبان ۱۴۰۵، انتشار ۷۷، main 000ba29b):**
+  - md5 فایل در `/app` با شاخه برابر بود (`876d53ef…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_118_before.json`. ردیف کامل ۸۵ اثر. هیچ ستونی با `from` فایل فرق نداشت.
+  - **اجرا:** با `prod-run --wait jolly-tharp`. خروجی «Derived data of works: works=85, with_dedication=14». ۸۵ ردیف `corpus_update` در `audit_logs`.
+  - **وارسی:** اجرای دوم «update 0». 61653 → `composition_date_raw` 1105ق و `composition_year_hijri` 1105. 5054 → `composition_place` «کربلا مدرسه سردار». `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۱۹: `Insights::dedications` و `?tab=` صفحه‌ی شخص
 - **`dedications`:**
