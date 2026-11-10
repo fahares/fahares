@@ -1,0 +1,24 @@
+{
+    "_about": "Monzavi, Fehrest-e noskhe-ha-ye khatti-ye farsi, RCD (Mo'assese-ye farhangi-ye mantaqe'i), Tehran 1348-53 Sh, six volumes, pages numbered on. Telegram scans in ../fahares-sources/_tiers.tsv (tier الف۳ منزوی): each run gives the printed pages first..last of one PDF and leaf = page + offset. Read off the printed page numbers (step 14.135, docs/TECHNICAL_APPENDIX.md).",
+    "volumes": {
+        "1": [{"pdf": "5478 - فهرست نسخه هاى خطى فارسي 01.pdf", "first": 1, "last": 717, "offset": 12}],
+        "2": [
+            {"pdf": "5479 - فهرست نسخه هاى خطى فارسي 01 - 02.pdf", "first": 721, "last": 1489, "offset": -714},
+            {"pdf": "5480 - فهرست نسخه هاى خطى فارسي 02 - 02.pdf", "first": 1490, "last": 1841, "offset": -1484}
+        ],
+        "3": [
+            {"pdf": "5481 - فهرست نسخه هاى خطى فارسي 03.pdf", "first": 1845, "last": 2609, "offset": -1836},
+            {"pdf": "1924 - fehrest-enosxehayexatti-m-j3.pdf", "first": 2610, "last": 2611, "offset": -1833, "width": 654},
+            {"pdf": "5481 - فهرست نسخه هاى خطى فارسي 03.pdf", "first": 2612, "last": 2615, "offset": -1838}
+        ],
+        "4": [
+            {"pdf": "5518 - فهرست نسخه هاى خطى فارسي 04.pdf", "first": 2617, "last": 3205, "offset": -2608},
+            {"pdf": "5518 - فهرست نسخه هاى خطى فارسي 04.pdf", "first": 3206, "last": 3439, "offset": -2606}
+        ],
+        "5": [{"pdf": "5482 - فهرست نسخه هاى خطى فارسي 05.pdf", "first": 3441, "last": 3929, "offset": -3432}],
+        "6": [
+            {"pdf": "5483 - فهرست نسخه هاى خطى فارسي 06.pdf", "first": 3930, "last": 3961, "offset": -3920},
+            {"pdf": "5483 - فهرست نسخه هاى خطى فارسي 06.pdf", "first": 3962, "last": 4726, "offset": -3918}
+        ]
+    }
+}

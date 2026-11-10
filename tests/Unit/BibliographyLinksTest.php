@@ -357,5 +357,48 @@ class BibliographyLinksTest extends TestCase
         // a name after «و» is no pair of the book before it
         $this->assertSame([['69/13', 'dharia', 13, 69]], $cites('الذریعة 69/13 و مشترک 46/7', 'monzavi'));
     }
-}
+    public function test_monzavi_nuskhe_opens_the_page_viewer_by_the_page_whatever_volume_fankha_names()
+    {
+        $cites = fn (string $entry) => array_map(fn ($c) => [$c['source'], $c['volume'], $c['page']], BibliographyLinks::citations($entry));
 
+        // the pages run on across the six volumes: Fankha's volume is kept where it holds the page, and else the page tells it
+        $this->assertSame([['monzavi-nuskhe', 3, 1902]], $cites('نسخه‌های منزوی 1902/3'));
+        $this->assertSame([['monzavi-nuskhe', 4, 3298]], $cites('نسخه‌های منزوی 3298/2'));
+        $this->assertSame([['monzavi-nuskhe', 6, 4369]], $cites('نسخه‌های منزوی 4369'));
+        $this->assertSame([['monzavi-nuskhe', 1, 1]], $cites('نسخه‌های منزوی 1'));
+        $this->assertSame([['monzavi-nuskhe', 6, 4090], ['monzavi-nuskhe', 6, 4215]], $cites('نسخه‌های منزوی 4090/6 و 4215'));
+        // its other names and forms
+        $this->assertSame([['monzavi-nuskhe', 2, 1287]], $cites('نسخه‌های فارسی منزوی 1287/2'));
+        $this->assertSame([['monzavi-nuskhe', 1, 461]], $cites('نسخه‌های خطی فارسی، منزوی 461/1'));
+        $this->assertSame([['monzavi-nuskhe', 2, 767]], $cites('نسخه های منزوی 767/2: نشانی 25 نسخه'));
+        $this->assertSame([['monzavi-nuskhe', 2, 1111]], $cites('نسخه‌هایمنزوی 1111/2'));
+        $this->assertSame([['monzavi-nuskhe', 2, 1697]], $cites('نسخه‌های منزوی ص 1697'));
+        $this->assertSame([['monzavi-nuskhe', 6, 4305]], $cites('نسخه‌های منزوی ج 4305/6'));
+        $this->assertSame([['monzavi-nuskhe', 2, 1191]], $cites('نسخه‌های منزوی 2: 1191'));
+        // a page past the last volume, the pages between two volumes, and his other books are not linked
+        $this->assertSame([], $cites('نسخه‌های منزوی 6201/1'));
+        $this->assertSame([], $cites('نسخه‌های منزوی 1843'));
+        $this->assertSame([], $cites('نسخه‌های منزوی موزه ملی پاکستان 388-390'));
+        $this->assertSame([], $cites('گنج بخش منزوی 1531'));
+        $this->assertSame([], $cites('فهرست منزوی 1531'));
+        // the فهرستواره is still its own book
+        $this->assertSame([['monzavi', 5, 3366]], $cites('فهرستواره منزوی 3366/5'));
+
+        $html = (string) BibliographyLinks::html('نسخه‌های منزوی 3298/2');
+        $this->assertStringContainsString('title="دیدن برگه‌ی فهرست نسخه‌های خطی فارسی، ج ۴، ص ۳۲۹۸"', $html);
+        $this->assertStringContainsString('&quot;catalog&quot;:&quot;monzavi-nuskhe&quot;', $html);
+    }
+
+    public function test_monzavi_nuskhe_in_fankhas_page_text()
+    {
+        $cites = fn (string $text) => array_map(fn ($s) => [$s['text'], $s['cite']['source'], $s['cite']['volume'], $s['cite']['page']],
+            array_values(array_filter(BibliographyLinks::inProse($text, 'fankha'), fn ($s) => isset($s['cite']))));
+
+        // Fankha vol. 1 p. 94: the books the site lacks around it stay plain
+        $this->assertSame([['1902/3', 'monzavi-nuskhe', 3, 1902]],
+            $cites('[فهرست مشترک پاکستان 39/5 و 14/14؛ نسخه‌های فارسی منزوی 1902/3؛ فرهنگ سخنوران 513]'));
+        // in a page text only pairs are joined by «و» (step 14.125), not a bare page
+        $this->assertSame([['4090/6', 'monzavi-nuskhe', 6, 4090]], $cites('(نسخه‌های منزوی 4090/6 و 4215)'));
+        $this->assertSame([['4369', 'monzavi-nuskhe', 6, 4369]], $cites('[نسخه‌های منزوی 4369]'));
+    }
+}

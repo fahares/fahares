@@ -455,6 +455,10 @@ class BibliographyLinks
             'title' => "{$src['label']}، ج {$volume}، {$unit} {$page} — {$src['site']}",
         ] : null;
         $viewer = $src['viewer'] ?? null;
+        // «نسخه‌های منزوی 3298/2»: a page of another volume of the run is in that one (as textVolume for a text source)
+        if ($viewer && isset($viewer['runs']) && ($held = self::textVolume($viewer, $volume, $page))) {
+            $volume = $held;
+        }
         if ($viewer && $page >= ($viewer['first_pages'][$volume] ?? 1) && $page <= ($viewer['last_pages'][$volume] ?? 0)
             && ! in_array($page, $viewer['missing'][$volume] ?? [], true)) {
             $link = [
