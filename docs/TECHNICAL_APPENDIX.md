@@ -9637,3 +9637,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **پروداکشن (مانده):**
   1. انتشار کد.
   2. `sources:backfill --only=registry`، `sources:import-citation-forms` و `sources:backfill --only=bibliography`، از راه `prod-run` و پس از پشتیبان.
+### گام ۱۴.۱۳۷: `author_fix` و شمارش دوباره‌ی اشخاص در `add-corpus-works`
+- **3082 (`v2-633`) و 6009 (`v3-1634`):**
+  - `author_name` «حسینی بخاری، محمد بن برهان» و `author_id` 9003 بود.
+  - `raw_text`، پارسر v1 (`json/fankha/fankha_vol_02.json` و `_03`) و v2 هر سه «بخارائی اوچی، جلال الدین حسین بن کبیرالدین احمد» دارند.
+  - هیچ `audit_logs` یا `field_suggestions` ندارند. review10 آن‌ها را `site: edited` نشان می‌داد.
+  - شخص درست 3687 است (د. 785).
+- **سنجش:**
+  - برای همه‌ی آثار، بخش پیش از «،» در `author_name` (با `letters`) در هشت سطر نخست `raw_text` جستجو شد: ۱۹ اثر یافت نشد.
+  - ۷ تا از این‌ها خطای سنجش بودند، چون برچسب صفحه سطر مؤلف را از هشت سطر بیرون برده بود.
+  - 37317 را پیشنهاد 41 تغییر داده بود، که `approved` است، پس می‌ماند.
+  - **review10، `author_name` با `site: edited`:** ۲۷ مورد. جز این سه، همه یکسان‌سازی نام یک شخص یا ردیف‌های جابه‌جای v2 (35099 تا 35113) هستند.
+- **71533 (`v34-2342`):**
+  - `audit_logs` 124356 (`lost_head`، `fankha_lost_heads_step14_19.json`) `raw_text` را با متن `v34-2343` جایگزین کرد و `description` آن را افزود. فایل آن گام `v2: v34-2343` داشت.
+  - نسخه‌ی اثر 333943 (مجلس 18429/1، «کاتب = مؤلف») از `v34-2342` است.
+  - از ۲۷ `raw_text` آن گام، تنها در این یکی بخش نخست `author_name` در متن پیشین بود و در متن تازه نبود.
+- **فایل:** `database/data/author_fix_step14_137.json` (`category: author_fix`، ۳ `work_updates`). دو تای اول `author_name` و `author: {name, century: 8}` دارند. سومی `raw_text`، به متن پیشینِ 124356، و `description`، به null.
+- **`AddCorpusWorksCommand::updateWork`:** وقتی `author_id` عوض شود، `Person::recountContributions()` و `searchable()` برای شخص پیشین و تازه اجرا می‌شود. آزمون: `AddCorpusWorksCommandTest::test_a_corrected_author_moves_the_work_between_the_two_people_and_both_count_again`.
+- **تمرین روی fahares_prod:**
+  - «update 3». `author_id` 3687 شد و `work_people` همان را دارد.
+  - برای آزمودن کد تازه، دو اثر دوباره به 9003 برگردانده و فرمان باز اجرا شد. `works_count` شخص 3687 از 3 به 5 رسید و 9003 از 30 به 28.
+  - اجرای دوم «update 0».
+- **مانده:** 333944 (مجلس 17216/1، `v34-2343`) زیر 21870 (`v11-1287`، بی‌مؤلف) است.
+- **اجرا در تولید:** پس از پشتیبان از این سه اثر و `work_people` آن‌ها، `fahares:add-corpus-works --file=database/data/author_fix_step14_137.json --apply`.
+
