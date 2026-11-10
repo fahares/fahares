@@ -1,0 +1,113 @@
+{
+ "source": "copies whose heading the OCR bent, which parser v2.2.0 reads; 2026-11-10; fahares step 14.146",
+ "category": "bent_heading",
+ "works": [],
+ "fills": [
+  {
+   "v2": "v7-172",
+   "work_slug": "tahdid-e-kor-v7-172",
+   "copies": [
+    {
+     "make": {
+      "raw_text": "4 شیراز علامه طباطبائی؛ شماره نسخه 68/3\nخط: نسخ، بی‌کا تا 1238ق؛ 2گ (57-58)، اندازه: 10×15سم [نسخه پژوهی: 3-74]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 0,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": null,
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": 2,
+      "lines": null,
+      "dimensions": "10×15سم",
+      "paper": null,
+      "binding": null,
+      "incipit_text": null,
+      "explicit_text": null,
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [
+        "بی‌کا تا 1238ق"
+       ],
+       "ownership_and_seals": [],
+       "catalog_citation": "[نسخه پژوهی: 3-74]",
+       "residual_notes": null,
+       "editorial_note_types": {
+        "بی‌کا تا 1238ق": "other"
+       }
+      },
+      "sequence_number": 4,
+      "page_start": 100,
+      "page_end": 100,
+      "city": "شیراز",
+      "library": "علامه طباطبائی",
+      "shelfmark": "68/3"
+     }
+    }
+   ]
+  },
+  {
+   "v2": "v10-1781",
+   "work_slug": "jawami-ul-jami-v10-1774",
+   "copies": [
+    {
+     "make": {
+      "raw_text": "68. تبریز؛ قاضی طباطبائی؛ شماره نسخه بدون شماره\nبی‌کا، تا: قرن 11 [نشریه: 7 - 513]",
+      "scribe_name": null,
+      "has_other_scribes": 0,
+      "is_bika": 1,
+      "is_bita": 0,
+      "is_autograph": 0,
+      "copy_date_raw": "قرن 11",
+      "copy_date_hijri_year": null,
+      "copy_place": null,
+      "commissioned_by": null,
+      "folios": null,
+      "lines": null,
+      "dimensions": null,
+      "paper": null,
+      "binding": null,
+      "incipit_text": null,
+      "explicit_text": null,
+      "is_corrected": 0,
+      "has_marginal_notes": 0,
+      "is_ruled": 0,
+      "has_catchwords": 0,
+      "is_facsimile": 0,
+      "is_collated": 0,
+      "is_illuminated": 0,
+      "is_illustrated": 0,
+      "has_author_marginalia": 0,
+      "metadata": {
+       "incipits": [],
+       "explicits": [],
+       "editorial_notes": [],
+       "ownership_and_seals": [],
+       "catalog_citation": "[نشریه: 7 - 513]",
+       "residual_notes": null
+      },
+      "sequence_number": 68,
+      "page_start": 940,
+      "page_end": 940,
+      "city": "تبریز",
+      "library": "قاضی طباطبائی",
+      "shelfmark": "بدون شماره"
+     }
+    }
+   ]
+  }
+ ],
+ "work_updates": []
+}

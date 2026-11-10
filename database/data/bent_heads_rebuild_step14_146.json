@@ -1,0 +1,275 @@
+{
+ "source": "copies whose heading the OCR bent, which parser v2.2.0 reads; 2026-11-10; fahares step 14.146",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 45548,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v4-1880#9",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "قم"
+    },
+    "library": {
+     "from": null,
+     "to": "مرکز احیاء"
+    },
+    "library_id": {
+     "from": null,
+     "to": 10
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "4010"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 65055,
+   "shelfmark": "4453/3",
+   "category": "rebuild",
+   "v2": "v7-172#2",
+   "changes": {
+    "raw_text": {
+     "from": "3 تهران؛ دانشگاه؛ شماره نسخه: 4453/3\nبندی است حاشیه مانند به فارسی بر رساله تحديد صاع؛ خط: نسخ، کا: محمد کاظم بن محمد باقر تا محرم 1126ق؛ کاغذ سپاهانی، جلد تیماج تریاکی، 1 ص هامش 18 پ)، 11 سطر (7×11)، اندازه: 12×19سم [ف: 13-3408]\n4 شیراز علامه طباطبائی؛ شماره نسخه 68/3\n خط: نسخ، بی‌کا تا 1238ق؛ 2گ (57-58)، اندازه: 10×15سم [نسخه پژوهی: 3-74]",
+     "to": "3 تهران؛ دانشگاه؛ شماره نسخه: 4453/3\nبندی است حاشیه مانند به فارسی بر رساله تحديد صاع؛ خط: نسخ، کا: محمد کاظم بن محمد باقر تا محرم 1126ق؛ کاغذ سپاهانی، جلد تیماج تریاکی، 1 ص هامش 18 پ)، 11 سطر (7×11)، اندازه: 12×19سم [ف: 13-3408]"
+    },
+    "scribe_name": {
+     "from": null,
+     "to": "محمد کاظم بن محمد باقر تا محرم 1126ق"
+    },
+    "folios": {
+     "from": 2,
+     "to": null
+    },
+    "paper": {
+     "from": "سپاهانی",
+     "to": "سپاهانی، جلد تیماج تریاکی"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نسخه پژوهی: 3-74]",
+      "residual_notes": "محمد کاظم بن محمد باقر تا محرم 1126ق؛ کاغذ سپاهانی، جلد تیماج تریاکی، هامش 18 پ)، 4 شیراز علامه طباطبائی؛ شماره نسخه 68/3 ، تا 1238ق؛ 2گ (57-58)، 10×15سم"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "بندی است حاشیه مانند به فارسی بر رساله تحديد صاع"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 13-3408]",
+      "residual_notes": null,
+      "editorial_note_types": {
+       "بندی است حاشیه مانند به فارسی بر رساله تحديد صاع": "marginalia"
+      }
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71101,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v7-1324#1",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "قم"
+    },
+    "library": {
+     "from": null,
+     "to": "فرهاد معتمد"
+    },
+    "library_id": {
+     "from": null,
+     "to": 104
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "1554/12"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71133,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v7-1332#5",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "قم"
+    },
+    "library": {
+     "from": null,
+     "to": "فرهاد معتمد"
+    },
+    "library_id": {
+     "from": null,
+     "to": 104
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "1008/4"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 71597,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v7-1550#64",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "قم"
+    },
+    "library": {
+     "from": null,
+     "to": "فیضیه"
+    },
+    "library_id": {
+     "from": null,
+     "to": 8
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "1036/1"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98887,
+   "shelfmark": "73",
+   "category": "rebuild",
+   "v2": "v10-1781#67",
+   "changes": {
+    "raw_text": {
+     "from": "67. اصفهان؛ مدرسه صدر بازار؛ شماره نسخه: 73\nانجام و الصدفين بفتحتين جانبا الجبلين لأنهما يتصادفان يتقابلان و قرى الصدفين بضمتين وبضمة و سكون والقطر النحاس ...\nاز آغاز سوره یوسف تا اواسط سوره کهف؛ خط: نسخ، بی‌کا، تا: قرن 11؛ افتادگی: انجام؛ مصحح، محشی بعضاً با عناوین «من افادات الاستاد دام ظله؛ جلد تیماج مشکی، 82 گ، 20 سطر، اندازه: 16/5×26/5سم [ف: 1 - 60]\n\n68. تبریز؛ قاضی طباطبائی؛ شماره نسخه بدون شماره\nبی‌کا، تا: قرن 11 [نشریه: 7 - 513]",
+     "to": "67. اصفهان؛ مدرسه صدر بازار؛ شماره نسخه: 73\nانجام و الصدفين بفتحتين جانبا الجبلين لأنهما يتصادفان يتقابلان و قرى الصدفين بضمتين وبضمة و سكون والقطر النحاس ...\nاز آغاز سوره یوسف تا اواسط سوره کهف؛ خط: نسخ، بی‌کا، تا: قرن 11؛ افتادگی: انجام؛ مصحح، محشی بعضاً با عناوین «من افادات الاستاد دام ظله؛ جلد تیماج مشکی، 82 گ، 20 سطر، اندازه: 16/5×26/5سم [ف: 1 - 60]"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "از آغاز سوره یوسف تا اواسط سوره کهف"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 7 - 513]",
+      "residual_notes": "انجام الصدفين بفتحتين جانبا الجبلين لأنهما يتصادفان يتقابلان قرى الصدفين بضمتين وبضمة سكون والقطر النحاس ... ؛ ؛ ، بعضاً با عناوین «من افادات الاستاد دام ظله؛ جلد تیماج مشکی، ، 68. تبریز؛ قاضی طباطبائی؛ شماره نسخه بدون شماره"
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [
+       "از آغاز سوره یوسف تا اواسط سوره کهف",
+       "انجام و الصدفين بفتحتين جانبا الجبلين لأنهما يتصادفان يتقابلان و قرى الصدفين بضمتين وبضمة و سكون والقطر النحاس ...",
+       "محشی بعضاً با عناوین «من افادات الاستاد دام ظله"
+      ],
+      "ownership_and_seals": [],
+      "catalog_citation": "[ف: 1 - 60]",
+      "residual_notes": null,
+      "editorial_note_types": {
+       "از آغاز سوره یوسف تا اواسط سوره کهف": "contents_scope",
+       "انجام و الصدفين بفتحتين جانبا الجبلين لأنهما يتصادفان يتقابلان و قرى الصدفين بضمتين وبضمة و سكون والقطر النحاس ...": "other",
+       "محشی بعضاً با عناوین «من افادات الاستاد دام ظله": "marginalia"
+      }
+     }
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 116112,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v12-1055#3",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "شیراز"
+    },
+    "library": {
+     "from": null,
+     "to": "شاهچراغ"
+    },
+    "library_id": {
+     "from": null,
+     "to": 97
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "342/3"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 208424,
+   "shelfmark": null,
+   "category": "rebuild",
+   "v2": "v22-211#1",
+   "changes": {
+    "city": {
+     "from": null,
+     "to": "تهران"
+    },
+    "library": {
+     "from": null,
+     "to": "لغت نامه دهخدا"
+    },
+    "library_id": {
+     "from": null,
+     "to": 27
+    },
+    "shelfmark": {
+     "from": null,
+     "to": "76"
+    },
+    "is_bika": {
+     "from": 0,
+     "to": 1
+    },
+    "copy_date_raw": {
+     "from": null,
+     "to": "قرن 12"
+    },
+    "binding": {
+     "from": null,
+     "to": "تیماج تریاکی"
+    },
+    "metadata": {
+     "from": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": null,
+      "residual_notes": null
+     },
+     "to": {
+      "incipits": [],
+      "explicits": [],
+      "editorial_notes": [],
+      "ownership_and_seals": [],
+      "catalog_citation": "[نشریه: 3 - 56]",
+      "residual_notes": null
+     }
+    }
+   }
+  }
+ ]
+}
