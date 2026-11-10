@@ -7,6 +7,7 @@ use App\Http\Controllers\SearchController;
 use App\Models\Manuscript;
 use App\Models\Person;
 use App\Models\Work;
+use App\Support\AuthorInQuery;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Meilisearch\Client as MeiliClient;
@@ -51,10 +52,17 @@ class SearchBenchmarkCommand extends Command
             }
             $options['attributesToRetrieve'] = ['id'];
             $words = TextNormalizer::normalize($case['q']);
-            // «الف | ب»: one federated search of the parts, as the search page sends it
-            $ids = ($parts = SearchController::alternatives($words))
-                ? array_column($meili->multiSearch(SearchController::partQueries(self::INDEXES[$type], $parts, $options['attributesToSearchOn'] ?? null),
-                    (new \Meilisearch\Contracts\MultiSearchFederation)->setLimit(self::DEPTH))['hits'] ?? [], 'id')
+            // «الف | ب»: one federated search of the parts, as the search page sends it; «قانون ابن سینا» too (step 14.128)
+            $parts = SearchController::alternatives($words);
+            $byAuthor = ! $parts && $type === 'works' && in_array($case['scope'] ?? 'titles_names', ['titles_names', 'all'], true)
+                ? AuthorInQuery::split($words) : null;
+            $queries = match (true) {
+                (bool) $parts => SearchController::partQueries(self::INDEXES[$type], $parts, $options['attributesToSearchOn'] ?? null),
+                (bool) $byAuthor => AuthorInQuery::queries(self::INDEXES[$type], $words, $byAuthor, $options['attributesToSearchOn'] ?? null, null),
+                default => null,
+            };
+            $ids = $queries
+                ? array_column($meili->multiSearch($queries, (new \Meilisearch\Contracts\MultiSearchFederation)->setLimit(self::DEPTH))['hits'] ?? [], 'id')
                 : array_column($meili->index(self::INDEXES[$type])->search($words, $options)->getHits(), 'id');
             $records = self::MODELS[$type]::whereKey($ids)->get()->keyBy('id');
 

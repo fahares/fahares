@@ -72,6 +72,17 @@ return [
     ['q' => 'مجلسی', 'type' => 'manuscripts', 'scope' => 'author', 'top' => 1, 'expect' => ['author' => 'مجلسی']],
     ['q' => 'ابن سینا', 'type' => 'works', 'scope' => 'author', 'top' => 1, 'expect' => ['author' => 'ابن سینا'], 'min_manuscripts' => 200],
 
+    // A title with its author's name (step 14.128): the author's work first, not a rare one with both in its title
+    ['q' => 'قانون ابن سینا', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^القانون فی الطب', 'author' => 'ابن سینا']],
+    ['q' => 'قانون ابن سینا', 'type' => 'works', 'scope' => 'all', 'top' => 1, 'expect' => ['title' => '^القانون فی الطب', 'author' => 'ابن سینا']],
+    ['q' => 'ابن سینا قانون', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^القانون فی الطب', 'author' => 'ابن سینا']],
+    ['q' => 'شفا ابن سینا', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^الشفا', 'author' => 'ابن سینا']],
+    ['q' => 'بحار الانوار مجلسی', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^بحار الانوار', 'author' => 'مجلسی، محمد باقر']],
+    ['q' => 'تجرید الاعتقاد خواجه نصیر', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^تجرید الاعتقاد', 'author' => 'نصیرالدین طوسی']],
+    ['q' => 'اسفار ملاصدرا', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^الحکمه المتعالیه', 'author' => 'صدرالدین شیرازی']],
+    ['q' => 'کافی کلینی', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'الکافی', 'author' => 'کلینی']],
+    ['q' => 'اخلاق ناصری', 'type' => 'works', 'top' => 1, 'expect' => ['title' => '^اخلاق ناصری', 'author' => 'نصیرالدین طوسی']],
+
     // Operators (phase 8): any of several parts, and a word left out
     ['q' => 'شافی | کافی', 'type' => 'works', 'top' => 3, 'expect' => ['title' => 'الکافی', 'author' => 'کلینی']],
     ['q' => 'تجرید -شرح -حاشیه', 'type' => 'works', 'top' => 1, 'expect' => ['title' => 'تجرید', 'author' => 'نصیرالدین طوسی']],
