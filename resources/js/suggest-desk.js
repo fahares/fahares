@@ -1,6 +1,7 @@
 // The suggestion modal shared by record pages. Per-field buttons dispatch
 // `suggest-field` with {field}; the general button dispatches it with {general: true} (and an optional starting {value}).
-// Only signed-in users suggest (backlog item 76): a guest gets a sign-in dialog instead, and returns to the same
+// Only signed-in users suggest (backlog item 76), but a guest fills the form first (step 14.156): the sign-in dialog
+// comes at «ارسال». Its short sign-up sends the waiting suggestion at once; signing in another way returns to the same
 // page with `?suggest=<key>`, which reopens the same form. What was typed is kept in sessionStorage meanwhile.
 // Templates read field.* before any field is chosen, so "no field" is a blank object, never null
 const BLANK_FIELD = { name: null, label: '', input: '', current: null, prefill: '', pending: 0 };
@@ -12,6 +13,8 @@ export default (config) => ({
     field: BLANK_FIELD,
     value: '',
     rationale: '',
+    // The ready-made ground of a suggestion (config.basis); `rationale` is then its optional detail
+    basisKey: '',
     personId: null,
     personResults: [],
     personTimer: null,
@@ -46,6 +49,10 @@ export default (config) => ({
     gate: false,
     gateErrors: {},
     gateBusy: false,
+    // A guest pressed «ارسال»: the suggestion goes out as soon as the dialog's sign-up succeeds
+    pendingSend: false,
+    // Signed up in the dialog without a reload: the page around the form still shows a guest's header
+    signedUpHere: false,
 
     init() {
         const params = new URLSearchParams(window.location.search);
@@ -97,7 +104,7 @@ export default (config) => ({
     saveDraft() {
         if (!this.formKey || this.formKey === 'mode') return;
         const draft = {
-            value: this.value, rationale: this.rationale, personId: this.personId, relationKey: this.relationKey,
+            value: this.value, rationale: this.rationale, basisKey: this.basisKey, personId: this.personId, relationKey: this.relationKey,
             roleKey: this.roleKey, roleName: this.roleName, newShelfmark: this.newShelfmark, volumeId: this.volumeId,
             noteType: this.noteType, note: this.note, creditOn: this.creditOn, creditName: this.creditName,
         };
@@ -117,12 +124,8 @@ export default (config) => ({
     start(detail) {
         this.formKey = this.keyFor(detail);
         if (detail.mode) {
-            // The «پیشنهاد اصلاح» button of a guest: suggestion mode starts once signed in
-            if (this.config.signedIn) {
-                this.$store.suggest.on = true;
-            } else {
-                this.gate = true;
-            }
+            // Back from signing in with nothing typed yet
+            this.$store.suggest.on = true;
             return;
         }
         this.errors = {};
@@ -130,6 +133,7 @@ export default (config) => ({
         this.personId = null;
         this.personResults = [];
         this.rationale = '';
+        this.basisKey = '';
         this.relationKey = '';
         this.targetQuery = '';
         this.targetResults = [];
@@ -178,14 +182,25 @@ export default (config) => ({
             this.target = detail.target ?? null;
             this.roleRowId = detail.roleRowId;
         }
-        if (!this.config.signedIn) {
-            // Keeps e.g. the reference a «گزارش نشانی نادرست» starts with, for the form opened after signing in
-            this.saveDraft();
-            this.gateErrors = {};
-            this.gate = true;
-            return;
-        }
+        this.pendingSend = false;
         this.open = true;
+    },
+
+    // The grounds offered for this form: a typo is a ground for a field's value only
+    get basisOptions() {
+        if (this.mode === 'note' || (this.mode === 'general' && !this.relationKey)) return [];
+        return this.config.basis.filter((b) => this.mode === 'field' || !b.fieldOnly);
+    },
+
+    get basis() {
+        return this.basisOptions.find((b) => b.key === this.basisKey) ?? null;
+    },
+
+    // What is stored as the suggestion's ground: the chosen one, then what the submitter added
+    get fullRationale() {
+        const detail = this.rationale.trim();
+        if (!this.basisOptions.length || !this.basis) return detail;
+        return this.basis.label + (detail ? ': ' + detail : '');
     },
 
     toggleCredit() {
@@ -194,8 +209,17 @@ export default (config) => ({
     },
 
     close() {
+        // The dialog closed without signing in: back to the form, with what was typed
+        if (this.gate && this.pendingSend) {
+            this.gate = false;
+            this.pendingSend = false;
+            this.open = true;
+            return;
+        }
         this.open = false;
         this.gate = false;
+        // The header and the account menu of the page are still a guest's
+        if (this.signedUpHere) window.location.reload();
     },
 
     // «انصراف» drops what was typed; closing the window any other way keeps it for next time
@@ -210,6 +234,9 @@ export default (config) => ({
         this.gateErrors = {};
         const body = new FormData(form);
         body.append('intended', this.intended);
+        // No name field in the dialog: the account takes the name written for the credit, if any
+        body.append('desk', '1');
+        if (this.creditOn && this.creditName.trim()) body.append('name', this.creditName.trim());
         try {
             const res = await fetch(this.config.registerUrl, {
                 method: 'POST',
@@ -217,6 +244,19 @@ export default (config) => ({
                 body,
             });
             const data = await res.json().catch(() => ({}));
+            if (res.ok && data.csrf && this.pendingSend) {
+                // Signed in on this very page: send what was waiting, with the new session's token
+                this.config.csrf = data.csrf;
+                this.config.signedIn = true;
+                this.config.userName = data.name;
+                this.signedUpHere = true;
+                this.pendingSend = false;
+                this.gate = false;
+                this.gateBusy = false;
+                this.open = true;
+                await this.submit();
+                return;
+            }
             if (res.ok && data.redirect) {
                 window.location.assign(data.redirect);
                 return;
@@ -366,6 +406,24 @@ export default (config) => ({
     },
 
     async submit() {
+        if (this.basisOptions.length && !this.basis) {
+            this.errors = { rationale_citation: 'یکی از گزینه‌های «بر چه پایه‌ای؟» را برگزینید.' };
+            return;
+        }
+        if (this.basis?.detail === 'required' && this.rationale.trim().length < 5) {
+            this.errors = { rationale_citation: 'دلیل یا منبع را در یک جمله بنویسید.' };
+            return;
+        }
+        if (!this.config.signedIn) {
+            // The last step of a guest: an email and a password, then the suggestion goes out by itself
+            this.saveDraft();
+            this.errors = {};
+            this.gateErrors = {};
+            this.pendingSend = true;
+            this.open = false;
+            this.gate = true;
+            return;
+        }
         this.submitting = true;
         this.errors = {};
         const body = new FormData();
@@ -390,7 +448,7 @@ export default (config) => ({
             if (this.relation?.apply === 'relocate') body.append('shelfmark', this.newShelfmark);
         }
         body.append('suggested_value', this.value);
-        body.append('rationale_citation', this.rationale);
+        body.append('rationale_citation', this.fullRationale);
         if (this.personId) body.append('person_id', this.personId);
         if (this.creditOn) body.append('credit_name', this.creditName);
 
@@ -409,6 +467,7 @@ export default (config) => ({
                 // Signed out meanwhile: keep the text and offer to sign in again
                 this.saveDraft();
                 this.config.signedIn = false;
+                this.pendingSend = true;
                 this.open = false;
                 this.gate = true;
             } else if (res.status === 419) {

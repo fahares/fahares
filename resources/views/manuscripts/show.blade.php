@@ -195,7 +195,7 @@
                     تصویر نسخه
                 </x-ui.btn>
             @endif
-            <x-suggest.toggle />
+            <x-suggest.toggle type="manuscript" />
         </div>
         <span class="text-xs text-muted"><x-visit-count type="manuscript" :id="$manuscript->id" />شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $manuscript->id }}</span></span>
     </div>

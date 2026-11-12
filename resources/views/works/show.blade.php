@@ -145,7 +145,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
                 استناد
             </x-ui.btn>
-            <x-suggest.toggle />
+            <x-suggest.toggle type="work" />
         </div>
         <span class="text-xs text-muted"><x-visit-count type="work" :id="$work->id" />شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $work->id }}</span></span>
     </div>
