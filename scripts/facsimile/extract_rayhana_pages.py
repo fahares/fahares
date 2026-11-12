@@ -28,7 +28,8 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
-SOURCES = os.path.abspath(os.path.join(REPO, '..', 'fahares-sources', 'rayhana'))
+# RAYHANA_SOURCES overrides the scan folder, e.g. when the script runs from a worktree.
+SOURCES = os.environ.get('RAYHANA_SOURCES') or os.path.abspath(os.path.join(REPO, '..', 'fahares-sources', 'rayhana'))
 OUT = os.path.join(REPO, 'storage', 'app', 'public', 'catalogs', 'rayhana')
 
 # Window at 300 dpi: text block (about 1470 x 2455 px; 2325 px high in volumes 3-6) plus about 80 px each side.
@@ -37,20 +38,31 @@ HEIGHT = {'03': 2485, '04': 2485, '05': 2485, '06': 2485}
 DEFAULT_HEIGHT = 2615
 SCALE = 1240 / 2475
 PAD = 60
+BAR = 40
 
 
-def text_span(ink, gap):
+def text_span(ink, gap, size):
     """First and last index of the text block in an ink profile (ink per column or per row).
 
-    Indices with more than three times the median ink are scanner edge bars or rules and are dropped;
-    indices with under a tenth of the median (after smoothing) are specks. Inked runs closer than
-    `gap` are joined, and the run with the most ink is the text block.
+    Narrow runs (up to BAR px) of indices with more than three times the median ink are scanner edge
+    bars or rules and are dropped. Wider dense runs are photos, facsimiles or inscriptions and stay:
+    dropping them moved the window off the text block on pages with a picture (1/41).
+    Indices with under a tenth of the median (after smoothing) are specks. Inked runs closer than
+    `gap` are joined. The run with the most ink is the text block; neighbouring runs are added to it,
+    the heavier side first, while the whole still fits in `size` less PAD each side. A blank stretch
+    inside the block (between entries, above a footnote) otherwise split it and the window kept only
+    one part (4/274, 5/398); an edge bar or a stamp beyond the margin is too far to fit.
     """
     inked = ink[ink > 0]
     if not len(inked):
         return None
     median = np.median(inked)
-    ink = np.where(ink > 3 * median, 0, ink)
+    dense = np.flatnonzero(ink > 3 * median)
+    ink = ink.copy()
+    if len(dense):
+        for run in np.split(dense, np.flatnonzero(np.diff(dense) > 1) + 1):
+            if run[-1] - run[0] + 1 <= BAR:
+                ink[run[0]:run[-1] + 1] = 0
     smooth = np.convolve(ink, np.ones(25) / 25, 'same')
     on = np.where(smooth > median / 10)[0]
     if not len(on):
@@ -61,7 +73,15 @@ def text_span(ink, gap):
             runs[-1][1] = i
         else:
             runs.append([i, i])
-    return max(runs, key=lambda r: ink[r[0]:r[1] + 1].sum())
+    weight = [ink[lo:hi + 1].sum() for lo, hi in runs]
+    first = last = int(np.argmax(weight))
+    while True:
+        sides = [(weight[i], i) for i in (first - 1, last + 1) if 0 <= i < len(runs)
+                 and max(runs[last][1], runs[i][1]) - min(runs[first][0], runs[i][0]) + 1 <= size - 2 * PAD]
+        if not sides:
+            return runs[first][0], runs[last][1]
+        i = max(sides)[1]
+        first, last = min(first, i), max(last, i)
 
 
 def place(span, size, length):
@@ -91,8 +111,8 @@ def render(job):
         image.load()
         ink = np.asarray(image) < 128
         height = HEIGHT.get(volume, DEFAULT_HEIGHT)
-        x, width, over_x = place(text_span(ink.sum(0), 60), WIDTH, ink.shape[1])
-        y, height, over_y = place(text_span(ink.sum(1), 150), height, ink.shape[0])
+        x, width, over_x = place(text_span(ink.sum(0), 60, WIDTH), WIDTH, ink.shape[1])
+        y, height, over_y = place(text_span(ink.sum(1), 150, height), height, ink.shape[0])
         lost = max(over_x, over_y)
         cut = image.crop((x, y, x + width, y + height))
         cut = cut.resize((round(cut.width * SCALE), round(cut.height * SCALE)), Image.LANCZOS)
