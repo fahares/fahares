@@ -26,14 +26,28 @@ const SUGGEST_HINT_KEY = 'suggest-hint-seen';
 Alpine.data('suggestToggle', () => ({
     away: false,
     hint: false,
+    // The three ways of contributing, under the inline button or over the floating one
+    menu: null,
     init() {
         try { this.hint = !localStorage.getItem(SUGGEST_HINT_KEY); } catch (e) { /* storage blocked: no hint */ }
+        // The hint lies over the first fields: it goes by itself after a while, or once the reader moves on
+        if (this.hint) {
+            setTimeout(() => this.dismissHint(), 9000);
+            window.addEventListener('scroll', () => this.dismissHint(), { once: true, passive: true });
+        }
         this.$nextTick(() => new IntersectionObserver(([entry]) => {
             // Out of view above the viewport only; not while the page has not reached it yet
             this.away = !entry.isIntersecting && entry.boundingClientRect.top < 0;
         }).observe(this.$refs.inline));
     },
+    choose(detail) {
+        this.menu = null;
+        this.dismissHint();
+        if (detail.mode) this.$store.suggest.on = true;
+        else this.$dispatch('suggest-field', detail);
+    },
     dismissHint() {
+        if (!this.hint) return;
         this.hint = false;
         try { localStorage.setItem(SUGGEST_HINT_KEY, '1'); } catch (e) { /* storage blocked */ }
     },

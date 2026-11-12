@@ -1,7 +1,8 @@
 @props(['title', 'field' => null, 'count' => null])
 
 {{-- A page section with a rubric heading; optional suggestion button and actions on the other side --}}
-<section {{ $attributes->merge(['class' => 'scroll-mt-24']) }}>
+{{-- .suggest-section: the heading's ✎ comes forward with the pointer anywhere on the section, not only on its heading --}}
+<section {{ $attributes->merge(['class' => 'scroll-mt-24' . ($field ? ' suggest-section' : '')]) }}>
     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-3">
         <h2 class="rubric text-lg">
             <span>{{ $title }}</span>
