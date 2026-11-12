@@ -10021,6 +10021,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا در تولید (پس از تأیید کاربر):**
   1. صفحه‌ها، مانند اجرای پیشین: پشتیبان، رونوشت فایل‌ها به `/tmp`، `import-pages` و وارسی.
   2. پس از استقرار فایل، `fahares:add-corpus-works --file=database/data/awis_ul_masail_step14_149.json --apply`.
+- **اجرای تولید صفحه‌ها، دور دوم (۲۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_149b_fankha_pages_before.jsonl.gz` (`88c6f287…`، برابر با صفحه‌های پس از دور نخست). `differ 151`، `new 0`.
+  - **اجرا:** `/tmp/step14_149b_pages/` و `MD5SUMS` دو سو برابر. یک `prod-run`، ۳۴ «pages saved».
+  - **وارسی:** صفحه‌ها دوباره بیرون آمد (`33592d1c…`): ۳۳٬۵۱۸ صفحه، `differ 0` و `missing 0`. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۵۰: نشان‌های ثبت‌نشده در صفحه‌ی نسخه
 - **فایل:** `resources/views/manuscripts/show.blade.php`. هر نشانِ روشن یک `<li data-flag="…">` ساده است. هر نشانِ خاموش `<li data-flag-unset="…" x-show="$store.suggest.on" x-cloak>` است و برچسب «(ثبت نشده)» دارد.
