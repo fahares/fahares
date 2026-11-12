@@ -26,7 +26,8 @@ mkdir -p "$DIR"
 touch "$LOG"
 
 remote_busy() {
-    ssh -o BatchMode=yes -o ConnectTimeout=20 "$HOST" "pgrep -fa '$BUSY_PATTERN' | grep -v pgrep" 2>/dev/null || true
+    # -n: leave stdin to the run itself, so a tar stream can be piped into prod-run (step 14.148)
+    ssh -n -o BatchMode=yes -o ConnectTimeout=20 "$HOST" "pgrep -fa '$BUSY_PATTERN' | grep -v pgrep" 2>/dev/null || true
 }
 
 if [[ "${1:-}" == "--status" ]]; then
