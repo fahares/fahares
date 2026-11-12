@@ -40,8 +40,12 @@ class SearchFiltersTest extends TestCase
         $this->assertSame('(city = "قم") AND (subjects IN ["فقه", "اصول فقه"]) AND (is_facsimile = false) AND (is_collated = true AND is_autograph = true) AND (copy_from >= 801 AND copy_to <= 850)',
             $filters->engine());
 
-        $people = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'scribe', 'century' => '11', 'subject_id' => $subject->id]), 'people');
-        $this->assertSame('(is_scribe = true) AND (century_hijri = 11)', $people->engine(), 'a filter of another tab is ignored');
+        $people = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'scribe', 'century' => '11', 'subject_id' => $subject->id]), 'authors');
+        $this->assertSame('(is_author = true OR is_translator = true OR is_donor = true OR is_scribe = false) AND (is_scribe = true) AND (century_hijri = 11)',
+            $people->engine(), 'a filter of another tab is ignored');
+        // The scribes by their copies; «donor» is no role of their tab
+        $scribes = SearchFilters::fromRequest(Request::create('/search', 'GET', ['role' => 'donor', 'century' => '11', 'copy_city' => 'اصفهان']), 'scribes');
+        $this->assertSame('(is_scribe = true) AND (copy_centuries = 11) AND (copy_cities = "اصفهان")', $scribes->engine());
     }
 
     public function test_manuscripts_are_browsed_by_the_new_filters(): void
@@ -116,14 +120,51 @@ class SearchFiltersTest extends TestCase
         $this->get($url(['manuscripts_range' => 'single']))->assertOk()->assertDontSee('فراوانی نسخ');
     }
 
-    public function test_people_by_role_and_century_and_removing_a_chip_keeps_the_rest(): void
+    public function test_authors_and_scribes_are_two_tabs_and_someone_who_is_both_is_in_both(): void
     {
-        Person::create(['name' => 'کاتب سده یازده', 'normalized_name' => 'کاتب سده یازده', 'slug' => 'f-scribe-' . uniqid(), 'is_scribe' => true, 'death_year_hijri' => 1070]);
-        Person::create(['name' => 'مؤلف سده یازده', 'normalized_name' => 'مؤلف سده یازده', 'slug' => 'f-author-' . uniqid(), 'is_author' => true, 'death_year_hijri' => 1080]);
+        $person = fn (string $name, array $attrs = []) => Person::create($attrs + ['name' => $name, 'normalized_name' => $name, 'slug' => 'f-tab-' . uniqid()]);
+        $author = $person('مؤلف تنها', ['death_year_hijri' => 1080]);
+        $both = $person('مؤلف کاتب', ['death_year_hijri' => 1070]);
+        $scribe = $person('کاتب تنها');
+        $later = $person('کاتب متأخر');
+        $person('شخص بی‌نقش');
+        $work = $this->work(['author_id' => $author->id]);
+        $this->work(['author_id' => $both->id]);
+        $this->manuscript($work, 'T-1', ['scribe_id' => $both->id, 'copy_date_raw' => '1050ق', 'copy_place' => 'اصفهان']);
+        $this->manuscript($work, 'T-2', ['scribe_id' => $scribe->id, 'copy_date_raw' => 'قرن 11']);
+        $this->manuscript($work, 'T-3', ['scribe_id' => $scribe->id, 'copy_date_raw' => '1120ق']);
+        $this->manuscript($work, 'T-4', ['scribe_id' => $later->id, 'copy_date_raw' => '1250ق']);
+        $see = fn (array $params, array $yes, array $no) => tap($this->get(route('search', $params))->assertOk(),
+            fn ($r) => [array_map(fn ($s) => $r->assertSee($s), $yes), array_map(fn ($s) => $r->assertDontSee($s), $no)]);
 
-        $page = $this->get(route('search', ['type' => 'people', 'role' => 'scribe', 'century' => 11]))->assertOk()
-            ->assertSee('کاتب سده یازده')->assertDontSee('مؤلف سده یازده')->assertSee('نقش: کاتب');
-        $page->assertSee(e(route('search', ['type' => 'people', 'century' => 11])), false);
+        // Whoever is not only a scribe is among the authors, a person with no work yet too
+        $see(['type' => 'authors'], ['مؤلف تنها', 'مؤلف کاتب', 'شخص بی‌نقش'], ['کاتب تنها', 'کاتب متأخر']);
+        $see(['type' => 'scribes'], ['مؤلف کاتب', 'کاتب تنها', 'کاتب متأخر'], ['مؤلف تنها', 'شخص بی‌نقش']);
+        $see(['type' => 'authors', 'century' => 11, 'role' => 'scribe'], ['مؤلف کاتب', 'سده‌ی ۱۱ (وفات)', 'همچنین کاتب'], ['مؤلف تنها']);
+
+        // A scribe by the copies: their century, their place, their number and their years
+        $see(['type' => 'scribes', 'century' => 11], ['مؤلف کاتب', 'کاتب تنها', 'سده‌ی ۱۱ (کتابت)'], ['کاتب متأخر']);
+        $see(['type' => 'scribes', 'century' => 12], ['کاتب تنها'], ['مؤلف کاتب', 'کاتب متأخر']);
+        $see(['type' => 'scribes', 'copy_city' => 'اصفهان'], ['مؤلف کاتب', 'محل کتابت: اصفهان'], ['کاتب تنها']);
+        $see(['type' => 'scribes', 'role' => 'author'], ['مؤلف کاتب', 'همچنین پدیدآور'], ['کاتب تنها']);
+        $this->get(route('search', ['type' => 'scribes']))->assertSeeInOrder(['کاتب تنها', '۲ نسخه', 'مؤلف کاتب', 'کتابت ۱۰۵۰ ق', '۱ نسخه', '۱ اثر']);
+        $this->get(route('search', ['type' => 'scribes', 'sort' => 'newest']))->assertSeeInOrder(['کاتب متأخر', 'کاتب تنها', 'مؤلف کاتب']);
+        $this->assertSame([1001, 1120, 'کتابت سده‌های ۱۱ تا ۱۲ ق'], [$scribe->fresh()->scribed_from, $scribe->fresh()->scribed_to, $scribe->fresh()->scribed_span]);
+
+        // The index holds the same: the centuries a copy lies wholly in, and the cities of the places
+        $document = $both->fresh()->toSearchableArray();
+        $this->assertSame([[11], ['اصفهان'], 1050, 1050], [$document['copy_centuries'], $document['copy_cities'], $document['scribed_from'], $document['scribed_to']]);
+        $this->assertSame([11, 12], $scribe->fresh()->toSearchableArray()['copy_centuries']);
+
+        // The copy's date is edited: its scribe follows
+        Manuscript::where('shelfmark', 'T-4')->first()->update(['copy_date_raw' => '950ق']);
+        $this->assertSame([950, 950], [$later->fresh()->scribed_from, $later->fresh()->scribed_to]);
+
+        // Removing a chip keeps the rest, and the old tab of all people opens the one it meant
+        $this->get(route('search', ['type' => 'scribes', 'century' => 11, 'copy_city' => 'اصفهان']))
+            ->assertSee(e(route('search', ['type' => 'scribes', 'copy_city' => 'اصفهان'])), false);
+        $this->get('/search?type=people&q=' . urlencode('مؤلف') . '&century=11')->assertRedirect(route('search', ['type' => 'authors', 'q' => 'مؤلف', 'century' => 11]));
+        $this->get('/search?type=people&role=scribe&century=11')->assertStatus(301)->assertRedirect(route('search', ['type' => 'scribes']));
     }
 
     public function test_record_pages_open_their_lists_in_the_search_with_every_author_and_scribe(): void
@@ -184,6 +225,7 @@ class SearchFiltersTest extends TestCase
         $this->withHeaders(['User-Agent' => 'Mozilla/5.0 Firefox/131.0'])->get(route('search.export', ['type' => 'people', 'format' => 'csv']))->assertOk();
 
         $log = SearchLog::sole();
-        $this->assertSame([SearchLog::KIND_EXPORT, 'csv', 'people'], [$log->kind, $log->format, $log->type]);
+        // An export link of the old tab of all people still works, as the authors'
+        $this->assertSame([SearchLog::KIND_EXPORT, 'csv', 'authors'], [$log->kind, $log->format, $log->type]);
     }
 }

@@ -85,6 +85,8 @@ class Person extends Model
             'is_donor' => 'boolean',
             'works_count' => 'integer',
             'manuscripts_count' => 'integer',
+            'scribed_from' => 'integer',
+            'scribed_to' => 'integer',
         ];
     }
 
@@ -138,9 +140,86 @@ class Person extends Model
         return array_values(array_merge((array) ($this->aliases ?? []), (array) ($this->wrong_names ?? [])));
     }
 
+    /** What scribeFacts gives for this person, set for a whole batch by makeSearchableUsing */
+    public ?array $scribeFacts = null;
+
+    /** One query for the copies of all the scribes of a batch being indexed, not one for each */
+    public function makeSearchableUsing(\Illuminate\Support\Collection $models): \Illuminate\Support\Collection
+    {
+        $facts = self::scribeFacts($models->where('is_scribe', true)->map->getKey()->all());
+        foreach ($models as $person) {
+            $person->scribeFacts = $facts[$person->id] ?? self::NO_COPIES;
+        }
+
+        return $models;
+    }
+
+    private const NO_COPIES = ['from' => null, 'to' => null, 'centuries' => [], 'cities' => []];
+
+    /**
+     * When and where each of the people copied (step 14.155), by person id: the first and last year of their dated
+     * copies, the centuries a copy of theirs lies wholly in (Manuscript::copyBounds, as the copies' own century
+     * filter), and the cities of their copies' places (CopyPlaces). A person without copies is not in the result.
+     *
+     * @return array<int, array{from: ?int, to: ?int, centuries: array<int, int>, cities: array<int, string>}>
+     */
+    public static function scribeFacts(array $ids): array
+    {
+        $facts = [];
+        $rows = $ids ? \Illuminate\Support\Facades\DB::table('manuscript_people')->join('manuscripts', 'manuscripts.id', '=', 'manuscript_people.manuscript_id')
+            ->where('manuscript_people.role', ManuscriptPerson::SCRIBE)->whereIn('manuscript_people.person_id', $ids)
+            ->get(['manuscript_people.person_id', 'manuscripts.copy_date_from', 'manuscripts.copy_date_to', 'manuscripts.copy_place']) : [];
+        foreach ($rows as $row) {
+            $f = $facts[$row->person_id] ?? self::NO_COPIES;
+            $from = $row->copy_date_from !== null && $row->copy_date_from >= 1 && $row->copy_date_from <= 1500 ? (int) $row->copy_date_from : null;
+            $to = $row->copy_date_to !== null && $row->copy_date_to >= 1 && $row->copy_date_to <= 1500 ? (int) $row->copy_date_to : null;
+            if ($from !== null) {
+                $f['from'] = min($f['from'] ?? $from, $from);
+            }
+            if ($to !== null) {
+                $f['to'] = max($f['to'] ?? $to, $to);
+            }
+            if ($from !== null && $to !== null && intdiv($from - 1, 100) === intdiv($to - 1, 100)) {
+                $f['centuries'][intdiv($from - 1, 100) + 1] = true;
+            }
+            if ($city = \App\Support\CopyPlaces::cityOf($row->copy_place)) {
+                $f['cities'][$city] = true;
+            }
+            $facts[$row->person_id] = $f;
+        }
+
+        return array_map(function ($f) {
+            ksort($f['centuries']);
+
+            return ['centuries' => array_keys($f['centuries']), 'cities' => array_keys($f['cities'])] + $f;
+        }, $facts);
+    }
+
+    /**
+     * When the person copied, beside the name in the scribes' tab: «کتابت ۱۰۸۵ ق» for one year, else the centuries
+     * («کتابت سده‌ی ۱۱ ق», «کتابت سده‌های ۱۱ تا ۱۲ ق»), since a copy dated by its century alone gives no year.
+     */
+    public function getScribedSpanAttribute(): ?string
+    {
+        $from = $this->scribed_from ?? $this->scribed_to;
+        $to = $this->scribed_to ?? $this->scribed_from;
+        if (! $from) {
+            return null;
+        }
+        [$first, $last] = [intdiv($from - 1, 100) + 1, intdiv($to - 1, 100) + 1];
+        $text = match (true) {
+            $from === $to => "کتابت {$from} ق",
+            $first === $last => "کتابت سده‌ی {$first} ق",
+            default => "کتابت سده‌های {$first} تا {$last} ق",
+        };
+
+        return \App\Support\Fa::digits($text);
+    }
+
     public function toSearchableArray(): array
     {
         $aliases = $this->searchAliases();
+        $copies = $this->scribeFacts ?? ($this->is_scribe ? self::scribeFacts([$this->id])[$this->id] ?? self::NO_COPIES : self::NO_COPIES);
         $normalizedWithAliases = trim($this->normalized_name . ' ' . implode(' ', $aliases));
 
         return [
@@ -159,6 +238,11 @@ class Person extends Model
             'is_donor' => (bool) $this->is_donor,
             'works_count' => (int) $this->works_count,
             'manuscripts_count' => (int) $this->manuscripts_count,
+            // The scribes' tab (step 14.155): when and where the person copied
+            'scribed_from' => $copies['from'],
+            'scribed_to' => $copies['to'],
+            'copy_centuries' => $copies['centuries'],
+            'copy_cities' => $copies['cities'],
         ];
     }
 
@@ -191,9 +275,6 @@ class Person extends Model
         return $this->hasMany(Work::class, 'author_id');
     }
 
-    /**
-     * Recompute works_count, manuscripts_count and the role flags from the pivots.
-     */
     /** Manuscripts this person is connected with in another role (owner, endower…). */
     public function manuscriptRoles(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -206,16 +287,74 @@ class Person extends Model
         return $this->hasMany(WorkPerson::class)->where('role', '!=', WorkPerson::AUTHOR);
     }
 
+    /**
+     * Recompute works_count, manuscripts_count and the author and scribe flags from the person's rows of work_people
+     * and manuscript_people. The flags are exactly «has a work» and «has a copy» (step 14.153): the search tabs of
+     * authors and of scribes are divided by them, so a person whose last work is taken away stops being an author.
+     * The rows' own hooks (RecountsPerson, SyncsPrimaryContributor) call this; what a bulk query changes is mended
+     * each night by fahares:sync-person-roles.
+     */
     public function recountContributions(): void
     {
         $works = $this->authoredWorks()->count();
         $manuscripts = $this->scribedManuscripts()->count();
+        $copies = $manuscripts ? self::scribeFacts([$this->id])[$this->id] ?? self::NO_COPIES : self::NO_COPIES;
+        $this->scribeFacts = $copies;
 
         $this->update([
             'works_count' => $works,
             'manuscripts_count' => $manuscripts,
-            'is_author' => $this->is_author || $works > 0,
-            'is_scribe' => $this->is_scribe || $manuscripts > 0,
+            'is_author' => $works > 0,
+            'is_scribe' => $manuscripts > 0,
+            'scribed_from' => $copies['from'],
+            'scribed_to' => $copies['to'],
         ]);
+    }
+
+    /**
+     * After the date or the place of copies changed: their scribes' years, and their index documents, which hold
+     * the centuries and cities too (a change of the place alone changes no column of the person).
+     */
+    public static function refreshScribesOf(array $manuscriptIds): void
+    {
+        $ids = $manuscriptIds ? \Illuminate\Support\Facades\DB::table('manuscript_people')->where('role', ManuscriptPerson::SCRIBE)
+            ->whereIn('manuscript_id', $manuscriptIds)->whereNotNull('person_id')->distinct()->pluck('person_id')->all() : [];
+        if ($ids) {
+            static::withoutSyncingToSearch(fn () => static::recountMany($ids));
+            static::whereIn('id', $ids)->get()->searchable();
+        }
+    }
+
+    /** The people whose stored counts, flags or years of copying are not what their rows give (fahares:sync-person-roles) */
+    public static function roleDrift(): \Illuminate\Support\Collection
+    {
+        $bound = fn (string $fn, string $column) => "{$fn}(CASE WHEN manuscripts.{$column} BETWEEN 1 AND 1500 THEN manuscripts.{$column} END)";
+        $years = \Illuminate\Support\Facades\DB::table('manuscript_people')->join('manuscripts', 'manuscripts.id', '=', 'manuscript_people.manuscript_id')
+            ->where('manuscript_people.role', ManuscriptPerson::SCRIBE)->whereNotNull('manuscript_people.person_id')->groupBy('manuscript_people.person_id')
+            ->selectRaw("manuscript_people.person_id, {$bound('MIN', 'copy_date_from')} AS f, {$bound('MAX', 'copy_date_to')} AS t");
+        $count = fn (string $table, string $role) => \Illuminate\Support\Facades\DB::table($table)->where('role', $role)->whereNotNull('person_id')
+            ->groupBy('person_id')->selectRaw('person_id, COUNT(*) AS n');
+
+        return \Illuminate\Support\Facades\DB::table('people')
+            ->leftJoinSub($count('work_people', WorkPerson::AUTHOR), 'w', 'w.person_id', '=', 'people.id')
+            ->leftJoinSub($count('manuscript_people', ManuscriptPerson::SCRIBE), 'm', 'm.person_id', '=', 'people.id')
+            ->leftJoinSub($years, 'y', 'y.person_id', '=', 'people.id')
+            ->whereRaw('(people.works_count <> COALESCE(w.n, 0) OR people.manuscripts_count <> COALESCE(m.n, 0)
+                OR people.is_author <> (COALESCE(w.n, 0) > 0) OR people.is_scribe <> (COALESCE(m.n, 0) > 0)
+                OR NOT (people.scribed_from <=> y.f) OR NOT (people.scribed_to <=> y.t))')
+            ->orderBy('people.id')
+            ->selectRaw('people.id, people.name, people.works_count, people.manuscripts_count, people.is_author, people.is_scribe,
+                COALESCE(w.n, 0) AS works, COALESCE(m.n, 0) AS manuscripts,
+                (NOT (people.scribed_from <=> y.f) OR NOT (people.scribed_to <=> y.t)) AS years_differ')
+            ->get();
+    }
+
+    /** recountContributions for each of the people that exist; nulls and repeats are skipped */
+    public static function recountMany(iterable $ids): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', [...$ids]))));
+        foreach ($ids ? static::whereIn('id', $ids)->get() : [] as $person) {
+            $person->recountContributions();
+        }
     }
 }

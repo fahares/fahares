@@ -775,6 +775,25 @@
   },
   {
    "library_slug": "thran-mlk-15",
+   "volume_number": 6,
+   "facsimile_code": "malek",
+   "page_first": 1,
+   "page_last": 496,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v06.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v06.map.json"
+     ],
+     "note": "docibox 1114691؛ اسکن چاپ ۱۳۶۶ (JBIG2، ۳۰۰ dpi)؛ ص ۱ برگ بی‌سرصفحه‌ی ۱۲",
+     "step": "14.151"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
    "volume_number": 7,
    "facsimile_code": "malek",
    "page_first": 3,
@@ -827,6 +846,50 @@
      ],
      "note": "خزانه‌ها 5390؛ اسکن چاپ ۱۳۷۱؛ هر برگ دو صفحه‌ی چاپی (راست، سپس چپ)",
      "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 33,
+   "create": {
+    "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳",
+    "publication_year": "۱۳۸۸",
+    "publisher": "کتابخانه، موزه و مرکز اسناد مجلس شورای اسلامی"
+   },
+   "facsimile_code": "majlis-p1",
+   "page_first": 10,
+   "page_last": 264,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v33-1.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v33-1.map.json"
+     ],
+     "note": "نسخه‌های ۱۰۴۰۱ تا ۱۰۸۰۰؛ نسخه‌هایی که فنخا «۳۳/۱» ارجاع داده با catalogs:move-cited-part به این جلد می‌روند (گام ۱۴.۱۵۲)",
+     "step": "14.152"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 33,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳",
+   "facsimile_code": "majlis-p2",
+   "page_first": 6,
+   "page_last": 238,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v33-2.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v33-2.map.json"
+     ],
+     "note": "بخش ۲ با صفحه‌شماری جدا",
+     "step": "14.152"
     }
    }
   }

@@ -59,14 +59,16 @@ class SearchExport
                 'متن' => fn (\App\Models\SourceItem $i) => $i->text,
                 'نشانی در فهارس' => fn (\App\Models\SourceItem $i) => $i->url(),
             ],
-            'people' => [
+            'authors', 'scribes' => [
                 'شناسه' => fn (Person $p) => $p->id,
                 'نام' => fn (Person $p) => $p->name,
                 'تولد (ق)' => fn (Person $p) => $p->birth_year_hijri,
                 'وفات (ق)' => fn (Person $p) => $p->death_year_hijri,
                 'سده' => fn (Person $p) => $p->century_hijri,
                 'شمار آثار' => fn (Person $p) => $p->works_count,
-                'نسخه‌های کتابت‌شده' => fn (Person $p) => $p->scribed_manuscripts_count ?? $p->manuscripts_count,
+                'نسخه‌های کتابت‌شده' => fn (Person $p) => $p->manuscripts_count,
+                'کتابت از سال (ق)' => fn (Person $p) => $p->scribed_from,
+                'کتابت تا سال (ق)' => fn (Person $p) => $p->scribed_to,
                 'نشانی در فهارس' => fn (Person $p) => url("/p/{$p->id}"),
             ],
             default => [

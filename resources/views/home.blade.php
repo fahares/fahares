@@ -39,7 +39,7 @@
 
             <div x-data="{ activeTab: 'works' }" class="max-w-3xl mx-auto text-right pt-1">
                 <div class="flex items-center justify-center gap-1.5 mb-3 text-xs sm:text-sm font-semibold" role="tablist" aria-label="دامنه‌ی جست‌وجو">
-                    @foreach(['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'پدیدآوران و کاتبان'] as $tab => $tabLabel)
+                    @foreach(['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان'] as $tab => $tabLabel)
                         <button type="button" role="tab" @click="activeTab = '{{ $tab }}'" :aria-selected="activeTab === '{{ $tab }}'"
                                 :class="activeTab === '{{ $tab }}' ? 'bg-paper text-ink border-line-strong' : 'text-muted border-transparent hover:text-ink'"
                                 class="px-3.5 py-1 rounded-sm border transition cursor-pointer">{{ $tabLabel }}</button>
@@ -77,7 +77,7 @@
                 @foreach([
                     ['works', 'اثر', route('search', ['type' => 'works'])],
                     ['manuscripts', 'نسخه', route('search', ['type' => 'manuscripts'])],
-                    ['people', 'پدیدآور و کاتب', route('search', ['type' => 'people'])],
+                    ['people', 'پدیدآور و کاتب', route('search', ['type' => 'authors'])],
                     ['libraries', 'کتابخانه', route('libraries.index')],
                     ['catalogers', 'فهرست‌نگار', route('catalogers.index')],
                 ] as [$key, $statLabel, $statUrl])

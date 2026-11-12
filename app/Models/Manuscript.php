@@ -123,6 +123,13 @@ class Manuscript extends Model
         });
 
         static::deleted(fn (Manuscript $manuscript) => static::reindexWorks([$manuscript->work_id]));
+
+        // The scribes' tab of the search holds when and where each scribe copied (step 14.155)
+        static::updated(function (Manuscript $manuscript) {
+            if ($manuscript->wasChanged(['copy_date_from', 'copy_date_to', 'copy_place'])) {
+                Person::refreshScribesOf([$manuscript->id]);
+            }
+        });
     }
 
     protected static function reindexWorks(array $workIds): void

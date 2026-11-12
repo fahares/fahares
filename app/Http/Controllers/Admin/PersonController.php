@@ -63,8 +63,6 @@ class PersonController extends Controller
             'bio_notes' => 'nullable|string',
             'aliases' => 'nullable|string|max:20000',
             'wrong_names' => 'nullable|string|max:20000',
-            'is_author' => 'boolean',
-            'is_scribe' => 'boolean',
         ]);
 
         $oldValues = $person->toArray();
@@ -81,8 +79,6 @@ class PersonController extends Controller
             // One name a line; a misspelt form stays searchable but is not listed (backlog item 90)
             'aliases' => self::nameLines($validated['aliases'] ?? null),
             'wrong_names' => self::nameLines($validated['wrong_names'] ?? null),
-            'is_author' => $request->boolean('is_author'),
-            'is_scribe' => $request->boolean('is_scribe'),
         ]);
 
         if (method_exists($person, 'searchable')) {
