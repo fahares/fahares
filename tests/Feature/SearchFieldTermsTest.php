@@ -109,6 +109,6 @@ class SearchFieldTermsTest extends TestCase
 
     public function test_people_and_sources_have_no_field_panel(): void
     {
-        $this->get(route('search', ['type' => 'people', 'f' => ['scribe' => 'محمد']]))->assertOk()->assertDontSee('name="f[', false);
+        $this->get(route('search', ['type' => 'scribes', 'f' => ['scribe' => 'محمد']]))->assertOk()->assertDontSee('name="f[', false);
     }
 }

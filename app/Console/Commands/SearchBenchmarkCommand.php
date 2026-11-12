@@ -33,7 +33,7 @@ class SearchBenchmarkCommand extends Command
 
     private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => \App\Models\SourceItem::class];
 
-    private const INDEXES = SearchController::INDEXES;
+    private const INDEXES = SearchController::INDEXES + ['people' => 'people_index'];
 
     /** How deep a hit is looked for, to tell «a bit too low» from «not found» */
     private const DEPTH = 20;

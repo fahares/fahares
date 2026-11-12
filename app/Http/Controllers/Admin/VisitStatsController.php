@@ -146,7 +146,7 @@ class VisitStatsController extends Controller
             })(),
             'source' => $sourceNames()->mapWithKeys(fn ($name, $code) => [$code => ['label' => $name, 'url' => route('sources.show', $code)]])->all(),
             'search' => $refs->mapWithKeys(fn ($tab) => [$tab => [
-                'label' => ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'][$tab] ?? ($tab === '' ? 'بی تب' : $tab),
+                'label' => ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان', 'sources' => 'منابع', 'people' => 'اشخاص (زبانه‌ی پیشین)'][$tab] ?? ($tab === '' ? 'بی تب' : $tab),
                 'url' => route('search', array_filter(['type' => $tab])),
             ]])->all(),
             default => $refs->mapWithKeys(function ($name) {

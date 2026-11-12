@@ -68,10 +68,13 @@
                         class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'manuscripts' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
                         نسخه‌های خطی@isset($tabCounts['manuscripts']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['manuscripts']) }})</span>@endisset
                     </button>
-                    <button type="submit" onclick="document.getElementById('search-type-input').value='people'" 
-                        class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'people' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
-                        پدیدآوران و کاتبان@isset($tabCounts['people']) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts['people']) }})</span>@endisset
-                    </button>
+                    {{-- The people in two tabs (step 14.154); someone who is both is in both --}}
+                    @foreach(['authors' => 'پدیدآوران', 'scribes' => 'کاتبان'] as $peopleTab => $peopleLabel)
+                        <button type="submit" onclick="document.getElementById('search-type-input').value='{{ $peopleTab }}'"
+                            class="px-3 py-1 rounded-sm font-medium transition {{ $type === $peopleTab ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
+                            {{ $peopleLabel }}@isset($tabCounts[$peopleTab]) <span class="text-[10px] opacity-75">({{ Fa::num($tabCounts[$peopleTab]) }})</span>@endisset
+                        </button>
+                    @endforeach
                     {{-- The printed entries of the sources: al-Dhari'a… (backlog item 83, phase 7) --}}
                     <button type="submit" onclick="document.getElementById('search-type-input').value='sources'"
                         class="px-3 py-1 rounded-sm font-medium transition {{ $type === 'sources' ? 'bg-ink text-paper' : 'text-muted hover:text-ink' }}">
@@ -166,7 +169,7 @@
                          }
                      }">
                     <h2 class="rubric text-lg">
-                        <span><span class="tabular-nums">{{ Fa::num($results->total()) }}</span> {{ ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص', 'sources' => 'مدخل'][$type] ?? 'نتیجه' }}</span>
+                        <span><span class="tabular-nums">{{ Fa::num($results->total()) }}</span> {{ \App\Http\Controllers\SearchController::LABELS[$type][1] ?? 'نتیجه' }}</span>
                         @if($query)<span class="font-sans text-sm font-normal text-muted">برای «<span class="text-ink font-semibold">{{ $query }}</span>»</span>@endif
                     </h2>
                     {{-- Order and page size (backlog item 83, phase 3); the other parameters of the search are kept --}}
@@ -324,7 +327,7 @@
                         @endforeach
                     </ul>
 
-                @elseif($type === 'people')
+                @elseif(in_array($type, ['authors', 'scribes'], true))
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $person)
                             <li data-pos="{{ ($results->currentPage() - 1) * $results->perPage() + $loop->iteration }}">
@@ -335,7 +338,12 @@
                                         @if($person->transliteration)<span class="block text-[11px] text-muted" dir="ltr">{{ $person->transliteration }}</span>@endif
                                     </span>
                                     <span class="leader" aria-hidden="true"></span>
-                                    <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($person->works_count) }} اثر</span>
+                                    {{-- An author by the works; a scribe by the copies and when they were made (step 14.155) --}}
+                                    @if($type === 'scribes')
+                                        <span class="text-xs text-muted tabular-nums whitespace-nowrap">@if($person->scribed_span){{ $person->scribed_span }} · @endif{{ Fa::num($person->manuscripts_count) }} نسخه@if($person->is_author) · {{ Fa::num($person->works_count) }} اثر@endif</span>
+                                    @elseif($person->works_count || ! $person->manuscripts_count)
+                                        <span class="text-xs text-muted tabular-nums whitespace-nowrap">{{ Fa::num($person->works_count) }} اثر</span>
+                                    @endif
                                 </a>
                             </li>
                         @endforeach
@@ -412,7 +420,7 @@
                     <p class="font-naskh text-2xl font-bold text-ink">نتیجه‌ای پیدا نشد</p>
 
                     @php
-                        $tabLabels = ['works' => 'اثر', 'manuscripts' => 'نسخه', 'people' => 'شخص', 'sources' => 'مدخل در منابع'];
+                        $tabLabels = ['works' => 'اثر', 'manuscripts' => 'نسخه', 'authors' => 'پدیدآور', 'scribes' => 'کاتب', 'sources' => 'مدخل در منابع'];
                         $elsewhere = collect($tabCounts ?? [])->except($type)->filter();
                     @endphp
                     @if($elsewhere->isNotEmpty())

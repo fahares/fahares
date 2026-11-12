@@ -30,9 +30,26 @@ class SearchController extends Controller
 {
     public function index(Request $request)
     {
+        // The one tab of people is two (step 14.154); an old link opens the tab it meant
+        if ($request->input('type') === 'people') {
+            $scribes = $request->input('role') === 'scribe';
+
+            return redirect()->route('search', ['type' => $scribes ? 'scribes' : 'authors'] + $request->except(['type', ...($scribes ? ['role', 'century'] : [])]), 301);
+        }
         $data = $this->search($request);
 
         return is_array($data) ? view('search', $data) : $data;
+    }
+
+    /** The tab a request names; none or an unknown one is the works', and the old tab of all people is the authors' */
+    public static function tabOf(mixed $type): string
+    {
+        return $type === 'people' ? 'authors' : (in_array($type, self::TYPES, true) ? $type : 'works');
+    }
+
+    public static function isPeople(string $type): bool
+    {
+        return in_array($type, self::PEOPLE_TABS, true);
     }
 
     /**
@@ -50,7 +67,7 @@ class SearchController extends Controller
             $alternatives = [];
         }
         $query = $rawQuery;
-        $type = in_array($request->input('type'), self::TYPES, true) ? $request->input('type') : 'works';
+        $type = self::tabOf($request->input('type'));
         $scope = self::scopeAvailable($type, (string) $request->input('scope')) ? $request->input('scope') : 'titles_names';
         // Every filter of the tab, defined once for the engine and the database (backlog item 83, phase 5)
         $filters = SearchFilters::fromRequest($request, $type);
@@ -86,10 +103,10 @@ class SearchController extends Controller
         $facets = $exportLimit || $idsOnly ? null : $this->facets($type, $searchQuery, $searchAttrs, $filters->contextEngine(), $alternatives);
         $options = $exportLimit || $idsOnly ? [] : $this->filterOptions($type, $filters, $facets ?? [], $facets !== null);
 
-        $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => SourceItem::class][$type];
+        $model = self::MODELS[$type];
         $with = self::WITH[$type];
+        // The people show their stored counts, which follow their works and copies (step 14.153)
         $prepare = fn ($q) => match ($type) {
-            'people' => $q->withCount(['works', 'scribedManuscripts']),
             // A preface is not an entry, and the index leaves it out too
             'sources' => $q->with($with)->where('source_items.kind', '!=', 'preface'),
             default => $q->with($with),
@@ -162,16 +179,15 @@ class SearchController extends Controller
                 $results = new \Illuminate\Pagination\LengthAwarePaginator([], 0, $perPage, 1, ['path' => $request->url(), 'query' => $request->query()]);
             }
             if (! $engineDown) {
-                $type === 'people'
-                    ? $results->getCollection()->loadCount(['works', 'scribedManuscripts'])
-                    : $results->getCollection()->load($with);
+                $results->getCollection()->load($with);
             }
         } else {
             $builder = $filters->apply($prepare($model::query()));
             $ordered = $sort ? $dbSort($builder) : match ($type) {
                 'works' => $builder->orderByDesc('works.manuscripts_count'),
                 // The stored count: ordering by the counted one counts every person's works first
-                'people' => $builder->orderByDesc('people.works_count'),
+                'authors' => $builder->orderByDesc('people.works_count')->orderBy('people.id'),
+                'scribes' => $builder->orderByDesc('people.manuscripts_count')->orderBy('people.id'),
                 'sources' => $builder->orderBy('source_items.volume_number')->orderBy('source_items.position'),
                 default => $builder->orderBy('manuscripts.id'),
             };
@@ -222,7 +238,8 @@ class SearchController extends Controller
         $names = [
             'works' => ['subjects', 'languages', 'era_year', 'work_form', 'bibliographies', 'has_autograph'],
             'manuscripts' => ['library_id', 'city', 'scripts', 'copy_century', 'subjects', 'languages', 'is_facsimile', ...array_keys(SearchFilters::FLAGS)],
-            'people' => ['century_hijri', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
+            'authors' => ['century_hijri', 'is_author', 'is_scribe', 'is_translator', 'is_donor'],
+            'scribes' => ['copy_centuries', 'copy_cities', 'is_author', 'is_translator'],
             'sources' => ['source_id', 'volume_number'],
         ][$type];
         $index = self::INDEXES[$type];
@@ -283,10 +300,18 @@ class SearchController extends Controller
             return $options;
         }
 
-        if ($type === 'people') {
-            $options['centuries'] = $counted ? collect($facets['century_hijri'] ?? [])->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->sortKeys()->all()
-                : array_fill_keys(range(1, 15), null);
-            $options['roles'] = collect(SearchFilters::ROLES)->map(fn ($label, $role) => [$label, $count("is_{$role}", 'true')])->all();
+        if (self::isPeople($type)) {
+            // The death of an author; the copies of a scribe, who almost never has a date of death (step 14.155)
+            $options['centuries'] = $counted ? collect($facets[$type === 'scribes' ? 'copy_centuries' : 'century_hijri'] ?? [])
+                ->mapWithKeys(fn ($n, $c) => [(int) $c => $n])->filter(fn ($n, $c) => $c >= 1 && $c <= 15)->sortKeys()->all()
+                : array_fill_keys(range($type === 'scribes' ? 3 : 1, 15), null);
+            // A role nobody of the matches has is left out, unless it is the one chosen
+            $options['roles'] = collect(SearchFilters::TAB_ROLES[$type])->mapWithKeys(fn ($role) => [$role => [SearchFilters::ROLES[$role], $count("is_{$role}", 'true')]])
+                ->filter(fn ($option, $role) => ! $counted || $option[1] > 0 || $filters->get('role') === $role)->all();
+            if ($type === 'scribes') {
+                $cities = $counted ? collect($facets['copy_cities'] ?? [])->sortDesc()->all() : array_fill_keys(array_keys(CopyPlaces::cities()), null);
+                $options['copyCities'] = $cities + ($filters->get('copy_city') ? [$filters->get('copy_city') => $cities[$filters->get('copy_city')] ?? 0] : []);
+            }
 
             return $options;
         }
@@ -379,7 +404,7 @@ class SearchController extends Controller
         callable $prepare, int $perPage, ?int $exportLimit, bool $idsOnly, array &$snippets, array &$matchedFields): array|\Illuminate\Pagination\LengthAwarePaginator
     {
         $index = self::INDEXES[$type];
-        $model = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => SourceItem::class][$type];
+        $model = self::MODELS[$type];
         $table = (new $model)->getTable();
         $page = max(1, (int) $request->input('page', 1));
         $tune = function (SearchQuery $q) use ($type, $searchAttrs, $exportLimit, $sort) {
@@ -498,10 +523,16 @@ class SearchController extends Controller
             'newest' => ['تازه‌ترین کتابت', 'copy_date_hijri_year', 'desc'],
             'folios' => ['بیشترین برگ', 'folios', 'desc'],
         ],
-        'people' => [
+        'authors' => [
             'oldest' => ['کهن‌ترین وفات', 'death_year_hijri', 'asc'],
             'newest' => ['تازه‌ترین وفات', 'death_year_hijri', 'desc'],
             'works' => ['بیشترین اثر', 'works_count', 'desc'],
+        ],
+        // A scribe by the copies: how many, and the years they lie between (people.scribed_from, scribed_to)
+        'scribes' => [
+            'manuscripts' => ['بیشترین نسخه', 'manuscripts_count', 'desc'],
+            'oldest' => ['کهن‌ترین کتابت', 'scribed_from', 'asc'],
+            'newest' => ['تازه‌ترین کتابت', 'scribed_to', 'desc'],
         ],
         'sources' => [],
     ];
@@ -510,14 +541,32 @@ class SearchController extends Controller
     public const WITH = [
         'works' => ['catalog', 'author', 'subjects', 'languages'],
         'manuscripts' => ['catalog', 'work.author', 'scribe', 'libraryRecord', 'scripts'],
-        'people' => [],
+        'authors' => [],
+        'scribes' => [],
         'sources' => ['source'],
     ];
 
-    /** The search tabs: works, manuscripts, people, and the printed entries of the sources (phase 7) */
-    public const TYPES = ['works', 'manuscripts', 'people', 'sources'];
+    /**
+     * The search tabs: works, manuscripts, the people in two tabs (step 14.154), and the printed entries of the
+     * sources (phase 7). The authors and the scribes are the same records in the same index, divided by
+     * SearchFilters::tabEngine; someone who is both is in both.
+     */
+    public const TYPES = ['works', 'manuscripts', 'authors', 'scribes', 'sources'];
 
-    public const INDEXES = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'people' => 'people_index', 'sources' => 'source_items_index'];
+    public const PEOPLE_TABS = ['authors', 'scribes'];
+
+    public const INDEXES = ['works' => 'works_index', 'manuscripts' => 'manuscripts_index', 'authors' => 'people_index', 'scribes' => 'people_index', 'sources' => 'source_items_index'];
+
+    public const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'authors' => Person::class, 'scribes' => Person::class, 'sources' => SourceItem::class];
+
+    /** The name of each tab, and of one of its records */
+    public const LABELS = [
+        'works' => ['آثار', 'اثر'],
+        'manuscripts' => ['نسخه‌ها', 'نسخه'],
+        'authors' => ['پدیدآوران', 'پدیدآور'],
+        'scribes' => ['کاتبان', 'کاتب'],
+        'sources' => ['منابع', 'مدخل'],
+    ];
 
     public const PER_PAGE = [20, 50, 100];
 
@@ -570,7 +619,7 @@ class SearchController extends Controller
         // Exports count in the search stats too (backlog item 85)
         $this->logSearch($request, TextNormalizer::normalize($data['query']), $type, $data['scope'], $data['filters'],
             $data['results']->total(), 1, kind: SearchLog::KIND_EXPORT, format: $request->input('format') === 'csv' ? 'csv' : 'xlsx');
-        $name = trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', 'فهارس-' . ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص', 'sources' => 'منابع'][$type] . '-' . $data['query']), '-');
+        $name = trim(preg_replace('/[^\p{L}\p{N}]+/u', '-', 'فهارس-' . self::LABELS[$type][0] . '-' . $data['query']), '-');
 
         return SearchExport::download($data['results'] ?? [], $type, $request->input('format') === 'csv' ? 'csv' : 'xlsx', $name);
     }
@@ -590,7 +639,7 @@ class SearchController extends Controller
         $format = $request->input('format') === 'csv' ? 'csv' : 'xlsx';
         $params = $request->except(['_token', 'format', 'page', 'per_page']);
         \App\Jobs\ExportSearchResults::dispatch($request->user()->id, $params, $format);
-        $data = ['query' => TextNormalizer::normalize((string) ($params['q'] ?? '')), 'type' => in_array($params['type'] ?? null, self::TYPES, true) ? $params['type'] : 'works'];
+        $data = ['query' => TextNormalizer::normalize((string) ($params['q'] ?? '')), 'type' => self::tabOf($params['type'] ?? null)];
         $this->logSearch($request, $data['query'], $data['type'], (string) ($params['scope'] ?? 'titles_names'), SearchFilters::fromRequest($request, $data['type']),
             (int) $request->input('total', 0), 1, kind: SearchLog::KIND_EXPORT, format: "{$format}-queued");
 
@@ -642,7 +691,8 @@ class SearchController extends Controller
             'shelfmark' => ['شماره‌ی نسخه', ['shelfmark', 'shelfmark_key']],
             'place' => ['محل کتابت', ['copy_place']],
         ],
-        'people' => [],
+        'authors' => [],
+        'scribes' => [],
         'sources' => [],
     ];
 
@@ -660,6 +710,11 @@ class SearchController extends Controller
             return self::FIELD_SCOPES[$type][$scope][1];
         }
 
+        $people = [
+            'titles' => ['name'],
+            'titles_names' => ['name', 'normalized_name', 'transliteration'],
+        ];
+
         return [
             'works' => [
                 'titles' => ['primary_title', 'clean_title', 'alternative_titles'],
@@ -673,10 +728,8 @@ class SearchController extends Controller
                 // narrows a work's manuscripts to Qom's (backlog item 83)
                 'titles_names' => ['work_title', 'author_name', 'shelfmark', 'scribe_name', 'library', 'library_full_name', 'city'],
             ],
-            'people' => [
-                'titles' => ['name'],
-                'titles_names' => ['name', 'normalized_name', 'transliteration'],
-            ],
+            'authors' => $people,
+            'scribes' => $people,
             // An entry is searched in its text by default: that is what this tab is for
             'sources' => [
                 'titles' => ['title'],
@@ -707,7 +760,7 @@ class SearchController extends Controller
     }
 
     /**
-     * Hit counts for the three tabs, so a search on the wrong tab points to where the matches are.
+     * Hit counts for the other tabs, so a search on the wrong tab points to where the matches are.
      * The current tab keeps its filtered total; the others count the bare query in the same scope.
      */
     protected function tabCounts(string $searchQuery, string $scope, string $type, int $currentTotal, array $alternatives = []): array
@@ -722,12 +775,14 @@ class SearchController extends Controller
                     continue;
                 }
                 $attrs = self::scopeAttributes($tab, $scope);
+                // The authors and the scribes are two parts of one index
+                $part = SearchFilters::tabEngine($tab);
                 if ($alternatives) {
-                    $counts[$tab] = (int) ($meili->multiSearch(self::partQueries($index, $alternatives, $attrs), (new MultiSearchFederation)->setLimit(0))['estimatedTotalHits'] ?? 0);
+                    $counts[$tab] = (int) ($meili->multiSearch(self::partQueries($index, $alternatives, $attrs, $part), (new MultiSearchFederation)->setLimit(0))['estimatedTotalHits'] ?? 0);
 
                     continue;
                 }
-                $options = ['matchingStrategy' => 'all', 'limit' => 0];
+                $options = ['matchingStrategy' => 'all', 'limit' => 0] + ($part ? ['filter' => $part] : []);
                 if ($attrs) {
                     $options['attributesToSearchOn'] = $attrs;
                 }
@@ -835,7 +890,7 @@ class SearchController extends Controller
             $meili = app(MeiliClient::class);
             $candidate = null;
 
-            if ($type === 'people') {
+            if (self::isPeople($type)) {
                 $candidate = $this->findCandidateInIndex($meili, 'people_index', $query, ['name', 'normalized_name']);
                 if (!$candidate) {
                     $candidate = $this->findCandidateInIndex($meili, 'works_index', $query, ['clean_title', 'primary_title']);
@@ -903,7 +958,7 @@ class SearchController extends Controller
             return null;
         }
 
-        if ($type === 'people') {
+        if (self::isPeople($type)) {
             $p = Person::where('name', 'LIKE', "{$prefix}%")
                 ->orderByDesc('works_count')
                 ->value('name');

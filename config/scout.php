@@ -364,11 +364,16 @@ return [
                     'death_year_hijri',
                     'works_count',
                     'manuscripts_count',
+                    // The scribes' tab (step 14.155)
+                    'copy_centuries',
+                    'copy_cities',
                 ],
                 'sortableAttributes' => [
                     'death_year_hijri',
                     'works_count',
                     'manuscripts_count',
+                    'scribed_from',
+                    'scribed_to',
                 ],
                 // Among equal text matches, the better-known bearer of a name first (backlog item 83)
                 'rankingRules' => ['words', 'typo', 'proximity', 'sort', 'works_count:desc', 'manuscripts_count:desc', 'attribute', 'exactness'],
