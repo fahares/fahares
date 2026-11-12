@@ -10085,3 +10085,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan catalogs:move-cited-part --library=thran-mgls-4 --volume=33 --part=1 --from="فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳" --to="فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳" --apply
   ```
   پیش از آن از ردیف‌های `manuscripts`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۳۳ پشتیبان گرفته شود.
+- **اجرای تولید 47048 (۲۲ آبان ۱۴۰۵):**
+  - md5 فایل در `/app` برابر بود (`55cf6c98…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_149_work47048_before.json` (ردیف اثر؛ نسخه‌ای نداشت). `from` مآخذ برابر بود.
+  - **اجرا:** `add-corpus-works --apply` با `prod-run`: «works=1»، «1 copies linked».
+  - **نتیجه:** نسخه‌ی 334897 (مرعشی، `library_id` 2، جلد 95) ساخته شد و `manuscripts_count` اثر 1 شد. اجرای دوم «0».
+  - **`/tmp`:** فایل‌های این گام پاک شدند. `step14_151_only.json` از نشست دیگری است و دست نخورد.
+
