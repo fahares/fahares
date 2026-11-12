@@ -9969,4 +9969,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. فایل‌ها به `/tmp` کانتینر رونوشت شوند.
   3. `sources:import-pages` برای ۳۴ جلد، یکی‌یکی، با `prod-run`.
   4. پاک کردن `/tmp`.
+- **اجرای تولید (۲۲ آبان ۱۴۰۵):**
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_149_fankha_pages_before.jsonl.gz`، با ۳۳٬۵۱۸ ردیف (`id`، `source_volume_id`، `volume_number`، `page`، `text`، `updated_at`). md5 در کانتینر و بیرون آن یکی بود (`766218e2…`).
+  - **سنجش پیش از اجرا:** فایل‌های تازه در برابر پشتیبان ۸۸۴ صفحه‌ی فرق‌دار داشتند و صفحه‌ی تازه‌ای نبود، همان‌که رونوشت محلی داشت.
+  - **فایل‌ها:** ۳۴ فایل به `/tmp/step14_149_pages/` کانتینر رونوشت شد. `MD5SUMS` دو سو برابر بود.
+  - **اجرا:** یک `prod-run --wait jolly-tharp`، با `sources:import-pages fankha … --volume=N` برای N از ۱ تا ۳۴.
+  - **وارسی:**
+    - صفحه‌های تولید دوباره بیرون آمد (`md5 88c6f287…`) و با Python با فایل‌ها برابر گذاشته شد: ۳۳٬۵۱۸ صفحه، `differ 0` و `missing 0`.
+    - وارسی نخست با `gzfile` در PHP سطرهای بلند را شکست و ۲۲۶ صفحه را نسنجید. پس به آن تکیه نشد.
+    - `/sources/fankha/7/page/720` پاسخ 200 داد. `/tmp` کانتینر پاک است.
 
