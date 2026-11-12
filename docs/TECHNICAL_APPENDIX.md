@@ -10061,3 +10061,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فهرست نام و اندازه دو سو یکسان بود. سپس `chown`/`chmod` اجرا شد، و ص ۱، ۲۳۰ و ۴۹۶ از fahares.net پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run` اجرا شود (۱ به‌روز)، پس از پشتیبان از ردیف جلد #۴۴۴.
 
+### گام ۱۴.۱۵۰: نشان‌های ثبت‌نشده در صفحه‌ی نسخه
+- **فایل:** `resources/views/manuscripts/show.blade.php`. هر نشانِ روشن یک `<li data-flag="…">` ساده است. هر نشانِ خاموش `<li data-flag-unset="…" x-show="$store.suggest.on" x-cloak>` است و برچسب «(ثبت نشده)» دارد.
+- **بخش:** اگر هیچ‌یک از سیزده نشان روشن نباشد، خود `<section data-flags-section>` هم `x-show="$store.suggest.on"` و `x-cloak` می‌گیرد. این همان الگوی فیلدهای خالی صفحه‌ی شخص است (`people/show.blade.php`).
+- **پیامد:** دکمه‌ی پیشنهاد یک نشان خاموش دیگر با بردن نشانگر پیدا نمی‌شود و تنها در حالت پیشنهاد در دسترس است. نشان «N قول» یک نشان خاموش هم تنها همان‌جا دیده می‌شود. فهرست قول‌ها در پایین صفحه دست نخورده است.
+- **آزمون:** [ManuscriptFlagsDisplayTest](../tests/Feature/ManuscriptFlagsDisplayTest.php)، دو آزمون: نسخه‌ای با دو نشان (۲ ردیف ساده و ۱۱ ردیف ویژه‌ی حالت پیشنهاد) و نسخه‌ای بی‌نشان (بخش پنهان، ۱۳ ردیف).
+- **آزمون از worktree:** `vendor` باید رونوشت واقعی باشد، نه symlink به checkout اصلی. با symlink، `base_path()` به `/var/www/html` می‌رسد و آزمون‌ها کد شاخه‌ی اصلی را می‌سنجند.
