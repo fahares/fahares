@@ -10151,6 +10151,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. پشتیبان از ستون‌های `id`، `works_count`، `manuscripts_count`، `is_author` و `is_scribe` جدول `people`، و سپس `php -d memory_limit=1G artisan fahares:sync-person-roles --apply --show=0`.
   3. `php -d memory_limit=1G artisan scout:import "App\Models\Person"`، چون سده‌ها و شهرهای کتابت فقط در نمایه‌اند.
 - **تا پیش از این سه فرمان:** مرور بی‌عبارت و جست‌وجوی هر دو زبانه کار می‌کند. فیلتر سده و محل کتابت کاتبان همراه با عبارت جست‌وجو «جست‌وجو موقتاً در دسترس نیست» می‌دهد، و شمار کنار این دو فیلتر نمی‌آید.
+
 ### گام ۱۴.۱۵۶: روند پیشنهاد اصلاح
 - **فرم پیش از ورود (`resources/js/suggest-desk.js`):**
   - `start()` دیگر مهمان را به پنجره‌ی ورود نمی‌برد و فرم را باز می‌کند.
