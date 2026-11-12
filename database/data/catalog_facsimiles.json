@@ -414,6 +414,421 @@
      "step": "14.136"
     }
    }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 3,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سوم",
+   "facsimile_code": "majlis",
+   "page_first": 4,
+   "page_last": 782,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v03.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v03.map.json"
+     ],
+     "note": "اسکن docibox 1265671",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 5,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد پنجم",
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 612,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v05.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v05.map.json"
+     ],
+     "note": "اسکن docibox 1265673",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 6,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد ششم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 331,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v06.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v06.map.json"
+     ],
+     "note": "اسکن docibox 1265676",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 7,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد هفتم: مجموعه اهدایی امام جمعه خویی",
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 643,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v07.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v07.map.json"
+     ],
+     "note": "اسکن docibox 1265677",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 8,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد هشتم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 564,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v08.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v08.map.json"
+     ],
+     "note": "اسکن docibox 1265678",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 9,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد نهم - بخش دوم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 958,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v09-1.pdf",
+      "majlis/v09-2.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v09-1.map.json",
+      "majlis/v09-2.map.json"
+     ],
+     "note": "اسکن docibox 1265679 و 1265680؛ دو بخش با صفحه‌شماری پیوسته: بخش ۱ (ص ۲–۴۵۰)، بخش ۲ (۴۵۱–۹۵۸)",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 13,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد سیزدهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 438,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v13.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v13.map.json"
+     ],
+     "note": "اسکن docibox 1265686",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 14,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد چهاردهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 467,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v14.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v14.map.json"
+     ],
+     "note": "اسکن docibox 1265687",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 15,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد پانزدهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 386,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v15.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v15.map.json"
+     ],
+     "note": "اسکن docibox 1265688",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 16,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد شانزدهم",
+   "facsimile_code": "majlis",
+   "page_first": 1,
+   "page_last": 476,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v16.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v16.map.json"
+     ],
+     "note": "اسکن docibox 1265689",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 17,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد هفدهم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 424,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v17.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v17.map.json"
+     ],
+     "note": "اسکن docibox 1265690",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 18,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد هیجدهم: کتب اهدایی رهی معیری",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 160,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v18.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v18.map.json"
+     ],
+     "note": "اسکن docibox 1265691 (۷۲ dpi)",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 19,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد نوزدهم",
+   "facsimile_code": "majlis",
+   "page_first": 2,
+   "page_last": 646,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v19.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v19.map.json"
+     ],
+     "note": "اسکن docibox 1265692",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mgls-4",
+   "volume_number": 21,
+   "title": "فهرست کتابخانه مجلس شورای اسلامی - جلد بیست و یکم",
+   "facsimile_code": "majlis",
+   "page_first": 3,
+   "page_last": 469,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "majlis/v21.pdf"
+     ],
+     "leaf_maps": [
+      "majlis/v21.map.json"
+     ],
+     "note": "اسکن docibox 1265693",
+     "step": "14.143"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 2,
+   "facsimile_code": "malek",
+   "page_first": 1,
+   "page_last": 399,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v02.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v02.map.json"
+     ],
+     "note": "docibox 1265710 (= خزانه‌ها 3494)؛ اسکن چاپ ۱۳۵۴؛ پیش‌گفتار با شماره‌ی جدا کنار ماند",
+     "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 3,
+   "facsimile_code": "malek",
+   "page_first": 401,
+   "page_last": 656,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v03-1.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v03-1.map.json"
+     ],
+     "note": "docibox 1265711 (= خزانه‌ها 3493)؛ اسکن چاپ ۱۳۶۱؛ دنباله‌ی صفحه‌شماری ج ۲ (ص ۴۰۱ تا ۶۵۶)",
+     "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 4,
+   "facsimile_code": "malek",
+   "page_first": 657,
+   "page_last": 868,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v04.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v04.map.json"
+     ],
+     "note": "خزانه‌ها 3492؛ اسکن چاپ ۱۳۶۴",
+     "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 5,
+   "facsimile_code": "malek",
+   "page_first": 1,
+   "page_last": 490,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v05.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v05.map.json"
+     ],
+     "note": "خزانه‌ها 3491؛ اسکن چاپ ۱۳۶۳",
+     "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 7,
+   "facsimile_code": "malek",
+   "page_first": 3,
+   "page_last": 487,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v07.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v07.map.json"
+     ],
+     "note": "docibox 1114692؛ اسکن چاپ ۱۳۶۹؛ هر برگ دو صفحه‌ی چاپی (راست، سپس چپ)، ۹۶ dpi",
+     "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 8,
+   "facsimile_code": "malek",
+   "page_first": 1,
+   "page_last": 493,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v08.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v08.map.json"
+     ],
+     "note": "docibox 1114693؛ اسکن چاپ ۱۳۶۹؛ هر برگ دو صفحه‌ی چاپی (راست، سپس چپ)، ۹۶ dpi",
+     "step": "14.145"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
+   "volume_number": 9,
+   "facsimile_code": "malek",
+   "page_first": 11,
+   "page_last": 434,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v09.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v09.map.json"
+     ],
+     "note": "خزانه‌ها 5390؛ اسکن چاپ ۱۳۷۱؛ هر برگ دو صفحه‌ی چاپی (راست، سپس چپ)",
+     "step": "14.145"
+    }
+   }
   }
  ]
 }

@@ -16,9 +16,13 @@ A scan whose leaves are out of order, or miss pages, or change offset at plates 
     python3 extract_edition_pages.py PDF --code majlis --volume 2 --map v02.map.json [--width 1100]
 
 A scan of open spreads, two printed pages per leaf (Majlis short catalogue, step 14.136), names the half in the map:
-"LEAF:r" for the right page, "LEAF:l" for the left one (a plain number is still the whole leaf). The leaf is rendered
+"LEAF:r" for the right page, "LEAF:l" for the left one (a plain number is still the whole leaf). "LEAF:u" is a whole
+leaf scanned upside down (step 14.143), turned before anything else. The leaf is rendered
 at twice --width and cut at its gutter, the column of least ink near the middle; the black scanner bed at the outer
 edge and at the foot of each half is trimmed.
+
+A scan placed on a larger PDF page with white padding and a thin frame line (Malek vols. 7 and 8, step 14.145) takes
+--pad-trim, which drops both before the leaf is cut.
 """
 import argparse
 import json
@@ -79,19 +83,22 @@ def bottom_trim(half):
 
 
 def edge_band(profile):
-    """How many lines to drop at one edge (profile runs from the edge inward): a dark band (mean below 120) that
-    starts within the outer tenth, after a white margin, and is at least 1% of the length thick without a break, plus
-    the grey lines (235 or less) that follow it. A thin rule, such as the line under a running header, is no band."""
+    """How many lines to drop at one edge (profile runs from the edge inward): a near-black band (mean below 60, the
+    scanner bed) that starts within the outer tenth, after a white margin, and is at least 1% of the length thick
+    without a break, plus at most 1.5% of grey lines (235 or less) after it. A thin rule (the line under a running
+    header) is no band, and neither is a photograph of a manuscript, which is never that dark across a whole line;
+    the grey lines are capped so that text close to the band is never taken with it (step 14.143)."""
     n = len(profile)
     i = 0
     while i < n // 10 and profile[i] > 200:
         i += 1
     j = i
-    while j < n // 5 and profile[j] < 120:
+    while j < n // 5 and profile[j] < 60:
         j += 1
     if j - i < max(8, n // 100):
         return 0
-    while j < n // 5 and profile[j] <= 235:
+    stop = j + int(n * 0.015)
+    while j < stop and profile[j] <= 235:
         j += 1
     return j
 
@@ -104,16 +111,39 @@ def trim_edges(page):
     return page[top:page.shape[0] - bottom, left:page.shape[1] - right]
 
 
+def pad_trim(page):
+    """--pad-trim (step 14.145): a scan printed onto a larger PDF page (pdfFactory, Malek vols. 7 and 8) sits in pure
+    white padding with a thin dark frame line around the image. Drop the padding (lines of mean 254 or more) on the
+    four sides, then up to 1% of dark frame lines (mean below 200) at each edge of what is left."""
+    def cut(profile):
+        n, i = len(profile), 0
+        while i < n // 4 and profile[i] >= 254:
+            i += 1
+        j = i
+        while j < i + max(2, n // 100) and profile[j] < 200:
+            j += 1
+        return j if j > i else i
+    rows, cols = page.mean(axis=1), page.mean(axis=0)
+    top, bottom, left, right = cut(rows), cut(rows[::-1]), cut(cols), cut(cols[::-1])
+    return page[top:page.shape[0] - bottom, left:page.shape[1] - right]
+
+
 def render(job):
-    pdf, leaf, width, target, edges = job
+    pdf, leaf, width, target, edges, pad = job
     if os.path.exists(target):
         return 'skip'
     leaf, side = (int(leaf), None) if ':' not in str(leaf) else (int(str(leaf).split(':')[0]), str(leaf).split(':')[1])
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with tempfile.TemporaryDirectory(dir=os.path.dirname(target)) as tmp:
         base = os.path.join(tmp, 'page')
-        subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width * (2 if side else 1)),
+        subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width * (2 if side in ('r', 'l') else 1)),
                         '-scale-to-y', '-1', '-gray', '-singlefile', pdf, base], check=True)
+        if side == 'u':
+            Image.open(base + '.pgm').rotate(180).save(base + '.pgm')
+            side = None
+        if pad:
+            page = pad_trim(np.asarray(Image.open(base + '.pgm').convert('L')))
+            Image.fromarray(np.ascontiguousarray(page)).save(base + '.pgm')
         if edges and not side:
             page = trim_edges(np.asarray(Image.open(base + '.pgm').convert('L')))
             Image.fromarray(np.ascontiguousarray(page)).save(base + '.pgm')
@@ -139,6 +169,7 @@ def main():
     parser.add_argument('--width', type=int, default=899, help="the scan's own width in px (pdfimages -list)")
     parser.add_argument('--workers', type=int, default=6)
     parser.add_argument('--trim-edges', action='store_true', help='drop dark scanner bands at the edges of whole leaves')
+    parser.add_argument('--pad-trim', action='store_true', help='drop the white padding and thin frame around a scan placed on a larger PDF page')
     parser.add_argument('--out', default=os.path.join(REPO, 'storage', 'app', 'public', 'catalogs'))
     args = parser.parse_args()
 
@@ -150,7 +181,7 @@ def main():
         parser.error('give --map, or --offset, --first and --last')
     else:
         leaves = {page: page + args.offset for page in range(args.first, args.last + 1)}
-    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp'), args.trim_edges) for page, leaf in sorted(leaves.items())]
+    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp'), args.trim_edges, args.pad_trim) for page, leaf in sorted(leaves.items())]
     with ProcessPoolExecutor(args.workers) as pool:
         results = list(pool.map(render, jobs, chunksize=8))
     print(f"{len(jobs)} pages: {results.count('done')} rendered, {results.count('skip')} already there, in {folder}")
