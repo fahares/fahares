@@ -10025,6 +10025,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **پشتیبان:** `../fahares-sources/backups/step13/step14_149b_fankha_pages_before.jsonl.gz` (`88c6f287…`، برابر با صفحه‌های پس از دور نخست). `differ 151`، `new 0`.
   - **اجرا:** `/tmp/step14_149b_pages/` و `MD5SUMS` دو سو برابر. یک `prod-run`، ۳۴ «pages saved».
   - **وارسی:** صفحه‌ها دوباره بیرون آمد (`33592d1c…`): ۳۳٬۵۱۸ صفحه، `differ 0` و `missing 0`. `/tmp` کانتینر پاک است.
+- **اجرای تولید 47048 (۲۲ آبان ۱۴۰۵):**
+  - md5 فایل در `/app` برابر بود (`55cf6c98…`).
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_149_work47048_before.json` (ردیف اثر؛ نسخه‌ای نداشت). `from` مآخذ برابر بود.
+  - **اجرا:** `add-corpus-works --apply` با `prod-run`: «works=1»، «1 copies linked».
+  - **نتیجه:** نسخه‌ی 334897 (مرعشی، `library_id` 2، جلد 95) ساخته شد و `manuscripts_count` اثر 1 شد. اجرای دوم «0».
+  - **`/tmp`:** فایل‌های این گام پاک شدند. `step14_151_only.json` از نشست دیگری است و دست نخورد.
 
 ### گام ۱۴.۱۵۰: نشان‌های ثبت‌نشده در صفحه‌ی نسخه
 - **فایل:** `resources/views/manuscripts/show.blade.php`. هر نشانِ روشن یک `<li data-flag="…">` ساده است. هر نشانِ خاموش `<li data-flag-unset="…" x-show="$store.suggest.on" x-cloak>` است و برچسب «(ثبت نشده)» دارد.
@@ -10085,10 +10091,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan catalogs:move-cited-part --library=thran-mgls-4 --volume=33 --part=1 --from="فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳" --to="فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳" --apply
   ```
   پیش از آن از ردیف‌های `manuscripts`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۳۳ پشتیبان گرفته شود.
-- **اجرای تولید 47048 (۲۲ آبان ۱۴۰۵):**
-  - md5 فایل در `/app` برابر بود (`55cf6c98…`).
-  - **پشتیبان:** `../fahares-sources/backups/step13/step14_149_work47048_before.json` (ردیف اثر؛ نسخه‌ای نداشت). `from` مآخذ برابر بود.
-  - **اجرا:** `add-corpus-works --apply` با `prod-run`: «works=1»، «1 copies linked».
-  - **نتیجه:** نسخه‌ی 334897 (مرعشی، `library_id` 2، جلد 95) ساخته شد و `manuscripts_count` اثر 1 شد. اجرای دوم «0».
-  - **`/tmp`:** فایل‌های این گام پاک شدند. `step14_151_only.json` از نشست دیگری است و دست نخورد.
-
