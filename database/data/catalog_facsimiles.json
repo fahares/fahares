@@ -775,6 +775,25 @@
   },
   {
    "library_slug": "thran-mlk-15",
+   "volume_number": 6,
+   "facsimile_code": "malek",
+   "page_first": 1,
+   "page_last": 496,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "malek/v06.pdf"
+     ],
+     "leaf_maps": [
+      "malek/v06.map.json"
+     ],
+     "note": "docibox 1114691؛ اسکن چاپ ۱۳۶۶ (JBIG2، ۳۰۰ dpi)؛ ص ۱ برگ بی‌سرصفحه‌ی ۱۲",
+     "step": "14.151"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mlk-15",
    "volume_number": 7,
    "facsimile_code": "malek",
    "page_first": 3,
