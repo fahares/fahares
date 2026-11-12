@@ -187,7 +187,7 @@
                 @include('insights.small', ['n' => $a['counted'], 'what' => 'مؤلفِ تاریخ‌دار'])
                 <p class="text-xs text-muted mb-4">شمار مؤلفان (کسانی که اثری از آنان در فهارس هست) در هر سده‌ی هجری بر پایه‌ی سال وفات. وفاتی که تنها سده‌اش ثبت شده («ق۱۳»)، لایه‌ی خود را دارد.</p>
                 @include('insights.century-bars', ['rows' => $a['centuries'], 'unit' => 'مؤلف', 'label' => 'شمار مؤلفان در هر سده',
-                    'href' => fn ($c) => $search('people', ['role' => 'author', 'century' => $c])])
+                    'href' => fn ($c) => $search('authors', ['role' => 'author', 'century' => $c])])
                 <p class="mt-5 text-xs text-muted leading-relaxed">
                     بر پایه‌ی {{ Fa::num($a['counted']) }} مؤلف، یعنی {{ $pct($a['coverage']) }} از {{ Fa::num($a['total']) }} مؤلف، که تاریخ وفاتشان ثبت شده است:
                     {{ Fa::num($a['exact']) }} با سال معین و {{ Fa::num($a['range']) }} تنها با سده.

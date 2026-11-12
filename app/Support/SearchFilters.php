@@ -30,7 +30,9 @@ class SearchFilters
         'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph'],
         'manuscripts' => ['work_id', 'scribe_id', 'author_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'source_volume_id'],
-        'people' => ['role', 'century'],
+        // The people in two tabs (step 14.154): the century is of the death of an author, of the copies of a scribe
+        'authors' => ['role', 'century'],
+        'scribes' => ['role', 'century', 'copy_city'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
     ];
@@ -66,6 +68,32 @@ class SearchFilters
         'translator' => 'مترجم',
         'donor' => 'واقف و اهداکننده',
     ];
+
+    /** The roles each tab of people can be narrowed to; a scribe who is an author too is in both tabs */
+    public const TAB_ROLES = [
+        'authors' => ['author', 'translator', 'donor', 'scribe'],
+        'scribes' => ['author', 'translator'],
+    ];
+
+    /**
+     * The people of each of the two tabs, for the engine and for the database (step 14.154). The scribes are those
+     * with a copy. The other tab holds everyone else and the scribes who are also an author, a translator or a
+     * donor, so a person with no work and no copy yet is still found.
+     */
+    private const TAB_ENGINE = [
+        'authors' => 'is_author = true OR is_translator = true OR is_donor = true OR is_scribe = false',
+        'scribes' => 'is_scribe = true',
+    ];
+
+    public static function tabEngine(string $type): ?string
+    {
+        return self::TAB_ENGINE[$type] ?? null;
+    }
+
+    public function isPeople(): bool
+    {
+        return isset(self::TAB_ENGINE[$this->type]);
+    }
 
     /** The bibliographies and biographical works a work can be «mentioned in» */
     public const SOURCE_KINDS = [Source::KIND_BIBLIOGRAPHY, Source::KIND_BIOGRAPHICAL];
@@ -127,6 +155,9 @@ class SearchFilters
         $values = [];
         foreach (self::PARAMS[$type] ?? [] as $param) {
             $value = self::clean($param, $param === 'flags' ? [...(array) $request->input('flags', []), ...(array) $request->input('flag')] : $request->input($param));
+            if ($param === 'role' && ! in_array($value, self::TAB_ROLES[$type] ?? [], true)) {
+                continue;
+            }
             if ($value !== null) {
                 $values[$param] = $value;
             }
@@ -192,7 +223,7 @@ class SearchFilters
     /** The table column of the tab's own id */
     private function idKey(): string
     {
-        return ['works' => 'works.id', 'manuscripts' => 'manuscripts.id', 'people' => 'people.id', 'sources' => 'source_items.id'][$this->type];
+        return ['works' => 'works.id', 'manuscripts' => 'manuscripts.id', 'sources' => 'source_items.id'][$this->type] ?? 'people.id';
     }
 
     /** The subject and its children, by name for the index and by id for the database */
@@ -224,7 +255,7 @@ class SearchFilters
     public function engine(): ?string
     {
         $quote = fn ($v) => '"' . addslashes((string) $v) . '"';
-        $parts = [];
+        $parts = [self::tabEngine($this->type)];
 
         foreach ($this->values as $param => $value) {
             $parts[] = match ($param) {
@@ -236,8 +267,8 @@ class SearchFilters
                 'library_id' => count($value) === 1 ? "library_id = {$value[0]}" : 'library_id IN [' . implode(', ', $value) . ']',
                 'city' => 'city = ' . $quote($value),
                 'script_id' => 'scripts = ' . $quote($this->script->name),
-                'copy_city' => ($places = collect(CopyPlaces::variants($value))->map(fn ($p) => $quote(TextNormalizer::normalize($p)))->unique()->implode(', ')) !== ''
-                    ? "copy_place IN [{$places}]" : 'id = 0',
+                'copy_city' => $this->type === 'scribes' ? 'copy_cities = ' . $quote($value) : (($places = collect(CopyPlaces::variants($value))->map(fn ($p) => $quote(TextNormalizer::normalize($p)))->unique()->implode(', ')) !== ''
+                    ? "copy_place IN [{$places}]" : 'id = 0'),
                 'facsimile' => 'is_facsimile = ' . ($value === '1' ? 'true' : 'false'),
                 'folios_from' => "folios >= {$value}",
                 'folios_to' => "folios <= {$value}",
@@ -248,12 +279,12 @@ class SearchFilters
                 'has_autograph' => 'has_autograph = true',
                 'source_volume_id' => "source_volume_ids = {$value}",
                 'role' => "is_{$value} = true",
-                'century' => $this->type === 'people' ? "century_hijri = {$value}" : null,
+                'century' => match ($this->type) { 'authors' => "century_hijri = {$value}", 'scribes' => "copy_centuries = {$value}", default => null },
                 'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
         }
-        if ($this->type !== 'people' && ($range = $this->yearRange())) {
+        if (! $this->isPeople() && ($range = $this->yearRange())) {
             [$from, $to] = $range;
             // A copy's whole date within the years (Manuscript::copyBounds); a work's «era»
             [$start, $end] = $this->type === 'works' ? ['era_year', 'era_year'] : ['copy_from', 'copy_to'];
@@ -276,6 +307,15 @@ class SearchFilters
     /** The same filters on a query of the tab's model */
     public function apply(Builder $query): Builder
     {
+        // The copies of a scribe, for the filters of the scribes' tab; the same copies as the index counts (Person::scribeFacts)
+        $scribesOf = fn (callable $copies) => $query->whereIn('people.id', $copies(DB::table('manuscript_people')
+            ->join('manuscripts', 'manuscripts.id', '=', 'manuscript_people.manuscript_id')->where('manuscript_people.role', ManuscriptPerson::SCRIBE))
+            ->select('manuscript_people.person_id'));
+        match ($this->type) {
+            'authors' => $query->where(fn ($q) => $q->where('is_author', true)->orWhere('is_translator', true)->orWhere('is_donor', true)->orWhere('is_scribe', false)),
+            'scribes' => $query->where('is_scribe', true),
+            default => null,
+        };
         foreach ($this->values as $param => $value) {
             match ($param) {
                 // Subqueries on the link tables, not whereHas: the database runs them as one semi-join instead of
@@ -288,7 +328,9 @@ class SearchFilters
                 'library_id' => $query->whereIn('manuscripts.library_id', $value),
                 'city' => $query->where('city', $value),
                 'script_id' => $query->whereIn('manuscripts.id', DB::table('manuscript_script')->where('script_id', $value)->select('manuscript_id')),
-                'copy_city' => $query->whereIn('copy_place', CopyPlaces::variants($value)),
+                'copy_city' => $this->type === 'scribes'
+                    ? $scribesOf(fn ($copies) => $copies->whereIn('manuscripts.copy_place', CopyPlaces::variants($value)))
+                    : $query->whereIn('copy_place', CopyPlaces::variants($value)),
                 'facsimile' => $query->where('is_facsimile', $value === '1'),
                 'folios_from' => $query->where('folios', '>=', $value),
                 'folios_to' => $query->where('folios', '<=', $value),
@@ -302,12 +344,16 @@ class SearchFilters
                 'source_volume_id' => $query->whereIn('manuscripts.id', DB::table('source_entries')->where('source_volume_id', $value)
                     ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', \App\Models\Manuscript::class)->select('citable_id')),
                 'role' => $query->where("is_{$value}", true),
-                'century' => $this->type === 'people' ? $query->where('century_hijri', $value) : null,
+                'century' => match ($this->type) {
+                    'authors' => $query->where('century_hijri', $value),
+                    'scribes' => $scribesOf(fn ($copies) => \App\Models\Manuscript::whereCopiedWithin($copies, ($value - 1) * 100 + 1, $value * 100)),
+                    default => null,
+                },
                 'fields' => $query->whereIn($this->idKey(), $this->fieldMatches()['ids']),
                 default => null,
             };
         }
-        if ($this->type !== 'people' && ($range = $this->yearRange())) {
+        if (! $this->isPeople() && ($range = $this->yearRange())) {
             [$from, $to] = $range;
             if ($this->type === 'works') {
                 // The year of composition, or else the author's death (the work's «era», as in the index); written
@@ -353,8 +399,8 @@ class SearchFilters
                 // «فهرست مرعشی ج ۳»; a book in one volume, by its title alone
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
-                'role' => 'نقش: ' . self::ROLES[$value],
-                'century' => 'سده‌ی ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'people' => ' (وفات)', default => ' (کتابت)' },
+                'role' => ($this->type === 'scribes' || $value === 'scribe' ? 'همچنین ' : 'نقش: ') . self::ROLES[$value],
+                'century' => 'سده‌ی ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (وفات)', default => ' (کتابت)' },
                 default => null,
             };
             if ($label) {

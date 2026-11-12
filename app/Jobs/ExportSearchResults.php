@@ -35,7 +35,7 @@ class ExportSearchResults implements ShouldQueue
 
     public int $tries = 1;
 
-    private const MODELS = ['works' => Work::class, 'manuscripts' => Manuscript::class, 'people' => Person::class, 'sources' => SourceItem::class];
+    private const MODELS = SearchController::MODELS;
 
     public function __construct(public int $userId, public array $params, public string $format) {}
 
@@ -71,7 +71,7 @@ class ExportSearchResults implements ShouldQueue
         $model = self::MODELS[$type];
         foreach (array_chunk($ids, 500) as $chunk) {
             $query = $model::query()->whereKey($chunk);
-            $type === 'people' ? $query->withCount(['works', 'scribedManuscripts']) : $query->with(SearchController::WITH[$type]);
+            $query->with(SearchController::WITH[$type]);
             $records = $query->get()->keyBy('id');
             foreach ($chunk as $id) {
                 if ($record = $records->get($id)) {

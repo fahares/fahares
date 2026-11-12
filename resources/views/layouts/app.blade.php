@@ -415,7 +415,8 @@
                         <li><a href="{{ route('search', ['type' => 'works']) }}" class="hover:text-amber-100 transition">فهرست آثار و عناوین</a></li>
                         <li><a href="{{ route('subjects.index') }}" class="hover:text-amber-100 transition">درختواره موضوعات و علوم</a></li>
                         <li><a href="{{ route('search', ['type' => 'manuscripts']) }}" class="hover:text-amber-100 transition">کاوش نسخه‌های کهن خطی</a></li>
-                        <li><a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-amber-100 transition">پدیدآوران، شارحان و کاتبان</a></li>
+                        <li><a href="{{ route('search', ['type' => 'authors']) }}" class="hover:text-amber-100 transition">پدیدآوران و شارحان</a></li>
+                        <li><a href="{{ route('search', ['type' => 'scribes']) }}" class="hover:text-amber-100 transition">کاتبان نسخه‌ها</a></li>
                         <li><a href="{{ route('libraries.index') }}" class="hover:text-amber-100 transition">مراکز نگهداری و کتابخانه‌ها</a></li>
                         <li><a href="{{ route('sources.index') }}" class="hover:text-amber-100 transition">منابع و مراجع: فهرست‌ها و کتاب‌شناسی‌ها</a></li>
                         <li><a href="{{ route('posts.index') }}" class="hover:text-amber-100 transition">جریده: گزارش‌ها و یادداشت‌ها</a></li>

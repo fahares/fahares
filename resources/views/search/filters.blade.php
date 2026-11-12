@@ -44,13 +44,13 @@
         @endif
     @endif
 
-    @if($type === 'people')
+    @if($type === 'authors')
         <div class="space-y-2">
             <label for="f-role" class="{{ $label }}">نقش</label>
             <select id="f-role" name="role" class="{{ $field }}">
                 <option value="">همه‌ی نقش‌ها</option>
                 @foreach($options['roles'] as $role => [$roleLabel, $count])
-                    <option value="{{ $role }}" @selected($v('role') === $role)>{{ $roleLabel }}{{ $n($count) }}</option>
+                    <option value="{{ $role }}" @selected($v('role') === $role)>{{ $role === 'scribe' ? 'کاتب هم بوده' : $roleLabel }}{{ $n($count) }}</option>
                 @endforeach
             </select>
         </div>
@@ -63,6 +63,39 @@
                 @endforeach
             </select>
         </div>
+    @endif
+
+    {{-- A scribe is narrowed by the copies, not by a date of death, which almost none has (step 14.155) --}}
+    @if($type === 'scribes')
+        <div class="space-y-2">
+            <label for="f-century" class="{{ $label }}">سده‌ی کتابت (قمری) <span class="font-normal text-muted">(دست‌کم یک نسخه)</span></label>
+            <select id="f-century" name="century" class="{{ $field }}">
+                <option value="">همه‌ی سده‌ها</option>
+                @foreach($options['centuries'] as $c => $count)
+                    <option value="{{ $c }}" @selected($v('century') === $c)>سده‌ی {{ Fa::digits($c) }}{{ $n($count) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label for="f-copy-city" class="{{ $label }}">محل کتابت</label>
+            <select id="f-copy-city" name="copy_city" class="{{ $field }}">
+                <option value="">همه‌جا</option>
+                @foreach($options['copyCities'] as $city => $count)
+                    <option value="{{ $city }}" @selected($v('copy_city') === $city)>{{ $city }}{{ $n($count) }}</option>
+                @endforeach
+            </select>
+        </div>
+        @if($options['roles'])
+            <div class="space-y-2">
+                <label for="f-role" class="{{ $label }}">نقش دیگر</label>
+                <select id="f-role" name="role" class="{{ $field }}">
+                    <option value="">همه‌ی کاتبان</option>
+                    @foreach($options['roles'] as $role => [$roleLabel, $count])
+                        <option value="{{ $role }}" @selected($v('role') === $role)>{{ $roleLabel }} هم هست{{ $n($count) }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
     @endif
 
     @if($type === 'works')

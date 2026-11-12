@@ -2,12 +2,14 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\Person;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Keeps the primary person column (works.author_id, manuscripts.scribe_id) and its row of the people
  * table (work_people role author, manuscript_people role scribe) at position 0 in step when a record is
- * saved through Eloquent. Bulk query updates bypass this and must update the rows themselves.
+ * saved through Eloquent, and with them the counts and the author or scribe flag of the people it gains or loses,
+ * also when the record is deleted (step 14.153). Bulk query updates bypass this and must update the rows themselves.
  */
 trait SyncsPrimaryContributor
 {
@@ -38,8 +40,22 @@ trait SyncsPrimaryContributor
         }
     }
 
+    /** The people of a record being deleted, by its key: its rows are gone (cascade) before they can be recounted */
+    protected static array $contributorsOfDeleted = [];
+
     protected static function bootSyncsPrimaryContributor(): void
     {
+        static::deleting(function ($record) {
+            [$table, $key, , $role] = static::primaryContributorPivot();
+            static::$contributorsOfDeleted[$record->getKey()] = DB::table($table)->where($key, $record->getKey())->where('role', $role)
+                ->whereNotNull('person_id')->pluck('person_id')->all();
+        });
+        static::deleted(function ($record) {
+            $people = static::$contributorsOfDeleted[$record->getKey()] ?? [];
+            unset(static::$contributorsOfDeleted[$record->getKey()]);
+            Person::recountMany($people);
+        });
+
         static::saved(function ($record) {
             [$table, $key, $column, $role] = static::primaryContributorPivot();
             // wasRecentlyCreated stays true on the instance after later updates, so check the change first
@@ -62,6 +78,7 @@ trait SyncsPrimaryContributor
                     DB::table($table)->insert([$key => $record->getKey(), 'person_id' => $new, 'role' => $role, 'position' => 0]);
                 }
             }
+            Person::recountMany([$old, $new]);
         });
     }
 }

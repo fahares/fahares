@@ -10081,3 +10081,45 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan catalogs:move-cited-part --library=thran-mgls-4 --volume=33 --part=1 --from="فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳" --to="فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳" --apply
   ```
   پیش از آن از ردیف‌های `manuscripts`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۳۳ پشتیبان گرفته شود.
+
+### گام ۱۴.۱۵۳: پرچم‌های مؤلف و کاتب از روی ردیف‌های شخص
+- **تعریف تازه:** `is_author` یعنی شخص دست‌کم یک ردیف `work_people` با نقش `author` دارد، و `is_scribe` یعنی دست‌کم یک ردیف `manuscript_people` با نقش `scribe`. پیش‌تر `recountContributions` پرچم را فقط روشن می‌کرد (`is_author || works > 0`) و هرگز خاموش نمی‌کرد.
+- **`Person::recountContributions`:** تنها مسیر نوشتن `works_count`، `manuscripts_count`، `is_author` و `is_scribe`. `Person::recountMany($ids)` آن را برای چند شخص صدا می‌زند.
+- **قلاب‌ها:**
+  - `App\Models\Concerns\RecountsPerson` روی `WorkPerson` و `ManuscriptPerson`: پس از ساخت، حذف، یا تغییر `person_id` یا `role`، شخص پیشین و تازه بازشماری می‌شوند.
+  - `SyncsPrimaryContributor` (اثر و نسخه): پس از تغییر `author_id` یا `scribe_id`، و پس از حذف خود رکورد. ردیف‌ها با cascade پایگاه می‌روند، پس اشخاص در `deleting` خوانده و در `deleted` بازشماری می‌شوند.
+  - `PersonMerger` و `ReconcileAddendaCommand` هم دیگر پرچم را چسبنده نمی‌نویسند.
+- **فرمان `fahares:sync-person-roles`:** `Person::roleDrift()` با یک پرس‌وجو اشخاصی را می‌دهد که ستون‌هایشان با ردیف‌ها نمی‌خواند. بی `--apply` فقط گزارش می‌دهد. با `--apply` هر ۵۰۰ شخص بازشماری و یک‌جا به نمایه فرستاده می‌شوند. هر شب ساعت ۰۴:۰۰ با `--apply` اجرا می‌شود (`routes/console.php`)، برای فرمان‌هایی که ردیف‌ها را با `DB::table` می‌نویسند.
+- **پنل مدیریت:** دو چک‌باکس «مؤلف» و «کاتب» از فرم ویرایش شخص برداشته شد و `update` دیگر این دو ستون را نمی‌نویسد. فرم نقش و شمار را فقط نشان می‌دهد.
+- **آزمون:** [PersonRolesTest](../tests/Feature/PersonRolesTest.php) (۴): مؤلف با ویرایش و حذف اثر، کاتب با ویرایش و حذف نسخه، فرمان شبانه پس از نوشتن با `DB::table`، و فرم مدیریت.
+
+### گام ۱۴.۱۵۴: دو زبانه‌ی «پدیدآوران» و «کاتبان»
+- **نوع زبانه:** `SearchController::TYPES` اکنون `works`، `manuscripts`، `authors`، `scribes` و `sources` است. دو زبانه‌ی تازه همان مدل `Person` و همان نمایه‌ی `people_index` را دارند (`INDEXES`، `MODELS`، `PEOPLE_TABS`، `LABELS`).
+- **مرز دو زبانه (`SearchFilters::tabEngine` و `apply`):**
+  - `scribes`: `is_scribe = true`.
+  - `authors`: `is_author = true OR is_translator = true OR is_donor = true OR is_scribe = false`. یعنی هر کس که «فقط کاتب» نیست. شخصی که هنوز اثر و نسخه‌ای ندارد هم اینجا پیدا می‌شود.
+  - این فیلتر در `engine()` پیش از فیلترهای دیگر می‌آید، پس شمارش فیلترها (`contextEngine`)، خروجی اکسل و جست‌وجوی «|» هم همان را می‌گیرند. `tabCounts` برای دو زبانه همین فیلتر را به پرس‌وجوی شمارش می‌دهد.
+- **نشانی‌های قدیمی:** `type=people` با ۳۰۱ به `type=authors` می‌رود، و با `role=scribe` به `type=scribes` (بی `role` و `century`، چون سده‌ی آن زبانه سده‌ی کتابت است). خروجی اکسل و صف خروجی با `SearchController::tabOf` همان `people` را `authors` می‌خوانند.
+- **نقش‌ها (`SearchFilters::TAB_ROLES`):** در «پدیدآوران»: پدیدآور، مترجم، واقف، و «کاتب هم بوده». در «کاتبان»: «پدیدآور هم هست» و «مترجم هم هست». نقشی که هیچ‌کس از نتایج ندارد در فهرست نمی‌آید.
+- **کارت و ترتیب:** کارت کاتب «کتابت … · N نسخه» و اگر مؤلف هم باشد «N اثر» را نشان می‌دهد. ترتیب پیش‌فرض مرور «بیشترین نسخه» است. شمارها ستون‌های ذخیره‌شده‌اند، و `withCount` روی هر صفحه برداشته شد.
+- **جاهای دیگر:** زبانه‌های صفحه‌ی خانه، پانویس، مسیر صفحه‌ی شخص، پیوند سده‌ها در `/insights`، برچسب نوع در آمار جست‌وجو و آمار بازدید (نوع `people` با برچسب «اشخاص (زبانه‌ی پیشین)» می‌ماند)، و ستون‌های خروجی اکسل.
+
+### گام ۱۴.۱۵۵: فیلترهای کاتبان از روی نسخه‌ها
+- **ستون‌های تازه‌ی `people`:** `scribed_from` و `scribed_to` (migration `2026_11_12_100001`): کمترین `copy_date_from` و بیشترین `copy_date_to` نسخه‌های شخص، میان ۱ و ۱۵۰۰. `recountContributions` آنها را می‌نویسد و `roleDrift` اختلافشان را هم می‌شمارد.
+- **`Person::scribeFacts($ids)`:** با یک پرس‌وجو برای چند شخص: دو سال بالا، سده‌هایی که تاریخ یک نسخه یکسره در آنهاست (همان تعریف `Manuscript::copyBounds`)، و شهرهای `copy_place` با `CopyPlaces::cityOf`.
+- **نمایه:** `scribed_from` و `scribed_to` (مرتب‌شدنی)، `copy_centuries` و `copy_cities` (فیلترشدنی). `makeSearchableUsing` این داده را برای هر دسته یک‌جا می‌خواند.
+- **فیلترها:** `century` در زبانه‌ی کاتبان `copy_centuries = N` است و در مرور بی‌عبارت، زیرپرس‌وجو روی `manuscript_people` و `Manuscript::whereCopiedWithin`. `copy_city` در نمایه `copy_cities = "…"` و در پایگاه `copy_place IN (CopyPlaces::variants)` است.
+- **ترتیب:** «بیشترین نسخه»، «کهن‌ترین کتابت» (`scribed_from`) و «تازه‌ترین کتابت» (`scribed_to`).
+- **نمایش (`scribed_span`):** یک سال: «کتابت ۱۰۸۵ ق». وگرنه سده: «کتابت سده‌ی ۱۱ ق» یا «کتابت سده‌های ۱۱ تا ۱۲ ق»، چون نسخه‌ای که فقط سده دارد سال نمی‌دهد.
+- **هم‌گامی:** `Manuscript::updated` با تغییر `copy_date_from`، `copy_date_to` یا `copy_place`، `Person::refreshScribesOf` را صدا می‌زند که کاتبان نسخه را بازشماری و دوباره نمایه می‌کند.
+- **آزمون:** [SearchFiltersTest](../tests/Feature/SearchFiltersTest.php): آزمون `authors_and_scribes_are_two_tabs…` (دو زبانه، فیلتر سده و شهر و نقش، ترتیب، سند نمایه، ویرایش تاریخ نسخه، و ریدایرکت نشانی قدیمی).
+- **تمرین روی `fahares_prod` (رونوشت محلی) با یک Meilisearch موقت:**
+  - خشک‌اجرا: ۱۱۲ پرچم مؤلف برای روشن شدن، ۳ پرچم کاتب برای خاموش شدن، ۸۳ شمار اثر، ۳ شمار نسخه، و ۵۲٬۵۷۵ سال کتابت (ستون‌های تازه).
+  - `--apply`: ۶ دقیقه و ۲۹ ثانیه، و سپس «0 people differ».
+  - `scout:import "App\Models\Person"`: ۶۶٬۵۷۲ سند در ۳۸ ثانیه. پدیدآوران ۱۵٬۳۸۷ و کاتبان ۵۵٬۸۶۱.
+  - رونوشت محلی اکنون migration تازه و ستون‌های پرشده را دارد.
+- **پس از استقرار در تولید (با تأیید کاربر، هر یک با `prod-run`):**
+  1. `php artisan scout:sync-index-settings`، تا `copy_centuries` و `copy_cities` فیلترشدنی و دو سال کتابت مرتب‌شدنی شوند.
+  2. پشتیبان از ستون‌های `id`، `works_count`، `manuscripts_count`، `is_author` و `is_scribe` جدول `people`، و سپس `php -d memory_limit=1G artisan fahares:sync-person-roles --apply --show=0`.
+  3. `php -d memory_limit=1G artisan scout:import "App\Models\Person"`، چون سده‌ها و شهرهای کتابت فقط در نمایه‌اند.
+- **تا پیش از این سه فرمان:** مرور بی‌عبارت و جست‌وجوی هر دو زبانه کار می‌کند. فیلتر سده و محل کتابت کاتبان همراه با عبارت جست‌وجو «جست‌وجو موقتاً در دسترس نیست» می‌دهد، و شمار کنار این دو فیلتر نمی‌آید.
