@@ -10081,3 +10081,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan catalogs:move-cited-part --library=thran-mgls-4 --volume=33 --part=1 --from="فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳" --to="فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳" --apply
   ```
   پیش از آن از ردیف‌های `manuscripts`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۳۳ پشتیبان گرفته شود.
+- **اجرای پروداکشن (پس از انتشار ۱۰۴؛ ۲۲ آبان ۱۴۰۵، ساعت ۱۹:۵۳، به تأیید کاربر «بله، اجرا کن»):**
+  - پایشگر پس‌زمینه بودن `MoveCitedPartCommand.php` و دو ردیف `"step": "14.152"` در کانتینر و قفل `prod-run` را سنجید.
+  - اجرای آزمایشی: `set-facsimiles` «1 created, 1 updated, 42 unchanged (dry run)». `move-cited-part` پیش از ساخت جلد ۱/۳۳ درست می‌ایستد («from 1, to 0»).
+  - **اجرا (یک `prod-run --wait`):**
+    - نخست پشتیبان ۱٬۱۶۸ ردیف `manuscripts` (شناسه و جلد)، ۱٬۱۶۸ ردیف `manuscript_catalog_references`، ۱٬۱۶۸ ردیف `source_entries` و ردیف #۴۳۳ از `catalog_volumes` و `source_volumes` گرفته شد.
+    - سپس `set-facsimiles`: «1 created, 1 updated, 42 unchanged».
+    - سپس `move-cited-part` آزمایشی: «part named: 1: 709, 2: 458, none: 1»، «709 copies to move to #737».
+    - سپس `--apply`: «Moved 709 copies».
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_152_majlis_v33_before_20261112.json` (md5 `93c5c8e507d9c3e86b91b94fb5f47707`، دو سو یکسان). از `/tmp` کانتینر پاک شد.
+  - **وارسی:**
+    - #۷۳۷ (۱/۳۳) ۷۰۹ نسخه، ۷۰۹ ردیف ارجاع و ۷۰۹ ارجاع فنخا دارد. #۴۳۳ (۲/۳۳) ۴۵۹ از هر کدام دارد. هر دو در منبع 100030 هستند و کد و بازه‌ی صفحه دارند.
+    - ۷۰۹ ردیف `audit_logs` ثبت شد.
+    - در fahares.net نسخه‌های 180422 (10413، ۱/۳۳ ص ۱۵)، 264359 (10490، ص ۵۴)، 183036 (10965/10، ص ۱۷۲)، 53820 (11383، ۲/۳۳ ص ۱۰۵) و 159465 (11303، ص ۷۱) جلد و برگه‌ی درست را دارند. برگه‌ی ۱/۳۳ ص ۱۵ در نمایشگر «شرح تجرید الاعتقاد» را نشان داد. `/tmp` کانتینر پاک است.
