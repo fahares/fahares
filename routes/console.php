@@ -28,6 +28,10 @@ Schedule::command('fahares:build-insights')->dailyAt('03:30')->withoutOverlappin
 // merges, splits and imports; after the insights build, so the two heavy jobs do not overlap
 Schedule::command('fahares:refresh-person-reviews')->dailyAt('04:15')->withoutOverlapping(30);
 
+// The counts and the author and scribe flags of people (step 14.153): the hooks keep them as records are edited;
+// this mends what a bulk command changed, before the person reviews above read them
+Schedule::command('fahares:sync-person-roles --apply --show=0')->dailyAt('04:00')->withoutOverlapping(30);
+
 // Notifications (backlog item 25): the daily digest in the morning, Tehran time, and the weekly reminder of
 // suggestions left unreviewed on Saturday morning
 Schedule::command('notifications:digest')->dailyAt('07:30')->timezone('Asia/Tehran')->withoutOverlapping(30);

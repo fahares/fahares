@@ -191,9 +191,6 @@ class Person extends Model
         return $this->hasMany(Work::class, 'author_id');
     }
 
-    /**
-     * Recompute works_count, manuscripts_count and the role flags from the pivots.
-     */
     /** Manuscripts this person is connected with in another role (owner, endower…). */
     public function manuscriptRoles(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -206,6 +203,13 @@ class Person extends Model
         return $this->hasMany(WorkPerson::class)->where('role', '!=', WorkPerson::AUTHOR);
     }
 
+    /**
+     * Recompute works_count, manuscripts_count and the author and scribe flags from the person's rows of work_people
+     * and manuscript_people. The flags are exactly «has a work» and «has a copy» (step 14.153): the search tabs of
+     * authors and of scribes are divided by them, so a person whose last work is taken away stops being an author.
+     * The rows' own hooks (RecountsPerson, SyncsPrimaryContributor) call this; what a bulk query changes is mended
+     * each night by fahares:sync-person-roles.
+     */
     public function recountContributions(): void
     {
         $works = $this->authoredWorks()->count();
@@ -214,8 +218,34 @@ class Person extends Model
         $this->update([
             'works_count' => $works,
             'manuscripts_count' => $manuscripts,
-            'is_author' => $this->is_author || $works > 0,
-            'is_scribe' => $this->is_scribe || $manuscripts > 0,
+            'is_author' => $works > 0,
+            'is_scribe' => $manuscripts > 0,
         ]);
+    }
+
+    /** The people whose stored counts or flags are not what their rows give (fahares:sync-person-roles) */
+    public static function roleDrift(): \Illuminate\Support\Collection
+    {
+        $count = fn (string $table, string $role) => \Illuminate\Support\Facades\DB::table($table)->where('role', $role)->whereNotNull('person_id')
+            ->groupBy('person_id')->selectRaw('person_id, COUNT(*) AS n');
+
+        return \Illuminate\Support\Facades\DB::table('people')
+            ->leftJoinSub($count('work_people', WorkPerson::AUTHOR), 'w', 'w.person_id', '=', 'people.id')
+            ->leftJoinSub($count('manuscript_people', ManuscriptPerson::SCRIBE), 'm', 'm.person_id', '=', 'people.id')
+            ->whereRaw('(people.works_count <> COALESCE(w.n, 0) OR people.manuscripts_count <> COALESCE(m.n, 0)
+                OR people.is_author <> (COALESCE(w.n, 0) > 0) OR people.is_scribe <> (COALESCE(m.n, 0) > 0))')
+            ->orderBy('people.id')
+            ->selectRaw('people.id, people.name, people.works_count, people.manuscripts_count, people.is_author, people.is_scribe,
+                COALESCE(w.n, 0) AS works, COALESCE(m.n, 0) AS manuscripts')
+            ->get();
+    }
+
+    /** recountContributions for each of the people that exist; nulls and repeats are skipped */
+    public static function recountMany(iterable $ids): void
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', [...$ids]))));
+        foreach ($ids ? static::whereIn('id', $ids)->get() : [] as $person) {
+            $person->recountContributions();
+        }
     }
 }

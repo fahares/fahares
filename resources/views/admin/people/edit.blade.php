@@ -63,15 +63,14 @@
             </x-admin.field>
         </div>
 
-        <fieldset class="flex flex-wrap items-center gap-6">
-            <legend class="sr-only">نقش</legend>
-            <label class="inline-flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_author" value="1" @checked($person->is_author) class="size-4 accent-cinnabar"> مؤلف
-            </label>
-            <label class="inline-flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_scribe" value="1" @checked($person->is_scribe) class="size-4 accent-cinnabar"> کاتب
-            </label>
-        </fieldset>
+        {{-- The roles follow the person's works and copies (step 14.153); they are not set by hand --}}
+        <p class="flex flex-wrap items-center gap-2 text-sm text-muted">
+            <span>نقش:</span>
+            @if($person->is_author)<x-ui.chip>مؤلف ({{ \App\Support\Fa::num($person->works_count) }} اثر)</x-ui.chip>@endif
+            @if($person->is_scribe)<x-ui.chip>کاتب ({{ \App\Support\Fa::num($person->manuscripts_count) }} نسخه)</x-ui.chip>@endif
+            @unless($person->is_author || $person->is_scribe)<span>بی اثر و بی نسخه</span>@endunless
+            <span class="text-xs">از روی آثار و نسخه‌های شخص تعیین می‌شود.</span>
+        </p>
 
         <x-admin.field label="زیست‌نامه و یادداشت‌های پژوهشی" for="bio_notes">
             <textarea name="bio_notes" id="bio_notes" rows="5" class="admin-field w-full leading-7">{{ old('bio_notes', $person->bio_notes) }}</textarea>
