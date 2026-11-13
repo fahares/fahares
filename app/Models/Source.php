@@ -60,6 +60,27 @@ class Source extends Model
     }
 
     /**
+     * The signs this source prints its entries with (step 14.159): `origin` and `items` of sign and meaning, from
+     * `metadata.legend` or config/source_legends.php by the source's code; a printing without its own has the book's.
+     * With a text, only the signs found in it.
+     */
+    public function legend(?string $text = null): ?array
+    {
+        $legend = $this->metadata['legend'] ?? config('source_legends.' . $this->code);
+        if (! is_array($legend) || empty($legend['items'])) {
+            return $this->edition_of_id ? $this->editionOf?->legend($text) : null;
+        }
+
+        if ($text !== null) {
+            $text = strtr($text, ['ي' => 'ی', 'ك' => 'ک']);
+            $legend['items'] = array_values(array_filter($legend['items'], fn (array $item) => preg_match(
+                $item['match'] ?? '/(?<![\p{L}\x{200C}])' . preg_quote($item['sign'], '/') . '(?![\p{L}\x{200C}])/u', $text) === 1));
+        }
+
+        return $legend['items'] ? $legend : null;
+    }
+
+    /**
      * The cover of the printed book (step 13.81): public/images/sources/covers/{code}.webp, mostly from mtif.org
      * (scripts/sources/mtif_covers.py); a printing without its own shows the book's.
      */

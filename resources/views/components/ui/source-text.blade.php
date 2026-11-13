@@ -71,4 +71,6 @@
             </div>
         @endif
     </div>
+    {{-- under the text and outside it: not clipped with a long text, not taken by «رونوشت متن» --}}
+    @isset($footer)<div class="mt-1.5">{{ $footer }}</div>@endisset
 </div>

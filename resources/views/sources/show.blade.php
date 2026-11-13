@@ -89,6 +89,8 @@
             @else
                 <p class="mt-3 text-sm text-muted" x-show="$store.suggest.on" x-cloak>معرفی‌ای ثبت نشده است. <x-suggest.field name="description" class="ms-1" /></p>
             @endif
+            {{-- all the signs the source prints its entries with (step 14.159) --}}
+            <x-source.legend :source="$source" class="mt-3 max-w-3xl" />
         </div>
     </header>
 

@@ -52,4 +52,8 @@
         {{-- a copy's own line under the entry it belongs to --}}
         <div @class(['whitespace-pre-line', 'mt-3 pt-3 border-t border-dashed border-line font-semibold' => filled($entryText)]) data-copy>{{ $digits($copyText) }}</div>
     @endif
+    {{-- the signs of this source that this text has (step 14.159) --}}
+    <x-slot:footer>
+        <x-source.legend :source="$entry->source" :text="implode(PHP_EOL, array_filter([$workText, $entryText, $copyText]))" />
+    </x-slot:footer>
 </x-ui.source-text>
