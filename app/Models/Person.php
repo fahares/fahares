@@ -35,12 +35,17 @@ class Person extends Model
         });
     }
 
+    /** The highest number that a lone number in the life dates may be as a century («- 13» is «قرن 13»). */
+    public const LAST_CENTURY = 15;
+
     /**
      * The death range columns (CopyDateRange) of the catalogue's life dates: the death is what follows the dash
      * («1040 - 1124 ؟ قمری» is 1124 with «؟», «730؟ - 834» a certain 834) and «ق13» is «قرن 13». Solar, Gregorian and
      * BC dates give no range. After a dash, one or two digits are a year of the first century («- 40 قمری»), or the
-     * century when they are less than the birth year («1297-14 ق»). Without a range from the text, a death year is a
-     * range of its own.
+     * century when they are less than the birth year («1297-14 ق»). A number of 15 or less is the century as well
+     * («- 13 ؟ قمری», «13ق - 13 قمری» are 1201-1300; step 14.173): the catalogue writes both the same way, and nearly
+     * all of its people lived after year 15. It is the year only when the person's death year says so («- 11 قمری» of
+     * a person whose death_year_hijri is 11). Without a range from the text, a death year is a range of its own.
      */
     public static function deathColumns(?string $lifeDates, ?int $deathYear): array
     {
@@ -52,7 +57,8 @@ class Person extends Model
             if (count($parts) > 1 && preg_match('/^\s*(\d{1,2})\s*(؟)?\s*(?:ق|قمری)?\s*(؟)?\s*$/u', $death, $m) && (int) $m[1] > 0) {
                 $hedge = ($m[2] ?? '') . ($m[3] ?? '') !== '' ? '؟' : null;
                 $birth = preg_match('/(?<!\d)(\d{1,4})(?!\d)/u', $parts[0], $b) ? (int) $b[1] : null;
-                $range = $birth !== null && (int) $m[1] < $birth
+                $century = ($birth !== null && (int) $m[1] < $birth) || ((int) $m[1] <= self::LAST_CENTURY && (int) $m[1] !== $deathYear);
+                $range = $century
                     ? \App\Support\CopyDateRange::parse("قرن {$m[1]}" . ($hedge ? ' ؟' : ''))
                     : ['from' => (int) $m[1], 'to' => (int) $m[1], 'certainty' => \App\Support\PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
             } else {
