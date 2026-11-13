@@ -53,6 +53,8 @@ export default (config) => ({
     pendingSend: false,
     // Signed up in the dialog without a reload: the page around the form still shows a guest's header
     signedUpHere: false,
+    // The date conflict the form answers (step 14.169): a note beside a date opened it, here or from the other record's page
+    conflictId: null,
 
     init() {
         const params = new URLSearchParams(window.location.search);
@@ -60,11 +62,18 @@ export default (config) => ({
         if (!key) return;
         // Back from signing in: drop the parameter and open the form the guest asked for
         params.delete('suggest');
+        const conflict = params.get('conflict');
+        const prefill = params.get('prefill');
+        params.delete('conflict');
+        params.delete('prefill');
         const query = params.toString();
         window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
-        if (!this.config.signedIn) return;
+        // A guest gets the form only when a conflict note of another page sent them here; signing in comes at «ارسال»
+        if (!this.config.signedIn && !conflict) return;
         const detail = this.detailFor(key);
         if (!detail) return;
+        if (conflict && !detail.mode) detail.conflict = conflict;
+        if (conflict && prefill && detail.general) detail.value = prefill;
         // Bring the field itself into view too, for when the form closes
         if (detail.field) document.querySelector(`[data-suggest-field="${CSS.escape(detail.field)}"]`)?.scrollIntoView({ block: 'center' });
         this.$nextTick(() => this.start(detail));
@@ -90,6 +99,7 @@ export default (config) => ({
     get intended() {
         const params = new URLSearchParams(window.location.search);
         params.set('suggest', this.formKey ?? 'mode');
+        if (this.conflictId) params.set('conflict', this.conflictId);
         return window.location.pathname + '?' + params.toString();
     },
 
@@ -123,6 +133,7 @@ export default (config) => ({
 
     start(detail) {
         this.formKey = this.keyFor(detail);
+        this.conflictId = detail.conflict ?? null;
         if (detail.mode) {
             // Back from signing in with nothing typed yet
             this.$store.suggest.on = true;
@@ -451,6 +462,7 @@ export default (config) => ({
         body.append('rationale_citation', this.fullRationale);
         if (this.personId) body.append('person_id', this.personId);
         if (this.creditOn) body.append('credit_name', this.creditName);
+        if (this.conflictId) body.append('date_conflict_id', this.conflictId);
 
         try {
             const res = await fetch(this.config.storeUrl, {

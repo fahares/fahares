@@ -333,6 +333,7 @@
                         @else
                             <span class="text-muted">ثبت نشده</span>
                         @endif
+                        <x-date-conflict-note type="manuscript" :id="$manuscript->id" field="copy" />
                     </x-ui.meta>
                     <x-ui.meta label="محل کتابت" field="copy_place">
                         @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif

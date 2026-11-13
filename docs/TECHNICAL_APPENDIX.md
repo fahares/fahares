@@ -10337,4 +10337,161 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/copy_date_tails_step14_165.json`، سپس `--apply`. روی `fahares_prod` محلی:
   - ۱٬۳۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 1349`.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با `prod-run`):**
+  - اجرای آزمایشی: `write 1349`.
+  - پشتیبان: ستون‌های `id`، `copy_date_raw`، `copy_date_note`، `copy_date_hijri_year`، `copy_date_from/to`، `copy_date_certainty`، `copy_date_hedge_raw` و `metadata` در `/tmp/step14_165_backup.json` (md5 `99d82273…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `--apply`: نشست SSH در میانه بسته شد («closed by remote host»)، ولی فرایند در کانتینر تا پایان رفت.
+  - ۱٬۳۴۹ ردیف `audit_logs`. اجرای دوم: `already 1349`.
+  - برای اطمینان، `DerivedData::syncCopies` با `prod-run` دوباره اجرا شد (`synced 1349`).
+  - ۱٬۳۳۵ نسخه بازه‌ی تاریخ دارند.
 
+### گام ۱۴.۱۶۶: موتور تخمین تاریخ (`fahares:estimate-dates`)
+
+- **مجهول‌ها (`DateVar`):** تولد و وفات شخص، تألیف اثر، کتابت نسخه. هر کدام یک عدد است: `id × 4 + نوع`.
+- **ورودی مستند (`Loader::load`):**
+  - `people.birth_year_hijri`، `death_from`، `death_to`
+  - `works.composition_date_from`، `composition_date_to`
+  - `manuscripts.copy_date_from`، `copy_date_to`، جز جایی که `copy_date_hedge_raw` عصر مؤلف را نام می‌برد (`namesAuthorsTime`)، چون آن بازه از وفات مؤلف ساخته شده است.
+- **قیدها، به شکل `x ≤ y + c`:**
+
+| قاعده | قید | از |
+|---|---|---|
+| `life` | تولد ≤ وفات ≤ تولد + ۱۰۰ | هر شخص |
+| `author` | تألیف ≤ وفات؛ تولد ≤ تألیف − ۱۵ | `work_people`، `author` |
+| `translator` | همان | `work_people`، `translator` |
+| `dedicatee` | تألیف ≤ وفات؛ تولد ≤ تألیف | `work_people`، `dedicatee` و `commissioner` |
+| `copy` | تألیف ≤ کتابت | `manuscripts.work_id` |
+| `autograph` | کتابت ≤ وفات مؤلف | `is_autograph`، اثر تک‌مؤلف |
+| `scribe` | کتابت ≤ وفات؛ تولد ≤ کتابت − ۱۰ | `manuscript_people`، `scribe` |
+| `patron` | کتابت ≤ وفات؛ تولد ≤ کتابت | `manuscript_people`، `patron` |
+| `derived` | تألیف اصل ≤ تألیف وابسته | `work_relations`، جز `related` و `part` |
+
+- **کنار گذاشته:** رابطه‌ی دارای `certainty`، و مؤلفِ اثری که مترجم دارد.
+- **`Engine::solve`:**
+  - `conflicts()`: قیدی که کران پایین مستند `x` از کران بالای مستند `y + c` بیشتر است. هر دو مقدار کنار می‌روند (`quarantined`).
+  - سه دور (`MAX_DEPTH`). هر دور فقط کران‌های دور پیش را به کار می‌برد، پس شماره‌ی دور عمق استنتاج است.
+  - `Solution`: `from`، `to`، و برای کران ساخته‌شده `…Depth`، `…Rule`، `…Via`.
+- **`date_estimates`:** یک ردیف برای هر مجهولی که بازه‌ی مستند کامل ندارد، در تناقض مستقیم نیست و بازه‌اش تهی نیست. کران مستند `…_rule` تهی دارد. هر اجرا جدول را از نو می‌سازد.
+- **`date_conflicts`:**
+  - مستقیم (`direct = 1`): `a` زودترین سالش از دیرترین سال مجاز `b` بیشتر است؛ `gap` فاصله است.
+  - غیرمستقیم: بازه‌ی `via` تهی شده است؛ `a` و `b` رکوردهایی‌اند که دو کران را داده‌اند.
+  - کلید `conflict_key` (sha1 از قاعده، نوع، `a`، `b`، `via`). ردیفِ دوباره‌یافته می‌ماند و `dismissed_*` آن دست نمی‌خورد؛ ردیفی که دیگر یافت نشود پاک می‌شود.
+- **نمونه‌ی اولیه و سنجش:** `docs/plans/date-estimates/prototype.py`. شمار تناقض‌های مستقیم فرمان با آن یکی است، جز دو ردیف تکراری.
+- **اجرا روی `fahares_prod` محلی:**
+  - `php artisan migrate --path=database/migrations/2026_11_13_100001_create_date_estimates_and_conflicts_tables.php`
+  - بی‌گزینه: ۷۷۳٬۳۸۰ قید، ۲۶۶٬۱۷۹ تاریخ مستند، ۲۲ ثانیه.
+  - `--apply`: ۲۱۷٬۹۲۴ تخمین و ۱۲٬۹۶۹ تناقض (۳٬۷۶۷ مستقیم، ۹٬۲۰۲ غیرمستقیم)، ۷۲ ثانیه، ۲۸۸ مگابایت. اجرای دوم همان شمارها را داد و همه‌ی تناقض‌ها را نگه داشت.
+  - `--validate`:
+
+| پنهان‌شده | شمار | بازه‌ی دوطرفه | درست | درست در بازه‌های تا ۱۵۰ سال | «پس از» درست | «پیش از» درست |
+|---|---|---|---|---|---|---|
+| وفات | ۹۵۳ | ۵۳۵ | ۹۵٪ | ۹۵٪ | ۱۰۰٪ | ۹۸٪ |
+| تألیف | ۱٬۶۸۱ | ۱٬۵۵۹ | ۹۷٫۲٪ | ۹۶٫۷٪ | – | ۹۹٪ |
+| کتابت | ۲۹٬۹۲۰ | ۹٬۰۲۷ | ۹۰٫۷٪ | ۷۷٫۱٪ | ۹۹٫۷٪ | – |
+
+- **تست‌ها:** `DateEstimateEngineTest` (۸) و `EstimateDatesCommandTest` (۵).
+
+### گام ۱۴.۱۶۷: صفحه‌ی «تناقض‌های تاریخی» (`Admin\DateConflictController`)
+
+- **مسیرها** (زیر `can:suggestions.review`):
+  - `GET /admin/date-conflicts`: `kind=indirect`، `view=dismissed`، `rule=<قاعده>`، `sort=small`.
+  - `POST /admin/date-conflicts/{conflict}/dismiss` با `note` (تا ۵۰۰ نویسه).
+  - `POST /admin/date-conflicts/{conflict}/reopen`.
+- **`DateConflict`:**
+  - `label`: شرح مورد از `LABELS[rule]["a_field>b_field"]`؛ برای غیرمستقیم «برای «…» سالی نمی‌ماند».
+  - `RULE_LABELS`: نام کوتاه قاعده‌ها برای فیلتر.
+  - `scopeOpen`: `dismissed_at` تهی.
+- **`records()`:** رکوردهای هر صفحه (۳۰ مورد) در سه پرس‌وجو خوانده می‌شوند: شخص (نام، `life_dates_raw`، تولد، بازه‌ی وفات)، اثر (عنوان، پدیدآور، بازه و متن تاریخ تألیف)، نسخه (عنوان اثر، شهر، کتابخانه، شماره، کاتب، بازه و متن تاریخ کتابت).
+- **پیوندها:** نشانی‌های کوتاه `/p/{id}`، `/w/{id}`، `/m/{id}`.
+- **منو:** `AdminNav`، گروه «داده‌ها و مراجع»، شمار `DateConflict::open()->where('direct', true)`.
+- **وارسی روی `fahares_prod` محلی:** هر سه حالت صفحه (پیش‌فرض، `kind=indirect`، `rule=author&sort=small`) با حساب مدیر پاسخ ۲۰۰ داد.
+- **یافته:** `people` با `death_to ≤ 15` شش نفرند؛ چهار نفرشان (#۲۳۷۱۹، #۵۰۰۳۱، #۶۰۸۶۲ و مانند آن) `life_dates_raw` به شکل «- 13» دارند که سده است، نه سال.
+- **تست:** `Admin\DateConflictsTest` (۳).
+
+### گام ۱۴.۱۶۸: `CopyExtent::separate()` و `fahares:fill-extents`
+
+- **`separate($line)`:** پیش از `preg_split('/\s*[،؛]\s*/u', …)` در `fromText()` اجرا می‌شود.
+  1. «،» درون هر `(…)` به U+E000 بدل می‌شود و پس از شکستن، در هر تکه بازمی‌گردد.
+  2. تکه‌ای که با «جلد» یا «کاغذ» آغاز شود و جز شمار عدد، کروشه یا کمانک دیگری نداشته باشد، اگر به شمار ختم شود (`$count` با کمانک اختیاری)، پیش از شمار «،» می‌گیرد. شرطش این است که پس از شمار «،»، «؛»، «[»، پایان سطر، «اندازه»، «قطع» یا «سطر» بیاید.
+  3. شماری که سر تکه است و «اندازه»، «قطع» یا «(N(-N)) سطر» بی «،» پس از آن آمده، «،» می‌گیرد.
+  - `$count` = `[\d۰-۹]+\s*(?:گ|برگ|ص)(?=\s|\(|[،؛]|$)(?:\s*\([^()]*\))?`.
+- **سنجش:** `fromText()` روی همه‌ی نسخه‌های `fahares_prod` محلی، پیش و پس از تغییر. ۴۶۳ نسخه تازه خوانده شد. ۰ گم و ۰ دگرگون.
+- **تست:** `test_a_count_with_a_missing_separator_is_read` در `tests/Unit/CopyExtentTest.php`. مجموعه‌ی کامل ۸۵۱ قبول.
+- **اجرا:** `php artisan fahares:fill-extents`، سپس `--apply`. روی رونوشت محلی:
+  - `changed 481`.
+  - `pages_out_of_folios 114`.
+  - `folios_corrected 8`.
+  - `folios_filled 2`.
+  - اجرای دوم چیزی برای نوشتن نیافت.
+  - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+  - اجرای آزمایشی همان شمارها را داد، به‌اضافه‌ی `kept:protected 1` (۲۰۴۴۱۵).
+  - پشتیبان: `id`، `folios`، `pages`، `extent_raw`، `range_from/to` و `range_from/to_number` همه‌ی ۳۲۳٬۲۴۹ نسخه در `/tmp/step14_168_backup.jsonl` (md5 `029d6ef6…`). فشرده به `fahares-sources/backups/step13/step14_168_backup.jsonl.gz` رفت و از کانتینر پاک شد.
+  - `--apply` با `nohup`: `changed 481`.
+  - اجرای دوم: هیچ نوع نوشتنی نماند.
+
+### گام ۱۴.۱۶۹: یادداشت ناسازگاری تاریخ (`x-date-conflict-note`)
+
+- **کامپوننت:** `App\View\Components\DateConflictNote` با `type`، `id` و `field` (`birth`، `death`، `composition`، `copy`).
+  - ناسازگاری‌های باز و مستقیم رکورد با `gap > MIN_GAP` (۲)، یک بار در هر درخواست خوانده می‌شوند (تا ۳۰ مورد) و سه‌تای نخست هر تاریخ نمایش داده می‌شود.
+  - رکورد طرف دیگر با `ConflictRecords::load` خوانده می‌شود، که صفحه‌ی پنل هم از آن استفاده می‌کند.
+- **پاسخ‌ها (`choice`):**
+  - در همین صفحه: رویداد `suggest-field` با `{field, conflict}` یا `{general: true, value, conflict}`.
+  - در صفحه‌ی رکورد دیگر: نشانی با `?suggest=field.<نام>&conflict=<id>` یا `?suggest=general&conflict=<id>&prefill=<متن>`.
+  - رابطه (`TIES`): گزارش به صفحه‌ی اثر می‌رود (مؤلف، مترجم، مُهدی‌الیه، اثر وابسته) یا نسخه (کاتب، بانی، خط مؤلف، نسخه و اثر). قاعده‌ی عمر این پاسخ را ندارد.
+- **`suggest-desk.js`:**
+  - `conflictId` از `detail.conflict`؛ با پیشنهاد به‌صورت `date_conflict_id` فرستاده می‌شود و در نشانی بازگشت پس از ورود می‌ماند.
+  - `init()` پارامترهای `conflict` و `prefill` را می‌خواند و برمی‌دارد. با `conflict`، فرم برای مهمان هم باز می‌شود (ورود هنگام «ارسال»).
+- **`SuggestionController::store`:** `date_conflict_id` فقط وقتی ذخیره می‌شود که ناسازگاری هنوز باشد و همان رکورد را نام ببرد (`DateConflict::idNaming`).
+- **migration:** `2026_11_13_200001_add_date_conflict_id_to_field_suggestions`، کلید خارجی با `nullOnDelete`: با رفتن ناسازگاری، پیشنهاد می‌ماند.
+- **پنل:**
+  - `/admin/date-conflicts`: `withCount` پیشنهادهای در انتظار (`waiting_count`)، مرتب‌سازی نخست بر پایه‌ی آن؛ بخش «پاسخ خوانندگان» زیر هر مورد؛ `?conflict=<id>` یک مورد را نشان می‌دهد.
+  - `admin/suggestions/show`: یادداشت «پاسخ به یک ناسازگاری تاریخ» با پیوند.
+- **وارسی در مرورگر** (سرور موقت روی `fahares_prod` محلی، اثر #۴۱۴ و شخص #۶۶۸): یادداشت و چهار پاسخ؛ فرم «تاریخ تألیف» با `conflictId = 47`؛ نشانی `people/668?suggest=field.death_year_hijri&conflict=47` و `works/414?suggest=general&conflict=47&prefill=…` برای مهمان.
+- **تست:** `DateConflictNotesTest` (۳).
+
+### گام ۱۴.۱۷۰: تخمین تألیف در صفحه‌ی اثر (`EstimateText`)
+
+- **`App\Support\DateEstimates\EstimateText::for($type, $id, $field)`:** ردیف `date_estimates` را به متن و دلیل برمی‌گرداند، یا `null`.
+  - دو کران با فاصله‌ی تا `MAX_SPAN` (۱۵۰): «میان X و Y ق»؛ اگر برابر باشند «X ق».
+  - دو کران با فاصله‌ی بیشتر: فقط کرانی که `depth` کمتری دارد؛ در برابری، کران بالا.
+  - یک کران: «پس از X ق» یا «پیش از Y ق».
+  - `reasons`: برای هر کرانِ نمایش‌داده، برچسب، جمله‌ی دلیل (`reason()` از قاعده، سمت و `depth`) و عنوان و نشانی رکورد دلیل.
+- **جمله‌ها:**
+
+| قاعده | کران پایین | کران بالا |
+|---|---|---|
+| `copy` | – | کهن‌ترین نسخه‌ی تاریخ‌دار اثر در این سال کتابت شده است |
+| `author`، `translator` | در این سال ۱۵ ساله بوده است | در این سال درگذشته است |
+| `dedicatee` | در این سال به دنیا آمده است | در این سال درگذشته است |
+| `derived` | اثری که این اثر بر پایه‌ی آن است در این سال تألیف شده است | اثری که بر پایه‌ی این اثر است در این سال تألیف شده است |
+
+  با `depth` بیش از ۱ جمله «به تخمین» دارد، چون خودِ آن تاریخ تخمینی است.
+- **نمایش:** `x-date-estimate` (کامپوننت بی‌کلاس) در ردیف «تاریخ تألیف» `works/show`، فقط وقتی اثر نه `composition_date_raw` دارد نه `composition_year_hijri`. بی‌تخمین، ردیف مثل پیش فقط در حالت پیشنهاد دیده می‌شود.
+- **شمار روی `fahares_prod` محلی:** ۵۳٬۰۴۷ اثر بی‌تاریخ با تخمین. ۸۹ اثر تاریخ خام دارند ولی بازه ندارند و تخمینشان نمایش داده نمی‌شود.
+- **تست:** `CompositionEstimateTest` (۲).
+
+### گام ۱۴.۱۷۱: سطر «کاتب = مؤلف» (`autograph_line_step14_171.json`) و متن صفحه‌های فنخا
+
+- **ساخت پرونده** (مخزن corpus): `python3 scripts/fankha_autograph_line_export.py --out <fahares>/database/data/autograph_line_step14_171.json`. نسخه‌ها از پایگاه با `regexp '\n[ \t]*(كاتب|کاتب)[ ]*=[ ]*مؤلف'` در آغاز یا انجام خوانده می‌شوند.
+  - **بریدن:** پیش از سطر، با پاک کردن فاصله و «؛» از پایان.
+  - **`metadata`:** مورد برابر با ستون بریده می‌شود. اگر موردی سطر را دارد ولی برابر ستون نیست، نسخه کنار می‌رود.
+  - **ستون‌ها، فقط اگر خالی باشند:**
+    - `is_autograph` (مگر با «(گویا)» یا «؟»)
+    - `copy_date_raw` از «تا: …»
+    - `is_bita`
+    - `copy_place` از «جا: …»
+  - **یادداشت:** پاره‌های سطر که با `KNOWN` نمی‌خوانند، به‌اضافه‌ی آنچه پس از «؛» است، به `editorial_notes` می‌روند.
+- **متن:**
+  - `LABELS` در `scripts/fix_text_ocr_step14_149.py` قاعده‌ی `كاتب(\s*=\s*)مؤلف` را گرفت. اسکریپت دوباره اجرا شد: ۹۴ سطر.
+  - وارسی: سمت «-» با کاف فارسی‌شده برابر سمت «+» است، جز یک سطر که «كاتب خود مؤلف» در نثرش ماند.
+- **صفحه‌ها:**
+  - `python3 -I scripts/sources/fankha_pages.py ../fahares-corpus/text/fankha storage/app/fankha-pages-step14_171` ساخته شد، با `MD5SUMS` و `VOLUMES` (جلدهای ۱، ۲، ۵ تا ۱۲، ۱۴، ۱۸ تا ۲۷ و ۲۹ تا ۳۴).
+  - در برابر `source_pages` محلی، ۶۸ صفحه فرق داشت و همه تنها در «ك».
+  - پس از `sources:import-pages` برای این ۲۷ جلد: `differ 0` و `missing 0`.
+- **اجرا در تولید (پس از تأیید):**
+  1. پشتیبان از ستون‌های ۲۴۲ نسخه و از `source_pages` فنخا.
+  2. `fahares:rebuild-copies --file=database/data/autograph_line_step14_171.json --apply`.
+  3. رونوشت فایل‌های صفحه به `/tmp` کانتینر.
+  4. `sources:import-pages` برای ۲۷ جلد.
+  5. وارسی و پاک کردن `/tmp`.

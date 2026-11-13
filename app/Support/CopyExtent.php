@@ -28,7 +28,7 @@ class CopyExtent
             if ($line === '') {
                 continue;
             }
-            $pieces = preg_split('/\s*[،؛]\s*/u', $line);
+            $pieces = array_map(fn ($p) => str_replace("\u{E000}", '،', $p), preg_split('/\s*[،؛]\s*/u', self::separate($line)));
             foreach ($pieces as $i => $piece) {
                 $piece = trim(strtr($piece, self::DIGITS));
                 // «2گ [ف: 3-1233]»: the catalogue's citation can close the line
@@ -70,6 +70,24 @@ class CopyExtent
         }
 
         return $result;
+    }
+
+    /**
+     * A line with the «،» Fankha leaves out around a count put back (step 14.168), so that the count starts a piece of
+     * its own: after the binding or the paper («جلد: تیماج مشکی 33ص»، «کاغذ: شرقی 13گ (24-36)»), and before the
+     * size, the format or the lines («103ص (172-275) اندازه: …»، «5ص (24-32) سطر»). A «،» inside the count's
+     * parenthesis («27ص (16-43، 11و12)») is kept from the split as U+E000.
+     */
+    private static function separate(string $line): string
+    {
+        $line = preg_replace_callback('/\([^()]*\)/u', fn ($m) => str_replace('،', "\u{E000}", $m[0]), $line);
+        $count = '[\d۰-۹]+\s*(?:گ|برگ|ص)(?=\s|\(|[،؛]|$)(?:\s*\([^()]*\))?';
+        // the count glued to the binding or paper: a piece that starts with «جلد» or «کاغذ» and has no other number
+        $line = preg_replace('/((?:^|[،؛])\s*(?:جلد|کاغذ)[^،؛\d۰-۹\[\]()]*?)\s+(' . $count . ')(?=\s*(?:[،؛]|\[|$|اندازه|قطع|[\d۰-۹]+\s*سطر|سطر))/u', '$1، $2', $line);
+        // the size, format or lines glued after the count
+        $line = preg_replace('/((?:^|[،؛])\s*' . $count . ')\s+(?=اندازه|قطع|(?:[\d۰-۹]+(?:\s*-\s*[\d۰-۹]+)?\s*)?سطر)/u', '$1، ', $line);
+
+        return $line;
     }
 
     /**
