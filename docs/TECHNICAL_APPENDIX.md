@@ -10161,9 +10161,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   python3 scripts/fankha_v2_ie_tail_export.py --report reports/fankha_v2_db_review12 --out <fahares>/database/data/ie_tails_step14_160.json --step 14.160
   ```
   - ورودی: ردیف‌های `trimmed` گزارش با `fate=moved` که محافظت‌شده نیستند.
-  - `cut()` با حرف‌ها جلو می‌رود و جای بریدن را در متن سایت پیدا می‌کند.
+  - `cut()` با حرف‌ها جلو می‌رود و جای بریدن را در متن سایت پیدا می‌کند. اعراب پس از حرف آخر و `)` کمانکی که در متن مانده باز شده، با متن می‌ماند.
   - این دنباله‌ها می‌مانند:
     - دنباله‌ای که با `«`، `(`، رقم، «بسمله»، «بسم»، «الحمد»، `×` یا `…` آغاز شود، یا `××` در ۸۰ حرف نخست آن باشد.
+    - دنباله‌ی بلندتر از ۲۰ حرف که در ۱۰۰ حرف نخستش واژه‌ی یادداشت (`NOTE_WORD`: «است»، «شامل»، «کامل»، «جلد»، «کاتب»، «رساله»، «تا» و…) نیست و تکرار متن مانده هم نیست.
     - دنباله‌ای که با مورد `CONTINUES` در `reconciliations/page_tag_breaks_step14_149.json` بخواند.
   - فهرست `metadata.incipits/explicits`:
     - اگر یک مورد آن با ستون برابر باشد، همان مورد بریده می‌شود.
@@ -10171,9 +10172,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - در غیر این صورت نسخه کنار می‌رود.
   - دنباله به `metadata.editorial_notes` افزوده می‌شود، مگر آنکه حرف‌هایش در `metadata` باشد.
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/ie_tails_step14_160.json`، سپس `--apply`. روی `fahares_prod` محلی:
-  - ۸۲۲ نسخه نوشته شد.
-  - ۸ نسخه دوباره به جلد فهرست پیوند خورد (`pointers_linked=7`).
-  - اجرای دوم: `already 822`.
+  - ۷۰۵ نسخه نوشته شد (`pointers_linked=6`).
+  - اجرای دوم: `already 705`.
+  - تمرین نخست (۸۲۲ نسخه) با پرونده‌ای وارونه پس گرفته شد. نمونه‌گیری سه خطا نشان داده بود: تنوین بریده، کمانک باز، و ادامه‌ی نقل.
 
 - **اجرای پروداکشن (پس از انتشار ۱۰۴؛ ۲۲ آبان ۱۴۰۵، ساعت ۱۹:۵۳، به تأیید کاربر «بله، اجرا کن»):**
   - پایشگر پس‌زمینه بودن `MoveCitedPartCommand.php` و دو ردیف `"step": "14.152"` در کانتینر و قفل `prod-run` را سنجید.
