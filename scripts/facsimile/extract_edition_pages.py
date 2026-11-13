@@ -23,6 +23,10 @@ edge and at the foot of each half is trimmed.
 
 A scan placed on a larger PDF page with white padding and a thin frame line (Malek vols. 7 and 8, step 14.145) takes
 --pad-trim, which drops both before the leaf is cut.
+
+Spreads printed on grey paper (University of Tehran central library, step 14.163: paper rows average about 220) take
+--keep-foot: bottom_trim walks up from a dark last row through every row of 235 or less, which on grey paper is the whole
+foot of the text, so it is left out there.
 """
 import argparse
 import json
@@ -129,7 +133,7 @@ def pad_trim(page):
 
 
 def render(job):
-    pdf, leaf, width, target, edges, pad = job
+    pdf, leaf, width, target, edges, pad, foot = job
     if os.path.exists(target):
         return 'skip'
     leaf, side = (int(leaf), None) if ':' not in str(leaf) else (int(str(leaf).split(':')[0]), str(leaf).split(':')[1])
@@ -150,7 +154,8 @@ def render(job):
         if side:
             spread = np.asarray(Image.open(base + '.pgm').convert('L'))
             x = gutter(spread)
-            half = bottom_trim(outer_trim(spread[:, :x] if side == 'l' else spread[:, x:], side))
+            half = outer_trim(spread[:, :x] if side == 'l' else spread[:, x:], side)
+            half = half if foot else bottom_trim(half)
             Image.fromarray(half).save(base + '.pgm')
         subprocess.run(['cwebp', '-quiet', '-q', '75', base + '.pgm', '-o', target + '.tmp'], check=True)
     os.replace(target + '.tmp', target)
@@ -170,6 +175,7 @@ def main():
     parser.add_argument('--workers', type=int, default=6)
     parser.add_argument('--trim-edges', action='store_true', help='drop dark scanner bands at the edges of whole leaves')
     parser.add_argument('--pad-trim', action='store_true', help='drop the white padding and thin frame around a scan placed on a larger PDF page')
+    parser.add_argument('--keep-foot', action='store_true', help='do not trim the foot of a half page (spreads on grey paper)')
     parser.add_argument('--out', default=os.path.join(REPO, 'storage', 'app', 'public', 'catalogs'))
     args = parser.parse_args()
 
@@ -181,7 +187,7 @@ def main():
         parser.error('give --map, or --offset, --first and --last')
     else:
         leaves = {page: page + args.offset for page in range(args.first, args.last + 1)}
-    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp'), args.trim_edges, args.pad_trim) for page, leaf in sorted(leaves.items())]
+    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp'), args.trim_edges, args.pad_trim, args.keep_foot) for page, leaf in sorted(leaves.items())]
     with ProcessPoolExecutor(args.workers) as pool:
         results = list(pool.map(render, jobs, chunksize=8))
     print(f"{len(jobs)} pages: {results.count('done')} rendered, {results.count('skip')} already there, in {folder}")
