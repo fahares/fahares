@@ -10376,6 +10376,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `folios_filled 2`.
   - اجرای دوم چیزی برای نوشتن نیافت.
   - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
+
 ### گام ۱۴.۱۶۹: یادداشت ناسازگاری تاریخ (`x-date-conflict-note`)
 
 - **کامپوننت:** `App\View\Components\DateConflictNote` با `type`، `id` و `field` (`birth`، `death`، `composition`، `copy`).
