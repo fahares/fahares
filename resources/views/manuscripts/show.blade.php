@@ -346,9 +346,17 @@
 
             <x-ui.section title="ویژگی‌های ظاهری">
                 <x-ui.meta-list>
-                    <x-ui.meta label="خط" field="script_names">
+                    {{-- Two fields in one row: each pencil stands by its own value, and the one of an empty «کیفیت خط»
+                         comes only in suggestion mode, with its name (a bare second pencil says nothing) --}}
+                    <x-ui.meta label="خط">
                         @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
-                        @if($manuscript->script_style)<span class="text-muted">({{ $manuscript->script_style }})</span>@endif
+                        <x-suggest.field name="script_names" class="ms-1" />
+                        @if($manuscript->script_style)
+                            <span class="text-muted ms-1">({{ $manuscript->script_style }})</span>
+                            <x-suggest.field name="script_style" title="پیشنهاد اصلاح کیفیت خط" aria-label="پیشنهاد اصلاح کیفیت خط" />
+                        @else
+                            <span x-show="$store.suggest.on" x-cloak data-script-style-empty><span class="text-muted ms-1">کیفیت خط: ثبت نشده</span> <x-suggest.field name="script_style" /></span>
+                        @endif
                         {{-- «نوع خط» is the catalogue's wording; the script list links each script it stands for to the search filter --}}
                         @php $scriptLinks = $manuscript->scripts->sortByDesc('pivot.is_primary'); @endphp
                         @if($scriptLinks->isNotEmpty() && $scriptLinks->pluck('name')->implode('، ') !== $manuscript->script_names)
@@ -356,8 +364,6 @@
                                 @foreach($scriptLinks as $sc)<a href="{{ route('search', ['type' => 'manuscripts', 'script_id' => $sc->id]) }}" class="border-b border-line-strong hover:text-cinnabar hover:border-cinnabar transition">{{ $sc->name }}</a>@if(! $loop->last) · @endif @endforeach
                             </span>
                         @endif
-                        <span x-show="$store.suggest.on" x-cloak class="text-muted ms-1">کیفیت خط:</span>
-                        <x-suggest.field name="script_style" />
                     </x-ui.meta>
                     {{-- Leaves or pages, and the leaves the copy takes in its volume (backlog item 97) --}}
                     <x-ui.meta :label="$manuscript->pages && ! $manuscript->folios ? 'شمار صفحه' : 'شمار برگ'" field="folios">

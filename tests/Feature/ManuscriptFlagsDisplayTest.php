@@ -52,6 +52,20 @@ class ManuscriptFlagsDisplayTest extends TestCase
         $this->assertMatchesRegularExpression('/<div class="contents suggest-row"(?![^>]*x-show)[^>]*>\s*<dt[^>]*>کاغذ<\/dt>/u', $html);
     }
 
+    /** The «خط» row holds two fields: the pencil of an empty «کیفیت خط» waits for suggestion mode, with its name */
+    public function test_the_script_row_shows_one_pencil_when_the_style_is_empty()
+    {
+        $html = $this->get(route('manuscripts.show', $this->copy(['script_names' => 'نسخ'])))->assertOk()->getContent();
+
+        $this->assertSame(1, preg_match_all('/data-suggest-field="script_names"/u', $html));
+        $this->assertMatchesRegularExpression('/<span x-show="\$store\.suggest\.on" x-cloak data-script-style-empty>.*?data-suggest-field="script_style"/su', $html);
+
+        $html = $this->get(route('manuscripts.show', $this->copy(['script_names' => 'نسخ', 'script_style' => 'خوش'])))->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('data-script-style-empty', $html);
+        $this->assertMatchesRegularExpression('/\(خوش\)<\/span>\s*<button[^>]*data-suggest-field="script_style"[^>]*title="پیشنهاد اصلاح کیفیت خط"/su', $html);
+    }
+
     public function test_a_copy_with_no_mark_hides_the_whole_section()
     {
         $html = $this->get(route('manuscripts.show', $this->copy([])))->assertOk()->getContent();

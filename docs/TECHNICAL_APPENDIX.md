@@ -10174,7 +10174,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - رونوشت اکنون دکمه‌ای با نشان است و نامش در `title` و `aria-label` می‌آید.
   - ویژگی تازه‌ی `image`: نشانی تصویر برگه. با آن، «تصویر برگه» به‌جای نمایشگر، `<figure data-leaf>` را بالای متن باز و بسته می‌کند. تصویر درون `<template x-if>` است و تا باز نشود بار نمی‌شود. `x-source.text` آن را از `thumbUrl()` می‌دهد، که همان فایل کامل صفحه است (۱۲۴۰×۱۷۵۵ در نمونه؛ در ستون ۷۷۴ پیکسل پهنا دارد).
 - **ستون کناری:** `lg:sticky lg:top-24` از `<aside>` صفحه‌ی نسخه و اثر برداشته شد.
-- **آزمون:** `ManuscriptFlagsDisplayTest` یک آزمون تازه برای فیلدهای خالی دارد. `CatalogReferencesTest` و `SourceItemsTest` با نام تازه‌ی دکمه‌ها هم‌خوان شدند.
+- **ردیف «خط»:** `x-ui.meta` دیگر `field` نمی‌گیرد و دو `x-suggest.field` درون ردیف‌اند: `script_names` پس از نوع خط، و `script_style` پس از کیفیت خط در پرانتز. اگر کیفیت خط خالی باشد، مدادش درون `<span data-script-style-empty x-show="$store.suggest.on">` با متن «کیفیت خط: ثبت نشده» است. `title` و `aria-label` مداد اکنون پیش‌فرضِ `merge` هستند و می‌توان آن‌ها را از بیرون داد («پیشنهاد اصلاح کیفیت خط»).
+- **آزمون:** `ManuscriptFlagsDisplayTest` یک آزمون تازه برای فیلدهای خالی و یکی برای مدادهای ردیف «خط» دارد. `CatalogReferencesTest` و `SourceItemsTest` با نام تازه‌ی دکمه‌ها هم‌خوان شدند.
 - **دیدن در مرورگر:** سرور worktree با `-e DB_DATABASE=fahares_prod` بالا آمد، تا داده همان تولید باشد. `public/storage` در worktree باید به `storage/app/public` شاخه‌ی اصلی پیوند شود، وگرنه تصویر برگه‌ها بار نمی‌شوند.
 
 ### گام ۱۴.۱۵۸: فیلترها و برجسته‌سازی جست‌وجو
