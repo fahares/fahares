@@ -10096,19 +10096,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan catalogs:move-cited-part --library=thran-mgls-4 --volume=33 --part=1 --from="فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳" --to="فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳" --apply
   ```
   پیش از آن از ردیف‌های `manuscripts`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۳۳ پشتیبان گرفته شود.
-- **اجرای پروداکشن (پس از انتشار ۱۰۴؛ ۲۲ آبان ۱۴۰۵، ساعت ۱۹:۵۳، به تأیید کاربر «بله، اجرا کن»):**
-  - پایشگر پس‌زمینه بودن `MoveCitedPartCommand.php` و دو ردیف `"step": "14.152"` در کانتینر و قفل `prod-run` را سنجید.
-  - اجرای آزمایشی: `set-facsimiles` «1 created, 1 updated, 42 unchanged (dry run)». `move-cited-part` پیش از ساخت جلد ۱/۳۳ درست می‌ایستد («from 1, to 0»).
-  - **اجرا (یک `prod-run --wait`):**
-    - نخست پشتیبان ۱٬۱۶۸ ردیف `manuscripts` (شناسه و جلد)، ۱٬۱۶۸ ردیف `manuscript_catalog_references`، ۱٬۱۶۸ ردیف `source_entries` و ردیف #۴۳۳ از `catalog_volumes` و `source_volumes` گرفته شد.
-    - سپس `set-facsimiles`: «1 created, 1 updated, 42 unchanged».
-    - سپس `move-cited-part` آزمایشی: «part named: 1: 709, 2: 458, none: 1»، «709 copies to move to #737».
-    - سپس `--apply`: «Moved 709 copies».
-  - **پشتیبان:** `../fahares-sources/backups/step13/step14_152_majlis_v33_before_20261112.json` (md5 `93c5c8e507d9c3e86b91b94fb5f47707`، دو سو یکسان). از `/tmp` کانتینر پاک شد.
-  - **وارسی:**
-    - #۷۳۷ (۱/۳۳) ۷۰۹ نسخه، ۷۰۹ ردیف ارجاع و ۷۰۹ ارجاع فنخا دارد. #۴۳۳ (۲/۳۳) ۴۵۹ از هر کدام دارد. هر دو در منبع 100030 هستند و کد و بازه‌ی صفحه دارند.
-    - ۷۰۹ ردیف `audit_logs` ثبت شد.
-    - در fahares.net نسخه‌های 180422 (10413، ۱/۳۳ ص ۱۵)، 264359 (10490، ص ۵۴)، 183036 (10965/10، ص ۱۷۲)، 53820 (11383، ۲/۳۳ ص ۱۰۵) و 159465 (11303، ص ۷۱) جلد و برگه‌ی درست را دارند. برگه‌ی ۱/۳۳ ص ۱۵ در نمایشگر «شرح تجرید الاعتقاد» را نشان داد. `/tmp` کانتینر پاک است.
 
 ### گام ۱۴.۱۵۳: پرچم‌های مؤلف و کاتب از روی ردیف‌های شخص
 - **تعریف تازه:** `is_author` یعنی شخص دست‌کم یک ردیف `work_people` با نقش `author` دارد، و `is_scribe` یعنی دست‌کم یک ردیف `manuscript_people` با نقش `scribe`. پیش‌تر `recountContributions` پرچم را فقط روشن می‌کرد (`is_author || works > 0`) و هرگز خاموش نمی‌کرد.
@@ -10202,3 +10189,38 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نمایش:** `x-source.legend` یک `<details data-source-legend="کد">` بسته است. `x-ui.source-text` اسلات تازه‌ی `footer` دارد، بیرون از قاب متن، تا با متن بلند بریده نشود و در «رونوشت متن» نیاید. `x-source.text` متن کتاب‌شناسی، متن مدخل و سطر نسخه را با هم به آن می‌دهد. `sources/show.blade.php` فهرست کامل را زیر معرفی منبع دارد.
 - **افزودن منبع تازه:** یک کلید با کد منبع در `config/source_legends.php`. برای هر نشانه‌ی کوتاه `match` بنویسید و آن را با یک سطر واقعی از همان منبع در `SourceLegendTest` بسنجید.
 - **آزمون:** [SourceLegendTest](../tests/Feature/SourceLegendTest.php)، سه آزمون: نشانه‌های یک سطر واقعی فنخا، نیافتن «کا» در «بی‌کا» و «تا» در واژه، تقدم `metadata.legend`، و قالب بسته با ذکر مأخذ.
+### گام ۱۴.۱۶۰: بریدن دنباله‌ی آغاز و انجام (`ie_tails_step14_160.json`)
+
+- **ساخت پرونده** (مخزن corpus):
+  ```
+  python3 scripts/fankha_v2_ie_tail_export.py --report reports/fankha_v2_db_review12 --out <fahares>/database/data/ie_tails_step14_160.json --step 14.160
+  ```
+  - ورودی: ردیف‌های `trimmed` گزارش با `fate=moved` که محافظت‌شده نیستند.
+  - `cut()` با حرف‌ها جلو می‌رود و جای بریدن را در متن سایت پیدا می‌کند. اعراب پس از حرف آخر و `)` کمانکی که در متن مانده باز شده، با متن می‌ماند.
+  - این دنباله‌ها می‌مانند:
+    - دنباله‌ای که با `«`، `(`، رقم، «بسمله»، «بسم»، «الحمد»، `×` یا `…` آغاز شود، یا `××` در ۸۰ حرف نخست آن باشد.
+    - دنباله‌ی بلندتر از ۲۰ حرف که در ۱۰۰ حرف نخستش واژه‌ی یادداشت (`NOTE_WORD`: «است»، «شامل»، «کامل»، «جلد»، «کاتب»، «رساله»، «تا» و…) نیست و تکرار متن مانده هم نیست.
+    - دنباله‌ای که با مورد `CONTINUES` در `reconciliations/page_tag_breaks_step14_149.json` بخواند.
+  - فهرست `metadata.incipits/explicits`:
+    - اگر یک مورد آن با ستون برابر باشد، همان مورد بریده می‌شود.
+    - اگر فهرست از پیش بخش‌بخش است (حرف‌های مورد نخست با مقدار بریده برابر است)، فقط ستون عوض می‌شود.
+    - در غیر این صورت نسخه کنار می‌رود.
+  - دنباله به `metadata.editorial_notes` افزوده می‌شود، مگر آنکه حرف‌هایش در `metadata` باشد.
+- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/ie_tails_step14_160.json`، سپس `--apply`. روی `fahares_prod` محلی:
+  - ۷۰۵ نسخه نوشته شد (`pointers_linked=6`).
+  - اجرای دوم: `already 705`.
+  - تمرین نخست (۸۲۲ نسخه) با پرونده‌ای وارونه پس گرفته شد. نمونه‌گیری سه خطا نشان داده بود: تنوین بریده، کمانک باز، و ادامه‌ی نقل.
+
+- **اجرای پروداکشن (پس از انتشار ۱۰۴؛ ۲۲ آبان ۱۴۰۵، ساعت ۱۹:۵۳، به تأیید کاربر «بله، اجرا کن»):**
+  - پایشگر پس‌زمینه بودن `MoveCitedPartCommand.php` و دو ردیف `"step": "14.152"` در کانتینر و قفل `prod-run` را سنجید.
+  - اجرای آزمایشی: `set-facsimiles` «1 created, 1 updated, 42 unchanged (dry run)». `move-cited-part` پیش از ساخت جلد ۱/۳۳ درست می‌ایستد («from 1, to 0»).
+  - **اجرا (یک `prod-run --wait`):**
+    - نخست پشتیبان ۱٬۱۶۸ ردیف `manuscripts` (شناسه و جلد)، ۱٬۱۶۸ ردیف `manuscript_catalog_references`، ۱٬۱۶۸ ردیف `source_entries` و ردیف #۴۳۳ از `catalog_volumes` و `source_volumes` گرفته شد.
+    - سپس `set-facsimiles`: «1 created, 1 updated, 42 unchanged».
+    - سپس `move-cited-part` آزمایشی: «part named: 1: 709, 2: 458, none: 1»، «709 copies to move to #737».
+    - سپس `--apply`: «Moved 709 copies».
+  - **پشتیبان:** `../fahares-sources/backups/step13/step14_152_majlis_v33_before_20261112.json` (md5 `93c5c8e507d9c3e86b91b94fb5f47707`، دو سو یکسان). از `/tmp` کانتینر پاک شد.
+  - **وارسی:**
+    - #۷۳۷ (۱/۳۳) ۷۰۹ نسخه، ۷۰۹ ردیف ارجاع و ۷۰۹ ارجاع فنخا دارد. #۴۳۳ (۲/۳۳) ۴۵۹ از هر کدام دارد. هر دو در منبع 100030 هستند و کد و بازه‌ی صفحه دارند.
+    - ۷۰۹ ردیف `audit_logs` ثبت شد.
+    - در fahares.net نسخه‌های 180422 (10413، ۱/۳۳ ص ۱۵)، 264359 (10490، ص ۵۴)، 183036 (10965/10، ص ۱۷۲)، 53820 (11383، ۲/۳۳ ص ۱۰۵) و 159465 (11303، ص ۷۱) جلد و برگه‌ی درست را دارند. برگه‌ی ۱/۳۳ ص ۱۵ در نمایشگر «شرح تجرید الاعتقاد» را نشان داد. `/tmp` کانتینر پاک است.
