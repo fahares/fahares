@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Auth\HeldCredit;
+use App\Models\DateConflict;
 use App\Models\FieldSuggestion;
 use App\Models\Person;
 use App\Notifications\SuggestionNotifier;
@@ -50,6 +51,7 @@ class SuggestionController extends Controller
             'files' => 'nullable|array|max:' . NoteTypes::MAX_FILES,
             'files.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'rights_confirmed' => 'nullable|boolean',
+            'date_conflict_id' => 'nullable|integer',
         ], [
             'suggested_value.required' => 'متن پیشنهاد را وارد کنید.',
             'files.max' => 'حداکثر ' . NoteTypes::MAX_FILES . ' تصویر می‌توانید بارگذاری کنید.',
@@ -108,6 +110,7 @@ class SuggestionController extends Controller
             'guest_name' => $user->name,
             'guest_email' => $user->email,
             'status' => 'pending',
+            'date_conflict_id' => DateConflict::idNaming($validated['date_conflict_id'] ?? null, $validated['type'], (int) $record->id),
             // credit_name is sent only when the submitter ticked the consent box; held until the email is verified
         ] + HeldCredit::columns($user, $validated['credit_name'] ?? null));
 
