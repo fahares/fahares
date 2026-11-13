@@ -15,7 +15,7 @@
     $searches = (int) $totals->searches;
     $answered = (int) $totals->answered;
     $pct = fn ($part, $whole) => $whole ? Fa::digits(round(100 * $part / $whole)) . '٪' : '—';
-    $tabLabels = ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'people' => 'اشخاص'];
+    $tabLabels = ['works' => 'آثار', 'manuscripts' => 'نسخه‌ها', 'authors' => 'پدیدآوران', 'scribes' => 'کاتبان', 'sources' => 'منابع', 'people' => 'اشخاص (زبانه‌ی پیشین)'];
     $scopeLabels = ['titles' => 'فقط عنوان', 'titles_names' => 'عنوان و نام', 'all' => 'همه‌ی اطلاعات'];
     $maxDay = max(1, ...array_column($daily, 'n'));
     $searchUrl = fn ($row) => route('search', ['q' => $row->query, 'type' => $row->type]);

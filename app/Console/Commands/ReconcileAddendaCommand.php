@@ -223,7 +223,7 @@ class ReconcileAddendaCommand extends Command
     {
         foreach (Person::whereIn('id', array_filter(array_unique($this->touchedPeople)))->get() as $person) {
             $works = $person->authoredWorks()->count();
-            $person->update(['works_count' => $works, 'is_author' => $person->is_author || $works > 0]);
+            $person->update(['works_count' => $works, 'is_author' => $works > 0]);
             $person->searchable();
         }
 

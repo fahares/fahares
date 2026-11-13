@@ -14,8 +14,8 @@
         @endif
     </a>
 @endif
-{{-- Per-field "suggest a correction" button, opens <x-suggest.desk>. Shown in suggestion mode, and on a mouse device
-     also while the pointer or focus is on its field (.suggest-btn in app.css, backlog item 92) --}}
+{{-- Per-field "suggest a correction" button, opens <x-suggest.desk>. Always there but faint; strong in suggestion mode,
+     and on a mouse device while the pointer or focus is on its field (.suggest-btn in app.css, backlog item 92) --}}
 <button type="button"
     :class="$store.suggest.on && 'is-on'"
     data-suggest-field="{{ $name }}"

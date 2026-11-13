@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -25,9 +26,11 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
-        // The short form in the suggestion desk's sign-in dialog has no repeat field; its password can be shown instead
+        // The short form in the suggestion desk's sign-in dialog has no repeat field; its password can be shown instead.
+        // It asks for an email and a password only (step 14.156): the name is the one typed for the credit, if any
+        $fromDesk = $request->boolean('desk');
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [$fromDesk ? 'nullable' : 'required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => array_merge(['required', 'string', 'min:8'], $request->has('password_confirmation') ? ['confirmed'] : []),
             'affiliation' => ['nullable', 'string', 'max:255'],
@@ -43,7 +46,7 @@ class RegisterController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
+            'name' => trim($validated['name'] ?? '') ?: Str::before($validated['email'], '@'),
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'affiliation' => $validated['affiliation'] ?? null,
@@ -61,7 +64,10 @@ class RegisterController extends Controller
         $request->session()->flash('success', "ثبت‌نام با موفقیت انجام شد. پژوهشگر گرامی {$user->name}، به پایگاه فهارس خوش آمدید. پیوند تأیید ایمیل به {$user->email} فرستاده شد؛ پس از تأیید آن، نام شما کنار اصلاحاتتان منتشر می‌شود.");
         $target = redirect()->intended(route('home'));
 
-        // The sign-in dialog of the suggestion desk posts here with fetch and follows the returned address
-        return $request->expectsJson() ? response()->json(['redirect' => $target->getTargetUrl()]) : $target;
+        // The sign-in dialog of the suggestion desk posts here with fetch. It sends the waiting suggestion at once with
+        // the new session's token, or follows the returned address
+        return $request->expectsJson()
+            ? response()->json(['redirect' => $target->getTargetUrl(), 'csrf' => csrf_token(), 'name' => $user->name])
+            : $target;
     }
 }

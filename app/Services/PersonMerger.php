@@ -102,8 +102,8 @@ class PersonMerger
             $target->update([
                 'works_count' => $newWorksCount,
                 'manuscripts_count' => $newManuscriptsCount,
-                'is_author' => $target->is_author || ($newWorksCount > 0),
-                'is_scribe' => $target->is_scribe || ($newManuscriptsCount > 0),
+                'is_author' => $newWorksCount > 0,
+                'is_scribe' => $newManuscriptsCount > 0,
                 'is_translator' => $target->is_translator || DB::table('work_people')->where('person_id', $target->id)->where('role', 'translator')->exists(),
                 'aliases' => array_values(array_merge((array) ($target->aliases ?? []), $addedAliases)),
                 'wrong_names' => array_values(array_merge((array) ($target->wrong_names ?? []), $addedWrongNames)) ?: null,

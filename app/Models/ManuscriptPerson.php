@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecountsPerson;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ManuscriptPerson extends Model
 {
+    use RecountsPerson;
+
     protected $table = 'manuscript_people';
 
     protected $guarded = ['id'];

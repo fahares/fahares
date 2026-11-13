@@ -33,7 +33,12 @@
     <nav class="flex items-center gap-2 text-xs text-muted" aria-label="مسیر">
         <a href="{{ route('home') }}" class="hover:text-cinnabar">فهارس</a>
         <span aria-hidden="true">/</span>
-        <a href="{{ route('search', ['type' => 'people']) }}" class="hover:text-cinnabar">پدیدآوران و کاتبان</a>
+        {{-- The tab of the search the person is found in (step 14.154) --}}
+        @if($person->is_scribe && ! $person->is_author)
+            <a href="{{ route('search', ['type' => 'scribes']) }}" class="hover:text-cinnabar">کاتبان</a>
+        @else
+            <a href="{{ route('search', ['type' => 'authors']) }}" class="hover:text-cinnabar">پدیدآوران</a>
+        @endif
         <span aria-hidden="true">/</span>
         <span class="text-ink font-semibold">{{ $person->name }}</span>
     </nav>
@@ -74,7 +79,7 @@
     <div class="jadval" aria-hidden="true"></div>
 
     <div class="flex flex-wrap items-center justify-between gap-3">
-        <x-suggest.toggle />
+        <x-suggest.toggle type="person" />
         <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $person->id }}</span></span>
     </div>
 
