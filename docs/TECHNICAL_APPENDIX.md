@@ -10229,3 +10229,20 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: ستون‌های `id`، `incipit_text`، `explicit_text` و `metadata` هر ۷۰۵ ردیف در `/tmp/step14_160_backup.json` (md5 `5cc70645…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply`: ۷۰۵ نسخه نوشته شد (`pointers_linked=6`).
   - اجرای دوم: `already 705`.
+
+### گام ۱۴.۱۶۱: آغازهای «برابر» چسبیده (`barabar_incipits_step14_161.json`)
+
+- **ساخت پرونده** (مخزن corpus): `python3 scripts/fankha_barabar_incipit_export.py --out <fahares>/database/data/barabar_incipits_step14_161.json`. اسکریپت همه‌ی نسخه‌های پایگاه را می‌خواند، نه فقط ردیف‌های گزارش.
+- **قاعده‌ها:**
+  - `VA_ANJAM` = `^و ?انجام[: ]+برابر`. اگر انجام خالی باشد «برابر» می‌شود. اگر انجام جدا و چیز دیگری باشد، نسخه کنار می‌رود.
+  - `ANJAM` = `^برابر ?[؛.،]? ?انجام ?:`. انجام پر می‌شود اگر خالی باشد، یا اگر ستون انجام آغاز همین متن و کوتاه‌تر از آن باشد. اگر با آن نخواند، نسخه کنار می‌رود.
+  - `FIELD` (خط، کا، بی‌کا، بی‌تا، تا) و `REMARK` (کامل، از، همان، نام): اگر انجام برابر آغاز باشد، آن هم «برابر» می‌شود.
+- **`metadata`:**
+  - در `incipits` و `explicits`، موردی که با ستون برابر است عوض می‌شود. اگر فهرست با ستون نخواند، نسخه کنار می‌رود.
+  - دنباله‌ای که در `metadata` نیست به `editorial_notes` افزوده می‌شود: سطر پس از انجام چسبیده، یا یادداشت.
+- **هر رکورد:** `v2: null` دارد، چون فرمان این کلید را در `audit_logs` می‌نویسد.
+- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/barabar_incipits_step14_161.json`، سپس `--apply`. روی `fahares_prod` محلی:
+  - ۲۳۹ نسخه نوشته شد.
+  - اجرای دوم: `already 239`.
+  - تمرین نخست انجام‌های هم‌مقدار را نمی‌گرفت. با `old_values` در `audit_logs` پس گرفته شد و دوباره اجرا شد.
+
