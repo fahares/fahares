@@ -10262,4 +10262,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/barabar_semicolon_step14_162.json`، سپس `--apply`. روی `fahares_prod` محلی:
   - ۶۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 649`.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+  - اجرای آزمایشی: `write 649`.
+  - پشتیبان: ستون‌های `id`، `incipit_text`، `explicit_text` و `metadata` هر ۶۴۹ ردیف در `/tmp/step14_162_backup.json` (md5 `64243884…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `--apply`: ۶۴۹ نسخه نوشته شد.
+  - اجرای دوم: `already 649`.
 
