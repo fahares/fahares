@@ -10359,6 +10359,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **وارسی روی `fahares_prod` محلی:** هر سه حالت صفحه (پیش‌فرض، `kind=indirect`، `rule=author&sort=small`) با حساب مدیر پاسخ ۲۰۰ داد.
 - **یافته:** `people` با `death_to ≤ 15` شش نفرند؛ چهار نفرشان (#۲۳۷۱۹، #۵۰۰۳۱، #۶۰۸۶۲ و مانند آن) `life_dates_raw` به شکل «- 13» دارند که سده است، نه سال.
 - **تست:** `Admin\DateConflictsTest` (۳).
+
 ### گام ۱۴.۱۶۸: `CopyExtent::separate()` و `fahares:fill-extents`
 
 - **`separate($line)`:** پیش از `preg_split('/\s*[،؛]\s*/u', …)` در `fromText()` اجرا می‌شود.
