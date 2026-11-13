@@ -10335,3 +10335,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 | کتابت | ۲۹٬۹۲۰ | ۹٬۰۲۷ | ۹۰٫۷٪ | ۷۷٫۱٪ | ۹۹٫۷٪ | – |
 
 - **تست‌ها:** `DateEstimateEngineTest` (۸) و `EstimateDatesCommandTest` (۵).
+
+### گام ۱۴.۱۶۷: صفحه‌ی «تناقض‌های تاریخی» (`Admin\DateConflictController`)
+
+- **مسیرها** (زیر `can:suggestions.review`):
+  - `GET /admin/date-conflicts`: `kind=indirect`، `view=dismissed`، `rule=<قاعده>`، `sort=small`.
+  - `POST /admin/date-conflicts/{conflict}/dismiss` با `note` (تا ۵۰۰ نویسه).
+  - `POST /admin/date-conflicts/{conflict}/reopen`.
+- **`DateConflict`:**
+  - `label`: شرح مورد از `LABELS[rule]["a_field>b_field"]`؛ برای غیرمستقیم «برای «…» سالی نمی‌ماند».
+  - `RULE_LABELS`: نام کوتاه قاعده‌ها برای فیلتر.
+  - `scopeOpen`: `dismissed_at` تهی.
+- **`records()`:** رکوردهای هر صفحه (۳۰ مورد) در سه پرس‌وجو خوانده می‌شوند: شخص (نام، `life_dates_raw`، تولد، بازه‌ی وفات)، اثر (عنوان، پدیدآور، بازه و متن تاریخ تألیف)، نسخه (عنوان اثر، شهر، کتابخانه، شماره، کاتب، بازه و متن تاریخ کتابت).
+- **پیوندها:** نشانی‌های کوتاه `/p/{id}`، `/w/{id}`، `/m/{id}`.
+- **منو:** `AdminNav`، گروه «داده‌ها و مراجع»، شمار `DateConflict::open()->where('direct', true)`.
+- **وارسی روی `fahares_prod` محلی:** هر سه حالت صفحه (پیش‌فرض، `kind=indirect`، `rule=author&sort=small`) با حساب مدیر پاسخ ۲۰۰ داد.
+- **یافته:** `people` با `death_to ≤ 15` شش نفرند؛ چهار نفرشان (#۲۳۷۱۹، #۵۰۰۳۱، #۶۰۸۶۲ و مانند آن) `life_dates_raw` به شکل «- 13» دارند که سده است، نه سال.
+- **تست:** `Admin\DateConflictsTest` (۳).
+

@@ -316,6 +316,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/person-reviews/{review}/split', [AdminPersonReviewController::class, 'split'])->name('person-reviews.split');
     Route::post('/person-reviews/{review}/status', [AdminPersonReviewController::class, 'status'])->name('person-reviews.status');
 
+    // Documented dates that cannot both be right, found nightly by fahares:estimate-dates (step 14.167)
+    Route::middleware('can:suggestions.review')->group(function () {
+        Route::get('/date-conflicts', [\App\Http\Controllers\Admin\DateConflictController::class, 'index'])->name('date-conflicts.index');
+        Route::post('/date-conflicts/{conflict}/dismiss', [\App\Http\Controllers\Admin\DateConflictController::class, 'dismiss'])->name('date-conflicts.dismiss');
+        Route::post('/date-conflicts/{conflict}/reopen', [\App\Http\Controllers\Admin\DateConflictController::class, 'reopen'])->name('date-conflicts.reopen');
+    });
+
     // A work's author named only by the catalogue, and the one person it may be (step 14.17)
     Route::middleware('can:structure.link')->group(function () {
         Route::get('/author-links', [\App\Http\Controllers\Admin\AuthorLinkController::class, 'index'])->name('author-links.index');
