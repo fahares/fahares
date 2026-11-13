@@ -10342,3 +10342,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 | کتابت | ۲۹٬۹۲۰ | ۹٬۰۲۷ | ۹۰٫۷٪ | ۷۷٫۱٪ | ۹۹٫۷٪ | – |
 
 - **تست‌ها:** `DateEstimateEngineTest` (۸) و `EstimateDatesCommandTest` (۵).
+
+### گام ۱۴.۱۶۸: `CopyExtent::separate()` و `fahares:fill-extents`
+
+- **`separate($line)`:** پیش از `preg_split('/\s*[،؛]\s*/u', …)` در `fromText()` اجرا می‌شود.
+  1. «،» درون هر `(…)` به U+E000 بدل می‌شود و پس از شکستن، در هر تکه بازمی‌گردد.
+  2. تکه‌ای که با «جلد» یا «کاغذ» آغاز شود و جز شمار عدد، کروشه یا کمانک دیگری نداشته باشد، اگر به شمار ختم شود (`$count` با کمانک اختیاری)، پیش از شمار «،» می‌گیرد. شرطش این است که پس از شمار «،»، «؛»، «[»، پایان سطر، «اندازه»، «قطع» یا «سطر» بیاید.
+  3. شماری که سر تکه است و «اندازه»، «قطع» یا «(N(-N)) سطر» بی «،» پس از آن آمده، «،» می‌گیرد.
+  - `$count` = `[\d۰-۹]+\s*(?:گ|برگ|ص)(?=\s|\(|[،؛]|$)(?:\s*\([^()]*\))?`.
+- **سنجش:** `fromText()` روی همه‌ی نسخه‌های `fahares_prod` محلی، پیش و پس از تغییر. ۴۶۳ نسخه تازه خوانده شد. ۰ گم و ۰ دگرگون.
+- **تست:** `test_a_count_with_a_missing_separator_is_read` در `tests/Unit/CopyExtentTest.php`. مجموعه‌ی کامل ۸۵۱ قبول.
+- **اجرا:** `php artisan fahares:fill-extents`، سپس `--apply`. روی رونوشت محلی:
+  - `changed 481`.
+  - `pages_out_of_folios 114`.
+  - `folios_corrected 8`.
+  - `folios_filled 2`.
+  - اجرای دوم چیزی برای نوشتن نیافت.
+  - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
+
