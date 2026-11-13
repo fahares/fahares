@@ -10376,6 +10376,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `folios_filled 2`.
   - اجرای دوم چیزی برای نوشتن نیافت.
   - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+  - اجرای آزمایشی همان شمارها را داد، به‌اضافه‌ی `kept:protected 1` (۲۰۴۴۱۵).
+  - پشتیبان: `id`، `folios`، `pages`، `extent_raw`، `range_from/to` و `range_from/to_number` همه‌ی ۳۲۳٬۲۴۹ نسخه در `/tmp/step14_168_backup.jsonl` (md5 `029d6ef6…`). فشرده به `fahares-sources/backups/step13/step14_168_backup.jsonl.gz` رفت و از کانتینر پاک شد.
+  - `--apply` با `nohup`: `changed 481`.
+  - اجرای دوم: هیچ نوع نوشتنی نماند.
 
 ### گام ۱۴.۱۶۹: یادداشت ناسازگاری تاریخ (`x-date-conflict-note`)
 
