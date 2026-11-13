@@ -892,6 +892,428 @@
      "step": "14.152"
     }
    }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 1,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد اول: مصاحف شریفه و تفاسیر",
+   "facsimile_code": "razavi",
+   "page_first": 8,
+   "page_last": 747,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8472 - فهرست جدیدج1.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v01.map.json"
+     ],
+     "note": "خزانه‌ها 8472؛ چاپ دوم «فهرست جدید» (حکمت، کلام، عرفان)؛ برگ‌های تصویر نسخه‌ها (ص ۶۰۰ تا ۶۹۲) شماره ندارند",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 4,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد چهارم: حکمت، کلام، فلسفه، منطق، تفسیر",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 544,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8475 - فهرست آستان قدس ج4.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v04.map.json"
+     ],
+     "note": "خزانه‌ها 8475؛ شماره‌ی صفحه در پای برگ",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 6,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد ششم: اصول فقه، ادعیه، اخلاق، رجال، انساب",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 735,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8477 - فهرست آستان قدس ج6.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v06.map.json"
+     ],
+     "note": "خزانه‌ها 8477؛ شماره در پای برگ؛ برگ‌های ص ۴۹۳ تا ۵۰۰ جابه‌جا صحافی شده",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 7,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد هفتم: کتب فارسی و عربی",
+   "facsimile_code": "razavi",
+   "page_first": 529,
+   "page_last": 1015,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8478 - فهرست آستان قدس ج2-7.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v07-2.map.json"
+     ],
+     "note": "خزانه‌ها 8478؛ تنها بخش ۲ (ص ۵۲۹ به بعد)؛ فایل بخش ۱ (8507) بازتایپی است و صفحه‌هایش با چاپ نمی‌خواند",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 8,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد هشتم: کتب خطی",
+   "facsimile_code": "razavi",
+   "page_first": 3,
+   "page_last": 533,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8479 - فهرست آستان قدس ج8.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v08.map.json"
+     ],
+     "note": "خزانه‌ها 8479؛ ص ۱۰ و ۱۱ در اسکن نیست",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 9,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد نهم",
+   "facsimile_code": "razavi",
+   "page_first": 3,
+   "page_last": 417,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8480 - فهرست آستان قدس ج9.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v09.map.json"
+     ],
+     "note": "خزانه‌ها 8480",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 10,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد دهم",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 315,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8481 - فهرست آستان قدس ج10.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v10.map.json"
+     ],
+     "note": "خزانه‌ها 8481",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 11,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد یازدهم",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 793,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8482 - فهرست آستان قدس ج11.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v11.map.json"
+     ],
+     "note": "خزانه‌ها 8482؛ سه برگ تکراری (ص ۱۹۶ تا ۱۹۸) کنار رفت",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 12,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد دوازدهم",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 576,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8483 - فهرست آستان قدس ج12.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v12.map.json"
+     ],
+     "note": "خزانه‌ها 8483",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 13,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد سیزدهم: لغت",
+   "facsimile_code": "razavi",
+   "page_first": 9,
+   "page_last": 241,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8484 - فهرست آستان قدس ج13.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v13.map.json"
+     ],
+     "note": "خزانه‌ها 8484",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 14,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد چهاردهم: اخبار",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 669,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8485 - فهرست آستان قدس ج14.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v14.map.json"
+     ],
+     "note": "خزانه‌ها 8485؛ ص ۴۲۰ و ۴۲۱ در اسکن نیست",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 15,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد پانزدهم: ادعیه",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 591,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8486 - فهرست آستان قدس ج15.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v15.map.json"
+     ],
+     "note": "خزانه‌ها 8486؛ سال چاپ ۱۹۹۶ م، صفحه‌ها با فنخا می‌خواند",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 16,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد شانزدهم: اصول فقه",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 569,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8487 - فهرست آستان قدس ج16.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v16.map.json"
+     ],
+     "note": "خزانه‌ها 8487",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 17,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد هفدهم: ادبیات",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 632,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8488 - فهرست آستان قدس ج17.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v17.map.json"
+     ],
+     "note": "خزانه‌ها 8488",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 18,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد هجدهم: ریاضیات",
+   "facsimile_code": "razavi",
+   "page_first": 1,
+   "page_last": 194,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8489 - فهرست آستان قدس ج18.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v18.map.json"
+     ],
+     "note": "خزانه‌ها 8489",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 19,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد نوزدهم: طب",
+   "facsimile_code": "razavi",
+   "page_first": 3,
+   "page_last": 747,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8490 - فهرست آستان قدس ج19.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v19.map.json"
+     ],
+     "note": "خزانه‌ها 8490",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 20,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد بیستم: کتب فقهی چاپ نشده",
+   "facsimile_code": "razavi",
+   "page_first": 6,
+   "page_last": 623,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8491 - فهرست آستان قدس ج20.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v20.map.json"
+     ],
+     "note": "خزانه‌ها 8491",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 21,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد بیست و یکم: فقه",
+   "facsimile_code": "razavi",
+   "page_first": 2,
+   "page_last": 1717,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8492 - فهرست آستان قدس ج1-21.pdf",
+      "fahares-telegram-khazaneha (SD card)/8493 - فهرست آستان قدس ج2-22.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v21-1.map.json",
+      "razavi/v21-2.map.json"
+     ],
+     "note": "خزانه‌ها 8492 و 8493؛ دو بخش با صفحه‌شماری پیوسته؛ ص ۵۶۶ تا ۵۷۵ و ۱۶۷۶ و ۱۶۷۷ در اسکن نیست",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 22,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد بیست و دوم: تفسیر",
+   "facsimile_code": "razavi",
+   "page_first": 8,
+   "page_last": 517,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/8494 - فهرست کتب خطی آستان قدس22.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v22.map.json"
+     ],
+     "note": "خزانه‌ها 8494؛ ص ۴۲۸ و ۴۲۹ در اسکن نیست",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 26,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد بیست و ششم: اخبار",
+   "facsimile_code": "razavi",
+   "page_first": 8,
+   "page_last": 743,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "razavi/v26.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v26.map.json"
+     ],
+     "note": "خزانه‌ها 8495 (RAR عکس‌ها، بی بازفشرده‌سازی در PDF)",
+     "step": "14.164"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-rdoy-1",
+   "volume_number": 27,
+   "title": "فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی - جلد بیست و هفتم: اجازات، رجال، درایه الحدیث",
+   "facsimile_code": "razavi",
+   "page_first": 9,
+   "page_last": 360,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "razavi/v27.pdf"
+     ],
+     "leaf_maps": [
+      "razavi/v27.map.json"
+     ],
+     "note": "خزانه‌ها 8496 (RAR عکس‌ها، بی بازفشرده‌سازی در PDF)",
+     "step": "14.164"
+    }
+   }
   }
  ]
 }
