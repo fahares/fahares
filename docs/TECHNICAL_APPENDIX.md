@@ -10447,3 +10447,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. رونوشت فایل‌های صفحه به `/tmp` کانتینر.
   4. `sources:import-pages` برای ۲۷ جلد.
   5. وارسی و پاک کردن `/tmp`.
+
+### گام ۱۴.۱۷۲: «زنده در» (`EstimateText::aliveIn`)
+
+- **شرط‌ها:** ردیف `date_estimates` شخص با `field = death`، `year_from` پر، `from_depth = 1` و قاعده‌ای از `ALIVE` (`author`، `translator`، `dedicatee`، `scribe`، `autograph`، `patron`). قاعده‌ی `life` (از تولد مستند) چیزی نمی‌گوید.
+- **کاتب قاطی‌شده:** با قاعده‌ی `scribe`، اگر `people.scribed_to − scribed_from` از `PersonReviewQueue::MIXED_SPAN` (۷۰) بیشتر باشد، `null`.
+- **متن:** بازه‌ی مستند رکورد دلیل خوانده می‌شود (`composition_date_from/to` یا `copy_date_from/to`). اگر یک سال باشد «زنده در X ق»، وگرنه «وفات پس از X ق»؛ جمله‌ی دلیل هم دو شکل دارد.
+- **نمایش:** `people/show`، ردیف «وفات»، وقتی `death_year_hijri` تهی است؛ با همان `x-date-estimate` گام ۱۴.۱۷۰.
+- **شمار روی `fahares_prod` محلی:** ۴۷٬۵۱۳ نامزد (کاتب ۴۷٬۳۵۲، خط مؤلف ۹۵، مؤلف ۶۵، مُهدی‌الیه ۱)؛ ۳٬۸۲۹ کاتب قاطی‌شده کنار می‌روند.
+- **تست:** `AliveInTest` (۲).
+
