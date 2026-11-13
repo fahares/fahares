@@ -6,6 +6,7 @@ use App\Support\DateEstimates\Loader;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Two documented dates that cannot both be right (step 14.166), as fahares:estimate-dates found them: «a» is no
@@ -55,6 +56,26 @@ class DateConflict extends Model
     public function dismisser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dismissed_by');
+    }
+
+    /** What readers answered from the note beside the date (step 14.169). */
+    public function suggestions(): HasMany
+    {
+        return $this->hasMany(FieldSuggestion::class);
+    }
+
+    /**
+     * The id of the conflict a suggestion on a record may be tied to: the conflict must still be there and name that
+     * record, else null.
+     */
+    public static function idNaming(mixed $id, string $type, int $recordId): ?int
+    {
+        if (! $id) {
+            return null;
+        }
+
+        return self::whereKey((int) $id)->where(fn ($q) => $q->where(fn ($a) => $a->where('a_type', $type)->where('a_id', $recordId))
+            ->orWhere(fn ($b) => $b->where('b_type', $type)->where('b_id', $recordId)))->value('id');
     }
 
     public function scopeOpen(Builder $query): Builder

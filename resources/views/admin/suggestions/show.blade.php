@@ -97,6 +97,13 @@
         @if($suggestion->suggestable_id && ! $target)
             <x-admin.notice tone="error">این رکورد دیگر وجود ندارد (شاید ادغام یا حذف شده است).</x-admin.notice>
         @endif
+        {{-- Sent from the note beside a conflicting date (step 14.169) --}}
+        @if($suggestion->date_conflict_id && ($conflict = \App\Models\DateConflict::find($suggestion->date_conflict_id)))
+            <x-admin.notice>
+                پاسخ به یک ناسازگاری تاریخ: <b>{{ $conflict->label }}</b> (فاصله {{ \App\Support\Fa::num($conflict->gap) }} سال).
+                <a href="{{ route('admin.date-conflicts.index', ['conflict' => $conflict->id, 'view' => $conflict->dismissed_at ? 'dismissed' : null]) }}" class="font-bold text-cinnabar hover:underline">دیدن ناسازگاری و دیگر پاسخ‌ها</a>
+            </x-admin.notice>
+        @endif
         @if(! empty($recordInfo['sub']))
             <p class="text-muted">{{ $fa($recordInfo['sub']) }}</p>
         @endif

@@ -211,6 +211,7 @@
                 <x-ui.meta-list>
                     <x-ui.meta label="تاریخ تألیف" field="composition_date_raw" :empty="! $work->composition_year_hijri && ! $work->composition_date_raw">
                         {{ Fa::digits($work->composition_date_raw ?: $work->composition_year_hijri . ' ق') }}
+                        <x-date-conflict-note type="work" :id="$work->id" field="composition" />
                     </x-ui.meta>
                     <x-ui.meta label="زبان" field="language_summary" :empty="! $work->language_summary">{{ $work->language_summary }}</x-ui.meta>
                     <x-ui.meta label="قالب" field="work_form" :empty="! $work->work_form">{{ $work->work_form }}</x-ui.meta>
