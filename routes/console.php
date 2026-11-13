@@ -32,6 +32,10 @@ Schedule::command('fahares:refresh-person-reviews')->dailyAt('04:15')->withoutOv
 // this mends what a bulk command changed, before the person reviews above read them
 Schedule::command('fahares:sync-person-roles --apply --show=0')->dailyAt('04:00')->withoutOverlapping(30);
 
+// The estimates of undocumented dates and the list of conflicting dates (step 14.166): rebuilt after the night's
+// other jobs, from the dates and ties as the day's edits left them. It writes only date_estimates and date_conflicts
+Schedule::command('fahares:estimate-dates --apply')->dailyAt('04:40')->withoutOverlapping(30);
+
 // Notifications (backlog item 25): the daily digest in the morning, Tehran time, and the weekly reminder of
 // suggestions left unreviewed on Saturday morning
 Schedule::command('notifications:digest')->dailyAt('07:30')->timezone('Asia/Tehran')->withoutOverlapping(30);

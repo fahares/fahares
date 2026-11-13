@@ -10290,3 +10290,50 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۱٬۳۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 1349`.
 
+
+
+### گام ۱۴.۱۶۶: موتور تخمین تاریخ (`fahares:estimate-dates`)
+
+- **مجهول‌ها (`DateVar`):** تولد و وفات شخص، تألیف اثر، کتابت نسخه. هر کدام یک عدد است: `id × 4 + نوع`.
+- **ورودی مستند (`Loader::load`):**
+  - `people.birth_year_hijri`، `death_from`، `death_to`
+  - `works.composition_date_from`، `composition_date_to`
+  - `manuscripts.copy_date_from`، `copy_date_to`، جز جایی که `copy_date_hedge_raw` عصر مؤلف را نام می‌برد (`namesAuthorsTime`)، چون آن بازه از وفات مؤلف ساخته شده است.
+- **قیدها، به شکل `x ≤ y + c`:**
+
+| قاعده | قید | از |
+|---|---|---|
+| `life` | تولد ≤ وفات ≤ تولد + ۱۰۰ | هر شخص |
+| `author` | تألیف ≤ وفات؛ تولد ≤ تألیف − ۱۵ | `work_people`، `author` |
+| `translator` | همان | `work_people`، `translator` |
+| `dedicatee` | تألیف ≤ وفات؛ تولد ≤ تألیف | `work_people`، `dedicatee` و `commissioner` |
+| `copy` | تألیف ≤ کتابت | `manuscripts.work_id` |
+| `autograph` | کتابت ≤ وفات مؤلف | `is_autograph`، اثر تک‌مؤلف |
+| `scribe` | کتابت ≤ وفات؛ تولد ≤ کتابت − ۱۰ | `manuscript_people`، `scribe` |
+| `patron` | کتابت ≤ وفات؛ تولد ≤ کتابت | `manuscript_people`، `patron` |
+| `derived` | تألیف اصل ≤ تألیف وابسته | `work_relations`، جز `related` و `part` |
+
+- **کنار گذاشته:** رابطه‌ی دارای `certainty`، و مؤلفِ اثری که مترجم دارد.
+- **`Engine::solve`:**
+  - `conflicts()`: قیدی که کران پایین مستند `x` از کران بالای مستند `y + c` بیشتر است. هر دو مقدار کنار می‌روند (`quarantined`).
+  - سه دور (`MAX_DEPTH`). هر دور فقط کران‌های دور پیش را به کار می‌برد، پس شماره‌ی دور عمق استنتاج است.
+  - `Solution`: `from`، `to`، و برای کران ساخته‌شده `…Depth`، `…Rule`، `…Via`.
+- **`date_estimates`:** یک ردیف برای هر مجهولی که بازه‌ی مستند کامل ندارد، در تناقض مستقیم نیست و بازه‌اش تهی نیست. کران مستند `…_rule` تهی دارد. هر اجرا جدول را از نو می‌سازد.
+- **`date_conflicts`:**
+  - مستقیم (`direct = 1`): `a` زودترین سالش از دیرترین سال مجاز `b` بیشتر است؛ `gap` فاصله است.
+  - غیرمستقیم: بازه‌ی `via` تهی شده است؛ `a` و `b` رکوردهایی‌اند که دو کران را داده‌اند.
+  - کلید `conflict_key` (sha1 از قاعده، نوع، `a`، `b`، `via`). ردیفِ دوباره‌یافته می‌ماند و `dismissed_*` آن دست نمی‌خورد؛ ردیفی که دیگر یافت نشود پاک می‌شود.
+- **نمونه‌ی اولیه و سنجش:** `docs/plans/date-estimates/prototype.py`. شمار تناقض‌های مستقیم فرمان با آن یکی است، جز دو ردیف تکراری.
+- **اجرا روی `fahares_prod` محلی:**
+  - `php artisan migrate --path=database/migrations/2026_11_13_100001_create_date_estimates_and_conflicts_tables.php`
+  - بی‌گزینه: ۷۷۳٬۳۸۰ قید، ۲۶۶٬۱۷۹ تاریخ مستند، ۲۲ ثانیه.
+  - `--apply`: ۲۱۷٬۹۲۴ تخمین و ۱۲٬۹۶۹ تناقض (۳٬۷۶۷ مستقیم، ۹٬۲۰۲ غیرمستقیم)، ۷۲ ثانیه، ۲۸۸ مگابایت. اجرای دوم همان شمارها را داد و همه‌ی تناقض‌ها را نگه داشت.
+  - `--validate`:
+
+| پنهان‌شده | شمار | بازه‌ی دوطرفه | درست | درست در بازه‌های تا ۱۵۰ سال | «پس از» درست | «پیش از» درست |
+|---|---|---|---|---|---|---|
+| وفات | ۹۵۳ | ۵۳۵ | ۹۵٪ | ۹۵٪ | ۱۰۰٪ | ۹۸٪ |
+| تألیف | ۱٬۶۸۱ | ۱٬۵۵۹ | ۹۷٫۲٪ | ۹۶٫۷٪ | – | ۹۹٪ |
+| کتابت | ۲۹٬۹۲۰ | ۹٬۰۲۷ | ۹۰٫۷٪ | ۷۷٫۱٪ | ۹۹٫۷٪ | – |
+
+- **تست‌ها:** `DateEstimateEngineTest` (۸) و `EstimateDatesCommandTest` (۵).
