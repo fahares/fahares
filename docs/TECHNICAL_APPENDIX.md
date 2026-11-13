@@ -10251,3 +10251,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `--apply`: ۲۳۹ نسخه نوشته شد.
   - اجرای دوم: `already 239`.
 
+### گام ۱۴.۱۶۲: آغازهای «برابر؛ …» (`barabar_semicolon_step14_162.json`)
+
+- **ساخت پرونده** (مخزن corpus): `python3 scripts/fankha_barabar_semicolon_export.py --out <fahares>/database/data/barabar_semicolon_step14_162.json`. نسخه‌ها از پایگاه با `incipit_text regexp '^برابر ?؛ ?.'` خوانده می‌شوند.
+- **گونه‌ی «both»:**
+  - شرط: `raw_text` «آغاز و انجام: برابر» دارد، و در سطری از `text/fankha` که ۳۰ حرف نخست X را دارد، پیش از X دقیقاً «آغاز و انجام: برابر؛» آمده است.
+  - انجام باید برابر آغاز باشد یا خالی. اگر خالی باشد، «برابر؛ X» را می‌گیرد.
+- **گونه‌ی «anjam»:** X با واژه‌ی «انجام» آغاز می‌شود. انجامِ خالی مابقی را می‌گیرد. اگر انجامی جدا باشد که حرف‌هایش با X نخواند، نسخه کنار می‌رود.
+- **`metadata`:** مورد `incipits` یا `explicits` که با ستون برابر است عوض می‌شود. فهرست خالی یک مورد می‌گیرد. اگر فهرست با ستون نخواند، نسخه کنار می‌رود.
+- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/barabar_semicolon_step14_162.json`، سپس `--apply`. روی `fahares_prod` محلی:
+  - ۶۴۹ نسخه نوشته شد.
+  - اجرای دوم: `already 649`.
+
