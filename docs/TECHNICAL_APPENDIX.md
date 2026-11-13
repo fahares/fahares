@@ -10245,4 +10245,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲۳۹ نسخه نوشته شد.
   - اجرای دوم: `already 239`.
   - تمرین نخست انجام‌های هم‌مقدار را نمی‌گرفت. با `old_values` در `audit_logs` پس گرفته شد و دوباره اجرا شد.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+  - اجرای آزمایشی: `write 239`.
+  - پشتیبان: ستون‌های `id`، `incipit_text`، `explicit_text` و `metadata` هر ۲۳۹ ردیف در `/tmp/step14_161_backup.json` (md5 `87bb2727…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `--apply`: ۲۳۹ نسخه نوشته شد.
+  - اجرای دوم: `already 239`.
 
