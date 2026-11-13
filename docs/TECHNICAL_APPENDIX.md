@@ -10376,4 +10376,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `folios_filled 2`.
   - اجرای دوم چیزی برای نوشتن نیافت.
   - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
+### گام ۱۴.۱۶۹: یادداشت ناسازگاری تاریخ (`x-date-conflict-note`)
+
+- **کامپوننت:** `App\View\Components\DateConflictNote` با `type`، `id` و `field` (`birth`، `death`، `composition`، `copy`).
+  - ناسازگاری‌های باز و مستقیم رکورد با `gap > MIN_GAP` (۲)، یک بار در هر درخواست خوانده می‌شوند (تا ۳۰ مورد) و سه‌تای نخست هر تاریخ نمایش داده می‌شود.
+  - رکورد طرف دیگر با `ConflictRecords::load` خوانده می‌شود، که صفحه‌ی پنل هم از آن استفاده می‌کند.
+- **پاسخ‌ها (`choice`):**
+  - در همین صفحه: رویداد `suggest-field` با `{field, conflict}` یا `{general: true, value, conflict}`.
+  - در صفحه‌ی رکورد دیگر: نشانی با `?suggest=field.<نام>&conflict=<id>` یا `?suggest=general&conflict=<id>&prefill=<متن>`.
+  - رابطه (`TIES`): گزارش به صفحه‌ی اثر می‌رود (مؤلف، مترجم، مُهدی‌الیه، اثر وابسته) یا نسخه (کاتب، بانی، خط مؤلف، نسخه و اثر). قاعده‌ی عمر این پاسخ را ندارد.
+- **`suggest-desk.js`:**
+  - `conflictId` از `detail.conflict`؛ با پیشنهاد به‌صورت `date_conflict_id` فرستاده می‌شود و در نشانی بازگشت پس از ورود می‌ماند.
+  - `init()` پارامترهای `conflict` و `prefill` را می‌خواند و برمی‌دارد. با `conflict`، فرم برای مهمان هم باز می‌شود (ورود هنگام «ارسال»).
+- **`SuggestionController::store`:** `date_conflict_id` فقط وقتی ذخیره می‌شود که ناسازگاری هنوز باشد و همان رکورد را نام ببرد (`DateConflict::idNaming`).
+- **migration:** `2026_11_13_200001_add_date_conflict_id_to_field_suggestions`، کلید خارجی با `nullOnDelete`: با رفتن ناسازگاری، پیشنهاد می‌ماند.
+- **پنل:**
+  - `/admin/date-conflicts`: `withCount` پیشنهادهای در انتظار (`waiting_count`)، مرتب‌سازی نخست بر پایه‌ی آن؛ بخش «پاسخ خوانندگان» زیر هر مورد؛ `?conflict=<id>` یک مورد را نشان می‌دهد.
+  - `admin/suggestions/show`: یادداشت «پاسخ به یک ناسازگاری تاریخ» با پیوند.
+- **وارسی در مرورگر** (سرور موقت روی `fahares_prod` محلی، اثر #۴۱۴ و شخص #۶۶۸): یادداشت و چهار پاسخ؛ فرم «تاریخ تألیف» با `conflictId = 47`؛ نشانی `people/668?suggest=field.death_year_hijri&conflict=47` و `works/414?suggest=general&conflict=47&prefill=…` برای مهمان.
+- **تست:** `DateConflictNotesTest` (۳).
 

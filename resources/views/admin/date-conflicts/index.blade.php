@@ -92,6 +92,18 @@
                 @endforeach
             </div>
 
+            @if($conflict->suggestions->isNotEmpty())
+                <div class="text-xs px-3 py-2 leading-6 bg-paper border border-s-4 border-gold space-y-1">
+                    <b>پاسخ خوانندگان:</b>
+                    @foreach($conflict->suggestions as $suggestion)
+                        <div>
+                            <a href="{{ route('admin.suggestions.show', $suggestion) }}" class="font-bold text-ink hover:text-cinnabar">{{ \Illuminate\Support\Str::limit($suggestion->suggested_value, 90) }}</a>
+                            <span class="text-muted">· {{ $suggestion->guest_name }} · {{ ['pending' => 'در انتظار داوری', 'approved' => 'تأییدشده', 'rejected' => 'ردشده'][$suggestion->status] ?? $suggestion->status }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
             @if($conflict->dismissed_at)
                 <div class="flex flex-wrap items-center gap-3 text-xs text-muted">
                     <span>خطا نیست · {{ $conflict->dismisser?->name }} · {{ Fa::digits(\App\Support\Jalali::format($conflict->dismissed_at)) }}@if($conflict->dismiss_note) · «{{ $conflict->dismiss_note }}»@endif</span>
