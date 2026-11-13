@@ -10289,4 +10289,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/copy_date_tails_step14_165.json`، سپس `--apply`. روی `fahares_prod` محلی:
   - ۱٬۳۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 1349`.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با `prod-run`):**
+  - اجرای آزمایشی: `write 1349`.
+  - پشتیبان: ستون‌های `id`، `copy_date_raw`، `copy_date_note`، `copy_date_hijri_year`، `copy_date_from/to`، `copy_date_certainty`، `copy_date_hedge_raw` و `metadata` در `/tmp/step14_165_backup.json` (md5 `99d82273…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `--apply`: نشست SSH در میانه بسته شد («closed by remote host»)، ولی فرایند در کانتینر تا پایان رفت.
+  - ۱٬۳۴۹ ردیف `audit_logs`. اجرای دوم: `already 1349`.
+  - برای اطمینان، `DerivedData::syncCopies` با `prod-run` دوباره اجرا شد (`synced 1349`).
+  - ۱٬۳۳۵ نسخه بازه‌ی تاریخ دارند.
 
