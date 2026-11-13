@@ -10423,3 +10423,27 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **شمار روی `fahares_prod` محلی:** ۵۳٬۰۴۷ اثر بی‌تاریخ با تخمین. ۸۹ اثر تاریخ خام دارند ولی بازه ندارند و تخمینشان نمایش داده نمی‌شود.
 - **تست:** `CompositionEstimateTest` (۲).
 
+### گام ۱۴.۱۷۱: سطر «کاتب = مؤلف» (`autograph_line_step14_171.json`) و متن صفحه‌های فنخا
+
+- **ساخت پرونده** (مخزن corpus): `python3 scripts/fankha_autograph_line_export.py --out <fahares>/database/data/autograph_line_step14_171.json`. نسخه‌ها از پایگاه با `regexp '\n[ \t]*(كاتب|کاتب)[ ]*=[ ]*مؤلف'` در آغاز یا انجام خوانده می‌شوند.
+  - **بریدن:** پیش از سطر، با پاک کردن فاصله و «؛» از پایان.
+  - **`metadata`:** مورد برابر با ستون بریده می‌شود. اگر موردی سطر را دارد ولی برابر ستون نیست، نسخه کنار می‌رود.
+  - **ستون‌ها، فقط اگر خالی باشند:**
+    - `is_autograph` (مگر با «(گویا)» یا «؟»)
+    - `copy_date_raw` از «تا: …»
+    - `is_bita`
+    - `copy_place` از «جا: …»
+  - **یادداشت:** پاره‌های سطر که با `KNOWN` نمی‌خوانند، به‌اضافه‌ی آنچه پس از «؛» است، به `editorial_notes` می‌روند.
+- **متن:**
+  - `LABELS` در `scripts/fix_text_ocr_step14_149.py` قاعده‌ی `كاتب(\s*=\s*)مؤلف` را گرفت. اسکریپت دوباره اجرا شد: ۹۴ سطر.
+  - وارسی: سمت «-» با کاف فارسی‌شده برابر سمت «+» است، جز یک سطر که «كاتب خود مؤلف» در نثرش ماند.
+- **صفحه‌ها:**
+  - `python3 -I scripts/sources/fankha_pages.py ../fahares-corpus/text/fankha storage/app/fankha-pages-step14_171` ساخته شد، با `MD5SUMS` و `VOLUMES` (جلدهای ۱، ۲، ۵ تا ۱۲، ۱۴، ۱۸ تا ۲۷ و ۲۹ تا ۳۴).
+  - در برابر `source_pages` محلی، ۶۸ صفحه فرق داشت و همه تنها در «ك».
+  - پس از `sources:import-pages` برای این ۲۷ جلد: `differ 0` و `missing 0`.
+- **اجرا در تولید (پس از تأیید):**
+  1. پشتیبان از ستون‌های ۲۴۲ نسخه و از `source_pages` فنخا.
+  2. `fahares:rebuild-copies --file=database/data/autograph_line_step14_171.json --apply`.
+  3. رونوشت فایل‌های صفحه به `/tmp` کانتینر.
+  4. `sources:import-pages` برای ۲۷ جلد.
+  5. وارسی و پاک کردن `/tmp`.
