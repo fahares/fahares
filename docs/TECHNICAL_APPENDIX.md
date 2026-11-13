@@ -10224,3 +10224,8 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۷۰۵ نسخه نوشته شد (`pointers_linked=6`).
   - اجرای دوم: `already 705`.
   - تمرین نخست (۸۲۲ نسخه) با پرونده‌ای وارونه پس گرفته شد. نمونه‌گیری سه خطا نشان داده بود: تنوین بریده، کمانک باز، و ادامه‌ی نقل.
+- **پروداکشن (۲۲ آبان ۱۴۰۵، با یک `prod-run`):**
+  - اجرای آزمایشی: `write 705`.
+  - پشتیبان: ستون‌های `id`، `incipit_text`، `explicit_text` و `metadata` هر ۷۰۵ ردیف در `/tmp/step14_160_backup.json` (md5 `5cc70645…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `--apply`: ۷۰۵ نسخه نوشته شد (`pointers_linked=6`).
+  - اجرای دوم: `already 705`.
