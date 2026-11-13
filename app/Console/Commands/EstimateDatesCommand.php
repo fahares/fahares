@@ -192,7 +192,11 @@ class EstimateDatesCommand extends Command
                 ['a_from', 'b_to', 'gap', 'last_seen_at'],
             );
         }
-        DB::table('date_conflicts')->where(fn ($q) => $q->where('last_seen_at', '<', $now)->orWhereNull('last_seen_at'))->delete();
+        // gone by its key, not by its time: two runs within one second carry the same last_seen_at
+        $gone = array_diff(DB::table('date_conflicts')->pluck('conflict_key')->all(), array_keys($conflicts));
+        foreach (array_chunk($gone, 1000) as $chunk) {
+            DB::table('date_conflicts')->whereIn('conflict_key', $chunk)->delete();
+        }
     }
 
     private function validateEstimates(Engine $engine): void

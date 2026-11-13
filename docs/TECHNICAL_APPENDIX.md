@@ -10290,8 +10290,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۱٬۳۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 1349`.
 
-
-
 ### گام ۱۴.۱۶۶: موتور تخمین تاریخ (`fahares:estimate-dates`)
 
 - **مجهول‌ها (`DateVar`):** تولد و وفات شخص، تألیف اثر، کتابت نسخه. هر کدام یک عدد است: `id × 4 + نوع`.
