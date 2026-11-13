@@ -209,8 +209,17 @@
         <div class="min-w-0 space-y-10">
             <x-ui.section title="مشخصات">
                 <x-ui.meta-list>
-                    <x-ui.meta label="تاریخ تألیف" field="composition_date_raw" :empty="! $work->composition_year_hijri && ! $work->composition_date_raw">
-                        {{ Fa::digits($work->composition_date_raw ?: $work->composition_year_hijri . ' ق') }}
+                    {{-- A work with no date shows its estimate, where there is one (step 14.170) --}}
+                    @php
+                        $composed = $work->composition_year_hijri || $work->composition_date_raw;
+                        $compositionEstimate = $composed ? null : \App\Support\DateEstimates\EstimateText::for('work', $work->id, 'composition');
+                    @endphp
+                    <x-ui.meta label="تاریخ تألیف" field="composition_date_raw" :empty="! $composed && ! $compositionEstimate">
+                        @if($composed)
+                            {{ Fa::digits($work->composition_date_raw ?: $work->composition_year_hijri . ' ق') }}
+                        @elseif($compositionEstimate)
+                            <x-date-estimate :estimate="$compositionEstimate" />
+                        @endif
                         <x-date-conflict-note type="work" :id="$work->id" field="composition" />
                     </x-ui.meta>
                     <x-ui.meta label="زبان" field="language_summary" :empty="! $work->language_summary">{{ $work->language_summary }}</x-ui.meta>
