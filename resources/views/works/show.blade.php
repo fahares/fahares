@@ -153,7 +153,7 @@
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
 
         <!-- Summary column: first on phones, beside the details on wide screens -->
-        <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
+        <aside class="space-y-4 lg:order-last">
             <x-ui.card :framed="true" class="text-center sm:text-right">
                 <div class="font-naskh text-4xl font-bold text-cinnabar leading-tight tabular-nums">{{ Fa::num($work->manuscripts_count) }}</div>
                 <div class="text-sm text-ink">نسخه‌ی ثبت‌شده</div>

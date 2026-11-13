@@ -38,6 +38,20 @@ class ManuscriptFlagsDisplayTest extends TestCase
         $this->assertStringContainsString('(ثبت نشده)', $html);
     }
 
+    /** Step 14.157: the main fields always show, «ثبت نشده» when empty; the lesser ones wait for suggestion mode */
+    public function test_empty_fields_say_so_or_wait_for_suggestion_mode()
+    {
+        $html = $this->get(route('manuscripts.show', $this->copy(['paper' => 'فرنگی'])))->assertOk()
+            ->assertSeeInOrder(['کاتب', 'ثبت نشده', 'تاریخ کتابت', 'ثبت نشده', 'محل کتابت', 'ثبت نشده', 'خط', 'ثبت نشده', 'شمار برگ', 'ثبت نشده'])
+            ->assertDontSee('نامشخص</span>', false)
+            ->getContent();
+
+        // lines, size and binding are empty: their rows are there for suggestion mode only; the paper's row is plain
+        $rows = preg_match_all('/<div class="contents suggest-row"[^>]*x-show[^>]*>\s*<dt[^>]*>(شمار سطر|اندازه \(سانتی‌متر\)|جلد|سفارش‌دهنده)<\/dt>/u', $html);
+        $this->assertSame(4, $rows);
+        $this->assertMatchesRegularExpression('/<div class="contents suggest-row"(?![^>]*x-show)[^>]*>\s*<dt[^>]*>کاغذ<\/dt>/u', $html);
+    }
+
     public function test_a_copy_with_no_mark_hides_the_whole_section()
     {
         $html = $this->get(route('manuscripts.show', $this->copy([])))->assertOk()->getContent();

@@ -88,7 +88,7 @@ class SourceItemsTest extends TestCase
         $this->get(route('works.show', $work))->assertOk()
             ->assertSee('ش ۱۴۴۷', false)
             ->assertSee($item->url(), false)
-            ->assertSee('صفحه‌ی مدخل', false)
+            ->assertSee('متن در منبع', false)
             ->assertSee('في الطب', false);
         // a mention is one line under the bibliography, never the other entry's text
         $this->get(route('works.show', $other))->assertOk()

@@ -203,7 +203,7 @@
     <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] items-start">
 
         <!-- Summary column: first on phones, beside the details on wide screens -->
-        <aside class="space-y-4 lg:order-last lg:sticky lg:top-24">
+        <aside class="space-y-4 lg:order-last">
             <x-ui.card :framed="true" class="space-y-3 text-sm">
                 @if($manuscript->libraryRecord?->logo_url)
                     <!-- The holding library's emblem heads the card, as large as its file allows -->
@@ -319,7 +319,7 @@
                         @elseif($inherited = $fromMother($mother?->scribe_name))
                             {!! $inherited !!}
                         @else
-                            <span class="text-muted">نامشخص</span>
+                            <span class="text-muted">ثبت نشده</span>
                         @endif
                     </x-ui.meta>
                     <x-ui.meta label="تاریخ کتابت" field="copy_date_raw">
@@ -331,11 +331,11 @@
                         @elseif($inherited = $fromMother($mother?->copy_date_raw))
                             {!! $inherited !!}
                         @else
-                            <span class="text-muted">نامشخص</span>
+                            <span class="text-muted">ثبت نشده</span>
                         @endif
                     </x-ui.meta>
                     <x-ui.meta label="محل کتابت" field="copy_place">
-                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">نامشخص</span>@endif
+                        @if($manuscript->copy_place){{ $manuscript->copy_place }}@elseif($inherited = $fromMother($mother?->copy_place)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
                     </x-ui.meta>
                     {{-- A commissioner listed among the people of the copy (role patron, backlog item 96) is not repeated here --}}
                     @unless($manuscript->commissioned_by && $manuscript->otherPeople()->where('role', 'patron')->whereNull('person_id')->where('name', $manuscript->commissioned_by)->exists())
@@ -347,7 +347,7 @@
             <x-ui.section title="ویژگی‌های ظاهری">
                 <x-ui.meta-list>
                     <x-ui.meta label="خط" field="script_names">
-                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@else<span class="text-muted">نامشخص</span>@endif
+                        @if($manuscript->script_names){{ $manuscript->script_names }}@elseif($inherited = $fromMother($mother?->script_names)){!! $inherited !!}@else<span class="text-muted">ثبت نشده</span>@endif
                         @if($manuscript->script_style)<span class="text-muted">({{ $manuscript->script_style }})</span>@endif
                         {{-- «نوع خط» is the catalogue's wording; the script list links each script it stands for to the search filter --}}
                         @php $scriptLinks = $manuscript->scripts->sortByDesc('pivot.is_primary'); @endphp
@@ -361,18 +361,18 @@
                     </x-ui.meta>
                     {{-- Leaves or pages, and the leaves the copy takes in its volume (backlog item 97) --}}
                     <x-ui.meta :label="$manuscript->pages && ! $manuscript->folios ? 'شمار صفحه' : 'شمار برگ'" field="folios">
-                        @if($manuscript->extentLabel()){{ $manuscript->extentLabel() }}@else<span class="text-muted">—</span>@endif
+                        @if($manuscript->extentLabel()){{ $manuscript->extentLabel() }}@else<span class="text-muted">ثبت نشده</span>@endif
                     </x-ui.meta>
-                    <x-ui.meta label="شمار سطر" field="lines">
+                    <x-ui.meta label="شمار سطر" field="lines" :empty="! $manuscript->lines_raw && ! $manuscript->lines">
                         @if($manuscript->lines_raw){{-- the catalogue's wording keeps every layout: «18 و 21 سطر» (step 13.156) --}}{{ Fa::digits($manuscript->lines_raw) }}@elseif($manuscript->lines){{ Fa::digits($manuscript->lines) }} سطر@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
-                    <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions">
+                    <x-ui.meta label="اندازه (سانتی‌متر)" field="dimensions" :empty="! $manuscript->dimensions">
                         @if($manuscript->dimensions){{ Fa::digits($manuscript->dimensions) }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
-                    <x-ui.meta label="کاغذ" field="paper">
+                    <x-ui.meta label="کاغذ" field="paper" :empty="! $manuscript->paper">
                         @if($manuscript->paper){{ $manuscript->paper }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
-                    <x-ui.meta label="جلد" field="binding">
+                    <x-ui.meta label="جلد" field="binding" :empty="! $manuscript->binding">
                         @if($manuscript->binding){{ $manuscript->binding }}@else<span class="text-muted">—</span>@endif
                     </x-ui.meta>
                 </x-ui.meta-list>
