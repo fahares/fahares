@@ -10342,6 +10342,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 | کتابت | ۲۹٬۹۲۰ | ۹٬۰۲۷ | ۹۰٫۷٪ | ۷۷٫۱٪ | ۹۹٫۷٪ | – |
 
 - **تست‌ها:** `DateEstimateEngineTest` (۸) و `EstimateDatesCommandTest` (۵).
+- **اجرا در پروداکشن (۲۲ آبان ۱۴۰۵):** `scripts/dev/prod-run date-estimates -- 'cd /app && php artisan fahares:estimate-dates --apply'`.
+  - پیش از اجرا: `date_estimates` و `date_conflicts` تهی، و هیچ پیشنهادی `date_conflict_id` نداشت.
+  - خروجی: `Wrote 217,922 estimates and 12,969 conflicts.` (۳٬۷۶۷ مستقیم، ۹٬۲۰۲ غیرمستقیم)، در ۴ دقیقه و ۳۲ ثانیه؛ روی رونوشت محلی ۷۲ ثانیه بود.
+  - حافظه‌ی آزاد سرور پیش از اجرا ۳٫۳ گیگابایت بود.
 
 ### گام ۱۴.۱۶۷: صفحه‌ی «تناقض‌های تاریخی» (`Admin\DateConflictController`)
 
