@@ -10360,6 +10360,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **یافته:** `people` با `death_to ≤ 15` شش نفرند؛ چهار نفرشان (#۲۳۷۱۹، #۵۰۰۳۱، #۶۰۸۶۲ و مانند آن) `life_dates_raw` به شکل «- 13» دارند که سده است، نه سال.
 - **تست:** `Admin\DateConflictsTest` (۳).
 
+### گام ۱۴.۱۶۸: `CopyExtent::separate()` و `fahares:fill-extents`
+
+- **`separate($line)`:** پیش از `preg_split('/\s*[،؛]\s*/u', …)` در `fromText()` اجرا می‌شود.
+  1. «،» درون هر `(…)` به U+E000 بدل می‌شود و پس از شکستن، در هر تکه بازمی‌گردد.
+  2. تکه‌ای که با «جلد» یا «کاغذ» آغاز شود و جز شمار عدد، کروشه یا کمانک دیگری نداشته باشد، اگر به شمار ختم شود (`$count` با کمانک اختیاری)، پیش از شمار «،» می‌گیرد. شرطش این است که پس از شمار «،»، «؛»، «[»، پایان سطر، «اندازه»، «قطع» یا «سطر» بیاید.
+  3. شماری که سر تکه است و «اندازه»، «قطع» یا «(N(-N)) سطر» بی «،» پس از آن آمده، «،» می‌گیرد.
+  - `$count` = `[\d۰-۹]+\s*(?:گ|برگ|ص)(?=\s|\(|[،؛]|$)(?:\s*\([^()]*\))?`.
+- **سنجش:** `fromText()` روی همه‌ی نسخه‌های `fahares_prod` محلی، پیش و پس از تغییر. ۴۶۳ نسخه تازه خوانده شد. ۰ گم و ۰ دگرگون.
+- **تست:** `test_a_count_with_a_missing_separator_is_read` در `tests/Unit/CopyExtentTest.php`. مجموعه‌ی کامل ۸۵۱ قبول.
+- **اجرا:** `php artisan fahares:fill-extents`، سپس `--apply`. روی رونوشت محلی:
+  - `changed 481`.
+  - `pages_out_of_folios 114`.
+  - `folios_corrected 8`.
+  - `folios_filled 2`.
+  - اجرای دوم چیزی برای نوشتن نیافت.
+  - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
+- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+  - اجرای آزمایشی همان شمارها را داد، به‌اضافه‌ی `kept:protected 1` (۲۰۴۴۱۵).
+  - پشتیبان: `id`، `folios`، `pages`، `extent_raw`، `range_from/to` و `range_from/to_number` همه‌ی ۳۲۳٬۲۴۹ نسخه در `/tmp/step14_168_backup.jsonl` (md5 `029d6ef6…`). فشرده به `fahares-sources/backups/step13/step14_168_backup.jsonl.gz` رفت و از کانتینر پاک شد.
+  - `--apply` با `nohup`: `changed 481`.
+  - اجرای دوم: هیچ نوع نوشتنی نماند.
+
 ### گام ۱۴.۱۶۹: یادداشت ناسازگاری تاریخ (`x-date-conflict-note`)
 
 - **کامپوننت:** `App\View\Components\DateConflictNote` با `type`، `id` و `field` (`birth`، `death`، `composition`، `copy`).
