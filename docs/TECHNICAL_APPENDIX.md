@@ -10091,3 +10091,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   php artisan catalogs:move-cited-part --library=thran-mgls-4 --volume=33 --part=1 --from="فهرست کتابخانه مجلس شورای اسلامی - جلد ۲/۳۳" --to="فهرست کتابخانه مجلس شورای اسلامی - جلد ۱/۳۳" --apply
   ```
   پیش از آن از ردیف‌های `manuscripts`، `manuscript_catalog_references` و `source_entries` نسخه‌های #۴۳۳ پشتیبان گرفته شود.
+
+### گام ۱۴.۱۶۰: بریدن دنباله‌ی آغاز و انجام (`ie_tails_step14_160.json`)
+
+- **ساخت پرونده** (مخزن corpus):
+  ```
+  python3 scripts/fankha_v2_ie_tail_export.py --report reports/fankha_v2_db_review12 --out <fahares>/database/data/ie_tails_step14_160.json --step 14.160
+  ```
+  - ورودی: ردیف‌های `trimmed` گزارش با `fate=moved` که محافظت‌شده نیستند.
+  - `cut()` با حرف‌ها جلو می‌رود و جای بریدن را در متن سایت پیدا می‌کند.
+  - این دنباله‌ها می‌مانند:
+    - دنباله‌ای که با `«`، `(`، رقم، «بسمله»، «بسم»، «الحمد»، `×` یا `…` آغاز شود، یا `××` در ۸۰ حرف نخست آن باشد.
+    - دنباله‌ای که با مورد `CONTINUES` در `reconciliations/page_tag_breaks_step14_149.json` بخواند.
+  - فهرست `metadata.incipits/explicits`:
+    - اگر یک مورد آن با ستون برابر باشد، همان مورد بریده می‌شود.
+    - اگر فهرست از پیش بخش‌بخش است (حرف‌های مورد نخست با مقدار بریده برابر است)، فقط ستون عوض می‌شود.
+    - در غیر این صورت نسخه کنار می‌رود.
+  - دنباله به `metadata.editorial_notes` افزوده می‌شود، مگر آنکه حرف‌هایش در `metadata` باشد.
+- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/ie_tails_step14_160.json`، سپس `--apply`. روی `fahares_prod` محلی:
+  - ۸۲۲ نسخه نوشته شد.
+  - ۸ نسخه دوباره به جلد فهرست پیوند خورد (`pointers_linked=7`).
+  - اجرای دوم: `already 822`.
+
