@@ -10268,3 +10268,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `--apply`: ۶۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 649`.
 
+### گام ۱۴.۱۶۵: دنباله‌ی تاریخ کتابت (`copy_date_tails_step14_165.json`)
+
+- **ساخت پرونده** (مخزن corpus): `python3 scripts/fankha_v2_copy_date_tail_export.py --report reports/fankha_v2_db_review12 --out <fahares>/database/data/copy_date_tails_step14_165.json`.
+- **`cut()`:**
+  - حرف‌ها و رقم‌ها را می‌شمارد (`key`)، چون `letters()` رقم را نمی‌شمرد و «قرن 12» را پس از «قرن» می‌برید.
+  - عددی را از میان نمی‌برد و `)` کمانکی را که در متن مانده باز شده، با متن نگه می‌دارد.
+- **کنار گذاشتن:**
+  - `DATE_PART`: «؟»، گویا، ظاهراً، احتمالاً، محتملاً، تقریباً، حدود، اوایل، اواخر، اواسط، نیمه؛ عصر، زمان یا حیات مؤلف؛ «ق» تنها.
+  - برشی که رقم یا «قرن» یا «سده» در آن نماند.
+- **جای دنباله:**
+  - `OWNERSHIP` (اهدا، وقف، واقف، مهر، تملک) به `metadata.ownership_and_seals` می‌رود.
+  - بقیه به `copy_date_note` می‌رود (پس از یادداشت پیشین با «؛»، تا ۲۵۵ نویسه).
+  - دنباله‌ای که حرف‌هایش در `metadata` یا یادداشت هست، جایی نمی‌رود.
+- **`RebuildCopiesCommand`:**
+  - `copy_date_note` در `COLUMNS` است.
+  - با `copy_date_raw` و بی `copy_date_hijri_year`، سال با `HijriYear::parse` ساخته می‌شود و در `audit_logs` می‌آید.
+  - بازه و قطعیت را `DerivedData::syncCopies` می‌سازد.
+  - تست: `test_a_cut_date_takes_its_note_and_its_year_from_the_new_text`.
+- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/copy_date_tails_step14_165.json`، سپس `--apply`. روی `fahares_prod` محلی:
+  - ۱٬۳۴۹ نسخه نوشته شد.
+  - اجرای دوم: `already 1349`.
+

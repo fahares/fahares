@@ -8,6 +8,7 @@ use App\Models\ManuscriptPerson;
 use App\Sources\SourceEntrySync;
 use App\Suggestions\ProtectedColumns;
 use App\Support\DerivedData;
+use App\Support\HijriYear;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -33,7 +34,7 @@ class RebuildCopiesCommand extends Command
     protected $description = 'Rebuild the content of copies that carry a neighbouring copy\'s text, from parser v2';
 
     private const COLUMNS = ['raw_text', 'scribe_name', 'has_other_scribes', 'is_bika', 'is_bita', 'is_autograph',
-        'copy_date_raw', 'copy_date_hijri_year', 'copy_place', 'commissioned_by', 'folios', 'lines', 'dimensions',
+        'copy_date_raw', 'copy_date_hijri_year', 'copy_date_note', 'copy_place', 'commissioned_by', 'folios', 'lines', 'dimensions',
         'paper', 'binding', 'incipit_text', 'explicit_text', 'is_corrected', 'has_marginal_notes', 'is_ruled',
         'has_catchwords', 'is_facsimile', 'is_collated', 'is_illuminated', 'is_illustrated', 'has_author_marginalia',
         'copied_from_author_copy', 'collated_with_author_copy', 'corrected_by_author', 'metadata', 'shelfmark', 'sequence_number', 'city', 'library', 'library_id'];
@@ -107,6 +108,10 @@ class RebuildCopiesCommand extends Command
                 // leaves the extent alone where the text gives none
                 if (isset($new['raw_text']) && \App\Support\CopyExtent::fromText((string) $new['raw_text'])['raw'] === null) {
                     $extra += array_fill_keys(self::EXTENT, null);
+                }
+                // a cut date text keeps its sortable year in step, as the model's saving hook would (step 14.165)
+                if (array_key_exists('copy_date_raw', $new) && ! array_key_exists('copy_date_hijri_year', $new)) {
+                    $extra['copy_date_hijri_year'] = HijriYear::parse($new['copy_date_raw']);
                 }
                 if (array_key_exists('scribe_name', $new)) {
                     $extra['scribe_id'] = null;

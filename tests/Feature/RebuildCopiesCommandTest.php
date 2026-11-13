@@ -155,4 +155,22 @@ class RebuildCopiesCommandTest extends TestCase
             [$row->city, $row->library, $row->library_id, $row->shelfmark, $row->shelfmark_key]);
         $this->assertSame(1, (int) DB::table('libraries')->where('id', $library)->value('manuscripts_count'));
     }
+
+    public function test_a_cut_date_takes_its_note_and_its_year_from_the_new_text()
+    {
+        $meta = ['incipits' => [], 'explicits' => [], 'editorial_notes' => [], 'ownership_and_seals' => [], 'catalog_citation' => null, 'residual_notes' => null];
+        $id = $this->copy('77/1', "تهران؛ دانشگاه؛ شماره نسخه: 77/1\nتا: قرن 12، اهدایی: رهبری، خرداد 1373", 'قرن 12، اهدایی: رهبری، خرداد 1373', $meta);
+        DB::table('manuscripts')->where('id', $id)->update(['copy_date_hijri_year' => 1373]);
+        file_put_contents($this->file, json_encode(['records' => [$this->record($id, '77/1', [
+            'copy_date_raw' => ['from' => 'قرن 12، اهدایی: رهبری، خرداد 1373', 'to' => 'قرن 12'],
+            'copy_date_note' => ['from' => null, 'to' => 'به فرموده آقا بابا خان'],
+        ])]], JSON_UNESCAPED_UNICODE));
+
+        $this->artisan('fahares:rebuild-copies', ['--file' => $this->file, '--apply' => true])->assertSuccessful();
+
+        $row = DB::table('manuscripts')->where('id', $id)->first();
+        $this->assertSame(['قرن 12', 'به فرموده آقا بابا خان'], [$row->copy_date_raw, $row->copy_date_note]);
+        $this->assertSame(\App\Support\HijriYear::parse('قرن 12'), $row->copy_date_hijri_year === null ? null : (int) $row->copy_date_hijri_year);
+        $this->assertNotSame(1373, (int) $row->copy_date_hijri_year);
+    }
 }
