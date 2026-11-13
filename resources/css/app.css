@@ -49,28 +49,28 @@
     display: none !important;
 }
 
-/* Per-field «پیشنهاد اصلاح» buttons (<x-suggest.field>, backlog item 92): all of them in suggestion mode (.is-on);
-   on a mouse device also the one of the field under the pointer or holding focus (.suggest-row, or the button's
-   own parent). Hidden by opacity so the text does not move; a touch screen keeps them out until the mode is on. */
+/* Per-field «پیشنهاد اصلاح» buttons (<x-suggest.field>, backlog item 92; step 14.156): always there, but faint and
+   bare so that they do not crowd the page. Strong in suggestion mode (.is-on), and on a mouse device for the field
+   under the pointer or holding focus: its row (.suggest-row), its section (.suggest-section, whose button sits in
+   the heading) or the button's own parent. */
 .suggest-btn:not(.is-on) {
-    display: none;
+    opacity: 0.32;
+    background-color: transparent;
+    border-color: transparent;
 }
 .hover-only {
     display: none;
 }
 @media (hover: hover) {
-    .suggest-btn:not(.is-on) {
-        display: inline-flex;
-        opacity: 0;
-        pointer-events: none;
-    }
-    .suggest-row:hover .suggest-btn,
-    .suggest-row:focus-within .suggest-btn,
-    :hover > .suggest-btn,
-    :focus-within > .suggest-btn,
-    .suggest-btn:focus-visible {
+    .suggest-row:hover .suggest-btn:not(.is-on),
+    .suggest-row:focus-within .suggest-btn:not(.is-on),
+    .suggest-section:hover > div > h2 > .suggest-btn:not(.is-on),
+    :hover > .suggest-btn:not(.is-on),
+    :focus-within > .suggest-btn:not(.is-on),
+    .suggest-btn:not(.is-on):focus-visible {
         opacity: 1;
-        pointer-events: auto;
+        background-color: revert-layer;
+        border-color: revert-layer;
     }
     .hover-only {
         display: inline;

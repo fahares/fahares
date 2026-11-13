@@ -79,7 +79,7 @@
     <div class="jadval" aria-hidden="true"></div>
 
     <div class="flex flex-wrap items-center justify-between gap-3">
-        <x-suggest.toggle />
+        <x-suggest.toggle type="person" />
         <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $person->id }}</span></span>
     </div>
 

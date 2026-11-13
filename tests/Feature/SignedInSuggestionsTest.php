@@ -56,7 +56,7 @@ class SignedInSuggestionsTest extends TestCase
 
         // A guest sees the sign-in dialog, and the desk no longer asks for a guest name or email
         $this->get(route('manuscripts.show', $m))->assertOk()
-            ->assertSee('برای ثبت اصلاح وارد شوید یا در یک دقیقه ثبت‌نام کنید')
+            ->assertSee('برای ثبت آن یک ایمیل و گذرواژه بگذارید')
             ->assertDontSee('پیشنهادها به نام شما ثبت می‌شوند')
             ->assertDontSee('نتیجه‌ی داوری را به این ایمیل خبر دهید');
     }
@@ -68,7 +68,30 @@ class SignedInSuggestionsTest extends TestCase
             ->assertSee('data-suggest-field="shelfmark"', false)
             ->assertSee('suggest-btn', false)
             ->assertSee('x-data="suggestToggle"', false)
-            ->assertSee('نشانگر را روی هر فیلد ببرید');
+            // Step 14.156: one way in, with the three kinds of contribution; the general and note forms left the banner
+            ->assertSee('مشارکت در این صفحه')
+            ->assertSee('data-contribute-menu', false)
+            ->assertSeeInOrder(['اصلاح یک فیلد', 'پیشنهاد کلی', 'افزودن یادداشت یا منبع'])
+            ->assertSee('هر جا ✎ می‌بینید')
+            ->assertDontSee('نشانگر را روی هر فیلد ببرید');
+    }
+
+    /** Step 14.156: ready-made grounds instead of a required free text, and the form before the sign-in */
+    public function test_the_form_offers_grounds_and_a_guest_reaches_it_before_signing_in()
+    {
+        $html = $this->get(route('manuscripts.show', $this->manuscript()))->assertOk()
+            ->assertSee('این را از کجا می‌دانید؟')
+            ->assertSee('ساخت حساب و ارسال پیشنهاد')
+            ->assertDontSee('مستند و منبع (الزامی)')
+            ->assertDontSee('ارسال به هیئت علمی')
+            ->getContent();
+
+        // The grounds reach the form's script; «نسخه را خودم دیده‌ام» is a copy's ground
+        foreach (['غلط تایپی یا املایی است', 'نسخه را خودم دیده‌ام', 'در فهرست یا منبع چاپی چنین آمده', 'دلیل یا منبع دیگر'] as $label) {
+            $this->assertStringContainsString($label, $html);
+        }
+        // The dialog has no name field any more
+        $this->assertStringNotContainsString('id="name"', $html);
     }
 
     public function test_a_signed_in_user_suggests_under_their_account()
@@ -145,6 +168,29 @@ class SignedInSuggestionsTest extends TestCase
         $this->postJson('/register', ['name' => 'آزمون', 'email' => 'far@example.com', 'password' => 'password123', 'intended' => '//evil.example/x'])
             ->assertOk()->assertJson(['redirect' => route('home')]);
         $this->assertNull(User::where('email', 'far@example.com')->value('phone'));
+    }
+
+    /** Step 14.156: the dialog asks for an email and a password only, and the waiting suggestion goes out at once */
+    public function test_the_dialog_signs_up_without_a_name_and_hands_back_the_new_token()
+    {
+        Notification::fake();
+
+        // No name: the account takes the part of the email before «@»; the answer carries the new session's token
+        $token = $this->postJson('/register', ['desk' => '1', 'email' => 'nameless@example.com', 'password' => 'password123'])
+            ->assertOk()->assertJsonStructure(['redirect', 'csrf', 'name'])->assertJson(['name' => 'nameless'])->json('csrf');
+        $this->assertSame(csrf_token(), $token);
+        $this->assertSame('nameless', User::where('email', 'nameless@example.com')->value('name'));
+
+        // The name written for the credit becomes the account's name
+        $this->post('/logout');
+        $this->postJson('/register', ['desk' => '1', 'name' => 'زهرا آزمون', 'email' => 'named@example.com', 'password' => 'password123'])
+            ->assertOk()->assertJson(['name' => 'زهرا آزمون']);
+
+        // The full sign-up page still needs a name
+        $this->post('/logout');
+        $this->post('/register', ['email' => 'full2@example.com', 'password' => 'password123', 'password_confirmation' => 'password123'])
+            ->assertSessionHasErrors(['name']);
+        $this->assertNull(User::where('email', 'full2@example.com')->first());
     }
 
     public function test_sign_in_pages_remember_where_to_return()

@@ -195,7 +195,7 @@
                     تصویر نسخه
                 </x-ui.btn>
             @endif
-            <x-suggest.toggle />
+            <x-suggest.toggle type="manuscript" />
         </div>
         <span class="text-xs text-muted"><x-visit-count type="manuscript" :id="$manuscript->id" />شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $manuscript->id }}</span></span>
     </div>
@@ -378,15 +378,28 @@
                 </x-ui.meta-list>
             </x-ui.section>
 
-            <x-ui.section title="نشان‌های نسخه‌شناسی">
+            {{-- Only the marks the record has are shown: an unset mark means the catalogue is silent, and a list of
+                 them read as the copy's features. The unset ones (and the whole section, when none is set) appear in
+                 suggestion mode, where one can be proposed (step 14.150) --}}
+            @php $hasFlags = collect($flags)->keys()->contains(fn ($flag) => (bool) $manuscript->{$flag}); @endphp
+            <x-ui.section title="نشان‌های نسخه‌شناسی" data-flags-section
+                :x-show="$hasFlags ? null : '$store.suggest.on'" :x-cloak="! $hasFlags">
                 <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 text-sm">
                     @foreach($flags as $flag => $flagLabel)
-                        <li class="flex items-center gap-2.5 {{ $manuscript->{$flag} ? 'text-ink font-semibold' : 'text-muted' }}">
-                            <span class="w-2 h-2 shrink-0 rotate-45 {{ $manuscript->{$flag} ? 'bg-cinnabar' : 'border border-line-strong' }}" aria-hidden="true"></span>
-                            <span>{{ $flagLabel }}</span>
-                            <span class="sr-only">{{ $manuscript->{$flag} ? 'دارد' : 'ندارد' }}</span>
-                            <x-suggest.field :name="$flag" />
-                        </li>
+                        @if($manuscript->{$flag})
+                            <li class="flex items-center gap-2.5 text-ink font-semibold" data-flag="{{ $flag }}">
+                                <span class="w-2 h-2 shrink-0 rotate-45 bg-cinnabar" aria-hidden="true"></span>
+                                <span>{{ $flagLabel }}</span>
+                                <x-suggest.field :name="$flag" />
+                            </li>
+                        @else
+                            <li class="flex items-center gap-2.5 text-muted" data-flag-unset="{{ $flag }}" x-show="$store.suggest.on" x-cloak>
+                                <span class="w-2 h-2 shrink-0 rotate-45 border border-line-strong" aria-hidden="true"></span>
+                                <span>{{ $flagLabel }}</span>
+                                <span class="text-[11px]">(ثبت نشده)</span>
+                                <x-suggest.field :name="$flag" />
+                            </li>
+                        @endif
                     @endforeach
                 </ul>
             </x-ui.section>
