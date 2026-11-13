@@ -72,9 +72,28 @@ class SearchHelper
 
         $regex = '/(' . implode('|', $patterns) . ')/iu';
 
-        return preg_replace_callback($regex, function ($m) {
-            return '<mark class="bg-amber-200/70 dark:bg-amber-500/30 text-stone-900 dark:text-amber-100 px-1 py-0.5 rounded font-bold">' . $m[0] . '</mark>';
-        }, $escapedText);
+        return self::marked(preg_replace($regex, "\x01$1\x02", $escapedText));
+    }
+
+    /** Letters that join the letter after them, and the letters that join the one before */
+    private const JOINS_NEXT = '[\x{0626}\x{0628}\x{062A}-\x{062E}\x{0633}-\x{063A}\x{0641}-\x{0647}\x{0649}\x{064A}\x{067E}\x{0686}\x{06A9}\x{06AF}\x{06BE}\x{06C1}\x{06CC}]';
+
+    private const JOINS_PREVIOUS = '[\x{0622}-\x{063A}\x{0641}-\x{064A}\x{0671}\x{067E}\x{0686}\x{0698}\x{06A9}\x{06AF}\x{06BE}\x{06C1}\x{06CC}]';
+
+    /**
+     * Escaped text whose matches stand between \x01 and \x02, as <mark> tags. A match is often a part of a word
+     * («آتشک» in «آتشکده»): a tag between two joined letters breaks their joining, so a zero-width joiner goes on
+     * each side of such a cut and both letters keep their joined forms. The mark has no padding and no weight of its
+     * own, which would open a gap in the word (step 14.158).
+     */
+    public static function marked(string $escaped, string $class = 'search-mark'): string
+    {
+        $zwj = "\u{200D}";
+        $cut = '(?<=' . self::JOINS_NEXT . ')%s(?=' . self::JOINS_PREVIOUS . ')';
+        $escaped = preg_replace('/' . sprintf($cut, '\x01') . '/u', $zwj . "\x01" . $zwj, $escaped);
+        $escaped = preg_replace('/' . sprintf($cut, '\x02') . '/u', $zwj . "\x02" . $zwj, $escaped);
+
+        return str_replace(["\x01", "\x02"], ['<mark class="' . $class . '">', '</mark>'], $escaped);
     }
 }
 

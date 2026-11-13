@@ -8,9 +8,27 @@
     $n = fn ($count) => $count !== null ? ' (' . Fa::num($count) . ')' : '';
     $field = 'w-full text-xs p-2.5 rounded-sm border border-line-strong bg-paper text-ink';
     $label = 'block text-xs font-bold text-ink/80';
+    // A choice that would find nothing is left out, unless it is the one chosen (step 14.158); a count of null means
+    // «not counted» and stays. A filter left with no choice hides whole ($hide).
+    $picked = fn ($param, $key) => in_array((string) $key, array_map('strval', (array) $v($param)), true);
+    $live = fn ($count, $param, $key) => $count === null || $count > 0 || $picked($param, $key);
+    foreach (['sources' => 'source_id', 'languages' => 'language_id', 'scripts' => 'script_id', 'subjects' => 'subject_id', 'libraries' => 'library_id'] as $key => $param) {
+        if (isset($options[$key])) {
+            $options[$key] = $options[$key]->filter(fn ($o) => $live($o->matching_count, $param, $o->id))->values();
+        }
+    }
+    foreach (['volumes' => 'volume', 'centuries' => 'century', 'copyCities' => 'copy_city', 'cities' => 'city', 'roles' => 'role', 'workForms' => 'work_form', 'flags' => 'flags'] as $key => $param) {
+        // a plain list (the copies' places of copying) carries no counts
+        if (! empty($options[$key]) && ! array_is_list(collect($options[$key])->all())) {
+            $options[$key] = collect($options[$key])->filter(fn ($o, $k) => $live(is_array($o) ? $o[1] : $o, $param, $k))->all();
+        }
+    }
+    $hide = fn (string $key) => count($options[$key] ?? []) === 0 ? 'hidden' : '';
     $subjectItems = fn () => $options['subjects']->map(fn ($s) => ['id' => $s->id, 'name' => $s->title ?: $s->name, 'count' => $s->matching_count, 'hint' => $s->parent?->name])->values()->all();
 @endphp
-<form action="{{ route('search') }}" method="GET" class="bg-surface p-5 rounded-sm border border-line shadow-sm space-y-5 text-sm">
+{{-- Every choice applies at once (step 14.158): a named field's change sends the form; the comboboxes send it themselves --}}
+<form action="{{ route('search') }}" method="GET" class="bg-surface p-5 rounded-sm border border-line shadow-sm space-y-5 text-sm"
+    x-data @change="$event.target.name && $el.requestSubmit()" data-search-filters>
     @foreach(['q' => $query, 'type' => $type, 'scope' => $scope, 'sort' => $sortKey ?: null, 'per_page' => $perPage !== 20 ? $perPage : null,
         'source_volume_id' => $v('source_volume_id'), 'work_id' => $v('work_id'), 'scribe_id' => $v('scribe_id'), 'author_id' => $v('author_id')] as $key => $value)
         @if($value !== null && $value !== '')<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
@@ -18,11 +36,13 @@
 
     <div class="flex items-center justify-between pb-3 border-b border-line">
         <span class="rubric text-base">پالایش نتایج</span>
-        <button type="submit" class="text-xs text-cinnabar font-semibold hover:underline">اعمال فیلتر</button>
+        @if(! $filters->isEmpty())
+            <a href="{{ route('search', array_filter(['q' => $query, 'type' => $type, 'scope' => $scope])) }}" class="text-xs text-cinnabar font-semibold hover:underline">پاک کردن فیلترها</a>
+        @endif
     </div>
 
     @if($type === 'sources')
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('sources') }}">
             <label for="f-source" class="{{ $label }}">منبع</label>
             <select id="f-source" name="source_id" class="{{ $field }}">
                 <option value="">همه‌ی منابع</option>
@@ -32,7 +52,7 @@
             </select>
         </div>
         @if($options['volumes'])
-            <div class="space-y-2">
+            <div class="space-y-2 {{ $hide('volumes') }}">
                 <label for="f-volume" class="{{ $label }}">جلد</label>
                 <select id="f-volume" name="volume" class="{{ $field }}">
                     <option value="">همه‌ی جلدها</option>
@@ -45,7 +65,7 @@
     @endif
 
     @if($type === 'authors')
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('roles') }}">
             <label for="f-role" class="{{ $label }}">نقش</label>
             <select id="f-role" name="role" class="{{ $field }}">
                 <option value="">همه‌ی نقش‌ها</option>
@@ -54,7 +74,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('centuries') }}">
             <label for="f-century" class="{{ $label }}">سده‌ی وفات (قمری)</label>
             <select id="f-century" name="century" class="{{ $field }}">
                 <option value="">همه‌ی سده‌ها</option>
@@ -67,7 +87,7 @@
 
     {{-- A scribe is narrowed by the copies, not by a date of death, which almost none has (step 14.155) --}}
     @if($type === 'scribes')
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('centuries') }}">
             <label for="f-century" class="{{ $label }}">سده‌ی کتابت (قمری) <span class="font-normal text-muted">(دست‌کم یک نسخه)</span></label>
             <select id="f-century" name="century" class="{{ $field }}">
                 <option value="">همه‌ی سده‌ها</option>
@@ -76,7 +96,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('copyCities') }}">
             <label for="f-copy-city" class="{{ $label }}">محل کتابت</label>
             <select id="f-copy-city" name="copy_city" class="{{ $field }}">
                 <option value="">همه‌جا</option>
@@ -86,7 +106,7 @@
             </select>
         </div>
         @if($options['roles'])
-            <div class="space-y-2">
+            <div class="space-y-2 {{ $hide('roles') }}">
                 <label for="f-role" class="{{ $label }}">نقش دیگر</label>
                 <select id="f-role" name="role" class="{{ $field }}">
                     <option value="">همه‌ی کاتبان</option>
@@ -100,7 +120,7 @@
 
     @if($type === 'works')
         <x-search.combobox name="subject_id" label="موضوع" :items="$subjectItems()" :selected="$v('subject_id')" all="همه‌ی موضوعات" placeholder="مثلاً فقه، فلسفه…" unit="موضوع" />
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('languages') }}">
             <label for="f-language" class="{{ $label }}">زبان</label>
             <select id="f-language" name="language_id" class="{{ $field }}">
                 <option value="">همه‌ی زبان‌ها</option>
@@ -109,7 +129,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('centuries') }}">
             <label for="f-century" class="{{ $label }}">سده <span class="font-normal text-muted">(تألیف، یا وفات مؤلف)</span></label>
             <select id="f-century" name="century" class="{{ $field }}">
                 <option value="">همه‌ی سده‌ها</option>
@@ -118,7 +138,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('workForms') }}">
             <label for="f-form" class="{{ $label }}">قالب اثر</label>
             <select id="f-form" name="work_form" class="{{ $field }}">
                 <option value="">همه‌ی قالب‌ها</option>
@@ -127,7 +147,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('sources') }}">
             <label for="f-source" class="{{ $label }}">یادشده در</label>
             <select id="f-source" name="source_id" class="{{ $field }}">
                 <option value="">همه‌ی آثار</option>
@@ -136,7 +156,7 @@
                 @endforeach
             </select>
         </div>
-        <label class="flex items-center justify-between gap-2 text-xs text-ink/80 cursor-pointer">
+        <label class="flex items-center justify-between gap-2 text-xs text-ink/80 cursor-pointer {{ $options['autographs'] === 0 && ! $v('has_autograph') ? 'hidden' : '' }}">
             <span class="flex items-center gap-2">
                 <input type="checkbox" name="has_autograph" value="1" @checked($v('has_autograph')) class="w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-line-strong">
                 دارای نسخه‌ی دستخط مؤلف
@@ -167,7 +187,7 @@
             </div>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 {{ $hide('scripts') }}">
             <label for="f-script" class="{{ $label }}">خط</label>
             <select id="f-script" name="script_id" class="{{ $field }}">
                 <option value="">همه‌ی خطوط</option>
@@ -177,7 +197,7 @@
             </select>
         </div>
 
-        <fieldset class="space-y-2">
+        <fieldset class="space-y-2 {{ $hide('flags') }}">
             <legend class="{{ $label }} mb-2">ویژگی‌های نسخه</legend>
             @foreach($options['flags'] as $flag => [$flagLabel, $count])
                 <label class="flex items-center justify-between gap-2 text-xs text-ink/80 cursor-pointer">
@@ -196,7 +216,7 @@
                 <span class="group-open:hidden">+ فیلترهای بیشتر</span><span class="hidden group-open:inline">− فیلترهای بیشتر</span>
             </summary>
             <div class="space-y-4 pt-3">
-                <div class="space-y-2">
+                <div class="space-y-2 {{ $hide('languages') }}">
                     <label for="f-language" class="{{ $label }}">زبان اثر</label>
                     <select id="f-language" name="language_id" class="{{ $field }}">
                         <option value="">همه‌ی زبان‌ها</option>
@@ -205,7 +225,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-2 {{ $hide('copyCities') }}">
                     <label for="f-copy-city" class="{{ $label }}">محل کتابت</label>
                     <select id="f-copy-city" name="copy_city" class="{{ $field }}">
                         <option value="">همه‌جا</option>
@@ -233,7 +253,8 @@
         </details>
     @endif
 
-    <button type="submit" class="w-full py-2.5 bg-cinnabar hover:opacity-90 text-on-cinnabar font-semibold rounded-sm text-xs transition shadow">
-        اعمال فیلترها
-    </button>
+    {{-- Without scripts nothing applies by itself --}}
+    <noscript>
+        <button type="submit" class="w-full py-2.5 bg-cinnabar hover:opacity-90 text-on-cinnabar font-semibold rounded-sm text-xs transition shadow">اعمال فیلترها</button>
+    </noscript>
 </form>

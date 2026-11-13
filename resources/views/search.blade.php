@@ -354,7 +354,7 @@
                         // The engine's marks (\x01…\x02) around the words found in the text, kept through the escaping (the
                         // title is shown from the record: the index holds its search variants); the engine
                         // counts the article «ال» as a word of its own, and marking it in every word is noise
-                        $marked = fn (?string $text) => str_replace(["\x01ال\x02", "\x01", "\x02"], ['ال', '<mark class="bg-gold/30 text-ink rounded-sm px-0.5">', '</mark>'], e($text));
+                        $marked = fn (?string $text) => \App\Helpers\SearchHelper::marked(str_replace("\x01ال\x02", 'ال', e($text)));
                     @endphp
                     <ul class="divide-y divide-line border-y border-line">
                         @foreach($results as $item)

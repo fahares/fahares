@@ -80,6 +80,18 @@
     }
 }
 
+/* A found word in a search result (SearchHelper::marked, step 14.158): a tint alone. Padding, a radius or a weight of
+   its own would open a gap where the mark covers part of a word («آتشک» in «آتشکده»). */
+.search-mark {
+    background-color: color-mix(in srgb, var(--color-gold, #B8860B) 32%, transparent);
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    box-decoration-break: clone;
+}
+
 /* Machine-extracted data just rejected from its ⓘ badge, until the «بازگردانی» toast is gone (backlog item 59) */
 [data-machine-rejected] {
     opacity: 0.4;

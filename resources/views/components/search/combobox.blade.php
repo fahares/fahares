@@ -56,8 +56,15 @@ function filterCombobox(config) {
                 return;
             }
             this.selectedId = id === '' ? '' : String(id); this.open = false; this.search = ''; this.$nextTick(() => this.$refs.trigger.focus());
+            this.apply();
         },
-        clear() { this.selectedId = ''; this.selectedIds = []; },
+        clear() { this.selectedId = ''; this.selectedIds = []; this.apply(); },
+        // The filters apply at once (step 14.158): one choice sends the form; several, once the list closes
+        chosenAtStart: JSON.stringify((config.selectedIds || []).map(String)),
+        init() {
+            this.$watch('open', (open) => { if (!open && this.multiple && JSON.stringify(this.selectedIds) !== this.chosenAtStart) this.apply(); });
+        },
+        apply() { this.$nextTick(() => this.$root.closest('form[data-search-filters]')?.requestSubmit()); },
     };
 }
 </script>
