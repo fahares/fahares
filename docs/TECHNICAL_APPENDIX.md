@@ -10304,6 +10304,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** «0 created, 21 updated, 44 unchanged»، و اجرای دوم «65 unchanged». شناسه‌های جلدها در رونوشت با پروداکشن یکی است (#۷۰ تا #۷۳۴).
 - **سایت:** `php -S` در کانتینر، از این worktree و با `DB_DATABASE=fahares_prod`. `public/build` شاخه‌ی اصلی در worktree رونوشت شد. در نسخه‌های ۲۸۱۲۹۹ (ج ۲۱ ص ۱۲۷۱)، ۱۳۵۱۰۷ (ج ۲۱ ص ۶۰۰)، ۹۲۰۳۰ (ج ۱۱ ص ۸۵) و ۱۷۵۱۹۹ (ج ۲۶ ص ۳۰۰) دکمه‌ی «دیدن برگه در فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی» و نشانی `razavi/vNN/pNNNN.webp` درست بود. برگه‌ی ج ۲۱ ص ۱۲۷۱ (۲۰۹۸ مسالک الافهام) هم دیده شد.
 - **پس از استقرار:** نخست برگه‌ها به `storage/app/public/catalogs/razavi` پروداکشن فرستاده می‌شوند، سپس `php artisan catalogs:set-facsimiles` با `prod-run` و پشتیبان پیشین. فرمان تنها ستون‌های ۲۱ جلد را می‌نویسد.
+
 ### گام ۱۴.۱۶۵: دنباله‌ی تاریخ کتابت (`copy_date_tails_step14_165.json`)
 
 - **ساخت پرونده** (مخزن corpus): `python3 scripts/fankha_v2_copy_date_tail_export.py --report reports/fankha_v2_db_review12 --out <fahares>/database/data/copy_date_tails_step14_165.json`.
