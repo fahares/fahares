@@ -10,6 +10,7 @@ import webPush from './web-push';
 import catalogViewer from './catalog-viewer';
 import sendOnce from './send-once';
 import insightsCombo from './insights-filter';
+import announcement from './announcement';
 
 window.Alpine = Alpine;
 window.QRCode = QRCode;
@@ -62,6 +63,7 @@ Alpine.data('referenceReview', referenceReview);
 Alpine.data('webPush', webPush);
 Alpine.data('catalogViewer', catalogViewer);
 Alpine.data('insightsCombo', insightsCombo);
+Alpine.data('announcement', announcement);
 
 sendOnce();
 Alpine.start();

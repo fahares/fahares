@@ -1,0 +1,149 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Announcement;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class AnnouncementTest extends TestCase
+{
+    protected User $admin;
+
+    protected User $member;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Storage::fake('public');
+
+        $this->admin = User::create(['name' => 'Admin Tester', 'email' => 'test-admin@fahares.net', 'password' => 'password123', 'role' => 'admin']);
+        $this->member = User::create(['name' => 'Member Tester', 'email' => 'test-member@fahares.net', 'password' => 'password123', 'role' => 'user']);
+    }
+
+    private function running(array $attributes = []): Announcement
+    {
+        return Announcement::create($attributes + [
+            'title' => 'کانال تلگرام آزمایشی راه افتاد', 'body' => 'خبرهای تازه را آنجا بخوانید.',
+            'link_url' => 'https://t.me/example', 'link_label' => 'پیوستن',
+            'style' => 'card', 'audience' => 'all', 'days' => 14, 'is_active' => true,
+            'starts_at' => now()->subMinute(), 'ends_at' => now()->addDays(14),
+        ]);
+    }
+
+    public function test_admin_writes_a_notice_and_switches_it_on()
+    {
+        $this->actingAs($this->admin)->get(route('admin.announcements.create'))->assertOk();
+
+        $this->post(route('admin.announcements.store'), [
+            'title' => 'فهرست کتابخانه‌ی آزمایشی افزوده شد', 'body' => 'هزار نسخه‌ی تازه.',
+            'link_url' => '/libraries', 'style' => 'card', 'audience' => 'all', 'days' => 10,
+            'image' => UploadedFile::fake()->createWithContent('a.jpg', base64_decode(
+                '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA='
+            )),
+        ])->assertRedirect();
+
+        $notice = Announcement::where('title', 'فهرست کتابخانه‌ی آزمایشی افزوده شد')->firstOrFail();
+        $this->assertSame('off', $notice->status());
+        $this->assertNull($notice->starts_at);
+        Storage::disk('public')->assertExists($notice->image_path);
+        $this->assertNull(Announcement::forViewer(null));
+
+        // Switched on: the run begins now and lasts the given days
+        $this->put(route('admin.announcements.update', $notice), [
+            'title' => $notice->title, 'link_url' => '/libraries', 'style' => 'card', 'audience' => 'all', 'days' => 10, 'is_active' => 1,
+        ])->assertRedirect();
+        $notice->refresh();
+        $this->assertSame('running', $notice->status());
+        $this->assertTrue($notice->starts_at->copy()->addDays(10)->equalTo($notice->ends_at));
+        $this->assertSame($notice->id, Announcement::forViewer(null)['id']);
+
+        // Saving a running notice keeps its start; a longer run moves only the end
+        $start = $notice->starts_at;
+        $this->travel(2)->days();
+        $this->put(route('admin.announcements.update', $notice), [
+            'title' => $notice->title, 'style' => 'modal', 'audience' => 'all', 'days' => 20, 'is_active' => 1,
+        ]);
+        $notice->refresh();
+        $this->assertTrue($start->equalTo($notice->starts_at));
+        $this->assertTrue($start->copy()->addDays(20)->equalTo($notice->ends_at));
+
+        $this->get(route('admin.announcements.index'))->assertOk()->assertSee($notice->title);
+
+        $this->delete(route('admin.announcements.destroy', $notice))->assertRedirect(route('admin.announcements.index'));
+        $this->assertDatabaseMissing('announcements', ['id' => $notice->id]);
+        Storage::disk('public')->assertMissing($notice->image_path);
+    }
+
+    public function test_link_must_be_a_site_path_or_https()
+    {
+        $base = ['title' => 'اعلان', 'style' => 'card', 'audience' => 'all', 'days' => 5];
+        foreach (['javascript:alert(1)', '//evil.example', 'http://plain.example', 'posts/1'] as $bad) {
+            $this->actingAs($this->admin)->post(route('admin.announcements.store'), $base + ['link_url' => $bad])->assertSessionHasErrors('link_url');
+        }
+        $this->assertSame(0, Announcement::count());
+    }
+
+    public function test_only_a_manager_reaches_the_admin_pages()
+    {
+        $this->actingAs($this->member)->get(route('admin.announcements.index'))->assertForbidden();
+    }
+
+    public function test_page_offers_the_newest_running_notice_of_the_visitors_audience()
+    {
+        $old = $this->running(['title' => 'اعلان کهنه‌تر', 'starts_at' => now()->subDays(3)]);
+        $forMembers = $this->running(['title' => 'اعلان اعضا', 'audience' => 'members']);
+        $this->running(['title' => 'اعلان خاموش', 'is_active' => false, 'starts_at' => now()]);
+        $this->running(['title' => 'اعلان پایان‌یافته', 'starts_at' => now()->subDays(20), 'ends_at' => now()->subDay()]);
+
+        $this->assertSame($old->id, Announcement::forViewer(null)['id']);
+        $this->assertSame($forMembers->id, Announcement::forViewer($this->member)['id']);
+
+        $this->get(route('home'))->assertOk()->assertSee('data-announcement', false)->assertSee('اعلان کهنه‌تر')->assertDontSee('اعلان اعضا');
+        // Nothing interrupts signing in
+        $this->get(route('login'))->assertOk()->assertDontSee('data-announcement', false);
+
+        // The run ends by itself, though the cached list still holds the notice
+        $this->travel(15)->days();
+        $this->assertNull(Announcement::forViewer(null));
+        $this->get(route('home'))->assertOk()->assertDontSee('data-announcement', false);
+    }
+
+    public function test_seen_and_click_are_counted_and_a_member_is_not_shown_it_again()
+    {
+        $notice = $this->running();
+
+        $this->postJson(route('announcements.event', $notice), ['event' => 'view'])->assertNoContent();
+        $this->postJson(route('announcements.event', $notice), ['event' => 'click'])->assertNoContent();
+        $this->postJson(route('announcements.event', $notice), ['event' => 'other'])->assertStatus(422);
+        $this->assertSame([1, 1], [$notice->fresh()->views_count, $notice->fresh()->clicks_count]);
+        $this->assertSame(0, DB::table('announcement_user')->count());
+
+        $this->assertSame($notice->id, Announcement::forViewer($this->member)['id']);
+        $this->actingAs($this->member)->postJson(route('announcements.event', $notice), ['event' => 'view'])->assertNoContent();
+        $this->assertNull(Announcement::forViewer($this->member));
+        $this->get(route('home'))->assertOk()->assertDontSee('data-announcement', false);
+
+        // Another member, and a guest, still get it
+        $this->assertSame($notice->id, Announcement::forViewer($this->admin)['id']);
+        $this->assertSame($notice->id, Announcement::forViewer(null)['id']);
+
+        // A notice that is no longer running is not counted
+        $notice->update(['is_active' => false]);
+        $this->postJson(route('announcements.event', $notice), ['event' => 'view'])->assertNoContent();
+        $this->assertSame(2, $notice->fresh()->views_count);
+    }
+
+    public function test_manager_previews_a_notice_that_is_off()
+    {
+        $notice = $this->running(['title' => 'اعلان پیش‌نویس', 'is_active' => false]);
+        $url = route('home', ['announcement_preview' => $notice->id]);
+
+        $this->get($url)->assertOk()->assertDontSee('data-announcement', false);
+        $this->actingAs($this->member)->get($url)->assertOk()->assertDontSee('data-announcement', false);
+        $this->actingAs($this->admin)->get($url)->assertOk()->assertSee('اعلان پیش‌نویس');
+    }
+}
