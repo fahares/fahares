@@ -10849,3 +10849,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - خطا در `telegram_error` می‌ماند و ذخیره‌ی اعلان را خراب نمی‌کند. متن خطای اتصال ذخیره نمی‌شود، چون نشانی درخواست و با آن توکن ربات را دارد.
 - **حد طول:** پیش از ذخیره سنجیده می‌شود، به شمار واحدهای UTF-16 متن بی‌نشانه: ۱٬۰۲۴ برای پست تصویردار و ۴٬۰۹۶ برای بی‌تصویر.
 - **تست:** چهار آزمون تازه در `tests/Feature/AnnouncementTest.php` با `Http::fake`.
+
+### گام ۱۴.۱۸۷: نوع اعلان `site.announcement`
+
+- **`config/notifications.php`:** `site.announcement`، `roles: ['*']`، کانال‌ها `database: true` و `mail`، `webpush`، `telegram` هر سه `false`.
+- **`App\Notifications\AnnouncementNotice`** (`SiteNotification`): عنوان و سطرهای متن اعلان، پیوند اعلان (یا خانه‌ی سایت). `toArray()` کلید `announcement_id` دارد. `toWebPush()` عنوان و متن خود اعلان را می‌برد.
+- **`App\Jobs\SendAnnouncementNotice`:** `forFirstRun()` پس از هر ذخیره در `AnnouncementController`؛ اگر اعلان روشن است، مخاطبش `guests` نیست و `notified_at` تهی است، آن را پر می‌کند و job را به صف می‌دهد. job اگر اعلان تا آن هنگام خاموش یا حذف شده باشد چیزی نمی‌فرستد، وگرنه `NotificationPreferences::broadcast()`.
+- **`announcements.notified_at`** (`2026_11_14_300001_add_notified_at_to_announcements`): برای اعلان‌هایی که پیش از این گام روشن شده‌اند با `starts_at` پر می‌شود، تا ذخیره‌ی دوباره‌شان چیزی نفرستد.
+- **یکی شمردن دو نمایش:**
+  - `NotificationController::index()`: برای اعلان‌های نوی صفحه که `announcement_id` دارند ردیف `announcement_user` می‌سازد (بی افزودن به `views_count`)، پس `Announcement::forViewer()` آن را دیگر نمی‌دهد.
+  - `AnnouncementEventController`: با دیدن یا کلیک کارت، اعلان خوانده‌نشده‌ی همان `announcement_id` در `notifications` خوانده‌شده می‌شود.
+- **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
