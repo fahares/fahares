@@ -22,6 +22,8 @@ class SiteSetting extends Model
         'mail.salutation' => 'فهارس، فهرستگان نسخ خطی ایران',
         'mail.footer' => 'این ایمیل را سامانه‌ی فهارس فرستاده است.',
         'mail.show_logo' => '1',
+        'telegram.channel' => '@fahares_net',
+        'telegram.footer' => '🌐 fahares.net | 📣 @fahares_net',
     ];
 
     public const LABELS = [
@@ -35,6 +37,8 @@ class SiteSetting extends Model
         'mail.salutation' => 'امضای پایان ایمیل',
         'mail.footer' => 'متن پانویس ایمیل (پیوند سایت خودکار افزوده می‌شود)',
         'mail.show_logo' => 'نمایش شمسه در سربرگ',
+        'telegram.channel' => 'کانال تلگرام سایت',
+        'telegram.footer' => 'پانویس پست‌های کانال تلگرام',
     ];
 
     private const CACHE_KEY = 'site_settings';

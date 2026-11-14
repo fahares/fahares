@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
+use App\Models\SiteSetting;
+use App\Support\AnnouncementTelegram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,7 +26,7 @@ class AnnouncementController extends Controller
     public function create()
     {
         return view('admin.announcements.edit', [
-            'announcement' => new Announcement(['style' => 'card', 'audience' => 'all', 'days' => Announcement::DEFAULT_DAYS]),
+            'announcement' => new Announcement(['style' => 'card', 'audience' => 'all', 'days' => Announcement::DEFAULT_DAYS, 'telegram' => true]),
         ]);
     }
 
@@ -34,7 +36,7 @@ class AnnouncementController extends Controller
         $this->fill($request, $announcement);
         $this->audit($request, $announcement->id, 'create', null, $announcement->toArray());
 
-        return redirect()->route('admin.announcements.edit', $announcement)->with('success', $announcement->is_active
+        return $this->withTelegram(redirect()->route('admin.announcements.edit', $announcement), $announcement, $announcement->is_active
             ? 'اعلان ذخیره و روشن شد.'
             : 'اعلان ذخیره شد. پیش‌نمایش را ببینید و هر وقت آماده بود روشنش کنید.');
     }
@@ -50,7 +52,37 @@ class AnnouncementController extends Controller
         $this->fill($request, $announcement);
         $this->audit($request, $announcement->id, 'update', $old, $announcement->toArray());
 
-        return back()->with('success', 'تغییرات ذخیره شد.');
+        return $this->withTelegram(back(), $announcement, 'تغییرات ذخیره شد.');
+    }
+
+    /** Sends a notice's post to the channel again after a failure. */
+    public function telegram(Announcement $announcement)
+    {
+        return $this->withTelegram(back(), $announcement, 'چیزی برای فرستادن به تلگرام نبود.');
+    }
+
+    public function telegramSettings(Request $request)
+    {
+        $data = $request->validate([
+            'channel' => ['nullable', 'string', 'max:64', 'regex:/^(@?[A-Za-z][A-Za-z0-9_]{3,}|-?\d+)$/'],
+            'footer' => 'nullable|string|max:200',
+        ], ['channel.regex' => 'نام کانال را مانند ‎@fahares_net‎ بنویسید.']);
+        // An empty string, not null: null would bring the default back
+        SiteSetting::put('telegram.channel', (string) ($data['channel'] ?? ''));
+        SiteSetting::put('telegram.footer', (string) ($data['footer'] ?? ''));
+
+        return back()->with('success', 'تنظیمات تلگرام ذخیره شد.');
+    }
+
+    /** Posts or edits the channel's post and tells the manager what happened there. */
+    private function withTelegram($response, Announcement $announcement, string $message)
+    {
+        return match (AnnouncementTelegram::sync($announcement)) {
+            'sent' => $response->with('success', $message . ' پست آن به کانال تلگرام رفت.'),
+            'edited' => $response->with('success', $message . ' پست کانال تلگرام هم ویرایش شد.'),
+            'failed' => $response->with('success', $message)->with('error', 'به تلگرام نرفت: ' . $announcement->telegram_error),
+            default => $response->with('success', $message),
+        };
     }
 
     public function destroy(Request $request, Announcement $announcement)
@@ -75,12 +107,26 @@ class AnnouncementController extends Controller
             'audience' => 'required|in:' . implode(',', array_keys(Announcement::AUDIENCES)),
             'days' => 'required|integer|min:1|max:365',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'telegram_text' => 'nullable|string|max:3500',
         ], [
             'link_url.regex' => 'پیوند باید نشانی صفحه‌ای از همین سایت باشد (مانند ‎/posts/12‎) یا با https:// آغاز شود.',
             'image.max' => 'حجم تصویر حداکثر ۲ مگابایت است.',
             'days.max' => 'مدت نمایش حداکثر ۳۶۵ روز است.',
         ]);
         unset($data['image']);
+
+        // The channel is public, so only a notice for everyone goes there
+        $data['telegram'] = $request->boolean('telegram') && $data['audience'] === 'all';
+        if ($data['telegram']) {
+            $withPicture = $announcement->telegram_message_id
+                ? $announcement->telegram_photo
+                : $request->hasFile('image') || ($announcement->image_path && ! $request->boolean('remove_image'));
+            $limit = $withPicture ? AnnouncementTelegram::CAPTION_LIMIT : AnnouncementTelegram::TEXT_LIMIT;
+            $length = AnnouncementTelegram::length(AnnouncementTelegram::compose($data['title'], $data['body'] ?? null, $data['telegram_text'] ?? null, $data['link_url'] ?? null, $data['link_label'] ?? null));
+            if ($length > $limit) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['telegram_text' => 'پست تلگرام ' . \App\Support\Fa::num($length) . ' نویسه است و حد آن ' . ($withPicture ? 'با تصویر ' : '') . \App\Support\Fa::num($limit) . ' نویسه است. متن را کوتاه کنید.']);
+            }
+        }
 
         $wasRunning = $announcement->exists && $announcement->isRunning();
         $data['is_active'] = $request->boolean('is_active');

@@ -383,7 +383,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Fixed pages, such as «درباره ما»
-    Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['show'])->middleware('can:announcements.manage');
+    Route::middleware('can:announcements.manage')->group(function () {
+        Route::put('/announcements-telegram', [\App\Http\Controllers\Admin\AnnouncementController::class, 'telegramSettings'])->name('announcements.telegram.settings');
+        Route::post('/announcements/{announcement}/telegram', [\App\Http\Controllers\Admin\AnnouncementController::class, 'telegram'])->name('announcements.telegram');
+        Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['show']);
+    });
 
     Route::middleware('can:pages.manage')->group(function () {
         Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');

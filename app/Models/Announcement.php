@@ -36,6 +36,9 @@ class Announcement extends Model
     {
         return [
             'is_active' => 'boolean',
+            'telegram' => 'boolean',
+            'telegram_photo' => 'boolean',
+            'telegram_sent_at' => 'datetime',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];

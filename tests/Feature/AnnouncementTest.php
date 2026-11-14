@@ -137,6 +137,121 @@ class AnnouncementTest extends TestCase
         $this->assertSame(2, $notice->fresh()->views_count);
     }
 
+    private function fakeTelegram(): void
+    {
+        config(['notifications.telegram.bot_token' => 'TEST-TOKEN']);
+        \Illuminate\Support\Facades\Http::fake(['api.telegram.org/*' => \Illuminate\Support\Facades\Http::response(['ok' => true, 'result' => ['message_id' => 77]])]);
+    }
+
+    private function telegramCalls(string $method): \Illuminate\Support\Collection
+    {
+        return \Illuminate\Support\Facades\Http::recorded(fn ($request) => str_ends_with($request->url(), "/botTEST-TOKEN/{$method}"))->map(fn ($pair) => $pair[0])->values();
+    }
+
+    public function test_notice_goes_to_the_telegram_channel_once_when_first_switched_on()
+    {
+        $this->fakeTelegram();
+        $form = ['title' => 'فهرست <تازه> افزوده شد', 'body' => 'هزار نسخه.', 'link_url' => '/libraries', 'style' => 'card', 'audience' => 'all', 'days' => 10, 'telegram' => 1];
+
+        // Saved off: nothing leaves the site
+        $this->actingAs($this->admin)->post(route('admin.announcements.store'), $form)->assertRedirect();
+        $notice = Announcement::firstOrFail();
+        $this->assertTrue($notice->telegram);
+        \Illuminate\Support\Facades\Http::assertNothingSent();
+
+        $this->put(route('admin.announcements.update', $notice), $form + ['is_active' => 1])->assertSessionHas('success');
+        $sent = $this->telegramCalls('sendMessage');
+        $this->assertCount(1, $sent);
+        $this->assertSame('@fahares_net', $sent[0]['chat_id']);
+        $this->assertSame(
+            "<b>فهرست &lt;تازه&gt; افزوده شد</b>\n\nهزار نسخه.\n\n🔗 <a href=\"" . url('/libraries') . "\">بیشتر بخوانید</a>\n\n🌐 fahares.net | 📣 @fahares_net",
+            $sent[0]['text'],
+        );
+        $this->assertSame(['url' => url('/libraries')], $sent[0]['link_preview_options']);
+        $notice->refresh();
+        $this->assertSame(77, $notice->telegram_message_id);
+        $this->assertNotNull($notice->telegram_sent_at);
+
+        // Saved again unchanged, or switched off and on: no second post
+        $this->put(route('admin.announcements.update', $notice), $form + ['is_active' => 1]);
+        $this->put(route('admin.announcements.update', $notice), $form);
+        $this->put(route('admin.announcements.update', $notice), $form + ['is_active' => 1]);
+        $this->assertCount(1, $this->telegramCalls('sendMessage'));
+        $this->assertCount(0, $this->telegramCalls('editMessageText'));
+
+        // Its own Telegram text replaces the title and body there, and edits the same post
+        $this->put(route('admin.announcements.update', $notice), ['telegram_text' => '📚 فهرست تازه رسید!', 'is_active' => 1] + $form);
+        $edits = $this->telegramCalls('editMessageText');
+        $this->assertCount(1, $edits);
+        $this->assertSame(77, $edits[0]['message_id']);
+        $this->assertStringStartsWith("📚 فهرست تازه رسید!\n\n🔗 ", $edits[0]['text']);
+        $this->assertCount(1, $this->telegramCalls('sendMessage'));
+
+        $this->get(route('admin.announcements.edit', $notice))->assertOk()->assertSee('https://t.me/fahares_net/77');
+    }
+
+    public function test_only_a_notice_for_everyone_goes_to_telegram_and_a_picture_goes_as_a_photo()
+    {
+        $this->fakeTelegram();
+        $base = ['title' => 'اعلان اعضا', 'style' => 'card', 'days' => 5, 'telegram' => 1, 'is_active' => 1];
+
+        $this->actingAs($this->admin)->post(route('admin.announcements.store'), $base + ['audience' => 'members'])->assertRedirect();
+        $this->assertFalse(Announcement::firstOrFail()->telegram);
+        \Illuminate\Support\Facades\Http::assertNothingSent();
+
+        $image = fn () => UploadedFile::fake()->image('a.jpg', 40, 20);
+        // A caption holds far less than a message
+        $this->post(route('admin.announcements.store'), $base + ['audience' => 'all', 'telegram_text' => str_repeat('م', 1100), 'image' => $image()])
+            ->assertSessionHasErrors('telegram_text');
+        $this->assertSame(1, Announcement::count());
+
+        $this->post(route('admin.announcements.store'), ['title' => 'اعلان تصویردار', 'audience' => 'all', 'image' => $image()] + $base)->assertRedirect();
+        $this->assertCount(1, $this->telegramCalls('sendPhoto'));
+        $notice = Announcement::where('title', 'اعلان تصویردار')->firstOrFail();
+        $this->assertTrue($notice->telegram_photo);
+
+        $this->put(route('admin.announcements.update', $notice), ['title' => 'اعلان تصویردار، ویراسته', 'audience' => 'all'] + $base);
+        $this->assertCount(1, $this->telegramCalls('editMessageCaption'));
+    }
+
+    public function test_telegram_failure_keeps_the_notice_and_can_be_sent_again()
+    {
+        config(['notifications.telegram.bot_token' => 'TEST-TOKEN']);
+        \Illuminate\Support\Facades\Http::fakeSequence('api.telegram.org/*')
+            ->push(['ok' => false, 'description' => 'Forbidden: bot is not a member of the channel chat'], 403)
+            ->push(['ok' => true, 'result' => ['message_id' => 5]]);
+
+        $this->actingAs($this->admin)->post(route('admin.announcements.store'), [
+            'title' => 'اعلان', 'style' => 'card', 'audience' => 'all', 'days' => 5, 'telegram' => 1, 'is_active' => 1,
+        ])->assertRedirect()->assertSessionHas('error');
+        $notice = Announcement::firstOrFail();
+        $this->assertTrue($notice->isRunning());
+        $this->assertNull($notice->telegram_message_id);
+        $this->assertStringContainsString('bot is not a member', $notice->telegram_error);
+        $this->assertStringNotContainsString('TEST-TOKEN', $notice->telegram_error);
+        $this->get(route('admin.announcements.edit', $notice))->assertOk()->assertSee('دوباره بفرست');
+
+        $this->post(route('admin.announcements.telegram', $notice))->assertSessionHas('success');
+        $notice->refresh();
+        $this->assertSame(5, $notice->telegram_message_id);
+        $this->assertNull($notice->telegram_error);
+    }
+
+    public function test_channel_and_footer_are_settings()
+    {
+        $this->fakeTelegram();
+        $this->actingAs($this->member)->put(route('admin.announcements.telegram.settings'), ['channel' => '@other'])->assertForbidden();
+        $this->actingAs($this->admin)->put(route('admin.announcements.telegram.settings'), ['channel' => 'not a channel'])->assertSessionHasErrors('channel');
+        $this->put(route('admin.announcements.telegram.settings'), ['channel' => 'test_channel', 'footer' => ''])->assertSessionHas('success');
+        $this->get(route('admin.announcements.index'))->assertOk()->assertSee('test_channel');
+
+        $this->post(route('admin.announcements.store'), ['title' => 'اعلان', 'style' => 'card', 'audience' => 'all', 'days' => 5, 'telegram' => 1, 'is_active' => 1]);
+        $sent = $this->telegramCalls('sendMessage');
+        $this->assertSame('@test_channel', $sent[0]['chat_id']);
+        $this->assertSame('<b>اعلان</b>', $sent[0]['text']);
+        $this->assertSame(['is_disabled' => true], $sent[0]['link_preview_options']);
+    }
+
     public function test_manager_previews_a_notice_that_is_off()
     {
         $notice = $this->running(['title' => 'اعلان پیش‌نویس', 'is_active' => false]);

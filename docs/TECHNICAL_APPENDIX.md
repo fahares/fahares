@@ -10835,3 +10835,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آنچه بازخوانی نشد:** #156824 «19 ربیع الاول 142» برای اثری از ۱۲۳۱ (هیچ خوانشی نمی‌خواند؛ پهن‌ترین ردیف `copy` مانده، ۱٬۰۸۹ سال)، #80209 «رجب 107ق» (کف ۲۰۱، فاصله کمتر از ۱۰۰)، و ۹ نسخه که اثرشان تألیف و مؤلف تاریخ‌دار ندارد.
 - **بازه‌های پهن:** بازه گاهی سه سده است (۱۰۳۲ تا ۱۳۲۰). تنها حد پایین (کف اثر) به کار رفته است؛ وفات کاتب یا تاریخ وقف می‌تواند آن را تنگ‌تر کند.
 - **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های تاریخ نسخه‌هایی که اجرای آزمایشی می‌دهد، `fahares:fill-copy-date-ranges --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
+
+### گام ۱۴.۱۸۵: پست اعلان در کانال تلگرام (`App\Support\AnnouncementTelegram`)
+
+- **ستون‌های تازه‌ی `announcements` (`2026_11_14_200001_add_telegram_to_announcements`):** `telegram`، `telegram_text`، `telegram_message_id`، `telegram_photo`، `telegram_posted_text`، `telegram_sent_at`، `telegram_error`.
+- **تنظیمات (`SiteSetting`):** `telegram.channel` (پیش‌فرض `@fahares_net`) و `telegram.footer`. پانویس خالی به شکل رشته‌ی تهی ذخیره می‌شود، چون `null` پیش‌فرض را برمی‌گرداند.
+- **ربات:** همان `TELEGRAM_NOTIFY_BOT_TOKEN`. webhook آن با `allowed_updates = ['message']` ثبت شده، پس پست‌های کانال به webhook نمی‌رسند. env تازه‌ای لازم نیست.
+- **`compose()`:** HTML تلگرام؛ `<b>عنوان</b>`، متن، سطر `🔗 <a href>` (مسیر سایت با `url()` کامل می‌شود) و پانویس، با یک سطر تهی میانشان. اگر `telegram_text` پر باشد جای عنوان و متن می‌نشیند. همه‌ی نوشته‌ها escape می‌شوند (`ENT_HTML401`، چون تلگرام `&apos;` را نمی‌شناسد).
+- **`sync()`** پس از هر ذخیره در `AnnouncementController` و از دکمه‌ی «دوباره بفرست» (`POST admin/announcements/{id}/telegram`):
+  - بدون `telegram_message_id`: فقط اگر اعلان روشن است. با تصویر `sendPhoto` (فایل از دیسک `public` بارگذاری می‌شود)، بی‌تصویر `sendMessage`.
+  - با `telegram_message_id`: اگر متن ساخته‌شده با `telegram_posted_text` فرق دارد، `editMessageCaption` یا `editMessageText`. تصویر پست عوض نمی‌شود.
+  - `link_preview_options`: نشانی پیوند خود اعلان، یا `is_disabled` اگر پیوند ندارد، تا کارت پیش‌نمایش از نشانی پانویس ساخته نشود.
+  - خطا در `telegram_error` می‌ماند و ذخیره‌ی اعلان را خراب نمی‌کند. متن خطای اتصال ذخیره نمی‌شود، چون نشانی درخواست و با آن توکن ربات را دارد.
+- **حد طول:** پیش از ذخیره سنجیده می‌شود، به شمار واحدهای UTF-16 متن بی‌نشانه: ۱٬۰۲۴ برای پست تصویردار و ۴٬۰۹۶ برای بی‌تصویر.
+- **تست:** چهار آزمون تازه در `tests/Feature/AnnouncementTest.php` با `Http::fake`.

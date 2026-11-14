@@ -46,4 +46,20 @@
         </x-admin.row>
     @endforeach
 </x-admin.table>
+
+{{-- Where the notices go on Telegram, and the line that closes every post there --}}
+<form action="{{ route('admin.announcements.telegram.settings') }}" method="POST" class="mt-6 max-w-3xl bg-surface border border-line p-4 sm:p-5 space-y-4 text-[13px]">
+    @csrf @method('PUT')
+    <h2 class="font-bold text-ink text-sm">کانال تلگرام</h2>
+    <p class="text-muted leading-7">اعلانی که تیک «در کانال تلگرام هم منتشر شود» دارد، با نخستین روشن شدن به این کانال می‌رود. ربات اعلان‌های فهارس باید مدیر کانال باشد و اجازه‌ی فرستادن و ویرایش پیام داشته باشد.</p>
+    <div class="grid gap-4 sm:grid-cols-[200px_minmax(0,1fr)]">
+        <x-admin.field label="نام کانال" for="channel" error="channel">
+            <input type="text" name="channel" id="channel" dir="ltr" maxlength="64" value="{{ old('channel', \App\Models\SiteSetting::get('telegram.channel')) }}" class="admin-field w-full" placeholder="@fahares_net">
+        </x-admin.field>
+        <x-admin.field label="پانویس همه‌ی پست‌ها" for="footer" error="footer" hint="در پایان هر پست می‌آید. اگر خالی بماند، پست‌ها پانویس ندارند.">
+            <input type="text" name="footer" id="footer" maxlength="200" value="{{ old('footer', \App\Models\SiteSetting::get('telegram.footer')) }}" class="admin-field w-full">
+        </x-admin.field>
+    </div>
+    <div><x-ui.btn type="submit" size="sm" variant="primary">ذخیره‌ی تنظیمات تلگرام</x-ui.btn></div>
+</form>
 @endsection
