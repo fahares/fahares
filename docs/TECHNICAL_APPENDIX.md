@@ -10591,3 +10591,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - پشتیبان از ۳۳٬۵۱۸ صفحه‌ی فنخا: `step14_171_fankha_pages_before.jsonl.gz` (md5 `33592d1c…`).
     - `sources:import-pages` برای ۲۷ جلد `VOLUMES`، در یک `prod-run` با `nohup`. ۲۷ سطر «pages saved» بود و هیچ خطایی نبود.
   - **وارسی:** صفحه‌های تولید دوباره بیرون آمد و با Python با فایل‌ها برابر گذاشته شد: ۳۳٬۵۱۸ صفحه، `differ 0` و `missing 0`. `/sources/fankha/7/page/720` پاسخ 200 داد. `/tmp` کانتینر پاک است.
+### گام ۱۴.۱۷۴: سقف نویسه‌ی خانه در خروجی xlsx (`SearchExport::write`)
+
+- **خطا:** در `laravel.log` پروداکشن (۲۲ آبان، ۲۰:۲۶ UTC): `OpenSpout\Common\Exception\InvalidArgumentException: Trying to add a value that exceeds the maximum number of characters allowed in a cell (32,767)`، از `write()` با نوع `sources` و قالب `xlsx`.
+- **بریدن:** `SearchExport::XLSX_CELL_LIMIT = 32767`. در xlsx هر مقدار رشته‌ای که `mb_strlen` آن از سقف بیشتر باشد به `mb_substr($value, 0, 32766) . '…'` بدل می‌شود. OpenSpout هم طول را با `mb_strlen` می‌سنجد. CSV دست نمی‌خورد.
+- **پوشه‌ی موقت:** OpenSpout پوشه‌ی `/tmp/xlsx…` را تنها در `close()` پاک می‌کند (`AbstractWorkbookManager::close` → `cleanupTempFolder`). نوشتن ردیف‌ها اکنون در `try … finally { $writer->close(); }` است. خطا همچنان بالا می‌رود.
+- **آزمون:** `SearchSourcesTest::test_an_entry_longer_than_an_excel_cell_is_cut_in_the_xlsx_export` فایل xlsx را با خواننده‌ی OpenSpout می‌خواند: خانه‌ی «متن» ۳۲٬۷۶۷ نویسه است و با «…» پایان می‌یابد، و CSV متن کامل را دارد.

@@ -7,6 +7,7 @@ use App\Models\SourceEntry;
 use App\Models\SourceItem;
 use App\Models\SourceVolume;
 use App\Models\Work;
+use App\Support\SearchExport;
 use Tests\TestCase;
 
 /** The tab «در منابع»: the printed entries of al-Dhari'a and other sources (backlog item 83, phase 7) */
@@ -60,5 +61,34 @@ class SearchSourcesTest extends TestCase
         $csv = $this->get(route('search.export', ['type' => 'sources', 'source_id' => $this->source->id, 'format' => 'csv']))->assertOk()->streamedContent();
         $this->assertStringStartsWith("\u{FEFF}شناسه,منبع,جلد,صفحه", $csv);
         $this->assertStringContainsString('تحفة الأبرار', $csv);
+    }
+
+    public function test_an_entry_longer_than_an_excel_cell_is_cut_in_the_xlsx_export(): void
+    {
+        $item = $this->item('1460', 'الطویل', 410);
+        $item->update(['text' => str_repeat('ب', SearchExport::XLSX_CELL_LIMIT + 500)]);
+
+        $xlsx = $this->get(route('search.export', ['type' => 'sources', 'source_id' => $this->source->id]))->assertOk()->streamedContent();
+        $this->assertStringStartsWith('PK', $xlsx);
+
+        $file = tempnam(sys_get_temp_dir(), 'export-test');
+        file_put_contents($file, $xlsx);
+        $reader = new \OpenSpout\Reader\XLSX\Reader;
+        $reader->open($file);
+        $rows = [];
+        foreach ($reader->getSheetIterator() as $sheet) {
+            foreach ($sheet->getRowIterator() as $row) {
+                $rows[] = $row->toArray();
+            }
+        }
+        $reader->close();
+        unlink($file);
+
+        $text = $rows[1][array_search('متن', $rows[0], true)];
+        $this->assertSame(SearchExport::XLSX_CELL_LIMIT, mb_strlen($text), 'cut to the cell limit');
+        $this->assertStringEndsWith('ب…', $text);
+
+        $csv = $this->get(route('search.export', ['type' => 'sources', 'source_id' => $this->source->id, 'format' => 'csv']))->assertOk()->streamedContent();
+        $this->assertStringContainsString(str_repeat('ب', SearchExport::XLSX_CELL_LIMIT + 500), $csv, 'a CSV keeps the whole text');
     }
 }
