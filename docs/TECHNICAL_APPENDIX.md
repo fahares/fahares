@@ -10245,7 +10245,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲۳۹ نسخه نوشته شد.
   - اجرای دوم: `already 239`.
   - تمرین نخست انجام‌های هم‌مقدار را نمی‌گرفت. با `old_values` در `audit_logs` پس گرفته شد و دوباره اجرا شد.
-- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+- **پروداکشن (۲۲ آبان ۱۴۰۵، با یک `prod-run`):**
   - اجرای آزمایشی: `write 239`.
   - پشتیبان: ستون‌های `id`، `incipit_text`، `explicit_text` و `metadata` هر ۲۳۹ ردیف در `/tmp/step14_161_backup.json` (md5 `87bb2727…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply`: ۲۳۹ نسخه نوشته شد.
@@ -10262,7 +10262,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/barabar_semicolon_step14_162.json`، سپس `--apply`. روی `fahares_prod` محلی:
   - ۶۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 649`.
-- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+- **پروداکشن (۲۲ آبان ۱۴۰۵، با یک `prod-run`):**
   - اجرای آزمایشی: `write 649`.
   - پشتیبان: ستون‌های `id`، `incipit_text`، `explicit_text` و `metadata` هر ۶۴۹ ردیف در `/tmp/step14_162_backup.json` (md5 `64243884…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply`: ۶۴۹ نسخه نوشته شد.
@@ -10393,7 +10393,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/copy_date_tails_step14_165.json`، سپس `--apply`. روی `fahares_prod` محلی:
   - ۱٬۳۴۹ نسخه نوشته شد.
   - اجرای دوم: `already 1349`.
-- **پروداکشن (۲۳ آبان ۱۴۰۵، با `prod-run`):**
+- **پروداکشن (۲۲ آبان ۱۴۰۵، با `prod-run`):**
   - اجرای آزمایشی: `write 1349`.
   - پشتیبان: ستون‌های `id`، `copy_date_raw`، `copy_date_note`، `copy_date_hijri_year`، `copy_date_from/to`، `copy_date_certainty`، `copy_date_hedge_raw` و `metadata` در `/tmp/step14_165_backup.json` (md5 `99d82273…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply`: نشست SSH در میانه بسته شد («closed by remote host»)، ولی فرایند در کانتینر تا پایان رفت.
@@ -10484,7 +10484,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `folios_filled 2`.
   - اجرای دوم چیزی برای نوشتن نیافت.
   - برگ‌های دگرگون با `corpus_update` در `audit_logs` می‌آیند.
-- **پروداکشن (۲۳ آبان ۱۴۰۵، با یک `prod-run`):**
+- **پروداکشن (۲۲ آبان ۱۴۰۵، با یک `prod-run`):**
   - اجرای آزمایشی همان شمارها را داد، به‌اضافه‌ی `kept:protected 1` (۲۰۴۴۱۵).
   - پشتیبان: `id`، `folios`، `pages`، `extent_raw`، `range_from/to` و `range_from/to_number` همه‌ی ۳۲۳٬۲۴۹ نسخه در `/tmp/step14_168_backup.jsonl` (md5 `029d6ef6…`). فشرده به `fahares-sources/backups/step13/step14_168_backup.jsonl.gz` رفت و از کانتینر پاک شد.
   - `--apply` با `nohup`: `changed 481`.
@@ -10555,7 +10555,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. رونوشت فایل‌های صفحه به `/tmp` کانتینر.
   4. `sources:import-pages` برای ۲۷ جلد.
   5. وارسی و پاک کردن `/tmp`.
-- **اجرای تولید (۲۳ آبان ۱۴۰۵):**
+- **اجرای تولید (۲۲ آبان ۱۴۰۵):**
   - **نسخه‌ها:**
     - پشتیبان از ستون‌های آغاز، انجام، `is_autograph`، `is_bita`، تاریخ، `copy_place` و `metadata` ۲۴۲ نسخه (md5 `27f5ad00…`). به `fahares-sources/backups/step13/step14_171_backup.json` منتقل شد.
     - `--apply` با `nohup`: ۲۴۲ نسخه نوشته شد. اجرای دوم: `already 242`.
@@ -10647,7 +10647,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **روی رونوشت محلی:**
   - ۸ نسخه و ۳ اثر نوشته شد. بازه‌ها: `changed 21` (۸ تای دیگر را `rebuild-copies` پیش‌تر ساخته بود)، و `changed 9` برای آثار.
   - اجرای دوم هر چهار: صفر.
-- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+- **پروداکشن (۲۳ آبان ۱۴۰۵، یک `prod-run`):**
   - اجرای آزمایشی همان شمارها را داد: `write 8`، `update 3`، `changed 29` و `changed 9`.
   - پشتیبان از ستون‌های تاریخ و سال همه‌ی ۲۵۳٬۶۵۸ نسخه و اثرِ تاریخ‌دار: `step14_175_backup.jsonl.gz` (md5 `3ef77921…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - چهار فرمان با `nohup` اجرا شد: ۸ نسخه، ۳ اثر، `changed 21` و `changed 6`. ۸ بازه‌ی نسخه و ۳ بازه‌ی اثر را خود دو فرمان نخست ساخته بودند.
@@ -10681,7 +10681,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:rebuild-copies --file=database/data/stale_years_step14_177_copies.json --apply`
   2. `fahares:add-corpus-works --file=database/data/stale_years_step14_177_works.json --apply`
   - پس از هر دو، `fill-copy-date-ranges` (نسخه‌ها و `--works`) روی رونوشت محلی `changed 0` داد.
-- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+- **پروداکشن (۲۳ آبان ۱۴۰۵، یک `prod-run`):**
   - اجرای آزمایشی: `write 149` و `update 54`.
   - پشتیبان: ستون‌های تاریخ و سال این ۱۴۹ نسخه و ۵۴ اثر در `step14_177_backup.json` (md5 `27076c7c…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - هر دو فرمان با `nohup` اجرا شد.
@@ -10789,7 +10789,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `fahares:add-corpus-works --file=… --apply`
   - هر دو بازه را با `DerivedData` می‌سازند.
   - روی رونوشت محلی، دوباره و `fill-copy-date-ranges` (هر دو): صفر.
-- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+- **پروداکشن (۲۳ آبان ۱۴۰۵، یک `prod-run`):**
   - اجرای آزمایشی: `write 110` و `update 53`.
   - پشتیبان: ستون‌های تاریخ و سال این‌ها در `step14_181_backup.json` (md5 `2a4ba760…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - هر دو فرمان با `nohup` اجرا شد و ۱۱۰ و ۵۳ بازه ساختند.
@@ -10924,7 +10924,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تست:** دو assert یزدجردی در `CopyDateRangeTest`.
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/printed_extra_digit_dates_step14_189.json --apply`.
   - رونوشت محلی: ۱۱ نسخه نوشته شد. اجرای دوم: `already 11`.
-- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+- **پروداکشن (۲۳ آبان ۱۴۰۵، یک `prod-run`):**
   - اجرای آزمایشی: `write 11`.
   - پشتیبان: ستون‌های تاریخ این ۱۱ نسخه در `step14_189_backup.json` (md5 `351e132a…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply` با `nohup`: ۱۱ نسخه نوشته شد. اجرای دوم: صفر.
