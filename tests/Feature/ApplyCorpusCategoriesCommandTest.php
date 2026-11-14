@@ -315,6 +315,40 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertSame(['copy_date_from' => 1082, 'copy_date_to' => 1083, 'copy_date_hijri_year' => 1083], $row($b));
     }
 
+    public function test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none()
+    {
+        $w = $this->work('-v99-10');
+        $ids = [];
+        foreach (['40/1' => '1052-1057ق', '40/2' => 'قرن 13', '40/3' => '1084-1107ق', '41/1' => '1267-1268ق', '41/2' => '1267-1268ق', '42/1' => '1267-1268ق', '43/1' => '1100'] as $mark => $raw) {
+            $ids[$mark] = $this->copy($w, $mark);
+            DB::table('manuscripts')->where('id', $ids[$mark])->update(['copy_date_raw' => $raw]);
+        }
+        // two treatises of one volume with the same duration, and a third copy with it alone in its volume
+        DB::table('manuscripts')->whereIn('id', [$ids['41/1'], $ids['41/2']])->update(['library_id' => null, 'collection_key' => '41']);
+        DB::table('manuscripts')->where('id', $ids['42/1'])->update(['library_id' => null, 'collection_key' => '42']);
+        DB::table('manuscripts')->whereIn('id', [$ids['40/1'], $ids['40/2'], $ids['40/3'], $ids['43/1']])->update(['collection_key' => null]);
+
+        $this->artisan('fahares:fill-copy-date-ranges', ['--apply' => true])->assertSuccessful();
+        $kinds = DB::table('manuscripts')->whereIn('id', $ids)->pluck('copy_date_kind', 'id');
+        $this->assertSame(['40/1' => 'span', '40/2' => 'between', '40/3' => null, '41/1' => null, '41/2' => null, '42/1' => 'span', '43/1' => null],
+            array_map(fn (int $id) => $kinds[$id], $ids));
+        // a second run changes nothing, and refresh-derived agrees
+        $this->artisan('fahares:fill-copy-date-ranges')->expectsOutputToContain('changed             0')->assertSuccessful();
+
+        // saving a copy, a work and a person keeps the kind in step
+        Manuscript::find($ids['43/1'])->update(['copy_date_raw' => 'از 1052 تا 1057']);
+        $this->assertSame('span', DB::table('manuscripts')->where('id', $ids['43/1'])->value('copy_date_kind'));
+        Manuscript::find($ids['43/1'])->update(['copy_date_raw' => '1058']);
+        $this->assertNull(DB::table('manuscripts')->where('id', $ids['43/1'])->value('copy_date_kind'));
+        Work::find($w)->update(['composition_date_raw' => 'آغاز 1054ق و پایان 1055ق']);
+        $this->assertSame('span', DB::table('works')->where('id', $w)->value('composition_date_kind'));
+        $person = \App\Models\Person::create(['name' => 'شخص آزمایشی بازه', 'normalized_name' => 'شخص آزمایشی بازه', 'slug' => 'test-date-kind-' . uniqid(), 'life_dates_raw' => 'ق13 قمری']);
+        $this->assertSame('between', DB::table('people')->where('id', $person->id)->value('death_kind'));
+        $person->update(['life_dates_raw' => '1166 - 1241 ق']);
+        $this->assertNull(DB::table('people')->where('id', $person->id)->value('death_kind'));
+        DB::table('people')->where('id', $person->id)->delete();
+    }
+
     public function test_copy_date_ranges_are_filled_and_kept_in_step()
     {
         $w = $this->work('-v99-8');

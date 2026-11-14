@@ -24,12 +24,12 @@ use Illuminate\Support\Facades\DB;
 class DerivedData
 {
     public const COPY_COLUMNS = ['id', 'work_id', 'raw_text', 'incipit_text', 'explicit_text', 'copy_date_raw', 'copy_date_from', 'copy_date_to',
-        'copy_date_certainty', 'copy_date_hedge_raw', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number',
+        'copy_date_certainty', 'copy_date_hedge_raw', 'copy_date_kind', 'library_id', 'folios', 'pages', 'extent_raw', 'range_from', 'range_to', 'range_from_number', 'range_to_number',
         'shelfmark', 'collection_key', 'lines_raw', 'line_counts'];
 
-    public const WORK_COLUMNS = ['id', 'composition_date_raw', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_date_hedge_raw'];
+    public const WORK_COLUMNS = ['id', 'composition_date_raw', 'composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_date_hedge_raw', 'composition_date_kind'];
 
-    public const PERSON_COLUMNS = ['id', 'life_dates_raw', 'death_year_hijri', 'death_from', 'death_to', 'death_certainty', 'death_hedge_raw'];
+    public const PERSON_COLUMNS = ['id', 'life_dates_raw', 'death_year_hijri', 'death_from', 'death_to', 'death_certainty', 'death_hedge_raw', 'death_kind'];
 
     /**
      * A copy's derived columns that differ from what its source columns give: the date range (cleared when the date
@@ -39,9 +39,9 @@ class DerivedData
      *
      * @return array{date: ?array, extent: ?array, collection: ?array, lines: ?array}
      */
-    public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null, ?int $floor = null): array
+    public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null, ?int $floor = null, bool $sharedInVolume = false): array
     {
-        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath, $floor);
+        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath, $floor, $sharedInVolume);
         $extent = CopyExtent::columns($row, $guard)['columns'];
 
         return [
@@ -75,6 +75,7 @@ class DerivedData
     public static function personChanges(object $row): ?array
     {
         $cols = Person::deathColumns($row->life_dates_raw, $row->death_year_hijri === null ? null : (int) $row->death_year_hijri);
+        $cols += Person::deathKind($cols);
 
         return $cols !== self::range($row, 'death') ? $cols : null;
     }
@@ -96,9 +97,11 @@ class DerivedData
             $rows = DB::table('manuscripts')->whereIn('id', $chunk)->get(self::COPY_COLUMNS);
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             $floors = Manuscript::copyFloors($rows->pluck('work_id'));
-            DB::transaction(function () use ($rows, $guard, $deaths, $floors, &$counts) {
+            $shared = Manuscript::sharedVolumeDates($rows);
+            DB::transaction(function () use ($rows, $guard, $deaths, $floors, $shared, &$counts) {
                 foreach ($rows as $row) {
-                    ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null);
+                    ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null,
+                        isset($shared[Manuscript::volumeDateKey($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, $row->copy_date_raw)]));
                     if (! $date && ! $extent && ! $collection && ! $lines) {
                         continue;
                     }
@@ -183,6 +186,7 @@ class DerivedData
         $int = fn ($v) => $v === null ? null : (int) $v;
 
         return ["{$prefix}_from" => $int($row->{"{$prefix}_from"}), "{$prefix}_to" => $int($row->{"{$prefix}_to"}),
-            "{$prefix}_certainty" => $row->{"{$prefix}_certainty"}, "{$prefix}_hedge_raw" => $row->{"{$prefix}_hedge_raw"}];
+            "{$prefix}_certainty" => $row->{"{$prefix}_certainty"}, "{$prefix}_hedge_raw" => $row->{"{$prefix}_hedge_raw"},
+            "{$prefix}_kind" => $row->{"{$prefix}_kind"}];
     }
 }

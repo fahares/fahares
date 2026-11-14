@@ -6,6 +6,7 @@ use App\Auth\Permissions;
 use App\Helpers\SearchHelper;
 use App\Suggestions\SuggestionReadings;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Blade;
@@ -28,6 +29,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // The columns of one date (App\Support\DateSpan) under a prefix: `$table->dateSpan('stay')` for a new date,
+        // `$table->dateSpanKind('copy_date')` for a date that has its outer years, certainty and hedge already
+        Blueprint::macro('dateSpanKind', function (string $prefix) {
+            /** @var Blueprint $this */
+            $this->string("{$prefix}_kind", 8)->nullable()->after("{$prefix}_to");
+            $this->unsignedSmallInteger("{$prefix}_start_to")->nullable()->after("{$prefix}_kind");
+            $this->unsignedSmallInteger("{$prefix}_end_from")->nullable()->after("{$prefix}_start_to");
+        });
+        Blueprint::macro('dateSpan', function (string $prefix) {
+            /** @var Blueprint $this */
+            $this->unsignedSmallInteger("{$prefix}_from")->nullable();
+            $this->unsignedSmallInteger("{$prefix}_to")->nullable();
+            $this->dateSpanKind($prefix);
+            $this->string("{$prefix}_certainty", 20)->nullable();
+            $this->string("{$prefix}_hedge_raw", 60)->nullable();
+        });
+
         // The access matrix's permissions answer as Gate abilities; any other ability falls through to its own gate or policy
         Gate::before(fn ($user, string $ability) => Permissions::exists($ability) ? $user->hasPermission($ability) : null);
 

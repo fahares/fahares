@@ -22,6 +22,14 @@ namespace App\Support;
  * certainty is at least probable, and the phrase is kept as the hedge.
  *
  * A date that is one three-digit year far before its work is read again as a year that lost a digit (reread()).
+ *
+ * What a range means is its kind (DateSpan, item 134, step 14.188). A century, «حدود», an open end, another
+ * calendar's year, the author's time and a re-read year are one event at an unknown time: BETWEEN. Of two years:
+ *   - «1250 یا 1270», «بین 1063 تا 1141», «حدود سال‌های 560 تا 590», or a hedge word: BETWEEN;
+ *   - «آغاز 1054 و پایان 1055», and «تا» or «الی» up to SPAN_TO years apart: SPAN, the work lasted that long;
+ *   - a dash or «و» up to SPAN_NEAR years apart («1267-1268ق», «903 و 904ق»): SPAN;
+ *   - anything else (a wider dash or «و», three years or more, «974/977», a bracket): null, the text does not say.
+ * One year has no kind.
  */
 class CopyDateRange
 {
@@ -34,11 +42,11 @@ class CopyDateRange
         '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9'];
 
     /**
-     * @return array{from: ?int, to: ?int, certainty: ?string, hedge: ?string}
+     * @return array{from: ?int, to: ?int, certainty: ?string, hedge: ?string, kind: ?string}
      */
     public static function parse(?string $raw): array
     {
-        $none = ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => null];
+        $none = ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => null, 'kind' => null];
         $text = trim(strtr((string) $raw, self::DIGITS));
         if ($text === '') {
             return $none;
@@ -58,7 +66,8 @@ class CopyDateRange
             }
             $hedge = preg_match('/(?:^|\s|\()(' . self::HEDGES . ')(?=\s|\)|$)/u', $text, $h) ? $h[1] : (str_contains($text, '؟') ? '؟' : null);
 
-            return ['from' => $other[0], 'to' => $other[1], 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
+            return ['from' => $other[0], 'to' => $other[1], 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge,
+                'kind' => $other[0] === $other[1] ? null : DateSpan::BETWEEN];
         }
         $hedge = null;
         if (preg_match('/(?:^|\s|\()(' . self::HEDGES . ')(?=\s|\)|$)/u', $clause, $m)) {
@@ -66,12 +75,48 @@ class CopyDateRange
         } elseif (str_contains($clause, '؟')) {
             $hedge = '؟';
         }
-        [$from, $to] = self::centuries($clause) ?? self::bareCenturies($clause) ?? self::years($clause) ?? [null, null];
+        $century = self::centuries($clause) ?? self::bareCenturies($clause);
+        [$from, $to] = $century ?? self::years($clause) ?? [null, null];
         if ($from === null && $to === null) {
             return $none;
         }
+        $kind = match (true) {
+            $from === $to => null,
+            $century !== null, $from === null, $to === null, $hedge !== null => DateSpan::BETWEEN,
+            default => self::kindOfYears($clause),
+        };
 
-        return ['from' => $from, 'to' => $to, 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
+        return ['from' => $from, 'to' => $to, 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge, 'kind' => $kind];
+    }
+
+    /** «تا» and «الی» say a duration when the years are this far apart or less; a dash and «و» when this far or less. */
+    public const SPAN_TO = 40;
+
+    public const SPAN_NEAR = 10;
+
+    /** What the range of a clause with two years or more means (the class comment): SPAN, BETWEEN or null. */
+    private static function kindOfYears(string $clause): ?string
+    {
+        $years = HijriYear::all($clause);
+        if (count($years) < 2) {
+            // «حدود 1086»: one year, about
+            return DateSpan::BETWEEN;
+        }
+        [$first, $last] = [(string) $years[0], (string) end($years)];
+        $at = mb_strpos($clause, $first);
+        $end = mb_strrpos($clause, $last);
+        $gap = $at !== false && $end !== false && $end > $at ? mb_substr($clause, $at + mb_strlen($first), $end - $at - mb_strlen($first)) : '';
+        $width = max($years) - min($years);
+        $word = fn (string $words, string $in) => (bool) preg_match('/(?<!\p{L})(?:' . $words . ')(?!\p{L})/u', $in);
+
+        return match (true) {
+            $word('یا', $gap), $word('بین|مابین|میان|حدود|حوالی', $clause) => DateSpan::BETWEEN,
+            count(array_unique($years)) > 2 => null,
+            (bool) preg_match('/آغاز|شروع|ابتدا/u', $clause) && (bool) preg_match('/پایان|انجام|اتمام|فراغ|ختم|انتها/u', $clause) => DateSpan::SPAN,
+            $word('تا|الی|لغایت', $gap) => $width <= self::SPAN_TO ? DateSpan::SPAN : null,
+            (bool) preg_match('/[-–]/u', $gap), $word('و', $gap) => $width <= self::SPAN_NEAR ? DateSpan::SPAN : null,
+            default => null,
+        };
     }
 
     /** The hedge of a re-read date starts with this word, followed by the year the catalogue wrote («بازخوانی 125»). */
@@ -91,7 +136,7 @@ class CopyDateRange
      * date is a guess, so it is doubtful, and its hedge says what was done. Null when the date is anything else, when
      * the year is not REREAD_GAP years before the floor, or when no reading fits: the date then stands as written.
      *
-     * @return array{from: int, to: int, certainty: string, hedge: string}|null
+     * @return array{from: int, to: int, certainty: string, hedge: string, kind: ?string}|null
      */
     public static function reread(?string $raw, ?int $floor): ?array
     {
@@ -114,7 +159,8 @@ class CopyDateRange
             $fit = $onDay;
         }
 
-        return ['from' => min($fit), 'to' => max($fit), 'certainty' => 'doubtful', 'hedge' => self::REREAD . ' ' . $year];
+        return ['from' => min($fit), 'to' => max($fit), 'certainty' => 'doubtful', 'hedge' => self::REREAD . ' ' . $year,
+            'kind' => min($fit) === max($fit) ? null : DateSpan::BETWEEN];
     }
 
     /**
@@ -149,7 +195,7 @@ class CopyDateRange
      * The range of a date that names the author's time («نزدیک عصر مؤلف», «در حیات مؤلف», «ظاهراً از عصر ناظم»),
      * from the author's death year; null when the date has a year or a century of its own, or names no such time.
      *
-     * @return array{from: int, to: int, certainty: string, hedge: string}|null
+     * @return array{from: int, to: int, certainty: string, hedge: string, kind: string}|null
      */
     public static function relative(?string $raw, ?int $authorDeath): ?array
     {
@@ -175,7 +221,8 @@ class CopyDateRange
         $hedge = preg_match('/(?:^|\s|\()(' . self::HEDGES . ')(?=\s|\)|$)/u', $text, $h) ? $h[1] : (str_contains($text, '؟') ? '؟' : null);
 
         return ['from' => $authorDeath - $before, 'to' => $authorDeath + $after,
-            'certainty' => PersonNameMatcher::certainty($hedge) ?? 'probable', 'hedge' => trim(($hedge && $hedge !== '؟' ? $hedge . ' ' : '') . $m[0])];
+            'certainty' => PersonNameMatcher::certainty($hedge) ?? 'probable', 'hedge' => trim(($hedge && $hedge !== '؟' ? $hedge . ' ' : '') . $m[0]),
+            'kind' => DateSpan::BETWEEN];
     }
 
     /** Whether a date may name the author's time, so that its range needs the author's death year. */

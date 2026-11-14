@@ -42,7 +42,7 @@ class Work extends Model
         $range = \App\Support\CopyDateRange::parse($raw);
 
         return ['composition_date_from' => $range['from'], 'composition_date_to' => $range['to'], 'composition_date_certainty' => $range['certainty'],
-            'composition_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
+            'composition_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null, 'composition_date_kind' => $range['kind']];
     }
 
     /**

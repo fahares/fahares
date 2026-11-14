@@ -62,13 +62,52 @@ class Manuscript extends Model
      * The range columns of a copy date (CopyDateRange), as they are stored; a date that names the author's time
      * («نزدیک عصر مؤلف») takes its range from the death year of the work's author, when it is given, and one that
      * is a three-digit year far before the work's floor (copyFloors) is read again (CopyDateRange::reread).
+     *
+     * A duration («1084-1107ق») that the copy shares with another treatise of its volume ($sharedInVolume,
+     * sharedVolumeDates) has no kind: the catalogue may mean the years the whole volume took, and then this treatise
+     * was written at some time in them (step 14.188).
      */
-    public static function copyDateColumns(?string $raw, ?int $authorDeath = null, ?int $floor = null): array
+    public static function copyDateColumns(?string $raw, ?int $authorDeath = null, ?int $floor = null, bool $sharedInVolume = false): array
     {
         $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::reread($raw, $floor) ?? CopyDateRange::parse($raw);
 
         return ['copy_date_from' => $range['from'], 'copy_date_to' => $range['to'], 'copy_date_certainty' => $range['certainty'],
-            'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
+            'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null,
+            'copy_date_kind' => $sharedInVolume && $range['kind'] === \App\Support\DateSpan::SPAN ? null : $range['kind']];
+    }
+
+    /**
+     * The volumes in which two treatises or more carry the same date text, as "library|volume|date text" keys
+     * (volumeDateKey), for the copies given (rows with library_id, collection_key and copy_date_raw).
+     *
+     * @return array<string, true>
+     */
+    public static function sharedVolumeDates(iterable $rows): array
+    {
+        $keys = [];
+        foreach ($rows as $row) {
+            if ($row->collection_key !== null && $row->collection_key !== '' && (string) $row->copy_date_raw !== '') {
+                $keys[(int) $row->library_id][$row->collection_key] = true;
+            }
+        }
+        $shared = [];
+        foreach ($keys as $library => $volumes) {
+            foreach (array_chunk(array_map('strval', array_keys($volumes)), 500) as $chunk) {
+                $found = DB::table('manuscripts')->where('library_id', $library ?: null)->whereIn('collection_key', $chunk)
+                    ->whereNotNull('copy_date_raw')->where('copy_date_raw', '<>', '')
+                    ->groupBy('collection_key', 'copy_date_raw')->havingRaw('COUNT(*) > 1')->get(['collection_key', 'copy_date_raw']);
+                foreach ($found as $f) {
+                    $shared[self::volumeDateKey($library, $f->collection_key, $f->copy_date_raw)] = true;
+                }
+            }
+        }
+
+        return $shared;
+    }
+
+    public static function volumeDateKey(?int $library, ?string $volume, ?string $raw): string
+    {
+        return (int) $library . '|' . $volume . '|' . $raw;
     }
 
     /**
@@ -131,7 +170,11 @@ class Manuscript extends Model
             if ($manuscript->isDirty('copy_date_raw') || $manuscript->isDirty('work_id')) {
                 $death = CopyDateRange::namesAuthorTime($manuscript->copy_date_raw) ? self::authorDeaths([$manuscript->work_id])[$manuscript->work_id] ?? null : null;
                 $floor = CopyDateRange::shortYear($manuscript->copy_date_raw) !== null ? self::copyFloors([$manuscript->work_id])[$manuscript->work_id] ?? null : null;
-                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death, $floor));
+                // the same date on another treatise of its volume (its own row is not saved yet, so one other is enough)
+                $shared = $manuscript->collection_key !== null && (string) $manuscript->copy_date_raw !== ''
+                    && DB::table('manuscripts')->where('library_id', $manuscript->library_id)->where('collection_key', $manuscript->collection_key)
+                        ->where('copy_date_raw', $manuscript->copy_date_raw)->when($manuscript->exists, fn ($q) => $q->where('id', '<>', $manuscript->id))->exists();
+                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death, $floor, $shared));
                 $manuscript->forceFill(self::rereadSortYear($manuscript->only(['copy_date_from', 'copy_date_to', 'copy_date_hedge_raw'])));
             }
             // The sort/collection key is the shelfmark cut to the indexed length
