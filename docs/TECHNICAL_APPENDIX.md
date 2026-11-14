@@ -10789,6 +10789,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `fahares:add-corpus-works --file=… --apply`
   - هر دو بازه را با `DerivedData` می‌سازند.
   - روی رونوشت محلی، دوباره و `fill-copy-date-ranges` (هر دو): صفر.
+- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+  - اجرای آزمایشی: `write 110` و `update 53`.
+  - پشتیبان: ستون‌های تاریخ و سال این‌ها در `step14_181_backup.json` (md5 `2a4ba760…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - هر دو فرمان با `nohup` اجرا شد و ۱۱۰ و ۵۳ بازه ساختند.
+  - اجرای دوم: صفر.
 
 ### گام ۱۴.۱۸۲: migrate در `docker/start.sh`، پیش از php-fpm و nginx
 
