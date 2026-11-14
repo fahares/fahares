@@ -57,6 +57,57 @@ final class EstimateText
         return ['text' => $text, 'reasons' => $reasons];
     }
 
+    /**
+     * «زنده در ۱۲۰۰ ق» for a person with no death date (step 14.172): the latest year a documented date shows them
+     * alive, one rule away, so it rests on no other estimate. The length of a life gives no such year, and the range
+     * of the death («… to that year + 100») is not shown: it says no more.
+     *
+     * When the evidence is a range (a copy dated by its century), the person was alive at some time in it, so the
+     * text is «وفات پس از <its first year>». Nothing is said of a scribe whose copies lie more than
+     * PersonReviewQueue::MIXED_SPAN years apart: that record holds several namesakes, and the year is only the last
+     * one's.
+     *
+     * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
+     */
+    public static function aliveIn(int $personId): ?array
+    {
+        $row = DB::table('date_estimates')->where(['subject_type' => 'person', 'subject_id' => $personId, 'field' => 'death'])->first();
+        if (! $row || $row->year_from === null || (int) $row->from_depth !== 1 || ! isset(self::ALIVE[$row->from_rule])) {
+            return null;
+        }
+        if ($row->from_rule === Loader::RULE_SCRIBE) {
+            $span = DB::table('people')->where('id', $personId)->first(['scribed_from', 'scribed_to']);
+            if ($span && $span->scribed_from && $span->scribed_to - $span->scribed_from > \App\Services\PersonReviewQueue::MIXED_SPAN) {
+                return null;
+            }
+        }
+        $evidence = self::evidence($row->from_evidence_type, $row->from_evidence_id);
+        $range = $row->from_evidence_type === 'work'
+            ? DB::table('works')->where('id', $row->from_evidence_id)->first(['composition_date_from as from', 'composition_date_to as to'])
+            : DB::table('manuscripts')->where('id', $row->from_evidence_id)->first(['copy_date_from as from', 'copy_date_to as to']);
+        $exact = $range && $range->from !== null && $range->from === $range->to;
+
+        return [
+            'text' => ($exact ? 'زنده در ' : 'وفات پس از ') . $row->year_from . ' ق',
+            'reasons' => [[
+                'bound' => ($exact ? 'زنده در ' : 'پس از ') . $row->year_from,
+                'text' => self::ALIVE[$row->from_rule][$exact ? 0 : 1],
+                'title' => $evidence['title'] ?? null,
+                'url' => $evidence ? route(self::ROUTES[$row->from_evidence_type], $row->from_evidence_id) : null,
+            ]],
+        ];
+    }
+
+    /** What shows the person alive, by rule: when the evidence is one year, and when it is a range. */
+    private const ALIVE = [
+        Loader::RULE_AUTHOR => ['اثرش را در این سال تألیف کرده است:', 'اثرش را زودتر از این سال تألیف نکرده است:'],
+        Loader::RULE_TRANSLATOR => ['ترجمه‌اش را در این سال نوشته است:', 'ترجمه‌اش را زودتر از این سال ننوشته است:'],
+        Loader::RULE_DEDICATEE => ['اثری در این سال به او اهدا شده است:', 'اثری که به او اهدا شده زودتر از این سال تألیف نشده است:'],
+        Loader::RULE_SCRIBE => ['نسخه‌ای را در این سال کتابت کرده است:', 'نسخه‌ای را زودتر از این سال کتابت نکرده است:'],
+        Loader::RULE_AUTOGRAPH => ['نسخه‌ای به خط خودش در این سال کتابت شده است:', 'نسخه‌ای به خط خودش زودتر از این سال کتابت نشده است:'],
+        Loader::RULE_PATRON => ['نسخه‌ای در این سال برای او کتابت شده است:', 'نسخه‌ای که برای او کتابت شده زودتر از این سال نیست:'],
+    ];
+
     /** Why the bound holds; the record it names follows the text. A depth over one rests on another estimate. */
     private static function reason(string $side, ?string $rule, int $depth): string
     {

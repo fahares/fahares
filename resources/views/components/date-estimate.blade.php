@@ -14,6 +14,6 @@
                 @if($reason['url'])<a href="{{ $reason['url'] }}" class="underline hover:text-cinnabar">{{ Fa::digits($reason['title']) }}</a>@endif
             </span>
         @endforeach
-        <span class="block">این تاریخ در فهرست‌ها نیامده و از روی تاریخ‌های ثبت‌شده‌ی اشخاص و نسخه‌های مرتبط حساب شده است.</span>
+        <span class="block">این تاریخ در فهرست‌ها نیامده و از روی تاریخ‌های ثبت‌شده‌ی آثار، اشخاص و نسخه‌های مرتبط حساب شده است.</span>
     </span>
 </span>

@@ -10432,6 +10432,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 | کتابت | ۲۹٬۹۲۰ | ۹٬۰۲۷ | ۹۰٫۷٪ | ۷۷٫۱٪ | ۹۹٫۷٪ | – |
 
 - **تست‌ها:** `DateEstimateEngineTest` (۸) و `EstimateDatesCommandTest` (۵).
+- **اجرا در پروداکشن (۲۲ آبان ۱۴۰۵):** `scripts/dev/prod-run date-estimates -- 'cd /app && php artisan fahares:estimate-dates --apply'`.
+  - پیش از اجرا: `date_estimates` و `date_conflicts` تهی، و هیچ پیشنهادی `date_conflict_id` نداشت.
+  - خروجی: `Wrote 217,922 estimates and 12,969 conflicts.` (۳٬۷۶۷ مستقیم، ۹٬۲۰۲ غیرمستقیم)، در ۴ دقیقه و ۳۲ ثانیه؛ روی رونوشت محلی ۷۲ ثانیه بود.
+  - حافظه‌ی آزاد سرور پیش از اجرا ۳٫۳ گیگابایت بود.
 
 ### گام ۱۴.۱۶۷: صفحه‌ی «تناقض‌های تاریخی» (`Admin\DateConflictController`)
 
@@ -10537,3 +10541,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. رونوشت فایل‌های صفحه به `/tmp` کانتینر.
   4. `sources:import-pages` برای ۲۷ جلد.
   5. وارسی و پاک کردن `/tmp`.
+
+### گام ۱۴.۱۷۲: «زنده در» (`EstimateText::aliveIn`)
+
+- **شرط‌ها:** ردیف `date_estimates` شخص با `field = death`، `year_from` پر، `from_depth = 1` و قاعده‌ای از `ALIVE` (`author`، `translator`، `dedicatee`، `scribe`، `autograph`، `patron`). قاعده‌ی `life` (از تولد مستند) چیزی نمی‌گوید.
+- **کاتب قاطی‌شده:** با قاعده‌ی `scribe`، اگر `people.scribed_to − scribed_from` از `PersonReviewQueue::MIXED_SPAN` (۷۰) بیشتر باشد، `null`.
+- **متن:** بازه‌ی مستند رکورد دلیل خوانده می‌شود (`composition_date_from/to` یا `copy_date_from/to`). اگر یک سال باشد «زنده در X ق»، وگرنه «وفات پس از X ق»؛ جمله‌ی دلیل هم دو شکل دارد.
+- **نمایش:** `people/show`، ردیف «وفات»، وقتی `death_year_hijri` تهی است؛ با همان `x-date-estimate` گام ۱۴.۱۷۰.
+- **شمار روی `fahares_prod` محلی:** ۴۷٬۵۱۳ نامزد (کاتب ۴۷٬۳۵۲، خط مؤلف ۹۵، مؤلف ۶۵، مُهدی‌الیه ۱)؛ ۳٬۸۲۹ کاتب قاطی‌شده کنار می‌روند.
+- **تست:** `AliveInTest` (۲).
+
