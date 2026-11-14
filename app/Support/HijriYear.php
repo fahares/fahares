@@ -17,7 +17,8 @@ class HijriYear
     // Folio and page counts are not years
     private const FOLIO_WORD = '(?:برگ|ورق|صفحه|ص\\.|گ\\.)';
     private const MONTH = '(?:محرم|صفر|ربیع|ربيع|جمادی|جمادى|رجب|شعبان|رمضان|شوال|ذی\s*‌?\s*القعده|ذی\s*‌?\s*قعده|ذیقعده|ذوالقعده|ذی\s*‌?\s*الحجه|ذی\s*‌?\s*حجه|ذیحجه|ذوالحجه)';
-    private const OTHER_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:م(?!\p{L})|میلادی|ش(?!\p{L})|شمسی|خورشیدی|AD|CE)';
+    // «916 یزدجردی», «996 یزدجرد بن شهریار»: the Yazdegerdi era is no Hijri year either (step 14.189)
+    private const OTHER_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:م(?!\p{L})|میلادی|ش(?!\p{L})|شمسی|خورشیدی|AD|CE|یزدجرد)';
 
     public static function parse(?string $raw): ?int
     {
