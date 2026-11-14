@@ -10898,7 +10898,18 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان):** `fahares:fill-copy-date-ranges --apply`، سپس با `--works`.
 - **تست:** `CopyDateRangeTest::test_a_second_number_that_is_no_date_of_the_copy_is_left_out` و `ApplyCorpusCategoriesCommandTest::test_the_sort_year_follows_a_range_that_drops_a_number_the_text_no_longer_gives_as_a_year`.
 
-### گام ۱۴.۱۸۸: `App\Support\DateSpan` و ستون‌های `*_kind`، `*_start_to`، `*_end_from` (مورد ۱۳۱، گام ۲ طرح)
+### گام ۱۴.۱۸۷: نوع اعلان `site.announcement`
+
+- **`config/notifications.php`:** `site.announcement`، `roles: ['*']`، کانال‌ها `database: true` و `mail`، `webpush`، `telegram` هر سه `false`.
+- **`App\Notifications\AnnouncementNotice`** (`SiteNotification`): عنوان و سطرهای متن اعلان، پیوند اعلان (یا خانه‌ی سایت). `toArray()` کلید `announcement_id` دارد. `toWebPush()` عنوان و متن خود اعلان را می‌برد.
+- **`App\Jobs\SendAnnouncementNotice`:** `forFirstRun()` پس از هر ذخیره در `AnnouncementController`؛ اگر اعلان روشن است، مخاطبش `guests` نیست و `notified_at` تهی است، آن را پر می‌کند و job را به صف می‌دهد. job اگر اعلان تا آن هنگام خاموش یا حذف شده باشد چیزی نمی‌فرستد، وگرنه `NotificationPreferences::broadcast()`.
+- **`announcements.notified_at`** (`2026_11_14_300001_add_notified_at_to_announcements`): برای اعلان‌هایی که پیش از این گام روشن شده‌اند با `starts_at` پر می‌شود، تا ذخیره‌ی دوباره‌شان چیزی نفرستد.
+- **یکی شمردن دو نمایش:**
+  - `NotificationController::index()`: برای اعلان‌های نوی صفحه که `announcement_id` دارند ردیف `announcement_user` می‌سازد (بی افزودن به `views_count`)، پس `Announcement::forViewer()` آن را دیگر نمی‌دهد.
+  - `AnnouncementEventController`: با دیدن یا کلیک کارت، اعلان خوانده‌نشده‌ی همان `announcement_id` در `notifications` خوانده‌شده می‌شود.
+- **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
+
+### گام ۱۴.۱۸۸: `App\Support\DateSpan` و ستون‌های `*_kind`، `*_start_to`، `*_end_from` (مورد ۱۳۴، گام ۲ طرح)
 
 - **الگو:** `dateofDB` و `dates_index` در پروژه‌ی Aqabozorg (دو سر، هر سر با `isRange`، و کلید `fulltime` برای طول مدت). این‌جا فقط سال قمری؛ روز و ماه و تقویم‌های دیگر به تصمیم کاربر به بعد ماند.
 - **ساختار:**
@@ -10941,13 +10952,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-copy-date-ranges --apply` (حدود ۹۲ هزار UPDATE تک‌ستونی)، سپس با `--works`.
 - **تست:** `DateSpanTest` (۳)، `CopyDateRangeTest::test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled`، `ApplyCorpusCategoriesCommandTest::test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none`.
-### گام ۱۴.۱۸۷: نوع اعلان `site.announcement`
-
-- **`config/notifications.php`:** `site.announcement`، `roles: ['*']`، کانال‌ها `database: true` و `mail`، `webpush`، `telegram` هر سه `false`.
-- **`App\Notifications\AnnouncementNotice`** (`SiteNotification`): عنوان و سطرهای متن اعلان، پیوند اعلان (یا خانه‌ی سایت). `toArray()` کلید `announcement_id` دارد. `toWebPush()` عنوان و متن خود اعلان را می‌برد.
-- **`App\Jobs\SendAnnouncementNotice`:** `forFirstRun()` پس از هر ذخیره در `AnnouncementController`؛ اگر اعلان روشن است، مخاطبش `guests` نیست و `notified_at` تهی است، آن را پر می‌کند و job را به صف می‌دهد. job اگر اعلان تا آن هنگام خاموش یا حذف شده باشد چیزی نمی‌فرستد، وگرنه `NotificationPreferences::broadcast()`.
-- **`announcements.notified_at`** (`2026_11_14_300001_add_notified_at_to_announcements`): برای اعلان‌هایی که پیش از این گام روشن شده‌اند با `starts_at` پر می‌شود، تا ذخیره‌ی دوباره‌شان چیزی نفرستد.
-- **یکی شمردن دو نمایش:**
-  - `NotificationController::index()`: برای اعلان‌های نوی صفحه که `announcement_id` دارند ردیف `announcement_user` می‌سازد (بی افزودن به `views_count`)، پس `Announcement::forViewer()` آن را دیگر نمی‌دهد.
-  - `AnnouncementEventController`: با دیدن یا کلیک کارت، اعلان خوانده‌نشده‌ی همان `announcement_id` در `notifications` خوانده‌شده می‌شود.
-- **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
