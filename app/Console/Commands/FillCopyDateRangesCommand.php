@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\DB;
  * Where the range changes and the sortable year (copy_date_hijri_year, composition_year_hijri) is a number the date
  * text no longer gives as a year («996 یزدجرد … 1036ق» sorted under 996), the year is read again too (step 14.186).
  * A year that the text still gives, or that goes with an unchanged range, is left as it is.
+ *
+ * The kind of the range (copy_date_kind, composition_date_kind; DateSpan, step 14.188) is filled with the rest, and
+ * counted per kind.
  */
 class FillCopyDateRangesCommand extends Command
 {
@@ -26,7 +29,7 @@ class FillCopyDateRangesCommand extends Command
         {--apply : Write the columns; without it the command only counts}
         {--show=20 : How many dates with no range to list}';
 
-    protected $description = 'Fill copy_date_from/to, certainty and hedge word from copy_date_raw';
+    protected $description = 'Fill copy_date_from/to, certainty, hedge word and range kind from copy_date_raw';
 
     public function handle(): int
     {
@@ -36,20 +39,25 @@ class FillCopyDateRangesCommand extends Command
 
         // A copy's date, or with --works a work's date of composition: the table, its date text and how its columns are made
         [$table, $prefix, $columns] = $this->option('works')
-            ? ['works', 'composition_date', fn ($raw, $death, $floor) => Work::compositionDateColumns($raw)]
-            : ['manuscripts', 'copy_date', fn ($raw, $death, $floor) => Manuscript::copyDateColumns($raw, $death, $floor)];
+            ? ['works', 'composition_date', fn ($raw, $death, $floor, $shared) => Work::compositionDateColumns($raw)]
+            : ['manuscripts', 'copy_date', fn ($raw, $death, $floor, $shared) => Manuscript::copyDateColumns($raw, $death, $floor, $shared)];
         $raw = $table === 'works' ? 'composition_date_raw' : 'copy_date_raw';
         DB::table($table)->whereNotNull($raw)->where($raw, '<>', '')
-            ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", ($table === 'works' ? 'composition_year_hijri' : 'copy_date_hijri_year') . ' as sort_year', "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge"])
+            ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", ($table === 'works' ? 'composition_year_hijri' : 'copy_date_hijri_year') . ' as sort_year', "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge", "{$prefix}_kind as kind",
+                ...($table === 'works' ? [] : ['library_id', 'collection_key', 'copy_date_raw'])])
             ->orderBy('id')->chunkById(2000, function ($rows) use ($apply, $table, $prefix, $columns, &$counts, &$unranged) {
                 $updates = [];
                 // «نزدیک عصر مؤلف»: a copy date that names the author's time is ranged from the author's death
                 $deaths = $table === 'works' ? [] : Manuscript::authorDeaths($rows->pluck('work_id'));
                 // «سال 125؟» far before its work is read again from the work's floor (item 128)
                 $floors = $table === 'works' ? [] : Manuscript::copyFloors($rows->pluck('work_id'));
+                // a duration that two treatises of one volume share has no kind (step 14.188)
+                $shared = $table === 'works' ? [] : Manuscript::sharedVolumeDates($rows);
                 foreach ($rows as $row) {
                     $counts['dated']++;
-                    $cols = $columns($row->raw, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null);
+                    $cols = $columns($row->raw, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null,
+                        $table !== 'works' && isset($shared[Manuscript::volumeDateKey($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, $row->raw)]));
+                    $counts['kind_' . ($cols["{$prefix}_kind"] ?? 'none')] = ($counts['kind_' . ($cols["{$prefix}_kind"] ?? 'none')] ?? 0) + 1;
                     if ($cols["{$prefix}_from"] === null && $cols["{$prefix}_to"] === null) {
                         $pattern = preg_replace('/[0-9۰-۹]+/u', 'N', mb_substr($row->raw, 0, 40));
                         $unranged[$pattern] = ($unranged[$pattern] ?? 0) + 1;
@@ -64,11 +72,12 @@ class FillCopyDateRangesCommand extends Command
                     }
                     $current = ["{$prefix}_from" => $row->from === null ? null : (int) $row->from,
                         "{$prefix}_to" => $row->to === null ? null : (int) $row->to,
-                        "{$prefix}_certainty" => $row->certainty, "{$prefix}_hedge_raw" => $row->hedge];
+                        "{$prefix}_certainty" => $row->certainty, "{$prefix}_hedge_raw" => $row->hedge, "{$prefix}_kind" => $row->kind];
                     if ($current !== $cols) {
                         $counts['changed']++;
                         $updates[$row->id] = $cols + ($table === 'works' ? [] : Manuscript::rereadSortYear($cols));
-                        if ($row->sort_year !== null && ! in_array((int) $row->sort_year, HijriYear::all($row->raw), true)
+                        $moved = $current["{$prefix}_from"] !== $cols["{$prefix}_from"] || $current["{$prefix}_to"] !== $cols["{$prefix}_to"];
+                        if ($moved && $row->sort_year !== null && ! in_array((int) $row->sort_year, HijriYear::all($row->raw), true)
                             && ($cols["{$prefix}_from"] !== null || $cols["{$prefix}_to"] !== null || HijriYear::parse($row->raw) === null)) {
                             $counts['sort_year']++;
                             $updates[$row->id] += [$table === 'works' ? 'composition_year_hijri' : 'copy_date_hijri_year' => HijriYear::parse($row->raw)];

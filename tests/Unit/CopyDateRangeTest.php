@@ -57,7 +57,7 @@ class CopyDateRangeTest extends TestCase
 
     public function test_a_date_that_names_the_authors_time_is_ranged_from_the_authors_death()
     {
-        $r = fn (string $raw) => array_values(CopyDateRange::relative($raw, 1050) ?? []);
+        $r = fn (string $raw) => array_slice(array_values(CopyDateRange::relative($raw, 1050) ?? []), 0, 4);
         $this->assertSame([1000, 1050, 'probable', 'در حیات مؤلف'], $r('در حیات مؤلف'));
         $this->assertSame([1000, 1050, 'probable', 'در زمان حیات مؤلف'], $r('در زمان حیات مؤلف'));
         $this->assertSame([1000, 1050, 'probable', 'عصر تألیف'], $r('در عصر تألیف'));
@@ -160,6 +160,33 @@ class CopyDateRangeTest extends TestCase
         // two readings of one date stay a range: the bracket corrects the year before it
         $this->assertSame([705, 905], $this->range('15 شعبان 705ق (این تاریخ قطعاً اشتباه و احتمالاً 905 صحیح باشد)'));
         $this->assertSame([1206, 1260], $this->range('27 شوال 1206ق (1260ظ)'));
+    }
+
+    public function test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled()
+    {
+        $kind = fn (string $raw) => CopyDateRange::parse($raw)['kind'];
+        // one year, and no date: no kind
+        $this->assertNull($kind('رجب 990'));
+        $this->assertNull($kind('بی‌تا'));
+        // one event at an unknown time
+        foreach (['قرن 13', 'اواخر قرن 12', '10 و 11', 'حدود 1086', 'پیش از 1100', 'پس از 1100', '1370ش',
+            '1065 یا 1085ق', '1006ق ( یا 1060 ق)', 'بین 1063 تا 1141ق', 'بین 1063-1141ق', 'حدود سال‌های 560 تا 590ق', 'میان سال های 709 و 710ق',
+            '27 شوال 1206ق (1260؟)', 'شاید 1211-1212ق'] as $raw) {
+            $this->assertSame('between', $kind($raw), $raw);
+        }
+        // a duration
+        foreach (['1052-1057ق', '1267-1268ق', '1236-1234ق', '1281 - 6 جمادی الثانی 1283', '903 و 904ق', '19 صفر 1221ق و1223ق',
+            'از ذیقعده 1260 تا 12 صفر 1262ق', '1273 تا 1280ق', 'جمادی الاول 1225 تا 10 ربیع الثانی 1255ق', '1064 الی 1096ق',
+            'آغاز 1054ق و پایان 1055ق', 'شروع 13 ذیحجه 1027 و پایان دوشنبه 15 رجب 1029ق', 'آغاز 1025ق و انجام 1038ق'] as $raw) {
+            $this->assertSame('span', $kind($raw), $raw);
+        }
+        // the text does not settle it: a wide dash or «و», «تا» over 40 years, three years, a slash, a bracket
+        foreach (['1084-1107ق', '1024 و 1172', 'از سال 1226 تا 1327ق', '1267 و 1287 و 1381ق', '974/977ق', '1234(1243ق)'] as $raw) {
+            $this->assertNull($kind($raw), $raw);
+        }
+        // the author's time and a re-read year are estimates
+        $this->assertSame('between', CopyDateRange::relative('نزدیک عصر مؤلف', 1100)['kind']);
+        $this->assertSame('between', CopyDateRange::reread('سال 125؟', 1106)['kind']);
     }
 
     public function test_a_solar_or_gregorian_date_spans_the_hijri_years_it_falls_in()

@@ -92,10 +92,13 @@ class RefreshDerivedCommand extends Command
         DB::table('manuscripts')->select(DerivedData::COPY_COLUMNS)->orderBy('id')->chunkById(2000, function ($rows) use ($guard) {
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
             $floors = Manuscript::copyFloors($rows->pluck('work_id'));
+            $shared = Manuscript::sharedVolumeDates($rows);
             foreach ($rows as $row) {
-                ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = DerivedData::copyChanges($row, $guard, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null);
+                ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = DerivedData::copyChanges($row, $guard, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null,
+                    isset($shared[Manuscript::volumeDateKey($row->library_id === null ? null : (int) $row->library_id, $row->collection_key, $row->copy_date_raw)]));
                 if ($date) {
-                    $this->add('copy_date_range', $row->id, "#{$row->id} «{$row->copy_date_raw}»: {$row->copy_date_from}–{$row->copy_date_to} → {$date['copy_date_from']}–{$date['copy_date_to']}");
+                    $this->add('copy_date_range', $row->id, "#{$row->id} «{$row->copy_date_raw}»: {$row->copy_date_from}–{$row->copy_date_to} → {$date['copy_date_from']}–{$date['copy_date_to']}"
+                        . ($date['copy_date_kind'] !== $row->copy_date_kind ? ' (' . ($row->copy_date_kind ?? '—') . ' → ' . ($date['copy_date_kind'] ?? '—') . ')' : ''));
                 }
                 if ($extent) {
                     $show = fn ($folios, $pages, $raw) => '«' . ($raw ?? '') . '» ' . ($folios ?? '—') . 'گ/' . ($pages ?? '—') . 'ص';
