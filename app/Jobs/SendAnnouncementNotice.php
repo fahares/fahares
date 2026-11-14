@@ -27,7 +27,7 @@ class SendAnnouncementNotice implements ShouldQueue
     {
         $announcement = Announcement::find($this->announcementId);
         // Switched off or deleted before the queue reached it: nothing goes out
-        if (! $announcement || ! $announcement->isRunning() || $announcement->audience === 'guests') {
+        if (! $announcement || ! $announcement->isRunning() || ! $announcement->on_site || $announcement->audience === 'guests') {
             return;
         }
         NotificationPreferences::broadcast(AnnouncementNotice::TYPE, new AnnouncementNotice($announcement));
@@ -36,7 +36,8 @@ class SendAnnouncementNotice implements ShouldQueue
     /** Called after each save: the first time a notice for members runs, and never again for it. */
     public static function forFirstRun(Announcement $announcement): bool
     {
-        if ($announcement->notified_at || ! $announcement->isRunning() || $announcement->audience === 'guests') {
+        // A notice that only goes to the Telegram channel is not site news for the members' list
+        if ($announcement->notified_at || ! $announcement->isRunning() || ! $announcement->on_site || $announcement->audience === 'guests') {
             return false;
         }
         $announcement->forceFill(['notified_at' => now()])->saveQuietly();

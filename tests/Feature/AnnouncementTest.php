@@ -302,6 +302,49 @@ class AnnouncementTest extends TestCase
         $this->assertSame(1, $this->member->notifications()->count());
     }
 
+    public function test_running_notices_queue_up_one_at_a_time_with_a_gap()
+    {
+        $old = $this->running(['title' => 'کانال تلگرام راه افتاد', 'starts_at' => now()->subDays(2)]);
+        $new = $this->running(['title' => 'فهرست تازه افزوده شد']);
+
+        // A guest's page carries the whole queue, newest first; the browser picks from it
+        $this->assertSame([$new->id, $old->id], array_column(Announcement::queueFor(null), 'id'));
+        $this->get(route('home'))->assertOk()->assertSeeInOrder(['فهرست تازه افزوده شد', 'کانال تلگرام راه افتاد']);
+
+        // A member sees the newest, then nothing for a day, then the older one, then nothing
+        $this->assertSame($new->id, Announcement::forViewer($this->member)['id']);
+        $this->actingAs($this->member)->postJson(route('announcements.event', $new), ['event' => 'view'])->assertNoContent();
+        $this->assertNull(Announcement::forViewer($this->member));
+        $this->travel(Announcement::GAP_HOURS + 1)->hours();
+        $this->assertSame($old->id, Announcement::forViewer($this->member)['id']);
+        $this->postJson(route('announcements.event', $old), ['event' => 'view'])->assertNoContent();
+        $this->travel(Announcement::GAP_HOURS + 1)->hours();
+        $this->assertNull(Announcement::forViewer($this->member));
+    }
+
+    public function test_a_telegram_only_notice_goes_to_the_channel_and_nowhere_on_the_site()
+    {
+        $this->fakeTelegram();
+        $site = $this->running(['title' => 'اعلان سایت']);
+
+        // Whatever the form says, it is for everyone and goes to the channel
+        $this->actingAs($this->admin)->post(route('admin.announcements.store'), [
+            'title' => 'پست کانال', 'style' => 'card', 'audience' => 'members', 'days' => 5, 'telegram_only' => 1, 'is_active' => 1,
+        ])->assertRedirect();
+        $post = Announcement::where('title', 'پست کانال')->firstOrFail();
+        $this->assertFalse($post->on_site);
+        $this->assertTrue($post->telegram);
+        $this->assertSame('all', $post->audience);
+        $this->assertCount(1, $this->telegramCalls('sendMessage'));
+        $this->assertSame(77, $post->telegram_message_id);
+
+        // The site's own notice keeps its place, and the members' notifications get nothing
+        $this->assertSame([$site->id], array_column(Announcement::queueFor(null), 'id'));
+        $this->assertSame(0, $this->member->notifications()->count());
+        $this->get(route('admin.announcements.index'))->assertOk()->assertSee('فقط تلگرام');
+        $this->get(route('admin.announcements.edit', $post))->assertOk()->assertSee('فقط برای کانال تلگرام است');
+    }
+
     public function test_manager_previews_a_notice_that_is_off()
     {
         $notice = $this->running(['title' => 'اعلان پیش‌نویس', 'is_active' => false]);

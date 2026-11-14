@@ -10991,3 +10991,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
 - **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
 - **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).
+### گام ۱۴.۱۹۵: `Announcement::queueFor()` و ستون `on_site`
+
+- **`queueFor(?User)`:** اعلان‌های روشنِ مخاطب، تازه‌ترین نخست (همان فهرست کش‌شده‌ی `announcements.running`، اکنون با شرط `on_site`). برای عضو با یک پرس‌وجو روی `announcement_user`: اگر تازه‌ترین `seen_at` او کمتر از `GAP_HOURS` (۲۴) پیش است صف تهی است، وگرنه دیده‌شده‌ها کنار می‌روند. `forViewer()` سرِ همین صف است.
+- **`x-announcement`:** به‌جای یک `item`، `items` (هر کدام با نشانی `event` خودش) و `gap` به میلی‌ثانیه می‌دهد.
+- **`resources/js/announcement.js`:** `pick()` نخستین اعلانِ صف را که در `announcements-seen` نیست برمی‌دارد، مگر آنکه `announcement-last-at` (زمان آخرین «دیده‌شده»، کلید تازه‌ی `localStorage`) کمتر از `gap` پیش باشد. مرورگری که این کلید را ندارد (بازدیدکننده‌ی پیش از این گام) بی‌وقفه اعلان بعدی را می‌بیند.
+- **خواندن اعلان در زنگوله** هم ردیف `announcement_user` می‌سازد (گام ۱۴.۱۸۷)، پس برای عضو همان وقفه‌ی ۲۴ساعته را آغاز می‌کند.
+- **`announcements.on_site`** (`2026_11_14_400001_add_on_site_to_announcements`، پیش‌فرض `true`): با `telegram_only` در فرم `false` می‌شود؛ کنترلر آنگاه `audience = all` و `telegram = true` می‌گذارد. `SendAnnouncementNotice` چنین اعلانی را به اعضا نمی‌فرستد. ارسال به کانال همچنان با روشن شدن اعلان است.
+- **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.

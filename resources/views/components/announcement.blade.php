@@ -1,4 +1,5 @@
 {{-- The site's public notice, once per visitor (App\Models\Announcement, resources/js/announcement.js).
+     The page carries the visitor's queue of running notices; the script shows the first one not yet seen.
      Its text is drawn by the script after the page has loaded, so it is not part of any page's own text.
      ?announcement_preview=<id> shows one notice to its manager, whatever its state, and counts nothing. --}}
 @php
@@ -6,12 +7,13 @@
         ? \App\Models\Announcement::find((int) request('announcement_preview'))
         : null;
     $quiet = request()->routeIs('login', 'login.*', 'register', 'register.*', 'password.*', 'verification.*', 'account.complete');
-    $item = $preview?->payload() ?? ($quiet ? null : \App\Models\Announcement::forViewer(auth()->user()));
-    $config = $item ? [
-        'item' => \Illuminate\Support\Arr::only($item, ['id', 'title', 'body', 'url', 'label', 'external', 'image', 'style']),
+    $items = $preview ? [$preview->payload()] : ($quiet ? [] : \App\Models\Announcement::queueFor(auth()->user()));
+    $config = $items ? [
+        'items' => array_map(fn ($item) => \Illuminate\Support\Arr::only($item, ['id', 'title', 'body', 'url', 'label', 'external', 'image', 'style'])
+            + ['event' => route('announcements.event', $item['id'])], $items),
         'member' => auth()->check(),
         'preview' => (bool) $preview,
-        'url' => route('announcements.event', $item['id']),
+        'gap' => \App\Models\Announcement::GAP_HOURS * 3600 * 1000,
         'csrf' => csrf_token(),
     ] : null;
 @endphp
