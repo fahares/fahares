@@ -10599,6 +10599,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **بریدن:** `SearchExport::XLSX_CELL_LIMIT = 32767`. در xlsx هر مقدار رشته‌ای که `mb_strlen` آن از سقف بیشتر باشد به `mb_substr($value, 0, 32766) . '…'` بدل می‌شود. OpenSpout هم طول را با `mb_strlen` می‌سنجد. CSV دست نمی‌خورد.
 - **پوشه‌ی موقت:** OpenSpout پوشه‌ی `/tmp/xlsx…` را تنها در `close()` پاک می‌کند (`AbstractWorkbookManager::close` → `cleanupTempFolder`). نوشتن ردیف‌ها اکنون در `try … finally { $writer->close(); }` است. خطا همچنان بالا می‌رود.
 - **آزمون:** `SearchSourcesTest::test_an_entry_longer_than_an_excel_cell_is_cut_in_the_xlsx_export` فایل xlsx را با خواننده‌ی OpenSpout می‌خواند: خانه‌ی «متن» ۳۲٬۷۶۷ نویسه است و با «…» پایان می‌یابد، و CSV متن کامل را دارد.
+
 ### گام ۱۴.۱۷۵: `HijriYear::all()`
 
 - **`HijriYear::all(?string): int[]`:** هر عدد سه یا چهاررقمیِ در بازه‌ی ۱۰۰ تا ۱۵۰۰، جز این‌ها:
