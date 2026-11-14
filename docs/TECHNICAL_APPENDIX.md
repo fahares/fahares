@@ -10913,18 +10913,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `AnnouncementEventController`: با دیدن یا کلیک کارت، اعلان خوانده‌نشده‌ی همان `announcement_id` در `notifications` خوانده‌شده می‌شود.
 - **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
 
-### گام ۱۴.۱۸۹: `printed_extra_digit_dates_step14_189.json` و «یزدجرد»
-
-- **پرونده:** ۱۱ رکورد `rebuild-copies`.
-  - برای ۹ خوانش‌پذیر، `copy_date_raw` (مانند «محتملاً 1286ق»، «محتملاً 1258 یا 1358ق»، «شنبه 18 رجب محتملاً 1128ق») و `copy_date_note`. سال در خود فرمان از `HijriYear::parse` ساخته می‌شود (گام ۱۴.۱۶۵) و بازه با `DerivedData`.
-  - برای ۲ ناخوانا، `copy_date_hijri_year` تهی و `copy_date_note`.
-  - شناسه‌ها از `fahares_prod` هستند و با `shelfmark` سنجیده می‌شوند.
-- **سنجش چاپ:** یک زیرعامل هر ۱۲ صفحه را با تصویر سنجید: ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. ج ۸ ص ۲۲۴ را خودم دیدم.
-- **`HijriYear::OTHER_MARK`:** `یزدجرد` به آن افزوده شد. `otherCalendar()` آن را تبدیل نمی‌کند، چون تنها `SOLAR_MARK` و `GREGORIAN_MARK` را می‌گیرد.
-- **تست:** دو assert یزدجردی در `CopyDateRangeTest`.
-- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/printed_extra_digit_dates_step14_189.json --apply`.
-  - رونوشت محلی: ۱۱ نسخه نوشته شد. اجرای دوم: `already 11`.
-
 ### گام ۱۴.۱۸۸: `App\Support\DateSpan` و ستون‌های `*_kind`، `*_start_to`، `*_end_from` (مورد ۱۳۴، گام ۲ طرح)
 
 - **الگو:** `dateofDB` و `dates_index` در پروژه‌ی Aqabozorg (دو سر، هر سر با `isRange`، و کلید `fulltime` برای طول مدت). این‌جا فقط سال قمری؛ روز و ماه و تقویم‌های دیگر به تصمیم کاربر به بعد ماند.
@@ -10968,3 +10956,15 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-copy-date-ranges --apply` (حدود ۹۲ هزار UPDATE تک‌ستونی)، سپس با `--works`.
 - **تست:** `DateSpanTest` (۳)، `CopyDateRangeTest::test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled`، `ApplyCorpusCategoriesCommandTest::test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none`.
+
+### گام ۱۴.۱۸۹: `printed_extra_digit_dates_step14_189.json` و «یزدجرد»
+
+- **پرونده:** ۱۱ رکورد `rebuild-copies`.
+  - برای ۹ خوانش‌پذیر، `copy_date_raw` (مانند «محتملاً 1286ق»، «محتملاً 1258 یا 1358ق»، «شنبه 18 رجب محتملاً 1128ق») و `copy_date_note`. سال در خود فرمان از `HijriYear::parse` ساخته می‌شود (گام ۱۴.۱۶۵) و بازه با `DerivedData`.
+  - برای ۲ ناخوانا، `copy_date_hijri_year` تهی و `copy_date_note`.
+  - شناسه‌ها از `fahares_prod` هستند و با `shelfmark` سنجیده می‌شوند.
+- **سنجش چاپ:** یک زیرعامل هر ۱۲ صفحه را با تصویر سنجید: ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. ج ۸ ص ۲۲۴ را خودم دیدم.
+- **`HijriYear::OTHER_MARK`:** `یزدجرد` به آن افزوده شد. `otherCalendar()` آن را تبدیل نمی‌کند، چون تنها `SOLAR_MARK` و `GREGORIAN_MARK` را می‌گیرد.
+- **تست:** دو assert یزدجردی در `CopyDateRangeTest`.
+- **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/printed_extra_digit_dates_step14_189.json --apply`.
+  - رونوشت محلی: ۱۱ نسخه نوشته شد. اجرای دوم: `already 11`.
