@@ -15,6 +15,11 @@ class NotificationController extends Controller
         // Shown once as new, then marked read
         $unreadIds = $notifications->getCollection()->whereNull('read_at')->pluck('id')->all();
         $request->user()->unreadNotifications()->whereIn('id', $unreadIds)->update(['read_at' => now()]);
+        // A site notice read here does not come up again as the site's popup
+        $noticeIds = $notifications->getCollection()->whereIn('id', $unreadIds)->pluck('data.announcement_id')->filter()->unique();
+        foreach (\App\Models\Announcement::whereIn('id', $noticeIds)->pluck('id') as $noticeId) {
+            \Illuminate\Support\Facades\DB::table('announcement_user')->insertOrIgnore(['announcement_id' => $noticeId, 'user_id' => $request->user()->id, 'seen_at' => now()]);
+        }
 
         return view('my.notifications', compact('notifications', 'unreadIds'));
     }

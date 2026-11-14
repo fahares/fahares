@@ -252,6 +252,56 @@ class AnnouncementTest extends TestCase
         $this->assertSame(['is_disabled' => true], $sent[0]['link_preview_options']);
     }
 
+    public function test_first_run_puts_the_notice_into_members_notifications_once()
+    {
+        $form = ['title' => 'فهرست تازه افزوده شد', 'body' => "هزار نسخه.\nدر جست‌وجو هست.", 'link_url' => '/libraries', 'style' => 'card', 'audience' => 'all', 'days' => 10];
+
+        $this->actingAs($this->admin)->post(route('admin.announcements.store'), $form)->assertRedirect();
+        $notice = Announcement::firstOrFail();
+        $this->assertSame(0, $this->member->notifications()->count());
+
+        $this->put(route('admin.announcements.update', $notice), $form + ['is_active' => 1]);
+        $this->put(route('admin.announcements.update', $notice), $form);
+        $this->put(route('admin.announcements.update', $notice), $form + ['is_active' => 1]);
+        $entry = $this->member->notifications()->sole();
+        $this->assertSame('site.announcement', $entry->data['type']);
+        $this->assertSame('فهرست تازه افزوده شد', $entry->data['title']);
+        $this->assertSame(url('/libraries'), $entry->data['url']);
+        $this->assertSame($notice->id, $entry->data['announcement_id']);
+        $this->assertNotNull($notice->fresh()->notified_at);
+
+        // Only the in-site list is on unless the member chose more
+        $this->assertSame(['database'], \App\Notifications\NotificationPreferences::channelsFor($this->member, 'site.announcement'));
+        \App\Notifications\NotificationPreferences::set($this->member, 'site.announcement', 'mail', true);
+        $this->assertSame(['database', 'mail'], \App\Notifications\NotificationPreferences::channelsFor($this->member, 'site.announcement'));
+
+        // Read in the notifications: the popup does not come up, and nothing is counted as a view
+        $this->assertSame($notice->id, Announcement::forViewer($this->member)['id']);
+        $this->actingAs($this->member)->get(route('notifications.index'))->assertOk()->assertSee('فهرست تازه افزوده شد');
+        $this->assertNull(Announcement::forViewer($this->member));
+        $this->assertSame(0, $notice->fresh()->views_count);
+
+        // Seen as the popup: the entry in the notifications is no longer new
+        $this->assertSame(1, $this->admin->unreadNotifications()->count());
+        $this->actingAs($this->admin)->postJson(route('announcements.event', $notice), ['event' => 'view'])->assertNoContent();
+        $this->assertSame(0, $this->admin->unreadNotifications()->count());
+    }
+
+    public function test_a_notice_for_guests_or_one_switched_off_is_not_put_into_notifications()
+    {
+        $base = ['title' => 'اعلان مهمان‌ها', 'style' => 'card', 'days' => 5, 'is_active' => 1];
+        $this->actingAs($this->admin)->post(route('admin.announcements.store'), $base + ['audience' => 'guests']);
+        $this->assertSame(0, $this->member->notifications()->count());
+
+        $this->post(route('admin.announcements.store'), ['title' => 'اعلان اعضا', 'audience' => 'members'] + $base);
+        $this->assertSame('اعلان اعضا', $this->member->notifications()->sole()->data['title']);
+
+        // Switched off before the queue reached it
+        $late = $this->running(['title' => 'اعلان خاموش‌شده', 'is_active' => false]);
+        (new \App\Jobs\SendAnnouncementNotice($late->id))->handle();
+        $this->assertSame(1, $this->member->notifications()->count());
+    }
+
     public function test_manager_previews_a_notice_that_is_off()
     {
         $notice = $this->running(['title' => 'اعلان پیش‌نویس', 'is_active' => false]);

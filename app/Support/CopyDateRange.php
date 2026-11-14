@@ -86,7 +86,8 @@ class CopyDateRange
      * A date that is one three-digit year, far before the work it is a copy of, read again as a year that lost a
      * digit (item 128, step 14.183): «سال 125؟» for a work of 1106 is 1125, 1205 or 1250, so 1125-1250. The readings
      * are the year with a 1 before it and with a 0 put in after each digit; those from the floor (the work's
-     * composition, or its author's birth) to REREAD_LAST are kept, and the range runs from the first to the last. The
+     * composition, or its author's birth) to REREAD_LAST are kept, and of those the ones that give the date its
+     * weekday when it names one (HijriWeekday), if any does; the range runs from the first to the last. The
      * date is a guess, so it is doubtful, and its hedge says what was done. Null when the date is anything else, when
      * the year is not REREAD_GAP years before the floor, or when no reading fits: the date then stands as written.
      *
@@ -106,6 +107,11 @@ class CopyDateRange
         $fit = array_values(array_filter($readings, fn (int $r) => $r >= $floor && $r <= self::REREAD_LAST));
         if (! $fit) {
             return null;
+        }
+        // «جمعه 18 ذیحجه 119؟»: of 1019, 1109, 1119 and 1190 that day is a Friday or a day from it in the first two (step 14.184)
+        $stated = HijriWeekday::stated($raw);
+        if ($stated && ($onDay = array_values(array_filter($fit, fn (int $r) => HijriWeekday::near($stated, $r))))) {
+            $fit = $onDay;
         }
 
         return ['from' => min($fit), 'to' => max($fit), 'certainty' => 'doubtful', 'hedge' => self::REREAD . ' ' . $year];

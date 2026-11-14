@@ -39,6 +39,7 @@ class Announcement extends Model
             'telegram' => 'boolean',
             'telegram_photo' => 'boolean',
             'telegram_sent_at' => 'datetime',
+            'notified_at' => 'datetime',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];

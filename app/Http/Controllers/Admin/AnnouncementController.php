@@ -77,6 +77,9 @@ class AnnouncementController extends Controller
     /** Posts or edits the channel's post and tells the manager what happened there. */
     private function withTelegram($response, Announcement $announcement, string $message)
     {
+        if (\App\Jobs\SendAnnouncementNotice::forFirstRun($announcement)) {
+            $message .= ' در اعلان‌های اعضا هم گذاشته شد.';
+        }
         return match (AnnouncementTelegram::sync($announcement)) {
             'sent' => $response->with('success', $message . ' پست آن به کانال تلگرام رفت.'),
             'edited' => $response->with('success', $message . ' پست کانال تلگرام هم ویرایش شد.'),

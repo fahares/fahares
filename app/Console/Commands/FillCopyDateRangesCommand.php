@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Manuscript;
 use App\Models\Work;
+use App\Support\HijriYear;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\DB;
  * with --works, the same for a work's date of composition (composition_date_*). Saving a copy or a work keeps them
  * in step from then on (Manuscript::booted, Work::booted). The columns are derived, so a run only
  * rewrites what differs and can be repeated; the date text itself is not touched. Without --apply it only counts.
+ *
+ * Where the range changes and the sortable year (copy_date_hijri_year, composition_year_hijri) is a number the date
+ * text no longer gives as a year («996 یزدجرد … 1036ق» sorted under 996), the year is read again too (step 14.186).
+ * A year that the text still gives, or that goes with an unchanged range, is left as it is.
  */
 class FillCopyDateRangesCommand extends Command
 {
@@ -26,7 +31,7 @@ class FillCopyDateRangesCommand extends Command
     public function handle(): int
     {
         $apply = (bool) $this->option('apply');
-        $counts = ['dated' => 0, 'ranged' => 0, 'one_year' => 0, 'span' => 0, 'open' => 0, 'hedged' => 0, 'changed' => 0];
+        $counts = ['dated' => 0, 'ranged' => 0, 'one_year' => 0, 'span' => 0, 'open' => 0, 'hedged' => 0, 'changed' => 0, 'sort_year' => 0];
         $unranged = [];
 
         // A copy's date, or with --works a work's date of composition: the table, its date text and how its columns are made
@@ -35,7 +40,7 @@ class FillCopyDateRangesCommand extends Command
             : ['manuscripts', 'copy_date', fn ($raw, $death, $floor) => Manuscript::copyDateColumns($raw, $death, $floor)];
         $raw = $table === 'works' ? 'composition_date_raw' : 'copy_date_raw';
         DB::table($table)->whereNotNull($raw)->where($raw, '<>', '')
-            ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge"])
+            ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", ($table === 'works' ? 'composition_year_hijri' : 'copy_date_hijri_year') . ' as sort_year', "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge"])
             ->orderBy('id')->chunkById(2000, function ($rows) use ($apply, $table, $prefix, $columns, &$counts, &$unranged) {
                 $updates = [];
                 // «نزدیک عصر مؤلف»: a copy date that names the author's time is ranged from the author's death
@@ -63,6 +68,11 @@ class FillCopyDateRangesCommand extends Command
                     if ($current !== $cols) {
                         $counts['changed']++;
                         $updates[$row->id] = $cols + ($table === 'works' ? [] : Manuscript::rereadSortYear($cols));
+                        if ($row->sort_year !== null && ! in_array((int) $row->sort_year, HijriYear::all($row->raw), true)
+                            && ($cols["{$prefix}_from"] !== null || $cols["{$prefix}_to"] !== null || HijriYear::parse($row->raw) === null)) {
+                            $counts['sort_year']++;
+                            $updates[$row->id] += [$table === 'works' ? 'composition_year_hijri' : 'copy_date_hijri_year' => HijriYear::parse($row->raw)];
+                        }
                     }
                 }
                 if ($apply && $updates) {
