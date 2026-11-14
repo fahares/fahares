@@ -10699,6 +10699,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** «22 death years emptied, 0 ranges, 44 death years filled». پس از آن `fahares:refresh-derived` برای `death_range` صفر داد.
 - **موارد مشکوکِ پرشده:** فهرست «قمری» نوشته ولی شخص پیش از هجرت درگذشته است: «عنترة بن شداد» («- 22 قمری») و «ابن کلثوم، عمرو بن کلثوم» («- 40 ؟ قمری»). بازه‌شان از پیش همین عدد بود.
 - **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های ۶۶ ردیف، اجرای آزمایشی و مقایسه با تمرین، `fahares:fill-death-years --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
+
 ### گام ۱۴.۱۸۱: `HijriYear::otherCalendar()`
 
 - **`otherCalendar(?string): ?[from, to]`:**
