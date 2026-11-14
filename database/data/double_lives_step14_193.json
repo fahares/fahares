@@ -1,0 +1,884 @@
+{
+ "step": "14.193",
+ "note": "Lives tied to more than one person (backlog item 86 remainder): judged by Sonnet, three groups re-judged unsure by Claude. merges: the records found to be one person; rejects: lives wrongly tied to a person; unsure: groups for «تصحیح جمعی». Keyed by slug, since local and production ids differ. Applied by fahares:settle-double-lives.",
+ "merges": [
+  {
+   "keep": "jazaeri-amad-ebn-e-esmail-2294",
+   "keep_name": "جزائری، احمد بن اسماعیل",
+   "merge": [
+    "jazayeri-najafi-amad-2089"
+   ],
+   "names": {
+    "jazaeri-amad-ebn-e-esmail-2294": "جزائری، احمد بن اسماعیل",
+    "jazayeri-najafi-amad-2089": "جزایری نجفی، احمد"
+   }
+  },
+  {
+   "keep": "kasfi-jafar-ebn-e-abi-eshaq-2007",
+   "keep_name": "کشفی، جعفر بن ابی اسحاق",
+   "merge": [
+    "kasfi-jafar-ebn-e-abi-eshaq-46919"
+   ],
+   "names": {
+    "kasfi-jafar-ebn-e-abi-eshaq-2007": "کشفی، جعفر بن ابی اسحاق",
+    "kasfi-jafar-ebn-e-abi-eshaq-46919": "کاشفی، جعفر بن ابی اسحاق"
+   }
+  },
+  {
+   "keep": "qazvini-hoseyn-ebn-e-mohammad-ebrahim-2225",
+   "keep_name": "قزوینی، حسین بن محمد ابراهیم",
+   "merge": [
+    "qazvini-hoseyn-ebn-e-moammad-ebrahim-11826"
+   ],
+   "names": {
+    "qazvini-hoseyn-ebn-e-mohammad-ebrahim-2225": "قزوینی، حسین بن محمد ابراهیم",
+    "qazvini-hoseyn-ebn-e-moammad-ebrahim-11826": "قزوينى، حسين بن محمد ابراهيم"
+   }
+  },
+  {
+   "keep": "musavi-sirazi-reza-ebn-e-esmail-10891",
+   "keep_name": "موسوی شیرازی، رضا بن اسماعیل",
+   "merge": [
+    "musavi-sirazi-mohammad-reza-ebn-e-esmail-36534"
+   ],
+   "names": {
+    "musavi-sirazi-reza-ebn-e-esmail-10891": "موسوی شیرازی، رضا بن اسماعیل",
+    "musavi-sirazi-mohammad-reza-ebn-e-esmail-36534": "موسوی شیرازی، محمد رضا بن اسماعیل"
+   }
+  },
+  {
+   "keep": "fotuni-esfahani-ab-ol-hasan-ebn-e-mohammad-taher-2256",
+   "keep_name": "فتونی اصفهانی، ابوالحسن بن محمد طاهر",
+   "merge": [
+    "fotuni-esfahani-ab-ol-hasan-ebn-e-mohammad-taher-37319"
+   ],
+   "names": {
+    "fotuni-esfahani-ab-ol-hasan-ebn-e-mohammad-taher-2256": "فتونی اصفهانی، ابوالحسن بن محمد طاهر",
+    "fotuni-esfahani-ab-ol-hasan-ebn-e-mohammad-taher-37319": "فتونی اصفهانی، ابوالحسن بن محمدطاهر"
+   }
+  },
+  {
+   "keep": "japalaqi-borujerdi-safia-mohammad-safi-ebn-e-ala-akbar-37864",
+   "keep_name": "چاپلقی بروجردی شفیعا، محمد شفیع بن علی اکبر",
+   "merge": [
+    "jabalqimohammad-safi-ebn-e-ali-akbar-55470"
+   ],
+   "names": {
+    "japalaqi-borujerdi-safia-mohammad-safi-ebn-e-ala-akbar-37864": "چاپلقی بروجردی شفیعا، محمد شفیع بن علی اکبر",
+    "jabalqimohammad-safi-ebn-e-ali-akbar-55470": "جابلقی، محمد شفیع بن علی اکبر"
+   }
+  },
+  {
+   "keep": "asam-e-najafi-abd-ol-hoseyn-ebn-e-mohammad-ali-11821",
+   "keep_name": "اعسم نجفی، عبدالحسین بن محمد علی",
+   "merge": [
+    "asam-e-najafi-abd-ol-hoseyn-ebn-e-mohammad-ali-36333"
+   ],
+   "names": {
+    "asam-e-najafi-abd-ol-hoseyn-ebn-e-mohammad-ali-11821": "اعسم نجفی، عبدالحسین بن محمد علی",
+    "asam-e-najafi-abd-ol-hoseyn-ebn-e-mohammad-ali-36333": "اعسم نجفی، عبدالاحسین بن محمد علی"
+   }
+  },
+  {
+   "keep": "amin-soltan-ali-asqar-ebn-e-ebrahim-56819",
+   "keep_name": "امین السلطان، علی اصغر بن ابراهیم",
+   "merge": [
+    "bh-nam-myrza-aaly-asghr-khan-bn-abrahym-khan-amyn-alsltan-sdr-aaathm-nasraldynshah-o-mhmd-aaly-shah-73723"
+   ],
+   "names": {
+    "amin-soltan-ali-asqar-ebn-e-ebrahim-56819": "امین السلطان، علی اصغر بن ابراهیم",
+    "bh-nam-myrza-aaly-asghr-khan-bn-abrahym-khan-amyn-alsltan-sdr-aaathm-nasraldynshah-o-mhmd-aaly-shah-73723": "به نام: میرزا علی اصغر خان بن ابراهیم خان امین السلطان صدر اعظم ناصرالدینشاه و محمد علی شاه"
+   }
+  },
+  {
+   "keep": "tehrani-ali-ebn-e-xalil-2264",
+   "keep_name": "تهرانی، علی بن خلیل",
+   "merge": [
+    "tehrani-ali-ebn-e-xalil-3488"
+   ],
+   "names": {
+    "tehrani-ali-ebn-e-xalil-2264": "تهرانی، علی بن خلیل",
+    "tehrani-ali-ebn-e-xalil-3488": "طهرانی، علی بن خلیل"
+   }
+  },
+  {
+   "keep": "musavi-ameli-ali-ebn-e-ali-47370",
+   "keep_name": "موسوی عاملی، علی بن علی",
+   "merge": [
+    "musavi-ameli-nur-od-din-ali-ebn-e-ali-10582"
+   ],
+   "names": {
+    "musavi-ameli-nur-od-din-ali-ebn-e-ali-10582": "موسوی عاملی، نورالدین علی بن علی",
+    "musavi-ameli-ali-ebn-e-ali-47370": "موسوی عاملی، علی بن علی"
+   }
+  },
+  {
+   "keep": "safti-bid-abadi-mohammad-baqer-ebn-e-mohammad-naqi-2048",
+   "keep_name": "شفتی بیدآبادی، محمد باقر بن محمد نقی",
+   "merge": [
+    "safti-bid-abadi-mohammad-baqer-ebn-e-mohammad-naqi-2080"
+   ],
+   "names": {
+    "safti-bid-abadi-mohammad-baqer-ebn-e-mohammad-naqi-2048": "شفتی بیدآبادی، محمد باقر بن محمد نقی",
+    "safti-bid-abadi-mohammad-baqer-ebn-e-mohammad-naqi-2080": "شفتی بیدآبادی، محمد باقر بن محمد تقی"
+   }
+  },
+  {
+   "keep": "behbahani-mohammad-jafar-ebn-e-mohammad-ali-8293",
+   "keep_name": "بهبهانی، محمد جعفر بن محمد علی",
+   "merge": [
+    "behbahani-mohammad-jafar-ebn-e-mohammad-ali-31125",
+    "behbahani-mohammad-jafar-ebn-e-mohammad-ali-42888"
+   ],
+   "names": {
+    "behbahani-mohammad-jafar-ebn-e-mohammad-ali-8293": "بهبهانی، محمد جعفر بن محمد علی",
+    "behbahani-mohammad-jafar-ebn-e-mohammad-ali-31125": "بهبهانی، محمد جعفر بن محمدعلی",
+    "behbahani-mohammad-jafar-ebn-e-mohammad-ali-42888": "بهبهانی، محمدجعفر بن محمدعلی"
+   }
+  },
+  {
+   "keep": "najaf-mohammad-taha-ebn-e-mahdi-2393",
+   "keep_name": "نجف، محمد طه بن مهدی",
+   "merge": [
+    "tabrizi-mohammad-taha-ebn-e-mahdi-1386"
+   ],
+   "names": {
+    "tabrizi-mohammad-taha-ebn-e-mahdi-1386": "تبریزی، محمد طه بن مهدی",
+    "najaf-mohammad-taha-ebn-e-mahdi-2393": "نجف، محمد طه بن مهدی"
+   }
+  },
+  {
+   "keep": "kermansahi-mohammad-mohsen-ebn-e-mohammad-sami-8543",
+   "keep_name": "کرمانشاهی، محمد محسن بن محمد سمیع",
+   "merge": [
+    "kermansahi-mohammad-mohsen-ebn-e-mohammad-sami-41328"
+   ],
+   "names": {
+    "kermansahi-mohammad-mohsen-ebn-e-mohammad-sami-8543": "کرمانشاهی، محمد محسن بن محمد سمیع",
+    "kermansahi-mohammad-mohsen-ebn-e-mohammad-sami-41328": "کرمانشاهی، محمدمحسن بن محمدسمیع"
+   }
+  },
+  {
+   "keep": "hoseyni-ye-mashadi-hedayat-ol-lah-ebn-e-mahdi-9206",
+   "keep_name": "حسینی مشهدی، هدایت الله بن مهدی",
+   "merge": [
+    "razavi-mashadi-hedayat-o-llah-ebn-e-mohammad-mahdi-73763"
+   ],
+   "names": {
+    "hoseyni-ye-mashadi-hedayat-ol-lah-ebn-e-mahdi-9206": "حسینی مشهدی، هدایت الله بن مهدی",
+    "razavi-mashadi-hedayat-o-llah-ebn-e-mohammad-mahdi-73763": "رضوی مشهدی، هداية الله بن محمد مهدی"
+   }
+  },
+  {
+   "keep": "qomi-zivani-habib-ol-lah-ebn-e-zayn-ol-abedin-11848",
+   "keep_name": "قمی زیوانی، حبیب الله بن زین العابدین",
+   "merge": [
+    "mahdavi-qomi-habib-ol-lah-ebn-e-zayn-ol-abedin-12612"
+   ],
+   "names": {
+    "mahdavi-qomi-habib-ol-lah-ebn-e-zayn-ol-abedin-12612": "مهدوی قمی، حبیب الله بن زین العابدین",
+    "qomi-zivani-habib-ol-lah-ebn-e-zayn-ol-abedin-11848": "قمی زیوانی، حبیب الله بن زین العابدین"
+   }
+  },
+  {
+   "keep": "kalai-soleyman-ebn-e-musa-9397",
+   "keep_name": "کلاعی، سلیمان بن موسیٰ",
+   "merge": [
+    "kalai-soleyman-ebn-e-musa-59027"
+   ],
+   "names": {
+    "kalai-soleyman-ebn-e-musa-9397": "کلاعی، سلیمان بن موسیٰ",
+    "kalai-soleyman-ebn-e-musa-59027": "کلاعی، سلیمان بن موسی"
+   }
+  },
+  {
+   "keep": "aaraky-aabdalrhym-bn-hsyn-8231",
+   "keep_name": "عراقی، عبدالرحیم بن حسین",
+   "merge": [
+    "aaraky-aabdalrhym-bn-hsyn-725-806-kmry-9629"
+   ],
+   "names": {
+    "aaraky-aabdalrhym-bn-hsyn-725-806-kmry-9629": "عراقی، عبدالرحیم بن حسین، 725-806 قمری",
+    "aaraky-aabdalrhym-bn-hsyn-8231": "عراقی، عبدالرحیم بن حسین"
+   }
+  },
+  {
+   "keep": "lamei-borsavi-mahmud-ebn-e-osman-16978",
+   "keep_name": "لامعی برسوی، محمود بن عثمان",
+   "merge": [
+    "lamei-borsavi-mahmud-ebn-e-osman-35437"
+   ],
+   "names": {
+    "lamei-borsavi-mahmud-ebn-e-osman-16978": "لامعی برسوی، محمود بن عثمان",
+    "lamei-borsavi-mahmud-ebn-e-osman-35437": "لامعی بروسوی، محمود بن عثمان"
+   }
+  },
+  {
+   "keep": "abu-obayde-mamar-ebn-e-mosanna-10128",
+   "keep_name": "ابوعبیده، معمر بن مثنی",
+   "merge": [
+    "tayyemi-mamar-ebn-e-mosanna-71849"
+   ],
+   "names": {
+    "abu-obayde-mamar-ebn-e-mosanna-10128": "ابوعبیده، معمر بن مثنی",
+    "tayyemi-mamar-ebn-e-mosanna-71849": "تیمی، معمر بن مثنی"
+   }
+  },
+  {
+   "keep": "xattab-yaya-ben-mohammad-62115",
+   "keep_name": "خطاب، یحیی بن محمد",
+   "merge": [
+    "hattab-yahya-ebn-e-mohammad-36622"
+   ],
+   "names": {
+    "xattab-yaya-ben-mohammad-62115": "خطاب، یحیی بن محمد",
+    "hattab-yahya-ebn-e-mohammad-36622": "حطاب، یحیی بن محمد"
+   }
+  },
+  {
+   "keep": "behbahani-abd-ol-hoseyn-ebn-e-mohammad-baqer-10327",
+   "keep_name": "بهبهانی، عبدالحسین بن محمد باقر",
+   "merge": [
+    "behbahani-abd-ol-hoseyn-ebn-e-mohammad-baqer-15351"
+   ],
+   "names": {
+    "behbahani-abd-ol-hoseyn-ebn-e-mohammad-baqer-10327": "بهبهانی، عبدالحسین بن محمد باقر",
+    "behbahani-abd-ol-hoseyn-ebn-e-mohammad-baqer-15351": "بهبهانی، عبدالاحسین بن محمد باقر"
+   }
+  },
+  {
+   "keep": "musavi-esfahani-hasan-ebn-e-mohammad-taqi-8218",
+   "keep_name": "موسوی اصفهانی، حسن بن محمد تقی",
+   "merge": [
+    "esfahani-hasan-ebn-e-mohammad-taqi-9012"
+   ],
+   "names": {
+    "musavi-esfahani-hasan-ebn-e-mohammad-taqi-8218": "موسوی اصفهانی، حسن بن محمد تقی",
+    "esfahani-hasan-ebn-e-mohammad-taqi-9012": "اصفهانی، حسن بن محمد تقی"
+   }
+  },
+  {
+   "keep": "jabari-ebrahim-ebn-e-omar-23403",
+   "keep_name": "جعبرى، ابراهیم بن عمر",
+   "merge": [
+    "jabari-ebrahim-ebn-e-omar-29588"
+   ],
+   "names": {
+    "jabari-ebrahim-ebn-e-omar-23403": "جعبرى، ابراهیم بن عمر",
+    "jabari-ebrahim-ebn-e-omar-29588": "جعفری، ابراهیم بن عمر"
+   }
+  },
+  {
+   "keep": "ebn-e-bardes-esmail-ebn-e-mohammad-10282",
+   "keep_name": "ابن بردس، اسماعیل بن محمد",
+   "merge": [
+    "balabaki-esmail-ebn-e-mohammad-13121"
+   ],
+   "names": {
+    "ebn-e-bardes-esmail-ebn-e-mohammad-10282": "ابن بردس، اسماعیل بن محمد",
+    "balabaki-esmail-ebn-e-mohammad-13121": "بعلبکی، اسماعیل بن محمد"
+   }
+  },
+  {
+   "keep": "golenbuy-esmail-ebn-e-mostafa-289",
+   "keep_name": "گلبنوی، اسماعیل بن مصطفی",
+   "merge": [
+    "golanbuy-esmail-bn-mostafa-25204"
+   ],
+   "names": {
+    "golenbuy-esmail-ebn-e-mostafa-289": "گلبنوی، اسماعیل بن مصطفی",
+    "golanbuy-esmail-bn-mostafa-25204": "گلنبوی، اسماعیل بن مصطفی"
+   }
+  },
+  {
+   "keep": "abu-feras-e-hamdani-hares-ebn-e-said-41654",
+   "keep_name": "ابوفراس همدانی، حارث بن سعید",
+   "merge": [
+    "abu-feras-e-hamdani-hares-ebn-e-said-33597"
+   ],
+   "names": {
+    "abu-feras-e-hamdani-hares-ebn-e-said-33597": "ابوفراس حمدانی، حارث بن سعید",
+    "abu-feras-e-hamdani-hares-ebn-e-said-41654": "ابوفراس همدانی، حارث بن سعید"
+   }
+  },
+  {
+   "keep": "mirza-jan-e-baqnavi-habib-ol-lah-10551",
+   "keep_name": "میرزا جان باغوی، حبیب الله",
+   "merge": [
+    "mirza-jan-e-baqnavi-abib-ol-lah-27134"
+   ],
+   "names": {
+    "mirza-jan-e-baqnavi-habib-ol-lah-10551": "میرزا جان باغوی، حبیب الله",
+    "mirza-jan-e-baqnavi-abib-ol-lah-27134": "میرزا جان باغناوی، حبیب الله"
+   }
+  },
+  {
+   "keep": "kordi-abd-ol-qader-ebn-e-mohammad-said-19682",
+   "keep_name": "کردی، عبدالقادر بن محمد سعید",
+   "merge": [
+    "taxti-kordestani-abd-ol-qader-ebn-e-mohammad-said-1123"
+   ],
+   "names": {
+    "taxti-kordestani-abd-ol-qader-ebn-e-mohammad-said-1123": "تختی کردستانی، عبدالقادر بن محمد سعید",
+    "kordi-abd-ol-qader-ebn-e-mohammad-said-19682": "کردی، عبدالقادر بن محمد سعید"
+   }
+  },
+  {
+   "keep": "ebn-e-boldoji-abd-ol-lah-ebn-e-mahmud-4127",
+   "keep_name": "ابن بلدجی، عبدالله بن محمود",
+   "merge": [
+    "museli-abd-ol-lah-ebn-e-mamud-61985"
+   ],
+   "names": {
+    "ebn-e-boldoji-abd-ol-lah-ebn-e-mahmud-4127": "ابن بلدجی، عبدالله بن محمود",
+    "museli-abd-ol-lah-ebn-e-mamud-61985": "موصلی، عبدالله بن محمود"
+   }
+  },
+  {
+   "keep": "demyati-abd-ol-momen-ebn-e-xalaf-3137",
+   "keep_name": "دمیاطی، عبدالمؤمن بن خلف",
+   "merge": [
+    "demyati-abd-ol-momen-ebn-e-xalaf-41519"
+   ],
+   "names": {
+    "demyati-abd-ol-momen-ebn-e-xalaf-3137": "دمیاطی، عبدالمؤمن بن خلف",
+    "demyati-abd-ol-momen-ebn-e-xalaf-41519": "دمیاطی، عبدالؤمن بن خلف"
+   }
+  },
+  {
+   "keep": "aeri-ali-naqi-ebn-e-hasan-19893",
+   "keep_name": "حائری، علی نقی بن حسن",
+   "merge": [
+    "tabatabai-ali-naqi-ebn-e-hasan-2396"
+   ],
+   "names": {
+    "tabatabai-ali-naqi-ebn-e-hasan-2396": "طباطبائی، علی نقی بن حسن",
+    "aeri-ali-naqi-ebn-e-hasan-19893": "حائری، علی نقی بن حسن"
+   }
+  },
+  {
+   "keep": "ebn-e-ebri-qariquriyus-ebn-e-harun-62090",
+   "keep_name": "ابن عبری، غریغوریوس بن هارون",
+   "merge": [
+    "melti-qarequriyus-43270"
+   ],
+   "names": {
+    "melti-qarequriyus-43270": "ملطی، غره غوریوس",
+    "ebn-e-ebri-qariquriyus-ebn-e-harun-62090": "ابن عبری، غریغوریوس بن هارون"
+   }
+  },
+  {
+   "keep": "laysi-samarqandi-ab-ol-qasem-ebn-e-abi-bakr-6755",
+   "keep_name": "لیثی سمرقندی، ابو القاسم بن ابی بکر",
+   "merge": [
+    "laysi-samarqandi-ab-ol-qasem-ebn-e-abi-bakr-18815"
+   ],
+   "names": {
+    "laysi-samarqandi-ab-ol-qasem-ebn-e-abi-bakr-6755": "لیثی سمرقندی، ابو القاسم بن ابی بکر",
+    "laysi-samarqandi-ab-ol-qasem-ebn-e-abi-bakr-18815": "لیثی سمرقندی، ابوالقاسم بن ابی بکر"
+   }
+  },
+  {
+   "keep": "ebn-e-anbali-moammad-ebn-e-ebrahim-30734",
+   "keep_name": "ابن حنبلی، محمد بن ابراهیم",
+   "merge": [
+    "ebn-e-halabi-mohammad-ebn-e-ebrahim-47057"
+   ],
+   "names": {
+    "ebn-e-anbali-moammad-ebn-e-ebrahim-30734": "ابن حنبلی، محمد بن ابراهیم",
+    "ebn-e-halabi-mohammad-ebn-e-ebrahim-47057": "ابن حلبی، محمد بن ابراهیم"
+   }
+  },
+  {
+   "keep": "bakri-seddiqi-mohammad-ebn-e-mohammad-17946",
+   "keep_name": "بکری صدیقی، محمد بن محمد",
+   "merge": [
+    "bakri-sadiqi-ab-ol-hasan-mohammad-ebn-e-mohammad-3374"
+   ],
+   "names": {
+    "bakri-sadiqi-ab-ol-hasan-mohammad-ebn-e-mohammad-3374": "بکری صدیقی، ابوالحسن محمد بن محمد",
+    "bakri-seddiqi-mohammad-ebn-e-mohammad-17946": "بکری صدیقی، محمد بن محمد"
+   }
+  },
+  {
+   "keep": "al-hakem-o-be-amr-il-lah-mansur-ebn-e-aziz-18933",
+   "keep_name": "الحاکم بامر الله، منصور بن عزیز",
+   "merge": [
+    "al-hakem-be-l-lah-mansur-ebn-e-aziz-6889",
+    "al-hakem-o-be-amr-el-lah-manusr-ebn-e-aziz-17367"
+   ],
+   "names": {
+    "al-hakem-be-l-lah-mansur-ebn-e-aziz-6889": "الحاکم بالله، منصور بن عزیز",
+    "al-hakem-o-be-amr-el-lah-manusr-ebn-e-aziz-17367": "الحاکم بامرالله، منصور بن عزیز",
+    "al-hakem-o-be-amr-il-lah-mansur-ebn-e-aziz-18933": "الحاکم بامر الله، منصور بن عزیز"
+   }
+  },
+  {
+   "keep": "motavakkel-o-ala-l-lah-yahya-ebn-e-sams-od-din-ahmad-1746",
+   "keep_name": "متوکل علی الله، یحیی بن شمس الدین احمد",
+   "merge": [
+    "yamani-yaya-ebn-e-sams-od-din-54917"
+   ],
+   "names": {
+    "motavakkel-o-ala-l-lah-yahya-ebn-e-sams-od-din-ahmad-1746": "متوکل علی الله، یحیی بن شمس الدین احمد",
+    "yamani-yaya-ebn-e-sams-od-din-54917": "یمنی، یحیی بن شمس الدین"
+   }
+  },
+  {
+   "keep": "esam-od-din-e-esfarayeni-ebrahim-ebn-e-mohammad-8694",
+   "keep_name": "عصام الدین اسفراینی، ابراهیم بن محمد",
+   "merge": [
+    "esam-od-din-e-esfarayeni-ebrahim-ebn-e-mohammad-44052"
+   ],
+   "names": {
+    "esam-od-din-e-esfarayeni-ebrahim-ebn-e-mohammad-8694": "عصام الدین اسفراینی، ابراهیم بن محمد",
+    "esam-od-din-e-esfarayeni-ebrahim-ebn-e-mohammad-44052": "عصام الدین اسفرایینی، ابراهیم بن محمد"
+   }
+  },
+  {
+   "keep": "mirza-baba-sirazi-ab-ol-qasem-ebn-e-abd-on-nabi-12723",
+   "keep_name": "میرزا بابا شیرازی، ابوالقاسم بن عبدالنبی",
+   "merge": [
+    "mirza-baba-sirazi-ab-ol-qasem-ebn-e-abd-on-nabi-615"
+   ],
+   "names": {
+    "mirza-baba-sirazi-ab-ol-qasem-ebn-e-abd-on-nabi-615": "میرزا بابا شیرازی، ابوالقاسم بن عبد النبی",
+    "mirza-baba-sirazi-ab-ol-qasem-ebn-e-abd-on-nabi-12723": "میرزا بابا شیرازی، ابوالقاسم بن عبدالنبی"
+   }
+  },
+  {
+   "keep": "jafar-ebn-e-mohammad-emam-e-sesom-3892",
+   "keep_name": "جعفر بن محمد (ع)، امام ششم",
+   "merge": [
+    "amam-gaafr-bn-mhmd-sadk-aalyh-alslam-3894"
+   ],
+   "names": {
+    "jafar-ebn-e-mohammad-emam-e-sesom-3892": "جعفر بن محمد (ع)، امام ششم",
+    "amam-gaafr-bn-mhmd-sadk-aalyh-alslam-3894": "امام جعفر بن محمد صادق علیه السلام"
+   }
+  },
+  {
+   "keep": "jahangir-padesah-ebn-e-akbar-sah-emperatur-e-hend-24803",
+   "keep_name": "جهانگیر پادشاه بن اکبر شاه، امپراتور هند",
+   "merge": [
+    "جهانگیر-بابری-پادشاه-هند-74718"
+   ],
+   "names": {
+    "jahangir-padesah-ebn-e-akbar-sah-emperatur-e-hend-24803": "جهانگیر پادشاه بن اکبر شاه، امپراتور هند",
+    "جهانگیر-بابری-پادشاه-هند-74718": "جهانگیر بابری، پادشاه هند"
+   }
+  },
+  {
+   "keep": "moin-od-din-e-cesti-asan-ebn-e-qiyas-od-din-33264",
+   "keep_name": "معین الدین چشتی، حسن بن غیاث الدین",
+   "merge": [
+    "sejzi-xaje-moin-od-din-364"
+   ],
+   "names": {
+    "sejzi-xaje-moin-od-din-364": "سجزی، خواجه معین الدین",
+    "moin-od-din-e-cesti-asan-ebn-e-qiyas-od-din-33264": "معین الدین چشتی، حسن بن غیاث الدین"
+   }
+  },
+  {
+   "keep": "qatil-e-lahuri-mohammad-hasan-ebn-e-dargahi-mal-35312",
+   "keep_name": "قتیل لاهوری، محمد حسن بن درگاهی مل",
+   "merge": [
+    "mohammad-hasan-qatil-ebn-e-dargahi-kaytei-41901"
+   ],
+   "names": {
+    "qatil-e-lahuri-mohammad-hasan-ebn-e-dargahi-mal-35312": "قتیل لاهوری، محمد حسن بن درگاهی مل",
+    "mohammad-hasan-qatil-ebn-e-dargahi-kaytei-41901": "محمد حسن قتیل بن درگاهی کایته‌ای"
+   }
+  },
+  {
+   "keep": "mirzay-e-sirazi-mohammad-hasan-ebn-e-mahmud-315",
+   "keep_name": "میرزای شیرازی، محمد حسن بن محمود",
+   "merge": [
+    "hoseyni-sirazi-mohammad-hasan-68435"
+   ],
+   "names": {
+    "mirzay-e-sirazi-mohammad-hasan-ebn-e-mahmud-315": "میرزای شیرازی، محمد حسن بن محمود",
+    "hoseyni-sirazi-mohammad-hasan-68435": "حسینی شیرازی، محمد حسن"
+   }
+  },
+  {
+   "keep": "baradkahi-lankarani-mohammad-sadeq-ebn-e-mohammad-1390",
+   "keep_name": "برادگاهی لنکرانی، محمد صادق بن محمد",
+   "merge": [
+    "baradkahi-lankarani-mohammad-sadeq-ebn-e-mohammad-1016"
+   ],
+   "names": {
+    "baradkahi-lankarani-mohammad-sadeq-ebn-e-mohammad-1016": "برادکاهی لنکرانی، محمد صادق بن محمد",
+    "baradkahi-lankarani-mohammad-sadeq-ebn-e-mohammad-1390": "برادگاهی لنکرانی، محمد صادق بن محمد"
+   }
+  },
+  {
+   "keep": "musavi-haeri-mohammad-saleh-ebn-e-hasan-27602",
+   "keep_name": "موسوی حائری، محمد صالح بن حسن",
+   "merge": [
+    "damad-mohammad-saleh-ebn-e-hasan-40143"
+   ],
+   "names": {
+    "musavi-haeri-mohammad-saleh-ebn-e-hasan-27602": "موسوی حائری، محمد صالح بن حسن",
+    "damad-mohammad-saleh-ebn-e-hasan-40143": "داماد، محمد صالح بن حسن"
+   }
+  },
+  {
+   "keep": "seri-ye-esfahani-taher-ebn-e-reyn-od-din-13706",
+   "keep_name": "شعری اصفهانی، طاهر بن رین الدین",
+   "merge": [
+    "seri-esfahani-taher-ebn-e-zeyn-od-din-37226"
+   ],
+   "names": {
+    "seri-ye-esfahani-taher-ebn-e-reyn-od-din-13706": "شعری اصفهانی، طاهر بن رین الدین",
+    "seri-esfahani-taher-ebn-e-zeyn-od-din-37226": "شعری اصفهانی، طاهر بن زین الدین"
+   }
+  },
+  {
+   "keep": "najm-od-dowle-abd-ol-qaffar-ebn-e-ali-8232",
+   "keep_name": "نجم الدوله، عبدالغفار بن علی",
+   "merge": [
+    "najm-od-dowle-abd-ol-qaffar-ebn-e-ali-mohammad-745"
+   ],
+   "names": {
+    "najm-od-dowle-abd-ol-qaffar-ebn-e-ali-mohammad-745": "نجم‌الدوله، عبد الغفار بن علی محمد",
+    "najm-od-dowle-abd-ol-qaffar-ebn-e-ali-8232": "نجم الدوله، عبدالغفار بن علی"
+   }
+  },
+  {
+   "keep": "hoseyni-maraqi-abd-ol-fattah-ebn-e-ali-35809",
+   "keep_name": "حسینی مراغی، عبدالفتاح بن علی",
+   "merge": [
+    "maraqi-fattah-ebn-e-ali-19794"
+   ],
+   "names": {
+    "maraqi-fattah-ebn-e-ali-19794": "مراغی، فتاح بن علی",
+    "hoseyni-maraqi-abd-ol-fattah-ebn-e-ali-35809": "حسینی مراغی، عبدالفتاح بن علی"
+   }
+  },
+  {
+   "keep": "ebn-e-tavus-ali-ebn-e-musa-2066",
+   "keep_name": "ابن طاوس، علی بن موسی",
+   "merge": [
+    "rdy-aldyn-aaly-bn-mosy-hsyny-maarof-bh-abn-taoos-4222"
+   ],
+   "names": {
+    "ebn-e-tavus-ali-ebn-e-musa-2066": "ابن طاوس، علی بن موسی",
+    "rdy-aldyn-aaly-bn-mosy-hsyny-maarof-bh-abn-taoos-4222": "رضی الدین علی بن موسی حسینی، معروف به ابن طاووس"
+   }
+  },
+  {
+   "keep": "rasid-od-din-fazl-o-llah-e-hamadani-59684",
+   "keep_name": "رشید الدین‌فضل الله همدانی",
+   "merge": [
+    "rasid-od-din-fazl-lo-lah-e-hamadani-175"
+   ],
+   "names": {
+    "rasid-od-din-fazl-lo-lah-e-hamadani-175": "رشیدالدین فضل الله همدانی",
+    "rasid-od-din-fazl-o-llah-e-hamadani-59684": "رشید الدین‌فضل الله همدانی"
+   }
+  },
+  {
+   "keep": "estarabadi-mohammad-masih-ebn-e-mohammad-said-36340",
+   "keep_name": "استرآبادی، محمد مسیح بن محمد سعید",
+   "merge": [
+    "estarabadi-tehrani-masih-ebn-e-mohammad-said-46101"
+   ],
+   "names": {
+    "estarabadi-mohammad-masih-ebn-e-mohammad-said-36340": "استرآبادی، محمد مسیح بن محمد سعید",
+    "estarabadi-tehrani-masih-ebn-e-mohammad-said-46101": "استرآبادی تهرانی، مسیح بن محمد سعید"
+   }
+  },
+  {
+   "keep": "maskur-e-hulavi-maskur-ebn-e-mohammad-33190",
+   "keep_name": "مشکور حولاوی، مشکور بن محمد",
+   "merge": [
+    "maskur-e-hulavi-maskur-ebn-e-mohammad-69009"
+   ],
+   "names": {
+    "maskur-e-hulavi-maskur-ebn-e-mohammad-33190": "مشکور حولاوی، مشکور بن محمد",
+    "maskur-e-hulavi-maskur-ebn-e-mohammad-69009": "مشکور حلاوی، مشکور بن محمد"
+   }
+  },
+  {
+   "keep": "naser-od-din-e-qajar-sah-e-iran-801",
+   "keep_name": "ناصرالدین قاجار، شاه ایران",
+   "merge": [
+    "ahdaaa-nasraldyn-shah-kagar-717"
+   ],
+   "names": {
+    "ahdaaa-nasraldyn-shah-kagar-717": "اهداء: ناصرالدین شاه قاجار",
+    "naser-od-din-e-qajar-sah-e-iran-801": "ناصرالدین قاجار، شاه ایران"
+   }
+  },
+  {
+   "keep": "xansari-mohammad-hasem-ebn-e-zeyn-ol-abedin-2365",
+   "keep_name": "خوانساری، محمد هاشم بن زین العابدین",
+   "merge": [
+    "musavi-hasem-ebn-e-zayn-ol-abedin-43388"
+   ],
+   "names": {
+    "xansari-mohammad-hasem-ebn-e-zeyn-ol-abedin-2365": "خوانساری، محمد هاشم بن زین العابدین",
+    "musavi-hasem-ebn-e-zayn-ol-abedin-43388": "موسوی، هاشم بن زین العابدین"
+   }
+  },
+  {
+   "keep": "asam-mohsen-ebn-e-morteza-57739",
+   "keep_name": "اعسم، محسن بن مرتضی",
+   "merge": [
+    "asam-mosen-ebn-e-morteza-8456"
+   ],
+   "names": {
+    "asam-mosen-ebn-e-morteza-8456": "اعصم، محسن بن مرتضی",
+    "asam-mohsen-ebn-e-morteza-57739": "اعسم، محسن بن مرتضی"
+   }
+  },
+  {
+   "keep": "emam-jome-xui-mohammad-amin-ebn-e-yahya-5452",
+   "keep_name": "امام جمعه خوئی، محمد امین بن یحیی",
+   "merge": [
+    "emam-jome-xui-mohammad-amin-ebn-e-yahya-38632"
+   ],
+   "names": {
+    "emam-jome-xui-mohammad-amin-ebn-e-yahya-5452": "امام جمعه خوئی، محمد امین بن یحیی",
+    "emam-jome-xui-mohammad-amin-ebn-e-yahya-38632": "امام جمعه خوئی، محمد امین بن یحییٰ"
+   }
+  }
+ ],
+ "rejects": [
+  {
+   "person_slug": "mashadi-mohammad-ebn-e-hoseyn-42988",
+   "source": "ayan",
+   "item_key": "172#3",
+   "volume": 9,
+   "reason": "پسر حسن با وفات ۱۲۵۷ در برابر پسر حسین با ۱۰۵۰"
+  },
+  {
+   "person_slug": "sobbar-mohammad-e-bn-e-jafar-3038",
+   "source": "ayan",
+   "item_key": "202#3",
+   "volume": 9,
+   "reason": "محمدجعفر بهبهانی (۳ رکورد یک نفرند) در برابر محمد بن جعفر شبر ۱۲۷۲"
+  },
+  {
+   "person_slug": "estarabadi-mohammad-ali-1300",
+   "source": "ayan",
+   "item_key": "100#2",
+   "volume": 10,
+   "reason": "محمدیوسف با وفات پس از ۱۲۸۶ در برابر محمدعلی با ۱۲۵۰"
+  },
+  {
+   "person_slug": "mazandarani-haeri-mohammad-ebn-e-esmail-5493",
+   "source": "rawdat",
+   "item_key": "399#1",
+   "volume": 4,
+   "reason": "میر سید علی طباطبایی ۱۱۶۱ تا ۱۲۳۱ در برابر محمد بن اسماعیل"
+  },
+  {
+   "person_slug": "deylami-siruye-ben-sahrdar-52247",
+   "source": "kahhala",
+   "item_key": "309#4",
+   "volume": 4,
+   "reason": "شهردار بن شیرویه ۴۸۳ تا ۵۵۸ در برابر پدرش شیرویه بن شهردار"
+  },
+  {
+   "person_slug": "sohravardi-omar-ebn-e-mohammad-426",
+   "source": "kahhala",
+   "item_key": "310#4",
+   "volume": 7,
+   "reason": "متن و آثار از سهروردی اشراقی کشته‌شده در حلب است نه عمر سهروردی ۶۲۲"
+  },
+  {
+   "person_slug": "xorasani-mohammad-ebn-e-mohammad-kazem-19816",
+   "source": "kahhala",
+   "item_key": "138#3",
+   "volume": 8,
+   "reason": "آخوند خراسانی ۱۲۵۵ تا ۱۳۲۹ در برابر محمد بن کاظم ۱۳۵۶"
+  },
+  {
+   "person_slug": "sadr-od-din-quniyavi-mohammad-ebn-e-eshaq-411",
+   "source": "kahhala",
+   "item_key": "44#2",
+   "volume": 9,
+   "reason": "ابن اسحاق مدنی ۱۵۱ در برابر قونوی و ابرقوهی"
+  },
+  {
+   "person_slug": "abarquhi-eshaq-ebn-e-mohammad-41536",
+   "source": "kahhala",
+   "item_key": "44#2",
+   "volume": 9,
+   "reason": "ابن اسحاق مدنی ۱۵۱ در برابر قونوی و ابرقوهی"
+  },
+  {
+   "person_slug": "majriti-mohammad-ebn-e-ebrahim-9405",
+   "source": "kahhala",
+   "item_key": "234#1",
+   "volume": 12,
+   "reason": "مسلمة بن احمد ۳۳۸ تا ۳۹۸ در برابر محمد بن ابراهیم ۴۵۰"
+  },
+  {
+   "person_slug": "ahmad-ebn-e-hoseyn-25126",
+   "source": "kahhala",
+   "item_key": "289#1",
+   "volume": 13,
+   "reason": "یوسف بن حسام‌الدین ۹۸۶ در برابر احمد بن حسین بن سنان"
+  },
+  {
+   "person_slug": "hoseyni-bahrani-majed-ebn-e-mohammad-4255",
+   "source": "rayhana",
+   "item_key": "232#1",
+   "volume": 1,
+   "reason": "ماجد بن هاشم در برابر ماجد بن محمد با وفات ۱۰۸۳"
+  },
+  {
+   "person_slug": "boraqani-mohammad-ali-ye-bn-e-mohammad-3036",
+   "source": "rayhana",
+   "item_key": "248#1",
+   "volume": 1,
+   "reason": "محمد صالح در برابر محمد علی برغانی"
+  },
+  {
+   "person_slug": "hafez-saraf-mohammad-58971",
+   "source": "rayhana",
+   "item_key": "285#2",
+   "volume": 1,
+   "reason": "بوصیری ۶۰۸ تا ۶۹۶ در برابر محمد حافظ شرف ۸۵۰"
+  },
+  {
+   "person_slug": "qazi-zade-rumi-musa-ebn-e-mamud-6656",
+   "source": "rayhana",
+   "item_key": "449#3",
+   "volume": 1,
+   "reason": "چغمینی ۷۴۵ در برابر قاضی‌زاده رومی ۸۱۵"
+  },
+  {
+   "person_slug": "torke-esfahani-ali-ebn-e-mohammad-6977",
+   "source": "rayhana",
+   "item_key": "165#1",
+   "volume": 2,
+   "reason": "افضل‌الدین محمد در برابر علی بن محمد"
+  },
+  {
+   "person_slug": "razi-yod-din-e-neysaburi-mohammad-34491",
+   "source": "rayhana",
+   "item_key": "121#2",
+   "volume": 3,
+   "reason": "شریف رضی ۳۵۹ تا ۴۰۶ در برابر رضی‌الدین نیشابوری ۵۹۸"
+  },
+  {
+   "person_slug": "sirazi-mohammad-ebrahim-ebn-e-mollasadra-19288",
+   "source": "rayhana",
+   "item_key": "417#4",
+   "volume": 3,
+   "reason": "ملاصدرا ۹۷۹ تا ۱۰۵۰ در برابر پسرش محمد ابراهیم"
+  },
+  {
+   "person_slug": "kasani-mohammad-ebn-e-mortaza-933",
+   "source": "rayhana",
+   "item_key": "369#1",
+   "volume": 4,
+   "reason": "فیض کاشانی ۱۰۰۶ تا ۱۰۹۱ در برابر محمد بن مرتضی ۱۱۱۵"
+  },
+  {
+   "person_slug": "bar-ol-olum-moammad-mahdi-ye-bn-e-morteza-1771",
+   "source": "rayhana",
+   "item_key": "236#5",
+   "volume": 5,
+   "reason": "اعرجی در برابر بحرالعلوم"
+  },
+  {
+   "person_slug": "mohaqqeq-e-xansari-hoseyn-ebn-e-mohammad-2043",
+   "source": "rayhana",
+   "item_key": "237#2",
+   "volume": 5,
+   "reason": "محقق بحرانی در برابر محقق خوانساری"
+  },
+  {
+   "person_slug": "damiri-mohammad-ebn-e-abd-ol-qader-28490",
+   "source": "zirikli",
+   "item_key": "118#6",
+   "volume": 7,
+   "reason": "زندگی‌نامه محمد بن موسی (م 808) است؛ دیگری پسر عبدالقادر با وفات 950."
+  },
+  {
+   "person_slug": "allame-aeri-mazandarani-moammad-saleh-ebn-e-fazl-ol-lah-3791",
+   "source": "mushar-authors",
+   "item_key": "491#6",
+   "volume": 5,
+   "reason": "محمد بن زین‌العابدین (م 1350) با محمد صالح بن فضل‌الله (پدر و دوره متفاوت) یکی نیست."
+  },
+  {
+   "person_slug": "dastaki-sirazi-mir-sadr-od-din-mohammad-1540",
+   "source": "tabaqat",
+   "item_key": "219#1",
+   "volume": 7,
+   "reason": "زندگی‌نامه محمد بن غیاث‌الدین منصور (م 950) است نه صدرالدین اول (م 903)."
+  },
+  {
+   "person_slug": "kalardasti-tonekaboni-taher-18496",
+   "source": "tabaqat",
+   "item_key": "973#1",
+   "volume": 15,
+   "reason": "طاهر بن فرج‌الله (م 1360) با کلاردشتی تنکابنی با وفات 1312 یکی نیست."
+  }
+ ],
+ "unsure": [
+  {
+   "slugs": [
+    "donbali-xui-ebrahim-ebn-e-hoseyn-4515",
+    "xuiebrahim-73530"
+   ],
+   "note": "داوری مدل: نامطمئن — تنها نسبت «خوئی» و ابراهیم با فاصلهٔ یک سال در مرگ؛ پدر و جزئیات نیست"
+  },
+  {
+   "slugs": [
+    "hoseyni-qazvini-mohammad-ebrahim-ebn-e-mohammad-masum-16017",
+    "qazvini-ebrahim-ebn-e-mohammad-27929"
+   ],
+   "note": "داوری مدل: نامطمئن — داوری Claude: شاهد کافی برای یکی بودن نیست (نام پدر یا نام ناقص)."
+  },
+  {
+   "slugs": [
+    "binava-davud-ebn-e-mahdi-40460",
+    "hoseyni-esfahani-davud-ebn-e-mahdi-63781"
+   ],
+   "note": "داوری مدل: نامطمئن — یکی شاعر و دیگری ریاضی‌دان؛ مرگ ۱۲۴۱ و ۱۲۴۰ و نام ناکامل"
+  },
+  {
+   "slugs": [
+    "marandarani-mahdi-ebn-e-hadi-22184",
+    "kajuri-mazandarani-mahdi-8409"
+   ],
+   "note": "داوری مدل: نامطمئن — کجوری ۱۲۹۳ با آثار اصولی؛ دیگری پسر هادی با وفات ۱۲۹۲ و آثار متفاوت"
+  },
+  {
+   "slugs": [
+    "donbali-xui-ebrahim-ebn-e-hoseyn-4515",
+    "xuiebrahim-73530"
+   ],
+   "note": "داوری مدل: نامطمئن — تنها نسبت «خوئی» و ابراهیم با فاصلهٔ یک سال در مرگ؛ پدر و جزئیات نیست"
+  },
+  {
+   "slugs": [
+    "donbali-xui-ebrahim-ebn-e-hoseyn-4515",
+    "xuiebrahim-73530"
+   ],
+   "note": "داوری مدل: نامطمئن — داوری Claude: شاهد کافی برای یکی بودن نیست (نام پدر یا نام ناقص)."
+  },
+  {
+   "slugs": [
+    "donbali-xui-ebrahim-ebn-e-hoseyn-4515",
+    "xuiebrahim-73530"
+   ],
+   "note": "داوری مدل: نامطمئن — داوری Claude: شاهد کافی برای یکی بودن نیست (نام پدر یا نام ناقص)."
+  },
+  {
+   "slugs": [
+    "esfahani-mirza-mahdi-908",
+    "saeq-e-esfahani-mohammad-mahdi-ebn-e-asad-ol-lah-35165",
+    "manzur-e-esfahani-mohammad-mahdi-ebn-e-asad-ol-lah-35723"
+   ],
+   "note": "داوری مدل: نامطمئن — میرزا مهدی اصفهانی با محمد مهدی بن اسدالله (شاعر) هم‌سال وفات‌اند اما شواهد کافی نیست."
+  }
+ ]
+}

@@ -10957,6 +10957,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-copy-date-ranges --apply` (حدود ۹۲ هزار UPDATE تک‌ستونی)، سپس با `--works`.
 - **تست:** `DateSpanTest` (۳)، `CopyDateRangeTest::test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled`، `ApplyCorpusCategoriesCommandTest::test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none`.
 
+### گام ۱۴.۱۹۳: `PersonMerger::moveSourceEntries` و `fahares:settle-double-lives`
+- **[PersonMerger](../app/Services/PersonMerger.php):** `moveSourceEntries(from, to)` سطرهای `source_entries` با `citable_type = Person` را به شخص ماندگار می‌برد. اگر هر دو به یک `source_item_id` پیوند دارند، سطرِ با رتبه‌ی بهتر (`verified` > `unverified` > `rejected`) می‌ماند و دیگری حذف می‌شود. `old_values` در گزارش ادغام: `moved_source_entry_ids` و `dropped_source_entries` (سطر کامل). بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) سطرهای جابه‌جاشده را برمی‌گرداند و سطرهای حذف‌شده را با `insertOrIgnore` باز می‌نشاند.
+- **[SettleDoubleLivesCommand](../app/Console/Commands/SettleDoubleLivesCommand.php):** فایل با `merges` (`keep`، `merge`)، `rejects` (`person_slug`، `source`، `item_key`، `volume`) و `unsure` (`slugs`، `note`). شخص با `slug`، و اگر نباشد با `TiePersonLivesCommand::mergedInto()`. ادغام با `keepPrintedNames`. رد: `status = rejected` و `reviewed_at`، که `sources:tie-lives-to-people` آن را نگه می‌دارد. نامطمئن‌ها با شناسه‌های کنونی به `fahares:queue-judged-people` می‌روند.
+- **داوری:** Sonnet در دو دسته‌ی ۵۸تایی، بازبینی Claude. داده‌ی ورودی از پروداکشن (فقط‌خواندنی).
+- **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
+- **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
 ### گام ۱۴.۱۸۹: `printed_extra_digit_dates_step14_189.json` و «یزدجرد»
 
 - **پرونده:** ۱۱ رکورد `rebuild-copies`.
