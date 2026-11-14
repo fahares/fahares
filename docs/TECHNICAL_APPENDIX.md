@@ -10653,3 +10653,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - چهار فرمان با `nohup` اجرا شد: ۸ نسخه، ۳ اثر، `changed 21` و `changed 6`. ۸ بازه‌ی نسخه و ۳ بازه‌ی اثر را خود دو فرمان نخست ساخته بودند.
   - اجرای دوم هر چهار: صفر.
 
+### گام ۱۴.۱۷۷: سال مرتب‌سازی کهنه (`stale_years_step14_177_*.json`)
+
+- **سنجش:**
+  - `HijriYear::parse()` روی هر `copy_date_raw` و `composition_date_raw` پایگاه محلی اجرا شد و با `copy_date_hijri_year` و `composition_year_hijri` برابر گذاشته شد.
+  - `ProtectedColumns::strip()` برای سال و متن تاریخ بررسی شد و هیچ ردیف محافظت‌شده‌ای نبود.
+- **دسته‌ها:**
+  - تقویم دیگر: شمسی، میلادی یا تاریخ با خط مورب.
+  - سال جدا از متن.
+  - سال تهی با سال ۴۰۰ یا بیشتر در متن.
+  - کنار گذاشته‌ها: سال سه‌رقمی تنها (زیر ۴۰۰) و عدد شکسته (پارسر تهی می‌دهد، ولی ستون سالی دارد و متن تقویم دیگری نیست).
+- **پرونده‌ها:**
+  - `database/data/stale_years_step14_177_copies.json`: ۱۴۹ رکورد `copy_date_hijri_year`.
+  - `database/data/stale_years_step14_177_works.json`: ۵۴ `work_updates` با `composition_year_hijri` و `v2: null`.
+- **اجرا:**
+  1. `fahares:rebuild-copies --file=database/data/stale_years_step14_177_copies.json --apply`
+  2. `fahares:add-corpus-works --file=database/data/stale_years_step14_177_works.json --apply`
+  - پس از هر دو، `fill-copy-date-ranges` (نسخه‌ها و `--works`) روی رونوشت محلی `changed 0` داد.
+- **عددهای شکسته (۱۲):** ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. چاپ همان رقم‌ها را دارد. سه تا از بافت هم سالی نمی‌دهند: «101357/6ق»، «10135ق» و «13582ق».
+
