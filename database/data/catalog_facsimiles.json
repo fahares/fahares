@@ -1314,6 +1314,366 @@
      "step": "14.164"
     }
    }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 1,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد اول: کتب راجع به قرآن و دعا",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2,
+   "page_last": 275,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v01.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v01.map.json"
+     ],
+     "note": "خزانه‌ها 204؛ دوصفحه‌ای؛ پیش‌گفتار با حروف ابجد کنار ماند",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 2,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد دوم: کتب ادبی",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2,
+   "page_last": 898,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v02.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v02.map.json"
+     ],
+     "note": "خزانه‌ها 205؛ دوصفحه‌ای؛ ص ۵۱۲–۵۱۳ در اسکن نیست",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 3,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد سوم - بخش اول: کتب فلسفی، عرفانی، کلامی",
+   "facsimile_code": "tehran-univ",
+   "page_first": 4,
+   "page_last": 690,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v03.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v03.map.json"
+     ],
+     "note": "خزانه‌ها 206؛ پیش‌گفتار با شماره‌ی جدا کنار ماند؛ ص ۲۷۹–۲۸۰ در اسکن نیست",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 4,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد سوم - بخش دوم (مجلد چهارم): تاریخ فلسفه، طب، ریاضی",
+   "facsimile_code": "tehran-univ",
+   "page_first": 694,
+   "page_last": 1052,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v04.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v04.map.json"
+     ],
+     "note": "خزانه‌ها 207؛ نمایه با شماره‌ی جدا کنار ماند",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 5,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد سوم - بخش سوم (مجلد پنجم): اخبار، اصول، فقه",
+   "facsimile_code": "tehran-univ",
+   "page_first": 1056,
+   "page_last": 2109,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v05.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v05.map.json"
+     ],
+     "note": "خزانه‌ها 208؛ دوصفحه‌ای",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 6,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد سوم - بخش چهارم (مجلد ششم): ذیل اخبار، اصول، فقه",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2115,
+   "page_last": 2600,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v06.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v06.map.json"
+     ],
+     "note": "خزانه‌ها 209؛ نمایه با شماره‌ی جدا کنار ماند؛ ص ۲۱۳۹–۲۱۴۰ و ۲۱۷۵–۲۱۷۶ در اسکن نیست",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 7,
+   "title": "فهرست کتابخانه دانشگاه تهران (اهدایی مشکوه) - جلد سوم - بخش پنجم (مجلد هفتم): دومین ذیل کتب فقهی و اخباری",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2601,
+   "page_last": 2808,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v07.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v07.map.json"
+     ],
+     "note": "خزانه‌ها 210؛ دوصفحه‌ای؛ نمایه با شماره‌ی جدا کنار ماند",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 8,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد هشتم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 1,
+   "page_last": 760,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v08.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v08.map.json"
+     ],
+     "note": "خزانه‌ها 2269؛ دوصفحه‌ای؛ پیش‌گفتار با شماره‌ی جدا کنار ماند",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 9,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد نهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 761,
+   "page_last": 1504,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v09.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v09.map.json"
+     ],
+     "note": "خزانه‌ها 2270؛ ص ۸۳۰ در اسکن نیست",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 10,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد دهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 1505,
+   "page_last": 2000,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v10.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v10.map.json"
+     ],
+     "note": "خزانه‌ها 2271",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 11,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد یازدهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2001,
+   "page_last": 2502,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v11.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v11.map.json"
+     ],
+     "note": "خزانه‌ها 2272",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 12,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد دوازدهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2505,
+   "page_last": 3008,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v12.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v12.map.json"
+     ],
+     "note": "خزانه‌ها 2273؛ دوصفحه‌ای؛ چهار شماره‌ی غلط چاپی با شماره‌ی درست",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 13,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد سیزدهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 3009,
+   "page_last": 3512,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v13.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v13.map.json"
+     ],
+     "note": "خزانه‌ها 2274",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 14,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد چهاردهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 3513,
+   "page_last": 4064,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v14.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v14.map.json"
+     ],
+     "note": "خزانه‌ها 2275؛ پشت سفید چند لوح تصویر در اسکن نیست (ص ۳۸۷۱، ۳۸۷۳، ۳۸۹۲–۳۸۹۳، ۳۹۱۳، ۳۹۳۶، ۴۰۳۳)",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 15,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد پانزدهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 4065,
+   "page_last": 4244,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v15.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v15.map.json"
+     ],
+     "note": "خزانه‌ها 2276؛ نمایه با شماره‌ی جدا (ص ۲–۲۸۰) کنار ماند",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 16,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد شانزدهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 3,
+   "page_last": 768,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v16.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v16.map.json"
+     ],
+     "note": "خزانه‌ها 558",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 17,
+   "title": "فهرست کتب خطی کتابخانه مرکزی دانشگاه تهران - جلد هفدهم",
+   "facsimile_code": "tehran-univ",
+   "page_first": 2,
+   "page_last": 540,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v17.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v17.map.json"
+     ],
+     "note": "خزانه‌ها 2278",
+     "step": "14.163"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-danshgah-3",
+   "volume_number": 20,
+   "title": "فهرست نسخه های خطی کتابخانه مرکزی و مرکز اسناد دانشگاه تهران - 20",
+   "facsimile_code": "tehran-univ",
+   "page_first": 8,
+   "page_last": 809,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/v20.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/v20.map.json"
+     ],
+     "note": "خزانه‌ها 2281؛ دوصفحه‌ای؛ ص ۵۲–۵۳ در اسکن نیست",
+     "step": "14.163"
+    }
+   }
   }
  ]
 }
