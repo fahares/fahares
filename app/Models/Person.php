@@ -26,6 +26,11 @@ class Person extends Model
             // ...and the death range, certainty and hedge word, as for a copy's date (backlog item 96)
             if ($person->isDirty('life_dates_raw') || $person->isDirty('death_year_hijri')) {
                 $person->forceFill(self::deathColumns($person->life_dates_raw, $person->death_year_hijri));
+                // ...and life dates that give the year of death fill an empty death year (step 14.179)
+                if (! $person->death_year_hijri && $person->death_from !== null && $person->death_from === $person->death_to) {
+                    $person->death_year_hijri = $person->death_from;
+                    $person->century_hijri = (int) ceil($person->death_from / 100);
+                }
             }
         });
         // The author and scribe rows go with the person, as their old tables' cascade did; the other roles keep the name
@@ -33,6 +38,18 @@ class Person extends Model
             WorkPerson::where('person_id', $person->id)->where('role', WorkPerson::AUTHOR)->delete();
             ManuscriptPerson::where('person_id', $person->id)->where('role', ManuscriptPerson::SCRIBE)->delete();
         });
+    }
+
+    /**
+     * The three or four digit year written before the dash of the life dates, a birth year («1040 - 1124 قمری») or a
+     * year the person was alive in («1107ق- 12 قمری»); null when there is no dash or no such year.
+     */
+    public static function yearBeforeDash(?string $lifeDates): ?int
+    {
+        $text = strtr((string) $lifeDates, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        $parts = preg_split('/\s*[-–]\s*/u', $text);
+
+        return count($parts) > 1 && preg_match('/(?<!\d)(\d{3,4})(?!\d)/u', $parts[0], $m) ? (int) $m[1] : null;
     }
 
     /** The highest number that a lone number in the life dates may be as a century («- 13» is «قرن 13»). */
@@ -45,7 +62,9 @@ class Person extends Model
      * century when they are less than the birth year («1297-14 ق»). A number of 15 or less is the century as well
      * («- 13 ؟ قمری», «13ق - 13 قمری» are 1201-1300; step 14.173): the catalogue writes both the same way, and nearly
      * all of its people lived after year 15. It is the year only when the person's death year says so («- 11 قمری» of
-     * a person whose death_year_hijri is 11). Without a range from the text, a death year is a range of its own.
+     * a person whose death_year_hijri is 11). A death given as a span starts no earlier than the year before the dash
+     * when that year lies in it: «1107ق- 12 قمری», alive in 1107 and dead in the 12th century, is 1107-1200 (step
+     * 14.179). Without a range from the text, a death year is a range of its own.
      */
     public static function deathColumns(?string $lifeDates, ?int $deathYear): array
     {
@@ -63,6 +82,10 @@ class Person extends Model
                     : ['from' => (int) $m[1], 'to' => (int) $m[1], 'certainty' => \App\Support\PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
             } else {
                 $range = \App\Support\CopyDateRange::parse($death);
+            }
+            $first = self::yearBeforeDash($lifeDates);
+            if ($first !== null && $range['from'] !== null && $range['to'] !== null && $range['from'] < $first && $first <= $range['to']) {
+                $range['from'] = $first;
             }
         }
         if ($range['from'] === null && $range['to'] === null && $deathYear) {
