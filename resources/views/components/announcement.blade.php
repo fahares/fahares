@@ -38,20 +38,24 @@
                      aria-labelledby="announcement-title"
                      :class="item.style === 'modal' ? 'w-full max-w-md max-h-full overflow-y-auto' : ''"
                      class="pointer-events-auto text-right bg-surface border border-line-strong rounded-lg shadow-2xl shadow-black/20 overflow-hidden">
-                <div class="jadval mx-3 mt-3" aria-hidden="true"></div>
+                {{-- A paper letterhead closed by one gold line: what the notice is, and the way out --}}
+                <div class="flex items-center justify-between gap-3 bg-paper border-b border-gold" :class="item.style === 'modal' ? 'px-6 py-2' : 'px-4 py-1.5'">
+                    <span class="flex items-center gap-2 text-xs font-bold text-ink/70">
+                        <span class="size-1.5 rotate-45 bg-cinnabar" aria-hidden="true"></span>
+                        تازه‌های فهارس
+                    </span>
+                    <button type="button" x-ref="close" @click="close()" aria-label="بستن اعلان"
+                            class="shrink-0 -me-1.5 p-1.5 rounded-full text-muted hover:text-cinnabar hover:bg-surface transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
 
                 <template x-if="item.image">
-                    <img :src="item.image" alt="" class="block w-full object-cover mt-3" :class="item.style === 'modal' ? 'max-h-56' : 'max-h-36'">
+                    <img :src="item.image" alt="" class="block w-full object-cover" :class="item.style === 'modal' ? 'max-h-56' : 'max-h-36'">
                 </template>
 
                 <div :class="item.style === 'modal' ? 'p-6 pt-4 space-y-3' : 'p-4 pt-3 space-y-2'">
-                    <div class="flex items-start gap-3">
-                        <h2 id="announcement-title" class="rubric flex-1 leading-8" :class="item.style === 'modal' ? 'text-xl' : 'text-base'" x-text="item.title"></h2>
-                        <button type="button" x-ref="close" @click="close()" aria-label="بستن اعلان"
-                                class="shrink-0 -mt-0.5 -me-1 p-1.5 rounded-full text-muted hover:text-cinnabar hover:bg-paper transition cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                    </div>
+                    <h2 id="announcement-title" class="font-bold text-ink leading-8" :class="item.style === 'modal' ? 'text-xl' : 'text-base'" x-text="item.title"></h2>
 
                     <p x-show="item.body" x-text="item.body" class="whitespace-pre-line text-ink/85 leading-7" :class="item.style === 'modal' ? 'text-sm' : 'text-[13px]'"></p>
 
