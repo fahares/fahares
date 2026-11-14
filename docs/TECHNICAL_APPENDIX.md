@@ -10315,6 +10315,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۱۰٬۲۹۶ پرونده (۵۴۹ مگابایت) در حدود ۱۱ دقیقه رفت. اجرای دوم «missing 0 of 10296» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - شش برگه‌ی نمونه (ج ۱ ص ۳۶، ج ۳ ص ۶۱، ج ۵ ص ۱۵۰۱، ج ۱۴ ص ۳۶۱۱، ج ۱۶ ص ۳ و ج ۲۰ ص ۸۰۹) از `https://fahares.net/storage/catalogs/tehran-univ/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` کتابخانه‌ی `thran-danshgah-3`. انتظار: «0 created, 18 updated». فرمان ردیف‌های دیگر را بی‌تغییر می‌گذارد.
+- **اجرای پروداکشن (انتشار batch119، `7730aa40`؛ ۲۴ آبان ۱۴۰۵):**
+  - جلسه‌ی آستان قدس (گام ۱۴.۱۶۴) پس از استقرار، ساعت ۰۸:۵۷، `catalogs:set-facsimiles` را با `prod-run` اجرا کرد. این اجرا ۱۸ ردیف `tehran-univ` همان فایل را هم نوشت (`updated_at` ۰۵:۲۷ UTC). پشتیبان آن اجرا فقط ردیف‌های کتابخانه‌ی رضوی را داشت.
+  - **حالت پیشین ۱۸ جلد:** پرسش فقط‌خواندنی ۲۲ آبان نشان داده بود که `facsimile_code` هر ۱۸ ردیف `catalog_volumes` و `source_volumes` خالی است. `page_first` و `page_last` پیشین ثبت نشده است.
+  - فایل داده و فرمان در کانتینر با `origin/main` یکی بودند: md5 `601d77f5…` و `05fc0cff…`. فایل ۱۸ ردیف `tehran-univ` دارد.
+  - **اجرای آزمایشی این جلسه:** «0 created, 0 updated, 83 unchanged (dry run)». پس اجرای اصلی لازم نشد.
+  - **وارسی:** هر ۱۸ جلد در `catalog_volumes` و `source_volumes` کد `tehran-univ` و بازه‌ی صفحه‌ی نگاشت را دارند. ۲۰٬۲۹۶ ردیف `source_entries` با `page_start` به این جلدها می‌رسند، و ۲۰٬۲۴۷ تای آن‌ها روی برگه‌اند.
+  - **در fahares.net:** دکمه‌ی «دیدن برگه در فهرست …» و نشانی برگه‌ی درست در این صفحه‌ها هست: `/manuscripts/166991` (4663، ج ۱۴ ص ۳۶۱۱)، `/manuscripts/73510` (60، ج ۱ ص ۳۶)، `/manuscripts/60700` (6574، ج ۱۶ ص ۳۰۰) و `/manuscripts/278714` (10634، ج ۲۰ ص ۱۰۰). این جلسه پرونده‌ای در `/tmp` کانتینر نگذاشت.
 
 ### گام ۱۴.۱۶۴: نگاشت ۲۱ جلد فهرست آستان قدس رضوی (کد `razavi`)
 - **پرونده‌ها:** `../fahares-sources/razavi/` (نگاشت‌ها `vNN.map.json`، `MD5SUMS`). کارها در `razavi/work/`: `make_strips.py`، `strips-vNN/pages.tsv`، `fixes.json`، `build_map.py`، `gen_rows.py` و `check/`.
