@@ -90,12 +90,15 @@
             <x-ui.card :framed="true">
                 <x-ui.meta-list class="!grid-cols-[max-content_minmax(0,1fr)] !gap-y-2">
                     <x-ui.meta label="سده" field="century_hijri">{{ $person->century_hijri ? 'سده‌ی ' . Fa::digits($person->century_hijri) . ' ق' : 'نامشخص' }}</x-ui.meta>
-                    <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق<x-date-conflict-note type="person" :id="$person->id" field="birth" /></x-ui.meta>
+                    <x-ui.meta label="تولد" field="birth_year_hijri" :empty="! $person->birth_year_hijri">{{ Fa::digits($person->birth_year_hijri) }} ق</x-ui.meta>
+                    <x-date-conflict-note type="person" :id="$person->id" field="birth" />
+                    {{-- With no death date, the latest year a dated work or copy shows the person alive (step 14.172) --}}
+                    @php $alive = $person->death_year_hijri ? null : \App\Support\DateEstimates\EstimateText::aliveIn($person->id); @endphp
                     <x-ui.meta label="وفات" field="death_year_hijri">
-                        {{-- With no death date, the latest year a dated work or copy shows the person alive (step 14.172) --}}
-                        @if($person->death_year_hijri){{ Fa::digits($person->death_year_hijri) }} ق@elseif($alive = \App\Support\DateEstimates\EstimateText::aliveIn($person->id))<x-date-estimate :estimate="$alive" />@else<span class="text-muted">نامشخص</span>@endif
-                        <x-date-conflict-note type="person" :id="$person->id" field="death" />
+                        @if($person->death_year_hijri){{ Fa::digits($person->death_year_hijri) }} ق@elseif($alive)<x-date-estimate :estimate="$alive" name="alive" />@else<span class="text-muted">نامشخص</span>@endif
                     </x-ui.meta>
+                    @if($alive)<x-date-estimate-why :estimate="$alive" name="alive" />@endif
+                    <x-date-conflict-note type="person" :id="$person->id" field="death" />
                     <x-ui.meta label="وفات (میلادی)" field="death_year_gregorian" :empty="! $person->death_year_gregorian">{{ Fa::digits($person->death_year_gregorian) }} م</x-ui.meta>
                 </x-ui.meta-list>
                 @if($worksTotal || $scribedTotal)

@@ -51,7 +51,12 @@ class DateConflictNote extends Component
         $conflicts = ($loaded["{$type}:{$id}"] ??= DateConflict::open()->where('direct', true)->where('gap', '>', self::MIN_GAP)
             ->where(fn ($q) => $q->where(fn ($a) => $a->where('a_type', $type)->where('a_id', $id))->orWhere(fn ($b) => $b->where('b_type', $type)->where('b_id', $id)))
             ->orderByDesc('gap')->limit(30)->get())
-            ->filter(fn ($c) => $this->side($c) !== null)->values();
+            ->filter(fn ($c) => $this->side($c) !== null)
+            // a person's own birth and death conflict once, under the death, not under both
+            ->reject(fn ($c) => $c->a_type === $c->b_type && $c->a_id === $c->b_id && $this->side($c) === 'b')
+            // two rules over the same two dates (the scribe of a copy who is also its author) are one conflict: the widest
+            ->unique(fn ($c) => $this->side($c) === 'a' ? "{$c->b_type}:{$c->b_id}:{$c->b_field}" : "{$c->a_type}:{$c->a_id}:{$c->a_field}")
+            ->values();
         if ($conflicts->isEmpty()) {
             return;
         }
@@ -83,11 +88,13 @@ class DateConflictNote extends Component
         $sameRecord = $type === $this->type && $id === $this->id;
         $fieldLabel = DateConflict::FIELD_LABELS[$field];
         $title = $record['title'] ?? '';
+        $short = \Illuminate\Support\Str::limit($title, 28);
 
+        // the answers follow the question «کدام نادرست است؟», so each only names what is wrong
         $choices = [
-            $this->choice(DateConflict::FIELD_LABELS[$this->field] . ' ' . self::OF_THIS[$this->type] . ' نادرست است', $this->type, $this->id, $c,
+            $this->choice(DateConflict::FIELD_LABELS[$this->field] . ' ' . self::OF_THIS[$this->type], $this->type, $this->id, $c,
                 ['field' => self::FIELDS[$this->field]]),
-            $this->choice($sameRecord ? "{$fieldLabel} " . self::OF_THIS[$type] . ' نادرست است' : "{$fieldLabel} «{$title}» نادرست است", $type, $id, $c,
+            $this->choice($sameRecord ? "{$fieldLabel} " . self::OF_THIS[$type] : "{$fieldLabel} «{$short}»", $type, $id, $c,
                 ['field' => self::FIELDS[$field]]),
         ];
         if ($tie = self::TIES[$c->rule] ?? null) {
@@ -96,7 +103,7 @@ class DateConflictNote extends Component
             $choices[] = $this->choice($tie[1], $c->{"{$at}_type"}, (int) $c->{"{$at}_id"}, $c,
                 ['general' => true, 'value' => $tie[1] . ($sameRecord ? '' : " («{$title}»): ")]);
         }
-        $choices[] = $this->choice('هر دو تاریخ درست‌اند', $this->type, $this->id, $c, ['general' => true, 'value' => "{$c->label}، ولی هر دو تاریخ درست‌اند: "]);
+        $choices[] = $this->choice('هیچ‌کدام؛ هر دو درست‌اند', $this->type, $this->id, $c, ['general' => true, 'value' => "{$c->label}، ولی هر دو تاریخ درست‌اند: "]);
 
         return [
             'id' => $c->id, 'label' => $c->label, 'gap' => $c->gap,

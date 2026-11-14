@@ -10648,3 +10648,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۸ نسخه و ۳ اثر نوشته شد. بازه‌ها: `changed 21` (۸ تای دیگر را `rebuild-copies` پیش‌تر ساخته بود)، و `changed 9` برای آثار.
   - اجرای دوم هر چهار: صفر.
 
+### گام ۱۴.۱۷۶: چیدمان یادداشت ناسازگاری و دلیل تخمین
+
+- **جای کامپوننت‌ها:** `x-date-conflict-note` و `x-date-estimate-why` پس از `</x-ui.meta>` می‌آیند، نه درون آن. ریشه‌شان `col-span-full` است، پس در شبکه‌ی `x-ui.meta-list` هر دو ستون را می‌گیرند.
+- **`x-date-estimate` و `x-date-estimate-why`:** دکمه‌ی «چرا؟» رویداد `estimate-why` را با نام (`composition`، `alive`) می‌فرستد و ردیف دلیل با همان نام باز و بسته می‌شود.
+- **`DateConflictNote`:**
+  - `reject`: ناسازگاری یک رکورد با خودش (قاعده‌ی `life`) در سمت `b`.
+  - `unique`: بر پایه‌ی رکورد و فیلد طرف دیگر؛ چون فهرست به ترتیب `gap` است، پهن‌ترین می‌ماند.
+  - برچسب پاسخ‌ها کوتاه شد و عنوان رکورد دیگر تا ۲۸ نویسه بریده می‌شود.
+- **`EstimateText::UNDATED_TITLES`:** «القرآن الکریم» و «قرآن کریم» (پس از یکسان‌سازی ي و ك)، با `primary_title` برابر. ترجمه‌ها و تفسیرها عنوان دیگری دارند و تخمینشان می‌ماند.
+- **تست:** `test_the_quran_gets_no_estimate` و `test_one_note_for_two_rules_over_the_same_dates_and_one_for_a_persons_own_dates`.
+

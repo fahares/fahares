@@ -19,6 +19,9 @@ final class EstimateText
 {
     public const MAX_SPAN = 150;
 
+    /** Works that get no estimated date of composition. */
+    private const UNDATED_TITLES = ['القرآن الکریم', 'قرآن کریم'];
+
     private const ROUTES = ['person' => 'people.show', 'work' => 'works.show', 'manuscript' => 'manuscripts.show'];
 
     /** The person's part in the work, by the rule that tied them. */
@@ -29,6 +32,10 @@ final class EstimateText
      */
     public static function for(string $type, int $id, string $field): ?array
     {
+        // the Quran's date is not a question the copies answer (the user, step 14.176)
+        if ($type === 'work' && in_array(trim(strtr((string) DB::table('works')->where('id', $id)->value('primary_title'), ['ي' => 'ی', 'ك' => 'ک'])), self::UNDATED_TITLES, true)) {
+            return null;
+        }
         $row = DB::table('date_estimates')->where(['subject_type' => $type, 'subject_id' => $id, 'field' => $field])->first();
         if (! $row || ($row->year_from === null && $row->year_to === null)) {
             return null;

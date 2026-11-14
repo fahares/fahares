@@ -98,4 +98,15 @@ class CompositionEstimateTest extends TestCase
         // nothing to estimate: the row stays hidden outside suggestion mode, as before
         $this->get(route('works.show', $nothing))->assertOk()->assertDontSee('تخمینی');
     }
+
+    public function test_the_quran_gets_no_estimate()
+    {
+        $quran = $this->work('القرآن الکریم');
+        $this->copy($quran, 133);
+
+        $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
+
+        $this->assertNull(EstimateText::for('work', $quran->id, 'composition'));
+        $this->get(route('works.show', $quran))->assertOk()->assertDontSee('تخمینی');
+    }
 }

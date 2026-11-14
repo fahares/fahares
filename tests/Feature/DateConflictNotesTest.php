@@ -55,15 +55,15 @@ class DateConflictNotesTest extends TestCase
         // the work's page: its own date opens the form in place, the author's death goes to the author's page
         $this->get(route('works.show', $this->work))->assertOk()
             ->assertSee('ناسازگاری تاریخ:')->assertSee('تألیف پس از وفات مؤلف')->assertSee('مؤلف آزمایشی یادداشت')->assertSee('کدام نادرست است؟')
-            ->assertSee('تألیف این اثر نادرست است')->assertSee('وفات «مؤلف آزمایشی یادداشت» نادرست است')
-            ->assertSee('این اثر از این شخص نیست')->assertSee('هر دو تاریخ درست‌اند')
+            ->assertSee('تألیف این اثر')->assertSee('وفات «مؤلف آزمایشی یادداشت»')
+            ->assertSee('این اثر از این شخص نیست')->assertSee('هیچ‌کدام؛ هر دو درست‌اند')
             ->assertSee('suggest=field.death_year_hijri&amp;conflict=' . $conflict->id, false)
             // the copy of 1299 is only a year off, so it is left out
             ->assertDontSee('کتابت نسخه پیش از تألیف اثر');
 
         // the person's page: the tie is the work's, so that answer goes to the work's page with its text
         $this->get(route('people.show', $this->author))->assertOk()
-            ->assertSee('تألیف پس از وفات مؤلف')->assertSee('وفات این شخص نادرست است')->assertSee('تألیف «اثر یادداشت‌دار آزمایشی» نادرست است')
+            ->assertSee('تألیف پس از وفات مؤلف')->assertSee('وفات این شخص')->assertSee('تألیف «اثر یادداشت‌دار آزمایشی»')
             ->assertSee('suggest=general&amp;conflict=' . $conflict->id . '&amp;prefill=', false);
 
         $this->get(route('manuscripts.show', $this->copy))->assertOk()->assertDontSee('ناسازگاری تاریخ:');
@@ -104,5 +104,27 @@ class DateConflictNotesTest extends TestCase
         DB::table('people')->where('id', $this->author->id)->update(['death_from' => 1310, 'death_to' => 1310]);
         $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
         $this->assertNull($answer->refresh()->date_conflict_id);
+    }
+
+    public function test_one_note_for_two_rules_over_the_same_dates_and_one_for_a_persons_own_dates()
+    {
+        // the author's own copy, dated after his death: the scribe rule and the autograph rule find the same conflict
+        $library = Library::firstOrFail();
+        $copy = Manuscript::create(['work_id' => $this->work->id, 'sequence_number' => 2, 'volume_number' => 1, 'page_start' => 1, 'library_id' => $library->id,
+            'library' => $library->name, 'city' => 'قم', 'shelfmark' => 'یادداشت ۲', 'raw_text' => '2. قم', 'copy_date_raw' => '1314ق', 'is_autograph' => true]);
+        DB::table('manuscripts')->where('id', $copy->id)->update(['copy_date_from' => 1314, 'copy_date_to' => 1314]);
+        DB::table('manuscript_people')->insert(['manuscript_id' => $copy->id, 'person_id' => $this->author->id, 'role' => 'scribe', 'position' => 0]);
+        // a life of 120 years
+        $old = Person::create(['name' => 'معمر آزمایشی', 'normalized_name' => 'معمر آزمایشی', 'slug' => 'note-' . uniqid(), 'birth_year_hijri' => 1200, 'death_year_hijri' => 1320]);
+        DB::table('people')->where('id', $old->id)->update(['death_from' => 1320, 'death_to' => 1320]);
+
+        $this->artisan('fahares:estimate-dates', ['--apply' => true])->assertSuccessful();
+
+        $this->assertSame(2, DateConflict::where('a_type', 'manuscript')->where('a_id', $copy->id)->where('b_type', 'person')->count());
+        $page = $this->get(route('manuscripts.show', $copy))->assertOk()->getContent();
+        $this->assertSame(1, substr_count($page, 'ناسازگاری تاریخ:'));
+
+        $page = $this->get(route('people.show', $old))->assertOk()->assertSee('عمر بیش از ۱۰۰ سال')->assertSee('تولد این شخص')->getContent();
+        $this->assertSame(1, substr_count($page, 'ناسازگاری تاریخ:'));
     }
 }

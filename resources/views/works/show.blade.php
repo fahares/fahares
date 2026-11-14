@@ -218,10 +218,11 @@
                         @if($composed)
                             {{ Fa::digits($work->composition_date_raw ?: $work->composition_year_hijri . ' ق') }}
                         @elseif($compositionEstimate)
-                            <x-date-estimate :estimate="$compositionEstimate" />
+                            <x-date-estimate :estimate="$compositionEstimate" name="composition" />
                         @endif
-                        <x-date-conflict-note type="work" :id="$work->id" field="composition" />
                     </x-ui.meta>
+                    @if($compositionEstimate)<x-date-estimate-why :estimate="$compositionEstimate" name="composition" />@endif
+                    <x-date-conflict-note type="work" :id="$work->id" field="composition" />
                     <x-ui.meta label="زبان" field="language_summary" :empty="! $work->language_summary">{{ $work->language_summary }}</x-ui.meta>
                     <x-ui.meta label="قالب" field="work_form" :empty="! $work->work_form">{{ $work->work_form }}</x-ui.meta>
                     @if($work->subjects && $work->subjects->count())
