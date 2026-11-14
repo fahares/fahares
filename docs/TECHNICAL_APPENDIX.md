@@ -10698,7 +10698,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `range`: بازه‌ای که هنوز از آن سال آغاز نمی‌شود. در تمرین ردیفی نداشت.
 - **تمرین روی `fahares_prod`:** «22 death years emptied, 0 ranges, 44 death years filled». پس از آن `fahares:refresh-derived` برای `death_range` صفر داد.
 - **موارد مشکوکِ پرشده:** فهرست «قمری» نوشته ولی شخص پیش از هجرت درگذشته است: «عنترة بن شداد» («- 22 قمری») و «ابن کلثوم، عمرو بن کلثوم» («- 40 ؟ قمری»). بازه‌شان از پیش همین عدد بود.
-- **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های ۶۶ ردیف، اجرای آزمایشی و مقایسه با تمرین، `fahares:fill-death-years --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
+- **اجرا در تولید (۲۳ آبان ۱۴۰۵):**
+  1. اجرای آزمایشی با خروجی تمرین `diff` شد: یکسان (شناسه‌ها هم).
+  2. پشتیبان: ستون‌های تاریخ ۶۶ ردیف با `tinker` خوانده و مستقیم در `../fahares-sources/backups/step13/step14_179_people_before.json` نوشته شد (md5 `5fdc4226…`). چیزی در `/tmp` کانتینر نماند.
+  3. با `scripts/dev/prod-run --wait century-as-year`: `fahares:fill-death-years --apply` («22 death years emptied, 0 ranges, 44 death years filled»)، اجرای آزمایشی دوباره (همه صفر)، و `fahares:estimate-dates --apply` (۲۱۷٬۹۴۳ تخمین و ۱۲٬۹۳۴ ناسازگاری).
 
 ### گام ۱۴.۱۸۱: `HijriYear::otherCalendar()`
 
