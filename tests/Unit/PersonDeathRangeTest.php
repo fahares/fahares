@@ -40,6 +40,24 @@ class PersonDeathRangeTest extends TestCase
         $this->assertSame([1301, 1400, null], $this->range('1297-14 ق'));
     }
 
+    public function test_a_lone_number_of_15_or_less_is_the_century_unless_the_death_year_says_it_is_the_year()
+    {
+        $this->assertSame([1201, 1300, null], $this->range('- 13'));
+        $this->assertSame([1201, 1300, '؟'], $this->range('- 13 ؟ قمری'));
+        $this->assertSame('doubtful', Person::deathColumns('- 13 ؟ قمری', null)['death_certainty']);
+        $this->assertSame([1201, 1300, null], $this->range('13ق - 13 قمری'));
+        $this->assertSame([701, 800, null], $this->range('- 8 قمری'));
+        $this->assertSame([1401, 1500, null], $this->range('- ۱۵ ق'));
+        // a death year elsewhere in that century does not make it a year
+        $this->assertSame([1201, 1300, null], $this->range('- 13 قمری', 1250));
+        // the year of someone who did die then: the death year column says so
+        $this->assertSame([11, 11, null], $this->range('- 11 قمری', 11));
+        $this->assertSame([7, 7, '؟'], $this->range('- 7 ؟ قمری', 7));
+        // 16 and more stay years of the first century
+        $this->assertSame([16, 16, null], $this->range('- 16 قمری'));
+        $this->assertSame([50, 50, null], $this->range('3 - 50 قمری'));
+    }
+
     public function test_other_calendars_give_no_range_and_a_death_year_stands_alone()
     {
         $this->assertSame([null, null, null], $this->range('1250 - 1312 شمسی'));
