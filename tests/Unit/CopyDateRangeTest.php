@@ -129,6 +129,39 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame(1126, \App\Support\HijriYear::parse('7 ربیع الاول 126 (گویا 1126)'));
     }
 
+    public function test_a_second_number_that_is_no_date_of_the_copy_is_left_out()
+    {
+        // a year of another era beside the Hijri one (step 14.186)
+        $this->assertSame([1036, 1036], $this->range('11 بهمن ماه الهی 996 یزدجرد بن شهریار سنه 1036ق'));
+        $this->assertSame([1298, 1298], $this->range('1250 یزدگردی = 1298ق'));
+        $this->assertSame([1248, 1248], $this->range('16 شوال 1240 فصلی مطابق1248ق'));
+        $this->assertSame([1363, 1363], $this->range('22 تیر 1323 خ / 21 رجب 1363ق'));
+        $this->assertSame([null, null], $this->range('1240 یزدگردی'));
+        // a solar date beside the Hijri one, with no «ش»
+        $this->assertSame([1371, 1371], $this->range('12 تیر 1331 مطابق با 10 شوال 1371'));
+        $this->assertSame([1358, 1358], $this->range('جمعه 10 جمادی الثانی 1358 (= 4 اسد 1318)'));
+        $this->assertSame([1429, 1429], $this->range('فروردین 1378 مطابق با 12 ربیع الاول 1429ق'));
+        $this->assertSame(1371, \App\Support\HijriYear::parse('12 تیر 1331 مطابق با 10 شوال 1371'));
+        // ... but a solar month alone, or beside a year that is not its Hijri one, stays
+        $this->assertSame([1323, 1328], $this->range('1323 تا مرداد ماه 1328'));
+        $this->assertSame([1331, 1331], $this->range('12 تیر 1331'));
+        $this->assertSame([1255, 1255], $this->range('جمادی 1255'));
+        // an owner's year, and the year of the copy it was made from
+        $this->assertSame([1076, 1076], $this->range('1076ق تملک: محمد بن ابراهیم در 1205'));
+        $this->assertSame([1098, 1098], $this->range('شنبه 29 ذیقعده 1098 از روی خط شهید ثانی که در پنج‌شنبه 15 ذیحجه 941 تحریر نموده است'));
+        $this->assertSame([1205, 1205], $this->range('تملک در 1205'));
+        $this->assertSame([1146, 1157], $this->range('شعبان 1157ق آمده و در برخی از نسخه ها تألیف کتاب در 1146ق ثبت شده است'));
+        // the year the catalogue corrects, and a reference with words before it
+        $this->assertSame([1299, 1299], $this->range('1099 که صحیح آن1299ق است'));
+        $this->assertSame(1299, \App\Support\HijriYear::parse('1099 که صحیح آن1299ق است'));
+        $this->assertSame([1271, 1271], $this->range('چهارشنبه 7 رجب 1271ق(در نسخه 1071 سهو القلم است)'));
+        $this->assertSame([1110, 1110], $this->range('1110ق (تاریخ نوشتن شعبان 1011 این تاریخ اشتباه از کاتب است و باید 1110 باشد)'));
+        $this->assertSame([695, 695], $this->range('جمعه 5 ربیع الاول 695ق (فهرست عربی طوپ قاپی 455/3)'));
+        // two readings of one date stay a range: the bracket corrects the year before it
+        $this->assertSame([705, 905], $this->range('15 شعبان 705ق (این تاریخ قطعاً اشتباه و احتمالاً 905 صحیح باشد)'));
+        $this->assertSame([1206, 1260], $this->range('27 شوال 1206ق (1260ظ)'));
+    }
+
     public function test_a_solar_or_gregorian_date_spans_the_hijri_years_it_falls_in()
     {
         // step 14.181: the catalogue's own pairs («1383ش = 1425ق», «1359ش = 1400ق», «1254ش = 1292ق») agree
