@@ -10315,7 +10315,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۱۰٬۲۹۶ پرونده (۵۴۹ مگابایت) در حدود ۱۱ دقیقه رفت. اجرای دوم «missing 0 of 10296» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - شش برگه‌ی نمونه (ج ۱ ص ۳۶، ج ۳ ص ۶۱، ج ۵ ص ۱۵۰۱، ج ۱۴ ص ۳۶۱۱، ج ۱۶ ص ۳ و ج ۲۰ ص ۸۰۹) از `https://fahares.net/storage/catalogs/tehran-univ/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` کتابخانه‌ی `thran-danshgah-3`. انتظار: «0 created, 18 updated». فرمان ردیف‌های دیگر را بی‌تغییر می‌گذارد.
-- **اجرای پروداکشن (انتشار batch119، `7730aa40`؛ ۲۴ آبان ۱۴۰۵):**
+- **اجرای پروداکشن (انتشار batch119، `7730aa40`؛ ۲۳ آبان ۱۴۰۵):**
   - جلسه‌ی آستان قدس (گام ۱۴.۱۶۴) پس از استقرار، ساعت ۰۸:۵۷، `catalogs:set-facsimiles` را با `prod-run` اجرا کرد. این اجرا ۱۸ ردیف `tehran-univ` همان فایل را هم نوشت (`updated_at` ۰۵:۲۷ UTC). پشتیبان آن اجرا فقط ردیف‌های کتابخانه‌ی رضوی را داشت.
   - **حالت پیشین ۱۸ جلد:** پرسش فقط‌خواندنی ۲۲ آبان نشان داده بود که `facsimile_code` هر ۱۸ ردیف `catalog_volumes` و `source_volumes` خالی است. `page_first` و `page_last` پیشین در پشتیبان JSON نیست. نزدیک‌ترین پشتیبان، دامپ کامل ۱۰ آبان روی میزبان است: `~/backups/before_step14_135_monzavi_nuskhe_20261110_1336.sql.gz`. جلسه‌ی آستان قدس ستون‌هایی را که فرمان می‌نویسد، در هر ۲۹ ردیف این کتابخانه، با `fahares_prod` پس از تمرین برابر گذاشت و یکی بود. پس پروداکشن همان حالتی را دارد که اجرای این گام می‌نوشت.
   - فایل داده و فرمان در کانتینر با `origin/main` یکی بودند: md5 `601d77f5…` و `05fc0cff…`. فایل ۱۸ ردیف `tehran-univ` دارد.
@@ -10358,14 +10358,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **دسته‌ی d (ج ۱۷، ۱۸، ۱۹ و ۲۱):** هر ۴۰ ارجاع روی برگه بودند. ۹ فریب «نیست» شدند. یک فریب ج ۱۸ (ص ۷۹) سه صفحه از جای درست فاصله داشت، و بررسی‌کننده شماره را در ص ۷۶ یافت.
 - **تمرین (`fahares_prod`):** «0 created, 21 updated, 44 unchanged»، و اجرای دوم «65 unchanged». شناسه‌های جلدها در رونوشت با پروداکشن یکی است (#۷۰ تا #۷۳۴).
 - **سایت:** `php -S` در کانتینر، از این worktree و با `DB_DATABASE=fahares_prod`. `public/build` شاخه‌ی اصلی در worktree رونوشت شد. در نسخه‌های ۲۸۱۲۹۹ (ج ۲۱ ص ۱۲۷۱)، ۱۳۵۱۰۷ (ج ۲۱ ص ۶۰۰)، ۹۲۰۳۰ (ج ۱۱ ص ۸۵) و ۱۷۵۱۹۹ (ج ۲۶ ص ۳۰۰) دکمه‌ی «دیدن برگه در فهرست کتب خطی کتابخانه مرکزی آستان قدس رضوی» و نشانی `razavi/vNN/pNNNN.webp` درست بود. برگه‌ی ج ۲۱ ص ۱۲۷۱ (۲۰۹۸ مسالک الافهام) هم دیده شد.
-- **انتقال تصویرها (۲۳ و ۲۴ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):**
+- **انتقال تصویرها (۲۲ و ۲۳ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):**
   - پیش از فرستادن، `catalogs/razavi` روی سرور نبود و چیزی بازنویسی نشد. سرور ۲۱ گیگابایت جای خالی داشت.
   - `work/send.sh` فهرست نام و اندازه‌ی دو سو را برابر می‌گذارد و تنها پرونده‌های نبوده یا نابرابر را می‌فرستد. پرونده‌ها در تکه‌های ۲۰۰تایی، با `tar -T … | ssh fahares-app "tar -C …/catalogs --no-same-owner -xf -"` و چهار اتصال هم‌زمان می‌روند. اگر انتقال بریده شود، اجرای دوباره از همان‌جا ادامه می‌دهد.
   - دور نخست حدود ۱۹ دقیقه طول کشید. دو تکه با «server not responding» شکست خوردند و ۲۷۵ پرونده نرسید. این‌ها در دور دوم رفتند.
   - فهرست نام و اندازه‌ی ۱۲٬۴۸۰ پرونده در دو سو یکسان است. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - نُه برگه‌ی نمونه (ج ۱، ۴، ۷، ۱۱، ۱۴، ۱۹، ۲۱، ۲۶ و ۲۷) از `https://fahares.net/storage/catalogs/razavi/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** نخست برگه‌ها به `storage/app/public/catalogs/razavi` پروداکشن فرستاده می‌شوند، سپس `php artisan catalogs:set-facsimiles` با `prod-run` و پشتیبان پیشین. فرمان تنها ستون‌های ۲۱ جلد را می‌نویسد.
-- **اجرای پروداکشن (پس از انتشار ۱۱۹، `7730aa40`؛ ۲۴ آبان ۱۴۰۵، به تأیید کاربر):**
+- **اجرای پروداکشن (پس از انتشار ۱۱۹، `7730aa40`؛ ۲۳ آبان ۱۴۰۵، به تأیید کاربر):**
   - **اجرای آزمایشی** پیش از انتشار ۱۱۹: «0 created, 21 updated, 44 unchanged (dry run)». داده و فرمان در کانتینر با main یکی بودند (md5 `44eda6d8…` و `05fc0cff…`).
   - **اجرا:** یک `prod-run --wait`. این اجرا پس از استقرار انتشار ۱۱۹ آغاز شد. داده‌ی کانتینر در آن هنگام ۱۸ ردیف `tehran-univ` گام ۱۴.۱۶۳ را هم داشت (md5 `601d77f5…`). فرمان «0 created, 39 updated, 44 unchanged» داد و اجرای دوم «0 created, 0 updated, 83 unchanged».
   - **پشتیبان:** ۴۳ ردیف `catalog_volumes` کتابخانه‌ی `mshhd-rdoy-1` و ۴۳ ردیف `source_volumes` با همان شناسه‌ها، به JSON با tinker. پرونده در `../fahares-sources/backups/step13/step14_164_razavi_volumes_before_20261114.json` است (md5 `620fa3e5c81ab3a9ed6b3cc3d241670f`، دو سو یکسان). `facsimile_code` پیشین همه خالی بود. پرونده از `/tmp` کانتینر پاک شد.
@@ -10720,13 +10720,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **«نیست»‌های دفتر ۱۱ (۴ مورد):** کتابخانه‌ی دیگری‌اند، مانند مطالعات فرهنگی 3778، ملی 2368 و دانشگاه 106/4، ولی صفحه از فهرست دانشگاه لس‌آنجلس است. نمونه: ص ۱۵۷ نسخه‌های «انوار التنزیل» با نشانه‌های A و D است. پس ارجاع فنخا به صفحه‌ای از این دفتر می‌رود که نسخه را ندارد.
   - **فریب:** ۸ «نیست»، یکی نامطمئن، و یکی تنها شماره‌ی ردیف فهرستی در برگه‌ی پیش.
 - **تمرین (`fahares_prod`):** «0 created, 5 updated, 83 unchanged»، و اجرای دوم «0 created, 0 updated, 88 unchanged».
-- **انتقال تصویرها (۲۴ آبان ۱۴۰۵، به خواست کاربر: «بفرست برود»، پیش از استقرار):**
+- **انتقال تصویرها (۲۳ آبان ۱۴۰۵، به خواست کاربر: «بفرست برود»، پیش از استقرار):**
   - پیش از فرستادن، `catalogs/tehran-univ-nashriyye` روی سرور نبود.
   - `work/send.sh` اکنون پوشه را از `C` می‌گیرد: `C=tehran-univ-nashriyye send.sh`.
   - ۲٬۷۴۸ پرونده (۲۲۴ مگابایت) در شش جریان در حدود دو دقیقه رفت. اجرای دوم «missing 0 of 2748» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - پنج برگه‌ی نمونه (دفتر ۱ ص ۱۳، دفتر ۳ ص ۳، دفتر ۶ ص ۷۵، دفتر ۱۱ ص ۱۵۷ و دفتر ۱۳ ص ۴۰۰) از fahares.net پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` جلدهای #۵۰۵، #۵۰۷، #۵۰۹، #۵۱۳ و #۵۱۵. انتظار: «0 created, 5 updated».
-- **اجرای پروداکشن (انتشار ۱۲۴، `b64bfdc0`؛ ۲۴ آبان ۱۴۰۵، به تأیید کاربر):**
+- **اجرای پروداکشن (انتشار ۱۲۴، `b64bfdc0`؛ ۲۳ آبان ۱۴۰۵، به تأیید کاربر):**
   - داده و فرمان در کانتینر با `origin/main` یکی بودند: md5 `c5b4d73a…` و `b098df58…`.
   - **اجرای آزمایشی:** «0 created, 5 updated, 83 unchanged (dry run)». فقط پنج دفتر «update» بودند.
   - **پشتیبان:** ردیف‌های `catalog_volumes` و `source_volumes` #۵۰۵، #۵۰۷، #۵۰۹، #۵۱۳ و #۵۱۵، با tinker مستقیم روی لپ‌تاپ، در `../fahares-sources/backups/step13/step14_178_nashriyye_volumes_before_20261114.json` (md5 `c6da7f3e8f4179a5514557e53dc8ee1e`). `facsimile_code` و بازه‌ی صفحه‌ی پیشین هر پنج تهی بود. پرونده‌ای در `/tmp` کانتینر ساخته نشد.
@@ -10811,7 +10811,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **Coolify:** تغییری لازم نیست. migrate در post-deployment command اکنون بی‌کار است و می‌تواند بماند. ایمیج تازه با push ساخته می‌شود، پس Force Rebuild لازم نیست (فرمان آغاز همان است).
 - **راه دوم، اجرا نشده:** نگهبان «جدول نیست» در خواننده‌های همه‌صفحه‌ای (`Announcement::forViewer()`)؛ با این ترتیب لازم نیست.
 - **وارسی:** `bash -n docker/start.sh`. اجرای واقعی تنها در استقرار بعد دیده می‌شود: در لاگ کانتینر، خروجی migrate پیش از نخستین درخواست.
-- **انتشار ۱۲۶ (۲۴ آبان ۱۴۰۵، `c178caa7`):** در لاگ کانتینر تازه (`…-20261114T133115`): `INFO Nothing to migrate.` در 13:32:41.849Z، سپس php-fpm «ready to handle connections» در 13:32:41.92Z، نخستین `/up` با ۲۰۰ در 13:32:45 و نخستین درخواست بازدیدکننده در 13:32:46. ترتیب همان است که می‌خواستیم.
+- **انتشار ۱۲۶ (۲۳ آبان ۱۴۰۵، `c178caa7`):** در لاگ کانتینر تازه (`…-20261114T133115`): `INFO Nothing to migrate.` در 13:32:41.849Z، سپس php-fpm «ready to handle connections» در 13:32:41.92Z، نخستین `/up` با ۲۰۰ در 13:32:45 و نخستین درخواست بازدیدکننده در 13:32:46. ترتیب همان است که می‌خواستیم.
 
 ### گام ۱۴.۱۸۳: بازخوانی سال کتابت سه‌رقمی (`CopyDateRange::reread`، مورد ۱۲۸)
 
@@ -10957,12 +10957,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-copy-date-ranges --apply` (حدود ۹۲ هزار UPDATE تک‌ستونی)، سپس با `--works`.
 - **تست:** `DateSpanTest` (۳)، `CopyDateRangeTest::test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled`، `ApplyCorpusCategoriesCommandTest::test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none`.
 
-### گام ۱۴.۱۹۳: `PersonMerger::moveSourceEntries` و `fahares:settle-double-lives`
-- **[PersonMerger](../app/Services/PersonMerger.php):** `moveSourceEntries(from, to)` سطرهای `source_entries` با `citable_type = Person` را به شخص ماندگار می‌برد. اگر هر دو به یک `source_item_id` پیوند دارند، سطرِ با رتبه‌ی بهتر (`verified` > `unverified` > `rejected`) می‌ماند و دیگری حذف می‌شود. `old_values` در گزارش ادغام: `moved_source_entry_ids` و `dropped_source_entries` (سطر کامل). بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) سطرهای جابه‌جاشده را برمی‌گرداند و سطرهای حذف‌شده را با `insertOrIgnore` باز می‌نشاند.
-- **[SettleDoubleLivesCommand](../app/Console/Commands/SettleDoubleLivesCommand.php):** فایل با `merges` (`keep`، `merge`)، `rejects` (`person_slug`، `source`، `item_key`، `volume`) و `unsure` (`slugs`، `note`). شخص با `slug`، و اگر نباشد با `TiePersonLivesCommand::mergedInto()`. ادغام با `keepPrintedNames`. رد: `status = rejected` و `reviewed_at`، که `sources:tie-lives-to-people` آن را نگه می‌دارد. نامطمئن‌ها با شناسه‌های کنونی به `fahares:queue-judged-people` می‌روند.
-- **داوری:** Sonnet در دو دسته‌ی ۵۸تایی، بازبینی Claude. داده‌ی ورودی از پروداکشن (فقط‌خواندنی).
-- **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
-- **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
 ### گام ۱۴.۱۸۹: `printed_extra_digit_dates_step14_189.json` و «یزدجرد»
 
 - **پرونده:** ۱۱ رکورد `rebuild-copies`.
@@ -10979,3 +10973,9 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: ستون‌های تاریخ این ۱۱ نسخه در `step14_189_backup.json` (md5 `351e132a…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply` با `nohup`: ۱۱ نسخه نوشته شد. اجرای دوم: صفر.
 
+### گام ۱۴.۱۹۳: `PersonMerger::moveSourceEntries` و `fahares:settle-double-lives`
+- **[PersonMerger](../app/Services/PersonMerger.php):** `moveSourceEntries(from, to)` سطرهای `source_entries` با `citable_type = Person` را به شخص ماندگار می‌برد. اگر هر دو به یک `source_item_id` پیوند دارند، سطرِ با رتبه‌ی بهتر (`verified` > `unverified` > `rejected`) می‌ماند و دیگری حذف می‌شود. `old_values` در گزارش ادغام: `moved_source_entry_ids` و `dropped_source_entries` (سطر کامل). بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) سطرهای جابه‌جاشده را برمی‌گرداند و سطرهای حذف‌شده را با `insertOrIgnore` باز می‌نشاند.
+- **[SettleDoubleLivesCommand](../app/Console/Commands/SettleDoubleLivesCommand.php):** فایل با `merges` (`keep`، `merge`)، `rejects` (`person_slug`، `source`، `item_key`، `volume`) و `unsure` (`slugs`، `note`). شخص با `slug`، و اگر نباشد با `TiePersonLivesCommand::mergedInto()`. ادغام با `keepPrintedNames`. رد: `status = rejected` و `reviewed_at`، که `sources:tie-lives-to-people` آن را نگه می‌دارد. نامطمئن‌ها با شناسه‌های کنونی به `fahares:queue-judged-people` می‌روند.
+- **داوری:** Sonnet در دو دسته‌ی ۵۸تایی، بازبینی Claude. داده‌ی ورودی از پروداکشن (فقط‌خواندنی).
+- **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
+- **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
