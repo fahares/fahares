@@ -10876,3 +10876,47 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مانده:** دو نسخه‌ای که فقط سال یزدگردی دارند بازه ندارند؛ تبدیل یزدگردی به قمری ساخته نشد.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان):** `fahares:fill-copy-date-ranges --apply`، سپس با `--works`.
 - **تست:** `CopyDateRangeTest::test_a_second_number_that_is_no_date_of_the_copy_is_left_out` و `ApplyCorpusCategoriesCommandTest::test_the_sort_year_follows_a_range_that_drops_a_number_the_text_no_longer_gives_as_a_year`.
+
+### گام ۱۴.۱۸۸: `App\Support\DateSpan` و ستون‌های `*_kind`، `*_start_to`، `*_end_from` (مورد ۱۳۱، گام ۲ طرح)
+
+- **الگو:** `dateofDB` و `dates_index` در پروژه‌ی Aqabozorg (دو سر، هر سر با `isRange`، و کلید `fulltime` برای طول مدت). این‌جا فقط سال قمری؛ روز و ماه و تقویم‌های دیگر به تصمیم کاربر به بعد ماند.
+- **ساختار:**
+
+| جزء | ستون | معنا |
+|---|---|---|
+| `from` | `<پیشوند>_from` | زودترین سال ممکن برای آغاز |
+| `startTo` | `<پیشوند>_start_to` | دیرترین سال ممکن برای آغاز؛ تهی = آغاز دقیق است |
+| `endFrom` | `<پیشوند>_end_from` | زودترین سال ممکن برای پایان؛ تهی = پایان دقیق است |
+| `to` | `<پیشوند>_to` | دیرترین سال ممکن برای پایان |
+| `kind` | `<پیشوند>_kind` | `span`، `between` یا تهی |
+
+- **چرا `from`/`to` پوشش بیرونی ماندند:** هر خواننده‌ای که فقط این دو را می‌شناسد تاریخ را «جایی در این بازه» می‌خواند، و این برای هر سه نوع درست است. پس هیچ خواننده‌ای ناچار به تغییر نشد.
+- **`DateSpan`:** `fromColumns($row, $prefix)`، `columns($prefix)`، `start()` و `end()` (بازه‌ی هر سر؛ برای غیر `span` هر دو کل بازه‌اند)، `isSpan()`، و `text()`: «از 1052 تا 1057»، «میان 1250 و 1270»، «1084–1107» (نامعلوم)، «از میان 1000 و 1010 تا میان 1020 و 1030».
+- **ماکروها (`AppServiceProvider`):** `$table->dateSpan('stay')` هفت ستون یک تاریخ تازه را می‌سازد؛ `$table->dateSpanKind('copy_date')` سه ستون تازه را کنار ستون‌های موجود. مهاجرت `2026_11_14_300001_add_date_span_columns` دومی را برای `manuscripts.copy_date`، `works.composition_date` و `people.death` می‌زند و `death_kind` را با یک UPDATE برای هر وفاتِ بازه‌ای `between` می‌کند.
+- **نوع از متن (`CopyDateRange::parse` کلید `kind`؛ `kindOfYears`):**
+
+| متن | `kind` |
+|---|---|
+| یک سال، یا بی‌تاریخ | تهی |
+| قرن، دو قرن، «حدود»، «پیش/پس از»، تقویم دیگر، عصر مؤلف (`relative`)، بازخوانی (`reread`) | `between` |
+| دو سال با «یا» میانشان؛ «بین»، «مابین»، «میان»، «حدود»، «حوالی» در بند؛ واژه‌ی تردید یا «؟» | `between` |
+| سه سالِ متفاوت یا بیشتر | تهی |
+| «آغاز/شروع/ابتدا» با «پایان/انجام/اتمام/فراغ/ختم/انتها» | `span` |
+| «تا»، «الی»، «لغایت» میان دو سال، تا ۴۰ سال (`SPAN_TO`) | `span`؛ پهن‌تر تهی |
+| خط تیره یا «و» میان دو سال، تا ۱۰ سال (`SPAN_NEAR`) | `span`؛ پهن‌تر تهی |
+| «974/977»، پرانتز بی‌واژه‌ی تردید، دیگر | تهی |
+
+- **مجلد:** `Manuscript::copyDateColumns` پارامتر چهارم `$sharedInVolume` گرفت. اگر `span` باشد و رساله‌ی دیگری با همان `library_id` و `collection_key` همان `copy_date_raw` را داشته باشد (`Manuscript::sharedVolumeDates`، یک پرس‌وجوی گروهی برای هر دسته)، `kind` تهی می‌شود. قلاب ذخیره، `DerivedData::copyChanges`، `refresh-derived` و `fill-copy-date-ranges` آن را می‌دهند. قلاب ذخیره فقط رکورد در دست را می‌بیند؛ رساله‌ی دیگرِ همان مجلد با `refresh-derived` بعدی هم‌گام می‌شود.
+- **وفات:** `Person::deathColumns` همان چهار ستون را می‌دهد (سه فرمان وفات آن‌ها را با ستون‌های ثابت می‌سنجند). `Person::deathKind` ستون `death_kind` را جدا می‌دهد؛ قلاب ذخیره و `DerivedData::personChanges` آن را می‌افزایند. فرمان‌های `fill-death-ranges`، `fill-death-years` و `fix-century-deaths` آن را نمی‌نویسند و `refresh-derived` هم‌گامش می‌کند.
+- **آنچه هنوز نیست:** هیچ پارسری `start_to` و `end_from` را پر نمی‌کند و فرم ثبت دستی نوع بازه ساخته نشد (تصمیم کاربر: نامعلوم‌ها بمانند). اگر ثبت دستی بیاید، این ستون‌ها باید در `ProtectedColumns` از بازنویسی `refresh-derived` در امان بمانند.
+- **`fill-copy-date-ranges`:** `kind` را هم می‌سنجد و می‌نویسد و شمار هر نوع را می‌دهد (`kind_span`، `kind_between`، `kind_none`). بازخوانی سال مرتب‌سازی (گام ۱۴.۱۸۶) فقط وقتی است که خودِ `from` یا `to` عوض شود.
+- **تمرین روی `fahares_prod` (۲۳ آبان):** migrate حدود ۲ ثانیه. `fill-copy-date-ranges`: ۹۲٬۱۰۸ نسخه و با `--works` ۵۱۵ اثر عوض شد (همه فقط `kind`)؛ پس از `--apply` هر دو صفر.
+
+| | بین مدت | طول مدت | بازه‌ی نامعلوم | بی‌بازه |
+|---|---:|---:|---:|---:|
+| نسخه | ۹۱٬۰۳۵ | ۱٬۰۷۲ | ۱٬۴۹۸ | ۱۵۰٬۱۳۲ |
+| اثر | ۲۶۹ | ۲۴۶ | ۶۲ | ۹٬۳۴۳ |
+| وفات | ۷٬۳۹۸ | — | — | — |
+
+- **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-copy-date-ranges --apply` (حدود ۹۲ هزار UPDATE تک‌ستونی)، سپس با `--works`.
+- **تست:** `DateSpanTest` (۳)، `CopyDateRangeTest::test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled`، `ApplyCorpusCategoriesCommandTest::test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none`.
