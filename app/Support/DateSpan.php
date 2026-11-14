@@ -98,6 +98,19 @@ final class DateSpan
     }
 
     /**
+     * The date in a few characters, for a table: a duration as «از 1052 تا 1057», any other range as «1201–1300», an
+     * open end as «؟» (step 14.194). Null when there is no date.
+     */
+    public function brief(): ?string
+    {
+        if ($this->isEmpty() || ! $this->isRange() || ($this->isSpan() && $this->from !== null && $this->to !== null)) {
+            return $this->text();
+        }
+
+        return ($this->from ?? '؟') . '–' . ($this->to ?? '؟');
+    }
+
+    /**
      * The date in words, with Latin digits (the caller sets them in Persian): «1052», «از 1052 تا 1057», «میان 1250 و
      * 1270», «پس از 1100», «از 1000 به بعد», «از میان 1000 و 1010 تا میان 1020 و 1030», and «1084–1107» for a range of
      * no known kind. Null when there is no date.

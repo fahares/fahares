@@ -10952,3 +10952,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-copy-date-ranges --apply` (حدود ۹۲ هزار UPDATE تک‌ستونی)، سپس با `--works`.
 - **تست:** `DateSpanTest` (۳)، `CopyDateRangeTest::test_the_kind_of_a_range_is_a_duration_one_event_at_an_unknown_time_or_unsettled`، `ApplyCorpusCategoriesCommandTest::test_the_kind_of_a_date_range_is_filled_and_a_duration_shared_in_a_volume_has_none`.
+
+### گام ۱۴.۱۹۴: `DateSpan::brief()` در `ConflictRecords` و طول مدت در `EstimateText::aliveIn` (مورد ۱۳۴، گام ۳ طرح)
+
+- **`DateSpan::brief()`:** متن کوتاه برای جدول. `span` با دو سرِ معلوم «از 1052 تا 1057» (همان `text()`)؛ هر بازه‌ی دیگر «1201–1300» و سرِ باز «؟»، مثل پیش از این گام. `text()` («میان … و …») جایی به کار نرفته و برای نمایش‌های آینده می‌ماند.
+- **`ConflictRecords::load`:** تاریخ هر رکورد از `DateSpan::fromColumns($row, <پیشوند>)->brief()`؛ ستون‌های `*_kind`، `*_start_to` و `*_end_from` هم خوانده می‌شوند. همین تابع یادداشت تناقض صفحه‌های عمومی (`DateConflictNote`) را هم می‌سازد.
+- **`EstimateText::aliveIn`:** وقتی شاهدِ کرانِ پایینِ وفات `isSpan()` است، دو سرش دقیق‌اند (`start_to` و `end_from` تهی) و کران از آغاز همان شاهد آمده:
+
+| قاعده | متن | دلیل |
+|---|---|---|
+| کاتب، خط مؤلف | «زنده در ‹`to`›» | «کتابت نسخه‌ای را در این سال به پایان برده است:» |
+| مؤلف، مترجم | «زنده در ‹`to`›» | «اثرش را تا این سال تألیف می‌کرده است:» |
+| بانی | «زنده در ‹`from`›» | «کتابت نسخه‌ای برای او در این سال آغاز شده است:» |
+| مُهدی‌الیه | بی‌تغییر | — |
+
+- **موتور دست نخورد:** `date_estimates` همان «وفات ≥ آغاز» را دارد. این متن یک واقعیت مستند را می‌گوید که از کران موتور دقیق‌تر است؛ قاعده‌های آغاز و پایان در `Loader` گام ۴ طرح است و به تصمیم کاربر به بعد ماند.
+- **تست:** `DateSpanTest::test_the_date_in_a_few_characters` و حالت‌های تازه در `AliveInTest::test_a_scribe_is_alive_in_the_year_of_a_copy_but_not_when_the_copies_span_generations`.
