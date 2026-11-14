@@ -24,6 +24,8 @@ class AnnouncementEventController extends Controller
             DB::table('announcement_user')->insertOrIgnore([
                 'announcement_id' => $announcement->id, 'user_id' => $request->user()->id, 'seen_at' => now(),
             ]);
+            // The same notice in the member's own notifications is no longer new
+            $request->user()->unreadNotifications()->where('data->announcement_id', $announcement->id)->update(['read_at' => now()]);
         }
 
         return response()->noContent();

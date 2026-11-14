@@ -223,9 +223,35 @@ class CopyDateRangeTest extends TestCase
         $this->assertNull($reread('قرن 3', 1106));
         $this->assertNull($reread('91-119', 1106));
         $this->assertNull($reread('رجب 73 و 196', 1106));
-        $this->assertSame([1006, 1106, 'doubtful', 'بازخوانی 106'], $reread('جمعه 12 رمضان 106؟', 832));
+        $this->assertSame([1006, 1106, 'doubtful', 'بازخوانی 106'], $reread('12 رمضان 106؟', 832));
+        // a weekday, day and month keep the readings that fall on that day, or a day from it
+        // 18 Dhu al-Hijja is a Thursday in 1019 and a Friday in 1109, a Sunday in 1119 and a Tuesday in 1190
+        $this->assertSame([1019, 1109, 'doubtful', 'بازخوانی 119'], $reread('جمعه 18 ذیحجه 119؟', 964));
+        $this->assertSame([1109, 1109, 'doubtful', 'بازخوانی 119'], $reread('جمعه 18 ذیحجه 119؟', 1064));
+        $this->assertSame([1125, 1250, 'doubtful', 'بازخوانی 125'], $reread('جمعه 13 ذیقعده 125 (؟)', 971));
+        $this->assertSame([1006, 1060, 'doubtful', 'بازخوانی 106'], $reread('جمعه 12 رمضان 106؟', 832));
+        // no reading falls on the day: the weekday says nothing, and all of them stay
+        $this->assertSame([1017, 1170, 'doubtful', 'بازخوانی 117'], $reread('یک‌شنبه 29 رمضان سال 31 جلوس (117)', 1000));
         $this->assertSame(125, CopyDateRange::rereadYear('بازخوانی 125'));
         $this->assertNull(CopyDateRange::rereadYear('؟'));
         $this->assertNull(CopyDateRange::rereadYear('نزدیک عصر مؤلف'));
+    }
+
+    public function test_the_weekday_of_a_hijri_date_and_the_date_a_text_states()
+    {
+        // 1 Muharram 1 was a Friday (16 July 622), 1 Muharram 1447 a Friday (27 June 2025), 17 Safar 1233 a Saturday
+        $this->assertSame(4, \App\Support\HijriWeekday::of(1, 1, 1));
+        $this->assertSame(4, \App\Support\HijriWeekday::of(1447, 1, 1));
+        $this->assertSame(5, \App\Support\HijriWeekday::of(1233, 2, 17));
+        $stated = fn (string $raw) => ($s = \App\Support\HijriWeekday::stated($raw)) ? [$s['weekday'], $s['day'], $s['month']] : null;
+        $this->assertSame([4, 18, 12], $stated('جمعه 18 ذیحجه 119؟'));
+        $this->assertSame([1, 19, 3], $stated('سه‌شنبه 19 ربیع الاول 142'));
+        $this->assertSame([6, 29, 9], $stated('یک‌شنبه 29 رمضان سال 31 جلوس (117)'));
+        $this->assertSame([5, 13, 6], $stated('شنبه 13 جمادی الثانی 396ق'));
+        $this->assertSame([3, 1, 4], $stated('پنجشنبه غره ربیع الثانی 125'));
+        // no day, or no weekday
+        $this->assertNull($stated('پنج‌شنبه شوال 119؟'));
+        $this->assertNull($stated('شنبه سلخ ربیع اول 108ق'));
+        $this->assertNull($stated('17 ذیحجه 166 ؟'));
     }
 }
