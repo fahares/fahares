@@ -13,6 +13,7 @@
         'link' => (string) old('link_url', $announcement->link_url), 'label' => (string) old('link_label', $announcement->link_label),
         'own' => (string) old('telegram_text', $announcement->telegram_text), 'audience' => (string) old('audience', $announcement->audience),
         'telegram' => (bool) old('telegram', $announcement->telegram),
+        'only' => (bool) old('telegram_only', ! ($announcement->on_site ?? true)),
         'footer' => trim((string) \App\Models\SiteSetting::get('telegram.footer')),
         'more' => \App\Support\AnnouncementTelegram::DEFAULT_LINK_LABEL,
     ];
@@ -44,7 +45,9 @@
 
     @if($exists)
         <p class="text-muted leading-7">
-            @if($status === 'running')
+            @if(! $announcement->on_site)
+                این اعلان فقط برای کانال تلگرام است و در سایت نمایش داده نمی‌شود.
+            @elseif($status === 'running')
                 این اعلان روشن است و تا @jdate($announcement->ends_at, 'long') نشان داده می‌شود.
             @elseif($status === 'ended')
                 دوره‌ی نمایش این اعلان در @jdate($announcement->ends_at, 'long') پایان یافت.
@@ -99,7 +102,7 @@
             @endif
         </x-admin.field>
 
-        <div class="grid gap-4 sm:grid-cols-3">
+        <div class="grid gap-4 sm:grid-cols-3" x-show="!only">
             <x-admin.field label="شکل نمایش" for="style" hint="پنجره صفحه را می‌پوشاند؛ آن را برای خبرهای مهم و کم‌شمار نگه دارید.">
                 <select name="style" id="style" class="{{ $input }}">
                     @foreach(\App\Models\Announcement::STYLES as $key => $label)
@@ -122,9 +125,13 @@
         {{-- The same notice as a post of the site's Telegram channel --}}
         <div class="border-t border-line pt-4 space-y-3">
             <div class="space-y-1">
-                <label class="inline-flex items-center gap-2 font-bold cursor-pointer" :class="audience !== 'all' && 'opacity-50'">
-                    <input type="checkbox" name="telegram" value="1" x-model="telegram" :disabled="audience !== 'all'" class="size-4 accent-cinnabar">
+                <label class="inline-flex items-center gap-2 font-bold cursor-pointer" :class="(audience !== 'all' || only) && 'opacity-50'">
+                    <input type="checkbox" name="telegram" value="1" x-model="telegram" :disabled="audience !== 'all' || only" class="size-4 accent-cinnabar">
                     در کانال تلگرام هم منتشر شود
+                </label>
+                <label class="flex items-center gap-2 font-bold cursor-pointer">
+                    <input type="checkbox" name="telegram_only" value="1" x-model="only" @change="if (only) { audience = 'all'; telegram = true }" class="size-4 accent-cinnabar">
+                    فقط در کانال تلگرام (در سایت نمایش داده نشود)
                 </label>
                 <p class="text-xs text-muted leading-6">
                     @if($posted)
@@ -133,10 +140,11 @@
                         یک بار، هنگامی که اعلان نخستین بار روشن می‌شود، به کانال می‌رود. پست کانال برگشت‌پذیر نیست؛ پیش از روشن کردن، پیش‌نمایش پایین را بخوانید.
                     @endif
                     <span x-show="audience !== 'all'" x-cloak>اعلانی که مخاطبش «همه» نیست به کانال نمی‌رود.</span>
+                    <span x-show="only" x-cloak>اعلانِ «فقط تلگرام» کارت سایت ندارد، در اعلان‌های اعضا نمی‌آید و جای اعلان‌های دیگر سایت را نمی‌گیرد.</span>
                 </p>
             </div>
 
-            <div x-show="telegram && audience === 'all'" x-cloak class="space-y-3">
+            <div x-show="(telegram || only) && audience === 'all'" x-cloak class="space-y-3">
                 <x-admin.field label="متن تلگرام (اختیاری)" for="telegram_text" error="telegram_text" hint="اگر خالی بماند، عنوان و متن بالا می‌رود. اگر پر شود، همین نوشته به‌جای آن دو می‌رود (برای emoji یا عبارت‌بندی دیگر). پیوند و پانویس در هر دو حال خودکار افزوده می‌شوند.">
                     <textarea name="telegram_text" id="telegram_text" rows="4" maxlength="3500" x-model="own" class="{{ $input }} leading-7"></textarea>
                 </x-admin.field>
@@ -156,7 +164,8 @@
                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', $status === 'running') ? 'checked' : '' }} class="size-4 accent-cinnabar">
                 روشن باشد
             </label>
-            <p class="text-xs text-muted leading-6">با روشن شدن، دوره‌ی نمایش از همین لحظه آغاز می‌شود. کسی که اعلان را پیش‌تر دیده، با روشن شدنِ دوباره آن را نمی‌بیند.</p>
+            <p class="text-xs text-muted leading-6" x-show="!only">با روشن شدن، دوره‌ی نمایش از همین لحظه آغاز می‌شود. کسی که اعلان را پیش‌تر دیده، با روشن شدنِ دوباره آن را نمی‌بیند.</p>
+            <p class="text-xs text-muted leading-6" x-show="only" x-cloak>با روشن شدن، پست به کانال تلگرام می‌رود.</p>
         </div>
 
         <x-admin.form-actions :cancel="route('admin.announcements.index')" :submit="$exists ? 'ذخیره‌ی تغییرات' : 'ذخیره'" />
