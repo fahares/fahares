@@ -10739,6 +10739,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **موارد مشکوکِ پرشده:** فهرست «قمری» نوشته ولی شخص پیش از هجرت درگذشته است: «عنترة بن شداد» («- 22 قمری») و «ابن کلثوم، عمرو بن کلثوم» («- 40 ؟ قمری»). بازه‌شان از پیش همین عدد بود.
 - **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های ۶۶ ردیف، اجرای آزمایشی و مقایسه با تمرین، `fahares:fill-death-years --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
 
+### گام ۱۴.۱۸۰: اعلان‌های عمومی سایت
+
+- **جدول‌ها (`2026_11_14_100001_create_announcements_tables`):**
+  - `announcements`: `title`، `body`، `link_url`، `link_label`، `image_path`، `style` (`card`، `modal`)، `audience` (`all`، `guests`، `members`)، `is_active`، `days`، `starts_at`، `ends_at`، `views_count`، `clicks_count`.
+  - `announcement_user`: اعلان‌هایی که هر عضو دیده است. درباره‌ی مهمان چیزی ذخیره نمی‌شود.
+- **`Announcement::forViewer()`:** فهرست اعلان‌های روشن ده دقیقه کش می‌شود (`announcements.running`) و با هر ذخیره یا حذف پاک می‌شود. آغاز و پایان دوره در هر درخواست از روی همان فهرست سنجیده می‌شود، پس پایان دوره منتظر کش نمی‌ماند. تا اعلانی روشن نیست، بازدید صفحه پرس‌وجویی ندارد؛ برای عضو یک پرس‌وجوی کوچک روی `announcement_user` هست.
+- **`x-announcement` (در `layouts.app`) و `resources/js/announcement.js`:**
+  - متن اعلان در یک ویژگی JSON می‌آید و اسکریپت آن را با `x-text` می‌نویسد، پس جزء متن خود صفحه‌ها نیست.
+  - `localStorage`: `announcements-seen` (شناسه‌ها، تا ۵۰ تا) و `first-visit-at`. مهمانی که `first-visit-at` او کمتر از یک ساعت پیش است اعلان نمی‌بیند. اگر مرورگر پیش از این چیزی ذخیره کرده باشد (پوسته، نوار بسته‌شده)، بازدیدکننده‌ی پیشین شمرده می‌شود. اگر ذخیره‌سازی بسته باشد، اعلان نمایش داده نمی‌شود، چون در هر صفحه برمی‌گشت.
+  - نمایش ۱٫۵ ثانیه پس از دیده شدن تب؛ «دیده‌شده» پس از ۶ ثانیه، یا با بستن یا کلیک. رویداد `announcement-shown` نوار «عضو شوید» را در همان بازدید پنهان می‌کند.
+  - `?announcement_preview=<id>` برای دارنده‌ی `announcements.manage`: نمایش بی‌قید و بی‌شمارش.
+- **`POST /announcements/{id}/event`** (`view` یا `click`، `throttle:30,1`): شمارنده را فقط برای اعلان روشن بالا می‌برد و برای عضو ردیف `announcement_user` می‌سازد.
+- **پیوند دکمه:** فقط مسیر همین سایت (`/…`) یا `https://…`؛ `javascript:`، `//host` و `http://` رد می‌شوند. پیوند بیرونی در تب تازه باز می‌شود.
+- **زمان‌بندی:** روشن کردن، `starts_at` را اکنون می‌گذارد و `ends_at = starts_at + days`. ذخیره‌ی اعلانِ روشن آغاز را نگه می‌دارد. آغاز در آینده در این گام نیست.
+- **وارسی محلی:** کانتینر `fahares_announce_web` (پورت ۸۰۱۳) از worktree روی `fahares_db`؛ دو migration عقب‌مانده‌ی گام‌های تخمین تاریخ هم روی `fahares_db` اجرا شد. پنل مرورگر انیمیشن را در حالت پس‌زمینه کند می‌کند، پس عکس‌ها پس از پایان محو شدن گرفته شدند.
+- **تست:** `tests/Feature/AnnouncementTest.php` (۶ آزمون).
+
 ### گام ۱۴.۱۸۱: `HijriYear::otherCalendar()`
 
 - **`otherCalendar(?string): ?[from, to]`:**
