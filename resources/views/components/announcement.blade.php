@@ -39,7 +39,7 @@
                      :class="item.style === 'modal' ? 'w-full max-w-md max-h-full overflow-y-auto' : ''"
                      class="pointer-events-auto text-right bg-surface border border-line-strong rounded-lg shadow-2xl shadow-black/20 overflow-hidden">
                 {{-- A paper letterhead closed by one gold line: what the notice is, and the way out --}}
-                <div class="flex items-center justify-between gap-3 bg-paper border-b border-gold" :class="item.style === 'modal' ? 'px-6 py-2' : 'px-4 py-1.5'">
+                <div class="flex items-center justify-between gap-3 bg-paper border-b border-gold dark:border-gold/35" :class="item.style === 'modal' ? 'px-6 py-2' : 'px-4 py-1.5'">
                     <span class="flex items-center gap-2 text-xs font-bold text-ink/70">
                         <span class="size-1.5 rotate-45 bg-cinnabar" aria-hidden="true"></span>
                         تازه‌های فهارس
