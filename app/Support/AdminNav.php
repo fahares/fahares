@@ -50,6 +50,7 @@ class AdminNav
                 ['label' => 'صفحه‌ی خانه', 'route' => 'admin.home.index', 'active' => 'admin.home.*', 'can' => 'home.manage'],
                 ['label' => 'صفحه‌ها', 'route' => ['admin.pages.edit', 'about'], 'active' => 'admin.pages.*', 'can' => 'pages.manage'],
                 ['label' => 'نوشته‌ها', 'route' => 'admin.posts.index', 'active' => 'admin.posts.*', 'can' => 'posts.manage'],
+                ['label' => 'اعلان‌های سایت', 'route' => 'admin.announcements.index', 'active' => 'admin.announcements.*', 'can' => 'announcements.manage'],
                 ['label' => 'قالب ایمیل‌ها', 'route' => 'admin.mail.index', 'active' => 'admin.mail.*', 'can' => 'home.manage'],
             ]],
             ['title' => 'سامانه', 'items' => [

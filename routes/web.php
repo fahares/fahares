@@ -157,6 +157,10 @@ Route::get('/api/suggestions/lookup', [SuggestionController::class, 'lookup'])
     ->name('suggestions.lookup');
 
 // Feedback about the site from any page
+// A visitor has seen a public notice or followed its link
+Route::post('/announcements/{announcement}/event', [\App\Http\Controllers\AnnouncementEventController::class, 'store'])
+    ->whereNumber('announcement')->middleware('throttle:30,1')->name('announcements.event');
+
 Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:10,60')->name('feedback.store');
 
 // Images of research notes (access checked in the controller)
@@ -379,6 +383,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     // Fixed pages, such as «درباره ما»
+    Route::resource('announcements', \App\Http\Controllers\Admin\AnnouncementController::class)->except(['show'])->middleware('can:announcements.manage');
+
     Route::middleware('can:pages.manage')->group(function () {
         Route::get('/pages/{page}/edit', [AdminPageController::class, 'edit'])->name('pages.edit');
         Route::put('/pages/{page}', [AdminPageController::class, 'update'])->name('pages.update');
