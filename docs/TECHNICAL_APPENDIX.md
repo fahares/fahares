@@ -10447,3 +10447,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   3. رونوشت فایل‌های صفحه به `/tmp` کانتینر.
   4. `sources:import-pages` برای ۲۷ جلد.
   5. وارسی و پاک کردن `/tmp`.
+- **اجرای تولید (۲۳ آبان ۱۴۰۵):**
+  - **نسخه‌ها:**
+    - پشتیبان از ستون‌های آغاز، انجام، `is_autograph`، `is_bita`، تاریخ، `copy_place` و `metadata` ۲۴۲ نسخه (md5 `27f5ad00…`). به `fahares-sources/backups/step13/step14_171_backup.json` منتقل شد.
+    - `--apply` با `nohup`: ۲۴۲ نسخه نوشته شد. اجرای دوم: `already 242`.
+  - **صفحه‌ها:**
+    - ۳۴ فایل به `/tmp/step14_171_pages/` کانتینر رونوشت شد و `md5sum -c` درست بود.
+    - پشتیبان از ۳۳٬۵۱۸ صفحه‌ی فنخا: `step14_171_fankha_pages_before.jsonl.gz` (md5 `33592d1c…`).
+    - `sources:import-pages` برای ۲۷ جلد `VOLUMES`، در یک `prod-run` با `nohup`. ۲۷ سطر «pages saved» بود و هیچ خطایی نبود.
+  - **وارسی:** صفحه‌های تولید دوباره بیرون آمد و با Python با فایل‌ها برابر گذاشته شد: ۳۳٬۵۱۸ صفحه، `differ 0` و `missing 0`. `/sources/fankha/7/page/720` پاسخ 200 داد. `/tmp` کانتینر پاک است.
