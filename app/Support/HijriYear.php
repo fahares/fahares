@@ -5,7 +5,8 @@ namespace App\Support;
 /**
  * Extracts a sortable Hijri year from a free-text catalog date such as
  * «یک‌شنبه ۲۳ ربیع الاول ۱۲۳۶ق». Returns null when there is no year
- * («سده‌ی ۱۳») or the only year is Gregorian or solar («۱۸۲۰م», «۱۳۵۰ش»).
+ * («سده‌ی ۱۳»). A date whose only year is solar or Gregorian («۱۳۵۰ش», «۱۸۲۰م») gives the first Hijri year that
+ * year spans (otherCalendar, step 14.181).
  */
 class HijriYear
 {
@@ -20,7 +21,51 @@ class HijriYear
 
     public static function parse(?string $raw): ?int
     {
-        return self::all($raw)[0] ?? null;
+        return self::all($raw)[0] ?? self::otherCalendar($raw)[0] ?? null;
+    }
+
+    private const SOLAR_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:ش(?!\p{L})|شمسی|خورشیدی)';
+    private const GREGORIAN_MARK = '\s*(?:م(?!\p{L})|میلادی|AD|CE)';
+
+    /**
+     * The Hijri years a solar or Gregorian year spans, when a date names no Hijri year (step 14.181): «1370ش» (21
+     * March 1991 to 20 March 1992) is 1411-1412, «1886م» 1303-1304, «1314/8/12ش» 1353-1354. The first such year in
+     * the text counts; the text itself stays as the catalogue has it.
+     *
+     * @return array{0: int, 1: int}|null
+     */
+    public static function otherCalendar(?string $raw): ?array
+    {
+        $text = strtr((string) $raw, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
+        if (! preg_match('#(?<![\d/])(\d{3,4})((?:/\d{1,2}){0,2})(' . self::SOLAR_MARK . '|' . self::GREGORIAN_MARK . ')#u', $text, $m)) {
+            return null;
+        }
+        $year = (int) $m[1];
+        if (preg_match('/^' . self::SOLAR_MARK . '$/u', $m[3])) {
+            // a catalogue's solar dates are of the last century; «317/11/7ش» is 1317 written short, not year 317
+            if ($year < 1200 || $year > 1500) {
+                return null;
+            }
+            // Nowruz of solar year S falls on about 21 March of S + 621
+            return [self::hijriOf($year + 621, 3, 21), self::hijriOf($year + 622, 3, 20)];
+        }
+        if ($year < 1000 || $year > 2100) {
+            return null;
+        }
+
+        return [self::hijriOf($year, 1, 1), self::hijriOf($year, 12, 31)];
+    }
+
+    /** The Hijri year (tabular calendar) a Gregorian day falls in. */
+    private static function hijriOf(int $y, int $m, int $d): int
+    {
+        // Julian day number of a Gregorian date
+        $a = intdiv(14 - $m, 12);
+        $yy = $y + 4800 - $a;
+        $mm = $m + 12 * $a - 3;
+        $jdn = $d + intdiv(153 * $mm + 2, 5) + 365 * $yy + intdiv($yy, 4) - intdiv($yy, 100) + intdiv($yy, 400) - 32045;
+
+        return intdiv(30 * ($jdn - 1948440) + 10646, 10631);
     }
 
     /**

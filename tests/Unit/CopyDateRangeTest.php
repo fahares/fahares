@@ -44,7 +44,7 @@ class CopyDateRangeTest extends TestCase
         // The year after a «،» inside the date, and not the year of the copy it was made from
         $this->assertSame([1268, 1268], $this->range('18 ربیع الثانی، 1268'));
         $this->assertSame([1122, 1122], $this->range('1122، از روی نسخه‌ای در 616'));
-        $this->assertSame([null, null], $this->range('1250م'));
+        $this->assertSame([647, 648], $this->range('1250م'));
         $this->assertSame([null, null], $this->range('نزدیک عصر مؤلف'));
     }
 
@@ -127,6 +127,21 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame([845, 1098], $this->range('845-1098ق'));
         $this->assertSame(1207, \App\Support\HijriYear::parse('127 (=1207ق)'));
         $this->assertSame(1126, \App\Support\HijriYear::parse('7 ربیع الاول 126 (گویا 1126)'));
+    }
+
+    public function test_a_solar_or_gregorian_date_spans_the_hijri_years_it_falls_in()
+    {
+        // step 14.181: the catalogue's own pairs («1383ش = 1425ق», «1359ش = 1400ق», «1254ش = 1292ق») agree
+        $this->assertSame([1425, 1426], $this->range('1383ش'));
+        $this->assertSame([1400, 1401], $this->range('1359ش'));
+        $this->assertSame([1292, 1293], $this->range('1254ش'));
+        $this->assertSame([1303, 1304], $this->range('1886م'));
+        $this->assertSame([1353, 1354], $this->range('1314/8/12ش'));
+        $this->assertSame(1411, \App\Support\HijriYear::parse('1370ش'));
+        // a Hijri year in the text wins
+        $this->assertSame([1400, 1400], $this->range('1359ش = 1400ق'));
+        $this->assertSame([1304, 1304], $this->range('1886م؛ تاریخ ترجمه: 1304ق'));
+        $this->assertSame(1304, \App\Support\HijriYear::parse('1886م؛ تاریخ ترجمه: 1304ق'));
     }
 }
 

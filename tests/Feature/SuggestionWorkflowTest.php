@@ -131,8 +131,9 @@ class SuggestionWorkflowTest extends TestCase
             '1034 تا 1052 ق' => 1034,
             'قرن 13' => null,
             'سده‌ی ۱۳' => null,
-            '1820م' => null,
-            '۱۳۵۰ش' => null,
+            // a solar or Gregorian year gives the first Hijri year it spans (step 14.181)
+            '1820م' => 1235,
+            '۱۳۵۰ش' => 1391,
             '1350ش / 1390ق' => 1390,
             '27 جمادی الثانی 127=1207ق' => 1207,
             'تا برگ 162 از قرن 11 و بقیه ترمیمی سال 1277' => 1277,
