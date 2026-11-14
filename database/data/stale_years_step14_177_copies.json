@@ -1,0 +1,1942 @@
+{
+ "source": "a copy's sortable year put in step with its date text: a solar year read as Hijri, a Hijri year beside it, a year missing (fahares step 14.177)",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 15059,
+   "shelfmark": "490/4",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 968,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 29727,
+   "shelfmark": "26856",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1338,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 30821,
+   "shelfmark": "2209",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1116,
+     "to": 1114
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 33509,
+   "shelfmark": "16375",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1322,
+     "to": 1321
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43093,
+   "shelfmark": "5146",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 654
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 43272,
+   "shelfmark": "11277",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1344,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 46159,
+   "shelfmark": "6701",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 49176,
+   "shelfmark": "15046",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1311,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 52068,
+   "shelfmark": "654/5",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1356,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 55920,
+   "shelfmark": "6385",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1058
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59392,
+   "shelfmark": "10554",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1373,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59848,
+   "shelfmark": "1033",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1299,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 59896,
+   "shelfmark": "11916",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1359,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60601,
+   "shelfmark": "2812/12",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 60724,
+   "shelfmark": "9858",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1319,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61292,
+   "shelfmark": "712",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1328,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 61519,
+   "shelfmark": "11223",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1313,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 64967,
+   "shelfmark": "4406",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1334,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 70826,
+   "shelfmark": "11678",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1336,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 75161,
+   "shelfmark": "11969",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1316,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 76563,
+   "shelfmark": "2812/4",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 76609,
+   "shelfmark": "2812/11",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 79389,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1332,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80406,
+   "shelfmark": "5146/2",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 654
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 80546,
+   "shelfmark": "9316/2",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1308,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 82294,
+   "shelfmark": "15113/2",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1222,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 96142,
+   "shelfmark": "3963",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1336,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97735,
+   "shelfmark": "8706",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 97755,
+   "shelfmark": "16084",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1309,
+     "to": 1342
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 98293,
+   "shelfmark": "2812/8",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 102120,
+   "shelfmark": "5501",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1230
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 115894,
+   "shelfmark": "15290/15",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 117913,
+   "shelfmark": "6796/1-عکس",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1346,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119038,
+   "shelfmark": "۱/ ۱۹۷۲-عکسی",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1202
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119039,
+   "shelfmark": "۸۹۸",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1220
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119040,
+   "shelfmark": "۵۴۲۱",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1232
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119041,
+   "shelfmark": "۲۱۸۴/۱",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1251
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119043,
+   "shelfmark": "۱۲۷۰۶",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1266
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119044,
+   "shelfmark": "۶۲۲۳",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1275
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119045,
+   "shelfmark": "۴۴",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1276
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119046,
+   "shelfmark": "۲۰۸۰/۲",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1277
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119047,
+   "shelfmark": "۷۳/۱",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1285
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119048,
+   "shelfmark": "۹۲۳۶",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1285
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119049,
+   "shelfmark": "۱۲۰۲۹",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1286
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119050,
+   "shelfmark": "۴۷۵/۱",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1295
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119051,
+   "shelfmark": "۴۷۵/۱",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1295
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119052,
+   "shelfmark": "۱۰۴۶۵",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1300
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119053,
+   "shelfmark": "۷۰۹۵/۱-۳۶/۹۵",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1301
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 119054,
+   "shelfmark": "۴۱۶",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1308
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 121733,
+   "shelfmark": "4325",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1336,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 122294,
+   "shelfmark": "5464/5-27/134",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1338
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 125765,
+   "shelfmark": "9921",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": 1357
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 130570,
+   "shelfmark": "168 - ج",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1312,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 130572,
+   "shelfmark": "6742",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 131119,
+   "shelfmark": "1747-ف",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 894,
+     "to": 892
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 132520,
+   "shelfmark": "8985/06",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1318,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 134113,
+   "shelfmark": "1570-9/120",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1327,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140238,
+   "shelfmark": "7087",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140443,
+   "shelfmark": "4038/1",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 140648,
+   "shelfmark": "11430",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1356,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 142605,
+   "shelfmark": "2722",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1342,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 142674,
+   "shelfmark": "387",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1344,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 143580,
+   "shelfmark": "109 فرخ",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1330,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 146472,
+   "shelfmark": "11798",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1349,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 147375,
+   "shelfmark": "11797",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1349,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 148157,
+   "shelfmark": "7919",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1280
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 155791,
+   "shelfmark": "8616/25",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1313,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 165679,
+   "shelfmark": "200/3",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1304,
+     "to": 1303
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 168930,
+   "shelfmark": "6776",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1368,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 175473,
+   "shelfmark": "2255",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1068,
+     "to": 1061
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 176004,
+   "shelfmark": "10610",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1349,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 176043,
+   "shelfmark": "11329",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1319,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181862,
+   "shelfmark": "3150",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181990,
+   "shelfmark": "10388",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 181991,
+   "shelfmark": "15384",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1371,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 182007,
+   "shelfmark": "122 فرخ",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1330,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 182398,
+   "shelfmark": "11679",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1333,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 185512,
+   "shelfmark": "4265",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1370,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 195173,
+   "shelfmark": "16753",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1346,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 196077,
+   "shelfmark": "4426",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1407,
+     "to": 1408
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 198045,
+   "shelfmark": "12071/2",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1360
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 200153,
+   "shelfmark": "4144",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1343,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 203671,
+   "shelfmark": "249",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206247,
+   "shelfmark": "11643",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1352,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 206252,
+   "shelfmark": "11640",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1346,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 207267,
+   "shelfmark": "760/1",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1360,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 210119,
+   "shelfmark": "18276/1",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1254,
+     "to": 1292
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215367,
+   "shelfmark": "3990",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1334,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 215750,
+   "shelfmark": "15665",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": 1357
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 222199,
+   "shelfmark": "4264",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1337,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 225293,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1253,
+     "to": 1252
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 227558,
+   "shelfmark": "2795",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1357
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 229343,
+   "shelfmark": "101",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1328,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 230311,
+   "shelfmark": "2129/1",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1214,
+     "to": 1213
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233045,
+   "shelfmark": "12280",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1311,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 233873,
+   "shelfmark": "9884",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 234211,
+   "shelfmark": "10815",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1320,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 235173,
+   "shelfmark": "1291عکسی",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1362,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 245080,
+   "shelfmark": "176 خوئی",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1065
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 249248,
+   "shelfmark": "22795",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1085,
+     "to": 1061
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 249807,
+   "shelfmark": "15290/19",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1384,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 250080,
+   "shelfmark": "28486",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1284
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257399,
+   "shelfmark": "4020",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1362,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257400,
+   "shelfmark": "11315",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1362,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 257410,
+   "shelfmark": "15290/1",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1379,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258615,
+   "shelfmark": "1746",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1326,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258628,
+   "shelfmark": "ب-3",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1371,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258869,
+   "shelfmark": "15354",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1340,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 258870,
+   "shelfmark": "15355",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1340,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259772,
+   "shelfmark": "2075/3",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1242
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259891,
+   "shelfmark": "1749",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1330,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 260347,
+   "shelfmark": "11314",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1362,
+     "to": 1404
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 260556,
+   "shelfmark": "4401",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1336,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 260566,
+   "shelfmark": "4407",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1348,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268771,
+   "shelfmark": "16286",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1378,
+     "to": 1419
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 268772,
+   "shelfmark": "16287",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1376,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 273523,
+   "shelfmark": "1291",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1308,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280046,
+   "shelfmark": "18026",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1369,
+     "to": 1410
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280047,
+   "shelfmark": "26825",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1377,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280048,
+   "shelfmark": "4810",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 280867,
+   "shelfmark": "239",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1352,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 282355,
+   "shelfmark": "11736",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1346,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286577,
+   "shelfmark": "4353/20",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1107,
+     "to": 1084
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 286710,
+   "shelfmark": "16685",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1340,
+     "to": 1381
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301213,
+   "shelfmark": "15290/17",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 301300,
+   "shelfmark": "15290/12",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 306930,
+   "shelfmark": "3192/2",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1101,
+     "to": 1098
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 307869,
+   "shelfmark": "1276",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": null,
+     "to": 1302
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309448,
+   "shelfmark": "14678",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1336,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311519,
+   "shelfmark": "3003",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1319,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 311770,
+   "shelfmark": "15290/13",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 316732,
+   "shelfmark": "3980",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1359,
+     "to": 1400
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319721,
+   "shelfmark": "16843",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1313,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 319789,
+   "shelfmark": "5837-29/177",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1332,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 320403,
+   "shelfmark": "48",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1305,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 322579,
+   "shelfmark": "36244",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1017,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 324737,
+   "shelfmark": "7579",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1319,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332762,
+   "shelfmark": "6452",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1320,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332847,
+   "shelfmark": "3977",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1357,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 332945,
+   "shelfmark": "15290/16",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1383,
+     "to": 1425
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334136,
+   "shelfmark": "3008/29 حاشیه",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1049,
+     "to": 1045
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334379,
+   "shelfmark": "511/4-طباطبائی",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1065,
+     "to": 1085
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334635,
+   "shelfmark": "بدون شماره",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1254,
+     "to": 1255
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334655,
+   "shelfmark": "1427/9",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1079,
+     "to": 1078
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334673,
+   "shelfmark": "19757",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1230,
+     "to": 1203
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334723,
+   "shelfmark": "4427",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1407,
+     "to": 1408
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334724,
+   "shelfmark": "4428",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1407,
+     "to": 1408
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334725,
+   "shelfmark": "4429",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1407,
+     "to": 1408
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 334745,
+   "shelfmark": "8373/17",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1228,
+     "to": 1222
+    }
+   }
+  }
+ ]
+}

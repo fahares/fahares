@@ -1,0 +1,548 @@
+{
+ "source": "a work's sortable year put in step with its date of composition (fahares step 14.177)",
+ "category": "corpus_fix",
+ "works": [],
+ "fills": [],
+ "work_updates": [
+  {
+   "work_slug": "armuni-ye-musiqi-ye-iran-v1-533",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "az-har-dari-soxani-v3-266",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1374,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "ostad-afzal-e-mahabadi-v3-470",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "iran-e-bastan-v5-796",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1309,
+     "to": 1349
+    }
+   }
+  },
+  {
+   "work_slug": "bahaigari-v6-303",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1323,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "pazuhesi-dar-emamzade-sahl-ebn-e-ali-v6-1002",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1374,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "pizari-ye-ardestani-v6-1119",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tarix-e-ardestan-v6-1247",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1365,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tarix-e-mofassal-e-masrutiyat-e-iran-v6-1898",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1310,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tajziye-va-tahlil-e-daramad-e-melli-v6-2371",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1352,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tazkere-ye-soara-ye-moaser-v7-1740",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1328,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tarane-ha-ye-mahalli-ye-ardestan-v7-1932",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1373,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tasri-e-osul-e-fanni-ye-lokomovtiv-e-boxar-v8-590",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1316,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "tanaqozat-e-peyman-va-parcam-v9-531",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1323,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "jam-e-parisan-v10-640",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1370,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "jenab-e-aqa-az-meydan-dar-raft-v10-792",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1324,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "hafez-ce-mi-guyad-v12-834",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "hojjat-ol-eslam-haj-seyyed-ali-asqar-e-nayyeri-ye-tabatabai-ye-zavvare-i-v12-951",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "hasan-k-e-hafez-ra-mi-suzanad-v13-21",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1324,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "haqayeq-e-goftani-darbare-ye-kostar-e-bahaiyan-dar-sahrud-v13-259",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1324,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "xoda-ba-mast-v13-1457",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "dadgah-v14-576",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1323,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "danestani-ha-va-amuxtani-ha-v14-902",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "davari-v14-917",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1323,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "ad-dorrat-ol-bayza-hedyat-on-le-rovat-e-hadis-el-kasa-v14-1023",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1358,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "doktor-seyyed-arastu-xan-e-alaj-e-ardestani-tabib-e-moalej-e-parvin-e-etesami-v14-2050",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1382,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "dowlat-be-ma-pasox-dahad-v14-2363",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1323,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "dah-sal-dar-adliye-v14-2391",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1323,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "s-ul-unmuaj-v19-231",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1353,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "s-e-hal-e-edda-i-az-tbiban-va-pezeskan-e-ardestan-v19-746",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1375,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "s-e-hal-e-mirza-mohammad-hasan-e-zonuzi-v19-788",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1369,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "s-e-avamel-e-molla-mohsen-v20-301",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1358,
+     "to": 1399
+    }
+   }
+  },
+  {
+   "work_slug": "sii-gari-v21-680",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "sudur-ul-katir-an-il-waid-v21-944",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "sarf-va-nahv-v21-1046",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1352,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "siqe-ye-nekah-v21-1963",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1360,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "fehrest-e-tasanif-e-seyx-ur-rais-v24-1285",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "fahlaviyyat-e-ardestani-v24-1531",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1381,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "qahti-va-gerani-ha-dar-ardestan-v24-1971",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1382,
+     "to": 1424
+    }
+   }
+  },
+  {
+   "work_slug": "kaca-mesqal-negini-dar-miyan-e-kuh-va-darre-v26-192",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1384,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "gol-ha-ye-bustan-e-sadi-v27-276",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1343,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "ganjine-ye-zaraef-va-taraef-v27-347",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1369,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "ganjine-ye-namus-v27-355",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1307,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "mazarat-e-sahr-e-ardestan-v29-330",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1372,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "meftah-ul-kunuz-v30-1794",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1302,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "maqam-e-zan-dar-eslam-v31-368",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1346,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "maqsud-az-xelqat-va-mamuriyat-e-moslemin-v31-677",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1306,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "maktab-e-kasravi-va-materiyalism-v31-921",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1327,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "molla-hoseyn-e-geryan-sahrabi-v31-1044",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1383,
+     "to": 1425
+    }
+   }
+  },
+  {
+   "work_slug": "molla-moezz-e-ardestani-v31-1062",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1383,
+     "to": 1425
+    }
+   }
+  },
+  {
+   "work_slug": "montaxabat-v31-1998",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1326,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "mirza-mohammad-ali-ye-ardestani-v32-1207",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1383,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "wafa-uz-zaman-aw-ikra-l-firdawsi-v34-1144",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1303,
+     "to": null
+    }
+   }
+  },
+  {
+   "work_slug": "yaddast-e-joqrafiyayi-t-v34-2038",
+   "v2": null,
+   "changes": {
+    "composition_year_hijri": {
+     "from": null,
+     "to": 1304
+    }
+   }
+  }
+ ]
+}
