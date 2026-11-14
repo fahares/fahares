@@ -1,0 +1,109 @@
+{
+ "source": "the sortable year of a copy whose date text names a number that is no year (fahares step 14.175)",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 49325,
+   "shelfmark": "816",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1322,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 62220,
+   "shelfmark": "9917",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1315,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 136458,
+   "shelfmark": "11714",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1345,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 145774,
+   "shelfmark": "4824",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 809,
+     "to": 1089
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 152215,
+   "shelfmark": "63200",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 317,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 232863,
+   "shelfmark": "956",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1314,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 234239,
+   "shelfmark": "48",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1360,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 259646,
+   "shelfmark": "126 حکمت",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_hijri_year": {
+     "from": 1295,
+     "to": 1334
+    }
+   }
+  }
+ ]
+}
