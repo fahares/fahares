@@ -10653,6 +10653,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - چهار فرمان با `nohup` اجرا شد: ۸ نسخه، ۳ اثر، `changed 21` و `changed 6`. ۸ بازه‌ی نسخه و ۳ بازه‌ی اثر را خود دو فرمان نخست ساخته بودند.
   - اجرای دوم هر چهار: صفر.
 
+### گام ۱۴.۱۷۶: چیدمان یادداشت ناسازگاری و دلیل تخمین
+
+- **جای کامپوننت‌ها:** `x-date-conflict-note` و `x-date-estimate-why` پس از `</x-ui.meta>` می‌آیند، نه درون آن. ریشه‌شان `col-span-full` است، پس در شبکه‌ی `x-ui.meta-list` هر دو ستون را می‌گیرند.
+- **`x-date-estimate` و `x-date-estimate-why`:** دکمه‌ی «چرا؟» رویداد `estimate-why` را با نام (`composition`، `alive`) می‌فرستد و ردیف دلیل با همان نام باز و بسته می‌شود.
+- **`DateConflictNote`:**
+  - `reject`: ناسازگاری یک رکورد با خودش (قاعده‌ی `life`) در سمت `b`.
+  - `unique`: بر پایه‌ی رکورد و فیلد طرف دیگر؛ چون فهرست به ترتیب `gap` است، پهن‌ترین می‌ماند.
+  - برچسب پاسخ‌ها کوتاه شد و عنوان رکورد دیگر تا ۲۸ نویسه بریده می‌شود.
+- **`EstimateText::UNDATED_TITLES`:** «القرآن الکریم» و «قرآن کریم» (پس از یکسان‌سازی ي و ك)، با `primary_title` برابر. ترجمه‌ها و تفسیرها عنوان دیگری دارند و تخمینشان می‌ماند.
+- **تست:** `test_the_quran_gets_no_estimate` و `test_one_note_for_two_rules_over_the_same_dates_and_one_for_a_persons_own_dates`.
+
 ### گام ۱۴.۱۷۷: سال مرتب‌سازی کهنه (`stale_years_step14_177_*.json`)
 
 - **سنجش:**
@@ -10671,15 +10682,4 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   2. `fahares:add-corpus-works --file=database/data/stale_years_step14_177_works.json --apply`
   - پس از هر دو، `fill-copy-date-ranges` (نسخه‌ها و `--works`) روی رونوشت محلی `changed 0` داد.
 - **عددهای شکسته (۱۲):** ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. چاپ همان رقم‌ها را دارد. سه تا از بافت هم سالی نمی‌دهند: «101357/6ق»، «10135ق» و «13582ق».
-
-### گام ۱۴.۱۷۶: چیدمان یادداشت ناسازگاری و دلیل تخمین
-
-- **جای کامپوننت‌ها:** `x-date-conflict-note` و `x-date-estimate-why` پس از `</x-ui.meta>` می‌آیند، نه درون آن. ریشه‌شان `col-span-full` است، پس در شبکه‌ی `x-ui.meta-list` هر دو ستون را می‌گیرند.
-- **`x-date-estimate` و `x-date-estimate-why`:** دکمه‌ی «چرا؟» رویداد `estimate-why` را با نام (`composition`، `alive`) می‌فرستد و ردیف دلیل با همان نام باز و بسته می‌شود.
-- **`DateConflictNote`:**
-  - `reject`: ناسازگاری یک رکورد با خودش (قاعده‌ی `life`) در سمت `b`.
-  - `unique`: بر پایه‌ی رکورد و فیلد طرف دیگر؛ چون فهرست به ترتیب `gap` است، پهن‌ترین می‌ماند.
-  - برچسب پاسخ‌ها کوتاه شد و عنوان رکورد دیگر تا ۲۸ نویسه بریده می‌شود.
-- **`EstimateText::UNDATED_TITLES`:** «القرآن الکریم» و «قرآن کریم» (پس از یکسان‌سازی ي و ك)، با `primary_title` برابر. ترجمه‌ها و تفسیرها عنوان دیگری دارند و تخمینشان می‌ماند.
-- **تست:** `test_the_quran_gets_no_estimate` و `test_one_note_for_two_rules_over_the_same_dates_and_one_for_a_persons_own_dates`.
 
