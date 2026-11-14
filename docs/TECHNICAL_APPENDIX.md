@@ -10984,3 +10984,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **موتور دست نخورد:** `date_estimates` همان «وفات ≥ آغاز» را دارد. این متن یک واقعیت مستند را می‌گوید که از کران موتور دقیق‌تر است؛ قاعده‌های آغاز و پایان در `Loader` گام ۴ طرح است و به تصمیم کاربر به بعد ماند.
 - **تست:** `DateSpanTest::test_the_date_in_a_few_characters` و حالت‌های تازه در `AliveInTest::test_a_scribe_is_alive_in_the_year_of_a_copy_but_not_when_the_copies_span_generations`.
+
+### گام ۱۴.۱۹۶: `Manuscript::sharedVolumeDates` فقط تاریخ‌های `span` را می‌پرسد
+
+- **پیش از این:** برای هر دسته‌ی ۲٬۰۰۰ نسخه، به ازای هر کتابخانه یک پرس‌وجوی `GROUP BY collection_key, copy_date_raw` برای همه‌ی مجلدهای آن دسته؛ روی ۲۴۳ هزار نسخه ده‌ها هزار پرس‌وجو.
+- **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
+- **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
+- **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).
