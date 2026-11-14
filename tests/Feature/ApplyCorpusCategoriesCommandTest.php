@@ -366,9 +366,9 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $row = fn () => (array) DB::table('works')->where('id', $w)->first(['composition_date_from', 'composition_date_to', 'composition_date_certainty', 'composition_date_hedge_raw']);
         $this->assertSame(['composition_date_from' => 1310, 'composition_date_to' => 1315, 'composition_date_certainty' => 'probable', 'composition_date_hedge_raw' => 'ظاهراً'], $row());
 
-        // A solar date has no Hijri range; saving keeps the columns in step
+        // A solar date spans two Hijri years (step 14.181); saving keeps the columns in step
         Work::find($w)->update(['composition_date_raw' => '1350ش']);
-        $this->assertSame(['composition_date_from' => null, 'composition_date_to' => null, 'composition_date_certainty' => null, 'composition_date_hedge_raw' => null], $row());
+        $this->assertSame(['composition_date_from' => 1391, 'composition_date_to' => 1392, 'composition_date_certainty' => null, 'composition_date_hedge_raw' => null], $row());
         Work::find($w)->update(['composition_date_raw' => 'نیمه دوم قرن 11']);
         $this->assertSame([1051, 1100], array_values(array_slice($row(), 0, 2)));
     }

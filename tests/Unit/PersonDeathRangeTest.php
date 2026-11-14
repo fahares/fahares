@@ -34,7 +34,7 @@ class PersonDeathRangeTest extends TestCase
         $this->assertSame([1201, 1300, null], $this->range('ق13 قمری'));
         $this->assertSame([1101, 1200, null], $this->range('ق 12'));
         $this->assertSame([701, 800, null], $this->range('قرن 8 قمری'));
-        $this->assertSame([1301, 1400, null], $this->range('1305-قرن 14 قمری'));
+        $this->assertSame([1305, 1400, null], $this->range('1305-قرن 14 قمری'));
         // Two digits after a dash: a year, or the century when they are less than the birth year
         $this->assertSame([40, 40, null], $this->range('- 40 قمری'));
         $this->assertSame([1301, 1400, null], $this->range('1297-14 ق'));
@@ -56,6 +56,21 @@ class PersonDeathRangeTest extends TestCase
         // 16 and more stay years of the first century
         $this->assertSame([16, 16, null], $this->range('- 16 قمری'));
         $this->assertSame([50, 50, null], $this->range('3 - 50 قمری'));
+    }
+
+    public function test_a_death_given_as_a_century_starts_at_the_year_before_the_dash_when_it_lies_in_that_century()
+    {
+        $this->assertSame([1107, 1200, null], $this->range('1107ق- 12 قمری'));
+        $this->assertSame([903, 1000, null], $this->range('903؟ق- 10 قمری'));
+        $this->assertSame([840, 900, null], $this->range('840ق - 9 قمری'));
+        // the death year column does not change that
+        $this->assertSame([1107, 1200, null], $this->range('1107ق- 12 قمری', 1107));
+        // a year of the century before leaves the century whole, and a death year is not a span
+        $this->assertSame([1301, 1400, null], $this->range('1297-14 ق'));
+        $this->assertSame([505, 505, null], $this->range('450 - 505 قمری'));
+        $this->assertSame(1107, Person::yearBeforeDash('1107ق- 12 قمری'));
+        $this->assertNull(Person::yearBeforeDash('ق 12 قمری'));
+        $this->assertNull(Person::yearBeforeDash('3 - 50 قمری'));
     }
 
     public function test_other_calendars_give_no_range_and_a_death_year_stands_alone()
