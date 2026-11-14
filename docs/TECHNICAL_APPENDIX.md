@@ -10681,5 +10681,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:rebuild-copies --file=database/data/stale_years_step14_177_copies.json --apply`
   2. `fahares:add-corpus-works --file=database/data/stale_years_step14_177_works.json --apply`
   - پس از هر دو، `fill-copy-date-ranges` (نسخه‌ها و `--works`) روی رونوشت محلی `changed 0` داد.
+- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+  - اجرای آزمایشی: `write 149` و `update 54`.
+  - پشتیبان: ستون‌های تاریخ و سال این ۱۴۹ نسخه و ۵۴ اثر در `step14_177_backup.json` (md5 `27076c7c…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - هر دو فرمان با `nohup` اجرا شد.
+  - اجرای دوم هر دو: صفر.
 - **عددهای شکسته (۱۲):** ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. چاپ همان رقم‌ها را دارد. سه تا از بافت هم سالی نمی‌دهند: «101357/6ق»، «10135ق» و «13582ق».
 
