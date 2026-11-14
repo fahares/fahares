@@ -174,6 +174,9 @@ class CopyDateRangeTest extends TestCase
         // a Hijri year in the text wins
         $this->assertSame([1400, 1400], $this->range('1359ش = 1400ق'));
         $this->assertSame([1304, 1304], $this->range('1886م؛ تاریخ ترجمه: 1304ق'));
+        // the Yazdegerdi era is not converted, and its year is no Hijri one (step 14.189)
+        $this->assertSame([1036, 1036], $this->range('9 آذر 916 یزدجردی برابر با 1036هجری'));
+        $this->assertSame([1036, 1036], $this->range('11 بهمن ماه الهی 996 یزدجرد بن شهریار 1036ق'));
         $this->assertSame(1304, \App\Support\HijriYear::parse('1886م؛ تاریخ ترجمه: 1304ق'));
     }
 
