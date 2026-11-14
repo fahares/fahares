@@ -12,7 +12,9 @@ namespace App\Support;
  *     is those centuries (step 14.73): no Hijri year is two digits, and no copy is dated by a bare year;
  *   - years are the Hijri ones HijriYear reads (not «1820م», «1350ش», folio counts): one year is itself, two or more
  *     («1082 و 1083ق», «1034 تا 1052») the span between the first and the last; «حدود 1086» is 1081-1091;
- *   - «پیش از 1100» has no start, «پس از 1100» no end.
+ *   - «پیش از 1100» has no start, «پس از 1100» no end;
+ *   - a date with no Hijri year but a solar or Gregorian one («1370ش», «1886م») is the Hijri years that year spans
+ *     (HijriYear::otherCalendar, step 14.181); the text keeps its own calendar.
  * The hedge word («محتملاً», «گویا», «(؟)») is kept as written, with its certainty.
  *
  * A date with no year that names the author's time takes its range from the author's death D (relative()):
@@ -41,13 +43,20 @@ class CopyDateRange
         }
         $clause = null;
         foreach (preg_split('/\s*[،؛]\s*/u', $text) as $part) {
-            if (preg_match('/' . self::CENTURY . '\s*\d{1,2}(?!\d)/u', $part) || self::bareCenturies($part) !== null || HijriYear::parse($part) !== null) {
+            if (preg_match('/' . self::CENTURY . '\s*\d{1,2}(?!\d)/u', $part) || self::bareCenturies($part) !== null || HijriYear::all($part) !== []) {
                 $clause = $part;
                 break;
             }
         }
         if ($clause === null) {
-            return $none;
+            // a solar or Gregorian date with no Hijri year: the Hijri years it spans (step 14.181)
+            $other = HijriYear::otherCalendar($text);
+            if ($other === null) {
+                return $none;
+            }
+            $hedge = preg_match('/(?:^|\s|\()(' . self::HEDGES . ')(?=\s|\)|$)/u', $text, $h) ? $h[1] : (str_contains($text, '؟') ? '؟' : null);
+
+            return ['from' => $other[0], 'to' => $other[1], 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
         }
         $hedge = null;
         if (preg_match('/(?:^|\s|\()(' . self::HEDGES . ')(?=\s|\)|$)/u', $clause, $m)) {
