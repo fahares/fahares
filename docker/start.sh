@@ -35,6 +35,21 @@ sed -e "s|@PORT@|$PORT|g" \
 # public/storage -> storage/app/public (the uploads volume), so nginx serves uploads and facsimile pages itself
 [ -e "$APP_DIR/public/storage" ] || php "$APP_DIR/artisan" storage:link --quiet
 
+# Migrations run to completion before php-fpm and nginx start (step 14.182): Coolify's post-deployment command
+# runs only after the new container is healthy and already takes traffic, so a table a new migration creates was
+# missing for half a minute (release 124: 38 errors on every page that read `announcements`). Until nginx listens,
+# /up fails, the container is not healthy, and Coolify's rolling update keeps the old container serving.
+# A failed migration stops the container, so the new code never serves on a half-migrated schema.
+# A few retries cover MariaDB still starting after a host reboot. MIGRATE_ON_START=0 skips this.
+if [ "${MIGRATE_ON_START:-1}" != "0" ]; then
+    for attempt in 1 2 3 4 5 6; do
+        php "$APP_DIR/artisan" migrate --force --no-interaction && break
+        [ "$attempt" -lt 6 ] || { echo "start.sh: migrate failed $attempt times, not starting" >&2; exit 1; }
+        echo "start.sh: migrate failed (attempt $attempt), retrying in 5 s" >&2
+        sleep 5
+    done
+fi
+
 php-fpm -F -R -y "$APP_DIR/docker/php-fpm.conf" "${php_flags[@]}" &
 nginx -e stderr -c /tmp/nginx.conf &
 
