@@ -10726,6 +10726,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲٬۷۴۸ پرونده (۲۲۴ مگابایت) در شش جریان در حدود دو دقیقه رفت. اجرای دوم «missing 0 of 2748» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - پنج برگه‌ی نمونه (دفتر ۱ ص ۱۳، دفتر ۳ ص ۳، دفتر ۶ ص ۷۵، دفتر ۱۱ ص ۱۵۷ و دفتر ۱۳ ص ۴۰۰) از fahares.net پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` جلدهای #۵۰۵، #۵۰۷، #۵۰۹، #۵۱۳ و #۵۱۵. انتظار: «0 created, 5 updated».
+- **اجرای پروداکشن (انتشار ۱۲۴، `b64bfdc0`؛ ۲۴ آبان ۱۴۰۵، به تأیید کاربر):**
+  - داده و فرمان در کانتینر با `origin/main` یکی بودند: md5 `c5b4d73a…` و `b098df58…`.
+  - **اجرای آزمایشی:** «0 created, 5 updated, 83 unchanged (dry run)». فقط پنج دفتر «update» بودند.
+  - **پشتیبان:** ردیف‌های `catalog_volumes` و `source_volumes` #۵۰۵، #۵۰۷، #۵۰۹، #۵۱۳ و #۵۱۵، با tinker مستقیم روی لپ‌تاپ، در `../fahares-sources/backups/step13/step14_178_nashriyye_volumes_before_20261114.json` (md5 `c6da7f3e8f4179a5514557e53dc8ee1e`). `facsimile_code` و بازه‌ی صفحه‌ی پیشین هر پنج تهی بود. پرونده‌ای در `/tmp` کانتینر ساخته نشد.
+  - **اجرا (`prod-run`):** «0 created, 5 updated, 83 unchanged»، و اجرای دوم «0 created, 0 updated, 88 unchanged».
+  - **وارسی:** پنج `source_volumes` کد `tehran-univ-nashriyye` و بازه‌ی نگاشت را دارند. در fahares.net دکمه‌ی «دیدن برگه در نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» و نشانی برگه‌ی درست در این صفحه‌ها هست: `/manuscripts/225369` (دفتر ۱ ص ۲۴۵)، `/manuscripts/129433` (دفتر ۳ ص ۳۷)، `/manuscripts/269676` (دفتر ۶ ص ۱۰۷)، `/manuscripts/108312` (دفتر ۱۱ ص ۱۹۹) و `/manuscripts/116717` (دفتر ۱۳ ص ۴۳۰).
 
 ### گام ۱۴.۱۷۹: سال حیات و سال وفات خالی (`fahares:fill-death-years`)
 
@@ -10812,3 +10818,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **بازه‌های پهن:** بازه گاهی سه سده است (۱۰۳۲ تا ۱۳۲۰). تنها حد پایین (کف اثر) به کار رفته است؛ وفات کاتب یا تاریخ وقف می‌تواند آن را تنگ‌تر کند.
 - **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های تاریخ نسخه‌هایی که اجرای آزمایشی می‌دهد، `fahares:fill-copy-date-ranges --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
 
+### گام ۱۴.۱۸۲: migrate در `docker/start.sh`، پیش از php-fpm و nginx
+
+- **ترتیب پیشین استقرار:**
+  1. GitHub Actions (`image.yml`) ایمیج Nixpacks را با `--start-cmd "bash /app/docker/start.sh"` می‌سازد و از Coolify استقرار می‌خواهد.
+  2. Coolify کانتینر تازه را راه می‌اندازد. `start.sh`: `storage:link`، سپس php-fpm و nginx.
+  3. health check `/up` (start period ۱۵ ثانیه) سالم می‌شود و Traefik ترافیک را به کانتینر تازه می‌دهد؛ کانتینر کهنه متوقف می‌شود.
+  4. تنها پس از آن، post-deployment command (`storage:link && migrate --force`) با `docker exec` اجرا می‌شود.
+- **پیامد در انتشار ۱۲۴:** کانتینر ۰۶:۴۷:۵۳ آغاز شد؛ از ۰۶:۴۸:۰۵ تا ۰۶:۴۸:۳۳، ۳۸ خطای `SQLSTATE[42S02] … Table 'default.announcements' doesn't exist` از `Announcement::forViewer()` در `<x-announcement />` (`layouts.app`)؛ پس از migrate (batch 70) هیچ.
+- **`docker/start.sh`:** پس از `storage:link` و پیش از php-fpm، `php artisan migrate --force --no-interaction`. شکست: تا ۶ تلاش با ۵ ثانیه فاصله، سپس `exit 1`. `MIGRATE_ON_START=0` آن را کنار می‌گذارد.
+  - تا nginx گوش نمی‌دهد، `/up` شکست می‌خورد و Traefik کانتینر نا‌سالم را در مسیر نمی‌گذارد؛ به‌روزرسانی تدریجی Coolify کانتینر کهنه را نگه می‌دارد. اگر کانتینر تازه هرگز سالم نشود، استقرار شکست می‌خورد و کانتینر کهنه می‌ماند.
+  - بودجه‌ی زمان: start period ۱۵ ثانیه به‌علاوه‌ی retryهای health check. migrationهای عادی چند ثانیه‌اند؛ migration طولانی‌تر از حدود یک دقیقه نیاز به بالا بردن `health_check_start_period` در Coolify دارد.
+  - راه‌اندازی دوباره‌ی کانتینر هم migrate را اجرا می‌کند و «Nothing to migrate» می‌دهد.
+- **قاعده‌ی تازه:** در فاصله‌ی migrate، کانتینر کهنه روی ساختار تازه کار می‌کند. پس migration افزایشی بماند و حذف یا تغییر نام ستونی که کد کهنه می‌خواند به استقرار بعد برود (همان قاعده‌ی پیشین، با جهت وارونه).
+- **Coolify:** تغییری لازم نیست. migrate در post-deployment command اکنون بی‌کار است و می‌تواند بماند. ایمیج تازه با push ساخته می‌شود، پس Force Rebuild لازم نیست (فرمان آغاز همان است).
+- **راه دوم، اجرا نشده:** نگهبان «جدول نیست» در خواننده‌های همه‌صفحه‌ای (`Announcement::forViewer()`)؛ با این ترتیب لازم نیست.
+- **وارسی:** `bash -n docker/start.sh`. اجرای واقعی تنها در استقرار بعد دیده می‌شود: در لاگ کانتینر، خروجی migrate پیش از نخستین درخواست.
