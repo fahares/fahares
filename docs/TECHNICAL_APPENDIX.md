@@ -10726,6 +10726,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ۲٬۷۴۸ پرونده (۲۲۴ مگابایت) در شش جریان در حدود دو دقیقه رفت. اجرای دوم «missing 0 of 2748» داد. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - پنج برگه‌ی نمونه (دفتر ۱ ص ۱۳، دفتر ۳ ص ۳، دفتر ۶ ص ۷۵، دفتر ۱۱ ص ۱۵۷ و دفتر ۱۳ ص ۴۰۰) از fahares.net پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` جلدهای #۵۰۵، #۵۰۷، #۵۰۹، #۵۱۳ و #۵۱۵. انتظار: «0 created, 5 updated».
+- **اجرای پروداکشن (انتشار ۱۲۴، `b64bfdc0`؛ ۲۴ آبان ۱۴۰۵، به تأیید کاربر):**
+  - داده و فرمان در کانتینر با `origin/main` یکی بودند: md5 `c5b4d73a…` و `b098df58…`.
+  - **اجرای آزمایشی:** «0 created, 5 updated, 83 unchanged (dry run)». فقط پنج دفتر «update» بودند.
+  - **پشتیبان:** ردیف‌های `catalog_volumes` و `source_volumes` #۵۰۵، #۵۰۷، #۵۰۹، #۵۱۳ و #۵۱۵، با tinker مستقیم روی لپ‌تاپ، در `../fahares-sources/backups/step13/step14_178_nashriyye_volumes_before_20261114.json` (md5 `c6da7f3e8f4179a5514557e53dc8ee1e`). `facsimile_code` و بازه‌ی صفحه‌ی پیشین هر پنج تهی بود. پرونده‌ای در `/tmp` کانتینر ساخته نشد.
+  - **اجرا (`prod-run`):** «0 created, 5 updated, 83 unchanged»، و اجرای دوم «0 created, 0 updated, 88 unchanged».
+  - **وارسی:** پنج `source_volumes` کد `tehran-univ-nashriyye` و بازه‌ی نگاشت را دارند. در fahares.net دکمه‌ی «دیدن برگه در نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران» و نشانی برگه‌ی درست در این صفحه‌ها هست: `/manuscripts/225369` (دفتر ۱ ص ۲۴۵)، `/manuscripts/129433` (دفتر ۳ ص ۳۷)، `/manuscripts/269676` (دفتر ۶ ص ۱۰۷)، `/manuscripts/108312` (دفتر ۱۱ ص ۱۹۹) و `/manuscripts/116717` (دفتر ۱۳ ص ۴۳۰).
 
 ### گام ۱۴.۱۷۹: سال حیات و سال وفات خالی (`fahares:fill-death-years`)
 
