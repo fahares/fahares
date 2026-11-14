@@ -88,6 +88,24 @@ class SetCatalogFacsimilesTest extends TestCase
         $this->assertSame(SourceVolume::find($this->volume2->id)->source_id, SourceVolume::find($made->id)->source_id);
     }
 
+    public function test_a_volume_of_no_single_library_is_found_by_its_exact_title()
+    {
+        $title = 'نشریه آزمایشی ' . uniqid() . ' - دفتر 3';
+        $daftar = CatalogVolume::create(['title' => $title, 'volume_number' => 3, 'library_id' => null]);
+        $other = CatalogVolume::create(['title' => 'نشریه دیگر ' . uniqid() . ' - دفتر 3', 'volume_number' => 3, 'library_id' => null]);
+
+        $path = $this->data([['library_slug' => null, 'volume_number' => 3, 'title' => $title, 'facsimile_code' => 'nashriyye-test', 'page_first' => 3, 'page_last' => 424]]);
+        $this->artisan('catalogs:set-facsimiles', ['--data' => $path])->expectsOutputToContain('0 created, 1 updated')->assertSuccessful();
+        $this->artisan('catalogs:set-facsimiles', ['--data' => $path])->expectsOutputToContain('0 created, 0 updated, 1 unchanged')->assertSuccessful();
+        $this->assertSame(['nashriyye-test', 3, 424], [$daftar->fresh()->facsimile_code, $daftar->fresh()->page_first, $daftar->fresh()->page_last]);
+        $this->assertNull($other->fresh()->facsimile_code);
+
+        // without its title, or with «create», such a spec stops before any change
+        $path = $this->data([['library_slug' => null, 'volume_number' => 3, 'facsimile_code' => 'nashriyye-test-2', 'page_first' => 1, 'page_last' => 9]]);
+        $this->artisan('catalogs:set-facsimiles', ['--data' => $path])->expectsOutputToContain('needs its exact title')->assertFailed();
+        $this->assertNull($other->fresh()->facsimile_code);
+    }
+
     public function test_an_ambiguous_or_doubled_spec_stops_before_any_change()
     {
         $path = $this->data([['volume_number' => 24, 'facsimile_code' => 'majlis-test', 'page_first' => 1, 'page_last' => 10]]);

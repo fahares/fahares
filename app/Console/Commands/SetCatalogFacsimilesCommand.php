@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\File;
  * A volume is found by library slug, volume number and, when the library has several rows of that number (parts of a
  * volume, «جلد ۲/۲۴»), its exact title, never by local id. A volume the site has no row for yet (printed after Fankha,
  * or a part Fankha never cites) is created from «create» and joins the library's catalogue through the volume sync.
+ * A volume of no single library («library_slug» null) is found by its exact title among the volumes with no library.
  * Safe to run again: unchanged rows are reported and left alone.
  */
 class SetCatalogFacsimilesCommand extends Command
@@ -48,9 +49,11 @@ class SetCatalogFacsimilesCommand extends Command
 
         $counts = ['create' => 0, 'update' => 0, 'unchanged' => 0];
         foreach ($specs as $spec) {
-            $library = Library::where('slug', $spec['library_slug'])->first();
-            if (! $library) {
-                $this->error("Library not found: {$spec['library_slug']}");
+            $library = ($spec['library_slug'] ?? null) === null ? null : Library::where('slug', $spec['library_slug'])->first();
+            if (! $library && ! $this->libraryless($spec)) {
+                $this->error(($spec['library_slug'] ?? null) === null
+                    ? "A volume with no library needs its exact title and no «create»: v{$spec['volume_number']}"
+                    : "Library not found: {$spec['library_slug']}");
 
                 return self::FAILURE;
             }
@@ -79,17 +82,29 @@ class SetCatalogFacsimilesCommand extends Command
         return self::SUCCESS;
     }
 
-    /** The volume of the spec: null when it must be created, false (after an error) when the spec is ambiguous. */
-    private function find(Library $library, array $spec): CatalogVolume|null|false
+    /**
+     * A spec for a volume that belongs to no single library (step 14.178: the University of Tehran's «نشریه» daftars,
+     * whose copies are in many libraries, have library_id null): «library_slug» null, found by its exact title among
+     * the volumes with no library. Such a volume is never created here.
+     */
+    private function libraryless(array $spec): bool
     {
+        return array_key_exists('library_slug', $spec) && $spec['library_slug'] === null
+            && filled($spec['title'] ?? null) && ! isset($spec['create']);
+    }
+
+    /** The volume of the spec: null when it must be created, false (after an error) when the spec is ambiguous. */
+    private function find(?Library $library, array $spec): CatalogVolume|null|false
+    {
+        $inLibrary = fn ($q) => $library ? $q->where('library_id', $library->id) : $q->whereNull('library_id');
         // a volume made by an earlier run is known by its image folder
-        $made = CatalogVolume::where('library_id', $library->id)->where('facsimile_code', $spec['facsimile_code'])
+        $made = CatalogVolume::where($inLibrary)->where('facsimile_code', $spec['facsimile_code'])
             ->where('volume_number', $spec['volume_number'])->first();
         if ($made) {
             return $made;
         }
         $title = $spec['title'] ?? $spec['create']['title'] ?? null;
-        $rows = CatalogVolume::where('library_id', $library->id)->whereNull('edition_of_id')
+        $rows = CatalogVolume::where($inLibrary)->whereNull('edition_of_id')
             ->where('volume_number', $spec['volume_number'])
             ->when($title !== null, fn ($q) => $q->where('title', $title))->get();
         if ($rows->count() === 1 && ! isset($spec['create'])) {
@@ -98,7 +113,7 @@ class SetCatalogFacsimilesCommand extends Command
         if ($rows->isEmpty() && isset($spec['create'])) {
             return null;
         }
-        $this->error(sprintf('%s v%s: expected %s, found %d rows (%s)', $spec['library_slug'], $spec['volume_number'],
+        $this->error(sprintf('%s v%s: expected %s, found %d rows (%s)', $spec['library_slug'] ?? 'no library', $spec['volume_number'],
             isset($spec['create']) ? 'no row to create' : 'one row', $rows->count(), $rows->pluck('title')->implode(' | ')));
 
         return false;
