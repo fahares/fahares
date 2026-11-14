@@ -104,20 +104,40 @@ class SearchExport
         return $format === 'csv' ? 'text/csv; charset=UTF-8' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
     }
 
-    /** Writes the records, one row at a time, to a file or a stream */
+    /** The most characters an Excel cell holds; OpenSpout refuses a longer value */
+    public const XLSX_CELL_LIMIT = 32767;
+
+    /**
+     * Writes the records, one row at a time, to a file or a stream. In xlsx a longer text, such as the full text of a
+     * long source entry, is cut to the cell limit and ends with «…». The writer is closed even when a row fails, since
+     * OpenSpout deletes its temporary folder only on close.
+     */
     public static function write(iterable $records, string $type, string $format, string $target): void
     {
         $columns = self::columns($type);
         $csv = $format === 'csv';
         $writer = $csv ? new CsvWriter : new XlsxWriter;
         $writer->openToFile($target);
-        if (! $csv) {
-            $writer->getCurrentSheet()->setSheetView((new SheetView)->setRightToLeft(true));
+        try {
+            if (! $csv) {
+                $writer->getCurrentSheet()->setSheetView((new SheetView)->setRightToLeft(true));
+            }
+            $writer->addRow(Row::fromValues(array_keys($columns), (new Style)->setFontBold()));
+            foreach ($records as $record) {
+                $values = array_map(fn ($value) => $value($record), array_values($columns));
+                $writer->addRow(Row::fromValues($csv ? $values : array_map(self::fitCell(...), $values)));
+            }
+        } finally {
+            $writer->close();
         }
-        $writer->addRow(Row::fromValues(array_keys($columns), (new Style)->setFontBold()));
-        foreach ($records as $record) {
-            $writer->addRow(Row::fromValues(array_map(fn ($value) => $value($record), array_values($columns))));
+    }
+
+    private static function fitCell(mixed $value): mixed
+    {
+        if (! is_string($value) || mb_strlen($value) <= self::XLSX_CELL_LIMIT) {
+            return $value;
         }
-        $writer->close();
+
+        return mb_substr($value, 0, self::XLSX_CELL_LIMIT - 1) . '…';
     }
 }
