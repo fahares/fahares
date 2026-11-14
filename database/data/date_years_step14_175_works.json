@@ -1,0 +1,38 @@
+{
+ "source": "the sortable year of a work whose date of composition names a number that is no year (fahares step 14.175)",
+ "category": "corpus_fix",
+ "works": [],
+ "fills": [],
+ "work_updates": [
+  {
+   "work_slug": "s-e-samadiyye-v20-140",
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1353,
+     "to": 1394
+    }
+   },
+   "v2": null
+  },
+  {
+   "work_slug": "mota-v27-1732",
+   "changes": {
+    "composition_year_hijri": {
+     "from": 1342,
+     "to": null
+    }
+   },
+   "v2": null
+  },
+  {
+   "work_slug": "hidayat-ul-fuad-ila-nabdat-in-min-awal-il-maad-v34-1633",
+   "changes": {
+    "composition_year_hijri": {
+     "from": 186,
+     "to": 1157
+    }
+   },
+   "v2": null
+  }
+ ]
+}

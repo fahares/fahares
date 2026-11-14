@@ -10493,3 +10493,34 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
     - پشتیبان از ۳۳٬۵۱۸ صفحه‌ی فنخا: `step14_171_fankha_pages_before.jsonl.gz` (md5 `33592d1c…`).
     - `sources:import-pages` برای ۲۷ جلد `VOLUMES`، در یک `prod-run` با `nohup`. ۲۷ سطر «pages saved» بود و هیچ خطایی نبود.
   - **وارسی:** صفحه‌های تولید دوباره بیرون آمد و با Python با فایل‌ها برابر گذاشته شد: ۳۳٬۵۱۸ صفحه، `differ 0` و `missing 0`. `/sources/fankha/7/page/720` پاسخ 200 داد. `/tmp` کانتینر پاک است.
+
+### گام ۱۴.۱۷۵: `HijriYear::all()`
+
+- **`HijriYear::all(?string): int[]`:** هر عدد سه یا چهاررقمیِ در بازه‌ی ۱۰۰ تا ۱۵۰۰، جز این‌ها:
+  - شماره‌ی برگ (`FOLIO_WORD`) و تقویم دیگر (`OTHER_MARK`)؛
+  - عدد پس از «(ص»، «(ش» یا «(ج»؛
+  - عدد در `(N/N)`؛
+  - `N(/N)+ش`.
+  - هر عدد بند خود را دارد (شمار «،» و «؛» پیش از آن).
+- **کنار گذاشتن عدد سه‌رقمی:**
+  - `day`: پس از آن (با «(کذ)» اختیاری) `MONTH` بیاید، و سالی پس از آن باشد.
+  - در بند خود سال چهاررقمی‌ای باشد که `withoutOneDigit` آن (هر یک رقم افتاده) این عدد را دارد.
+  - `marked` نباشد و نخستین سال چهاررقمی بند بیش از ۲۰۰ پس از آن باشد.
+    - `marked` یعنی «ق» یا «ه‌ق» پس از عدد، یا `N-NNNN` با N ≥ ۴۰۰.
+- **`parse()`** = `all()[0]`. قاعده‌ی پیشین «127 (=1207ق)» (`withoutOneZero`) در `withoutOneDigit` جای گرفت.
+- **`CopyDateRange::years()`:** `HijriYear::all($clause)` به جای خواندن پیاپی با `parse()`.
+- **`AddCorpusWorksCommand::UPDATE_COLUMNS`:** `composition_year_hijri` افزوده شد.
+- **سنجش:**
+  - رونوشتی از دو کلاس کهنه (`git show HEAD:…`، فضای نام `OldDates`) و کلاس‌های تازه روی همه‌ی `copy_date_raw` و `composition_date_raw` پایگاه محلی اجرا شد: ۳۰ نسخه و ۹ اثر فرق کردند.
+  - فهرست سال‌ها از همین سنجش ساخته شد، فقط با ردیف‌هایی که سال ذخیره‌شده‌شان برابر سال کهنه است:
+    - `database/data/date_years_step14_175_copies.json`: ۸ نسخه، `copy_date_hijri_year`.
+    - `database/data/date_years_step14_175_works.json`: ۳ اثر، `work_updates` با `composition_year_hijri` و `v2: null`.
+- **اجرا (پس از استقرار، یکی‌یکی):**
+  1. `fahares:rebuild-copies --file=database/data/date_years_step14_175_copies.json --apply`
+  2. `fahares:add-corpus-works --file=database/data/date_years_step14_175_works.json --apply`
+  3. `fahares:fill-copy-date-ranges --apply`
+  4. `fahares:fill-copy-date-ranges --works --apply`
+- **روی رونوشت محلی:**
+  - ۸ نسخه و ۳ اثر نوشته شد. بازه‌ها: `changed 21` (۸ تای دیگر را `rebuild-copies` پیش‌تر ساخته بود)، و `changed 9` برای آثار.
+  - اجرای دوم هر چهار: صفر.
+

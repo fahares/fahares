@@ -15,12 +15,30 @@ class HijriYear
     private const YEAR = '(?<!\d)(\d{3,4})(?!\d)';
     // Folio and page counts are not years
     private const FOLIO_WORD = '(?:برگ|ورق|صفحه|ص\\.|گ\\.)';
+    private const MONTH = '(?:محرم|صفر|ربیع|ربيع|جمادی|جمادى|رجب|شعبان|رمضان|شوال|ذی\s*‌?\s*القعده|ذی\s*‌?\s*قعده|ذیقعده|ذوالقعده|ذی\s*‌?\s*الحجه|ذی\s*‌?\s*حجه|ذیحجه|ذوالحجه)';
     private const OTHER_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:م(?!\p{L})|میلادی|ش(?!\p{L})|شمسی|خورشیدی|AD|CE)';
 
     public static function parse(?string $raw): ?int
     {
+        return self::all($raw)[0] ?? null;
+    }
+
+    /**
+     * Every Hijri year a date text names, in order (CopyDateRange takes its range from these). Left out, besides
+     * other calendars and folio counts (step 14.175):
+     *   - a year written short beside its full form in the same clause: «1012=112ق», «126 (گویا 1126)», «1045ق (145)»;
+     *   - a three-digit number without «ق» more than 200 years before the first four-digit year of its clause:
+     *     «138-1309ق», «شهر المسائل 111 و دی 1333»; no copy's one date spans two centuries and more;
+     *   - a three-digit day before a month, with a year after it: «232 صفر 839ق», «104 (کذ) شوال 1294ق»;
+     *   - a page, shelf or volume reference in a bracket: «(ص 103)», «الذریعة (186/25)» («ج 1008ق» is Jumada); a solar date with
+     *     slashes: «317/11/7ش».
+     *
+     * @return int[]
+     */
+    public static function all(?string $raw): array
+    {
         if ($raw === null || trim($raw) === '') {
-            return null;
+            return [];
         }
 
         $text = strtr($raw, [
@@ -31,50 +49,59 @@ class HijriYear
         ]);
 
         if (! preg_match_all('/' . self::YEAR . '/u', $text, $matches, PREG_OFFSET_CAPTURE)) {
-            return null;
+            return [];
         }
 
-        $years = [];
-        // Ranges and alternatives («۱۰۸۲ و ۱۰۸۳ق», «۱۰۳۴ تا ۱۰۵۲ق») sort by their first year
+        $found = [];
         foreach ($matches[1] as [$digits, $offset]) {
             $before = substr($text, 0, $offset);
             $after = substr($text, $offset + strlen($digits));
-            if (preg_match('/^' . self::OTHER_MARK . '/u', $after) || preg_match('/' . self::FOLIO_WORD . '\\s*$/u', $before)) {
+            if (preg_match('/^' . self::OTHER_MARK . '/u', $after) || preg_match('/' . self::FOLIO_WORD . '\s*$/u', $before)
+                || preg_match('/\(\s*(?:ص|ش|ج)\.?\s*$/u', $before)
+                || preg_match('#^(?:/\d+)+' . self::OTHER_MARK . '#u', $after)
+                || (preg_match('#\(\s*$#u', $before) && preg_match('#^\s*/\s*\d+\s*\)#u', $after))
+                || preg_match('#\(\s*\d+\s*/\s*$#u', $before)) {
                 continue;
             }
             if (self::inRange((int) $digits)) {
-                $years[] = (int) $digits;
+                // the clause it stands in: what lies between the «،» or «؛» before it and the one after it
+                $clause = preg_match_all('/[،؛]/u', $before, $m, PREG_OFFSET_CAPTURE) ? count($m[0]) : 0;
+                $found[] = ['year' => (int) $digits, 'clause' => $clause, 'day' => (bool) preg_match('/^\s*(?:\(\s*کذا?\s*\)\s*)?' . self::MONTH . '/u', $after),
+                    // «880ق», and «845-1098ق» (a span the catalogue wrote; «138-1309ق» is not one)
+                    'marked' => (bool) preg_match('/^\s*(?:ق|ه\.?\s*ق|هـ)(?!\p{L})/u', $after)
+                        || ((int) $digits >= 400 && preg_match('/^\s*[-–]\s*\d{4}(?!\d)/u', $after))];
             }
         }
 
-        if (empty($years)) {
-            return null;
-        }
-
-        // A year written without its zero, followed by its reading: «۱۲۷ (=۱۲۰۷ق)», «۱۲۸ (شاید ۱۰۲۸ق)»
-        if ($years[0] < 1000) {
-            foreach (array_slice($years, 1) as $year) {
-                if ($year >= 1000 && in_array((string) $years[0], self::withoutOneZero($year), true)) {
-                    return $year;
+        $years = [];
+        foreach ($found as $i => $f) {
+            if ($f['year'] < 1000) {
+                $later = array_slice($found, $i + 1);
+                $same = array_filter($found, fn ($o) => $o['clause'] === $f['clause'] && $o['year'] >= 1000);
+                $first = $same ? min(array_column($same, 'year')) : null;
+                // a day before a month, a year written short, a stray number far before the clause's year
+                if (($f['day'] && $later)
+                    || array_filter($same, fn ($o) => in_array((string) $f['year'], self::withoutOneDigit($o['year']), true))
+                    || (! $f['marked'] && $first !== null && $first - $f['year'] > 200)) {
+                    continue;
                 }
             }
+            $years[] = $f['year'];
         }
 
-        return $years[0];
+        return $years;
     }
 
-    /** @return string[] the year's digits with any single 0 dropped */
-    private static function withoutOneZero(int $year): array
+    /** @return string[] the year's digits with any one digit dropped: «1207» → «207», «107», «127», «120» */
+    private static function withoutOneDigit(int $year): array
     {
         $digits = (string) $year;
         $variants = [];
-        foreach (str_split($digits) as $i => $digit) {
-            if ($digit === '0') {
-                $variants[] = substr($digits, 0, $i) . substr($digits, $i + 1);
-            }
+        foreach (array_keys(str_split($digits)) as $i) {
+            $variants[] = substr($digits, 0, $i) . substr($digits, $i + 1);
         }
 
-        return $variants;
+        return array_values(array_unique($variants));
     }
 
     private static function inRange(int $year): bool

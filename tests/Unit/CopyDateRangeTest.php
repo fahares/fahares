@@ -100,4 +100,33 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame([null, null], $this->range('10 و 14'));
         $this->assertSame([null, null], $this->range('15 و 16'));
     }
+
+    public function test_a_short_year_a_day_a_stray_number_or_a_reference_is_no_year()
+    {
+        // a year written short beside its full form (step 14.175)
+        $this->assertSame([1012, 1012], $this->range('یک‌شنبه 12 صفر 1012=112ق'));
+        $this->assertSame([1126, 1126], $this->range('7 ربیع الاول 126 (گویا 1126)'));
+        $this->assertSame([1045, 1045], $this->range('4 رمضان 1045ق (145)'));
+        $this->assertSame([1280, 1280], $this->range('ذیقعده 1280=128ق'));
+        // a three-digit day before a month, and a number far before the clause's year
+        $this->assertSame([839, 839], $this->range('232 صفر 839ق'));
+        $this->assertSame([1294, 1294], $this->range('104 (کذ) شوال 1294ق'));
+        $this->assertSame([1309, 1309], $this->range('138-1309ق'));
+        $this->assertSame([1264, 1264], $this->range('یک‌شنبه 17 شعبان ... 126 و پنج‌شنبه ... ذیقعده 1264ق'));
+        // a page or a volume reference, and a solar date with slashes
+        $this->assertSame([1058, 1066], $this->range('4 ربیع الاول 1066 (ص 103) و ربیع الثانی 1058 (ص 115)'));
+        $this->assertSame([1157, 1157], $this->range('تاریخ تألیف آن در الذریعة (186/25) شعبان 1157ق آمده'));
+        $this->assertSame([null, null], $this->range('317/11/7ش'));
+        // what stays: two years of one date, a span of a century, a three-digit year alone
+        $this->assertSame([990, 1001], $this->range('990 و 1001ق'));
+        $this->assertSame([850, 920], $this->range('850 و 920ق'));
+        $this->assertSame([990, 990], $this->range('رجب 990'));
+        $this->assertSame([1256, 1256], $this->range('10 ج1256ق'));
+        $this->assertSame([967, 1207], $this->range('1116 و 1019 و 1181 و 1124 و 1207 و 967ق'));
+        $this->assertSame([859, 1236], $this->range('859ق و 1236ق'));
+        $this->assertSame([845, 1098], $this->range('845-1098ق'));
+        $this->assertSame(1207, \App\Support\HijriYear::parse('127 (=1207ق)'));
+        $this->assertSame(1126, \App\Support\HijriYear::parse('7 ربیع الاول 126 (گویا 1126)'));
+    }
 }
+

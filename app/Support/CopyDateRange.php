@@ -170,17 +170,7 @@ class CopyDateRange
     /** @return array{0: ?int, 1: ?int}|null */
     private static function years(string $clause): ?array
     {
-        $years = [];
-        $rest = $clause;
-        // HijriYear reads the first year of what it is given; each later one is read from what follows it
-        while (($year = HijriYear::parse($rest)) !== null) {
-            $years[] = $year;
-            $at = strpos($rest, (string) $year);
-            if ($at === false) {
-                break;
-            }
-            $rest = substr($rest, $at + strlen((string) $year));
-        }
+        $years = HijriYear::all($clause);
         if (! $years) {
             return null;
         }

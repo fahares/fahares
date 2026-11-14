@@ -62,7 +62,9 @@ class AddCorpusWorksCommand extends Command
 
     private const UPDATE_COLUMNS = ['primary_title', 'clean_title', 'author_name', 'raw_text', 'description', 'bibliography', 'transliteration',
         'composition_date_raw', 'composition_place', 'incipit_text', 'explicit_text', 'alternative_titles', 'print_info',
-        'dedication', 'related_work', 'subject_summary', 'language_summary'];
+        'dedication', 'related_work', 'subject_summary', 'language_summary',
+        // the sortable year, when the date text names a number that is no year (step 14.175)
+        'composition_year_hijri'];
 
     private PersonNameMatcher $matcher;
 
