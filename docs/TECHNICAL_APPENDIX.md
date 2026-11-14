@@ -10790,6 +10790,23 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - هر دو بازه را با `DerivedData` می‌سازند.
   - روی رونوشت محلی، دوباره و `fill-copy-date-ranges` (هر دو): صفر.
 
+### گام ۱۴.۱۸۲: migrate در `docker/start.sh`، پیش از php-fpm و nginx
+
+- **ترتیب پیشین استقرار:**
+  1. GitHub Actions (`image.yml`) ایمیج Nixpacks را با `--start-cmd "bash /app/docker/start.sh"` می‌سازد و از Coolify استقرار می‌خواهد.
+  2. Coolify کانتینر تازه را راه می‌اندازد. `start.sh`: `storage:link`، سپس php-fpm و nginx.
+  3. health check `/up` (start period ۱۵ ثانیه) سالم می‌شود و Traefik ترافیک را به کانتینر تازه می‌دهد؛ کانتینر کهنه متوقف می‌شود.
+  4. تنها پس از آن، post-deployment command (`storage:link && migrate --force`) با `docker exec` اجرا می‌شود.
+- **پیامد در انتشار ۱۲۴:** کانتینر ۰۶:۴۷:۵۳ آغاز شد؛ از ۰۶:۴۸:۰۵ تا ۰۶:۴۸:۳۳، ۳۸ خطای `SQLSTATE[42S02] … Table 'default.announcements' doesn't exist` از `Announcement::forViewer()` در `<x-announcement />` (`layouts.app`)؛ پس از migrate (batch 70) هیچ.
+- **`docker/start.sh`:** پس از `storage:link` و پیش از php-fpm، `php artisan migrate --force --no-interaction`. شکست: تا ۶ تلاش با ۵ ثانیه فاصله، سپس `exit 1`. `MIGRATE_ON_START=0` آن را کنار می‌گذارد.
+  - تا nginx گوش نمی‌دهد، `/up` شکست می‌خورد و Traefik کانتینر نا‌سالم را در مسیر نمی‌گذارد؛ به‌روزرسانی تدریجی Coolify کانتینر کهنه را نگه می‌دارد. اگر کانتینر تازه هرگز سالم نشود، استقرار شکست می‌خورد و کانتینر کهنه می‌ماند.
+  - بودجه‌ی زمان: start period ۱۵ ثانیه به‌علاوه‌ی retryهای health check. migrationهای عادی چند ثانیه‌اند؛ migration طولانی‌تر از حدود یک دقیقه نیاز به بالا بردن `health_check_start_period` در Coolify دارد.
+  - راه‌اندازی دوباره‌ی کانتینر هم migrate را اجرا می‌کند و «Nothing to migrate» می‌دهد.
+- **قاعده‌ی تازه:** در فاصله‌ی migrate، کانتینر کهنه روی ساختار تازه کار می‌کند. پس migration افزایشی بماند و حذف یا تغییر نام ستونی که کد کهنه می‌خواند به استقرار بعد برود (همان قاعده‌ی پیشین، با جهت وارونه).
+- **Coolify:** تغییری لازم نیست. migrate در post-deployment command اکنون بی‌کار است و می‌تواند بماند. ایمیج تازه با push ساخته می‌شود، پس Force Rebuild لازم نیست (فرمان آغاز همان است).
+- **راه دوم، اجرا نشده:** نگهبان «جدول نیست» در خواننده‌های همه‌صفحه‌ای (`Announcement::forViewer()`)؛ با این ترتیب لازم نیست.
+- **وارسی:** `bash -n docker/start.sh`. اجرای واقعی تنها در استقرار بعد دیده می‌شود: در لاگ کانتینر، خروجی migrate پیش از نخستین درخواست.
+
 ### گام ۱۴.۱۸۳: بازخوانی سال کتابت سه‌رقمی (`CopyDateRange::reread`، مورد ۱۲۸)
 
 - **کدام تاریخ:** `CopyDateRange::shortYear`: متن فقط یک سال می‌دهد و آن سال کمتر از ۱۰۰۰ است. سده («قرن 3») و سالی که با خط تیره، «و» یا «تا» به عدد دیگری بسته است («91-119»، «رجب 73 و 196») کنار می‌روند.
@@ -10817,20 +10834,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آنچه بازخوانی نشد:** #156824 «19 ربیع الاول 142» برای اثری از ۱۲۳۱ (هیچ خوانشی نمی‌خواند؛ پهن‌ترین ردیف `copy` مانده، ۱٬۰۸۹ سال)، #80209 «رجب 107ق» (کف ۲۰۱، فاصله کمتر از ۱۰۰)، و ۹ نسخه که اثرشان تألیف و مؤلف تاریخ‌دار ندارد.
 - **بازه‌های پهن:** بازه گاهی سه سده است (۱۰۳۲ تا ۱۳۲۰). تنها حد پایین (کف اثر) به کار رفته است؛ وفات کاتب یا تاریخ وقف می‌تواند آن را تنگ‌تر کند.
 - **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های تاریخ نسخه‌هایی که اجرای آزمایشی می‌دهد، `fahares:fill-copy-date-ranges --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
-
-### گام ۱۴.۱۸۲: migrate در `docker/start.sh`، پیش از php-fpm و nginx
-
-- **ترتیب پیشین استقرار:**
-  1. GitHub Actions (`image.yml`) ایمیج Nixpacks را با `--start-cmd "bash /app/docker/start.sh"` می‌سازد و از Coolify استقرار می‌خواهد.
-  2. Coolify کانتینر تازه را راه می‌اندازد. `start.sh`: `storage:link`، سپس php-fpm و nginx.
-  3. health check `/up` (start period ۱۵ ثانیه) سالم می‌شود و Traefik ترافیک را به کانتینر تازه می‌دهد؛ کانتینر کهنه متوقف می‌شود.
-  4. تنها پس از آن، post-deployment command (`storage:link && migrate --force`) با `docker exec` اجرا می‌شود.
-- **پیامد در انتشار ۱۲۴:** کانتینر ۰۶:۴۷:۵۳ آغاز شد؛ از ۰۶:۴۸:۰۵ تا ۰۶:۴۸:۳۳، ۳۸ خطای `SQLSTATE[42S02] … Table 'default.announcements' doesn't exist` از `Announcement::forViewer()` در `<x-announcement />` (`layouts.app`)؛ پس از migrate (batch 70) هیچ.
-- **`docker/start.sh`:** پس از `storage:link` و پیش از php-fpm، `php artisan migrate --force --no-interaction`. شکست: تا ۶ تلاش با ۵ ثانیه فاصله، سپس `exit 1`. `MIGRATE_ON_START=0` آن را کنار می‌گذارد.
-  - تا nginx گوش نمی‌دهد، `/up` شکست می‌خورد و Traefik کانتینر نا‌سالم را در مسیر نمی‌گذارد؛ به‌روزرسانی تدریجی Coolify کانتینر کهنه را نگه می‌دارد. اگر کانتینر تازه هرگز سالم نشود، استقرار شکست می‌خورد و کانتینر کهنه می‌ماند.
-  - بودجه‌ی زمان: start period ۱۵ ثانیه به‌علاوه‌ی retryهای health check. migrationهای عادی چند ثانیه‌اند؛ migration طولانی‌تر از حدود یک دقیقه نیاز به بالا بردن `health_check_start_period` در Coolify دارد.
-  - راه‌اندازی دوباره‌ی کانتینر هم migrate را اجرا می‌کند و «Nothing to migrate» می‌دهد.
-- **قاعده‌ی تازه:** در فاصله‌ی migrate، کانتینر کهنه روی ساختار تازه کار می‌کند. پس migration افزایشی بماند و حذف یا تغییر نام ستونی که کد کهنه می‌خواند به استقرار بعد برود (همان قاعده‌ی پیشین، با جهت وارونه).
-- **Coolify:** تغییری لازم نیست. migrate در post-deployment command اکنون بی‌کار است و می‌تواند بماند. ایمیج تازه با push ساخته می‌شود، پس Force Rebuild لازم نیست (فرمان آغاز همان است).
-- **راه دوم، اجرا نشده:** نگهبان «جدول نیست» در خواننده‌های همه‌صفحه‌ای (`Announcement::forViewer()`)؛ با این ترتیب لازم نیست.
-- **وارسی:** `bash -n docker/start.sh`. اجرای واقعی تنها در استقرار بعد دیده می‌شود: در لاگ کانتینر، خروجی migrate پیش از نخستین درخواست.
