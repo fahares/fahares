@@ -10790,7 +10790,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - هر دو بازه را با `DerivedData` می‌سازند.
   - روی رونوشت محلی، دوباره و `fill-copy-date-ranges` (هر دو): صفر.
 
-
 ### گام ۱۴.۱۸۲: migrate در `docker/start.sh`، پیش از php-fpm و nginx
 
 - **ترتیب پیشین استقرار:**
