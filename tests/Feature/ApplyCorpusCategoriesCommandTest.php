@@ -296,6 +296,25 @@ class ApplyCorpusCategoriesCommandTest extends TestCase
         $this->assertNull($phrase('برای آن که یک دو سه چهار پنج شش هفت میرزا حسن', 'میرزا حسن'));
     }
 
+    public function test_the_sort_year_follows_a_range_that_drops_a_number_the_text_no_longer_gives_as_a_year()
+    {
+        $w = $this->work('-v99-9');
+        $a = $this->copy($w, '31/1');
+        $b = $this->copy($w, '31/2');
+        // as the parser before step 14.186 left them: the Yazdgerdi year as the start and the sort year
+        DB::table('manuscripts')->where('id', $a)->update(['copy_date_raw' => '11 بهمن ماه الهی 996 یزدجرد بن شهریار سنه 1036ق',
+            'copy_date_from' => 996, 'copy_date_to' => 1036, 'copy_date_hijri_year' => 996]);
+        // a range that changes while the sort year is still a year of the text: the year stays
+        DB::table('manuscripts')->where('id', $b)->update(['copy_date_raw' => '1082 و 1083ق', 'copy_date_from' => 1082, 'copy_date_to' => 1090, 'copy_date_hijri_year' => 1083]);
+
+        $this->artisan('fahares:fill-copy-date-ranges')->assertSuccessful();
+        $this->assertSame(996, (int) DB::table('manuscripts')->where('id', $a)->value('copy_date_hijri_year'));
+        $this->artisan('fahares:fill-copy-date-ranges', ['--apply' => true])->assertSuccessful();
+        $row = fn (int $id) => array_map('intval', (array) DB::table('manuscripts')->where('id', $id)->first(['copy_date_from', 'copy_date_to', 'copy_date_hijri_year']));
+        $this->assertSame(['copy_date_from' => 1036, 'copy_date_to' => 1036, 'copy_date_hijri_year' => 1036], $row($a));
+        $this->assertSame(['copy_date_from' => 1082, 'copy_date_to' => 1083, 'copy_date_hijri_year' => 1083], $row($b));
+    }
+
     public function test_copy_date_ranges_are_filled_and_kept_in_step()
     {
         $w = $this->work('-v99-8');
