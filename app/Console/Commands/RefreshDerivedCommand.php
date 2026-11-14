@@ -91,8 +91,9 @@ class RefreshDerivedCommand extends Command
         $guard = ProtectedColumns::for(Manuscript::class);
         DB::table('manuscripts')->select(DerivedData::COPY_COLUMNS)->orderBy('id')->chunkById(2000, function ($rows) use ($guard) {
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
+            $floors = Manuscript::copyFloors($rows->pluck('work_id'));
             foreach ($rows as $row) {
-                ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = DerivedData::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
+                ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = DerivedData::copyChanges($row, $guard, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null);
                 if ($date) {
                     $this->add('copy_date_range', $row->id, "#{$row->id} «{$row->copy_date_raw}»: {$row->copy_date_from}–{$row->copy_date_to} → {$date['copy_date_from']}–{$date['copy_date_to']}");
                 }

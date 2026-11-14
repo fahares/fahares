@@ -20,6 +20,8 @@ namespace App\Support;
  * A date with no year that names the author's time takes its range from the author's death D (relative()):
  * «در حیات مؤلف» and «در عصر تألیف» D−50 to D, «در/از عصر مؤلف» D−50 to D+25, «نزدیک عصر مؤلف» D to D+75. It is an estimate, so its
  * certainty is at least probable, and the phrase is kept as the hedge.
+ *
+ * A date that is one three-digit year far before its work is read again as a year that lost a digit (reread()).
  */
 class CopyDateRange
 {
@@ -70,6 +72,66 @@ class CopyDateRange
         }
 
         return ['from' => $from, 'to' => $to, 'certainty' => PersonNameMatcher::certainty($hedge), 'hedge' => $hedge];
+    }
+
+    /** The hedge of a re-read date starts with this word, followed by the year the catalogue wrote («بازخوانی 125»). */
+    public const REREAD = 'بازخوانی';
+
+    /** A re-read year is no later than this, and the catalogue's year is this far or more before the work's floor. */
+    private const REREAD_LAST = 1400;
+
+    private const REREAD_GAP = 100;
+
+    /**
+     * A date that is one three-digit year, far before the work it is a copy of, read again as a year that lost a
+     * digit (item 128, step 14.183): «سال 125؟» for a work of 1106 is 1125, 1205 or 1250, so 1125-1250. The readings
+     * are the year with a 1 before it and with a 0 put in after each digit; those from the floor (the work's
+     * composition, or its author's birth) to REREAD_LAST are kept, and the range runs from the first to the last. The
+     * date is a guess, so it is doubtful, and its hedge says what was done. Null when the date is anything else, when
+     * the year is not REREAD_GAP years before the floor, or when no reading fits: the date then stands as written.
+     *
+     * @return array{from: int, to: int, certainty: string, hedge: string}|null
+     */
+    public static function reread(?string $raw, ?int $floor): ?array
+    {
+        $year = $floor ? self::shortYear($raw) : null;
+        if ($year === null || $floor - $year < self::REREAD_GAP) {
+            return null;
+        }
+        $digits = (string) $year;
+        $readings = [1000 + $year];
+        foreach ([1, 2, 3] as $at) {
+            $readings[] = (int) (substr($digits, 0, $at) . '0' . substr($digits, $at));
+        }
+        $fit = array_values(array_filter($readings, fn (int $r) => $r >= $floor && $r <= self::REREAD_LAST));
+        if (! $fit) {
+            return null;
+        }
+
+        return ['from' => min($fit), 'to' => max($fit), 'certainty' => 'doubtful', 'hedge' => self::REREAD . ' ' . $year];
+    }
+
+    /**
+     * The year of a date that is one year of three digits («محرم 125», «سال 125؟»), else null. A year tied to another
+     * number («91-119», «رجب 73 و 196») is part of something this does not read.
+     */
+    public static function shortYear(?string $raw): ?int
+    {
+        $own = self::parse($raw);
+        if ($own['from'] === null || $own['from'] !== $own['to'] || $own['from'] >= 1000) {
+            return null;
+        }
+        $text = strtr((string) $raw, self::DIGITS);
+        $year = $own['from'];
+        $tie = '\s*(?:-|–|و|تا)\s*';
+
+        return preg_match('/' . self::CENTURY . '\s*\d{1,2}(?!\d)/u', $text) || preg_match("/\d{$tie}{$year}(?!\d)|(?<!\d){$year}{$tie}\d/u", $text) ? null : $year;
+    }
+
+    /** Whether a stored hedge is that of a re-read date, and the year the catalogue wrote. */
+    public static function rereadYear(?string $hedge): ?int
+    {
+        return $hedge !== null && preg_match('/^' . self::REREAD . ' (\d{3})$/u', $hedge, $m) ? (int) $m[1] : null;
     }
 
     /** «حیات», «عصر», «نزدیک عصر»: the span around the author's death each takes, in years before and after it. */

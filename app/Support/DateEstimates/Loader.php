@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\DB;
  *
  * Left out: a tie with a certainty («doubtful», «probable»), which is itself a guess; the author of a work that has a
  * translator, since the work's date is then the translation's; and a copy date that names the author's time
- * (CopyDateRange::relative), which was made from the author's death and documents nothing.
+ * (CopyDateRange::relative), which was made from the author's death and documents nothing; and a three-digit copy
+ * year read again from the work's date (CopyDateRange::reread), for the same reason.
  */
 final class Loader
 {
@@ -114,7 +115,7 @@ final class Loader
             ->orderBy('id')->lazyById(20000);
         foreach ($copies as $m) {
             $copy = DateVar::of(DateVar::COPY, $m->id);
-            if (! self::namesAuthorsTime($m->copy_date_hedge_raw)) {
+            if (! self::namesAuthorsTime($m->copy_date_hedge_raw) && \App\Support\CopyDateRange::rereadYear($m->copy_date_hedge_raw) === null) {
                 $engine->seed($copy, $int($m->copy_date_from), $int($m->copy_date_to));
             }
             if ($m->work_id === null) {

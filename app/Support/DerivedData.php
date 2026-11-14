@@ -39,13 +39,13 @@ class DerivedData
      *
      * @return array{date: ?array, extent: ?array, collection: ?array, lines: ?array}
      */
-    public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null): array
+    public static function copyChanges(object $row, ProtectedColumns $guard, ?int $authorDeath = null, ?int $floor = null): array
     {
-        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath);
+        $date = Manuscript::copyDateColumns($row->copy_date_raw, $authorDeath, $floor);
         $extent = CopyExtent::columns($row, $guard)['columns'];
 
         return [
-            'date' => $date !== self::range($row, 'copy_date') ? $date : null,
+            'date' => $date !== self::range($row, 'copy_date') ? $date + Manuscript::rereadSortYear($date) : null,
             'extent' => $extent !== null && $extent !== CopyExtent::stored($row) ? $extent : null,
             'collection' => self::collectionChange($row, $guard),
             'lines' => CopyLines::columns($row),
@@ -95,9 +95,10 @@ class DerivedData
         foreach (array_chunk($ids, 500) as $chunk) {
             $rows = DB::table('manuscripts')->whereIn('id', $chunk)->get(self::COPY_COLUMNS);
             $deaths = Manuscript::authorDeaths($rows->pluck('work_id'));
-            DB::transaction(function () use ($rows, $guard, $deaths, &$counts) {
+            $floors = Manuscript::copyFloors($rows->pluck('work_id'));
+            DB::transaction(function () use ($rows, $guard, $deaths, $floors, &$counts) {
                 foreach ($rows as $row) {
-                    ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null);
+                    ['date' => $date, 'extent' => $extent, 'collection' => $collection, 'lines' => $lines] = self::copyChanges($row, $guard, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null);
                     if (! $date && ! $extent && ! $collection && ! $lines) {
                         continue;
                     }

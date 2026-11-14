@@ -82,6 +82,22 @@ class DerivedDataTest extends TestCase
         }
     }
 
+    public function test_a_three_digit_copy_year_far_before_its_work_is_read_again_from_the_works_date()
+    {
+        $work = $this->work(['composition_date_raw' => '1106ق', 'composition_date_from' => 1106, 'composition_date_to' => 1106]);
+        // Saved as a model: the hook reads it again, and the sortable year is no longer the catalogue's
+        $copy = Manuscript::find($this->copy($work));
+        $copy->update(['copy_date_raw' => 'سال 125؟']);
+        $this->assertSame([1125, 1250, 'doubtful', 'بازخوانی 125', null], [$copy->copy_date_from, $copy->copy_date_to, $copy->copy_date_certainty, $copy->copy_date_hedge_raw, $copy->copy_date_hijri_year]);
+        // Written with DB::table: refresh-derived finds it; a copy older than the work by less stays as written
+        $other = $this->copy($work, ['copy_date_raw' => 'محرم 110', 'copy_date_from' => 110, 'copy_date_to' => 110]);
+        $near = $this->copy($work, ['copy_date_raw' => '1090ق', 'copy_date_from' => 1090, 'copy_date_to' => 1090]);
+        $this->artisan('fahares:refresh-derived', ['--apply' => true, '--show' => 500])->assertSuccessful();
+        $this->assertSame([1110, 1110], [(int) DB::table('manuscripts')->where('id', $other)->value('copy_date_from'), (int) DB::table('manuscripts')->where('id', $other)->value('copy_date_to')]);
+        $this->assertSame(1090, (int) DB::table('manuscripts')->where('id', $near)->value('copy_date_from'));
+        $this->get(route('manuscripts.show', Manuscript::find($copy->id)))->assertOk()->assertSee('با فرض افتادن یک رقم');
+    }
+
     public function test_rebuild_copies_brings_the_date_range_extent_and_excerpt_pointer_in_step()
     {
         $work = $this->work();
