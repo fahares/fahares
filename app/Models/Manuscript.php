@@ -60,11 +60,12 @@ class Manuscript extends Model
 
     /**
      * The range columns of a copy date (CopyDateRange), as they are stored; a date that names the author's time
-     * («نزدیک عصر مؤلف») takes its range from the death year of the work's author, when it is given.
+     * («نزدیک عصر مؤلف») takes its range from the death year of the work's author, when it is given, and one that
+     * is a three-digit year far before the work's floor (copyFloors) is read again (CopyDateRange::reread).
      */
-    public static function copyDateColumns(?string $raw, ?int $authorDeath = null): array
+    public static function copyDateColumns(?string $raw, ?int $authorDeath = null, ?int $floor = null): array
     {
-        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::parse($raw);
+        $range = CopyDateRange::relative($raw, $authorDeath) ?? CopyDateRange::reread($raw, $floor) ?? CopyDateRange::parse($raw);
 
         return ['copy_date_from' => $range['from'], 'copy_date_to' => $range['to'], 'copy_date_certainty' => $range['certainty'],
             'copy_date_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
@@ -88,6 +89,37 @@ class Manuscript extends Model
             ->pluck('year', 'id')->filter()->map(fn ($y) => (int) $y)->all();
     }
 
+    /**
+     * The sortable year that goes with the range columns of a re-read date: its year when the readings are one, else
+     * none, since the catalogue's three-digit year is not the copy's. Empty for any other date.
+     *
+     * @return array{copy_date_hijri_year?: ?int}
+     */
+    public static function rereadSortYear(array $columns): array
+    {
+        return CopyDateRange::rereadYear($columns['copy_date_hedge_raw'] ?? null) === null ? []
+            : ['copy_date_hijri_year' => $columns['copy_date_from'] === $columns['copy_date_to'] ? $columns['copy_date_from'] : null];
+    }
+
+    /**
+     * The earliest year a copy of each work can be of: the later of the work's composition and its author's birth
+     * (the birth year, else LIFE years before the death). Works with neither are left out.
+     *
+     * @return array<int, int> work id => year
+     */
+    public static function copyFloors(iterable $workIds): array
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', is_array($workIds) ? $workIds : iterator_to_array($workIds)))));
+        if (! $ids) {
+            return [];
+        }
+        $life = \App\Support\DateEstimates\Loader::LIFE;
+
+        return DB::table('works')->leftJoin('people', 'people.id', '=', 'works.author_id')->whereIn('works.id', $ids)
+            ->selectRaw("works.id AS id, GREATEST(COALESCE(works.composition_date_from, 0), COALESCE(people.birth_year_hijri, COALESCE(people.death_from, people.death_year_hijri) - {$life}, 0)) AS year")
+            ->pluck('year', 'id')->map(fn ($y) => (int) $y)->filter(fn (int $y) => $y > 0)->all();
+    }
+
     protected static function booted(): void
     {
         // Keep the sortable year in step with the date text unless the caller set both
@@ -98,7 +130,9 @@ class Manuscript extends Model
             // ...and its range, certainty and hedge word (backlog item 96)
             if ($manuscript->isDirty('copy_date_raw') || $manuscript->isDirty('work_id')) {
                 $death = CopyDateRange::namesAuthorTime($manuscript->copy_date_raw) ? self::authorDeaths([$manuscript->work_id])[$manuscript->work_id] ?? null : null;
-                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death));
+                $floor = CopyDateRange::shortYear($manuscript->copy_date_raw) !== null ? self::copyFloors([$manuscript->work_id])[$manuscript->work_id] ?? null : null;
+                $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death, $floor));
+                $manuscript->forceFill(self::rereadSortYear($manuscript->only(['copy_date_from', 'copy_date_to', 'copy_date_hedge_raw'])));
             }
             // The sort/collection key is the shelfmark cut to the indexed length
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {

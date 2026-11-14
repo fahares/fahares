@@ -90,6 +90,7 @@ class ApplyCorpusCategoriesCommand extends Command
                         $death = \App\Support\CopyDateRange::namesAuthorTime($payload['copy_date_raw'])
                             ? Manuscript::authorDeaths([DB::table('manuscripts')->where('id', $rec['id'])->value('work_id')]) : [];
                         $payload += ['copy_date_hijri_year' => \App\Support\HijriYear::parse($payload['copy_date_raw'])] + Manuscript::copyDateColumns($payload['copy_date_raw'], reset($death) ?: null);
+                        // (a three-digit year is re-read by fahares:refresh-derived, which knows the work's floor)
                     }
                     if (array_key_exists('notes', $rec)) {
                         [$payload, $old] = $this->moveTail($rec, $payload, $old);
