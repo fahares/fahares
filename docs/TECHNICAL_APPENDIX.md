@@ -10839,32 +10839,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   پانزده نسخه‌ی دیگر: #31918، #54273، #64732، #88435، #91125، #103000، #106285، #121358، #140582، #160157، #180813، #199105، #246190، #305338 و #334631.
 - **آنچه بازخوانی نشد:** #156824 «19 ربیع الاول 142» برای اثری از ۱۲۳۱ (هیچ خوانشی نمی‌خواند؛ پهن‌ترین ردیف `copy` مانده، ۱٬۰۸۹ سال)، #80209 «رجب 107ق» (کف ۲۰۱، فاصله کمتر از ۱۰۰)، و ۹ نسخه که اثرشان تألیف و مؤلف تاریخ‌دار ندارد.
 - **بازه‌های پهن:** بازه گاهی سه سده است (۱۰۳۲ تا ۱۳۲۰). تنها حد پایین (کف اثر) به کار رفته است؛ وفات کاتب یا تاریخ وقف می‌تواند آن را تنگ‌تر کند.
-- **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های تاریخ نسخه‌هایی که اجرای آزمایشی می‌دهد، `fahares:fill-copy-date-ranges --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
-
-### گام ۱۴.۱۸۵: پست اعلان در کانال تلگرام (`App\Support\AnnouncementTelegram`)
-
-- **ستون‌های تازه‌ی `announcements` (`2026_11_14_200001_add_telegram_to_announcements`):** `telegram`، `telegram_text`، `telegram_message_id`، `telegram_photo`، `telegram_posted_text`، `telegram_sent_at`، `telegram_error`.
-- **تنظیمات (`SiteSetting`):** `telegram.channel` (پیش‌فرض `@fahares_net`) و `telegram.footer`. پانویس خالی به شکل رشته‌ی تهی ذخیره می‌شود، چون `null` پیش‌فرض را برمی‌گرداند.
-- **ربات:** همان `TELEGRAM_NOTIFY_BOT_TOKEN`. webhook آن با `allowed_updates = ['message']` ثبت شده، پس پست‌های کانال به webhook نمی‌رسند. env تازه‌ای لازم نیست.
-- **`compose()`:** HTML تلگرام؛ `<b>عنوان</b>`، متن، سطر `🔗 <a href>` (مسیر سایت با `url()` کامل می‌شود) و پانویس، با یک سطر تهی میانشان. اگر `telegram_text` پر باشد جای عنوان و متن می‌نشیند. همه‌ی نوشته‌ها escape می‌شوند (`ENT_HTML401`، چون تلگرام `&apos;` را نمی‌شناسد).
-- **`sync()`** پس از هر ذخیره در `AnnouncementController` و از دکمه‌ی «دوباره بفرست» (`POST admin/announcements/{id}/telegram`):
-  - بدون `telegram_message_id`: فقط اگر اعلان روشن است. با تصویر `sendPhoto` (فایل از دیسک `public` بارگذاری می‌شود)، بی‌تصویر `sendMessage`.
-  - با `telegram_message_id`: اگر متن ساخته‌شده با `telegram_posted_text` فرق دارد، `editMessageCaption` یا `editMessageText`. تصویر پست عوض نمی‌شود.
-  - `link_preview_options`: نشانی پیوند خود اعلان، یا `is_disabled` اگر پیوند ندارد، تا کارت پیش‌نمایش از نشانی پانویس ساخته نشود.
-  - خطا در `telegram_error` می‌ماند و ذخیره‌ی اعلان را خراب نمی‌کند. متن خطای اتصال ذخیره نمی‌شود، چون نشانی درخواست و با آن توکن ربات را دارد.
-- **حد طول:** پیش از ذخیره سنجیده می‌شود، به شمار واحدهای UTF-16 متن بی‌نشانه: ۱٬۰۲۴ برای پست تصویردار و ۴٬۰۹۶ برای بی‌تصویر.
-- **تست:** چهار آزمون تازه در `tests/Feature/AnnouncementTest.php` با `Http::fake`.
-
-### گام ۱۴.۱۸۷: نوع اعلان `site.announcement`
-
-- **`config/notifications.php`:** `site.announcement`، `roles: ['*']`، کانال‌ها `database: true` و `mail`، `webpush`، `telegram` هر سه `false`.
-- **`App\Notifications\AnnouncementNotice`** (`SiteNotification`): عنوان و سطرهای متن اعلان، پیوند اعلان (یا خانه‌ی سایت). `toArray()` کلید `announcement_id` دارد. `toWebPush()` عنوان و متن خود اعلان را می‌برد.
-- **`App\Jobs\SendAnnouncementNotice`:** `forFirstRun()` پس از هر ذخیره در `AnnouncementController`؛ اگر اعلان روشن است، مخاطبش `guests` نیست و `notified_at` تهی است، آن را پر می‌کند و job را به صف می‌دهد. job اگر اعلان تا آن هنگام خاموش یا حذف شده باشد چیزی نمی‌فرستد، وگرنه `NotificationPreferences::broadcast()`.
-- **`announcements.notified_at`** (`2026_11_14_300001_add_notified_at_to_announcements`): برای اعلان‌هایی که پیش از این گام روشن شده‌اند با `starts_at` پر می‌شود، تا ذخیره‌ی دوباره‌شان چیزی نفرستد.
-- **یکی شمردن دو نمایش:**
-  - `NotificationController::index()`: برای اعلان‌های نوی صفحه که `announcement_id` دارند ردیف `announcement_user` می‌سازد (بی افزودن به `views_count`)، پس `Announcement::forViewer()` آن را دیگر نمی‌دهد.
-  - `AnnouncementEventController`: با دیدن یا کلیک کارت، اعلان خوانده‌نشده‌ی همان `announcement_id` در `notifications` خوانده‌شده می‌شود.
-- **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
 - **اجرا در تولید (۲۳ آبان ۱۴۰۵):**
   1. `fahares:refresh-derived --show=300` (آزمایشی): `copy_date_range` ۱۳۵ و `composition_date_range` ۵۳. از ۱۳۵ نسخه، ۲۵ نسخه سال سه‌رقمی‌اند و شناسه و بازه‌شان با تمرین یکی است. ۱۱۰ نسخه‌ی دیگر و ۵۳ اثر، تاریخ شمسی یا میلادی گام ۱۴.۱۸۱ اند و دست نخوردند.
   2. پشتیبان: ستون‌های تاریخ ۲۵ نسخه در `../fahares-sources/backups/step13/step14_183_copies_before.json` (md5 `edd45589…`).
@@ -10883,7 +10857,21 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **۹ نسخه‌ی بی کف:** #120795 «101ق» (حفظ البدن)، #253849 «108ق»، #60017 «91-119»، #305895 «129ق» (منشآت)، #64592 «183 ؟» (تجوید)، #96987 «رجب 73 و 196» (جنگ)، #78318 «258 ؟»، #184992 «380ق» و #235381 «392ق» (قرآن). دو مورد آخر می‌توانند درست باشند. برای بقیه تنها نشانه‌ی ممکن زبان اثر است (متن فارسی پیش از سده‌ی چهارم نیست)، که قاعده‌ای حدسی است و ساخته نشد.
 - **اجرا در تولید (پس از تأیید):** پشتیبان سه نسخه، `DerivedData::syncCopies` برای همان‌ها (یا `fahares:fill-copy-date-ranges --apply` اگر تاریخ‌های گام ۱۴.۱۸۱ تا آن زمان اعمال شده باشد)، سپس `fahares:estimate-dates --apply`.
 
-### گام ۱۴.۱۸۶: عددهایی که `HijriYear::all` دیگر سال قمری نمی‌گیرد (مورد ۱۳۱، گام ۱ طرح)
+### گام ۱۴.۱۸۵: پست اعلان در کانال تلگرام (`App\Support\AnnouncementTelegram`)
+
+- **ستون‌های تازه‌ی `announcements` (`2026_11_14_200001_add_telegram_to_announcements`):** `telegram`، `telegram_text`، `telegram_message_id`، `telegram_photo`، `telegram_posted_text`، `telegram_sent_at`، `telegram_error`.
+- **تنظیمات (`SiteSetting`):** `telegram.channel` (پیش‌فرض `@fahares_net`) و `telegram.footer`. پانویس خالی به شکل رشته‌ی تهی ذخیره می‌شود، چون `null` پیش‌فرض را برمی‌گرداند.
+- **ربات:** همان `TELEGRAM_NOTIFY_BOT_TOKEN`. webhook آن با `allowed_updates = ['message']` ثبت شده، پس پست‌های کانال به webhook نمی‌رسند. env تازه‌ای لازم نیست.
+- **`compose()`:** HTML تلگرام؛ `<b>عنوان</b>`، متن، سطر `🔗 <a href>` (مسیر سایت با `url()` کامل می‌شود) و پانویس، با یک سطر تهی میانشان. اگر `telegram_text` پر باشد جای عنوان و متن می‌نشیند. همه‌ی نوشته‌ها escape می‌شوند (`ENT_HTML401`، چون تلگرام `&apos;` را نمی‌شناسد).
+- **`sync()`** پس از هر ذخیره در `AnnouncementController` و از دکمه‌ی «دوباره بفرست» (`POST admin/announcements/{id}/telegram`):
+  - بدون `telegram_message_id`: فقط اگر اعلان روشن است. با تصویر `sendPhoto` (فایل از دیسک `public` بارگذاری می‌شود)، بی‌تصویر `sendMessage`.
+  - با `telegram_message_id`: اگر متن ساخته‌شده با `telegram_posted_text` فرق دارد، `editMessageCaption` یا `editMessageText`. تصویر پست عوض نمی‌شود.
+  - `link_preview_options`: نشانی پیوند خود اعلان، یا `is_disabled` اگر پیوند ندارد، تا کارت پیش‌نمایش از نشانی پانویس ساخته نشود.
+  - خطا در `telegram_error` می‌ماند و ذخیره‌ی اعلان را خراب نمی‌کند. متن خطای اتصال ذخیره نمی‌شود، چون نشانی درخواست و با آن توکن ربات را دارد.
+- **حد طول:** پیش از ذخیره سنجیده می‌شود، به شمار واحدهای UTF-16 متن بی‌نشانه: ۱٬۰۲۴ برای پست تصویردار و ۴٬۰۹۶ برای بی‌تصویر.
+- **تست:** چهار آزمون تازه در `tests/Feature/AnnouncementTest.php` با `Http::fake`.
+
+### گام ۱۴.۱۸۶: عددهایی که `HijriYear::all` دیگر سال قمری نمی‌گیرد (مورد ۱۳۴، گام ۱ طرح)
 
 - **همیشه کنار می‌رود:**
   - سال تقویم دیگر: عددی که پس از آن «یزدجرد»، «یزدگرد…» یا «فصلی» می‌آید (`OTHER_ERA`)، و «خ» مانند «ش» (`OTHER_MARK`، `SOLAR_MARK`).
@@ -10909,3 +10897,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **مانده:** دو نسخه‌ای که فقط سال یزدگردی دارند بازه ندارند؛ تبدیل یزدگردی به قمری ساخته نشد.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان):** `fahares:fill-copy-date-ranges --apply`، سپس با `--works`.
 - **تست:** `CopyDateRangeTest::test_a_second_number_that_is_no_date_of_the_copy_is_left_out` و `ApplyCorpusCategoriesCommandTest::test_the_sort_year_follows_a_range_that_drops_a_number_the_text_no_longer_gives_as_a_year`.
+
+### گام ۱۴.۱۸۷: نوع اعلان `site.announcement`
+
+- **`config/notifications.php`:** `site.announcement`، `roles: ['*']`، کانال‌ها `database: true` و `mail`، `webpush`، `telegram` هر سه `false`.
+- **`App\Notifications\AnnouncementNotice`** (`SiteNotification`): عنوان و سطرهای متن اعلان، پیوند اعلان (یا خانه‌ی سایت). `toArray()` کلید `announcement_id` دارد. `toWebPush()` عنوان و متن خود اعلان را می‌برد.
+- **`App\Jobs\SendAnnouncementNotice`:** `forFirstRun()` پس از هر ذخیره در `AnnouncementController`؛ اگر اعلان روشن است، مخاطبش `guests` نیست و `notified_at` تهی است، آن را پر می‌کند و job را به صف می‌دهد. job اگر اعلان تا آن هنگام خاموش یا حذف شده باشد چیزی نمی‌فرستد، وگرنه `NotificationPreferences::broadcast()`.
+- **`announcements.notified_at`** (`2026_11_14_300001_add_notified_at_to_announcements`): برای اعلان‌هایی که پیش از این گام روشن شده‌اند با `starts_at` پر می‌شود، تا ذخیره‌ی دوباره‌شان چیزی نفرستد.
+- **یکی شمردن دو نمایش:**
+  - `NotificationController::index()`: برای اعلان‌های نوی صفحه که `announcement_id` دارند ردیف `announcement_user` می‌سازد (بی افزودن به `views_count`)، پس `Announcement::forViewer()` آن را دیگر نمی‌دهد.
+  - `AnnouncementEventController`: با دیدن یا کلیک کارت، اعلان خوانده‌نشده‌ی همان `announcement_id` در `notifications` خوانده‌شده می‌شود.
+- **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
