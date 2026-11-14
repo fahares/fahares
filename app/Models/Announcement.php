@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * A public notice of the site, written in the admin panel and shown once to each visitor (see
- * x-announcement and resources/js/announcement.js). Only the newest running notice of a visitor's
- * audience is offered, so two notices never queue up on one page. Its picture lives on the public
- * disk under announcements/{id}/, which is the persistent volume in production.
+ * x-announcement and resources/js/announcement.js). The running notices of a visitor's audience form a
+ * queue, newest first: one is shown at a time, and the next not before GAP_HOURS later, so a new notice
+ * does not push an older one out and nobody meets two in a row. A notice with on_site off is not shown
+ * on the site at all; it only goes to the Telegram channel. Its picture lives on the public disk under
+ * announcements/{id}/, which is the persistent volume in production.
  */
 class Announcement extends Model
 {
@@ -28,6 +30,9 @@ class Announcement extends Model
 
     public const DEFAULT_DAYS = 14;
 
+    /** After one notice, a visitor sees the next one no sooner than this */
+    public const GAP_HOURS = 24;
+
     private const CACHE_KEY = 'announcements.running';
 
     protected $guarded = ['id'];
@@ -36,6 +41,7 @@ class Announcement extends Model
     {
         return [
             'is_active' => 'boolean',
+            'on_site' => 'boolean',
             'telegram' => 'boolean',
             'telegram_photo' => 'boolean',
             'telegram_sent_at' => 'datetime',
@@ -91,36 +97,43 @@ class Announcement extends Model
         ];
     }
 
-    /**
-     * The notice to offer this visitor, or null: the newest running one of their audience, unless a
-     * member has already seen it. The running notices are cached, so a page view costs no query
-     * while nothing runs, and one small query for a member while something does.
-     */
+    /** The notice to offer this visitor now, or null: the head of their queue. */
     public static function forViewer(?User $user): ?array
+    {
+        return self::queueFor($user)[0] ?? null;
+    }
+
+    /**
+     * The running notices of this visitor's audience, newest first. For a member, those already seen are
+     * left out, and the queue is empty while the last one seen is younger than GAP_HOURS; a guest's
+     * browser keeps both (resources/js/announcement.js). The running notices are cached, so a page view
+     * costs no query while nothing runs, and one small query for a member while something does.
+     */
+    public static function queueFor(?User $user): array
     {
         $running = Cache::remember(self::CACHE_KEY, 600, fn () => static::query()
             ->where('is_active', true)
+            ->where('on_site', true)
             ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
             ->orderByDesc('starts_at')->orderByDesc('id')
             ->get()->map->payload()->all());
 
         $now = now()->getTimestamp();
         $mine = $user ? 'members' : 'guests';
-        foreach ($running as $item) {
-            if (($item['starts_at'] ?? 0) > $now || ($item['ends_at'] !== null && $item['ends_at'] <= $now)) {
-                continue;
-            }
-            if (! in_array($item['audience'], ['all', $mine], true)) {
-                continue;
-            }
-            if ($user && DB::table('announcement_user')->where('announcement_id', $item['id'])->where('user_id', $user->id)->exists()) {
-                return null;
-            }
-
-            return $item;
+        $queue = array_values(array_filter($running, fn ($item) => ($item['starts_at'] ?? 0) <= $now
+            && ($item['ends_at'] === null || $item['ends_at'] > $now)
+            && in_array($item['audience'], ['all', $mine], true)));
+        if (! $queue || ! $user) {
+            return $queue;
         }
 
-        return null;
+        $seen = DB::table('announcement_user')->where('user_id', $user->id)->pluck('seen_at', 'announcement_id');
+        $last = $seen->max();
+        if ($last && \Illuminate\Support\Carbon::parse($last)->gt(now()->subHours(self::GAP_HOURS))) {
+            return [];
+        }
+
+        return array_values(array_filter($queue, fn ($item) => ! $seen->has($item['id'])));
     }
 
     public function isRunning(): bool
