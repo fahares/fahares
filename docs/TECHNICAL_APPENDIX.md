@@ -10681,6 +10681,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. `fahares:rebuild-copies --file=database/data/stale_years_step14_177_copies.json --apply`
   2. `fahares:add-corpus-works --file=database/data/stale_years_step14_177_works.json --apply`
   - پس از هر دو، `fill-copy-date-ranges` (نسخه‌ها و `--works`) روی رونوشت محلی `changed 0` داد.
+- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+  - اجرای آزمایشی: `write 149` و `update 54`.
+  - پشتیبان: ستون‌های تاریخ و سال این ۱۴۹ نسخه و ۵۴ اثر در `step14_177_backup.json` (md5 `27076c7c…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - هر دو فرمان با `nohup` اجرا شد.
+  - اجرای دوم هر دو: صفر.
 - **عددهای شکسته (۱۲):** ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. چاپ همان رقم‌ها را دارد. سه تا از بافت هم سالی نمی‌دهند: «101357/6ق»، «10135ق» و «13582ق».
 
 ### گام ۱۴.۱۷۹: سال حیات و سال وفات خالی (`fahares:fill-death-years`)
@@ -10694,4 +10699,28 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** «22 death years emptied, 0 ranges, 44 death years filled». پس از آن `fahares:refresh-derived` برای `death_range` صفر داد.
 - **موارد مشکوکِ پرشده:** فهرست «قمری» نوشته ولی شخص پیش از هجرت درگذشته است: «عنترة بن شداد» («- 22 قمری») و «ابن کلثوم، عمرو بن کلثوم» («- 40 ؟ قمری»). بازه‌شان از پیش همین عدد بود.
 - **اجرا در تولید (پس از تأیید):** پشتیبان ستون‌های ۶۶ ردیف، اجرای آزمایشی و مقایسه با تمرین، `fahares:fill-death-years --apply` با `scripts/dev/prod-run`، سپس `fahares:estimate-dates --apply`.
+### گام ۱۴.۱۸۱: `HijriYear::otherCalendar()`
+
+- **`otherCalendar(?string): ?[from, to]`:**
+  - نخستین `NNNN(/N(/N))` با `SOLAR_MARK` (ش، شمسی، خورشیدی) یا `GREGORIAN_MARK` (م، میلادی، AD، CE).
+  - شمسی ۱۲۰۰ تا ۱۵۰۰: `[hijriOf(S+621, 3, 21), hijriOf(S+622, 3, 20)]`.
+  - میلادی ۱۰۰۰ تا ۲۱۰۰: `[hijriOf(G, 1, 1), hijriOf(G, 12, 31)]`.
+  - `hijriOf`: شماره‌ی روز ژولیانی تاریخ میلادی، سپس `intdiv(30 * (JDN − 1948440) + 10646, 10631)`، یعنی تقویم جدولی قمری.
+- **`parse()`:** `all()[0] ?? otherCalendar()[0]`.
+- **`CopyDateRange::parse()`:**
+  - بندِ تاریخ اکنون بندی است که `HijriYear::all()` تهی نباشد (نه `parse()`)، تا سال قمری بند دیگر بر سال شمسی بند نخست پیش بیفتد.
+  - اگر بندی نباشد، `otherCalendar($text)` با واژه‌ی تردید آن.
+- **تست‌ها:**
+  - `test_a_solar_or_gregorian_date_spans_the_hijri_years_it_falls_in`.
+  - `1250م` اکنون `[647, 648]` است.
+  - در `SuggestionWorkflowTest`، `1820م` ۱۲۳۵ است و `۱۳۵۰ش` ۱۳۹۱.
+  - در `ApplyCorpusCategoriesCommandTest`، `1350ش` بازه‌ی ۱۳۹۱ تا ۱۳۹۲ دارد.
+- **پرونده‌ها:**
+  - `database/data/other_calendar_years_step14_181_copies.json`: ۱۱۰ رکورد `copy_date_hijri_year`، از تهی.
+  - `database/data/other_calendar_years_step14_181_works.json`: ۵۳ `work_updates` با `composition_year_hijri`.
+- **اجرا:**
+  1. `fahares:rebuild-copies --file=… --apply`
+  2. `fahares:add-corpus-works --file=… --apply`
+  - هر دو بازه را با `DerivedData` می‌سازند.
+  - روی رونوشت محلی، دوباره و `fill-copy-date-ranges` (هر دو): صفر.
 
