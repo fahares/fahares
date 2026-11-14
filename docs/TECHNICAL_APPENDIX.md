@@ -10920,8 +10920,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - برای ۲ ناخوانا، `copy_date_hijri_year` تهی و `copy_date_note`.
   - شناسه‌ها از `fahares_prod` هستند و با `shelfmark` سنجیده می‌شوند.
 - **سنجش چاپ:** یک زیرعامل هر ۱۲ صفحه را با تصویر سنجید: ج ۴ ص ۸۹۹، ج ۸ ص ۲۲۴، ج ۱۱ ص ۶۹۵، ج ۱۴ ص ۳۲۱، ج ۱۵ ص ۷۶۲ و ۹۶۲، ج ۱۸ ص ۴۷۹ و ۵۷۳، ج ۲۱ ص ۶۹۱، ج ۳۰ ص ۹۲۵ و ۹۳۴، ج ۳۲ ص ۳۹۶. ج ۸ ص ۲۲۴ را خودم دیدم.
-- **`HijriYear::OTHER_MARK`:** `یزدجرد` به آن افزوده شد. `otherCalendar()` آن را تبدیل نمی‌کند، چون تنها `SOLAR_MARK` و `GREGORIAN_MARK` را می‌گیرد.
+- **سال یزدجردی:** گام ۱۴.۱۸۶ (جلسه‌ی دیگر) پیش‌تر آن را با `OTHER_ERA` (یزدجرد، یزدگرد، فصلی) از سال قمری بیرون گذاشته بود. در ادغام، همان نسخه ماند و `یزدجرد` این گام در `OTHER_MARK` نیامد. `otherCalendar()` آن را تبدیل نمی‌کند.
 - **تست:** دو assert یزدجردی در `CopyDateRangeTest`.
 - **اجرا:** `php artisan fahares:rebuild-copies --file=database/data/printed_extra_digit_dates_step14_189.json --apply`.
   - رونوشت محلی: ۱۱ نسخه نوشته شد. اجرای دوم: `already 11`.
+- **پروداکشن (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+  - اجرای آزمایشی: `write 11`.
+  - پشتیبان: ستون‌های تاریخ این ۱۱ نسخه در `step14_189_backup.json` (md5 `351e132a…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `--apply` با `nohup`: ۱۱ نسخه نوشته شد. اجرای دوم: صفر.
 
