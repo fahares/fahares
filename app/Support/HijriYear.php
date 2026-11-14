@@ -17,14 +17,22 @@ class HijriYear
     // Folio and page counts are not years
     private const FOLIO_WORD = '(?:برگ|ورق|صفحه|ص\\.|گ\\.)';
     private const MONTH = '(?:محرم|صفر|ربیع|ربيع|جمادی|جمادى|رجب|شعبان|رمضان|شوال|ذی\s*‌?\s*القعده|ذی\s*‌?\s*قعده|ذیقعده|ذوالقعده|ذی\s*‌?\s*الحجه|ذی\s*‌?\s*حجه|ذیحجه|ذوالحجه)';
-    private const OTHER_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:م(?!\p{L})|میلادی|ش(?!\p{L})|شمسی|خورشیدی|AD|CE)';
+    private const OTHER_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:م(?!\p{L})|میلادی|ش(?!\p{L})|خ(?!\p{L})|شمسی|خورشیدی|AD|CE)';
+    // A year of another era, which the catalogue sets beside the Hijri one: «996 یزدجرد», «1250 یزدگردی», «1240 فصلی»
+    private const OTHER_ERA = '\s*(?:یزدجرد|یزدگرد|فصلی)';
+    // The months of the solar year and the signs that stand for them: «12 تیر 1331 مطابق با 10 شوال 1371», «4 اسد 1318»
+    private const SOLAR_MONTH = '(?<!\p{L})(?:فروردین|اردیبهشت|اردی‌بهشت|خرداد|تیر|مرداد|امرداد|شهریور|مهر|آبان|آذر|دی|بهمن|اسفند|حمل|ثور|جوزا|سرطان|اسد|سنبله|میزان|عقرب|قوس|جدی|دلو|حوت)(?:\s*ماه)?';
+    // What follows these is not the date of the copy: a later owner's year, or the year of the copy it was made from
+    private const ASIDE = '(?:تملک|از\s+روی\s+(?:خط|نسخه)|از\s+نسخه‌ای)';
+    // A solar year lies this many years before the Hijri year it is set beside (1304 and 1343, 1378 and 1429)
+    private const SOLAR_GAP = [35, 55];
 
     public static function parse(?string $raw): ?int
     {
         return self::all($raw)[0] ?? self::otherCalendar($raw)[0] ?? null;
     }
 
-    private const SOLAR_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:ش(?!\p{L})|شمسی|خورشیدی)';
+    private const SOLAR_MARK = '\s*(?:ه[ـ]?\.?\s*)?(?:ش(?!\p{L})|خ(?!\p{L})|شمسی|خورشیدی)';
     private const GREGORIAN_MARK = '\s*(?:م(?!\p{L})|میلادی|AD|CE)';
 
     /**
@@ -75,8 +83,14 @@ class HijriYear
      *   - a three-digit number without «ق» more than 200 years before the first four-digit year of its clause:
      *     «138-1309ق», «شهر المسائل 111 و دی 1333»; no copy's one date spans two centuries and more;
      *   - a three-digit day before a month, with a year after it: «232 صفر 839ق», «104 (کذ) شوال 1294ق»;
-     *   - a page, shelf or volume reference in a bracket: «(ص 103)», «الذریعة (186/25)» («ج 1008ق» is Jumada); a solar date with
-     *     slashes: «317/11/7ش».
+     *   - a page, shelf or volume reference in a bracket: «(ص 103)», «الذریعة (186/25)», «(فهرست طوپ قاپی 455/3)»
+     *     («ج 1008ق» is Jumada); a solar date with slashes: «317/11/7ش»;
+     *   - a year of another era: «996 یزدجرد», «1240 فصلی», «1323 خ»; and the year the catalogue corrects:
+     *     «1099 که صحیح آن 1299ق است» (step 14.186).
+     * Left out as well (step 14.186): a year after a solar month that lies 35 to 55 years before another year of the
+     * text («12 تیر 1331 مطابق با 10 شوال 1371»); and, when the text has another year, a year after «تملک», «از روی خط»
+     * or «از نسخه‌ای» that follow a year (an owner's year, the year of the copy it was made from), and a year in a
+     * bracket that goes on to call it a mistake («1271ق (در نسخه 1071 سهو القلم است)»).
      *
      * @return int[]
      */
@@ -104,19 +118,35 @@ class HijriYear
             if (preg_match('/^' . self::OTHER_MARK . '/u', $after) || preg_match('/' . self::FOLIO_WORD . '\s*$/u', $before)
                 || preg_match('/\(\s*(?:ص|ش|ج)\.?\s*$/u', $before)
                 || preg_match('#^(?:/\d+)+' . self::OTHER_MARK . '#u', $after)
-                || (preg_match('#\(\s*$#u', $before) && preg_match('#^\s*/\s*\d+\s*\)#u', $after))
+                || (preg_match('#\([^)]*$#u', $before) && preg_match('#^\s*/\s*\d+\s*\)#u', $after))
+                || preg_match('/^' . self::OTHER_ERA . '/u', $after)
+                || preg_match('/^\s*ق?\s*که\s+صحیح\s+آن/u', $after)
                 || preg_match('#\(\s*\d+\s*/\s*$#u', $before)) {
                 continue;
             }
             if (self::inRange((int) $digits)) {
                 // the clause it stands in: what lies between the «،» or «؛» before it and the one after it
                 $clause = preg_match_all('/[،؛]/u', $before, $m, PREG_OFFSET_CAPTURE) ? count($m[0]) : 0;
-                $found[] = ['year' => (int) $digits, 'clause' => $clause, 'day' => (bool) preg_match('/^\s*(?:\(\s*کذا?\s*\)\s*)?' . self::MONTH . '/u', $after),
+                // a year that falls when the text has another: after «تملک» or «از روی خط» that follow a year, or in a
+                // bracket that goes on to call it a mistake («(در نسخه 1071 سهو القلم است)»; in «705ق (این تاریخ اشتباه و
+                // احتمالاً 905 صحیح باشد)» the bracket corrects the year before it, and both stay)
+                $weak = preg_match('/\d{3,4}.*' . self::ASIDE . '/us', $before)
+                    || (preg_match('#\([^()]*$#u', $before) && preg_match('/^[^()]*(?:اشتباه|سهو)/u', $after));
+                $solar = (bool) preg_match('/' . self::SOLAR_MONTH . '\s*$/u', $before);
+                $found[] = ['year' => (int) $digits, 'weak' => (bool) $weak, 'solar' => $solar, 'clause' => $clause, 'day' => (bool) preg_match('/^\s*(?:\(\s*کذا?\s*\)\s*)?' . self::MONTH . '/u', $after),
                     // «880ق», and «845-1098ق» (a span the catalogue wrote; «138-1309ق» is not one)
                     'marked' => (bool) preg_match('/^\s*(?:ق|ه\.?\s*ق|هـ)(?!\p{L})/u', $after)
                         || ((int) $digits >= 400 && preg_match('/^\s*[-–]\s*\d{4}(?!\d)/u', $after))];
             }
         }
+
+        if ($strong = array_values(array_filter($found, fn ($f) => ! $f['weak']))) {
+            $found = $strong;
+        }
+        // a year after a solar month, beside the Hijri year of the same day
+        $hijri = array_column(array_filter($found, fn ($f) => ! $f['solar']), 'year');
+        $found = array_values(array_filter($found, fn ($f) => ! $f['solar']
+            || ! array_filter($hijri, fn ($y) => $y - $f['year'] >= self::SOLAR_GAP[0] && $y - $f['year'] <= self::SOLAR_GAP[1])));
 
         $years = [];
         foreach ($found as $i => $f) {

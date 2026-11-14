@@ -1,0 +1,192 @@
+{
+ "source": "a copy date the print gives with an extra digit, read from its context with a hedge, the printed form kept in the date's note (fahares step 14.189)",
+ "records": [
+  {
+   "table": "manuscripts",
+   "id": 46041,
+   "shelfmark": "7941-عکس",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «101357/6ق» آمده است؛ از آن سالی خوانده نمی‌شود"
+    },
+    "copy_date_hijri_year": {
+     "from": 1013,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 74943,
+   "shelfmark": "2028",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «141286ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "141286ق",
+     "to": "محتملاً 1286ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 106800,
+   "shelfmark": "312/1",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «با تاریخ 10135ق» آمده است؛ از آن سالی خوانده نمی‌شود"
+    },
+    "copy_date_hijri_year": {
+     "from": 1013,
+     "to": null
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 133109,
+   "shelfmark": "4696",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «101252ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "101252ق",
+     "to": "محتملاً 1252ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 147474,
+   "shelfmark": "25944",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «13582ق» آمده است؛ یکی از دو رقم 5 و 8 زیادی است، پس سال 1258 یا 1358 است"
+    },
+    "copy_date_raw": {
+     "from": "13582ق",
+     "to": "محتملاً 1258 یا 1358ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 149414,
+   "shelfmark": "5097",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «آدینه 141313ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "آدینه 141313ق",
+     "to": "آدینه محتملاً 1313ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173170,
+   "shelfmark": "15609/7",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «با تاریخ 11267ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "با تاریخ 11267ق",
+     "to": "با تاریخ محتملاً 1267ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 173924,
+   "shelfmark": "1255/50",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «ذیحجه 11091ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "ذیحجه 11091ق",
+     "to": "ذیحجه محتملاً 1091ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 204594,
+   "shelfmark": "27748",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «13354ق» آمده است؛ یکی از دو رقم 3 یا 4 زیادی است، پس سال 1335 یا 1354 است"
+    },
+    "copy_date_raw": {
+     "from": "13354ق",
+     "to": "محتملاً 1335 یا 1354ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 297252,
+   "shelfmark": "2195",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «شنبه 18 رجب 11128ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "شنبه 18 رجب 11128ق",
+     "to": "شنبه 18 رجب محتملاً 1128ق"
+    }
+   }
+  },
+  {
+   "table": "manuscripts",
+   "id": 309267,
+   "shelfmark": "133",
+   "category": "rebuild",
+   "v2": null,
+   "changes": {
+    "copy_date_note": {
+     "from": null,
+     "to": "در چاپ «دوشنبه 111132ق» آمده است؛ سال از بافت برآمده است"
+    },
+    "copy_date_raw": {
+     "from": "دوشنبه 111132ق",
+     "to": "دوشنبه محتملاً 1132ق"
+    }
+   }
+  }
+ ]
+}
