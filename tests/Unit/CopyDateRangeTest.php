@@ -143,5 +143,29 @@ class CopyDateRangeTest extends TestCase
         $this->assertSame([1304, 1304], $this->range('1886م؛ تاریخ ترجمه: 1304ق'));
         $this->assertSame(1304, \App\Support\HijriYear::parse('1886م؛ تاریخ ترجمه: 1304ق'));
     }
-}
 
+    public function test_a_three_digit_year_far_before_its_work_is_read_again_as_a_year_that_lost_a_digit()
+    {
+        $reread = fn (string $raw, ?int $floor) => ($r = CopyDateRange::reread($raw, $floor)) ? [$r['from'], $r['to'], $r['certainty'], $r['hedge']] : null;
+        // 1125, 1205 and 1250 are after 1106; 1025 is not
+        $this->assertSame([1125, 1250, 'doubtful', 'بازخوانی 125'], $reread('سال 125؟', 1106));
+        // only 1260 is after 1258
+        $this->assertSame([1260, 1260, 'doubtful', 'بازخوانی 126'], $reread('با تاریخ 126', 1258));
+        $this->assertSame([1010, 1110, 'doubtful', 'بازخوانی 110'], $reread('4 جمادی الاول 110ق', 281));
+        // no reading is after the floor, or none is before 1400: the date stands
+        $this->assertNull($reread('850ق', 1106));
+        $this->assertNull($reread('محرم 125', 1300));
+        // a copy near its work or after it, a work with no floor, a four-digit year, a century, a span
+        $this->assertNull($reread('محرم 279ق', 176));
+        $this->assertNull($reread('396ق', 350));
+        $this->assertNull($reread('سال 125؟', null));
+        $this->assertNull($reread('1125ق', 1106));
+        $this->assertNull($reread('قرن 3', 1106));
+        $this->assertNull($reread('91-119', 1106));
+        $this->assertNull($reread('رجب 73 و 196', 1106));
+        $this->assertSame([1006, 1106, 'doubtful', 'بازخوانی 106'], $reread('جمعه 12 رمضان 106؟', 832));
+        $this->assertSame(125, CopyDateRange::rereadYear('بازخوانی 125'));
+        $this->assertNull(CopyDateRange::rereadYear('؟'));
+        $this->assertNull(CopyDateRange::rereadYear('نزدیک عصر مؤلف'));
+    }
+}

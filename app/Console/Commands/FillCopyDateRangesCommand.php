@@ -31,8 +31,8 @@ class FillCopyDateRangesCommand extends Command
 
         // A copy's date, or with --works a work's date of composition: the table, its date text and how its columns are made
         [$table, $prefix, $columns] = $this->option('works')
-            ? ['works', 'composition_date', fn ($raw, $death) => Work::compositionDateColumns($raw)]
-            : ['manuscripts', 'copy_date', fn ($raw, $death) => Manuscript::copyDateColumns($raw, $death)];
+            ? ['works', 'composition_date', fn ($raw, $death, $floor) => Work::compositionDateColumns($raw)]
+            : ['manuscripts', 'copy_date', fn ($raw, $death, $floor) => Manuscript::copyDateColumns($raw, $death, $floor)];
         $raw = $table === 'works' ? 'composition_date_raw' : 'copy_date_raw';
         DB::table($table)->whereNotNull($raw)->where($raw, '<>', '')
             ->select(['id', $table === 'works' ? 'id as work_id' : 'work_id', "{$raw} as raw", "{$prefix}_from as from", "{$prefix}_to as to", "{$prefix}_certainty as certainty", "{$prefix}_hedge_raw as hedge"])
@@ -40,9 +40,11 @@ class FillCopyDateRangesCommand extends Command
                 $updates = [];
                 // «نزدیک عصر مؤلف»: a copy date that names the author's time is ranged from the author's death
                 $deaths = $table === 'works' ? [] : Manuscript::authorDeaths($rows->pluck('work_id'));
+                // «سال 125؟» far before its work is read again from the work's floor (item 128)
+                $floors = $table === 'works' ? [] : Manuscript::copyFloors($rows->pluck('work_id'));
                 foreach ($rows as $row) {
                     $counts['dated']++;
-                    $cols = $columns($row->raw, $deaths[$row->work_id] ?? null);
+                    $cols = $columns($row->raw, $deaths[$row->work_id] ?? null, $floors[$row->work_id] ?? null);
                     if ($cols["{$prefix}_from"] === null && $cols["{$prefix}_to"] === null) {
                         $pattern = preg_replace('/[0-9۰-۹]+/u', 'N', mb_substr($row->raw, 0, 40));
                         $unranged[$pattern] = ($unranged[$pattern] ?? 0) + 1;
@@ -60,7 +62,7 @@ class FillCopyDateRangesCommand extends Command
                         "{$prefix}_certainty" => $row->certainty, "{$prefix}_hedge_raw" => $row->hedge];
                     if ($current !== $cols) {
                         $counts['changed']++;
-                        $updates[$row->id] = $cols;
+                        $updates[$row->id] = $cols + ($table === 'works' ? [] : Manuscript::rereadSortYear($cols));
                     }
                 }
                 if ($apply && $updates) {

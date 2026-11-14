@@ -1674,6 +1674,106 @@
      "step": "14.163"
     }
    }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 1,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 1",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 2,
+   "page_last": 270,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/nashriyye/n01.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/n01.map.json"
+     ],
+     "note": "docibox 1075498؛ دفتر ۱؛ پرونده‌ی «ج ۱ و ۲» تنها دفتر ۱ را دارد؛ ص ۶ چاپ «۹»",
+     "step": "14.178"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 3,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 3",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 3,
+   "page_last": 488,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/nashriyye/n03.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/n03.map.json"
+     ],
+     "note": "docibox 1075499؛ ص ۲۹۴ در اسکن نیست",
+     "step": "14.178"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 6,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 6",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 2,
+   "page_last": 650,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/nashriyye/n06.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/n06.map.json"
+     ],
+     "note": "docibox 1292171؛ اسکن تا ص ۶۵۰ است؛ ص ۶۵۱–۶۹۸ (مینوی، ناصری) نیست",
+     "step": "14.178"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 11,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 11",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 1,
+   "page_last": 786,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/nashriyye/n11.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/n11.map.json"
+     ],
+     "note": "docibox 1075508؛ دفتر ۱۱ و آغاز دفتر ۱۲ تا ص ۷۸۶؛ بیشتر ارجاع‌های فنخا (ص ۷۸۷–۱۰۲۶) در اسکن نیست",
+     "step": "14.178"
+    }
+   }
+  },
+  {
+   "library_slug": null,
+   "volume_number": 13,
+   "title": "نشریه نسخه‌های خطی کتابخانه مرکزی دانشگاه تهران - دفتر 13",
+   "facsimile_code": "tehran-univ-nashriyye",
+   "page_first": 10,
+   "page_last": 568,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "tehran-univ/nashriyye/n13.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-univ/n13.map.json"
+     ],
+     "note": "docibox 1073330",
+     "step": "14.178"
+    }
+   }
   }
  ]
 }
