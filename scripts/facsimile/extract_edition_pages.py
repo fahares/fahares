@@ -27,6 +27,9 @@ A scan placed on a larger PDF page with white padding and a thin frame line (Mal
 Spreads printed on grey paper (University of Tehran central library, step 14.163: paper rows average about 220) take
 --keep-foot: bottom_trim walks up from a dark last row through every row of 235 or less, which on grey paper is the whole
 foot of the text, so it is left out there.
+
+--mupdf renders with PyMuPDF instead of pdftoppm (step 14.192): on the 300 dpi JPEG scans of Sepahsalar pdftoppm took about
+7 s of CPU per page at 1100 px, MuPDF about 1 s. The output is the same size and goes through the same trims.
 """
 import argparse
 import json
@@ -133,15 +136,24 @@ def pad_trim(page):
 
 
 def render(job):
-    pdf, leaf, width, target, edges, pad, foot = job
+    pdf, leaf, width, target, edges, pad, foot = job[:7]
+    mupdf = len(job) > 7 and job[7]
     if os.path.exists(target):
         return 'skip'
     leaf, side = (int(leaf), None) if ':' not in str(leaf) else (int(str(leaf).split(':')[0]), str(leaf).split(':')[1])
     os.makedirs(os.path.dirname(target), exist_ok=True)
     with tempfile.TemporaryDirectory(dir=os.path.dirname(target)) as tmp:
         base = os.path.join(tmp, 'page')
-        subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(width * (2 if side in ('r', 'l') else 1)),
-                        '-scale-to-y', '-1', '-gray', '-singlefile', pdf, base], check=True)
+        x = width * (2 if side in ('r', 'l') else 1)
+        if mupdf:
+            import pymupdf
+            page = pymupdf.open(pdf)[leaf - 1]
+            z = x / page.rect.width
+            pm = page.get_pixmap(matrix=pymupdf.Matrix(z, z), colorspace=pymupdf.csGRAY)
+            Image.frombytes('L', (pm.width, pm.height), pm.samples).save(base + '.pgm')
+        else:
+            subprocess.run(['pdftoppm', '-q', '-f', str(leaf), '-l', str(leaf), '-scale-to-x', str(x),
+                            '-scale-to-y', '-1', '-gray', '-singlefile', pdf, base], check=True)
         if side == 'u':
             Image.open(base + '.pgm').rotate(180).save(base + '.pgm')
             side = None
@@ -175,6 +187,7 @@ def main():
     parser.add_argument('--workers', type=int, default=6)
     parser.add_argument('--trim-edges', action='store_true', help='drop dark scanner bands at the edges of whole leaves')
     parser.add_argument('--pad-trim', action='store_true', help='drop the white padding and thin frame around a scan placed on a larger PDF page')
+    parser.add_argument('--mupdf', action='store_true', help='render with PyMuPDF instead of pdftoppm (step 14.192: about 7 times less CPU on 300 dpi JPEG scans)')
     parser.add_argument('--keep-foot', action='store_true', help='do not trim the foot of a half page (spreads on grey paper)')
     parser.add_argument('--out', default=os.path.join(REPO, 'storage', 'app', 'public', 'catalogs'))
     args = parser.parse_args()
@@ -187,7 +200,7 @@ def main():
         parser.error('give --map, or --offset, --first and --last')
     else:
         leaves = {page: page + args.offset for page in range(args.first, args.last + 1)}
-    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp'), args.trim_edges, args.pad_trim, args.keep_foot) for page, leaf in sorted(leaves.items())]
+    jobs = [(args.pdf, leaf, args.width, os.path.join(folder, f'p{page:04d}.webp'), args.trim_edges, args.pad_trim, args.keep_foot, args.mupdf) for page, leaf in sorted(leaves.items())]
     with ProcessPoolExecutor(args.workers) as pool:
         results = list(pool.map(render, jobs, chunksize=8))
     print(f"{len(jobs)} pages: {results.count('done')} rendered, {results.count('skip')} already there, in {folder}")
