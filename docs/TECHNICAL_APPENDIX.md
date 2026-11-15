@@ -11016,6 +11016,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فهرست نام و اندازه‌ی ۴٬۹۶۶ پرونده در دو سو یکسان است. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - پنج برگه‌ی نمونه (ج ۱ ص ۳۰۰، ج ۳ ص ۱۵۰۰، ج ۵ ص ۲۵۰۰، ج ۷ ص ۴۲۰۰ و ج ۸ ص ۴۹۶۶) از `https://fahares.net/storage/catalogs/golpaygani/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` کتابخانه‌ی `km-glpaygany-5`. انتظار: «0 created, 8 updated».
+- **اجرای پروداکشن (انتشار ۱۳۲، `778424fd`؛ ۲۴ آبان ۱۴۰۵، به تأیید کاربر):**
+  - فرمان و داده در کانتینر با `origin/main` یکی بودند: md5 `b098df58…` (`SetCatalogFacsimilesCommand.php`) و `d094d598…` (`catalog_facsimiles.json`).
+  - **اجرای آزمایشی:** «0 created, 8 updated, 88 unchanged (dry run)». تنها ۸ ردیف `golpaygani` «update» بودند.
+  - **پشتیبان و اجرا، در یک `prod-run` (۱۰:۰۷:۰۶ تا ۱۰:۰۷:۱۹):**
+    - پشتیبان با tinker: ۹ ردیف `catalog_volumes` کتابخانه‌ی ۵ (`km-glpaygany-5`) و ۹ ردیف `source_volumes` با همان شناسه‌ها. `facsimile_code` پیشین همه خالی بود.
+    - پرونده در `../fahares-sources/backups/step13/step14_191_golpaygani_volumes_before_20261115.json` است (md5 `be13c453a0f3b3ea776c1866b809f86b`، دو سو یکسان). از `/tmp` کانتینر پاک شد.
+    - سپس فرمان «0 created, 8 updated, 88 unchanged» داد و اجرای دوم «0 created, 0 updated, 96 unchanged».
+  - **وارسی:** هشت `source_volumes` کد `golpaygani` و بازه‌ی نگاشت را دارند. ارجاع‌های در بازه برابر تمرین است: ۱٬۷۰۰، ۱٬۵۶۸، ۲٬۱۶۸، ۱٬۷۲۴، ۱٬۹۵۴، ۱٬۹۵۹، ۳۸۹ و ۲٬۲۴۶، روی هم ۱۳٬۷۰۸.
+  - **در fahares.net:** دکمه‌ی «دیدن برگه در فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی» و نشانی برگه‌ی درست در این صفحه‌ها هست: `/manuscripts/28489` (ج ۱ ص ۳۰۰)، `/manuscripts/30359` (ج ۱ ص ۳۲۶)، `/manuscripts/132284` (ج ۴ ص ۱۷۸۳)، `/manuscripts/219906` (ج ۶ ص ۲۹۶۷) و `/manuscripts/279031` (ج ۸ ص ۴۲۷۹).
+  - **۵۰۳ گذرا:** از حدود ۱۰:۰۸ تا ۱۰:۱۱ کل سایت گاه «موقتاً در دسترس نیست» داد. این هم‌زمان با `fahares:reindex-work-estimates` گام ۱۴.۱۹۷ بود، که از ۱۰:۰۷:۲۳ در جریان بود (load کانتینر حدود ۲۱). این اجرا پیش از آن تمام شده بود.
 
 ### گام ۱۴.۱۹۳: `PersonMerger::moveSourceEntries` و `fahares:settle-double-lives`
 - **[PersonMerger](../app/Services/PersonMerger.php):** `moveSourceEntries(from, to)` سطرهای `source_entries` با `citable_type = Person` را به شخص ماندگار می‌برد. اگر هر دو به یک `source_item_id` پیوند دارند، سطرِ با رتبه‌ی بهتر (`verified` > `unverified` > `rejected`) می‌ماند و دیگری حذف می‌شود. `old_values` در گزارش ادغام: `moved_source_entry_ids` و `dropped_source_entries` (سطر کامل). بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) سطرهای جابه‌جاشده را برمی‌گرداند و سطرهای حذف‌شده را با `insertOrIgnore` باز می‌نشاند.
