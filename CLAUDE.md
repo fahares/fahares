@@ -3,6 +3,9 @@
 Several Claude sessions often work on this repository at once, each in its own worktree. These rules keep their step
 numbers and deploys from colliding.
 
+The step registry, the release queue and the locks live in `~/.fahares` on the owner's machine. If you work on another
+machine or from a fork, the last section, "Outside contributors", replaces the rules that depend on them.
+
 ## Step numbers («گام»)
 
 - Take a step number only from `scripts/dev/reserve-step "short title" <session-name>`. It prints the next free number
@@ -57,3 +60,28 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
 `docs/PROCESS_DOCUMENTATION.md` and `docs/TECHNICAL_APPENDIX.md` merge with `merge=union` (`.gitattributes`): both
 sides' new steps are kept without a conflict. Union cannot tell an edit from an addition, so after a merge check that
 an earlier line edited on both sides was not kept twice, and that steps stay in number order.
+
+## Outside contributors
+
+These rules are for a session on any machine other than the owner's, where `~/.fahares/steps.tsv` and
+`~/.fahares/release-queue.tsv` do not exist. The scripts would start an empty registry there and hand out numbers that
+are already taken.
+
+- Work in your own fork of `fahares/fahares`, on a branch per task, and send a pull request to `main`. Nobody but the
+  owner pushes to `fahares/fahares`.
+- Take only the `docs/BACKLOG.md` items the owner has marked with your name.
+- Do not run `scripts/dev/reserve-step`, `scripts/dev/release-queue` or `scripts/dev/prod-run`. Do not name a step
+  number in a commit, a file name or a doc, and do not edit `docs/PROCESS_DOCUMENTATION.md` or
+  `docs/TECHNICAL_APPENDIX.md`. The releasing session reserves the number and writes the step entry when it merges.
+- The pull request description takes the place of the release-queue line and the step entry. It says what the change
+  is, the goal, the actions and the result, in the form at the end of `docs/PROCESS_DOCUMENTATION.md`. It also gives
+  the data command needed after the deploy, with its expected counts, or says there is none.
+- Before opening or updating the pull request, merge `origin/main` of `fahares/fahares` into the branch and run the
+  full suite against your own test database. `scripts/dev/test-suite` and its lock are not needed on your machine.
+- A migration runs on production as soon as the release is deployed. It changes structure only and must work with the
+  code of the release before it. A mass data change is a separate artisan command.
+- You have no production access. The owner runs any data command, after a backup, in a session on their machine.
+
+The task-management session reads `gh pr list --state open` together with `scripts/dev/release-queue --list` before a
+release. It fetches a ready pull request with `git fetch origin pull/<number>/head`, merges it into the release batch
+like any other ready branch, and reserves its step number then. GitHub marks the pull request as merged after the push.
