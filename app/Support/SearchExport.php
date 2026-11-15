@@ -9,6 +9,7 @@ use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\CSV\Writer as CsvWriter;
 use OpenSpout\Writer\XLSX\Entity\SheetView;
+use OpenSpout\Writer\XLSX\Options as XlsxOptions;
 use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -111,14 +112,26 @@ class SearchExport
      * Writes the records, one row at a time, to a file or a stream. In xlsx a longer text, such as the full text of a
      * long source entry, is cut to the cell limit and ends with «…». The writer is closed even when a row fails, since
      * OpenSpout deletes its temporary folder only on close.
+     *
+     * An xlsx file is built in a temporary folder of its own (OpenSpout puts its xlsx… folder and the .zip beside it
+     * there), removed in `finally` and again at shutdown: when the client closes the connection, or the time or memory
+     * limit is hit, PHP ends the request without running `finally`, and the leftovers in the container's /tmp blocked
+     * the release push (step 14.174 handled only a failing row; step 14.199).
      */
     public static function write(iterable $records, string $type, string $format, string $target): void
     {
         $columns = self::columns($type);
         $csv = $format === 'csv';
-        $writer = $csv ? new CsvWriter : new XlsxWriter;
-        $writer->openToFile($target);
+        $tempFolder = $csv ? null : self::makeTempFolder();
+        if ($csv) {
+            $writer = new CsvWriter;
+        } else {
+            $options = new XlsxOptions;
+            $options->setTempFolder($tempFolder);
+            $writer = new XlsxWriter($options);
+        }
         try {
+            $writer->openToFile($target);
             if (! $csv) {
                 $writer->getCurrentSheet()->setSheetView((new SheetView)->setRightToLeft(true));
             }
@@ -128,8 +141,54 @@ class SearchExport
                 $writer->addRow(Row::fromValues($csv ? $values : array_map(self::fitCell(...), $values)));
             }
         } finally {
-            $writer->close();
+            try {
+                $writer->close();
+            } finally {
+                if ($tempFolder !== null) {
+                    self::removeTempFolder($tempFolder);
+                }
+            }
         }
+    }
+
+    /** Temporary folders of exports still being written, removed at shutdown if the request ends early */
+    private static array $pendingTempFolders = [];
+
+    private static bool $shutdownRegistered = false;
+
+    private static function makeTempFolder(): string
+    {
+        $folder = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'fahares-export-' . bin2hex(random_bytes(8));
+        if (! @mkdir($folder, 0700) && ! is_dir($folder)) {
+            throw new \RuntimeException("Cannot create the export folder {$folder}");
+        }
+        self::$pendingTempFolders[$folder] = true;
+        if (! self::$shutdownRegistered) {
+            self::$shutdownRegistered = true;
+            register_shutdown_function(static function (): void {
+                foreach (array_keys(self::$pendingTempFolders) as $pending) {
+                    self::removeTempFolder($pending);
+                }
+            });
+        }
+
+        return $folder;
+    }
+
+    private static function removeTempFolder(string $folder): void
+    {
+        unset(self::$pendingTempFolders[$folder]);
+        if (! is_dir($folder)) {
+            return;
+        }
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($folder, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST,
+        );
+        foreach ($items as $item) {
+            $item->isDir() && ! $item->isLink() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+        }
+        @rmdir($folder);
     }
 
     private static function fitCell(mixed $value): mixed
