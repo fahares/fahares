@@ -70,7 +70,10 @@ final class EstimateText
      * of the death («… to that year + 100») is not shown: it says no more.
      *
      * When the evidence is a range (a copy dated by its century), the person was alive at some time in it, so the
-     * text is «وفات پس از <its first year>». Nothing is said of a scribe whose copies lie more than
+     * text is «وفات پس از <its first year>». When the range is a duration with exact ends (DateSpan::SPAN, a copy
+     * written from 1052 to 1057; step 14.194), a scribe, an author or a translator was alive at its end, so the text
+     * is «زنده در 1057», and a patron at its start, «زنده در 1052»; of a dedicatee the range says no more than before.
+     * Nothing is said of a scribe whose copies lie more than
      * PersonReviewQueue::MIXED_SPAN years apart: that record holds several namesakes, and the year is only the last
      * one's.
      *
@@ -89,21 +92,40 @@ final class EstimateText
             }
         }
         $evidence = self::evidence($row->from_evidence_type, $row->from_evidence_id);
-        $range = $row->from_evidence_type === 'work'
-            ? DB::table('works')->where('id', $row->from_evidence_id)->first(['composition_date_from as from', 'composition_date_to as to'])
-            : DB::table('manuscripts')->where('id', $row->from_evidence_id)->first(['copy_date_from as from', 'copy_date_to as to']);
-        $exact = $range && $range->from !== null && $range->from === $range->to;
+        [$table, $prefix] = $row->from_evidence_type === 'work' ? ['works', 'composition_date'] : ['manuscripts', 'copy_date'];
+        $record = DB::table($table)->where('id', $row->from_evidence_id)
+            ->first(["{$prefix}_from", "{$prefix}_to", "{$prefix}_kind", "{$prefix}_start_to", "{$prefix}_end_from"]);
+        $date = $record ? \App\Support\DateSpan::fromColumns($record, $prefix) : null;
+        $exact = $date && $date->from !== null && $date->from === $date->to;
+        $year = $row->year_from;
+        $lasted = false;
+        // a duration with exact ends: alive at its end, or for a patron at its start
+        if ($date && $date->isSpan() && $date->startTo === null && $date->endFrom === null && $date->from !== null && $date->to !== null
+            && $row->from_rule !== Loader::RULE_DEDICATEE && (int) $row->year_from === $date->from) {
+            $year = $row->from_rule === Loader::RULE_PATRON ? $date->from : $date->to;
+            $lasted = true;
+        }
+        $known = $exact || $lasted;
 
         return [
-            'text' => ($exact ? 'زنده در ' : 'وفات پس از ') . $row->year_from . ' ق',
+            'text' => ($known ? 'زنده در ' : 'وفات پس از ') . $year . ' ق',
             'reasons' => [[
-                'bound' => ($exact ? 'زنده در ' : 'پس از ') . $row->year_from,
-                'text' => self::ALIVE[$row->from_rule][$exact ? 0 : 1],
+                'bound' => ($known ? 'زنده در ' : 'پس از ') . $year,
+                'text' => $lasted ? self::ALIVE_SPAN[$row->from_rule] : self::ALIVE[$row->from_rule][$exact ? 0 : 1],
                 'title' => $evidence['title'] ?? null,
                 'url' => $evidence ? route(self::ROUTES[$row->from_evidence_type], $row->from_evidence_id) : null,
             ]],
         ];
     }
+
+    /** What shows the person alive when the evidence lasted from one year to another. */
+    private const ALIVE_SPAN = [
+        Loader::RULE_AUTHOR => 'اثرش را تا این سال تألیف می‌کرده است:',
+        Loader::RULE_TRANSLATOR => 'ترجمه‌اش را تا این سال می‌نوشته است:',
+        Loader::RULE_SCRIBE => 'کتابت نسخه‌ای را در این سال به پایان برده است:',
+        Loader::RULE_AUTOGRAPH => 'نسخه‌ای به خط خودش در این سال به پایان رسیده است:',
+        Loader::RULE_PATRON => 'کتابت نسخه‌ای برای او در این سال آغاز شده است:',
+    ];
 
     /** What shows the person alive, by rule: when the evidence is one year, and when it is a range. */
     private const ALIVE = [

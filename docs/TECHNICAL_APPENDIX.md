@@ -10980,6 +10980,22 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
 - **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
 
+### گام ۱۴.۱۹۴: `DateSpan::brief()` در `ConflictRecords` و طول مدت در `EstimateText::aliveIn` (مورد ۱۳۴، گام ۳ طرح)
+
+- **`DateSpan::brief()`:** متن کوتاه برای جدول. `span` با دو سرِ معلوم «از 1052 تا 1057» (همان `text()`)؛ هر بازه‌ی دیگر «1201–1300» و سرِ باز «؟»، مثل پیش از این گام. `text()` («میان … و …») جایی به کار نرفته و برای نمایش‌های آینده می‌ماند.
+- **`ConflictRecords::load`:** تاریخ هر رکورد از `DateSpan::fromColumns($row, <پیشوند>)->brief()`؛ ستون‌های `*_kind`، `*_start_to` و `*_end_from` هم خوانده می‌شوند. همین تابع یادداشت تناقض صفحه‌های عمومی (`DateConflictNote`) را هم می‌سازد.
+- **`EstimateText::aliveIn`:** وقتی شاهدِ کرانِ پایینِ وفات `isSpan()` است، دو سرش دقیق‌اند (`start_to` و `end_from` تهی) و کران از آغاز همان شاهد آمده:
+
+| قاعده | متن | دلیل |
+|---|---|---|
+| کاتب، خط مؤلف | «زنده در ‹`to`›» | «کتابت نسخه‌ای را در این سال به پایان برده است:» |
+| مؤلف، مترجم | «زنده در ‹`to`›» | «اثرش را تا این سال تألیف می‌کرده است:» |
+| بانی | «زنده در ‹`from`›» | «کتابت نسخه‌ای برای او در این سال آغاز شده است:» |
+| مُهدی‌الیه | بی‌تغییر | — |
+
+- **موتور دست نخورد:** `date_estimates` همان «وفات ≥ آغاز» را دارد. این متن یک واقعیت مستند را می‌گوید که از کران موتور دقیق‌تر است؛ قاعده‌های آغاز و پایان در `Loader` گام ۴ طرح است و به تصمیم کاربر به بعد ماند.
+- **تست:** `DateSpanTest::test_the_date_in_a_few_characters` و حالت‌های تازه در `AliveInTest::test_a_scribe_is_alive_in_the_year_of_a_copy_but_not_when_the_copies_span_generations`.
+
 ### گام ۱۴.۱۹۵: `Announcement::queueFor()` و ستون `on_site`
 
 - **`queueFor(?User)`:** اعلان‌های روشنِ مخاطب، تازه‌ترین نخست (همان فهرست کش‌شده‌ی `announcements.running`، اکنون با شرط `on_site`). برای عضو با یک پرس‌وجو روی `announcement_user`: اگر تازه‌ترین `seen_at` او کمتر از `GAP_HOURS` (۲۴) پیش است صف تهی است، وگرنه دیده‌شده‌ها کنار می‌روند. `forViewer()` سرِ همین صف است.
@@ -10988,3 +11004,10 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خواندن اعلان در زنگوله** هم ردیف `announcement_user` می‌سازد (گام ۱۴.۱۸۷)، پس برای عضو همان وقفه‌ی ۲۴ساعته را آغاز می‌کند.
 - **`announcements.on_site`** (`2026_11_14_400001_add_on_site_to_announcements`، پیش‌فرض `true`): با `telegram_only` در فرم `false` می‌شود؛ کنترلر آنگاه `audience = all` و `telegram = true` می‌گذارد. `SendAnnouncementNotice` چنین اعلانی را به اعضا نمی‌فرستد. ارسال به کانال همچنان با روشن شدن اعلان است.
 - **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
+
+### گام ۱۴.۱۹۶: `Manuscript::sharedVolumeDates` فقط تاریخ‌های `span` را می‌پرسد
+
+- **پیش از این:** برای هر دسته‌ی ۲٬۰۰۰ نسخه، به ازای هر کتابخانه یک پرس‌وجوی `GROUP BY collection_key, copy_date_raw` برای همه‌ی مجلدهای آن دسته؛ روی ۲۴۳ هزار نسخه ده‌ها هزار پرس‌وجو.
+- **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
+- **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
+- **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).

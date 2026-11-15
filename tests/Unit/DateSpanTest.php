@@ -47,6 +47,17 @@ class DateSpanTest extends TestCase
         $this->assertSame('تا 1030', (new DateSpan(null, 1030, DateSpan::SPAN))->text());
     }
 
+    public function test_the_date_in_a_few_characters()
+    {
+        $this->assertNull((new DateSpan(null, null))->brief());
+        $this->assertSame('1052', (new DateSpan(1052, 1052))->brief());
+        $this->assertSame('1201–1300', (new DateSpan(1201, 1300, DateSpan::BETWEEN))->brief());
+        $this->assertSame('1084–1107', (new DateSpan(1084, 1107))->brief());
+        $this->assertSame('؟–1100', (new DateSpan(null, 1100, DateSpan::BETWEEN))->brief());
+        $this->assertSame('از 1052 تا 1057', (new DateSpan(1052, 1057, DateSpan::SPAN))->brief());
+        $this->assertSame('1000–؟', (new DateSpan(1000, null, DateSpan::SPAN))->brief());
+    }
+
     public function test_columns_under_a_prefix_and_back()
     {
         $span = new DateSpan(1000, 1030, DateSpan::SPAN, 1010, 1020, 'probable', 'گویا');
