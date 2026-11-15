@@ -121,9 +121,34 @@ class Work extends Model
         return 'works_index';
     }
 
+    /**
+     * The work's estimated years of composition, [from, to], where fahares:estimate-dates placed it within
+     * EstimateText::MAX_SPAN years; null for a dated work or one with no such estimate. An import reads it with the
+     * works (makeAllSearchableUsing), a single work by a query of its own.
+     */
+    public function compositionEstimate(): ?array
+    {
+        if ($this->composition_year_hijri) {
+            return null;
+        }
+        if (! array_key_exists('estimate_from', $this->attributes)) {
+            $row = \App\Support\DateEstimates\EstimateText::placedCompositions(\Illuminate\Support\Facades\DB::query())
+                ->where('date_estimates.subject_id', $this->id)->first(['year_from', 'year_to']);
+            $this->attributes['estimate_from'] = $row->year_from ?? null;
+            $this->attributes['estimate_to'] = $row->year_to ?? null;
+            // not columns of the table: kept out of what a save would write
+            $this->syncOriginalAttributes(['estimate_from', 'estimate_to']);
+        }
+
+        return $this->attributes['estimate_from'] === null ? null : [(int) $this->attributes['estimate_from'], (int) $this->attributes['estimate_to']];
+    }
+
     public function makeAllSearchableUsing($query)
     {
-        return $query->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,wrong_names,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title', 'workPeople.person:id,name,aliases',
+        $estimate = fn (string $column) => \App\Support\DateEstimates\EstimateText::placedCompositions(\Illuminate\Support\Facades\DB::query())
+            ->whereColumn('date_estimates.subject_id', 'works.id')->select("date_estimates.{$column}");
+
+        return $query->select('works.*')->selectSub($estimate('year_from'), 'estimate_from')->selectSub($estimate('year_to'), 'estimate_to')->with(['subjects:id,name', 'languages:id,name', 'author:id,name,aliases,wrong_names,death_year_hijri', 'authors:people.id', 'manuscripts:id,work_id,incipit_text,explicit_text,is_autograph', 'baseWorks:works.id,primary_title,clean_title', 'workPeople.person:id,name,aliases',
             'sourceEntries' => fn ($q) => $q->select('id', 'citable_type', 'citable_id', 'source_id', 'status')]);
     }
 
@@ -331,6 +356,12 @@ class Work extends Model
             // author's death, which only 14% of works lack against 86% without a composition year
             'author_death_year' => $this->author?->death_year_hijri ? (int) $this->author->death_year_hijri : null,
             'era_year' => ($era = $this->composition_year_hijri ?: $this->author?->death_year_hijri) ? (int) $era : null,
+            // A work with no era may be found by its estimated composition, when the reader asks for estimates
+            // (step 14.197); and the order by composition may fall back on the middle of the estimate
+            'era_estimate_from' => $era ? null : ($this->compositionEstimate()[0] ?? null),
+            'era_estimate_to' => $era ? null : ($this->compositionEstimate()[1] ?? null),
+            'composition_sort_year' => $this->composition_year_hijri ? (int) $this->composition_year_hijri
+                : (($estimate = $this->compositionEstimate()) ? intdiv($estimate[0] + $estimate[1], 2) : null),
             'has_autograph' => $this->manuscripts->contains('is_autograph', true),
             'bibliographies' => $this->bibliographyIds(),
             // Every author, not only the first: «the works of this person» (backlog item 83, phase 6)

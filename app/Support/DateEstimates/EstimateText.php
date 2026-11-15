@@ -19,6 +19,14 @@ final class EstimateText
 {
     public const MAX_SPAN = 150;
 
+    /**
+     * The year a work is ordered by when the reader asks for estimates too (step 14.197): its year of composition,
+     * else the middle of its estimate. The same number is composition_sort_year in the search index.
+     */
+    public const COMPOSITION_SORT_SQL = "COALESCE(works.composition_year_hijri, (SELECT FLOOR((year_from + year_to) / 2) FROM date_estimates"
+        . " WHERE subject_type = 'work' AND subject_id = works.id AND field = 'composition' AND year_from IS NOT NULL AND year_to IS NOT NULL"
+        . ' AND year_to - year_from <= ' . self::MAX_SPAN . '))';
+
     /** Works that get no estimated date of composition. */
     private const UNDATED_TITLES = ['القرآن الکریم', 'قرآن کریم'];
 
@@ -30,6 +38,17 @@ final class EstimateText
     /**
      * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
      */
+    /**
+     * The estimates of composition that place a work in time: both bounds, at most MAX_SPAN years apart, the ones the
+     * work's page shows as «میان … و …». A list filters and orders by these alone: «پیش از ۱۲۰۰» names no century.
+     */
+    public static function placedCompositions(\Illuminate\Database\Query\Builder $query): \Illuminate\Database\Query\Builder
+    {
+        return $query->from('date_estimates')->where('date_estimates.subject_type', 'work')->where('date_estimates.field', 'composition')
+            ->whereNotNull('date_estimates.year_from')->whereNotNull('date_estimates.year_to')
+            ->whereRaw('date_estimates.year_to - date_estimates.year_from <= ' . self::MAX_SPAN);
+    }
+
     public static function for(string $type, int $id, string $field): ?array
     {
         // the Quran's date is not a question the copies answer (the user, step 14.176)
