@@ -11005,6 +11005,13 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`announcements.on_site`** (`2026_11_14_400001_add_on_site_to_announcements`، پیش‌فرض `true`): با `telegram_only` در فرم `false` می‌شود؛ کنترلر آنگاه `audience = all` و `telegram = true` می‌گذارد. `SendAnnouncementNotice` چنین اعلانی را به اعضا نمی‌فرستد. ارسال به کانال همچنان با روشن شدن اعلان است.
 - **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
 
+### گام ۱۴.۱۹۶: `Manuscript::sharedVolumeDates` فقط تاریخ‌های `span` را می‌پرسد
+
+- **پیش از این:** برای هر دسته‌ی ۲٬۰۰۰ نسخه، به ازای هر کتابخانه یک پرس‌وجوی `GROUP BY collection_key, copy_date_raw` برای همه‌ی مجلدهای آن دسته؛ روی ۲۴۳ هزار نسخه ده‌ها هزار پرس‌وجو.
+- **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
+- **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
+- **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).
+
 ### گام ۱۴.۱۹۹: پاکسازی پوشه‌ی موقت xlsx هنگام shutdown (`SearchExport::write`)
 
 - **شاهد:** در `/tmp` کانتینر، `xlsx6af90fbc6a31c8.26189525/` و `.zip` آن ساعت ۰۱:۵۰ UTC و جفت دیگری ساعت ۰۴:۵۰ UTC ماند. در `docker logs` همان ساعت درخواست `GET /search/export?type=manuscripts&…&format=xlsx` از `57.141.20.x` ثبت شده که پس از ۲۲٫۹ ثانیه با `499` پایان یافته است. از ۰۰:۰۰ UTC، ۲۶ درخواست `/search/export` آمده بود که بیشترشان از خزنده‌ها بودند.
@@ -11015,9 +11022,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها** در `SearchExportTest`:
   - `test_an_xlsx_export_leaves_no_temporary_files_when_a_row_fails`
   - `test_an_xlsx_export_ended_midway_leaves_no_temporary_files`: اسکریپتی را با `TMPDIR` تازه در فرایند جداگانه اجرا می‌کند. نوشتن پس از ردیف نخست با `exit(3)` قطع می‌شود و در PHP 8 این کار `finally` را اجرا نمی‌کند. آزمون بررسی می‌کند که پوشه‌ی `xlsx…` در میانه‌ی کار وجود داشته و پس از پایان چیزی در `TMPDIR` نمانده است. وقتی shutdown خاموش شد، این آزمون شکست خورد.
-### گام ۱۴.۱۹۶: `Manuscript::sharedVolumeDates` فقط تاریخ‌های `span` را می‌پرسد
-
-- **پیش از این:** برای هر دسته‌ی ۲٬۰۰۰ نسخه، به ازای هر کتابخانه یک پرس‌وجوی `GROUP BY collection_key, copy_date_raw` برای همه‌ی مجلدهای آن دسته؛ روی ۲۴۳ هزار نسخه ده‌ها هزار پرس‌وجو.
-- **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
-- **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
-- **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).
