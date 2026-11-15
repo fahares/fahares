@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-<p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">خبرهای کوتاهی که به هر بازدیدکننده یک بار نشان داده می‌شود. اگر چند اعلان هم‌زمان روشن باشد، هر کس فقط تازه‌ترینِ آن‌ها را می‌بیند. کسی که نخستین بار به سایت آمده، تا یک ساعت اعلانی نمی‌بیند. اعلانی که مخاطبش اعضا را هم دربر می‌گیرد، با نخستین روشن شدن در اعلان‌های هر عضو هم گذاشته می‌شود («تازه‌های فهارس» در تنظیمات اعلان او).</p>
+<p class="text-[13px] text-muted leading-7 mb-4 max-w-3xl">خبرهای کوتاهی که به هر بازدیدکننده یک بار نشان داده می‌شود. اگر چند اعلان هم‌زمان روشن باشد، هر کس همه را می‌بیند، ولی یکی‌یکی: نخست تازه‌ترین، و بعدی دست‌کم {{ \App\Support\Fa::num(\App\Models\Announcement::GAP_HOURS) }} ساعت پس از آن. کسی که نخستین بار به سایت آمده، تا یک ساعت اعلانی نمی‌بیند. اعلانی که مخاطبش اعضا را هم دربر می‌گیرد، با نخستین روشن شدن در اعلان‌های هر عضو هم گذاشته می‌شود («تازه‌های فهارس» در تنظیمات اعلان او).</p>
 
 <x-admin.table :paginator="$announcements" :is-empty="$announcements->isEmpty()" empty="هنوز اعلانی نوشته نشده است.">
     <x-slot:head>
@@ -26,7 +26,9 @@
                 @if($announcement->link_url)<code class="block text-xs text-muted truncate max-w-xs" dir="ltr">{{ $announcement->link_url }}</code>@endif
             </x-admin.cell>
             <x-admin.cell label="وضعیت" class="whitespace-nowrap">
-                @if($status === 'running')
+                @if(! $announcement->on_site)
+                    <x-ui.chip>فقط تلگرام{{ $announcement->telegram_message_id ? '، فرستاده‌شده' : '' }}</x-ui.chip>
+                @elseif($status === 'running')
                     <x-ui.chip tone="good">روشن، تا @jdate($announcement->ends_at, 'long')</x-ui.chip>
                 @elseif($status === 'ended')
                     <x-ui.chip>پایان‌یافته، @jdate($announcement->ends_at, 'long')</x-ui.chip>
