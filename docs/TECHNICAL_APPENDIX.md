@@ -11020,6 +11020,16 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فهرست نام و اندازه‌ی ۹٬۴۰۲ پرونده در دو سو یکسان است. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - هفت برگه‌ی نمونه (ج ۱، ۴، ۱۲، ۱۹، ۲۲ و دو برگه از ج ۳۵) از `https://fahares.net/storage/catalogs/marashi/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run` و پشتیبان پیشین از ردیف‌های کتابخانه‌ی `km-mraashy-2`. انتظار: «۲۳ به‌روز».
+- **اجرای پروداکشن (پس از انتشار ۱۳۳، `dc4fdfc4`؛ ۲۴ آبان ۱۴۰۵، به تأیید کاربر):**
+  - **داده و فرمان در کانتینر:** md5 داده `390b39b0…`، همان شاخه، و md5 فرمان `b098df58…`.
+  - **پشتیبان:** ۵۳ ردیف `catalog_volumes` کتابخانه‌ی `km-mraashy-2` و ۵۳ ردیف `source_volumes` با همان شناسه‌ها، به JSON با tinker.
+    - پرونده در `../fahares-sources/backups/step13/step14_190_marashi_volumes_before_20261115.json` است، با md5 `cead957f9b85dfa50e113d8066eb117a` که در دو سو یکسان است.
+    - `facsimile_code` پیشین همه خالی بود. پرونده از `/tmp` کانتینر پاک شد.
+  - **اجرای آزمایشی:** «0 created, 23 updated, 96 unchanged (dry run)». ردیف‌های گلپایگانی (گام ۱۴.۱۹۱) پیش‌تر نوشته شده بودند.
+  - **اجرا:** یک `prod-run`، با نتیجه‌ی «0 created, 23 updated, 96 unchanged». اجرای دوم «0 created, 0 updated, 119 unchanged» داد.
+  - **وارسی:**
+    - ۲۳ `source_volumes` کد `marashi` دارند و ۱۴٬۶۵۴ ارجاع در بازه‌ی برگه‌هایشان هست.
+    - در fahares.net دکمه‌ی «دیدن برگه در فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی» و نشانی برگه‌ی درست در این نسخه‌ها هست: `/manuscripts/129706` (ج ۱ ص ۱۷)، `/manuscripts/250683` (ج ۱۹ ص ۱۶۳) و `/manuscripts/33890` (ج ۳۵ ص ۳۸۱).
 
 ### گام ۱۴.۱۹۱: نگاشت هشت جلد فهرست گلپایگانی (کد `golpaygani`) از لایه‌ی متن
 - **پرونده‌ها:** `../fahares-sources/golpaygani/`:
