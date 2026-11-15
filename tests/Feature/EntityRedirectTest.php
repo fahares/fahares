@@ -203,4 +203,36 @@ class EntityRedirectTest extends TestCase
         $this->assertNotNull(Person::find($source->id));
         $this->assertSame($source->id, $open->fresh()->suggestable_id);
     }
+
+    /** Step 14.193: the removed person's lives follow the kept one, a double of the same entry is dropped, and an undo restores both */
+    public function test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them()
+    {
+        $make = fn (string $n) => Person::create(['name' => $n . ' ' . uniqid(), 'normalized_name' => $n, 'slug' => 'lv-' . uniqid(), 'works_count' => 0, 'manuscripts_count' => 0]);
+        $source = $make('شخص مبدأ زندگی‌نامه');
+        $target = $make('شخص مقصد زندگی‌نامه');
+        $code = 'merge-lives-' . uniqid();
+        $book = \App\Models\Source::create(['code' => $code, 'kind' => \App\Models\Source::KIND_BIOGRAPHICAL, 'rank' => 30, 'title' => 'الأعلام', 'short_name' => 'الأعلام']);
+        $volume = \App\Models\SourceVolume::create(['source_id' => $book->id, 'volume_number' => 1, 'facsimile_code' => $code]);
+        $item = fn (string $key) => \App\Models\SourceItem::create(['source_id' => $book->id, 'source_volume_id' => $volume->id, 'volume_number' => 1,
+            'item_key' => $key, 'position' => 1, 'kind' => 'entry', 'page_start' => 1, 'page_end' => 1, 'title' => 'x', 'title_normalized' => 'x', 'text' => 'x', 'text_status' => 'auto']);
+        $shared = $item('1#1');
+        $own = $item('2#1');
+        $tie = fn (Person $p, $it, string $status, int $n) => \App\Models\SourceEntry::create(['citable_type' => Person::class, 'citable_id' => $p->id,
+            'source_id' => $book->id, 'source_item_id' => $it->id, 'volume_number' => 1, 'page_start' => 1, 'role' => 'entry', 'origin' => 'match',
+            'status' => $status, 'legacy_type' => 'test_life', 'legacy_id' => $p->id * 10 + $n, 'legacy_index' => 0]);
+        $double = $tie($source, $shared, 'unverified', 1);
+        $verified = $tie($target, $shared, 'verified', 1);
+        $moved = $tie($source, $own, 'unverified', 2);
+
+        $this->actingAs($this->admin)->post('/admin/people/merge', ['source_id' => $source->id, 'target_id' => $target->id]);
+        $this->assertSame($target->id, $moved->fresh()->citable_id);
+        $this->assertNull($double->fresh());
+        $this->assertSame($target->id, $verified->fresh()->citable_id);
+
+        $log = AuditLog::where('auditable_type', Person::class)->where('auditable_id', $target->id)->where('action', 'merge')->latest('id')->first();
+        $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback");
+        $this->assertSame($source->id, $moved->fresh()->citable_id);
+        $this->assertSame($source->id, $double->fresh()?->citable_id);
+        $this->assertSame($target->id, $verified->fresh()->citable_id);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Support\DateEstimates;
 
+use App\Support\DateSpan;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -23,24 +24,26 @@ final class ConflictRecords
                 }
             }
         }
-        $range = fn ($from, $to) => $from === null && $to === null ? null : ($from === $to ? (string) $from : ($from ?? '؟') . '–' . ($to ?? '؟'));
+        // a duration reads «از 1052 تا 1057», any other range «1201–1300» (DateSpan::brief, step 14.194)
+        $date = fn (object $row, string $prefix) => DateSpan::fromColumns($row, $prefix)->brief();
         $records = [];
-        foreach (DB::table('people')->whereIn('id', $ids['person'] ?? [])->get(['id', 'name', 'birth_year_hijri', 'death_from', 'death_to', 'life_dates_raw']) as $p) {
+        foreach (DB::table('people')->whereIn('id', $ids['person'] ?? [])->get(['id', 'name', 'birth_year_hijri', 'death_from', 'death_to', 'death_kind', 'life_dates_raw']) as $p) {
             $records["person:{$p->id}"] = ['title' => $p->name, 'detail' => $p->life_dates_raw,
-                'dates' => ['birth' => $range($p->birth_year_hijri, $p->birth_year_hijri), 'death' => $range($p->death_from, $p->death_to)]];
+                'dates' => ['birth' => $p->birth_year_hijri === null ? null : (string) $p->birth_year_hijri, 'death' => $date($p, 'death')]];
         }
         $copies = DB::table('manuscripts')->whereIn('id', $ids['manuscript'] ?? [])
-            ->get(['id', 'work_id', 'city', 'library', 'shelfmark', 'copy_date_raw', 'copy_date_from', 'copy_date_to', 'scribe_name']);
+            ->get(['id', 'work_id', 'city', 'library', 'shelfmark', 'copy_date_raw', 'copy_date_from', 'copy_date_to', 'copy_date_kind', 'copy_date_start_to', 'copy_date_end_from', 'scribe_name']);
         $workIds = array_merge($ids['work'] ?? [], $copies->pluck('work_id')->filter()->all());
-        $works = DB::table('works')->whereIn('id', $workIds)->get(['id', 'primary_title', 'author_name', 'composition_date_raw', 'composition_date_from', 'composition_date_to'])->keyBy('id');
+        $works = DB::table('works')->whereIn('id', $workIds)->get(['id', 'primary_title', 'author_name', 'composition_date_raw', 'composition_date_from', 'composition_date_to', 'composition_date_kind',
+            'composition_date_start_to', 'composition_date_end_from'])->keyBy('id');
         foreach ($works as $w) {
             $records["work:{$w->id}"] = ['title' => $w->primary_title, 'detail' => $w->author_name,
-                'dates' => ['composition' => $range($w->composition_date_from, $w->composition_date_to)], 'raw' => $w->composition_date_raw];
+                'dates' => ['composition' => $date($w, 'composition_date')], 'raw' => $w->composition_date_raw];
         }
         foreach ($copies as $m) {
             $records["manuscript:{$m->id}"] = ['title' => ($works[$m->work_id]->primary_title ?? 'نسخه'),
                 'detail' => implode('، ', array_filter([$m->city, $m->library, $m->shelfmark ? 'ش ' . $m->shelfmark : null, $m->scribe_name ? 'کاتب: ' . $m->scribe_name : null])),
-                'dates' => ['copy' => $range($m->copy_date_from, $m->copy_date_to)], 'raw' => $m->copy_date_raw];
+                'dates' => ['copy' => $date($m, 'copy_date')], 'raw' => $m->copy_date_raw];
         }
 
         return $records;

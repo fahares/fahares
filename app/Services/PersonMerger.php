@@ -9,6 +9,7 @@ use App\Models\FieldSuggestion;
 use App\Models\Manuscript;
 use App\Models\ManuscriptPerson;
 use App\Models\Person;
+use App\Models\SourceEntry;
 use App\Models\Work;
 use App\Models\WorkPerson;
 use App\Suggestions\MergeComparison;
@@ -94,6 +95,10 @@ class PersonMerger
                 ->where('status', 'pending')->pluck('id')->all();
             FieldSuggestion::whereIn('id', $suggestionIds)->update(['suggestable_id' => $target->id]);
 
+            // The removed person's lives and other entries in the sources follow the kept one (step 14.193); of two
+            // ties to the same printed entry the better reviewed stays, and the other is kept in the log for a rollback
+            [$movedEntryIds, $droppedEntries] = self::moveSourceEntries($source->id, $target->id);
+
             // 3. Recount works and manuscripts for target
             $newWorksCount = $target->authoredWorks()->count();
             $newManuscriptsCount = $target->scribedManuscripts()->count();
@@ -143,6 +148,8 @@ class PersonMerger
                     'manuscripts_transferred' => count($transferredManuscriptIds),
                     'fields' => $compared,
                     'suggestion_ids' => $suggestionIds,
+                    'moved_source_entry_ids' => $movedEntryIds,
+                    'dropped_source_entries' => $droppedEntries,
                 ],
                 'new_values' => [
                     'target_id' => $target->id,
@@ -203,5 +210,37 @@ class PersonMerger
         }
 
         return $added;
+    }
+
+    /**
+     * Moves the source entries of one person to another. Where both have an entry tied to the same printed entry, the
+     * one with the better review (verified, then unverified, then rejected) stays and the other is deleted.
+     *
+     * @return array{0: list<int>, 1: list<array<string, mixed>>} the moved ids and the deleted rows
+     */
+    public static function moveSourceEntries(int $fromId, int $toId): array
+    {
+        $rank = fn ($row) => [SourceEntry::STATUS_VERIFIED => 2, SourceEntry::STATUS_UNVERIFIED => 1][$row->status] ?? 0;
+        $rows = fn (int $id) => DB::table('source_entries')->where('citable_type', Person::class)->where('citable_id', $id);
+        $kept = $rows($toId)->whereNotNull('source_item_id')->get()->keyBy('source_item_id');
+        $moved = [];
+        $dropped = [];
+        foreach ($rows($fromId)->get() as $row) {
+            $other = $row->source_item_id ? ($kept[$row->source_item_id] ?? null) : null;
+            if ($other && $rank($other) >= $rank($row)) {
+                $dropped[] = (array) $row;
+                DB::table('source_entries')->where('id', $row->id)->delete();
+
+                continue;
+            }
+            if ($other) {
+                $dropped[] = (array) $other;
+                DB::table('source_entries')->where('id', $other->id)->delete();
+            }
+            DB::table('source_entries')->where('id', $row->id)->update(['citable_id' => $toId]);
+            $moved[] = $row->id;
+        }
+
+        return [$moved, $dropped];
     }
 }
