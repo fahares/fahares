@@ -65,7 +65,8 @@ an earlier line edited on both sides was not kept twice, and that steps stay in 
 
 These rules are for a session on any machine other than the owner's, where `~/.fahares/steps.tsv` and
 `~/.fahares/release-queue.tsv` do not exist. The scripts would start an empty registry there and hand out numbers that
-are already taken.
+are already taken. `docs/COLLABORATOR_SETUP.md` tells how to bring the site up there, from a data file the owner makes
+with `scripts/dev/dev-dump`.
 
 - Push a branch of your own to `fahares/fahares`, one per task, and open a pull request to `main`. `main` takes no
   direct push from a collaborator.
