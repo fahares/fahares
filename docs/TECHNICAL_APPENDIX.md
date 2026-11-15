@@ -10977,3 +10977,24 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خواندن اعلان در زنگوله** هم ردیف `announcement_user` می‌سازد (گام ۱۴.۱۸۷)، پس برای عضو همان وقفه‌ی ۲۴ساعته را آغاز می‌کند.
 - **`announcements.on_site`** (`2026_11_14_400001_add_on_site_to_announcements`، پیش‌فرض `true`): با `telegram_only` در فرم `false` می‌شود؛ کنترلر آنگاه `audience = all` و `telegram = true` می‌گذارد. `SendAnnouncementNotice` چنین اعلانی را به اعضا نمی‌فرستد. ارسال به کانال همچنان با روشن شدن اعلان است.
 - **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
+
+### گام ۱۴.۱۹۷: تخمین تألیف در جستجوی آثار (`estimates=1`)
+
+- **تخمینِ «جای‌گرفته» (`EstimateText::placedCompositions`):** ردیف `date_estimates` اثر با هر دو کران و فاصله‌ی تا `MAX_SPAN` (۱۵۰).
+- **سند جستجوی اثر (`Work::toSearchableArray`):**
+  - `era_estimate_from`، `era_estimate_to`: فقط وقتی `era_year` تهی است (نه سال تألیف، نه وفات مؤلف).
+  - `composition_sort_year`: سال تألیف، وگرنه میانه‌ی تخمین (`intdiv(from + to, 2)`).
+  - `Work::compositionEstimate()`: از ستون‌های `estimate_from` و `estimate_to` که `makeAllSearchableUsing` با زیرپرس‌وجو می‌خواند؛ برای یک اثر تنها، با پرس‌وجوی خودش.
+- **`config/scout.php`:** `era_estimate_from` و `era_estimate_to` فیلترشدنی، `composition_sort_year` مرتب‌شدنی.
+- **`SearchFilters`:** پارامتر `estimates` در تب آثار (مقدار `1`).
+  - موتور: `(era_year >= F AND era_year <= T) OR (era_estimate_from <= T AND era_estimate_to >= F)`.
+  - پایگاه داده: همان، با `whereExists` روی `date_estimates` برای اثری که نه سال تألیف دارد نه مؤلفِ دارای سال وفات.
+  - به‌تنهایی چیزی را تنگ نمی‌کند.
+- **`SearchController`:** با `estimates`، ترتیب‌های `oldest` و `newest` تب آثار فیلد `composition_sort_year` و عبارت `EstimateText::COMPOSITION_SORT_SQL` را می‌گیرند.
+- **شمار کنار سده‌ها** (`facets` روی `era_year`) تخمینی‌ها را ندارد؛ راهنمای گزینه همین را می‌گوید.
+- **`fahares:estimate-dates`:** پیش و پس از نوشتن، تخمین‌های جای‌گرفته را مقایسه می‌کند و سند آثار تغییرکرده را تازه می‌کند (`reindexWorks`). بیش از `REINDEX_LIMIT` (۵٬۰۰۰) اثر را به فرمان جدا وامی‌گذارد.
+- **`fahares:reindex-work-estimates`** (`--chunk=250`، `--from=<id>` برای ادامه): آثار دارای سال تألیف و آثار دارای تخمین جای‌گرفته.
+- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:reindex-work-estimates`. روی رونوشت محلی: حدود ۲۶ هزار اثر با تخمین جای‌گرفته و ۹٫۸ هزار با سال تألیف.
+- **تست:** `SearchEstimatesTest` (۴).
+- **بررسی ناسازگاری‌های تازه‌ی پروداکشن** (فقط خواندن): `first_seen_at` سه مقدار دارد؛ ۳٬۷۴۷ ردیف از اجرای نخست، ۱۳ از اجرای ۲۳ آبان صبح و ۸۵ از اجرای شب. نمونه‌ها دو خطای داده نشان دادند که در مورد ۱۲۶ ثبت شد.
+
