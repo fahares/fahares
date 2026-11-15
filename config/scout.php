@@ -364,6 +364,7 @@ return [
                     'is_translator',
                     'is_donor',
                     'century_hijri',
+                    'alive_century',
                     'death_year_hijri',
                     'works_count',
                     'manuscripts_count',
@@ -373,6 +374,7 @@ return [
                 ],
                 'sortableAttributes' => [
                     'death_year_hijri',
+                    'death_sort_year',
                     'works_count',
                     'manuscripts_count',
                     'scribed_from',

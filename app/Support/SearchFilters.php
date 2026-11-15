@@ -33,7 +33,8 @@ class SearchFilters
         'manuscripts' => ['work_id', 'scribe_id', 'author_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'source_volume_id'],
         // The people in two tabs (step 14.154): the century is of the death of an author, of the copies of a scribe
-        'authors' => ['role', 'century'],
+        // «estimates» on the authors' tab: the century also takes those of no known century last seen alive in it (step 14.198)
+        'authors' => ['role', 'century', 'estimates'],
         'scribes' => ['role', 'century', 'copy_city'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
@@ -281,7 +282,11 @@ class SearchFilters
                 'has_autograph' => 'has_autograph = true',
                 'source_volume_id' => "source_volume_ids = {$value}",
                 'role' => "is_{$value} = true",
-                'century' => match ($this->type) { 'authors' => "century_hijri = {$value}", 'scribes' => "copy_centuries = {$value}", default => null },
+                'century' => match ($this->type) {
+                    'authors' => $this->get('estimates') ? "century_hijri = {$value} OR alive_century = {$value}" : "century_hijri = {$value}",
+                    'scribes' => "copy_centuries = {$value}",
+                    default => null,
+                },
                 'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
@@ -353,7 +358,10 @@ class SearchFilters
                     ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', \App\Models\Manuscript::class)->select('citable_id')),
                 'role' => $query->where("is_{$value}", true),
                 'century' => match ($this->type) {
-                    'authors' => $query->where('century_hijri', $value),
+                    'authors' => $this->get('estimates')
+                        ? $query->where(fn ($q) => $q->where('century_hijri', $value)->orWhere(fn ($q) => $q->whereNull('century_hijri')
+                            ->whereRaw('FLOOR((' . \App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ' - 1) / 100) + 1 = ?', [$value])))
+                        : $query->where('century_hijri', $value),
                     'scribes' => $scribesOf(fn ($copies) => \App\Models\Manuscript::whereCopiedWithin($copies, ($value - 1) * 100 + 1, $value * 100)),
                     default => null,
                 },
@@ -411,7 +419,7 @@ class SearchFilters
                 'source_id' => ($this->type === 'sources' ? 'در ' : 'یادشده در ') . ($this->source->short_name ?: $this->source->title),
                 'volume' => 'جلد ' . $fa($value),
                 'has_autograph' => 'دارای دستخط مؤلف',
-                'estimates' => 'با تاریخ‌های تخمینی تألیف',
+                'estimates' => $this->type === 'authors' ? 'با سده‌ی فعالیت (تخمینی)' : 'با تاریخ‌های تخمینی تألیف',
                 // «فهرست مرعشی ج ۳»; a book in one volume, by its title alone
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),

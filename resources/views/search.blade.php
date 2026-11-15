@@ -336,6 +336,7 @@
                                     <span class="min-w-0">
                                         <span class="font-naskh text-lg font-bold text-ink group-hover:text-cinnabar transition">@highlight($person->name, $query)</span>
                                         <x-ui.life :person="$person" />
+                                        @if($type === 'authors' && $filters->get('estimates') && ! $person->death_year_hijri && ($alive = \App\Support\DateEstimates\EstimateText::aliveIn($person->id)))<span class="text-xs text-muted">{{ Fa::digits($alive['text']) }} (تخمینی)</span>@endif
                                         @if($person->transliteration)<span class="block text-[11px] text-muted" dir="ltr">{{ $person->transliteration }}</span>@endif
                                     </span>
                                     <span class="leader" aria-hidden="true"></span>

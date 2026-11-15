@@ -95,6 +95,23 @@ final class EstimateText
      *
      * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
      */
+    /**
+     * The year aliveIn() names, as an expression over a row of `people` (step 14.198): the earliest the person's death
+     * can be, one rule from a documented date, by a rule of ALIVE, and not the last copy of a record of several
+     * namesake scribes. The lists filter and order by it; the same number is in the people's search documents.
+     */
+    public const ALIVE_YEAR_SQL = "(SELECT e.year_from FROM date_estimates e WHERE e.subject_type = 'person' AND e.subject_id = people.id AND e.field = 'death'"
+        . " AND e.year_from IS NOT NULL AND e.from_depth = 1 AND e.from_rule IN ('author', 'translator', 'dedicatee', 'scribe', 'autograph', 'patron')"
+        . " AND NOT (e.from_rule = 'scribe' AND people.scribed_from IS NOT NULL AND people.scribed_to - people.scribed_from > " . \App\Services\PersonReviewQueue::MIXED_SPAN . '))';
+
+    /** The year a person with no death year was last seen alive, or null (ALIVE_YEAR_SQL for one person). */
+    public static function aliveYear(int $personId): ?int
+    {
+        $year = DB::table('people')->where('id', $personId)->whereNull('death_year_hijri')->selectRaw(self::ALIVE_YEAR_SQL . ' AS alive_year')->value('alive_year');
+
+        return $year === null ? null : (int) $year;
+    }
+
     public static function aliveIn(int $personId): ?array
     {
         $row = DB::table('date_estimates')->where(['subject_type' => 'person', 'subject_id' => $personId, 'field' => 'death'])->first();

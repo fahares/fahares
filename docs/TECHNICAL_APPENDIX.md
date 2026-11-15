@@ -10998,3 +10998,19 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تست:** `SearchEstimatesTest` (۴).
 - **بررسی ناسازگاری‌های تازه‌ی پروداکشن** (فقط خواندن): `first_seen_at` سه مقدار دارد؛ ۳٬۷۴۷ ردیف از اجرای نخست، ۱۳ از اجرای ۲۳ آبان صبح و ۸۵ از اجرای شب. نمونه‌ها دو خطای داده نشان دادند که در مورد ۱۲۶ ثبت شد.
 
+### گام ۱۴.۱۹۸: سده‌ی فعالیت در جستجوی مؤلفان (`estimates=1`)
+
+- **`EstimateText::ALIVE_YEAR_SQL`:** عبارتی روی ردیف `people`: `year_from` تخمین وفات با `from_depth = 1` و قاعده‌ای از `ALIVE`، جز کاتبی که `scribed_to − scribed_from` او از ۷۰ بیشتر است. همان شرط‌های `aliveIn()`. `aliveYear($id)` همین را برای یک شخصِ بی سال وفات می‌دهد.
+- **سند جستجوی شخص (`Person::toSearchableArray`):**
+  - `alive_century`: سده‌ی آن سال، فقط وقتی `century_hijri` تهی است.
+  - `death_sort_year`: سال وفات، وگرنه همان سال.
+  - `Person::makeAllSearchableUsing` سال را با `selectRaw` می‌خواند؛ برای یک شخص تنها، با پرس‌وجوی خودش.
+- **`config/scout.php`:** `alive_century` فیلترشدنی، `death_sort_year` مرتب‌شدنی.
+- **`SearchFilters`:** `estimates` در تب `authors`.
+  - موتور: `century_hijri = N OR alive_century = N`.
+  - پایگاه داده: `century_hijri = N` یا (`century_hijri` تهی و `FLOOR((سال − 1) / 100) + 1 = N`).
+- **`SearchController`:** با `estimates`، ترتیب‌های `oldest` و `newest` تب مؤلفان فیلد `death_sort_year` و عبارت `COALESCE(people.death_year_hijri, <سال>)` را می‌گیرند.
+- **`fahares:estimate-dates`:** `reindexPeople` سند اشخاصی را که سالشان عوض شده تازه می‌کند؛ بیش از ۵٬۰۰۰ را به `scout:import` وامی‌گذارد.
+- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan scout:import "App\Models\Person"` (همه‌ی اشخاص، چون `death_sort_year` برای دارندگان سال وفات هم لازم است).
+- **تست:** `SearchAliveCenturyTest` (۳).
+
