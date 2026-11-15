@@ -1774,6 +1774,406 @@
      "step": "14.178"
     }
    }
+  },
+  {
+   "library_slug": "thran-sphsalar-22",
+   "volume_number": 3,
+   "title": "فهرست کتابخانه مدرسه عالی سپهسالار - جلد سوم: کتب خطی آ - ث",
+   "facsimile_code": "sepahsalar",
+   "page_first": 2,
+   "page_last": 546,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/7620 - جلد سوم فهرست کتابخانه همراه با حواشی مفید (j3).pdf"
+     ],
+     "leaf_maps": [
+      "sepahsalar/v03.map.json"
+     ],
+     "note": "خزانه‌ها 7620؛ نسخه‌ای با حاشیه‌های دست‌نویس؛ پیشگفتار (برگ ۸ تا ۲۳) شماره‌گذاری جدا دارد و کنار ماند",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-sphsalar-22",
+   "volume_number": 4,
+   "title": "فهرست کتابخانه مدرسه عالی سپهسالار - جلد چهارم: کتب خطی ج - ذ",
+   "facsimile_code": "sepahsalar",
+   "page_first": 2,
+   "page_last": 560,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/7621 - جلد چهارم فهرست کتابخانه همراه با حواشی مفید (j4).pdf"
+     ],
+     "leaf_maps": [
+      "sepahsalar/v04.map.json"
+     ],
+     "note": "خزانه‌ها 7621؛ نسخه‌ای با حاشیه‌های دست‌نویس",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-sphsalar-22",
+   "volume_number": 5,
+   "title": "فهرست کتابخانه مدرسه عالی سپهسالار - جلد پنجم: کتب خطی ر - ی",
+   "facsimile_code": "sepahsalar",
+   "page_first": 2,
+   "page_last": 771,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/7622 - j5Fehrest.pdf"
+     ],
+     "leaf_maps": [
+      "sepahsalar/v05.map.json"
+     ],
+     "note": "خزانه‌ها 7622؛ نسخه‌ای با حاشیه‌های دست‌نویس؛ ص ۵۹ در اسکن نیست",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-gohrshad-25",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه جامع گوهرشاد مشهد - جلد اول",
+   "facsimile_code": "goharshad",
+   "page_first": 2,
+   "page_last": 398,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/2645 - فهرست نسخه های خطی کتابخانه جامع گوهرشاد مشهدجلد 1.pdf"
+     ],
+     "leaf_maps": [
+      "goharshad/v01.map.json"
+     ],
+     "note": "خزانه‌ها 2645؛ ۱۵۸ برگ اسکن افقی با نیمه‌ی سفید؛ برگه با fix_wide.py بریده شد",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-gohrshad-25",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه جامع گوهرشاد مشهد - جلد دوم",
+   "facsimile_code": "goharshad",
+   "page_first": 506,
+   "page_last": 992,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/5568 - فهرست نسخه هاي خطي جامع گوهر شاد مشهد 2.pdf"
+     ],
+     "leaf_maps": [
+      "goharshad/v02.map.json"
+     ],
+     "note": "خزانه‌ها 5568؛ صفحه‌شماری پیوسته با ج ۱",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-gohrshad-25",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی کتابخانه جامع گوهرشاد مشهد - جلد سوم",
+   "facsimile_code": "goharshad",
+   "page_first": 1089,
+   "page_last": 1838,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/2647 - فهرست نسخه های خطی کتابخانه جامع گوهرشاد مشهدجلد 3.pdf"
+     ],
+     "leaf_maps": [
+      "goharshad/v03.map.json"
+     ],
+     "note": "خزانه‌ها 2647؛ صفحه‌شماری پیوسته با ج ۲؛ بیشتر برگ‌ها اسکن افقی با نیمه‌ی سفید؛ برگه با fix_wide.py بریده شد",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-alhyat-40",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه دانشکده الهیات - جلد اول",
+   "facsimile_code": "tehran-ilahiyat",
+   "page_first": 2,
+   "page_last": 1227,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/2817 - فهرست نسخه های خطی کتابخانه دانشکده الهیات و معارف اسلامی.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-ilahiyat/v01.map.json"
+     ],
+     "note": "خزانه‌ها 2817",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "chalos-amam-sadk-109",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی مدرسه امام صادق (ع) چالوس",
+   "facsimile_code": "chalus-imam-sadiq",
+   "page_first": 16,
+   "page_last": 385,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/1370 - فهرست نسخه هاي خطي کتابخانه مدرسه امام صادق ع ـ چالوس.pdf"
+     ],
+     "leaf_maps": [
+      "chalus-imam-sadiq/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1370",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mroy-7",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه مدرسه مروی تهران",
+   "facsimile_code": "marvi",
+   "page_first": 4,
+   "page_last": 334,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/1368 - فهرست نسخه های خطی مدرسه مروی ـ تهران.pdf"
+     ],
+     "leaf_maps": [
+      "marvi/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1368؛ اسکن دوصفحه‌ای؛ ص ۴۹ تا ۵۴ «مکرر» پیشگفتار کنار ماند؛ ص ۴۹ فهرست نیمه‌ی چپ برگ ۳۰؛ ص ۳۲۲ و ۳۲۳ برگ تک",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "km-fydyh-8",
+   "volume_number": 1,
+   "title": "فهرست کتابخانه مبارکه مدرسه فیضیه قم - جلد اول",
+   "facsimile_code": "feyziye",
+   "page_first": 3,
+   "page_last": 315,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/569 - فهرست نسخه هاي خطي کتابخانه فیضیه ج 1.pdf"
+     ],
+     "leaf_maps": [
+      "feyziye/v01.map.json"
+     ],
+     "note": "خزانه‌ها 569؛ پیشگفتار (شماره به حروف) کنار ماند",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "mshhd-noab-13",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی مدرسه علمیه عالی نواب",
+   "facsimile_code": "navab",
+   "page_first": 2,
+   "page_last": 639,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "docibox/فهرست نسخه هاي خطي مدرسه علميه عالي نواب - 1388 [1204539].pdf"
+     ],
+     "leaf_maps": [
+      "navab/v01.map.json"
+     ],
+     "note": "داکی‌باکس 1204539؛ برگ‌های ۳۱۰ تا ۳۲۵ در دسته‌های چهارتایی جابه‌جا صحافی شده‌اند؛ ص ۵۴۸ و ۵۷۸ در اسکن نیست",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "km-maasomyh-52",
+   "volume_number": 1,
+   "title": "فهرست نسخ خطی کتابخانه آستانه مقدسه قم",
+   "facsimile_code": "masumiye",
+   "page_first": 3,
+   "page_last": 434,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/1856 - فهرست کتب خطي آستانه حضرت معصومه س، دانش پژوه ق1.pdf"
+     ],
+     "leaf_maps": [
+      "masumiye/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1856؛ شماره‌ی صفحه در پای برگ؛ پیشگفتار (ص ۱۱ تا ۱۱۸) کنار ماند؛ ص ۲۳ و ۲۳۴ تا ۳۸۴ در اسکن نیست؛ برگ ۱۳۳ تکرار ص ۲۵",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-hkok-26",
+   "volume_number": 1,
+   "title": "فهرست کتب خطی کتابخانه دانشکده حقوق - جلد اول",
+   "facsimile_code": "tehran-hoquq",
+   "page_first": 3,
+   "page_last": 602,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/3468 - فهرست نسخه های خطی دانشکده حقوق.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-hoquq/v01.map.json"
+     ],
+     "note": "خزانه‌ها 3468",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-adbyat-17",
+   "volume_number": 1,
+   "title": "فهرست کتب خطی کتابخانه دانشکده ادبیات - جلد اول",
+   "facsimile_code": "tehran-adabiyat",
+   "page_first": 4,
+   "page_last": 680,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/3408 - فهرست نسخه های خطی دانشکده ادبیات 1.pdf"
+     ],
+     "leaf_maps": [
+      "tehran-adabiyat/v01.map.json"
+     ],
+     "note": "خزانه‌ها 3408؛ اسکن دوصفحه‌ای؛ برگ ۱۷۹ تکرار برگ ۱۷۸",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "thran-mynoy-143",
+   "volume_number": 1,
+   "title": "فهرستواره کتابخانه مینوی و کتابخانه مرکزی پژوهشگاه (خطی‌، عکسی‌، میکروفیلم‌، یادداشتها)",
+   "facsimile_code": "minovi",
+   "page_first": 12,
+   "page_last": 252,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/1366 - فهرستواره کتابخانه مينوي ـ تهران.pdf"
+     ],
+     "leaf_maps": [
+      "minovi/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1366",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "shyraz-amam-aasr-55",
+   "volume_number": 1,
+   "title": "فهرست نسخه های خطی مدرسه امام عصر (عج) شیراز",
+   "facsimile_code": "imam-asr-shiraz",
+   "page_first": 2,
+   "page_last": 155,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "imam-asr-shiraz/v01.pdf"
+     ],
+     "leaf_maps": [
+      "imam-asr-shiraz/v01.map.json"
+     ],
+     "note": "خزانه‌ها 3565 (RAR عکس‌ها، بی بازفشرده‌سازی در PDF)",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "babl-khatm-alanbyaaa-89",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی مدرسه خاتم الانبیاء (صدر) بابل",
+   "facsimile_code": "khatam-babol",
+   "page_first": 6,
+   "page_last": 280,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/1358 - فهرست نسخ خطي کتابخانه مدرسه خاتم الانبياء ص ـ صدر ـ بابل.pdf"
+     ],
+     "leaf_maps": [
+      "khatam-babol/v01.map.json"
+     ],
+     "note": "خزانه‌ها 1358",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "tbryz-trbyt-148",
+   "volume_number": 1,
+   "title": "فهرست کتابخانه دولتی تربیت تبریز،کتب خطی",
+   "facsimile_code": "tarbiat",
+   "page_first": 1,
+   "page_last": 319,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/2768 - فهرست کتب خطی کتابخانه دولتی تربیت تبریز.pdf"
+     ],
+     "leaf_maps": [
+      "tarbiat/v01.map.json"
+     ],
+     "note": "خزانه‌ها 2768",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "ardkan-yzd-amam-sadk-56",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه حوزه علمیه امام صادق (ع) اردکان - دفتر اول",
+   "facsimile_code": "ardakan-imam-sadiq",
+   "page_first": 7,
+   "page_last": 240,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3498 - فهرست نسخه های خطی کتابخانه حوزه علمیه امام صادق ع دفتر اول 18.pdf"
+     ],
+     "leaf_maps": [
+      "ardakan-imam-sadiq/v01.map.json"
+     ],
+     "note": "خزانه‌ها 3498؛ ص ۱۴۵ تا ۱۶۰ در اسکن نیست",
+     "step": "14.192"
+    }
+   }
+  },
+  {
+   "library_slug": "ardkan-yzd-amam-sadk-56",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه حوزه علمیه امام صادق (ع) اردکان - دفتر دوم",
+   "facsimile_code": "ardakan-imam-sadiq",
+   "page_first": 5,
+   "page_last": 192,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "telegram-khazaneha/3499 - فهرست نسخه های خطی کتابخانه حوزه علمیه امام صادق ع دفتر دوم 18.pdf"
+     ],
+     "leaf_maps": [
+      "ardakan-imam-sadiq/v02.map.json"
+     ],
+     "note": "خزانه‌ها 3499",
+     "step": "14.192"
+    }
+   }
   }
  ]
 }
