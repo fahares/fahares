@@ -11081,6 +11081,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **داوری:** Sonnet در دو دسته‌ی ۵۸تایی، بازبینی Claude. داده‌ی ورودی از پروداکشن (فقط‌خواندنی).
 - **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
 - **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
+- **اجرای پروداکشن (۲۴ آبان ۱۴۰۵):** اجرای خشک ۶۰/۲۵/۸ و سپس `php -d memory_limit=1G artisan fahares:settle-double-lives --apply`: merged 60، rejected 25، «Queued 5; 3 already». این ۳ گروه در `unsure` همان شناسه‌های [4515, 73530] را دارند، و اجرای خشک آن‌ها را جدا می‌شمارد چون چیزی نمی‌نویسد. اجرای دوم: already_one 60، already_rejected 25، already 8. موارد صف: PersonReview 2376–2380. پشتیبان: `step14_193_backup.json` (md5 `e400de40…`).
 
 ### گام ۱۴.۱۹۴: `DateSpan::brief()` در `ConflictRecords` و طول مدت در `EstimateText::aliveIn` (مورد ۱۳۴، گام ۳ طرح)
 
