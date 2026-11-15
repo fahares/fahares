@@ -11150,6 +11150,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون‌ها** در `SearchExportTest`:
   - `test_an_xlsx_export_leaves_no_temporary_files_when_a_row_fails`
   - `test_an_xlsx_export_ended_midway_leaves_no_temporary_files`: اسکریپتی را با `TMPDIR` تازه در فرایند جداگانه اجرا می‌کند. نوشتن پس از ردیف نخست با `exit(3)` قطع می‌شود و در PHP 8 این کار `finally` را اجرا نمی‌کند. آزمون بررسی می‌کند که پوشه‌ی `xlsx…` در میانه‌ی کار وجود داشته و پس از پایان چیزی در `TMPDIR` نمانده است. وقتی shutdown خاموش شد، این آزمون شکست خورد.
+
 ### گام ۱۴.۲۰۰: متن صفحه‌های گلپایگانی از لایه‌ی متن PDF (`../fahares-sources/golpaygani/text/`)
 
 - **پرونده‌ها (بیرون از git):** `gtext.py` (استخراج یک صفحه: `gtext.py جلد صفحه [--debug]`)، `runall.py` (هر هشت جلد → `jsonl/golpaygani_vNN_pages.jsonl.gz` و `out/`)، `pylib/` (python-bidi 0.6.12)، `roundtrip_fail.tsv` (۳۴ سطر). منبع: `d1199476/77/79/80.pdf` و نگاشت `vNN.map.json` گام ۱۴.۱۹۱.
