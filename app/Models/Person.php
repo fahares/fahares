@@ -26,6 +26,7 @@ class Person extends Model
             // ...and the death range, certainty and hedge word, as for a copy's date (backlog item 96)
             if ($person->isDirty('life_dates_raw') || $person->isDirty('death_year_hijri')) {
                 $person->forceFill(self::deathColumns($person->life_dates_raw, $person->death_year_hijri));
+                $person->forceFill(self::deathKind($person->only(['death_from', 'death_to'])));
                 // ...and life dates that give the year of death fill an empty death year (step 14.179)
                 if (! $person->death_year_hijri && $person->death_from !== null && $person->death_from === $person->death_to) {
                     $person->death_year_hijri = $person->death_from;
@@ -68,6 +69,7 @@ class Person extends Model
      */
     public static function deathColumns(?string $lifeDates, ?int $deathYear): array
     {
+        // death_kind is not among them: deathKind() gives it, so that the commands that compare these four stay as they are
         $range = ['from' => null, 'to' => null, 'certainty' => null, 'hedge' => null];
         $text = strtr((string) $lifeDates, ['۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9']);
         if (trim($text) !== '' && ! preg_match('/میلاد|شمسی|خورشیدی|هجرت|(?<!\p{L})(?:م|ش|ق\.\s*م)(?!\p{L})/u', $text)) {
@@ -94,6 +96,17 @@ class Person extends Model
 
         return ['death_from' => $range['from'], 'death_to' => $range['to'], 'death_certainty' => $range['certainty'],
             'death_hedge_raw' => $range['hedge'] ? mb_substr($range['hedge'], 0, 60) : null];
+    }
+
+    /**
+     * The kind column that goes with death columns (DateSpan, step 14.188): a death is one event, so a range of it is
+     * always the years it may lie in.
+     *
+     * @return array{death_kind: ?string}
+     */
+    public static function deathKind(array $columns): array
+    {
+        return ['death_kind' => ($columns['death_from'] ?? null) !== ($columns['death_to'] ?? null) ? \App\Support\DateSpan::BETWEEN : null];
     }
 
     protected function casts(): array

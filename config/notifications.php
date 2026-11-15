@@ -95,6 +95,13 @@ return [
             'roles' => ['admin'],
             'channels' => ['database' => true, 'mail' => true],
         ],
+        // A public notice of the site (admin/announcements), sent once when it first runs. Only the in-site list is on
+        // by default: mail, browser and Telegram are each member's own choice.
+        'site.announcement' => [
+            'label' => 'تازه‌های فهارس (اعلان‌های عمومی سایت)',
+            'roles' => ['*'],
+            'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false],
+        ],
         'search.export_ready' => [
             'label' => 'آماده شدن خروجی بزرگ جست‌وجو',
             'roles' => ['*'],
