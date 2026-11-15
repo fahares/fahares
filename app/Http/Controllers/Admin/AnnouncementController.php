@@ -26,7 +26,7 @@ class AnnouncementController extends Controller
     public function create()
     {
         return view('admin.announcements.edit', [
-            'announcement' => new Announcement(['style' => 'card', 'audience' => 'all', 'days' => Announcement::DEFAULT_DAYS, 'telegram' => true]),
+            'announcement' => new Announcement(['style' => 'card', 'audience' => 'all', 'days' => Announcement::DEFAULT_DAYS, 'telegram' => true, 'on_site' => true]),
         ]);
     }
 
@@ -118,8 +118,13 @@ class AnnouncementController extends Controller
         ]);
         unset($data['image']);
 
+        // «فقط تلگرام»: the notice is not shown on the site, so it is for everyone and goes to the channel
+        $data['on_site'] = ! $request->boolean('telegram_only');
+        if (! $data['on_site']) {
+            $data['audience'] = 'all';
+        }
         // The channel is public, so only a notice for everyone goes there
-        $data['telegram'] = $request->boolean('telegram') && $data['audience'] === 'all';
+        $data['telegram'] = (! $data['on_site'] || $request->boolean('telegram')) && $data['audience'] === 'all';
         if ($data['telegram']) {
             $withPicture = $announcement->telegram_message_id
                 ? $announcement->telegram_photo
