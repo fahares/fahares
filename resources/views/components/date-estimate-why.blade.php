@@ -7,7 +7,7 @@
     @foreach($estimate['reasons'] as $reason)
         <div>
             <b class="text-ink">{{ Fa::digits($reason['bound']) }}:</b>
-            {{ $reason['text'] }}
+            {{ Fa::digits($reason['text']) }}
             @if($reason['url'])<a href="{{ $reason['url'] }}" class="underline hover:text-cinnabar">{{ Fa::digits($reason['title']) }}</a>@endif
         </div>
     @endforeach

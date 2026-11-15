@@ -153,6 +153,8 @@ return [
                     'subjects',
                     'languages',
                     'era_year',
+                    'era_estimate_from',
+                    'era_estimate_to',
                     'has_autograph',
                     'bibliographies',
                     'author_ids',
@@ -164,6 +166,7 @@ return [
                     'volume_number',
                     'author_death_year',
                     'era_year',
+                    'composition_sort_year',
                 ],
                 // Among equal text matches, a match in a title or the author (titles_names) before one in the
                 // incipits or the description (backlog item 93: «نهج البلاغه» is not the «جنگ» quoting it), a match
@@ -361,6 +364,7 @@ return [
                     'is_translator',
                     'is_donor',
                     'century_hijri',
+                    'alive_century',
                     'death_year_hijri',
                     'works_count',
                     'manuscripts_count',
@@ -370,6 +374,7 @@ return [
                 ],
                 'sortableAttributes' => [
                     'death_year_hijri',
+                    'death_sort_year',
                     'works_count',
                     'manuscripts_count',
                     'scribed_from',

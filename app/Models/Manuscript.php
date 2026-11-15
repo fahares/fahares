@@ -78,7 +78,8 @@ class Manuscript extends Model
 
     /**
      * The volumes in which two treatises or more carry the same date text, as "library|volume|date text" keys
-     * (volumeDateKey), for the copies given (rows with library_id, collection_key and copy_date_raw).
+     * (volumeDateKey), for the copies given (rows with library_id, collection_key and copy_date_raw). Only a date
+     * that reads as a duration is looked up, since only its kind depends on the answer: about one copy in a hundred.
      *
      * @return array<string, true>
      */
@@ -86,7 +87,8 @@ class Manuscript extends Model
     {
         $keys = [];
         foreach ($rows as $row) {
-            if ($row->collection_key !== null && $row->collection_key !== '' && (string) $row->copy_date_raw !== '') {
+            if ($row->collection_key !== null && $row->collection_key !== '' && (string) $row->copy_date_raw !== ''
+                && CopyDateRange::parse($row->copy_date_raw)['kind'] === \App\Support\DateSpan::SPAN) {
                 $keys[(int) $row->library_id][$row->collection_key] = true;
             }
         }

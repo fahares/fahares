@@ -258,6 +258,29 @@ class Person extends Model
         return \App\Support\Fa::digits($text);
     }
 
+    /**
+     * The year the person was last seen alive (EstimateText::aliveYear), null with a death year. An import reads it
+     * with the people (makeAllSearchableUsing), a single person by a query of its own.
+     */
+    public function aliveYear(): ?int
+    {
+        if ($this->death_year_hijri) {
+            return null;
+        }
+        if (! array_key_exists('alive_year', $this->attributes)) {
+            $this->attributes['alive_year'] = \App\Support\DateEstimates\EstimateText::aliveYear((int) $this->id);
+            // not a column of the table: kept out of what a save would write
+            $this->syncOriginalAttributes(['alive_year']);
+        }
+
+        return $this->attributes['alive_year'] === null ? null : (int) $this->attributes['alive_year'];
+    }
+
+    public function makeAllSearchableUsing($query)
+    {
+        return $query->select('people.*')->selectRaw(\App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ' AS alive_year');
+    }
+
     public function toSearchableArray(): array
     {
         $aliases = $this->searchAliases();
@@ -273,6 +296,10 @@ class Person extends Model
             'transliteration' => $this->transliteration,
             'death_year_hijri' => $this->death_year_hijri ? (int) $this->death_year_hijri : null,
             'century_hijri' => $this->century_hijri ? (int) $this->century_hijri : null,
+            // The century a person of no known century was last seen alive in, for readers who ask for estimates
+            // too, and the year the order by death falls back on (step 14.198)
+            'alive_century' => ! $this->century_hijri && ($alive = $this->aliveYear()) ? intdiv($alive - 1, 100) + 1 : null,
+            'death_sort_year' => $this->death_year_hijri ? (int) $this->death_year_hijri : $this->aliveYear(),
             'death_year_gregorian' => $this->death_year_gregorian ? (int) $this->death_year_gregorian : null,
             'is_author' => (bool) $this->is_author,
             'is_scribe' => (bool) $this->is_scribe,

@@ -1776,6 +1776,166 @@
    }
   },
   {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 1,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد اول: آ - ج",
+   "facsimile_code": "golpaygani",
+   "page_first": 1,
+   "page_last": 573,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199476.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v01.map.json"
+     ],
+     "note": "docibox 1199476 (ج ۱ و ۲، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199476.pdf بریده شدند؛ پیش‌گفتار با شماره‌ی جدا (ص ۲–۱۴) کنار ماند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 2,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد دوم: ح - خ",
+   "facsimile_code": "golpaygani",
+   "page_first": 574,
+   "page_last": 1100,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199476.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v02.map.json"
+     ],
+     "note": "docibox 1199476 (ج ۱ و ۲، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199476.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 3,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد سوم: د - ذ",
+   "facsimile_code": "golpaygani",
+   "page_first": 1101,
+   "page_last": 1782,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199477.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v03.map.json"
+     ],
+     "note": "docibox 1199477 (ج ۳ و ۴، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199477.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 4,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد چهارم: ر - س",
+   "facsimile_code": "golpaygani",
+   "page_first": 1783,
+   "page_last": 2366,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199477.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v04.map.json"
+     ],
+     "note": "docibox 1199477 (ج ۳ و ۴، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199477.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 5,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد پنجم: ش - ف",
+   "facsimile_code": "golpaygani",
+   "page_first": 2367,
+   "page_last": 2966,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199479.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v05.map.json"
+     ],
+     "note": "docibox 1199479 (ج ۵ و ۶، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199479.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 6,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد ششم: ق - ل",
+   "facsimile_code": "golpaygani",
+   "page_first": 2967,
+   "page_last": 3598,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199479.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v06.map.json"
+     ],
+     "note": "docibox 1199479 (ج ۵ و ۶، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199479.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 7,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد هفتم: م - م",
+   "facsimile_code": "golpaygani",
+   "page_first": 3599,
+   "page_last": 4277,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199480.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v07.map.json"
+     ],
+     "note": "docibox 1199480 (ج ۷ و ۸، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199480.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
+   "library_slug": "km-glpaygany-5",
+   "volume_number": 8,
+   "title": "فهرست نسخ خطی کتابخانه عمومی آیت‌الله گلپایگانی - جلد هشتم: ن - ی",
+   "facsimile_code": "golpaygani",
+   "page_first": 4278,
+   "page_last": 4966,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "golpaygani/d1199480.pdf"
+     ],
+     "leaf_maps": [
+      "golpaygani/v08.map.json"
+     ],
+     "note": "docibox 1199480 (ج ۷ و ۸، چاپ ۱۳۸۸، صفحه‌شماری پیوسته)؛ برگ‌ها با CropBox ثابت در golpaygani/g1199480.pdf بریده شدند",
+     "step": "14.191"
+    }
+   }
+  },
+  {
    "library_slug": "km-mraashy-2",
    "volume_number": 1,
    "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 1",
