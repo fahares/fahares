@@ -93,9 +93,22 @@ class SearchEstimatesTest extends TestCase
 
     public function test_the_works_with_the_new_fields_are_reindexed_and_a_run_can_resume()
     {
-        $this->artisan('fahares:reindex-work-estimates', ['--from' => $this->dated->id])
+        $this->artisan('fahares:reindex-work-estimates', ['--from' => $this->dated->id, '--sleep' => 0])
             ->expectsOutputToContain("Reindexed 2 of 2 works (up to #{$this->estimated->id})")->assertSuccessful();
-        $this->artisan('fahares:reindex-work-estimates', ['--from' => $this->loose->id + 1])->doesntExpectOutputToContain('Reindexed')->assertSuccessful();
+        $this->artisan('fahares:reindex-work-estimates', ['--from' => $this->loose->id + 1, '--sleep' => 0])->doesntExpectOutputToContain('Reindexed')->assertSuccessful();
+        // a part of the ids, in batches of one
+        $this->artisan('fahares:reindex-work-estimates', ['--from' => $this->dated->id, '--to' => $this->dated->id, '--chunk' => 1, '--sleep' => 0])
+            ->expectsOutputToContain("Reindexed 1 of 1 works (up to #{$this->dated->id})")->assertSuccessful();
+    }
+
+    public function test_the_people_with_a_death_year_or_a_year_alive_are_reindexed()
+    {
+        $dead = Person::create(['name' => 'درگذشته‌ی نمایه‌ی آزمایشی', 'normalized_name' => 'درگذشته‌ی نمایه‌ی آزمایشی', 'slug' => 'se-' . uniqid(), 'death_year_hijri' => 1200]);
+        $unknown = Person::create(['name' => 'بی‌قرینه‌ی نمایه‌ی آزمایشی', 'normalized_name' => 'بی‌قرینه‌ی نمایه‌ی آزمایشی', 'slug' => 'se-' . uniqid()]);
+
+        $this->artisan('fahares:reindex-work-estimates', ['--people' => true, '--from' => $dead->id, '--sleep' => 0])
+            ->expectsOutputToContain("Reindexed 1 of 1 people (up to #{$dead->id})")->assertSuccessful();
+        $this->assertGreaterThan($dead->id, $unknown->id);
     }
 
     public function test_the_page_orders_by_the_estimate_and_marks_it()
