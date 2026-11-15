@@ -11235,3 +11235,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان از `incipit_text`، `explicit_text` و `bibliography` ۳۴۵ اثر، و از ستون‌های آغاز، انجام، کاتب، تاریخ، `is_bita`، `is_autograph` و `metadata` ۵۶ نسخه.
   2. اجرای دو فرمان بالا.
   3. وارسی با اجرای دوباره.
+- **اجرای تولید (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+  - پشتیبان: ستون‌های ۳۴۵ اثر و ۵۶ نسخه در `step14_202_backup.json` (md5 `8c892d88…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۳۴۵ اثر. `rebuild-copies`: ۵۶ نسخه.
+  - اجرای دوم: `update 0` و `Would rebuild 0 copies`. `/tmp` کانتینر پاک شد.
