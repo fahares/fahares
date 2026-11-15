@@ -10977,3 +10977,14 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **خواندن اعلان در زنگوله** هم ردیف `announcement_user` می‌سازد (گام ۱۴.۱۸۷)، پس برای عضو همان وقفه‌ی ۲۴ساعته را آغاز می‌کند.
 - **`announcements.on_site`** (`2026_11_14_400001_add_on_site_to_announcements`، پیش‌فرض `true`): با `telegram_only` در فرم `false` می‌شود؛ کنترلر آنگاه `audience = all` و `telegram = true` می‌گذارد. `SendAnnouncementNotice` چنین اعلانی را به اعضا نمی‌فرستد. ارسال به کانال همچنان با روشن شدن اعلان است.
 - **تست:** دو آزمون تازه در `tests/Feature/AnnouncementTest.php`.
+
+### گام ۱۴.۱۹۹: پاکسازی پوشه‌ی موقت xlsx هنگام shutdown (`SearchExport::write`)
+
+- **شاهد:** در `/tmp` کانتینر، `xlsx6af90fbc6a31c8.26189525/` و `.zip` آن ساعت ۰۱:۵۰ UTC و جفت دیگری ساعت ۰۴:۵۰ UTC ماند. در `docker logs` همان ساعت درخواست `GET /search/export?type=manuscripts&…&format=xlsx` از `57.141.20.x` ثبت شده که پس از ۲۲٫۹ ثانیه با `499` پایان یافته است. از ۰۰:۰۰ UTC، ۲۶ درخواست `/search/export` آمده بود که بیشترشان از خزنده‌ها بودند.
+- **علت:** OpenSpout پوشه‌ی `xlsx<uniqid>` را در پوشه‌ی temp خودش می‌سازد و هنگام `close()` فایل `<همان>.zip` را کنارش می‌سازد (`FileSystemHelper::zipRootFolderAndCopyToStream`). سپس zip را به `php://output` می‌ریزد و بعد هر دو را پاک می‌کند. اگر کاربر اتصال را ببندد (و `ignore_user_abort` خاموش باشد)، یا `max_execution_time` یا سقف حافظه برسد، PHP درخواست را پایان می‌دهد و `finally` اجرا نمی‌شود. توابع shutdown اما اجرا می‌شوند.
+- **راه‌حل:** `write()` برای xlsx پوشه‌ی `sys_get_temp_dir()/fahares-export-<۱۶ hex>` را می‌سازد و آن را با `XLSX\Options::setTempFolder()` به نویسنده می‌دهد. پس پوشه‌ی `xlsx…` و `.zip` آن هر دو درون همین پوشه ساخته می‌شوند. این پوشه در `finally` (پس از `close()`) پاک می‌شود. پوشه‌هایی که هنوز در `$pendingTempFolders` مانده‌اند را هم یک `register_shutdown_function` پاک می‌کند که هر فرایند یک بار ثبت می‌شود، تا کارگر صف closure انباشته نکند. `openToFile()` به درون `try` رفت.
+- **چرا `ignore_user_abort(true)` به کار نرفت:** با آن، خروجیِ رهاشده تا پایان ساخته می‌شود (تا ۲۰ ثانیه و بیشتر برای هیچ‌کس) و پاکسازی پس از رسیدن به `max_execution_time` را هم پوشش نمی‌دهد. shutdown هر سه حالت را پوشش می‌دهد.
+- **خزنده‌ها:** `public/robots.txt` از قبل `Disallow: /search/export` داشت و پیوندهای xlsx و CSV در `search.blade.php` هم `rel="nofollow"` داشتند. چیزی تغییر نکرد.
+- **آزمون‌ها** در `SearchExportTest`:
+  - `test_an_xlsx_export_leaves_no_temporary_files_when_a_row_fails`
+  - `test_an_xlsx_export_ended_midway_leaves_no_temporary_files`: اسکریپتی را با `TMPDIR` تازه در فرایند جداگانه اجرا می‌کند. نوشتن پس از ردیف نخست با `exit(3)` قطع می‌شود و در PHP 8 این کار `finally` را اجرا نمی‌کند. آزمون بررسی می‌کند که پوشه‌ی `xlsx…` در میانه‌ی کار وجود داشته و پس از پایان چیزی در `TMPDIR` نمانده است. وقتی shutdown خاموش شد، این آزمون شکست خورد.

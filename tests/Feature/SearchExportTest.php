@@ -68,4 +68,53 @@ class SearchExportTest extends TestCase
         $this->get(route('search.export.file', ['file' => basename($files[0])]))->assertForbidden();
         $this->assertSame('csv-queued', SearchLog::where('kind', SearchLog::KIND_EXPORT)->value('format'));
     }
+
+    public function test_an_xlsx_export_leaves_no_temporary_files_when_a_row_fails(): void
+    {
+        $pattern = sys_get_temp_dir() . '/fahares-export-*';
+        $before = glob($pattern);
+        $records = (function () {
+            yield new \App\Models\Person(['name' => 'نخست']);
+            throw new \RuntimeException('row failed');
+        })();
+        try {
+            \App\Support\SearchExport::write($records, 'authors', 'xlsx', 'php://memory');
+            $this->fail('the failing row is reported');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('row failed', $e->getMessage());
+        }
+        $this->assertSame($before, glob($pattern));
+    }
+
+    /**
+     * An aborted download (the client closes the connection, step 14.199) or a time limit ends the request without
+     * running `finally`; exit() inside the rows does the same in a separate process, and the shutdown removes the files
+     */
+    public function test_an_xlsx_export_ended_midway_leaves_no_temporary_files(): void
+    {
+        $tmp = sys_get_temp_dir() . '/export-abort-' . bin2hex(random_bytes(6));
+        mkdir($tmp);
+        $script = $tmp . '.php';
+        file_put_contents($script, '<?php
+            require ' . var_export(base_path('vendor/autoload.php'), true) . ';
+            $app = require ' . var_export(base_path('bootstrap/app.php'), true) . ';
+            $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+            $records = (function () {
+                yield new App\Models\Person(["name" => "نخست"]);
+                echo count(glob(sys_get_temp_dir() . "/fahares-export-*/xlsx*")), "\n";
+                exit(3);
+            })();
+            App\Support\SearchExport::write($records, "authors", "xlsx", "php://memory");
+        ');
+        try {
+            $process = new \Symfony\Component\Process\Process([PHP_BINARY, $script], base_path(), ['TMPDIR' => $tmp]);
+            $process->run();
+            $this->assertSame(3, $process->getExitCode(), $process->getErrorOutput());
+            $this->assertSame('1', trim($process->getOutput()), 'the xlsx folder existed while the rows were written');
+            $this->assertSame([], array_values(array_diff(scandir($tmp), ['.', '..'])), 'nothing is left in the temporary folder');
+        } finally {
+            @unlink($script);
+            \Illuminate\Support\Facades\File::deleteDirectory($tmp);
+        }
+    }
 }
