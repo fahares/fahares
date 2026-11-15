@@ -11004,4 +11004,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - **«نیست»‌ها خطای شماره‌ی فنخا یا داده‌اند:** ۲۱۷۷-۳۶/۱۷۷ (ج ۴ ص ۲۱۱۵) در چاپ ۷۱۷۷-۳۶/۱۷۷ است؛ ۴۰۴/۱۲-۴۸۴۰ (ج ۱ ص ۴۰۹) در چاپ ۴۸۴۰-۲۴/۱۴۰. فهرست کامل در `work/check_refs.tsv` (ستون ششم `not`) برای مورد ۶۴ است.
 - **داده:** هشت ردیف `catalog_facsimiles.json`، با `library_slug` `km-glpaygany-5`، `title` دقیق و کد `golpaygani`. ج ۱ (#۵۱) هم‌شماره‌ی #۳۳۲ است، فهرست قدیم تایپی بی‌ارجاع.
 - **تمرین (`fahares_prod`):** «0 created, 8 updated, 88 unchanged»، و اجرای دوم «0 created, 0 updated, 96 unchanged».
-- **پس از استقرار:** برگه‌ها پیش‌تر به `storage/app/public/catalogs/golpaygani` پروداکشن فرستاده می‌شوند. سپس `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` کتابخانه‌ی `km-glpaygany-5`. انتظار: «0 created, 8 updated».
+- **شمار:** ۴٬۹۶۶ برگه، ۵۳۲ مگابایت، در `catalogs/golpaygani/v01` تا `v08`.
+- **انتقال تصویرها (۲۳ و ۲۴ آبان ۱۴۰۵، به تأیید کاربر، پیش از استقرار):**
+  - پیش از فرستادن، `catalogs/golpaygani` روی سرور نبود و چیزی بازنویسی نشد. سرور ۱۸ گیگابایت جای خالی داشت.
+  - `work/send.sh` رونوشت اسکریپت دانشگاه تهران است، با `C=golpaygani`. تنها پرونده‌های نبوده یا نابرابر را در شش جریان `tar | ssh` می‌فرستد.
+  - چهار دور لازم شد: اتصال چند بار با «Broken pipe» بریده شد و پنج تکه شکست خورد. دور چهارم «missing 0 of 4966» داد.
+  - فهرست نام و اندازه‌ی ۴٬۹۶۶ پرونده در دو سو یکسان است. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
+  - پنج برگه‌ی نمونه (ج ۱ ص ۳۰۰، ج ۳ ص ۱۵۰۰، ج ۵ ص ۲۵۰۰، ج ۷ ص ۴۲۰۰ و ج ۸ ص ۴۹۶۶) از `https://fahares.net/storage/catalogs/golpaygani/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
+- **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` کتابخانه‌ی `km-glpaygany-5`. انتظار: «0 created, 8 updated».
