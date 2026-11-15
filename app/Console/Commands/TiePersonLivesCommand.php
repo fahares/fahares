@@ -93,7 +93,7 @@ class TiePersonLivesCommand extends Command
     }
 
     /** The person a removed person's slug was merged into, following later merges of that person too. */
-    private static function mergedInto(string $slug): ?Person
+    public static function mergedInto(string $slug): ?Person
     {
         $log = AuditLog::where('auditable_type', Person::class)->where('action', 'merge')
             ->where('old_values->source_snapshot->slug', $slug)->latest('id')->first(['id', 'auditable_id']);

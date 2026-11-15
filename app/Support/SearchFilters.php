@@ -27,11 +27,14 @@ class SearchFilters
      * an author, the manuscripts of a work or of a scribe), as the pages of those records link to it (phase 6).
      */
     public const PARAMS = [
-        'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph'],
+        // «estimates» is no filter of its own: with it the century also takes the works of no date whose estimated
+        // composition may lie in it, and the order by composition falls back on the estimate (step 14.197)
+        'works' => ['author_id', 'subject_id', 'language_id', 'century', 'work_form', 'source_id', 'has_autograph', 'estimates'],
         'manuscripts' => ['work_id', 'scribe_id', 'author_id', 'library_id', 'city', 'subject_id', 'language_id', 'century', 'year_from', 'year_to', 'script_id',
             'copy_city', 'facsimile', 'folios_from', 'folios_to', 'flags', 'source_volume_id'],
         // The people in two tabs (step 14.154): the century is of the death of an author, of the copies of a scribe
-        'authors' => ['role', 'century'],
+        // «estimates» on the authors' tab: the century also takes those of no known century last seen alive in it (step 14.198)
+        'authors' => ['role', 'century', 'estimates'],
         'scribes' => ['role', 'century', 'copy_city'],
         // The printed entries of the sources (phase 7): which source, which volume
         'sources' => ['source_id', 'volume'],
@@ -191,7 +194,7 @@ class SearchFilters
             'copy_city' => CopyPlaces::isCity($value) ? $value : null,
             'work_form' => isset(self::WORK_FORMS[$value]) ? $value : null,
             'facsimile' => in_array($value, ['0', '1'], true) ? $value : null,
-            'has_autograph' => $value === '1' ? '1' : null,
+            'has_autograph', 'estimates' => $value === '1' ? '1' : null,
             'role' => isset(self::ROLES[$value]) ? $value : null,
             'flags' => array_values(array_unique(array_intersect(array_filter((array) $value, 'is_string'), array_keys(self::FLAGS)))) ?: null,
             default => null,
@@ -279,7 +282,11 @@ class SearchFilters
                 'has_autograph' => 'has_autograph = true',
                 'source_volume_id' => "source_volume_ids = {$value}",
                 'role' => "is_{$value} = true",
-                'century' => match ($this->type) { 'authors' => "century_hijri = {$value}", 'scribes' => "copy_centuries = {$value}", default => null },
+                'century' => match ($this->type) {
+                    'authors' => $this->get('estimates') ? "century_hijri = {$value} OR alive_century = {$value}" : "century_hijri = {$value}",
+                    'scribes' => "copy_centuries = {$value}",
+                    default => null,
+                },
                 'fields' => ($ids = $this->fieldMatches()['ids']) ? 'id IN [' . implode(', ', $ids) . ']' : 'id = 0',
                 default => null,
             };
@@ -288,7 +295,13 @@ class SearchFilters
             [$from, $to] = $range;
             // A copy's whole date within the years (Manuscript::copyBounds); a work's «era»
             [$start, $end] = $this->type === 'works' ? ['era_year', 'era_year'] : ['copy_from', 'copy_to'];
-            $parts[] = implode(' AND ', array_filter([$from !== null ? "{$start} >= {$from}" : null, $to !== null ? "{$end} <= {$to}" : null]));
+            $part = implode(' AND ', array_filter([$from !== null ? "{$start} >= {$from}" : null, $to !== null ? "{$end} <= {$to}" : null]));
+            if ($this->type === 'works' && $this->get('estimates')) {
+                // ...or, having no era, an estimated composition that reaches into the years
+                $estimated = implode(' AND ', array_filter([$to !== null ? "era_estimate_from <= {$to}" : null, $from !== null ? "era_estimate_to >= {$from}" : null]));
+                $part = "({$part}) OR ({$estimated})";
+            }
+            $parts[] = $part;
         }
 
         $parts = array_filter($parts);
@@ -345,7 +358,10 @@ class SearchFilters
                     ->where('status', '!=', SourceEntry::STATUS_REJECTED)->where('citable_type', \App\Models\Manuscript::class)->select('citable_id')),
                 'role' => $query->where("is_{$value}", true),
                 'century' => match ($this->type) {
-                    'authors' => $query->where('century_hijri', $value),
+                    'authors' => $this->get('estimates')
+                        ? $query->where(fn ($q) => $q->where('century_hijri', $value)->orWhere(fn ($q) => $q->whereNull('century_hijri')
+                            ->whereRaw('FLOOR((' . \App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ' - 1) / 100) + 1 = ?', [$value])))
+                        : $query->where('century_hijri', $value),
                     'scribes' => $scribesOf(fn ($copies) => \App\Models\Manuscript::whereCopiedWithin($copies, ($value - 1) * 100 + 1, $value * 100)),
                     default => null,
                 },
@@ -360,9 +376,16 @@ class SearchFilters
                 // so both halves can use an index, rather than a lookup of the author for every work
                 $between = fn ($q, string $column) => $q->when($from !== null, fn ($q) => $q->where($column, '>=', $from))
                     ->when($to !== null, fn ($q) => $q->where($column, '<=', $to));
+                $estimates = (bool) $this->get('estimates');
                 $query->where(fn ($q) => $q->where(fn ($q) => $between($q, 'works.composition_year_hijri')->whereNotNull('works.composition_year_hijri'))
                     ->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
-                        ->whereIn('works.author_id', $between(DB::table('people')->whereNotNull('death_year_hijri'), 'death_year_hijri')->select('id'))));
+                        ->whereIn('works.author_id', $between(DB::table('people')->whereNotNull('death_year_hijri'), 'death_year_hijri')->select('id')))
+                    // ...or, having no era, an estimated composition that reaches into the years (as in the index)
+                    ->when($estimates, fn ($q) => $q->orWhere(fn ($q) => $q->whereNull('works.composition_year_hijri')
+                        ->where(fn ($q) => $q->whereNull('works.author_id')->orWhereNotIn('works.author_id', DB::table('people')->whereNotNull('death_year_hijri')->select('id')))
+                        ->whereExists(fn ($e) => \App\Support\DateEstimates\EstimateText::placedCompositions($e)->whereColumn('date_estimates.subject_id', 'works.id')
+                            ->when($to !== null, fn ($e) => $e->where('date_estimates.year_from', '<=', $to))
+                            ->when($from !== null, fn ($e) => $e->where('date_estimates.year_to', '>=', $from))))));
             } else {
                 \App\Models\Manuscript::whereCopiedWithin($query, $from, $to);
             }
@@ -396,6 +419,7 @@ class SearchFilters
                 'source_id' => ($this->type === 'sources' ? 'در ' : 'یادشده در ') . ($this->source->short_name ?: $this->source->title),
                 'volume' => 'جلد ' . $fa($value),
                 'has_autograph' => 'دارای دستخط مؤلف',
+                'estimates' => $this->type === 'authors' ? 'با سده‌ی فعالیت (تخمینی)' : 'با تاریخ‌های تخمینی تألیف',
                 // «فهرست مرعشی ج ۳»; a book in one volume, by its title alone
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),

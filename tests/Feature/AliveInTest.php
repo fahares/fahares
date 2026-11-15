@@ -89,6 +89,11 @@ class AliveInTest extends TestCase
         // a copy dated by its century: alive at some time in it
         $century = $this->person('کاتب آزمایشی سده');
         $this->copy($work, 1201, 1300, $century);
+        // a copy written from 1052 to 1057: alive at its end (step 14.194); the same years with no known kind are a range
+        $lasting = $this->person('کاتب آزمایشی مدت');
+        DB::table('manuscripts')->where('id', $this->copy($work, 1052, 1057, $lasting))->update(['copy_date_kind' => 'span']);
+        $unsettled = $this->person('کاتب آزمایشی نامعلوم');
+        $this->copy($work, 1052, 1057, $unsettled);
         // copies 150 years apart: several namesakes in one record
         $mixed = $this->person('کاتب آزمایشی قاطی');
         $this->copy($work, 1000, 1000, $mixed);
@@ -98,6 +103,8 @@ class AliveInTest extends TestCase
 
         $this->assertSame(['زنده در 1085 ق', 'نسخه‌ای را در این سال کتابت کرده است:'], [EstimateText::aliveIn($scribe->id)['text'], EstimateText::aliveIn($scribe->id)['reasons'][0]['text']]);
         $this->assertSame(['وفات پس از 1201 ق', 'نسخه‌ای را زودتر از این سال کتابت نکرده است:'], [EstimateText::aliveIn($century->id)['text'], EstimateText::aliveIn($century->id)['reasons'][0]['text']]);
+        $this->assertSame(['زنده در 1057 ق', 'کتابت نسخه‌ای را در این سال به پایان برده است:'], [EstimateText::aliveIn($lasting->id)['text'], EstimateText::aliveIn($lasting->id)['reasons'][0]['text']]);
+        $this->assertSame('وفات پس از 1052 ق', EstimateText::aliveIn($unsettled->id)['text']);
         $this->assertNull(EstimateText::aliveIn($mixed->id));
         $this->get(route('people.show', $scribe))->assertOk()->assertSee('زنده در ۱۰۸۵ ق')->assertSee('ش زندگی ۱');
     }

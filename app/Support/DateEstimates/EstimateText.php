@@ -19,6 +19,14 @@ final class EstimateText
 {
     public const MAX_SPAN = 150;
 
+    /**
+     * The year a work is ordered by when the reader asks for estimates too (step 14.197): its year of composition,
+     * else the middle of its estimate. The same number is composition_sort_year in the search index.
+     */
+    public const COMPOSITION_SORT_SQL = "COALESCE(works.composition_year_hijri, (SELECT FLOOR((year_from + year_to) / 2) FROM date_estimates"
+        . " WHERE subject_type = 'work' AND subject_id = works.id AND field = 'composition' AND year_from IS NOT NULL AND year_to IS NOT NULL"
+        . ' AND year_to - year_from <= ' . self::MAX_SPAN . '))';
+
     /** Works that get no estimated date of composition. */
     private const UNDATED_TITLES = ['القرآن الکریم', 'قرآن کریم'];
 
@@ -30,6 +38,17 @@ final class EstimateText
     /**
      * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
      */
+    /**
+     * The estimates of composition that place a work in time: both bounds, at most MAX_SPAN years apart, the ones the
+     * work's page shows as «میان … و …». A list filters and orders by these alone: «پیش از ۱۲۰۰» names no century.
+     */
+    public static function placedCompositions(\Illuminate\Database\Query\Builder $query): \Illuminate\Database\Query\Builder
+    {
+        return $query->from('date_estimates')->where('date_estimates.subject_type', 'work')->where('date_estimates.field', 'composition')
+            ->whereNotNull('date_estimates.year_from')->whereNotNull('date_estimates.year_to')
+            ->whereRaw('date_estimates.year_to - date_estimates.year_from <= ' . self::MAX_SPAN);
+    }
+
     public static function for(string $type, int $id, string $field): ?array
     {
         // the Quran's date is not a question the copies answer (the user, step 14.176)
@@ -70,12 +89,32 @@ final class EstimateText
      * of the death («… to that year + 100») is not shown: it says no more.
      *
      * When the evidence is a range (a copy dated by its century), the person was alive at some time in it, so the
-     * text is «وفات پس از <its first year>». Nothing is said of a scribe whose copies lie more than
+     * text is «وفات پس از <its first year>». When the range is a duration with exact ends (DateSpan::SPAN, a copy
+     * written from 1052 to 1057; step 14.194), a scribe, an author or a translator was alive at its end, so the text
+     * is «زنده در 1057», and a patron at its start, «زنده در 1052»; of a dedicatee the range says no more than before.
+     * Nothing is said of a scribe whose copies lie more than
      * PersonReviewQueue::MIXED_SPAN years apart: that record holds several namesakes, and the year is only the last
      * one's.
      *
      * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
      */
+    /**
+     * The year aliveIn() names, as an expression over a row of `people` (step 14.198): the earliest the person's death
+     * can be, one rule from a documented date, by a rule of ALIVE, and not the last copy of a record of several
+     * namesake scribes. The lists filter and order by it; the same number is in the people's search documents.
+     */
+    public const ALIVE_YEAR_SQL = "(SELECT e.year_from FROM date_estimates e WHERE e.subject_type = 'person' AND e.subject_id = people.id AND e.field = 'death'"
+        . " AND e.year_from IS NOT NULL AND e.from_depth = 1 AND e.from_rule IN ('author', 'translator', 'dedicatee', 'scribe', 'autograph', 'patron')"
+        . " AND NOT (e.from_rule = 'scribe' AND people.scribed_from IS NOT NULL AND people.scribed_to - people.scribed_from > " . \App\Services\PersonReviewQueue::MIXED_SPAN . '))';
+
+    /** The year a person with no death year was last seen alive, or null (ALIVE_YEAR_SQL for one person). */
+    public static function aliveYear(int $personId): ?int
+    {
+        $year = DB::table('people')->where('id', $personId)->whereNull('death_year_hijri')->selectRaw(self::ALIVE_YEAR_SQL . ' AS alive_year')->value('alive_year');
+
+        return $year === null ? null : (int) $year;
+    }
+
     public static function aliveIn(int $personId): ?array
     {
         $row = DB::table('date_estimates')->where(['subject_type' => 'person', 'subject_id' => $personId, 'field' => 'death'])->first();
@@ -89,21 +128,40 @@ final class EstimateText
             }
         }
         $evidence = self::evidence($row->from_evidence_type, $row->from_evidence_id);
-        $range = $row->from_evidence_type === 'work'
-            ? DB::table('works')->where('id', $row->from_evidence_id)->first(['composition_date_from as from', 'composition_date_to as to'])
-            : DB::table('manuscripts')->where('id', $row->from_evidence_id)->first(['copy_date_from as from', 'copy_date_to as to']);
-        $exact = $range && $range->from !== null && $range->from === $range->to;
+        [$table, $prefix] = $row->from_evidence_type === 'work' ? ['works', 'composition_date'] : ['manuscripts', 'copy_date'];
+        $record = DB::table($table)->where('id', $row->from_evidence_id)
+            ->first(["{$prefix}_from", "{$prefix}_to", "{$prefix}_kind", "{$prefix}_start_to", "{$prefix}_end_from"]);
+        $date = $record ? \App\Support\DateSpan::fromColumns($record, $prefix) : null;
+        $exact = $date && $date->from !== null && $date->from === $date->to;
+        $year = $row->year_from;
+        $lasted = false;
+        // a duration with exact ends: alive at its end, or for a patron at its start
+        if ($date && $date->isSpan() && $date->startTo === null && $date->endFrom === null && $date->from !== null && $date->to !== null
+            && $row->from_rule !== Loader::RULE_DEDICATEE && (int) $row->year_from === $date->from) {
+            $year = $row->from_rule === Loader::RULE_PATRON ? $date->from : $date->to;
+            $lasted = true;
+        }
+        $known = $exact || $lasted;
 
         return [
-            'text' => ($exact ? 'زنده در ' : 'وفات پس از ') . $row->year_from . ' ق',
+            'text' => ($known ? 'زنده در ' : 'وفات پس از ') . $year . ' ق',
             'reasons' => [[
-                'bound' => ($exact ? 'زنده در ' : 'پس از ') . $row->year_from,
-                'text' => self::ALIVE[$row->from_rule][$exact ? 0 : 1],
+                'bound' => ($known ? 'زنده در ' : 'پس از ') . $year,
+                'text' => $lasted ? self::ALIVE_SPAN[$row->from_rule] : self::ALIVE[$row->from_rule][$exact ? 0 : 1],
                 'title' => $evidence['title'] ?? null,
                 'url' => $evidence ? route(self::ROUTES[$row->from_evidence_type], $row->from_evidence_id) : null,
             ]],
         ];
     }
+
+    /** What shows the person alive when the evidence lasted from one year to another. */
+    private const ALIVE_SPAN = [
+        Loader::RULE_AUTHOR => 'اثرش را تا این سال تألیف می‌کرده است:',
+        Loader::RULE_TRANSLATOR => 'ترجمه‌اش را تا این سال می‌نوشته است:',
+        Loader::RULE_SCRIBE => 'کتابت نسخه‌ای را در این سال به پایان برده است:',
+        Loader::RULE_AUTOGRAPH => 'نسخه‌ای به خط خودش در این سال به پایان رسیده است:',
+        Loader::RULE_PATRON => 'کتابت نسخه‌ای برای او در این سال آغاز شده است:',
+    ];
 
     /** What shows the person alive, by rule: when the evidence is one year, and when it is a range. */
     private const ALIVE = [
