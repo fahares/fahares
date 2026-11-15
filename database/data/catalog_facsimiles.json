@@ -1774,6 +1774,466 @@
      "step": "14.178"
     }
    }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 1,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 1",
+   "facsimile_code": "marashi",
+   "page_first": 17,
+   "page_last": 431,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/508 - فهرست آیت الله مرعشی ج1.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v01.map.json"
+     ],
+     "note": "خزانه‌ها 508؛ ص ۱ تا ۱۶ در اسکن با برگ «این صفحه در اصل کتاب ناقص است» آمده؛ برگه‌ها از ص ۱۷ (مدخل ۱)",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 2,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 2",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 422,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/509 - فهرست آیت الله مرعشی ج2.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v02.map.json"
+     ],
+     "note": "خزانه‌ها 509؛ برگ ۴۰۴ در چاپ «۴۰۲» شماره خورده",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 3,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 3",
+   "facsimile_code": "marashi",
+   "page_first": 2,
+   "page_last": 384,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/511 - فهرست آیت الله مرعشی ج3.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v03.map.json"
+     ],
+     "note": "خزانه‌ها 511؛ برگ‌های ۲۸۴ و ۲۹۴ در چاپ شماره‌ی صفحه‌ی پیش را دارند",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 4,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 4",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 414,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/513 - فهرست آیت الله مرعشی ج4.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v04.map.json"
+     ],
+     "note": "خزانه‌ها 513",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 5,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 5",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 388,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/514 - فهرست آیت الله مرعشی ج5.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v05.map.json"
+     ],
+     "note": "خزانه‌ها 514",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 6,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 6",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 398,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/515 - فهرست آیت الله مرعشی ج6.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v06.map.json"
+     ],
+     "note": "خزانه‌ها 515",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 7,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 7",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 383,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/516 - فهرست آیت الله مرعشی ج7.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v07.map.json"
+     ],
+     "note": "خزانه‌ها 516",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 8,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 8",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 443,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/517 - فهرست آیت الله مرعشی ج8.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v08.map.json"
+     ],
+     "note": "خزانه‌ها 517",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 9,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 9",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 395,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/518 - فهرست آیت الله مرعشی ج9.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v09.map.json"
+     ],
+     "note": "خزانه‌ها 518",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 10,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 10",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 390,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/519 - فهرست آیت الله مرعشی ج10.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v10.map.json"
+     ],
+     "note": "خزانه‌ها 519",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 11,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 11",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 420,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/520 - فهرست آیت الله مرعشی ج11.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v11.map.json"
+     ],
+     "note": "خزانه‌ها 520",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 12,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 12",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 378,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/521 - فهرست آیت الله مرعشی ج12.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v12.map.json"
+     ],
+     "note": "خزانه‌ها 521",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 13,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 13",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 423,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/522 - فهرست آیت الله مرعشی ج13.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v13.map.json"
+     ],
+     "note": "خزانه‌ها 522",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 14,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 14",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 384,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/523 - فهرست آیت الله مرعشی ج14.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v14.map.json"
+     ],
+     "note": "خزانه‌ها 523",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 15,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 15",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 371,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/524 - فهرست آیت الله مرعشی ج15.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v15.map.json"
+     ],
+     "note": "خزانه‌ها 524",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 16,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 16",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 355,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/525 - فهرست آیت الله مرعشی ج16.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v16.map.json"
+     ],
+     "note": "خزانه‌ها 525",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 17,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 17",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 336,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/526 - فهرست آیت الله مرعشی ج17.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v17.map.json"
+     ],
+     "note": "خزانه‌ها 526",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 18,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 18",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 353,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/527 - فهرست آیت الله مرعشی ج18.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v18.map.json"
+     ],
+     "note": "خزانه‌ها 527",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 19,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 19",
+   "facsimile_code": "marashi",
+   "page_first": 9,
+   "page_last": 431,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/528 - فهرست آیت الله مرعشی ج19.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v19.map.json"
+     ],
+     "note": "خزانه‌ها 528؛ برگ ۱۰۶ در چاپ «۱۰۹» و برگ ۱۶۳ «۱۹۳» شماره خورده",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 20,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 20",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 323,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/529 - فهرست آیت الله مرعشی ج20.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v20.map.json"
+     ],
+     "note": "خزانه‌ها 529",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 21,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 21",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 367,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/530 - فهرست آیت الله مرعشی ج21.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v21.map.json"
+     ],
+     "note": "خزانه‌ها 530",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 22,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد 22",
+   "facsimile_code": "marashi",
+   "page_first": 3,
+   "page_last": 331,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/531 - فهرست آیت الله مرعشی ج22.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v22.map.json"
+     ],
+     "note": "خزانه‌ها 531",
+     "step": "14.190"
+    }
+   }
+  },
+  {
+   "library_slug": "km-mraashy-2",
+   "volume_number": 35,
+   "title": "فهرست نسخه‌های خطی کتابخانه عمومی آیت‌الله العظمی مرعشی نجفی - جلد سی و پنجم",
+   "facsimile_code": "marashi",
+   "page_first": 11,
+   "page_last": 955,
+   "metadata": {
+    "facsimile": {
+     "files": [
+      "fahares-telegram-khazaneha (SD card)/4392 - فهرست آيت الله مرعشي ـ ج35.pdf"
+     ],
+     "leaf_maps": [
+      "marashi/v35.map.json"
+     ],
+     "note": "خزانه‌ها 4392؛ عکس موبایلی؛ برگ ۸۷ و ۸۸ عکس دوباره‌ی ص ۸۴ و ۸۵ است",
+     "step": "14.190"
+    }
+   }
   }
  ]
 }
