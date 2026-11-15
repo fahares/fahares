@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Lock or unlock `main` on GitHub for everyone but the owner, and keep its branch protection in one place.
+#
+#   scripts/dev/main-lock on       main becomes read-only: a collaborator cannot merge a pull request, so no deploy
+#                                  starts. The owner's own push still goes through (admins are exempt).
+#   scripts/dev/main-lock off      back to the normal protection below; also the way to apply it after an edit here
+#   scripts/dev/main-lock status   locked or not, and the image builds (deploys) queued or running
+#   scripts/dev/main-lock deploys  only the queued or running builds, one per line; empty when there is none
+#
+# `prod-run` calls `on` before a production command and `off` after it: a deploy replaces the app container and would
+# cut the command off. If the machine dies in between, main stays locked; `off` (or the branch settings on GitHub)
+# frees it.
+#
+# The normal protection: a pull request is needed, with the approval of the code owner (.github/CODEOWNERS) and no
+# other review; no force push, no deletion; admins exempt.
+set -euo pipefail
+
+REPO="${FAHARES_REPO:-fahares/fahares}"
+
+protect() {
+    printf '{"required_status_checks":null,"enforce_admins":false,"required_pull_request_reviews":{"required_approving_review_count":0,"require_code_owner_reviews":true},"restrictions":null,"allow_force_pushes":false,"allow_deletions":false,"lock_branch":%s}' "$1" |
+        gh api -X PUT "repos/$REPO/branches/main/protection" --input - --jq '"main locked: \(.lock_branch.enabled)"'
+}
+
+deploys() {
+    local s
+    for s in queued in_progress; do
+        gh run list --repo "$REPO" --workflow image.yml --status "$s" --json databaseId,headSha,status \
+            --jq '.[] | "\(.status)  \(.headSha[0:8])  run \(.databaseId)"'
+    done
+}
+
+case "${1:-}" in
+    on) protect true ;;
+    off) protect false ;;
+    deploys) deploys ;;
+    status)
+        gh api "repos/$REPO/branches/main/protection" --jq '"main locked: \(.lock_branch.enabled)"'
+        d=$(deploys)
+        echo "deploys queued or running: ${d:-none}"
+        ;;
+    *) echo "usage: main-lock on|off|status|deploys" >&2; exit 2 ;;
+esac

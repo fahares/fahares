@@ -4,7 +4,7 @@ Several Claude sessions often work on this repository at once, each in its own w
 numbers and deploys from colliding.
 
 The step registry, the release queue and the locks live in `~/.fahares` on the owner's machine. If you work on another
-machine or from a fork, the last section, "Outside contributors", replaces the rules that depend on them.
+machine, the last section, "Collaborators on another machine", replaces the rules that depend on them.
 
 ## Step numbers («گام»)
 
@@ -61,27 +61,44 @@ A push to `main` deploys to production (Coolify) and runs the migrations, so pus
 sides' new steps are kept without a conflict. Union cannot tell an edit from an addition, so after a merge check that
 an earlier line edited on both sides was not kept twice, and that steps stay in number order.
 
-## Outside contributors
+## Collaborators on another machine
 
 These rules are for a session on any machine other than the owner's, where `~/.fahares/steps.tsv` and
 `~/.fahares/release-queue.tsv` do not exist. The scripts would start an empty registry there and hand out numbers that
 are already taken.
 
-- Work in your own fork of `fahares/fahares`, on a branch per task, and send a pull request to `main`. Nobody but the
-  owner pushes to `fahares/fahares`.
+- Push a branch of your own to `fahares/fahares`, one per task, and open a pull request to `main`. `main` takes no
+  direct push from a collaborator.
 - Take only the `docs/BACKLOG.md` items the owner has marked with your name.
-- Do not run `scripts/dev/reserve-step`, `scripts/dev/release-queue` or `scripts/dev/prod-run`. Do not name a step
-  number in a commit, a file name or a doc, and do not edit `docs/PROCESS_DOCUMENTATION.md` or
-  `docs/TECHNICAL_APPENDIX.md`. The releasing session reserves the number and writes the step entry when it merges.
+- Do not run `scripts/dev/reserve-step`, `scripts/dev/release-queue`, `scripts/dev/prod-run` or `scripts/dev/main-lock`.
+  Do not name a step number in a commit, a file name or a doc, and do not edit `docs/PROCESS_DOCUMENTATION.md` or
+  `docs/TECHNICAL_APPENDIX.md`. The owner's task-management session reserves the number and writes the step entry.
 - The pull request description takes the place of the release-queue line and the step entry. It says what the change
-  is, the goal, the actions and the result, in the form at the end of `docs/PROCESS_DOCUMENTATION.md`. It also gives
-  the data command needed after the deploy, with its expected counts, or says there is none.
-- Before opening or updating the pull request, merge `origin/main` of `fahares/fahares` into the branch and run the
-  full suite against your own test database. `scripts/dev/test-suite` and its lock are not needed on your machine.
-- A migration runs on production as soon as the release is deployed. It changes structure only and must work with the
-  code of the release before it. A mass data change is a separate artisan command.
-- You have no production access. The owner runs any data command, after a backup, in a session on their machine.
+  is, the goal, the actions and the result, in the form at the end of `docs/PROCESS_DOCUMENTATION.md`.
+- Before opening or updating the pull request, merge `origin/main` into the branch and run the full suite against your
+  own test database. `scripts/dev/test-suite` and its lock are not needed on your machine.
 
-The task-management session reads `gh pr list --state open` together with `scripts/dev/release-queue --list` before a
-release. It fetches a ready pull request with `git fetch origin pull/<number>/head`, merges it into the release batch
-like any other ready branch, and reserves its step number then. GitHub marks the pull request as merged after the push.
+Merging a pull request to `main` deploys it to production, with no one else in between.
+
+- You may merge your own pull request when it touches only the paths that `.github/CODEOWNERS` leaves without an owner:
+  templates, styles, scripts, images, interface strings and tests. GitHub asks for no review on these.
+- Any other path (`app/`, `database/`, `config/`, `routes/`, `docker/`, `.github/`, `scripts/`, the package files, the
+  docs) needs the owner's approval, and GitHub blocks the merge until then. Do not move logic into a template to get
+  around this. A migration or a data command is always the owner's to release and run.
+- Merge one pull request at a time. Wait for the `image.yml` run to finish, then open the changed pages on
+  `https://fahares.net`. If the site is broken, revert the pull request on GitHub and merge the revert.
+- If GitHub says `main` is locked or read-only, a production data run is under way on the owner's machine. Wait for it;
+  do not ask for the lock to be lifted.
+- You have no access to the server or to Coolify.
+
+What the owner's sessions do about this:
+
+- `scripts/dev/prod-run` locks `main` on GitHub for the length of a run (`scripts/dev/main-lock`), and refuses or waits
+  while an `image.yml` build is queued or running. If a run died and left `main` locked, `scripts/dev/main-lock off`
+  frees it. The protection of `main` is written in that script; change it there and apply it with `off`.
+- `origin/main` may have moved since the last release. The task-management session fetches it and merges it into the
+  release batch before the suite.
+- At a release it also reads `gh pr list --state open` for pull requests waiting for the owner, and
+  `gh pr list --state merged --search "-label:logged"` for the collaborator's merges that have no step entry yet. For
+  each of these it reserves a step number, writes the entry from the pull request description, and adds the `logged`
+  label.

@@ -76,6 +76,27 @@ if [[ -n "$busy" ]]; then
     exit 75
 fi
 
+# A collaborator's merge to main deploys at any hour and would replace the container under this run, so main is
+# locked on GitHub for the length of it (step 14.203). Without GitHub the run goes on with a warning.
+MAIN_LOCK="$(dirname "$0")/main-lock"
+if "$MAIN_LOCK" on >&2; then
+    trap '"$MAIN_LOCK" off >&2 || echo "main is still locked on GitHub: run scripts/dev/main-lock off" >&2' EXIT
+else
+    echo "warning: main could not be locked on GitHub; a merge there may deploy during this run" >&2
+fi
+# A build already under way ends in a deploy. Coolify still needs a minute or two after the build is done.
+deploying=$("$MAIN_LOCK" deploys 2>/dev/null || true)
+for (( tries = 0; wait && tries < 120 && ${#deploying}; tries++ )); do
+    (( tries )) || { echo "a deploy is under way, waiting for it:" >&2; echo "$deploying" >&2; }
+    sleep 15
+    deploying=$("$MAIN_LOCK" deploys 2>/dev/null || true)
+done
+if [[ -n "$deploying" ]]; then
+    echo "production is busy, a deploy is under way:" >&2
+    echo "$deploying" >&2
+    exit 75
+fi
+
 started="$(date '+%F %H:%M:%S')"
 printf '%s  %s  %s\n' "$session" "$started" "$command" > "$HOLDER"
 status=0
