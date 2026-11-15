@@ -83,6 +83,13 @@
                 @endforeach
             </select>
         </div>
+        {{-- Those of no known century by the century a dated work or copy shows them alive in (step 14.198) --}}
+        @if($type === 'authors')
+            <label class="flex items-start gap-2 text-xs text-ink/80 cursor-pointer" title="اشخاصِ بی‌تاریخ وفات با سده‌ای که اثر یا نسخه‌ی تاریخ‌دارشان نشان می‌دهد در آن زنده بوده‌اند می‌آیند، و در ترتیب «کهن‌ترین / تازه‌ترین وفات» با همان سال. شمار کنار سده‌ها این‌ها را ندارد.">
+                <input type="checkbox" name="estimates" value="1" @checked($v('estimates')) class="mt-0.5 w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-line-strong">
+                <span>با سده‌ی فعالیت اشخاصِ بی‌تاریخ وفات <span class="text-muted">(تخمینی)</span></span>
+            </label>
+        @endif
     @endif
 
     {{-- A scribe is narrowed by the copies, not by a date of death, which almost none has (step 14.155) --}}
@@ -138,6 +145,11 @@
                 @endforeach
             </select>
         </div>
+        {{-- Works of no date by their estimated composition, in the century and in the order by composition (step 14.197) --}}
+        <label class="flex items-start gap-2 text-xs text-ink/80 cursor-pointer" title="آثار بی‌تاریخ با تاریخ تألیف تخمینی‌شان در سده و در ترتیب «کهن‌ترین / تازه‌ترین تألیف» می‌آیند. شمار کنار سده‌ها تخمینی‌ها را ندارد.">
+            <input type="checkbox" name="estimates" value="1" @checked($v('estimates')) class="mt-0.5 w-4 h-4 rounded text-cinnabar focus:ring-cinnabar border-line-strong">
+            <span>با تاریخ‌های تخمینی تألیف</span>
+        </label>
         <div class="space-y-2 {{ $hide('workForms') }}">
             <label for="f-form" class="{{ $label }}">قالب اثر</label>
             <select id="f-form" name="work_form" class="{{ $field }}">

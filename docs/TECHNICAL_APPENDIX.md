@@ -11054,3 +11054,39 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
 - **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
 - **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).
+### گام ۱۴.۱۹۷: تخمین تألیف در جستجوی آثار (`estimates=1`)
+
+- **تخمینِ «جای‌گرفته» (`EstimateText::placedCompositions`):** ردیف `date_estimates` اثر با هر دو کران و فاصله‌ی تا `MAX_SPAN` (۱۵۰).
+- **سند جستجوی اثر (`Work::toSearchableArray`):**
+  - `era_estimate_from`، `era_estimate_to`: فقط وقتی `era_year` تهی است (نه سال تألیف، نه وفات مؤلف).
+  - `composition_sort_year`: سال تألیف، وگرنه میانه‌ی تخمین (`intdiv(from + to, 2)`).
+  - `Work::compositionEstimate()`: از ستون‌های `estimate_from` و `estimate_to` که `makeAllSearchableUsing` با زیرپرس‌وجو می‌خواند؛ برای یک اثر تنها، با پرس‌وجوی خودش.
+- **`config/scout.php`:** `era_estimate_from` و `era_estimate_to` فیلترشدنی، `composition_sort_year` مرتب‌شدنی.
+- **`SearchFilters`:** پارامتر `estimates` در تب آثار (مقدار `1`).
+  - موتور: `(era_year >= F AND era_year <= T) OR (era_estimate_from <= T AND era_estimate_to >= F)`.
+  - پایگاه داده: همان، با `whereExists` روی `date_estimates` برای اثری که نه سال تألیف دارد نه مؤلفِ دارای سال وفات.
+  - به‌تنهایی چیزی را تنگ نمی‌کند.
+- **`SearchController`:** با `estimates`، ترتیب‌های `oldest` و `newest` تب آثار فیلد `composition_sort_year` و عبارت `EstimateText::COMPOSITION_SORT_SQL` را می‌گیرند.
+- **شمار کنار سده‌ها** (`facets` روی `era_year`) تخمینی‌ها را ندارد؛ راهنمای گزینه همین را می‌گوید.
+- **`fahares:estimate-dates`:** پیش و پس از نوشتن، تخمین‌های جای‌گرفته را مقایسه می‌کند و سند آثار تغییرکرده را تازه می‌کند (`reindexWorks`). بیش از `REINDEX_LIMIT` (۵٬۰۰۰) اثر را به فرمان جدا وامی‌گذارد.
+- **`fahares:reindex-work-estimates`** (`--chunk=250`، `--from=<id>` برای ادامه): آثار دارای سال تألیف و آثار دارای تخمین جای‌گرفته.
+- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan fahares:reindex-work-estimates`. روی رونوشت محلی: حدود ۲۶ هزار اثر با تخمین جای‌گرفته و ۹٫۸ هزار با سال تألیف.
+- **تست:** `SearchEstimatesTest` (۴).
+- **بررسی ناسازگاری‌های تازه‌ی پروداکشن** (فقط خواندن): `first_seen_at` سه مقدار دارد؛ ۳٬۷۴۷ ردیف از اجرای نخست، ۱۳ از اجرای ۲۳ آبان صبح و ۸۵ از اجرای شب. نمونه‌ها دو خطای داده نشان دادند که در مورد ۱۲۶ ثبت شد.
+
+### گام ۱۴.۱۹۸: سده‌ی فعالیت در جستجوی مؤلفان (`estimates=1`)
+
+- **`EstimateText::ALIVE_YEAR_SQL`:** عبارتی روی ردیف `people`: `year_from` تخمین وفات با `from_depth = 1` و قاعده‌ای از `ALIVE`، جز کاتبی که `scribed_to − scribed_from` او از ۷۰ بیشتر است. همان شرط‌های `aliveIn()`. `aliveYear($id)` همین را برای یک شخصِ بی سال وفات می‌دهد.
+- **سند جستجوی شخص (`Person::toSearchableArray`):**
+  - `alive_century`: سده‌ی آن سال، فقط وقتی `century_hijri` تهی است.
+  - `death_sort_year`: سال وفات، وگرنه همان سال.
+  - `Person::makeAllSearchableUsing` سال را با `selectRaw` می‌خواند؛ برای یک شخص تنها، با پرس‌وجوی خودش.
+- **`config/scout.php`:** `alive_century` فیلترشدنی، `death_sort_year` مرتب‌شدنی.
+- **`SearchFilters`:** `estimates` در تب `authors`.
+  - موتور: `century_hijri = N OR alive_century = N`.
+  - پایگاه داده: `century_hijri = N` یا (`century_hijri` تهی و `FLOOR((سال − 1) / 100) + 1 = N`).
+- **`SearchController`:** با `estimates`، ترتیب‌های `oldest` و `newest` تب مؤلفان فیلد `death_sort_year` و عبارت `COALESCE(people.death_year_hijri, <سال>)` را می‌گیرند.
+- **`fahares:estimate-dates`:** `reindexPeople` سند اشخاصی را که سالشان عوض شده تازه می‌کند؛ بیش از ۵٬۰۰۰ را به `scout:import` وامی‌گذارد.
+- **پس از استقرار:** `php artisan scout:sync-index-settings`، سپس `php artisan scout:import "App\Models\Person"` (همه‌ی اشخاص، چون `death_sort_year` برای دارندگان سال وفات هم لازم است).
+- **تست:** `SearchAliveCenturyTest` (۳).
+

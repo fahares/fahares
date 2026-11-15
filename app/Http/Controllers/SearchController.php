@@ -76,6 +76,14 @@ class SearchController extends Controller
         // The chosen order of the tab; none means by relevance, or the tab's own order when browsing (backlog item 83, phase 3)
         $sort = self::SORTS[$type][$request->input('sort')] ?? null;
         $sortKey = $sort ? $request->input('sort') : '';
+        // With «estimates», a work of no date is ordered by the middle of its estimated composition (step 14.197)
+        if ($sort && $type === 'works' && $sort[1] === 'composition_year_hijri' && $filters->get('estimates')) {
+            $sort = [$sort[0], 'composition_sort_year', $sort[2], \App\Support\DateEstimates\EstimateText::COMPOSITION_SORT_SQL];
+        }
+        // ...and an author of no death year by the year he was last seen alive (step 14.198)
+        if ($sort && $type === 'authors' && $sort[1] === 'death_year_hijri' && $filters->get('estimates')) {
+            $sort = [$sort[0], 'death_sort_year', $sort[2], 'COALESCE(people.death_year_hijri, ' . \App\Support\DateEstimates\EstimateText::ALIVE_YEAR_SQL . ')'];
+        }
         // Only the ids come from the engine; the records come from the database
         $engineSort = fn (array $options) => ($sort ? $options + ['sort' => ["{$sort[1]}:{$sort[2]}"]] : $options) + ['attributesToRetrieve' => ['id']];
         $dbSort = function ($builder) use ($sort) {

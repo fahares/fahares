@@ -3,7 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Support\DateEstimates\DateVar;
+use App\Models\Person;
+use App\Models\Work;
 use App\Support\DateEstimates\Engine;
+use App\Support\DateEstimates\EstimateText;
 use App\Support\DateEstimates\Loader;
 use App\Support\DateEstimates\Solution;
 use App\Support\MemoryLimit;
@@ -36,6 +39,9 @@ class EstimateDatesCommand extends Command
 
     private const BUCKETS = [25, 50, 100, 150];
 
+    /** More changed works than this are left to a full import of the index. */
+    private const REINDEX_LIMIT = 5000;
+
     public function handle(): int
     {
         MemoryLimit::raiseTo('1G');
@@ -52,6 +58,15 @@ class EstimateDatesCommand extends Command
         $solution = $engine->solve();
         $conflicts = $this->conflictRows($engine, $solution);
         $this->reportConflicts($conflicts);
+
+        // the works' placed estimates as they stand, to tell afterwards which search documents changed
+        $placed = fn () => EstimateText::placedCompositions(DB::query())
+            ->selectRaw("date_estimates.subject_id AS work_id, CONCAT(date_estimates.year_from, '-', date_estimates.year_to) AS years")->pluck('years', 'work_id')->all();
+        $before = $apply ? $placed() : [];
+        // ...and the years the people of no death year were last seen alive
+        $alive = fn () => DB::table('people')->whereNull('death_year_hijri')->selectRaw('id, ' . EstimateText::ALIVE_YEAR_SQL . ' AS alive_year')
+            ->havingNotNull('alive_year')->pluck('alive_year', 'id')->all();
+        $aliveBefore = $apply ? $alive() : [];
 
         // the estimates are written as they are made: a quarter of a million rows are not held at once
         $shapes = [];
@@ -85,6 +100,8 @@ class EstimateDatesCommand extends Command
 
             return self::SUCCESS;
         }
+        $this->reindexWorks($before, $placed());
+        $this->reindexPeople($aliveBefore, $alive());
         $this->info('Wrote ' . number_format(array_sum(array_map('array_sum', $shapes))) . ' estimates and ' . number_format(count($conflicts)) . ' conflicts.');
 
         return self::SUCCESS;
@@ -197,6 +214,40 @@ class EstimateDatesCommand extends Command
         foreach (array_chunk($gone, 1000) as $chunk) {
             DB::table('date_conflicts')->whereIn('conflict_key', $chunk)->delete();
         }
+    }
+
+    /**
+     * The search documents of the works whose placed estimate changed (era_estimate_from, era_estimate_to and
+     * composition_sort_year, step 14.197). When nearly all changed, as on the first run after the fields were added,
+     * a full import is quicker and is left to the operator.
+     */
+    private function reindexWorks(array $before, array $after): void
+    {
+        $changed = array_keys(array_diff_assoc($after, $before) + array_diff_assoc($before, $after));
+        if (count($changed) > self::REINDEX_LIMIT) {
+            $this->warn(number_format(count($changed)) . ' works have a new or changed estimate: too many to reindex here. Run scout:import "App\\Models\\Work".');
+
+            return;
+        }
+        foreach (array_chunk($changed, 200) as $ids) {
+            (new Work)->makeAllSearchableUsing(Work::query())->whereIn('works.id', $ids)->get()->searchable();
+        }
+        $this->line('search documents refreshed: ' . number_format(count($changed)) . ' works');
+    }
+
+    /** The search documents of the people whose «alive in» year changed (alive_century, death_sort_year; step 14.198). */
+    private function reindexPeople(array $before, array $after): void
+    {
+        $changed = array_keys(array_diff_assoc($after, $before) + array_diff_assoc($before, $after));
+        if (count($changed) > self::REINDEX_LIMIT) {
+            $this->warn(number_format(count($changed)) . ' people have a new or changed «alive in» year: too many to reindex here. Run scout:import "App\\Models\\Person".');
+
+            return;
+        }
+        foreach (array_chunk($changed, 500) as $ids) {
+            (new Person)->makeAllSearchableUsing(Person::query())->whereIn('people.id', $ids)->get()->searchable();
+        }
+        $this->line('search documents refreshed: ' . number_format(count($changed)) . ' people');
     }
 
     private function validateEstimates(Engine $engine): void

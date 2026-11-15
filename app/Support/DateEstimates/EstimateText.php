@@ -19,6 +19,14 @@ final class EstimateText
 {
     public const MAX_SPAN = 150;
 
+    /**
+     * The year a work is ordered by when the reader asks for estimates too (step 14.197): its year of composition,
+     * else the middle of its estimate. The same number is composition_sort_year in the search index.
+     */
+    public const COMPOSITION_SORT_SQL = "COALESCE(works.composition_year_hijri, (SELECT FLOOR((year_from + year_to) / 2) FROM date_estimates"
+        . " WHERE subject_type = 'work' AND subject_id = works.id AND field = 'composition' AND year_from IS NOT NULL AND year_to IS NOT NULL"
+        . ' AND year_to - year_from <= ' . self::MAX_SPAN . '))';
+
     /** Works that get no estimated date of composition. */
     private const UNDATED_TITLES = ['القرآن الکریم', 'قرآن کریم'];
 
@@ -30,6 +38,17 @@ final class EstimateText
     /**
      * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
      */
+    /**
+     * The estimates of composition that place a work in time: both bounds, at most MAX_SPAN years apart, the ones the
+     * work's page shows as «میان … و …». A list filters and orders by these alone: «پیش از ۱۲۰۰» names no century.
+     */
+    public static function placedCompositions(\Illuminate\Database\Query\Builder $query): \Illuminate\Database\Query\Builder
+    {
+        return $query->from('date_estimates')->where('date_estimates.subject_type', 'work')->where('date_estimates.field', 'composition')
+            ->whereNotNull('date_estimates.year_from')->whereNotNull('date_estimates.year_to')
+            ->whereRaw('date_estimates.year_to - date_estimates.year_from <= ' . self::MAX_SPAN);
+    }
+
     public static function for(string $type, int $id, string $field): ?array
     {
         // the Quran's date is not a question the copies answer (the user, step 14.176)
@@ -79,6 +98,23 @@ final class EstimateText
      *
      * @return array{text: string, reasons: list<array{bound: string, text: string, title: ?string, url: ?string}>}|null
      */
+    /**
+     * The year aliveIn() names, as an expression over a row of `people` (step 14.198): the earliest the person's death
+     * can be, one rule from a documented date, by a rule of ALIVE, and not the last copy of a record of several
+     * namesake scribes. The lists filter and order by it; the same number is in the people's search documents.
+     */
+    public const ALIVE_YEAR_SQL = "(SELECT e.year_from FROM date_estimates e WHERE e.subject_type = 'person' AND e.subject_id = people.id AND e.field = 'death'"
+        . " AND e.year_from IS NOT NULL AND e.from_depth = 1 AND e.from_rule IN ('author', 'translator', 'dedicatee', 'scribe', 'autograph', 'patron')"
+        . " AND NOT (e.from_rule = 'scribe' AND people.scribed_from IS NOT NULL AND people.scribed_to - people.scribed_from > " . \App\Services\PersonReviewQueue::MIXED_SPAN . '))';
+
+    /** The year a person with no death year was last seen alive, or null (ALIVE_YEAR_SQL for one person). */
+    public static function aliveYear(int $personId): ?int
+    {
+        $year = DB::table('people')->where('id', $personId)->whereNull('death_year_hijri')->selectRaw(self::ALIVE_YEAR_SQL . ' AS alive_year')->value('alive_year');
+
+        return $year === null ? null : (int) $year;
+    }
+
     public static function aliveIn(int $personId): ?array
     {
         $row = DB::table('date_estimates')->where(['subject_type' => 'person', 'subject_id' => $personId, 'field' => 'death'])->first();
