@@ -10973,29 +10973,6 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - پشتیبان: ستون‌های تاریخ این ۱۱ نسخه در `step14_189_backup.json` (md5 `351e132a…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `--apply` با `nohup`: ۱۱ نسخه نوشته شد. اجرای دوم: صفر.
 
-### گام ۱۴.۱۹۳: `PersonMerger::moveSourceEntries` و `fahares:settle-double-lives`
-- **[PersonMerger](../app/Services/PersonMerger.php):** `moveSourceEntries(from, to)` سطرهای `source_entries` با `citable_type = Person` را به شخص ماندگار می‌برد. اگر هر دو به یک `source_item_id` پیوند دارند، سطرِ با رتبه‌ی بهتر (`verified` > `unverified` > `rejected`) می‌ماند و دیگری حذف می‌شود. `old_values` در گزارش ادغام: `moved_source_entry_ids` و `dropped_source_entries` (سطر کامل). بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) سطرهای جابه‌جاشده را برمی‌گرداند و سطرهای حذف‌شده را با `insertOrIgnore` باز می‌نشاند.
-- **[SettleDoubleLivesCommand](../app/Console/Commands/SettleDoubleLivesCommand.php):** فایل با `merges` (`keep`، `merge`)، `rejects` (`person_slug`، `source`، `item_key`، `volume`) و `unsure` (`slugs`، `note`). شخص با `slug`، و اگر نباشد با `TiePersonLivesCommand::mergedInto()`. ادغام با `keepPrintedNames`. رد: `status = rejected` و `reviewed_at`، که `sources:tie-lives-to-people` آن را نگه می‌دارد. نامطمئن‌ها با شناسه‌های کنونی به `fahares:queue-judged-people` می‌روند.
-- **داوری:** Sonnet در دو دسته‌ی ۵۸تایی، بازبینی Claude. داده‌ی ورودی از پروداکشن (فقط‌خواندنی).
-- **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
-- **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
-
-### گام ۱۴.۱۹۴: `DateSpan::brief()` در `ConflictRecords` و طول مدت در `EstimateText::aliveIn` (مورد ۱۳۴، گام ۳ طرح)
-
-- **`DateSpan::brief()`:** متن کوتاه برای جدول. `span` با دو سرِ معلوم «از 1052 تا 1057» (همان `text()`)؛ هر بازه‌ی دیگر «1201–1300» و سرِ باز «؟»، مثل پیش از این گام. `text()` («میان … و …») جایی به کار نرفته و برای نمایش‌های آینده می‌ماند.
-- **`ConflictRecords::load`:** تاریخ هر رکورد از `DateSpan::fromColumns($row, <پیشوند>)->brief()`؛ ستون‌های `*_kind`، `*_start_to` و `*_end_from` هم خوانده می‌شوند. همین تابع یادداشت تناقض صفحه‌های عمومی (`DateConflictNote`) را هم می‌سازد.
-- **`EstimateText::aliveIn`:** وقتی شاهدِ کرانِ پایینِ وفات `isSpan()` است، دو سرش دقیق‌اند (`start_to` و `end_from` تهی) و کران از آغاز همان شاهد آمده:
-
-| قاعده | متن | دلیل |
-|---|---|---|
-| کاتب، خط مؤلف | «زنده در ‹`to`›» | «کتابت نسخه‌ای را در این سال به پایان برده است:» |
-| مؤلف، مترجم | «زنده در ‹`to`›» | «اثرش را تا این سال تألیف می‌کرده است:» |
-| بانی | «زنده در ‹`from`›» | «کتابت نسخه‌ای برای او در این سال آغاز شده است:» |
-| مُهدی‌الیه | بی‌تغییر | — |
-
-- **موتور دست نخورد:** `date_estimates` همان «وفات ≥ آغاز» را دارد. این متن یک واقعیت مستند را می‌گوید که از کران موتور دقیق‌تر است؛ قاعده‌های آغاز و پایان در `Loader` گام ۴ طرح است و به تصمیم کاربر به بعد ماند.
-- **تست:** `DateSpanTest::test_the_date_in_a_few_characters` و حالت‌های تازه در `AliveInTest::test_a_scribe_is_alive_in_the_year_of_a_copy_but_not_when_the_copies_span_generations`.
-
 ### گام ۱۴.۱۹۱: نگاشت هشت جلد فهرست گلپایگانی (کد `golpaygani`) از لایه‌ی متن
 - **پرونده‌ها:** `../fahares-sources/golpaygani/`:
   - `dNNNNNNN.pdf` پیوند نمادین به پرونده‌های `docibox/` است: 1199476 (ج ۱ و ۲)، 1199477 (ج ۳ و ۴)، 1199479 (ج ۵ و ۶)، 1199480 (ج ۷ و ۸) و 1199481 (ج ۹، نمایه‌ها).
@@ -11039,6 +11016,30 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - فهرست نام و اندازه‌ی ۴٬۹۶۶ پرونده در دو سو یکسان است. سپس `chown -R ubuntu:ubuntu` و `chmod -R 775` اجرا شد.
   - پنج برگه‌ی نمونه (ج ۱ ص ۳۰۰، ج ۳ ص ۱۵۰۰، ج ۵ ص ۲۵۰۰، ج ۷ ص ۴۲۰۰ و ج ۸ ص ۴۹۶۶) از `https://fahares.net/storage/catalogs/golpaygani/` پاسخ ۲۰۰ دادند، با همان اندازه‌ی محلی.
 - **پس از استقرار:** `php artisan catalogs:set-facsimiles` با `prod-run`، پس از پشتیبان ردیف‌های `catalog_volumes` و `source_volumes` کتابخانه‌ی `km-glpaygany-5`. انتظار: «0 created, 8 updated».
+
+### گام ۱۴.۱۹۳: `PersonMerger::moveSourceEntries` و `fahares:settle-double-lives`
+- **[PersonMerger](../app/Services/PersonMerger.php):** `moveSourceEntries(from, to)` سطرهای `source_entries` با `citable_type = Person` را به شخص ماندگار می‌برد. اگر هر دو به یک `source_item_id` پیوند دارند، سطرِ با رتبه‌ی بهتر (`verified` > `unverified` > `rejected`) می‌ماند و دیگری حذف می‌شود. `old_values` در گزارش ادغام: `moved_source_entry_ids` و `dropped_source_entries` (سطر کامل). بازگردانی در [AuditLogController](../app/Http/Controllers/Admin/AuditLogController.php) سطرهای جابه‌جاشده را برمی‌گرداند و سطرهای حذف‌شده را با `insertOrIgnore` باز می‌نشاند.
+- **[SettleDoubleLivesCommand](../app/Console/Commands/SettleDoubleLivesCommand.php):** فایل با `merges` (`keep`، `merge`)، `rejects` (`person_slug`، `source`، `item_key`، `volume`) و `unsure` (`slugs`، `note`). شخص با `slug`، و اگر نباشد با `TiePersonLivesCommand::mergedInto()`. ادغام با `keepPrintedNames`. رد: `status = rejected` و `reviewed_at`، که `sources:tie-lives-to-people` آن را نگه می‌دارد. نامطمئن‌ها با شناسه‌های کنونی به `fahares:queue-judged-people` می‌روند.
+- **داوری:** Sonnet در دو دسته‌ی ۵۸تایی، بازبینی Claude. داده‌ی ورودی از پروداکشن (فقط‌خواندنی).
+- **آزمون:** `tests/Feature/SettleDoubleLivesTest.php` و `EntityRedirectTest::test_a_person_merge_carries_lives_drops_doubles_and_its_undo_restores_them`.
+- **اجرا در تولید:** پشتیبان، سپس `php artisan fahares:settle-double-lives` و با `--apply`.
+
+### گام ۱۴.۱۹۴: `DateSpan::brief()` در `ConflictRecords` و طول مدت در `EstimateText::aliveIn` (مورد ۱۳۴، گام ۳ طرح)
+
+- **`DateSpan::brief()`:** متن کوتاه برای جدول. `span` با دو سرِ معلوم «از 1052 تا 1057» (همان `text()`)؛ هر بازه‌ی دیگر «1201–1300» و سرِ باز «؟»، مثل پیش از این گام. `text()` («میان … و …») جایی به کار نرفته و برای نمایش‌های آینده می‌ماند.
+- **`ConflictRecords::load`:** تاریخ هر رکورد از `DateSpan::fromColumns($row, <پیشوند>)->brief()`؛ ستون‌های `*_kind`، `*_start_to` و `*_end_from` هم خوانده می‌شوند. همین تابع یادداشت تناقض صفحه‌های عمومی (`DateConflictNote`) را هم می‌سازد.
+- **`EstimateText::aliveIn`:** وقتی شاهدِ کرانِ پایینِ وفات `isSpan()` است، دو سرش دقیق‌اند (`start_to` و `end_from` تهی) و کران از آغاز همان شاهد آمده:
+
+| قاعده | متن | دلیل |
+|---|---|---|
+| کاتب، خط مؤلف | «زنده در ‹`to`›» | «کتابت نسخه‌ای را در این سال به پایان برده است:» |
+| مؤلف، مترجم | «زنده در ‹`to`›» | «اثرش را تا این سال تألیف می‌کرده است:» |
+| بانی | «زنده در ‹`from`›» | «کتابت نسخه‌ای برای او در این سال آغاز شده است:» |
+| مُهدی‌الیه | بی‌تغییر | — |
+
+- **موتور دست نخورد:** `date_estimates` همان «وفات ≥ آغاز» را دارد. این متن یک واقعیت مستند را می‌گوید که از کران موتور دقیق‌تر است؛ قاعده‌های آغاز و پایان در `Loader` گام ۴ طرح است و به تصمیم کاربر به بعد ماند.
+- **تست:** `DateSpanTest::test_the_date_in_a_few_characters` و حالت‌های تازه در `AliveInTest::test_a_scribe_is_alive_in_the_year_of_a_copy_but_not_when_the_copies_span_generations`.
+
 ### گام ۱۴.۱۹۵: `Announcement::queueFor()` و ستون `on_site`
 
 - **`queueFor(?User)`:** اعلان‌های روشنِ مخاطب، تازه‌ترین نخست (همان فهرست کش‌شده‌ی `announcements.running`، اکنون با شرط `on_site`). برای عضو با یک پرس‌وجو روی `announcement_user`: اگر تازه‌ترین `seen_at` او کمتر از `GAP_HOURS` (۲۴) پیش است صف تهی است، وگرنه دیده‌شده‌ها کنار می‌روند. `forViewer()` سرِ همین صف است.
@@ -11054,6 +11055,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **اکنون:** نسخه فقط وقتی به فهرست مجلدها می‌رود که `CopyDateRange::parse(متن)['kind']` برابر `span` باشد. نتیجه همان است، چون `copyDateColumns` پاسخ را فقط برای `span` به کار می‌برد.
 - **زمان اجرای خشک `fill-copy-date-ranges` روی `fahares_prod` محلی:** بیش از ۵ دقیقه ← ۱ دقیقه و ۲۵ ثانیه.
 - **پیامد برای پروداکشن:** فرمان گام ۱۴.۱۸۸ پس از انتشار این گام اجرا شود. اجرای خشکی که در گام ۱۴.۱۸۸ روی پروداکشن شروع شد و با قطع اتصال ماند، با `pkill` بسته شد (فقط خواندن بود).
+
 ### گام ۱۴.۱۹۷: تخمین تألیف در جستجوی آثار (`estimates=1`)
 
 - **تخمینِ «جای‌گرفته» (`EstimateText::placedCompositions`):** ردیف `date_estimates` اثر با هر دو کران و فاصله‌ی تا `MAX_SPAN` (۱۵۰).
