@@ -3,12 +3,13 @@
 این راهنما برای کسی است که روی دستگاه خودش روی سایت کار می‌کند. قواعد کار (شاخه، pull request، ادغام و انتشار) در بخش
 «Collaborators on another machine» فایل `CLAUDE.md` است.
 
-پیش‌نیاز: Docker با Docker Compose، `git` و `zstd`. حدود ۶ گیگابایت جای خالی برای پایگاه داده و نمایه‌ی جست‌وجو لازم است.
+پیش‌نیاز: Docker با Docker Compose و `git`. حدود ۶ گیگابایت جای خالی برای پایگاه داده و نمایه‌ی جست‌وجو لازم است. نکته‌های
+ویندوز در پایان همین راهنماست.
 
 ## ۱. کد و سرویس‌ها
 
 ```bash
-git clone https://github.com/fahares/fahares.git
+git clone -c core.autocrlf=false https://github.com/fahares/fahares.git
 cd fahares
 cp .env.example .env
 docker compose up -d --build
@@ -20,10 +21,13 @@ docker compose exec app sh -c 'npm install && npm run build'
 ## ۲. داده
 
 فایل داده (`fahares-dev-<تاریخ>.sql.zst`) را مالک پروژه می‌دهد. این فایل رونوشتی از پایگاه داده‌ی سایت است و جای مراحل
-`download_data.sh` و `fahares:seed` در `README.md` را می‌گیرد. وارد کردنش حدود پنج دقیقه طول می‌کشد:
+`download_data.sh` و `fahares:seed` در `README.md` را می‌گیرد. فایل را بیرون از پوشه‌ی مخزن نگه دارید تا کامیت نشود. فایل به
+کانتینر پایگاه داده کپی و همان‌جا باز می‌شود، پس ابزاری روی دستگاه لازم نیست. وارد کردنش حدود پنج دقیقه طول می‌کشد:
 
 ```bash
-zstd -dc fahares-dev-<تاریخ>.sql.zst | docker compose exec -T db sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"'
+docker compose cp ../fahares-dev-<تاریخ>.sql.zst db:/tmp/dev.sql.zst
+docker compose exec db sh -c 'zstd -dc /tmp/dev.sql.zst | mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"'
+docker compose exec db rm /tmp/dev.sql.zst
 docker compose exec app php artisan migrate
 ```
 
@@ -78,6 +82,18 @@ docker compose exec app php artisan test
   اینها می‌خوانند خالی دیده می‌شوند.
 
 فایل داده را منتشر نکنید و به کس دیگری ندهید.
+
+## ویندوز
+
+این راه‌اندازی روی لینوکس آزموده شده است، نه روی ویندوز.
+
+- Docker Desktop با پشتیبان WSL 2 لازم است.
+- بهترین جا برای مخزن، درون WSL است (مثلاً `~/fahares` در اوبونتو). پوشه‌ای که روی درایو ویندوز باشد در کانتینر کُند خوانده
+  می‌شود و هر صفحه چند ثانیه طول می‌کشد.
+- اگر مخزن روی درایو ویندوز است، دستورها را در Git Bash اجرا کنید، نه PowerShell، و پیش از دستورهای `docker` این را
+  بگذارید تا مسیرهای درون کانتینر دست‌کاری نشوند: `export MSYS_NO_PATHCONV=1`
+- `-c core.autocrlf=false` در `git clone` برای این است که پایان سطر فایل‌ها عوض نشود. اسکریپت‌های پوسته با پایان سطر ویندوزی
+  اجرا نمی‌شوند.
 
 ## برای مالک: ساختن فایل داده
 

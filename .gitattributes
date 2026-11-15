@@ -1,3 +1,7 @@
 # The step logs only grow at the end, so a merge keeps both sides (parallel sessions each add a step)
 docs/PROCESS_DOCUMENTATION.md merge=union
 docs/TECHNICAL_APPENDIX.md merge=union
+
+# Shell scripts keep Unix line endings on a Windows checkout too (they run in bash and in the containers)
+*.sh text eol=lf
+scripts/dev/* text eol=lf
