@@ -11853,6 +11853,31 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین روی `fahares_prod`:** دو اجرا (میان دو دور قاعده): ۱۱۸ تازه، ۲۸۱ پس‌گرفته، ۶۶ بازخوانی؛ سپس ۸ تازه، ۲۲ پس‌گرفته، ۲ بازخوانی. مانده: ۱٬۰۲۷ پیشنهاد، ۶۵۷ نفر (اقامت ۵۰۸، سفر ۲۴۰، تحصیل ۱۷۰، منصب ۹۰، تدریس ۱۹). اجرای سوم صفر.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر، پشتیبان `person_periods`، زیر `prod-run`):** `fahares:propose-life-periods --prune --apply`.
 - **تست:** `LifePeriodExtractorTest::test_the_errors_a_sample_of_proposals_showed_are_left_out` و حالت `--prune` در `PersonPeriodsTest`.
+
+### گام ۱۴.۲۲۸: پنج آمار تازه‌ی `App\Support\Insights` (مورد ۱۴۶)
+
+- **کلیدهای تازه‌ی داده‌ی صفحه (`Insights::CACHE_KEY` اکنون `insights.v9`):**
+  - `copies_per_work`: دسته‌ها از `insights.copy_bands`. شمار نسخه‌ی هر اثر از نسخه‌های دامنه گرفته می‌شود، نه از `works.manuscripts_count`.
+  - `century_works`: از جدول موقت `insights_work_centuries` با `ROW_NUMBER() OVER (PARTITION BY c …)`؛ سه برابر ردیف‌های نمایش خوانده می‌شود، چون عنوان‌های عام (`generic_titles`) کنار می‌روند.
+  - `unprinted`: اثر باید `author_id` داشته باشد، ستون تازه‌ی `printed` جدول موقت آثار صفر باشد، و «چاپ» در `raw_text`، `description` و `bibliography` نباشد. شرط متن تنها روی نامزدها (چهار برابر ردیف‌های نمایش) اجرا می‌شود. اثر تک‌نسخه نمی‌آید.
+  - `collections`: مجلد یعنی `library_id` و `collection_key` یکسان. کلیدی که در دامنه یک رساله دارد جدا شمرده می‌شود (`lone`). جفت‌ها تنها با شمار ۲ و بیشتر.
+  - `source_overlap`: تنها منابع `kind = library_catalogue`، مدخل‌های ردنشده، و `COUNT(DISTINCT source_id)` برای هر نسخه.
+- **جدول‌های موقت دامنه (`InsightsScope::open`):** `collection_key` به نسخه‌ها و `printed` به آثار افزوده شد.
+- **سنجش روی `fahares_prod`:** از ۲۰۰ اثر پرنسخه، ۱۶۹ اثر `print_info` دارند. از ۵۱۷ اثرِ دارای پدیدآور و بی `print_info` با ۲۰ نسخه و بیشتر، ۲۹ اثر «چاپ» را در متنشان دارند.
+- **کارایی (`fahares_prod`، ۳۲۳٬۲۴۹ نسخه):**
+
+  | مرحله | آمار کل | کتابخانه‌ی مجلس | کتابخانه‌های تهران |
+  |---|---|---|---|
+  | نخستین نسخه‌ی کد | ۴۳٫۹ ثانیه | ۱۶٫۵ | ۲۵٫۶ |
+  | پس از پالایش جفت آثار و خواندن منابع با شناسه | ۲۲٫۵ | ۱۳٫۳ | ۱۹٫۸ |
+  | پس از ایندکس `source_entries_citable_source` | ۲۰٫۲ | ۶٫۶ | ۱۳٫۳ |
+
+  - **جفت آثار هم‌مجلد:** جدول موقت نمی‌تواند با خودش join شود، پس دو رونوشت ساخته می‌شود. پیش از آن، آثاری که تنها در یک مجلدند کنار می‌روند (۱۴۳٬۹۸۳ ردیف به ۱۱۰٬۵۹۲)، و join از ۷٫۱ به ۳٫۴ ثانیه می‌رسد.
+  - **هم‌پوشانی:** join به جدول `sources` چهار برابر کندتر از `whereIn` با شناسه‌هاست (۱۳٫۱ در برابر ۳٫۶ ثانیه). در دامنه، نسخه‌های دامنه با `straightJoin` نخست خوانده می‌شوند.
+- **migration:** `2026_11_17_200001_add_citable_source_index_to_source_entries` ایندکس `(citable_type, citable_id, source_id, status)` می‌سازد. روی `fahares_prod` ساختش ۵٫۵ ثانیه بود. همان‌جا با دست ساخته شده، و migration اگر ایندکس باشد کاری نمی‌کند.
+- **آزمون:** `tests/Feature/InsightsMoreFiguresTest.php`، ۶ آزمون، هر کدام در دامنه‌ی کتابخانه‌ای که خود آزمون می‌سازد.
+- **پس از استقرار:** فرمان داده لازم نیست. ساخت شبانه کلید `insights.v9` را پر می‌کند؛ تا آن زمان نخستین بازدید صفحه آمار را می‌سازد (حدود ۲۰ ثانیه).
+
 ### گام ۱۴.۲۲۹: قاعده‌های `WorkRelationLinker::byRule`
 - **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
   - **دو گذر در `pairs()`:** گذر یکم همه‌ی مدخل‌ها را می‌خواند و `named[side][work]` را می‌سازد: کلید عنوان‌هایی که هر اثر در «وابسته به» (`related`) یا «شروح و حواشی» (`children`) نام برده است. برای مدخل بی‌نامِ «،»دار، کلید هر آغاز عنوان (`heads()`) هم افزوده می‌شود. گذر دوم برای هر اثر و هر سو، نخست تطبیق ساده‌ی عنوان و پدیدآور را برای همه‌ی مدخل‌ها می‌گیرد و اثرهای گرفته‌شده را در `$taken` می‌گذارد. سپس `match()` برای مدخل‌های مانده با `$taken` دوباره صدا می‌شود و `byRule()` را می‌خواند.
@@ -11878,6 +11903,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `linkedEntries` روی همه‌ی آثار دارای فهرست شروح: پیش از تغییر ۱۴۱ اثر یک اثر را از دو مدخل لینک می‌کردند (۲۰۴ لینک افزوده)، پس از آن صفر.
 - **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back`.
 - **اجرا در تولید، پس از استقرار:** پشتیبان `work_relations`، سپس `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`.
+
 ### گام ۱۴.۲۳۰: `Admin\PersonLifeController` و بازبینی پیوند زندگی‌نامه از نشان ⓘ
 
 - **سنجش (`fahares_prod`، ۲۵ آبان ۱۴۰۵):** ۹۰٬۴۶۰ مدخل `kind = entry` در ۹ منبع `kind = biographical`؛ ۱۶٬۲۶۰ مدخل زیر ۶۰ نویسه (ارجاع)؛ ۳٬۲۹۳ مدخل با پیوند شخص (۳٬۳۲۲ سطر، ۱٬۹۱۲ شخص، همه `person_life_by_name` و `name_death_llm`). `author_death_year` این منابع خالی است. نمونه‌ی ۶۰تایی `ORDER BY RAND(20261116)`: ۶۰ درست.
@@ -11886,29 +11912,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **نشان:** [lives.blade.php](../resources/views/components/source/lives.blade.php) متن را از `SourceEntry::machineNote()` می‌گیرد (شاخه‌ی تازه برای `citable_type = Person`) و برای سطر در انتظار بازبینی `badgeReview()` را می‌دهد. هر سطر `data-machine-item` دارد تا پس از رد پنهان شود.
 - **دیگر:** `AdminNav` (گروه «داوری»، با شمار) و `notifications:unreviewed-data`.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php`.
-### گام ۱۴.۲۲۸: پنج آمار تازه‌ی `App\Support\Insights` (مورد ۱۴۶)
 
-- **کلیدهای تازه‌ی داده‌ی صفحه (`Insights::CACHE_KEY` اکنون `insights.v9`):**
-  - `copies_per_work`: دسته‌ها از `insights.copy_bands`. شمار نسخه‌ی هر اثر از نسخه‌های دامنه گرفته می‌شود، نه از `works.manuscripts_count`.
-  - `century_works`: از جدول موقت `insights_work_centuries` با `ROW_NUMBER() OVER (PARTITION BY c …)`؛ سه برابر ردیف‌های نمایش خوانده می‌شود، چون عنوان‌های عام (`generic_titles`) کنار می‌روند.
-  - `unprinted`: اثر باید `author_id` داشته باشد، ستون تازه‌ی `printed` جدول موقت آثار صفر باشد، و «چاپ» در `raw_text`، `description` و `bibliography` نباشد. شرط متن تنها روی نامزدها (چهار برابر ردیف‌های نمایش) اجرا می‌شود. اثر تک‌نسخه نمی‌آید.
-  - `collections`: مجلد یعنی `library_id` و `collection_key` یکسان. کلیدی که در دامنه یک رساله دارد جدا شمرده می‌شود (`lone`). جفت‌ها تنها با شمار ۲ و بیشتر.
-  - `source_overlap`: تنها منابع `kind = library_catalogue`، مدخل‌های ردنشده، و `COUNT(DISTINCT source_id)` برای هر نسخه.
-- **جدول‌های موقت دامنه (`InsightsScope::open`):** `collection_key` به نسخه‌ها و `printed` به آثار افزوده شد.
-- **سنجش روی `fahares_prod`:** از ۲۰۰ اثر پرنسخه، ۱۶۹ اثر `print_info` دارند. از ۵۱۷ اثرِ دارای پدیدآور و بی `print_info` با ۲۰ نسخه و بیشتر، ۲۹ اثر «چاپ» را در متنشان دارند.
-- **کارایی (`fahares_prod`، ۳۲۳٬۲۴۹ نسخه):**
-
-  | مرحله | آمار کل | کتابخانه‌ی مجلس | کتابخانه‌های تهران |
-  |---|---|---|---|
-  | نخستین نسخه‌ی کد | ۴۳٫۹ ثانیه | ۱۶٫۵ | ۲۵٫۶ |
-  | پس از پالایش جفت آثار و خواندن منابع با شناسه | ۲۲٫۵ | ۱۳٫۳ | ۱۹٫۸ |
-  | پس از ایندکس `source_entries_citable_source` | ۲۰٫۲ | ۶٫۶ | ۱۳٫۳ |
-
-  - **جفت آثار هم‌مجلد:** جدول موقت نمی‌تواند با خودش join شود، پس دو رونوشت ساخته می‌شود. پیش از آن، آثاری که تنها در یک مجلدند کنار می‌روند (۱۴۳٬۹۸۳ ردیف به ۱۱۰٬۵۹۲)، و join از ۷٫۱ به ۳٫۴ ثانیه می‌رسد.
-  - **هم‌پوشانی:** join به جدول `sources` چهار برابر کندتر از `whereIn` با شناسه‌هاست (۱۳٫۱ در برابر ۳٫۶ ثانیه). در دامنه، نسخه‌های دامنه با `straightJoin` نخست خوانده می‌شوند.
-- **migration:** `2026_11_17_200001_add_citable_source_index_to_source_entries` ایندکس `(citable_type, citable_id, source_id, status)` می‌سازد. روی `fahares_prod` ساختش ۵٫۵ ثانیه بود. همان‌جا با دست ساخته شده، و migration اگر ایندکس باشد کاری نمی‌کند.
-- **آزمون:** `tests/Feature/InsightsMoreFiguresTest.php`، ۶ آزمون، هر کدام در دامنه‌ی کتابخانه‌ای که خود آزمون می‌سازد.
-- **پس از استقرار:** فرمان داده لازم نیست. ساخت شبانه کلید `insights.v9` را پر می‌کند؛ تا آن زمان نخستین بازدید صفحه آمار را می‌سازد (حدود ۲۰ ثانیه).
 ### گام ۱۴.۲۳۱: «ۀ» به‌جای «ه‌ی»
 
 - **جایگزینی:** الگوی `ه\u200cی(?![\u0600-\u06FF\u200c])` (هٔ بی حرف پس از آن) با «ۀ»، در `app`، `config`، `resources/views`، `resources/js`، `resources/css`، `lang`، `tests`، `routes` و `database/seeders`. پیش از آن وارسی شد که «ه‌ی» در هیچ الگوی regex یا پرس‌وجوی پایگاه داده نیست.

@@ -911,7 +911,7 @@
                 @include('insights.small', ['n' => $pw['works'], 'what' => 'اثر'])
                 @php $maxBandWorks = max([1, ...array_column($pw['bands'], 'works')]); $maxBandCopies = max([1, ...array_column($pw['bands'], 'copies')]); @endphp
                 <p class="text-xs text-muted mb-3">
-                    آثار بر پایه‌ی شمار نسخه‌هایشان{{ $scope->isEmpty() ? '' : ' در این دامنه' }}. نوار بالا شمار آثار هر دسته است و نوار پایین نسخه‌هایی که آن آثار دارند.
+                    آثار بر پایۀ شمار نسخه‌هایشان{{ $scope->isEmpty() ? '' : ' در این دامنه' }}. نوار بالا شمار آثار هر دسته است و نوار پایین نسخه‌هایی که آن آثار دارند.
                 </p>
                 <ul class="space-y-3 text-sm">
                     @foreach($pw['bands'] as $band)
@@ -960,7 +960,7 @@
                 @foreach($centuryCols as $col)
                     <div>
                         <h3 class="flex items-baseline gap-2 border-b border-line-strong pb-1 mb-2">
-                            <span class="font-naskh font-bold text-ink">سده‌ی {{ Fa::digits($col['century']) }}</span>
+                            <span class="font-naskh font-bold text-ink">سدۀ {{ Fa::digits($col['century']) }}</span>
                             <span class="text-[11px] text-muted tabular-nums">{{ Fa::num($col['count']) }} نسخه</span>
                         </h3>
                         <ol class="space-y-1.5 text-sm">
@@ -976,7 +976,7 @@
                 @endforeach
             </div>
             <p class="mt-5 text-xs text-muted leading-relaxed">
-                بر پایه‌ی {{ Fa::num($cw['counted']) }} نسخه که تاریخ کتابتشان در یک سده است. رکوردهای بی‌پدیدآوری که عنوانشان نام یک گونه‌ی متن است («اشعار»، «جنگ») نیامده‌اند.
+                بر پایۀ {{ Fa::num($cw['counted']) }} نسخه که تاریخ کتابتشان در یک سده است. رکوردهای بی‌پدیدآوری که عنوانشان نام یک گونۀ متن است («اشعار»، «جنگ») نیامده‌اند.
             </p>
         </x-ui.card>
     </x-ui.section>
@@ -985,7 +985,7 @@
     {{-- 3c. Much-copied works with no note of a printing (backlog item 146) --}}
     @php $up = $data['unprinted']; @endphp
     @if(count($up['items']) > 1)
-    <x-ui.section title="آثار پرنسخه‌ی بی نشانی چاپ" :count="count($up['items'])" id="unprinted">
+    <x-ui.section title="آثار پرنسخۀ بی نشانی چاپ" :count="count($up['items'])" id="unprinted">
         <x-ui.card class="!p-0 overflow-x-auto">
             @php $maxUnprinted = max(1, $up['items'][0]['count']); @endphp
             <table class="w-full text-sm">
@@ -1022,8 +1022,8 @@
             </table>
         </x-ui.card>
         <p class="mt-3 text-xs text-muted leading-relaxed">
-            آثارِ دارای پدیدآور که فهارس برایشان چاپی یاد نکرده است: بخش «چاپ» رکوردشان خالی است و واژه‌ی «چاپ» در متنشان نیامده.
-            این به معنای چاپ‌نشدن اثر نیست؛ فهارس چاپ همه‌ی آثار را ثبت نکرده است و تنها {{ Fa::num($up['printed']) }} اثر ({{ $pct($up['coverage']) }}){{ $scope->isEmpty() ? '' : ' در این دامنه' }} آگاهی چاپ دارند. پیش از تصحیح، چاپ اثر را در منابع دیگر هم بجویید.
+            آثارِ دارای پدیدآور که فهارس برایشان چاپی یاد نکرده است: بخش «چاپ» رکوردشان خالی است و واژۀ «چاپ» در متنشان نیامده.
+            این به معنای چاپ‌نشدن اثر نیست؛ فهارس چاپ همۀ آثار را ثبت نکرده است و تنها {{ Fa::num($up['printed']) }} اثر ({{ $pct($up['coverage']) }}){{ $scope->isEmpty() ? '' : ' در این دامنه' }} آگاهی چاپ دارند. پیش از تصحیح، چاپ اثر را در منابع دیگر هم بجویید.
         </p>
     </x-ui.section>
     @endif
@@ -1039,7 +1039,7 @@
                 @php $maxVolumes = max([1, ...array_column($col['bands'], 'volumes')]); @endphp
                 <div class="grid lg:grid-cols-2 gap-8">
                     <div>
-                        <p class="text-xs text-muted mb-3">شمار مجموعه‌ها بر پایه‌ی شمار رساله‌هایشان. میانگین {{ Fa::digits(str_replace('.', '٫', (string) $col['mean'])) }} رساله در هر مجموعه است و بزرگ‌ترین مجموعه {{ Fa::num($col['largest']) }} رساله دارد.</p>
+                        <p class="text-xs text-muted mb-3">شمار مجموعه‌ها بر پایۀ شمار رساله‌هایشان. میانگین {{ Fa::digits(str_replace('.', '٫', (string) $col['mean'])) }} رساله در هر مجموعه است و بزرگ‌ترین مجموعه {{ Fa::num($col['largest']) }} رساله دارد.</p>
                         <ul class="space-y-2.5 text-sm">
                             @foreach($col['bands'] as $band)
                                 @continue($band['volumes'] === 0)
@@ -1084,7 +1084,7 @@
                 </div>
                 <p class="mt-5 text-xs text-muted leading-relaxed">
                     {{ Fa::num($col['copies']) }} نسخه ({{ $pct($col['coverage']) }} نسخه‌ها) رساله‌ای از {{ Fa::num($col['volumes']) }} مجموعه‌اند.
-                    مجموعه از شماره‌ی نسخه شناخته می‌شود: رساله‌هایی از یک کتابخانه که شماره‌ی مجلدشان یکی است («۳۸۵۲/۴» و «۳۸۵۲/۵»).
+                    مجموعه از شمارۀ نسخه شناخته می‌شود: رساله‌هایی از یک کتابخانه که شمارۀ مجلدشان یکی است («۳۸۵۲/۴» و «۳۸۵۲/۵»).
                     @if($col['lone'] > 0){{ Fa::num($col['lone']) }} مجلد که{{ $scope->isEmpty() ? '' : ' در این دامنه' }} تنها یک رساله‌شان هست شمرده نشده‌اند.@endif
                     @unless($scope->isEmpty())در یک دامنه، تنها رساله‌هایی از هر مجموعه شمرده می‌شوند که در همان دامنه‌اند.@endunless
                 </p>
@@ -1237,7 +1237,7 @@
             @php $maxOverlap = max([1, ...$ov['counts']]); @endphp
             <div class="grid lg:grid-cols-2 gap-8">
                 <div>
-                    <p class="text-xs text-muted mb-3">شمار فهرست‌های کتابخانه‌ای که هر نسخه را وصف کرده‌اند، جدا از فنخا که همه‌ی نسخه‌ها را دارد.</p>
+                    <p class="text-xs text-muted mb-3">شمار فهرست‌های کتابخانه‌ای که هر نسخه را وصف کرده‌اند، جدا از فنخا که همۀ نسخه‌ها را دارد.</p>
                     <ul class="space-y-2.5 text-sm">
                         @foreach(['تنها در فنخا', 'یک فهرست', 'دو فهرست', 'سه فهرست و بیشتر'] as $k => $name)
                             @continue($ov['counts'][$k] === 0)
@@ -1256,7 +1256,7 @@
                 </div>
                 <div>
                     @if($ov['pairs'])
-                        <p class="text-xs text-muted mb-3">فهرست‌هایی که بیشترین نسخه‌ی مشترک را دارند.</p>
+                        <p class="text-xs text-muted mb-3">فهرست‌هایی که بیشترین نسخۀ مشترک را دارند.</p>
                         <ol class="space-y-2.5 text-sm">
                             @foreach($ov['pairs'] as $pair)
                                 <li class="flex items-baseline gap-2">
@@ -1276,7 +1276,7 @@
                 </div>
             </div>
             <p class="mt-5 text-xs text-muted leading-relaxed">
-                {{ Fa::num($ov['several']) }} نسخه در بیش از یک فهرست کتابخانه وصف شده‌اند: بیشتر، فهرست کهنه و فهرست تازه‌ی یک کتابخانه، یا فهرست نسخه‌های اصل و فهرست عکس‌ها و میکروفیلم‌هایشان.
+                {{ Fa::num($ov['several']) }} نسخه در بیش از یک فهرست کتابخانه وصف شده‌اند: بیشتر، فهرست کهنه و فهرست تازۀ یک کتابخانه، یا فهرست نسخه‌های اصل و فهرست عکس‌ها و میکروفیلم‌هایشان.
                 فهرستی که هنوز به فهارس افزوده نشده در این شمارش نیست.
             </p>
         </x-ui.card>

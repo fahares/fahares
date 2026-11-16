@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class DateConflict extends Model
 {
-    public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت', 'period' => 'دوره‌ی زندگی'];
+    public const FIELD_LABELS = ['birth' => 'تولد', 'death' => 'وفات', 'composition' => 'تألیف', 'copy' => 'کتابت', 'period' => 'دورۀ زندگی'];
 
     /** What is wrong, by the rule and the two dates it ties: rule => [a_field > b_field => label]. */
     public const LABELS = [
@@ -44,7 +44,7 @@ class DateConflict extends Model
         Loader::RULE_PATRON => 'بانی',
         Loader::RULE_LIFE => 'عمر',
         Loader::RULE_DERIVED => 'اثر وابسته',
-        Loader::RULE_PERIOD => 'دوره‌ی زندگی',
+        Loader::RULE_PERIOD => 'دورۀ زندگی',
     ];
 
     public $timestamps = false;

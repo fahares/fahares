@@ -68,7 +68,7 @@ class PersonLivesReviewTest extends TestCase
             ->assertSee('data-machine-item="' . $tie->reviewKey() . '"', false);
 
         $this->postJson(route('admin.catalog-references.verify', $tie))->assertOk()
-            ->assertJsonPath('status', SourceEntry::STATUS_VERIFIED)->assertJsonPath('message', 'زندگی‌نامه‌ی «' . $person->name . '» تأیید شد.');
+            ->assertJsonPath('status', SourceEntry::STATUS_VERIFIED)->assertJsonPath('message', 'زندگی‌نامۀ «' . $person->name . '» تأیید شد.');
         $this->assertSame($this->admin()->id, $tie->fresh()->reviewed_by);
         $this->get(route('people.show', $person))->assertOk()->assertSee('زندگی‌نامه در منابع')->assertDontSee('data-machine-badge=', false);
 
