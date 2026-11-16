@@ -11367,6 +11367,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان ستون‌های `TextRefresh::COLUMNS` مأخذهای منبع ۱۰۰۰۲۰، و ستون `extractor` منبع.
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:take-texts 100020 --extractor=numbered_copies'`.
   3. اجرای دوم باید «taken 0» بدهد.
+
 ### گام ۱۴.۲۰۷: `App\Support\PersonPlaces` و بخش «حضور در شهرها»
 
 - **منبع:** `manuscript_people` با نقش `scribe` و نسخه‌ی دارای `copy_place`؛ `work_people` با نقش `author` (بی `certainty`) و اثرِ دارای `composition_place`.
