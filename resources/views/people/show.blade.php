@@ -127,6 +127,35 @@
             </x-ui.section>
             </div>
 
+            {{-- Where the person was and when, read from their dated copies and works that name a place (item 137, step 14.207) --}}
+            @php $places = \App\Support\PersonPlaces::for($person); @endphp
+            @if($places)
+                <x-ui.section title="حضور در شهرها" :count="count($places)">
+                    <p class="text-xs text-muted mb-3">از محل و سالِ کتابت نسخه‌ها و تألیف آثار این شخص. نوشته‌ی خود فهرست، اگر با نام شهر فرق دارد، کنار هر شاهد آمده است.</p>
+                    <ul class="divide-y divide-line border-y border-line text-sm">
+                        @foreach($places as $place)
+                            <li>
+                                <details class="group">
+                                    <summary class="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2 cursor-pointer list-none">
+                                        <span class="font-semibold text-ink">{{ $place['place'] }}</span>
+                                        <span class="tabular-nums text-ink">{{ Fa::digits($place['from'] === $place['to'] ? $place['from'] : $place['from'] . '–' . $place['to']) }} ق</span>
+                                        <span class="text-xs text-muted ms-auto">{{ Fa::num($place['count']) }} شاهد <span aria-hidden="true" class="inline-block transition group-open:rotate-180">▾</span></span>
+                                    </summary>
+                                    <ul class="pb-3 ps-3 space-y-1 text-[13px]">
+                                        @foreach($place['items'] as $item)
+                                            <li><span class="tabular-nums">{{ Fa::digits($item['years']) }}</span> · <span class="text-muted">{{ $item['what'] }}:</span> <a href="{{ $item['url'] }}" class="text-cinnabar hover:underline">{{ $item['title'] }}</a>@if($item['text']) <span class="text-muted">(«{{ $item['text'] }}»)</span>@endif</li>
+                                        @endforeach
+                                        @if($place['count'] > count($place['items']))
+                                            <li class="text-muted">و {{ Fa::num($place['count'] - count($place['items'])) }} شاهد دیگر</li>
+                                        @endif
+                                    </ul>
+                                </details>
+                            </li>
+                        @endforeach
+                    </ul>
+                </x-ui.section>
+            @endif
+
             @if(! $tabs)
                 <p class="text-sm text-muted">اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.</p>
             @endif

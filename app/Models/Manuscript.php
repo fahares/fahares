@@ -179,6 +179,10 @@ class Manuscript extends Model
                 $manuscript->forceFill(self::copyDateColumns($manuscript->copy_date_raw, $death, $floor, $shared));
                 $manuscript->forceFill(self::rereadSortYear($manuscript->only(['copy_date_from', 'copy_date_to', 'copy_date_hedge_raw'])));
             }
+            // The city the place of copying names, beside its text (item 137, step 14.209)
+            if ($manuscript->isDirty('copy_place')) {
+                $manuscript->copy_city = \App\Support\CopyPlaces::cityOf($manuscript->copy_place);
+            }
             // The sort/collection key is the shelfmark cut to the indexed length
             if ($manuscript->isDirty('shelfmark') && ! $manuscript->isDirty('shelfmark_key')) {
                 $manuscript->shelfmark_key = $manuscript->shelfmark === null ? null : mb_substr($manuscript->shelfmark, 0, 100);

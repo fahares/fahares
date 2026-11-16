@@ -50,6 +50,7 @@ class RefreshDerivedCommand extends Command
         $this->call('fahares:fill-copy-date-ranges', ['--apply' => true, '--show' => 3]);
         $this->call('fahares:fill-copy-date-ranges', ['--works' => true, '--apply' => true, '--show' => 3]);
         $this->call('fahares:fill-extents', ['--apply' => true, '--show' => 3]);
+        $this->call('fahares:fill-place-cities', ['--apply' => true, '--show' => 0]);
         $this->call('fahares:fill-collection-keys', ['--apply' => true, '--show' => 3]);
         $this->call('fahares:link-plain-volumes', ['--apply' => true, '--show' => 3]);
         $this->call('fahares:backfill-work-dedications', ['--show' => 3]);

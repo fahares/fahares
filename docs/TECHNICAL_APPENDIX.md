@@ -11327,3 +11327,25 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **MariaDB:** در Coolify، `StandaloneMariadb` با uuid `ywghcqimp5628ge4tygusi8q`، فیلد `mariadb_conf` را گرفت: `[mysqld]` و `innodb_buffer_pool_size = 4G`. این فیلد تنها با ریستارت پایگاه داده در Coolify اعمال می‌شود.
 - **php-fpm (`docker/php-fpm.conf`):** `pm.max_children` ۶ به ۱۲، `start_servers` ۴، `min_spare_servers` ۳ و `max_spare_servers` ۶. هر کارگر حدود ۱۰۰ MB، پس ۱۲ کارگر حدود ۱٫۲ GB.
 - **بودجه‌ی حافظه:** InnoDB ۴ GB، Meilisearch تا ۳ GB، php-fpm حدود ۱٫۲ GB، Coolify و سرویس‌های دیگر حدود ۱ GB؛ دست‌کم ۲ GB برای کش سیستم‌عامل می‌ماند.
+
+### گام ۱۴.۲۰۷: `App\Support\PersonPlaces` و بخش «حضور در شهرها»
+
+- **منبع:** `manuscript_people` با نقش `scribe` و نسخه‌ی دارای `copy_place`؛ `work_people` با نقش `author` (بی `certainty`) و اثرِ دارای `composition_place`.
+- **تاریخ:** `from = to`، یا `kind = span` با دو سر (`DateSpan`، گام ۱۴.۱۸۸). متن سال از `DateSpan::brief()`.
+- **کنار رفته:** `copy_date_certainty` یا `composition_date_certainty` پر؛ `is_facsimile`؛ متن مکان بلندتر از ۶۰ نویسه (`MAX_PLACE`)؛ مکان با «؟»، «احتمال»، «محتمل»، «ظاهرا»، «گویا»، «شاید»؛ همه‌ی نسخه‌های کاتبی که `scribed_to − scribed_from` از `PersonReviewQueue::MIXED_SPAN` (۷۰) بیشتر است؛ شاهدِ پس از `death_to` یا پیش از `birth_year_hijri`.
+- **خروجی:** مکان‌ها به ترتیب نخستین سال؛ هر مکان `from`، `to`، `count` و تا ۱۲ شاهد (`SHOWN`) با سال، نوع («کتابت»، «تألیف»)، عنوان و پیوند.
+- **نمایش:** `resources/views/people/show.blade.php`، پس از زندگی‌نامه‌ی کوتاه؛ هر مکان یک `<details>`.
+- **سنجش روی `fahares_prod` (مورد ۱۳۷):** ۱۳٬۷۲۴ نسخه برای ۹٬۳۷۵ کاتب و ۱٬۷۱۱ اثر برای ۱٬۰۹۹ مؤلف، پیش از قاعده‌های کنارگذاری.
+- **تست:** `PersonPlacesTest` (دو آزمون نخست و سوم).
+
+### گام ۱۴.۲۰۹: `copy_city` و `composition_city`، و `fahares:fill-place-cities`
+
+- **مهاجرت `2026_11_16_100001_add_city_codes_to_copy_and_composition_places`:** دو ستون `string(40)` تهی‌پذیر با نمایه. روی رونوشت محلیِ زیر بار ۵۱ ثانیه طول کشید (ساخت نمایه روی ۳۲۳ هزار نسخه)؛ در پروداکشن migrate پیش از آغاز وب‌سرور اجرا می‌شود (گام ۱۴.۱۸۲).
+- **مقدار:** `CopyPlaces::cityOf(متن)`: شهری که نامش، یا نام دیگرش در `config/insights.php` (`copy_places`)، زودتر از بقیه به‌صورت واژه‌ی کامل در متن می‌آید. «اصفهان مدرسه جده» ← «اصفهان»، «قمصر کاشان» ← «قمصر»، «ایران» ← تهی.
+- **هم‌گامی:** قلاب `saving` در `Manuscript` و `Work` وقتی متن مکان عوض شود. فرمان‌های corpus با `DB::table` می‌نویسند؛ `fahares:refresh-derived --apply` فرمان پرکننده را صدا می‌زند.
+- **`fahares:fill-place-cities [--apply]`:** رکوردها را دسته‌دسته با شناسه می‌خواند، شهر هر متن را یک بار حساب می‌کند و با `whereIn(id)` می‌نویسد (ستون مکان نمایه ندارد؛ نسخه‌ی نخست که با متن مکان می‌نوشت در پنج دقیقه تمام نشد). مکانِ خالی‌شده شهرش را از دست می‌دهد. پس از نوشتن، نهانگاه `CopyPlaces::variantMap` تازه می‌شود. پس از هر تغییر فهرست شهرها باید دوباره اجرا شود.
+- **تمرین روی `fahares_prod`:** ۱۸٬۳۳۹ نسخه و ۱٬۵۸۹ اثر؛ ۱ دقیقه و ۱۵ ثانیه؛ اجرای دوم صفر.
+- **پرشمارترین متن‌های بی‌شهر:** «ایران» ۱۰۵، «هندوستان» ۷۸، «هند» ۲۷، «خراسان» ۲۶، «ترکیه عثمانی» ۱۹، «کتابخانه آصفیه» ۱۹، «مدرسه صادقیه» ۱۴، «ساوج» ۱۳، «ادرنه» ۱۰. کشور و ناحیه به‌عمد در فهرست نیستند (نقطه‌ای روی نقشه ندارند)؛ شهرهای جامانده (ادرنه، ایروان، شاهرود، موصل، عظیم‌آباد) باید با مختصات به `copy_places` افزوده شوند.
+- **آنچه هنوز از ستون نمی‌خواند:** فیلتر «شهر کتابت» جست‌وجو و صفحه‌ی آمار همچنان از `CopyPlaces::variants` (فهرست متن‌های هر شهر) می‌خوانند. نتیجه یکی است؛ بردنشان روی ستون کار بعدی است.
+- **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان، زیر `prod-run`):** `fahares:fill-place-cities --apply`.
+- **تست:** `PersonPlacesTest::test_the_city_of_a_place_text_is_stored_beside_it_and_kept_in_step`.
