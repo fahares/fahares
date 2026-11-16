@@ -31,6 +31,7 @@ class CollectiveReview
         'namesake' => NamesakeQueue::class,
         'mixed' => MixedRecordQueue::class,
         'author' => AuthorLinkQueue::class,
+        'date' => DateConflictQueue::class,
     ];
 
     /** Queues whose items are decided only in the panel's queue, never by approving an answer on the desk. */
