@@ -10899,6 +10899,7 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 
 - **آثار (۴):** «در 18 ذیحجه 1351ق (25 فروردین 1312)»، «… 471 … سال 469 یزدگردی»، «… 810ق … (4 آذرماه 782 یزدگردی)»، «چهارشنبه 12 اردیبهشت 1352 مطابق با 26 ربیع الاول 1393ق».
 - **مانده:** دو نسخه‌ای که فقط سال یزدگردی دارند بازه ندارند؛ تبدیل یزدگردی به قمری ساخته نشد.
+- **ثبت دستی دو نسخه (۲۵ آبان ۱۴۰۵، با تأیید کاربر، زیر `prod-run`):** #۱۲۲۲۲۹ «11 بهمن ماه الهی 996 یزدجرد بن شهریار» ← «… = 1036ق» (نُه نسخه‌ی دیگر همین تاریخ را ۱۰۳۶ نوشته‌اند)؛ #۱۶۶۴۱۴ «1240 یزدگردی» ← «1240 یزدگردی = 1287 یا 1288ق» (سال ۱۲۴۰ یزدگردی از اوت ۱۸۷۰ تا اوت ۱۸۷۱ است؛ همین حساب برای «1250 یزدگردی = 1298ق» درست درمی‌آید). با `Manuscript::update` (بازه و سال مرتب‌سازی از قلاب ذخیره) و یک لاگ `verify` با `direct_edit`، تا `ProtectedColumns` متن را از فرمان‌های corpus نگه دارد. پیش و پس در `../fahares-sources/backups/step13/step14_207_yazdgerdi_dates_before_after.jsonl`.
 - **فرمان پروداکشن پس از انتشار (با تأیید کاربر و پشتیبان):** `fahares:fill-copy-date-ranges --apply`، سپس با `--works`.
 - **تست:** `CopyDateRangeTest::test_a_second_number_that_is_no_date_of_the_copy_is_left_out` و `ApplyCorpusCategoriesCommandTest::test_the_sort_year_follows_a_range_that_drops_a_number_the_text_no_longer_gives_as_a_year`.
 
