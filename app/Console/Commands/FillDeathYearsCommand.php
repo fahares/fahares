@@ -36,6 +36,10 @@ class FillDeathYearsCommand extends Command
             ->chunkById(5000, function ($people) use ($apply, &$counts) {
                 $updates = [];
                 foreach ($people as $p) {
+                    // the century of a life and the dates of another calendar have commands of their own (steps 14.213, 14.214)
+                    if (Person::lifeCentury($p->life_dates_raw) !== null || Person::lifeCalendar($p->life_dates_raw) !== null) {
+                        continue;
+                    }
                     $old = [];
                     foreach (self::COLUMNS as $column) {
                         $old[$column] = is_numeric($p->{$column}) ? (int) $p->{$column} : $p->{$column};
