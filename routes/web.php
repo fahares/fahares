@@ -352,6 +352,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/catalog-references/{reference}/reject', [AdminCatalogReferenceController::class, 'reject'])->name('catalog-references.reject');
         Route::post('/catalog-references/{reference}/reopen', [AdminCatalogReferenceController::class, 'reopen'])->name('catalog-references.reopen');
 
+        // Lives in the books of lives tied to people by machine (step 14.230): verified and rejected by the routes above
+        Route::get('/person-lives', [\App\Http\Controllers\Admin\PersonLifeController::class, 'index'])->name('person-lives.index');
+
         // Works tied by machine to a printed entry of a bibliography (step 13.72): verify, reject or move to another entry
         Route::get('/source-links', [\App\Http\Controllers\Admin\SourceLinkController::class, 'index'])->name('source-links.index');
         Route::post('/source-links/bulk-verify', [\App\Http\Controllers\Admin\SourceLinkController::class, 'bulkVerify'])->name('source-links.bulk-verify');

@@ -13,7 +13,7 @@ class SearchExportTest extends TestCase
 {
     public function test_the_results_are_exported_with_their_filter_and_order(): void
     {
-        $library = Library::create(['name' => 'کتابخانه‌ی خروجی', 'city' => 'قم', 'slug' => 'export-lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ خروجی', 'city' => 'قم', 'slug' => 'export-lib-' . uniqid()]);
         $work = Work::create(['primary_title' => 'اثر خروجی', 'clean_title' => 'اثر خروجی', 'slug' => 'export-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         foreach (['E-900' => 900, 'E-500' => 500] as $shelfmark => $year) {
             Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark, 'copy_date_hijri_year' => $year,
@@ -40,7 +40,7 @@ class SearchExportTest extends TestCase
         \Illuminate\Support\Facades\Storage::fake('public');
         \Illuminate\Support\Facades\Notification::fake();
         $user = \App\Models\User::create(['name' => 'پژوهشگر خروجی', 'email' => 'queued-export@fahares.net', 'password' => 'password123', 'role' => 'user']);
-        $library = Library::create(['name' => 'کتابخانه‌ی صف', 'city' => 'قم', 'slug' => 'queue-lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ صف', 'city' => 'قم', 'slug' => 'queue-lib-' . uniqid()]);
         $work = Work::create(['primary_title' => 'اثر صف', 'clean_title' => 'اثر صف', 'slug' => 'queue-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         foreach (['Q-2' => 1100, 'Q-1' => 900] as $shelfmark => $year) {
             Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark, 'copy_date_hijri_year' => $year,

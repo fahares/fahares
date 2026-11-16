@@ -52,7 +52,7 @@ class Manuscript extends Model
         }
         $pages = ! $this->folios && $this->pages;
         if ($this->range_from === $this->range_to) {
-            return ($pages ? 'صفحه‌ی ' : 'برگ ') . \App\Support\Fa::digits($this->range_from);
+            return ($pages ? 'صفحۀ ' : 'برگ ') . \App\Support\Fa::digits($this->range_from);
         }
 
         return ($pages ? 'صفحه‌های ' : 'برگ‌های ') . \App\Support\Fa::digits($this->range_from) . ' تا ' . \App\Support\Fa::digits($this->range_to);

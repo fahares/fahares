@@ -15,12 +15,12 @@
 <x-admin.filters :action="route('admin.people.index')" :reset="($search || $role || $century) ? route('admin.people.index') : null" :total="$people->total()" noun="شخص">
     <input type="search" name="q" value="{{ $search }}" placeholder="نام، کنیه یا لقب" aria-label="جست‌وجوی نام" class="admin-field flex-1 basis-48">
     <select name="role" aria-label="نقش" class="admin-field">
-        <option value="">همه‌ی نقش‌ها</option>
+        <option value="">همۀ نقش‌ها</option>
         <option value="author" @selected($role === 'author')>مؤلف</option>
         <option value="scribe" @selected($role === 'scribe')>کاتب</option>
     </select>
     <select name="century" aria-label="قرن" class="admin-field">
-        <option value="">همه‌ی قرن‌ها</option>
+        <option value="">همۀ قرن‌ها</option>
         @for($c = 1; $c <= 15; $c++)
             <option value="{{ $c }}" @selected($century == $c)>قرن {{ $fa($c) }}</option>
         @endfor

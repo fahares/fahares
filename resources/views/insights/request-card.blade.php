@@ -18,7 +18,7 @@
                 const link = document.createElement('button');
                 link.type = 'button';
                 link.className = 'text-xs text-muted hover:text-cinnabar underline decoration-dotted underline-offset-4 cursor-pointer';
-                link.textContent = 'پیشنهاد درباره‌ی این نمودار';
+                link.textContent = 'پیشنهاد دربارۀ این نمودار';
                 link.addEventListener('click', () => this.ask(name));
                 head.parentElement.appendChild(link);
             });
@@ -78,7 +78,7 @@
             </p>
 
             <p x-show="section" x-cloak class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="text-muted">درباره‌ی نمودار:</span>
+                <span class="text-muted">دربارۀ نمودار:</span>
                 <span class="px-2.5 py-0.5 rounded-full border border-gold text-ink" x-text="section"></span>
                 <button type="button" @click="section = ''" class="text-muted hover:text-cinnabar cursor-pointer" aria-label="برداشتن نام نمودار">✕</button>
             </p>
@@ -100,12 +100,12 @@
                 <div class="space-y-1">
                     <label for="stats-question" class="block font-semibold text-ink">برای پاسخ به چه پرسشی؟ <span class="font-normal text-muted">(اختیاری)</span></label>
                     <textarea id="stats-question" x-model="question" rows="2" maxlength="1000" class="{{ $inputClass }}"
-                              placeholder="مثلاً: آیا تذهیب در دوره‌ی صفوی رایج‌تر شد؟"></textarea>
+                              placeholder="مثلاً: آیا تذهیب در دورۀ صفوی رایج‌تر شد؟"></textarea>
                 </div>
                 <div class="space-y-1">
                     <label for="stats-example" class="block font-semibold text-ink">نمونه یا توضیح <span class="font-normal text-muted">(اختیاری)</span></label>
                     <textarea id="stats-example" x-model="example" rows="2" maxlength="2000" class="{{ $inputClass }}"
-                              placeholder="نموداری که در جای دیگری دیده‌اید، یا شیوه‌ی شمارشی که در نظر دارید"></textarea>
+                              placeholder="نموداری که در جای دیگری دیده‌اید، یا شیوۀ شمارشی که در نظر دارید"></textarea>
                 </div>
             </div>
 

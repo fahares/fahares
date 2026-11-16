@@ -76,11 +76,11 @@ class ReviewDeskTest extends TestCase
             ->assertSee('data-diff="del">محمدمهدی</del>', false);
 
         $words = implode(' ', array_map(fn ($i) => 'کلمه' . \App\Support\Fa::digits($i), range(1, 80)));
-        $long = $this->suggestion($work, ['field_name' => 'description', 'current_value' => $words, 'suggested_value' => str_replace('کلمه۴۰ ', 'واژه‌ی تازه ', $words)]);
+        $long = $this->suggestion($work, ['field_name' => 'description', 'current_value' => $words, 'suggested_value' => str_replace('کلمه۴۰ ', 'واژۀ تازه ', $words)]);
         $html = $this->actingAs($this->admin)->get(route('admin.suggestions.show', $long))->assertOk()->getContent();
         $diff = $this->section($html, 'data-diff-table');
         $this->assertStringContainsString('data-diff="gap"', $diff);
-        $this->assertStringContainsString('واژه‌ی تازه', $diff);
+        $this->assertStringContainsString('واژۀ تازه', $diff);
         $this->assertStringNotContainsString('کلمه۱ ', $diff);
         $this->assertStringContainsString('متن کامل دو مقدار', $html);
     }
@@ -125,13 +125,13 @@ class ReviewDeskTest extends TestCase
 
         // a long text shows its changed words, not the start both share
         $words = implode(' ', array_map(fn ($i) => 'کلمه' . \App\Support\Fa::digits($i), range(1, 30)));
-        $this->suggestion($work, ['field_name' => 'description', 'current_value' => $words, 'suggested_value' => str_replace('کلمه۲۰ ', 'واژه‌ی تازه ', $words)]);
+        $this->suggestion($work, ['field_name' => 'description', 'current_value' => $words, 'suggested_value' => str_replace('کلمه۲۰ ', 'واژۀ تازه ', $words)]);
         $html = $this->actingAs($this->admin)->get(route('admin.suggestions.index'))->assertOk()->getContent();
         $start = strpos($html, 'data-change');
         $this->assertNotFalse($start);
         $change = substr($html, $start, strpos($html, '</td>', $start) - $start);
         $this->assertStringContainsString('data-diff="del">کلمه۲۰</del>', $change);
-        $this->assertStringContainsString('data-diff="ins">واژه‌ی تازه</ins>', $change);
+        $this->assertStringContainsString('data-diff="ins">واژۀ تازه</ins>', $change);
         $this->assertStringNotContainsString('کلمه۱ ', $change);
 
         $this->actingAs($this->admin)->get(route('admin.dashboard'))->assertOk()

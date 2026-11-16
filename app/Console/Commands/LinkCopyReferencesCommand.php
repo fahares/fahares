@@ -140,7 +140,7 @@ class LinkCopyReferencesCommand extends Command
             // photograph above, which names it
             if (! $mother) {
                 $mother = $above;
-                $note = trim('نسخه‌ی بالا خود عکسی است و هر دو عکسِ یک نسخه‌اند. ' . $note);
+                $note = trim('نسخۀ بالا خود عکسی است و هر دو عکسِ یک نسخه‌اند. ' . $note);
             }
             $this->relate($copy, $mother, 'facsimile_of', $hedged ? trim('احتمالی. ' . $note) : ($note ?: null));
             if (! $copy->is_facsimile) {
@@ -157,7 +157,7 @@ class LinkCopyReferencesCommand extends Command
 
         $root = $this->rootOf($above);
         if ($root->is_facsimile) {
-            $this->relate($copy, $root, 'possibly_same', 'فنخا: «همان نسخه بالا»؛ نسخه‌ی بالا عکسی است');
+            $this->relate($copy, $root, 'possibly_same', 'فنخا: «همان نسخه بالا»؛ نسخۀ بالا عکسی است');
 
             return $this->note($id, $root->id, 'possibly_same', 'the copy above is a photograph');
         }
@@ -298,7 +298,7 @@ class LinkCopyReferencesCommand extends Command
                 'credit_name' => mb_substr('فهرست ' . ($citation ?: $former->library), 0, 120),
                 'status' => 'approved',
                 'standing' => 'alternative',
-                'public_note' => sprintf('قول فهرست دیگرِ همین نسخه (%s، شماره‌ی %s%s)، در یکی شدن دو معرفی آن.',
+                'public_note' => sprintf('قول فهرست دیگرِ همین نسخه (%s، شمارۀ %s%s)، در یکی شدن دو معرفی آن.',
                     $former->library, $former->shelfmark ?? '—', $citation ? '؛ ' . $citation : ''),
                 'resolution' => ['applied' => false, 'origin' => 'copy_merge', 'merged_manuscript_id' => $former->id],
                 'reviewed_at' => now(),

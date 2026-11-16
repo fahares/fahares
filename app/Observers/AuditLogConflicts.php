@@ -45,7 +45,7 @@ class AuditLogConflicts
                 'تغییر رکوردی که پیشنهاد در انتظار دارد',
                 [
                     ($log->user?->name ?? 'خط فرمان سرور') . " این رکورد را {$action} کرد: " . ($described['label'] ?? AuditLog::TYPE_LABELS[$log->auditable_type] ?? 'رکورد') . " #{$log->auditable_id}",
-                    "{$pending} پیشنهاد درباره‌ی آن در انتظار داوری است؛ پیش از داوری، رکورد را دوباره ببینید.",
+                    "{$pending} پیشنهاد دربارۀ آن در انتظار داوری است؛ پیش از داوری، رکورد را دوباره ببینید.",
                 ],
                 route('admin.suggestions.index'),
                 'میز داوری',

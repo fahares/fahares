@@ -388,7 +388,7 @@
                         <span class="font-naskh text-3xl font-bold text-amber-100">فهارس</span>
                     </div>
                     <p class="text-stone-400 text-sm leading-relaxed text-justify">
-                        سامانه‌ی جامع کاوش در میراث مکتوب ایران و جهان اسلام، بر پایه‌ی فهرست‌های معتبر نسخه‌های خطی. داده‌های آثار، نسخه‌ها، پدیدآوران، کاتبان و کتابخانه‌ها از این فهرست‌ها گرد آمده و هر داده به مأخذ خود ارجاع دارد. منابع تازه به‌تدریج افزوده می‌شوند.
+                        سامانۀ جامع کاوش در میراث مکتوب ایران و جهان اسلام، بر پایۀ فهرست‌های معتبر نسخه‌های خطی. داده‌های آثار، نسخه‌ها، پدیدآوران، کاتبان و کتابخانه‌ها از این فهرست‌ها گرد آمده و هر داده به مأخذ خود ارجاع دارد. منابع تازه به‌تدریج افزوده می‌شوند.
                     </p>
                     <div class="flex flex-wrap items-center gap-3 pt-2 text-xs text-amber-200/80">
                         <a href="mailto:info@fahares.net" class="hover:text-amber-300 flex items-center gap-1.5 text-amber-300 font-sans font-medium">

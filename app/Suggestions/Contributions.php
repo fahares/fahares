@@ -300,7 +300,7 @@ class Contributions
                 // with the leaves it had in the former volume, when it was one treatise of a collection (step 14.80)
                 'line' => ['در یکی شدن دو معرفی این نسخه، معرفی «' . ($place ?: 'نامشخص') . '»'
                     . (($extent = \App\Support\FormerLocation::extent($f)) ? '، ' . $extent : '') . ($catalog !== '' ? ' (' . $catalog . ')' : '')
-                    . ' در این رکورد ادغام شد. فنخا درباره‌ی آن نوشته است: «همان نسخه بالا».'],
+                    . ' در این رکورد ادغام شد. فنخا دربارۀ آن نوشته است: «همان نسخه بالا».'],
                 'children' => $own->map(fn ($r) => ['قول ' . $r['contributor']['name'] . ' برای «' . $r['action'] . '»: «', $r['after']['label'] ?? '', '»'])->values()->all(),
                 'claimed' => $own->keys()->all(),
             ];
@@ -335,12 +335,12 @@ class Contributions
         if ($apply === 'move') {
             $from = $resolution['from_work_id'] ?? null;
             $to = $resolution['work_id'] ?? null;
-            $subject = $own ? [$self] : ['نسخه‌ی ', ['label' => '«' . ($item['record']['label'] ?? 'نامشخص') . '»', 'url' => $item['record']['url'] ?? null]];
+            $subject = $own ? [$self] : ['نسخۀ ', ['label' => '«' . ($item['record']['label'] ?? 'نامشخص') . '»', 'url' => $item['record']['url'] ?? null]];
 
             return $flat([$subject, ' از ', $workRef($from, $item['before']), ' به ', $workRef($to, $item['after']), ' منتقل شد.']);
         }
         if ($apply === 'relocate') {
-            $subject = $own ? [$self] : ['نسخه‌ی ', ['label' => '«' . ($item['record']['label'] ?? 'نامشخص') . '»', 'url' => $item['record']['url'] ?? null]];
+            $subject = $own ? [$self] : ['نسخۀ ', ['label' => '«' . ($item['record']['label'] ?? 'نامشخص') . '»', 'url' => $item['record']['url'] ?? null]];
 
             return $flat([$subject, $item['before'] ? [' از «', $item['before']['label'], '»'] : '', ' به ', $item['after'] ? ['«', $quote($item['after']), '»'] : 'جای تازه', ' منتقل شد.']);
         }

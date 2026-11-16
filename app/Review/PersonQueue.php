@@ -40,7 +40,7 @@ abstract class PersonQueue extends ReviewQueue
             ksort($centuries);
 
             return ['century' => ['label' => 'سده', 'options' => collect($centuries)
-                ->mapWithKeys(fn ($n, $c) => [$c => 'سده‌ی ' . Fa::digits((string) $c) . ' (' . Fa::num($n) . ')'])->all()]];
+                ->mapWithKeys(fn ($n, $c) => [$c => 'سدۀ ' . Fa::digits((string) $c) . ' (' . Fa::num($n) . ')'])->all()]];
         });
     }
 

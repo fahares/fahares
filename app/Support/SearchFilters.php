@@ -60,8 +60,8 @@ class SearchFilters
         'has_marginal_notes' => 'دارای حواشی',
         'has_author_marginalia' => 'حواشی مؤلف',
         'is_collated' => 'مقابله‌شده',
-        'copied_from_author_copy' => 'کتابت از روی نسخه‌ی مؤلف',
-        'collated_with_author_copy' => 'مقابله با نسخه‌ی مؤلف',
+        'copied_from_author_copy' => 'کتابت از روی نسخۀ مؤلف',
+        'collated_with_author_copy' => 'مقابله با نسخۀ مؤلف',
         'corrected_by_author' => 'مقابله یا تصحیح به دست مؤلف',
     ];
 
@@ -421,12 +421,12 @@ class SearchFilters
                 'source_id' => ($this->type === 'sources' ? 'در ' : 'یادشده در ') . ($this->source->short_name ?: $this->source->title),
                 'volume' => 'جلد ' . $fa($value),
                 'has_autograph' => 'دارای دستخط مؤلف',
-                'estimates' => $this->type === 'authors' ? 'با سده‌ی فعالیت (تخمینی)' : 'با تاریخ‌های تخمینی تألیف',
+                'estimates' => $this->type === 'authors' ? 'با سدۀ فعالیت (تخمینی)' : 'با تاریخ‌های تخمینی تألیف',
                 // «فهرست مرعشی ج ۳»; a book in one volume, by its title alone
                 'source_volume_id' => 'در فهرست: ' . ($this->sourceVolume->source->short_name ?: $this->sourceVolume->source->title)
                     . ($this->sourceVolume->source->volumes_count === 1 ? '' : ' ج ' . $fa($this->sourceVolume->volume_number)),
                 'role' => ($this->type === 'scribes' || $value === 'scribe' ? 'همچنین ' : 'نقش: ') . self::ROLES[$value],
-                'century' => 'سده‌ی ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (وفات)', default => ' (کتابت)' },
+                'century' => 'سدۀ ' . $fa($value) . match ($this->type) { 'works' => ' (تألیف یا وفات مؤلف)', 'authors' => ' (وفات)', default => ' (کتابت)' },
                 default => null,
             };
             if ($label) {

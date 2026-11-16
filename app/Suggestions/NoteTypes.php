@@ -30,7 +30,7 @@ class NoteTypes
 
     public const TYPES = [
         'observation' => [
-            'label' => 'مشاهده و نکته‌ی پژوهشی',
+            'label' => 'مشاهده و نکتۀ پژوهشی',
             'hint' => 'نکته‌ای که در شناسنامه نیامده، مثلاً «در برگ ۲۰ یادداشتی به خط فلان عالم دیده می‌شود».',
             'fields' => ['text', 'location'],
             'required' => ['text'],
@@ -56,7 +56,7 @@ class NoteTypes
         ],
         'study' => [
             'label' => 'پژوهش یا منبع مرتبط',
-            'hint' => 'مقاله، کتاب یا پایان‌نامه‌ای که درباره‌ی این رکورد است یا از آن استفاده کرده است.',
+            'hint' => 'مقاله، کتاب یا پایان‌نامه‌ای که دربارۀ این رکورد است یا از آن استفاده کرده است.',
             'fields' => ['title', 'author', 'publication', 'year', 'pages', 'url', 'text'],
             'required' => ['title'],
         ],

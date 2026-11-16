@@ -45,7 +45,7 @@
                         <button type="button" @click="notes = ! notes" class="text-xs text-cinnabar hover:underline cursor-pointer" :aria-expanded="notes">
                             <span x-text="notes ? 'بستن توضیح' : 'افزودن مستند یا توضیح (اختیاری)'">افزودن مستند یا توضیح (اختیاری)</span>
                         </button>
-                        <textarea name="note" x-show="notes" x-cloak rows="3" maxlength="2000" placeholder="مثلاً: شماره‌ی نسخه در سطر دوم برگه آمده، ولی عنوان دیگری است."
+                        <textarea name="note" x-show="notes" x-cloak rows="3" maxlength="2000" placeholder="مثلاً: شمارۀ نسخه در سطر دوم برگه آمده، ولی عنوان دیگری است."
                                   class="mt-2 w-full p-2.5 rounded-sm border border-line-strong bg-paper text-ink text-sm leading-7">{{ old('note', $previous?->rationale_citation) }}</textarea>
                     </div>
 

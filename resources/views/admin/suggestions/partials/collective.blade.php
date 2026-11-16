@@ -7,7 +7,7 @@
 @endphp
 <x-ui.card class="space-y-3" data-collective-opinions>
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 class="rubric text-base">{{ config('contributions.review_title') }}: نظرهای پژوهشگران درباره‌ی همین مورد</h3>
+        <h3 class="rubric text-base">{{ config('contributions.review_title') }}: نظرهای پژوهشگران دربارۀ همین مورد</h3>
         @if($collectiveUrl)
             <a href="{{ $collectiveUrl }}" class="text-xs text-cinnabar hover:underline">دیدن مورد در صف {{ $collectiveQueue->title() }}</a>
         @endif

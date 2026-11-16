@@ -11765,6 +11765,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `test_a_scribe_whose_name_is_only_read_right_keeps_the_copy_under_the_new_name` در `RebuildCopiesCommandTest`. یک شخص تک‌نسخه‌ای نام می‌گیرد، و شخصی که نسخه‌ی دیگری بیرون از پرونده دارد دست نمی‌خورد.
 - **تمرین روی `fahares_prod` محلی:** `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`. اجرای دوم: `Would rebuild 0 copies`. نمونه: #192178 کاتب «محمد علی بن عباس تویسرکانی» (شخص 45656) و تاریخ «سه شنبه 16 ذیقعده 1085ق»، سال ۱۰۸۵.
 - **اجرا در تولید (پس از تأیید):** پشتیبان از `scribe_name`، `scribe_id`، `copy_date_raw`، ستون‌های بازه و `is_bita` این ۲۹۱ نسخه، و از `id`، `name`، `normalized_name` اشخاص پیوندخورده. سپس فرمان و اجرای دوباره.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
+  - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
+  - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
+  - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
 
 ### گام ۱۴.۲۲۵: `Person::lifeYear` و `fahares:fix-life-years`
 
@@ -11793,13 +11798,61 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - ناسازگاری مستقیم پس از `estimate-dates --apply`: ۲٬۸۳۵ ← ۲٬۶۶۰ (با موتور پیش از گام ۱۴.۲۲۲). با موتور گام ۱۴.۲۲۲ همین داده ۲٬۶۷۲ مستقیم و ۹٬۷۵۵ غیرمستقیم دارد.
   - نمونه‌ها: قاضی سعید قمی «1049-»: وفات ۱۰۴۹ ← تولد ۱۰۴۹؛ حکیمی «1357 - قمری»: وفات ۱۳۵۷ ← تولد ۱۳۵۷؛ عبرت نائینی: ۱۳۲۱ ← ۱۳۶۱ تا ۱۳۶۲.
 - **آزمون:** `FixLifeYearsCommandTest` (۲).
-- **پس از اجرا در پروداکشن:** `fahares:estimate-dates --apply`، و برای سند جستجوی اشخاص `fahares:reindex-work-estimates --people --all`.
+- **اجرای پروداکشن (۲۶ آبان ۱۴۰۵، پس از انتشار ۱۴۶، با تأیید کاربر، هر فرمان جدا زیر `prod-run`):**
+  - پشتیبان: `../fahares-sources/backups/step13/step14_225_people_before.jsonl.gz` (۶۶٬۵۱۲ ردیف، md5 `a149227a…`).
+  - `fahares:fix-life-years`: آزمایشی و `--apply` هر دو «3 fuller texts, 5 birth years, 61 years alive, 6 open dashes, 53 mid-century years, 2 solar»؛ اجرای دوم «75 already right».
+  - `fahares:estimate-dates --apply`: ۸۷ ثانیه؛ ۲۲۵٬۳۴۳ تخمین و ۱۲٬۴۲۷ ناسازگاری (۲٬۶۷۲ مستقیم، ۹٬۷۵۵ غیرمستقیم)، همان عددهای تمرین با موتور گام ۱۴.۲۲۲؛ ۳۴۱ سند اثر و ۵۶۴ سند شخص تازه شد.
+  - بار سرور پس از استقرار و `estimate-dates` تا ۱۱٫۷ رفت؛ بازنمایه پس از رسیدن آن به ۶ آغاز شد.
+  - `fahares:reindex-work-estimates --people --all` (با `nohup`): ۱۳:۳۵ تا ۱۴:۰۳، «Reindexed 66512 of 66512 people (up to #74735)»، بی خطا؛ اتصال ssh میان راه بسته شد و فرمان ادامه یافت. صف Meilisearch پس از آن خالی، کار ناموفق ۰.
+  - وارسی: قاضی سعید قمی «ز. ۱۰۴۹ ق» (پیش‌تر «د. ۱۰۴۹ ق»)، عبرت نائینی «۱۲۸۲–۱۳۶۱ ق»، اشکوری «د. ۱۳۲۵ ق». فایل‌های `/tmp` کانتینر پاک شد.
 - **مانده:** ۴۰ شخص گروه سوم (بازبینی با منبع زندگی‌نامه)؛ شبه‌شخص‌ها (مورد ۱۴۵).
+
+### گام ۱۴.۲۲۶: قاعده‌ی `period` و `DateVar::periodStart()` / `periodEnd()`
+
+- **متغیرها:** برای هر شخص دو عدد، `DateVar::periodStart($id) = end(of(BIRTH, $id))` و `periodEnd($id) = end(of(DEATH, $id))`؛ «پایانِ» تولد و وفات را چیز دیگری به کار نمی‌برد. `type` آن‌ها `person` و `field` آن‌ها `period` (`DateVar::PERIOD`) است.
+- **`Loader::periods`:** ردیف‌های `person_periods` با `status = approved` و `period_certainty` تهی. برای هر دوره:
+  - دیرترین سالِ ممکنِ آغاز: در `span`، `start_to ?? from` (و اگر آغاز باز است `to`)؛ در «یک سال» و «بین»، سال بیرونیِ دیرتر.
+  - زودترین سالِ ممکنِ پایان: در `span`، `end_from ?? to` (و اگر پایان باز است `from`)؛ در بقیه، سال بیرونیِ زودتر.
+  - `periodStart` با کمینه‌ی اولی‌ها و `periodEnd` با بیشینه‌ی دومی‌ها بذر می‌شود؛ قید: `BIRTH ≤ periodStart` و `periodEnd ≤ DEATH`، قاعده‌ی `Loader::RULE_PERIOD`.
+- **خروجی:**
+  - تخمین تولد و وفات با `to_rule`/`from_rule = period` و شاهدِ `person` (خود شخص). برای خودِ دوره‌ها ردیف تخمین ساخته نمی‌شود (`DateVar::isPeriod` در `estimateRows`).
+  - تناقض: `birth>period` «دوره‌ای از زندگی پیش از تولد» و `period>death` «دوره‌ای از زندگی پس از وفات» (`DateConflict::LABELS`، `RULE_LABELS`، `FIELD_LABELS['period'] = 'دوره‌ی زندگی'`).
+- **نمایش:**
+  - `EstimateText::aliveIn`: برای `from_rule = period` بی خواندن شاهد، «زنده در ‹سال›» و «دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.»؛ `reason()` برای تخمین تولد و وفات.
+  - `DateConflictNote`: تناقضِ `period>death` زیر وفات می‌آید (قاعده‌ی «تناقض تولد و وفاتِ یک شخص فقط یک بار» آن را کنار نمی‌گذارد)، و پاسخِ «دوره‌ی زندگی این شخص» چون فیلدی در فرم ندارد یک پیشنهاد کلی باز می‌کند.
+  - `ConflictRecords`: `dates['period']` بازه‌ی سال‌های دوره‌های تأییدشده‌ی شخص، برای فهرست پنل و کارت صف.
+- **سنجش:** `fahares_prod` محلی ۱٬۲۰۴ دوره‌ی پیشنهادی و هیچ دوره‌ی تأییدشده ندارد، پس `Loader::periods` آن‌جا قیدی نمی‌سازد. (اجرای خشکِ دوباره با گام ۱۴.۲۲۲ عدد به عدد نمی‌خواند، چون نشست‌های دیگر در این فاصله رونوشت محلی را عوض کرده‌اند.)
+- **تست:** `EstimateDatesCommandTest::test_the_approved_periods_of_a_life_bound_the_birth_and_the_death`.
 - **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run` برای گام‌های ۱۴.۲۲۳ و ۱۴.۲۲۴):**
   - پشتیبان: ۲۱۰ اثر، ۲۹۱ نسخه، ۲۴۰ شخص و ردیف‌های `manuscript_people` کاتب در `step14_224_backup.json` (md5 `ab89dfb3…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
   - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
   - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
   - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
+
+### گام ۱۴.۲۲۷: قاعده‌های تازه‌ی `LifePeriodExtractor` و `--prune`
+
+- **روش سنجش:** نمونه با `ORDER BY CRC32(CONCAT(id, نمک))` از `person_periods` پیشنهادی روی `fahares_prod` محلی. هر پیشنهاد «درست» شمرده شد اگر نوع دوره و شهر درباره‌ی خودِ صاحب زندگی‌نامه درست بود.
+
+| نمونه | درست | غلط | فقط سال غلط / نوع نادقیق |
+|---|---:|---:|---:|
+| ۶۰ پیشنهاد، پیش از این گام | ۴۰ (۶۷٪) | ۱۶ | ۴ |
+| ۵۰ پیشنهاد تازه، پس از قاعده‌ها (در تنظیم به کار نرفته) | ۴۲ (۸۴٪) | ۶ | ۲ |
+
+- **قاعده‌ها:**
+  - `OTHERS`: جمله‌ای با «ابوه»، «والده»، «آبائه»، «ولده»، «اولاده»، «پدر»، «اجدادش»، «فرزند»، «شاگردان» … کنار می‌رود.
+  - `HEADED`: «نزيل»، «مقيم»، «ساكن»، «مجاورا» فقط در سه واژه‌ی نخست جمله (`HEAD`).
+  - `CUE_BY`: نشانه باید در ۱۸ واژه‌ی نخست جمله باشد.
+  - `NEEDS`: «حضر» فقط با «على/عند/درس/بحث/مجلس/في» و «اخذ» فقط با «عن/العلم/الفقه/في» در سه واژه‌ی پس از آن.
+  - نشانه‌های منصب: «القضاء»، «قضاء»، «قاضي»، «متولي» و «افتاء» برداشته شد («اصحاب فتوى و قضاء»)؛ «ناب» افزوده شد.
+  - «درس» بی تشدید تحصیل است؛ «درّس» تدریس.
+  - «مدينه» فقط با «ال» مدینه است؛ «الشام» شهر نیست (ناحیه است)؛ همزه‌ی پایانی برداشته می‌شود («كربلاء»).
+  - فارسی: مکان در چهار واژه‌ی پیش از فعل (`BACK`)، و از دو نامِ کنار هم اولی («بجهرم شیراز مهاجرت کرد» ← جهرم).
+  - سال: فقط در پنج واژه‌ی دو سوی مکان (`YEAR_NEAR`).
+- **خطاهای مانده در نمونه‌ی تازه:** خبر درباره‌ی شخص نام‌برده‌ی دیگری («لمّا استوطن البخاري نيسابور»، «لما توجه أبو نواس إلى مصر»)؛ «بمکه رفت» که سفر حج است و اقامت گرفته می‌شود؛ «رحل … فاستقر في نيسابور» که سفر گرفته می‌شود و اقامت است.
+- **`--prune`:** پس از خواندن همه‌ی مدخل‌ها، برای هر ردیف `status = proposed` و `origin = machine`: اگر کلید «شخص|نوع|شهر» در خوانش این اجرا نیست حذف می‌شود (`pruned`)، وگرنه `place`، `note`، `source_text`، `source_entry_id` و ستون‌های تاریخ از خوانش تازه نوشته می‌شود اگر فرق دارد (`reread`).
+- **تمرین روی `fahares_prod`:** دو اجرا (میان دو دور قاعده): ۱۱۸ تازه، ۲۸۱ پس‌گرفته، ۶۶ بازخوانی؛ سپس ۸ تازه، ۲۲ پس‌گرفته، ۲ بازخوانی. مانده: ۱٬۰۲۷ پیشنهاد، ۶۵۷ نفر (اقامت ۵۰۸، سفر ۲۴۰، تحصیل ۱۷۰، منصب ۹۰، تدریس ۱۹). اجرای سوم صفر.
+- **فرمان پروداکشن پس از انتشار (با تأیید کاربر، پشتیبان `person_periods`، زیر `prod-run`):** `fahares:propose-life-periods --prune --apply`.
+- **تست:** `LifePeriodExtractorTest::test_the_errors_a_sample_of_proposals_showed_are_left_out` و حالت `--prune` در `PersonPeriodsTest`.
 
 ### گام ۱۴.۲۲۸: پنج آمار تازه‌ی `App\Support\Insights` (مورد ۱۴۶)
 
@@ -11825,13 +11878,55 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **آزمون:** `tests/Feature/InsightsMoreFiguresTest.php`، ۶ آزمون، هر کدام در دامنه‌ی کتابخانه‌ای که خود آزمون می‌سازد.
 - **پس از استقرار:** فرمان داده لازم نیست. ساخت شبانه کلید `insights.v9` را پر می‌کند؛ تا آن زمان نخستین بازدید صفحه آمار را می‌سازد (حدود ۲۰ ثانیه).
 
+### گام ۱۴.۲۲۹: قاعده‌های `WorkRelationLinker::byRule`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - **دو گذر در `pairs()`:** گذر یکم همه‌ی مدخل‌ها را می‌خواند و `named[side][work]` را می‌سازد: کلید عنوان‌هایی که هر اثر در «وابسته به» (`related`) یا «شروح و حواشی» (`children`) نام برده است. برای مدخل بی‌نامِ «،»دار، کلید هر آغاز عنوان (`heads()`) هم افزوده می‌شود. گذر دوم برای هر اثر و هر سو، نخست تطبیق ساده‌ی عنوان و پدیدآور را برای همه‌ی مدخل‌ها می‌گیرد و اثرهای گرفته‌شده را در `$taken` می‌گذارد. سپس `match()` برای مدخل‌های مانده با `$taken` دوباره صدا می‌شود و `byRule()` را می‌خواند.
+  - **`byRule()`، مدخل با پدیدآور**، به ترتیب، روی نامزدهای هم‌عنوان بیرون از `$taken`:
+    - `author after another title`: کلید پدیدآور نامزد (دست‌کم ۸ نویسه) پایان کلید پدیدآور مدخل است.
+    - `another name of the person`: کلید پدیدآور مدخل یکی از `authorKey`های `name` و `aliases` رکورد `author_id` نامزد است.
+    - `same year of death`: `died` مدخل با `death_year_hijri` همان رکورد برابر است و `nameWords()` دو نام اشتراک دارد. `NAME_WORDS` واژه‌های بی‌نشان («بن»، «محمد»، «الدین» …) را کنار می‌گذارد.
+  - **مدخل بی‌پدیدآور:**
+    - `author in the title`: برای هر آغاز عنوان، اثرهای آن کلید و نامزدهای عنوان کامل که `authorKey` مانده (بی کمانک تاریخ پایانی) پدیدآورشان است.
+    - `named back`: یگانه نامزدی که `named[سوی دیگر]` آن یکی از کلیدهای عنوان این اثر را دارد.
+    - مدخل «(N عنوان)» به هیچ‌کدام نمی‌رسد.
+  - **چند نامزد در یک قاعده** (و چند اثر هم‌عنوان و هم‌پدیدآور): همان که نام برده، با برچسب «…, named back».
+  - **`listedElsewhere`:** در سوی `children`، اگر اثر دیگری با همان کلید عنوان این اثر، عنوان نامزد را در فهرست خودش داشته باشد، نامزد «نام‌برده» شمرده نمی‌شود. اثر فرعی یک متن مادر دارد. در سوی `related` این شرط نیست: دو ترجمه‌ی هم‌عنوان هر کدام از متن خودشان به یگانه متن مادر می‌رسند.
+  - **اطمینان:** `CONFIDENCE_RULE_LESS = 5` از ۹۰ و ۷۰ کم می‌شود (۸۵ و ۶۵). جفتی که یک سو ساده و سوی دیگر با قاعده یافته، اطمینان بالاتر را می‌گیرد.
+  - **`linkedEntries()`:** اگر عنوان کامل مدخل بی‌نام به هیچ اثر رابطه‌داری نرسد، آغازهای عنوان آزموده می‌شوند و همان آغاز لینک می‌شود. در `children`، هر اثر یک مدخل می‌گیرد: مدخلی که `authorKey` پدیدآورش با اثر برابر است، وگرنه نخستین.
+- **[LinkRelatedWorksCommand](../app/Console/Commands/LinkRelatedWorksCommand.php):** `--by-rule=file.tsv` مدخل‌های پیوندخورده با قاعده را با اثر یافته می‌نویسد. `--unmatched` اکنون مدخل‌های بی‌جفت را می‌نویسد، نه هر چه برچسبش «title+author» نیست.
+- **تمرین روی `fahares_prod` (۲۵ آبان ۱۴۰۵):**
+  - پیش از تغییر، dry run: ۸٬۱۸۰ مدخل بی‌پیوند، «9577 relations: 7 to add».
+  - پس از تغییر: «10090 relations: 585 to add, 65 to remove, 9505 kept»، «Indexed 579 works again». اجرای دوم: «0 to add, 0 to remove».
+  - مدخل‌ها به قاعده (فرعی + وابسته): `named back` ۱٬۱۷۷ + ۴۲۰؛ `title+author, named back` ۴۸ + ۲۶۹؛ `author after another title` ۴۲ + ۲۵۷ (و ۲ با named back)؛ `author in the title` ۶۹ + ۱۶۱ (و ۱)؛ `same year of death` ۳۸ + ۲۸ (و ۲)؛ `another name of the person` ۸ + ۹. جمع ۲٬۵۳۱.
+  - از این‌ها مدخل‌هایی که جفتشان پیش از این ثبت نبود (یک جفت تازه گاه از هر دو سو شمرده می‌شود): `named back` ۳۱۸، `author after another title` ۱۴۳، `title+author, named back` ۱۱۸، `author in the title` ۹۲، `same year of death` ۲۴، `another name of the person` ۱۱. نوع‌روشن‌شده: ۷۶. بقیه جفتی‌اند که از سوی دیگر ثبت بود.
+  - مانده، ۵٬۶۴۹ مدخل: بی‌اثر در پایگاه ۲٬۳۰۰، بی‌پدیدآور ۱٬۹۴۳، هم‌عنوان در دو سو ۸۶۸، با پدیدآور دیگر ۳۳۵، چند اثر هم‌عنوان و هم‌پدیدآور ۲۰۳.
+  - `linkedEntries` روی همه‌ی آثار دارای فهرست شروح: پیش از تغییر ۱۴۱ اثر یک اثر را از دو مدخل لینک می‌کردند (۲۰۴ لینک افزوده)، پس از آن صفر.
+- **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back`.
+- **اجرا در تولید، پس از استقرار:** پشتیبان `work_relations`، سپس `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`.
+
+### گام ۱۴.۲۳۰: `Admin\PersonLifeController` و بازبینی پیوند زندگی‌نامه از نشان ⓘ
+
+- **سنجش (`fahares_prod`، ۲۵ آبان ۱۴۰۵):** ۹۰٬۴۶۰ مدخل `kind = entry` در ۹ منبع `kind = biographical`؛ ۱۶٬۲۶۰ مدخل زیر ۶۰ نویسه (ارجاع)؛ ۳٬۲۹۳ مدخل با پیوند شخص (۳٬۳۲۲ سطر، ۱٬۹۱۲ شخص، همه `person_life_by_name` و `name_death_llm`). `author_death_year` این منابع خالی است. نمونه‌ی ۶۰تایی `ORDER BY RAND(20261116)`: ۶۰ درست.
+- **صف ([PersonLifeController](../app/Http/Controllers/Admin/PersonLifeController.php)، `admin.person-lives.index`، مجوز `catalog_refs.review`):** سطرهای `source_entries` با `origin = match`، `citable_type = Person` و `source_item_id`. ترتیب: `confidence` صعودی. پالایه‌ها: `source` (کد منبع)، `method` و `status`. تا ۸ اثر هر شخص با یک پرس‌وجو برای کل صفحه خوانده می‌شود.
+- **داوری:** فرم‌ها به `admin.catalog-references.verify`، `reject` و `reopen` می‌روند، که برای هر سطر `origin = match` کار می‌کنند. پیام پاسخ برای شخص «زندگی‌نامه‌ی «نام» تأیید شد» است.
+- **نشان:** [lives.blade.php](../resources/views/components/source/lives.blade.php) متن را از `SourceEntry::machineNote()` می‌گیرد (شاخه‌ی تازه برای `citable_type = Person`) و برای سطر در انتظار بازبینی `badgeReview()` را می‌دهد. هر سطر `data-machine-item` دارد تا پس از رد پنهان شود.
+- **دیگر:** `AdminNav` (گروه «داوری»، با شمار) و `notifications:unreviewed-data`.
+- **آزمون:** `tests/Feature/PersonLivesReviewTest.php`.
+
+### گام ۱۴.۲۳۱: «ۀ» به‌جای «ه‌ی»
+
+- **جایگزینی:** الگوی `ه\u200cی(?![\u0600-\u06FF\u200c])` (هٔ بی حرف پس از آن) با «ۀ»، در `app`، `config`، `resources/views`، `resources/js`، `resources/css`، `lang`، `tests`، `routes` و `database/seeders`. پیش از آن وارسی شد که «ه‌ی» در هیچ الگوی regex یا پرس‌وجوی پایگاه داده نیست.
+- **استثنا:** `App\Support\DirectAnswer::FILLER` واژه‌های پرکنندۀ پرسش کاربر است. «کتابخانه‌ی»، «نسخه‌ی» و «شماره‌ی» در آن ماندند و «کتابخانۀ»، «نسخۀ» و «شمارۀ» کنارشان آمدند. صورت‌های با فاصله («نسخه ی») در `DirectAnswer` و `FixAutographManuscriptsCommand` هم ماندند، چون صورت ورودی‌اند.
+- **دست‌نخورده:** متن منابع (`source_pages`، `raw_text`)، پرونده‌های داده (`database/data`) و مستندات پیشین (`docs`، حدود ۱۰٬۵۰۰ «ه‌ی»)، که بازنویسیِ یکجای آن‌ها در ادغام union شاخه‌های جلسه‌ها سطرهای تکراری می‌سازد. نوشته‌های تازه «ۀ» می‌گیرند.
+- **محتوای ویرایشی پایگاه داده** (صفحه‌ها، نوشته‌ها، اعلان‌ها): جدا، پس از این انتشار و با پشتیبان.
+
 ### گام ۱۴.۲۳۴: `App\Support\InsightsNotes` و `insights/explain.blade.php`
 
 - **ساختار:** `InsightsNotes::for($data)` برای هر نمودار `['reading' => [بندها], 'examples' => [جمله‌ها]]` برمی‌گرداند، با ۲۴ کلید: `timeline`، `authors`، `works`، `copyGap`، `places`، `movement`، `subjects`، `features`، `scribes`، `libraries`، `dedications`، `patrons`، `facsimiles`، `sizes`، `languageScripts`، `topWorks`، `copiesPerWork`، `centuryWorks`، `unprinted`، `collections`، `scripts`، `languages`، `sources` و `sourceOverlap`.
-- **جای اجرا:** هنگام نمایش صفحه و از روی همان آرایه‌ی cacheشده‌ی `Insights::get()`. پس کلید cache (`insights.v9`) و ساخت شبانه تغییری نکرد، و اصلاح متن یک توضیح بازسازی آمار نمی‌خواهد.
-- **متن‌ها:** بندهای «چگونه بخوانیم» ثابت‌اند و هیچ ادعایی درباره‌ی ارقام ندارند، تا در هر دامنه درست بمانند. هر چه به رقم بسته است در «نمونه‌ها» آمده و از داده ساخته می‌شود.
-- **نمونه‌های جدول‌های سده (`gridExamples`):** دو نمونه: پرشمارترین ردیف با سده‌ی بیشترین سهمش، و ردیفی که سهمش میان دو سده بیشترین فاصله را دارد. تنها سده‌هایی سنجیده می‌شوند که دست‌کم `insights.grid_min_copies` نسخه دارند.
-- **نمونه‌ی کاتبان:** اگر بازه‌ی سال‌های نسخه‌های کاتب نخست از ۷۰ سال بگذرد، نمونه می‌گوید که زیر آن نام شاید چند کاتب هم‌نام گرد آمده‌اند.
-- **قالب:** `resources/views/insights/explain.blade.php`، با `data-insights-note`. فراخوانی‌اش درون شاخه‌ی «داده بسنده است» هر نمودار است.
-- **سنجش در مرورگر (`fahares_prod`):** آمار کل ۲۴ توضیح؛ دامنه‌ها: `author=1110` با ۲۳، `work=52504` با ۱۲، `library=4&century=11` با ۲۲، `facsimile=1` با ۲۳، `subject=1&language=1` با ۱۶، `copy_city=هرات` با ۲۳، `century=5` با ۱۸، و `scribe=1` (دامنه‌ی تهی) بی توضیح. همه با پاسخ ۲۰۰.
-- **آزمون:** دو آزمون در `InsightsMoreFiguresTest`: دامنه‌ای با یک نسخه‌ی بی‌آگاهی هیچ توضیحی را نمی‌شکند، و نمونه‌ها رقم‌های نمودار خود را می‌آورند.
+- **جای اجرا:** هنگام نمایش صفحه و از روی همان آرایۀ cacheشدۀ `Insights::get()`. پس کلید cache (`insights.v9`) و ساخت شبانه تغییری نکرد، و اصلاح متن یک توضیح بازسازی آمار نمی‌خواهد.
+- **متن‌ها:** بندهای «چگونه بخوانیم» ثابت‌اند و هیچ ادعایی دربارۀ ارقام ندارند، تا در هر دامنه درست بمانند. هر چه به رقم بسته است در «نمونه‌ها» آمده و از داده ساخته می‌شود.
+- **نمونه‌های جدول‌های سده (`gridExamples`):** دو نمونه: پرشمارترین ردیف با سدۀ بیشترین سهمش، و ردیفی که سهمش میان دو سده بیشترین فاصله را دارد. تنها سده‌هایی سنجیده می‌شوند که دست‌کم `insights.grid_min_copies` نسخه دارند.
+- **نمونۀ کاتبان:** اگر بازۀ سال‌های نسخه‌های کاتب نخست از ۷۰ سال بگذرد، نمونه می‌گوید که زیر آن نام شاید چند کاتب هم‌نام گرد آمده‌اند.
+- **قالب:** `resources/views/insights/explain.blade.php`، با `data-insights-note`. فراخوانی‌اش درون شاخۀ «داده بسنده است» هر نمودار است.
+- **سنجش در مرورگر (`fahares_prod`):** آمار کل ۲۴ توضیح؛ دامنه‌ها: `author=1110` با ۲۳، `work=52504` با ۱۲، `library=4&century=11` با ۲۲، `facsimile=1` با ۲۳، `subject=1&language=1` با ۱۶، `copy_city=هرات` با ۲۳، `century=5` با ۱۸، و `scribe=1` (دامنۀ تهی) بی توضیح. همه با پاسخ ۲۰۰.
+- **آزمون:** دو آزمون در `InsightsMoreFiguresTest`: دامنه‌ای با یک نسخۀ بی‌آگاهی هیچ توضیحی را نمی‌شکند، و نمونه‌ها رقم‌های نمودار خود را می‌آورند.

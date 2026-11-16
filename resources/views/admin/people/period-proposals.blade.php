@@ -2,14 +2,14 @@
 @use('App\Support\Fa')
 @use('App\Models\PersonPeriod')
 
-@section('title', 'پیشنهادهای دوره‌ی زندگی')
-@section('page_title', 'پیشنهادهای دوره‌ی زندگی: خوانده از زندگی‌نامه‌های منابع')
+@section('title', 'پیشنهادهای دورۀ زندگی')
+@section('page_title', 'پیشنهادهای دورۀ زندگی: خوانده از زندگی‌نامه‌های منابع')
 
 @section('content')
 <div class="space-y-5 max-w-5xl text-[13px]">
     <p class="text-muted leading-7 max-w-3xl">
         این‌ها را هوشواره از متن زندگی‌نامه‌ها خوانده است و هیچ‌کدام در سایت دیده نمی‌شود. نوع دوره از یک واژه حدس زده شده و سال‌ها همان‌هایی است که در همان جمله آمده، پس هر مورد را با متن بسنجید.
-        برای تأیید، صفحه‌ی شخص را باز کنید: آن‌جا مکان و سال‌ها را درست می‌کنید و ذخیره می‌کنید. رد کردن از همین‌جا هم می‌شود.
+        برای تأیید، صفحۀ شخص را باز کنید: آن‌جا مکان و سال‌ها را درست می‌کنید و ذخیره می‌کنید. رد کردن از همین‌جا هم می‌شود.
     </p>
     <div class="flex flex-wrap gap-2">
         <a href="{{ route('admin.people.periods.proposals') }}" class="px-2.5 py-1 border {{ request('kind') ? 'border-line text-muted' : 'border-cinnabar text-cinnabar font-bold' }}">همه <span class="tabular-nums">{{ Fa::num($counts->sum()) }}</span></a>

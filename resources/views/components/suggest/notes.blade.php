@@ -5,12 +5,12 @@
     $types = \App\Suggestions\NoteTypes::forRecord($type);
     // What to invite, matched to the note types each record offers (NoteTypes::BY_RECORD)
     $invitation = match ($type) {
-        'work' => 'اگر درباره‌ی این اثر نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش یا نسخه دیگری از آن سراغ دارید.',
-        'manuscript' => 'اگر درباره‌ی این نسخه نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش، فهرست دیگر یا تصویری از آن سراغ دارید.',
-        'person' => 'اگر درباره‌ی این شخص نکته‌ای می‌دانید که در شناسنامه نیامده، یا پژوهش، منبع یا تصویری درباره‌ی او سراغ دارید.',
-        'library' => 'اگر درباره‌ی این کتابخانه نکته‌ای می‌دانید، یا پیوند مخزن دیجیتال، فهرست برخط یا پژوهشی درباره‌ی آن سراغ دارید.',
-        'source' => 'اگر درباره‌ی این منبع نکته‌ای می‌دانید، یا نسخه‌ی برخط، چاپ دیگر یا پژوهشی درباره‌ی آن سراغ دارید.',
-        default => 'اگر درباره‌ی این ' . \App\Suggestions\SuggestionRegistry::typeLabel($type) . ' نکته‌ای می‌دانید که در شناسنامه نیامده.',
+        'work' => 'اگر دربارۀ این اثر نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش یا نسخه دیگری از آن سراغ دارید.',
+        'manuscript' => 'اگر دربارۀ این نسخه نکته‌ای می‌دانید که در شناسنامه نیامده، یا چاپ، پژوهش، فهرست دیگر یا تصویری از آن سراغ دارید.',
+        'person' => 'اگر دربارۀ این شخص نکته‌ای می‌دانید که در شناسنامه نیامده، یا پژوهش، منبع یا تصویری دربارۀ او سراغ دارید.',
+        'library' => 'اگر دربارۀ این کتابخانه نکته‌ای می‌دانید، یا پیوند مخزن دیجیتال، فهرست برخط یا پژوهشی دربارۀ آن سراغ دارید.',
+        'source' => 'اگر دربارۀ این منبع نکته‌ای می‌دانید، یا نسخۀ برخط، چاپ دیگر یا پژوهشی دربارۀ آن سراغ دارید.',
+        default => 'اگر دربارۀ این ' . \App\Suggestions\SuggestionRegistry::typeLabel($type) . ' نکته‌ای می‌دانید که در شناسنامه نیامده.',
     };
     $link = fn (?string $url, string $label = 'پیوند') => $url ? '<a href="' . e($url) . '" target="_blank" rel="nofollow noopener" class="text-cinnabar hover:underline font-bold">' . e($label) . ' ↗</a>' : '';
 @endphp
@@ -47,7 +47,7 @@
                                         @endforeach
                                     </div>
                                 @endif
-                                <p class="text-ink">{{ $p['caption'] ?? '' }} {!! $link($p['url'] ?? null, 'مشاهده‌ی تصویر در مخزن') !!}</p>
+                                <p class="text-ink">{{ $p['caption'] ?? '' }} {!! $link($p['url'] ?? null, 'مشاهدۀ تصویر در مخزن') !!}</p>
                                 @break
                             @default
                                 @php
@@ -59,7 +59,7 @@
                                 @if(! empty($p['text']))<p class="text-xs text-ink/80 leading-relaxed whitespace-pre-line break-words">{{ $p['text'] }}</p>@endif
                         @endswitch
                         <p class="text-[11px] text-muted">
-                            افزوده‌ی <strong class="text-ink">{{ $n->credit_name ?: 'یکی از پژوهشگران' }}</strong>@if($n->reviewed_at) · @jdate($n->reviewed_at, 'long')@endif
+                            افزودۀ <strong class="text-ink">{{ $n->credit_name ?: 'یکی از پژوهشگران' }}</strong>@if($n->reviewed_at) · @jdate($n->reviewed_at, 'long')@endif
                         </p>
                         @if($n->public_note)
                             <p class="text-xs text-ink/80 whitespace-pre-line"><span class="font-bold text-muted">یادداشت داور:</span> {{ $n->public_note }}</p>

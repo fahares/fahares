@@ -58,7 +58,7 @@ class TelegramLinkController extends Controller
                 $user->forceFill(['telegram_chat_id' => $chatId])->save();
                 $this->say($chatId, "این گفت‌وگو به حساب «{$user->name}» در فهارس وصل شد. نوع اعلان‌ها را در ستون «تلگرام» تنظیمات اعلان برگزینید: " . route('notifications.settings'));
             } else {
-                $this->say($chatId, 'این پیوند منقضی شده است. از صفحه‌ی تنظیمات اعلان در فهارس دوباره «اتصال تلگرام» را بزنید.');
+                $this->say($chatId, 'این پیوند منقضی شده است. از صفحۀ تنظیمات اعلان در فهارس دوباره «اتصال تلگرام» را بزنید.');
             }
         } elseif ($text === '/stop') {
             User::where('telegram_chat_id', $chatId)->update(['telegram_chat_id' => null]);

@@ -26,7 +26,7 @@ return [
         'mail' => 'ایمیل',
         'webpush' => 'مرورگر',
         'telegram' => 'تلگرام',
-        'digest' => 'خلاصه‌ی روزانه',
+        'digest' => 'خلاصۀ روزانه',
     ],
 
     'types' => [
@@ -37,7 +37,7 @@ return [
             'group' => ['telegram'],
         ],
         'collective.opinions' => [
-            'label' => 'نظرهای تازه‌ی «تصحیح جمعی»',
+            'label' => 'نظرهای تازۀ «تصحیح جمعی»',
             'permission' => 'suggestions.review',
             'channels' => ['digest' => true],
         ],
@@ -48,7 +48,7 @@ return [
         ],
         // The weekly count of machine matches nobody has reviewed yet (backlog item 82)
         'review.unreviewed_data' => [
-            'label' => 'خلاصه‌ی هفتگی داده‌های خودکار بازبینی‌نشده (تطبیق فهرست‌های چاپی، پیوند آثار به منابع)',
+            'label' => 'خلاصۀ هفتگی داده‌های خودکار بازبینی‌نشده (تطبیق فهرست‌های چاپی، پیوند آثار به منابع)',
             'permission' => 'catalog_refs.review',
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
@@ -59,18 +59,18 @@ return [
         ],
         // A researcher's pending suggestion whose record was merged into another (backlog item 82)
         'suggestion.record_merged' => [
-            'label' => 'ادغام رکوردی که پیشنهاد در انتظار من درباره‌ی آن است',
+            'label' => 'ادغام رکوردی که پیشنهاد در انتظار من دربارۀ آن است',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
         'suggestion.reviewed' => [
-            'label' => 'نتیجه‌ی داوری پیشنهادهای من، و تغییر وضعیت قول‌هایم',
+            'label' => 'نتیجۀ داوری پیشنهادهای من، و تغییر وضعیت قول‌هایم',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
         // Letters between the staff and a user (backlog item 91)
         'suggestion.question' => [
-            'label' => 'پرسش و پیام داور درباره‌ی پیشنهادهای من',
+            'label' => 'پرسش و پیام داور دربارۀ پیشنهادهای من',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false, 'telegram' => false],
         ],
@@ -113,7 +113,7 @@ return [
             'channels' => ['database' => true, 'mail' => true, 'webpush' => false],
         ],
         'account.security' => [
-            'label' => 'تغییر ایمیل یا گذرواژه‌ی حساب من',
+            'label' => 'تغییر ایمیل یا گذرواژۀ حساب من',
             'roles' => ['*'],
             'channels' => ['database' => true, 'mail' => true],
             'locked' => true,
@@ -147,7 +147,7 @@ return [
             'group' => ['alerts'],
         ],
         'system.search_failed' => [
-            'label' => 'خطای نمایه‌ی جست‌وجو (Meilisearch)',
+            'label' => 'خطای نمایۀ جست‌وجو (Meilisearch)',
             'roles' => ['admin'],
             'channels' => ['database' => true, 'mail' => false, 'webpush' => false, 'telegram' => false, 'digest' => true],
             'group' => ['alerts'],

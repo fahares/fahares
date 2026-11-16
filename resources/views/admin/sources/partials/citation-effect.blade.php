@@ -4,12 +4,12 @@
     $names = \App\Models\Source::whereIn('code', array_merge(array_keys((array) ($effect['taken'] ?? [])), array_keys((array) ($effect['other'] ?? []))))
         ->get(['code', 'title', 'short_name'])->mapWithKeys(fn ($s) => [$s->code => $s->short_name ?: $s->title]);
     $name = fn ($code) => $names[$code] ?? $code;
-    $where = ($effect['context'] ?? 'bibliography') === 'page_text' ? 'صفحه' : 'رشته‌ی مأخذ';
+    $where = ($effect['context'] ?? 'bibliography') === 'page_text' ? 'صفحه' : 'رشتۀ مأخذ';
     $lines = array_filter([
         $effect['gained'] ? $fa($effect['gained']) . " {$where} به این منبع وصل می‌شود" : null,
         $effect['taken'] ? 'از آن‌ها ' . collect($effect['taken'])->map(fn ($n, $code) => $fa($n) . ' از «' . $name($code) . '»')->implode('، ') : null,
         $effect['lost'] ? $fa($effect['lost']) . " {$where} از این منبع جدا می‌شود" : null,
-        $effect['moved'] ? 'جلد یا صفحه‌ی ' . $fa($effect['moved']) . " {$where} عوض می‌شود" : null,
+        $effect['moved'] ? 'جلد یا صفحۀ ' . $fa($effect['moved']) . " {$where} عوض می‌شود" : null,
     ]);
     $kinds = ['gained' => 'تازه‌وصل', 'taken' => 'از منبع دیگر', 'lost' => 'جداشده', 'moved' => 'جای تازه', 'other' => 'نام هست ولی منبع دیگری آن را دارد', 'unread' => 'نام هست ولی عدد خوانده نشد'];
 @endphp

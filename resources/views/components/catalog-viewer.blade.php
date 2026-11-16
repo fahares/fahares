@@ -12,7 +12,7 @@
     style="display: none;"
     role="dialog"
     aria-modal="true"
-    :aria-label="'برگه‌ی ' + catalogName + '، ' + pageLabel">
+    :aria-label="'برگۀ ' + catalogName + '، ' + pageLabel">
 
     <!-- The stage: the image moves inside it; the bars float over it -->
     <main
@@ -31,7 +31,7 @@
             :style="`width: ${natW}px; height: ${natH}px; transform: ${transform}`"
             :class="[shownUrl && !hasError ? '' : 'hidden', animate && !gesturing ? 'transition-transform duration-200 ease-out' : '', loading ? 'opacity-60' : '']"
             class="absolute top-0 left-0 max-w-none origin-top-left will-change-transform bg-white shadow-2xl pointer-events-none select-none"
-            alt="برگه‌ی مأخذ چاپی"
+            alt="برگۀ مأخذ چاپی"
             draggable="false" />
 
         <!-- Loading: over the previous page, which stays on screen -->
@@ -46,15 +46,15 @@
             <div class="space-y-1">
                 <h3 class="text-sm font-bold text-ink">تصویر این صفحه در دسترس نیست</h3>
                 <p x-show="!absent" class="text-xs text-muted max-w-sm">
-                    تصویر صفحه‌ی <span x-text="fa(page)" class="font-bold text-cinnabar"></span> از جلد <span x-text="fa(volume)" class="font-bold text-cinnabar"></span> <span x-text="catalogName" class="font-bold"></span> یافت نشد.
+                    تصویر صفحۀ <span x-text="fa(page)" class="font-bold text-cinnabar"></span> از جلد <span x-text="fa(volume)" class="font-bold text-cinnabar"></span> <span x-text="catalogName" class="font-bold"></span> یافت نشد.
                 </p>
                 {{-- A page the volume's images do not have: retrying will not help. A short gap is most likely a page
                      left blank in the book; a long one a part the site lacks (e.g. Majlis vol. 10 part 2) --}}
                 <p x-show="absent && inShortGap" class="text-xs text-muted max-w-sm">
-                    برگه‌ی صفحه‌ی <span x-text="fa(page)" class="font-bold text-cinnabar"></span> در دسترس نیست؛ شاید در اصل منبع سفید بوده است.
+                    برگۀ صفحۀ <span x-text="fa(page)" class="font-bold text-cinnabar"></span> در دسترس نیست؛ شاید در اصل منبع سفید بوده است.
                 </p>
                 <p x-show="absent && !inShortGap" class="text-xs text-muted max-w-sm">
-                    برگه‌ی صفحه‌ی <span x-text="fa(page)" class="font-bold text-cinnabar"></span> از جلد <span x-text="fa(volume)" class="font-bold text-cinnabar"></span> <span x-text="catalogName" class="font-bold"></span> در سایت نیست.
+                    برگۀ صفحۀ <span x-text="fa(page)" class="font-bold text-cinnabar"></span> از جلد <span x-text="fa(volume)" class="font-bold text-cinnabar"></span> <span x-text="catalogName" class="font-bold"></span> در سایت نیست.
                     <span x-show="gapsLabel">نیست: ص <span x-text="gapsLabel" class="font-bold"></span></span>
                 </p>
             </div>
@@ -77,7 +77,7 @@
 
             <div class="flex items-center gap-2 min-w-0">
                 <span class="hidden sm:block w-2.5 h-6 bg-cinnabar rounded-xs shrink-0"></span>
-                <h2 class="text-sm font-bold text-ink truncate"><span class="hidden sm:inline">برگه‌ی مأخذ چاپی </span><span x-text="catalogName"></span></h2>
+                <h2 class="text-sm font-bold text-ink truncate"><span class="hidden sm:inline">برگۀ مأخذ چاپی </span><span x-text="catalogName"></span></h2>
             </div>
 
             <div class="relative shrink-0">
@@ -88,7 +88,7 @@
                 </button>
                 <form x-show="jumpOpen" @submit.prevent="submitJump()" @click.outside="jumpOpen = false"
                     class="absolute top-full mt-2 start-0 sm:start-auto sm:end-0 z-20 flex flex-wrap items-center gap-2 p-2 rounded-xl bg-surface border border-line-strong shadow-xl" style="display: none;">
-                    <label class="text-xs text-muted whitespace-nowrap" for="catalog-viewer-jump">صفحه‌ی</label>
+                    <label class="text-xs text-muted whitespace-nowrap" for="catalog-viewer-jump">صفحۀ</label>
                     <input id="catalog-viewer-jump" x-ref="jumpInput" x-model="jumpValue" type="text" inputmode="numeric" autocomplete="off" dir="ltr"
                         :placeholder="last ? fa(first) + '–' + fa(last) : ''"
                         class="w-24 px-2 py-1.5 rounded-lg border border-line-strong bg-paper text-base sm:text-sm text-ink text-center focus:outline-none focus:border-cinnabar">
@@ -105,11 +105,11 @@
             <!-- Wider screens: page, zoom and display tools -->
             <div class="hidden sm:flex items-center gap-2">
                 <div class="flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-2xl border border-line-strong">
-                    <button type="button" @click="prevPage()" :disabled="!canPrev" aria-label="صفحه‌ی قبلی" title="صفحه‌ی قبلی (PageUp)" class="{{ $tool }} px-3 py-1.5">
-                        <span class="rtl:rotate-180" aria-hidden="true">←</span><span>صفحه‌ی قبلی</span>
+                    <button type="button" @click="prevPage()" :disabled="!canPrev" aria-label="صفحۀ قبلی" title="صفحۀ قبلی (PageUp)" class="{{ $tool }} px-3 py-1.5">
+                        <span class="rtl:rotate-180" aria-hidden="true">←</span><span>صفحۀ قبلی</span>
                     </button>
-                    <button type="button" @click="nextPage()" :disabled="!canNext" aria-label="صفحه‌ی بعدی" title="صفحه‌ی بعدی (PageDown)" class="{{ $tool }} px-3 py-1.5">
-                        <span>صفحه‌ی بعدی</span><span class="rtl:rotate-180" aria-hidden="true">→</span>
+                    <button type="button" @click="nextPage()" :disabled="!canNext" aria-label="صفحۀ بعدی" title="صفحۀ بعدی (PageDown)" class="{{ $tool }} px-3 py-1.5">
+                        <span>صفحۀ بعدی</span><span class="rtl:rotate-180" aria-hidden="true">→</span>
                     </button>
                 </div>
 
@@ -117,7 +117,7 @@
                     <button type="button" @click="zoomOut()" :disabled="atMin" aria-label="کوچک‌نمایی" title="کوچک‌نمایی (-)" class="{{ $tool }} p-1.5">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" /></svg>
                     </button>
-                    <button type="button" @click="resetView()" aria-label="بازگشت به اندازه‌ی پایه" title="بازگشت به اندازه‌ی پایه (کلید 0)" class="{{ $tool }} px-2 py-1 min-w-14 text-amber-700 dark:text-amber-400">
+                    <button type="button" @click="resetView()" aria-label="بازگشت به اندازۀ پایه" title="بازگشت به اندازۀ پایه (کلید 0)" class="{{ $tool }} px-2 py-1 min-w-14 text-amber-700 dark:text-amber-400">
                         <span x-text="zoomLabel"></span>
                     </button>
                     <button type="button" @click="zoomIn()" :disabled="atMax" aria-label="بزرگ‌نمایی" title="بزرگ‌نمایی (+)" class="{{ $tool }} p-1.5">
@@ -138,7 +138,7 @@
                 <span>متن</span>
             </a>
 
-            <a :href="imageUrl" target="_blank" rel="noopener" aria-label="باز کردن تصویر در زبانه‌ی تازه" title="باز کردن تصویر در زبانه‌ی تازه"
+            <a :href="imageUrl" target="_blank" rel="noopener" aria-label="باز کردن تصویر در زبانۀ تازه" title="باز کردن تصویر در زبانۀ تازه"
                 class="inline-flex items-center justify-center shrink-0 w-11 h-11 sm:w-9 sm:h-9 rounded-2xl text-stone-600 dark:text-stone-300 hover:bg-stone-200/70 dark:hover:bg-stone-700 transition">
                 <svg class="w-5 h-5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 4h6v6m0-6L10 14M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5" /></svg>
             </a>
@@ -152,14 +152,14 @@
         class="{{ $bar }} bottom-0 border-t border-stone-200 dark:border-line pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] sm:hidden [@media(hover:hover)]:sm:block">
 
         <div class="flex sm:hidden items-center gap-2 px-2 h-14">
-            <button type="button" @click="prevPage()" :disabled="!canPrev" aria-label="صفحه‌ی قبلی" class="{{ $tool }} min-w-11 h-11 px-3 text-sm bg-stone-100 dark:bg-stone-800 border border-line-strong">
+            <button type="button" @click="prevPage()" :disabled="!canPrev" aria-label="صفحۀ قبلی" class="{{ $tool }} min-w-11 h-11 px-3 text-sm bg-stone-100 dark:bg-stone-800 border border-line-strong">
                 <span class="rtl:rotate-180 text-base" aria-hidden="true">←</span><span>قبلی</span>
             </button>
             <div class="flex-1 text-center text-xs font-bold text-ink whitespace-nowrap" x-text="countLabel" aria-live="polite"></div>
             <button type="button" @click="toggleMode()" :aria-label="mode === 'fit' ? 'نمایش هم‌عرض' : 'نمایش کامل صفحه'" class="{{ $tool }} h-11 px-3 text-amber-800 dark:text-amber-300">
                 <span x-text="mode === 'fit' ? 'هم‌عرض' : 'جا شدن'"></span>
             </button>
-            <button type="button" @click="nextPage()" :disabled="!canNext" aria-label="صفحه‌ی بعدی" class="{{ $tool }} min-w-11 h-11 px-3 text-sm bg-stone-100 dark:bg-stone-800 border border-line-strong">
+            <button type="button" @click="nextPage()" :disabled="!canNext" aria-label="صفحۀ بعدی" class="{{ $tool }} min-w-11 h-11 px-3 text-sm bg-stone-100 dark:bg-stone-800 border border-line-strong">
                 <span>بعدی</span><span class="rtl:rotate-180 text-base" aria-hidden="true">→</span>
             </button>
         </div>
@@ -174,7 +174,7 @@
             </div>
             <div class="flex items-center gap-3 text-[10px] text-muted">
                 <span x-text="countLabel"></span>
-                <span>فهارس • نسخه‌ی چاپی <span x-text="catalogName"></span></span>
+                <span>فهارس • نسخۀ چاپی <span x-text="catalogName"></span></span>
             </div>
         </div>
     </footer>

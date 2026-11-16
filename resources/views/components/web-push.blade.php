@@ -6,14 +6,14 @@
     @if($context === 'settings')
         <div class="bg-surface rounded-sm border border-line p-4 text-sm space-y-2">
             <template x-if="needsHomeScreen">
-                <p class="text-muted">در آیفون و آیپد، اعلان مرورگر فقط وقتی کار می‌کند که فهارس را با «Share ← Add to Home Screen» به صفحه‌ی اصلی بیفزایید و از همان‌جا باز کنید.</p>
+                <p class="text-muted">در آیفون و آیپد، اعلان مرورگر فقط وقتی کار می‌کند که فهارس را با «Share ← Add to Home Screen» به صفحۀ اصلی بیفزایید و از همان‌جا باز کنید.</p>
             </template>
             <template x-if="!needsHomeScreen && !supported">
                 <p class="text-muted">این مرورگر اعلان مرورگر را پشتیبانی نمی‌کند.</p>
             </template>
             <template x-if="supported && !needsHomeScreen">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                    <p class="text-ink" x-text="subscribed ? 'اعلان مرورگر در این مرورگر فعال است. ستون «مرورگر» در جدول زیر تعیین می‌کند کدام اعلان‌ها بیاید.' : (permission === 'denied' ? 'این مرورگر اجازه‌ی اعلان را برای فهارس بسته است؛ از تنظیمات سایت در مرورگر بازش کنید.' : 'اعلان مرورگر هنوز در این مرورگر فعال نیست. تیک ستون «مرورگر» فقط پس از زدن این دکمه اثر دارد.')"></p>
+                    <p class="text-ink" x-text="subscribed ? 'اعلان مرورگر در این مرورگر فعال است. ستون «مرورگر» در جدول زیر تعیین می‌کند کدام اعلان‌ها بیاید.' : (permission === 'denied' ? 'این مرورگر اجازۀ اعلان را برای فهارس بسته است؛ از تنظیمات سایت در مرورگر بازش کنید.' : 'اعلان مرورگر هنوز در این مرورگر فعال نیست. تیک ستون «مرورگر» فقط پس از زدن این دکمه اثر دارد.')"></p>
                     <button type="button" x-show="subscribed" @click="test()" :disabled="busy"
                         class="px-4 py-2 rounded-sm text-sm font-bold border border-line hover:bg-paper transition">اعلان آزمایشی</button>
                     <button type="button" x-show="permission !== 'denied' || subscribed" @click="subscribed ? disable() : enable()" :disabled="busy"

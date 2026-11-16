@@ -368,7 +368,7 @@ class SourceMerger
     {
         $json = @gzuncompress((string) base64_decode($packed, true));
         if ($json === false || ! is_array($snapshot = json_decode($json, true))) {
-            throw new InvalidArgumentException('نسخه‌ی پشتیبان این ادغام خوانا نیست.');
+            throw new InvalidArgumentException('نسخۀ پشتیبان این ادغام خوانا نیست.');
         }
 
         return $snapshot;

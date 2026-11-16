@@ -4,15 +4,15 @@
            placeholder="مثال: فقه، کلام، ادبیات" class="admin-field w-full font-bold">
 </x-admin.field>
 
-<x-admin.field label="شاخه‌ی بالاتر" for="parent_id" error="parent_id" hint="خالی یعنی این موضوع خودش شاخه‌ی اصلی است.">
+<x-admin.field label="شاخۀ بالاتر" for="parent_id" error="parent_id" hint="خالی یعنی این موضوع خودش شاخۀ اصلی است.">
     <select name="parent_id" id="parent_id" class="admin-field w-full">
-        <option value="">شاخه‌ی اصلی</option>
+        <option value="">شاخۀ اصلی</option>
         @foreach($parents as $parent)
             <option value="{{ $parent->id }}" @selected(old('parent_id', $subject?->parent_id) == $parent->id)>{{ $parent->name }}</option>
         @endforeach
     </select>
 </x-admin.field>
 
-<x-admin.field label="توضیح و دامنه‌ی موضوع (اختیاری)" for="description">
+<x-admin.field label="توضیح و دامنۀ موضوع (اختیاری)" for="description">
     <textarea name="description" id="description" rows="3" class="admin-field w-full leading-7">{{ old('description', $subject?->description) }}</textarea>
 </x-admin.field>

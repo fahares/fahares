@@ -23,7 +23,7 @@ class InsightsMoreFiguresTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->library = Library::create(['name' => 'کتابخانه‌ی آزمایشی آمار', 'city' => 'قم', 'slug' => 'insights-more-' . uniqid()]);
+        $this->library = Library::create(['name' => 'کتابخانۀ آزمایشی آمار', 'city' => 'قم', 'slug' => 'insights-more-' . uniqid()]);
     }
 
     private function work(string $title, array $attributes = []): Work
@@ -60,8 +60,8 @@ class InsightsMoreFiguresTest extends TestCase
         $this->copy($much);
         $this->copy($much);
         $this->copy($much);
-        $this->copy($this->work('اثر تک‌نسخه‌ی یکم'));
-        $this->copy($this->work('اثر تک‌نسخه‌ی دوم'));
+        $this->copy($this->work('اثر تک‌نسخۀ یکم'));
+        $this->copy($this->work('اثر تک‌نسخۀ دوم'));
 
         $figures = $this->figures()['copies_per_work'];
         $band = fn (?int $upto) => collect($figures['bands'])->firstWhere('upto', $upto);
@@ -77,8 +77,8 @@ class InsightsMoreFiguresTest extends TestCase
 
     public function test_each_century_names_its_most_copied_works()
     {
-        $early = $this->work('اثر رایج سده‌ی یازدهم');
-        $late = $this->work('اثر رایج سده‌ی سیزدهم');
+        $early = $this->work('اثر رایج سدۀ یازدهم');
+        $late = $this->work('اثر رایج سدۀ سیزدهم');
         $generic = $this->work('اشعار');
         foreach (['1010ق', '1020ق', '1250ق'] as $date) {
             $this->copy($early, ['copy_date_raw' => $date]);
@@ -97,8 +97,8 @@ class InsightsMoreFiguresTest extends TestCase
 
         $this->assertSame(11, $figures['counted']);
         $this->assertSame(7, $century(11)['count']);
-        $this->assertSame([['اثر رایج سده‌ی یازدهم', 2], ['اثر رایج سده‌ی سیزدهم', 1]], array_map(fn ($w) => [$w['title'], $w['count']], $century(11)['items']));
-        $this->assertSame([['اثر رایج سده‌ی سیزدهم', 3], ['اثر رایج سده‌ی یازدهم', 1]], array_map(fn ($w) => [$w['title'], $w['count']], $century(13)['items']));
+        $this->assertSame([['اثر رایج سدۀ یازدهم', 2], ['اثر رایج سدۀ سیزدهم', 1]], array_map(fn ($w) => [$w['title'], $w['count']], $century(11)['items']));
+        $this->assertSame([['اثر رایج سدۀ سیزدهم', 3], ['اثر رایج سدۀ یازدهم', 1]], array_map(fn ($w) => [$w['title'], $w['count']], $century(13)['items']));
         $this->assertSame([], $century(12)['items']);
     }
 
@@ -117,7 +117,7 @@ class InsightsMoreFiguresTest extends TestCase
             $this->copy($work);
         }
         // One copy alone does not make a much-copied work
-        $this->copy($this->work('اثر تک‌نسخه‌ی بی چاپ', ['author_id' => $author->id]));
+        $this->copy($this->work('اثر تک‌نسخۀ بی چاپ', ['author_id' => $author->id]));
 
         $figures = $this->figures()['unprinted'];
 
@@ -130,9 +130,9 @@ class InsightsMoreFiguresTest extends TestCase
 
     public function test_bound_volumes_are_counted_with_the_works_bound_together()
     {
-        $first = $this->work('رساله‌ی هم‌مجلد یکم');
-        $second = $this->work('رساله‌ی هم‌مجلد دوم');
-        $third = $this->work('رساله‌ی هم‌مجلد سوم');
+        $first = $this->work('رسالۀ هم‌مجلد یکم');
+        $second = $this->work('رسالۀ هم‌مجلد دوم');
+        $third = $this->work('رسالۀ هم‌مجلد سوم');
         foreach (['100', '200', '300'] as $key) {
             $this->copy($first, ['collection_key' => $key]);
             $this->copy($second, ['collection_key' => $key]);
@@ -141,7 +141,7 @@ class InsightsMoreFiguresTest extends TestCase
         // A volume with one treatise in the scope, a copy bound with nothing, and the same key in another library
         $this->copy($third, ['collection_key' => '900']);
         $this->copy($third);
-        $other = Library::create(['name' => 'کتابخانه‌ی دیگر آمار', 'city' => 'قم', 'slug' => 'insights-more-' . uniqid()]);
+        $other = Library::create(['name' => 'کتابخانۀ دیگر آمار', 'city' => 'قم', 'slug' => 'insights-more-' . uniqid()]);
         $this->copy($third, ['collection_key' => '100', 'library_id' => $other->id]);
 
         $figures = $this->figures()['collections'];
@@ -158,15 +158,15 @@ class InsightsMoreFiguresTest extends TestCase
         // The third work is with each of the others in one volume only, which is no pattern
         $this->assertCount(1, $figures['pairs']);
         $this->assertSame(3, $figures['pairs'][0]['count']);
-        $this->assertEqualsCanonicalizing(['رساله‌ی هم‌مجلد یکم', 'رساله‌ی هم‌مجلد دوم'], array_column($figures['pairs'][0]['works'], 'title'));
+        $this->assertEqualsCanonicalizing(['رسالۀ هم‌مجلد یکم', 'رسالۀ هم‌مجلد دوم'], array_column($figures['pairs'][0]['works'], 'title'));
     }
 
     public function test_copies_are_counted_by_the_catalogues_that_describe_them()
     {
         $source = fn (string $kind, string $title) => Source::create(['code' => 'insights-more-' . uniqid(), 'kind' => $kind, 'rank' => 10, 'title' => $title]);
-        $old = $source(Source::KIND_LIBRARY_CATALOGUE, 'فهرست کهنه‌ی آزمایشی');
-        $new = $source(Source::KIND_LIBRARY_CATALOGUE, 'فهرست تازه‌ی آزمایشی');
-        $rejected = $source(Source::KIND_LIBRARY_CATALOGUE, 'فهرست ردشده‌ی آزمایشی');
+        $old = $source(Source::KIND_LIBRARY_CATALOGUE, 'فهرست کهنۀ آزمایشی');
+        $new = $source(Source::KIND_LIBRARY_CATALOGUE, 'فهرست تازۀ آزمایشی');
+        $rejected = $source(Source::KIND_LIBRARY_CATALOGUE, 'فهرست ردشدۀ آزمایشی');
         $union = $source(Source::KIND_UNION_CATALOGUE, 'فهرستگان آزمایشی');
         $entry = fn (Manuscript $copy, Source $in, array $attributes = []) => SourceEntry::create($attributes + ['citable_type' => Manuscript::class,
             'citable_id' => $copy->id, 'source_id' => $in->id, 'volume_number' => 1, 'page_start' => 5, 'origin' => SourceEntry::ORIGIN_MATCH]);
@@ -210,8 +210,8 @@ class InsightsMoreFiguresTest extends TestCase
 
     public function test_a_note_gives_examples_from_the_figures_of_its_chart()
     {
-        $first = $this->work('رساله‌ی نمونه‌ی یکم');
-        $second = $this->work('رساله‌ی نمونه‌ی دوم');
+        $first = $this->work('رسالۀ نمونۀ یکم');
+        $second = $this->work('رسالۀ نمونۀ دوم');
         foreach (['100', '200', '300'] as $key) {
             $this->copy($first, ['collection_key' => $key, 'copy_date_raw' => '1100ق']);
             $this->copy($second, ['collection_key' => $key]);
@@ -220,16 +220,16 @@ class InsightsMoreFiguresTest extends TestCase
 
         $notes = \App\Support\InsightsNotes::for($this->figures());
 
-        $this->assertStringContainsString('«رساله‌ی نمونه‌ی یکم» و «رساله‌ی نمونه‌ی دوم» در ۳ مجموعه با هم آمده‌اند', implode(' ', $notes['collections']['examples']));
-        $this->assertStringContainsString('پرنسخه‌ترین اثر «رساله‌ی نمونه‌ی یکم» است، با ۴ نسخه', implode(' ', $notes['topWorks']['examples']));
-        $this->assertStringContainsString('بلندترین ستون سده‌ی ۱۱ است، با ۳ نسخه', implode(' ', $notes['timeline']['examples']));
+        $this->assertStringContainsString('«رسالۀ نمونۀ یکم» و «رسالۀ نمونۀ دوم» در ۳ مجموعه با هم آمده‌اند', implode(' ', $notes['collections']['examples']));
+        $this->assertStringContainsString('پرنسخه‌ترین اثر «رسالۀ نمونۀ یکم» است، با ۴ نسخه', implode(' ', $notes['topWorks']['examples']));
+        $this->assertStringContainsString('بلندترین ستون سدۀ ۱۱ است، با ۳ نسخه', implode(' ', $notes['timeline']['examples']));
     }
 
     public function test_the_page_shows_the_five_figures()
     {
-        $first = $this->work('رساله‌ی صفحه‌ی آمار یکم', ['author_id' => $this->author()->id]);
-        $second = $this->work('رساله‌ی صفحه‌ی آمار دوم', ['author_id' => $this->author()->id]);
-        $catalogue = Source::create(['code' => 'insights-more-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'فهرست آزمایشی صفحه‌ی آمار']);
+        $first = $this->work('رسالۀ صفحۀ آمار یکم', ['author_id' => $this->author()->id]);
+        $second = $this->work('رسالۀ صفحۀ آمار دوم', ['author_id' => $this->author()->id]);
+        $catalogue = Source::create(['code' => 'insights-more-' . uniqid(), 'kind' => Source::KIND_LIBRARY_CATALOGUE, 'rank' => 10, 'title' => 'فهرست آزمایشی صفحۀ آمار']);
         // Enough copies of one century for the scope's charts to be drawn (min_sample)
         foreach (['100', '200', '300', '400', '500', '600'] as $key) {
             foreach ([$first, $second] as $work) {
@@ -243,11 +243,11 @@ class InsightsMoreFiguresTest extends TestCase
             ->assertSee('هر اثر چند نسخه دارد')
             ->assertSee('پرنسخه‌ترین آثار هر سده')
             ->assertSee(e(route('search', ['type' => 'manuscripts', 'work_id' => $first->id, 'century' => 11, 'library_id' => $this->library->id])), false)
-            ->assertSee('آثار پرنسخه‌ی بی نشانی چاپ')
+            ->assertSee('آثار پرنسخۀ بی نشانی چاپ')
             ->assertSee('مجموعه‌ها: رساله‌های هم‌مجلد')
             ->assertSee('هر نسخه در چند فهرست وصف شده')
             ->assertSee('این نمودار را چگونه بخوانیم')
             ->assertSee('نمونه از همین ارقام')
-            ->assertSee('بلندترین ستون سده‌ی ۱۱ است، با ۱۲ نسخه');
+            ->assertSee('بلندترین ستون سدۀ ۱۱ است، با ۱۲ نسخه');
     }
 }

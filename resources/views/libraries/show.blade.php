@@ -29,7 +29,7 @@
             <x-suggest.field name="country" class="ms-1" />
         </p>
         <a href="#manuscripts" class="text-sm text-muted hover:text-cinnabar transition">
-            <span class="font-bold text-cinnabar tabular-nums">{{ Fa::num($library->manuscripts_count) }}</span> نسخه‌ی ثبت‌شده
+            <span class="font-bold text-cinnabar tabular-nums">{{ Fa::num($library->manuscripts_count) }}</span> نسخۀ ثبت‌شده
         </a>
         @if($library->full_name || $library->aliases)
             <div class="flex flex-wrap justify-center items-center gap-1.5 mt-1">
@@ -45,7 +45,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-3">
         <x-suggest.toggle type="library" />
-        <span class="text-xs text-muted">شناسه‌ی فهارس: <span class="font-mono text-ink font-bold">#{{ $library->id }}</span></span>
+        <span class="text-xs text-muted">شناسۀ فهارس: <span class="font-mono text-ink font-bold">#{{ $library->id }}</span></span>
     </div>
 
     <div class="min-w-0 space-y-10">
@@ -107,7 +107,7 @@
                                     onauxclick="if (event.button === 1) { window.open('{{ route('manuscripts.show', $ms) }}', '_blank'); }"
                                     class="hover:bg-paper cursor-pointer transition">
                                     <td class="py-2.5 px-3">
-                                        <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" onclick="event.stopPropagation()">{{ $ms->work?->primary_title ?? 'نسخه‌ی بی‌عنوان' }}</a>
+                                        <a href="{{ route('manuscripts.show', $ms) }}" class="font-semibold hover:text-cinnabar" onclick="event.stopPropagation()">{{ $ms->work?->primary_title ?? 'نسخۀ بی‌عنوان' }}</a>
                                     </td>
                                     <td class="py-2.5 px-3">{{ $ms->work?->author?->name ?? $ms->work?->author_name ?? '—' }}</td>
                                     <td class="py-2.5 px-3 font-semibold">@if($ms->shelfmark)<span dir="ltr">{{ Fa::digits($ms->shelfmark) }}</span>@else بی‌شماره @endif</td>

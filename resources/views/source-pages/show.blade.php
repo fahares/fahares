@@ -112,7 +112,7 @@
                         <section class="book-sheet__entry" @if($item) data-entry="{{ $item->item_key }}" @endif>
                             @if($block['continued'])
                                 @if($item)
-                                    <a href="{{ $item->pageUrl() }}" class="book-sheet__cont" data-entry-continued>ادامه‌ی «{{ $item->title ?: 'پیش‌گفتار' }}» از {{ Fa::digits($printed->unit() . ' ' . $item->page_start) }}</a>
+                                    <a href="{{ $item->pageUrl() }}" class="book-sheet__cont" data-entry-continued>ادامۀ «{{ $item->title ?: 'پیش‌گفتار' }}» از {{ Fa::digits($printed->unit() . ' ' . $item->page_start) }}</a>
                                 @endif
                                 @if(! empty($block['marks']))
                                     {{-- a catalogue's page: its works' headings and its copies' lines link their records --}}
@@ -221,10 +221,10 @@
 
             @if($viewer)
                 <x-ui.card data-viewer-card>
-                    <div class="text-xs text-muted mb-3">برگه‌ی چاپی</div>
+                    <div class="text-xs text-muted mb-3">برگۀ چاپی</div>
                     <button type="button" @click="$dispatch('open-catalog-viewer', @js($viewer))" class="block w-full group cursor-pointer" title="دیدن برگه در {{ $sourceName }}">
                         <div class="aspect-[3/4] overflow-hidden border border-line bg-white">
-                            <img src="{{ $printed->thumbUrl() }}" alt="{{ 'برگه‌ی ' . $printed->placeLabel() }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
+                            <img src="{{ $printed->thumbUrl() }}" alt="{{ 'برگۀ ' . $printed->placeLabel() }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:opacity-90 transition" onerror="this.closest('[data-viewer-card]').remove()">
                         </div>
                         <span class="block mt-1.5 text-xs font-semibold text-cinnabar">دیدن برگه</span>
                     </button>

@@ -121,6 +121,11 @@ final class EstimateText
         if (! $row || $row->year_from === null || (int) $row->from_depth !== 1 || ! isset(self::ALIVE[$row->from_rule])) {
             return null;
         }
+        // a period of the person's own life a reviewer approved (step 14.226): it is on this very page
+        if ($row->from_rule === Loader::RULE_PERIOD) {
+            return ['text' => "زنده در {$row->year_from} ق", 'reasons' => [['bound' => "زنده در {$row->year_from}",
+                'text' => 'دوره‌ای از زندگی‌اش که در همین صفحه ثبت است تا این سال بوده است.', 'title' => null, 'url' => null]]];
+        }
         if ($row->from_rule === Loader::RULE_SCRIBE) {
             $span = DB::table('people')->where('id', $personId)->first(['scribed_from', 'scribed_to']);
             if ($span && $span->scribed_from && $span->scribed_to - $span->scribed_from > \App\Services\PersonReviewQueue::MIXED_SPAN) {
@@ -172,6 +177,8 @@ final class EstimateText
         Loader::RULE_SCRIBE => ['نسخه‌ای را در این سال کتابت کرده است:', 'نسخه‌ای را زودتر از این سال کتابت نکرده است:'],
         Loader::RULE_AUTOGRAPH => ['نسخه‌ای به خط خودش در این سال کتابت شده است:', 'نسخه‌ای به خط خودش زودتر از این سال کتابت نشده است:'],
         Loader::RULE_PATRON => ['نسخه‌ای در این سال برای او کتابت شده است:', 'نسخه‌ای که برای او کتابت شده زودتر از این سال نیست:'],
+        // handled before the evidence is read (aliveIn): the period is the person's own
+        Loader::RULE_PERIOD => ['', ''],
     ];
 
     /** Why the bound holds; the record it names follows the text. A depth over one rests on another estimate. */
@@ -181,15 +188,18 @@ final class EstimateText
         if ($rule === null) {
             return 'تاریخ ثبت‌شده در فهرست';
         }
+        if ($rule === Loader::RULE_PERIOD) {
+            return $side === 'from' ? 'دوره‌ای از زندگی‌اش تا این سال بوده است:' : 'دوره‌ای از زندگی‌اش در این سال آغاز شده است:';
+        }
         if ($rule === Loader::RULE_COPY) {
-            return $sure ? 'کهن‌ترین نسخه‌ی تاریخ‌دار اثر در این سال کتابت شده است:' : 'نسخه‌ای از اثر به تخمین تا این سال کتابت شده است:';
+            return $sure ? 'کهن‌ترین نسخۀ تاریخ‌دار اثر در این سال کتابت شده است:' : 'نسخه‌ای از اثر به تخمین تا این سال کتابت شده است:';
         }
         if ($rule === Loader::RULE_DERIVED) {
             return match (true) {
-                $side === 'from' && $sure => 'اثری که این اثر بر پایه‌ی آن است در این سال تألیف شده است:',
-                $side === 'from' => 'اثری که این اثر بر پایه‌ی آن است به تخمین پس از این سال تألیف شده است:',
-                $sure => 'اثری که بر پایه‌ی این اثر است در این سال تألیف شده است:',
-                default => 'اثری که بر پایه‌ی این اثر است به تخمین پیش از این سال تألیف شده است:',
+                $side === 'from' && $sure => 'اثری که این اثر بر پایۀ آن است در این سال تألیف شده است:',
+                $side === 'from' => 'اثری که این اثر بر پایۀ آن است به تخمین پس از این سال تألیف شده است:',
+                $sure => 'اثری که بر پایۀ این اثر است در این سال تألیف شده است:',
+                default => 'اثری که بر پایۀ این اثر است به تخمین پیش از این سال تألیف شده است:',
             };
         }
         $who = self::PEOPLE[$rule] ?? 'شخص';

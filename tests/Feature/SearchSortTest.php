@@ -12,7 +12,7 @@ class SearchSortTest extends TestCase
 {
     public function test_browsing_is_sorted_by_the_chosen_order_with_undated_last(): void
     {
-        $library = Library::create(['name' => 'کتابخانه‌ی ترتیب', 'city' => 'قم', 'slug' => 'sort-lib-' . uniqid()]);
+        $library = Library::create(['name' => 'کتابخانۀ ترتیب', 'city' => 'قم', 'slug' => 'sort-lib-' . uniqid()]);
         $work = Work::create(['primary_title' => 'اثر ترتیب', 'clean_title' => 'اثر ترتیب', 'slug' => 'sort-work-' . uniqid(), 'volume_number' => 1, 'page_start' => 1]);
         foreach (['S-900' => 900, 'S-none' => null, 'S-500' => 500] as $shelfmark => $year) {
             Manuscript::create(['work_id' => $work->id, 'library_id' => $library->id, 'shelfmark' => $shelfmark, 'copy_date_hijri_year' => $year,

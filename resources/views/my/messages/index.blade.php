@@ -6,7 +6,7 @@
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-4">
     <div>
         <h1 class="font-naskh text-2xl sm:text-3xl font-bold text-ink leading-relaxed">پیام‌ها</h1>
-        <p class="mt-1 text-xs text-muted">پرسش‌های داوران درباره‌ی پیشنهادهای شما و پیام‌های مدیریت فهارس. به هر پیام همین‌جا، یا با پاسخ به ایمیل آن، پاسخ دهید.</p>
+        <p class="mt-1 text-xs text-muted">پرسش‌های داوران دربارۀ پیشنهادهای شما و پیام‌های مدیریت فهارس. به هر پیام همین‌جا، یا با پاسخ به ایمیل آن، پاسخ دهید.</p>
     </div>
 
     @forelse($threads as $t)

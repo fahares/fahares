@@ -59,7 +59,7 @@ class SourceCorrectionsTest extends TestCase
     protected function suggestAndApprove(Work|Manuscript $record, string $field, string $value)
     {
         $this->suggestJson(['type' => $record instanceof Work ? 'work' : 'manuscript', 'id' => $record->id, 'kind' => 'field',
-            'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگه‌ی چاپی را دیدم'])->assertOk();
+            'field_name' => $field, 'suggested_value' => $value, 'rationale_citation' => 'برگۀ چاپی را دیدم'])->assertOk();
         $s = FieldSuggestion::where('suggestable_id', $record->id)->where('status', 'pending')->latest('id')->firstOrFail();
         $admin = $this->admin();
         $admin->save();

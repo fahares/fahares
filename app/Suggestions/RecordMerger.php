@@ -139,7 +139,7 @@ class RecordMerger
     {
         $snapshot = $old['source_snapshot'] ?? null;
         if (! $snapshot || ! array_key_exists('added_scribe_ids', $old)) {
-            throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل نسخه‌ی حذف‌شده در همین لاگ (source_snapshot) هست.');
+            throw new InvalidArgumentException('این ادغام پیش از امکان بازگردانی خودکار ثبت شده است. اطلاعات کامل نسخۀ حذف‌شده در همین لاگ (source_snapshot) هست.');
         }
         $source = $this->restore(Manuscript::class, 'manuscripts', $snapshot['attributes']);
         DB::table('manuscript_script')->insertOrIgnore($snapshot['pivots']['manuscript_script'] ?? []);
@@ -282,7 +282,7 @@ class RecordMerger
         // Copies folded into one of the kept work's copies come back first (they belong to the restored work)
         foreach (array_reverse($old['folded_manuscripts'], true) as $data) {
             $kept = Manuscript::find($data['target_id'])
-                ?? throw new InvalidArgumentException("نسخه‌ی #{$data['target_id']}، که نسخه‌ای در آن ادغام شده بود، دیگر وجود ندارد.");
+                ?? throw new InvalidArgumentException("نسخۀ #{$data['target_id']}، که نسخه‌ای در آن ادغام شده بود، دیگر وجود ندارد.");
             $this->undoManuscriptMerge($kept, $data);
         }
         Manuscript::whereIn('id', $old['moved_manuscript_ids'] ?? [])->where('work_id', $target->id)->update(['work_id' => $source->id]);
@@ -404,7 +404,7 @@ class RecordMerger
     private function restore(string $class, string $table, array $attributes)
     {
         if ($class::find($attributes['id'])) {
-            throw new InvalidArgumentException("رکوردی با شناسه‌ی #{$attributes['id']} هم‌اکنون وجود دارد.");
+            throw new InvalidArgumentException("رکوردی با شناسۀ #{$attributes['id']} هم‌اکنون وجود دارد.");
         }
         DB::table($table)->insert(array_map(fn ($v) => is_array($v) ? json_encode($v, JSON_UNESCAPED_UNICODE) : $v, $attributes));
 

@@ -54,7 +54,7 @@ class PersonPageTabsTest extends TestCase
             'page_start' => 1,
             'scribe_id' => $scribe->id,
             'scribe_name' => $scribe->name,
-            'raw_text' => 'نسخه‌ی آزمایشی',
+            'raw_text' => 'نسخۀ آزمایشی',
         ]);
     }
 
@@ -94,7 +94,7 @@ class PersonPageTabsTest extends TestCase
 
         $this->get(route('people.show', $p))
             ->assertOk()
-            ->assertSee('اثر یا نسخه‌ی کتابت‌شده‌ای برای این شخص ثبت نشده است.')
+            ->assertSee('اثر یا نسخۀ کتابت‌شده‌ای برای این شخص ثبت نشده است.')
             ->assertDontSee('فهرست آثار و تألیفات')
             ->assertDontSee('نسخه‌های خطی کتابت‌شده توسط این شخص');
     }

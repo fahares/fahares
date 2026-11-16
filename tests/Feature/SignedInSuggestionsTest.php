@@ -36,7 +36,7 @@ class SignedInSuggestionsTest extends TestCase
 
     protected function suggestion(Manuscript $m): array
     {
-        return ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'نکته‌ای درباره‌ی این نسخه'];
+        return ['type' => 'manuscript', 'id' => $m->id, 'kind' => 'general', 'suggested_value' => 'نکته‌ای دربارۀ این نسخه'];
     }
 
     public function test_guests_cannot_suggest_but_can_still_send_site_feedback()
@@ -51,14 +51,14 @@ class SignedInSuggestionsTest extends TestCase
 
         // Site feedback stays open to guests, with its honeypot
         $this->postJson('/feedback', ['category' => 'bug', 'message' => 'جستجو کار نمی‌کند'])->assertOk();
-        $this->postJson('/feedback', ['category' => 'bug', 'message' => 'هرزنامه‌ی خودکار', 'website' => 'spam'])->assertStatus(422);
+        $this->postJson('/feedback', ['category' => 'bug', 'message' => 'هرزنامۀ خودکار', 'website' => 'spam'])->assertStatus(422);
         $this->assertSame(1, FieldSuggestion::where('kind', 'feedback')->count());
 
         // A guest sees the sign-in dialog, and the desk no longer asks for a guest name or email
         $this->get(route('manuscripts.show', $m))->assertOk()
             ->assertSee('برای ثبت آن یک ایمیل و گذرواژه بگذارید')
             ->assertDontSee('پیشنهادها به نام شما ثبت می‌شوند')
-            ->assertDontSee('نتیجه‌ی داوری را به این ایمیل خبر دهید');
+            ->assertDontSee('نتیجۀ داوری را به این ایمیل خبر دهید');
     }
 
     public function test_field_buttons_render_for_hover_with_the_toggle_hint_and_its_floating_copy()

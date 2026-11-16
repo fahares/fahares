@@ -112,7 +112,7 @@ class MergeComparisonTest extends TestCase
 
         // The reviewer sees the comparison for either record kept
         $this->actingAs($this->admin)->get("/admin/suggestions/{$s->id}")->assertOk()
-            ->assertSee('مقایسه‌ی فیلدها')->assertSee('fields[target][paper]', false)->assertSee('fields[source][paper]', false);
+            ->assertSee('مقایسۀ فیلدها')->assertSee('fields[target][paper]', false)->assertSee('fields[source][paper]', false);
 
         $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/approve", [
             'keep' => 'target',
@@ -145,7 +145,7 @@ class MergeComparisonTest extends TestCase
         $kept = $this->work(['primary_title' => 'اثر ماندنی', 'description' => 'معرفی نخست', 'bibliography' => ['الذریعة ۱/۲']]);
 
         $this->actingAs($this->admin)->get(route('admin.structure.show', ['work', $dup->id]) . '?' . http_build_query(['relation' => 'duplicate', 'target' => (string) $kept->id]))
-            ->assertOk()->assertSee('مقایسه‌ی فیلدها')->assertSee('معرفی دوم')->assertSee('fields[target][description]', false);
+            ->assertOk()->assertSee('مقایسۀ فیلدها')->assertSee('معرفی دوم')->assertSee('fields[target][description]', false);
 
         $this->actingAs($this->admin)->post(route('admin.structure.apply', ['work', $dup->id]), [
             'relation' => 'duplicate', 'target' => (string) $kept->id, 'keep' => 'target',
@@ -167,15 +167,15 @@ class MergeComparisonTest extends TestCase
 
     public function test_a_library_merge_takes_the_chosen_description_and_its_undo_restores_it()
     {
-        $dup = Library::create(['name' => 'کتابخانه‌ی دوم', 'city' => 'قم', 'slug' => 'mc-lib-' . uniqid(), 'description' => 'معرفی دقیق‌تر', 'full_name' => 'کتابخانه‌ی دوم شهر قم']);
-        $kept = Library::create(['name' => 'کتابخانه‌ی اصلی', 'city' => 'قم', 'slug' => 'mc-lib-' . uniqid(), 'description' => 'معرفی کوتاه']);
+        $dup = Library::create(['name' => 'کتابخانۀ دوم', 'city' => 'قم', 'slug' => 'mc-lib-' . uniqid(), 'description' => 'معرفی دقیق‌تر', 'full_name' => 'کتابخانۀ دوم شهر قم']);
+        $kept = Library::create(['name' => 'کتابخانۀ اصلی', 'city' => 'قم', 'slug' => 'mc-lib-' . uniqid(), 'description' => 'معرفی کوتاه']);
         $s = $this->duplicate($dup, $kept);
 
         $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/approve", ['keep' => 'target', 'fields' => ['target' => ['description' => 'source']]])
             ->assertSessionHasNoErrors();
         $kept->refresh();
-        $this->assertSame(['معرفی دقیق‌تر', 'کتابخانه‌ی دوم شهر قم'], [$kept->description, $kept->full_name]);
-        $this->assertContains('کتابخانه‌ی دوم', $kept->aliases);
+        $this->assertSame(['معرفی دقیق‌تر', 'کتابخانۀ دوم شهر قم'], [$kept->description, $kept->full_name]);
+        $this->assertContains('کتابخانۀ دوم', $kept->aliases);
 
         $this->actingAs($this->admin)->post("/admin/suggestions/{$s->id}/reopen")->assertSessionHas('success');
         $kept->refresh();
@@ -186,12 +186,12 @@ class MergeComparisonTest extends TestCase
     public function test_a_misspelt_person_name_becomes_a_hidden_search_form_and_the_undo_takes_it_back()
     {
         $wrong = $this->person('محمدباقر مجلسى غلط', ['bio_notes' => 'زندگی‌نامه از رکورد تکراری', 'death_year_hijri' => 1110, 'is_donor' => true]);
-        $right = $this->person('محمدباقر مجلسی', ['aliases' => ['علامه مجلسی'], 'bio_notes' => 'زندگی‌نامه‌ی اصلی']);
+        $right = $this->person('محمدباقر مجلسی', ['aliases' => ['علامه مجلسی'], 'bio_notes' => 'زندگی‌نامۀ اصلی']);
         $work = $this->work(['author_id' => $wrong->id, 'author_name' => $wrong->name]);
 
         // The tool, opened for the pair, shows the comparison with the name first
         $this->actingAs($this->admin)->get(route('admin.people.merge', ['source_id' => $wrong->id, 'target_id' => $right->id]))->assertOk()
-            ->assertSee('مقایسه‌ی فیلدها')->assertSee('نام رکورد حذف‌شونده نادرست است', false)->assertSee('fields[name]', false);
+            ->assertSee('مقایسۀ فیلدها')->assertSee('نام رکورد حذف‌شونده نادرست است', false)->assertSee('fields[name]', false);
 
         $this->actingAs($this->admin)->post(route('admin.people.merge'), [
             'source_id' => $wrong->id, 'target_id' => $right->id, 'compared' => "{$wrong->id}-{$right->id}",
@@ -216,7 +216,7 @@ class MergeComparisonTest extends TestCase
         $this->actingAs($this->admin)->post("/admin/audit-logs/{$log->id}/rollback")->assertSessionHas('success');
         $right->refresh();
         $this->assertNull($right->wrong_names);
-        $this->assertSame(['زندگی‌نامه‌ی اصلی', null, false], [$right->bio_notes, $right->death_year_hijri, $right->is_donor]);
+        $this->assertSame(['زندگی‌نامۀ اصلی', null, false], [$right->bio_notes, $right->death_year_hijri, $right->is_donor]);
         $this->assertSame($wrong->id, $work->fresh()->author_id);
         $this->assertSame('زندگی‌نامه از رکورد تکراری', Person::findOrFail($wrong->id)->bio_notes);
     }

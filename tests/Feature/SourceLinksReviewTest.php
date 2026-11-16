@@ -26,8 +26,8 @@ class SourceLinksReviewTest extends TestCase
         $source = Source::firstOrCreate(['code' => 'monzavi'], ['kind' => Source::KIND_BIBLIOGRAPHY, 'rank' => 30, 'title' => 'فهرستواره کتاب‌های فارسی', 'short_name' => 'فهرستواره']);
         $this->volume = SourceVolume::create(['source_id' => $source->id, 'volume_number' => 2, 'facsimile_code' => 'monzavi-test-' . uniqid()]);
         DB::table('source_pages')->insert([
-            ['source_volume_id' => $this->volume->id, 'page' => 10, 'text' => 'متن صفحه‌ی ده: تحفة الملوک در اخلاق'],
-            ['source_volume_id' => $this->volume->id, 'page' => 11, 'text' => 'متن صفحه‌ی یازده: تحفه شاهی'],
+            ['source_volume_id' => $this->volume->id, 'page' => 10, 'text' => 'متن صفحۀ ده: تحفة الملوک در اخلاق'],
+            ['source_volume_id' => $this->volume->id, 'page' => 11, 'text' => 'متن صفحۀ یازده: تحفه شاهی'],
         ]);
         $this->admin = User::firstOrCreate(['email' => 'links-admin@fahares.net'], ['name' => 'داور پیوندها', 'password' => 'password123', 'role' => 'admin']);
         $this->admin->forceFill(['role' => 'admin'])->save();
@@ -89,9 +89,9 @@ class SourceLinksReviewTest extends TestCase
 
         // the button only where a rule lets the filters in, counting the ties at its confidence and above
         $this->actingAs($this->admin)->get(route('admin.source-links.index', $filters))->assertOk()
-            ->assertSee('تأیید همه‌ی ۲ پیوند این پالایه', false);
+            ->assertSee('تأیید همۀ ۲ پیوند این پالایه', false);
         $this->actingAs($this->admin)->get(route('admin.source-links.index', ['source' => 'monzavi', 'method' => 'title_author']))->assertOk()
-            ->assertDontSee('تأیید همه‌ی', false)->assertSee('پالایه‌ی پیشنهادی', false);
+            ->assertDontSee('تأیید همۀ', false)->assertSee('پالایۀ پیشنهادی', false);
 
         $this->actingAs($this->admin)->post(route('admin.source-links.bulk-verify'), ['source' => 'monzavi', 'method' => 'title_author', 'expected' => 1])->assertStatus(422);
         $this->actingAs($this->admin)->post(route('admin.source-links.bulk-verify'), $filters + ['expected' => 3])->assertSessionHas('error');
@@ -119,7 +119,7 @@ class SourceLinksReviewTest extends TestCase
         $tie = $this->tie($a, 'ambiguous', 30, 'تحفه');
 
         $this->actingAs($this->admin)->get(route('admin.source-links.show', $tie))->assertOk()
-            ->assertSee('متن صفحه‌ی ده')->assertSee('متن صفحه‌ی یازده')->assertSee('تحفه شاهی')->assertSee('(پیوند کنونی)')
+            ->assertSee('متن صفحۀ ده')->assertSee('متن صفحۀ یازده')->assertSee('تحفه شاهی')->assertSee('(پیوند کنونی)')
             ->assertSee('value="' . $b->id . '"', false)->assertDontSee('value="' . $far->id . '"', false);
     }
 

@@ -28,7 +28,7 @@ class RelationInput
         if (! empty($relation['needs_text'])) {
             if (trim($input['suggested_value'] ?? '') === '') {
                 throw ValidationException::withMessages(['suggested_value' => match ($apply) {
-                    'rename_library' => 'نام تازه‌ی کتابخانه را بنویسید.',
+                    'rename_library' => 'نام تازۀ کتابخانه را بنویسید.',
                     'split' => 'بنویسید کدام بخش‌ها از رکورد دیگری‌اند.',
                     'person_period' => 'بنویسید کجا، از کی تا کی، و به استناد کدام مأخذ.',
                     default => 'نام دیگر را بنویسید.',
@@ -70,10 +70,10 @@ class RelationInput
         if ($apply === 'relocate') {
             $shelfmark = trim($input['shelfmark'] ?? '');
             if (! $target && $shelfmark === '') {
-                throw ValidationException::withMessages(['shelfmark' => 'کتابخانه‌ی تازه را انتخاب کنید یا شماره‌ی تازه‌ی نسخه را بنویسید.']);
+                throw ValidationException::withMessages(['shelfmark' => 'کتابخانۀ تازه را انتخاب کنید یا شمارۀ تازۀ نسخه را بنویسید.']);
             }
             if ((! $target || $target->id === (int) $record->library_id) && ($shelfmark === '' || $shelfmark === $record->shelfmark)) {
-                throw ValidationException::withMessages(['shelfmark' => 'کتابخانه و شماره‌ی تازه همان نشانی کنونی نسخه است.']);
+                throw ValidationException::withMessages(['shelfmark' => 'کتابخانه و شمارۀ تازه همان نشانی کنونی نسخه است.']);
             }
         }
         if ($relation['target'] && ! $target && empty($relation['target_optional'])) {

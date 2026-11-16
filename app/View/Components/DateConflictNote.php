@@ -53,7 +53,8 @@ class DateConflictNote extends Component
             ->orderByDesc('gap')->limit(30)->get())
             ->filter(fn ($c) => $this->side($c) !== null)
             // a person's own birth and death conflict once, under the death, not under both
-            ->reject(fn ($c) => $c->a_type === $c->b_type && $c->a_id === $c->b_id && $this->side($c) === 'b')
+            // (a period after the death is a conflict of the death alone: the page has no date of the period to put it under)
+            ->reject(fn ($c) => $c->a_type === $c->b_type && $c->a_id === $c->b_id && $this->side($c) === 'b' && $c->a_field !== \App\Support\DateEstimates\DateVar::PERIOD)
             // two rules over the same two dates (the scribe of a copy who is also its author) are one conflict: the widest
             ->unique(fn ($c) => $this->side($c) === 'a' ? "{$c->b_type}:{$c->b_id}:{$c->b_field}" : "{$c->a_type}:{$c->a_id}:{$c->a_field}")
             ->values();
@@ -94,8 +95,9 @@ class DateConflictNote extends Component
         $choices = [
             $this->choice(DateConflict::FIELD_LABELS[$this->field] . ' ' . self::OF_THIS[$this->type], $this->type, $this->id, $c,
                 ['field' => self::FIELDS[$this->field]]),
+            // a period of the life has no field of its own in the form: the answer is a note on the person
             $this->choice($sameRecord ? "{$fieldLabel} " . self::OF_THIS[$type] : "{$fieldLabel} «{$short}»", $type, $id, $c,
-                ['field' => self::FIELDS[$field]]),
+                isset(self::FIELDS[$field]) ? ['field' => self::FIELDS[$field]] : ['general' => true, 'value' => "{$fieldLabel} نادرست ثبت شده است: "]),
         ];
         if ($tie = self::TIES[$c->rule] ?? null) {
             // the report goes to the work or the copy of the two, since the tie is its field

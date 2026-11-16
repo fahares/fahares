@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
         VerifyEmail::toMailUsing(fn ($notifiable, string $url) => (new MailMessage)
             ->subject('تأیید ایمیل | فهارس')
             ->greeting('تأیید نشانی ایمیل')
-            ->line("{$notifiable->name} گرامی، برای تأیید این نشانی ایمیل در فهارس روی دکمه‌ی زیر بزنید.")
+            ->line("{$notifiable->name} گرامی، برای تأیید این نشانی ایمیل در فهارس روی دکمۀ زیر بزنید.")
             ->line('پس از تأیید، پیشنهادهایی که پیش‌تر بدون ورود و با همین ایمیل فرستاده‌اید به حساب شما وصل می‌شوند.')
             ->action('تأیید ایمیل', $url)
             ->line('این پیوند تا ۶۰ دقیقه معتبر است. اگر در فهارس حساب نساخته‌اید، این ایمیل را نادیده بگیرید.')
@@ -73,9 +73,9 @@ class AppServiceProvider extends ServiceProvider
         ResetPassword::toMailUsing(fn ($notifiable, string $token) => (new MailMessage)
             ->subject('بازیابی گذرواژه | فهارس')
             ->greeting('بازیابی گذرواژه')
-            ->line("{$notifiable->name} گرامی، درخواست بازیابی گذرواژه‌ی حساب شما در فهارس ثبت شد.")
-            ->action('تعیین گذرواژه‌ی تازه', route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]))
-            ->line('این پیوند تا ۶۰ دقیقه معتبر است. اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید؛ گذرواژه‌ی شما تغییر نمی‌کند.')
+            ->line("{$notifiable->name} گرامی، درخواست بازیابی گذرواژۀ حساب شما در فهارس ثبت شد.")
+            ->action('تعیین گذرواژۀ تازه', route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]))
+            ->line('این پیوند تا ۶۰ دقیقه معتبر است. اگر شما این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید؛ گذرواژۀ شما تغییر نمی‌کند.')
             ->salutation(\App\Models\SiteSetting::get('mail.salutation')));
 
         // Record pages share the readings of their fields so the per-field badges and the readings list can show them
