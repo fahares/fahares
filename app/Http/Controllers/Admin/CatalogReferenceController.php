@@ -148,7 +148,9 @@ class CatalogReferenceController extends Controller
     {
         $message = $reference->citable instanceof Manuscript
             ? 'نشانی نسخه‌ی «' . Fa::digits($reference->citable->shelfmark) . "» {$done}."
-            : 'پیوند «' . $reference->citable?->primary_title . "» {$done}.";
+            : ($reference->citable instanceof \App\Models\Person
+                ? 'زندگی‌نامه‌ی «' . $reference->citable->name . "» {$done}."
+                : 'پیوند «' . $reference->citable?->primary_title . "» {$done}.");
         if (! $request->expectsJson()) {
             return back()->with('success', $message);
         }
