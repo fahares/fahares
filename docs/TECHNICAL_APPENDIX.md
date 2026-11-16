@@ -11289,6 +11289,44 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان از `incipit_text`، `explicit_text` و `bibliography` ۳۴۵ اثر، و از ستون‌های آغاز، انجام، کاتب، تاریخ، `is_bita`، `is_autograph` و `metadata` ۵۶ نسخه.
   2. اجرای دو فرمان بالا.
   3. وارسی با اجرای دوباره.
+- **اجرای تولید (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
+  - پشتیبان: ستون‌های ۳۴۵ اثر و ۵۶ نسخه در `step14_202_backup.json` (md5 `8c892d88…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `add-corpus-works`: ۳۴۵ اثر. `rebuild-copies`: ۵۶ نسخه.
+  - اجرای دوم: `update 0` و `Would rebuild 0 copies`. `/tmp` کانتینر پاک شد.
+
+### گام ۱۴.۲۰۴: `CopyExtent` در قالب‌های بیشتر
+
+- **`separate()`:**
+  - «،» و «؛» درون `[…]` به U+E000 و U+E001 بدل می‌شوند. پس از شکستن قطعه، `fromText()` هر دو را برمی‌گرداند.
+  - «،» که پیش از واژه‌ی آخر آمده و شمار پس از آن است، به پس از واژه می‌رود: `(?<=\S)\s+،(\S+)\s+(?=N(گ|برگ|ص))` ← ` $1، `.
+  - `$count` تا دو کمانک را پس از شمار می‌پذیرد.
+  - سطر پس از شمار می‌تواند `N(-N)*` باشد.
+- **`fromText()`:**
+  - پیش از الگوی شمار، از پایان قطعه برداشته می‌شود: کروشه، یا `\([^()\[\]]*ف\s*:[^()\[\]]*\]` (ارجاعی که با «(» باز و با «]» بسته شده است).
+  - الگو `MARGIN` («(هامش)»، «(حاشیه)»، «(در هامش)») را پیش یا پس از بازه می‌پذیرد، و هر شمار `و (از) (…)` را پس از بازه. بازه از نخستین کمانک خوانده می‌شود.
+- **آزمون:** `test_a_count_in_more_of_the_catalogue_forms_is_read` در `CopyExtentTest`، با ۸ نمونه از متن فنخا. یکی از آن‌ها شمار چاپی درون کروشه است که نباید خوانده شود.
+- **تمرین روی `fahares_prod` محلی:**
+  - `fahares:fill-extents --apply`: `changed 256`. از آن‌ها `pages_out_of_folios` ۱۶۶ و `folios_corrected` ۱ (#225176، ۳ ← تهی، «1ص (140)») بود.
+  - ۸۹ نسخه‌ی دیگر: ۷۰ بازه و متن، ۱۷ تنها `extent_raw`، و ۲ صفحه. یکی از این دو #34690 است که «259ص» کتاب چاپی از آن رفت.
+  - اجرای دوم `changed` نداشت.
+- **`kept:no_count_in_text` (۴۱۶):** شمار برگ سایت با `N(گ|برگ|ص)` در ۳۹۱ نسخه در متن هست، ولی نه به قالب شمار، و در ۲۵ نسخه نیست. نمونه‌ها:
+  - عدد درون جمله: «ضمن 2 برگ»، «(بعد از 2 برگ)»، «فهرست رایانه‌ای، ج 3 ص 737»، «چاپ مهر 1350 ص 64»، «شهریور 140: 1338گ».
+  - شمار با قید: «12گ (31-42) در حاشیه»، «22گ حاشیه»، «34گ یک رو»، «9گ آخر»، «13گ یا 25ص»، «برابر 280گ»، «589-3ص».
+- **اجرا در تولید (پس از تأیید):** `fahares:fill-extents --apply` در یک `prod-run`. پیش از آن، پشتیبان از ستون‌های شمار نسخه‌هایی گرفته می‌شود که دگرگون می‌شوند. فهرست آن‌ها همان است که اجرای بی `--apply` با `--show` نشان می‌دهد.
+- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run`):**
+  - پشتیبان: ستون‌های شمار همه‌ی نسخه‌ها (`folios`، `pages`، `extent_raw` و بازه) در `step14_204_backup.json` (md5 `f236ba52…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
+  - `fill-extents --apply`: `changed 256`، `pages_out_of_folios 166`، `folios_corrected 1`. در تولید یک نسخه هم `kept:protected` بود که در رونوشت محلی نبود.
+  - اجرای دوم `changed` نداشت. `/tmp` کانتینر پاک شد. نمونه: #313921 اکنون برگ تهی، صفحه ۲ و «2ص (227-228)» دارد.
+
+### گام ۱۴.۲۰۵: ارتقای سرور، کش InnoDB، Meilisearch و php-fpm
+
+- **پیش از ارتقا (۲۴ آبان، خواندنی با `ssh fahares-server`):** ۲ هسته، ۵٫۳ GB حافظه و ۲ GB swap در کار، دیسک ۸۲٪ پر. `/proc/pressure/cpu` some avg10=۹۰، `/proc/pressure/io` some حدود ۶۰ و full تا ۱۴. steal در `vmstat` ۱۱ تا ۲۴٪. `@@innodb_buffer_pool_size` = ۱۲۸ MB و پایگاه `default` ۳٬۶۳۷ MB. در لاگ php-fpm: «server reached pm.max_children setting (6)».
+- **ارتقا (کاربر):** `nproc` ۳ (`lscpu`: سه socket، هر کدام یک هسته)، `free` ۱۱ GiB، `/` ۲۳۵ GB و ۴۱٪ پر.
+- **قفل نگهداری:** `~/.fahares/task-mgmt/upgrade-hold.sh` قفل `~/.fahares/prod.lock` را جدا از هر جلسه‌ی Claude نگه می‌دارد و pid خود را در `upgrade-hold.pid` می‌نویسد. برداشتن: `kill $(cat ~/.fahares/task-mgmt/upgrade-hold.pid)`. با ریستارت لپ‌تاپ از میان می‌رود و باید دوباره گرفته شود.
+- **Meilisearch:** `docker update --memory 3g --memory-swap 3g fahares-meilisearch`، بی ریستارت (پیش از آن ۱٫۵ GB و swap تا ۳ GB).
+- **MariaDB:** در Coolify، `StandaloneMariadb` با uuid `ywghcqimp5628ge4tygusi8q`، فیلد `mariadb_conf` را گرفت: `[mysqld]` و `innodb_buffer_pool_size = 4G`. این فیلد تنها با ریستارت پایگاه داده در Coolify اعمال می‌شود.
+- **php-fpm (`docker/php-fpm.conf`):** `pm.max_children` ۶ به ۱۲، `start_servers` ۴، `min_spare_servers` ۳ و `max_spare_servers` ۶. هر کارگر حدود ۱۰۰ MB، پس ۱۲ کارگر حدود ۱٫۲ GB.
+- **بودجه‌ی حافظه:** InnoDB ۴ GB، Meilisearch تا ۳ GB، php-fpm حدود ۱٫۲ GB، Coolify و سرویس‌های دیگر حدود ۱ GB؛ دست‌کم ۲ GB برای کش سیستم‌عامل می‌ماند.
 
 ### گام ۱۴.۲۰۶: استخراج‌گر `numbered_copies` و `sources:take-texts`
 
@@ -11328,41 +11366,3 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   1. پشتیبان ستون‌های `TextRefresh::COLUMNS` مأخذهای منبع ۱۰۰۰۲۰، و ستون `extractor` منبع.
   2. `scripts/dev/prod-run <session> -- 'php artisan sources:take-texts 100020 --extractor=numbered_copies'`.
   3. اجرای دوم باید «taken 0» بدهد.
-- **اجرای تولید (۲۴ آبان ۱۴۰۵، یک `prod-run`):**
-  - پشتیبان: ستون‌های ۳۴۵ اثر و ۵۶ نسخه در `step14_202_backup.json` (md5 `8c892d88…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
-  - `add-corpus-works`: ۳۴۵ اثر. `rebuild-copies`: ۵۶ نسخه.
-  - اجرای دوم: `update 0` و `Would rebuild 0 copies`. `/tmp` کانتینر پاک شد.
-
-### گام ۱۴.۲۰۴: `CopyExtent` در قالب‌های بیشتر
-
-- **`separate()`:**
-  - «،» و «؛» درون `[…]` به U+E000 و U+E001 بدل می‌شوند. پس از شکستن قطعه، `fromText()` هر دو را برمی‌گرداند.
-  - «،» که پیش از واژه‌ی آخر آمده و شمار پس از آن است، به پس از واژه می‌رود: `(?<=\S)\s+،(\S+)\s+(?=N(گ|برگ|ص))` ← ` $1، `.
-  - `$count` تا دو کمانک را پس از شمار می‌پذیرد.
-  - سطر پس از شمار می‌تواند `N(-N)*` باشد.
-- **`fromText()`:**
-  - پیش از الگوی شمار، از پایان قطعه برداشته می‌شود: کروشه، یا `\([^()\[\]]*ف\s*:[^()\[\]]*\]` (ارجاعی که با «(» باز و با «]» بسته شده است).
-  - الگو `MARGIN` («(هامش)»، «(حاشیه)»، «(در هامش)») را پیش یا پس از بازه می‌پذیرد، و هر شمار `و (از) (…)` را پس از بازه. بازه از نخستین کمانک خوانده می‌شود.
-- **آزمون:** `test_a_count_in_more_of_the_catalogue_forms_is_read` در `CopyExtentTest`، با ۸ نمونه از متن فنخا. یکی از آن‌ها شمار چاپی درون کروشه است که نباید خوانده شود.
-- **تمرین روی `fahares_prod` محلی:**
-  - `fahares:fill-extents --apply`: `changed 256`. از آن‌ها `pages_out_of_folios` ۱۶۶ و `folios_corrected` ۱ (#225176، ۳ ← تهی، «1ص (140)») بود.
-  - ۸۹ نسخه‌ی دیگر: ۷۰ بازه و متن، ۱۷ تنها `extent_raw`، و ۲ صفحه. یکی از این دو #34690 است که «259ص» کتاب چاپی از آن رفت.
-  - اجرای دوم `changed` نداشت.
-- **`kept:no_count_in_text` (۴۱۶):** شمار برگ سایت با `N(گ|برگ|ص)` در ۳۹۱ نسخه در متن هست، ولی نه به قالب شمار، و در ۲۵ نسخه نیست. نمونه‌ها:
-  - عدد درون جمله: «ضمن 2 برگ»، «(بعد از 2 برگ)»، «فهرست رایانه‌ای، ج 3 ص 737»، «چاپ مهر 1350 ص 64»، «شهریور 140: 1338گ».
-  - شمار با قید: «12گ (31-42) در حاشیه»، «22گ حاشیه»، «34گ یک رو»، «9گ آخر»، «13گ یا 25ص»، «برابر 280گ»، «589-3ص».
-- **اجرا در تولید (پس از تأیید):** `fahares:fill-extents --apply` در یک `prod-run`. پیش از آن، پشتیبان از ستون‌های شمار نسخه‌هایی گرفته می‌شود که دگرگون می‌شوند. فهرست آن‌ها همان است که اجرای بی `--apply` با `--show` نشان می‌دهد.
-- **اجرای تولید (۲۵ آبان ۱۴۰۵، یک `prod-run`):**
-  - پشتیبان: ستون‌های شمار همه‌ی نسخه‌ها (`folios`، `pages`، `extent_raw` و بازه) در `step14_204_backup.json` (md5 `f236ba52…`). به `fahares-sources/backups/step13/` منتقل و از کانتینر پاک شد.
-  - `fill-extents --apply`: `changed 256`، `pages_out_of_folios 166`، `folios_corrected 1`. در تولید یک نسخه هم `kept:protected` بود که در رونوشت محلی نبود.
-  - اجرای دوم `changed` نداشت. `/tmp` کانتینر پاک شد. نمونه: #313921 اکنون برگ تهی، صفحه ۲ و «2ص (227-228)» دارد.
-
-### گام ۱۴.۲۰۵: ارتقای سرور، کش InnoDB، Meilisearch و php-fpm
-
-- **پیش از ارتقا (۲۴ آبان، خواندنی با `ssh fahares-server`):** ۲ هسته، ۵٫۳ GB حافظه و ۲ GB swap در کار، دیسک ۸۲٪ پر. `/proc/pressure/cpu` some avg10=۹۰، `/proc/pressure/io` some حدود ۶۰ و full تا ۱۴. steal در `vmstat` ۱۱ تا ۲۴٪. `@@innodb_buffer_pool_size` = ۱۲۸ MB و پایگاه `default` ۳٬۶۳۷ MB. در لاگ php-fpm: «server reached pm.max_children setting (6)».
-- **ارتقا (کاربر):** `nproc` ۳ (`lscpu`: سه socket، هر کدام یک هسته)، `free` ۱۱ GiB، `/` ۲۳۵ GB و ۴۱٪ پر.
-- **قفل نگهداری:** `~/.fahares/task-mgmt/upgrade-hold.sh` قفل `~/.fahares/prod.lock` را جدا از هر جلسه‌ی Claude نگه می‌دارد و pid خود را در `upgrade-hold.pid` می‌نویسد. برداشتن: `kill $(cat ~/.fahares/task-mgmt/upgrade-hold.pid)`. با ریستارت لپ‌تاپ از میان می‌رود و باید دوباره گرفته شود.
-- **Meilisearch:** `docker update --memory 3g --memory-swap 3g fahares-meilisearch`، بی ریستارت (پیش از آن ۱٫۵ GB و swap تا ۳ GB).
-- **MariaDB:** در Coolify، `StandaloneMariadb` با uuid `ywghcqimp5628ge4tygusi8q`، فیلد `mariadb_conf` را گرفت: `[mysqld]` و `innodb_buffer_pool_size = 4G`. این فیلد تنها با ریستارت پایگاه داده در Coolify اعمال می‌شود.
-- **php-fpm (`docker/php-fpm.conf`):** `pm.max_children` ۶ به ۱۲، `start_servers` ۴، `min_spare_servers` ۳ و `max_spare_servers` ۶. هر کارگر حدود ۱۰۰ MB، پس ۱۲ کارگر حدود ۱٫۲ GB.
-- **بودجه‌ی حافظه:** InnoDB ۴ GB، Meilisearch تا ۳ GB، php-fpm حدود ۱٫۲ GB، Coolify و سرویس‌های دیگر حدود ۱ GB؛ دست‌کم ۲ GB برای کش سیستم‌عامل می‌ماند.
