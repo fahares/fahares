@@ -11396,3 +11396,17 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **`--list [N]`:** آخرین N رزرو.
 - **آغاز دفتر:** ۱۳۹ («دوره‌های زندگی شخص»، `claude/date-range-places`) و ۱۴۰ (گلپایگانی پس از ۱۴.۲۰۶، که در انتشار ۱۳۹ از ۱۳۷ به ۱۴۰ رفت).
 - **CLAUDE.md:** بخش «Backlog item numbers» پیش از «Push and deploy».
+
+### گام ۱۴.۲۱۲: `App\Review\DateConflictQueue`، صف `date` در «تصحیح جمعی»
+
+- **ثبت صف:** `CollectiveReview::QUEUES['date']`. نشانی‌ها `/contribute/date` و `/contribute/date/{id}`؛ `review_item_id` شناسه‌ی `date_conflicts` است.
+- **ورود (`open()`):** `DateConflict::open()`، `direct = 1`، `gap > DateConflictNote::MIN_GAP` (۲)، و بی هیچ پیشنهاد `approved` با همان `date_conflict_id`. ترتیب: `gap` نزولی، سپس `id`. فیلتر: `rule`.
+- **پاسخ‌ها (`review_answer`):** `a` (تاریخ دیرتر، سمت `a_*`)، `b` (تاریخ زودتر)، `tie` (پیوند دو رکورد، از `DateConflictNote::TIES` که عمومی شد؛ برای تولد و وفات یک شخص نیست)، `none` (هر دو درست‌اند). برچسب دکمه‌ها نام همان رکوردها را دارد و با کارت می‌آید (`card['answers']`)؛ `card['neutral']` دکمه‌ی نخست را از رنگ برجسته درمی‌آورد. هر دو را `contribute/show.blade.php` می‌خواند و صف‌های دیگر نمی‌دهند.
+- **پیشنهاد هر پاسخ:** `kind = general`، `review_queue = date`، `date_conflict_id`، و `suggestable` رکوردی که ایرادش گفته شده: برای `a` و `b` همان سمت، برای `tie` اثر یا نسخه‌ای که پیوند فیلد آن است، برای `none` سمت `a`. متن: «ناسازگاری تاریخ (‹برچسب›، فاصله ‹n› سال): ‹پاسخ›». توضیح کاربر در `rationale_citation`.
+- **وزن و آستانه:** بی‌تغییر (`SCHOLAR_WEIGHT = 2`، `ENOUGH = 3`)؛ `CollectiveReview::waiting()` مورد را با وزن هم‌سوی ۳ از صف عمومی بیرون می‌برد.
+- **تصمیم داور:**
+  - تأیید یک پاسخ در میز پیشنهادها: مسیر موجود `SuggestionController::approve` برای `general` («رسیدگی‌شده»؛ اصلاح رکورد دستی است) و `CollectiveReview::settle()` برای بقیه.
+  - «خطا نیست» در `/admin/date-conflicts`: `DateConflictController::dismiss` حالا `settle('date', id, 'none')` را هم در همان تراکنش صدا می‌زند.
+- **پنل «تناقض‌های تاریخی»:** شمار و وزن پاسخ‌های هر مورد (`CollectiveReview::opinionsOn`)، و ترتیب نخست با `agreement` نزولی.
+- **محدودیت:** اگر رکورد بیرون از این مسیر اصلاح شود و اجرای شبانه سطر `date_conflicts` را حذف کند، پاسخ‌های مانده `pending` می‌مانند (با `date_conflict_id` تهی) و در میز پیشنهادها دیده می‌شوند.
+- **تست:** `DateConflictQueueTest` (۷ آزمون: قاعده‌ی ورود، کارت، پاسخ، آستانه، تأیید در میز، «خطا نیست»).

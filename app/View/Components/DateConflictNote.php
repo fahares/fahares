@@ -29,7 +29,7 @@ class DateConflictNote extends Component
     private const OF_THIS = ['person' => 'این شخص', 'work' => 'این اثر', 'manuscript' => 'این نسخه'];
 
     /** The tie a rule rests on: the record whose page takes the report, and what the report says. */
-    private const TIES = [
+    public const TIES = [
         Loader::RULE_AUTHOR => ['work', 'این اثر از این شخص نیست'],
         Loader::RULE_TRANSLATOR => ['work', 'مترجم این اثر این شخص نیست'],
         Loader::RULE_DEDICATEE => ['work', 'این اثر به این شخص اهدا نشده است'],
