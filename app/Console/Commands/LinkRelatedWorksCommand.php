@@ -23,7 +23,8 @@ class LinkRelatedWorksCommand extends Command
         {--sample= : Write a random sample of each type, with the texts that gave it, to this file}
         {--per-kind=50 : Pairs of each type in the sample}
         {--no-index : Do not index the changed works again}
-        {--unmatched= : Write the entries not linked, with how far they matched, to this TSV file}';
+        {--unmatched= : Write the entries not linked, with how far they matched, to this TSV file}
+        {--by-rule= : Write the entries a rule other than title and author linked, with the work found, to this TSV file}';
 
     protected $description = 'Link the related works recorded as text (related_work, commentaries_and_glosses) to their works';
 
@@ -31,15 +32,25 @@ class LinkRelatedWorksCommand extends Command
     {
         $this->info('Reading the works…');
         $unmatched = [];
-        $each = $this->option('unmatched') ? function (int $id, string $side, string $how, array $entry) use (&$unmatched) {
-            if ($how !== 'title+author') {
-                $unmatched[] = implode("\t", [$id, $side, $how, implode(' = ', $entry['titles']), (string) $entry['author']]);
+        $byRule = [];
+        $each = $this->option('unmatched') || $this->option('by-rule') ? function (int $id, string $side, string $how, array $entry, ?array $pair) use (&$unmatched, &$byRule) {
+            $row = [$id, $side, $how, implode(' = ', $entry['titles']), (string) $entry['author']];
+            if (! $pair) {
+                $unmatched[] = implode("\t", $row);
+            } elseif ($how !== 'title+author') {
+                $byRule[] = [...$row, $side === 'related' ? $pair['parent'] : $pair['child'], $pair['type']];
             }
         } : null;
         ['pairs' => $pairs, 'count' => $count] = (new WorkRelationLinker)->pairs($each);
         if ($this->option('unmatched')) {
             file_put_contents($this->option('unmatched'), "work_id\tside\thow\ttitles\tauthor\n" . implode("\n", $unmatched) . "\n");
             $this->info(count($unmatched) . ' entries not linked written to ' . $this->option('unmatched'));
+        }
+        if ($this->option('by-rule')) {
+            $found = DB::table('works')->whereIn('id', array_column($byRule, 5))->get(['id', 'clean_title', 'author_name'])->keyBy('id');
+            file_put_contents($this->option('by-rule'), "work_id\tside\thow\ttitles\tauthor\tfound_id\ttype\tfound_title\tfound_author\n" . implode("\n", array_map(
+                fn ($r) => implode("\t", [...$r, $found[$r[5]]->clean_title ?? '', $found[$r[5]]->author_name ?? '']), $byRule)) . "\n");
+            $this->info(count($byRule) . ' entries linked by a rule written to ' . $this->option('by-rule'));
         }
         ksort($count);
         $this->table(['entries', 'count'], array_map(fn ($k, $n) => [$k, $n], array_keys($count), $count));

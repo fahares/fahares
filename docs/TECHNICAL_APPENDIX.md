@@ -11800,3 +11800,29 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
   - `add-corpus-works`: ۱۴۷ و ۶۳ اثر.
   - `rebuild-copies`: `Rebuilding 291 copies`، `164 scribes renamed`، `dates=120`.
   - اجرای دوم هر سه: `update 0`، `update 0` و `Would rebuild 0 copies`.
+
+### گام ۱۴.۲۲۹: قاعده‌های `WorkRelationLinker::byRule`
+- **[WorkRelationLinker](../app/Support/WorkRelationLinker.php):**
+  - **دو گذر در `pairs()`:** گذر یکم همه‌ی مدخل‌ها را می‌خواند و `named[side][work]` را می‌سازد: کلید عنوان‌هایی که هر اثر در «وابسته به» (`related`) یا «شروح و حواشی» (`children`) نام برده است. برای مدخل بی‌نامِ «،»دار، کلید هر آغاز عنوان (`heads()`) هم افزوده می‌شود. گذر دوم برای هر اثر و هر سو، نخست تطبیق ساده‌ی عنوان و پدیدآور را برای همه‌ی مدخل‌ها می‌گیرد و اثرهای گرفته‌شده را در `$taken` می‌گذارد. سپس `match()` برای مدخل‌های مانده با `$taken` دوباره صدا می‌شود و `byRule()` را می‌خواند.
+  - **`byRule()`، مدخل با پدیدآور**، به ترتیب، روی نامزدهای هم‌عنوان بیرون از `$taken`:
+    - `author after another title`: کلید پدیدآور نامزد (دست‌کم ۸ نویسه) پایان کلید پدیدآور مدخل است.
+    - `another name of the person`: کلید پدیدآور مدخل یکی از `authorKey`های `name` و `aliases` رکورد `author_id` نامزد است.
+    - `same year of death`: `died` مدخل با `death_year_hijri` همان رکورد برابر است و `nameWords()` دو نام اشتراک دارد. `NAME_WORDS` واژه‌های بی‌نشان («بن»، «محمد»، «الدین» …) را کنار می‌گذارد.
+  - **مدخل بی‌پدیدآور:**
+    - `author in the title`: برای هر آغاز عنوان، اثرهای آن کلید و نامزدهای عنوان کامل که `authorKey` مانده (بی کمانک تاریخ پایانی) پدیدآورشان است.
+    - `named back`: یگانه نامزدی که `named[سوی دیگر]` آن یکی از کلیدهای عنوان این اثر را دارد.
+    - مدخل «(N عنوان)» به هیچ‌کدام نمی‌رسد.
+  - **چند نامزد در یک قاعده** (و چند اثر هم‌عنوان و هم‌پدیدآور): همان که نام برده، با برچسب «…, named back».
+  - **`listedElsewhere`:** در سوی `children`، اگر اثر دیگری با همان کلید عنوان این اثر، عنوان نامزد را در فهرست خودش داشته باشد، نامزد «نام‌برده» شمرده نمی‌شود. اثر فرعی یک متن مادر دارد. در سوی `related` این شرط نیست: دو ترجمه‌ی هم‌عنوان هر کدام از متن خودشان به یگانه متن مادر می‌رسند.
+  - **اطمینان:** `CONFIDENCE_RULE_LESS = 5` از ۹۰ و ۷۰ کم می‌شود (۸۵ و ۶۵). جفتی که یک سو ساده و سوی دیگر با قاعده یافته، اطمینان بالاتر را می‌گیرد.
+  - **`linkedEntries()`:** اگر عنوان کامل مدخل بی‌نام به هیچ اثر رابطه‌داری نرسد، آغازهای عنوان آزموده می‌شوند و همان آغاز لینک می‌شود. در `children`، هر اثر یک مدخل می‌گیرد: مدخلی که `authorKey` پدیدآورش با اثر برابر است، وگرنه نخستین.
+- **[LinkRelatedWorksCommand](../app/Console/Commands/LinkRelatedWorksCommand.php):** `--by-rule=file.tsv` مدخل‌های پیوندخورده با قاعده را با اثر یافته می‌نویسد. `--unmatched` اکنون مدخل‌های بی‌جفت را می‌نویسد، نه هر چه برچسبش «title+author» نیست.
+- **تمرین روی `fahares_prod` (۲۵ آبان ۱۴۰۵):**
+  - پیش از تغییر، dry run: ۸٬۱۸۰ مدخل بی‌پیوند، «9577 relations: 7 to add».
+  - پس از تغییر: «10090 relations: 585 to add, 65 to remove, 9505 kept»، «Indexed 579 works again». اجرای دوم: «0 to add, 0 to remove».
+  - مدخل‌ها به قاعده (فرعی + وابسته): `named back` ۱٬۱۷۷ + ۴۲۰؛ `title+author, named back` ۴۸ + ۲۶۹؛ `author after another title` ۴۲ + ۲۵۷ (و ۲ با named back)؛ `author in the title` ۶۹ + ۱۶۱ (و ۱)؛ `same year of death` ۳۸ + ۲۸ (و ۲)؛ `another name of the person` ۸ + ۹. جمع ۲٬۵۳۱.
+  - از این‌ها مدخل‌هایی که جفتشان پیش از این ثبت نبود (یک جفت تازه گاه از هر دو سو شمرده می‌شود): `named back` ۳۱۸، `author after another title` ۱۴۳، `title+author, named back` ۱۱۸، `author in the title` ۹۲، `same year of death` ۲۴، `another name of the person` ۱۱. نوع‌روشن‌شده: ۷۶. بقیه جفتی‌اند که از سوی دیگر ثبت بود.
+  - مانده، ۵٬۶۴۹ مدخل: بی‌اثر در پایگاه ۲٬۳۰۰، بی‌پدیدآور ۱٬۹۴۳، هم‌عنوان در دو سو ۸۶۸، با پدیدآور دیگر ۳۳۵، چند اثر هم‌عنوان و هم‌پدیدآور ۲۰۳.
+  - `linkedEntries` روی همه‌ی آثار دارای فهرست شروح: پیش از تغییر ۱۴۱ اثر یک اثر را از دو مدخل لینک می‌کردند (۲۰۴ لینک افزوده)، پس از آن صفر.
+- **آزمون:** `LinkRelatedWorksTest::test_the_rules_link_an_author_written_another_way_and_a_work_that_names_this_one_back`.
+- **اجرا در تولید، پس از استقرار:** پشتیبان `work_relations`، سپس `scripts/dev/prod-run <session> -- 'php artisan works:link-related'`.
