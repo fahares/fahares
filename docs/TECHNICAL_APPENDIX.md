@@ -11874,3 +11874,12 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **تمرین (`fahares_prod`):** `created 1490`، `exists 23`؛ اجرای دوم `exists 1513`؛ `--undo` بی `--apply`: `removed 1490`. در پایگاه: `name_llm` ۱٬۰۵۳ سطر با اطمینان ۹۰ به بالا و ۴۳۷ سطر زیر آن، همه با یادداشت شاهد. پیوندهای این تمرین در کپی محلی مانده‌اند.
 - **آزمون:** `tests/Feature/PersonLivesReviewTest.php` (دو آزمون تازه).
 - **اجرا در تولید پس از استقرار:** پشتیبان سطرهای `source_entries` با `citable_type = Person` و `source_id` طبقات، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_232_tabaqat.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.
+
+### گام ۱۴.۲۳۷: `person_lives_step14_237_ayan.json`
+
+- **صافی (`blocker.py . ayan`):** ۱۱٬۱۶۰ مدخل بی‌پیوندِ ۶۰ نویسه به بالا؛ ۲٬۶۹۱ با نامزد (۱٬۶۷۹ با یک نامزد، ۵۴۲ با دو، ۲۷۵ با سه، ۵۲۵ با چهار) و پس از کنار رفتن ارجاع‌ها ۲٬۶۴۵ مدخل. أعیان الفبایی است و جلدهایش سده ندارند، پس پیش‌فرض سال جلد به کار نمی‌رود. بازیابی روی پیوندهای موجود همان ۸۶٫۴٪ است.
+- **`export.sh`:** پیوندهای `match_method = name_llm` در سنجه‌ی بازیابی نمی‌آیند، چون خود همین روش آن‌ها را ساخته است.
+- **داوری:** ۵۳ زیرعامل Sonnet، دستور `brief.txt` با نام «أعیان الشیعة». ۱٬۰۴۲ پیوند، ۱٬۵۹۵ «هیچ‌کدام».
+- **`build.py ayan 14.237 <file>`:** `pointer_entry 8` (متن زیر ۱۷۰ نویسه با «ذكر في»، «يأتي»، «راجع» و مانند آن)، `person_twice 115`، `dropped_second_entry 133`. خروجی ۹۰۹ پیوند: ۵۹۴ با ۹۰ به بالا، ۲۴۰ با ۸۰ تا ۸۹، ۷۵ زیر ۸۰.
+- **تمرین (`fahares_prod`):** `created 863`، `exists 46`؛ اجرای دوم `exists 909`. پیوندهای این تمرین در کپی محلی مانده‌اند.
+- **اجرا در تولید پس از استقرار:** پشتیبان، سپس `php artisan sources:tie-person-lives --file=database/data/person_lives_step14_237_ayan.json`، اول بی `--apply`. بازگشت: همان با `--undo --apply`.

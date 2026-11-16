@@ -14,7 +14,7 @@ production only loads the judged file.
 4. Each batch is judged by one model agent with the instructions in `brief.txt` (Sonnet subagents of Claude Code in
    step 14.232). An agent answers with a candidate's number or 0, the candidate's name, a confidence, and a phrase
    quoted from the entry.
-5. `python3 build.py <data-file.json>` (copied beside the batches) checks the answers and writes the data file: an
+5. `python3 build.py <source-code> <step> <data-file.json>` (copied beside the batches) checks the answers and writes the data file: an
    answer whose number and name disagree is dropped, an unquoted phrase caps the confidence at 85, and of two
    entries that chose one person the surer stays, at 89 at most.
 6. `php artisan sources:tie-person-lives --file=<data-file.json>` shows what it would make; `--apply` saves the ties

@@ -2,7 +2,7 @@ You are judging entity links for a catalogue of Persian and Arabic manuscripts. 
 
 Input file (read all of it, in pages if it is long): <dir>/full/batch_NNN.json
 
-It is a JSON list of up to 50 entries from the biographical dictionary «طبقات أعلام الشیعة» (Agha Bozorg Tehrani). Each entry has `id`, `volume`, `heading`, `text` (the opening of the entry, up to 800 characters, « / » marks a line break) and `candidates`: 1 to 4 people from the catalogue's own records, each with `n`, `name` (usually «nisba or laqab، given name بن father»), `other_names`, `dates` (life dates as the catalogue has them; «ق 11» means the 11th Hijri century; a «؟» means doubt) and up to 8 `works` titles.
+It is a JSON list of up to 50 entries from the biographical dictionary <title and author of the source>. Each entry has `id`, `volume`, `heading`, `text` (the opening of the entry, up to 800 characters, « / » marks a line break) and `candidates`: 1 to 4 people from the catalogue's own records, each with `n`, `name` (usually «nisba or laqab، given name بن father»), `other_names`, `dates` (life dates as the catalogue has them; «ق 11» means the 11th Hijri century; a «؟» means doubt) and up to 8 `works` titles.
 
 For each entry decide: is this entry the biography of one of the candidates, i.e. the same historical person? Answer with that candidate's `n`, or 0 when none of them is the subject of the entry. Most candidates were found by a loose name match, so 0 is a frequent and correct answer. A wrong link is worse than a missed one.
 
