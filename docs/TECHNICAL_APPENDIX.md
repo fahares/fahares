@@ -11327,3 +11327,11 @@ docker run -d --name fahares-meilisearch --network coolify --restart always \
 - **MariaDB:** در Coolify، `StandaloneMariadb` با uuid `ywghcqimp5628ge4tygusi8q`، فیلد `mariadb_conf` را گرفت: `[mysqld]` و `innodb_buffer_pool_size = 4G`. این فیلد تنها با ریستارت پایگاه داده در Coolify اعمال می‌شود.
 - **php-fpm (`docker/php-fpm.conf`):** `pm.max_children` ۶ به ۱۲، `start_servers` ۴، `min_spare_servers` ۳ و `max_spare_servers` ۶. هر کارگر حدود ۱۰۰ MB، پس ۱۲ کارگر حدود ۱٫۲ GB.
 - **بودجه‌ی حافظه:** InnoDB ۴ GB، Meilisearch تا ۳ GB، php-fpm حدود ۱٫۲ GB، Coolify و سرویس‌های دیگر حدود ۱ GB؛ دست‌کم ۲ GB برای کش سیستم‌عامل می‌ماند.
+
+### گام ۱۴.۲۱۰: `scripts/dev/reserve-backlog`
+
+- **کار:** شماره‌ی بعدی = یکی بیش از بزرگ‌ترین شماره‌ی دفتر (`~/.fahares/backlog.tsv`، ستون نخست) و بزرگ‌ترین `### N.` در `docs/BACKLOG.md` شاخه‌ی `origin/main` (ارقام فارسی به لاتین برگردانده می‌شوند). زیر `flock` روی `backlog.tsv.lock`. سطر دفتر: شماره، زمان، جلسه، عنوان.
+- **`--list [N]`:** آخرین N رزرو.
+- **آغاز دفتر:** ۱۳۹ («دوره‌های زندگی شخص»، `claude/date-range-places`) و ۱۴۰ (گلپایگانی پس از ۱۴.۲۰۶، که در انتشار ۱۳۹ از ۱۳۷ به ۱۴۰ رفت).
+- **CLAUDE.md:** بخش «Backlog item numbers» پیش از «Push and deploy».
+

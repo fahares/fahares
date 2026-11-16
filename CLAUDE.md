@@ -19,6 +19,16 @@ machine, the last section, "Collaborators on another machine", replaces the rule
   chronology row and writes the new phase number to `~/.fahares/phase`, which `reserve-step` reads. Phase 14 opened on
   11 Aban 1405; phase 13 ends at 13.173 (13.174 and 13.175 were renumbered 14.2 and 14.3 and stay unused).
 
+## Backlog item numbers
+
+- Take the number of a new `docs/BACKLOG.md` item («### N. …») only from `scripts/dev/reserve-backlog "short title"
+  <session-name>`. It prints the next free number from a shared registry outside git (`~/.fahares/backlog.tsv`) under a
+  lock, one above both the registry and origin/main's backlog.
+- Reserve before writing the item, and use that number in the item, in step entries and in code comments. Never take
+  the next number from `docs/BACKLOG.md` itself: another session's branch may already hold it.
+- A reserved number that is not used stays as a gap; never reuse it. `scripts/dev/reserve-backlog --list` shows the
+  recent reservations.
+
 ## Push and deploy
 
 A push to `main` deploys to production (Coolify) and runs the migrations, so pushes are batched.

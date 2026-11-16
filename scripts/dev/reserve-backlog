@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Reserve the next item number for docs/BACKLOG.md («### N. …»), so that parallel sessions never write two items with the
+# same number (step 14.210: 129, 131 and 137 were each taken twice in two days). Like scripts/dev/reserve-step, the
+# registry lives outside git, shared by every worktree on this machine, and is locked with flock.
+#
+#   scripts/dev/reserve-backlog "short title" <session-name>   reserve and print the next number, e.g. 141
+#   scripts/dev/reserve-backlog --list [N]                      show the last N reservations (default 15)
+#
+# The next number is one above the highest of the registry and of the items already in origin/main's backlog, so an item
+# written by hand still counts. A reservation that is never used stays as a gap; never reuse it.
+set -euo pipefail
+
+REGISTRY="${FAHARES_BACKLOG_FILE:-$HOME/.fahares/backlog.tsv}"
+REPO="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
+
+mkdir -p "$(dirname "$REGISTRY")"
+touch "$REGISTRY"
+
+if [[ "${1:-}" == "--list" ]]; then
+    tail -n "${2:-15}" "$REGISTRY" | column -t -s $'\t'
+    exit 0
+fi
+
+title="${1:?usage: reserve-backlog \"short title\" <session-name>}"
+session="${2:?usage: reserve-backlog \"short title\" <session-name>}"
+
+exec 9>>"$REGISTRY.lock"
+flock -w 30 9
+
+# Highest item in origin/main's backlog (Persian digits), fetched quietly; 0 when unreadable
+git -C "$REPO" fetch -q origin main 2>/dev/null || true
+in_docs=$(git -C "$REPO" show origin/main:docs/BACKLOG.md 2>/dev/null \
+    | sed 'y/۰۱۲۳۴۵۶۷۸۹/0123456789/' \
+    | grep -oE '^### [0-9]+\.' | grep -oE '[0-9]+' | sort -n | tail -1 || true)
+in_registry=$(cut -f1 "$REGISTRY" | grep -E '^[0-9]+$' | sort -n | tail -1 || true)
+
+last=$(( ${in_docs:-0} > ${in_registry:-0} ? ${in_docs:-0} : ${in_registry:-0} ))
+item=$(( last + 1 ))
+printf '%s\t%s\t%s\t%s\n' "$item" "$(date '+%F %H:%M')" "$session" "${title//$'\t'/ }" >> "$REGISTRY"
+echo "$item"
